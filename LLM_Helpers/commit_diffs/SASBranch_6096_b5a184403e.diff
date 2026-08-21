@@ -1,0 +1,850 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6096
+# Commit: b5a184403ef9fdd75d3dd30c5e3a3ef070b56f55
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1125ab30704a50318e65661e6666c1c0c1664e08
+# Title: Ensure via CI and corresponding SAS define names turn values are scaled depending on game speed when needed
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	2	.github/workflows/README.md
+1	0	.github/workflows/build.yml
+1	1	.github/workflows/build/bbai_log.py
+1	1	.github/workflows/build/sas_game_record_log.py
+94	0	.github/workflows/build/turn_define_gamespeed.py
+1	0	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+27	26	Assets/XML/GlobalDefines_advciv_sas.xml
+2	2	CvGameCoreDLL/BBAILog.cpp
+4	4	CvGameCoreDLL/CvCity.cpp
+6	6	CvGameCoreDLL/CvCityAI.cpp
+2	1	CvGameCoreDLL/CvDeal.cpp
+11	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	0	CvGameCoreDLL/CvGameCoreUtils.h
+2	1	CvGameCoreDLL/CvTeamAI.cpp
+2	2	CvGameCoreDLL/CvUnit.cpp
+8	8	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/SASGameRecordLog.cpp
+5	3	CvGameCoreDLL/UWAIAgent.cpp
+3	3	CvGameCoreDLL/WarUtilityAspect.cpp
+1	1	README.md
+5	3	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 .github/workflows/build/turn_define_gamespeed.py
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 20952a982..e092ff6ab 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -71,6 +71,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
+ - [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
+ - [`build/launch_guard.py`](#buildlaunch_guardpy)
+ - [`build/define_int_bounds.py`](#builddefine_int_boundspy)
++- [`build/turn_define_gamespeed.py`](#buildturn_define_gamespeedpy)
+ - [`build/xml_comments.py`](#buildxml_commentspy)
+ - [`build/xml_suspicious_angle_tags.py`](#buildxml_suspicious_angle_tagspy)
+ - [`build/xml_suspicious_text_chars.py`](#buildxml_suspicious_text_charspy)
+@@ -150,6 +151,13 @@ Verifies `SASDefineGuard.py` exists and its int/string sentinel constants match
+ 
+ Verifies `GlobalDefines_advciv_sas.xml` integer values stay within `[-100000, 100000]`, except specific intentional outliers such as the launch-guard sentinel checked by [`build/launch_guard.py`](#buildlaunch_guardpy) and the high bonus-Fallout scrub worker value.
+ 
++### `build/turn_define_gamespeed.py`
++
++Verifies turn-valued integer `SAS_*` defines make their game-speed semantics explicit in the define name. `TURN(S)_NORMAL_GAMESPEED` means the XML value is expressed at Normal speed and code must scale it with the appropriate game-speed percentage; `TURN(S)_UNSCALED_GAMESPEED` means literal game/path turns are intentionally kept unchanged across game speeds. The check ignores non-duration uses such as `SAS_DO_TURN_*` function-scope names, `...PER_TURN` rates, and `...PATH_TURN_VALUE...` score weights. It also recognizes legacy-looking maximum countdown, minimum/maximum age, and log-interval names so those cannot silently evade the convention.
++
++This naming rule was added after auditing turn gates while implementing non-combat food-production allocation: the new production gate correctly needed `TrainPercent` scaling, nearby UWAI contact limits correctly represented unscaled movement/path turns, and the victory-denial countdown windows were found to need `VictoryDelayPercent` scaling.
++The checker intentionally validates naming/declared intent rather than trying to infer the correct scaling formula from C++: code review still decides whether a Normal-speed value should use `TrainPercent`, `ConstructPercent`, `VictoryDelayPercent`, or another game-speed field. The explicit names make that audit grep-friendly and prevent ambiguous raw turn gates from being added silently.
++
+ ### `build/xml_comments.py`
+ 
+ Verifies XML comments under `Assets/XML` do not contain illegal double hyphen `--` and are not left unclosed.
+@@ -228,11 +236,11 @@ Verifies main-menu opening music has a valid `Audio2DScripts.xml` trigger/fixed
+ 
+ ### `build/bbai_log.py`
+ 
+-Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added. The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
++Verifies BBAI logging is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. Every integer `SAS_BBAI_*` define is discovered automatically and required to be `0`, so dedicated categories such as Citizen, Culture, Evacuation, Worker, and Worker-sea logging cannot be omitted from the check when categories are added. The only explicit nonzero exceptions are `SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100` and `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1`; these configure how enabled logging behaves but do not enable logging themselves.
+ 
+ ### `build/sas_game_record_log.py`
+ 
+-Verifies the independent game-record report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; `SAS_GAME_RECORD_TURN_INTERVAL=10` and `SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1` are allowed because they configure how enabled records behave but do not enable record logging themselves.
++Verifies the independent game-record report is disabled by default in `Assets/XML/GlobalDefines_advciv_sas.xml`. `SAS_GAME_RECORD_LOG_LEVEL` must stay `0`; `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10` and `SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1` are allowed because they configure how enabled records behave but do not enable record logging themselves.
+ 
+ ### `build/fonts.py`
+
+diff --git a/.github/workflows/build.yml b/.github/workflows/build.yml
+index cc212b486..d31aba97a 100644
+--- a/.github/workflows/build.yml
++++ b/.github/workflows/build.yml
+@@ -23,6 +23,7 @@ jobs:
+       - run: python .github/workflows/build/global_defines_nonempty.py
+       - run: python .github/workflows/build/launch_guard.py
+       - run: python .github/workflows/build/define_int_bounds.py
++      - run: python .github/workflows/build/turn_define_gamespeed.py
+       - run: python .github/workflows/build/xml_comments.py
+       - run: python .github/workflows/build/xml_suspicious_angle_tags.py
+       - run: python .github/workflows/build/xml_suspicious_text_chars.py
+
+diff --git a/.github/workflows/build/bbai_log.py b/.github/workflows/build/bbai_log.py
+index 25823575c..49f8f6abf 100644
+--- a/.github/workflows/build/bbai_log.py
++++ b/.github/workflows/build/bbai_log.py
+@@ -16,7 +16,7 @@ from xml_defines import get_default_repo_root, read_global_define_ints, require_
+ 
+ EXPECTED_NONZERO_LOGGING_DEFAULTS = {
+ 	# These configure enabled logging but do not enable it themselves.
+-	"SAS_BBAI_SCORE_LOG_INTERVAL": 100,
++	"SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED": 100,
+ 	"SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME": 1,
+ }
+
+diff --git a/.github/workflows/build/sas_game_record_log.py b/.github/workflows/build/sas_game_record_log.py
+index 5eebbc4e7..22065ddc5 100644
+--- a/.github/workflows/build/sas_game_record_log.py
++++ b/.github/workflows/build/sas_game_record_log.py
+@@ -17,7 +17,7 @@ from xml_defines import get_default_repo_root, read_global_define_ints, require_
+ EXPECTED_GAME_RECORD_DEFAULTS = {
+ 	"SAS_GAME_RECORD_LOG_LEVEL": 0,
+ 	# These configure enabled record logging but do not enable it themselves.
+-	"SAS_GAME_RECORD_TURN_INTERVAL": 10,
++	"SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED": 10,
+ 	"SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME": 1,
+ }
+
+diff --git a/.github/workflows/build/turn_define_gamespeed.py b/.github/workflows/build/turn_define_gamespeed.py
+new file mode 100644
+index 000000000..1097661a5
+--- /dev/null
++++ b/.github/workflows/build/turn_define_gamespeed.py
+@@ -0,0 +1,94 @@
++#!/usr/bin/env python3
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# Build check: turn-valued SAS integer defines must state whether their value is
++# expressed at Normal game speed and scaled by code, or intentionally unscaled.
++
++from pathlib import Path
++import argparse
++import re
++import sys
++
++sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "lib"))
++
++from xml_defines import get_default_repo_root, read_global_define_ints
++
++
++NORMAL_PATTERN = re.compile(r"_(?:TURN|TURNS)_NORMAL_GAMESPEED(?:_|$)")
++UNSCALED_PATTERN = re.compile(r"_(?:TURN|TURNS)_UNSCALED_GAMESPEED(?:_|$)")
++
++
++def has_temporal_turn_token(name: str) -> bool:
++	"""Return True for standalone turn counts/thresholds, not scopes or per-turn rates."""
++	tokens = name.split("_")
++	for index, token in enumerate(tokens):
++		if token not in {"TURN", "TURNS"}:
++			continue
++
++		# SAS_DO_TURN_* names identify the function/scope, not a turn-valued define.
++		if token == "TURN" and index > 0 and tokens[index - 1] == "DO":
++			continue
++
++		# Values expressed per turn are rates/weights rather than a number of turns.
++		if token == "TURN" and index > 0 and tokens[index - 1] == "PER":
++			continue
++		if token == "TURN" and index > 1 and tokens[index - 2:index] == ["PER", "ANARCHY"]:
++			continue
++
++		# e.g. PATH_TURN_VALUE_PENALTY: TURN describes the unit of a score penalty.
++		if token == "TURN" and index + 1 < len(tokens) and tokens[index + 1] == "VALUE":
++			continue
++
++		return True
++	return False
++
++
++def looks_like_legacy_turn_quantity(name: str) -> bool:
++	# These older names encode turn counts without a TURN(S) unit token. Keep them
++	# covered so a future rename cannot silently drop the game-speed classification.
++	return ("_MAX_COUNTDOWN_" in name or name.endswith("_MIN_AGE") or name.endswith("_MAX_AGE") or name.endswith("_LOG_INTERVAL"))
++
++
++def check_turn_define_gamespeed(repo_root: Path) -> tuple[list[str], int, int]:
++	failures: list[str] = []
++	normal_count = 0
++	unscaled_count = 0
++
++	for name in sorted(read_global_define_ints(repo_root)):
++		if not (has_temporal_turn_token(name) or looks_like_legacy_turn_quantity(name)):
++			continue
++
++		has_normal = NORMAL_PATTERN.search(name) is not None
++		has_unscaled = UNSCALED_PATTERN.search(name) is not None
++		if has_normal and has_unscaled:
++			failures.append(f"{name}: contains both NORMAL_GAMESPEED and UNSCALED_GAMESPEED turn classifications")
++		elif has_normal:
++			normal_count += 1
++		elif has_unscaled:
++			unscaled_count += 1
++		else:
++			failures.append(f"{name}: turn-valued define must contain TURN(S)_NORMAL_GAMESPEED or TURN(S)_UNSCALED_GAMESPEED")
++
++	return failures, normal_count, unscaled_count
++
++
++def main() -> int:
++	parser = argparse.ArgumentParser(description="Check explicit game-speed semantics in turn-valued AdvCiv-SAS integer define names.")
++	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
++	args = parser.parse_args()
++
++	failures, normal_count, unscaled_count = check_turn_define_gamespeed(args.repo_root)
++	if failures:
++		print("FAIL SAS turn-define game-speed naming")
++		for failure in failures:
++			print(f"  - {failure}")
++		return 1
++
++	print(f"PASS SAS turn-define game-speed naming (normal={normal_count}, unscaled={unscaled_count})")
++	return 0
++
++
++if __name__ == "__main__":
++	sys.exit(main())
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 3b657d43c..78af9c3a9 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -199,6 +199,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ ## C++
+ 
+ - Prefer SAS defines for new AI toggles; use `SAS_<func_name>_<effect>` naming and a boolean-style enable/disable flag (int in XML, bool in C++). Rationale: toggles allow quick testing without recompiles; avoid overusing defines when the feature is tiny or unlikely to need tuning.
++- Turn-valued SAS integer defines must make game-speed semantics explicit: use `TURN(S)_NORMAL_GAMESPEED` when the XML value is expressed at Normal speed and code scales it with the appropriate game-speed percentage, or `TURN(S)_UNSCALED_GAMESPEED` for intentional literal game/path turns such as movement distance. Do not apply this to `SAS_DO_TURN_*` scope names or per-turn rate/value defines. The build check [`turn_define_gamespeed.py`](/.github/workflows/build/turn_define_gamespeed.py) enforces this.
+ - Prefer minimalistic, simple AI changes that are easy to reason about and compile.
+ - Discuss candidate locations and a minimal draft before coding larger AI behavior changes.
+ - When changing attack logic, account for special unit roles (bombard/collateral) and UWAI expectations.
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index ff0577069..b354ea6b0 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -4,6 +4,7 @@ AI, UI, or other modifications
+ Created as part of AdvCiv-SAS improvements
+ (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ -->
++<!-- custom: Turn-valued SAS integer defines state game-speed semantics in the name: TURN(S)_NORMAL_GAMESPEED means the XML value is expressed at Normal speed and must be scaled in code; TURN(S)_UNSCALED_GAMESPEED means literal game/path turns intentionally stay unchanged across speeds. Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
+ <!-- custom: Long_Comments_XML.txt #131, #195 -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled). No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
+@@ -1235,10 +1236,10 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 	<!-- custom: first-city settling may roam this many turns before heavy distance penalties apply. Bad capitals are far more damaging than a few turns of delay; increasing from the hardcoded 5 to 7 gives starts surrounded by plains/tundra/luxuries enough room to reach nearby high-food sites. (GPT-5.5) -->
+ 	<Define>
+-		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND</DefineName>
++		<DefineName>SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND</DefineName>
+ 		<iDefineIntVal>7</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: When first-city scouting decides whether to keep exploring or return, subtract this value per return-path turn from each currently known site's found value. This does not change city-site valuation itself; it makes a nearly equal nearby capital preferable to several extra turns of backtracking. A value of 150 is intended to keep the full search within SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND while preserving the stronger Berlin, Karakorum, and Cuzco choices; set to 0 to ignore return time when choosing. (GPT-5.5) -->
++	<!-- custom: When first-city scouting decides whether to keep exploring or return, subtract this value per return-path turn from each currently known site's found value. This does not change city-site valuation itself; it makes a nearly equal nearby capital preferable to several extra turns of backtracking. A value of 150 is intended to keep the full search within SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND while preserving the stronger Berlin, Karakorum, and Cuzco choices; set to 0 to ignore return time when choosing. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_AI_FOUND_FIRST_CITY_RETURN_TRAVEL_VALUE_PER_TURN</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+@@ -1297,7 +1298,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Maximum extra path turns allowed for this post-capital Settler scouting detour compared with the current selected found target. Default 3 is intentionally local but not one-tile-only: save-file 450 testing preserved the corrected uMgungundlovu (17,40) choice, did not create obvious Settler parking by turn 101, and still requires the other promising-site gates above, so ordinary city founding should not turn into broad wandering. See KI#185. (GPT-5.5) -->
+ 	<Define>
+-		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS</DefineName>
++		<DefineName>SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Optional AI production floor for trained early/midgame Settlers. Weak Settlers are costly while empires are still small because they pause growth/production, tie up escorts, raise maintenance, and can weaken military tempo before the new city repays the investment. If only poor sites remain, a compact AI may be better off growing, defending, or attacking than forcing a far, slow filler city.
+@@ -1318,7 +1319,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Great People can productively wait a few turns for Golden Age partners (i.e. another GP type necessary to start a Golden Age), but BBAI logs showed Persia holding some for 29-32 turns because Golden Age value kept blocking lower but usable actions. This caps only that Golden Age partner reservation, in normal-speed turns; set to 0 to restore uncapped waiting. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+ 	<Define>
+-		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
++		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED</DefineName>
+ 		<iDefineIntVal>12</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Corporation-founding buildings can be extremely valuable as one-shot Great Person actions, but feeding the full building value into recurring Great Person point weights can make ordinary citizens overproduce that Great Person type for many turns. This keeps the full settled-specialist baseline, then preserves this percent of only the corporation-founder excess above that baseline when calculating Great Person weights. 100 restores old behavior; 50 halves only the excess; 0 caps corporation-founder building value at the settled-specialist baseline. Actual Great Person action choice is unchanged. (ChatGPT-5.5 + GPT-5.5 review) -->
+@@ -1348,7 +1349,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Maximum target path turns for bypassing upgrade waiting. Higher value = bypass upgrade waiting for farther targets too, more aggressive. Lower value = only bypass upgrade waiting for very close targets, more conservative. (ChatGPT-5.5 + GPT-5.5); i increased it it from GPT-5.5's value of 8 (same reasoning) -->
+ 	<Define>
+-		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS</DefineName>
++		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>99</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Culture process beyond first-ring expansion is a local emergency tool only at or above this culture-pressure factor; otherwise an AI must be actively pursuing culture and the city must rank among the required projected Legendary candidates. Neutral pressure is 100; 150 preserves clearly contested/captured-city recovery while preventing low-pressure non-candidates from converting useful production. (GPT-5.5) -->
+@@ -1483,7 +1484,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: BBAI player score-detail log interval in turns. Only used when SAS_BBAI_PLAYER_LOG_LEVEL > 0; clamped to at least 1 to avoid invalid modulo. Base AdvCiv BBAILog.h default: LOG_AI enabled 100; disabled fallback effectively 10000; advc.007 says this was hardcoded to 25 in CvPlayer::onTurnLogging before BBAILog.h. (GPT-5.5?) -->
+ 	<Define>
+-		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL</DefineName>
++		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: If BBAI diagnostics are enabled, write each new game and loaded save to a new UTC-timestamped BBAI_*.log file instead of repeatedly appending to BBAI.log. The file begins with the currently active BBAI settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each diagnostic run easier to identify or upload. Set to 0 to preserve fixed-name log behavior. (ChatGPT-5.5 + GPT-5.5) -->
+@@ -1501,7 +1502,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Interval in game turns for periodic game-record snapshots. Major chronicle actions such as techs, wars, city captures and Great People still log when they happen at game-record level 2+. Set this to 1 for an every-turn account, 5 or 10 for compact autoplay records, or higher for broad long-game trends. Clamped to at least 1 in SASGameRecordLog.cpp. (ChatGPT-5.5) -->
+ 	<Define>
+-		<DefineName>SAS_GAME_RECORD_TURN_INTERVAL</DefineName>
++		<DefineName>SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: If game-record reporting is enabled, write each new game and loaded save to a new UTC-timestamped SASGameRecord_*.log file instead of repeatedly appending to SASGameRecord.log. This is separate from BBAI timestamped filenames so compact run reports can be used without BBAI diagnostic spam. Set to 0 to preserve fixed-name log behavior. (GPT-5.5) -->
+@@ -1535,7 +1536,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Maximum fresh build time, expressed in Normal-speed-equivalent turns, that is considered fast enough for an AI city to train a non-combat food-production unit locally. The DLL scales this gate by the current game speed's TrainPercent, matching the same game-speed factor used in unit production costs: for example, the default 5 becomes about 10 turns on Marathon (200%). A city at or below the adjusted gate keeps the choice immediately, allowing several capable cities to rebuild Workers in parallel after losses. A slower city normally defers to the preferred same-area food/hammer pump, but if every city is slow the preferred available city still builds instead of waiting. 0 disables this allocation optimization. (GPT-5.6 Thinking) -->
+ 	<Define>
+-		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS</DefineName>
++		<DefineName>SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED</DefineName>
+ 		<iDefineIntVal>5</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Population tolerance for preferring a currently stagnant city over the largest eligible same-area city when a slow AI city delegates a non-combat food-production unit. The comparison is strict: 3 lets a stagnant population-8 city beat a population-10 city, but not population 7. Cities already training a food-production unit count as stagnant, intentionally allowing an efficient large city to produce several Workers or similar units in sequence. If no stagnant city is this close to the largest candidate, highest population wins. 0 disables the stagnant-city preference. (GPT-5.6 Thinking) -->
+@@ -2125,7 +2126,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: Long_Comments_XML.txt #183 -->
+ 	<!-- custom: Long_Comments_XML.txt #111 -->
+ 	<Define>
+-		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL</DefineName>
++		<DefineName>SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code -->
+@@ -2174,7 +2175,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Long_Comments_XML.txt #205 -->
+ 	<Define>
+-		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD</DefineName>
++		<DefineName>SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 
+@@ -2264,7 +2265,7 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 	<!-- custom: Long_Comments_XML.txt #199 -->
+ 	<Define>
+-		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD</DefineName>
++		<DefineName>SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_NORMAL_GAMESPEED_THRESHOLD</DefineName>
+ 		<iDefineIntVal>170</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: this is the general toggle, for specific ones, look below. Recommended to keep enabled (1) so AIs don't overbuild defenders. Note: sometimes this is not effective, although quite often is and gives good results ingame, but seems to be overriden by some other logic sometimes. I still recommend to keep it enabled though but adjust or test as you see fit -->
+@@ -2406,7 +2407,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: turn until which we won't scrap at all, adjusted to game speed. E.g. turn 150 at gamespeed_normal would be turn (150 * 150 / 100) = turn 225 at gamespeed epic, or turn (150 * 200) / 100 = turn 300 at gamespeed marathon, etc. -->
+ 	<Define>
+-		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL</DefineName>
++		<DefineName>SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED</DefineName>
+ 		<iDefineIntVal>150</iDefineIntVal>
+ 	</Define>
+ 
+@@ -3029,7 +3030,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: A Barbarian city farther than this many path turns is attacked only if AI_isSASCityLikelyToBenefitUsLongTerm says it is worth keeping. A quick raid can repay its mobilization and combat costs, but travelling farther to raze a city wastes army tempo and removes Barbarian pressure for the nearer rival, who then receives a cleared settlement site. Save-file 450 testing showed Hannibal spending 16 turns taking population-5 Libyan before razing it; Shaka settled the exact plot 10 turns later. Set to 0 to disable this gate. See KI#186 and KI#188.5. (GPT-5.6-Sol) -->
+ 	<Define>
+-		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS</DefineName>
++		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Generic reinforcement and invasion sizes can exceed an early transport's entire capacity, preventing even a loaded Galley from considering an achievable nearby city. When enabled, military cargo below those broad army-assembly thresholds still asks the existing target-specific assault evaluation whether its actual strength is sufficient. Safety, escort, imminent-loading, defender-strength, and distant-disposable Barbarian checks still apply. 1 enables, 0 disables. See KI#193. (GPT-5.6-Sol) -->
+@@ -3145,7 +3146,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: don't force walls or whichever building you set too soon, threats are not high, and we risk halting key settler units. Turn 100 at normal is for example turn 100 * 1.5 = turn 150 at gamespeed epic -->
+ 	<Define>
+-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL</DefineName>
++		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED</DefineName>
+ 		<iDefineIntVal>80</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+@@ -3154,7 +3155,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: don't force castle or whichever building you set too soon similarly -->
+ 	<Define>
+-		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL</DefineName>
++		<DefineName>SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: note 3: higher increments like 3, 4, 5, etc. are not supported in current code, implement logic in .cpp or such files if you want such defines in your mod mod if you have extra building class defense buildings you want AIs to build urgently when needed -->
+@@ -3264,19 +3265,19 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Maximum approximate path turns to the nearest land-reachable target city before UWAI hard-rejects a prospective war. Apply this same limit when UWAI temporarily prefers a naval approach to a target that remains reachable by land, preventing land/naval evaluation changes from repeatedly creating and canceling the same preparation. Current default 15 is intentionally much wider than the old 3-turn limit, which could reject otherwise worthwhile reachable wars before normal UWAI power/utility/diplomacy evaluation. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
++	<!-- custom: Maximum approximate path turns to the nearest land-reachable target city before UWAI hard-rejects a prospective war. These are intentionally unscaled literal movement/path turns because unit movement does not slow down with game speed. Apply this same limit when UWAI temporarily prefers a naval approach to a target that remains reachable by land, preventing land/naval evaluation changes from repeatedly creating and canceling the same preparation. Current default 15 is intentionally much wider than the old 3-turn limit. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
+ 	<Define>
+-		<DefineName>SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS</DefineName>
++		<DefineName>SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>15</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Maximum approximate path turns to the nearest target city when naval transport is actually required. Current default 20 gives genuinely naval wars more travel tolerance than land wars while still retaining a high outer sanity bound for exceptionally remote targets. See KI#61 and KI#197.9. (GPT-5.6 Thinking) -->
+ 	<Define>
+-		<DefineName>SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS</DefineName>
++		<DefineName>SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Extra cached path turns tolerated after a war plan has already started. This prevents a single pillaged route or border fluctuation from canceling an otherwise profitable mobilization, while new targets still obey the strict land or sea contact limit above. Save-file 450 reproduced a direct Holy Roman plan changing from 3 to 4 turns and being canceled immediately; 1 narrowly covers that fluctuation without broadening initial target selection. (GPT-5.6-Sol) -->
+ 	<Define>
+-		<DefineName>SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS</DefineName>
++		<DefineName>SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Prefer a nearby mutually land-relevant war target when it is weak enough, disliked enough, and has enough UWAI drive. This narrowly avoids UWAI probabilistic target fall-through where a farther target is chosen even though a closer weak/disliked target is available; faraway wars can split armies from the core and invite opportunistic invasions. Island/naval target selection is intentionally left to ordinary UWAI or future naval-specific rules. Set to 0 to restore base target fall-through. See WAR_TARGET_LOCAL_PREFERRED logs and KI#182. (GPT-5.5) -->
+@@ -3326,7 +3327,7 @@ Created as part of AdvCiv-SAS improvements
+ 	</Define>
+ 	<!-- custom: Minimum war-plan age before negative-utility severity alone may cancel a preparation. Save-file 452 testing showed the first deterministic version could cancel at age 1 after a transient utility drop, then select the same target again next turn; 3 gives the plan two full reviews to settle. This does not delay illegal-target, preparation-deadline, or imminent-war cancellations. See KI#189. (GPT-5.6-Sol) -->
+ 	<Define>
+-		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_AGE</DefineName>
++		<DefineName>SAS_UWAI_PREPARATION_ABANDON_MIN_AGE_TURNS_UNSCALED_GAMESPEED</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Minimum relative advantage score required to switch an existing war preparation to the best alternative target. UWAI used the score as a random chance on every review, making target choice unstable; 50 requires a materially better target, while 0 accepts any alternative that has higher utility. Save-file 452 diagnostics would accept 15 of 71 real comparisons at 50 instead of producing 22 roll-dependent switches. See KI#189. (GPT-5.6-Sol) -->
+@@ -3342,19 +3343,19 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_UWAI_VICTORY_DENIAL_ENABLE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Countdown window for the victory-denial utility boost. For example, 20 starts the boost when the target can win within 20 turns; the boost grows as the countdown gets shorter. Stage-4 targets without an active countdown only get the smaller stage-4 boost below. (GPT-5.5) -->
++	<!-- custom: Normal-speed countdown window for the victory-denial utility boost, scaled by VictoryDelayPercent to match the victory countdown itself. For example, 20 means 20 turns on Normal and 40 on Marathon (200%); the boost grows as the countdown gets shorter. Stage-4 targets without an active countdown only get the smaller stage-4 boost below. (GPT-5.5 + GPT-5.6 Thinking) -->
+ 	<Define>
+-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_BOOST</DefineName>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Maximum countdown where the victory-denial rule may convert war preparation into direct limited/total war if distance and power gates also pass. Save-file 450 showed even weak Lincoln nearly winning Space against much stronger top dogs; 20 is deliberately enough time for attackers to disrupt a victory, not just a small delay tweak over the old too-late 10-turn window. See KI#184. (GPT-5.5) -->
++	<!-- custom: Normal-speed maximum countdown where the victory-denial rule may convert war preparation into direct limited/total war if distance and power gates also pass; scaled by VictoryDelayPercent to preserve the same countdown phase across game speeds. Save-file 450 showed even weak Lincoln nearly winning Space against much stronger top dogs; 20 Normal-speed turns is deliberately enough time for attackers to disrupt a victory. See KI#184. (GPT-5.5 + GPT-5.6 Thinking) -->
+ 	<Define>
+-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR</DefineName>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Maximum countdown where victory-denial wars refuse ordinary peace. In save-file 450, anti-spaceship wars fired but ended two turns later through peace treaties, letting Lincoln still threaten Space Race; if a target is still this close to winning, the emergency war should not be peacefully cancelled immediately. See KI#184. (GPT-5.5) -->
++	<!-- custom: Normal-speed maximum countdown where victory-denial wars refuse ordinary peace, scaled by VictoryDelayPercent to preserve the same countdown phase across game speeds. In save-file 450, anti-spaceship wars fired but ended two turns later through peace treaties, letting Lincoln still threaten Space Race; if a target is still this close to winning, the emergency war should not be peacefully cancelled immediately. See KI#184. (GPT-5.5 + GPT-5.6 Thinking) -->
+ 	<Define>
+-		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE</DefineName>
++		<DefineName>SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE</DefineName>
+ 		<iDefineIntVal>20</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: Also refuse peace with stage-4 victory threats before countdown starts. After earlier victory-denial changes stopped Lincoln, Egypt still won Space because stage-4 anti-spaceship wars ended after 1-2 turns before Egypt's countdown existed; this keeps the emergency war active through the pre-countdown disruption window too. See KI#184. (GPT-5.5) -->
+
+diff --git a/CvGameCoreDLL/BBAILog.cpp b/CvGameCoreDLL/BBAILog.cpp
+index 1302600a2..930d31a03 100644
+--- a/CvGameCoreDLL/BBAILog.cpp
++++ b/CvGameCoreDLL/BBAILog.cpp
+@@ -150,7 +150,7 @@ int getSASBBAICultureLogLevel()
+ int getSASBBAIScoreLogInterval()
+ {
+ 	// <!-- custom: When the master switch is disabled, return 1 rather than 0 because this value can be used as a modulo divisor. (GPT-5.5?) -->
+-	static const int iInterval = (isSASBBAILogMasterEnabled() ? std::max(1, GC.getDefineINT("SAS_BBAI_SCORE_LOG_INTERVAL")) : 1);
++	static const int iInterval = (isSASBBAILogMasterEnabled() ? std::max(1, GC.getDefineINT("SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED")) : 1);
+ 	return iInterval;
+ }
+ 
+@@ -267,7 +267,7 @@ static void logSASBBAIGameState(const char* szRowType)
+ // <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
+ static void logSASBBAILogSettings()
+ {
+-	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL=%d",
++	logBBAI("BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=%d SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=%d SAS_BBAI_PLAYER_LOG_LEVEL=%d SAS_BBAI_TEAM_LOG_LEVEL=%d SAS_BBAI_WAR_LOG_LEVEL=%d SAS_BBAI_CITY_LOG_LEVEL=%d SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=%d SAS_BBAI_CITIZEN_LOG_LEVEL=%d SAS_BBAI_UNIT_LOG_LEVEL=%d SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=%d SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=%d SAS_BBAI_SETTLER_LOG_LEVEL=%d SAS_BBAI_FOUND_LOG_LEVEL=%d SAS_BBAI_EVACUATION_LOG_LEVEL=%d SAS_BBAI_WORKER_LOG_LEVEL=%d SAS_BBAI_WORKER_SEA_LOG_LEVEL=%d SAS_BBAI_MAP_LOG_LEVEL=%d SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=%d SAS_BBAI_CULTURE_LOG_LEVEL=%d SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d",
+ 			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAIMilitaryProductionLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIOverseasTransportLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
+ }
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 76808923b..d2fb359e3 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -781,8 +781,8 @@ void CvCity::doTurn()
+ 				// First: Walls
+ 				if (!bEmergencyBuilding)
+ 				{
+-					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL");
+-					const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL * iTrainPct) / 100;
++					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED");
++					const int iEarlyCutoff1 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_1_MIN_TURN_NORMAL_GAMESPEED * iTrainPct) / 100;
+ 					// The cutoff is meant to prevent building too early.
+ 					const bool bEarlyBuildingClassName1 = (iCurrentTurn <= iEarlyCutoff1);
+ 
+@@ -801,8 +801,8 @@ void CvCity::doTurn()
+ 				// Otherwise: Castle (requires Walls anyway; canConstruct handles it)
+ 				if (!bEmergencyBuilding)
+ 				{
+-					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL");
+-					const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL * iTrainPct) / 100;
++					static const int iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED = GC.getDefineINT("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED");
++					const int iEarlyCutoff2 = (iSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS_2_MIN_TURN_NORMAL_GAMESPEED * iTrainPct) / 100;
+ 					// The cutoff is meant to prevent building too early.
+ 					const bool bEarlyBuildingClassName2 = (iCurrentTurn <= iEarlyCutoff2);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index bdc5218d7..292b8d2a8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6697,8 +6697,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			int const iTurnsWW = (iCost * 100 + iBaseHammersPerTurn * iWWMul100 - 1) / (std::max(1, iBaseHammersPerTurn) * iWWMul100);
+ 			// Window scales by speed a bit
+ 			// <!-- custom: 20 turns at normal seem fine, any time more and we may spend too much time on it instead of doing something else, or a rival may beat us to it -->
+-			static const int iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD");  // @Normal
+-			int iSoftTurnCapNormal = iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_TO_BUILD; // @Normal
++			static const int iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD");  // @Normal
++			int iSoftTurnCapNormal = iSAS_AI_BUILDING_VALUE_WONDERS_MAX_BASE_TURNS_NORMAL_GAMESPEED_TO_BUILD; // @Normal
+ 			// <!-- custom: adjust based on game difficulty: on lower difficulties, we have penalties, so unlikely we compete with the human players, so use our hammers conservatively and more towards self-preservation, so do not increase turn time allowed to complete this, but at higher difficulties, we have more leeway and enough discounts, unlikely the human can compete with us, however it would be strange that we would spend too much time on wonders despite our discounts, which would mean most likely we are doing something inefficient or wrong, so don't build the wonder with a tighter window if is beyond this window -->
+ 			// AdvCiv: no human WCP <!-- custom: at least i didn't find it easily with a global search vs code so hopefully accurate enough as such as provided by chatgpt 5 but check if accurate and if my guess of doing as such as well is fine as i didn't check further-->; treat as 100%
+ 			const int iHumanWCPDefine = 100;
+@@ -6959,8 +6959,8 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
+ 			{
+ 				// <!-- custom: for world wonders, make sure we win the race, use top 2 as base -->
+ 				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
+-				static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL");
+-				const int iTurnExpansionPhaseAdjusted = (iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL * iGameSpeedMultiplier) / 100;
++				static const int iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED = GC.getDefineINT("SAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED");
++				const int iTurnExpansionPhaseAdjusted = (iSAS_AI_BUILDING_VALUE_WORLD_WONDERS_LOWER_HAMMER_OK_AT_EXPANSION_PHASE_TURN_NORMAL_GAMESPEED * iGameSpeedMultiplier) / 100;
+ 				const bool bExpansionPhaseAdjusted = (iElapsedTurns < iTurnExpansionPhaseAdjusted);
+ 
+ 				if (!bExpansionPhaseAdjusted && !bTop2HammerLeeway)
+@@ -13034,7 +13034,7 @@ bool CvCityAI::AI_chooseUnit(UnitAITypes eUnitAI, /* BBAI: */ int iOdds)
+ 		if (bUnitRollPassed) // K-Mod end
+ 		{
+ 			// <!-- custom: For fresh non-combat food-production units, any city that can finish within the XML Normal-speed-equivalent turn gate (scaled by game-speed TrainPercent) is already good enough and may build immediately; this preserves parallel emergency replacement. Slower cities yield only when another safe same-area city is the preferred population/stagnation pump. If all cities are slow, the preferred one still builds. Existing invested production is always finished. (GPT-5.6 Thinking) -->
+-			static const int iNonCombatFoodProductionMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS"));
++			static const int iNonCombatFoodProductionMaxTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED"));
+ 			static const int iNonCombatFoodProductionStagnantPopulationGap = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP"));
+ 			int const iNonCombatFoodProductionMaxTurns = (iNonCombatFoodProductionMaxTurnsNormal <= 0 ? 0 : std::max(1, (iNonCombatFoodProductionMaxTurnsNormal * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() + 50) / 100));
+ 			// <!-- custom: Settlers remain exempt while SAS intentionally restricts them to the capital; otherwise the capital could defer to a non-capital that current production policy will never ask to build the Settler. If that capital-only rule is later removed, this generic allocator is ready to cover Settlers too by removing this one role exemption. (GPT-5.6 Thinking) -->
+@@ -13638,7 +13638,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				const int iTrainPct = GC.getInfo(kGame.getGameSpeedType()).getTrainPercent();
+ 				// <!-- custom: extend to turn 200 at normal where we reasonably expect muskets to bail us from a no bonus at all start and game, overproducing defenders won't help and would cripple us in fact, so produce just enough to not die while we beeline muskets or such other no bonus units to help us not die -->
+ 				// const int iEarlyCutoff = (150 * iTrainPct) / 100; // ~T150 @ Normal
+-				static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_THRESHOLD");
++				static const int iEarlyTurnNoExcessDefendersNormal = GC.getDefineINT("SAS_NO_EXCESS_DEFENDERS_EARLY_TURN_NORMAL_GAMESPEED_THRESHOLD");
+ 				const int iEarlyCutoff = (iEarlyTurnNoExcessDefendersNormal * iTrainPct) / 100; // e.g. ~T200 @ Normal
+ 				const int iCurrentTurn = kGame.getGameTurn();
+ 				const bool bEarly = (iCurrentTurn <= iEarlyCutoff);
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 05bc70d49..ab3b3d6b7 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -115,7 +115,8 @@ namespace
+ 			return false;
+ 		if (gWarLogLevel >= 1)
+ 		{
+-			static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
++			static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
++			int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
+ 			logBBAI("WAR_TARGET_VICTORY_DENIAL_BLOCK_PEACE_DEAL turn=%d firstTeam=%d secondTeam=%d firstVictoryCountdown=%d secondVictoryCountdown=%d firstMaxVictoryStage=%d secondMaxVictoryStage=%d firstSpaceshipParts=%d secondSpaceshipParts=%d firstSpaceshipPartsPercent=%d secondSpaceshipPartsPercent=%d firstSpaceLeaderPartGap=%d secondSpaceLeaderPartGap=%d maxRefusePeaceCountdown=%d",
+ 					GC.getGame().getGameTurn(), eFirstTeam, eSecondTeam, iFirstCountdown, iSecondCountdown, iFirstMaxVictoryStage, iSecondMaxVictoryStage, getSASTeamSpaceshipPartsBuilt(eFirstTeam), getSASTeamSpaceshipPartsBuilt(eSecondTeam), getSASTeamSpaceshipPartsPercent(eFirstTeam), getSASTeamSpaceshipPartsPercent(eSecondTeam), getSASTeamStage3SpaceLeaderPartGap(eFirstTeam), getSASTeamStage3SpaceLeaderPartGap(eSecondTeam), iMaxVictoryDenialPeaceCountdown);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index f7f316850..13d80654f 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -517,6 +517,15 @@ int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam)
+ 	return (iPartsRequired <= 0 ? 0 : getSASTeamSpaceshipPartsBuilt(eTeam) * 100 / iPartsRequired);
+ }
+ 
++// <!-- custom: Victory countdown lengths themselves use VictoryDelayPercent, so SAS countdown gates expressed in Normal-speed turns must use the same scale. Keep the adjusted value per call rather than static so starting a different game speed in the same Civ4 process cannot reuse a stale result. (GPT-5.6 Thinking) -->
++int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns)
++{
++	if (iNormalTurns <= 0)
++		return 0;
++	int const iVictoryDelayPercent = GC.getInfo(GC.getGame().getGameSpeedType()).getVictoryDelayPercent();
++	return std::max(1, (iNormalTurns * iVictoryDelayPercent + 50) / 100);
++}
++
+ int getSASLeadingSpaceshipPartsBuilt()
+ {
+ 	int iLeadingParts = 0;
+@@ -542,7 +551,8 @@ bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown,
+ 	static const bool bSASUWAIVictoryDenialEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+ 	if (!bSASUWAIVictoryDenialEnable)
+ 		return false;
+-	static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
++	static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
++	int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
+ 	int const iCountdown = GET_TEAM(eTeam).AI_getLowestVictoryCountdown();
+ 	int const iMaxVictoryStage = getSASTeamMaxVictoryStage(eTeam);
+ 	if (piVictoryCountdown != NULL)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index be7303b13..16caa992c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -130,6 +130,7 @@ int getSASTeamSpaceVictoryStage(TeamTypes eTeam); // <!-- custom: Shared team-le
+ int getSASTeamSpaceshipPartsBuilt(TeamTypes eTeam); // <!-- custom: Shared spaceship-parts count for Space victory-denial rules and logs; using one helper keeps UWAI and peace-refusal thresholds consistent. (GPT-5.5) -->
+ int getSASSpaceshipPartsRequired();
+ int getSASTeamSpaceshipPartsPercent(TeamTypes eTeam);
++int getSASVictoryDelayTurnsFromNormalGameSpeed(int iNormalTurns); // <!-- custom: Scale Normal-speed victory-countdown turn gates with the same VictoryDelayPercent used by CvGame::victoryDelay. (GPT-5.6 Thinking) -->
+ int getSASTeamStage3SpaceLeaderPartGap(TeamTypes eTeam);
+ bool isSASTeamStage3SpaceVictoryThreat(TeamTypes eTeam); // <!-- custom: Stage-3 plus high spaceship completion near the Space-progress leader is a pre-countdown Space threat; save-file 450 Arabia reached the final countdown too late, and save-file 452 showed a raw 10-parts threshold could still fire too late. (GPT-5.5) -->
+ bool isSASUWAIVictoryDenialPeaceThreat(TeamTypes eTeam, int* piVictoryCountdown = NULL, int* piMaxVictoryStage = NULL); // <!-- custom: Shared by UWAI peace decisions and CvDeal's final guard so blocked victory-denial treaties are rejected before negotiation instead of returning false success. (GPT-5.6-Sol) -->
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index df9fddbf3..08dbf3825 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3794,7 +3794,8 @@ DenialTypes CvTeamAI::AI_makePeaceTrade(TeamTypes ePeaceTeam, TeamTypes eBroker)
+ 	{
+ 		int const iVictoryCountdown = GET_TEAM(ePeaceTeam).AI_getLowestVictoryCountdown();
+ 		int const iMaxVictoryStage = getSASTeamMaxVictoryStage(ePeaceTeam);
+-		static const int iMaxVictoryDenialPeaceCountdown = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_REFUSE_PEACE");
++		static const int iMaxVictoryDenialPeaceCountdownNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_REFUSE_PEACE");
++		int const iMaxVictoryDenialPeaceCountdown = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxVictoryDenialPeaceCountdownNormal);
+ 		static const bool bRefuseStage4Peace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE4_PEACE_ENABLE");
+ 		static const bool bRefuseStage3SpacePeace = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_REFUSE_STAGE3_SPACE_PEACE_ENABLE");
+ 		// <!-- custom: Save-file 450 showed victory-denial wars correctly declared against Lincoln, then cancelled by peace treaties two turns later while his spaceship countdown continued.
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 40f2cb6a7..f6414ee8d 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3555,9 +3555,9 @@ bool CvUnit::canScrap() const
+ 			CvGame const& kGame = GC.getGame();
+ 			const int iCurrentTurn = kGame.getGameTurn();
+ 
+-			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL");
++			static const int iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED = GC.getDefineINT("SAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED");
+ 			// <!-- custom: no static for the below, they may change in another save file or new map or such maybe (check to be sure as this is just a guess from me) -->
+-			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
++			const int iNoDisbandAtAllTurnsAdjusted = iSAS_CAN_SCRAP_NO_DISBAND_AT_ALL_TURNS_NORMAL_GAMESPEED * GC.getInfo(kGame.getGameSpeedType()).getTrainPercent() / 100;
+ 			const bool bNoDisbandAtAllPhase = (iCurrentTurn < iNoDisbandAtAllTurnsAdjusted);
+ 
+ 			if (bNoDisbandAtAllPhase)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 944436fc7..6f2fb629a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -544,7 +544,7 @@ static bool SAS_shouldScoutPromisingFoggedNearbyFoundSite(CvUnitAI& kSettler, Mo
+ 		return false;
+ 	static const int iMinRevealedBFC = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_REVEALED_BFC");
+ 	static const int iMinAverageValuePercent = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MIN_AVERAGE_VALUE_PERCENT");
+-	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS");
++	static const int iMaxExtraPathTurns = GC.getDefineINT("SAS_AI_SETTLER_SCOUT_PROMISING_FOGGED_NEAR_SITE_MAX_EXTRA_PATH_TURNS_UNSCALED_GAMESPEED");
+ 	if (iSelectedRevealedBFC < iMinRevealedBFC)
+ 		return false;
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kSettler.getOwner());
+@@ -747,7 +747,7 @@ static UnitTypes SAS_getBestUpgradeForLog(CvUnit const& kUnit, UnitAITypes eUnit
+ static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const& kCity, MovementFlags eMoveFlags, int iMaxPathTurns, char const* szContext, int iKnownPathTurns = -1)
+ {
+ 	if (!kCity.isBarbarian()) return false;
+-	static int const iMaxDisposablePathTurns = std::max(0, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS"));
++	static int const iMaxDisposablePathTurns = std::max(0, GC.getDefineINT("SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS_UNSCALED_GAMESPEED"));
+ 	if (iMaxDisposablePathTurns <= 0) return false;
+ 	int iPathTurns = iKnownPathTurns;
+ 	bool const bPathable = (iKnownPathTurns >= 0 || kUnit.generatePath(kCity.getPlot(), eMoveFlags, true, &iPathTurns, iMaxPathTurns));
+@@ -4689,7 +4689,7 @@ bool CvUnitAI::AI_foundFirstCity()
+ 
+ 	// <!-- custom: give AIs more time to pick best capital spot. Sometimes they start in bad spots when much better ones are available; no hurry to settle immediately. Lower quality starts may be fine for 3rd city but not for capital, which is key to winning. Same on all maps (capital is important even at fastest speed). Credit: ChatGPT 5; Claude AI. (Claude code Sonnet 4.5 (summarized)) -->
+ 	// int iMaxFoundTurn = (iGameSpeedPercent + 50) / 150; //quick 0, normal/epic 1, marathon 2
+-	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_TO_FOUND");
++	static const int iMaxTurnsToFound = GC.getDefineINT("SAS_AI_FOUND_FIRST_CITY_MAX_TURNS_UNSCALED_GAMESPEED_TO_FOUND");
+ 	const bool bLogSettlerAILevel2 = (gSettlerLogLevel >= 2);
+ 	const bool bLogSettlerAILevel3 = (gSettlerLogLevel >= 3);
+ 	CvPlot* pFirstCityScoutOrigin = (AI_getGroup()->AI_getMissionAIType() == MISSIONAI_EXPLORE ? AI_getGroup()->AI_getMissionAIPlot() : NULL);
+@@ -7621,8 +7621,8 @@ void CvUnitAI::AI_attackCityMove()
+ 						static const bool bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE = (GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE") > 0);
+ 						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS"));
+ 						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT"));
+-						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS"));
+-						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS);
++						static const int iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED = std::max(0, GC.getDefineINT("SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED"));
++						bool const bSkipUpgradeWaitForReadyAttack = (bSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE && bReadyToAttack && !bTargetTooStrong && iCanUpgradeNowUnits <= 0 && (kGroup.getNumUnits() >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_STACK_UNITS || iGroupMilitaryPercent >= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MIN_MILITARY_PERCENT) && iTargetPathTurns >= 0 && iTargetPathTurns <= iSAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_MAX_TARGET_PATH_TURNS_UNSCALED_GAMESPEED);
+ 						if (bLogAttackCityParking)
+ 						{
+ 							if (!bSkipUpgradeWaitForReadyAttack) SAS_logAttackCityParking(*this, pTargetCity, "wait_upgrade", bReadyToAttack, bTargetTooStrong, bLandWar, bEnemyTerritory, iNeedUpgradeCount, iTargetPathTurns, bTurtle, bHuntBarbs, bHuntOnlyBarbs, iBarbarianGarrison, iWarStackNeeded, iMinStackSize);
+@@ -9653,8 +9653,8 @@ void CvUnitAI::AI_greatPersonMove()
+ 				if (iMinTurns != MAX_INT)
+ 				{
+ 					// <!-- custom: BBAI logs showed some Great People held for 29-32 turns because Golden Age partner reservation kept blocking weaker but useful actions. After the XML cap, stop raising the wait threshold for that reason and let the existing sorted mission list pick the best non-Golden action. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+-					static const int iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL = GC.getDefineINT("SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL");
+-					if (iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL <= 0 || iGreatPersonAgeNormal <= iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL)
++					static const int iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED = GC.getDefineINT("SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED");
++					if (iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED <= 0 || iGreatPersonAgeNormal <= iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED)
+ 					{
+ 						int iRelativeWaitTime = iMinTurns + iGreatPersonAge;
+ 						iRelativeWaitTime *= 100;
+@@ -9666,7 +9666,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 					{
+ 						logBBAI("    GP_GOLDEN_WAIT_CAP turn=%d player=%d %S unitId=%d unit=%S age=%d ageNormal=%d capNormal=%d golden=%d threshold=%d",
+ 								kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+-								iGreatPersonAge, iGreatPersonAgeNormal, iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL, it->first, iScoreThreshold);
++								iGreatPersonAge, iGreatPersonAgeNormal, iSAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL_GAMESPEED, it->first, iScoreThreshold);
+ 					}
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index c46416c18..fa4152d57 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -57,7 +57,7 @@ bool isSASGameRecordLogEnabled()
+ int getSASGameRecordTurnInterval()
+ {
+ 	// <!-- custom: Separate snapshot frequency from detail level. Level 0 disables the game-record rows; the interval is still clamped so modulo callers are safe. (ChatGPT-5.5) -->
+-	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_RECORD_TURN_INTERVAL"));
++	static const int iInterval = std::max(1, GC.getDefineINT("SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED"));
+ 	return iInterval;
+ }
+ 
+@@ -262,7 +262,7 @@ static void logSASGameRecordGameState(const char* szRowType)
+ 
+ static void logSASGameRecordLogSettings()
+ {
+-	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_TURN_INTERVAL=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
++	logSASGameRecord("GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=%d SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=%d SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=%d",
+ 			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
+ }
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 3ee394b62..6005e0de6 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -78,7 +78,8 @@ namespace
+ 			return 0;
+ 		int iBoost = 0;
+ 		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
+-		static const int iMaxCountdownBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_BOOST");
++		static const int iMaxCountdownBoostNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST");
++		int const iMaxCountdownBoost = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownBoostNormal);
+ 		if (iCountdown >= 0 && iCountdown <= iMaxCountdownBoost)
+ 		{
+ 			static const int iCountdownUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST");
+@@ -1429,7 +1430,7 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTur
+ 		return false;
+ 	}
+ 	// <!-- custom: The deterministic severity gate initially canceled newly selected plans after only one review when transient UWAI/AreaAI changes briefly drove utility negative. Save-file 452 then reselected 7 of those targets on the next turn and 11 within three turns. Give a new preparation two full reviews to settle before severity alone may cancel it; hard deadline and legality failures remain immediate. See KI#189. (GPT-5.6-Sol) -->
+-	static int const iMinAge = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_AGE");
++	static int const iMinAge = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_AGE_TURNS_UNSCALED_GAMESPEED");
+ 	static int const iMinAbandonSeverityPercent = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_SEVERITY_PERCENT");
+ 	int const iAge = kAgent.AI_getWarPlanStateCounter(eTarget);
+ 	if (iAge < iMinAge)
+@@ -2907,7 +2908,8 @@ bool UWAI::Team::isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTarg
+ 	if (!bEnable)
+ 		return false;
+ 	int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
+-	static const int iMaxCountdownDirectWar = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_DIRECT_WAR");
++	static const int iMaxCountdownDirectWarNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR");
++	int const iMaxCountdownDirectWar = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownDirectWarNormal);
+ 	static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
+ 	static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE");
+ 	bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 432da2604..7eae99b04 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2898,9 +2898,9 @@ int Risk::preEvaluate()
+ 
+ 	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
+ 	// <!-- custom: result: seemingly even better, see known issue as of now 61 for details, not increased further to not risk falling back to old pitfalls, while keeping variety enough in war outcomes with larger window -->
+-	static int const iMaxLandTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS"));
+-	static int const iMaxSeaTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS"));
+-	static int const iExistingPlanTolerance = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS"));
++	static int const iMaxLandTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED"));
++	static int const iMaxSeaTurns = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED"));
++	static int const iExistingPlanTolerance = std::max(0, GC.getDefineINT("SAS_UWAI_WAR_TARGET_EXISTING_PLAN_CONTACT_TOLERANCE_TURNS_UNSCALED_GAMESPEED"));
+ 
+ 	// <!-- custom: The older AdvCiv-SAS hard reject is only a pre-war target guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent (KI#183).
+ 	// Letting it fire during an ongoing war instead injected -100000 into peace reviews and forced stronger conquerors to stop after reaching a more distant remaining city. Evaluate distance and transport capacity only before war begins, which also avoids the cache scan in both excluded scenarios. (GPT-5.6-Sol) -->
+
+diff --git a/README.md b/README.md
+index aff3a1563..63b86d03f 100644
+--- a/README.md
++++ b/README.md
+@@ -918,7 +918,7 @@ For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
+ BBAI_SAVE_LOADED utc=20260712T143627Z logFile=BBAI_20260712T143627Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+ BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+ BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
+-BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL=100
++BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100
+ ```
+ 
+ ### SAS game record log
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 1dff0ff27..e89138d08 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -2701,7 +2701,7 @@ As results seem very good, i added this change now. As for the don't invade smal
+ 
+ Later KI#197.9 military-production diagnostics showed that the original 3-turn land-contact hard reject had become too restrictive as a general pre-war sanity gate. In one run Spain had 178 military units with 172 still in its own territory and almost twice Mali's power, but Mali was rejected only because estimated contact was 4 turns; Byzantium similarly had 182 military units with 172 at home and roughly four times another target's power, but an 8-turn estimate was rejected. When a separate victory-denial path bypassed the contact limit later in the same game, those large armies immediately selected farther targets and converted the wars into city captures. The problem was therefore not that approximate travel time has no strategic value, but that 3 turns made it an overriding veto before normal UWAI could weigh power, utility, closeness, diplomacy and the rest of the war context.
+ 
+-The XML-tunable defaults are therefore now widened to 15 approximate path turns for land-reachable targets (`SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS`) and 20 when naval transport is genuinely required (`SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS`). This keeps a high outer sanity bound for exceptionally remote targets while allowing ordinary reachable wars to reach UWAI evaluation. The change is intentionally still a distance guard rather than deleting the safeguard entirely; future autoplay can lower or widen the values if the AI again shows either overextension or excessive reluctance.
++The XML-tunable defaults are therefore now widened to 15 approximate path turns for land-reachable targets (`SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED`) and 20 when naval transport is genuinely required (`SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED`). This keeps a high outer sanity bound for exceptionally remote targets while allowing ordinary reachable wars to reach UWAI evaluation. The change is intentionally still a distance guard rather than deleting the safeguard entirely; future autoplay can lower or widen the values if the AI again shows either overextension or excessive reluctance.
+ 
+ ## 62 - (Extremely better/stronger) AI almost not evacuating at all doomed cities (2 swordsmen in an 11 unit defending stack vs a 22+ attacking unit stack), fixed by always and 100% evacuating city doomed city regardless of land unit type, in CvUnitAI::AI_evacuateCity
+ 
+@@ -6908,6 +6908,8 @@ Fixed/improved with the help of GPT-5.5 (on ChatGPT Codex) thanks.
+ 
+ **Update:** A later diagnostic run found 57 peace deals that `AI_negotiatePeace` reported as successful even though the final AdvCiv-SAS victory-denial guard kept the teams at war. The guard ran after deal logging and trade-value processing, so UWAI could repeatedly propose an ineffective treaty after already clearing its war state. The shared victory-threat check now blocks ordinary peace earlier in UWAI, `AI_negotiatePeace`, and final deal processing while leaving capitulation available. Confirming runs recorded zero false peace successes.
+ 
++**Game-speed audit update:** The victory-denial countdown gates were initially raw 20-turn values even though Civ4 scales the victory countdown itself with `VictoryDelayPercent`. That made the urgency profile inconsistent across speeds: the same XML threshold represented a different fraction of the available launch countdown. The gates are now explicitly named as Normal-speed turns and scaled with `VictoryDelayPercent`; physical UWAI path-turn limits remain intentionally unscaled because unit movement distance does not change with game speed. This audit also led to the CI-enforced `TURN(S)_NORMAL_GAMESPEED` / `TURN(S)_UNSCALED_GAMESPEED` naming convention for SAS turn-valued defines.
++
+ ## 184.2 - (Fixed/Improved) UWAI Space victory-denial could still start too late when stage-3 Space leaders already had many spaceship parts before countdown
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1sbQXIw23MagHuJcdzoCugLR8iX2_cMp4?usp=sharing).
+@@ -7208,7 +7210,7 @@ KI#188.4 fixed the inherited readiness classification, but a fully ready army co
+ 
+ The clearest baseline was population-3 Libyan in save file 450. On turn 74, AdvCiv-SAS created a Carthaginian Barbarian-expedition leader for a seven-turn route. Hannibal spent 16 turns reaching and capturing Libyan, razed it at population 5 on turn 90, and Shaka founded Bulawayo on the exact `(10,41)` plot only 10 turns later. Hannibal therefore paid the entire military and tempo cost while preparing Shaka's next city site. A separate ready 11-unit Carthaginian army selected population-9 Scythian about 10 path turns and 22 plots away while Carthage was preparing against Willem; Arabia captured and razed Scythian on turn 179 before Hannibal could benefit.
+ 
+-AdvCiv-SAS now rejects only a Barbarian target that is both farther than the XML-tunable `SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS` and unlikely to benefit its attacker long-term. The default permits targets within 3 path turns because quick conquest gold, experience, immediate security, or denying a nearby site can repay a short expedition. Beyond that grace distance, the shared KI#186 `AI_isSASCityLikelyToBenefitUsLongTerm` evaluation must say the city is worth keeping. This preserves intrinsically valuable or sustainably located Barbarian cities instead of using a blanket distance ban.
++AdvCiv-SAS now rejects only a Barbarian target that is both farther than the XML-tunable `SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS_UNSCALED_GAMESPEED` and unlikely to benefit its attacker long-term. The default permits targets within 3 path turns because quick conquest gold, experience, immediate security, or denying a nearby site can repay a short expedition. Beyond that grace distance, the shared KI#186 `AI_isSASCityLikelyToBenefitUsLongTerm` evaluation must say the city is worth keeping. This preserves intrinsically valuable or sustainably located Barbarian cities instead of using a blanket distance ban.
+ 
+ The gate covers all three routes that produced expeditions: ordinary city targeting, KI#188's missing Barbarian-expedition-leader creation, and the no-target Barbarian fallback. When ordinary targeting rejects a city, it retries without Barbarian candidates so an available civilization target can replace it. If none exists, the existing defensive, staging, targetless-release, and future-opportunity logic remains available instead of committing the army to the rejected expedition.
+ 
+@@ -7587,7 +7589,7 @@ Follow-up to KI#198. The underlying allocation behavior is inherited from Base A
+ 
+ There had been related older work, which explains why this issue could feel familiar without actually having been solved generically. AdvCiv-SAS had already restricted Settler production to the capital/high population specifically to exploit food-is-production efficiently and avoid small cities spending many turns stalled on Settlers. That older Settler rule addresses the same economic principle through a specialized restriction. Conversely, the later KI#198 Worker-floor change deliberately did not restrict Workers to only high-population/capital cities because weaker or stagnant cities can sometimes contribute efficiently and because broad restrictions could slow emergency replacement. What was still missing was a central cross-city comparison after a fresh non-combat food-production choice had already passed its ordinary need/priority/odds logic.
+ 
+-The new allocation rule is therefore a gate rather than a fixed-city restriction. For a fresh non-combat food-production unit, any safe city that can finish within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS` (5 Normal-speed-equivalent turns by default, scaled by game-speed `TrainPercent`) is already considered good enough and keeps the choice immediately. This intentionally allows multiple cities to rebuild Workers in parallel after heavy losses. Existing invested production is also always completed. Only a slower fresh choice looks for another safe city on the same landmass that can train the unit at least as quickly; if no such city exists, the current/best available producer still builds instead of waiting.
++The new allocation rule is therefore a gate rather than a fixed-city restriction. For a fresh non-combat food-production unit, any safe city that can finish within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED` (5 Normal-speed-equivalent turns by default, scaled by game-speed `TrainPercent`) is already considered good enough and keeps the choice immediately. This intentionally allows multiple cities to rebuild Workers in parallel after heavy losses. Existing invested production is also always completed. Only a slower fresh choice looks for another safe city on the same landmass that can train the unit at least as quickly; if no such city exists, the current/best available producer still builds instead of waiting.
+ 
+ Among eligible alternatives, population and stagnation choose the preferred food/hammer pump rather than a fragile turns-saved formula. The largest eligible population is the default preference, because larger cities can usually convert much more food and hammer output while the unit freezes growth. However, a currently stagnant city is preferred when it is within `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_STAGNANT_POPULATION_GAP` of that largest city (3 by default, using a strict comparison: population 8 can beat population 10, population 7 cannot). This makes otherwise-unused food productive and deliberately allows a strong stagnant pump to build several Workers in sequence. Actual production turns only provide the fast-enough/sanity gate and equal-population tie-break; they are not the strategic score.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 12c5bc513..5aacb7171 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -162,7 +162,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **BBAI logging is now XML-tunable:** BBAI AI-decision logging can now be enabled/disabled and adjusted through **SAS defines**, rather than editing and recompiling the DLL as in base AdvCiv. This is deemed valuable **not only for modders, but also for users** who can now view or generate `BBAI.log` files for review. Note: `LoggingEnabled=1` in `CivilizationIV.ini` is still required for Civ4 to write. This allowed for example to surgically identify and fix the root cause of a city not producing its first settler until ~T90 at normal game speed, which is way too late (`bWarPlan` was too aggressively gating settler production; now it only blocks settler production after early expansion has reached enough cities (inefficient at that point, better switch strategy)). Note: BBAI logs can be very long; for broad raw-log diagnosis, we usually give to an external LLM/AI such as ChatGPT the log file, as it is as of now agentic-token-free analysis (also good to give us a different point of view/review if needed).
+ - **Timestamped BBAI log files:** Optionally log each new game and loaded save to a **new UTC-timestamped file** (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins notably with the new/load time, currently active BBAI log levels, turn/year, map and game settings (including `landheavy` and `navalheavy` actual game information), player counts, and RNG states, avoiding mixed logs and the need to restart Civ4 between repeated save-file tests. See also [README.md (BBAI logging and head example)](/README.md#bbai-logging-and-head-example).
+ - (Requires AdvCiv-SAS 6022+) **SAS game-record log:** added a separate `SASGameRecord_*.log` for compact autoplay and AI-strength review. It notably records high-level run context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by recording what happened before or alongside detailed AI-decision traces. (Requires AdvCiv-SAS 6033+) It also logs autoplay start/end/change rows, explicit player appearance/revival/elimination rows, and compact run-status rows with alive/eliminated players, current winner/victory if any, and top score/power players, so stopped autoplay logs no longer require inferring these from missing snapshots. (Requires AdvCiv-SAS 6034+) Free-text fields such as city, player, leader, civ, map-script, and log-file names are quoted/escaped, so names with spaces are easier to parse robustly. (Requires AdvCiv-SAS 6057+) It also notably records compact per-turn exploration, map changes and environmental status, explicit spaceship launches and project-victory progress, and a full final snapshot when the game is won. (Requires AdvCiv-SAS 6058+) It notably also records war-declaration causes and sponsors, diplomacy memories, progress for all enabled victories, project-victory resets and failures, and compact full-map revelation. (Requires AdvCiv-SAS 6077+) It notably also further records active mod and DLL-slot identity, research and production overflow, production conversion and lost-production gold, city buildings and pollution, trade unlocks, and compact territory development including routes, improvements, irrigation, and improved/unimproved bonus types, and also names player-wide health/happiness modifier sources and records AI victory-stage strategies and the target's victory context when war is declared. (Requires AdvCiv-SAS 6091+) It also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity. (Requires AdvCiv-SAS 6092+) It also records current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use.
+-- Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
++- Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-record log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. For stronger LLM analysis, also provide compact source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) includes useful source/XML/docs/helper context while staying compact enough to upload and share. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+ - (Requires AdvCiv-SAS 6062+) **Overseas-transport BBAI diagnostics:** added `SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL`, separated from CITY and UNIT so overseas settlement and conquest logistics can be inspected without enabling those broad logs. It notably connects known valuable island sites and cities with their distance and defenders, map type, transport production and cargo capacity, loaded units, units actually available to board, incoming cargo already assigned within 1/3/7 turns, pickup/loading failures, launch thresholds and decisions, naval reachability, and Settler/Worker cargo handling.
+@@ -195,7 +195,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ 
+ (Requires AdvCiv-SAS 6055+) Note 3: Before a spaceship launches, capturing its owner’s capital only moves the capital to another remaining city; completed spaceship parts remain because progress (e.g. 75%) belongs to the team. After launch, however, capturing the owner’s current capital resets the active Space-victory countdown and stops that spaceship. This is why AdvCiv-SAS targets the capital more aggressively as the decisive target during this narrow window, especially when a militarily weak player is about to win through a Space victory against stronger rivals.
+ 
+-- (Requires AdvCiv-SAS 6038+) **AI victory denial is much more urgent:** BBAI testing in save file 450 showed a deep UWAI issue that UWAI could let a rival close to winning survive too easily: in the Lincoln runs, Lincoln was very weak militarily (~0.7 military power) but still won Space despite much stronger nearby AIs (up to ~2.1) and no war declared on him in the checked late-game snapshots (`wars=-` at T260, T270, T280, T290, then wins Space at T292); in the Ramesses runs, Ramesses was militarily strong (top 2 at ~1.9 vs ~2.1 for top 1) and likewise won Space without being at war in the checked late-game snapshots either (`wars=-` at T260, T270, T280, then wins Space at T290). After fixing the missing-war response, follow-up tests exposed additional failure modes: war could start too late, start but end after 1-2 turns through ordinary peace deals, or happen without enough impact. The decisive checks in this fix are now therefore low-level enough, because higher-level targeted patches did not reliably solve the observed chain of failures (similar in spirit to the AdvCiv-SAS scrapping or `AI_chooseUnit` final guards): in `UWAI::Team::scheme` and related functions. The fix now boosts war utility for stage-4/countdown victory threats, can convert that into direct war when the target is weak and near enough, and refuses ordinary peace while the target remains a serious victory threat. In the final Lincoln-branch retest, Lincoln was weak at T260 as usual (4 cities / 55 military units / 1818 power), but this time Persia, Egypt, France, and Babylon declared at T267-T269, peace was blocked, and America was eliminated at T272. In the separate Ramesses-branch retest, strong Ramesses still survived, but was no longer ignored: he lost 2 cities, 49 city-population points, 28 total units / 30 military units, and about a quarter of his power from T260 to T290. The direct-war gates stay intentionally narrow so distant or naval-heavy threats can receive utility pressure without forcing reckless cross-map attacks. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
++- (Requires AdvCiv-SAS 6038+) **AI victory denial is much more urgent:** BBAI testing in save file 450 showed a deep UWAI issue that UWAI could let a rival close to winning survive too easily: in the Lincoln runs, Lincoln was very weak militarily (~0.7 military power) but still won Space despite much stronger nearby AIs (up to ~2.1) and no war declared on him in the checked late-game snapshots (`wars=-` at T260, T270, T280, T290, then wins Space at T292); in the Ramesses runs, Ramesses was militarily strong (top 2 at ~1.9 vs ~2.1 for top 1) and likewise won Space without being at war in the checked late-game snapshots either (`wars=-` at T260, T270, T280, then wins Space at T290). After fixing the missing-war response, follow-up tests exposed additional failure modes: war could start too late, start but end after 1-2 turns through ordinary peace deals, or happen without enough impact. The decisive checks in this fix are now therefore low-level enough, because higher-level targeted patches did not reliably solve the observed chain of failures (similar in spirit to the AdvCiv-SAS scrapping or `AI_chooseUnit` final guards): in `UWAI::Team::scheme` and related functions. The fix now boosts war utility for stage-4/countdown victory threats, can convert that into direct war when the target is weak and near enough, and refuses ordinary peace while the target remains a serious victory threat. In the final Lincoln-branch retest, Lincoln was weak at T260 as usual (4 cities / 55 military units / 1818 power), but this time Persia, Egypt, France, and Babylon declared at T267-T269, peace was blocked, and America was eliminated at T272. In the separate Ramesses-branch retest, strong Ramesses still survived, but was no longer ignored: he lost 2 cities, 49 city-population points, 28 total units / 30 military units, and about a quarter of his power from T260 to T290. The direct-war gates stay intentionally narrow so distant or naval-heavy threats can receive utility pressure without forcing reckless cross-map attacks. (Requires AdvCiv-SAS 6096+) Note: the countdown windows are expressed in Normal-speed turns and scale with `VictoryDelayPercent`, matching the victory countdown itself so the same urgency phase applies on other game speeds. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+ - (Requires AdvCiv-SAS 6053+) Update: Follow-up diagnostics found 57 cases in which an AI tried to make ordinary peace with a rival close to victory. The earlier AdvCiv-SAS fix kept the war active as intended, but didn't take into account that UWAI had already accepted the peace treaty internally even though the teams remained at war: the SAS rejection was too late in the process. To fix this, these treaties are now rejected before UWAI processes them, so its decisions and logs correctly show that the war continues; capitulation remains available, and confirming runs had zero false peace successes. See [KI#184](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#184---fixedimproved-multiple-uwai-victory-denial-issues-could-let-imminent-space-winners-survive-no-war-before-fixing-this-regardless-of-whether-ai-was-very-strong-militarily-like-in-the-ramesses-run-or-very-weak-like-in-the-lincoln-run-then-even-after-the-initial-fix-wars-were-still-too-late-too-short-or-too-low-impact).
+ - (Requires AdvCiv-SAS 6039+) **Space victory denial now starts before the final launch window when parts are already high:** After KI#184 made AIs react faster and harder to immediate Space-win threats, BBAI follow-up logs showed that some Space rivals were sometimes still too close to winning before the countdown response began. In save file 450, Arabia still won because its recent war with Hannibal, the strongest nearby threat, had ended in normal Civ4 forced peace, temporarily preventing Hannibal from immediately restarting the war; by the time another anti-Space war could happen, Arabia was already at countdown 4. Save file 452 showed why this was not only a forced-peace edge case: Churchill's fast Space race was already dangerous while still pre-countdown / stage 3, so the KI#184 countdown/stage-4 response had not yet become strong enough. So Stage-3 Space leaders now also receive earlier utility pressure, direct-war consideration, and peace refusal once their spaceship is sufficiently complete and they are close enough to the spaceship-parts leader. In save file 452, Churchill still won, but was attacked around the 8/16-parts point and lost Oxford next turn; in save file 450, the Ramesses branch won, but likewise triggered wars and peace blocking at 8/16 parts, with later direct wars and cities changing hands. This is meant to start real pressure before the countdown, not to dogpile every Apollo builder. See [KI#184.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown).
+ - (Requires AdvCiv-SAS 6070+) Update: In save file 449, Gandhi remained completely at peace from turn 300 through launching his spaceship on turn 328 and winning on turn 338. BBAI logging showed why the earlier SAS victory-denial rules did not produce a war: UWAI's ordinary contact rule rejected targets that needed more than about 3 cached path turns, removing around `100000` war value even though SAS separately allowed an emergency attack up to 10 turns away. To fix this, stage-4 threats and qualifying launch countdowns now consistently use the wider SAS emergency limit. Our first version of this update fix also gave that wider limit to the previous stage-3 change, substantially broadening it beyond its earlier close-contact behavior; at only 8/16 spaceship parts, this caused four independent declarations, followed by three vassals joining. The two stage-3 choices are therefore controlled separately: the earlier response remains enabled, so a qualified stage-3 Space threat still encourages preparation and can trigger direct war when it passes the normal close-contact limit, while extending those early direct wars to the wider emergency distance is disabled by default but remains XML-tunable. In the final confirming run, one close stage-3 threat triggered direct war without the wider limit, then four launched spaceships were stopped by capturing their owners' capitals; the fifth and strongest contender survived the response and won Space. The AI therefore reacts effectively without making every stage-3 Space leader an automatic global target. See [KI#184.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1842---fixedimproved-uwai-space-victory-denial-could-still-start-too-late-when-stage-3-space-leaders-already-had-many-spaceship-parts-before-countdown).
+@@ -411,7 +411,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp) and [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6036+) **War target selection — distance guard** - Update: **Faraway-war Risk reject no longer inflates UWAI war utility: a follow-up BBAI test in save file 450 showed the older AdvCiv-SAS KI#61 hard reject could also fire in the recursive peace scenario. Since UWAI scores war as `war scenario - peace scenario`, this could turn a mediocre war into an absurdly attractive one, e.g. `warScenarioUtility=-220`, `peaceScenarioUtility=-105386`, `finalUtility=105166`. The hard reject no longer applies to the recursive peace scenario; retesting removed all huge positive final-utility artifacts (`positive final: 0`) while preserving the intended negative reject for bad faraway/unreachable war plans. See [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6052+) Update 2 : later BBAI logging showed that the guard was too invasive after war had already begun. In save file 450, it forced Sumer to make peace after only 2 turns despite capturing New York with twice Lincoln's power, merely because the next enemy city was beyond the distance limit. It is now restricted to pre-war evaluations, leaving normal UWAI logic to decide when an ongoing war should end.
+-- (Requires AdvCiv-SAS 6094+) Update 3: the pre-war contact-distance guard is now substantially less restrictive and XML-tunable at a current, to address the issue, for example in save file 459, AIs having an overwhelming military advantage but not attacking much weaker rivals. The previous `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS` 3-turn land limit could hard-reject otherwise worthwhile reachable wars before normal UWAI evaluation simply because the army's estimated path to the nearest target city took slightly longer. To fix this, `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS` / `SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS` are now changed to much higher defaults of 15 (vs 3 before) approximate path turns for land-reachable wars and 20 (vs 12 before to match this change too) for genuinely naval wars. The wider limits preserve a sanity bound for very remote targets while allowing ordinary UWAI power, utility, diplomacy, closeness and war-state logic to decide whether a reachable target is actually worth attacking. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
++- (Requires AdvCiv-SAS 6094+) Update 3: The previous `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED` 3-turn land limit could hard-reject otherwise worthwhile reachable wars before normal UWAI evaluation simply because the army's estimated path to the nearest target city took slightly longer. For example in save file 459, AIs having an overwhelming military advantage but not attacking much weaker rivals. To fix this, the SAS pre-war contact-distance guard is now substantially less restrictive to much higher defaults of 15 (vs 3 before) approximate path turns for land-reachable wars and 20 for `SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED` too to match this change (vs 12 before) for genuinely naval wars. The wider limits preserve a sanity bound for very remote targets while allowing ordinary UWAI power, utility, diplomacy, closeness and war-state logic to decide whether a reachable target is actually worth attacking. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
+ - (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive; With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment, in `CvPlayerAI::AI_conquerCity`. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer "split in two" empires). See [KI#64](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity).
+ - (Requires AdvCiv-SAS 6042+) **Captured-city razing avoids destroy-then-resettle waste:** BBAI testing in save file 450 showed AIs repeatedly destroy a city and then soon spend a Settler to rebuild on the exact same `(38,50)` plot: Ur was razed, Tours was founded there and razed, then HRE founded Augsburg there only four turns later and eventually razed it too. This wasted population, buildings, Settlers, regrowth, and military effort. The cause was Base AdvCiv's `AI_isAwfulSite`, which misevaluated and judged existing cities through a separate crude terrain veto that could conflict with how Settlers valued the same site. AdvCiv-SAS replaces it with `AI_isSASCityLikelyToBenefitUsLongTerm`, whose intrinsic-quality component reuses the shared SAS low-food and potential-yield helpers: close cities with enough long-term food or workable potential can be kept even without standout bonuses. In the confirming run, HRE kept Ur when it captured the city at population 3; Ur later reached population 13, built a corporation building, and generated a Great Engineer, supporting a stronger AI outcome instead of another wasteful raze/resettle cycle. See [KI#186](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings).
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=22 omittedFiles=1 embeddedPatchBytes=106927

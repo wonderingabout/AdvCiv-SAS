@@ -1,0 +1,212 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5430
+# Commit: 3bf18c08eca65df9071ca976b9a9575707c1da41
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c4fad2d42106823880471444998d8c698061c931
+# Title: add SAS sentinel/guard defines to make sure they are loaded, raise error if SAS defines are not loaded - **Launch guard for SAS defines (startup/load/Sevoped...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Python/BUG/BugEventManager.py
+2	0	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	0	Assets/Python/EntryPoints/CvEventInterface.py
+2	0	Assets/Python/EntryPoints/CvScreensInterface.py
+53	0	Assets/Python/SASDefineGuard.py
+12	0	Assets/XML/GlobalDefines_advciv_sas.xml
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Assets/Python/SASDefineGuard.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 4ead28411..290f6357c 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -104,6 +104,7 @@ import BugData
+ import BugUtil
+ import InputUtil
+ import types
++import SASDefineGuard
+ # <advc.007b>
+ import CvUtil
+ import CvScreensInterface
+@@ -664,6 +665,7 @@ def hookupPreGameStartEvent():
+ 	BugUtil.extend(preGameStart, "CvAppInterface", "preGameStart")
+ 
+ def preGameStart(originalFunc):
++	SASDefineGuard.verify_or_raise("BugEventManager.preGameStart")
+ 	g_eventManager.fireEvent("PreGameStart")
+ 	originalFunc()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d3ddd0378..9f1f8bdc2 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -56,6 +56,7 @@ import BugUtil
+ 
+ from _sevopedia_helpers import *
+ import _sevopedia_main_groupings as SAS_MainGroupings
++import SASDefineGuard
+ 
+ 
+ 
+@@ -560,6 +561,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.setPediaCommonWidgets()
+ 
+ 	def pediaShow(self):
++		SASDefineGuard.verify_or_raise("SevoPediaMain.pediaShow")
+ 		global g_TraitUtilInitDone
+ 		if not g_TraitUtilInitDone:
+ 			TraitUtil.init()
+
+diff --git a/Assets/Python/EntryPoints/CvEventInterface.py b/Assets/Python/EntryPoints/CvEventInterface.py
+index 80784720f..364cb08e8 100644
+--- a/Assets/Python/EntryPoints/CvEventInterface.py
++++ b/Assets/Python/EntryPoints/CvEventInterface.py
+@@ -15,6 +15,7 @@
+ # **********************************
+ 
+ import BugEventManager
++import SASDefineGuard
+ 
+ eventManager = BugEventManager.BugEventManager()
+ 
+@@ -28,6 +29,9 @@ def getEventManager():
+ def onEvent(argsList):
+ 	# Called when a game event happens - return 1 if the event was consumed.
+ 	#
++	tag = argsList[0]
++	if (tag == "OnLoad" or tag == "GameStart"):
++		SASDefineGuard.verify_or_raise("CvEventInterface.onEvent[%s]" % tag)
+ 	return getEventManager().handleEvent(argsList)
+ 
+ def applyEvent(argsList):
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index de7686f91..2183d1a5b 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -45,6 +45,7 @@ import CvScreenUtilsInterface
+ import ScreenInput as PyScreenInput
+ from CvScreenEnums import *
+ from CvPythonExtensions import *
++import SASDefineGuard
+ # K-Mod
+ import BugOptionsScreen
+ def showBugOptionsScreen(argsList=None):
+@@ -293,6 +294,7 @@ bUsingSevopedia = False
+ def createCivilopedia():
+ 	# Creates the correct Civilopedia based on an option.
+ 	#
++	SASDefineGuard.verify_or_raise("CvScreensInterface.createCivilopedia")
+ 	global pediaMainScreen
+ 	global bUsingSevopedia
+ 	if pediaMainScreen is None:
+
+diff --git a/Assets/Python/SASDefineGuard.py b/Assets/Python/SASDefineGuard.py
+new file mode 100644
+index 000000000..136dcbc58
+--- /dev/null
++++ b/Assets/Python/SASDefineGuard.py
+@@ -0,0 +1,53 @@
++# <!-- custom: AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md). (GPT-5.3-Codex) -->
++#
++# <!-- custom: Purpose:
++# Python reads defines through CyGlobalContext (DLL runtime define table), not by parsing XML directly.
++# Our DLL loads xml\GlobalDefines_advciv_sas.xml in CvXMLLoadUtility::SetGlobalDefines.
++# If that file is not loaded (wrong mod/DLL/load path), these keys resolve to defaults/missing values
++# instead of our sentinels, so this guard fails fast and surfaces the launch/config issue. (GPT-5.3-Codex) -->
++
++
++
++from CvPythonExtensions import CyGlobalContext
++
++
++
++gc = CyGlobalContext()
++
++
++
++SAS_LAUNCH_GUARD_TEST_INT_DEFINE = "SAS_LAUNCH_GUARD_TEST_INT"
++SAS_LAUNCH_GUARD_TEST_STRING_DEFINE = "SAS_LAUNCH_GUARD_TEST_STRING"
++SAS_LAUNCH_GUARD_EXPECTED_INT = 137531
++SAS_LAUNCH_GUARD_EXPECTED_STRING = "AdvCiv-SAS defines test string"
++
++
++
++def _raise_guard_error(szContext, szDetail):
++	raise RuntimeError("Missing or incorrect SAS defines. This could indicate a mod configuration error. Make sure you start this mod from a Windows shortcut. See the Quick Install Guide documentation. Context: %s. %s" % (
++		szContext,
++		szDetail,
++	))
++
++
++
++def verify_or_raise(szContext):
++	# <!-- custom: launch guard to detect unexpected define state (e.g., missing defines) and fail fast with explicit context. (GPT-5.3-Codex) -->
++	iValue = gc.getDefineINT(SAS_LAUNCH_GUARD_TEST_INT_DEFINE)
++	szValue = gc.getDefineSTRING(SAS_LAUNCH_GUARD_TEST_STRING_DEFINE)
++
++	if iValue != SAS_LAUNCH_GUARD_EXPECTED_INT:
++		_raise_guard_error(szContext, "%s actual=%d expected=%d" % (
++			SAS_LAUNCH_GUARD_TEST_INT_DEFINE,
++			iValue,
++			SAS_LAUNCH_GUARD_EXPECTED_INT,
++		))
++
++	if szValue != SAS_LAUNCH_GUARD_EXPECTED_STRING:
++		_raise_guard_error(szContext, "%s actual='%s' expected='%s'" % (
++			SAS_LAUNCH_GUARD_TEST_STRING_DEFINE,
++			szValue,
++			SAS_LAUNCH_GUARD_EXPECTED_STRING,
++		))
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index f84b160c6..f172d84f0 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -6,6 +6,18 @@ Created as part of AdvCiv-SAS improvements
+ -->
+ <!-- custom: Long_Comments_XML.txt #131, #195 -->
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
++	<!-- custom: launch guard int define checked at startup/load/Sevopedia entry to detect bad launch context quickly. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_LAUNCH_GUARD_TEST_INT</DefineName>
++		<iDefineIntVal>137531</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_LAUNCH_GUARD_TEST_STRING</DefineName>
++		<DefineTextVal>AdvCiv-SAS defines test string</DefineTextVal>
++	</Define>
++
++
++
+ 	<!-- custom: enable/disable to show trait icons (chars) before trait names in the Sevopedia leader Traits section. 0 is disabled (no icons), any other value e.g. 1 is enabled (shows icons like in the Traits category). -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS</DefineName>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 623afb018..c1637c6a7 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -98,6 +98,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ 
+ ### Code/Performance optimizations
+ 
++- (Requires AdvCiv-SAS 5429+) **Launch guard for SAS defines (startup/load/Sevopedia):** Added a strict define-integrity check using one **int sentinel** and one **string sentinel**, validated at pre-game start, game start, save load, Sevopedia creation, and Sevopedia show. If a value is missing or mismatched, Python raises a **fatal error** with `actual` vs `expected` values and guidance to launch from a Windows shortcut. The game will be **unplayable if the config is incorrect**. Change in: [`SASDefineGuard.py`](/Assets/Python/SASDefineGuard.py). See also [Quick Install Guide](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#place-a-shortcut-of-the-mod-on-your-desktop).
+ - **Heavily refactor and simplify Sevopedia Main** so it is much easier to add, reorder, or modify or otherwise maintain categories. See [Sevopedia reworks (example 0.0)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-00-heavily-refactored-sevopedia-maintain-so-it-is-much-easier-to-maintain-or-customize).
+ - **Performance & code cleanup:** Broad Python/XML/C++ optimizations (e.g., removed giant ConfigObj docstring (see [KI#21.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#215---addressed--fixed---removed-the-giant-configobj-docstring-very-inefficiently-in-the-python-code-and-commented-out-most-if-not-all-as-well)); cached hot values via `static const`/hoisting; normalized inconsistent asset names (see for example [KI#18](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#18---very-inconsistent-naming-in-some-assets))), **map-type heaviness caching** (`CvGame::recomputeMapnameHeaviness`) so land/naval checks run once per game (feeds UNITAI tuning) (see [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc), **bonus-specific builds/improvements caching** (e.g. `CvUnitAI::getBonusSpecificLandBuilds`), [AI Personality Panel performance optimization notes](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching)), **feature-level caching** (AI Personality Panel), refactor **extremely redundant code** (e.g. `refreshUnitSelection` in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py)), cache redundant computation (e.g. **store per turn and player** top cities' values `CvCityAI::AI_buildingValue`), etc.
+ - **Found-value** evaluation now uses **`int`** end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), **not `short`**. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=9857

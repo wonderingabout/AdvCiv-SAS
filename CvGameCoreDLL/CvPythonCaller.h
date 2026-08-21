@@ -18,8 +18,7 @@ public:
 	CvPythonCaller();
 	~CvPythonCaller();
 	bool isUseFinishTextCallback() const; // Needed for a DllExport in CvGlobals
-	void call(char const* szFunctionName, char const* szModuleName = PYGameModule,
-			bool bAssertSuccess = true, bool bCheckExists = false) const;
+	void call(char const* szFunctionName, char const* szModuleName = PYGameModule, bool bAssertSuccess = true, bool bCheckExists = false) const;
 
 	// Screens ...
 	void showPythonScreen(char const* szScreenName) const;
@@ -46,10 +45,8 @@ public:
 
 	// Misc. UI ...
 	bool canPickRevealedPlot(CvPlot const& kPlot) const;
-	bool cannotSelectionListMoveOverride(CvPlot const& kPlot,
-			bool bAlt, bool bShift, bool bCtrl) const;
-	bool cannotSelectionListNetOverride(GameMessageTypes eMessage, int aiData[3],
-			int iFlags, bool bAlt, bool bShift) const;
+	bool cannotSelectionListMoveOverride(CvPlot const& kPlot, bool bAlt, bool bShift, bool bCtrl) const;
+	bool cannotSelectionListNetOverride(GameMessageTypes eMessage, int aiData[3], int iFlags, bool bAlt, bool bShift) const;
 	bool cannotHandleActionOverride(CvPlot* pPlot, int iAction, bool bTestVisible) const;
 	bool cannotDoControlOverride(ControlTypes eControl) const;
 	void sendEmailReminder(CvString szEmailAddress) const;
@@ -58,10 +55,7 @@ public:
 	bool canTriggerEvent(CvCity const& kCity, EventTriggerTypes eTrigger) const;
 	bool canTriggerEvent(CvUnit const& kUnit, EventTriggerTypes eTrigger) const;
 	CvWString eventHelp(EventTypes eEvent, EventTriggeredData const* pTriggered) const;
-	bool doEventTrigger(PlayerTypes ePlayer, EventTriggeredData const& kTriggered,
-			CvCity*& pCity, CvPlot*& pPlot, CvUnit*& pUnit, PlayerTypes& eOtherPlayer,
-			CvCity*& pOtherPlayerCity, ReligionTypes& eReligion,
-			CorporationTypes& eCorporation, BuildingTypes& eBuilding) const;
+	bool doEventTrigger(PlayerTypes ePlayer, EventTriggeredData const& kTriggered, CvCity*& pCity, CvPlot*& pPlot, CvUnit*& pUnit, PlayerTypes& eOtherPlayer, CvCity*& pOtherPlayerCity, ReligionTypes& eReligion, CorporationTypes& eCorporation, BuildingTypes& eBuilding) const;
 	void afterEventTriggered(EventTriggeredData const& kTriggered) const;
 	bool canDoEvent(EventTypes eEvent, EventTriggeredData const& kTriggered) const;
 	void applyEvent(EventTypes eEvent, EventTriggeredData const& kTriggered) const;
@@ -69,26 +63,19 @@ public:
 
 	// City ...
 	bool isCitiesDestroyFeatures(int iX, int iY) const;
-	bool canTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue,
-			bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const;
-	bool cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue,
-			bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const;
-	bool canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue,
-			bool bTestVisible, bool bIgnoreCost) const;
-	bool cannotConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue,
-			bool bTestVisible, bool bIgnoreCost) const;
-	bool canCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue,
-			bool bTestVisible) const;
-	bool cannotCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue,
-			bool bTestVisible) const;
+	bool canTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const;
+	bool cannotTrainOverride(CvCity const& kCity, UnitTypes eUnit, bool bContinue, bool bTestVisible, bool bIgnoreCost, bool bIgnoreUpgrades) const;
+	bool canConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost) const;
+	bool cannotConstructOverride(CvCity const& kCity, BuildingTypes eBuilding, bool bContinue, bool bTestVisible, bool bIgnoreCost) const;
+	bool canCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue, bool bTestVisible) const;
+	bool cannotCreateOverride(CvCity const& kCity, ProjectTypes eProject, bool bContinue, bool bTestVisible) const;
 	bool canMaintainOverride(CvCity const& kCity, ProcessTypes eProcess, bool bContinue) const;
 	bool cannotMaintainOverride(CvCity const& kCity, ProcessTypes eProcess, bool bContinue) const;
 	int buildingCostMod(CvCity const& kCity, BuildingTypes eBuilding) const;
 	UnitTypes conscriptUnitOverride(PlayerTypes ePlayer) const;
 	bool doGrowth(CvCity const& kCity) const;
 	bool doCulture(CvCity const& kCity) const;
-	bool doPlotCultureTimes100(CvCity const& kCity, PlayerTypes ePlayer,
-			bool bUpdate, int iCultureRateTimes100) const;
+	bool doPlotCultureTimes100(CvCity const& kCity, PlayerTypes ePlayer, bool bUpdate, int iCultureRateTimes100) const;
 	bool doProduction(CvCity const& kCity) const;
 	bool doReligion(CvCity const& kCity) const;
 	bool doGreatPeople(CvCity const& kCity) const;
@@ -113,7 +100,8 @@ public:
 	bool canDoCivicOverride(PlayerTypes ePlayer, CivicTypes eCivic) const;
 	bool doGold(PlayerTypes ePlayer) const;
 	bool doResearch(PlayerTypes ePlayer) const;
-	short AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const;
+	// <!-- custom: found-value callback returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	int AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const;
 	TechTypes AI_chooseTech(PlayerTypes ePlayer, bool bFree) const;
 	bool AI_doDiplo(PlayerTypes ePlayer) const;
 
@@ -137,8 +125,7 @@ public:
 	int numCustomMapOptions(char const* szMapScriptName, bool bHidden) const;
 	CustomMapOptionTypes customMapOptionDefault(char const* szMapScriptName, int iOption) const;
 	// <advc.004>
-	CvWString customMapOptionDescription(char const* szMapScriptName, int iOption,
-			CustomMapOptionTypes eOptionValue) const; // </advc.004>
+	CvWString customMapOptionDescription(char const* szMapScriptName, int iOption, CustomMapOptionTypes eOptionValue) const; // </advc.004>
 	bool mapGridDimensions(WorldSizeTypes eWorldSize, int& iWidth, int& iHeight) const;
 	bool mapPlotsPercent(WorldSizeTypes eWorldSize, int& iModifier) const; // advc.165
 	void mapLatitudeExtremes(int& iTop, int& iBottom) const;
@@ -179,30 +166,15 @@ private:
 	bool* m_abUseCallback; // Replacing all the USE_..._CALLBACK variables and getters
 	mutable bool m_bLastCallSuccessful;
 
-	void call(char const* szFunctionName, CyArgsList& kArgsList, long& lResult,
-			char const* szModuleName = PYGameModule, bool bAssertSuccess = true,
-			bool bCheckExists = false) const;
-	void call(char const* szFunctionName, long& lResult,
-			char const* szModuleName = PYGameModule, bool bAssertSuccess = true,
-			bool bCheckExists = false) const;
-	void call(char const* szFunctionName, CyArgsList& kArgsList,
-			char const* szModuleName = PYGameModule, bool bAssertSuccess = true,
-			bool bCheckExists = false) const;
+	void call(char const* szFunctionName, CyArgsList& kArgsList, long& lResult, char const* szModuleName = PYGameModule, bool bAssertSuccess = true, bool bCheckExists = false) const;
+	void call(char const* szFunctionName, long& lResult, char const* szModuleName = PYGameModule, bool bAssertSuccess = true, bool bCheckExists = false) const;
+	void call(char const* szFunctionName, CyArgsList& kArgsList, char const* szModuleName = PYGameModule, bool bAssertSuccess = true, bool bCheckExists = false) const;
 	bool isOverride() const;
 	bool canPlaceItemAt(char const* szItemName, CvPlot const& kPlot, bool& bOverride) const;
-	bool isUse(CallbackDefines eCallback) const
-	{
-		return m_abUseCallback[eCallback];
-	}
-	static int toInt(long l)
-	{
-		return static_cast<int>(l); // They're the same in MSVC03 x086
-	}
-	static bool toBool(long l)
-	{
-		FAssert(l >= 0);
-		return (l == TRUE);
-	}
+	bool isUse(CallbackDefines eCallback) const { return m_abUseCallback[eCallback]; }
+	// They're the same in MSVC03 x086
+	static int toInt(long l) { return static_cast<int>(l); }
+	static bool toBool(long l) { FAssert(l >= 0); return (l == TRUE); }
 };
 
 #endif

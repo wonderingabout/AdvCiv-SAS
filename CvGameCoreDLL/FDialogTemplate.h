@@ -21,26 +21,19 @@ public:
 
 	~CDialogTemplate();
 
-	void AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWORD exStyle,
-		int x, int y, int w, int h, WORD id);
+	void AddComponent(LPCSTR type, LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddButton(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddEditBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddStatic(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddListBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddScrollBar(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
-	void AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y,
-		int w, int h, WORD id);
+	void AddComboBox(LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
 	DLGTEMPLATE* GetDialogTemplate() const;
 
@@ -49,8 +42,7 @@ private:
 	CDialogTemplate(const CDialogTemplate&);
 	CDialogTemplate& operator=(const CDialogTemplate&);
 
-	void AddStandardComponent(WORD type, LPCSTR caption, DWORD style,
-		DWORD exStyle, int x, int y, int w, int h, WORD id);
+	void AddStandardComponent(WORD type, LPCSTR caption, DWORD style, DWORD exStyle, int x, int y, int w, int h, WORD id);
 
 	void AlignData(int size);
 	void AppendString(LPCSTR string);

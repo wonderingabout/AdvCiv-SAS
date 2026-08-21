@@ -1,0 +1,560 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2425
+# Commit: 7129bb1984e547052aa7d17e3f01dc0bc400016e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d6f75295076cd869258e34a3759f0f7943926c91
+# Title: Use FAssertEnumBounds in a few places
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvCity.cpp
+1	1	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvCityAI.h
+1	1	CvGameCoreDLL/CvGame.cpp
+8	8	CvGameCoreDLL/CvGlobals.cpp
+4	4	CvGameCoreDLL/CvInfo_Build.cpp
+16	16	CvGameCoreDLL/CvInfo_Building.cpp
+11	11	CvGameCoreDLL/CvPlayer.cpp
+3	6	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+2	2	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+3	3	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 403ffdf94..f5de86203 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -991,7 +991,7 @@ bool CvCity::canWork(CvPlot /* advc: */ const& kPlot) const
+ 
+ void CvCity::verifyWorkingPlot(CityPlotTypes ePlot) // advc.enum: CityPlotTypes
+ {
+-	FAssertBounds(0, NUM_CITY_PLOTS, ePlot);
++	FAssertEnumBounds(ePlot);
+ 	if (isWorkingPlot(ePlot))
+ 	{
+ 		CvPlot* pPlot = getCityIndexPlot(ePlot);
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ac17b1504..e155f457a 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -7843,7 +7843,7 @@ BuildTypes CvCityAI::AI_getBestBuild(CityPlotTypes ePlot) const // advc.enum: Ci
+ 		return m_eBestBuild;
+ 	// (Tbd.: Put the part below into a separate function so that it can be inlined)
+ 	// </advc.opt>
+-	FAssertBounds(0, NUM_CITY_PLOTS, ePlot);
++	FAssertEnumBounds(ePlot);
+ 	return m_aeBestBuild[ePlot];
+ }
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 37283f0f6..90f8cbb7c 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -114,7 +114,7 @@ public:
+ 
+ 	int AI_getBestBuildValue(/* advc.enum: */ CityPlotTypes ePlot) const
+ 	{
+-		FAssertBounds(0, NUM_CITY_PLOTS, ePlot);
++		FAssertEnumBounds(ePlot);
+ 		return m_aiBestBuildValue[ePlot];
+ 	}
+ 	int AI_totalBestBuildValue(CvArea const& kArea) const;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a6f9ad7fa..052e6e497 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -8054,7 +8054,7 @@ void CvGame::testAlive()
+ 
+ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScore) const  // advc: simplified this function a bit
+ {
+-	FAssertBounds(0, GC.getNumVictoryInfos(), eVictory);
++	FAssertEnumBounds(eVictory);
+ 	FAssertBounds(0, MAX_CIV_TEAMS, eTeam);
+ 	FAssert(GET_TEAM(eTeam).isAlive());
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 07ab7f3d1..0e1d46716 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -441,7 +441,7 @@ CvString*& CvGlobals::getEntityEventTypes()
+ 
+ CvString& CvGlobals::getEntityEventTypes(EntityEventTypes e)
+ {
+-	FAssertBounds(0, getNumEntityEventTypes(), e);
++	FAssertEnumBounds(e);
+ 	return m_paszEntityEventTypes[e];
+ }
+ 
+@@ -468,7 +468,7 @@ CvString*& CvGlobals::getFunctionTypes()
+ 
+ CvString& CvGlobals::getFunctionTypes(FunctionTypes e)
+ {
+-	FAssertBounds(0, NUM_FUNC_TYPES, e);
++	FAssertEnumBounds(e);
+ 	return m_paszFunctionTypes[e];
+ }
+ 
+@@ -479,7 +479,7 @@ CvString*& CvGlobals::getFlavorTypes()
+ 
+ CvString& CvGlobals::getFlavorTypes(FlavorTypes e)
+ {
+-	FAssertBounds(0, getNumFlavorTypes(), e);
++	FAssertEnumBounds(e);
+ 	return m_paszFlavorTypes[e];
+ }
+ 
+@@ -506,7 +506,7 @@ CvString*& CvGlobals::getCitySizeTypes()
+ 
+ CvString& CvGlobals::getCitySizeTypes(CitySizeTypes e)
+ {
+-	FAssertBounds(0, NUM_CITYSIZE_TYPES, e);
++	FAssertEnumBounds(e);
+ 	return m_paszCitySizeTypes[e];
+ }
+ 
+@@ -517,7 +517,7 @@ CvString*& CvGlobals::getContactTypes()
+ 
+ CvString& CvGlobals::getContactTypes(ContactTypes e)
+ {
+-	FAssertBounds(0, NUM_CONTACT_TYPES, e);
++	FAssertEnumBounds(e);
+ 	return m_paszContactTypes[e];
+ }
+ 
+@@ -528,7 +528,7 @@ CvString*& CvGlobals::getDiplomacyPowerTypes()
+ 
+ CvString& CvGlobals::getDiplomacyPowerTypes(DiplomacyPowerTypes e)
+ {
+-	FAssertBounds(0, NUM_DIPLOMACYPOWER_TYPES, e);
++	FAssertEnumBounds(e);
+ 	return m_paszDiplomacyPowerTypes[e];
+ }
+ 
+@@ -539,7 +539,7 @@ CvString*& CvGlobals::getAutomateTypes()
+ 
+ CvString& CvGlobals::getAutomateTypes(AutomateTypes e)
+ {
+-	FAssertBounds(0, NUM_AUTOMATE_TYPES, e);
++	FAssertEnumBounds(e);
+ 	return m_paszAutomateTypes[e];
+ }
+ 
+@@ -550,7 +550,7 @@ CvString*& CvGlobals::getDirectionTypes()
+ 
+ CvString& CvGlobals::getDirectionTypes(AutomateTypes e)
+ {
+-	FAssertBounds(0, NUM_DIRECTION_TYPES, e);
++	FAssertEnumBounds(e);
+ 	return m_paszDirectionTypes[e];
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Build.cpp b/CvGameCoreDLL/CvInfo_Build.cpp
+index c42ddd0cc..af4b8bae8 100644
+--- a/CvGameCoreDLL/CvInfo_Build.cpp
++++ b/CvGameCoreDLL/CvInfo_Build.cpp
+@@ -46,25 +46,25 @@ void CvBuildInfo::setMissionType(int iNewType)
+ 
+ TechTypes CvBuildInfo::getFeatureTech(FeatureTypes eFeature) const
+ {
+-	FAssertBounds(0, GC.getNumFeatureInfos(), eFeature);
++	FAssertEnumBounds(eFeature);
+ 	return m_paiFeatureTech ? (TechTypes)m_paiFeatureTech[eFeature] : NO_TECH; // advc.003t
+ }
+ 
+ int CvBuildInfo::getFeatureTime(FeatureTypes eFeature) const
+ {
+-	FAssertBounds(0, GC.getNumFeatureInfos(), eFeature);
++	FAssertEnumBounds(eFeature);
+ 	return m_paiFeatureTime ? m_paiFeatureTime[eFeature] : 0; // advc.003t
+ }
+ 
+ int CvBuildInfo::getFeatureProduction(FeatureTypes eFeature) const
+ {
+-	FAssertBounds(0, GC.getNumFeatureInfos(), eFeature);
++	FAssertEnumBounds(eFeature);
+ 	return m_paiFeatureProduction ? m_paiFeatureProduction[eFeature] : 0; // advc.003t
+ }
+ 
+ bool CvBuildInfo::isFeatureRemove(FeatureTypes eFeature) const
+ {
+-	FAssertBounds(0, GC.getNumFeatureInfos(), eFeature);
++	FAssertEnumBounds(eFeature);
+ 	return m_pabFeatureRemove ? m_pabFeatureRemove[eFeature] : false;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 6948138be..39b602088 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -289,77 +289,77 @@ const TCHAR* CvBuildingInfo::getMovieDefineTag() const
+ 
+ int CvBuildingInfo::getYieldChange(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piYieldChange ?
+ 			(YieldTypes)m_piYieldChange[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getYieldModifier(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piYieldModifier ?
+ 			(YieldTypes)m_piYieldModifier[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getPowerYieldModifier(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piPowerYieldModifier ?
+ 			(YieldTypes)m_piPowerYieldModifier[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getAreaYieldModifier(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piAreaYieldModifier ?
+ 			(YieldTypes)m_piAreaYieldModifier[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getGlobalYieldModifier(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piGlobalYieldModifier ?
+ 			(YieldTypes)m_piGlobalYieldModifier[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getSeaPlotYieldChange(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piSeaPlotYieldChange ?
+ 			(YieldTypes)m_piSeaPlotYieldChange[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getRiverPlotYieldChange(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piRiverPlotYieldChange ?
+ 			(YieldTypes)m_piRiverPlotYieldChange[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getGlobalSeaPlotYieldChange(YieldTypes eYield) const
+ {
+-	FAssertBounds(0, NUM_YIELD_TYPES, eYield);
++	FAssertEnumBounds(eYield);
+ 	return m_piGlobalSeaPlotYieldChange ?
+ 			(YieldTypes)m_piGlobalSeaPlotYieldChange[eYield] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getCommerceChange(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piCommerceChange ?
+ 			(CommerceTypes)m_piCommerceChange[eCommerce] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getObsoleteSafeCommerceChange(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piObsoleteSafeCommerceChange ?
+ 			(CommerceTypes)m_piObsoleteSafeCommerceChange[eCommerce] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getCommerceChangeDoubleTime(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piCommerceChangeDoubleTime ?
+ 			(CommerceTypes)m_piCommerceChangeDoubleTime[eCommerce]
+ 			: 0; // advc.003t: Was -1. 0 means infinity here.
+@@ -367,35 +367,35 @@ int CvBuildingInfo::getCommerceChangeDoubleTime(CommerceTypes eCommerce) const
+ 
+ int CvBuildingInfo::getCommerceModifier(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piCommerceModifier ?
+ 			(CommerceTypes)m_piCommerceModifier[eCommerce] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getGlobalCommerceModifier(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piGlobalCommerceModifier ?
+ 			(CommerceTypes)m_piGlobalCommerceModifier[eCommerce] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getSpecialistExtraCommerce(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piSpecialistExtraCommerce ?
+ 			(CommerceTypes)m_piSpecialistExtraCommerce[eCommerce] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getStateReligionCommerce(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piStateReligionCommerce ?
+ 			(CommerceTypes)m_piStateReligionCommerce[eCommerce] : 0; // advc.003t
+ }
+ 
+ int CvBuildingInfo::getCommerceHappiness(CommerceTypes eCommerce) const
+ {
+-	FAssertBounds(0, NUM_COMMERCE_TYPES, eCommerce);
++	FAssertEnumBounds(eCommerce);
+ 	return m_piCommerceHappiness ?
+ 			(CommerceTypes)m_piCommerceHappiness[eCommerce] : 0; // advc.003t
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 755fc2ad6..98be302d6 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3715,8 +3715,8 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 	case TRADE_TECHNOLOGIES:
+ 	{
+ 		PROFILE("CvPlayer::canTradeItem.TECH");
+-		FAssertBounds(0, GC.getNumTechInfos(), item.m_iData);
+ 		TechTypes eTech = (TechTypes)item.m_iData;
++		FAssertEnumBounds(eTech);
+ 		if (GC.getInfo(eTech).isTrade() && kOurTeam.isHasTech(eTech) &&
+ 			!kOurTeam.isNoTradeTech(eTech) && !kToTeam.isHasTech(eTech) &&
+ 			GET_PLAYER(eWhoTo).canResearch(eTech, true))
+@@ -3728,8 +3728,8 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 	case TRADE_RESOURCES:
+ 	{
+ 		//PROFILE("CvPlayer::canTradeItem.RESOURCES");
+-		FAssertBounds(0, GC.getNumBonusInfos(), item.m_iData);
+ 		BonusTypes eBonus = (BonusTypes)item.m_iData;
++		FAssertEnumBounds(eBonus);
+ 		if (!kToTeam.isBonusObsolete(eBonus) &&
+ 			!kOurTeam.isBonusObsolete(eBonus))
+ 		{
+@@ -3817,8 +3817,8 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 	case TRADE_CIVIC:
+ 	{
+ 		//PROFILE("CvPlayer::canTradeItem.CIVIC");
+-		FAssertBounds(0, GC.getNumCivicInfos(), item.m_iData);
+ 		CivicTypes eCivic = (CivicTypes)item.m_iData;
++		FAssertEnumBounds(eCivic);
+ 		if (GET_PLAYER(eWhoTo).isCivic(eCivic) /* <advc.132> */ ||
+ 			/*  canForceCivic double-checks everything checked here already,
+ 				plus some clauses that I've added there. */
+@@ -3834,8 +3834,8 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
+ 	case TRADE_RELIGION:
+ 	{
+ 		//PROFILE("CvPlayer::canTradeItem.RELIGION");
+-		FAssertBounds(0, GC.getNumReligionInfos(), item.m_iData);
+ 		ReligionTypes eReligion = (ReligionTypes)item.m_iData;
++		FAssertEnumBounds(eReligion);
+ 		if (GET_PLAYER(eWhoTo).getStateReligion() == eReligion /* <advc.132> */ ||
+ 			// Same thing as for civics above
+ 			((kOurTeam.isVassal(kToTeam.getID()) ||
+@@ -14844,7 +14844,7 @@ void CvPlayer::createGreatPeople(UnitTypes eGreatPersonUnit,
+ 
+ const EventTriggeredData* CvPlayer::getEventOccured(EventTypes eEvent) const
+ {
+-	FAssertBounds(0, GC.getNumEventInfos(), eEvent);
++	FAssertEnumBounds(eEvent);
+ 	CvEventMap::const_iterator it = m_mapEventsOccured.find(eEvent);
+ 	if (it == m_mapEventsOccured.end())
+ 		return NULL;
+@@ -14859,7 +14859,7 @@ bool CvPlayer::isTriggerFired(EventTriggerTypes eEventTrigger) const
+ 
+ void CvPlayer::resetEventOccured(EventTypes eEvent, bool bAnnounce)
+ {
+-	FAssertBounds(0, GC.getNumEventInfos(), eEvent);
++	FAssertEnumBounds(eEvent);
+ 	CvEventMap::iterator it = m_mapEventsOccured.find(eEvent);
+ 	if (it != m_mapEventsOccured.end())
+ 	{
+@@ -14871,7 +14871,7 @@ void CvPlayer::resetEventOccured(EventTypes eEvent, bool bAnnounce)
+ void CvPlayer::setEventOccured(EventTypes eEvent, EventTriggeredData const& kEventTriggered,
+ 	bool bOthers)
+ {
+-	FAssertBounds(0, GC.getNumEventInfos(), eEvent);
++	FAssertEnumBounds(eEvent);
+ 	m_mapEventsOccured[eEvent] = kEventTriggered;
+ 	if (GC.getInfo(eEvent).isQuest())
+ 	{
+@@ -14908,7 +14908,7 @@ void CvPlayer::setEventOccured(EventTypes eEvent, EventTriggeredData const& kEve
+ 
+ const EventTriggeredData* CvPlayer::getEventCountdown(EventTypes eEvent) const
+ {
+-	FAssertBounds(0, GC.getNumEventInfos(), eEvent);
++	FAssertEnumBounds(eEvent);
+ 	CvEventMap::const_iterator it = m_mapEventCountdown.find(eEvent);
+ 	if (it == m_mapEventCountdown.end())
+ 		return NULL;
+@@ -14917,13 +14917,13 @@ const EventTriggeredData* CvPlayer::getEventCountdown(EventTypes eEvent) const
+ 
+ void CvPlayer::setEventCountdown(EventTypes eEvent, EventTriggeredData const& kEventTriggered)
+ {
+-	FAssertBounds(0, GC.getNumEventInfos(), eEvent);
++	FAssertEnumBounds(eEvent);
+ 	m_mapEventCountdown[eEvent] = kEventTriggered;
+ }
+ 
+ void CvPlayer::resetEventCountdown(EventTypes eEvent)
+ {
+-	FAssertBounds(0, GC.getNumEventInfos(), eEvent);
++	FAssertEnumBounds(eEvent);
+ 	CvEventMap::iterator it = m_mapEventCountdown.find(eEvent);
+ 	if (it != m_mapEventCountdown.end())
+ 		m_mapEventCountdown.erase(it);
+@@ -14941,7 +14941,7 @@ void CvPlayer::resetTriggerFired(EventTriggerTypes eTrigger)
+ 
+ void CvPlayer::setTriggerFired(EventTriggeredData const& kTriggeredData, bool bOthers, bool bAnnounce)
+ {
+-	FAssertBounds(0, GC.getNumEventTriggerInfos(), kTriggeredData.m_eTrigger);
++	FAssertEnumBounds(kTriggeredData.m_eTrigger);
+ 
+ 	CvEventTriggerInfo& kTrigger = GC.getInfo(kTriggeredData.m_eTrigger);
+ 	if (!isTriggerFired(kTriggeredData.m_eTrigger))
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e2049e226..b5d1c4a7a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -27236,15 +27236,12 @@ void CvPlayerAI::AI_ClearConstructionValueCache()
+ 	}
+ }
+ // K-Mod end
+-/*  <k146> Check that we have the required bonuses to train the given unit.
++/*  k146: Check that we have the required bonuses to train the given unit.
+ 	This isn't for any particular city. It's just a rough guide for whether or
+ 	not we could build the unit. */
+ bool CvPlayerAI::AI_haveResourcesToTrain(UnitTypes eUnit) const
+ {
+-	FAssertBounds(0, GC.getNumUnitInfos(), eUnit);
+-
+-	const CvUnitInfo& kUnit = GC.getInfo(eUnit);
+-	//const CvTeam& kTeam = GET_TEAM(getTeam());
++	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+ 
+ 	// "and" bonus
+ 	BonusTypes ePrereqAndBonus = kUnit.getPrereqAndBonus();
+@@ -27271,7 +27268,7 @@ bool CvPlayerAI::AI_haveResourcesToTrain(UnitTypes eUnit) const
+ 	}
+ 
+ 	return !bMissingBonus;
+-} // </k146>
++}
+ 
+ // advc.079: Cut from CvPlayer::getBestAttackUnitKey and refactored
+ UnitTypes CvPlayerAI::AI_getBestAttackUnit() const
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 66a74b9a9..dc016df39 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -6005,11 +6005,11 @@ bool CvPlot::isRiverCrossing(DirectionTypes eIndex) const
+ 
+ void CvPlot::updateRiverCrossing(DirectionTypes eIndex)
+ {
+-	FAssertBounds(0, NUM_DIRECTION_TYPES, eIndex);
++	FAssertEnumBounds(eIndex);
+ 
+ 	CvPlot* pCornerPlot = NULL;
+ 	bool bValid = false;
+-	CvPlot* pPlot = ::plotDirection(getX(), getY(), eIndex);
++	CvPlot* pPlot = plotDirection(getX(), getY(), eIndex);
+ 	if ((pPlot == NULL || !pPlot->isWater()) && !isWater())
+ 	{
+ 		switch (eIndex)
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 21b5c622e..38b8eda2c 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -3628,7 +3628,7 @@ void CvTeam::setProjectDefaultArtType(ProjectTypes eIndex, int iValue)
+ 
+ int CvTeam::getProjectArtType(ProjectTypes eIndex, int number) const
+ {
+-	FAssertBounds(0, GC.getNumProjectInfos(), eIndex);
++	FAssertEnumBounds(eIndex);
+ 	FAssertBounds(0, getProjectCount(eIndex), number);
+ 	return m_pavProjectArtTypes[eIndex][number];
+ }
+@@ -3636,7 +3636,7 @@ int CvTeam::getProjectArtType(ProjectTypes eIndex, int number) const
+ 
+ void CvTeam::setProjectArtType(ProjectTypes eIndex, int number, int value)
+ {
+-	FAssertBounds(0, GC.getNumProjectInfos(), eIndex);
++	FAssertEnumBounds(eIndex);
+ 	FAssertBounds(0, getProjectCount(eIndex), number);
+ 	m_pavProjectArtTypes[eIndex][number] = value;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7ea500b28..8d1d903eb 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9735,7 +9735,7 @@ void CvUnit::changeExtraUnitCombatModifier(UnitCombatTypes eUnitCombat, int iCha
+ 
+ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
+ {
+-	FAssertBounds(0, GC.getNumPromotionInfos(), ePromotion);
++	FAssertEnumBounds(ePromotion);
+ 
+ 	if (isHasPromotion(ePromotion))
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index b5b12cf0e..ca8a47847 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -16788,7 +16788,7 @@ bool CvUnitAI::AI_improveCity(CvCityAI const& kCity) // advc.003u: param was CvC
+ 	if (!AI_bestCityBuild(kCity, &pBestPlot, &eBestBuild, NULL, this))
+ 		return false; // advc
+ 	FAssert(pBestPlot != NULL);
+-	FAssertBounds(0, GC.getNumBuildInfos(), eBestBuild);
++	FAssertEnumBounds(eBestBuild);
+ 
+ 	MissionTypes eMission = MISSION_MOVE_TO;
+ 	if (getPlot().getWorkingCity() != &kCity /*||
+@@ -16946,7 +16946,7 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity, // adv
+ 
+ 	if (pBestPlot != NULL)
+ 	{
+-		FAssertBounds(0, GC.getNumBuildInfos(), eBestBuild);
++		FAssertEnumBounds(eBestBuild);
+ 		// advc.117: No longer guaranteed
+ 		//FAssert(pBestPlot->getWorkingCity() != NULL);
+ 		// advc.113b: Now handled by AI_workerMove
+@@ -17060,7 +17060,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 
+ 	if (pBestPlot == NULL)
+ 		return false;
+-	FAssertBounds(0, GC.getNumBuildInfos(), eBestBuild);
++	FAssertEnumBounds(eBestBuild);
+ 	// advc.113b: Now handled by AI_workerMove
+ 	/*if (getPlot().getWorkingCity() != NULL)
+ 		getPlot().getWorkingCity()->AI_changeWorkersHave(-1);
+
+[PATCH COVERAGE]
+patchFiles=13 embeddedFiles=13 omittedFiles=0 embeddedPatchBytes=18772

@@ -11,22 +11,13 @@
 namespace BitUtil
 {
 	template <typename T>
-	__inline bool GetBit(const T x, const int y) // advc: renamed from "HasBit"
-	{
-		return (x & ((T)1U << y)) != 0;
-	}
+	__inline bool GetBit(const T x, const int y) { return (x & ((T)1U << y)) != 0; } // advc: renamed from "HasBit"
 
 	template <typename T>
-	__inline T SetBit(T &x, const int y)
-	{
-		return x = (T)(x | ((T)1U << y));
-	}
+	__inline T SetBit(T &x, const int y) { return x = (T)(x | ((T)1U << y)); }
 
 	template <typename T>
-	__inline T ClrBit(T &x, const int y)
-	{
-		return x = (T)(x & ~((T)1U << y));
-	}
+	__inline T ClrBit(T &x, const int y) { return x = (T)(x & ~((T)1U << y)); }
 
 	// use one of the previous functions instead of hardcoding bValue
 	// this function is only for cases where a bit can be turned both on and off
@@ -42,10 +33,7 @@ namespace BitUtil
 // advc: These are unused for now
 #if 0
 	template <typename T>
-	T GetBits(T &x, const int iIndex, const int iNumBits)
-	{
-		return (x >> iIndex) & (((T)1u << iNumBits) - 1);
-	}
+	T GetBits(T &x, const int iIndex, const int iNumBits) { return (x >> iIndex) & (((T)1u << iNumBits) - 1); }
 
 	template <typename T>
 	T SetBits(T &x, const int iIndex, const int iNumBits, const T iValue)

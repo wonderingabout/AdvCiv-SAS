@@ -1,0 +1,55 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3074
+# Commit: 013223a88497c97db653b7b7c178509ceedeb545
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c57f9e36b26d5c36ba6e2551bc0119d8c87c1a1a
+# Title: Small addendum to Fast Worker 'Pedia text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index 92e8dd337..d1b5fa5d6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -1003,9 +1003,9 @@
+ 	<!-- advc.907c -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_INDIAN_FAST_WORKER_PEDIA</Tag>
+-		<English>[TAB](AdvCiv) The BtS background text (deleted) had sought to explain the Indian Fast Worker through the "compact, wiry frames" of Indian people and them being "sturdy," "strong," "hardy," "hard-working" and "determined." For a less bizarre explanation, one could perhaps look to the ancient Indian treatises about craftsmanship and architecture (shilpa and vastru shastra).</English>
++		<English>[TAB](AdvCiv) The BtS background text (deleted) had sought to explain the Indian Fast Worker through the "compact, wiry frames" of Indian people and them being "sturdy," "strong," "hardy," "hard-working" and "determined." For a less bizarre explanation, one could perhaps look to the ancient Indian treatises about craftsmanship and architecture (shilpa and vastru shastra) or to the expansive irrigation works in areas originally covered by jungle.</English>
+ 		<French>[TAB]Les Indiens sont extr&#234;mement robustes et travailleurs. Leur constitution fine et nerveuse leur permet de r&#233;sister aux travaux les plus p&#233;nibles sous des climats extr&#234;mes, comme ceux du d&#233;sert, de la jungle ou de la haute montagne, largement r&#233;pandus sur le sous-continent indien. C'est ainsi que l'on trouve, dans ces r&#233;gions hostiles, temples, forteresses et tombeaux, qui apparaissent comme autant de t&#233;moignages de la force et de la d&#233;termination du peuple indien.</French>
+-		<German>[TAB](AdvCiv) Der BtS-Hintergrundtext (gel�scht) hatte die schnellen indischen Bautrupps mit dem "drahtigen K�rperbau" der Inder erkl�rt, ihrer "St�rke und Entschlossenheit" und damit, dass sie "hart arbeitende Menschen" seien. Als Ersatz f�r diese befremdliche Erkl�rung k�nnte man vielleicht an die altindischen Abhandlungen �ber Handwerk und Baukunst (Shilpa und Vastru Shastra) denken.</German>
++		<German>[TAB](AdvCiv) Der BtS-Hintergrundtext (gel�scht) hatte die schnellen indischen Bautrupps mit dem "drahtigen K�rperbau" der Inder erkl�rt, ihrer "St�rke und Entschlossenheit" und damit, dass sie "hart arbeitende Menschen" seien. Als Ersatz f�r diese befremdliche Erkl�rung k�nnte man vielleicht an die altindischen Abhandlungen �ber Handwerk und Baukunst (Shilpa und Vastru Shastra) denken, oder an die enorm weitfl�chigen Bew�sserungsprojekte in Gebieten, die urspr�nglich von Dschungel bewachsen waren.</German>
+ 		<Italian>[TAB]Gli Indiani sono dei grandi lavoratori incredibilmente forti. La loro costituzione robusta e asciutta gli permette di eseguire anche i lavori pi&#249; duri nelle zone dal clima pi&#249; ostile, come il subcontinente Indiano, ricco di deserti, giungle e montagne molto alte e pericolose. Malgrado ci&#242;, lungo tutte queste strade si possono trovare templi, santuari e fortezze, monumenti alla forza e alla determinazione della fiera popolazione Indiana.</Italian>
+ 		<Spanish>[TAB]Los hind&#250;es son notablemente robustos y trabajadores. Sus cuerpos compactos y fibrosos pueden soportar el trabajo m&#225;s duro en algunos de los climas m&#225;s dif&#237;ciles, muy abundantes en el subcontinente indio, como el desierto, la selva y las altas y peligrosas monta&#241;as. Sin embargo, en todos estos lugares se pueden encontrar templos, santuarios y fortalezas, monumentos a la fortaleza y la determinaci&#243;n de los vigorosos hind&#250;es.</Spanish>
+ 	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a74d721c8..19213cc5a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14901,7 +14901,7 @@ int CvPlayerAI::AI_nukeExtraDestructionWeight(PlayerTypes eTarget,
+ 		if (kTarget.AI_atVictoryStage(AI_VICTORY_CULTURE4))
+ 			iR += 8;
+ 	} // </advc.650>
+-	iR -= AI_getAttitudeWeight(kTarget.getID()) /// 2;
++	iR -= AI_getAttitudeWeight(kTarget.getID()) // /2;
+ 	// <advc.650> Attitude isn't very telling when at war
+ 			/ 8;
+ 	if (GET_TEAM(getTeam()).AI_getWorstEnemy() == kTarget.getTeam())
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4294

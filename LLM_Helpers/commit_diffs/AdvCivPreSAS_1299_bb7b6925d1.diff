@@ -1,0 +1,1166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1299
+# Commit: bb7b6925d1666957c0cc1239e8e8df7c63a5df09
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d842a45cbba9b3bc184816564fc5292bc7bbe080
+# Title: Small misc. changes; no DLL committed for now.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/Config/Civ4lerts.xml
+2	1	Assets/Config/MoreCiv4lerts.xml
+2	2	Assets/Python/BUG/BugHelp.py
+16	12	Assets/Python/Screens/CvMainInterface.py
+53	53	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+57	51	Assets/xml/GlobalDefines_advc.xml
+-	-	BUG Doc/BUG Mod Help-ESP.chm
+-	-	BUG Doc/BUG Mod Help-FRA.chm
+5	3	CvGameCoreDLL/ArmamentForecast.cpp
+10	1	CvGameCoreDLL/CvCity.cpp
+4	1	CvGameCoreDLL/CvGlobals.cpp
+3	0	CvGameCoreDLL/CvGlobals.h
+13	2	CvGameCoreDLL/CvPlayer.cpp
+1	0	CvGameCoreDLL/CvPlayer.h
+7	2	CvGameCoreDLL/CvPlayerAI.cpp
+2	2	CvGameCoreDLL/CvPlot.cpp
+9	0	CvGameCoreDLL/MilitaryBranch.cpp
+16	7	CvGameCoreDLL/WarAndPeaceAI.cpp
+-	-	manual_092b.odt => manual_0.92b.odt
+ delete mode 100644 BUG Doc/BUG Mod Help-ESP.chm
+ delete mode 100644 BUG Doc/BUG Mod Help-FRA.chm
+ rename manual_092b.odt => manual_0.92b.odt (67%)
+
+[PATCHES]
+
+diff --git a/Assets/Config/Civ4lerts.xml b/Assets/Config/Civ4lerts.xml
+index 0c7537eee..efa66eca6 100644
+--- a/Assets/Config/Civ4lerts.xml
++++ b/Assets/Config/Civ4lerts.xml
+@@ -117,10 +117,10 @@
+ 					help="."/>
+ 			
+ 			<!-- Diplomacy -->
++			<!-- advc.106: Both set to True by default -->
+ 			<option id="RefusesToTalk" key="Refuses To Talk" 
+-					type="boolean" default="False" and="Enabled" 
++					type="boolean" default="True" and="Enabled" 
+ 					get="isShowRefusesToTalkAlert" set="setShowRefusesToTalkAlert"/>
+-			<!-- advc.106d: was False by default -->
+ 			<option id="WorstEnemy" key="Worst Enemy" 
+ 					type="boolean" default="True" and="Enabled" 
+ 					get="isShowWorstEnemyAlert" set="setShowWorstEnemyAlert"/>
+
+diff --git a/Assets/Config/MoreCiv4lerts.xml b/Assets/Config/MoreCiv4lerts.xml
+index 6d34d9b74..00fd8fa7e 100644
+--- a/Assets/Config/MoreCiv4lerts.xml
++++ b/Assets/Config/MoreCiv4lerts.xml
+@@ -57,8 +57,9 @@
+ 			<option id="SurrenderTrade" key="Surrender Trades" 
+ 					type="boolean" default="True" and="Enabled" 
+ 					get="isShowSurrenderTradeAlert" set="setShowSurrenderTradeAlert"/>
++			<!-- advc.106d: Set to False by default -->
+ 			<option id="PeaceTrade" key="Peace Trades" 
+-					type="boolean" default="True" and="Enabled" 
++					type="boolean" default="False" and="Enabled" 
+ 					get="isShowPeaceTradeAlert" set="setShowPeaceTradeAlert"/>
+ 			
+ 			<!-- Victory -->
+
+diff --git a/Assets/Python/BUG/BugHelp.py b/Assets/Python/BUG/BugHelp.py
+index 649e61860..12e1878ca 100644
+--- a/Assets/Python/BUG/BugHelp.py
++++ b/Assets/Python/BUG/BugHelp.py
+@@ -33,8 +33,8 @@ def launch(argsList=None):
+ 		except:
+ 			showErrorAlert(BugUtil.getPlainText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_TITLE"), 
+ 					BugUtil.getText("TXT_KEY_BUG_HELP_CANNOT_OPEN_BROWSER_BODY", (url,)))		
+-	else:
+-		sLang = ["ENG", "FRA", "DEU", "ITA", "ESP"]
++	else: # advc.009: There is no FRA and ESP translation
++		sLang = ["ENG", "ENG", "DEU", "ITA", "ENG"]
+ 		name = "BUG Mod Help-%s.chm" % (sLang[CyGame().getCurrentLanguage()])
+ 		file = BugPath.findInfoFile(name)
+ 		if file:
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index ba8535257..d016ff44a 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -364,21 +364,26 @@ class CvMainInterface:
+ 		self.iY_FoVSlider = iBtnY + 30
+ 		self.sFieldOfView_Text = localText.getText("TXT_KEY_BUG_OPT_MAININTERFACE__FIELDOFVIEW_TEXT", ())
+ 		#self.DEFAULT_FIELD_OF_VIEW = max(40, min(80, self.xResolution / 30)) # K-Mod (bigger FoW for bigger monitors. They'll appreciate it. Trust me.)
+-		# <advc.004m> (Replacing the above) Don't just ignore the XML setting. Problem: BUG stores the value computed for self.DEFAULT_FIELD_OF_VIEW in CvGlobals, overwriting the FIELD_OF_VIEW set through XML until the game is restarted. This makes my computation below recursive, leading to a shift in the field-of-view value each time that the game returns to the main menu, which, incidentally, it does frequently because of change 003d. Therefore only make the resolution-based adjustment if the BUG slider is not used. If the slider is used, people are going to set it manually anyway.
+-		if (not MainOpt.isRememberFieldOfView() and not MainOpt.isShowFieldOfView()) or int(MainOpt.getFieldOfView()) < 0:
+-			fovxml = gc.getFIELD_OF_VIEW()
+-			self.DEFAULT_FIELD_OF_VIEW = int(max(fovxml, min(2 * fovxml, self.xResolution / max(70 - fovxml, 10)))) # </advc.004m>
+-		if MainOpt.isRememberFieldOfView():
+-			self.iField_View = int(MainOpt.getFieldOfView())
++		#if MainOpt.isRememberFieldOfView():
++			#self.iField_View = int(MainOpt.getFieldOfView())
+ 			# K-Mod
+-			if self.iField_View < 0:
+-				self.iField_View = self.DEFAULT_FIELD_OF_VIEW
++			#if self.iField_View < 0:
++				#self.iField_View = self.DEFAULT_FIELD_OF_VIEW
+ 			# K-Mod end
+-		else:
++		#else:
++			#self.iField_View = self.DEFAULT_FIELD_OF_VIEW
++
++		# <advc.004m> Replacing the above. Will have to ignore the XML setting (like K-Mod does) to avoid recursion - BUG stores the value computed for self.DEFAULT_FIELD_OF_VIEW in CvGlobals, overwriting the FIELD_OF_VIEW set through XML until the game is restarted.
++		self.DEFAULT_FIELD_OF_VIEW = 35.0 # 42.0 originally (FIELD_OF_VIEW in GlobalDefines)
++		aspectFactor = pow((0.8 * self.xResolution) / self.yResolution, 0.72)
++		if (not MainOpt.isRememberFieldOfView() and not MainOpt.isShowFieldOfView()) or int(MainOpt.getFieldOfView()) < 0:
++			self.DEFAULT_FIELD_OF_VIEW = int(max(self.DEFAULT_FIELD_OF_VIEW, min(2 * self.DEFAULT_FIELD_OF_VIEW, (aspectFactor * self.xResolution) / max(70 - self.DEFAULT_FIELD_OF_VIEW, 10))))
+ 			self.iField_View = self.DEFAULT_FIELD_OF_VIEW
++		else:
++			self.iField_View = int(MainOpt.getFieldOfView())
++		# </advc.004m>
+ # BUG - field of view slider - end
+ 
+-
+ # BUG - Progress Bar - Tick Marks - start
+ 		xCoord = 268 + (self.xResolution - 1024) / 2
+ 		self.pBarResearchBar_n = ProgressBarUtil.ProgressBar("ResearchBar-Canvas", xCoord, 2, 487, iStackBarHeight, gc.getInfoTypeForString("COLOR_RESEARCH_RATE"), ProgressBarUtil.TICK_MARKS, True)
+@@ -5628,8 +5633,7 @@ class CvMainInterface:
+ 		# K-Mod
+ 		#if bDefault or not MainOpt.isShowFieldOfView():
+ 		if bDefault or (not MainOpt.isShowFieldOfView() and not MainOpt.isRememberFieldOfView()) or int(MainOpt.getFieldOfView()) < 10: # advc.004m: Only remember sensible values
+-			pass # advc.004m: See long comment in initState
+-			#self._setFieldofView(screen, self.DEFAULT_FIELD_OF_VIEW)
++			self._setFieldofView(screen, self.DEFAULT_FIELD_OF_VIEW)
+ 		else:
+ 			self._setFieldofView(screen, self.iField_View)
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index 77c003b10..53e75e432 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -342,9 +342,9 @@
+ 					<iContactRand>250</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+-					<iContactRand>20</iContactRand>
++					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+ 					<ContactType>CONTACT_DEFENSIVE_PACT</ContactType>
+@@ -970,7 +970,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -1608,7 +1608,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -2239,7 +2239,7 @@
+ 					<iContactRand>250</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -2875,7 +2875,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -3513,7 +3513,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -4157,7 +4157,7 @@
+ 					<iContactRand>50</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -4785,7 +4785,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -5416,7 +5416,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -6057,7 +6057,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -6701,7 +6701,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -7341,7 +7341,7 @@
+ 					<iContactRand>25</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -7977,7 +7977,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -8613,7 +8613,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -9247,7 +9247,7 @@
+ 					<iContactRand>10000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -9858,7 +9858,7 @@
+ 					<iContactRand>25</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -10494,7 +10494,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -11121,7 +11121,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -11761,7 +11761,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -12403,7 +12403,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -13036,7 +13036,7 @@
+ 					<iContactRand>250</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -13670,7 +13670,7 @@
+ 					<iContactRand>50</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -14317,7 +14317,7 @@
+ 					<iContactRand>50</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -14957,7 +14957,7 @@
+ 					<iContactRand>50</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -15588,7 +15588,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -16219,7 +16219,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -16855,7 +16855,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -17495,7 +17495,7 @@
+ 					<iContactRand>50</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -18122,7 +18122,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -18763,7 +18763,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -19399,7 +19399,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -20041,7 +20041,7 @@
+ 					<iContactRand>25</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -20676,7 +20676,7 @@
+ 					<iContactRand>25</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -21316,7 +21316,7 @@
+ 					<iContactRand>250</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -21956,7 +21956,7 @@
+ 					<iContactRand>250</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -22596,7 +22596,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -23244,7 +23244,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -23873,7 +23873,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -24507,7 +24507,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -25143,7 +25143,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -25778,7 +25778,7 @@
+ 					<iContactRand>250</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -26412,7 +26412,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -27046,7 +27046,7 @@
+ 					<iContactRand>25</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -27678,7 +27678,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -28325,7 +28325,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -28970,7 +28970,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -29604,7 +29604,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -30239,7 +30239,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -30873,7 +30873,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -31515,7 +31515,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -32170,7 +32170,7 @@
+ 					<iContactRand>1000</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+@@ -32817,7 +32817,7 @@
+ 					<iContactRand>500</iContactRand>
+ 				</ContactRand>
+ 				<ContactRand>
+-					<!-- advc.130z: was 20 -->
++					<!-- advc.124: was 20 -->
+ 					<ContactType>CONTACT_OPEN_BORDERS</ContactType>
+ 					<iContactRand>10</iContactRand>
+ 				</ContactRand>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index ab8497c9d..f2ad111a4 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -63,7 +63,7 @@
+ 		whether "Aggressive AI (K-Mod)" is selected in the Custom Game screen.
+ 		Also affects loaded savegames, and will permanently disable UWAI
+ 		in subsequent savegames.
+-		Recommended: 0. -->
++		Recommended: 0 -->
+ 	<Define>
+ 		<DefineName>USE_KMOD_AI_NONAGGRESSIVE</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -115,7 +115,7 @@
+ 		 [advc.101]  Value increased to 200 (recommended) in an effort to
+ 		 restore the original BtS revolt probabilities without undoing K-Mod's
+ 		 overhaul of the culture system. This essentially doubles the strength
+-		 of foreign culture. Original value: 100. -->
++		 of foreign culture. Original value: 100 -->
+ 	<Define>
+ 		<DefineName>REVOLT_TOTAL_CULTURE_MODIFIER</DefineName>
+ 		<iDefineIntVal>200</iDefineIntVal>
+@@ -194,7 +194,7 @@
+ 		 its cities. The era codes are:
+          -1: no era (no extra defender, bare minimum remains 1 for the entire
+ 		  game)
+-          0: ancient era (have an extra defender from the start; would hamper
++          0: ancient era (an extra defender from the start; this would hamper
+ 		  AI scouting)
+           1: classical era (this is the BtS behavior)
+           2: medieval era
+@@ -207,7 +207,7 @@
+ 
+ 	<!-- [advc.108]
+ 		 If set to 1 or greater, starting plots are improved ("normalized") as
+-		 aggressively in BtS. 0 or less (recommended) means that normalization
++		 aggressively as in BtS. 0 or less (recommended) means that normalization
+ 		 is toned down (toned down only a little bit in multiplayer). -->
+ 	<Define>
+         <DefineName>NORMALIZE_STARTPLOTS_AGGRESSIVELY</DefineName>
+@@ -232,7 +232,7 @@
+ 		 parameter has no effect. NSA removes jungle and shelf ice ("bad
+ 		 features") entirely in the city radius around each starting plot,
+ 		 and with 50% probability 1 plot beyond the city range. (See
+-		 CvGame.ccp, normalizeRemoveBadFeatures; it's a bit more 
++		 CvGame.cpp, normalizeRemoveBadFeatures; it's a bit more 
+ 		 complicated than this.)
+          Without NSA, plots in the inner city radius are still cleared
+ 		 entirely, whereas plots in the outer radius are only cleared if
+@@ -278,7 +278,7 @@
+ 		 of the initial Settler are revealed. (Unless playing with
+ 		 Advanced Start, in which case ADVANCED_START_SIGHT_RANGE in
+ 		 BtS GlobalDefines applies instead; that's 4.) For the distance
+-		 metric see plotDistance in CvGameCoreUtils; 2 corresponds to the
++		 metric see plotDistance in CvGameCoreUtils.cpp; 2 corresponds to the
+ 		 city cross. Set to 0 for BtS behavior - then, only the tiles
+ 		 visible by the initial units are revealed. -->
+ 	<Define>
+@@ -340,10 +340,11 @@
+ 	
+ 	<!-- [advc.002a]
+ 		 Determines the color of cultural borders of water tiles on the
+-		 minimap. 5 (or any other value except 3 and 4) means
+-		 that the tile is colored at 50% opactiy. 4 is the BtS behavior:
+-		 full color. 3 leaves the tiles uncolored (as in Civ 3).
+-		 6 (recommended) is like 5 but doesn't show units on the minimap. -->
++		 minimap.
++		 5 means that the tile is colored at 50% opactiy.
++		 6 (recommended) is like 5 but doesn't show units on the minimap.
++		 4 is the BtS behavior: full color.
++		 3 leaves the tiles uncolored (as in Civ 3). -->
+     <Define>
+         <DefineName>MINIMAP_WATER_MODE</DefineName>
+         <iDefineIntVal>6</iDefineIntVal>
+@@ -351,8 +352,9 @@
+ 
+ 	<!-- [advc.004f]
+ 		 City celebrations ("we-love-the-king day") trigger only in cities
+-		 with at least this much population. The chance is population / 1000 (also configurable through XML). A value above 50
+-		 effectively disables celebrations.
++		 with at least this much population. The chance is population / 1000
++		 (also configurable through XML). A value above 50 effectively disables
++		 celebrations.
+ 		 Recommended: a high value in order to disable celebrations;
+ 		 original value from GlobalDefines.xml: 8 -->
+ 	<Define>
+@@ -368,20 +370,9 @@
+ 		<fDefineFloatVal>4600</fDefineFloatVal>
+ 	</Define>
+ 
+-	<!-- [advc.004m]
+-		 Original value is 42.0, recommended: 35.0. The BUG field-of-view
+-		 slider overwrites this if "Remember Field of View" is checked in the
+-		 BUG menu. The value entered here is auto-adjusted to the screen
+-		 resolution in CvMainInterface.py. Misc\Civ4DetailManager.xml also
+-		 affects the camera distance and angle. -->
+-	<Define>
+-		<DefineName>FIELD_OF_VIEW</DefineName>
+-		<fDefineFloatVal>35.0</fDefineFloatVal>
+-	</Define>
+-
+ 	<!-- [advc.004m]
+ 	     At 1 (recommended) or greater, the Resource Layer (bubbles)
+-		 are shown at the beginning of a new game. 0 or less for
++		 is shown at the beginning of a new game. 0 or less for
+ 		 original behavior: bubbles not shown. -->
+ 	<Define>
+ 		<DefineName>SHOW_RESOURCE_BUBBLES_AT_GAME_START</DefineName>
+@@ -426,6 +417,16 @@
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- [advc.106b]
++		 0 (recommended) disables the message limit (equivalent to
++		 START_OF_TURN_MESSAGE_LIMIT=-1) when playing without "Minimize
++		 Pop-Ups" (MPU). This setting has no effect if MPU is enabled.
++		 Set to 1 to use the message limit when playing without MPU. -->
++	<Define>
++		<DefineName>MESSAGE_LIMIT_WITHOUT_MPU</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	
+ 	<!-- advc.106e: 4 (recommended) means that religion spread in foreign
+ 		 cities is no longer announced once the player enters the Industrial era
+ 		 (unless the player owns the respective holy city). Set to -1 to
+@@ -445,12 +446,11 @@
+ 	</Define>
+ 	
+ 	<!-- [advc.099]
+-		 New parameter: The default value for culture-based anger
+-		 now assumes Open Borders; with closed borders, the anger is
+-		 x% greater. The increased anger also applies when the
+-		 foreign civ has capitulated to the city owner or has been
+-		 eliminated (by anyone).
+-		 Recommended: 50 -->
++		 The default value for culture-based anger assumes Open Borders in
++		 AdvCiv. With closed borders, the anger is CLOSED_BORDERS_CULTURE_
++		 ANGER_MODIFIER percent greater. The increased anger also applies when
++		 the foreign civ has capitulated to the city owner or has been 
++		 eliminated (by anyone). Recommended: 50 -->
+ 	<Define>
+ 		<DefineName>CLOSED_BORDERS_CULTURE_ANGER_MODIFIER</DefineName>
+ 		<iDefineIntVal>50</iDefineIntVal>
+@@ -501,12 +501,11 @@
+ 	</Define>
+ 	
+ 	<!-- [advc.099]
+-	     If set to 1 or greater, barbarian culture can cause cities to
+-		 revolt. 0 or less: barbarian culture cannot cause revolts.
+-		 In any case, barbarian revolts can never flip a city.
+-		 Not an issue in BtS because it's practically impossible for a barbarian
+-		 city to extend its culture range to more than two tiles.
+-		 Recommended: 1. -->
++	     If set to 1 (recommended), Barbarian culture can cause cities to
++		 revolt. 0 or less: Barbarian culture cannot cause revolts.
++		 In any case, Barbarian revolts can never flip a city.
++		 Not an issue in BtS because it's practically impossible for a Barbarian
++		 city to extend its culture range to more than two tiles. -->
+ 	<Define>
+ 		<DefineName>BARBS_REVOLT</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+@@ -516,7 +515,7 @@
+ 	     Each round, the tile culture value of each player (civ and barbarian)
+ 		 is decreased by this permillage. 0 to disable decay.
+ 		 (Will also have to set CITY_RADIUS_DECAY=0 to disable decay in
+-		 foreign city radi.)
++		 foreign city radii.)
+ 		 Recommended: 10 (1% decay). -->
+ 	<Define>
+ 		<DefineName>TILE_CULTURE_DECAY_PER_MILL</DefineName>
+@@ -532,8 +531,8 @@
+ 	
+ 	<!-- [advc.300]
+ 	     Determines at which percentage of owned tiles (per continent)
+-		 barbarian spawning peaks. In AdvCiv, the formula for the target
+-		 number B of barbarian units on a continent (or shelf) is 
++		 Barbarian spawning peaks. In AdvCiv, the formula for the target
++		 number B of Barbarian units on a continent (or shelf) is 
+ 		 B = ownedTiles / (peak * tilesPerUnit)
+ 		 if ownedTiles / totalTiles < peak, and otherwise
+ 		 B = unownedTiles / ((1 - peak) * tilesPerUnit), where
+@@ -548,7 +547,7 @@
+ 		 * peak = BARB_PEAK_PERCENT / 100.
+ 		 The idea is to make B maximal when the ratio of owned tiles equals
+ 		 the peak percentage. Setting BARB_PEAK_PERCENT to 0 results in the BtS
+-		 behavior, with B maximal when barbarians first appear and then
++		 behavior, with B maximal when Barbarians first appear and then
+ 		 decreasing as the civs expand.
+ 		 Recommended: 67. -->
+     <Define>
+@@ -557,10 +556,10 @@
+     </Define>
+ 
+ 	<!-- [advc.300]
+-	     Modifies the upper limit for the number of barbarian units created
++	     Modifies the upper limit for the number of Barbarian units created
+ 		 per continent or shelf (not: cities, animals), called "B" in the
+ 		 comment above. BARB_ACTIVITY_ADJUSTMENT is intended for adjusting
+-		 the overall barbarian activity (rather than changing the
++		 the overall Barbarian activity (rather than changing the
+ 		 per-difficulty values in Civ4HandicapInfox.xml).
+ 		 A positive value, say, 25, increases B by 25%, whereas -25 would
+ 		 decrease B by 25%.
+@@ -574,13 +573,13 @@
+ 	     From (Vanilla) GlobalDefines.xml.
+ 		 (There's also MIN_ANIMAL_STARTING_DISTANCE, which remains
+ 		 unchanged at 2.)
+-		 Set to 2 there, meaning that barbarians can't appear within 2
++		 Set to 2 there, meaning that Barbarians can't appear within 2
+ 		 tiles from a civ unit or borders. The other restriction is
+-		 that barbarians can't appear on tiles visible to a civ, but this
++		 that Barbarians can't appear on tiles visible to a civ, but this
+ 		 hardly matters in BtS, because even from a hill, the viewing
+ 		 distance is only 2 (unless Sentry-promoted).
+ 		 Recommended: 1.
+-		 AdvCiv adds a restriction that prevents barbarians from appearing
++		 NB: AdvCiv adds a restriction that prevents barbarians from appearing
+ 		 on tiles with 0 food yield (regardless of this parameter). -->
+ 	<Define>
+ 		<DefineName>MIN_BARBARIAN_STARTING_DISTANCE</DefineName>
+@@ -593,7 +592,7 @@
+ 		 is more than 150 (recommended) percent.
+ 		 If the threshold is met, there is still a unit-specific evacuation
+ 		 test that takes into account defense modifiers and Unit AI type.
+-		 The BtS routine for withdrawal of noncombatants isn't affected by
++		 The BtS routine for protecting noncombatants isn't affected by
+ 		 this. Set to 0 or less for BtS behavior: combat units never
+ 		 evacuate. -->
+     <Define>
+@@ -602,10 +601,10 @@
+     </Define>
+ 
+ 	<!-- [advc.136b]
+-	     Originally in GlobalDefines.xml; set to 10 there. When
+-		 considering a trade with a human civ and evaluating the trade items
+-		 that the human side receives, the AI rounds the result to a
+-		 multiple of DIPLOMACY_VALUE_REMAINDER. The AI also assumes that any item
++	     Originally set to 10 in GlobalDefines.xml. When considering a trade
++		 with a human civ and evaluating the trade items that the human side
++		 receives, the AI rounds the result to a multiple of
++		 DIPLOMACY_VALUE_REMAINDER. The AI also assumes that any item
+ 		 received by the human side is worth at least
+ 		 DIPLOMACY_VALUE_REMAINDER. This behavior gets in the way of my
+ 		 change to map trades offered by the AI. I could work around it,
+@@ -647,7 +646,7 @@
+ 	
+ 	<!-- [advc.250c][advc.251]
+ 		 If set to 1 or greater, games on Immortal or Deity difficulty,
+-		 or with Advanced Start, start at a turn computed from the number of
++		 or with Advanced Start, start on a turn computed from the number of
+ 		 free AI Settlers and Workers or the number of assigned start points.
+ 		 If set to 0 or less, the turn number is only determined by the
+ 		 start era (0 in Ancient era) as in BtS.
+@@ -916,4 +915,11 @@
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- [advc.005f] If set to 1 , change 005f (see manual) is enabled. 0
++		 disables the change (recommended). -->
++	<Define>
++		<DefineName>ENABLE_005F</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/BUG Doc/BUG Mod Help-ESP.chm b/BUG Doc/BUG Mod Help-ESP.chm
+deleted file mode 100644
+index 014d904b8..000000000
+Binary files a/BUG Doc/BUG Mod Help-ESP.chm and /dev/null differ
+
+diff --git a/BUG Doc/BUG Mod Help-FRA.chm b/BUG Doc/BUG Mod Help-FRA.chm
+deleted file mode 100644
+index d96908307..000000000
+Binary files a/BUG Doc/BUG Mod Help-FRA.chm and /dev/null differ
+
+diff --git a/CvGameCoreDLL/ArmamentForecast.cpp b/CvGameCoreDLL/ArmamentForecast.cpp
+index 1055413c9..5cabb420b 100644
+--- a/CvGameCoreDLL/ArmamentForecast.cpp
++++ b/CvGameCoreDLL/ArmamentForecast.cpp
+@@ -159,7 +159,7 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 			   [Check obsolete now that Dagger is disabled.] */
+ 			(civ.AI_isDoStrategy(AI_STRATEGY_DAGGER) && !civ.isHuman()) ||
+ 			/* Concurrent war preparations: probably shouldn't be possible anyway.
+-			   Must be definitely be disregarded for weId b/c the war preparations
++			   Must definitely be disregarded for weId b/c the war preparations
+ 			   currently under consideration may lead to abandonment of
+ 			   concurrent war preparations. */
+ 			(t.getWarPlanCount(WARPLAN_PREPARING_TOTAL) > 0 &&
+@@ -248,8 +248,10 @@ ArmamentForecast::ArmamentForecast(PlayerTypes civId, MilitaryAnalyst& m,
+ 			   match the war plan. Make a projection based on the human power curve. */
+ 			double bur = GET_PLAYER(weId).warAndPeaceAI().estimateBuildUpRate(civId);
+ 			Intensity basedOnBUR = INCREASED;
+-			if(bur > 0.25) basedOnBUR = FULL;
+-			else if(bur < 18) basedOnBUR = NORMAL;
++			if(bur > 0.25)
++				basedOnBUR = FULL;
++			else if(bur < 0.18)
++				basedOnBUR = NORMAL;
+ 			report.log("Build-up intensity based on power curve: %d", (int)basedOnBUR);
+ 			if(civ.isHuman()) {
+ 				intensity = basedOnBUR;
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4ef8244d8..38ff23c78 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4292,7 +4292,16 @@ LeaderHeadTypes CvCity::getPersonalityType() const
+ 
+ ArtStyleTypes CvCity::getArtStyleType() const
+ {
+-	return GET_PLAYER(getOwnerINLINE()).getArtStyleType();
++	//return GET_PLAYER(getOwnerINLINE()).getArtStyleType();
++	// <advc.005f> Replacing the above
++	PlayerTypes artCiv = getOwnerINLINE();
++	if(GC.getENABLE_005F() > 0) {
++		PlayerTypes cultOwner = calculateCulturalOwner();
++		if(cultOwner != NO_PLAYER)
++			artCiv = cultOwner;
++		else FAssert(cultOwner != NO_PLAYER);
++	}
++	return GET_PLAYER(artCiv).getArtStyleType(); // </advc.005f>
+ }
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index b0555540c..b913cadca 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -153,6 +153,7 @@ m_iMAX_DISTANCE_CITY_MAINTENANCE(0), // advc.140
+ m_iOWN_EXCLUSIVE_RADIUS(0), // advc.035
+ m_iDIPLOMACY_VALUE_REMAINDER(0), // advc.003b
+ m_iCITY_RADIUS_DECAY(0), // advc.099b
++m_iENABLE_005F(0), // advc.005f
+ m_iMOVE_DENOMINATOR(0),
+ m_iNUM_UNIT_PREREQ_OR_BONUSES(0),
+ m_iNUM_BUILDING_PREREQ_OR_BONUSES(0),
+@@ -2672,8 +2673,10 @@ void CvGlobals::cacheGlobals()
+ 	m_iOWN_EXCLUSIVE_RADIUS = getDefineINT("OWN_EXCLUSIVE_RADIUS");
+ 	// advc.003b:
+ 	m_iDIPLOMACY_VALUE_REMAINDER = getDefineINT("DIPLOMACY_VALUE_REMAINDER");
+-	// advc.099b
++	// advc.099b:
+ 	m_iCITY_RADIUS_DECAY = getDefineINT("CITY_RADIUS_DECAY");
++	// advc.005f:
++	m_iENABLE_005F = getDefineINT("ENABLE_005F");
+ 	m_iMOVE_DENOMINATOR = getDefineINT("MOVE_DENOMINATOR");
+ 	m_iNUM_UNIT_PREREQ_OR_BONUSES = getDefineINT("NUM_UNIT_PREREQ_OR_BONUSES");
+ 	m_iNUM_BUILDING_PREREQ_OR_BONUSES = getDefineINT("NUM_BUILDING_PREREQ_OR_BONUSES");
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 6a2180da5..5493bd5fa 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -710,6 +710,8 @@ public:
+ 	inline int getDIPLOMACY_VALUE_REMAINDER() { return m_iDIPLOMACY_VALUE_REMAINDER; }
+ 	// advc.099b:
+ 	inline int getCITY_RADIUS_DECAY() { return m_iCITY_RADIUS_DECAY; }
++	// advc.005f:
++	inline int getENABLE_005F() { return m_iENABLE_005F; }
+ 	int getMOVE_DENOMINATOR();
+ 	int getNUM_UNIT_PREREQ_OR_BONUSES();
+ 	int getNUM_BUILDING_PREREQ_OR_BONUSES();
+@@ -1168,6 +1170,7 @@ protected:
+ 	int m_iOWN_EXCLUSIVE_RADIUS; // advc.035
+ 	int m_iDIPLOMACY_VALUE_REMAINDER; // advc.003b
+ 	int m_iCITY_RADIUS_DECAY; // advc.099b
++	int m_iENABLE_005F; // advc.005f
+ 	int m_iMOVE_DENOMINATOR;
+ 	int m_iNUM_UNIT_PREREQ_OR_BONUSES;
+ 	int m_iNUM_BUILDING_PREREQ_OR_BONUSES;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index f0e05871b..08c57a545 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3573,7 +3573,7 @@ void CvPlayer::doTurn()
+ 	   messages. (Well, if a player unit is attacked, messages are displayed
+ 	   immediately.) */
+ 	g.setAITurn(true);
+-	if(isHuman() && GC.getDefineINT("START_OF_TURN_MESSAGE_LIMIT") >= 0 &&
++	if(isHuman() && getStartOfTurnMessageLimit() >= 0 &&
+ 			g.getElapsedGameTurns() > 0 && !m_listGameMessages.empty()) {
+ 		CvWString endTurnMsg = gDLL->getText("TXT_KEY_END_TURN_MSG");
+ 		gDLL->getInterfaceIFace()->addHumanMessage(getID(), false, 0, endTurnMsg,
+@@ -14629,7 +14629,7 @@ void CvPlayer::postProcessBeginTurnEvents() {
+          right after triggering it.
+ 	   => Need to track messages triggered during other civs' turns manually
+ 	      (iNewMessages). */
+-	int limit = GC.getDefineINT("START_OF_TURN_MESSAGE_LIMIT");
++	int limit = getStartOfTurnMessageLimit();
+ 	/* Finishing a tech should generate a message, which is rather superfluous
+ 	   b/c of the splash screen. Don't want to suppress it b/c it should go
+ 	   into the log, but don't count it when deciding whether to open the log
+@@ -14674,6 +14674,17 @@ void CvPlayer::postProcessBeginTurnEvents() {
+ 		SAFE_DELETE(majorMsgs[i]);
+ 	majorMsgs.clear();
+ 	GC.getGame().setAITurn(false);
++}
++
++int CvPlayer::getStartOfTurnMessageLimit() const {
++
++	int r = GC.getDefineINT("START_OF_TURN_MESSAGE_LIMIT");
++	if(r < 0)
++		return r;
++	if(!isOption(PLAYEROPTION_MINIMIZE_POP_UPS) &&
++			GC.getDefineINT("MESSAGE_LIMIT_WITHOUT_MPU") == 0)
++		return -1;
++	return r;
+ } // </advc.106b>
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 98105fe08..166c57317 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1421,6 +1421,7 @@ protected:
+ 	std::vector<CvTalkingHeadMessage*> majorMsgs;
+ 	int iNewMessages;
+ 	void postProcessBeginTurnEvents();
++	int getStartOfTurnMessageLimit() const;
+ 	// </advc.106b>
+ 
+ 	CvTurnScoreMap m_mapScoreHistory;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6bb2601d0..058b60535 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -20293,8 +20293,13 @@ void CvPlayerAI::AI_doDiplo()
+ 							if (civ.isHuman())
+ 							{
+ 								if (!abContacted[civ.getTeam()])
+-								{
+-									AI_changeContactTimer(civId, CONTACT_OPEN_BORDERS, GC.getLeaderHeadInfo(getPersonalityType()).getContactDelay(CONTACT_OPEN_BORDERS));
++								{	// <advc.124>
++									double speedAdjust = ::range(GC.getGameSpeedInfo(g.getGameSpeedType()).
++											getResearchPercent(), 100, 200) / 100.0;
++											// </advc.124>
++									AI_changeContactTimer(civId, CONTACT_OPEN_BORDERS,
++											::round(speedAdjust * // advc.124
++											GC.getLeaderHeadInfo(getPersonalityType()).getContactDelay(CONTACT_OPEN_BORDERS)));
+ 									pDiplo = new CvDiploParameters(getID());
+ 									FAssert(pDiplo != NULL);
+ 									pDiplo->setDiploComment((DiploCommentTypes)GC.getInfoTypeForString("AI_DIPLOCOMMENT_OFFER_DEAL"));
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index e1036217e..4faa17ba6 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3345,10 +3345,10 @@ PlayerTypes CvPlot::calculateCulturalOwner(
+ 	}
+ 	// <advc.035>
+ 	bool inCityRadius[MAX_PLAYERS];
+-	for(int i = 0; i < MAX_PLAYERS; i++)
+-		inCityRadius[i] = false;
+ 	bool anyCityRadius = false;
+ 	if(ownExclusiveRadius) {
++		for(int i = 0; i < MAX_PLAYERS; i++)
++			inCityRadius[i] = false;
+ 		std::vector<CvPlot*> cross;
+ 		::fatCross(*this, cross);
+ 		for(size_t i = 1; i < cross.size(); i++) {
+
+diff --git a/CvGameCoreDLL/MilitaryBranch.cpp b/CvGameCoreDLL/MilitaryBranch.cpp
+index 0d73a9536..9996f9f86 100644
+--- a/CvGameCoreDLL/MilitaryBranch.cpp
++++ b/CvGameCoreDLL/MilitaryBranch.cpp
+@@ -58,6 +58,15 @@ void MilitaryBranch::updateTypicalUnit() {
+ 		if(u.getCombat() == 0 || u.getCombatLimit() < 100 || !isValidDomain(u) ||
+ 				u.getDomainType() == DOMAIN_AIR || u.getDomainType() == DOMAIN_IMMOBILE)
+ 			continue;
++		// I may want to give some combat unit a national limit at some point ...
++		int const nationalLimit = GC.getUnitClassInfo((UnitClassTypes)i).
++				getMaxPlayerInstances();
++		if(nationalLimit >= 0 && nationalLimit <
++				(GC.getGameINLINE().getCurrentEra() + 1) * 4) {
++			// ... but until then:
++			FAssert(false); // advc.test
++			continue;
++		}
+ 		/* Could call this for land units as well, but relying on the capital for
+ 		   those is faster, and perhaps more accurate as well. */
+ 		if(u.getDomainType() == DOMAIN_SEA) {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index b66053dcc..d322ffbeb 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -1794,15 +1794,16 @@ double WarAndPeaceAI::Team::confidenceFromWarSuccess(TeamTypes targetId) const {
+ 	int theirSuccess = std::max(1, target.AI_getWarSuccess(agentId));
+ 	float successRatio = ((float)ourSuccess) / theirSuccess;
+ 	float const fixedBound = 0.5;
+-	// Reaches fixedBound after 25 turns
+-	float timeBasedBound = (100 - 2 * timeAtWar) / 100.0f;
++	// Reaches fixedBound after 20 turns
++	float timeBasedBound = (100 - 2.5f * timeAtWar) / 100.0f;
+ 	/*  Total-based bound: Becomes relevant once a war lasts long; e.g. after
+ 		25 turns, in the Industrial era, will need a total war success of 250
+ 		in order to reach fixedBound. Neither side should feel confident if there
+ 		isn't much action. */
+-	float progressFactor = 11 - GET_TEAM(agentId).getCurrentEra() * 1.5f;
+-	float totalBasedBound = (100 - (5.0f * (ourSuccess + theirSuccess)) / timeAtWar)
+-			/ 100;
++	float progressFactor = std::max(3.0f,
++			11 - GET_TEAM(agentId).getCurrentEra() * 1.5f);
++	float totalBasedBound = (100 - (progressFactor *
++			(ourSuccess + theirSuccess)) / timeAtWar) / 100;
+ 	float r = successRatio;
+ 	r = ::range(r, fixedBound, 2 - fixedBound);
+ 	r = ::range(r, timeBasedBound, 2 - timeBasedBound);
+@@ -2183,13 +2184,21 @@ bool WarAndPeaceAI::Civ::canTradeAssets(int targetTradeVal, PlayerTypes humanId,
+ 				return true;
+ 		}
+ 	}
++	int cityLimit = (int)std::ceil(human.getNumCities() / 6.0);
++	int cityCount = 0;
+ 	if(!ignoreCities) {
+ 		int dummy = -1;
+ 		for(CvCity* c = human.firstCity(&dummy); c != NULL; c = human.nextCity(&dummy)) {
+ 			setTradeItem(&item, TRADE_CITIES, c->getID());
+ 			if(human.canTradeItem(weId, item, true)) {
++				if(totalTradeVal < targetTradeVal)
++					cityCount++;
+ 				totalTradeVal += GET_PLAYER(weId).AI_cityTradeVal(c);
+-				if(totalTradeVal >= targetTradeVal && r == NULL)
++				if(cityCount > cityLimit) {
++					if(r == NULL)
++						return false;
++				}
++				else if(totalTradeVal >= targetTradeVal && r == NULL)
+ 					return true;
+ 			}
+ 		}
+@@ -2198,7 +2207,7 @@ bool WarAndPeaceAI::Civ::canTradeAssets(int targetTradeVal, PlayerTypes humanId,
+ 		*r = totalTradeVal;
+ 		return false;
+ 	}
+-	return (totalTradeVal >= targetTradeVal);
++	return (cityCount <= cityLimit && totalTradeVal >= targetTradeVal);
+ }
+ 
+ double WarAndPeaceAI::Civ::tradeValUtilityConversionRate() const {
+
+[PATCH OMITTED] file=a/manual_092b.odt b/manual_0.92b.odt reason=binary/generated-file changedLines=0 bytes=218
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=18 omittedFiles=1 embeddedPatchBytes=44106

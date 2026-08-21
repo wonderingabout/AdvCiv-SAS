@@ -1,0 +1,158 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1906
+# Commit: 35eeb3b76aa42bb5a69d1fdf9561399324c5504a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 279c9d078008359b9fa4680e1146c35c68f345cc
+# Title: Return city plot ids as CityPlotTypes (instead of int)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvEnums.h
+4	4	CvGameCoreDLL/CvGameCoreUtils.cpp
+4	3	CvGameCoreDLL/CvGameCoreUtils.h
+7	7	CvGameCoreDLL/CvGlobals.cpp
+3	3	CvGameCoreDLL/CvGlobals.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index efa56ae77..8b5c1a430 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -2235,9 +2235,11 @@ enum UnitSubEntityTypes
+ // <advc.enum> (idea from "We the People")
+ enum CityPlotTypes
+ {
+-	CITY_HOME_PLOT,
++	NO_CITYPLOT = -1,
++	CITY_HOME_PLOT = 0,
+ 	CITY_PLOTS_RADIUS = 2,
+ 	CITY_PLOTS_DIAMETER = CITY_PLOTS_RADIUS * 2 + 1,
++	NUM_INNER_PLOTS = 9,
+ 	NUM_CITYPLOT_TYPES = 21,
+ };
+ // (I don't think FOR_EACH_ENUM(CityPlot) is the best way to loop over city plots.)
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index e31abbd70..ff4494ef0 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -266,19 +266,19 @@ CvPlot* plotCity(int iX, int iY, int iIndex)
+ 	return GC.getMap().plot(iX + GC.getCityPlotX()[iIndex], iY + GC.getCityPlotY()[iIndex]);
+ }
+ 
+-int plotCityXY(int iDX, int iDY)
++CityPlotTypes plotCityXY(int iDX, int iDY)
+ {
+ 	if (abs(iDX) > CITY_PLOTS_RADIUS || abs(iDY) > CITY_PLOTS_RADIUS)
+-		return -1;
++		return NO_CITYPLOT; // advc.enum
+ 	return GC.getXYCityPlot(iDX + CITY_PLOTS_RADIUS, iDY + CITY_PLOTS_RADIUS);
+ }
+ 
+-int plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
++CityPlotTypes plotCityXY(const CvCity* pCity, const CvPlot* pPlot)
+ {	// <advc> Allow this function to be called for hypothetical cities (two plot params)
+ 	return plotCityXY(*pCity->plot(), *pPlot);
+ }
+ 
+-int plotCityXY(CvPlot const& kCityPlot, CvPlot const& kPlot) // </advc>
++CityPlotTypes plotCityXY(CvPlot const& kCityPlot, CvPlot const& kPlot) // </advc>
+ {
+ 	CvMap const& m = GC.getMap();
+ 	return plotCityXY(m.dxWrap(kPlot.getX() - kCityPlot.getX()),
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 119375ed9..f12d3c929 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -142,9 +142,10 @@ inline char intToChar(int x)
+ // (advc.make: Distance functions moved into CvMap.h)
+ 
+ CvPlot* plotCity(int iX, int iY, int iIndex);																			// Exposed to Python
+-int plotCityXY(int iDX, int iDY);																									// Exposed to Python
+-int plotCityXY(CvPlot const& kCityPlot, CvPlot const& kPlot); //advc
+-int plotCityXY(const CvCity* pCity, const CvPlot* pPlot);													// Exposed to Python
++// advc.enum: return CityPlotTypes (x3)
++CityPlotTypes plotCityXY(int iDX, int iDY);																									// Exposed to Python
++CityPlotTypes plotCityXY(CvPlot const& kCityPlot, CvPlot const& kPlot); // advc
++CityPlotTypes plotCityXY(const CvCity* pCity, const CvPlot* pPlot);														// Exposed to Python
+ // <advc.303>
+ bool isInnerRing(CvPlot const& kPlot, CvPlot const& kCityPlot);
+ bool isInnerRing(CvPlot const* pPlot, CvPlot const* pCityPlot)
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 6f2aec750..6d59b3130 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -164,16 +164,16 @@ void CvGlobals::init() // allocate
+ 	};
+ 
+ 	int aaiXYCityPlot[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER] =
+-	{
+-		{-1, 17, 18, 19, -1,},
++	{	// advc.enum: NO_CITYPLOT
++		{NO_CITYPLOT, 17, 18, 19, NO_CITYPLOT},
+ 
+-		{16, 6, 7, 8, 20,},
++		{         16,  6,  7,  8, 20},
+ 
+-		{15, 5, 0, 1, 9,},
++		{         15,  5,  0,  1,  9},
+ 
+-		{14, 4, 3, 2, 10,},
++		{         14,  4,  3,  2, 10},
+ 
+-		{-1, 13, 12, 11, -1,}
++		{NO_CITYPLOT, 13, 12,  11, NO_CITYPLOT,}
+ 	};
+ 
+ 	DirectionTypes aeTurnRightDirection[NUM_DIRECTION_TYPES] =
+@@ -243,7 +243,7 @@ void CvGlobals::init() // allocate
+ 	memcpy(m_aiCityPlotPriority, aiCityPlotPriority, sizeof(m_aiCityPlotPriority));
+ 	memcpy(m_aeTurnLeftDirection, aeTurnLeftDirection, sizeof(m_aeTurnLeftDirection));
+ 	memcpy(m_aeTurnRightDirection, aeTurnRightDirection, sizeof(m_aeTurnRightDirection));
+-	memcpy(m_aaiXYCityPlot, aaiXYCityPlot, sizeof(m_aaiXYCityPlot));
++	memcpy(m_aaeXYCityPlot, aaiXYCityPlot, sizeof(m_aaeXYCityPlot));
+ 	memcpy(m_aaeXYDirection, aaeXYDirection,sizeof(m_aaeXYDirection));
+ }
+ // advc: Not needed anymore
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index adf4b1005..1f3661099 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -169,11 +169,11 @@ public:
+ 		FAssertBounds(0, DIRECTION_DIAMETER, j);
+ 		return m_aaeXYDirection[i][j];
+ 	}
+-	inline int getXYCityPlot(int i, int j) const
++	inline CityPlotTypes getXYCityPlot(int i, int j) const // advc.enum: return type was int
+ 	{
+ 		FAssertBounds(0, CITY_PLOTS_DIAMETER, i);
+ 		FAssertBounds(0, CITY_PLOTS_DIAMETER, j);
+-		return m_aaiXYCityPlot[i][j];
++		return m_aaeXYCityPlot[i][j];
+ 	}
+ 	inline int const* getCityPlotX() const { return m_aiCityPlotX; }
+ 	inline int const* getCityPlotY() const { return m_aiCityPlotY; }
+@@ -821,7 +821,7 @@ protected:
+ 	int m_aiCityPlotX[NUM_CITY_PLOTS];
+ 	int m_aiCityPlotY[NUM_CITY_PLOTS];
+ 	int m_aiCityPlotPriority[NUM_CITY_PLOTS];
+-	int m_aaiXYCityPlot[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER];
++	CityPlotTypes m_aaeXYCityPlot[CITY_PLOTS_DIAMETER][CITY_PLOTS_DIAMETER];
+ 	DirectionTypes m_aeTurnLeftDirection[NUM_DIRECTION_TYPES];
+ 	DirectionTypes m_aeTurnRightDirection[NUM_DIRECTION_TYPES];
+ 	DirectionTypes m_aaeXYDirection[DIRECTION_DIAMETER][DIRECTION_DIAMETER];
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5247

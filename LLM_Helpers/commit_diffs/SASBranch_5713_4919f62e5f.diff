@@ -1,0 +1,322 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5713
+# Commit: 4919f62e5f990c8dfeec222436eaadfd27af82e0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b5ca948b8e73db21834e2492cd067ed74f6cfb3c
+# Title: add BFC2 tab (bonsues and improvements) in world advisor
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	0	Assets/Python/SASUtils.py
+2	20	Assets/Python/Screens/CvInfoScreen.py
+92	2	Assets/Python/Screens/CvWorldAdvisorScreen.py
+5	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+11	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+4	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/SASUtils.py b/Assets/Python/SASUtils.py
+index 6d919b38c..046be4c44 100644
+--- a/Assets/Python/SASUtils.py
++++ b/Assets/Python/SASUtils.py
+@@ -4,11 +4,22 @@
+ 
+ 
+ from CvPythonExtensions import *
++import CvUtil
++from SASFontUtils import SAS_FONT_TAG_LABEL, SAS_FONT_TAG_CLOSE
+ 
+ 
+ gc = CyGlobalContext()
+ 
+ 
++# <!-- custom: lazy-init cache for SAS_SHOW_LEGEND_LINK GlobalDefine. Cannot be resolved at module import time because SASUtils is imported before CyGlobalContext finishes loading XML defines (eager init returns False and the legend link silently disappears). Resolved on first use via _isLegendLinkEnabled, matching the lazy-init-to-None approach used by other AdvCiv-SAS advisors. (Claude code Opus 4.7) -->
++_IS_SAS_SHOW_LEGEND_LINK = None
++def _isLegendLinkEnabled():
++	global _IS_SAS_SHOW_LEGEND_LINK
++	if _IS_SAS_SHOW_LEGEND_LINK is None:
++		_IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
++	return _IS_SAS_SHOW_LEGEND_LINK
++
++
+ 
+ # <!-- custom: shared advisor layout constants that are screen-independent (safe to read in __init__); runtime screen-dependent geometry is derived per screen from current resolution in interfaceScreen. (GPT-5.3-Codex) -->
+ # <!-- custom: as part of upscaling text code changes, now that commerce sliders are on the right-side, reduce left-space (from 172). Increase right-space for scoreboard (from 390) to give more room for anarchy and golden age button and just in case here. Increase top space (from 28). -->
+@@ -72,3 +83,17 @@ def getNewConceptID(szConceptType):
+ 		if gc.getNewConceptInfo(i).getType() == szConceptType:
+ 			return i
+ 	return -1
++
++
++# <!-- custom: shared advisor "Legend" link helper, factored from CvInfoScreen's Score-tab pattern so any AdvCiv-SAS advisor can drop a Sevopedia legend link with one call. Caller passes the screen object (must expose getScreen, getNextWidgetName, Z_CONTROLS), the NewConcept XML type, and the (X,Y) anchor in screen coords. Skips silently when the SAS_SHOW_LEGEND_LINK GlobalDefine is off or the concept is missing. setText params mirror the Score-tab call exactly: WIDGET_PEDIA_DESCRIPTION + CIVILOPEDIA_PAGE_CONCEPT_NEW + concept ID is the pedia jump that actually resolves through SevoPediaMain.pediaJump. (Claude code Opus 4.7) -->
++def placeAdvisorLegendLink(top, szConceptType, iX, iY, eJustify=None):
++	if not _isLegendLinkEnabled():
++		return
++	iConcept = getNewConceptID(szConceptType)
++	if iConcept < 0:
++		return
++	if eJustify is None:
++		eJustify = CvUtil.FONT_RIGHT_JUSTIFY
++	screen = top.getScreen()
++	szLabel = SAS_FONT_TAG_LABEL + "Legend" + SAS_FONT_TAG_CLOSE
++	screen.setText(top.getNextWidgetName(), "Background", szLabel, eJustify, iX, iY, top.Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_PEDIA_DESCRIPTION, CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW, iConcept)
+
+diff --git a/Assets/Python/Screens/CvInfoScreen.py b/Assets/Python/Screens/CvInfoScreen.py
+index a6e42b9c5..fa2527d4d 100644
+--- a/Assets/Python/Screens/CvInfoScreen.py
++++ b/Assets/Python/Screens/CvInfoScreen.py
+@@ -339,8 +339,6 @@ class CvInfoScreen:
+ 		self.SCORETAB_ANARCHY_CHAR = FontUtil.getChar(FontSymbols.BAD_GOLD_CHAR)
+ 		self.SCORETAB_ESPIONAGE_CHAR = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar()
+ 		self.SCORETAB_COLOR_MARKER = u"|||||"
+-		self.SCORETAB_LEGEND_LINK_TEXT = SAS_FONT_TAG_LABEL + "Legend" + SAS_FONT_TAG_CLOSE
+-		self.SCORETAB_LEGEND_NEW_CONCEPT_ID = getNewConceptID("CONCEPT_SAS_SCORE_TAB_COLUMNS")
+ 
+ 		self.TEXT_VALUE = localText.getText("TXT_KEY_DEMO_SCREEN_VALUE_TEXT", ())
+ 		self.TEXT_RANK = localText.getText("TXT_KEY_DEMO_SCREEN_RANK_TEXT", ())
+@@ -498,7 +496,6 @@ class CvInfoScreen:
+ 		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_DBG_LOG_PRETTY_SUMMARY_BUTTON_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_LOG_BUTTON_ENABLE") > 0)
+ 		# <!-- custom: cache toggle; when disabled, timeline entries are rebuilt and not stored on the instance. (GPT-5.2-Codex) -->
+ 		self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE = (gc.getDefineINT("SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE") > 0)
+-		self.IS_SAS_SHOW_LEGEND_LINK = (gc.getDefineINT("SAS_SHOW_LEGEND_LINK") > 0)
+ 		self.SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD = gc.getDefineINT("SAS_CV_INFO_SCREEN_SCORE_TAB_MAX_RENDER_THRESHOLD")
+ 
+ 	def reset(self):
+@@ -1528,23 +1525,8 @@ class CvInfoScreen:
+ 					szGoldenAge = self.SCORETAB_GOLDEN_AGE_CHAR
+ 			SASTextScale.setTableTextLabel(screen, szTable, iColGoldenAge, iRow, szGoldenAge, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+ 
+-		if self.IS_SAS_SHOW_LEGEND_LINK and self.SCORETAB_LEGEND_NEW_CONCEPT_ID >= 0:
+-			szLegendLinkName = self.getNextWidgetName()
+-			iLegendX = iTableX + iTableW - 6
+-			iLegendY = self.Y_TITLE
+-			screen.setText(
+-				szLegendLinkName,
+-				"Background",
+-				self.SCORETAB_LEGEND_LINK_TEXT,
+-				CvUtil.FONT_RIGHT_JUSTIFY,
+-				iLegendX,
+-				iLegendY,
+-				self.Z_CONTROLS,
+-				FontTypes.TITLE_FONT,
+-				WidgetTypes.WIDGET_PEDIA_DESCRIPTION,
+-				CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW,
+-				self.SCORETAB_LEGEND_NEW_CONCEPT_ID
+-			)
++		# <!-- custom: refactored to the shared placeAdvisorLegendLink helper in SASUtils so AdvCiv-SAS advisors share one canonical legend-link path. The helper applies the SAS_SHOW_LEGEND_LINK gate and missing-concept guard internally. (Claude code Opus 4.7) -->
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_SCORE_TAB_COLUMNS", iTableX + iTableW - 6, self.Y_TITLE)
+ 
+ 	def dbgLogPrettySummary(self):
+ 		if self.IS_SAS_CV_INFO_SCREEN_TIMELINE_CACHE_ENABLE:
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index 5921b8d70..507ad0903 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -42,17 +42,19 @@ class CvWorldAdvisorScreen:
+ 		self.ENV_Y_SPACING = 30
+ 		self.ENV_TEXT_MARGIN = 15
+ 		self.BFC_TABLE_GAP = 18
+-		self.BFC_CITY_COL_WIDTH = 190
++		self.BFC_CITY_COL_WIDTH = 180
+ 		self.BFC_ZOOM_COL_WIDTH = 28
+ 		self.BFC_ICON_SIZE = 24
+ 
+ 		self.PAGE_NAME_LIST = [
+ 			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
+ 			"TXT_KEY_WORLD_ADVISOR_BFC_TAB",
++			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
+ 			]
+ 		self.PAGE_LINK_WIDTH = []
+ 		self.iEnvironmentID = 0
+ 		self.iBFCID = 1
++		self.iBFC2ID = 2
+ 		self.iActiveTab = self.iEnvironmentID
+ 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
+ 
+@@ -219,6 +221,8 @@ class CvWorldAdvisorScreen:
+ 			self.drawEnvironmentTab()
+ 		elif self.iActiveTab == self.iBFCID:
+ 			self.drawBFCTab()
++		elif self.iActiveTab == self.iBFC2ID:
++			self.drawBFC2Tab()
+ 
+ 	# ENVIRONMENT
+ 	def drawEnvironmentTab(self):
+@@ -366,6 +370,12 @@ class CvWorldAdvisorScreen:
+ 			screen.setLabel(self.getNextWidgetName(), "Background", SAS_FONT_TAG_LABEL + unicode(game.getGlobalWarmingChances()) + SAS_FONT_TAG_CLOSE, CvUtil.FONT_RIGHT_JUSTIFY, X_RIGHT_PANEL + PANE_WIDTH - TEXT_MARGIN, yLocation + TEXT_MARGIN, self.Z_CONTROLS + self.DZ, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+ 
+ 	# <!-- custom: The Environment page follows base AdvCiv advisor content; BFC is a new AdvCiv-SAS World Advisor tab. (GPT-5.5) -->
++	# <!-- custom: BFC tab design notes — icons in column headers (yellow header background gives the strongest contrast / readability for icon recognition).
++	# We tried two alternatives and rejected both:
++	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
++	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
++	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant.
++	# Resolution: keep icons-in-headers (readable, sortable) and add a Legend link in BFC 2 that jumps to the Sevopedia Bonus index, where every icon is listed with its name and description. (Claude code Opus 4.7) -->
+ 	# BFC
+ 	def drawBFCTab(self):
+ 		aiFortColumns = self.getBFCFortImprovementTypes()
+@@ -555,6 +565,86 @@ class CvWorldAdvisorScreen:
+ 			self.setBFCCountCell(screen, szTable, iCol, iRow, rowData[9][iFort])
+ 			iCol += 1
+ 
++	# <!-- custom: BFC 2 tab — bonuses (top) and improvements (bottom), icon-headered like BFC's terrain table; shows every type exhaustively, matching the BFC tab's all-terrains/features/routes layout. Bonuses are filtered to placeable types (PlacementOrder >= 0); abstract bonuses can't appear in any BFC. See drawBFCTab above for the full design rationale (why icons live in the header, why hover-on-header was abandoned). (Claude code Opus 4.7) -->
++	def drawBFC2Tab(self):
++		aiBonusColumns = []
++		for iBonus in range(gc.getNumBonusInfos()):
++			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
++				aiBonusColumns.append(iBonus)
++		aszRows, aaiBonusCounts, aaiImprovementCounts = self.collectBFC2Data()
++		self.drawBFC2IconTable(aszRows, aaiBonusCounts, aiBonusColumns, gc.getBonusInfo, gc.getNumBonusInfos(), self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
++		self.drawBFC2IconTable(aszRows, aaiImprovementCounts, range(gc.getNumImprovementInfos()), gc.getImprovementInfo, gc.getNumImprovementInfos(), self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
++		self.drawBFC2LegendLink()
++
++	# <!-- custom: Legend link top-right of the BFC 2 content area; uses the shared placeAdvisorLegendLink helper (same pattern as Score tab in CvInfoScreen). The link jumps to the CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND Sevopedia/NewConcept page. (Claude code Opus 4.7) -->
++	def drawBFC2LegendLink(self):
++		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
++		iY = self.Y_TITLE
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND", iX, iY)
++
++	def collectBFC2Data(self):
++		player = gc.getPlayer(self.iActivePlayer)
++		bDebug = CyGame().isDebugMode()
++		aszRows = []
++		aaiBonusCounts = []
++		aaiImprovementCounts = []
++		(pCity, iter) = player.firstCity(False)
++		while pCity and not pCity.isNone():
++			aiBonusCounts = [0] * gc.getNumBonusInfos()
++			aiImprovementCounts = [0] * gc.getNumImprovementInfos()
++			for iPlot in range(gc.getNUM_CITY_PLOTS()):
++				pPlot = pCity.getCityIndexPlot(iPlot)
++				if pPlot and not pPlot.isNone() and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
++					iBonus = pPlot.getBonusType(self.iActiveTeam)
++					if iBonus >= 0:
++						aiBonusCounts[iBonus] += 1
++					iImprovement = pPlot.getImprovementType()
++					if iImprovement >= 0:
++						aiImprovementCounts[iImprovement] += 1
++			aszRows.append([pCity.getName(), pCity.getOwner(), pCity.getID()])
++			aaiBonusCounts.append(aiBonusCounts)
++			aaiImprovementCounts.append(aiImprovementCounts)
++			(pCity, iter) = player.nextCity(iter, False)
++		return aszRows, aaiBonusCounts, aaiImprovementCounts
++
++	def drawBFC2IconTable(self, aszRows, aaiCounts, aiColumns, fnGetInfo, iNumTypes, iY, iH):
++		screen = self.getScreen()
++		szTable = self.getNextWidgetName()
++		iNumDataCols = len(aiColumns)
++		iNumCols = 2 + iNumDataCols
++		screen.addTableControlGFC(szTable, iNumCols, self.BFC_X_TABLE, iY, self.BFC_W_TABLE, iH, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSort(szTable)
++		iDataW = 0
++		if iNumDataCols > 0:
++			iDataW = (self.BFC_W_TABLE - self.BFC_ZOOM_COL_WIDTH - self.BFC_CITY_COL_WIDTH) / iNumDataCols
++		screen.setTableColumnHeader(szTable, 0, "", self.BFC_ZOOM_COL_WIDTH)
++		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_CITY + SAS_FONT_TAG_CLOSE, self.BFC_CITY_COL_WIDTH)
++		for iCol in range(iNumDataCols):
++			screen.setTableColumnHeader(szTable, iCol + 2, SAS_FONT_TAG_LABEL + u"<img=%s size=%d></img>" % (fnGetInfo(aiColumns[iCol]).getButton(), self.BFC_ICON_SIZE) + SAS_FONT_TAG_CLOSE, iDataW)
++
++		for iRow in range(len(aszRows)):
++			self.appendBFC2Row(screen, szTable, iRow, aszRows[iRow], aaiCounts[iRow], aiColumns)
++		if len(aszRows) > 0:
++			aiTotals = [0] * iNumTypes
++			for aiRow in aaiCounts:
++				for iType in aiColumns:
++					aiTotals[iType] += aiRow[iType]
++			self.appendBFC2Row(screen, szTable, len(aszRows), [self.TEXT_TOTAL, -1, -1], aiTotals, aiColumns)
++
++	def appendBFC2Row(self, screen, szTable, iRow, rowData, aiCounts, aiColumns):
++		screen.appendTableRow(szTable)
++		szCityName = rowData[0]
++		iOwner = rowData[1]
++		iCityID = rowData[2]
++		if iOwner >= 0:
++			screen.setTableText(szTable, 0, iRow, "", self.ART_CITY_SELECTION_BUTTON, WidgetTypes.WIDGET_ZOOM_CITY, iOwner, iCityID, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		else:
++			screen.setTableText(szTable, 0, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableText(szTable, 1, iRow, SAS_FONT_TAG_LABEL + szCityName + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		for iCol in range(len(aiColumns)):
++			self.setBFCCountCell(screen, szTable, iCol + 2, iRow, aiCounts[aiColumns[iCol]])
++
+ 	def setBFCCountCell(self, screen, szTable, iCol, iRow, iCount):
+ 		if iCount == 0:
+ 			screen.setTableText(szTable, iCol, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+@@ -591,7 +681,7 @@ class CvWorldAdvisorScreen:
+ 				self.pActiveTeam = gc.getTeam(self.iActiveTeam)
+ 				self.redrawContents()
+ 				return 1
+-			if self.iActiveTab == self.iBFCID and inputClass.getMouseX() == 0:
++			if (self.iActiveTab == self.iBFCID or self.iActiveTab == self.iBFC2ID) and inputClass.getMouseX() == 0:
+ 				self.getScreen().hideScreen()
+ 				CyInterface().selectCity(gc.getPlayer(inputClass.getData1()).getCity(inputClass.getData2()), True)
+ 				popupInfo = CyPopupInfo()
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index 34f82d203..a341294a3 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -23,6 +23,11 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
+ 			<Description>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Description>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index c404a84aa..f2b1efd79 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -132,6 +132,17 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Tag>
++		<English>World Advisor BFC 2 Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND_PEDIA</Tag>
++		<English>[H1]World Advisor BFC 2 Legend[\H1][PARAGRAPH:2]The first four columns of the Improvements table are engine-only markers that aren't built by Workers. They are listed here because they can appear on plots inside a city's BFC and the icons aren't always self-evident.[NEWLINE][NEWLINE][ICON_BULLET]Land Worked: internal marker that a city is currently working this land plot. Not a real improvement; it disappears when the plot stops being worked.[NEWLINE][ICON_BULLET]Water Worked: same as above, but for water plots worked by a coastal city.[NEWLINE][ICON_BULLET]City Ruins: leftover marker on a tile where a city was destroyed; blocks resettlement of the exact same tile for a while and slowly decays.[NEWLINE][ICON_BULLET]Goody Hut: tribal village placed at game start. Entering one with a non-barbarian unit triggers a goody (gold, map, tech, scout, warrior, etc.) and removes the hut.[NEWLINE][NEWLINE]All other columns in the Bonuses and Improvements tables are standard map resources and Worker-built improvements; their meanings are visible from their pedia entries via right-click on the icons.</English>
++	</TEXT>
++
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Tag>
+ 		<English>Sevopedia Leader Legend</English>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 2eee67160..6aaa6f525 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3736,6 +3736,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_TAB</Tag>
+ 		<English>BFC</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_BFC2_TAB</Tag>
++		<English>BFC 2</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_CITY</Tag>
+ 		<English>City</English>
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=17344

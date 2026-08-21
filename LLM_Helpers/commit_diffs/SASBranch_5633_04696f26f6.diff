@@ -1,0 +1,645 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5633
+# Commit: 04696f26f67381966356381e2beb6a3cf1298f0f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6bc421f1841269e56f8ee0f009401753c0cc8495
+# Title: move AIP categories from predump to UI level, adjust AIP categories depending on game resolution
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+142	6	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+8	313	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+0	3	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+5	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 6e4892596..aee9eb02d 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -41,6 +41,7 @@ localText = CyTranslator()
+ IS_SHOW_TRAIT_ICONS_IN_LEADER = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_TRAITS_SHOW_ICONS") > 0)
+ IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE") > 0)
+ IS_SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ATTITUDE_EMOJI_ENABLE") > 0)
++IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
+ SAS_PEDIA_PYTHON_LEADER_ATTITUDE = 6805
+ SAS_PEDIA_PYTHON_LEADER_ACTION = 6806
+ SAS_LEADER_ATTITUDE_PREVIEW_ORDER = (
+@@ -65,9 +66,6 @@ EXCLUDED_LEADER_INDEXES_FROM_CALCULATIONS = _SAS_LeaderAIPValues.EXCLUDED_LEADER
+ 
+ # <!-- custom: cache containers (populated once per session from SevoPediaMain). -->
+ LEADERS_INFO_CACHED = {}
+-AI_RIGHT_CATEGORIES = ()
+-AI_MIDDLE_CATEGORIES = ()
+-AI_LEFT_CATEGORIES = ()
+ 
+ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession():
+ 	# Called once (from SevoPediaMain) to prebuild the AI Personality Panel cache.
+@@ -101,6 +99,8 @@ class SevoPediaLeader:
+ 		self.ACTION_BUTTON_WIDGET_BY_ACTION = {}
+ 		for iAction, _ in SAS_LEADER_ACTION_PREVIEW_ORDER:
+ 			self.ACTION_BUTTON_WIDGET_BY_ACTION[iAction] = "SevoPediaLeaderActionBtn%d" % iAction
++		# <!-- custom: don't cache AI category headers/symbol lines separately; they are computed once at init when this screen object is created, so extra caching would be needlessly costly for no practical gain. (GPT-5.3-Codex) -->
++		self.aiRightCategoriesBase, self.aiMiddleCategoriesBase, self.aiLeftCategoriesBase = self.buildBaseAICategoriesForUI()
+ 
+ 		self.N_AI_TABLE_NUM = 3
+ 		iLeaderItemsWidthFont2 = gc.getDefineINT("SAS_SEVOPEDIA_LEADER_ITEMS_WIDTH_FONT_2")
+@@ -497,6 +497,141 @@ class SevoPediaLeader:
+ 			# <!-- custom: space for next ai_category if any are there (else still space but not used more efficient this way i think i mean than rechecking each time and we have some tables that overflow vertically too so maybe fine this way too if not broken in this case i mean maybe-->
+ 			y += self.H_AI_CATEGORY_SPACING
+ 
++	def buildBaseAICategoriesForUI(self):
++		def get_header_text(header_key_or_text):
++			if header_key_or_text is None:
++				return None
++			if header_key_or_text.startswith("TXT_KEY_"):
++				return localText.getText(header_key_or_text, ())
++			return header_key_or_text
++
++		def get_ai_category(icon_button_art_key, header_key_or_text, ai_category_key_order):
++			if header_key_or_text is None:
++				ai_category_header_line = None
++				ai_category_x_offset = 0
++			else:
++				header_text = get_header_text(header_key_or_text)
++				if IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI and icon_button_art_key:
++					button_size = 16
++					line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
++					ai_category_header_line = u"%s %s" % (line_button_txt, header_text)
++					# <!-- custom: keep a small negative header offset so emoji+title rows align with table body and waste less horizontal room. (GPT-5.3-Codex) -->
++					ai_category_x_offset = -7
++				else:
++					ai_category_header_line = header_text
++					ai_category_x_offset = 0
++			return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
++
++		def build_memory_order(positive_negative, affection_resentment, suffixes):
++			return tuple("iAggregated%sMemory%s%s" % (positive_negative, suffix, affection_resentment) for suffix in suffixes)
++
++		positive_memory_suffixes = (
++			"GiveHelp", "AcceptDemand", "AcceptedReligion", "AcceptedCivic", "AcceptedJoinWar",
++			"AcceptedStopTrading", "VotedForUs", "EventGoodToUs", "LiberatedCities",
++			"Independence", "TradedTechToUs",
++		)
++		negative_memory_suffixes = (
++			"DeclaredWar", "DeclaredWarOnFriend", "HiredWarAlly", "NukedUs", "NukedFriend",
++			"RazedCity", "RazedHolyCity", "SpyCaught", "RefusedHelp", "RejectedDemand",
++			"DeniedReligion", "DeniedCivic", "DeniedJoinWar", "DeniedStopTrading",
++			"StoppedTrading", "HiredTradeEmbargo", "MadeDemand", "VotedAgainstUs",
++			"EventBadToUs", "CancelledVassalAgreement", "DeclaredWarRecent",
++			"ReceivedTechFromAny", "MadeDemandRecent", "CancelledOpenBorders",
++			# <!-- custom: "StoppedTradingRecent" intentionally omitted because panel width/height is tight and this row gives the least added value among negative-memory tails. (GPT-5.3-Codex) -->
++			# "StoppedTradingRecent",
++			"CancelledDefensivePact",
++		)
++
++		right_categories = (
++			get_ai_category("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", (
++				"getMaxGoldTradePercent", "getMaxGoldPerTurnTradePercent", "getTechTradeKnownPercent",
++				"getNoTechTradeThreshold", "getBuildUnitProb", "getWonderConstructRand", "getEspionageWeight",
++			)),
++			get_ai_category("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", build_memory_order("Positive", "Affection", positive_memory_suffixes)),
++			get_ai_category("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", build_memory_order("Negative", "Resentment", negative_memory_suffixes)),
++		)
++
++		middle_categories = (
++			get_ai_category("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", (
++				"iAggregatedContactProbPeaceTreaty", "iAggregatedContactProbOpenBorders", "iAggregatedContactProbTradeMap",
++				"iAggregatedContactProbTradeTech", "iAggregatedContactProbTradeBonus", "iAggregatedContactProbGiveHelp",
++				"iAggregatedContactProbDefensivePact", "iAggregatedContactProbPermanentAlliance",
++			)),
++			get_ai_category("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", (
++				"iAggregatedContactProbReligionPressure", "iAggregatedContactProbCivicPressure", "iAggregatedContactProbStopTrading",
++				"iAggregatedContactProbDemandTribute", "iAggregatedContactProbAskForHelp", "iAggregatedContactProbJoinWar",
++			)),
++			get_ai_category("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", (
++				"getOpenBordersRefuseAttitudeThreshold", "getMapRefuseAttitudeThreshold", "getTechRefuseAttitudeThreshold",
++				"getStrategicBonusRefuseAttitudeThreshold", "getHappinessBonusRefuseAttitudeThreshold", "getHealthBonusRefuseAttitudeThreshold",
++				"getNoGiveHelpAttitudeThreshold", "getDefensivePactRefuseAttitudeThreshold",
++			)),
++			get_ai_category("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", (
++				# <!-- custom: higher threshold means harder to convince, so this sits in demand-refusal section with the other attitude gates. (GPT-5.3-Codex) -->
++				"getConvertReligionRefuseAttitudeThreshold", "getAdoptCivicRefuseAttitudeThreshold", "getDeclareWarRefuseAttitudeThreshold",
++				"getDeclareWarThemRefuseAttitudeThreshold", "getStopTradingRefuseAttitudeThreshold", "getStopTradingThemRefuseAttitudeThreshold",
++				"getDemandTributeAttitudeThreshold", "getCityRefuseAttitudeThreshold", "getNativeCityRefuseAttitudeThreshold",
++				"getVassalRefuseAttitudeThreshold",
++			)),
++			get_ai_category("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", (
++				"iNoWarAttitudeProbFurious", "iNoWarAttitudeProbAnnoyed", "iNoWarAttitudeProbCautious",
++				"iNoWarAttitudeProbPleased", "iNoWarAttitudeProbFriendly",
++			)),
++			get_ai_category("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", (
++				"getSameReligionAttitudeChange", "getSameReligionAttitudeDivisor", "getDifferentReligionAttitudeChange",
++				"getDifferentReligionAttitudeDivisor", "getFavoriteCivicAttitudeChange", "getFavoriteCivicAttitudeDivisor",
++				"getLostWarAttitudeChange", "getAtWarAttitudeDivisor", "getAtWarAttitudeChangeLimit",
++				"getAtPeaceAttitudeDivisor", "getAtPeaceAttitudeChangeLimit", "getShareWarAttitudeChange",
++				"getShareWarAttitudeDivisor", "getBonusTradeAttitudeDivisor", "getBonusTradeAttitudeChangeLimit",
++				"getOpenBordersAttitudeDivisor", "getOpenBordersAttitudeChangeLimit", "getDefensivePactAttitudeDivisor",
++				"getDefensivePactAttitudeChangeLimit",
++			)),
++			get_ai_category("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", ("getFreedomAppreciation",)),
++		)
++
++		left_categories = (
++			get_ai_category("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", (
++				# <!-- custom: ACL limits stay here intentionally; thematic purity is secondary to keeping this column compact/readable on constrained widths. (GPT-5.3-Codex) -->
++				"getBaseAttitude", "getBasePeaceWeight", "getPeaceWeightRand", "getWorseRankDifferenceAttitudeChange",
++				"getBetterRankDifferenceAttitudeChange", "getWarmongerRespect", "getCloseBordersAttitudeChange",
++				"getSameReligionAttitudeChangeLimit", "getDifferentReligionAttitudeChangeLimit", "getFavoriteCivicAttitudeChangeLimit",
++			)),
++			get_ai_category("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", (
++				"getConquestVictoryWeight", "getDominationVictoryWeight", "getCultureVictoryWeight",
++				"getDiplomacyVictoryWeight", "getSpaceVictoryWeight",
++			)),
++			get_ai_category("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", (
++				"iFlavorMilitary", "iFlavorReligion", "iFlavorProduction", "iFlavorGold",
++				"iFlavorScience", "iFlavorCulture", "iFlavorGrowth", "iFlavorEspionage",
++			)),
++			get_ai_category("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", (
++				"getMaxWarRand", "getMaxWarNearbyPowerRatio", "getMaxWarDistantPowerRatio", "getMaxWarMinAdjacentLandPercent",
++				"getLimitedWarRand", "getLimitedWarPowerRatio", "getBaseAttackOddsChange", "getAttackOddsChangeRand",
++				"getRazeCityProb", "getDemandRebukedSneakProb", "getDemandRebukedWarProb", "getDogpileWarRand",
++				# <!-- custom: keep ShareWar ACL in this block so war heuristics remain visible together instead of introducing another micro-section. (GPT-5.3-Codex) -->
++				"getDeclareWarTradeRand", "getShareWarAttitudeChangeLimit", "getVassalPowerModifier",
++				"getRefuseToTalkWarThreshold", "getMakePeaceRand",
++			)),
++		)
++
++		return right_categories, middle_categories, left_categories
++
++	def getAICategoriesForCurrentResolution(self):
++		right_categories = list(self.aiRightCategoriesBase)
++		middle_categories = list(self.aiMiddleCategoriesBase)
++		left_categories = list(self.aiLeftCategoriesBase)
++		# <!-- custom: runtime AI panel layout is resolution-tunable based on vertical room (Y resolution) and independent from predumped cache data; UI owns per-resolution ordering directly (no XML toggle). (GPT-5.3-Codex) -->
++		iScreenHeight = self.top.getScreen().getYResolution()
++		if iScreenHeight <= 1440:
++			# <!-- custom: higher Y resolutions (e.g. 1440p) have enough vertical room to show ACL-related rows that are hidden at 1080p; move "No War At" to the left column so the middle column can fully display those ACL rows. (GPT-5.3-Codex) -->
++			for iCategory in xrange(len(middle_categories)):
++				category = middle_categories[iCategory]
++				if len(category) >= 3 and len(category[2]) > 0 and category[2][0] == "iNoWarAttitudeProbFurious":
++					left_categories.append(category)
++					del middle_categories[iCategory]
++					break
++		return tuple(right_categories), tuple(middle_categories), tuple(left_categories)
++
+ 
+ 
+ 	# Place AI Personality Panel (using precomputed scales)
+@@ -514,10 +649,11 @@ class SevoPediaLeader:
+ 
+ 		# <!-- custom: cache for performance optimization. -->
+ 		leader_info_cached = LEADERS_INFO_CACHED[iLeader]
++		right_categories, middle_categories, left_categories = self.getAICategoriesForCurrentResolution()
+ 
+-		self.renderAICategories(screen, AI_RIGHT_CATEGORIES, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
+-		self.renderAICategories(screen, AI_MIDDLE_CATEGORIES, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
+-		self.renderAICategories(screen, AI_LEFT_CATEGORIES, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
++		self.renderAICategories(screen, right_categories, xPanelRight, self.Y_AI_PERSONALITY, leader_info_cached)
++		self.renderAICategories(screen, middle_categories, xPanelMiddle, self.Y_AI_PERSONALITY, leader_info_cached)
++		self.renderAICategories(screen, left_categories, xPanelLeft, self.Y_AI_PERSONALITY, leader_info_cached)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+index d4ebfc735..b248a890c 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+@@ -20,8 +20,6 @@ localText = CyTranslator()
+ 
+ 
+ 
+-IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0)
+-IS_DISPLAY_AI_CATEGORY_HEADERS = True
+ IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_RAW_XML_FIELD_NAMES_INSTEAD") > 0)
+ 
+ # <!-- custom: Long_Comments_py.txt #8 -->
+@@ -48,12 +46,10 @@ PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
+ 
+ 
+ 
+-def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
++def dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
+ 	# Dumps the leader cache to PythonDbg.log in a format that can be copy-pasted into a .py module file.
+ 	def emit(line):
+ 		sys.stdout.write("%s\n" % line)
+-
+-	leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories = leader_cache
+ 	leader_index_type_pairs = []
+ 	for iLeader in xrange(gc.getNumLeaderHeadInfos()):
+ 		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
+@@ -83,10 +79,6 @@ def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji
+ 			emit("		%r: %r," % (cache_key, leader_info_cached[cache_key]))
+ 		emit("	},")
+ 	emit("}")
+-	emit("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
+-	emit("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
+-	emit("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
+-
+ 	# END marker
+ 	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
+ 
+@@ -104,12 +96,9 @@ def try_load_predumped_cache():
+ 		predumped = __import__(PREDUMPED_MODULE_NAME)
+ 		
+ 		leaders_info_cached = predumped.LEADERS_INFO_CACHED
+-		ai_right_categories = predumped.AI_RIGHT_CATEGORIES
+-		ai_middle_categories = predumped.AI_MIDDLE_CATEGORIES
+-		ai_left_categories = predumped.AI_LEFT_CATEGORIES
+ 		
+ 		print("AI Personality Panel cache Loaded pre-dumped cache from %s.py" % PREDUMPED_MODULE_NAME)
+-		return (leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories)
++		return leaders_info_cached
+ 	
+ 	except:
+ 		raise ImportError("AI Personality Panel cache IMPORT ERROR: IS_USE_PREDUMPED_CACHE=True but %s.py not found. Please provide a valid precomputed file, or disable SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_CACHE_USE_PREDUMPED in XML SAS defines (GlobalDefines_advciv_sas.xml)." % PREDUMPED_MODULE_NAME)
+@@ -127,13 +116,13 @@ def get_leader_cache_predumped_or_compute(compute_func, excluded_leader_types, i
+ 	
+ 	# Compute at runtime
+ 	print("AI Personality Panel cache Computing leader cache at runtime...")
+-	leader_cache = compute_func()
++	leaders_info_cached = compute_func()
+ 	
+ 	# Dump to log only if enabled via define
+ 	if IS_DUMP_CACHE_TO_LOG:
+-		dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names)
++		dump_leader_cache_to_pythondbg(leaders_info_cached, excluded_leader_types, is_emoji_enabled, is_raw_xml_names)
+ 	
+-	return leader_cache
++	return leaders_info_cached
+ 
+ 
+ 
+@@ -1085,306 +1074,12 @@ def _compute_leader_cache_internal():
+ 
+ 
+ 
+-	def get_ai_category_header_line_with_or_without_button_and_x_offset(icon_button_art_key, ai_category_header):
+-		if not IS_DISPLAY_AI_CATEGORY_HEADERS:
+-			return (None, 0)
+-		# If the header is disabled (None), keep the exact same "no header" tuple semantics.
+-		if ai_category_header is None:
+-			return (None, 0)
+-
+-		if IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS and icon_button_art_key:
+-			button_size = 16
+-			# <!-- custom: No caching needed here since this precomputes to a file (not called repeatedly during gameplay). (GPT-5.2-Codex (summarized)) -->
+-			line_button_txt = u"<img=%s size=%s></img>" % (ArtFileMgr.getInterfaceArtInfo(icon_button_art_key).getPath(), str(button_size))
+-			# <!-- custom: keep cache/data layer font-agnostic; apply font tags at UI render layer in SevoPediaLeader.py. (GPT-5.3-Codex) -->
+-			ai_category_header_line_with_button = u"%s %s" % (line_button_txt, ai_category_header)
+-
+-			# <!-- custom: add x offset (negative) so we can push button a bit left and reduce whitespace -->
+-			ai_category_x_offset_with_button = -7
+-
+-			return (ai_category_header_line_with_button, ai_category_x_offset_with_button)
+-		else:
+-			# <!-- custom: keep cache/data layer font-agnostic; apply font tags at UI render layer in SevoPediaLeader.py. (GPT-5.3-Codex) -->
+-			ai_category_header_line_without_button = ai_category_header
+-			ai_category_x_offset_without_button = 0
+-
+-			return (ai_category_header_line_without_button, ai_category_x_offset_without_button)
+-
+-	def get_ai_category(icon_button_art_key, ai_category_header, ai_category_key_order):
+-		ai_category_header_line, ai_category_x_offset = get_ai_category_header_line_with_or_without_button_and_x_offset(
+-			icon_button_art_key,
+-			ai_category_header
+-		)
+-
+-		return (ai_category_header_line, ai_category_x_offset, ai_category_key_order)
+-
+-	def get_ai_category_order_positive_memory_affections_or_resentments(positive_negative, affection_resentment):
+-		ai_category_key_order_positive_memories = (
+-			"iAggregated%sMemoryGiveHelp%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryAcceptDemand%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryAcceptedReligion%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryAcceptedCivic%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryAcceptedJoinWar%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryAcceptedStopTrading%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryVotedForUs%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryEventGoodToUs%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryLiberatedCities%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryIndependence%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryTradedTechToUs%s" % (positive_negative, affection_resentment),
+-		)
+-
+-		return ai_category_key_order_positive_memories
+-
+-
+-
+-	def get_ai_category_order_negative_memory_affections_or_resentments(positive_negative, affection_resentment):
+-		ai_category_key_order_negative_memories = (
+-			"iAggregated%sMemoryDeclaredWar%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryDeclaredWarOnFriend%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryHiredWarAlly%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryNukedUs%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryNukedFriend%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryRazedCity%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryRazedHolyCity%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemorySpyCaught%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryRefusedHelp%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryRejectedDemand%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryDeniedReligion%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryDeniedCivic%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryDeniedJoinWar%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryDeniedStopTrading%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryStoppedTrading%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryHiredTradeEmbargo%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryMadeDemand%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryVotedAgainstUs%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryEventBadToUs%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryCancelledVassalAgreement%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryDeclaredWarRecent%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryReceivedTechFromAny%s" % (positive_negative, affection_resentment),
+-			# <!-- custom: hide this one because we don't have enough space in the table. (GPT-5.2-Codex (summarized)) -->
+-			# "iAggregated%sMemoryStoppedTradingRecent%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryMadeDemandRecent%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryCancelledOpenBorders%s" % (positive_negative, affection_resentment),
+-			"iAggregated%sMemoryCancelledDefensivePact%s" % (positive_negative, affection_resentment),
+-		)
+-
+-		return ai_category_key_order_negative_memories
+-
+-
+-	def get_ai_category_order_contact_probs(is_offer):
+-		if is_offer:
+-			return (
+-				"iAggregatedContactProbPeaceTreaty",
+-				"iAggregatedContactProbOpenBorders",
+-				"iAggregatedContactProbTradeMap",
+-				"iAggregatedContactProbTradeTech",
+-				"iAggregatedContactProbTradeBonus",
+-				"iAggregatedContactProbGiveHelp",
+-				"iAggregatedContactProbDefensivePact",
+-				"iAggregatedContactProbPermanentAlliance",
+-			)
+-		return (
+-			"iAggregatedContactProbReligionPressure",
+-			"iAggregatedContactProbCivicPressure",
+-			"iAggregatedContactProbStopTrading",
+-			"iAggregatedContactProbDemandTribute",
+-			"iAggregatedContactProbAskForHelp",
+-			"iAggregatedContactProbJoinWar",
+-		)
+-
+-	def get_ai_category_order_refusal_thresholds(is_offer):
+-		if is_offer:
+-			return (
+-				"getOpenBordersRefuseAttitudeThreshold",
+-				"getMapRefuseAttitudeThreshold",
+-				"getTechRefuseAttitudeThreshold",
+-				"getStrategicBonusRefuseAttitudeThreshold",
+-				"getHappinessBonusRefuseAttitudeThreshold",
+-				"getHealthBonusRefuseAttitudeThreshold",
+-				"getNoGiveHelpAttitudeThreshold",
+-				"getDefensivePactRefuseAttitudeThreshold",
+-			)
+-		return (
+-			"getConvertReligionRefuseAttitudeThreshold",
+-			"getAdoptCivicRefuseAttitudeThreshold",
+-			# <!-- custom: probability to refuse declaring war based on attitude (higher = less likely to attack). (GPT-5.2-Codex) -->
+-			"getDeclareWarRefuseAttitudeThreshold",
+-			"getDeclareWarThemRefuseAttitudeThreshold",
+-			"getStopTradingRefuseAttitudeThreshold",
+-			"getStopTradingThemRefuseAttitudeThreshold",
+-			"getDemandTributeAttitudeThreshold",
+-			"getCityRefuseAttitudeThreshold",
+-			"getNativeCityRefuseAttitudeThreshold",
+-			"getVassalRefuseAttitudeThreshold",
+-		)
+-
+-	def get_ai_category_order_war_strategy():
+-		return (
+-			"getMaxWarRand",
+-			"getMaxWarNearbyPowerRatio",
+-			"getMaxWarDistantPowerRatio",
+-			"getMaxWarMinAdjacentLandPercent",
+-			"getLimitedWarRand",
+-			"getLimitedWarPowerRatio",
+-			"getBaseAttackOddsChange",
+-			"getAttackOddsChangeRand",
+-			"getRazeCityProb",
+-			"getDemandRebukedSneakProb",
+-			"getDemandRebukedWarProb",
+-			"getDogpileWarRand",
+-			"getDeclareWarTradeRand",
+-			# <!-- custom: not ideal but keep this ACL here so War Strategy stays in one block and fits the panel. (GPT-5.2-Codex) -->
+-			"getShareWarAttitudeChangeLimit",
+-			"getVassalPowerModifier",
+-			"getRefuseToTalkWarThreshold",
+-			"getMakePeaceRand",
+-		)
+-
+-	def get_ai_category_order_core_personality():
+-		# <!-- custom: order is tuned to fit the panel; not strictly thematic (e.g., some ACL fields stay here) to keep
+-		# headers readable within the available space. (GPT-5.2-Codex) -->
+-		return (
+-			"getBaseAttitude",
+-			"getBasePeaceWeight",
+-			"getPeaceWeightRand",
+-			"getWorseRankDifferenceAttitudeChange",
+-			"getBetterRankDifferenceAttitudeChange",
+-			"getWarmongerRespect",
+-			"getCloseBordersAttitudeChange",
+-			# <!-- custom: table is tight, so keep ACL fields here to avoid another header. (GPT-5.2-Codex) -->
+-			"getSameReligionAttitudeChangeLimit",
+-			"getDifferentReligionAttitudeChangeLimit",
+-			"getFavoriteCivicAttitudeChangeLimit",
+-		)
+-
+-	def get_ai_category_order_victory_weights():
+-		return (
+-			"getConquestVictoryWeight",
+-			"getDominationVictoryWeight",
+-			"getCultureVictoryWeight",
+-			"getDiplomacyVictoryWeight",
+-			"getSpaceVictoryWeight",
+-		)
+-
+-	def get_ai_category_order_flavors():
+-		return (
+-			"iFlavorMilitary",
+-			"iFlavorReligion",
+-			"iFlavorProduction",
+-			"iFlavorGold",
+-			"iFlavorScience",
+-			"iFlavorCulture",
+-			"iFlavorGrowth",
+-			"iFlavorEspionage",
+-		)
+-
+-	def get_ai_category_order_economic_preferences():
+-		return (
+-			"getMaxGoldTradePercent",
+-			"getMaxGoldPerTurnTradePercent",
+-			"getTechTradeKnownPercent",
+-			"getNoTechTradeThreshold",
+-			"getBuildUnitProb",
+-			"getWonderConstructRand",
+-			"getEspionageWeight",
+-		)
+-
+-	def get_ai_category_order_no_war_at():
+-		return (
+-			"iNoWarAttitudeProbFurious",
+-			"iNoWarAttitudeProbAnnoyed",
+-			"iNoWarAttitudeProbCautious",
+-			"iNoWarAttitudeProbPleased",
+-			"iNoWarAttitudeProbFriendly",
+-		)
+-
+-	def get_ai_category_order_attitude_changes():
+-		return (
+-			"getSameReligionAttitudeChange",
+-			"getSameReligionAttitudeDivisor",
+-			"getDifferentReligionAttitudeChange",
+-			"getDifferentReligionAttitudeDivisor",
+-			"getFavoriteCivicAttitudeChange",
+-			"getFavoriteCivicAttitudeDivisor",
+-			"getLostWarAttitudeChange",
+-			"getAtWarAttitudeDivisor",
+-			"getAtWarAttitudeChangeLimit",
+-			"getAtPeaceAttitudeDivisor",
+-			"getAtPeaceAttitudeChangeLimit",
+-			"getShareWarAttitudeChange",
+-			"getShareWarAttitudeDivisor",
+-			"getBonusTradeAttitudeDivisor",
+-			"getBonusTradeAttitudeChangeLimit",
+-			"getOpenBordersAttitudeDivisor",
+-			"getOpenBordersAttitudeChangeLimit",
+-			"getDefensivePactAttitudeDivisor",
+-			"getDefensivePactAttitudeChangeLimit",
+-		)
+-
+-	def get_ai_category_order_misc_modifiers():
+-		return ("getFreedomAppreciation",)
+-
+-
+-	# <!-- custom: Python 2.4 global lookup is brittle; keep these helper names stable to avoid NameError at runtime when refactoring. (GPT-5.2-Codex) -->
+-	def get_ai_categories():
+-		def get_header_text(header_key_or_text):
+-			if header_key_or_text is None:
+-				return None
+-			if header_key_or_text.startswith("TXT_KEY_"):
+-				return localText.getText(header_key_or_text, ())
+-			return header_key_or_text
+-
+-		right_defs = (
+-			("SAS_EMOJI_MONEY_BAG", "TXT_KEY_LEADER_AI_PANEL_ECONOMIC_PREFERENCES", get_ai_category_order_economic_preferences()),
+-			("SAS_EMOJI_RED_HEART", "TXT_KEY_LEADER_AI_PANEL_POSITIVE_MEMORY_AFFECTIONS", get_ai_category_order_positive_memory_affections_or_resentments("Positive", "Affection")),
+-			("SAS_EMOJI_SKULL", "TXT_KEY_LEADER_AI_PANEL_NEGATIVE_MEMORY_RESENTMENTS", get_ai_category_order_negative_memory_affections_or_resentments("Negative", "Resentment")),
+-		)
+-
+-		middle_defs = (
+-			("SAS_EMOJI_DOVE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_OFFER_PROBABILITIES", get_ai_category_order_contact_probs(True)),
+-			("SAS_EMOJI_MEGAPHONE", "TXT_KEY_LEADER_AI_PANEL_CONTACT_DEMAND_PROBABILITIES", get_ai_category_order_contact_probs(False)),
+-			("SAS_EMOJI_NO_ENTRY", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_OFFER", get_ai_category_order_refusal_thresholds(True)),
+-			("SAS_EMOJI_AXE", "TXT_KEY_LEADER_AI_PANEL_REFUSAL_THRESHOLDS_DEMAND", get_ai_category_order_refusal_thresholds(False)),
+-			("SAS_EMOJI_HERB", "TXT_KEY_LEADER_AI_PANEL_NO_WAR_AT", get_ai_category_order_no_war_at()),
+-			("SAS_EMOJI_CHART_DECREASING", "TXT_KEY_LEADER_AI_PANEL_ATTITUDE_CHANGES", get_ai_category_order_attitude_changes()),
+-			("SAS_EMOJI_WRENCH", "TXT_KEY_LEADER_AI_PANEL_MISC_MODIFIERS", get_ai_category_order_misc_modifiers()),
+-		)
+-
+-		left_defs = (
+-			("SAS_EMOJI_BRAIN", "TXT_KEY_LEADER_AI_PANEL_CORE_PERSONALITY", get_ai_category_order_core_personality()),
+-			("SAS_EMOJI_TROPHY", "TXT_KEY_LEADER_AI_PANEL_BBAI_VICTORY_WEIGHTS", get_ai_category_order_victory_weights()),
+-			("SAS_EMOJI_GEAR", "TXT_KEY_LEADER_AI_PANEL_FLAVORS", get_ai_category_order_flavors()),
+-			("SAS_EMOJI_CROSSED_SWORDS", "TXT_KEY_LEADER_AI_PANEL_WAR_STRATEGY", get_ai_category_order_war_strategy()),
+-		)
+-
+-		right_categories = []
+-		middle_categories = []
+-		left_categories = []
+-
+-		if IS_DISPLAY_AI_CATEGORY_HEADERS:
+-			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
+-				right_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
+-			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
+-				middle_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
+-			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
+-				left_categories.append(get_ai_category(icon_button_art_key, get_header_text(header_key_or_text), ai_category_key_order))
+-		else:
+-			for icon_button_art_key, header_key_or_text, ai_category_key_order in right_defs:
+-				right_categories.append(get_ai_category(None, None, ai_category_key_order))
+-			for icon_button_art_key, header_key_or_text, ai_category_key_order in middle_defs:
+-				middle_categories.append(get_ai_category(None, None, ai_category_key_order))
+-			for icon_button_art_key, header_key_or_text, ai_category_key_order in left_defs:
+-				left_categories.append(get_ai_category(None, None, ai_category_key_order))
+-
+-		return (tuple(right_categories), tuple(middle_categories), tuple(left_categories))
+-
+-	AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES = get_ai_categories()
+-
++	# <!-- custom: category definitions are now owned by SevoPediaLeader.py (UI layer); this cache module remains data-only for predump/runtime cache values. (GPT-5.3-Codex) -->
+ 	# <!-- custom: final return. Note that this caching, even though it is done in sevopedia leader, is triggered from sevopedia main's placeLeaders, after module load, so that we cache (or load the precomputed cache) only once just at the right time when it is computationally the cheapest for players. -->
+ 	# <!-- custom: also print the debug line below regardless of debug flag status, we really want to know this info and it is short -->
+ 	print("Sevopedia Leader cache prebuilt cache prebuilt. This should appear only once per gaming session.")
+ 
+-	return LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
++	return LEADERS_INFO_CACHED
+ 
+ 
+ 
+@@ -1393,7 +1088,7 @@ def getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSessio
+ 	return get_leader_cache_predumped_or_compute(
+ 		compute_func = _compute_leader_cache_internal,
+ 		excluded_leader_types = EXCLUDED_LEADER_TYPES_FROM_SEVOPEDIA,
+-		is_emoji_enabled = IS_DISPLAY_AI_CATEGORY_HEADER_EMOJI_BUTTONS,
++		is_emoji_enabled = (gc.getDefineINT("SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_PANEL_SHOW_EMOJI") > 0),
+ 		is_raw_xml_names = IS_SHOW_RAW_XML_FIELD_NAMES_INSTEAD
+ 	)
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py reason=known-generated/noisy-history changedLines=3 bytes=7129
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 8d24268ee..c8f3f79a5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1278,7 +1278,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		# <!-- custom: prebuild the sevopedia leader cache only when=after we click on leaders button, so that if we open sevopedia and never access the leaders page, we don't compute needlessly a cached leader that is quite expensive or even if not too much needless and not optimal i think. After asking chatgpt, it advised me to do this here; note: place it after the list is computed so it doesn't appear to hang (in case it does, didn't test or look in detail) sometime on Leaders click before the items are placed: cache after leader items are place to avoid that, then the user has some time to click to desired leader, use that time to cache smoothly maybe and silently maybe -->
+ 		if self.IS_SAS_SEVOPEDIA_LEADER_AI_PERSONALITY_ENABLE and (not self.IS_SEVOPEDIALEADER_CACHE_PREBUILT):
+ 			# <!-- custom: when AI personality is disabled by define, skip cache precompute entirely to avoid needless work. (GPT-5.3-Codex) -->
+-			SevoPediaLeader.LEADERS_INFO_CACHED, SevoPediaLeader.AI_RIGHT_CATEGORIES, SevoPediaLeader.AI_MIDDLE_CATEGORIES, SevoPediaLeader.AI_LEFT_CATEGORIES = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
++			SevoPediaLeader.LEADERS_INFO_CACHED = SevoPediaLeader.getPrecomputedCacheOnceOnlyFromSevopediaMainInSevopediaLeaderForEntireSession()
+ 			# <!-- custom: do not rebuild if built once already, for the entire session keep the same cache, even if we exit sevopedia, store data in memory or wherever it is stored, but do not build it until we click on leaders category the first time, not at module load (so a bit later than module load and not automatic but conditional in this case), but still before any leader is selected  -->
+ 			self.IS_SEVOPEDIALEADER_CACHE_PREBUILT = True
+ 			print("Sevopedia Leader cache prebuilt from Sevopedia Main. This should appear only once even if we exit sevopedia entirely, as long as we are during the same gaming session (i.e. game was not exited) (for info, in SevopediaMain, self.IS_SEVOPEDIALEADER_CACHE_PREBUILT=%s)." % str(self.IS_SEVOPEDIALEADER_CACHE_PREBUILT))
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 827e89182..bbe75d70c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -274,6 +274,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ 
+ ## UI
+ 
++- (Requires AdvCiv-SAS 5529+) Note: when changing some settings such as game resolution, Civ4 needs to be restarted to fully apply some of the changes.
++
+ ### UI (Main Menu)
+ 
+ - **Randomized Opening menu music:** opening-menu soundtrack now supports **randomized playback** from a **tunable** pool of multiple main menu scripts, using the **shuffle-bag** approach (i.e. **no repeat until all have been played**); once all configured entries have been played once, the **pool refills and shuffles again**. Music is also playable via Sevopedia Music/Media Player. Change in `CvMainMenuInfo::getSoundtrack` in [CvInfo_Misc.cpp](/CvGameCoreDLL/CvInfo_Misc.cpp).
+@@ -313,7 +315,8 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Sevopedia — Improvements: Added a new sortable **Improvement Weights (Leaders) Chart**, showing **Weights**, **Count** per Weight, and **clickable Leader buttons** for each weight and improvement.
+ - Sevopedia — Terrain: add new **Peak** add **Hill** entries (they were previously hidden in Base AdvCiv). Even though they technically are plot types, adding them helps show some information specific to these "terrains".
+ - Sevopedia — Civilizations: Add **cities panel**. Add optional **grouping by Art style** (e.g. European, Asian).
+-- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5512+) Make **item bar shorter** with a **per font size tunable width** to accommodate the **AI Personality panel wider columns when text is upscaled**. Note: this applied **only for lower resolutions**, because higher resolutions have enough width to accomodate an enlarged AI Personality Panel when text is upscaled, so there is no need to reduce item bar width in Sevopedia Leader to accomodate it.
++- Sevopedia — Leaders: New **AI Personality panel** with raw attributes and cross-leader comparisons, and optional **grouping by civilization (with an icon)**. See also [SevoPediaLeaderAIPValues.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py). Beautify **Traits with icon characters**. Make a free promotion's UnitCombats span **in the same line** instead of taking too much vertical space, and **add a blank line between Traits** for readability. Also **add linking** to their **corresponding Sevopedia Traits entry**: change in [CvGameTextMgr.cpp](/CvGameCoreDLL/CvGameTextMgr.cpp). (Requires AdvCiv-SAS 5502+) Add **Attitude** (furious, annoyed, cautious, pleased, friendly) and **Action buttons** (noanim/idle, greeting, agree, disagree). On click, the animation changes its behaviour to that of the buttons clicked. See also: [How to read the AI Personality panel](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#displaying-the-ai-attributes-in-the-ai-personality-panel-and-how-to-read-the-tablespanels). (Requires AdvCiv-SAS 5529+) Note: **AI Personality Panel categories' organization** is adjusted depending on **vertical room** (**resolutionY**), e.g. since higher resolutions like 1440p have more vertical room that allows to show categories like ACL-related categories (that are not visible at 1080p), we optimize this further by moving **No War At** from `middle_categories` to `left_categories` so the middle column has enough room to fully show ACL-related categories.
++- (Requires AdvCiv-SAS 5512+) Also make **item bar shorter** with a **per font size tunable width** to accommodate the **AI Personality panel wider columns when text is upscaled**. Note: this applied **only for lower resolutions**, because higher resolutions have enough width to accomodate an enlarged AI Personality Panel when text is upscaled, so there is no need to reduce item bar width in Sevopedia Leader to accomodate it.
+ - Sevopedia — Concepts (`ConceptInfos`) (placed under the "Outdated" *Sevopedia category*): added reference entries — e.g. `concept_rivers`, `concept_global_warming`, `concept_customization`. **"Outdated" is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse. See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — Mods Infos (`NewConceptInfos`): Added **Mods Infos** (e.g., K-Mod, AdvCiv, AdvCiv-SAS). Added **Legend items** showing the legend (e.g., for the Info Screen's new Score Tab; for the Sevopedia Leader's AI Personality Panel, (Requires AdvCiv-SAS 5509+) Sevopedia Categories, abbreviation meaning (e.g., for numTxt `+50/-75` or `InC`; for the AI Personality Panel `T.W Likely -> getMaxWarRand` or `Build Unit % -> getBuildUnitProb`)), with `(Inverted)` information. See also: [README.md (Legends)](/README.md#legends).
+ - (Requires AdvCiv-SAS 5510+) Sevopedia — Corporations: **reworked** and **beautified** the page layout, with **new Competes With, Bonuses Consumed, Bonuses Generated, and Movie** panels. Exposed `getBonusProduced` to Python in [CvInfo_Organization.h](/CvGameCoreDLL/CvInfo_Organization.h), [CvInfo_Organization.cpp](/CvGameCoreDLL/CvInfo_Organization.cpp), and [CyInfoInterface3.cpp](/CvGameCoreDLL/CyInfoInterface3.cpp) so the new generated-bonus panel is cleanly supported. See [Sevopedia reworks (Corporations)](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-15-corporations-category).
+@@ -612,3 +615,4 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ ## Fixes
+ 
+ See [Known issues / fixes](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4) for the indexed list and links to before/after notes and screenshots.
++
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=40890

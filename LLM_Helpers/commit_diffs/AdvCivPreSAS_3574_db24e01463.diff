@@ -1,0 +1,358 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3574
+# Commit: db24e01463588fa9b1eb5a6d7a9ae0426f1821fd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a227bc1bf2c2929566541d4a3b781f556c9091dc
+# Title: More help for grayed-out gift-unit button
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	0	Assets/XML/Text/CIV4GameText_advc.xml
+80	20	CvGameCoreDLL/CvDLLWidgetData.cpp
+8	1	CvGameCoreDLL/CvPlayerAI.cpp
+49	44	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index b641eb969..4e2ba1ad6 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -7243,4 +7243,48 @@
+ 		<Spanish>por</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.093: Based on TXT_KEY_REFUSE_GIFT in CIV4GameText_Misc1.xml -->
++	<TEXT>
++		<Tag>TXT_KEY_MUST_REFUSE_GIFT</Tag>
++		<English>[COLOR_WARNING_TEXT]%s1_Leader cannot accept the gift.[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]%s1_Leader ne peut pas accepter ce pr&#233;sent.[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]%s1_Leader kann die Schenkung nicht annehmen.[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]%s1_Leader non puo accettare il dono[COLOR_REVERT].</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]%s1_Leader no puede aceptar el regalo.[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- (This'll work also if the rules are tightened to disallow gifts
++		 in plots adjacent to enemy units.) -->
++	<TEXT>
++		<Tag>TXT_KEY_GIFT_NO_ENEMY</Tag>
++		<English>[COLOR_WARNING_TEXT]Cannot gift units when enemies are nearby.[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]On ne peut pas donner des unit�s lorsque des ennemis sont � proximit�.[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Einheiten k�nnen nicht in der N�he feindlicher Einheiten verschenkt werden.[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Non si pu� regalare unit� quando i nemici sono vicini.[COLOR_REVERT].</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]No se pueden regalar unidades cuando existen enemigos cerca.[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- Terminology from TXT_KEY_MISSION_SPREAD_CORPORATION -->
++	<TEXT>
++		<Tag>TXT_KEY_GIFT_NO_EXECUTIVE</Tag>
++		<English>[COLOR_WARNING_TEXT]Cannot gift units that Expand Corporations.[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]On ne peut pas donner des unit�s qui d�veloppent les soci�t�s.[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Einheiten zur Expansion von Kapitalgesellschaften k�nnen nicht verschenkt werden.[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Non si possono regalare unit� che espandono le corporazioni.[COLOR_REVERT].</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]No se pueden regalar unidades que expanden las corporaciones.[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- advc.123a -->
++	<TEXT>
++		<Tag>TXT_KEY_GIFT_NO_MISSIONARY</Tag>
++		<English>[COLOR_WARNING_TEXT]Only %F1_RelIcon can be spread in cities of %s2_Leader.[COLOR_REVERT]</English>
++		<French>[COLOR_WARNING_TEXT]Seul %F1_RelIcon peut �tre diffus� dans les villes de %s2_Leader.[COLOR_REVERT]</French>
++		<German>[COLOR_WARNING_TEXT]Nur %F1_RelIcon kann im Gebiet von %s2_Leader verbreitet werden.[COLOR_REVERT]</German>
++		<Italian>[COLOR_WARNING_TEXT]Solo %F1_RelIcon pu� essere diffuso nelle citt� di %s2_Leader.</Italian>
++		<Spanish>[COLOR_WARNING_TEXT]S�lo %F1_RelIcon puede ser difundido en las ciudades de %s2_Leader.[COLOR_REVERT]</Spanish>
++	</TEXT>
++	<!-- advc.705 -->
++	<TEXT>
++		<Tag>TXT_KEY_REFUSE_GIFT_RF</Tag>
++		<English>[COLOR_WARNING_TEXT]The R&#038;F option prevents gifts to %s1_Leader.[COLOR_REVERT]</English>
++		<German>[COLOR_WARNING_TEXT]%s1_Leader kann keine Geschenke von Ihnen annehmen.[COLOR_REVERT]</German>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 2ebfbfb4a..a5e21db36 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2005,35 +2005,95 @@ void CvDLLWidgetData::parseActionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 				szTempBuffer.Format(L"%s%d %c", NEWLINE, iPrice, GC.getInfo(COMMERCE_GOLD).getChar());
+ 				szBuffer.append(szTempBuffer);
+ 			}
+-			else if (kAction.getCommandType() == COMMAND_GIFT)
++			else if (kAction.getCommandType() == COMMAND_GIFT &&
++				pHeadSelectedUnit->getPlot().isOwned())
+ 			{
+-				PlayerTypes eGiftPlayer = pHeadSelectedUnit->getPlot().getOwner();
+-
+-				if (eGiftPlayer != NO_PLAYER)
++				CvPlot const& kGiftPlot = pHeadSelectedUnit->getPlot();
++				PlayerTypes const eRecipient = kGiftPlot.getOwner();
++				CvPlayerAI const& kRecipient = GET_PLAYER(eRecipient);
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_ACTION_GOES_TO_CIV"));
++				szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, PLAYER_TEXT_COLOR(kRecipient),
++						kRecipient.getCivilizationShortDescription());
++				szBuffer.append(szTempBuffer);
++				for (CLLNode<IDInfo> const* pNode = kUI.headSelectionListNode();
++					pNode != NULL; pNode = kUI.nextSelectionListNode(pNode))
+ 				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_ACTION_GOES_TO_CIV"));
+-
+-					szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
+-							PLAYER_TEXT_COLOR(GET_PLAYER(eGiftPlayer)),
+-							GET_PLAYER(eGiftPlayer).getCivilizationShortDescription());
+-					szBuffer.append(szTempBuffer);
+-
+-					for (CLLNode<IDInfo> const* pNode = kUI.headSelectionListNode();
+-						pNode != NULL; pNode = kUI.nextSelectionListNode(pNode))
++					CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
++					// <advc.093> Check this upfront, then look into the specific reason.
++					if (kSelectedUnit.canGift())
++						continue;
++					szBuffer.append(NEWLINE); // </advc.093>
++					// <advc.705>
++					if (GC.getGame().isOption(GAMEOPTION_RISE_FALL) &&
++						GC.getGame().getRiseFall().isCooperationRestricted(eRecipient))
++					{
++						szBuffer.append(gDLL->getText("TXT_KEY_REFUSE_GIFT_RF",
++								kRecipient.getNameKey()));
++						break;
++					} // </advc.705>
++					// <advc.093>
++					if (kGiftPlot.isVisibleEnemyUnit(eRecipient) ||
++						kGiftPlot.isVisibleEnemyUnit(pHeadSelectedUnit->getOwner()))
++					{
++						szBuffer.append(gDLL->getText("TXT_KEY_GIFT_NO_ENEMY"));
++						break;
++					} // </advc.093>
++					// <advc.123a>
++					if (kSelectedUnit.AI_getUnitAIType() == UNITAI_MISSIONARY &&
++						kRecipient.isNoNonStateReligionSpread())
+ 					{
+-						CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+-						if (!GET_PLAYER(eGiftPlayer).AI_acceptUnit(kSelectedUnit))
++						ReligionTypes eRecipientReligion = kRecipient.
++								getStateReligion();
++						FOR_EACH_ENUM(Religion)
+ 						{
+-							szBuffer.append(NEWLINE);
+-							szBuffer.append(gDLL->getText("TXT_KEY_REFUSE_GIFT",
+-									GET_PLAYER(eGiftPlayer).getNameKey()));
++							if (kSelectedUnit.getUnitInfo().
++								getReligionSpreads(eLoopReligion) <= 0)
++							{
++								continue;
++							}
++							if (eRecipientReligion != NO_RELIGION &&
++								eLoopReligion != NO_RELIGION &&
++								eRecipientReligion != eLoopReligion)
++							{
++								szBuffer.append(gDLL->getText("TXT_KEY_GIFT_NO_MISSIONARY",
++										GC.getInfo(eRecipientReligion).getChar(),
++										kRecipient.getNameKey()));
++								break;
++							}
++						}
++					} // </advc.123a>
++					// <advc.093>
++					{
++						bool bAnyCorpSpread = false;
++						FOR_EACH_ENUM(Corporation)
++						{
++							if (kSelectedUnit.getUnitInfo().getCorporationSpreads(
++								eLoopCorporation) > 0)
++							{
++								bAnyCorpSpread = true;
++								break;
++							}
++						}
++						if (bAnyCorpSpread)
++						{
++							szBuffer.append(gDLL->getText("TXT_KEY_GIFT_NO_EXECUTIVE"));
+ 							break;
+ 						}
++					} // </advc.093>
++					// (The only case that BtS had explained to the player)
++					if (!kRecipient.AI_acceptUnit(kSelectedUnit))
++					{
++						szBuffer.append(gDLL->getText("TXT_KEY_REFUSE_GIFT",
++								kRecipient.getNameKey()));
++						break;
+ 					}
++					// <advc.093> Catch-all answer (future-proofing)
++					szBuffer.append(gDLL->getText("TXT_KEY_MUST_REFUSE_GIFT",
++							kRecipient.getNameKey()));
++					break; // </advc.093>
+ 				}
+ 			}
+-			CvCommandInfo const& kCommand = GC.getInfo((CommandTypes)kAction.getCommandType());
+ 			CommandTypes const eCommand = (CommandTypes)kAction.getCommandType();
+ 			CvCommandInfo const& kCommand = GC.getInfo(eCommand);
+ 			if (kCommand.getAll())
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index b877abb3d..17fd1e1d5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2091,7 +2091,14 @@ bool CvPlayerAI::AI_acceptUnit(CvUnit const& kUnit) const
+ {
+ 	if (isHuman())
+ 		return true;
+-
++	// <advc.093> Moved from CvUnit::canGift
++	if (isUnitClassMaxedOut(kUnit.getUnitClassType(),
++		GET_TEAM(getTeam()).getUnitClassMaking(kUnit.getUnitClassType())) ||
++		isUnitClassMaxedOut(kUnit.getUnitClassType(),
++		getUnitClassMaking(kUnit.getUnitClassType())))
++	{
++		return false;
++	} // </advc.093>
+ 	if (AI_isFinancialTrouble())
+ 	{
+ 		if (kUnit.AI_getUnitAIType() == UNITAI_WORKER)
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 0ef102d5e..2f92e6f80 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3065,7 +3065,7 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) /* advc: */ const
+ 	if (!kPlot.isOwned())
+ 		return false;
+ 
+-	CvPlayerAI const& kRecipient = GET_PLAYER(kPlot.getOwner()); // advc
++	CvPlayerAI const& kRecipient = GET_PLAYER(kPlot.getOwner());
+ 	if (kRecipient.getID() == getOwner())
+ 		return false;
+ 	// <advc.143b>
+@@ -3074,51 +3074,54 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) /* advc: */ const
+ 	// <advc.034>
+ 	if(!GET_TEAM(getTeam()).canPeacefullyEnter(kRecipient.getTeam()))
+ 		return false; // </advc.034>
+-	if (kPlot.isVisibleEnemyUnit(kRecipient.getID()))
+-		return false;
+-	if (kPlot.isVisibleEnemyUnit(this))
+-		return false;
+-	CvUnit const* pTransport = getTransportUnit();
+-	if (pTransport == NULL)
++	if (!bTestVisible && // advc.093
++		(kPlot.isVisibleEnemyUnit(kRecipient.getID()) ||
++		kPlot.isVisibleEnemyUnit(this)))
+ 	{
+-		//if (!kPlot.isValidDomainForLocation(*this))
+-		if (!isRevealedValidDomain(kPlot)) // advc
+-			return false;
+-	}
+-	else if (bTestTransport)
+-	{
+-		//if (pTransport->getTeam() != kRecipient.getTeam())
+-		if (!pTransport->isRevealedValidDomain(kPlot)) // advc
+-			return false;
++		return false;
+ 	}
+-
+-	if (!bTestVisible)
+ 	{
+-		if (GET_TEAM(kRecipient.getTeam()).isUnitClassMaxedOut(
+-			getUnitClassType(), GET_TEAM(kRecipient.getTeam()).
+-			getUnitClassMaking(getUnitClassType())))
++		CvUnit const* pTransport = getTransportUnit();
++		if (pTransport == NULL)
+ 		{
+-			return false;
++			//if (!kPlot.isValidDomainForLocation(*this))
++			if (!isRevealedValidDomain(kPlot)) // advc
++				return false;
+ 		}
+-
+-		if (kRecipient.isUnitClassMaxedOut(getUnitClassType(),
+-			kRecipient.getUnitClassMaking(getUnitClassType())))
++		else if (bTestTransport)
+ 		{
+-			return false;
++			//if (pTransport->getTeam() != kRecipient.getTeam())
++			if (!pTransport->isRevealedValidDomain(kPlot)) // advc
++				return false;
+ 		}
+-
+-		if (!kRecipient.AI_acceptUnit(*this))
++	}
++	/*	advc.093: UnitClassMaking checks moved into AI_acceptUnit,
++		i.e human recipients are exempted from that. */
++	if (GET_TEAM(kRecipient.getTeam()).isUnitClassMaxedOut(getUnitClassType()) ||
++		kRecipient.isUnitClassMaxedOut(getUnitClassType()) ||
++		// <advc.001b> Enforce limit
++		kPlot.airUnitSpaceAvailable(kRecipient.getTeam()) <
++		m_pUnitInfo->getAirUnitCap()) // </advc.001b>
++	{
++		if (!bTestVisible)
+ 			return false;
+ 	}
+-
+ 	/* <advc.123a> Disallow gifting of missionaries that don't match the
+ 	   (intolerant) state religion. */
+-	ReligionTypes eRecipientReligion = kRecipient.getStateReligion();
+-	if(eRecipientReligion != NO_RELIGION && AI_getUnitAIType() == UNITAI_MISSIONARY &&
+-		kRecipient.isNoNonStateReligionSpread() &&
+-		eRecipientReligion != m_pUnitInfo->getReligionType())
++	if (AI_getUnitAIType() == UNITAI_MISSIONARY &&
++		!bTestVisible && kRecipient.isNoNonStateReligionSpread())
+ 	{
+-		return false;
++		ReligionTypes eRecipientReligion = kRecipient.getStateReligion();
++		FOR_EACH_ENUM(Religion)
++		{
++			if (m_pUnitInfo->getReligionSpreads(eLoopReligion) <= 0)
++				continue;
++			if (eRecipientReligion != NO_RELIGION &&
++				eRecipientReligion != eLoopReligion)
++			{
++				return false;
++			}
++		}
+ 	} // <kekm.4>
+ 	std::vector<CvUnit*> apCargoUnits;
+ 	getCargoUnits(apCargoUnits);
+@@ -3127,21 +3130,23 @@ bool CvUnit::canGift(bool bTestVisible, bool bTestTransport) /* advc: */ const
+ 		if(!apCargoUnits[i]->canGift(false, false))
+ 			return false; // </kekm.4>
+ 	} // </advc.123a>
+-
+-	// advc.opt: Moved down (check all the one-liners first)
+-	FOR_EACH_ENUM(Corporation)
+-	{
+-		if (m_pUnitInfo->getCorporationSpreads(eLoopCorporation) > 0)
+-			return false;
++	if (!bTestVisible) // advc.093
++	{	// advc.opt: Moved down
++		FOR_EACH_ENUM(Corporation)
++		{
++			if (m_pUnitInfo->getCorporationSpreads(eLoopCorporation) > 0)
++				return false;
++		}
+ 	}
+-
+ 	// <advc.705>
+-	CvGame const& kGame = GC.getGame();
+-	if(kGame.isOption(GAMEOPTION_RISE_FALL) && isHuman() &&
+-		kGame.getRiseFall().isCooperationRestricted(kRecipient.getID()))
++	if (GC.getGame().isOption(GAMEOPTION_RISE_FALL) && !bTestVisible && isHuman() &&
++		GC.getGame().getRiseFall().isCooperationRestricted(kRecipient.getID()))
+ 	{
+ 		return false;
+ 	} // </advc.705>
++	// advc.093: Moved down - give away AI internals last.
++	if (!bTestVisible && !kRecipient.AI_acceptUnit(*this))
++		return false;
+ 	//return !::atWar(kRecipient.getTeam(), getTeam());
+ 	return true; // advc.034: OB implies no war
+ }
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=13325

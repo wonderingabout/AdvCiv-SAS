@@ -1,0 +1,66 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3515
+# Commit: cc12a899da584151bda0526c803acdfce0e802d3
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a530aa9ea09185c89c153bd976dc6c53f18c5c20
+# Title: UWAI: Reduce "kingmaking" utility a bit
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	6	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 55704290a..1479d1ba6 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2538,14 +2538,15 @@ void KingMaking::evaluate()
+ 	/*	As humans we are very much not OK with rivals winning the game,
+ 		so ATTITUDE_FURIOUS would be the smarter assumption, however, I don't want
+ 		a leading AI to be extremely alert about a human runner-up. */
+-	AttitudeTypes const eAttitude = (kWe.isHuman() ? ATTITUDE_ANNOYED :
+-			towardThem());
+-	if (eAttitude >= ATTITUDE_FRIENDLY)
++	int iAttitude = (kWe.isHuman() ? ATTITUDE_ANNOYED : towardThem());
++	if (kOurTeam.isAtWar(eTheirTeam)) // When at war, bad attitude is normal.
++		iAttitude++;
++	if (iAttitude >= ATTITUDE_FRIENDLY)
+ 	{	/*	We don't go as far as helping a friend win
+ 			(only indirectly by trying to thwart the victory of a disliked civ) */
+ 		return;
+ 	}
+-	scaled rAttitudeMult = fixp(0.03) + fixp(0.25) * (ATTITUDE_PLEASED - eAttitude);
++	scaled rAttitudeMult = fixp(0.03) + fixp(0.25) * (ATTITUDE_PLEASED - iAttitude);
+ 	scaled rCaughtUpPremium;
+ 	scaled rCatchUpVal = (16 * m_rGameEraAIFactor) / m_winningPresent.size();
+ 	rCatchUpVal.exponentiate(fixp(0.75));
+@@ -2595,7 +2596,7 @@ void KingMaking::evaluate()
+ 		m_iU += rCaughtUpPremium.round();
+ 		return;
+ 	}
+-	scaled rWeight = 4; // So that 25% loss correspond to 100 utility
++	scaled rWeight(10,3); // So that 30% loss correspond to 100 utility
+ 	// We're a bit less worried about helping them indirectly
+ 	if (rTheirLoss < 0)
+ 	{
+@@ -2608,7 +2609,7 @@ void KingMaking::evaluate()
+ 	{
+ 		/*	Over the course of the game, we become more willing to take out rivals
+ 			even if several rivals are still in competition. */
+-		scaled rProgressFactor = fixp(2/3.) - fixp(1/3.) * m_kGame.gameTurnProgress();
++		scaled rProgressFactor = fixp(3/4.) - fixp(1/3.) * m_kGame.gameTurnProgress();
+ 		FAssert(rProgressFactor > 0);
+ 		scaled rDiv = 1 + SQR(rProgressFactor * iWinningRivals);
+ 		rCompetitionMult = 1 / rDiv;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2042

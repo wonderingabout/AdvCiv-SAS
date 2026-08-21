@@ -1,0 +1,829 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4974
+# Commit: 7e5feb72ab0884ef1cd1e470308c6f3b74c6fab5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 0c97546299bb1858dcf51cad185c8adf67a71448
+# Title: move the mali skirmisher and babylon bowman to longbowman unit class, adjust starting techs and other balance changes and/or such and/or not anyways etc - ad...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+179	146	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+6	6	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 1c4379d5d..cb5f6355e 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -407,7 +407,7 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_ARCHER</UnitClassType>
++					<UnitClassType>UNITCLASS_LONGBOWMAN</UnitClassType>
+ 					<UnitType>UNIT_BABYLON_BOWMAN</UnitType>
+ 				</Unit>
+ 			</Units>
+@@ -993,7 +993,7 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+@@ -2455,7 +2455,7 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_ARCHER</UnitClassType>
++					<UnitClassType>UNITCLASS_LONGBOWMAN</UnitClassType>
+ 					<UnitType>UNIT_MALI_SKIRMISHER</UnitType>
+ 				</Unit>
+ 			</Units>
+@@ -3017,7 +3017,7 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 3196ed879..03dad643c 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -5675,7 +5675,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -5890,8 +5889,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
++			<!-- custom: can be very efficient at defense too, so give AI the option to use them as such as well (added UNITAI_RESERVE and UNITAI_CITY_DEFENSE anyways etc) -->
+ 			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -6119,7 +6126,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -6280,8 +6286,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
++			<!-- custom: was UNITAI_ATTACK -->
+ 			<!-- K-Mod: was UNITAI_COUNTER -->
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_NATIVE_AMERICA_DOG_SOLDIER</Description>
+@@ -6333,8 +6340,16 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
++			<!-- custom: they are surprisingly good city defenders, in fact more efficient per hammer than longbowmen, so give AIs the option to value them as well as defenders anyways etc (added UNITAI_RESERVE and UNITAI_CITY_DEFENSE anyways etc) -->
+ 			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -6351,11 +6366,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<!-- custom: this unit can defend quite well, adding this if helps and hopefulyl doesn't confuse the AI into thinking these are better than longbowmen at defense anyways etc -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -6572,7 +6582,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -6796,7 +6805,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- K-Mod: UNITAI_CITY_DEFENSE removed -->
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -6981,7 +6989,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<!-- K-Mod: UNITAI_CITY_DEFENSE removed -->
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -7126,9 +7133,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was PROMOTION_HILLS_MASTER1 -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_HILLS_MASTER1</PromotionType>
++					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -7198,7 +7206,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -7275,7 +7282,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
++			<!-- custom: was 0 -->
++			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -7420,8 +7428,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: by that time and as of now longbowmen are available and a better / more efficient option for AIs for defense, but human players can still go for these with the defensive promotions, so no defensive unitai here if i am not mistaken anyways etc as of now anyways etc -->
++			<!-- custom: they can be as of now hammer effective at defense, so give AIs the option to use them as such anyways etc (added UNITAI_RESERVE anyways etc) -->
+ 			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -9899,20 +9911,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_ARCHER, type: UNIT_MALI_SKIRMISHER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_ARCHER</Class>
+-			<Type>UNIT_MALI_SKIRMISHER</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_LONGBOWMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_LONGBOWMAN</Class>
++			<Type>UNIT_LONGBOWMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_LONG</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+ 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_MALI_SKIRMISHER</Description>
+-			<Civilopedia>TXT_KEY_UNIT_MALI_SKIRMISHER_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_MALI_SKIRMISHER_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_LONGBOWMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_LONGBOWMAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_LONGBOWMAN_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -9948,10 +9960,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: was UNITCLASS_LONGBOWMAN< and UNITCLASS_CROSSBOWMAN -->
++			<!-- custom: was UNITCLASS_RIFLEMAN -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_LONGBOWMAN</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -10016,15 +10032,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_HUNTING</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was TECH_FEUDALISM -->
++			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 25 -->
+-			<iCost>30</iCost>
++			<!-- custom: was 50 -->
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -10048,65 +10069,34 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 4 -->
+-			<iCombat>3</iCombat>
++			<!-- custom: was 6 -->
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<!-- custom: was 0 -->
+-			<!-- advc.907d: was 1 -->
+ 			<iFirstStrikes>1</iFirstStrikes>
++			<!-- custom: was 0 -->
+ 			<iChanceFirstStrikes>1</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<!-- custom: was 0 -->
+-			<iWithdrawalProb>15</iWithdrawalProb>
+-			<iCollateralDamage>30</iCollateralDamage>
++			<iWithdrawalProb>25</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>20</iCityAttack>
++			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>50</iCityDefense>
+-			<!-- custom: was 0 -->
+-			<iAnimalCombat>50</iAnimalCombat>
++			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: skirmisher (useful for ctrl+f too maybe etc)-->
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>
+-			</TerrainDefenses>
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>10</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>10</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -10119,11 +10109,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>4</iCultureGarrison>
++			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<!-- custom: was 4 -->
+-			<iPower>4</iPower>
++			<iAsset>2</iAsset>
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -10132,7 +10121,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MALI_SKIRMISHER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_LONGBOWMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+@@ -10150,20 +10139,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_ARCHER, type: UNIT_BABYLON_BOWMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_ARCHER</Class>
+-			<Type>UNIT_BABYLON_BOWMAN</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_MALI_SKIRMISHER (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_LONGBOWMAN</Class>
++			<Type>UNIT_MALI_SKIRMISHER</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+-			<Combat>UNITCOMBAT_ARCHER_BOW_SHORT</Combat>
++			<Combat>UNITCOMBAT_ARCHER_BOW_LONG</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
++			<!-- custom: more versatile unit now anyways etc, was UNITAI_CITY_DEFENSE -->
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_BABYLON_BOWMAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_BABYLON_BOWMAN_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_BABYLON_BOWMAN_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_MALI_SKIRMISHER</Description>
++			<Civilopedia>TXT_KEY_UNIT_MALI_SKIRMISHER_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -10199,10 +10189,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: was UNITCLASS_LONGBOWMAN< and UNITCLASS_CROSSBOWMAN -->
++			<!-- custom: was UNITCLASS_RIFLEMAN (note: unit as of now based on the longbowman now not the archer anymore in advciv-sas anyways etc) -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_LONGBOWMAN</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_MUSKETMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -10211,14 +10205,14 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes i mean anyways etc -->
++			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes i mean anyways etc; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path anyways etc, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+@@ -10226,11 +10220,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -10267,14 +10257,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_HUNTING</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: was TECH_ARCHERY (now removed) and tech types empty anyways etc -->
++			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>30</iCost>
++			<!-- custom: was 50 (note: as compared to old base advciv longbow for this and some old values in these code comments anyways etc) -->
++			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -10298,34 +10294,35 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 3 -->
+-			<iCombat>2</iCombat>
++			<!-- custom: was 6 -->
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+ 			<iFirstStrikes>1</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<!-- custom: was 0 -->
++			<iChanceFirstStrikes>1</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<!-- custom: was 0 -->
+-			<iWithdrawalProb>10</iWithdrawalProb>
++			<iWithdrawalProb>50</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<!-- custom: was 0 and 0 anyways etc -->
+-			<iCityAttack>50</iCityAttack>
+-			<iCityDefense>50</iCityDefense>
+-			<!-- custom: was 0 -->
+-			<iAnimalCombat>50</iAnimalCombat>
++			<!-- custom: make a more versatile city profile, was in our new advciv-sas longbowman as of now 10/50 anyways etc -->
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>25</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>25</iHillsDefense>
++			<!-- custom: was as of now 25 in the advciv-sas longbowman anyways etc -->
++			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+@@ -10335,7 +10332,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+@@ -10343,16 +10340,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>10</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>10</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -10362,10 +10364,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>4</iCultureGarrison>
++			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>4</iPower>
++			<iAsset>2</iAsset>
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -10374,38 +10376,40 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_BABYLON_BOWMAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MALI_SKIRMISHER</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
++			<!-- custom: was as of now PROMOTION_RETREAT1 in the advciv-sas longbowman anyways etc -->
+ 			<FreePromotions>
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_RETREAT1</PromotionType>
++					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_LONGBOWMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_LONGBOWMAN, type: UNIT_BABYLON_BOWMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_LONGBOWMAN</Class>
+-			<Type>UNIT_LONGBOWMAN</Type>
++			<Type>UNIT_BABYLON_BOWMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_ARCHER_BOW_LONG</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
++			<!-- custom: more versatile unit now anyways etc, was UNITAI_CITY_DEFENSE -->
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_LONGBOWMAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_LONGBOWMAN_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_LONGBOWMAN_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_BABYLON_BOWMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_BABYLON_BOWMAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -10441,7 +10445,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+-			<!-- custom: was UNITCLASS_RIFLEMAN -->
++			<!-- custom: was UNITCLASS_RIFLEMAN (note: unit as of now based on the longbowman now not the archer anymore in advciv-sas anyways etc) -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
+@@ -10457,26 +10461,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes i mean anyways etc -->
++			<!-- custom: versatile units, but focus on defense as they are more efficient for such, but still good harassers otherwise in offensive stacks if i am not mistaken especially with our changes i mean anyways etc; but unlike the usual longbow, this civ-specific unit is quite strong at attack too so value this role, especially useful if no iron/copper or as an alternative path anyways etc, was UNITAI_ATTACK and UNITAI_CITY_DEFENSE -->
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -10513,7 +10521,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<!-- custom: was TECH_FEUDALISM -->
++			<!-- custom: was TECH_ARCHERY (now removed) and tech types empty anyways etc -->
+ 			<PrereqTech>TECH_CONSTRUCTION</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_HUNTING</PrereqTech>
+@@ -10525,7 +10533,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 50 -->
++			<!-- custom: was 50 (note: as compared to old base advciv longbow for this and some old values in these code comments anyways etc) -->
+ 			<iCost>45</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+@@ -10551,7 +10559,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+ 			<!-- custom: was 6 -->
+-			<iCombat>4</iCombat>
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -10567,20 +10575,45 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>10</iCityAttack>
+-			<iCityDefense>50</iCityDefense>
++			<!-- custom: make a more versatile city profile, was in our new advciv-sas longbowman as of now 10/50 anyways etc -->
++			<iCityAttack>25</iCityAttack>
++			<iCityDefense>25</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<!-- custom: was UNITCOMBAT_MELEE 50 in base advciv code anyways etc -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -10602,7 +10635,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_LONGBOWMAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_BABYLON_BOWMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 72d437fb5..6474cd914 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -2234,7 +2234,7 @@ I tweaked the code at (in? But anyways etc) `CvUnitAI::AI_workerMove` tentativel
+ 
+ Thanks to these changes that at least in theory should improve things a bit, we do seem to notice better i.e. sooner improvement in these cities, for example elephantine is improved at turn 190-200 vs turn +/- 230 before, and the nothern city is still improved around turn 190 as before.
+ 
+-These could be fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of this known issue as of now 59 that is at turn 100 but anyways etc, and even at turn 100 some cities seem to be improved a bit more.
++These could be autoplay fluctuations, but i repeated it a few times, then started from turn 0 again instead of turn 100 save file of the original save file of this known issue as of now 59 that is at turn 100 but anyways etc, and even at turn 100 some cities seem to be improved a bit more.
+ 
+ Again, could be autoplay fluctuations, but it does seem to be slightly better, and since it doesn't break anything, and theoretically improves/enhances old code, i am comitting it as such.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+index 278e1c3d2..e7011619b 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Tech_Tree.md
+@@ -126,7 +126,7 @@ Allowed starting techs
+ 
+ After a few or quite many back and forth and reviewing rounds with chatgpt 5 which helped me tons but also me hehe and my own ideas but it helped lot too but anyways etc, here are (below but anyways etc) the adjusted starting techs for civs as of now in advciv-sas, written by chatgpt 5. This was mostly to remove/replace old now removed tech_agriculture and tech_the_wheel starters that are now no longer starting techs, as well as quite along with it rebalance it and rework it all if i may say but anyways etc. I think the result is really good at least much better than it was check if accurate anyways etc.
+ 
+-#### main table (chatgpt 5 written anyways etc)
++#### main table (chatgpt 5 written with some tweaks from me but anyways etc)
+ 
+ > Goals: (1) stay historically/thematically sane, (2) avoid **too many repeats** of the same pair, and (3) **minimize “amazing” pairs** like **Mining+Hunting** (early rush spike) and **Mining+Pottery** (eco+production spike) — while keeping a **few** for clear identity/variety.  
+ > Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it selectively.  
+@@ -137,12 +137,12 @@ After a few or quite many back and forth and reviewing rounds with chatgpt 5 whi
+ | America           | Fishing, Agriculture          | **Fishing, Hunting**          | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
+ | Arabia            | The Wheel, Mysticism          | **Mysticism, Pottery**        | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
+ | Aztec             | Mysticism, Hunting            | **Mining, Mysticism**         | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
+-| Babylon           | Agriculture, The Wheel        | **Pottery, Mysticism**        | Clay/brick + temples identity; compliant and steady. *Skips Mining to avoid Mining+Pottery.* |
++| Babylon           | Agriculture, The Wheel        | **Pottery, Mysticism**        | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
+ | Byzantium         | The Wheel, Mysticism          | **Mysticism, Fishing**        | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
+ | Carthage          | Fishing, Mining               | **Fishing, Pottery**          | Maritime commerce + cottages; **drops Mining** to lower early snowball and reduce pair repetition. |
+-| Celt              | Hunting, Mysticism            | **Hunting, Mining**           | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for UU identity; kept rare overall. |
++| Celt              | Hunting, Mysticism            | **Hunting, Mining**           | **Gallic Warrior** metallurgy path justified; shifts from “druidic” to martial. **Intentional strong pair** (Mining+Hunting) for civ-specific unit identity; kept rare overall. |
+ | China             | Agriculture, Mining           | **Mining, Pottery**           | Bronze/iron + ceramics traditions; we keep this as **one of the few** strong **Mining+Pottery** pairs for identity. |
+-| Egypt             | The Wheel, Agriculture        | **Fishing, Pottery**          | Nile fishing + ubiquitous ceramics; removes early-road snowball and *avoids Mining+Pottery.* |
++| Egypt             | The Wheel, Agriculture        | **Hunting, Pottery**          | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
+ | England           | Fishing, Mining               | **Fishing, Mining**           | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
+ | Ethiopia          | Hunting, Mining               | **Hunting, Mysticism**        | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
+ | Kingdom of Benin  | Mysticism, Fishing            | **Mysticism, Fishing**        | Coastal trade + religious courts; already balanced and flavorful. |
+@@ -155,12 +155,12 @@ After a few or quite many back and forth and reviewing rounds with chatgpt 5 whi
+ | Japan             | Fishing, The Wheel            | **Fishing, Hunting**          | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+ | Khmer             | Hunting, Mining               | **Fishing, Hunting**          | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+ | Korea             | Mining, Mysticism             | **Mining, Mysticism**         | Metalwork/engineering + Confucian culture; solid, non-“amazing” pair. |
+-| Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** alignment via Hunting; Pottery for commerce; Wheel dropped. Religious angle exists, but this keeps them fair and avoids Mining spikes. |
++| Mali              | The Wheel, Mining             | **Hunting, Pottery**          | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
+ | Maya              | Mining, Mysticism             | **Mining, Mysticism**         | Stonework/metals + religion/astronomy; avoids the “amazing” pairings. |
+ | Mongol            | The Wheel, Hunting            | **Hunting, Pottery**          | Steppe military + simple econ; *no Mining* to avoid rush/econ spikes. |
+ | Native America    | Agriculture, Fishing          | **Hunting, Mining**           | Replace inland Fishing with Mining (abstracts obsidian/flint/quarries). **Dog Soldier** benefits from the Bronze Working line. Adds one OP pair by design; helps identity. |
+ | Netherlands       | Agriculture, Fishing          | **Fishing, Pottery**          | Maritime commerce + early cottages; *no Mining* for a gentler opener. |
+-| Ottoman           | The Wheel, Agriculture        | **Hunting, Pottery**          | Anatolian frontier/ghazi tradition (Hunting) plus early crafts/urbanization (Pottery). Skips Mining to avoid an early power spike and helps global balance (frees room for Russia’s landward re-theme). The pair is versatile but not “amazing.” |
++| Ottoman           | The Wheel, Agriculture        | **Fishing, Pottery**          | **Fishing** to reflect an early maritime footprint on the **Aegean**, **Sea of Marmara** (Bosporus), **Black Sea**, and the **eastern Mediterranean**. Pair with **Pottery** to support early crafts/urbanization and a builder-empire profile. They don't need as much strong starting techs for their civ-specific unit that is later in the game. |
+ | Persia            | Agriculture, Hunting          | **Hunting, Mining**           | Nearer to **Iron Working** path in your tree; strong metallurgy tradition. We accept one more OP pair for identity; totals remain balanced. |
+ | Portugal          | Fishing, Mining               | **Fishing, Pottery**          | Age-of-Discovery maritime commerce; Mining ceded to reduce repetition and fund other civs’ thematic needs. |
+ | Rome              | Fishing, Mining               | **Fishing, Mining**           | Metals for **Praetorian** timing; avoids Hunting and Mining+Pottery extremes. |
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=42873

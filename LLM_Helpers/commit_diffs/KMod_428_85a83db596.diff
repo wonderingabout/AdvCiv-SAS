@@ -1,0 +1,453 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 428
+# Commit: 85a83db596f17b9e1643424e69a0fe890f73971a
+# History segment: K-Mod history
+# Parent used for diff: 34be43661cae38453c860e7b2dc52636311be29d
+# Title: Fixed three bugs from the original BtS code which could sometimes cause the AI's amphibious group-attacks to be canceled prematurely. Fixed a bbai bug which...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvCity.cpp
+42	19	CvGameCoreDLL/CvPlayerAI.cpp
+32	19	CvGameCoreDLL/CvSelectionGroup.cpp
+1	0	CvGameCoreDLL/CvSelectionGroup.h
+1	6	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	5	CvGameCoreDLL/CvUnit.cpp
+5	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 30cb2224b..3af37b785 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12590,7 +12590,8 @@ void CvCity::doReligion()
+ 
+ 	// K-Mod
+ 	// gives some of the top religions a shot at spreading to the city.
+-	int iChances = 2 + (getCultureLevel() >= 3 ? 1 : 0) + getPopulation() / 12 - getReligionCount();
++	int iChances = 2 + (getCultureLevel() >= 4 ? 1 : 0) + (getPopulation() + 7) / 15 - getReligionCount();
++	// (breakpoints at pop = 8, 23, 38, ...)
+ 
+ 	if (iChances <= 0)
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6ed8c875a..5321b4232 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1172,6 +1172,12 @@ int CvPlayerAI::AI_movementPriority(CvSelectionGroup* pGroup) const
+ 	int iCurrCombat;
+ 	int iBestCombat;
+ 
++	// K-Mod. If the group is trying to do a stack attack, let it go first!
++	// (this is required for amphibious assults; during which a low priority group can be ordered to attack before its turn.)
++	if (pGroup->AI_isGroupAttack())
++		return -1;
++	// K-Mod end
++
+ 	pHeadUnit = pGroup->getHeadUnit();
+ 
+ 	if (pHeadUnit != NULL)
+@@ -2560,7 +2566,7 @@ int CvPlayerAI::AI_commerceWeight(CommerceTypes eCommerce, const CvCity* pCity)
+ 				}
+ 			}
+ 			if (iTeamCount == 0)
+-				return iWeight / 4; // can't put points on anyone - but accumulating "total points ever" is still better than nothing.
++				return iWeight / 10; // can't put points on anyone - but accumulating "total points ever" is still better than nothing.
+ 
+ 			iAllTeamTotalPoints /= std::max(1, iTeamCount); // Get the average total points
+ 			iWeight *= std::min(GET_TEAM(getTeam()).getEspionagePointsEver() + 3*iAllTeamTotalPoints + 16*GC.getGame().getGameTurn(), 5*iAllTeamTotalPoints);
+@@ -12291,6 +12297,7 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, const CvCity*
+ 	return iBonusValue; */
+ 
+ 	// K-Mod. Well that was a load of bullshit... lets try to do it better.
++	const CvTeamAI& kTeam = GET_TEAM(getTeam());
+ 	CvCorporationInfo& kCorp = GC.getCorporationInfo(eCorporation);
+ 	int iValue = 0;
+ 	int iMaintenance = 0;
+@@ -12302,12 +12309,21 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, const CvCity*
+ 		if (NO_BONUS != eBonus)
+ 		{
+ 			if (pCity == NULL)
+-				iBonuses += countOwnedBonuses(eBonus) + 1;
++				iBonuses += countOwnedBonuses(eBonus);
+ 			else
+-				iBonuses += pCity->getNumBonuses(eBonus) + 1;
++				iBonuses += pCity->getNumBonuses(eBonus);
+ 			// maybe use getNumAvailableBonuses ?
++			if (!kTeam.isHasTech((TechTypes)GC.getBonusInfo(eBonus).getTechReveal()) && !kTeam.isForceRevealedBonus(eBonus))
++			{
++				iBonuses++; // expect that we'll get one of each unrevealed resource
++			}
+ 		}
+ 	}
++	if (!GC.getGameINLINE().isCorporationFounded(eCorporation))
++	{
++		// expect that we'll be able to trade for at least 1 of the bonuses.
++		iBonuses++;
++	}
+ 
+ 	for (int iI = (CommerceTypes)0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 	{
+@@ -12331,7 +12347,7 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, const CvCity*
+ 			iValue += iTempValue;
+ 		}
+ 
+-		iMaintenance += kCorp.getHeadquarterCommerce(iI);
++		iMaintenance += 100 * kCorp.getHeadquarterCommerce(iI);
+ 	}
+ 
+ 	for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+@@ -12361,7 +12377,8 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, const CvCity*
+ 	iTempValue /= 100;
+ 	iTempValue += iMaintenance;
+ 	// Inflation, population, and maintenance modifiers... lets just approximate them like this:
+-	iTempValue /= 2;
++	iTempValue *= 2;
++	iTempValue /= 3;
+ 
+ 	iTempValue *= AI_commerceWeight(COMMERCE_GOLD);
+ 	iTempValue /= 100;
+@@ -12373,7 +12390,7 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, const CvCity*
+ 	{
+ 		int iBonuses = getNumAvailableBonuses((BonusTypes)kCorp.getBonusProduced());
+ 		// pretend we have 1 bonus if it is not yet revealed. (so that we don't overvalue the corp before the resource gets revealed)
+-		iBonuses += !GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getBonusInfo((BonusTypes)kCorp.getBonusProduced()).getTechReveal()) ? 1 : 0;
++		iBonuses += !kTeam.isHasTech((TechTypes)GC.getBonusInfo((BonusTypes)kCorp.getBonusProduced()).getTechReveal()) ? 1 : 0;
+ 		iValue += AI_baseBonusVal((BonusTypes)kCorp.getBonusProduced()) * 100 / (1 + 3 * iBonuses * iBonuses);
+ 	}
+ 
+@@ -12579,7 +12596,8 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
+ 						}
+ 						if (bCheckCanAttack)
+ 						{
+-							if (!pLoopUnit->canMove() || (pLoopUnit->isMadeAttack() && !pLoopUnit->isBlitz()))
++							if (!pLoopUnit->canMove() || (pLoopUnit->isMadeAttack() && !pLoopUnit->isBlitz())
++								|| (bUseTarget && pLoopUnit->combatLimit() < 100 && pLoopPlot->isWater() && !pTargetPlot->isWater()))
+ 							{
+ 								continue; // can't attack
+ 							}
+@@ -12891,6 +12909,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ {
+ 	PROFILE_FUNC();
+ 
++	const CvTeamAI& kTeam = GET_TEAM(getTeam()); // K-Mod
++
+ 	bool bWarPlan;
+ 	int iConnectedForeignCities;
+ 	int iTotalReligonCount;
+@@ -12930,7 +12950,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 
+ 	int iS = (isCivic(eCivic)?-1 :1);// K-Mod, sign for whether we should be considering gaining a bonus, or losing a bonus
+ 
+-	bWarPlan = (GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0);
++	bWarPlan = (kTeam.getAnyWarPlanCount(true) > 0);
+ 	if( bWarPlan )
+ 	{
+ 		bWarPlan = false;
+@@ -12940,15 +12960,15 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		{
+ 			if( GET_TEAM((TeamTypes)iTeam).isAlive() && !GET_TEAM((TeamTypes)iTeam).isMinorCiv() )
+ 			{
+-				if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
++				if( kTeam.AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
+ 				{
+-					if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_TOTAL || GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_PREPARING_TOTAL )
++					if( kTeam.AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_TOTAL || kTeam.AI_getWarPlan((TeamTypes)iTeam) == WARPLAN_PREPARING_TOTAL )
+ 					{
+ 						bWarPlan = true;
+ 						break;
+ 					}
+ 
+-					if( GET_TEAM(getTeam()).AI_isLandTarget((TeamTypes)iTeam) )
++					if( kTeam.AI_isLandTarget((TeamTypes)iTeam) )
+ 					{
+ 						bWarPlan = true;
+ 						break;
+@@ -12968,7 +12988,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			}
+ 			else if( iEnemyWarSuccess > std::min(iCities, 2) * GC.getWAR_SUCCESS_CITY_CAPTURING() )
+ 			{
+-				if( GET_TEAM(getTeam()).AI_getEnemyPowerPercent() > 120 )
++				if( kTeam.AI_getEnemyPowerPercent() > 120 )
+ 				{
+ 					bWarPlan = true;
+ 				}
+@@ -12979,7 +12999,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	if( !bWarPlan )
+ 	{
+ 		// Aggressive players will stick with war civics
+-		if( GET_TEAM(getTeam()).AI_getTotalWarOddsTimes100() > 200 )
++		if( kTeam.AI_getTotalWarOddsTimes100() > 200 )
+ 		{
+ 			bWarPlan = true;
+ 		}
+@@ -13048,13 +13068,13 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			{
+ 				iTempValue = iCities + ((bWarPlan) ? 30 : 10);
+ 
+-				iTempValue *= range(GET_TEAM(getTeam()).AI_getEnemyPowerPercent(), 50, 300);
++				iTempValue *= range(kTeam.AI_getEnemyPowerPercent(), 50, 300);
+ 				iTempValue /= 100;
+ 
+ 				iTempValue *= iCombatValue;
+ 				iTempValue /= 75;
+ 
+-				int iWarSuccessRatio = GET_TEAM(getTeam()).AI_getWarSuccessCapitulationRatio();
++				int iWarSuccessRatio = kTeam.AI_getWarSuccessCapitulationRatio();
+ 				if( iWarSuccessRatio < -25 )
+ 				{
+ 					iTempValue *= 75 + range(-iWarSuccessRatio, 25, 100);
+@@ -13175,7 +13195,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				bPlayerHQ = true;
+ 				bTeamHQ = true;
+ 			}
+-			else if (GET_TEAM(getTeam()).hasHeadquarters(eCorp))
++			else if (kTeam.hasHeadquarters(eCorp))
+ 			{
+ 				bTeamHQ = true;
+ 			}
+@@ -13195,10 +13215,13 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				BonusTypes eBonus = (BonusTypes)GC.getCorporationInfo(eCorp).getPrereqBonus(i);
+ 				if (NO_BONUS != eBonus)
+ 				{
+-					iBonuses += countOwnedBonuses(eBonus)+(bPlayerHQ ?1 :0);
++					iBonuses += countOwnedBonuses(eBonus);
+ 					// maybe use getNumAvailableBonuses ?
++					iBonuses +=	!kTeam.isHasTech((TechTypes)GC.getBonusInfo(eBonus).getTechReveal()) && !kTeam.isForceRevealedBonus(eBonus)
++						? 1 : 0; // expect that we'll get at least one of each unrevealed bonus.
+ 				}
+ 			}
++			iBonuses += bPlayerHQ ? 1 : 0;
+ 
+ 			for (iI = (CommerceTypes)0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 			{
+@@ -13250,8 +13273,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			iTempValue /= 10000;
+ 			iTempValue += iMaintenance;
+ 			// Inflation, population, and maintenance modifiers... lets just approximate them like this:
+-			iTempValue /= 2;
+-
++			iTempValue *= 2;
++			iTempValue /= 3;
+ 
+ 			iTempValue *= AI_commerceWeight(COMMERCE_GOLD);
+ 			iTempValue /= 100;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 4edd7c3ab..1a9de7d11 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -237,10 +237,10 @@ void CvSelectionGroup::doTurn()
+ 
+ 		if (AI_isControlled())
+ 		{
+-			//if ((getActivityType() != ACTIVITY_MISSION) || (!canFight() && (GET_PLAYER(getOwnerINLINE()).AI_getPlotDanger(plot(), 2) > 0)))
+-			if ((getActivityType() != ACTIVITY_MISSION) || (!canFight() && (GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 2)))) //bbai
++			if ((getActivityType() != ACTIVITY_MISSION) || (!canFight() && (GET_PLAYER(getOwnerINLINE()).AI_getAnyPlotDanger(plot(), 2))))
+ 			{
+-				setForceUpdate(true);
++				//setForceUpdate(true);
++				doForceUpdate(); // K-Mod. (this prevents the forced update from interupting amphibious assaults.
+ 			}
+ 		}
+ 		else
+@@ -1187,7 +1187,7 @@ void CvSelectionGroup::startMission()
+ 					unit_list.push_back(std::make_pair(iPriority, pLoopUnit->getID()));
+ 				}
+ 			}
+-			std::sort(unit_list.begin(), unit_list.end());
++			std::sort(unit_list.begin(), unit_list.end(), std::greater<std::pair<int, int> >());
+ 
+ 			CvPlayer& kOwner = GET_PLAYER(getOwnerINLINE());
+ 			for (size_t i = 0; i < unit_list.size(); i++)
+@@ -1229,6 +1229,7 @@ void CvSelectionGroup::startMission()
+ 					case MISSION_SEAPATROL:
+ 					case MISSION_HEAL:
+ 					case MISSION_SENTRY:
++						pUnitNode = 0; // K-Mod. Nothing to do, so we might as well abort the unit loop.
+ 						break;
+ 
+ 					case MISSION_AIRLIFT:
+@@ -1509,7 +1510,6 @@ void CvSelectionGroup::startMission()
+ 	}
+ }
+ 
+-
+ void CvSelectionGroup::continueMission(int iSteps)
+ {
+ 	CvUnit* pTargetUnit;
+@@ -4116,17 +4116,19 @@ bool CvSelectionGroup::groupAmphibMove(CvPlot* pPlot, int iFlags)
+ 		{
+ 			pUnitNode1 = headUnitNode();
+ 
++			// K-Mod: I've rearranged some stuff in the following section to fix a bug.
++			// originally, the cargo groups loop was done for each cargo-carrying unit - which is incorrect.
++			std::vector<CvSelectionGroup*> aCargoGroups;
+ 			while (pUnitNode1 != NULL)
+ 			{
+ 				pLoopUnit1 = ::getUnit(pUnitNode1->m_data);
+ 				pUnitNode1 = nextUnitNode(pUnitNode1);
+ 
+-				if ((pLoopUnit1->getCargo() > 0) && (pLoopUnit1->domainCargo() == DOMAIN_LAND))
++				if (pLoopUnit1->getCargo() > 0 && pLoopUnit1->domainCargo() == DOMAIN_LAND)
+ 				{
+ 					std::vector<CvUnit*> aCargoUnits;
+ 					pLoopUnit1->getCargoUnits(aCargoUnits);
+-					std::vector<CvSelectionGroup*> aCargoGroups;
+-					for (uint i = 0; i < aCargoUnits.size(); ++i)
++					for (size_t i = 0; i < aCargoUnits.size(); ++i)
+ 					{
+ 						CvSelectionGroup* pGroup = aCargoUnits[i]->getGroup();
+ 						if (std::find(aCargoGroups.begin(), aCargoGroups.end(), pGroup) == aCargoGroups.end())
+@@ -4134,19 +4136,19 @@ bool CvSelectionGroup::groupAmphibMove(CvPlot* pPlot, int iFlags)
+ 							aCargoGroups.push_back(aCargoUnits[i]->getGroup());
+ 						}
+ 					}
+-
+-					for (uint i = 0; i < aCargoGroups.size(); ++i)
+-					{
+-						CvSelectionGroup* pGroup = aCargoGroups[i];
+-						if (pGroup->canAllMove())
+-						{
+-							FAssert(!pGroup->at(pPlot->getX_INLINE(), pPlot->getY_INLINE()));
+-							pGroup->pushMission(MISSION_MOVE_TO, pPlot->getX_INLINE(), pPlot->getY_INLINE(), (MOVE_IGNORE_DANGER | iFlags));
+-							bLanding = true;
+-						}
+-					}
+ 				}
+ 			}
++			for (size_t i = 0; i < aCargoGroups.size(); ++i)
++			{
++				CvSelectionGroup* pGroup = aCargoGroups[i];
++				if (pGroup->canAllMove())
++				{
++					FAssert(!pGroup->at(pPlot->getX_INLINE(), pPlot->getY_INLINE()));
++					pGroup->pushMission(MISSION_MOVE_TO, pPlot->getX_INLINE(), pPlot->getY_INLINE(), (MOVE_IGNORE_DANGER | iFlags));
++					bLanding = true;
++				}
++			}
++			// K-Mod end
+ 		}
+ 	}
+ 
+@@ -4292,6 +4294,17 @@ void CvSelectionGroup::setForceUpdate(bool bNewValue)
+ 	m_bForceUpdate = bNewValue;
+ }
+ 
++// K-Mod
++void CvSelectionGroup::doForceUpdate()
++{
++	clearMissionQueue();
++	setActivityType(ACTIVITY_AWAKE);
++	setForceUpdate(false);
++
++	// if we are in the middle of attacking with a stack, cancel it
++	AI_cancelGroupAttack();
++}
++// K-Mod end
+ 
+ ActivityTypes CvSelectionGroup::getActivityType() const
+ {
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 642563572..2c442abf2 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -145,6 +145,7 @@ public:
+ 
+ 	bool isForceUpdate();
+ 	void setForceUpdate(bool bNewValue);
++	void doForceUpdate(); // K-Mod
+ 
+ 	DllExport PlayerTypes getOwner() const;																															// Exposed to Python
+ #ifdef _USRDLL
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 354f4dab9..70f529b72 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -219,12 +219,7 @@ bool CvSelectionGroupAI::AI_update()
+ 
+ 	if (isForceUpdate())
+ 	{
+-		clearMissionQueue(); // XXX ???
+-		setActivityType(ACTIVITY_AWAKE);
+-		setForceUpdate(false);
+-
+-		// if we are in the middle of attacking with a stack, cancel it
+-		AI_cancelGroupAttack();
++		doForceUpdate(); // K-Mod (based on old code)
+ 	}
+ 
+ 	FAssert(!(GET_PLAYER(getOwnerINLINE()).isAutoMoves()));
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 5d08a0b1a..283e89563 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2630,11 +2630,7 @@ bool CvUnit::canMoveInto(const CvPlot* pPlot, bool bAttack, bool bDeclareWar, bo
+ 	// made a previous attack or paradrop
+ 	if (bAttack)
+ 	{
+-		//if (isMadeAttack() && !isBlitz() && (pPlot->getNumVisibleEnemyDefenders(this) > 0))
+-		// K-Mod. We don't want to only count "visible" defenders...
+-		if (isMadeAttack() && !isBlitz() &&
+-			pPlot->plotCount(PUF_canDefendEnemy, getOwnerINLINE(), isAlwaysHostile(pPlot)) > 0)
+-		// K-Mod end
++		if (isMadeAttack() && !isBlitz() && (pPlot->getNumVisibleEnemyDefenders(this) > 0))
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 69e107ba7..0eca03679 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -7578,7 +7578,7 @@ void CvUnitAI::AI_assaultSeaMove()
+ 	FAssert(AI_getUnitAIType() == UNITAI_ASSAULT_SEA);
+ 
+ 	bool bEmpty = !getGroup()->hasCargo();
+-	bool bFull = (getGroup()->AI_isFull() && (getGroup()->getCargo() > 0));
++	bool bFull = getGroup()->getCargo() > 0 && getGroup()->AI_isFull();
+ 
+ 	if (plot()->isCity(true))
+ 	{
+@@ -17485,7 +17485,7 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 							//int iEnemyDefenders = pLoopPlot->getNumVisibleEnemyDefenders(this);
+ 							// K-Mod (a small step up from the original code, but still not good.)
+ 							int iEnemyDefenders = (pLoopPlot->isVisible(getTeam(), false) || !pLoopPlot->isCity())
+-								? pLoopPlot->getNumVisibleEnemyDefenders(this)
++								? pLoopPlot->getNumVisiblePotentialEnemyDefenders(this)
+ 								: pLoopPlot->getPlotCity()->AI_neededDefenders();
+ 							// K-Mod end
+ 
+@@ -18126,13 +18126,14 @@ bool CvUnitAI::AI_assaultGoTo(CvPlot* pEndTurnPlot, CvPlot* pTargetPlot, int iFl
+ 		{
+ 			if (pLoopGroup != getGroup())
+ 			{
+-				if (pLoopGroup->AI_getMissionAIType() == MISSIONAI_GROUP && pLoopGroup->getHeadUnitAI() == AI_getUnitAIType())
++				if (pLoopGroup->AI_getMissionAIType() == MISSIONAI_GROUP)
+ 				{
+ 					CvUnit* pMissionUnit = pLoopGroup->AI_getMissionAIUnit();
+ 
+-					if (pMissionUnit != NULL && pMissionUnit->getGroup() == getGroup())
++					if (pMissionUnit && pMissionUnit->getGroup() == getGroup() && !pLoopGroup->isFull())
+ 					{
+ 						pLoopGroup->clearMissionQueue();
++						pLoopGroup->AI_setMissionAI(NO_MISSIONAI, 0, 0);
+ 					}
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=16594

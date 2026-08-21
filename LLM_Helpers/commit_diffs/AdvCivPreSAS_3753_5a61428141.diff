@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3753
+# Commit: 5a61428141920eac90347e8bd84029c3deba91cc
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f46ef3d438f79c7d2801908531fbf0781624983b
+# Title: Future-proof BUG net commerce calc (from MNAI)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	3	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d99eee268..3a576d2f9 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7565,9 +7565,8 @@ int CvCity::getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eCommerce,
+ int CvCity::getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eCommerce,
+ 	SpecialistTypes eSpecialist, int iChange) const
+ {
+-	CvSpecialistInfo const& kSpecialist = GC.getInfo(eSpecialist);
+-	return iChange * (kSpecialist.getCommerceChange(eCommerce) +
+-			GET_PLAYER(getOwner()).getSpecialistExtraCommerce(eCommerce));
++	// advc: Forward to CvPlayer (based on MNAI - lfgr fix 01/2022)
++	return iChange * GET_PLAYER(getOwner()).specialistCommerce(eSpecialist, eCommerce);
+ }
+ // BUG - Specialist Additional Commerce - end
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=795

@@ -1,0 +1,1020 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5459
+# Commit: 3aaba123416958356e921b1f43f0df3b590c56a7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 936bb5081816bc5eac56e82ffb86ae3d7ed348c4
+# Title: add worker speed modifiers bullet in sevopedia unit - add iFeatureproduction panel in sevopedia builds and features - refactor sevopedia: add buttons per pan...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+40	3	Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+5	5	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+4	5	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+4	3	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+2	1	Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+57	27	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+15	20	Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+5	4	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+5	6	Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+6	7	Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+6	4	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+6	6	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+66	6	Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+8	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+71	0	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	PrivateMaps/Water.py
+6	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+index c0f8e93cc..e43dc7ad0 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBonus.py
+@@ -72,7 +72,7 @@ class SevoPediaBonus:
+ 		self.X_IMPROVEMENTS = self.X_BONUS_PANE
+ 		self.Y_IMPROVEMENTS = self.Y_BONUS_PANE + self.H_BONUS_PANE + self.SMALL_MARGIN
+ 		self.W_IMPROVEMENTS = self.W_TOTAL_EFFECTIVE_BONUS_PANE
+-		self.H_IMPROVEMENTS = 110
++		self.H_IMPROVEMENTS = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_UNITS = self.X_BONUS_PANE
+ 		self.W_UNITS = self.top.R_PEDIA_PAGE - self.X_UNITS
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+index c7c606214..c712f1984 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuild.py
+@@ -48,12 +48,17 @@ class SevoPediaBuild:
+ 
+ 		self.X_REQUIRES = self.X_BUILD_PANE + self.W_BUILD_PANE + self.MEDIUM_MARGIN
+ 		self.Y_REQUIRES = self.Y_BUILD_PANE
+-		self.W_REQUIRES = 84
++		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_REQUIRES = self.H_BUILD_PANE
+ 
+-		self.X_IMPROVEMENTS = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.X_FEATURE_PRODUCTION = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
++		self.Y_FEATURE_PRODUCTION = self.Y_BUILD_PANE
++		self.W_FEATURE_PRODUCTION = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++		self.H_FEATURE_PRODUCTION = self.H_BUILD_PANE
++
++		self.X_IMPROVEMENTS = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + self.MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_BUILD_PANE
+-		self.W_IMPROVEMENTS = 84
++		self.W_IMPROVEMENTS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_IMPROVEMENTS = self.H_BUILD_PANE
+ 
+ 		self.X_UNITS_BUILD = self.X_IMPROVEMENTS + self.W_IMPROVEMENTS + self.MEDIUM_MARGIN
+@@ -81,11 +86,24 @@ class SevoPediaBuild:
+ 		self.FEATURE_STRUCT_BUTTON_TOP_REL = self.H_FEATURE_STRUCTS - self.FEATURE_STRUCT_PANEL_HEADER_H - self.FEATURE_STRUCT_BUTTON_ROW_H - self.FEATURE_STRUCT_BUTTON_BOTTOM_MARGIN
+ 
+ 
++	def _getBuildFeatureProductionModifierTechs(self):
++		buildInfo = gc.getBuildInfo(self.iBuild)
++		bHasRemovalProduction = False
++		for iFeature in xrange(gc.getNumFeatureInfos()):
++			if buildInfo.getFeatureProduction(iFeature) > 0:
++				bHasRemovalProduction = True
++				break
++		if not bHasRemovalProduction:
++			return []
++		return get_feature_production_modifier_techs()
++
++
+ 	def interfaceScreen(self, iBuild):
+ 		self.iBuild = iBuild
+ 
+ 		self.placeBuildPane()
+ 		self.placeRequires()
++		self.placeFeatureProduction()
+ 		self.placeImprovements()
+ 		self.placeUnitsBuild()
+ 		self.placeFeatureStructs()
+@@ -164,6 +182,25 @@ class SevoPediaBuild:
+ 			screen.addMultilineText(textName, szText, self.X_IMPROVEMENTS + 7, yPanelCenter, self.W_IMPROVEMENTS - 14, self.H_IMPROVEMENTS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
++	def placeFeatureProduction(self):
++		screen = self.top.getScreen()
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL", ()), "", False, True, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++
++		techModifiers = self._getBuildFeatureProductionModifierTechs()
++		if len(techModifiers) <= 0:
++			txtKeyNone = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNone, ())
++			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
++			screen.addMultilineText(textName, szText, self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			return
++
++		for iTech, unused_iModifier in techModifiers:
++			screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++
++
+ 	def placeUnitsBuild(self):
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 3a8d38d43..1a1f66655 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -76,14 +76,14 @@ class SevoPediaBuilding:
+ 		# <!-- custom: see sevopediaunit's self.W_TOTAL_EFFECTIVE_UNIT_PANE for differences in implementation -->
+ 		self.W_TOTAL_EFFECTIVE_BUILDING_PANE = self.W_BUILDING_PANE
+ 
+-		self.W_MOVIE = 84
++		self.W_MOVIE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_REQUIRES = self.X_BUILDING_PANE
+ 		self.Y_REQUIRES = self.Y_BUILDING_PANE + self.H_BUILDING_PANE + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_BUILDING_PANE - self.W_MOVIE - self.MEDIUM_MARGIN
+-		self.H_REQUIRES = 110
++		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		self.W_OBSOLETE_WITH = 84
++		self.W_OBSOLETE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_MOVIE = self.H_REQUIRES
+ 
+ 		self.X_MOVIE = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+@@ -100,7 +100,7 @@ class SevoPediaBuilding:
+ 		self.Y_OBSOLETE_WITH = self.Y_REQUIRED_FOR
+ 		self.H_OBSOLETE_WITH = self.H_REQUIRED_FOR
+ 
+-		self.W_FREE_WITH = 84
++		self.W_FREE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_FREE_PBBS = self.X_BUILDING_PANE
+ 		self.Y_FREE_PBBS = self.Y_REQUIRED_FOR + self.H_REQUIRED_FOR + self.SMALL_MARGIN
+@@ -127,7 +127,7 @@ class SevoPediaBuilding:
+ 		self.Z_ROTATION_BUILDING_ANIMATION = 30
+ 		self.SCALE_ANIMATION = 0.7
+ 
+-		self.W_CIVILIZATIONS = 84
++		self.W_CIVILIZATIONS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_REPLACE = self.X_BUILDING_ANIMATION
+ 		self.Y_REPLACE = self.Y_BUILDING_ANIMATION + self.H_BUILDING_ANIMATION + self.SMALL_MARGIN
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 93e593255..c690388e5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -37,9 +37,8 @@ class SevoPediaCivic:
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 
+-		# <!-- custom: based on sevopediareligion's code (the placeLeaders function there that we added as well), see there for details and differences of implementation --> 
+-		#self.W_LEADERS = 287
+-		self.W_LEADERS = 282
++		# <!-- custom: multilist leaders panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
++		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+ 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
+ 		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
+ 		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+@@ -67,13 +66,13 @@ class SevoPediaCivic:
+ 
+ 		self.X_SPECIAL = self.X_CIVIC_PANE + self.W_CIVIC_PANE + self.MEDIUM_MARGIN
+ 
+-		self.W_REQUIRES = 84
++		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.W_SPECIAL = self.W_REMAINING_CENTER_SPACE - self.W_REQUIRES
+ 
+ 		self.X_REQUIRES = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+ 
+-		self.H_REQUIRES = 110
++		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.Y_REQUIRES = self.Y_CIVIC_PANE + self.H_CIVIC_PANE - self.H_REQUIRES
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index 2ab5b390f..56ecd18e5 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -19,6 +19,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -36,7 +37,7 @@ class SevoPediaCivilization:
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+-		rowH = 110
++		rowH = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_CIVILIZATION_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_CIVILIZATION_PANE = self.top.Y_PEDIA_PAGE
+@@ -48,10 +49,10 @@ class SevoPediaCivilization:
+ 		self.Y_CITIES = self.Y_CIVILIZATION_PANE
+ 		self.H_CITIES = self.top.B_PEDIA_PAGE - self.Y_CITIES
+ 
+-		# <!-- custom: Music panel (84px, right of Civilization Pane) -->
++		# <!-- custom: Music panel uses helper-computed one-button width, right of Civilization Pane. -->
+ 		self.X_MUSIC = self.X_CIVILIZATION_PANE + self.W_CIVILIZATION_PANE + self.MEDIUM_MARGIN
+ 		self.Y_MUSIC = self.Y_CIVILIZATION_PANE
+-		self.W_MUSIC = 84
++		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_MUSIC = rowH
+ 
+ 		halfRowW = (self.top.R_PEDIA_PAGE - self.X_MUSIC - self.W_CITIES - (2 * self.MEDIUM_MARGIN)) / 2
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+index 984c33f4e..044ca06ec 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCorporation.py
+@@ -19,6 +19,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
++from _sevopedia_helpers import *
+ 
+ gc = CyGlobalContext()
+ ArtFileMgr = CyArtFileMgr()
+@@ -39,7 +40,7 @@ class SevoPediaCorporation:
+ 		self.X_REQUIRES = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
+ 		self.Y_REQUIRES = self.Y_MAIN_PANE
+ 		self.W_REQUIRES = self.top.R_PEDIA_PAGE - self.X_REQUIRES
+-		self.H_REQUIRES = 110
++		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_SPECIAL = self.X_MAIN_PANE + self.W_MAIN_PANE + 10
+ 		self.Y_SPECIAL = self.Y_REQUIRES + self.H_REQUIRES + 10
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 228f8b340..36d0b1a0a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -71,9 +71,11 @@ class SevoPediaFeature:
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 
++		self.W_LEFT_COLUMN = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_INFO_PANE = 330
++		self.W_INFO_PANE = self.W_LEFT_COLUMN
+ 		# <!-- custom: make some room for the new fields we added in placeSpecial and align display horizontally with placeSpecial, was 120 -->
+ 		self.H_INFO_PANE = 127
+ 
+@@ -90,18 +92,23 @@ class SevoPediaFeature:
+ 
+ 		self.X_BUILD_REMOVES = self.X_INFO_PANE + self.W_INFO_PANE + self.MEDIUM_MARGIN
+ 		self.Y_BUILD_REMOVES = self.Y_INFO_PANE
+-		self.W_BUILD_REMOVES = 84
++		self.W_BUILD_REMOVES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_BUILD_REMOVES = self.H_INFO_PANE
+ 
+-		self.X_UNITS_REMOVE = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
++		self.X_FEATURE_PRODUCTION = self.X_BUILD_REMOVES + self.W_BUILD_REMOVES + self.MEDIUM_MARGIN
++		self.Y_FEATURE_PRODUCTION = self.Y_INFO_PANE
++		self.W_FEATURE_PRODUCTION = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++		self.H_FEATURE_PRODUCTION = self.H_INFO_PANE
++
++		self.X_UNITS_REMOVE = self.X_FEATURE_PRODUCTION + self.W_FEATURE_PRODUCTION + self.MEDIUM_MARGIN
+ 		self.Y_UNITS_REMOVE = self.Y_INFO_PANE
+ 		self.W_UNITS_REMOVE = self.top.R_PEDIA_PAGE - self.X_UNITS_REMOVE
+ 		self.H_UNITS_REMOVE = self.H_INFO_PANE
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+ 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
+-		self.W_FEATURES = self.W_INFO_PANE
+-		self.H_FEATURES = 110
++		self.W_FEATURES = self.W_LEFT_COLUMN
++		self.H_FEATURES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_FEATURES
+@@ -127,7 +134,7 @@ class SevoPediaFeature:
+ 
+ 		self.X_SPECIAL = self.X_INFO_PANE
+ 		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+-		self.W_SPECIAL = self.W_INFO_PANE
++		self.W_SPECIAL = self.W_LEFT_COLUMN
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+ 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+@@ -160,6 +167,19 @@ class SevoPediaFeature:
+ 
+ 
+ 
++	def _getRemovalBuildsWithProduction(self):
++		buildIds = []
++		for iBuild in xrange(gc.getNumBuildInfos()):
++			buildInfo = gc.getBuildInfo(iBuild)
++			if buildInfo.getImprovement() != -1:
++				continue
++			if not buildInfo.isFeatureRemove(self.iFeature):
++				continue
++			if buildInfo.getFeatureProduction(self.iFeature) > 0:
++				buildIds.append(iBuild)
++		return buildIds
++
++
+ 	def placeInfo(self):
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+@@ -229,6 +249,21 @@ class SevoPediaFeature:
+ 			yPanelCenter = self.Y_BUILD_REMOVES + (self.H_BUILD_REMOVES / 2)
+ 			screen.addMultilineText(textName, szText, self.X_BUILD_REMOVES + 7, yPanelCenter, self.W_BUILD_REMOVES - 14, self.H_BUILD_REMOVES - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
++		panelName = self.top.getNextWidgetName()
++		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL", ()), "", False, True, self.X_FEATURE_PRODUCTION, self.Y_FEATURE_PRODUCTION, self.W_FEATURE_PRODUCTION, self.H_FEATURE_PRODUCTION, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.attachLabel(panelName, "", "  ")
++		techModifiers = get_feature_production_modifier_techs()
++		removalBuildsWithProduction = self._getRemovalBuildsWithProduction()
++		if len(techModifiers) > 0 and len(removalBuildsWithProduction) > 0:
++			for iTech, unused_iModifier in techModifiers:
++				screen.attachImageButton(panelName, "", gc.getTechInfo(iTech).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iTech, 1, False)
++		else:
++			txtKeyNoButtonFound = "TXT_KEY_PEDIA_SAS_NO_BUTTON_FOUND_NONE"
++			textName = self.top.getNextWidgetName()
++			szText = localText.getText(txtKeyNoButtonFound, ())
++			yPanelCenter = self.Y_FEATURE_PRODUCTION + (self.H_FEATURE_PRODUCTION / 2)
++			screen.addMultilineText(textName, szText, self.X_FEATURE_PRODUCTION + 7, yPanelCenter, self.W_FEATURE_PRODUCTION - 14, self.H_FEATURE_PRODUCTION - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_SAS_UNITS_REMOVE", ()), "", False, True, self.X_UNITS_REMOVE, self.Y_UNITS_REMOVE, self.W_UNITS_REMOVE, self.H_UNITS_REMOVE, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panelName, "", "  ")
+@@ -274,27 +309,22 @@ class SevoPediaFeature:
+ 		info = gc.getFeatureInfo(self.iFeature)
+ 
+ 		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_SPECIAL_ABILITIES", ()), "", True, True, self.X_SPECIAL, self.Y_SPECIAL, self.W_SPECIAL, self.H_SPECIAL, PanelStyles.PANEL_STYLE_BLUE50)
+-		szSpecialText = info.getHelp()
+-		szSpecialText += CyGameTextMgr().getFeatureHelp(self.iFeature, True)
+-
+-		for iBuild in xrange(gc.getNumBuildInfos()):
+-			buildInfo = gc.getBuildInfo(iBuild)
+-
+-			# <!-- custom: since we already do the pre-checks at pre-load time, simply and directly fetch the first strictly positive (not taking into account negative values as they would be highly unusual and i wouldn't see their purpose at least in our mod, see the code at pre load for details) value -->
+-			if buildInfo.isFeatureRemove(self.iFeature):
+-				if szSpecialText.strip():
+-					szSpecialText += u"\n"
+-
+-				# <!-- custom: check iProduction separately for cases such as feature fallout that have 0 iProduction; time details are now in Build pages. (GPT-5.2-Codex (summarized)) -->
+-				removeProduction = buildInfo.getFeatureProduction(self.iFeature)
+-				if removeProduction > 0:
+-					bullet = localText.getText("[ICON_BULLET]", ())
+-					szSpecialText += u"%s+%d%s %s" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ()))
+-
+-				# <!-- custom: all values should be the same, no need to continue after the first strictly positive iProduction. (GPT-5.2-Codex (summarized)) -->
+-				break
+-
+-		szSpecialText = szSpecialText.replace("\n\n", "\n").strip()
++		szSpecialText = info.getHelp() + CyGameTextMgr().getFeatureHelp(self.iFeature, True)
++		baseLines = []
++		if szSpecialText.strip():
++			baseLines = szSpecialText.replace("\n\n", "\n").strip().split("\n")
++
++		removalBuildIds = self._getRemovalBuildsWithProduction()
++		removeProduction = 0
++		if len(removalBuildIds) > 0:
++			removeProduction = gc.getBuildInfo(removalBuildIds[0]).getFeatureProduction(self.iFeature)
++
++		extraLines = []
++		if removeProduction > 0:
++			bullet = localText.getText("[ICON_BULLET]", ())
++			extraLines.append(u"%s+%d%s %s" % (bullet, removeProduction, localText.getText("[ICON_PRODUCTION]", ()), localText.getText("TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION", ())))
++
++		szSpecialText = u"\n".join(baseLines + extraLines).strip()
+ 		screen.addMultilineText(text, szSpecialText, self.X_SPECIAL + 10, self.Y_SPECIAL + 30, self.W_SPECIAL - 20, self.H_SPECIAL - 40, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+index a2a38fc99..9fc16842a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaImprovement.py
+@@ -87,7 +87,7 @@ class SevoPediaImprovement:
+ 
+ 		self.X_IMPROVEMENT_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_IMPROVEMENT_PANE = self.top.Y_PEDIA_PAGE
+-		self.H_REQUIRES = 110
++		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.H_IMPROVEMENT_PANE = (2 * self.H_REQUIRES) + self.SMALL_MARGIN
+ 		self.W_IMPROVEMENT_PANE = self.H_IMPROVEMENT_PANE
+ 
+@@ -115,9 +115,9 @@ class SevoPediaImprovement:
+ 		leftAreaRight = self.X_MOST_YIELDS - self.MEDIUM_MARGIN
+ 		self.W_LEFT_AREA = leftAreaRight - self.X_IMPROVEMENT_PANE
+ 
+-		self.W_BUILD_PANEL = 84
++		self.W_BUILD_PANEL = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_BUILD_PANEL = self.H_REQUIRES
+-		self.W_REQUIRES = 84
++		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_BUILD_PANEL = self.X_IMPROVEMENT_PANE + self.W_IMPROVEMENT_PANE + self.MEDIUM_MARGIN
+ 		self.Y_BUILD_PANEL = self.Y_IMPROVEMENT_PANE
+@@ -138,26 +138,21 @@ class SevoPediaImprovement:
+ 		if availableAfterTerrain < 0:
+ 			availableAfterTerrain = 0
+ 
+-		preferredAnim = min(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK)
+-		minSidePanelW = 180
+-		if availableAfterTerrain - self.MEDIUM_MARGIN - preferredAnim < minSidePanelW:
+-			preferredAnim = max(140, availableAfterTerrain - self.MEDIUM_MARGIN - minSidePanelW)
+-		if preferredAnim < 120:
+-			preferredAnim = min(availableAfterTerrain, self.H_TOP_RIGHT_STACK)
+-
+-		self.W_IMPROVEMENT_ANIMATION = min(preferredAnim, availableAfterTerrain)
+-		self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
+-		self.X_IMPROVEMENT_ANIMATION = leftAreaRight - self.W_IMPROVEMENT_ANIMATION
++		self.W_TERRAIN_MAKES_VALIDS = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++		self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
++		self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + self.MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENT_ANIMATION = self.Y_IMPROVEMENT_PANE
+-
+-		self.W_TERRAIN_MAKES_VALIDS = self.X_IMPROVEMENT_ANIMATION - self.MEDIUM_MARGIN - self.X_TERRAIN_MAKES_VALIDS
+-		if self.W_TERRAIN_MAKES_VALIDS < 120:
+-			self.W_TERRAIN_MAKES_VALIDS = 120
++		self.W_IMPROVEMENT_ANIMATION = leftAreaRight - self.X_IMPROVEMENT_ANIMATION
++		if self.W_IMPROVEMENT_ANIMATION < 120:
++			self.W_IMPROVEMENT_ANIMATION = 120
++			maxTerrainValidsW = leftAreaRight - self.MEDIUM_MARGIN - self.X_TERRAIN_MAKES_VALIDS - self.W_IMPROVEMENT_ANIMATION
++			if maxTerrainValidsW < 120:
++				maxTerrainValidsW = 120
++			self.W_TERRAIN_MAKES_VALIDS = min(self.W_TERRAIN_MAKES_VALIDS, maxTerrainValidsW)
++			self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
+ 			self.X_IMPROVEMENT_ANIMATION = self.X_TERRAIN_MAKES_VALIDS + self.W_TERRAIN_MAKES_VALIDS + self.MEDIUM_MARGIN
+ 			self.W_IMPROVEMENT_ANIMATION = leftAreaRight - self.X_IMPROVEMENT_ANIMATION
+-			self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
+-
+-		self.W_FEATURE_MAKES_VALIDS = self.W_TERRAIN_MAKES_VALIDS
++		self.H_IMPROVEMENT_ANIMATION = self.W_IMPROVEMENT_ANIMATION
+ 
+ 		self.H_TOP_ROW = max(self.H_IMPROVEMENT_PANE, self.H_TOP_RIGHT_STACK, self.H_IMPROVEMENT_ANIMATION)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index b0d715243..7d99016f7 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -20,6 +20,7 @@ from CvPythonExtensions import *
+ import CvUtil
+ import ScreenInput
+ import SevoScreenEnums
++from _sevopedia_helpers import *
+ # <!-- custom: import to display chars before Traits -->
+ import TraitUtil
+ 
+@@ -79,7 +80,7 @@ class SevoPediaLeader:
+ 		self.CIV_MARGIN = 0
+ 		self.CIV_DISELEVATION = 38
+ 		
+-		self.H_FAVORITES = 110
++		self.H_FAVORITES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.N_AI_TABLE_NUM = 3
+ 
+ 		# <!-- custom: 2) (most) relative dimensions or positions then -->
+@@ -100,11 +101,11 @@ class SevoPediaLeader:
+ 		self.W_HISTORY = self.top.R_PEDIA_PAGE - self.W_AI_TOTAL_TABLES_WIDTH - self.X_LEADERHEAD_PANE
+ 		self.H_HISTORY = self.top.B_PEDIA_PAGE - self.Y_HISTORY
+ 
+-		# Music panel (84px, right of Favorites)
+-		self.W_MUSIC = 84
++		# Music panel (helper-computed one-button width, right of Favorites)
++		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		self.X_FAVORITES = self.X_LEADERHEAD_PANE
+-		# Reduce Favorites width to make room for Music panel (84px + margin)
++		# Reduce Favorites width to make room for Music panel (one-button width + margin)
+ 		self.W_FAVORITES = self.W_HISTORY - self.W_CIV - self.W_MUSIC - (2 * self.SMALL_MARGIN)
+ 
+ 		self.X_MUSIC = self.X_FAVORITES + self.W_FAVORITES + self.SMALL_MARGIN
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+index e77e6b2a4..58298ca87 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaProject.py
+@@ -34,11 +34,11 @@ class SevoPediaProject:
+ 		self.iProject = -1
+ 		self.top = main
+ 
+-		self.W_REQUIRES = 200
++		self.W_REQUIRES = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.X_REQUIRES = self.top.R_PEDIA_PAGE - self.W_REQUIRES
+ 		self.Y_REQUIRES = self.top.Y_PEDIA_PAGE
+ 		self.H_REQUIRES = 116
+-		self.W_MOVIE = 84
++		self.W_MOVIE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.X_MOVIE = self.X_REQUIRES - self.W_MOVIE - 10
+ 		self.Y_MOVIE = self.Y_REQUIRES
+ 		self.H_MOVIE = self.H_REQUIRES
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+index f1ecc5e57..eff1f0acc 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaPromotion.py
+@@ -56,7 +56,7 @@ class SevoPediaPromotion:
+ 		self.X_LEADS_TO = self.X_PROMOTION_PANE
+ 		self.Y_LEADS_TO = self.Y_PROMOTION_PANE + self.H_PROMOTION_PANE + self.SMALL_MARGIN
+ 		self.W_LEADS_TO = self.top.R_PEDIA_PAGE - self.X_LEADS_TO
+-		self.H_LEADS_TO = 110
++		self.H_LEADS_TO = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_FREE_PROMOTIONS_UNITS = self.X_PROMOTION_PANE
+ 		self.Y_FREE_PROMOTIONS_UNITS = self.Y_LEADS_TO + self.H_LEADS_TO + self.SMALL_MARGIN
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+index 387c0ce1e..d381efee4 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaReligion.py
+@@ -39,9 +39,8 @@ class SevoPediaReligion:
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 
+-		# <!-- custom: this 287 should be accurate according to my measurements for a 4 leaders panel but the screen.appendMultiListButton uses seemingly a smaller button spacing, so we have now due to saved reduced spacing a bit extra space on the right margin as compared to left margin, making it asymetrical and less pretty. To solve this, reducing the width, while keeping in mind the correct value should be 287 for 4 leaders per row total width including margins -->
+-		#self.W_LEADERS = 287
+-		self.W_LEADERS = 282
++		# <!-- custom: multilist leaders panel width from helper so callers can switch button count per row without redoing panel math. (GPT-5.3-Codex) -->
++		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+ 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
+ 		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
+ 		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+@@ -69,10 +68,10 @@ class SevoPediaReligion:
+ 		self.X_BUILDINGS = self.X_RELIGION_PANE + self.W_RELIGION_PANE + self.MEDIUM_MARGIN
+ 		self.Y_BUILDINGS = self.Y_RELIGION_PANE
+ 		self.W_BUILDINGS = self.W_LEFT_COLUMN - 84 - self.MEDIUM_MARGIN
+-		self.H_BUILDINGS = 110
++		self.H_BUILDINGS = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+-		self.W_REQUIRES = 84
+-		self.W_MOVIE = 84
++		self.W_REQUIRES = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++		self.W_MOVIE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+ 
+ 		self.X_UNITS = self.X_BUILDINGS
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+index f04826780..712de01b1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTech.py
+@@ -177,7 +177,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 
+ 		# <!-- custom: SevopediaTech layout rework (starting-tech stats tables)
+ 		# Row 1: Tech Pane (left) | Requires | Leads To
+-		# Row 2: First to D (84px) | Obsoletes (wide) | Music (84px)
++		# Row 2: First to D (one-button) | Obsoletes (wide) | Music (one-button)
+ 		# Row 3: Enables (full width)
+ 		# Row 4: Starting tech statistics (two tables: techs + combinations)
+ 		# Row 5: Special Abilities | Background
+@@ -202,7 +202,7 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		self.Y_LEADS_TO = self.Y_TECH_PANE
+ 		self.H_LEADS_TO = self.H_TECH_PANE
+ 
+-		self.W_LEADS_TO = 300
++		self.W_LEADS_TO = get_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.X_LEADS_TO = self.top.R_PEDIA_PAGE - self.W_LEADS_TO
+ 		self.X_REQUIRES = self.X_TECH_PANE + self.W_TECH_PANE + self.MEDIUM_MARGIN
+ 		self.W_REQUIRES = self.X_LEADS_TO - self.MEDIUM_MARGIN - self.X_REQUIRES
+@@ -211,21 +211,21 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 			self.W_REQUIRES = 50
+ 
+ 		# Row 2: First to D | Tradeable | Obsoletes | Music
+-		self.H_ROW = 110
++		self.H_ROW = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 		self.Y_FIRST_TO_DISCOVER = self.Y_TECH_PANE + self.H_TECH_PANE + self.SMALL_MARGIN
+ 		self.X_FIRST_TO_DISCOVER = self.X_TECH_PANE
+ 
+-		self.W_FIRST_TO_DISCOVER = 84
++		self.W_FIRST_TO_DISCOVER = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_FIRST_TO_DISCOVER = self.H_ROW
+ 
+ 		# <!-- custom: Tradeable panel showing if tech can be traded (Claude Opus 4.5) -->
+ 		self.X_TRADEABLE = self.X_FIRST_TO_DISCOVER + self.W_FIRST_TO_DISCOVER + self.MEDIUM_MARGIN
+ 		self.Y_TRADEABLE = self.Y_FIRST_TO_DISCOVER
+-		self.W_TRADEABLE = 84
++		self.W_TRADEABLE = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_TRADEABLE = self.H_ROW
+ 
+ 		self.Y_MUSIC = self.Y_FIRST_TO_DISCOVER
+-		self.W_MUSIC = 84
++		self.W_MUSIC = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 		self.H_MUSIC = self.H_ROW
+ 		self.X_MUSIC = self.top.R_PEDIA_PAGE - self.W_MUSIC
+ 		self.playButtonPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_PLAY_BUTTON").getPath()
+@@ -1145,7 +1145,6 @@ class SevoPediaTech(CvPediaScreen.CvPediaScreen):
+ 		listName = self.top.getNextWidgetName()
+ 
+ 		szSpecialText = CyGameTextMgr().getTechHelp(self.iTech, True, False, False, False, -1)[1:]
+-
+ 		screen.addMultilineText(listName, szSpecialText, self.X_SPECIAL + 5, self.Y_SPECIAL + 30, self.W_SPECIAL - 3, self.H_SPECIAL - 35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 6d8735d4b..8bdf08463 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -25,9 +25,11 @@ class SevoPediaTerrain:
+ 		self.MEDIUM_MARGIN = 15
+ 		self.SMALL_MARGIN = self.MEDIUM_MARGIN - 5
+ 
++		self.W_LEFT_COLUMN = get_panel_width_for_buttons(5, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++
+ 		self.X_INFO_PANE = self.top.X_PEDIA_PAGE
+ 		self.Y_INFO_PANE = self.top.Y_PEDIA_PAGE
+-		self.W_INFO_PANE = 330
++		self.W_INFO_PANE = self.W_LEFT_COLUMN
+ 		self.H_INFO_PANE = 120
+ 
+ 		self.W_ICON = 100
+@@ -48,8 +50,8 @@ class SevoPediaTerrain:
+ 
+ 		self.X_FEATURES = self.X_INFO_PANE
+ 		self.Y_FEATURES = self.Y_INFO_PANE + self.H_INFO_PANE + self.SMALL_MARGIN
+-		self.W_FEATURES = self.W_INFO_PANE
+-		self.H_FEATURES = 110
++		self.W_FEATURES = self.W_LEFT_COLUMN
++		self.H_FEATURES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_IMPROVEMENTS = self.X_FEATURES + self.W_FEATURES + self.MEDIUM_MARGIN
+ 		self.Y_IMPROVEMENTS = self.Y_FEATURES
+@@ -81,7 +83,7 @@ class SevoPediaTerrain:
+ 
+ 		self.X_SPECIAL = self.X_INFO_PANE
+ 		self.Y_SPECIAL = self.Y_UNITS_IMPASSABLE + self.H_UNITS_IMPASSABLE + self.SMALL_MARGIN
+-		self.W_SPECIAL = self.W_INFO_PANE
++		self.W_SPECIAL = self.W_LEFT_COLUMN
+ 		self.H_SPECIAL = self.top.B_PEDIA_PAGE - self.Y_SPECIAL
+ 
+ 		self.X_HISTORY = self.X_SPECIAL + self.W_SPECIAL + self.MEDIUM_MARGIN
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index aeb873299..fcc88e142 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -130,7 +130,7 @@ class SevoPediaTrait:
+ 		self.BOTTOM_PANELS_H = 296
+ 
+ 		# Leaders panel - right side, full height
+-		self.W_LEADERS = 282
++		self.W_LEADERS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
+ 		self.X_LEADERS = self.top.R_PEDIA_PAGE - self.W_LEADERS
+ 		self.Y_LEADERS = self.top.Y_PEDIA_PAGE
+ 		self.H_LEADERS = self.top.B_PEDIA_PAGE - self.Y_LEADERS
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 38dd6511f..a1f3cd2af 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -92,14 +92,14 @@ class SevoPediaUnit:
+ 		# Row 3-4: Of Other Units panel (full width, 2 rows height)
+ 		# Row 5: Special | History -->
+ 
+-		self.H_REQUIRES = 110
++		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		# Narrow panels width (same as SevoPediaBuilding's obsolete panel)
+-		self.W_OBSOLETE_WITH = 84
+-		self.W_CIVILIZATIONS = 84
++		self.W_OBSOLETE_WITH = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
++		self.W_CIVILIZATIONS = get_panel_width_for_buttons(1, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+-		# Small panels width - fits ~2 buttons with scroll if more (64px per button + padding)
+-		self.W_SMALL_PANEL = 150
++		# Small panels width - fits 2 buttons with standard panel spacing.
++		self.W_SMALL_PANEL = get_panel_width_for_buttons(2, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING, HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING)
+ 
+ 		# Row 1 left half: Requires | Obsolete With | Free Promotions
+ 		self.W_FREE_PROMOTIONS = self.W_SMALL_PANEL
+@@ -108,7 +108,7 @@ class SevoPediaUnit:
+ 		self.X_REQUIRES = self.X_UNIT_PANE
+ 		self.Y_REQUIRES = self.Y_UNIT_PANE + self.H_UNIT_PANE + self.SMALL_MARGIN
+ 		self.W_REQUIRES = self.W_TOTAL_EFFECTIVE_UNIT_PANE - self.MEDIUM_MARGIN - self.W_OBSOLETE_WITH - self.MEDIUM_MARGIN - self.W_FREE_PROMOTIONS
+-		self.H_REQUIRES = 110
++		self.H_REQUIRES = NON_MULTILIST_PANEL_STANDARD_HEIGHT
+ 
+ 		self.X_OBSOLETE_WITH = self.X_REQUIRES + self.W_REQUIRES + self.MEDIUM_MARGIN
+ 		self.Y_OBSOLETE_WITH = self.Y_REQUIRES
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+index de051ed02..a90163105 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_helpers.py
+@@ -17,10 +17,23 @@ localText = CyTranslator()
+ 
+ 
+ 
+-#
+ # <!-- custom: constants useful for numTxt under button placement in a grid-like manner, i got the idea to move them here rather to enhance reuse and remove redundance thanks to chatgpt general comment about them hehe thanks thanks chatgpt etc and me toot thanks; note: these are for non-multilist panels, commented-out if we don't need them but kept for reference still if may serve someday-->
+ #HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING = 9
+ #HYPOTHESIZED_INTER_BUTTON_SPACING = 4
++# <!-- custom: "non-multilist panel" means simple horizontal panels where we place buttons directly
++# with attachImageButton/setImageButtonAt and compute width manually.
++# This is distinct from multilist panels (addMultiListControlGFC), which use their own layout
++# constants below (HYPOTHESIZED_MULTI_LIST_*). Keep these constant families separate. (GPT-5.3-Codex) -->
++# <!-- custom: edge padding is inferred from the classic 84px mini-panel that fits one 64px button:
++# 84 - 64 = 20 total horizontal slack, so 10px per side. This keeps computed panel widths aligned
++# with existing Sevopedia panel/button visuals. (GPT-5.3-Codex) -->
++HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING = 10
++HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING = 4
++# <!-- custom: shared standard height for Sevopedia single-row non-multilist panels. (GPT-5.3-Codex) -->
++NON_MULTILIST_PANEL_STANDARD_HEIGHT = 110
++# <!-- custom: backward-compatibility aliases for existing callers; prefer NON_MULTILIST names in new code. (GPT-5.3-Codex) -->
++HYPOTHESIZED_NORMAL_PANEL_EDGE_PADDING = HYPOTHESIZED_NON_MULTILIST_PANEL_EDGE_PADDING
++HYPOTHESIZED_NORMAL_PANEL_INTER_BUTTON_SPACING = HYPOTHESIZED_NON_MULTILIST_PANEL_INTER_BUTTON_SPACING
+ 
+ 
+ 
+@@ -30,12 +43,20 @@ MULTI_LIST_PANEL_OFFSET_X = 9
+ MULTI_LIST_PANEL_OFFSET_Y = 36
+ MULTI_LIST_PANEL_ADDITIONAL_W = -1 * (MULTI_LIST_PANEL_OFFSET_X * 2)
+ MULTI_LIST_PANEL_ADDITIONAL_H = -1 * (MULTI_LIST_PANEL_OFFSET_Y)
+-# <!-- custom: note: no HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING equivalent for multilists as this value is the same as PANEL_MULTILIST_OFFSET_X so using the real value rather; so we use instead PANEL_MULTILIST_OFFSET_X directly for example in get_multilist_max_buttons_per_row. -->
+-HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = 9
+-# <!-- custom: it seems the multilist method uses a smaller inter button lateral spacing than the non multilist one, so adjust as fit -->
++# <!-- custom: trial symmetric multilist side insets (10/10), keeping inter-spacing at 2.
++# This keeps 4-button leader width at 282 and lets us verify if numTxt alignment remains stable. (GPT-5.3-Codex) -->
++HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING = 10
++HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING = 10
++# <!-- custom: backward-compat alias for existing placement code; maps to left edge padding. (GPT-5.3-Codex) -->
++HYPOTHESIZED_MULTI_LIST_EDGE_PADDING = HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING
++# <!-- custom: inter-button spacing in multilist math (also used by numTxt placement).
++# Verified by visual test: setting this to 3 made numTxt labels drift; 2 keeps labels aligned. (GPT-5.3-Codex) -->
+ HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING = 2
+ # <!-- custom: note: below line not yet tested. -->
+ HYPOTHESIZED_MULTI_LIST_INTER_LINE_VERTICAL_SPACING = 4
++# <!-- custom: global numTxt horizontal nudge for multilist labels. With symmetric 10/10 side insets,
++# shifting labels 1px left visually re-centers most numTxt strings under buttons. (GPT-5.3-Codex) -->
++MULTILIST_NUMTXT_GLOBAL_X_ADJUST = -1
+ # <!-- custom: when displaying only one row, adjust height to hide the 2nd row's buttons so it is prettier/clearer to read -->
+ HIDE_SECOND_ROW_MULTI_LIST = - 4
+ # Per documentation, the numLists parameter (7th) is actually number of columns
+@@ -47,6 +68,31 @@ SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO = 0
+ 
+ 
+ 
++def get_multilist_panel_width_for_buttons(iNumButtons, iButtonSize, iLeftEdgePadding, iRightEdgePadding, iInterButtonSpacing):
++	# <!-- custom: width formula for a horizontal multilist panel:
++	# width = (n * buttonSize) + leftEdgePadding + rightEdgePadding + ((n - 1) * interSpacing)
++	# Example: n=4, button=64, left=10, right=10, spacing=2 => 256 + 20 + 6 = 282 px. (GPT-5.3-Codex) -->
++	if iNumButtons <= 0:
++		raise ValueError("get_multilist_panel_width_for_buttons requires iNumButtons > 0, got %d" % iNumButtons)
++	return (iNumButtons * iButtonSize) + iLeftEdgePadding + iRightEdgePadding + ((iNumButtons - 1) * iInterButtonSpacing)
++
++
++# <!-- custom: shared multilist width used by leader panels in Civic/Religion/Trait.
++# Kept as a compatibility constant; prefer get_multilist_panel_width_for_buttons in callers for easy n-button tuning. (GPT-5.3-Codex) -->
++MULTILIST_PANEL_WIDTH_4_BUTTONS = get_multilist_panel_width_for_buttons(4, MULTILIST_BUTTON_SIZE, HYPOTHESIZED_MULTI_LIST_LEFT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_RIGHT_EDGE_PADDING, HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
++
++
++def get_panel_width_for_buttons(iNumButtons, iButtonSize, iEdgePadding, iInterButtonSpacing):
++	# <!-- custom: width formula for a horizontal single-row button panel:
++	# width = (n * buttonSize) + (2 * edgePadding) + ((n - 1) * interSpacing)
++	# Example 1: n=1, button=64, edge=10, spacing=4 => 64 + 20 + 0 = 84 px.
++	# Example 2: n=4, button=64, edge=10, spacing=4 => 256 + 20 + 12 = 288 px. (GPT-5.3-Codex) -->
++	if iNumButtons <= 0:
++		raise ValueError("get_panel_width_for_buttons requires iNumButtons > 0, got %d" % iNumButtons)
++	return (iNumButtons * iButtonSize) + (2 * iEdgePadding) + ((iNumButtons - 1) * iInterButtonSpacing)
++
++
++
+ # <!-- custom: Shared exclusion list for Sevopedia Leader and Trait pages.
+ # LEADER_BARBARIAN is excluded because it's not a playable/selectable leader.
+ # LEADER_DEFAULTS is not listed because it has no index (it's an XML template). (Claude Opus 4.5) -->
+@@ -131,10 +177,12 @@ def get_leader_indexes_from_leader_types(leader_types):
+ 	return tuple(result)
+ 
+ 
++
+ def get_excluded_leader_indexes(leader_types):
+ 	return get_leader_indexes_from_leader_types(leader_types)
+ 
+ 
++
+ def get_real_leader_maps_and_count(excluded_leader_types):
+ 	# Returns (leaderIds, leaderToCiv, numRealLeaders).
+ 	excluded_leader_indexes = set(get_leader_indexes_from_leader_types(excluded_leader_types))
+@@ -159,6 +207,7 @@ def get_real_leader_maps_and_count(excluded_leader_types):
+ 	return leader_ids, leader_to_civ, num_real_leaders
+ 
+ 
++
+ # <!-- custom: Build leaders header text with X/Y (Z%) (example "Leaders 12/53 (22%)") for any Sevopedia panel. (GPT-5.2-Codex (summarized)) -->
+ def format_leaders_header_text(num_with, total, headerLabel):
+ 	percent = 0
+@@ -172,6 +221,7 @@ def format_leaders_header_text(num_with, total, headerLabel):
+ 	)
+ 
+ 
++
+ # <!-- custom: Count leaders whose favorite type matches iFavoriteId; favoriteType is "RELIGION" or "CIVIC". (GPT-5.2-Codex) -->
+ def get_favorite_leader_counts(favoriteType, iFavoriteId, excluded_leader_types):
+ 	leader_ids, unused_leader_to_civ, total_real_leaders = get_real_leader_maps_and_count(excluded_leader_types)
+@@ -219,6 +269,17 @@ def check_icon_size_fits_within_icon_frame_size(icon_size, icon_frame_size):
+ 		raise ValueError(u"[FATAL] icon_size=%d cannot be bigger/higher than icon_frame_size=%d, icon_size must fit within the frame, please adjust icon_size or icon_frame_size so that 0 < icon_size < icon_frame_size" % (icon_size, icon_frame_size))
+ 
+ 
++
++def get_feature_production_modifier_techs():
++	techModifiers = []
++	for iTech in xrange(gc.getNumTechInfos()):
++		iModifier = gc.getTechInfo(iTech).getFeatureProductionModifier()
++		if iModifier != 0:
++			techModifiers.append((iTech, iModifier))
++	return techModifiers
++
++
++
+ # <!-- custom: added with the help of chatgpt 5.2 thanks to help separate Land features in sevopedia into as of now Land (Removable) and Land (Other) -->
+ # A feature is "removable" if there exists a Build that removes it (e.g. Chop Forest, Clear Jungle, Remove Fallout).
+ # We do this via CvBuildInfo because CvFeatureInfo in our DLL does not expose getRemoveTech().
+@@ -325,7 +386,6 @@ def get_extra_correction_x_inbetween_buttons(button_size):
+ 
+ 
+ 
+-
+ def get_multilist_max_buttons_per_row(panelWidth, buttonsize):
+ 	totalButtonWidth = buttonsize + HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING
+ 
+@@ -342,7 +402,7 @@ def add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX,
+ 	startAtMiddleOfButtonCorrectionX = +1 * (int(button_size / 2))
+ 
+ 	# <!-- custom: note: in this code, it seems we are still slightly off vs an ideally centered label, i don't know what the exact cause is, but maybe we can use this as a parameter to control more precisely label positioning based on/depending on numTxt and such as we prefer (center more or less aggressively depending on whether numTxt is expected to be long (like "+25/+100" for example) vs short (for example"+25%") in trying it as such, so we add a tiny bit of in this case extra x correction (extraCorrectionX) etc -->
+-	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING)
++	textX = multiListX + HYPOTHESIZED_MULTI_LIST_EDGE_PADDING + startAtMiddleOfButtonCorrectionX + extraCorrectionX + ((buttonColumn - 1) * button_size) + ((buttonColumn - 1) * HYPOTHESIZED_MULTI_LIST_INTER_BUTTON_SPACING) + MULTILIST_NUMTXT_GLOBAL_X_ADJUST
+ 
+ 	# <!-- custom: similarly to extraCorrectionX, we are slightly off for some reason here so adjust Y position of the numTxt multine text, but since this is the same for all buttons unlike in extraCorrectionX (i.e. regardless of numTxt length), then it is fine i think to hardcode it here for convenience and efficiency at least i want to do so hopefully convenient or helpful or not or yes or etc to do so -->
+ 	extraCorrectionY = -9
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 5f1d4d03c..0623e200e 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -2293,6 +2293,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_PEDIA_BUILD_REMOVE_PRODUCTION</Tag>
+ 		<English>on remove</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_SAS_FEATURE_PRODUCTION_PANEL</Tag>
++		<English>iFeatureProduction</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_BUILD</Tag>
+ 		<English>Build</English>
+@@ -2909,6 +2913,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_UNIT_MAY_GRANT_UNITS_ON_CAPTURE</Tag>
+ 		<English>May grant unit(s) on capture</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_UNIT_BUILD_SPEED_MODIFIERS</Tag>
++		<English>Build speed modifiers</English>
++	</TEXT>
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 62e0ed4af..ed8b87d70 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9980,6 +9980,77 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
+ 	}
+ 
+ 	setBasicUnitHelp(szBuffer, eUnit, bCivilopediaText);
++	// <!-- custom: in unit Civilopedia text only, list all build-speed modifiers that can affect this builder-capable unit (from techs, civics, and buildings) as one concise comma-separated bullet, with %+d%% shown before each source link for quick scanning. (GPT-5.3-Codex) -->
++	if (bCivilopediaText && u.getWorkRate() > 0)
++	{
++		bool bCanBuild = false;
++		FOR_EACH_ENUM(Build)
++		{
++			if (u.getBuilds(eLoopBuild))
++			{
++				bCanBuild = true;
++				break;
++			}
++		}
++		if (bCanBuild)
++		{
++			CvWString szModifierList;
++			bool bFirstModifier = true;
++			FOR_EACH_ENUM(Tech)
++			{
++				int const iModifier = GC.getInfo(eLoopTech).getWorkerSpeedModifier();
++				if (iModifier != 0)
++				{
++					if (!bFirstModifier)
++						szModifierList.append(L", ");
++					CvWString szTechEntry = CvWString::format(
++							L"%+d%% %s <link=literal>%s</link>",
++							iModifier, gDLL->getText("TXT_KEY_WITH").GetCString(),
++							GC.getInfo(eLoopTech).getDescription());
++					szModifierList.append(szTechEntry);
++					bFirstModifier = false;
++				}
++			}
++			FOR_EACH_ENUM(Civic)
++			{
++				int const iModifier = GC.getInfo(eLoopCivic).getWorkerSpeedModifier();
++				if (iModifier != 0)
++				{
++					if (!bFirstModifier)
++						szModifierList.append(L", ");
++					CvWString szCivicEntry = CvWString::format(
++							L"%+d%% %s <link=literal>%s</link>",
++							iModifier, gDLL->getText("TXT_KEY_WITH").GetCString(),
++							GC.getInfo(eLoopCivic).getDescription());
++					szModifierList.append(szCivicEntry);
++					bFirstModifier = false;
++				}
++			}
++			FOR_EACH_ENUM(Building)
++			{
++				int const iModifier = GC.getInfo(eLoopBuilding).getWorkerSpeedModifier();
++				if (iModifier != 0)
++				{
++					if (!bFirstModifier)
++						szModifierList.append(L", ");
++					CvWString szBuildingEntry = CvWString::format(
++							L"%+d%% %s <link=literal>%s</link>",
++							iModifier, gDLL->getText("TXT_KEY_WITH").GetCString(),
++							GC.getInfo(eLoopBuilding).getDescription());
++					szModifierList.append(szBuildingEntry);
++					bFirstModifier = false;
++				}
++			}
++			if (!bFirstModifier)
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(CvWString::format(L"%c%s: %s",
++						gDLL->getSymbolID(BULLET_CHAR),
++						gDLL->getText("TXT_KEY_PEDIA_UNIT_BUILD_SPEED_MODIFIERS").GetCString(),
++						szModifierList.GetCString()));
++			}
++		}
++	}
+ 	// advc.004g: Swapped so that BasicUnitHelp is printed before InstanceCostModifier
+ 	if (kUnitClass.getInstanceCostModifier() != 0)
+ 	{
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index 458a00f85..b5653928b 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -18,7 +18,7 @@ from SAS_WorldSizes import *
+ gc = CyGlobalContext()
+ 
+ def getDescription():
+-	return "A map script that generates a single landmass filled with lots of freshwater and saltwater lakes, and a few extra rivers. Uploaded on CFC by SevenSpirits. In AdvCiv-SAS, we observed that unlike Lakes.py, this script really produces many lakes; we further adapted it for larger SAS world sizes and tighter grid sizing to reduce overly wide city spacing."
++	return "Generates a single landmass filled with lots of freshwater and saltwater lakes, and a few extra rivers. Uploaded on CFC by SevenSpirits. In AdvCiv-SAS, we observed that unlike Lakes.py, this script really produces many lakes; we further adapted it for larger SAS world sizes and tighter grid sizing to reduce overly wide city spacing."
+ 
+ def isAdvancedMap():
+ 	"This map should show up in simple mode"
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 93f9df16b..9b26b24f3 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -125,6 +125,8 @@ It uses the new `WIDGET_PYTHON` approach and as of now does not require a DLL co
+ 
+ It features info in a beautified way, partly based on the Sevopedia Feature's approach. See [example 3: features category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-3-features-category).
+ 
++Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
++
+ <img src="../Images/sevopedia/0.721_sevopedia_builds (1).JPG" alt="0.721_sevopedia_builds (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.721_sevopedia_builds (2).JPG" alt="0.721_sevopedia_builds (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.721_sevopedia_builds (3).JPG" alt="0.721_sevopedia_builds (3).JPG" width="250"></img>
+@@ -319,6 +321,8 @@ Also added Land/Water grouping similarly than for Sevopedia terrain entries, and
+ 
+ Since then, also added a new Remove as well as a new Units (Remove) panel with the help of GPT-5.2-Codex thanks a lot.
+ 
++Then added iFeatureproduction panel with the help of GPT-5.3-Codex thanks.
++
+ <img src="../Images/sevopedia/0.640_sevopedia_features (1).JPG" alt="0.640_sevopedia_features (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.640_sevopedia_features (2).JPG" alt="0.640_sevopedia_features (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.640_sevopedia_features (3).JPG" alt="0.640_sevopedia_features (3).JPG" width="250"></img>
+@@ -405,6 +409,8 @@ More recently, i also fixed based advciv issue of obsoletes spanning vertically
+ 
+ Then, i added a new Obsolete With panel similarly to how was done in Sevopedia building, with the help of Claude code Opus 4.5 and GPT-5.2-Codex thanks a lot!
+ 
++Then added worker speed modifiers bullet with the help of GPT-5.3-Codex thanks.
++
+ <img src="../Images/sevopedia/0.680_sevopedia_units (1).JPG" alt="0.680_sevopedia_units (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (2).JPG" alt="0.680_sevopedia_units (2).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.680_sevopedia_units (3).JPG" alt="0.680_sevopedia_units (3).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG
+index 4a45e7e5f..714ec4325 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (11).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=22 omittedFiles=1 embeddedPatchBytes=53497

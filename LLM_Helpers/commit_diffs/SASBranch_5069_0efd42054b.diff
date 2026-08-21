@@ -1,0 +1,423 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5069
+# Commit: 0efd42054b8f437ae816a58149981dccf87d4a30
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fc4b91a31f5d27a6485480f3ba81479d06ae5625
+# Title: (Much nicer) Bonus specific builds logic is now fully customizable in sas defines, and refactor/enhance code anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+277	0	Assets/XML/GlobalDefines_advciv_sas.xml
+22	40	CvGameCoreDLL/CvUnitAI.cpp
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a82c58743..f57a7e708 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -4,6 +4,7 @@
+ <!-- custom: note: using the prefix is a bit cringe xd if i may say but anyways etc but at same time cool and does some publicity if i may say but anyways etc, but most importantly it gives us freedom while being compact but anyways etc to name freely our tunables without risking overriding existing ones and having to check them, as recommended by chatgpt 5 (i had considered it at first then thought meh xd if i may say but anyways etc but now think it makes sense in this case i mean but anyways etc), check if accurate, anyways etc -->
+ <!-- custom: note 2: if you modify them while the game is running, you need to restart the game so that it is taken into account according to chatgpt 5 (i also think from experience it does as such if i may say but anyways etc) but check to be sure if in doubt anyways etc -->
+ <!-- custom: note 3: filename needs to be hardcoded in the DLL it seems in CvXMLLoadUtilitySet.cpp which i already did (so no need to change anything if you just want to use this file to tweak SAS settings anyways etc) for current filename GlobalDefines_advciv_sas.xml, but if you want to change this file's name or/and add other global define files, make sure they are added there as well if i am not mistaken and chatgpt 5 confirms it, or it won't load as it didn't seem to (load anyways etc) before i added the filename there (but no change needed if you just want to use the file with this filename to tweak settings, it's only info for modding/modders anyways etc), check to be sure anyways etc -->
++<!-- custom: note 4: consider using VS Code or such other IDE or text editor that has "word wrap" or similar so that you can read long lines in this file without scrolling horizontally for a long while anyways etc -->
+ 
+ 
+ 
+@@ -864,4 +865,280 @@
+ 
+ 
+ 
++	<!-- custom: customize (no pun but anyways etc) civ4 bonus-specific worker builds here, to tell the AI which build is the best for a bonus: e.g. for BONUS_BANANA (as per xml) BUILD_PLANATATION is the best build (we can build a cottage or farm or etc but not best), or for BONUS_WHEAT (as per xml) BUILD_FARM is the best (we can build a cottage or workshop or whatever but not the best anyways etc): note: hit bonuses not included since we don't use them for worker builds, and they are disabled as of now in advciv-sas anyway, so this numbering follows xml order but doesn't necessarily attempt nor does it respect bonus info exact numbering, although it happens to do so for convenience and need in this case i mean if i may say but anyways etc -->
++	<!-- custom: set this value to match total number of bonus specific builds you have, so that you can add or remove as many as you want directly via xml without needing to recompile (the bonus specific bonus->build array does not know the total number and uses this to know last entry, so you can for example add a 30th entry of say (imaginary) BONUS_30 with corresponding BUILD_30, just remember to also change the total here anyways etc). Works similarly for remove as well anyways etc -->
++	<!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
++	<!-- custom: note: not perfect to have these as defines instead of say xml fields per bonus, but at least they are sort of customizable this way for no performance cost since this is intialized only once if i'm not mistaken. Check if accurate anyways etc -->
++	<!-- custom: note 2: the total is n + 1 than the last id, as we start from 0 (so as of now for example from 0th to 28th pair, total is 28 + 1 = 29 total entries anyways etc) -->
++	<!-- If you ever add a new land bonus, just append _29, bump the total to 30, done. -->
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS</DefineName>
++		<iDefineIntVal>29</iDefineIntVal>
++	</Define>
++
++
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_0</DefineName>
++		<DefineTextVal>BONUS_ALUMINUM</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_0</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_1</DefineName>
++		<DefineTextVal>BONUS_COAL</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_1</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_2</DefineName>
++		<DefineTextVal>BONUS_COPPER</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_2</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_3</DefineName>
++		<DefineTextVal>BONUS_HORSE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_3</DefineName>
++		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_4</DefineName>
++		<DefineTextVal>BONUS_IRON</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_4</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_5</DefineName>
++		<DefineTextVal>BONUS_MARBLE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_5</DefineName>
++		<DefineTextVal>BUILD_QUARRY</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_6</DefineName>
++		<DefineTextVal>BONUS_OIL</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_6</DefineName>
++		<DefineTextVal>BUILD_WELL</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_7</DefineName>
++		<DefineTextVal>BONUS_STONE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_7</DefineName>
++		<DefineTextVal>BUILD_QUARRY</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_8</DefineName>
++		<DefineTextVal>BONUS_URANIUM</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_8</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_9</DefineName>
++		<DefineTextVal>BONUS_BANANA</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_9</DefineName>
++		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_10</DefineName>
++		<DefineTextVal>BONUS_MAIZE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_10</DefineName>
++		<DefineTextVal>BUILD_FARM</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_11</DefineName>
++		<DefineTextVal>BONUS_CATTLE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_11</DefineName>
++		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_12</DefineName>
++		<DefineTextVal>BONUS_DEER</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_12</DefineName>
++		<DefineTextVal>BUILD_CAMP</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_13</DefineName>
++		<DefineTextVal>BONUS_PIG</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_13</DefineName>
++		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_14</DefineName>
++		<DefineTextVal>BONUS_RICE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_14</DefineName>
++		<DefineTextVal>BUILD_FARM</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_15</DefineName>
++		<DefineTextVal>BONUS_SHEEP</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_15</DefineName>
++		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_16</DefineName>
++		<DefineTextVal>BONUS_WHEAT</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_16</DefineName>
++		<DefineTextVal>BUILD_FARM</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_17</DefineName>
++		<DefineTextVal>BONUS_DYE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_17</DefineName>
++		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_18</DefineName>
++		<DefineTextVal>BONUS_FUR</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_18</DefineName>
++		<DefineTextVal>BUILD_CAMP</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_19</DefineName>
++		<DefineTextVal>BONUS_GEMSTONES</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_19</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_20</DefineName>
++		<DefineTextVal>BONUS_GOLD</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_20</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_21</DefineName>
++		<DefineTextVal>BONUS_INCENSE</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_21</DefineName>
++		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_22</DefineName>
++		<DefineTextVal>BONUS_ELEPHANTS</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_22</DefineName>
++		<DefineTextVal>BUILD_CAMP</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_23</DefineName>
++		<DefineTextVal>BONUS_SILK</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_23</DefineName>
++		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_24</DefineName>
++		<DefineTextVal>BONUS_SILVER</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_24</DefineName>
++		<DefineTextVal>BUILD_MINE</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_25</DefineName>
++		<DefineTextVal>BONUS_SPICES</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_25</DefineName>
++		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_26</DefineName>
++		<DefineTextVal>BONUS_SUGAR</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_26</DefineName>
++		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_27</DefineName>
++		<DefineTextVal>BONUS_GRAPES</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_27</DefineName>
++		<DefineTextVal>BUILD_PLANTATION</DefineTextVal>
++	</Define>
++
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_28</DefineName>
++		<DefineTextVal>BONUS_CAMEL</DefineTextVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_28</DefineName>
++		<DefineTextVal>BUILD_PASTURE</DefineTextVal>
++	</Define>
++
++	<!-- // Add other bonus-specific mappings here as needed. -->
++	
+ </Civ4Defines>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 792dc7704..b84552f83 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -832,46 +832,28 @@ std::map<BonusTypes, BuildTypes> const& CvUnitAI::getBonusSpecificLandBuilds()
+     static bool s_inited = false;
+     if (s_inited) return s;
+ 
+-    struct Pair { const char* bonus; const char* build; };
+-    static const Pair kEntries[] = {
+-		// <!-- custom: bonuses as per the XML order for exhaustiveness and reliability and making sure we don't forget any anyways etc, adjust as you see fit anyways etc ; see also https://civilization.fandom.com/wiki/Resource_(Civ4)#Strategic_Resources and such or not or yes or etc anyways etc related categories in this link anyways etc for bonus-specific build/improvement i mean anyways etc -->
+-        {"BONUS_ALUMINUM","BUILD_MINE"},
+-        {"BONUS_COAL","BUILD_MINE"},
+-        {"BONUS_COPPER","BUILD_MINE"},
+-        {"BONUS_HORSE","BUILD_PASTURE"},
+-        {"BONUS_IRON","BUILD_MINE"},
+-        {"BONUS_MARBLE","BUILD_QUARRY"},
+-        {"BONUS_OIL","BUILD_WELL"},
+-        {"BONUS_STONE","BUILD_QUARRY"},
+-        {"BONUS_URANIUM","BUILD_MINE"},
+-        {"BONUS_BANANA","BUILD_PLANTATION"},
+-        {"BONUS_MAIZE","BUILD_FARM"},
+-        {"BONUS_CATTLE","BUILD_PASTURE"},
+-        {"BONUS_DEER","BUILD_CAMP"},
+-        {"BONUS_PIG","BUILD_PASTURE"},
+-        {"BONUS_RICE","BUILD_FARM"},
+-        {"BONUS_SHEEP","BUILD_PASTURE"},
+-        {"BONUS_WHEAT","BUILD_FARM"},
+-        {"BONUS_DYE","BUILD_PLANTATION"},
+-        {"BONUS_FUR","BUILD_CAMP"},
+-        {"BONUS_GEMSTONES","BUILD_MINE"},
+-        {"BONUS_GOLD","BUILD_MINE"},
+-        {"BONUS_INCENSE","BUILD_PLANTATION"},
+-        {"BONUS_ELEPHANTS","BUILD_CAMP"},
+-        {"BONUS_SILK","BUILD_PLANTATION"},
+-        {"BONUS_SILVER","BUILD_MINE"},
+-        {"BONUS_SPICES","BUILD_PLANTATION"},
+-        {"BONUS_SUGAR","BUILD_PLANTATION"},
+-        {"BONUS_GRAPES","BUILD_PLANTATION"},
+-        {"BONUS_CAMEL","BUILD_PASTURE"},
+-		// Add other bonus-specific mappings here as needed.
+-    };
+-
+-    for (size_t i = 0; i < sizeof(kEntries)/sizeof(kEntries[0]); ++i) {
+-        int b  = GC.getInfoTypeForString(kEntries[i].bonus);
+-        int bd = GC.getInfoTypeForString(kEntries[i].build);
+-        if (b != -1 && bd != -1)
+-            s[(BonusTypes)b] = (BuildTypes)bd;
++	// <!-- custom: note: we initialize this once per session so no need to make a static const of this total int define as we use it at every new game loaded during our entire civ4 session if i'm not mistaken but anyways etc -->
++	// <!-- custom: note 2: ideally move this to some utils so we don't need to recheck everytime if it is inited every time (i guess, check if my guess is accurate but anyways etc) -->
++    for (int i = 0; i < GC.getDefineINT("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_TOTAL_BONUS_SPECIFIC_TOTAL_NUMBER_OF_PAIRS"); ++i)
++	{
++		// GC.getDefineSTRING(...) doesn’t do printf-style formatting, and CvString::Format is an instance method that returns void, so you can’t chain it. Build the key first, then call getDefineSTRING.
++		CvString keyBonus;
++		keyBonus.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BONUS_%d", i);
++		CvString keyBuild;
++		keyBuild.Format("SAS_GET_BONUS_SPECIFIC_LAND_BUILDS_BUILD_%d", i);
++
++		// <!-- custom: note: no need to store them as static const lookups as we need them only once at first initalize and then they are not needed anymore if i'm not mistaken but anyways etc; added thanks to chatgpt 5 and my prompts too and/or such, check if accurate anyways etc -->
++		const CvString bonusName = GC.getDefineSTRING(keyBonus);
++		const CvString buildName = GC.getDefineSTRING(keyBuild);
++		if (bonusName.empty() || buildName.empty()) continue;
++
++        const BonusTypes eBonus = (BonusTypes)GC.getInfoTypeForString(bonusName);
++        const BuildTypes eBuild = (BuildTypes)GC.getInfoTypeForString(buildName);
++
++        if ((eBonus != NO_BONUS) && (eBuild != NO_BUILD))
++		{
++            s[eBonus] = eBuild;
++		}
+         // else: silently skip (or IFLOG a warning if you like)
+     }
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 257b2e330..7b014a41c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -162,7 +162,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting `CvUnitAI::AI_bestCityBuild`, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+ - as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+ - Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+-- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and overwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc. Since then updated to now also handle roading choice on not connected but connectable bonuses in BFC with other patches, see update 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc.
++- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and overwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements ((Requires AdvCiv-SAS 5069+) Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)), to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc. Since then updated to now also handle roading choice on not connected but connectable bonuses in BFC with other patches, see update 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc.
+ - (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it). Since then tremendously improved and tweaked in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) which seemingly Beyond Tremendously Improves AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast but anyways etc, as well as being braver in our own cultural borders or/and moving to other cities needing improvements rather than being parked in current city if i am not mistaken but anyways etc and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too if i may say but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details as well anyways etc. Note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. Note 2: AI handicap may have to be reduced as they are so much more efficient now, but i hope at least they are a good and worthwhile and/or fine challenge now and if already then even more, anyways etc, looking forward to other improvements (no pun but anyways etc) i find as well and (/or ?) want to do but anyways etc. Update: since then, also added logic (untested) to move to lowest pop cities the most in `CvUnitAI::AI_nextCityToImprove` with more importance the lower pop they are anyways etc. I didn't have a before/after save file to compare, but hopefully helps too (check/test to be sure, seems to run fine at least and code is simple enough if i'm not mistaken anyways etc) anyways etc.
+ - Tremendously improved and fixed AI worker excessive retreating, causing it in rare cases to have AI workers parked in the city instead of improving other cities badly needing it if i may say but anyways etc, that would stay unimproved still but anyways etc. This is thanks to chatgpt 5's help and the changes include a wake from retreat, don't retreat excessively, and other such changes on top of previous AI worker improvements we had done already, it seems in some cases such as the one i now solved if i'm not mistaken but anyways etc, excessive retreating would still happen. See for details, with screenshots and such other explanations and/or such but anyways etc [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change i mean anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc) anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index d5b7ab9cf..8f9d4d2bb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -150,7 +150,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Always improve **bonuses first**, prioritizing **food** bonuses. Major refactor of `CvUnitAI::AI_bestCityBuild` to use a probabilistic value tree tuned for AdvCiv-SAS. See [KI#30](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc).
+ - One worker per improvement **cap** to avoid over-stacking on slow tiles and reduce capture risk.
+ - Greatly simplified `AI_betterPlotBuild`: hard **de-prioritization of roads/routes** early; build them only when they’re truly the best move. Focus is on **yields first**. See [KI#31](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases).
+-- **Overhaul: `AI_bestCityBuild` (full routine):** “holy” improvements (never overwrite: **hamlet, village, town, workshop**) and “semi-holy” (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the “now” move would be inferior. See [KI#33](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild).
++- **Overhaul: `AI_bestCityBuild` (full routine):** “holy” improvements (never overwrite: **hamlet, village, town, workshop**) and “semi-holy” (contextual: **farms** in food-poor cities, **cottages** in food-rich cities); fast/ordered improvement; **bonus-specific rules** (e.g., don’t cottage bananas; prefer plantation or a farm only if it makes clear sense ((Requires AdvCiv-SAS 5069+) Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))); **terrain-aware cottage/farm logic** (flood plains favored for cottages unless the city is food-poor); **minimal oscillation**; prefer steady growth; avoid overwriting until other workable tiles are improved; hold top tiles for later if the “now” move would be inferior. See [KI#33](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild).
+ - **Mobility:** workers leave “over-improved” cities sooner to help weaker ones; later pass further improves cross-city mobility and bravery within borders (less idle parking). See [KI#39](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it) and [KI#41](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc). Update: **AI workers: favor low-pop cities (untested in a before/after save file compare):** `CvUnitAI::AI_nextCityToImprove` now weights smaller cities higher so workers rotate to underdeveloped hubs sooner—spreading early tile improvements, jump-starting growth, and avoiding over-investment in already-strong capitals.
+ 
+ - **Retreat logic:** fix excessive retreat → “parking in city” edge cases with a wake-from-retreat and saner thresholds. See [KI#50](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=41372

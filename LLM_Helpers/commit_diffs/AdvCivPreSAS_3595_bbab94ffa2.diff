@@ -1,0 +1,53 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3595
+# Commit: bbab94ffa2376fc3bda02df534e56461580d8873
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 54ea4176a7a57a79726b012298c59b75557bda51
+# Title: Small refactoring change
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameInterface.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 372e08d96..90c87ab23 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2687,7 +2687,7 @@ void CvGame::handleCityScreenPlotPicked(CvCity* pCity, CvPlot* pPlot,
+ 				TASK_CHANGE_WORKING_PLOT, iIndex, -1, false, bAlt, bShift, bCtrl);
+ 	}
+ 	else //if (GC.getDefineINT("CITY_SCREEN_CLICK_WILL_EXIT"))
+-	if (BUGOption::isEnabled("CityScreen__ClickMapToExit", false)) // advc.004t
++	if (BUGOption::isEnabled("CityScreen__ClickMapToExit", true)) // advc.004t
+ 		gDLL->UI().clearSelectedCities();
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6a15a20d4..297912e95 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -26669,9 +26669,9 @@ bool CvPlayerAI::AI_advancedStartPlaceCity(CvPlot* pPlot)
+ 	pCity->AI_updateBestBuild(); //to account for culture expansion.
+ 
+ 	int iPlotsImproved = 0;
+-	for (CityPlotIter it(*pPlot, false); it.hasNext(); ++it)
++	for (WorkablePlotIter it(*pCity, false); it.hasNext(); ++it)
+ 	{
+-		if (it->getWorkingCity() == pCity && it->isImproved())
++		if (it->isImproved())
+ 			iPlotsImproved++;
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1208

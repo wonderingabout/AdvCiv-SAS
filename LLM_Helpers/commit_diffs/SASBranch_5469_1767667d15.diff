@@ -1,0 +1,1419 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5469
+# Commit: 1767667d1569763e81b361fba233c042f59d896c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b09ee50b75bc4baf5a76b570703714fac8488d59
+# Title: remove error-prone formatting characters
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	AGENTS.md
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+2	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+5	5	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+1	1	Assets/Python/Screens/CvMainInterface.py
+1	1	Assets/XML/GameInfo/CIV4CivicInfos.xml
+1	1	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+2	2	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+1	1	Assets/XML/Units/CIV4UnitInfos.xml
+7	7	CvGameCoreDLL/CitySiteEvaluator.cpp
+8	8	CvGameCoreDLL/CvCity.cpp
+36	36	CvGameCoreDLL/CvCityAI.cpp
+1	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvGlobals.cpp
+2	2	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+32	32	CvGameCoreDLL/CvPlayerAI.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.h
+1	1	CvGameCoreDLL/CvSelectionGroupAI.cpp
+5	5	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvUnit.cpp
+39	39	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/UWAIAgent.cpp
+1	1	CvGameCoreDLL/WarUtilityAspect.cpp
+1	1	Long_Comments/Long_Comments_py.txt
+853	853	_0_Common_Docs/AdvCiv_Base_Doc/manual.txt
+7	7	_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+7	7	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+21	21	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 503afc541..23092c1f0 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -161,6 +161,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Avoid fluff like `================`, keep it nice and simple and clean.
+ - Avoid silent fallbacks or placeholder defaults when data is missing: we want it to loudly fail so code is more robust rather.
+ - Prefer UTF-8; avoid UTF-8 with BOM and non-UTF-8 encodings (e.g., Windows-1252), as they can cause mojibake artifacts like `â€”it` or `â€™` or other issues.
++- Avoid complicated and formatting-error prone characters (e.g., `“` or `”`), use simple characters (e.g., `"`) instead.
+ 
+ ### Python (Civ4)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 36d0b1a0a..13ac7d684 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -544,7 +544,7 @@ class SevoPediaFeature:
+ 				# Your Relevant Units panel (from earlier) already shows:
+ 				# - land/air with All-Terrain (Gunship, Airship, Recon Drone), and
+ 				# - sea units with a bypass (Move-Impassable or passable tech).
+-				# This Impassable panel now mirrors Peak-style behavior by listing every other unit that cannot enter Ice Cap, which should remove the “why can these 3 enter?” confusion.
++				# This Impassable panel now mirrors Peak-style behavior by listing every other unit that cannot enter Ice Cap, which should remove the "why can these 3 enter?" confusion.
+ 				# Land/Air: blocked unless they have All-Terrain (your recon/gunship/airship will be allowed)
+ 				land_or_air_blocked = (unitInfoDomain != DomainTypes.DOMAIN_SEA) and (not unitInfo.isCanMoveAllTerrain())
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 19574a710..5f5e298d1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -862,7 +862,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			self.IS_TECH_STATISTICS_PREBUILT = True
+ 
+ 	# Helper to group techs by era (single-pass bucketing).
+-	# Yep — techs are the easiest one to refactor “like buildings/units”, because a tech already has its era (getEra()), so we just do a single pass, bucket into groups[iEra], then emit era headers in era order.
++	# Yep — techs are the easiest one to refactor "like buildings/units", because a tech already has its era (getEra()), so we just do a single pass, bucket into groups[iEra], then emit era headers in era order.
+ 	def SAS_getTechsGroupedByEra(self):
+ 		return SAS_MainGroupings.SAS_getTechsGroupedByEra(self.isSortLists())
+ 
+@@ -2227,7 +2227,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 	
+ 	# <!-- custom: according to chatgpt 5.2 and if i understood it correctly, TERRAIN_HILL and TERRAIN_PEAK already exist in our terrains list as per CIV4TerrainInfos.xml. However they have an <bGraphicalOnly>1</bGraphicalOnly> so they are excluded from the display. Reveal them from the display here. We'll later handle their incorrect <bWater>1</bWater> property when handling the list. At least we have all the terrains we need now -->
+ 	# <!-- custom: generalize this logic by using an alternative helper that we can use if we need to (e.g. for peak, hill, or anything else we'd want it to use it for) without affecting or slowing down the other parts of the code that already use the (filtered/default) getSortedList. -->
+-	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries (“Unfiltered” here specifically means “don’t filter GraphicalOnly”.).
++	# Wrapper for clarity: same as getSortedList(), but includes GraphicalOnly entries ("Unfiltered" here specifically means "don’t filter GraphicalOnly".).
+ 	# Useful for categories where GraphicalOnly infos are still meaningful in Sevopedia (e.g. terrains like TERRAIN_HILL / TERRAIN_PEAK in our CIV4TerrainInfos.xml).
+ 	def getUnfilteredSortedList(self, numInfos, getInfo, noSort=False, bCheckGraphicalOnly=False):
+ 		return self.getSortedList(numInfos, getInfo, noSort, bCheckGraphicalOnly)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+index 0ab82de7c..feabbaf89 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMovie.py
+@@ -28,7 +28,7 @@ class SevoPediaMovie:
+ 		self.iMovie = -1
+ 		self.MOVIE_PLAYER_SCREEN = "SevoPediaMoviePlayer"
+ 		self.MOVIE_PLAYER_EXIT_ID = "SAS_MoviePlayerExit"
+-		# <!-- custom: bik files don't handle well: For BIK, playMovie() doesn’t behave like the other media widgets, so using a “soft eject + re‑open overlay” is safer. (GPT-5.2-Codex) -->
++		# <!-- custom: bik files don't handle well: For BIK, playMovie() doesn’t behave like the other media widgets, so using a "soft eject + re‑open overlay" is safer. (GPT-5.2-Codex) -->
+ 		self.SAS_savedNoMovies = None
+ 		self.mediaPlayer = SevoPediaMediaPlayer(self.MOVIE_PLAYER_SCREEN, SevoScreenEnums.PEDIA_MOVIES, self.MOVIE_PLAYER_EXIT_ID, "MoviePlayer")
+ 		self.SAS_lastMoviePayload = None
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 8bdf08463..60425d305 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -432,7 +432,7 @@ class SevoPediaTerrain:
+ 
+ 				# <!-- custom: also handle water units that can move through all terrains but only on water; also for peak logic is different than for other terrains in placeRelevantUnits, do not place only units that have modifiers for this "terrain" (as is plot type too), but place more broadly any unit, even if it doesn't have a modifier, as long as it can walk on the tile, then display the numTxt or any information optionally if the unit has it, else default to something like "_/_" (no attack or def modifier) or whatever the numTxt generating function gives us. -->
+ 				# <!-- custom: also show boat with legs, in case some crazy mod mod nicely impelments this xd or us but less likely or not or yes or etc-->
+-				# Peak — Relevant Units (includes “boat with legs”; All-Terrain short-circuits)
++				# Peak — Relevant Units (includes "boat with legs"; All-Terrain short-circuits)
+ 				can_walk_on_peak = (
+ 					unitInfo.isCanMoveAllTerrain() or
+ 					(unitInfoDomain == DomainTypes.DOMAIN_LAND and
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index 498d3d5e5..f3dbb3b78 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -673,7 +673,7 @@ def SAS_getBuildsGroupedByType_fromBaseList(baseList, bSortLists):
+ # # <!-- custom: Availability-era helpers (used by era groupings). These were previously methods on SevoPediaMain; moved here to keep groupings self-contained. (ChatGPT-5.2 Thinking) -->
+ _SAS_cacheCorporationHQBuildingByCorp = None
+ 
+-# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean “era” for a corporation should be the availability era of its founding building.
++# In AdvCiv-SAS, your corporations are effectively gated by the founding building (the BUILDING_CORPORATION_X that has <FoundsCorporation>CORPORATION_X</FoundsCorporation> and has <PrereqTech> / <TechTypes>), while the corresponding CIV4CorporationInfo.xml often has <TechPrereq>NONE</TechPrereq>. So the clean "era" for a corporation should be the availability era of its founding building.
+ # This reuses your existing SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs) helper (the one that already accounts for SpecialBuilding tech + religion founding tech).
+ # Map each corporation to its founding (HQ) building once, then reuse; used for grouping corporations by era.
+ def SAS_getCorporationHQBuilding(iCorporation):
+@@ -717,7 +717,7 @@ def SAS_getBuildingAvailabilityEra(iBuilding, iNumAndTechs):
+ 
+ 	# SpecialBuilding tech prereq (eg monasteries gated by SPECIALBUILDING tech)
+ 	# <!-- custom: special buildings need also to be checked for a tech prereq. For example the buddhist monastery as of now has no TechPrereq and TechTypes NONE, but the parent specialbuilding_monastery requires TECH_MONARCHY. Yet, without taking special buildings into account, the buddhist monastery is incorrectly listed at the "No Tech Prereq" part instead of at the "Classical Era" part. Fix this by taking their actual tech prereq into account properly with the help of chatgpt 5.2 thanks -->
+-	# Yep — that’s exactly why: for “special buildings” (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees “no building tech prereq” and dumps it into All Eras.
++	# Yep — that’s exactly why: for "special buildings" (Temple/Cathedral/Monastery/etc.), the real tech gate often lives in CIV4SpecialBuildingInfos.xml (e.g. SPECIALBUILDING_MONASTERY has TechPrereq = TECH_MONARCHY). So your era-bucketing currently sees "no building tech prereq" and dumps it into All Eras.
+ 	# Also consider SpecialBuilding tech prereq (e.g. Monastery -> TECH_MONARCHY in CIV4SpecialBuildingInfos.xml)
+ 	iSpecialBuildingType = info.getSpecialBuildingType()
+ 	if iSpecialBuildingType >= 0:
+@@ -776,7 +776,7 @@ def SAS_getUnitAvailabilityEra(iUnit, iNumUnitAndTechs, iNumBuildingAndTechs):
+ 				iEra = iReligionEra
+ 
+ 	# <!-- custom: note: executives's tech actual requirement not implemented here, as in advciv-sas they also have a prereq tech (see XML code comments or main changes guide or such for rationale). Otherwise the implementation so they are listed at e.g. "Industrial" Era and not "No Tech Prerequisite" (which does not reflect their effective ingame availabilty: not until later eras) would be tedious from what i understand of chatgpt 5.2's explanation and solution (plus we don't need to so better not); check if accurate -->
+-	# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines (“captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech”).
++	# Yes — for your mod, adding a tech prereq directly on Executive units is the simplest and arguably the cleanest fix, and it also matches the design logic you already used for shrines ("captured thing exists locally, but you can’t mass-produce/spread it without understanding the tech").
+ 
+ 	return iEra  # -1 means "no tech prereq bucket"
+ 
+@@ -1085,7 +1085,7 @@ def SAS_getCorporationsGroupedByEra_fromBaseList(baseList, bSortLists, getCorpor
+ 
+ # <!-- custom: in sevopedia specialists, group specialists by type: regular specialists vs great specialists (those whose <Type> contains "GREAT_"), based on RFC DOC mod's code thanks. Added with the help of chatgpt 5.2 thanks -->
+ # Notes (kept conservative)
+-# 	- “Great specialists” detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
++# 	- "Great specialists" detection is exactly RFC’s convention: getType().find("GREAT_") > -1. 
+ # 	- I reused TXT_KEY_PEDIA_CATEGORY_SPECIALIST for the regular header (so it’s localized), and I used the literal string "Great Specialists" for the great header (since your mod likely doesn’t have RFC’s TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST). If you want, you can later add your own TXT_KEY and swap that line to localText.getText("TXT_KEY_PEDIA_HEADER_GREAT_SPECIALIST", ()).
+ def SAS_getSpecialistsGroupedByType(bSortLists):
+ 	specialistsList = []
+@@ -1129,7 +1129,7 @@ def SAS_getSpecialistsGroupedByType(bSortLists):
+ 	return outList
+ 
+ # <!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.), as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
+-# Step 2: Replace getCivicList() with “category + era tiers” (behind a SAS define)
++# Step 2: Replace getCivicList() with "category + era tiers" (behind a SAS define)
+ # Right now your civics list is just getSortedList(gc.getNumCivicInfos(), gc.getCivicInfo) (optionally alphabetical via BUG).
+ # In RFC DoC, placeCivics() at least groups by civic option category using header rows. They also show how they do era tier grouping for other lists (e.g., wonders/buildings grouped by prereq tech era).
+ def SAS_getCivicsGroupedByCivicOption(bSortLists):
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 807f20706..ac4b588b8 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -647,7 +647,7 @@ class CvMainInterface:
+ 		self.iBarExtraRowsExtraManualAdjust = None
+ 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
+ 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
+-		# Minimal fix: “pin” the top visible row, and only change it via the tab/scroll buttons
++		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
+ 		# 1) Add a pinned-row member (once)
+ 		self.iCityBuildBarPinnedRow = None
+ 		# <!-- custom: building list filter state (0=All, 1=Buildings, 2=National, 3=World). (GPT-5.2-Codex) -->
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 1da7a6e2e..d517def2c 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -1258,7 +1258,7 @@
+ 			<!-- custom: less trade, not none, this is not isolationism, was 0 -->
+ 			<iTradeRoutes>-1</iTradeRoutes>
+ 			<!-- custom: less trade, not none, this is not isolationism,as chatgpt 5.1 confirms thanks, was 1 -->
+-			<!-- Yeah, I agree with your instinct here: if you don’t want a full-on “autarky / isolationism” civic, then “less trade, not none” fits Protectionism better, and avoids the huge tech-pace hit from bNoForeignTrade. -->
++			<!-- Yeah, I agree with your instinct here: if you don’t want a full-on "autarky / isolationism" civic, then "less trade, not none" fits Protectionism better, and avoids the huge tech-pace hit from bNoForeignTrade. -->
+ 			<bNoForeignTrade>0</bNoForeignTrade>
+ 			<bNoCorporations>0</bNoCorporations>
+ 			<bNoForeignCorporations>1</bNoForeignCorporations>
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 4af762dd3..18889309c 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -96,7 +96,7 @@
+ 			<!-- custom: see code comment at iBaseGrowthThresholdPercent. Additionally, I also thought we can adjust `iAIGrowthPercent` to 100 at all handicaps, since the human player now has no advantage or disadvantage, and it could have helped the issue of AI runaway at higher handicaps (or vice versa) and allow finer tuning instead through other knobs, but maybe the base growth change is enough for now. Possibly to keep in mind if AI is much smarter as a way to nerf it further perhaps. -->
+ 			<iAIGrowthPercent>115</iAIGrowthPercent>
+ 			<!-- custom: adjusted based on this line "For GP and growth thresholds, I've added GPThresholdPercent and BaseGrowthThresholdPercent (for all civs) and AIGPThresholdPercent (for AI civs)." (from \_0_Common_Docs\AdvCiv_Base_Doc\manual.txt -->
+-			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the “player penalty” side. (ChatGPT 5.2 Thinking) -->
++			<!-- custom: If human is fixed to 100, then easy difficulties should have AI > 100 (AI slower GPs), and hard difficulties should have AI < 100 (AI faster GPs). So it’s +8 on Warlord, -8 on Prince. This is nicely consistent with your chart philosophy, and it also keeps the top-end relative pressure close to what you had before (old Deity was 125/75 = 0.60; new is 100/60 = 0.60), while removing the "player penalty" side. (ChatGPT 5.2 Thinking) -->
+ 			<iAIGPThresholdPercent>124</iAIGPThresholdPercent>
+ 			<!-- custom: reworked tech costs, see deity code comment of <iResearchPercent> for details at least as of now the code comment is there -->
+ 			<iAIResearchPercent>118</iAIResearchPercent>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 432302b8b..9b859277e 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -614,12 +614,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_EVALUATE_DISTANCE_CITYR_DIVIDE</DefineName>
+ 		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+-	<!-- ≤ MIN_OK-1 = “too close” -->
++	<!-- ≤ MIN_OK-1 = "too close" -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_DISTANCE_MIN_OK_ADD</DefineName>
+ 		<iDefineIntVal>-1</iDefineIntVal>
+ 	</Define>
+-	<!-- MAX_OK+1 = “too far” -->
++	<!-- MAX_OK+1 = "too far" -->
+ 	<Define>
+ 		<DefineName>SAS_EVALUATE_DISTANCE_MAX_OK_ADD</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 0cd052c28..c00000d71 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1404,6 +1404,6 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: AI-generated with the help of GPT-5.2-Thinking thanks -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_CHINESE_CHANGPINGCANG_PEDIA</Tag>
+-		<English>[TAB]The Changping Granary (Changpingcang), often called an “ever-normal granary”, was not just a warehouse: it was a public tool for managing the grain market. Already in the 1st century BC, officials in the Han realm treated grain prices as a political danger in both directions: when prices fell too low after harvest, farmers suffered; when prices rose during scarcity, city households and the poor were squeezed. The solution was simple in principle and demanding in practice. Counties were ordered to maintain reserve granaries, buying grain when it was cheap to prevent a collapse in prices, then releasing grain when it was dear to pull prices back down and keep food within reach.[PARAGRAPH:1]Over later dynasties the idea persisted and expanded, with large-scale county systems especially associated with the Qing. The goal was steady supply: grain on hand for local shortfalls, fewer price shocks, and fewer panics when harvests failed. By moving grain through official buying and selling, the state aimed to keep the market “ever normal” - stable enough that ordinary people could plan their lives and survive bad years without chaos.[PARAGRAPH:1]In a rice-growing city, such a system meant more than full storehouses. It meant cleaner reserves, fewer losses to spoilage, and a calmer table when the staple harvest was good.</English>
++		<English>[TAB]The Changping Granary (Changpingcang), often called an "ever-normal granary", was not just a warehouse: it was a public tool for managing the grain market. Already in the 1st century BC, officials in the Han realm treated grain prices as a political danger in both directions: when prices fell too low after harvest, farmers suffered; when prices rose during scarcity, city households and the poor were squeezed. The solution was simple in principle and demanding in practice. Counties were ordered to maintain reserve granaries, buying grain when it was cheap to prevent a collapse in prices, then releasing grain when it was dear to pull prices back down and keep food within reach.[PARAGRAPH:1]Over later dynasties the idea persisted and expanded, with large-scale county systems especially associated with the Qing. The goal was steady supply: grain on hand for local shortfalls, fewer price shocks, and fewer panics when harvests failed. By moving grain through official buying and selling, the state aimed to keep the market "ever normal" - stable enough that ordinary people could plan their lives and survive bad years without chaos.[PARAGRAPH:1]In a rice-growing city, such a system meant more than full storehouses. It meant cleaner reserves, fewer losses to spoilage, and a calmer table when the staple harvest was good.</English>
+ 	</TEXT>
+ </Civ4GameText>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 6239282c1..62ec3906b 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -20584,7 +20584,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<iCollateralDamage>100</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<!-- custom: was 6, below info by chatgpt 5 that i formatted or such and thanks to my prompt(s) and or such, check if accurate -->
+-			<!-- Is “more defenders” relevant? Very. Collateral hits the top defenders by strength; bumping from 6 → 7 is ~+16% more coverage each attack—perfect fit for a rocket-salvo weapon. -->
++			<!-- Is "more defenders" relevant? Very. Collateral hits the top defenders by strength; bumping from 6 → 7 is ~+16% more coverage each attack—perfect fit for a rocket-salvo weapon. -->
+ 			<!-- K-Mod: was 7 -->
+ 			<iCollateralDamageMaxUnits>7</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 2dea92474..f67937004 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1200,8 +1200,8 @@ int AIFoundValue::evaluate()
+ 			// <!-- custom: this works too as well, but try to enhance our formula, so that 13 water tiles non bonus + 8 grass tiles that are far, is a better site than 13 water tiles non bonus same + 8 snow tiles near, as so far AI can't differentiate them. To do that, let's compress iValue so that we don't beat the other stronger land tiles, but if, e.g. archipelago, these are the only 2 candidates, we still want to favour the better scored one, so add only a portion of the value just to distinguish them. Also, since this is as of now not for all cities but only for first city we found, influence should be minimal and it shouldn't conflict with the otherwise confusing hard return 1 logic but better mess the code Hopefully this improves things and thanks to chatgpt 5, without messing everything up; return a positive value just in case; below example given by chatgpt 5, check if accurate -->
+ 			//return 0;
+ 			// Example:
+-			// “8 grass far” → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 -->.
+-			// “8 snow here” → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
++			// “8 grass far" → say iValue=2200, good=8 ⇒ <!-- custom: 2200 / 50 = 44 --> →, return 1+8+<!-- custom:44=53 -->.
++			// “8 snow here" → say iValue=1200, good=8 ⇒ <!-- custom: 1200 / 50 = 24 -->, return 1+8+24=33.
+ 			// A truly good inland site just returns, e.g., iValue=1800 (>> <!-- custom:44 -->), so it wins.
+ 			// <!-- custom: update: i tried this code to enhance it for archipelago or such very rare land starts but then moscow (see known issue as of now 44 for details) goes back to settling on its water location again, then just disabling it, dig it if you want to improve it, i believe our results are in most if not all cases much better and it was just an extra polish. -->
+ 			// const int iValueCompressed = (1 + iGoodBFCTiles + std::max(0, iValue / 50));
+@@ -1294,9 +1294,9 @@ int AIFoundValue::evaluate()
+ 		// --- SAS inline distance shaping (simple & bounded) ---
+ 		// C++03-safe, integer math only, overflow-safe via percent scaling.
+ 		// Notes
+-		// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope” at extreme distances.
+-		// I left the “too close” branch clamped at 50% so proximity never kills a locally amazing site.
+-		// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire” philosophy.
++		// Setting FAR_CAP = 100 + the early return 0; gives you the hard “nope" at extreme distances.
++		// I left the “too close" branch clamped at 50% so proximity never kills a locally amazing site.
++		// This keeps your logic simple, deterministic, and aligned with your “better no city than a split empire" philosophy.
+ 		// <!-- custom: added const* for efficiency but then chatgpt 5 said to add another one xd, check if accurate and thanks -->
+ 		// const on the left (CvCity const*) means you won’t mutate the city via this pointer.
+ 		// const on the right (* const) means you won’t reassign pNearest.
+@@ -1311,8 +1311,8 @@ int AIFoundValue::evaluate()
+ 			static const int CITYR   = (CITYR_ADD + CITY_PLOTS_DIAMETER) / CITYR_DIVIDE; // default 5 <!-- custom: or so claims chatgpt.. 5.. could be accurate though i really don't know, its code helped me lot in all cases thanks-->
+ 			static const int MIN_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MIN_OK_ADD");
+ 			static const int MAX_OK_ADD = GC.getDefineINT("SAS_EVALUATE_DISTANCE_MAX_OK_ADD");
+-			static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close”
+-			static const int MAX_OK  = CITYR + MAX_OK_ADD; // ≥ MAX_OK+1 = “too far”
++			static const int MIN_OK  = CITYR + MIN_OK_ADD; // ≤ MIN_OK-1 = “too close"
++			static const int MAX_OK  = CITYR + MAX_OK_ADD; // ≥ MAX_OK+1 = “too far"
+ 
+ 			static const int CLOSE_STEP = GC.getDefineINT("SAS_EVALUATE_DISTANCE_CLOSE_STEP"); // % per tile inside MIN_OK
+ 			static const int FAR_STEP   = GC.getDefineINT("SAS_EVALUATE_DISTANCE_FAR_STEP"); // % per tile beyond MAX_OK
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 5dd13fc52..5ff5c44e2 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -544,11 +544,11 @@ bool CvCity::SASTryEmergencyBuilding(BuildingClassTypes eBuildingClass)
+ 		return false;
+ 
+ 	// When to use each
+-	// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?” regardless of techs.
+-	// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?”
++	// - getNumBuilding(eBuilding): counts even if obsolete. Good to answer “do we already have this?" regardless of techs.
++	// - getNumActiveBuilding(eBuilding): zero if obsolete. Good when you care about “is it still providing effects?"
+ 	// For your emergencies:
+ 	// - Harbor: use getNumBuilding(...) (harbors don’t obsolete anyway; this avoids any edge weirdness).
+-	// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?” guard; canConstruct(...) will block obsolete castle builds.
++	// - Walls/Castle: also fine with getNumBuilding(...) for the “already have it?" guard; canConstruct(...) will block obsolete castle builds.
+ 	if (getNumBuilding(eBuilding) != 0)
+ 		return false;
+ 
+@@ -628,9 +628,9 @@ void CvCity::doTurn()
+ 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+ 	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+ 	// Practical use in your siege gate
+-	// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
++	// Don’t use iEnemyPowPct<=90 to mean “we’re stronger" when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+ 	// This way:
+-	// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
++	// - In peacetime, you won’t accidentally treat “0" as “we totally dominate" and overbuild siege.
+ 	static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+ 	//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+ 	// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
+@@ -712,7 +712,7 @@ void CvCity::doTurn()
+ 	if (!bEmergencyBuilding && !bHuman)
+ 	{
+ 		// <!-- custom: emergency buildings to build if we are at war and weaker, or some similar risky situation where we may be backstabbed and it is advisable to have some defense buildings in our city: it takes some time to build walls and a castle, but it is better than having our city taken, especially if the risk of such is high enough (see the main changes guide or code for details), however trying not to overdo it as they are quite costly and may hurt our growth if overbuilt or built too often. All in all, i'd recommend to set this to 1 to enable it as it is a nice AI boost in limited / conservative cases situations where it may most likely help, or if you prefer/want 0 to disable. Note: tune as per xml (as of now is BUILDINGCLASS_WALLS and BUILDINGCLASS_CASTLE if i'm not mistaken) -->
+-		// Your guards use getNumBuilding(...) (not “active”), which is exactly what we want for “do we already have one?”—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
++		// Your guards use getNumBuilding(...) (not “active"), which is exactly what we want for “do we already have one?"—and canConstruct(...) will handle obsolescence (e.g., Castle after Economics). Good.
+ 		// --- SAS: force Walls/Castle if at war and enemy stronger ---
+ 		static const bool bSAS_DO_TURN_FORCE_DEFENSE_BUILDINGS = GC.getDefineBOOL("SAS_DO_TURN_FORCE_DEFENSE_BUILDINGS");
+ 
+@@ -832,7 +832,7 @@ void CvCity::doTurn()
+ 
+ 					// <!-- custom: untested but recommended to add by chatgpt 5 which i think is good too (if i were to use them xd but check if accurate too) -->
+ 					// Defines priority sanity (optional but recommended)
+-					// If someone sets both “offense only” and “defense only”, your if/else if currently makes offense win silently. Add a guard once near the defines:
++					// If someone sets both “offense only" and “defense only", your if/else if currently makes offense win silently. Add a guard once near the defines:
+ 					FAssertMsg(!(bSAS_OffenseDefaultUnitAIsOnly && bSAS_DefenseDefaultUnitAIsOnly),
+ 								"Both OFFENSE_ONLY and DEFENSE_ONLY are set; OFFENSE_ONLY will take precedence.");
+ 
+@@ -1052,7 +1052,7 @@ void CvCity::doTurn()
+ 					// 	- Start era,
+ 					// 	- Handicap modifiers,
+ 					// via your existing getCultureThreshold logic.
+-					// No “10 / 6 / 20” sprinkled in C++.
++					// No “10 / 6 / 20" sprinkled in C++.
+ 					const int iBFCThreshold = GC.getGame().getCultureThreshold((CultureLevelTypes)iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
+ 					static const int iEnoughSanity = GC.getDefineINT("SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY");
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index add8a1a34..96f11f3c8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1635,7 +1635,7 @@ void CvCityAI::AI_chooseProduction()
+ 			// Yep—that crash is because this line can pass a negative range into the RNG:
+ 			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+ 			// Minimal, correct fix (skip the roll when disabled)
+-			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
++			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
+ 			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+ 			if (iWC > 0) // <-- guard: only roll with a valid positive range
+ 			{
+@@ -2145,7 +2145,7 @@ void CvCityAI::AI_chooseProduction()
+ 			// Yep—that crash is because this line can pass a negative range into the RNG:
+ 			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+ 			// Minimal, correct fix (skip the roll when disabled)
+-			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
++			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
+ 			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+ 			if (iWC > 0) // <-- guard: only roll with a valid positive range
+ 			{
+@@ -2954,7 +2954,7 @@ void CvCityAI::AI_chooseProduction()
+ 		// Yep—that crash is because this line can pass a negative range into the RNG:
+ 		// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+ 		// Minimal, correct fix (skip the roll when disabled)
+-		// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
++		// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
+ 		const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+ 		if (iWC > 0) // <-- guard: only roll with a valid positive range
+ 		{
+@@ -4433,7 +4433,7 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 				// Yep—that crash is because this line can pass a negative range into the RNG:
+ 				// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
+ 				// Minimal, correct fix (skip the roll when disabled)
+-				// Treat <= 0 as “don’t roll / don’t do opportunistic wonder”:
++				// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
+ 				const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
+ 				if (iWC > 0) // only roll if the range is positive
+ 				{
+@@ -4643,7 +4643,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 	// food surplus we can use after health; clamp at 0
+ 	int iEffectiveFood = std::max(0, iFoodDifference) - std::max(0, -iHealthLevel);
+-	// If you want to use that “happy gate” directly in code:
++	// If you want to use that “happy gate" directly in code:
+ 	// use iEffectiveFood as your growth signal in the later rules
+ 	if (iHappinessSurplus <= 0)
+ 	{
+@@ -4695,9 +4695,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 	{
+ 		// <!-- custom: per-player, per-turn cache to avoid recomputing top city scans at every call. In autoplay, leads to exact same outcome vs before (win at 341, same scores at all savepoints). Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
+ 		// <!-- custom: cache scope limited to bSAS_AI_BUILDING_VALUE_OPTIMIZE block; move to function scope if reused elsewhere. (Claude code Sonnet 4.5 (summarized)) -->
+-		// Is this “safe enough”?
++		// Is this “safe enough"?
+ 		// 	- For Civ4’s normal single-threaded AI: yes.
+-		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode” should not mutate caches anyway, so the pattern above is aligned with that.
++		// 	- If you ever truly run building evaluation in parallel threads: function-static caches are not thread-safe. Your current use of bConstCache strongly suggests “async mode" should not mutate caches anyway, so the pattern above is aligned with that.
+ 		// --- SAS: per-player, per-turn cache for empire-wide "top city" scans used in some gates.
+ 		// Updated only when !bConstCache (async/const-eval stays side-effect free).
+ 		static bool s_abTopHptValid[MAX_PLAYERS];
+@@ -4716,13 +4716,13 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 		// <!-- custom: always pick these first if in this specific case especially relevant-->
+ 		// <!-- custom: note: previously set to 999999, but seemingly was causing a crash at turn 163, that was fixed strictly and only by changing this to 100000 it seems in autoplay, everything else being the entire/exact same it seems (including at which turn to save and which turn to start from on which save file), check to be sure and don't make this too high i would say, game outcome is preserved as well so no extra value/gain from having 999999 rather than 100000 at t200 it seems at least in large map. (note: was using WinDbg and a normal dump to debug it with a release DLL (then !analyze -v) but i don't know too much about these, although it seems to be as such and as chatgpt 5 explains but again i don't know too much to tell so check if accurate / to be sure) -->
+-		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index” rather than a bad pointer to game data.
++		// Good news / bad news: your dump is actually screaming “integer blow-up → bogus index" rather than a bad pointer to game data.
+ 		// Why I’m confident:
+ 		// - EIP is inside CvGameCoreDLL at +0x4E043 and WinDbg labels it CvCity::cheat+0x15B3, but the instruction is mov eax, [ebp+eax*4]. That pattern is classic for indexing a small local jump/lookup table with eax. Your eax is 0x618063D8 (!), so the index is astronomically out of range → AV.
+-		// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow”.
++		// - Your recent edits introduce sentinel returns like AI_BUILDING_ALWAYS_PICK_FIRST = 999999 and several return AI_BUILDING_ALWAYS_PICK_FIRST +/- …;. Downstream code multiplies building values by weights and divides by small turn counts. With a 32-bit signed int, it’s easy to overflow (wrap negative) and then use the result as an index / size / switch key. The heap frames in your stack (_heap_alloc) are consistent with “someone tried to allocate/size something absurd after overflow".
+ 		// - This also explains why you can reproduce the crash even after removing the cache: the oversized return path still fires.
+ 		//
+-		// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win”, and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
++		// Your giant sentinel (999,999) is overflowing downstream math (multiplied/divided by tiny denominators), producing a wild index that ends up as [ebp+eax*4] → AV. Cap the value (e.g., 50k), clamp the final iValue to ±200k, prefer return iThreshold+1 when you only need to “win", and fix the small inverted world-wonder filter. That should make this crash disappear.*]()
+ 		static const int AI_BUILDING_ALWAYS_PICK_FIRST = 100000;
+ 
+ 		// Quick threat read
+@@ -4767,7 +4767,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 		const int iGameSpeedMultiplier = GC.getInfo(kGame.getGameSpeedType()).getConstructPercent(); // 100, 150, 200...
+ 
+ 		// <!-- custom: then after considering building time, let's consider our expected gains, hammer modifiers (e.g forge gives +25% hammer after it is built), this is not related to modifiers that reduce time to build the forge for example, but modifiers we gain in city after city is built, as chatgpt 5 explained to me after i made the mistake so i hope this comment is helpful-->
+-		// 1) Identify “ironworks-like”: sum BonusYieldModifiers for PRODUCTION
++		// 1) Identify “ironworks-like": sum BonusYieldModifiers for PRODUCTION
+ 		int iTotalBonusHammersModifier = 0;
+ 		FOR_EACH_ENUM(Bonus)
+ 		{
+@@ -4890,18 +4890,18 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				// <!-- custom: note: using city's `hasBonus(` instead of `getNumAvailableBonuses(` in other places in the code, as recommended by chatgpt 5, check if accurate -->
+ 				//
+ 				// pCity->hasBonus(eBonus)
+-				// - City-level connectivity: “Is this specific city’s plot-group connected to ≥1 of eBonus?”
++				// - City-level connectivity: “Is this specific city’s plot-group connected to ≥1 of eBonus?"
+ 				// - Internally this is essentially city.plot().getOwnerPlotGroup()->getNumBonuses(eBonus) > 0 (null-safe).
+ 				// - Use this to gate a building in this city (e.g., Stable in this city).
+ 				//
+ 				// kOwner.hasBonus(eBonus)
+ 				// - Any connected city: loops all cities and returns true if any city’s plot-group has the bonus.
+-				// - Good for empire-level boolean (“can we build mounted somewhere?”), but not for a specific city gate.
++				// - Good for empire-level boolean (“can we build mounted somewhere?"), but not for a specific city gate.
+ 				//
+ 				// kOwner.getNumAvailableBonuses(eBonus)
+ 				// - Capital plot-group only: counts copies on the capital’s network.
+ 				// - Fast O(1), but misses disconnected networks (overseas before Sailing, blockades, pillaged roads, etc.).
+-				// - Don’t use this to decide if “the empire has it somewhere”; it will false-negative when a non-capital network has the resource.
++				// - Don’t use this to decide if “the empire has it somewhere"; it will false-negative when a non-capital network has the resource.
+ 				//
+ 				const bool bCityHasHorse = (B_HORSE != NO_BONUS && hasBonus(B_HORSE));
+ 				const bool bCityHasCamel = (B_CAMEL != NO_BONUS && hasBonus(B_CAMEL));
+@@ -5141,7 +5141,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				const int iHappinessBuildingNeedFoodGain = 1;
+ 				if ((iHappinessSurplus < iHappinessBuildingNeedHappinessSurplus) && (iStrictHappinessGain > iHappinessBuildingNeedHappinessGain) && (iEffectiveFoodAfterBuiltHappy > iHappinessBuildingNeedFoodGain))
+ 				{
+-					return AI_BUILDING_ALWAYS_PICK_FIRST; // optional: comment out if you want “no force”
++					return AI_BUILDING_ALWAYS_PICK_FIRST; // optional: comment out if you want “no force"
+ 				}
+ 			}
+ 
+@@ -5304,7 +5304,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 					return 0;
+ 				}
+ 
+-				// 2) Flat “don’t bother if there’s basically no trade here”
++				// 2) Flat “don’t bother if there’s basically no trade here"
+ 				//    (lets genuine trade cities build them; starved cities skip)
+ 				bool const bHasAnyEffectiveTradeRouteModifier = (
+ 					bTradeRouteModifier ||
+@@ -5450,7 +5450,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				(kBuilding.getCommerceModifier(COMMERCE_CULTURE) > 0)
+ 			);
+ 
+-			// “Pure” culture (don’t touch if it was already classified elsewhere)
++			// “Pure" culture (don’t touch if it was already classified elsewhere)
+ 			const bool bCultureOnlyBuilding = (
+ 				bCultureBuilding &&
+ 				!bPreviousBuildings4
+@@ -5592,7 +5592,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 			// <!-- custom: e.g. building our build 25% faster with stone (not related to yields/hammers gained after building is completed!) -->
+ 			// Full production modifier (traits, resources, state religion, etc.)
+ 			const int iProductionModifier = getProductionModifier(eBuilding);
+-			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?” (turn cap)
++			// “Can we realistically <!-- custom: build as i assume this is about starting new buildings --> it?" (turn cap)
+ 			// Use a simple time-to-build gate rather than only a flat hpt cut. It auto-scales with cost and modifiers.
+ 			int const iWWMul100  = 100 + iProductionModifier; // 100 + (traits/stone/marble/religion/etc.)
+ 			// Estimated turns (ceil): cost / (hpt * (1+mods))
+@@ -5720,7 +5720,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				// 	- Runaway leader: this change won’t stop one; it’s mostly neutral there because of your danger/enemy-strong skips.
+ 				// 	- Closer games: more AIs placing HE early in real pump cities raises their floor. Net effect: tougher midgame wars.
+ 				// What I’d soften in the comment
+-				// 	- “tech lead higher” and “economy stronger to sustain it” aren’t direct effects of HE; they’re contingent on building fewer early units or getting safer growth windows. I’d state those as may and keep the mechanism explicit: fewer early units → lower upkeep → sometimes more budget for research.
++				// 	- “tech lead higher" and “economy stronger to sustain it" aren’t direct effects of HE; they’re contingent on building fewer early units or getting safer growth windows. I’d state those as may and keep the mechanism explicit: fewer early units → lower upkeep → sometimes more budget for research.
+ 				// <!-- custom: after testing it ingame, it seems effect is very good and impressive: despite being behind early, we still build an early heroic epic, and stay relevant despite enemy being stronger, until they win, but our empire didnt collapse and bounced back multiple times (they delayed a bit their heroic epics but there are enough among other rivals' empires). I don't know how much randomness influences this, but in this other autoplay map i autoplayed (redundant), it seems to greatly help so left as such, hopefully helps other AIs as well-->
+ 				if (!bLandUnitsBuilding)
+ 				{
+@@ -5759,7 +5759,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 
+ 			// <!-- custom: common logic for unhealthiness removing wonders (world + national) -->
+ 			// --- National Park style (skip when already healthy / too small ) -------------
+-			// Detect NP by either “no pop unhealthiness”
++			// Detect NP by either “no pop unhealthiness"
+ 			const bool bUnhealthinessReducerWonder = kBuilding.getUnhealthyPopulationModifier() <= -50;
+ 
+ 			// <!-- custom: forwarding this precheck could bypass our bLandUnitsBuilding always priority later, so in case some mod mod or us make a wonder that is bLandUnitsBuilding true, do not reject it so soon even if it is unhealthiness reducer as intended as per this check, if i understand it correctly (so add a bLandUnitsBuilding exclusion i mean to avoid that)-->
+@@ -5885,7 +5885,7 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				}
+ 
+ 				// <!-- custom: skip wonder if many rivals can build it, most likely we won't finish it on time, better assume so in most cases should be efficient and help AI not build unbuildable wonders, if not already handled by code elsewhere but added to be safe and to not check all their code; note: in autoplay i did notice wonder races, i don't know if far from completing them rivals would attempt them or if it's only for close calls, but adding an extra safety to prevent inefficient ones just in case -->
+-				// “Race pressure” (how many rivals can build it?)
++				// “Race pressure" (how many rivals can build it?)
+ 				// Super-simple "are rivals eligible already?" gate.
+ 				// If >=3 MET rival teams have the core (AND) tech, assume a hot race and skip.
+ 				// <!-- custom: update: I thought this was the cause of less wonders but not; still, it is valuable to keep: in our mod as of now only ai capitals build settlers for efficiency, but since they are most likely highest hammer, it means only 1 city can fit, and if it is busy, less wonders i guess. We already have some wonder gates, so maybe we can be more lenient here, at least early. Code added with the help of chatgpt 5.2 thanks (although i did core logic and code myself hehe it helped for review and corrections and talk and such i mean if i may say thanks again xd thanks). -->
+@@ -9072,9 +9072,9 @@ int CvCityAI::AI_neededSeaWorkers() /* advc: */ const
+ 	} // </advc.305>
+ 
+ 	// <!-- custom: info by chatgpt 5, check if accurate, replace old values in the code below from 5 to 0 and refactor a bit to make it a iLookAhead variable and such if any other change; udpate: i showed AI_isUnimprovedBonus 's code and this function's code to claude ai as well which agrees with it if my understanding of it is not mistaken, so changing it from 5 to 0 as they both advise and see, we now have 1 extra workboat in city to ideally avoid producing, check if accurate still though their / these AIs info i mean (or my observation maybe too)-->
+-	// Key detail: AI_countUnimprovedBonuses(..., iLookAhead) uses AI_isUnimprovedBonus which, when iLookAhead > 0, sets bCheckPath = false and calls canBuild(..., /*bTestVisible=*/true, ...). That ignores tech/prereqs and pathing (used for UI “you’ll be able to later” style checks). That’s why you were getting boats for ocean whales you can’t reach yet.
++	// Key detail: AI_countUnimprovedBonuses(..., iLookAhead) uses AI_isUnimprovedBonus which, when iLookAhead > 0, sets bCheckPath = false and calls canBuild(..., /*bTestVisible=*/true, ...). That ignores tech/prereqs and pathing (used for UI “you’ll be able to later" style checks). That’s why you were getting boats for ocean whales you can’t reach yet.
+ 	// So the minimal, C++03-safe fix is just: stop looking ahead. Pass 0 instead of 5 in both calls. That makes it count only bonuses that are owned, reachable (path exists), and buildable now (tech/prereqs satisfied).
+-	// If you still want a touch of lookahead (e.g., first ring pop only), use 1 instead of 0, but be aware that any positive value switches canBuild into “testVisible” mode and will again allow some future-tech tiles to sneak in. So for strict “buildable now”, 0 is the correct value.
++	// If you still want a touch of lookahead (e.g., first ring pop only), use 1 instead of 0, but be aware that any positive value switches canBuild into “testVisible" mode and will again allow some future-tech tiles to sneak in. So for strict “buildable now", 0 is the correct value.
+ 	// <!-- custom: and when i asked if this also counts bonuses not just in city radius but also cultural borders as we'd want the health from say fish coast (or to trade it btw i just the idea xd i'm quite rusty should play again later or not maybe but i enjoy modding too if i may say perhaps even a bit more but maybe i'd play or not as i want but in all cases) and it replied/clarified (check if accurate): -->
+ 	// Yep—switching iLookAhead to 0 still counts all owned tiles in the same water area, not just the city’s workable radius
+ 	// <!-- custom: etc skip explanation until this: -->
+@@ -12148,7 +12148,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+ 				// <!-- custom: note: if i remember it correctly, chatgpt 5 said this applies also if not at war. I guessedly thought this maybe would or could return 0 if we are not at war with any ennemy, faslifying formula and defeating the purpose. In some places, i have added bAtWarAndEnemyWeak, while in some other places i may have left it as bEnemyWeak (check to be sure, i didn't check too much). I don't know which is more correct as of now and didn't dig too deep into it, so left as such, hopefully accurate enough, thankfully at this part of the code the difference wouldn't be too big regardless, and most importantly it already pre-checks bAtWar before so no issue there but ideally figure out how it works to decide if we should merge the weak with an at war check to be safe or if uneeded and be more flexible and accurate with only a weak check, but left as such -->
+ 				// <!-- custom: update: to be sure i asked chatgpt 5 again about this while implementing known issue as of now 53.3's related fixes or tweaks, if iEnemyPowerPercent is valid/relaible if at peace or if we have an unreliable 0 making us misleadedly think that you potentially strong rivals are very weak, or how it works, here is what it replied (i edited and formatted it a bit but is mostly the same otherwise) when fed the code sample, check if accurate -->
+-				// Short answer: it’s solid during war or when a war is already “chosen”, but it’s not meaningful in generic peacetime.
++				// Short answer: it’s solid during war or when a war is already “chosen", but it’s not meaningful in generic peacetime.
+ 				//
+ 				// Why:
+ 				// - It loops only over known potential enemies.
+@@ -12160,13 +12160,13 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 				// - Finally it divides by an averaged notion of our power (our own + master’s, halved).
+ 				//
+ 				// So:
+-				// - Not at war & no chosen-war plans ⇒ loop adds nothing ⇒ returns 0. That doesn’t mean “we’re stronger”; it means “no active/selected enemy to compare to”.
+-				// - It’s a sum over applicable enemies, not “the strongest enemy”. Nearby-ness is only approximated via the “primary area” discount.
++				// - Not at war & no chosen-war plans ⇒ loop adds nothing ⇒ returns 0. That doesn’t mean “we’re stronger"; it means “no active/selected enemy to compare to".
++				// - It’s a sum over applicable enemies, not “the strongest enemy". Nearby-ness is only approximated via the “primary area" discount.
+ 				//
+ 				// Practical use in your siege gate
+-				// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
++				// Don’t use iEnemyPowPct<=90 to mean “we’re stronger" when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+ 				// This way:
+-				// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
++				// - In peacetime, you won’t accidentally treat “0" as “we totally dominate" and overbuild siege.
+ 				static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+ 				//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+ 				// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
+@@ -12352,7 +12352,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 							}
+ 
+ 							// <!-- custom: not checking units in city plot, as code i added seemed or might be unreliable (was based on getNumDefenders), issue may have been something/somewhere else, but i thought in all casesit's better/good to simplify it as well to be more reliable; as we are in the early game such an approximation is i assume fine; using instead only a generous enough but not too broad grossly guessed per city defender, i want AIs to quickly switch to offense mode when they can make gains early, and not produce tons of longbows or such that would prevent that, but we need to be careful to have enough units in general as well, hopefully this is a fine enough and safe enough approximation -->
+-							// Guard against div-by-zero and define a very simple “defense overweight” signal:
++							// Guard against div-by-zero and define a very simple “defense overweight" signal:
+ 							const bool bDefenseOverweight = (3 * iMainDefenders > 4 * iMainAttackers);
+ 
+ 							const int iEnoughEarlyDefendersPerCityGuessedly = (iMaxDefendersPerCityEarlyAdjusted * iNumCities);
+@@ -12367,7 +12367,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 							// <!-- custom: if we have too much defenders and it's early and not in danger, switch to attack (although we could use power ratios to help us, hopefully accurate enough to do as such and much simpler maybe although i don't know too much about, potentially computaitonally much faster maybe) -->
+ 							// <!-- custom: use an or here to favour versatility and focus on offense when we are defended enough in the early game. For example if we have 5 cities (at as of now turn 100+) and 2 longbowmen and 1 spearman in our city, or 2 spearmen and 1 longbow or something simlar, we may consider ourselves safe enough when it comes to the early game for this part of the city's computation (if it has more units count the excess as well as virtually belonging to other cities instead, only look at total defenders in all empires in the end to simplify and they could maybe move if needed) also remaining attackers could be used as defense, and there shouldn't be too much differences early, so try to grab any offensive edge we can rather as soon / as long as we are safe enough in the early game and -->
+ 							// Short answer: yes—use OR between your two simple signals. It’s safe and matches your intent.
+-							// You already gate on “safe to flip” with
++							// You already gate on “safe to flip" with
+ 							// !bDanger && !(bAtWar && bEnemyStrong), so you won’t starve defenders when things look bad.
+ 							// Using non-strict defenders makes the check tolerant to variety (mix of spears/LBs/etc).
+ 							// With 5 cities and target 3 per city → cap=15: hitting that cap early and flipping is fine—your new offense units still defend in practice.
+@@ -12400,7 +12400,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 										// bEnemyStrong
+ 									);
+ 
+-									// “Can we build any generic offensive land unit right now?”
++									// “Can we build any generic offensive land unit right now?"
+ 									// <!-- custom: assume most expensive unit is strongest so we are hammer efficient, as i noticed hatshepsut ai for example built many ancient macemen at turn 100+, possibly because of this new no more defender code, so if we want to pick an attacker, use cost to determine strongest, i.e. the more expensive the stronger we can expect it to be. Based on the code in CvCity::doTurn -->
+ 									UnitTypes eBestCandidateUnit = NO_UNIT;
+ 									UnitAITypes eBestCandidateUnitAI = NO_UNITAI;
+@@ -12474,7 +12474,7 @@ bool CvCityAI::AI_chooseUnit(UnitTypes eUnit, UnitAITypes eUnitAI)
+ 								// <!-- custom: and then do not push order here, only alter selection on bestunitai if i'm not mistaken, do not redo all the pipeline and let it be handled before or later wherever it is -->
+ 								// notes
+ 								// This doesn’t push orders or re-run best-unit logic; it just tweaks eChangedUnitAI if the already-picked eChangedUnit supports the offensive role.
+-								// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air” blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
++								// Because ATTACK/ATTACK_CITY/COUNTER aren’t in your “handled civilian/naval/air" blocks, the rest of the function just falls through to the final pushOrder(ORDER_TRAIN, eChangedUnit, eChangedUnitAI); as desired.
+ 							}		
+ 						}
+ 					}
+@@ -14650,13 +14650,13 @@ int CvCityAI::AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, in
+ 				if (bNoAutoHumanCitizen)
+ 				{
+ 					// <!-- custom: enable (recommended) / disable to toggle the game auto assigning citizen specialists for the human player sometimes in their cities, which is annoying and inefficient; code added with the help of chatgpt 5.1, check if accurate -->
+-					// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden” using the same strong negative value that worked so well for AI cities.
++					// Yes, with your current XML + AI_jobChangeValue changes, the fix does do what you want for human players: the AI auto-assignment logic will now treat Citizens as “forbidden" using the same strong negative value that worked so well for AI cities.
+ 					// Manual specialist changes are untouched (still allowed to create Citizens).
+ 					// <!-- custom: fires often (very often actually xd) so is noisy but at least works fine it seems. From t300 to t301 it fires like 10+ times just this turn more or less (didn't count exactly but seems as such). But it is useful, to make sure we effectively block citizen specialists as intended, even though most of it is just the AI considering it and not actually going for it or choosing it. Would need more testing to be sure though, but considering it worked fine for AI players, it might also work as well for human players, but check to be sure and see known issue as of now 44.6 for details -->
+-					// 2. Why does it fire “a big lot”?
++					// 2. Why does it fire “a big lot"?
+ 					// That’s expected with where you put it.
+ 					// 	- AI_jobChangeValue is called a lot from AI_juggleCitizens and AI_addBestCitizen, for every candidate job (plot or specialist) during each juggling cycle.
+-					// 	- Every time the governor considers “what about a citizen?” for a human city while your define is on, it hits your guard, returns the huge negative value, and (in debug) triggers the FAssertMsg(false, ...).
++					// 	- Every time the governor considers “what about a citizen?" for a human city while your define is on, it hits your guard, returns the huge negative value, and (in debug) triggers the FAssertMsg(false, ...).
+ 					// So at T300, with multiple cities, each time the city grows or auto-assignment is reconsidered, you can easily see dozens or hundreds of those asserts in a single turn. That doesn’t mean the logic is broken; it just means your debug hook is very low-level.
+ 					#ifdef _DEBUG
+ 					FAssertMsg(false, CvString::format(
+@@ -16010,7 +16010,7 @@ void CvCityAI::AI_buildGovernorChooseProduction()
+ 						}
+ 					}
+ 					// <!-- custom: although this pushes a unit order outside of our AI_chooseUnit rewritten code, it seems caller outside (i.e. of AI_buildGovernorChooseProduction) is only applied if player is human, so does not affect other AI players so fine to keep as such i'd say as this shouldn't interfere with our logic there if i understood it correctly, and chatgpt 5 confirms it xd, but check to be sure as this is just from a quite quick glance and i don't know too much about these although in this case i mean i mean it seems accurate/correct of me but check to be sure -->
+-					// You’re right: AI_buildGovernorChooseProduction() is the human city-governor routine. It only runs when a human city has production automation on. For AI civs (Japan in your save), production flows through the regular AI_chooseProduction(), which then calls your AI_chooseUnit(...) paths. So the “governor pushOrder bypass” isn’t what’s creating AI longbows.
++					// You’re right: AI_buildGovernorChooseProduction() is the human city-governor routine. It only runs when a human city has production automation on. For AI civs (Japan in your save), production flows through the regular AI_chooseProduction(), which then calls your AI_chooseUnit(...) paths. So the “governor pushOrder bypass" isn’t what’s creating AI longbows.
+ 					//
+ 					// otherwise, we're ready to build the unit
+ 					pushOrder(ORDER_TRAIN, eBestUnit, eUnitAI);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 9aa349240..4c1e31655 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -84,7 +84,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
+ 	// 	1>          ..\CvDLLWidgetData.cpp(83) : see declaration of 'iMaxPlotListSize'
+  	// 
+ 	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all -->
+-	// You hit the classic MSVC “switch-init” rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip” the initialization → C2360.
++	// You hit the classic MSVC “switch-init" rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip" the initialization → C2360.
+ 	//
+ 	// Fix (wrap the case in braces)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index a74037c9c..91ecb4542 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -863,7 +863,7 @@ int CvGlobals::getDefineINT(char const* szName,
+ 		// Line:  858
+ 		// Func:  CvGlobals::getDefineINT
+ 		// Expression:  false
+-		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' â€” using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
++		// Message:  Missing INT define 'INITIAL_MILITARY_UNITS_POPULATION_PERCENT' using default=0 | XML=xml\Events/CIV4EventTriggerInfos.xml
+ 		//
+ 		// <!-- custom: now fixed by renaming it to INITIAL_FREE_MILITARY_UNITS_POPULATION_PERCENT (was a typo/bug i introduced while refactoring, still detailed assert is very helpful in identifying which and fixing the issue if possible i mean to me but) -->
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b3a9841c3..bf5311281 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -4330,7 +4330,7 @@ int CvPlayer::getNumAvailableBonuses(BonusTypes eBonus) const
+ 
+ // <!-- custom: we need more siege units early if we don't have key strategic bonuses, so relax threshold in these cases. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather-->
+ // <!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate), so use it with that intent in mind or if you don't mind xd, else the hasBonus or possibly other functions might be used instead but check to be sure-->
+-// Your simple check will work, but it’s “capital-network only.” If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
++// Your simple check will work, but it’s “capital-network only." If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
+ bool CvPlayer::getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const
+ {
+ 	static const BonusTypes B_COPPER = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_KEY_STRATEGIC_METAL_BONUS_NAME_1"));
+@@ -5575,7 +5575,7 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit,
+ 			trainingModifierFromHandicap(GC.getInfo(eUnitClass).isWorldUnit())).
+ 			// <!-- custom: very annoying, do not round to multiples of 5 please... Ancient macemen 18 hammers cost 20, and swordsman 42 costs 40 while swordsman 43 costs 45, it is a mess and hard to balance. Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate, see known issue as of now 67 for details; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL. Since i find it nonsensical and don't care about pretty numbers in this case at least, disabled it entirely -->
+ 			// Short answer: for your use-case, they’re the same. Use .round() for clarity.
+-			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1,” i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
++			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1," i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
+ 			// roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
+ 			round();
+ 	// </advc.107>
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index fd66cf0b9..8353f72a5 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -251,7 +251,7 @@ public:
+ 	int getNumAvailableBonuses(BonusTypes eBonus) const;															// Exposed to Python
+ 	// <!-- custom: we need more siege units early if we don't have key strategic bonuses, so relax threshold in these cases. May be useful in other cases, and is reused several times at different code functions or scopes, so make it a helper rather-->
+ 	// <!-- custom: note: it seems this only checks main capital network (as per getNumAvailableBonuses it seems and as chatgpt 5 confirms it as well but check if accurate), so use it with that intent in mind or if you don't mind xd, else the hasBonus or possibly other functions might be used instead but check to be sure-->
+-	// Your simple check will work, but it’s “capital-network only.” If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
++	// Your simple check will work, but it’s “capital-network only." If you’re okay with that approximation, keep it. If you want one tiny robustness bump (still very cheap), use global OR city plot-group so a locally-connected city isn’t punished.
+ 	bool getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses() const;
+ 
+ 	int getNumTradeableBonuses(BonusTypes eBonus) const																// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2abe6b767..a2a5ae205 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1769,7 +1769,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity,  // advc.003u: param was CvCity
+ 	{
+ 		// Reasons to not raze
+ 		// <!-- custom: As for this part of the code, refactor this as the intent logged vs condition we check seem unclear and harder to tweak; while doing so, also remove the old !bCultureVictory since we check it before anyway to always raze if true, and removing it here makes us avoid being unable to raze later due to it being here as well as recommended by chatgpt 5, check if accurate -->
+-		// By removing the old if (!bCultureVictory) { keepCity(); return; }, you’ve opened the door for the later iRazeValue logic to run even when there’s no culture-victory emergency. That’s exactly what you want if your goal is “sometimes raze far/awkward cities,” but expect more razing than before (distance, maintenance, barb-origin, etc. can all push iRazeValue > 0).
++		// By removing the old if (!bCultureVictory) { keepCity(); return; }, you’ve opened the door for the later iRazeValue logic to run even when there’s no culture-victory emergency. That’s exactly what you want if your goal is “sometimes raze far/awkward cities," but expect more razing than before (distance, maintenance, barb-origin, etc. can all push iRazeValue > 0).
+ 		//
+ 		// if (!bCultureVictory) // advc.116
+ 		// {
+@@ -6076,8 +6076,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 	// 	- Vassal-from-master penalty, and
+ 	// 	- <!-- custom: not directly here --> Tech trade contact boost between vassal ↔ master,
+ 	// you get:
+-	// 	- Less “master re-researches everything the vassal has”.
+-	// 	- Less “vassal re-researches everything the master has”.
++	// 	- Less “master re-researches everything the vassal has".
++	// 	- Less “vassal re-researches everything the master has".
+ 	// 	- <!-- custom: not directly here --> More tech swapping along the master–vassal axis, especially when each has something the other doesn’t.
+ 	// A. Devalue researching techs that our vassals already know and vice versa.
+ 	static const bool bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE");
+@@ -12355,7 +12355,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 	// <!-- custom: note: since it seems bonuses losing value (like copper over time is already handled during the game, and according to chatgpt 5 elsewhere, simplifying our code and not wasting needless computation just for our pre-checks here by not checking it; check (no pun) if accurate). -->
+ 	// Notes & answers
+ 	// - Fairness (no bullying): The multiplier applies only to the buyer’s evaluation (this function belongs to the buyer), and only when the buyer’s team has the enabling tech. So if we don’t have Agriculture yet, Maize stays valued like +1 health.
+-	// - Coastal coverage: Using 0.5 is your requested “good-enough” heuristic. If you later want map-type nuance, bump it slightly on water maps.
++	// - Coastal coverage: Using 0.5 is your requested “good-enough" heuristic. If you later want map-type nuance, bump it slightly on water maps.
+ 	// - Grocer effects: Covered automatically: if Grocer has BonusHealthChanges for Banana and BonusHappinessChanges for Sugar/Grapes, once we have the Grocer tech those add +1 each to iExtra, so value scales up.
+ 	// - Obsolete tech: Yes, when a building obsoletes, its bonus-driven effects are disabled; the guard above ensures we don’t count them.
+ 	// - Performance: One pass over the building list per valuation (no city loops, no pathing). That’s cheap and happens far less often than per-turn city code.
+@@ -12388,7 +12388,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		// Track whether this bonus is enhanced by a temple/monastery anywhere
+ 		int iTempleExtraMax = 0;     // best (health+happy) from any temple
+ 		int iMonasteryExtraMax = 0;  // best (health+happy) from any monastery
+-		// --- once-per-DLL-run cached lookups for the special-building “kinds” we care about
++		// --- once-per-DLL-run cached lookups for the special-building “kinds" we care about
+ 		static const SpecialBuildingTypes SB_TEMPLE = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_TEMPLE", true);
+ 		static const SpecialBuildingTypes SB_MONASTERY = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_MONASTERY", true);
+ 		static const SpecialBuildingTypes SB_CATHEDRAL = (SpecialBuildingTypes)GC.getInfoTypeForString("SPECIALBUILDING_CATHEDRAL", true);
+@@ -12414,7 +12414,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			const CvBuildingInfo& kB = GC.getInfo(eB);
+ 
+ 			// <!-- custom: also exclude cathedrals as said/explained above -->
+-			// Your XML shows cathedrals/temples aren’t class-limited (player instance = −1), so they slip past isLimited(). If you want to exclude religious “chain” buildings from bumping resource prices, just skip by SpecialBuilding type:
++			// Your XML shows cathedrals/temples aren’t class-limited (player instance = −1), so they slip past isLimited(). If you want to exclude religious “chain" buildings from bumping resource prices, just skip by SpecialBuilding type:
+ 			SpecialBuildingTypes const eSB = kB.getSpecialBuildingType();
+ 			// Skip cathedrals so they don’t overprice incense (guard if not defined in XML)
+ 			if (SB_CATHEDRAL != NO_SPECIALBUILDING && eSB == SB_CATHEDRAL)
+@@ -12454,11 +12454,11 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			// Non-religious buildings: normal coverage (coastal ~ half the cities)
+ 			// Coastal-only buildings only affect a subset of cities; treat as 50% coverage
+ 			scaled const rCoverage = (kB.isWater() ? fixp(0.5) : fixp(1));
+-			// Each extra “pip” multiplies value (granary grain +1 ⇒ +1.0, harbor seafood +1 ⇒ +0.5)
++			// Each extra “pip" multiplies value (granary grain +1 ⇒ +1.0, harbor seafood +1 ⇒ +0.5)
+ 			rBoost += rCoverage * iExtra;
+ 		}
+ 
+-		// Spend the tiny fixed “religion budgets”
++		// Spend the tiny fixed “religion budgets"
+ 		if (iTempleExtraMax > 0)
+ 		{
+ 			rBoost += fixp(0.5) * iTempleExtraMax;
+@@ -12503,8 +12503,8 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 	// With the current AI_bonusTradeVal logic:
+ 	// 	- Key strategics (iron/copper/horse/camel) get an extra relative markup vs outsiders.
+ 	// 	- Inside the master–vassal cluster, that extra markup is suppressed:
+-	// 		- So master ↔ vassal and sibling vassals can still trade those resources at the “normal” AI value.
+-	// 		- Outsiders have to “pay properly” for them (or, at least, we’re less eager to sell).
++	// 		- So master ↔ vassal and sibling vassals can still trade those resources at the “normal" AI value.
++	// 		- Outsiders have to “pay properly" for them (or, at least, we’re less eager to sell).
+ 	// Net effect in theory:
+ 	// 	- You’re less likely to feed key resources to future enemies.
+ 	// 	- You don’t punish your own master/vassals with the same markup.
+@@ -12594,11 +12594,11 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 			if ((eBonus == B_HORSE || eBonus == B_CAMEL || eBonus == B_ELEPHANTS) &&
+ 				!bHaveHorse && !bHaveCamel && !bHaveElephants)
+ 			{
+-				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all” → mounts 1.5x
++				pct = PREMED_NO_MOUNT_PCT; // “no mounts at all" → mounts 1.5x
+ 			}
+ 			else if ((eBonus == B_IRON || eBonus == B_COPPER) && !bHaveAnyMetal)
+ 			{
+-				pct = PREMED_NO_METAL_PCT; // “no metals” → metals 1.5x
++				pct = PREMED_NO_METAL_PCT; // “no metals" → metals 1.5x
+ 			}
+ 		}
+ 
+@@ -12648,10 +12648,10 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
+ 		// ===== RENAISSANCE =====
+ 		else if (bRenaissance)
+ 		{
+-			// Yep—good catch. Let’s make the checks Iron-specific instead of “any metal”, so Copper never fools the logic for Cannons.
++			// Yep—good catch. Let’s make the checks Iron-specific instead of “any metal", so Copper never fools the logic for Cannons.
+ 			// What this does:
+-			// - “Lack mounts” bumps only when you already have Iron (since Copper doesn’t unlock your mounted line).
+-			// - “Lack Iron” bumps Iron regardless of mounts (so Cannons matter even with zero Horse/Camel).
++			// - “Lack mounts" bumps only when you already have Iron (since Copper doesn’t unlock your mounted line).
++			// - “Lack Iron" bumps Iron regardless of mounts (so Cannons matter even with zero Horse/Camel).
+ 			// - Copper remains clamped from Medieval+, as before.
+ 			static const int REN_NO_MOUNT_WITH_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_WITH_IRON_PCT");
+ 			static const int REN_NO_MOUNT_NO_IRON_PCT = GC.getDefineINT("SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_MOUNT_NO_IRON_PCT");
+@@ -15105,7 +15105,7 @@ int CvPlayerAI::AI_countUnitsByCombat(UnitCombatTypes eCombat) const
+ 			continue;
+ 
+ 		// <!-- custom: note: it's bit tricky as units could be cancelled midway and we could be stuck in loops trying to build then cancelling midaway, i don't mind a little extra units as result of this i think if i may say and may generally be fine for this purpose i'm guessing; chatgpt 5 seems to agree as well, check if accurate as well i mean -->
+-		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings” can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
++		// Totally fair—queued builds can get canceled or reshuffled, so “counting makings" can push you over a cap and then bounce you back under it next turn. Easiest fix: never count makings and only count units you actually own on the map.
+ 		iTotal += iHave; // count once per class
+ 	}
+ 	return iTotal;
+@@ -17482,7 +17482,7 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
+ 	static const int iHAMMER = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE");  // e.g. 200
+ 	static const int iGOLDY  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_GOLD_VALUE");    // used for YIELD_COMMERCE baseline (e.g. 100)
+ 
+-	// Culture push multiplier (applied only when we “need culture”)
++	// Culture push multiplier (applied only when we “need culture")
+ 	static const int iHAMMER_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_YIELD_HAMMER_VALUE_NEED_MULTIPLIER");               // e.g. 2
+ 
+ 	int w = 100;
+@@ -17494,7 +17494,7 @@ static inline int SAS_SpecYieldBaseWeight(YieldTypes eY, const bool bNeedHammers
+ 		default:               w = 100;     break;
+ 	}
+ 
+-	// Hammer “need” detection
++	// Hammer “need" detection
+ 	if (eY == YIELD_PRODUCTION && iHAMMER_NEED_MULT > 1)
+ 	{
+ 		if (bNeedHammers)
+@@ -17512,7 +17512,7 @@ static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, Commerce
+ 	static const int iCULT  = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_VALUE");   // e.g. 100
+ 	static const int iESP   = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_ESPIONAGE_VALUE"); // e.g. 200
+ 
+-	// Culture push multiplier (applied only when we “need culture”)
++	// Culture push multiplier (applied only when we “need culture")
+ 	static const int iCULT_NEED_MULT = GC.getDefineINT("SAS_AI_CIVIC_VALUE_UNLIMITED_SPECIALIST_COMMERCE_CULTURE_NEED_MULTIPLIER");               // e.g. 3
+ 
+ 	int w = 100;
+@@ -17525,7 +17525,7 @@ static inline int SAS_SpecCommerceBaseWeight(const CvPlayerAI& kPlayer, Commerce
+ 		default:                 w = 100;   break;
+ 	}
+ 
+-	// Culture “need” detection: strong push if going Culture VC, or if many cities
++	// Culture “need" detection: strong push if going Culture VC, or if many cities
+ 	// still need border pops to work full radius. Tweak the condition as you like.
+ 	if (eC == COMMERCE_CULTURE && iCULT_NEED_MULT > 1)
+ 	{
+@@ -18281,7 +18281,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 
+ 
+ 	// <!-- custom: the former civic_emancipation was overvalued when it was really not a so great civic especially vs civic_caste_system and civic_serfdom, so reduce the overvaluation potential causes. Use another formula counting unhappiness in cities rather, with the help of chatgpt 5, check if accurate -->
+-	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap” to it.
++	// Short answer: the AI is over-valuing Emancipation because of the two civic-percent-anger terms in AI_civicValue. With your current XML (iCivicPercentAnger = 400 and low upkeep), those lines alone can outweigh Emancipation’s weak direct effects, so AIs “auto-snap" to it.
+ 	// if (kCivic.getCivicPercentAnger() != 0)
+ 	// {
+ 	// 	/*	K-Mod version. (the original bts code was ridiculous - it is now deleted)
+@@ -18329,7 +18329,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 				// Weight edge / unhappy cities a bit more
+ 				const int iPressureScale = (!bCityHappy ? iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY); // tune if desired
+ 
+-				// Turn “less unhappy” into a positive score for the AI
++				// Turn “less unhappy" into a positive score for the AI
+ 				const int iCityVal = (12 * AI_getHappinessWeight(-iDeltaUnhappy, 1, true)) / 100;
+ 				iTotal += iCityVal * iPressureScale / 100;
+ 			}
+@@ -18849,14 +18849,14 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 			const int iSpecialistNow = std::max<int>(0,
+ 				pCity->getPopulation() - pCity->getWorkingPopulation() - pCity->angryPopulation());
+ 
+-			// Tiny “food slack” bump: if city grows each turn, assume we can sustain 1 more spec.
++			// Tiny “food slack" bump: if city grows each turn, assume we can sustain 1 more spec.
+ 			const int iFoodSlackSpecs = (pCity->foodDifference() >= 2 ? 1 : 0);
+ 
+ 			const int iSurplus = iSpecialistNow + iFoodSlackSpecs;
+ 
+ 			// slots already available for this specialist without the civic
+ 			// Open-slot math: don’t subtract free specialists; do subtract forced
+-			// Free specialists don’t consume “slots”, but forced specialists do. Use:
++			// Free specialists don’t consume “slots", but forced specialists do. Use:
+ 			int iOpen = pCity->getMaxSpecialistCount(eLoopSpecialist)
+ 					  - pCity->getSpecialistCount(eLoopSpecialist); // assigned (incl. forced)
+ 			iOpen = std::max(0, iOpen);
+@@ -18898,15 +18898,15 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 		}
+ 
+ 		// Great People Points
+-		// GPP (only if the spec actually grants GPP; avoids “3 GPP citizens” myth)
++		// GPP (only if the spec actually grants GPP; avoids “3 GPP citizens" myth)
+ 		const int iGPP = kSpec.getGreatPeopleRateChange();
+ 		if (iGPP > 0)
+ 		{
+-			// modest conversion: 1 GPP ~ 0.04 “commerce” at average GP multiplier
++			// modest conversion: 1 GPP ~ 0.04 “commerce" at average GP multiplier
+ 			iPer += iGPP * std::max(0, AI_averageGreatPeopleMultiplier() - 100) / 25;
+ 		}
+ 
+-		// accumulate (iPer is already on the same “commerce-ish” scale)
++		// accumulate (iPer is already on the same “commerce-ish" scale)
+ 		iTotal += iPotential * iPer / 100;
+ 	}
+ 
+@@ -18916,7 +18916,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
+ 	//   - if player has zero max anarchy (Spiritual, Cristo, GA rules handled elsewhere), no penalty
+ 	//   - otherwise use the civic’s base anarchy length.
+ 	//
+-	// In your unlimited-specialist block you devalue only when iS > 0 (adopting). That means the AI “pays” anarchy when switching to OR, but doesn’t count the anarchy cost when switching away from OR. That creates a bias toward dropping it next pass.
++	// In your unlimited-specialist block you devalue only when iS > 0 (adopting). That means the AI “pays" anarchy when switching to OR, but doesn’t count the anarchy cost when switching away from OR. That creates a bias toward dropping it next pass.
+ 	// Fix: apply the same scaling whenever we’d change the civic at all.
+ 	if (iS != 0) // adopting or dropping
+ 	{
+@@ -22475,7 +22475,7 @@ void CvPlayerAI::AI_doDiplo()
+ 						}
+ 						// (3) Sibling vassals of the same master: vassal ↔ vassal
+ 						// Notes:
+-						// 	- This only triggers when both teams are vassals of the same master and the “optimize” bool is on.
++						// 	- This only triggers when both teams are vassals of the same master and the “optimize" bool is on.
+ 						// 	- It also works for human–AI sibling vassals, since this is just a contact multiplier; the outer (!bPlayerHuman || kOurTeam.getLeaderID() == getID()) gate is unchanged, so humans only get approached by the AI team leader as before.
+ 						// 	- No stacking: each pair hits at most one of (master→vassal, vassal→master, vassal↔vassal).
+ 						else if (kOurTeam.isAVassal())
+@@ -22578,11 +22578,11 @@ void CvPlayerAI::AI_doDiplo()
+ 						// 	- Rolls for contact (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult)),
+ 						// 	- Picks a best tech we’d like to receive from them (eBestReceiveTech),
+ 						// Then tries to find something to give in return.
+-						// We add a “cluster redirect” step:
++						// We add a “cluster redirect" step:
+ 						// 	- If this partner is outside our master–vassal locus,
+ 						// 	- And if any of our locus partners (master or vassals / sibling vassals) has that same eBestReceiveTech and is willing to trade it,
+ 						// 	- Then we drop eBestReceiveTech for this outsider and let the normal logic later pick up a trade with the locus partner instead (helped by the contact multipliers we already added).
+-						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source.” So it’s conservative: it can only reduce external tech trades, never block internal ones.
++						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source." So it’s conservative: it can only reduce external tech trades, never block internal ones.
+ 						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE");
+ 						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && eBestReceiveTech != NO_TECH)
+ 						{
+@@ -29928,7 +29928,7 @@ int CvPlayerAI::AI_disbandValue(CvUnitAI const& kUnit, bool bMilitaryOnly) const
+ 	// <!-- custom: update issue is now solved by patching globally the canScrap, and below approach didn't solve anything, so i'll comment it out, enable it if need or want and see for related info known issue as of now 52 -->
+ 	// // B) Patch AI_disbandValue to strongly de-prefer scrapping new combat units & live garrisons
+ 	// // (You already boost value for MISSIONAI_GUARD_CITY; the check above covers plain defenders without that mission tag.)
+-	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer”).
++	// // Don’t scrap fresh combat units (prevents “we built one, ended with fewer").
+ 	// if (kUnit.canFight() &&
+ 	// 	kGame.getGameTurn() - kUnit.getGameTurnCreated() < 5)
+ 	// 	return MAX_INT;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index 1dace2189..56c897c9d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -335,7 +335,7 @@ public:
+ 	// Counts units by combat class (e.g. UNITCOMBAT_SIEGE)
+ 	int AI_countUnitsByCombat(UnitCombatTypes eCombat) const;
+ 	int AI_countUnitsByCombatNoTrebuchetsLike(UnitCombatTypes eCombat) const;
+-	// Siege with big city-attack (>=50%) – “trebuchet-like”
++	// Siege with big city-attack (>=50%) – “trebuchet-like"
+ 	int AI_countTrebuchetsLike() const;
+ 	// Convenience: sums of offensive / defensive UnitAIs
+ 	int AI_mainOffensiveLandTotalUnitAIs() const;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index 1a51e0dd1..e8bd6f41a 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -262,7 +262,7 @@ bool CvSelectionGroupAI::AI_update()
+ 		// --- SAS no-progress tripwire (end) ---
+ 		// That’s it.
+ 		// Why this fixes your scout spins
+-		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change” iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
++		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change" iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
+ 		// You can keep your current early-assert block; with the tripwire in place, you shouldn’t hit it anymore.
+ 
+ 		if (doDelayedDeath())
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index f90598bf1..f09cfc023 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2027,12 +2027,12 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+ 
+ 		// <!-- custom: additionally to our self research tech value changes based on if our ennemies are strong or not, also value more key military techs when it comes to tech trading, if we are weaker, as we urgently need them, and anything else is wasted effort and suboptimal -->
+ 		// SAS techTradePowerDanger: bias trade valuation toward key military techs when we're clearly outgunned
+-		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades”, so it’s the natural spot to add a danger-biased military weighting.
++		// Yeah, this is exactly the place I meant: CvTeamAI::AI_techTradeVal is the right hook for “how much do we think this tech is worth in trades", so it’s the natural spot to add a danger-biased military weighting.
+ 		// Given what you’ve already done in AI_techValue and how well #81 behaved, I’d mirror that idea here, but in a single, clean block inside AI_techTradeVal, with a separate toggle/knobs for trades.
+ 		// Because AI_techTradeVal is used for both tech-for-tech and tech-for-gold evaluations, higher rValue for these key military techs means:
+-		// 	- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay” more total value on our side.
++		// 	- When we’re getting such a tech, we treat it as more precious, and we’ll be willing to structure a deal where we “pay" more total value on our side.
+ 		// 	- When someone else is getting such a tech from us, they’ll see it as more precious as well (since their AI_techTradeVal gets the same logic when they are in danger).
+-		// If you want “when I’m in real danger, military tech is worth more no matter who offers it”, including:
++		// If you want “when I’m in real danger, military tech is worth more no matter who offers it", including:
+ 		// 	- from your vassal,
+ 		// 	- to your master,
+ 		// 	- in peace deals that might call with bIgnoreDiscount = true,
+@@ -2060,13 +2060,13 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+ 	} // </advc.550a>
+ 
+ 	// <!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate -->
+-	// Right, nice next step – this is basically the “backup sanity check” in case an outsider does get to the trade table with a tech your locus already has.
++	// Right, nice next step – this is basically the “backup sanity check" in case an outsider does get to the trade table with a tech your locus already has.
+ 	// Conceptually:
+ 	// If any team in our master–vassal cluster already knows eTech, and the offering team is not part of that cluster, then we value the tech less from them, because we have (or could have) an internal source.
+ 	// Notes:
+ 	// 	- We reuse the same master/vassal cluster logic style you already used in the research code.
+ 	// 	- We explicitly do not penalize when eFromTeam is a member of our cluster: master, vassal, or sibling vassal of the same master.
+-	// 	- This block is independent of bIgnoreDiscount and the power/tech discount logic: it represents a different idea (“local alternative source”), so it’s cleaner to keep separate.
++	// 	- This block is independent of bIgnoreDiscount and the power/tech discount logic: it represents a different idea (“local alternative source"), so it’s cleaner to keep separate.
+ 	static const bool bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE");
+ 	if (bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE && !isHasTech(eTech)) // we wouldn't normally trade for tech we already own
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index c79c161a9..ed8246909 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3551,7 +3551,7 @@ bool CvUnit::canScrap() const
+ 
+ 		// <!-- custom: do not scrap anything carrying units, nice idea by chatgpt 5 -->
+ 		// Never scrap anything carrying cargo
+-		// Prevents “oops I deleted a galleon with settlers”.
++		// Prevents “oops I deleted a galleon with settlers".
+ 		// <!-- custom: note: not protecting passengers with a getCargo() > 0 contrary to what chatgpt 5 advises, as i don't know how it would behave if forcibly protecting the inside units (looks less predictable to me), and i hope the protection of the cargo itself is enough and most fit -->
+ 		if (getCargo() > 0)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d9fad074e..dabc5147b 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -219,11 +219,11 @@ bool CvUnitAI::AI_update()
+ 	if (kGame.getElapsedGameTurns() <= iMaxTurnDefendWeakerCitiesHarderAdjusted)
+ 	{
+ 		// <!-- custom: currently we have an issue as i assume is in base advciv +/- civ4 as well and originallythat barbarians capture cities too much early, however AI has plenty/enough units, but 4 are in capital, while 1 only is in city B, so if AI is not lucky with barbarians avoiding city B, its city would be captured, and capital is needlessly overly defended which is inefficient as well. Production seems fine, but movement of units should be fixed ideally. Tentative fix provided by chatgpt 5, based on the request i made to gemini 2.5 pro as well to weigh which would work better xdor refine based on each other's output, check if accurate, i refined i helped format the code comment too; see known issue as of now 49 for details -->
+-		// 2) Add a tiny “push” at the very top of AI_cityDefenseMove
++		// 2) Add a tiny “push" at the very top of AI_cityDefenseMove
+ 		// --- push defenders out of overstocked cities (minimal & effective) ---
+ 		// <!-- custom: but update, tested previous change ingame, the issue still seemingly mostly persists, and in many cities i have noticed enough units are stationed but they are not necessarily defender unitai types or such, so asked chatgpt 5 about it which (who?) adjusted it as such thanks, check if accurate -->
+ 		// - Counts all defend-capable units, so surplus in capital is recognized even if they’re COUNTER/RESERVE/ATTACK.
+-		// - The iExtraDefenders trick (+1 during early barbs) nudges the search to treat secondary cities as “wanting one more” without changing AI_minDefenders() globally.
++		// - The iExtraDefenders trick (+1 during early barbs) nudges the search to treat secondary cities as “wanting one more" without changing AI_minDefenders() globally.
+ 		// - Local search (iMaxPath=4) keeps it from yanking units across the empire. If it still clusters, try 6.
+ 		// --- Early, light-weight city-to-city garrison rebalance ----------
+ 		const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+@@ -232,7 +232,7 @@ bool CvUnitAI::AI_update()
+ 			const UnitAITypes eAI = AI_getUnitAIType();
+ 			// <!-- custom: note: UNITAI_ATTACK_LEMMING not added as advised by chatgpt 5, we also don't use them in our mod anyway so maybe fine as such, below is reasoning it gave if helps, check if accurate and thanks chatgpt 5 for all help -->
+ 			// Include UNITAI_ATTACK_CITY_LEMMING in the exporter?
+-			// I’d exclude it. Lemming units are for stack assaults and are deliberately “commit-to-attack” flavored; turning them into garrisons can stall offensives and create weird back-and-forth. If you ever want to relax that, do it behind a strict gate (early barb focus, no current war plan, path ≤ 3), but default should be not to use them as donors.
++			// I’d exclude it. Lemming units are for stack assaults and are deliberately “commit-to-attack" flavored; turning them into garrisons can stall offensives and create weird back-and-forth. If you ever want to relax that, do it behind a strict gate (early barb focus, no current war plan, path ≤ 3), but default should be not to use them as donors.
+ 			// <!-- custom: update: UNITAI_ATTACK_CITY_LEMMING ignored as it seems unreliable and AIs don't produce trebuchets when trying to make trebuchets ATTACK_CITY_LEMMING, so ignored here for simplicity and reliability, see also known issue as of now 53.3 for related info or details) (note: even if they didn't have, still, trebuchets have a very specific role (attacking cities) and are bad at anything else, yet here we only want a general all-purpose unit here to defend or attack against barbarians or early attackers with quite versatile units, which the trebuchet or other such units would likely not fit, so do not include them here. -->
+ 			const bool bMilAI =
+ 				(eAI == UNITAI_ATTACK ||
+@@ -832,7 +832,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ // - std::map lookup: O(log N) + pointer chasing (cache-unfriendly).
+ // - std::vector lookup: O(1) direct index, very cache-friendly.
+ // - Init time: vector also wins (no per-node allocations), but you only init once, so the big win is lookup.
+-// Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry” can be represented by NO_BUILD. That makes a vector the ideal structure.
++// Why we used a map before? Convenience for sparse mappings. But your key space is a dense enum (BonusTypes in [0..GC.getNumBonusInfos())), and “no entry" can be represented by NO_BUILD. That makes a vector the ideal structure.
+ // <!-- custom: each land build cleanly pairs to only one bonus in our mod (exception: oil has offshore platform (water) and well (land), but here we're only handling land so effectively only 1). Prefetch and cache this data to avoid reuse. Credit: ChatGPT 5.2. (Claude code Sonnet 4.5 (summarized)) -->
+ // I checked your uploaded CIV4ImprovementInfos.xml: there are exactly 29 land bonuses that have bBonusTrade=1 on a land improvement, and they match your manual list one-for-one (Oil is Well on land; Offshore Platform is water-only so it gets filtered out automatically).
+ // So you can keep the static-vector caching, but populate it dynamically by scanning:
+@@ -936,7 +936,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 	PROFILE_FUNC();
+ 
+ 	// <!-- custom: fix crash at turn 77 more properly now that we have identified the cause to be here since changing the code here triggers it, and guarding null and no build in caller avoids it, see code comment at callers of this function for details. Code provided by chatgpt 5 in an attempt to fix it more cleanly and ideally not have workers parked, check if accurate -->
+-	// And no—you won’t be “back to square one” or re-introduce the crash as long as you add two tiny safety fixes:
++	// And no—you won’t be “back to square one" or re-introduce the crash as long as you add two tiny safety fixes:
+ 	if (ppBestPlot)  *ppBestPlot  = NULL;
+ 	if (peBestBuild) *peBestBuild = NO_BUILD;
+ 	// ... PHASE 1 builds candidates ...
+@@ -1042,7 +1042,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 	const int iFoodSurplusCityHas = (kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption(/*bFoodProduction=*/false));
+ 	// That looks solid! You’re doing exactly what we wanted:
+ 	// take the ordinary surplus food - consumption(false) (which includes angry + specialists),
+-	// then “give it back” by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
++	// then “give it back" by adding 2 * (non-free specialists + angry citizens) so the AI doesn’t panic-farm just because people are angry or parked in specialist slots.
+ 	const int iEstimatedCityFoodDifference = iFoodSurplusCityHas + iFoodConsumedBySpecialistOrAngryCitizens;
+ 
+ 	// <!-- custom: BFC food environment score - similar to CitySiteEvaluator iLowFoodLocationCount logic.
+@@ -1203,7 +1203,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 				}
+ 				else
+ 				{
+-					// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite” with another build.
++					// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
+ 					continue;
+ 				}
+ 			}
+@@ -1856,7 +1856,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					//
+ 					// Notes / edge cases:
+ 					// • The hard SKIP for (pop >= 7 && healthDiff <= 0) prevents emergency forest chops from competing.
+-					//   If you want “rare emergencies” to be possible, replace SKIP with a small negative Δ instead.
++					//   If you want “rare emergencies" to be possible, replace SKIP with a small negative Δ instead.
+ 					// • Early forests are broadly devalued (need +2 health to be neutral). This protects against
+ 					//   overchopping in the opening unless the city is clearly healthy.
+ 					if (iCityPopulation >= 7)
+@@ -1921,7 +1921,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					//   pop 10, health -2 → Δ = 75 * (4 - (-2))     = 450      (very strong push to clear)
+ 					//
+ 					// Notes:
+-					// • The pop<7 path now never yields negative Δ, preventing “always chop” from losing to other plots purely due to positivity.
++					// • The pop<7 path now never yields negative Δ, preventing “always chop" from losing to other plots purely due to positivity.
+ 					// • Large healthy cities can still deprioritize jungle if they have better improvements to do first.
+ 					if (iCityPopulation >= 7)
+ 					{
+@@ -1949,7 +1949,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 					}
+ 					else
+ 					{
+-						// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite” with another build.
++						// If you truly can’t scrub yet, consider skipping, don’t try to “overwrite" with another build.
+ 						continue;
+ 					}
+ 				}
+@@ -2058,8 +2058,8 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity,
+ 			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+ 			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+ 			// With iRange = 0, it only counts groups whose target is exactly the same tile.
+-			// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+-			// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
++			// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
++			// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+ 			int const iRange = 0;
+ 			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
+ 			int const iMaxWorkers = 1;
+@@ -3009,7 +3009,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 
+ 	// <!-- custom: in rare cases workers get parked in cities with MISSIONAI_RETREAT + ACTIVITY_HOLD. Fix to unstick these "retreaters" at start of turn. See known issue 50 for details and screenshots. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+ 	// two small patches that fix it
+-	// 2) Unstick “retreaters” at the start of the turn
++	// 2) Unstick “retreaters" at the start of the turn
+ 	// Right at the top of AI_workerMove (after you build kOwner), add:
+ 	// Unstick previous retreats: if we’re in our land and not threatened, wake up.
+ 	// <!-- custom: update: we still have some workers that are on hold when cities could be improved, add an additional HOLD wake up as well if i understood it correctly as recommended by chatgpt 5, check if accurate, in autoplay they do appear to be on HOLD activity though it seems if i remember it correctly-->
+@@ -3052,7 +3052,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 
+ 	// <!-- custom: make workers less jumpy to retreat as chatgpt 5 says (thanks to my prompts and adjustments or not or yes or etcbut thanks for help too), i don't understand too much these, but it seems that we get false danger positives and due to that never improve tiles, some cities are entirely unimproved at turn 175 in jungle, trying to address that and perhaps also make workers more efficient. I think that early most units are slow so it's fine, and later in game, when most people have mobile units, the value of workers should be less so fine if they are stolen if i may say in this case; also using this as an opportunity to make workers more responsive and not stay in city when they could do something else, as questionned by the "XXX" comment-->
+ 	// Why not comment the retreat out entirely?
+-	// If you remove it, workers will often stand on roads two tiles from barb axes and get sniped. Your target check won’t stop that. The small tweaks above keep almost all the safety, with far fewer “false retreats,” especially around jungle rings.
++	// If you remove it, workers will often stand on roads two tiles from barb axes and get sniped. Your target check won’t stop that. The small tweaks above keep almost all the safety, with far fewer “false retreats," especially around jungle rings.
+ 	// if (bCanRetreat && !getGroup()->canDefend())
+ 	// {
+ 	// 	if (kOwner.AI_isPlotThreatened(plot(), 2))
+@@ -3084,11 +3084,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+          - Inside our cultural borders: skip threat check entirely.
+            (If an enemy is already on our tile, the game captures us before this runs.)
+          - Outside borders: use smaller radius = 1 (only adjacent tiles count as dangerous).
+-           → This greatly reduces “false positives” from slow or harmless enemy units
++           → This greatly reduces “false positives" from slow or harmless enemy units
+              far away but still inside the old radius 2 bubble.
+          - If threatened, FIRST try to redirect to a different, safer city
+            that still needs improvements, instead of retreating straight home.
+-         - Only fall back to “retreat to city” if no safe redirection is possible.
++         - Only fall back to “retreat to city" if no safe redirection is possible.
+          - This keeps workers productive more often while still avoiding capture
+            in genuinely dangerous situations outside borders.
+     */
+@@ -3253,11 +3253,11 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 		// Option 1: Add fallback after your city-switch check
+ 		// Always try to improve current city if we have one
+ 		// <!-- custom: chatgpt 5's comment about this change/addition as well -->
+-		// C) Only use “self city” as selection, let actual work be decided by AI_improveCity
+-		// Keep your current structure where AI_workerMove tries AI_improveCity(*pCity) after city switching. That path is already present and safe; just avoid having AI_nextCityToImprove return “true” with a self target that isn’t actionable (Fix A handles that). Your current call sites do return immediately on “success,” so ensuring “success” means “we actually queued missions” is the key.
++		// C) Only use “self city" as selection, let actual work be decided by AI_improveCity
++		// Keep your current structure where AI_workerMove tries AI_improveCity(*pCity) after city switching. That path is already present and safe; just avoid having AI_nextCityToImprove return “true" with a self target that isn’t actionable (Fix A handles that). Your current call sites do return immediately on “success," so ensuring “success" means “we actually queued missions" is the key.
+ 		// <!-- custom: when i asked it again if a change was needed regarding C it said this to explain it i mean, check if accurate -->
+ 		// Short answer: you’re good — with A and B in place, you don’t need to change anything for option C.
+-		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed” on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
++		// - Your current AI_workerMove still early-returns when AI_nextCityToImprove(pCity) succeeds. That’s fine now that A/B make sure we don’t “succeed" on a no-op self-city target; we’ll only return early when we actually queued a move/build to another city.
+ 		// - The local-work path still runs when no switch happens: after the first switch attempt, you fall through and try AI_improveCity(*pCity) and AI_improveLocalPlot(...), so the worker won’t park if it stayed in place.
+ 		if (AI_improveCity(*pCity))
+ 			return;
+@@ -3516,14 +3516,14 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 
+ 	// left debug list shows several Workers with MISSIONAI_RETREAT, HOLD.
+ 	// they’re inside your borders (Persepolis) and just… park.
+-	// that’s your “parking” culprit: once a worker gets a RETREAT mission it often sits on HOLD for many turns unless something explicitly clears that state.
++	// that’s your “parking" culprit: once a worker gets a RETREAT mission it often sits on HOLD for many turns unless something explicitly clears that state.
+ 
+ 	// why it’s happening even after your earlier tweak
+ 	// You already softened the early retreat check (outside borders only, radius=1).
+ 	// But near the end of AI_workerMove there’s still this unconditional fallback:
+ 	// That call runs even inside borders, and AI_retreatToCity sets the group to
+ 	// MISSIONAI_RETREAT + ACTIVITY_HOLD. In mid-game with 1–2 wars, the internal threat
+-	// heuristics will happily keep flagging tiles as “unsafe”, so workers pile into the
++	// heuristics will happily keep flagging tiles as “unsafe", so workers pile into the
+ 	// nearest city and stay on HOLD. That matches your screenshot exactly.
+ 	// two small patches that fix it
+ 	// 1) Don’t retreat inside borders (final fallback)
+@@ -3549,7 +3549,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 		return;
+ 
+ 	// <!-- custom: tentative safety if workers are still on HOLD or such, try to manually reset them so they do something, anything, as recommended by chatgpt 5 (check if accurate); note: refresh the value to another bWorkerSleeping2 variable in case it changed since then  -->
+-	// Bottom-of-function failsafe (“do something, anything”)
++	// Bottom-of-function failsafe (“do something, anything")
+ 	// At the very end of AI_workerMove (just before returning with no action), add:
+ 	const bool bWorkerSleeping2 = (
+ 		(getGroup()->AI().AI_getMissionAIType() == MISSIONAI_RETREAT) ||
+@@ -3573,7 +3573,7 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
+ 	// Put the failsafe before the final MISSION_SKIP
+ 	// <!-- custom: then after i asked it why only to understand/guess xdthat our fallback would not be reached or fail due to the skip or such, it added this info, check if accurate -->
+ 	// yep — your intuition is right.
+-	// pushMission(MISSION_SKIP) queues a “do nothing this turn” for the group (effectively HOLD/skip-turn).
++	// pushMission(MISSION_SKIP) queues a “do nothing this turn" for the group (effectively HOLD/skip-turn).
+ 	// Once you’ve queued that, any logic after it is either not reached (if you return;) or will be overwritten by the queued skip (the group will still execute the skip you just pushed).
+ 	// So if you put your wake-up + reassignment after MISSION_SKIP, it neuters the sanity checks. They must run before any skip is pushed.
+ 
+@@ -5094,9 +5094,9 @@ void CvUnitAI::AI_attackCityMove()
+ 					}
+ 				}
+ 				// <!-- custom: fixes "weird back and forth" issue after fixing known issue 62 (not evacuating all units from doomed city). Stack evacuates nicely then tries to attack much stronger enemy stack, only to retreat without attacking after seeing enemy is too strong - very inefficient and risky. Doesn't appear if playing 2+ autoplay turns in a row (but does with 1 autoplay turn). While maybe no longer necessary, kept as harmless sanity check since saw plenty such cases. See known issue 63 for details. Credit: ChatGPT 5. (Claude code Sonnet 4.5 (summarized)) -->
+-				// Gate the “walk toward target city” step
+-				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk.” block that always tries to move closer, even if we’ve already computed that the target is too strong
+-				// That’s the whole change. When the city is “too strong,” the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
++				// Gate the “walk toward target city" step
++				// In CvUnitAI::AI_attackCityMove() there’s a late “We have to walk." block that always tries to move closer, even if we’ve already computed that the target is too strong
++				// That’s the whole change. When the city is “too strong," the stack won’t step into the 1–2 tile danger ring; it will fall through to the rest of the logic (merge, bombard if possible, pillage/choke, retreat or stage), rather than yo-yoing and bleeding units.
+ 				//
+ 				// We have to walk.
+ 				// if (AI_goToTargetCity(eMoveFlags, MAX_INT, pTargetCity))
+@@ -6478,14 +6478,14 @@ void CvUnitAI::AI_generalMove()
+ 
+ 	// <!-- custom: AI goes for Great General units while Military Instructor is much better, especially in top hammer cities with Heroic Epic. Credit: ChatGPT 5; Claude Sonnet 4.5. (Claude code Sonnet 4.5 (summarized)) -->
+ 	// 2. Modify AI_generalMove() - Prioritize Joining <!-- custom: after we have our acamedy -->
+-	// “Try to construct a Military Academy if our empire currently has fewer than X academies.”
++	// “Try to construct a Military Academy if our empire currently has fewer than X academies."
+ 	if (AI_construct(1))
+ 	{
+ 		return;
+ 	}
+ 
+ 	// NEW: Try joining FIRST <!-- custom: before and instead of any great general leader, but after we have our academy (if we can) --> (allow multiple instructors per city)
+-	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled.”
++	// “Try to settle as Military Instructor if our empire currently has fewer than X already settled."
+ 	static const int iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT = GC.getDefineINT("SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT");
+ 	if (AI_join(iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT))
+ 	{
+@@ -10681,9 +10681,9 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 		static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
+ 		const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
+ 		// Practical use in your siege gate
+-		// Don’t use iEnemyPowPct<=90 to mean “we’re stronger” when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
++		// Don’t use iEnemyPowPct<=90 to mean “we’re stronger" when you aren’t at war or actively preparing one, because you’ll read 0% and green-light trebuchets in peacetime.
+ 		// This way:
+-		// - In peacetime, you won’t accidentally treat “0” as “we totally dominate” and overbuild siege.
++		// - In peacetime, you won’t accidentally treat “0" as “we totally dominate" and overbuild siege.
+ 		static const int iSAS_ENEMY_WEAK_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_WEAK_POWER_THRESHOLD"); // e.g. 80
+ 		//const bool bEnemyWeak = (iEnemyPowerPercent <= iSAS_ENEMY_WEAK_POWER_THRESHOLD);
+ 		// <!-- custom: modified version i guessedly made without checking relevant function's code, hopefully more accurate but check to be sure as is just a guess from me-->
+@@ -12165,7 +12165,7 @@ bool CvUnitAI::AI_guardCityMinDefender(bool bSearch)
+ 			// <!-- custom: barbarians capture cities too early in base AdvCiv +/- Civ4. AI has plenty units but concentrates them poorly (4 in capital, 1 in city B), so city B gets captured while capital is overly defended. Production is fine but unit movement needs fixing. See known issue 49 for details. Credit: ChatGPT 5; Gemini 2.5 Pro. (Claude code Sonnet 4.5 (summarized)) -->
+ 			// int iDefendersNeed = pLoopCity->AI_minDefenders();
+ 			// 1) Make the search ask for what the city really needs
+-			// That one-liner lets the existing “pull” logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
++			// That one-liner lets the existing “pull" logic target cities that are under their true need (incl. barb/danger effects), not just under the bare min.
+ 			const int iDefendersNeed = pLoopCity->AI_neededDefenders(true);
+ 
+ 			if (iDefendersHave < iDefendersNeed)
+@@ -19347,8 +19347,8 @@ bool CvUnitAI::AI_improveLocalPlot(int iRange, CvCity const* pIgnoreCity,
+ 			// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+ 			// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+ 			// With iRange = 0, it only counts groups whose target is exactly the same tile.
+-			// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+-			// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
++			// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
++			// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+ 			int const iRange = 0;
+ 			// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
+ 			int const iMaxWorkers = 1;
+@@ -19480,7 +19480,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+     int bestScore = MIN_INT;
+ 
+ 	// <!-- custom: try to improve our current cityif no other city is good rather than bailing entirely, at least we'd be using our workers rather than them doing nothing at all -->
+-	// yup, that plan is clean: don’t recurse; while scanning cities, also test your current city and stash a “self candidate.” If nothing else wins, fall back to that. Below is a tiny drop-in that reuses the exact same guards you already use (bestBuild gate → 1-per-tile reservation → pathable), plus a final sanity check before pushing missions.
++	// yup, that plan is clean: don’t recurse; while scanning cities, also test your current city and stash a “self candidate." If nothing else wins, fall back to that. Below is a tiny drop-in that reuses the exact same guards you already use (bestBuild gate → 1-per-tile reservation → pathable), plus a final sanity check before pushing missions.
+ 	// Minimal patch
+ 	// 1. Add these locals before the FOR_EACH_CITYAI loop:
+ 	CvPlot*   pSelfPlot   = NULL;
+@@ -19540,7 +19540,7 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 		// 3. Keep your existing candidate checks (AI_getBestBuild / AI_bestCityBuild / null guards / reservation / path). After those checks pass, do this:
+ 		if (bIsSelf)
+ 		{
+-			// Store a “self” candidate for later fallback; don’t compete in scoring here.
++			// Store a “self" candidate for later fallback; don’t compete in scoring here.
+ 			bSelfImprovable = true;
+ 			pSelfPlot  = pPlot;
+ 			eSelfBuild = eBuild;
+@@ -19607,12 +19607,12 @@ bool CvUnitAI::AI_nextCityToImprove(CvCity const* pCity) // advc: const param
+ 	// 	return false;
+ 	// <!-- custom: add in addition to this sanity check if i'm not mistakena new extra logic to try to improve our city if we have no other city to improve at all, better than doing nothing and bailing,, code by chatgpt 5, check if accurate-->
+ 	// Minimal patch
+-	// 4. Fallback to the stored “self” candidate if no other-city target was found:
++	// 4. Fallback to the stored “self" candidate if no other-city target was found:
+ 	// <!-- custom: update: according to claude sonnet 4.5 and then according to chatgpt 5 as well after feeding it its explanation, there was an issue with our approach, so fixed as below with chatgpt 5's rationale in comments, check if accurate -->
+ 	// A) Gate the self fallback (stop returning a no-op)
+ 	// Replace your fallback block with this guard so it only fires when there’s real work to do:
+ 	// Fallback to stored self target *only if actionable*
+-	// This keeps your self-candidate idea but prevents “successful” no-ops that lead to parking. (Your current fallback is here.)
++	// This keeps your self-candidate idea but prevents “successful" no-ops that lead to parking. (Your current fallback is here.)
+ 	if ((pBestPlot == NULL || eBestBuild == NO_BUILD) && bSelfImprovable)
+ 	{
+ 		// Use self only if we're not already standing there,
+@@ -20100,8 +20100,8 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 		// It’s not a distance limit for how far the worker can travel. It only affects reservation counting.
+ 		// AI_plotTargetMissionAIs(plot, …, iRange, …) counts other groups whose mission plot is within iRange tiles of plot.
+ 		// With iRange = 0, it only counts groups whose target is exactly the same tile.
+-		// → Perfect for “one-per-tile”; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
+-		// If you set iRange = 1 or 2, you create a “soft exclusion bubble” around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
++		// → Perfect for “one-per-tile"; it doesn’t stop you from going far. It just prevents 2 workers picking the same tile.
++		// If you set iRange = 1 or 2, you create a “soft exclusion bubble" around the target—useful if you wanted to avoid crowding adjacent tiles (I don’t think you want that).
+ 		int const iRange = 0;
+ 		// <!-- custom: note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore -->
+ 		int const iMaxWorkers = 1;
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 8d3a0a7eb..4da1026ec 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -533,7 +533,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+ 	// Emergency rule: if we're at war with 3+ major civs, force the negotiation path.
+ 	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
+ 	//
+-	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates”)
++	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates")
+ 	const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
+ 
+ 	// Combined enemy power vs us (100 = parity)
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 454f79c11..6199f769d 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -2901,7 +2901,7 @@ void Effort::evaluate() {}
+ int Risk::preEvaluate()
+ {
+ 	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
+-	// if you want a fixed, super-simple “turns-to-contact” cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter” in turns; you don’t need extra code for roads.
++	// if you want a fixed, super-simple “turns-to-contact" cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter" in turns; you don’t need extra code for roads.
+ 	// --- SIMPLE HARD REJECT / RPE FILTER ---
+ 
+ 	// fixed caps in *turns*; tweak to taste or move to XML
+
+diff --git a/Long_Comments/Long_Comments_py.txt b/Long_Comments/Long_Comments_py.txt
+index c174239a8..7f22334b3 100644
+--- a/Long_Comments/Long_Comments_py.txt
++++ b/Long_Comments/Long_Comments_py.txt
+@@ -815,7 +815,7 @@ and undoing it as it told me later solved the error. So i think or at least it s
+ 			# Change in CvInfoScreen.py:
+ 			# Added iCityFoundedMessage and a bHideCityFounded gate using pPlot.getRevealedOwner(self.iActiveTeam, False).
+ 			# If revealed owner doesn’t match the message’s player (or coords missing), the city‑founded line is hidden.
+-			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild” toggle for testing.
++			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild" toggle for testing.
+ 			# -->
+ 
+ ===== PrivateMaps\Planet_Generator_0_68.py =====
+
+[PATCH OMITTED] file=a/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt b/_0_Common_Docs/AdvCiv_Base_Doc/manual.txt reason=known-generated/noisy-history changedLines=1706 bytes=1011765
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt b/_0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt reason=known-generated/noisy-history changedLines=14 bytes=4751
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 52d5a7f29..7a02ceda6 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -400,16 +400,16 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | Map script name        | Description                                                                                                                                                                                       | Map Type                                                                           |
+ | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------- |
+ | `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial); `// <!-- custom: empirically and based on code comments looks landHeavy -->`                  | Other (debug/test map); `<!-- custom: Land, see description -->`                   |
+-| `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                                                                          | Land                                                                               |
++| `Arboria`              | Forest-heavy/“lush" world variant (terrain emphasis more than geometry).                                                                                                                          | Land                                                                               |
+ | `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                                                                   | Water                                                                              |
+ | `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                                                                   | Land                                                                               |
+ | `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                                                                | Other (hybrid land + islands)                                                      |
+ | `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                                                                  | Land                                                                               |
+ | `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                                                                 | Land                                                                               |
+-| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent” gameplay.                                                                                                                  | Land                                                                               |
++| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent" gameplay.                                                                                                                  | Land                                                                               |
+ | `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                                                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->`              |
+ | `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                                                                             | Land                                                                               |
+-| `Fantasy_Realm`        | Approximative: “Fantasy/exotic” generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->`                                                 | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->`  |
++| `Fantasy_Realm`        | Approximative: “Fantasy/exotic" generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->`                                                 | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->`  |
+ | `Fractal`              | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                                                                 | Land                                                                               |
+ | `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                                                                             | Land                                                                               |
+ | `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                                                                              | Land                                                                               |
+@@ -422,12 +422,12 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                                                                        | Land                                                                               |
+ | `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->`                                                                            | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->`         |
+ | `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                                                                  | Other (hybrid land + islands)                                                      |
+-| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents” nor purely islands. `<!-- custom: empirically looks navalHeavy -->`                                                   | Other (hybrid land + islands) `<!-- custom: Land, see description -->`             |
++| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents" nor purely islands. `<!-- custom: empirically looks navalHeavy -->`                                                   | Other (hybrid land + islands) `<!-- custom: Land, see description -->`             |
+ | `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                                                                     | Other (symmetry-based layout)                                                      |
+ | `not_too_Big_or_Small` | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                                                                   | Other (hybrid land + islands)                                                      |
+ | `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                                                                | Land                                                                               |
+ | `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                                                                               | Land                                                                               |
+-| `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). `<!-- custom: empirically looks navalHeavy -->` | Land `<!-- custom: empirically looks Water -->`                                    |
++| `PerfectMongoose`      | Approximative: Third-party “planet" style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). `<!-- custom: empirically looks navalHeavy -->` | Land `<!-- custom: empirically looks Water -->`                                    |
+ | `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                                                                | Land                                                                               |
+ | `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                                                                       | Random                                                                             |
+ | `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel); `<!-- custom: empirically looks landHeavy -->`                                                                                  | Other (ring geometry); `<!-- custom: Land, see description -->`                    |
+@@ -435,8 +435,8 @@ Done with the help of GPT-5.2 Thinking thanks:
+ | `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                                                                       | Random                                                                             |
+ | `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                                                                            | Land                                                                               |
+ | `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                                                                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->`             |
+-| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->`                                             | Other (old world/new world colonization); `<!-- custom: Land, see description -->` |
+-| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south; `<!-- custom: empirically looks navalHeavy -->`                                                                        | Land; `<!-- custom: empirically looks Water -->`                                   |
++| `Terra`                | Old World starts with a separate “New World" to discover/colonize later; `<!-- custom: empirically and based on map descriptions looks landHeavy -->`                                             | Other (old world/new world colonization); `<!-- custom: Land, see description -->` |
++| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted" vs normal north-south; `<!-- custom: empirically looks navalHeavy -->`                                                                        | Land; `<!-- custom: empirically looks Water -->`                                   |
+ | `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry); `<!-- custom: empirically looks landHeavy -->`                                                                                        | Other (wheel/spokes geometry); `<!-- custom: Land, see description -->`            |
+ 
+ Sources (GPT-5.2 Thinking):
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS-previous.txt reason=known-generated/noisy-history changedLines=42 bytes=34200
+
+[PATCH COVERAGE]
+patchFiles=32 embeddedFiles=29 omittedFiles=3 embeddedPatchBytes=145425

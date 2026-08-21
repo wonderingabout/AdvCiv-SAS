@@ -1,0 +1,125 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 69
+# Commit: e59a297447c8b7449e19a63cb7b4477e5c525058
+# History segment: K-Mod history
+# Parent used for diff: 8c0eb6e9fbad3532a20c91c9beb7293fe1732f89
+# Title: Fixed a memory leak from BBAI.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	19	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a54c5ada0..82f25af29 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14391,7 +14391,7 @@ void CvPlayerAI::AI_doCommerce()
+ /********************************************************************************/
+ /* 	BETTER_BTS_AI_MOD						9/7/08				jdog5000	    */
+ /* 																			    */
+-/* 	Espionage AI															    */
++/* 	Espionage AI		(with bug fixes by karadoc)							    */
+ /********************************************************************************/
+ 		// original BTS code
+ 		/*
+@@ -14416,13 +14416,13 @@ void CvPlayerAI::AI_doCommerce()
+ 		*/
+ 		
+ 		int iEspionageTargetRate = 0;
+-		int* piTarget = new int[MAX_CIV_TEAMS];
+-		int* piWeight = new int[MAX_CIV_TEAMS];
++		int* aiTarget = new int[MAX_CIV_TEAMS];
++		int* aiWeight = new int[MAX_CIV_TEAMS];
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+-			piTarget[iTeam] = 0;
+-			piWeight[iTeam] = 0;
++			aiTarget[iTeam] = 0;
++			aiWeight[iTeam] = 0;
+ 
+ 			CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iTeam);
+ 			if (kLoopTeam.isAlive() && iTeam != getTeam() && !kLoopTeam.isVassal(getTeam()) && !GET_TEAM(getTeam()).isVassal((TeamTypes)iTeam))
+@@ -14434,7 +14434,7 @@ void CvPlayerAI::AI_doCommerce()
+ 					int iDesiredMissionPoints = 0;
+ 					int iDesiredEspPoints = 0;
+ 					
+-					piWeight[iTeam] = 10;
++					aiWeight[iTeam] = 10;
+ 					int iRateDivisor = 12;
+ 
+ 					if( GET_TEAM(getTeam()).AI_getWarPlan((TeamTypes)iTeam) != NO_WARPLAN )
+@@ -14460,11 +14460,11 @@ void CvPlayerAI::AI_doCommerce()
+ 						}
+ 
+ 						iRateDivisor = 10;
+-						piWeight[iTeam] = 20;
++						aiWeight[iTeam] = 20;
+ 
+ 						if( GET_TEAM(getTeam()).AI_hasCitiesInPrimaryArea((TeamTypes)iTeam) )
+ 						{
+-							piWeight[iTeam] = 30;
++							aiWeight[iTeam] = 30;
+ 							iRateDivisor = 8;
+ 						}
+ 					}
+@@ -14514,16 +14514,16 @@ void CvPlayerAI::AI_doCommerce()
+ 						}
+ 
+ 						iRateDivisor += (iAttitude/5);
+-						piWeight[iTeam] -= (iAttitude/2);
++						aiWeight[iTeam] -= (iAttitude/2);
+ 					}
+ 
+ 					iDesiredEspPoints = std::max(iTheirEspPoints,iDesiredMissionPoints);
+ 
+-					piTarget[iTeam] = (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
++					aiTarget[iTeam] = (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
+ 
+-					if( piTarget[iTeam] > 0 )
++					if( aiTarget[iTeam] > 0 )
+ 					{
+-						iEspionageTargetRate += piTarget[iTeam];
++						iEspionageTargetRate += aiTarget[iTeam];
+ 					}
+ 				}
+ 			}
+@@ -14531,18 +14531,18 @@ void CvPlayerAI::AI_doCommerce()
+ 
+ 		for (int iTeam = 0; iTeam < MAX_CIV_TEAMS; ++iTeam)
+ 		{
+-			if( piTarget[iTeam] > 0 )
++			if( aiTarget[iTeam] > 0 )
+ 			{
+-				piWeight[iTeam] += (150*piTarget[iTeam])/std::max(4,iEspionageTargetRate);
++				aiWeight[iTeam] += (150*aiTarget[iTeam])/std::max(4,iEspionageTargetRate);
+ 			}
+-			else if( piTarget[iTeam] < 0 )
++			else if( aiTarget[iTeam] < 0 )
+ 			{
+-				piWeight[iTeam] += 2*piTarget[iTeam];
++				aiWeight[iTeam] += 2*aiTarget[iTeam];
+ 			}	
+-			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, std::max(0,piWeight[iTeam]));
++			setEspionageSpendingWeightAgainstTeam((TeamTypes)iTeam, std::max(0,aiWeight[iTeam]));
+ 		}
+-		SAFE_DELETE(piTarget);
+-		SAFE_DELETE(piWeight);
++		SAFE_DELETE_ARRAY(aiTarget);
++		SAFE_DELETE_ARRAY(aiWeight);
+ /********************************************************************************/
+ /* 	BETTER_BTS_AI_MOD						END								    */
+ /********************************************************************************/
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3561

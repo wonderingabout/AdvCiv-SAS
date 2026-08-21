@@ -1,0 +1,60 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4282
+# Commit: 1800e6ab08f309b5dda06a537f90f154596f3f31
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6e7b7a13223797d465110db474dd3b0573c9ef45
+# Title: Fix fixed-point exponentiation function for large bases
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/ScaledNum.h
+6	0	CvGameCoreDLL/ScaledNumTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ScaledNum.h b/CvGameCoreDLL/ScaledNum.h
+index f01c16f65..ab2755789 100644
+--- a/CvGameCoreDLL/ScaledNum.h
++++ b/CvGameCoreDLL/ScaledNum.h
+@@ -775,7 +775,11 @@ private:
+ 		} // Ex.: iBaseDiv=8 and rProductOfPowersOfTwo=1270/1024, approximating (2^0.1)^3.
+ 		ScaledNum<256,uint> rLastFactor(1);
+ 		// Look up approximate result of ((*this)/iBaseDiv)^rExpFrac in precomputed table
+-		int iLastBaseTimes64 = (ScaledNum<64,uint>(*this / iBaseDiv)).m_i; // Ex.: 42/64 approximating 5.2/8
++		int iLastBaseTimes64;
++		if (iBaseDiv > MAX) // iBaseDiv can get too large. Use two divisions then.
++			iLastBaseTimes64 = (ScaledNum<64,uint>((*this / (iBaseDiv / 1024)) / 1024)).m_i;
++		// Ex.: 42/64 approximating 5.2/8
++		else iLastBaseTimes64 = (ScaledNum<64,uint>(*this / iBaseDiv)).m_i;
+ 		#ifdef SCALED_NUM_EXTRA_ASSERTS
+ 			FAssertBounds(0, 64+1, iLastBaseTimes64);
+ 		#endif
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index efb75db78..c9573fe4b 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -152,6 +152,12 @@ void TestScaledNum()
+ 	// (But an approxEquals check isn't possible so close to r2.MAX)
+ 	FAssert(r2 > fixp(1.99));
+ 	FAssert(r2 < 2);
++	{
++		scaled rBig = 582913;
++		rBig = rBig.sqrt();
++		// Precision isn't great for such large numbers. Haven't looked into why.
++		FAssert(rBig.approxEquals(fixp(763.5), 3));
++	}
+ 
+ 	// Speed measurements
+ 	// (CPU cycles noted in comments can be out of date)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1500

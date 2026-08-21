@@ -9,9 +9,12 @@
 #include "CoreAI.h"
 #include "CvCityAI.h"
 #include "CvDiploParameters.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Shared raw WarPlanTypes token text and victory-stage helpers for structured war diagnostics. (GPT-5.5) -->
+#include "CvUnit.h" // <!-- custom: Required by WAR target-opportunity diagnostics that inspect candidate-team military locations. (GPT-5.6-Sol) -->
 #include "TeamPathFinder.h"
 #include "CvArea.h"
 #include "RiseFall.h" // advc.705
+#include "BBAILog.h" // <!-- custom: Dedicated SAS war diagnostics log UWAI target utility and distance context separately from broad TEAM logging. (GPT-5.5) -->
 
 using std::vector;
 using std::set;
@@ -25,6 +28,198 @@ namespace
 	/*  Modifier for human payments for peace, i.e what the AI asks a human to pay
 		(no modifier for brokering, i.e. 100%). */
 	scaled const rReparationsModifierHuman = fixp(0.75);
+
+	int getSASBBAINearestCityDistance(TeamTypes eFrom, TeamTypes eTo)
+	{
+		int iBestDistance = MAX_INT;
+		for (MemberAIIter itFrom(eFrom); itFrom.hasNext(); ++itFrom)
+		{
+			FOR_EACH_CITY(pFromCity, *itFrom)
+			{
+				for (MemberAIIter itTo(eTo); itTo.hasNext(); ++itTo)
+				{
+					FOR_EACH_CITY(pToCity, *itTo)
+					{
+						iBestDistance = std::min(iBestDistance, plotDistance(pFromCity->getX(), pFromCity->getY(), pToCity->getX(), pToCity->getY()));
+					}
+				}
+			}
+		}
+		return (iBestDistance == MAX_INT ? -1 : iBestDistance);
+	}
+
+	int getSASBBAITargetPowerPercent(CvTeamAI const& kAgent, TeamTypes eTarget)
+	{
+		return (100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID())) / std::max(1, kAgent.getPower(true));
+	}
+
+	void getSASBBAITeamVictoryStages(TeamTypes eTeam, int& iCultureStage, int& iSpaceStage, int& iConquestStage, int& iDominationStage, int& iDiplomacyStage)
+	{
+		iCultureStage = 0;
+		iSpaceStage = 0;
+		iConquestStage = 0;
+		iDominationStage = 0;
+		iDiplomacyStage = 0;
+		for (MemberAIIter it(eTeam); it.hasNext(); ++it)
+		{
+			AIVictoryStage const eVictoryStageHash = it->AI_getVictoryStageHash();
+			iCultureStage = std::max(iCultureStage, getSASCultureVictoryStageLevel(eVictoryStageHash));
+			iSpaceStage = std::max(iSpaceStage, getSASSpaceVictoryStageLevel(eVictoryStageHash));
+			iConquestStage = std::max(iConquestStage, getSASConquestVictoryStageLevel(eVictoryStageHash));
+			iDominationStage = std::max(iDominationStage, getSASDominationVictoryStageLevel(eVictoryStageHash));
+			iDiplomacyStage = std::max(iDiplomacyStage, getSASDiplomacyVictoryStageLevel(eVictoryStageHash));
+		}
+	}
+
+	int getSASBBAIVictoryDenialUtilityBoost(TeamTypes eTarget, int iTargetMaxVictoryStage)
+	{
+		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+		if (!bEnable)
+			return 0;
+		int iBoost = 0;
+		int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
+		static const int iMaxCountdownBoostNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_BOOST");
+		int const iMaxCountdownBoost = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownBoostNormal);
+		if (iCountdown >= 0 && iCountdown <= iMaxCountdownBoost)
+		{
+			static const int iCountdownUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_COUNTDOWN_UTILITY_BOOST");
+			iBoost += (iCountdownUtilityBoost * (iMaxCountdownBoost + 1 - iCountdown)) / std::max(1, iMaxCountdownBoost + 1);
+		}
+		if (iTargetMaxVictoryStage >= 4)
+		{
+			static const int iStage4UtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE4_UTILITY_BOOST");
+			iBoost += iStage4UtilityBoost;
+		}
+		if (isSASTeamStage3SpaceVictoryThreat(eTarget))
+		{
+			static const int iStage3SpaceUtilityBoost = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_STAGE3_SPACE_UTILITY_BOOST");
+			iBoost += iStage3SpaceUtilityBoost;
+		}
+		return iBoost;
+	}
+
+	void logSASBBAIWarTargetVictoryContext(CvTeamAI const& kAgent, TeamTypes eTarget, char const* szRow, WarPlanTypes eWarPlan, int iUtility, int iDrivePercent, int iTargetRank, int iCandidateCount, bool bBackground)
+	{
+		int iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage;
+		int iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage;
+		getSASBBAITeamVictoryStages(eTarget, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage);
+		getSASBBAITeamVictoryStages(kAgent.getID(), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage);
+		if (std::max(std::max(iTargetCultureStage, iTargetSpaceStage), std::max(std::max(iTargetConquestStage, iTargetDominationStage), iTargetDiplomacyStage)) < 3 && GET_TEAM(eTarget).AI_getLowestVictoryCountdown() < 0)
+			return;
+		// <!-- custom: Map 450 showed Lincoln winning Space Race despite stronger teams evaluating him as weak and reachable only a few turns earlier. Log near-victory target context directly beside UWAI target rows so future runs show whether the AI noticed a rival victory threat, whether the target was weak/near enough, and whether normal war selection acted too late. (GPT-5.5) -->
+		logBBAI("WAR_TARGET_VICTORY_PRESSURE turn=%d row=%s background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d targetRank=%d candidateCount=%d targetCultureStage=%d targetSpaceStage=%d targetConquestStage=%d targetDominationStage=%d targetDiplomacyStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetSpaceLeaderPartGap=%d agentCultureStage=%d agentSpaceStage=%d agentConquestStage=%d agentDominationStage=%d agentDiplomacyStage=%d agentVictoryCountdown=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), szRow, bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, iDrivePercent, iTargetRank, iCandidateCount, iTargetCultureStage, iTargetSpaceStage, iTargetConquestStage, iTargetDominationStage, iTargetDiplomacyStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASTeamSpaceshipPartsBuilt(eTarget), getSASTeamSpaceshipPartsPercent(eTarget), getSASTeamStage3SpaceLeaderPartGap(eTarget), iAgentCultureStage, iAgentSpaceStage, iAgentConquestStage, iAgentDominationStage, iAgentDiplomacyStage, kAgent.AI_getLowestVictoryCountdown(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), kAgent.getNumWars(true, true), GET_TEAM(eTarget).getNumWars(true, true));
+	}
+
+	bool isSASBBAIPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, scaled rDrive)
+	{
+		static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_LOCAL_WAR_TARGET_PREFERENCE_ENABLE");
+		if (!bEnable)
+			return false;
+		// <!-- custom: UWAI sorts by drive, then tests targets probabilistically. BBAI war-target logs showed this can fall through to a farther target even when a closer weak/disliked land target is available, splitting armies away from the core and inviting opportunistic invasions.
+		// Mark only mutually land-relevant local targets here; island/naval choices remain ordinary UWAI or future naval-specific logic. The later skip is intentionally narrow so ordinary UWAI target choice is not flattened into always attacking the weakest neighbor. Uses team power because UWAI chooses team war plans. See KI#182. (GPT-5.5) -->
+		if (!kAgent.AI_isLandTarget(eTarget) || !GET_TEAM(eTarget).AI_isLandTarget(kAgent.getID()))
+			return false;
+		static const int iMinDrivePercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DRIVE_PERCENT");
+		static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_DISTANCE");
+		static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_TARGET_POWER_PERCENT");
+		static const int iMaxAttitudeValue = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MAX_ATTITUDE_VALUE");
+		static const int iMinCloseness = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_CLOSENESS");
+		return (rDrive.getPercent() >= iMinDrivePercent && getSASBBAINearestCityDistance(kAgent.getID(), eTarget) <= iMaxDistance && getSASBBAITargetPowerPercent(kAgent, eTarget) <= iMaxTargetPowerPercent && kAgent.AI_getAttitudeVal(eTarget) <= iMaxAttitudeValue && kAgent.AI_teamCloseness(eTarget) >= iMinCloseness);
+	}
+
+	bool shouldSASBBAISkipForPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eTarget, TeamTypes ePreferredTarget)
+	{
+		if (ePreferredTarget == NO_TEAM || eTarget == ePreferredTarget)
+			return false;
+		static const int iMinDistanceAdvantage = GC.getDefineINT("SAS_UWAI_LOCAL_WAR_TARGET_MIN_DISTANCE_ADVANTAGE");
+		return (getSASBBAINearestCityDistance(kAgent.getID(), eTarget) >= getSASBBAINearestCityDistance(kAgent.getID(), ePreferredTarget) + iMinDistanceAdvantage);
+	}
+
+	bool isSASBBAIBetterPreferredLocalWarTarget(CvTeamAI const& kAgent, TeamTypes eCandidate, scaled rCandidateDrive, TeamTypes eCurrent, scaled rCurrentDrive)
+	{
+		if (eCurrent == NO_TEAM)
+			return true;
+		int const iCandidateDistance = getSASBBAINearestCityDistance(kAgent.getID(), eCandidate);
+		int const iCurrentDistance = getSASBBAINearestCityDistance(kAgent.getID(), eCurrent);
+		if (iCandidateDistance != iCurrentDistance)
+			return (iCandidateDistance < iCurrentDistance);
+		int const iCandidatePowerPercent = getSASBBAITargetPowerPercent(kAgent, eCandidate);
+		int const iCurrentPowerPercent = getSASBBAITargetPowerPercent(kAgent, eCurrent);
+		if (iCandidatePowerPercent != iCurrentPowerPercent)
+			return (iCandidatePowerPercent < iCurrentPowerPercent);
+		int const iCandidateAttitudeValue = kAgent.AI_getAttitudeVal(eCandidate);
+		int const iCurrentAttitudeValue = kAgent.AI_getAttitudeVal(eCurrent);
+		if (iCandidateAttitudeValue != iCurrentAttitudeValue)
+			return (iCandidateAttitudeValue < iCurrentAttitudeValue);
+		int const iCandidateCloseness = kAgent.AI_teamCloseness(eCandidate);
+		int const iCurrentCloseness = kAgent.AI_teamCloseness(eCurrent);
+		if (iCandidateCloseness != iCurrentCloseness)
+			return (iCandidateCloseness > iCurrentCloseness);
+		return (rCandidateDrive.getPercent() > rCurrentDrive.getPercent());
+	}
+
+	// <!-- custom: A rival can be an attractive target because its power is spread across too many cities or because its army is committed to another war. Count that context only inside WAR level-2 diagnostics so testing can measure these opportunities before changing UWAI target valuation. Reuse SASGameRecord's military-unit definition for consistent comparison. (GPT-5.6-Sol) -->
+	void getSASBBAITeamMilitaryPosture(TeamTypes eTarget, int& iMilitary, int& iOwnTerritory, int& iOutsideOwnTerritory, int& iEnemyTerritory, int& iInCities)
+	{
+		iMilitary = 0;
+		iOwnTerritory = 0;
+		iOutsideOwnTerritory = 0;
+		iEnemyTerritory = 0;
+		iInCities = 0;
+		for (MemberAIIter itMember(eTarget); itMember.hasNext(); ++itMember)
+		{
+			int iLoop = 0;
+			for (CvUnit const* pLoopUnit = itMember->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = itMember->nextUnit(&iLoop))
+			{
+				CvPlot const* pPlot = pLoopUnit->plot();
+				if (!pLoopUnit->canDefend(pPlot) && pLoopUnit->baseCombatStr() <= 0 && pLoopUnit->airBaseCombatStr() <= 0)
+					continue;
+				iMilitary++;
+				if (pPlot == NULL)
+					continue;
+				if (pPlot->isCity())
+					iInCities++;
+				if (pPlot->getTeam() == eTarget)
+					iOwnTerritory++;
+				else
+				{
+					iOutsideOwnTerritory++;
+					if (pPlot->getTeam() != NO_TEAM && GET_TEAM(eTarget).isAtWar(pPlot->getTeam()))
+						iEnemyTerritory++;
+				}
+			}
+		}
+	}
+
+	void logSASBBAIWarTargetEval(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, int iLimitedU, int iTotalU, bool bLimitedNaval, bool bTotalNaval, int iLimitedPrepTime, int iTotalPrepTime, bool bShortWork, bool bBackground)
+	{
+		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+		const PlayerTypes eAgentLeader = kAgent.getLeaderID();
+		const PlayerTypes eTargetLeader = kTarget.getLeaderID();
+		const int iAttitude = kAgent.AI_getAttitude(eTarget);
+		const int iAttitudeValue = kAgent.AI_getAttitudeVal(eTarget);
+		const int iOurPower = std::max(1, kAgent.getPower(true));
+		const int iTargetTotalPower = kTarget.getPower(true);
+		const int iTargetPower = kTarget.getDefensivePower(kAgent.getID());
+		const int iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eTarget);
+		int iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities;
+		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
+		getSASBBAITeamMilitaryPosture(kAgent.getID(), iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities);
+		getSASBBAITeamMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+		logBBAI("WAR_TARGET_EVAL turn=%d background=%d agentTeam=%d agentLeader=%d targetTeam=%d targetLeader=%d warPlan=%s utility=%d limitedUtility=%d totalUtility=%d limitedNaval=%d totalNaval=%d limitedPrepTurns=%d totalPrepTurns=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d landTarget=%d targetLandTarget=%d nearestCityDistance=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWars=%d targetWars=%d targetEnemyPowerPercent=%d ourMilitary=%d ourMilitaryOwnTerritory=%d ourMilitaryOutsideOwnTerritory=%d ourMilitaryEnemyTerritory=%d ourMilitaryInCities=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d",
+				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eAgentLeader, eTarget, eTargetLeader, getSASWarPlanType(eWarPlan), iUtility, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), iAttitude, iAttitudeValue, kAgent.AI_teamCloseness(eTarget), kAgent.AI_isLandTarget(eTarget), kTarget.AI_isLandTarget(kAgent.getID()), iNearestCityDistance, iOurPower, iTargetTotalPower, iTargetPower, (100 * iTargetPower) / iOurPower, kAgent.getNumCities(), kTarget.getNumCities(),
+				(100 * iOurPower) / std::max(1, kAgent.getNumCities()), (100 * iTargetTotalPower) / std::max(1, kTarget.getNumCities()), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iOurMilitary, iOurMilitaryOwnTerritory, iOurMilitaryOutsideOwnTerritory, iOurMilitaryEnemyTerritory, iOurMilitaryInCities, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "EVAL", eWarPlan, iUtility, -1, -1, -1, bBackground);
+	}
+
+	void logSASBBAIWarTargetDrive(CvTeamAI const& kAgent, TeamTypes eTarget, WarPlanTypes eWarPlan, int iUtility, scaled rDrive, bool bShortWork, bool bBackground)
+	{
+		CvTeamAI const& kTarget = GET_TEAM(eTarget);
+		logBBAI("WAR_TARGET_DRIVE turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d shortWork=%d avoidWar=%d forcedPeaceTurns=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), bBackground, kAgent.getID(), eTarget, getSASWarPlanType(eWarPlan), iUtility, rDrive.getPercent(), bShortWork, kAgent.AI_isAvoidWar(eTarget, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+		logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DRIVE", eWarPlan, iUtility, rDrive.getPercent(), -1, -1, bBackground);
+	}
 }
 
 
@@ -73,9 +268,7 @@ void UWAI::Team::addTeam(PlayerTypes eOtherLeader)
 }
 
 
-void UWAI::Team::reportWarEnding(TeamTypes eEnemy,
-	CLinkList<TradeData> const* pWeReceive,
-	CLinkList<TradeData> const* pWeGive)
+void UWAI::Team::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
 {
 	/*  This isn't team-level data b/c each member can have its
 		own interpretation of whether the war was successful. */
@@ -151,9 +344,10 @@ void UWAI::Team::doWar()
 		return;
 	}
 	UWAICache& kCache = leaderCache();
-	if (reviewWarPlans())
+	set<TeamTypes> aeChangedWarPlanTargets;
+	if (reviewWarPlans(aeChangedWarPlanTargets))
 	{
-		scheme();
+		scheme(aeChangedWarPlanTargets);
 		for (TeamIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itTarget(kAgent.getID());
 			itTarget.hasNext(); ++itTarget)
 		{
@@ -217,7 +411,7 @@ namespace
 	};
 }
 
-bool UWAI::Team::reviewWarPlans()
+bool UWAI::Team::reviewWarPlans(set<TeamTypes>& aeChangedTargets)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (!kAgent.AI_isAnyWarPlan())
@@ -256,7 +450,11 @@ bool UWAI::Team::reviewWarPlans()
 				continue;
 			WarEvalParameters params(kAgent.getID(), eTarget, *m_pReport);
 			WarEvaluator eval(params);
+			if (gWarLogLevel >= 2 && kAgent.isAtWar(eTarget)) eval.enableSASBBAISuspiciousPeaceLog();
 			int iU = eval.evaluate(eWP);
+			// <!-- custom: doScheme adds victory-denial urgency when selecting a target. Preserve that value during later reviews too; otherwise UWAI can select a rival for being close to victory and cancel the same preparation after evaluating it without the urgency boost. Save-file 452 reproduced this repeatedly against India. See KI#189. (GPT-5.6-Sol) -->
+			if (!kAgent.isAtWar(eTarget))
+				iU += getSASBBAIVictoryDenialUtilityBoost(eTarget, getSASTeamMaxVictoryStage(eTarget));
 			// 'evaluate' sets preparation time and isNaval in params
 			aPlans.push_back(PlanData(iU, eTarget, params.getPreparationTime(),
 					params.isNaval()));
@@ -268,14 +466,62 @@ bool UWAI::Team::reviewWarPlans()
 				bScheme = false;
 		}
 		std::sort(aPlans.begin(), aPlans.end());
+		TeamTypes ePreferredEmergencyPeaceTarget = NO_TEAM;
+		int iPreferredEmergencyPeaceUtility = 0;
+		int iPreferredEmergencyPeaceReluctance = MIN_INT;
+		int const iMajorWars = kAgent.getNumWars(true, true);
+		int const iEnemyPowerPercent = (iMajorWars >= 2 ? kAgent.AI_getEnemyPowerPercent(true) : 0);
+		static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
+		static int const iExtraWarThreatPercent = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_EXTRA_WAR_THREAT_PERCENT");
+		int const iAdjustedEnemyPowerPercent = iEnemyPowerPercent * (100 + std::max(0, iMajorWars - 2) * iExtraWarThreatPercent) / 100;
+		bool const bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
+		if (bEmergencyPeaceMode)
+		{
+			bool const bAgentVictoryThreat = isSASUWAIVictoryDenialPeaceThreat(kAgent.getID());
+			TeamTypes eLowestUtilityTarget = NO_TEAM;
+			int iLowestUtility = 0;
+			for (size_t i = 0; i < aPlans.size(); i++)
+			{
+				TeamTypes const eTarget = aPlans[i].eTarget;
+				if (!kAgent.isAtWar(eTarget) || !kAgent.canChangeWarPeace(eTarget))
+					continue;
+				// <!-- custom: Capitulation remains possible, but ordinary peace is intentionally unavailable while either side is a configured victory threat. Skip those wars when choosing where the emergency peace override can actually help. (GPT-5.6-Sol) -->
+				if (bAgentVictoryThreat || isSASUWAIVictoryDenialPeaceThreat(eTarget))
+					continue;
+				if (eLowestUtilityTarget == NO_TEAM)
+				{
+					eLowestUtilityTarget = eTarget;
+					iLowestUtility = aPlans[i].iU;
+					// <!-- custom: A newly declared dangerous war cannot negotiate immediately. Preserve the other wars briefly so the AI first tries the preferred opponent instead of abandoning an easy conquest on the declaration turn. (GPT-5.6-Sol) -->
+					if (kAgent.AI_getAtWarCounter(eTarget) <= 2)
+						break;
+				}
+				int const iReluctance = GET_TEAM(eTarget).uwai().reluctanceToPeace(kAgent.getID(), false);
+				if (iReluctance > iMaxReparationUtility)
+					continue;
+				ePreferredEmergencyPeaceTarget = eTarget;
+				iPreferredEmergencyPeaceUtility = aPlans[i].iU;
+				iPreferredEmergencyPeaceReluctance = iReluctance;
+				break;
+			}
+			if (ePreferredEmergencyPeaceTarget == NO_TEAM && eLowestUtilityTarget != NO_TEAM && kAgent.AI_getAtWarCounter(eLowestUtilityTarget) <= 2)
+			{
+				ePreferredEmergencyPeaceTarget = eLowestUtilityTarget;
+				iPreferredEmergencyPeaceUtility = iLowestUtility;
+				iPreferredEmergencyPeaceReluctance = MIN_INT;
+			}
+			if (gWarLogLevel >= 1) logBBAI("WAR_EMERGENCY_PEACE_TARGET turn=%d background=%d agentTeam=%d preferredTarget=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d preferredUtility=%d preferredReluctance=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), ePreferredEmergencyPeaceTarget, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, iPreferredEmergencyPeaceUtility, iPreferredEmergencyPeaceReluctance);
+		}
 		bPlanChanged = false;
 
 		for (size_t i = 0; i < aPlans.size(); i++)
 		{
-			bPlanChanged = !reviewPlan(aPlans[i].eTarget, aPlans[i].iU,
-					aPlans[i].iPrepTurns);
+			bPlanChanged = !reviewPlan(aPlans[i].eTarget, aPlans[i].iU, aPlans[i].iPrepTurns, aPlans[i].bNaval,
+					iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget, iPreferredEmergencyPeaceReluctance);
 			if (bPlanChanged)
 			{
+				aeChangedTargets.insert(aPlans[i].eTarget);
 				abTargetDone.set(aPlans[i].eTarget, true);
 				if (abTargetDone.numNonDefault() < (int)aPlans.size())
 				{
@@ -397,7 +643,8 @@ void UWAI::Team::alignAreaAI(bool bNaval)
 }
 
 
-bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
+// <!-- custom: Added bNaval so a reviewed preparation retains the initial target evaluation's land/naval restriction when checking whether victory denial justifies immediate war. Added the emergency-peace measurements, preferred target and cached reluctance so multi-war danger is computed once and first seeks feasible peace in the least valuable war instead of forcing peace against every opponent. (GPT-5.6-Sol) -->
+bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNaval, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
@@ -411,7 +658,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
 	if (bAtWar)
 	{
 		FAssert(eWP != WARPLAN_PREPARING_LIMITED && eWP != WARPLAN_PREPARING_TOTAL);
-		if (!considerPeace(eTarget, iU))
+		if (!considerPeace(eTarget, iU, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget, iPreferredEmergencyPeaceReluctance))
 			return false;
 		considerPlanTypeChange(eTarget, iU);
 		/*  Changing between attacked_recent, limited and total is unlikely
@@ -421,15 +668,36 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
 	}
 	else
 	{
+		// <!-- custom: The initial target evaluation included victory-denial urgency, but inherited UWAI reviews omitted it and could immediately discard or redirect the preparation. Reapply the same boost during reviews, retain the unboosted value for diagnostics, and pass the boost into the direct-war comparison below. See KI#189. (GPT-5.6-Sol) -->
+		int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
+		int const iVictoryDenialBoost = getSASBBAIVictoryDenialUtilityBoost(eTarget, iTargetMaxVictoryStage);
+		int const iOriginalU = iU - iVictoryDenialBoost;
+		if (iVictoryDenialBoost > 0 && gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_VICTORY_DENIAL_ADJUST turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s originalUtility=%d adjustedUtility=%d boost=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d distance=%d targetPowerPercent=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iOriginalU, iU, iVictoryDenialBoost, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+		// <!-- custom: Save-file 452 diagnostics showed 152 war preparations but only 17 becoming wars, while 130 were canceled or switched. Keep each real/simulated review and exact cancellation/conclusion cause visible while correcting inherited UWAI behavior. (GPT-5.6-Sol) -->
+		if (gWarLogLevel >= 2 && (eWP == WARPLAN_PREPARING_LIMITED || eWP == WARPLAN_PREPARING_TOTAL)) logBBAI("WAR_PREPARATION_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d warPlanCount=%d wars=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns,
+					kAgent.AI_countWarPlans(), kAgent.getNumWars(true, true), kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
 		if (!canSchemeAgainst(eTarget, true))
 		{
 			m_pReport->log("War plan \"%s\" canceled b/c %s is no longer a legal target",
 					m_pReport->warPlanName(eWP), m_pReport->teamName(eTarget));
+			if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=illegal_target utility=%d stateCounter=%d prepTurnsRemaining=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns);
 			if (!isInBackground())
 			{
 				kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
 				showWarPlanAbandonedMsg(eTarget);
 			}
+			return false;
+		}
+		// <!-- custom: A victory threat can become close and weak enough for direct war after preparation began. Use the same narrow distance, power and naval gates as doScheme, then declare immediately instead of letting the old review logic cancel or delay the emergency plan. See KI#189. (GPT-5.6-Sol) -->
+		if (iVictoryDenialBoost > 0 && isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, getSASBBAINearestCityDistance(kAgent.getID(), eTarget)) && kAgent.canDeclareWar(eTarget))
+		{
+			WarPlanTypes const eDirectWP = (eWP == WARPLAN_PREPARING_TOTAL || eWP == WARPLAN_TOTAL ? WARPLAN_TOTAL : WARPLAN_LIMITED);
+			if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_VICTORY_DENIAL_DECLARE turn=%d background=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d originalUtility=%d boost=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d distance=%d targetPowerPercent=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iOriginalU, iVictoryDenialBoost, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+			if (!isInBackground()) kAgent.declareWar(eTarget, false, eDirectWP);
 			return false;
 		}
 		if (eWP != WARPLAN_PREPARING_LIMITED && eWP != WARPLAN_PREPARING_TOTAL)
@@ -440,6 +708,8 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
 			if (iU < 0)
 			{
 				m_pReport->log("Imminent war canceled; no longer worthwhile");
+				if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=imminent_negative_utility utility=%d stateCounter=%d prepTurnsRemaining=%d",
+						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iPrepTurns);
 				if (!isInBackground())
 				{
 					kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
@@ -449,25 +719,16 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
 			}
 			else
 			{
-				// Consider switching when war remains imminent for a long time
-				scaled rSwitchProb = std::min(fixp(1/3.), iWPAge * fixp(0.04));
-				m_pReport->log("pr of considering to switch target: %d",
-						rSwitchProb.getPercent());
-				if (SyncRandSuccess(rSwitchProb))
-				{
-					/*  Hack: considerSwitchTarget was written under the assumption
-						that no war is imminent. Might be difficult to rectify;
-						change the war plan temporarily instead. */
-					kAgent.AI_setWarPlanNoUpdate(eTarget, WARPLAN_PREPARING_LIMITED);
-					bool const bSwitch = !considerSwitchTarget(eTarget, iU, 0);
-					/*  If we do switch, then considerSwitchTarget has
-						already reset the war plan against targetId --
-						except when running in the background. */
-					if (!bSwitch || isInBackground())
-						kAgent.AI_setWarPlanNoUpdate(eTarget, eWP);
-					if (bSwitch)
-						return false;
-				}
+				// <!-- custom: Once target switching itself requires a clear deterministic advantage, a separate random roll only makes the AI overlook the best target unpredictably. Always perform the comparison; the temporary plan change remains necessary because the inherited helper expects a preparation plan. See KI#189. (GPT-5.6-Sol) -->
+				kAgent.AI_setWarPlanNoUpdate(eTarget, WARPLAN_PREPARING_LIMITED);
+				bool const bSwitch = !considerSwitchTarget(eTarget, iU, 0);
+				/*  If we do switch, then considerSwitchTarget has
+					already reset the war plan against targetId --
+					except when running in the background. */
+				if (!bSwitch || isInBackground())
+					kAgent.AI_setWarPlanNoUpdate(eTarget, eWP);
+				if (bSwitch)
+					return false;
 			}
 			CvMap const& kMap = GC.getMap();
 			// 12 turns for a (AdvCiv) Standard-size map, 9 on Small.
@@ -489,6 +750,8 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
 			{
 				m_pReport->log("Imminent war canceled b/c of timeout (%d turns)",
 						iTimeout);
+				if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=imminent_timeout utility=%d stateCounter=%d timeout=%d",
+						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iWPAge, iTimeout);
 				if (!isInBackground())
 				{
 					kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
@@ -501,7 +764,7 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
 		}
 		else
 		{
-			if (!considerConcludePreparations(eTarget, iU, iPrepTurns))
+			if (!considerConcludePreparations(eTarget, iU, iPrepTurns, iVictoryDenialBoost))
 				return false;
 			if (!considerAbandonPreparations(eTarget, iU, iPrepTurns))
 				return false;
@@ -513,11 +776,16 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns)
 }
 
 
-bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
+bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iEnemyPowerPercent, int iAdjustedEnemyPowerPercent, TeamTypes ePreferredEmergencyPeaceTarget, int iPreferredEmergencyPeaceReluctance)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+	int const iInitialU = iU;
 	if (!kAgent.canChangeWarPeace(eTarget))
+	{
+		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d sought=0 reason=cannot_change_war_peace",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU);
 		return true;
+	}
 	CvTeamAI& kTarget = GET_TEAM(eTarget);
 	scaled rPeaceThresh = peaceThreshold(eTarget);
 	bool const bHuman = kTarget.isHuman();
@@ -527,7 +795,62 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 			that expects to be paid waits for the other side to sue for peace). */
 		rPeaceThresh += 10;
 	}
+
+	// <!-- custom: we have an issue of hatshepsut ai being the military leader with a strong army at turn 150 and then being badly dogpiled on and dying/been defeated before turn 200. While we need to fix the reasons why wars happened that were detrimental for Hatshepsut ai as well, for now and first i mean here, add pre-checks to enforce/emergency exit multi-wars past a certain count and try to seek peace no matter what, as more war ennemies (not including barbarians hopefully) can only be detrimental to us, code provided by chatgpt 5, check if accurate; see also known issue as of now 65 for details; results of these "emergency peace" changes: great!!! Now hatshepsut ai seemingly does not die anymore, makes military gains and makes peace many times based on chatgpt 5 reading of the event log as i had not read it myself at first but then i saw same results looking at event log ingame with multiple peace treaties made by hatshepsut ai quite shortly after war, and hatshepsut ai is still strongest player at turn 200 (although by smaller margin but did very great i would say)!! See known issue as of now 65 for details -->
+	// 
+	// Emergency rule: if we're at war with 3+ major civs, force the negotiation path.
+	// With those two placements, Hatshepsut (or anyone) at war with 3+ major civs will reliably try to negotiate peace now, instead of riding the dogpile into the ground.
+	//
+	// Count current wars vs major civs (ignore barbs & minors; also ignore vassal “duplicates")
+	// const int iMajorWars = kAgent.getNumWars(/*bIgnoreMinors=*/true, /*bIgnoreVassals=*/true);
+
+	// Combined enemy power vs us (100 = parity)
+	// const int iEnemyPowPct = kAgent.AI_getEnemyPowerPercent(true);
+
+	// <!-- custom: avoid as of now max 3 wars or even if 2 wars if our opponents are strong enough treat it the same. This allows to be versatile enough (3 wars are fine if a few targets are weak, so don't over-peace which would be bit boring too if i may say or waste potential) but also safe enough (even 2 wars are already dangerous if one or both of these rivals are strong enough to combined ravage us xd so treat it as an emergency) -->
+	// const bool bEmergencyPeaceMode = ((iMajorWars >= 3) || (iMajorWars >= 2 && iEnemyPowPct > 160));
+	// <!-- custom: KI#65's SAS rule treated any three wars as an emergency, so save-file 450 Carthage abandoned a four-turn war against two-city Holy Rome despite having 16 cities and all three enemies together contributing only 70% effective power. Multiply actual combined enemy power by a tunable pressure for each front beyond two instead: several meaningful enemies remain dangerous, but any number of nearly powerless enemies cannot force peace. The values were computed once in reviewWarPlans and passed through reviewPlan. (GPT-5.6-Sol) -->
+	static int const iEmergencyPeacePowerThreshold = GC.getDefineINT("SAS_UWAI_EMERGENCY_PEACE_ENEMY_POWER_THRESHOLD");
+	const bool bEmergencyPeaceMode = (iMajorWars >= 2 && iAdjustedEnemyPowerPercent > iEmergencyPeacePowerThreshold);
+	// <!-- custom: The old KI#65 override applied independently to every war. Fresh Pangaea runs showed Arabia abandoning a profitable war against a 34%-power rival and Shaka making peace with a one-city 16%-power rival because a more dangerous new enemy had appeared.
+	// reviewWarPlans already sorts wars from lowest to highest continuation utility. After briefly giving a new preferred war time to become negotiable, force emergency peace only for the lowest-utility opponent willing to accept and preserve the better wars; if peace succeeds, the repeated review recalculates whether another emergency remains. (GPT-5.6-Sol) -->
+	const bool bEmergencyPeace = (bEmergencyPeaceMode && eTarget == ePreferredEmergencyPeaceTarget);
+	// <!-- custom: Save files 450 and 452 showed 25 of 44 completed wars ending after only two turns, often after the attacker captured just one city or none. Log the inherited UWAI peace valuation and our KI#65 emergency override together so we can distinguish rational retreats from premature peace that lets a weak rival survive and recover.
+	// Target thinness, simultaneous enemies and army location also show whether continuing can exploit a weak/distracted rival or would merely prolong a stalemate. Keep the unit scan inside the level-2 gate. (GPT-5.6-Sol) -->
+	if (gWarLogLevel >= 2)
+	{
+		const int iOurPower = std::max(1, kAgent.getPower(true));
+		const int iTargetTotalPower = kTarget.getPower(true);
+		const int iTargetDefensivePower = kTarget.getDefensivePower(kAgent.getID());
+		const int iOurCities = kAgent.getNumCities();
+		const int iTargetCities = kTarget.getNumCities();
+		const int iOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
+		const int iTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
+		int iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities;
+		getSASBBAITeamMilitaryPosture(eTarget, iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities);
+		logBBAI("WAR_PEACE_REVIEW turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPowerThreshold=%d emergencyPeaceMode=%d preferredEmergencyPeaceTarget=%d emergencyPeace=%d ourPower=%d targetTotalPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourPowerPerCityX100=%d targetPowerPerCityX100=%d ourWarSuccess=%d targetWarSuccess=%d warSuccessDelta=%d targetWars=%d targetEnemyPowerPercent=%d targetMilitary=%d targetMilitaryOwnTerritory=%d targetMilitaryOutsideOwnTerritory=%d targetMilitaryEnemyTerritory=%d targetMilitaryInCities=%d nearestCityDistance=%d attitude=%d attitudeValue=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, iEmergencyPeacePowerThreshold, bEmergencyPeaceMode, ePreferredEmergencyPeaceTarget, bEmergencyPeace,
+				iOurPower, iTargetTotalPower, iTargetDefensivePower, (100 * iTargetDefensivePower) / iOurPower, iOurCities, iTargetCities, (100 * iOurPower) / std::max(1, iOurCities), (100 * iTargetTotalPower) / std::max(1, iTargetCities), iOurWarSuccess, iTargetWarSuccess, iOurWarSuccess - iTargetWarSuccess, kTarget.getNumWars(true, true), kTarget.AI_getEnemyPowerPercent(true), iTargetMilitary, iTargetMilitaryOwnTerritory, iTargetMilitaryOutsideOwnTerritory, iTargetMilitaryEnemyTerritory, iTargetMilitaryInCities, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget));
+	}
+	if (bEmergencyPeaceMode && ePreferredEmergencyPeaceTarget != NO_TEAM && !bEmergencyPeace)
+	{
+		m_pReport->log("Preserving this war while emergency peace is sought against the lower-utility target");
+		if (gWarLogLevel >= 1) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeaceMode=1 preferredEmergencyPeaceTarget=%d sought=0 reason=preserve_better_war",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, ePreferredEmergencyPeaceTarget);
+		return true;
+	}
+
+	if (bEmergencyPeace)
+	{
+		m_pReport->log("Emergency peace mode: %d simultaneous wars vs majors — forcing negotiation.", iMajorWars);
+		// Make sure the code doesn't early-out on "utility above threshold":
+		// push iU clearly below the threshold so we go to the negotiation block.
+		iU = std::min(iU, rPeaceThresh.uround() - 100);
+	}
+	// keep the existing log (or adjust) after this
+	//
 	m_pReport->log("Threshold for seeking peace: %d", rPeaceThresh.round());
+	TeamTypes eImminentWarTarget = NO_TEAM;
 	if (iU >= rPeaceThresh)
 	{
 		/*  Peace so we can free our hands for a different war.
@@ -540,6 +863,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 			TeamTypes const eOther = itOther->getID();
 			if (!kAgent.AI_isSneakAttackReady(eOther))
 				continue;
+			eImminentWarTarget = eOther;
 			FAssert(eOther != eTarget);
 			m_pReport->log("Considering peace with %s to focus on"
 					" imminent war against %s; evaluating two-front war:",
@@ -565,6 +889,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 		if (iU >= rPeaceThresh)
 		{
 			m_pReport->log("No peace sought b/c war utility is above the peace threshold");
+			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d imminentWarTarget=%d emergencyPeace=%d sought=0 reason=utility_above_threshold",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), eImminentWarTarget, bEmergencyPeace);
 			return true;
 		}
 	}
@@ -572,6 +898,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 	if (kAgent.AI_getAtWarCounter(eTarget) <= 1)
 	{
 		m_pReport->log("Too early to consider peace");
+		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d emergencyPeace=%d sought=0 reason=minimum_war_age",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
 		return true;
 	}
 	CvPlayerAI& kTargetPlayer = GET_PLAYER(kTarget.getRandomMemberAlive(true));
@@ -580,12 +908,24 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 	{
 		m_pReport->log("Can't talk to %s about peace",
 				m_pReport->leaderName(kTargetPlayer.getID()));
+		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d emergencyPeace=%d sought=0 reason=cannot_contact",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
 		return true; // Can't contact them for capitulation either
 	}
-	scaled rPeaceProb;
+	scaled rPeaceProb = 0;
 	bool bOfferPeace = true;
-	int iTheirReluct = MIN_INT; // Costly, don't compute this sooner than necessary.
-	if (bHuman)
+	// <!-- custom: Emergency selection already had to compute the preferred target's costly willingness to negotiate; reuse it here instead of evaluating the same peace twice. (GPT-5.6-Sol) -->
+	int iTheirReluct = (bEmergencyPeace ? iPreferredEmergencyPeaceReluctance : MIN_INT);
+	// <!-- custom: CvDeal's final victory-denial guard formerly rejected the treaty after AI_negotiatePeace returned success, so UWAI repeated an ineffective peace deal every turn. Skip ordinary peace here while retaining the later capitulation check; surrender is intentionally exempt from victory-denial refusal. (GPT-5.6-Sol) -->
+	bool const bVictoryDenialPeaceBlocked = (isSASUWAIVictoryDenialPeaceThreat(kAgent.getID()) || isSASUWAIVictoryDenialPeaceThreat(eTarget));
+	if (bVictoryDenialPeaceBlocked)
+	{
+		bOfferPeace = false;
+		m_pReport->log("Ordinary peace blocked while either side remains a configured victory threat");
+		if (gWarLogLevel >= 1) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d emergencyPeace=%d sought=0 reason=victory_denial_treaty_blocked",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), bEmergencyPeace);
+	}
+	else if (bHuman)
 	{
 		int const iContactDelay = kAgentPlayer.
 				AI_getContactTimer(kTargetPlayer.getID(), CONTACT_PEACE_TREATY);
@@ -616,7 +956,8 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 				and wouldn't matter b/c we don't speed-adjust peace rolls.) */
 			rPeaceProb = scaled(1, iContactRand); // 5 to 10%
 			// Adjust probability based on whether peace looks like win-win or zero-sum
-			iTheirReluct = kTarget.uwai().reluctanceToPeace(kAgent.getID(), false);
+			if (iTheirReluct == MIN_INT)
+				iTheirReluct = kTarget.uwai().reluctanceToPeace(kAgent.getID(), false);
 			scaled rWinWinFactor = scaled(iTheirReluct + iU, -15);
 			if (rWinWinFactor < 0)
 			{
@@ -635,13 +976,37 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 	else
 	{
 		FAssert(iU < rPeaceThresh);
-		rPeaceProb = (rPeaceThresh - iU).sqrt() * fixp(0.03);
+		// Base AdvCiv: rPeaceProb = (rPeaceThresh - iU).sqrt() * fixp(0.03);
+		// <!-- custom: Base AdvCiv gave every negative AI-vs-AI review a random chance to initiate peace. Repeated marginal rolls increasingly risked abandoning useful pressure, while clearly bad wars could wait several turns before seeking peace; volatile one-turn utility also made the outcome depend on whether a roll happened during a temporary dip.
+		// In save file 452, a 15-point prototype immediately ended Egypt's advantageous Japan war at -32. With a 40-point margin, utility rebounded to +87 one turn later, Egypt captured population-7 Tokyo, then accepted Japan's peace request on turn 175 after costly attrition. Mali likewise held a -7 dip, but accepted India's request one turn later, so the margin did not prevent later rational peace.
+		// Treat a smaller deficit as insufficient reason to initiate peace, but seek peace immediately once it reaches the tunable decisive margin. The opponent can still propose an acceptable treaty, and emergency peace remains immediate; human contact retains personality-based pacing. (GPT-5.6-Sol) -->
+		static int const iDecisivePeaceMargin = GC.getDefineINT("SAS_UWAI_AI_PEACE_DECISIVE_UTILITY_MARGIN");
+		scaled const rPeaceUtilityDeficit = rPeaceThresh - iU;
+		if (rPeaceUtilityDeficit >= iDecisivePeaceMargin)
+			rPeaceProb = fixp(1);
+		else
+		{
+			bOfferPeace = false;
+			m_pReport->log("No AI peace initiated b/c utility deficit %d is below decisive margin %d", rPeaceUtilityDeficit.round(), iDecisivePeaceMargin);
+			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_DECISION turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d utilityDeficit=%d decisiveMargin=%d emergencyPeace=%d sought=0 reason=utility_deficit_below_decisive_margin",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), rPeaceUtilityDeficit.round(), iDecisivePeaceMargin, bEmergencyPeace);
+		}
 	}
+
+	// <!-- custom: add emergency peace in multi wars as part of our fix as well, code provided by chatgpt 5, check if accurate, and see also known issue as of now 65 for details -->
+	if (bEmergencyPeace && bOfferPeace)
+	{
+		rPeaceProb = fixp(1); // 100%
+	}
+
 	if (bOfferPeace)
 	{
 		m_pReport->log("Probability for peace negotiation: %d percent",
 				rPeaceProb.getPercent());
-		if (SyncRandSuccess(1 - rPeaceProb))
+		bool const bRandomlySkipped = (rPeaceProb < 1 && SyncRandSuccess(1 - rPeaceProb));
+		if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d randomlySkipped=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), bRandomlySkipped);
+		if (bRandomlySkipped)
 		{
 			m_pReport->log("Peace negotiation randomly skipped");
 			if (!bHuman)
@@ -693,6 +1058,23 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 						iTradeVal);
 			}
 			bool bPeace = false;
+			// <!-- custom: AI_negotiatePeace clears the war plan, counter and war-success state when peace succeeds. Cache the pre-negotiation values so the result row describes the decision that ended the war instead of logging reset zeros.
+			// A fresh Pangaea diagnostic run also showed that the victory-denial deal guard can reject a treaty after AI_negotiatePeace returns true. Log the post-call war state separately so blocked treaties are not mistaken for completed peace. (GPT-5.6-Sol) -->
+			WarPlanTypes eLoggedWarPlan = NO_WARPLAN;
+			int iLoggedAtWarCounter = -1, iLoggedOurPower = -1, iLoggedTargetDefensivePower = -1, iLoggedTargetPowerPercent = -1;
+			int iLoggedOurCities = -1, iLoggedTargetCities = -1, iLoggedOurWarSuccess = -1, iLoggedTargetWarSuccess = -1;
+			if (gWarLogLevel >= 1)
+			{
+				eLoggedWarPlan = kAgent.AI_getWarPlan(eTarget);
+				iLoggedAtWarCounter = kAgent.AI_getAtWarCounter(eTarget);
+				iLoggedOurPower = std::max(1, kAgent.getPower(true));
+				iLoggedTargetDefensivePower = kTarget.getDefensivePower(kAgent.getID());
+				iLoggedTargetPowerPercent = (100 * iLoggedTargetDefensivePower) / iLoggedOurPower;
+				iLoggedOurCities = kAgent.getNumCities();
+				iLoggedTargetCities = kTarget.getNumCities();
+				iLoggedOurWarSuccess = kAgent.AI_getWarSuccess(eTarget).round();
+				iLoggedTargetWarSuccess = kTarget.AI_getWarSuccess(kAgent.getID()).round();
+			}
 			if (!isInBackground())
 			{
 				bPeace = kAgentPlayer.AI_negotiatePeace(kTargetPlayer.getID(),
@@ -705,9 +1087,18 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 				else m_pReport->log("Failed to find a peace offer");
 			}
 			else m_pReport->log("Peace negotiation %s", (bPeace ? "succeeded" : "failed"));
+			bool const bWarEnded = !kAgent.isAtWar(eTarget);
+			if (gWarLogLevel >= 2 || (bPeace && gWarLogLevel >= 1)) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d tradeValue=%d demandValue=%d negotiationReturnedSuccess=%d warEnded=%d ourPower=%d targetDefensivePower=%d targetPowerPercent=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eLoggedWarPlan), iInitialU, iU, rPeaceThresh.round(), iLoggedAtWarCounter, iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility, iTradeVal, iDemandVal, bPeace,
+					bWarEnded, iLoggedOurPower, iLoggedTargetDefensivePower, iLoggedTargetPowerPercent, iLoggedOurCities, iLoggedTargetCities, iLoggedOurWarSuccess, iLoggedTargetWarSuccess);
 			return !bPeace;
 		}
-		else m_pReport->log("No peace negotiation attempted; they're too reluctant");
+		else
+		{
+			m_pReport->log("No peace negotiation attempted; they're too reluctant");
+			if (gWarLogLevel >= 2) logBBAI("WAR_PEACE_NEGOTIATION_RESULT turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s initialUtility=%d decisionUtility=%d peaceThreshold=%d atWarCounter=%d majorWars=%d enemyPowerPercent=%d adjustedEnemyPowerPercent=%d emergencyPeace=%d imminentWarTarget=%d peaceProbabilityPercent=%d theirReluctance=%d maxReparationUtility=%d negotiationReturnedSuccess=0 warEnded=0 reason=target_reluctant",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iInitialU, iU, rPeaceThresh.round(), kAgent.AI_getAtWarCounter(eTarget), iMajorWars, iEnemyPowerPercent, iAdjustedEnemyPowerPercent, bEmergencyPeace, eImminentWarTarget, rPeaceProb.getPercent(), iTheirReluct, iMaxReparationUtility);
+		}
 	}
 	if (considerCapitulation(eTarget, iU, iTheirReluct))
 		return true; // No surrender
@@ -741,8 +1132,7 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU)
 }
 
 
-bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility,
-	int iMasterReluctancePeace)
+bool UWAI::Team::considerCapitulation(TeamTypes eMaster, int iAgentWarUtility, int iMasterReluctancePeace)
 {
 	{
 		int const iUtilityThresh = -75;
@@ -1004,16 +1394,18 @@ bool UWAI::Team::considerPlanTypeChange(TeamTypes eTarget, int iU)
 }
 
 
-bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
+	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
 	{
 		/*  Only one war should be imminent or in preparation at a time.
 			(Otherwise WarEvaluator will ignore all but one plan).
 			Too many plans can occur here only if UWAI was running
 			in the background at some point. */
+		if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=too_many_plans utility=%d stateCounter=%d prepTurnsRemaining=%d warPlanCount=%d wars=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, kAgent.AI_countWarPlans(), kAgent.getNumWars(true, true));
 		if (!isInBackground())
 		{
 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
@@ -1028,6 +1420,8 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
 	if (iTurnsRemaining <= 0)
 	{
 		m_pReport->log("Time limit for preparations reached; plan abandoned");
+		if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=preparation_deadline_negative_utility utility=%d stateCounter=%d prepTurnsRemaining=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
 		if (!isInBackground())
 		{
 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
@@ -1035,27 +1429,44 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
 		}
 		return false;
 	}
-	WarPlanTypes eWP = kAgent.AI_getWarPlan(eTarget);
-	if (isInBackground() && eWP == WARPLAN_DOGPILE)
-		eWP = WARPLAN_PREPARING_LIMITED;
+	// <!-- custom: The deterministic severity gate initially canceled newly selected plans after only one review when transient UWAI/AreaAI changes briefly drove utility negative. Save-file 452 then reselected 7 of those targets on the next turn and 11 within three turns. Give a new preparation two full reviews to settle before severity alone may cancel it; hard deadline and legality failures remain immediate. See KI#189. (GPT-5.6-Sol) -->
+	static int const iMinAge = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_AGE_TURNS_UNSCALED_GAMESPEED");
+	static int const iMinAbandonSeverityPercent = GC.getDefineINT("SAS_UWAI_PREPARATION_ABANDON_MIN_SEVERITY_PERCENT");
+	int const iAge = kAgent.AI_getWarPlanStateCounter(eTarget);
+	if (iAge < iMinAge)
+	{
+		m_pReport->log("Preparation abandonment deferred until age %d (current age %d)", iMinAge, iAge);
+		if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_ABANDON_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=minimum_age minAbandonAge=%d warRand=-1 abandonSeverityPercent=-1 minAbandonSeverityPercent=%d abandoned=0 distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iAge, iTurnsRemaining, iMinAge, iMinAbandonSeverityPercent, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
+		return true;
+	}
+	WarPlanTypes eEvaluationWP = eWP;
+	if (isInBackground() && eEvaluationWP == WARPLAN_DOGPILE)
+		eEvaluationWP = WARPLAN_PREPARING_LIMITED;
 	int iWarRand = -1;
-	if (eWP == WARPLAN_PREPARING_LIMITED)
+	if (eEvaluationWP == WARPLAN_PREPARING_LIMITED)
 		iWarRand = kAgent.AI_limitedWarRand();
-	if (eWP == WARPLAN_PREPARING_TOTAL)
+	if (eEvaluationWP == WARPLAN_PREPARING_TOTAL)
 		iWarRand = kAgent.AI_maxWarRand();
 	FAssert(iWarRand >= 0);
 	// WarRand is between 40 (aggro) and 400 (chilled)
-	scaled rAbandonProb(-iU * iWarRand, 7500);
+	// <!-- custom: UWAI named this value rAbandonProb and rolled it on every negative review, so even a mildly doubtful unchanged preparation was eventually canceled. Rename it rAbandonSeverity because the same personality/game-speed-adjusted value is now compared with a deterministic threshold and only clearly bad plans are abandoned; save-file 452 showed this would reduce 69 random cancellations to the 38 checks that reached the default 100% severity. See KI#189. (GPT-5.6-Sol) -->
+	scaled rAbandonSeverity(-iU * iWarRand, 7500);
 	// Slight adjustment to training speed
-	rAbandonProb *= 2;
-	rAbandonProb /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
+	rAbandonSeverity *= 2;
+	rAbandonSeverity /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
 			getTrainPercent()) + 1;
-	rAbandonProb.decreaseTo(1);
-	m_pReport->log("Abandoning preparations with probability %d percent (warRand=%d)",
-			rAbandonProb.getPercent(), iWarRand);
-	if (SyncRandSuccess(rAbandonProb))
+	rAbandonSeverity.decreaseTo(1);
+	bool const bAbandon = (rAbandonSeverity.getPercent() >= iMinAbandonSeverityPercent);
+	m_pReport->log("Preparation abandonment severity %d percent; threshold %d (warRand=%d)", rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent, iWarRand);
+	if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_ABANDON_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d warRand=%d abandonSeverityPercent=%d minAbandonSeverityPercent=%d abandoned=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iAge, iTurnsRemaining,
+				iWarRand, rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent, bAbandon, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
+	if (bAbandon)
 	{
 		m_pReport->log("Preparations abandoned");
+		if (gWarLogLevel >= 1) logBBAI("WAR_PREPARATION_CANCEL turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s reason=severe_negative_utility utility=%d stateCounter=%d prepTurnsRemaining=%d warRand=%d abandonSeverityPercent=%d minAbandonSeverityPercent=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, iAge, iTurnsRemaining, iWarRand, rAbandonSeverity.getPercent(), iMinAbandonSeverityPercent);
 		if (!isInBackground())
 		{
 			kAgent.AI_setWarPlan(eTarget, NO_WARPLAN);
@@ -1068,8 +1479,7 @@ bool UWAI::Team::considerAbandonPreparations(TeamTypes eTarget, int iU,
 }
 
 
-bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU, int iTurnsRemaining)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
@@ -1093,6 +1503,8 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
 		WarEvalParameters params(kAgent.getID(), eAltTarget, silentReport, true);
 		WarEvaluator eval(params);
 		int iAltU = eval.evaluate(eWP, iTurnsRemaining);
+		// <!-- custom: Compare targets using the same victory-denial value used when they are first selected and later reviewed. (GPT-5.6-Sol) -->
+		iAltU += getSASBBAIVictoryDenialUtilityBoost(eAltTarget, getSASTeamMaxVictoryStage(eAltTarget));
 		if (iAltU > std::max(iBestUtility, bQualms ? 0 : iU))
 		{
 			eBestAltTarget = eAltTarget;
@@ -1105,27 +1517,36 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
 		m_pReport->log("No other promising target for war preparations found");
 		return true;
 	}
+	// <!-- custom: UWAI named this result rSwitchProb and rolled it on every review. Preserve its relative-target calculation but rename it rSwitchAdvantage, then compare it with a deterministic threshold so a clearly better target is reliably selected and a small fluctuation never redirects an established preparation. Save-file 452's default threshold accepts 15 of 71 comparisons instead of producing 22 roll-dependent switches. See KI#189. (GPT-5.6-Sol) -->
 	int iPadding = 0;
 	if (std::min(iU, iBestUtility) < 20)
 		iPadding += 20 - std::min(iU, iBestUtility);
-	scaled rSwitchProb = fixp(0.75) * (1 - scaled(iU + iPadding, iBestUtility + iPadding));
+	scaled rSwitchAdvantage = fixp(0.75) * (1 - scaled(iU + iPadding, iBestUtility + iPadding));
 	// Slight adjustment to training speed
-	if (rSwitchProb.isPositive())
+	if (rSwitchAdvantage.isPositive())
 	{
-		rSwitchProb *= 2;
-		rSwitchProb /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
+		rSwitchAdvantage *= 2;
+		rSwitchAdvantage /= per100(GC.getInfo(GC.getGame().getGameSpeedType()).
 				getTrainPercent()) + 1;
 	}
 	if (bQualms && !bAltQualms)
-		rSwitchProb += fixp(1.8);
-	m_pReport->log("Switching target for war preparations to %s (u=%d) with pr=%d percent",
-			m_pReport->teamName(eBestAltTarget), iBestUtility, rSwitchProb.getPercent());
-	if (!SyncRandSuccess(rSwitchProb))
+		rSwitchAdvantage += fixp(1.8);
+	static int const iMinSwitchAdvantagePercent = GC.getDefineINT("SAS_UWAI_PREPARATION_TARGET_SWITCH_MIN_ADVANTAGE_PERCENT");
+	bool const bSwitch = (rSwitchAdvantage.getPercent() >= iMinSwitchAdvantagePercent);
+	m_pReport->log("Best alternative target %s (u=%d) has advantage score %d percent; threshold %d",
+			m_pReport->teamName(eBestAltTarget), iBestUtility, rSwitchAdvantage.getPercent(), iMinSwitchAdvantagePercent);
+	if (gWarLogLevel >= 1) logBBAI("WAR_TARGET_SWITCH_CHECK turn=%d background=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d prepTurnsRemaining=%d stateCounter=%d switchAdvantagePercent=%d minSwitchAdvantagePercent=%d switched=%d oldQualms=%d newQualms=%d oldDistance=%d newDistance=%d oldAttitude=%d newAttitude=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, iTurnsRemaining, kAgent.AI_getWarPlanStateCounter(eTarget), rSwitchAdvantage.getPercent(), iMinSwitchAdvantagePercent, bSwitch,
+				bQualms, bAltQualms, getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitude(eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
+	if (!bSwitch)
 	{
 		m_pReport->log("Target not switched");
 		return true;
 	}
 	m_pReport->log("Target switched");
+	if (gWarLogLevel >= 1) logBBAI("WAR_TARGET_SWITCHED turn=%d background=%d agentTeam=%d oldTargetTeam=%d newTargetTeam=%d warPlan=%s oldUtility=%d newUtility=%d prepTurnsRemaining=%d stateCounter=%d oldDistance=%d newDistance=%d oldAttitudeValue=%d newAttitudeValue=%d oldTargetPowerPercent=%d newTargetPowerPercent=%d",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, eBestAltTarget, getSASWarPlanType(eWP), iU, iBestUtility, iTurnsRemaining, kAgent.AI_getWarPlanStateCounter(eTarget),
+				getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestAltTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitudeVal(eBestAltTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestAltTarget));
 	if (!isInBackground())
 	{
 		int iWPAge = kAgent.AI_getWarPlanStateCounter(eTarget);
@@ -1139,8 +1560,8 @@ bool UWAI::Team::considerSwitchTarget(TeamTypes eTarget, int iU,
 }
 
 
-bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
-	int iTurnsRemaining)
+// <!-- custom: Added iVictoryDenialBoost so an existing preparation keeps the same victory-denial value when its preparation and immediate-war utilities are compared. (GPT-5.6-Sol) -->
+bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU, int iTurnsRemaining, int iVictoryDenialBoost)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true) + 1)
@@ -1153,6 +1574,8 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
 	{
 		m_pReport->log("Can't finish preparations b/c of peace treaty (%d turns"
 				" to cancel)", iTurnsOfPeace);
+		if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=forced_peace forcedPeaceTurns=%d concluded=0",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, iTurnsOfPeace);
 		return true;
 	}
 	WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
@@ -1163,8 +1586,14 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
 	if (iTurnsRemaining <= 0)
 	{
 		if (iU < 0)
+		{
+			if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=deadline_negative_utility concluded=0",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
 			return true; // Let considerAbandonPreparations handle it
+		}
 		m_pReport->log("Time limit for preparation reached; adopting direct war plan");
+		if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d stateCounter=%d prepTurnsRemaining=%d reason=deadline_reached concluded=1",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), iU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
 		bConclude = true;
 	}
 	else
@@ -1172,11 +1601,12 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
 		UWAIReport silentReport(true);
 		WarEvalParameters params(kAgent.getID(), eTarget, silentReport);
 		WarEvaluator eval(params);
-		int iDirectU = eval.evaluate(eDirectWP);
+		int iDirectU = eval.evaluate(eDirectWP) + iVictoryDenialBoost;
 		m_pReport->log("Utility of immediate switch to direct war plan: %d", iDirectU);
 		if (iDirectU > 0)
 		{
-			scaled rRandWeight = SyncRandFract(scaled);
+			// <!-- custom: UWAI randomly selected a new threshold on every review, so an unchanged preparation could unpredictably conclude or continue. Keep the inherited random lines and original explanation below commented out for reference; the active midpoint preserves the intended time/readiness progression deterministically. See KI#189. (GPT-5.6-Sol) -->
+			// scaled rRandWeight = SyncRandFract(scaled);
 			/*  The more time remains, the longer we'd still have to wait in order
 				to achieve utility iU. Therefore use a low threshold
 				if iTurnsRemaining is high.
@@ -1184,20 +1614,36 @@ bool UWAI::Team::considerConcludePreparations(TeamTypes eTarget, int iU,
 						 8 turns later, if still iU=80: thresh between 64 and 80. */
 			scaled rRandPortion(iTurnsRemaining, 10); 
 			rRandPortion.decreaseTo(fixp(0.4));
-			scaled rThresh = iU * ((1 - rRandPortion) + rRandWeight * rRandPortion);
-			m_pReport->log("Utility threshold for direct war plan randomly set to %d",
-					rThresh.round());
+			// scaled rThresh = iU * ((1 - rRandPortion) + rRandWeight * rRandPortion);
+			scaled rThresh = iU * ((1 - rRandPortion) + fixp(0.5) * rRandPortion);
+			m_pReport->log("Utility threshold for direct war plan: %d", rThresh.round());
 			if (iDirectU >= rThresh)
 				bConclude = true;
 			m_pReport->log("%sirect war plan adopted", (bConclude ? "D" : "No d"));
+			if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s directWarPlan=%s utility=%d directUtility=%d threshold=%d stateCounter=%d prepTurnsRemaining=%d reason=direct_utility_threshold concluded=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iDirectU, rThresh.round(), kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining, bConclude);
 		}
+		else if (gWarLogLevel >= 2) logBBAI("WAR_PREPARATION_CONCLUDE_CHECK turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s directWarPlan=%s utility=%d directUtility=%d stateCounter=%d prepTurnsRemaining=%d reason=direct_utility_nonpositive concluded=0",
+				GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iDirectU, kAgent.AI_getWarPlanStateCounter(eTarget), iTurnsRemaining);
 	}
 	if (bConclude)
 	{
+		if (gWarLogLevel >= 1)
+		{
+			logBBAI("WAR_PLAN_DIRECT_ADOPTED turn=%d background=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget));
+			logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DIRECT_ADOPTED", eDirectWP, iU, -1, -1, -1, isInBackground());
+		}
 		if (!isInBackground())
 		{
 			// Don't AI_setWarPlanStateCounter, i.e. let CvTeamAI reset it to 0.
 			kAgent.AI_setWarPlan(eTarget, eDirectWP);
+			if (gWarLogLevel >= 1)
+			{
+				logBBAI("WAR_PLAN_DIRECT_SET turn=%d agentTeam=%d targetTeam=%d oldWarPlan=%s newWarPlan=%s utility=%d turnsRemaining=%d forcedPeaceTurns=%d distance=%d targetVictoryCountdown=%d targetPowerPercent=%d stateCounter=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), getSASWarPlanType(eDirectWP), iU, iTurnsRemaining, kAgent.turnsOfForcedPeaceRemaining(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.AI_getWarPlanStateCounter(eTarget));
+				logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DIRECT_SET", eDirectWP, iU, -1, -1, -1, false);
+			}
 		}
 		return false;
 	}
@@ -1313,8 +1759,7 @@ int UWAI::Team::reluctanceToPeace(TeamTypes eEnemy, bool bNonNegative) const
 }
 
 
-bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan,
-	bool bCheckDefensivePacts) const
+bool UWAI::Team::canSchemeAgainst(TeamTypes eTarget, bool bAssumeNoWarPlan, bool bCheckDefensivePacts) const
 {
 	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
 	if (eTarget == NO_TEAM || eTarget == BARBARIAN_TEAM || eTarget == kAgent.getID())
@@ -1400,22 +1845,57 @@ namespace
 {
 	struct TargetData
 	{
-		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, int iU)
-		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), iU(iU)
+		// <!-- custom: Preserve original/boosted utility and victory-denial flags after sorting. Later selection needs them to reduce avoid-war hesitation, avoid local-target vetoes, choose direct vs preparation war, and log the actual adjustment. See KI#184. (GPT-5.5) -->
+		TargetData(scaled rDrive, TeamTypes eTeam, bool bTotal, bool bDirect, int iOriginalU, int iU, int iVictoryDenialBoost, int iTargetMaxVictoryStage, bool bShortWork)
+		:	rDrive(rDrive), eTeam(eTeam), bTotal(bTotal), bDirect(bDirect), iOriginalU(iOriginalU), iU(iU), iVictoryDenialBoost(iVictoryDenialBoost), iTargetMaxVictoryStage(iTargetMaxVictoryStage), bShortWork(bShortWork)
 		{}
 		bool operator<(TargetData const& kOther) { return rDrive < kOther.rDrive; }
 		scaled rDrive;
 		TeamTypes eTeam;
 		bool bTotal;
+		bool bDirect;
+		int iOriginalU;
 		int iU;
+		int iVictoryDenialBoost;
+		int iTargetMaxVictoryStage;
+		bool bShortWork;
 	};
 }
 
-void UWAI::Team::scheme()
+// <!-- custom: Added aeChangedTargets so a canceled or redirected preparation cannot be recreated against the same target later in this team turn; other targets remain eligible. (GPT-5.6-Sol) -->
+void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 {
 	CvTeamAI& kAgent = GET_TEAM(m_eAgent);
 	if (kAgent.AI_countWarPlans() > kAgent.getNumWars(true, true))
 	{
+		// <!-- custom: Save-file 449 ended with India launching on turn 299 while the strongest rival continued preparing an unrelated Ottoman war and did not evaluate a new anti-Space war before India won on turn 311.
+		// When an existing non-war plan blocks all new scheming, identify each stage-3+, countdown, or launched-victory threat and the plan occupying the single slot. Include direct plans because a preparation can become one without starting a war. This is diagnostic only and is gated by War logging. (GPT-5.6-Sol) -->
+		if (gWarLogLevel >= 1)
+		{
+			TeamTypes eBlockingTarget = NO_TEAM;
+			WarPlanTypes eBlockingPlan = NO_WARPLAN;
+			for (TeamAIIter<CIV_ALIVE> itLoop; itLoop.hasNext(); ++itLoop)
+			{
+				WarPlanTypes const eLoopPlan = kAgent.AI_getWarPlan(itLoop->getID());
+				if (eLoopPlan == NO_WARPLAN || kAgent.isAtWar(itLoop->getID())) continue;
+				eBlockingTarget = itLoop->getID();
+				eBlockingPlan = eLoopPlan;
+				break;
+			}
+			for (TeamIter<FREE_MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itThreat(kAgent.getID()); itThreat.hasNext(); ++itThreat)
+			{
+				TeamTypes const eThreat = itThreat->getID();
+				CvTeamAI const& kThreat = GET_TEAM(eThreat);
+				int const iThreatStage = getSASTeamMaxVictoryStage(eThreat);
+				int const iThreatCountdown = kThreat.AI_getLowestVictoryCountdown();
+				if (iThreatStage < 3 && iThreatCountdown < 0) continue;
+				int const iNearestCityDistance = getSASBBAINearestCityDistance(kAgent.getID(), eThreat);
+				logBBAI("WAR_TARGET_VICTORY_DENIAL_SCHEME_BLOCKED turn=%d background=%d agentTeam=%d threatTeam=%d threatMaxVictoryStage=%d threatVictoryCountdown=%d threatSpaceshipParts=%d threatSpaceshipPartsPercent=%d blockingTargetTeam=%d blockingWarPlan=%s blockingStateCounter=%d warPlanCount=%d wars=%d canSchemeAssumingNoPlan=%d canEventuallyDeclare=%d canDeclareNow=%d forcedPeaceTurns=%d nearestCityDistance=%d targetPowerPercent=%d mutualLandTarget=%d directAllowedAsLand=%d directAllowedAsNaval=%d attitude=%d attitudeValue=%d",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eThreat, iThreatStage, iThreatCountdown, getSASTeamSpaceshipPartsBuilt(eThreat), getSASTeamSpaceshipPartsPercent(eThreat),
+					eBlockingTarget, getSASWarPlanType(eBlockingPlan), (eBlockingTarget == NO_TEAM ? -1 : kAgent.AI_getWarPlanStateCounter(eBlockingTarget)), kAgent.AI_countWarPlans(), kAgent.getNumWars(true, true), canSchemeAgainst(eThreat, true, false), kAgent.canEventuallyDeclareWar(eThreat), kAgent.canDeclareWar(eThreat), kAgent.turnsOfForcedPeaceRemaining(eThreat),
+					iNearestCityDistance, getSASBBAITargetPowerPercent(kAgent, eThreat), (kAgent.AI_isLandTarget(eThreat) && kThreat.AI_isLandTarget(kAgent.getID())), isSASVictoryDenialDirectWarAllowed(eThreat, iThreatStage, false, iNearestCityDistance), isSASVictoryDenialDirectWarAllowed(eThreat, iThreatStage, true, iNearestCityDistance), kAgent.AI_getAttitude(eThreat), kAgent.AI_getAttitudeVal(eThreat));
+			}
+		}
 		m_pReport->log("No scheming b/c already a war in preparation");
 		return;
 	}
@@ -1440,10 +1920,20 @@ void UWAI::Team::scheme()
 		itTarget.hasNext(); ++itTarget)
 	{
 		TeamTypes const eTarget = itTarget->getID();
-		if (!canSchemeAgainst(eTarget, true, false))
+		// <!-- custom: Save-file 452 still had four cases where review canceled a plan and scheme selected the same target again later in the same team turn because evaluating an existing plan and starting it anew produced contradictory utilities. Wait for the next turn before reconsidering that target, without blocking other targets. See KI#189. (GPT-5.6-Sol) -->
+		if (aeChangedTargets.count(eTarget) > 0)
+		{
 			kCache.setCanBeHiredAgainst(eTarget, false);
-		if (!canSchemeAgainst(eTarget, false))
+			if (gWarLogLevel >= 1) logBBAI("WAR_TARGET_SAME_TURN_RECONSIDERATION_BLOCKED turn=%d background=%d agentTeam=%d targetTeam=%d currentWarPlan=%s",
+					GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)));
 			continue;
+		}
+		bool const bCanSchemeIgnoringPlanAndDP = canSchemeAgainst(eTarget, true, false);
+		bool const bCanSchemeNow = canSchemeAgainst(eTarget, false);
+		if (gWarLogLevel >= 3) logBBAI("WAR_TARGET_SCHEME_GATE turn=%d background=%d agentTeam=%d targetTeam=%d canSchemeIgnoringPlanAndDP=%d canSchemeNow=%d existingWarPlan=%s canEventuallyDeclare=%d canDeclareNow=%d forcedPeaceTurns=%d avoidWar=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d ourPower=%d targetPower=%d ourCities=%d targetCities=%d targetVassal=%d",
+			GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, bCanSchemeIgnoringPlanAndDP, bCanSchemeNow, getSASWarPlanType(kAgent.AI_getWarPlan(eTarget)), kAgent.canEventuallyDeclareWar(eTarget), kAgent.canDeclareWar(eTarget), kAgent.turnsOfForcedPeaceRemaining(eTarget), kAgent.AI_isAvoidWar(eTarget, true), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), kAgent.getPower(true), GET_TEAM(eTarget).getDefensivePower(kAgent.getID()), kAgent.getNumCities(), GET_TEAM(eTarget).getNumCities(), GET_TEAM(eTarget).isAVassal());
+		if (!bCanSchemeIgnoringPlanAndDP) kCache.setCanBeHiredAgainst(eTarget, false);
+		if (!bCanSchemeNow) continue;
 		m_pReport->log("Scheming against %s", m_pReport->teamName(eTarget));
 		bool bShortWork = kAgent.AI_isPushover(eTarget);
 		if (bShortWork)
@@ -1485,6 +1975,22 @@ void UWAI::Team::scheme()
 			bTotal = (iTotalU + iPadding > (iPadding + iLimitedU) * rLimitedWarWeight);
 		}
 		int iU = std::max(iLimitedU, iTotalU);
+		// <!-- custom: If a rival is close to winning, ordinary UWAI reluctance can leave the game passive until the victory fires. Save-file 450 BBAI testing showed Egypt/Ramesses winning Space Race at turn 290 while multiple rivals evaluated the threat every turn but never selected a real war plan.
+		// Boost all imminent victory types, not only Space Race; short countdowns can also skip preparation when the target is close and not too strong. (GPT-5.5) -->
+		int const iOriginalU = iU;
+		int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
+		int const iVictoryDenialBoost = getSASBBAIVictoryDenialUtilityBoost(eTarget, iTargetMaxVictoryStage);
+		int const iNearestCityDistance = (iVictoryDenialBoost > 0 ? getSASBBAINearestCityDistance(kAgent.getID(), eTarget) : -1);
+		bool const bVictoryDenialDirect = (iVictoryDenialBoost > 0 && isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bTotal ? bTotalNaval : bLimitedNaval, iNearestCityDistance));
+		if (iVictoryDenialBoost > 0)
+		{
+			iU += iVictoryDenialBoost;
+			if (gWarLogLevel >= 1)
+			{
+				logBBAI("WAR_TARGET_VICTORY_DENIAL_ADJUST turn=%d agentTeam=%d targetTeam=%d originalUtility=%d adjustedUtility=%d boost=%d direct=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetSpaceshipParts=%d targetSpaceshipPartsPercent=%d targetSpaceLeaderPartGap=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, iOriginalU, iU, iVictoryDenialBoost, bVictoryDenialDirect, iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASTeamSpaceshipPartsBuilt(eTarget), getSASTeamSpaceshipPartsPercent(eTarget), getSASTeamStage3SpaceLeaderPartGap(eTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), iNearestCityDistance, getSASBBAITargetPowerPercent(kAgent, eTarget));
+			}
+		}
 		m_pReport->setMute(false);
 		static int const UWAI_REPORT_THRESH = GC.getDefineINT("UWAI_REPORT_THRESH");
 		static int const UWAI_REPORT_THRESH_HUMAN = GC.getDefineINT("UWAI_REPORT_THRESH_HUMAN");
@@ -1502,6 +2008,10 @@ void UWAI::Team::scheme()
 			m_pReport->log("%s %s war has %d utility", bTotal ? "total" : "limited",
 					((bTotal && bTotalNaval) || (!bTotal && bLimitedNaval)) ?
 					"naval" : "", iU);
+		}
+		if (gWarLogLevel >= 2)
+		{
+			logSASBBAIWarTargetEval(kAgent, eTarget, bTotal ? WARPLAN_PREPARING_TOTAL : WARPLAN_PREPARING_LIMITED, iU, iLimitedU, iTotalU, bLimitedNaval, bTotalNaval, iLimitedPrepTime, iTotalPrepTime, bShortWork, isInBackground());
 		}
 		bool const bCanHireOld = kCache.canBeHiredAgainst(eTarget);
 		kCache.updateCanBeHiredAgainst(eTarget, iU, iWarTradeUtilityThresh);
@@ -1542,11 +2052,17 @@ void UWAI::Team::scheme()
 		rPeacePortionRemaining.decreaseTo(fixp(0.95));
 		// (Let's try it w/o exponentiation)
 		rDrive *= (1 - rPeacePortionRemaining)/*.pow(fixp(1.5))*/;
-		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, iU));
+		aTargets.push_back(TargetData(rDrive, eTarget, bTotal, bVictoryDenialDirect, iOriginalU, iU, iVictoryDenialBoost, iTargetMaxVictoryStage, bShortWork));
 		rTotalDrive += rDrive;
 	}
 	// Descending by drive
 	std::sort(aTargets.rbegin(), aTargets.rend());
+	vector<scaled> aAdjustedDrives;
+	aAdjustedDrives.reserve(aTargets.size());
+	TeamTypes ePreferredLocalTarget = NO_TEAM;
+	scaled rPreferredLocalDrive;
+	int iPreferredLocalRank = -1;
+	// <!-- custom: Reuse the same adjusted drive that the normal target loop uses after AI_isAvoidWar hesitation, then pick at most one close/weak/disliked land-war target for the narrow faraway-target guard. This prepass does not itself start a war; it only identifies the local target that can block clearly farther alternatives below. See KI#182. (GPT-5.5) -->
 	for (size_t i = 0; i < aTargets.size(); i++)
 	{
 		TeamTypes const eTarget = aTargets[i].eTeam;
@@ -1554,24 +2070,127 @@ void UWAI::Team::scheme()
 		// Conscientious hesitation
 		if (kAgent.AI_isAvoidWar(eTarget, true))
 		{
-			rDrive -= rTotalDrive / 2;
-			if (rDrive <= 0)
-				continue;
+			// <!-- custom: Avoid-war personality hesitation is useful for ordinary wars, but save-file 450 showed it could prevent any response to an imminent Space win. Keep the hesitation tunable for victory-denial targets instead of removing it entirely. See KI#184. (GPT-5.5) -->
+			// rDrive -= rTotalDrive / 2;
+			scaled rAvoidWarHesitation = rTotalDrive / 2;
+			if (aTargets[i].iVictoryDenialBoost > 0)
+			{
+				static const int iVictoryDenialAvoidWarPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_AVOID_WAR_HESITATION_PERCENT");
+				rAvoidWarHesitation *= iVictoryDenialAvoidWarPercent;
+				rAvoidWarHesitation /= 100;
+			}
+			rDrive -= rAvoidWarHesitation;
 		}
-		WarPlanTypes const eWP = (aTargets[i].bTotal ? WARPLAN_PREPARING_TOTAL :
-				WARPLAN_PREPARING_LIMITED);
-		m_pReport->log("Drive for war preparations against %s: %d percent",
-				m_pReport->teamName(eTarget), rDrive.getPercent());
-		if (SyncRandSuccess(rDrive))
+		aAdjustedDrives.push_back(rDrive);
+		if (rDrive > 0 && isSASBBAIPreferredLocalWarTarget(kAgent, eTarget, rDrive) && isSASBBAIBetterPreferredLocalWarTarget(kAgent, eTarget, rDrive, ePreferredLocalTarget, rPreferredLocalDrive))
 		{
+			ePreferredLocalTarget = eTarget;
+			rPreferredLocalDrive = rDrive;
+			iPreferredLocalRank = (int)i + 1;
+		}
+	}
+	if (gWarLogLevel >= 1 && ePreferredLocalTarget != NO_TEAM)
+	{
+		logBBAI("WAR_TARGET_LOCAL_PREFERRED turn=%d agentTeam=%d preferredTargetTeam=%d preferredDrivePercent=%d preferredRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), ePreferredLocalTarget, rPreferredLocalDrive.getPercent(), iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
+	}
+	// <!-- custom: BBAI testing showed China reject a nearby target with 68% final drive and then select a distant third-ranked target with only 5% drive. The inherited independent rolls mix the chance to prepare any war with target choice.
+	// When enabled, identify the highest final drive after all eligibility/local-target guards, roll only that rival below, and begin no preparation if it fails. This preserves uncertain timing without randomly substituting a worse target. (GPT-5.6-Sol) -->
+	static bool const bOnlyRollBestEligibleTarget = GC.getDefineBOOL("SAS_UWAI_ONLY_ROLL_BEST_ELIGIBLE_WAR_TARGET_ENABLE");
+	TeamTypes eBestEligibleTarget = NO_TEAM;
+	scaled rBestEligibleDrive;
+	int iBestEligibleTargetIndex = -1;
+	if (bOnlyRollBestEligibleTarget)
+	{
+		for (size_t i = 0; i < aTargets.size(); i++)
+		{
+			TeamTypes const eTarget = aTargets[i].eTeam;
+			scaled const rDrive = aAdjustedDrives[i];
+			if (rDrive <= 0 || (aTargets[i].iVictoryDenialBoost <= 0 && shouldSASBBAISkipForPreferredLocalWarTarget(kAgent, eTarget, ePreferredLocalTarget)))
+				continue;
+			if (iBestEligibleTargetIndex < 0 || rDrive > rBestEligibleDrive)
+			{
+				eBestEligibleTarget = eTarget;
+				rBestEligibleDrive = rDrive;
+				iBestEligibleTargetIndex = (int)i;
+			}
+		}
+	}
+	int iEligibleRank = 0;
+	int iHigherRankRollFailures = 0;
+	for (size_t i = 0; i < aTargets.size(); i++)
+	{
+		TeamTypes const eTarget = aTargets[i].eTeam;
+		scaled rDrive = aAdjustedDrives[i];
+		if (rDrive <= 0)
+			continue;
+		// <!-- custom: The preferred-local-target guard fixes ordinary faraway-war blunders, but must not veto emergency victory denial. A close-to-win target can be strategically mandatory even if a cleaner local conquest target exists. See KI#184. (GPT-5.5) -->
+		if (aTargets[i].iVictoryDenialBoost <= 0 && shouldSASBBAISkipForPreferredLocalWarTarget(kAgent, eTarget, ePreferredLocalTarget))
+		{
+			// <!-- custom: Only block targets that are clearly farther than the preferred local land target. Equal-distance and closer targets still use ordinary UWAI, keeping this a narrow faraway-war blunder fix rather than a broad war-target rewrite. (GPT-5.5) -->
+			if (gWarLogLevel >= 1)
+			{
+				logBBAI("WAR_TARGET_LOCAL_PREFERRED_SKIP turn=%d agentTeam=%d skippedTargetTeam=%d preferredTargetTeam=%d skippedDrivePercent=%d preferredDrivePercent=%d skippedRank=%d preferredRank=%d candidateCount=%d skippedAttitude=%d skippedAttitudeValue=%d preferredAttitude=%d preferredAttitudeValue=%d skippedCloseness=%d preferredCloseness=%d skippedDistance=%d preferredDistance=%d skippedTargetPowerPercent=%d preferredTargetPowerPercent=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), eTarget, ePreferredLocalTarget, rDrive.getPercent(), rPreferredLocalDrive.getPercent(), (int)i + 1, iPreferredLocalRank, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitude(ePreferredLocalTarget), kAgent.AI_getAttitudeVal(ePreferredLocalTarget), kAgent.AI_teamCloseness(eTarget), kAgent.AI_teamCloseness(ePreferredLocalTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), ePreferredLocalTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, ePreferredLocalTarget));
+			}
+			continue;
+		}
+		iEligibleRank++;
+		if (eBestEligibleTarget == NO_TEAM)
+		{
+			eBestEligibleTarget = eTarget;
+			rBestEligibleDrive = rDrive;
+		}
+		// <!-- custom: Victory-denial direct-war candidates have already passed narrow power/distance/naval gates; convert only those from preparation to immediate limited/total war so ordinary UWAI preparation behavior stays intact. See KI#184. (GPT-5.5) -->
+		WarPlanTypes const eWP = (aTargets[i].bTotal ? (aTargets[i].bDirect ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL) : (aTargets[i].bDirect ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED));
+		m_pReport->log("Drive for %s against %s: %d percent", aTargets[i].bDirect ? "direct war" : "war preparations", m_pReport->teamName(eTarget), rDrive.getPercent());
+		if (gWarLogLevel >= 2)
+			logSASBBAIWarTargetDrive(kAgent, eTarget, eWP, aTargets[i].iU, rDrive, aTargets[i].bShortWork, isInBackground());
+		// <!-- custom: Keep diagnostics for every eligible rival, but when KI#191 is enabled, only the highest final-drive candidate reaches the roll. This prevents a failed best-target roll from falling through to a rival the AI rated worse. (GPT-5.6-Sol) -->
+		if (bOnlyRollBestEligibleTarget && (int)i != iBestEligibleTargetIndex)
+			continue;
+		// <!-- custom: Log the exact eligible order and best-target comparison. With the new rule enabled, only the highest final-drive candidate reaches this roll; disabling it restores inherited independent rolls and possible fall-through to lower-ranked targets. (GPT-5.6-Sol) -->
+		bool const bSelected = SyncRandSuccess(rDrive);
+		if (gWarLogLevel >= 2) logBBAI("WAR_TARGET_SELECTION_ROLL turn=%d background=%d bestOnly=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d drivePercent=%d selected=%d targetRank=%d eligibleRank=%d candidateCount=%d higherRankRollFailures=%d bestEligibleTargetTeam=%d bestEligibleDrivePercent=%d candidateDistance=%d bestEligibleDistance=%d candidateTargetPowerPercent=%d bestEligibleTargetPowerPercent=%d candidateAttitude=%d candidateAttitudeValue=%d bestEligibleAttitude=%d bestEligibleAttitudeValue=%d",
+				GC.getGame().getGameTurn(), isInBackground(), bOnlyRollBestEligibleTarget, kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, rDrive.getPercent(), bSelected, (int)i + 1, iEligibleRank, (int)aTargets.size(), iHigherRankRollFailures, eBestEligibleTarget, rBestEligibleDrive.getPercent(),
+				getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eBestEligibleTarget), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAITargetPowerPercent(kAgent, eBestEligibleTarget), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_getAttitude(eBestEligibleTarget), kAgent.AI_getAttitudeVal(eBestEligibleTarget));
+		if (bSelected)
+		{
+			if (gWarLogLevel >= 1)
+			{
+				// <!-- custom: CHOSEN can be emitted during UWAI background evaluation, where no real war plan is assigned. Keep it for probabilistic target-choice context, but log PLAN_SET below only after the non-background AI_setWarPlan call so victory-pressure audits can distinguish simulated choice from actual action. (GPT-5.5) -->
+				logBBAI("WAR_TARGET_CHOSEN turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d originalUtility=%d victoryDenialBoost=%d direct=%d targetMaxVictoryStage=%d drivePercent=%d shortWork=%d targetRank=%d candidateCount=%d attitude=%d attitudeValue=%d closeness=%d nearestCityDistance=%d targetPowerPercent=%d",
+						GC.getGame().getGameTurn(), isInBackground(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, aTargets[i].iOriginalU, aTargets[i].iVictoryDenialBoost, aTargets[i].bDirect, aTargets[i].iTargetMaxVictoryStage, rDrive.getPercent(), aTargets[i].bShortWork, (int)i + 1, (int)aTargets.size(), kAgent.AI_getAttitude(eTarget), kAgent.AI_getAttitudeVal(eTarget), kAgent.AI_teamCloseness(eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget), getSASBBAITargetPowerPercent(kAgent, eTarget));
+				logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "CHOSEN", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), isInBackground());
+			}
 			if (!isInBackground())
 			{
-				kAgent.AI_setWarPlan(eTarget, eWP);
-				showWarPrepStartedMsg(eTarget);
+				// <!-- custom: `AI_setWarPlan(WARPLAN_LIMITED/TOTAL)` was not sufficient in the Lincoln retests; the near-finished spaceship target could still win before a real declaration happened. Declare immediately for the narrow victory-denial direct-war case. See KI#184. (GPT-5.5) -->
+				if (aTargets[i].bDirect && aTargets[i].iVictoryDenialBoost > 0 && kAgent.canDeclareWar(eTarget))
+				{
+					kAgent.declareWar(eTarget, false, eWP);
+					if (gWarLogLevel >= 1)
+					{
+						logBBAI("WAR_TARGET_VICTORY_DENIAL_DECLARE turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d originalUtility=%d victoryDenialBoost=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetPowerPercent=%d nearestCityDistance=%d",
+								GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, aTargets[i].iOriginalU, aTargets[i].iVictoryDenialBoost, aTargets[i].iTargetMaxVictoryStage, GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
+						logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "DECLARE", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), false);
+					}
+				}
+				else kAgent.AI_setWarPlan(eTarget, eWP);
+				if (gWarLogLevel >= 1)
+				{
+					logBBAI("WAR_TARGET_PLAN_SET turn=%d agentTeam=%d targetTeam=%d warPlan=%s utility=%d originalUtility=%d victoryDenialBoost=%d direct=%d targetMaxVictoryStage=%d drivePercent=%d targetRank=%d candidateCount=%d stateCounter=%d targetVictoryCountdown=%d targetPowerPercent=%d nearestCityDistance=%d",
+							GC.getGame().getGameTurn(), kAgent.getID(), eTarget, getSASWarPlanType(eWP), aTargets[i].iU, aTargets[i].iOriginalU, aTargets[i].iVictoryDenialBoost, aTargets[i].bDirect, aTargets[i].iTargetMaxVictoryStage, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), kAgent.AI_getWarPlanStateCounter(eTarget), GET_TEAM(eTarget).AI_getLowestVictoryCountdown(), getSASBBAITargetPowerPercent(kAgent, eTarget), getSASBBAINearestCityDistance(kAgent.getID(), eTarget));
+					logSASBBAIWarTargetVictoryContext(kAgent, eTarget, "PLAN_SET", eWP, aTargets[i].iU, rDrive.getPercent(), (int)i + 1, (int)aTargets.size(), false);
+				}
+				// <!-- custom: Direct victory-denial wars are already declared, so the preparation-started message would be misleading. Keep it only for actual preparation plans. See KI#184. (GPT-5.5) -->
+				if (!aTargets[i].bDirect)
+					showWarPrepStartedMsg(eTarget);
 			}
 			m_pReport->log("War plan initiated (%s)", m_pReport->warPlanName(eWP));
 			break; // Prepare only one war at a time
 		}
+		iHigherRankRollFailures++;
 		m_pReport->log("No preparations begun this turn");
 		if (GET_TEAM(eTarget).isHuman() && aTargets[i].iU <= 23)
 		{
@@ -2295,6 +2914,35 @@ bool UWAI::Team::canReach(TeamTypes eTarget) const
 }
 
 
+// <!-- custom: Save-file 450 showed Lincoln reaching 11 spaceship parts before the victory countdown started, then later reporting stage 3 while countdown still showed only a few turns left. The later Arabia branch showed direct war at countdown 4 was mechanically correct but still too late. Save-file 452 then showed raw part count could still fire too late in a faster Space race. Allow direct war for hard countdown emergencies, weak/near stage-4 threats, or configured stage-3 Space threats, so UWAI does not wait until the disruption window is almost gone. (GPT-5.5) -->
+// <!-- custom: Save-file 449 then showed the normal 3-turn contact limit assigning about -100000 utility even when this policy approved nearby, stronger Celts and Aztecs for direct war against India's launched spaceship. Keep the policy on UWAI::Team so target selection and the contact guard cannot drift apart. The caller supplies nearest-city plot distance for selection or cached path turns for the contact guard. (GPT-5.6-Sol) -->
+bool UWAI::Team::isSASVictoryDenialDirectWarAllowed(TeamTypes eTarget, int iTargetMaxVictoryStage, bool bNaval, int iDistance) const
+{
+	CvTeamAI const& kAgent = GET_TEAM(m_eAgent);
+	static const bool bEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_ENABLE");
+	if (!bEnable)
+		return false;
+	int const iCountdown = GET_TEAM(eTarget).AI_getLowestVictoryCountdown();
+	static const int iMaxCountdownDirectWarNormal = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_MAX_COUNTDOWN_TURNS_NORMAL_GAMESPEED_DIRECT_WAR");
+	int const iMaxCountdownDirectWar = getSASVictoryDelayTurnsFromNormalGameSpeed(iMaxCountdownDirectWarNormal);
+	static const bool bDirectStage4Enable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE4_ENABLE");
+	static const bool bDirectStage3SpaceEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_ENABLE");
+	bool const bCountdownDirect = (iCountdown >= 0 && iCountdown <= iMaxCountdownDirectWar);
+	bool const bStage4Direct = (bDirectStage4Enable && iTargetMaxVictoryStage >= 4);
+	bool const bStage3SpaceDirect = (bDirectStage3SpaceEnable && isSASTeamStage3SpaceVictoryThreat(eTarget));
+	if (!bCountdownDirect && !bStage4Direct && !bStage3SpaceDirect)
+		return false;
+	static const int iMaxTargetPowerPercent = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_TARGET_POWER_PERCENT");
+	int const iTargetPowerPercent = 100 * GET_TEAM(eTarget).getDefensivePower(kAgent.getID()) / std::max(1, kAgent.getPower(true));
+	if (iTargetPowerPercent > iMaxTargetPowerPercent)
+		return false;
+	static const int iMaxDistance = GC.getDefineINT("SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE");
+	if (iDistance < 0 || iDistance > iMaxDistance)
+		return false;
+	return (!bNaval || kAgent.AI_isLandTarget(eTarget));
+}
+
+
 bool UWAI::Team::isCloseToAdoptingAnyWarPlan() const
 {
 	for (TeamIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(m_eAgent);
@@ -2363,9 +3011,11 @@ void UWAI::Team::showWarPlanAbandonedMsg(TeamTypes eTarget)
 
 void UWAI::Team::showWarPlanMsg(TeamTypes eTarget, char const* szKey)
 {
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bUWAI_SPECTATOR_ENABLED = GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED");
 
 	CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-	if (!kActivePlayer.isSpectator() || !GC.getDefineBOOL("UWAI_SPECTATOR_ENABLED"))
+	if (!kActivePlayer.isSpectator() || !bUWAI_SPECTATOR_ENABLED)
 		return;
 	CvWString szBuffer = gDLL->getText(szKey,
 			GET_TEAM(m_eAgent).getName().GetCString(),
@@ -2647,8 +3297,8 @@ bool UWAI::Player::isPeaceDealPossible(PlayerTypes eHuman) const
 }
 
 
-bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
-	int* piAvailableTradeVal, bool bIgnoreCities) const
+// (advc.ctr: Now unused b/c the AI will always accept cities as payment) <!-- custom: hoisted from multiline signature between `piAvailableTradeVal` and `bIgnoreCities` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman, int* piAvailableTradeVal, bool bIgnoreCities) const
 {
 	if (piAvailableTradeVal != NULL)
 		*piAvailableTradeVal = iTargetTradeVal;
@@ -2766,8 +3416,7 @@ scaled UWAI::Player::estimateBuildUpRate(PlayerTypes ePlayer, int iTurns) const
 }
 
 
-scaled UWAI::Player::estimateDemographicGrowthRate(PlayerTypes ePlayer,
-	PlayerHistoryTypes eDemographic, int iTurns) const
+scaled UWAI::Player::estimateDemographicGrowthRate(PlayerTypes ePlayer, PlayerHistoryTypes eDemographic, int iTurns) const
 {
 	if (GC.getGame().getElapsedGameTurns() < iTurns + 1)
 		return 0;
@@ -2860,8 +3509,7 @@ scaled UWAI::Player::distrustRating() const
 }
 
 
-scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal,
-	PlayerTypes eTarget) const
+scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal, PlayerTypes eTarget) const
 {
 	/*	AI assumes that human confidence depends on difficulty. NB: This doesn't
 		mean that the AI thinks that humans are good at warfare - this is handled
@@ -2903,8 +3551,7 @@ scaled UWAI::Player::warConfidencePersonal(bool bNaval, bool bTotal,
 }
 
 
-scaled UWAI::Player::warConfidenceLearned(PlayerTypes eTarget,
-	bool bIgnoreDefOnly) const
+scaled UWAI::Player::warConfidenceLearned(PlayerTypes eTarget, bool bIgnoreDefOnly) const
 {
 
 	scaled rFromWarSuccess = confidenceFromWarSuccess(TEAMID(eTarget));

@@ -1,0 +1,147 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 383
+# Commit: dd0562e7c961cec5ed69ca32e27723fd5ebcd534
+# History segment: K-Mod history
+# Parent used for diff: c334ad50e16d834a32656ba07bf26314127e975f
+# Title: Changed CvUnitAI::AI_bestCityBuild so that it can by used to recommend worker actions without messing with the AI's pathfinder.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+43	11	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/KmodPathFinder.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 20e3ca50a..62f0e58da 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -902,18 +902,30 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ {
+ 	PROFILE_FUNC();
+ 
+-	BuildTypes eBuild;
+-	int iValue;
+-	int iBestValue;
+-	int iI;
+-
+-	iBestValue = 0;
++	int iBestValue = 0;
+ 	BuildTypes eBestBuild = NO_BUILD;
+ 	CvPlot* pBestPlot = NULL;
+ 
++	// K-Mod. hack: For the AI, I want to use the standard pathfinder, CvUnit::generatePath.
++	// but this function is also used to give action recommendations for the player
++	// - and for that I do not want to disrupt the standard pathfinder. (because I'm paranoid about OOS bugs.)
++	KmodPathFinder alt_finder;
++	KmodPathFinder& pathFinder = getGroup()->AI_isControlled() ? CvSelectionGroup::path_finder : alt_finder;
++	if (getGroup()->AI_isControlled())
++	{
++		// standard settings. cf. CvUnit::generatePath
++		pathFinder.SetSettings(getGroup(), 0);
++	}
++	else
++	{
++		// like I said - this is only for action recommendations. It can be rough.
++		pathFinder.SetSettings(getGroup(), 0, 5, GC.getMOVE_DENOMINATOR());
++	}
++	// K-Mod end
++
+ 	for (int iPass = 0; iPass < 2; iPass++)
+ 	{
+-		for (iI = 0; iI < NUM_CITY_PLOTS; iI++)
++		for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 		{
+ 			CvPlot* pLoopPlot = plotCity(pCity->getX_INLINE(), pCity->getY_INLINE(), iI);
+ 
+@@ -926,11 +938,11 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 					{
+ 						if ((pLoopPlot->getImprovementType() == NO_IMPROVEMENT) || !(GET_PLAYER(getOwnerINLINE()).isOption(PLAYEROPTION_SAFE_AUTOMATION) && !(pLoopPlot->getImprovementType() == (GC.getDefineINT("RUINS_IMPROVEMENT")))))
+ 						{
+-							iValue = pCity->AI_getBestBuildValue(iI);
++							int iValue = pCity->AI_getBestBuildValue(iI);
+ 
+ 							if (iValue > iBestValue)
+ 							{
+-								eBuild = pCity->AI_getBestBuild(iI);
++								BuildTypes eBuild = pCity->AI_getBestBuild(iI);
+ 								FAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
+ 
+ 								if (eBuild != NO_BUILD)
+@@ -945,6 +957,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 									{
+ 										if (!(pLoopPlot->isVisibleEnemyUnit(this)))
+ 										{
++											/* original bts code
+ 											int iPathTurns;
+ 											if (generatePath(pLoopPlot, 0, true, &iPathTurns))
+ 											{
+@@ -964,7 +977,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 													{
+ 														iMaxWorkers += 10;
+ 													}
+-												}	
++												} */
++											// K-Mod. basically the same thing, but using pathFinder.
++											if (pathFinder.GeneratePath(pLoopPlot))
++											{
++												FAStarNode* pEndNode = pathFinder.GetEndNode();
++												int iPathTurns = pEndNode->m_iData2 + (pEndNode->m_iData1 == 0 ? 1 : 0);
++												int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(pLoopPlot, eBuild);
++												if (pUnit && pUnit->plot()->isCity() && iPathTurns == 1)
++													iMaxWorkers += 10;
++											// K-Mod end
+ 												if (GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_BUILD, getGroup()) < iMaxWorkers)
+ 												{
+ 													//XXX this could be improved greatly by
+@@ -992,6 +1014,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 			if (eBestBuild != NO_BUILD)
+ 			{
+ 				FAssert(pBestPlot != NULL);
++				/* original bts code
+ 				int iPathTurns;
+ 				if ((generatePath(pBestPlot, 0, true, &iPathTurns)) && canBuild(pBestPlot, eBestBuild)
+ 					&& !(pBestPlot->isVisibleEnemyUnit(this)))
+@@ -1011,7 +1034,16 @@ bool CvUnitAI::AI_bestCityBuild(CvCity* pCity, CvPlot** ppBestPlot, BuildTypes*
+ 					else if (iPathTurns <= 1)
+ 					{
+ 						iMaxWorkers = AI_calculatePlotWorkersNeeded(pBestPlot, eBestBuild);										
+-					}
++					} */
++				// K-Mod. basically the same thing, but using pathFinder.
++				if (pathFinder.GeneratePath(pBestPlot))
++				{
++					FAStarNode* pEndNode = pathFinder.GetEndNode();
++					int iPathTurns = pEndNode->m_iData2 + (pEndNode->m_iData1 == 0 ? 1 : 0);
++					int iMaxWorkers = iPathTurns > 1 ? 1 : AI_calculatePlotWorkersNeeded(pBestPlot, eBestBuild);
++					if (pUnit && pUnit->plot()->isCity() && iPathTurns == 1)
++						iMaxWorkers += 10;
++				// K-Mod end
+ 					int iWorkerCount = GET_PLAYER(getOwnerINLINE()).AI_plotTargetMissionAIs(pBestPlot, MISSIONAI_BUILD, getGroup());
+ 					if (iWorkerCount < iMaxWorkers)
+ 					{
+
+diff --git a/CvGameCoreDLL/KmodPathFinder.h b/CvGameCoreDLL/KmodPathFinder.h
+index 73a9ddbe7..e2ec8f76e 100644
+--- a/CvGameCoreDLL/KmodPathFinder.h
++++ b/CvGameCoreDLL/KmodPathFinder.h
+@@ -26,7 +26,7 @@ public:
+ 	FAStarNode* GetEndNode() { FAssert(end_node); return end_node.get(); }
+ 	CvPlot* GetPathFirstPlot() const;
+ 	void SetSettings(const CvPathSettings& new_settings);
+-	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1) { SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath)); }
++	void SetSettings(const CvSelectionGroup* pGroup, int iFlags = 0, int iMaxPath = -1, int iHW=-1) { SetSettings(CvPathSettings(pGroup, iFlags, iMaxPath, iHW)); }
+ 	void Reset();
+ 
+ protected:
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5283

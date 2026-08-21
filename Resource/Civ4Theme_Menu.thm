@@ -47,7 +47,7 @@ with GFC_Control_Menu
 			.Border								=	GFC_CtrlTheme_Bitmap_Control_Menu_Child_Border;
 			//.Table							=	GFC_CtrlTheme_Bitmap_Control_Menu_Child_Table;
 		}										
-													
+
 		with .StyleId								
 		{											
 			.Border								=	GPropertyId(GFC_Control_StandardBorder_Style);
@@ -67,11 +67,11 @@ with GFC_Control_Menu
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
-											
+
 		with .Flag
 		{												
 			// Menu control flags				
@@ -91,7 +91,7 @@ with GFC_Control_Menu
 			// Control flag change masks	
 			//.MenuMask_InvalidateControl		=	GFlags(GMenuCtrl);
 		}
-		
+
 		with .Size
 		{
 			.Minimum							=	GSize(60,12);
@@ -107,14 +107,14 @@ with GFC_Control_Menu
 			.SubMenuMargin						=	GRectMargin(0,0,0,0);
 			.ExtentMargin						=	GRectMargin(4,4,4,4);
 		}										
-													
+
 		with .Delay									
 		{										
 			.DropDown							=	400;	
 			.DraggingDropDown					=	0;
 			.HideMenu							=	400;
 		}								
-											
+
 		with .Color							
 		{
 			.Inner_Default						=	GFC_Control_Color_Surface;
@@ -122,25 +122,25 @@ with GFC_Control_Menu
 			.Inner_InactiveSelect				=	GFC_Control_Color_Inner_InactiveSelect;
 			.Inner_Disable						=	GFC_Control_Color_Inner_Disable;
 			.Inner_DisableSelect				=	GFC_Control_Color_Inner_DisableSelect;
-													
+
 			.Text_Default						=	GFC_Control_Color_Text_Default;  //GFC_Control_Color_Text_Default;
 			.Text_Select						=	SF_CtrlTheme_Civ4_Control_Color_SelectText;
 			.Text_InactiveSelect				=	SF_CtrlTheme_Civ4_Control_Color_SelectText;
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;
 			.Text_DisableSelect					=	GFC_Control_Color_Text_Disable;
-													
+
 			.TextShadow_Default					=	GFC_Control_Color_TextShadow_Default;		//GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Select					=	GFC_Control_Color_TextShadow_Default;
 			.TextShadow_InactiveSelect			=	GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;
 			.TextShadow_DisableSelect			=	GFC_Control_Color_TextShadow_Disable;
-													
+
 			.Image_Default						=	GFC_Control_Color_Image_Default;
 			.Image_Select						=	SF_CtrlTheme_Civ4_Control_Color_SelectText;
 			.Image_InactiveSelect				=	SF_CtrlTheme_Civ4_Control_Color_SelectText;
 			.Image_Disable						=	GFC_Control_Color_Image_Disable;
 			.Image_DisableSelect				=	GFC_Control_Color_Image_DisableSelect;
-														
+
 			// Toggle item colors (check & radio items)
 			.ToggleImage_Default				=	GFC_Control_Color_Text_Default;
 			.ToggleImage_Select					=	SF_CtrlTheme_Civ4_Control_Color_SelectText;
@@ -151,8 +151,8 @@ with GFC_Control_Menu
 			.Separator							=	GFC_Control_Color_Text_Default;
 			.SeparatorShadow					=	GFC_Control_Color_TextShadow_Default;
 		}								
-											
-											
+
+
 		with .Combine						
 		{								
 			.Inner_Default						=	GFC_Control_Combine_Surface;
@@ -160,7 +160,7 @@ with GFC_Control_Menu
 			.Inner_InactiveSelect				=	GFC_Control_Combine_Inner_InactiveSelect;
 			.Inner_Disable						=	GFC_Control_Combine_Inner_Disable;
 			.Inner_DisableSelect				=	GFC_Control_Combine_Inner_DisableSelect;
-													
+
 			.Text_Default_Dest					=	GFC_Control_Combine_Text_Default_Dest;
 			.Text_Default_Factor				=	GFC_Control_Combine_Text_Default_Factor;
 			.Text_Select_Dest					=	GFC_Control_Combine_Text_Default_Dest;
@@ -171,7 +171,7 @@ with GFC_Control_Menu
 			.Text_Disable_Factor				=	GFC_Control_Combine_Text_Disable_Factor;
 			.Text_DisableSelect_Dest			=	GFC_Control_Combine_Text_DisableSelect_Dest;
 			.Text_DisableSelect_Factor			=	GFC_Control_Combine_Text_DisableSelect_Factor;
-													
+
 			.TextShadow_Default_Dest			=	GFC_Control_Combine_TextShadow_Default_Dest;
 			.TextShadow_Default_Factor			=	GFC_Control_Combine_TextShadow_Default_Factor;
 			.TextShadow_Select_Dest				=	GFC_Control_Combine_TextShadow_Default_Dest;
@@ -182,7 +182,7 @@ with GFC_Control_Menu
 			.TextShadow_Disable_Factor			=	GFC_Control_Combine_TextShadow_Disable_Factor;
 			.TextShadow_DisableSelect_Dest		=	GFC_Control_Combine_TextShadow_DisableSelect_Dest;
 			.TextShadow_DisableSelect_Factor	=	GFC_Control_Combine_TextShadow_DisableSelect_Factor;
-													
+
 			.Image_Default_Dest					=	GFC_Control_Combine_Image_Default_Dest;
 			.Image_Default_Factor				=	GFC_Control_Combine_Image_Default_Factor;
 			.Image_Select_Dest					=	GFC_Control_Combine_Image_Select_Dest;
@@ -193,7 +193,7 @@ with GFC_Control_Menu
 			.Image_Disable_Factor				=	GFC_Control_Combine_Image_Disable_Factor;
 			.Image_DisableSelect_Dest			=	GFC_Control_Combine_Image_DisableSelect_Dest;
 			.Image_DisableSelect_Factor			=	GFC_Control_Combine_Image_DisableSelect_Factor;
-			
+
 			// Toggle item combines (check & radio items)
 			.ToggleImage_Default_Dest			=	GFC_Control_Combine_Image_Default_Dest;
 			.ToggleImage_Default_Factor			=	GFC_Control_Combine_Image_Default_Factor;												
@@ -205,7 +205,7 @@ with GFC_Control_Menu
 			.ToggleImage_Disable_Factor			=	.ToggleImage_Default_Factor;
 			.ToggleImage_DisableSelect_Dest		=	GFC_Control_Combine_Image_DisableSelect_Dest;
 			.ToggleImage_DisableSelect_Factor	=	.ToggleImage_Default_Factor;
-			
+
 			// Separator															
 			.Separator							=	GFC_Control_Combine_Surface;
 			.SeparatorShadow					=	GFC_Control_Combine_Surface;
@@ -224,12 +224,12 @@ with GFC_Control_Menu
 			.RadioItem_Toggle					=	GBitmap("../../../../Resource/Civ4/Menu_Radiobutton.tga", Vertical, 3, 0);
 			.RadioItem_ToggleDisable			=	GBitmap("../../../../Resource/Civ4/Menu_Radiobutton.tga", Vertical, 3, 2);
 		}
-		
+
 		// Fonts
 		.Font_Default							=	SF_CtrlTheme_Civ4_Control_Font_Size3_Normal;
 		.Font_Select							=	.Font_Default;
-		
-		
+
+
 		// ******* Initialize all the Bitmap theme Menu properties to avoid inheritance problems
 
 		with GFC_CtrlTheme_Bitmap_Control_Menu_Skin
@@ -276,9 +276,9 @@ style SF_CtrlTheme_Civ4_Control_Menu_Standard_Border_Style
 {
 	GFC_Control_Flag_RegionClipParent		=	GFlags(GCtrl, GFC_CF_REGIONCLIP_PARENT);
 	GFC_Control_Flag_TopLayerBitmap			=	GFlags(GCtrl, GFC_CF_TOPLAYER_BITMAP);
-												
+
 	GFC_Control_Border_Size_Margin				=	GRectMargin(6,6,6,6);
-	
+
 	with GFC_CtrlTheme_Bitmap_Control_Border_Skin
 	{
 		.Full_Default
@@ -352,7 +352,7 @@ style SF_CtrlTheme_Civ4_Control_Menu_Standard_Border_Style
 style SF_CtrlTheme_Civ4_Control_Menu_Standard_Table_Style
 {
 	GFC_Control_Flag_Transparent				=	GFlags(GCtrl, GFC_CF_TRANSPARENT);
-	
+
 	GFC_Control_Table_Flag_NoInnerBorder		=	GFlags(GTableCtrl, GFC_CF_TABLE_NOINNERBORDER);
 	GFC_Control_Table_Flag_NoInnerFill			=	GFlags(GTableCtrl, GFC_CF_TABLE_NOINNERFILL);
 
@@ -368,7 +368,7 @@ style SF_CtrlTheme_Civ4_Control_Menu_Standard_Table_Style
 	{
 		.StyleId_Table		=	GPropertyId(SF_CtrlTheme_Civ4_Control_Menu_Standard_Table_Style);
 		.StyleId_Border		=	GPropertyId(SF_CtrlTheme_Civ4_Control_Menu_Standard_Border_Style);
-	
+
 		with GFC_CtrlTheme_Bitmap_Control_Menu_Skin_Inner
 		{
 			.Default
@@ -427,10 +427,10 @@ style SF_CtrlTheme_Civ4_Control_Menu_Standard_Table_Style
 			}
 			.DisableSelect			=	.Disable;
 		}
-		
-		
+
+
 		// Item skins
-		
+
 		// String item backgrounds
 		with GFC_CtrlTheme_Bitmap_Control_Menu_Skin_TextItem
 		{
@@ -466,9 +466,9 @@ style SF_CtrlTheme_Civ4_Control_Menu_Standard_Table_Style
 				}	
 			}
 		}
-		
+
 		// Separator items
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_Menu_Skin_SeparatorItem
 		{
 			.Default
@@ -483,22 +483,22 @@ style SF_CtrlTheme_Civ4_Control_Menu_Standard_Table_Style
 			}		
 			.Disable				= .Default;
 		}
-		
-		
+
+
 		map SF_CtrlTheme_Civ4_Control				=	GFC_Control_DefaultMenu_Style;		
 		map GFC_CtrlTheme_Bitmap_Control_Menu		=	GFC_Control_DefaultMenu_Style;
 		map GFC_Control								=	GFC_Control_DefaultMenu_Style;
 	}	
 }
 
-		
 
 
 
-	
+
+
 with GFC_Control_MenuBar
 {
-	
+
 	GFC_Control_DefaultMenuBar_Style
 	{
 		GFC_Control_Renderer_Control			=	GFC_CtrlTheme_Bitmap_Control_MenuBar_Renderer_Control;
@@ -509,19 +509,19 @@ with GFC_Control_MenuBar
 			.SeparatorItem						=	GFC_CtrlTheme_Bitmap_Control_MenuBar_Renderer_SeparatorItem;
 			.TextItem							=	GFC_CtrlTheme_Bitmap_Control_MenuBar_Renderer_TextItem;
 		}									
-												
+
 		with .Child								
 		{									
 			.Border								=	GFC_CtrlTheme_Bitmap_Control_MenuBar_Child_Border;
 			.Table								=	GFC_CtrlTheme_Bitmap_Control_MenuBar_Child_Table;
 		}									
-												
+
 		with .StyleId							
 		{									
 			.Border								=	GPropertyId(GFC_Control_StandardBorder_Style);
 			.Table								=	GPropertyId(GFC_Control_StandardTable_Style);
 		}									
-												
+
 		GFC_Control_Update_ChildLayout			=	GFC_CtrlTheme_Bitmap_Control_MenuBar_Update_ChildLayout;
 
 		with GFC_Control_Flag
@@ -537,7 +537,7 @@ with GFC_Control_MenuBar
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -551,11 +551,11 @@ with GFC_Control_MenuBar
 			.RolloverAutoPopup					=	0;	//GFlags(GMenuBarCtrl, GFC_CF_MENUBAR_ROLLOVERAUTOPOPUP);
 			.Select_DisabledItems				=	0;	//GFlags(GMenuBarCtrl, GFC_CF_MENUBAR_SELECT_DISABLEDITEMS);
 			.Select_ToggleMenu					=	0;	//GFlags(GMenuBarCtrl, GFC_CF_MENUBAR_SELECT_TOGGLEMENU);
-													
+
 			.PopupAutoSelect_ByMouse			=	0;
 			.PopupAutoSelect_ByKeyboard			=	GFlags(GMenuBarCtrl, GFC_CF_MENUBAR_POPUPAUTOSELECT_BYKEYBOARD);
 		}								
-											
+
 		with .Size							
 		{								
 			.MinimumHeight						=	23;	
@@ -568,11 +568,11 @@ with GFC_Control_MenuBar
 			// Separator item size					
 			.Separator							=	6;
 		}										
-													
+
 		with .Delay									
 		{										
 			.RolloverComeback					=	220;
-			
+
 			// Menu properties are used for these variables
 			/*
 			with GFC_Control_Menu {
@@ -582,14 +582,14 @@ with GFC_Control_MenuBar
 			}							
 			*/
 		}
-	
+
 		with .Color
 		{		
 			.Inner_Default						=	GFC_Control_Color_Surface;
 			.Inner_Select						=	GFC_Control_Color_Inner_Select;
 			.Inner_Disable						=	.Inner_Default;
 			.Inner_DisableSelect				=	GFC_Control_Color_Inner_DisableSelect;
-				
+
 			.Text_Default						=	GFC_Control_Color_Text_Default;		//GFC_Control_Color_Text_Default;
 			.Text_Rollover						=	SF_CtrlTheme_Civ4_Control_Color_SelectText;
 			.Text_Select						=	SF_CtrlTheme_Civ4_Control_Color_SelectText;			//GColor( 66, 88,255);
@@ -601,7 +601,7 @@ with GFC_Control_MenuBar
 			.Text_WinoffRollover				=	.Text_Select;
 			.Text_WinoffDisable					=	.Text_Disable;
 			.Text_WinoffDisableRollover			=	.Text_DisableRollover;
-				
+
 			.TextShadow_Default					=	GFC_Control_Color_TextShadow_Default;				//GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Rollover				=	GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Select					=	GFC_Control_Color_TextShadow_Default;		//GFC_Control_Color_TextShadow_Select;
@@ -613,17 +613,17 @@ with GFC_Control_MenuBar
 			.TextShadow_WinoffRollover			=	.TextShadow_Rollover;
 			.TextShadow_WinoffDisable			=	.TextShadow_Disable;
 			.TextShadow_WinoffDisableRollover	=	.TextShadow_DisableRollover;
-							
+
 			.Image_Default						=	GFC_Control_Color_Image_Default;
 			.Image_Select						=	GFC_Control_Color_Image_Select;
 			.Image_Disable						=	GFC_Control_Color_Image_Disable;
 			.Image_DisableSelect					=	GFC_Control_Color_Image_DisableSelect;
-													
+
 			.Separator							=	GFC_Control_Color_3DLook_Dark;
 			.SeparatorShadow					=	GFC_Control_Color_3DLook_Lightest;
 		}
-	
-	
+
+
 		with .Combine
 		{
 			.Inner_Default						= 	GFC_Control_Combine_Surface;
@@ -657,15 +657,15 @@ with GFC_Control_MenuBar
 			.Image_Disable_Factor				= 	GFC_Control_Combine_Image_Disable_Factor;			
 			.Image_DisableSelect_Dest			= 	GFC_Control_Combine_Image_DisableSelect_Dest;
 			.Image_DisableSelect_Factor			=	GFC_Control_Combine_Image_DisableSelect_Factor;
-			
+
 			.Separator							= 	GFC_Control_Combine_Surface;
 			.SeparatorShadow					= 	GFC_Control_Combine_Surface;
 		}
-	
+
 		// Fonts
 		.Font_Default							=	SF_CtrlTheme_Civ4_Control_Font_Size3_Normal;
 		.Font_Select							=	.Font_Default;
-	
+
 		// ******* Initialize all the Bitmap theme MenuBar properties to avoid inheritance problems
 
 		with GFC_CtrlTheme_Bitmap_Control_MenuBar_Skin
@@ -699,7 +699,7 @@ with GFC_Control_MenuBar
 style SF_CtrlTheme_Civ4_Control_MenuBar_Standard_Table_Style
 {
 	GFC_Control_Flag_Transparent			=	GFlags(GCtrl, GFC_CF_TRANSPARENT);
-	
+
 	GFC_Control_Table_Flag_NoInnerBorder	=	GFlags(GTableCtrl, GFC_CF_TABLE_NOINNERBORDER);
 	GFC_Control_Table_Flag_NoInnerFill		=	GFlags(GTableCtrl, GFC_CF_TABLE_NOINNERFILL);
 
@@ -715,9 +715,9 @@ style SF_CtrlTheme_Civ4_Control_MenuBar_Standard_Table_Style
 	GFC_Control_StandardMenuBar_Style
 	{		
 		.StyleId_Table		=	GPropertyId(SF_CtrlTheme_Civ4_Control_MenuBar_Standard_Table_Style);
-		
+
 		// Item skins
-		
+
 		// String item backgrounds
 		with GFC_CtrlTheme_Bitmap_Control_MenuBar_Skin_TextItem
 		{
@@ -769,7 +769,7 @@ style SF_CtrlTheme_Civ4_Control_MenuBar_Standard_Table_Style
 			.WinoffDisable			=	.Disable;
 			.WinoffDisableRollover	=	.DisableRollover;
 		}
-		
+
 		// Separator items
 		/*
 		with GFC_CtrlTheme_Bitmap_Control_MenuBar_Skin_SeparatorItem
@@ -782,7 +782,7 @@ style SF_CtrlTheme_Civ4_Control_MenuBar_Standard_Table_Style
 			{
 			}
 		}
-		
+
 		*/
 
 		map GFC_CtrlTheme_Bitmap_Control_MenuBar	=	GFC_Control_DefaultMenuBar_Style;

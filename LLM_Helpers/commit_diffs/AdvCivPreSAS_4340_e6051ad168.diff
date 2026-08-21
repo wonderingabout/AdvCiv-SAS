@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4340
+# Commit: e6051ad1684dfaa021a101be5a9089d3d7091c97
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9658340f5da35754266217bb305b58c080c411b7
+# Title: Prevent allocation of 0-size arrays in CvPlayerAI
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	23	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4f0cc249b..cc11d0999 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -286,32 +286,31 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 	m_iAvailableIncome = 0; // K-Mod
+ 
+ 	m_aeAICitySites.clear();
+-
+-	FAssert(m_aiBonusValue == NULL);
+-	m_aiBonusValue = new int[GC.getNumBonusInfos()];
+-	m_aiBonusValueTrade = new int[GC.getNumBonusInfos()]; // advc.036
+-	for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
+-	{
+-		m_aiBonusValue[iI] = -1;
+-		m_aiBonusValueTrade[iI] = -1; // advc.036
+-	}
+ 	m_aeBestTechs.clear(); // advc.550g
+-
+-	FAssert(m_aiUnitClassWeights == NULL);
+-	m_aiUnitClassWeights = new int[GC.getNumUnitClassInfos()];
+-	for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+-	{
+-		m_aiUnitClassWeights[iI] = 0;
+-	}
+-
+-	FAssert(m_aiUnitCombatWeights == NULL);
+-	m_aiUnitCombatWeights = new int[GC.getNumUnitCombatInfos()];
+-	for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
++	m_aiVictoryWeights.reset(); // advc.115f
++	if (!bConstructor) // advc.001
+ 	{
+-		m_aiUnitCombatWeights[iI] = 0;
++		FAssert(m_aiBonusValue == NULL);
++		m_aiBonusValue = new int[GC.getNumBonusInfos()];
++		m_aiBonusValueTrade = new int[GC.getNumBonusInfos()]; // advc.036
++		for (iI = 0; iI < GC.getNumBonusInfos(); iI++)
++		{
++			m_aiBonusValue[iI] = -1;
++			m_aiBonusValueTrade[iI] = -1; // advc.036
++		}
++		FAssert(m_aiUnitClassWeights == NULL);
++		m_aiUnitClassWeights = new int[GC.getNumUnitClassInfos()];
++		for (iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
++		{
++			m_aiUnitClassWeights[iI] = 0;
++		}
++		FAssert(m_aiUnitCombatWeights == NULL);
++		m_aiUnitCombatWeights = new int[GC.getNumUnitCombatInfos()];
++		for (iI = 0; iI < GC.getNumUnitCombatInfos(); iI++)
++		{
++			m_aiUnitCombatWeights[iI] = 0;
++		}
+ 	}
+-	m_aiVictoryWeights.reset(); // advc.115f
+-
+ 	/*for (iI = 0; iI < MAX_PLAYERS; iI++) {
+ 		m_aiCloseBordersAttitude[iI] = 0;
+ 		if (!bConstructor && getID() != NO_PLAYER)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1980

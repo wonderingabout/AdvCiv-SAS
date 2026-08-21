@@ -1,0 +1,166 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 170
+# Commit: 8bd260f741645fd4b5410e7470519f7a56be5ecb
+# History segment: K-Mod history
+# Parent used for diff: badfba8db5eed1a3ad698ebb3fe8dcdf0b24363c
+# Title: Cache data is now updated when player is initialized, and when turn becomes active. (this fixes the problem of cache not being initialized on the first turn,...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvCityAI.cpp
+3	0	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+19	10	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 516dd6df6..ac3ee3696 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1437,6 +1437,7 @@ void CvCityAI::AI_chooseProduction()
+ 	}*/
+ 
+ 	// K-Mod, short-circuit production choice if we already have something really good in mind
++	if (kPlayer.getNumCities() > 1) // don't short circuit if this is our only city.
+ 	{
+ 		int iOdds = std::max(0, 100 * iBestBuildingValue / (3 * iBestBuildingValue + 300) - 10);
+ 		if (AI_chooseBuilding(0, INT_MAX, 0, iOdds))
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index d83015556..8ec7b7763 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -10909,6 +10909,9 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
+ 
+ 		if (isTurnActive())
+ 		{
++			// K-Mod
++			GET_PLAYER(getID()).updateCacheData();
++			// K-Mod end
+ 			if (GC.getLogging())
+ 			{
+ 				if (gDLL->getChtLvl() > 0)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index e861a146c..16596dacb 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1368,7 +1368,7 @@ protected:
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 	
+-	void doUpdateCacheOnTurn();	
++	void doUpdateCacheOnTurn();	// adopted by K-Mod (originally was empty)
+ 	int getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) const;
+ 
+ 	void getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const;  // used by Globeview trade layer
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9990adffb..453925ca1 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -200,6 +200,7 @@ void CvPlayerAI::AI_init()
+ 		AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? 1 : 2);
+ 	}
+ 	AI_initStrategyRand(); // K-Mod
++	updateCacheData(); // K-Mod
+ }
+ 
+ 
+@@ -311,7 +312,7 @@ void CvPlayerAI::AI_reset(bool bConstructor)
+ 	m_iTurnLastProductionDirty = -1;
+ 
+ 	//m_iUpgradeUnitsCacheTurn = -1;
+-	m_iUpgradeUnitsCachedExpThreshold = 0;
++	//m_iUpgradeUnitsCachedExpThreshold = 0;
+ 	m_iUpgradeUnitsCachedGold = 0;
+ 
+ 	m_aiAICitySites.clear();
+@@ -373,6 +374,21 @@ int CvPlayerAI::AI_getFlavorValue(FlavorTypes eFlavor) const
+ 	return GC.getLeaderHeadInfo(getPersonalityType()).getFlavorValue(eFlavor);
+ }
+ 
++// K-Mod
++void CvPlayerAI::updateCacheData()
++{
++	if (isAlive())
++	{
++		AI_calculateAverages();
++		AI_updateVictoryStrategyHash();
++		if (!isHuman())
++		{
++			AI_updateStrategyHash();
++			AI_updateGoldToUpgradeAllUnits();
++		}
++	}
++}
++// K-Mod end
+ 
+ void CvPlayerAI::AI_doTurnPre()
+ {
+@@ -383,13 +399,6 @@ void CvPlayerAI::AI_doTurnPre()
+ 	FAssertMsg(getCivilizationType() != NO_CIVILIZATION, "getCivilizationType() is not expected to be equal with NO_CIVILIZATION");
+ 
+ 	AI_invalidateCloseBordersAttitudeCache();
+-	// K-Mod
+-	AI_calculateAverages();
+-	AI_updateStrategyHash();
+-	AI_updateVictoryStrategyHash();
+-	AI_updateGoldToUpgradeAllUnits();
+-	// K-Mod end
+-
+ 
+ 	AI_doCounter();
+ 
+@@ -16138,7 +16147,7 @@ void CvPlayerAI::read(FDataStreamBase* pStream)
+ 	pStream->Read(NUM_COMMERCE_TYPES, m_aiAverageCommerceExchange);
+ 
+ 	//pStream->Read(&m_iUpgradeUnitsCacheTurn); // disabled by K-Mod
+-	pStream->Read(&m_iUpgradeUnitsCachedExpThreshold);
++	//pStream->Read(&m_iUpgradeUnitsCachedExpThreshold); // disabled by K-Mod
+ 	pStream->Read(&m_iUpgradeUnitsCachedGold);
+ 
+ 	pStream->Read(NUM_UNITAI_TYPES, m_aiNumTrainAIUnits);
+@@ -16238,7 +16247,7 @@ void CvPlayerAI::write(FDataStreamBase* pStream)
+ 	pStream->Write(NUM_COMMERCE_TYPES, m_aiAverageCommerceExchange);
+ 
+ 	//pStream->Write(m_iUpgradeUnitsCacheTurn); // disabled by K-Mod
+-	pStream->Write(m_iUpgradeUnitsCachedExpThreshold);
++	//pStream->Write(m_iUpgradeUnitsCachedExpThreshold); // disabled by K-Mod
+ 	pStream->Write(m_iUpgradeUnitsCachedGold);
+ 
+ 	pStream->Write(NUM_UNITAI_TYPES, m_aiNumTrainAIUnits);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index bed4e50ed..036873957 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -39,6 +39,8 @@ public:
+ 
+ 	int AI_getFlavorValue(FlavorTypes eFlavor) const;
+ 
++	void updateCacheData(); // K-Mod
++
+ 	void AI_doTurnPre();
+ 	void AI_doTurnPost();
+ 	void AI_doTurnUnitsPre();
+@@ -466,7 +468,6 @@ protected:
+ 	int *m_aiAverageCommerceMultiplier;
+ 	int *m_aiAverageCommerceExchange;
+ 
+-	int m_iUpgradeUnitsCachedExpThreshold;
+ 	int m_iUpgradeUnitsCachedGold; 
+ 	// K-Mod end
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=4523

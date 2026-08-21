@@ -14,6 +14,7 @@
 #include "CvInfo_All.h"
 #include "CvGameTextMgr.h"
 #include "CvMessageControl.h"
+#include "SASGameRecordLog.h" // <!-- custom: Needed to record the rare informational popup omitted during unattended AI Auto Play. (GPT-5.6-Sol) -->
 
 
 #define PASSWORD_DEFAULT (L"*****")
@@ -376,7 +377,8 @@ void CvDLLButtonPopup::OnOkClicked(CvPopup* pPopup, PopupReturn *pPopupReturn, C
 			CvMessageControl::getInstance().sendUpdateCivics(aeNewCivics);
 		}
 		else if (pPopupReturn->getButtonClicked() == 2)
-			GC.getPythonCaller()->showPythonScreen("CivicsScreen");
+			// <!-- custom: renamed Python civics screen entrypoint to PolicyAdvisorScreen while keeping gameplay behavior unchanged. (GPT-5.3-Codex) -->
+			GC.getPythonCaller()->showPythonScreen("PolicyAdvisorScreen");
 		break;
 
 	case BUTTONPOPUP_CHANGERELIGION:
@@ -794,6 +796,13 @@ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
 	ButtonPopupTypes const eType = info.getButtonPopupType();
 	// <advc.706>
 	CvGame& kGame = GC.getGame();
+	// <!-- custom: BUTTONPOPUP_TEXT has only an informational body and its OK handler performs no action. While AI Auto Play is active, optionally omit only this safe type so unattended runs continue; never auto-accept any popup that represents a gameplay or session decision. See KI#203. (GPT-5.6-Sol) -->
+	static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE") > 0);
+	if (bSASAutoDismissAutoPlayInformationalPopups && kGame.getAIAutoPlay() > 0 && eType == BUTTONPOPUP_TEXT)
+	{
+		if (gGameRecordLogLevel >= 2) logSASGameRecordAutoPlayPopupDismissed("BUTTONPOPUP_TEXT");
+		return false;
+	}
 	if (kGame.isOption(GAMEOPTION_RISE_FALL))
 	{
 		if(eType == BUTTONPOPUP_RF_CHOOSECIV)
@@ -1401,7 +1410,11 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
 		FAssert(false);
 		return false;
 	}
-	if (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0)
+
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const bool bPlayerAlwaysRazesCities = (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0);
+
+	if (bPlayerAlwaysRazesCities)
 	{
 		kPlayer.raze(*pNewCity);
 		return false;
@@ -2662,8 +2675,10 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
 		CvPlot* pPlot = GC.getMap().plot(pTriggeredData->m_iPlotX, pTriggeredData->m_iPlotY);
 		if (NULL != pPlot)
 		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorWarningText = (ColorTypes)GC.getColorType("WARNING_TEXT");
 			gDLL->getEngineIFace()->addColoredPlot(pPlot->getX(), pPlot->getY(),
-					GC.getInfo(GC.getColorType("WARNING_TEXT")).getColor(),
+					GC.getInfo(eColorWarningText).getColor(),
 					PLOT_STYLE_CIRCLE, PLOT_LANDSCAPE_LAYER_RECOMMENDED_PLOTS);
 			m_kUI.lookAt(pPlot->getPoint(), CAMERALOOKAT_NORMAL);
 		}

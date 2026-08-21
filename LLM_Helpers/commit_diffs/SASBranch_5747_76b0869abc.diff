@@ -1,0 +1,93 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5747
+# Commit: 76b0869abc823dbf7c0f356f90c206369853265d
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 9b71eac1e7324ddb413be533aa66f380938f500e
+# Title: add unlocked sas emoji when scoreboard toggle hover lock is off
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds
+7	1	Assets/Python/Screens/CvMainInterface.py
+10	5	Assets/XML/Art/CIV4ArtDefines_Interface.xml
+ create mode 100644 Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds b/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds
+new file mode 100644
+index 000000000..02cbf3180
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds differ
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 66b6347d2..bed7fd3e0 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -790,8 +790,9 @@ class CvMainInterface:
+ 		self.buildFilterNatWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_NATWONDER_OFF").getPath()
+ 		self.buildFilterWorldWonderOn = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+ 		self.buildFilterWorldWonderOff = ArtFileMgr.getInterfaceArtInfo("BUG_WORLDWONDER_OFF").getPath()
+-		# <!-- custom: lock emoji path for the always-expand scoreboard toggle. (Claude code Sonnet 4.6) -->
++		# <!-- custom: lock emoji paths for the always-expand scoreboard toggle. (Claude code Sonnet 4.6 + Claude code Opus 4.7) -->
+ 		self.szScoreExpandTogglePath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LOCKED").getPath()
++		self.szScoreExpandToggleOffPath = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_UNLOCKED").getPath()
+ 		# <!-- custom: building filter tooltip XML keys precomputed for efficiency. (Claude Code Sonnet 4.5) -->
+ 		self.szBuildFilterTooltipAll = "TXT_KEY_BUILDING_FILTER_ALL"
+ 		self.szBuildFilterTooltipRegular = "TXT_KEY_BUILDING_FILTER_REGULAR"
+@@ -7333,6 +7334,11 @@ class CvMainInterface:
+ 		# <!-- custom: always-expand toggle sits to the left of the scroll buttons with a small gap. (Claude code Sonnet 4.6) -->
+ 		screen.moveItem("ScoreExpandToggle", gPoint("ScoreTextLowerRight").x() - 3 * iSScrollBtnSz - HSPACE(6), iSScrollY, -0.3)
+ 		screen.setState("ScoreExpandToggle", self.bScoreAlwaysExpand)
++		# <!-- custom: swap emoji per state. (Claude code Opus 4.7) -->
++		if self.bScoreAlwaysExpand:
++			screen.changeImageButton("ScoreExpandToggle", self.szScoreExpandTogglePath)
++		else:
++			screen.changeImageButton("ScoreExpandToggle", self.szScoreExpandToggleOffPath)
+ 		screen.show("ScoreExpandToggle")
+ # BUG - Align Icons - start
+ 		bAlignIcons = ScoreOpt.isAlignIcons()
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Interface.xml b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+index 5e51779d1..cb47d4273 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Interface.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Interface.xml
+@@ -1783,11 +1783,6 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_HERB</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Herb/1f33f_64px.dds</Path>
+ 		</InterfaceArtInfo>
+-		<!-- 🔒 emoji from emojiterra -->
+-		<InterfaceArtInfo>
+-			<Type>SAS_EMOJI_LOCKED</Type>
+-			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds</Path>
+-		</InterfaceArtInfo>
+ 		<!-- ⚙️ emoji from emojiterra -->
+ 		<InterfaceArtInfo>
+ 			<Type>SAS_EMOJI_GEAR</Type>
+@@ -1883,6 +1878,16 @@ Created as part of AdvCiv-SAS improvements
+ 			<Type>SAS_EMOJI_FAST_DOWN_BUTTON</Type>
+ 			<Path>Art/AdvCiv_SAS/Emojis/Fast_Down_Button/23ec_64px.dds</Path>
+ 		</InterfaceArtInfo>
++		<!-- 🔒 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_LOCKED</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Locked/1f512_64px.dds</Path>
++		</InterfaceArtInfo>
++		<!-- 🔓 emoji from emojiterra -->
++		<InterfaceArtInfo>
++			<Type>SAS_EMOJI_UNLOCKED</Type>
++			<Path>Art/AdvCiv_SAS/Emojis/Unlocked/1f513_64px.dds</Path>
++		</InterfaceArtInfo>
+ 		<!-- custom: extracted from GameFont.tga with the very nice help of Game Font Editor (V0.6) for Civ 4 by Asaf. We found the higher quality icons (21x20) in ri mod, and used them instead because base civ4 only had GameFont_75.tga (16x16) icons (see also KI#117). We added them as dds here because we couldn't insert them in sevopedia leader attitude buttons easily. Also reduced to 20x20 else the dds does not display ingame. -->
+ 		<InterfaceArtInfo>
+ 			<Type>SAS_EMOJI_ATTITUDE_FURIOUS</Type>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3979

@@ -1,0 +1,261 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4628
+# Commit: 1bb92cbeee54fa536d98270e17593d0d92deae12
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7babbc9ad7b71cfd29bb963180d1bcdd5bb9bc22
+# Title: Fix mistaken assumption that newconceptinfo entries were in conceptinfos Apparently the problem is rather that i could not move newconceptinfos up in the cat...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	13	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+8	41	Assets/XML/BasicInfos/CIV4BasicInfos.xml
+25	24	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index d5e50eaef..01b5db7af 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -397,7 +397,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.szCategoryCivics		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CIVIC", ())
+ 		self.szCategoryReligions	= localText.getText("TXT_KEY_PEDIA_CATEGORY_RELIGION", ())
+ 		self.szCategoryCorporations	= localText.getText("TXT_KEY_CONCEPT_CORPORATIONS", ())
+-		# <!-- custom: see below at self.categoryList 's code comment -->
+ 		self.szCategoryConcepts		= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT", ())
+ 		self.szCategoryConceptsNew	= localText.getText("TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW", ())
+ 		self.szCategoryHints		= localText.getText("TXT_KEY_PEDIA_CATEGORY_HINTS", ())
+@@ -426,8 +425,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			["CIVICS",	self.szCategoryCivics],
+ 			["CIVICS",	self.szCategoryReligions],
+ 			["CIVICS",	self.szCategoryCorporations],
+-			# <!-- custom: put "Mods Info" before "BtS Info (Outdated)", hopefully
+-			# more visible and maybe useful too this way -->
+ 			["HINTS",	self.szCategoryConcepts],
+ 			["HINTS",	self.szCategoryConceptsNew],
+ 			["HINTS",	self.szCategoryHints],
+@@ -481,17 +478,19 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			graphic = self.categoryGraphics[category[0]]
+ 			# <advc.002b> Prepend graphic only if there is room
+ 			szHeading = category[1]
+-			# <!-- custom: allow room to fit more characters, if less are used
+-			# still displays fine/same, if text is too long to fit the box, up
+-			# to the modder to adjust the text rather, 20 should still leave
+-			# some margin especially on higher displays while giving the flexibility
+-			# to have a bit longer text maybe, was 16-->
+-			iThresh = 20 # For English, 16 happens to be OK.
++			# For English, 16 happens to be OK.
++			# <!-- custom: allow room to fit more characters; our
++			# text "Bts Concepts (Outdated)" doesn't fit if this
++			# is less than 23.
++			# Not increasing to 24 to accomodate 23 for other
++			# languages, as they are unlikely to use such long
++			# texts anyway, saving the one extra iThresh instead,
++			# was 16
++			# --> 
++			iThresh = 23
+ 			if gc.getGame().getCurrentLanguage() != 0:
+-				# <!-- custom: not sure other languages need critically more
+-				# space (if i understand it correctly), but giving -1 too
+-				# there, was 15 -->
+-				iThresh = 19
++				# <!-- custom: was 15 -->
++				iThresh = 23
+ 			if len(szHeading) <= iThresh:
+ 				szHeading = graphic + szHeading # </advc.002b>
+ 			screen.appendListBoxStringNoUpdate(self.CATEGORY_LIST_ID, szHeading, WidgetTypes.WIDGET_PEDIA_MAIN, SevoScreenEnums.PEDIA_MAIN + i + 1, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInfos.xml b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+index 8bebb3ffe..05a782647 100644
+--- a/Assets/XML/BasicInfos/CIV4BasicInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+@@ -10,37 +10,26 @@ then modified to:
+ 
+ My goals doing this are:
+ - rename "BtS Concepts" to "Mods Info"
+-- rename "Game Concepts" to "BtS Info (Outdated)"
++- rename "Game Concepts" to "BtS Concepts (Outdated)"
+ - move all entries that are in "Mods Info (Outdated)"
+-(except BtS rules changes) to "BtS Info (Outdated)"
++(except BtS rules changes) to "BtS Concepts (Outdated)"
+ 
+ Purpose:
+ - gather all Civ4 old data together (vanilla + BTS)
+-- put "(Outdated)" in category name hosting them
+-- use a new category containing Bts Rules changes and also other rules
+-changes (not balance of +1 -1 stats that can be found elsewhere and
+-prone to change and long to update for little gain, but things like
+-scouts (or any unit) needing to explore rival cities (or otherwise
+-have a map vision of these rival cities) to be able to have a trade
+-route with them, even if they are connected by route it would not be,
+-alone and on/of(?) itself enough. I don't know if this is an AdvCiv
+-or K-Mod change, but i would want to add a mention of this explaining
+-it.
++- use a new category for all mods rules changes (not balance changes
++except if already written such as in bts rules changes)
+ 
+ I had figured out most of it, but could not make it work, so i asked
+ @f1rpo which gave me a very detailed answer that helped me solve this.
+ 
+ Credit goes to @f1rpo, current maintainer of AdvCiv, to have explained
+ to me (see below for the explanation quoted, that i added here with
+<hidden-email>'s accord) in thorough detail  how to achieve that, which helped
+<hidden-email>'s accord) in thorough detail how to achieve that, which helped
+ a lot. I had given to @f1rpo slightly different names for the categories
+ than the one i provided here at the "rename" bullet points above, but
+ the explanation should be mostly (almost entirely in fact) the same
+ (minus these name differences).
+ 
+-Go to the bottom after this quote to see the slight alteration i had to
+-make it work for my needs in AdvCiv-SAS.
+-
+ Beginning of quote:
+ "
+ Apparently,
+@@ -77,33 +66,11 @@ XML:
+ "
+ End of quote.
+ 
+-Alteration:
+-This mostly works, very great, just "Mods Info" now contains the old civ4
+-concepts (vanilla + bts (minus bts rules changes as i wanted), while
+-bts rules change "concept" (categorized as such but doesn't seem a concept
+-to me like the other ones (concepts) but anyways) is now in
+-"Bts Info (Outdated)".
+-This is not exactly what i wanted, but almost.
+-
+-To solve this, i have done this extra step, which slightly alters
+<hidden-email>'s given explanation, by doing this instead of what is in
+<hidden-email>'s explanation:
+-- rename "Game Concepts" to "Mod Info"
+-- rename "BtS Game Concepts" to "Bts Info (Outdated)".
+-
+-Additionally, i also did not need to rename TXT KEY types nor any
+-data so that it would include "_TRAIT_" or "SHORTCUTS" in it.
++Additionally from @f1rpo's quote, i also did not need to rename
++TXT KEY types nor any data so that it would include "_TRAIT_"
++or "SHORTCUTS" in it.
+ I don't know if i did all steps correctly, but at least it works
+ now.
+-
+-Unintuitive and not ideal because now old civ4 concepts, that
+-are still in BasicInfos.xml in this mod now though, are stored
+-under the newconceptinfo txtkey, while having conceptinfo XML
+-tags, while bts rules changes and similar new entries i would
+-want to create or not, are now in NewConceptInfos XML tags as
+-i think is intended, but with ConceptInfo TXT Keys (and not
+-NewConceptInfos TXT Keys as i would have wanted).
+-So not ideal but works, hopefully helps.
+ -->
+ <Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+ 	<ConceptInfos>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index dbc347473..38355ae80 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -55,27 +55,41 @@
+ 	content in the same category, was "Game Concepts".
+ 	I prefer to keep the data as it can be useful/helpful to
+ 	players maybe, and not delete it entirely, but clearly indicate
+-	(or more clearly indicate) that it is outdated.	-->
++	(or more clearly indicate) that it is outdated.
++	
++	Added the tag/mention "(Outdated)" to signify that this info
++	is not up to date anymore, but may help for general purposes
++	maybe especially ingame. Add this mention may also remove
++	the burden for modders to maintain this page, as i think it
++	is more practical for players to go online (if possible)
++	to find/gather the data they want, while also serving my
++	purposes.
++	Also "BtS" is one character shorter than "Game", with the
++	other advantage (i think) of being more indicative of the
++	fact that it relates to base civ4 (vanilla or BTS or
++	similar), and not to other mods info (for example K-Mod,
++	AdvCiv, AdvCiv-SAS, etc).
++	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+-		<English>Mods Info</English>
++		<English>Bts Concepts (Outdated)</English>
+ 		<French>
+-			<Text>Mods Info</Text>
++			<Text>Bts Concepts (Outdated)</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>1</Plural>
+ 		</French>
+ 		<German>
+-			<Text>Mods Info</Text>
++			<Text>Bts Concepts (Outdated)</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>1</Plural>
+ 		</German>
+ 		<Italian>
+-			<Text>Mods Info</Text>
++			<Text>Bts Concepts (Outdated)</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>1</Plural>
+ 		</Italian>
+ 		<Spanish>
+-			<Text>Mods Info</Text>
++			<Text>Bts Concepts (Outdated)</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>1</Plural>
+ 		</Spanish>
+@@ -83,40 +97,27 @@
+ 	<!-- custom: was "BtS Concepts", see code comments in
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4BasicInfos.xml
+ 	(or the equivalent of this path in your mod installation path).
+-
+-	Added the tag/mention "(Outdated)" to signify that this info
+-	is not up to date anymore, but may help for general purposes
+-	maybe especially ingame. Add this mention may also remove
+-	the burden for modders to maintain this page, as i think it
+-	is more practical for players to go online (if possible)
+-	to find/gather the data they want, while also serving my
+-	purposes.
+-	Also "BtS" is one character shorter than "Game", with the
+-	other advantage (i think) of being more indicative of the
+-	fact that it relates to base civ4 (vanilla or BTS or
+-	similar), and not to other mods info (for example K-Mod,
+-	AdvCiv, AdvCiv-SAS, etc).
+ 	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT_NEW</Tag>
+-		<English>BtS Info (Outdated)</English>
++		<English>Mods Information</English>
+ 		<French>
+-			<Text>BtS Info (Outdated)</Text>
++			<Text>Mods Information</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</French>
+ 		<German>
+-			<Text>BtS Info (Outdated)</Text>
++			<Text>Mods Information</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</German>
+ 		<Italian>
+-			<Text>BtS Info (Outdated)</Text>
++			<Text>Mods Information</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</Italian>
+ 		<Spanish>
+-			<Text>BtS Info (Outdated)</Text>
++			<Text>Mods Information</Text>
+ 			<Gender>Male</Gender>
+ 			<Plural>0</Plural>
+ 		</Spanish>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=10277

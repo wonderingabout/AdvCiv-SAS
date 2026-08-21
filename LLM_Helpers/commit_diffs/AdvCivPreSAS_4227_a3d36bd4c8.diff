@@ -1,0 +1,333 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4227
+# Commit: a3d36bd4c80b70441481b05bb1ba2f5b467442e7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cc52c90d8ad2c1418f84d5eca39da2e2b5ac9f23
+# Title: Misc. minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	Assets/Python/EntryPoints/CvRandomEventInterface.py
+3	3	CvGameCoreDLL/CvCityAI.cpp
+2	8	CvGameCoreDLL/CvGame.cpp
+11	7	CvGameCoreDLL/CvGlobals.h
+2	0	CvGameCoreDLL/CvInfo_Base.h
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+19	15	CvGameCoreDLL/CvUnit.cpp
+10	9	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 7beab62d1..58d9dc7ba 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -23,6 +23,7 @@ localText = CyTranslator()
+ # to begin with, and, now that I've increased the default player count on Huge maps,
+ # it's totally out of whack.
+ def worldSizeTarget():
++	#return gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() # BtS behavior
+ 	# 5 adjusted by building class prereq modifier, rounded to nearest.
+ 	return ((5 * (100 + gc.getWorldInfo(gc.getMap().getWorldSize()).getBuildingClassPrereqModifier())) + 50) // 100
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index f6a44ca68..ad0bb9026 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -10693,7 +10693,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 				+ (AI_isStrongEmphasis() ? 25 : 0); // advc.131d
+ 		iProductionValue *= iMultPercent;
+ 		iProductionValue /= 100;
+-		if (isFoodProduction())
++		if (bFoodIsProduction)
+ 		{
+ 			iFoodValue *= iMultPercent;
+ 			iFoodValue /= 100;
+@@ -10709,7 +10709,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 
+ 	if (AI_isEmphasizeYield(YIELD_FOOD))
+ 	{
+-		if (!isFoodProduction())
++		if (!bFoodIsProduction)
+ 		{
+ 			iFoodValue *= 130
+ 					+ (AI_isStrongEmphasis() ? 15 : 0); // advc.131d
+@@ -10739,7 +10739,7 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove,
+ 
+ 	if (iProductionValue > 0)
+ 	{
+-		if (isFoodProduction())
++		if (bFoodIsProduction)
+ 		{
+ 			iProductionValue *= 100 + (bWorkerOptimization ? 0 :
+ 					AI_specialYieldMultiplier(YIELD_PRODUCTION));
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c682e6fe8..15be5acc0 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -470,30 +470,24 @@ void CvGame::setStartTurnYear(int iTurn)
+ 		iStartTurn /= 100;
+ 		setGameTurn(iStartTurn);
+ 	}
+-
+ 	setStartTurn(getGameTurn());
+-
+ 	if (getMaxTurns() == 0 /* advc.250c: */ || iTurn > 0)
+ 	{
+ 		int iEstimateEndTurn = 0;
+ 		for (int i = 0; i < kSpeed.getNumTurnIncrements(); i++)
+ 			iEstimateEndTurn += kSpeed.getGameTurnInfo(i).iNumGameTurnsPerIncrement;
+ 		setEstimateEndTurn(iEstimateEndTurn);
+-
+ 		if (getEstimateEndTurn() > getGameTurn())
+ 		{
+-			bool bValid = false;
+ 			FOR_EACH_ENUM(Victory)
+ 			{
+ 				if (isVictoryValid(eLoopVictory) &&
+ 					GC.getInfo(eLoopVictory).isEndScore())
+ 				{
+-					bValid = true;
++					setMaxTurns(getEstimateEndTurn() - getGameTurn());
+ 					break;
+ 				}
+ 			}
+-			if (bValid)
+-				setMaxTurns(getEstimateEndTurn() - getGameTurn());
+ 		}
+ 	}
+ 	else setEstimateEndTurn(getGameTurn() + getMaxTurns());
+@@ -8083,7 +8077,7 @@ bool CvGame::testVictory(VictoryTypes eVictory, TeamTypes eTeam, bool* pbEndScor
+ 		{
+ 			FOR_EACH_CITY(pCity, *itMember)
+ 			{
+-				if (pCity->getCultureLevel() >= kVictory.getCityCulture())
++				if (pCity->getCultureLevel() >= culturalVictoryCultureLevel())
+ 					iCount++;
+ 			}
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index 77edc0e9c..d72450312 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -674,20 +674,24 @@ public:
+ #pragma endregion GlobalDefines
+ 	/*	K-Mod: more reliable versions of the 'gDLL->xxxKey' functions
+ 		NOTE: I've replaced all calls to the gDLL key functions with calls to these functions. */
+-	bool altKey() const { return (GetKeyState(VK_MENU) & 0x8000); }
+-	bool ctrlKey() const { return (GetKeyState(VK_CONTROL) & 0x8000); }
+-	bool shiftKey() const { return (GetKeyState(VK_SHIFT) & 0x8000); }
++	// advc: Helper function (let's make it public; why not).
++	bool isKeyDown(int iVirtualKey) const
++	{
++		return (GetKeyState(iVirtualKey) & 0x8000);
++	}
++	bool altKey() const { return isKeyDown(VK_MENU); }
++	bool ctrlKey() const { return isKeyDown(VK_CONTROL); }
++	bool shiftKey() const { return isKeyDown(VK_SHIFT); }
+ 	// hold X to temporarily suppress automatic unit cycling.
+ 	bool suppressCycling() const
+ 	{
+-		return (GetKeyState('X') & 0x8000) ||
++		return (isKeyDown('X') ||
+ 			/*	advc.088: Needs to be consistent with GC.getInfo(CONTROL_UNSELECT_ALL).
+ 				getHotKeyVal(), isAltDown() etc. Could check those here, but not in-line.
+ 				Not quite sure if performance matters here. If it doesn't, then key X
+ 				should perhaps also be a ControlInfo. */
+-			((GetKeyState('U') & 0x8000) && shiftKey() && altKey());
+-	}
+-	// K-Mod end
++			(isKeyDown('U') && shiftKey() && altKey()));
++	} // K-Mod end
+ 	/*	advc: These two shouldn't be used in the DLL.
+ 		The EXE mostly seems to call the const version. */
+ 	DllExport int getMaxCivPlayers() const;
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 4ec794096..7a7758a56 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -348,6 +348,8 @@ protected:
+ 	bool m_bCtrlDownAlt;
+ 
+ 	CvString m_szHotKey;
++	/*	advc (tbd.?): Caching these seems like a bad tradeoff; could generate
++		them as needed. See the xml_reader branch of WtP. */
+ 	CvWString m_szHotKeyDescriptionKey;
+ 	CvWString m_szHotKeyAltDescriptionKey;
+ 	CvWString m_szHotKeyString;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4f30320c1..68fe29eab 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14497,7 +14497,7 @@ int CvPlayerAI::AI_countCargoSpace(UnitAITypes eUnitAI) const
+ 	and it gets called by several UnitAI members too. Probably no noticeable
+ 	difference in performance, but who knows. */
+ int CvPlayerAI::AI_neededExplorers(CvArea const& kArea) const
+-{	// Body moved into AI_neededExplorers_bulk
++{
+ 	std::map<int,int>::const_iterator itNeeded = m_neededExplorersByArea.find(
+ 			kArea.getID());
+ 	if (itNeeded == m_neededExplorersByArea.end())
+@@ -24922,7 +24922,7 @@ bool CvPlayerAI::AI_isVictoryValid(VictoryTypes eVictory, int& iWeight) const
+ 			return false;
+ 		}
+ 	}
+-	if (GC.getInfo(eVictory).isConquest())
++	if (kVictory.isConquest())
+ 	{
+ 		iWeight = (bHuman ? iHumanWeight : kPersonality.getConquestVictoryWeight());
+ 		if (bCheckBBAIDefine &&
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 6e199b3f9..ecdfab118 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -2994,43 +2994,47 @@ void CvUnit::move(CvPlot& kPlot, bool bShow, /* advc.163: */ bool bJump, bool bG
+ 		finishMoves(); // </advc.163>
+ 	else changeMoves(kPlot.movementCost(*this, kOldPlot));
+ 	// <advc.162>
+-	if(isInvasionMove(kOldPlot, kPlot))
++	if (isInvasionMove(kOldPlot, kPlot))
+ 	{
+ 		std::vector<CvUnit*> aCargoUnits;
+ 		getCargoUnits(aCargoUnits);
+-		for(size_t i = 0; i < aCargoUnits.size(); i++)
++		for (size_t i = 0; i < aCargoUnits.size(); i++)
+ 		{
+-			if(!aCargoUnits[i]->isRivalTerritory() && aCargoUnits[i]->getDomainType() != DOMAIN_AIR)
++			if (!aCargoUnits[i]->isRivalTerritory() &&
++				aCargoUnits[i]->getDomainType() != DOMAIN_AIR)
++			{
+ 				aCargoUnits[i]->changeMoves(aCargoUnits[i]->movesLeft());
++			}
+ 		}
+ 	} // </advc.162>
+ 	setXY(kPlot.getX(), kPlot.getY(), /* advc.163 (was 'true'): */ bGroup,
+ 			true, bShow && kPlot.isVisibleToWatchingHuman(), bShow);
+ 
+ 	FeatureTypes eFeature = kPlot.getFeatureType();
+-	if (eFeature != NO_FEATURE) //change feature
++	if (eFeature != NO_FEATURE) 
+ 	{
+-		CvString szFeature(GC.getInfo(eFeature).getOnUnitChangeTo());
++		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
++		/*	change feature
++			(advc note: This mechanism was apparently added for the bundled
++			Afterworld mod) */
++		CvString szFeature(kFeature.getOnUnitChangeTo());
+ 		if (!szFeature.IsEmpty())
+ 		{
+ 			FeatureTypes eNewFeature = (FeatureTypes)GC.getInfoTypeForString(szFeature);
+ 			kPlot.setFeatureType(eNewFeature);
+ 		}
+-	}
+-
+-	if (isActiveOwned() && !kPlot.isOwned() &&
+-		eFeature != NO_FEATURE) // spawn birds if trees present - JW
+-	{
+-		CvFeatureInfo const& kFeature = GC.getInfo(eFeature);
+-		if (GC.getASyncRand().get(100) < kFeature.getEffectProbability())
++		// spawn birds if trees present - JW
++		if (isActiveOwned() && !kPlot.isOwned() &&
++			GC.getASyncRand().get(100) < kFeature.getEffectProbability()) 
+ 		{
+-			EffectTypes eEffect = (EffectTypes)GC.getInfoTypeForString(kFeature.getEffectType());
++			EffectTypes eEffect = (EffectTypes)
++					GC.getInfoTypeForString(kFeature.getEffectType());
+ 			NiPoint3 pt = kPlot.getPoint();
+-			gDLL->getEngineIFace()->TriggerEffect(eEffect, pt, (float)GC.getASyncRand().get(360));
++			gDLL->getEngineIFace()->TriggerEffect(eEffect, pt, (float)
++					GC.getASyncRand().get(360));
+ 			gDLL->UI().playGeneralSound("AS3D_UN_BIRDS_SCATTER", pt);
+ 		}
+ 	}
+-
+ 	CvEventReporter::getInstance().unitMove(&kPlot, this, &kOldPlot);
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 1d078f084..d60058007 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1346,6 +1346,8 @@ void CvUnitAI::AI_settleMove()
+ 	PROFILE_FUNC();
+ 
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
++	/*	advc (note): This was MOVE_SAFE_TERRITORY in BtS, which had prevented
++		passage through foreign (open) borders. */
+ 	MovementFlags const eMoveFlags = MOVE_NO_ENEMY_TERRITORY; // K-Mod
+ 
+ 	if (kOwner.getNumCities() == 0)
+@@ -4871,8 +4873,9 @@ void CvUnitAI::AI_missionaryMove()
+ 
+ 		if (!isHuman())
+ 		{
++			// advc (note): BtS had first tried MOVE_SAFE_TERRITORY; K-Mod removed that.
+ 			if (AI_load(UNITAI_MISSIONARY_SEA, MISSIONAI_LOAD_SPECIAL, NO_UNITAI,
+-				-1, -1, -1, 0, /*MOVE_SAFE_TERRITORY*/ MOVE_NO_ENEMY_TERRITORY))
++				-1, -1, -1, 0, MOVE_NO_ENEMY_TERRITORY))
+ 			{
+ 				return;
+ 			}
+@@ -17937,7 +17940,7 @@ bool CvUnitAI::AI_improveBonus( // K-Mod. (all that junk wasn't being used anywa
+ 		FAssert(eBestBuild < GC.getNumBuildInfos());
+ 		MissionTypes eBestMission = MISSION_MOVE_TO;
+ 		// advc.001y: Sea workers can't route
+-		if(getGroup()->canDoMission(MISSION_ROUTE_TO, getX(), getY(), plot(), false, false))
++		if (getGroup()->canDoMission(MISSION_ROUTE_TO, getX(), getY(), plot(), false, false))
+ 		{
+ 			if (pBestPlot->getWorkingCity() == NULL ||
+ 				!pBestPlot->getWorkingCity()->isConnectedToCapital())
+@@ -17988,14 +17991,13 @@ bool CvUnitAI::AI_improvePlot(CvPlot const& kPlot, BuildTypes eBuild) // advc: p
+ {
+ 	if (eBuild != NO_BUILD)
+ 	{
+-		FAssertMsg(eBuild < GC.getNumBuildInfos(), "BestBuild is assigned a corrupt value");
+-
+-		eBuild = AI_betterPlotBuild(kPlot, eBuild);
++		FAssert(eBuild < GC.getNumBuildInfos());
+ 		if (!at(kPlot))
+ 		{
+ 			pushGroupMoveTo(kPlot, NO_MOVEMENT_FLAGS, false, false,
+ 					MISSIONAI_BUILD, &kPlot);
+ 		}
++		eBuild = AI_betterPlotBuild(kPlot, eBuild);
+ 		getGroup()->pushMission(MISSION_BUILD, eBuild, -1, NO_MOVEMENT_FLAGS,
+ 				//(getGroup()->getLengthMissionQueue() > 0), false, MISSIONAI_BUILD, pPlot);
+ 				true, false, MISSIONAI_BUILD, &kPlot); // K-Mod
+@@ -18334,8 +18336,7 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
+ 			if (iMissions < 3) // </advc.121>
+ 			{
+ 				int iPathTurns;
+-				if (generatePath(kPlot, MOVE_SAFE_TERRITORY /* advc.pf: */ | MOVE_ROUTE_TO,
+-					true, &iPathTurns))
++				if (generatePath(kPlot, MOVE_SAFE_TERRITORY, true, &iPathTurns))
+ 				{	// <advc.121> Allow teaming up (mostly just on slow speed settings)
+ 					if (iMissions > 0)
+ 					{
+@@ -18371,8 +18372,8 @@ bool CvUnitAI::AI_routeTerritory(bool bImprovementOnly)
+ 				MISSIONAI_BUILD, pBestPlot);
+ 		/*	(Falling through to MISSION_ROUTE_TO would probably also be fine
+ 			if bAppend is set to !bRouteTo) */
+-		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1, NO_MOVEMENT_FLAGS,
+-				true, false, MISSIONAI_BUILD, pBestPlot);
++		getGroup()->pushMission(MISSION_BUILD, eBestBuild, -1,
++				NO_MOVEMENT_FLAGS, true, false, MISSIONAI_BUILD, pBestPlot);
+ 		return true;
+ 	} // </advc.121>
+ 	getGroup()->pushMission(MISSION_ROUTE_TO, pBestPlot->getX(), pBestPlot->getY(),
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=11991

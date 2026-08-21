@@ -1,0 +1,129 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3615
+# Commit: 912aa6f0f3285f6bb25519ac18a7dff8bc303515
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: dc322128c7de2fce6befbc891d577c271340e95e
+# Title: Some True Starts tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	5	Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+6	6	Assets/XML/TrueStarts/CIV4TruCivInfos.xml
+1	1	CvGameCoreDLL/TrueStarts.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+index ccf13e553..d5015418a 100644
+--- a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+@@ -60,11 +60,6 @@
+ 					<CivilizationType>CIVILIZATION_CELT</CivilizationType>
+ 					<UntilEra>ERA_INDUSTRIAL</UntilEra>
+ 				</EncouragedCiv>
+-				<EncouragedCiv>
+-					<!-- Or encourage Sheep instead? -->
+-					<CivilizationType>CIVILIZATION_PERSIA</CivilizationType>
+-					<UntilEra>ERA_MEDIEVAL</UntilEra>
+-				</EncouragedCiv>
+ 			</EncouragedCivs>
+ 		</TruBonusInfo>
+ 		<TruBonusInfo>
+@@ -610,6 +605,13 @@
+ 					<CivilizationType>CIVILIZATION_OTTOMAN</CivilizationType>
+ 					<UntilEra>NONE</UntilEra>
+ 				</EncouragedCiv>
++				<EncouragedCiv>
++					<!-- Alt. idea: Copper until ERA_MEDIEVAL. But having
++						 Copper all the time can make their mounted UU feel
++						 a little redundant. -->
++					<CivilizationType>CIVILIZATION_PERSIA</CivilizationType>
++					<UntilEra>ERA_MEDIEVAL</UntilEra>
++				</EncouragedCiv>
+ 			</EncouragedCivs>
+ 		</TruBonusInfo>
+ 		<TruBonusInfo>
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruCivInfos.xml b/Assets/XML/TrueStarts/CIV4TruCivInfos.xml
+index 325e4d77d..9f7b5dd91 100644
+--- a/Assets/XML/TrueStarts/CIV4TruCivInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruCivInfos.xml
+@@ -85,7 +85,7 @@
+ 				 were larger. Shape is vertically stretched, but I
+ 				 don't think that's important. Along a river is what matters. -->
+ 			<iTotalArea>438</iTotalArea>
+-			<iBias>9</iBias>
++			<iBias>7</iBias>
+ 			<GeoRegion>ARTSTYLE_MIDDLE_EAST</GeoRegion>
+ 		</TruCivInfo>
+ 		<TruCivInfo>
+@@ -160,7 +160,7 @@
+ 			<iPrecipitation>543</iPrecipitation>
+ 			<!-- The Northeastern Plain is in itself not extremely varied.
+ 				 Don't want large desert or jungle too close to starting plot. -->
+-			<iClimateVariation>60</iClimateVariation>
++			<iClimateVariation>53</iClimateVariation>
+ 			<iOceanity>10</iOceanity>
+ 			<iMajorRiverWeight>40</iMajorRiverWeight>
+ 			<!-- Mt. Taibai - stick to Eastern China. -->
+@@ -259,7 +259,7 @@
+ 				 in the game ... -->
+ 			<iTotalArea>541</iTotalArea>
+ 			<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
+-			<iBias>-7</iBias>
++			<iBias>-9</iBias>
+ 		</TruCivInfo>
+ 		<TruCivInfo>
+ 			<Type>TRU_GREECE</Type>
+@@ -326,7 +326,7 @@
+ 			<iMountainousArea>25</iMountainousArea>
+ 			<!-- incl. Pakistan -->
+ 			<iTotalArea>4169</iTotalArea>
+-			<iBias>-11</iBias>
++			<iBias>-15</iBias>
+ 			<GeoRegion>ARTSTYLE_ASIAN</GeoRegion>
+ 		</TruCivInfo>
+ 		<TruCivInfo>
+@@ -424,7 +424,7 @@
+ 			<iPrecipitation>208</iPrecipitation>
+ 			<iClimateVariation>50</iClimateVariation>
+ 			<iOceanity>0</iOceanity>
+-			<iMajorRiverWeight>-40</iMajorRiverWeight>
++			<iMajorRiverWeight>-50</iMajorRiverWeight>
+ 			<!-- The Altai is too far west -->
+ 			<iMaxElevation>4031</iMaxElevation>
+ 			<iMountainousArea>30</iMountainousArea>
+@@ -627,7 +627,7 @@
+ 			<iMountainousArea>30</iMountainousArea>
+ 			<!-- AD 1822 -->
+ 			<iTotalArea>207</iTotalArea>
+-			<iBias>-10</iBias>
++			<iBias>-13</iBias>
+ 		</TruCivInfo>
+ 	</TruCivInfos>
+ </Civ4TruCivInfos>
+
+diff --git a/CvGameCoreDLL/TrueStarts.cpp b/CvGameCoreDLL/TrueStarts.cpp
+index 552f97789..c2cb621bc 100644
+--- a/CvGameCoreDLL/TrueStarts.cpp
++++ b/CvGameCoreDLL/TrueStarts.cpp
+@@ -1727,7 +1727,7 @@ int TrueStarts::calcFitness(CvPlayer const& kPlayer, CivilizationTypes eCiv,
+ 				// Scenarios may have enormous clumps of peaks
+ 				rMaxElev.decreaseTo(m_iMaxMaxElevationTarget);
+ 				scaled rFromMaxElev = (rMaxElev.sqrt() - scaled(iTargetMaxElev).sqrt()).
+-						abs() * -2; // arbitrary weight factor
++						abs() * -fixp(2.4); // arbitrary weight factor
+ 				IFLOG logBBAI("Fitness penalty from max. elevation: %d (target %d m, have %d m)",
+ 						rFromMaxElev.round(), iTargetMaxElev, rMaxElev.round());
+ 				iFitness += rFromMaxElev.round();
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3864

@@ -1,6 +1,6 @@
 ## BugUpdateChecker
 ##
-## Uses SvnUtil and BUG Core options to check for BUG updates and releases.
+## Uses SvnUtil and BUG_Core_Options to check for BUG updates and releases.
 ##
 ## Copyright (c) 2008 The BUG Mod.
 ##
@@ -27,15 +27,12 @@ def onRepositoryUrlChanged(option, value):
 	CoreOpt.RepositoryVersion.resetValue()
 
 def scheduleSvnCheck():
-	if (CoreOpt.isCheckForUpdates() 
-	and CoreOpt.getRepositoryUrl() 
-	and CoreOpt.getLocalRoot()):
+	if (CoreOpt.isCheckForUpdates() and CoreOpt.getRepositoryUrl() and CoreOpt.getLocalRoot()):
 		checkForSvnUpdates()
 
 def checkForSvnUpdates():
-	"""
-	Uses the SVN options in the Core module to check for updates.
-	"""
+	# Uses the SVN options in the Core module to check for updates.
+	#
 #	global g_checkingForUpdates, g_checkPending
 #	if g_checkPending:
 #		return

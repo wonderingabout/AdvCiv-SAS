@@ -1,0 +1,175 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4345
+# Commit: e490c254d061c26f4b4c20f63af3daceaeee12fe
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 12cf735251ed3efdeb62a0c10f56cf3483c122d2
+# Title: Former city names are no longer reused
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	0	CvGameCoreDLL/CvCity.cpp
+9	9	CvGameCoreDLL/CvGame.cpp
+4	3	CvGameCoreDLL/CvGame.h
+4	4	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 015415914..c139b565b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -8304,6 +8304,9 @@ void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool
+ 				m_szPreviousName.clear();
+ 			else if(m_szPreviousName.empty())
+ 				m_szPreviousName = m_szName; // </advc.106k>
++			// <advc.005c>
++			if (!m_szName.empty())
++				GC.getGame().addPastCityName(getName()); // </advc.005c>
+ 			m_szName = szName;
+ 
+ 			setInfoDirty(true);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 987054e67..21877eb8c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -428,7 +428,7 @@ void CvGame::showDawnOfMan()
+ 
+ void CvGame::uninit()
+ {
+-	m_aszDestroyedCities.clear();
++	m_aszPastCities.clear();
+ 	m_aszGreatPeopleBorn.clear();
+ 
+ 	m_deals.uninit();
+@@ -6043,10 +6043,10 @@ void CvGame::setName(TCHAR const* szName)
+ }
+ 
+ 
+-bool CvGame::isDestroyedCityName(CvWString& szName) const
++bool CvGame::isPastCityName(CvWString& szName) const
+ {
+ 	std::vector<CvWString>::const_iterator it;
+-	for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); ++it)
++	for (it = m_aszPastCities.begin(); it != m_aszPastCities.end(); ++it)
+ 	{
+ 		if (*it == szName)
+ 			return true;
+@@ -6055,9 +6055,9 @@ bool CvGame::isDestroyedCityName(CvWString& szName) const
+ }
+ 
+ 
+-void CvGame::addDestroyedCityName(CvWString const& szName)
++void CvGame::addPastCityName(CvWString const& szName)
+ {
+-	m_aszDestroyedCities.push_back(szName);
++	m_aszPastCities.push_back(szName);
+ }
+ 
+ 
+@@ -8955,12 +8955,12 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		CvWString szBuffer;
+ 		uint iSize;
+ 
+-		m_aszDestroyedCities.clear();
++		m_aszPastCities.clear();
+ 		pStream->Read(&iSize);
+ 		for (uint i = 0; i < iSize; i++)
+ 		{
+ 			pStream->ReadString(szBuffer);
+-			m_aszDestroyedCities.push_back(szBuffer);
++			m_aszPastCities.push_back(szBuffer);
+ 		}
+ 
+ 		m_aszGreatPeopleBorn.clear();
+@@ -9261,8 +9261,8 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	m_aeHeadquarters.write(pStream);
+ 	{
+ 		std::vector<CvWString>::iterator it;
+-		pStream->Write(m_aszDestroyedCities.size());
+-		for (it = m_aszDestroyedCities.begin(); it != m_aszDestroyedCities.end(); ++it)
++		pStream->Write(m_aszPastCities.size());
++		for (it = m_aszPastCities.begin(); it != m_aszPastCities.end(); ++it)
+ 		{
+ 			pStream->WriteString(*it);
+ 		}
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 95fe545dc..89c618069 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -761,8 +761,8 @@ public:
+ 	std::string getScriptData() const;																	// Exposed to Python
+ 	void setScriptData(std::string szNewValue);															// Exposed to Python
+ 
+-	bool isDestroyedCityName(CvWString& szName) const;
+-	void addDestroyedCityName(CvWString const& szName);
++	bool isPastCityName(CvWString& szName) const; // advc.005c: was "isDestroyedCityName"
++	void addPastCityName(CvWString const& szName); // advc.005c: was "addDestroyedCityName"
+ 
+ 	bool isGreatPersonBorn(CvWString& szName) const;
+ 	void addGreatPersonBornName(CvWString const& szName);
+@@ -1111,7 +1111,8 @@ protected:
+ 	IDInfo* m_pLegacyOrgSeatData;
+ 	//int** m_apaiPlayerVote; // obsoleted by BtS
+ 	// </advc.enum>
+-	std::vector<CvWString> m_aszDestroyedCities;
++	// advc.005c: Renamed from "DestroyedCities"
++	std::vector<CvWString> m_aszPastCities;
+ 	std::vector<CvWString> m_aszGreatPeopleBorn;
+ 
+ 	FFreeListTrashArray<VoteSelectionData> m_voteSelections;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3b5b9aa1d..ab4f749df 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2147,11 +2147,11 @@ void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eC
+ }
+ 
+ 
+-bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestDestroyed) const
++bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
+ {
+-	if (bTestDestroyed)
++	if (bTestPast) // (advc.005c: renamed from "bTestDestroyed")
+ 	{
+-		if (GC.getGame().isDestroyedCityName(szName))
++		if (GC.getGame().isPastCityName(szName))
+ 			return false;
+ 
+ 		for (PlayerIter<EVER_ALIVE> it; it.hasNext(); ++it)
+@@ -4539,7 +4539,7 @@ void CvPlayer::disband(CvCity& kCity) // advc: param was CvCity*
+ {
+ 	if (getNumCities() == 1)
+ 		setFoundedFirstCity(false);
+-	GC.getGame().addDestroyedCityName(kCity.getName());
++	GC.getGame().addPastCityName(kCity.getName());
+ 	kCity.kill(true);
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 7087457e2..5e6b1705f 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -94,7 +94,7 @@ public:
+ 	void killCities();																								// Exposed to Python
+ 	CvWString getNewCityName() const;																				// Exposed to Python
+ 	void getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const;
+-	bool isCityNameValid(CvWString& szName, bool bTestDestroyed = true) const;
++	bool isCityNameValid(CvWString& szName, bool bTestPast = true) const;
+ 
+ 	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI,								// Exposed to Python
+ 			// advc.003u: Set this default here rather than in CvUnit::init
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5265

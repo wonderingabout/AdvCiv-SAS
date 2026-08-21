@@ -1,0 +1,439 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5225
+# Commit: f8f9ef6d2ce1aec0d27190c6fb68f09bf94adec6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fa70ede96e9492d492bd1cced32fc7f7f1305214
+# Title: handle duplicates more cleanly and show them in headers in sevopedia bonus's entries grouping - also bonus naming fix in CIV4PlotLSystem.xml although i am no...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+51	60	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+19	18	Assets/XML/Buildings/CIV4PlotLSystem.xml
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 938c20658..03f785e16 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1059,107 +1059,98 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		return self.getSortedList(gc.getNumFeatureInfos(), gc.getFeatureInfo)
+ 
+ 
+-	# Helper: pick the primary improvement that makes a bonus tradable (i.e. "improves" it). This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping. If multiple improvements can trade the same bonus (rare; mostly in modmods), we prefer an improvement that matches the bonus's water/land nature.
+-	# That traceback is exactly because BtS/AdvCiv’s CvBonusInfo wrapper does not expose isWater() in Python (your dump confirms it: there’s no isWater in the bonus methods list) (__SevoPediaBonus-gc-inner-debug...)
+-	# Meanwhile CvImprovementInfo does expose isWater() (and also uses isImprovementBonusTrade(...) in the wrapper), which is what we should rely on instead. (__SevoPediaImprovement-gc-inner…)
+-	# So the fix is: stop calling bInfo.isWater() and infer land/water purely from the improvements that can trade the bonus.	
+-	def SAS_getPrimaryImprovementForBonus(self, iBonus):
++	# Helper: get ALL improvements that make a bonus tradable (i.e. "improve/connect" it).
++	# This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping.
++	# Unlike a "primary improvement" heuristic, we keep multi-improvement cases exhaustive by using
++	# a combined header like: "Well, Offshore Platform".
++	def SAS_getTradingImprovementsForBonus(self, iBonus):
+ 		bInfo = gc.getBonusInfo(iBonus)
+ 		if not bInfo or bInfo.isGraphicalOnly():
+-			return -1
+-
+-		# CvBonusInfo does not expose isWater() in Python (BtS/AdvCiv wrapper).
+-		# Infer land/water only from improvements that can trade the bonus.
+-		# If both exist (e.g. Oil in some mods), prefer land for now.
+-		iBestAny = -1
+-		iBestLand = -1
+-		iBestWater = -1
+-
++			return []
++		r = []
+ 		for iImprovement in range(gc.getNumImprovementInfos()):
+ 			imprInfo = gc.getImprovementInfo(iImprovement)
+ 			if not imprInfo or imprInfo.isGraphicalOnly():
+ 				continue
+-
+-			# RFC DoC often uses isBonusTrade(); BtS/AdvCiv wrapper typically has
+-			# isImprovementBonusTrade(). Support both safely.
++			# Support both wrapper styles (RFC often exposes isBonusTrade; BtS/AdvCiv uses isImprovementBonusTrade).
+ 			if hasattr(imprInfo, "isBonusTrade"):
+ 				bTrades = imprInfo.isBonusTrade(iBonus)
+ 			else:
+ 				bTrades = imprInfo.isImprovementBonusTrade(iBonus)
+-
+-			if not bTrades:
+-				continue
+-
+-			if iBestAny == -1:
+-				iBestAny = iImprovement
+-
+-			if imprInfo.isWater():
+-				if iBestWater == -1:
+-					iBestWater = iImprovement
+-			else:
+-				if iBestLand == -1:
+-					iBestLand = iImprovement
+-
+-		# If only one side exists, use it. If both exist, prefer land for now.
+-		if iBestLand != -1 and iBestWater == -1:
+-			return iBestLand
+-		if iBestWater != -1 and iBestLand == -1:
+-			return iBestWater
+-		if iBestLand != -1:
+-			return iBestLand
+-		return iBestAny
+-
+-	# Group bonuses by their primary improvement (Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc).
+-	# This mirrors RFC DoC's approach in CvPediaMain.placeResources(), adapted to our cached-list style.
+-	# Notes on behavior (so it matches what you expect):
+-	# 	- The improvement bucket is determined by improvement.isBonusTrade(bonus), which is exactly what you want for “Farm header contains Corn/Wheat”.
+-	# 	- If a bonus can be improved by multiple improvements (rare), it picks a “primary” one, preferring water improvements for water bonuses and land improvements for land bonuses.
+-	# 	- Header order is improvement XML order (consistent with your other grouped lists). BUG “Sort Lists” only sorts within each header.
++			if bTrades:
++				r.append(iImprovement)
++		return r
++
++	# Group bonuses by the improvement(s) that connect them:
++	#   Farm -> Corn/Wheat/...
++	#   Pasture -> Sheep/Horse/...
++	# For multi-improvement bonuses (e.g. Oil: Well + Offshore Platform), we use a combined header.
++	# <!-- custom: we did this change because RFC DOC used another water/land tie breaker logic that would display Oil only under "Well", but the player needs to know too that "Offshore Platform" is another improvement trades for Oil. Also, if some mod mod added another improvement trades on land (e.g. Farm + Pasture for Milk (imaginary example anyways etc.)) then the water/land tie breaking would not be effective as well, and we'd miss the info that both improvements support this. This is the only case in our mod (Oil) that has more than one improvement trades if i'm not mistaken but anyways etc., so we don't need to complicate the logic further, while hopefully providing this logic in a bit cleaner or more relevant way to us than in RFC DOC mod (although their code helps lot and with chatgpt 5.2's help too and my help too xd i mean thanks to them and me xd as well but anyways etc.) -->
+ 	def SAS_getBonusesGroupedByImprovement_fromBaseList(self, baseList):
+ 		bonusesList = []
+ 
+ 		noImprovement = []
+-		groups = {}  # iImprovement -> [(szName, iBonus), ...]
++		groups = {}  # key tuple(iImprovement, ...) -> [(szName, iBonus), ...]
+ 
+ 		# One pass over bonuses preserves XML order within each group when Sort Lists is OFF.
+ 		for (szName, iBonus) in baseList:
+-			iImprovement = self.SAS_getPrimaryImprovementForBonus(iBonus)
+-			if iImprovement == -1:
++			lImpr = self.SAS_getTradingImprovementsForBonus(iBonus)
++			if not lImpr:
+ 				noImprovement.append((szName, iBonus))
+ 				continue
+ 
+-			tmp = groups.get(iImprovement, None)
++			# Keep improvement ids in XML order (already in-order due to the loop in SAS_getTradingImprovementsForBonus).
++			key = tuple(lImpr)
++			tmp = groups.get(key, None)
+ 			if tmp is None:
+ 				tmp = []
+-				groups[iImprovement] = tmp
++				groups[key] = tmp
+ 			tmp.append((szName, iBonus))
+ 
+-		# Optional sorting within each improvement group (when BUG "Sort Lists" is ON)
++		# Optional sorting within each improvement-group (when BUG "Sort Lists" is ON)
+ 		if self.isSortLists():
+ 			for k in groups.keys():
+ 				groups[k].sort()
+ 			noImprovement.sort()
+ 
+-		# Preserve improvement XML order for headers (matches our other grouped lists).
+-		for iImprovementLoop in range(gc.getNumImprovementInfos()):
+-			tmp = groups.get(iImprovementLoop, None)
++		# Order headers:
++		#  - primarily by first improvement id (so this generally follows ImprovementInfos XML order),
++		#  - then by key length (single-improvement headers first),
++		#  - then by the key itself (stable).
++		keys = groups.keys()
++		def _cmpKeys(a, b):
++			ta = (a[0], len(a), a)
++			tb = (b[0], len(b), b)
++			if ta < tb:
++				return -1
++			if ta > tb:
++				return 1
++			return 0
++		keys.sort(_cmpKeys)
++
++		for key in keys:
++			tmp = groups.get(key, None)
+ 			if not tmp:
+ 				continue
+ 
+ 			if bonusesList:
+ 				bonusesList.append(("", -1))
+ 
+-			imprInfo = gc.getImprovementInfo(iImprovementLoop)
+-			# Defensive: should exist, but keep safe.
++			# Header text: single improvement name OR "A, B, C" for multi-improvement bonuses.
++			parts = []
++			for iImprovement in key:
++				imprInfo = gc.getImprovementInfo(iImprovement)
++				if imprInfo:
++					parts.append(imprInfo.getDescription())
+ 			szHeader = "Improvement"
+-			if imprInfo:
+-				szHeader = imprInfo.getDescription()
++			if parts:
++				szHeader = ", ".join(parts)
+ 			bonusesList.append((szHeader, -1))
+ 
+ 			for x in tmp:
+ 				bonusesList.append(x)
+ 
+-		# Fallback bucket for bonuses that have no "bonus trade" improvement (rare)
++		# Fallback bucket for bonuses that have no connecting/trade improvement (rare)
+ 		if noImprovement:
+ 			if bonusesList:
+ 				bonusesList.append(("", -1))
+
+diff --git a/Assets/XML/Buildings/CIV4PlotLSystem.xml b/Assets/XML/Buildings/CIV4PlotLSystem.xml
+index 09b07eee9..2963fe238 100644
+--- a/Assets/XML/Buildings/CIV4PlotLSystem.xml
++++ b/Assets/XML/Buildings/CIV4PlotLSystem.xml
+@@ -31,6 +31,7 @@
+ 			
+ 		-->
+ <!-- custom: imported (cleanly but anyways etc whatever that means or not or yes or etc or other or etc but anyways etc...) from (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Buildings\CIV4PlotLSystem.xml and modified or not for advciv-sas anyways etc -->
++<!-- custom: note: i am not sure if this file is useful or read by our mod or not, but tried to implement it with our changes as well in case it helps or is necessary i mean (check if accurate) but anyways etc. -->
+ <LSystemInfos xmlns="x-schema:CIV4LSystemSchema.xml">
+ 	<!-- ******************************************************************************************** -->
+ 	<!-- Modders: this might help you understand what is going on ... -->
+@@ -1339,7 +1340,7 @@
+ 		<!-- corn -->
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x1_01</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -1349,7 +1350,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::1x2_01</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -1406,7 +1407,7 @@
+ 		<!-- CORN -->
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x2_01</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -1415,7 +1416,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x2_02</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -1945,7 +1946,7 @@
+ 		<!-- CORN -->
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::3x2_02</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -1955,7 +1956,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x3_01</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -2695,7 +2696,7 @@
+ 		<!-- CORN -->
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::4x2_01</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -2704,7 +2705,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::4x2_02</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -2714,7 +2715,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="art:corn_crop">
+ 			<Attribute Class="Scalar">NIF:Art/Terrain/Resources/Corn/crops.nif::2x4_01</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">bZMode_Ground:1</Attribute>
+ 			<Attribute Class="Scalar">bCutTrees:1</Attribute>
+ 			<Attribute Class="Scalar">szBatchGroup:corn_crop</Attribute>
+@@ -2867,7 +2868,7 @@
+ 		<!-- ancient and classical farms -->
+ 		<ArtRef Name="goal:IMPROVEMENT_FARM">
+ 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL</Attribute>
+-			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/an_eu_farm01.nif</Attribute>
+ 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/an_eu_farm01.kfm</Attribute>
+ 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
+@@ -2880,7 +2881,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="goal:IMPROVEMENT_FARM">
+ 			<Attribute Class="Era">ERA_ANCIENT,ERA_CLASSICAL</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/an_eu_farm01.nif</Attribute>
+ 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/an_eu_farm01.kfm</Attribute>
+ 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
+@@ -2906,7 +2907,7 @@
+ 		<!-- medieval farms -->
+ 		<ArtRef Name="goal:IMPROVEMENT_FARM">
+ 			<Attribute Class="Era">ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
+-			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/med_eu_farm01.nif</Attribute>
+ 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/med_eu_farm01.kfm</Attribute>
+ 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
+@@ -2921,7 +2922,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="goal:IMPROVEMENT_FARM">
+ 			<Attribute Class="Era">ERA_MEDIEVAL,ERA_RENAISSANCE</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/med_eu_farm01.nif</Attribute>
+ 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/med_eu_farm01.kfm</Attribute>
+ 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
+@@ -2951,7 +2952,7 @@
+ 		<!-- industrial/modern/future farms -->
+ 		<ArtRef Name="goal:IMPROVEMENT_FARM">
+ 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
+-			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">NO_BONUS,BONUS_ALL,!BONUS_RICE,!BONUS_WHEAT,!BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/mod_eu_farm01.nif</Attribute>
+ 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/mod_eu_farm01.kfm</Attribute>
+ 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
+@@ -2966,7 +2967,7 @@
+ 		</ArtRef>
+ 		<ArtRef Name="goal:IMPROVEMENT_FARM">
+ 			<Attribute Class="Era">ERA_INDUSTRIAL,ERA_MODERN,ERA_FUTURE</Attribute>
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">NIF:Art/Structures/Improvements/Farm/mod_eu_farm01.nif</Attribute>
+ 			<Attribute Class="Scalar">KFM:Art/Structures/Improvements/Farm/mod_eu_farm01.kfm</Attribute>
+ 			<Attribute Class="Scalar">szExtra:art:IMPROVEMENT_FARM1</Attribute>
+@@ -2995,8 +2996,8 @@
+ 
+ 		
+ 		<!--- corn crop -->
+-		<ArtRef Name="goal:BONUS_CORN">
+-			<Attribute Class="Bonus">BONUS_CORN</Attribute>
++		<ArtRef Name="goal:BONUS_MAIZE">
++			<Attribute Class="Bonus">BONUS_MAIZE</Attribute>
+ 			<Attribute Class="Scalar">iCropAreaMultiplier:10</Attribute>
+ 			<Attribute Class="Scalar">bPlace:0</Attribute>
+ 			<Attribute Class="Scalar">fTwist:-0.7853981633</Attribute>
+@@ -3548,7 +3549,7 @@
+ 	</LProduction>
+ 	<LProduction From="Node_2x2">
+ 		<Attribute Class="Improvement">NO_IMPROVEMENT</Attribute>
+-		<Attribute Class="Bonus">BONUS_SILK,BONUS_DYE,BONUS_SPICES,BONUS_SUGAR,BONUS_CORN,BONUS_COTTON</Attribute>
++		<Attribute Class="Bonus">BONUS_SILK,BONUS_DYE,BONUS_SPICES,BONUS_SUGAR,BONUS_MAIZE,BONUS_COTTON</Attribute>
+ 		<To Name="BLeaf_2x2"/>
+ 	</LProduction>
+ 	<LProduction From="Node_2x2">
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 1bd106523..0b1f1ab49 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -78,7 +78,7 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: in sevopedia bonuses list, group bonuses by their primary improvement (Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) based on how RFC DOC mod does it thanks but anyways etc. -->
++	<!-- custom: in sevopedia bonuses list, group bonuses by their primary improvement (e.g. Farm -> Wheat/Maize; Pasture -> Sheep/Pig) based on how RFC DOC mod does it thanks but anyways etc. -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 95b04b61b..0a6fe8673 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -124,7 +124,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, also expanded sevopedia so it uses all screen space available (no margins anymore), now more space to display info if want/need or visual clarity, as some also do for example or/and comparison anyways/etc
+ - reduced main categories width from approxiamtely 200px to 124px approximately, this quite greatly increases the space of the sevopedia for the content or items category(?)/column (the one that lists for example for the leaders category "Alexander[...]", "Ashoka", etc.. until the end of alphabet and for all other main categories too that have a listing of items (which is almost all if i'm not mistaken anyways)). Hopefully clearer now for this non critical info, while still preserving the 2nd category's width, using shortened names when possible or necessary in 1st/main categories's 1st column.
+ - in particular replaced some pedia entries of religions in particular but not only (also of some techs, buildings, units, bonuses, a few terrains/features as of now too, etc.), with wikipedia based entries (unless stated otherwise in the pedia entry or in code comments or docs), so that it is more accurate and possibly if i may say anyways etc instructive or/and informative or/and neutral/objective or/and perhaps also enjoyable anyways etc.
+-- (Requires AdvCiv-SAS 5212+ to 5224+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist, **by Improvement Type** (e.g. Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) in Sevopedia Bonus. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5224+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist, **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig, etc) in Sevopedia Bonus. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - sevopedia shortcuts category: add info about Alt+S shortcut (Toggle on/off write some text ("Enter caption") on a tile) (added in the Map Layers subcategory anyways etc).
+ - added a few new concepts (as of now in the "Outdated" sevopedia category) entries such as concept_rivers, concept_route_road, concept_route_railroad. These are not supported in advciv-sas, hence the "outdated" name (i am not making sure the info is in line with our mod's changes if i may say anyways etc), however i tried to include new entries to give more information about civ4 features i wanted to know / wished i knew about, or/and that we used for other purposes such as redirecting for buttons/images, or that i found informative or/and wanted to add anyways etc. See [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category) for details.
+ - removed the strategy text in history / background panels as they are oftentimes outdated or/and tedious to maintain anyways etc.
+@@ -177,7 +177,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - make AI workers always (in theory at least for this part of the code anyways etc) improve bonuses (see renaming section of this readme or the corresponding sevopedia category for details about what bonuses mean in advciv-sas anyways etc) first before anything else, with a higher priority to food bonuses in particular. Hopefully this fixes AI not prioritizing, sometimes even ignoring for a long while available to improve bonuses, in particular food bonuses but not only these, any bonus, anyways etc. This is done by refactoring/rewriting `CvUnitAI::AI_bestCityBuild`, and seemingly as well results in a slightly faster code as a nice side effect anyways etc, thanks to gemini ai's persistence/stubborness hehe as well anyways etc (and bit of chatgpt's help), see also [/README.md#gemini-ai](/README.md#gemini-ai) and [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details anyways etc.
+ - as a result and part of these changes, make AI workers only allocate max one worker per tile being improved (any tile even the ones without bonuses anyways etc), hopefully to, in most cases, improve AI efficiency, especially, when/where AI workers would spend many turns to climb a hill or go to a forest or such high move speed cost tile if i am not mistaken anyways etc, hopefully this helps prevent that. AI now improves bonuses first before anything else if i am not mistaken
+ - Rewrite and greatly simplify `BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild)`, so that we deprioritize routes for AI workers, and build them only in very rare cases, especially in the early game where yields are so important (now prioritize yields over move speed advantage, should help AI a lot in most cases hopefully at least i think so in this case anyways etc), and AI workers would often in base advciv waste time building roads first, sometimes even forgetting to improve the bonus in particular, or other tiles. I hope this makes AI sharper and more efficient, with a cleaner and much simpler best build override, thanks to gemini ai as well and thanks to me too if i may say in this case but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc
+-- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and overwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated pig and corn that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc. Since then updated to now also handle roading choice on not connected but connectable bonuses in BFC with other patches, see update 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc.
++- Complete overhaul of `CvUnitAI::AI_bestCityBuild` [CvUnitAI.cpp](/CvGameCoreDLL/CvUnitAI.cpp): now AI workers follow a highly optimized build (improvements) routine and strategy, based on terrain, food, health, fast chopping, etc. This is done by completely ignoring base advciv +/- civ4 algorithms or/and logic, and defining probabilistically with a value tree our own value system +/- of priority to build based on our own advciv-sas conditions if i may say but anyways etc. Some of the changes include for example favouring cottages on flood plains unless we are low on food then farm, or not overwriting. Oscillation (i.e. AI workers constantly changing their minds and overwriting a mine with a windmill, then a few turns later rewrite the windmill with a mine, etc) should be much much less frequent if not any, or/and cleanly managed, with a set of "holy" improvements never to overwrite (hamlet, village, town, workshop, etc) and semi-holy ones (farms in low-food environments, cottages in high-food environments as of now for example too but anyways etc), a penalty for overwriting improvements so AI improves other improvements first, a wait later system to keep best tiles for later if we don't have an immediate good move for them and methodically improving next eligible best, as well as a system to tell the AI which are best and bonus-specific improvements, to fix the banana cottage issue, it will do a plantation or nothing, unless the food gain is high (grassland irrigated for example) then it may do a farm very methodically else leave for later to increase AI worker efficiency. Also, these changes fix and remove AI opening on a cottage plain, it will look for flood plains first, then grassland, etc. Logic is fine tuned on hills. There are many related changes as well, please view code there for details. As a result, AI cities and workers should be tremendously stronger than in base advciv, at least in theory. They favour economy improvements a bit too much but seem to handle fine having enough production for now although a bit less than before as i didn't tweak it for such. They also favour slow and steady growth, and adapt to current food situation per city to decide next improvement, without overwriting other improvements that already exist until all good other tiles have been improved first, following a detailed value adjustment system if i may say but anyways etc, with the help of gemini ai and claude ai mostly as well as myself too hehe if i may say but anyways etc. See [README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#33---tremendously-improved-and-fixed-and-enhanced-ai-worker-buildimprovement-logic-in-cvunitaiai_bestcitybuild) with screenshot comparison and my analysis and such if i may say for details but anyways etc. Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4, as as of now for example (screenshots 1573 and 1574) ulundi is starving despite having unallocated Pig and Maize that are improved for many turns!!!! Or (screenshots 1595 and 1596) prague stagnant while its improved sheep grassland is unallocated. This is shit citizen allocation and i hope to fix it but anyways etc. Hopefully AI is already much stronger with our changes but thanks for past if i may say but anyways etc but i hope i can improve these things among others or not in this case i mean but anyways etc. And seemingly further (much) improved it since then if i'm not mistaken but anyways etc, please see update note 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#30---attemptingly-fixed-ai-workers-not-prioritizing-bonuses-to-improve-especially-food-bonuses-and-other-ai-workers-optimizations-orand-changes-anyways-etc) for details with screenshots there as well for comparison anyways etc. Since then updated to now also handle roading choice on not connected but connectable bonuses in BFC with other patches, see update 2 at [README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#31---attemptingly-fixed-deprioritize-routes-for-ai-workers-in-favour-of-yields-first-except-in-some-rare-cases) for details anyways etc.
+ - (Seemingly fixed or/and enhanced) Make AI workers move sooner to City B or City C or such, and vice versa, if current city is already improved enough and don't need to be over improved, while other cities are not improved enough and would much rather need it, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#39---seemingly-fixed-orand-enhanced-make-ai-workers-move-sooner-to-city-b-or-city-c-or-such-and-vice-versa-if-current-city-is-already-improved-enough-and-dont-need-to-be-over-improved-while-other-cities-are-not-improved-enough-and-would-much-rather-need-it). Since then tremendously improved and tweaked in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) which seemingly Beyond Tremendously Improves AI worker mobility, flexibility, and reliability, now favouring minimal big city improvement (come back to it later but don't delay improving smaller ones), quick moving to smaller ones, and spending longer to improve smaller ones as they grow fast but anyways etc, as well as being braver in our own cultural borders or/and moving to other cities needing improvements rather than being parked in current city if i am not mistaken but anyways etc and such other changes to increase AI efficiency reliably, and other changes if any thanks to chatgpt 5 and me too if i may say but anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#41---seemingly-fixed-beyond-tremendously-improved-ai-worker-mobility-flexibility-and-reliability-now-favouring-minimal-big-city-improvement-come-back-to-it-later-but-dont-delay-improving-smaller-ones-quick-moving-to-smaller-ones-and-spending-longer-to-improve-smaller-ones-as-they-grow-fast-but-anyways-etc-as-well-as-being-braver-in-our-own-cultural-borders-orand-moving-to-other-cities-needing-improvements-rather-than-being-parked-in-current-city-if-i-am-not-mistaken-but-anyways-etc-and-such-other-changes-to-increase-ai-efficiency-reliably-and-other-changes-if-any-thanks-to-chatgpt-5-and-me-too-if-i-may-say-but-anyways-etc) for details as well anyways etc. Note: as a side effect of now having 1 AI worker per tile, they are harder to capture and no risk of losing a big worker stack, so i believe this is nice all in all of a change, not just for AI efficiency anymore if i am not mistaken but anyways etc. Note 2: AI handicap may have to be reduced as they are so much more efficient now, but i hope at least they are a good and worthwhile and/or fine challenge now and if already then even more, anyways etc, looking forward to other improvements (no pun but anyways etc) i find as well and (/or ?) want to do but anyways etc. Update: since then, also added logic (untested) to move to lowest pop cities the most in `CvUnitAI::AI_nextCityToImprove` with more importance the lower pop they are anyways etc. I didn't have a before/after save file to compare, but hopefully helps too (check/test to be sure, seems to run fine at least and code is simple enough if i'm not mistaken anyways etc) anyways etc.
+ - Tremendously improved and fixed AI worker excessive retreating, causing it in rare cases to have AI workers parked in the city instead of improving other cities badly needing it if i may say but anyways etc, that would stay unimproved still but anyways etc. This is thanks to chatgpt 5's help and the changes include a wake from retreat, don't retreat excessively, and other such changes on top of previous AI worker improvements we had done already, it seems in some cases such as the one i now solved if i'm not mistaken but anyways etc, excessive retreating would still happen. See for details, with screenshots and such other explanations and/or such but anyways etc [50 - (Tremendously improved/fixed/enhanced) Excessive AI worker retreat logic causing worker parking in cities in rare cases: now added a wake from retreat and other changes if any other change i mean anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#50---tremendously-improvedfixedenhanced-excessive-ai-worker-retreat-logic-causing-worker-parking-in-cities-in-rare-cases-now-added-a-wake-from-retreat-and-other-changes-if-any-other-change-i-mean-anyways-etc) anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index d54028627..fe94d3272 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -118,7 +118,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ - Wider content area, narrower main category column; fills available screen space.
+ - Many entries (religions, some techs/buildings/units/bonuses/terrains/features) now use neutral encyclopedia-style blurbs (often Wikipedia-based) for clarity/context. See [README: Sevopedia reworks](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md).
+-- (Requires AdvCiv-SAS 5212+ to 5224+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist, **by Improvement Type** (e.g. Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) in Sevopedia Bonus. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
++- (Requires AdvCiv-SAS 5212+ to 5224+) **Entries Grouping**: Sevopedia Civics' entries are **grouped by Civic Type** (e.g. Government, Economy, etc.), **by Era Type** (e.g. Ancient Era, Classical Era, No Tech Prerequisite (available at any era), etc.) for other Sevopedia Pages' entries, **by Specialist Type** (e.g. Engineer vs Great Engineer) in Sevopedia Specialist, **by Improvement Type** (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig, etc) in Sevopedia Bonus. Code implemented in [SevoPediaMain.py](/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py).
+ - Sevopedia — Shortcuts: added an entry for the existing `Alt+S` shortcut — opens the tile-label dialog (“Enter caption”) to add/remove text on the selected tile.
+ - Sevopedia — Concepts (placed under the “Outdated” *Sevopedia category*): added reference entries — `concept_rivers`, `concept_route_road`, `concept_route_railroad`. **“Outdated” is a Sevopedia category label** we use for pages **not maintained** to match AdvCiv-SAS rules; these exist for general Civ4 background and UI reuse (e.g., redirecting to buttons/images). See: [Concepts (Outdated)](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - Sevopedia — History/Background panels: removed the embedded **Strategy** text; it was often outdated and tedious to maintain.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+index 543292714..2ddd1c5d3 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md
+@@ -88,7 +88,7 @@ More recently, also added thanks to bit of chatgpt's help too hehe even though m
+ 
+ Update: since then, added AI information about `iAIObjective` and/or such fields in sevopedia bonus's placeSpecial panel (effects) anyways etc. Viewable ingame in sevopedia bonus or/and in xml, and done with the help of claude ai thanks to my prompts too and/or such anyways etc.
+ 
+-Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Corn, Pasture -> Sheep/Pig, etc) based on RFC DOC mod code's thanks and chatgpt 5.2's help as well thanks but anyways etc.
++Update 2: group bonuses by Improvement Type (e.g. Farm -> Wheat/Maize, Pasture -> Sheep/Pig, etc) based on RFC DOC mod code's thanks and chatgpt 5.2's help as well thanks but anyways etc.
+ 
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG" alt="0.650_sevopedia_bonuses_sample (1).JPG" width="250"></img>
+ <img src="../Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG" alt="0.650_sevopedia_bonuses_sample (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG
+index a2e07f00b..3cfadd928 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG
+index 5e34a7620..08fd0f7dc 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG
+index 0d600deef..8bedf5ce5 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.650_sevopedia_bonuses_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=9 omittedFiles=0 embeddedPatchBytes=46154

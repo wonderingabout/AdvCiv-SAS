@@ -1,0 +1,324 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2483
+# Commit: 5a96d028c0570aa154009ce65bf06f8851f2a360
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fac5ffba16d869ba0cffc5099061425a0478ad12
+# Title: Some minor refactoring (FVariableSystem)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Python/Screens/CvMainInterface.py
+9	9	CvGameCoreDLL/CvDefines.h
+1	0	CvGameCoreDLL/CvDiploParameters.cpp
+1	1	CvGameCoreDLL/CvDiploParameters.h
+4	9	CvGameCoreDLL/CvGameCoreDLL.h
+10	8	CvGameCoreDLL/CvGlobals.h
+14	14	CvGameCoreDLL/FVariableSystem.inl
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 14f27242a..1f5dcc93f 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -2895,6 +2895,8 @@ class CvMainInterface:
+ 			RowLength = 110
+ 			if (i == 0):
+ 			#if (i == gc.getInfoTypeForString(gc.getDefineSTRING("DEFAULT_SPECIALIST"))):
++			# advc.001 (note): If the above is uncommented (I didn't comment it out), the following should be used instead:
++			#if i == gc.getDefineINT("DEFAULT_SPECIALIST"):
+ 				RowLength *= 2
+ 			
+ 			HorizontalSpacing = MAX_SPECIALIST_BUTTON_SPACING
+
+diff --git a/CvGameCoreDLL/CvDefines.h b/CvGameCoreDLL/CvDefines.h
+index 913729463..e54f322a3 100644
+--- a/CvGameCoreDLL/CvDefines.h
++++ b/CvGameCoreDLL/CvDefines.h
+@@ -130,19 +130,19 @@
+ // python module names
+ #define PYDebugToolModule			"CvDebugInterface"
+ #define PYScreensModule				"CvScreensInterface"
+-#define PYCivModule						"CvAppInterface"
+-#define PYWorldBuilderModule	"CvWBInterface"
+-#define PYPopupModule					"CvPopupInterface"
++#define PYCivModule					"CvAppInterface"
++#define PYWorldBuilderModule		"CvWBInterface"
++#define PYPopupModule				"CvPopupInterface"
+ #define PYDiplomacyModule			"CvDiplomacyInterface"
+-#define PYUnitControlModule		"CvUnitControlInterface"
++#define PYUnitControlModule			"CvUnitControlInterface"
+ #define PYTextMgrModule				"CvTextMgrInterface"
+ #define PYPerfTestModule			"CvPerfTest"
+-#define PYDebugScriptsModule	"DebugScripts"
++#define PYDebugScriptsModule		"DebugScripts"
+ #define PYPitBossModule				"PbMain"
+-#define PYTranslatorModule		"CvTranslator"
+-#define PYGameModule					"CvGameInterface"
+-#define PYEventModule					"CvEventInterface"
+-#define PYRandomEventModule					"CvRandomEventInterface"
++#define PYTranslatorModule			"CvTranslator"
++#define PYGameModule				"CvGameInterface"
++#define PYEventModule				"CvEventInterface"
++#define PYRandomEventModule			"CvRandomEventInterface"
+ 
+ #define DANGER_RANGE						(4)
+ #define BORDER_DANGER_RANGE					(2) // K-Mod
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.cpp b/CvGameCoreDLL/CvDiploParameters.cpp
+index 0e3320723..6ede65cf4 100644
+--- a/CvGameCoreDLL/CvDiploParameters.cpp
++++ b/CvGameCoreDLL/CvDiploParameters.cpp
+@@ -1,6 +1,7 @@
+ #include "CvGameCoreDLL.h"
+ #include "CvDiploParameters.h"
+ #include "CvGamePlay.h"
++#include "FVariableSystem.h" // advc (moved from header)
+ 
+ 
+ CvDiploParameters::CvDiploParameters(PlayerTypes ePlayer) :
+
+diff --git a/CvGameCoreDLL/CvDiploParameters.h b/CvGameCoreDLL/CvDiploParameters.h
+index be1357dff..4db27893d 100644
+--- a/CvGameCoreDLL/CvDiploParameters.h
++++ b/CvGameCoreDLL/CvDiploParameters.h
+@@ -2,7 +2,7 @@
+ #ifndef CVDIPLOPARAMETERS_H
+ #define CVDIPLOPARAMETERS_H
+ 
+-#include "FVariableSystem.h"
++class FVariable;
+ 
+ class CvDiploParameters
+ {
+
+diff --git a/CvGameCoreDLL/CvGameCoreDLL.h b/CvGameCoreDLL/CvGameCoreDLL.h
+index 90a7668e6..2be6d713f 100644
+--- a/CvGameCoreDLL/CvGameCoreDLL.h
++++ b/CvGameCoreDLL/CvGameCoreDLL.h
+@@ -3,22 +3,18 @@
+ #ifndef CvGameCoreDLL_h
+ #define CvGameCoreDLL_h
+ 
+-//
+ // includes (pch) for gamecore dll files
+ // Author - Mustafa Thamer
+-//
+ 
+-//
+-// WINDOWS
+-//
++// WINDOWS ...
+ #pragma warning( disable: 4530 )	// C++ exception handler used, but unwind semantics are not enabled
+-
+ #define WIN32_LEAN_AND_MEAN
+ // <advc.fract> Otherwise, classes in the PCH can't have members named "max" and "min".
+ #ifndef NOMINMAX
+ 	#define NOMINMAX
+ #endif // </advc.fract>
+ #include <windows.h>
++
+ // advc.fract: Commented out, originally in CvGameCoreUtils.h.
+ //#undef max
+ //#undef min
+@@ -95,8 +91,7 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvStructs.h"
+ #include "CvDLLUtilityIFaceBase.h" // includes LinkedList.h
+ 
+-//jason tests
+-// advc.make: Removed most of these
++//jason tests (advc.make: removed most of these)
+ #include "CvRandom.h"
+ #include "CvGameCoreUtils.h"
+ #include "ScaledNum.h"
+@@ -124,7 +119,7 @@ BOOST_STATIC_ASSERT(MAX_PLAYERS < MAX_CHAR && MAX_TEAMS < MAX_CHAR);
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvDLLFAStarIFaceBase.h"
+ #include "CvDLLEngineIFaceBase.h"
+-#include "CvInitCore.h"
++#include "CvInitCore.h" // Rarely changes and useful to have for inlining
+ #include "CvEventReporter.h" // Includes CvStatistics.h and CvDllPythonEvents.h
+ #include "CyArgsList.h"
+ #include "CyPlot.h"
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index d7f824a8d..258478740 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -394,24 +394,26 @@ public:
+ 	void cacheGlobals();
+ 
+ 	// ***** EXPOSED TO PYTHON *****
+-	DllExport inline int getDefineINT(const char * szName) const
++	DllExport inline int getDefineINT(char const* szName) const
+ 	{
+ 		return getDefineINT(szName, 0); // advc.opt: Call the BBAI version
+ 	}
+ 	// BETTER_BTS_AI_MOD, Efficiency, Options, 02/21/10, jdog5000:
+-	int getDefineINT(const char * szName, const int iDefault) const;
++	int getDefineINT(char const* szName, int iDefault) const;
+ 	// <advc>
+-	inline bool getDefineBOOL(const char * szName, const bool bDefault = false) const
++	inline bool getDefineBOOL(char const* szName, bool bDefault = false) const
+ 	{
+ 		return (getDefineINT(szName, (int)bDefault) > 0);
+ 	} // </advc>
+-	DllExport float getDefineFLOAT(const char * szName) const;
+-	DllExport const char * getDefineSTRING(const char * szName) const;
++	DllExport float getDefineFLOAT(char const* szName) const;
++	/*	advc (note): Global TextVals loaded by CvXMLLoadUtility::
++		SetPostGlobalsGlobalDefines need to be accessed through getDefineINT instead. */
++	DllExport const char* getDefineSTRING(char const* szName) const;
+ 	/*  advc.opt: Params for suppressing cache update added. False for string b/c
+ 		there are none that we could update. */
+-	void setDefineINT(const char * szName, int iValue, bool bUpdateCache = true);
+-	void setDefineFLOAT(const char * szName, float fValue, bool bUpdateCache = true);
+-	void setDefineSTRING(const char * szName, const char * szValue, bool bUpdateCache = false);
++	void setDefineINT(char const* szName, int iValue, bool bUpdateCache = true);
++	void setDefineFLOAT(char const* szName, float fValue, bool bUpdateCache = true);
++	void setDefineSTRING(char const* szName, char const* szValue, bool bUpdateCache = false);
+ 	// advc.opt:
+ #pragma region GlobalDefines
+ 	/*  Access cached integer GlobalDefines through enum values
+
+diff --git a/CvGameCoreDLL/FVariableSystem.inl b/CvGameCoreDLL/FVariableSystem.inl
+index e8c1418d4..6730fd100 100644
+--- a/CvGameCoreDLL/FVariableSystem.inl
++++ b/CvGameCoreDLL/FVariableSystem.inl
+@@ -1,15 +1,15 @@
+ //	$Revision: #4 $		$Author: mbreitkreutz $ 	$DateTime: 2005/06/13 13:35:55 $
+ //------------------------------------------------------------------------------------------------
+-//
+ //  *****************   FIRAXIS GAME ENGINE   ********************
+ //
+ //!  \file		FVariableSystem.inl
+ //!  \author	Bart Muzzin - 11/22/2004
+ //!	 \brief		Implementation of a runtime modifiable set of variables (inlines).
+-//
+ //------------------------------------------------------------------------------------------------
+ //  Copyright (c) 2002-2004 Firaxis Games, Inc. All rights reserved.
+ //------------------------------------------------------------------------------------------------
++/*	advc.006: assert calls replaced with FAssert. However, apparently, this file
++	has been compiled into the EXE, so assert will still get called from there. */
+ 
+ typedef stdext::hash_map< std::string, FVariable *>::const_iterator VSIteratorC;
+ typedef stdext::hash_map< std::string, FVariable *>::iterator VSIterator;
+@@ -186,7 +186,7 @@ inline void FVariableSystem::Write(FDataStreamBase *pStream) const
+ 		iIterator++;
+ 	}
+ 
+-	assert(iNumWritten==iSize);
++	FAssert(iNumWritten==iSize);
+ }
+ 
+ //---------------------------------------------------------------------------------------
+@@ -207,7 +207,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, bool & bValue )
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_BOOL );
++	FAssert( pkVariable->m_eType == FVARTYPE_BOOL );
+ 	bValue = pkVariable->m_bValue;
+ 	return true;
+ }
+@@ -230,7 +230,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, char & cValue )
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_CHAR );
++	FAssert( pkVariable->m_eType == FVARTYPE_CHAR );
+ 	cValue = pkVariable->m_cValue;
+ 	return true;
+ }
+@@ -253,7 +253,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, byte & ucValue )
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_UCHAR );
++	FAssert( pkVariable->m_eType == FVARTYPE_UCHAR );
+ 	ucValue = pkVariable->m_ucValue;
+ 	return true;
+ }
+@@ -276,7 +276,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, short & wValue )
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_SHORT );
++	FAssert( pkVariable->m_eType == FVARTYPE_SHORT );
+ 	wValue = pkVariable->m_wValue;
+ 	return true;
+ }
+@@ -299,7 +299,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, word & uwValue )
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_USHORT );
++	FAssert( pkVariable->m_eType == FVARTYPE_USHORT );
+ 	uwValue = pkVariable->m_uwValue;
+ 	return true;
+ }
+@@ -322,7 +322,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, int & iValue ) c
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_INT );
++	FAssert( pkVariable->m_eType == FVARTYPE_INT );
+ 	iValue = pkVariable->m_iValue;
+ 	return true;
+ }
+@@ -345,7 +345,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, uint & uiValue )
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_UINT );
++	FAssert( pkVariable->m_eType == FVARTYPE_UINT );
+ 	uiValue = pkVariable->m_uiValue;
+ 	return true;
+ }
+@@ -398,7 +398,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, float & fValue )
+ 		}
+ 		break;
+ 	default:
+-		assert(false);
++		FAssert(false);
+ 		break;
+ 	}
+ 
+@@ -453,7 +453,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, double & dValue
+ 		}
+ 		break;
+ 	default:
+-		assert(false);
++		FAssert(false);
+ 		break;
+ 	}
+ 
+@@ -478,7 +478,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, const char * & p
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_STRING );
++	FAssert( pkVariable->m_eType == FVARTYPE_STRING );
+ 	pszValue = pkVariable->m_szValue;
+ 	return true;
+ }
+@@ -501,7 +501,7 @@ inline bool FVariableSystem::GetValue( const char * szVariable, const wchar * &
+ 		return false;
+ 	}
+ 	pkVariable = iIterator->second;
+-	assert( pkVariable->m_eType == FVARTYPE_WSTRING );
++	FAssert( pkVariable->m_eType == FVARTYPE_WSTRING );
+ 	pwszValue = pkVariable->m_wszValue;
+ 	return true;
+ }
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=11054

@@ -1,0 +1,54 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1690
+# Commit: 36578a681249681adb93bcd7095e9058b3335cca
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9a20f363a8d6eef5bd5a988a72c78b0c96295fbb
+# Title: Fix recently introduced bug with peace treaty cancellation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+8	9	CvGameCoreDLL/CvDeal.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 13fea44f3..ecfb05605 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -1222,18 +1222,17 @@ void CvDeal::endTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes e
+ 
+ bool CvDeal::isCancelable(PlayerTypes eByPlayer, CvWString* pszReason) const
+ {
+-	// <advc.001> Not really a bug, but you'd really expect this function to check this.
+-	if (!involves(eByPlayer))
+-		return false; // </advc.001>
+-
+-	if (isUncancelableVassalDeal(eByPlayer, pszReason))
+-		return false;
+-
++	if (eByPlayer != NO_PLAYER)
++	{
++		// <advc.001> Not really a bug, but you'd really expect this function to check this.
++		if (!involves(eByPlayer))
++			return false; // </advc.001>
++		if (isUncancelableVassalDeal(eByPlayer, pszReason))
++			return false;
++	}
+ 	int iTurns = turnsToCancel(eByPlayer);
+-
+ 	if (pszReason != NULL && iTurns > 0)
+ 		*pszReason = gDLL->getText("TXT_KEY_MISC_DEAL_NO_CANCEL", iTurns);
+-
+ 	return (iTurns <= 0);
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1012

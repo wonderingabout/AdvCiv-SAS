@@ -1,0 +1,209 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 399
+# Commit: d11a46fec369fb34dc6dffc07db1e2b13939699f
+# History segment: K-Mod history
+# Parent used for diff: 2db900f7eb848d4db7c6b6d237feb62bcda5833a
+# Title: Adjusted the way the AI evaluates city danger levels. Fixed an overflow problem in AI_sacrificeValue. Slightly increased max unit spending for alert and tota...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	1	CvGameCoreDLL/CvCityAI.cpp
+1	0	CvGameCoreDLL/CvCityAI.h
+6	5	CvGameCoreDLL/CvPlayerAI.cpp
+13	4	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 9b251da0e..967fa8963 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -12031,6 +12031,22 @@ void CvCityAI::AI_cachePlayerCloseness(int iMaxDistance)
+ 	m_iCachePlayerClosenessDistance = iMaxDistance;
+ }
+ 
++// K-Mod
++// return true if there is an adjacent plot not owned by us.
++bool CvCityAI::AI_isFrontlineCity() const
++{
++	for (int i = 0; i < NUM_DIRECTION_TYPES; i++)
++	{
++		CvPlot* pAdjacentPlot = plotDirection(getX_INLINE(), getY_INLINE(), (DirectionTypes)i);
++
++		if (pAdjacentPlot && !pAdjacentPlot->isWater() && pAdjacentPlot->getTeam() != getTeam())
++			return true;
++	}
++
++	return false;
++}
++// K-Mod end
++
+ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ {
+ /************************************************************************************************/
+@@ -12050,8 +12066,20 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ 		if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() != getTeam()) // K-Mod
+ 		{
+ 			int iTempValue = AI_playerCloseness((PlayerTypes)iI, DEFAULT_PLAYER_CLOSENESS);
++
+ 			if (iTempValue > 0)
+ 			{
++				// K-Mod
++				for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
++				{
++					CvPlot* pLoopPlot = getCityIndexPlot(iJ);
++					if (pLoopPlot && pLoopPlot->getOwnerINLINE() == iI)
++					{
++						iTempValue += (stepDistance(getX_INLINE(), getY_INLINE(), pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE()) <= 1) ? 2 : 1;
++					}
++				}
++				// K-Mod end
++
+ 				if (bCrushStrategy && GET_TEAM(getTeam()).AI_getWarPlan(kLoopPlayer.getTeam()) != NO_WARPLAN)
+ 				{
+ 					iTempValue *= 400;
+@@ -12145,7 +12173,7 @@ int CvCityAI::AI_cityThreat(bool bDangerPercent)
+ 		}
+ 	}
+ 	
+-	iValue += 2 * kOwner.AI_getPlotDanger(plot(), 3, false);
++	iValue += 3 * kOwner.AI_getPlotDanger(plot(), 3, false); // was 2 *
+ 	
+ 	return iValue;
+ /************************************************************************************************/
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 9644cefe3..64b368650 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -138,6 +138,7 @@ public:
+ /************************************************************************************************/
+ 
+ 	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance);
++	bool AI_isFrontlineCity() const; // K-Mod
+ 	int AI_cityThreat(bool bDangerPercent = false);
+ 
+ 	int AI_getWorkersHave();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index f798d9382..dec14f375 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -11660,8 +11660,8 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 
+ 	if (!bTotalWar)
+ 	{
+-		iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_ALERT1) ? 10 + iBuildProb / 4 : 0;
+-		iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_ALERT2) ? 10 + iBuildProb / 4 : 0;
++		iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_ALERT1) ? 12 + iBuildProb / 4 : 0;
++		iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_ALERT2) ? 12 + iBuildProb / 4 : 0;
+ 		// note. the boost from alert1 + alert2 matches the boost from total war. (see below).
+ 	}
+ 
+@@ -11671,7 +11671,7 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 	}
+ 	else
+ 	{
+-		iMaxUnitSpending += bTotalWar ? 20 + iBuildProb / 2 : 0;
++		iMaxUnitSpending += bTotalWar ? 25 + iBuildProb / 2 : 0;
+ 		iMaxUnitSpending += AI_isDoStrategy(AI_STRATEGY_DAGGER) ? 10 + AI_getFlavorValue(FLAVOR_MILITARY) : 0;
+ 		if (pArea)
+ 		{
+@@ -11682,7 +11682,7 @@ int CvPlayerAI::AI_maxUnitCostPerMil(CvArea* pArea, int iBuildProb) const
+ 				break;
+ 
+ 			case AREAAI_DEFENSIVE:
+-				iMaxUnitSpending += 35;
++				iMaxUnitSpending += 45;
+ 				break;
+ 
+ 			case AREAAI_MASSING:
+@@ -20916,7 +20916,8 @@ int CvPlayerAI::AI_getTotalFloatingDefendersNeeded(CvArea* pArea) const
+ /************************************************************************************************/
+ 	{
+ 		iDefenders += 2 * iAreaCities;
+-		if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++		//if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE)
++		if (pArea->getAreaAIType(getTeam()) == AREAAI_DEFENSIVE && AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4)) // K-Mod
+ 		{
+ 			iDefenders *= 2; //go crazy
+ 		}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7ef577ae0..2ba940af9 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1152,7 +1152,8 @@ void CvUnitAI::AI_setUnitAIType(UnitAITypes eNewValue)
+ 
+ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ {
+-    int iValue;
++    //int iValue;
++	long iValue; // K-Mod. (the int will overflow)
+     int iCollateralDamageValue = 0;
+     if (pPlot != NULL)
+     {
+@@ -1175,7 +1176,7 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 			iValue += 25000;
+ 		}
+ 		//iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
+-		iValue /= std::max(1, 1 + (m_pUnitInfo->getProductionCost() > 0 ? m_pUnitInfo->getProductionCost() : 500)); // K-Mod
++		iValue /= m_pUnitInfo->getProductionCost() > 0 ? m_pUnitInfo->getProductionCost() : 180; // K-Mod
+ 		iValue *= (maxHitPoints() - getDamage());
+ 		iValue /= 100;
+ 	} 
+@@ -1199,10 +1200,12 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		iValue *= (100 + iCollateralDamageValue);
+ 		iValue /= (100 + cityDefenseModifier());
+ 		iValue *= (100 + withdrawalProbability());
++		iValue /= 100; // K-Mod
+ 
+ 		// Experience and medics now better handled in LFB
+ 		if( !GC.getLFBEnable() )
+ 		{
++			iValue *= 10; // K-Mod
+ 			iValue /= (10 + getExperience()); // K-Mod - moved from out of the if.
+ 			iValue *= 10;
+ 			iValue /= (10 + getSameTileHeal() + getAdjacentTileHeal());
+@@ -1225,7 +1228,7 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		// K-Mod end
+ 
+ 		//iValue /= std::max(1, (1 + m_pUnitInfo->getProductionCost()));
+-		iValue /= std::max(1, 1 + (m_pUnitInfo->getProductionCost() > 0 ? m_pUnitInfo->getProductionCost() : 500)); // K-Mod
++		iValue /= m_pUnitInfo->getProductionCost() > 0 ? m_pUnitInfo->getProductionCost() : 180; // K-Mod
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/
+@@ -1250,7 +1253,8 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		// K-Mod end
+ 	}
+ 
+-    return iValue;
++	//return iValue;
++	return std::min((long)MAX_INT, iValue); // K-Mod
+ }
+ 
+ // Protected Functions...
+@@ -3238,6 +3242,11 @@ void CvUnitAI::AI_attackCityMove()
+ 		// choke the city.
+ 		if (iStepDistToTarget <= 2 && AI_choke(1, false, iMoveFlags))
+ 			return;
++
++		// if we're already standing right next to the city, then goToTargetCity can fail
++		// - and we might end up doing something stupid instead. So try again to choke.
++		if (iStepDistToTarget <= 1 && AI_choke(3, false, iMoveFlags))
++			return;
+ 	}
+ 
+ 	// one more thing. Sometimes a single step can cause the AI to change its target city;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=7139

@@ -1,0 +1,82 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4069
+# Commit: b91d37a1b6cdf85061bd962c6157cf9735afea93
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ef28a6ee48528175a4124b56a6a5e4a23cee00a9
+# Title: Refactor potential-irrigation checks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	11	CvGameCoreDLL/CvPlot.cpp
+1	1	CvGameCoreDLL/CvPlot.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 55bb59f0a..899c2a0b3 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -1491,28 +1491,28 @@ bool CvPlot::isAdjacentSaltWater() const
+ }
+ 
+ 
+-bool CvPlot::isPotentialIrrigation() const
++bool CvPlot::isPotentialIrrigation(/* advc: */ bool bIgnoreTeam) const
+ {
+-	// advc: 2nd condition was !isHills. Mods might allow cities on peaks.
+-	if ((isCity() && isFlatlands()) ||
+-		(isImproved() && GC.getInfo(getImprovementType()).isCarriesIrrigation()))
++	// advc.opt: Moved up
++	if (!isOwned() || (!GET_TEAM(getTeam()).isIrrigation() &&
++		!bIgnoreTeam)) // advc
+ 	{
+-		if (isOwned() && GET_TEAM(getTeam()).isIrrigation())
+-			return true;
++		return false;
+ 	}
+-
+-	return false;
++	// advc: 2nd condition was !isHills. Mods might allow cities on peaks.
++	return ((isCity() && isFlatlands()) ||
++			(isImproved() && GC.getInfo(getImprovementType()).isCarriesIrrigation()));
+ }
+ 
+-
++// advc (note): Only used by AI code
+ bool CvPlot::canHavePotentialIrrigation() const
+ {
+ 	//PROFILE_FUNC(); // advc (not called very frequently)
+ 	// <advc.opt>
+ 	if (isWater())
+ 		return false; // </advc.opt>
+-	// advc: 2nd condition was !isHills. Mods might allow cities on peaks.
+-	if (isCity() && isFlatlands())
++	// advc: Rather than repeat the flat city special rule here
++	if (isPotentialIrrigation(true))
+ 		return true;
+ 	FOR_EACH_ENUM(Improvement)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 491e906c3..036a50a3a 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -84,7 +84,7 @@ public:
+ 	bool isFreshWater() const;																		// Exposed to Python
+ 	bool isAdjacentFreshWater() const; // advc.108
+ 	bool isAdjacentSaltWater() const; // advc.041
+-	bool isPotentialIrrigation() const;																// Exposed to Python
++	bool isPotentialIrrigation(/* advc: */ bool bIgnoreTeam = false) const;							// Exposed to Python
+ 	bool canHavePotentialIrrigation() const;														// Exposed to Python
+ 	DllExport bool isIrrigationAvailable(bool bIgnoreSelf = false) const;							// Exposed to Python
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2121

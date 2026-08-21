@@ -1,0 +1,63 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3944
+# Commit: e61bc8a1feac346656945f304f71662b0bdfd5f6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 348403fd298cd19e6ebec332009dacb8f8ecbdec
+# Title: Fix overflow in AI bombard-city decision
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 0dfab03ea..72027c9e2 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -3048,8 +3048,12 @@ void CvUnitAI::AI_attackCityMove()
+ 	// K-Mod note.: I've rearranged some parts of the code below, sometimes without comment.
+ 	if (pTargetCity != NULL)
+ 	{
+-		int iComparePostBombard = AI_getGroup()->
+-				AI_compareStacks(pTargetCity->plot(), true);
++		int iComparePostBombard =
++				/*	advc.159: Avoid overflow when applying the modifier below.
++					Will only get compared with attack ratio percentages, which
++					should be 3-digit numbers. So 10k is a huge ceiling. */
++				std::min(10000,
++				AI_getGroup()->AI_compareStacks(pTargetCity->plot(), true));
+ 		int iBombardTurns = AI_getGroup()->AI_getBombardTurns(pTargetCity);
+ 		// K-Mod note: AI_compareStacks will try to use the AI memory if it can't see.
+ 		{
+@@ -3062,13 +3066,13 @@ void CvUnitAI::AI_attackCityMove()
+ 			int iReducedModifier = iDefenseModifier;
+ 			iReducedModifier *= std::min(20, iBombardTurns);
+ 			iReducedModifier /= 20;
+-			int iBase = 210 + (pTargetCity->getPlot().isHills() ?
+-					GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE) : 0);
+-			// advc: Make sure we don't overflow
+-			scaled rMult(iBase, std::max(1,
++			int iBase = 210;
++			if (pTargetCity->getPlot().isHills())
++				iBase += GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE);
++			iComparePostBombard *= iBase;
++			iComparePostBombard /= std::max(1,
+ 					// def. mod. < 200. I promise.
+-					iBase + iReducedModifier - iDefenseModifier));
+-			iComparePostBombard = (rMult * iComparePostBombard).round();
++					iBase + iReducedModifier - iDefenseModifier);
+ 			/*	iBase > 100 is to offset the over-reduction from compounding.
+ 				With iBase == 200, bombarding a defence bonus of 100% will
+ 				reduce effective defence by 50% */
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1871

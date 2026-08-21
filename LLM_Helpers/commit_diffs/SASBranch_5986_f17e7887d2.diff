@@ -1,0 +1,191 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5986
+# Commit: f17e7887d2d7d3ccd42cf97acae773fb2d2294b5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 8b72c7b6063c51953df909e410b76590eff854e8
+# Title: Align AI culture production role with victory candidates - Add BBAI diagnostics for AI culture-city production and Artist allocation
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+58	2	CvGameCoreDLL/CvCityAI.cpp
+17	9	CvGameCoreDLL/CvPlayerAI.cpp
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 2be3bf5ae..ce2cac41b 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -335,6 +335,53 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
+ 	if (!isHuman() || isCitizensAutomated())
+ 		AI_juggleCitizens(/* advc.131d: */ bEmphasize);
+ 
++	// <!-- custom: Map 437 showed Neapolis freely assigning 9-13 Artists despite no Culture 2 pursuit, negligible local culture pressure, culture weight 8-13, and military production; ChatGPT-5.5 review also identified high-investment candidates with zero Artists. At culture log level 3, compare specialist availability/value whenever Artists remain after final juggling or a city has positive balanced culture investment; emit direct Artist swaps only when an Artist is actually assigned. (GPT-5.5 + ChatGPT-5.5 review) -->
++	if (gCultureLogLevel >= 3 && !isHuman())
++	{
++		static SpecialistTypes const eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
++		int const iArtistCount = getSpecialistCount(eArtist);
++		if (iArtistCount > 0 || AI_getCultureVictoryInvestmentPercent() > 0)
++		{
++			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++			int const iGrowthValue = AI_growthValuePerFood();
++			int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
++			int iForcedSpecialistCount = 0;
++			FOR_EACH_ENUM2(Specialist, eForcedSpecialist)
++				iForcedSpecialistCount += getForceSpecialistCount(eForcedSpecialist);
++			int iBestUnworkedPlotValue = MIN_INT;
++			CvPlot const* pBestUnworkedPlot = NULL;
++			for (CityPlotIter it(*this, false); it.hasNext(); ++it)
++			{
++				CvPlot const& kPlot = *it;
++				if (!isWorkingPlot(it.currID()) && canWork(kPlot))
++				{
++					int const iPlotValue = AI_plotValue(kPlot, false, false, iFoodSurplus >= 0, iGrowthValue);
++					if (iPlotValue > iBestUnworkedPlotValue)
++					{
++						iBestUnworkedPlotValue = iPlotValue;
++						pBestUnworkedPlot = &kPlot;
++					}
++				}
++			}
++			int const iArtistToBestPlotValue = (iArtistCount <= 0 || pBestUnworkedPlot == NULL ? MIN_INT : AI_jobChangeValue(std::make_pair(false, (int)getCityPlotIndex(*pBestUnworkedPlot)), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
++			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d focusWar=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
++					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), kOwner.AI_isFocusWar(), iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), getProductionName(), (pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
++			FOR_EACH_ENUM(Specialist)
++			{
++				int const iAssignedCount = getSpecialistCount(eLoopSpecialist);
++				bool const bCanAdd = isSpecialistValid(eLoopSpecialist, 1);
++				if (iAssignedCount <= 0 && !bCanAdd && eLoopSpecialist != eArtist)
++					continue;
++				CvSpecialistInfo const& kSpecialist = GC.getInfo(eLoopSpecialist);
++				UnitClassTypes const eGreatPersonClass = (UnitClassTypes)kSpecialist.getGreatPeopleUnitClass();
++				int const iGreatPersonWeight = (eGreatPersonClass == NO_UNITCLASS ? -1 : kOwner.AI_getGreatPersonWeight(eGreatPersonClass));
++				int const iArtistSwitchValue = (iArtistCount <= 0 ? MIN_INT : AI_jobChangeValue(std::make_pair(true, (int)eLoopSpecialist), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
++				logBBAI("CULTURE_ARTIST_ALTERNATIVE turn=%d player=%d cityId=%d specialist=%s assigned=%d forced=%d max=%d unlimited=%d canAdd=%d value=%d artistSwitchValue=%d food=%d production=%d commerceYield=%d research=%d gold=%d culture=%d espionage=%d greatPeopleRate=%d greatPersonWeight=%d",
++						GC.getGame().getGameTurn(), getOwner(), getID(), kSpecialist.getType(), iAssignedCount, getForceSpecialistCount(eLoopSpecialist), getMaxSpecialistCount(eLoopSpecialist), kOwner.isSpecialistValid(eLoopSpecialist), bCanAdd, AI_specialistValue(eLoopSpecialist, false, false, iGrowthValue), (iArtistSwitchValue == MIN_INT ? -1 : iArtistSwitchValue), kOwner.specialistYield(eLoopSpecialist, YIELD_FOOD), kOwner.specialistYield(eLoopSpecialist, YIELD_PRODUCTION), kOwner.specialistYield(eLoopSpecialist, YIELD_COMMERCE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_RESEARCH), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_GOLD), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE), kOwner.specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE), kSpecialist.getGreatPeopleRateChange(), iGreatPersonWeight);
++			}
++		}
++	}
++
+ 	// at this point, we should not be over the limit
+ 	FAssert((getWorkingPopulation() + getSpecialistPopulation()) <= (totalFreeSpecialists() + getPopulation()));
+ 	FAssert(extraPopulation() == 0); // K-Mod.
+@@ -759,6 +806,8 @@ void CvCityAI::AI_chooseProduction()
+ 	bool bCultureCity = false; //be very careful about setting this.
+ 	int const iCultureRateRank = findCommerceRateRank(COMMERCE_CULTURE);
+ 	int const iCulturalVictoryNumCultureCities = kGame.culturalVictoryNumCultureCities();
++	int const iCultureVictoryRank = AI_getCultureVictoryRank();
++	int const iCultureVictoryInvestmentPercent = AI_getCultureVictoryInvestmentPercent();
+ 
+ 	int const iWarSuccessRating = kTeam.AI_getWarSuccessRating();
+ 	int iEnemyPowerPerc = kTeam.AI_getEnemyPowerPercent(true);
+@@ -850,13 +899,16 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 	int iSettlerPriority = 0; // advc.031b
+ 
++	// <!-- custom: Map-437 diagnostics found inherited raw top-N+1 culture-rank protection applied to 14 of 21 logged cities with zero balanced culture investment and to 6 cities outside the stored top 3; Ravenna was protected at rank 4 without an assault override. Protect only required Legendary candidates with positive bottleneck-balanced investment, so backup, already-far-ahead, and non-candidate cities remain available for ordinary production. Keep logging the resulting role below for verification. (GPT-5.5 + ChatGPT-5.5 review) -->
+ 	if (iNumCitiesInArea > 2 &&
+ 		kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2) &&
+-		iCultureRateRank <= iCulturalVictoryNumCultureCities + 1)
++		iCultureVictoryRank > 0 &&
++		iCultureVictoryRank <= iCulturalVictoryNumCultureCities &&
++		iCultureVictoryInvestmentPercent > 0)
+ 	{
+ 		/*	if we do not have enough cities, then the highest culture city
+ 			will not get special attention. */
+-		if (iCultureRateRank > 1 ||
++		if (iCultureVictoryRank > 1 ||
+ 			iNumCities > iCulturalVictoryNumCultureCities + 1)
+ 		{
+ 			if (iNumAreaCitySites + iNumWaterAreaCitySites > 0 &&
+@@ -867,6 +919,10 @@ void CvCityAI::AI_chooseProduction()
+ 			else bCultureCity = true;
+ 		}
+ 	}
++	if (gCultureLogLevel >= 2 && kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2))
++	{
++		logBBAI("CULTURE_PRODUCTION_ROLE turn=%d player=%d %S city=%S cityId=%d cultureRateRank=%d storedVictoryRank=%d neededRank=%d cultureInvestmentPercent=%d cultureCity=%d cities=%d citiesInArea=%d areaCitySites=%d waterAreaCitySites=%d landWar=%d assault=%d defenseWar=%d danger=%d", kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationShortDescription(), getName().GetCString(), getID(), iCultureRateRank, iCultureVictoryRank, iCulturalVictoryNumCultureCities, iCultureVictoryInvestmentPercent, bCultureCity, iNumCities, iNumCitiesInArea, iNumAreaCitySites, iNumWaterAreaCitySites, bLandWar, bAssault, bDefenseWar, bDanger);
++	}
+ 
+ 	// Free experience for various unit domains
+ 	/*int const iFreeLandExperience = getSpecialistFreeExperience() +
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 696970a20..a24e03ab5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2920,14 +2920,29 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 			// <!-- custom: Separate production conversion and assigned-specialist culture from fixed city culture. Free specialists remain excluded because the AI cannot reassign them; match CvCity's disorder, modifier, rounding, and No Espionage handling so these are exact times-100 contributions. (GPT-5.5) -->
+ 			int iProcessCultureTimes100 = 0;
+ 			int const iAssignedSpecialistCount = pCity->getSpecialistPopulation();
++			int iForcedSpecialistCount = 0;
++			int iAssignedSpecialistBaseFood = 0;
++			int iAssignedSpecialistBaseProduction = 0;
++			int iAssignedSpecialistBaseCommerceYield = 0;
++			int iAssignedSpecialistBaseResearch = 0;
++			int iAssignedSpecialistBaseGold = 0;
+ 			int iAssignedSpecialistBaseCulture = 0;
+ 			int iAssignedSpecialistBaseEspionage = 0;
+ 			FOR_EACH_ENUM(Specialist)
+ 			{
+ 				int const iSpecialistCount = pCity->getSpecialistCount(eLoopSpecialist);
++				iForcedSpecialistCount += pCity->getForceSpecialistCount(eLoopSpecialist);
++				iAssignedSpecialistBaseFood += iSpecialistCount * specialistYield(eLoopSpecialist, YIELD_FOOD);
++				iAssignedSpecialistBaseProduction += iSpecialistCount * specialistYield(eLoopSpecialist, YIELD_PRODUCTION);
++				iAssignedSpecialistBaseCommerceYield += iSpecialistCount * specialistYield(eLoopSpecialist, YIELD_COMMERCE);
++				iAssignedSpecialistBaseResearch += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_RESEARCH);
++				iAssignedSpecialistBaseGold += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_GOLD);
+ 				iAssignedSpecialistBaseCulture += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_CULTURE);
+ 				iAssignedSpecialistBaseEspionage += iSpecialistCount * specialistCommerce(eLoopSpecialist, COMMERCE_ESPIONAGE);
+ 			}
++			static SpecialistTypes const eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
++			int const iAssignedArtistCount = pCity->getSpecialistCount(eArtist);
++			int const iForcedArtistCount = pCity->getForceSpecialistCount(eArtist);
+ 			int iAssignedSpecialistCultureTimes100 = 0;
+ 			if (!pCity->isDisorder())
+ 			{
+@@ -2949,15 +2964,8 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 			}
+ 			bool const bCultureProcess = (iProcessCultureTimes100 > 0);
+ 			int const iProductionTurns = (eProductionUnit != NO_UNIT || eProductionBuilding != NO_BUILDING || eProductionProject != NO_PROJECT ? pCity->getProductionTurnsLeft() : -1);
+-			logBBAI("CULTURE_CITY_WEIGHT turn=%d player=%d %S city=%S cityId=%d rank=%d neededRank=%d victoryCandidate=%d victoryCountdownPercent=%d victoryBalancePercent=%d culture=%d/%d cultureRate=%d estimatedRate=%d currentCountdown=%d projectedCountdown=%d legendary=%d baseWeight=%d pressureFactor=%d pressureWeight=%d warPlans=%d finalWeight=%d useRank=%d C3Mode=%d production=%d productionRank=%d orderType=%s order=%S orderTurns=%d spaceship=%d cultureBuilding=%d cultureProcess=%d processCultureTimes100=%d assignedSpecialistCount=%d assignedSpecialistCultureTimes100=%d",
+-				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), pCity->getName().GetCString(), pCity->getID(),
+-				iCultureRateRank, iVictoryCities, (bAICultureVictory && iCultureRateRank <= iVictoryCities),
+-				iCultureVictoryCountdownPercent, iCultureVictoryBalancePercent,
+-				iCityCulture, iLegendaryCulture, iCityCultureRate, iEstimatedCultureRate,
+-				iCurrentCountdown, iCountdown, (iCityCulture >= iLegendaryCulture), iBaseCultureWeight, iPressureFactor, iPressureWeight, bWarPlans,
+-				iWeight, bUseCultureRank, bC3, pCity->getYieldRate(YIELD_PRODUCTION), pCity->findYieldRateRank(YIELD_PRODUCTION),
+-				szProductionType, pCity->getProductionName(), iProductionTurns, bSpaceshipProject, bCultureBuilding, bCultureProcess,
+-				iProcessCultureTimes100, iAssignedSpecialistCount, iAssignedSpecialistCultureTimes100);
++			logBBAI("CULTURE_CITY_WEIGHT turn=%d player=%d %S city=%S cityId=%d rank=%d neededRank=%d victoryCandidate=%d victoryCountdownPercent=%d victoryBalancePercent=%d culture=%d/%d cultureRate=%d estimatedRate=%d currentCountdown=%d projectedCountdown=%d legendary=%d baseWeight=%d pressureFactor=%d pressureWeight=%d warPlans=%d finalWeight=%d useRank=%d C3Mode=%d production=%d productionRank=%d orderType=%s order=%S orderTurns=%d spaceship=%d cultureBuilding=%d cultureProcess=%d processCultureTimes100=%d assignedSpecialistCount=%d forcedSpecialistCount=%d assignedArtistCount=%d forcedArtistCount=%d assignedSpecialistBaseFood=%d assignedSpecialistBaseProduction=%d assignedSpecialistBaseCommerceYield=%d assignedSpecialistBaseResearch=%d assignedSpecialistBaseGold=%d assignedSpecialistBaseCulture=%d assignedSpecialistBaseEspionage=%d assignedSpecialistCultureTimes100=%d",
++				kGame.getGameTurn(), getID(), getCivilizationShortDescription(), pCity->getName().GetCString(), pCity->getID(), iCultureRateRank, iVictoryCities, (bAICultureVictory && iCultureRateRank <= iVictoryCities), iCultureVictoryCountdownPercent, iCultureVictoryBalancePercent, iCityCulture, iLegendaryCulture, iCityCultureRate, iEstimatedCultureRate, iCurrentCountdown, iCountdown, (iCityCulture >= iLegendaryCulture), iBaseCultureWeight, iPressureFactor, iPressureWeight, bWarPlans, iWeight, bUseCultureRank, bC3, pCity->getYieldRate(YIELD_PRODUCTION), pCity->findYieldRateRank(YIELD_PRODUCTION), szProductionType, pCity->getProductionName(), iProductionTurns, bSpaceshipProject, bCultureBuilding, bCultureProcess, iProcessCultureTimes100, iAssignedSpecialistCount, iForcedSpecialistCount, iAssignedArtistCount, iForcedArtistCount, iAssignedSpecialistBaseFood, iAssignedSpecialistBaseProduction, iAssignedSpecialistBaseCommerceYield, iAssignedSpecialistBaseResearch, iAssignedSpecialistBaseGold, iAssignedSpecialistBaseCulture, iAssignedSpecialistBaseEspionage, iAssignedSpecialistCultureTimes100);
+ 		}
+ 		pCity->AI_setCultureVictoryInvestmentPercent(bAICultureVictory && iCultureRateRank <= iVictoryCities ? std::max(0, iCultureVictoryBalancePercent) : 0);
+ 		pCity->AI_setCultureWeight(iWeight);
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 3c58a49f7..a3500a687 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -179,6 +179,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - (Requires AdvCiv-SAS 5983+) **Cultural pursuit gated by strong current or planned war enemies:** no point investing heavily in a future cultural victory if the AI may lose the war first. The AI no longer pursues serious culture-victory if its current or planned war enemies reach the shared `bEnemyStrong` power threshold (>=120% enemy power ratio by default) (the local `bDanger` is intentionally absent, because one threatened city should not veto an empire-wide victory strategy), reducing culture-victory pressure on production, specialists, and commerce while preserving ordinary local-border culture. This is not an absolute ban but relative to military high enemy power and cultural advancement: Culture 2 can still remain available against weaker current or planned war opponents, culture can resume after peace if relevant, and a close late cultural win is not abandoned if all target cities already have credible high-culture countdowns. In BBAI tests, a midgame map test showed the rule firing 25 times for Spain at 124% to 288% enemy power, blocking Culture 2+ pursuit despite otherwise meeting the new culture-victory foundation gates; Culture 2 remained available during a weaker war at 67% enemy power and resumed for four consecutive turns after peace.
+ - (Requires AdvCiv-SAS 5984+) **AI prioritizes a more advanced victory plan over an unprepared cultural bid:** when an AI has advanced far enough (a tunable AI Victory Stage as of now >= 3 (out of max 4) by default) toward another victory (Space, Conquest, Domination, or Diplomatic), it no longer diverts production, specialists, and commerce into serious cultural-victory spending unless all 3 required Legendary-city candidates are already advanced enough to keep culture credible. Ordinary local-border culture remains unaffected, and an AI already close to winning culturally can still finish the job. In a confirming map-437 BBAI test, this stopped Rome's serious cultural spending 17 times after it reached Domination 3, when only 1 of its 3 required culture cities was advanced and a cultural win remained 499 to 737 turns away. Rome could still experiment with culture before Domination 3, while Spain remained free to pursue culture because it had no similarly advanced alternative victory.
+ - (Requires AdvCiv-SAS 5985+) **AI abandons clearly impossible cultural deadlines sooner:** once all 3 required cities have progressed far enough to produce a complete estimate at the maximum affordable culture slider, the AI now immediately compares its slowest city with the estimated turns remaining instead of waiting for the late game. AI drops from serious Culture 2+ investment to Culture 1 when the estimate exceeds the tunable grace (as of now 125% of the remaining turns): it stops victory-specific cultural spending for now, preserves ordinary local-border culture, and can reconsider later if conditions improve. Before all 3 prospective Legendary cities are developed enough for a reliable estimate, Culture 2 remains available to help the least-developed of them catch up. Unlike the previous change, this does not require another victory plan to be more advanced; an impossible cultural timeline is enough. Another map-437 test's BBAI logging confirmed Spain entered Culture 2 while its third prospective Legendary city was still too undeveloped for a reliable three-city finish estimate; on one such turn, it raised the culture slider to 30% and gave that lagging city the strongest culture priority. Once all 3 cities could be estimated, even the maximum affordable culture slider projected that Spain needed 398 to 401 turns to win culturally, but only 170 to 171 turns remained, so the AI stopped serious cultural spending.
++- (Requires AdvCiv-SAS 5986+) **Cultural-victory production focus follows the actual Legendary-city targets:** during Culture 2, Base AdvCiv exempted the 4 cities with the highest current culture rates from some routine military production choices, intending to leave more of their production available for cultural development. This could exempt cities that needed no additional cultural help while an actual lagging Legendary-city target continued performing routine production duties. The AI now aligns the culture-production role with victory candidates: it grants this exemption only to the 3 required candidates that still have positive bottleneck-balanced culture investment; other cities remain available for ordinary production. In other map-437 runs, BBAI logging showed the old rule granted 21 logged production exemptions: 14 involved cities that the balancing logic judged needed no further victory-specific culture, and 6 involved cities outside the selected top 3. After the change, all 4 observed exemptions went to active candidates, and every candidate that qualified received the exemption.
+ 
+ #### Bonuses (AI)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=3 omittedFiles=1 embeddedPatchBytes=20436

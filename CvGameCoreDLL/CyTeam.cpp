@@ -9,8 +9,7 @@
 
 CyTeam::CyTeam() : m_pTeam(NULL) {}
 
-CyTeam::CyTeam(CvTeam* pTeam) : m_pTeam(
-	pTeam == NULL ? NULL : &pTeam->AI()) // advc.003u
+CyTeam::CyTeam(CvTeam* pTeam) : m_pTeam(pTeam == NULL ? NULL : &pTeam->AI()) // advc.003u
 {}
 
 //CvTeam* CyTeam::getTeam() { return m_pTeam; } // advc: unused
@@ -1026,8 +1025,7 @@ int CyTeam::AI_getWarSuccess(int /*TeamTypes*/ eIndex) const
 }
 
 // advc.152:
-int /*DenialTypes*/ CyTeam::AI_declareWarTrade(int /*TeamTypes*/ eWarTeam,
-		int /*TeamTypes*/ eTeam) const {
+int /*DenialTypes*/ CyTeam::AI_declareWarTrade(int /*TeamTypes*/ eWarTeam, int /*TeamTypes*/ eTeam) const {
 
 	// Can't add AI_declareWarTrade to CvTeam
 	return m_pTeam ? GET_TEAM(m_pTeam->getID()).AI_declareWarTrade(

@@ -1,0 +1,154 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2553
+# Commit: 3d5c32aa6dc02c7fd6921b103535346b403bf86c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7e4ceebf6ecbb7349f8eed060c4afe385eada8bb
+# Title: Change display string for peace treaty offered at peacetime
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	0	Assets/XML/Text/CIV4GameText_advc.xml
+15	10	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayer.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index 10869f86a..061fdfd43 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5428,6 +5428,16 @@
+ 		<Spanish>Tratado de paz</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.104m: -->
++	<TEXT>
++		<Tag>TXT_KEY_TRADE_SIGN_PEACE_TREATY</Tag>
++		<English>Sign Peace Treaty (%d1_Num [NUM1:Turn:Turns])</English>
++		<French>Trait&#233; de paix (%d1_Num [NUM1:tour:tours])</French>
++		<German>Friedensvertrag (%d1_Num [NUM1:Runde:Runden])</German>
++		<Italian>Trattato di pace (%d1_Num [NUM1:turno:turni])</Italian>
++		<Spanish>Tratado de paz (%d1_Num [NUM1:turno:turnos])</Spanish>
++	</TEXT>
++
+ 	<!-- advc.036 -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISC_WILL_PAY</Tag>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 505870632..df9fd5c84 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -18597,7 +18597,7 @@ bool CvPlayer::getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eI
+ }
+ 
+ 
+-bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
++bool CvPlayer::getItemTradeString(PlayerTypes eRecipient, bool bOffer,
+ 	bool bShowingCurrent, const TradeData& zTradeData,
+ 	CvWString& szString, CvString& szIcon) const
+ {
+@@ -18612,7 +18612,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 			TradeableItems eItemType = zTradeData.m_eItemType;
+ 			if (CvDeal::isAnnual(eItemType) || eItemType == TRADE_PEACE_TREATY)
+ 			{
+-				pDeal = GC.getGame().nextCurrentDeal(eOtherPlayer, getID(),
++				pDeal = GC.getGame().nextCurrentDeal(eRecipient, getID(),
+ 						eItemType, zTradeData.m_iData);
+ 				/*  Call nextCurrentDeal for all annual deals plus peace treaties
+ 					in order to stay in-sync with the iteration done by the EXE,
+@@ -18636,7 +18636,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 		else
+ 		{
+ 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_NUM",
+-					AI().AI_maxGoldTrade(eOtherPlayer));
++					AI().AI_maxGoldTrade(eRecipient));
+ 		}
+ 		break;
+ 	case TRADE_GOLD_PER_TURN:
+@@ -18648,7 +18648,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 		else
+ 		{
+ 			szString = gDLL->getText("TXT_KEY_TRADE_GOLD_PER_TURN_NUM",
+-					AI().AI_maxGoldPerTurnTrade(eOtherPlayer));
++					AI().AI_maxGoldPerTurnTrade(eRecipient));
+ 		}
+ 		break;
+ 	case TRADE_MAPS:
+@@ -18670,11 +18670,16 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 		szString = gDLL->getText("TXT_KEY_TRADE_PERMANENT_ALLIANCE_STRING");
+ 		break;
+ 	case TRADE_PEACE_TREATY:
+-		if(GET_TEAM(eOtherPlayer).isAtWar(getTeam())) // advc.072
++		if(GET_TEAM(eRecipient).isAtWar(getTeam())) // advc.072
+ 		{
+ 			szString = gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY_STRING",
+ 					GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH));
+-		}
++		}  // <advc.104m> AI offering a peace treaty at peacetime
++		else if (bOffer)
++		{
++			szString = gDLL->getText("TXT_KEY_TRADE_SIGN_PEACE_TREATY",
++					GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH));
++		} // </advc.104m>
+ 		else szString = gDLL->getText("TXT_KEY_TRADE_PEACE_TREATY_STR"); // advc.072
+ 		break;
+ 	case TRADE_TECHNOLOGIES:
+@@ -18686,7 +18691,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 		BonusTypes const eBonus = (BonusTypes)zTradeData.m_iData; // advc
+ 		if (bOffer)
+ 		{
+-			int iResources = GET_PLAYER(eOtherPlayer).getNumTradeableBonuses(eBonus);
++			int iResources = GET_PLAYER(eRecipient).getNumTradeableBonuses(eBonus);
+ 			if (bShowingCurrent)
+ 				iResources++;
+ 			szString = gDLL->getText("TXT_KEY_TRADE_RESOURCE",
+@@ -18705,12 +18710,12 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 	{
+ 		CvCity const* pCity = NULL;
+ 		if (bOffer)
+-			pCity = GET_PLAYER(eOtherPlayer).getCity(zTradeData.m_iData);
++			pCity = GET_PLAYER(eRecipient).getCity(zTradeData.m_iData);
+ 		else pCity = getCity(zTradeData.m_iData);
+ 		if (pCity != NULL)
+ 		{
+ 			if (pCity->getLiberationPlayer() == //eOtherPlayer)
+-				(bOffer ? getID() : eOtherPlayer)) // advc.001 (bugfix?), advc.ctr
++				(bOffer ? getID() : eRecipient)) // advc.001 (bugfix?), advc.ctr
+ 			{
+ 				szString.Format(L"%s (%s)", pCity->getName().GetCString(),
+ 						gDLL->getText("TXT_KEY_LIBERATE_CITY").GetCString());
+@@ -18763,7 +18768,7 @@ bool CvPlayer::getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer,
+ 		break; // <advc.034>
+ 	case TRADE_DISENGAGE:
+ 		szString.clear();
+-		GAMETEXT.buildDisengageString(szString, getID(), eOtherPlayer);
++		GAMETEXT.buildDisengageString(szString, getID(), eRecipient);
+ 		break; // </advc.034>
+ 	default:
+ 		szString.clear();
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 6a885dbc0..c1f6e6e2d 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1380,7 +1380,7 @@ public:
+ 	DllExport void buildTradeTable(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourList) const;
+ 	DllExport bool getHeadingTradeString(PlayerTypes eOtherPlayer, TradeableItems eItem,
+ 			CvWString& szString, CvString& szIcon) const;
+-	DllExport bool getItemTradeString(PlayerTypes eOtherPlayer, bool bOffer, bool bShowingCurrent,
++	DllExport bool getItemTradeString(PlayerTypes eRecipient, bool bOffer, bool bShowingCurrent,
+ 			TradeData const& zTradeData, CvWString& szString, CvString& szIcon) const;
+ 	DllExport void updateTradeList(PlayerTypes eOtherPlayer, CLinkList<TradeData>& ourInventory,
+ 			CLinkList<TradeData> const& ourOffer, CLinkList<TradeData> const& theirOffer) const;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5594

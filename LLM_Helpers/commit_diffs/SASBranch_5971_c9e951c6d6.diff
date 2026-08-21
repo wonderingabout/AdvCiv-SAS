@@ -1,0 +1,2290 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5971
+# Commit: c9e951c6d6960c3f839485a262049c6ba5f6b384
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5628eecbef59005325454373c9490773c850a5e8
+# Title: Align world-size DLL/Python enums with XML and remove SAS world-size magic numbers
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.github/workflows/README.md
+58	53	.github/workflows/build/worldsizes.py
+2	2	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+16	16	Assets/Python/CvMapGeneratorUtil.py
+0	14	Assets/Python/SASMagicNumbers.py
+43	29	Assets/Python/SAS_WorldSizeUtils.py
+7	12	CvGameCoreDLL/CvEnums.h
+53	48	CvGameCoreDLL/CvReplayInfo.cpp
+7	0	CvGameCoreDLL/CyEnumsInterface.cpp
+7	7	PrivateMaps/Arboria.py
+31	31	PrivateMaps/BTG_Cross.py
+64	64	PrivateMaps/BTG_Grid.py
+8	8	PrivateMaps/BTG_Lagoon.py
+7	7	PrivateMaps/Big_and_Small.py
+7	7	PrivateMaps/Boreal.py
+7	7	PrivateMaps/Custom_Continents.py
+7	7	PrivateMaps/Donut.py
+8	8	PrivateMaps/Earth2.py
+1	0	PrivateMaps/Fantasy_Realm.py
+8	8	PrivateMaps/Global_Highlands.py
+24	24	PrivateMaps/Great_Plains.py
+12	12	PrivateMaps/Highlands.py
+20	20	PrivateMaps/Hub.py
+8	8	PrivateMaps/Ice_Age.py
+20	20	PrivateMaps/Inland_Sea.py
+16	16	PrivateMaps/Maze.py
+7	7	PrivateMaps/Medium_and_Small.py
+7	7	PrivateMaps/Mirror.py
+21	21	PrivateMaps/Oasis.py
+8	8	PrivateMaps/Pangaea.py
+8	8	PrivateMaps/PerfectMongoose.py
+30	30	PrivateMaps/RandomScriptMap.py
+20	20	PrivateMaps/Ring.py
+12	12	PrivateMaps/SAS_Large_Facing_Islands.py
+16	14	PrivateMaps/SAS_Longworld.py
+11	12	PrivateMaps/SAS_Spiky_Avenues.py
+28	28	PrivateMaps/Team_Battleground.py
+14	14	PrivateMaps/Tilted_Axis.py
+8	9	PrivateMaps/Water.py
+14	14	PrivateMaps/Wheel.py
+12	12	PrivateMaps/aDebugMap.py
+2	1	README.md
+28	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+3	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/.github/workflows/README.md b/.github/workflows/README.md
+index 696a0093c..40d381191 100644
+--- a/.github/workflows/README.md
++++ b/.github/workflows/README.md
+@@ -165,7 +165,7 @@ Verifies the Sevopedia Leader AI Personality Panel is enabled, uses the predumpe
+ 
+ ### `build/worldsizes.py`
+ 
+-Verifies `SAS_MAGIC_WORLDSIZE_*` constants in `Assets/Python/SASMagicNumbers.py` match the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order.
++Verifies hardcoded C++/Python `WorldSizeTypes` enum exposure matches the `Assets/XML/GameInfo/CIV4WorldInfo.xml` order, and that old `SAS_MAGIC_WORLDSIZE_*` Python runtime references have not returned.
+ 
+ ### `build/mapscripts.py`
+
+diff --git a/.github/workflows/build/worldsizes.py b/.github/workflows/build/worldsizes.py
+index 27b2ecef0..c87a3a72d 100644
+--- a/.github/workflows/build/worldsizes.py
++++ b/.github/workflows/build/worldsizes.py
+@@ -3,20 +3,20 @@
+ # Created as part of AdvCiv-SAS improvements
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+-# Build check: SAS_MAGIC_WORLDSIZE_* constants must match CIV4WorldInfo.xml order.
++# Build check: hardcoded WorldSizeTypes enum values must match CIV4WorldInfo.xml order.
+ 
+ from pathlib import Path
+ import argparse
+-import ast
+ import re
+ import sys
+ import xml.etree.ElementTree as ET
+ 
+ 
+-MAGIC_NUMBERS_RELATIVE_PATH = Path("Assets/Python/SASMagicNumbers.py")
+ WORLD_INFO_RELATIVE_PATH = Path("Assets/XML/GameInfo/CIV4WorldInfo.xml")
+-WORLDSIZE_PREFIX = "SAS_MAGIC_WORLDSIZE_"
+-LARGEST_CONSTANT = "SAS_MAGIC_WORLDSIZE_LARGEST"
++CV_ENUMS_RELATIVE_PATH = Path("CvGameCoreDLL/CvEnums.h")
++CY_ENUMS_INTERFACE_RELATIVE_PATH = Path("CvGameCoreDLL/CyEnumsInterface.cpp")
++PYTHON_RUNTIME_PATHS = (Path("Assets/Python"), Path("PrivateMaps"))
++OLD_MAGIC_PREFIX = "SAS_MAGIC_WORLDSIZE_"
+ 
+ 
+ def get_default_repo_root() -> Path:
+@@ -55,45 +55,65 @@ def read_worldinfo_types(repo_root: Path) -> list[str]:
+ 	return world_types
+ 
+ 
+-def read_worldsize_magic_constants(repo_root: Path) -> tuple[dict[str, int], dict[str, str]]:
+-	path = repo_root / MAGIC_NUMBERS_RELATIVE_PATH
++def extract_worldsize_enum_block(repo_root: Path) -> str:
++	path = repo_root / CV_ENUMS_RELATIVE_PATH
+ 	if not path.exists():
+ 		raise RuntimeError(f"missing file: {path}")
+ 
+-	tree = ast.parse(path.read_text(encoding="utf-8"), filename=str(path))
+-	int_constants: dict[str, int] = {}
+-	alias_constants: dict[str, str] = {}
++	text = path.read_text(encoding="utf-8")
++	match = re.search(r"enum\s+WorldSizeTypes\s*\{(?P<body>.*?)\};", text, re.S)
++	if not match:
++		raise RuntimeError(f"{CV_ENUMS_RELATIVE_PATH}: missing enum WorldSizeTypes block")
++	return match.group("body")
+ 
+-	for node in tree.body:
+-		if not isinstance(node, ast.Assign) or len(node.targets) != 1 or not isinstance(node.targets[0], ast.Name):
+-			continue
+ 
+-		name = node.targets[0].id
+-		if not name.startswith(WORLDSIZE_PREFIX):
++def read_cpp_worldsize_enum_types(repo_root: Path) -> list[str]:
++	body = extract_worldsize_enum_block(repo_root)
++	enum_types: list[str] = []
++
++	for raw_line in body.splitlines():
++		line = raw_line.split("//", 1)[0].strip().rstrip(",")
++		if not line or line.startswith("NO_WORLDSIZE"):
+ 			continue
++		name = line.split("=", 1)[0].strip()
++		if name:
++			enum_types.append(name)
++
++	return enum_types
++
+ 
+-		if isinstance(node.value, ast.Constant) and isinstance(node.value.value, int):
+-			int_constants[name] = node.value.value
+-		elif isinstance(node.value, ast.Name):
+-			alias_constants[name] = node.value.id
+-		else:
+-			raise RuntimeError(f"{MAGIC_NUMBERS_RELATIVE_PATH}: unsupported world-size constant assignment for {name}")
++def read_python_exposed_worldsize_types(repo_root: Path) -> list[str]:
++	path = repo_root / CY_ENUMS_INTERFACE_RELATIVE_PATH
++	if not path.exists():
++		raise RuntimeError(f"missing file: {path}")
+ 
+-	return int_constants, alias_constants
++	text = path.read_text(encoding="utf-8")
++	match = re.search(r"python::enum_<WorldSizeTypes>\(\"WorldSizeTypes\"\)(?P<body>.*?);", text, re.S)
++	if not match:
++		raise RuntimeError(f"{CY_ENUMS_INTERFACE_RELATIVE_PATH}: missing python::enum_<WorldSizeTypes> block")
+ 
++	return [name for name in re.findall(r"\.value\(\"(WORLDSIZE_[A-Z0-9_]+)\"\s*,\s*\1\)", match.group("body"))]
+ 
+-def expected_magic_name(world_type: str) -> str:
+-	if not re.fullmatch(r"WORLDSIZE_[A-Z0-9_]+", world_type):
+-		return f"<invalid world type: {world_type}>"
+-	return "SAS_MAGIC_" + world_type
++
++def check_no_old_magic_worldsizes(repo_root: Path) -> list[str]:
++	failures: list[str] = []
++	for relative_path in PYTHON_RUNTIME_PATHS:
++		root = repo_root / relative_path
++		if not root.exists():
++			continue
++		for path in sorted(root.rglob("*.py")):
++			text = path.read_text(encoding="utf-8", errors="replace")
++			if OLD_MAGIC_PREFIX in text:
++				failures.append(f"{path.relative_to(repo_root)}: old {OLD_MAGIC_PREFIX} constant reference remains")
++	return failures
+ 
+ 
+ def check_worldsizes(repo_root: Path) -> list[str]:
+ 	failures: list[str] = []
+ 
+ 	world_types = read_worldinfo_types(repo_root)
+-	expected_by_name = {expected_magic_name(world_type): index for index, world_type in enumerate(world_types)}
+-	int_constants, alias_constants = read_worldsize_magic_constants(repo_root)
++	cpp_types = read_cpp_worldsize_enum_types(repo_root)
++	python_types = read_python_exposed_worldsize_types(repo_root)
+ 
+ 	if len(set(world_types)) != len(world_types):
+ 		seen: set[str] = set()
+@@ -104,49 +124,34 @@ def check_worldsizes(repo_root: Path) -> list[str]:
+ 			seen.add(world_type)
+ 		failures.append(f"{WORLD_INFO_RELATIVE_PATH}: duplicate world-size Type entries: {', '.join(duplicates)}")
+ 
+-	for name in sorted(expected_by_name):
+-		expected = expected_by_name[name]
+-		if name not in int_constants:
+-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: missing {name} = {expected}")
+-			continue
+-
+-		actual = int_constants[name]
+-		if actual != expected:
+-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: {name} expected {expected} from XML order, found {actual}")
+-
+-	extra_names = sorted(name for name in int_constants if name not in expected_by_name)
+-	for name in extra_names:
+-		failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: extra numeric world-size constant {name} = {int_constants[name]} not present in {WORLD_INFO_RELATIVE_PATH}")
+-
+ 	if not world_types:
+ 		failures.append(f"{WORLD_INFO_RELATIVE_PATH}: no WorldInfo entries found")
+-	else:
+-		expected_largest_target = expected_magic_name(world_types[-1])
+-		actual_largest_target = alias_constants.get(LARGEST_CONSTANT)
+-		if actual_largest_target != expected_largest_target:
+-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: {LARGEST_CONSTANT} should alias {expected_largest_target}, found {actual_largest_target or '<missing>'}")
+ 
+-	for name in sorted(alias_constants):
+-		if name != LARGEST_CONSTANT:
+-			failures.append(f"{MAGIC_NUMBERS_RELATIVE_PATH}: unexpected world-size alias {name} = {alias_constants[name]}")
++	if cpp_types != world_types:
++		failures.append(f"{CV_ENUMS_RELATIVE_PATH}: WorldSizeTypes order does not match {WORLD_INFO_RELATIVE_PATH}; expected {world_types}, found {cpp_types}")
++
++	if python_types != world_types:
++		failures.append(f"{CY_ENUMS_INTERFACE_RELATIVE_PATH}: exposed WorldSizeTypes order does not match {WORLD_INFO_RELATIVE_PATH}; expected {world_types}, found {python_types}")
++
++	failures.extend(check_no_old_magic_worldsizes(repo_root))
+ 
+ 	return failures
+ 
+ 
+ def main() -> int:
+-	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS world-size magic constants match CIV4WorldInfo.xml order.")
++	parser = argparse.ArgumentParser(description="Check that AdvCiv-SAS WorldSizeTypes enum values match CIV4WorldInfo.xml order.")
+ 	parser.add_argument("--repo-root", type=Path, default=get_default_repo_root(), help="repository root; defaults to the root containing .github/")
+ 	args = parser.parse_args()
+ 
+ 	failures = check_worldsizes(args.repo_root)
+ 
+ 	if failures:
+-		print("FAIL world-size magic constants")
++		print("FAIL world-size enum alignment")
+ 		for failure in failures:
+ 			print(f"  - {failure}")
+ 		return 1
+ 
+-	print("PASS world-size magic constants")
++	print("PASS world-size enum alignment")
+ 	return 0
+
+diff --git a/AGENTS.md b/AGENTS.md
+index e0ee0956b..15e2ebfc5 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -20,7 +20,7 @@ Locally our project is a git repo too, generally with a fresh commit for each ne
+ 
+ Important git-diff caution: moving/reordering plus modifying large similar-looking XML blocks (e.g. `<BuildingInfo>` blocks) can make `git diff` look like a large rewrite/modification of these was made, when in fact none or only one was changed. Example: moving `BUILDING_IRELAND_SCRIPTORIUM` in `CIV4BuildingInfos.xml` from around the Library area to under the last civ-specific University block makes it seem like generic university, university madrassa, university salon were modified, but they were not and are still the same as before. In this case, let the user handle a separate commit for the move/reorder first, then continue with gameplay/stat edits afterward (then user will ammend commit later after second-step modifications are reviewed).
+ 
+-Workflows: we added GitHub YAML (and corresponding py) workflow checks in [`.github/workflows`](/.github/workflows/). These reduce tedium for us as each pushed commit now tells us if some sanity checks PASS or fail. The checks are fairly straightforward as of now and notably include launch-guard sentinels, XML tag references in SAS define text values, integer SAS define bounds, opening-music setup, disabled BBAI logging, shared UI font defaults, AI Personality Panel predumped-cache defaults, world-size magic constants, and map-script classification coverage. On your end you generally don't need to update them unless our infrastructure changes, but for details if needed see: [the corresponding README](/.github/workflows/README.md).
++Workflows: we added GitHub YAML (and corresponding py) workflow checks in [`.github/workflows`](/.github/workflows/). These reduce tedium for us as each pushed commit now tells us if some sanity checks PASS or fail. The checks are fairly straightforward as of now and notably include launch-guard sentinels, XML tag references in SAS define text values, integer SAS define bounds, opening-music setup, disabled BBAI logging, shared UI font defaults, AI Personality Panel predumped-cache defaults, world-size enum/XML alignment, and map-script classification coverage. On your end you generally don't need to update them unless our infrastructure changes, but for details if needed see: [the corresponding README](/.github/workflows/README.md).
+ 
+ ## Information Fetching from other known helpful mods
+ 
+@@ -181,7 +181,7 @@ These are general guidelines, not irrevocable requirements; adjust based on task
+ - Use `from module import *` for helper modules to reduce import tedium and make future additions seamless.
+ - For map scripts, keep reusable helper modules outside `PrivateMaps` (e.g., in `Assets/Python/SAS_WorldSizeUtils.py`) when they define or might define names that Civ4 treats as map-script callbacks (`getGridSize`, `getNumPlotsPercent`, `getDescription`, etc.). The old playable `PrivateMaps/SAS_WorldSizes.py` helper leaked its compact `getGridSize` through `from SAS_WorldSizes import *`, making RandomScriptMap Huge generate empirically too small (`60 x 44`). Fix: moved helpers to `Assets/Python/SAS_WorldSizeUtils.py`; result: RandomScriptMap Huge returned to `120 x 84`. The playable sandbox wrapper is now `PrivateMaps/SAS_Simple_Flat_Grass.py`.
+ - Keep caller-owned or volatile Civ4 UI/game objects as parameters when needed (e.g. `screen`, `top`, selected city/player objects, or a precomputed `kGame`) rather than hiding them inside helpers. Stable shared Civ4 globals such as `gc`, `localText`, and `ArtFileMgr` may live at helper-module scope when that matches the file's established pattern. This avoids circular dependencies while keeping high-use helpers practical.
+-- Keep magic numbers/constants in [SASMagicNumbers.py](/Assets/Python/SASMagicNumbers.py) when they benefit from a named home, especially when they are imported across maps, advisors, Sevopedia, and utilities. This module should stay import-free: no `CvPythonExtensions`, no `gc`, no screen helpers, and no `SASUtils`, so it remains a safe leaf module and does not create circular-dependency or load-order risk. Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star. Useful examples: `SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798` is shared by Sevopedia and Tech Chooser instead of being defined twice; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision; `SAS_MAGIC_WORLDSIZE_HUGE = 6` avoids duplicated Huge-index fixes in map generator utilities and mapscripts after the AdvCiv-SAS Arena world-size insertion shifted runtime world-size indices.
++- Keep magic numbers/constants in [SASMagicNumbers.py](/Assets/Python/SASMagicNumbers.py) when they benefit from a named home, especially when they are imported across advisors, Sevopedia, and utilities. This module should stay import-free: no `CvPythonExtensions`, no `gc`, no screen helpers, and no `SASUtils`, so it remains a safe leaf module and does not create circular-dependency or load-order risk. Prefix exported names with `SAS_MAGIC_` to reduce accidental global-name collisions in files that use from-module import-star. Useful examples: `SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798` is shared by Sevopedia and Tech Chooser instead of being defined twice; `SAS_MAGIC_PEDIA_PYTHON_LEADER_ATTITUDE = 6805` was originally local to Sevopedia Leader but also checked by Sevopedia Main, so centralizing avoids widget-id drift/collision.
+ - When extracting shared code to helpers, group all patterns together if similar enough otherwise (e.g. all enum prefixes in one tuple) for simplicity, even if some prefixes are only used by one caller.
+ 
+ ## XML
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/CvMapGeneratorUtil.py b/Assets/Python/CvMapGeneratorUtil.py
+index 11240e986..0acaa62b0 100644
+--- a/Assets/Python/CvMapGeneratorUtil.py
++++ b/Assets/Python/CvMapGeneratorUtil.py
+@@ -6,7 +6,6 @@
+ # (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+ #
+ from CvPythonExtensions import *
+-from SASMagicNumbers import *
+ from SASUtils import getInfoTypeOrFail
+ import CvUtil
+ import random
+@@ -968,30 +967,31 @@ class MultilayeredFractal:
+ 		#
+ 		# Here is an example of obtaining grain sizes to fit with map sizes.
+ 		sizekey = self.map.getWorldSize()
+-		# <!-- custom: Use runtime world-size indices here; see SASMagicNumbers.SAS_MAGIC_WORLDSIZE_* rationale. This base method is mostly a template overridden by maps, but keep it correct for copied code. Grain only, not dimensions. (Claude code Opus 4.7; GPT-5.5) -->
++		# <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. This base method is mostly a template overridden by maps, but keep it correct for copied code. Grain only, not dimensions. (Claude code Opus 4.7; GPT-5.5. ChatGPT-5.5) -->
+ 		sizevalues = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: (3,2,1,2),
+-			SAS_MAGIC_WORLDSIZE_DUEL: (3,2,1,2),
+-			SAS_MAGIC_WORLDSIZE_TINY: (3,2,1,2),
+-			SAS_MAGIC_WORLDSIZE_SMALL: (3,2,1,2),
+-			SAS_MAGIC_WORLDSIZE_STANDARD: (4,2,1,2),
+-			SAS_MAGIC_WORLDSIZE_LARGE: (4,2,1,2),
+-			SAS_MAGIC_WORLDSIZE_HUGE: (5,2,1,2),
++			WorldSizeTypes.WORLDSIZE_ARENA: (3,2,1,2),
++			WorldSizeTypes.WORLDSIZE_DUEL: (3,2,1,2),
++			WorldSizeTypes.WORLDSIZE_TINY: (3,2,1,2),
++			WorldSizeTypes.WORLDSIZE_SMALL: (3,2,1,2),
++			WorldSizeTypes.WORLDSIZE_STANDARD: (4,2,1,2),
++			WorldSizeTypes.WORLDSIZE_LARGE: (4,2,1,2),
++			WorldSizeTypes.WORLDSIZE_HUGE: (5,2,1,2),
+ 			}
+ 		# You can add as many grain entries as you like.
+ 		# Seed them all from the matrix using the following type of line:
+ 
+ 		# <!-- custom: Fallback for unknown world sizes in CvMapGeneratorUtil.py to avoid KeyError: base map scripts might still need XXL-aware getGridSize handling; the fallback only helps scripts that rely on CvMapGeneratorUtil. If you want, I can bring in the XXL map scripts from the add-on folder and wire them up. (GPT-5.2-Codex). -->
+-		values = sizevalues.get(sizekey)
+-		# <!-- custom: WorldSizeTypes only includes the 6 hardcoded sizes; extra XML world sizes
+-		# (e.g. WORLDSIZE_ARENA / WORLDSIZE_SAS*) should map to the closest hardcoded size
+-		# by tile count so they don't silently fall back to Huge parameters. (ChatGPT-5.2 Thinking) -->
+-		# <!-- custom: check if accurate as i don't know too much about these. -->
++		values = None
++		for key in sizevalues.keys():
++			if int(key) == int(sizekey):
++				values = sizevalues[key]
++				break
++		# <!-- custom: WorldSizeTypes now includes ARENA/SAS sizes; extra/future XML world sizes should map to the closest calibrated size by tile count so they don't silently fall back to Huge parameters. (ChatGPT-5.2 Thinking + ChatGPT-5.5) -->
+ 		if values is None:
+ 			try:
+ 				wi = gc.getWorldInfo(sizekey)
+ 				iTiles = wi.getGridWidth() * wi.getGridHeight()
+-				bestKey = SAS_MAGIC_WORLDSIZE_HUGE
++				bestKey = WorldSizeTypes.WORLDSIZE_HUGE
+ 				bestDiff = 1 << 30
+ 				for k in sizevalues.keys():
+ 					wiK = gc.getWorldInfo(k)
+@@ -1001,7 +1001,7 @@ class MultilayeredFractal:
+ 						bestKey = k
+ 				values = sizevalues[bestKey]
+ 			except:
+-				values = sizevalues[SAS_MAGIC_WORLDSIZE_HUGE]
++				values = sizevalues[WorldSizeTypes.WORLDSIZE_HUGE]
+ 		(iGrainOne, iGrainTwo, iGrainThree, iGrainFour) = values
+ 
+ 		# The example is for four grain values. You may not need that many.
+
+diff --git a/Assets/Python/SASMagicNumbers.py b/Assets/Python/SASMagicNumbers.py
+index 98059644f..6ada28be6 100644
+--- a/Assets/Python/SASMagicNumbers.py
++++ b/Assets/Python/SASMagicNumbers.py
+@@ -4,20 +4,6 @@
+ 
+ # <!-- custom: Magic numbers and numeric constants only. Values do not need to be shared to live here; a named home is useful when the number would otherwise be obscure, collision-prone, or likely to drift. Keep this module import-free so maps, advisors, Sevopedia, and utility modules can import it without pulling in CvPythonExtensions, CyGlobalContext, screen helpers, or SASUtils runtime state. Prefix exports with SAS_MAGIC_ to reduce accidental global-name collisions in files that use from-module import-star. (GPT-5.5) -->
+ 
+-# <!-- custom: AdvCiv-SAS added ARENA before Duel in CIV4WorldInfo, so runtime world-size indices are ARENA=0..Huge=6 while the old hardcoded WorldSizeTypes enum still has WORLDSIZE_HUGE=5. Direct runtime dictionaries keyed by argsList[0] / CyMap().getWorldSize() must use these indices, or sizes shift by one and ARENA collides with Duel. We fixed empirical grid-size cases such as Water.py and PerfectMongoose.py, and use the same pattern preventively for direct grid/grain/start-variance tables while leaving percentage-scaling scripts such as Pangaea for separate behavior-based review. (GPT-5.5) -->
+-SAS_MAGIC_WORLDSIZE_ARENA = 0
+-SAS_MAGIC_WORLDSIZE_DUEL = 1
+-SAS_MAGIC_WORLDSIZE_TINY = 2
+-SAS_MAGIC_WORLDSIZE_SMALL = 3
+-SAS_MAGIC_WORLDSIZE_STANDARD = 4
+-SAS_MAGIC_WORLDSIZE_LARGE = 5
+-SAS_MAGIC_WORLDSIZE_HUGE = 6
+-SAS_MAGIC_WORLDSIZE_SAS24 = 7
+-SAS_MAGIC_WORLDSIZE_SAS32 = 8
+-SAS_MAGIC_WORLDSIZE_SAS40 = 9
+-SAS_MAGIC_WORLDSIZE_SAS48 = 10
+-SAS_MAGIC_WORLDSIZE_LARGEST = SAS_MAGIC_WORLDSIZE_SAS48
+-
+ # <!-- custom: WIDGET_PYTHON data1 routing IDs used by Sevopedia and cross-screen pedia jumps such as Tech Chooser Build links. Keep these unique across pedia handlers; data1 selects the route and data2 carries the actual item/action payload. These were originally split between SevoPediaMain.py and SevoPediaLeader.py; centralizing them here avoids local magic IDs and duplicate aliases. (Claude Opus 4.5 / Claude code Sonnet 4.6 / Claude code Opus 4.7 / GPT-5.5) -->
+ SAS_MAGIC_PEDIA_PYTHON_BUILD = 6798
+ SAS_MAGIC_PEDIA_PYTHON_TRAIT = 6799
+
+diff --git a/Assets/Python/SAS_WorldSizeUtils.py b/Assets/Python/SAS_WorldSizeUtils.py
+index a21453811..0b090ab4b 100644
+--- a/Assets/Python/SAS_WorldSizeUtils.py
++++ b/Assets/Python/SAS_WorldSizeUtils.py
+@@ -5,46 +5,59 @@
+ # <!-- custom: Shared ARENA/SAS world-size helpers for map scripts. This used to live in the playable PrivateMaps/SAS_WorldSizes.py helper map; importing it with import-star leaked that map's compact getGridSize callback into scripts that did not define their own. RandomScriptMap Huge was empirically far too small (60 x 44) and became 120 x 84 after moving the helpers out of PrivateMaps, visually matching base AdvCiv Huge at a glance; the same leak likely affected other scripts such as Archipelago. Keep this utility outside PrivateMaps and do not add Civ4 map-script callback names here. (GPT-5.5?) -->
+ 
+ import math
+-from CvPythonExtensions import CyGlobalContext
+-from SASMagicNumbers import *
++from CvPythonExtensions import CyGlobalContext, WorldSizeTypes
+ 
+ SAS_SIMPLE_GAME_STALE_OPTION_WARNED = False
+ 
+ def sas_default_sizevalues():
+ 	return {
+-		SAS_MAGIC_WORLDSIZE_ARENA:  1,
+-		SAS_MAGIC_WORLDSIZE_DUEL:  1,
+-		SAS_MAGIC_WORLDSIZE_TINY:  1,
+-		SAS_MAGIC_WORLDSIZE_SMALL:  1,
+-		SAS_MAGIC_WORLDSIZE_STANDARD:  2,
+-		SAS_MAGIC_WORLDSIZE_LARGE:  2,
+-		SAS_MAGIC_WORLDSIZE_HUGE:  3,
+-		SAS_MAGIC_WORLDSIZE_SAS24:  4,
+-		SAS_MAGIC_WORLDSIZE_SAS32:  5,
+-		SAS_MAGIC_WORLDSIZE_SAS40:  6,
+-		SAS_MAGIC_WORLDSIZE_SAS48: 7,
++		WorldSizeTypes.WORLDSIZE_ARENA:  1,
++		WorldSizeTypes.WORLDSIZE_DUEL:  1,
++		WorldSizeTypes.WORLDSIZE_TINY:  1,
++		WorldSizeTypes.WORLDSIZE_SMALL:  1,
++		WorldSizeTypes.WORLDSIZE_STANDARD:  2,
++		WorldSizeTypes.WORLDSIZE_LARGE:  2,
++		WorldSizeTypes.WORLDSIZE_HUGE:  3,
++		WorldSizeTypes.WORLDSIZE_SAS24:  4,
++		WorldSizeTypes.WORLDSIZE_SAS32:  5,
++		WorldSizeTypes.WORLDSIZE_SAS40:  6,
++		WorldSizeTypes.WORLDSIZE_SAS48: 7,
+ 	}
+ 
+ # <!-- custom: Shared compact profile for almost-all-land maps. Base tiers are fixed; SAS24/32/40/48 are calibrated from the Huge XML default-player anchor so tiles-per-player stay closer to Huge while reducing spacing for underpopulated starts further. See also SAS_MAP_SCRIPT_NAMES_ALMOST_ALL_LAND (GPT-5.3-Codex + GPT-5.5) -->
+ def sas_compact_almost_all_land_grid_sizes():
+ 	return {
+-		SAS_MAGIC_WORLDSIZE_ARENA:  (2, 2),
+-		SAS_MAGIC_WORLDSIZE_DUEL:  (3, 2),
+-		SAS_MAGIC_WORLDSIZE_TINY:  (4, 3),
+-		SAS_MAGIC_WORLDSIZE_SMALL:  (6, 4),
+-		SAS_MAGIC_WORLDSIZE_STANDARD:  (8, 6),
+-		SAS_MAGIC_WORLDSIZE_LARGE:  (11, 8),
+-		SAS_MAGIC_WORLDSIZE_HUGE:  (15, 11),
++		WorldSizeTypes.WORLDSIZE_ARENA:  (2, 2),
++		WorldSizeTypes.WORLDSIZE_DUEL:  (3, 2),
++		WorldSizeTypes.WORLDSIZE_TINY:  (4, 3),
++		WorldSizeTypes.WORLDSIZE_SMALL:  (6, 4),
++		WorldSizeTypes.WORLDSIZE_STANDARD:  (8, 6),
++		WorldSizeTypes.WORLDSIZE_LARGE:  (11, 8),
++		WorldSizeTypes.WORLDSIZE_HUGE:  (15, 11),
+ 	}
+ 
+ def sas_get_compact_almost_all_land_grid_size(eWorldSize):
+ 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, sas_compact_almost_all_land_grid_sizes())
+ 
+-def sas_lookup_world_size(eWorldSize, values):
++def sas_find_world_size_key(eWorldSize, values):
+ 	iWorldSize = int(eWorldSize)
+-	if iWorldSize in values:
+-		return values[iWorldSize]
+-	return values[max(values.keys())]
++	for key in values.keys():
++		if int(key) == iWorldSize:
++			return key
++	return None
++
++def sas_largest_world_size_key(values):
++	bestKey = None
++	for key in values.keys():
++		if bestKey is None or int(key) > int(bestKey):
++			bestKey = key
++	return bestKey
++
++def sas_lookup_world_size(eWorldSize, values):
++	key = sas_find_world_size_key(eWorldSize, values)
++	if key is not None:
++		return values[key]
++	return values[sas_largest_world_size_key(values)]
+ 
+ def sas_grid_ratio(iWidth, iHeight):
+ 	return float(iWidth) / float(max(1, iHeight))
+@@ -79,13 +92,14 @@ def sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorMaxPlayer
+ # <!-- custom: For map-size calibration workflows, compute only the requested world size: base tiers return directly; SAS24/32/40/48 are calibrated on demand from the last base tier (usually Huge) and XML default-player counts. Fail loudly if a referenced world size is missing instead of using stale fallback player counts. (GPT-5.3-Codex + GPT-5.5) -->
+ def sas_lookup_world_size_with_calibrated_sas(eWorldSize, base_grid_sizes):
+ 	iWorldSize = int(eWorldSize)
+-	if iWorldSize in base_grid_sizes:
+-		return base_grid_sizes[iWorldSize]
++	key = sas_find_world_size_key(eWorldSize, base_grid_sizes)
++	if key is not None:
++		return base_grid_sizes[key]
+ 
+-	iAnchorWorldSize = max(base_grid_sizes.keys())
+-	if iWorldSize > iAnchorWorldSize and iWorldSize <= SAS_MAGIC_WORLDSIZE_LARGEST:
++	iAnchorWorldSize = sas_largest_world_size_key(base_grid_sizes)
++	if iWorldSize > int(iAnchorWorldSize) and iWorldSize <= int(WorldSizeTypes.WORLDSIZE_SAS48):
+ 		(iAnchorWidth, iAnchorHeight) = base_grid_sizes[iAnchorWorldSize]
+ 		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize)
+ 		iTargetPlayers = sas_world_default_players(iWorldSize)
+ 		return sas_calibrate_grid_from_anchor(iAnchorWidth, iAnchorHeight, iAnchorPlayers, iTargetPlayers)
+-	return base_grid_sizes[max(base_grid_sizes.keys())]
++	return base_grid_sizes[iAnchorWorldSize]
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index aeafdab9d..ca6f49f96 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -68,27 +68,22 @@ DO_FOR_EACH_DYN_INFO_TYPE(MAKE_INFO_ENUM)
+ 
+ // advc: WorldSize and Flavor are special -- there are hardcoded values, but it's
+ // still possible to add values through XML only.
+-// (The harcoded world sizes are used by map scripts and random events.)
+-
+-// <!-- custom: as per ChatGPT-5.2 Thinking's recommendation, not adding the new world sizes we added in AdvCiv-SAS here (like Arena, SAS24, SAS32, SAS40, SAS48) with the below rationale. It seems to work fine ingame btw so maybe fine to leave as such. I don't know too much about these, check if accurate, and thanks chatgpt xd thanks -->
+-// CvEnums.h: do we need to add world sizes there?
+-// Recommendation: no.
+-// Keep WorldSizeTypes as the original 6 entries (Duel..Huge). Your extra world sizes are already supported via XML (that’s how Civ4 mods normally do it). If you extend the enum, you risk:
+-// 	- breaking assumptions in existing code/scripts,
+-// 	- shifting indices if anything gets reordered,
+-// 	- causing subtle save/compat issues.
+-// If you need to detect Arena/SAS sizes in Python/C++:
+-// 	- Python: gc.getWorldInfo(CyMap().getWorldSize()).getType()
+-// 	- C++: compare against GC.getInfoTypeForString("WORLDSIZE_ARENA") / "WORLDSIZE_SAS24" etc.
++// (The hardcoded world sizes are used by map scripts and random events.)
++// <!-- custom: Keep WorldSizeTypes aligned with CIV4WorldInfo.xml so C++ and Python enum values match runtime XML indices. New Arena is inserted before Duel and new SAS24/32/40/48 extend beyond Huge, so the old BtS-only Duel..Huge enum made constants such as WORLDSIZE_HUGE point at the wrong XML row. (ChatGPT-5.5) -->
+ enum WorldSizeTypes
+ {
+ 	NO_WORLDSIZE = -1,
++	WORLDSIZE_ARENA,
+ 	WORLDSIZE_DUEL,
+ 	WORLDSIZE_TINY,
+ 	WORLDSIZE_SMALL,
+ 	WORLDSIZE_STANDARD,
+ 	WORLDSIZE_LARGE,
+ 	WORLDSIZE_HUGE,
++	WORLDSIZE_SAS24,
++	WORLDSIZE_SAS32,
++	WORLDSIZE_SAS40,
++	WORLDSIZE_SAS48,
+ };
+ 
+ enum FlavorTypes
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 054770be7..cc2e3e650 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -1025,52 +1025,57 @@ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
+ 
+ bool CvReplayInfo::isStoringReplaysAsBtS() const
+ {
+-	if (BUGOption::isEnabled("MainInterface__ModNameInReplays", false,
+-		false)) // BUG not being available is OK, we'll get another call later.
+-	{
+-		return false;
+-	}
+-	// <advc.106m>
+-	if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) != 512)
+-	{
+-		FErrorMsg("MINIMAP_RENDER_SIZE incompatible with BtS replay format;"
+-				" Mod-Name-in-Replays option ignored");
+-		return false;
+-	} // </advc.106m>
+-	/*	The option says to store as BtS, but we'll ignore that if running the replay
+-		might crash BtS. AdvCiv won't have that problem, but a mod-mod might. */
+-	if (getWorldSize() > 5)
+-	{
+-		FErrorMsg("World size incompatible with BtS replay format");
+-		return false;
+-	}
+-	if (getGameSpeed() > 3)
+-	{
+-		FErrorMsg("Game speed incompatible with BtS replay format");
+-		return false;
+-	}
+-	for (int iVictory = 7; iVictory < GC.getNumVictoryInfos(); iVictory++)
+-	{
+-		if (isVictoryCondition((VictoryTypes)iVictory))
+-		{
+-			FErrorMsg("Enabled victory incompatible with BtS replay format");
+-			return false;
+-		}
+-	}
+-	if (getDifficulty() > 8)
+-	{
+-		FErrorMsg("Difficulty level (handicap) incompatible with BtS replay format");
+-		return false;
+-	}
+-	FOR_EACH_ENUM(Player)
+-	{
+-		if (GET_PLAYER(eLoopPlayer).isEverAlive() && getColor(eLoopPlayer) > 126)
+-		{
+-			FErrorMsg("Player (text) color incompatible with BtS replay format");
+-			return false;
+-		}
+-	}
+-	/*	(Not going to check getReplayMessageColor for every replay message;
+-		there can be a lot of messages, seems a little excessive.) */
+-	return true;		
++	// <!-- custom: AdvCiv-SAS intentionally changes raw XML info order for replay-stored values such as game speeds, world sizes, and handicaps. Always store the normal mod replay format instead of pretending an AdvCiv-SAS replay is vanilla BtS-compatible. This still writes normal AdvCiv-SAS replays; it only disables the optional BtS-compatible replay export path. See KI#166. (ChatGPT-5.5); we do not need nor support reading AdvCiv-SAS replay/Hall of Fame data from unmodded BTS, nor do we need or support reading unmodded BTS replay/Hall of Fame data into AdvCiv-SAS. -->
++	return false;
++
++	// <!-- custom: Old AdvCiv BtS-compatible replay checks kept below for reference, but disabled/commented-out in AdvCiv-SAS because shifted raw XML ids would need a full remapping layer to be truly compatible. See KI#166. (ChatGPT-5.5) -->
++	// if (BUGOption::isEnabled("MainInterface__ModNameInReplays", false,
++	// 	false)) // BUG not being available is OK, we'll get another call later.
++	// {
++	// 	return false;
++	// }
++	// // <advc.106m>
++	// if (GC.getDefineINT(CvGlobals::MINIMAP_RENDER_SIZE) != 512)
++	// {
++	// 	FErrorMsg("MINIMAP_RENDER_SIZE incompatible with BtS replay format;"
++	// 			" Mod-Name-in-Replays option ignored");
++	// 	return false;
++	// } // </advc.106m>
++	// /*	The option says to store as BtS, but we'll ignore that if running the replay
++	// 	might crash BtS. AdvCiv won't have that problem, but a mod-mod might. */
++	// if (getWorldSize() > 5)
++	// {
++	// 	FErrorMsg("World size incompatible with BtS replay format");
++	// 	return false;
++	// }
++	// if (getGameSpeed() > 3)
++	// {
++	// 	FErrorMsg("Game speed incompatible with BtS replay format");
++	// 	return false;
++	// }
++	// for (int iVictory = 7; iVictory < GC.getNumVictoryInfos(); iVictory++)
++	// {
++	// 	if (isVictoryCondition((VictoryTypes)iVictory))
++	// 	{
++	// 		FErrorMsg("Enabled victory incompatible with BtS replay format");
++	// 		return false;
++	// 	}
++	// }
++	// if (getDifficulty() > 8)
++	// {
++	// 	FErrorMsg("Difficulty level (handicap) incompatible with BtS replay format");
++	// 	return false;
++	// }
++	// FOR_EACH_ENUM(Player)
++	// {
++	// 	if (GET_PLAYER(eLoopPlayer).isEverAlive() && getColor(eLoopPlayer) > 126)
++	// 	{
++	// 		FErrorMsg("Player (text) color incompatible with BtS replay format");
++	// 		return false;
++	// 	}
++	// }
++	// /*	(Not going to check getReplayMessageColor for every replay message;
++	// 	there can be a lot of messages, seems a little excessive.) */
++	// return true;		
++
+ } // </advc.106i>
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index dce8a0add..b3443ef86 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -493,17 +493,24 @@ void CyEnumsPythonInterface()
+ 		.value("NO_CUSTOM_MAPOPTION", NO_CUSTOM_MAPOPTION)
+ 		;
+ 
++	// <!-- custom: Keep WorldSizeTypes aligned with CIV4WorldInfo.xml so C++ and Python enum values match runtime XML indices. New Arena is inserted before Duel and new SAS24/32/40/48 extend beyond Huge, so the old BtS-only Duel..Huge enum made constants such as WORLDSIZE_HUGE point at the wrong XML row. (ChatGPT-5.5) -->
+ 	python::enum_<WorldSizeTypes>("WorldSizeTypes")
+ 		.value("NO_WORLDSIZE", NO_WORLDSIZE)
++		.value("WORLDSIZE_ARENA", WORLDSIZE_ARENA)
+ 		.value("WORLDSIZE_DUEL", WORLDSIZE_DUEL)
+ 		.value("WORLDSIZE_TINY", WORLDSIZE_TINY)
+ 		.value("WORLDSIZE_SMALL", WORLDSIZE_SMALL)
+ 		.value("WORLDSIZE_STANDARD", WORLDSIZE_STANDARD)
+ 		.value("WORLDSIZE_LARGE", WORLDSIZE_LARGE)
+ 		.value("WORLDSIZE_HUGE", WORLDSIZE_HUGE)
++		.value("WORLDSIZE_SAS24", WORLDSIZE_SAS24)
++		.value("WORLDSIZE_SAS32", WORLDSIZE_SAS32)
++		.value("WORLDSIZE_SAS40", WORLDSIZE_SAS40)
++		.value("WORLDSIZE_SAS48", WORLDSIZE_SAS48)
+ 		/*  advc.enum: Don't assume that all sizes are hardcoded.
+ 			NUM_WORLDSIZE_TYPES is unused in AdvCiv/BtS Python. If it's needed
+ 			in a mod-mod, one could use WORLDSIZE_HUGE+1. */
++		// <!-- custom: WORLDSIZE_HUGE+1 should now be WORLDSIZE_SAS48+1. with the new worldsizes we added (ChatGPT-5.5) -->
+ 		//.value("NUM_WORLDSIZE_TYPES", NUM_WORLDSIZE_TYPES)
+ 		;
+
+diff --git a/PrivateMaps/Arboria.py b/PrivateMaps/Arboria.py
+index 0f0858cb9..35addb3a7 100644
+--- a/PrivateMaps/Arboria.py
++++ b/PrivateMaps/Arboria.py
+@@ -125,13 +125,13 @@ def minStartingDistanceModifier():
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (4,4),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (5,5),
+-		SAS_MAGIC_WORLDSIZE_TINY: (6,6),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (8,8),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (10,10),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (13,13),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (16,16)
++		WorldSizeTypes.WORLDSIZE_ARENA: (4,4),
++		WorldSizeTypes.WORLDSIZE_DUEL: (5,5),
++		WorldSizeTypes.WORLDSIZE_TINY: (6,6),
++		WorldSizeTypes.WORLDSIZE_SMALL: (8,8),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (10,10),
++		WorldSizeTypes.WORLDSIZE_LARGE: (13,13),
++		WorldSizeTypes.WORLDSIZE_HUGE: (16,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 8fb11bb9a..18556b85e 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -232,54 +232,54 @@ def getGridSize(argsList):
+ 	if (iDistanceOption == 0):
+ 		# <!-- custom: BTG Cross dimensions were too small for each base world size in current tuning. Use direct grid rows instead of hiding the change behind a shifted calibration formula, so each base size is visible and tunable; SAS24+ calibrates from the explicit Huge row. (GPT-5.5) -->
+ 		grid_sizes = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: (7, 7),
+-			SAS_MAGIC_WORLDSIZE_DUEL: (8, 8),
+-			SAS_MAGIC_WORLDSIZE_TINY: (11, 11),
+-			SAS_MAGIC_WORLDSIZE_SMALL: (13, 13),
+-			SAS_MAGIC_WORLDSIZE_STANDARD: (16, 16),
+-			SAS_MAGIC_WORLDSIZE_LARGE: (19, 19),
+-			SAS_MAGIC_WORLDSIZE_HUGE: (24, 24),
++			WorldSizeTypes.WORLDSIZE_ARENA: (7, 7),
++			WorldSizeTypes.WORLDSIZE_DUEL: (8, 8),
++			WorldSizeTypes.WORLDSIZE_TINY: (11, 11),
++			WorldSizeTypes.WORLDSIZE_SMALL: (13, 13),
++			WorldSizeTypes.WORLDSIZE_STANDARD: (16, 16),
++			WorldSizeTypes.WORLDSIZE_LARGE: (19, 19),
++			WorldSizeTypes.WORLDSIZE_HUGE: (24, 24),
+ 		}
+ 	elif (iDistanceOption == 1):
+ 		grid_sizes = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: (8, 8),
+-			SAS_MAGIC_WORLDSIZE_DUEL: (10, 10),
+-			SAS_MAGIC_WORLDSIZE_TINY: (13, 13),
+-			SAS_MAGIC_WORLDSIZE_SMALL: (17, 17),
+-			SAS_MAGIC_WORLDSIZE_STANDARD: (20, 20),
+-			SAS_MAGIC_WORLDSIZE_LARGE: (24, 24),
+-			SAS_MAGIC_WORLDSIZE_HUGE: (30, 30),
++			WorldSizeTypes.WORLDSIZE_ARENA: (8, 8),
++			WorldSizeTypes.WORLDSIZE_DUEL: (10, 10),
++			WorldSizeTypes.WORLDSIZE_TINY: (13, 13),
++			WorldSizeTypes.WORLDSIZE_SMALL: (17, 17),
++			WorldSizeTypes.WORLDSIZE_STANDARD: (20, 20),
++			WorldSizeTypes.WORLDSIZE_LARGE: (24, 24),
++			WorldSizeTypes.WORLDSIZE_HUGE: (30, 30),
+ 		}
+ 	elif (iDistanceOption == 2):
+ 		grid_sizes = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: (5, 5),
+-			SAS_MAGIC_WORLDSIZE_DUEL: (6, 6),
+-			SAS_MAGIC_WORLDSIZE_TINY: (8, 8),
+-			SAS_MAGIC_WORLDSIZE_SMALL: (10, 10),
+-			SAS_MAGIC_WORLDSIZE_STANDARD: (12, 12),
+-			SAS_MAGIC_WORLDSIZE_LARGE: (14, 14),
+-			SAS_MAGIC_WORLDSIZE_HUGE: (18, 18),
++			WorldSizeTypes.WORLDSIZE_ARENA: (5, 5),
++			WorldSizeTypes.WORLDSIZE_DUEL: (6, 6),
++			WorldSizeTypes.WORLDSIZE_TINY: (8, 8),
++			WorldSizeTypes.WORLDSIZE_SMALL: (10, 10),
++			WorldSizeTypes.WORLDSIZE_STANDARD: (12, 12),
++			WorldSizeTypes.WORLDSIZE_LARGE: (14, 14),
++			WorldSizeTypes.WORLDSIZE_HUGE: (18, 18),
+ 		}
+ 	else:
+ 		grid_sizes = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: (3, 3),
+-			SAS_MAGIC_WORLDSIZE_DUEL: (4, 4),
+-			SAS_MAGIC_WORLDSIZE_TINY: (5, 5),
+-			SAS_MAGIC_WORLDSIZE_SMALL: (7, 7),
+-			SAS_MAGIC_WORLDSIZE_STANDARD: (8, 8),
+-			SAS_MAGIC_WORLDSIZE_LARGE: (9, 9),
+-			SAS_MAGIC_WORLDSIZE_HUGE: (12, 12),
++			WorldSizeTypes.WORLDSIZE_ARENA: (3, 3),
++			WorldSizeTypes.WORLDSIZE_DUEL: (4, 4),
++			WorldSizeTypes.WORLDSIZE_TINY: (5, 5),
++			WorldSizeTypes.WORLDSIZE_SMALL: (7, 7),
++			WorldSizeTypes.WORLDSIZE_STANDARD: (8, 8),
++			WorldSizeTypes.WORLDSIZE_LARGE: (9, 9),
++			WorldSizeTypes.WORLDSIZE_HUGE: (12, 12),
+ 		}
+ 
+ 	iWorld = int(eWorldSize)
+ 	# <!-- custom: BTG Cross used the Huge grid for every world size of Huge and below, including our SAS ARENA size, so they collapsed to one effective map size such as 60x60 plots. Scale them from the Huge anchor and keep the existing SAS24+ formula below. See KI#137. (GPT-5.5) -->
+-	if iWorld <= SAS_MAGIC_WORLDSIZE_HUGE:
++	if iWorld <= WorldSizeTypes.WORLDSIZE_HUGE:
+ 		return sas_lookup_world_size(eWorldSize, grid_sizes)
+ 
+ 	iDefaultPlayers = sas_world_default_players(iWorld)
+ 	iTargetPlayers = int(math.ceil(float(iDefaultPlayers) * 1.5))
+-	(iHugeW, iHugeH) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
+-	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_world_default_players(SAS_MAGIC_WORLDSIZE_HUGE), iTargetPlayers)
++	(iHugeW, iHugeH) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
++	return sas_calibrate_grid_from_anchor(iHugeW, iHugeH, sas_world_default_players(WorldSizeTypes.WORLDSIZE_HUGE), iTargetPlayers)
+ 
+ def beforeGeneration():
+ 	global iNumRegions
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index 9ba42209f..31a3f2afc 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -214,103 +214,103 @@ def getGridSize(argsList):
+ 
+ 	#Traditional way
+ 	# <!-- custom: Land Size option removed; keep default size mode only. (GPT-5.3-Codex) -->
+-	# <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
++	# <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. (Claude code Opus 4.7; GPT-5.5) -->
+ 	if True:
+ 		# Section 1 - if  default option "16 tiles" is clicked
+ 		if (CyMap().getCustomMapOption(5) == 0):
+ 			if (CyMap().getCustomMapOption(3) == 0):
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(6,4),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(8,4),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(12,4),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(16,4),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(21,4),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(23,4),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(26,4)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(6,4),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(8,4),
++					WorldSizeTypes.WORLDSIZE_TINY:		(12,4),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(16,4),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(21,4),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(23,4),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(26,4)
+ 				}
+ 			elif (CyMap().getCustomMapOption(3) == 1):
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(6,4),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(8,4),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(8,8),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(12,8),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(16,8),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(21,8),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(23,8)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(6,4),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(8,4),
++					WorldSizeTypes.WORLDSIZE_TINY:		(8,8),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(12,8),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(16,8),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(21,8),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(23,8)
+ 				}	
+ 			else:
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(4,6),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(4,8),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(4,12),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(8,12),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(12,12),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(16,12),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(21,12)# not set up
++					WorldSizeTypes.WORLDSIZE_ARENA:		(4,6),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(4,8),
++					WorldSizeTypes.WORLDSIZE_TINY:		(4,12),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(8,12),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(12,12),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(16,12),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(21,12)# not set up
+ 				}
+ 
+ 		elif (CyMap().getCustomMapOption(7) == 1): # Section 2 - if the map is clicked for larger (20)
+ 			if (CyMap().getCustomMapOption(3) == 0):
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(8,5),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(10,5),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(15,5),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(20,5),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(26,5),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(29,5),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(32,5)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(8,5),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(10,5),
++					WorldSizeTypes.WORLDSIZE_TINY:		(15,5),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(20,5),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(26,5),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(29,5),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(32,5)
+ 				}
+ 			elif (CyMap().getCustomMapOption(3) == 1):
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(8,5),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(10,5),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(10,10),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(15,10),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(20,10),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(26,10),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(29,10)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(8,5),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(10,5),
++					WorldSizeTypes.WORLDSIZE_TINY:		(10,10),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(15,10),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(20,10),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(26,10),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(29,10)
+ 				}	
+ 			else:
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(5,8),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(5,10),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(5,15),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(10,15),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(15,15),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(20,15),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(26,15)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(5,8),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(5,10),
++					WorldSizeTypes.WORLDSIZE_TINY:		(5,15),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(10,15),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(15,15),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(20,15),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(26,15)
+ 				}
+ 
+ 		else : # Section 3 - if 20x16
+ 			if (CyMap().getCustomMapOption(3) == 0):
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(8,4),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(10,4),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(15,4),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(20,4),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(26,4),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(29,4),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(32,4)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(8,4),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(10,4),
++					WorldSizeTypes.WORLDSIZE_TINY:		(15,4),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(20,4),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(26,4),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(29,4),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(32,4)
+ 				}
+ 			elif (CyMap().getCustomMapOption(3) == 1):
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(8,4),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(10,4),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(10,8),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(15,8),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(20,8),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(26,8),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(29,8)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(8,4),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(10,4),
++					WorldSizeTypes.WORLDSIZE_TINY:		(10,8),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(15,8),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(20,8),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(26,8),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(29,8)
+ 				}	
+ 			else:
+ 				grid_sizes = {
+-					SAS_MAGIC_WORLDSIZE_ARENA:		(4,8),
+-					SAS_MAGIC_WORLDSIZE_DUEL:		(4,10),
+-					SAS_MAGIC_WORLDSIZE_TINY:		(4,15),
+-					SAS_MAGIC_WORLDSIZE_SMALL:		(10,12),
+-					SAS_MAGIC_WORLDSIZE_STANDARD:		(15,12),
+-					SAS_MAGIC_WORLDSIZE_LARGE:		(20,12),
+-					SAS_MAGIC_WORLDSIZE_HUGE:		(26,12)
++					WorldSizeTypes.WORLDSIZE_ARENA:		(4,8),
++					WorldSizeTypes.WORLDSIZE_DUEL:		(4,10),
++					WorldSizeTypes.WORLDSIZE_TINY:		(4,15),
++					WorldSizeTypes.WORLDSIZE_SMALL:		(10,12),
++					WorldSizeTypes.WORLDSIZE_STANDARD:		(15,12),
++					WorldSizeTypes.WORLDSIZE_LARGE:		(20,12),
++					WorldSizeTypes.WORLDSIZE_HUGE:		(26,12)
+ 				}			
+ 
+ 		[eWorldSize] = argsList
+
+diff --git a/PrivateMaps/BTG_Lagoon.py b/PrivateMaps/BTG_Lagoon.py
+index e691206ff..4041c2864 100644
+--- a/PrivateMaps/BTG_Lagoon.py
++++ b/PrivateMaps/BTG_Lagoon.py
+@@ -228,15 +228,15 @@ def isSeaLevelMap():
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 
+-	# <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5) -->
++	# <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. (Claude code Opus 4.7; GPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (5,5),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (6,6),
+-		SAS_MAGIC_WORLDSIZE_TINY: (7,7),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (8,8),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (9,9),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (10,10),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (11,11)
++		WorldSizeTypes.WORLDSIZE_ARENA: (5,5),
++		WorldSizeTypes.WORLDSIZE_DUEL: (6,6),
++		WorldSizeTypes.WORLDSIZE_TINY: (7,7),
++		WorldSizeTypes.WORLDSIZE_SMALL: (8,8),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (9,9),
++		WorldSizeTypes.WORLDSIZE_LARGE: (10,10),
++		WorldSizeTypes.WORLDSIZE_HUGE: (11,11)
+ 	}			
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Big_and_Small.py b/PrivateMaps/Big_and_Small.py
+index 062ec2c48..d8ee1e2d8 100644
+--- a/PrivateMaps/Big_and_Small.py
++++ b/PrivateMaps/Big_and_Small.py
+@@ -33,13 +33,13 @@ def getNumPlotsPercent(argsList):
+ 	if eWorldSize < 0:
+ 		return 100
+ 	sizeModifiers = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+-		SAS_MAGIC_WORLDSIZE_TINY: 100,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 95,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 88
++		WorldSizeTypes.WORLDSIZE_ARENA: 100,
++		WorldSizeTypes.WORLDSIZE_DUEL: 100,
++		WorldSizeTypes.WORLDSIZE_TINY: 100,
++		WorldSizeTypes.WORLDSIZE_SMALL: 100,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 100,
++		WorldSizeTypes.WORLDSIZE_LARGE: 95,
++		WorldSizeTypes.WORLDSIZE_HUGE: 88
+ 	}
+ 	return sas_lookup_world_size(eWorldSize, sizeModifiers)
+
+diff --git a/PrivateMaps/Boreal.py b/PrivateMaps/Boreal.py
+index c09f99035..ab5c246cf 100644
+--- a/PrivateMaps/Boreal.py
++++ b/PrivateMaps/Boreal.py
+@@ -135,13 +135,13 @@ def getBottomLatitude():
+ def getGridSize(argsList):
+ 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (5,3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (6,4),
+-		SAS_MAGIC_WORLDSIZE_TINY: (8,5),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (10,6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (13,8),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (16,10),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (21,13)
++		WorldSizeTypes.WORLDSIZE_ARENA: (5,3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (6,4),
++		WorldSizeTypes.WORLDSIZE_TINY: (8,5),
++		WorldSizeTypes.WORLDSIZE_SMALL: (10,6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (13,8),
++		WorldSizeTypes.WORLDSIZE_LARGE: (16,10),
++		WorldSizeTypes.WORLDSIZE_HUGE: (21,13)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Custom_Continents.py b/PrivateMaps/Custom_Continents.py
+index 15c03bf1a..507b25f05 100644
+--- a/PrivateMaps/Custom_Continents.py
++++ b/PrivateMaps/Custom_Continents.py
+@@ -32,13 +32,13 @@ def getNumPlotsPercent(argsList):
+ 	if eWorldSize < 0:
+ 		return 100
+ 	sizeModifiers = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+-		SAS_MAGIC_WORLDSIZE_TINY: 100,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 90,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 80
++		WorldSizeTypes.WORLDSIZE_ARENA: 100,
++		WorldSizeTypes.WORLDSIZE_DUEL: 100,
++		WorldSizeTypes.WORLDSIZE_TINY: 100,
++		WorldSizeTypes.WORLDSIZE_SMALL: 100,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 100,
++		WorldSizeTypes.WORLDSIZE_LARGE: 90,
++		WorldSizeTypes.WORLDSIZE_HUGE: 80
+ 	}
+ 	return sas_lookup_world_size(eWorldSize, sizeModifiers)
+
+diff --git a/PrivateMaps/Donut.py b/PrivateMaps/Donut.py
+index 80f210fdb..61edd8eb9 100644
+--- a/PrivateMaps/Donut.py
++++ b/PrivateMaps/Donut.py
+@@ -142,14 +142,14 @@ def isSeaLevelMap():
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (5,5),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (6,6),
+-		SAS_MAGIC_WORLDSIZE_TINY: (8,8),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (10,10),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (13,13),
++		WorldSizeTypes.WORLDSIZE_ARENA: (5,5),
++		WorldSizeTypes.WORLDSIZE_DUEL: (6,6),
++		WorldSizeTypes.WORLDSIZE_TINY: (8,8),
++		WorldSizeTypes.WORLDSIZE_SMALL: (10,10),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (13,13),
+ 		# <!-- custom: Donut felt somewhat oversized at larger world sizes in AdvCiv-SAS testing. Keep the square map shape, but reduce Large from 16 x 16 to 15 x 15 (256 -> 225 plots, about 12% fewer) and Huge from 20 x 20 to 19 x 19 (400 -> 361 plots, about 10% fewer); smaller square sizes are too coarse to shrink by only 5-10%. SAS world sizes calibrate from the Huge anchor too. (GPT-5.5) -->
+-		SAS_MAGIC_WORLDSIZE_LARGE: (15,15),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (19,19)
++		WorldSizeTypes.WORLDSIZE_LARGE: (15,15),
++		WorldSizeTypes.WORLDSIZE_HUGE: (19,19)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Earth2.py b/PrivateMaps/Earth2.py
+index 531832fe9..1ee51e15d 100644
+--- a/PrivateMaps/Earth2.py
++++ b/PrivateMaps/Earth2.py
+@@ -59,15 +59,15 @@ def getGridSize(argsList):
+     if (argsList[0] == -1): # (-1,) is passed to function on loads
+         return []
+     [eWorldSize] = argsList
+-    # <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. Also use the calibrated helper so SAS24-48 scale up from Huge. (Claude code Opus 4.7; GPT-5.5) -->
++    # <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. Also use the calibrated helper so SAS24-48 scale up from Huge. (Claude code Opus 4.7; GPT-5.5) -->
+     grid_sizes = {
+-        SAS_MAGIC_WORLDSIZE_ARENA: (7,4),
+-        SAS_MAGIC_WORLDSIZE_DUEL: (10,6),
+-        SAS_MAGIC_WORLDSIZE_TINY: (15,9),
+-        SAS_MAGIC_WORLDSIZE_SMALL: (20,12),
+-        SAS_MAGIC_WORLDSIZE_STANDARD: (25,15),
+-        SAS_MAGIC_WORLDSIZE_LARGE: (30,18),
+-        SAS_MAGIC_WORLDSIZE_HUGE: (40,24),
++        WorldSizeTypes.WORLDSIZE_ARENA: (7,4),
++        WorldSizeTypes.WORLDSIZE_DUEL: (10,6),
++        WorldSizeTypes.WORLDSIZE_TINY: (15,9),
++        WorldSizeTypes.WORLDSIZE_SMALL: (20,12),
++        WorldSizeTypes.WORLDSIZE_STANDARD: (25,15),
++        WorldSizeTypes.WORLDSIZE_LARGE: (30,18),
++        WorldSizeTypes.WORLDSIZE_HUGE: (40,24),
+     }
+     return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+
+diff --git a/PrivateMaps/Fantasy_Realm.py b/PrivateMaps/Fantasy_Realm.py
+index f8a1cf86e..aca25380d 100644
+--- a/PrivateMaps/Fantasy_Realm.py
++++ b/PrivateMaps/Fantasy_Realm.py
+@@ -494,6 +494,7 @@ def addBonusType(argsList):
+ 	# determine number of bonuses to place (defined as count)
+ 	# size modifier is a fixed component based on world size
+ 	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using integer indices for compatibility. Credit: Claude Opus 4.5. (GPT-5.2-Codex) -->
++	# <!-- custom: note: now that we added worldsizes to DLL as enums, not sure this is still needed but left as such for no tedium as of now. -->
+ 	sizekey = int(map.getWorldSize())
+ 	sizevalues = sas_default_sizevalues()
+ 	sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
+
+diff --git a/PrivateMaps/Global_Highlands.py b/PrivateMaps/Global_Highlands.py
+index 366641785..e23e9d440 100644
+--- a/PrivateMaps/Global_Highlands.py
++++ b/PrivateMaps/Global_Highlands.py
+@@ -144,15 +144,15 @@ def addBonusType(argsList):
+ 
+ def getGridSize(argsList):
+ 	"Enlarge the grids! Need extra land to cover that 'wasted' by all the peaks!"
+-	# <!-- custom: in this mapscript, even accounting for the many peaks, empirically map is still way too large (accounts for using the sas world size integer fix to account for world size arena shift), so reduce them by one world size as compared to old values (e.g., World size HUGE (38,24) -> (32,20) (old LARGE)). Same issue in Base AdvCiv empirically. See KI#138. -->
++	# <!-- custom: Even after using XML-aligned WorldSizeTypes, this peak-heavy script is empirically still too large, so use one smaller base world-size grid (e.g. Huge uses the old Large grid). Same issue in Base AdvCiv empirically. See KI#138. (ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (8,5),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (10,6),
+-		SAS_MAGIC_WORLDSIZE_TINY: (13,8),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (16,10),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (21,13),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (26,16),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (32,20),
++		WorldSizeTypes.WORLDSIZE_ARENA: (8,5),
++		WorldSizeTypes.WORLDSIZE_DUEL: (10,6),
++		WorldSizeTypes.WORLDSIZE_TINY: (13,8),
++		WorldSizeTypes.WORLDSIZE_SMALL: (16,10),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (21,13),
++		WorldSizeTypes.WORLDSIZE_LARGE: (26,16),
++		WorldSizeTypes.WORLDSIZE_HUGE: (32,20),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index 5417ba1d9..4b373a4ab 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -98,19 +98,19 @@ class GreatPlainsFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 
+ 		# Varying grains for reducing "clumping" of hills/peaks on larger maps.
+ 		sizekey = map.getWorldSize()
+-		# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices with fallback for compatibility. (GPT-5.2-Codex; GPT-5.5) -->
++		# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) (GPT-5.2-Codex; GPT-5.5; ChatGPT-5.5) -->
+ 		grainvalues = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: 3,
+-			SAS_MAGIC_WORLDSIZE_DUEL: 3,
+-			SAS_MAGIC_WORLDSIZE_TINY: 3,
+-			SAS_MAGIC_WORLDSIZE_SMALL: 3,
+-			SAS_MAGIC_WORLDSIZE_STANDARD: 4,
+-			SAS_MAGIC_WORLDSIZE_LARGE: 5,
+-			SAS_MAGIC_WORLDSIZE_HUGE: 6,
+-			SAS_MAGIC_WORLDSIZE_SAS24: 7,
+-			SAS_MAGIC_WORLDSIZE_SAS32: 8,
+-			SAS_MAGIC_WORLDSIZE_SAS40: 9,
+-			SAS_MAGIC_WORLDSIZE_SAS48: 10,
++			WorldSizeTypes.WORLDSIZE_ARENA: 3,
++			WorldSizeTypes.WORLDSIZE_DUEL: 3,
++			WorldSizeTypes.WORLDSIZE_TINY: 3,
++			WorldSizeTypes.WORLDSIZE_SMALL: 3,
++			WorldSizeTypes.WORLDSIZE_STANDARD: 4,
++			WorldSizeTypes.WORLDSIZE_LARGE: 5,
++			WorldSizeTypes.WORLDSIZE_HUGE: 6,
++			WorldSizeTypes.WORLDSIZE_SAS24: 7,
++			WorldSizeTypes.WORLDSIZE_SAS32: 8,
++			WorldSizeTypes.WORLDSIZE_SAS40: 9,
++			WorldSizeTypes.WORLDSIZE_SAS48: 10,
+ 			}
+ 		grain_amount = sas_lookup_world_size(sizekey, grainvalues)
+ 
+@@ -986,19 +986,19 @@ def addRivers():
+ 
+ 	# Set maxshift according to grid size.
+ 	sizekey = map.getWorldSize()
+-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices with fallback for compatibility. (GPT-5.2-Codex; GPT-5.5) -->
++	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players). (GPT-5.2-Codex; GPT-5.5; ChatGPT-5.5) -->
+ 	shiftvalues = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 1,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 1,
+-		SAS_MAGIC_WORLDSIZE_TINY: 2,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 2,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 3,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 3,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 4,
+-		SAS_MAGIC_WORLDSIZE_SAS24: 5,
+-		SAS_MAGIC_WORLDSIZE_SAS32: 6,
+-		SAS_MAGIC_WORLDSIZE_SAS40: 7,
+-		SAS_MAGIC_WORLDSIZE_SAS48: 8,
++		WorldSizeTypes.WORLDSIZE_ARENA: 1,
++		WorldSizeTypes.WORLDSIZE_DUEL: 1,
++		WorldSizeTypes.WORLDSIZE_TINY: 2,
++		WorldSizeTypes.WORLDSIZE_SMALL: 2,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 3,
++		WorldSizeTypes.WORLDSIZE_LARGE: 3,
++		WorldSizeTypes.WORLDSIZE_HUGE: 4,
++		WorldSizeTypes.WORLDSIZE_SAS24: 5,
++		WorldSizeTypes.WORLDSIZE_SAS32: 6,
++		WorldSizeTypes.WORLDSIZE_SAS40: 7,
++		WorldSizeTypes.WORLDSIZE_SAS48: 8,
+ 		}
+ 	maxshift = sas_lookup_world_size(sizekey, shiftvalues)
+
+diff --git a/PrivateMaps/Highlands.py b/PrivateMaps/Highlands.py
+index 676ea4d96..f9c7e06bf 100644
+--- a/PrivateMaps/Highlands.py
++++ b/PrivateMaps/Highlands.py
+@@ -205,19 +205,19 @@ def generatePlotTypes():
+ 
+ 	# Varying grains for hills/peaks per map size and Mountain Ranges setting.
+ 	# [clustered_grain, ridgelines_grain, scattered_grain]
+-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices. (Claude code Opus 4.5; GPT-5.5) -->
++	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using DLL WorldSizeTypes values aligned with XML order. (Claude code Opus 4.5; GPT-5.5; ChatGPT-5.5) -->
+ 	worldsizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: [3, 4, 5],
+-		SAS_MAGIC_WORLDSIZE_DUEL: [3, 4, 5],
+-		SAS_MAGIC_WORLDSIZE_TINY: [3, 4, 5],
+-		SAS_MAGIC_WORLDSIZE_SMALL: [4, 5, 6],
+-		SAS_MAGIC_WORLDSIZE_STANDARD: [4, 5, 6],
+-		SAS_MAGIC_WORLDSIZE_LARGE: [4, 5, 6],
+-		SAS_MAGIC_WORLDSIZE_HUGE: [4, 5, 6],
+-		SAS_MAGIC_WORLDSIZE_SAS24: [5, 6, 7],
+-		SAS_MAGIC_WORLDSIZE_SAS32: [5, 6, 7],
+-		SAS_MAGIC_WORLDSIZE_SAS40: [5, 6, 7],
+-		SAS_MAGIC_WORLDSIZE_SAS48: [5, 6, 7],
++		WorldSizeTypes.WORLDSIZE_ARENA: [3, 4, 5],
++		WorldSizeTypes.WORLDSIZE_DUEL: [3, 4, 5],
++		WorldSizeTypes.WORLDSIZE_TINY: [3, 4, 5],
++		WorldSizeTypes.WORLDSIZE_SMALL: [4, 5, 6],
++		WorldSizeTypes.WORLDSIZE_STANDARD: [4, 5, 6],
++		WorldSizeTypes.WORLDSIZE_LARGE: [4, 5, 6],
++		WorldSizeTypes.WORLDSIZE_HUGE: [4, 5, 6],
++		WorldSizeTypes.WORLDSIZE_SAS24: [5, 6, 7],
++		WorldSizeTypes.WORLDSIZE_SAS32: [5, 6, 7],
++		WorldSizeTypes.WORLDSIZE_SAS40: [5, 6, 7],
++		WorldSizeTypes.WORLDSIZE_SAS48: [5, 6, 7],
+ 	}
+ 
+ 	# Convert WorldSizeTypes enum to int for lookup
+
+diff --git a/PrivateMaps/Hub.py b/PrivateMaps/Hub.py
+index d2b2a2999..1556c49e0 100644
+--- a/PrivateMaps/Hub.py
++++ b/PrivateMaps/Hub.py
+@@ -160,15 +160,15 @@ def isBonusIgnoreLatitude():
+ 	return True
+ 
+ def getGridSize(argsList):
+-	# <!-- custom: Keep Hub's original base profile and calibrate only sizes above Huge using shared SAS helpers so ARENA/SAS sizes avoid KeyError while preserving this script's shape. (GPT-5.3-Codex) -->
++	# <!-- custom: Keep Hub's original base profile and calibrate only sizes above Huge using shared SAS helpers so ARENA/SAS sizes avoid KeyError while preserving this script's shape. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (6,4),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (8,5),
+-		SAS_MAGIC_WORLDSIZE_TINY: (10,6),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (13,8),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (16,10),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (21,13),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (26,16)
++		WorldSizeTypes.WORLDSIZE_ARENA: (6,4),
++		WorldSizeTypes.WORLDSIZE_DUEL: (8,5),
++		WorldSizeTypes.WORLDSIZE_TINY: (10,6),
++		WorldSizeTypes.WORLDSIZE_SMALL: (13,8),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (16,10),
++		WorldSizeTypes.WORLDSIZE_LARGE: (21,13),
++		WorldSizeTypes.WORLDSIZE_HUGE: (26,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -1096,19 +1096,19 @@ def assignStartingPlots():
+ 
+ 	# Set variance for start plots according to map size vs number of players.
+ 	map_size = map.getWorldSize()
+-	# <!-- custom: Use integer world-size indices with SAS fallback so Hub supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
++	# <!-- custom: Use SAS worldsizes so Hub supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	sizevalues = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_TINY: (2, 4),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (3, 6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (4, 10),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (6, 12),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (6, 18),
+-		SAS_MAGIC_WORLDSIZE_SAS24: (7, 20),
+-		SAS_MAGIC_WORLDSIZE_SAS32: (8, 24),
+-		SAS_MAGIC_WORLDSIZE_SAS40: (9, 28),
+-		SAS_MAGIC_WORLDSIZE_SAS48: (10, 32)
++		WorldSizeTypes.WORLDSIZE_ARENA: (2, 3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (2, 3),
++		WorldSizeTypes.WORLDSIZE_TINY: (2, 4),
++		WorldSizeTypes.WORLDSIZE_SMALL: (3, 6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (4, 10),
++		WorldSizeTypes.WORLDSIZE_LARGE: (6, 12),
++		WorldSizeTypes.WORLDSIZE_HUGE: (6, 18),
++		WorldSizeTypes.WORLDSIZE_SAS24: (7, 20),
++		WorldSizeTypes.WORLDSIZE_SAS32: (8, 24),
++		WorldSizeTypes.WORLDSIZE_SAS40: (9, 28),
++		WorldSizeTypes.WORLDSIZE_SAS48: (10, 32)
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+
+diff --git a/PrivateMaps/Ice_Age.py b/PrivateMaps/Ice_Age.py
+index 381628337..c1ad157b6 100644
+--- a/PrivateMaps/Ice_Age.py
++++ b/PrivateMaps/Ice_Age.py
+@@ -71,15 +71,15 @@ def isClimateMap():
+ def getGridSize(argsList):
+ 	# Override Grid Size function to make shorter than normal.
+ 	# Map widths unchanged. Height reduced (lands lost to polar ice)
+-	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; keep Ice Age short-height profile while deriving SAS tiers from the script's Huge anchor. (GPT-5.3-Codex) -->
++	# <!-- custom: Use SAS worldsizes with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; keep Ice Age short-height profile while deriving SAS tiers from the script's Huge anchor. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	base_grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (8, 3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (10, 4),
+-		SAS_MAGIC_WORLDSIZE_TINY: (13, 5),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (16, 7),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (21, 9),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (26, 11),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (32, 13),
++		WorldSizeTypes.WORLDSIZE_ARENA: (8, 3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (10, 4),
++		WorldSizeTypes.WORLDSIZE_TINY: (13, 5),
++		WorldSizeTypes.WORLDSIZE_SMALL: (16, 7),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (21, 9),
++		WorldSizeTypes.WORLDSIZE_LARGE: (26, 11),
++		WorldSizeTypes.WORLDSIZE_HUGE: (32, 13),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Inland_Sea.py b/PrivateMaps/Inland_Sea.py
+index 8d16c4d42..5fbda5949 100644
+--- a/PrivateMaps/Inland_Sea.py
++++ b/PrivateMaps/Inland_Sea.py
+@@ -139,19 +139,19 @@ def beforeGeneration():
+ 
+ 	# Set variance for start plots according to map size vs number of players.
+ 	map_size = CyMap().getWorldSize()
+-	# <!-- custom: Use integer world-size indices with SAS fallback so Inland Sea supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
++	# <!-- custom: Use SAS worldsizes so Inland Sea supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	sizevalues = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_TINY: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (3, 4),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (4, 7),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (5, 10),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (6, 15),
+-		SAS_MAGIC_WORLDSIZE_SAS24: (7, 18),
+-		SAS_MAGIC_WORLDSIZE_SAS32: (8, 22),
+-		SAS_MAGIC_WORLDSIZE_SAS40: (9, 26),
+-		SAS_MAGIC_WORLDSIZE_SAS48: (10, 30),
++		WorldSizeTypes.WORLDSIZE_ARENA: (2, 3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (2, 3),
++		WorldSizeTypes.WORLDSIZE_TINY: (2, 3),
++		WorldSizeTypes.WORLDSIZE_SMALL: (3, 4),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (4, 7),
++		WorldSizeTypes.WORLDSIZE_LARGE: (5, 10),
++		WorldSizeTypes.WORLDSIZE_HUGE: (6, 15),
++		WorldSizeTypes.WORLDSIZE_SAS24: (7, 18),
++		WorldSizeTypes.WORLDSIZE_SAS32: (8, 22),
++		WorldSizeTypes.WORLDSIZE_SAS40: (9, 26),
++		WorldSizeTypes.WORLDSIZE_SAS48: (10, 30),
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+@@ -610,15 +610,15 @@ def getBottomLatitude():
+ 
+ def getGridSize(argsList):
+ 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
+-	# <!-- custom: Use integer world-size indices with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex) -->
++	# <!-- custom: Use SAS worldsizes with dynamic calibrated sizing above Huge so ARENA/SAS sizes don't raise KeyError; Inland Sea is land-heavy (not almost-all-land), so derive SAS tiers from this script's Huge anchor instead of hardcoding them. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (5, 3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (6, 4),
+-		SAS_MAGIC_WORLDSIZE_TINY: (8, 5),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (10, 6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (13, 8),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (16, 10),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (21, 13),
++		WorldSizeTypes.WORLDSIZE_ARENA: (5, 3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (6, 4),
++		WorldSizeTypes.WORLDSIZE_TINY: (8, 5),
++		WorldSizeTypes.WORLDSIZE_SMALL: (10, 6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (13, 8),
++		WorldSizeTypes.WORLDSIZE_LARGE: (16, 10),
++		WorldSizeTypes.WORLDSIZE_HUGE: (21, 13),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Maze.py b/PrivateMaps/Maze.py
+index 2b1882f38..abafbec0b 100644
+--- a/PrivateMaps/Maze.py
++++ b/PrivateMaps/Maze.py
+@@ -129,15 +129,15 @@ def startHumansOnSameTile():
+ 	return True
+ 
+ def getGridSize(argsList):
+-	# <!-- custom: Keep original base tiers and calibrate only sizes above Huge with shared SAS helper to avoid KeyError on ARENA/SAS24/SAS32/SAS40/SAS48. (GPT-5.3-Codex) -->
++	# <!-- custom: Keep original base tiers and calibrate only sizes above Huge with shared SAS helper to avoid KeyError on ARENA/SAS24/SAS32/SAS40/SAS48. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (4,3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (6,4),
+-		SAS_MAGIC_WORLDSIZE_TINY: (9,4),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (10,6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (14,8),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (18,10),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (24,14)
++		WorldSizeTypes.WORLDSIZE_ARENA: (4,3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (6,4),
++		WorldSizeTypes.WORLDSIZE_TINY: (9,4),
++		WorldSizeTypes.WORLDSIZE_SMALL: (10,6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (14,8),
++		WorldSizeTypes.WORLDSIZE_LARGE: (18,10),
++		WorldSizeTypes.WORLDSIZE_HUGE: (24,14)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -166,15 +166,15 @@ def generatePlotTypes():
+ 	# Varying grains for reducing "clumping" of hills/peaks on larger maps.
+ 	sizekey = map.getWorldSize()
+ 	grainvalues = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 2,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 3,
+-		SAS_MAGIC_WORLDSIZE_TINY: 3,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 4,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 4,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 5,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 6
++		WorldSizeTypes.WORLDSIZE_ARENA: 2,
++		WorldSizeTypes.WORLDSIZE_DUEL: 3,
++		WorldSizeTypes.WORLDSIZE_TINY: 3,
++		WorldSizeTypes.WORLDSIZE_SMALL: 4,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 4,
++		WorldSizeTypes.WORLDSIZE_LARGE: 5,
++		WorldSizeTypes.WORLDSIZE_HUGE: 6
+ 		}
+-	grain_amount = grainvalues.get(int(sizekey), grainvalues[SAS_MAGIC_WORLDSIZE_HUGE])
++	grain_amount = grainvalues.get(int(sizekey), grainvalues[WorldSizeTypes.WORLDSIZE_HUGE])
+ 
+ 	# Init fractal for distribution of Hills plots.
+ 	hillsFrac = CyFractal()
+
+diff --git a/PrivateMaps/Medium_and_Small.py b/PrivateMaps/Medium_and_Small.py
+index 21d5b6d26..72a65297d 100644
+--- a/PrivateMaps/Medium_and_Small.py
++++ b/PrivateMaps/Medium_and_Small.py
+@@ -33,13 +33,13 @@ def getNumPlotsPercent(argsList):
+ 	if eWorldSize < 0:
+ 		return 100
+ 	sizeModifiers = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+-		SAS_MAGIC_WORLDSIZE_TINY: 100,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 105,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 110
++		WorldSizeTypes.WORLDSIZE_ARENA: 100,
++		WorldSizeTypes.WORLDSIZE_DUEL: 100,
++		WorldSizeTypes.WORLDSIZE_TINY: 100,
++		WorldSizeTypes.WORLDSIZE_SMALL: 100,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 100,
++		WorldSizeTypes.WORLDSIZE_LARGE: 105,
++		WorldSizeTypes.WORLDSIZE_HUGE: 110
+ 	}
+ 	return sas_lookup_world_size(eWorldSize, sizeModifiers)
+
+diff --git a/PrivateMaps/Mirror.py b/PrivateMaps/Mirror.py
+index 62a1a7125..d96473fc6 100644
+--- a/PrivateMaps/Mirror.py
++++ b/PrivateMaps/Mirror.py
+@@ -154,13 +154,13 @@ class MirrorMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		# The following grain matrix is specific to Pangaea.py
+ 		sizekey = self.map.getWorldSize()
+ 		sizevalues = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: 2,
+-			SAS_MAGIC_WORLDSIZE_DUEL: 3,
+-			SAS_MAGIC_WORLDSIZE_TINY: 3,
+-			SAS_MAGIC_WORLDSIZE_SMALL: 4,
+-			SAS_MAGIC_WORLDSIZE_STANDARD: 4,
+-			SAS_MAGIC_WORLDSIZE_LARGE: 4,
+-			SAS_MAGIC_WORLDSIZE_HUGE: 5
++			WorldSizeTypes.WORLDSIZE_ARENA: 2,
++			WorldSizeTypes.WORLDSIZE_DUEL: 3,
++			WorldSizeTypes.WORLDSIZE_TINY: 3,
++			WorldSizeTypes.WORLDSIZE_SMALL: 4,
++			WorldSizeTypes.WORLDSIZE_STANDARD: 4,
++			WorldSizeTypes.WORLDSIZE_LARGE: 4,
++			WorldSizeTypes.WORLDSIZE_HUGE: 5
+ 			}
+ 		grain = sas_lookup_world_size(sizekey, sizevalues)
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index 3aa64de5e..53b9e7be8 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -264,13 +264,13 @@ class OasisMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+ 		# The following grain matrix is specific to Oasis.py
+ 		sizekey = self.map.getWorldSize()
+ 		sizevalues = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: 2,
+-			SAS_MAGIC_WORLDSIZE_DUEL: 3,
+-			SAS_MAGIC_WORLDSIZE_TINY: 3,
+-			SAS_MAGIC_WORLDSIZE_SMALL: 3,
+-			SAS_MAGIC_WORLDSIZE_STANDARD: 4,
+-			SAS_MAGIC_WORLDSIZE_LARGE: 4,
+-			SAS_MAGIC_WORLDSIZE_HUGE: 5
++			WorldSizeTypes.WORLDSIZE_ARENA: 2,
++			WorldSizeTypes.WORLDSIZE_DUEL: 3,
++			WorldSizeTypes.WORLDSIZE_TINY: 3,
++			WorldSizeTypes.WORLDSIZE_SMALL: 3,
++			WorldSizeTypes.WORLDSIZE_STANDARD: 4,
++			WorldSizeTypes.WORLDSIZE_LARGE: 4,
++			WorldSizeTypes.WORLDSIZE_HUGE: 5
+ 			}
+ 		grain = sas_lookup_world_size(sizekey, sizevalues)
+ 
+@@ -701,13 +701,13 @@ def addBonusType(argsList):
+ 		# size modifier is a fixed component based on world size
+ 		sizekey = map.getWorldSize()
+ 		sizevalues = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: 1,
+-			SAS_MAGIC_WORLDSIZE_DUEL: 1,
+-			SAS_MAGIC_WORLDSIZE_TINY: 1,
+-			SAS_MAGIC_WORLDSIZE_SMALL: 1,
+-			SAS_MAGIC_WORLDSIZE_STANDARD: 2,
+-			SAS_MAGIC_WORLDSIZE_LARGE: 2,
+-			SAS_MAGIC_WORLDSIZE_HUGE: 3
++			WorldSizeTypes.WORLDSIZE_ARENA: 1,
++			WorldSizeTypes.WORLDSIZE_DUEL: 1,
++			WorldSizeTypes.WORLDSIZE_TINY: 1,
++			WorldSizeTypes.WORLDSIZE_SMALL: 1,
++			WorldSizeTypes.WORLDSIZE_STANDARD: 2,
++			WorldSizeTypes.WORLDSIZE_LARGE: 2,
++			WorldSizeTypes.WORLDSIZE_HUGE: 3
+ 			}
+ 		sizemodifier = sas_lookup_world_size(sizekey, sizevalues)
+ 		# playermodifier involves two layers of randomnity.
+@@ -944,13 +944,13 @@ def addRivers():
+ 	# Set maxshift, numbers of rivers for Oasis according to grid size.
+ 	sizekey = map.getWorldSize()
+ 	shiftvalues = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 1,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 1,
+-		SAS_MAGIC_WORLDSIZE_TINY: 2,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 3,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 5,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 7,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 9
++		WorldSizeTypes.WORLDSIZE_ARENA: 1,
++		WorldSizeTypes.WORLDSIZE_DUEL: 1,
++		WorldSizeTypes.WORLDSIZE_TINY: 2,
++		WorldSizeTypes.WORLDSIZE_SMALL: 3,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 5,
++		WorldSizeTypes.WORLDSIZE_LARGE: 7,
++		WorldSizeTypes.WORLDSIZE_HUGE: 9
+ 		}
+ 	maxshift = sas_lookup_world_size(sizekey, shiftvalues)
+
+diff --git a/PrivateMaps/Pangaea.py b/PrivateMaps/Pangaea.py
+index e98908e61..ba15f7c7f 100644
+--- a/PrivateMaps/Pangaea.py
++++ b/PrivateMaps/Pangaea.py
+@@ -42,15 +42,15 @@ def getNumPlotsPercent(argsList):
+ 	[iWorldSize] = argsList
+ 	if iWorldSize < 0:
+ 		return 100
+-	# <!-- custom: AdvCiv-SAS Arena shifts runtime world-size indices, so Huge was using the smaller fallback and tested slightly cramped; use SAS world-size keys and keep Huge at the old explicit Pangaea value. (GPT-5.5?) -->
++	# <!-- custom: Use XML-aligned DLL WorldSizeTypes keys and keep Huge at the old explicit Pangaea value. (GPT-5.5? + ChatGPT-5.5) -->
+ 	sizeModifiers = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 88,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 88,
+-		SAS_MAGIC_WORLDSIZE_TINY: 83,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 78,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 73,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 67,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 60
++		WorldSizeTypes.WORLDSIZE_ARENA: 88,
++		WorldSizeTypes.WORLDSIZE_DUEL: 88,
++		WorldSizeTypes.WORLDSIZE_TINY: 83,
++		WorldSizeTypes.WORLDSIZE_SMALL: 78,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 73,
++		WorldSizeTypes.WORLDSIZE_LARGE: 67,
++		WorldSizeTypes.WORLDSIZE_HUGE: 60
+ 	}
+ 	r = sas_lookup_world_size(iWorldSize, sizeModifiers)
+ 	# Low sea level doesn't have as much impact on this map. Adjust the grid size in order to compensate.
+
+diff --git a/PrivateMaps/PerfectMongoose.py b/PrivateMaps/PerfectMongoose.py
+index 30bd92c9b..04d0bb6c0 100644
+--- a/PrivateMaps/PerfectMongoose.py
++++ b/PrivateMaps/PerfectMongoose.py
+@@ -6157,15 +6157,15 @@ def getGridSize(argsList):
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+ 		return []
+ 	[eWorldSize] = argsList
+-	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, like sas_compact_almost_all_land_grid_sizes. Do NOT key by WorldSizeTypes.WORLDSIZE_* here: that enum isn't ARENA-shifted (HUGE==5), so direct getGridSize dictionaries mis-key Large/Huge after adding ARENA; map scripts like Pangaea.py scale XML dimensions through getNumPlotsPercent, so they can still behave plausibly because XML provides the base size first. (Claude code Opus 4.7; GPT-5.5) -->
++	# <!-- custom: WorldSizeTypes keys now match the runtime XML world-size order, including ARENA before Duel and SAS sizes after Huge. This preserves the earlier Large/Huge map-size fix without custom magic indices. (Claude code Opus 4.7; GPT-5.5; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (6, 4),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (8, 6),
+-		SAS_MAGIC_WORLDSIZE_TINY: (11, 8),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (14, 10),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (17, 12),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (20, 14),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (24, 17),
++		WorldSizeTypes.WORLDSIZE_ARENA: (6, 4),
++		WorldSizeTypes.WORLDSIZE_DUEL: (8, 6),
++		WorldSizeTypes.WORLDSIZE_TINY: (11, 8),
++		WorldSizeTypes.WORLDSIZE_SMALL: (14, 10),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (17, 12),
++		WorldSizeTypes.WORLDSIZE_LARGE: (20, 14),
++		WorldSizeTypes.WORLDSIZE_HUGE: (24, 17),
+ 	}
+ 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+
+diff --git a/PrivateMaps/RandomScriptMap.py b/PrivateMaps/RandomScriptMap.py
+index d2d0af789..0cdf9d514 100644
+--- a/PrivateMaps/RandomScriptMap.py
++++ b/PrivateMaps/RandomScriptMap.py
+@@ -88,7 +88,7 @@ c_favWeight = 0       # Default: 0; Value not used. Change Weight Directly
+ # c_spacePerCiv for some dicisions regarding start plot placement.
+ # NOTE: Dont Choose both numbers too big - the conditions will be ignored, if
+ # there is not enought space.
+-# <!-- custom: Legacy 0..5 size-bucket arrays below are still in the original Duel..Huge order; use _sas_world_size_base_index before indexing them. (GPT-5.5?) -->
++# <!-- custom: RandomScriptMap still has legacy 0..5 Duel..Huge tuning arrays below; convert XML-aligned WorldSizeTypes to those legacy bucket indexes before indexing them. Arena reuses Duel tuning and SAS sizes reuse Huge tuning. (GPT-5.5? + ChatGPT-5.5) -->
+ c_minStartAreaSize = [6, 6, 8, 8, 10, 10]   # Default [6, 6, 8, 8, 10, 10]
+ c_spacePerCiv = [40, 50, 50, 75, 75, 90]    # Default [40,50,50,75,75,90]
+ #
+@@ -117,15 +117,15 @@ STA_OLDWORLD = 2
+ STA_OLDCOAST = 3
+ 
+ def _sas_world_size_base_index(eWorldSize):
+-	# <!-- custom: AdvCiv-SAS adds Arena before Duel, so runtime world-size IDs are shifted from the old BTS WorldSizeTypes enum. RandomScriptMap's tested Huge dimensions did not change from this fix, but its start-validation thresholds, fractal grain branches, and terrain-size branch were reading shifted size buckets; map them back to the original 0..5 Duel..Huge tuning arrays, with Arena using Duel and larger SAS sizes reusing Huge. (GPT-5.5?) -->
++	# <!-- custom: Convert XML-aligned WorldSizeTypes to RandomScriptMap's legacy 0..5 Duel..Huge tuning buckets. Arena reuses Duel tuning and SAS sizes reuse Huge tuning. (GPT-5.5? + ChatGPT-5.5) -->
+ 	size_index_values = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 0,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 0,
+-		SAS_MAGIC_WORLDSIZE_TINY: 1,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 2,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 3,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 4,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 5
++		WorldSizeTypes.WORLDSIZE_ARENA: 0,
++		WorldSizeTypes.WORLDSIZE_DUEL: 0,
++		WorldSizeTypes.WORLDSIZE_TINY: 1,
++		WorldSizeTypes.WORLDSIZE_SMALL: 2,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 3,
++		WorldSizeTypes.WORLDSIZE_LARGE: 4,
++		WorldSizeTypes.WORLDSIZE_HUGE: 5
+ 	}
+ 	return sas_lookup_world_size(eWorldSize, size_index_values)
+ 
+@@ -151,13 +151,13 @@ def getNumPlotsPercent(argsList):
+ 	if eWorldSize < 0:
+ 		return 100
+ 	sizeModifiers = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: 100,
+-		SAS_MAGIC_WORLDSIZE_DUEL: 100,
+-		SAS_MAGIC_WORLDSIZE_TINY: 100,
+-		SAS_MAGIC_WORLDSIZE_SMALL: 100,
+-		SAS_MAGIC_WORLDSIZE_STANDARD: 100,
+-		SAS_MAGIC_WORLDSIZE_LARGE: 99,
+-		SAS_MAGIC_WORLDSIZE_HUGE: 96
++		WorldSizeTypes.WORLDSIZE_ARENA: 100,
++		WorldSizeTypes.WORLDSIZE_DUEL: 100,
++		WorldSizeTypes.WORLDSIZE_TINY: 100,
++		WorldSizeTypes.WORLDSIZE_SMALL: 100,
++		WorldSizeTypes.WORLDSIZE_STANDARD: 100,
++		WorldSizeTypes.WORLDSIZE_LARGE: 99,
++		WorldSizeTypes.WORLDSIZE_HUGE: 96
+ 	}
+ 	return sas_lookup_world_size(eWorldSize, sizeModifiers)
+ 
+@@ -874,13 +874,13 @@ class R_PangaeaMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         # The following grain matrix is specific to Pangaea.py
+         sizekey = self.map.getWorldSize()
+         sizevalues = {
+-            SAS_MAGIC_WORLDSIZE_ARENA:     3,
+-            SAS_MAGIC_WORLDSIZE_DUEL:      3,
+-            SAS_MAGIC_WORLDSIZE_TINY:      3,
+-            SAS_MAGIC_WORLDSIZE_SMALL:     4,
+-            SAS_MAGIC_WORLDSIZE_STANDARD:  4,
+-            SAS_MAGIC_WORLDSIZE_LARGE:     4,
+-            SAS_MAGIC_WORLDSIZE_HUGE:      5
++            WorldSizeTypes.WORLDSIZE_ARENA:     3,
++            WorldSizeTypes.WORLDSIZE_DUEL:      3,
++            WorldSizeTypes.WORLDSIZE_TINY:      3,
++            WorldSizeTypes.WORLDSIZE_SMALL:     4,
++            WorldSizeTypes.WORLDSIZE_STANDARD:  4,
++            WorldSizeTypes.WORLDSIZE_LARGE:     4,
++            WorldSizeTypes.WORLDSIZE_HUGE:      5
+             }
+         grain = sas_lookup_world_size(sizekey, sizevalues)
+ 
+@@ -1025,13 +1025,13 @@ class R_TerraMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
+         # The following grain matrix is specific to Terra.py
+         sizekey = self.map.getWorldSize()
+         sizevalues = {
+-            SAS_MAGIC_WORLDSIZE_ARENA:     (3,2,1,2),
+-            SAS_MAGIC_WORLDSIZE_DUEL:      (3,2,1,2),
+-            SAS_MAGIC_WORLDSIZE_TINY:      (3,2,1,2),
+-            SAS_MAGIC_WORLDSIZE_SMALL:     (4,2,1,2),
+-            SAS_MAGIC_WORLDSIZE_STANDARD:  (4,2,1,2),
+-            SAS_MAGIC_WORLDSIZE_LARGE:     (4,2,1,2),
+-            SAS_MAGIC_WORLDSIZE_HUGE:      (5,2,1,2)
++            WorldSizeTypes.WORLDSIZE_ARENA:     (3,2,1,2),
++            WorldSizeTypes.WORLDSIZE_DUEL:      (3,2,1,2),
++            WorldSizeTypes.WORLDSIZE_TINY:      (3,2,1,2),
++            WorldSizeTypes.WORLDSIZE_SMALL:     (4,2,1,2),
++            WorldSizeTypes.WORLDSIZE_STANDARD:  (4,2,1,2),
++            WorldSizeTypes.WORLDSIZE_LARGE:     (4,2,1,2),
++            WorldSizeTypes.WORLDSIZE_HUGE:      (5,2,1,2)
+             }
+         (archGrain, contGrain, gaeaGrain, eurasiaGrain) = sas_lookup_world_size(sizekey, sizevalues)
+
+diff --git a/PrivateMaps/Ring.py b/PrivateMaps/Ring.py
+index a988c545c..4275b7132 100644
+--- a/PrivateMaps/Ring.py
++++ b/PrivateMaps/Ring.py
+@@ -164,15 +164,15 @@ def isBonusIgnoreLatitude():
+ 	return True
+ 
+ def getGridSize(argsList):
+-	# <!-- custom: Keep Ring's original compact base profile and calibrate only sizes above Huge with shared SAS helpers so ARENA/SAS sizes avoid KeyError. (GPT-5.3-Codex) -->
++	# <!-- custom: Keep Ring's original compact base profile and calibrate only sizes above Huge with shared SAS helpers so ARENA/SAS sizes avoid KeyError. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (6,4),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (8,5),
+-		SAS_MAGIC_WORLDSIZE_TINY: (10,6),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (13,8),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (16,10),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (21,13),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (26,16)
++		WorldSizeTypes.WORLDSIZE_ARENA: (6,4),
++		WorldSizeTypes.WORLDSIZE_DUEL: (8,5),
++		WorldSizeTypes.WORLDSIZE_TINY: (10,6),
++		WorldSizeTypes.WORLDSIZE_SMALL: (13,8),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (16,10),
++		WorldSizeTypes.WORLDSIZE_LARGE: (21,13),
++		WorldSizeTypes.WORLDSIZE_HUGE: (26,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -1065,19 +1065,19 @@ def assignStartingPlots():
+ 
+ 	# Set variance for start plots according to map size vs number of players.
+ 	map_size = map.getWorldSize()
+-	# <!-- custom: Use integer world-size indices with SAS fallback so Ring supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex) -->
++	# <!-- custom: Use SAS worldsizes so Ring supports ARENA/SAS sizes and unknown future sizes without KeyError. (GPT-5.3-Codex; ChatGPT-5.5) -->
+ 	sizevalues = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_TINY: (2, 4),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (3, 6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (4, 10),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (6, 12),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (6, 18),
+-		SAS_MAGIC_WORLDSIZE_SAS24: (7, 20),
+-		SAS_MAGIC_WORLDSIZE_SAS32: (8, 24),
+-		SAS_MAGIC_WORLDSIZE_SAS40: (9, 28),
+-		SAS_MAGIC_WORLDSIZE_SAS48: (10, 32)
++		WorldSizeTypes.WORLDSIZE_ARENA: (2, 3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (2, 3),
++		WorldSizeTypes.WORLDSIZE_TINY: (2, 4),
++		WorldSizeTypes.WORLDSIZE_SMALL: (3, 6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (4, 10),
++		WorldSizeTypes.WORLDSIZE_LARGE: (6, 12),
++		WorldSizeTypes.WORLDSIZE_HUGE: (6, 18),
++		WorldSizeTypes.WORLDSIZE_SAS24: (7, 20),
++		WorldSizeTypes.WORLDSIZE_SAS32: (8, 24),
++		WorldSizeTypes.WORLDSIZE_SAS40: (9, 28),
++		WorldSizeTypes.WORLDSIZE_SAS48: (10, 32)
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+
+diff --git a/PrivateMaps/SAS_Large_Facing_Islands.py b/PrivateMaps/SAS_Large_Facing_Islands.py
+index 9c2d31fcc..26f8205bd 100644
+--- a/PrivateMaps/SAS_Large_Facing_Islands.py
++++ b/PrivateMaps/SAS_Large_Facing_Islands.py
+@@ -125,22 +125,22 @@ def minStartingDistanceModifier():
+ def _world_profile(eWorldSize):
+ 	# <!-- custom: world-size-only scaling: island footprint stays identical; only island count increases with world size. (GPT-5.3-Codex) -->
+ 	profiles = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (1, 1),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (1, 2),
+-		SAS_MAGIC_WORLDSIZE_TINY: (1, 3),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (1, 4),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (2, 4),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (2, 6),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (2, 8),
+-		SAS_MAGIC_WORLDSIZE_SAS24: (2, 12),
+-		SAS_MAGIC_WORLDSIZE_SAS32: (2, 16),
+-		SAS_MAGIC_WORLDSIZE_SAS40: (2, 20),
+-		SAS_MAGIC_WORLDSIZE_SAS48: (2, 24)
++		WorldSizeTypes.WORLDSIZE_ARENA: (1, 1),
++		WorldSizeTypes.WORLDSIZE_DUEL: (1, 2),
++		WorldSizeTypes.WORLDSIZE_TINY: (1, 3),
++		WorldSizeTypes.WORLDSIZE_SMALL: (1, 4),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (2, 4),
++		WorldSizeTypes.WORLDSIZE_LARGE: (2, 6),
++		WorldSizeTypes.WORLDSIZE_HUGE: (2, 8),
++		WorldSizeTypes.WORLDSIZE_SAS24: (2, 12),
++		WorldSizeTypes.WORLDSIZE_SAS32: (2, 16),
++		WorldSizeTypes.WORLDSIZE_SAS40: (2, 20),
++		WorldSizeTypes.WORLDSIZE_SAS48: (2, 24)
+ 	}
+ 	iWorld = int(eWorldSize)
+ 	if profiles.has_key(iWorld):
+ 		return profiles[iWorld]
+-	return profiles[SAS_MAGIC_WORLDSIZE_SAS48]
++	return profiles[WorldSizeTypes.WORLDSIZE_SAS48]
+ 
+ def _get_ew_connector_mode():
+ 	# 0 = Coast bands, 1 = Ocean bands
+
+diff --git a/PrivateMaps/SAS_Longworld.py b/PrivateMaps/SAS_Longworld.py
+index 97238889d..35e87773b 100644
+--- a/PrivateMaps/SAS_Longworld.py
++++ b/PrivateMaps/SAS_Longworld.py
+@@ -214,15 +214,15 @@ def getGridSize(argsList):
+ 	if argsList[0] == -1:
+ 		return []
+ 
+-	# <!-- custom: Use runtime world-size keys; see SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.7; GPT-5.5); otherwise we get KeyError: 6 ERR: Python function getGridSize failed, module SAS_Longworld, and empirically Huge grid size being too small (120 x 84) (with a lot of Y water) instead of 192 x 24. -->
++	# <!-- custom: Use XML-aligned DLL WorldSizeTypes keys so Huge and SAS sizes use their intended Longworld grid profiles instead of stale/misaligned fallback rows. (Claude code Opus 4.7; GPT-5.5; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (9, 4),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (12, 4),
+-		SAS_MAGIC_WORLDSIZE_TINY: (18, 5),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (27, 6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (34, 6),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (41, 6),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (54, 6),
++		WorldSizeTypes.WORLDSIZE_ARENA: (9, 4),
++		WorldSizeTypes.WORLDSIZE_DUEL: (12, 4),
++		WorldSizeTypes.WORLDSIZE_TINY: (18, 5),
++		WorldSizeTypes.WORLDSIZE_SMALL: (27, 6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (34, 6),
++		WorldSizeTypes.WORLDSIZE_LARGE: (41, 6),
++		WorldSizeTypes.WORLDSIZE_HUGE: (54, 6),
+ 	}
+ 
+ 	[eWorldSize] = argsList
+@@ -230,21 +230,23 @@ def getGridSize(argsList):
+ 	def _scaled_width(iBaseWidth):
+ 		return max(3, int(float(iBaseWidth) * fWidthScale + 0.5))
+ 
+-	if eWorldSize in grid_sizes:
+-		(iBaseWidth, iHeight) = grid_sizes[eWorldSize]
++	key = sas_find_world_size_key(eWorldSize, grid_sizes)
++	if key is not None:
++		(iBaseWidth, iHeight) = grid_sizes[key]
+ 		return (_scaled_width(iBaseWidth), iHeight)
+ 
+ 	# <!-- custom: For post-Huge SAS sizes, keep long-map height and scale width by default player ratio from Huge anchor. (GPT-5.3-Codex) -->
+ 	gc = CyGlobalContext()
+-	if eWorldSize > SAS_MAGIC_WORLDSIZE_HUGE and eWorldSize < gc.getNumWorldInfos():
+-		(iAnchorWidth, iAnchorHeight) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
++	iWorldSize = int(eWorldSize)
++	if iWorldSize > int(WorldSizeTypes.WORLDSIZE_HUGE) and iWorldSize < gc.getNumWorldInfos():
++		(iAnchorWidth, iAnchorHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
+ 		iAnchorWidth = _scaled_width(iAnchorWidth)
+-		iAnchorPlayers = max(1, gc.getWorldInfo(SAS_MAGIC_WORLDSIZE_HUGE).getDefaultPlayers())
++		iAnchorPlayers = max(1, gc.getWorldInfo(WorldSizeTypes.WORLDSIZE_HUGE).getDefaultPlayers())
+ 		iTargetPlayers = max(1, gc.getWorldInfo(eWorldSize).getDefaultPlayers())
+ 		iTargetWidth = max(iAnchorWidth + 1, int((float(iAnchorWidth) * float(iTargetPlayers)) / float(iAnchorPlayers) + 0.5))
+ 		return (iTargetWidth, iAnchorHeight)
+ 
+-	(iFallbackWidth, iFallbackHeight) = grid_sizes[SAS_MAGIC_WORLDSIZE_HUGE]
++	(iFallbackWidth, iFallbackHeight) = grid_sizes[WorldSizeTypes.WORLDSIZE_HUGE]
+ 	return (_scaled_width(iFallbackWidth), iFallbackHeight)
+ 
+ def generatePlotTypes():
+
+diff --git a/PrivateMaps/SAS_Spiky_Avenues.py b/PrivateMaps/SAS_Spiky_Avenues.py
+index 0692cafed..1dd2a9eeb 100644
+--- a/PrivateMaps/SAS_Spiky_Avenues.py
++++ b/PrivateMaps/SAS_Spiky_Avenues.py
+@@ -197,19 +197,18 @@ def getGridSize(argsList):
+ 	return ((iWidth + 3) / 4, (iHeight + 3) / 4)
+ 
+ def _profile_for_world_size(eWorldSize):
+-	# <!-- custom: Use runtime world-size indices because AdvCiv-SAS ARENA shifts Huge to 6; keep the player-capacity rationale beside the profile entries where it matters. (Claude code Opus 4.6; GPT-5.5) -->
+ 	profiles = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (1, 1),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (1, 1),
+-		SAS_MAGIC_WORLDSIZE_TINY: (1, 1),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (1, 2),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (2, 2),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (2, 3), # 11 players -> 3 spikes * 2 streets = 12 houses
+-		SAS_MAGIC_WORLDSIZE_HUGE: (2, 4), # 16 players -> 4 spikes * 2 streets = 16 houses
+-		SAS_MAGIC_WORLDSIZE_SAS24: (3, 4), # 24 players -> 4 spikes * 3 streets = 24 houses
+-		SAS_MAGIC_WORLDSIZE_SAS32: (4, 4), # 32 players -> 4 spikes * 4 streets = 32 houses
+-		SAS_MAGIC_WORLDSIZE_SAS40: (4, 5), # 40 players -> 5 spikes * 4 streets = 40 houses
+-		SAS_MAGIC_WORLDSIZE_SAS48: (4, 6), # 48 players -> 6 spikes * 4 streets = 48 houses
++		WorldSizeTypes.WORLDSIZE_ARENA: (1, 1),
++		WorldSizeTypes.WORLDSIZE_DUEL: (1, 1),
++		WorldSizeTypes.WORLDSIZE_TINY: (1, 1),
++		WorldSizeTypes.WORLDSIZE_SMALL: (1, 2),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (2, 2),
++		WorldSizeTypes.WORLDSIZE_LARGE: (2, 3), # 11 players -> 3 spikes * 2 streets = 12 houses
++		WorldSizeTypes.WORLDSIZE_HUGE: (2, 4), # 16 players -> 4 spikes * 2 streets = 16 houses
++		WorldSizeTypes.WORLDSIZE_SAS24: (3, 4), # 24 players -> 4 spikes * 3 streets = 24 houses
++		WorldSizeTypes.WORLDSIZE_SAS32: (4, 4), # 32 players -> 4 spikes * 4 streets = 32 houses
++		WorldSizeTypes.WORLDSIZE_SAS40: (4, 5), # 40 players -> 5 spikes * 4 streets = 40 houses
++		WorldSizeTypes.WORLDSIZE_SAS48: (4, 6), # 48 players -> 6 spikes * 4 streets = 48 houses
+ 	}
+ 	iWorldSize = int(eWorldSize)
+ 	if iWorldSize in profiles:
+
+diff --git a/PrivateMaps/Team_Battleground.py b/PrivateMaps/Team_Battleground.py
+index 29f855ac2..af59c4154 100644
+--- a/PrivateMaps/Team_Battleground.py
++++ b/PrivateMaps/Team_Battleground.py
+@@ -189,13 +189,13 @@ def getGridSize(argsList):
+ 
+ 	# <!-- custom: Team Battleground round/top-bottom modes need square maps; keep them compact and SAS-safe with calibrated sizes above Huge. (GPT-5.3-Codex; GPT-5.5) -->
+ 	square_compact_grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (3,3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (4,4),
+-		SAS_MAGIC_WORLDSIZE_TINY: (5,5),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (6,6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (8,8),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (10,10),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (13,13),
++		WorldSizeTypes.WORLDSIZE_ARENA: (3,3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (4,4),
++		WorldSizeTypes.WORLDSIZE_TINY: (5,5),
++		WorldSizeTypes.WORLDSIZE_SMALL: (6,6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (8,8),
++		WorldSizeTypes.WORLDSIZE_LARGE: (10,10),
++		WorldSizeTypes.WORLDSIZE_HUGE: (13,13),
+ 	}
+ 	return sas_lookup_world_size_with_calibrated_sas(eWorldSize, square_compact_grid_sizes)
+ 
+@@ -265,13 +265,13 @@ def generatePlotTypes():
+ 
+ 		# Now add the bridge across the center!
+ 		sizevalues = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: 3,
+-			SAS_MAGIC_WORLDSIZE_DUEL: 3,
+-			SAS_MAGIC_WORLDSIZE_TINY: 4,
+-			SAS_MAGIC_WORLDSIZE_SMALL: 5,
+-			SAS_MAGIC_WORLDSIZE_STANDARD: 6,
+-			SAS_MAGIC_WORLDSIZE_LARGE: 8,
+-			SAS_MAGIC_WORLDSIZE_HUGE: 10,
++			WorldSizeTypes.WORLDSIZE_ARENA: 3,
++			WorldSizeTypes.WORLDSIZE_DUEL: 3,
++			WorldSizeTypes.WORLDSIZE_TINY: 4,
++			WorldSizeTypes.WORLDSIZE_SMALL: 5,
++			WorldSizeTypes.WORLDSIZE_STANDARD: 6,
++			WorldSizeTypes.WORLDSIZE_LARGE: 8,
++			WorldSizeTypes.WORLDSIZE_HUGE: 10,
+ 		}
+ 		shift = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+ 		linewidth = 3
+@@ -344,13 +344,13 @@ def generatePlotTypes():
+ 		if userInputPlots == 5: # donut
+ 			# get the size of the hole
+ 			sizevalues = {
+-				SAS_MAGIC_WORLDSIZE_ARENA: 2,
+-				SAS_MAGIC_WORLDSIZE_DUEL: 2,
+-				SAS_MAGIC_WORLDSIZE_TINY: 3,
+-				SAS_MAGIC_WORLDSIZE_SMALL: 4,
+-				SAS_MAGIC_WORLDSIZE_STANDARD: 5,
+-				SAS_MAGIC_WORLDSIZE_LARGE: 7,
+-				SAS_MAGIC_WORLDSIZE_HUGE: 8,
++				WorldSizeTypes.WORLDSIZE_ARENA: 2,
++				WorldSizeTypes.WORLDSIZE_DUEL: 2,
++				WorldSizeTypes.WORLDSIZE_TINY: 3,
++				WorldSizeTypes.WORLDSIZE_SMALL: 4,
++				WorldSizeTypes.WORLDSIZE_STANDARD: 5,
++				WorldSizeTypes.WORLDSIZE_LARGE: 7,
++				WorldSizeTypes.WORLDSIZE_HUGE: 8,
+ 			}
+ 			hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+ 
+@@ -471,13 +471,13 @@ class TeamBGTerrainGenerator(CvMapGeneratorUtil.TerrainGenerator):
+ 			if userInputPlots == 5: # donut
+ 				# get the size of the hole
+ 				sizevalues = {
+-					SAS_MAGIC_WORLDSIZE_ARENA: 2,
+-					SAS_MAGIC_WORLDSIZE_DUEL: 2,
+-					SAS_MAGIC_WORLDSIZE_TINY: 3,
+-					SAS_MAGIC_WORLDSIZE_SMALL: 4,
+-					SAS_MAGIC_WORLDSIZE_STANDARD: 5,
+-					SAS_MAGIC_WORLDSIZE_LARGE: 7,
+-					SAS_MAGIC_WORLDSIZE_HUGE: 8,
++					WorldSizeTypes.WORLDSIZE_ARENA: 2,
++					WorldSizeTypes.WORLDSIZE_DUEL: 2,
++					WorldSizeTypes.WORLDSIZE_TINY: 3,
++					WorldSizeTypes.WORLDSIZE_SMALL: 4,
++					WorldSizeTypes.WORLDSIZE_STANDARD: 5,
++					WorldSizeTypes.WORLDSIZE_LARGE: 7,
++					WorldSizeTypes.WORLDSIZE_HUGE: 8,
+ 				}
+ 				hole_radii = sas_lookup_world_size_with_calibrated_sas(map.getWorldSize(), sizevalues)
+ 			else:
+
+diff --git a/PrivateMaps/Tilted_Axis.py b/PrivateMaps/Tilted_Axis.py
+index 8fce4b6a2..13a89f191 100644
+--- a/PrivateMaps/Tilted_Axis.py
++++ b/PrivateMaps/Tilted_Axis.py
+@@ -106,13 +106,13 @@ def addBonusType(argsList):
+ def getGridSize(argsList):
+ 	"Override Grid Size function to make the maps square."
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (7,7),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (8,8),
+-		SAS_MAGIC_WORLDSIZE_TINY: (10,10),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (13,13),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (16,16),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (20,20),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (25,25)
++		WorldSizeTypes.WORLDSIZE_ARENA: (7,7),
++		WorldSizeTypes.WORLDSIZE_DUEL: (8,8),
++		WorldSizeTypes.WORLDSIZE_TINY: (10,10),
++		WorldSizeTypes.WORLDSIZE_SMALL: (13,13),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (16,16),
++		WorldSizeTypes.WORLDSIZE_LARGE: (20,20),
++		WorldSizeTypes.WORLDSIZE_HUGE: (25,25)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -132,13 +132,13 @@ class TiltedAxisFractalWorld(CvMapGeneratorUtil.FractalWorld):
+ 		"For no rifts, use rift_grain = -1"
+ 		iFlags = CyFractal.FracVals.FRAC_WRAP_Y + CyFractal.FracVals.FRAC_POLAR
+ 		worldsizes = {
+-			SAS_MAGIC_WORLDSIZE_ARENA: (6,6),
+-			SAS_MAGIC_WORLDSIZE_DUEL: (6,6),
+-			SAS_MAGIC_WORLDSIZE_TINY: (6,6),
+-			SAS_MAGIC_WORLDSIZE_SMALL: (6,6),
+-			SAS_MAGIC_WORLDSIZE_STANDARD: (7,7),
+-			SAS_MAGIC_WORLDSIZE_LARGE: (7,7),
+-			SAS_MAGIC_WORLDSIZE_HUGE: (7,7)
++			WorldSizeTypes.WORLDSIZE_ARENA: (6,6),
++			WorldSizeTypes.WORLDSIZE_DUEL: (6,6),
++			WorldSizeTypes.WORLDSIZE_TINY: (6,6),
++			WorldSizeTypes.WORLDSIZE_SMALL: (6,6),
++			WorldSizeTypes.WORLDSIZE_STANDARD: (7,7),
++			WorldSizeTypes.WORLDSIZE_LARGE: (7,7),
++			WorldSizeTypes.WORLDSIZE_HUGE: (7,7)
+ 			}
+ 		(fracXExp, fracYExp) = sas_lookup_world_size(self.map.getWorldSize(), worldsizes)
+
+diff --git a/PrivateMaps/Water.py b/PrivateMaps/Water.py
+index b08f709fc..98089e25d 100644
+--- a/PrivateMaps/Water.py
++++ b/PrivateMaps/Water.py
+@@ -27,16 +27,15 @@ def isAdvancedMap():
+ 
+ def getGridSize(argsList):
+ 	# <!-- custom: Water is land-heavy (not almost-all-land): keep map tighter than default to avoid over-wide starts while preserving mixed naval play. (GPT-5.3-Codex) -->
+-	# <!-- custom: integer keys = runtime (ARENA-shifted) world-size indices, NOT WorldSizeTypes.WORLDSIZE_* (unshifted: HUGE==5), which mis-keyed every size by one and collided ARENA with DUEL. Same fix/reason as PerfectMongoose/SAS_Longworld getGridSize. (Claude code Opus 4.7) -->
+-	# <!-- custom: before the fix, arena world size was "0:", but duel to huge were using "WorldSizeTypes.WORLDSIZE_DUEL:" format. Ingame worldsize huge was 72 x 44 and large was 60 x 36 before the fix which was empirically way too big, and now after the fix worldsize huge is now 60 x 36 (large before fix) and large is now 48 x 32, which empirically seems to fit well. -->
++	# <!-- custom: Use XML-aligned DLL WorldSizeTypes keys; Large/Huge were empirically too large before this tuning, so keep the smaller tested rows. (Claude code Opus 4.7; GPT-5.5; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (3,3),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (4,3),
+-		SAS_MAGIC_WORLDSIZE_TINY: (6,3),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (8,4),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (9,6),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (12,8),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (15,9),
++		WorldSizeTypes.WORLDSIZE_ARENA: (3,3),
++		WorldSizeTypes.WORLDSIZE_DUEL: (4,3),
++		WorldSizeTypes.WORLDSIZE_TINY: (6,3),
++		WorldSizeTypes.WORLDSIZE_SMALL: (8,4),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (9,6),
++		WorldSizeTypes.WORLDSIZE_LARGE: (12,8),
++		WorldSizeTypes.WORLDSIZE_HUGE: (15,9),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/PrivateMaps/Wheel.py b/PrivateMaps/Wheel.py
+index 38d8a5f4b..9d0967ae1 100644
+--- a/PrivateMaps/Wheel.py
++++ b/PrivateMaps/Wheel.py
+@@ -166,13 +166,13 @@ def isBonusIgnoreLatitude():
+ def getGridSize(argsList):
+ 	# Reduce grid sizes by one level.
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (7,4),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (8,5),
+-		SAS_MAGIC_WORLDSIZE_TINY: (10,6),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (13,8),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (16,10),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (21,13),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (26,16)
++		WorldSizeTypes.WORLDSIZE_ARENA: (7,4),
++		WorldSizeTypes.WORLDSIZE_DUEL: (8,5),
++		WorldSizeTypes.WORLDSIZE_TINY: (10,6),
++		WorldSizeTypes.WORLDSIZE_SMALL: (13,8),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (16,10),
++		WorldSizeTypes.WORLDSIZE_LARGE: (21,13),
++		WorldSizeTypes.WORLDSIZE_HUGE: (26,16)
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+@@ -1254,13 +1254,13 @@ def assignStartingPlots():
+ 	# Set variance for start plots according to map size vs number of players.
+ 	map_size = map.getWorldSize()
+ 	sizevalues = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (2, 2),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (2, 3),
+-		SAS_MAGIC_WORLDSIZE_TINY: (2, 4),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (3, 6),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (4, 10),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (6, 12),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (6, 18)
++		WorldSizeTypes.WORLDSIZE_ARENA: (2, 2),
++		WorldSizeTypes.WORLDSIZE_DUEL: (2, 3),
++		WorldSizeTypes.WORLDSIZE_TINY: (2, 4),
++		WorldSizeTypes.WORLDSIZE_SMALL: (3, 6),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (4, 10),
++		WorldSizeTypes.WORLDSIZE_LARGE: (6, 12),
++		WorldSizeTypes.WORLDSIZE_HUGE: (6, 18)
+ 		}
+ 	(threeVar, twoVar) = sas_lookup_world_size_with_calibrated_sas(map_size, sizevalues)
+ 	if iPlayers <= threeVar:
+
+diff --git a/PrivateMaps/aDebugMap.py b/PrivateMaps/aDebugMap.py
+index aa9905735..56143891e 100644
+--- a/PrivateMaps/aDebugMap.py
++++ b/PrivateMaps/aDebugMap.py
+@@ -23,19 +23,19 @@ def isAdvancedMap():
+ 
+ def getGridSize(argsList):
+ 	"Because this is such a land-heavy map, override getGridSize() to make the map smaller"
+-	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using runtime world-size indices for compatibility; see SASMagicNumbers.SAS_MAGIC_WORLDSIZE_* rationale. (Claude code Opus 4.5; GPT-5.5) -->
++	# <!-- custom: Added ARENA and SAS sizes (24, 32, 40, 48 players) using DLL WorldSizeTypes values aligned with XML order. (Claude code Opus 4.5; GPT-5.5; ChatGPT-5.5) -->
+ 	grid_sizes = {
+-		SAS_MAGIC_WORLDSIZE_ARENA: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_DUEL: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_TINY: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_SMALL: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_STANDARD: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_LARGE: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_HUGE: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_SAS24: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_SAS32: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_SAS40: (5, 5),
+-		SAS_MAGIC_WORLDSIZE_SAS48: (5, 5),
++		WorldSizeTypes.WORLDSIZE_ARENA: (5, 5),
++		WorldSizeTypes.WORLDSIZE_DUEL: (5, 5),
++		WorldSizeTypes.WORLDSIZE_TINY: (5, 5),
++		WorldSizeTypes.WORLDSIZE_SMALL: (5, 5),
++		WorldSizeTypes.WORLDSIZE_STANDARD: (5, 5),
++		WorldSizeTypes.WORLDSIZE_LARGE: (5, 5),
++		WorldSizeTypes.WORLDSIZE_HUGE: (5, 5),
++		WorldSizeTypes.WORLDSIZE_SAS24: (5, 5),
++		WorldSizeTypes.WORLDSIZE_SAS32: (5, 5),
++		WorldSizeTypes.WORLDSIZE_SAS40: (5, 5),
++		WorldSizeTypes.WORLDSIZE_SAS48: (5, 5),
+ 	}
+ 
+ 	if (argsList[0] == -1): # (-1,) is passed to function on loads
+
+diff --git a/README.md b/README.md
+index 0b50f46ad..9c97a3366 100644
+--- a/README.md
++++ b/README.md
+@@ -883,7 +883,7 @@ Active helper scripts for LLM-assisted review and tuning live in [LLM_Helpers](/
+ 
+ Or notably also [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy), that creates a timestamped no-compression light source archive for quick local/LLM review handoffs (e.g., to ChatGPT) without manually selecting and tediously creating an updated ZIP of each file/folder each time, of the core/most useful files/folders, while leaving unneeded or too heavy to use ones (e.g., as of now no .fpk, .tga, .dll, or pycache folders, art assets folder).
+ 
+-GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size magic-number drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++GitHub workflow checks live under [`.github/workflows`](/.github/workflows/) and run through GitHub Actions. They catch easy-to-forget build-default problems such as enabled BBAI logging, wrong shared UI font defaults, AI Personality Panel predumped-cache issues, XML-tag references in SAS defines, world-size enum/XML drift, map-script classification drift, opening-music setup issues, launch-guard sentinel drift, unusually large integer SAS define values, etc. They can also be run locally with Python 3; see [`.github/workflows/README.md`](/.github/workflows/README.md). For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
+ 
+ This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)). This also helped spot and fix [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)).
+ 
+@@ -944,6 +944,7 @@ As of now AdvCiv-SAS is rather stable so crashes should be rare now. Recently, t
+ - CustomDomAdv, which according to the txt inside it seems to relate to "only settings for the mod components Advanced Unit Naming and Customizable Domestic Advisor (both disabled by default through the BUG menu)" (see [/Settings/About%20this%20folder.txt](/Settings/About%20this%20folder.txt)). Since i don't use it, and is similarly like the translations a bit if not lot tedious or complicated to maintain furthermore, then i am not supporting it in AdvCiv-SAS. May or not be updated every while or inconsistently but expect it to be unsupported.
+ - concepts being updated in their content: see [README.md#concepts-as-of-now-in-the-outdated-sevopedia-category](/README.md#concepts-as-of-now-in-the-outdated-sevopedia-category).
+ - savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas) of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead. I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate. See related info at [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#46---cleaned-up-very-big-messy-old-uiflag-code-in-the-dll-seemingly-to-support-savegame-compatibility-which-i-dont-care-about-especially-considering-how-complicated-the-code-is-as-a-result) as well.
++- Base AdvCiv previous behaviour and now an issue in AdvCiv-SAS of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): AdvCiv-SAS changes raw XML ids for game speeds, world sizes, handicaps, and other modded data; we also do not want AdvCiv-SAS data to tediously and needlessly be supported in unmodded BTS or vice-versa (launch from AdvCiv-SAS or unmodded BTS depending on data rather than make them tediously/needlessly vanilla BtS-compatible). This does not affect normal saves or gameplay. See also [KI#166](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order).
+ 
+ ## Version number
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 41815dbe8..96a204755 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -201,6 +201,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [163 - (Tentatively Addressed and Hardened) Rare non-reproducible autoplay crash variant related to `CvSelectionGroup::deleteUnitNode` and `CvSelectionGroup::clearUnits`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#163---tentatively-addressed-and-hardened-rare-non-reproducible-autoplay-crash-variant-related-to-cvselectiongroupdeleteunitnode-and-cvselectiongroupclearunits)  
+ [164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
+ [165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
++[166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5085,6 +5086,8 @@ File changed:
+ 
+ - [PrivateMaps/Global_Highlands.py](/PrivateMaps/Global_Highlands.py)
+ 
++Update: now added AdvCiv-SAS new worldsizes (as of now ARENA, SAS24, SAS32, SAS40,, SAS48) to DLL too.
++
+ ## 139 - (Fixed) Base AdvCiv issue: Foreign Advisor BUG menu made Glance attitude dropdown look attached to Enhanced Info Tab
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1qEI8Msow1oHdDwIVqpshRy6jiQGOrdxA?usp=sharing).
+@@ -6106,3 +6109,28 @@ The game ran fine because Python resolves names inside a function only when that
+ The fix changed `upperLeft()` to return the local `PointLayout` class, matching `RectLayout.offsetPoint()` and the rest of the active layout code.
+ 
+ Found thanks to Python Ruff and fixed with the help of GPT-5.5 (on Codex) and ChatGPT-5.5 (who also helped implement/draft this workflow) thanks (Although tbh another LLM or maybe it was GPT-5.5 too had mentioned it but i had overlooked/omitted it or forgot to look into it; now fixed it seems).
++
++## 166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order
++
++This is about the end-game replay/history data, not normal saves, map generation, or gameplay. The replay is the post-game history/map playback data and related replay/Hall-of-Fame-style record data. AdvCiv had an optional path that tried to store some replays in a vanilla BtS-compatible format when the data looked safe enough.
++
++That compatibility path is not useful for AdvCiv-SAS and became misleading after several intentional XML order changes.
++
++Not only AdvCiv-SAS now has shifted raw ids for values that replay data can store directly, but also, we do not need nor support reading AdvCiv-SAS replay/Hall of Fame data from unmodded BTS, nor do we need or support reading unmodded BTS replay/Hall of Fame data into AdvCiv-SAS.
++
++For example:
++
++- Game speeds: Nitro and Turbo are before Quick.
++- World sizes: Arena is before Duel, and SAS24/SAS32/SAS40/SAS48 are after Huge.
++- Handicaps: Rookie is before Settler, and Deity+ is after Deity.
++
++These values are valid inside AdvCiv-SAS, but vanilla BtS would interpret the same raw integer ids differently. For example, vanilla BtS expects world size id `0` to mean Duel and id `5` to mean Huge, while AdvCiv-SAS now uses id `0` for Arena and id `6` for Huge. Similar shifted-id issues also exist for game speed and handicap.
++
++Rather than adding a full remapping layer for a compatibility mode that is not needed, `CvReplayInfo::isStoringReplaysAsBtS()` now always returns `false` in AdvCiv-SAS. This means:
++
++- AdvCiv-SAS still writes normal AdvCiv-SAS replays.
++- The replay stores the mod name / mod replay format instead of pretending to be vanilla BtS-compatible.
++- There is no effect on normal saves or gameplay.
++- Opening AdvCiv-SAS replay/save data in vanilla BtS, or vanilla BtS data in AdvCiv-SAS, is not a supported goal.
++
++Fixed/documented with the help of ChatGPT-5.5 after a Codex review pointed out that the old `getWorldSize() > 5` BtS replay guard had become stale once `WORLDSIZE_HUGE` moved to XML index `6`.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 51e42f64e..e57c8e930 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -79,7 +79,7 @@ See [Full exhaustive changes (very long)](/README.md#full-exhaustive-very-long-a
+ 
+ ### Not supported in AdvCiv-SAS
+ 
+-Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-AdvCiv-SAS scenarios. See [root README.md: Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas).
++Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-AdvCiv-SAS scenarios. See [root README.md: Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas). (Requires AdvCiv-SAS 5971+) See also [KI#166](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order).
+ 
+ ### Renaming
+ 
+@@ -116,7 +116,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Unused-text-key audit + cleanup:** added [`audit_unused_text_keys.py`](/LLM_Helpers/audit_unused_text_keys.py), which flags mod GameText `<Tag>TXT_KEY_*` entries referenced **nowhere** in the mod, base BTS, or vanilla Civ4 (Python + DLL + XML); dynamically-built (`"TXT_KEY_BUG_OPT_"+id`) and engine-derived (`_PEDIA/_HELP/...`) key families are routed to a separate review bucket to avoid false positives. Used it to **remove confirmed dead GameText entries** from [AdvCiv-SAS_main.xml](/Assets/XML/Text/AdvCiv-SAS_main.xml). See [LLM_Helpers (README.md)](/LLM_Helpers/README.md).
+ - (Requires AdvCiv-SAS 5961+) **C++ signature cleanup:** collapsed **safe multiline C++ function declarations/definitions** to one physical line across the DLL source, making **signatures easier to grep, compare, and review** in diffs/LLM-assisted passes. Done with the help of the new [`collapse_cpp_signatures.py`](/LLM_Helpers/README.md#collapse_cpp_signaturespy), a **conservative** signature-only helper, which intentionally skips ordinary multiline calls and unsafe comments, while also supporting traceable hoisting for reviewed whole-line comments inside signatures; review its output as a mechanical source-cleanup tool rather than a general C++ formatter. It was empirically idempotent after the first full DLL pass (rerunning reported no safe C++ signature collapses found). This is especially useful for **overloaded functions** like `void addMessage`, or e.g., `void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude, PlayerTypes eCancelPlayer) // advc.130p`, instead of its old three-line equivalent.
+ - (Requires AdvCiv-SAS 5961+) **C++ inline-return cleanup:** collapsed simple inline DLL header functions whose bodies were exactly one `return` statement to one physical line, making trivial getters/wrappers easier to grep and compare. Done with the help of [`collapse_cpp_inline_returns.py`](/LLM_Helpers/README.md#collapse_cpp_inline_returnspy), a conservative mechanical helper that skips constructors/destructors, multi-statement bodies, body comments, multiline signatures, and overlong results. For example, `int getGoldPerTurnByPlayer(PlayerTypes ePlayer) const { return m_aiGoldPerTurnByPlayer.get(ePlayer); } // Exposed to Python`, instead of its old four-line equivalent.
+-- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `SAS_MAGIC_WORLDSIZE_*` constants matching `CIV4WorldInfo.xml` order, `CvGameCoreDLL/Project/temp_files/` staying effectively empty (only its tracked placeholder file), not being ignored by `.gitignore`, and being allowed only as an archive-excluded development marker through `.gitattributes` (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)), and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
++- (Requires AdvCiv-SAS 5930+) **GitHub workflow build checks:** added GitHub Actions checks under [`.github/workflows`](/.github/workflows/) to catch forgotten debug/default settings and data drift at each commit. Current checks notably verify launch-guard sentinel values, XML tag references in SAS define text values, integer SAS define bounds, valid main-menu opening-music script setup, disabled BBAI logging defaults, shared UI font defaults, Sevopedia Leader AI Personality Panel predumped-cache defaults and predump file presence, `WorldSizeTypes` enum/XML alignment, `CvGameCoreDLL/Project/temp_files/` staying effectively empty (only its tracked placeholder file), not being ignored by `.gitignore`, and being allowed only as an archive-excluded development marker through `.gitattributes` (helps catch stale fast-compile temp files. We check this because we suspect fast compiles can be unreliable, and also helps catch forgetting to replace the committed DLL after compiling; see [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-but-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwith-but-exact-same-source-files-if-i-am-not-mistaken-but) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe-but)), and every playable `PrivateMaps/*.py` being listed exactly once across the SAS map-script heaviness/coverage defines while every listed map script exists in `PrivateMaps/`. For example, this helped spot [map scripts that were previously unclassified in SAS map-script heaviness defines](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27198308080/job/80295526028); they are now listed explicitly for exhaustiveness (more robust; no gameplay change).
+ - Other examples: (Requires AdvCiv-SAS 5935+) This notably also **helped spot and fix duplicate text, parent, and child XML keys** found by new GitHub workflow check [text](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27332010214/job/80746523894), [parent](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27258698041/job/80498936912), and [child](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27336768909/job/80762873956) (See [KI#148](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#148---fixed-base-advciv-issue-and-one-advciv-sas-issue-of-duplicate-parent-xml-keys-found-by-new-github-workflow-check), [KI#149](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#149---fixed-base-advciv-issue-duplicate-xml-text-tags-found-by-new-github-workflow-check), [KI#150](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#150---fixed-base-advciv-issue-and-some-advciv-sas-priority-duplicate-xml-childlist-entries-found-by-new-github-workflow-check)), and [suspicious malformed-looking XML tag punctuation](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27342682844/job/80783239087) (e.g., `<French>>`, `</English>>`) (see [KI#151](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#151---fixed-base-advciv-issue-suspicious-malformed-looking-xml-angle-tags-found-by-new-github-workflow-check)) and [XML suspicious text chars](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27400470104/job/80977135402) (see [KI#152](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#152---fixed-suspicious-replacement-question-marks-in-lengthy-sevopedia-xml-found-by-new-github-workflow-check)). The checks also run locally with Python 3; see [`.github/workflows/README.md` current build checks](/.github/workflows/README.md#current-build-checks).
+ - (Requires AdvCiv-SAS 5964+) **Python Ruff GitHub workflow:** added [`python-ruff.yml`](/.github/workflows/python-ruff.yml), which prints a full Ruff report and fails on a practical critical gate for syntax/parse errors and Pyflakes bug checks. This helped spot shadowed duplicate callbacks in base Civ4 `Oasis.py` (see [KI#164](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-workflow)) and a Base AdvCiv bug of dormant undefined `Point` (instead of using `PointLayout`) helper in `RectLayout.py` (see [KI#165](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-dormant-rectlayout-upperleft-helper-returned-undefined-point-found-by-python-ruff)).
+ - (Requires AdvCiv-SAS 5965+) **Python 2.4 Docker compile GitHub workflow:** added [`python24-compile.yml`](/.github/workflows/python24-compile.yml), which runs `Assets/Python` and `PrivateMaps` through real CPython 2.4 syntax/bytecode compilation using our separate [`wonderingabout/python-2.4-docker`](https://github.com/wonderingabout/python-2.4-docker) GHCR image. This complements Ruff by checking the old parser Civ4 embeds, without launching Civ4 or importing engine-only modules. A deliberate [test confirmed it fails](https://github.com/wonderingabout/AdvCiv-SAS/actions/runs/27897204427) on Python 2.5+ ternary syntax such as `SAS_MAGIC_PY24_COMPILE_BREAK_TEST = 1 if True else 0` in `SASMagicNumbers.py`. See [`.github/workflows/README.md`](/.github/workflows/README.md#python-24-compile-workflow), and [README.md (Python Scripts)](/README.md#python-scripts) for screenshots.
+@@ -139,7 +139,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - **Found-value** evaluation now uses `int` end-to-end (CitySiteEvaluator, AIFoundValue, CvPlot cache, SPI, Python callback), not `short`. Why: **avoid overflow/underflow** and short wraparounds in site scoring; keep the logic the same while **improving reliability**. Expectation: more robust site values, fewer edge-case penalties/boosts from short overflow; no known negative gameplay change. Performance: `int` is typically at least as fast as short on modern CPUs; no slowdown expected. Tested: autoplay ran fine. See [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline).
+ - Removed the old clunky Base AdvCiv's `CONCEPT_TRAIT` XML clutter. Now using the more efficient `WIDGET_PYTHON` similarly instead.
+ - **Avoid** some **hardcoded values**; e.g., `szButton = "Art/Interface/Buttons/Civilizations/Barbarian.dds"` in Advisors UI code replaced with `szButton = gc.getCivilizationInfo(player.getCivilizationType()).getButton()`; adding a new `<Button>` field for eras.
+-- **Centralize magic numbers** in [`SASMagicNumbers.py`](/Assets/Python/SASMagicNumbers.py), an import-free leaf helper for named constants used across screens, Sevopedia, mapscripts, and map generator utilities. Examples: Sevopedia/Tech Chooser `WIDGET_PYTHON` data1 IDs, Sevopedia Movie/Music packed-key type IDs, and runtime world-size indices such as `SAS_MAGIC_WORLDSIZE_HUGE = 6` after the AdvCiv-SAS Arena world-size insertion. This avoids duplicated definitions, widget-id drift/collisions, and circular-import/load-order risk.
++- **Centralize magic numbers** in [`SASMagicNumbers.py`](/Assets/Python/SASMagicNumbers.py), an import-free leaf helper for named constants used across screens, Sevopedia, mapscripts, and map generator utilities. Examples: Sevopedia/Tech Chooser `WIDGET_PYTHON` data1 IDs and Sevopedia Movie/Music packed-key type IDs. This avoids duplicated definitions, widget-id drift/collisions, and circular-import/load-order risk.
+ - **Cache once per session precomputed** Sevopedia Traits' Charts and Sevopedia Improvements' Weights (Leaders) Chart on category open before any entry is clicked on. This uses a simplified version of the AI Personality Panel's caching approach. See [AI Personality panel caching](/_1_AdvCiv-SAS/Docs/README_AI_Personality_Panel.md#notes-about-performance-optimization-of-the-ai-personality-panel-caching).
+ - **Load Precomputed Files**: optionally load the Sevopedia Leader's **AI Personality Panel**'s information to display as a **predumped** file ([SevoPediaLeaderCachePredumped.py](/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py)): (~550k Python literal characters) (default ON, recommended): since these values never change for players, this is more efficient. For modders, if they change leader XML info values, they can turn the SAS define to always compute temporarily so they can regenerate then update the file, or permanently for quick testing or if they prefer.
+ - **External File Opening**: Access from Civ4 ingame local files in the system on Windows. See [KI#87](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#87---fixed-and-generalized-cannot-open-bug-mod-help-engchm-on-windows-in-advciv-sas-but-can-open-it-on-windows-in-base-advciv-even-though-path-is-the-same).
+
+[PATCH COVERAGE]
+patchFiles=45 embeddedFiles=44 omittedFiles=1 embeddedPatchBytes=128093

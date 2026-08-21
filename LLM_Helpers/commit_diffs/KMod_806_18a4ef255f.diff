@@ -1,0 +1,157 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 806
+# Commit: 18a4ef255fa4ebededa28f4cf92f28088052b70d
+# History segment: K-Mod history
+# Parent used for diff: 38601a9433c00e915fd1b3cf93c72f1b2698f539
+# Title: Corrected some const-correctness and style issues in LFB code.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+1	1	CvGameCoreDLL/CvUnit.h
+10	16	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/CvUnitAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 1b892b696..b88f3a04c 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -720,7 +720,7 @@ __int64 getBinomialCoefficient(int iN, int iK)
+ // Calculates combat odds, given two units
+ // Returns value from 0-1000
+ // Written by DeepO
+-int getCombatOdds(CvUnit* pAttacker, CvUnit* pDefender)
++int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ {
+ 	float fOddsEvent;
+ 	float fOddsAfterEvent;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 7f1350da4..1fb793669 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -275,7 +275,7 @@ bool isTeamProject(ProjectTypes eProject);														// Exposed to Python
+ bool isLimitedProject(ProjectTypes eProject);													// Exposed to Python
+ 
+ __int64 getBinomialCoefficient(int iN, int iK);
+-int getCombatOdds(CvUnit* pAttacker, CvUnit* pDefender);							// Exposed to Python
++int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender); // Exposed to Python
+ int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eDefenceTeam); // K-Mod
+ 
+ int getEspionageModifier(TeamTypes eOurTeam, TeamTypes eTargetTeam);							// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index b25723be9..cefdf495a 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -906,7 +906,7 @@ protected:
+ // Lead From Behind by UncutDragon. Edited for K-Mod
+ public:
+ 	bool isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttacker, int* pBestDefenderRank) const;
+-	virtual void LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) const = 0;
++	virtual void LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) = 0;
+ 	int LFBgetAttackerRank(const CvUnit* pDefender, int& iUnadjustedRank) const;
+ 	int LFBgetDefenderRank(const CvUnit* pAttacker) const;
+ //protected: // unprotected by K-Mod. (I want to use the LFB value for some AI stuff)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 256af3cca..1368a0b90 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -796,8 +796,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+ 	if (GC.getLFBEnable() && GC.getLFBUseCombatOdds())
+ 	{
+ 		// Combat odds are out of 1000 - we need odds out of 100
+-		CvUnit* pThis = (CvUnit*)this;
+-		int iOdds = (getCombatOdds(pThis, pDefender) + 5) / 10;
++		int iOdds = (getCombatOdds(this, pDefender) + 5) / 10;
+ 		iOdds += GET_PLAYER(getOwnerINLINE()).AI_getAttackOddsChange();
+ 
+ 		return std::max(1, std::min(iOdds, 99));
+@@ -25010,28 +25009,23 @@ void CvUnitAI::write(FDataStreamBase* pStream)
+ // Private Functions...
+ 
+ // Lead From Behind, by UncutDragon, edited for K-Mod
+-void CvUnitAI::LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) const
++void CvUnitAI::LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue)
+ {
+-	CvUnit* pThis = (CvUnit*)this;
+-	CvUnit* pAttacker = (*ppAttacker);
+-	CvUnit* pDefender;
+-	int iOdds;
+-	int iValue;
+-	int iAIOdds;
++	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, !bPotentialEnemy, bPotentialEnemy);
+ 
+-	pDefender = pPlot->getBestDefender(NO_PLAYER, getOwnerINLINE(), this, !bPotentialEnemy, bPotentialEnemy);
+-	iValue = LFBgetAttackerRank(pDefender, iOdds);
++	int iOdds;
++	int iValue = LFBgetAttackerRank(pDefender, iOdds);
+ 
+ 	// Combat odds are out of 1000, but the AI routines need odds out of 100, and when called from AI_getBestGroupAttacker
+ 	// we return this value. Note that I'm not entirely sure if/how that return value is actually used ... but just in case I
+ 	// want to make sure I'm returning something consistent with what was there before
+-	iAIOdds = (iOdds + 5) / 10;
++	int iAIOdds = (iOdds + 5) / 10;
+ 	iAIOdds += GET_PLAYER(getOwnerINLINE()).AI_getAttackOddsChange();
+ 	iAIOdds = std::max(1, std::min(iAIOdds, 99));
+ 
+ 	if (collateralDamage() > 0)
+ 	{
+-		int iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(pThis) - 1), collateralDamageMaxUnits());
++		int iPossibleTargets = std::min((pPlot->getNumVisibleEnemyDefenders(this) - 1), collateralDamageMaxUnits());
+ 
+ 		if (iPossibleTargets > 0)
+ 		{
+@@ -25041,9 +25035,9 @@ void CvUnitAI::LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bo
+ 	}
+ 
+ 	// Nothing to compare against - we're obviously better
+-	if (!pAttacker)
++	if (!(*ppAttacker))
+ 	{
+-		(*ppAttacker) = pThis;
++		(*ppAttacker) = this;
+ 		iAIAttackOdds = iAIOdds;
+ 		iAttackerValue = iValue;
+ 		return;
+@@ -25052,7 +25046,7 @@ void CvUnitAI::LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bo
+ 	// Compare our adjusted value with the current best
+ 	if (iValue > iAttackerValue)
+ 	{
+-		(*ppAttacker) = pThis;
++		(*ppAttacker) = this;
+ 		iAIAttackOdds = iAIOdds;
+ 		iAttackerValue = iValue;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 96194099d..c9f1e3bc7 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -331,9 +331,9 @@ protected:
+ 	// added so under cheat mode we can call protected functions for testing
+ 	friend class CvGameTextMgr;
+ 
+-// Lead From Behind by UncutDragon
++// Lead From Behind by UncutDragon. (edited for K-Mod)
+ public:
+-	void LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue) const;
++	void LFBgetBetterAttacker(CvUnit** ppAttacker, const CvPlot* pPlot, bool bPotentialEnemy, int& iAIAttackOdds, int& iAttackerValue);
+ };
+ 
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5883

@@ -1,0 +1,96 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2771
+# Commit: c93b185b3a0eaa426af27d7690b9ac8ba94cff95
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f849392ff4bf6c12df0d8e609ca0946e5206618d
+# Title: UWAI: Tweak evaluation of unit positions in hopeless wars
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	7	CvGameCoreDLL/WarUtilityAspect.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index e08386866..1d60e7082 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3572,10 +3572,14 @@ void TacticalSituation::evalEngagement() {
+ 			continue;
+ 		weThreaten.erase(m.plotNum(gr->getPlot()));
+ 	}*/
++	double eraMult = ::dRange(1 -
++			(they->AI_getCurrEraFactor() - we->AI_getCurrEraFactor()).getDouble() * 0.2,
++			0.4, 1.6);
++	{	PROFILE("TacticalSituation::evalEngagement - weThreaten");
+ 	for(std::map<int,int>::const_iterator it = weThreaten.begin();
+ 			it != weThreaten.end(); ++it) {
+ 		CvPlot const& p = m.getPlotByIndex(it->first);
+-		int const ourUnits = it->second;
++		int ourUnits = it->second;
+ 		int theirUnits = 0;
+ 		int theirDamaged = 0;
+ 		// Some overlap with CvPlayerAI::AI_countDangerousUnits
+@@ -3585,11 +3589,15 @@ void TacticalSituation::evalEngagement() {
+ 			theirUnits++;
+ 			if(plotUnit->currHitPoints() <= hpThresh)
+ 				theirDamaged++;
+-			if(theirUnits - theirDamaged >= ourUnits)
+-				break;
++			/*if(theirUnits - theirDamaged >= ourUnits)
++				break;*/ // Need the fully count of iTheirUnits after all
+ 		}
+ 		// Damaged units protected by healthy units aren't exposed
+ 		theirDamaged = ::range(ourUnits + theirDamaged - theirUnits, 0, theirDamaged);
++		/*	If their healthy units outnumber or outclass ours
++			then we probably won't want to engage. */
++		ourUnits = ::round(ourUnits * std::min(1.0,
++				(1.3 * ourUnits * eraMult) / (theirUnits - theirDamaged)));
+ 		/*  Count at most one enemy unit per unit of ours as "entangled", i.e. count
+ 			pairs of units. */
+ 		theirUnits = std::min(theirUnits, ourUnits);
+@@ -3600,6 +3608,7 @@ void TacticalSituation::evalEngagement() {
+ 		entangled += theirUnits;
+ 		theirExposed += theirDamaged;
+ 	}
++	} // (end of  profile scope)
+ 	// Don't count entangled units on missions
+ 	ourMissions = std::max(0, ourMissions - entangled);
+ 	if(ourMissions > 0 && agent.uwai().isPushover(TEAMID(theyId))) {
+@@ -3621,8 +3630,10 @@ void TacticalSituation::evalEngagement() {
+ 			we->isHuman() || they->isHuman())
+ 		initiativeFactor = 0.5;
+ 	double uPlus = (4.0 * (initiativeFactor * theirExposed -
+-			(1 - initiativeFactor) * ourExposed) +
+-			entangled + ourMissions) / ourTotal;
++			(1 - initiativeFactor) * ourExposed) + ourMissions) /
++			ourTotal;
++	// getNumUnits is an information cheat, but it's all quite fuzzy anyway.
++	uPlus += (2.0 * entangled) / (ourTotal + they->getNumUnits());
+ 	if(we->getTotalPopulation() > 0)
+ 		uPlus += 3.0 * (theirEvac - 1.35 * ourEvac) / we->getTotalPopulation();
+ 	uPlus *= 100;
+@@ -3639,8 +3650,10 @@ void TacticalSituation::evalEngagement() {
+ 			recentlyLostPop += c->getPopulation();
+ 	}
+ 	double recentlyLostPopRatio = 0;
+-	if(we->getTotalPopulation() > 0)
+-		recentlyLostPopRatio = recentlyLostPop / we->getTotalPopulation();
++	if(we->getTotalPopulation() > 0) {
++		recentlyLostPopRatio = (2.0 * recentlyLostPop) /
++				(we->getTotalPopulation() + they->getTotalPopulation());
++	}
+ 	uPlus += recentlyLostPopRatio * 100;
+ 	if(uPlus > 0.5 || uPlus < -0.5) {
+ 		log("Their exposed units: %d, ours: %d; entanglement: %d; "
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3169

@@ -1,0 +1,942 @@
+# AI, UI, or other modifications
+# Created as part of AdvCiv-SAS improvements
+# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
+#
+
+Similar purpose than in the XML equivalent of this file, but for .py file! Make it leaner so our AI helpers can read it easier and to improve readability and efficiency when possible and relevant!
+
+
+
+===== \Assets\Python\BUG\configobj.py =====
+----- Comment #1 -----
+
+BUGS
+====
+
+None known.
+
+TODO
+====
+
+Better support for configuration from multiple files, including tracking
+*where* the original file came from and writing changes to the correct
+file.
+
+
+Make ``newline`` an option (as well as an attribute) ?
+
+``UTF16`` encoded files, when returned as a list of lines, will have the
+BOM at the start of every line. Should this be removed from all but the
+first line ?
+
+Option to set warning type for unicode decode ? (Defaults to strict).
+
+A method to optionally remove uniform indentation from multiline values.
+(do as an example of using ``walk`` - along with string-escape)
+
+Should the results dictionary from validate be an ordered dictionary if
+`odict <http://www.voidspace.org.uk/python/odict.html>`_ is available ?
+
+Implement a better ``__repr__`` ? (``ConfigObj({})``)
+
+Implement some of the sequence methods (which include slicing) from the
+newer ``odict`` ?
+
+INCOMPATIBLE CHANGES
+====================
+
+(I have removed a lot of needless complications - this list is probably not
+conclusive, many option/attribute/method names have changed)
+
+Case sensitive
+
+The only valid divider is '='
+
+We've removed line continuations with '\'
+
+No recursive lists in values
+
+No empty section
+
+No distinction between flatfiles and non flatfiles
+
+Change in list syntax - use commas to indicate list, not parentheses
+(square brackets and parentheses are no longer recognised as lists)
+
+';' is no longer valid for comments and no multiline comments
+EF: Added ';' back in as a valid comment character.
+
+No attribute access
+
+We don't allow empty values - have to use '' or ""
+
+In ConfigObj 3 - setting a non-flatfile member to ``None`` would
+initialise it as an empty section.
+
+The escape entities '&mjf-lfk' and '&mjf-quot;' have gone
+replaced by triple quote, multiple line values.
+
+The ``newline``, ``force_return``, and ``default`` options have gone
+
+The ``encoding`` and ``backup_encoding`` methods have gone - replaced
+with the ``encode`` and ``decode`` methods.
+
+``fileerror`` and ``createempty`` options have become ``file_error`` and
+``create_empty``
+
+Partial configspecs (for specifying the order members should be written
+out and which should be present) have gone. The configspec is no longer
+used to specify order for the ``write`` method.
+
+Exceeding the maximum depth of recursion in string interpolation now
+raises an error ``InterpolationDepthError``.
+
+Specifying a value for interpolation which doesn't exist now raises an
+error ``MissingInterpolationOption`` (instead of merely being ignored).
+
+The ``writein`` method has been removed.
+
+The comments attribute is now a list (``inline_comments`` equates to the
+old comments attribute)
+
+ISSUES
+======
+
+``validate`` doesn't report *extra* values or sections.
+
+You can't have a keyword with the same name as a section (in the same
+section). They are both dictionary keys - so they would overlap.
+
+ConfigObj doesn't quote and unquote values if ``list_values=False``.
+This means that leading or trailing whitespace in values will be lost when
+writing. (Unless you manually quote).
+
+Interpolation checks first the 'DEFAULT' subsection of the current
+section, next it checks the 'DEFAULT' section of the parent section,
+last it checks the 'DEFAULT' section of the main section.
+
+Logically a 'DEFAULT' section should apply to all subsections of the *same
+parent* - this means that checking the 'DEFAULT' subsection in the
+*current section* is not necessarily logical ?
+
+In order to simplify unicode support (which is possibly of limited value
+in a config file) I have removed automatic support and added the
+``encode`` and ``decode methods, which can be used to transform keys and
+entries. Because the regex looks for specific values on inital parsing
+(i.e. the quotes and the equals signs) it can only read ascii compatible
+encodings. For unicode use ``UTF8``, which is ASCII compatible.
+
+Does it matter that we don't support the ':' divider, which is supported
+by ``ConfigParser`` ?
+
+The regular expression correctly removes the value -
+``"'hello', 'goodbye'"`` and then unquote just removes the front and
+back quotes (called from ``_handle_value``). What should we do ??
+(*ought* to raise exception because it's an invalid value if lists are
+off *sigh*. This is not what you want if you want to do your own list
+processing - would be *better* in this case not to unquote.)
+
+String interpolation and validation don't play well together. When
+validation changes type it sets the value. This will correctly fetch the
+value using interpolation - but then overwrite the interpolation reference.
+If the value is unchanged by validation (it's a string) - but other types
+will be.
+
+
+List Value Syntax
+=================
+
+List values allow you to specify multiple values for a keyword. This
+maps to a list as the resulting Python object when parsed.
+
+The syntax for lists is easy. A list is a comma separated set of values.
+If these values contain quotes, the hash mark, or commas, then the values
+can be surrounded by quotes. e.g. : ::
+
+    keyword = value1, 'value 2', "value 3"
+
+If a value needs to be a list, but only has one member, then you indicate
+this with a trailing comma. e.g. : ::
+
+    keyword = "single value",
+
+If a value needs to be a list, but it has no members, then you indicate
+this with a single comma. e.g. : ::
+
+    keyword = ,     # an empty list
+
+Using triple quotes it will be possible for single values to contain
+newlines and *both* single quotes and double quotes. Triple quotes aren't
+allowed in list values. This means that the members of list values can't
+contain carriage returns (or line feeds :-) or both quote values.
+
+CHANGELOG
+=========
+
+2006/02/04
+----------
+
+Removed ``BOM_UTF8`` from ``__all__``.
+
+The ``BOM`` attribute has become a boolean. (Defaults to ``False``.) It can
+be ``True`` for the ``UTF16/UTF8`` encodings.
+
+File like objects no longer need a ``seek`` attribute.
+
+ConfigObj no longer keeps a reference to file like objects. Instead the
+``write`` method takes a file like object as an optional argument. (Which
+will be used in preference of the ``filename`` attribute if htat exists as
+well.)
+
+Full unicode support added. New options/attributes ``encoding``,
+``default_encoding``.
+
+utf16 files decoded to unicode.
+
+If ``BOM`` is ``True``, but no encoding specified, then the utf8 BOM is
+written out at the start of the file. (It will normally only be ``True`` if
+the utf8 BOM was found when the file was read.)
+
+File paths are *not* converted to absolute paths, relative paths will
+remain relative as the ``filename`` attribute.
+
+Fixed bug where ``final_comment`` wasn't returned if ``write`` is returning
+a list of lines.
+
+2006/01/31
+----------
+
+Added ``True``, ``False``, and ``enumerate`` if they are not defined.
+(``True`` and ``False`` are needed for *early* versions of Python 2.2,
+``enumerate`` is needed for all versions ofPython 2.2)
+
+Deprecated ``istrue``, replaced it with ``as_bool``.
+
+Added ``as_int`` and ``as_float``.
+
+utf8 and utf16 BOM handled in an endian agnostic way.
+
+2005/12/14
+----------
+
+Validation no longer done on the 'DEFAULT' section (only in the root
+level). This allows interpolation in configspecs.
+
+Change in validation syntax implemented in validate 0.2.1
+
+4.1.0
+
+2005/12/10
+----------
+
+Added ``merge``, a recursive update.
+
+Added ``preserve_errors`` to ``validate`` and the ``flatten_errors``
+example function.
+
+Thanks to Matthew Brett for suggestions and helping me iron out bugs.
+
+Fixed bug where a config file is *all* comment, the comment will now be
+``initial_comment`` rather than ``final_comment``.
+
+2005/12/02
+----------
+
+Fixed bug in ``create_empty``. Thanks to Paul Jimenez for the report.
+
+2005/11/04
+----------
+
+Fixed bug in ``Section.walk`` when transforming names as well as values.
+
+Added the ``istrue`` method. (Fetches the boolean equivalent of a string
+value).
+
+Fixed ``list_values=False`` - they are now only quoted/unquoted if they
+are multiline values.
+
+List values are written as ``item, item`` rather than ``item,item``.
+
+4.0.1
+
+2005/10/09
+----------
+
+Fixed typo in ``write`` method. (Testing for the wrong value when resetting
+``interpolation``).
+
+4.0.0 Final
+
+2005/09/16
+----------
+
+Fixed bug in ``setdefault`` - creating a new section *wouldn't* return
+a reference to the new section.
+
+2005/09/09
+----------
+
+Removed ``PositionError``.
+
+Allowed quotes around keys as documented.
+
+Fixed bug with commas in comments. (matched as a list value)
+
+Beta 5
+
+2005/09/07
+----------
+
+Fixed bug in initialising ConfigObj from a ConfigObj.
+
+Changed the mailing list address.
+
+Beta 4
+
+2005/09/03
+----------
+
+Fixed bug in ``Section.__delitem__`` oops.
+
+2005/08/28
+----------
+
+Interpolation is switched off before writing out files.
+
+Fixed bug in handling ``StringIO`` instances. (Thanks to report from
+"Gustavo Niemeyer" <gustavo@niemeyer.net>)
+
+Moved the doctests from the ``__init__`` method to a separate function.
+(For the sake of IDE calltips).
+
+Beta 3
+
+2005/08/26
+----------
+
+String values unchanged by validation *aren't* reset. This preserves
+interpolation in string values.
+
+2005/08/18
+----------
+
+None from a default is turned to '' if stringify is off - because setting 
+a value to None raises an error.
+
+Version 4.0.0-beta2
+
+2005/08/16
+----------
+
+By Nicola Larosa
+
+Actually added the RepeatSectionError class ;-)
+
+2005/08/15
+----------
+
+If ``stringify`` is off - list values are preserved by the ``validate``
+method. (Bugfix)
+
+2005/08/14
+----------
+
+By Michael Foord
+
+Fixed ``simpleVal``.
+
+Added ``RepeatSectionError`` error if you have additional sections in a
+section with a ``__many__`` (repeated) section.
+
+By Nicola Larosa
+
+Reworked the ConfigObj._parse, _handle_error and _multiline methods:
+mutated the self._infile, self._index and self._maxline attributes into
+local variables and method parameters
+
+Reshaped the ConfigObj._multiline method to better reflect its semantics
+
+Changed the "default_test" test in ConfigObj.validate to check the fix for
+the bug in validate.Validator.check
+
+2005/08/13
+----------
+
+By Nicola Larosa
+
+Updated comments at top
+
+2005/08/11
+----------
+
+By Michael Foord
+
+Implemented repeated sections.
+
+By Nicola Larosa
+
+Added test for interpreter version: raises RuntimeError if earlier than
+2.2
+
+2005/08/10
+----------
+
+By Michael Foord
+
+Implemented default values in configspecs.
+
+By Nicola Larosa
+
+Fixed naked except: clause in validate that was silencing the fact
+that Python2.2 does not have dict.pop
+
+2005/08/08
+----------
+
+By Michael Foord
+
+Bug fix causing error if file didn't exist.
+
+2005/08/07
+----------
+
+By Nicola Larosa
+
+Adjusted doctests for Python 2.2.3 compatibility
+
+2005/08/04
+----------
+
+By Michael Foord
+
+Added the inline_comments attribute
+
+We now preserve and rewrite all comments in the config file
+
+configspec is now a section attribute
+
+The validate method changes values in place
+
+Added InterpolationError
+
+The errors now have line number, line, and message attributes. This
+simplifies error handling
+
+Added __docformat__
+
+2005/08/03
+----------
+
+By Michael Foord
+
+Fixed bug in Section.pop (now doesn't raise KeyError if a default value
+is specified)
+
+Replaced ``basestring`` with ``types.StringTypes``
+
+Removed the ``writein`` method
+
+Added __version__
+
+2005/07/29
+----------
+
+By Nicola Larosa
+
+Indentation in config file is not significant anymore, subsections are
+designated by repeating square brackets
+
+Adapted all tests and docs to the new format
+
+2005/07/28
+----------
+
+By Nicola Larosa
+
+Added more tests
+
+2005/07/23
+----------
+
+By Nicola Larosa
+
+Reformatted final docstring in ReST format, indented it for easier folding
+
+Code tests converted to doctest format, and scattered them around
+in various docstrings
+
+Walk method rewritten using scalars and sections attributes
+
+2005/07/22
+----------
+
+By Nicola Larosa
+
+Changed Validator and SimpleVal "test" methods to "check"
+
+More code cleanup
+
+2005/07/21
+----------
+
+Changed Section.sequence to Section.scalars and Section.sections
+
+Added Section.configspec
+
+Sections in the root section now have no extra indentation
+
+Comments now better supported in Section and preserved by ConfigObj
+
+Comments also written out
+
+Implemented initial_comment and final_comment
+
+A scalar value after a section will now raise an error
+
+2005/07/20
+----------
+
+Fixed a couple of bugs
+
+Can now pass a tuple instead of a list
+
+Simplified dict and walk methods
+
+Added __str__ to Section
+
+2005/07/10
+----------
+
+By Nicola Larosa
+
+More code cleanup
+
+2005/07/08
+----------
+
+The stringify option implemented. On by default.
+
+2005/07/07
+----------
+
+Renamed private attributes with a single underscore prefix.
+
+Changes to interpolation - exceeding recursion depth, or specifying a
+missing value, now raise errors.
+
+Changes for Python 2.2 compatibility. (changed boolean tests - removed
+``is True`` and ``is False``)
+
+Added test for duplicate section and member (and fixed bug)
+
+2005/07/06
+----------
+
+By Nicola Larosa
+
+Code cleanup
+
+2005/07/02
+----------
+
+Version 0.1.0
+
+Now properly handles values including comments and lists.
+
+Better error handling.
+
+String interpolation.
+
+Some options implemented.
+
+You can pass a Section a dictionary to initialise it.
+
+Setting a Section member to a dictionary will create a Section instance.
+
+2005/06/26
+----------
+
+Version 0.0.1
+
+Experimental reader.
+
+A reasonably elegant implementation - a basic reader in 160 lines of code.
+
+*A programming language is a medium of expression.* - Paul Graham
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaLeader.py =====
+----- Comment #2 -----
+
+		# <!-- custom: for the ratio of the portrait, make it (at least i chose to make it
+		# explained after this anyways) match the ingame diplomacy portrait ratio
+		# 240 / 290 = 0,8278
+		# i have measured this on my (4K but anyways) screen in windowed mode (for dev mod but anyways)
+		# - in sevopedia (before my fix): 421 x 488 	(ratio: 0,8627)     ;    (reverse-ratio: 1,1591)
+		# - ingame diplomacy: 709 x 866 				(ratio: 0,8187)     ;    (reverse-ratio: 1,1214)
+		# (extracted from the more detailed notes in modding ressources's readme about art design, please look at it or the filename containing these note samples or similar for details)
+		#
+		# Since the value (ratio in particular is different than what i measured (0,8627 vs 0,8278 here, i will try to adjust it based on that to hopefully have a matching ratio or a bit better or more or not )) (while also increasing the portrait/picture which i think is a bit small currently, maybe more immersive or pleasant or not )
+		# Now ratio is 287 / 350 = 0,8200 (much closer to 0,8187 that i measured in game diplomacy (see above, anyways), while also increasing size (of the portrait anyways) anyways)
+		#
+		# This looks good but i want to try to increase it more (portrait size ):
+		# Now 327 / 400 = 0,8175 (which is very close to 0,8187 while also a bigger picture, anyways)
+		# Increasing it more is maybe possible but we start to see the pixels in the animations (see Gandhi's arm) not being straight for example, if we replace animations with images like with/for Ewuare (Kingdom of Benin, anyways) then hese enhanced portaits would be better and more epic, will see if i increase it more or not, maybe leaving as is at least for now or not
+		#
+		# Actually all this calculation is not exactly accurate because W_LEADERHEAD_PANE and W_LEADERHEAD are different in this base advciv / sevopedia(?) code, but hopefully accurate enough and ratio should be much closer now to the ingame diplomacy ratio, hopefully less stretched but not sure or guaranteed, should be for images i send as replacements of animations though as i base them on the ingame diplomacy's ratio, not the old sevopedia leader portait ratio so now the new sevopedia ratio for the leader portrait i have added is hopefully much much closer to the old and as of now still existing ratio of the ingame diplomacy leader portrait, which i don't think i'm changing anytime soon as it is most likely more tedious for questionable gain, so using this one as a basis rather, not that is undoable but probably much harder and not necessarily worth it, and if animations are based on the diplomacy ingame ratio rather then they may also display better in the sevopedia with my new sevopedia ratio, (which intuitively or from a quick glance seems to be the case, image looks less compressed on its sides but not sure or guaranteed, check yourself if want to be sure or not, but i hope this helps, and that being said, anyways) anyways -->
+		#
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaLeader.py =====
+----- Comment #3 -----
+
+# <!-- custom: Store in LEADERS_INFO_CACHED tuples of (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way, also from using tuples or such rather than dicts), normalized value for display, and scale precomputed to enhance performance as well)
+# Categories precomputing as well as tuples: the ai_category_header that handles also emoji buttons in header label too optionally displayed if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more customization later if needed maybe, this x_offset is to accommodate these emoji buttons as text if needed; and then also packing all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature)
+# UI: nothing remains only displaying it, nothing left to compute, a bit of tuple direct unpacking without any check, so display is very fast despite the quite big data.
+#
+# <!-- custom: note: some code comments may be outdated as they were written when we would compute once per civ4 game launch the LEADERS_INFO_CACHED for efficiency, however since then we as of now now switched to no compute at all (use precomputed SevoPediaLeaderCachePredumped.py) (see also toggle define as of now at [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml))) as it is even cheaper and should scale better with mods that have more leaders or xml attributes (if i'm not mistaken). Plus the values rarely change and are only for UI so not worth spending so much on them even if was more efficient. -->
+# <!-- custom: now refactored with the help of chatgpt 5.2 (web) and GPT-5.2-Codex thanks a lot. -->
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaBuilding.py =====
+----- Comment #4 -----
+
+# <!-- custom: removing or rather having an empty header, the header disappears entirely, but if you want to use a header, you can just type any value in the related txt keys such as TXT_KEY_AI_PERSONALITY_RIGHT_PANEL and such anyways. This or maybe rather not doing this (having an non-empty txt key header) would take some room though so you'd have to adjust self.H_AI_UPPER_PADDING to the value below commented-out or simialr depending the upper padding you want.
+		# Since i (accidentally found) it frees more room, i want to try using it as such, as i really need the extra room, and not so much the header name (the other two header txt keys were going to be either redunant naming or empty so maybe this is (also) a good opportunity to gain space/room in the ai personality panel, anyways -->
+
+
+
+
+			# <!-- custom: for freebonus, done according to kujira's website, in https://gforestshade.github.io/kujira/post/civ4buildinginfos/#inumfreebonuses (translated to english with google chrome):
+			#
+			# This determines the amount of resource this structure produces.
+			# If <FreeBonus> is set to a value other than NONE and you set this to a positive value,the structure will produce the specified amount of the specified resource.
+			# If you want a variable number based on map size instead of a fixed number, specify -1, in which case the value of <iNumFreeBuildingBonuses> from each map size definition in \XML\GameInfo\CIV4WorldInfo.xml will be used. If you do not want to use this feature, specify 0.
+			#
+			# Example 1:
+			# <FreeBonus>NONE</FreeBonus>
+			# <iNumFreeBonuses>0</iNumFreeBonuses>
+			#
+			# Example 2: Produce hit musicals in numbers that depend on the map size.
+			# <FreeBonus>BONUS_DRAMA</FreeBonus>
+			# <iNumFreeBonuses>-1</iNumFreeBonuses>
+			#
+			# Example 3: Produce one horse.
+			# <FreeBonus>BONUS_HORSE</FreeBonus>
+			# <iNumFreeBonuses>1</iNumFreeBonuses>
+			# -->
+
+
+
+		# <!-- custom: Info about how we parse this:
+		# - BUILDING_THREE_GORGES_DAM (now renamed from GREAT_DAM see code comments for details (if any (i.e. details))):
+		# 	<bPower>0</bPower>
+		# 	<bDirtyPower>0</bDirtyPower>
+		# 	<bAreaCleanPower>1</bAreaCleanPower>
+		# And ingame in placeSpecial we see: "Provides Power ((icon/button?)) for All cities in this continent", so we parse it as a "AllC Clean" or something like this, to know if clean or dirty for all cities, i changed its values a bit to:
+		# 	<bPower>0</bPower>
+		# 	<!-- custom: test -->
+		# 	<bDirtyPower>1</bDirtyPower>
+		# 	<bAreaCleanPower>1</bAreaCleanPower>
+		# The placeSpecial text remains the same, no mention of dirty power in it, i assume clean (in this case) wins over dirty so power is clean by default of win of strongest ones in this city as in all cities already is, they don't seem to cumulate
+		# The Civ4 Wiki also gives some useful info about this: https://civilization.fandom.com/wiki/Power_(Civ4), so we updated in AdvCiv-SAS the DLL message that comes with (in PlaceSpecial) TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER (now renamed to TXT_KEY_BUILDING_PROVIDES_AREA_CLEAN_POWER). -->
+
+
+
+	# <!-- custom: logic is as follows for the below placeFreeWith function/method with the help of Claude AI thanks (note: renamed terrace to qullqa to update this explanation with the new civ-specific incan building name, everything else being the same when it comes to this explanation):
+	# example: barbarian specific granary is free with barbarian palace (barbarians only), so:
+	#
+	# if currently selected building is:
+	# 	* barbarian granary: we show in free with that the barbarian granary is free with the barbarian palace button
+	# 	* generic granary: we show in free with that the generic granary is free with "None" if a barbarian specific palace exists, else if no barbarian palace exists then we show in free with that the generic granary is free with the barbarian palace
+	# 	* other civ-specific granary (for example incan qullqa): we show in free with that the qullqa is free with "None", as the incans cannot have the barbarian palace, so they can never have the free granary, but if the incans could have a palace that has a free granary in it, then display this palace instead, else "None"
+	#
+	# -
+	#
+	# Which Claude AI rephrased as such if helps too:
+	# Now the logic correctly handles your examples:
+	# For your barbarian granary → barbarian palace example:
+	#
+	# 	1. Barbarian Granary page: Shows barbarian palace (because barbarian granary is unique and barbarian palace provides it for free)
+	# 	2. Generic Granary page: Shows "None" (because the granary class has unique versions like barbarian granary, so only generic providers would be shown, but barbarian palace is unique)
+	# 	3. Incan qullqa page: Shows "None" (because qullqa is unique to Incans, and barbarian palace is unique to barbarians, so Incans can't use barbarian palace)
+	#
+	# The key logic changes:
+	#
+	# hasUniqueVersions: Checks if the current building class has any civ-specific versions
+	# For unique buildings: Only shows providers that the same civ can actually use
+	# For generic buildings: If unique versions of this building exist, only shows generic providers; otherwise shows all providers
+	# New helper functions: getBuildingCiv() and buildingClassHasUniqueVersions() to support the logic
+	#
+	# This should now match your intended behavior exactly!
+	# It seems to work as intended so adding this since is quite/very technical, in case it is helpful. -->
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaBuilding.py =====
+----- Comment #5 -----
+
+		#if (isWorldWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
+		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxGlobalInstances()
+		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_WORLD_WONDER", ())
+		#	if (iMaxInstances > 1):
+		#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
+		#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
+		#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+		#if (isTeamWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
+		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxTeamInstances()
+		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_TEAM_WONDER", ())
+		#	if (iMaxInstances > 1):
+		#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
+		#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
+		#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+		#if (isNationalWonderClass(gc.getBuildingInfo(self.iBuilding).getBuildingClassType())):
+		#	iMaxInstances = gc.getBuildingClassInfo(gc.getBuildingInfo(self.iBuilding).getBuildingClassType()).getMaxPlayerInstances()
+		#	szBuildingType = localText.getText("TXT_KEY_PEDIA_NATIONAL_WONDER", ())
+		#	if (iMaxInstances > 1):
+		#		szBuildingType += " " + localText.getText("TXT_KEY_PEDIA_WONDER_INSTANCES", (iMaxInstances,))
+		#		szBuildingTypeText = u"<font=4>" + szBuildingType.upper() + u"</font>"
+		#		screen.appendListBoxStringNoUpdate(panelName, szBuildingTypeText, WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaBuilding.py =====
+----- Comment #6 -----
+
+		# <!-- custom: refer to code below to know max element count, so far we have in our code (see below for how it is implemented), taken from claude AI's message and adjusted (formatted) thanks. -->
+		# Here's what the method now does in sequence:
+		# - 1. Cost: Shows production cost
+		# - 2. Yield Changes, and Yield Modifiers: Shows direct yields like food (+1 food from Baray), and Shows yield modifiers similarly (Food +x%, Production +x%, Gold +x%) with power breakdown (, +y% w/ (power button))
+		# - 3. Commerce Changes, and Commerce Modifiers: Shows actual commerce amounts (+x science, gold, culture, espionage), and Shows percentage bonuses and double times (+x% and x2 times)
+		# - 4. Happiness/Unhappiness: Shows happiness effects
+		# - 5. Health/Unhealth: Shows health effects
+		# - 6. Great People: Shows great people rate changes with button and great people modifiers too
+		# -->
+		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier)) (the 4th before going to a new column and back to 1st row), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such and they are still named the same now which we created as well with chatgpt (see authors for details)) and adjusting/refatoring it for our need for this sevopedia building's placeStats), or other things ways maybe to refactor it so it fits a 4th row. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe. -->
+
+===== \Assets\Python\Contrib\Sevopedia\ai_utils_shared_with_civ4.py =====
+----- Comment #7 -----
+
+	# "You have rejected another civilization's technology."
+	# occurs to the civilization that has received a technology each time a contacted civilization acquires a technology through trade.
+	#
+	# In BtS, this diplomatic event does not have an attitude modifier assigned to it.
+	# Instead, it is used as a so-called "over-advance counter" for technology trades. See also
+	# <iNoTechTradeThreshold> .
+	#
+	# <MemoryDecay>
+	# 	<MemoryType>MEMORY_RECEIVED_TECH_FROM_ANY</MemoryType>
+	# 	<iMemoryRand>20</iMemoryRand>
+	# </MemoryDecay>
+	#
+	# and our debug ingame in sevopedia shows (see (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\_sevopedia_helpers.py for details):
+	# Memory 29 (MEMORY_RECEIVED_TECH_FROM_ANY): Attitude 0, Decay 20
+	#
+	# here is also chatgpt's web search result if it helps too (not sure is accurate but maybe is or at least more since is web search) formatted or not or yes for our script's consistency or rather small display in this case i mean or other or and not or yes or etc:
+	#
+	# "
+	# 🧠 What it does
+	# Each time any contacted civilization receives a technology via trade, all other AI civilizations that have met them (including the trading partner itself) increase a hidden memory counter called MEMORY_RECEIVED_TECH_FROM_ANY by 1 
+	# modiki.civfanatics.com +8; groups.google.com +8; civ4wiki.com +8.
+	#
+	# This doesn't directly adjust diplomatic attitude; instead, it's a "tech‑overexposure" counter influencing whether AI will trade techs with you later .
+	#
+	# 🕰️ How it operates
+	# When one AI gets a tech from you, every AI that knows them—including the one receiving it—gets this memory += 1 
+	# kirk.zulan.net +5; groups.google.com +5; forum.gamer.com.tw +5.
+	#
+	# Over time, the counter randomly decays, with the <iMemoryRand>20</iMemoryRand> tag setting the rate (i.e., each turn there's a chance to decrease by 1) 
+	# modiki.civfanatics.com +3; forums.civfanatics.com +3; gforestshade.github.io +3.
+	#
+	# ⚙️ Effect in gameplay
+	# It functions as a throttle: after trading techs a bunch, your "received from any" memory builds up, making AI increasingly reluctant to trade with you until it decays enough.
+	#
+	# There's no attitude hit attached, so your relationships don’t visibly worsen—but the memory can block or refuse future tech trades.
+	# "
+	#
+	# based on this, if the higher it is, the higher no tech trade can happen, then i would classify it as negative memory even though is not strictly a memory it seems but maybe is strictly a memory
+	#
+	# <!-- custom: indexes based on real ingame sevopedia leader debug output, see sevopedia_helpers py file code comments for details -->
+	# <!-- custom: 26 entries total -->
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaLeader.py =====
+----- Comment #8 -----
+
+# <!-- custom: increase hard drive life span by 0.1% by disabling this / setting it to False, maybe (disclaimer: i am not responsible is just i mean about the actual real percentage meant as a joke / comedy thingbut is maybe also true that disabling debug may avoid reducing hard drive life span even if a bit, as we write quite a lot of debug at each sevopedia load, however it is not guaranteed and i am not responsible, so do as you see fit use at your own risk, is just harmless text writing but writing a lot may hurt ssd or whichever hard drive especially most importantly by repeated use over a long time period of playing civ4 restarting game many times -->
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaLeader.py =====
+----- Comment #9 -----
+
+		# <!-- custom: here even though debug code in debugPrintLeaderHeadInfoFieldsToFetch uses a dynamic code, manually tell all the getters names instead of a dynamic code, to make sure we have them all and since they have flat getters this is consistent with how other similar kind of field/getters are handled as before in this current tuple; their names are available in the debug output example of the same debugPrintLeaderHeadInfoFieldsToFetch, see there for details -->
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaLeader.py =====
+----- Comment #10 -----
+
+(but we still want the excluded leaders to be excluded from computation as it could and most likely will most often if not always affect the ranking and scores normalized of other leaders with this additional item
+		# This is especially useful for iLeader of LEADER_BARBARIAN (iLeader 0 at least as of now if i'm not mistaken) in particular that is somehow accessible in the sevopedia civilization category from the barbarian civ (which is also useful because we now display their city names for example, see sevopedia civilization for details about how we place city names in it now)
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaLeader.py =====
+----- Comment #11 -----
+
+and undoing it as it told me later solved the error. So i think or at least it seems like this is not a bug. Chatgpt 5 may have received a truncated prompt or something though as it mentioned ... in code which was not the case if i'm not mistaken; after i sent it an entire file as appended file rather, it told me to not do this change as this would cause an error if i'm not mistaken, so this is now reverted to how it was before and seems to run fine as such. I don't remember enough of the code to be sure, but it seems like this is as intended to use raw aggregated values in order to store normalized aggregated ones under a field name that does not use "raw" in it anymore as it is the normalized aggregated value we are storing and displaying in UI now, no longer the intermediate for calculations raw aggregated value if i'm not mistaken, but check to be sure; seems to run fine as such but check to be sure. Thanks for all help chatgpt 5 you helped me lot, confirmed current logic, and helped me find a nice performance optimization as of now with loopLeaderHeadInfo -->
+				# Conclusion: it was not a bug in your code.
+				# Your original line was correct:
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaLeader.py =====
+----- Comment #12 -----
+
+# Simple system to dump leader AI personality cache to PythonDbg.log, then optionally load it from a pre-generated .py module instead of computing at runtime.
+#
+# USAGE:
+# ------
+# 1. Set IS_USE_PREDUMPED_CACHE = False (default)
+# 2. Play the game, open Sevopedia → Leaders category
+# 3. In PythonDbg.log, find the block between:
+#       # === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===
+#       ...
+#       # === SAS_LEADER_AI_CACHE_PYMODULE_END ===
+# 4. Copy that block into a new file: SevoPediaLeaderCachePredumped.py
+# 5. Place that file in your mod's Python folder
+# 6. Set IS_USE_PREDUMPED_CACHE to True (via XML SAS defines)
+# 7. Now the game loads the pre-dumped data instead of computing it
+#
+# NOTES:
+# ------
+# - If you change emoji settings or leader XML, you need to re-dump
+# - The dumped data includes: LEADERS_INFO_CACHED, AI_RIGHT_CATEGORIES, AI_MIDDLE_CATEGORIES, AI_LEFT_CATEGORIES
+# === Cache dump/load config and helpers ===
+
+===== \Assets\Python\Screens\CvInfoScreen.py =====
+----- Comment #13 -----
+
+			# print("InfoScreenHistory cityFounded hide=%d player=%d revealedOwner=%d plot=%d,%d" % (bHideCityFounded, iPlayer, (pPlot is not None and pPlot.getRevealedOwner(self.iActiveTeam, False) or -1), iX, iY))
+			# <!-- custom: this was very hard to solve, countless AIs faield to do so xd, despite early previous success before caching. The key point is barbarian cities like "Hun" and "Cimmerian" were founded, we explored the plot, left, they spawned, but we didn't revisit since then, nor do we have vision, so on our map we see no city at all in this area, and it's not full flag unexplored either.
+			# Lines like:
+			# InfoScreenHistory show msg=556 player=11 type=1 color=53 plot=42,19 hiddenPlot=0 text=u'Cimmerian is founded.'
+			# Or:
+			# InfoScreenHistory show msg=605 player=11 type=1 color=53 plot=41,13 hiddenPlot=0 text=u'Hun is founded.'
+			# helped us solve it, added for reference, but we didn't test these debug lines with new code, just we could now successfully write a fix with it. GPT-5.2-Codex's comment below thanks a lot:
+			# I changed the approach to hide city‑founded messages unless the plot’s revealed owner matches the message’s player. This should hide barbarian city spawns when you don’t see barbarian culture, while still allowing founded messages for cities you can legitimately see.
+			# Change in CvInfoScreen.py:
+			# Added iCityFoundedMessage and a bHideCityFounded gate using pPlot.getRevealedOwner(self.iActiveTeam, False).
+			# If revealed owner doesn’t match the message’s player (or coords missing), the city‑founded line is hidden.
+			# Note: because we cache history, you’ll only see the change after a new replay message (or a restart). If you want, I can add a temporary “force rebuild" toggle for testing.
+			# -->
+
+===== PrivateMaps\Planet_Generator_0_68.py =====
+----- Comment #14 -----
+
+"""
+Change log:
+
+v. 0.68
+- Coordinate system changed to circular for continent growth calculation (faster, not so blocky shapes)
+- Continents should no longer break in several big parts (except with "archipelago continents")
+- Bug fix: the lonely islands are all devoid of hills or mountains
+
+v. 0.67
+- Further improvements for mod map size support: now can understand completely customized sizes
+
+v. 0.66
+- Mod map size support
+
+v. 0.65
+- Many feature generation tweaks
+- More forests or jungle (jungle depends on temperature)
+- More flood plains on deserts
+- More oases, better oasis placement
+- Flood plain "Standard" generation options reduced to one
+- Desert maps should be more interesting now
+- Forests and jungle can start growing not only near water, but also near peaks which do not have many features around
+
+v. 0.64
+- Random float number bug fix
+
+v. 0.63
+- Bug fix: generation failure with high continent scattering and distribution around center
+
+v. 0.62
+- Resource normalization fix (it was disabled all the time!)
+
+v. 0.61
+- 4,5 island option bug fix
+
+v. 0.60
+- Continent scattering improved, all options thoroughly tested to produce good-looking maps.
+- TileBuilder code improved, to avoid continent jams.
+- Generation bug fixed. Hopefully, it will no longer stops at start (!).
+- Random (Standard:Rare/Common) flood option fixed.
+- New option: Map size. It is now possible to specify custom map size, up to 256×160. Because of this change, following options are modified:
+- Continent separation options expanded up to 10 tiles.
+- Distance from poles no longer depends on continent separation, and is always constant (3).
+- From now on, area for continent separation is excluded from ocean area when calculating ocean percentage. It means that selecting higher continent separation now will produce less land. This helps against continent jams.
+- Lonely island selection options improved, now it is possible to specify exact amount of islands (1-5), but they will be placed only if there is enough empty area in ocean.
+- Default lonely island option changed to 3 islands.
+- Default option of removing one-tile islands changed to "yes".
+- Humidity options tweaked, now "normal" is a little bit more wet.
+- Land near pole ice default value is now "sometimes" (i think that looks better)
+- Fixed typo in options
+
+v. 0.53
+- Desert tile changing into plains (if jungle nearby) chance reduced from 100% to 60%.
+- Rewritten continent scattering algorithm. Changed name from "Continent Islands" to "Continent Scattering", because, well, it's what it does.
+- Island separation now is the same as continent separation.
+
+v. 0.51
+- Continent islands option fix.
+
+v. 0.50
+- New options added: Land near pole ice, Continent islands, Lonely islands, Lonely island size, One tile islands allowed.
+
+v. 0.47
+- Smoother transition from jungle to desert/tundra.
+
+v. 0.46
+- Both Mac and Windows support in one file. Thanks AlanH for writing code for mac!
+
+v. 0.45
+- Oasis.
+
+v. 0.44
+- Fixed continent distribution bug for high continent count and huge map.
+- Added more ways how continents can be distributed: you can choose old rule with square on equator, two or three rows, circle. Even more, i added option Smart Selection, which will choose the best distribution method for selected continent count and map size.
+- Flood plains now have default "Standard" distribution, which makes them appear only on desert, some on tundra and only near fresh water.
+- Redefined what "natural" continent means. Now it is much more concentrated landmass with possible peninsulas or inland seas, not snake starting in the middle and ending near poles :)
+- New landmass generation templates added - Natural, Crab-like, Smooth sides, old natural renamed to Traveling Natural (because it travels a lot from starting square).
+- New "Smart Random for each continent" shape selection which almost ensures that you will have playable and unpredictable maps with different continent and map size selections
+- Added a lot of comments to script code
+Things to try out:
+- New Crab-like continent shape for Pangaea map
+
+v. 0.43
+- Tested with Warlords: works
+- [B]Emergency fix[/B]: Grid size function was rewritten incorrectly, making map height higher than width ;)
+
+v. 0.42
+- Last user choices are now remembered
+- Tested with Total Realism 2.0, Fall From Heavens 2.014, SevoMod 3.1
+- Modified hill intersection function (produces more hills close together)
+- Grid size function is now written correctly (compatible with "very huge" map size mode (if there is such in some mod))
+
+v. 0.41
+- Some adjustments for humidity
+- Fixed some mistakes in options
+"""
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaMain.py =====
+----- Comment #15 -----
+
+			# <!-- custom: could reduce it to 200 still displaying all text in the dedicated panel (but very close, 199 does not fit, 200 is the strict minimum on 1920 x 1080, and i assume resolutions don't affect this but i don't know, still even if they did is quite minor (at worse the text would need 2 rows (in total to be displayed in just the category, but the place/room i gain is very (and much more useful than this header width, so leaving as is, even if does not work/function as intended is fine, as long as not critically broken this is the category header text, we need info on the main big panel rather), was 230
+			# May actually even be visually clearer as the distance between the words in categories and the items's words in the items category is smaller -->
+			# Can't be much thinner than this or hover text will sometimes appear in the categories columns and sometimes (when the text box is too wide) in the items column
+			# <!-- custom: was 200 -->
+
+===== \Assets\Python\Contrib\Sevopedia\SevoPediaMain.py =====
+----- Comment #16 -----
+
+<!-- custom: increase for smaller screens (resolutions) too, now that sevopedia is expanded (no margins) they should have more room to accommodate a full row width, increase only as minimally as necessary (acording to what i measured), was 182. Update: since the upscaling text changes, increased (from 124) to accommodate a max font size of 4. -->
+		# advc.002b: was 175
+		# <!-- custom: was 200 -->
+
+===== \Assets\Python\Screens\CvWorldAdvisorScreen.py =====
+----- Comment #17 -----
+
+	# We tried two alternatives and rejected both:
+	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
+	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
+	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant. (Claude code Opus 4.7; summarized GPT-5.5) -->

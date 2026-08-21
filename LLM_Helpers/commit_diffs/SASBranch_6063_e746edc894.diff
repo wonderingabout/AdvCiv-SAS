@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6063
+# Commit: e746edc8945e8d4ea30f65ca1d57913a36e3a38f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5910459ff53e661116bcd935a56c6d9f0abaaf57
+# Title: (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets (KI#193)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+18	1	CvGameCoreDLL/CvUnitAI.cpp
+21	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index baa98fb9c..d0b768736 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2968,6 +2968,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_BARBARIAN_CITY_EXPEDITION_MAX_DISPOSABLE_PATH_TURNS</DefineName>
+ 		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Generic reinforcement and invasion sizes can exceed an early transport's entire capacity, preventing even a loaded Galley from considering an achievable nearby city. When enabled, military cargo below those broad army-assembly thresholds still asks the existing target-specific assault evaluation whether its actual strength is sufficient. Safety, escort, imminent-loading, defender-strength, and distant-disposable Barbarian checks still apply. 1 enables, 0 disables. See KI#193. (GPT-5.6-Sol) -->
++	<Define>
++		<DefineName>SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Remote foreign-captured attack stacks should not wait for upgrades when they are already ready and their target is not too strong. If the nearest core same-area city is at least this many tiles away, the city is treated as remote from core; set to 0 to disable the distance gate. See KI#155. (GPT-5.5 + ChatGPT-5.5); Note: i reduced it from GPT-5.5 + ChatGPT-5.5 value of around 10 to encourage more aggression and flexibility too. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_REMOTE_CAPTURED_CORE_DISTANCE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 4065e1239..20e36f1c7 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -753,7 +753,7 @@ static bool SAS_isDistantDisposableBarbarianTarget(CvUnitAI& kUnit, CvCity const
+ 	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+ 	bool const bLikelyToBenefitUsLongTerm = kOwner.AI_isSASCityLikelyToBenefitUsLongTerm(kCity);
+ 	bool const bReject = !bLikelyToBenefitUsLongTerm;
+-	if (gUnitLogLevel >= 2)
++	if (gUnitLogLevel >= 2 || gOverseasTransportLogLevel >= 2)
+ 	{
+ 		// <!-- custom: This evaluation can run for many armies every turn. Log only the first result and later keep/reject transitions for each player and Barbarian city; this reduced save-file 450's 4,679 repetitive prototype rows to 19 in the identical confirming run. (GPT-5.6-Sol) -->
+ 		static std::map<std::pair<int,int>,std::pair<int,bool> > aLastLoggedState;
+@@ -11524,6 +11524,19 @@ void CvUnitAI::AI_assaultSeaMove()
+ 				} // </advc.082>
+ 			}
+ 		}
++		// <!-- custom: Save-file 450 transport diagnostics showed reinforcement/invasion thresholds of 13/26 blocking a Galley whose full capacity was only 3, even when nearby Barbarian cities reached zero defenders.
++		// Keep the broad thresholds for assembling normal invasions, but let the existing target-specific strength evaluation launch any smaller military cargo that can already take a real target. Existing safety, escort, and imminent-loading waits above still run first. See KI#193. (GPT-5.6-Sol) -->
++		static bool const bOpportunisticTargetEnable = GC.getDefineBOOL("SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE");
++		if (bOpportunisticTargetEnable && iCargo > 0 && iCargo < iTargetReinforcementSize)
++		{
++			FAssert(getGroup()->hasCargo());
++			if (AI_assaultSeaTransport(bNoWarPlans))
++			{
++				if (bLogAssaultSea) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
++				return;
++			}
++			if (gOverseasTransportLogLevel >= 3) logBBAI("    ASSAULT_SEA_MOVE_ACTION turn=%d player=%d unitId=%d groupId=%d action=no_opportunistic_target_below_threshold cargo=%d reinforcementThreshold=%d noWarPlans=%d", GC.getGame().getGameTurn(), getOwner(), getID(), getGroup()->getID(), iCargo, iTargetReinforcementSize, bNoWarPlans);
++		}
+ 		if (bNoWarPlans && iCargo >= iTargetReinforcementSize)
+ 		{
+ 			AI_getGroup()->AI_separateEmptyTransports();
+@@ -20465,6 +20478,10 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal, int iMaxAr
+ 
+ 		if (pCity != NULL)
+ 		{
++			// <!-- custom: Naval assaults previously bypassed the shared distant-disposable Barbarian-city gate, so an opportunistic launch could revive the KI#188.5 charity cleanup that land armies reject.
++			// Apply the same long-term-benefit test using the already-computed sea path to the city or its landing plot. See KI#193. (GPT-5.6-Sol) -->
++			if (SAS_isDistantDisposableBarbarianTarget(*this, *pCity, eFlags, MAX_INT, "assault_sea_transport", iPathTurns))
++				continue;
+ 			int iDefenceStrength = estimateAndCacheCityDefence(kOwner, pCity, city_defence_cache);
+ 			FAssert(AI_isPotentialEnemyOf(pCity->getTeam(), kPlot));
+ 			iBaseValue += kOwner.AI_targetCityValue(*pCity, false, false); // maybe false, true?
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 23ecf78f7..431027cfe 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -238,6 +238,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [190 - (Fixed/Improved) Base AdvCiv/K-Mod issue: anti-Space armies could attack other cities or spend the launch countdown on ordinary tactics instead of trying to capture the spaceship owner's capital](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#190---fixedimproved-base-advcivk-mod-issue-anti-space-armies-could-attack-other-cities-or-spend-the-launch-countdown-on-ordinary-tactics-instead-of-trying-to-capture-the-spaceship-owners-capital)\
+ [191 - (Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#191---fixedimproved-base-advciv-uwai-issue-independent-target-rolls-could-reject-the-best-war-target-and-then-select-a-much-worse-rival)\
+ [192 - (Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#192---fixedimproved-base-advcivk-mod-island-worker-logistics-and-advciv-sas-production-safety-gap-could-strand-workers-and-other-land-civilians-where-they-had-no-use)\
++[193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#193---fixedimproved-base-advcivk-mod-generic-army-thresholds-could-make-loaded-assault-ships-wait-instead-of-taking-achievable-overseas-targets)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7240,3 +7241,23 @@ The completed-secondary-landmass rule does not apply to Barbarians. Their separa
+ The confirming `BBAI_20260720T150846Z_load1.log` recorded 14 completed-area Worker boardings. Persia recovered all 5 Workers from its completed islands on turn 226, including 2 that boarded available transports directly and 3 collected through the stranded-unit pickup path. No two distinct transports targeted the same Worker during the same turn after the coordination guard. If no empty transport is available, the Worker waits rather than forcing the AI to build a ship or divert one carrying useful cargo solely for that rescue. Worker demand rises normally again if losses, new technology, expansion or other changes create useful work on the landmass.
+ 
+ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
++
++## 193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ipCkOvU21QPGlYY-WvGtfh-LlXCpNqfz?usp=sharing).
++
++The new overseas-transport BBAI diagnostics exposed a Base AdvCiv/K-Mod mismatch between assembling an army and deciding whether a loaded fleet could take a specific city by sea. This includes separate-island targets and coastal landings elsewhere on the same continent. `AI_assaultSeaMove` normally waited for generic reinforcement or invasion sizes derived from the AI's broad city-assault army requirements. Those requirements could exceed the transport group's entire cargo capacity, so the fleet could never reach them without more ships. The existing `AI_assaultSeaTransport` target evaluator already compared the actual cargo's strength with the target's defenders, distance and other tactical conditions, but the generic threshold could prevent that more relevant evaluation from running.
++
++Save file 450 showed the issue clearly. Persia's fleet consisted of one Galley with 3 total cargo spaces, but the generic thresholds required 13 units before carrying reinforcements to an overseas attack already under way or 26 units before launching its own full invasion. The fleet could not reach either threshold unless more transports joined it. The same problem applies whenever all ships in a fleet together cannot carry its required generic army size. Nearby Barbarian cities later reached zero defenders, including Mycenian on turn 237 and Hittite on turn 271, but the fleet still alternated between waiting, loading and unloading instead of exploiting the opportunity; Hittite eventually changed owner through culture rather than conquest.
++
++With `SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE` enabled, a naval assault group that has military cargo but remains below its generic army-assembly threshold now asks the existing target-specific evaluator whether that cargo can already capture a real target. This check runs only after the inherited safety, escort and imminent-loading waits, and it does not lower the normal thresholds used to organize major invasions. A small fleet therefore departs when its actual strength is sufficient for the city it can reach, but continues gathering units when the available targets are too strong.
++
++The naval evaluator now also applies the shared distant-disposable Barbarian-city safeguard from KI#188.5 using its already-computed sea path. A fleet does not sail far away merely to raze a city and clear the site for a nearer rival; it can still attack a nearby opportunity or a city that `AI_isSASCityLikelyToBenefitUsLongTerm` says is worth keeping. An otherwise worthwhile isolated-island foothold is not rejected merely for being on another landmass: the same-area distance limit applies only when the AI already owns a city on that target landmass.
++
++The save-file 450 confirming run recorded 7 distinct below-threshold fleets finding a valid target, while 76 other evaluations found no acceptable target and correctly kept their fleets waiting. The changed history produced 6 additional Barbarian-city conquests: Mycenian, Circassian, Cherokee, Cimmerian, Harappan and Sakae; none was razed. Maya provided the clearest example: 2 cargo units departed despite a generic threshold of 7 and captured population-9 Thracian on the next turn, then a 4-unit cargo captured Mycenian eight turns later.
++
++Save file 449 independently confirmed the behavior on another island-rich map. India sent 3 units despite a threshold of 9 and captured the Barbarian island city Burgundian six turns later. The cure also applies to coastal troop transport rather than only isolated islands: a separate 2-unit Indian launch supported the capture of the Ottoman city Ankara through a coastal landing five turns later, and a 4-unit Byzantine landing despite a threshold of 10 supported the capture of the English city Hastings on the next turn. The run also recorded 28 other below-threshold evaluations that found no acceptable target and kept their fleets waiting, showing that the new path does not launch every partially loaded ship. India remained the strongest civilization and won by Space, so these smaller expeditions did not prevent it from maintaining its broader strength.
++
++This cure does not solve a separate production-capacity issue found by the same diagnostics: Mali had a 15-18-unit attack army but only one already-full capacity-3 assault transport, while Carthage had attack groups of 18 and 21 without a geographically eligible assault transport. Whether land-heavy-map production limits leave some profitable islands without enough transport capacity remains a separate investigation.
++
++Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 65b1179e1..40d462d62 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -421,6 +421,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 6047+) **Capable early armies can organize themselves to capture Barbarian cities:** SASGameSummary and BBAI logging also found AIs with 9-14 units individually able (`UNITAI_ATTACK`) to attack and capture cities, but none assigned to organize the others (`UNITAI_ATTACK_CITY`) into a city-assault army, so this is a difference in `UNITAI` assignment, not their abilities. A K-Mod rule automatically broke down any group of 4 or more such units into smaller groups of 2 or 3 units if the group was in territory owned by the AI or one of its teammates. Because of this, many of the AI's military units could remain at home instead of grouping together to capture a reachable Barbarian city. To fix this, if no city the unit can reach within one turn needs it as a defender and the unit is not currently threatened, the AI now checks if enough attackers are available in the area, and if so, the AI assigns that unit as the expedition leader; the others can then group with it and they set out against a Barbarian city. For example, the save file 453 confirming run created four such expedition leaders. Among them, one was of a Spanish Chariot reassigned on T60 had gathered a four-unit group by T61, redirected toward Minoan on T73, and Spain captured it on T77. Another was of a War Elephant reassigned for the Holy Roman Empire on T79 was leading four units toward Khoisan by T86, and the Holy Roman Empire captured it on T90. See [KI#188](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#188---fixedimproved-major-base-advcivk-mod-bug-in-organizing-armies-against-barbarian-cities-could-park-65-82-of-an-ais-military-or-prevent-capable-attackers-from-forming-city-assault-expeditions).
+ - (Requires AdvCiv-SAS 6059+) **War preparations now take priority over Barbarian expeditions:** Base AdvCiv/K-Mod treated the period before a planned attack became ready as if no rival war were being prepared. For example, in save file 450, BBAI logging showed Hannibal preparing to attack nearby Willem, whose power was only 54% of Hannibal's, while 7 of Hannibal's units were still being managed for an expedition to the Barbarian city Scythian 22 tiles away instead of building enough strength for the much more profitable rival war. To fix this, the AI now uses normal war readiness as soon as it has any real war plan. In the confirming run, the affected groups of 6-9 units did not leave for distant Barbarian cities. Instead, they continued assembling enough strength for the planned rival war and remained nearby in case they were needed for defense. See [KI#188.4](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1884---fixed-base-advcivk-mod-bug-ai-armies-preparing-war-against-a-civilization-could-still-be-classified-as-hunting-only-barbarian-cities).
+ - (Requires AdvCiv-SAS 6059+) **AIs no longer do charity Barbarian cleanup for their rivals:** Following the readiness fix above, BBAI logging exposed a broader problem: a fully prepared army could still spend many turns attacking a distant Barbarian city that it would not benefit from and ultimately raze. For example, in save file 450, BBAI logging showed that Hannibal mobilized 3 units on turn 74 against the Barbarian city Libyan, 16 tiles away. Reaching and capturing it took 16 turns, and Hannibal then razed it. He gained no city and only some conquest gold, but lost troops and time that could have supported offense or defense. Shaka, the only nearby player likely to keep the city, gained much more: he founded Bulawayo on the exact plot only 10 turns later without having to capture Libyan himself. With the nearby Barbarian pressure removed, Shaka could also focus on his economy or build up his army without losing units to Barbarian attacks or becoming easier prey for other rivals, and he eventually won this run by Space. To fix this, the AI now avoids trips longer than the new XML-tunable limit of 3 path turns (to preserve quick tactical raids even when the city is not worth keeping) unless `AI_isSASCityLikelyToBenefitUsLongTerm` says the city is worth keeping (as of now, generally because it is close enough and has enough useful land and food after bonuses are considered). In the confirming run, Hannibal did not send his units to clear those distant Barbarian cities around turn 74. Instead, he kept them available for potentially better attacks or defense. Much later, between turns 168 and 195, he captured 5 Arabian cities, which now made capturing and not razing Libyan and Scythian now worth it as they became close enough (and are otherwise valuable enough to keep), which he did on turns 204 and 208. As for Shaka, he spent his own early military effort fighting near Libyan but failed to capture it. He later became Hannibal's vassal, and Hannibal won by Space. See [KI#188.5](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1885---improved-ai-armies-could-waste-their-strength-razing-distant-barbarian-cities-instead-of-leaving-barbarian-pressure-to-weaken-nearer-rivals-and-remaining-available-for-offense-or-defense).
++- (Requires AdvCiv-SAS 6063+) **Loaded assault ships can take achievable overseas targets instead of waiting for an army larger than they can carry:** Base AdvCiv/K-Mod generally required a loaded fleet to reach a generic army size before checking whether its actual units could capture a specific city by sea. For example, BBAI logging in save file 450 showed that a fleet consisting of one Galley (total Cargo Space: 3) waited for 13 units before carrying reinforcements to an overseas attack already under way, or 26 units before launching its own full invasion. This was a problem because the fleet could not reach either threshold unless more transports joined it; more generally, any fleet whose ships together could not carry its required generic army size could remain in port indefinitely, which was especially bad when nearby Barbarian island cities sometimes even had no defenders at all. This happened even though the AI already had a more relevant check that compares its loaded units' strength with the target's defenders and route, because the generic army-size gate could prevent that check from running. To fix this, once safety, escort and imminent-loading needs are handled, a smaller loaded fleet now also asks the target-specific check whether its loaded force is strong enough to attack a reachable target. Note: the normal thresholds remain for organizing larger invasions, and the fleet still waits when no suitable target exists. For Barbarian targets, it also avoids a long naval trip to a city it expects to raze, but a worthwhile isolated-island city is not rejected merely because it is on another landmass (as per `AI_isSASCityLikelyToBenefitUsLongTerm`). In the confirming save-file 450 run, 7 distinct fleets found valid below-threshold targets, while 76 other evaluations found no acceptable target and correctly kept their fleets waiting; the changed history produced 6 additional Barbarian-city conquests with none razed. Save file 449 independently confirmed the island behavior: India sent 3 units despite a threshold of 9 and captured the Barbarian island city Burgundian six turns later. See [KI#193](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#193---fixedimproved-base-advcivk-mod-generic-army-thresholds-could-make-loaded-assault-ships-wait-instead-of-taking-achievable-overseas-targets).
+ - (Requires AdvCiv-SAS 6049+) **Offensive armies can interrupt or divide an expedition to defend nearby endangered cities:** Following KI#188, similar logging showed a ready AI army, including one already in enemy territory after being backstabbed, could in Base AdvCiv/K-Mod select another enemy city while an underdefended own city was reachable within a few turns. The clearest diagnostic case was in save file 450: Baghdad needed 12 defenders and had 5, but a healthy 11-unit Arabian city-assault army only two turns away waited for more units, grew to 23 units / 32% of Arabia's military, and attacked Prague; Baghdad fell, Prague was not captured, and Arabia retook Baghdad five turns later after its population had fallen from 10 to 4. To fix and enhance this, before choosing its next offensive target, the army now first tries to counter a suitable nearby invader when its area is considered defensive. If no such counterattack is selected, it can send enough units to fill an endangered city's remaining defender shortage within three turns and continue the expedition with the rest. The AI does not begin a rescue when a one-unit group cannot fill a larger shortage or when filling it would consume more than three quarters of the group, and doomed-city evacuation still takes priority. This lets a military advantage serve defense without automatically abandoning every viable offensive. After the fix, history diverged, but a similar save file 450 run showed the intended choices working: an Arabian city-assault group suspended its expedition to counter Holy Roman units near Baghdad, which remained Arabian. Later, a Dutch army sent 10 of its 19 units to protect Amsterdam while keeping 9 in the field; the Dutch won three of four nearby land battles and successfully retained the city. Overall, 11 of the 16 expedition-split decisions targeted cities that survived the immediate war or remained held through the test. The five failures were all on the collapsing Holy Roman front, where Najran, Vienna, Nuremberg, Prague, and Aachen still fell, so the response improves viable defenses without pretending an overwhelmed empire can save every city. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
+ - (Requires AdvCiv-SAS 6049+) **Emergency city reinforcements now complete their assigned rescue:** Similar logging showed that the first prototypes of the cure above could detach defenders only for them to immediately regroup with their offensive army instead of reaching the endangered city. For example, at Chichen Itza, 6 units detached from an 8-unit army, regrouped, and had to be detached again two turns later; the city fell before the rescue was completed. This was not an inherited Base AdvCiv/K-Mod issue, but a missing part of our candidate cure. To complete the cure, emergency reinforcements now retain their city assignment, count as incoming defenders so the AI does not duplicate the same response, and remain in the city while needed; once the danger or defender shortage ends, they return to normal duties. In the confirming save file 450 run, 7 units successfully reached Amsterdam while the other 11 remained together for their campaign. See [KI#188.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1882---fixedimproved-base-advcivk-mod-issue-offensive-armies-could-ignore-nearby-endangered-cities-instead-of-going-back-to-try-to-help-defending-them).
+ - (Requires AdvCiv-SAS 6050+) **Large AI armies parked with nothing reachable to attack:** BBAI logging showed a major Base AdvCiv/K-Mod bug: even while at peace, with no planned war and no rival or Barbarian city it could reach, the AI could keep waiting for reinforcements and effectively lock more units into the same army so they could not be released for other duties. For example, in save file 450, a United States group grew from 6 units on T126 to 18 of the empire's 47 military units by T225, and then, after the short war, it returned to peace still holding 21 of 51 units on T247. So it concentrated about 40% of the AI's military in one city and left far fewer units available to defend the rest of its empire or pursue another opportunity, which was very problematic. To fix this, when the AI has nothing to attack, it now stops waiting for more reinforcements: if the army is already in its own territory and not immediately threatened, the AI now only keeps one modest core group ready for a future city attack. As for the excess units, they now instead leave the group and resume defending cities or preparing another expedition. Note: an army that is still abroad or in immediate danger remains together until it returns to its own territory and is no longer immediately threatened, so the fix does not break it apart while exposed. Note 2: the units can also regroup into a large army as soon as a real target or planned war appears. After the fix, confirming runs of save files 450 and 452 showed the intended behavior: in save file 452, Japan reduced its peacetime city-assault group with nothing to attack from 21 to 11 units, freeing 10 units for other duties; at the same time, the AI could still assemble large armies when a real war began, as Carthage attacked Susa with 63 units in save file 450, and China attacked Aksum with roughly 180-202 units in save file 452. See [KI#188.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1883---fixedimproved-major-base-advcivk-mod-bug-city-assault-armies-without-a-reachable-target-or-war-plan-could-keep-waiting-for-reinforcements-indefinitely-and-park-40-53-of-an-ais-military).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=26115

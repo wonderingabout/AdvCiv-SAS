@@ -1,0 +1,58 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2005
+# Commit: 1ccec16451ba773b652ffcad7b96f7b243c65d66
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 5f03731b3c3571c00d3228e5540999a70ac3807a
+# Title: Fix spelling mistakes in some comments in XML files
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/AI_Variables_GlobalDefines.xml
+1	1	Assets/XML/Text/CIV4GameText_advc.008.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index f5a4afadf..18120cf72 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -21,12 +21,12 @@
+ 		 In the descriptions below, "we" refers to the AI civ that is
+ 		 considering war. -->
+ 	<Define>
+-		<!-- The cities we expect to conquer as economical assets. -->
++		<!-- The cities we expect to conquer as economic assets. -->
+ 		<DefineName>UWAI_WEIGHT_GREED_FOR_ASSETS</DefineName>
+ 		<iDefineIntVal>100</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- The economical value of accepted capitulations. 
++		<!-- The economic value of accepted capitulations. 
+ 			 (Not: Getting closer to a Conquest victory; that's handled under
+ 			  MILITARY_VICTORY.) -->
+ 		<DefineName>UWAI_WEIGHT_GREED_FOR_VASSALS</DefineName>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.008.xml b/Assets/XML/Text/CIV4GameText_advc.008.xml
+index 40e3ca940..ea3073593 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.008.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.008.xml
+@@ -886,7 +886,7 @@
+ 	<!-- Castle: from CIV4GameTextChanged_BTS.xml -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_CASTLE_STRATEGY</Tag>
+-		<English>[COLOR_BUILDING_TEXT]Castles[COLOR_REVERT] greatly improve your city's defenses against pre-Renaissance units and grant economical benefits. Note (AdvCiv): The defense modifier from Castle replaces the one from Wall and is not cumulative with defense from city culture.</English>
++		<English>[COLOR_BUILDING_TEXT]Castles[COLOR_REVERT] greatly improve your city's defenses against pre-Renaissance units and grant economic benefits. Note (AdvCiv): The defense modifier from Castle replaces the one from Wall and is not cumulative with defense from city culture.</English>
+ 		<French>Les [COLOR_BUILDING_TEXT]Ch&#226;teaux[COLOR_REVERT] am&#233;liorent les d&#233;fenses de la ville contre les unit&#233;s ant&#233;rieures &#224; la poudre &#224; canon, augmentent la production de l'espionnage et g&#233;n&#232;rent une faible quantit&#233; de culture. Construisez-les dans les villes &#224; proximit&#233; des civilisations ennemies.</French>
+ 		<German>[COLOR_BUILDING_TEXT]Schl�sser[COLOR_REVERT] machen es Ihren Feinden sehr schwer, Ihre St�dte einzunehmen. Gegen Einheiten der Renaissance und sp�terer Zeitalter wirken die Verteidigungsf�higkeiten allerdings nicht. Au�erdem gew�hren Schl�sser wirtschaftliche Vorteile. Hinweis (AdvCiv): Der Verteidigungswert eines Schlosses ersetzt den der (Stadt-)Mauern und wird nicht zum Kultur-Verteidigungswert addiert.</German>
+ 		<Italian>Il [COLOR_BUILDING_TEXT]castello[COLOR_REVERT] potenzia le difese di una citt&#224; contro le unit&#224; precedenti alla polvere da sparo, aumenta la resa di Spionaggio e genera una piccola quantit&#224; di cultura. Costruiscilo nelle citt&#224; vicine alle civilt&#224; nemiche.</Italian>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2922

@@ -1,0 +1,146 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4868
+# Commit: a538d84e143e611e3939464c099dc0ea16173604
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 06bf9fa5874114581fad4032cc3c1d9aedd1a009
+# Title: further refactor sevopedia unit quite minor or not or yes or other but anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	32	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+2	2	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index f72ad02d8..dd369b9a1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -414,6 +414,15 @@ class SevoPediaUnit:
+ 
+ 
+ 
++	# <!-- custom: since this uses always the same logic and values overall unlike in sevopedia building, easier and more efficient to wrap it in one helper function without losing clarity perhaps gaining if i may say in this case or not or yes or other or etc but anyways etc anyways etc anyways etc -->
++	def precompute_modifier_button_to_display(self, numTxt, xPanel, nCountOccurencesFound, buttonSize, xNumsOrTextsFound):
++		addedOffset = 0
++		xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
++		xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
++		xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++
++
++
+ 	def displayPanelButtonsSNumsOrTxtsOrPanelSTxtKeyNoButton(self, screen, isButtonFound, txtKeyNoButtonFound, xNumsOrTextsFound, buttonSize, xPanel, yPanel, wPanel, hPanel):
+ 		# <!-- custom: now display(ing anyways etc) the corresponding num or text matching the button if any (button) anyways etc -->
+ 		if isButtonFound:
+@@ -454,27 +463,12 @@ class SevoPediaUnit:
+ 			# Check class-based modifiers (attack and defense)
+ 			iModAttack = unitInfo.getUnitClassAttackModifier(i)
+ 			iModDefense = unitInfo.getUnitClassDefenseModifier(i)
+-
+ 			# Handle class modifiers with x/y format
+ 			numTxt = get_numTxt_attack_defense_modifiers(iModAttack, iModDefense)
+ 
+ 			if iModAttack != 0 or iModDefense != 0:
+ 				nCountOccurencesFound += 1
+-				addedOffset = 0
+-				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+-				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
+-				xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
+-				
+-				# Get the default unit of this class for the current civilization
+-				if self.top.iActivePlayer != -1:
+-					iDefaultUnit = gc.getCivilizationInfo(gc.getPlayer(self.top.iActivePlayer).getCivilizationType()).getCivilizationUnits(i)
+-				else:
+-					iDefaultUnit = gc.getUnitClassInfo(i).getDefaultUnitIndex()
+-				
+-				# If a valid unit exists, display its button
+-				if iDefaultUnit != -1:
+-					screen.attachImageButton(panelName, "", gc.getUnitInfo(iDefaultUnit).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iDefaultUnit, -1, False)
++				self.precompute_modifier_button_to_display(numTxt, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
+ 		
+ 		# Check for UnitCombatMods
+ 		# <!-- custom: we need to do this in a separate loop according to chatgpt as "i is a UnitClass index ; gc.getUnitCombatInfo(i) expects a UnitCombatTypes index" and indeed i don't know if this is the cause but we got an error when trying to refactor too aggressively with claude ai i mean but anyways etc the code (ignorantly perhaps of me but good to try or not or yes but anyways etc), so making sure i mean to have a separate loop for combat type modifiers if i am not mistaken in understanding this anyways etc -->
+@@ -483,14 +477,11 @@ class SevoPediaUnit:
+ 			# Loop through all units to find those with UnitCombatMods against this combat type
+ 			for i in range(gc.getNumUnitCombatInfos()):
+ 				iModCombat = unitInfo.getUnitCombatModifier(i)
++				numTxt = u"%+d%%" % (iModCombat)
++
+ 				if iModCombat != 0:
+ 					nCountOccurencesFound += 1
+-					numTxt = u"%+d%%" % (iModCombat)  # Use %+d to always show the sign (+ or -)
+-					addedOffset = 0
+-					xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+-					xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
+-					xPanel = self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS
+-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++					self.precompute_modifier_button_to_display(numTxt, self.X_OF_UNIT_MODIFIERS_AGAINST_OTHERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
+ 					
+ 					# Display the combat type button
+ 					screen.attachImageButton(panelName, "", gc.getUnitCombatInfo(i).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, i, -1, False)
+@@ -532,11 +523,7 @@ class SevoPediaUnit:
+ 
+ 			if iModAttack != 0 or iModDefense != 0:
+ 				nCountOccurencesFound += 1
+-				addedOffset = 0
+-				xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+-				xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
+-				xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
+-				xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++				self.precompute_modifier_button_to_display(numTxt, self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
+ 				
+ 				# Display the specific unit button
+ 				screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
+@@ -553,11 +540,7 @@ class SevoPediaUnit:
+ 				if iModCombat != 0:
+ 					nCountOccurencesFound += 1
+ 					numTxt = u"%+d%%" % (iModCombat)  # Use %+d to always show the sign (+ or -)
+-					addedOffset = 0
+-					xSubstractedAdjustmentNumTxt = getXSubstractedAdjustmentNumTxtBasedOnLenNumTxt(numTxt, addedOffset, buttonSize)
+-					xSubstractedAdjustment = int(xSubstractedAdjustmentNumTxt * buttonSize)
+-					xPanel = self.X_OF_OTHER_UNITS_MODIFIERS
+-					xNumsOrTextsFound.append((getXOccurenceFound(xPanel, self.HYPOTHESIZED_FIRST_BUTTON_LEFT_PADDING, self.HYPOTHESIZED_INTER_BUTTON_SPACING, nCountOccurencesFound, buttonSize, xSubstractedAdjustment), numTxt))
++					self.precompute_modifier_button_to_display(numTxt, self.X_OF_OTHER_UNITS_MODIFIERS, nCountOccurencesFound, buttonSize, xNumsOrTextsFound)
+ 					
+ 					# Display the specific unit button
+ 					screen.attachImageButton(panelName, "", otherUnitInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, i, -1, False)
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index c3f219ba6..5652f3a2f 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -90,7 +90,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS</Tag>
+-		<English>Against Classes (A|D), Combat Types (A+D)</English>
++		<English>Against Classes (A/D), Combat T. (A and D)</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_THIS_UNIT_MODIFIERS_AGAINST_OTHERS_NO_BUTTON_FOUND</Tag>
+@@ -98,7 +98,7 @@ hopefully more readable or exportable if need/want be now -->
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT</Tag>
+-		<English>Of Other Classes's Units (A|D), Combat Types's Units (A+D)</English>
++		<English>Of Other Classes's Units (A/D), Combat Types's Units (A and D)</English>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_OF_OTHER_UNITS_MODIFIERS_AGAINST_THIS_UNIT_NO_BUTTON_FOUND</Tag>
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG
+index e15f7bc0d..c8ab8b2e9 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_unit_sample.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8416

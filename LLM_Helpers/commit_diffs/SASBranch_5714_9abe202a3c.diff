@@ -1,0 +1,465 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5714
+# Commit: 9abe202a3c2e276b6f1db60e55934634c75407f5
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4919f62e5f990c8dfeec222436eaadfd27af82e0
+# Title: add Territory Tab in World advisor (based on the info screen's statistics tab (notably supports hover and redirect on click)) - add graphical only and specia...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+46	0	Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+3	3	Assets/Python/Screens/CvTechChooser.py
+147	8	Assets/Python/Screens/CvWorldAdvisorScreen.py
+3	3	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+4	4	Assets/XML/Text/AdvCiv-SAS_Core.xml
+11	0	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+24	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 7c758ce19..92bef8475 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -1271,13 +1271,16 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 	def getImprovementList(self):
+ 		if self.SAS_cacheImprovementsTuple is None:
+-			imprList = self.getSortedList(gc.getNumImprovementInfos(), gc.getImprovementInfo)
++			# <!-- custom: Use the unfiltered list so graphical-only improvements can be considered below; Territory/BFC
++			# tables now expose those markers on real plots, and grouping code keeps them separate from Worker improvements. (GPT-5.5) -->
++			imprList = self.getUnfilteredSortedList(gc.getNumImprovementInfos(), gc.getImprovementInfo)
+ 			# <advc.004y>
+ 			baseList = []
+ 			for descr, i in imprList:
+ 				info = gc.getImprovementInfo(i)
+ 				# The alt. conditions are for Forest Preserve and Fort
+-				if info.getPillageGold() > 0 or info.isRequiresFeature() or info.isOutsideBorders():
++				# <!-- custom: Include special map improvements alongside the newly unfiltered graphical-only entries. (GPT-5.5) -->
++				if info.isGraphicalOnly() or SAS_MainGroupings.SAS_isSpecialMapImprovement(i) or info.getPillageGold() > 0 or info.isRequiresFeature() or info.isOutsideBorders():
+ 					baseList.append((descr, i))
+ 			# </advc.004y>
+
+diff --git a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+index db73eafdd..9bb38d106 100644
+--- a/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
++++ b/Assets/Python/Contrib/Sevopedia/_sevopedia_main_groupings.py
+@@ -134,6 +134,21 @@ def SAS_isBonusCapableImprovement(iImprovement):
+ 
+ 	return False
+ 
++def SAS_isBuildCreatedImprovement(iImprovement):
++	for iBuild in xrange(gc.getNumBuildInfos()):
++		buildInfo = gc.getBuildInfo(iBuild)
++		if buildInfo and buildInfo.getImprovement() == iImprovement:
++			return True
++	return False
++
++def SAS_isSpecialMapImprovement(iImprovement):
++	info = gc.getImprovementInfo(iImprovement)
++	if not info or info.isGraphicalOnly():
++		return False
++	if SAS_isBuildCreatedImprovement(iImprovement):
++		return False
++	return info.getPillageGold() <= 0 and not info.isRequiresFeature() and not info.isOutsideBorders()
++
+ # Helper: get ALL improvements that make a bonus tradable (i.e. "improve/connect" it).
+ # This is used for Sevopedia Main list grouping, similar to RFC DoC's Resource grouping.
+ # Unlike a "primary improvement" heuristic, we keep multi-improvement cases exhaustive by using
+@@ -362,6 +377,8 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
+ 	landGrowth = []
+ 	landBonusCapable = []
+ 	landOther = []
++	graphicalOnly = []
++	specialMap = []
+ 	waterFood = []
+ 	waterOther = []
+ 
+@@ -392,6 +409,19 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
+ 
+ 	for (szName, iImprovement) in baseList:
+ 		info = gc.getImprovementInfo(iImprovement)
++		# <!-- custom: Expose graphical-only improvements such as worked-land/water markers in Sevopedia, mirroring how
++		# Sevopedia Terrain shows graphical-only Peak/Hill because they provide useful map and rules context. Keep these
++		# separate from gameplay improvements because helper predicates intentionally ignore graphical-only infos. (GPT-5.5) -->
++		if info and info.isGraphicalOnly():
++			graphicalOnly.append((szName, iImprovement))
++			continue
++		# <!-- custom: Show special map improvements separately from Worker improvements. These are not graphical-only
++		# infos; they are map/engine-placed improvements with no creating Build, so they fail AdvCiv's old filter for
++		# Worker improvements with pillage/features/outside-border rules. World Advisor Territory and BFC 2 can expose
++		# them on real plots, so Sevopedia should document them too. (GPT-5.5) -->
++		if SAS_isSpecialMapImprovement(iImprovement):
++			specialMap.append((szName, iImprovement))
++			continue
+ 
+ 		if info and info.isWater():
+ 			# Check if water improvement provides food yields from any bonus
+@@ -478,6 +508,22 @@ def SAS_getImprovementsGroupedByTerrain_fromBaseList(baseList, bSortLists):
+ 
+ 
+ 	# Emit headers + items in alphabetical order by header name
++	if graphicalOnly:
++		r.append(("GraphicalOnly", -1))
++		for x in graphicalOnly:
++			r.append(x)
++
++	if graphicalOnly and (specialMap or landBonusCapable or landGrowth or landOther or waterFood or waterOther):
++		r.append(("", -1))
++
++	if specialMap:
++		r.append(("Special Map", -1))
++		for x in specialMap:
++			r.append(x)
++
++	if specialMap and (landBonusCapable or landGrowth or landOther or waterFood or waterOther):
++		r.append(("", -1))
++
+ 	if landBonusCapable:
+ 		r.append(("Land (Bonus-capable)", -1))
+ 		for x in landBonusCapable:
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index b8b9afa66..9e01967ba 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -539,14 +539,14 @@ class CvTechChooser:
+ 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
+ 					szTechString = szTechString + str(gc.getPlayer(self.iCivSelected).getQueuePosition(i)) + ". "
+ 				szTechString += gc.getTechInfo(i).getDescription()
+-				# <!-- custom: include turns-left on first Tech Advisor draw too; before this, placeTechs only showed queue position and missed "(N)" until a later refresh path (e.g. clicking another tech) rebuilt labels via updateTechRecords, so load-from-save could hide the timer on the initially selected tech. See KI#114. (GPT-5 Codex) -->
++				# <!-- custom: include turns-left on first Tech Advisor draw too; before this, placeTechs only showed queue position and missed "(N)" until a later refresh path (e.g. clicking another tech) rebuilt labels via updateTechRecords, so load-from-save could hide the timer on the initially selected tech. See KI#114. (GPT-5.3-Codex) -->
+ 				if ( gc.getPlayer(self.iCivSelected).isResearchingTech(i) ):
+ 					iTurnsLeft = gc.getPlayer(self.iCivSelected).getResearchTurnsLeft(i, ( gc.getPlayer(self.iCivSelected).getCurrentResearch() == i ))
+ 					if iTurnsLeft > 0:
+-						# <!-- custom: minor tweak only: keep "(N)" append as one formatted string for readability; no behavior change relative to the timer/clipping fix. (GPT-5 Codex) -->
++						# <!-- custom: minor tweak only: keep "(N)" append as one formatted string for readability; no behavior change relative to the timer/clipping fix. (GPT-5.3-Codex) -->
+ 						szTechString += " (%d)" % iTurnsLeft
+ 				szTechString = szTechString + SAS_FONT_TAG_CLOSE
+-				# <!-- custom: anchor tech labels to the scroll panel (same as updateTechRecords) instead of the tech panel child so first-draw and refresh rendering paths stay consistent. See KI#114. (GPT-5 Codex) -->
++				# <!-- custom: anchor tech labels to the scroll panel (same as updateTechRecords) instead of the tech panel child so first-draw and refresh rendering paths stay consistent. See KI#114. (GPT-5.3-Codex) -->
+ 				screen.setTextAt( szTechID, sPanel, szTechString, CvUtil.FONT_LEFT_JUSTIFY, iTechX + 6 + X_INCREMENT, iTechY + 6, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_TECH_TREE, i, -1 )
+ 				screen.setActivation( szTechID, ActivationTypes.ACTIVATE_MIMICPARENTFOCUS )
+
+diff --git a/Assets/Python/Screens/CvWorldAdvisorScreen.py b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+index 507ad0903..accd44dc9 100644
+--- a/Assets/Python/Screens/CvWorldAdvisorScreen.py
++++ b/Assets/Python/Screens/CvWorldAdvisorScreen.py
+@@ -50,11 +50,13 @@ class CvWorldAdvisorScreen:
+ 			"TXT_KEY_ECONOMICS_ADVISOR_ENVIRONMENT_TAB",
+ 			"TXT_KEY_WORLD_ADVISOR_BFC_TAB",
+ 			"TXT_KEY_WORLD_ADVISOR_BFC2_TAB",
++			"TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB",
+ 			]
+ 		self.PAGE_LINK_WIDTH = []
+ 		self.iEnvironmentID = 0
+ 		self.iBFCID = 1
+ 		self.iBFC2ID = 2
++		self.iTerritoryID = 3
+ 		self.iActiveTab = self.iEnvironmentID
+ 		self.DEBUG_DROPDOWN_ID = "WorldAdvisorDropdownWidget"
+ 
+@@ -163,6 +165,12 @@ class CvWorldAdvisorScreen:
+ 		self.TEXT_HILL = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_HILL", ())
+ 		self.TEXT_FLAT = localText.getText("TXT_KEY_WORLD_ADVISOR_BFC_FLAT", ())
+ 		self.TEXT_TOTAL = localText.getText("TXT_KEY_TOTAL", ())
++		self.TEXT_TERRITORY_PLOTS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS", ())
++		self.TEXT_TERRITORY_TERRAIN_FEATURES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES", ())
++		self.TEXT_TERRITORY_BONUSES = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES", ())
++		self.TEXT_TERRITORY_IMPROVEMENTS = localText.getText("TXT_KEY_CONCEPT_IMPROVEMENTS", ())
++		self.TEXT_TERRITORY_SUBURBS = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR", ())
++		self.TEXT_TERRITORY_TOTAL_ABBR = localText.getText("TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR", ())
+ 
+ 	def showScreen(self):
+ 		screen = self.getScreen()
+@@ -223,6 +231,8 @@ class CvWorldAdvisorScreen:
+ 			self.drawBFCTab()
+ 		elif self.iActiveTab == self.iBFC2ID:
+ 			self.drawBFC2Tab()
++		elif self.iActiveTab == self.iTerritoryID:
++			self.drawTerritoryTab()
+ 
+ 	# ENVIRONMENT
+ 	def drawEnvironmentTab(self):
+@@ -375,7 +385,7 @@ class CvWorldAdvisorScreen:
+ 	#   1) A "legend row" as data row 0 with WIDGET_PEDIA_JUMP_TO_X icons. Hover worked but the legend row sorts as a regular row (no pin-to-top API on CyGInterfaceScreen tables), so it drifted into the middle of the data and broke readable sorting.
+ 	#   2) Invisible setImageButton overlays over each header icon for hover tooltips while keeping icons in headers. Hover worked, but BTS dispatches WIDGET_PEDIA_JUMP_TO_X left-clicks in the C++ DLL before our Python handleInput sees them, so left-click could not be swallowed — the icon area became "open pedia" and stole sort clicks. With many bonus columns the icon basically *is* the column, killing sort.
+ 	# WIDGET_HELP_X is hover-only natively but only WIDGET_HELP_IMPROVEMENT exists for the categories we care about; bonus/terrain/feature/route have no _HELP variant.
+-	# Resolution: keep icons-in-headers (readable, sortable) and add a Legend link in BFC 2 that jumps to the Sevopedia Bonus index, where every icon is listed with its name and description. (Claude code Opus 4.7) -->
++	# Resolution: keep icons-in-headers (readable, sortable); pedia widgets now make the improvement meanings accessible where needed. (Claude code Opus 4.7; summarized GPT-5.5) -->
+ 	# BFC
+ 	def drawBFCTab(self):
+ 		aiFortColumns = self.getBFCFortImprovementTypes()
+@@ -574,13 +584,6 @@ class CvWorldAdvisorScreen:
+ 		aszRows, aaiBonusCounts, aaiImprovementCounts = self.collectBFC2Data()
+ 		self.drawBFC2IconTable(aszRows, aaiBonusCounts, aiBonusColumns, gc.getBonusInfo, gc.getNumBonusInfos(), self.BFC_Y_PLOT_TABLE, self.BFC_H_PLOT_TABLE)
+ 		self.drawBFC2IconTable(aszRows, aaiImprovementCounts, range(gc.getNumImprovementInfos()), gc.getImprovementInfo, gc.getNumImprovementInfos(), self.BFC_Y_TERRAIN_TABLE, self.BFC_H_TERRAIN_TABLE)
+-		self.drawBFC2LegendLink()
+-
+-	# <!-- custom: Legend link top-right of the BFC 2 content area; uses the shared placeAdvisorLegendLink helper (same pattern as Score tab in CvInfoScreen). The link jumps to the CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND Sevopedia/NewConcept page. (Claude code Opus 4.7) -->
+-	def drawBFC2LegendLink(self):
+-		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
+-		iY = self.Y_TITLE
+-		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND", iX, iY)
+ 
+ 	def collectBFC2Data(self):
+ 		player = gc.getPlayer(self.iActivePlayer)
+@@ -645,6 +648,142 @@ class CvWorldAdvisorScreen:
+ 		for iCol in range(len(aiColumns)):
+ 			self.setBFCCountCell(screen, szTable, iCol + 2, iRow, aiCounts[aiColumns[iCol]])
+ 
++	# TERRITORY
++	def drawTerritoryTab(self):
++		aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows = self.collectTerritoryData()
++		iGap = 14
++		iTableW = (self.BFC_W_TABLE - 3 * iGap) / 4
++		iY = self.BFC_Y_PLOT_TABLE
++		iH = self.CONTENT_Y_BOTTOM - iY - 18
++		self.drawTerritoryCountTable(aPlotRows, self.TEXT_TERRITORY_PLOTS, self.BFC_X_TABLE, iY, iTableW, iH)
++		self.drawTerritoryCountTable(aTerrainFeatureRows, self.TEXT_TERRITORY_TERRAIN_FEATURES, self.BFC_X_TABLE + iTableW + iGap, iY, iTableW, iH)
++		self.drawTerritoryCountTable(aBonusRows, self.TEXT_TERRITORY_BONUSES, self.BFC_X_TABLE + 2 * (iTableW + iGap), iY, iTableW, iH)
++		self.drawTerritoryCountTable(aImprovementRows, self.TEXT_TERRITORY_IMPROVEMENTS, self.BFC_X_TABLE + 3 * (iTableW + iGap), iY, self.BFC_W_TABLE - 3 * (iTableW + iGap), iH)
++		self.drawTerritoryLegendLink()
++
++	# <!-- custom: Territory uses compact BFC/Sub/Tot headers to fit four side-by-side tables, so keep the column meanings
++	# in a Sevopedia legend link instead of expanding the headers. (GPT-5.5) -->
++	def drawTerritoryLegendLink(self):
++		iX = self.BFC_X_TABLE + self.BFC_W_TABLE - 6
++		iY = self.Y_TITLE
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND", iX, iY)
++
++	def collectTerritoryData(self):
++		aiBFCPlots = self.getTerritoryBFCPlotSet()
++		aiPlotCounts = [[0, 0], [0, 0], [0, 0], [0, 0], [0, 0], [0, 0]]
++		aaiTerrainCounts = []
++		aaiFeatureCounts = []
++		aaiRouteCounts = []
++		aaiBonusCounts = []
++		aaiImprovementCounts = []
++		for i in range(gc.getNumTerrainInfos()):
++			aaiTerrainCounts.append([0, 0])
++		for i in range(gc.getNumFeatureInfos()):
++			aaiFeatureCounts.append([0, 0])
++		for i in range(gc.getNumRouteInfos()):
++			aaiRouteCounts.append([0, 0])
++		for i in range(gc.getNumBonusInfos()):
++			aaiBonusCounts.append([0, 0])
++		for i in range(gc.getNumImprovementInfos()):
++			aaiImprovementCounts.append([0, 0])
++
++		cyMap = CyMap()
++		bDebug = CyGame().isDebugMode()
++		for iPlot in range(cyMap.numPlots()):
++			pPlot = cyMap.plotByIndex(iPlot)
++			if pPlot and not pPlot.isNone() and pPlot.getOwner() == self.iActivePlayer and (bDebug or pPlot.isRevealed(self.iActiveTeam, False)):
++				iBucket = 1
++				if iPlot in aiBFCPlots:
++					iBucket = 0
++				aiPlotCounts[0][iBucket] += 1
++				if pPlot.isWater():
++					aiPlotCounts[2][iBucket] += 1
++				else:
++					aiPlotCounts[1][iBucket] += 1
++					if pPlot.isPeak():
++						aiPlotCounts[3][iBucket] += 1
++					elif pPlot.isHills():
++						aiPlotCounts[4][iBucket] += 1
++					else:
++						aiPlotCounts[5][iBucket] += 1
++
++				iTerrain = pPlot.getTerrainType()
++				if iTerrain >= 0:
++					aaiTerrainCounts[iTerrain][iBucket] += 1
++				iFeature = pPlot.getFeatureType()
++				if iFeature >= 0:
++					aaiFeatureCounts[iFeature][iBucket] += 1
++				iRoute = pPlot.getRouteType()
++				if iRoute >= 0:
++					aaiRouteCounts[iRoute][iBucket] += 1
++				iBonus = pPlot.getBonusType(self.iActiveTeam)
++				if iBonus >= 0:
++					aaiBonusCounts[iBonus][iBucket] += 1
++				iImprovement = pPlot.getImprovementType()
++				if iImprovement >= 0:
++					aaiImprovementCounts[iImprovement][iBucket] += 1
++
++		aPlotRows = [
++			[self.TEXT_TOTAL, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[0][0], aiPlotCounts[0][1]],
++			[self.TEXT_LAND, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[1][0], aiPlotCounts[1][1]],
++			[self.TEXT_WATER, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[2][0], aiPlotCounts[2][1]],
++			[self.TEXT_PEAK, self.BUTTON_TERRAIN_PEAK, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[3][0], aiPlotCounts[3][1]],
++			[self.TEXT_HILL, self.BUTTON_TERRAIN_HILL, WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[4][0], aiPlotCounts[4][1]],
++			[self.TEXT_FLAT, "", WidgetTypes.WIDGET_GENERAL, -1, aiPlotCounts[5][0], aiPlotCounts[5][1]],
++			]
++		aTerrainFeatureRows = []
++		for iTerrain in range(gc.getNumTerrainInfos()):
++			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getTerrainInfo(iTerrain), WidgetTypes.WIDGET_PEDIA_JUMP_TO_TERRAIN, iTerrain, aaiTerrainCounts[iTerrain])
++		for iFeature in range(gc.getNumFeatureInfos()):
++			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getFeatureInfo(iFeature), WidgetTypes.WIDGET_PEDIA_JUMP_TO_FEATURE, iFeature, aaiFeatureCounts[iFeature])
++		for iRoute in range(gc.getNumRouteInfos()):
++			self.appendTerritoryInfoRow(aTerrainFeatureRows, gc.getRouteInfo(iRoute), WidgetTypes.WIDGET_GENERAL, -1, aaiRouteCounts[iRoute])
++		aBonusRows = []
++		for iBonus in range(gc.getNumBonusInfos()):
++			if gc.getBonusInfo(iBonus).getPlacementOrder() >= 0:
++				self.appendTerritoryInfoRow(aBonusRows, gc.getBonusInfo(iBonus), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus, aaiBonusCounts[iBonus])
++		aImprovementRows = []
++		for iImprovement in range(gc.getNumImprovementInfos()):
++			self.appendTerritoryInfoRow(aImprovementRows, gc.getImprovementInfo(iImprovement), WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, aaiImprovementCounts[iImprovement])
++		return aPlotRows, aTerrainFeatureRows, aBonusRows, aImprovementRows
++
++	def getTerritoryBFCPlotSet(self):
++		aiBFCPlots = {}
++		cyMap = CyMap()
++		player = gc.getPlayer(self.iActivePlayer)
++		(pCity, iter) = player.firstCity(False)
++		while pCity and not pCity.isNone():
++			for iPlot in range(gc.getNUM_CITY_PLOTS()):
++				pPlot = pCity.getCityIndexPlot(iPlot)
++				if pPlot and not pPlot.isNone():
++					aiBFCPlots[cyMap.plotNum(pPlot.getX(), pPlot.getY())] = True
++			(pCity, iter) = player.nextCity(iter, False)
++		return aiBFCPlots
++
++	def appendTerritoryInfoRow(self, aRows, info, eWidget, iData, aiCounts):
++		# <!-- custom: Keep zero-count rows in Territory so each table doubles as a stable checklist of map types known
++		# to the mod; players can still sort by BFC/Sub/Tot to put present assets first. (GPT-5.5) -->
++		aRows.append([info.getDescription(), info.getButton(), eWidget, iData, aiCounts[0], aiCounts[1]])
++
++	def drawTerritoryCountTable(self, aRows, szTitle, iX, iY, iW, iH):
++		screen = self.getScreen()
++		szTable = self.getNextWidgetName()
++		screen.addTableControlGFC(szTable, 4, iX, iY, iW, iH, True, True, self.BFC_ICON_SIZE, self.BFC_ICON_SIZE, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSort(szTable)
++		iCountW = 60
++		iNameW = iW - 3 * iCountW
++		screen.setTableColumnHeader(szTable, 0, SAS_FONT_TAG_LABEL + szTitle + SAS_FONT_TAG_CLOSE, iNameW)
++		screen.setTableColumnHeader(szTable, 1, SAS_FONT_TAG_LABEL + self.TEXT_BFC + SAS_FONT_TAG_CLOSE, iCountW)
++		screen.setTableColumnHeader(szTable, 2, SAS_FONT_TAG_LABEL + self.TEXT_TERRITORY_SUBURBS + SAS_FONT_TAG_CLOSE, iCountW)
++		screen.setTableColumnHeader(szTable, 3, SAS_FONT_TAG_LABEL + self.TEXT_TERRITORY_TOTAL_ABBR + SAS_FONT_TAG_CLOSE, iCountW)
++		for iRow in range(len(aRows)):
++			screen.appendTableRow(szTable)
++			row = aRows[iRow]
++			screen.setTableText(szTable, 0, iRow, SAS_FONT_TAG_LABEL + row[0] + SAS_FONT_TAG_CLOSE, row[1], row[2], row[3], -1, CvUtil.FONT_LEFT_JUSTIFY)
++			self.setBFCCountCell(screen, szTable, 1, iRow, row[4])
++			self.setBFCCountCell(screen, szTable, 2, iRow, row[5])
++			self.setBFCCountCell(screen, szTable, 3, iRow, row[4] + row[5])
++
+ 	def setBFCCountCell(self, screen, szTable, iCol, iRow, iCount):
+ 		if iCount == 0:
+ 			screen.setTableText(szTable, iCol, iRow, u"", "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index a341294a3..198ade335 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -24,9 +24,9 @@
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
+ 		<NewConceptInfo>
+-			<Type>CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Type>
+-			<Description>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND_PEDIA</Civilopedia>
++			<Type>CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Type>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index f2b1efd79..5b4abf24d 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -133,12 +133,12 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND</Tag>
+-		<English>World Advisor BFC 2 Legend</English>
++		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND</Tag>
++		<English>World Advisor Territory Legend</English>
+ 	</TEXT>
+ 	<TEXT>
+-		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_BFC2_LEGEND_PEDIA</Tag>
+-		<English>[H1]World Advisor BFC 2 Legend[\H1][PARAGRAPH:2]The first four columns of the Improvements table are engine-only markers that aren't built by Workers. They are listed here because they can appear on plots inside a city's BFC and the icons aren't always self-evident.[NEWLINE][NEWLINE][ICON_BULLET]Land Worked: internal marker that a city is currently working this land plot. Not a real improvement; it disappears when the plot stops being worked.[NEWLINE][ICON_BULLET]Water Worked: same as above, but for water plots worked by a coastal city.[NEWLINE][ICON_BULLET]City Ruins: leftover marker on a tile where a city was destroyed; blocks resettlement of the exact same tile for a while and slowly decays.[NEWLINE][ICON_BULLET]Goody Hut: tribal village placed at game start. Entering one with a non-barbarian unit triggers a goody (gold, map, tech, scout, warrior, etc.) and removes the hut.[NEWLINE][NEWLINE]All other columns in the Bonuses and Improvements tables are standard map resources and Worker-built improvements; their meanings are visible from their pedia entries via right-click on the icons.</English>
++		<Tag>TXT_KEY_CONCEPT_SAS_WORLD_ADVISOR_TERRITORY_LEGEND_PEDIA</Tag>
++		<English>[H1]World Advisor Territory Legend[\H1][PARAGRAPH:2]The Territory tab counts plots and map assets owned by the selected player. It separates plots inside city big fat crosses from the rest of the player's owned land so empire-wide resources can be read without losing city-workable context.[NEWLINE][NEWLINE][ICON_BULLET]BFC: owned plots that are inside at least one selected-player city's big fat cross.[NEWLINE][ICON_BULLET]Sub: suburbs; owned plots outside all selected-player city big fat crosses. These plots are controlled territory, but no selected-player city can work them directly unless a city is founded, captured or culturally expanded differently later.[NEWLINE][ICON_BULLET]Tot: total owned plots or assets, equal to BFC plus Sub.[NEWLINE][NEWLINE]The World Advisor respects normal map knowledge: hidden or unexplored plots and bonuses stay hidden unless debug mode is active. More entries can therefore appear as territory and city BFCs become fully explored, or when debug mode lets you inspect another player.[NEWLINE][NEWLINE]Hover over a row icon for the usual tooltip, or click it to open the corresponding Sevopedia entry when one exists.</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index c623162db..183c9281e 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -1009,6 +1009,17 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: Add Civilopedia text for the graphical-only worked-plot markers now that Sevopedia exposes them.
++	Water Worked keeps the inherited BTS/AdvCiv bWater value of 0, so this documents the land preview
++	quirk without changing gameplay or map-art behavior. (GPT-5.5) -->
++	<TEXT>
++		<Tag>TXT_KEY_IMPROVEMENT_LAND_WORKED_PEDIA</Tag>
++		<English>[TAB]Land Worked is a graphical-only marker used by the plot art system to show that a land plot is being worked by a city. It is not a buildable Worker improvement and does not itself add yields; the plot's normal terrain, feature, bonus, route, improvement and city-working rules determine what the city receives.</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_IMPROVEMENT_WATER_WORKED_PEDIA</Tag>
++		<English>[TAB]Water Worked is a graphical-only marker used by the plot art system to show that a water plot is being worked by a city. It is not a buildable Worker improvement and does not itself add yields; the plot's normal water terrain, bonus, route, improvement and city-working rules determine what the city receives.[NEWLINE][NEWLINE]Its Sevopedia preview can appear on land because this inherited Civilization IV / AdvCiv XML entry has a bWater value of 0. That setting existed before AdvCiv-SAS exposed the entry in Sevopedia, so this page documents the preview quirk rather than changing the underlying XML behavior.</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_IMPROVEMENT_CITY_RUINS_PEDIA</Tag>
+ 		<English>[TAB]Ruins are the remains of human-made architecture: structures that were once complete, as time went by, have fallen into a state of partial or complete disrepair, due to lack of maintenance or deliberate acts of destruction. Disasters, war and depopulation are the most common root causes, with many structures becoming progressively derelict over time due to long-term weathering and scavenging.</English>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 6aaa6f525..1dab7a621 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3740,6 +3740,10 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC2_TAB</Tag>
+ 		<English>BFC 2</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TAB</Tag>
++		<English>Territory</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_CITY</Tag>
+ 		<English>City</English>
+@@ -3776,6 +3780,26 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_WORLD_ADVISOR_BFC_FLAT</Tag>
+ 		<English>Flat</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_PLOTS</Tag>
++		<English>Plots</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TERRAIN_FEATURES</Tag>
++		<English>Map</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_BONUSES</Tag>
++		<English>Bonuses</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_SUBURBS_ABBR</Tag>
++		<English>Sub</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_WORLD_ADVISOR_TERRITORY_TOTAL_ABBR</Tag>
++		<English>Tot</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_INFO_SCREEN</Tag>
+ 		<English>Info Screen</English>
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=26524

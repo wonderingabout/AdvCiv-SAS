@@ -1,0 +1,1142 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3047
+# Commit: 2b7d7298e0e5418d2b78785ca00d0b0d719b257a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 78c3c67515814ae35073b0996d56b4156df692b0
+# Title: Minor refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+18	31	CvGameCoreDLL/CvCity.cpp
+69	63	CvGameCoreDLL/CvCityAI.cpp
+5	3	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+30	28	CvGameCoreDLL/CvGameTextMgr.cpp
+7	7	CvGameCoreDLL/CvInfo_Base.h
+3	2	CvGameCoreDLL/CvPlayer.cpp
+2	0	CvGameCoreDLL/CvPlayer.h
+7	14	CvGameCoreDLL/CvTeam.cpp
+8	8	CvGameCoreDLL/CvXMLLoadUtility.h
+42	70	CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+1	1	CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+13	13	CvGameCoreDLL/EnumMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index ee8a53b4c..f6756c655 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -75,7 +75,8 @@ CitySiteEvaluator::CitySiteEvaluator(CvPlayerAI const& kPlayer, int iMinRivalRan
+ 				{
+ 					UnitTypes eFoundUnit = kCiv.unitAt(i);
+ 					if (GC.getInfo(eFoundUnit).isFound() &&
+-						GC.getInfo(eFoundUnit).getProductionTraits(eLoopTrait) &&
++						// advc.031: was > 0
++						GC.getInfo(eFoundUnit).getProductionTraits(eLoopTrait) > 20 &&
+ 						kPlayer.canTrain(eFoundUnit))
+ 					{
+ 						m_bAmbitious = true;
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 8a2105653..ce66f7f87 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3033,27 +3033,14 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolet
+ 		{
+ 			if (!hasBonus(eLoopBonus))
+ 				continue;
+-
+-			if (kBuilding.getBonusHealthChanges(eLoopBonus) > 0)
+-			{
+-				changeBonusGoodHealth(iChange *
+-						kBuilding.getBonusHealthChanges(eLoopBonus));
+-			}
+-			else
+-			{
+-				changeBonusBadHealth(iChange *
+-						kBuilding.getBonusHealthChanges(eLoopBonus));
+-			}
+-			if (kBuilding.getBonusHappinessChanges(eLoopBonus) > 0)
+-			{
+-				changeBonusGoodHappiness(iChange *
+-						kBuilding.getBonusHappinessChanges(eLoopBonus));
+-			}
+-			else
+-			{
+-				changeBonusBadHappiness(iChange *
+-						kBuilding.getBonusHappinessChanges(eLoopBonus));
+-			}
++			int const iBonusHealthChange = kBuilding.getBonusHealthChanges(eLoopBonus);
++			if (iBonusHealthChange > 0)
++				changeBonusGoodHealth(iChange * iBonusHealthChange);
++			else changeBonusBadHealth(iChange * iBonusHealthChange);
++			int const iBonusHappyChange = kBuilding.getBonusHappinessChanges(eLoopBonus);
++			if (iBonusHappyChange > 0)
++				changeBonusGoodHappiness(iChange * iBonusHappyChange);
++			else changeBonusBadHappiness(iChange * iBonusHappyChange);
+ 			if (kBuilding.getPowerBonus() == eLoopBonus)
+ 				changePowerCount(iChange, kBuilding.isDirtyPower());
+ 
+@@ -6824,9 +6811,11 @@ int CvCity::getAdditionalBaseYieldRateByBuilding(YieldTypes eYield,
+ 	return iExtraRate;
+ }
+ 
+-/*	Returns the additional yield rate modifier that adding one of the given buildings will provide.
+-	Doesn't check if the building can be constructed in this city. */
+-int CvCity::getAdditionalYieldRateModifierByBuilding(YieldTypes eYield, BuildingTypes eBuilding) const
++/*	Returns the additional yield rate modifier that adding one of
++	the given buildings will provide. Doesn't check if the building can be
++	constructed in this city. */
++int CvCity::getAdditionalYieldRateModifierByBuilding(YieldTypes eYield,
++	BuildingTypes eBuilding) const
+ {
+ 	if (GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding))
+ 		return 0; // advc
+@@ -8649,11 +8638,9 @@ int CvCity::getAddedFreeSpecialistCount(SpecialistTypes eSpecialist) const
+ 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+ 		BuildingTypes eBuilding = kCiv.buildingAt(i);
+-		if (GC.getInfo(eBuilding).getFreeSpecialistCount(eSpecialist) > 0)
+-		{
+-			iR -= getNumActiveBuilding(eBuilding) *
+-					GC.getInfo(eBuilding).getFreeSpecialistCount(eSpecialist);
+-		}
++		int iFreeSpecialists = GC.getInfo(eBuilding).getFreeSpecialistCount(eSpecialist);
++		if (iFreeSpecialists > 0)
++			iR -= getNumActiveBuilding(eBuilding) * iFreeSpecialists;
+ 	}
+ 	FAssert(iR >= 0);
+ 	return std::max(0, iR);
+@@ -9258,8 +9245,8 @@ int CvCity::getReligionGrip(ReligionTypes eReligion) const
+ 	return iScore; // note. the random part is not included in this function.
+ }
+ 
+-
+-void CvCity::processVoteSource(VoteSourceTypes eVoteSource, bool bActive) // advc: Renamed from "processVoteSourceBonus"
++// advc: Renamed from "processVoteSourceBonus"
++void CvCity::processVoteSource(VoteSourceTypes eVoteSource, bool bActive)
+ {
+ 	if (!GET_PLAYER(getOwner()).isLoyalMember(eVoteSource))
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index dded054ae..486b09283 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3927,9 +3927,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				reduced in cities that we don't expect to be building troops in. */
+ 			int iWeight = 12;
+ 			iWeight /= iHasMetCount > 0 ? 1 : 2;
+-			iWeight /= (bWarPlan || (bHighProductionCity
++			iWeight /= (bWarPlan || (bHighProductionCity &&
+ 					// <advc.017> Avoid Barracks before first Settler
+-					&& (isBarbarian() || kOwner.getNumCities() > 1 ||
++					(isBarbarian() || kOwner.getNumCities() > 1 ||
+ 					kOwner.AI_getNumAIUnits(UNITAI_SETTLE) > 0 ||
+ 					kOwner.AI_getNumCitySites() <= 0)) ? 1 : 4); // </advc.017>
+ 			iValue += kBuilding.getFreeExperience() * iWeight;
+@@ -5374,10 +5374,10 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags,
+ 				}
+ 				/*	K-Mod: I've moved the corporation stuff that use to be here
+ 					to outside this loop so that it isn't quadriple counted */
+-				if (kBuilding.isCommerceFlexible(eLoopCommerce))
++				if (kBuilding.isCommerceFlexible(eLoopCommerce) &&
++					!kOwner.isCommerceFlexible(eLoopCommerce))
+ 				{
+-					if (!kOwner.isCommerceFlexible(eLoopCommerce))
+-						iTempValue += 40;
++					iTempValue += 40;
+ 				}
+ 				if (kBuilding.isCommerceChangeOriginalOwner(eLoopCommerce))
+ 				{
+@@ -5913,7 +5913,6 @@ int CvCityAI::AI_defensiveBuildingValue(BuildingTypes eBuilding,
+ 	return r;
+ }
+ 
+-
+ // This function has been significantly modified for K-Mod
+ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bAsync) /* advc: */ const
+ {
+@@ -5922,37 +5921,40 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
+ 		return NO_PROJECT;
+ 	// </advc.014>
+ 	int iProductionRank = findYieldRateRank(YIELD_PRODUCTION);
+-
+-	int iBestValue = 0;
+ 	ProjectTypes eBestProject = NO_PROJECT;
+-
+-	for (ProjectTypes i = (ProjectTypes)0; i < GC.getNumProjectInfos(); i = (ProjectTypes)(i+1))
++	int iBestValue = 0;
++	FOR_EACH_ENUM2(Project, eProject)
+ 	{
+-		const CvProjectInfo& kLoopProject = GC.getInfo(i);
+-
+-		if (!canCreate(i))
++		if (!canCreate(eProject))
+ 			continue; // can't build it. skip to the next project.
++		CvProjectInfo const& kProject = GC.getInfo(eProject);
+ 
+-		int iTurnsLeft = getProductionTurnsLeft(i, 0);
++		int iTurnsLeft = getProductionTurnsLeft(eProject, 0);
+ 		// <advc.004x>
+ 		if(iTurnsLeft == MAX_INT)
+ 			continue; // </advc.004x>
+-		int iRelativeTurns = (100 * iTurnsLeft + 50) / GC.getInfo(GC.getGame().getGameSpeedType()).getCreatePercent();
+-
+-		if (iRelativeTurns > 10 && kLoopProject.getMaxTeamInstances() > 0 && GET_TEAM(getTeam()).isHuman())
+-			continue; // not fast enough to risk blocking our human allies from building it.
+-
+-		if (iRelativeTurns > 20 && iProductionRank > std::max(3, GET_PLAYER(getOwner()).getNumCities()/2))
+-			continue; // not fast enough to risk blocking our more productive cities from building it.
+-
++		int iRelativeTurns = (100 * iTurnsLeft + 50) /
++				GC.getInfo(GC.getGame().getGameSpeedType()).getCreatePercent();
++		if (iRelativeTurns > 10 && kProject.getMaxTeamInstances() > 0 &&
++			GET_TEAM(getTeam()).isHuman())
++		{
++			// not fast enough to risk blocking our human allies from building it.
++			continue;
++		}
++		if (iRelativeTurns > 20 &&
++			iProductionRank > std::max(3, GET_PLAYER(getOwner()).getNumCities() / 2))
++		{
++			// not fast enough to risk blocking our more productive cities from building it.
++			continue;
++		}
+ 		// otherwise, the project is something we can consider building!
+ 
+-		int iValue = AI_projectValue(i);
++		int iValue = AI_projectValue(eProject);
+ 
+ 		// give a small chance of building global projects, regardless of strategy, just for a bit of variety.
+-		if ((kLoopProject.getEveryoneSpecialUnit() != NO_SPECIALUNIT) ||
+-			(kLoopProject.getEveryoneSpecialBuilding() != NO_SPECIALBUILDING) ||
+-			kLoopProject.isAllowsNukes())
++		if ((kProject.getEveryoneSpecialUnit() != NO_SPECIALUNIT) ||
++			(kProject.getEveryoneSpecialBuilding() != NO_SPECIALBUILDING) ||
++			kProject.isAllowsNukes())
+ 		{	// <advc.001n>
+ 			if ((bAsync ?
+ 				GC.getASyncRand().get(100, "Project Everyone ASYNC") : // </advc.001n>
+@@ -5961,7 +5963,6 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
+ 				iValue++;
+ 			}
+ 		}
+-
+ 		if (iValue <= 0)
+ 			continue; // the project is worthless. Skip it.
+ 
+@@ -5970,58 +5971,66 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
+ 
+ 		if (GET_PLAYER(getOwner()).AI_atVictoryStage(AI_VICTORY_SPACE3))
+ 		{
+-			for (VictoryTypes j = (VictoryTypes)0; j < GC.getNumVictoryInfos(); j = (VictoryTypes)(j+1))
++			FOR_EACH_ENUM2(Victory, eProjVictory)
+ 			{
+-				if (GC.getGame().isVictoryValid(j) && kLoopProject.getVictoryThreshold(j) > 0)
++				if (!GC.getGame().isVictoryValid(eProjVictory) ||
++					kProject.getVictoryThreshold(eProjVictory) <= 0)
+ 				{
+-					bVictory = true;
+-
+-					// count the total number of projects we still require for this type of victory.
+-					int iNeededPieces = 0;
+-					for (ProjectTypes k = (ProjectTypes)0; k < GC.getNumProjectInfos(); k = (ProjectTypes)(k+1))
+-					{
+-						// try not to confuse loop project i, with loop project k, or loop victory j...
+-						iNeededPieces += std::max(0, GC.getInfo(k).getVictoryThreshold(j) - GET_TEAM(getTeam()).getProjectCount(k));
+-					}
+-
+-					if (GET_TEAM(getTeam()).getProjectCount(i) < kLoopProject.getVictoryThreshold(j))
+-					{
+-						// we need more of this project. ie. it is a high priority.
+-						FAssert(iNeededPieces > 0);
+-						bGoodFit = bGoodFit || iProductionRank <= iNeededPieces;
+-					}
+-					else
+-					{
+-						// build this with high priority, but save our best cities for the projects that we still need.
+-						bGoodFit = bGoodFit || iProductionRank > iNeededPieces;
+-					}
++					continue;
++				}
++				bVictory = true;
++				/*	count the total number of projects we still require
++					for this type of victory. */
++				int iNeededPieces = 0;
++				FOR_EACH_ENUM2(Project, eAnyProject)
++				{
++					iNeededPieces += std::max(0,
++							GC.getInfo(eAnyProject).getVictoryThreshold(eProjVictory)
++							- GET_TEAM(getTeam()).getProjectCount(eAnyProject));
++				}
++				if (GET_TEAM(getTeam()).getProjectCount(eProject) <
++					kProject.getVictoryThreshold(eProjVictory))
++				{
++					// we need more of this project. ie. it is a high priority.
++					FAssert(iNeededPieces > 0);
++					bGoodFit = bGoodFit || iProductionRank <= iNeededPieces;
++				}
++				else
++				{
++					/*	build this with high priority, but save our best cities
++						for the projects that we still need. */
++					bGoodFit = bGoodFit || iProductionRank > iNeededPieces;
+ 				}
+ 			}
+ 		}
+-
+ 		if (!bVictory)
+ 		{
+ 			// work out how many of this project we can still build
+ 			int iLimit = -1;
+-			if (kLoopProject.getMaxGlobalInstances() >= 0) // global limit
++			if (kProject.getMaxGlobalInstances() >= 0) // global limit
+ 			{
+-				int iRemaining = std::max(0, kLoopProject.getMaxGlobalInstances() - GC.getGame().getProjectCreatedCount(i) - GET_TEAM(getTeam()).getProjectMaking(i));
++				int iRemaining = std::max(0, kProject.getMaxGlobalInstances()
++						- GC.getGame().getProjectCreatedCount(eProject)
++						- GET_TEAM(getTeam()).getProjectMaking(eProject));
+ 				if (iLimit < 0 || iRemaining < iLimit)
+ 					iLimit = iRemaining;
+ 			}
+-			if (kLoopProject.getMaxTeamInstances() >= 0) // team limit
++			if (kProject.getMaxTeamInstances() >= 0) // team limit
+ 			{
+-				int iRemaining = std::max(0, kLoopProject.getMaxTeamInstances() - GET_TEAM(getTeam()).getProjectCount(i) - GET_TEAM(getTeam()).getProjectMaking(i));
++				int iRemaining = std::max(0, kProject.getMaxTeamInstances()
++						- GET_TEAM(getTeam()).getProjectCount(eProject)
++						- GET_TEAM(getTeam()).getProjectMaking(eProject));
+ 				if (iLimit < 0 || iRemaining < iLimit)
+ 					iLimit = iRemaining;
+ 			}
+ 			bGoodFit = iProductionRank <= iLimit;
+ 		}
+-
+ 		if (bGoodFit)
+ 		{
+ 			// building the project in this city is probably a good idea.
+-			iValue += getProjectProduction(i) + (bVictory ? getProductionNeeded(i)/4 + iValue/2 : 0);
++			iValue += getProjectProduction(eProject);
++			if (bVictory)
++				iValue += getProductionNeeded(eProject) / 4 + iValue / 2;
+ 		}
+ 		else
+ 		{
+@@ -6036,17 +6045,14 @@ ProjectTypes CvCityAI::AI_bestProject(int* piBestValue, /* advc.001n: */ bool bA
+ 				iValue /= iRelativeTurns + 5;
+ 			}
+ 		}
+-
+ 		if (iValue > iBestValue)
+ 		{
+ 			iBestValue = iValue;
+-			eBestProject = i;
++			eBestProject = eProject;
+ 		}
+ 	}
+-
+ 	if (piBestValue) // note: piBestValue is set even if there is no best project.
+ 		*piBestValue = iBestValue;
+-
+ 	return eBestProject;
+ }
+ 
+@@ -6292,7 +6298,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
+ 		-- and it will be based on the original BtS code! */
+ 	int iSpaceValue = 0;
+ 
+-	// a project which enables other projects... We're talking about the Apolo Program
++	// a project which enables other projects... i.e. the Apollo Program
+ 	FOR_EACH_ENUM(Project)
+ 	{
+ 		iSpaceValue += 8 * std::max(0, // was *10
+@@ -6332,7 +6338,7 @@ int CvCityAI::AI_projectValue(ProjectTypes eProject) /* advc: */ const
+ 	else if (kOwner.AI_atVictoryStage(AI_VICTORY_SPACE2))
+ 		iSpaceValue *= 2;
+ 	else if (!kOwner.AI_atVictoryStage(AI_VICTORY_SPACE1) && kOwner.AI_atVictoryStage4())
+-		iSpaceValue = 2*iSpaceValue/3;
++		iSpaceValue = (2 * iSpaceValue) / 3;
+ 
+ 	if (getArea().getAreaAIType(kOwner.getTeam()) != AREAAI_NEUTRAL)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 1dbe78d13..1a0ce4f61 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3174,9 +3174,11 @@ void CvDLLWidgetData::parseDisabledCitizenHelp(CvWidgetDataStruct &widgetDataStr
+ 	for (int i = 0; i < kCiv.getNumBuildings(); i++)
+ 	{
+ 		BuildingTypes eLoopBuilding = kCiv.buildingAt(i);
+-		if (GC.getInfo(eLoopBuilding).getSpecialistCount(widgetDataStruct.m_iData1) <= 0)
+-			continue; // advc
+-
++		if (GC.getInfo(eLoopBuilding).getSpecialistCount((SpecialistTypes)
++			widgetDataStruct.m_iData1) <= 0)
++		{
++			continue;
++		}
+ 		if (pHeadSelectedCity->getNumBuilding(eLoopBuilding) <= 0 &&
+ 			!GC.getInfo(eLoopBuilding).isLimited())
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 5a98582bf..993e6c5d6 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -57,6 +57,7 @@ namespace branchless
+ 		return y + ((x - y) & -(x < y));
+ 	}
+ }
++
+ // <advc.003g>
+ namespace stats // Seems too generic, but what else to name it?
+ {
+@@ -188,7 +189,6 @@ void iota(ForwardIt first, ForwardIt last, T value)
+ 
+ // advc.004w:
+ void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
+-void narrowUnsafe(CvWString const& szWideString, CvString& szNarowString); // advc
+ 
+ // (advc: getSign move to CvPlot.cpp)
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 0d432402b..83e631ec9 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -9842,12 +9842,15 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 		int iHappiness = kBuilding.getHappiness();
+ 		if (pCity != NULL)
+ 		{
+-			// special modifiers (eg. events). These modifiers don't get their own line of text, so they need to be included here.
++			/*	special modifiers (eg. events). These don't get their own line of text,
++				so they need to be included here. */
+ 			iHappiness += pCity->getBuildingHappyChange(eBuildingClass);
+ 			iHappiness += pPlayer->getExtraBuildingHappiness(eBuilding);
+-			// 'Extra building happiness' includes happiness from several sources, including events, civics, traits, and boosts from other buildings.
+-			// My aim here is to only include in the total what isn't already in the list of bonuses below. As far as I know the only thing that would
+-			// be double-reported is the civic happiness. So I'll subtract that.
++			/*	'Extra building happiness' includes happiness from several sources, including
++				events, civics, traits, and boosts from other buildings.
++				My aim here is to only include in the total what isn't already in the
++				list of bonuses below. As far as I know the only thing that would
++				be double-reported is the civic happiness. So I'll subtract that. */
+ 			FOR_EACH_ENUM(Civic)
+ 			{
+ 				if (pPlayer->isCivic(eLoopCivic))
+@@ -10817,7 +10820,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 
+ 	FOR_EACH_ENUM(Specialist)
+ 	{
+-		if (kBuilding.getSpecialistCount(eLoopSpecialist) > 0)
++		if (kBuilding.getSpecialistCount(eLoopSpecialist) != 0)
+ 		{
+ 			bool const bSingular = (kBuilding.getSpecialistCount(eLoopSpecialist) == 1);
+ 			// <advc.001>
+@@ -10838,8 +10841,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 						szSpecialistLink.c_str())); // advc.001
+ 			}
+ 		}
+-
+-		if (kBuilding.getFreeSpecialistCount(eLoopSpecialist) > 0)
++		if (kBuilding.getFreeSpecialistCount(eLoopSpecialist) != 0)
+ 		{
+ 			szBuffer.append(NEWLINE);
+ 			// <advc.001>
+@@ -11109,8 +11111,8 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 					GC.getInfo(eLoopBuildingClass).getDefaultBuilding());
+ 			if(eLoopBuilding == NO_BUILDING)
+ 				continue; // advc
+-			if (GC.getInfo(eLoopBuilding).isBuildingClassNeededInCity(eBuildingClass)
+-				&& !bInBuildingList) // advc.004w
++			if (GC.getInfo(eLoopBuilding).isBuildingClassNeededInCity(eBuildingClass) &&
++				!bInBuildingList) // advc.004w
+ 			{
+ 				if (pCity == NULL || pCity->canConstruct(eLoopBuilding, false, true))
+ 				{
+@@ -11816,7 +11818,8 @@ void CvGameTextMgr::buildBuildingReligionYieldString(CvWStringBuffer& szBuffer,
+ }
+ 
+ 
+-void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProject, bool bCivilopediaText, CvCity* pCity)
++void CvGameTextMgr::setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProject,
++	bool bCivilopediaText, CvCity* pCity)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -13634,10 +13637,9 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 	if(eActivePlayer != NO_PLAYER)
+ 	{
+ 		// Based on the loop above
+-		for(int i = 0; i < GC.getNumProjectInfos(); i++)
++		FOR_EACH_ENUM2(Project, eProject)
+ 		{
+-			ProjectTypes eLoopProject = (ProjectTypes)i;
+-			CvProjectInfo& kProject = GC.getInfo(eLoopProject);
++			CvProjectInfo const& kProject = GC.getInfo(eProject);
+ 			int iProductionMod = kProject.getBonusProductionModifier(eBonus);
+ 			if(iProductionMod == 0)
+ 				continue;
+@@ -13653,18 +13655,18 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 				VictoryTypes eVict = (VictoryTypes)kProject.getVictoryPrereq();
+ 				if(eVict != NO_VICTORY && !kGame.isVictoryValid(eVict))
+ 					continue;
+-				if(kGame.isProjectMaxedOut(eLoopProject) && GET_TEAM(eActivePlayer).
+-					getProjectCount(eLoopProject) <= 0)
++				if(kGame.isProjectMaxedOut(eProject) && GET_TEAM(eActivePlayer).
++					getProjectCount(eProject) <= 0)
+ 				{
+ 					continue;
+ 				}
+ 				if(kProject.isSpaceship() && (!pActivePlayer->hasCapital() ||
+-					!pActivePlayer->getCapital()->canCreate(eLoopProject, false, true)))
++					!pActivePlayer->getCapital()->canCreate(eProject, false, true)))
+ 				{
+ 					continue;
+ 				}
+ 			}
+-			else if(!pCity->canCreate(eLoopProject, false, true))
++			else if(!pCity->canCreate(eProject, false, true))
+ 				continue;
+ 			// Copy-paste from the building loop
+ 			szBuffer.append(NEWLINE);
+@@ -21103,14 +21105,14 @@ void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
+ 		}
+ 		if(iProductionModifier == 0)
+ 			continue;
+-		if(pCity != NULL)
++		if (pCity != NULL)
+ 		{
+ 			bool bHasBonus = pCity->hasBonus(eBonus);
+-			if(iProductionModifier > 0 ? bHasBonus : !bHasBonus)
++			if (iProductionModifier > 0 ? bHasBonus : !bHasBonus)
+ 				szBuffer.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+ 			else szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+ 		}
+-		if(!bCivilopediaText)
++		if (!bCivilopediaText)
+ 			szBuffer.append(L" (");
+ 		else
+ 		{
+@@ -21118,7 +21120,7 @@ void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
+ 			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(BULLET_CHAR)));
+ 		}
+ 		wchar const* szBonus = GC.getInfo(eBonus).getTextKeyWide();
+-		if(iProductionModifier == 100)
++		if (iProductionModifier == 100)
+ 		{
+ 			szBuffer.append(gDLL->getText(bCivilopediaText ?
+ 					"TXT_KEY_DOUBLE_PRODUCTION_WITH" :
+@@ -21135,11 +21137,11 @@ void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
+ 			szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+ 	}
+ 	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+-	if(!bCivilopediaText && eActivePlayer == NO_PLAYER)
++	if (!bCivilopediaText && eActivePlayer == NO_PLAYER)
+ 		return;
+ 	FOR_EACH_ENUM2(Trait, eTrait)
+ 	{
+-		if(!bCivilopediaText)
++		if (!bCivilopediaText)
+ 		{
+ 			if(!GC.getInfo(GET_PLAYER(eActivePlayer).getLeaderType()).hasTrait(eTrait))
+ 				continue;
+@@ -21155,15 +21157,15 @@ void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
+ 			iProductionModifier = static_cast<CvBuildingInfo const*>(pInfo)->
+ 					getProductionTraits(eTrait);
+ 		}
+-		if(iProductionModifier == 0)
++		if (iProductionModifier == 0)
+ 			continue;
+-		if(!bCivilopediaText)
++		if (!bCivilopediaText)
+ 		{
+ 			if(iProductionModifier > 0)
+ 				szBuffer.append(gDLL->getText("TXT_KEY_COLOR_POSITIVE"));
+ 			else szBuffer.append(gDLL->getText("TXT_KEY_COLOR_NEGATIVE"));
+ 		}
+-		if(!bCivilopediaText)
++		if (!bCivilopediaText)
+ 		{
+ 			/*  Not nice when more than one speed modifier applies (e.g. Wall).
+ 				Should put each modifier on a separate line then. Also, "+100%"
+@@ -21177,7 +21179,7 @@ void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
+ 			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(BULLET_CHAR)));
+ 		}
+ 		wchar const* szTrait = GC.getInfo(eTrait).getTextKeyWide();
+-		if(iProductionModifier == 100)
++		if (iProductionModifier == 100)
+ 		{
+ 			szBuffer.append(gDLL->getText(bCivilopediaText ?
+ 					"TXT_KEY_DOUBLE_SPEED_TRAIT" :
+@@ -21188,7 +21190,7 @@ void CvGameTextMgr::setProductionSpeedHelp(CvWStringBuffer& szBuffer,
+ 			szBuffer.append(gDLL->getText("TXT_KEY_PRODUCTION_MODIFIER_TRAIT",
+ 				iProductionModifier, szTrait));
+ 		}
+-		if(!bCivilopediaText)
++		if (!bCivilopediaText)
+ 		{
+ 			szBuffer.append(L")");
+ 			szBuffer.append(gDLL->getText("TXT_KEY_COLOR_REVERT"));
+
+diff --git a/CvGameCoreDLL/CvInfo_Base.h b/CvGameCoreDLL/CvInfo_Base.h
+index 857f525a6..053081660 100644
+--- a/CvGameCoreDLL/CvInfo_Base.h
++++ b/CvGameCoreDLL/CvInfo_Base.h
+@@ -58,11 +58,10 @@ public: // All the const functions are exposed to Python
+ 	virtual void read(FDataStreamBase* pStream);
+ 	virtual void write(FDataStreamBase* pStream);
+ 	#endif
+-	// FUNCTION:    read
+-	//! \brief      Reads in a CvAnimationPathInfo definition from XML
+-	//! \param      pXML Pointer to the XML loading object
+-	//! \retval     true if the definition was read successfully, false otherwise
+-	// (advc: Cut this comment from CvAnimationPathInfo)
++	/*	Reads in a Cv...Info definition from XML
++		param: pXML Pointer to the XML loading object
++		returns: true if the definition was read successfully, false otherwise.
++		(advc: Cut this comment from CvAnimationPathInfo) */
+ 	virtual bool read(CvXMLLoadUtility* pXML);
+ 	virtual bool readPass2(CvXMLLoadUtility* pXML)
+ 	{
+@@ -76,7 +75,6 @@ public: // All the const functions are exposed to Python
+ 	}
+ 
+ protected:
+-	//bool doneReadingXML(CvXMLLoadUtility* pXML); // advc.003j: Never had an implementation
+ 
+ 	bool m_bGraphicalOnly;
+ 
+@@ -94,6 +92,8 @@ protected:
+ 	mutable CvWString m_szCachedHelp;
+ 	mutable CvWString m_szCachedStrategy;
+ 	mutable CvWString m_szCachedCivilopedia;
++
++	//bool doneReadingXML(CvXMLLoadUtility* pXML); // advc.003j: Never had an implementation
+ };
+ 
+ // holds the scale for scalable objects
+@@ -185,7 +185,7 @@ protected:
+ 	private:
+ 		int m_bDefaultValue;
+ 	};
+-	/*  Derived classes that extend any of the element type enums need to override this.
++	/*	Derived classes that extend any of the element type enums need to override this.
+ 		The overridden function needs to call the base function and then append its
+ 		own elements to r. */
+ 	virtual void addElements(std::vector<XMLElement*>& r) const;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8cf8757b1..65e32e321 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5478,7 +5478,8 @@ scaled CvPlayer::trainingModifierFromHandicap(bool bWorldClass) const
+ 	return std::max(r, per100(1));
+ }
+ 
+-int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra) const
++int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding,
++	BuildingClassTypes ePrereqBuildingClass, int iExtra) const
+ {
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 
+@@ -5489,7 +5490,7 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
+ 	iPrereqs *= std::max(0, GC.getInfo(GC.getMap().getWorldSize()).
+ 			getBuildingClassPrereqModifier() + 100);
+ 	//iPrereqs /= 100;
+-	iPrereqs = per100(iPrereqs).ceil(); // advc.140: Round up
++	iPrereqs = intdiv::uceil(iPrereqs, 100); // advc.140: Round up
+ 
+ 	if (!kBuilding.isLimited())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index edf936334..f05d2002f 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1571,6 +1571,8 @@ protected:  // <advc.210>
+ 	EnumMap<BonusTypes,int> m_aiBonusImport;
+ 	EnumMap<ImprovementTypes,int> m_aiImprovementCount;
+ 
++	/*	advc (note): These three should be per building class
++		(but it's tedious to change) */
+ 	EnumMap<BuildingTypes,int> m_aiFreeBuildingCount;
+ 	EnumMap<BuildingTypes,int> m_aiExtraBuildingHappiness;
+ 	EnumMap<BuildingTypes,int> m_aiExtraBuildingHealth;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 7d5c3420d..af6615c11 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4062,11 +4062,11 @@ void CvTeam::changeVictoryCountdown(VictoryTypes eIndex, int iChange)
+ 	setVictoryCountdown(eIndex, getVictoryCountdown(eIndex) + iChange); // advc: instead of m_aiVictoryCountdown.add(eIndex, iChange)
+ }
+ 
+-// <advc.opt>
++// advc.opt:
+ bool CvTeam::isAnyVictoryCountdown() const
+ {
+ 	return m_bAnyVictoryCountdown;
+-} // </advc.opt>
++}
+ 
+ 
+ int CvTeam::getVictoryDelay(VictoryTypes eVictory) const
+@@ -4074,15 +4074,13 @@ int CvTeam::getVictoryDelay(VictoryTypes eVictory) const
+ 	int iExtraDelayPercent = 0;
+ 	FOR_EACH_ENUM(Project)
+ 	{
+-		CvProjectInfo& kProject = GC.getInfo(eLoopProject);
++		CvProjectInfo const& kProject = GC.getInfo(eLoopProject);
+ 		int iCount = getProjectCount(eLoopProject);
+-
+ 		if (iCount < kProject.getVictoryMinThreshold(eVictory))
+ 		{
+ 			FAssert(false);
+ 			return -1;
+ 		}
+-
+ 		if (iCount < kProject.getVictoryThreshold(eVictory))
+ 		{
+ 			iExtraDelayPercent += ((kProject.getVictoryThreshold(eVictory) -
+@@ -4090,7 +4088,6 @@ int CvTeam::getVictoryDelay(VictoryTypes eVictory) const
+ 					kProject.getVictoryThreshold(eVictory);
+ 		}
+ 	}
+-
+ 	return (GC.getGame().victoryDelay(eVictory)  * (100 + iExtraDelayPercent)) / 100;
+ }
+ 
+@@ -4113,17 +4110,13 @@ int CvTeam::getLaunchSuccessRate(VictoryTypes eVictory) const
+ 		int iCount = getProjectCount(eLoopProject);
+ 		if (iCount < kProject.getVictoryMinThreshold(eVictory))
+ 			return 0;
+-
+-		if (iCount < kProject.getVictoryThreshold(eVictory))
++		if (iCount < kProject.getVictoryThreshold(eVictory) &&
++			kProject.getSuccessRate() > 0)
+ 		{
+-			if (kProject.getSuccessRate() > 0)
+-			{
+-				iSuccessRate -= (kProject.getSuccessRate() *
+-						(kProject.getVictoryThreshold(eVictory) - iCount));
+-			}
++			iSuccessRate -= (kProject.getSuccessRate() *
++					(kProject.getVictoryThreshold(eVictory) - iCount));
+ 		}
+ 	}
+-
+ 	return iSuccessRate;
+ }
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtility.h b/CvGameCoreDLL/CvXMLLoadUtility.h
+index 9e65206b1..07d3e55b2 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtility.h
++++ b/CvGameCoreDLL/CvXMLLoadUtility.h
+@@ -36,7 +36,7 @@ public:
+ 	bool LoadOptionalGlobals();
+ 	bool LoadThroneRoomInfo(); // </advc.003v>
+ 
+-	bool ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObject* cache);
++	bool ReadGlobalDefines(TCHAR const* szXMLFileName, CvCacheObject* cache);
+ 	
+ 	DllExport bool SetGlobalDefines();
+ 	DllExport bool SetGlobalTypes();
+@@ -89,7 +89,7 @@ public:
+ 		that lacks tags which, normally, are mandatory. */
+ 	void setAssertMandatoryEnabled(bool b);
+ 
+-	bool LoadCivXml(FXml* pFXml, const TCHAR* szFilename);
++	bool LoadCivXml(FXml* pFXml, TCHAR const* szFilename);
+ 
+ 	bool GetXmlVal(std::wstring& r, wchar const* szDefault = NULL);
+ 	bool GetXmlVal(std::string& r, char const* szDefault = NULL);
+@@ -132,7 +132,7 @@ public:
+ 	void SetFeatureStruct(int** ppiFeatureTech, int** ppiFeatureTime, int** ppiFeatureProduction, bool** ppbFeatureRemove);
+ 	void SetImprovementBonuses(CvImprovementBonusInfo** ppImprovementBonus);
+ 
+-	static int FindInInfoClass(const TCHAR* szType, bool hideAssert = false);
++	static int FindInInfoClass(TCHAR const* szType, bool hideAssert = false);
+ 
+ 	#ifdef _USRDLL
+ 	template <class T>
+@@ -156,9 +156,9 @@ public:
+ 	template<typename T>
+ 	void SetVariableListTagPair(T** pptList, const TCHAR* szRootTagName,
+ 			int iInfoBaseLength, T tDefaultListVal = 0);
+-	void SetVariableListTagPair(CvString** ppszList, const TCHAR* szRootTagName,
++	void SetVariableListTagPair(CvString** ppszList, TCHAR const* szRootTagName,
+ 			int iInfoBaseLength, CvString szDefaultListVal = "");
+-	void SetVariableListTagPairForAudioScripts(int **ppiList, const TCHAR* szRootTagName,
++	void SetVariableListTagPairForAudioScripts(int **ppiList, TCHAR const* szRootTagName,
+ 			int iInfoBaseLength, int iDefaultListVal = -1);
+ 	/*	advc (19 Feb 2021): Deleted four versions (a fifth - AudioScripts - deleted
+ 		much earlier) that took a param CvString* m_paszTagList.
+@@ -169,7 +169,7 @@ public:
+ 
+ 	bool SetAndLoadVar(int** ppiVar, int iDefault=0);
+ 	bool SetStringList(CvString** ppszStringArray, int* piSize);
+-	int GetHotKeyInt(const TCHAR* pszHotKeyVal);
++	int GetHotKeyInt(TCHAR const* pszHotKeyVal);
+ 
+ 
+ private:
+@@ -208,7 +208,7 @@ private:
+ 	template <class T>
+ 	void LoadGlobalClassInfo(std::vector<T*>& aInfos, const char* szFileRoot,
+ 			const char* szFileDirectory, const char* szXmlPath, bool bTwoPass,
+-			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction)(const TCHAR*) = NULL);
++			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction)(TCHAR const*) = NULL);
+ 	template <class T>
+ 	void SetGlobalClassInfo(std::vector<T*>& aInfos, const char* szTagName, bool bTwoPass,
+ 			bool bFinalCall = false); // advc.xmldefault
+@@ -216,7 +216,7 @@ private:
+ 	void SetDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szTagName);
+ 	void LoadDiplomacyInfo(std::vector<CvDiplomacyInfo*>& DiploInfos, const char* szFileRoot,
+ 			const char* szFileDirectory, const char* szXmlPath,
+-			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (const TCHAR*));
++			CvCacheObject* (CvDLLUtilityIFaceBase::*pArgFunction) (TCHAR const*));
+ 	//
+ 	// special cases of set class info which don't use the template because of extra code they have
+ 	//
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+index 6a1904485..ce3744a5f 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilityGet.cpp
+@@ -197,11 +197,9 @@ bool CvXMLLoadUtility::GetNextXmlVal(std::string& r, char const* szDefault)
+ 			// get the string value of the current xml node
+ 			return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+ 		}
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	return false; // no more sibling nodes
+ }
+@@ -218,11 +216,9 @@ bool CvXMLLoadUtility::GetNextXmlVal(std::wstring& r, wchar const* szDefault)
+ 			// get the string value of the current xml node
+ 			return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+ 		}
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	return false; // no more sibling nodes
+ }
+@@ -240,11 +236,9 @@ bool CvXMLLoadUtility::GetNextXmlVal(char* r, char const* szDefault)
+ 			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml, r);
+ 			return true;
+ 		}
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FAssertMsg(false , "Error in GetNextXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FAssertMsg(false , "Error in GetNextXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	return false; // no more sibling nodes
+ }
+@@ -262,11 +256,9 @@ bool CvXMLLoadUtility::GetNextXmlVal(wchar* r, wchar const* szDefault)
+ 			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml, r);
+ 			return true;
+ 		}
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	return false; // no more sibling nodes
+ }
+@@ -280,11 +272,9 @@ bool CvXMLLoadUtility::GetNextXmlVal(int& r, int iDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, iDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	return false; // no more sibling nodes
+ }
+@@ -298,11 +288,9 @@ bool CvXMLLoadUtility::GetNextXmlVal(float& r, float fDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, fDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	return false; // no more sibling nodes
+ }
+@@ -316,11 +304,9 @@ bool CvXMLLoadUtility::GetNextXmlVal(bool& r, bool bDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, bDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetNextXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	return false; // no more sibling nodes
+ }
+@@ -334,11 +320,9 @@ bool CvXMLLoadUtility::GetChildXmlVal(std::string& r, char const* szDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+ 	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
+@@ -354,11 +338,9 @@ bool CvXMLLoadUtility::GetChildXmlVal(std::wstring& r, wchar const* szDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, szDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+ 	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
+@@ -378,11 +360,9 @@ bool CvXMLLoadUtility::GetChildXmlVal(char* r, char const* szDefault)
+ 			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml, r);
+ 			return true;
+ 		}
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+ 	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
+@@ -402,11 +382,9 @@ bool CvXMLLoadUtility::GetChildXmlVal(wchar* r, wchar const* szDefault)
+ 			gDLL->getXMLIFace()->GetLastNodeValue(m_pFXml, r);
+ 			return true;
+ 		}
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+ 	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
+@@ -422,11 +400,9 @@ bool CvXMLLoadUtility::GetChildXmlVal(int& r, int iDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, iDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FAssertMsg(false , "Error in GetChildXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+ 	FAssertMsg(false , "Error in GetChildXmlVal function, unable to find a child node");
+@@ -442,11 +418,9 @@ bool CvXMLLoadUtility::GetChildXmlVal(float& r, float fDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, fDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetChildXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetChildXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them so.
+ 	FErrorMsg("Error in GetChildXmlVal function, unable to find a child node");
+@@ -462,11 +436,9 @@ bool CvXMLLoadUtility::GetChildXmlVal(bool& r, bool bDefault)
+ 	{
+ 		if (SkipToNextVal()) // skip to the next non-comment node
+ 			return SafeGetLastNodeValue(m_pFXml, r, bDefault); // advc.006d
+-		else // otherwise we can't find a non-comment node on this level
+-		{
+-			FErrorMsg("Error in GetChildXmlVal function, unable to find the next non-comment node");
+-			return false;
+-		}
++		// otherwise we can't find a non-comment node on this level
++		FErrorMsg("Error in GetChildXmlVal function, unable to find the next non-comment node");
++		return false;
+ 	}
+ 	// otherwise there are no child nodes, but we were expecting them.
+ 	FErrorMsg("Error in GetChildXmlVal function, unable to find a child node");
+
+diff --git a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+index 4b5275a69..c46726deb 100644
+--- a/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
++++ b/CvGameCoreDLL/CvXMLLoadUtilitySet.cpp
+@@ -23,7 +23,7 @@
+ #define CHECK_FOR_REDEFINES 0
+ 
+ // read the global defines from a specific file
+-bool CvXMLLoadUtility::ReadGlobalDefines(const TCHAR* szXMLFileName, CvCacheObject* cache)
++bool CvXMLLoadUtility::ReadGlobalDefines(TCHAR const* szXMLFileName, CvCacheObject* cache)
+ {
+ 	#if ENABLE_XML_FILE_CACHE
+ 	// advc: Handle successful read upfront
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 8aa5cbec3..6b514447a 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -152,7 +152,7 @@ private: // advc (Maybe some of these should indeed be public, but probably not
+ 
+ 	static const bool bINLINE_BOOL = (SIZE == ENUMMAP_SIZE_BOOL && MAX_LENGTH <= ENUMMAP_MAX_INLINE_BOOL);
+ 	static const int NUM_BOOL_BLOCKS = bINLINE_BOOL ? (MAX_LENGTH + 31) / 32 : 1;
+-	static const unsigned int BOOL_BLOCK_DEFAULT = DEFAULT ? MAX_UNSIGNED_INT : 0;
++	static const uint BOOL_BLOCK_DEFAULT = DEFAULT ? MAX_UNSIGNED_INT : 0;
+ 
+ 	static const bool bINLINE = (/*bINLINE_NATIVE ||*/ // advc.fract
+ 			bINLINE_1_BYTE || bINLINE_2_BYTE || bINLINE_BOOL);
+@@ -187,13 +187,13 @@ private:
+ 		T* m_pArrayFull;
+ 		short* m_pArrayShort;
+ 		char* m_pArrayChar;
+-		unsigned int* m_pArrayBool;
++		uint* m_pArrayBool;
+ 		/*	advc.fract: This wouldn't work for ScaledNum
+ 			b/c C++03 allows only POD types in unions. */
+ 		//T m_InlineNative[NUM_NATIVE_BLOCKS];
+ 		char m_Inline_1_byte[NUM_1_BYTE_BLOCKS];
+ 		short m_Inline_2_byte[NUM_2_BYTE_BLOCKS];
+-    	unsigned int m_InlineBoolArray[NUM_BOOL_BLOCKS];
++    	uint m_InlineBoolArray[NUM_BOOL_BLOCKS];
+ 	};
+ 
+ 	// the code will technically still work if this fails, but it will waste memory
+@@ -216,8 +216,9 @@ private:
+ 		interval() : first((IndexType)0), last((IndexType)0) {}
+ 	};
+ 
+-	// bool helpers
+-	int getBoolArrayBlock(int iIndex) const
++	/*	bool helpers (advc: force-inline, if only for clarity)
++		advc.003t (note): ArrayEnumMap uses the same logic */
++	__forceinline int getBoolArrayBlock(int iIndex) const
+ 	{
+ 		if (bINLINE_BOOL && NUM_BOOL_BLOCKS == 1)
+ 		{
+@@ -226,9 +227,8 @@ private:
+ 			FAssert(iIndex < 32);
+ 			return 0;
+ 		}
+-		else return iIndex / 32;
++		return iIndex / 32;
+ 	}
+-	// advc: This one had no inline keyword
+ 	__forceinline int getBoolArrayIndexInBlock(int iIndex) const
+ 	{
+ 		return iIndex & ENUMMAP_BITMASK_32_BIT;
+@@ -269,7 +269,7 @@ private:
+ 	void _setAll(T val);
+ 
+ 	template <bool bInline>
+-	unsigned int _getNumBoolBlocks() const;
++	uint _getNumBoolBlocks() const;
+ 
+ 	template <int iSize>
+ 	void _Read(/* <advc> */ FDataStreamBase* pStream, bool bAsInt = true, bool bAsShort = false,
+@@ -439,7 +439,7 @@ private:
+ 	void _allocate<false, ENUMMAP_SIZE_BOOL>(T tValue)
+ 	{
+ 		FAssert(m_pArrayBool == NULL);
+-		m_pArrayBool = new unsigned int[_getNumBoolBlocks<bINLINE>()];
++		m_pArrayBool = new uint[_getNumBoolBlocks<bINLINE>()];
+ 		_setAll<bINLINE, SIZE>(tValue);
+ 	}
+ 	/*template<>
+@@ -468,13 +468,13 @@ private:
+ 	////
+ 
+ 	template <>
+-	__forceinline unsigned int _getNumBoolBlocks<false>() const
++	__forceinline uint _getNumBoolBlocks<false>() const
+ 	{
+ 		return (numElements() + 31) / 32;
+ 	}
+ 
+ 	template <>
+-	__forceinline unsigned int _getNumBoolBlocks<true>() const
++	__forceinline uint _getNumBoolBlocks<true>() const
+ 	{
+ 		return NUM_BOOL_BLOCKS;
+ 	}
+@@ -1204,8 +1204,8 @@ template <> struct EnumMapGetDefault< X > \
+ SET_ARRAY_DEFAULT(int);
+ SET_ARRAY_DEFAULT(short);
+ SET_ARRAY_DEFAULT(char);
+-SET_ARRAY_DEFAULT(unsigned int);
+-SET_ARRAY_DEFAULT(unsigned short);
++SET_ARRAY_DEFAULT(uint);
++SET_ARRAY_DEFAULT(word);
+ SET_ARRAY_DEFAULT(byte);
+ SET_ARRAY_DEFAULT(float); // advc
+ // <advc.fract> (Can't pass template params into SET_ARRAY_DEFAULT)
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=44948

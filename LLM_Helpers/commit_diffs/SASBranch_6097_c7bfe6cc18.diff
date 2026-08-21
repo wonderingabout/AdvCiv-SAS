@@ -1,0 +1,363 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6097
+# Commit: c7bfe6cc181619ccc59a9f0694b4b8b898558ae2
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b5a184403ef9fdd75d3dd30c5e3a3ef070b56f55
+# Title: (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks (K...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+25	0	Assets/XML/GlobalDefines_advciv_sas.xml
+137	5	CvGameCoreDLL/CvSelectionGroupAI.cpp
+7	0	CvGameCoreDLL/CvUnit.cpp
+3	2	CvGameCoreDLL/SASGameRecordLog.cpp
+22	1	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index b354ea6b0..569696ec6 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -2474,6 +2474,31 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_MIN_HEALTH_PERCENT</DefineName>
+ 		<iDefineIntVal>60</iDefineIntVal>
+ 	</Define>
++	<!-- custom: enable AI sacrifice refinement that expends obsolete units instead of current units when the current sacrifice is risky and the obsolete alternative remains tactically close enough (1 on, 0 off). XP does not protect an obsolete unit; the inherited sacrifice value remains the main tactical filter. See KI#200. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- custom: current/non-obsolete sacrifice attack odds at or above this percent are considered safe enough to keep the inherited choice instead of deliberately expending an obsolete unit. See KI#200. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT</DefineName>
++		<iDefineIntVal>90</iDefineIntVal>
++	</Define>
++	<!-- custom: at or below this current/non-obsolete sacrifice attack-odds percent, the current unit is already considered a risky expenditure, so obsolete candidates are not rejected by the normal maximum odds-deficit gate. The inherited sacrifice-value and tactical-role checks still apply. See KI#200. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT</DefineName>
++		<iDefineIntVal>60</iDefineIntVal>
++	</Define>
++	<!-- custom: maximum attack-odds percentage-point deficit an obsolete sacrifice may have relative to the inherited current-unit sacrifice when the current unit is above the odds-deficit-bypass threshold. See KI#200. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT</DefineName>
++		<iDefineIntVal>25</iDefineIntVal>
++	</Define>
++	<!-- custom: minimum inherited AI_sacrificeValue percent an obsolete sacrifice must retain relative to the current-unit sacrifice; keeps obsolescence as a close-choice refinement rather than overriding major tactical value differences. See KI#200. (GPT-5.6 Thinking) -->
++	<Define>
++		<DefineName>SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT</DefineName>
++		<iDefineIntVal>70</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index f44e9488e..792b46a86 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -559,27 +559,92 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool
+ 	}
+ 	CvUnitAI* const pLowPowerSelected = (bUseLowPower ? pBestUnit : NULL);
+ 	int const iLowPowerSelectedOdds = (bUseLowPower ? iBestOdds : -1);
++	CvUnitAI* pInheritedBestSacrifice = NULL;
++	CvUnitAI* pSASObsoleteSacrifice = NULL;
++	int iInheritedBestSacrificeOdds = -1;
++	int iSASObsoleteSacrificeOdds = -1;
+ 	iUnitOdds = iBestOdds;
+ 	// <advc.048> Cut from CvSelectionGroup::groupAttack
+ 	if(bSacrifice && iUnitOdds < iOddsThresh)
+ 	{
+ 		CvUnitAI* pBestSacrifice = AI_getBestGroupSacrifice(pPlot,
+ 				bPotentialEnemy, bForce, /* advc.164: */ bNoBlitz);
++		pInheritedBestSacrifice = pBestSacrifice;
+ 		if(pBestSacrifice != NULL)
+ 		{
++			// <!-- custom: When the inherited sacrifice choice would spend a current unit at risky odds, prefer an obsolete sacrifice that retains enough inherited tactical value. Obsolete units remain useful as deliberate expenditures: losing them reduces support/upgrade pressure while preserving current units for future wars.
++			// A current unit with very high odds is allowed to attack because it is unlikely to be lost; once the current choice is itself in sacrifice territory, the normal odds-deficit limit can be bypassed and sacrifice value/tactical role become the safeguards. Do not protect obsolete units merely for XP. See KI#200. (GPT-5.6 Thinking) -->
++			static const bool bSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE");
++			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT");
++			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT");
++			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT");
++			static const int iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT");
++			iInheritedBestSacrificeOdds = pBestSacrifice->AI_attackOdds(pPlot, bPotentialEnemy);
++			TechTypes const eInheritedObsoleteTech = pBestSacrifice->getUnitInfo().getObsoleteTech();
++			bool const bInheritedObsolete = (eInheritedObsoleteTech != NO_TECH && GET_TEAM(pBestSacrifice->getTeam()).isHasTech(eInheritedObsoleteTech));
++			if (bUseLowPower && bSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_OPTIMIZE && !bInheritedObsolete && iInheritedBestSacrificeOdds < iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT)
++			{
++				int const iInheritedSacrificeValue = pBestSacrifice->AI_sacrificeValue(pPlot);
++				bool const bInheritedTacticalSacrifice = (pBestSacrifice->bombardRate() > 0 || pBestSacrifice->collateralDamage() > 0);
++				int iBestObsoleteSacrificeValue = -1;
++				for (CLLNode<IDInfo> const* pObsoleteNode = headUnitNode(); pObsoleteNode != NULL; pObsoleteNode = nextUnitNode(pObsoleteNode))
++				{
++					CvUnitAI* pObsoleteUnit = ::AI_getUnit(pObsoleteNode->m_data);
++					if (pObsoleteUnit->isDead()) continue;
++					bool bCanAttack = (pObsoleteUnit->getDomainType() == DOMAIN_AIR ? pObsoleteUnit->canAirAttack() : pObsoleteUnit->canAttack());
++					if (bCanAttack && pObsoleteUnit->getDomainType() != DOMAIN_AIR && bNoBlitz && pObsoleteUnit->isBlitz() && pObsoleteUnit->isMadeAttack()) bCanAttack = false;
++					if (!bCanAttack || (!bForce && !pObsoleteUnit->canMove()) || (!bForce && !pObsoleteUnit->canMoveInto(*pPlot, true))) continue;
++					TechTypes const eObsoleteTech = pObsoleteUnit->getUnitInfo().getObsoleteTech();
++					if (eObsoleteTech == NO_TECH || !GET_TEAM(pObsoleteUnit->getTeam()).isHasTech(eObsoleteTech)) continue;
++					if (bInheritedTacticalSacrifice && pObsoleteUnit->bombardRate() <= 0 && pObsoleteUnit->collateralDamage() <= 0) continue;
++					int const iObsoleteOdds = pObsoleteUnit->AI_attackOdds(pPlot, bPotentialEnemy);
++					// <!-- custom: Once the inherited current unit is itself in sacrifice territory, do not reject obsolete candidates merely for having still lower victory odds; the sacrifice-value and tactical-role gates remain the quality safeguards. Above that risk threshold, retain the normal maximum odds-deficit limit. See KI#200. (GPT-5.6 Thinking) -->
++					if (iInheritedBestSacrificeOdds > iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT && iObsoleteOdds + iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT < iInheritedBestSacrificeOdds) continue;
++					int const iObsoleteSacrificeValue = pObsoleteUnit->AI_sacrificeValue(pPlot);
++					if (100 * iObsoleteSacrificeValue < iSAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT * iInheritedSacrificeValue) continue;
++					if (pSASObsoleteSacrifice == NULL || iObsoleteSacrificeValue >= iBestObsoleteSacrificeValue)
++					{
++						pSASObsoleteSacrifice = pObsoleteUnit;
++						iSASObsoleteSacrificeOdds = iObsoleteOdds;
++						iBestObsoleteSacrificeValue = iObsoleteSacrificeValue;
++					}
++				}
++				if (pSASObsoleteSacrifice != NULL) pBestSacrifice = pSASObsoleteSacrifice;
++			}
+ 			pBestUnit = pBestSacrifice;
+ 			/*  I.e. caller mustn't use these odds. Don't want to compute them here
+ 				if the caller doesn't need them. */
+ 			iUnitOdds = -1;
+ 		}
+ 	} // </advc.048>
+-	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering actually spends old/obsolete units when they are present and whether the inherited sacrifice fallback replaces that choice. Age is intentionally logged rather than used for selection; the active behavior still ranks bombard/collateral first, then low effective power, XP and health. Gate all extra candidate scans behind WAR level 3. (GPT-5.6 Thinking) -->
++	if (gWarLogLevel >= 3 && pSASObsoleteSacrifice != NULL && pInheritedBestSacrifice != NULL)
++	{
++		int const iOddsDeficitBypassMaxCurrentOdds = GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT");
++		logBBAI("WAR_ATTACK_ORDER_OBSOLETE_EXPEND_OVERRIDE turn=%d player=%d group=%d target=(%d,%d) inheritedUnit=%s inheritedUnitId=%d inheritedOdds=%d inheritedSacrificeValue=%d obsoleteUnit=%s obsoleteUnitId=%d obsoleteOdds=%d obsoleteSacrificeValue=%d currentSafeOdds=%d oddsDeficitBypassMaxCurrentOdds=%d oddsDeficitBypassed=%d maxOddsDeficit=%d minValuePercentOfCurrent=%d",
++			GC.getGame().getGameTurn(), pSASObsoleteSacrifice->getOwner(), getID(), pPlot->getX(), pPlot->getY(), GC.getInfo(pInheritedBestSacrifice->getUnitType()).getType(), pInheritedBestSacrifice->getID(), iInheritedBestSacrificeOdds, pInheritedBestSacrifice->AI_sacrificeValue(pPlot), GC.getInfo(pSASObsoleteSacrifice->getUnitType()).getType(), pSASObsoleteSacrifice->getID(), iSASObsoleteSacrificeOdds, pSASObsoleteSacrifice->AI_sacrificeValue(pPlot), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT"), iOddsDeficitBypassMaxCurrentOdds, (iInheritedBestSacrificeOdds <= iOddsDeficitBypassMaxCurrentOdds ? 1 : 0), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT"), GC.getDefineINT("SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT"));
++	}
++	// <!-- custom: Diagnostic only: verify whether the low-power stack ordering spends old/obsolete units, whether the inherited sacrifice fallback replaces that choice, and when the SAS obsolete-expenditure refinement changes the inherited sacrifice. Compare the exact best obsolete/non-obsolete sacrifice-value and attack-odds alternatives so tuning can remain evidence-based. Age is intentionally logged rather than used for selection; the low-power stage still ranks bombard/collateral first, then low effective power, XP and health. Gate all extra diagnostic candidate scans behind WAR level 3. (GPT-5.6 Thinking) -->
+ 	if (bUseLowPower && gWarLogLevel >= 3 && pLowPowerSelected != NULL && pBestUnit != NULL)
+ 	{
+ 		int iEligibleAttackers = 0;
++		int iSacrificeEligibleAttackers = 0;
+ 		int iObsoleteEligible = 0;
++		int iObsoleteSacrificeEligible = 0;
++		int iObsoleteSacrificeAtOrAboveOddsThreshold = 0;
+ 		int iOldestAge = -1;
+ 		CvUnitAI const* pOldestEligible = NULL;
++		CvUnitAI const* pBestObsoleteSacrifice = NULL;
++		CvUnitAI const* pBestNonObsoleteSacrifice = NULL;
++		CvUnitAI const* pBestObsoleteOdds = NULL;
++		CvUnitAI const* pBestNonObsoleteOdds = NULL;
++		int iBestObsoleteSacrificeValue = -1;
++		int iBestObsoleteSacrificeOdds = -1;
++		int iBestNonObsoleteSacrificeValue = -1;
++		int iBestNonObsoleteSacrificeOdds = -1;
++		int iBestObsoleteOdds = -1;
++		int iBestObsoleteOddsSacrificeValue = -1;
++		int iBestNonObsoleteOdds = -1;
++		int iBestNonObsoleteOddsSacrificeValue = -1;
+ 		for (CLLNode<IDInfo> const* pLogNode = headUnitNode(); pLogNode != NULL; pLogNode = nextUnitNode(pLogNode))
+ 		{
+ 			CvUnitAI const& kLogUnit = *::AI_getUnit(pLogNode->m_data);
+@@ -589,13 +654,51 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool
+ 			if (!bCanAttack || (!bForce && !kLogUnit.canMove()) || (!bForce && !kLogUnit.canMoveInto(*pPlot, true, bPotentialEnemy))) continue;
+ 			iEligibleAttackers++;
+ 			TechTypes const eObsoleteTech = kLogUnit.getUnitInfo().getObsoleteTech();
+-			if (eObsoleteTech != NO_TECH && GET_TEAM(kLogUnit.getTeam()).isHasTech(eObsoleteTech)) iObsoleteEligible++;
++			bool const bObsolete = (eObsoleteTech != NO_TECH && GET_TEAM(kLogUnit.getTeam()).isHasTech(eObsoleteTech));
++			if (bObsolete) iObsoleteEligible++;
+ 			int const iAge = GC.getGame().getGameTurn() - kLogUnit.getGameTurnCreated();
+ 			if (iAge > iOldestAge)
+ 			{
+ 				iOldestAge = iAge;
+ 				pOldestEligible = &kLogUnit;
+ 			}
++			// Match AI_getBestGroupSacrifice's own canMoveInto test for the alternative-candidate summaries below.
++			if (!bForce && !kLogUnit.canMoveInto(*pPlot, true)) continue;
++			iSacrificeEligibleAttackers++;
++			int const iSacrificeValue = kLogUnit.AI_sacrificeValue(pPlot);
++			int const iOdds = kLogUnit.AI_attackOdds(pPlot, bPotentialEnemy);
++			if (bObsolete)
++			{
++				iObsoleteSacrificeEligible++;
++				if (iOdds >= iOddsThresh) iObsoleteSacrificeAtOrAboveOddsThreshold++;
++				if (iSacrificeValue >= iBestObsoleteSacrificeValue)
++				{
++					pBestObsoleteSacrifice = &kLogUnit;
++					iBestObsoleteSacrificeValue = iSacrificeValue;
++					iBestObsoleteSacrificeOdds = iOdds;
++				}
++				if (iOdds > iBestObsoleteOdds || (iOdds == iBestObsoleteOdds && iSacrificeValue >= iBestObsoleteOddsSacrificeValue))
++				{
++					pBestObsoleteOdds = &kLogUnit;
++					iBestObsoleteOdds = iOdds;
++					iBestObsoleteOddsSacrificeValue = iSacrificeValue;
++				}
++			}
++			else
++			{
++				if (iSacrificeValue >= iBestNonObsoleteSacrificeValue)
++				{
++					pBestNonObsoleteSacrifice = &kLogUnit;
++					iBestNonObsoleteSacrificeValue = iSacrificeValue;
++					iBestNonObsoleteSacrificeOdds = iOdds;
++				}
++				if (iOdds > iBestNonObsoleteOdds || (iOdds == iBestNonObsoleteOdds && iSacrificeValue >= iBestNonObsoleteOddsSacrificeValue))
++				{
++					pBestNonObsoleteOdds = &kLogUnit;
++					iBestNonObsoleteOdds = iOdds;
++					iBestNonObsoleteOddsSacrificeValue = iSacrificeValue;
++				}
++			}
+ 		}
+ 		int const iLowPowerHealth = (100 * (std::max(1, pLowPowerSelected->maxHitPoints()) - pLowPowerSelected->getDamage())) / std::max(1, pLowPowerSelected->maxHitPoints());
+ 		int const iFinalHealth = (100 * (std::max(1, pBestUnit->maxHitPoints()) - pBestUnit->getDamage())) / std::max(1, pBestUnit->maxHitPoints());
+@@ -603,10 +706,39 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool
+ 		TechTypes const eFinalObsoleteTech = pBestUnit->getUnitInfo().getObsoleteTech();
+ 		bool const bLowPowerObsolete = (eLowPowerObsoleteTech != NO_TECH && GET_TEAM(pLowPowerSelected->getTeam()).isHasTech(eLowPowerObsoleteTech));
+ 		bool const bFinalObsolete = (eFinalObsoleteTech != NO_TECH && GET_TEAM(pBestUnit->getTeam()).isHasTech(eFinalObsoleteTech));
+-		logBBAI("WAR_ATTACK_ORDER turn=%d player=%d group=%d target=(%d,%d) eligible=%d obsoleteEligible=%d lowPowerUnit=%s lowPowerUnitAI=%d lowPowerAge=%d lowPowerXP=%d lowPowerHealth=%d lowPowerOdds=%d lowPowerObsolete=%d finalUnit=%s finalUnitAI=%d finalAge=%d finalXP=%d finalHealth=%d finalOdds=%d finalObsolete=%d sacrificeOverride=%d oldestUnit=%s oldestUnitAI=%d oldestAge=%d oldestXP=%d oldestObsolete=%d",
+-			GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iEligibleAttackers, iObsoleteEligible, GC.getInfo(pLowPowerSelected->getUnitType()).getType(), pLowPowerSelected->AI_getUnitAIType(), GC.getGame().getGameTurn() - pLowPowerSelected->getGameTurnCreated(), pLowPowerSelected->getExperience(), iLowPowerHealth, iLowPowerSelectedOdds, bLowPowerObsolete,
+-			GC.getInfo(pBestUnit->getUnitType()).getType(), pBestUnit->AI_getUnitAIType(), GC.getGame().getGameTurn() - pBestUnit->getGameTurnCreated(), pBestUnit->getExperience(), iFinalHealth, iUnitOdds, bFinalObsolete, pBestUnit != pLowPowerSelected,
++		int const iFinalActualOdds = (pBestUnit == pLowPowerSelected ? iLowPowerSelectedOdds : pBestUnit->AI_attackOdds(pPlot, bPotentialEnemy));
++		int const iLowPowerSacrificeValue = pLowPowerSelected->AI_sacrificeValue(pPlot);
++		int const iFinalSacrificeValue = pBestUnit->AI_sacrificeValue(pPlot);
++		logBBAI("WAR_ATTACK_ORDER turn=%d player=%d group=%d target=(%d,%d) eligible=%d obsoleteEligible=%d lowPowerUnit=%s lowPowerUnitId=%d lowPowerUnitAI=%d lowPowerAge=%d lowPowerXP=%d lowPowerHealth=%d lowPowerOdds=%d lowPowerSacrificeValue=%d lowPowerObsolete=%d finalUnit=%s finalUnitId=%d finalUnitAI=%d finalAge=%d finalXP=%d finalHealth=%d finalOdds=%d finalActualOdds=%d finalSacrificeValue=%d finalObsolete=%d sacrificeOverride=%d oldestUnit=%s oldestUnitAI=%d oldestAge=%d oldestXP=%d oldestObsolete=%d",
++			GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iEligibleAttackers, iObsoleteEligible, GC.getInfo(pLowPowerSelected->getUnitType()).getType(), pLowPowerSelected->getID(), pLowPowerSelected->AI_getUnitAIType(), GC.getGame().getGameTurn() - pLowPowerSelected->getGameTurnCreated(), pLowPowerSelected->getExperience(), iLowPowerHealth, iLowPowerSelectedOdds, iLowPowerSacrificeValue, bLowPowerObsolete,
++			GC.getInfo(pBestUnit->getUnitType()).getType(), pBestUnit->getID(), pBestUnit->AI_getUnitAIType(), GC.getGame().getGameTurn() - pBestUnit->getGameTurnCreated(), pBestUnit->getExperience(), iFinalHealth, iUnitOdds, iFinalActualOdds, iFinalSacrificeValue, bFinalObsolete, pBestUnit != pLowPowerSelected,
+ 			(pOldestEligible == NULL ? "-" : GC.getInfo(pOldestEligible->getUnitType()).getType()), (pOldestEligible == NULL ? NO_UNITAI : pOldestEligible->AI_getUnitAIType()), iOldestAge, (pOldestEligible == NULL ? -1 : pOldestEligible->getExperience()), (pOldestEligible == NULL ? 0 : (pOldestEligible->getUnitInfo().getObsoleteTech() != NO_TECH && GET_TEAM(pOldestEligible->getTeam()).isHasTech(pOldestEligible->getUnitInfo().getObsoleteTech()))));
++		if (iObsoleteEligible > 0)
++		{
++			logBBAI("WAR_ATTACK_ORDER_CANDIDATE_SUMMARY turn=%d player=%d group=%d target=(%d,%d) sacrificeOddsThreshold=%d attackEligible=%d sacrificeEligible=%d obsoleteAttackEligible=%d obsoleteSacrificeEligible=%d obsoleteSacrificeAtOrAboveOddsThreshold=%d",
++				GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), iOddsThresh, iEligibleAttackers, iSacrificeEligibleAttackers, iObsoleteEligible, iObsoleteSacrificeEligible, iObsoleteSacrificeAtOrAboveOddsThreshold);
++			CvUnitAI const* apCandidates[4] = { pBestObsoleteSacrifice, pBestNonObsoleteSacrifice, pBestObsoleteOdds, pBestNonObsoleteOdds };
++			char const* aszRoles[4] = { "BEST_OBSOLETE_SACRIFICE", "BEST_NONOBSOLETE_SACRIFICE", "BEST_OBSOLETE_ODDS", "BEST_NONOBSOLETE_ODDS" };
++			int aiOdds[4] = { iBestObsoleteSacrificeOdds, iBestNonObsoleteSacrificeOdds, iBestObsoleteOdds, iBestNonObsoleteOdds };
++			int aiSacrificeValues[4] = { iBestObsoleteSacrificeValue, iBestNonObsoleteSacrificeValue, iBestObsoleteOddsSacrificeValue, iBestNonObsoleteOddsSacrificeValue };
++			for (int i = 0; i < 4; i++)
++			{
++				CvUnitAI const* pCandidate = apCandidates[i];
++				if (pCandidate == NULL) continue;
++				int const iCandidateMaxHP = std::max(1, pCandidate->maxHitPoints());
++				int const iCandidateHealth = (100 * (iCandidateMaxHP - pCandidate->getDamage())) / iCandidateMaxHP;
++				bool const bCandidateCollateral = (pCandidate->collateralDamage() > 0);
++				int const iCandidateBaseCollateral = (bCandidateCollateral ? estimateCollateralWeight(pPlot, getTeam()) : 0);
++				int const iCandidateEffectiveStr = pCandidate->AI_currEffectiveStr(pPlot, pCandidate, bCandidateCollateral, iCandidateBaseCollateral, true);
++				TechTypes const eCandidateObsoleteTech = pCandidate->getUnitInfo().getObsoleteTech();
++				bool const bCandidateObsolete = (eCandidateObsoleteTech != NO_TECH && GET_TEAM(pCandidate->getTeam()).isHasTech(eCandidateObsoleteTech));
++				CvPlot::DefenderFilters kDefenderFilters(pCandidate->getOwner(), pCandidate, !bPotentialEnemy, bPotentialEnemy, true, false);
++				CvUnit const* pCandidateDefender = pPlot->getBestDefender(NO_PLAYER, kDefenderFilters);
++				int const iCandidateDefenderHealth = (pCandidateDefender == NULL ? -1 : (100 * (std::max(1, pCandidateDefender->maxHitPoints()) - pCandidateDefender->getDamage())) / std::max(1, pCandidateDefender->maxHitPoints()));
++				logBBAI("WAR_ATTACK_ORDER_CANDIDATE turn=%d player=%d group=%d target=(%d,%d) role=%s unit=%s unitId=%d unitAI=%d obsolete=%d age=%d xp=%d health=%d odds=%d sacrificeValue=%d effectiveStr=%d productionCost=%d bombard=%d collateral=%d combatLimit=%d withdrawal=%d leaderUnit=%d sameTileHeal=%d adjacentTileHeal=%d lfbRelativeValue=%d defenderOwner=%d defenderUnit=%s defenderUnitId=%d defenderHealth=%d defenderBaseStr=%d isLowPower=%d isFinal=%d",
++					GC.getGame().getGameTurn(), pBestUnit->getOwner(), getID(), pPlot->getX(), pPlot->getY(), aszRoles[i], GC.getInfo(pCandidate->getUnitType()).getType(), pCandidate->getID(), pCandidate->AI_getUnitAIType(), bCandidateObsolete, GC.getGame().getGameTurn() - pCandidate->getGameTurnCreated(), pCandidate->getExperience(), iCandidateHealth, aiOdds[i], aiSacrificeValues[i], iCandidateEffectiveStr, pCandidate->getUnitInfo().getProductionCost(), pCandidate->bombardRate() > 0, bCandidateCollateral, pCandidate->combatLimit(), pCandidate->withdrawalProbability(), pCandidate->getLeaderUnitType() != NO_UNIT, pCandidate->getSameTileHeal(), pCandidate->getAdjacentTileHeal(), pCandidate->LFBgetRelativeValueRating(), (pCandidateDefender == NULL ? NO_PLAYER : pCandidateDefender->getOwner()), (pCandidateDefender == NULL ? "-" : GC.getInfo(pCandidateDefender->getUnitType()).getType()), (pCandidateDefender == NULL ? -1 : pCandidateDefender->getID()), iCandidateDefenderHealth, (pCandidateDefender == NULL ? -1 : pCandidateDefender->baseCombatStr()), pCandidate == pLowPowerSelected, pCandidate == pBestUnit);
++			}
++		}
+ 	}
+ 	return pBestUnit;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index f6414ee8d..d0df18fd2 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1319,6 +1319,13 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 	// <!-- custom: record non-lethal combat as a retreat in the Military Advisor Battles tab; combatResult only fires on kills, so withdrawal/combat-limit fights otherwise disappear despite having useful start/end strength data. (GPT-5.5) -->
+ 	if (!isDead() && !pDefender->isDead())
+ 	{
++		// <!-- custom: GameRecord level 3 also keeps exact unit IDs for non-lethal combat so WAR_ATTACK_ORDER decisions can be joined to withdrawals and combat-limit attacks, not only lethal combatResult events. (GPT-5.6 Thinking) -->
++		if (gGameRecordLogLevel >= 3)
++		{
++			bool const bCombatLimitReached = (combatLimit() < GC.getMAX_HIT_POINTS() && pDefender->getDamage() >= combatLimit());
++			logSASGameRecord("GAME_RECORD_BATTLE_NONLETHAL turn=%d attacker=%d defender=%d attackerUnit=%s attackerUnitId=%d defenderUnit=%s defenderUnitId=%d reason=%s x=%d y=%d cityPlot=%d attackerBaseStr=%d defenderBaseStr=%d attackerDamage=%d defenderDamage=%d attackerCombatLimit=%d attackerWithdrawal=%d",
++				GC.getGame().getGameTurn(), getOwner(), pDefender->getOwner(), GC.getInfo(getUnitType()).getType(), getID(), GC.getInfo(pDefender->getUnitType()).getType(), pDefender->getID(), (bCombatLimitReached ? "COMBAT_LIMIT" : "WITHDRAWAL"), pPlot->getX(), pPlot->getY(), pPlot->isCity(), baseCombatStr(), pDefender->baseCombatStr(), getDamage(), pDefender->getDamage(), combatLimit(), withdrawalProbability());
++		}
+ 		CyArgsList pyArgsSASBattleRetreat;
+ 		pyArgsSASBattleRetreat.add(getOwner());
+ 		pyArgsSASBattleRetreat.add(pDefender->getOwner());
+
+diff --git a/CvGameCoreDLL/SASGameRecordLog.cpp b/CvGameCoreDLL/SASGameRecordLog.cpp
+index fa4152d57..99492715c 100644
+--- a/CvGameCoreDLL/SASGameRecordLog.cpp
++++ b/CvGameCoreDLL/SASGameRecordLog.cpp
+@@ -4683,7 +4683,8 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+ 	logSASGameRecordGreatPersonDied(pLoser, eWinner, "COMBAT");
+ 	if (gGameRecordLogLevel >= 3)
+ 	{
+-		logSASGameRecord("GAME_RECORD_BATTLE turn=%d winner=%d loser=%d winnerUnit=%s loserUnit=%s x=%d y=%d cityPlot=%d winnerBaseStr=%d loserBaseStr=%d winnerDamage=%d loserDamage=%d winnerLeaderUnit=%s loserLeaderUnit=%s",
+-				GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getX(), pLoser->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
++		// <!-- custom: Include exact unit IDs so WAR_ATTACK_ORDER attacker selections can be joined to the resulting battle even when several units of the same type fight on the same turn. (GPT-5.6 Thinking) -->
++		logSASGameRecord("GAME_RECORD_BATTLE turn=%d winner=%d loser=%d winnerUnit=%s winnerUnitId=%d loserUnit=%s loserUnitId=%d x=%d y=%d cityPlot=%d winnerBaseStr=%d loserBaseStr=%d winnerDamage=%d loserDamage=%d winnerLeaderUnit=%s loserLeaderUnit=%s",
++				GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), pWinner->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getID(), pLoser->getX(), pLoser->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
+ 	}
+ }
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index e89138d08..b26463fe4 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -258,6 +258,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [198 - (Fixed/Improved) Likely Base AdvCiv Worker/land-development underperformance, compounded by an AdvCiv-SAS Worker-demand regression and too-low minimum, could leave mature AI cities badly unimproved](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#198---fixedimproved-likely-base-advciv-workerland-development-underperformance-compounded-by-an-advciv-sas-worker-demand-regression-and-too-low-minimum-could-leave-mature-ai-cities-badly-unimproved)\
+ [198.2 - (Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pumps (observed with Workers)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1982---fixedimproved-base-advciv-ai-non-combat-food-production-allocation-could-stall-small-growing-cities-instead-of-using-mature-or-stagnant-foodproduction-pumps-observed-with-workers)\
+ [199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#199---fixedimproved-base-advcivk-mod-generic-unitai-fallback-could-use-dedicated-land-anti-air-units-as-ordinary-attackers-or-reserves)\
++[200 - (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#200---improved-inherited-base-advcivk-mod-sacrifice-selection-could-spend-current-units-before-sas-defined-obsolete-expendables-during-risky-ai-stack-attacks)\
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -7557,7 +7558,7 @@ The initial 40% test was the first recent experiment to produce a clear broad mi
+ 
+ The dedicated diagnostics added for this investigation are intentionally retained behind the existing BBAI log levels. `WAR_TARGET_SCHEME_GATE` / expanded `WAR_TARGET_EVAL` record whether a rival reaches war evaluation together with power, distance and where each side's military is located; `WAR_ATTACK_ORDER` records the low-power attacker chosen by the SAS stack-order logic and the final attacker after inherited sacrifice selection. These logs exposed that the inherited KI#61 pre-war contact limit had become too restrictive: Spain could have almost twice Mali's power with nearly all of its army at home and still hard-reject the war because estimated contact was 4 turns against a 3-turn land cap, while Byzantium could reject a much weaker target at 8 turns for the same reason. The existing victory-denial bypass demonstrated that once this hard veto was removed, the same large armies could rapidly convert into captured cities. The XML defaults are therefore now widened from 3 to 15 approximate land-contact turns and from 12 to 20 genuinely naval-contact turns. This does not force a declaration; it lets reachable targets within the wider sanity bounds proceed to normal UWAI power, utility, diplomacy, closeness and war-state evaluation. A later 40% save-file 454 test ended in a turn-342 Domination victory; the winning autoplay empire already had 106 combat units at turn 250 and 189 at turn 300, supporting the combination of stronger-but-not-maximal production pressure and fewer artificial war-opportunity vetoes.
+ 
+-The attack-order trace still exposes a smaller separate follow-up: the SAS low-power selector can correctly choose an old/obsolete expendable unit, but inherited `AI_getBestGroupSacrifice()` may subsequently replace it. In one direct example, a 136-turn-old obsolete 0-XP Archer selected at 10% odds was replaced by a 5-turn-old 8-XP Horse Archer; across the diagnostic run, 189 logged attacks replaced an obsolete SAS-selected attacker with a non-obsolete final attacker, all through the sacrifice override. This issue remains unfixed for now and can be revisited after the broader production/war-opportunity behavior has stabilized.
++The same attack-order trace exposed a smaller separate follow-up: the SAS low-power selector could correctly choose an old/obsolete expendable unit, but inherited `AI_getBestGroupSacrifice()` could subsequently replace it with a current unit. That follow-up is now investigated and improved separately in KI#200.
+ 
+ Improved/investigated with the help of GPT-5.6 Thinking thanks.
+ 
+@@ -7616,3 +7617,23 @@ The fix is intentionally data-driven and small: SAM Infantry and Mobile SAM now
+ No blanket percentage cap on land anti-air units is added by this fix. A high anti-air share can still be legitimate if the AI's actual counter logic calls for it, and save file 459 also showed that substantial Mobile-SAM production can occur through `UNITAI_COUNTER`. If legitimate counter-role demand later proves systematically excessive, that can be tuned separately with evidence. This issue specifically fixes specialized AA units consuming ordinary offensive/reserve slots because of generic UnitAI fallback.
+ 
+ Fixed/improved with the help of GPT-5.6 Thinking thanks.
++
++## 200 - (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks
++
++The `WAR_ATTACK_ORDER` diagnostics retained from KI#197.9 exposed a separate attack-order interaction rather than another military-production issue. The provenance matters: the explicit unit `ObsoleteTech` field and the resulting concept of a unit being **obsolete** for this ordering are AdvCiv-SAS-specific; Base AdvCiv/K-Mod does not have that unit-obsolescence system. The later `AI_getBestGroupSacrifice()` fallback is inherited Base AdvCiv/K-Mod logic, so it naturally evaluates sacrifice value without knowing that SAS may already consider one candidate strategically obsolete. The two systems could therefore work against each other.
++
++In one early direct example, the SAS low-power selector chose a 136-turn-old obsolete Archer at 10% odds, but inherited sacrifice selection replaced it with a 5-turn-old current Horse Archer. Across that diagnostic run, 189 logged attacks replaced an obsolete SAS-selected attacker with a non-obsolete final attacker, all through the sacrifice fallback. The important distinction is not the logged XP difference by itself: the obsolete Archer is a much weaker/outdated unit, while the current Horse Archer remains materially more useful. XP still has value, but it is intentionally not a standalone reason to preserve an obsolete unit; obsolete units are often poor-value upgrade candidates and may be more efficiently spent in war. The inherited sacrifice value remains important because it captures tactical utility and can prevent absurd substitutions, including logged cases where an obsolete unit had only 2% odds while a current Mechanized Infantry had 71%.
++
++The cure therefore stays local to the AI sacrifice fallback rather than changing `AI_sacrificeValue()` globally or forcing all obsolete units to attack first. When inherited sacrifice selection chooses a non-obsolete unit below the configured safe-attack threshold, the AI searches the same group for an eligible obsolete alternative. The obsolete candidate must retain at least `SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MIN_VALUE_PERCENT_OF_CURRENT` of the inherited sacrifice value (70% as of now), and if the inherited sacrifice provides bombard or collateral capability the replacement must also provide one of those tactical roles. Obsolete means specifically that the unit's SAS XML `ObsoleteTech` has been reached; raw age does not qualify it, and raw XP does not override that status.
++
++Attack odds are treated differently depending on how risky the inherited current-unit attack already is. Current-unit attacks at or above `SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_CURRENT_SAFE_ODDS_PERCENT` (90% as of now) are left unchanged because the unit is very likely to survive. Above the risky-expenditure threshold, an obsolete replacement may be at most `SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_MAX_ODDS_DEFICIT_PERCENT` percentage points worse (25 as of now). At or below `SAS_AI_GETBESTGROUPATTACKER_OBSOLETE_SACRIFICE_ODDS_DEFICIT_BYPASS_MAX_CURRENT_ODDS_PERCENT` (60% as of now), that odds-deficit cap is bypassed: the current unit is already being asked to take a materially risky fight, so a tactically credible obsolete unit can instead be used as an expendable or "cannon-fodder" attacker first. This can soften the defender, preserve the current unit for a safer follow-up, naturally remove obsolete excess and its unit-support burden, and avoid pressure to spend upgrade gold on units that may no longer justify it. All thresholds and the optimization itself are XML-tunable.
++
++Several staged full-autoplay tests were used rather than adopting a blanket obsolete-first rule. Tight initial 80%-value and 15-point-odds gates proved the mechanism was very selective; later 70% and 25-point tests exposed more useful substitutions without making the rule dominate normal combat. One especially clear full-autoplay sequence on turn 330 preserved a Mechanized Infantry that initially had only 36% odds, spent an obsolete Horse Knight at 2% and then an obsolete Paratrooper at 7%, and after the Paratrooper damaged the Mobile SAM defender to 52 HP the same Mechanized Infantry was reevaluated at 99% and won without taking damage. This is the intended pattern: spend expendables while the current-unit attack is dangerous, then let the current unit take the safer finishing fight.
++
++Save file 454 independently provided a broader sample. The run logged 29 obsolete-expenditure overrides among 1,426 non-Barbarian attack selections, and six choices genuinely required bypassing the normal 25-point deficit. Those six used current-unit odds of 38%, 50%, 48%, 37%, 43% and 38%; five obsolete replacements died and one withdrew, while the surviving defenders took 42, 57, 19, 0, 64 and 0 damage respectively. In two of those assaults the preserved current unit later attacked during the same turn and won without taking damage. A turn-152 obsolete Archer was particularly useful: it attacked instead of a 43% current Longbowman, withdrew after inflicting 64 damage, and the preserved Longbowman later won its own combat at 0 damage. Some cannon-fodder attacks still die without damaging the defender, which is expected rather than hidden: the feature deliberately chooses which unit pays for an already-risky attack; it does not guarantee that every expendable produces value.
++
++The bypass threshold was subsequently raised from the directly exercised 50% boundary to 60% as a deliberately somewhat more aggressive cleanup policy. Two full runs made with the 60% setting produced no qualifying bypass case whose inherited current-unit odds were actually 51-60%, so that exact extra interval has not yet been isolated empirically. The mechanism itself is well exercised at lower risky odds, and the value remains XML-tunable for later balance adjustment without recompiling.
++
++The detailed level-3 `WAR_ATTACK_ORDER` candidate and exact battle-ID diagnostics are retained for now so future tuning can distinguish ordinary sacrifice selection from obsolete-expenditure overrides and directly join selected units to combat outcomes.
++
++Improved with the help of GPT-5.6 Thinking thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 5aacb7171..7ec537023 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -411,7 +411,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs "bait" wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp) and [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6036+) **War target selection — distance guard** - Update: **Faraway-war Risk reject no longer inflates UWAI war utility: a follow-up BBAI test in save file 450 showed the older AdvCiv-SAS KI#61 hard reject could also fire in the recursive peace scenario. Since UWAI scores war as `war scenario - peace scenario`, this could turn a mediocre war into an absurdly attractive one, e.g. `warScenarioUtility=-220`, `peaceScenarioUtility=-105386`, `finalUtility=105166`. The hard reject no longer applies to the recursive peace scenario; retesting removed all huge positive final-utility artifacts (`positive final: 0`) while preserving the intended negative reject for bad faraway/unreachable war plans. See [KI#183](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#183---fixed-advciv-sas-faraway-war-risk-hard-reject-could-make-mediocre-wars-look-extremely-good-by-penalizing-the-peace-scenario).
+ - (Requires AdvCiv-SAS 6052+) Update 2 : later BBAI logging showed that the guard was too invasive after war had already begun. In save file 450, it forced Sumer to make peace after only 2 turns despite capturing New York with twice Lincoln's power, merely because the next enemy city was beyond the distance limit. It is now restricted to pre-war evaluations, leaving normal UWAI logic to decide when an ongoing war should end.
+-- (Requires AdvCiv-SAS 6094+) Update 3: The previous `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED` 3-turn land limit could hard-reject otherwise worthwhile reachable wars before normal UWAI evaluation simply because the army's estimated path to the nearest target city took slightly longer. For example in save file 459, AIs having an overwhelming military advantage but not attacking much weaker rivals. To fix this, the SAS pre-war contact-distance guard is now substantially less restrictive to much higher defaults of 15 (vs 3 before) approximate path turns for land-reachable wars and 20 for `SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED` too to match this change (vs 12 before) for genuinely naval wars. The wider limits preserve a sanity bound for very remote targets while allowing ordinary UWAI power, utility, diplomacy, closeness and war-state logic to decide whether a reachable target is actually worth attacking. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
++- (Requires AdvCiv-SAS 6094+) Update 3: the pre-war contact-distance guard is now substantially less restrictive and XML-tunable at a current, to address the issue, for example in save file 459, AIs having an overwhelming military advantage but not attacking much weaker rivals. The previous `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED` 3-turn land limit could hard-reject otherwise worthwhile reachable wars before normal UWAI evaluation simply because the army's estimated path to the nearest target city took slightly longer. To fix this, `SAS_UWAI_WAR_TARGET_MAX_LAND_CONTACT_TURNS_UNSCALED_GAMESPEED` / `SAS_UWAI_WAR_TARGET_MAX_SEA_CONTACT_TURNS_UNSCALED_GAMESPEED` are now changed to much higher defaults of 15 (vs 3 before) approximate path turns for land-reachable wars and 20 (vs 12 before to match this change too) for genuinely naval wars. The wider limits preserve a sanity bound for very remote targets while allowing ordinary UWAI power, utility, diplomacy, closeness and war-state logic to decide whether a reachable target is actually worth attacking. See [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
+ - (Requires AdvCiv-SAS 6035+) **UWAI target choice avoids faraway wars:** Following [KI#61](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp)'s related fix, BBAI war-target logging in save file 450 showed the AI could still prepare some avoidable faraway wars: for example, on turn 182, Arabia (Team 0) could ignore closer Holy Rome (Team 6) at distance 5, attitudeValue -2, and targetPowerPercent 64, then prepare against the farther Netherlands (Team 5) at distance 10, attitudeValue +1, and targetPowerPercent 92. That is dangerous because a faraway war can split armies from the core, slow reinforcements, expose cities to opportunistic invasions, or make captures harder to hold. The new guard only optionally promotes a nearby land-war target, not an island/naval target, when it is close enough, weak enough, disliked/neutral enough, and has minimal UWAI drive; With the current distance threshold, it only steps in when the alternative target is at least 2 tiles farther away; targets at the same distance or closer are left to normal UWAI. This is intentionally a narrow blunder-fix rather than a war-logic overhaul, so UWAI choices do not become too bland or broadly overridden. In the confirming BBAI run, the guard found 32 valid closer targets and blocked 17 farther alternatives, leaving usual UWAI logic to either pick these closer targets or continue normally if no suitable target remained. See [KI#182](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#182---fixedimproved-uwai-war-target-selection-could-fall-through-to-farther-targets-even-when-a-closer-weakdisliked-land-target-was-available).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment, in `CvPlayerAI::AI_conquerCity`. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer "split in two" empires). See [KI#64](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity).
+ - (Requires AdvCiv-SAS 6042+) **Captured-city razing avoids destroy-then-resettle waste:** BBAI testing in save file 450 showed AIs repeatedly destroy a city and then soon spend a Settler to rebuild on the exact same `(38,50)` plot: Ur was razed, Tours was founded there and razed, then HRE founded Augsburg there only four turns later and eventually razed it too. This wasted population, buildings, Settlers, regrowth, and military effort. The cause was Base AdvCiv's `AI_isAwfulSite`, which misevaluated and judged existing cities through a separate crude terrain veto that could conflict with how Settlers valued the same site. AdvCiv-SAS replaces it with `AI_isSASCityLikelyToBenefitUsLongTerm`, whose intrinsic-quality component reuses the shared SAS low-food and potential-yield helpers: close cities with enough long-term food or workable potential can be kept even without standout bonuses. In the confirming run, HRE kept Ur when it captured the city at population 3; Ur later reached population 13, built a corporation building, and generated a Great Engineer, supporting a stronger AI outcome instead of another wasteful raze/resettle cycle. See [KI#186](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#186---fixedimproved-base-advciv-ai_isawfulsite-could-cause-economically-wasteful-captured-city-razeresettle-cycles-and-destroy-valuable-population-and-buildings).
+@@ -441,6 +441,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ #### Military - Land (AI)
+ 
+ - (Requires AdvCiv-SAS 6094+) **Optionally increase tradeoff between offensive unit production maximizing (but too undevelope to scale militarily or economically into late game) and economy maximizing (but militarily weak and likely to die or lose later) trade-off so it is broadly closer to an efficient middle-ground:** the old AdvCiv-SAS 5055 stable release could produce very large AI armies, while later releases generally focused more and preferred economic efficiency instead, which however produced substantially fewer military units and could also make games less threatening and easier to win, especially late game. To address this, offensive military production is now broadly tunable through `SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_PERCENT`, which sets the minimum share of the empire's **base production currently committed to `UNITAI_ATTACK` / `UNITAI_ATTACK_CITY` units** before opportunistic wonders and the broader later building choices, but after existing Worker, Settler, Explorer, panic, financial, culture and other earlier priority logic (so essential economic and survival production can still take precedence, even if set to max `100`): `0` disables the feature; the current middle-ground default of `40` significantly increases offensive production while still leaving enough room for infrastructure and economic growth to scale the empire; values up to `100` apply stronger military-production pressure, but can overcommit production to units and therefore do not necessarily produce a larger or stronger late-game army (possibly even less due to lower production or economy scaling late game). A same-start save file 460 BBAI and SASGameRecord logging comparison illustrates the trade-off: with `0` / `40` / `100`, the 11 civilizations (excluding Barbarians) had built 737 / 952 / 985 combat units by turn 250, and 987 / 1,340 / 1,340 by turn 300, so `40` captured nearly all of the additional military output of `100` while leaving substantially more room for infrastructure and economic scaling. The target deliberately uses **production capacity rather than a fixed unit count, era quota or military-upkeep target**, so high-production cities contribute proportionally more and the system naturally scales with the empire. The current feature improves military output significantly especially late game where it was too low, but does not reproduce the exceptionally high AdvCiv-SAS 5055 military-production levels (usually of ~200 units by T250-T300 and ~300 units by T300-T400) in amount or in consistency, so further AI-production tuning may continue. See [KI#197.9](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#1979---improved-healthy-ai-empires-could-still-devote-too-little-productive-capacity-to-offensive-units-even-after-buildunitprob-and-spending-limit-fixes).
++- (Requires AdvCiv-SAS 6097+) **Risky AI stack attacks can use obsolete units as expendables / cannon fodder before current units:** BBAI attack-order logging in save file 460 showed the SAS low-power selector could choose the first unit to attack to be obsolete unit, only for inherited Base AdvCiv/K-Mod sacrifice logic to replace it with a current unit first attacking instead; one sample had 189 obsolete-to-current replacements, including an obsolete Archer at 10% winning odds being replaced by a current (plus much stronger) Horse Archer. To fix this, when the current unit would already take a risky attack, the AI can instead spend a tactically suitable obsolete unit first as cannon fodder/expendable, potentially weakening the defender while preserving current stronger units for safer follow-up attacks. Very safe current attacks (90%+ as of now) remain untouched, and XML-tunable sacrifice-value, tactical-role and odds safeguards prevent blanket weakest-unit-first behavior. Confirming runs showed expendables often damaged defenders or withdrew; in one sequence, obsolete attackers improved a preserved Mechanized Infantry's odds from 36% to 99%, after which it won without damage. This also helps clear weak obsolete excess naturally instead of keeping it for unit support or often poor-value future upgrades. See [KI#200](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#200---improved-inherited-base-advcivk-mod-sacrifice-selection-could-spend-current-units-before-sas-defined-obsolete-expendables-during-risky-ai-stack-attacks).
+ - **Barracks**: lower `FLAVOR_MILITARY` (e.g., 10 → 6 for the generic barracks) so non-militaristic leaders don’t overbuild it; increase `iAIWeight` substantially (e.g., 0 → 70; 75 for Zulu barracks) so when built, it’s for solid ROI (earlier experienced troops). Rationale drawn partly from FFH2’s use of 40 as a baseline.
+ - **Stables**: similarly increase `iAIWeight` (e.g., 0 → 75) so they’re pursued when relevant.
+ - Early **siege**: adjust UnitAIs so early siege doesn’t get baited away from core attack/defense purposes.
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=52181

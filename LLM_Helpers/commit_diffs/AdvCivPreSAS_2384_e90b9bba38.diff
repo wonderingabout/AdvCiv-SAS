@@ -1,0 +1,61 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2384
+# Commit: e90b9bba38bad7759dad12e2a9ab738e411f9905
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4166d2fc37f03c9341df59bac85d1acfe30bfdfb
+# Title: Fix times-100 error in demand-better-protection option
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	6	Assets/XML/GlobalDefines_advc.xml
+1	1	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 878319ce8..94a208943 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -431,12 +431,11 @@
+ 		<fDefineFloatVal>5400</fDefineFloatVal>
+ 	</Define>
+ 
+-	<!-- [advc.500b]
+-		 If this is set to a value greater than 0, unhappiness for lack of
+-		 military protection is computed based on defensive strength (see
+-		 manual). Otherwise, the BtS computation is used, i.e. any combat unit
+-		 suffices as protection. (0 for now, until some accompanying changes to
+-		 unhappiness are implemented.) -->
++	<!-- advc.500b: If this is set to a value greater than 0, unhappiness for
++		 lack of military protection is computed based on defensive strength.
++		 Otherwise, the BtS computation is used, i.e. any combat unit
++		 suffices as protection. Recommended: 0 for now as there are some
++		 open issues with this rule (see manual). -->
+ 	<Define>
+ 		<DefineName>DEMAND_BETTER_PROTECTION</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 40dc97387..4791daf91 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -13034,7 +13034,7 @@ scaled CvCity::defensiveGarrison(
+ 		// Exclude naval units but not Explorer and Gunship
+ 		if (!u.isMilitaryHappiness() && u.getCultureGarrisonValue() <= 0)
+ 			continue;
+-		scaled rDefStr = kUnit.maxCombatStr(&kPlot, NULL, NULL, true);
++		scaled rDefStr = per100(kUnit.maxCombatStr(&kPlot, NULL, NULL, true));
+ 		// Outdated units count half
+ 		if (allUpgradesAvailable(kUnit.getUnitType()) != NO_UNIT ||
+ 			(pCapital != NULL && pCapital->allUpgradesAvailable(kUnit.getUnitType())))
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1722

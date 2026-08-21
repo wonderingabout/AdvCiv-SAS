@@ -8,18 +8,37 @@
 #include "CvPlot.h"
 #include "RiseFall.h" // advc.700
 
-void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
-	int iLength, CvWString szString, LPCTSTR pszSound,
-	InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor,
-	int iFlashX, int iFlashY, bool bShowOffScreenArrows,
-	bool bShowOnScreenArrows)
+namespace
+{
+	void wrapSASLabelFontText(CvWString& szText)
+	{
+		if (szText.empty())
+			return;
+		if (szText.find(L"<font=") != CvWString::npos)
+			return;
+		static int const iSAS_UI_FONT_LABEL = GC.getDefineINT("SAS_UI_FONT_LABEL");
+		if (iSAS_UI_FONT_LABEL < 1 || iSAS_UI_FONT_LABEL > 4)
+			return;
+		CvWString szWrapped;
+		szWrapped.Format(L"<font=%d>", iSAS_UI_FONT_LABEL);
+		szWrapped.append(szText);
+		szWrapped.append(L"</font>");
+		szText = szWrapped;
+	}
+}
+
+void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor, int iFlashX, int iFlashY, bool bShowOffScreenArrows, bool bShowOnScreenArrows)
 {
 	// <advc>
 	if (iLength == -1)
 		iLength = GC.getEVENT_MESSAGE_TIME();
 	// Perhaps the EXE does that anyway; let's make sure.
 	if (eFlashColor == NO_COLOR)
-		eFlashColor = GC.getColorType("WHITE"); // </advc>
+	{
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const ColorTypes eColorWhite = (ColorTypes)GC.getColorType("WHITE");
+		eFlashColor = eColorWhite; // </advc>
+	}
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	// <advc.700>
 	bool const bRiseFall = GC.getGame().isOption(GAMEOPTION_RISE_FALL);
@@ -56,15 +75,15 @@ void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
 	// <advc.106>
 	if (gDLL->getEngineIFace()->isGlobeviewUp())
 		bForce = false; // </advc.106>
+	// <!-- custom: upscale top-center event ticker lines and Event Log message text by wrapping addMessageExternal payloads here (single hook for all addMessage call sites).
+	// Date prefixes (e.g. "AD1600:") are rendered separately by EXE/UI from message-turn metadata, so this wrapper scales the right message text only. (GPT-5.3-Codex) -->
+	wrapSASLabelFontText(szString);
 	addMessageExternal(ePlayer, bForce, iLength, szString,
 			pszSound, eType, pszIcon, eFlashColor, iFlashX, iFlashY,
 			bShowOffScreenArrows, bShowOnScreenArrows);
 }
 
-void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce,
-	int iLength, CvWString szString, CvPlot const& kPlot,
-	LPCTSTR pszSound, InterfaceMessageTypes eType, LPCSTR pszIcon,
-	ColorTypes eFlashColor, bool bShowOffScreenArrows, bool bShowOnScreenArrows)
+void CvDLLInterfaceIFaceBase::addMessage(PlayerTypes ePlayer, bool bForce, int iLength, CvWString szString, CvPlot const& kPlot, LPCTSTR pszSound, InterfaceMessageTypes eType, LPCSTR pszIcon, ColorTypes eFlashColor, bool bShowOffScreenArrows, bool bShowOnScreenArrows)
 {
 	addMessage(ePlayer, bForce, iLength, szString, pszSound, eType, pszIcon,
 			eFlashColor, kPlot.getX(), kPlot.getY(),

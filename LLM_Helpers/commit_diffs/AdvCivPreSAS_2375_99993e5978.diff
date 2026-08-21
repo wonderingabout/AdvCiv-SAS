@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2375
+# Commit: 99993e59785a8794c754ae8e5b68110a660abc98
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7955bed56e90384c4250f031fa5a2f04f11a47bb
+# Title: Adjust dist. between goody huts to map size
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvMapGenerator.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 8308486e5..25c54275e 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -147,6 +147,8 @@ bool CvMapGenerator::canPlaceGoodyAt(ImprovementTypes eGoody, int iX, int iY) co
+ 		return false;
+ 
+ 	int iUniqueRange = GC.getInfo(eGoody).getGoodyUniqueRange();
++	// advc.314: Adjust to map size
++	iUniqueRange += GC.getWorldInfo(GC.getMap().getWorldSize()).getFeatureGrainChange();
+ 	for (SquareIter it(*p, iUniqueRange); it.hasNext(); ++it)
+ 	{
+ 		if (it->getImprovementType() == eGoody)
+@@ -837,7 +839,7 @@ void CvMapGenerator::addGoodies()  // advc: some style changes
+ 
+ 			CvArea const& kArea = kPlot.getArea();
+ 			if (goodiesPerArea[kArea.getID()] < // advc.opt: was kArea.getNumImprovements(eImprov)
+-				(kArea.getNumTiles() + iTilesPerGoody / 2) / iTilesPerGoody)
++				ROUND_DIVIDE(kArea.getNumTiles(), iTilesPerGoody))
+ 			{
+ 				if (canPlaceGoodyAt(eGoody, kPlot.getX(), kPlot.getY()))
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1019

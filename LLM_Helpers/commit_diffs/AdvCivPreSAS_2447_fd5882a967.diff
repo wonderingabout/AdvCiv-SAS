@@ -1,0 +1,837 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2447
+# Commit: fd5882a9670a54b6058882207642d877ed7e4cbe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b81d3a3ae72ee3836480abc541a092548563b217
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	27	CvGameCoreDLL/CvCity.cpp
+1	2	CvGameCoreDLL/CvCity.h
+2	2	CvGameCoreDLL/CvCityAI.cpp
+19	21	CvGameCoreDLL/CvDLLButtonPopup.cpp
+0	2	CvGameCoreDLL/CvDLLPythonIFaceBase.h
+3	3	CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+3	3	CvGameCoreDLL/CvDeal.cpp
+5	4	CvGameCoreDLL/CvGameCoreUtils.cpp
+57	51	CvGameCoreDLL/CvGameTextMgr.cpp
+6	26	CvGameCoreDLL/CvInfo_Building.cpp
+8	8	CvGameCoreDLL/CvInfo_Building.h
+9	7	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+31	0	CvGameCoreDLL/CvPlot.cpp
+1	0	CvGameCoreDLL/CvPlot.h
+3	3	CvGameCoreDLL/CvTeam.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 6b819fba3..40652317c 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -1437,7 +1437,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, bool bContinue,
+ 			}
+ 		}
+ 	}
+-	if (!isValidBuildingLocation(eBuilding))
++	if (!getPlot().canConstruct(eBuilding))
+ 		return false;
+ 
+ 	if (kBuilding.isGovernmentCenter() && isGovernmentCenter())
+@@ -11787,32 +11787,6 @@ bool CvCity::isStarCity() const
+ }
+ 
+ 
+-bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
+-{
+-	// if both the river and water flags are set, we require one of the two conditions, not both
+-	if (GC.getInfo(eBuilding).isWater())
+-	{
+-		if (!GC.getInfo(eBuilding).isRiver() || !getPlot().isRiver())
+-		{
+-			if (!isCoastal(GC.getInfo(eBuilding).getMinAreaSize()))
+-				return false;
+-		}
+-	}
+-	else
+-	{
+-		if (getArea().getNumTiles() < GC.getInfo(eBuilding).getMinAreaSize())
+-			return false;
+-
+-		if (GC.getInfo(eBuilding).isRiver())
+-		{
+-			if (!getPlot().isRiver())
+-				return false;
+-		}
+-	}
+-	return true;
+-}
+-
+-
+ int CvCity::getTriggerValue(EventTriggerTypes eTrigger) const  // advc: some style changes
+ {
+ 	if (!GC.getPythonCaller()->canTriggerEvent(*this, eTrigger))
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index db85c4cb7..d8d5b8d52 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1119,8 +1119,7 @@ public:
+ 			bool bEndOfTurn = false); // advc.001x
+ 	void setNumRealBuildingTimed(BuildingTypes eIndex, int iNewValue, bool bFirst,
+ 			PlayerTypes eOriginalOwner, int iOriginalTime, /* advc.001x */ bool bEndOfTurn = false);
+-
+-	bool isValidBuildingLocation(BuildingTypes eIndex) const;
++	//bool isValidBuildingLocation(BuildingTypes eIndex) const; // advc: Replaced by CvPlot::canConstruct
+ 
+ 	int getNumFreeBuilding(BuildingTypes eIndex) const																// Exposed to Python
+ 	{
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e155f457a..b552659f7 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3422,8 +3422,8 @@ BuildingTypes CvCityAI::AI_bestBuildingThreshold(int iFocusFlags, int iMaxTurns,
+ 
+ 		// K-Mod
+ 		TechTypes eObsoleteTech = kBuilding.getObsoleteTech();
+-		TechTypes eSpObsoleteTech = kBuilding.getSpecialBuildingType() == NO_SPECIALBUILDING ? NO_TECH
+-				: (TechTypes)GC.getInfo(kBuilding.getSpecialBuildingType()).getObsoleteTech();
++		TechTypes eSpObsoleteTech = kBuilding.getSpecialBuildingType() == NO_SPECIALBUILDING ?
++				NO_TECH : GC.getInfo(kBuilding.getSpecialBuildingType()).getObsoleteTech();
+ 
+ 		if ((eObsoleteTech != NO_TECH && kOwner.getCurrentResearch() == eObsoleteTech) ||
+ 			(eSpObsoleteTech != NO_TECH && kOwner.getCurrentResearch() == eSpObsoleteTech))
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index c45e7ddb0..f22d8abd5 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -812,23 +812,23 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
+ // returns false if popup is not launched
+ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ {
++	ButtonPopupTypes const eType = info.getButtonPopupType();
+ 	// <advc.706>
+ 	CvGame& kGame = GC.getGame();
+ 	if(kGame.isOption(GAMEOPTION_RISE_FALL))
+ 	{
+-		ButtonPopupTypes bpt = info.getButtonPopupType();
+-		if(bpt == BUTTONPOPUP_RF_CHOOSECIV)
++		if(eType == BUTTONPOPUP_RF_CHOOSECIV)
+ 			return kGame.getRiseFall().launchCivSelectionPopup(pPopup, info);
+-		if(bpt == BUTTONPOPUP_RF_DEFEAT)
++		if(eType == BUTTONPOPUP_RF_DEFEAT)
+ 			return kGame.getRiseFall().launchDefeatPopup(pPopup, info);
+ 		if(CvPlot::isAllFog())
+ 			return false;
+-		if(bpt == BUTTONPOPUP_RF_RETIRE)
++		if(eType == BUTTONPOPUP_RF_RETIRE)
+ 			return kGame.getRiseFall().launchRetirePopup(pPopup, info);
+ 		/*  The EXE launches these popups after human takeover; afterwards(?),
+ 			the AI makes a choice, and the popup is killed once the player clicks
+ 			on it. */
+-		if((bpt == BUTTONPOPUP_CHOOSEPRODUCTION || bpt == BUTTONPOPUP_CHOOSETECH) &&
++		if((eType == BUTTONPOPUP_CHOOSEPRODUCTION || eType == BUTTONPOPUP_CHOOSETECH) &&
+ 			kGame.getRiseFall().isBlockPopups())
+ 		{
+ 			return false;
+@@ -837,8 +837,7 @@ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	FAssert(GC.getGame().getActivePlayer() != NO_PLAYER); // K-Mod
+ 
+ 	bool bLaunched = false;
+-
+-	switch (info.getButtonPopupType())
++	switch (eType)
+ 	{
+ 	case BUTTONPOPUP_TEXT:
+ 		bLaunched = launchTextPopup(pPopup, info);
+@@ -980,6 +979,7 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		return false;
+ 
+ 	FAssert(pCity->getOwner() == GC.getGame().getActivePlayer());
++	CvPlayer const& kOwner = GET_PLAYER(pCity->getOwner());
+ 
+ 	UnitTypes eTrainUnit = NO_UNIT;
+ 	BuildingTypes eConstructBuilding = NO_BUILDING;
+@@ -1016,7 +1016,7 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 					"TXT_KEY_POPUP_CANNOT_TRAIN_WORK_NEXT",
+ 					GC.getInfo(eTrainUnit).getTextKeyWide(), pCity->getNameKey());
+ 		}
+-		szArtFilename = GET_PLAYER(pCity->getOwner()).getUnitButton(eTrainUnit);
++		szArtFilename = kOwner.getUnitButton(eTrainUnit);
+ 	}
+ 	else if (eConstructBuilding != NO_BUILDING)
+ 	{
+@@ -1121,7 +1121,7 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		szBuffer = gDLL->getText("TXT_KEY_POPUP_RECOMMENDED", kInfo.getTextKeyWide(), iTurns,
+ 				GC.getInfo(kInfo.getAdvisorType()).getTextKeyWide());
+ 		m_kUI.popupAddGenericButton(pPopup, szBuffer,
+-				GET_PLAYER(pCity->getOwner()).getUnitButton(eProductionUnit),
++				kOwner.getUnitButton(eProductionUnit),
+ 				kInfo.getUnitClassType(), WIDGET_TRAIN,
+ 				kInfo.getUnitClassType(), pCity->getID(), true,
+ 				POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+@@ -1181,7 +1181,7 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_TRAIN, eLoopUnit);
+ 		szBuffer.Format(L"%s (%d)", GC.getInfo(eLoopUnit).getDescription(), iTurns);
+ 		m_kUI.popupAddGenericButton(pPopup, szBuffer,
+-				GET_PLAYER(pCity->getOwner()).getUnitButton(eLoopUnit), eUnitClass,
++				kOwner.getUnitButton(eLoopUnit), eUnitClass,
+ 				WIDGET_TRAIN, eUnitClass, pCity->getID(), true,
+ 				POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+ 		iNumBuilds++;
+@@ -1201,14 +1201,13 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 				GC.getInfo(eLoopBuilding).getButton(), eBuildingClass,
+ 				WIDGET_CONSTRUCT, eBuildingClass, pCity->getID(), true,
+ 				POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+-			iNumBuilds++;
++		iNumBuilds++;
+ 	}
+-	for (int iI = 0; iI < GC.getNumProjectInfos(); iI++)
++	FOR_EACH_ENUM(Project)
+ 	{
+-		ProjectTypes eLoopProject = (ProjectTypes)iI;
+ 		if (eLoopProject == eProductionProject || !pCity->canCreate(eLoopProject))
+ 			continue; // advc
+-		int iTurns = pCity->getProductionTurnsLeft((ProjectTypes)iI, 0);
++		int iTurns = pCity->getProductionTurnsLeft(eLoopProject, 0);
+ 		// advc.004x:
+ 		iTurns = pCity->sanitizeProductionTurns(iTurns, ORDER_CREATE, eLoopProject);
+ 		szBuffer.Format(L"%s (%d)", GC.getInfo(eLoopProject).getDescription(), iTurns);
+@@ -1217,9 +1216,8 @@ bool CvDLLButtonPopup::launchProductionPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 				pCity->getID(), true, POPUP_LAYOUT_STRETCH, DLL_FONT_LEFT_JUSTIFY);
+ 		iNumBuilds++;
+ 	}
+-	for (int iI = 0; iI < GC.getNumProcessInfos(); iI++)
++	FOR_EACH_ENUM(Process)
+ 	{
+-		ProcessTypes eLoopProcess = (ProcessTypes)iI;
+ 		if (eLoopProcess == eProductionProcess || !pCity->canMaintain(eLoopProcess))
+ 			continue; // advc
+ 		m_kUI.popupAddGenericButton(pPopup,
+@@ -1469,19 +1467,19 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	m_kUI.popupAddGenericButton(pPopup, gDLL->getText("TXT_KEY_CITY_WARNING_ANSWER3"),
+ 			NULL, 3, WIDGET_GENERAL, -1, -1);
+ 	m_kUI.popupLaunch(pPopup, false, POPUPSTATE_IMMEDIATE);
+-	//m_kUI.playGeneralSound("AS2D_CITYCAPTURE"); // disabled by K-Mod (I've put this somewhere else.)
++	//m_kUI.playGeneralSound("AS2D_CITYCAPTURE"); // K-Mod: handled by CvPlayer::acquireCity now
+ 
+ 	return true;
+ }
+ 
+ bool CvDLLButtonPopup::launchDisbandCityPopup(CvPopup* pPopup, CvPopupInfo &info)
+ {
+-	CvPlayer& player = GET_PLAYER(GC.getGame().getActivePlayer());
++	CvPlayer const& kPlayer = GET_PLAYER(GC.getGame().getActivePlayer());
+ 
+-	CvCity* pNewCity = player.getCity(info.getData1());
+-	if (NULL == pNewCity)
++	CvCity* pNewCity = kPlayer.getCity(info.getData1());
++	if (pNewCity == NULL)
+ 	{
+-		FAssert(false);
++		FAssert(pNewCity != NULL);
+ 		return false;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvDLLPythonIFaceBase.h b/CvGameCoreDLL/CvDLLPythonIFaceBase.h
+index a8f7956af..eb7a997ef 100644
+--- a/CvGameCoreDLL/CvDLLPythonIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLPythonIFaceBase.h
+@@ -12,8 +12,6 @@
+ 
+ namespace python = boost::python;
+ 
+-class CvUnit;
+-class CvPlot;
+ class CvDLLPythonIFaceBase
+ {
+ public:
+
+diff --git a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+index d2037bbae..6519a072b 100644
+--- a/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
++++ b/CvGameCoreDLL/CvDLLUtilityIFaceBase.h
+@@ -20,19 +20,19 @@ class CvDLLFeatureIFaceBase;
+ class CvDLLRouteIFaceBase;
+ class CvDLLRiverIFaceBase;
+ class CvDLLFAStarIFaceBase;
+-class CvDLLEventReporterIFaceBase;
+ class CvDLLXmlIFaceBase;
+ class CvDLLFlagEntityIFaceBase;
+ class CvDLLPythonIFaceBase;
+ 
++/*class CvDLLEventReporterIFaceBase;
+ class CvSymbol;
+ class CvPlot;
+ class CvUnit;
+ class CvCity;
+-class CvCacheObject;
+ class CvFont;
++class CvAudioGame;*/ // advc: unused
++class CvCacheObject;
+ class CvDiploParameters;
+-class CvAudioGame;
+ struct ProfileSample;
+ class CvReplayInfo;
+ class CvPopupInfo;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 7c215bae7..e757633a8 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -368,11 +368,11 @@ void CvDeal::doTurn()
+ 			}
+ 		}
+ 		/*	K-Mod note: for balance reasons this function should probably
+-			be called at the boundry of some particular player's turn,
+-			rather than at the turn boundry of the game itself.
++			be called at the boundary of some particular player's turn,
++			rather than at the turn boundary of the game itself.
+ 			-- Unfortunately, the game currently doesn't work like this.
+ 			Also, note that we do not update attitudes of particular players here,
+-			but instead update all of them at the game turn boundry. */
++			but instead update all of them at the game turn boundary. */
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index dbcddc695..ed7fdf738 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -1169,10 +1169,11 @@ int pathCost(FAStarNode* parent, FAStarNode* node, int data, const void* pointer
+ 		iWorstCost += (node->m_iX + node->m_iY+1)%3;
+ 		iWorstCost++; // advc.pf: Essentially 1 extra
+ 	}
+-	// unfortunately, this simple method may have problems at the world-wrap boundaries.
+-	// It's difficult to tell when to correct for wrap effects and when not to, because as soon as the
+-	// unit starts moving, the start position of the path changes, and so it's no longer possible to tell
+-	// whether or not the unit started on the other side of the boundry.  Drat.
++	/*	unfortunately, this simple method may have problems at the world-wrap boundaries.
++		It's difficult to tell when to correct for wrap effects and when not to,
++		because as soon as the unit starts moving, the start position of the path changes,
++		and so it's no longer possible to tell whether or not the unit started
++		on the other side of the boundary. Drat. */
+ 
+ 	// end symmetry breaking.
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 4a71cd8f4..a20fa83d8 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4550,9 +4550,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 			szString.append(NEWLINE);
+ 		}
+ 	}
+-	CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit(); // advc
++	CvUnit const* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit(); // advc
+ 	// <advc.012>
+-	TeamTypes eDefTeam = (eRevealedOwner != NO_PLAYER ?
++	TeamTypes const eDefTeam = (eRevealedOwner != NO_PLAYER ?
+ 			GET_PLAYER(eRevealedOwner).getTeam() :
+ 			NO_TEAM);
+ 	int iDefWithFeatures = kPlot.defenseModifier(eDefTeam, true, NO_TEAM, true);
+@@ -4656,7 +4656,7 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 		}
+ 	} // </advc.030>
+ 	// <advc.001> Moved up. BtS was using getImprovementType in the eBonus code
+-	ImprovementTypes ePlotImprovement = kPlot.getRevealedImprovementType(
++	ImprovementTypes const ePlotImprovement = kPlot.getRevealedImprovementType(
+ 			eActiveTeam, true); // </advc.001>
+ 	// <advc.059>
+ 	bool bHealthHappyShown = false; // Show it later if improved
+@@ -4734,7 +4734,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 				}
+ 				else // </advc.047>
+ 					szString.append(L", ");
+-				szTempBuffer.Format(L"+%d%c", abs(GC.getInfo(eBonus).getHappiness()), ((GC.getInfo(eBonus).getHappiness() > 0) ? gDLL->getSymbolID(HAPPY_CHAR): gDLL->getSymbolID(UNHAPPY_CHAR)));
++				szTempBuffer.Format(L"+%d%c", abs(GC.getInfo(eBonus).getHappiness()),
++						GC.getInfo(eBonus).getHappiness() > 0 ? gDLL->getSymbolID(HAPPY_CHAR):
++						gDLL->getSymbolID(UNHAPPY_CHAR));
+ 				szString.append(szTempBuffer);
+ 			}
+ 			CvWStringBuffer szReqs; // advc.047
+@@ -4945,9 +4947,9 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 
+ 		bool bFound = false;
+ 
+-		for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
++		FOR_EACH_ENUM(Yield)
+ 		{
+-			if (GC.getInfo(ePlotImprovement).getIrrigatedYieldChange(iI) != 0)
++			if (GC.getInfo(ePlotImprovement).getIrrigatedYieldChange(eLoopYield) != 0)
+ 			{
+ 				bFound = true;
+ 				break;
+@@ -4998,9 +5000,10 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot const& kPlot)
+ 		if(iTurnsLeft <= 0 || iTurnsLeft == MAX_INT)
+ 			continue; // </advc.011c>
+ 		// <advc.011b>
+-		int iInitialTurnsNeeded = (int)::ceil(
+-				kPlot.getBuildTime(eBuild, eActivePlayer) /
+-				(double)GET_PLAYER(eActivePlayer).getWorkRate(eBuild));
++		int iInitialTurnsNeeded = scaled(
++				kPlot.getBuildTime(eBuild, eActivePlayer),
++				GET_PLAYER(eActivePlayer).getWorkRate(eBuild)).
++				ceil();
+ 		int iTurnsSpent = iInitialTurnsNeeded - iTurnsLeft;
+ 		if(iTurnsSpent <= 0)
+ 			continue;
+@@ -10787,9 +10790,7 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 	FOR_EACH_ENUM2(Commerce, e)
+ 	{
+ 		if (pCity != NULL && pCity->getNumBuilding(eBuilding) > 0)
+-		{
+ 			aiCommerces[e] = pCity->getBuildingCommerceByBuilding(e, eBuilding);
+-		}
+ 		else
+ 		{
+ 			aiCommerces[e] = kBuilding.getCommerceChange(e);
+@@ -12119,17 +12120,13 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 			}
+ 		}
+ 
+-		if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
++		if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING &&
++			GC.getInfo(kBuilding.getSpecialBuildingType()).getObsoleteTech() != NO_TECH)
+ 		{
+-			if (GC.getInfo((SpecialBuildingTypes)
+-					kBuilding.getSpecialBuildingType()).getObsoleteTech() != NO_TECH)
+-			{
+-				szBuffer.append(NEWLINE);
+-				szBuffer.append(gDLL->getText(/* advc.004w: */ szObsoleteWithTag,
+-						GC.getInfo((TechTypes) GC.getInfo(
+-						(SpecialBuildingTypes) kBuilding.getSpecialBuildingType()).
+-						getObsoleteTech()).getTextKeyWide()));
+-			}
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText(/* advc.004w: */ szObsoleteWithTag,
++					GC.getInfo(GC.getInfo(kBuilding.getSpecialBuildingType()).
++					getObsoleteTech()).getTextKeyWide()));
+ 		}
+ 	} // <advc.004w>
+ 	else if(bObsolete)
+@@ -12149,13 +12146,11 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer,
+ 		}
+ 		if(kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+ 		{
+-			if(GC.getInfo((SpecialBuildingTypes)kBuilding.
+-					getSpecialBuildingType()).getObsoleteTech() != NO_TECH)
++			if(GC.getInfo(kBuilding.getSpecialBuildingType()).getObsoleteTech() != NO_TECH)
+ 			{
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText(szObsoleteWithTag,
+-						GC.getInfo((TechTypes)GC.getInfo(
+-						(SpecialBuildingTypes)kBuilding.getSpecialBuildingType()).
++						GC.getInfo(GC.getInfo(kBuilding.getSpecialBuildingType()).
+ 						getObsoleteTech()).getTextKeyWide()));
+ 			}
+ 		}
+@@ -12225,16 +12220,20 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 
+ 		if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+ 		{
+-			if ((pCity == NULL) || !(GC.getGame().isSpecialBuildingValid((SpecialBuildingTypes)(kBuilding.getSpecialBuildingType()))))
++			if (pCity == NULL ||
++				!GC.getGame().isSpecialBuildingValid(kBuilding.getSpecialBuildingType()))
+ 			{
+-				for (int iI = 0; iI < GC.getNumProjectInfos(); ++iI)
++				FOR_EACH_ENUM(Project)
+ 				{
+-					if (GC.getInfo((ProjectTypes)iI).getEveryoneSpecialBuilding() == kBuilding.getSpecialBuildingType())
++					if (GC.getInfo(eLoopProject).getEveryoneSpecialBuilding() ==
++						kBuilding.getSpecialBuildingType())
+ 					{
+ 						CvWString szTempBuffer;
+-						szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_REQUIRES").c_str());
++						szTempBuffer.Format(L"%s%s", NEWLINE,
++								gDLL->getText("TXT_KEY_REQUIRES").c_str());
+ 						CvWString szProject;
+-						szProject.Format(L"<link=literal>%s</link>", GC.getInfo((ProjectTypes)iI).getDescription());
++						szProject.Format(L"<link=literal>%s</link>",
++								GC.getInfo(eLoopProject).getDescription());
+ 						setListHelp(szBuffer, szTempBuffer, szProject, gDLL->getText("TXT_KEY_OR").c_str(), bFirst);
+ 						bFirst = false;
+ 					}
+@@ -12249,26 +12248,31 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 
+ 		if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+ 		{
+-			if ((pCity == NULL) || !(GC.getGame().isSpecialBuildingValid((SpecialBuildingTypes)(kBuilding.getSpecialBuildingType()))))
++			if (pCity == NULL ||
++				!GC.getGame().isSpecialBuildingValid(kBuilding.getSpecialBuildingType()))
+ 			{
+-				TechTypes eTech = (TechTypes)GC.getInfo((SpecialBuildingTypes)kBuilding.getSpecialBuildingType()).getTechPrereqAnyone();
+-				if (NO_TECH != eTech)
++				TechTypes eTech = GC.getInfo(kBuilding.getSpecialBuildingType()).
++						getTechPrereqAnyone();
++				if (eTech != NO_TECH)
+ 				{
+ 					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_REQUIRES_TECH_ANYONE", GC.getInfo(eTech).getTextKeyWide()));
++					szBuffer.append(gDLL->getText("TXT_KEY_REQUIRES_TECH_ANYONE",
++							GC.getInfo(eTech).getTextKeyWide()));
+ 				}
+ 			}
+ 		}
+ 
+ 		FOR_EACH_ENUM(BuildingClass)
+ 		{
+-			// K-Mod note: I've rearranged the conditions in the following block. Originally it was something like this:
++			/*	K-Mod note: I've rearranged the conditions in the following block.
++				Originally it was something like this: */
+ 			//if (ePlayer == NO_PLAYER && kBuilding.getPrereqNumOfBuildingClass((BuildingClassTypes)iI) > 0)
+ 			//else if (ePlayer != NO_PLAYER && GET_PLAYER(ePlayer).getBuildingClassPrereqBuilding(eBuilding, ((BuildingClassTypes)iI)) > 0)
+ 			//
+ 
+-			// K-Mod. Check that we can actually build this class of building. (Previously this was checked in every single block below.)
+-			BuildingTypes eLoopBuilding = (ePlayer == NO_PLAYER ?
++			/*	K-Mod. Check that we can actually build this class of building.
++				(Previously this was checked in every single block below.) */
++			BuildingTypes const eLoopBuilding = (ePlayer == NO_PLAYER ?
+ 					GC.getInfo(eLoopBuildingClass).getDefaultBuilding() :
+ 					GET_PLAYER(ePlayer).getCivilization().getBuilding(eLoopBuildingClass));
+ 			if (eLoopBuilding == NO_BUILDING)
+@@ -12306,8 +12310,9 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 				else
+ 				{
+ 					//if (pCity == NULL || (GET_PLAYER(ePlayer).getBuildingClassCount(eLoopBuildingClass) < GET_PLAYER(ePlayer).getBuildingClassPrereqBuilding(eBuilding, eLoopBuildingClass)))
+-					// K-Mod. In the city screen, include in the prereqs calculation the number of eBuilding under construction.
+-					// But in the civilopedia, don't even include the number we have already built!
++					/*	K-Mod. In the city screen, include in the prereqs calculation
++						the number of eBuilding under construction.
++						But in the civilopedia, don't even include the number we have already built! */
+ 					const CvPlayer& kPlayer = GET_PLAYER(ePlayer);
+ 					int iNeeded = kPlayer.getBuildingClassPrereqBuilding(eBuilding, eLoopBuildingClass,
+ 							bCivilopediaText ?
+@@ -12319,16 +12324,18 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 					CvWString szTempBuffer;
+ 					if (pCity != NULL)
+ 					{
+-						szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_BUILDING_REQUIRES_NUM_SPECIAL_BUILDINGS",
++						szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText(
++								"TXT_KEY_BUILDING_REQUIRES_NUM_SPECIAL_BUILDINGS",
+ 								GC.getInfo(eLoopBuilding).getTextKeyWide(),
+-								//GET_PLAYER(ePlayer).getBuildingClassCount(eLoopBuildingClass), GET_PLAYER(ePlayer).getBuildingClassPrereqBuilding(eBuilding, eLoopBuildingClass)).c_str());
+-								kPlayer.getBuildingClassCount(eLoopBuildingClass), iNeeded).c_str()); // K-Mod
++								kPlayer.getBuildingClassCount(eLoopBuildingClass),
++								iNeeded).c_str()); // K-Mod
+ 					}
+ 					else
+ 					{
+-						szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_BUILDING_REQUIRES_NUM_SPECIAL_BUILDINGS_NO_CITY",
+-								//GC.getInfo(eLoopBuilding).getTextKeyWide(), kPlayer.getBuildingClassPrereqBuilding(eBuilding, eLoopBuildingClass)).c_str());
+-								GC.getInfo(eLoopBuilding).getTextKeyWide(), iNeeded).c_str()); // K-Mod
++						szTempBuffer.Format(L"%s%s", NEWLINE, gDLL->getText(
++								"TXT_KEY_BUILDING_REQUIRES_NUM_SPECIAL_BUILDINGS_NO_CITY",
++								GC.getInfo(eLoopBuilding).getTextKeyWide(),
++								iNeeded).c_str()); // K-Mod
+ 					}
+ 
+ 					szBuffer.append(szTempBuffer);
+@@ -12519,7 +12526,7 @@ void CvGameTextMgr::buildBuildingRequiresString(CvWStringBuffer& szBuffer, Build
+ 			// <advc.004w> Based on code copied from above
+ 			if(kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+ 			{
+-				SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)kBuilding.getSpecialBuildingType();
++				SpecialBuildingTypes eSpecial = kBuilding.getSpecialBuildingType();
+ 				if(pCity == NULL || !GC.getGame().isSpecialBuildingValid(eSpecial))
+ 				{
+ 					TechTypes eTechReq = (TechTypes)GC.getInfo(eSpecial).
+@@ -14239,7 +14246,7 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 				{
+ 					SpecialBuildingTypes eSpecial = (SpecialBuildingTypes)kBuilding.getSpecialBuildingType();
+ 					if(eSpecial != NO_SPECIALBUILDING)
+-						eTech = (TechTypes)GC.getInfo(eSpecial).getTechPrereq();
++						eTech = GC.getInfo(eSpecial).getTechPrereq();
+ 				}
+ 				if(eTech != NO_TECH)
+ 					iTechEraDelta = GC.getInfo(eTech).getEra() - iCurrentEra;
+@@ -14265,7 +14272,7 @@ void CvGameTextMgr::setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 			if(bCanEverConstruct)
+ 			{
+ 				// CvCity::canConstruct would be too strict, even with the bIgnore flags.
+-				if(pCity != NULL && !pCity->isValidBuildingLocation(eBuilding))
++				if(pCity != NULL && !pCity->getPlot().canConstruct(eBuilding))
+ 					bCanEverConstruct = false;
+ 			}
+ 		}
+@@ -17328,8 +17335,8 @@ void CvGameTextMgr::setProductionHelp(CvWStringBuffer &szBuffer, CvCity const& k
+ 			int iTraitMod = kBuilding.getProductionTraits(eLoopTrait);
+ 			if (kBuilding.getSpecialBuildingType() != NO_SPECIALBUILDING)
+ 			{
+-				iTraitMod += GC.getInfo((SpecialBuildingTypes)kBuilding.
+-						getSpecialBuildingType()).getProductionTraits(eLoopTrait);
++				iTraitMod += GC.getInfo(kBuilding.getSpecialBuildingType()).
++						getProductionTraits(eLoopTrait);
+ 			}
+ 			if (iTraitMod != 0)
+ 			{
+@@ -20591,7 +20598,6 @@ void CvGameTextMgr::getPlotHelp(CvPlot* pMouseOverPlot, CvCity* pCity, CvPlot* p
+ 			setCityBarHelp(strHelp, pCity);
+ 		else if (pFlagPlot != NULL)
+ 			setPlotListHelp(strHelp, *pFlagPlot, false, true);
+-
+ 		if (strHelp.isEmpty() && pMouseOverPlot != NULL)
+ 		{
+ 			if (pMouseOverPlot == kUI.getGotoPlot() ||
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.cpp b/CvGameCoreDLL/CvInfo_Building.cpp
+index 39b602088..8ea7cef65 100644
+--- a/CvGameCoreDLL/CvInfo_Building.cpp
++++ b/CvGameCoreDLL/CvInfo_Building.cpp
+@@ -1577,9 +1577,9 @@ bool CvBuildingClassInfo::readPass3()
+ }
+ 
+ CvSpecialBuildingInfo::CvSpecialBuildingInfo() :
+-m_iObsoleteTech(NO_TECH),
+-m_iTechPrereq(NO_TECH),
+-m_iTechPrereqAnyone(NO_TECH),
++m_eObsoleteTech(NO_TECH),
++m_eTechPrereq(NO_TECH),
++m_eTechPrereqAnyone(NO_TECH),
+ m_bValid(false),
+ m_piProductionTraits(NULL)
+ {}
+@@ -1589,26 +1589,6 @@ CvSpecialBuildingInfo::~CvSpecialBuildingInfo()
+ 	SAFE_DELETE_ARRAY(m_piProductionTraits);
+ }
+ 
+-int CvSpecialBuildingInfo::getObsoleteTech() const
+-{
+-	return m_iObsoleteTech;
+-}
+-
+-int CvSpecialBuildingInfo::getTechPrereq() const
+-{
+-	return m_iTechPrereq;
+-}
+-
+-int CvSpecialBuildingInfo::getTechPrereqAnyone() const
+-{
+-	return m_iTechPrereqAnyone;
+-}
+-
+-bool CvSpecialBuildingInfo::isValid() const
+-{
+-	return m_bValid;
+-}
+-
+ int CvSpecialBuildingInfo::getProductionTraits(int i) const
+ {
+ 	FAssertBounds(0, GC.getNumTraitInfos(), i);
+@@ -1621,9 +1601,9 @@ bool CvSpecialBuildingInfo::read(CvXMLLoadUtility* pXML)
+ 	if (!CvInfoBase::read(pXML))
+ 		return false;
+ 
+-	pXML->SetInfoIDFromChildXmlVal(m_iObsoleteTech, "ObsoleteTech");
+-	pXML->SetInfoIDFromChildXmlVal(m_iTechPrereq, "TechPrereq");
+-	pXML->SetInfoIDFromChildXmlVal(m_iTechPrereqAnyone, "TechPrereqAnyone");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eObsoleteTech, "ObsoleteTech");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechPrereq, "TechPrereq");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechPrereqAnyone, "TechPrereqAnyone");
+ 
+ 	pXML->GetChildXmlValByName(&m_bValid, "bValid");
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index 67573ba6b..d17ac6cd0 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -555,24 +555,24 @@ protected:
+ //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+ class CvSpecialBuildingInfo : public CvInfoBase
+ {
+-public: // All the const functions are exposed to Python
++public: // All the const functions are exposed to Python. advc.inl: Inlined the non-array getters.
+ 	CvSpecialBuildingInfo();
+ 	virtual ~CvSpecialBuildingInfo();
+ 
+-	int getObsoleteTech() const;
+-	int getTechPrereq() const;
+-	int getTechPrereqAnyone() const;
++	TechTypes getObsoleteTech() const { return m_eObsoleteTech; }
++	TechTypes getTechPrereq() const { return m_eTechPrereq; }
++	TechTypes getTechPrereqAnyone() const { return m_eTechPrereqAnyone; }
+ 
+-	bool isValid() const;
++	bool isValid() const { return m_bValid; }
+ 
+ 	int getProductionTraits(int i) const;
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+ protected:
+-	int m_iObsoleteTech;
+-	int m_iTechPrereq;
+-	int m_iTechPrereqAnyone;
++	TechTypes m_eObsoleteTech;
++	TechTypes m_eTechPrereq;
++	TechTypes m_eTechPrereqAnyone;
+ 
+ 	bool m_bValid;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3e14b3fc1..0a50a0c39 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -47,8 +47,9 @@ CvPlayer::CvPlayer(/* advc.003u: */ PlayerTypes eID) :
+ 	m_pCivilization(NULL) // advc.003w
+ {
+ 	m_aszBonusHelp = NULL; // advc.003p
+-	m_bDisableHuman = false; // bbai
+-	m_iChoosingFreeTechCount = 0; // K-Mod
++	// advc: Pretty sure that this is redundant
++	/*m_bDisableHuman = false; // bbai
++	m_iChoosingFreeTechCount = 0;*/ // K-Mod
+ 	reset(eID, true);
+ }
+ 
+@@ -1741,7 +1742,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 			continue;
+ 
+ 		if (isProductionMaxedBuildingClass(eBuildingClass, true) ||
+-			!kNewCity.isValidBuildingLocation(eBuilding))
++			!kCityPlot.canConstruct(eBuilding))
+ 		{
+ 			continue;
+ 		}
+@@ -5091,8 +5092,8 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, bool bContinue, bool bTestV
+ 		return false;
+ 	{
+ 		SpecialBuildingTypes eSpecial = kBuilding.getSpecialBuildingType();
+-		if (eSpecial != NO_SPECIALBUILDING && !kOurTeam.isHasTech((TechTypes)
+-			GC.getInfo(eSpecial).getTechPrereq()))
++		if (eSpecial != NO_SPECIALBUILDING &&
++			!kOurTeam.isHasTech(GC.getInfo(eSpecial).getTechPrereq()))
+ 		{
+ 			return false;
+ 		}
+@@ -8387,7 +8388,8 @@ void CvPlayer::setCombatExperience(int iExperience)
+ 
+ 	int iExperienceThreshold = greatPeopleThreshold(true);
+ 	if (m_iCombatExperience >= iExperienceThreshold && iExperienceThreshold > 0)
+-	{	// create great person
++	{
++		// create great person
+ 		CvCity const* pBestCity = NULL;
+ 		int iBestValue = MAX_INT;
+ 		FOR_EACH_CITY(pLoopCity, *this)
+@@ -8422,7 +8424,7 @@ void CvPlayer::setCombatExperience(int iExperience)
+ 			}
+ 		}
+ 	} // <advc.078>
+-	if(getID() == kGame.getActivePlayer() &&
++	if (getID() == kGame.getActivePlayer() &&
+ 		BUGOption::isEnabled("MainInterface__Combat_Counter", false))
+ 	{
+ 		gDLL->UI().setDirty(GameData_DIRTY_BIT, true);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5a962ea3e..71dc99881 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -5182,7 +5182,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 
+ 						SpecialBuildingTypes eSpecial = kHQBuilding.getSpecialBuildingType();
+ 						iMissingTechs += ((eSpecial != NO_SPECIALBUILDING &&
+-								!kTeam.isHasTech((TechTypes)GC.getInfo(eSpecial).getTechPrereq()))
++								!kTeam.isHasTech(GC.getInfo(eSpecial).getTechPrereq()))
+ 								? 1 : 0);
+ 
+ 						FAssert(iMissingTechs > 0);
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index b37226a34..d99881b3a 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -5799,6 +5799,10 @@ void CvPlot::changeVisibilityCount(TeamTypes eTeam, int iChange, InvisibleTypes
+ 	//FAssert(getVisibilityCount(eTeam) >= 0);
+ 	/*  <advc.006> Had some problems here with the Earth1000AD scenario (as the
+ 		initial cities were being placed). The problems remain unresolved. */
++	/*	advc.001: Also works around a problem with nukeExplosion replacing
++		a sight-blocking feature with fallout. To reproduce this bug (in order to
++		fix it properly), it should suffice to drop a nuke onto a fogged Forest
++		or Jungle. */
+ 	if(getVisibilityCount(eTeam) < 0)
+ 	{
+ 		FAssert(m_aiVisibilityCount.get(eTeam) >= 0);
+@@ -8175,6 +8179,33 @@ bool CvPlot::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 	return true;
+ }
+ 
++// advc: Replacing CvCity::isValidBuildingLocation. Body cut from there (incl. the comment)
++bool CvPlot::canConstruct(BuildingTypes eBuilding) const
++{
++	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
++	/*	If both the river and water flags are set, then
++		we require one of the two conditions, not both. */
++	if (kBuilding.isWater())
++	{
++		if (!kBuilding.isRiver() || !isRiver())
++		{
++			if (!isCoastalLand(kBuilding.getMinAreaSize()))
++				return false;
++		}
++	}
++	else
++	{
++		if (getArea().getNumTiles() < kBuilding.getMinAreaSize())
++			return false;
++		if (kBuilding.isRiver())
++		{
++			if (!isRiver())
++				return false;
++		}
++	}
++	return true;
++}
++
+ 
+ int CvPlot::countFriendlyCulture(TeamTypes eTeam) const
+ {
+
+diff --git a/CvGameCoreDLL/CvPlot.h b/CvGameCoreDLL/CvPlot.h
+index 144ac87c8..e67315ba0 100644
+--- a/CvGameCoreDLL/CvPlot.h
++++ b/CvGameCoreDLL/CvPlot.h
+@@ -710,6 +710,7 @@ public:
+ 	bool canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible,
+ 			bool bCheckAirUnitCap = true, // advc.001b
+ 			BonusTypes eAssumeAvailable = NO_BONUS) const; // advc.001u
++	bool canConstruct(BuildingTypes eBuilding) const; // advc
+ 	bool isEspionageCounterSpy(TeamTypes eTeam) const;
+ 
+ 	DllExport int getAreaIdForGreatWall() const;
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 38b8eda2c..a497e4469 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4227,11 +4227,11 @@ CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, TeamTyp
+ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes eDiscoverPlayer,
+ 	bool bPartial)
+ {
+-	CvGame const& g = GC.getGame();
+-	bool bSound = ((g.isNetworkMultiPlayer() ||
++	CvGame const& kGame = GC.getGame();
++	bool bSound = ((kGame.isNetworkMultiPlayer() ||
+ 			/*  advc.156: I think HotSeat doesn't play sounds along with messages,
+ 				but let's try. */
+-			g.isHotSeat() ||
++			kGame.isHotSeat() ||
+ 			gDLL->UI().noTechSplash()) && !bPartial);
+ 	for (MemberIter it(getID()); it.hasNext(); ++it)
+ 	{
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=16 omittedFiles=0 embeddedPatchBytes=32986

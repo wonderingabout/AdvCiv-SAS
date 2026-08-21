@@ -80,26 +80,18 @@ protected:
 		Update: Now also subtracts score for assets conquered by them from eTo
 		(or from any player); i.e. calculates a net loss (or gain) of assets.
 		Gains from team eIgnoreGains aren't counted. */
-	 scaled netLostRivalAssetScore(PlayerTypes eTo = NO_PLAYER,
-			scaled* prTotalScore = NULL, // out-param
-			TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
+	 // out-param <!-- custom: hoisted from multiline signature between `prTotalScore` and `eIgnoreGainsFrom` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+	 scaled netLostRivalAssetScore(PlayerTypes eTo = NO_PLAYER, scaled* prTotalScore = NULL, TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
 	 scaled lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo) const;
 	 scaled lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSource) const;
 	 // <advc.035>
-	 scaled lossesFromFlippedTiles(PlayerTypes eVictim,
-			PlayerTypes eTo = NO_PLAYER) const; // </advc.035>
+	 scaled lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo = NO_PLAYER) const; // </advc.035>
 	 /* Score for assets conquered by the agent player from the rival player
 		(as set by evaluate(void)). bMute disables logging within the function body. */
 	 scaled conqAssetScore(bool bMute = true) const;
 	 // Portion of cities of ePlayer that aren't lost in the war
 	 scaled remainingCityRatio(PlayerTypes ePlayer) const; 
-	 template<bool bCHECK_HAS_MET>
-	 int countFreeRivals() const
-	 {
-		 return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ?
-				KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::
-				count(m_kAgentTeam.getID());
-	 }
+	 template<bool bCHECK_HAS_MET> int countFreeRivals() const { return PlayerIter<FREE_MAJOR_CIV, bCHECK_HAS_MET ? KNOWN_POTENTIAL_ENEMY_OF : POTENTIAL_ENEMY_OF>::count(m_kAgentTeam.getID()); }
 	/*	Evaluation of m_pRivalPlayer's usefulness as m_pAgentPlayer's trade partner.
 		Would prefer this to be computed just once by UWAICache (the computations
 		aren't totally cheap), but I also want the log output. They're not called
@@ -115,10 +107,7 @@ protected:
 	/*	For brevity, these function names refer to the agent as "we"/ "us"
 		and to the rival player as "them". */
 	UWAICache const& ourCache() const { return *m_pAgentCache; }
-	std::vector<PlotNumTypes> const& ourConquestsFromThem() const
-	{
-		return m_aeAgentConquersFromRival;
-	}
+	std::vector<PlotNumTypes> const& ourConquestsFromThem() const { return m_aeAgentConquersFromRival; }
 	// Agent player's current attitude toward the rival player and vice versa
 	AttitudeTypes towardThem() const { return m_eTowardRival; }
 	AttitudeTypes towardUs() const { return m_eTowardAgent; }
@@ -234,8 +223,7 @@ private:
 	scaled progressRatingConquest() const;
 	scaled progressRatingDomination() const;
 	scaled progressRatingDiplomacy() const;
-	void addConquestsByPartner(std::map<PlotNumTypes,scaled>& kWeightedConquests,
-			AttitudeTypes eAttitudeThresh, scaled rWeight) const;
+	void addConquestsByPartner(std::map<PlotNumTypes, scaled>& kWeightedConquests, AttitudeTypes eAttitudeThresh, scaled rWeight) const;
 };
 
 
@@ -336,10 +324,8 @@ private:
 	std::set<PlayerTypes> m_winningFuture;
 	std::set<PlayerTypes> m_winningPresent;
 	void addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) const;
-	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage,
-			bool bPredict = true) const;
-	void addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin,
-			bool bPredict = true) const;
+	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict = true) const;
+	void addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict = true) const;
 	scaled theirRelativeLoss() const;
 };
 

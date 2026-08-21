@@ -21,9 +21,8 @@ int pathHeuristic(int iFromX, int iFromY, int iToX, int iToY)
 }
 
 
-int pathCost(FAStarNode* parent, FAStarNode* node,
-	int data, // advc (note): unused
-	void const* pointer, FAStar* finder)
+// advc (note): unused <!-- custom: hoisted from multiline signature between `data` and `pointer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+int pathCost(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder)
 {	// <advc.pf>
 	return GroupStepMetric::cost(
 			GC.getMap().getPlot(parent->m_iX, parent->m_iY),
@@ -97,9 +96,8 @@ BOOL stepDestValid(int iToX, int iToY, void const* pointer, FAStar* finder)
 }
 
 
-BOOL stepValid(FAStarNode* parent, FAStarNode* node,
-	int data, // advc (note): unused
-	void const* pointer, FAStar* finder)
+// advc (note): unused <!-- custom: hoisted from multiline signature between `data` and `pointer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+BOOL stepValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder)
 {
 	if (parent == NULL)
 		return TRUE;
@@ -120,9 +118,8 @@ BOOL stepValid(FAStarNode* parent, FAStarNode* node,
 }
 
 
-BOOL stepAdd(FAStarNode* parent, FAStarNode* node,
-	int data, // advc (note): unused
-	void const* pointer, FAStar* finder)
+// advc (note): unused <!-- custom: hoisted from multiline signature between `data` and `pointer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+BOOL stepAdd(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder)
 {
 	if (data == ASNC_INITIALADD)
 		node->m_iData1 = 0;
@@ -145,9 +142,8 @@ int stepCost(FAStarNode* parent, FAStarNode* node, int data, void const* pointer
 }
 
 
-BOOL routeValid(FAStarNode* parent, FAStarNode* node,
-	int data, // advc (note): unused
-	void const* pointer, FAStar* finder)
+// advc (note): unused <!-- custom: hoisted from multiline signature between `data` and `pointer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+BOOL routeValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder)
 {
 	if (parent == NULL)
 		return TRUE;
@@ -209,9 +205,8 @@ BOOL joinArea(FAStarNode* parent, FAStarNode* node, int data, void const* pointe
 }
 
 
-BOOL plotGroupValid(FAStarNode* parent, FAStarNode* node,
-	int data, // advc (note): unused
-	void const* pointer, FAStar* finder)
+// advc (note): unused <!-- custom: hoisted from multiline signature between `data` and `pointer` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+BOOL plotGroupValid(FAStarNode* parent, FAStarNode* node, int data, void const* pointer, FAStar* finder)
 {
 	//PROFILE_FUNC(); // advc.003o
 	if (parent == NULL)

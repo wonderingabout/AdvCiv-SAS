@@ -1,0 +1,885 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5360
+# Commit: b5edaf36160d1b77fb24fee4b197fe51cdfc2da6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c9f76b0ea6bfeb5ef48586c47ccf6f0a18d1b1b8
+# Title: Anchor organizations (religions, corporations) to the left edge of the top right panel dynamically - "dynamically anchor to the left edge of the panel depend...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	2	.claude/settings.local.json
+113	76	Assets/Python/Screens/CvMainInterface.py
+2	251	Assets/XML/GameInfo/CIV4Hints.xml
+8	9	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	0	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.400_main_menu_home (1).JPG => 0.300_main_menu_home (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.400_main_menu_home (2).JPG => 0.300_main_menu_home (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (1).JPG => 0.310_main_menu_play_now (1).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (2).JPG => 0.310_main_menu_play_now (2).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (3).JPG => 0.310_main_menu_play_now (3).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (4).JPG => 0.310_main_menu_play_now (4).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (5).JPG => 0.310_main_menu_play_now (5).JPG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (6).JPG => 0.310_main_menu_play_now (6).JPG}
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.400_main_menu_home (1).JPG => 0.300_main_menu_home (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.400_main_menu_home (2).JPG => 0.300_main_menu_home (2).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (1).JPG => 0.310_main_menu_play_now (1).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (2).JPG => 0.310_main_menu_play_now (2).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (3).JPG => 0.310_main_menu_play_now (3).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (4).JPG => 0.310_main_menu_play_now (4).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (5).JPG => 0.310_main_menu_play_now (5).JPG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.401_main_menu_play_now (6).JPG => 0.310_main_menu_play_now (6).JPG} (100%)
+ delete mode 100644 _1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG
+
+[PATCHES]
+
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index 6d07fdbc0..052fa8765 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -9,8 +9,7 @@
+       "Bash(xargs sed:*)",
+       "Bash(python -m py_compile:*)",
+       "Read(//c/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/**)",
+-      "Read(//c/Users/PC/Documents/My Games/beyond the sword/Logs/**)",
+-      "Bash(python:*)"
++      "Read(//c/Users/PC/Documents/My Games/beyond the sword/Logs/**)"
+     ]
+   }
+ }
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index f58d6b2e2..3a8faf9f3 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -444,7 +444,7 @@ class CvMainInterface:
+ 		self.iFoVPos_Prev = -1 # advc.090
+ # BUG - field of view slider - end
+ 
+-				# <!-- custom: use more side space for side panels rather than city plots we do not need to show beyond BFC. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
++		# <!-- custom: use more side space for side panels rather than city plots we do not need to show beyond BFC. Credit: Gemini 3 Pro. (GPT-5.2-Codex (summarized)) -->
+ 		# <!-- custom: extend past the current inner edge of the bottom panels so the bonus panels fit; even columns were overlapping text. Ideally also widen that panel, but start here. (GPT-5.2-Codex (summarized)) -->
+ 		# self.SIDE_PANELS_WIDTH = 297
+ 		self.SIDE_PANELS_WIDTH = 341
+@@ -463,6 +463,7 @@ class CvMainInterface:
+ 		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
+ 
+ 		
++
+ ############## Basic operational functions ###################
+ 
+ 	# advc.092 (note): Called externally (from PLE)
+@@ -504,6 +505,39 @@ class CvMainInterface:
+ 			screen = CyGInterfaceScreen("MainInterface", CvScreenEnums.MAIN_INTERFACE)
+ 		self.xResolution = screen.getXResolution()
+ 		self.yResolution = screen.getYResolution()
++
++		# <!-- custom: cache for perf opt with the help of ChatGPT-5.2 Thinking thanks. Note: putting them in init function causes python errors, putting them here in initState seemingly solves them. -->
++		self.colorResearchStored = gc.getInfoTypeForString("COLOR_RESEARCH_STORED")
++		self.colorResearchRate = gc.getInfoTypeForString("COLOR_RESEARCH_RATE")
++		self.colorEmpty = gc.getInfoTypeForString("COLOR_EMPTY")
++		self.colorNegativeRate = gc.getInfoTypeForString("COLOR_NEGATIVE_RATE")
++		self.colorGreatPeopleStored = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED")
++		self.colorGreatPeopleRate = gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE")
++		self.colorGreatCultureStored = gc.getInfoTypeForString("COLOR_CULTURE_STORED")
++		self.colorGreatCultureRate = gc.getInfoTypeForString("COLOR_CULTURE_RATE")
++		self.colorRed = gc.getInfoTypeForString("COLOR_RED")
++		self.colorYellow = gc.getInfoTypeForString("COLOR_YELLOW")
++		self.colorGreen = gc.getInfoTypeForString("COLOR_GREEN")
++		self.colorAltHighlightText = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
++		self.colorBuildingText = gc.getInfoTypeForString("COLOR_BUILDING_TEXT")
++		#
++		self.hurryPopulation = gc.getInfoTypeForString("HURRY_POPULATION")
++		self.hurryGold = gc.getInfoTypeForString("HURRY_GOLD")
++		#
++		self.overlayFortifyPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_FORTIFY").getPath()
++		self.overlayHasmovedPath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_HASMOVED").getPath()
++		self.overlayMovePath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_MOVE").getPath()
++		self.overlayNomovePath = ArtFileMgr.getInterfaceArtInfo("OVERLAY_NOMOVE").getPath()
++		self.backgroundTransparentPath = ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath()
++		self.buttonsCreategroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath()
++		self.buttonsSplitgroupPath = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath()
++		#
++		self.szTextWaiting = localText.getText("SYSTEM_WAITING", ())
++		self.szTextEndTurn = localText.getText("SYSTEM_END_TURN", ())
++		self.szTextWaitingForYou = localText.getText("SYSTEM_WAITING_FOR_YOU", ())
++		#
++		self.szTextDraftText = "<font=1>" + localText.getText("TXT_KEY_DRAFT", ()) + "</font>"
++
+ 		# <advc.092>
+ 		gSetRectangle("Top", RectLayout(None, 0, 0, self.xResolution, self.yResolution))
+ 		self.bScaleHUD = MainOpt.isEnlargeHUD()
+@@ -1859,72 +1893,71 @@ class CvMainInterface:
+ 
+ 		self.addStackedBar("TwoLineResearchBar", WidgetTypes.WIDGET_RESEARCH)
+ 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_STORED,
+-				gc.getInfoTypeForString("COLOR_RESEARCH_STORED"))
++				self.colorResearchStored)
+ 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_RATE,
+-				gc.getInfoTypeForString("COLOR_RESEARCH_RATE"))
++				self.colorResearchRate)
+ 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("TwoLineResearchBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("TwoLineResearchBar")
+ # BUG - Great General Bar - start
+ 		self.addStackedBar("TwoLineGGBar", WidgetTypes.WIDGET_HELP_GREAT_GENERAL)
+ 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_STORED,
+-				#gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+-				gc.getInfoTypeForString("COLOR_NEGATIVE_RATE"))
++				self.colorNegativeRate)
+ 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_RATE,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("TwoLineGGBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("TwoLineGGBar")
+ # BUG - Great General Bar - end
+ # BUG - Great Person Bar - start
+ 		self.addStackedBar("TwoLineGPBar", WidgetTypes.WIDGET_GP_PROGRESS_BAR)
+ 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_STORED,
+-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
++				self.colorGreatPeopleStored)
+ 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_RATE,
+-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
++				self.colorGreatPeopleRate)
+ 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("TwoLineGPBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("TwoLineGPBar")
+ # BUG - Great Person Bar - end
+ # BUG - Bars on single line for higher resolution screens - start
+ 		self.addStackedBar("OneLineGGBar", WidgetTypes.WIDGET_HELP_GREAT_GENERAL)
+ 		screen.setStackedBarColors("OneLineGGBar", InfoBarTypes.INFOBAR_STORED,
+-				#gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
+-				gc.getInfoTypeForString("COLOR_NEGATIVE_RATE"))
++				#self.colorGreatPeopleStored)
++				self.colorNegativeRate)
+ 		screen.setStackedBarColors("OneLineGGBar",
+-				InfoBarTypes.INFOBAR_RATE, gc.getInfoTypeForString("COLOR_EMPTY"))
++				InfoBarTypes.INFOBAR_RATE, self.colorEmpty)
+ 		screen.setStackedBarColors("OneLineGGBar",
+-				InfoBarTypes.INFOBAR_RATE_EXTRA, gc.getInfoTypeForString("COLOR_EMPTY"))
++				InfoBarTypes.INFOBAR_RATE_EXTRA, self.colorEmpty)
+ 		screen.setStackedBarColors("OneLineGGBar",
+-				InfoBarTypes.INFOBAR_EMPTY, gc.getInfoTypeForString("COLOR_EMPTY"))
++				InfoBarTypes.INFOBAR_EMPTY, self.colorEmpty)
+ 		screen.hide("OneLineGGBar")
+ 
+ 		self.addStackedBar("OneLineResearchBar", WidgetTypes.WIDGET_RESEARCH)
+ 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_STORED,
+-				gc.getInfoTypeForString("COLOR_RESEARCH_STORED"))
++				self.colorResearchStored)
+ 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_RATE,
+-				gc.getInfoTypeForString("COLOR_RESEARCH_RATE"))
++				self.colorResearchRate)
+ 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("OneLineResearchBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("OneLineResearchBar")
+ 
+ 		self.addStackedBar("OneLineGPBar", WidgetTypes.WIDGET_GP_PROGRESS_BAR)
+ 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_STORED,
+-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
++				self.colorGreatPeopleStored)
+ 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_RATE,
+-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
++				self.colorGreatPeopleRate)
+ 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("OneLineGPBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("OneLineGPBar")
+ # BUG - Bars on single line for higher resolution screens - end
+ 
+@@ -1941,9 +1974,9 @@ class CvMainInterface:
+ 		screen.setStackedBarColorsAlpha("PopulationBar", InfoBarTypes.INFOBAR_RATE,
+ 				gc.getYieldInfo(YieldTypes.YIELD_FOOD).getColorType(), 0.8)
+ 		screen.setStackedBarColors("PopulationBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_NEGATIVE_RATE"))
++				self.colorNegativeRate)
+ 		screen.setStackedBarColors("PopulationBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("PopulationBar")
+ 
+ 		self.addStackedBar("ProductionBar", WidgetTypes.WIDGET_HELP_PRODUCTION)
+@@ -1954,29 +1987,29 @@ class CvMainInterface:
+ 		screen.setStackedBarColors("ProductionBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+ 				gc.getYieldInfo(YieldTypes.YIELD_FOOD).getColorType())
+ 		screen.setStackedBarColors("ProductionBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("ProductionBar")
+ 
+ 		self.addStackedBar("GreatPeopleBar", WidgetTypes.WIDGET_HELP_GREAT_PEOPLE)
+ 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_STORED,
+-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
++				self.colorGreatPeopleStored)
+ 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_RATE,
+-				gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_RATE"))
++				self.colorGreatPeopleRate)
+ 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("GreatPeopleBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("GreatPeopleBar")
+ 
+ 		self.addStackedBar("CultureBar", WidgetTypes.WIDGET_HELP_CULTURE)
+ 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_STORED,
+-				gc.getInfoTypeForString("COLOR_CULTURE_STORED"))
++				self.colorGreatCultureStored)
+ 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_RATE,
+-				gc.getInfoTypeForString("COLOR_CULTURE_RATE"))
++				self.colorGreatCultureRate)
+ 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_RATE_EXTRA,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.setStackedBarColors("CultureBar", InfoBarTypes.INFOBAR_EMPTY,
+-				gc.getInfoTypeForString("COLOR_EMPTY"))
++				self.colorEmpty)
+ 		screen.hide("CultureBar")
+ 
+ 		# (BUG - Limit/Extra Religions: Removed BtS code for adding
+@@ -2364,7 +2397,7 @@ class CvMainInterface:
+ 				elif (CyInterface().shouldDisplayWaitingOthers() and
+ 						# advc.127: No "Waiting" message during Auto Play
+ 						not gc.getPlayer(gc.getGame().getActivePlayer()).isHumanDisabled()):
+-					acOutput = localText.getText("SYSTEM_WAITING", ())
++					acOutput = self.szTextWaiting
+ 					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
+ 					screen.setEndTurnState("EndTurnText", acOutput)
+ 					bShow = True
+@@ -2373,7 +2406,7 @@ class CvMainInterface:
+ 					if (ReminderEventManager.g_turnReminderTexts):
+ 						acOutput = u"%s" % ReminderEventManager.g_turnReminderTexts
+ 					elif MainOpt.isShowEndTurnMessage(): # advc.002n
+-						acOutput = localText.getText("SYSTEM_END_TURN", ())
++						acOutput = self.szTextEndTurn
+ 					# advc.002n: So that toggling the option immediately hides the message
+ 					else:
+ 						acOutput = ""
+@@ -2382,22 +2415,22 @@ class CvMainInterface:
+ 					screen.setEndTurnState("EndTurnText", acOutput)
+ 					bShow = True
+ 				elif (CyInterface().shouldDisplayWaitingYou()):
+-					acOutput = localText.getText("SYSTEM_WAITING_FOR_YOU", ())
++					acOutput = self.szTextWaitingForYou
+ 					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
+ 					screen.setEndTurnState("EndTurnText", acOutput)
+ 					bShow = True
+ # BUG - Options - start
+ 				# advc.004: Option disabled
+-				elif False:#MainOpt.isShowOptionsKeyReminder()
+-					if BugPath.isMac():
+-						acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC",
+-								(BugPath.getModName(),))
+-					else:
+-						acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER",
+-								(BugPath.getModName(),))
+-					#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
+-					screen.setEndTurnState("EndTurnText", acOutput)
+-					bShow = True
++				# elif MainOpt.isShowOptionsKeyReminder()
++				# 	if BugPath.isMac():
++				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER_MAC",
++				# 				(BugPath.getModName(),))
++				# 	else:
++				# 		acOutput = localText.getText("TXT_KEY_BUG_OPTIONS_KEY_REMINDER",
++				# 				(BugPath.getModName(),))
++				# 	#screen.modifyLabel("EndTurnText", acOutput, CvUtil.FONT_CENTER_JUSTIFY)
++				# 	screen.setEndTurnState("EndTurnText", acOutput)
++				# 	bShow = True
+ # BUG - Options - end
+ 		if bShow:
+ 			screen.showEndTurn("EndTurnText")
+@@ -3188,14 +3221,14 @@ class CvMainInterface:
+ 								(bGGIndicator and pLoopUnit.getLeaderUnitType() >= 0)) # </advc.069>
+ 						if ((pLoopUnit.getTeam() != gc.getGame().getActiveTeam()) or
+ 								pLoopUnit.isWaiting()):
+-							szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_FORTIFY").getPath()
++							szFileName = self.overlayFortifyPath
+ 						elif (pLoopUnit.canMove()):
+ 							if (pLoopUnit.hasMoved()):
+-								szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_HASMOVED").getPath()
++								szFileName = self.overlayHasmovedPath
+ 							else:
+-								szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_MOVE").getPath()
++								szFileName = self.overlayMovePath
+ 						else:
+-							szFileName = ArtFileMgr.getInterfaceArtInfo("OVERLAY_NOMOVE").getPath()
++							szFileName = self.overlayNomovePath
+ 						szString = "PlotListButton" + str(iCount)
+ 						#screen.changeImageButton(szString, gc.getUnitInfo(pLoopUnit.getUnitType()).getButton())
+ 						# advc.003l: Replacing the above
+@@ -3226,11 +3259,11 @@ class CvMainInterface:
+ 							screen.setBarPercentage(szStringHealth, InfoBarTypes.INFOBAR_STORED,
+ 									float(pLoopUnit.currHitPoints()) / float(pLoopUnit.maxHitPoints()))
+ 							if (pLoopUnit.getDamage() >= ((pLoopUnit.maxHitPoints() * 2) / 3)):
+-								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_RED"))
++								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, self.colorRed)
+ 							elif (pLoopUnit.getDamage() >= (pLoopUnit.maxHitPoints() / 3)):
+-								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_YELLOW"))
++								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, self.colorYellow)
+ 							else:
+-								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, gc.getInfoTypeForString("COLOR_GREEN"))
++								screen.setStackedBarColors(szStringHealth, InfoBarTypes.INFOBAR_STORED, self.colorGreen)
+ 							screen.show(szStringHealth)
+ 
+ 						# Adds the overlay first
+@@ -3408,7 +3441,7 @@ class CvMainInterface:
+ 
+ 				self.setStyledButton("Conscript", "Button_CityT1_Style",
+ 						WidgetTypes.WIDGET_CONSCRIPT, -1, -1,
+-						None, "<font=1>" + localText.getText("TXT_KEY_DRAFT", ()) + "</font>")
++						None, self.szTextDraftText)
+ 				screen.hide("Conscript")
+ 
+ 				for i in range(2):
+@@ -3694,12 +3727,12 @@ class CvMainInterface:
+ 		iAppended = 0
+ 		if CyInterface().canCreateGroup():
+ 			self.screen.appendMultiListButton("BottomButtonList",
+-					ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CREATEGROUP").getPath(), 0,
++					self.buttonsCreategroupPath, 0,
+ 					WidgetTypes.WIDGET_CREATE_GROUP, -1, -1, False)
+ 			iAppended += 1
+ 		if CyInterface().canDeleteGroup():
+ 			self.screen.appendMultiListButton("BottomButtonList",
+-					ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_SPLITGROUP").getPath(), 0,
++					self.buttonsSplitgroupPath, 0,
+ 					WidgetTypes.WIDGET_DELETE_GROUP, -1, -1, False)
+ 			iAppended += 1
+ 		return iAppended
+@@ -4787,7 +4820,7 @@ class CvMainInterface:
+ 
+ 		screen.setHelpTextArea(HLEN(390), FontTypes.SMALL_FONT,
+ 				0, 0, -2.2, True,
+-				ArtFileMgr.getInterfaceArtInfo("POPUPS_BACKGROUND_TRANSPARENT").getPath(),
++				self.backgroundTransparentPath,
+ 				True, True,
+ 				CvUtil.FONT_LEFT_JUSTIFY, 0)
+ 
+@@ -4952,8 +4985,8 @@ class CvMainInterface:
+ # BUG - Whip Assist - start
+ 			else:
+ 				iProductionTurns = pHeadSelectedCity.getProductionTurnsLeft() # advc.004x
+-				HURRY_WHIP = gc.getInfoTypeForString("HURRY_POPULATION")
+-				HURRY_BUY = gc.getInfoTypeForString("HURRY_GOLD")
++				HURRY_WHIP = self.hurryPopulation
++				HURRY_BUY = self.hurryGold
+ 				if (CityScreenOpt.isShowWhipAssist() and
+ 						pHeadSelectedCity.canHurry(HURRY_WHIP, False)):
+ 					iHurryPop = pHeadSelectedCity.hurryPopulation(HURRY_WHIP)
+@@ -5094,7 +5127,7 @@ class CvMainInterface:
+ 			screen.show("HappinessText")
+ 		if (not pHeadSelectedCity.isProductionProcess()):
+ 			# advc.064: Moved up
+-			HURRY_WHIP = gc.getInfoTypeForString("HURRY_POPULATION")
++			HURRY_WHIP = self.hurryPopulation
+ 			iNeeded = pHeadSelectedCity.getProductionNeeded()
+ 			iStored = pHeadSelectedCity.getProduction()
+ 			screen.setBarPercentage("ProductionBar",
+@@ -6096,7 +6129,7 @@ class CvMainInterface:
+ 					WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus)
+ 			szAmount = (u"<font=2>"
+ 					+ localText.changeTextColor(str(iAmount),
+-					gc.getInfoTypeForString("COLOR_YELLOW"))
++					self.colorYellow)
+ 					+ "</font>")
+ 			self.setLabel("CityBonusAmount" + szIndex, "BonusBack0", szAmount,
+ 					CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.1,
+@@ -6684,7 +6717,7 @@ class CvMainInterface:
+ 			bConcealCiv = pPlayer.wasCivRandomlyChosen()
+ 			bConcealLeader = pPlayer.wasLeaderRandomlyChosen()
+ 			if bConcealCiv:
+-				kGPColor = gc.getColorInfo(gc.getInfoTypeForString("COLOR_GREAT_PEOPLE_STORED"))
++				kGPColor = gc.getColorInfo(self.colorGreatPeopleStored)
+ 				rgba = kGPColor.getColor()
+ 				iUnmetR = int(255 * rgba.r)
+ 				iUnmetG = int(255 * rgba.g)
+@@ -6750,9 +6783,9 @@ class CvMainInterface:
+ 				if iScoreDelta != 0:
+ 					if iScoreDelta > 0:
+ 						# advc.085: To match the color I (might) use for tech progress. Was just GREEN.
+-						iColorType = gc.getInfoTypeForString("COLOR_ALT_HIGHLIGHT_TEXT")
++						iColorType = self.colorAltHighlightText
+ 					elif iScoreDelta < 0:
+-						iColorType = gc.getInfoTypeForString("COLOR_RED")
++						iColorType = self.colorRed
+ 					szScoreDelta = "%+d" % iScoreDelta
+ 					if iColorType >= 0:
+ 						szScoreDelta = localText.changeTextColor(szScoreDelta, iColorType)
+@@ -6830,7 +6863,7 @@ class CvMainInterface:
+ 				if pTeam.isAtWar(eActiveTeam):
+ 					szBuffer += "("
+ 					szBuffer += localText.getColorText("TXT_KEY_CONCEPT_WAR",
+-							(), gc.getInfoTypeForString("COLOR_RED")).upper()
++							(), self.colorRed).upper()
+ 					szBuffer += ")"
+ 					if bAlignIcons:
+ 						scores.setWar()
+@@ -7000,7 +7033,7 @@ class CvMainInterface:
+ 				# K-Mod end
+ 				# advc.085: Make city counts gray
+ 				szTempBuffer = localText.changeTextColor(szTempBuffer,
+-						gc.getInfoTypeForString("COLOR_BUILDING_TEXT"))
++						self.colorBuildingText)
+ 				szBuffer = szBuffer + " " + szTempBuffer
+ 				if bAlignIcons:
+ 					scores.setNumCities(szTempBuffer)
+@@ -7351,11 +7384,15 @@ class CvMainInterface:
+ 		else:
+ 			iButtonSize = BTNSZ(iButtonSize, 0.5)
+ 			iButtonSpace = HSPACE(iButtonSpace)
+-		# Helper rect to determine left margin
+-		lMaxOrgs = RowLayout(gRect("CityOrgArea"),
+-				RectLayout.CENTER, 0, iMaxOrgs, iButtonSpace, iButtonSize)
+-		if lMaxOrgs.width() <= gRect("CityOrgArea").width():
+-			iLMargin = lMaxOrgs.x() - gRect("CityOrgArea").x()
++		# Helper rect to determine left margin.
++		# <!-- custom: dynamically anchor to the left edge of the panel depending on its width instead of weirdly statically floating if width changes with the help of ChatGPT-5.2 Thinking thanks -->
++		# Left-anchored org icons: start at the left edge of CityOrgArea.
++		# (Works well even when there are many possible religions/corps.)
++		lRow = RowLayout(gRect("CityOrgArea"),
++				RectLayout.LEFT, 0, iButtonsPerRow, iButtonSpace, iButtonSize)
++		if lRow.width() <= gRect("CityOrgArea").width():
++			iLMargin = 0
++
+ 		else:
+ 			iLMargin = 0
+ 		aResult = []
+
+diff --git a/Assets/XML/GameInfo/CIV4Hints.xml b/Assets/XML/GameInfo/CIV4Hints.xml
+index b66d9a4ad..9682329d1 100644
+--- a/Assets/XML/GameInfo/CIV4Hints.xml
++++ b/Assets/XML/GameInfo/CIV4Hints.xml
+@@ -4,11 +4,12 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Hints Infos -->
+-<!-- custom: removed this in the 2 places it was anyways in this xml file indeedas caravel is now removed in advciv-sas:
++<!-- custom: removed this in the 2 places it was in this xml file as caravel is now removed in advciv-sas:
+ 		<HintInfo>
+ 			<Description>TXT_KEY_HINT_73</Description>
+ 		</HintInfo>
+ -->
++<!-- custom: multiple copies of same hints -->
+ <Civ4Hints xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<HintInfos>
+ 		<HintInfo>
+@@ -484,102 +485,6 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_KMOD_HINT_16</Description>
+ 		</HintInfo>
+-		
+-		<!-- advc.008d: Copied K-Mod_hints to increase their probability: -->
+-		<HintInfo>
+-			<Description>TXT_KEY_BUG_HINT_INTERFACE_1</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_1</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_2</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_3</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_4</Description>
+-		</HintInfo>
+-		<!-- Skip 5 b/c it won't be true anymore when I'm through with my
+-			 balance changes -->
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_6</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_7</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_8</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_9</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_10</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_11</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_12</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_13</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_14</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_KMOD_HINT_15</Description>
+-		</HintInfo>
+-		<!-- Skip 16 b/c it's rarely useful -->
+-		<!-- These have been replaced or updated; should receive higher
+-			 probability too. -->
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_INTERFACE_1</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_INTERFACE_6</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_INTERFACE_45</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_14</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_13</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_70</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_71</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_16</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_43</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_64</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_56</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_31</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_16</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_HINT_46</Description>
+-		</HintInfo>
+-		
+-		<!-- AdvCiv hints, two times each -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -698,159 +603,5 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_54</Description>
+ 		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_1</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_2</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_3</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_4</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_5</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_6</Description>
+-		</HintInfo>
+-		<!-- advc.130j: TXT_KEY_ADVC_HINT_7 and 8 no longer apply -->
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_9</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_10</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_11</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_12</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_13</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_14</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_15</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_16</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_17</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_18</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_19</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_20</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_21</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_22</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_23</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_24</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_25</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_26</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_27</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_28</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_29</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_30</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_31</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_32</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_33</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_34</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_35</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_36</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_37</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_38</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_39</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_40</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_41</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_43</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_44</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_45</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_46</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_47</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_48</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_49</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_50</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_51</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_52</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_53</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_54</Description>
+-		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/README.md b/README.md
+index 06bb3653d..e7f2a754c 100644
+--- a/README.md
++++ b/README.md
+@@ -126,8 +126,8 @@ I have written the main changes guide (from base AdvCiv 1.12 to AdvCiv-SAS lates
+ 
+ Edited the .thm files so the main menu's home page feels more modern and utlizes more of the screen for display, and in a prettier way too (removes the very ugly blue panel, adds darker and bolder text, etc.). See also [/README.md#ai-generated-images](/README.md#ai-generated-images).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (1).JPG" alt="0.400_main_menu_home (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (2).JPG" alt="0.400_main_menu_home (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG" alt="0.300_main_menu_home (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG" alt="0.300_main_menu_home (2).JPG" width="250"></img>
+ 
+ ### "Play Now" rework
+ 
+@@ -139,12 +139,12 @@ Change in [Civ4Theme_Button.thm](/Resource/Civ4Theme_Button.thm) and [Civ4Theme_
+ 
+ Note: Also features the `SAS24`, `SAS32`, `SAS40`, and `SAS48` bigger than Huge, as well as the `Arena` new World sizes (that are based on the XXL World's world sizes). See [New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll).
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (1).JPG" alt="0.401_main_menu_play_now (1).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (2).JPG" alt="0.401_main_menu_play_now (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (3).JPG" alt="0.401_main_menu_play_now (3).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (4).JPG" alt="0.401_main_menu_play_now (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (5).JPG" alt="0.401_main_menu_play_now (5).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (6).JPG" alt="0.401_main_menu_play_now (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG" alt="0.310_main_menu_play_now (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG" alt="0.310_main_menu_play_now (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG" alt="0.310_main_menu_play_now (3).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG" alt="0.310_main_menu_play_now (4).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG" alt="0.310_main_menu_play_now (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG" alt="0.310_main_menu_play_now (6).JPG" width="250"></img>
+ 
+ ## UI (Ingame)
+ 
+@@ -202,7 +202,6 @@ Additionally, also added a new specialists breakdown as of now on bottom-right.
+ 
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG" alt="0.400_city_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG" alt="0.400_city_screen (2).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG" alt="0.400_city_screen (3).JPG" width="250"></img>
+ 
+ ## UI (Main Sevopedia reworks)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 66480162c..e3fcf9882 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -316,6 +316,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+ - **We Love the King Day**: restored (present in AdvCiv-SAS).
+ - **Cost rounding to 5 removed (human-side)**: Eliminated the base AdvCiv "round to 5" rule from `CvPlayer::getProductionNeeded` (units, buildings, projects) that applied only to human players, so **costs are no longer altered for the human player** — e.g., a Swordsman at 42 hammers costs 42 (not 40), at 43 costs 43 (not 45), and an Ancient Maceman at 18 costs 18 (not 20). Also removed analogous rounding in `CvPlayer::greatPeopleThreshold`, `CvPlayer::getNewCityProductionValue`, and `CvTeam::getResearchCost`. This fixes the Sevopedia vs. in-game mismatch, and the issue of human players having a different cost than AI players even if cost would have otherwise been the same (e.g., at Noble, the AI paid 42 while the human paid 40; 43 vs. 45). Fine-grained costs now also enable true **per-hammer** tuning—e.g., you can set 40, 41, 42, 43, 44, or 45 instead of being forced to choose 40 or 45. See [KI#67](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues).
++- (Requires AdvCiv-SAS 5360+) **Hints**:: remove multiple copies of the same hint. Change in [CIV4Hints.xml](/Assets/XML/GameInfo/CIV4Hints.xml).
+ - **Mod scope:** keep overall gameplay relatively lightweight (no clutter), but go deeper on the systems that are changed.
+ 
+ ### Game Speeds
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index f1a9bfb4b..feb6f68cf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -224,6 +224,7 @@ The implementation still needs some minor polish, but it is as of now entirely f
+ - Possibly also something GPT-5.2-Codex mentionned like "If you want song titles beyond script IDs, we can add a simple XML alias map and expose that too." or maybe script volume or such.
+ - in header add music id / total (liek total 1759)
+ - In Sevopedia Leader, Civilization, redirect to the real track item not just to sevopedia Music page
++- Escape key sends us back to main menu instead of same sevopdeia entry and category, same for movies (OK button works fine though)
+ 
+ <img src="../Images/sevopedia/0.820_sevopedia_music (1).JPG" alt="0.820_sevopedia_music (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia/0.820_sevopedia_music (2).JPG" alt="0.820_sevopedia_music (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (1).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.400_main_menu_home (2).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.300_main_menu_home (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (1).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (1).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (2).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (2).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (3).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (3).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (4).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (4).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (4).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (5).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (5).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (5).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (6).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.401_main_menu_play_now (6).JPG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_play_now (6).JPG
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG
+index 21f9c0da4..fc61b6024 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG
+index 43fe187fe..8457534bf 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG
+deleted file mode 100644
+index 912452f14..000000000
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (3).JPG and /dev/null differ
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=39612

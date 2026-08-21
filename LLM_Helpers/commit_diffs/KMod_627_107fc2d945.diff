@@ -1,0 +1,323 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 627
+# Commit: 107fc2d9457be307c8b15de1292f147e20251936
+# History segment: K-Mod history
+# Parent used for diff: 3c7dec50b0c5e35f9cba7d47104ad4ba7258228f
+# Title: Replaced CvUnit::canCargoAllMove with CvSelectionGroup::canCargoAllMove. (As far as I can tell, every time canCargoAllMove is changed, we're interested in th...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	2	CvGameCoreDLL/CvSelectionGroup.cpp
+3	2	CvGameCoreDLL/CvSelectionGroup.h
+2	2	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/CvUnit.h
+38	30	CvGameCoreDLL/CvUnitAI.cpp
+2	2	CvGameCoreDLL/CyUnit.cpp
+1	1	CvGameCoreDLL/CyUnit.h
+1	1	CvGameCoreDLL/CyUnitInterface1.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index ce24018c4..efa18e1b5 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2530,7 +2530,7 @@ bool CvSelectionGroup::canAllMove()
+ }
+ 
+ 
+-bool CvSelectionGroup::canAnyMove()
++bool CvSelectionGroup::canAnyMove() const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -2551,7 +2551,34 @@ bool CvSelectionGroup::canAnyMove()
+ 	return false;
+ }
+ 
+-bool CvSelectionGroup::hasMoved()
++// K-Mod. Originally, there there was a function called CvUnit::canCargoAllMove; which would only checked the cargo of that particular unit.
++// I've removed that function and replaced it with this one, which checks the cargo of the entire group.
++bool CvSelectionGroup::canCargoAllMove() const
++{
++	CvPlot* pPlot = plot();
++	CLLNode<IDInfo>* pUnitNode = pPlot->headUnitNode();
++
++	while (pUnitNode != NULL)
++	{
++		CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
++		pUnitNode = pPlot->nextUnitNode(pUnitNode);
++
++		if (pLoopUnit->isCargo() && pLoopUnit->getTransportUnit()->getGroup() == this)
++		{
++			if (pLoopUnit->getDomainType() == DOMAIN_LAND)
++			{
++				if (!pLoopUnit->canMove())
++				{
++					return false;
++				}
++			}
++		}
++	}
++
++	return true;
++}
++
++bool CvSelectionGroup::hasMoved() const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 9c5932a4f..59fe5dbba 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -71,8 +71,9 @@ public:
+ 	int getCargo() const;
+ 	int cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT, DomainTypes eDomainCargo = NO_DOMAIN) const; // K-Mod
+ 	DllExport bool canAllMove();																																				// Exposed to Python
+-	bool canAnyMove();																																									// Exposed to Python
+-	bool hasMoved();																																										// Exposed to Python
++	bool canAnyMove() const; // Exposed to Python
++	bool canCargoAllMove() const; // K-Mod (moved from CvUnit)
++	bool hasMoved() const; // Exposed to Python
+ 	bool canEnterTerritory(TeamTypes eTeam, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+ 	bool canEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage = false) const;									// Exposed to Python
+ 	DllExport bool canMoveInto(CvPlot* pPlot, bool bAttack = false);																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 7f07d034b..49d175f3b 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -9314,7 +9314,7 @@ bool CvUnit::hasCargo() const
+ }
+ 
+ 
+-bool CvUnit::canCargoAllMove() const
++/* bool CvUnit::canCargoAllMove() const
+ {
+ 	CLLNode<IDInfo>* pUnitNode;
+ 	CvUnit* pLoopUnit;
+@@ -9342,7 +9342,7 @@ bool CvUnit::canCargoAllMove() const
+ 	}
+ 
+ 	return true;
+-}
++} */
+ 
+ bool CvUnit::canCargoEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage) const
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index a886ff3f6..3c49e3d41 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -413,7 +413,7 @@ public:
+ 	bool isFull() const;																															// Exposed to Python
+ 	int cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT, DomainTypes eDomainCargo = NO_DOMAIN) const;	// Exposed to Python
+ 	bool hasCargo() const;																									// Exposed to Python
+-	bool canCargoAllMove() const;																											// Exposed to Python
++	//bool canCargoAllMove() const; // disabled by K-Mod (was exposed to Python)
+ 	bool canCargoEnterArea(TeamTypes eTeam, const CvArea* pArea, bool bIgnoreRightOfPassage) const;
+ 	int getUnitAICargo(UnitAITypes eUnitAI) const;																		// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e10373e8d..fb35e063a 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -17417,10 +17417,11 @@ bool CvUnitAI::AI_assaultSeaTransport(bool bAttackBarbs, bool bLocal)
+ 	FAssert(getGroup()->hasCargo());
+ 	//FAssert(bIsAttackCity || getGroup()->getUnitAICargo(UNITAI_ATTACK) > 0);
+ 
++	/* original bts code
+ 	if (!canCargoAllMove())
+ 	{
+ 		return false;
+-	}
++	} */ // disabled by K-Mod. (this is now checked in AI_assaultGoTo)
+ 
+ 	std::vector<CvUnit*> aGroupCargo;
+ 	CLLNode<IDInfo>* pUnitNode = plot()->headUnitNode();
+@@ -17688,15 +17689,13 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 	
+ 	FAssert(getGroup()->hasCargo());
+ 
++	/* original bts code
+ 	if (!canCargoAllMove())
+ 	{
+ 		return false;
+-	}
++	} */ // disabled by K-Mod. (this is now checked in AI_assaultGoTo)
+ 
+-	if( !(getGroup()->canAllMove()) )
+-	{
+-		return false;
+-	}
++	FAssert(getGroup()->canAllMove()); // K-Mod (replacing a BBAI check that I'm sure is unnecessary.)
+ 
+ 	std::vector<CvUnit*> aGroupCargo;
+ 	CLLNode<IDInfo>* pUnitNode = plot()->headUnitNode();
+@@ -17753,24 +17752,21 @@ bool CvUnitAI::AI_assaultSeaReinforce(bool bAttackBarbs)
+ 									iPathTurns;
+ 									if (generatePath(pLoopPlot, iFlags, true, &iPathTurns, 2))
+ 									{
+-										if( iPathTurns <= 2 )
+-										{
+-											CvPlot* pEndTurnPlot = getPathEndTurnPlot();
++										CvPlot* pEndTurnPlot = getPathEndTurnPlot();
+ 
+-											iValue = 10*iTargetCities;
+-											iValue += 8*iOurFightersHere;
+-											iValue += 3*GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pLoopPlot);
++										iValue = 10*iTargetCities;
++										iValue += 8*iOurFightersHere;
++										iValue += 3*GET_PLAYER(getOwnerINLINE()).AI_adjacentPotentialAttackers(pLoopPlot);
+ 
+-											iValue *= 100;
++										iValue *= 100;
+ 
+-											iValue /= (iPathTurns + 1);
++										iValue /= (iPathTurns + 1);
+ 
+-											if (iValue > iBestValue)
+-											{
+-												iBestValue = iValue;
+-												pBestPlot = pEndTurnPlot;
+-												pBestAssaultPlot = pLoopPlot;
+-											}
++										if (iValue > iBestValue)
++										{
++											iBestValue = iValue;
++											pBestPlot = pEndTurnPlot;
++											pBestAssaultPlot = pLoopPlot;
+ 										}
+ 									}
+ 								}
+@@ -18132,18 +18128,30 @@ bool CvUnitAI::AI_assaultGoTo(CvPlot* pEndTurnPlot, CvPlot* pTargetPlot, int iFl
+ 	}
+ 	else
+ 	{
++		if (getGroup()->isAmphibPlot(pTargetPlot))
++		{
++			// If target is actually an amphibious landing from pEndTurnPlot, then set pEndTurnPlot = pTargetPlot so that we can land this turn.
++			if (pTargetPlot != pEndTurnPlot &&
++				plotDistance(pTargetPlot->getX_INLINE(), pTargetPlot->getY_INLINE(), pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE()) == 1)
++			{
++				pEndTurnPlot = pTargetPlot;
++			}
++
++			// if our cargo isn't going to be ready to land, just wait.
++			if (pTargetPlot == pEndTurnPlot && !getGroup()->canCargoAllMove())
++			{
++				getGroup()->pushMission(MISSION_SKIP, -1, -1, iFlags, false, false, MISSIONAI_ASSAULT, pTargetPlot);
++				return true;
++			}
++		}
++
++		// declare war if we need to
+ 		if (AI_considerPathDOW(pEndTurnPlot, iFlags))
+ 		{
+ 			if (!generatePath(pTargetPlot, iFlags, false))
+ 				return false;
+ 			pEndTurnPlot = getPathEndTurnPlot();
+ 		}
+-		// If target is actually an amphibious landing from pEndTurnPlot, then set pEndTurnPlot = pTargetPlot so that we can land this turn.
+-		if (getGroup()->isAmphibPlot(pTargetPlot) &&
+-			plotDistance(pTargetPlot->getX_INLINE(), pTargetPlot->getY_INLINE(), pEndTurnPlot->getX_INLINE(), pEndTurnPlot->getY_INLINE()) == 1)
+-		{
+-			pEndTurnPlot = pTargetPlot;
+-		}
+ 
+ 		// Group all moveable land units together before landing,
+ 		// this will help the AI to think more clearly about attacking on the next turn.
+@@ -18208,7 +18216,7 @@ bool CvUnitAI::AI_settlerSeaTransport()
+ 	FAssert(getCargo() > 0);
+ 	FAssert(getUnitAICargo(UNITAI_SETTLE) > 0);
+ 
+-	if (!canCargoAllMove())
++	if (!getGroup()->canCargoAllMove())
+ 	{
+ 		return false;
+ 	}
+@@ -18450,7 +18458,7 @@ bool CvUnitAI::AI_settlerSeaFerry()
+ 	FAssert(getCargo() > 0);
+ 	FAssert(getUnitAICargo(UNITAI_WORKER) > 0);
+ 
+-	if (!canCargoAllMove())
++	if (!getGroup()->canCargoAllMove())
+ 	{
+ 		return false;
+ 	}
+@@ -18535,7 +18543,7 @@ bool CvUnitAI::AI_specialSeaTransportMissionary()
+ 	FAssert(getCargo() > 0);
+ 	FAssert(getUnitAICargo(UNITAI_MISSIONARY) > 0);
+ 
+-	if (!canCargoAllMove())
++	if (!getGroup()->canCargoAllMove())
+ 	{
+ 		return false;
+ 	}
+@@ -18848,7 +18856,7 @@ bool CvUnitAI::AI_specialSeaTransportSpy()
+ 		}
+ 		else
+ 		{
+-			if (canMoveInto(pEndTurnPlot) || canCargoAllMove()) // (without this, we could get into an infinite loop when the cargo isn't ready to move)
++			if (canMoveInto(pEndTurnPlot) || getGroup()->canCargoAllMove()) // (without this, we could get into an infinite loop when the cargo isn't ready to move)
+ 			{
+ 				if (gUnitLogLevel > 2 && pTargetPlot->getOwnerINLINE() != NO_PLAYER && generatePath(pTargetPlot, 0, true, 0, 1))
+ 				{
+
+diff --git a/CvGameCoreDLL/CyUnit.cpp b/CvGameCoreDLL/CyUnit.cpp
+index 0299c7ae2..9cc30f688 100644
+--- a/CvGameCoreDLL/CyUnit.cpp
++++ b/CvGameCoreDLL/CyUnit.cpp
+@@ -1039,10 +1039,10 @@ bool CyUnit::hasCargo()
+ 	return m_pUnit ? m_pUnit->hasCargo() : false;
+ }
+ 
+-bool CyUnit::canCargoAllMove()
++/* bool CyUnit::canCargoAllMove()
+ {
+ 	return m_pUnit ? m_pUnit->canCargoAllMove() : false;
+-}
++} */
+ 
+ int CyUnit::getUnitAICargo(UnitAITypes eUnitAI)
+ {
+
+diff --git a/CvGameCoreDLL/CyUnit.h b/CvGameCoreDLL/CyUnit.h
+index d0c0690bc..01c9d317d 100644
+--- a/CvGameCoreDLL/CyUnit.h
++++ b/CvGameCoreDLL/CyUnit.h
+@@ -261,7 +261,7 @@ public:
+ 	bool isFull();
+ 	int cargoSpaceAvailable(int /*SpecialUnitTypes*/ eSpecialCargo, int /*DomainTypes*/ eDomainCargo);	 
+ 	bool hasCargo();
+-	bool canCargoAllMove();
++	//bool canCargoAllMove();
+ 	int getUnitAICargo(UnitAITypes eUnitAI);
+ 	int getID();
+
+diff --git a/CvGameCoreDLL/CyUnitInterface1.cpp b/CvGameCoreDLL/CyUnitInterface1.cpp
+index 0736f3ae1..30cffbb5d 100644
+--- a/CvGameCoreDLL/CyUnitInterface1.cpp
++++ b/CvGameCoreDLL/CyUnitInterface1.cpp
+@@ -251,7 +251,7 @@ void CyUnitPythonInterface1(python::class_<CyUnit>& x)
+ 		.def("isFull", &CyUnit::isFull, "bool ()")
+ 		.def("cargoSpaceAvailable", &CyUnit::cargoSpaceAvailable, "int ()")
+ 		.def("hasCargo", &CyUnit::hasCargo, "bool ()")
+-		.def("canCargoAllMove", &CyUnit::canCargoAllMove, "bool ()")
++		//.def("canCargoAllMove", &CyUnit::canCargoAllMove, "bool ()")
+ 		.def("getUnitAICargo", &CyUnit::getUnitAICargo, "int (int (UnitAITypes) eUnitAI)")
+ 		.def("getID", &CyUnit::getID, "int ()")
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=10521

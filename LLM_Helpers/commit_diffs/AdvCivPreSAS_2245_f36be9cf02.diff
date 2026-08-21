@@ -1,0 +1,126 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2245
+# Commit: f36be9cf0293fef5f7b3005019bf4270ad714549
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4ab3aaf49f05e30151a0027e8b17e730962bc9cd
+# Title: Fix minor AdvCiv bug in resource help text
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	12	CvGameCoreDLL/CvDLLWidgetData.cpp
+10	7	CvGameCoreDLL/CvGameTextMgr.cpp
+3	2	CvGameCoreDLL/CvGameTextMgr.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index ce5e45ae2..938729dbc 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -5501,24 +5501,27 @@ void CvDLLWidgetData::parseBonusHelp(CvWidgetDataStruct &widgetDataStruct, CvWSt
+ // BULL - Trade Denial - start
+ void CvDLLWidgetData::parseBonusTradeHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+ {
++	// <advc.073>
++	bool bImport = false;
++	int iBonus = widgetDataStruct.m_iData1; // </advc.073>
+ 	if (widgetDataStruct.m_iData2 == -1)
+ 		parseBonusHelp(widgetDataStruct, szBuffer);
+-	else /* <advc.073> Hack. Need the bOption field to distinguish between the
+-			import (bOption=true) and export columns, but setImageButton
+-			(in the EXE) has only the two iData parameters. I'm adding 1000
+-			to the bonus id in Python (CvExoticForeignAdvisor: drawResourceDeals)
+-			to signal that the widget is in the import column. Proper solution:
+-			Two separate widget types - probably wouldn't be that much work to
+-			implement either. */
++	else /* <advc.073> Hack. Need to distinguish between the import and export columns.
++			Too few iData parameters for that and widgetDataStruct.m_bOption
++			can't be set from Python (via setImageButton in the EXE).
++			I'm adding +1000 to the bonus id in Python (CvExoticForeignAdvisor.
++			drawResourceDeals) to signal that the widget is in the import column,
++			Proper solution: Two separate widget types - probably wouldn't be that
++			much work to implement either. */
+ 	{
+ 		if(widgetDataStruct.m_iData1 >= 1000)
+ 		{
+-			widgetDataStruct.m_iData1 -= 1000;
+-			widgetDataStruct.m_bOption = true;
++			iBonus -= 1000;
++			bImport = true;
+ 		} // </advc.073>
+-		GAMETEXT.setBonusTradeHelp(szBuffer, (BonusTypes)widgetDataStruct.m_iData1,
+-			false, (PlayerTypes)widgetDataStruct.m_iData2,
+-			widgetDataStruct.m_bOption); // advc.073
++		GAMETEXT.setBonusTradeHelp(szBuffer, (BonusTypes)iBonus,
++				false, (PlayerTypes)widgetDataStruct.m_iData2,
++				bImport, true); // advc.073
+ 	}
+ } // BULL - Trade Denial - end
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e521fa96d..98fc6e39b 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -13849,23 +13849,26 @@ bool CvGameTextMgr::setResumableValueTimes100ChangeHelp(CvWStringBuffer &szBuffe
+ void CvGameTextMgr::setBonusHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText)
+ {
+ // BULL - Trade Denial - start  (advc.073: bImport param added)
+-	setBonusTradeHelp(szBuffer, eBonus, bCivilopediaText, NO_PLAYER, false);
++	setBonusTradeHelp(szBuffer, eBonus, bCivilopediaText, NO_PLAYER, false, false);
+ }
+ 
+ // This function has been effectly rewritten for K-Mod. (there were a lot of things to change.)
+ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
+-		bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport)
++		bool bCivilopediaText, PlayerTypes eTradePlayer,
+ // BULL - Trade Denial - end
++	bool bImport, bool bForeignAdvisor) // advc.073
+ {	// <advc>
+ 	if(NO_BONUS == eBonus)
+ 		return;
+-	CvGame const& g = GC.getGame();
+-	PlayerTypes eActivePlayer = g.getActivePlayer();
++	CvGame const& kGame = GC.getGame();
++	PlayerTypes eActivePlayer = kGame.getActivePlayer();
+ 	CvPlayerAI const* pActivePlayer = (eActivePlayer == NO_PLAYER ? NULL:
+ 			&GET_PLAYER(eActivePlayer)); // </advc>
+-	// gDLL->isMPDiplomacy() does sth. else, apparently.
+-	bool bDiplo = (g.isGameMultiPlayer() ? gDLL->isMPDiplomacyScreenUp() :
+-			gDLL->isDiplomacy());
++	/*	When both Foreign Advisor and Trade Screen are open,
++		the Foreign Advisor will be in the foreground. */
++	bool bDiplo = (!bForeignAdvisor && (kGame.isGameMultiPlayer() ?
++			// gDLL->isMPDiplomacy() does sth. else, apparently.
++			gDLL->isMPDiplomacyScreenUp() : gDLL->isDiplomacy()));
+ 	CvCity* pCity = (gDLL->UI().isCityScreenUp() ?
+ 			/*  A city can also be selected without the city screen being up;
+ 				don't want that here. */
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index 858360890..e43a37e44 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -129,9 +129,10 @@ public:
+ 	bool setResumableValueTimes100ChangeHelp(CvWStringBuffer &szBuffer, const CvWString& szStart, const CvWString& szSpace, const CvWString& szEnd, int iValue, int iSymbol, bool bNewLine = false, bool bStarted = false);
+ // BUG - Resumable Value Change Help - end
+ 	void setBonusHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus, bool bCivilopediaText = false);
+-// BULL - Trade Denial - start  (advc.073: param bImport added)
++// BULL - Trade Denial - start
+ 	void setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
+-			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport);
++			bool bCivilopediaText, PlayerTypes eTradePlayer, bool bImport,
++			bool bForeignAdvisor);
+ // BULL - Trade Denial - end
+ 	// <advc.004w>
+ 	void setBonusExtraHelp(CvWStringBuffer &szBuffer, BonusTypes eBonus,
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=5063

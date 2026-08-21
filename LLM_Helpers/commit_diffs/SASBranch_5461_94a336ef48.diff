@@ -1,0 +1,373 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5461
+# Commit: 94a336ef48c5167570291cc909e9eee8daa709f0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d185fc9208c9235fd1a7df285ef33b565bfcbdc4
+# Title: balance changes and code enhancements - UNIT_MODERN_INFANTRY: PROMOTION_FIRST_STRIKE1 (previous base advciv was was PROMOTION_AMPHIBIOUS, but not needed at a...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	21	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+7635	26	Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py
+7	7	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+11	17	Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+1	6	Assets/XML/Units/CIV4UnitInfos.xml
+21	21	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+3	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+index 61d74ce78..cceacf0ad 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderAIPValues.py
+@@ -7,6 +7,7 @@
+ 
+ 
+ from CvPythonExtensions import *
++import sys
+ 
+ from ai_utils_shared_with_civ4 import *
+ from _sevopedia_helpers import *
+@@ -49,38 +50,47 @@ PREDUMPED_MODULE_NAME = "SevoPediaLeaderCachePredumped"
+ 
+ def dump_leader_cache_to_pythondbg(leader_cache, excluded_leader_types, is_emoji_enabled, is_raw_xml_names):
+ 	# Dumps the leader cache to PythonDbg.log in a format that can be copy-pasted into a .py module file.
++	def emit(line):
++		sys.stdout.write("%s\n" % line)
+ 
+ 	leaders_info_cached, ai_right_categories, ai_middle_categories, ai_left_categories = leader_cache
++	leader_index_type_pairs = []
++	for iLeader in xrange(gc.getNumLeaderHeadInfos()):
++		leader_type = gc.getLeaderHeadInfo(iLeader).getType()
++		leader_index_type_pairs.append("%d: %s" % (iLeader, leader_type))
++	leader_index_type_line = ", ".join(leader_index_type_pairs)
+ 
+ 	# BEGIN marker
+-	print("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
+-	print("")
++	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_BEGIN ===")
+ 
+ 	# Header with generation info
+-	print("# Generated from in-game dump to PythonDbg.log")
+-	print("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
+-	print("#")
+-	print("# Generation info:")
+-	print("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
+-	print("#   - Excluded leader types: %r" % (excluded_leader_types,))
+-	print("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
+-	print("#   - Raw XML field names: %s" % str(is_raw_xml_names))
+-	print("")
++	emit("# Generated from in-game dump to PythonDbg.log")
++	emit("# Copy this entire block (from BEGIN to END) into: %s.py" % PREDUMPED_MODULE_NAME)
++	emit("#")
++	emit("# Generation info:")
++	emit("#   - Number of leaders (gc.getNumLeaderHeadInfos): %d" % gc.getNumLeaderHeadInfos())
++	emit("#   - Excluded leader types: %r" % (excluded_leader_types,))
++	emit("#   - Leader index:type pairs: %s" % leader_index_type_line)
++	emit("#   - Emoji headers enabled: %s" % str(is_emoji_enabled))
++	emit("#   - Raw XML field names: %s" % str(is_raw_xml_names))
+ 
+ 	# The actual data
+-	print("LEADERS_INFO_CACHED = %r" % (leaders_info_cached,))
+-	print("")
+-	print("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
+-	print("")
+-	print("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
+-	print("")
+-	print("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
++	emit("LEADERS_INFO_CACHED = {")
++	for iLeader in sorted(leaders_info_cached.keys()):
++		emit("	%r: {" % iLeader)
++		leader_info_cached = leaders_info_cached[iLeader]
++		for cache_key in sorted(leader_info_cached.keys()):
++			emit("		%r: %r," % (cache_key, leader_info_cached[cache_key]))
++		emit("	},")
++	emit("}")
++	emit("AI_RIGHT_CATEGORIES = %r" % (ai_right_categories,))
++	emit("AI_MIDDLE_CATEGORIES = %r" % (ai_middle_categories,))
++	emit("AI_LEFT_CATEGORIES = %r" % (ai_left_categories,))
+ 
+ 	# END marker
+-	print("")
+-	print("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
++	emit("# === SAS_LEADER_AI_CACHE_PYMODULE_END ===")
+ 
+-	print("AI Personality Panel cache dumped to PythonDbg.log successfully.")
++	emit("AI Personality Panel cache dumped to PythonDbg.log successfully.")
+
+[PATCH OMITTED] file=a/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeaderCachePredumped.py reason=known-generated/noisy-history changedLines=7661 bytes=1119479
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index b207c9e64..af70f1afe 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -217,11 +217,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_HUNTING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_POTTERY</TechType>
++					<TechType>TECH_MYSTICISM</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -1323,7 +1323,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -1667,7 +1667,7 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_FISHING</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+@@ -1787,7 +1787,7 @@
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_HUNTING</TechType>
++					<TechType>TECH_POTTERY</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+@@ -2356,11 +2356,11 @@
+ 			</FreeBuildingClasses>
+ 			<FreeTechs>
+ 				<FreeTech>
+-					<TechType>TECH_MINING</TechType>
++					<TechType>TECH_FISHING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 				<FreeTech>
+-					<TechType>TECH_MYSTICISM</TechType>
++					<TechType>TECH_MINING</TechType>
+ 					<bFreeTech>1</bFreeTech>
+ 				</FreeTech>
+ 			</FreeTechs>
+
+diff --git a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+index e525bf2da..3b2038976 100644
+--- a/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/XML/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -1542,14 +1542,12 @@
+ 			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
+ 			<iTechTradeKnownPercent>70</iTechTradeKnownPercent>
+ 			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
+-			<!-- BBAI Victory Strategy -->
++			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 20/25/25/30/40 (140 total) with the help of GPT-5.2-Thinking thanks -->
+ 			<iCultureVictoryWeight>20</iCultureVictoryWeight>
+ 			<iSpaceVictoryWeight>25</iSpaceVictoryWeight>
+ 			<iConquestVictoryWeight>25</iConquestVictoryWeight>
+-			<!-- advc.005a: was 55 -->
+-			<iDominationVictoryWeight>30</iDominationVictoryWeight>
+-			<!-- advc.005a: was 25 -->
+-			<iDiplomacyVictoryWeight>40</iDiplomacyVictoryWeight>
++			<iDominationVictoryWeight>35</iDominationVictoryWeight>
++			<iDiplomacyVictoryWeight>45</iDiplomacyVictoryWeight>
+ 			<!-- BBAI Victory Strategy -->
+ 			<iMaxWarRand>200</iMaxWarRand>
+ 			<iMaxWarNearbyPowerRatio>100</iMaxWarNearbyPowerRatio>
+@@ -1959,13 +1957,11 @@
+ 			<iNoTechTradeThreshold>5</iNoTechTradeThreshold>
+ 			<iTechTradeKnownPercent>40</iTechTradeKnownPercent>
+ 			<iMaxGoldTradePercent>5</iMaxGoldTradePercent>
+-			<!-- BBAI Victory Strategy -->
++			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 0/30/30/50/30 (140 total) with the help of GPT-5.2-Thinking thanks -->
+ 			<iCultureVictoryWeight>0</iCultureVictoryWeight>
+ 			<iSpaceVictoryWeight>30</iSpaceVictoryWeight>
+-			<iConquestVictoryWeight>30</iConquestVictoryWeight>
+-			<!-- advc.005a: was 35 -->
+-			<iDominationVictoryWeight>50</iDominationVictoryWeight>
+-			<!-- advc.005a: was 55 -->
++			<iConquestVictoryWeight>35</iConquestVictoryWeight>
++			<iDominationVictoryWeight>55</iDominationVictoryWeight>
+ 			<iDiplomacyVictoryWeight>30</iDiplomacyVictoryWeight>
+ 			<!-- BBAI Victory Strategy -->
+ 			<iMaxWarRand>100</iMaxWarRand>
+@@ -6825,12 +6821,12 @@
+ 			<iTechTradeKnownPercent>30</iTechTradeKnownPercent>
+ 			<iMaxGoldTradePercent>10</iMaxGoldTradePercent>
+ 			<iMaxGoldPerTurnTradePercent>15</iMaxGoldPerTurnTradePercent>
+-			<!-- BBAI Victory Strategy -->
++			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 10/35/35/15/45 (140 total) with the help of GPT-5.2-Thinking thanks -->
+ 			<iCultureVictoryWeight>10</iCultureVictoryWeight>
+-			<iSpaceVictoryWeight>35</iSpaceVictoryWeight>
++			<iSpaceVictoryWeight>40</iSpaceVictoryWeight>
+ 			<iConquestVictoryWeight>35</iConquestVictoryWeight>
+ 			<iDominationVictoryWeight>15</iDominationVictoryWeight>
+-			<iDiplomacyVictoryWeight>45</iDiplomacyVictoryWeight>
++			<iDiplomacyVictoryWeight>50</iDiplomacyVictoryWeight>
+ 			<!-- BBAI Victory Strategy -->
+ 			<iMaxWarRand>300</iMaxWarRand>
+ 			<iMaxWarNearbyPowerRatio>90</iMaxWarNearbyPowerRatio>
+@@ -9411,11 +9407,9 @@
+ 			<iNoTechTradeThreshold>15</iNoTechTradeThreshold>
+ 			<iTechTradeKnownPercent>60</iTechTradeKnownPercent>
+ 			<iMaxGoldTradePercent>15</iMaxGoldTradePercent>
+-			<!-- BBAI Victory Strategy -->
+-			<iCultureVictoryWeight>25</iCultureVictoryWeight>
+-			<!-- advc.005a: was 15 -->
++			<!-- BBAI Victory Strategy; advc.005a + then custom: fix total not being 150: was 25/25/35/35/20 (140 total) with the help of GPT-5.2-Thinking thanks -->
++			<iCultureVictoryWeight>35</iCultureVictoryWeight>
+ 			<iSpaceVictoryWeight>25</iSpaceVictoryWeight>
+-			<!-- advc.005a: was 55 -->
+ 			<iConquestVictoryWeight>35</iConquestVictoryWeight>
+ 			<iDominationVictoryWeight>35</iDominationVictoryWeight>
+ 			<iDiplomacyVictoryWeight>20</iDiplomacyVictoryWeight>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 4472b3f39..a1375794e 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -13165,12 +13165,7 @@ Note: we include ObsoleteTech on every UnitInfo (default NONE) to make edits con
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<!-- custom: was PROMOTION_AMPHIBIOUS -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_FIRST_STRIKE1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 45276a5f8..861d46ed6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -51,7 +51,7 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | Civ | Old FreeTechs | New FreeTechs | Rationale |
+ | --- | --- | --- | --- |
+ | America | Fishing, Agriculture | **Fishing, Hunting** | Drops disallowed Agriculture. Frontier/scouting flavor; modest econ. *Avoids Mining+Hunting / Mining+Pottery.* |
+-| Arabia | The Wheel, Mysticism | **Mysticism, Pottery** | Replaces Wheel. Oasis trade + early religion; balanced culture/commercial start. *Avoids Mining+Pottery.* |
++| Arabia | The Wheel, Mysticism | **Hunting, Mysticism** | Desert pastoral/tribal-warrior flavor + smooth path toward Animal Husbandry/camels; Mysticism preserves religion/culture identity (and your UB is university-based so no Pottery dependency). |
+ | Aztec | Mysticism, Hunting | **Mining, Mysticism** | **Jaguar** now at Bronze Working → Mining speeds access. Mysticism matches ritual/state culture. We **avoid Mining+Hunting** to curb rush. |
+ | Babylon | Agriculture, The Wheel | **Pottery, Mysticism** | **Bowman** is now **Longbow-class** at Construction. Pottery fits the Masonry → Construction lane (bricks, aqueducts, Hanging Gardens), while Mysticism preserves the temple/garden flavor. |
+ | Byzantium | The Wheel, Mysticism | **Mysticism, Fishing** | Bosporus/seaborne empire + spiritual tone; removes early-road snowball. |
+@@ -61,16 +61,16 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ | Egypt | The Wheel, Agriculture | **Hunting, Pottery** | Keep **Pottery** to flow into **Masonry → Construction** (builder identity: Pyramids, aqueducts, etc.). Add **Hunting** to align the **War Chariot** path. |
+ | England | Fishing, Mining | **Fishing, Mining** | Industrial metals identity fits; Fishing+Mining is acceptable (Fishing is weakest). Also avoids overusing Mining+Pottery. |
+ | Ethiopia | Hunting, Mining | **Hunting, Mysticism** | Highlands/faith; **removes Mining+Hunting** spike while keeping early defense. |
+-| Kingdom of Benin | / | **Mysticism, Fishing** | Coastal trade + religious courts; already balanced and flavorful. |
++| Kingdom of Benin | / | **Mysticism, Pottery** | Pottery anchors the “fortified/urban builder court-state” + supports your Impluvium/aqueduct line; Mysticism keeps the ritual/court legitimacy flavor (and avoids pushing them toward early bronze play). |
+ | France | The Wheel, Agriculture | **Hunting, Pottery** | Aristocratic hunt + towns; replaces disallowed pair. |
+ | Germany | Pottery, Mining | **Pottery, Mining** | Crafts + metalwork flexibility. **One of the few** Mining+Pottery we keep (Old World metallurgy). |
+-| Greece | Fishing, Hunting | **Fishing, Mysticism** | Still coastal/Aegean, but we emphasize oracles/cults/philosophy. Avoids Mining+Pottery/Hunting spikes. |
+-| Holy Roman | Mysticism, Hunting | **Mysticism, Hunting** | Clerical legitimacy + levies; varied without Mining spikes. |
++| Greece | Fishing, Hunting | **Mining, Mysticism** | Keeps the “culture/religion” signal (temples/oracles/cults) while also pushing the Hoplite → Bronze/Iron line sooner via Mining; better matches “bronze + sacred polis” as a starter identity. |
++| Holy Roman | Mysticism, Hunting | **Mysticism, Pottery** | Reads more like “Church + towns/guild/urban administration” than generic hunting, and unlocks their civ-specific building (Courthouse-based) sooner via the Pottery line. |
+ | Inca | Agriculture, Mysticism | **Pottery, Mining** | Andean mining/metallurgy (copper, arsenical bronze; large-scale gold/silver extraction) + state logistics makes Mining a great fit. Also supports Quechua @ **Iron Working** |
+ | India | Mysticism, Mining | **Mysticism, Mining** | Spiritual tradition + engineering; not an "amazing" pair. |
+ | Japan | Fishing, The Wheel | **Fishing, Hunting** | Keeps maritime identity; **Jōmon hunter-gatherer** roots make Hunting plausible. Avoids adding another Mining+Pottery or Mining+Hunting. |
+ | Khmer | Hunting, Mining | **Fishing, Hunting** | Tonlé Sap/Mekong fisheries + elephants/camps; **removes Mining+Hunting** rush spike. |
+-| Korea | Mining, Mysticism | **Mining, Mysticism** | Metalwork/engineering + Confucian culture; solid, non-"amazing" pair. |
++| Korea | Mining, Mysticism | **Fishing, Mining** | Keeps Mining (the more distinctive “Korea-coded” pillar: metals/engineering), and adds Fishing to reflect a peninsula/coastal civilization with strong maritime/trade exposure—without implying an early religion-race start. |
+ | Mali | The Wheel, Mining | **Hunting, Pottery** | **Skirmisher** is now **Longbow-class** at Construction. Hunting keeps the Sahel skirmisher/camp identity; Pottery sustains early commerce while beelining Construction. They don't need mining as much for their civ-specific unit. |
+ | Maya | Mining, Mysticism | **Mysticism, Pottery** | Classic Maya = obsidian/chert/jade; metals are late/minor. Holkan @ Bronze Working (Mining line) remains reachable, but early Pottery better fits their builder profile and ramps Ball Court @ Construction, while Mysticism matches ritual/astronomy and supplies early culture. |
+ | Mongol | The Wheel, Hunting | **Hunting, Mysticism** | Pastoral steppe with early horses: Hunting → Animal Husbandry → Mounted Combat (and Barracks @ Hunting in AdvCiv-SAS), which also matches their aggressive-leaning leader profiles; Mysticism reflects Tengri/shamanic cohesion and supplies early culture/monuments to claim steppe space. |
+@@ -90,26 +90,26 @@ Note: **Fishing+Mining is fine** (Fishing is weakest), so we use it without conc
+ 
+ | Tech | Count |
+ | --- | --- |
+-| Fishing | 14 |
++| Mining | 15 |
++| Pottery | 15 |
+ | Hunting | 14 |
+-| Mysticism | 14 |
+-| Pottery | 14 |
+-| Mining | 14 |
++| Fishing | 13 |
++| Mysticism | 13 |
+ 
+ #### Starting pair counts (canonicalized; order-insensitive)
+ 
+-| Pair | Count |
+-| --- | --- |
+-| Mining + Mysticism | 4 |
+-| Fishing + Hunting | 4 |
+-| Fishing + Mysticism | 4 |
+-| Fishing + Pottery | 4 |
+-| Hunting + Mining | 4 |
+-| Mining + Pottery | 4 |
+-| Hunting + Pottery | 3 |
+-| Mysticism + Pottery | 3 |
+-| Hunting + Mysticism | 3 |
+-| Fishing + Mining | 2 |
++| Pair                | Count |
++| ------------------- | ----- |
++| Fishing + Hunting   | 4     |
++| Fishing + Pottery   | 4     |
++| Hunting + Mining    | 4     |
++| Mysticism + Mining  | 4     |
++| Mysticism + Pottery | 4     |
++| Pottery + Mining    | 4     |
++| Fishing + Mining    | 3     |
++| Hunting + Mysticism | 3     |
++| Hunting + Pottery   | 3     |
++| Fishing + Mysticism | 2     |
+ 
+ **Sanity checks:**
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 44c426af9..10bc5ded0 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -510,13 +510,15 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ 
+ ### Civilizations
+ 
+-- New civs added (e.g., **Kingdom of Benin**). See [World map with civs](/README.md#world-map-with-civs).
++- New civs (e.g., **Kingdom of Benin**). See [World map with civs](/README.md#world-map-with-civs).
+ - **Starting techs — reworked**: `TECH_AGRICULTURE` & `TECH_THE_WHEEL` are **no longer** starting techs; `TECH_POTTERY` **now is**. Even distribution across **35** civs (**70 total; 2 per civ ⇒ ~14 per tech**). A **"pair"** = a civ’s two starting techs (unordered), e.g., **Native Americans** now `HUNTING + MINING` (fits Dog Soldier / Bronze Working). **Current** max pair frequency is **4** (not a hard cap). Done with **heavy assistance from ChatGPT-5** plus manual tuning. See: [Assets Rebalancing table (starting-techs (civ list & rationale))](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#after-most-recent-as-of-now-rework), or the values and rankings only in the new **Sevopedia Techs' Starting Techs Charts**.
+ 
+ ### Leaders
+ 
++- New leaders: **Ewuare**.
+ - Each leader now has **distinct leader music** (previous BTS/AdvCiv shared tracks split per leader). See [Copyright & disclaimer](/README.md#copyright-and-disclaimer). Note: switched **De Gaulle** from Louis' music in Base AdvCiv to Base Civ4's Napoleon's music, and added an AdvCiv-SAS specific new music for Napoleon so each leader has its own specific music, see [KI#98](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#98---fixed-base-advciv-issue-of-de-gaulle-using-louis-music-instead-of-the-music-common-to-de-gaulle-and-napoleon).
+ - **Trait overhaul:** Overhauled for historical fit + gameplay relevance. **Examples:**: Julius Caesar Organized + Imperialist → Aggressive + Imperialist *(military conqueror; offensive pressure)*; Hammurabi Organized + Aggressive → Organized + Protective *(lawgiver/administrator; defensive empire)*; Saladin Protective + Spiritual → Spiritual + Charismatic *(religious leader with battlefield charisma; warmonger in Civ IV terms)*; Isabella Spiritual + Expansive → Spiritual + Aggressive *(zealous, hard-edged campaigns)*; Charlemagne — Imperialistic + Protective → Aggressive + Organized *(although it is historically debatable, he emphasized conquest and administration; meshes with his more forceful Civ IV profile)*; Hatshepsut — Spiritual + Creative → Spiritual + Financial *(historical emphasis on trade/wealth; modest buff in practice)*. Full before/after with rationale in  [Assets Rebalancing table (Leader Traits)](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#leaders-traits-rework), or the values and rankings only in the new **Sevopedia Traits' Charts**. *Note: leader "flavors" unchanged.*
++- (Requires AdvCiv-SAS 5461+) **fix** leaders **inconsistently not having 150** as the total of their **BBAI victory weights**: (iCultureVictoryWeight, iSpaceVictoryWeight, iConquestVictoryWeight, iDominationVictoryWeight, iDiplomacyVictoryWeight, 150): (`LEADER_BISMARCK`, 20, 25, 25, 30, 40, 140) -> 20, 25, 25, 35, 45, 150; (`LEADER_BRENNUS`, 0, 30, 30, 50, 30, 140) -> 0, 30, 35, 55, 30, 140; (`LEADER_LINCOLN`, 10, 35, 35, 15, 45, 140) -> 10, 40, 35, 15, 50, 150; (`LEADER_RAMESSES`, 25, 25, 35, 35, 20, 140) -> 35, 25, 35, 35, 20, 150.
+ - Barbarian **leader button/icon** is distinct (no longer Genghis Khan’s).
+ 
+ ### Barbarians
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG
+index 2cc16271a..968460eb3 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG
+index f0af68899..dca8cfad1 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG
+index 5023ef3ac..2d84ba8d6 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG and b/_1_AdvCiv-SAS/Images/sevopedia/0.620_sevopedia_leaders (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=9 omittedFiles=1 embeddedPatchBytes=21193

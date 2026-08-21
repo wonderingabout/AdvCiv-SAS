@@ -1,0 +1,332 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5954
+# Commit: b9ccb1be872e47d8b9c1f655f5b7c8f82dadc457
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: d9364e7e623b90494f5cbdb0f3b4b1dddeb073f7
+# Title: (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke (See KI#160) - **AI unit...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+90	3	CvGameCoreDLL/CvPlayerAI.cpp
+7	3	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/CvUnitAI.h
+58	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5a1b971a1..a660500e8 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -527,8 +527,9 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 		the components of AI_goldTarget() */
+ 	int iCostPerMil = AI_unitCostPerMil(); // used for scrap decisions.
+ 	int iUpgradeBudget = 0;
++	bool const bUpgradeFocusWar = AI_isFocusWar();
+ 	//if(GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0)
+-	if (AI_isFocusWar()) // advc.105
++	if (bUpgradeFocusWar) // advc.105
+ 	{
+ 		// when at war, upgrades get priority
+ 		iUpgradeBudget = std::min(getGold(), AI_goldTarget(true));
+@@ -545,13 +546,46 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 	iUpgradeBudget = std::max(iUpgradeBudget,1);
+ 	// BETTER_BTS_AI_MOD: END
+ 
++	// <!-- custom: Upgrade spending logs showed overspending and peacetime upgrades leaving 1-10 gold, but the old aggregate line did not identify which upgrade pass or unit caused it. Add diagnostics for budget context, per-pass spending, and per-upgrade spend details; follow-up logs showed pass 3 normal upgrades were the main culprit, so cap non-emergency upgrade prices against the remaining budget below. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
++	bool const bUpgradeFinancialTroubleStart = AI_isFinancialTrouble();
++	bool const bLogUpgradeDiagnostics = (gPlayerLogLevel > 2);
++	int iUpgradeLogWars = 0;
++	bool bUpgradeLogAnyWarPlan = false;
++	if (bLogUpgradeDiagnostics)
++	{
++		// <!-- custom: Compile-fix notes for these diagnostics: this DLL has no public CvTeamAI::getAtWarCount/getAnyWarPlanCount, and CvTeam::countWarEnemies is protected, so count public isAtWar teams under the log gate and cache AI_isAnyWarPlan instead. CvUnit::getArea returns a CvArea, so log getArea().getID() rather than assigning getArea() to an int. (GPT-5.5) -->
++		CvTeamAI const& kUpgradeLogTeam = GET_TEAM(getTeam());
++		for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(getTeam()); it.hasNext(); ++it)
++		{
++			if (kUpgradeLogTeam.isAtWar(it->getID()))
++				iUpgradeLogWars++;
++		}
++		bUpgradeLogAnyWarPlan = kUpgradeLogTeam.AI_isAnyWarPlan();
++		logBBAI("    UPGRADE_BUDGET_DETAIL turn=%d player=%d %S goldStart=%d goldRate=%d goldTargetUpgrade=%d goldTargetTotal=%d upgradeBudget=%d goldToUpgradeAllUnits=%d focusWar=%d wars=%d anyWarPlan=%d financialTrouble=%d cities=%d units=%d era=%d",
++			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold, calculateGoldRate(), AI_goldTarget(true), AI_goldTarget(false), iUpgradeBudget, AI_getGoldToUpgradeAllUnits(), bUpgradeFocusWar, iUpgradeLogWars, bUpgradeLogAnyWarPlan, bUpgradeFinancialTroubleStart, getNumCities(), getNumUnits(), getCurrentEra());
++	}
++
+ 	CvPlot const* pLastUpgradePlot = NULL;
+ 	for (int iPass = 0; iPass < 4; iPass++)
+ 	{
++		char const* szPassName = "";
++		switch (iPass)
++		{
++		case 0: szPassName = "impassable"; break;
++		case 1: szPassName = "city_defender_or_danger"; break;
++		case 2: szPassName = "transport_or_escort_sea"; break;
++		case 3: szPassName = "normal"; break;
++		default: FAssert(false); break;
++		}
++		int const iPassGoldBefore = getGold();
++		int iPassEligibleUnits = 0;
++		int iPassUpgradedUnits = 0;
++		int iPassSkippedBudget = 0;
+ 		FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+ 		{
+ 			bool bNoDisband = false;
+ 			bool bValid = false;
++			bool bSkippedBudget = false;
+ 
+ 			switch (iPass)
+ 			{
+@@ -592,23 +626,32 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 					pLoopUnit->specialCargo() == NO_SPECIALUNIT)
+ 				{
+ 					bValid = iStartingGold - getGold() < iUpgradeBudget;
++					bSkippedBudget = !bValid;
+ 				}
+ 				// Also upgrade escort ships
+ 				if (pLoopUnit->AI_getUnitAIType() == UNITAI_ESCORT_SEA)
++				{
+ 					bValid = iStartingGold - getGold() < iUpgradeBudget;
++					bSkippedBudget = !bValid;
++				}
+ 
+ 				break;
+ 			case 3:
+ 				//bValid = true; // BtS
+-				bValid = iStartingGold - getGold() < iUpgradeBudget;
++				// <!-- custom: Diagnostics showed pass 3 normal upgrades caused most budget overspending and low-gold peacetime upgrades, while pass 1 defender/danger upgrades were mostly not the culprit. In financial trouble outside focus-war, skip normal upgrades and keep gold for economy/emergencies. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
++				bValid = (!bUpgradeFinancialTroubleStart || bUpgradeFocusWar) && iStartingGold - getGold() < iUpgradeBudget;
++				bSkippedBudget = !bValid;
+ 				break;
+ 			default:
+ 				FAssert(false);
+ 				break;
+ 			}
+ 
++			if (bSkippedBudget)
++				iPassSkippedBudget++;
+ 			if (!bValid)
+ 				continue;
++			iPassEligibleUnits++;
+ 
+ 			bool bKilled = false;
+ 			if (!bNoDisband)
+@@ -670,7 +713,47 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 				}
+ 			}
+ 			if (!bKilled)
+-				pLoopUnit->AI_upgrade(); // CAN DELETE UNIT!!!
++			{
++				// <!-- custom: Passes 2 and 3 were budget-gated only by "spent so far < budget", so one expensive normal upgrade could overshoot the remaining budget and leave the AI almost broke. Keep emergency pass 0/1 upgrades uncapped, but make transport/escort and normal upgrades fit within the remaining budget. See KI#160. (GPT-5.5 + ChatGPT-5.5) -->
++				int const iMaxUpgradePrice = (iPass >= 2 ? std::max(0, iUpgradeBudget - (iStartingGold - getGold())) : MAX_INT);
++				if (bLogUpgradeDiagnostics)
++				{
++					CvPlot const& kUnitPlot = pLoopUnit->getPlot();
++					CvCity const* pUnitCity = kUnitPlot.getPlotCity();
++					CvWString szCityName = (pUnitCity == NULL ? CvWString(L"-") : pUnitCity->getName());
++					bool const bBestCityDefender = (kUnitPlot.isCity() && kUnitPlot.getBestDefender(getID()) == pLoopUnit);
++					bool const bPlotDanger = AI_isAnyPlotDanger(kUnitPlot, 1, false);
++					int const iGoldBeforeUpgrade = getGold();
++					int const iSpentBeforeUpgrade = iStartingGold - getGold();
++					int const iUnitID = pLoopUnit->getID();
++					UnitTypes const eOldUnit = pLoopUnit->getUnitType();
++					UnitAITypes const eUnitAI = pLoopUnit->AI_getUnitAIType();
++					DomainTypes const eDomain = pLoopUnit->getDomainType();
++					int const iUnitArea = pLoopUnit->getArea().getID();
++					int const iUnitX = pLoopUnit->getX();
++					int const iUnitY = pLoopUnit->getY();
++					int const iUnitExp = pLoopUnit->getExperience();
++					int const iUnitLevel = pLoopUnit->getLevel();
++					pLoopUnit->AI_upgrade(iMaxUpgradePrice); // CAN DELETE UNIT!!!
++					int const iGoldAfterUpgrade = getGold();
++					int const iUpgradeSpend = iGoldBeforeUpgrade - iGoldAfterUpgrade;
++					if (iUpgradeSpend > 0)
++					{
++						iPassUpgradedUnits++;
++						logBBAI("    UPGRADE_SPEND_DETAIL turn=%d player=%d %S pass=%d passName=%s unitId=%d oldUnitType=%d unitAI=%d domain=%d area=%d plot=(%d,%d) city=%S bestCityDefender=%d plotDanger=%d noDisband=%d exp=%d level=%d upgradeCost=%d maxUpgradePrice=%d goldBefore=%d goldAfter=%d spentSoFarBefore=%d spentSoFarAfter=%d budget=%d overspentAfter=%d focusWar=%d financialTrouble=%d wars=%d anyWarPlan=%d",
++							GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iUnitID, eOldUnit, eUnitAI, eDomain, iUnitArea, iUnitX, iUnitY, szCityName.GetCString(), bBestCityDefender, bPlotDanger, bNoDisband, iUnitExp, iUnitLevel, iUpgradeSpend, iMaxUpgradePrice, iGoldBeforeUpgrade, iGoldAfterUpgrade, iSpentBeforeUpgrade, iStartingGold - getGold(), iUpgradeBudget, iStartingGold - getGold() > iUpgradeBudget, bUpgradeFocusWar, AI_isFinancialTrouble(), iUpgradeLogWars, bUpgradeLogAnyWarPlan);
++					}
++				}
++				else
++				{
++					pLoopUnit->AI_upgrade(iMaxUpgradePrice); // CAN DELETE UNIT!!!
++				}
++			}
++		}
++		if (bLogUpgradeDiagnostics)
++		{
++			logBBAI("    UPGRADE_PASS_SUMMARY turn=%d player=%d %S pass=%d passName=%s eligibleUnits=%d upgradedUnits=%d skippedBudget=%d spentBefore=%d spentAfter=%d budget=%d goldBefore=%d goldAfter=%d overspentAfter=%d",
++				GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iPass, szPassName, iPassEligibleUnits, iPassUpgradedUnits, iPassSkippedBudget, iStartingGold - iPassGoldBefore, iStartingGold - getGold(), iUpgradeBudget, iPassGoldBefore, getGold(), iStartingGold - getGold() > iUpgradeBudget);
+ 		}
+ 	}
+ 
+@@ -679,7 +762,11 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ 
+ 	// BETTER_BTS_AI_MOD, AI Logging, 02/24/10, jdog5000
+ 	if (gPlayerLogLevel > 2 && iStartingGold - getGold() > 0)
++	{
+ 		logBBAI("    %S spends %d on unit upgrades out of budget of %d, %d gold remaining", getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, getGold());
++		logBBAI("    UPGRADE_BUDGET_RESULT turn=%d player=%d %S spent=%d budget=%d goldStart=%d goldEnd=%d overspent=%d financialTroubleAfter=%d",
++			GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), iStartingGold - getGold(), iUpgradeBudget, iStartingGold, getGold(), iStartingGold - getGold() > iUpgradeBudget, AI_isFinancialTrouble());
++	}
+ 
+ 	// <advc.mnai> Promotions for AI civs moved down
+ 	FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 098f16ca4..c8fb69250 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -885,7 +885,8 @@ bool CvUnitAI::AI_follow(bool bFirst)
+ }
+ 
+ // K-Mod. This function has been completely rewritten to improve efficiency and intelligence.
+-void CvUnitAI::AI_upgrade()
++// <!-- custom: Optional max price lets AI upgrade-budget code keep normal emergency upgrades uncapped while preventing non-emergency upgrades from overshooting the remaining budget. Keep candidate iteration/random calls otherwise unchanged so the old choice logic is preserved for affordable upgrades. See KI#160. (ChatGPT-5.5 + GPT-5.5) -->
++bool CvUnitAI::AI_upgrade(int iMaxUpgradePrice)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -893,7 +894,7 @@ void CvUnitAI::AI_upgrade()
+ 	FAssert(AI_getUnitAIType() != NO_UNITAI);
+ 
+ 	if (!isReadyForUpgrade())
+-		return;
++		return false;
+ 
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+ 	UnitAITypes eUnitAI = AI_getUnitAIType();
+@@ -924,7 +925,8 @@ void CvUnitAI::AI_upgrade()
+ 				bFirst ? "AI Upgrade" : NULL);
+ 		bFirst = false; // </advc.007>
+ 		// (believe it or not, AI_unitValue is faster than canUpgrade.)
+-		if (iValue > iBestValue && canUpgrade(eLoopUnit))
++		if (iValue > iBestValue && canUpgrade(eLoopUnit) &&
++			upgradePrice(eLoopUnit) <= iMaxUpgradePrice)
+ 		{
+ 			iBestValue = iValue;
+ 			eBestUnit = eLoopUnit;
+@@ -952,7 +954,9 @@ void CvUnitAI::AI_upgrade()
+ 						pGroup->getHeadUnit());
+ 			}
+ 		}
++		return true;
+ 	}
++	return false;
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 9feb891b7..94dfb5c7d 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -22,7 +22,8 @@ public:
+ 
+ 	bool AI_update();
+ 	bool AI_follow(/* K-Mod: */ bool bFirst = true);
+-	void AI_upgrade();
++	// <!-- custom: Add an optional max price so emergency calls stay uncapped by default, while upgrade-budget code can reject unaffordable candidates without changing the old candidate iteration/random calls for affordable upgrades. See corresponding .cpp function and KI#160. (ChatGPT-5.5 + GPT-5.5) -->
++	bool AI_upgrade(int iMaxUpgradePrice = MAX_INT);
+ 	void AI_promote();
+ 
+ 	int AI_groupFirstVal() const;
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 3cc4e61a5..3e9c52ad8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -195,6 +195,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [157 - (Fixed/Diagnosed) Base AdvCiv bug: Minor AI Work Boat excess after previous spam fixes: compare need to the counted water areas, let sea workers resolve off-BFC sea bonuses, and confirm many repeated rebuilds were genuine net losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#157---fixeddiagnosed-base-advciv-bug-minor-ai-work-boat-excess-after-previous-spam-fixes-compare-need-to-the-counted-water-areas-let-sea-workers-resolve-off-bfc-sea-bonuses-and-confirm-many-repeated-rebuilds-were-genuine-net-losses)  
+ [158 - (Fixed) Base AdvCiv issue: ready no-target attack stacks could ignore pathable barbarian cities while only preparing a future war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war)  
+ [159 - (Improved) AI civic-switch damping: paid-anarchy civic churn and direct reversals after the civic timer expired](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#159---improved-ai-civic-switch-damping-paid-anarchy-civic-churn-and-direct-reversals-after-the-civic-timer-expired)  
++[160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke)
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -5928,3 +5929,60 @@ The final reviewed run improved strongly:
+ This should make AI turns more efficient because excessive anarchy downtime is costly, especially with the current AdvCiv-SAS anarchy duration of 2 turns. If the damping is too sticky, reduce the corresponding timer/slack values; if oscillation returns, increase them. Keep the diagnostics useful for future tuning because civic valuation is sensitive to other AI changes.
+ 
+ Fixed/improved with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
++
++## 160 - (Fixed) Likely inherited AI upgrade-budget issue: normal upgrades could overshoot the remaining budget and leave the AI almost broke
++
++Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1p033n4oF_v-btMYwng7iJzowNaXtu2sC?usp=sharing).
++
++This looks likely inherited from base/K-Mod/AdvCiv-style upgrade flow because the old logic in `CvPlayerAI::AI_doTurnUnitsPost` already used a 4-pass upgrade loop and checked only whether spending so far was below the upgrade budget before attempting the next upgrade.
++
++The initial aggregate BBAI log showed suspicious upgrade spending:
++
++- 305 upgrade-spend events.
++- 23 events overspent the listed upgrade budget.
++- 49 events left the AI with <= 10 gold.
++- 110 events left the AI with <= 25 gold.
++- 183 events left the AI with <= 50 gold.
++- 17 events both overspent the budget and left <= 50 gold.
++- No-active-war upgrades were especially suspicious: 151 events, 20 budget overspends, 62 ending with <= 25 gold, and 29 ending with <= 10 gold.
++
++The old aggregate line did not show which pass or unit caused the spending, so diagnostics were added:
++
++- `UPGRADE_BUDGET_DETAIL`: starting gold, gold targets, upgrade budget, total upgrade need, focus-war, war-plan, financial-trouble, city/unit count, and era.
++- `UPGRADE_SPEND_DETAIL`: one line per paid upgrade, including pass name, unit id/type/AI/domain, plot/city, best-defender and danger flags, cost, gold before/after, budget, and context.
++- `UPGRADE_PASS_SUMMARY`: per-pass eligible units, paid upgrades, rough budget skips, and pass spending.
++- `UPGRADE_BUDGET_RESULT`: final spending result paired with the old aggregate line.
++
++The diagnostic run showed the main problem was not emergency defense upgrades:
++
++- Pass 0 `impassable`: 18 upgrades, 2777 gold, 1 overspent-after upgrade.
++- Pass 1 `city_defender_or_danger`: 168 upgrades, 16107 gold, 2 overspent-after upgrades.
++- Pass 2 `transport_or_escort_sea`: 1 upgrade, 197 gold, 0 overspent-after upgrades.
++- Pass 3 `normal`: 787 upgrades, 82937 gold, 37 overspent-after upgrades.
++
++The specific bug-like pattern was that pass 3 only checked `spent so far < budget`. If spending was still below budget before an upgrade, the AI could start another expensive normal upgrade even when that upgrade could not fit inside the remaining budget. Example from the reviewed log: England on T342 had 499 gold and a 279 budget, upgraded twice for 237 each, spent 474 total, and ended at 25 gold.
++
++Financial-trouble cases confirmed the same pattern. Example: England on T346 had `financialTrouble=1`, spent 237 with budget 59, and went from 246 gold to 9 gold on a pass 3 normal upgrade.
++
++Fix:
++
++- Keep pass 0/1 emergency-ish upgrades uncapped.
++- For pass 2/3, pass a maximum allowed upgrade price into `CvUnitAI::AI_upgrade`, equal to the remaining upgrade budget.
++- `CvUnitAI::AI_upgrade` now ignores upgrade candidates whose `upgradePrice` exceeds that max price, while otherwise preserving the old candidate iteration and value logic for affordable upgrades.
++- Skip pass 3 normal upgrades entirely if the AI started in financial trouble and is not focus-war.
++
++Follow-up BBAI comparison showed the intended result:
++
++- Upgrade-spend turns: 362 -> 355.
++- Individual paid upgrades: 974 -> 915.
++- Total upgrade gold spent: 102018 -> 84095.
++- Overspent budget turns: 40 -> 1.
++- Pass 3 overspent upgrades: 37 -> 0.
++- Financial-trouble spends: 33 -> 4.
++- Financial-trouble overspend: 7 -> 0.
++
++The single remaining overspend was pass 0 impassable: Mali on T176 spent 408 against a 365 budget and still kept 165 gold. Since pass 0 is intentionally uncapped and this did not match the old pass 3 low-gold pattern, it was accepted.
++
++Low final gold can still happen in focus-war / any-war-plan contexts. That is a separate possible follow-up about preserving a cash reserve during war preparation, not the same bug as pass 3 normal upgrades overshooting their remaining budget.
++
++Fixed with the very nice help of GPT-5.5 and ChatGPT-5.5 thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e7298cb27..091bae49a 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -320,6 +320,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - (Requires AdvCiv-SAS 5943+) **Unit upgrades - prefer the important domain for the map:** AI unit-upgrade value now optionally uses the existing **SAS map-script heaviness** logic to **relatively value** unit upgrades (not a hard ban unless relative value is set high): the real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades. As a result, on **land-heavy maps, naval upgrades are treated as lower priority**, so the AI is more likely to **spend gold upgrading land units first** instead of modernizing old ships that have little strategic value on that map. On **naval-heavy maps, the same idea can apply in reverse for land upgrades**.
+ - (Requires AdvCiv-SAS 5947+) **Remote captured-city attack stacks:** large AI attack **stacks in faraway captured cities no longer let upgrade waiting override a ready offensive target**. If the stack is large enough, has a valid target, and the target is not too strong, it keeps using the existing attack movement logic **instead of parking most of the empire's army far from its core** because several units could upgrade, which was very problematic. In the BBAI-log sample, the Celtic Boston trapped-stack pattern was visible from T156 to T256; the stricter remote-trap diagnostic confirmed it from T172 to T214, with up to 41 units / 62% of Celtic military parked in a faraway captured city while still having ready targets. See [KI#155](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target).
+ - (Requires AdvCiv-SAS 5948+) **Ready attack stacks stop parking for unavailable upgrades:** if a city-attack stack is ready, the target is not too strong, and **0 units can upgrade now**, the AI now keeps moving toward the target instead of waiting for possible future upgrades. This fixes real offensive freezes: in one BBAI-log sample, USA Washington waited from **T147-T181** with up to **59 units / 69% of total military** while targets were only **3-5 turns** away; Mali Gao waited from **T233-T255** with up to **42 units / 41% of total military**. The AI still waits for real immediate upgrades: a USA Seattle stack waited while **6 units could upgrade now**, then attacked/moved once that number became **0**. This is thought to be much stronger, because it uses the current military advantage before enemies catch up; old units can be spent in war instead of sitting around draining upkeep, needing future upgrade gold (solved if they die as well), and risking obsolescence; successful captures can then increase economy, unit support, and long-term growth; and the needless wait was very problematic and inefficient too. See [KI#156](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#156---fixed-base-advciv-issue-ready-city-attack-stacks-could-park-for-future-upgrades-even-when-no-unit-could-upgrade-now).
++- (Requires AdvCiv-SAS 5954+) **AI unit upgrades - stop routine upgrades from draining the treasury:** Fixes an AI spending problem where normal unit **upgrades could overshoot the intended upgrade budget**. Previously, the AI only checked whether it was still below budget before starting the next upgrade, but did not check whether that next upgrade itself fit the remaining budget. For example, in BBAI diagnostics, an AI with 280 gold reserved for upgrades could spend 237 gold, still count as under budget, then start another 237 gold upgrade and end up spending 474 gold total, sometimes leaving only a few gold in the treasury. Routine **upgrades now check the actual remaining upgrade budget before upgrading**. **Emergency**-style upgrades, such as important city defenders or special impassable-unit upgrades, **remain more flexible**, but normal upgrades are much less likely to waste all available gold. AIs in **financial trouble also avoid** routine upgrades **unless they are focused on war**. See [KI#160](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#160---fixed-likely-inherited-ai-upgrade-budget-issue-normal-upgrades-could-overshoot-the-remaining-budget-and-leave-the-ai-almost-broke).
+ - (Requires AdvCiv-SAS 5952+) **AI attack stacks now opportunistically capture nearby barbarian cities:** before this fix, ready city-attack-capable (i.e. not just `UNITAI_ATTACK_CITY`) stacks could sit idle because the AI had **no normal war target yet**, even with a **nearby pathable barbarian city**. Now, if the AI has **no normal target** and is **not already busy with an active war**, the stack can **attack that barbarian city instead**. This does not override normal wars or normal war targets; it fills the no-target idle gap. This change is usually a **strong** move: barbarian cities are often weak, cost little diplomatically, and capturing them can give land, population, resources, unit support, and future growth without spending a settler or interrupting city production nor growth. In the tested save before the fix, nearby barbarian cities survived at game end at ~T400 despite reachable AI armies to Napoleon and Shaka, and barbarian being very weak in comparison, yet bonuses-rich, and Shaka was among weakest players; after the fix, Zulu captured Hurrian at T127, Alemanni at T132, Visigoth at T148, and Gaul at T153, turning those nearby barb cities into an early expansion boost and making Shaka the strongest player for almost all middle game and end game, almost allowing him to win. This change should make AI significantly stronger. See [KI#158](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#158---fixed-base-advciv-issue-ready-no-target-attack-stacks-could-ignore-pathable-barbarian-cities-while-only-preparing-a-future-war).
+ 
+ ## UI
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=23643

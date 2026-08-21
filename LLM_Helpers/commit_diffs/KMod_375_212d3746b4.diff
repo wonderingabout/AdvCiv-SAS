@@ -1,0 +1,195 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 375
+# Commit: 212d3746b413c9872dea2d1cd2cb2d63351cedec
+# History segment: K-Mod history
+# Parent used for diff: e755917b756f975a38b769cde368cf4637f3a1e6
+# Title: The screen will now center on newly drafted units rather than just selecting them. Increased the effect of emphasis on yield values. Removed some human playe...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvCity.cpp
+27	44	CvGameCoreDLL/CvCityAI.cpp
+1	9	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 9830db073..fd0b7e021 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3617,9 +3617,10 @@ void CvCity::conscript()
+ 	{
+ 		if (GC.getGameINLINE().getActivePlayer() == getOwnerINLINE())
+ 		{
++			gDLL->getInterfaceIFace()->lookAt(plot()->getPoint(), CAMERALOOKAT_NORMAL); // K-Mod
+ 			gDLL->getInterfaceIFace()->selectUnit(pUnit, true, false, true);
+ 		}
+-		if( gCityLogLevel >= 2 )
++		if (gCityLogLevel >= 2 && !isHuman())
+ 		{
+ 			logBBAI("      City %S does conscript of a %S at cost of %d pop, %d anger", getName().GetCString(), pUnit->getName().GetCString(), iPopChange, iAngerLength );
+ 		}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 16a7e62ff..9fd9ceb80 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -8072,7 +8072,6 @@ void CvCityAI::AI_updateBestBuild()
+ 
+ // Protected Functions...
+ 
+-// Better drafting strategy by Blake - thank you!
+ void CvCityAI::AI_doDraft(bool bForce)
+ {
+ 	PROFILE_FUNC();
+@@ -9967,12 +9966,13 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 		iProductionTimes100 += bFoodIsProduction ? iFoodYieldTimes100 : 0;
+ 
+ 		iProductionValue += iProductionTimes100 * iBaseProductionValue / 100;
+-		// BBAI adjustment
+ 		// If city has more than enough food, but very little production, add large value to production
+ 		// Particularly helps coastal cities with plains forests
+-		if (iProductionTimes100 > 0)
++		// (based on BBAI code)
++		if (!bWorkerOptimization && iProductionTimes100 > 0 && !bFoodIsProduction && isProduction())
+ 		{
+-			if (!bFoodIsProduction && isProduction())
++			if (!isHuman() || AI_isEmphasizeYield(YIELD_PRODUCTION)
++				|| (!bEmphasizeFood && !AI_isEmphasizeYield(YIELD_COMMERCE) && !AI_isEmphasizeGreatPeople()))
+ 			{
+ 				if (foodDifference(false) >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 				{
+@@ -10310,37 +10310,26 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 	//unusually high transient production modifiers.
+ 	//Other yields don't have transient bonuses in quite the same way.
+ 
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                       05/16/10                                jdog5000      */
+-/*                                                                                              */
+-/* City AI                                                                                      */
+-/************************************************************************************************/
+ 	// Rounding can be a problem, particularly for small commerce amounts.  Added safe guards to make
+ 	// sure commerce is counted, even if just a tiny amount.
+ 	if (AI_isEmphasizeYield(YIELD_PRODUCTION))
+ 	{
+-		iProductionValue *= 130;
++		iProductionValue *= 140; // was 130
+ 		iProductionValue /= 100;
+ 		
+ 		if (isFoodProduction())
+ 		{
+-			iFoodValue *= 130;
+-			iFoodValue /= 100;
+-		}
+-		
+-		if (!AI_isEmphasizeYield(YIELD_COMMERCE) && iCommerceValue > 0)
+-		{
+-			iCommerceValue *= 60;
+-			iCommerceValue /= 100;
+-			iCommerceValue = std::max(1, iCommerceValue);
+-		}
+-		if (!AI_isEmphasizeYield(YIELD_FOOD) && iFoodValue > 0)
+-		{
+-			iFoodValue *= 75;
++			iFoodValue *= 140; // was 130
+ 			iFoodValue /= 100;
+-			iFoodValue = std::max(1, iFoodValue);
+ 		}
+ 	}
++	else if (iProductionValue > 0 && AI_isEmphasizeYield(YIELD_COMMERCE))
++	{
++		iProductionValue *= 75;
++		iProductionValue /= 100;
++		iProductionValue = std::max(1,iProductionValue);
++	}
++
+ 	if (AI_isEmphasizeYield(YIELD_FOOD))
+ 	{
+ 		if (!isFoodProduction())
+@@ -10351,26 +10340,23 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 			iSlaveryValue /= 100;
+ 		}
+ 	}
++	else if (iFoodValue > 0 && (AI_isEmphasizeYield(YIELD_PRODUCTION) || AI_isEmphasizeYield(YIELD_COMMERCE)))
++	{
++		iFoodValue *= 75; // was 75 for production, and 80 for commerce. (now same for both.)
++		iFoodValue /= 100;
++		iFoodValue = std::max(1, iFoodValue);
++	}
++
+ 	if (AI_isEmphasizeYield(YIELD_COMMERCE))
+ 	{
+-		iCommerceValue *= 130;
++		iCommerceValue *= 140; // was 130
+ 		iCommerceValue /= 100;
+-		if (!AI_isEmphasizeYield(YIELD_PRODUCTION) && iProductionValue > 0)
+-		{
+-			iProductionValue *= 75;
+-			iProductionValue /= 100;
+-			iProductionValue = std::max(1,iProductionValue);
+-		}
+-		if (!AI_isEmphasizeYield(YIELD_FOOD) && iFoodValue > 0)
+-		{
+-			//Don't supress twice.
+-			if (!AI_isEmphasizeYield(YIELD_PRODUCTION))
+-			{
+-				iFoodValue *= 80;
+-				iFoodValue /= 100;
+-				iFoodValue = std::max(1, iFoodValue);
+-			}
+-		}
++	}
++	else if (iCommerceValue > 0 && AI_isEmphasizeYield(YIELD_PRODUCTION))
++	{
++		iCommerceValue *= 75; // was 60
++		iCommerceValue /= 100;
++		iCommerceValue = std::max(1, iCommerceValue);
+ 	}
+ 		
+ 	if( iProductionValue > 0 )
+@@ -10407,9 +10393,6 @@ int CvCityAI::AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoi
+ 		iFoodValue /= GET_PLAYER(getOwnerINLINE()).AI_averageYieldMultiplier(YIELD_FOOD);
+ 		iValue += std::max(1, iFoodValue);
+ 	}
+-/************************************************************************************************/
+-/* UNOFFICIAL_PATCH                        END                                                  */
+-/************************************************************************************************/
+ 
+ 	return iValue;
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index a335c1fe1..62e1f5aff 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -15213,18 +15213,10 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 				bSomethingHappened = true;
+ 				bShowExplosion = true;
+ 
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                      01/12/10                                jdog5000      */
+-/*                                                                                              */
+-/* AI logging                                                                                   */
+-/************************************************************************************************/
+-				if( gUnitLogLevel >= 2 )
++				if (gUnitLogLevel >= 2 && !isHuman())
+ 				{
+ 					logBBAI("      Spy for player %d (%S) causes revolt in %S, owned by %S (%d)", getID(), getCivilizationDescription(0), pCity->getName().GetCString(), GET_PLAYER(pCity->getOwner()).getCivilizationDescription(0), pCity->getOwner() );
+ 				}
+-/************************************************************************************************/
+-/* BETTER_BTS_AI_MOD                       END                                                  */
+-/************************************************************************************************/
+ 			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=6940

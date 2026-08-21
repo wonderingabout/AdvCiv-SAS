@@ -1,0 +1,903 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4770
+# Commit: 86d9c24298493889cf4aeeb1ffe43027267f3c3a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 10b06b59d6a9fbca950e5eb2085d8707844ecf86
+# Title: buff rice a bit, change wheat button (HR mod import), rename _CORN to _MAIZE - tried to find some secondary use for rice as it is a bit weaker than maize or...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds
+6	2	Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+474	0	Assets/XML/Art/CIV4ArtDefines_Feature.xml
+3	3	Assets/XML/Buildings/CIV4BuildingInfos.xml
+2	2	Assets/XML/Events/CIV4EventTriggerInfos.xml
+2	2	Assets/XML/GameInfo/CIV4CorporationInfo.xml
+4	4	Assets/XML/Terrain/CIV4BonusInfos.xml
+3	2	Assets/XML/Terrain/CIV4ImprovementInfos.xml
+5	1	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+26	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	2	Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+2	2	Settings/CustomDomAdv/CustomDomAdv.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+2	2	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+9	9	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds
+ create mode 100644 Assets/XML/Art/CIV4ArtDefines_Feature.xml
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds b/Assets/Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds
+new file mode 100644
+index 000000000..2def390f2
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+index 173813a9b..5650db1cb 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+@@ -233,7 +233,7 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<FontButtonIndex>10</FontButtonIndex>
+ 		</BonusArtInfo>
+ 		<BonusArtInfo>
+-			<Type>ART_DEF_BONUS_CORN</Type>
++			<Type>ART_DEF_BONUS_MAIZE</Type>
+ 			<fScale>1.0</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+ 			<NIF>Art/Terrain/Resources/Corn/Corn.nif</NIF>
+@@ -310,13 +310,17 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
+ 			<FontButtonIndex>18</FontButtonIndex>
+ 		</BonusArtInfo>
++		<!-- custom: import silk button from HR mod -->
++		<!-- custom: old default/base advciv one was:
++			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
++		-->
+ 		<BonusArtInfo>
+ 			<Type>ART_DEF_BONUS_WHEAT</Type>
+ 			<fScale>1.0</fScale>
+ 			<fInterfaceScale>0.8</fInterfaceScale>
+ 			<NIF>Art/Terrain/Resources/Wheat/Wheat.nif</NIF>
+ 			<KFM>Art/Terrain/Resources/Wheat/Wheat.kfm</KFM>
+-			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
++			<Button>Art/AdvCiv_SAS/Bonus/Wheat/Wheat.dds</Button>
+ 			<FontButtonIndex>19</FontButtonIndex>
+ 		</BonusArtInfo>
+ 		<BonusArtInfo>
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Feature.xml b/Assets/XML/Art/CIV4ArtDefines_Feature.xml
+new file mode 100644
+index 000000000..d554bfad3
+--- /dev/null
++++ b/Assets/XML/Art/CIV4ArtDefines_Feature.xml
+@@ -0,0 +1,474 @@
++<?xml version="1.0"?>
++<!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jason Winokur (Firaxis Games) -->
++<!-- Sid Meier's Civilization 4 -->
++<!-- Copyright Firaxis Games 2005 -->
++<!-- -->
++<!-- Feature art path information -->
++<!-- custom: imported cleanly from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Art\ , in case we need this someday or/and to be exhaustive anyways etc anyways etc anyways etc... -->
++<Civ4ArtDefines xmlns="x-schema:CIV4ArtDefinesSchema.xml">
++	<FeatureArtInfos>
++		<FeatureArtInfo>
++			<Type>ART_DEF_FEATURE_ICE</Type>
++			<bAnimated>0</bAnimated>
++			<bRiverArt>0</bRiverArt>
++			<TileArtType>TILE_ART_TYPE_HALF_TILING</TileArtType>
++			<LightType>LIGHT_TYPE_SUN</LightType>
++			<fScale>1.0</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<Button>,Art/Interface/Buttons/TerrainFeatures/Ice.dds,Art/Interface/Buttons/BaseTerrain_TerrainFeatures_Atlas.dds,4,3</Button>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice01_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice01_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice01_03.nif</ModelFile>
++						<Connections>NW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice02_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice02_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice02_03.nif</ModelFile>
++						<Connections>NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice03_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice03_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice03_03.nif</ModelFile>
++						<Connections>NW NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice04_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice04_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice04_03.nif</ModelFile>
++						<Connections>SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice05_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice05_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice05_03.nif</ModelFile>
++						<Connections>NW SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice06_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice06_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice06_03.nif</ModelFile>
++						<Connections>NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice07_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice07_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice07_03.nif</ModelFile>
++						<Connections>NW NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice08_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice08_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice08_03.nif</ModelFile>
++						<Connections>SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice09_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice09_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice09_03.nif</ModelFile>
++						<Connections>NW SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice10_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice10_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice10_03.nif</ModelFile>
++						<Connections>NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice11_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice11_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice11_03.nif</ModelFile>
++						<Connections>NW NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice12_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice12_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice12_03.nif</ModelFile>
++						<Connections>SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice13_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice13_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice13_03.nif</ModelFile>
++						<Connections>NW SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice14_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice14_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice14_03.nif</ModelFile>
++						<Connections>NE SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_01.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_02.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_03.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_04.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_05.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_06.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_07.nif</ModelFile>
++						<ModelFile>Art/Terrain/Features/IcePack/Ice15_08.nif</ModelFile>
++						<Connections>NW NE SE SW</Connections>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/Ice.dds</VarietyButton>
++			</FeatureVariety>
++		</FeatureArtInfo>
++		<FeatureArtInfo>
++			<Type>ART_DEF_FEATURE_JUNGLE</Type>
++			<bAnimated>0</bAnimated>
++			<bRiverArt>0</bRiverArt>
++			<TileArtType>TILE_ART_TYPE_TREES</TileArtType>
++			<LightType>LIGHT_TYPE_SUN</LightType>
++			<fScale>1.0</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<Button>,Art/Interface/Buttons/TerrainFeatures/Jungle.dds,Art/Interface/Buttons/BaseTerrain_TerrainFeatures_Atlas.dds,5,3</Button>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle01_01.nif</ModelFile>
++						<Connections>NW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle02_01.nif</ModelFile>
++						<Connections>NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle03_01.nif</ModelFile>
++						<Connections>NW NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle04_01.nif</ModelFile>
++						<Connections>SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle05_01.nif</ModelFile>
++						<Connections>NW SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle06_01.nif</ModelFile>
++						<Connections>NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle07_01.nif</ModelFile>
++						<Connections>NW NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle08_01.nif</ModelFile>
++						<Connections>SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle09_01.nif</ModelFile>
++						<Connections>NW SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle10_01.nif</ModelFile>
++						<Connections>NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle11_01.nif</ModelFile>
++						<Connections>NW NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle12_01.nif</ModelFile>
++						<Connections>SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle13_01.nif</ModelFile>
++						<Connections>NW SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle14_01.nif</ModelFile>
++						<Connections>NE SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Jungle/Jungle15_01.nif</ModelFile>
++						<Connections>NW NE SE SW</Connections>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/Jungle.dds</VarietyButton>
++			</FeatureVariety>
++		</FeatureArtInfo>
++		<FeatureArtInfo>
++			<Type>ART_DEF_FEATURE_OASIS</Type>
++			<bAnimated>1</bAnimated>
++			<bRiverArt>0</bRiverArt>
++			<TileArtType>TILE_ART_TYPE_NONE</TileArtType>
++			<LightType>LIGHT_TYPE_SUN</LightType>
++			<fScale>1.0</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<Button>,Art/Interface/Buttons/TerrainFeatures/Oasis.dds,Art/Interface/Buttons/BaseTerrain_TerrainFeatures_Atlas.dds,6,3</Button>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Oasis/Oasis.nif</ModelFile>
++						<Connections></Connections>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/Oasis.dds</VarietyButton>
++			</FeatureVariety>
++		</FeatureArtInfo>
++		<FeatureArtInfo>
++			<Type>ART_DEF_FEATURE_FLOOD_PLAINS</Type>
++			<bAnimated>0</bAnimated>
++			<bRiverArt>1</bRiverArt>
++			<TileArtType>TILE_ART_TYPE_NONE</TileArtType>
++			<LightType>LIGHT_TYPE_SUN</LightType>
++			<fScale>1.0</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<Button>,Art/Interface/Buttons/TerrainFeatures/FloodPlains.dds,Art/Interface/Buttons/BaseTerrain_TerrainFeatures_Atlas.dds,2,3</Button>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/Floodplain/FloodPlain_baseALL.dds</ModelFile>
++						<Connections/>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/FloodPlains.dds</VarietyButton>
++			</FeatureVariety>
++		</FeatureArtInfo>
++		<FeatureArtInfo>
++			<Type>ART_DEF_FEATURE_FOREST</Type>
++			<bAnimated>0</bAnimated>
++			<bRiverArt>0</bRiverArt>
++			<TileArtType>TILE_ART_TYPE_TREES</TileArtType>
++			<LightType>LIGHT_TYPE_SUN</LightType>
++			<fScale>1.0</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<Button>,Art/Interface/Buttons/TerrainFeatures/Forest.dds,Art/Interface/Buttons/BaseTerrain_TerrainFeatures_Atlas.dds,3,3</Button>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy01_01.nif</ModelFile>
++						<Connections>NW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy02_01.nif</ModelFile>
++						<Connections>NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy03_01.nif</ModelFile>
++						<Connections>NW NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy04_01.nif</ModelFile>
++						<Connections>SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy05_01.nif</ModelFile>
++						<Connections>NW SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy06_01.nif</ModelFile>
++						<Connections>NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy07_01.nif</ModelFile>
++						<Connections>NW NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy08_01.nif</ModelFile>
++						<Connections>SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy09_01.nif</ModelFile>
++						<Connections>NW SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy10_01.nif</ModelFile>
++						<Connections>NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy11_01.nif</ModelFile>
++						<Connections>NW NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy12_01.nif</ModelFile>
++						<Connections>SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy13_01.nif</ModelFile>
++						<Connections>NW SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy14_01.nif</ModelFile>
++						<Connections>NE SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeLeafy/Leafy15_01.nif</ModelFile>
++						<Connections>NW NE SE SW</Connections>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/Forest.dds</VarietyButton>
++			</FeatureVariety>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen01_01.nif</ModelFile>
++						<Connections>NW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen02_01.nif</ModelFile>
++						<Connections>NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen03_01.nif</ModelFile>
++						<Connections>NW NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen04_01.nif</ModelFile>
++						<Connections>SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen05_01.nif</ModelFile>
++						<Connections>NW SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen06_01.nif</ModelFile>
++						<Connections>NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen07_01.nif</ModelFile>
++						<Connections>NW NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen08_01.nif</ModelFile>
++						<Connections>SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen09_01.nif</ModelFile>
++						<Connections>NW SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen10_01.nif</ModelFile>
++						<Connections>NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen11_01.nif</ModelFile>
++						<Connections>NW NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen12_01.nif</ModelFile>
++						<Connections>SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen13_01.nif</ModelFile>
++						<Connections>NW SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen14_01.nif</ModelFile>
++						<Connections>NE SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeEvergreen/Evergreen15_01.nif</ModelFile>
++						<Connections>NW NE SE SW</Connections>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/ForestEvergreen.dds</VarietyButton>
++			</FeatureVariety>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy01_01.nif</ModelFile>
++						<Connections>NW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy02_01.nif</ModelFile>
++						<Connections>NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy03_01.nif</ModelFile>
++						<Connections>NW NE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy04_01.nif</ModelFile>
++						<Connections>SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy05_01.nif</ModelFile>
++						<Connections>NW SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy06_01.nif</ModelFile>
++						<Connections>NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy07_01.nif</ModelFile>
++						<Connections>NW NE SE</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy08_01.nif</ModelFile>
++						<Connections>SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy09_01.nif</ModelFile>
++						<Connections>NW SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy10_01.nif</ModelFile>
++						<Connections>NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy11_01.nif</ModelFile>
++						<Connections>NW NE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy12_01.nif</ModelFile>
++						<Connections>SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy13_01.nif</ModelFile>
++						<Connections>NW SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy14_01.nif</ModelFile>
++						<Connections>NE SE SW</Connections>
++					</FeatureArtPiece>
++					<FeatureArtPiece>
++						<ModelFile>Art/Terrain/Features/TreeSnowy/Snowy15_01.nif</ModelFile>
++						<Connections>NW NE SE SW</Connections>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/ForestSnowyEvergreen.dds</VarietyButton>
++			</FeatureVariety>
++		</FeatureArtInfo>
++		<FeatureArtInfo>
++			<Type>ART_DEF_FEATURE_FALLOUT</Type>
++			<bAnimated>1</bAnimated>
++			<bRiverArt>0</bRiverArt>
++			<TileArtType>TILE_ART_TYPE_NONE</TileArtType>
++			<LightType>LIGHT_TYPE_SUN</LightType>
++			<fScale>1.0</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<Button>,Art/Interface/Buttons/TerrainFeatures/Fallout.dds,Art/Interface/Buttons/BaseTerrain_TerrainFeatures_Atlas.dds,1,3</Button>
++			<FeatureVariety>
++				<FeatureArtPieces>
++					<FeatureArtPiece>
++						<ModelFile>Art/Effects/cities_irradiated/fx_cities_iradiated.nif</ModelFile>
++						<Connections></Connections>
++					</FeatureArtPiece>
++				</FeatureArtPieces>
++				<FeatureDummyNodes/>
++				<bGenerateRotations>0</bGenerateRotations>
++				<VarietyButton>Art/Interface/Buttons/TerrainFeatures/Fallout.dds</VarietyButton>
++			</FeatureVariety>
++		</FeatureArtInfo>
++	</FeatureArtInfos>
++</Civ4ArtDefines>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 7a2eb2eee..9230d15a4 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -3330,7 +3330,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<ConstructSound>AS2D_BUILD_GRANARY</ConstructSound>
+ 			<BonusHealthChanges>
+ 				<BonusHealthChange>
+-					<BonusType>BONUS_CORN</BonusType>
++					<BonusType>BONUS_MAIZE</BonusType>
+ 					<iHealthChange>1</iHealthChange>
+ 				</BonusHealthChange>
+ 				<BonusHealthChange>
+@@ -3511,7 +3511,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<ConstructSound>AS2D_BUILD_GRANARY</ConstructSound>
+ 			<BonusHealthChanges>
+ 				<BonusHealthChange>
+-					<BonusType>BONUS_CORN</BonusType>
++					<BonusType>BONUS_MAIZE</BonusType>
+ 					<iHealthChange>1</iHealthChange>
+ 				</BonusHealthChange>
+ 				<BonusHealthChange>
+@@ -3701,7 +3701,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<ConstructSound>AS2D_BUILD_GRANARY</ConstructSound>
+ 			<BonusHealthChanges>
+ 				<BonusHealthChange>
+-					<BonusType>BONUS_CORN</BonusType>
++					<BonusType>BONUS_MAIZE</BonusType>
+ 					<iHealthChange>1</iHealthChange>
+ 				</BonusHealthChange>
+ 				<BonusHealthChange>
+
+diff --git a/Assets/XML/Events/CIV4EventTriggerInfos.xml b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+index 99431416c..ba8fe1713 100644
+--- a/Assets/XML/Events/CIV4EventTriggerInfos.xml
++++ b/Assets/XML/Events/CIV4EventTriggerInfos.xml
+@@ -1513,7 +1513,7 @@
+ 			<BonusesRequired>
+ 				<BonusType>BONUS_WHEAT</BonusType>
+ 				<BonusType>BONUS_RICE</BonusType>
+-				<BonusType>BONUS_CORN</BonusType>
++				<BonusType>BONUS_MAIZE</BonusType>
+ 			</BonusesRequired>
+ 			<RoutesRequired>
+ 				<RouteType>ROUTE_ROAD</RouteType>
+@@ -1608,7 +1608,7 @@
+ 			<BonusesRequired>
+ 				<BonusType>BONUS_WHEAT</BonusType>
+ 				<BonusType>BONUS_RICE</BonusType>
+-				<BonusType>BONUS_CORN</BonusType>
++				<BonusType>BONUS_MAIZE</BonusType>
+ 			</BonusesRequired>
+ 			<RoutesRequired>
+ 				<RouteType>ROUTE_ROAD</RouteType>
+
+diff --git a/Assets/XML/GameInfo/CIV4CorporationInfo.xml b/Assets/XML/GameInfo/CIV4CorporationInfo.xml
+index 4a83ddbe3..70d4da6b2 100644
+--- a/Assets/XML/GameInfo/CIV4CorporationInfo.xml
++++ b/Assets/XML/GameInfo/CIV4CorporationInfo.xml
+@@ -18,7 +18,7 @@
+ 			<iMaintenance>100</iMaintenance>
+ 			<PrereqBonuses>
+ 				<BonusType>BONUS_WHEAT</BonusType>
+-				<BonusType>BONUS_CORN</BonusType>
++				<BonusType>BONUS_MAIZE</BonusType>
+ 				<BonusType>BONUS_RICE</BonusType>
+ 			</PrereqBonuses>
+ 			<HeadquarterCommerces>
+@@ -87,7 +87,7 @@
+ 			<!-- advc.200: K-Mod had decreased this to 80 -->
+ 			<iMaintenance>100</iMaintenance>
+ 			<PrereqBonuses>
+-				<BonusType>BONUS_CORN</BonusType>
++				<BonusType>BONUS_MAIZE</BonusType>
+ 				<BonusType>BONUS_SUGAR</BonusType>
+ 				<BonusType>BONUS_RICE</BonusType>
+ 			</PrereqBonuses>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index 5c49e77b6..35f5cb5ff 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -713,11 +713,11 @@
+ 			<FeatureTerrainBooleans/>
+ 		</BonusInfo>
+ 		<BonusInfo>
+-			<Type>BONUS_CORN</Type>
+-			<Description>TXT_KEY_BONUS_CORN</Description>
+-			<Civilopedia>TXT_KEY_BONUS_CORN_PEDIA</Civilopedia>
++			<Type>BONUS_MAIZE</Type>
++			<Description>TXT_KEY_BONUS_MAIZE</Description>
++			<Civilopedia>TXT_KEY_BONUS_MAIZE_PEDIA</Civilopedia>
+ 			<BonusClassType>BONUSCLASS_GRAIN</BonusClassType>
+-			<ArtDefineTag>ART_DEF_BONUS_CORN</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BONUS_MAIZE</ArtDefineTag>
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_AGRICULTURE</TechCityTrade>
+ 			<TechObsolete>NONE</TechObsolete>
+
+diff --git a/Assets/XML/Terrain/CIV4ImprovementInfos.xml b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+index 60b8631da..4f64139f6 100644
+--- a/Assets/XML/Terrain/CIV4ImprovementInfos.xml
++++ b/Assets/XML/Terrain/CIV4ImprovementInfos.xml
+@@ -237,9 +237,10 @@
+ 			</TerrainMakesValids>
+ 			<FeatureMakesValids/>
+ 			<!-- custom: removed improvement_winery, now grapes (wine renamed to this now anyways etc) are upgraded/improved by improvement_farm, see docs for details -->
++			<!-- custom: rice does appear to be slightly and quite significantly less nutritious than wheat for example here if i am not mistaken anyways etc https://foodstruct.com/compare/rice-vs-wheat , but trying to buff rice as it is currently weaker than wheat and corn, in a way that is balanced and accurate (not buffing just for sake of it anywyas etc), trying to come with a use case in for example https://www.reddit.com/r/ZeroWaste/comments/1fks52y/help_how_to_repurpose_a_lot_of_rice_not_for/ and https://www.reddit.com/r/Cooking/comments/1ay8l8i/i_have_a_ton_of_brown_rice_and_i_hate_it_what_can/ , it's a bit far fetched but it could be used to fill items or such like sensory bins some people suggested in these links or bags or marionettes or such that wheat may not so easily be able to do, so going with this and giving hammer as if production or something, hopefully both accurate and now rice is stronger as a ressource/bonus in civ4, (like how wheat nad maize/corn are or closer to it anyways etc) anyways etc, digging a (tiny or not tiny but anyways etc) bit more anyways etc, some other uses seem to maybe also include: https://www.beprepared.com/blogs/articles/beyond-the-bowl-20-surprising-survival-uses-of-rice?srsltid=AfmBOooJoW9HVBxY3qz7PCicqICUp8ZYSLoDtSOAszKaY6wBhl1bsR_1 so maybe the hammer/production additional bonus is indeed maybe if i may say anyways etc not too far fetched, but whether it is or not, maybe is good enough for advciv-sas's goal to make rice (more at least anyways etc) balanced as it should be (i think) but anyways etc anyways etc anyways etc and is a valuable ressource/bonus in history of rice too anyways etc... -->
+ 			<BonusTypeStructs>
+ 				<BonusTypeStruct>
+-					<BonusType>BONUS_CORN</BonusType>
++					<BonusType>BONUS_MAIZE</BonusType>
+ 					<bBonusMakesValid>1</bBonusMakesValid>
+ 					<bBonusTrade>1</bBonusTrade>
+ 					<iDiscoverRand>0</iDiscoverRand>
+@@ -256,7 +257,7 @@
+ 					<iDiscoverRand>0</iDiscoverRand>
+ 					<YieldChanges>
+ 						<iYieldChange>1</iYieldChange>
+-						<iYieldChange>0</iYieldChange>
++						<iYieldChange>1</iYieldChange>
+ 						<iYieldChange>0</iYieldChange>
+ 					</YieldChanges>
+ 				</BonusTypeStruct>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index bf43b49ca..53389f6eb 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -153,7 +153,11 @@
+ 		<Tag>TXT_KEY_BONUS_GRAPES</Tag>
+ 		<English>Grapes</English>
+ 	</TEXT>
+-
++	<!-- custom: renamed _CORN to _MAIZE see pedia entry's code comment or/and docs for details if any more than this anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_MAIZE</Tag>
++		<English>Maize</English>
++	</TEXT>
+ 
+ 
+ 	<!-- custom: renamed specialist "Great Prophet" (already was GREAT_PRIEST in code as i think is nice at least to me anyways etc, see after this bracket for details anyways etc: ) to "Great Priest", keeping everything else the same since all the code uses GREAT_PRIEST already, only need to change the name for AdvCiv-SAS as we want it, i am happy to go in the direction of civ4 code when i can and find it nice, not that it is a requirement to go in or against it(s direction but anyways etc as is or not anyways etc) ; and all the while not renaming the Great Prophet unit, a prophet is unique, but a priest or great priest could be many in history, when they join or are part of a city, hopefully clearer and makes more sense now hopefully, anyways etc, see the code comment (global search with VS Code if need anyways etc "K-Mod: was UNITAI_GREAT_MERCHANT") in (update if path is non-Steam for AdvCiv-SAS or the mod you use anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4UnitAIInfos.xml for details -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 6d05b04f1..933aa8cfa 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -27,6 +27,9 @@
+ 		<Tag>TXT_KEY_BONUS_ELEPHANTS_PEDIA</Tag>
+ 		<English>[TAB]Elephants are the largest living land mammals. At birth it is common for an elephant calf to weigh 225 pounds! In the wild, elephants exhibit complex social behavior and strong family bonds. Social hierarchy in calf-cow groups is based on size and age, with the largest and oldest at the top and the smallest and youngest last. Adolescent males determine their own ranking order through jousting contests using head and tusks. Elephants communicate with very low and long ranging subsonic tones. [PARAGRAPH:1]Elephant taming began in the Indus valley around 4000 years ago. The first military application of elephants dates from around 1100 BC and is mentioned in several Sanskrit hymns. From the east, war elephants migrated to the Persian Empire where they stood against Alexander the Great at the battle of Gaugamela. Though they did not play a significant role in the battle, Alexander saw their usefulness and began incorporating them into his army. Later the use spread throughout Europe and elephants were used in such famous campaigns as the Macedonian wars and by Hannibal during the Second Punic War.</English>
+ 	</TEXT>
++
++
++
+ 	<!-- custom: renamed _WINE to _GRAPES (but not _WINERY to _GRAPESRY, _WINERY is removed entirely as an improvement and replaced by _FARM, see docs for details, ... anyways etc...) ; (but) also (anyways etc) since wine can be made from other things than just grapes if i am not mistaken, and now this ressource/bonus is named grapes not wine anymore, this is not accurate, switching to a wiki based (from https://en.wikipedia.org/wiki/Grape anyways etc anyways etc anyways etc) description instead rather anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_GRAPES_PEDIA</Tag>
+@@ -34,6 +37,29 @@
+ 	</TEXT>
+ 
+ 
++	<!-- custom: replaced rice pedia entry('s content anyways etc) with a wikipedia based real info, and adjusted or not for advciv-sas anyways etc, hopefully more accurate and interesting or rather indeed maybe enjoyable or accurate (doublon if i may say but anyways etc) or instructive anyways etc, from: https://en.wikipedia.org/wiki/Rice , anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_RICE_PEDIA</Tag>
++		<English>[TAB]Rice is a cereal grain and in its domesticated form is the staple food of over half of the world's population, particularly in Asia and Africa. Rice is the seed of the grass species Oryza sativa (Asian rice) - or, much less commonly, Oryza glaberrima (African rice). Asian rice was domesticated in China some 13,500 to 8,200 years ago; African rice was domesticated in Africa about 3,000 years ago. Rice has become commonplace in many cultures worldwide; in 2021, 787 million tons were produced, placing it fourth after sugarcane, maize, and wheat. Only some 8% of rice is traded internationally. China, India, and Indonesia are the largest consumers of rice. A substantial amount of the rice produced in developing nations is lost after harvest through factors such as poor transport and storage. Rice yields can be reduced by pests including insects, rodents, and birds, as well as by weeds, and by diseases such as rice blast. Traditional rice polycultures such as rice-duck farming, and modern integrated pest management seek to control damage from pests in a sustainable way.[PARAGRAPH:1]Dry rice grain is milled to remove the outer layers; depending on how much is removed, products range from brown rice to rice with germ and white rice. Some is parboiled to make it easy to cook. Rice contains no gluten; it provides protein but not all the essential amino acids needed for good health. Rice of different types is eaten around the world. The composition of starch components within the grain, amylose and amylopectin, gives it different texture properties. Long-grain rice, from the Indica cultivar, tends to stay intact on cooking, and is dry and fluffy. The aromatic rice varieties such as basmati and jasmine, are widely used in Asian cooking, and distinguished by their bold and nutty flavor profile. Medium-grain rice, from either the Japonica or Indica cultivar, or a hybrid of both, is moist and tender and tends to stick together. Its varieties include Calrose, which founded the Californian rice industry, Carnaroli, attributed as the king of Italian rice due to its excellent cooking properties, and black rice, which looks dark purple due to high levels of anthocyanins, and is also known as forbidden rice as it was reserved for the consumption of the royal family in ancient China. Short-grain rice, primarily from the Japonica cultivar, has an oval appearance and sticky texture. It is featured heavily in Japanese cooking such as sushi (with rice such as Koshihikari, Hatsushimo, and Sasanishiki, unique to different regions of climate and geography in Japan), as it keeps its shape when cooked. It is also used for sweet dishes such as mochi (with glutinous rice), and in European cuisine such as risotto (with arborio rice) and paella (with bomba rice, which is actually an Indica variety). Cooked white rice contains 29% carbohydrate and 2% protein, with some manganese. Golden rice is a variety produced by genetic engineering to contain vitamin A.[PARAGRAPH:1]Production of rice is estimated to have caused over 1% of global greenhouse gas emissions in 2022. Predictions of how rice yields will be affected by climate change vary across geographies and socioeconomic contexts. In human culture, rice plays a role in various religions and traditions, such as in weddings.[PARAGRAPH:2]Oryza sativa rice was first domesticated in China 9,000 years ago, by people of Neolithic cultures in the Upper and Lower Yangtze, associated with Hmong-Mien-speakers and pre-Austronesians, respectively. The functional allele for nonshattering, the critical indicator of domestication in grains, as well as five other single-nucleotide polymorphisms, is identical in both indica and japonica. This implies a single domestication event for O. sativa. Both indica and japonica forms of Asian rice sprang from a single domestication event in China from the wild rice Oryza rufipogon. Despite this evidence, it appears that indica rice arose when japonica arrived in India about 4,500 years ago and hybridised with another rice, whether an undomesticated proto-indica or wild O. nivara.[PARAGRAPH:1]Rice was introduced early into Sino-Tibetan cultures in northern China by around 6000 to 5600 years ago, and to the Korean peninsula and Japan by around 5500 to 3200 years ago. It was also carried into Taiwan by the Dapenkeng culture by 5500 to 4000 years ago, before spreading southwards via the Austronesian migrations to Island Southeast Asia, Madagascar, and Guam, but did not survive the voyage to the rest of the Pacific. It reached Austroasiatic and Kra-Dai-speakers in Mainland Southeast Asia and southern China by 5000 years ago.[PARAGRAPH:1]Rice spread around the rest of the world through cultivation, migration and trade, eventually to the Americas as part of the Columbian exchange after 1492. The now less common Oryza glaberrima (African rice) was independently domesticated in Africa around 3,000 years ago, and introduced to the Americas by the Spanish. In British North America by the time of the start of the American War of Independence, rice had become the fourth most valuable export commodity behind only tobacco, wheat, and fish.</English>
++	</TEXT>
++
++
++
++	<!-- custom: from https://en.wikipedia.org/wiki/Wheat similarly to how was done to the / for the rice pedia entry anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_WHEAT_PEDIA</Tag>
++		<English>[TAB]Wheat is a group of wild and domesticated grasses of the genus Triticum (/'tritikam/). They are cultivated for their cereal grains, which are staple foods around the world. Well-known wheat species and hybrids include the most widely grown common wheat (T. aestivum), spelt, durum, emmer, einkorn, and Khorasan or Kamut. The archaeological record suggests that wheat was first cultivated in the regions of the Fertile Crescent around 9600 BC.[PARAGRAPH:1]Wheat is grown on a larger area of land than any other food crop (220.7 million hectares or 545 million acres in 2021). World trade in wheat is greater than that of all other crops combined. In 2021, world wheat production was 771 million tonnes (850 million short tons), making it the second most-produced cereal after maize (known as corn in North America and Australia; wheat is often called corn in countries including Britain). Since 1960, world production of wheat and other grain crops has tripled and is expected to grow further through the middle of the 21st century. Global demand for wheat is increasing because of the usefulness of gluten to the food industry.[PARAGRAPH:1]Wheat is an important source of carbohydrates. Globally, it is the leading source of vegetable proteins in human food, having a protein content of about 13%, which is relatively high compared to other major cereals but relatively low in protein quality (supplying essential amino acids). When eaten as the whole grain, wheat is a source of multiple nutrients and dietary fibre. In a small part of the general population, gluten - which comprises most of the protein in wheat - can trigger coeliac disease, noncoeliac gluten sensitivity, gluten ataxia, and dermatitis herpetiformis.[PARAGRAPH:2]Hunter-gatherers in West Asia harvested wild wheats for thousands of years before they were domesticated, perhaps as early as 21,000 BC, but they formed a minor component of their diets. In this phase of pre-domestication cultivation, early cultivars were spread around the region and slowly developed the traits that came to characterise their domesticated forms.[PARAGRAPH:1]Repeated harvesting and sowing of the grains of wild grasses led to the creation of domestic strains, as mutant forms ('sports') of wheat were more amenable to cultivation. In domesticated wheat, grains are larger, and the seeds (inside the spikelets) remain attached to the ear by a toughened rachis during harvesting. In wild strains, a more fragile rachis allows the ear to shatter easily, dispersing the spikelets. Selection for larger grains and non-shattering heads by farmers might not have been deliberately intended, but simply have occurred because these traits made gathering the seeds easier; nevertheless such 'incidental' selection was an important part of crop domestication. As the traits that improve wheat as a food source involve the loss of the plant's natural seed dispersal mechanisms, highly domesticated strains of wheat cannot survive in the wild.[PARAGRAPH:1]Wild einkorn wheat (T. monococcum subsp. boeoticum) grows across Southwest Asia in open parkland and steppe environments. It comprises three distinct races, only one of which, native to Southeast Anatolia, was domesticated. The main feature that distinguishes domestic einkorn from wild is that its ears do not shatter without pressure, making it dependent on humans for dispersal and reproduction. It also tends to have wider grains. Wild einkorn was collected at sites such as Tell Abu Hureyra (c. 10,700-9000 BC) and Mureybet (c. 9800-9300 BC), but the earliest archaeological evidence for the domestic form comes after c. 8800 BC in southern Turkey, at �ay�n�, Cafer H�y�k, and possibly Neval? �ori. Genetic evidence indicates that it was domesticated in multiple places independently.[PARAGRAPH:1]Wild emmer wheat (T. turgidum subsp. dicoccoides) is less widespread than einkorn, favouring the rocky basaltic and limestone soils found in the hilly flanks of the Fertile Crescent. It is more diverse, with domesticated varieties falling into two major groups: hulled or non-shattering, in which threshing separates the whole spikelet; and free-threshing, where the individual grains are separated. Both varieties probably existed in prehistory, but over time free-threshing cultivars became more common. Wild emmer was first cultivated in the southern Levant, as early as 9600 BC. Genetic studies have found that, like einkorn, it was domesticated in southeastern Anatolia, but only once. The earliest secure archaeological evidence for domestic emmer comes from �ay�n�, c. 8300-7600 BC, where distinctive scars on the spikelets indicated that they came from a hulled domestic variety. Slightly earlier finds have been reported from Tell Aswad in Syria, c. 8500-8200 BC, but these were identified using a less reliable method based on grain size.[PARAGRAPH:2]Einkorn and emmer are considered two of the founder crops cultivated by the first farming societies in Neolithic West Asia. These communities also cultivated naked wheats (T. aestivum and T. durum) and a now-extinct domesticated form of Zanduri wheat (T. timopheevii), as well as a wide variety of other cereal and non-cereal crops. Wheat was relatively uncommon for the first thousand years of the Neolithic (when barley predominated), but became a staple after around 8500 BC. Early wheat cultivation did not demand much labour. Initially, farmers took advantage of wheat's ability to establish itself in annual grasslands by enclosing fields against grazing animals and re-sowing stands after they had been harvested, without the need to systematically remove vegetation or till the soil. They may also have exploited natural wetlands and floodplains to practice d�crue farming, sowing seeds in the soil left behind by receding floodwater. It was harvested with stone-bladed sickles. The ease of storing wheat and other cereals led farming households to become gradually more reliant on it over time, especially after they developed individual storage facilities that were large enough to hold more than a year's supply.[PARAGRAPH:1]Wheat grain was stored after threshing, with the chaff removed. It was then processed into flour using ground stone mortars. Bread made from ground einkorn and the tubers of a form of club rush (Bolboschoenus glaucus) was made as early as 12,400 BC. At �atalh�y�k (c. 7100-6000 BC), both wholegrain wheat and flour was used to prepare bread, porridge and gruel. Apart from food, wheat may also have been important to Neolithic societies as a source of straw, which could be used for fuel, wicker-making, or wattle and daub construction.[PARAGRAPH:2]Domestic wheat was quickly spread to regions where its wild ancestors did not grow naturally. Emmer was introduced to Cyprus as early as 8600 BC and einkorn c. 7500 BC; emmer reached Greece by 6500 BC, Egypt shortly after 6000 BC, and Germany and Spain by 5000 BC. "The early Egyptians were developers of bread and the use of the oven and developed baking into one of the first large-scale food production industries." By 4000 BC, wheat had reached the British Isles and Scandinavia. Wheat was also cultivated in India around 3500 BC. Wheat likely appeared in China's lower Yellow River around 2600 BC.[PARAGRAPH:1]The oldest evidence for hexaploid wheat has been confirmed through DNA analysis of wheat seeds, dating to around 6400-6200 BC, recovered from �atalh�y�k. As of 2023, the earliest known wheat with sufficient gluten for yeasted breads was found in a granary at Assiros in Macedonia dated to 1350 BC. From the Middle East, wheat continued to spread across Europe and to the Americas in the Columbian exchange. In the British Isles, wheat straw (thatch) was used for roofing in the Bronze Age, and remained in common use until the late 19th century. White wheat bread was historically a high status food, but during the nineteenth century it became in Britain an item of mass consumption, displacing oats, barley and rye from diets in the North of the country. It became "a sign of a high degree of culture". After 1860, the enormous expansion of wheat production in the United States flooded the world market, lowering prices by 40%, and (along with the expansion of potato growing) made a major contribution to the nutritional welfare of the poor.</English>
++	</TEXT>
++
++
++
++	<!-- custom: rename similarly _CORN to _MAIZE, pedia content similarly and/but now from anyways etc: https://en.wikipedia.org/wiki/Maize -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_MAIZE_PEDIA</Tag>
++		<English>[TAB]Maize (/meiz/; Zea mays), also known as corn in North American English, is a tall stout grass that produces cereal grain. It was domesticated by indigenous peoples in southern Mexico about 9,000 years ago from wild teosinte. Native Americans planted it alongside beans and squashes in the Three Sisters polyculture. The leafy stalk of the plant gives rise to male inflorescences or tassels which produce pollen, and female inflorescences called ears. The ears yield grain, known as kernels or seeds. In modern commercial varieties, these are usually yellow or white; other varieties can be of many colors.[PARAGRAPH:1]Maize relies on humans for its propagation. Since the Columbian exchange, it has become a staple food in many parts of the world, with the total production of maize surpassing that of wheat and rice. Much maize is used for animal feed, whether as grain or as the whole plant, which can either be baled or made into the more palatable silage. Sugar-rich varieties called sweet corn are grown for human consumption, while field corn varieties are used for animal feed, for uses such as cornmeal or masa, corn starch, corn syrup, pressing into corn oil, alcoholic beverages like bourbon whiskey, and as chemical feedstocks including ethanol and other biofuels.[PARAGRAPH:1]Maize is cultivated throughout the world; a greater weight of maize is produced each year than any other grain. In 2020, world production was 1.1 billion tonnes. It is afflicted by many pests and diseases; two major insect pests, European corn borer and corn rootworms, have each caused annual losses of a billion dollars in the US. Modern plant breeding has greatly increased output and qualities such as nutrition, drought tolerance, and tolerance of pests and diseases. Much maize is now genetically modified.[PARAGRAPH:1]As a food, maize is used to make a wide variety of dishes including Mexican tortillas and tamales, Italian polenta, and American hominy grits. Maize protein is low in some essential amino acids, and the niacin it contains only becomes available if freed by alkali treatment. In pre-Columbian Mesoamerica, maize was deified as a maize god and depicted in sculptures.[PARAGRAPH:2]Maize requires human intervention for its propagation. The kernels of its naturally-propagating teosinte ancestor fall off the cob on their own, while those of domesticated maize do not. All maize arose from a single domestication in southern Mexico about 9,000 years ago. The oldest surviving maize types are those of the Mexican highlands. Maize spread from this region to the lowlands and over the Americas along two major paths. The centre of domestication was most likely the Balsas River valley of south-central Mexico. Maize reached highland Ecuador at least 8000 years ago. It reached lower Central America by 7600 years ago, and the valleys of the Colombian Andes between 7000 and 6000 years ago.[PARAGRAPH:1]The earliest maize plants grew a single, small ear per plant. The Olmec and Maya cultivated maize in numerous varieties throughout Mesoamerica; they cooked, ground and processed it through nixtamalization. By 3000 years ago, maize was central to Olmec culture, including their calendar, language, and myths.[PARAGRAPH:1]The Mapuche people of south-central Chile cultivated maize along with quinoa and potatoes in pre-Hispanic times. Before the expansion of the Inca Empire, maize was traded and transported as far south as 40� S in Melinquina, L�car Department, Argentina, probably brought across the Andes from Chile.[PARAGRAPH:2]After the arrival of Europeans in 1492, Spanish settlers consumed maize, and explorers and traders carried it back to Europe. Spanish settlers much preferred wheat bread to maize. Maize flour could not be substituted for wheat for communion bread, since in Christian belief at that time only wheat could undergo transubstantiation and be transformed into the body of Christ.[PARAGRAPH:1]Maize spread to the rest of the world because of its ability to grow in diverse climates. It was cultivated in Spain just a few decades after Columbus's voyages and then spread to Italy, West Africa, the Philippines and elsewhere. By the 17th century, it was a common peasant food in Southern Europe. By the 18th century, it was the chief food of the southern French and Italian peasantry, especially as polenta in Italy.[PARAGRAPH:1]When maize was introduced into Western farming systems, it was welcomed for its productivity. However, a widespread problem of malnutrition soon arose wherever it had become a staple food. Indigenous Americans had learned to soak maize in alkali-water - made with ashes and lime - since at least 1200-1500 BC, creating the process of nixtamalization. They did this to liberate the corn hulls, but coincidentally it also liberated the B-vitamin niacin, the lack of which caused pellagra. Once alkali processing and dietary variety were understood and applied, pellagra disappeared in the developed world. The development of high-lysine maize and the promotion of a more balanced diet have contributed to its demise. Pellagra still exists in food-poor areas and refugee camps where people survive on donated maize.</English>
++	</TEXT>
++
++
+ 
+ 	<!-- custom: adding/using rather/instead a modified version of the animal concept txt key, for the sevopedia unit ('s) history panel('s text), removing the H1, and adding info about how animals can't/cannot anyways etc anyways etc anyways etc be built by any civ, including barbarians if i am not mistaken, and how our new placeExclusiveCivs "Civlizations:" "All" line is not incorrect, just animals are not restricted to any specific civ, but due to some other reasons, while there is no such restriction, no civ can build any animal unit though, so we represent the xml accurately while also explaining it hopefully well or not or yes or and other or and not or yes or and other or and not but anyways etc.
+ 	Note: also remove the uncertain note about animals not invading borders, maybe some mods would make animals do this, anyways etc, i don't know about advciv-sas('s take decision if i may say but anyways etc... on this), but removing it is probably clearer indeed and we don't commit to a specific explanation indeed that may be false or not if i may say indeed anyways etc anyways etc anyways etc... -->
+
+diff --git a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+index 0bca93a13..9b525ff67 100644
+--- a/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
++++ b/Assets/XML/TrueStarts/CIV4TruBonusInfos.xml
+@@ -350,8 +350,8 @@
+ 			</EncouragedCivs>
+ 		</TruBonusInfo>
+ 		<TruBonusInfo>
+-			<Type>TRU_CORN</Type>
+-			<BonusType>BONUS_CORN</BonusType>
++			<Type>TRU_MAIZE</Type>
++			<BonusType>BONUS_MAIZE</BonusType>
+ 			<DiscouragedRegions>
+ 				<DiscouragedRegion>
+ 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index f23bcf0a9..34047d850 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -2481,7 +2481,7 @@ p989
+ I24
+ g969
+ tp990
+-a(S'HAS_BONUS_CORN'
++a(S'HAS_BONUS_MAIZE'
+ p991
+ I24
+ g969
+@@ -2803,7 +2803,7 @@ p1110
+ I60
+ g910
+ tp1111
+-a(S'BONUS_CORN'
++a(S'BONUS_MAIZE'
+ p1112
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 291f1f859..1f2d59071 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -2481,7 +2481,7 @@ p989
+ I24
+ g969
+ tp990
+-a(S'HAS_BONUS_CORN'
++a(S'HAS_BONUS_MAIZE'
+ p991
+ I24
+ g969
+@@ -2803,7 +2803,7 @@ p1110
+ I60
+ g910
+ tp1111
+-a(S'BONUS_CORN'
++a(S'BONUS_MAIZE'
+ p1112
+ I60
+ g910
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index 1e92810c9..9398a4d6e 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -2225,7 +2225,7 @@ p892
+ I24
+ g872
+ tp893
+-a(S'HAS_BONUS_CORN'
++a(S'HAS_BONUS_MAIZE'
+ p894
+ I24
+ g872
+@@ -2558,7 +2558,7 @@ p1015
+ I40
+ g816
+ tp1016
+-a(S'BONUS_CORN'
++a(S'BONUS_MAIZE'
+ p1017
+ I40
+ g816
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index fd37fbf5c..f6015e962 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -2339,7 +2339,7 @@ p928
+ I24
+ g908
+ tp929
+-a(S'HAS_BONUS_CORN'
++a(S'HAS_BONUS_MAIZE'
+ p930
+ I24
+ g908
+@@ -2673,7 +2673,7 @@ p1052
+ I45
+ g849
+ tp1053
+-a(S'BONUS_CORN'
++a(S'BONUS_MAIZE'
+ p1054
+ I80
+ g849
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 2d157b26b..c8f054e11 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -20,9 +20,9 @@ There are also other additions, in particular written/coded by me wonderingabout
+ 
+ A copy of the screenshots (may not be latest version of it) of how it looks ingame:
+ 
+-<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
+-<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
+-<img src="../_1_AdvCiv-SAS/Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (1).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (2).JPG" width="250"></img>
++<img src="../Images_In_General/0.621_sevopedia_AI_Personality_sample (3).JPG" width="250"></img>
+ 
+ For more screenshot previews of new sevopedia entries or udpated ones (not exhaustive), you can visit the [README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks](/README.md#ai-personality-panel-in-sevopedialeader-and-other-sevopedia-reworks) link (for details (too anyways etc)).
+ 
+@@ -277,18 +277,18 @@ but gold not until metal casting.
+ of the world, see [world map with civs](/_1_AdvCiv-SAS/Images_In_General/0.22_world_map_terrain_with_new_civs.png)
+ (todo add link), for example The Kingdom Of Benin (Nigeria), or in weaker terrains
+ (that are now buffed), for example Canada
+-- Leaders have been changed: unless strongly desired, all civs have at max 2
++- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leaders have been changed: unless strongly desired, all civs have at max 2
+ leaders, should be plenty for a variety of gameplay, i don't want to clutter, prefer
+-to go deep in strategy instead, for example Joan D'arc has been added, and Louis XIV
++to go deep in strategy instead, for example Joan Of Arc has been added, and Louis XIV
+ and De Gaulle removed, generally i preferred to keep the stronger ones, Cleopatra
+ added and Hatscheputt removed for example
+-- Leader animations removed, since now some don't have, better if none have maybe,
++- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) Leader animations removed, since now some don't have, better if none have maybe,
+ instead i tried to put some nice images relatively as i thought would fit and i
+ like, took quite a lot from existing mods
+ - Some new ressources, for example camel and todo, some removed ressources, for
+-example wine and todo
+-- Renamed "Wine" (Bonus) to "Grapes". As part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or corn. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc. 
+-- todo: space victory removed, it's too tedious to do, instead the USA is the
++example hit ressources and todo
++- Renamed "Wine" (Bonus) to "Grapes". As part of renaming wine to grapes, additionally reworked grapes: now improved by IMPROVEMENT_FARM, not anymore by the old improvement_winery now removed. This matches historicality better if i may say and if it's a word anyways etc, as wine was consumed much before 4000 BC. Also, some wines are not made from grapes at all if i am not mistaken, and grapes can be eaten out of the wine usage. Updated bonus's description with a wikipedia based one as often if not always done when updating pedia entries of/in advciv-sas or and other mods using this mod's (i.e. this advciv-sas's code anyways etc). Also, the winery/happiness part of wine is transferred to the grocer building instead, now grapes gives happiness not health anymore. Similarly although not directly related, sugar now also gives happiness not health anymore through grocer. Hopefully buffes these mid game bonus effects while making these ressources more relevant as they were (a) bit (anyways etc) weak compared to say wheat or maize. See code comments for details or the ingame sevopedia entry of the grapes with also maybe or not or yes anyways etc latest updated info if anything changed since i wrote (am writing currently but anyways etc also wrote when viewing from later the new now maybe or not or yes anyways etc) but this should be the bulk of it and hopefully makes gameplay more accurate or/and interesting perhaps or/and enjoyable or not anyways etc.
++- (may not be accurate anymore todo among other possible changes to fix in this doc or not or and update or and not anyways etc, given as generla info hoepfulyl helpful ro tnot or and othe ror and not check seopedisa for latets ocntent todo fix or view this later or not for me (to do so or not (do so) anyways etc anyways etc anyways etc)) todo: space victory removed, it's too tedious to do, instead the USA is the
+ only civ who wins if they build the programme Appolo, make sure to keep them in
+ check
+ - some special units are changed: the USA's Navy Seal or some other units are
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (3).JPG
+index e0636ca13..bfeb1b00c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=63362

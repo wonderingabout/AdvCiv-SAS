@@ -1,0 +1,85 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4488
+# Commit: 010c414e03ef900b1f68f302aa082ebf254f1357
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 64486bdcf8d5b73328306dcb5f36980e424845e1
+# Title: reduce vertical padding from Y + 11 to Y + 10
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+9	1	Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+index 9f6c24bc3..d4d8eb00e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivic.py
+@@ -123,6 +123,11 @@ class SevoPediaCivic:
+ 		# advc.004y: Label added for this panel
+ 		#screen.addPanel(panelName, localText.getText("TXT_KEY_CIVILOPEDIA_HISTORY", ()), "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: also adding textName (same as in the placeHistory
++		# functions of other files, such as SevoPediaUnit.py, see those
++		# for details or more accurate or not information i mean anyways,
++		# it works as is about this i mean anyways, at least, maybe, about
++		# this i mean anyways, thanks, -->
+ 		textName = self.top.getNextWidgetName()
+ 		szText = u""
+ 		# <!-- custom: same reasoning as for TXT_KEY_CIVILOPEDIA_STRATEGY
+@@ -155,7 +160,7 @@ class SevoPediaCivic:
+ 		szText += gc.getCivicInfo(self.iCivic).getCivilopedia()
+ 		# </advc.004y>
+ 		#screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 11, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 
+ 	def handleInput (self, inputClass):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+index ac5b95397..0d1ba823a 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaCivilization.py
+@@ -141,8 +141,16 @@ class SevoPediaCivilization:
+ 		screen = self.top.getScreen()
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, "", "", True, True, self.X_TEXT, self.Y_TEXT, self.W_TEXT, self.H_TEXT, PanelStyles.PANEL_STYLE_BLUE50)
++		# <!-- custom: also adding textName (see SevoPediaCivic.py for details) -->
++		textName = self.top.getNextWidgetName()
+ 		szText = gc.getCivilizationInfo(self.iCivilization).getCivilopedia()
+-		screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		# <!-- custom: similar fix as in placeText of SevoPediCivic.py, choosing
++		# a more advanced function that also allows padding, and adding padding,
++		# if i am not mistaken about all these elements i mean anyways, see
++		# SevoPediaCivic.py for additional potential or not about this i mean
++		# anyways information, thanks, -->
++		# screen.attachMultilineText(panelName, "Text", szText, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_TEXT + 7 , self.Y_TEXT + 10, self.W_TEXT - (15 * 2), self.H_TEXT - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+index 8f4807f85..4d727b55f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaUnit.py
+@@ -294,7 +294,7 @@ class SevoPediaUnit:
+ 		# <!-- custom: i don't need the "History:", is redundant with background
+ 		# that is already about the unit's background -->
+ 		#screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 15, self.Y_HISTORY_PANE + 40, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 7 , self.Y_HISTORY_PANE + 11, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++		screen.addMultilineText(textName, szText, self.X_HISTORY_PANE + 7 , self.Y_HISTORY_PANE + 10, self.W_HISTORY_PANE - (15 * 2), self.H_HISTORY_PANE - (15 * 2) - 25, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 	def placePromotions(self):
+ 		screen = self.top.getScreen()
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=4466

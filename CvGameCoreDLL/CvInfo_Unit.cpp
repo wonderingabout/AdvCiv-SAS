@@ -73,6 +73,8 @@ m_ePrereqReligion(NO_RELIGION),
 m_ePrereqCorporation(NO_CORPORATION),
 m_ePrereqBuilding(NO_BUILDING),
 m_ePrereqAndTech(NO_TECH),
+// <!-- custom: ObsoleteTech default NONE; XML sets it per unit when needed. (GPT-5.2-Codex) -->
+m_eObsoleteTech(NO_TECH),
 m_ePrereqAndBonus(NO_BONUS),
 m_iGroupSize(0),
 m_iGroupDefinitions(0),
@@ -336,27 +338,66 @@ int CvUnitInfo::getFlavorValue(int i) const
 	return m_piFlavorValue ? m_piFlavorValue[i] : 0; // advc.003t
 }
 
+TechTypes CvUnitInfo::getObsoleteTech() const
+{
+	// <!-- custom: allow ObsoleteTech to be toggled off globally for compatibility/testing; default on. (GPT-5.2-Codex) -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH");
+	return bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_OBSOLETE_TECH ? m_eObsoleteTech : NO_TECH;
+}
+
 int CvUnitInfo::getTerrainAttackModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+
+	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_ATTACK_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piTerrainAttackModifier ? m_piTerrainAttackModifier[i] : 0; // advc.003t
 }
 
 int CvUnitInfo::getTerrainDefenseModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumTerrainInfos(), i);
+
+	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_TERRAIN_DEFENSE_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piTerrainDefenseModifier ? m_piTerrainDefenseModifier[i] : 0; // advc.003t
 }
 
 int CvUnitInfo::getFeatureAttackModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
+
+	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_ATTACK_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piFeatureAttackModifier ? m_piFeatureAttackModifier[i] : 0; // advc.003t
 }
 
 int CvUnitInfo::getFeatureDefenseModifier(int i) const
 {
 	FAssertBounds(0, GC.getNumFeatureInfos(), i);
+
+	// <!-- custom: some players don't like units terrain or feature attack/defense modifiers (e.g. Roman Legionaries stronger (+25%) on plains; chariots weaker (-50%) on jungle, etc.). I think it's a super nice option to be able to disable them if needed/want! Added with the help of chatgpt 5.2 thanks -->
+	static const bool bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS = GC.getDefineBOOL("SAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS");
+	if (!bSAS_CV_UNIT_INFO_ENABLE_XML_UNIT_FEATURE_DEFENSE_MODIFIERS)
+	{
+		return 0;
+	}
+
 	return m_piFeatureDefenseModifier ? m_piFeatureDefenseModifier[i] : 0; // advc.003t
 }
 
@@ -805,6 +846,7 @@ void CvUnitInfo::read(FDataStreamBase* stream)
 	stream->Read((int*)&m_ePrereqCorporation);
 	stream->Read((int*)&m_ePrereqBuilding);
 	stream->Read((int*)&m_ePrereqAndTech);
+	stream->Read((int*)&m_eObsoleteTech);
 	stream->Read((int*)&m_ePrereqAndBonus);
 	stream->Read(&m_iGroupSize);
 	stream->Read(&m_iGroupDefinitions);
@@ -1077,6 +1119,7 @@ void CvUnitInfo::write(FDataStreamBase* stream)
 	stream->Write(m_ePrereqCorporation);
 	stream->Write(m_ePrereqBuilding);
 	stream->Write(m_ePrereqAndTech);
+	stream->Write(m_eObsoleteTech);
 	stream->Write(m_ePrereqAndBonus);
 	stream->Write(m_iGroupSize);
 	stream->Write(m_iGroupDefinitions);
@@ -1305,6 +1348,8 @@ bool CvUnitInfo::read(CvXMLLoadUtility* pXML)
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqCorporation, "PrereqCorporation");
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqBuilding, "PrereqBuilding");
 	pXML->SetInfoIDFromChildXmlVal(m_ePrereqAndTech, "PrereqTech");
+	// <!-- custom: missing ObsoleteTech stays NO_TECH (default), so older mods without the tag remain compatible. (GPT-5.2-Codex) -->
+	pXML->SetInfoIDFromChildXmlVal(m_eObsoleteTech, "ObsoleteTech");
 
 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"TechTypes"))
 	{

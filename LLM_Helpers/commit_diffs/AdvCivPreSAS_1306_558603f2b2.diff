@@ -1,0 +1,571 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1306
+# Commit: 558603f2b292f5617a9544d33961449889f079d6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4b9258df5cbc22b2063b438cec624395f3b70863
+# Title: Changes to map layers: * No options for Resource and Unit layer - always highlight all resources and units on the map when the respective layer is enabled. *...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+15	3	Assets/Python/Screens/CvMainInterface.py
+10	1	Assets/XML/Misc/CIV4DetailManager.xml
+6	0	Assets/xml/GameInfo/CIV4Hints.xml
+53	0	Assets/xml/GlobalDefines_advc.xml
+10	0	Assets/xml/Text/CIV4GameText_advc.008d.xml
+121	67	CvGameCoreDLL/CvPlayer.cpp
+37	27	CvGameCoreDLL/CvPlot.cpp
+-	-	manual_0.92c.odt
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index d016ff44a..45f9f5350 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -1290,6 +1290,10 @@ class CvMainInterface:
+ 			# Globeview and Globelayer buttons
+ 			CyInterface().setDirty(InterfaceDirtyBits.GlobeInfo_DIRTY_BIT, False)
+ 			self.updateGlobeviewButtons()
++			# <advc.004z>
++			if gc.getDefineINT("SHOW_SCORE_IN_GLOBE_VIEW") > 0:
++				# Show/hide scoreboard depending on whether the layer has options
++				self.updateScoreStrings() # </advc.004z>
+ 
+ 		return 0
+ 
+@@ -1668,7 +1672,7 @@ class CvMainInterface:
+ 			screen.show( "VictoryAdvisorButton" )
+ 			screen.show( "InfoAdvisorButton" )
+ # BUG - City Arrows - start advc.042: commented out
+-			if false: #(MainOpt.isShowCityCycleArrows()):
++			if False: #(MainOpt.isShowCityCycleArrows()):
+ 				screen.show( "MainCityScrollMinus" )
+ 				screen.show( "MainCityScrollPlus" )
+ 			else:
+@@ -4916,7 +4920,14 @@ class CvMainInterface:
+ 		iBtnHeight = 22
+ 		
+ 		if ((CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_MINIMAP_ONLY)):
+-			if (CyInterface().isScoresVisible() and not CyInterface().isCityScreenUp() and CyEngine().isGlobeviewUp() == false):
++			# <advc.004z>
++			kGLM = CyGlobeLayerManager()
++			iCurrentLayerID = kGLM.getCurrentLayerID()
++			# Copy-pasted from updateGlobeviewButtons
++			bGlobeViewOptions = (iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0 and (gc.getDefineINT("SHOW_RESOURCE_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "RESOURCES") and (gc.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "UNITS"))
++			# </advc.004z>
++			# advc.004z: Globe view options clause added
++			if CyInterface().isScoresVisible() and not CyInterface().isCityScreenUp() and (not CyEngine().isGlobeviewUp() or (not bGlobeViewOptions and gc.getDefineINT("SHOW_SCORE_IN_GLOBE_VIEW") > 0)):
+ 
+ # BUG - Align Icons - start
+ 				bAlignIcons = ScoreOpt.isAlignIcons()
+@@ -5341,7 +5352,8 @@ class CvMainInterface:
+ 		iNumLayers = kGLM.getNumLayers()
+ 		if kEngine.isGlobeviewUp() and CyInterface().getShowInterface() != InterfaceVisibility.INTERFACE_HIDE_ALL:
+ 			# set up panel
+-			if iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0:
++			# advc.004z: Clauses for RESOURCES and UNITS added. Would rather set NumOptions to 0, but GlobeLayerManager is not part of the SDK, apparently.
++			if iCurrentLayerID != -1 and kGLM.getLayer(iCurrentLayerID).getNumOptions() != 0 and (gc.getDefineINT("SHOW_RESOURCE_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "RESOURCES") and (gc.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") > 0 or kGLM.getLayer(iCurrentLayerID).getName() != "UNITS"):
+ 				bHasOptions = True		
+ 			else:
+ 				bHasOptions = False
+
+diff --git a/Assets/XML/Misc/CIV4DetailManager.xml b/Assets/XML/Misc/CIV4DetailManager.xml
+index 2af07e360..86cae6aba 100644
+--- a/Assets/XML/Misc/CIV4DetailManager.xml
++++ b/Assets/XML/Misc/CIV4DetailManager.xml
+@@ -54,11 +54,20 @@
+ 		<Key>3000.0, 0.9</Key>
+ 		<Key>5000.0, 1.2</Key>
+ 	</Fader>
++	<!-- advc.004z: These values seem to refer only to Globe view. The last
++		 value, changed by me from 1.0 to 0.75, sets the size of the indicator
++		 bubbles. The values in the second column of the first and second row
++		 can also be used to control the size, but only if the values in the
++		 first column are increased. What's the difference between the rows?
++		 Seems to have something to do with the sphere effect; certain
++		 combinations of values lead to misplaced bubbles when zooming all the
++		 way out. No combination I tried had any impact on the bubble size at
++		 close camera distances (non-Globe view). -->
+ 	<Fader>
+ 		<Name>F_PLOTINDICATOR_SCALE</Name>
+ 		<Key>0.0,  0.0</Key>
+ 		<Key>0.2,  0.9</Key>
+-		<Key>1.0,  1.0</Key>
++		<Key>1.0,  0.75</Key>
+ 	</Fader>
+ 	<Fader>
+ 		<Name>F_PLOTINDICATOR_ALPHA</Name>
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index 31a8d3199..bf9584f6a 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -640,6 +640,9 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_28</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_29</Description>
++		</HintInfo>
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -719,5 +722,8 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_28</Description>
+ 		</HintInfo>
++		<HintInfo>
++			<Description>TXT_KEY_ADVC_HINT_29</Description>
++		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/GlobalDefines_advc.xml b/Assets/xml/GlobalDefines_advc.xml
+index 7a03b0d7c..3c1e5bc33 100644
+--- a/Assets/xml/GlobalDefines_advc.xml
++++ b/Assets/xml/GlobalDefines_advc.xml
+@@ -955,4 +955,57 @@
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	
++	<!-- [advc.004z] -->
++	<!-- If set to 1, the scoreboard remains visible in Globe view when a layer
++		 is selected that has no options to display. E.g. the BUG Strategy
++		 layer has options for drawing lines etc., so there is no room for the
++		 scoreboard, whereas e.g. the Culture layer has no such options.
++		 0 (BtS behavior) means that the scoreboard is never shown in
++		 Globe View. -->
++	<Define>
++		<DefineName>SHOW_SCORE_IN_GLOBE_VIEW</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- If set to 0, no options are shown for the Resource layer; all types of
++		 resources are indicated on the map. If set to 1 (BtS behavior),
++		 options for displaying only happiness, health or strategic resources
++		 are shown when in Globe view (meaning also that there is no room for
++		 the scoreboard). -->
++	<Define>
++		<DefineName>SHOW_RESOURCE_LAYER_OPTIONS</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- If set to 0, no options are shown for the Unit layer; all units are
++		 indicated on the map. If set to 1 (BtS behavior), options
++		 for displaying e.g. only domestic or hostile units are shown
++		 when in Globe view (meaning that there is no room for the
++		 scoreboard). 1 also means that "Enemies in Territory" is the default
++		 option when not in Globe view (as in BtS). -->
++	<Define>
++		<DefineName>SHOW_UNIT_LAYER_OPTIONS</DefineName>
++		<iDefineIntVal>0</iDefineIntVal>
++	</Define>
++	<!-- If set to 1, the Trade layer (Globe view) colors tiles connected	
++		 through trade regardless of the tile owner. If set to 0 (BtS
++		 behavior), only tiles owned by the human player's team are colored. -->
++	<Define>
++		<DefineName>FOREIGN_GROUPS_ON_TRADE_LAYER</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- If set to 1, the Trade layer (Globe view) blackens tiles with an
++		 actively visible city that isn't connected to its owner's capital.
++		 If set to 0 (BtS behavior), connection to capital is not specially
++		 indicated. -->
++	<Define>
++		<DefineName>CONNECTION_TO_CAPITAL_ON_TRADE_LAYER</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++	<!-- If set to 1, the Resource layer highlights Tribal Villages in addition
++		 to resources. If set to 0 (BtS behavior), only resources are
++		 highlighted. -->
++	<Define>
++		<DefineName>SHOW_GOODY_HUTS_ON_RESOURCE_LAYER</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
++
+ </Civ4Defines>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index e7644ac9b..43bf0910b 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -438,4 +438,14 @@
+ 	<Spanish>(AdvCiv) Scouts can help stave off Barbarians in the early game. While unable to attack non-Animal units, Scouts now have a defensive bonus against all Barbarians.</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: (related to advc.004z) -->
++<TEXT>
++	<Tag>TXT_KEY_ADVC_HINT_29</Tag>
++	<English>If you zoom out into Globe View, the Unit Layer will indicate unit stack sizes through color: The larger the stack in a tile, the more opaque the tile color.</English>
++	<French>If you zoom out into Globe View, the Unit Layer will indicate unit stack sizes through color: The larger the stack in a tile, the more opaque the tile color.</French>
++	<German>Wenn Sie zur Weltansicht herauszoomen und die Einheitenanzeige aktivieren, k�nnen Sie aus der Farbe eines Feldes ablesen, wie viele Einheiten sich dort befinden: Je mehr Einheiten, desto tiefer der Farbton.</German>
++	<Italian>If you zoom out into Globe View, the Unit Layer will indicate unit stack sizes through color: The larger the stack in a tile, the more opaque the tile color.</Italian>
++	<Spanish>If you zoom out into Globe View, the Unit Layer will indicate unit stack sizes through color: The larger the stack in a tile, the more opaque the tile color.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index ceea005ca..84b26f861 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6415,14 +6415,14 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit,
+ 
+ 	FAssert(pPlot->isGoody()
+ 			|| taboo != NO_GOODY); // advc.314
+-	/*  <advc.003> Moved up. I don't think this function is ever called
+-		on barbs, but if it is, the hut shouldn't be removed. */
++
++	pPlot->removeGoody();
++	// <advc.003>
+ 	if(isBarbarian()) {
+-		FAssert(!isBarbarian());
++		FAssertMsg(pPlot->isOwned(),
++				"Barbs should remove hut only when receiving a city");
+ 		return;
+ 	} // </advc.003>
+-	pPlot->removeGoody();
+-
+ 	for (int iI = 0; iI < GC.getDefineINT("NUM_DO_GOODY_ATTEMPTS"); iI++)
+ 	{	// <advc.003>
+ 		if (GC.getHandicapInfo(getHandicapType()).getNumGoodies() <= 0)
+@@ -24157,34 +24157,81 @@ void CvPlayer::getTradeLayerColors(std::vector<NiColorA>& aColors, std::vector<C
+ {
+ 	aColors.resize(GC.getMapINLINE().numPlotsINLINE(), NiColorA(0, 0, 0, 0));
+ 	aIndicators.clear();
+-
++	// <advc.004z>
++	bool bShowForeign = (GC.getDefineINT("FOREIGN_GROUPS_ON_TRADE_LAYER") > 0);
++	bool bShowCapitalConn = (GC.getDefineINT("CONNECTION_TO_CAPITAL_ON_TRADE_LAYER") > 0);
++	// </advc.004z>
+ 	typedef std::map< int, std::vector<int> > PlotGroupMap;
+ 	PlotGroupMap mapPlotGroups;
++	std::vector<int> notConn; // advc.004z
+ 	for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); ++iI)
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++		PlayerTypes ownerId = pLoopPlot->getOwnerINLINE(); // advc.004z
+ 		CvPlotGroup* pPlotGroup = pLoopPlot->getPlotGroup(getID());
+-		if (pPlotGroup != NULL && pLoopPlot->isRevealed(getTeam(), true) && pLoopPlot->getTeam() == getTeam())
+-		{
+-			mapPlotGroups[pPlotGroup->getID()].push_back(iI);
+-		}
+-	}
+-
++		if (pPlotGroup != NULL && pLoopPlot->isRevealed(getTeam(), true) &&
++				(pLoopPlot->getTeam() == getTeam()
++				// <advc.004z>
++				|| (bShowForeign && !pLoopPlot->isImpassable() &&
++				ownerId != BARBARIAN_PLAYER &&
++				// Get rid of insignificant groups
++				(pPlotGroup->getLengthPlots() >= 5 ||
++				!pLoopPlot->isWater() || ownerId != NO_PLAYER)))) {
++			if(bShowCapitalConn && pLoopPlot->isVisible(getTeam(), false) &&
++					pLoopPlot->isCity() && !pLoopPlot->getPlotCity()->
++					isConnectedToCapital())
++				notConn.push_back(iI);
++			else // </advc.004z>
++				mapPlotGroups[pPlotGroup->getID()].push_back(iI);
++		}
++	} // <advc.004z> Use the player color for the plot group of the capital
++	CvPlotGroup* capitalGroup = (getCapitalCity() == NULL ? NULL :
++			getCapitalCity()->plot()->getPlotGroup(getID()));
++	if(capitalGroup != NULL) {
++		FAssert(capitalGroup->getLengthPlots() > 0);
++		int count = mapPlotGroups.count(capitalGroup->getID());
++		if(count > 0) {
++			NiColorA kColor(getPlayerTextColorR() / 255.f,
++					getPlayerTextColorG() / 255.f,
++					getPlayerTextColorB() / 255.f,
++					getPlayerTextColorA() / 255.f * (bShowForeign ? 0.5f : 0.8f));
++			std::vector<int>& aPlots = mapPlotGroups[capitalGroup->getID()];
++			for(size_t i = 0; i < aPlots.size(); i++)
++				aColors[aPlots[i]] = kColor;
++		}
++		else FAssert(count > 0);
++	} // </advc.004z>
+ 	CvRandom kRandom;
+ 	kRandom.init(42);
+ 	for (PlotGroupMap::iterator it = mapPlotGroups.begin(); it != mapPlotGroups.end(); ++it)
+-	{
+-		NiColorA kColor(kRandom.getFloat(), kRandom.getFloat(), kRandom.getFloat(), 0.8f);
++	{	// <advc.004z> Already handled above
++		if(capitalGroup != NULL && it->first == capitalGroup->getID())
++			continue; // </advc.004z>
++		NiColorA kColor(kRandom.getFloat(), kRandom.getFloat(), kRandom.getFloat(),
++				// advc.004z: Can't tell apart land and water at 0.8
++				bShowForeign ? 0.5f :
++				0.8f);
+ 		std::vector<int>& aPlots = it->second;
+ 		for (size_t i = 0; i < aPlots.size(); ++i)
+ 		{
+ 			aColors[aPlots[i]] = kColor;
+ 		}
++		/*  <advc.004z> The first random color is good (white), but one of the
++			next few is a light blue that is too similar to the white.
++			Discard one float to avoid that color. */
++		kRandom.getFloat();
+ 	}
++	NiColorA kColor(0, 0, 0, 0.75f);
++	for(size_t i = 0; i < notConn.size(); i++)
++		aColors[notConn[i]] = kColor; // </advc.004z>
+ }
+ 
+ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption, std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+ {
++	// <advc.004z>
++	if(GC.getDefineINT("SHOW_UNIT_LAYER_OPTIONS") <= 0)
++		eOption = SHOW_ALL_MILITARY;
++	// </advc.004z>
+ 	aColors.resize(GC.getMapINLINE().numPlotsINLINE(), NiColorA(0, 0, 0, 0));
+ 	aIndicators.clear();
+ 
+@@ -24382,65 +24429,72 @@ void CvPlayer::getResourceLayerColors(GlobeLayerResourceOptionTypes eOption, std
+ 	{
+ 		CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+ 		PlayerTypes eOwner = pLoopPlot->getRevealedOwner(getTeam(), true); 
+-
+-		if (pLoopPlot->isRevealed(getTeam(), true))
++		// <advc.003>
++		if(!pLoopPlot->isRevealed(getTeam(), true))
++			continue; // </advc.003>
++		BonusTypes eCurType = pLoopPlot->getBonusType((GC.getGame().isDebugMode()) ? NO_TEAM : getTeam());
++		bool bOfInterest = false; // advc.004z
++		if (eCurType != NO_BONUS)
+ 		{
+-			BonusTypes eCurType = pLoopPlot->getBonusType((GC.getGame().isDebugMode()) ? NO_TEAM : getTeam());
+-			if (eCurType != NO_BONUS)
++			CvBonusInfo& kBonusInfo = GC.getBonusInfo(eCurType);
++			switch (eOption)
+ 			{
+-				CvBonusInfo& kBonusInfo = GC.getBonusInfo(eCurType);
+-
+-				bool bOfInterest = false;
+-				switch (eOption)
+-				{
+-				case SHOW_ALL_RESOURCES:
+-					bOfInterest = true;
+-					break;
+-				case SHOW_STRATEGIC_RESOURCES:
+-					bOfInterest = (kBonusInfo.getHappiness() == 0) && (kBonusInfo.getHealth() == 0);
+-					break;
+-				case SHOW_HAPPY_RESOURCES:
+-					bOfInterest = (kBonusInfo.getHappiness() != 0 ) && (kBonusInfo.getHealth() == 0);
+-					break;
+-				case SHOW_HEALTH_RESOURCES:
+-					bOfInterest = (kBonusInfo.getHappiness() == 0) && (kBonusInfo.getHealth() != 0);
+-					break;
+-
+-				}
+-
+-				if (bOfInterest)
+-				{
+-					CvPlotIndicatorData kData;
+-					kData.m_strLabel = "RESOURCES";
+-					kData.m_eVisibility = PLOT_INDICATOR_VISIBLE_ONSCREEN_ONLY;
+-					kData.m_strIcon = GC.getBonusInfo(eCurType).getButton();
++			case SHOW_ALL_RESOURCES:
++				bOfInterest = true;
++				break;
++			case SHOW_STRATEGIC_RESOURCES:
++				bOfInterest = (kBonusInfo.getHappiness() == 0) && (kBonusInfo.getHealth() == 0);
++				break;
++			case SHOW_HAPPY_RESOURCES:
++				bOfInterest = (kBonusInfo.getHappiness() != 0 ) && (kBonusInfo.getHealth() == 0);
++				break;
++			case SHOW_HEALTH_RESOURCES:
++				bOfInterest = (kBonusInfo.getHappiness() == 0) && (kBonusInfo.getHealth() != 0);
++				break;
++			} // <advc.004z>
++		}
++		if(!bOfInterest && pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
++				GC.getDefineINT("SHOW_GOODY_HUTS_ON_RESOURCE_LAYER") > 0) {
++			bOfInterest = GC.getImprovementInfo(pLoopPlot->getImprovementType()).isGoody();
++		} // </advc.004z>
++		if (bOfInterest)
++		{
++			CvPlotIndicatorData kData;
++			kData.m_strLabel = "RESOURCES";
++			kData.m_eVisibility = PLOT_INDICATOR_VISIBLE_ONSCREEN_ONLY;
++			kData.m_strIcon = // <advc.004z>
++					(eCurType == NO_BONUS ? GC.getImprovementInfo(pLoopPlot->
++					getImprovementType()).getButton() // </advc.004z>
++					: GC.getBonusInfo(eCurType).getButton());
+ 
+-					int x = pLoopPlot->getX();
+-					int y = pLoopPlot->getY();
+-					kData.m_Target = NiPoint2(GC.getMapINLINE().plotXToPointX(x), GC.getMapINLINE().plotYToPointY(y));
++			int x = pLoopPlot->getX();
++			int y = pLoopPlot->getY();
++			kData.m_Target = NiPoint2(GC.getMapINLINE().plotXToPointX(x), GC.getMapINLINE().plotYToPointY(y));
+ 
+-					if (eOwner == NO_PLAYER)
+-					{
+-						kData.m_kColor.r = 0.8f;
+-						kData.m_kColor.g = 0.8f;
+-						kData.m_kColor.b = 0.8f;
+-					}
+-					else
+-					{
+-						PlayerColorTypes eCurPlayerColor = GET_PLAYER(eOwner).getPlayerColor();
+-						const NiColorA& kColor = GC.getColorInfo((ColorTypes) GC.getPlayerColorInfo(eCurPlayerColor).getColorTypePrimary()).getColor();
+-						kData.m_kColor.r = kColor.r;
+-						kData.m_kColor.g = kColor.g;
+-						kData.m_kColor.b = kColor.b;
+-					}
++			if (eOwner == NO_PLAYER)
++			{
++				kData.m_kColor.r = 0.8f;
++				kData.m_kColor.g = 0.8f;
++				kData.m_kColor.b = 0.8f;
++			}
++			else
++			{
++				PlayerColorTypes eCurPlayerColor = GET_PLAYER(eOwner).getPlayerColor();
++				const NiColorA& kColor = GC.getColorInfo((ColorTypes) GC.getPlayerColorInfo(eCurPlayerColor).getColorTypePrimary()).getColor();
++				kData.m_kColor.r = kColor.r;
++				kData.m_kColor.g = kColor.g;
++				kData.m_kColor.b = kColor.b;
++			}
+ 
+-					szBuffer.clear();
+-					GAMETEXT.setBonusHelp(szBuffer, eCurType, false);
+-					kData.m_strHelpText = szBuffer.getCString();
++			szBuffer.clear();
++			// <advc.004z>
++			if(eCurType == NO_BONUS)
++				GAMETEXT.setImprovementHelp(szBuffer, pLoopPlot->getImprovementType());
++			else // </advc.004z>
++				GAMETEXT.setBonusHelp(szBuffer, eCurType, false);
++			kData.m_strHelpText = szBuffer.getCString();
+ 
+-					aIndicators.push_back(kData);
+-				}
+-			}
++			aIndicators.push_back(kData);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index ab0d5a7bf..1b1f84597 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -3803,20 +3803,24 @@ void CvPlot::removeGoody()
+ }
+ 
+ 
+-bool CvPlot::isCity(bool bCheckImprovement, TeamTypes eForTeam) const
+-{
+-	if (bCheckImprovement && NO_IMPROVEMENT != getImprovementType())
+-	{
+-		if (GC.getImprovementInfo(getImprovementType()).isActsAsCity())
+-		{
+-			if (NO_TEAM == eForTeam || (NO_TEAM == getTeam() && GC.getImprovementInfo(getImprovementType()).isOutsideBorders()) || GET_TEAM(eForTeam).isFriendlyTerritory(getTeam()))
+-			{
+-				return true;
+-			}
+-		}
++bool CvPlot::isCity(bool bCheckImprovement, TeamTypes eForTeam) const {
++
++	if(bCheckImprovement && NO_IMPROVEMENT != getImprovementType()
++			// advc.003
++			&& GC.getImprovementInfo(getImprovementType()).isActsAsCity()) {
++		if(NO_TEAM == eForTeam || (NO_TEAM == getTeam() &&
++				GC.getImprovementInfo(getImprovementType()).isOutsideBorders()) ||
++				(GET_TEAM(eForTeam).isFriendlyTerritory(getTeam())
++				// <advc.124>
++				&& getRevealedImprovementType(eForTeam, false) != NO_IMPROVEMENT &&
++				GC.getImprovementInfo(getRevealedImprovementType(eForTeam, false)).
++				isActsAsCity())) // </advc.124>
++			return true;
+ 	}
+-
+-	return (getPlotCity() != NULL);
++	return (getPlotCity() != NULL
++			// <advc.124>
++			&& (eForTeam == NO_TEAM ||
++			getPlotCity()->isRevealed(eForTeam, false))); // </advc.124>
+ }
+ 
+ 
+@@ -4131,7 +4135,8 @@ bool CvPlot::isNetworkTerrain(TeamTypes eTeam) const
+ 
+ bool CvPlot::isBonusNetwork(TeamTypes eTeam) const
+ {
+-	if (isRoute())
++	if (isRoute()
++			&& getRevealedRouteType(eTeam, false) != NO_ROUTE) // advc.124
+ 	{
+ 		return true;
+ 	}
+@@ -4212,9 +4217,13 @@ bool CvPlot::isTradeNetworkConnected(const CvPlot* pPlot, TeamTypes eTeam) const
+ 		}
+ 	}
+ 
+-	if (isRoute())
++	if (isRoute()
++			// advc.124:
++			&& getRevealedRouteType(eTeam, false) != NO_ROUTE)
+ 	{
+-		if (pPlot->isRoute())
++		if (pPlot->isRoute()
++				// advc.124:
++				&& pPlot->getRevealedRouteType(eTeam, false) != NO_ROUTE)
+ 		{
+ 			return true;
+ 		}
+@@ -7984,8 +7993,8 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
+ 	FAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+ 
+ 	pCity = getPlotCity();
+-
+-	if (isRevealed(eTeam, false) != bNewValue)
++	bool bOldValue = isRevealed(eTeam, false); // advc.124
++	if (bOldValue != bNewValue)
+ 	{
+ 		if (NULL == m_abRevealed)
+ 		{
+@@ -8002,21 +8011,22 @@ void CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, bool bTerrainOnly, Tea
+ 		{
+ 			area()->changeNumRevealedTiles(eTeam, ((isRevealed(eTeam, false)) ? 1 : -1));
+ 		}
+-
+-		if (bUpdatePlotGroup)
++	} /* advc.124: Need to update plot group even if revealed status hasn't
++		 changed b/c the revealed status of e.g. a route may have changed. */
++	if (bUpdatePlotGroup)
++	{
++		for (iI = 0; iI < MAX_PLAYERS; ++iI)
+ 		{
+-			for (iI = 0; iI < MAX_PLAYERS; ++iI)
++			if (GET_PLAYER((PlayerTypes)iI).isAlive())
+ 			{
+-				if (GET_PLAYER((PlayerTypes)iI).isAlive())
++				if (GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam)
+ 				{
+-					if (GET_PLAYER((PlayerTypes)iI).getTeam() == eTeam)
+-					{
+-						updatePlotGroup((PlayerTypes)iI);
+-					}
++					updatePlotGroup((PlayerTypes)iI);
+ 				}
+ 			}
+ 		}
+-
++	}
++	if(bOldValue != bNewValue) { // advc.124
+ 		if (eTeam == GC.getGameINLINE().getActiveTeam())
+ 		{
+ 			updateSymbols();
+
+[PATCH OMITTED] file=a/manual_0.92c.odt b/manual_0.92c.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=21522

@@ -1,0 +1,210 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5775
+# Commit: 967e1fb7b75e7c36e883ccf7614c6e2ece51e734
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 1c7dd567dc03886d60e0e6a3d255f4717ea1a315
+# Title: add composition tab (military advisor)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+74	4	Assets/Python/Screens/CvMilitaryAdvisor.py
+20	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+3	0	README.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 4f164d062..4fd83b446 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -53,10 +53,14 @@ class CvMilitaryAdvisor:
+ 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
+ 		self.PAGE_UNITS = 0
+ 		self.PAGE_BATTLES = 1
++		self.PAGE_COMPOSITION = 2
+ 		self.iActivePage = self.PAGE_UNITS
+-		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1"]
+-		self.PAGE_IDS = [self.PAGE_UNITS, self.PAGE_BATTLES]
+-		self.PAGE_LINK_WIDTH = [0, 0]
++		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2"]
++		self.PAGE_IDS = [self.PAGE_UNITS, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
++		self.PAGE_LINK_WIDTH = [0, 0, 0]
++		self.COMPOSITION_UNITS_TABLE_ID = "MilitaryAdvisorCompositionUnitsTable"
++		self.COMPOSITION_PROMOTIONS_TABLE_ID = "MilitaryAdvisorCompositionPromotionsTable"
++		self.COMPOSITION_COMBATS_TABLE_ID = "MilitaryAdvisorCompositionCombatsTable"
+ 		self.BATTLE_ROW_PLOTS = {}
+ 
+ 		self.Z_BACKGROUND = -2.1
+@@ -163,7 +167,12 @@ class CvMilitaryAdvisor:
+ 		self.TEXT_UNIT_TOGGLE_OFF = localText.getText("TXT_KEY_MILITARY_ADVISOR_UNIT_TOGGLE_OFF", ())
+ 		self.TEXT_TAB_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_UNITS_TAB", ()).upper()
+ 		self.TEXT_TAB_BATTLES = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB", ()).upper()
+-		self.PAGE_NAME_LIST = [self.TEXT_TAB_UNITS, self.TEXT_TAB_BATTLES]
++		self.TEXT_TAB_COMPOSITION = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB", ()).upper()
++		self.PAGE_NAME_LIST = [self.TEXT_TAB_UNITS, self.TEXT_TAB_BATTLES, self.TEXT_TAB_COMPOSITION]
++		self.TEXT_COMPOSITION_UNITS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS", ())
++		self.TEXT_COMPOSITION_PROMOTIONS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS", ())
++		self.TEXT_COMPOSITION_COMBATS = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS", ())
++		self.TEXT_COMPOSITION_COUNT = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COUNT", ())
+ 		self.TEXT_BATTLES_EMPTY = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_EMPTY", ())
+ 		self.TEXT_BATTLES_LOG_BUTTON = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_LOG_BUTTON", ())
+ 		self.TEXT_BATTLE_TURN = localText.getText("TXT_KEY_SAS_MILITARY_ADVISOR_BATTLE_TURN", ())
+@@ -282,6 +291,11 @@ class CvMilitaryAdvisor:
+ 			self.drawBattleHistory()
+ 			return
+ 
++		if self.iActivePage == self.PAGE_COMPOSITION:
++			self.iActivePlayer = getAdvisorValidPerspectivePlayer(self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
++			self.drawComposition()
++			return
++
+ 		self.iActivePlayer = gc.getGame().getActivePlayer()
+ 
+ 		# Minimap initialization
+@@ -742,6 +756,62 @@ class CvMilitaryAdvisor:
+ 			szCivType = gc.getCivilizationInfo(kPlayer.getCivilizationType()).getType()
+ 			print("OpponentPlayer: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
+ 
++
++	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Units tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current and "Current" stays free for a future detailed-units tab. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Units tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
++	def collectCompositionData(self):
++		dUnits = {}
++		dPromotions = {}
++		dCombats = {}
++		pPlayer = gc.getPlayer(self.iActivePlayer)
++		(pUnit, iter) = pPlayer.firstUnit(False)
++		iNumPromotionInfos = gc.getNumPromotionInfos()
++		while pUnit and not pUnit.isNone():
++			if pUnit.canFight():
++				iUnitType = pUnit.getUnitType()
++				dUnits[iUnitType] = dUnits.get(iUnitType, 0) + 1
++				iCombatType = pUnit.getUnitCombatType()
++				if iCombatType >= 0:
++					dCombats[iCombatType] = dCombats.get(iCombatType, 0) + 1
++				for iPromo in range(iNumPromotionInfos):
++					if pUnit.isHasPromotion(iPromo):
++						dPromotions[iPromo] = dPromotions.get(iPromo, 0) + 1
++			(pUnit, iter) = pPlayer.nextUnit(iter, False)
++		return dUnits, dPromotions, dCombats
++
++	def drawCompositionCountTable(self, szTable, szTitle, dCounts, getInfoFn, ePediaWidget, iX, iY, iW, iH):
++		screen = self.getScreen()
++		# <!-- custom: build (description, button, infoIdx, count) rows then sort by count desc so the heaviest entries land at the top before the user touches a column header. (Claude code Opus 4.7) -->
++		aRows = []
++		for iIdx, iCount in dCounts.items():
++			info = getInfoFn(iIdx)
++			aRows.append((info.getDescription(), info.getButton(), iIdx, iCount))
++		aRows.sort(key=lambda r: (-r[3], r[0]))
++		screen.addTableControlGFC(szTable, 2, iX, iY, iW, iH, True, True, 24, 24, TableStyles.TABLE_STYLE_STANDARD)
++		screen.enableSort(szTable)
++		screen.setStyle(szTable, "Table_StandardCiv_Style")
++		iCountColW = 80
++		iNameColW = iW - iCountColW - 14
++		screen.setTableColumnHeader(szTable, 0, sasFontTagLabel + szTitle + SAS_FONT_TAG_CLOSE, iNameColW)
++		screen.setTableColumnHeader(szTable, 1, sasFontTagLabel + self.TEXT_COMPOSITION_COUNT + SAS_FONT_TAG_CLOSE, iCountColW)
++		for iRow, (szName, szButton, iIdx, iCount) in enumerate(aRows):
++			screen.appendTableRow(szTable)
++			screen.setTableText(szTable, 0, iRow, sasFontTagLabel + szName + SAS_FONT_TAG_CLOSE, szButton, ePediaWidget, iIdx, -1, CvUtil.FONT_LEFT_JUSTIFY)
++			screen.setTableInt(szTable, 1, iRow, sasFontTagLabel + str(iCount) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
++
++	def drawComposition(self):
++		screen = self.getScreen()
++		addAdvisorDebugDropdown(screen, self.DEBUG_DROPDOWN_ID, self.iActivePlayer, bIncludeBarbarians=True, bAllowVassalPerspective=True)
++		# <!-- custom: counts + tight row height compress vertical space well, so an outer-margin layout would already fit all rows. But we use the maxed advisor layout because Promotion or Unit type lists can grow unexpectedly; e.g., in mod-mods (although we don't support them). (Claude code Opus 4.7) -->
++		(iX, iY, iW, iH), (iTableX, iTableY, iTableW, iTableH) = getAdvisorMaximizedPanelLayout(self.W_SCREEN, self.Y_BOTTOM_PANEL)
++		screen.addPanel(self.UNIT_PANEL_ID, "", "", True, True, iX, iY, iW, iH, PanelStyles.PANEL_STYLE_MAIN)
++		iTableGap = 14
++		iColW = (iTableW - 2 * iTableGap) / 3
++		dUnits, dPromotions, dCombats = self.collectCompositionData()
++		self.drawCompositionCountTable(self.COMPOSITION_UNITS_TABLE_ID, self.TEXT_COMPOSITION_UNITS, dUnits, gc.getUnitInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iTableX, iTableY, iColW, iTableH)
++		self.drawCompositionCountTable(self.COMPOSITION_PROMOTIONS_TABLE_ID, self.TEXT_COMPOSITION_PROMOTIONS, dPromotions, gc.getPromotionInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_PROMOTION, iTableX + iColW + iTableGap, iTableY, iColW, iTableH)
++		self.drawCompositionCountTable(self.COMPOSITION_COMBATS_TABLE_ID, self.TEXT_COMPOSITION_COMBATS, dCombats, gc.getUnitCombatInfo, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT, iTableX + 2 * (iColW + iTableGap), iTableY, iColW, iTableH)
++
++
+ 	def drawCombatExperience(self):
+ 		if self.iActivePage != self.PAGE_UNITS:
+ 			return
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 36977d6b8..e9a44455d 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -40,6 +40,26 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_TAB</Tag>
+ 		<English>Battles</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_TAB</Tag>
++		<English>Composition</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_UNITS</Tag>
++		<English>Units</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_PROMOTIONS</Tag>
++		<English>Promotions</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COMBATS</Tag>
++		<English>Combats</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_COMPOSITION_COUNT</Tag>
++		<English>Current</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_SAS_MILITARY_ADVISOR_BATTLES_EMPTY</Tag>
+ 		<English>No recorded battles for this player yet.</English>
+
+diff --git a/README.md b/README.md
+index 0ce83bfec..99f07a91b 100644
+--- a/README.md
++++ b/README.md
+@@ -201,7 +201,10 @@ Added a new Battles tab in the Military Advisor, showing as a sortable table the
+ 
+ Also added a **legend link**, and **LOG Button** (as the Timeline tab). Implementation details in the Main Changes guide.
+ 
++Also added a new Composition Tab, showing Current Units (non-civilians, including Animals (including Barbarian in debug mode)), Promotions, and Unit Combats.
++
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG" alt="/0.515_military_advisor (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG" alt="/0.515_military_advisor (3).JPG" width="250"></img>
+ 
+ ##### World Advisor
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 850017423..7fa03a502 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -360,6 +360,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.  See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
++- (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ - (Requires AdvCiv-SAS 5718+) New **World Advisor**: shows **detailed BFC, suburbs, and territory geography** information as **sortable tables**. BFC tabs show **counts per city (rows) and per field (columns)**, and have a **click to enter city button** (similar to the Info Screen's Wonders tab). The BFC1 tab shows mostly **plot type** (Peak, Hill, Water, Land) and other information (**River, Lake, Coastal Land, sortable City found year and population**) and **Terrains/Features** information; the BFC2 tab shows mostly **Bonuses** and **Improvements** with other information (**Routes**). The Territory tab shows a **condensed count summary** with 4 tables of the former BFC tabs, with a BFC, suburbs (i.e. plots outside BFC), and **total columns** for each field (rows), **total fields (rows)** for each table, **hover support** and **pedia redirect on click** (if a corresponding pedia page exists), and a legend link. Note: totals are not the strict sum of all rows as some may overlap (e.g., river and hill). The **environment tab** is now part of the World advisor (better thematic fit).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG
+index b6182a78a..c75a84ab2 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG
+new file mode 100644
+index 000000000..0ef2b53c5
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.515_military_advisor (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=17201

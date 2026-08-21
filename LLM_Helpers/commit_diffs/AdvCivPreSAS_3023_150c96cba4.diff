@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3023
+# Commit: 150c96cba427ef46b7e4d1c20692f6bc0dc341fe
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0c572d57a8ab79adefe5e4af440d8f28e6387b3a
+# Title: Fix GameFont issue (amendment)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/CvMainInterface.py
+-	-	Assets/Res/Fonts/GameFont_75.tga
+1	1	CvGameCoreDLL/CvEnums.h
+1	1	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 8ddbc4c64..ca746d089 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5535,7 +5535,7 @@ class CvMainInterface:
+ 					iAtt = pPlayer.AI_getAttitude(eActivePlayer)
+ 					#cAtt =  unichr(ord(unichr(g.getSymbolID(FontSymbols.POWER_CHAR) + 4)) + iAtt)
+ 					# advc.187: I've added the airport icon as a GameFont_75 symbol and that breaks the offset used above. No cells are left for further insertions, so, I guess, at this point, the offset from POWER_CHAR can't break again - but let's do it a bit more cleanly anyway by exposing the leftmost attitude char to Python.
+-					cAtt =  unichr(ord(unichr(g.getSymbolID(FontSymbols.NO_ATTITUDE_CHAR) + 1)) + iAtt)
++					cAtt =  unichr(ord(unichr(g.getSymbolID(FontSymbols.WORST_ATTITUDE_CHAR) + iAtt)))
+ 					szBuffer += cAtt
+ 					if bAlignIcons:
+ 						scores.setAttitude(cAtt)
+
+diff --git a/Assets/Res/Fonts/GameFont_75.tga b/Assets/Res/Fonts/GameFont_75.tga
+index e21482f26..83cd6f533 100644
+Binary files a/Assets/Res/Fonts/GameFont_75.tga and b/Assets/Res/Fonts/GameFont_75.tga differ
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index 14603a0fc..fba650628 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -1697,7 +1697,7 @@ enum FontSymbols
+ 	AIRPORT_CHAR, // </advc.002f>
+ 	/*	advc.187: So that BUG doesn't need to access the attitude symbols
+ 		through offsets */
+-	NO_ATTITUDE_CHAR,
++	WORST_ATTITUDE_CHAR,
+ #ifdef _USRDLL
+ 	MAX_NUM_SYMBOLS
+ #endif
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 151039036..9142b4d81 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -714,7 +714,7 @@ void CyEnumsPythonInterface()
+ 		.value("GREAT_GENERAL_CHAR", GREAT_GENERAL_CHAR)
+ 		.value("AIRPORT_CHAR", AIRPORT_CHAR)
+ 		// </advc.002f>
+-		.value("NO_ATTITUDE_CHAR", NO_ATTITUDE_CHAR) // advc.187
++		.value("WORST_ATTITUDE_CHAR", WORST_ATTITUDE_CHAR) // advc.187
+ 		.value("MAX_NUM_SYMBOLS", MAX_NUM_SYMBOLS)
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=2130

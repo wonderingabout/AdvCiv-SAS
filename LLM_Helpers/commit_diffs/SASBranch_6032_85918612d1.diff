@@ -1,0 +1,256 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6032
+# Commit: 85918612d1872b181517e8159719bf0e993be016
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 892798dc1eee12c607bee35f6d7a88c67f0ee33f
+# Title: Fix rare remaining AI Great General unit attachments to units (e.g. to low-value Longbowman) (prefer as of now stronger Military Instructor or Military Acade...
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+1	0	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+11	1	Assets/XML/GlobalDefines_advciv_sas.xml
+23	9	CvGameCoreDLL/CvUnitAI.cpp
+2	1	CvGameCoreDLL/CvUnitAI.h
+4	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+4	3	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+1	1	_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 78eeab329..1677d2191 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -94,7 +94,7 @@ If you find yourself stuck like for audio stopping issues, feel free to ask the
+ - Preserve important technical specifics verbatim (e.g., "0 / 0 / 0 / 0 / 100", "2 placeholders vs 3 substitutions", "remove the extra X starting position").
+ - Preserve all technical qualifiers - e.g., "debug DLL" not just "DLL", "tech advisor screen height" not just "screen height", etc. These distinctions matter.
+ - Preserve specific scope qualifiers in technical details; avoid vague rewrites that drop precise context (e.g., keep "tech advisor screen height" rather than just "screen height").
+-- Avoid unclear wording where one word can mean several Civ4 things. For example, "citizen" can mean a population member assigned to a city plot or a `SPECIALIST_CITIZEN`; "worked" can mean a plot assigned by the city or a tile improvement or build or route or such made by a `UNITCLASS_WORKER` or `UNITCLASS_WORKBOAT` or such unit; "event" can mean a BBAI/game-summary log row/action or an XML `EventInfo`/`EventTrigger`; "reserve" can mean remaining defenders or `UNITAI_RESERVE`. Use the exact meaning instead, e.g. "remaining healthy defenders after giving one to the Settler"; additionally when writing user facing doc like in the `README_Main_Changes_Guide.md`, this helps make it clearer too.
++- Avoid unclear wording where one word can mean several Civ4 things. For example, "citizen" can mean a population member assigned to a city plot or a `SPECIALIST_CITIZEN`; "worked" can mean a plot assigned by the city or a tile improvement or build or route or such made by a `UNITCLASS_WORKER` or `UNITCLASS_WORKBOAT` or such unit; "event" can mean a BBAI/game-summary log row/action or an XML `EventInfo`/`EventTrigger`; "reserve" can mean remaining defenders or `UNITAI_RESERVE`; "warlord" can mean Great General attached-to-unit use or `HANDICAP_WARLORD`. Use the exact meaning instead, e.g. "remaining healthy defenders after giving one to the Settler"; additionally when writing user facing doc like in the `README_Main_Changes_Guide.md`, this helps make it clearer too.
+ - Keep exact technical phrasing; avoid substituting terms like "starting position" -> "start" or dropping modifiers like "vertically".
+ - Preserve exact spacing/formatting in technical details (e.g., "- 30" vs "-30").
+ - Preserve exact counts/quantities when they are mentioned (e.g., "3 strings").
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 19e49f32e..1e74b283b 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -4,6 +4,7 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #20 -->
+ <!-- custom: note: iResearchPercent and iAIResearchPercent are now in our mod used as of now to adjust AI building priorities for example as of now for espionage and espionage defense buildings in particular, in the DLL in as of now CvCityAI::AI_buildingValue, if you adjust these here, try to match the changes there, general idea is as of now that at highest difficulties where AI has a tech research advantage, it needs to protect itself against human in particular spy attempts, vs when having research penalties in lowest difficulties, it needs to engage in spying more and not care as much about spying defense, see there for details -->
++<!-- custom: note: a comparison and synthetic view vs Base AdvCiv 1.12 at each handicap is as of now provided at /LLM_Helpers/examples/handicap_infos_compared.md -->
+ <!-- Handicap Infos -->
+ <Civ4HandicapInfo xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<HandicapInfos>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 50673ebe3..6797b3582 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1366,7 +1366,7 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_BBAI_UNIT_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Warlord attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
++	<!-- custom: Dedicated Great General diagnostics, separated from UNIT because Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice are one strategic decision chain rather than ordinary unit movement. This notably helps investigate bad PROMOTION_LEADER attachments such as obsolete or low-value units receiving a Great General instead of settling as a Military Instructor. (GPT-5.5) -->
+ 	<Define>
+ 		<DefineName>SAS_BBAI_GREAT_GENERAL_LOG_LEVEL</DefineName>
+ 		<iDefineIntVal>0</iDefineIntVal>
+@@ -3046,6 +3046,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT</DefineName>
+ 		<iDefineIntVal>999</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Minimum unit strength score before Great General unit attachment is allowed. BBAI save-file 450 testing showed Great Generals could otherwise attach to low-value Longbowmen after Military Instructor city joining was blocked by safety/path gates. Current AdvCiv-SAS balance strongly prefers Military Instructor or Military Academy, so the default is intentionally too high for normal units to pass; lower it to allow Great General unit attachments again, or set 0 to disable this strength gate. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE</DefineName>
++		<iDefineIntVal>100000</iDefineIntVal>
++	</Define>
++	<!-- custom: Existing unit healing value that can bypass the Great General unit-attachment strength gate. Healing is same-tile + adjacent healing; for example, rough Medic-promotion values are 10 / 20 / 40 / 60. Current AdvCiv-SAS default is intentionally too high for normal healers to pass; lower it if you want true super-medics to remain possible, or set 0 to disable this healing bypass. (GPT-5.5) -->
++	<Define>
++		<DefineName>SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING</DefineName>
++		<iDefineIntVal>100000</iDefineIntVal>
++	</Define>
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index fb24d722a..f93c25716 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -8184,13 +8184,16 @@ void CvUnitAI::AI_generalMove()
+ 
+ 	std::vector<UnitAITypes> aeUnitAITypes;
+ 	bool const bOffenseWar = (getArea().getAreaAIType(getTeam()) == AREAAI_OFFENSIVE);
++	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE");
++	static const int iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING = GC.getDefineINT("SAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING");
+ 
+ 	if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), 2))
+ 	{
+ 		aeUnitAITypes.clear();
+ 		aeUnitAITypes.push_back(UNITAI_ATTACK);
+ 		aeUnitAITypes.push_back(UNITAI_COUNTER);
+-		if (AI_lead(aeUnitAITypes))
++		// <!-- custom: BBAI save-file 450 testing showed the inherited plot-danger Great General unit-attachment branch attaching to a low-value Longbowman after AI_join rejected all cities for safety/path reasons. Keep this path XML-tunable, but default the gate high enough that Military Academy or Military Instructor remains the normal AdvCiv-SAS Great General use. (GPT-5.5) -->
++		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
+ 		{
+ 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=plotDanger roles=ATTACK,COUNTER", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 			return;
+@@ -8209,14 +8212,12 @@ void CvUnitAI::AI_generalMove()
+ 		if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=join maxCount=%d stage=second", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), iSAS_GREAT_GENERAL_AS_MILITARY_INSTRUCTOR_GENERAL_MOVE_IMAXCOUNT);
+         return;
+     }
+-	// Rest of original logic...
+-
+ 	// BETTER_BTS_AI_MOD, Unit AI, 05/14/10, jdog5000: START
+ 	if (bOffenseWar && (AI_getBirthmark() % 2 == 0))
+ 	{
+ 		aeUnitAITypes.clear();
+ 		aeUnitAITypes.push_back(UNITAI_ATTACK_CITY);
+-		if (AI_lead(aeUnitAITypes))
++		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
+ 		{
+ 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK_CITY", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 			return;
+@@ -8224,7 +8225,7 @@ void CvUnitAI::AI_generalMove()
+ 
+ 		aeUnitAITypes.clear();
+ 		aeUnitAITypes.push_back(UNITAI_ATTACK);
+-		if (AI_lead(aeUnitAITypes))
++		if (AI_lead(aeUnitAITypes, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_STRENGTH_SCORE, iSAS_GREAT_GENERAL_UNIT_ATTACHMENT_MIN_HEALING))
+ 		{
+ 			if (gGreatGeneralLogLevel >= 1) logBBAI("    GREAT_GENERAL_DECISION turn=%d player=%d %S generalId=%d action=lead reason=offenseWar roles=ATTACK", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID());
+ 			return;
+@@ -15749,7 +15750,7 @@ bool CvUnitAI::AI_discover(bool bThisTurnOnly, bool bFirstResearchOnly)
+ }
+ 
+ 
+-bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
++bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes, int iMinStrengthScore, int iMinHealing)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -15819,20 +15820,33 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
+ 						iCombatStrength /= std::max(1, iMaxGlobal);
+ 					}
+ 				}
++				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
++				// <!-- custom: Optional thresholds stop weak non-healer units from becoming Great General unit-attachment targets just because AI_join could not safely join a city this turn. (GPT-5.5) -->
++				bool const bBelowMinStrength = (iMinStrengthScore > 0 && iCombatStrength < iMinStrengthScore);
++				bool const bBelowMinHealing = (iMinHealing <= 0 || iHealing < iMinHealing);
++				if (bBelowMinStrength && bBelowMinHealing)
++				{
++					if (gGreatGeneralLogLevel >= 3)
++					{
++						CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
++						logBBAI("      GREAT_GENERAL_LEAD_REJECTED turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d minStrengthScore=%d healing=%d minHealing=%d reason=below-great-general-unit-attachment-threshold",
++								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iMinStrengthScore, iHealing, iMinHealing);
++					}
++					continue;
++				}
+ 				if (iCombatStrength > iBestStrength)
+ 				{
+ 					iBestStrength = iCombatStrength;
+ 					pBestStrUnit = pLoopUnit;
+ 					pBestStrPlot = &getPathEndTurnPlot();
+ 				}
+-				// or the unit with the best healing ability
+-				int iHealing = pLoopUnit->getSameTileHeal() + pLoopUnit->getAdjacentTileHeal();
+ 				if (gGreatGeneralLogLevel >= 3)
+ 				{
+ 					CvWString szUnitAI; getUnitAIString(szUnitAI, pLoopUnit->AI_getUnitAIType());
+ 					logBBAI("      GREAT_GENERAL_LEAD_CANDIDATE turn=%d player=%d %S generalId=%d unitId=%d unit=%S unitType=%s unitAI=%S x=%d y=%d level=%d xp=%d baseCombat=%d currCombat=%d combatLimit=%d strengthScore=%d healing=%d pathEnd=(%d,%d)",
+ 							GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), pLoopUnit->getID(), pLoopUnit->getName(0).GetCString(), GC.getInfo(pLoopUnit->getUnitType()).getType(), szUnitAI.GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), pLoopUnit->getLevel(), pLoopUnit->getExperience(), pLoopUnit->baseCombatStr(), pLoopUnit->currCombatStr(NULL, NULL), pLoopUnit->combatLimit(), iCombatStrength, iHealing, getPathEndTurnPlot().getX(), getPathEndTurnPlot().getY());
+ 				}
++				// or the unit with the best healing ability
+ 				if (iHealing > iBestHealing)
+ 				{
+ 					iBestHealing = iHealing;
+@@ -15885,7 +15899,7 @@ bool CvUnitAI::AI_lead(std::vector<UnitAITypes>& aeUnitAITypes)
+ // iMaxCounts = 1 would mean join a city if there's no existing joined GP of that type.
+ /*  advc (note): This function has been replaced by K-Mod's AI_greatPersonMove for
+ 	all GP except GG. Should probably also use the K-Mod code for GG. (Tbd.) */
+-// <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Warlord attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
++// <!-- custom: When AI_join rejects every city, AI_generalMove can fall through to Great General unit attachment. Log each rejected city so bad attachments can be traced to safety, pathing, specialist, or max-count gates instead of only seeing the later AI_lead result. (GPT-5.5) -->
+ static void logSASGreatGeneralJoinCityRejected(CvUnitAI const& kGeneral, CvCityAI const& kCity, char const* szReason, int iMaxCount, int iCurrentCount)
+ {
+ 	const int iFoodSurplus = kCity.getYieldRate(YIELD_FOOD) - kCity.foodConsumption();
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index ef9c34548..3dfdbf976 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -164,7 +164,8 @@ protected:
+ 	bool AI_spreadReligionAirlift();
+ 	bool AI_spreadCorporationAirlift();
+ 	bool AI_discover(bool bThisTurnOnly = false, bool bFirstResearchOnly = false);
+-	bool AI_lead(std::vector<UnitAITypes>& aeAIUnitTypes);
++	// <!-- custom: Optional minimum Great General unit-attachment target gates; AI_generalMove passes high SAS defaults so Great Generals normally still prefer Military Academy or Military Instructor unless the thresholds are deliberately lowered. (GPT-5.5) -->
++	bool AI_lead(std::vector<UnitAITypes>& aeAIUnitTypes, int iMinStrengthScore = 0, int iMinHealing = 0);
+ 	bool AI_join(int iMaxCount = MAX_INT);
+ 	bool AI_construct(int iMaxCount = MAX_INT, int iMaxSingleBuildingCount = MAX_INT, int iThreshold = 15);
+ 	/*bool AI_switchHurry(); // advc.003j
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index 24767c2b5..d69335089 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -2877,6 +2877,10 @@ Changes thanks to claude sonnet 4.5 and chatgpt 5, in `CvCityAI::AI_permanentSpe
+ 
+ I have noticed AI goes for great general leader, when it is much better to go for a military instructor that would scale throughout the game, and in top hammer cities, especially if they have heroic epic. Plus removed the military instructor per city limit. Results ingame are very good.
+ 
++Update: BBAI save-file 450 testing showed a remaining edge case: France had a Great General in Orleans at T132, `AI_join` rejected Orleans as `city-not-safe` and rejected Lyons/Rheims as `no-safe-path`, then the plot-danger branch attached the Great General to a low-value Longbowman (`baseCombat=4`, `xp=4`, `healing=0`).
++
++Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Academy or Military Instructor unless these thresholds are deliberately lowered. In the latest T200 retest, France's low-value Longbowman attachment was rejected from T132 to T136 and the Great General joined Orleans at T137; the same gate also rejected a United States Longbowman from T186 to T188, and that Great General joined Washington at T189.
++
+ ## 70 - (Seemingly fixed) Base advciv bug of forcing an artist specialist even if it is invalid and then firing a failed assert, in CvCityAI::AI_assignWorkingPlots
+ 
+ See code comments i.e. in `CvCityAI::AI_assignWorkingPlots` there for details, seemingly now fixed with the help of chatgpt 5 and my prompts or such, check if accurate.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 1523cccbe..53e6d7d9f 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -156,7 +156,7 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
+ - (Requires AdvCiv-SAS 6022+) **SAS game-summary log:** added a separate `SASGameSummary_*.log` for compact autoplay and AI-strength review. It records high-level run context such as economy, expansion, city and battle history, worked plots, diplomacy, unit composition, game state, and in-game bonus appearances/disappearances, complementing BBAI logs by summarizing what happened before or alongside detailed AI-decision traces. Note: it currently contains spoilers: a spoiler-free implementation was considered, so the human/active player can give to an LLM or such their play summary and get LLM or such suggestions or feedback/analysis, but it would require an extensive rework, so currently this is not supported; therefore, SAS game-summary log should as of now not be treated as a spoiler-free player-advice export. Note 2: depending on `SAS_GAME_SUMMARY_TURN_INTERVAL` value, the last turn may not appear in the log: for example, an autoplay run of 200 turns ends at T200 and thus does not seem to show the T200 data, only up to T190, so autoplay at least 201 turns to show T200 for example if you have this issue. See also [README.md (DLL Logging)](/README.md#dll-logging).
+ - **BBAI worker log split:** added separate worker and Work Boat / `UNITAI_WORKER_SEA` BBAI log-level defines so ordinary `SAS_BBAI_UNIT_LOG_LEVEL` can focus on non-worker unit behavior such as scrapping, army movement, and combat-unit decisions. Worker and worker-sea logs had become noisy enough to hide those unit decisions, and Work Boats use distinct logic from land workers, so they now have their own category as well.
+ - **BBAI Settler log split:** added `SAS_BBAI_SETTLER_LOG_LEVEL`, separated from UNIT so Settlers and other units can be inspected independently. This notably covers city-site decisions, Settler movement, scouting, returns, founding, (Requires AdvCiv-SAS 6027+) parking reasons, danger context, and city escort pools; FOUND as of now separately controls detailed city-site scoring calculations. This notably lets UNIT investigate other unit behavior without enabling the multi-megabyte first-city Settler traces needed for example for the Berlin, Karakorum, and Cuzco regression tests.
+-- (Requires AdvCiv-SAS 6031+) **Great General BBAI diagnostics:** added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Warlord attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs. This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
++- (Requires AdvCiv-SAS 6031+) **Great General BBAI diagnostics:** added `SAS_BBAI_GREAT_GENERAL_LOG_LEVEL`, separated from UNIT notably so Military Academy construction, Military Instructor joining, Great General unit attachment, target-city choice, and target-unit choice can be inspected together without enabling broad unit logs. This notably helped isolate a bad France sample where `AI_join` rejected all cities for safety/path reasons, then the plot-danger branch attached a Great General to a low-value Longbowman.
+ - **Culture-victory BBAI diagnostics:** added a new dedicated `SAS_BBAI_CULTURE_LOG_LEVEL` notably for diagnosing premature, uneven, or wasteful AI culture investment without enabling broad player/city logs. It records for example culture-stage reasons, current/projected Legendary-city countdowns and rival ranking, competing victory progress, actual culture-slider decisions, per-city weights and production, and culture contributed by production processes and assigned specialists.
+ - **Citizen-allocation BBAI diagnostics:** added a dedicated `SAS_BBAI_CITIZEN_LOG_LEVEL` notably for finding worked plots or specialists that the AI's full city-aware comparison would replace, but its faster preliminary selection overlooked. At the highest level, it also reports suspicious worked/unworked plot pairs under a simple food-first yield check.
+ - **Evacuation and retreat BBAI diagnostics:** added `SAS_BBAI_EVACUATION_LOG_LEVEL`. It notably helps investigate evacuation/retreat behavior without broad city or unit logging, for doomed cities, workers, and naval units.
+@@ -381,7 +381,8 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - **City-counter role pruning (e.g. Macemen)**: Removed `UNITAI_CITY_COUNTER` from **non-versatile** units (e.g., `UNIT_MACEMAN`). For example for macemen, as city defenders they’re too easy to punish—knights counter them hard, and even crossbow stacks can beat defending macemen—so they’re better assigned to **offensive** `UnitAI` roles. While macemen beat pikemen, pikes seldom assault cities efficiently, so the city-counter slot isn’t warranted. The same adjustment applies to any other units with this mismatch.
+ - **Mounted "Counter" role pruning:** Removed `UNITAI_COUNTER` from the mounted units (`UNIT_CHARIOT`, `UNIT_EGYPTIAN_WAR_CHARIOT`, `UNIT_CARTHAGE_NUMIDIAN_CAVALRY`) that had it. Rationale: mounted units don’t "receive defense bonuses" (note: not related to bonuses/ressources) and can be countered by other units; assigning them to COUNTER can park them in cities (e.g. seemingly seen in autoplay with War Chariots) and occupies a slot **Longbowmen** are more fit to fill as they unlock early and are cheap and versatile defenders, so these mounted unit lines are better used for offense roles rather during its window—or skipped outside it.
+ - **Stack attack order — spend expendables first:** stack attacks now prefer **bombard/collateral** and **low-effective-strength/low-XP** units first (once the stack commits to attack), preserving elite finishers. Rationale: economically efficient (older/weaker units cost upkeep but scale poorly) and strategically safer (keep high-value units for decisive blows or retreats). Change in `CvSelectionGroupAI::AI_getBestGroupAttacker`. Toggle via SAS defines for A/B testing. See [KI#89](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#89---improved-in-an-attack-stack-attack-with-lower-value-effective-strength-xp-health-units-first).
+-- **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc). Note: sometimes/rarely ignored in autoplay.
++- **Great Generals — prefer Military Instructor, focus on hammer hubs:** AI now favours settling Great Generals as **Military Instructors** over attaching them as unit leaders, as the instructor bonus scales better into the late game. **Targeting:** strong bias to the **top 3 hammer cities** with **decreasing weights** (top-1 most, then top-2/3 progressively less). Extra preference if the city **has / is building** the **Heroic Epic effect** building. **Limit removed:** cities may host **multiple** Military Instructors (no per-city cap). Implemented in `CvCityAI::AI_permanentSpecialistValue` and `CvUnitAI::AI_generalMove`. See [KI#69](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc).
++- Update: (Requires AdvCiv-SAS 6032+) Rarely in games, for example in save file 450 with France AI, a Great General could be attached to a low-value Longbowman at ~T130. BBAI logging showed the cause was Military Instructor joining was blocked by safety/path gates. To fix it, Great General unit-attachment branches now use tunable minimum target gates that default very high, so Great Generals effectively keep preferring Military Instructor or Military Academy unless these thresholds are deliberately lowered. In the retest after fix, those low-value Longbowman attachments were rejected (and another Great General attachment to USA in the same run that newly occurred as well at ~T180 was successfully blocked) and the Great Generals joined cities as Military Instructors instead. See [KI#69 (Update)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#69---tremendously-improved-ai-going-for-great-general-leaders-while-military-instructors-are-much-better-with-added-logic-to-favour-top-hammer-cities-remove-military-instructor-per-city-limit-favour-it-further-if-have-or-building-heroic-epic-effect-building-etc).
+ - **Unit upgrades - stop wasting gold on tiny gains:** Fix AI tendency to **over-upgrade units** even when the upgrade is **poor value** (high gold cost for a small strength gain), which can burn many turns of **gold** and **slow tech pace**. Before allowing an upgrade, the AI must pass **simple ROI gates** based on **strength** gained vs gold cost: (1) gold per 10% strength gain, and (2) gold per +1 **flat strength** gain; both gates are **more lenient with higher unit EXP** (high-EXP units keep their promotions after being upgraded which is valuable, so spending more gold on them is more justified), while low-EXP units are treated more strictly (often better to let them die and rebuild if needed, unless it is cheap enough to upgrade them). Example (Knight -> Cuirassier): 10 strength -> 13 strength; if one of the gates requires `15 gold per +1 flat strength gain` with `+1 gold per +1 flat strength gain per 1 EXP`, then we won't upgrade the unit if its upgrade cost is more than `15 * 3 = 45 gold` at **0 EXP**, or `((15 + 18) * 3) = 99 gold` at **18 EXP** for this gate. In autoplay, this seemingly leads to **all AIs teching significantly faster**, especially in the **late game** where there are many units and AI would often have its tech pace stall for dozens of turns. Change in `CvUnit::canUpgrade` (single global gate, like `CvUnit::canScrap`); see [KI#88](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#88---tremendously-improved-ai-always-upgrading-way-too-much-units-and-not-teching-at-all-sometimes-for-dozen-turns).
+ - **Unit upgrades - prefer the important domain for the map:** AI unit-upgrade value now optionally uses the existing **SAS map-script heaviness** logic to **relatively value** unit upgrades (not a hard ban unless relative value is set high): the real gold price is unchanged; this makes the AI think actual upgrade cost is higher for these unit upgrades. As a result, on **land-heavy maps, naval upgrades are treated as lower priority**, so the AI is more likely to **spend gold upgrading land units first** instead of modernizing old ships that have little strategic value on that map. On **naval-heavy maps, the same idea can apply in reverse for land upgrades**.
+ - **Remote captured-city attack stacks:** large AI attack **stacks in faraway captured cities no longer let upgrade waiting override a ready offensive target**. If the stack is large enough, has a valid target, and the target is not too strong, it keeps using the existing attack movement logic **instead of parking most of the empire's army far from its core** because several units could upgrade, which was very problematic. In the BBAI-log sample, the Celtic Boston trapped-stack pattern was visible from T156 to T256; the stricter remote-trap diagnostic confirmed it from T172 to T214, with up to 41 units / 62% of Celtic military parked in a faraway captured city while still having ready targets. See [KI#155](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#155---fixed-base-advciv-issue-remote-captured-city-attack-stacks-could-park-for-many-turns-because-upgrade-waiting-overrode-a-ready-offensive-target).
+@@ -490,7 +491,7 @@ Make some of the data-dense advisors use using a **higher constrast background t
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. **Reduce commerce sliders fast increment** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) from **100 to 50** and make them **tunable**. When **Min/Max commerce buttons** are enabled in **map view**, move the green commerce rate values (e.g. `+297/Turn`) into a **compact row below the sliders** (e.g. `[RESEARCH_CHAR]297; [ESPIONAGE_CHAR]16`) so the slider block can be shifted right enough to keep both the **percentage text** and the **Min/Max buttons** visible near expanded advisors such as the Technology Advisor, while avoiding right-edge overflow in normal map view too. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symmetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemingly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (City Screen - Widgets/Clickable Buttons)**: Add **redirect to Sevopedia on click** (preserving `WIDGET_HELP` hover) for **Religion** and **Corporation** icons. Add a tunable **city bonus panel render mode**: **mode 0** keeps the old AdvCiv-SAS text glyphs (Civ4's `screen.setLabelAt`: smaller; also used as overflow fallback), **mode 1** uses base AdvCiv-style framed image buttons (Civ4's `setImageButton`) but now with **larger icons** when there is room, and **mode 2** uses frameless DDS rendering (Civ4's `addDDS`) with the same larger-size logic for a cleaner look. Active non-obsolete **Bonus** icons can open Sevopedia too (mode 0 text glyphs did not redirect to Sevopedia in testing; mode 1: left/right click; mode 2: right click only in our Python-only attempts so far). Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only") and restored **Production Chooser Bar** row-jump buttons with clearer hover text ("Scroll to Units/Buildings/Wonders"). Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Add **commerce sliders fast increment buttons** (`++ and --` optional buttons ("Min/Max Buttons in BUG Menu")) in city screen (matching the ones in map view) (not added in Finance Tab or Espionage Tab because these still have access to commerce sliders as of now at their right in map view). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py).
+-- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). Make **left-click on GP bar** open the **corresponding city's city screen**. Added a **Toggle show map annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). To accommodate this new minimap button's width, **reduce minimap buttons horizontal interspacing** so **last minimap button doesn't collide horizontally with globe view** button (except for squarish maps like as of now `BTG_Cross.py`, where this is a fine trade-off, and still improved significantly with this adjustment). See [README.md (Map annotations)](/README.md#map-annotations) and [KI#135](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#135---fixed-likely-base-advciv-issue-turn-status-text-collided-with-the-diplomacy-screen). Optionally show **Plot coordinates on hover** (e.g., `63,46`) in hover help text. This makes it to discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
++- **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. Added **help text box** (`DefaultHelpArea`) (on the left side) optional **width adjustment** (negative value shrinks it). Make **x and y positions** (resolution-scaled), and **width** (hard pixel; not resolution-scaled) of the **unit bar** (`PlotListPanel`) **adjustable**, and **fix horizontal overflow of unit bar into scoreboard** when unit bar is full and scoreboard is hovered on (or toggle lock scoreboard hover is ON) (see [KI#124](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#124---fixed-likely-base-advciv-issue-map-view-unit-bar-overflows-into-hoveredexpanded-scoreboard)). Make **left-click on GP bar** open the **corresponding city's city screen**. Added a **Toggle show map annotations** (Alt + S **captions**, Alt + X **BFC marks**) button (next to the other buttons **above the Minimap**); the toggled state **persists on save and load**; reorganized buttons as part of this change (this takes the Event Log's former HUD icon former (it gets another one instead)). To accommodate this new minimap button's width, **reduce minimap buttons horizontal interspacing** so **last minimap button doesn't collide horizontally with globe view** button (except for squarish maps like as of now `BTG_Cross.py`, where this is a fine trade-off, and still improved significantly with this adjustment). See [README.md (Map annotations)](/README.md#map-annotations) and [KI#135](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#135---fixed-likely-base-advciv-issue-turn-status-text-collided-with-the-diplomacy-screen). Optionally show **Plot coordinates on hover** (e.g., `63,46`) in hover help text. This helps discuss screenshots, review, or compare directly with BBAI logs and DLL diagnostics.
+ - **Main Interface ((Map View) Scoreboard)**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+** (up, fast up) and **-** (down, fast down) **scroll buttons** (e.g., 1 by 1, 5 by 5) to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Center scoreboard scroll on the active player** button, and a **Toggle autocenter scoreboard scroll on the active player** button (so that it auto does it without having to tediously redo it regularly; note: if the scroll up/down buttons are clicked, it disables autocenter to apply manual scrolling (can be reenabled by reclicking the toggle autocenter button again)) (default state at Civ4 launch as of now optionally ON). Add a **Toggle lock scoreboard hover button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover), with an **optional default value** (as of now ON, to avoid always tediously clicking it the first time). Note: in first turns of the game the lock button effectively has no effect since power ratios are not yet visible. Add a **Toggle Background Style button** (AdvCiv **default at each save load/new game kept**; tunable) (e.g., blue panel, black50, empty (transparent)). Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard).
+ - **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+
+[PATCH OMITTED] file=a/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt b/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt reason=known-generated/noisy-history changedLines=2 bytes=1130
+
+[PATCH COVERAGE]
+patchFiles=9 embeddedFiles=7 omittedFiles=2 embeddedPatchBytes=42026

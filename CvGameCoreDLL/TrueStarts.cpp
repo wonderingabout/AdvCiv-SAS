@@ -330,16 +330,14 @@ void TrueStarts::initTargetLatitudes()
 }
 
 // Wrapper for convenience
-bool TrueStarts::canHaveBonus(CvPlot const& kPlot, BonusTypes eBonus,
-	bool bIgnoreFeature) const
+bool TrueStarts::canHaveBonus(CvPlot const& kPlot, BonusTypes eBonus, bool bIgnoreFeature) const
 {
 	return kPlot.canHaveBonus(eBonus, m_bBonusesIgnoreLatitude, bIgnoreFeature, true);
 }
 
 
-bool TrueStarts::changingVegetationMakesBonusValid(CvPlot const& kPlot, BonusTypes eBonus,
-	// Optional out param. Add this vegetation feature to make eBonus valid.
-	FeatureTypes* peFeature) const
+// Optional out param. Add this vegetation feature to make eBonus valid. <!-- custom: hoisted from multiline signature between `eBonus` and `peFeature` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool TrueStarts::changingVegetationMakesBonusValid(CvPlot const& kPlot, BonusTypes eBonus, FeatureTypes* peFeature) const
 {
 	LOCAL_REF(FeatureTypes, eFeature, peFeature, NO_FEATURE);
 	if (!canHaveBonus(kPlot, eBonus, true))
@@ -387,8 +385,7 @@ bool TrueStarts::changingVegetationMakesBonusValid(CvPlot const& kPlot, BonusTyp
 }
 
 
-CvPlot* TrueStarts::findValidBonusSwapDest(CvPlot& kOriginalDest, CvPlot const& kSource,
-	FeatureTypes* peFeature) const // See changingVegetationMakesBonusValid
+CvPlot* TrueStarts::findValidBonusSwapDest(CvPlot& kOriginalDest, CvPlot const& kSource, FeatureTypes* peFeature) const // See changingVegetationMakesBonusValid
 {
 	BonusTypes const eBonus = kSource.getBonusType();
 	if (canHaveBonus(kOriginalDest, eBonus) ||
@@ -514,8 +511,7 @@ void TrueStarts::logVegetationChange(CvPlot const& kPlot, BonusTypes eBonus) con
 }
 
 
-void TrueStarts::setPlayerWeightsPerPlot(PlotNumTypes ePlot,
-	EagerEnumMap<PlayerTypes,scaled>& kPlayerWeights, scaled rHumanMult) const
+void TrueStarts::setPlayerWeightsPerPlot(PlotNumTypes ePlot, EagerEnumMap<PlayerTypes, scaled>& kPlayerWeights, scaled rHumanMult) const
 {
 	for (TruPlayerIter itPlayer = truPlayers(); itPlayer.hasNext(); ++itPlayer)
 	{
@@ -773,8 +769,7 @@ void TrueStarts::initContemporaries()
 }
 
 
-bool TrueStarts::isTruBonusDiscouraged(CvTruBonusInfo const* pTruBonus,
-	CivilizationTypes eCiv) const
+bool TrueStarts::isTruBonusDiscouraged(CvTruBonusInfo const* pTruBonus, CivilizationTypes eCiv) const
 {
 	if (pTruBonus == NULL)
 		return false;
@@ -793,8 +788,7 @@ bool TrueStarts::isTruBonusDiscouraged(CvTruBonusInfo const* pTruBonus,
 }
 
 
-bool TrueStarts::isTruBonusEncouraged(CvTruBonusInfo const* pTruBonus,
-	CivilizationTypes eCiv) const
+bool TrueStarts::isTruBonusEncouraged(CvTruBonusInfo const* pTruBonus, CivilizationTypes eCiv) const
 {
 	if (pTruBonus == NULL)
 		return false;
@@ -803,8 +797,7 @@ bool TrueStarts::isTruBonusEncouraged(CvTruBonusInfo const* pTruBonus,
 }
 
 
-CvTruBonusInfo const* TrueStarts::getTruBonus(CvPlot const& kPlot,
-	BonusTypes eBonus) const
+CvTruBonusInfo const* TrueStarts::getTruBonus(CvPlot const& kPlot, BonusTypes eBonus) const
 {
 	if (eBonus == NO_BONUS)
 		eBonus = kPlot.getBonusType();
@@ -1234,8 +1227,7 @@ namespace
 }
 
 // Tallies stats about kPlayer's starting surroundings for the fitness evaluation
-TrueStarts::SurroundingsStats::SurroundingsStats(CvPlayer const& kPlayer,
-	TrueStarts const& kTruStarts)
+TrueStarts::SurroundingsStats::SurroundingsStats(CvPlayer const& kPlayer, TrueStarts const& kTruStarts)
 :	m_iTemperateDesertPenalty(0), m_iTemperateTundraPenalty(0)
 {
 	CvPlot const& kStart = *kPlayer.getStartingPlot();
@@ -1350,8 +1342,7 @@ TrueStarts::SurroundingsStats::SurroundingsStats(CvPlayer const& kPlayer,
 }
 
 
-int TrueStarts::calcFitness(CvPlayer const& kPlayer, CivilizationTypes eCiv,
-	LeaderHeadTypes eLeader, bool bLog) const
+int TrueStarts::calcFitness(CvPlayer const& kPlayer, CivilizationTypes eCiv, LeaderHeadTypes eLeader, bool bLog) const
 {
 	CvPlot const& kStart = *kPlayer.getStartingPlot();
 	IFLOG logBBAI("Fitness calc for %S of %S on (%d,%d)",
@@ -1893,8 +1884,7 @@ public:
 };
 
 
-int TrueStarts::calcClimateFitness(CvPlayer const& kPlayer, int iTargetPrecipitation,
-	int iTargetVariation, bool bLog) const
+int TrueStarts::calcClimateFitness(CvPlayer const& kPlayer, int iTargetPrecipitation, int iTargetVariation, bool bLog) const
 {
 	CvPlot const& kStart = *kPlayer.getStartingPlot();
 	/*	Computing a weighted mean over the entire surroundings of kStart
@@ -2236,9 +2226,7 @@ int TrueStarts::precipitation(CvPlot const& kPlot, int iDistStart) const
 /*	+1 means the best possible fit, -1 the worst.
 	All nonnegative values are acceptable, negative values might be worth
 	a swap (but not necessarily; that's for calcBonusSwapUtil to decide). */
-scaled TrueStarts::calcBonusFitness(CvPlot const& kPlot,
-	EagerEnumMap<PlayerTypes,scaled> const& kPlayerWeights,
-	BonusTypes eBonus, bool bLog) const
+scaled TrueStarts::calcBonusFitness(CvPlot const& kPlot, EagerEnumMap<PlayerTypes, scaled> const& kPlayerWeights, BonusTypes eBonus, bool bLog) const
 {
 	if (eBonus == NO_BONUS)
 		eBonus = kPlot.getBonusType();
@@ -2271,8 +2259,7 @@ scaled TrueStarts::calcBonusFitness(CvPlot const& kPlot,
 	However, the +1 is so far only a theoretical upper limit - I don't
 	want the encouraged resources to have as strong an effect as the
 	discouraged ones. */
-scaled TrueStarts::calcBonusFitness(CvPlot const& kPlot, CvPlayer const& kPlayer,
-	BonusTypes eBonus, bool bLog) const
+scaled TrueStarts::calcBonusFitness(CvPlot const& kPlot, CvPlayer const& kPlayer, BonusTypes eBonus, bool bLog) const
 {
 	scaled const rEncouragement =
 			(isBonusEncouraged(kPlot, kPlayer.getCivilizationType(), eBonus) ? fixp(0.4) :
@@ -2299,8 +2286,7 @@ namespace
 
 	/*	Counts the bonus resources within a given range, but only counts
 		adjacent bonus resources fully, others weighted by distance. */
-	scaled sameBonusInRangeScore(CvPlot const& kPlot, CvBonusInfo const& kBonus,
-		int iMaxRange, bool bBonusClass = false)
+	scaled sameBonusInRangeScore(CvPlot const& kPlot, CvBonusInfo const& kBonus, int iMaxRange, bool bBonusClass = false)
 	{
 		scaled rScore;
 		for (SquareIter itPlot(kPlot, iMaxRange, false); itPlot.hasNext(); ++itPlot)
@@ -2327,9 +2313,7 @@ namespace
 	The specific positive value says how good the swap is (all in all).
 	0 or less means that the swap should not be made, won't generally say
 	_how_ bad it is. */
-scaled TrueStarts::calcBonusSwapUtil(
-	CvPlot const& kFirstPlot, CvPlot const& kSecondPlot,
-	scaled rFirstFitness, scaled rSecondFitness, bool bLog) const
+scaled TrueStarts::calcBonusSwapUtil(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot, scaled rFirstFitness, scaled rSecondFitness, bool bLog) const
 {
 	CvPlot const* pDestOfSecond = findValidBonusSwapDest(
 			/*	Doesn't actually change the plot - but may return it as non-const.
@@ -2413,8 +2397,7 @@ scaled TrueStarts::calcBonusSwapUtil(
 }
 
 
-scaled TrueStarts::calcBonusSwapDisturbance(CvPlot const& kDest,
-	CvPlot const& kOriginalDest, BonusTypes eNewBonus, bool bLog) const
+scaled TrueStarts::calcBonusSwapDisturbance(CvPlot const& kDest, CvPlot const& kOriginalDest, BonusTypes eNewBonus, bool bLog) const
 {
 	BonusTypes eOldBonus = kOriginalDest.getBonusType();
 	scaled rDisturbance;

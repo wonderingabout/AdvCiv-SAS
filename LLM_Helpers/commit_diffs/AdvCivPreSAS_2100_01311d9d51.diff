@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2100
+# Commit: 01311d9d51a6d553a175df8f15bbd3059be46a0a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6d3e7b0f01343f7aa303c8540a88f297ac81ceb9
+# Title: Bugfix: AI peace weight had always been set to 0
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	8	CvGameCoreDLL/CvPlayer.cpp
+18	17	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7fc3f17d5..f667ea5f4 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -195,10 +195,6 @@ bool CvPlayer::initOtherData()
+ 			}
+ 		}
+ 	}
+-	// <advc.104> Ensure that AI weights are updated
+-	if (ePersonality == NO_LEADER)
+-		ePersonality = getPersonalityType();
+-	setPersonalityType(ePersonality); // </advc.104>
+ 
+ 	changeBaseFreeUnits(GC.getDefineINT("INITIAL_BASE_FREE_UNITS"));
+ 	changeBaseFreeMilitaryUnits(GC.getDefineINT("INITIAL_BASE_FREE_MILITARY_UNITS"));
+@@ -917,7 +913,7 @@ void CvPlayer::changePersonalityType()
+ 		{
+ 			if (GET_PLAYER((PlayerTypes)iJ).isAlive())
+ 			{
+-				if (GET_PLAYER((PlayerTypes)iJ).getPersonalityType() == ((LeaderHeadTypes)iI))
++				if (GET_PLAYER((PlayerTypes)iJ).getPersonalityType() == (LeaderHeadTypes)iI)
+ 					iValue /= 2;
+ 			}
+ 		}
+@@ -950,10 +946,12 @@ void CvPlayer::resetCivTypeEffects(/* advc.003q: */ bool bInit)  // advc: style
+ 		{
+ 			EventTriggerTypes eEventTrigger = (EventTriggerTypes)i;
+ 			if(bInit || // advc.003q
+-					(!GC.getInfo(eEventTrigger).isGlobal() &&
+-					(!GC.getInfo(eEventTrigger).isTeam() ||
+-					GET_TEAM(getTeam()).getNumMembers() == 1)))
++				(!GC.getInfo(eEventTrigger).isGlobal() &&
++				(!GC.getInfo(eEventTrigger).isTeam() ||
++				GET_TEAM(getTeam()).getNumMembers() == 1)))
++			{
+ 				resetTriggerFired(eEventTrigger);
++			}
+ 		}
+ 	}
+ 	for (int i = 0; i < kCiv.getNumUnits(); i++)
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2b2040571..1a3887b29 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -126,9 +126,8 @@ void CvPlayerAI::AI_init()
+ 	// advc: Caller should guarantee this
+ 	FAssert(GC.getInitCore().getSlotStatus(getID()) == SS_TAKEN || GC.getInitCore().getSlotStatus(getID()) == SS_COMPUTER);
+ 
+-	//--------------------------------
+-	// Init other game data
+-	// (advc.104: Personality weight calculation now triggered by CvPlayer::setPersonalityType)
++	// Init other game data ...
++	AI_updatePersonality(); // advc.104: Moved into a subroutine
+ 	//AI_setCivicTimer(((getMaxAnarchyTurns() == 0) ? (GC.getDefineINT("MIN_REVOLUTION_TURNS") * 2) : CIVIC_CHANGE_DELAY) / 2);  // This was commented out by the BtS expansion
+ 	AI_setReligionTimer(1);
+ 	AI_setCivicTimer((getMaxAnarchyTurns() == 0) ? 1 : 2);
+@@ -146,9 +145,9 @@ void CvPlayerAI::AI_updatePersonality()
+ 	CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
+ 	AI_setPeaceWeight(kPersonality.getBasePeaceWeight() +
+ 			GC.getGame().getSorenRandNum(kPersonality.getPeaceWeightRand(), "AI Peace Weight"));
+-	AI_setEspionageWeight(kPersonality.getEspionageWeight()
++	AI_setEspionageWeight((kPersonality.getEspionageWeight()
+ 			// K-Mod. (I've changed the meaning of this value)
+-			*GC.getInfo(COMMERCE_ESPIONAGE).getAIWeightPercent() / 100);
++			* GC.getInfo(COMMERCE_ESPIONAGE).getAIWeightPercent()) / 100);
+ }
+ 
+ 
+@@ -7698,28 +7697,30 @@ int CvPlayerAI::AI_getMemoryAttitude(PlayerTypes ePlayer, MemoryTypes eMemory) c
+ // BEGIN: Show Hidden Attitude Mod 01/22/2009
+ int CvPlayerAI::AI_getFirstImpressionAttitude(PlayerTypes ePlayer) const
+ {
+-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+-	CvHandicapInfo& h = GC.getInfo(kPlayer.getHandicapType());
+-	CvLeaderHeadInfo& lh = GC.getInfo(getPersonalityType());
+-	int iAttitude = lh.getBaseAttitude();
+-	iAttitude += h.getAttitudeChange();
++	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
++	CvHandicapInfo const& kTheirHandicap = GC.getInfo(kPlayer.getHandicapType());
++	CvLeaderHeadInfo const& kOurPersonality = GC.getInfo(getPersonalityType());
++	int iAttitude = kOurPersonality.getBaseAttitude();
++	iAttitude += kTheirHandicap.getAttitudeChange();
+ 	if(!kPlayer.isHuman())
+ 	{	// <advc.130b>
+ 		// Original peace weight modifier
+ 		int iPeaceWeightModifier = 4 - abs(AI_getPeaceWeight() -
+ 				kPlayer.AI_getPeaceWeight());
+-		double personalityModifier = iPeaceWeightModifier * 0.45;
++		scaled rPersonalityModifier = iPeaceWeightModifier * fixp(0.45);
+ 		// Original warmonger respect modifier
+-		int iRespectModifier = std::min(lh.getWarmongerRespect(),
++		int iRespectModifier = std::min(kOurPersonality.getWarmongerRespect(),
+ 				GC.getInfo(kPlayer.getPersonalityType()).
+ 				getWarmongerRespect());
+-		personalityModifier += iRespectModifier * 0.75;
+-		personalityModifier += h.getAIAttitudeChangePercent() / 100.0; // advc.148
++		rPersonalityModifier += iRespectModifier * fixp(0.75);
++		// advc.148:
++		rPersonalityModifier += per100(kTheirHandicap.getAIAttitudeChangePercent());
+ 		/*  <advc.104x> Low UWAI_PERSONALITY_PERCENT makes the peace weights and
+ 			respect values more similar; don't want that to increase the relations bonus. */
+-		static int const iUWAI_PERSONALITY_PERCENT = GC.getDefineINT("UWAI_PERSONALITY_PERCENT");
+-		personalityModifier *= iUWAI_PERSONALITY_PERCENT / 100.0;
+-		iAttitude += ::round(personalityModifier);
++		static scaled const rUWAI_PERSONALITY_PERCENT = per100(
++					GC.getDefineINT("UWAI_PERSONALITY_PERCENT"));
++		rPersonalityModifier *= rUWAI_PERSONALITY_PERCENT;
++		iAttitude += rPersonalityModifier.round();
+ 		// </advc.130b>
+ 	}
+ 	return iAttitude;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5190

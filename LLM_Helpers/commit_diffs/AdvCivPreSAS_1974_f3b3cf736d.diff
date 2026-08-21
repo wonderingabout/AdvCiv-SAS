@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1974
+# Commit: f3b3cf736d3630c72629e83eb105209b0c2693e8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9b3ea57b2b00f426eef90d4e8094c81b5da25b1a
+# Title: Fix a minor (AdvCiv) bug in AI Auto Play
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/K-Mod/AIAutoPlay.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/K-Mod/AIAutoPlay.py b/Assets/Python/K-Mod/AIAutoPlay.py
+index c34966768..3d38de1bb 100644
+--- a/Assets/Python/K-Mod/AIAutoPlay.py
++++ b/Assets/Python/K-Mod/AIAutoPlay.py
+@@ -192,7 +192,7 @@ class AIAutoPlay :
+ 				break
+ 		if preceding > disabledHuman: # If turn order wraps around
+ 			turnsLeftTarget = 1
+-		if turnsLeft == turnsLeftTarget and iPlayer == preceding:
++		if turnsLeft <= turnsLeftTarget and iPlayer == preceding:
+ 			# </advc.127>
+ 			# About to turn off automation
+ 			self.checkPlayer() # advc.127: Un-commented this line.
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=566

@@ -1,0 +1,46 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3291
+# Commit: 0d397218b5bae4a11918b118550acdb1aecc4901
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d5f1d3a47ec7ea23325714c6ebdf8ea3cf3ba298
+# Title: Wider panels on Settings tab (Victory screen)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	4	Assets/Python/Screens/CvVictoryScreen.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index 986a3de61..7aba50827 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -126,12 +126,13 @@ class CvVictoryScreen:
+ 		self.DX_LINK = 220
+ 		self.Y_LINK = 726
+ 		self.MARGIN = 20
+-		
+-		self.SETTINGS_PANEL_X1 = 50
++		# <advc.004> Panel width increased; especially for change advc.708 (display of player handicap on one line).
++		self.SETTINGS_PANEL_X1 = 30 # was 50
+ 		self.SETTINGS_PANEL_X2 = 355
+-		self.SETTINGS_PANEL_X3 = 660
++		self.SETTINGS_PANEL_X3 = 680 # was 660
++		self.SETTINGS_PANEL_WIDTH = 320 # was 300
++		# </advc.004>
+ 		self.SETTINGS_PANEL_Y = 150
+-		self.SETTINGS_PANEL_WIDTH = 300
+ 		self.SETTINGS_PANEL_HEIGHT = 500
+ 
+ 		self.nWidgetCount = 0
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=816

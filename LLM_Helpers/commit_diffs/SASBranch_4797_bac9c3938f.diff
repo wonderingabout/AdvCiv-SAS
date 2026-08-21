@@ -1,0 +1,837 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4797
+# Commit: bac9c3938f646bb9ef1df4e0502ca9306b20ec32
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: ca0e96d16f021853de6d3935c00c5aa518faf070
+# Title: cleanup or/and quite minor changes or not anyways etc
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/BasicInfos/CIV4BasicInfos.xml
+1	1	Assets/XML/Buildings/CIV4BuildingInfos.xml
+1	4	Assets/XML/Civilizations/CIV4TraitInfos.xml
+1	1	Assets/XML/Terrain/CIV4BonusInfos.xml
+1	1	Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+1	3	Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+6	23	Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+11	12	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+5	13	Assets/XML/Text/CIV4GameText_Custom.xml
+4	9	Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+13	40	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+2	7	Assets/XML/Text/CIV4GameText_advc_hints.xml
+1	3	Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+21	58	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+3	3	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+2	5	Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+2	5	Assets/XML/Units/CIV4PromotionInfos.xml
+1	1	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	_1_AdvCiv-SAS/README.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/BasicInfos/CIV4BasicInfos.xml b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+index ad844d703..6cd616285 100644
+--- a/Assets/XML/BasicInfos/CIV4BasicInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4BasicInfos.xml
+@@ -74,7 +74,7 @@ now.
+ -->
+ <Civ4BasicInfos xmlns="x-schema:CIV4BasicInfoSchema.xml">
+ 	<ConceptInfos>
+-		<!--custom: moved these concepts away from:
++		<!-- custom: moved these concepts away from:
+ 		C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\BasicInfos\CIV4NewConceptInfos.xml
+ 		Then renamed them from NewConceptInfo to ConceptInfo -->
+ 		<ConceptInfo>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index cdff4baef..5ca24931f 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -4333,7 +4333,7 @@ fVisibilityPriority	Used to give certain buildings priority when drawing them on
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>1</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>90</iCost>
++			<iCost>100</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/XML/Civilizations/CIV4TraitInfos.xml b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+index 084c71bc6..e7dba772d 100644
+--- a/Assets/XML/Civilizations/CIV4TraitInfos.xml
++++ b/Assets/XML/Civilizations/CIV4TraitInfos.xml
+@@ -276,10 +276,7 @@
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+-			<!-- custom: avoid per unit bonuses, tedious and not versatile enough,
+-			plus not necessarily the "best" way to buff, considering i find
+-			protective weak, buffing it in another (or other) way(s) and removing
+-			freepromotioncombats effects entirely -->
++			<!-- custom: avoid per unit bonuses, tedious and not versatile enough, plus not necessarily the "best" way to buff, considering i find protective weak, buffing it in another (or other) way(s) and removing freepromotioncombats effects entirely -->
+ 			<FreePromotionUnitCombats/>
+ 		</TraitInfo>
+ 		<TraitInfo>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index a6bdf8618..0384dc0f4 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -359,7 +359,7 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 				<iRandApp3>0</iRandApp3>
+ 				<iRandApp4>0</iRandApp4>
+ 			</Rands>
+-			<!-- custom: match closer the stone spawning formula or/and other strategic ressources or/and not anyways etc even if marble itself is not not directly startegic but more of a luxury strategic ressource/bonus at least in civ4 but hopefully applies well enough or is how i want to do it or not or yes or and other or and not anyways etc, was 30 / 128 -->
++			<!-- custom: match closer the stone spawning formula or/and other strategic ressources or/and not anyways etc even if marble itself is not not directly strategic but more of a luxury strategic ressource/bonus at least in civ4 but hopefully applies well enough or is how i want to do it or not or yes or and other or and not anyways etc, was 30 / 128 -->
+ 			<!-- advc.129: was 50 -->
+ 			<iPlayer>50</iPlayer>
+ 			<!-- advc.129: was 0 -->
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+index 7cd8d126b..3775f5e3c 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core_Doc.xml
+@@ -100,7 +100,7 @@ Rename the tag									Original untouched; you're free to localize your version
+ 
+ 
+ 
+-	<!-- custom: rename "BtS Rules Changes" to	"0_BtS Rules Changes (Outdated)", really important to not confuse the user/player about how this data is unrelated to us, but they may still want to access it, espcially if they are in knowledge of that/aware of	that, as they prefer maybe or not etc but etc anyways" -->
++	<!-- custom: rename "BtS Rules Changes" to "0_BtS Rules Changes (Outdated)", really important to not confuse the user/player about how this data is unrelated to us, but they may still want to access it, espcially if they are in knowledge of that/aware of that, as they prefer maybe or not etc but etc anyways" -->
+ 	<!-- advc.002b: Shortening "Beyond the Sword" to "BtS" so that the page
+ 		 names can be displayed despite the increased font size.
+ 		 Originally in CIV4GameText_BTS.xml and CIV4GameText_Objects_BTS.xml. -->
+
+diff --git a/Assets/XML/Text/BUG_CIV4GameText_Custom.xml b/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+index d7e0a7d16..6f2fe662e 100644
+--- a/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/BUG_CIV4GameText_Custom.xml
+@@ -644,9 +644,7 @@
+ 		<Italian>Sentinella</Italian>
+ 		<Spanish>Vigilar</Spanish>
+ 	</TEXT>
+-	<!-- custom: "intercept" -> "air intercept" inside the
+-	tag (text) only, not changing tag name itself unless really
+-	needed -->
++	<!-- custom: "intercept" -> "air intercept" inside the tag (text) only, not changing tag name itself unless really needed -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_GROUPER_ORDER_GROUP_INTERCEPT</Tag>
+ 		<English>Air Intercept</English>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+index 1c5e836be..c4ac76206 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Custom.xml
+@@ -100,19 +100,13 @@
+     -->
+ 	<!-- advc.004y: Like TXT_KEY_MAIN_MENU_CIVILOPEDIA (CIV4GameTextInfos.xml),
+ 		 but all capitalized. -->
+-	<!-- custom: rename civilopedia to sevopedia, better if players get used to
+-	the actual name, hopefully the "pedia" part of it should/would be clear
+-	enough to indicate that it is the same as the civilopedia. -->
++	<!-- custom: rename civilopedia to sevopedia, better if players get used to the actual name, hopefully the "pedia" part of it should/would be clear enough to indicate that it is the same as the civilopedia. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIVILOPEDIA_TITLE</Tag>
+ 		<English>SEVOPEDIA</English>
+ 	</TEXT>
+ 
+-	<!-- custom: all below in this group modified to remove the	extra
+-	redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now
+-	displaying (only) as "5" much clearer and cleaner i think this way,
+-	making a separate tag in case the original one is relevant somewhere
+-	else, anyways etc -->
++	<!-- custom: all below in this group modified to remove the	extra redundant/uneeded for example "STRENGTH: " in "STRENGTH: 5" now displaying (only) as "5" much clearer and cleaner i think this way, making a separate tag in case the original one is relevant somewhere else, anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_COST_CUSTOM</Tag>
+ 		<English>%d1_Num</English>
+@@ -136,15 +130,11 @@
+ 		<Tag>TXT_KEY_PEDIA_RANGE_UNLIMITED_CUSTOM</Tag>
+ 		<English>unlimited</English>
+ 	</TEXT>
+-	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere
+-	in advciv (nor even civ4 actually), and since we don't use it anymore in
+-	sevopedia unit now (hide the field rather entirely anyways etc, may as well
+-	remove it now, anyways etc) -->
++	<!-- custom: removed TXT_KEY_PEDIA_IMMOBILE, we don't seem to use it anywhere in advciv (nor even civ4 actually), and since we don't use it anymore in sevopedia unit now (hide the field rather entirely anyways etc, may as well remove it now, anyways etc) -->
+ 
+ 
+ 
+-	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom
+-	tag, "Happy: 5" (for example) is now "5" anyways etc -->
++	<!-- custom: in sevopediabuilding and perhaps in other places that use our custom tag, "Happy: 5" (for example) is now "5" anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_HAPPY_CUSTOM</Tag>
+ 		<English>%D1</English>
+@@ -168,20 +158,13 @@
+ 
+ 
+ 
+-	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA)
+-	to "We fear you are trading more than us" (WFYATMTU), the former is
+-	misleading as a player can receive it even if lagging behind in techs
+-	and trying to trade, from what i understand/read/remember in the past
+-	it is actually related to how much a player trades regardless of tech
+-	progress, hopefully clearer now. -->
++	<!-- custom: rename "We fear you are becoming too advanced." (WFYABTA) to "We fear you are trading more than us" (WFYATMTU), the former is misleading as a player can receive it even if lagging behind in techs and trying to trade, from what i understand/read/remember in the past it is actually related to how much a player trades regardless of tech progress, hopefully clearer now. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DENIAL_TECH_WHORE</Tag>
+ 		<English>"We fear you are trading more than us."</English>
+ 	</TEXT>
+ 
+-	<!-- custom: do not change the tag name unless we need to,
+-	we mostly only want to change the content (text here) inside
+-	the tag -->
++	<!-- custom: do not change the tag name unless we need to, we mostly only want to change the content (text here) inside the tag -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MISSION_INTERCEPT</Tag>
+ 		<English>Air Intercept</English>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 0e68b7eff..5350e5d87 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -5,7 +5,7 @@
+ <!-- -->
+ <!-- Game Text Objects -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-	<!-- custom: we don't use startegy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
++	<!-- custom: we don't use strategy tags at all anymore in AdvCiv-SAS, they will be empty just to have the tag existing, but it shuold never be used otherwise or displayed anymore in AdvCiv-SAS's sevopedia if i am not mistaken anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Tag>
+ 		<English></English>
+@@ -13,8 +13,8 @@
+ 
+ 
+ 
+-	<!-- custom: "Unique Units" were not unique (could be built	many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
+-	After futher consideration, there are no multi Civ-specific	units (units that can be built only	be a few civs in common) in AdvCiv-SAS if i am not mistaken, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
++	<!-- custom: "Unique Units" were not unique (could be built many times, just it was only by one civ in civ4, so i had renamed it to "Civ-specific Units" initially.
++	After futher consideration, there are no multi Civ-specific units (units that can be built only be a few civs in common) in AdvCiv-SAS if i am not mistaken, and the name civ-specific is quite tedious/complicated to remember/use, so renaming it rather to "Civilization Units", which may be shortened to "Civ Units" by players if they so desire or prefer maybe, hopefully clearer. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_FREE_UNITS</Tag>
+ 		<English>Civilization Units</English>
+@@ -29,7 +29,7 @@
+ 	<!-- custom: gather all base civ4 (vanilla or BTS alike) content in the same category, was "Game Concepts".
+ 	I prefer to keep the data as it can be useful/helpful to players maybe, and not delete it entirely, but clearly indicate (or more clearly indicate) that it is outdated.
+ 	
+-	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove	the burden for modders to maintain this page, as i think it	is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
++	Added the tag/mention "(Outdated)" to signify that this info is not up to date anymore, but may help for general purposes maybe especially ingame. Add this mention may also remove the burden for modders to maintain this page, as i think it is more practical for players to go online (if possible) to find/gather the data they want, while also serving my purposes.
+ 	Also "BtS" is one character shorter than "Game", with the other advantage (i think) of being more indicative of the fact that it relates to base civ4 (vanilla or BTS or similar), and not to other mods info (for example K-Mod, AdvCiv, AdvCiv-SAS, etc). -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_CONCEPT</Tag>
+@@ -73,10 +73,10 @@
+ 		<English>Pr. List</English>
+ 	</TEXT>
+ 
+-	<!-- custom: rename "Ivory" to "Elephants".	Here the main reasons for this change: 
++	<!-- custom: rename "Ivory" to "Elephants". Here the main reasons for this change: 
+ 	- 1) you need elephants to build war elephants, not ivory, even if you were to somehow find ivory somewhere, it would/could not magically turn into a war elephant, so using the animal instead.
+ 	- 2) ivory doesn't grow on the groud i think if i am not mistaken, but is derived from elephants, independent of whether they are alive or dead.
+-	- 3) One could also maybe imagine that elephants the animal itself makes people	happy, and not necessarily their ivory.
++	- 3) One could also maybe imagine that elephants the animal itself makes people happy, and not necessarily their ivory.
+ 	note: Since they are part of the animals that are countable in english rather than uncountable (see code comment below about cattle) and seeing that civ4 doesn't seem to bother with singulars too much about animals at least. I also prefer this version, anyways. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BONUS_ELEPHANTS</Tag>
+@@ -88,7 +88,7 @@
+ 	<!-- custom: similarly to what was done with the elephants, "Cattle" seems a better
+ 	fit to me than "Cow".
+ 	Be careful, according to, for example: https://forum.wordreference.com/threads/sheep-countable-uncountable.2057034/post-13154720 , some animals are countable (5 cats for example) in English while others are best fit at singular (5 sheep for example)
+-	There are less gains in changing what is already working. But specifically for cattle however rather than cows as it applies to all sexes of the cows, while still being	specific and not generic if i'm not mistaken: https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
++	There are less gains in changing what is already working. But specifically for cattle however rather than cows as it applies to all sexes of the cows, while still being specific and not generic if i'm not mistaken: https://www.idausa.org/campaign/guardian/latest-news/difference-cows-cattle-meaning/#:~:text=The%20difference%20between%20cows%20and,strictly%20to%20mature%20female%20bovines.
+ 	https://context.reverso.net/translation/english-french/cows
+ 	Also the audio announcer says in https://civilization.fandom.com/wiki/Animal_Husbandry_(Civ4): "Blessed shall be the fruit of thy cattle, the increase of thy kine, and the flocks of thy sheep." - The Bible, Deuteronomy 28:4
+ 	So i think it's very immersive and nice to use cattle here too on top of being more accurate it seems. -->
+@@ -291,8 +291,7 @@
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_DESC</Tag>
+ 		<English>Kingdom Of Benin</English>
+ 	</TEXT>
+-	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki if i understood it correctly) with modern Benin, trying to
+-	keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
++	<!-- custom: Kingdom of Benin (Nigeria) has no relation (according to wiki if i understood it correctly) with modern Benin, trying to keep the full name to make the distinction clearer, even though some circumstances could call for shortening it if purely realistic -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KINGDOM_OF_BENIN_SHORT_DESC</Tag>
+ 		<English>Kingdom Of Benin</English>
+@@ -369,7 +368,7 @@
+ 		<English>Counter-Mounted</English>
+ 	</TEXT>
+ 
+-	<!-- custom: use arabic numerals for/in promotions naming(/es),	add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use	(of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
++	<!-- custom: use arabic numerals for/in promotions naming(/es), add missing "translations" for some promotions too (for example) combat 6, even though i just copy paste to english for ease of use (of translation) and convenience, i don't want it to be displayed as "VI" ingame but "6" so adding these extra ones. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_COMBAT1</Tag>
+ 		<English>Combat 1</English>
+@@ -390,12 +389,12 @@
+ 		<Tag>TXT_KEY_PROMOTION_COMBAT5</Tag>
+ 		<English>Combat 5</English>
+ 	</TEXT>
+-	<!-- custom added missing languages in base civ4/BTS to have "6" not "VI" everywhere -->
++	<!-- custom: added missing languages in base civ4/BTS to have "6" not "VI" everywhere -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_COMBAT6</Tag>
+ 		<English>Combat 6</English>
+ 	</TEXT>
+-	<!-- custom: use arabic numerals instead of roman numerals,	hopefully clearer -->
++	<!-- custom: use arabic numerals instead of roman numerals, hopefully clearer -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_AIR_INTERCEPTION1</Tag>
+ 		<English>Air Interception 1</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Custom.xml b/Assets/XML/Text/CIV4GameText_Custom.xml
+index 2e3f2faa6..aa06ec250 100644
+--- a/Assets/XML/Text/CIV4GameText_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Custom.xml
+@@ -2,10 +2,7 @@
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by lcollins (Firaxis Games) -->
+ <!-- custom: custom GameText xml type of assets for AdvCiv-SAS -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it
+-	entirely while also and still giving the flexibility to add it again later (but you('d)
+-	need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see
+-	the specific implementation and code comments there for details)-->
++	<!-- custom: i have accidentally noticed that having an empty "header" tag removes it entirely while also and still giving the flexibility to add it again later (but you('d) need to adjust self.H_AI_UPPER_PADDING in SevoPediaLeader.py to accodomodate that, see the specific implementation and code comments there for details)-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_AI_PERSONALITY_RIGHT_PANEL</Tag>
+ 		<English></English>
+@@ -60,16 +57,11 @@
+ 	</TEXT>
+ 
+ 
+-	<!-- custom: do not rename the tag itself as we would have to recompile
+-	and may break compatibility with other mods, we mostly (just or not)
+-	wanted to rename the tag of promotioninfo itself that is much more used
+-	and prone to confusing those who read it maybe, at least me, anyways.
+-	We may also have to change it in a lot more places that we would want
+-	to or need to, for other promotions with a similar case of renaming.
++	<!-- custom: do not rename the tag itself as we would have to recompile and may break compatibility with other mods, we mostly (just or not)
++	wanted to rename the tag of promotioninfo itself that is much more used and prone to confusing those who read it maybe, at least me, anyways.
++	We may also have to change it in a lot more places that we would want to or need to, for other promotions with a similar case of renaming.
+ 	
+-	So focus mostly/only on the most import change, which is here is to add
+-	"Air" explicitly in the text to clarify	it is about air units, may or not
+-	do similarly for such other or similar or not texts.
++	So focus mostly/only on the most import change, which is here is to add "Air" explicitly in the text to clarify	it is about air units, may or not do similarly for such other or similar or not texts.
+ 	-->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PROMOTION_EVASION_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+index 5bbfa6e65..77ed992a3 100644
+--- a/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_Objects_Custom.xml
+@@ -8,9 +8,7 @@
+ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Objects_BTS.xml
+ -->
+ <Civ4GameText xmlns="http://www.firaxis.com">
+-    <!-- custom: use civ4 dev language unless we have
+-	a reason not, harmonizes terminlogy hopefully
+-	while being clearer for players. -->
++    <!-- custom: use civ4 dev language unless we have a reason not, harmonizes terminlogy hopefully while being clearer for players. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_COMBAT</Tag>
+ 		<!-- <English>Unit Combat Types</English> -->
+@@ -32,14 +30,11 @@ C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond
+ 		<English>Air (Fighter)</English>
+ 	</TEXT>
+ 
+-	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with
+-	these 2 separate terms, see RFC DOC custom's XML files,
+ 
+-	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\RFC_DOC_Civilopedia_Lengthy_Custom.xml
+ 
+-	at the TXT_KEY_TERRAIN_ICE_PEDIA and TXT_KEY_FEATURE_ICE_PEDIA entries (code comments)
+-	for details.
+-	-->
++	<!-- custom: disambiguate Ice Terrain vs Ice Feature, hopefully clearer with these 2 separate terms, see RFC DOC custom's XML files,
++	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Text\RFC_DOC_Civilopedia_Lengthy_Custom.xml
++	at the TXT_KEY_TERRAIN_ICE_PEDIA and TXT_KEY_FEATURE_ICE_PEDIA entries (code comments) for details. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TERRAIN_ICE</Tag>
+ 		<English>Ice Sheet</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index fe0799d7c..e1d302414 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -25,31 +25,14 @@
+ 		<Spanish>Contenido</Spanish>
+ 	</TEXT>
+ 
+-	<!-- custom: rename "Unit Upgrades" to "Units Tree",
+-	clearer and consistent with "Promotion Upgrades Tree",
+-	while also short enough to fit well enough in the
+-	sevopedia panel.
+-	Also note that this/it is not necessarily about
+-	upgrading units but showing them, even though
+-	upgrading them may be the end result, but still,
+-	this should not be a wrong way to present things,
+-	regarding how this is just a tree that displays
+-	units and how they relate to each other (think
+-	of it as looking back maybe for example, not
+-	necessarily upgrade only, or also looking at per
+-	era units in a vertical way for example (in
+-	AdvCiv-SAS the tech tree would be designed in such
+-	a way that each era has one	type of unit, and each
+-	unit is aligned vertically (in the column
+-	corresponding to) where it starts, maybe this can
+-	 help this be more intuitive too) -->
++	<!-- custom: rename "Unit Upgrades" to "Units Tree", clearer and consistent with "Promotion Upgrades Tree", while also short enough to fit well enough in the sevopedia panel.
++	Also note that this/it is not necessarily about upgrading units but showing them, even though upgrading them may be the end result, but still, this should not be a wrong way to present things, regarding how this is just a tree that displays units and how they relate to each other (think of it as looking back maybe for example, not necessarily upgrade only, or also looking at per era units in a vertical way for example (in AdvCiv-SAS the tech tree would be designed in such a way that each era has one type of unit, and each unit is aligned vertically (in the column corresponding to) where it starts, maybe this can help this be more intuitive too) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_UNIT_UPGRADES</Tag>
+ 		<!-- custom: <English>Units Tree</English> -->
+ 		<English>Un. Tree</English>
+ 	</TEXT>
+-	<!-- custom: use the plural here too:
+-	"Promotion Tree" -> "Promotions Tree" -->
++	<!-- custom: use the plural here too: "Promotion Tree" -> "Promotions Tree" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_PROMOTION_TREE</Tag>
+ 		<!-- custom: <English>Promotions Tree</English> -->
+@@ -73,8 +56,7 @@
+ 		 it. Concetti di BTS, es. Conceptos BtS)
+ 		 because I'm replacing this key in CIV4GameText_advc_pedia.xml. -->
+ 
+-	<!-- custom: rename "Unique Buildings" to "Civilization Buildings",
+-	hopefully clearer -->
++	<!-- custom: rename "Unique Buildings" to "Civilization Buildings", hopefully clearer -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIQUE_BUILDINGS</Tag>
+ 		<English>Civilization Buildings</English>
+@@ -90,7 +72,7 @@
+ 	</TEXT>
+ 
+ 
+-	<!-- custom -->
++	<!-- custom: -->
+ 	<!--				TERRAINS CATEGORY				-->
+ 	<!-- custom: rename "Base Terrain" to "Terrains" (also switching to the plural form, same as for "Features" (no reason why not and why it was not like that). Maybe simpler is better here. -->
+ 	<TEXT>
+@@ -99,7 +81,7 @@
+ 	</TEXT>
+ 
+ 
+-	<!-- custom -->
++	<!-- custom: -->
+ 	<!--				FEATURES CATEGORY				-->
+ 	<!-- custom: remove mention of the "terrain" in "terrain features" of the root sevopedia category, i think it's confusing, and hinders the (especially new(er)) player's ease of grasping that terrains and features are 2 diferent things, there should be either "terrains" or "features", i think it's an easier way to approach these new "concepts" of civ4.
+ 	Not necessary to remove it everywhere, the sentences may become a bit weird too, but in	key visibility and isolated (not sentences), it should be a no brainer i think.
+@@ -111,7 +93,7 @@
+ 	</TEXT>
+ 
+ 
+-	<!-- custom -->
++	<!-- custom: -->
+ 	<!--				RESSOURCES / BONUSES CATEGORY				-->
+ 	<!-- custom: create a new TXT KEY for ressources natural tile yields, making it extra clear what these yields are:
+ 	- they are not global (yield on tile only)
+@@ -136,7 +118,7 @@
+ 	</TEXT>
+ 
+ 
+-	<!-- custom -->
++	<!-- custom: -->
+ 	<!--				IMPROVEMENTS CATEGORY				-->
+ 	<!-- custom: keep this TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT specifically for the Improvements category title (or/and other places where it is used), we need a new TXT KEY for the Ressources/"Improvements" now though, see TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT_CUSTOM_NEW_FOR_RESSOURCES_IMPROVEMENTS i created for that
+ 	-->
+@@ -158,10 +140,7 @@
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_ON_BONUSES_EXTRA_TILE_YIELD_CHANGES</Tag>
+ 		<English>On Bonus(es)/Ressource(s) Extra Tile Yield Change(s)</English>
+ 	</TEXT>
+-	<!-- custom: "Food: +1F (with Irrigation)" becomes
+-	now "+1F (with Irrigation)", remove the uneeded
+-	"%s1: " too now, see placeYield in SevoPediaImprovement.py
+-	for	details -->
++	<!-- custom: "Food: +1F (with Irrigation)" becomes now "+1F (with Irrigation)", remove the uneeded "%s1: " too now, see placeYield in SevoPediaImprovement.py for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_IRRIGATED_YIELD</Tag>
+ 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
+@@ -171,10 +150,7 @@
+ 		<Italian>%D2%F3 (con irrigazione)</Italian>
+ 		<Spanish>%D2 %F3 (con riego)</Spanish>
+ 	</TEXT>
+-	<!-- custom: for the german translation the	text was/
+-	looks(ed) weird so i applied the english one instead
+-	"Production: +1H (on Hills)" is now "+1H (on Hills)"
+-	-->
++	<!-- custom: for the german translation the	text was/looks(ed) weird so i applied the english one instead "Production: +1H (on Hills)" is now "+1H (on Hills)" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_HILLS_YIELD</Tag>
+ 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
+@@ -183,8 +159,7 @@
+ 		<Italian>%D2%F3 (sulle colline)</Italian>
+ 		<Spanish>%D2 %F3 (en colinas)</Spanish>
+ 	</TEXT>
+-	<!-- custom: similarly (done) as for for/in
+-	TXT_KEY_PEDIA_HILLS_YIELD -->
++	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_RIVER_YIELD</Tag>
+ 		<!-- %s1 = TXT_KEY_IMPROVEMENT -->
+@@ -193,8 +168,7 @@
+ 		<Italian>%D2%F3 (vicino a un fiume)</Italian>
+ 		<Spanish>%D2 %F3 (junto a un r&#237;o)</Spanish>
+ 	</TEXT>
+-	<!-- custom: similarly (done) as for for/in
+-	TXT_KEY_PEDIA_HILLS_YIELD -->
++	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TECH_YIELD</Tag>
+ 		<!-- %s1 = TXT_KEY_IMPROVEMENT  %s4 = TXT_KEY_BONUS -->
+@@ -203,8 +177,7 @@
+ 		<Italian>%D2%F3 (con [LINK=literal]%s4[\LINK])</Italian>
+ 		<Spanish>%D2 %F3 (con [LINK=literal]%s4[\LINK])</Spanish>
+ 	</TEXT>
+-	<!-- custom: similarly (done) as for for/in
+-	TXT_KEY_PEDIA_HILLS_YIELD -->
++	<!-- custom: similarly (done) as for for/in TXT_KEY_PEDIA_HILLS_YIELD -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_ROUTE_YIELD</Tag>
+ 		<English>%D2%F3 (with [LINK=CONCEPT_MOVEMENT]%s4[\LINK])</English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_hints.xml b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+index f565862cf..c6412bf15 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_hints.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_hints.xml
+@@ -405,13 +405,8 @@
+ 	<Spanish>Debes ser prudente y guardar algunas reservas de oro en tu tesoro. Nunca se sabe cu�ndo tus ahorros pueden servir para mitigar los efectos de un suceso desastroso o para darte acceso a oportunidades adicionales cuando se produzca un suceso positivo.</Spanish>
+ </TEXT>
+ 
+-<!-- custom: is now named "Concepts (Outdated)", find it quite pleasant
+-that we (both) agree that it's no longer novel, hence the "Outdated"
+-i added on it (and less strain to maintain it (will not all, but keep
+-if data is valuable somehow, while also though again anyways clearly
+-indicating it is outdated and to view it with caution or/and with
+-that in mind, at least in the header category text of the sevopedia,
+-anyways)) -->
++<!-- custom: is now named "Concepts (Outdated)", find it quite pleasant that we (both) agree that it's no longer novel, hence the "Outdated" i added on it (and less strain to maintain it (will not all, but keep if data is valuable somehow, while also though again anyways clearly
++indicating it is outdated and to view it with caution or/and with that in mind, at least in the header category text of the sevopedia, anyways)) -->
+ <!-- advc.008c, advc.002g: It's good to point out the Concepts page, but
+ 	 since it's no longer a novelty, the players don't need to "be sure to
+ 	 check" it out. -->
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+index 6ce650445..2081bbd3d 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Custom.xml
+@@ -135,9 +135,7 @@ hopefully more readable or exportable if need/want be now -->
+ 
+ 
+ 
+-	<!-- custom: from Age of Empires wiki, did not find much info online so using
+-	this (see copyright at root of project if needed):
+-	https://ageofempires.fandom.com/wiki/Clubman
++	<!-- custom: from Age of Empires wiki, did not find much info online so using this (see copyright at root of project if needed): https://ageofempires.fandom.com/wiki/Clubman
+ 	Slightly edited too to fit AdvCiv-SAS -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_UNIT_WARRIOR_PEDIA</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+index 5de30db18..e217ea6ed 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy.xml
+@@ -1,10 +1,7 @@
+ <?xml version="1.0" encoding="ISO-8859-1"?>
+ 
+-<!-- custom: moved the lengthy part of the Sevopedia changes
+-to this file, except for the new assets i introduce specifically
+-as a part of AdvCiv-SAS (for example a new civ, a new leader, etc)
+-that are lengthy. Hopefully more readable now, and perhaps exportable
+-if some wish, AdvCiv or/and other mods maybe -->
++<!-- custom: moved the lengthy part of the Sevopedia changes to this file, except for the new assets i introduce specifically
++as a part of AdvCiv-SAS (for example a new civ, a new leader, etc) that are lengthy. Hopefully more readable now, and perhaps exportable if some wish, AdvCiv or/and other mods maybe -->
+ 
+ <!-- advc.008: Since the Civilopedia changes are so wordy (not the
+      changes, but the copied text), I've moved them out of
+@@ -86,11 +83,8 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" text hardcoded in some civs, and
+-	also remove the "Background:" hardcoded line, much cleaner now, plus 
+-	these may have been inaccurate especially if mods were to change things
+-	related to these, why bother the hassle to maintain it, clean and simple
+-	this way i think and prefer -->
++	<!-- custom: remove "Strategy:[...]" text hardcoded in some civs, and also remove the "Background:" hardcoded line, much cleaner now, plus 
++	these may have been inaccurate especially if mods were to change things related to these, why bother the hassle to maintain it, clean and simple this way i think and prefer -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_NATIVE_AMERICA_PEDIA</Tag>
+ 		<English>[TAB]The Native Americans were the original inhabitants of North America, emigrating roughly 16,000 years ago. The term "Native American" most often refers to the people who settled in the northern continent of the Western Hemisphere, in the land that is today owned by the United States and Canada. At the time of the arrival of Columbus, thousands of Native American tribes populated the furthest reaches of North America, with somewhere between two and 18 million Natives living in this region. (The "Native American" civilization in the game represents the empire that would have formed had these disparate people ever united.)[PARAGRAPH:1]The northern Native Americans never developed a system of writing (the Mayans to the south were the only Native Americans to do so), so the history of the Native Americans before the arrival of the Europeans is difficult to piece together. It is known, however, that these original inhabitants had crossed a land bridge (since gone) connecting Siberia with Alaska. As these Siberian immigrants spread south and east across the continent in search of sustenance, they encountered many different climates, ecologies, and geographies. Settling from within a stone's throw of the Arctic Circle to the most desolate regions of the American Southwest, the Native Americans were a testament to human adaptability. [PARAGRAPH:1]Given the diversity of lands which they inhabited, not to mention the vast distances separating them, the Native Americans never formed a unified nation. Powerful local entities - such as the Six Nations (also known as the "Iroquois Confederacy") - would appear periodically, but for the most part tribes remained the largest political organization. [PARAGRAPH:1]With the arrival of the Europeans in the New World, the Native American tribes would be forced to adapt to yet another hostile environment. As the United States established itself as a nation, the Native Americans were perceived as a roadblock to American supremacy - a roadblock which needed to be removed. Andrew Jackson, before his election as the seventh President of the United States, waged total war against the Seminoles in Florida and obliterated the Creek Indians at the Battle of Horseshoe Bend. As President, he signed into effect the "Indian Removal Act" of 1830, the precedent to numerous future "relocation treaties." The Treaty of New Echota, one such relocation treaty, was signed between the United States government and a tiny fraction of the Cherokee people. The march of the Cherokee from their homeland in the eastern United States to new territory in Oklahoma and Arkansas cost the lives of some four thousand natives, and would later become known as the "Trail of Tears." [PARAGRAPH:1]The continual pushes westwards by American settlers further displaced the Natives, resulting in a series of conflicts known as the "Indian Wars." However, the Native Americans were never able to unify on a grand enough scale to stop the Europeans or their descendents. A common scenario began to occur. Various individual tribes would fight tooth and nail against the invaders and be nearly defeated. These tribes would then be enticed into signing treaties that would often be ignored by the Americans and the tribe would once again be pushed on at the point of a bayonet. The state of Oklahoma was originally given to Native Americans who had been forced from the east, but then in the 1890s, was opened in chunks for American settlement. [PARAGRAPH:1]By the beginning of the twentieth century, between 75 and 95 percent of the Native American population had been destroyed by starvation, disease or warfare. The reservation system had consigned most survivors to usually undesirable land throughout the United States, and over the next several decades, the rates of alcoholism and suicide among the Native American population skyrocketed. But during the 1960's, a revival of Native American heritage began to emerge. Today, over two million Native Americans live in roughly 563 tribes across the United States. Native American artists such as author Sherman Alexie have beautifully conveyed the travails endured by modern Native Americans in poetry and prose, and proud peoples once forced onto reservations have again begun to spread throughout the United States.</English>
+@@ -98,8 +92,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_BABYLON_PEDIA</Tag>
+ 		<English>[TAB]The Babylonian Empire was, rather than a new idea, a reinvigoration of the old Sumerian Empire, which had also occupied what is today Southern Iraq. Babylonia was formed from a collection of roughly a dozen city states and was named for its capital city of Babylon. Originally a disorganized region, Babylon and Babylonia began to grow as a center for culture, trade, and religion under the rule of Hammurabi in 1728BC. Location of one of the seven ancient wonders - the Hanging Gardens - Babylonia became the jewel of the ancient world.[PARAGRAPH:1]Hammurabi was the first known ruler of united Babylonia as well as its greatest lawgiver. Hammurabi's Code of Laws regulated Babylonian life in such a way as to make the consequences of most criminal acts publicly known. Citizens could then structure their behavior based on these laws leading to a more organized society. So comprehensive was the Babylonian Code that little about its laws or governmental system changed in the entirety of its 1,200 years of existence. Babylon was so revered for this system that cities and states as far as the Mediterranean would emulate it for centuries.[PARAGRAPH:1]After the death of Hammurabi (1750 BC), the empire slowly declined in power and influence until it was eventually conquered by the Kassites (around 1600 BC) from what are now the mountains of Iran. The Kassites ruled over Babylonia for 576 years, reinvigorating the empire under their reign. Although Hammurabi ruled over Babylonia as a series of interconnected city states, the Kassites were the first rulers of Babylonia to transform the country into an organized territory. The Kassites created trade routes to countries as far away as Greece, Armenia and Turkey. Trade with these nations brought further wealth and status to Babylonia.[PARAGRAPH:1]Towards the end of the Kassite era of rule, Babylonia once again began to fall into decline, in part due to external political and military pressure. In 627 BC, the last Kassite ruler died, and Babylonia revolted under the command of a new leader, Nabopolassar. Nabopolassar's son, Nebuchadnezzar II, ruled Babylonia and brought about another golden era. During his rule, Babylonia became a military power, invading and taking territory in Egypt and Assyria. Not long afterwards, in 539 BC, Cyrus of Persia invaded Babylonia, conquering it, and forever ending Babylonia's existence as an independent territory.[PARAGRAPH:1]Despite numerous regime changes, education reached exceptional heights among the Babylonians. Technical achievements such as the creation of a base 60, "sexigesimal," system of mathematics, are still used to this day. Sixty seconds per minute, sixty minutes per hour: modern time, is in fact, Babylonian time.[PARAGRAPH:1]Much like the Sumerian Empire from which they were descended, Babylonia was a nation of fanatical record-keepers. Starting with Hammurabi and continuing down until the empire's dissolution at the hands of Cyrus and the great Persian emperors, every financial transaction, every court verdict, every contract, and just about anything that could be written down, was - on clay tablets. With laws pertaining to almost every aspect of daily living, a significant amount of data was recorded, and much of this has been uncovered and excavated during the modern era. Researchers have even found several optical devices, similar to magnifying glasses, which were used to allow record keepers to write in smaller cuneiform, in order to fit more information on each clay tablet.[PARAGRAPH:1]Babylonia played an important role in the development of law throughout the world. The creation of Hammurabi's Code of Laws, and the zeal with which his successors, both blood-related and not, upheld those laws, demonstrated for all of history how successful and wealthy a nation could become by following an organized system of government. </English>
+@@ -107,8 +100,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_BYZANTIUM_PEDIA</Tag>
+ 		<English>[TAB]The Byzantine Empire, centered around the city of Constantinople, was the successor to the Roman Empire. At its height, the Byzantine Empire reached from Persia to Spain, controlling nearly all the territory that felt the lap of the Mediterranean's warm waters. [PARAGRAPH:1]When the Byzantine Empire began and the Roman Empire ceased is a point of much contention. Some historians place the beginning of the Byzantine Empire in 300 AD, when Constantine I moved the capital of the Roman Empire from Rome to a city called Byzantium (later know as Constantinople). Others place the birth of the Byzantine Empire at the end of the reign of Theodosius I, who at his death split the Roman Empire into the Western Empire, ruled from Rome, and the Eastern Empire, ruled from Constantinople. [PARAGRAPH:1]Regardless of historic debate, after the sacking of Rome in 476 AD, the Byzantine Empire was to become the foremost European nation in art, trade and stability - although not necessarily all at once. Taking the throne in 527 AD, Justinian I extended the grip of the Byzantine Empire from Constantinople to the furthest coasts of the Mediterranean Sea. However the Empire would not be able to enjoy the benefits of such territorial expansions for long, as Justinian's successor, Justin II, would begin a trend of placating the various enemies of the Empire - the Sassanid Persians, the Bulgars, and the Arabs, newly organized under Mohammed - with territory in exchange for peace. [PARAGRAPH:1]Territorial losses would continue to weaken the Byzantines until a new lineage of emperors, known as the Macedonian Emperors, arose to invigorate the Empire once again. Basil I founded the Macedonian line in 869. Under the Macedonians, the Byzantine Empire once again began to reach outwards, solidifying its hold on much of the territory neighboring Constantinople. Art flourished in their roughly two centuries of rule, as did the Greek Orthodox Church. [PARAGRAPH:1]The new millennium would be a painful one for Byzantium. Relations between the Roman Catholic Church and the Eastern Orthodox Church had been deteriorating for many years, and the conflict came to a head with the Great Schism (1054), which finally split the two religions. Militarily, increased assaults by the Seljuk Turks culminated in a resounding defeat for the Empire at the Battle of Manzikert, the Empire losing much of its freshly-gained holdings.[PARAGRAPH:1]But once again, the rise of a powerful new dynasty reversed the Empire's decline. This new dynasty, the Comnenius, sent the call to Western Europe for aid in fighting the Seljuk Turks. Pope Urban II, seeing a chance to reconquer the Holy Lands of Antioch and Jerusalem, as well as halt the squabbling of the European Kings, spread the word for the First Crusade. [PARAGRAPH:1]Through the Crusaders' efforts, the Byzantine Empire regained a portion of its lost territory. But the holy warriors of Western Europe became difficult to control, often threatening to assault the very Empire that had requested their aid. John II and Manuel I, the two most prestigious of the Comnenius emperors, held off the Crusaders and safeguarded the empire from a host of external foes, while ushering in a new era of Byzantine artistic and economic prowess. [PARAGRAPH:1]Manuel I Comnenius was the last great emperor of the Byzantines and the last Comneni. The Angeloi dynasty, successors to the Comneni, proved unable to halt the Empire's slow collapse. In 1204, the knights of the Fourth Crusade, summoned by a disposed Angeloi prince, sacked Constantinople and split the Byzantine Empire into three smaller kingdoms. Nicaea, one of these ex-Byzantine states, recaptured Constantinople years later, but all hopes of reviving the Byzantine Empire would be ended with the capture of the city by the Ottoman leader Mehmed II in 1461.</English>
+@@ -116,8 +108,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_NETHERLANDS_PEDIA</Tag>
+ 		<English>[TAB]Originally several separate territories under the control of the Holy Roman Empire, and then united into one state under Habsburg rule (16th century), the Netherlands did not acquire national independence until the conclusion of the Eighty Years' War (1568-1648 AD) when the Spanish formally renounced all claims to Dutch sovereignty in the Treaty of M&#252;nster.[PARAGRAPH:1]The Eighty Years' War was sparked by Spanish religious oppression and an occupation by Spanish forces led by the Duke of Alba, during which over one thousand people were sentenced to death, including two prominent and popular Dutch nobles; these actions caused dissention among the Dutch people. In 1568 Willem, Prince of Orange, returned from a self-imposed exile (in order to avoid prosecution by the Duke of Alba) and led the uprising against the Spanish occupation.[PARAGRAPH:1]The Dutch fight for independence can be seen as a war against religious oppression, with the Pacification of Ghent treaty being a written representation of this sentiment. Signed on November 8th, 1576 the document specified an alliance between the Dutch provinces, in which religious differences would be put aside for the purposes of expelling the Spanish and restoring local provincial control to the Netherlands.[PARAGRAPH:1]During the seventeenth century the Dutch began using their large military and merchant navies to both create their own trading posts along the African coast and rob those of the Portuguese in an effort to reach valuable markets in India and Indonesia. The inrush of treasure, trade and knowledge from these trading and military expeditions was extremely beneficial, and during this first half of the seventeenth century the Dutch experienced a Golden Age of cultural and economic growth. This Golden Age would soon come to a crushing end.[PARAGRAPH:1]In 1795, France, under Napoleon I, conquered the Dutch mainland. The Netherlands quickly declined in influence and power, locally and internationally, with the British taking most of their colonial possessions. After Napoleon was defeated a few colonial territories were restored to the Dutch and remained under their control until the decolonization of the twentieth century.[PARAGRAPH:1]Many historians regard the Dutch empire as the first truly capitalist country. In addition to developing the first stock exchange, many modern services such as corporate insurance and retirement funds were attributed to Dutch inventiveness.[PARAGRAPH:1]The Netherlands is also the birthplace of one of the world's early democratic institutions - the Dutch Water Boards. Due to the unique topography of the Netherlands - about half of the mainland is a foot or more under sea level - the country's waterways must be constantly monitored and controlled in order to prevent flooding that would result in tremendous loss of life and property. Each Water Board is in charge of one of the nation's 27 water districts and all matters pertaining to local water management. The creation of these water boards predates the Netherlands itself. [PARAGRAPH:1]The modern Netherlands, with a diverse population and liberal laws towards drugs, prostitution, abortion, same-sex marriage, and euthanasia, has been a constant haven for refugees from other countries. Cultural minorities are encouraged to protect their own cultural identity while at the same time integrate into Dutch culture at large, further reinforcing the open-minded ideals for which Dutch ancestors fought and died.</English>
+@@ -125,8 +116,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_ETHIOPIA_PEDIA</Tag>
+ 		<English>[TAB]Ethiopia is believed by many historians to be the birthplace of the human race. Lucy, a 3.2 million year old human skeleton, was discovered in Ethiopia's Afar Depression. However, beyond Lucy, there is little evidence to suggest (one way or another) that Ethiopia was settled until roughly the eighth century BC, when it is theorized that Jewish settlers fleeing Egypt, Sudan, and southern Arabia settled there.[PARAGRAPH:1]The first recorded government in Ethiopia was the Kingdom of Axum in the first century AD. Information on this kingdom is scarce; its founder remains unknown. But under Axum rule, Ethiopia became the first Christian nation in Africa. In roughly 330 AD, Frumentius, a Greek from Tyre, was consecrated the first bishop of Ethiopia by Saint Athanasius. Frumentius spread Christianity in Ethiopia through the construction of churches on land given to him by the Axum emperor. Although Christianity did not become a widespread religion in the region until much later, Frumentius can be considered the originator of Christianity in Ethiopia.[PARAGRAPH:1]Although Ethiopia had traditionally been the target for Muslim raids in the region, it was not until 1528 that a full scale invasion was successful. Under the leadership of Imam Ahmad ibn Ibrihim al-Ghazi, Muslim forces swept through Ethiopia, routing the emperor's forces and sending him into hiding. Unable to re-secure his homeland with Ethiopian forces alone, Emperor Lebna Dengel Dawit II petitioned the Portuguese to assist defeating the invaders. In 1541 the Portuguese deployed an army of 400 musketeers to assist the emperor, and while these forces were defeated at the Battle of Wofla, the Muslims were ultimately forced to retreat when their leader was killed the following year at the Battle of Wayna Daga.[PARAGRAPH:1]Ethiopia had been wracked by a series of internal conflicts throughout the sixteenth and seventeenth century. While not splintering the nation, these conflicts eroded the empire's central power until the feuding families were ultimately defeated by Tewodros II, who ruled Ethiopia between 1855 and 1868. Despite a prestigious military career, Tewodros II committed an egregious political faux pas when, in 1867, he imprisoned several British nationals after Queen Victoria of the England failed to answer a letter he had sent to her. The British swiftly sent an army to rescue the British citizens, and upon the Ethiopian army's defeat, Tewdros II committed suicide.[PARAGRAPH:1]Soon after, in 1870, the Italians, who had bought the Ethiopian costal city of Eritrea from a local Sultan, claimed that the Treaty of Wuchale (1889), an agreement between Italy and Ethiopia on the official boundaries between Ethiopia and Eritera, granted them sovereignty over all of Ethiopia, though in reality it only specified a very small portion of Northern Ethiopia near Eritrea. The Italians sent an army to conquer Ethiopia, but were repelled by Emperor Menelek II at the Battle of Adowa. After their defeat, the Italians signed the Treaty of Addis Ababa (1896) which recognized Ethiopia as an independent state. As it turned out, the Italians would be back.[PARAGRAPH:1]In 1936 the Italians once again invaded and occupied Ethiopia, this time under the fascist dictatorship of Mussolini, forcing the emperor to flee to England. The Italians were eventually defeated in 1941 by combined British and Ethiopian forces.[PARAGRAPH:1]Perhaps the most influential Ethiopian Emperor of the modern era was Haile Selassie I. Ruling from 1930 until his death in 1974 (with the exception of the brief Italian occupation), Selassie made great strides in modernizing his nation. New tax programs were implemented and the constitution was revised under his rule.[PARAGRAPH:1]In 1972, an enormous drought hit Ethiopia resulting in the deaths of over 200,000 citizens. Local rulers conspired to keep this information from Emperor Selassie, and when the information was finally revealed, the government's credibility with the common citizenry was seriously undermined. Combined with a major economic recession, the chaos within the government due to the drought provided the opportunity for officers within the Ethiopian military to stage a coup and take over the government. Haile Selassie I died on August 27th, 1975 when it is believed that he was suffocated in his sleep while imprisoned by the military government.[PARAGRAPH:1]In 2005 Ethiopia underwent its second multiparty election. Despite claims of corrupted vote counting, much of the international community saw this election as a positive step for Ethiopia's future.</English>
+@@ -134,8 +124,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_HOLY_ROMAN_PEDIA</Tag>
+ 		<English>[TAB]The Holy Roman Empire was created in 800 AD by Charlemagne. Covering much of central Europe from the Netherlands to Hungary, the Empire was both a political powerhouse and a hotbed of political intrigue and military conflict. In some ways "Emperors" in name only, the rulers of the Holy Roman Empire were rarely able to exert real control over any territory that was beyond the reach of their personal armies.[PARAGRAPH:1]Although the Holy Roman Empire was not referred to as such until late in the reign of Otto I (962-973), it came into being as a political entity in 800 AD when Pope Leo III, in an effort to break ties with the weakening Byzantine Empire, crowned Charlemagne the "Emperor of the Romans." A keen military strategist and devout Catholic, Charlemagne managed to keep the empire united until his death in 814, upon which the empire steadily dissolved into separate warring states until reunited under the rule of Otto I. While Otto I managed to reunite the empire, his downfall, and that of many successor emperors, was his fixation on Italy. Although Italy was not formally part of the empire, Otto I repeatedly invaded that country in order to secure holdings for the Germanic empire. However, the majority of his military ventures into Italy were unsuccessful, and Otto I only succeeded in eroding his power base in Germany.[PARAGRAPH:1]Throughout its history, the Holy Roman Empire was the stage for conflicts between its Emperors and the Church. Initially it was only the Pope who could designate the Roman Emperor, however over time - especially during the reign of Otto I - it became instead the Emperor who named the next Pope, providing the throne with enormous religious power. During the reign of the Salian Emperors (1024-1125) this practice again changed. A council of churchmen, known as Cardinals, was formed and given the power to nominate and elect popes. This practice has continued with only minor changes to the present day.[PARAGRAPH:1]Charles VI ruled with perhaps the most pragmatic view of his empire. Voted by the Cardinal Council as Holy Roman Emperor in 1355, Charles immediately gave up all imperial ambitions in Italy and instead focused on consolidating power in the Germanic lands and the eastern half of his empire. Accepting that the German cities and territories were the political and military domains of their local rulers, Charles worked with these local leaders to establish a combined dominance instead of attempting to wrest away their power. Unfortunately, upon Charles' death his son Sigismund fell back into the historical fallacy of attempting to control Italy, and the Empire once again continued its decline into irrelevancy.[PARAGRAPH:1]Despite the internal power struggles wracking the Holy Roman Empire, local rulers banded together in order to face the Napoleonic threat from France. From 1792 to 1802, Austria, Prussia and the other German states combined forces with the hope of defeating the invading French, but to no avail. With little territory left under his control, Emperor Francis II resigned the title of Holy Roman Emperor. The Empire was formally dissolved on the sixth of August, 1806.[PARAGRAPH:1]Over its history, the Holy Roman Empire existed more as an idea than an actual administrative organization. The empire's leaders rarely had actual control over their lands, and constant squabbling between fiefdom holders, as well as the church and state, kept the empire from solidifying any real control over its domain. Its recreation has, however, served as a goal which many would-be conquerors in history have strived to achieve, including Otto von Bismark, King William I, and Adolf Hitler.</English>
+@@ -143,8 +132,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KHMER_PEDIA</Tag>
+ 		<English>[TAB]The Khmer Empire was a kingdom located in Southeast Asia from 790 until 1431 AD. At its height, the Khmer Empire covered fully one half of Southeast Asia, encompassing what is today Cambodia, Laos, Thailand and parts of Myanmar.[PARAGRAPH:1]The Khmer Empire was founded on the remnants of the kingdom of Chenla, which had spread itself across much of Cambodia and Laos, but had become fractured and weakened by the eighth century AD.  A former Chenla prince, Jayvaraman II, returned to the area after his education in Java and created the base of power for the Khmer Empire in the region that is today central Cambodia.[PARAGRAPH:1]The fractured state of Southeast Asia after the collapse of Chenla made the unified strength of the Khmer a welcome presence in the region. The new nation quickly annexed many of its smaller neighbors, sometimes peacefully, sometimes less so.[PARAGRAPH:1]As their prominence grew, the Khmer kings initiated many grand public works projects. King Yasovarman I, ruling from 889 to 915, built Yasodharapura, the first major capital of the Khmer, on a site that would remain important throughout Khmer history. Yasovarman also constructed the East Baray, a massive raised reservoir that was capable of holding over 60 million cubic meters of water.[PARAGRAPH:1]Not long after Yasovarman's reign, internal struggles began to sweep the Khmer Empire. And while a number of impressive works of construction were completed during this period, it was not until the reign of Jayavarman V, from 968 to 1001 that the Khmer Empire could again find itself in relative peace. And it would still be another century until Suryavarman II would again make the Khmer a force to be reckoned with.[PARAGRAPH:1]Ascending to the throne in 1113, Suryavarman II established himself as a firm ruler over the squabbling princes that wreaked havoc on the reign of his father, Suryavarman I. Wisely guiding the forces within his nation, Suryavarman the younger would turn the Khmer Empire into the most powerful kingdom in southeast Asia. Extending his domain over much of neighboring Thailand and Myanmar and constructing Angkor Wat, a monumental temple complex erected not far from the site of the original Khmer capital of Yasodharapura, Suryavarman would guide his Empire to its greatest heights.[PARAGRAPH:1]Shortly after the death of Suryavarman in 1150, relations would sour between the Khmer and the Champa Empire, former allies of the Khmer, and would lead to the sacking of Angkor Wat in 1177, nearly drawing to an end the reign of the Khmer kingdom. The kingdom would be given one last flourish under the reign of Jayavarman VII, whose keen military insight brought the Champa under Khmer control. A devout Buddhist, Jayavarman also littered the Cambodian countryside with new temples.[PARAGRAPH:1]Jayavarman's reign would mark the end of the powerful rulers of the Khmer. A Thai uprising established the kingdom of Ayutthaya in 1350, which would eventually absorb all that once was the Khmer Empire within its borders by 1431.</English>
+@@ -152,8 +140,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_MAYA_PEDIA</Tag>
+ 		<English>[TAB]The Mayan Empire blossomed within the thick jungles and volcanic hills of Belize, Guatemala and the Yucatan Peninsula of Mexico. Creators of the most advanced civilization in the Americas from 700 BC until 900 AD, the Mayan population in its age was second only to the Chinese T'ang dynasty in sheer numbers.[PARAGRAPH:1]Often referred to as the "Greeks of the New World," the Mayans were similarly organized into a series of feuding city states, although these cities served more religious and administrative purposes than as populations centers. Uniting the Maya culture was a common language, religion and artistic style, but each city state remained fiercely independent, often uniting only at the point of a Holkan spear. [PARAGRAPH:1]Every city-state was governed by its own royal family, whom often claimed full or semi-divinity. During the Mayan Classical Period from roughly 250 to 900 AD, these cities became vast complexes of pyramids, causeways and plazas. Nakbe, the first city-state to grow on a grand scale, began its expansion around 700 BC. By 300 BC, Nakbe had been transformed into an impressive city, with four grand step pyramids and a seven mile stone causeway linking it to the nearby city of El Mirador. [PARAGRAPH:1]Nakbe was only the first of many vast cities. Chichen Itza, Tikal and Palenque all became massive population centers. With myriad pyramids and religious structures, Tikal grew to become a city of the grandest scale and the largest of the Mayan population centers, dwarfing Palenque and Copan.[PARAGRAPH:1]Palenque, a significantly smaller settlement to the West, reached its zenith in the seventh century AD under the reign of Pacal II, whose subjugation of neighboring cities ensured the hegemony of his own. Much is known about Pacal and his city thanks to the intricately-carved history left to us within Pacal's tomb, "The Temple of Inscriptions," entire walls of which were filled with the Mayans' distinctive pictographic language, the only written language developed in the Americas. [PARAGRAPH:1]Language was not the only realm in which Mayan minds excelled. Their calendars were nearly on par with those of the modern era, but were created without the use of the telescope or other tools. Independent development of the number zero, an accomplishment that eluded both the Greeks and Romans, was yet another of the impressive feats of the Mayans. [PARAGRAPH:1]Most of these discoveries grew out of the Mayan religion. And while certainly interested in knowledge, the Mayan religion was ensconced in the belief of the power of blood. Many wars among the Maya were fought simply to provide prisoners to be sacrificed in intricate religious ceremonies, thought necessary to ensure the safety and advancement of the people. [PARAGRAPH:1]The Mayan civilization came to a surprisingly abrupt end, and the cause of this fall is still a hotly debated topic. One of the most widely-accepted theories is that the delicate ecology of the Yucatan rainforests simply could no longer support the growing population of the Mayan people. A peasant revolt is also a likely cause of the fall of Mayan priestly caste, as belief in brutal Mayan rituals fell to the wayside. [PARAGRAPH:1]But the popular notion that the Mayans simply disappeared is false. While the grand temple building, intricate carvings and sacrifices ceased, the Mayan language and people continued to survive in their former homeland, even after the conquest of their country by Spanish conquistadors. The Mayan languages, Yucatec being the most common, are still spoken to this day and armed resistance by the Maya continued into the twentieth century. The Maya remain a living people.</English>
+@@ -161,8 +148,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_PORTUGAL_PEDIA</Tag>
+ 		<English>[TAB]The area which encompasses modern Portugal was originally settled by Celtic tribes around 1000 BC and was then subsequently conquered by the Visigoths and finally the Moors. The Christian Kings of Asturia eventually drove the Moors out of the area; the new nation of Portugal was formed after its separation from Spanish rule.[PARAGRAPH:1]Portugal was one of the first great internationally-based sea empires in the European world. Between 1415 and 1665, Portugal created a series of resting and refueling ports along the eastern and western coasts of Africa in a bid to eventually reach the profitable shores of India. In 1498 they achieved their goals when Vasco da Gama reached Kozhikode (known then as Calicut). Several important battles took place between the Arabs (who had previously monopolized spice trade in the Indian Ocean) and the Portuguese during this era, the most important of them being the victory over the Egyptian-Gujarati fleet off of Diu in 1509. This victory assured the Portuguese maritime superiority in the Indian Ocean and enabled them to capitalize on the rich spice trade routes between India and Europe. However, in 1578 King Sebastian of Portugal was killed at the battle of "Field of the Three Kings" in Morocco (which Portugal had long hoped to conquer), along with the majority of his force, destroying a central part of Portugal's land armies.[PARAGRAPH:1] In 1580 the throne of Portugal was given over to the Habsburg kings of Spain, partially a result of the Portuguese weakness after the demise of its own king. At the same time, Portuguese power in both the east and west was declining due to a lack of skilled sailors available in Portugal. The English and the Dutch had also been amassing large navies, and began expanding their spheres of influence along routes traditionally held solely by the Portuguese. Although the Portuguese wrested national control back from the Spanish in a 1640 revolt, they lost their control in Malacca, Ceylon, Cochin, Hormuz, among many others to the Dutch or other seafaring nations. With their eastern territories diminishing, Brazil, discovered by Pedro Alvares Cabral in 1500, became increasingly important.[PARAGRAPH:1]Gold was discovered in Brazil in 1690, which had previously been exploited mostly for its dyewood, sugar, diamonds, tobacco and slaves. The ensuing gold rush boosted the population of Brazil from 200,000 in 1650 to 1.5 million in 1770. Brazil today remains the largest Portuguese-speaking country in the world.[PARAGRAPH:1]In 1808, French troops under Napoleon Bonaparte invaded Portugal, forcing the prince regent, Dom Jo&#227;o, to flee to Brazil and set up a new government. In 1821, the royal family moved back to Portugal after reclaiming the country. Dom Jo&#227;o stayed behind, and then his son, Dom Pedro I, ruled Brazil until the country broke away from its mother country, declaring independence in 1822. [PARAGRAPH:1]After losing Brazil, Portugal focused on building its African acquisitions in order to compete with their British and French counterparts. However, after World War II, the majority of European nations began abandoning their outlying colonies. India forcibly retook the Portuguese colonies still in their territory. In 1974, a democratic government was established in Portugal. This new government negotiated the release of its African holdings, which were promptly devastated by civil war and vicious in-fighting generated by the Cold War.[PARAGRAPH:1]Today Portugal is ruled from its capital in Lisbon as a democratic republic under the constitution of 1976. It remains an important participant in the European Union as well as one of the major environmental reformers of Europe.</English>
+@@ -170,8 +156,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts,
+-	see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
++	<!-- custom: remove "Strategy:[...]" and "Background:" hardcoded lines/texts, see TXT_KEY_CIV_NATIVE_AMERICA_PEDIA for details -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_SUMERIA_PEDIA</Tag>
+ 		<English>[TAB]The Sumerian Empire was founded along the banks of the Tigris and Euphrates Rivers, in modern day Iraq, in roughly 3000 BC. Sumeria was the world's first civilization and created the world's first historians through the invention of cuneiform, the original written language. [PARAGRAPH:1]The Sumerian people were organized into a series of carefully irrigated city-states, each with its own ruler and local deities. The surplus of wheat grown from the verdant fertility of the Tigris and Euphrates allowed the Sumerians to create an exceptional urban civilization. Never numbering more than a dozen or so, the cities of Sumeria were major centers of commerce, culture and defense, and the Sumerians were the first truly metropolitan population. In fact, the Sumerian creation myth states that first there was nothing; then there was a city - Eridu.[PARAGRAPH:1]Sumerian cities were seas of sun-cooked brick, rushing irrigation ditches and mountainous ziggurats (the Sumerian temples to the gods). Facing near-constant warfare, each city was defined by a series of intimidating walls and well-placed canals. Indeed, the Sumerians are the first people known to employ a professional army, necessary to fight the perpetual skirmishes that characterized Sumerian daily life.[PARAGRAPH:1]Unity in Sumeria was only established at the end of a spear. The first Sumerian King to lay claim over a number of cities was Eannatum of Lagash. Initiating a campaign against the city of Umma (Lagash's ancient rival) over a border dispute, Eannatum followed up his victory by sweeping over and conquering the remainder of Sumeria. An uprising within Umma would later shatter this new empire, but a mutual treaty would again bring peace to Sumeria.[PARAGRAPH:1]However, the Sumerians were not alone in the Fertile Crescent. Their competitors included the Akkadians, a Semetic people to the North. In 2334 BC, Sargon, a highly skilled military strategist, was born in Akkadia. Upon reaching maturity, Sargon would found his own dynasty - the Akkadians - bringing all the peoples of the Fertile Crescent, including the Sumerians, under his rule.[PARAGRAPH:1]In roughly 2250 BC, a new people, the Gutians, thundered into the Fertile Crescent, deposing the Akkadians and establishing themselves as the new rulers of the land. But the rigors of invasion severely weakened the new overlords of Mesopotamia, allowing the long-dominated Sumerians the chance for rebellion. With the rise of a new leader, Utu-khegal, the Sumerians threw off their Gutian overlords and reestablished the supremacy of Sumerian culture throughout the Fertile Crescent.[PARAGRAPH:1]Under Ur-Nammu, a successor of Utu-khegal, order was restored in the fractured state, and the period of The Third Dynasty of Ur began. Ur-Nammu was a reformer and builder as well as a warrior, and he created roads and walls throughout his new empire. This golden age would last until 2004 BC, when internal feuding fractured the Sumerian nation decisively.[PARAGRAPH:1]The story of Sumeria comes to us through the many cuneiform tablets that have been discovered. Unfortunately, many of these tablets aren't especially evocative: tireless record-keepers, the Sumerians would just as often record the season's flock of sheep as the reign of ancient kings. Several tablets, though, have been of a religious nature and have provided great insights into the foundation of Judeo-Christian beliefs. Tales of a great flood abound in Sumerian myth. Man, they said, was formed from clay.[PARAGRAPH:1]Although the first great empire vanished from history, Sumerian culture would survive to influence the next great civilization to spring from the Tigris-Euphrates Valley - Babylon.</English>
+@@ -179,9 +164,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to
+-	align with how it is for the other leaders, and cleaner looking maybe
+-	less distracting -->
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_CARTHAGE_PEDIA</Tag>
+ 		<English>[TAB]Carthage was an ancient city-state in North Africa located somewhere near the site of modern Tunis. It was settled by Phoenician colonists from the city of Tyre sometime around 814 BC. According to tradition, the first ruler was a queen named Dido, who is mentioned in a number of surviving Greek and Roman legends. Carthage had an excellent harbor, and the city was well situated to form a maritime empire based on Mediterranean trade. As time passed and Carthage expanded, it gained control over the other Phoenician colonies on the northern coast of Africa. Carthaginian merchants dominated trade in the western Mediterranean, and navigators may have sailed as far as Britain and Nigeria. The rise of Carthage in power and influence would bring it into conflict with first the Greek city-states of Sicily, and later the Roman Republic. [PARAGRAPH:2:1]Carthage's government was an oligarchy not unlike that in republican Rome. One or two "Sofetim" (which best translates as "judges") were elected annually from among the wealthy and influential families of Carthage to hold positions of executive and judicial power. These aristocratic families were also represented in a deliberative body that appears to have been similar to the Roman Senate. Although Carthage was primarily controlled by these oligarchs, there were also a few limited elections for minor positions of authority within the government. [PARAGRAPH:2:1]Carthage's economic prosperity was based largely upon its lucrative trade with the silver and tin mines of Spain, and those trade routes were jealously guarded by Carthaginian merchants. Culturally, the Carthaginians practiced the polytheistic religion of the Phoenicians, based upon worship of the divine couple Tanit and Ba'al. The Carthaginians also appear to have participated in the unsavory practice of child sacrifice as part of their religion, although some historians have disputed this. [PARAGRAPH:2:1]Carthage first came into military conflict with the Greeks over control of the island of Sicily, whose strategic location would allow the Carthaginians to control access to the western Mediterranean. Carthage fought three separate wars against the Greek colonies on Sicily, all of which largely ended in inconclusive stalemates. [PARAGRAPH:2:1]Eventually Rome occupied the Greek colonies in the south of mainland Italy, allowing Carthage an opportunity to conquer most of Sicily. Tension between the two states soon boiled over into the First Punic War (264 - 241 BC) during which the Romans recovered from initial setbacks and built a navy for the first time, with which they defeated the Carthaginians at the Battle of the Aegates Islands. This victory won Sicily for Rome, and the two sides entered into an uneasy peace. [PARAGRAPH:2:1]After losing Sicily to the Romans, the Carthaginians expanded their holdings in Spain to compensate. They also began to prepare for a second conflict with Rome. The war faction was led by the members of the Barca family, and in particular the soon-to-be-famous Hannibal. When a border dispute in Spain provoked an incident between the two states, the Carthaginian senate declared war, initiating the Second Punic War (218 - 202 BC). [PARAGRAPH:2:1]During this conflict Hannibal was authorized to lead a campaign into Italy. He led his large force - which included war elephants - across the Alps, taking the Romans completely by surprise (and creating one of the most enduring war stories of all time). Hannibal met and soundly defeated the main Roman army at Lake Trasimene (217). Despite this disaster the Romans mustered up an even larger army the following year. The two forces met at Cannae, and employing a series of brilliant tactical maneuvers, Hannibal once again utterly destroyed the Romans. [PARAGRAPH:2:1]Following this grisly slaughter, the Romans adopted a Fabian strategy of retreat, refusing to give battle against Hannibal. Hannibal continued to devastate the Italian countryside for the next decade, but he was unable to knock Rome out of the war. Meanwhile, the Roman general Scipio attacked Carthage's holdings in Spain, gaining complete control of the region by 206. Scipio then led an expedition to Africa itself, and Hannibal was recalled from Italy to defend the city of Carthage. The two sides met at the Battle of Zama in 202 BC and Hannibal was defeated, Scipio taking the name "Africanus" to celebrate his victory. Carthage was forced to sue for peace, and Rome imposed very harsh terms on the city. [PARAGRAPH:2:1]Despite the destruction of the Second Punic War and the harsh peace terms, Carthage soon recovered her strength and began once more to exert control over trade in the Western Mediterranean. This caused great fear among the Romans, who had never forgotten the damage that Hannibal had done to Italy in the earlier war. In 149 BC Rome declared war on Carthage again on spurious pretexts, initiating the Third Punic War. The Carthaginians attempted to negotiate a settlement, but the Romans would be satisfied with nothing less than the city's total destruction. After a long siege, the city fell and its people were killed or sold into slavery. Carthage itself was pulled apart brick by brick and completely destroyed. The city would be rebuilt by the Romans, but the former Phoenician state would never rise again. [PARAGRAPH:2:1]</English>
+@@ -189,9 +172,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to
+-	align with how it is for the other leaders, and cleaner looking maybe
+-	less distracting -->
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_CELT_PEDIA</Tag>
+ 		<English>[TAB]The Celts were a group of Indo-Europeans who inhabited much of Central and Western Europe in the period between 1000 and 500 BC. While Celtic culture today is associated with Ireland, Scotland and Wales, the ancient Celts were spread out over a much larger distance. In addition to those locations, different groups of Celts were also present in Spain, France (Gaul), Hungary, and Bulgaria (Thrace). Although the Greeks and Romans considered the Celts to be barbarians, they possessed a sophisticated and unique culture. [PARAGRAPH:2:1]The ancient Celts of Gaul and Britain (who we know the most about) were divided into many tribes loosely based on kinship ties. Social structure was determined by a mixture of class standing within the tribe and one's place within the Celtic religion. Kings were elected to lead the tribes, and society was divided into the three groups: warriors, an intellectual class of druids and bards, and everyone else. Society was based around warfare, but to the Celts it was more of a sport than a battle to the death: raids were the norm, and pitched battles were rare. [PARAGRAPH:2:1]The Celts do not appear to have had any large cities, although there were many small towns and fortresses across the regions they controlled. Trade was rather primitive and mostly consisted of a barter economy, although in some coastal regions it was more developed. The Celts shared a common religion emphasizing sacred groves, the role of druids as priests and scholars, and the use of periodic sacrifices (which were occasionally human sacrifices). Celtic gods were named after natural phenomenon and they were quite numerous. Other Celtic practices included the removal of body hair (done to ensure cleanliness) and the taking of enemy heads as trophies in battle. [PARAGRAPH:2:1]The most notable event in the early history of the Celts was the sacking of the city of Rome in 390 BC under the great King Brennus. Although the victory was a military triumph and provided a large immediate gain to the Celts, the Romans would prove to have a very long memory, and over the years they would make their enemies pay dearly for it by methodically conquering all Celtic territory their mighty legions could reach. [PARAGRAPH:2:1]By 192 BC, the Romans had subjugated the last of the Celtic tribes in Italy, and they then began a program of colonization of southern Gaul on the Mediterranean coast. Under the great general Julius Caesar, the Romans conquered the entirety of Gaul and defeated a large revolt headed by Vercingetorix between 58 - 51 BC, removing the Celtic threat to the Imperial City once and for all. Under the Emperor Claudius, the Romans went on to invade and occupy Celtic Britain as well. [PARAGRAPH:2:1]The Celts remained under Roman rule for the next four centuries until the Germanic invasions of the fifth century AD destroyed the Roman Empire in the west. Although Celtic culture disappeared in many parts of Europe during those years of foreign occupation, it was preserved in Ireland and the western fringe of Britain. Over time the pagan Celtic culture would combine with Christianity to give rise to beautiful new forms of artwork and literature. Despite many attempts over the centuries to destroy it, the Celtic culture survives. In fact, today it enjoys a great deal of popularity and is even experiencing something of a revival. [PARAGRAPH:2:1]</English>
+@@ -199,9 +180,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to
+-	align with how it is for the other leaders, and cleaner looking maybe
+-	less distracting -->
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_KOREA_PEDIA</Tag>
+ 		<English>[TAB]Archaeological evidence indicates that humans have been living on the Korean peninsula for the last 700,000 years. The earliest discovered settlements date back to at least 3000 BC. According to legend, Korean history began in 2333 BC when King Dangun founded the kingdom of Gojoseon. Dangun was said to have been born of the son of Heaven and a woman from a bear-totem tribe; ancient Korea was characterized by clan communities which combined to form small city-states. The Bronze Age began around 1000 BC in Korea, and many weapons from this period have been found, as well as archaeological evidence of walled settlements. This suggests that the Korean city-states did not always enjoy peaceful relations with one another, despite their nominal unity under the Kingdom of Gojoseon. The kingdom of Gojoseon came to an end in 109 BC when the Chinese launched a massive invasion near the Liao River. The Chinese established four provinces in northern Korea and Manchuria, but were unable to hold these for any length of time. [PARAGRAPH:2:1]After the fall of the Gojoseon kingdom, three new states emerged in Korea (these are collectively known as the "Three Kingdoms"). Baekje was founded in 18 BC on the southwest of the Korean Peninsula; it was based around the city of Seoul and played an important role in transporting Chinese culture (such as Buddhism, iron making, the Chinese alphabet, etc.) across the sea to Japan. Goguryeo was founded in 37 BC; it usually was the largest of the three kingdoms. In addition to its Korean citizens, it also included Chinese and Tugusic tribesman from Manchuria. Finally, the third kingdom of Silla (founded 57 BC) was culturally distinct from the other two because of the cultural influence of northern nomads from the steppes - Baekje and Goguryeo were mostly dominated by Chinese culture. The three kingdoms coexisted on the peninsula for over six centuries, until King Munmu of Silla ordered an attack on Baekje in 660 AD. With the help of forces from Tang China, the Sillans conquered first Baekje and then Goguryeo (in 668 AD). The Sillans then drove out the Chinese and ruled over a united Korean state. [PARAGRAPH:2:1]Unified Silla remained peaceful and prosperous for the next two centuries, until it was overthrown in 935 AD by a new dynasty, the kingdom of Goryeo, which would last for over four hundred years. During this period laws were codified, a civil service system was introduced, and Buddhism spread throughout the Korean peninsula. In 1231 the Mongols invaded Korea, and the king of Goryeo was forced to surrender a short time later. Under the treaty of capitulation the Korean kings continued to rule as a figurehead, while the Mongols held all of the real power. As time passed the Mongol power began to decline, and in the 1340s King Kongmin was able to throw them out. Upon regaining power the Goryeo dynasty enacted important reforms to the government. It remained in power some fifty years, until overthrown by the turncoat Korean general Yi Seonggye in 1392. [PARAGRAPH:2:1]Yi Seonggye had been sent to China to fight against the Ming Chinese, but once there he switched sides and returned to Korea backed by Chinese power. He then overthrew the Goryeo Dynasty and founded his own. This new Joseon Dynasty moved the capital to Seoul and adopted Confucianism as the state religion, causing great loss of power and wealth by Korea's Buddhists. The Joseon state successfully fought off a series of invasions from Japan between 1592 and 1598, but succumbed to an attack by the Qing Dynasty of China in 1636. For the next two centuries Korea remained nominally independent, but in actuality was a province of the Chinese Qing Empire. [PARAGRAPH:2:1]At the end of the nineteenth century Korea was invaded and occupied by Japan after its victories over China in the Sino-Japanese War (1894-95) and Russia in the Russo-Japanese War (1904-05). The Japanese ruthlessly exploited the Korean population and attempted to destroy the Korean culture in order to replace it with their own. After Japan's defeat in World War II (1945), Korea was divided at the thirty-eighth parallel into north and south regions, a division which the Korean War of 1950-53 made permanent. South Korea has since become a prosperous economic powerhouse, while North Korea remains stifled by an oppressive communist regime. [PARAGRAPH:2:1]</English>
+@@ -209,16 +188,9 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to
+-	align with how it is for the other leaders, and cleaner looking maybe
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe
+ 	less distracting
+-	note: for some civs such as the ottoman empire, i took the asset from
+-	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords_Changed.xml rather,
+-	because	it was also in this file and not only in CIV4GameText_Warlords.xml
+-	like for most similar assets, so taking the version that says "Changed"
+-	just because maybe it would/could have fixed something that i don't know of
+-	potentially
+-	-->
++	note: for some civs such as the ottoman empire, i took the asset from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords_Changed.xml rather, because	it was also in this file and not only in CIV4GameText_Warlords.xml like for most similar assets, so taking the version that says "Changed" just because maybe it would/could have fixed something that i don't know of potentially -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CHANGED_CIV_OTTOMAN_PEDIA</Tag>
+ 		<English>[TAB]The Ottoman Empire was a Turkish state situated upon the eastern Mediterranean that lasted for some 630 years, from 1299 - 1922 AD. At the height of its power, in the sixteenth and seventeenth centuries, the Ottoman domains stretched across vast regions in Anatolia, the Balkans, the Near East and northern Africa. For several centuries it was one of the foremost military powers in the world (until it began to stagnate technologically and fell far behind its competitors).[PARAGRAPH:2]The Ottoman state began as a vassal of the earlier Seljuk Turks, who had formed a large empire in the Near East in the eleventh century. When the Seljuk state of Rum in Anatolia collapsed, the Ottomans took advantage of the ensuing power vacuum and rose in power. According to tradition, Osman I became the bey, or chief, of the state of S&#246;g&#252;t in 1281. When Osman captured the Byzantine city of Bilecik in 1299, he declared his state's independence from the Seljuks. This is the traditional date given as the foundation of the Ottoman Empire - which was named after its first leader, Osman. [PARAGRAPH:2]The Ottomans expanded rapidly in Anatolia throughout the fourteenth century. A series of capable military leaders made many gains against the tottering Byzantine state. The important cities of Nicaea and Nicomedia fell in 1331 and 1337, and by the 1360s the Ottomans had crossed over into Europe and began capturing territory in Thrace. As a sign of this growing power, Murad I declared himself a sultan (or king) in 1383. Around the year 1400, Timur invaded Anatolia. This caused a great deal of disruption, but the Ottomans bounced back and continued to make territorial gains. Under the rule of Mehmed II, the Ottomans attacked and captured Constantinople, whose mighty walls finally fell to the cannon of the Ottomans. This destroyed the Byzantine Empire, and the Ottomans made Constantinople their capital. Mehmed II became known as "Mehmed the Conqueror." Suleiman I, also known as Suleiman the Magnificent, continued to expand and consolidate the Empire; the Ottomans were at the height of their power and influence during his reign[PARAGRAPH:2]After the capture of Constantinople the Ottoman state virtually adopted the Byzantine civil service to run the empire, and its administration was generally sound (until the nineteenth century, when it began to fossilize and became outdated). The Ottoman Empire was very much a pre-modern dynastic state, made up of many different nationalities - in fact, Greeks largely ran its bureaucracy and were vital to its continued success. Militarily, the Ottomans were very strong largely because of their early adoption of gunpowder and their powerful cavalry forces. The military also employed elite slave soldiers known as "janissaries" who won victory after victory for the expanding Ottoman state. The military remained powerful until the late eighteenth century, when they fell fatally behind Western Europe in military technology. [PARAGRAPH:2]The Ottomans were known for their religious tolerance. The Empire was an Islamic state, and Islamic law dominated its legal system, but non-Muslims were generally well treated and enjoyed the freedom to worship their own religion. The Ottoman Empire was long seen as a refuge for Jews across Europe. Economically, the Ottoman Empire was somewhat of a failure. Most of the region's commerce was carried on by Greek or Italian merchants, which slowed the development of Turkish industry. Once the European voyages of exploration found new routes to India and China which did not involve passing through the Near East, the Ottoman Empire began a slow commercial decline. [PARAGRAPH:2]By the start of the nineteenth century, the Ottoman Empire still held enormous amounts of land, but the empire was stagnant and corrupt, and was widely viewed as the "sick man of Europe." The western powers, their commercial and military strength exploding under the influence of the Industrial Revolution, began to snap up vulnerable Ottoman territories. Britain and France forced humiliating commercial treaties on the Ottomans, and the Ottoman state was forced to take out massive loans to cover its debts - the start of a vicious cycle which only incurred more debt for the empire. [PARAGRAPH:2]While some positive reforms were carried out in terms of modernizing the Ottoman state, custom and tradition prevented the reformers from moving fast enough. Furthermore, the rising tide of nationalism began to tear the empire apart, as Serbians, Bulgarians, Romanians, and Greeks all declared their independence and set up their own nations. By the outbreak of World War I, the Ottomans had lost virtually all of their holdings in Europe. Desperate to preserve what was left, the Ottomans threw in their lot with the Central Powers (Germany and Austria), only to be defeated by a British-led Arab revolt in the Near East. When the war ended the victors partitioned and dissolved the Ottoman Empire at the Paris Peace Conference. However, the Turkish Revolution prevented the planned division of Anatolia from taking place. With the creation of the nation of Turkey in 1922, and the deposition of the final sultan Mehmed VI, the Ottoman Empire came to a close. [PARAGRAPH:2]</English>
+@@ -226,16 +198,9 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to
+-	align with how it is for the other leaders, and cleaner looking maybe
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe
+ 	less distracting
+-	note: for some civs such as the ottoman empire, i took the asset from
+-	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords_Changed.xml rather,
+-	because	it was also in this file and not only in CIV4GameText_Warlords.xml
+-	like for most similar assets, so taking the version that says "Changed"
+-	just because maybe it would/could have fixed something that i don't know of
+-	potentially
+-	-->
++	note: for some civs such as the ottoman empire, i took the asset from C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\Assets\XML\Text\CIV4GameText_Warlords_Changed.xml rather, because it was also in this file and not only in CIV4GameText_Warlords.xml like for most similar assets, so taking the version that says "Changed" just because maybe it would/could have fixed something that i don't know of potentially -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CHANGED_CIV_VIKING_PEDIA</Tag>
+ 		<English>[TAB]More properly known as Scandinavians or Norsemen, the Vikings were a group of people from northern Europe who became famous for carrying out a series of raids across the continent between roughly 800 - 1050 AD. The period is sometimes known as the "Viking Age," and it was an era of chaos and disruption for large parts of Europe. The Vikings can be classified into three main groups: the Danes largely attacked England; the Norwegians visited Scotland, Ireland, and points further west; while the Swedes invaded the river systems of what is now Russia. Although the Vikings usually employed hit and run tactics, many of them settled in new communities in the areas they had subjugated, eventually mixing with the local population. And while the Vikings are thought today to be bloodthirsty brigands, they probably acted more often as commercial traders than as warriors.[PARAGRAPH:2:1]Historians debate the reason why the Vikings suddenly emerged from Scandinavia at the end of the eighth century AD and began preying upon other parts of Europe. Theories include: the Vikings were suffering overpopulation caused by better agricultural tools; that the unification of Norway led to an excess of idle warriors; the Vikings were reacting to attempts by the Franks to muscle them out of trade with the east; or that the men went off to raid and pillage out of simple boredom. One particularly interesting theory is that the climate of Europe was warmer during the early Middle Ages, leading to an excess population in Scandinavia and the subsequent Viking colonization of places such as Iceland and Greenland. [PARAGRAPH:2:1]Whatever the actual reason for their expansion, the Viking drive outward began with the sacking of the important island monastery of Lindisfarne, located off the coast of Britain, in 793 AD. England was regularly raided by the Danes in the following decade, and in 865 a major invasion landed in East Anglia. This force was led by several landless Viking kings; in the battles that followed most of the English kingdoms were defeated, but the state of Wessex under Alfred the Great managed to hold the invaders off. The Vikings settled in Northumbria, and their territory became known as the "Danela" (most of these Vikings were Danes). [PARAGRAPH:2:1]Another wave of Vikings landed in England in 947 under the command of Erik Bloodaxe, who managed to capture the city of York. Vikings would largely remain in control of England until the Norman invasion of 1066 - and the Normans were themselves the French descendents of Vikings. Scotland and Ireland also experienced a heavy Norwegian Viking presence at this time; a number of important cities were founded by them - including Dublin. Eventually the Vikings settled down and intermarried with the native Irish. [PARAGRAPH:2:1]The main target for Viking aggression, however, was France. All throughout the ninth century the Vikings sailed up and down the Seine River with impunity, sacking French towns and monasteries at their leisure. Finally the French king Charles the Simple made an agreement with the Viking leader Hrolf Ganger in 911, in which Hrolf was granted control over territory in northern France. In exchange, Hrolf and his men agreed to convert to Christianity and become vassals of the French king. Hrolf's name was changed to Rollo and he became duke of the province of Normandy (named for the Norsemen who settled in it). The Normans retained their martial edge even after conversion to Christianity, and would go on to make a number of important conquests in England, the Mediterranean, and during the Crusades. [PARAGRAPH:2:1]The exploits of the Viking sailors were the stuff of legend. Viking mariners found their way to Iceland, Greenland, and even Newfoundland in North America, setting up colonies in all of these locations. Viking longboats were both fast and seaworthy, and their shallow drafts allowed them to sail far up the river systems of Europe. The Vikings could strike from the sea and be gone again before the military forces of a kingdom could be marshaled to meet them. In the east, the Swedes traveled down the rivers of modern Russia and founded the state of Kievan Rus', which grew rich off the river trade between the Baltic and the Byzantine Empire. These Vikings also found employment as mercenaries within the Byzantine domains, and their most elite warriors found employment in the Byzantine Varangian Guard. The Viking Age finally came to a close around 1050AD, as the Vikings were incorporated into Christian Europe and settled down to the less exciting but more stable pursuits of agriculture and fishing; their reputation as fierce invaders from the sea has endured to this day. [PARAGRAPH:2:1]</English>
+@@ -243,9 +208,7 @@ if some wish, AdvCiv or/and other mods maybe -->
+ 
+ 
+ 
+-	<!-- custom: add a tab to first sentence for some civilizations, to
+-	align with how it is for the other leaders, and cleaner looking maybe
+-	less distracting -->
++	<!-- custom: add a tab to first sentence for some civilizations, to align with how it is for the other leaders, and cleaner looking maybe less distracting -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CIV_ZULU_PEDIA</Tag>
+ 		<English>[TAB]The Zulu came from a group of peoples known as the Nguni, a linguistic subgroup of the Bantu family of languages. The Nguni had been migrating south for almost a thousand years before reaching the region of the White Umfolozi River around 1700 AD. It was here that the Zulu decided to settle and make their home, according to tradition in 1709. The Zulu are named after Zulu kaNtombhela, who was the founder and chief of the tribe. [PARAGRAPH:2]The Zulu were never more than one unremarkable small tribe among many - until the coming of the great warrior Shaka Zulu, who was born sometime around 1787. While growing up, Shaka was exiled by his father and found refuge with Digiswayo, the chief of another neighboring tribe. When his father died around 1816, Digiswayo helped Shaka succeed to the Zulu throne. [PARAGRAPH:2]Once in power Shaka instituted something of a military revolution among the Zulus, replacing the traditional "assegai" (a javelin-like throwing spear) with a shorter stabbing spear called the "lklwa." He also equipped his warriors with a larger shield which covered most of the soldier's body. This change in Zulu weaponry reflected Shaka's innovations in warefare: while previous battles had tended to be somewhat ritualistic - with much chanting and spear-throwing at a distance - and thus did not have decisive results, Shaka taught the Zulu to kill. [PARAGRAPH:2]Under Shaka's command, the Zulu warriors would close to melee range with their opponents, where their shorter stabbing spears were more effective than the opposition's throwing weapons. Shaka also taught his warriors to fight in a new tactical formation known as the "buffalo horns. Under this formation the center of the Zulu line would engage the enemy to hold them in position, while the right and left "horns" would move forward and envelop the enemy. Outflanked on right and left and equipped with inferior weapons, few enemies could stand up to the Zulu assault; the Zulu were soon terrorizing the neighboring tribes. [PARAGRAPH:2]Within a decade, Shaka had accumulated an army of 50,000 warriors, defeated all of the surrounding tribes, and was master over most of the interior of what is now South Africa. Shaka set up a new capital for the Zulu at Bulaweyo, but his arrogance and cruelty caused dissatisfaction among his people. In 1828 Shaka was assassinated by his half-brothers Dingane and Mhlangana. Dingane then immediately killed Mhlangana and began a purge of the pro-Shaka chieftains under his control. [PARAGRAPH:2]It was into this picture of chaos and violence that the European settlers first began appearing onto the scene in the 1830s. The first European settlement in the Zululand region was the English colony of Port Natal (modern Durban). An English missionary went to live with the Zulu in 1837, and was tolerated by King Dingane. However, at the same time a group of Boer settlers known as the "Voortrekkers" (or pioneers) were moving north across the Orange River into the now-empty lands which had been vacated by tribes fleeing the Zulu. Dingane had given the Voortrekkers permission to settle in the area, but in 1838 - either as the result of a misunderstanding or because Dingane had planned it from the start - the Zulus attacked the newcomers. [PARAGRAPH:2]This proved to be a huge mistake. At the Battle of Blood River, the Zulus vastly outnumbered their opposition, having 10,000 warriors fighting 400 Boers. Despite the odds, however, the Boers slaughtered their opponents, their firearms giving them an overwhelming advantage against their spear-wielding opponents. The Zulus were forced to allow the white men to settle in their territory, which became known as the Republic of Utrecht. [PARAGRAPH:2]Following the battle, there was a generation of uneasy peace between the Zulus and the growing British and Boer presence in the region. However, after the discovery of diamond mines in South Africa in 1878, the British cast covetous eyes on the Zulu land, and they began to look for an excuse to attack and displace the natives. Following a minor border dispute in 1878, the British declared war and invaded Zululand on three fronts. [PARAGRAPH:2]The Zulu warriors fought bravely (and much to the Europeans' shock managed to slaughter a British force at Isandlwana), but the British rifles and Maxim guns made the ferocity of individual Zulu warriors irrelevant, and the outcome of the war was never in doubt. The Zulu were defeated and Zululand was incorporated into British South Africa. King Cetshwayo was taken to London to meet Queen Victoria as an honored prisoner. However, the rest of the nation did not fare so well, and the Zulus spent the next century under British and Afrikaner domination, forced to live under the racist apartheid laws of South Africa. [PARAGRAPH:2]Following the fall of apartheid in the 1990s, however, today Zulus enjoy full citizenship rights in South Africa. Zulu is the most widely spoken language in the country, and with over 11 million people, the Zulus are the largest ethnic group in South Africa. [PARAGRAPH:2] </English>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index f088be470..1c4ae75a5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -342,8 +342,8 @@
+ 	<!-- custom: add Ogiso Igodo, leader of the Kingdom Of Benin, copy pasted from:
+ 	C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Assets\XML\Text\CIV4GameText_Civilopedia_BTS.xml then modified to fit this leader
+ 	Mention of Ogiso Igodo also here: https://en.wikipedia.org/wiki/Ogiso_monarchy#Origin_and_establishment
+-	Here too (found link on the page linked just above)	https://en.wikipedia.org/wiki/Igodo
+-	some info here too:	https://en.wikipedia.org/wiki/Igodomigodo
++	Here too (found link on the page linked just above) https://en.wikipedia.org/wiki/Igodo
++	some info here too: https://en.wikipedia.org/wiki/Igodomigodo
+ 	note:putting everything in English in all languages is so much more convenient and faster, maybe not best and ideal but many paragraphs and such even with translator, i hope i can invest my efforts elsewhere.
+ 	I don't mind translating it once in English though is quite cool and interesting, but many times is a chore, i also think (and hope) that lost players would play in English, else maybe they would not mind too much about this, but is bit too long to do, as in tedious, not lengthy, not impossible to do but i hope i can code other things
+ 	-->
+@@ -367,7 +367,7 @@
+ 	<!-- custom: impluvium (kingdom of benin's civ-specific at least as of now anyways etc) pedia entry similarly imported from https://en.wikipedia.org/wiki/Impluvium more specifically and mostly if i may say anyways etc https://en.wikipedia.org/wiki/Impluvium#West_and_Central_African_impluvium anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_KINGDOM_OF_BENIN_IMPLUVIUM_PEDIA</Tag>
+-		<English>[TAB]The impluvium (pl.: impluvia) is a water-catchment pool system meant to capture rain-water flowing from the compluvium, an area of roof. Often placed in a courtyard, under an opening in the roof, and thus "inside", instead of "outside", a building, it is a notable feature in many architectural traditions.[PARAGRAPH:1][TAB]Denyer, African Traditional Architecture, defined an impluvial style of architecture in West Africa, wherein "four buildings usually faced one another across courtyard". Buildings of the "style" (really, a "clade-based" type), did not necessarily feature an impluvium to capture rain. Further complicating matters, some texts have conflated Denyer's impluvial style with impluvium itself, and thereby take impluvium to refer not to the use of mechanisms to capture water, but instead to court yard-centered house plans.[PARAGRAPH:1]Impluvia have been observed in many West/Central-African architectural traditions, including those of the Igbo, Yoruba, Edo, Jola and Bamum. These ranged in complexity: Yoruba impluvia, referred to as akodi,[9] sometimes only amounted to pots placed at the corners of vast rectilinear courtyards, while some in Ketu, Benin Republic, were drained into underground tanks. Commoners in the Benin kingdom usually had houses with multiple impluvia in their one or two court spaces, sometimes drained out of the house by pipes. As Nevadomsky et al. note, these impluvia were meant to remove rain water so that the open roof could be used as a light source and source of fresh air. While many previous examples have been rectilinear, the impluvia of Senegal could also be designed around round floor plans; this has become the basis for the 'Case � Impluvium" in Ziguinchor, Senegal, a centre of the arts run by the Alliance Franco-S�n�galaise.[PARAGRAPH:1]19th and 20th century European travelers were often surprised to find parallels to classical culture in those architectural traditions that had clear ones: "In the Bamum area there is an interesting type of hut. In referring to it Ankermann says: "The men's houses (Herrenh�user) in Bamum, in contrast to those of the women, show a most complicated structure. I was very much astonished when I entered for the first time to find myself in an actual Roman atrium with an impluvium in the middle, with the roof sloping towards the middle, and supported by columns." This resulted in a number of theories attempting to tie West and Central African impluvium to Greco-Roman, Egyptian, and Portuguese influences. While Kalaous rejects the possibility of Portuguese influence, he writes that "The Old Mediterranean influence seems to be more plausible but did not necessarily come via Egypt... Of course, this does not prove that there were contacts between the Etruscans and the peoples of what is now Southern Nigeria, but the existence of impluvium there (and elsewhere in West Africa) is certainly not easy to explain in terms of a quite independent origin." Denyer, on the other hand, notes that "No really large settlement could have taken place in this area [Southern Nigeria] before a means of collecting water had been found", to save for the dry season and to manage erosion. Most bluntly, Nevadomsky et al. write that "One need not postulate an external source for what was in all probability an independent evolution of space and form. The impluvium house could easily have arisen in a climate of hot sunshine and heavy seasonal rainfall."</English>
++		<English>[TAB]The impluvium (pl.: impluvia) is a water-catchment pool system meant to capture rain-water flowing from the compluvium, an area of roof. Often placed in a courtyard, under an opening in the roof, and thus "inside", instead of "outside", a building, it is a notable feature in many architectural traditions.[PARAGRAPH:1][TAB]Denyer, African Traditional Architecture, defined an impluvial style of architecture in West Africa, wherein "four buildings usually faced one another across courtyard". Buildings of the "style" (really, a "clade-based" type), did not necessarily feature an impluvium to capture rain. Further complicating matters, some texts have conflated Denyer's impluvial style with impluvium itself, and thereby take impluvium to refer not to the use of mechanisms to capture water, but instead to court yard-centered house plans.[PARAGRAPH:1]Impluvia have been observed in many West/Central-African architectural traditions, including those of the Igbo, Yoruba, Edo, Jola and Bamum. These ranged in complexity: Yoruba impluvia, referred to as akodi,[ sometimes only amounted to pots placed at the corners of vast rectilinear courtyards, while some in Ketu, Benin Republic, were drained into underground tanks. Commoners in the Benin kingdom usually had houses with multiple impluvia in their one or two court spaces, sometimes drained out of the house by pipes. As Nevadomsky et al. note, these impluvia were meant to remove rain water so that the open roof could be used as a light source and source of fresh air. While many previous examples have been rectilinear, the impluvia of Senegal could also be designed around round floor plans; this has become the basis for the 'Case � Impluvium" in Ziguinchor, Senegal, a centre of the arts run by the Alliance Franco-S�n�galaise.[PARAGRAPH:1]19th and 20th century European travelers were often surprised to find parallels to classical culture in those architectural traditions that had clear ones: "In the Bamum area there is an interesting type of hut. In referring to it Ankermann says: "The men's houses (Herrenh�user) in Bamum, in contrast to those of the women, show a most complicated structure. I was very much astonished when I entered for the first time to find myself in an actual Roman atrium with an impluvium in the middle, with the roof sloping towards the middle, and supported by columns." This resulted in a number of theories attempting to tie West and Central African impluvium to Greco-Roman, Egyptian, and Portuguese influences. While Kalaous rejects the possibility of Portuguese influence, he writes that "The Old Mediterranean influence seems to be more plausible but did not necessarily come via Egypt... Of course, this does not prove that there were contacts between the Etruscans and the peoples of what is now Southern Nigeria, but the existence of impluvium there (and elsewhere in West Africa) is certainly not easy to explain in terms of a quite independent origin." Denyer, on the other hand, notes that "No really large settlement could have taken place in this area [Southern Nigeria] before a means of collecting water had been found", to save for the dry season and to manage erosion. Most bluntly, Nevadomsky et al. write that "One need not postulate an external source for what was in all probability an independent evolution of space and form. The impluvium house could easily have arisen in a climate of hot sunshine and heavy seasonal rainfall."</English>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+index 301287411..e81f9289a 100644
+--- a/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Civilopedia_Lengthy_Custom.xml
+@@ -17,12 +17,9 @@ and modified for our needs if needed. -->
+ 		<Tag>TXT_KEY_TERRAIN_GRASS_PEDIA</Tag>
+ 		<English>[TAB]Grasslands are areas where the vegetation is dominated by grasses (Poaceae) and other herbaceous (non-woody) plants (forbs). However, sedge (Cyperaceae) and rush (Juncaceae) families can also be found. Grasslands occur naturally on all continents except Antarctica. In temperate latitudes, such as northwest Europe and the Great Plains and California in North America, native grasslands are dominated by perennial bunch grass species, whereas in warmer climates annual species form a greater component of the vegetation.</English>
+ 	</TEXT>
+-    <!-- custom: they (RFC DOC's sevopedia entry of Terrain_Ice) duplicated the ice water
+-    entry it seems, however now we are in the page of TERRAIN_SNOW (Ice (Terrain)).
+-	More info on TXT KEYs if that helps: https://gforestshade.github.io/kujira/post/keyichiran/
++    <!-- custom: they (RFC DOC's sevopedia entry of Terrain_Ice) duplicated the ice water entry it seems, however now we are in the page of TERRAIN_SNOW (Ice (Terrain)). More info on TXT KEYs if that helps: https://gforestshade.github.io/kujira/post/keyichiran/
+ 	Adding another description instead
+-    Taken from: https://en.wikipedia.org/wiki/Ice_sheet
+-    -->
++    Taken from: https://en.wikipedia.org/wiki/Ice_sheet -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TERRAIN_ICE_PEDIA</Tag>
+ 		<English>[TAB]Note: This refers to the Ice Sheet (Terrain). If you wanted to see the [LINK=FEATURE_ICE]Ice Cap (Feature)[\LINK], please visit that page of the Sevopedia rather.[PARAGRAPH:2][TAB]In glaciology, an ice sheet, also known as a continental glacier, is a mass of glacial ice that covers surrounding terrain and is greater than 50,000 km2 (19,000 sq mi). The only current ice sheets are the Antarctic ice sheet and the Greenland ice sheet. Ice sheets are bigger than ice shelves or alpine glaciers. Masses of ice covering less than 50,000 km2 are termed an ice cap. An ice cap will typically feed a series of glaciers around its periphery.[PARAGRAPH:1]In previous geologic time spans (glacial periods) there were other ice sheets. During the Last Glacial Period at Last Glacial Maximum, the Laurentide Ice Sheet covered much of North America. In the same period, the Weichselian ice sheet covered Northern Europe and the Patagonian Ice Sheet covered southern South America.</English>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 2142ba8ad..841ff3453 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1,9 +1,6 @@
+ <?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos -->
+ <!--
+-custom: for <UnitCombats> please alphabetical/sevopedia listing order,
+-else it gets messy really quickly
+-
+-full order to take from for quick editing or/and copy/paste:
++custom: for <UnitCombats> please alphabetical/sevopedia listing order, else it gets messy really quickly full order to take from for quick editing or/and copy/paste:
+ 
+ 			<UnitCombats>
+ 				<UnitCombat>
+@@ -1264,7 +1261,7 @@ full order to take from for quick editing or/and copy/paste:
+ 			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
+ 			<!-- advc.200: PROMOTION_DRILL2 in K-Mod; reverted -->
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+-			<!--custom: -->
++			<!-- custom: -->
+ 			<TechPrereq>TECH_CONSTRUCTION</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 099653e3e..a897d0f93 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -8420,7 +8420,7 @@ then adjust maybe anyways):
+ 			<FeatureNatives/>
+ 		    <!-- custom: unlike the reworked pikemen, the holy roman special unit seems
+ 			to good in most if not all terrains, so removing the penalties that the reworked
+-			pikemen have. May affect city attack/defense/planting startegy. -->
++			pikemen have. May affect city attack/defense/planting strategy. -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+
+diff --git a/_1_AdvCiv-SAS/README.md b/_1_AdvCiv-SAS/README.md
+index fd62780ec..958b70bb9 100644
+--- a/_1_AdvCiv-SAS/README.md
++++ b/_1_AdvCiv-SAS/README.md
+@@ -52,7 +52,7 @@ versatile, which i think is realistic. For example, scouts and explorers can
+ attack, even workers should be able to defend cities (even though very weak),
+ but this is still in development. These changes intend to make it more
+ immersive, balanced in case some units are op while others are not and too weak,
+-and more challenging, as startegy will play a bigger role, with more ways to be
++and more challenging, as strategy will play a bigger role, with more ways to be
+ punished if doing mistakes.
+ - Terrain Overhaul: now all military units all have terrain specific defenses and
+ bonuses. This is a very different experience than civ4 or base advciv, as good as
+
+[PATCH COVERAGE]
+patchFiles=19 embeddedFiles=19 omittedFiles=0 embeddedPatchBytes=122223

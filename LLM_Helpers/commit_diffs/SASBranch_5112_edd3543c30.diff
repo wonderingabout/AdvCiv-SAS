@@ -1,0 +1,358 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5112
+# Commit: edd3543c30bb2e344edc3a99d70a48d5e5457951
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 983cc7f252b0d7aa5f958a1e9b18c0944f044442
+# Title: early/mid game tech reworks; initial economy civics reworks which is unfinished in this commit - buff tech_bronze_working's AND tech prereq from TECH_MONARCH...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds
+-	-	Assets/Art/AdvCiv_SAS/Civics/Regional_Trade/Provincial.dds
+2	2	Assets/XML/Buildings/CIV4BuildingInfos.xml
+17	8	Assets/XML/GameInfo/CIV4CivicInfos.xml
+26	19	Assets/XML/Technologies/CIV4TechInfos.xml
+1	1	README.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+4	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Civics/Regional_Trade/Provincial.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds b/Assets/Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds
+new file mode 100644
+index 000000000..954447072
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Civics/Regional_Trade/Provincial.dds b/Assets/Art/AdvCiv_SAS/Civics/Regional_Trade/Provincial.dds
+new file mode 100644
+index 000000000..fb3494c91
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Civics/Regional_Trade/Provincial.dds differ
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 017aeb694..ae48310bb 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -25902,7 +25902,7 @@
+ 			<MaxStartEra>ERA_INDUSTRIAL</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+ 			<!-- custom: was TECH_NATIONALISM -->
+-			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
++			<PrereqTech>TECH_FEUDALISM</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+@@ -25943,7 +25943,7 @@
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 700 -->
+-			<iCost>375</iCost>
++			<iCost>425</iCost>
+ 			<iHurryCostModifier>100</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 68f79ad13..b61a27bbb 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -509,7 +509,12 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_VASSALAGE_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Vassalage.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,1,4</Button>
+-			<TechPrereq>TECH_FEUDALISM</TechPrereq>
++			<!-- custom: as chatgpt 5.1 confirms thanks but anyways etc; also as a side effect closer to bts early vassalage availability anyways etc, was TECH_FEUDALISM -->
++			<!-- Bronze / early Iron Age: you already have clear vassal networks long before medieval feudalism (Egypt–Canaan, Hittites, Zhou “fengjian”, Assyria, early China, etc.). These are formal overlord–subject treaties with tribute, hostages, mutual defense, and legal obligations. -->
++			<!-- Mechanically, you do not want capitulation and permanent sub-states to exist while players are still fighting over their first 3–5 cities. In SAS your wars are deadly and the AI is opportunistic; early vassalizing would produce some nasty snowballs. -->
++			<!-- So I would: Put Vassal States in the late Classical band, not earlier than that.
++			Of the candidates, my pick is: Put “Enables Vassal States” on Drama. -->
++			<TechPrereq>TECH_DRAMA</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<!-- custom: was UPKEEP_HIGH -->
+ 			<Upkeep>UPKEEP_MEDIUM</Upkeep>
+@@ -1223,9 +1228,10 @@
+ 			<Description>TXT_KEY_CIVIC_MERCANTILISM</Description>
+ 			<Civilopedia>TXT_KEY_CIVIC_MERCANTILISM_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Button>,Art/Interface/Buttons/Civics/Mercantilism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,4,3</Button>
+-			<!-- custom: change as recommended by chatgpt 5 and to avoid redundancy with our other civic change as of now at this tech but anyways etc, was TECH_BANKING -->
+-			<TechPrereq>TECH_PRINTING_PRESS</TechPrereq>
++			<!-- custom: button from m-e mod's CIVIC_DELEGATION thanks anyways etc -->
++			<Button>Art/AdvCiv_SAS/Civics/Protectionism/Delegation.dds</Button>
++			<!-- custom: want an early competitor to as of now CIVIC_REGIONAL_TRADE and as confirmed by chatgpt 5.1 i mean thanks but anyways etc, was TECH_BANKING -->
++			<TechPrereq>TECH_PHILOSOPHY</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<!-- K-Mod: was MEDIUM -->
+ 			<Upkeep>UPKEEP_LOW</Upkeep>
+@@ -1353,13 +1359,14 @@
+ 		</CivicInfo>
+ 		<CivicInfo>
+ 			<CivicOptionType>CIVICOPTION_ECONOMY</CivicOptionType>
++			<!-- custom: replace the old CIVIC ENVIRONMENTALISM: "also their entry was incredibly ideologically stupid, partisan/subjective, and bigoted, just like how the old pedia entry at TECH_ECOLOGY was (now fixed/enhanced i mean if i may say but anyways etc) (and ignorant too i mean, not that i know all but it was incredibly stupid, the old entry i mean but anyways etc) but anyways etc" -->
+ 			<Type>CIVIC_ENVIRONMENTALISM</Type>
+ 			<Description>TXT_KEY_CIVIC_ENVIRONMENTALISM</Description>
+ 			<Civilopedia>TXT_KEY_CIVIC_ENVIRONMENTALISM_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Button>,Art/Interface/Buttons/Civics/Environmentalism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,7,1</Button>
+-			<!-- custom: was TECH_MEDICINE -->
+-			<TechPrereq>TECH_ECOLOGY</TechPrereq>
++			<!-- custom: button from m-e mod's CIVIC_PROVINCIAL thanks anyways etc -->
++			<Button>Art/AdvCiv_SAS/Civics/Regional_Trade/Provincial.dds</Button>
++			<TechPrereq>TECH_THE_WHEEL</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<!-- K-Mod: was MEDIUM -->
+ 			<Upkeep>UPKEEP_HIGH</Upkeep>
+@@ -1685,7 +1692,9 @@
+ 			<Civilopedia>TXT_KEY_CIVIC_PACIFISM_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Button>,Art/Interface/Buttons/Civics/Pacifism.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,3,2</Button>
+-			<TechPrereq>TECH_PHILOSOPHY</TechPrereq>
++			<!-- custom: frees a slot to put another civic there, plus is thematically more relevant i think and as chatgpt 5.1 confirms i mean thanks if i may say i mean but anyways etc, was TECH_PHILOSOPHY -->
++			<!-- Pacifist currents (Buddhism, Jainism, some early Christian strands) are much more about religious discipline than abstract Greek metaphysics anyway. -->
++			<TechPrereq>TECH_MEDITATION</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+ 			<Upkeep>NONE</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 81fa76432..efd9f76ed 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -636,7 +636,8 @@
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+ 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+-			<bVassalTrading>0</bVassalTrading>
++			<!-- custom: was 0 anyways etc -->
++			<bVassalTrading>1</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+@@ -644,19 +645,16 @@
+ 			<iGridX>7</iGridX>
+ 			<iGridY>5</iGridY>
+ 			<DomainExtraMoves/>
++			<!-- custom: was 0 / 0 / 1 / 0 -->
+ 			<!-- advc.120g: Added the espionage row (no functional change) -->
+-			<CommerceFlexible>
+-				<bFlexible>0</bFlexible>
+-				<bFlexible>0</bFlexible>
+-				<bFlexible>1</bFlexible>
+-				<bFlexible>0</bFlexible>
+-			</CommerceFlexible>
++			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc, reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_RELIGION</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -664,7 +662,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+@@ -721,13 +719,14 @@
+ 			<bOpenBordersTrading>0</bOpenBordersTrading>
+ 			<bDefensivePactTrading>0</bDefensivePactTrading>
+ 			<bPermanentAllianceTrading>0</bPermanentAllianceTrading>
+-			<bVassalTrading>1</bVassalTrading>
++			<!-- custom: was 1 -->
++			<bVassalTrading>0</bVassalTrading>
+ 			<bBridgeBuilding>0</bBridgeBuilding>
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+ 			<iGridX>9</iGridX>
+-			<iGridY>9</iGridY>
++			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+@@ -745,10 +744,9 @@
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+-				<PrereqTech>TECH_POSTAXIAL_RELIGION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
++				<PrereqTech>TECH_DRAMA</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_FEUDALISM_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_FEUDALISM</Sound>
+@@ -1508,7 +1506,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+-				<PrereqTech>TECH_FEUDALISM</PrereqTech>
++				<PrereqTech>TECH_CONSTITUTION</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_PRINTING_PRESS</PrereqTech>
+@@ -2243,9 +2241,16 @@
+ 			<iGridX>7</iGridX>
+ 			<iGridY>11</iGridY>
+ 			<DomainExtraMoves/>
+-			<CommerceFlexible/>
++			<!-- custom: more focused culture line, plus this tech has too little effects i mean, as nicely suggested as a general suggestion by chatgpt 5.1 which i then noticed specifically for this tech and commerceflexible effect we could put it here i mean but thanks a lot for help really i mean if i may say thanks but anyways etc, was empty anyways etc -->
++			<CommerceFlexible>
++				<bFlexible>0</bFlexible>
++				<bFlexible>0</bFlexible>
++				<bFlexible>1</bFlexible>
++				<bFlexible>0</bFlexible>
++			</CommerceFlexible>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: increase culture flavor, was 8 anyways etc -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+@@ -2257,7 +2262,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4911,7 +4916,7 @@
+ 				<PrereqTech>TECH_METAL_CASTING</PrereqTech>
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+-				<PrereqTech>TECH_MONARCHY</PrereqTech>
++				<PrereqTech>TECH_AGRICULTURE</PrereqTech>
+ 			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_BRONZE_WORKING_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_BRONZEWORK</Sound>
+@@ -5392,7 +5397,9 @@
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_WATER_WHEEL</PrereqTech>
+ 			</OrPreReqs>
+-			<AndPreReqs/>
++			<AndPreReqs>
++				<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			</AndPreReqs>
+ 			<Quote>TXT_KEY_TECH_MACHINERY_QUOTE</Quote>
+ 			<Sound>AS2D_TECH_MACHINERY</Sound>
+ 			<SoundMP>AS2D_TECH_MP_MACHINERY</SoundMP>
+
+diff --git a/README.md b/README.md
+index edb7acd6b..90ccdf0a5 100644
+--- a/README.md
++++ b/README.md
+@@ -479,7 +479,7 @@ Examples of using some or most of these tools in AdvCiv-SAS modding is also avai
+ Some useful tools while doing this advciv-sas mod i mean anyways etc:
+ 
+ - VS Code, some of my favourite extensions: markdownlint (which i encountered first during my gtp2ogs days and now happily rediscover if i may say but anyways etc anyways etc anyways etc) (a few example of use of markdownlint in this [google drive folder link](https://drive.google.com/drive/folders/1H0cq33EeLe_sbaxl-ryFM1vvxDl42pfk?usp=sharing) (non-exhaustive), very very useful thanks a lot anyways as other extensions i use and maybe not use too as well at least for some if not many but anyways etc), vscode-pdf, and ruff (which i use as a python linter if i am not mistaken anyways etc) so very nice and helpful but needs a bit of config to disable matching pylance extra noise of undefined variables like CyTranslator or such see examples of use and vry nice errors i found in python thanks to ruff and chatgpt which advised me and guided me through using it (no pun) but anyways etc anwyays etc... also seems very very fast/lightweight in performance cpu is no more angry at 100% or whichever hardware and fans nosiely spining even if not 100% from little or yes as of now or all or not anyways etc in this [google drive folder link](https://drive.google.com/drive/folders/19qLLdFNSuJXdoeS8-laSDQT81iigAG3q?usp=sharing) ; the ones i dislike don't recommend: microsoft c++ (system seems to spike and pylance in particular doesn't seem to detect many python errors)
+-- Windows 10 (Windows 11 was so laggy and broke after update, now going back to Windows 10
++- Windows 10 (Windows 11 was so laggy and broken after update, now going back to Windows 10
+ that i bombarded with updates and installs still works amazing so i recommend it)
+ - Google Chrome (i used) for the Page translate of kujira's website in particular (Firefox has
+ it too though unless i'm mistaken)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index f622db7af..c501a08dd 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -194,7 +194,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - (Requires AdvCiv-SAS 5103+) Fix the issue of AIs autopicking/overvaluing the former civic_emancipation (or any civic with `iCivicPercentAnger`) just because other rivals have it regardless of how good the civic itself is (the former civic_emancipation was really weak yet still picked by AIs). Now replaced with opportunistic current unhappiness per city-based logic if it benefits us (only pick such a civic if enough of our cities that are unhappy because of the anger civic effect would gain happiness from it). Change in `CvPlayerAI::AI_civicValue` with some tunables in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). Hopefully makes stronger civic choices thanks to this changes as appears to be so in autoplay before vs after change. See for details [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+ - (Requires AdvCiv-SAS 5106+) Fix the issue of AIs almost always picking civic_caste_system and then sticking to it no matter what: rewrote the unlimited specialist old logic in `CvPlayerAI::AI_civicValue` that would only value culture specialists, which seemingly led to civic_wage_labour (as of now unlimited engineers, see latest sevopedia/xml for updated values and details anyways etc) never being picked, even when AIs would much benefit from it, including when our ennemies are stronger than us (no point to run a scientist and then die, better capitalize on engineers or serfdom or such but anyways etc). Now we value unlimited specialists' yields (food, hammer, gold) and commerce (beakers, gold, culture, espionage) hierarchically (e.g. higher value per yield for food vs hammer, higher value per yield for beakers vs culture, etc.), so that we value unlimited specialists strategically on a per yield base. Also added high need logic (higher culture value per yield if culture win rush or BFC need quite similarly to old code, and now also higher hammer value per yield for engineers if our ennemies are strong (see code for latest settings anyways etc)). Results in autoplay are very good, we now switch back and forth between civic_slavery and civic_caste_system early (no longer perma caste system), and then later civic_wage_labor is much more popular among AIs. Civic_serfdom is also sometimes switched to late in the game. So the spread overall is much more even of unlimited specialist civics amongs AIs, which is fine and good as it suits their strategical needs much more if i may say but anyways etc. Added anarchy counting logic to devalue civics (less attractive if costly in turns, but still as attractive if no anarchy cost (traits, golden age, wonders, etc. (at least in theory i mean but check to be sure but anyways etc))), but it looks we still switch a bit too much still so may need some tweaking, but even as is should lead to much stronger and responsive AI hopefully, especially following future civic reworks. Partially tunable in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See for details with screenshots and such [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue).
+ - (Requires AdvCiv-SAS 5108+) Reduce excessive civics change oscillation (was partially masked by civic_caste_system being almost always picked it seems based on autoplay testing, now more prevalent after our civic valuation changes that also value other civics depending on the player's strategic needs but anyways) by adding an additional percent slack new logic (and rewriting the old logic as well) in `CvPlayerAI::AI_doCivics` so that for example a new civic needs to be at least 10% higher valuated to be chosen/switched to (tunable). Note: If percent slack is set too high, it may cause AIs to switch too rarely and react more slowly, but if too low it may be inefficient especially for players that have anarchy turns on civic change—adjust to taste. Note 2: for some reason as of now sometimes bypassed by AIs entirely for some reason, to ideally investigate but for now if not always or not left as such anyways etc.
+-- (Requires AdvCiv-SAS 5110+) Fix the issue of civics that give specialist extra commerce (as of now civic_representation giving beakers, gold, culture) being almost never picked during the entire game (vs for example civic_heridetary_rule), even though the extra commerce per specialist should be quite attractive and strong especially if it applies to many specialists. Tweaked the commerce calculation formula in `CvPlayerAI::AI_civicValue` so it uses stronger advciv-sas's custom commerce weights, and stronger commerce multipliers derived from the SAS weights (both being tunable). Results in autoplay in much more prevalent as of now civic_representation picks especially in the mid/late game, with still some civic_heridetary_rule and civic_universal_suffrage picks and back and forth as well so hopefully balanced and should lead to stronger AI as the yields are overall stronger and economically more efficient generally but anyways etc. Adjust as you see fit anyways etc.
++- (Requires AdvCiv-SAS 5110+) Fix the issue of civics that give specialist extra commerce (as of now civic_representation giving beakers, gold, culture) being almost never picked during the entire game (vs for example civic_heridetary_rule), even though the extra commerce per specialist should be quite attractive and strong especially if it applies to many specialists. Tweaked the commerce calculation formula in `CvPlayerAI::AI_civicValue` so it uses stronger advciv-sas's custom commerce weights, and stronger commerce multipliers derived from the SAS weights (both being tunable). Results in autoplay in much more prevalent as of now civic_representation picks especially in the mid/late game, with still some civic_heridetary_rule and civic_universal_suffrage picks and back and forth as well so hopefully balanced and should lead to stronger AI as the yields are overall stronger and economically more efficient generally but anyways etc.
+ 
+ #### Buildings (AI)
+ 
+@@ -366,7 +366,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - some civics have been rebalanced. For example for CIVIC_REPRESENTATION, it was mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc, or CIVIC_SLAVERY has been buffed (upkeep changed from medium to low to make it relevant longer as well as in the early game vs other civics for versatility), or CIVIC_CASTE_SYSTEM has been nerfed (as of now changed upkeep from medium to high, was too op (now is strong but requires some foundation to leverage it i mean but anyways etc)). Also for example buff CIVIC_VASSALAGE (change upkeep from UPKEEP_HIGH to UPKEEP_MEDIUM), and other changes
+ - (Requires AdvCiv-SAS 5104+) some civics have been reworked: for example CIVIC_WAGE_LABOR (old emancipation civic) is now a production/economy civic available sooner which should be stronger and historically more accurate, or CIVIC_SERFDOM has been buffed a to be a much stronger agrarian/food based civic now. (Requires AdvCiv-SAS 5107+) Also, some religious civics were buffed/reworked should so that they are now more about religion and stay relevant longer in the game (note: in particular, the new civic_theocracy `iCivicPercentAnger` effect (a part of this civic's rework) uses a lower value of 200 instead of the value of 400 the former civic_emancipation had). These should allow for more strategic options and versatile strategies while also improving balance (no one op civic that beats all at least much less but anyways etc); and other reworks such as for `CIVIC_NATIONHOOD`.
+ - some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or/and strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such but anyways etc
+-- (Requires AdvCiv-SAS 5105+) Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key anyways etc) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Vassalage is after Caste System not before, Pacifism is before Organized Religion not after, Environmentalism is before State Property not after) but anyways etc.
++- (Requires AdvCiv-SAS 5105+) Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key anyways etc) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Vassalage is after Caste System not before, Pacifism is before Organized Religion not after) but anyways etc.
+ 
+ ### Buildings (non-exhaustive, see sevopedia or/and xml for details)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 014060f7d..00e843bf4 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -180,8 +180,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ #### Civics (AI)
+ 
+ - (Requires AdvCiv-SAS 5103+) **Civic “Percent Anger” logic (rework):** Fixed the AI tendency to adopt any civic with `iCivicPercentAnger` (e.g. the former CIVIC_EMANCIPATION) just because rivals have it, regardless of its actual value. Replaced with an **opportunistic per-city check**: only consider such civics when enough of our cities would directly **lose anger** from the switch. Implemented in `CvPlayerAI::AI_civicValue`; tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). In autoplay before/after tests, civic choices appeared **stronger**. See [KI#75](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#75---tremendously-improved-ais-autopicking-civic_emancipation-icivicpercentanger-just-because-other-rivals-have-it-regardless-of-how-good-the-civic-itself-is-now-replaced-with-opportunistic-current-unhappiness-per-city-based-logic-if-it-benefits-us-in-cvplayeraiai_civicvalue).
+-- (Requires AdvCiv-SAS 5106+) **Civic choice logic — unlimited specialists generalized:** Addressed the AI’s tendency to default to **Caste System** and stay there. Rewrote `CvPlayerAI::AI_civicValue` so **unlimited specialists** are scored by **yields** (Food > Hammers > Gold) and **commerce** (Beakers >= Gold > Espionage > Culture), instead of effectively crediting only culture. This lets civics like **Wage Labor** (unlimited Engineers) be chosen when appropriate. Added “high-need” boosts (e.g., extra Culture weight when pushing culture/BFC (quite similar to old logic); extra Engineer/Hammer weight when enemies are strong) and **anarchy-cost awareness** (devalue switches that cost many turns). Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). Leads to a more even spread of civics among AIs based on their strategic needs, and to them being more responsive to change. Details/screenshots: [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue). *(Observed in autoplay: early new Slavery↔Caste swaps; late much more Wage Labor and new occasional late Serfdom. May still subject to tuning.)*
+-- (Requires AdvCiv-SAS 5108+) **Civic-switch damping (anti-oscillation):** Reworked `CvPlayerAI::AI_doCivics` to add a **percent-slack** gate: a new civic must outscore the current one by **~10%** to trigger a switch (**tunable**; see [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). Goal: reduce rapid flip-flopping exposed after the broader civic valuation work. *Note:* If the slack is too high, AIs switch **too rarely** and **react more slowly**; if too low, oscillation returns and players with **anarchy-on-switch** waste turns. Adjust to taste. *Note 2:* sometimes bypassed/ignored by AIs entirely for some reason.
++- (Requires AdvCiv-SAS 5106+) **Civic choice logic — unlimited specialists generalized:** Addressed the AI’s tendency to default to **Caste System** and stay there. Rewrote `CvPlayerAI::AI_civicValue` so **unlimited specialists** are scored by **yields** (Food > Hammers > Gold) and **commerce** (Beakers = Gold > Espionage > Culture), instead of effectively crediting only culture. This lets civics like **Wage Labor** (unlimited Engineers) be chosen when appropriate. Added “high-need” boosts (e.g., extra Culture weight when pushing culture/BFC (quite similar to old logic); extra Engineer/Hammer weight when enemies are strong) and **anarchy-cost awareness** (devalue switches that cost many turns). Tunables in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). Leads to a more even spread of civics among AIs based on their strategic needs, and to them being more responsive to change. Details/screenshots: [KI#76](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#76---tremendously-improved-ais-almost-always-picking-civic_caste_system-and-then-almost-never-changing-it-no-matter-what-unlimited-specialists-logic-favoured-only-culture-as-well-and-much-needed-an-improvement-and-generalization-in-cvplayeraiai_civicvalue). *(Observed in autoplay: early new Slavery↔Caste swaps; late much more Wage Labor and new occasional late Serfdom. May still subject to tuning.)*
++- (Requires AdvCiv-SAS 5108+) **Civic-switch damping (anti-oscillation):** Reworked `CvPlayerAI::AI_doCivics` to add a **percent-slack** gate: a new civic must outscore the current one by **~10%** to trigger a switch (**tunable**; see [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)). Goal: reduce rapid flip-flopping exposed after the broader civic valuation work. *Note:* If the slack is too high, AIs switch **too rarely** and **react more slowly**; if too low, oscillation returns and players with **anarchy-on-switch** waste turns. *Note 2:* sometimes bypassed/ignored by AIs entirely for some reason.
+ - (Requires AdvCiv-SAS 5110+) **Civic valuation — specialist commerce accounted for:** Civics that grant **extra commerce per specialist** (e.g., `CIVIC_REPRESENTATION` → beakers/gold/culture) were undervalued and thus rarely chosen. Updated `CvPlayerAI::AI_civicValue` to apply SAS **commerce weights** and stronger **derived multipliers** (both **tunable**; see [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml)), so large specialist counts are priced properly. *Observed in autoplay:* more Representation picks in mid/late game, with continued Hereditary Rule/Universal Suffrage variation. Adjust to taste.
+ 
+ #### Buildings (AI)
+@@ -344,8 +344,8 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ ### Civics (non-exhaustive)
+ 
+ - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball; `CIVIC_VASSALAGE` buffed (**Upkeep: High → Medium**); and other changes. See Sevopedia/XML.
+-- **(Requires AdvCiv-SAS 5104+) Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation); and other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
+-- **(Requires AdvCiv-SAS 5105+) Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Vassalage** after **Caste System**; **Pacifism** before **Organized Religion**; **Environmentalism** before **State Property**.
++- (Requires AdvCiv-SAS 5104+) **Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation); and other reworks such as for `CIVIC_NATIONHOOD`. Net effect: more viable paths, fewer must-picks.
++- (Requires AdvCiv-SAS 5105+) **Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Vassalage** after **Caste System**; **Pacifism** before **Organized Religion**.
+ 
+ ### Buildings (non-exhaustive)
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 26f51c3ca..d2e20e386 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 2c6aa47c3..f0addf426 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index a24c41288..b88ddc90f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index 12dc0b094..cda25f5eb 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG
+index 37a1ef940..0e59ce822 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG
+index 4dbe42755..c74492e87 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG
+index c74492e87..0718a8345 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.740_sevopedia_civics_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=34167

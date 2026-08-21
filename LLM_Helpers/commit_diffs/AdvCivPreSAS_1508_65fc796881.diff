@@ -1,0 +1,180 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1508
+# Commit: 65fc7968812ebe0a7034899010bce84809695c39
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1712c860374bf86da01f0a82e412a475641147b0
+# Title: Fixed a recently introduced bug
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+24	18	CvGameCoreDLL/CvCity.cpp
+1	0	CvGameCoreDLL/CvCity.h
+3	4	CvGameCoreDLL/CvDLLWidgetData.cpp
+2	6	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index d98bd2100..7ac7b6cca 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3078,6 +3078,19 @@ int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction,
+ 			iFirstProductionDifference, iProductionDifference);
+ } // </advc.064b>
+ 
++// <advc.064d> Body cut from popOrder
++void CvCity::doPopOrder(CLLNode<OrderData>* pOrder) {
++
++	bool bStart = false;
++	if(pOrder == headOrderQueueNode()) {
++		bStart = true;
++		stopHeadOrder();
++	}
++	m_orderQueue.deleteNode(pOrder);
++	if(bStart)
++		startHeadOrder();
++} // </advc.064d>
++
+ int CvCity::getProductionTurnsLeft(int iProductionNeeded, int iProduction, int iFirstProductionDifference, int iProductionDifference) const
+ {
+ 	int iProductionLeft = std::max(0,
+@@ -12408,7 +12421,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 		kOwner.changeUnitClassMaking((UnitClassTypes)GC.getUnitInfo(eTrainUnit).getUnitClassType(), -1);
+ 		area()->changeNumTrainAIUnits(getOwnerINLINE(), eTrainAIUnit, -1);
+ 		kOwner.AI_changeNumTrainAIUnits(eTrainAIUnit, -1);
+-
++		doPopOrder(pOrderNode); // advc.064d (see case ORDER_CONSTRUCT)
+ 		if(!bFinish)
+ 			break;
+ 		// <advc.064b> Moved into new function
+@@ -12449,9 +12462,11 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 		BuildingClassTypes bct = (BuildingClassTypes)GC.getBuildingInfo(
+ 				eConstructBuilding).getBuildingClassType();
+ 		kOwner.changeBuildingClassMaking(bct, -1);
++		/*  advc.064d: processBuilding may now call verifyProduction. Important that
++			the constructed building is no longer in the queue at that point. */
++		doPopOrder(pOrderNode);
+ 		if(!bFinish)
+ 			break;
+-
+ 		if (kOwner.isBuildingClassMaxedOut(bct,
+ 				// UNOFFICIAL_PATCH, Bugfix, 10/08/09, davidlallen & jdog5000: 
+ 				GC.getBuildingClassInfo(bct).getExtraPlayerInstances()))
+@@ -12475,7 +12490,7 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 	case ORDER_CREATE: {
+ 		eCreateProject = (ProjectTypes)pOrderNode->m_data.iData1;
+ 		GET_TEAM(getTeam()).changeProjectMaking(eCreateProject, -1);
+-
++		doPopOrder(pOrderNode); // advc.064d
+ 		if(!bFinish)
+ 			break;
+ 		// Event reported to Python before the project is built, so that we can show the movie before awarding free techs, for example
+@@ -12532,15 +12547,20 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 		break;
+ 	}
+ 	case ORDER_MAINTAIN:
++		doPopOrder(pOrderNode); // advc.064d
+ 		break;
+ 
+ 	default:
+ 		FAssert(false);
++		doPopOrder(pOrderNode); // advc.064d
+ 		break;
+ 	}
++	/*  advc.064d: (BtS code moved into auxiliary function doPopOrder; called
++		from within the switch block)  */
++	pOrderNode = NULL; // for safety
+ 	// <advc.123f> Fail gold from great wonders and world projects
+ 	if(maxedBuildingOrProject != NO_BUILDING) { int foo=-1;
+-		bool bProject = (pOrderNode->m_data.eOrderType == ORDER_CREATE);
++		bool bProject = (eOrderType == ORDER_CREATE);
+ 		ProjectTypes pt = (bProject ? (ProjectTypes)maxedBuildingOrProject :
+ 				NO_PROJECT);
+ 		BuildingTypes bt = (bProject ? NO_BUILDING :
+@@ -12593,20 +12613,6 @@ void CvCity::popOrder(int iNum, bool bFinish, bool bChoose)
+ 			}
+ 		}
+ 	} // </advc.123f>
+-	bool bStart = false;
+-	if (pOrderNode == headOrderQueueNode())
+-	{
+-		bStart = true;
+-		stopHeadOrder();
+-	}
+-
+-	m_orderQueue.deleteNode(pOrderNode);
+-	pOrderNode = NULL;
+-
+-	if (bStart)
+-	{
+-		startHeadOrder();
+-	}
+ 
+ 	if (getTeam() == GC.getGameINLINE().getActiveTeam() || GC.getGameINLINE().isDebugMode())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 7c7189cce..d7603e0cc 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1347,6 +1347,7 @@ protected:
+ 	int getProductionTurnsLeft(int iProductionNeeded, int iProduction,
+ 			int iProductionModifier, bool bFoodProduction, int iNum) const;
+ 	// </advc.064b
++	void doPopOrder(CLLNode<OrderData>* pOrder); // advc.064d
+ 	// BETTER_BTS_AI_MOD (from BUG), 02/24/10, EmperorFool: START
+ 		// advc.003: These were declared outside of CvCity (global)
+ 	static void addGoodOrBad(int iValue, int& iGood, int& iBad);
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index ac0f1f7d6..49a5f5c7f 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -38,10 +38,9 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 	static WidgetTypes aePlayerAsData1[] = { 
+ 		WIDGET_HELP_FINANCE_AWAY_SUPPLY, WIDGET_HELP_FINANCE_CITY_MAINT,
+ 		WIDGET_HELP_FINANCE_CIVIC_UPKEEP, WIDGET_HELP_FINANCE_DOMESTIC_TRADE,
+-		WIDGET_HELP_FINANCE_FOREIGN_INCOME, WIDGET_HELP_FINANCE_GOLD_RESERVE,
+-		WIDGET_HELP_FINANCE_GROSS_INCOME, WIDGET_HELP_FINANCE_INFLATED_COSTS,
+-		WIDGET_HELP_FINANCE_NET_GOLD, WIDGET_HELP_FINANCE_NUM_UNITS,
+-		WIDGET_HELP_FINANCE_SPECIALISTS, WIDGET_HELP_FINANCE_UNIT_COST,
++		WIDGET_HELP_FINANCE_FOREIGN_INCOME, WIDGET_HELP_FINANCE_INFLATED_COSTS,
++		WIDGET_HELP_FINANCE_NUM_UNITS, WIDGET_HELP_FINANCE_SPECIALISTS,
++		WIDGET_HELP_FINANCE_UNIT_COST,
+ 		WIDGET_LEADERHEAD, WIDGET_LEADERHEAD_RELATIONS, WIDGET_LEADER_LINE,
+ 		WIDGET_CONTACT_CIV, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
+ 		WIDGET_GOLDEN_AGE, WIDGET_ANARCHY };
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 110721741..194617a72 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6419,15 +6419,11 @@ int CvPlayer::getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingCl
+ 
+ void CvPlayer::removeBuildingClass(BuildingClassTypes eBuildingClass)
+ {
+-	CvCity* pLoopCity;
+-	BuildingTypes eBuilding;
++	BuildingTypes eBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eBuildingClass)));
+ 	int iLoop;
+-
+-	eBuilding = ((BuildingTypes)(GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(eBuildingClass)));
+-
+ 	if (eBuilding != NO_BUILDING)
+ 	{
+-		for (pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
++		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+ 		{
+ 			if (pLoopCity->getNumRealBuilding(eBuilding) > 0)
+ 			{
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=6185

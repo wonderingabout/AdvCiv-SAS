@@ -1,0 +1,84 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1757
+# Commit: 624423f46fca9b0e316d2bbfe5822414a1fde000
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: abb41c29c66fc14e518e2936c36af4ddbf06ef78
+# Title: Fix unsafe pointer deletion (from C2C)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	6	CvGameCoreDLL/CyPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index be585366b..af03dd343 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -1968,7 +1968,10 @@ python::tuple CyPlayer::firstCity(bool bRev)
+ 	CvCity* pvObj = m_pPlayer ? m_pPlayer->firstCity(&iterIn, bRev) : NULL;
+ 	CyCity* pyObj = pvObj ? new CyCity(pvObj) : NULL;
+ 	python::tuple tup=python::make_tuple(pyObj, iterIn);
+-	delete pyObj;
++	/*  advc.001: m_pPlayer==NULL can't currently happen (it seems), but if it does,
++		pyObj will be NULL. Bugfix adopted from C2C (billw2015). Same for the
++		SAFE_DELETE calls in the other first/next functions below. */
++	SAFE_DELETE(pyObj);
+ 	return tup;
+ }
+ 
+@@ -1978,7 +1981,7 @@ python::tuple CyPlayer::nextCity(int iterIn, bool bRev)
+ 	CvCity* pvObj = m_pPlayer ? m_pPlayer->nextCity(&iterIn, bRev) : NULL;
+ 	CyCity* pyObj = pvObj ? new CyCity(pvObj) : NULL;
+ 	python::tuple tup=python::make_tuple(pyObj, iterIn);
+-	delete pyObj;
++	SAFE_DELETE(pyObj);
+ 	return tup;
+ }
+ 
+@@ -1999,7 +2002,7 @@ python::tuple CyPlayer::firstUnit(bool bRev)
+ 	CvUnit* pvUnit = m_pPlayer ? m_pPlayer->firstUnit(&iterIn, bRev) : NULL;
+ 	CyUnit* pyUnit = pvUnit ? new CyUnit(pvUnit) : NULL;
+ 	python::tuple tup=python::make_tuple(pyUnit, iterIn);
+-	delete pyUnit;
++	SAFE_DELETE(pyUnit);
+ 	return tup;
+ }
+ 
+@@ -2009,7 +2012,7 @@ python::tuple CyPlayer::nextUnit(int iterIn, bool bRev)
+ 	CvUnit* pvObj = m_pPlayer ? m_pPlayer->nextUnit(&iterIn, bRev) : NULL;
+ 	CyUnit* pyObj = pvObj ? new CyUnit(pvObj) : NULL;
+ 	python::tuple tup=python::make_tuple(pyObj, iterIn);
+-	delete pyObj;
++	SAFE_DELETE(pyObj);
+ 	return tup;
+ 
+ }
+@@ -2031,7 +2034,7 @@ python::tuple CyPlayer::firstSelectionGroup(bool bRev)
+ 	CvSelectionGroup* pvObj = m_pPlayer ? m_pPlayer->firstSelectionGroup(&iterIn, bRev) : NULL;
+ 	CySelectionGroup* pyObj = pvObj ? new CySelectionGroup(pvObj) : NULL;
+ 	python::tuple tup=python::make_tuple(pyObj, iterIn);
+-	delete pyObj;
++	SAFE_DELETE(pyObj);
+ 	return tup;
+ }
+ 
+@@ -2041,7 +2044,7 @@ python::tuple CyPlayer::nextSelectionGroup(int iterIn, bool bRev)
+ 	CvSelectionGroup* pvObj = m_pPlayer ? m_pPlayer->nextSelectionGroup(&iterIn, bRev) : NULL;
+ 	CySelectionGroup* pyObj = pvObj ? new CySelectionGroup(pvObj) : NULL;
+ 	python::tuple tup=python::make_tuple(pyObj, iterIn);
+-	delete pyObj;
++	SAFE_DELETE(pyObj);
+ 	return tup;
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2355

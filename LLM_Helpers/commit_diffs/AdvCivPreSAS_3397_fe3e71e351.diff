@@ -1,0 +1,325 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3397
+# Commit: fe3e71e351918412ee9c513c6ba4abe1f3f44a98
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: cf04fab33508d521365dfd233ddb5fc674fd6078
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia.xml
+1	1	Assets/XML/Units/CIV4UnitInfos.xml
+3	3	CvGameCoreDLL/BitUtil.h
+27	30	CvGameCoreDLL/CvCity.cpp
+3	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+5	7	CvGameCoreDLL/CvPlayer.cpp
+3	3	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/StartingPositionIteration.h
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia.xml b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+index dba5ef5d6..ebca09ec5 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia.xml
+@@ -185,7 +185,7 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_HEALTH_PEDIA</Tag>
+-		<English>[H1]Health[\H1][PARAGRAPH:2]A [LINK=CONCEPT_CITIES]City's[\LINK] health affects the rate at which the city accumulates [LINK=CONCEPT_FOOD]Food[\LINK], and thus the rate at which the city grows (or starves). A healthy city will grow larger, faster, while an unhealthy city will languish.[BOLD]Caveat (AdvCiv):[\BOLD]Part of this page may well be outdated. Too much work to keep a list of all sources of good and bad health updated.[PARAGRAPH:2][H2]Factors Affecting Health[\H2][PARAGRAPH:2]Many factors affect a city's health: the [LINK=CONCEPT_TERRAIN]Land[\LINK] around it and its access to water and [LINK=CONCEPT_RESOURCES]Resources[\LINK], the city's population, its [LINK=CONCEPT_BUILDINGS]Buildings[\LINK] and [LINK=CONCEPT_WONDERS]Wonders[\LINK], and the [LINK=CONCEPT_CIVICS]Civics[\LINK] that the civilization is running. Health-giving objects provide one or more "positive health points," displayed as little red crosses in white circles. Unhealthy objects provide one or more "negative health points," displayed as green unhealthy faces. [PARAGRAPH:2]Further, a city's population can be a major source of negative health points. The larger a city is, the more positive health points it needs to cancel out its population-based unhealthiness. Certain buildings, especially ones dealing with industry, will also add unhealthiness. And, finally, if you engage in any unpleasant nuclear exchanges with your neighbors, the resulting fallout can be extremely unhealthy for the few battered survivors.[PARAGRAPH:2][H2]Determining a City's Overall Health[\H2][PARAGRAPH:2]If a city has as many or more positive points as it has negative points, that city is healthy. If the city has fewer positive points than it has negatives, that city is unhealthy. The healthy and unhealthy icons are displayed at the top of the city screen, above the happy and unhappy face icons.[PARAGRAPH:2][H2]Effects of Unhealthiness[\H2][PARAGRAPH:2]A city loses one food for each point of excess unhealthiness. In other words, if a city has two positive health points and four negative points, the city will lose two food each turn. This will at the least slow the city's growth, and at the worst cause the city to [LINK=CONCEPT_FOOD]Starve.[\LINK][PARAGRAPH:2][H2]Correcting Early Bad Health in a City[\H2][PARAGRAPH:2]There are a number of steps you can take to improve the health of your cities.[PARAGRAPH:2][BOLD]Site the City by a River:[\BOLD] A city sited on or near to fresh water gains health points from the river spaces its citizens work. You can check whether a tile is on fresh water or not by moving the mouse cursor over it.[PARAGRAPH:2][BOLD]Improve Food Resources:[\BOLD] Various food resources - [LINK=BONUS_DEER]Deer[\LINK], [LINK=BONUS_BANANA]Bananas[\LINK] and [LINK=BONUS_CRAB]Crabs[\LINK], to name three - provide positive health points once your workers build the appropriate [LINK=CONCEPT_IMPROVEMENTS]Improvement[\LINK] on them. And if the improved resource is connected to more than one city by your road, river, and ocean trade network, all of your cities will gain the health bonus. Note that you can never get more than one health bonus from a single kind of resource; if you have two or more of the same resource, you still get only one health point (so you might as well trade the excess resources to your neighbors in return for his or her excess resources).[PARAGRAPH:2][BOLD]Construct Buildings and Wonders:[\BOLD] Some buildings and wonders provide positive health points. The early [LINK=BUILDING_AQUEDUCT]Aqueduct[\LINK] provides positive health points, as does the [LINK=BUILDING_GRANARY]Granary[\LINK]. [PARAGRAPH:2][BOLD]Research Healthy Technologies:[\BOLD] Research the technologies which allow you to construct the healthy buildings. For instance you need to know both [LINK=TECH_MATHEMATICS]Mathematics[\LINK] and [LINK=TECH_MASONRY]Masonry[\LINK] to build an Aqueduct. There are a few late-game technologies that also add health to all of your cities.[PARAGRAPH:2][BOLD]Build Near Woodlands:[\BOLD] Cities receive extra health from having [LINK=FEATURE_FOREST]Forest[\LINK] tiles in their city radius. Chopping down these forests will reduce the health of the city - be careful not to send the city into starvation![PARAGRAPH:2][BOLD]Change Civics:[\BOLD] Certain civics add additional health to your cities. [LINK=CIVIC_ENVIRONMENTALISM]Environmentalism[\LINK] is one such example.[PARAGRAPH:2]</English>
++		<English>[H1]Health[\H1][PARAGRAPH:2]A [LINK=CONCEPT_CITIES]City's[\LINK] health affects the rate at which the city accumulates [LINK=CONCEPT_FOOD]Food[\LINK], and thus the rate at which the city grows (or starves). A healthy city will grow larger, faster, while an unhealthy city will languish. [BOLD]Caveat (AdvCiv):[\BOLD]Part of this page may well be outdated. Too much work to keep a list of all sources of good and bad health updated.[PARAGRAPH:2][H2]Factors Affecting Health[\H2][PARAGRAPH:2]Many factors affect a city's health: the [LINK=CONCEPT_TERRAIN]Land[\LINK] around it and its access to water and [LINK=CONCEPT_RESOURCES]Resources[\LINK], the city's population, its [LINK=CONCEPT_BUILDINGS]Buildings[\LINK] and [LINK=CONCEPT_WONDERS]Wonders[\LINK], and the [LINK=CONCEPT_CIVICS]Civics[\LINK] that the civilization is running. Health-giving objects provide one or more "positive health points," displayed as little red crosses in white circles. Unhealthy objects provide one or more "negative health points," displayed as green unhealthy faces. [PARAGRAPH:2]Further, a city's population can be a major source of negative health points. The larger a city is, the more positive health points it needs to cancel out its population-based unhealthiness. Certain buildings, especially ones dealing with industry, will also add unhealthiness. And, finally, if you engage in any unpleasant nuclear exchanges with your neighbors, the resulting fallout can be extremely unhealthy for the few battered survivors.[PARAGRAPH:2][H2]Determining a City's Overall Health[\H2][PARAGRAPH:2]If a city has as many or more positive points as it has negative points, that city is healthy. If the city has fewer positive points than it has negatives, that city is unhealthy. The healthy and unhealthy icons are displayed at the top of the city screen, above the happy and unhappy face icons.[PARAGRAPH:2][H2]Effects of Unhealthiness[\H2][PARAGRAPH:2]A city loses one food for each point of excess unhealthiness. In other words, if a city has two positive health points and four negative points, the city will lose two food each turn. This will at the least slow the city's growth, and at the worst cause the city to [LINK=CONCEPT_FOOD]Starve.[\LINK][PARAGRAPH:2][H2]Correcting Early Bad Health in a City[\H2][PARAGRAPH:2]There are a number of steps you can take to improve the health of your cities.[PARAGRAPH:2][BOLD]Site the City by a River:[\BOLD] A city sited on or near to fresh water gains health points from the river spaces its citizens work. You can check whether a tile is on fresh water or not by moving the mouse cursor over it.[PARAGRAPH:2][BOLD]Improve Food Resources:[\BOLD] Various food resources - [LINK=BONUS_DEER]Deer[\LINK], [LINK=BONUS_BANANA]Bananas[\LINK] and [LINK=BONUS_CRAB]Crabs[\LINK], to name three - provide positive health points once your workers build the appropriate [LINK=CONCEPT_IMPROVEMENTS]Improvement[\LINK] on them. And if the improved resource is connected to more than one city by your road, river, and ocean trade network, all of your cities will gain the health bonus. Note that you can never get more than one health bonus from a single kind of resource; if you have two or more of the same resource, you still get only one health point (so you might as well trade the excess resources to your neighbors in return for his or her excess resources).[PARAGRAPH:2][BOLD]Construct Buildings and Wonders:[\BOLD] Some buildings and wonders provide positive health points. The early [LINK=BUILDING_AQUEDUCT]Aqueduct[\LINK] provides positive health points, as does the [LINK=BUILDING_GRANARY]Granary[\LINK]. [PARAGRAPH:2][BOLD]Research Healthy Technologies:[\BOLD] Research the technologies which allow you to construct the healthy buildings. For instance you need to know both [LINK=TECH_MATHEMATICS]Mathematics[\LINK] and [LINK=TECH_MASONRY]Masonry[\LINK] to build an Aqueduct. There are a few late-game technologies that also add health to all of your cities.[PARAGRAPH:2][BOLD]Build Near Woodlands:[\BOLD] Cities receive extra health from having [LINK=FEATURE_FOREST]Forest[\LINK] tiles in their city radius. Chopping down these forests will reduce the health of the city - be careful not to send the city into starvation![PARAGRAPH:2][BOLD]Change Civics:[\BOLD] Certain civics add additional health to your cities. [LINK=CIVIC_ENVIRONMENTALISM]Environmentalism[\LINK] is one such example.[PARAGRAPH:2]</English>
+ 		<French>[H1]Sant&#233;[\H1][PARAGRAPH:2]La sant&#233; d'une [LINK=CONCEPT_CITIES]ville[\LINK] affecte la vitesse &#224; laquelle elle accumule la [LINK=CONCEPT_FOOD]nourriture[\LINK], et donc son rythme de croissance (ou d'apparition de la famine). Une ville en bonne sant&#233; se d&#233;veloppe plus vite et davantage qu'une ville en mauvaise sant&#233; qui d&#233;p&#233;rit.[PARAGRAPH:2][H2]Facteurs de sant&#233;[\H2][PARAGRAPH:2]De nombreux facteurs ont des effets sur la sant&#233; d'une ville : la [LINK=CONCEPT_TERRAIN]terre[\LINK] qui l'entoure, l'acc&#232;s &#224; l'eau, ses [LINK=CONCEPT_RESOURCES]ressources[\LINK], sa population, ses [LINK=CONCEPT_BUILDINGS]b&#226;timents[\LINK] et [LINK=CONCEPT_WONDERS]merveilles[\LINK] et le [LINK=CONCEPT_CIVICS]r&#233;gime[\LINK] de la civilisation. Les &#233;l&#233;ments qui g&#233;n&#232;rent de la sant&#233; produisent un ou plusieurs "points de sant&#233; positifs", signal&#233;s par de petites croix rouges dans des cercles blancs. Les &#233;l&#233;ments qui r&#233;duisent la sant&#233; produisent un ou plusieurs "points de sant&#233; n&#233;gatifs", signal&#233;s par des visages malades verts. [PARAGRAPH:2]De plus, la population d'une ville peut &#234;tre une grande source de points de sant&#233; n&#233;gatifs. Plus la population est importante, plus elle g&#233;n&#232;re de la mauvaise sant&#233;, et plus la ville a besoin de points de sant&#233; positifs pour les &#233;quilibrer. Certains b&#226;timents, surtout ceux ayant trait &#224; l'industrie, g&#233;n&#232;rent des points de mauvaise sant&#233;. Enfin, en cas de conflit nucl&#233;aire, les retomb&#233;es peuvent &#234;tre extr&#234;mement n&#233;fastes sur la sant&#233; des survivants.[PARAGRAPH:2][H2]D&#233;terminer la sant&#233; globale d'une ville[\H2][PARAGRAPH:2]Une ville qui a autant ou plus de points de sant&#233; positifs que de n&#233;gatifs est en bonne sant&#233;. Une ville qui en a moins est en mauvaise sant&#233;. Les icones sant&#233; et mauvaise sant&#233; sont affich&#233;s en haut de l'&#233;cran de ville, sous les visages heureux et m&#233;contents.[PARAGRAPH:2][H2]Effets de la mauvaise sant&#233;[\H2][PARAGRAPH:2]Une ville perd une unit&#233; de nourriture par point de mauvaise sant&#233; en trop. En d'autres termes, une ville qui a deux points de sant&#233; positifs et quatre n&#233;gatifs perd deux unit&#233;s de nourriture par tour. Dans le meilleur des cas, cela ralentit la croissance de la ville, et dans le pire, cela provoque la [LINK=CONCEPT_FOOD]famine.[\LINK][PARAGRAPH:2][H2]Corriger une mauvaise sant&#233; pr&#233;coce[\H2][PARAGRAPH:2]Il y a diff&#233;rents moyens d'am&#233;liorer la sant&#233; de vos villes.[PARAGRAPH:2][BOLD]Placez vos villes pr&#232;s d'une rivi&#232;re :[\BOLD] une cit&#233; situ&#233;e sur ou &#224; proximit&#233; d'une rivi&#232;re obtient des points de sant&#233; des cases de rivi&#232;res travaill&#233;es par ses ouvriers. Pour savoir si une case est sur l'eau, placez le curseur de la souris dessus.[PARAGRAPH:2][BOLD]Am&#233;liorez les ressources de nourriture :[\BOLD] certaines ressources de nourriture ([LINK=BONUS_DEER]Cervid&#233;s[\LINK], [LINK=BONUS_BANANA]Bananes[\LINK] et [LINK=BONUS_CRAB]Crabes[\LINK], par exemple) fournissent des points de sant&#233; positifs une fois que vos ouvriers y ont construit les [LINK=CONCEPT_IMPROVEMENTS]am&#233;liorations[\LINK] appropri&#233;es. Une ressource am&#233;lior&#233;e reli&#233;e &#224; plusieurs villes par une route, une rivi&#232;re ou un r&#233;seau de commerce maritime, dispense son bonus de sant&#233; &#224; toutes ces villes. Notez cependant que les ressources de m&#234;me type ne fournissent qu'un seul point de sant&#233;. Si vous avez deux fois la m&#234;me ressource, vous n'aurez qu'un seul point de sant&#233; (il est donc pr&#233;f&#233;rable d'&#233;changer vos ressources en surnombre contre celles de vos voisins).[PARAGRAPH:2][BOLD]Construisez des b&#226;timents et des merveilles :[\BOLD] certains b&#226;timents et merveilles g&#233;n&#232;rent des points de sant&#233; positifs, comme par exemple [LINK=BUILDING_AQUEDUCT]l'aqueduc[\LINK] ou le [LINK=BUILDING_GRANARY]grenier[\LINK]. [PARAGRAPH:2][BOLD]Rechercher des technologies sanitaires :[\BOLD] recherchez en priorit&#233; des technologies qui permettent de construire les b&#226;timents am&#233;liorant la sant&#233;. Par exemple, pour construire un aqueduc, vous devez conna&#238;tre [LINK=TECH_MATHEMATICS]les math&#233;matiques[\LINK] et [LINK=TECH_MASONRY]la ma&#231;onnerie[\LINK]. Certaines technologies beaucoup plus avanc&#233;es am&#233;liorent &#233;galement la sant&#233; de toutes vos villes.[PARAGRAPH:2][BOLD]Fondez vos villes pr&#232;s des for&#234;ts :[\BOLD] les villes ayant des cases de [LINK=CONCEPT_TERRAIN]for&#234;t[\LINK] dans leur rayon d'action re&#231;oivent un bonus de sant&#233;. Si vous abattez ces for&#234;ts, la sant&#233; de la ville se d&#233;t&#233;riore, alors attention &#224; la famine ![PARAGRAPH:2][BOLD]Changer de r&#233;gime :[\BOLD] certains r&#233;gimes am&#233;liorent la sant&#233; des villes, comme par exemple [LINK=ENVIRONMENTALISM]l'environnementalisme[\LINK].[PARAGRAPH:2]</French>
+ 		<German>[H1]Gesundheit[\H1][PARAGRAPH:2]Die Gesundheit einer [LINK=CONCEPT_CITIES]Stadt[\LINK] beeinflusst deren [LINK=CONCEPT_FOOD]Nahrungs[\LINK]produktion und Wachstum. Gesunde St&#228;dte wachsen naturgem&#228;&#223; deutlich schneller als kranke St&#228;dte. [BOLD]Warnung (AdvCiv):[\BOLD]Teile dieses Artikels sind veraltet. Die Liste der gesundheitlichen Faktoren aktuell zu halten, ist leider zu aufwendig.[PARAGRAPH:2][H2]Gesundheitliche Faktoren[\H2][PARAGRAPH:2]Faktoren, wie das [LINK=CONCEPT_TERRAIN]Gel&#228;nde[\LINK], die [LINK=CONCEPT_RESOURCES]Ressourcen[\LINK], die [LINK=CONCEPT_BUILDINGS]Geb&#228;ude[\LINK], die [LINK=CONCEPT_WONDERS]Wunder[\LINK] und die [LINK=CONCEPT_CIVICS]Staatsform[\LINK] einer Stadt, beeinflussen deren Gesundheit. Bestimmte Objekte produzieren "positive Gesundheitspunkte" (rote Kreuze in wei&#223;en Kreisen). Andere produzieren gr&#252;ne "negative Gesundheitspunkte". [PARAGRAPH:2]Auch die Bev&#246;lkerung selbst erzeugt negative Gesundheitspunkte. Je gr&#246;&#223;er eine Stadt ist, desto mehr positive Gesundheitspunkte werden f&#252;r die Erhaltung der Gesundheit ihrer Bewohner ben&#246;tigt. Entfesseln Sie einen Atomkrieg mit Ihren Nachbarn, hat der anschlie&#223;ende Fallout ebenfalls unangenehme Folgen f&#252;r die wenigen &#220;berlebenden der Katastrophe.[PARAGRAPH:2][H2]Bestimmung der Gesundheit[\H2][PARAGRAPH:2]Hat eine Stadt mehr positive als negative Gesundheitspunkte, ist sie gesund und umgekehrt.[PARAGRAPH:2][H2]Krankheitsfolgen[\H2][PARAGRAPH:2]Jede Krankheit kostet die Stadt einen Nahrungspunkt. Hat eine Stadt also zwei positive und vier negative Gesundheitspunkte, verliert sie in jeder Runde zwei Nahrungseinheiten. Dies bremst das Wachstum der Stadt und f&#252;hrt im Extremfall zu einer Hungersnot.[\LINK][PARAGRAPH:2][H2]Bek&#228;mpfung von Krankheiten[\H2][PARAGRAPH:2]Sie haben verschiedene M&#246;glichkeiten, die Gesundheit Ihrer St&#228;dte zu verbessern.[PARAGRAPH:2][BOLD]Gr&#252;nden Sie St&#228;dte an Fl&#252;ssen:[\BOLD] St&#228;dte im Einzugsbereich von Fl&#252;ssen erwirtschaften auf Fluss-Gel&#228;ndefeldern positive Gesundheitspunkte.[PARAGRAPH:2][BOLD]Optimierung der Nahrungsressourcen:[\BOLD] Nach dem Bau der entsprechenden [LINK=CONCEPT_IMPROVEMENTS]Modernisierung[\LINK] liefern Nahrungsressourcen, wie [LINK=BONUS_DEER]Wild[\LINK], [LINK=BONUS_BANANA]Bananen[\LINK] und [LINK=BONUS_CRAB]Krabben[\LINK], einer Stadt positive Gesundheitspunkte. Ist die modernisierte Ressource &#252;ber Verkehrswege mit mehreren St&#228;dten verbunden, erhalten diese den Gesundheitsbonus der entsprechenden Ressource. Allerdings erhalten Sie von einer Ressource immer nur einen Gesundheitsbonus. Selbst wenn Sie &#252;ber mehrere identische Ressourcen verf&#252;gen, bekommen Sie also nur einen Gesundheitspunkt. Es empfiehlt sich daher, &#252;bersch&#252;ssige Ressourcen gegen andere Waren einzutauschen.[PARAGRAPH:2][BOLD]Bau von Geb&#228;uden und Wundern:[\BOLD] Einige Wunder und Geb&#228;ude, wie das [LINK=BUILDING_AQUEDUCT]Aqu&#228;dukt[\LINK] und der [LINK=BUILDING_GRANARY]Kornspeicher[\LINK], produzieren positive Gesundheitspunkte. [BOLD]Entwicklung von Technologien:[\BOLD] Erforschen Sie Technologien, die den Bau medizinischer Geb&#228;ude erm&#246;glichen. Der Bau eines Aqu&#228;dukts ist beispielsweise erst nach der Entdeckung der [LINK=TECH_MATHEMATICS]Mathematik[\LINK] und der [LINK=TECH_MASONRY]Steinmetzkunst[\LINK] m&#246;glich. Einige sp&#228;tere Technologien wirken sich ebenfalls positiv auf die Gesundheit Ihrer St&#228;dte aus.[PARAGRAPH:2][BOLD]Gr&#252;ndung in Waldn&#228;he:[\BOLD] Gibt es im Stadtgebiet [LINK=FEATURE_FOREST]Wald[\LINK]-Gel&#228;ndefelder, verbessert sich die Gesundheit der jeweiligen Stadt. Werden diese abgeholzt, sinkt nat&#252;rlich auch die Gesundheit der Stadt. Passen Sie also auf, dass Sie keine Hungersnot ausl&#246;sen![PARAGRAPH:2][BOLD]Wechsel der Staatsform:[\BOLD] Bestimmte Staatsformen, wie der [LINK=CIVIC_ENVIRONMENTALISM]Umweltschutz[\LINK], wirken sich positiv auf die Gesundheit Ihrer St&#228;dte aus.[PARAGRAPH:2]</German>
+ 		<Italian>[H1]Salute[\H1][PARAGRAPH:2]La salute di una [LINK=CONCEPT_CITIES]citt&#224;[\LINK] influenza direttamente il ritmo con cui viene accumulato il [LINK=CONCEPT_FOOD]cibo[\LINK], e di conseguenza il ritmo con cui cresce (o muore di fame) la citt&#224;. Una citt&#224; in salute crescer&#224; maggiormente e pi&#249; rapidamente, mentre una non in salute si affievolir&#224;.[PARAGRAPH:2][H2]Fattori che influenzano la salute[\H2][PARAGRAPH:2]Sono molti i fattori che possono influire sulla salute di una citt&#224;: il [LINK=CONCEPT_TERRAIN]terreno[\LINK] che la circonda, gli accessi all'acqua e alle [LINK=CONCEPT_RESOURCES]risorse[\LINK], la popolazione, gli [LINK=CONCEPT_BUILDINGS]edifici[\LINK], le [LINK=CONCEPT_WONDERS]Meraviglie[\LINK] e la [LINK=CONCEPT_CIVICS]forma di governo[\LINK] adottata dalla civilt&#224;. Gli oggetti che producono salute generano uno o pi&#249; "punti salute positiva", indicati da piccole croci rosse all'interno di cerchi bianchi; al contrario, gli oggetti che non producono salute generano uno o pi&#249; "punti salute negativa", indicati da facce malaticce di colore verdognolo.[PARAGRAPH:2]Anche la popolazione stessa di una citt&#224; pu&#242; essere fonte di punti salute negativa. Pi&#249; grande &#232; la citt&#224;, pi&#249; punti salute positiva sono necessari affinch&#233; possa eliminare la malattia della sua popolazione. Alcuni edifici, specialmente quelli connessi con l'industria, contribuiscono ad abbassare il livello di salute. Per concludere, se dovessi incautamente decidere di iniziare una guerra nucleare con i tuoi vicini di casa, sappi che il fallout pu&#242; essere estremamente pericoloso per la salute dei pochi sventurati che sopravvivranno.[PARAGRAPH:2][H2]Calcolo della salute complessiva di una citt&#224;[\H2][PARAGRAPH:2]Se la citt&#224; ha tanti (o pi&#249;) punti positivi quanti sono quelli negativi, la citt&#224; &#232; in salute. Se la citt&#224; ha meno punti positivi che negativi, la citt&#224; non &#232; in salute. Le icone delle due condizioni sono visibili nella parte alta della schermata della citt&#224;, sopra le icone delle facce contente e scontente.[PARAGRAPH:2][H2]Effetti della mancanza di salute[\H2][PARAGRAPH:2]Una citt&#224; perde una razione di cibo per ogni punto di salute in difetto. In altre parole, se una citt&#224; ha due punti salute positiva e quattro punti salute negativa, perder&#224; due razioni di cibo a ogni turno. Questa regola si rifletter&#224; come minimo sulla crescita della citt&#224;, ma nei casi estremi pu&#242; portare alla [LINK=CONCEPT_FOOD]Carestia[\LINK].[PARAGRAPH:2][H2]Intervenire tempestivamente sulla cattiva salute in una citt&#224;[\H2][PARAGRAPH:2]Ci sono diverse cose che puoi fare per migliorare la salute delle tue citt&#224;.[PARAGRAPH:2][BOLD]Costruire la citt&#224; vicino a un fiume:[\BOLD] una citt&#224; situata vicino a un corso d'acqua guadagna punti salute dalle caselle di acqua lavorate dai suoi cittadini. Puoi verificare se una casella si trovi su acque dolci o meno posizionando il puntatore del mouse su di essa.[PARAGRAPH:2][BOLD]Migliorare le risorse di cibo:[\BOLD] svariate risorse di cibo - [LINK=BONUS_DEER]cervi[\LINK], [LINK=BONUS_BANANA]banane[\LINK] e [LINK=BONUS_CRAB]crostacei[\LINK] per dirne qualcuna, forniscono punti salute positiva una volta che i lavoratori costruiscono per essi adeguati [LINK=CONCEPT_IMPROVEMENTS]miglioramenti[\LINK]. Se la risorsa migliorata &#232; collegata a pi&#249; di una citt&#224; tramite una rete di strade, fiumi oppure oceano, tutte le citt&#224; guadagneranno il bonus salute. Ricorda che non puoi ottenere pi&#249; di un bonus salute da un singolo tipo di risorsa. Se possiedi due o pi&#249; fonti della stessa risorsa, continuerai a ottenere un solo punto salute positiva (e quindi potresti scambiare le risorse in eccesso con quelle in eccesso delle civilt&#224; vicine).[PARAGRAPH:2][BOLD]Costruire Edifici e Meraviglie:[\BOLD] alcuni edifici e Meraviglie possono fornire punti salute. Il primo [LINK=BUILDING_AQUEDUCT]acquedotto[\LINK] fornisce punti salute positiva, cos&#236; come il [LINK=BUILDING_GRANARY]granaio[\LINK]. [PARAGRAPH:2][BOLD]Ricercare tecnologie salutari:[\BOLD] effettuare ricerche su tecnologie che consentono di costruire edifici utili per la salute. Ad esempio, ti servir&#224; conoscere sia la [LINK=TECH_MATHEMATICS]Matematica[\LINK] che la [LINK=TECH_MASONRY]Muratura[\LINK] per costruire un acquedotto. Ci sono alcune tecnologie, verso la fine del gioco, che permettono di aumentare la salute di tutte le tue citt&#224;.[PARAGRAPH:2][BOLD]Costruire vicino ai boschi:[\BOLD] le citt&#224; ricevono punti salute extra se hanno delle caselle [LINK=FEATURE_FOREST]foresta[\LINK] nel loro raggio d'azione. Abbattere queste foreste pu&#242; causare un abbassamento del livello di salute della citt&#224; - stai attento a non far morire di fame i tuoi cittadini![PARAGRAPH:2][BOLD]Cambiare forma di governo:[\BOLD] alcune forme di governo possono contribuire ad aumentare la salute delle tue citt&#224;: ad esempio, l'[LINK=CIVIC_ENVIRONMENTALISM]Ambientalismo[\LINK].</Italian>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index fd1e0b39d..b2b793d90 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -3156,7 +3156,7 @@
+ 			<ReligionSpreads>
+ 				<ReligionSpread>
+ 					<ReligionType>RELIGION_JUDAISM</ReligionType>
+-					<!-- K-Mod: was 40 -->
++					<!-- K-Mod: Was 40 (but is no longer halved for rival cities) -->
+ 					<iReligionSpread>20</iReligionSpread>
+ 				</ReligionSpread>
+ 			</ReligionSpreads>
+
+diff --git a/CvGameCoreDLL/BitUtil.h b/CvGameCoreDLL/BitUtil.h
+index af323f792..00cc33a9e 100644
+--- a/CvGameCoreDLL/BitUtil.h
++++ b/CvGameCoreDLL/BitUtil.h
+@@ -11,19 +11,19 @@
+ namespace BitUtil
+ {
+ 	template <typename T>
+-	bool GetBit(const T x, const int y) // advc: renamed from "HasBit"
++	__inline bool GetBit(const T x, const int y) // advc: renamed from "HasBit"
+ 	{
+ 		return (x & ((T)1U << y)) != 0;
+ 	}
+ 
+ 	template <typename T>
+-	T SetBit(T &x, const int y)
++	__inline T SetBit(T &x, const int y)
+ 	{
+ 		return x = (T)(x | ((T)1U << y));
+ 	}
+ 
+ 	template <typename T>
+-	T ClrBit(T &x, const int y)
++	__inline T ClrBit(T &x, const int y)
+ 	{
+ 		return x = (T)(x & ~((T)1U << y));
+ 	}
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 96e484e39..f2faf3d60 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -2915,10 +2915,9 @@ void CvCity::processBonus(BonusTypes eBonus, int iChange)
+ 
+ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bObsolete)
+ {
+-	// <advc>
+ 	CvBuildingInfo const& kBuilding = GC.getInfo(eBuilding);
+ 	CvGame const& kGame = GC.getGame();
+-	CvPlayer& kOwner = GET_PLAYER(getOwner()); // </advc>
++	CvPlayer& kOwner = GET_PLAYER(getOwner());
+ 	if (!GET_TEAM(getTeam()).isObsoleteBuilding(eBuilding) || bObsolete)
+ 	{
+ 		if (iChange > 0)
+@@ -4063,14 +4062,14 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 	{
+ 		// <advc.035>
+ 		PlayerTypes eLoopOwner = pAdj->getOwner();
+-		if(GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS) && eLoopOwner != NO_PLAYER &&
++		if (GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS) && eLoopOwner != NO_PLAYER &&
+ 			!GET_TEAM(eLoopOwner).isAtWar(kOwner.getTeam()))
+ 		{
+ 			PlayerTypes const eSecondOwner = pAdj->getSecondOwner();
+ 			if(eSecondOwner != eLoopOwner) // Checked only for easier debugging
+ 				eLoopOwner = eSecondOwner;
+ 		} // </advc.035>
+-		if(bCanFlip && // advc.101
++		if (bCanFlip && // advc.101
+ 			eLoopOwner == ePlayer) // advc.035
+ 		{
+ 			// <advc.101>
+@@ -4089,7 +4088,7 @@ int CvCity::cultureStrength(PlayerTypes ePlayer,
+ 	int const iConscriptAnger = (getConscriptPercentAnger() * getPopulation()) / 3000;
+ 	int iAngry = iHurryAnger + iConscriptAnger;
+ 	iAngry = std::min(iAngry, getPopulation());
+-	/*  HurryAnger also factors into grievanceModifier below, but for small cities
++	/*  HurryAnger also factors into GrievanceModifier below, but for small cities
+ 		(where Slavery is most effective), this constant bonus matters more. */
+ 	rStrength += 3 * iAngry;
+ 	/*  K-Mod, 7/jan/11, karadoc
+@@ -7807,12 +7806,12 @@ void CvCity::changeDomainProductionModifier(DomainTypes eDomain, int iChange)
+ 
+ int CvCity::countTotalCultureTimes100() const
+ {
+-	int r = 0;
++	int iR = 0;
+ 	for (PlayerIter<EVER_ALIVE> it; it.hasNext(); ++it) // advc.099: was ALIVE
+ 	{
+-		r += getCultureTimes100(it->getID());
++		iR += getCultureTimes100(it->getID());
+ 	}
+-	return r;
++	return iR;
+ }
+ 
+ 
+@@ -7963,29 +7962,27 @@ void CvCity::setCulture(PlayerTypes ePlayer, int iNewValue, bool bPlots,
+ 	setCultureTimes100(ePlayer, 100 * iNewValue, bPlots, bUpdatePlotGroups);
+ }
+ 
++// K-Mod, 26/sep/10: fixed so that plots actually get the culture difference
+ void CvCity::setCultureTimes100(PlayerTypes ePlayer, int iNewValue, bool bPlots,
+ 	bool bUpdatePlotGroups)
+ {
+-	//if (getCultureTimes100(ePlayer) != iNewValue)
+-	// K-Mod, 26/sep/10: fixed so that plots actually get the culture difference
+ 	int const iOldValue = getCultureTimes100(ePlayer);
+-	if (iNewValue != iOldValue)
+-	{
+-		m_aiCulture.set(ePlayer, iNewValue);
+-		FAssert(getCultureTimes100(ePlayer) >= 0);
+-		updateCultureLevel(bUpdatePlotGroups);
+-		if (bPlots)
+-		{
+-			//doPlotCulture(true, ePlayer, 0);
+-			//doPlotCulture(true, ePlayer, (iNewValue - iOldValue) / 100);
+-			doPlotCultureTimes100(true, ePlayer, iNewValue - iOldValue, false);
+-			/*	note: this function no longer applies free city culture.
+-				also, note that if a city's culture is decreased to zero,
+-				there will probably still be some residual plot culture around the city.
+-				this is because the culture level on the way up
+-				will be higher than it is on the way down. */
+-		}
+-	} // K-Mod end
++	if (iNewValue == iOldValue)
++		return;
++	m_aiCulture.set(ePlayer, iNewValue);
++	FAssert(getCultureTimes100(ePlayer) >= 0);
++	updateCultureLevel(bUpdatePlotGroups);
++	if (bPlots)
++	{
++		//doPlotCulture(true, ePlayer, 0);
++		//doPlotCulture(true, ePlayer, (iNewValue - iOldValue) / 100);
++		doPlotCultureTimes100(true, ePlayer, iNewValue - iOldValue, false);
++		/*	note: this function no longer applies free city culture.
++			also, note that if a city's culture is decreased to zero,
++			there will probably still be some residual plot culture around the city.
++			this is because the culture level on the way up
++			will be higher than it is on the way down. */
++	}
+ }
+ 
+ 
+@@ -9109,7 +9106,7 @@ void CvCity::setHasReligion(ReligionTypes eReligion, bool bNewValue, bool bAnnou
+ 	PlayerTypes eSpreadPlayer) // advc.106e
+ {
+ 	if (isHasReligion(eReligion) == bNewValue)
+-		return; // advc
++		return;
+ 
+ 	FOR_EACH_ENUM(VoteSource)
+ 		processVoteSource(eLoopVoteSource, false);
+@@ -9296,7 +9293,7 @@ void CvCity::processVoteSource(VoteSourceTypes eVoteSource, bool bActive)
+ 		return;
+ 
+ 	if (!GC.getGame().isDiploVote(eVoteSource))
+-		return; // advc
++		return;
+ 
+ 	ReligionTypes const eReligion = GC.getGame().getVoteSourceReligion(eVoteSource);
+ 	{
+@@ -9308,7 +9305,7 @@ void CvCity::processVoteSource(VoteSourceTypes eVoteSource, bool bActive)
+ 		}
+ 	}
+ 	if (eReligion == NO_RELIGION || !isHasReligion(eReligion))
+-		return; // advc
++		return;
+ 
+ 	FOR_EACH_ENUM(Yield)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 6e37f48e6..4658bf4a4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -750,7 +750,9 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 
+ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataStruct)
+ {
+-	bool bHandled = false; // Right now general bHandled = false;  We can specific-case this to true later. Game will run with this = false;
++	/*	Right now general bHandled = false;  We can specific-case this to true later.
++		Game will run with this = false; */
++	bool bHandled = false;
+ 	// <advc.003y>
+ 	CvPythonCaller const& py = *GC.getPythonCaller();
+ 	int const iData1 = widgetDataStruct.m_iData1;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index bf2390905..521812774 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1407,7 +1407,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 			pUnit->kill(false, getID());
+ 		}
+ 	}
+-	if (bConquest) // Force unowned after conquest
++	if (bConquest) // Force to be unowned after conquest
+ 	{
+ 		int const iRange = pOldCity->getCultureLevel();
+ 		for (SquareIter itPlot(kCityPlot, iRange, false); itPlot.hasNext(); ++itPlot)
+@@ -1760,7 +1760,7 @@ void CvPlayer::acquireCity(CvCity* pOldCity, bool bConquest, bool bTrade, bool b
+ 	FOR_EACH_ENUM2(Religion, eReligion)
+ 	{
+ 		if (abHasReligion.get(eReligion))
+-			kNewCity.setHasReligion(eReligion, true, false, true);
++			kNewCity.setHasReligion(eReligion, true, false);
+ 		if (abHolyCity.get(eReligion))
+ 			GC.getGame().setHolyCity(eReligion, &kNewCity, false);
+ 	}
+@@ -8114,10 +8114,8 @@ void CvPlayer::changeStateReligionCount(int iChange)
+ 		return;
+ 	// religion visibility now part of espionage
+ 	//GC.getGame().updateCitySight(false, true);
+-
+ 	m_iStateReligionCount += iChange;
+ 	FAssert(getStateReligionCount() >= 0);
+-
+ 	// religion visibility now part of espionage
+ 	//GC.getGame().updateCitySight(true, true);
+ 
+@@ -9244,7 +9242,7 @@ void CvPlayer::setCurrentEra(EraTypes eNewValue)
+ 
+ void CvPlayer::setLastStateReligion(ReligionTypes eNewReligion)
+ {
+-	if(getLastStateReligion() == eNewReligion)
++	if (getLastStateReligion() == eNewReligion)
+ 		return;
+ 	FAssert(!isBarbarian()); // advc.003n
+ 	// religion visibility now part of espionage
+@@ -10373,13 +10371,13 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
+ 		bool const bRenounce = (!GC.getInfo(getCivics(eCivicOption)).isStateReligion() &&
+ 				GC.getInfo(eOldCivic).isStateReligion() && bWasStateReligion &&
+ 				getLastStateReligion() != NO_RELIGION);
+-		if(bRenounce)
++		if (bRenounce)
+ 		{
+ 			szBuffer += L" " +  gDLL->getText("TXT_KEY_MISC_AND_RENOUNCE_RELIGION",
+ 					GC.getInfo(getLastStateReligion()).getTextKeyWide());
+ 		}
+ 		else // </advc.106>
+-		if(eOldCivic != getCivilization().getInitialCivic(eCivicOption))
++		if (eOldCivic != getCivilization().getInitialCivic(eCivicOption))
+ 		{
+ 			szBuffer += L" " + gDLL->getText("TXT_KEY_MISC_AND_ABOLISH_CIVIC",
+ 					GC.getInfo(eOldCivic).getTextKeyWide());
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 3c8f8e506..926cd5cf7 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4270,10 +4270,10 @@ int CvTeamAI::AI_enmityValue(TeamTypes eEnemy) const
+ 	{
+ 		return 0;
+ 	}
+-	int r = 100 - AI_getAttitudeVal(eEnemy);
++	int iR = 100 - AI_getAttitudeVal(eEnemy);
+ 	if(isAtWar(eEnemy) && AI_getWarPlan(eEnemy) != WARPLAN_DOGPILE)
+-		r += 100;
+-	return r;
++		iR += 100;
++	return iR;
+ } // </advc.130p>
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.h b/CvGameCoreDLL/StartingPositionIteration.h
+index 17a7e0fc0..ff8f64301 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.h
++++ b/CvGameCoreDLL/StartingPositionIteration.h
+@@ -130,7 +130,7 @@ private:
+ 
+ 	class DistanceTable
+ 	{
+-		/*	Internal ids so that m_aaiDistances can be a good deal smaller than
++		/*	Internal ids so that m_distances can be a good deal smaller than
+ 			the map dimensions */
+ 		enum SourceID { NOT_A_SOURCE = -1 };
+ 		enum DestinationID { NOT_A_DESTINATION = -1 };
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=33974

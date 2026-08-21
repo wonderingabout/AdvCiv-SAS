@@ -1,0 +1,71 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3414
+# Commit: 02a30151ec585e2abc717ff170677f2a15db8729
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4be30af01caf1ffefd832c6ee4dea66bd290456e
+# Title: Fix crash when AP religion present in Barbarian city
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	CvGameCoreDLL/CvCity.cpp
+6	0	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c115a8268..80dde4d66 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -12600,6 +12600,8 @@ void CvCity::setBuildingYieldChange(BuildingClassTypes eBuildingClass,
+ {
+ 	BuildingTypes eBuilding = getCivilization().getBuilding(eBuildingClass); // advc.003w
+ 	// advc: Simplified this function a lot
++	if (eBuilding == NO_BUILDING)
++		return;
+ 	int const iOldChange = m_aeiiBuildingYieldChange.get(eBuildingClass, eYield);
+ 	if (iOldChange == iChange)
+ 		return;
+@@ -12624,6 +12626,8 @@ void CvCity::setBuildingCommerceChange(BuildingClassTypes eBuildingClass,
+ 	CommerceTypes eCommerce, int iChange)
+ {	// advc: Simplified this function a lot
+ 	BuildingTypes eBuilding = getCivilization().getBuilding(eBuildingClass);
++	if (eBuilding == NO_BUILDING)
++		return;
+ 	int const iOldChange = m_aeiiBuildingCommerceChange.get(eBuildingClass, eCommerce);
+ 	if (iOldChange == iChange)
+ 		return;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3f1ef37e9..ee102eb48 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -514,6 +514,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
+ 
+ 	if (!bConstructorCall)
+ 	{
++		// <advc> Future-proofing
++		if (isBarbarian())
++			m_abLoyalMember.setAll(false); // </advc>
+ 		// <advc.003p>
+ 		FAssert(m_aszBonusHelp == NULL);
+ 		m_aszBonusHelp = new CvWString*[GC.getNumBonusInfos()];
+@@ -14135,6 +14138,9 @@ void CvPlayer::read(FDataStreamBase* pStream)
+ 		m_aeeiSpecialistExtraYield.readArray<int>(pStream);
+ 		m_aeeiImprovementYieldChange.readArray<int>(pStream);
+ 	}
++	// <advc> Future-proofing
++	if (isBarbarian())
++		m_abLoyalMember.setAll(false); // </advc>
+ 	m_groupCycle.Read(pStream);
+ 	m_researchQueue.Read(pStream);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1809

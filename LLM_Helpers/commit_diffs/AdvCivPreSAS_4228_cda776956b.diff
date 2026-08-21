@@ -1,0 +1,90 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4228
+# Commit: cda776956b992cc1e60ba4967a9e29cf7af5f4aa
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: a3d36bd4c80b70441481b05bb1ba2f5b467442e7
+# Title: Fix unique building shown in Sevopedia leader tooltip
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	10	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+6	1	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index e2a2b51b5..5aad0829f 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -88,20 +88,24 @@ class SevoPediaLeader:
+ 		panelName = self.top.getNextWidgetName()
+ 		screen.addPanel(panelName, localText.getText("TXT_KEY_PEDIA_TRAITS", ()), "", True, False, self.X_TRAITS, self.Y_TRAITS, self.W_TRAITS, self.H_TRAITS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		listName = self.top.getNextWidgetName()
++		# advc.001: Civ search moved into a static method
++		szSpecialText = CyGameTextMgr().parseLeaderTraits(self.iLeader, getCiv(self.iLeader), False, True)
++		szSpecialText = szSpecialText[1:]
++		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS+5, self.Y_TRAITS+30, self.W_TRAITS-10, self.H_TRAITS-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
++
++
++	# advc.001 (from Taurus): Static for use by SevoPediaMain; body cut from placeTraits.
++	@staticmethod
++	def getCiv(iLeader):
+ 		iNumCivs = 0
+-		iLeaderCiv = -1
+ 		for iCiv in range(gc.getNumCivilizationInfos()):
+-			civ = gc.getCivilizationInfo(iCiv)
+-			if civ.isLeaders(self.iLeader):
++			if gc.getCivilizationInfo(iCiv).isLeaders(iLeader):
+ 				iNumCivs += 1
+ 				iLeaderCiv = iCiv
+-		if iNumCivs == 1:
+-			szSpecialText = CyGameTextMgr().parseLeaderTraits(self.iLeader, iLeaderCiv, False, True)
+-		else:		
+-			szSpecialText = CyGameTextMgr().parseLeaderTraits(self.iLeader, -1, False, True)
+-		szSpecialText = szSpecialText[1:]
+-		screen.addMultilineText(listName, szSpecialText, self.X_TRAITS+5, self.Y_TRAITS+30, self.W_TRAITS-10, self.H_TRAITS-35, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+-
++		# <advc.001> (No functional change here)
++		if iNumCivs != 1:
++			return -1
++		return iLeaderCiv # </advc.001>
+ 
+ 
+ 	def placeCivic(self):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 1bf719417..2b399d9f1 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -767,14 +767,19 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 		i = 0
+ 		for item in self.list:
++			data1 = item[1] # advc.001: Moved up
+ 			if info == gc.getConceptInfo:
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT
+ 				data2 = item[1]
+ 			elif info == self.getNewConceptInfo or info == self.getShortcutInfo or info == self.getTraitInfo: # advc
+ 				data1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+ 				data2 = item[1]
++			# <advc.001> Widget help for leaders needs the civ ID in data2 (from Taurus)
++			elif (info == gc.getLeaderHeadInfo):
++				data2 = SevoPediaLeader.SevoPediaLeader.getCiv(item[1]) # </advc.001>
+ 			else:
+-				data1 = item[1]
++				# advc (note): 0 tends to mean no tooltip (or an empty one?).
++				#    -1 should also work as the default; BULL likes to use 1.
+ 				data2 = 1
+ 			screen.appendTableRow(self.ITEM_LIST_ID)
+ 			screen.setTableText(self.ITEM_LIST_ID, 0, i, u"<font=3>" + item[0] + u"</font>", info(item[1]).getButton(), widget, data1, data2, CvUtil.FONT_LEFT_JUSTIFY)
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3219

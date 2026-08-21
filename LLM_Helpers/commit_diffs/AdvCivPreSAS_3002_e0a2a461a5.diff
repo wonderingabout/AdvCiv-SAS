@@ -1,0 +1,219 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3002
+# Commit: e0a2a461a588d6e4c2f34c30318e5f6faca159c6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4075a698bef231ac8262e4551d6ff22be65316c6
+# Title: Some BUG game text tweaks
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	Assets/XML/Text/BUG Advisors Options.xml
+4	4	Assets/XML/Text/BUG Main Interface Options.xml
+4	5	Assets/XML/Text/BUG Options Screen.xml
+2	2	Assets/XML/Text/BULL Misc Hovers Options.xml
+17	15	Assets/XML/Text/BULL_CIV4GameText.xml
+2	0	CvGameCoreDLL/CvDllTranslator.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/BUG Advisors Options.xml b/Assets/XML/Text/BUG Advisors Options.xml
+index 76c582536..0b0cda04b 100644
+--- a/Assets/XML/Text/BUG Advisors Options.xml	
++++ b/Assets/XML/Text/BUG Advisors Options.xml	
+@@ -329,8 +329,8 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_ADVISORS__PARTIALSCOREGRAPHS_HOVER</Tag>
+-		<English>For players whose full score history has never been visible to you, display a score graph that only shows the player's game scores since the turn that you've first met. (This partial graph won't appear until you've known a player for at least 5 turns, and, in savegames from AdvCiv 0.97 and earlier, players are assumed to have just been met.)</English>
+-		<German>Zeigt f�r Spieler, deren Punktehistorie Ihnen unbekannt ist, die Punktest�nde seit Ihrer ersten Begegnung an. (Dieser Kurvenabschnitt wird aber erst angezeigt, wenn Sie einen Spieler seit wenigstens 5 Z�gen kennen. In Spielst�nden, die vor AdvCiv 0.98 entstanden sind, wird angenommen, dass Sie alle Gegner gerade erst kennengelernt haben.)</German>
++		<English>For players whose full score history has never been visible to you, display a score graph that only shows the player's game scores since the turn that you've first met. (This partial graph won't appear until you've known a player for at least 5 turns.)</English>
++		<German>Zeigt f�r Spieler, deren Punktehistorie Ihnen unbekannt ist, die Punktest�nde seit Ihrer ersten Begegnung an. (Dieser Kurvenabschnitt wird aber erst angezeigt, wenn Sie einen Spieler seit wenigstens 5 Z�gen kennen.)</German>
+ 	</TEXT>
+ 
+ 	<TEXT>
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index d47366667..34de17734 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -74,8 +74,8 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__ENDTURNMESSAGE_HOVER</Tag>
+-		<English>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still blinks as it does in BtS, but no message is shown.</English>
+-		<German>Blinkanzeige "Runde beenden mit EINGABETASTE" (wie in BtS), sobald alle Einheiten und St�dte Befehle erhalten haben. Die rote Rundenende-Schaltfl�che blinkt auch wenn diese Option nicht angekreuzt ist.</German>
++		<English>When checked, a flashing message "Press ENTER to end turn" is shown once all units and cities have been given orders (as in BtS). Otherwise, the "End Turn" button still pulses as it does in BtS, but no message is shown.</English>
++		<German>Blinkanzeige "Runde beenden mit EINGABETASTE" (wie in BtS), sobald alle Einheiten und St�dte Befehle erhalten haben. Die rote Rundenende-Schaltfl�che pulsiert auch wenn diese Option nicht angekreuzt ist.</German>
+ 	</TEXT>
+ 	
+ 	<!--TEXT>
+@@ -675,8 +675,8 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__RESOURCEICONOPTIONS_HOVER</Tag>
+-		<English>Shows filter options "Food", "Luxuries" and "General" when the Resource Display is enabled in Globe View. When unchecked, the Resource Display always highlights all resources and no options are shown, leaving space for the scoreboard.</English>
+-		<German>Zeigt Filter-Optionen "Nahrung", "Luxusg�ter" und "Allgemein" an, wenn die Ressourcenanzeige und die Globalansicht aktiviert sind. Ansonsten werden die Ressourcen stets ungefiltert angezeigt, und an Stelle der Filter-Optionen ist Platz f�r die Punkteanzeige.</German>
++		<English>Shows filter options "Food", "Luxuries" and "General" when the Resource Display is enabled in Globe View. When unchecked, the Resource Display always highlights all resources and no options are shown (leaving space for the scoreboard).</English>
++		<German>Zeigt Filter-Optionen "Nahrung", "Luxusg�ter" und "Allgemein" an, wenn die Ressourcenanzeige und die Globalansicht aktiviert sind. Ansonsten werden die Ressourcen stets ungefiltert angezeigt (und an Stelle der Filter-Optionen bleibt Platz f�r die Punkteanzeige).</German>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TRIBALVILLAGEICONS_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/BUG Options Screen.xml b/Assets/XML/Text/BUG Options Screen.xml
+index 8c1cc4d7a..fcda8c137 100644
+--- a/Assets/XML/Text/BUG Options Screen.xml	
++++ b/Assets/XML/Text/BUG Options Screen.xml	
+@@ -212,8 +212,8 @@
+ 	</TEXT>
+ 	<!-- advc.002f, advc.095: I had used "City Icons" at first,
+ 		 but now that I'm also placing city bar options here,
+-		 I need a more generic term. "Billboard" is also used in
+-		 CvCity::getCityBillboardSizeIconColors. -->
++		 I need a more general term. The icons aren't part of the bar.
++		 "Billboard" is used in CvCity::getCityBillboardSizeIconColors. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_CITYICONS</Tag>
+ 		<English>City Billboards:</English>
+@@ -357,11 +357,10 @@
+ 		<Spanish>Barra Grandes Personajes:</Spanish>
+ 	</TEXT>
+ 	
+-	<!-- advc.063: The English name of the mod component is arguably too
+-		 established to be changed, but can at least change it in German. -->
++	<!-- advc.063: "absolute" is more precise than "actual" -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPTLABEL_BUILDINGEFFECTS</Tag>
+-		<English>Building Actual Effects:</English>
++		<English>Absolute Building Effects:</English>
+ 		<German>Absolute Geb�udeertr�ge:</German>
+ 		<Italian>Effetti degli Edifici:</Italian>
+ 		<Spanish>Efectos Construcci�n:</Spanish>
+
+diff --git a/Assets/XML/Text/BULL Misc Hovers Options.xml b/Assets/XML/Text/BULL Misc Hovers Options.xml
+index 7f691c0b8..868d547f3 100644
+--- a/Assets/XML/Text/BULL Misc Hovers Options.xml	
++++ b/Assets/XML/Text/BULL Misc Hovers Options.xml	
+@@ -514,8 +514,8 @@
+ 		 help text. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__WHIPASSIST_HOVER</Tag>
+-		<English>When checked, the production bar shows the population loss, [ICON_GOLD] cost and [ICON_PRODUCTION]/[ICON_GOLD] overflow caused by hurrying the city's current production order.</English>
+-		<German>Zeigt im Produktionsbalken den Bev�lkerungsverlust, die [ICON_GOLD]-Kosten und den [ICON_PRODUCTION]/[ICON_GOLD]-�berschuss, die eine Beschleunigung des derzeitigen Produktionsauftrags verursachen w�rde.</German>
++		<English>When checked, the production bar shows the [ICON_CITIZEN] or [ICON_GOLD] cost and [ICON_PRODUCTION]/[ICON_GOLD] overflow caused by hurrying the city's current production order.</English>
++		<German>Zeigt im Produktionsbalken die [ICON_CITIZEN]- oder [ICON_GOLD]-Kosten und den [ICON_PRODUCTION]/[ICON_GOLD]-�berschuss, die eine Beschleunigung des derzeitigen Produktionsauftrags verursachen w�rde.</German>
+ 		<Italian>Quando � selezionato, la Barra della Pruduzione della Schermata Cittadina mostra il costo in popolazione ed il surplus di produzione per l'accelerazione di produzione mediante sacrifici e il costo in oro per l'accelerazione di produzione mediante pagamenti relativi all'oggetto attualmente costruito.</Italian>
+ 		<Spanish>Si se activa, muestra el coste en poblaci�n y el excedente de [ICON_PRODUCTION]/[ICON_GOLD] por usar sacrificios y/o el coste en [ICON_GOLD] por comprar la producci�n mostrada en la barra de producci�n.</Spanish>
+ 	</TEXT>
+
+diff --git a/Assets/XML/Text/BULL_CIV4GameText.xml b/Assets/XML/Text/BULL_CIV4GameText.xml
+index 136fd6bd5..158ef35dd 100644
+--- a/Assets/XML/Text/BULL_CIV4GameText.xml
++++ b/Assets/XML/Text/BULL_CIV4GameText.xml
+@@ -713,14 +713,15 @@
+ 	</TEXT>
+ 
+ <!-- Feature Health -->
+-	<TEXT>
++	<!-- advc.059 handles this -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_ACTION_CHANGE_IN_CITY</Tag>
+ 		<English>[ICON_BULLET]%s1 in %s2_CityName</English>
+ 		<French>[ICON_BULLET]%s1 &#224; %s2_CityName</French>
+ 		<German>[ICON_BULLET]%s1 in %s2_CityName</German>
+ 		<Italian>[ICON_BULLET]%s1 a %s2_CityName</Italian>
+ 		<Spanish>[ICON_BULLET]%s1 en %s2_CityName</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 
+ <!-- Delete/Fortify/Sleep All Units Actions -->
+ 	<TEXT>
+@@ -731,6 +732,14 @@
+ 		<Spanish>[SPACE](&lt;ALT&gt; para todas las unidades del mismo tipo que la unidad activa)</Spanish>
+ 	</TEXT>
+ 
++<!-- Free Tech Popup Fix -->
++	<TEXT>
++		<Tag>TXT_KEY_CHEATERS_NEVER_PROSPER</Tag>
++		<English>[COLOR_NEGATIVE_TEXT]You have already chosen your free tech(s)[COLOR_REVERT]</English>
++		<German>[COLOR_NEGATIVE_TEXT]Freie Technologie(n) schon gew�hlt[COLOR_REVERT]</German>
++		<Italian>[COLOR_NEGATIVE_TEXT]You have already chosen your free tech(s)[COLOR_REVERT]</Italian>
++		<Spanish>[COLOR_NEGATIVE_TEXT]Ya has escogido tu(s) tecnolog�a(s) gratuita(s)[COLOR_REVERT]</Spanish>
++	</TEXT>
+ 
+ <!-- Fractional Trade -->
+ 	<TEXT>
+@@ -742,15 +751,6 @@
+ 		<Spanish>%s1 [ICON_COMMERCE]: Total</Spanish>
+ 	</TEXT>
+ 
+-<!-- Free Tech Popup Fix -->
+-	<TEXT>
+-		<Tag>TXT_KEY_CHEATERS_NEVER_PROSPER</Tag>
+-		<English>[COLOR_NEGATIVE_TEXT]You have already chosen your free tech(s)[COLOR_REVERT]</English>
+-		<German>[COLOR_NEGATIVE_TEXT]Freie Technologie(n) schon gew�hlt[COLOR_REVERT]</German>
+-		<Italian>[COLOR_NEGATIVE_TEXT]You have already chosen your free tech(s)[COLOR_REVERT]</Italian>
+-		<Spanish>[COLOR_NEGATIVE_TEXT]Ya has escogido tu(s) tecnolog�a(s) gratuita(s)[COLOR_REVERT]</Spanish>
+-	</TEXT>
+-
+ <!-- Optional Compile-Time Components -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_MOD_FRACTRADE</Tag>
+@@ -767,13 +767,14 @@
+ 		<Italian>New Sentry Actions</Italian>
+ 		<Spanish>Nuevas Acciones de Vigilancia</Spanish>
+ 	</TEXT-->
+-	<TEXT>
++	<!-- advc: Won't want this as a compile-time option -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_MOD_GOVWORKERS</Tag>
+ 		<English>City Governors Build Workers</English>
+ 		<German>Stadtverwalter: Bautrupp aufstellen</German>
+ 		<Italian>City Governors Build Workers</Italian>
+ 		<Spanish>Gobernadores de Ciudad Construyen trabajadores</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<!-- advc.127: Won't need an option for this -->
+ 	<!--TEXT>
+ 		<Tag>TXT_KEY_MOD_AIAUTOPLAY</Tag>
+@@ -783,13 +784,14 @@
+ 		<Italian>AI AutoPlay</Italian>
+ 		<Spanish>AI AutoPlay</Spanish>
+ 	</TEXT-->
+-	<TEXT>
++	<!-- advc: K-Mod handles GW -->
++	<!--TEXT>
+ 		<Tag>TXT_KEY_MOD_GWARM</Tag>
+ 		<English>Global Warming</English>
+ 		<German>Globale Erw�rmung</German>
+ 		<Italian>Global Warming</Italian>
+ 		<Spanish>Calentamiento Global</Spanish>
+-	</TEXT>
++	</TEXT-->
+ 	<!-- advc.sha: Won't need this -->
+ 	<!--TEXT>
+ 		<Tag>TXT_KEY_MOD_SHAM_SPOILER</Tag>
+
+diff --git a/CvGameCoreDLL/CvDllTranslator.cpp b/CvGameCoreDLL/CvDllTranslator.cpp
+index d2d470e9e..c7f678998 100644
+--- a/CvGameCoreDLL/CvDllTranslator.cpp
++++ b/CvGameCoreDLL/CvDllTranslator.cpp
+@@ -46,6 +46,8 @@ void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTag
+ 	aIconMap[L"[ICON_FOOD]"] = std::wstring(1, (wchar)GC.getInfo(YIELD_FOOD).getChar());
+ 	aIconMap[L"[ICON_PRODUCTION]"] = std::wstring(1, (wchar)GC.getInfo(YIELD_PRODUCTION).getChar());
+ 	aIconMap[L"[ICON_COMMERCE]"] = std::wstring(1, (wchar)GC.getInfo(YIELD_COMMERCE).getChar());
++	// advc.064:
++	aIconMap[L"[ICON_CITIZEN]"] = std::wstring(1, (wchar)gDLL->getSymbolID(CITIZEN_CHAR));
+ 	// <advc.002f>
+ 	aIconMap[L"[ICON_AIRPORT]"] = std::wstring(1, (wchar)gDLL->getSymbolID(AIRPORT_CHAR));
+ 	aIconMap[L"[ICON_GREATGENERAL]"] = std::wstring(1, (wchar)gDLL->getSymbolID(GREAT_GENERAL_CHAR));
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=11245

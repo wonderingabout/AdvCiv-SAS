@@ -8,7 +8,6 @@
 ##
 ## Rewritten to use BugData by EmperorFool
 
-
 from CvPythonExtensions import *
 import BugUtil
 import BugData
@@ -16,7 +15,6 @@ import BugData
 GLOBALS_KEY = 'Global'
 
 gc = CyGlobalContext()
-
 
 ################# SD-UTILITY-PACK ###################
 #-=-=-=-=-=-=-=-= BASIC-UTILITIES =-=-=-=-=-=-=-=-=-#
@@ -48,7 +46,6 @@ def sdGameYearsInt():
 #	sdEcho('yearsBC : %d, yearsAD : %d, All Years : %d' %(yearsBC, yearsAD, yearsAL))
 	return yearsAL
 
-
 #-=-=-=-=-=-=-=-= SD-DATA-STORAGE =-=-=-=-=-=-=-=-=-#
 # Every variable is a string, except for the actual
 # value you want to store, which can be anything.
@@ -68,7 +65,6 @@ def sdModSave( ModID, mTable ):
 	table = BugData.getTable(ModID)
 	table.setData(mTable)
 	return 0
-
 
 #----------------- MOD FUNCTIONS -------------------#
 

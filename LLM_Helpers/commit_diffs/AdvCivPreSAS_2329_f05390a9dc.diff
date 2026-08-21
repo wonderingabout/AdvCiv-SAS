@@ -1,0 +1,85 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2329
+# Commit: f05390a9dc25274b4f05f4e6cc4ff4526ac89178
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6e0fb4e2c25807f261bfd5ca569e962b4b2e2b6b
+# Title: Revert buggy K-Mod change to AI tech trade val
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	8	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 15e02aecb..4a58d38b1 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1809,11 +1809,16 @@ scaled CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const
+ 		iCivsMet++;
+ 	}
+ 	//return 50 * (iCivsMet - iTechCivs) / std::max(1, iCivsMet);
+-	// <advc.551> Replacing the above
+-	double const maxModifierPercent = 34;
+-	return::round((maxModifierPercent * (iCivsMet - iTechCivs)) /
+-			std::max(1, iCivsMet) - maxModifierPercent / 2); // </advc.551>
+-} // K-Mod end
++	// <advc.551>
++	scaled r(iCivsMet - iTechCivs, std::max(1, iCivsMet));
++	scaled const rMax = fixp(1/3.); // Lower impact than the 50% in BtS/K-Mod
++	r *= rMax;
++	/*	Decrease modifier below 100% if more than half know the tech? No -
++		generally, 1 research point should have a trade value greater than 1. */
++	//r -= rMax / 2;
++	// (In K-Mod, the caller had added 1.)
++	return 1 + r; // </advc.551>
++}
+ 
+ // advc (comment): How much this CvTeam is willing to pay to eFromTeam for eTech
+ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+@@ -1821,13 +1826,16 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+ 	bool bPeaceDeal) const // advc.140h
+ {
+ 	FAssert(eFromTeam != getID());
+-	// advc: Original BtS code deleted; K-Mod replaced it with AI_knownTechValModifier.
++
+ 	CvTechInfo const& kTech = GC.getInfo(eTech);
+-	scaled rValue = (fixp(1.25) // advc.551: was 1.5
++	scaled rValue = (fixp(0.25) // advc.551: was 0.5
+ 			/*	K-Mod. Standardized the modifier for # of teams with the tech;
+ 				and removed the effect of team size. */
+ 			+ AI_knownTechValModifier(eTech)) *
+-			std::max(0, getResearchCost(eTech, true, false) -
++			/*	advc.551, advc.001: Revert the 2nd part of the K-Mod change.
++				A correct implementation would have to take the team size modifier
++				out of the research progress; but I think it'd still be a bad idea.*/
++			std::max(0, getResearchCost(eTech/*, true, false*/) -
+ 			getResearchProgress(eTech)); // K-Mod end
+ 	/*  <advc.104h> Peace for tech isn't that attractive for the receiving side
+ 		b/c they could continue the war and still get the tech when making peace
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index d81f93757..be3cfc967 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -93,7 +93,7 @@ public:
+ 			bool bConstCache = false) const; // advc.001n
+ 	int AI_endWarVal(TeamTypes eTeam) const;
+ 
+-	int CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const; // K-Mod
++	scaled CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const; // K-Mod
+ 
+ 	int AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam,
+ 			bool bIgnoreDiscount = false, // advc.550a
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2744

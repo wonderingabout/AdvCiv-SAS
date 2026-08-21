@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3591
+# Commit: 52444489ce05b3e143a06c8771cabe27ffc8680e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3f744abad50c2645afc44267f1ba6c9f78912f52
+# Title: True Starts bias for civs w/ multiple leaders based on XML
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/XML/GlobalDefines_advc.xml
+13	1	CvGameCoreDLL/TrueStarts.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 71f693116..4304c3976 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -1208,7 +1208,7 @@
+ 		<iDefineIntVal>31</iDefineIntVal>
+ 	</Define>
+ 
+-	<!-- advc.190c: This concerns the probability distribution for civs and
++	<!-- advc.191: This concerns the probability distribution for civs and
+ 		 leaders when both are set to "Random" during game setup and
+ 		 "Unrestricted Leaders" isn't checked. Use 0 for BtS behavior, meaning
+ 		 that the civ (e.g. Rome) gets chosen uniformly at random and then
+@@ -1218,6 +1218,7 @@
+ 		 100, specifically, gives every leader the same probability on the
+ 		 bottom line. A negative value (not recommended, not tested) makes
+ 		 civs with multiple leaders less likely to be chosen.
++		 advc.tsl: Also affects the True Starts game option.
+ 		 Recommended: 20, meaning that e.g. Rome is 1.2 times as likely
+ 		 to be chosen than Mali and America is 1.4 times as likely as Mali. -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/TrueStarts.cpp b/CvGameCoreDLL/TrueStarts.cpp
+index 690c35183..444aab1ec 100644
+--- a/CvGameCoreDLL/TrueStarts.cpp
++++ b/CvGameCoreDLL/TrueStarts.cpp
+@@ -938,11 +938,23 @@ void TrueStarts::changeCivs()
+ 		EagerEnumMap<CivilizationTypes,int> aeiLeaderCounts;
+ 		for (size_t i = 0; i < m_validAICivs.size(); i++)
+ 			aeiLeaderCounts.add(m_validAICivs[i].first, 1);
++		scaled rExtraWeight = per100(GC.getDefineINT(
++				"PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT"));
++		/*	Players might actually set this to 1, but such a high bias
++			is not going to work well.
++			(Negative weight might work out OK, doesn't have to be supported.) */
++		rExtraWeight.decreaseTo(fixp(0.6));
++		/*	This XML setting wasn't intended for True Starts. A weight of 0
++			is supposed to result in no bias from the leader count. We can easily
++			do that. A weight of 100% is supposed to give every leader the same
++			chance of getting chosen. We can't guarantee that, can only give use
++			pretty strong bias in that case. */
++		scaled const rBiasStrength = fixp(4/3.) * (1 - SQR(rExtraWeight - 1));
+ 		FOR_EACH_ENUM(Civilization)
+ 		{
+ 			m_biasFromLeaderCount.set(eLoopCivilization,
+ 					(scaled(range(aeiLeaderCounts.get(eLoopCivilization) - 1, 0, 4)).
+-					sqrt() * fixp(5.4)).round());
++					pow(rBiasStrength) * rBiasStrength * 10).round());
+ 		}
+ 	}
+ 	initContemporaries(); // Want to use the valid-civ lists above; hence not in ctor.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2494

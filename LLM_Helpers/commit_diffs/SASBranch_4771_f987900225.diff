@@ -1,0 +1,153 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4771
+# Commit: f98790022565ab2014f17b4c4c136d222fa25d81
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 86d9c24298493889cf4aeeb1ffe43027267f3c3a
+# Title: add(/replace anyways etc) sugar button with HR mod's one (imported now), add info about some XML txt chars being seemingly unsupported, which seemingly cause...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds
+6	5	Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+8	0	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+18	4	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+-	-	_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds b/Assets/Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds
+new file mode 100644
+index 000000000..d5ef0ebec
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+index 5650db1cb..e36c78e23 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Bonus.xml
+@@ -151,8 +151,7 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Ivory.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,13</Button>
+ 			<FontButtonIndex>25</FontButtonIndex>
+ 		</BonusArtInfo>
+-		<!-- custom: import silk button from HR mod -->
+-		<!-- custom: old default/base advciv one was:
++		<!-- custom: import silk button from HR mod, old default/base advciv one was:
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Silk.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,3,14</Button>
+ 		-->
+ 		<BonusArtInfo>
+@@ -182,13 +181,16 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Spices.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,5,14</Button>
+ 			<FontButtonIndex>28</FontButtonIndex>
+ 		</BonusArtInfo>
++		<!-- custom: import sugar button from HR mod, old default/base advciv one was:
++		<Button>,Art/Interface/Buttons/WorldBuilder/Sugar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,14</Button>
++		-->
+ 		<BonusArtInfo>
+ 			<Type>ART_DEF_BONUS_SUGAR</Type>
+ 			<fScale>0.5</fScale>
+ 			<fInterfaceScale>1.3</fInterfaceScale>
+ 			<NIF>Art/Terrain/Resources/Sugar/Sugar.nif</NIF>
+ 			<KFM>Art/Terrain/Resources/Sugar/Sugar.kfm</KFM>
+-			<Button>,Art/Interface/Buttons/WorldBuilder/Sugar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,7,14</Button>
++			<Button>Art/AdvCiv_SAS/Bonus/Sugar/Sugar.dds</Button>
+ 			<FontButtonIndex>29</FontButtonIndex>
+ 		</BonusArtInfo>
+ 		<!-- custom: (wine now renamed to) grapes (anyways etc), imported from realism invictus mod in "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\Realism Invictus\Assets\RI_37_Interface8.FPK" with dragon unpacker (only the .dds files for the button (since they seem to also put a higher resolution one than 64 x 64 anyways etc we/i anyways etc took it too just in case anyways etc))-->
+@@ -310,8 +312,7 @@ and then modified or not for AdvCiv-SAS anyways etc
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Sheep.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,14</Button>
+ 			<FontButtonIndex>18</FontButtonIndex>
+ 		</BonusArtInfo>
+-		<!-- custom: import silk button from HR mod -->
+-		<!-- custom: old default/base advciv one was:
++		<!-- custom: import silk button from HR mod, old default/base advciv one was:
+ 			<Button>,Art/Interface/Buttons/WorldBuilder/Wheat.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,2,16</Button>
+ 		-->
+ 		<BonusArtInfo>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 933aa8cfa..a6264c887 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -61,6 +61,14 @@
+ 
+ 
+ 
++	<!-- custom: similarly sugar pedia content now from anyways etc: https://en.wikipedia.org/wiki/Sugar -->
++	<TEXT>
++		<Tag>TXT_KEY_BONUS_SUGAR_PEDIA</Tag>
++		<English>[TAB]Sugar is the generic name for sweet-tasting, soluble carbohydrates, many of which are used in food. Simple sugars, also called monosaccharides, include glucose, fructose, and galactose. Compound sugars, also called disaccharides or double sugars, are molecules made of two bonded monosaccharides; common examples are sucrose (glucose + fructose), lactose (glucose + galactose), and maltose (two molecules of glucose). White sugar is a refined form of sucrose. In the body, compound sugars are hydrolysed into simple sugars.[PARAGRAPH:1]Longer chains of monosaccharides (>2) are not regarded as sugars and are called oligosaccharides or polysaccharides. Starch is a glucose polymer found in plants, the most abundant source of energy in human food. Some other chemical substances, such as ethylene glycol, glycerol and sugar alcohols, may have a sweet taste but are not classified as sugar.[PARAGRAPH:1]Sugars are found in the tissues of most plants. Honey and fruits are abundant natural sources of simple sugars. Sucrose is especially concentrated in sugarcane and sugar beet, making them ideal for efficient commercial extraction to make refined sugar. In 2016, the combined world production of those two crops was about two billion tonnes. Maltose may be produced by malting grain. Lactose is the only sugar that cannot be extracted from plants. It can only be found in milk, including human breast milk, and in some dairy products. A cheap source of sugar is corn syrup, industrially produced by converting corn starch into sugars, such as maltose, fructose and glucose.[PARAGRAPH:1]Sucrose is used in prepared foods (e.g., cookies and cakes), is sometimes added to commercially available ultra-processed food and beverages, and is sometimes used as a sweetener for foods (e.g., toast and cereal) and beverages (e.g., coffee and tea). Globally on average a person consumes about 24 kilograms (53 pounds) of sugar each year. North and South Americans consume up to 50 kg (110 lb), and Africans consume under 20 kg (44 lb).[PARAGRAPH:1]As free sugar consumption grew in the latter part of the 20th century, researchers began to examine whether a diet high in free sugar, especially refined sugar, was damaging to human health. In 2015, the World Health Organization strongly recommended that adults and children reduce their intake of free sugars to less than 10% of their total energy intake and encouraged a reduction to below 5%. In general, high sugar consumption damages human health more than it provides nutritional benefit and is associated with a risk of cardiometabolic and other health detriments.[PARAGRAPH:2]Sugar has been produced in the Indian subcontinent for thousands of years. Sugarcane cultivation spread from there into China via the Khyber Pass and caravan routes. It was not plentiful or cheap in early times, and in most parts of the world, honey was more often used for sweetening. Originally, people chewed raw sugarcane to extract its sweetness. Even after refined sugarcane became more widely available during the European colonial era, palm sugar was preferred in Java and other sugar producing parts of southeast Asia, and along with coconut sugar, is still used locally to make desserts today.[PARAGRAPH:1]Sugarcane is native of tropical areas such as the Indian subcontinent (South Asia) and Southeast Asia. Different species seem to have originated from different locations; Saccharum barberi originated in India, and S. edule and S. officinarum came from New Guinea. One of the earliest historical references to sugarcane is in Chinese manuscripts dating to the 8th century BCE, which state that the use of sugarcane originated in India.[PARAGRAPH:1]In the tradition of Indian medicine (ayurveda), sugarcane is known by the name Iksu, and sugarcane juice is known as Phanita. Its varieties, synonyms and characteristics are defined in nighantus such as the Bhavaprakasa (1.6.23, group of sugarcanes).[PARAGRAPH:1]Sugar remained relatively unimportant until around 350 AD when the Indians discovered methods of turning sugarcane juice into granulated crystals that were easier to store and transport. It was then considered as 'sweet spice' and Indian traders started trading sugar outside India. The Greek physician Pedanius Dioscorides attested to the method in his 1st century CE medical treatise De Materia Medica:[PARAGRAPH:1]"There is a kind of coalesced honey called sakcharon [i.e. sugar] found in reeds in India and Eudaimon Arabia similar in consistency to salt and brittle enough to be broken between the teeth like salt,"[PARAGRAPH:1]- Pedanius Dioscorides, Materia Medica, Book II[PARAGRAPH:1]In the local Indian language, these crystals were called khanda (Devanagari: _, Khanda), which is the source of the word candy. Indian sailors, who carried clarified butter and sugar as supplies, introduced knowledge of sugar along the various trade routes they travelled. Traveling Buddhist monks took sugar crystallization methods to China. During the reign of Harsha (r. 606-647) in North India, Indian envoys in Tang China taught methods of cultivating sugarcane after Emperor Taizong of Tang (r. 626-649) made known his interest in sugar. China established its first sugarcane plantations in the seventh century. Chinese documents confirm at least two missions to India, initiated in 647 CE, to obtain technology for sugar refining.[PARAGRAPH:2]Nearchus, admiral of Alexander the Great, knew of sugar during the year 325 BC because of his participation in the campaign of India led by Alexander (Arrian, Anabasis). In addition to the Greek physician Pedanius Dioscorides, the Roman Pliny the Elder also described sugar in his 1st century CE Natural History: "Sugar is made in Arabia as well, but Indian sugar is better. It is a kind of honey found in cane, white as gum, and it crunches between the teeth. It comes in lumps the size of a hazelnut. Sugar is used only for medical purposes." Crusaders brought sugar back to Europe after their campaigns in the Holy Land, where they encountered caravans carrying "sweet salt". Early in the 12th century, the Republic of Venice acquired some villages near Tyre and set up estates to produce sugar for export to Europe. It supplemented the use of honey, which had previously been the only available sweetener. Crusade chronicler William of Tyre, writing in the late 12th century, described sugar as "very necessary for the use and health of mankind". In the 15th century, Venice was the chief sugar refining and distribution center in Europe.[PARAGRAPH:1]There was a drastic change in the mid-15th century, when Madeira and the Canary Islands were settled from Europe and sugar introduced there. After this an "all-consuming passion for sugar ... swept through society" as it became far more easily available, though initially still very expensive. By 1492, Madeira was producing over 1,400,000 kilograms (3,000,000 lb) of sugar annually. Genoa, one of the centers of distribution, became known for candied fruit, while Venice specialized in pastries, sweets (candies), and sugar sculptures. Sugar was considered to have "valuable medicinal properties" as a "warm" food under prevailing categories, being "helpful to the stomach, to cure cold diseases, and sooth lung complaints".[PARAGRAPH:1]A feast given in Tours in 1457 by Gaston de Foix, which is "probably the best and most complete account we have of a late medieval banquet" includes the first mention of sugar sculptures, as the final food brought in was "a heraldic menagerie sculpted in sugar: lions, stags, monkeys ... each holding in paw or beak the arms of the Hungarian king". Other recorded grand feasts in the decades following included similar pieces. Originally the sculptures seem to have been eaten in the meal, but later they become merely table decorations, the most elaborate called trionfi. Several significant sculptors are known to have produced them; in some cases their preliminary drawings survive. Early ones were in brown sugar, partly cast in molds, with the final touches carved. They continued to be used until at least the Coronation Banquet for Edward VII of the United Kingdom in 1903; among other sculptures every guest was given a sugar crown to take away.[PARAGRAPH:2]In August 1492, Christopher Columbus collected sugar cane samples in La Gomera in the Canary Islands, and introduced it to the New World. The cuttings were planted and the first sugar-cane harvest in Hispaniola took place in 1501. Many sugar mills had been constructed in Cuba and Jamaica by the 1520s. The Portuguese took sugar cane to Brazil. By 1540, there were 800 cane-sugar mills in Santa Catarina Island and another 2,000 on the north coast of Brazil, Demarara, and Surinam. It took until 1600 for Brazilian sugar production to exceed that of S�o Tom�, which was the main center of sugar production in sixteenth century.[PARAGRAPH:1]Sugar was a luxury in Europe until the early 19th century, when it became more widely available, due to the rise of beet sugar in Prussia, and later in France under Napoleon. Beet sugar was a German invention, since, in 1747, Andreas Sigismund Marggraf announced the discovery of sugar in beets and devised a method using alcohol to extract it. Marggraf's student, Franz Karl Achard, devised an economical industrial method to extract the sugar in its pure form in the late 18th century. Achard first produced beet sugar in 1783 in Kaulsdorf, and in 1801, the world's first beet sugar production facility was established in Cunern, Silesia (then part of Prussia, now Poland). The works of Marggraf and Achard were the starting point for the sugar industry in Europe, and for the modern sugar industry in general, since sugar was no longer a luxury product and a product almost only produced in warmer climates.[PARAGRAPH:1]Sugar became highly popular and by the 19th century, was found in every household. This evolution of taste and demand for sugar as an essential food ingredient resulted in major economic and social changes. Demand drove, in part, the colonization of tropical islands and areas where labor-intensive sugarcane plantations and sugar manufacturing facilities could be successful. World consumption increased more than 100 times from 1850 to 2000, led by Britain, where it increased from about 2 pounds per head per year in 1650 to 90 pounds by the early 20th century. In the late 18th century Britain consumed about half the sugar which reached Europe.[PARAGRAPH:1]After slavery was abolished, the demand for workers in European colonies in the Caribbean was filled by indentured laborers from the Indian subcontinent. Millions of enslaved or indentured laborers were brought to various European colonies in the Americas, Africa and Asia (as a result of demand in Europe for among other commodities, sugar), influencing the ethnic mixture of numerous nations around the globe.[PARAGRAPH:1]Sugar also led to some industrialization of areas where sugar cane was grown. For example, in the 1790s Lieutenant J. Paterson, of the Bengal Presidency promoted to the British parliament the idea that sugar cane could grow in British India, where it had started, with many advantages and at less expense than in the West Indies. As a result, sugar factories were established in Bihar in eastern India. During the Napoleonic Wars, sugar-beet production increased in continental Europe because of the difficulty of importing sugar when shipping was subject to blockade. By 1880 the sugar beet was the main source of sugar in Europe. It was also cultivated in Lincolnshire and other parts of England, although the United Kingdom continued to import the main part of its sugar from its colonies.Until the late nineteenth century, sugar was purchased in loaves, which had to be cut using implements called sugar nips. In later years, granulated sugar was more usually sold in bags. Sugar cubes were produced in the nineteenth century. The first inventor of a process to produce sugar in cube form was Jakob Christof Rad, director of a sugar refinery in Dacice. In 1841, he produced the first sugar cube in the world. He began sugar-cube production after being granted a five-year patent for the process on 23 January 1843. Henry Tate of Tate and Lyle was another early manufacturer of sugar cubes at his refineries in Liverpool and London. Tate purchased a patent for sugar-cube manufacture from German Eugen Langen, who in 1872 had invented a different method of processing of sugar cubes.[PARAGRAPH:1]Sugar was rationed during World War I, though it was said that "No previous war in history has been fought so largely on sugar and so little on alcohol", and more sharply during World War II. Rationing led to the development and use of various artificial sweeteners.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: adding/using rather/instead a modified version of the animal concept txt key, for the sevopedia unit ('s) history panel('s text), removing the H1, and adding info about how animals can't/cannot anyways etc anyways etc anyways etc be built by any civ, including barbarians if i am not mistaken, and how our new placeExclusiveCivs "Civlizations:" "All" line is not incorrect, just animals are not restricted to any specific civ, but due to some other reasons, while there is no such restriction, no civ can build any animal unit though, so we represent the xml accurately while also explaining it hopefully well or not or yes or and other or and not or yes or and other or and not but anyways etc.
+ 	Note: also remove the uncertain note about animals not invading borders, maybe some mods would make animals do this, anyways etc, i don't know about advciv-sas('s take decision if i may say but anyways etc... on this), but removing it is probably clearer indeed and we don't commit to a specific explanation indeed that may be false or not if i may say indeed anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 722486565..bf42d0769 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -186,7 +186,7 @@ Not sure what the issue was, would have liked to be notified of the error/corrup
+ 
+ So hopefully fine and solved now even though not sure and not guaranteed but maybe is hopefully or maybe not, in all cases hopefully this info is helpful to me or and others or and not anyways etc anyways etc.
+ 
+-# 6 - (now worked around anyways etc) Too long XML code comments cause errors or/and game crashes
++## 6 - (now worked around anyways etc) Too long XML code comments cause errors or/and game crashes
+ 
+ Related to [example/issue 9](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#9---art-and-maybe-other-assets-too-or-not-anyways-etc-xml-assets-silently-causing-a-game-crash-during-initgame-loadstartup-instead-of-telling-us-which-asset-was-missing-no-error)
+ 
+@@ -196,17 +196,17 @@ Something to keep in mind perhaps if i may say i mean anyways while doing XML co
+ 
+ More details here too anyways etc in anyways etc anyways etc anyways etc: [AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt](/Assets/XML/Audio/AudioDefines-nested-comments-out-of-xml-file-to-avoid-crash.txt)
+ 
+-# 7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen if i am not mistaken as well anyways etc) don't work if not taken in primary screen
++## 7 - Screenshots on multi screen display (if playing civ4 with "windowed" and not fullscreen if i am not mistaken as well anyways etc) don't work if not taken in primary screen
+ 
+ On windows 10 at least if not in other systems as well, at least in my machine but anyways etc, since i play in windowed while debugging and such or/and other dev needs or not which is much more convenient but anyways etc, if i put the game window on my second (or any alternative/equivalent or not that may or not exist and that is not main screen anyways etc) screen, then pressing the - Print Screen - key consistently does not create a new screenshot in (repalce with your relevant user path) `C:\Users\PC\Documents\My Games\beyond the sword\ScreenShots\`, but putting the game window back to main screen, (then) the print screen key successfully creates a new screenshot (image) file, for example Civ4ScreenShot4272.JPG while writing this (could be any but anyways etc anyways etc anyways etc), hopefully helpful or not or yes or and other or and not anyways etc to fix the issue and being able to record screen(shots) again anyways etc.
+ 
+-# 8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors
++## 8 - Do not edit python files while running the game, even modifying unused/unreached code may cause weird errors
+ 
+ For example as in [these screenshots (google drive folder link anyways etc)](https://drive.google.com/drive/folders/1gyaLERKrDAUbiQeVWl4S7T7tPJB0soR3?usp=sharing), or to copy the err log (path from Notepad++, adjust with your windows username or/and equivalent configuration/version of this that fits/suits your system username or/and other settings anyways etc (C:\Users\PC\Documents\My Games\beyond the sword\Logs\PythonErr.log) anyways etc.
+ 
+ If such issues happen, maybe restart the game and hopefully all fixed, ideally modify python files before game is launched to prevent that, unless you know what or/and why you are doing (it) or/and other (reason) or and not as you prefer or not or yes or and other or and not anyways etc anyways etc anyways etc
+ 
+-# 9 - Art (and maybe other assets too or not anyways etc) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
++## 9 - Art (and maybe other assets too or not anyways etc) XML assets silently causing a game crash during init/game load/startup instead of telling us which asset was missing (no error)
+ 
+ Related to [example/issue 6](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#6---now-worked-around-anyways-etc-too-long-xml-code-comments-cause-errors-orand-game-crashes)
+ 
+@@ -378,3 +378,17 @@ Also for info init log after successfully load is like this after fixing it and
+ ```
+ 
+ Anyways etc anyways etc anyways etc...
++
++## 10 - some text characters in XML TXT_KEY tags are not displayed correctly ingame (as `?` or causing other arti(e?)facts maybe too indeed for example anyways etc), while some like `&` cause an XML error and asset failing to load entirely if i am not mistaken anyways etc
++
++Some characters are not displayed correctly and instead show as `?` or cause weird arte(i?)facts like being bold inconsistently or such, here are a few examples here in this [Google Drive folder link](https://drive.google.com/drive/folders/1LeTNL4kKHgQJdZ0mLNzHaOCKkenR9duh?usp=sharing).
++
++They genererally are language specific chars, for example some chars in `Phāṇita` or `Bhāvaprakāśa` or  maybe too (test to be sure if this point/issue i am raising is accurate or not, should be but may not be valid/updated anymroe if someone fixed it somehow or/and othe ror if i am mistaken or maybe not or yes or not or and other or and not anyways etc). Or some other examples like `खण्ड` or such anyways etc are likely to not display correctly or/and cause errors (check ingame or in docs or woemwhere where you can find such info or and other or and not as you prefer or and not or other or and not anyways etc anyways etc anyways etc).
++
++Some characters like the `&` seem to cause an XML error with a real error message and such, and asset failing to load entirely (revert to base civ4 one rather than our version of it), see screenshots for details in the drive link above for details.
++
++And some characters like `–` seem to cause the text to be weird and inconsistently bold (see screenshot(s) for example if provided indeed or not or yes or and other or and not anyways etc)
++
++The solution i use is to simplify these chars generally, for example rename `–` to `-`, or using `_` instead of `खण्ड` to signify it is a language char (some other approaches may work like romanizing, it is an example i went with most simple and accurate in my case/need anyways etc anyways etc anyways etc...), or rename for example `Phāṇita` to `Phanita`, or for example also `Dačice` to `Dacice` (again is an example do as you prefer or not or do or not or and other or and not anyways etc anyways etc anyways etc...)
++
++Adjust this advice/feedback as you see fit or not fit or not see or not adjust or not or yes or and other or and not, hopefully helpful or not or yes or and other or and not anyways etc anyways etc anyways etc...
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG
+index 3fa449d87..9277c085f 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG and b/_1_AdvCiv-SAS/Images_In_General/0.650_sevopedia_bonus_sample (11).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=24711

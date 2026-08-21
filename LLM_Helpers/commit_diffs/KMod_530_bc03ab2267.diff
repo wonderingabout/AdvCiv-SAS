@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 530
+# Commit: bc03ab2267224f3686a78ec8a606200e4b66b7b9
+# History segment: K-Mod history
+# Parent used for diff: 227b929945233d60c2411f7587b9f293cc498582
+# Title: Fixed some problems with the BtS staring-position normaliser. (Randomized the position of extra rivers and lakes, so that normaliser doesn't always put us ne...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+14	3	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index bad044373..02f3f2075 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1122,7 +1122,12 @@ void CvGame::normalizeAddRiver()
+ 					// if we will be able to add a lake, then use old river code
+ 					if (normalizeFindLakePlot((PlayerTypes)iI) != NULL)
+ 					{
+-						CvMapGenerator::GetInstance().doRiver(pStartingPlot);
++						//CvMapGenerator::GetInstance().doRiver(pStartingPlot);
++						// K-Mod. The river shouldn't always start on the SE corner of our site.
++						CvPlot* pRiverPlot = pStartingPlot->getInlandCorner();
++						if (pRiverPlot)
++							CvMapGenerator::GetInstance().doRiver(pRiverPlot);
++						// K-Mod end.
+ 					}
+ 					// otherwise, use new river code which is much more likely to succeed
+ 					else
+@@ -1226,9 +1231,14 @@ CvPlot* CvGame::normalizeFindLakePlot(PlayerTypes ePlayer)
+ 	{
+ 		if (!(pStartingPlot->isFreshWater()))
+ 		{
++			// K-Mod. Shuffle the order that plots are checked.
++			int aiShuffle[NUM_CITY_PLOTS];
++			shuffleArray(aiShuffle, NUM_CITY_PLOTS, getMapRand());
++			// K-Mod end
+ 			for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 			{
+-				CvPlot* pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
++				//CvPlot* pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), iJ);
++				CvPlot* pLoopPlot = plotCity(pStartingPlot->getX_INLINE(), pStartingPlot->getY_INLINE(), aiShuffle[iJ]); // K-Mod
+ 
+ 				if (pLoopPlot != NULL)
+ 				{
+@@ -1495,7 +1505,8 @@ void CvGame::normalizeAddFoodBonuses()
+ 				}
+ 				
+ 				int iTargetFoodBonusCount = 3;
+-				iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 2 : 0;
++				//iTargetFoodBonusCount += (iGoodNatureTileCount == 0) ? 2 : 0;
++				iTargetFoodBonusCount += std::max(0, 2-iGoodNatureTileCount); // K-Mod
+ 
+ 				for (int iJ = 0; iJ < NUM_CITY_PLOTS; iJ++)
+ 				{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1902

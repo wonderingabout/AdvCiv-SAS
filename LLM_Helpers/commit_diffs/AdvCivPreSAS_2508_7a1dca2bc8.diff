@@ -1,0 +1,632 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2508
+# Commit: 7a1dca2bc80d9a5071b621a4f34dd91aea743008
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c7f2c872cf19b8c0aabeaca59eecde8acf1a6987
+# Title: Misc. refactoring
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	9	CvGameCoreDLL/CvDLLButtonPopup.cpp
+51	42	CvGameCoreDLL/CvGameCoreUtils.cpp
+1	1	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvReplayInfo.cpp
+14	14	CvGameCoreDLL/CvSelectionGroupAI.cpp
+1	1	CvGameCoreDLL/CvTeam.cpp
+32	32	CvGameCoreDLL/CvUnit.cpp
+3	3	CvGameCoreDLL/CvUnit.h
+32	27	CvGameCoreDLL/CvUnitAI.cpp
+3	4	CvGameCoreDLL/FAssert.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 380231933..4ee7314d8 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1582,15 +1582,13 @@ bool CvDLLButtonPopup::launchChooseTechPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 			CvGame const& kGame = GC.getGame(); // advc
+ 			FOR_EACH_ENUM2(Religion, eReligion)
+ 			{
+-				if (GC.getInfo(eReligion).getTechPrereq() == eTech)
++				if (GC.getInfo(eReligion).getTechPrereq() == eTech &&
++					!kGame.isReligionSlotTaken(eReligion))
+ 				{
+-					if (!kGame.isReligionSlotTaken(eReligion))
+-					{
+-						szButton = kGame.isOption(GAMEOPTION_PICK_RELIGION) ?
+-								GC.getInfo(eReligion).getGenericTechButton() :
+-								GC.getInfo(eReligion).getTechButton();
+-						break;
+-					}
++					szButton = (kGame.isOption(GAMEOPTION_PICK_RELIGION) ?
++							GC.getInfo(eReligion).getGenericTechButton() :
++							GC.getInfo(eReligion).getTechButton());
++					break;
+ 				}
+ 			}
+ 			m_kUI.popupAddGenericButton(pPopup, szBuffer,
+@@ -1599,7 +1597,7 @@ bool CvDLLButtonPopup::launchChooseTechPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 			iNumTechs++;
+ 		}
+ 	}
+-	if (iNumTechs == 0)
++	if (iNumTechs <= 0)
+ 	{
+ 		// player cannot research anything, so don't show this popup after all
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.cpp b/CvGameCoreDLL/CvGameCoreUtils.cpp
+index 57a5361bc..6c9ecf6f5 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.cpp
++++ b/CvGameCoreDLL/CvGameCoreUtils.cpp
+@@ -504,59 +504,68 @@ int getCombatOdds(const CvUnit* pAttacker, const CvUnit* pDefender)
+ 	return iOdds;
+ }
+ 
+-// K-Mod
+-int estimateCollateralWeight(const CvPlot* pPlot, TeamTypes eAttackTeam, TeamTypes eDefenceTeam)
++// K-Mod:
++int estimateCollateralWeight(CvPlot const* pPlot, TeamTypes eAttackTeam,
++	TeamTypes eDefenceTeam)
+ {
+-	int iBaseCollateral = GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE); // note: the default xml value is "10"
++	int iBaseCollateral = GC.getDefineINT(CvGlobals::COLLATERAL_COMBAT_DAMAGE); // normally 10
+ 
+-	// Collateral damage does not depend on any kind of strength bonus - so when a unit takes collateral damage, their bonuses are effectively wasted.
+-	// Therefore, I'm going to inflate the value of collateral damage based on a rough estimate of the defenders bonuses might be.
++	/*	Collateral damage does not depend on any kind of strength bonus -
++		so when a unit takes collateral damage, their bonuses are effectively wasted.
++		Therefore, I'm going to inflate the value of collateral damage based
++		on a rough estimate of the defenders bonuses. */
+ 	if (pPlot == NULL)
+-	{
+-		iBaseCollateral *= 110;
+-	}
+-	else
+-	{
+-		TeamTypes ePlotBonusTeam = eDefenceTeam;
+-		if (ePlotBonusTeam == NO_TEAM)
+-			ePlotBonusTeam = pPlot->getTeam() == eAttackTeam ? NO_TEAM : pPlot->getTeam();
++		return iBaseCollateral * 110; // advc
+ 
+-		iBaseCollateral *= (pPlot->isCity() ? 130 : 110) + pPlot->defenseModifier(ePlotBonusTeam, false,
+-				eAttackTeam); // advc.012
++	TeamTypes ePlotBonusTeam = eDefenceTeam;
++	if (ePlotBonusTeam == NO_TEAM)
++		ePlotBonusTeam = (pPlot->getTeam() == eAttackTeam ? NO_TEAM : pPlot->getTeam());
+ 
+-		// Estimate the average collateral damage reduction of the units on the plot
+-		int iResistanceSum = 0;
+-		int iUnits = 0;
++	iBaseCollateral *= (pPlot->isCity() ? 130 : 110) +
++			pPlot->defenseModifier(ePlotBonusTeam, false,
++			eAttackTeam); // advc.012
+ 
+-		for (CLLNode<IDInfo> const* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL;
+-			pUnitNode = pPlot->nextUnitNode(pUnitNode))
+-		{
+-			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			if (!pLoopUnit->canDefend(pPlot))
+-				continue;
+-			if (eDefenceTeam != NO_TEAM && pLoopUnit->getTeam() != eDefenceTeam)
+-				continue;
+-			if (eAttackTeam != NO_TEAM && pLoopUnit->getTeam() == eAttackTeam)
+-				continue;
++	// Estimate the average collateral damage reduction of the units on the plot
++	int iResistanceSum = 0;
++	int iUnits = 0;
+ 
+-			iUnits++;
+-			// Kludge! I'm only checking for immunity against the unit's own combat type.
+-			// Ideally we'd know what kind of collateral damage we're expecting to be hit by, and check for immunity vs that.
+-			// Or we could check all types... But the reality is, there are always going to be mods and fringe cases where
+-			// the esitmate is inaccurate. And currently in K-Mod, all instances of immunity are to the units own type anyway.
+-			// Whichever way we do the estimate, cho-ku-nu is going to mess it up anyway. (Unless I change the game mechanics.)
+-			if ( // advc.001: Animals have no unit combat type (K146 also fixes this)
+-				pLoopUnit->getUnitCombatType() != NO_UNITCOMBAT &&
+-				pLoopUnit->getUnitInfo().getUnitCombatCollateralImmune(pLoopUnit->getUnitCombatType()))
+-				iResistanceSum += 100;
+-			else iResistanceSum += pLoopUnit->getCollateralDamageProtection();
++	for (CLLNode<IDInfo> const* pNode = pPlot->headUnitNode(); pNode != NULL;
++		pNode = pPlot->nextUnitNode(pNode))
++	{
++		CvUnit const& kLoopUnit = *::getUnit(pNode->m_data);
++		if (!kLoopUnit.canDefend(pPlot))
++			continue;
++		if (eDefenceTeam != NO_TEAM && kLoopUnit.getTeam() != eDefenceTeam)
++			continue;
++		if (eAttackTeam != NO_TEAM && kLoopUnit.getTeam() == eAttackTeam)
++			continue;
++
++		iUnits++;
++		/*	Kludge! I'm only checking for immunity against the unit's own combat type.
++			Ideally we'd know what kind of collateral damage we're expecting to be hit by,
++			and check for immunity vs that.
++			Or we could check all types... But the reality is, there are always
++			going to be mods and fringe cases where the esitmate is inaccurate.
++			And currently in K-Mod, all instances of immunity are to the unit's own type anyway.
++			Whichever way we do the estimate, cho-ku-nu is going to mess it up anyway.
++			(Unless I change the game mechanics.) */
++		if ( // advc.001: Animals have no unit combat type (K146 also fixes this)
++			kLoopUnit.getUnitCombatType() != NO_UNITCOMBAT &&
++			kLoopUnit.getUnitInfo().getUnitCombatCollateralImmune(kLoopUnit.getUnitCombatType()))
++		{
++			iResistanceSum += 100;
+ 		}
+-		if (iUnits > 0)
+-			iBaseCollateral = iBaseCollateral * (iUnits * 100 - iResistanceSum)/(iUnits * 100);
++		else iResistanceSum += kLoopUnit.getCollateralDamageProtection();
+ 	}
++	if (iUnits > 0)
++	{
++		iBaseCollateral = iBaseCollateral * (iUnits * 100 - iResistanceSum) /
++				(iUnits * 100);
++	}
++
+ 	return iBaseCollateral; // note, a factor of 100 is included in the result.
+ }
+-// K-Mod end
++
+ 
+ void setTradeItem(TradeData* pItem, TradeableItems eItemType, int iData)
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0b457f13a..c7da1af76 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19052,7 +19052,7 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption,
+ 	std::vector<NiColorA>& aColors, std::vector<CvPlotIndicatorData>& aIndicators) const
+ {
+ 	// <advc.004z>
+-	if(eOption == 2) // Somehow, eOption==GLOBE_LAYER_UNIT_DUMMY doesn't work.
++	if(eOption == GLOBE_LAYER_UNIT_DUMMY)
+ 		eOption = SHOW_ALL_MILITARY;
+ 	// </advc.004z>
+ 	CvMap const& kMap = GC.getMap();
+
+diff --git a/CvGameCoreDLL/CvReplayInfo.cpp b/CvGameCoreDLL/CvReplayInfo.cpp
+index 39b828863..56bc7142c 100644
+--- a/CvGameCoreDLL/CvReplayInfo.cpp
++++ b/CvGameCoreDLL/CvReplayInfo.cpp
+@@ -988,7 +988,7 @@ bool CvReplayInfo::checkBounds(int iValue, int iLower, int iUpper) const
+ 		is going to get out of step, which may cause an exception. There's a catch(...),
+ 		but that's not going to catch hardware exceptions unless the /EHa compiler option
+ 		is used. (AdvCiv, like just about every mod, uses /EHsc.) So I think there could
+-		be crash, and, as all mods place their replays in the same folder, encountering
++		be a crash, and, as all mods place their replays in the same folder, encountering
+ 		a very strange replay doesn't seem so unlikely. */
+ 	if(m->bDisplayOtherMods) // Still want sanity checks then, but be more generous.
+ 		iUpper *= 2;
+
+diff --git a/CvGameCoreDLL/CvSelectionGroupAI.cpp b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+index f3d1929ae..8f2f1c3f2 100644
+--- a/CvGameCoreDLL/CvSelectionGroupAI.cpp
++++ b/CvGameCoreDLL/CvSelectionGroupAI.cpp
+@@ -289,7 +289,7 @@ int CvSelectionGroupAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy)
+ 	if (!pPlot->hasDefender(false, NO_PLAYER, getOwner(), NULL, !bPotentialEnemy, bPotentialEnemy))
+ 		return 100;
+ 
+-	int iOdds = 0;
++	int iOdds=-1; // (advc: Was 0. Shouldn't matter.)
+ 	CvUnit* pAttacker = AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iOdds);
+ 	if (pAttacker == NULL)
+ 		return 0;
+@@ -304,22 +304,21 @@ int CvSelectionGroupAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy)
+ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialEnemy)
+ {
+ 	PROFILE_FUNC();
+-	int iOdds;
+-	CvUnitAI* pAttacker = AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iOdds);
+-	if (!pAttacker)
++	int iOdds=-1;
++	CvUnitAI const* pAttacker = AI_getBestGroupAttacker(pPlot, bPotentialEnemy, iOdds);
++	if (pAttacker == NULL)
+ 		return 0;
+-	CvUnit* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), pAttacker,
++	CvUnit const* pDefender = pPlot->getBestDefender(NO_PLAYER, getOwner(), pAttacker,
+ 			!bPotentialEnemy, bPotentialEnemy,
+ 			true, false); // advc.028, advc.089 (same as in CvUnitAI::AI_attackOdds)
+-
+ 	if (pDefender == NULL)
+ 		return 100;
+ 
+-	/*	<advc.114b>: We shouldn't adjust the odds based on an optimistic estimate
+-		(increased by AttackOddsChange). It leads to Warriors attacking Tanks
+-		because the optimistic odds are considerably above zero and the
+-		difference in production cost is great. I'm subtracting the AttackOddsChange
+-		temporarily; adding them back in after the adjustments are done.
++	/*	<advc.114b> We shouldn't adjust the odds based on an optimistic estimate
++		(increased by AttackOddsChange) b/c that leads to Warriors attacking Tanks -
++		high difference in production cost and non-negligible optimistic odds.
++		I'm subtracting the AttackOddsChange temporarily;
++		adding them back in after the adjustments are done.
+ 		(A more elaborate fix would avoid adding them in the first place.) */
+ 	int const iAttackOddsChange = GET_PLAYER(getOwner()).AI_getAttackOddsChange();
+ 	iOdds -= iAttackOddsChange;
+@@ -339,7 +338,7 @@ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialE
+ 		// I'm sorry about this. I really am. I'll try to make it better one day...
+ 		int iDefenders = pAttacker->AI_countEnemyDefenders(*pPlot);
+ 		iAdjustedOdds *= 2 + getNumUnits();
+-		iAdjustedOdds /= 3 + std::min(iDefenders/2, getNumUnits());
++		iAdjustedOdds /= 3 + std::min(iDefenders / 2, getNumUnits());
+ 	}
+ 
+ 	iAdjustedOdds += iAttackOddsChange; // advc.114b
+@@ -566,9 +565,10 @@ int CvSelectionGroupAI::AI_sumStrength(const CvPlot* pAttackedPlot,
+ 	int const iBaseCollateral = (bCountCollateral ?
+ 			estimateCollateralWeight(pAttackedPlot, getTeam()) : 0);
+ 	int	iSum = 0;
+-	for (CLLNode<IDInfo> const* pUnitNode = headUnitNode(); pUnitNode != NULL; pUnitNode = nextUnitNode(pUnitNode))
++	for (CLLNode<IDInfo> const* pNode = headUnitNode(); pNode != NULL;
++		pNode = nextUnitNode(pNode))
+ 	{
+-		CvUnitAI const& kLoopUnit = *::AI_getUnit(pUnitNode->m_data);
++		CvUnitAI const& kLoopUnit = *::AI_getUnit(pNode->m_data);
+ 		if (kLoopUnit.isDead() ||
+ 			// advc.opt: (If we want to count air units, then this'll have to be removed.)
+ 			!kLoopUnit.canFight())
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index a53f087aa..30f400143 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -4551,7 +4551,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer,  /
+ 					continue; // advc
+ 				}
+ 				CvCity const* pCity = kMap.findCity(kLoopPlot.getX(), kLoopPlot.getY(), NO_PLAYER,
+-						// advc.004r: Pass ID as 'observer' (last param) instead of city owner
++						// advc.004r: Pass ID as eObserver (last param) instead of city owner
+ 						NO_TEAM, false, false, NO_TEAM, NO_DIRECTION, NULL, getID());
+ 				if (pCity == NULL)
+ 					continue;
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 70adce2fa..41f77e08f 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3461,16 +3461,16 @@ bool CvUnit::canSentry(const CvPlot* pPlot) const
+ }
+ 
+ 
+-int CvUnit::healRate(const CvPlot* pPlot, bool bLocation, bool bUnits) const
++int CvUnit::healRate(bool bLocation, bool bUnits, CvPlot const* pAt) const
+ {
+-	//PROFILE_FUNC(); // advc.003o
++	PROFILE_FUNC();
++	CvPlot const& kPlot = (pAt == NULL ? getPlot() : *pAt); // advc
+ 	// <advc.opt>
+ 	static int const iCITY_HEAL_RATE = GC.getDefineINT("CITY_HEAL_RATE");
+ 	static int const iFRIENDLY_HEAL_RATE = GC.getDefineINT("FRIENDLY_HEAL_RATE");
+ 	static int const iNEUTRAL_HEAL_RATE = GC.getDefineINT("NEUTRAL_HEAL_RATE");
+ 	static int const iENEMY_HEAL_RATE = GC.getDefineINT("ENEMY_HEAL_RATE");
+ 	// </advc.opt>
+-	CvCity* pCity = pPlot->getPlotCity();
+ 	int iTotalHeal = 0;
+ 
+ 	if (bLocation) // K-Mod
+@@ -3492,7 +3492,7 @@ int CvUnit::healRate(const CvPlot* pPlot, bool bLocation, bool bUnits) const
+ 		{
+ 			if (!bFriendly)
+ 			{
+-				if (isEnemy(*pPlot))
++				if (isEnemy(kPlot))
+ 					iTotalHeal += iENEMY_HEAL_RATE + getExtraEnemyHeal();
+ 				else iTotalHeal += iNEUTRAL_HEAL_RATE + getExtraNeutralHeal();
+ 			}
+@@ -3502,60 +3502,60 @@ int CvUnit::healRate(const CvPlot* pPlot, bool bLocation, bool bUnits) const
+ 
+ 	if (bUnits) // K-Mod
+ 	{
+-		// XXX optimize this (save it?)
++		// <XXX> optimize this (save it?)
+ 		int iBestHeal = 0;
+-		for (CLLNode<IDInfo> const* pUnitNode = pPlot->headUnitNode(); pUnitNode != NULL;
+-			pUnitNode = pPlot->nextUnitNode(pUnitNode))
++		for (CLLNode<IDInfo> const* pNode = kPlot.headUnitNode(); pNode != NULL;
++			pNode = kPlot.nextUnitNode(pNode))
+ 		{
+-			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			if (pLoopUnit->getTeam() == getTeam()) // XXX what about alliances?
++			CvUnit const& kLoopUnit = *::getUnit(pNode->m_data);
++			if (kLoopUnit.getTeam() == getTeam()) // XXX what about alliances?
+ 			{
+-				int iHeal = pLoopUnit->getSameTileHeal();
++				int iHeal = kLoopUnit.getSameTileHeal();
+ 				if (iHeal > iBestHeal)
+ 					iBestHeal = iHeal;
+ 			}
+ 		}
+ 
+-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
++		FOR_EACH_ENUM(Direction)
+ 		{
+-			CvPlot* pLoopPlot = plotDirection(pPlot->getX(), pPlot->getY(), (DirectionTypes)iI);
+-			if (pLoopPlot != NULL)
+-			{	// advc.030: Instead check domain type below
+-				//if (pLoopPlot->sameArea(*pPlot)) {
+-				CLLNode<IDInfo>* pUnitNode = pLoopPlot->headUnitNode();
+-				while (pUnitNode != NULL)
+-				{
+-					CvUnit* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-					pUnitNode = pLoopPlot->nextUnitNode(pUnitNode);
+-					if ( // <advc.030>
+-						pLoopUnit->getDomainType() == getDomainType() &&
+-						!pLoopUnit->isCargo() && // </advc.030>
+-						pLoopUnit->getTeam() == getTeam()) // XXX what about alliances?
++			CvPlot* pAdj = plotDirection(kPlot.getX(), kPlot.getY(), eLoopDirection);
++			if (pAdj == NULL)
++				continue;
++			// advc.030: Instead check domain type below
++			//if (pLoopPlot->sameArea(*pPlot)) {
++			for (CLLNode<IDInfo>* pNode = pAdj->headUnitNode(); pNode != NULL;
++				pNode = pAdj->nextUnitNode(pNode))
++			{
++				CvUnit const& kLoopUnit = *::getUnit(pNode->m_data);
++				if ( // <advc.030>
++					kLoopUnit.getDomainType() == getDomainType() &&
++					!kLoopUnit.isCargo() && // </advc.030>
++					kLoopUnit.getTeam() == getTeam()) // XXX what about alliances?
+ 					{
+-						int iHeal = pLoopUnit->getAdjacentTileHeal();
++						int iHeal = kLoopUnit.getAdjacentTileHeal();
+ 						if (iHeal > iBestHeal)
+ 							iBestHeal = iHeal;
+ 					}
+-				}
+ 			}
+ 		}
+ 
+ 		iTotalHeal += iBestHeal;
+-		// XXX
++		// </XXX>
+ 	}
+ 
+ 	return iTotalHeal;
+ }
+ 
+ 
+-int CvUnit::healTurns(const CvPlot* pPlot) const
++int CvUnit::healTurns(CvPlot const* pAt) const
+ {
+ 	if (!isHurt())
+ 		return 0;
+ 
+-	int iHeal = healRate(pPlot);
++	int iHeal = healRate(true, true, pAt);
++	CvPlot const& kPlot = (pAt == NULL ? getPlot() : *pAt); // advc
+ 	// UNOFFICIAL_PATCH, Bugfix (FeatureDamageFix), 06/02/10, LunarMongoose: START
+-	FeatureTypes eFeature = pPlot->getFeatureType();
++	FeatureTypes eFeature = kPlot.getFeatureType();
+ 	if (eFeature != NO_FEATURE)
+ 		iHeal -= GC.getInfo(eFeature).getTurnDamage();
+ 	// UNOFFICIAL_PATCH: END
+@@ -3568,13 +3568,13 @@ int CvUnit::healTurns(const CvPlot* pPlot) const
+ 		return iTurns; */
+ 		return (getDamage() + iHeal-1) / iHeal; // K-Mod (same, but faster)
+ 	}
+-	else return MAX_INT;
++	return MAX_INT;
+ }
+ 
+ 
+ void CvUnit::doHeal()
+ {
+-	changeDamage(-(healRate(plot())));
++	changeDamage(-healRate());
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.h b/CvGameCoreDLL/CvUnit.h
+index 386905b11..d2f6f205c 100644
+--- a/CvGameCoreDLL/CvUnit.h
++++ b/CvGameCoreDLL/CvUnit.h
+@@ -110,9 +110,9 @@ public:
+ 	bool canSentryHeal(const CvPlot* pPlot) const; // advc.004l
+ 	bool canSentry(const CvPlot* pPlot) const;																// Exposed to Python
+ 
+-	int healRate(const CvPlot* pPlot,
+-			bool bLocation = true, bool bUnits = true) const; // K-Mod
+-	int healTurns(const CvPlot* pPlot) const;
++	int healRate(/* K-Mod: */ bool bLocation = true, bool bUnits = true,
++			CvPlot const* pAt /* advc: */ = NULL) const;
++	int healTurns(CvPlot const* pAt /* advc: */ = NULL) const;
+ 	void doHeal();
+ 
+ 		// advc (tbd.): Change the iX,iY params to a CvPlot const& kTarget (x10)
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index e881ffaf0..dbad296fd 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1221,9 +1221,10 @@ int CvUnitAI::AI_sacrificeValue(const CvPlot* pPlot) const
+ 		iValue /= std::max(1, 1000 + 1000 * LFBgetRelativeValueRating() *
+ 				GC.getDefineINT(CvGlobals::LFB_ADJUSTNUMERATOR) /
+ 				GC.getDefineINT(CvGlobals::LFB_ADJUSTDENOMINATOR));
+-		// roughly speaking, the second part of the denominator is the odds adjustment from LFBgetValueAdjustedOdds.
+-		// It might be more natural to subtract it from the numerator, but then we can't guarantee a positive value.
+-		// K-Mod end
++		/*	roughly speaking, the second part of the denominator
++			is the odds adjustment from LFBgetValueAdjustedOdds.
++			It might be more natural to subtract it from the numerator,
++			but then we can't guarantee a positive value. */ // K-Mod end
+ 		/*  <advc.048> LFBgetRelativeValueRating is too coarse to account for
+ 			small XP differences. Make sure that XP will at least break ties. */
+ 		const int iXP = getExperience();
+@@ -3732,8 +3733,9 @@ void CvUnitAI::AI_collateralMove()
+ 			pUnitNode = getPlot().nextUnitNode(pUnitNode))
+ 		{
+ 			CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
+-			if (DOMAIN_LAND == pLoopUnit->getDomainType() && pLoopUnit->getOwner() == getOwner()
+-				&& pLoopUnit->canMove() && pLoopUnit->collateralDamage() > 0)
++			if (DOMAIN_LAND == pLoopUnit->getDomainType() &&
++				pLoopUnit->getOwner() == getOwner() &&
++				pLoopUnit->canMove() && pLoopUnit->collateralDamage() > 0)
+ 			{
+ 				iTally++;
+ 			}
+@@ -8285,7 +8287,7 @@ void CvUnitAI::AI_attackAirMove()
+ 				}
+ 			}
+ 
+-			if (healTurns(plot()) > 1)
++			if (healTurns() > 1)
+ 			{
+ 				// If very damaged, no sense staying in risky place
+ 				if (AI_airOffensiveCity())
+@@ -9141,10 +9143,8 @@ int CvUnitAI::AI_promotionValue(PromotionTypes ePromotion)
+ 
+ 		if (iTemp > 0)
+ 		{
+-			if (healRate(plot(), false, true) < iTemp)
+-			{
++			if (healRate(false, true) < iTemp)
+ 				iValue += iTemp * (getGroup()->getNumUnits() > 4 ? 4 : 2);
+-			}
+ 			else iValue += (iTemp / 8);
+ 		}
+ 
+@@ -11050,7 +11050,7 @@ bool CvUnitAI::AI_singleUnitHeal(int iMaxTurnsExposed, int iMaxTurnsOutsideCity)
+ 		bHeal = true;
+ 	else if (!isBarbarian())
+ 	{
+-		int const iHealTurns = healTurns(plot());
++		int const iHealTurns = healTurns();
+ 		if (iHealTurns >= 20) // advc: Feature damage
+ 			return false;
+ 		if (iHealTurns <= iMaxTurnsExposed ||
+@@ -11066,7 +11066,7 @@ bool CvUnitAI::AI_singleUnitHeal(int iMaxTurnsExposed, int iMaxTurnsOutsideCity)
+ 	// <advc.306>
+ 	if (!bHeal && isBarbarian())
+ 	{
+-		int iHeal = healRate(plot());
++		int iHeal = healRate();
+ 		scaled rHealPr(2 * iHeal, getDomainType() == DOMAIN_SEA ? 35 : 45);
+ 		if (iHeal >= 5 && rHealPr.bernoulliSuccess(GC.getGame().getSRand(), "Barbarian Heal"))
+ 			bHeal = true;
+@@ -11107,8 +11107,8 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 	int iTotalHitpoints = 0;
+ 	int iHurtUnitCount = 0;
+ 	std::vector<CvUnit*> aeDamagedUnits;
+-	for (CLLNode<IDInfo> const* pEntityNode = getGroup()->headUnitNode(); pEntityNode != NULL;
+-		pEntityNode = kGroup.nextUnitNode(pEntityNode))
++	for (CLLNode<IDInfo> const* pEntityNode = getGroup()->headUnitNode();
++		pEntityNode != NULL; pEntityNode = kGroup.nextUnitNode(pEntityNode))
+ 	{
+ 		CvUnit* pLoopUnit = ::getUnit(pEntityNode->m_data);
+ 
+@@ -11122,7 +11122,8 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 		iTotalDamage += pLoopUnit->getDamage();
+ 		iTotalHitpoints += pLoopUnit->maxHitPoints();
+ 		if (pLoopUnit->getDamage() > iDamageThreshold && !pLoopUnit->hasMoved() &&
+-			!pLoopUnit->isAlwaysHeal() && pLoopUnit->healTurns(pLoopUnit->plot()) <= iMaxPath)
++			!pLoopUnit->isAlwaysHeal() &&
++			pLoopUnit->healTurns(pLoopUnit->plot()) <= iMaxPath)
+ 		{
+ 			aeDamagedUnits.push_back(pLoopUnit);
+ 		}
+@@ -11153,7 +11154,7 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 		FAssert(getGroup()->getNumUnits() > 0);
+ 		if (AI_moveIntoCity(2))
+ 			return true;
+-		if (healRate(plot()) > 10)
++		if (healRate() > 10)
+ 		{
+ 			getGroup()->pushMission(MISSION_HEAL, -1, -1, 0, false, false, MISSIONAI_HEAL);
+ 			return true;
+@@ -13838,7 +13839,7 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = 0;
+-	CvCity* pCity = getPlot().getPlotCity();
++	CvCity const* pCity = getPlot().getPlotCity();
+ 	if (pCity != NULL && pCity->getOwner() == getOwner())
+ 	{
+ 		/*int iOurStrength = GET_PLAYER(getOwner()).AI_getOurPlotStrength(plot(), 0, false, false);
+@@ -13851,15 +13852,19 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 		{
+ 			if (iOurDefence * 100 / iEnemyStrength < iStrengthThreshold)
+ 			{
+-				// K-Mod.
+-				// We should only heed to the threshold if we either we have enough defence to hold the city,
+-				// or we don't have enough attack force to wipe the enemy out.
+-				// (otherwise, we are better off attacking than defending.)
+-				if (iEnemyStrength < iOurDefence
+-					|| kOwner.AI_localAttackStrength(plot(), getTeam(), DOMAIN_LAND, 0, false, false, true)
+-					 < kOwner.AI_localDefenceStrength(plot(), NO_TEAM, DOMAIN_LAND, 2, false))
+-				// K-Mod end
++				/*	K-Mod.
++					We should only heed to the threshold if we
++					either have enough defence to hold the city,
++					or we don't have enough attack force to wipe the enemy out.
++					(otherwise, we are better off attacking than defending.) */
++				if (iEnemyStrength < iOurDefence ||
++					kOwner.AI_localAttackStrength(
++					plot(), getTeam(), DOMAIN_LAND, 0, false, false, true)
++					< kOwner.AI_localDefenceStrength(
++					plot(), NO_TEAM, DOMAIN_LAND, 2, false)) // K-Mod end
++				{
+ 					return false;
++				}
+ 			}
+ 			if (getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, getOwner(),
+ 				NO_TEAM, PUF_isDomainType, DOMAIN_LAND) // advc.001s
+@@ -21245,7 +21250,7 @@ int CvUnitAI::AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const
+ 	// adjust the odds up if the enemy is wounded. We want to attack them now before they heal.
+ 	r += iOdds * (100 - iOdds) * kDefender.getDamage() / (100 * kDefender.maxHitPoints());
+ 	// adjust the odds down if our attacker is wounded - but only if healing is viable.
+-	if (isHurt() && healRate(plot()) > 10)
++	if (isHurt() && healRate() > 10)
+ 		r -= iOdds * (100 - iOdds) * getDamage() / (100 * maxHitPoints());
+ 
+ 	// We're extra keen to take cites when we can...
+@@ -21255,13 +21260,13 @@ int CvUnitAI::AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const
+ 	return r;
+ }
+ 
+-// <advc.030>
++// advc.030:
+ /*	When moved to the header, the compiler will inline this function (even w/o the
+ 	inline keyword), but, based on a test, non-inline is faster in this case. */
+ bool CvUnitAI::AI_canEnterByLand(CvArea const& kArea) const
+ {	// Not checked (to save time): unused canMoveAllTerrain
+ 	return (isArea(kArea) || (canMoveImpassable() && canEnterArea(kArea)));
+-} // </advc.030>
++}
+ 
+ // K-Mod. A simple hash of the unit's birthmark.
+ /*	This is to be used for getting a 'random' number which depends on the unit
+
+diff --git a/CvGameCoreDLL/FAssert.h b/CvGameCoreDLL/FAssert.h
+index e5288a5bb..8b87d1793 100644
+--- a/CvGameCoreDLL/FAssert.h
++++ b/CvGameCoreDLL/FAssert.h
+@@ -86,14 +86,13 @@ bool FAssertDlg( const char*, const char*, const char*, unsigned int,
+ 		FAssertMsg(static_cast<int>(index) < static_cast<int>(upper), acOut); \
+ 	}
+ // K-Mod end
+-#else
+-// FASSERT_ENABLE not defined		advc.006c: void(0) added
++#else // FASSERT_ENABLE not defined - advc.006c: void(0) added.
+ #define FAssert(expr) (void)0
+ #define FAssertMsg(expr, msg) (void)0
+ // K-Mod:
+ #define FAssertBounds(lower,upper,index) (void)0
+-
+ #endif
+-#define FErrorMsg(msg) FAssertMsg(false, msg) // advc.006i
++
++#define FErrorMsg(msg) FAssertMsg(false, msg) // advc.006i (from C2C)
+ 
+ #endif // FASSERT_H
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=25368

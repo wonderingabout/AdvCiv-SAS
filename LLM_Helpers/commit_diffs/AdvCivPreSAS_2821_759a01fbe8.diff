@@ -1,0 +1,112 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2821
+# Commit: 759a01fbe87394875dbfcd7969f1534de5ce74cb
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f03c3059919ef71aa0b5de4abbd11aeec9db1729
+# Title: Include only workers with moves in worker cycle
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	1	CvGameCoreDLL/CvMap.cpp
+3	1	CvGameCoreDLL/CvPlayer.cpp
+14	3	CvGameCoreDLL/CvSelectionGroup.cpp
+3	2	CvGameCoreDLL/CvSelectionGroup.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index 43bebd885..4be7990e0 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -680,8 +680,12 @@ CvSelectionGroup* CvMap::findSelectionGroup(int iX, int iY, PlayerTypes eOwner,
+ 			{
+ 				continue;
+ 			}
+-			if (bWorkers && !pLoopSelectionGroup->hasWorker())
++			if (bWorkers &&
++				// advc.153: with moves
++				!pLoopSelectionGroup->hasWorkerWithMoves())
++			{
+ 				continue;
++			}
+ 			int iValue = plotDistance(iX, iY,
+ 					pLoopSelectionGroup->getX(), pLoopSelectionGroup->getY());
+ 			/*	<advc.153> Select groups where only some units are ready last
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b73592cd4..11e65e0ff 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2287,7 +2287,9 @@ CvSelectionGroup* CvPlayer::getNextGroupInCycle(CvUnit* pUnit, bool bForward,
+ 		if (pLoopSelectionGroup->readyToSelect(/* advc.153: */ true) &&
+ 			kCycledGroups.count(pSelectionGroupNode->m_data) <= 0) // K-Mod
+ 		{
+-			if (!bWorkers || pLoopSelectionGroup->hasWorker())
++			if (!bWorkers ||
++				// advc.153: with moves
++				pLoopSelectionGroup->hasWorkerWithMoves())
+ 			{
+ 				/*if (pUnit && pLoopSelectionGroup == pUnit->getGroup())
+ 					if (pbWrap != NULL) *pbWrap = true;*/
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index 4116c5d7b..97529eb54 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -2532,14 +2532,25 @@ int CvSelectionGroup::countNumUnitAIType(UnitAITypes eUnitAI) const
+ }
+ 
+ 
+-bool CvSelectionGroup::hasWorker()
++bool CvSelectionGroup::hasWorker() const
+ {
+ 	return (countNumUnitAIType(UNITAI_WORKER) > 0 ||
+-		countNumUnitAIType(UNITAI_WORKER_SEA) > 0);
++			countNumUnitAIType(UNITAI_WORKER_SEA) > 0);
++}
++
++// advc.153: Essentially replacing the above, which remains exposed to Python.
++bool CvSelectionGroup::hasWorkerWithMoves() const
++{
++	FOR_EACH_UNIT_IN(pUnit, *this)
++	{
++		if (pUnit->isWorker() && pUnit->canMove())
++			return true;
++	}
++	return false;
+ }
+ 
+ 
+-bool CvSelectionGroup::IsSelected()
++bool CvSelectionGroup::IsSelected() const
+ {
+ 	FOR_EACH_UNIT_IN(pUnit, *this)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.h b/CvGameCoreDLL/CvSelectionGroup.h
+index 16b9c2e91..9fa8689c8 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.h
++++ b/CvGameCoreDLL/CvSelectionGroup.h
+@@ -140,8 +140,9 @@ public:
+ 	bool alwaysInvisible() const;																																							// Exposed to Python
+ 	bool isInvisible(TeamTypes eTeam) const;																								// Exposed to Python
+ 	int countNumUnitAIType(UnitAITypes eUnitAI) const;																												// Exposed to Python
+-	bool hasWorker();																																										// Exposed to Python
+-	bool IsSelected();
++	bool hasWorker() const;																														// Exposed to Python
++	bool hasWorkerWithMoves() const; // advc.153
++	bool IsSelected() const;
+ 	DllExport void NotifyEntity(MissionTypes eMission);
+ 	void airCircle(bool bStart);
+ 	void setBlockading(bool bStart);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3093

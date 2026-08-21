@@ -1,0 +1,72 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3159
+# Commit: cf125d35a7b9183854827824985fb831fff61fd8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: bf30b6baa0b900770732558a000f4d3c735ba142
+# Title: Fix compilation errors in ScaledNumTest
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	5	CvGameCoreDLL/ScaledNumTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/ScaledNumTest.cpp b/CvGameCoreDLL/ScaledNumTest.cpp
+index a210cdbd7..2baa6177d 100644
+--- a/CvGameCoreDLL/ScaledNumTest.cpp
++++ b/CvGameCoreDLL/ScaledNumTest.cpp
+@@ -20,7 +20,6 @@ void TestScaledNum()
+ #ifndef SCALED_NUM_TEST
+ 	return;
+ #else
+-
+ 	// These numbers match the running example commented on in pow.
+ 	//FAssert(scaled(fixp(5.2)).pow(scaled(fixp(2.1))).round() == 32);
+ 	// The example assumes scale 1024, hence the explicit calls. */
+@@ -176,7 +175,7 @@ void TestScaledNum()
+ 				dSum += std::pow(b, 1.24);
+ 			}
+ 		}
+-		iDummy += ::round(dSum);
++		iDummy += fmath::round(dSum);
+ 	}
+ 
+ 	// Addition speed measurements
+@@ -218,7 +217,7 @@ void TestScaledNum()
+ 				z += x + j;
+ 				z -= y - j;
+ 			}
+-			iDummy += ::round(z);
++			iDummy += fmath::round(z);
+ 		}
+ 	}
+ 
+@@ -303,7 +302,7 @@ void TestScaledNum()
+ 				dCost *= GC.getInfo((EraTypes)0).getResearchPercent() / 100.;
+ 				dCost *= (GC.getDefineINT(
+ 						CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100) / 100.;
+-				int iCost = ::round(dCost) % 5;
++				int iCost = fmath::round(dCost) % 5;
+ 				dCost = range(iCost, 10, 2000);
+ 			}
+ 			iDummy += (int)dCost;
+@@ -328,7 +327,7 @@ void TestScaledNum()
+ 				fCost *= GC.getInfo((EraTypes)0).getResearchPercent() / 100.f;
+ 				fCost *= (GC.getDefineINT(
+ 						CvGlobals::TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER) + 100) / 100.f;
+-				int iCost = ::round(fCost) % 5;
++				int iCost = fmath::round(fCost) % 5;
+ 				fCost = range(iCost, 10, 2000);
+ 			}
+ 			iDummy += (int)fCost;
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1525

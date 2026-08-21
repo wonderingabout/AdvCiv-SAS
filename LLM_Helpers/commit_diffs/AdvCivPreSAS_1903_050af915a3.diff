@@ -1,0 +1,146 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1903
+# Commit: 050af915a3fea761f694c9986d4e2c0b7eb5d595
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9460039260f5d8a152616c7396607845b9ad8868
+# Title: Fix recent bug in AI team attitude; tweak OB attitude check.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+40	26	CvGameCoreDLL/CvTeamAI.cpp
+1	0	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index cbb80fa08..8fa633911 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -262,7 +262,7 @@ bool CvTeamAI::AI_deduceCitySite(const CvCity* pCity) const
+ {
+ 	PROFILE_FUNC();
+ 
+-	if (pCity->isRevealed(getID(), false))
++	if (pCity->isRevealed(getID()))
+ 		return true;
+ 
+ 	// The rule is this:
+@@ -761,7 +761,7 @@ int CvTeamAI::AI_getAttitudeVal(TeamTypes eTeam, bool bForced, bool bAssert) con
+ 		}
+ 	}
+ 	if (iCount > 0)
+-		return CvPlayerAI::AI_getAttitudeFromValue(iAttitudeVal / iCount); // bbai / K-Mod
++		return iAttitudeVal / iCount; // bbai / K-Mod
+ 	// <advc>
+ 	FAssert(!bAssert || iCount > 0); // (OK when loading from very old savegames)
+ 	// K-Mod had returned ATTITUDE_CAUTIOUS from AI_getAttitude
+@@ -3657,48 +3657,62 @@ DenialTypes CvTeamAI::AI_openBordersTrade(TeamTypes eWithTeam) const  // advc: s
+ 	if (isHuman() || isVassal(eWithTeam))
+ 		return NO_DENIAL;
+ 
+-	// advc.124: Handled later now.
+ 	/*if (AI_shareWar(eTeam))
+-		return NO_DENIAL;*/
++		return NO_DENIAL;*/ // advc.124: Handled below
+ 
+-	if (AI_getMemoryCount(eWithTeam, MEMORY_CANCELLED_OPEN_BORDERS) > 0
+-			&& !AI_shareWar(eWithTeam)) // advc.124
++	if (AI_getMemoryCount(eWithTeam, MEMORY_CANCELLED_OPEN_BORDERS) > 0 &&
++		!AI_shareWar(eWithTeam)) // advc.124
++	{
+ 		return DENIAL_RECENT_CANCEL;
+-
++	}
+ 	if (AI_getWorstEnemy() == eWithTeam)
+ 		return DENIAL_WORST_ENEMY;
+ 
+ 	int iOurAttitude = AI_getAttitude(eWithTeam);
+-	// <advc.124>
+-	bool bTheirLandRevealed = false;
+-	for(int i = 0; i < GC.getMap().numPlots(); i++)
+-	{
+-		CvPlot const& kPlot = GC.getMap().getPlotByIndex(i);
+-		if(kPlot.getTeam() == eWithTeam && kPlot.isRevealed(getID()) && !kPlot.isWater())
+-		{
+-			bTheirLandRevealed = true;
+-			break;
+-		}
+-	}
+-	if(bTheirLandRevealed && AI_shareWar(eWithTeam))
+-		iOurAttitude = std::min(NUM_ATTITUDE_TYPES - 1, iOurAttitude + 1);
+-	// </advc.124>
+-
+ 	for (MemberIter it(getID()); it.hasNext(); ++it)
+ 	{
+ 		// <advc.124>
+ 		int const iAttitudeThresh = GC.getInfo(it->getPersonalityType()).
+ 				getOpenBordersRefuseAttitudeThreshold();
+-		if(iOurAttitude <= iAttitudeThresh)
++		if (iOurAttitude < iAttitudeThresh)
+ 			return DENIAL_ATTITUDE;
+-		else if(iOurAttitude == iAttitudeThresh + 1 && !bTheirLandRevealed)
+-			return DENIAL_NO_GAIN;
+-		// </advc.124>
++		if (iOurAttitude > iAttitudeThresh + 1)
++			continue;
++		{
++			if (iOurAttitude == iAttitudeThresh &&
++				(!AI_shareWar(eWithTeam) || !isAnyLandRevealed(eWithTeam)))
++			{
++				return DENIAL_ATTITUDE;
++			}
++			if (iOurAttitude == iAttitudeThresh + 1 && !isAnyLandRevealed(eWithTeam))
++				return DENIAL_NO_GAIN;
++		} // </advc.124>
+ 	}
+ 
+ 	return NO_DENIAL;
+ }
+ 
++// advc.124:
++bool CvTeamAI::isAnyLandRevealed(TeamTypes eOwner) const
++{
++	// Check cities first in order to save time
++	for (MemberIter it(eOwner); it.hasNext(); ++it)
++	{
++		FOR_EACH_CITY(pCity, *it)
++		{
++			if (pCity->isRevealed(getID()))
++				return true;
++		}
++	}
++	for (int i = 0; i < GC.getMap().numPlots(); i++)
++	{
++		CvPlot const& kPlot = GC.getMap().getPlotByIndex(i);
++		if (kPlot.getTeam() == eOwner && kPlot.isRevealed(getID()) && !kPlot.isWater())
++			return true;
++	}
++	return false;
++}
++
+ 
+ int CvTeamAI::AI_defensivePactTradeVal(TeamTypes eTeam) const
+ {
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index 44e83fdbb..d0549d153 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -342,6 +342,7 @@ protected:
+ 	int AI_declareWarTradeValLegacy(TeamTypes eWarTeam, TeamTypes eTeam) const;
+ 	int AI_getOpenBordersAttitudeDivisor() const; // advc.130i
+ 	double AI_OpenBordersCounterIncrement(TeamTypes eOther) const; // advc.130z
++	bool isAnyLandRevealed(TeamTypes eOwner) const; // advc.124
+ 	bool AI_isPursuingCircumnavigation() const; // advc.136a
+ 	TeamTypes AI_diploVoteCounterCandidate(VoteSourceTypes eVS) const; // advc.115b
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=3903

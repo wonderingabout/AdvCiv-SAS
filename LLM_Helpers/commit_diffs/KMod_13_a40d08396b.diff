@@ -1,0 +1,370 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 13
+# Commit: a40d08396b7242fddded35d31611431f4ca69d18
+# History segment: K-Mod history
+# Parent used for diff: 22d2a730819e45494dd3e8ff9e720838a9b71085
+# Title: Changed the culture revolt (flip) mechanics. Added third optional prerequisite for promotions. Fixed a bug with global warming game-speed scaling.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	1	CvGameCoreDLL/CvCity.cpp
+17	1	CvGameCoreDLL/CvDLLWidgetData.cpp
+8	5	CvGameCoreDLL/CvGame.cpp
+1	1	CvGameCoreDLL/CvGame.h
+26	0	CvGameCoreDLL/CvInfos.cpp
+11	0	CvGameCoreDLL/CvInfos.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+18	2	CvGameCoreDLL/CvPlot.cpp
+2	2	CvGameCoreDLL/CyGame.cpp
+1	1	CvGameCoreDLL/CyGame.h
+1	1	CvGameCoreDLL/CyGameInterface.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index fd8637728..a5b342353 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -4926,7 +4926,17 @@ int CvCity::cultureStrength(PlayerTypes ePlayer) const
+ 		}
+ 	}
+ 
++/*
++** K-Mod, 7/jan/11, karadoc
++** changed so that culture strength asymptotes as the attacking culture approaches 100%
++*/
++	/* original bts code
+ 	iStrength *= std::max(0, (((GC.getDefineINT("REVOLT_TOTAL_CULTURE_MODIFIER") * (plot()->getCulture(ePlayer) - plot()->getCulture(getOwnerINLINE()) + 1)) / (plot()->getCulture(ePlayer) + 1)) + 100));
++	*/
++	iStrength *= std::max(0, (GC.getDefineINT("REVOLT_TOTAL_CULTURE_MODIFIER") * (plot()->getCulture(ePlayer) - plot()->getCulture(getOwnerINLINE()))) / (plot()->getCulture(getOwnerINLINE()) + 1) + 100);
++/*
++** K-Mod end
++*/
+ 	iStrength /= 100;
+ 
+ 	if (GET_PLAYER(ePlayer).getStateReligion() != NO_RELIGION)
+@@ -14434,6 +14444,7 @@ void CvCity::liberate(bool bConquest)
+ 		int iOldOwnerCulture = getCultureTimes100(eOwner);
+ 		int iOldMasterLand = 0;
+ 		int iOldVassalLand = 0;
++		bool bPreviouslyOwned = isEverOwned(ePlayer); // K-Mod, for use below
+ 		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isVassal(GET_PLAYER(eOwner).getTeam()))
+ 		{
+ 			iOldMasterLand = GET_TEAM(GET_PLAYER(eOwner).getTeam()).getTotalLand();
+@@ -14470,7 +14481,16 @@ void CvCity::liberate(bool bConquest)
+ 			CvCity* pCity = pPlot->getPlotCity();
+ 			if (NULL != pCity)
+ 			{
+-				pCity->setCultureTimes100(ePlayer, pCity->getCultureTimes100(ePlayer) + iOldOwnerCulture / 2, true, true);
++/*
++** K-Mod, 7/jan/11, karadoc
++** This mechanic was exploitable. Players could increase their culture indefinitely in a single turn by gifting cities backwards and forwards.
++** I've attempted to close the exploit.
++*/
++				if (!bPreviouslyOwned) // K-Mod
++					pCity->setCultureTimes100(ePlayer, pCity->getCultureTimes100(ePlayer) + iOldOwnerCulture / 2, true, true);
++/*
++** K-Mod end
++*/
+ 			}
+ 
+ 			if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAVassal())
+@@ -14558,6 +14578,7 @@ PlayerTypes CvCity::getLiberationPlayer(bool bConquest) const
+ 						|| GET_TEAM(GET_PLAYER((PlayerTypes)iPlayer).getTeam()).isVassal(getTeam()) 
+ 						|| GET_TEAM(getTeam()).isVassal(GET_PLAYER((PlayerTypes)iPlayer).getTeam()))
+ 					{
++						// K-Mod: I don't see why the total culture should be used in this way. (I haven't changed anything)
+ 						iCultureTimes100 *= 2;
+ 						iCultureTimes100 = (iCultureTimes100 + iTotalCultureTimes100) / 2;
+ 					}
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 9a14ed14e..de84631d0 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4702,7 +4702,23 @@ void CvDLLWidgetData::parseNationalityHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ 				if (iCityStrength > iGarrison)
+ 				{
+-					swprintf(szTempBuffer, L"%.2f", std::max(0.0f, (1.0f - (((float)iGarrison) / ((float)iCityStrength)))) * ((float)(std::min(100.0f, ((float)pHeadSelectedCity->getRevoltTestProbability())))));
++/*
++** K-Mod, 6/jan/11, karadoc
++** changed text to reflect changes made in CvPlot.doCulture().
++*/
++/* for reference, here are the revolt tests
++int iLeftOdds = GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++if (GC.getGameINLINE().getSorenRandNum(iLeftOdds, "Revolt #1") < pCity->getRevoltTestProbability())
++if ((GC.getGameINLINE().getSorenRandNum(iCityStrength+2*iGarrison, "Revolt #2") > 3*iGarrison) || pCity->isBarbarian())
++*/
++					// The probability is thus
++					float fRevoltProb = (float)(iCityStrength-iGarrison)/(iCityStrength+2*iGarrison) * (float)pHeadSelectedCity->getRevoltTestProbability() / GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++					/* original bts code
++					swprintf(szTempBuffer, L"%.2f", std::max(0.0f, (1.0f - (((float)iGarrison) / ((float)iCityStrength)))) * ((float)(std::min(100.0f, ((float)pHeadSelectedCity->getRevoltTestProbability())))));*/
++					swprintf(szTempBuffer, L"%.2f", 100*fRevoltProb);
++/*
++** K-Mod end
++*/
+ 					szBuffer.append(NEWLINE);
+ 					szBuffer.append(gDLL->getText("TXT_KEY_MISC_CHANCE_OF_REVOLT", szTempBuffer));
+ 				}
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 1384d1a13..afd67d48c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -3943,9 +3943,12 @@ void CvGame::changeGlobalWarmingIndex(int iChange)
+ 	setGlobalWarmingIndex(getGlobalWarmingIndex() + iChange);
+ }
+ 
+-int CvGame::getGlobalWarmingRolls() const
++int CvGame::getGlobalWarmingChances() const
+ {
+-	// TODO: make the rolls/index factor an xml parameter that depends on game speed (maybe)
++	// Note: this is the number of chances global warming has to strike in the current turn
++	// as you can see, I've scaled it by the number of turns in the game. The probability per chance is also scaled like this.
++	// I estimate that the global warming index will actually be roughly proportional to the number of turns in the game
++	// so by scaling the chances, and the probability per chance, I hope to get roughly the same number of actually events per game
+ 	return getGlobalWarmingIndex()/(getMaxTurns());
+ }
+ 
+@@ -6105,7 +6108,6 @@ void CvGame::doGlobalWarming()
+ 				CvPopupInfo* pInfo = new CvPopupInfo(BUTTONPOPUP_TEXT);
+ 				if (pInfo != NULL)
+ 				{
+-					//pInfo->setText(gDLL->getText("TXT_KEY_MISC_GLOBAL_WARMING_ACTIVE") + "\n" + gDLL->getText("TXT_KEY_POPUP_ENVIRONMENTAL_ADVISOR"));
+ 					pInfo->setText(gDLL->getText("TXT_KEY_POPUP_ENVIRONMENTAL_ADVISOR"));
+ 					gDLL->getInterfaceIFace()->addPopup(pInfo, (PlayerTypes)iI);
+ 				}
+@@ -6117,7 +6119,7 @@ void CvGame::doGlobalWarming()
+ 	/*
+ 	** Apply the effects of GW
+ 	*/
+-	int iGlobalWarmingRolls = getGlobalWarmingRolls();
++	int iGlobalWarmingRolls = getGlobalWarmingChances();
+ 
+ 	TerrainTypes eWarmingTerrain = ((TerrainTypes)(GC.getDefineINT("GLOBAL_WARMING_TERRAIN")));
+ 	TerrainTypes eFrozenTerrain = ((TerrainTypes)(GC.getDefineINT("FROZEN_TERRAIN")));
+@@ -6135,7 +6137,8 @@ void CvGame::doGlobalWarming()
+ 	for (int iI = 0; iI < iGlobalWarmingRolls; iI++)
+ 	{
+ 		// note, warming prob out of 1000, not percent.
+-		if (getSorenRandNum(1000, "Global Warming") < GC.getDefineINT("GLOBAL_WARMING_PROB"))
++		int iLeftOdds = 1000*100/GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++		if (getSorenRandNum(iLeftOdds, "Global Warming") < GC.getDefineINT("GLOBAL_WARMING_PROB"))
+ 		{
+ 			//CvPlot* pPlot = GC.getMapINLINE().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 47471e573..f4e7dcb87 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -243,7 +243,7 @@ public:
+ 	int getGlobalWarmingIndex() const;								// Exposed to Python
+ 	void setGlobalWarmingIndex(int iNewValue);
+ 	void changeGlobalWarmingIndex(int iChange);
+-	int getGlobalWarmingRolls() const;							// Exposed to Python
++	int getGlobalWarmingChances() const;							// Exposed to Python
+ 	int getGwEventTally() const;							// Exposed to Python
+ 	void setGwEventTally(int iNewValue);
+ 	void changeGwEventTally(int iChange);
+
+diff --git a/CvGameCoreDLL/CvInfos.cpp b/CvGameCoreDLL/CvInfos.cpp
+index e48f24275..ac08b7f95 100644
+--- a/CvGameCoreDLL/CvInfos.cpp
++++ b/CvGameCoreDLL/CvInfos.cpp
+@@ -1577,6 +1577,7 @@ m_iLayerAnimationPath(ANIMATIONPATH_NONE),
+ m_iPrereqPromotion(NO_PROMOTION),
+ m_iPrereqOrPromotion1(NO_PROMOTION),
+ m_iPrereqOrPromotion2(NO_PROMOTION),
++m_iPrereqOrPromotion3(NO_PROMOTION), // K-Mod
+ m_iTechPrereq(NO_TECH),
+ m_iStateReligionPrereq(NO_RELIGION),
+ m_iVisibilityChange(0),
+@@ -1682,6 +1683,21 @@ void CvPromotionInfo::setPrereqOrPromotion2(int i)
+ {
+ 	m_iPrereqOrPromotion2 = i;
+ }
++/*
++** K-Mod, 7/jan/11, karadoc
++*/
++int CvPromotionInfo::getPrereqOrPromotion3() const			
++{
++	return m_iPrereqOrPromotion3;
++}
++
++void CvPromotionInfo::setPrereqOrPromotion3(int i)				
++{
++	m_iPrereqOrPromotion3 = i;
++}
++/*
++** K-Mod end
++*/
+ 
+ int CvPromotionInfo::getTechPrereq() const	
+ {
+@@ -1969,6 +1985,7 @@ void CvPromotionInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iPrereqPromotion);
+ 	stream->Read(&m_iPrereqOrPromotion1);
+ 	stream->Read(&m_iPrereqOrPromotion2);
++	stream->Read(&m_iPrereqOrPromotion3); // K-Mod
+ 
+ 	stream->Read(&m_iTechPrereq);							
+ 	stream->Read(&m_iStateReligionPrereq);							
+@@ -2063,6 +2080,7 @@ void CvPromotionInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iPrereqPromotion);
+ 	stream->Write(m_iPrereqOrPromotion1);
+ 	stream->Write(m_iPrereqOrPromotion2);
++	stream->Write(m_iPrereqOrPromotion3); // K-Mod
+ 
+ 	stream->Write(m_iTechPrereq);							
+ 	stream->Write(m_iStateReligionPrereq);							
+@@ -2205,6 +2223,14 @@ bool CvPromotionInfo::readPass2(CvXMLLoadUtility* pXML)
+ 	m_iPrereqOrPromotion1 = GC.getInfoTypeForString(szTextVal);
+ 	pXML->GetChildXmlValByName(szTextVal, "PromotionPrereqOr2");
+ 	m_iPrereqOrPromotion2 = GC.getInfoTypeForString(szTextVal);
++/*
++** K-Mod, 7/jan/11, karadoc
++*/
++	pXML->GetChildXmlValByName(szTextVal, "PromotionPrereqOr3");
++	m_iPrereqOrPromotion3 = GC.getInfoTypeForString(szTextVal);
++/*
++** K-Mod end
++*/
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfos.h b/CvGameCoreDLL/CvInfos.h
+index 4564dc15e..e3f914bde 100644
+--- a/CvGameCoreDLL/CvInfos.h
++++ b/CvGameCoreDLL/CvInfos.h
+@@ -447,6 +447,16 @@ public:
+ 	void setPrereqOrPromotion1(int i);				// Exposed to Python
+ 	int getPrereqOrPromotion2() const;				// Exposed to Python
+ 	void setPrereqOrPromotion2(int i);				// Exposed to Python
++/*
++** K-Mod, 7/jan/11, karadoc
++** note: these functions are not 'exposed to python'
++** and despite what the above comments say, the 'set' functions for prereqs 1 and 2 aren't either!
++*/
++	int getPrereqOrPromotion3() const;
++	void setPrereqOrPromotion3(int i);
++/*
++** K-Mod end
++*/
+ 
+ 	int getTechPrereq() const;				// Exposed to Python
+ 	int getStateReligionPrereq() const;				// Exposed to Python
+@@ -521,6 +531,7 @@ protected:
+ 	int m_iPrereqPromotion;
+ 	int m_iPrereqOrPromotion1;
+ 	int m_iPrereqOrPromotion2;
++	int m_iPrereqOrPromotion3; // K-Mod
+ 
+ 	int m_iTechPrereq;							
+ 	int m_iStateReligionPrereq;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index b3c4ebaf7..fc0913f43 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -7266,7 +7266,7 @@ int CvPlayer::calculateGwPercentAnger() const
+ 	int iGlobalPollution = GC.getGameINLINE().calculateGlobalPollution();
+ 
+ 	// Note: watch out for integer overflow and rounding errors.
+-	int iGwSeverityRating = 100-100000/(1000+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (4*GC.getMapINLINE().getLandPlots())));
++	int iGwSeverityRating = 100-100000/(1000+(GC.getDefineINT("GLOBAL_WARMING_PROB") * GC.getGameINLINE().getGlobalWarmingIndex() / (4*GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent()*GC.getMapINLINE().getLandPlots())));
+ 	// a = 1000/4
+ 
+ 	int iResponsibilityFactor =	100*calculatePollution();
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index 7fdd701cd..cbbaa62bd 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -8699,12 +8699,28 @@ void CvPlot::doCulture()
+ 			{
+ 				if (!(pCity->isOccupation()))
+ 				{
+-					if (GC.getGameINLINE().getSorenRandNum(100, "Revolt #1") < pCity->getRevoltTestProbability())
++/*
++** K-Mod, 6/jan/11, karadoc
++** Introduced gamespeed scaling to the first revolt test
++** changed the second revolt test so that small garrisons have a relatively bigger effect
++** (but I've also changed cultureStrength() so that it can be asymptotically large)
++*/
++					/* original bts code
++					if (GC.getGameINLINE().getSorenRandNum(100, "Revolt #1") < pCity->getRevoltTestProbability()) */
++					int iLeftOdds = GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getVictoryDelayPercent();
++					if (GC.getGameINLINE().getSorenRandNum(iLeftOdds, "Revolt #1") < pCity->getRevoltTestProbability())
++// K-Mod end (1 / 2)
+ 					{
+ 						iCityStrength = pCity->cultureStrength(eCulturalOwner);
+ 						iGarrison = pCity->cultureGarrison(eCulturalOwner);
+ 
+-						if ((GC.getGameINLINE().getSorenRandNum(iCityStrength, "Revolt #2") > iGarrison) || pCity->isBarbarian())
++						/* original bts code
++						if ((GC.getGameINLINE().getSorenRandNum(iCityStrength, "Revolt #2") > iGarrison) || pCity->isBarbarian())*/
++						// Note: Pr( [0, S+2G] > 3G) = (S-G)/(S+2*G).   c.f. (S-G)/S
++						if ((GC.getGameINLINE().getSorenRandNum(iCityStrength+2*iGarrison, "Revolt #2") > 3*iGarrison) || pCity->isBarbarian())
++/*
++** K-Mod end (2 / 2)
++*/
+ 						{
+ 							CLinkList<IDInfo> oldUnits;
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 41a8363e6..6c83c97de 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -554,9 +554,9 @@ int CyGame::getGlobalWarmingIndex() const
+ 	return (NULL != m_pGame ? m_pGame->getGlobalWarmingIndex() : 0);
+ }
+ 
+-int CyGame::getGlobalWarmingRolls() const
++int CyGame::getGlobalWarmingChances() const
+ {
+-	return (NULL != m_pGame ? m_pGame->getGlobalWarmingRolls() : 0);
++	return (NULL != m_pGame ? m_pGame->getGlobalWarmingChances() : 0);
+ }
+ 
+ int CyGame::getGwEventTally() const
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 5d1cc8b44..9df2cf132 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -142,7 +142,7 @@ public:
+ 	void setAIAutoPlay(int iNewValue);
+ 
+ 	int getGlobalWarmingIndex() const;	// K-Mod
+-	int getGlobalWarmingRolls() const;	// K-Mod
++	int getGlobalWarmingChances() const;	// K-Mod
+ 	int getGwEventTally() const;		// K-Mod
+ 	int calculateGlobalPollution() const; // K-Mod
+ 	int calculateGwLandDefence(int /* PlayerTypes */ ePlayer) const; // K-Mod
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 22d3eb7a9..2e7b52988 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -131,7 +131,7 @@ void CyGamePythonInterface()
+ 		.def("setAIAutoPlay", &CyGame::setAIAutoPlay)
+ 
+ 		.def("getGlobalWarmingIndex", &CyGame::getGlobalWarmingIndex)	// K-Mod
+-		.def("getGlobalWarmingRolls", &CyGame::getGlobalWarmingRolls)	// K-Mod
++		.def("getGlobalWarmingChances", &CyGame::getGlobalWarmingChances)	// K-Mod
+ 		.def("getGwEventTally", &CyGame::getGwEventTally)				// K-Mod
+ 		.def("calculateGlobalPollution", &CyGame::calculateGlobalPollution) // K-Mod
+ 		.def("calculateGwLandDefence", &CyGame::calculateGwLandDefence)	// K-Mod
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=14532

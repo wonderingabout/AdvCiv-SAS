@@ -1,0 +1,546 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2565
+# Commit: d4e2d2976df66398c8a38422a398530fea7fc3c8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b4694abe3c162305e47124543506765d58e542f6
+# Title: Turn some private static functions into free functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+22	19	CvGameCoreDLL/CvCity.cpp
+0	5	CvGameCoreDLL/CvCity.h
+33	31	CvGameCoreDLL/CvDeal.cpp
+2	5	CvGameCoreDLL/CvDeal.h
+12	8	CvGameCoreDLL/CvPlayer.cpp
+0	1	CvGameCoreDLL/CvPlayer.h
+67	62	CvGameCoreDLL/CvPlayerAI.cpp
+1	5	CvGameCoreDLL/CvPlayerAI.h
+7	0	CvGameCoreDLL/InvasionGraph.cpp
+0	3	CvGameCoreDLL/InvasionGraph.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 58f875fde..32ac6f041 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -5484,6 +5484,28 @@ void CvCity::updateExtraBuildingHappiness()
+ 
+ /*  BETTER_BTS_AI_MOD, City AI, 02/24/10, EmperorFool: START
+ 	(BUG - Building Additional Happiness) */
++namespace // advc: These were declared as global functions in the header
++{
++	// advc: Turn these two into CvCity members for now as they're only used by CvCity
++	// Adds iValue to iGood if it is positive or its negative to iBad if it is negative.
++	void addGoodOrBad(int iValue, int& iGood, int& iBad)
++	{
++		if (iValue > 0)
++			iGood += iValue;
++		else if (iValue < 0)
++			iBad -= iValue;
++	}
++
++	// Subtracts iValue from iGood if it is positive or its negative from iBad if it is negative.
++	void subtractGoodOrBad(int iValue, int& iGood, int& iBad)
++	{
++		if (iValue > 0)
++			iGood -= iValue;
++		else if (iValue < 0)
++			iBad += iValue;
++	}
++}
++
+ /*	Returns the total additional happiness that adding one of the given buildings
+ 	will provide and sets the good and bad levels individually.
+ 	Doesn't reset iGood or iBad to zero.
+@@ -5680,25 +5702,6 @@ int CvCity::getAdditionalHealthByBuilding(BuildingTypes eBuilding, int& iGood, i
+ 	// K-Mod end
+ 	return iGood - iBad - iStarting;
+ }
+-
+-// advc: Turn these two into CvCity members for now as they're only used by CvCity
+-// Adds iValue to iGood if it is positive or its negative to iBad if it is negative.
+-void CvCity::addGoodOrBad(int iValue, int& iGood, int& iBad)
+-{
+-	if (iValue > 0)
+-		iGood += iValue;
+-	else if (iValue < 0)
+-		iBad -= iValue;
+-}
+-
+-// Subtracts iValue from iGood if it is positive or its negative from iBad if it is negative.
+-void CvCity::subtractGoodOrBad(int iValue, int& iGood, int& iBad)
+-{
+-	if (iValue > 0)
+-		iGood -= iValue;
+-	else if (iValue < 0)
+-		iBad += iValue;
+-}
+ // BETTER_BTS_AI_MOD: END
+ 
+ void CvCity::updateExtraBuildingHealth()
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 9345156fc..1a4de4681 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1534,11 +1534,6 @@ protected:
+ 	void doPopOrder(CLLNode<OrderData>* pOrder); // advc.064d
+ 	// advc.901:
+ 	std::pair<int,int> calculateSurroundingHealth(int iExtraGoodPercent = 0, int iExtraBadPercent = 0) const;
+-	// BETTER_BTS_AI_MOD (from BUG), 02/24/10, EmperorFool: START
+-		// advc: These were declared outside of CvCity (global)
+-	static void addGoodOrBad(int iValue, int& iGood, int& iBad);
+-	static void subtractGoodOrBad(int iValue, int& iGood, int& iBad);
+-	// BETTER_BTS_AI_MOD: END
+ };
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 5c2e91f6e..1515ae171 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -1024,6 +1024,39 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 	return bSave;
+ }
+ 
++// advc.130p: Cut from CvDeal::endTrade
++namespace
++{
++	void addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
++		TradeableItems eItemType)
++	{
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++)
++		{
++			PlayerTypes eToTeamMember = (PlayerTypes)i;
++			if(!GET_PLAYER(eToTeamMember).isAlive() ||
++				TEAMID(eToTeamMember) != TEAMID(eToPlayer))
++			{
++				continue;
++			}
++			for(int j = 0; j < MAX_CIV_PLAYERS; j++)
++			{
++				PlayerTypes eFromTeamMember = (PlayerTypes)j;
++				if(!GET_PLAYER(eFromTeamMember).isAlive() ||
++					TEAMID(eFromTeamMember) != TEAMID(eFromPlayer))
++				{
++					continue;
++				}
++				MemoryTypes eMemory = MEMORY_CANCELLED_OPEN_BORDERS;
++				if(eItemType == TRADE_DEFENSIVE_PACT)
++					eMemory = MEMORY_CANCELLED_DEFENSIVE_PACT;
++				else if(eItemType == TRADE_VASSAL)
++					eMemory = MEMORY_CANCELLED_VASSAL_AGREEMENT;
++				// advc.130j:
++				GET_PLAYER(eToTeamMember).AI_setMemoryCount(eFromTeamMember, eMemory, 2);
++			}
++		}
++	}
++}
+ 
+ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,  // advc: refactored
+ 	PlayerTypes eToPlayer, bool bTeam, /* advc.036: */ bool bUpdateAttitude,
+@@ -1140,37 +1173,6 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer,  // advc: refact
+ 	// </advc.133>
+ }
+ 
+-// advc.130p: Cut from CvDeal::endTrade
+-void CvDeal::addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+-		TradeableItems eItemType)
+-{
+-	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+-	{
+-		PlayerTypes eToTeamMember = (PlayerTypes)i;
+-		if(!GET_PLAYER(eToTeamMember).isAlive() ||
+-			TEAMID(eToTeamMember) != TEAMID(eToPlayer))
+-		{
+-			continue;
+-		}
+-		for(int j = 0; j < MAX_CIV_PLAYERS; j++)
+-		{
+-			PlayerTypes eFromTeamMember = (PlayerTypes)j;
+-			if(!GET_PLAYER(eFromTeamMember).isAlive() ||
+-				TEAMID(eFromTeamMember) != TEAMID(eFromPlayer))
+-			{
+-				continue;
+-			}
+-			MemoryTypes eMemory = MEMORY_CANCELLED_OPEN_BORDERS;
+-			if(eItemType == TRADE_DEFENSIVE_PACT)
+-				eMemory = MEMORY_CANCELLED_DEFENSIVE_PACT;
+-			else if(eItemType == TRADE_VASSAL)
+-				eMemory = MEMORY_CANCELLED_VASSAL_AGREEMENT;
+-			// advc.130j:
+-			GET_PLAYER(eToTeamMember).AI_setMemoryCount(eFromTeamMember, eMemory, 2);
+-		}
+-	}
+-}
+-
+ 
+ void CvDeal::startTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam, bool bDual)
+ {
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index e115b6d71..d7d58ed8c 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -34,6 +34,8 @@ public:
+ 	bool isPeaceDeal() const;
+ 	// advc.130p: BtS function; now unused.
+ 	//bool isPeaceDealBetweenOthers(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList) const;
++	// advc: Made public; could be useful elsewhere.
++	static bool isVassalTrade(CLinkList<TradeData> const& kList);
+ 	bool isVassalDeal() const;
+ 	DllExport static bool isVassalTributeDeal(const CLinkList<TradeData>* pList);
+ 	/*  advc: The above checks if pList contains only TRADE_RESSOURCE items;
+@@ -141,9 +143,6 @@ protected:
+ 	void endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bTeam,
+ 			bool bUpdateAttitude = true, // advc.036
+ 			PlayerTypes eCancelPlayer = NO_PLAYER); // advc.130p
+-	// <advc.130p>
+-	static void addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+-			TradeableItems eItemType); // </advc.130p>
+ 	void startTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam, bool bDual);
+ 	void endTeamTrade(TradeableItems eItem, TeamTypes eFromTeam, TeamTypes eToTeam);
+ 	void announceCancel(PlayerTypes eMsgTarget, PlayerTypes eOther, // advc
+@@ -153,8 +152,6 @@ protected:
+ 	// advc: was public
+ 	bool isUncancelableVassalDeal(PlayerTypes eByPlayer, CvWString* pszReason = NULL) const;
+ 
+-	static bool isVassalTrade(CLinkList<TradeData> const& kList);
+-
+ 	int m_iID;
+ 	int m_iInitialGameTurn;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 14b43a0f4..b8b8fcf74 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -12884,6 +12884,18 @@ void CvPlayer::doAdvancedStartAction(AdvancedStartActionTypes eAction, int iX, i
+ 	}
+ }
+ 
++/*	advc.250c: (Should perhaps be moved to CvGame;
++	though it's more convenient to use as it is) */
++namespace
++{
++	int adjustAdvStartPtsToSpeed(int iPoints)
++	{
++		iPoints *= 100;
++		return std::max(0, iPoints / GC.getInfo(GC.getGame().getGameSpeedType()).
++				getGrowthPercent());
++	}
++}
++
+ // Adding or removing a unit
+ int CvPlayer::getAdvancedStartUnitCost(UnitTypes eUnit, bool bAdd, CvPlot const* pPlot) const
+ {
+@@ -13595,14 +13607,6 @@ int CvPlayer::getAdvancedStartVisibilityCost(bool bAdd, CvPlot const* pPlot) con
+ 	return adjustAdvStartPtsToSpeed(iCost); // advc.250c
+ }
+ 
+-// advc.250c: Should arguably be at CvGame, but more convenient to use at CvPlayer.
+-int CvPlayer::adjustAdvStartPtsToSpeed(int iPoints)
+-{
+-	iPoints *= 100;
+-	return std::max(0, iPoints / GC.getInfo(GC.getGame().getGameSpeedType()).
+-			getGrowthPercent());
+-}
+-
+ 
+ void CvPlayer::doWarnings()
+ {
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 359c5ff1f..3531f78c4 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1658,7 +1658,6 @@ protected:  // <advc.210>
+ 	void addGoodyMsg(CvWString s, CvPlot const& p, TCHAR const* sound);
+ 	void promoteFreeUnit(CvUnit& u, scaled pr);
+ 	// </advc.314>
+-	static int adjustAdvStartPtsToSpeed(int iPoints); // advc.250c
+ 	bool canSeeIntel(PlayerTypes ePlayer, bool bDemographics,
+ 			bool bCheckPoints = true) const; // advc.085
+ 	// advc.120f:
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9c3f7484e..b3e33214c 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7593,7 +7593,9 @@ int CvPlayerAI::AI_getFavoriteCivicAttitude(PlayerTypes ePlayer) const
+ 	return iAttitude;
+ }
+ 
+-// <advc.130p> No BtS code left here
++// <advc.130p>
++namespace { int const PEACETIME_TRADE_RELATIONS_LIMIT = 4; }
++// No BtS code left here
+ int CvPlayerAI::AI_getTradeAttitude(PlayerTypes ePlayer) const
+ {
+ 	scaled r = AI_getPeacetimeGrantValue(ePlayer);
+@@ -8764,33 +8766,71 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const&
+ 	return iValue;
+ }
+ 
+-
+-bool CvPlayerAI::AI_goldDeal(CLinkList<TradeData> const& kList) // advc: Take the list as a reference
++/*	advc: Was a public static member function AI_goldDeal,
++	but it's not really AI code (apart from the assertion I guess).
++	Since it's only used locally, let's just say: */
++namespace
+ {
+-	for (CLLNode<TradeData> const* pNode = kList.head(); pNode != NULL;
+-		pNode = kList.next(pNode))
++	bool goldDeal(CLinkList<TradeData> const& kList)
+ 	{
+-		FAssert(!pNode->m_data.m_bHidden);
+-		// advc: (redundant switch statement deleted)
+-		if (CvDeal::isGold(pNode->m_data.m_eItemType))
+-			return true;
++		for (CLLNode<TradeData> const* pNode = kList.head(); pNode != NULL;
++			pNode = kList.next(pNode))
++		{
++			FAssert(!pNode->m_data.m_bHidden);
++			// advc: (redundant switch statement deleted)
++			if (CvDeal::isGold(pNode->m_data.m_eItemType))
++				return true;
++		}
++		return false;
+ 	}
+-	return false;
+-}
+-
+-// advc.705:
+-bool CvPlayerAI::isAnnualDeal(CLinkList<TradeData> const& itemList)
+-{
+-	for(CLLNode<TradeData> const* pNode = itemList.head(); pNode != NULL;
+-		pNode = itemList.next(pNode))
++	// advc.705:
++	bool annualDeal(CLinkList<TradeData> const& itemList)
++	{
++		for(CLLNode<TradeData> const* pNode = itemList.head(); pNode != NULL;
++			pNode = itemList.next(pNode))
++		{
++			if(!CvDeal::isAnnual(pNode->m_data.m_eItemType))
++				return false;
++		}
++		return true;
++	}
++	// advc.ctr: True iff both players liberate a city
++	bool isLiberationTrade(PlayerTypes eFirst, PlayerTypes eSecond,
++		CLinkList<TradeData> const& kFirstGives, CLinkList<TradeData> const& kSecondGives)
+ 	{
+-		if(!CvDeal::isAnnual(pNode->m_data.m_eItemType))
++		bool bWeLiberate = false;
++		for (CLLNode<TradeData> const* pNode = kFirstGives.head(); pNode != NULL;
++			pNode = kFirstGives.next(pNode))
++		{
++			TradeData data = pNode->m_data;
++			if (data.m_eItemType == TRADE_CITIES)
++			{
++				CvCity const* pCity = GET_PLAYER(eFirst).getCity(data.m_iData);
++				if (pCity != NULL && pCity->getLiberationPlayer() == eSecond)
++				{
++					bWeLiberate = true;
++					break;
++				}
++			}
++		}
++		if (!bWeLiberate)
+ 			return false;
++		for (CLLNode<TradeData> const* pNode = kSecondGives.head(); pNode != NULL;
++			pNode = kSecondGives.next(pNode))
++		{
++			TradeData data = pNode->m_data;
++			if (data.m_eItemType == TRADE_CITIES)
++			{
++				CvCity const* pCity = GET_PLAYER(eSecond).getCity(data.m_iData);
++				if (pCity != NULL && pCity->getLiberationPlayer() == eFirst)
++					return true;
++			}
++		}
++		return false;
+ 	}
+-	return true;
+ }
+ 
+-///*	In this function the AI considers whether or not to accept another player's proposal.
++/*	In this function the AI considers whether or not to accept another player's proposal.
+ 	This is used when considering proposals from the human player made in the
+ 	diplomacy window as well as a couple of other places. */
+ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+@@ -8804,8 +8844,8 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 	bool bHuman = kPlayer.isHuman();
+ 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
+ 
+-	bool const bOurGoldDeal = AI_goldDeal(kWeGive);
+-	if (AI_goldDeal(kTheyGive) && bOurGoldDeal)
++	bool const bOurGoldDeal = goldDeal(kWeGive);
++	if (goldDeal(kTheyGive) && bOurGoldDeal)
+ 		return false;
+ 
+ 	if (iChange > -1)
+@@ -9124,7 +9164,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 	{
+ 		if (bPossibleCollusion)
+ 		{
+-			double thresh = kGame.getRiseFall().dealThresh(isAnnualDeal(kWeGive));
++			double thresh = kGame.getRiseFall().dealThresh(annualDeal(kWeGive));
+ 			if (iChange < 0)
+ 				thresh = std::min(thresh, std::max(0.4, thresh - 0.15));
+ 			if (iPessimisticVal / (iWeReceive + 0.01) < thresh)
+@@ -9184,7 +9224,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 		/*  NB: bVassalTrade is currently only true if ePlayer offers to become
+ 			a vassal, not when this player considers becoming a vassal. (fixme?) */
+ 		!bVassalTrade && !kOurTeam.isAtWar(kPlayer.getTeam()) &&
+-		!AI_goldDeal(kTheyGive) && (kTheyGive.getLength() <= 0 ||
++		!goldDeal(kTheyGive) && (kTheyGive.getLength() <= 0 ||
+ 		!CvDeal::isDual(kTheyGive.head()->m_data.m_eItemType)))
+ 	{
+ 		return false;
+@@ -9204,41 +9244,6 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer,
+ 	return false;
+ }
+ 
+-// advc.ctr: True iff both players liberate a city
+-bool CvPlayerAI::isLiberationTrade(PlayerTypes eFirst, PlayerTypes eSecond,
+-	CLinkList<TradeData> const& kFirstGives, CLinkList<TradeData> const& kSecondGives)
+-{
+-	bool bWeLiberate = false;
+-	for (CLLNode<TradeData> const* pNode = kFirstGives.head(); pNode != NULL;
+-		pNode = kFirstGives.next(pNode))
+-	{
+-		TradeData data = pNode->m_data;
+-		if (data.m_eItemType == TRADE_CITIES)
+-		{
+-			CvCity const* pCity = GET_PLAYER(eFirst).getCity(data.m_iData);
+-			if (pCity != NULL && pCity->getLiberationPlayer() == eSecond)
+-			{
+-				bWeLiberate = true;
+-				break;
+-			}
+-		}
+-	}
+-	if (!bWeLiberate)
+-		return false;
+-	for (CLLNode<TradeData> const* pNode = kSecondGives.head(); pNode != NULL;
+-		pNode = kSecondGives.next(pNode))
+-	{
+-		TradeData data = pNode->m_data;
+-		if (data.m_eItemType == TRADE_CITIES)
+-		{
+-			CvCity const* pCity = GET_PLAYER(eSecond).getCity(data.m_iData);
+-			if (pCity != NULL && pCity->getLiberationPlayer() == eFirst)
+-				return true;
+-		}
+-	}
+-	return false;
+-}
+-
+ 
+ scaled CvPlayerAI::AI_prDenyHelp() const
+ {
+@@ -9263,8 +9268,8 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
+ 	scaled rLeniency) const // advc.705: Applied to everything that's added to iValueForThem
+ {
+ 	PROFILE_FUNC(); // advc.opt
+-	bool bTheyGiveGold = AI_goldDeal(kTheyGive);
+-	bool bWeGiveGold = AI_goldDeal(kWeGive);
++	bool bTheyGiveGold = goldDeal(kTheyGive);
++	bool bWeGiveGold = goldDeal(kWeGive);
+ 	if (bWeGiveGold && bTheyGiveGold)
+ 		return false;
+ 	/*  <advc.036> Check trade denial. Should only be needed when renegotiating
+@@ -9507,7 +9512,7 @@ bool CvPlayerAI::AI_counterPropose(PlayerTypes ePlayer,
+ 		{
+ 			CLinkList<TradeData> const& kWeGiveTotal = (kWeGive.getLength() <= 0 ?
+ 					kWeAlsoGive : kWeGive);
+-			double thresh = kGame.getRiseFall().dealThresh(isAnnualDeal(kWeGiveTotal));
++			double thresh = kGame.getRiseFall().dealThresh(annualDeal(kWeGiveTotal));
+ 			if(bDeal && kGame.getRiseFall().pessimisticDealVal(getID(), iTheyReceive,
+ 				kWeGiveTotal) / (iWeReceive + 0.01) < thresh)
+ 			{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index d00bed1bb..606ae9e81 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -241,6 +241,7 @@ public:
+ 			bool bIgnorePeace = false, // advc.130p  <advc.ctr>
+ 			bool bCountLiberation = false, bool bAIRequest = false,
+ 			bool bDiploVal = false) const; // </advc.ctr>
++	//bool AI_goldDeal(CLinkList<TradeData> const* pList) const; // advc: See goldDeal in implementation file
+ 	bool AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> const& kTheyGive,
+ 			CLinkList<TradeData> const& kWeGive, int iChange = 1, /* advc.133: */ int iDealAge = 0,
+ 			// <advc.130o> May change diplo memory if true; const qualifier removed.
+@@ -792,7 +793,6 @@ protected:
+ 	scaled AI_peacetimeTradeMultiplier(PlayerTypes eOtherPlayer,
+ 			TeamTypes eOtherTeam = NO_TEAM) const;
+ 	int AI_peacetimeTradeValDivisor(bool bRival) const;
+-	static int const PEACETIME_TRADE_RELATIONS_LIMIT = 4;
+ 	/*  The change-value functions (now called 'process', e.g. AI_processPeacetimeValue)
+ 		apply adjustments and have a side-effect on EnemyTrade and EnemyGrant values.
+ 		These here are simple setters. */
+@@ -832,8 +832,6 @@ protected:
+ 	// <advc.ctr>
+ 	AttitudeTypes AI_cityTradeAttitudeThresh(CvCity const& kCity, PlayerTypes eToPlayer, bool bLiberate) const;
+ 	scaled AI_peaceTreatyAversion(TeamTypes eTarget) const;
+-	static bool isLiberationTrade(PlayerTypes eFirst, PlayerTypes eSecond,
+-			CLinkList<TradeData> const& kFirstGives, CLinkList<TradeData> const& kSecondGives);
+ 	// </advc.ctr>
+ 	enum CancelCode { NO_CANCEL = -1, RENEGOTIATE, DO_CANCEL };
+ 	CancelCode AI_checkCancel(CvDeal const& d, PlayerTypes ePlayer);
+@@ -856,8 +854,6 @@ protected:
+ 	void AI_foldDeals(CvDeal& d1, CvDeal& d2) const; // </advc.036>
+ 	double AI_bonusImportValue(PlayerTypes eFrom) const; // advc.149
+ 	int AI_anarchyTradeVal(CivicTypes eCivic = NO_CIVIC) const; // advc.132
+-	static bool AI_goldDeal(CLinkList<TradeData> const& kList); // advc: static, protected
+-	static bool isAnnualDeal(CLinkList<TradeData> const& itemList); // advc.705
+ 
+ 	void AI_updateCacheData(); // K-Mod
+ 	int AI_calculateEspionageWeight() const; // advc.001
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 119d51e59..baca12352 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -16,6 +16,13 @@ using std::vector;
+ using std::string;
+ 
+ 
++namespace {
++	inline double powerCorrect(double multiplier) {
++		 return std::pow(multiplier, (double)GC.getPOWER_CORRECTION());
++	}
++}
++
++
+ InvasionGraph::InvasionGraph(MilitaryAnalyst& m, PlyrSet const& warParties,
+ 		bool peaceScenario) :
+ 		m(m), warParties(warParties),
+
+diff --git a/CvGameCoreDLL/InvasionGraph.h b/CvGameCoreDLL/InvasionGraph.h
+index 4ebb4ce87..f9002d3d4 100644
+--- a/CvGameCoreDLL/InvasionGraph.h
++++ b/CvGameCoreDLL/InvasionGraph.h
+@@ -146,9 +146,6 @@ friend class Node;
+ 		 Node* primaryTarget;
+ 		 PlyrSet targetedBy;
+ 
+-		 static double powerCorrect(double multiplier) {
+-			 return std::pow(multiplier, (double)GC.getPOWER_CORRECTION());
+-		 }
+ 		// Remaining production capacity after losses
+ 		double productionPortion() const;
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=18741

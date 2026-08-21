@@ -61,20 +61,11 @@ public:
 	void Read(FDataStreamBase* pStream);
 	void Write(FDataStreamBase* pStream) const;
 
-	int getLength() const
-	{
-		return m_iLength;
-	}
+	int getLength() const { return m_iLength; }
 
-	CLLNode<tVARTYPE>* head() const
-	{
-		return m_pHead;
-	}
+	CLLNode<tVARTYPE>* head() const { return m_pHead; }
 
-	CLLNode<tVARTYPE>* tail() const
-	{
-		return m_pTail;
-	}
+	CLLNode<tVARTYPE>* tail() const { return m_pTail; }
 
 protected:
 	int m_iLength;
@@ -221,9 +212,8 @@ void CLinkList<tVARTYPE>::insertAfter(const tVARTYPE& val, CLLNode<tVARTYPE>* pT
 
 
 template <class tVARTYPE>
-CLLNode<tVARTYPE>* CLinkList<tVARTYPE>::deleteNode(
-	// advc: Take a reference so that we can set the caller's pointer to NULL
-	CLLNode<tVARTYPE>*& pNode)
+// advc: Take a reference so that we can set the caller's pointer to NULL <!-- custom: hoisted from multiline signature before `pNode` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+CLLNode<tVARTYPE>* CLinkList<tVARTYPE>::deleteNode(CLLNode<tVARTYPE>*& pNode)
 {
 	CLLNode<tVARTYPE>* pPrevNode = pNode->m_pPrev;
 	CLLNode<tVARTYPE>* pNextNode = pNode->m_pNext;
@@ -249,7 +239,7 @@ CLLNode<tVARTYPE>* CLinkList<tVARTYPE>::deleteNode(
 	}
 	delete pNode;
 	pNode = NULL;
-	
+
 	m_iLength--;
 	return pNextNode;
 }

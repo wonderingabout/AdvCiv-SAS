@@ -1,0 +1,190 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5876
+# Commit: 9c8ec3e4020f015378b62dda9afdf9b9d31dac68
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 172f280d90e1b5741b8eee20bffe1dcc0254c6a8
+# Title: fix ruff E701 - pass 8
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	PrivateMaps/Archipelago.py
+4	2	PrivateMaps/BTG_Cross.py
+4	2	PrivateMaps/BTG_Grid.py
+2	1	PrivateMaps/Equal_Islands_V2_beta.py
+4	2	PrivateMaps/Great_Plains.py
+2	1	PrivateMaps/Islands.py
+4	2	PrivateMaps/Oasis.py
+2	1	PrivateMaps/Rainforest.py
+
+[PATCHES]
+
+diff --git a/PrivateMaps/Archipelago.py b/PrivateMaps/Archipelago.py
+index bc0a6e6e8..bb7bead5e 100644
+--- a/PrivateMaps/Archipelago.py
++++ b/PrivateMaps/Archipelago.py
+@@ -573,7 +573,8 @@ def assignStartingPlots():
+ 					# Regional start plot assignment has failed. Reverting to default.
+ 					CyPythonMgr().allowDefaultImpl()
+ 					return
+-			else: break # This player has been assigned a start plot.
++			else:
++				break # This player has been assigned a start plot.
+ 			
+ 	#print plot_assignments
+ 	#print "..."
+
+diff --git a/PrivateMaps/BTG_Cross.py b/PrivateMaps/BTG_Cross.py
+index 4eba0d43f..691879845 100644
+--- a/PrivateMaps/BTG_Cross.py
++++ b/PrivateMaps/BTG_Cross.py
+@@ -1006,7 +1006,8 @@ def assignStartingPlots():
+ 							# Regional start plot assignment has failed. Reverting to default.
+ 							CyPythonMgr().allowDefaultImpl()
+ 							return
+-					else: break # This player has been assigned a start plot.
++					else:
++						break # This player has been assigned a start plot.
+ 				
+ 		# Successfully assigned start plots, continue back to C++
+ 		return None
+@@ -1156,7 +1157,8 @@ def assignStartingPlots():
+ 								# Regional start plot assignment has failed. Reverting to default.
+ 								CyPythonMgr().allowDefaultImpl()
+ 								return
+-					else: break # This player has been assigned a start plot.
++					else:
++						break # This player has been assigned a start plot.
+ 			
+ 			else :
+ 				sPlot = map.plot(wX + dX, sY + dY)
+
+diff --git a/PrivateMaps/BTG_Grid.py b/PrivateMaps/BTG_Grid.py
+index 1248bac0b..9bd6ee53f 100644
+--- a/PrivateMaps/BTG_Grid.py
++++ b/PrivateMaps/BTG_Grid.py
+@@ -1174,7 +1174,8 @@ def assignStartingPlots():
+ 						# Regional start plot assignment has failed. Reverting to default.
+ 						CyPythonMgr().allowDefaultImpl()
+ 						return
+-				else: break # This player has been assigned a start plot.
++				else:
++					break # This player has been assigned a start plot.
+ 				
+ 		# Successfully assigned start plots, continue back to C++
+ 		return None
+@@ -1308,7 +1309,8 @@ def assignStartingPlots():
+ 								# Regional start plot assignment has failed. Reverting to default.
+ 								CyPythonMgr().allowDefaultImpl()
+ 								return
+-					else: break # This player has been assigned a start plot.
++					else:
++						break # This player has been assigned a start plot.
+ 			
+ 			else :
+ 				sPlot = map.plot(wX + dX, sY + dY)
+
+diff --git a/PrivateMaps/Equal_Islands_V2_beta.py b/PrivateMaps/Equal_Islands_V2_beta.py
+index aaf42438a..48c3c9d61 100644
+--- a/PrivateMaps/Equal_Islands_V2_beta.py
++++ b/PrivateMaps/Equal_Islands_V2_beta.py
+@@ -719,7 +719,8 @@ def assignStartingPlots():
+ 					plrID = gc.getPlayer(playerID)
+ 					plrID.setStartingPlot(sPlot, true)
+ 					break
+-			else: break # This player has been assigned a start plot.
++			else:
++				break # This player has been assigned a start plot.
+ 			
+ 	# Successfully assigned start plots, continue back to C++
+ 	return None
+
+diff --git a/PrivateMaps/Great_Plains.py b/PrivateMaps/Great_Plains.py
+index 4cb0a491e..fac54d261 100644
+--- a/PrivateMaps/Great_Plains.py
++++ b/PrivateMaps/Great_Plains.py
+@@ -773,7 +773,8 @@ def addBonusType(argsList):
+ 					pass
+ 				elif (type_string in rockyDyes) and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_DESERT") and pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST") and pPlot.isHills():
+ 					pass
+-				else: continue # to next plot.
++				else:
++					continue # to next plot.
+ 				# re-init regional plot membership tests for each pass.
+ 				plotInRockies = False
+ 				plotInPlains = False
+@@ -811,7 +812,8 @@ def addBonusType(argsList):
+ 					pass
+ 				elif (inTexas and plotInTexas):
+ 					pass
+-				else: continue # on to next plot. This plot not eligible.
++				else:
++					continue # on to next plot. This plot not eligible.
+ 				#
+ 				# Finally we have run all the checks.
+ 				# 1. The plot has no bonus.
+
+diff --git a/PrivateMaps/Islands.py b/PrivateMaps/Islands.py
+index 561b87031..91f70dd63 100644
+--- a/PrivateMaps/Islands.py
++++ b/PrivateMaps/Islands.py
+@@ -686,7 +686,8 @@ def assignStartingPlots():
+ 					# Regional start plot assignment has failed. Reverting to default.
+ 					CyPythonMgr().allowDefaultImpl()
+ 					return
+-			else: break # This player has been assigned a start plot.
++			else:
++				break # This player has been assigned a start plot.
+ 			
+ 	# Successfully assigned start plots, continue back to C++
+ 	return None
+
+diff --git a/PrivateMaps/Oasis.py b/PrivateMaps/Oasis.py
+index f0418b3f7..67ba1979f 100644
+--- a/PrivateMaps/Oasis.py
++++ b/PrivateMaps/Oasis.py
+@@ -783,7 +783,8 @@ def addBonusType(argsList):
+ 					pass
+ 				elif forceGrass and pPlot.isFlatlands() and pPlot.getTerrainType() == getInfoTypeOrFail("TERRAIN_GRASS") and pPlot.getFeatureType() == -1:
+ 					pass
+-				else: continue # to next plot.
++				else:
++					continue # to next plot.
+ 				# re-init regional plot membership tests for each pass.
+ 				plotInNorth = False
+ 				plotInOasis = False
+@@ -805,7 +806,8 @@ def addBonusType(argsList):
+ 					pass
+ 				elif (inSouth and plotInSouth):
+ 					pass
+-				else: continue # on to next plot. This plot not eligible.
++				else:
++					continue # on to next plot. This plot not eligible.
+ 				#
+ 				# Finally we have run all the checks.
+ 				# 1. The plot has no bonus.
+
+diff --git a/PrivateMaps/Rainforest.py b/PrivateMaps/Rainforest.py
+index 29c5a453b..9d197f171 100644
+--- a/PrivateMaps/Rainforest.py
++++ b/PrivateMaps/Rainforest.py
+@@ -672,7 +672,8 @@ def addBonusType(argsList):
+ 					pass
+ 				elif (forceFlats and pPlot.isFlatlands()) and (pPlot.getFeatureType() == getInfoTypeOrFail("FEATURE_FOREST")):
+ 					pass
+-				else: continue # to next plot.
++				else:
++					continue # to next plot.
+ 				# Finally we have run all the checks.
+ 				# 1. The plot has no bonus.
+ 				# 2. The plot has an eligible terrain and feature type.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=5832

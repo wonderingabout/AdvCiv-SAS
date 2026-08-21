@@ -1,0 +1,552 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5902
+# Commit: 72082dd7d8ae2f1fc50e4c7fedb6bb2fa7589131
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 4f19f97c37ec5582947b6c2232e2321a91d9437a
+# Title: fix + - buttons not being visible and selectable in Espionage Tab when rivals met number is high (e.g., SAS48 world-size), and beautify the Tab (remove unnee...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+178	80	Assets/Python/Screens/CvForeignAdvisor.py
+6	0	Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+15	0	Assets/XML/Text/AdvCiv-SAS_Core.xml
+1	0	README.md
+2	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 43d8d22de..e93f3eafd 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -289,6 +289,8 @@ class CvForeignAdvisor:
+ 		self.ESP_TEXT_MARGIN = 15
+ 		self.ESP_Z_BACKGROUND = -2.1
+ 		self.ESP_Z_CONTROLS = self.ESP_Z_BACKGROUND - 0.2
++		# <!-- custom: placeAdvisorLegendLink expects the shared advisor Z_CONTROLS name; Foreign Advisor's Espionage tab uses ESP_Z_CONTROLS internally, so mirror it here instead of changing the shared helper. (GPT-5.5-Thinking + GPT-5.5?) -->
++		self.Z_CONTROLS = self.ESP_Z_CONTROLS
+ 		self.ESP_DZ = -0.2
+ 		# <!-- custom: Espionage tab fixed layout constants belong in init; only resolution-derived geometry is computed at screen open. (GPT-5.3-Codex) -->
+ 		self.ESP_OUTER_MARGIN = 0
+@@ -299,6 +301,8 @@ class CvForeignAdvisor:
+ 		self.ESP_Y_MAIN_PANE_BASE = 54
+ 		self.ESP_LEFT_PANE_WIDTH_PERCENT = 38
+ 		self.ESP_LEFT_PANE_WIDTH_MIN = 380
++		self.ESP_COMPACT_LEFT_PANE_EXTRA = 200
++		self.ESP_COMPACT_RIGHT_PANE_WIDTH_MIN = 620
+ 		self.ESP_LEFT_PANE_HEIGHT_MIN = 420
+ 		self.ESP_SCROLL_WIDTH_MIN = 220
+ 		self.ESP_SCROLL_HEIGHT_MIN = 220
+@@ -331,6 +335,20 @@ class CvForeignAdvisor:
+ 		self.ESP_ROW_Y_ICON = -3
+ 		self.ESP_ROW_X_BUTTON_PLUS = 21
+ 		self.ESP_ROW_X_BUTTON_MINUS = 37
++		# <!-- custom: With many met players, the old two-line Espionage target rows made +/- buttons, weight, EPs, and +per-turn text hard to see/click. Use compact single-line rows instead of pagination so all targets remain in one scroll list. Compact rows deliberately omit the repeated espionage commerce glyph, the per-row "Weight:" label, and the repeated cost label; these are obvious from context and would be better as a true header only if we ever need one. For now, no header keeps the display simpler; compact column anchors use the spare row width so weight, EPs, and per-turn text have clearer separation. (GPT-5.5-Thinking + GPT-5.5?) -->
++		self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD = None
++		self.ESP_COMPACT_LEADER_ICON_SIZE = 24
++		self.ESP_COMPACT_BUTTON_SIZE = 20
++		self.ESP_COMPACT_ROW_X_ICON = 8
++		self.ESP_COMPACT_ROW_X_BUTTON_PLUS = 34
++		self.ESP_COMPACT_ROW_X_BUTTON_MINUS = 56
++		self.ESP_COMPACT_ROW_X_NAME = 82
++		self.ESP_COMPACT_ROW_X_WEIGHT = 340
++		self.ESP_COMPACT_ROW_X_POINTS = 490
++		self.ESP_COMPACT_ROW_X_AMOUNT = 690
++		self.ESP_COMPACT_ROW_RIGHT_MARGIN = 6
++		self.ESP_COMPACT_ROW_Y_TEXT = 3
++		self.ESP_COMPACT_ROW_Y_BUTTON = 5
+ 		self.nEspionageWidgetCount = 0
+ 		self.ESP_iTargetPlayer = -1
+ 		self.ESP_iActiveCityID = -1
+@@ -502,6 +520,30 @@ class CvForeignAdvisor:
+ 		self.ESP_H_MISSION_BUTTON = self.ESP_MISSION_BUTTON_HEIGHT
+ 		self.ESP_ROW_X_RIGHT = max(self.ESP_ROW_X_RIGHT_MIN, self.ESP_W_SCROLL - self.ESP_ROW_X_RIGHT_OFFSET)
+ 
++	def widenEspionageLeftPaneForCompactRows(self):
++		iLeftPaneWidth = min(self.ESP_W_LEFT_PANE + self.ESP_COMPACT_LEFT_PANE_EXTRA, max(self.ESP_W_LEFT_PANE, self.ESP_W_SCREEN - self.ESP_COMPACT_RIGHT_PANE_WIDTH_MIN - self.ESP_OUTER_MARGIN))
++		if iLeftPaneWidth == self.ESP_W_LEFT_PANE:
++			return
++		self.ESP_W_LEFT_PANE = iLeftPaneWidth
++		self.ESP_W_SCROLL = max(self.ESP_SCROLL_WIDTH_MIN, self.ESP_W_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
++		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + self.ESP_PANEL_GAP
++		self.ESP_W_TOTAL_PANE = max(self.ESP_TOTAL_PANE_WIDTH_MIN, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - self.ESP_OUTER_MARGIN)
++		self.ESP_X_RIGHT_PANE = self.ESP_X_TOTAL_PANE
++		self.ESP_W_RIGHT_PANE = self.ESP_W_TOTAL_PANE
++		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + self.ESP_INNER_MARGIN
++		self.ESP_W_CITY_LIST = max(self.ESP_CITY_LIST_WIDTH_MIN, self.ESP_W_RIGHT_PANE * self.ESP_CITY_LIST_WIDTH_PERCENT / 100)
++		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + self.ESP_INNER_MARGIN
++		self.ESP_W_EFFECTS_COSTS_LIST = max(self.ESP_EFFECTS_COSTS_WIDTH_MIN, self.ESP_W_RIGHT_PANE * self.ESP_EFFECTS_COSTS_WIDTH_PERCENT / 100)
++		self.ESP_W_EFFECTS_LIST = max(self.ESP_EFFECTS_WIDTH_MIN, self.ESP_W_RIGHT_PANE - (self.ESP_X_EFFECTS_LIST - self.ESP_X_RIGHT_PANE) - self.ESP_EFFECTS_COSTS_GAP - self.ESP_W_EFFECTS_COSTS_LIST - self.ESP_INNER_MARGIN)
++		self.ESP_X_EFFECTS_COSTS_LIST = self.ESP_X_EFFECTS_LIST + self.ESP_W_EFFECTS_LIST + self.ESP_EFFECTS_COSTS_GAP
++		self.ESP_X_MISSIONS_LIST = self.ESP_X_EFFECTS_LIST
++		self.ESP_W_MISSIONS_LIST = self.ESP_W_EFFECTS_LIST
++		self.ESP_X_MISSIONS_COSTS_LIST = self.ESP_X_MISSIONS_LIST + self.ESP_W_MISSIONS_LIST + self.ESP_EFFECTS_COSTS_GAP
++		self.ESP_W_MISSIONS_COSTS_LIST = self.ESP_W_EFFECTS_COSTS_LIST
++		self.ESP_X_MISSION_BUTTON = self.ESP_X_MISSIONS_LIST
++		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + self.ESP_EFFECTS_COSTS_GAP
++		self.ESP_ROW_X_RIGHT = max(self.ESP_ROW_X_RIGHT_MIN, self.ESP_W_SCROLL - self.ESP_ROW_X_RIGHT_OFFSET)
++
+ 	def updateRuntimeTabLinkWidths(self):
+ 		# <!-- custom: tab-link widths depend on runtime X_EXIT; recompute every open using shared helper. (GPT-5.3-Codex) -->
+ 		aszTabLabels = []
+@@ -795,6 +837,8 @@ class CvForeignAdvisor:
+ 			self.ESP_iActiveCityID = -1
+ 			self.ESP_iSelectedMission = -1
+ 		self.drawEspionageContents()
++		# <!-- custom: compact Espionage rows remove repeated labels/icons to keep SAS48 controls readable, so keep a quiet Sevopedia legend link for the field meanings. (GPT-5.5-Thinking + GPT-5.5?) -->
++		placeAdvisorLegendLink(self, "CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
+ 		self.refreshEspionageScreen()
+ 
+ 	#	RJG Start
+@@ -2488,15 +2532,6 @@ class CvForeignAdvisor:
+ 		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+ 		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+ 
+-		self.ESP_szMainPaneWidget = "EspionageMainPane"
+-		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true, self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
+-
+-		self.ESP_szLeftPaneWidget = "LeftPane"
+-		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true, self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+-
+-		self.ESP_szScrollPanel = "ScrollPanel"
+-		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true, self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
+-
+ 		self.ESP_aiKnownPlayers = []
+ 		self.ESP_aiUnknownPlayers = []
+ 		self.ESP_iNumEntries= 0
+@@ -2516,6 +2551,18 @@ class CvForeignAdvisor:
+ 		while(self.ESP_iNumEntries < 17):
+ 			self.ESP_iNumEntries = self.ESP_iNumEntries + 1
+ 			self.ESP_aiUnknownPlayers.append(self.ESP_iNumEntries)
++		bCompactLeaderRows = self.useCompactEspionageRows()
++		if bCompactLeaderRows:
++			self.widenEspionageLeftPaneForCompactRows()
++
++		self.ESP_szMainPaneWidget = "EspionageMainPane"
++		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true, self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
++
++		self.ESP_szLeftPaneWidget = "LeftPane"
++		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true, self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
++
++		self.ESP_szScrollPanel = "ScrollPanel"
++		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true, self.ESP_X_SCROLL, self.ESP_Y_SCROLL, self.ESP_W_SCROLL, self.ESP_H_SCROLL, PanelStyles.PANEL_STYLE_EMPTY)
+ 
+ 		############################
+ 		#### Total EPs Per Turn Text
+@@ -2572,8 +2619,7 @@ class CvForeignAdvisor:
+ 
+ 			wNamePanel = 220
+ 			hNamePanel = 30
+-
+-			iPlayerLoop = 0
++			iCompactXWeight, iCompactXPoints, iCompactXAmount = self.getCompactEspionageRowColumns()
+ 
+ 			for iPlayerID in self.ESP_aiKnownPlayers:
+ 
+@@ -2582,7 +2628,7 @@ class CvForeignAdvisor:
+ 				iTargetTeam = pTargetPlayer.getTeam()
+ 
+ 				iX = 0
+-				iY = 14 #+ (148 * iPlayerLoop)#(110 * iPlayerLoop)
++				iY = 14
+ 
+ 				attach = "LeaderContainer%d" % (iPlayerID)
+ 
+@@ -2593,59 +2639,77 @@ class CvForeignAdvisor:
+ 
+ 				self.ESP_iLeaderImagesID = 456
+ 				szName = "LeaderImage%d" %(iPlayerID)
+-
+-				screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
++				if bCompactLeaderRows:
++					screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, self.ESP_COMPACT_ROW_X_ICON, 2, self.ESP_COMPACT_LEADER_ICON_SIZE, self.ESP_COMPACT_LEADER_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
++				else:
++					screen.addCheckBoxGFCAt(attach, szName, gc.getLeaderHeadInfo(gc.getPlayer(iPlayerID).getLeaderType()).getButton(), self.SAS_ART_BUTTON_HILITE_SQUARE, iX +21, iY - 14, 32, 32, WidgetTypes.WIDGET_GENERAL, self.ESP_iLeaderImagesID, iPlayerID, ButtonStyles.BUTTON_STYLE_LABEL, False)
+ 				if (self.ESP_iTargetPlayer == iPlayerID):
+ 					screen.setState(szName, true)
+ 
+-				szName = "LeaderNamePanel%d" %(iPlayerID)
+-				screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN, iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				if not bCompactLeaderRows:
++					szName = "LeaderNamePanel%d" %(iPlayerID)
++					screen.attachPanelAt( attach, szName, "", "", true, false, PanelStyles.PANEL_STYLE_MAIN, iX + 5, iY-15, wNamePanel, hNamePanel, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "NameText%d" %(iPlayerID)
+-				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))
++				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID, bCompactLeaderRows))
+ 				szText = sasFontTagLabel + szTempBuffer + SAS_FONT_TAG_CLOSE
+-				screen.setLabelAt( szName, attach, szText, 0, iX + self.ESP_ROW_X_NAME, iY + self.ESP_ROW_Y_TOP, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				if bCompactLeaderRows:
++					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_LEFT_JUSTIFY, self.ESP_COMPACT_ROW_X_NAME, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				else:
++					screen.setLabelAt( szName, attach, szText, 0, iX + self.ESP_ROW_X_NAME, iY + self.ESP_ROW_Y_TOP, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "PointsText%d" %(iPlayerID)
+ 				szText = sasFontTagLabel + localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS", (pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam), )) + SAS_FONT_TAG_CLOSE
+-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_TOP + 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				if bCompactLeaderRows:
++					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXPoints, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				else:
++					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_TOP + 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "SpendingText%d" %(iPlayerID)
+-				szText = sasFontTagLabel + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
+-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+-				szName = "AmountText%d" %(iPlayerID)
+-				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+-					szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
++				if bCompactLeaderRows:
++					szText = sasFontTagLabel + (u"%d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
++					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXWeight, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 				else:
+-					szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
++					szText = sasFontTagLabel + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
++					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				szName = "AmountText%d" %(iPlayerID)
++				szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
+ 
+-				szName = "SpendingIcon%d" %(iPlayerID)
+-				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-					szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++				if bCompactLeaderRows:
++					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 				else:
+-					szText = u""
++					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+-				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				if not bCompactLeaderRows:
++					szName = "SpendingIcon%d" %(iPlayerID)
++					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
++						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++					else:
++						szText = u""
++					screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				iSize = 16
+ 				self.ESP_iIncreaseButtonID = 555
+ 				szName = "IncreaseButton%d" %(iPlayerID)
+-				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
++				if bCompactLeaderRows:
++					iSize = self.ESP_COMPACT_BUTTON_SIZE
++					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_COMPACT_ROW_X_BUTTON_PLUS, self.ESP_COMPACT_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
++				else:
++					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_PLUS, self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+ 				self.ESP_iDecreaseButtonID = 556
+ 				szName = "DecreaseButton%d" %(iPlayerID)
+-				screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+-
+-				iPlayerLoop += 1
++				if bCompactLeaderRows:
++					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_COMPACT_ROW_X_BUTTON_MINUS, self.ESP_COMPACT_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
++				else:
++					screen.setImageButtonAt( szName, attach, self.SAS_ART_BUTTON_MINUS, self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+ 
+ 			for iPlayerID in self.ESP_aiUnknownPlayers:
+ 				attach = "EmptyLeaderContainer%d" % (iPlayerID)
+ 				screen.attachPanel(self.ESP_szScrollPanel, attach, "", "", True, False, PanelStyles.PANEL_STYLE_STANDARD)
+ 				screen.attachSeparator(attach, "EmptyLeaderImageA%d" %(iPlayerID), true, 30)
+ 
+-	def getEspionageMultiplierAgainstTarget(self, iTargetPlayer=-1):
++	def getEspionageMultiplierAgainstTarget(self, iTargetPlayer=-1, bCompact=False):
+ 
+ 		szMultiplier = ""
+ 
+@@ -2657,7 +2721,11 @@ class CvForeignAdvisor:
+ 		pTargetPlayer = gc.getPlayer(iTargetPlayer)
+ 		pTargetTeam = gc.getTeam(pTargetPlayer.getTeam())
+ 
+-		szMultiplier = localText.getText("TXT_KEY_ESPIONAGE_COST", (getEspionageModifier(pActivePlayer.getTeam(), pTargetPlayer.getTeam()), ))
++		iModifier = getEspionageModifier(pActivePlayer.getTeam(), pTargetPlayer.getTeam())
++		if bCompact:
++			szMultiplier = u"%d%%" %(iModifier)
++		else:
++			szMultiplier = localText.getText("TXT_KEY_ESPIONAGE_COST", (iModifier, ))
+ 
+ 		if (pActiveTeam.getCounterespionageTurnsLeftAgainstTeam(pTargetPlayer.getTeam()) > 0):
+ 			szMultiplier += u"*"
+@@ -2667,6 +2735,27 @@ class CvForeignAdvisor:
+ 
+ 		return szMultiplier
+ 
++	def getEspionagePerTurnText(self, iEspionagePerTurn):
++		# <!-- custom: centralize the repeated EPs-per-turn formatting; compact rows still use the normal translated text because the widened left pane has enough room and the full label is clearer. (GPT-5.5-Thinking + GPT-5.5?) -->
++		szPerTurn = localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (iEspionagePerTurn, ))
++		if iEspionagePerTurn > 0:
++			return sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(szPerTurn)) + SAS_FONT_TAG_CLOSE
++		return sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(szPerTurn)) + SAS_FONT_TAG_CLOSE
++
++	def useCompactEspionageRows(self):
++		if self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD is None:
++			self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD = gc.getDefineINT("SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD")
++		return (self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD <= 0 or len(self.ESP_aiKnownPlayers) > self.SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD)
++
++	def getCompactEspionageRowColumns(self):
++		iCompactXAmount = min(self.ESP_COMPACT_ROW_X_AMOUNT, self.ESP_W_SCROLL - self.ESP_COMPACT_ROW_RIGHT_MARGIN)
++		iCompactXPoints = min(self.ESP_COMPACT_ROW_X_POINTS, iCompactXAmount - 80)
++		iCompactXWeight = min(self.ESP_COMPACT_ROW_X_WEIGHT, iCompactXPoints - 80)
++		iCompactXWeight = max(self.ESP_COMPACT_ROW_X_NAME + 150, iCompactXWeight)
++		iCompactXPoints = max(iCompactXWeight + 55, iCompactXPoints)
++		iCompactXAmount = max(iCompactXPoints + 70, iCompactXAmount)
++		return iCompactXWeight, iCompactXPoints, iCompactXAmount
++
+ 	def refreshEspionageScreen(self):
+ 
+ 		self.deleteAllEspionageWidgets()
+@@ -2682,12 +2771,15 @@ class CvForeignAdvisor:
+ 			# <!-- custom: disabled the Espionage slider draw here: global commerce sliders already exist on the right, so this duplicate control is redundant/noisy in the integrated Foreign tab. Keep drawEspionageSlider() code for possible future reuse. (GPT-5.3-Codex) -->
+ 			# self.drawEspionageSlider() # advc.120c
+ 
+-			iPlayerLoop = 0
++			bCompactLeaderRows = self.useCompactEspionageRows()
++			aCompactColumns = self.getCompactEspionageRowColumns()
++			iCompactXWeight = aCompactColumns[0]
++			iCompactXAmount = aCompactColumns[2]
+ 
+ 			for iPlayerID in self.ESP_aiKnownPlayers:
+ 
+ 				iX = 0
+-				iY = 15 #+ (148 * iPlayerLoop)#(110 * iPlayerLoop)
++				iY = 15
+ 
+ 				pTargetPlayer = gc.getPlayer(iPlayerID)
+ 				iTargetTeam = pTargetPlayer.getTeam()
+@@ -2695,30 +2787,31 @@ class CvForeignAdvisor:
+ 				attach = "LeaderContainer%d" % (iPlayerID)
+ 
+ 				szName = "SpendingText%d" %(iPlayerID)
+-				szText = sasFontTagLabel + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
+ 				screen.deleteWidget(szName)
+-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				if bCompactLeaderRows:
++					szText = sasFontTagLabel + u"%d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
++					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXWeight, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				else:
++					szText = sasFontTagLabel + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
++					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "AmountText%d" %(iPlayerID)
+-
+-				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+-					szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+-				else:
+-					szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
++				szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
+ 
+ 				screen.deleteWidget(szName)
+-				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+-				szName = "SpendingIcon%d" %(iPlayerID)
+-				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-					szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++				if bCompactLeaderRows:
++					screen.setLabelAt( szName, attach, szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 				else:
+-					szText = u""
++					screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
++				szName = "SpendingIcon%d" %(iPlayerID)
+ 				screen.deleteWidget(szName)
+-				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-
+-				iPlayerLoop += 1
++				if not bCompactLeaderRows:
++					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
++						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++					else:
++						szText = u""
++					screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 			# Is there any other players which have been met?
+ 			if (self.ESP_iTargetPlayer != -1):
+@@ -2923,6 +3016,7 @@ class CvForeignAdvisor:
+ 				CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+ 		# advc.001d: Moved from above the Debug menu
+ 		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
++		bCompactLeaderRows = self.useCompactEspionageRows()
+ 
+ 		if (self.ESP_iTargetPlayer != -1):
+ 
+@@ -2966,20 +3060,22 @@ class CvForeignAdvisor:
+ 						CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, 1)
+ 					# K-Mod end
+ 
+-					if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+-						szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+-					else:
+-						szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+-
+-					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++					szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
+ 
+-					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-						szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++					if bCompactLeaderRows:
++						iCompactXAmount = self.getCompactEspionageRowColumns()[2]
++						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 					else:
+-						szText = u""
+-					attach = "LeaderContainer%d" % (iPlayerID)
+-					iY = 15
+-					screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++					if not bCompactLeaderRows:
++						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
++							szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++						else:
++							szText = u""
++						attach = "LeaderContainer%d" % (iPlayerID)
++						iY = 15
++						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 					CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+ 
+@@ -2999,20 +3095,22 @@ class CvForeignAdvisor:
+ 							CyMessageControl().sendEspionageSpendingWeightChange(iTargetTeam, -1)
+ 						# K-Mod end
+ 
+-						if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+-							szText = sasFontTagLabel + (u"<color=0,255,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+-						else:
+-							szText = sasFontTagLabel + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+-
+-						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++						szText = self.getEspionagePerTurnText(pActivePlayer.getEspionageSpending(iTargetTeam))
+ 
+-						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+-							szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++						if bCompactLeaderRows:
++							iCompactXAmount = self.getCompactEspionageRowColumns()[2]
++							screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, CvUtil.FONT_RIGHT_JUSTIFY, iCompactXAmount, self.ESP_COMPACT_ROW_Y_TEXT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 						else:
+-							szText = u""
+-						attach = "LeaderContainer%d" % (iPlayerID)
+-						iY = 15
+-						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++							screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++
++						if not bCompactLeaderRows:
++							if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
++								szText = sasFontTagLabel + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
++							else:
++								szText = u""
++							attach = "LeaderContainer%d" % (iPlayerID)
++							iY = 15
++							screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 						CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+
+diff --git a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+index a5c41ec02..3b4d7db97 100644
+--- a/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
++++ b/Assets/XML/BasicInfos/CIV4NewConceptInfos.xml
+@@ -33,6 +33,12 @@
+ 			<Description>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND</Description>
+ 			<Civilopedia>TXT_KEY_CONCEPT_SAS_DOMESTIC_ADVISOR_LEGEND_PEDIA</Civilopedia>
+ 		</NewConceptInfo>
++		<!-- custom: Foreign Advisor Espionage legend explains compact target-row fields after the crowded SAS48 layout removed repeated labels/icons. (GPT-5.5-Thinking + GPT-5.5?) -->
++		<NewConceptInfo>
++			<Type>CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Type>
++			<Description>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Description>
++			<Civilopedia>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND_PEDIA</Civilopedia>
++		</NewConceptInfo>
+ 		<NewConceptInfo>
+ 			<Type>CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Type>
+ 			<Description>TXT_KEY_CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND</Description>
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index bc6f816e2..a3abc55e6 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -215,6 +215,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_FOREIGN_ADVISOR_GLANCE_MAX_PLAYERS_PER_PAGE</DefineName>
+ 		<iDefineIntVal>16</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Foreign Advisor Espionage tab: switch the target-player list to compact single-line rows when met rivals are above this value. A value of 17 keeps the normal two-line layout for standard 18-player games, but compacts 18+ known rivals for SAS24/SAS48-style games. Set to 0 to always use compact rows. (GPT-5.5-Thinking + GPT-5.5?) -->
++	<Define>
++		<DefineName>SAS_CV_FOREIGN_ADVISOR_ESPIONAGE_COMPACT_ROWS_THRESHOLD</DefineName>
++		<iDefineIntVal>17</iDefineIntVal>
++	</Define>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Core.xml b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+index 0ee1c53da..e2cfdbee0 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Core.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Core.xml
+@@ -174,6 +174,21 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++
++
++
++
++	<!-- custom: Foreign Advisor Espionage legend explains compact target-row fields after the crowded SAS48 layout removed repeated labels/icons. (GPT-5.5-Thinking + GPT-5.5?) -->
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND</Tag>
++		<English>Foreign Advisor Espionage Legend</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_CONCEPT_SAS_FOREIGN_ADVISOR_ESPIONAGE_LEGEND_PEDIA</Tag>
++		<English>[H1]Foreign Advisor Espionage Legend[\H1][PARAGRAPH:2]The left list shows known rival civilizations and your espionage allocation against each team.[NEWLINE][NEWLINE][ICON_BULLET]+ / -: increases or decreases this rival's espionage spending weight. Right-clicking uses the larger min/max adjustment.[NEWLINE][ICON_BULLET]Name (%): leader name and current espionage mission cost modifier against that rival. Lower percentages mean missions are cheaper; higher percentages mean missions are more expensive. Extra * or + markers after the percentage come from active counterespionage effects.[NEWLINE][ICON_BULLET]Weight: relative share of your espionage spending assigned to that rival. Example: if two rivals have weights 3 and 1, the first gets about three times as many EPs per turn before rounding.[NEWLINE][ICON_BULLET]EPs: total espionage points accumulated against that rival.[NEWLINE][ICON_BULLET]+N per Turn: current espionage points assigned to that rival each turn.[PARAGRAPH:2]In large-player games, the target list uses compact rows so the controls stay visible and clickable. Compact rows omit the repeated espionage commerce icon, the repeated "Weight:" label, and the repeated "Cost" text because repeating them on every row makes the list harder to read and uses space needed by the + / - controls.[PARAGRAPH:2]The right side shows city selection, passive espionage thresholds, available missions, and mission costs for the selected rival.</English>
++	</TEXT>
++
++
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_SAS_SEVOPEDIA_LEADER_LEGEND</Tag>
+ 		<English>Sevopedia Leader Legend</English>
+
+diff --git a/README.md b/README.md
+index 683aa4e54..846a9a998 100644
+--- a/README.md
++++ b/README.md
+@@ -268,6 +268,7 @@ We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab,
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (2).JPG" alt="0.513_foreign_advisor (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (3).JPG" alt="0.513_foreign_advisor (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.514_foreign_advisor (2).JPG" alt="0.514_foreign_advisor (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG" alt="0.513_foreign_advisor (4).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG" alt="0.513_foreign_advisor (5).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (6).JPG" alt="0.513_foreign_advisor (6).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (7).JPG" alt="0.513_foreign_advisor (7).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 37e1ee12a..f3bbff2af 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -369,7 +369,8 @@ Make some of the data-dense advisors use using a **higher constrast background t
+ - **Beautified** the **Domestic Advisor**: now shows the **button (i.e. icon) of the current item being built** (unit, building, project, process) in "Producing" column. Use the **shared advisor shell layout** (**top/bottom bars** + single content panel, remove the old exit icon) so Domestic Advisor **mirrors other advisors' structure** instead of a floating table, and is now has **tabs**; **enhanced** the Domestic Advisor so it now has **4 overview tabs** with detailed city information (modifiers, yields, specialists, etc.) with a corresponding **legend link**, and an **enter city on click button** (mirroring the info screen's wonders tab). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py).
+ - Minor **beautified** the [CvCustomizableDomesticAdvisor.py](/Assets/Python/Screens/CvCustomizableDomesticAdvisor.py): increase **legend culture text width** so it is not cramped when upscaled. Note: although it is functional, the Custom Domestic Advisor is **not supported** in AdvCiv-SAS as of now, so it is lacking the Finance Tab. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4).
+ - New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+-- **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`), so the old **Enhanced Info Tab** BUG option was removed (to better support upscaled text and game resolution changes). The remaining Glance-tab attitude dropdown now has its own explicit **Glance Tab Attitudes** row for clarity instead of looking attached to the Info-tab option, and now defaults to **Both (numbers and smilies)** instead of the previous **Numbers**-only default, after Large Pangaea/default-player testing showed an upscaled long case such as `-17` with at-war and worst-enemy icons still displayed fully after the per-page player cap. Higher-player games were not tested here and may behave differently; the tunable cap remains the adjustment point if needed. See [KI#139](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#139---fixed-base-advciv-issue-foreign-advisor-bug-menu-made-glance-attitude-dropdown-look-attached-to-enhanced-info-tab). **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it. Show **gold per turn** in **Bonuses Tab** even when **not connected to trade network** (if gold trading is available): previously this was hidden, and would require tediously opening the diplomacy screen of each player, and this is now also consistent with flat gold being shown in techs tab for all players (if gold trading is available). See [KI#132](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network).
++- **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`), so the old **Enhanced Info Tab** BUG option was removed (to better support upscaled text and game resolution changes). The remaining Glance-tab attitude dropdown now has its own explicit **Glance Tab Attitudes** row for clarity instead of looking attached to the Info-tab option, and now defaults to **Both (numbers and smilies)** instead of the previous **Numbers**-only default, after Large Pangaea/default-player testing showed an upscaled long case such as `-17` with at-war and worst-enemy icons still displayed fully after the per-page player cap. Higher-player games were not tested here and may behave differently; the tunable cap remains the adjustment point if needed. See [KI#139](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#139---fixed-base-advciv-issue-foreign-advisor-bug-menu-made-glance-attitude-dropdown-look-attached-to-enhanced-info-tab). Show **gold per turn** in **Bonuses Tab** even when **not connected to trade network** (if gold trading is available): previously this was hidden, and would require tediously opening the diplomacy screen of each player, and this is now also consistent with flat gold being shown in techs tab for all players (if gold trading is available). See [KI#132](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#132---enhanced-base-advciv-issue-of-not-showing-rival-gold-per-turn-on-foreign-trade-advisor-bonuses-tab-when-not-connected-to-their-trade-network).
++- **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it. (Requires AdvCiv-SAS 5902+) Removed redundant and distracting `Weight:`, espionage char icon, and `Cost` text (add a **Legend** link explaining the row fields), and added a new **compact mode** with tunable met rivals cap (0 effectively means always use it) so large player counts (e.g., in SAS48 world-size) are visible and selectable.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Cap **maximum number of players per page** in the **Glance Tab** (e.g., max 16 players per page gives 3 pages at SAS48 Worldsize (if all players are known)), with **clickable left and right arrows for navigation**. Fixes **issue of Glance Tab clipping horizontally** if more than 24 players are known and columns being too tight. Last page visited is **remembered and resumed from** on Glance Tab next opening. Diagonal player-vs-itself cells are now left empty instead of showing incorrect/inconsistent `+0` attitude display; see [KI#140](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#140---fixed-base-advciv-issue-foreign-advisor-glance-tab-showed-incorrect-and-inconsistent-0-attitude-display-in-self-cells). See also [KI#134](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#134---fixed-base-advciv-issue-foreign-diplomacy-advisor-glance-tab-column-icons-overflow-horizontally-with-24-rival-players).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440), and **promotion icon size** is **increased** (no longer DLL-hardcoded (was 16)). **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** to **accommodate lengthy unit rows** (e.g., avoid line wrap if unit name is long, if there are many promotions). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, at 1080p, 5 rows allow to show up to 45 players (including barbarian) at full leader icon size before leader icon size is reduced. **Reduce Leader icon size reduction** when all rows are full (**mild reduction**, no longer halved). In **debug mode**, the **Map tab** now draws the **full minimap section** instead of only the active player's known minimap section: the full map is visible in debug anyway, and this lets the human/debugger locate selected players' units even outside the active player's revealed area. See [KI#142](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#142---fixed-base-advciv-issue-military-advisor-map-tab-debug-mode-did-not-draw-the-full-minimap-section). See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG
+new file mode 100644
+index 000000000..dff6e6b48
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (4).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG
+index dff6e6b48..ef8a441b1 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.513_foreign_advisor (5).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=8 omittedFiles=0 embeddedPatchBytes=47014

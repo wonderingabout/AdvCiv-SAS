@@ -1,0 +1,706 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5017
+# Commit: bb2a9f7671bf06516ab909350ec333ddda1e4998
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 69fa0194c65d0ad0479e900f6cc4c1e464efa994
+# Title: remove the very annoying base advciv rounding to 5 code for units, buildings, projects and such anyways etc, reduce iResearchPercent for largest maps, balanc...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+1	1	Assets/XML/GameInfo/CIV4HandicapInfo.xml
+4	4	Assets/XML/GameInfo/CIV4WorldInfo.xml
+1	1	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Text/RFC_DOC_Custom.xml
+3	3	Assets/XML/Units/CIV4PromotionInfos.xml
+19	13	Assets/XML/Units/CIV4UnitInfos.xml
+1	1	CvGameCoreDLL/CitySiteEvaluator.cpp
+24	9	CvGameCoreDLL/CvPlayer.cpp
+3	1	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvUnitAI.cpp
+3	3	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+30	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+7	6	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+3	3	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+9	9	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+5	5	handicap_info_to_csv_advciv-sas.csv
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GameInfo/CIV4HandicapInfo.xml b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+index 5a370081c..0bb27fadd 100644
+--- a/Assets/XML/GameInfo/CIV4HandicapInfo.xml
++++ b/Assets/XML/GameInfo/CIV4HandicapInfo.xml
+@@ -148,7 +148,7 @@ And i didn't want to recompile so i asked it as such too if i may say but anyway
+ 			<iNoTechTradeModifier>80</iNoTechTradeModifier>
+ 			<iTechTradeKnownModifier>-30</iTechTradeKnownModifier>
+ 			<!-- advc.309: was 100 -->
+-			<iUnownedTilesPerGameAnimal>54</iUnownedTilesPerGameAnimal>
++			<iUnownedTilesPerGameAnimal>52</iUnownedTilesPerGameAnimal>
+ 			<!-- advc.300: was 150 -->
+ 			<iUnownedTilesPerBarbarianUnit>64</iUnownedTilesPerBarbarianUnit>
+ 			<iUnownedWaterTilesPerBarbarianUnit>475</iUnownedWaterTilesPerBarbarianUnit>
+
+diff --git a/Assets/XML/GameInfo/CIV4WorldInfo.xml b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+index 0551a4393..9f11e7675 100644
+--- a/Assets/XML/GameInfo/CIV4WorldInfo.xml
++++ b/Assets/XML/GameInfo/CIV4WorldInfo.xml
+@@ -173,9 +173,9 @@
+ 			<iGridHeight>34</iGridHeight>
+ 			<iTerrainGrainChange>1</iTerrainGrainChange>
+ 			<iFeatureGrainChange>1</iFeatureGrainChange>
+-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 137 -->
++			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 137 -->
+ 			<!-- advc.910: was 140 -->
+-			<iResearchPercent>125</iResearchPercent>
++			<iResearchPercent>110</iResearchPercent>
+ 			<iTradeProfitPercent>40</iTradeProfitPercent>
+ 			<!-- advc.140: was 90 -->
+ 			<iDistanceMaintenancePercent>91</iDistanceMaintenancePercent>
+@@ -212,8 +212,8 @@
+ 			<iTerrainGrainChange>2</iTerrainGrainChange>
+ 			<!-- advc.129: was 1 -->
+ 			<iFeatureGrainChange>2</iFeatureGrainChange>
+-			<!-- custom: can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 150 -->
+-			<iResearchPercent>150</iResearchPercent>
++			<!-- custom: reduced as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate? Please? Please? Please?? This is really stupid, anyways etc. All the other research rates are beyond retarded too, but anyways etc, was 150 -->
++			<iResearchPercent>120</iResearchPercent>
+ 			<!-- advc.140: was 30 -->
+ 			<iTradeProfitPercent>33</iTradeProfitPercent>
+ 			<iDistanceMaintenancePercent>100</iDistanceMaintenancePercent>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index c7c55a0c1..389c93307 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -660,7 +660,7 @@
+ 
+ 
+ 
+-	<!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia anyways etc (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner anyways etc, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check, but anyways etc which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, anyways etc, instead of viewing it as a scientific field or/and causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english anyways etc from our own faults or things we can improve or maybe rather do better within ourselves but anyways etc, i hate myself for having been led by such a belief but i am glad i can learn now in this case at least, not to reject my past experience if i may say, but just saying there is a better view for me that makes my life make sense in the astronomical density of the universe and its history, and in line with its/my precedessors anyways etc, that were not stupid, not ignorant, not backwards, just they had other ideas or priorities in mind, i am thankful very much for (modern) technical progress (in particular anyways etc), but it would be a fault or ignorance, which i claim to myself too, of reducing past people as ignorant war-like ones, i was so mistaken and a fool or ignorant, but i blame society too for teaching me this functional and beneficial lie, but anyways etc) ; there is so much stuff i wish i knew but i am not even sure the truth hard and cold would have been beneficial to me, but it was no reason to lie to me either, i hate society for that, even though i understand the purpose i think but still but anyways etc, maybe at least it makes some sense now, i have also or developped if i may say too in this case but anyways etc, or at least can develop more empathy for other species, as i understand their life is miserable as ours as per the conditions of our existence, where we must cruelly fight for territory and subsistence, instead of coexisting in harmony in our shared struggle, if i knew all this.. why didn't they tell me all this... Was it so beneficial to lie? What's even the point in the frames of existence, but anyways etc, i am just glad and thankful i know now and gradually more but anyways etc, again i am not sure the truth is beneficial but it was no reason to lie either, there must have been a better way, perhaps more gradual or such, but anyways etc, or maybe adjusted to one's understanding that focuses on kindness if i may say or such, why, why is the world so evil, yet pointless, when our struggle is shared, but no one owes anyone anything maybe, but anyways hoepfully helpful or not maybe i should delete this later or maybe not maybe i should keep it, but in all cases anyways etc; based on https://en.wikipedia.org/wiki/Ecology#History anyways etc -->
++	<!-- custom: replace sentimental and inaccurate TECH_ECOLOGY civ4 +/- base advciv's description with a historically and scientifically grounded one from wikipedia anyways etc (i can be sentimental too and i like and learned from wikipedia i mean, i just find this wikipedia one so much more accurate and informative about not only the origins of the branch/science, but also how it relates to previous discoveries/perspectives, darwin's view from my quick glance if not mistaken in my quick read or understanding that the dominant competitors need to put in check their domination else they may struggle if they kill/consume/destroy all food sources is particularly interesting and more interesting than the sentimental and mistaken one of fight the evil pollution by the evil corporations or such one even though there is maybe ground for this, history shows it was accounted for much much sooner anyways etc, most likely even in antiquity and before people were aware and conscious to preserve nature and protect it although i didn't check, but anyways etc which is why in particular i hate the dominant intuitive social view of ecology which i was also led to believe, anyways etc, instead of viewing it as a scientific field or/and causality of human existence where we need to coexist with nature rather than fight some evil entity admonizing ourselves if it's a word in english anyways etc from our own faults or things we can improve or maybe rather do better within ourselves but anyways etc, i hate myself for having been led by such a belief but i am glad i can learn now in this case at least, not to reject my past experience if i may say, but just saying there is a better view for me that makes my life make sense in the astronomical density of the universe and its history, and in line with its/my precedessors anyways etc, that were not stupid, not ignorant, not backwards, just they had other ideas or priorities in mind, i am thankful very much for (modern) technical progress (in particular anyways etc), but it would be a fault or ignorance, which i claim to myself too, of reducing past people as ignorant war-like ones, i was so mistaken and a fool or ignorant, but i blame society too for teaching me this functional and beneficial lie, but anyways etc) ; there is so much stuff i wish i knew but i am not even sure the truth hard and cold would have been beneficial to me, but it was no reason to lie to me either, i hate society for that, even though i understand the purpose i think but still but anyways etc, maybe at least it makes some sense now, i have also or developped if i may say too in this case but anyways etc, or at least can develop more empathy for other species, as i understand their life is miserable as ours as per the conditions of our existence, where we must cruelly fight for territory and subsistence, instead of coexisting in harmony in our shared struggle, if i knew all this.. why didn't they tell me all this... Was it so beneficial to lie? What's even the point in the frames of existence, but anyways etc, i am just glad and thankful i know now and gradually more but anyways etc, again i am not sure the truth is beneficial but it was no reason to lie either, there must have been a better way, perhaps more gradual or such, but anyways etc, or maybe adjusted to one's understanding that focuses on kindness if i may say or such, why, why is the world so evil, yet pointless, when our struggle is shared, but no one owes anyone anything maybe, but anyways hopefully helpful or not maybe i should delete this later or maybe not maybe i should keep it, but in all cases anyways etc; based on https://en.wikipedia.org/wiki/Ecology#History anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_ECOLOGY_PEDIA</Tag>
+ 		<English>[TAB]Ecology has a complex origin. Ancient Greek philosophers such as Hippocrates and Aristotle recorded observations on natural history. However, they saw species as unchanging, while varieties were seen as aberrations. Modern ecology sees varieties as the real phenomena, leading to adaptation by natural selection. Ecological concepts such as a balance and regulation in nature can be traced to Herodotus (died c. 425 BC), who described mutualism in his observation of "natural dentistry". Basking Nile crocodiles, he noted, opened their mouths to give sandpipers safe access to pluck leeches out, giving nutrition to the sandpiper and oral hygiene for the crocodile. Aristotle and his student Theophrastus observed plant and animal migrations, biogeography, physiology, and their behavior, giving an early analogue to the concept of an ecological niche.[PARAGRAPH:1]Ecological concepts such as food chains, population regulation, and productivity were developed in the 1700s, through the works of microscopist Antonie van Leeuwenhoek (1632 - 1723) and botanist Richard Bradley (1688? - 1732). Biogeographer Alexander von Humboldt (1769 - 1859) recognized ecological gradients, where species are replaced or altered in form along environmental gradients. Humboldt drew inspiration from Isaac Newton, as he developed a form of "terrestrial physics". Natural historians, such as Humboldt, James Hutton, and Jean-Baptiste Lamarck laid the foundations of ecology. The term "ecology" (German: Oekologie, �kologie) was coined by Ernst Haeckel in his book Generelle Morphologie der Organismen (1866). Haeckel was a zoologist, artist, writer, and later in life a professor of comparative anatomy.[PARAGRAPH:1]Linnaeus founded an early branch of ecology that he called the economy of nature. He influenced Charles Darwin, who adopted Linnaeus' phrase in The Origin of Species. Linnaeus was the first to frame the balance of nature as a testable hypothesis.[PARAGRAPH:2]Modern ecology first attracted substantial scientific attention toward the end of the 19th century. Ellen Swallow Richards adopted the term "oekology" in the U.S. as early as 1892. In the early 20th century, ecology transitioned from description to a more analytical form of scientific natural history. Frederic Clements published the first American ecology book, Research Methods in Ecology in 1905, presenting the idea of plant communities as a superorganism. This launched a debate between ecological holism and individualism that lasted until the 1970s.[PARAGRAPH:1]In 1942, Raymond Lindeman wrote a landmark paper on the trophic dynamics of ecology. Trophic dynamics became the foundation for much work on energy and material flow through ecosystems. Robert MacArthur advanced mathematical theory, predictions, and tests in ecology in the 1950s.[PARAGRAPH:1]Ecology surged in popular and scientific interest during the 1960 - 1970s environmental movement. In 1962, marine biologist and ecologist Rachel Carson's book Silent Spring helped to mobilize the environmental movement by alerting the public to toxic pesticides, such as DDT (C14H9Cl5), bioaccumulating in the environment. Since then, ecologists have worked to bridge their understanding of the degradation of the planet's ecosystems with environmental politics, law, restoration, and natural resources management.</English>
+
+diff --git a/Assets/XML/Text/RFC_DOC_Custom.xml b/Assets/XML/Text/RFC_DOC_Custom.xml
+index 7b3210122..b4b7ba7bc 100644
+--- a/Assets/XML/Text/RFC_DOC_Custom.xml
++++ b/Assets/XML/Text/RFC_DOC_Custom.xml
+@@ -26,7 +26,7 @@ and modified or not for our needs in advciv-sas anyways etc -->
+ 		<Tag>TXT_KEY_PEDIA_TERRAINS_MINUS_PLOT_TYPES</Tag>
+ 		<English>Terrains (Minus some Plot types)</English>
+ 	</TEXT>
+-	<!-- custom: also add these txt keys including also FeatureTerrainBooleans info but anyways etc, in accordance with if i may say too but anyways etc the info in (translate to english with web browser page right click on page or such anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also chatgpt's explanation of it which used it spontaeously while doing a web search to answer my question of what this does, which would explain why the base advciv (+/- civ4? Didn't check but anyways etc) had the bonus_furs rdundantly in terrainbooleans and featureterrainbooleans redundantly, but with different meanings so not a redundant code if i may say unlike my use of the word redundant twice xd if i may say but as i felt if i may say whatever that means xd at least to me in this case but anyways etc, which would make sense as well as it would be in line with kujira's explanation too (translated and also explained by chatgpt i mean who can read japanese natively if i am not mistaken so it fetched the original language and explained it to me as well but anyways etc) so hopefully is accurate maybe if i'm not mistaken too but check to be sure anyways etc -->
++	<!-- custom: also add these txt keys including also FeatureTerrainBooleans info but anyways etc, in accordance with if i may say too but anyways etc the info in (translate to english with web browser page right click on page or such anyways etc) https://gforestshade.github.io/kujira/post/civ4bonusinfos/#terrainbooleans and also chatgpt's explanation of it which used it spontaeously while doing a web search to answer my question of what this does, which would explain why the base advciv (+/- civ4? Didn't check but anyways etc) had the bonus_furs redundantly in terrainbooleans and featureterrainbooleans redundantly, but with different meanings so not a redundant code if i may say unlike my use of the word redundant twice xd if i may say but as i felt if i may say whatever that means xd at least to me in this case but anyways etc, which would make sense as well as it would be in line with kujira's explanation too (translated and also explained by chatgpt i mean who can read japanese natively if i am not mistaken so it fetched the original language and explained it to me as well but anyways etc) so hopefully is accurate maybe if i'm not mistaken too but check to be sure anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_TERRAIN_BOOLEANS</Tag>
+ 		<English>Terrains (Minus some Plot types) with no Feature</English>
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index ed650485a..1abd07e36 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -2610,7 +2610,7 @@
+ 			<Description>TXT_KEY_PROMOTION_CITYRAIDER3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hoepfully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
++			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hopefully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+ 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER2</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+@@ -2841,7 +2841,7 @@
+ 			<Description>TXT_KEY_PROMOTION_GARRISON3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hoepfully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
++			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hopefully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+ 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_CITY_GARRISON2</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+@@ -3636,7 +3636,7 @@
+ 			<Description>TXT_KEY_PROMOTION_FIRST_STRIKE3</Description>
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+-			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hoepfully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
++			<!-- custom: a bit too op if requiring only previous one i think, add a promotion instead that is far enough in promotion tree without being too far but anyways etc ; hopefully that/this also encourages a variety of alternate startegies as well rather but anyways etc, was NONE -->
+ 			<PromotionPrereq>PROMOTION_COMBAT2</PromotionPrereq>
+ 			<PromotionPrereqOr1>PROMOTION_FIRST_STRIKE2</PromotionPrereqOr1>
+ 			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 85fd32604..c69220a22 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -6601,7 +6601,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 40 -->
++			<iCost>42</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -6787,7 +6788,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 40 -->
++			<iCost>42</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -6996,8 +6998,9 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
++			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 40 -->
+ 			<!-- advc.907a: was 45 -->
+-			<iCost>40</iCost>
++			<iCost>42</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7218,8 +7221,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal if i am not mistaken in my attempt to emulate it/this at least is how i want it anyways etc) -->
+-			<iCost>35</iCost>
++			<!-- custom: reduce cost to indicate they always spawn more (sort of immortal if i am not mistaken in my attempt to emulate it/this at least is how i want it anyways etc), but not too much to not make them too op either ideally but anyways etc, as the swordsman is still a strong as of now unit but anyways etc; see also related known issue as of now 67 for details anyways etc -->
++			<iCost>38</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7430,7 +7433,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>42</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7643,7 +7646,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
++			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -7659,7 +7662,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>70</iCost>
++			<!-- custom: was 70 -->
++			<iCost>65</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7841,7 +7845,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
++			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -7852,7 +7856,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>70</iCost>
++			<!-- custom: was 70 -->
++			<iCost>65</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -8064,7 +8069,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<!-- custom: was TECH_CIVIL_SERVICE and TECH_MACHINERY -->
+-			<PrereqTech>TECH_CHIVALRY</PrereqTech>
++			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+@@ -8080,7 +8085,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>70</iCost>
++			<!-- custom: was 70 -->
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -12991,7 +12997,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<!-- custom: was 20 -->
++			<!-- custom: see also related known issue as of now 67 for details anyways etc; was 20 -->
+ 			<iCombat>18</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index cf5b14bde..342f363fa 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -392,7 +392,7 @@ short AIFoundValue::evaluate()
+ 	int iTileCountPeak = 0;
+ 	// <!-- custom: these are also bad as they don't yield anything so same as peak, we should definitely count them to help choose better/optimal or at least ebtter / more optimal sites if i may say but anyways etc -->
+ 	int iTileCountIceCap = 0;
+-	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert if i may say but anyways etc that is really bad and should strongly be ignored without overdoing it if site is otherwise good if i'm not mistaken but anyways etc. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 67 of AI not going for a nearby site better in all regards with less desert and more hill grassland if i am not mistaken anyways etc -->
++	// <!-- custom: excluding flood plains, oasis, and as of now hill desert as even that yields something unlike "naked" desert if i may say but anyways etc that is really bad and should strongly be ignored without overdoing it if site is otherwise good if i'm not mistaken but anyways etc. Since these tiles are so bad and worse than coast that yields things and food, ignore them extra more. Attempts to address known issue as of now 26.2 of AI not going for a nearby site better in all regards with less desert and more hill grassland if i am not mistaken anyways etc -->
+ 	int iTileCountVeryBadDesertNoBonus = 0;
+ 	// <!-- custom: again worse than tundra as has no food and no meaningful improvement if i'm not mistaken but anyways etc; if it's a hill we can still mine or windmill it if i'm not mistaken, but i don't think we can improve snow tiles (although didn't check in detail anyways etc), and even if we could/can, the food penalty on these tiles is really high if i'm not mistaken but anyways etc. We could count 0 food tiles that are not hills, but maybe do as such for clarity or/and such although is less flexible but maybe fine as such anyways etc. We need to count these tiles and deter founding there if there are too much and no other conditions are met if i am not mistaken but anyways etc -->
+ 	int iTileCountVeryBadSnowNoBonus = 0;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 300921c8b..78254c4af 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -5474,7 +5474,11 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit,
+ 		in AI_getTotalFloatingDefendersNeeded. */
+ 	iProductionNeeded = (iProductionNeeded *
+ 			trainingModifierFromHandicap(GC.getInfo(eUnitClass).isWorldUnit())).
+-			roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
++			// <!-- custom: very annoying, do not round to multiples of 5 please... Ancient macemen 18 hammers cost 20, and swordsman 42 costs 40 while swordsman 43 costs 45, it is a mess and hard to balance. Meanwhile, AIs have per 1 costs like 22, 17, 38, and it seems this is where we need to change it as chatgpt 5 explained to me, check if accurate anyways etc, see known issue as of now 67 for details anyways etc; Also what's even more annoying is that the price change only applies to the human player, so AIs effectively have a different price than the human player, very very annoying and no setting to manage this outside of DLL. Since i find it nonsensical and don't care about pretty numbers in this case at least i mean but anyways etc, disabled it entirely, anyways etc -->
++			// Short answer: for your use-case, they’re the same. Use .round() for clarity.
++			// Semantics: roundToMultiple(1) means “round to the nearest multiple of 1,” i.e. the nearest integer. That’s exactly what .round() does. For positive values (your costs are positive), they’ll return the same integer.
++			// roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
++			round();
+ 	// </advc.107>
+ 	// advc.251 (comment): See getNewCityProductionValue
+ 	iProductionNeeded += getUnitExtraCost(eUnitClass);
+@@ -5506,7 +5510,9 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
+ 	// <advc.251>
+ 	iProductionNeeded = (iProductionNeeded * per100(
+ 			GC.getInfo(getHandicapType()).getConstructPercent())).
+-			roundToMultiple(isHuman() ? 5 : 1);
++			// <!-- custom: see known issue as of now 67 for details anyways etc -->
++			// roundToMultiple(isHuman() ? 5 : 1);
++			round();
+ 	if (!isHuman()) // Barbarians too
+ 	{
+ 		CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
+@@ -5526,9 +5532,11 @@ int CvPlayer::getProductionNeeded(BuildingTypes eBuilding) const
+ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
+ {
+ 	CvGame const& kGame = GC.getGame();
+-	// <advc.251>
+-	int const iBaseCost = GC.getInfo(eProject).getProductionCost();
+-	int iProductionNeeded = iBaseCost; // </advc.251>
++	// <!-- custom: see known issue as of now 67 for details anyways etc -->
++	// // <advc.251>
++	// int const iBaseCost = GC.getInfo(eProject).getProductionCost();
++	// int iProductionNeeded = iBaseCost; // </advc.251>
++	int iProductionNeeded = GC.getInfo(eProject).getProductionCost();
+ 
+ 	static int const iPROJECT_PRODUCTION_PERCENT = GC.getDefineINT("PROJECT_PRODUCTION_PERCENT"); // advc.opt
+ 	iProductionNeeded *= iPROJECT_PRODUCTION_PERCENT;
+@@ -5542,7 +5550,10 @@ int CvPlayer::getProductionNeeded(ProjectTypes eProject) const
+ 	// <advc.251>
+ 	iProductionNeeded = (iProductionNeeded *
+ 			per100(GC.getInfo(getHandicapType()).getCreatePercent())).
+-			roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
++			// <!-- custom: see known issue as of now 67 for details anyways etc, below comment by chatgpt 5, check if accurate anyways etc -->
++			// Yep—you can make projects round to 1 as well. It’s safe and keeps parity with units/buildings if you’ve already switched those.
++			// roundToMultiple(isHuman() ? (iBaseCost > 500 ? 50 : 5) : 1);
++			round();
+ 	if (!isHuman() && !isBarbarian())
+ 	{
+ 		CvHandicapInfo const& h = GC.getInfo(kGame.getHandicapType());
+@@ -7285,8 +7296,10 @@ int CvPlayer::greatPeopleThreshold(bool bMilitary) const
+ 	iThreshold /= 100;
+ 	// <advc.251>
+ 	iThreshold = (per100(1) * iThreshold * GC.getInfo(
+-			getHandicapType()).getGPThresholdPercent()).roundToMultiple(
+-			isHuman() ? 5 : 1);
++			// <!-- custom: see known issue as of now 67 for details anyways etc -->
++			// getHandicapType()).getGPThresholdPercent()).roundToMultiple(
++			// isHuman() ? 5 : 1);
++			getHandicapType()).getGPThresholdPercent()).round();
+ 	if (!isHuman() && !isBarbarian())
+ 	{
+ 		iThreshold = intdiv::round(iThreshold * GC.getInfo(
+@@ -18292,7 +18305,9 @@ int CvPlayer::getNewCityProductionValue() const
+ 	// <advc.251>
+ 	iValue = (iValue *
+ 			// Apply production modifier half (b/c getGrowthThreshold is also dependent on handicap)
+-			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
++			// <!-- custom: see known issue as of now 67 for details anyways etc -->
++			// (1 + (trainingModifierFromHandicap(false) - 1) / 2)).roundToMultiple(isHuman() ? 5 : 1);
++			(1 + (trainingModifierFromHandicap(false) - 1) / 2)).round();
+ 	// </advc.251>
+ 	return iValue;
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 8d0a9c7c6..28777ecb2 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2279,7 +2279,9 @@ int CvTeam::getResearchCost(TechTypes eTech,
+ 	}
+ 	// <advc.251>
+ 	rCost *= scaled::max(rModifier, 0);
+-	int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
++	// <!-- custom: see known issue as of now 67 for details anyways etc -->
++	//int iCost = rCost.roundToMultiple(isHuman() ? 5 : 1);
++	const int iCost = rCost.round();
+ 	// </advc.251>
+ 	return std::max(1, iCost);
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 73ef1c7b7..ba0db32f4 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -250,7 +250,7 @@ bool CvUnitAI::AI_update()
+ 					const int iHave   = pHere->getPlot().plotCount(PUF_canDefendGroupHead, -1, -1, getOwner());
+ 					const int iMinHere = pHere->AI_minDefenders();
+ 
+-					// <!-- custom: this seemingly works very well, all cities at least most i looked at but anyways etc properly now have 2 defenders not 1 defender per new city anymore or so it seems in cities that had the issue, but we can probably enhance this, maybe make it a general rule as well, also we can actually count on capital to replenish its units faster, so make it give more units rather anyways etc at trying to do so anyways etc ; update: not much change after increasing iExtraWant from 1 to 2, and to be hoenst i don't know too much or exactly what and hwo this does what it does xd, but results are not worse, perhaps slightly better with the window removed or capital check (as i said i want capitals in particular to pump and give units if i may say but anyways etc as they can replenish faster, hopefully this doesn't make capital cities too weak if ever applied but at least smaller cities are better guarded and less barbarian invasions it seems, but check if accurate as i don't know too much about these anyways etc-->
++					// <!-- custom: this seemingly works very well, all cities at least most i looked at but anyways etc properly now have 2 defenders not 1 defender per new city anymore or so it seems in cities that had the issue, but we can probably enhance this, maybe make it a general rule as well, also we can actually count on capital to replenish its units faster, so make it give more units rather anyways etc at trying to do so anyways etc ; update: not much change after increasing iExtraWant from 1 to 2, and to be honest i don't know too much or exactly what and hwo this does what it does xd, but results are not worse, perhaps slightly better with the window removed or capital check (as i said i want capitals in particular to pump and give units if i may say but anyways etc as they can replenish faster, hopefully this doesn't make capital cities too weak if ever applied but at least smaller cities are better guarded and less barbarian invasions it seems, but check if accurate as i don't know too much about these anyways etc-->
+ 					// Early barbarian buffer: ask every non-capital for +1 (for shuffling only)
+ 					// int iBarbWindowTurns = 60 * GC.getInfo(GC.getGame().getGameSpeedType()).getTrainPercent() / 100; // ~60 @ Normal
+ 					// bool bEarlyBarbs = (!GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) &&
+
+diff --git a/README.md b/README.md
+index 4ca2532eb..d1727ff61 100644
+--- a/README.md
++++ b/README.md
+@@ -367,7 +367,7 @@ I use the default github branch's commit count as version number.
+ 
+ For example, in our mod's github default branch's main page [our mod's github default branch's main page](https://github.com/wonderingabout/AdvCiv-SAS), as of now there are 4970 commits, so this is AdvCiv-SAS 4970.
+ 
+-Using git you can choose any version with git reset --hard or checkout or whatever, but i understand it may not be too easy or tedious to do. Although i may release some versions myself it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
++Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version if i'm not mistaken as well anyways etc; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself, it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
+ 
+ ## Copyright and Disclaimer
+ 
+@@ -405,7 +405,7 @@ The bit annoying/painful section, but in short this is a fan project that i hope
+ - `LEADER_RAMESSES`: Ancient Egyptian Music – Pharaoh Ramses II, composer seems to be Derek Fiechter's Music (start at 00:02.425) [youtube link directly from Derek Fiechter's Music's channel anyways etc](https://www.youtube.com/watch?v=vslsS-Uu5x4), should also be safe as reviewed before for LEADER_JULIUS_CAESAR's music at least as of now who seems to also come/be from/by the same artist Derek Fiechter i mean if i am not mistaken anyways etc
+ - `LEADER_STALIN`: Music: Soviet March by Shane Ivers - [https://www.silvermansound.com](https://www.silvermansound.com), seems safe to use and under creative commons license by 4.0 if i am not mistaken too, personally i found it here thanks to chatgpt who gave me this link, thanks [silvermansound.com link provided by chatgpt directly to this music anyways etc](https://www.silvermansound.com/free-music/soviet-march?utm_source=chatgpt.com)
+ - `LEADER_VICTORIA`: Victorian Violin Waltz - Music by [Luis Humanoide](https://pixabay.com/users/luis_humanoide-12661853/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298) from [Pixabay](https://pixabay.com//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=222298), i also re found it here similarly than for LEADER_EWUARE's music link but anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/classical-string-quartet-victorian-violin-waltz-222298/) seems safe as coming from pixabay as well if i am not mistaken but anyways etc and from asking chatgpt too to be sure seems safe indeed but maybe check too to be sure but should be safe but check to be sure in case i am mistaken but anyways etc
+-- `SONG_OPENING_MENU`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-lofi-song-330550/) anyways etc
++- `SONG_OPENING_MENU`: Lofi Song - Music by [DELOSound](https://pixabay.com/users/delosound-46524562/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=330550), i also re found it here similarly [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/beats-lofi-song-330550/) anyways etc. Note: for an easy ctrl+f since not mentionned in asset name if i'm not mistaken but anyways etc, the name from url is beats-lofi-song-330550, check to be sure anyways etc.
+ - `AS2D_FUTURE_EPIC_SYMPHONIC_METAL_263322`: Epic Symphonic Metal Instrumental - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=263322) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=263322), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/metal-epic-symphonic-metal-instrumental-263322/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+ - `AS2D_FUTURE_FOOT_TAPPER_CLASSICAL`: Foot Tapper Classical Music Dubstep Fusion - by Nicholas Panek from [Soundcloud](https://soundcloud.com/nicholas-panek-961795493/foot-tapper-classical-music-dubstep-fusion), seems as of now similarly safe for copyright use but check to be sure anyways etc
+ - `AS2D_FUTURE_FUTURISTIC_ROBOT_COPS_234351`: Futuristic Robotic Cops in a Dystopian City - Music by [Nicholas Panek](https://pixabay.com/users/nickpanek620-38266323/?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=234351) from [Pixabay](https://pixabay.com/music//?utm_source=link-attribution&utm_medium=referral&utm_campaign=music&utm_content=234351), i also re found it here similarly anyways etc in [pixabay's website - link where it can be found too but anyways etc](https://pixabay.com/music/upbeat-futuristic-robotic-cops-in-a-dystopian-city-234351/) seems safe for copyright use similarly as coming from pixabay if i am not mistaken anyways etc but check to be sure anyways etc
+@@ -429,7 +429,7 @@ For mods we took from, i mention them in more detail, hopefully exhaustive but i
+ 
+ ## Note about the audio in main menu
+ 
+-Sound seems strangely louder at first game launch, but then accesing main menu again from a loaded save file or such ingame map state, then the sound in main menu is seemingly quieter so amking it a bit louder to accomodate that so it is not too low when acessing main menu again from ingame map view. Also, sounds seems blurrier (ironic since this is a lofi music as of now if i'm not msitaken but i still want it accurate xd, and assuming my perception of it being blurrier is also correct as well as this is not sure and maybe it sounds the same or the same enough regardless of xml volume then increasing system/computer volume per user action or not but anyways etc) the lower i put the music sound/volume, although it could be just my perception, or maybe not (?), i'd rather have a higher volume just in case. If you want to listen to the real audio, link is in this readme.md 's copyright section at `SONG_OPENING_MENU`, or alternatively also accessible in our mod locally as well, as of now here at [lofi-song-330550.mp3](/Assets/Art/AdvCiv_SAS/Main_Menu/music/lofi-song-330550.mp3), hopefully helpful or not or yes or etc, anyways etc.
++Sound seems strangely louder at first game launch, but then accesing main menu again from a loaded save file or such ingame map state, then the sound in main menu is seemingly quieter so amking it a bit louder to accomodate that so it is not too low when acessing main menu again from ingame map view. Also, sounds seems blurrier (ironic since this is a lofi music as of now if i'm not msitaken but i still want it accurate xd, and assuming my perception of it being blurrier is also correct as well as this is not sure and maybe it sounds the same or the same enough regardless of xml volume then increasing system/computer volume per user action or not but anyways etc) the lower i put the music sound/volume, although it could be just my perception, or maybe not (?), i'd rather have a higher volume just in case. If you want to listen to the real audio, link is in this readme.md 's copyright section at `SONG_OPENING_MENU`, or alternatively also accessible in our mod locally as well, as of now here in the [main menu music folder](/Assets/Art/AdvCiv_SAS/Main_Menu/music/), hopefully helpful or not or yes or etc, anyways etc.
+ 
+ ## Credits
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+index 56954a492..24d3eaa90 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md
+@@ -1063,7 +1063,7 @@ Note 2: Among all those sizes, only 64px doesn'(t crash wit default settings at
+ 
+ Ii used ri mod's civ4mainmenubg.nif and its related files, then just if i may say but anyways etc replaced their duomo3.dds with our dds, now renamed to duomo3.dds as well, and updated the path to where our nif is, see `MAINMENU_SCENE_CLASSICAL` (main menu background) and `MAINMENU_LOAD_CLASSICAL` (loading screen (e.g. loading a save file, loading a new map, etc.) background) in [/Assets/XML/Art/CIV4ArtDefines_Interface.xml](/Assets/XML/Art/CIV4ArtDefines_Interface.xml) for details
+ 
+-Note: intended game resolution: 1920 x 1080 Unexpected results may happen at higher resolutions like the ri mod's logo suddenly apeparing maybe xd even though should otherwise be the exact same gameplay but check to be sure and i am not responsible even though seems most likely that nothig else changed, but again check to be sure in case i overlooked something (unlikely and hopefully i am not mistaken in saying so but again check to be sure just to cover myself if i may say, hoepfully helpful or not or yes or etc, anyways etc), anyways etc.
++Note: intended game resolution: 1920 x 1080 Unexpected results may happen at higher resolutions like the ri mod's logo suddenly apeparing maybe xd even though should otherwise be the exact same gameplay but check to be sure and i am not responsible even though seems most likely that nothig else changed, but again check to be sure in case i overlooked something (unlikely and hopefully i am not mistaken in saying so but again check to be sure just to cover myself if i may say, hopefully helpful or not or yes or etc, anyways etc), anyways etc.
+ 
+ Note 2: then the image ingame is stretched vertically unlike our real image .jpg file or .dds, so to solve this we need to edit/"hack" the image a bit by adding fake empty pixels (half at the top, half at the bottom of the image it seems if i am not mistaken but anyways etc), so our image is now 1920 x 1440 instead with these fake empty pixels. This is to fix civ4 or/and the nif's constraints (i don't know which, but now is solved and image displays reliably without being stretched vertically, or some vertical (top and bottom) part being missing (we should see approximately if i am not mistaken >99+% if not 100% of our image now, vs much less (like 60-70% (not precise estimation just vaguely guessing approximately to explain it as bit tedious to measure precisely if i may say but hopefully helpful or not or yes or etc but anyways etc...) before then rest was stretched vertically to fit screen) before this fix) if i am not mistaken but anyways etc). See how i did so and why and such here for details in [README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#28---now-fixed-wallpaper-of-our-mods-custom-being-stretched-vertically-while-some-of-the-top-of-the-wallpaper-is-not-shown-at-all-at-1920-x-1080-game-resolution)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index b3e9d9d85..6870d6ed1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -98,6 +98,7 @@ Below is the menu, generated thanks to chatgpt (as of now i'm using chatgpt 5 wh
+ [64 - (Greatly enhanced) AI not razing faraway cities at captures - now we raze them if we are in the early game and they are not close enough, thanks to changes and tweaks in CvPlayerAI::AI_conquerCity anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc)  
+ [65 - (Seemingly tremendously improved) Hatshepsut AI who was strongest player at turn 150 is fighting many wars and dies before turn 200: added "emergency peace" sanity pre-checks in UWAI::Team::considerPeace in UWAIAgent.cpp anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#65---seemingly-tremendously-improved-hatshepsut-ai-who-was-strongest-player-at-turn-150-is-fighting-many-wars-and-dies-before-turn-200-added-emergency-peace-sanity-pre-checks-in-uwaiteamconsiderpeace-in-uwaiagentcpp-anyways-etc)  
+ [66 - (Fixed and greatly enhanced) AI overvaluing bonuses that give minor effects such as pig or cattle/cow (+1 health only), etc, that AI would value the same as maize or wheat (+2 health effectively since almost all cities have a granary and very early anyways etc) or grapes (from grocer) or molluscs (from harbor) for example, by adding a pre-check in CvPlayerAI::AI_bonusTradeVal to value relatively more bonuses the more effects they provide from buildings if we have their required tech of these buildings, so that humans can't abuse/exploit it with aggressive trading to become super rich xd if i may say but anyways etc, and also in AI vs AI trading each AI gets best or more value out of the effective value of their bonuses at least more so now if i may say but anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#66---fixed-and-greatly-enhanced-ai-overvaluing-bonuses-that-give-minor-effects-such-as-pig-or-cattlecow-1-health-only-etc-that-ai-would-value-the-same-as-maize-or-wheat-2-health-effectively-since-almost-all-cities-have-a-granary-and-very-early-anyways-etc-or-grapes-from-grocer-or-molluscs-from-harbor-for-example-by-adding-a-pre-check-in-cvplayeraiai_bonustradeval-to-value-relatively-more-bonuses-the-more-effects-they-provide-from-buildings-if-we-have-their-required-tech-of-these-buildings-so-that-humans-cant-abuseexploit-it-with-aggressive-trading-to-become-super-rich-xd-if-i-may-say-but-anyways-etc-and-also-in-ai-vs-ai-trading-each-ai-gets-best-or-more-value-out-of-the-effective-value-of-their-bonuses-at-least-more-so-now-if-i-may-say-but-anyways-etc)  
++[67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -241,7 +242,7 @@ In base advCiv code, after implementing the barbarians boost to make them more e
+ 
+ A few screenshots of the issue (screenshot previews below as long as links are valid anyways etc) in [this Google drive folder about this issue](https://drive.google.com/drive/folders/1p5O09XzbbrM5x2hxFD6RGvBpuU8RzPAd?usp=sharing)
+ 
+-There may be(/have been, but anyways etc) other cases like these, and i don't know if the cause is one of the changes i made to barbarian (xml) code, or how it just is/was. I tried to fix it by using iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, but they still build national and world wonders alike, and all the buildingclass NONE spaghetti code whether it is here (for national wonders) or not (for world wonders) does not change anything, they even build shrines like the mahadhobi as of now me writing this anyways, is not necessarily a bad design, but ideally i would want them to focus more on warmongering their key rol in advciv-sas and be more efficient in that anyways etc.
++There may be(/have been, but anyways etc) other cases like these, and i don't know if the cause is one of the changes i made to barbarian (xml) code, or how it just is/was. I tried to fix it by using iWonderConstructRand -9999 on LEADER_BARBARIAN in leader head infos xml file, but they still build national and world wonders alike, and all the buildingclass NONE spaghetti code whether it is here (for national wonders) or not (for world wonders) does not change anything, they even build shrines like the mahadhobi as of now me writing this anyways, is not necessarily a bad design, but ideally i would want them to focus more on warmongering their key role in advciv-sas and be more efficient in that anyways etc.
+ 
+ So/And anyways etc i removed all such old logic of buildingclass NONE in (adjust if non-steam game or other mod path you have to where your advciv-sas or/and other mod you're using or not etc anyways etc is anyways etc) `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\XML\Civilizations\CIV4CivilizationInfos.xml`.
+ 
+@@ -1178,7 +1179,7 @@ About the issues fixed here or patched if not fully fixed, as can be seen in scr
+ 
+ The fixes: they are tentative and quite conservative, perhaps patches in some cases, i am not really sure i found the exact or all causes, but i hope these changes help a lot, as seen in these screenshots, not in same order as before in order to make explanation easier for me (sorry for inconsistency or/and inconvenience hopefully fine or nto too bad to read but as it is maybe too but or not but or yes but anyways etc...) but anyways etc:
+ 
+-- the "Boston Screenshots" issue: i didn't test it, but i think one of the lines if not the line triggering it or related to it was `iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;` in `CvCityAI::AI_yieldValue`. Problem of this approach if i am not mistaken is that to produce a worker or settler, 3 hammer or 3 food is the exact same, it is 3 production, therefore food should be valued just as much, not 0. When worker is completed, city would be in a position to continue to grow, instead of stagnate or starve, even if a bit. I am not sure this is the only way or thing to fix and didn't check since, but i hope this helps. As of now, it is as such: `iValue += ((iFoodYieldTimes100+50)/100);` with some implementations differences (see below). It seems that in screenshots 1665 and 1666 (screenshot 1673 with the milder final version of the patch seems to indicate a good response as well, with the 2 food tile being used to produce a worker rather than the 1 food 1 hammer one, which should be better after this production (i.e. of a worker i mean if i may say but anyways etc) ends if if i am not mistaken anyways etc), although it used a more exteme approach to try to fix and debug it (see below at ulundi screenshots but anyways etc), when producing a settler, the city does use food yields now even if it is just a small sampel and it could have happened due to other reasons (such as no good hammer tile to compete with the food yields maybe), but indirectly this would also mean developing cottages and such more while producing a settler or worker, here in a flood plains cottage, which is a bit stronger than a 2 food 1 hammer flatland grass forest tile. Although i am no sure this fixes it, it does seem to be better or at least not worse in this sample, while not deteriorating city behaviour early, hoepfully helps and better this way anyways etc.
++- the "Boston Screenshots" issue: i didn't test it, but i think one of the lines if not the line triggering it or related to it was `iValue += bFoodIsProduction ? 0 : (iFoodYieldTimes100+50)/100;` in `CvCityAI::AI_yieldValue`. Problem of this approach if i am not mistaken is that to produce a worker or settler, 3 hammer or 3 food is the exact same, it is 3 production, therefore food should be valued just as much, not 0. When worker is completed, city would be in a position to continue to grow, instead of stagnate or starve, even if a bit. I am not sure this is the only way or thing to fix and didn't check since, but i hope this helps. As of now, it is as such: `iValue += ((iFoodYieldTimes100+50)/100);` with some implementations differences (see below). It seems that in screenshots 1665 and 1666 (screenshot 1673 with the milder final version of the patch seems to indicate a good response as well, with the 2 food tile being used to produce a worker rather than the 1 food 1 hammer one, which should be better after this production (i.e. of a worker i mean if i may say but anyways etc) ends if if i am not mistaken anyways etc), although it used a more exteme approach to try to fix and debug it (see below at ulundi screenshots but anyways etc), when producing a settler, the city does use food yields now even if it is just a small sampel and it could have happened due to other reasons (such as no good hammer tile to compete with the food yields maybe), but indirectly this would also mean developing cottages and such more while producing a settler or worker, here in a flood plains cottage, which is a bit stronger than a 2 food 1 hammer flatland grass forest tile. Although i am no sure this fixes it, it does seem to be better or at least not worse in this sample, while not deteriorating city behaviour early, hopefully helps and better this way anyways etc.
+ - the "Ulundi screenshots" issue: in screenshots 1573 and 1574, similarly here, or rather not my bad, but i would say at least that we can maybe fix it or patch it at that line. I tried and implemented other tentative ways to boost food quite conservatively, else cities are very unhappy, low production and high pop (screenshot 1663 and 1664 if i am not mistaken too anyways etc), and similarly the same at aachen (screenshots 1666 and 1667 if i am not mistaken too anyways etc), which is inefficient, but at least all food plots were allocated, very nice ! This indicated if i am not mistaken that issue could be addressed this way, even if in a milder way but anyways etc. So i added a check that if we are unhappy (reusing old k-mod or/and civ4 bits for that but with a new check anyways etc) value food only a bit more, but if we are happy (i.e. that we'd have room to grow), value food quite a bit extra more (but not too much i tried else we'd go back to high pop low production very angry inefficient city). So by giving a food boost but relatively milder one, we now grow but only a bit more, when angry, not a lot more (and when not angry (i.e. happy city anyways etc) we'd grow a lot more although not shown here if i am not mistaken anyways etc)). I didn't contine to check what happens at next turns, but in screenshots 1669 and 1670 for example after this fix or tentative patch, plot allocation seems now to be very very good. Production is high, and city is not starving, growing moderately, which is about perfect i'd say. After all we could slave as said before and would very much need or want the pop if our unhappiness solves. Aachen (screenshot 1672, but difference is city is not unhappy (i.e. is happy but anyways etc)) has also a very good food profile, with high plot plots all allocated and fast growth and quite high production, about perfect too!! Very good response or behaviour in screenshot 1674 as well in karakoum, which is happy too with high food and high production.
+ - As for the "Prague screenshots" (stagnant city not allocating food), i didn't retest it since prague was settled elsewhere many times, as shown in screnshot 1673, and consistently, i don't know if my change caused this somehow, but this is a fine choice too and a good location, after removing the jungle it is a quite strong grass spot, although a bit weak before that, and is coastal too so good for late game. So i don't have a definitive repsonse but i hope all in all these changes help a lot. Also, i don't know when i took this screenshot but seemingly later during the test changes phase, but seemingly AI would prefer a 1 food 1 hammer 1 commerce flatland plains cottage over an improved 5 food 1 commerce sheep grassland, just because it has 1 unhappy citizen. 1 hammer is not superior to 5 food!!! (or 4 food with the diff even), even if unhappy, extra pop could be used later to slave or when unhapiness is solved food would be more full even if we produce slightly less to do so!!!
+ 
+@@ -1421,7 +1422,7 @@ But it is not automatic, for example Edo AI (kingdom of benin) chose to still se
+ 
+ I did many other changes small or not in this case i mean but anyways etc, for example, teaching AIs to heavily faovur settling on hill plains due to many advantages it provides, see quick get started guide for details. Timbuktu AI also was the last one i told by tweaking value to move away from the 3 desert, to 3 any other land tiles (did same for Constantinople AI telling it not to settle on flood plains further more despite how good it seemed, see screenshots (e.g. 2174 still had the issue for constantinople AI vs not in later ones but anyways etc) for details too anyways etc).
+ 
+-Note: thanks to our/these changes but anyways etc, the game turned much better for these AIs, for example moscow AI has as stronger central position and a nice strong empire and army at turn 100 with nicely positonned capital if i may say but anyways etc, which wouldn't have been possible or so easy starting from the edge. At turn 150, they are crazy strong xd, very nice. (!!) I hope i can improve the AI even more :), this is just at emperor xd btw, so i hope they provide a good challenge now, but i have many ways i want to improve them still hehe and ideas and all hoepfully but anyways etc.
++Note: thanks to our/these changes but anyways etc, the game turned much better for these AIs, for example moscow AI has as stronger central position and a nice strong empire and army at turn 100 with nicely positonned capital if i may say but anyways etc, which wouldn't have been possible or so easy starting from the edge. At turn 150, they are crazy strong xd, very nice. (!!) I hope i can improve the AI even more :), this is just at emperor xd btw, so i hope they provide a good challenge now, but i have many ways i want to improve them still hehe and ideas and all hopefully but anyways etc.
+ 
+ Note: these are done at emperor difficulty, before changing all tech prereqs, so tech tree is still mostly base advciv one minus many changes we made but no deep reordering yet, so hopefully quite representative of how strong or how AI behaves now vs base advciv, which i'd like to think is stronger now even though base advciv was not too bad and i have other ideas to improve ours further while fixing issues i added or remaining from base advciv +/- civ, not guaranteed i would though, i deally i would want ot, may or may not, in this case i mean but anyways etc.
+ 
+@@ -2679,3 +2680,29 @@ All in all, in ingame testing, we get reasonable, not too cheap nor too expensiv
+ Hopefully AI should be stronger, or perhaps human weaker if i may say but anyways etc, however it may also make trading more strategic, since some bonuses are more expensive now like maize, while others should be cheaper like pig, possibly iron too if it doesn't provide building specific extra effects (like +1 happy or +1 health for example), which is maybe fine as iron is not strictly mandatory although nice to have, and the human player could have gotten a bit too much value out of it maybe. I tried to make it so price is not too low, but didn't want to exclude it either to see how it would be, maybe it would be fine as such, but anyways etc.
+ 
+ Also, code added with the help of chatgpt 5, check if accurate and thanks a lot chatgpt 5 if i may say but anyways etc.
++
++## 67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc
++
++See some screenshots and files about/related(ing? Anyways etc) to this issue in this [google drive folder link](https://drive.google.com/drive/folders/1JkBWnedqChDH-PSqIle-eQYwHV6tume1?usp=sharing) anyways etc.
++
++It was very very annoying, thankfully i mean now fixed/corrected in advciv-sas if i may say but anyways etc.
++
++Now all players, be it human or AI, have a 1 hammer rounded production (units, buildings, projects (all in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc)) cost, or tech, great people, or such other costs too or not or etc it seems (`CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost`) anyways etc.
++
++Example of code if i may say but anyways etc:
++
++```cpp
++roundToMultiple(/* advc.251: */ isHuman() ? 5 : 1);
++```
++
++now as of now anyways etc replaced (with the help of chatgpt 5, check if accurate anyways etc) with a simple:
++
++```cpp
++round();
++```
++
++Also what was even more annoying is that even outside of handicap or such settings, the price change would still apply and only the to the human player, so AIs effectively have a different price than the human player if i'm not mistaken but anyways etc, very very annoying and no setting to manage this outside of DLL.
++
++I don't know what intent was, insanity, or maybe more honestly or fairly i guess making it prettier to the eye xd, but fuck that i really don't care xd. Since i find it nonsensical and don't care about pretty numbers in this case at least i mean but anyways etc, disabled it entirely, anyways etc.
++
++Hopefully clearer/saner less frustration generating/inducing xd if i may say, also i find it cool to tweak per hammer costs like 40-41-42-43-44-45 vs 45 or 40 so i find it nice to be able to do so, and am glad it is restored as such in this case i mean but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 1a7f836f3..79c001e42 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -108,7 +108,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### UI / In-game
+ 
+-- disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode (ctrl+z and chipotle) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc.
++- disabled tile coloring for worker recommended tile to improve (in `CvGame::updateColoredPlots` in CvGameInterface.cpp). These would take needless computation, both in debug mode ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and even not in debug mode in regular games, plus most importantly our AI workers now use another logic in `CvUnitAI::AI_bestCityBuild` so the plots recommended are not even the ones that our AI workers would find best. They may be inaccurate if not so good plots, or confusing because we mostly want to see city site recommendations if we have to see anything rather, and i couldn't know if a colored circled tile/plot was a recommended tile to improve for a worker or a recommended site to plant/settle/found a city here (which are quite often btw better than the one i would have settled myself, see [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#settlers-ai) for details or related info anyways etc). Hopefully for the better disabled for worker plots for all these reasons, while keeping all previous coloring such as city sites recommendations and such anyways etc.
+ - removed the strategy text in next production to choose for city popup and next tech to choose popup ("Sid's tips"), as well as in civic to switch to popup ("Would you like to start a revolution?"), as they are oftentimes outdated or/and tedious to maintain anyways etc.
+ 
+ ## 48 Civs DLL
+@@ -199,8 +199,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - additionally, tweaked unitais, although i don't know how effective these changes will be or if i did them at the right place (as they sometimes seem to be overriden but rarely so and maybe it me not understanding or/and knowing how this works rather or additionally but in all cases i mean anyways etc), in `CvCityAI::AI_bestUnit` and `CvCityAI::AI_bestUnitAI` and `CvCityAI::AI_chooseProduction` functions as of now in cvcityai but anyways etc. It does seem though as of now to be taken quite well into acocunt, but test to be sure anyways etc. This also depends on map type (less on naval maps, a lot more on land maps, hybrid in other maps, see above links in this known issue for details anyways etc), but now for example if an AI enters offense mode, and the map is a land map, say pangea, continents, etc, as best as we could classify them i mean with chatgpt 5 if i may say so check if accurate and if works as intended test to be sure but anyways etc, AI will more or less ignore unitais that don't help it directly in war as we instructed it, so it will value a lot more `UNITAI_ATTACK` or `UNITAI_ATTACK_CITY` for example, a bit of `UNITAI_RESERVE` (visible in debug mode (ctrl+z and "chipotle") by holding ctrl or alt i forgot which while hovering on a unit or unit stack anyways etc), and this means its units won't wander or such and attack more decisively at least in theory, and vice versa in defense mode they'd value these less and unitais such as `UNITAI_CITY_DEFENSE`, `UNITAI_CITY_SPECIAL`, `UNITAI_RESERVE` etc if any more as well i mean too but anyways etc, for the most part. Hopefully helps the AI better execute its attacks but many things could influence it. It will not care to produce any naval or such unitais units. So it can produce say a swordsman with the attack_city or attack or even reserve unitais maybe, but naval units can't have these, and their unitais like `UNITAI_ATTACK_SEA` or such if i'm not mistaken are tremendously less valued. This avoids the issue i had in base advciv of AI having 10 galleons but barely any land defender on a pangea if i'm not mistaken, see above links for details as well. In naval maps, if detcted as such with our code i mean but anyways etc, this is toned down a bit, but the general idea remains to protect our cities first and foremost, and aim for most effiicent roles but anyways etc, see cvcityai for details. Also, is this galleon / trireme / galley really worth the 2-3 extra axemen / swordsmen / extra worker or half settler? Probably not, and wastes turns time to build not just ressources as in yields, so we are delayed in war plans, tech etc. I believe it is more efficient to do so at least for AIs and in most cases but anyways etc. I didn't test code too much, but based on it semeingly having much less barbarian successful invasions, and on the theory of efficiency behind it as i explained and ideas i got and autoplay results, it seems better for the AI to go slower, even if we lose 1-2 city spots or wonders, the benefits are larger it seems anyways etc. This is a summary i attempted to do of the changes and again didn't test too much so far ; while i hope it helps the AI, i am not necessarily too open to feedback, so i would suggest you best share your experience regarding this on a forum, such as CFC forum, i do hope that it helps and is enjoyable to play though but anyways etc. I also hope these changes fix base advciv issue of AI abandonning capital city, sometimes in a way that ruins the entire game, just to attack 1 unit. I didn't test it, but i hope with these unitais that now exclude colalteral, pillage, etc, units would be more efficient in not doing so, and better guard cities, as well as be, when on offense mode, more focused on their goal, at least in theory, but many other parts of the code could interfere or i could have gotten the logic wrong somehow. It seems to be applied quite well in few autoplays i quickly glanced at skimmed through i may say, hopefully helpful and making AI stronger and more capable as a result but test to be sure anyways etc.
+ - to avoid or reduce fake/suicidal AI war declarations, reduce iPower for some units anyways etc if i am not mistaken anyways etc, like and in particular naval units as warfare happens mostly on land and even if AI has 10 frigates, it will not win against 2 crossbows or even warriors for example if i am not mistaken anyways etc ; also adjust the estimated power of some land units like warrior, animals, etc as part of rebalancing them, see also [CIV4UnitInf_os_UnitAI_and_notes.txt](/Assets/XML/Units/CIV4UnitInf_os_UnitAI_and_notes.txt) for details anyways etc
+ - reduce the flavor military (as of now from 10 to 6 for the generic barracks (no change for the zulu barracks already at 6 in base advciv at least if i am not mistaken anyways etc, see xml for details anyways etc)) so that hopefully more varied types or/and there is a more even building profile of the barracks among all types of AI leaders not just the strongly military ones if i am not mistaken in my understanding +/- guess anyways etc, both for defense but more importantly for offense if i am not mistaken and from asking chatgpt too with web search anyways etc.
+-- to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase iAIWeight so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details anyways etc), so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc
+-- stables buildings: similar reasoning and balance changes, as of now iAIWeight from 0 to 75, see xml or and docs or/and other relevant info in our mod or outside of it maybe if helps and if i am not mistaken too i mean but anyways etc
++- to compensate this reduction of flavor, also make barracks more valued by AI in all circumstances, if i am not mistaken anyways etc, also increase `iAIWeight` so that AIs in particular don't do too premature rushes and start building units unit they have barracks ideally so that these units are upgraded units in experience ideally, by also asking chatgpt with web search and such kujira (see useful links or somewhere in readme that mentions kujira anyways etc for details) example to be sure anyways etc, and also by seeing what FFH2 mod does (it uses a value of 40 for example anyways etc) as of now from 0 to 70 (as of now 75 for the zulu bararcks due to extra gold effect, see xml for updated values or and details anyways etc), so all AI leaders (except barbarian as it just needs more units more efficient for it i think anyways etc) prioritize building barracks more, hopefully not too high so that versatility and other alternative efficient or quite efficient strategies could be explored as well, if i am not mistaken, hopefully AI would plan more and execute better their rushes with stronger in experience if i may say anyways etc units even if these rushes are slightly delayed as a result if i am not mistaken anyways etc
++- stables buildings: similar reasoning and balance changes, as of now `iAIWeight` from 0 to 75, see xml or and docs or/and other relevant info in our mod or outside of it maybe if helps and if i am not mistaken too i mean but anyways etc
+ - rebalanced or reworked some `DefaultUnitAI`, `UnitAIs`, and `NotUnitAIs` in the XML, to make AI go for most efficient roles, despite our units being more versatile now (see Military changes in [README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md#military-and-some-civilian-units-related-info-non-exhaustive-see-sevopedia-orand-xml-for-details) for related info anyways etc). In short, even though as of now swordsmen can defend for all players as in for example having access to City Garrison promotions for example but anyways etc, they still, for AIs, will be used only and if not mostly as offensive units, as it is more efficient to do so in most cases, and the rare edge cases are not worth making AI weaker in most cases (like defending with swordsmen and attacking with longbowmen, which would cost more hammers for worse result generally anyways etc).
+ - adjust unitAIs of some (mostly early as of now anyways etc see xml for details and docs anyways etc) siege units so they don't get baited as much instead of focusing mostly on city attack or "counter" (as in staying in city but attacking the surrounding units) defense (ideally as i didn't explicitly implement it as such but i hope they don't get baited anymore at least but anyways etc anyways etc anyways etc)
+ - fixed/enhanced AI promotion choices being sometimes very inefficient such as going for woodsman (useless for city combat and in most tiles) or medic (not effective combat booster, better be stronger and die or win than waste exp with this in this case i mean but anyways etc) which is most likely to be almost always bad, or conditionally most likely to be bad such as not going for city_garrison promotion when a unit has a `UNITAI_CITY_DEFENSE` and vice versa for attack city unitai and city raider promotion, as well as other such cases, or going for counter_archer promotion when unitai is a defensive one (archers are rarely attackers, and if they are our other promotions cna help a bit defend against them, so better go for something else for example in such cases anyways etc). I made these changes in `CvUnitAI::AI_promotionValue`, to hopefully better guide which promotions are most likely to be good and tell the AI to go for these, while hopefully preserving versatility, and if we don't have a reason to change it hopefully also preserving base advciv behaviour enough anyways etc. So these are hard rules that apply before any of the old code's promotion value best promotion pondering is made, and then if these rules are successfully passed only then would AI consider as it did before which promotion to choose among the remaining ones to choose from if i may say in this case but anyways etc. For example, if we say that for defenders retreat promotion and city raider promotion and blitzkrieg promotions are bad (be tanky not mobile is the priority anyways etc), and that no always pick first promotion was chosen, then only after passing these checks will remaining promotions (e.g. combat, first strike, etc) be considered/pondered and chosen best from if no best emerged from our hard rules in this case i mean but anyways etc before that anyways etc. See more detailed rules with .md tables and nuances in [/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#47---fixed--addressed--enhanced-ai-choosing-poorly-promotions-for-its-units-now-added-a-set-of-hard-rules-in-which-case-some-promotions-are-not-good-and-to-ignore-as-is-most-efificient-in-most-times-and-rarely-cases-where-some-promotions-are-best-to-always-go-first-for-eg-as-of-no-city_garrison-first-for-unitai_city_defense-city_raider-first-for-unitai_attack_city-etc-if-any-more-anyways-etc). As a result of these changes, AI promotions are seemingly much saner, and i believe AI is stronger as a result, while preserving versatility more than enough i would say maybe but anyways etc, see link in this bullet point for details, anyways etc. Note: unitai and unit are different things, so the "longbowman" unit for example could have `UNITAI_CITY_DEFENSE` and act as a defender or `UNITAI_ATTACK_CITY` and act as an enemy city attacker. Our rules would apply differently to the longbowmen depending on its unitai (e.g. as of now allowing city raider on an offensive unitai longbowmen but not on a defensive unitai longbowmen anyways etc), and as of now not on its unit combat type (for the longboman example at least, as this has some exceptions such as of now recon units combat type having its own unit combat type promotion rules with/in our changes but anways etc but they are as of now an exception(s if any more but anyways etc) to this, anyways etc).
+@@ -227,7 +227,8 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - otherwise mostly simple gameplay, and overall not too much clutter, i don't want too many things, but i want the things i have/add, to go (very) in depth in them rather maybe anyways etc, so quite lightweight and hopefully easy to digest and get used to it, but deep that you'd want to play it more, maybe, ideally
+ - we love the king chance is restored unlike in AdvCiv, i think it's a cool mechanic and also pleasant for the player, maybe realistic too, so if it can happen all good (feels good in civ3 for example at least from/in my experience playing it)
+ - set `iResearchPercent` from 117/100/87 (wtf it's not even symetrical. But anyways etc.) to 100 at all sea levels (high, low, medium). I really don't see why we should differentiate. If you love a map, you gotta commit to it (else don't play it?) if i may say anyways etc. Even if tech pace is bit slower due to more water, it's just gonna be how it is, no reason to mess up the whole balance just to accomodate this, and i am not even sure in most cases it would make a big difference anyway, at least one worth the hassle to do this, but anyways etc.
+-- rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/125/150. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc...
++- rescale `iResearchPercent` for world sizes from 95/98/102/115/137/150 to 85/90/95/100/110/120, as ingame AIs are falling behind in the early game at large maps, they don't have more early cities just because there is more land if i am not mistaken but anyways etc. Also can we agree "standard" is the standard research rate, not 115, not 135, but 100??? And balance costs in xml tech info if we need to. So very stupid. But anyways etc. And now tech_mathematics costs 250 at worldsize_standard, not 285, as intended! Yay! But anyways etc... And tech_alien_life costs 16000 not 18400, as intended too! At least as of now, Yay!! But anyways etc...
++- remove the very annoying base advciv rounding to 5 code for units, buildings, projects (in `CvPlayer::getProductionNeeded` functions if i'm not mistaken anyways etc), so that for example anyways etc a swordsman 42 hammer costs 42 not 40, and a 43 hammer costs 43 not 45. Was extremely annoying!! Also so that for example an ancient maceman 18 hammer costs 18 not 20! So much better if i may say and allows finer balance as well, anyways etc!! Fixes the mismatch between sevopedia displaying +/- having (?) correct XML vs tech advisor and city production not. What was even more annoying is that it applied only to the human player, so even if all handicap settings were somehow the same, AI would pay 42 (as per XML) at noble (no handicap as of now if i'm not mistaken anyways etc) while the human player would pay 40 (or 43 vs 45), it is messed up xd and i don't care about any visual clarity or beautification, if anything i find it more confusing and frustrating (i can't set the price/cost i want from/in XML ingame!!! Anyways etc...), so glad this is fixed (by me!! And chatgpt 5 toothat helped me thanks anyways etc) but anyways etc. Also applied to similar codes in `CvPlayer::greatPeopleThreshold` and `CvPlayer::getNewCityProductionValue` and `CvTeam::getResearchCost` so that hopefully we get correct costs for the human player too as well anyways etc. Also (redundant word but anyways etc (but why not in this case i mean but anyways etc anyways etc)...), having a per 1 hammer grain is nice for balance (e.g. 40 or 41 or 42 or 43 or 44 or 45, not 40 else 45 else go home xd if i may say but anyways etc), which is think is nice (super nice!!! Actually, but anyways etc if i may say anyways etc...). See for details [67 - (Fixed/Enhanced) An ancient maceman 18 hammer costs 20 hammer ingame, and a swordsman 42 hammer costs 40 while a swordsman 43 hammer costs 45 which is a mess. Fixed by removing per 5 rounding in CvPlayer::getProductionNeeded and other related functions/issues anyways etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive, see the .csv comparison tables locally (libreoffice, etc.) or on github (recommended) provided, or/and sevopedia, or/and xml for details)
+ 
+@@ -236,7 +237,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ - handicap (i.e. difficulty) settings are now gradually harder, lower/lowest handicap being harder (i don't want them to be placeholders anymore), and highest difficulties being less of a grind and hard in their own ways at least in theory and ideally i mean anyways etc, see docs for details and status update on these or/and xml for details.
+ - AIs get no free techs now, they should perform well enough, and receive other types of bonuses, that they don't need techs for free, it won't feel anymore like they are playing a different kind of game hopefully, also less of a grind at higher difficulties. I also hope games will be more versatile this way with AIs not going on always same narrow tech paths even if a bit more if not lot but anyways etc
+ - free techs also disabled for human players.
+-- costs of tech and units (`iResearchPercent` and `iTrainPercent`) are always the same for the human player at all handicap/difficulties settings unlike in base AdvCiv, now only AI costs (iAIResearchPercent and iAITrainPercent) vary across difficulties anyways etc, maybe it helps for example for calculations and such to have a fixed unit or tech price at all difficulties if you want to go from one difficulty to the other, a unit or tech is always same price for the human player, so you can reuse some strategies more easily maybe or quicker adjust
++- costs of tech and units (`iResearchPercent` and `iTrainPercent`) are always the same for the human player at all handicap/difficulties settings unlike in base AdvCiv, now only AI costs (`iAIResearchPercent` and `iAITrainPercent`) vary across difficulties anyways etc, maybe it helps for example for calculations and such to have a fixed unit or tech price at all difficulties if you want to go from one difficulty to the other, a unit or tech is always same price for the human player, so you can reuse some strategies more easily maybe or quicker adjust. Tech costs have been adjusted to match this change if i am not mistaken anyways etc.
+ - there are some exceptions to this, for example `iUnitCostPercent` and `iAIUnitCostPercent` (maintenance in gold per turn for the units if i am not mistaken anyways etc) are now in advciv-sas the same for all players, this is to allow for a fairer gameplay and more reliable at all difficulties, difficulty is adjusted indirectly or and through other parameters/settings to make game more or less hard(er?) accross difficulties, but i wanted the unit maintenance (gold per turn) cost especially to be closer at all difficulties, now exactly the same, see xml or handicap data table (see above at head of this doc for link to the table of all difficulties). Note: when it comes to military hammer cost, it still varies accross difficulties for AI players, but should feel closer now while hopefully still a challenging challenge iff i may say repeatedly but anyways etc, similar reasoning for tech beaker/i.e. flat gold cost i'd need to balance them though now if i want and if not already done after writing this anyways etc, please check docs xml or better or additionally maybe too anyways etc maybe also the handicap data .csv table (link at head of this doc anyways etc)
+ - disabled `INCREASE_START_TURN`, so for immortal and deity and advanced starts if i am not mistaken too anyways etc, now game starts at turn 0 for everyone and all handicap/difficulty settings anyways. This is because i would want handicap/difficulty settings to be reliable and reliably harder at each difficulty, plus we don't have free techs nor ai free techs anymore now in advciv-sas, and the handicap/difficulty increase is gradual at all difficulties, so i would like all other matetrs to be equal as well anyways etc, reduce handicap/difficulty chosen if too hard or/and i or (other or same anyways etc) players/modders may have to adjust handicap settings directly rather if they are really out of reach anyways etc, see [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml) for details anyways etc. Handicap help texts (descriptions anyways etc) have also been rewritten in AdvCiv-SAS to accomodate this change as well as better reflect the new gradual settings and overall difficulty, as well as not commit to a specific number if i may say too in advciv-sas unlike in base advciv description if i am not mistaken but anyways etc anyways etc anyways etc hopefully helpful anyways etc but anyways etc anyways etc.
+ - `iAIWorkRateModifier`: now reduced to 0 at all difficulties, meaning if i'm not mistaken that now at all difficulties, individual AI workers will build improvements (e.g. pasture, farm, etc.) at same speed (in number of turns i mean if i'm not mistaken anyways etc) as human players. Since we made so much changes in bestcitybuild and such other places and to AI worker efficiency more generally as well, we can probably afford it and AI will still be competitive, with a fairer experience for human players as well. If needed, may increase the worker count rather at higher difficulties, but not sure this is needed as AI otherwise get many discounts already so not done for now if i'm not mistaken as of now at least if not always or not but anyways etc.
+@@ -249,7 +250,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ 
+ ### Specialists (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- buff the citizen, as of now now gives 1 hammer and 1 gold (vs only 1 hammer before anyways etc), this was at first mostly to help the AI as it used to allocate a lot of them inefficiently, but may now in all cases anyways etc also help buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
++- buff the citizen, as of now to give one gold (so total 1 hammer and 1 gold), this was at first mostly to help the AI as it used to allocate a lot of them inefficiently, but may now in all cases anyways etc also help buff the citizen that is still too weak even without that i mean anyways etc, also considering the 2 food cost of a specialist, this is probably balanced and still not better than working any tile, just more even as in i mean anyways etc less penalizing to choose the citizen specialist over any other or working a tile if i am not mistaken anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+ - also buff the priest that as of now also gives one extra culture (so total 1 hammer 2 gold 1 culture if i am not mistaken as of now anyways if i am not mistaken i mean anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+ - also buff the engineer that as of now also gives one extra hammer (so total 3 hammers as of now anyways etc) anyways etc, see sevopedia ingame or/and xml for updated values anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+index a845cc022..3825c1c4d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Install_Setup_Guide.md
+@@ -58,11 +58,11 @@ See [/README.md#version-number](/README.md#version-number)
+ 
+ ## Upgrading/Downgrading version of the mod
+ 
+-If you have an older version of AdvCiv-SAS, delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
++If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer version, or a downgrade to an older version, process is the same anyways etc), delete the entire mod folder and put instead your new version of AdvCiv-SAS (does not affect savegames that are not located in this mod folder anyway if i'm not mistaken anyways etc) (or/and make a backup if you want to be safe of the old AdvCiv-SAS folder until you see all works well or want to keep it longer in case anyways etc, but it shouldn't be useful unless the development version crashes and you want to switch back (even then you could just redownload it but do as you prefer i mean hopefully helpful anyways etc)).
+ 
+-## If you have trouble downloading/installing/using/upgrading the mod
++## If you have trouble downloading/installing/using/upgrading/downgrading the mod
+ 
+-Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question and reply in case they encounter same issue or/and such, but do as you prefer i mean anyways etc).
++Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](/https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd but anyways etc, although it is a non-profit mod if i may say too but anyways etc...) and reply in case they encounter same issue or/and such, but do as you prefer and hopefully i or/and others can provide some help if i may say i mean but anyways etc).
+ 
+ ## Where to download more/other mods
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 9d57826ce..1a37c0fd8 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -99,7 +99,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ 
+ ### UI / In-game
+ 
+-- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug (`Ctrl+Z`/chipotle) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai).
++- **UI — worker recommendation highlights disabled**: turned off tile coloring for “worker-recommended plot to improve” (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs_And_Appendixes/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-anyways-etc-in-map-loaded-save-file-new-game-etc-view-anyways-etc)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md#settlers-ai).
+ - removed the strategy text in **Choose Production** and **Choose Research** (“Sid’s tips”) popups, as well as in the **Civic Revolution** popup (“Would you like to start a revolution?”); these blurbs were often outdated and/or tedious to maintain.
+ 
+ ### 48 Civs DLL
+@@ -197,7 +197,6 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Grenadiers & Bazookas — AI role**: now also flagged with `UNITAI_CITY_DEFENSE`, so the AI may use them more for **city defense**.
+ - **War target selection — distance guard**: added a **distance-based pre-filter** in `Risk::preEvaluate` (WarUtilityAspect.cpp) so the AI **rejects faraway rivals** during war-risk evaluation. This curbs “bait” wars that leave cores under-defended and keeps armies concentrated near relevant fronts. See [KI#61](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#61---seemingly-tremendously-improved-ais-getting-baited-to-attack-faraway-rivals-leaving-their-core-cities-mostly-defenseless-but-anyways-etc-and-oftentimes-dying-shortly-after-to-an-opportunistic-rivals-changed-by-adding-a-pre-filter-reject-in-war-risk-assessment-based-on-distance-to-us-in-riskpreevaluate-in-warutilityaspectcpp).
+ - **City evacuation — doomed city auto-retreat (land units only)**: in `CvUnitAI::AI_evacuateCity`, the AI now **evacuates 100% of its land units** from a **doomed city**. Previously it often retreated only a tiny fraction (e.g., 2 of 11 defenders vs a 22+ stack, whereas now all 11 defenders would evacuate if the city is deemed doomed). This change might prolong wars/game length (although it is not tested beyond the sample case to know for sure if it would be so), but the intent is a **more competitive, less self-sabotaging** AI. See [KI#62](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#62---extremely-betterstronger-ai-almost-not-evacuating-at-all-doomed-cities-2-swordsmen-in-an-11-unit-defending-stack-vs-a-22-attacking-unit-stack-fixed-by-always-and-100-evacuating-city-doomed-city-regardless-of-land-unit-type-in-cvunitaiai_evacuatecity).
+-- **City attack oscillation — pre-check vs strong targets (needs more testing)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Intended to prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught unable to retreat in time. Note: this oscillation sometimes resolved after ~2+ autoplay turns even without the change, so treat this as a **possible fix/mitigation** pending further testing.
+ - **City attack oscillation — pre-check vs strong targets (possible mitigation)**: In `CvUnitAI::AI_attackCityMove`, add a sanity check to **skip marching to/attacking a city** when the **defending stack is too strong**. Goal: prevent the inefficient **advance → abort → backtrack** loop and reduce the risk of being caught without time to retreat. **Note:** in the test sample, this behavior also resolved without the change by running ~2+ autoplay turns in a row instead of 1 turn only from a slightly older save file rather; treat this as a **possible fix/sanity check** (not (at least not yet) broadly tested). See [KI#63](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#63---possibly-prevented-and-possibly-fixed-weird--very-inefficient-back-and-forth-of-going-to-attack-a-city-stack-and-then-going-back-after-seeing-enemy-stack-is-too-strong-i-dont-know-if-this-change-fixes-it-since-the-issue-was-solved-without-it-2-autoplay-turns-were-needed-at-least-it-seems-not-1-but-maybe-this-change-in-cvunitaiai_attackcitymove-helps-a-lot-but-anyways-etc).
+ - **Early-game razing — distance-aware captures**: Updated conquer/raze logic so that, for roughly the first **~120 turns** (scaled by game speed), the AI **razes captured cities** that aren’t **close enough** to justify early investment. This addresses the base AdvCiv pattern where forces overextend (most troops sit in a faraway capture while **core cities** thin out) and also preserves scarce early economy (city maintenance, low pop, time to build improvements/culture). Indirect effect: less fog-busting far from us → **more barbarians** there, which tends to pressure rivals. Net: a **stronger, more focused** early AI (fewer “split in two” empires). See [KI#64](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#64---greatly-enhanced-ai-not-razing-faraway-cities-at-captures---now-we-raze-them-if-we-are-in-the-early-game-and-they-are-not-close-enough-thanks-to-changes-and-tweaks-in-cvplayeraiai_conquercity-anyways-etc).
+ - **Early defender overbuild → switch to versatile offense (AI)**: Heuristic in `CvCityAI::AI_chooseUnit` reduces **early-game overproduction of pure defenders** (especially Longbowmen) by swapping the build to a more **offensive/versatile** unit when defense is already sufficient — e.g., Spearmen, Axemen, Camel Archers, or civ-specific UUs like War Chariots. Also caps/avoids siege (esp. Trebuchets) when they’re inefficient defensively; production can drop **down to zero** if conditions warrant. If no good replacement exists, the AI can **reflag** the chosen defender to an **attack/attack_city/counter** `UnitAI` instead. In testing, this produced **fewer pure defenders** and **more varied stacks** (e.g., a run where Hatshepsut shifted from ~30 Longbowmen at T130 to ~32 War Chariots, plus Camel Archers). See [KI#53.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#532---fixed-and-enhanced-joao-ai-building-way-too-many-defenders-36-longbowmen-at-turn-130-almost-all-with-unitai_city_defense-or-similar-while-being-boxed-in-with-only-3-cities-instead-of-making-about-half-of-these-offense-units-or-versatile-ones-to-punish-overextending-thin-neighbour-fixed-by-having-an-early-phase-we-have-expectedly-too-few-cities-at-this-stage-of-the-game-no-need-to-overbuild-anymore-denders-at-this-stage-of-the-game-switch-to-offense-or-versatile-unitai-rather-and-our-military-composition-has-way-too-many-defender-unitais-switch-to-offense-or-versatile-unitais-which-seemingly-fix-the-issue-anyways-etc) and [KI#53.2.2](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#5322-seemingly-greatly-enhanced-ai-overproducing-defenders-early-on-especially-longbowmen-but-not-only-replaced-with-an-early-produce-more-versatile-units-especially-civ-specific-ones-when-defended-enough-at-least-in-theory-anyways-etc-in-cvcityaiai_chooseunit-anyways-etc).
+@@ -214,7 +213,8 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - **Leader random selection**: `PER_EXTRA_LEADER_CIV_SELECTION_WEIGHT` **20 → 0** (all civs equal chance regardless of leader count). See [GlobalDefines_advc.xml](/Assets/XML/GlobalDefines_advc.xml).
+ - **We Love the King Day**: restored (present in SAS).
+ - **Research scaling — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+-- **Research scaling — world size**: `iResearchPercent` **rescaled** from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 125 / 150` (so **Standard = 100**). This makes Standard the baseline and keeps scaling explicit.
++- **Research scaling — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 110 / 120` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
++- **Cost rounding to 5 removed (human-side)**: Eliminated the base AdvCiv “round to 5” rule from `CvPlayer::getProductionNeeded` (units, buildings, projects) that applied only to human players, so **costs are no longer altered for the human player** — e.g., a Swordsman at 42 hammers costs 42 (not 40), at 43 costs 43 (not 45), and an Ancient Maceman at 18 costs 18 (not 20). Also removed analogous rounding in `CvPlayer::greatPeopleThreshold`, `CvPlayer::getNewCityProductionValue`, and `CvTeam::getResearchCost`. This fixes the Sevopedia vs. in-game mismatch, and the issue of human players having a different cost than AI players even if cost would have otherwise been the same (e.g., at Noble, the AI paid 42 while the human paid 40; 43 vs. 45). Fine-grained costs now also enable true **per-hammer** tuning—e.g., you can set 40, 41, 42, 43, 44, or 45 instead of being forced to choose 40 or 45. See [KI#67](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#67---fixedenhanced-an-ancient-maceman-18-hammer-costs-20-hammer-ingame-and-a-swordsman-42-hammer-costs-40-while-a-swordsman-43-hammer-costs-45-which-is-a-mess-fixed-by-removing-per-5-rounding-in-cvplayergetproductionneeded-and-other-related-functionsissues-anyways-etc).
+ 
+ ### Handicap i.e. difficulty settings (non-exhaustive)
+ 
+@@ -232,9 +232,9 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ ### Specialists (non-exhaustive)
+ 
+-- **Citizen**: now **+1 hammer, +1 commerce** (was +1 hammer). See Sevopedia/XML.
++- **Citizen**: now adds **+1 commerce** (total **+1 hammer, +1 commerce**). See Sevopedia/XML.
+ - **Priest**: now adds **+1 culture** (total **+1 hammer, +2 commerce, +1 culture**).
+-- **Engineer**: now **+1 hammer** (total **+3 hammers**).
++- **Engineer**: now adds **+1 hammer** (total **+3 hammers**).
+ 
+ ### Terrains / Features (non-exhaustive)
+ 
+@@ -251,7 +251,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ ### Bonuses (non-exhaustive)
+ 
+-- **Wine → Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
++- **Grapes**: now improved by **Plantation** (not Winery). Happiness moved to **Grocer** (Grapes and Sugar both give happiness via Grocer). See Sevopedia/XML.
+ - **Hit bonuses** functionally disabled (kept late in tree, obsolete on reveal) to avoid LSystem issues; dependent assets rebalanced or left as‑is where appropriate.
+ - **Camel** replaces Hit Movies; spawns on **desert**. High food profile; supports camel‑mounted units (see Military section).
+ - **Bonuses — distribution (repartition) & yields (with stronger competition):** Adjusted **distribution/spawn chances** and **yields** across many bonuses.  
+@@ -288,7 +288,7 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+ 
+ - **Future era** reworked into a full era with techs/units/buildings and its own music; begins with **tech_depopulation** as a balancing/historical nod. See Sevopedia/XML.
+ - **Era info** is shown in Sevopedia Tech entries.
+-- **Eras — research scaling**: `iResearchPercent = 100` (**was** `100 / 90 / 80 / 70 / 60 / 50 / 40` for all eras; `iTechCostModifier = 0`. Tech costs now come directly from TechInfos (no hidden per-era multipliers).
++- **Eras — research scaling**: `iResearchPercent = 100` (**was** `100 / 90 / 80 / 70 / 60 / 50 / 40` for all eras); `iTechCostModifier = 0`. Tech costs now come directly from TechInfos (no hidden per-era multipliers). Tech costs have been adjusted to match this change.
+ - **Eras — anarchy scaling**: `iAnarchyPercent = 100` for all eras (**was** `50 / 50 / 40 / 40 / 34 / 34 / 34`). In practice this yields about **2 turns** of anarchy when you change civics (or similar). Intent: add strategic weight without tedium; **indirectly buffs** traits with **no anarchy** (e.g., Spiritual).
+ - **Eras — growth & production scaling flattened**: set `iGrowthPercent` (food-to-grow), `iTrainPercent` (unit cost), `iConstructPercent` (building cost), and `iCreatePercent` (project cost) to **100 for all eras** (**was** `100 / 100 / 100 / 90 / 80 / 70 / 60`). Removes late-era discounts that sped up mid/late game; pacing is now **predictable and gradual**, with balance handled directly via per-item `iCost` instead.
+ - **Eras — worker builds & improvements scaling flattened**: set `iBuildPercent` and `iImprovementPercent` from **100/100/100/90/80/70/60 → 100** at **all eras**. The original reason for the era-based scaling isn’t known; this change is intentional to keep tile-development pacing **predictable and consistent** across eras and to tune balance directly through base costs/worker rates rather than hidden era multipliers.
+@@ -330,8 +330,8 @@ See the **CSV/MD tables** for exact values ([handicap tables](/README.md#csv-and
+   - **Customs House:** buffed.  
+ - Fewer **national** wonders and relatively more **world** wonders.
+ - **Palace-likes** (Forbidden Palace, Versailles, etc.) mostly reworked as **world** wonders with tech prereqs so they appear in the tech tree and AIs don’t build them too early. (Barbarian Palace unchanged; used as a balance lever.)
+-- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly **lower**) because:
+-  - Most `BonusProductionModifiers` (e.g., +100% with Marble) are **greatly reduced**. Example: **Parthenon** is now **+25% with Marble** (was +100%).
++- Many world-wonder effects simplified/retuned; overall costs adjusted (often slightly **lower**).
++- Most `BonusProductionModifiers` (e.g., +100% with Marble) are **greatly reduced**. Example: **Parthenon** is now **+25% with Marble** (was +100%).
+ - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
+ - **Iron Works:** now requires **both Coal and Iron** empire-wide; city requirement count lowered; cost up moderately (e.g., **700 → 800**).
+ - **Heroic Epic** (`iMilitaryProductionModifier`): **100% → 50%**. The always-on military production boost was too strong and could let AIs run away; this tones it down while keeping the building relevant.
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG
+index 6aa80126a..7e654ec5d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG
+index 1dcc968e0..53079b5e8 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG
+index 28be1363a..c5a463d15 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG
+index fea1045b2..9c7c01681 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.34_Techtree_ingame (4).JPG differ
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+index f7f87b850..370f5fa6d 100644
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ b/handicap_info_to_csv_advciv-sas.csv
+@@ -1,7 +1,7 @@
+ Field,Settler,Chieftain,Warlord,Noble,Prince,Monarch,Emperor,Immortal,Deity
+-iAIAdvancedStartPercent,67,75,90,100,125,145,175,210,270
++iAIAdvancedStartPercent,70,80,90,100,120,140,160,180,200
+ iAIAnimalBonus,-30,-15,-20,0,0,0,0,0,0
+-iAIAttitudeChangePercent,30,30,30,30,40,50,60,70,90
++iAIAttitudeChangePercent,10,20,30,40,50,60,70,80,90
+ iAIBarbarianBonus,-30,-15,0,0,0,0,0,0,0
+ iAICivicUpkeepPercent,118,112,106,100,94,88,82,76,70
+ iAIConstructPercent,115,110,105,100,95,90,85,80,75
+@@ -40,11 +40,11 @@ iBuildTimePercent,100,100,100,100,100,100,100,100,100
+ iCivicUpkeepPercent,100,100,100,100,100,100,100,100,100
+ iColonyMaintenancePercent,85,90,95,100,105,110,115,120,130
+ iConstructPercent,100,100,100,100,100,100,100,100,100
+-iCorporationMaintenancePercent,85,90,95,100,105,110,115,120,130
++iCorporationMaintenancePercent,85,90,95,100,105,110,115,120,125
+ iCreatePercent,100,100,100,100,100,100,100,100,100
+ iCultureLevelPercent,100,100,100,100,100,100,100,100,100
+ iDifficulty,10,20,30,40,50,60,70,80,90
+-iDistanceMaintenancePercent,50,65,70,75,80,85,90,95,100
++iDistanceMaintenancePercent,60,65,70,75,80,85,90,95,100
+ iForeignCultureStrength,11,14,17,20,23,26,29,32,35
+ iFreeUnits,20,8,7,6,5,4,3,2,1
+ iFreeWinsVsBarbs,2,1,0,0,0,0,0,0,0
+@@ -69,7 +69,7 @@ iTrainPercent,100,100,100,100,100,100,100,100,100
+ iUnitCostPercent,100,100,100,100,100,100,100,100,100
+ iUnownedTilesPerBarbarianCity,130,125,120,115,110,105,100,95,90
+ iUnownedTilesPerBarbarianUnit,64,61,58,55,52,49,46,43,40
+-iUnownedTilesPerGameAnimal,54,49,46,43,40,37,34,31,28
++iUnownedTilesPerGameAnimal,52,49,46,43,40,37,34,31,28
+ iUnownedWaterTilesPerBarbarianUnit,475,450,425,400,375,350,325,300,275
+ GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,1,2,2
+ GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,5,5,6
+
+[PATCH COVERAGE]
+patchFiles=22 embeddedFiles=21 omittedFiles=1 embeddedPatchBytes=118801

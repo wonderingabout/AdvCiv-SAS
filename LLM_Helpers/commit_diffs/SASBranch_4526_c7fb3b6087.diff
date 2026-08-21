@@ -1,0 +1,3355 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4526
+# Commit: c7fb3b6087e8ae78f34b3e2fabc7bffad58be73e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f03a2d5ebe48f9d86ea5665762cdbd2b254eea55
+# Title: reapply the military overhaul latest .xml files so i can see the diff / to show i mean anyways in https://github.com/wonderingabout/AdvCiv-SAS/pull/15 now ho...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+189	40	Assets/XML/AI_Variables_GlobalDefines.xml
+126	37	Assets/XML/Units/CIV4PromotionInfos.xml
+1269	263	Assets/XML/Units/CIV4UnitInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index fb8bc31c6..bc7a36aa3 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -47,23 +47,33 @@
+ 	</Define>
+ 	<Define>
+ 		<!-- The satisfaction of seeing our (worst) enemies devastated. -->
++		<!-- custom: seeing worst enemy defeated should not matter as much as seeing
++		ourselves grow maybe, decreasing this a bit so hopefully AI is a bit more
++		effective, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_LOATHING</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>70</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- The prospect of a speedy military victory incites us to wage war.
+ 			 This covers Domination, Conquest and Diplomatic victory; Diplo
+ 			 victory also factors into ILL_WILL. -->
++		<!-- custom: slightly increase war propension if we are likely to win, but
++		not increasing it a lot, as there is a risk too of going too soon to war
++		(exposure to other rivals, risk if war fails, slower economy short term,
++		was 100)-->
+ 		<DefineName>UWAI_WEIGHT_MILITARY_VICTORY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>105</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Protect our partners because we want to continue trading with
+ 			 them, and don't want to become isolated. Assistance for more
+ 			 principled reasons is covered by FIDELITY, the "mutual struggle"
+ 			 diplo bonus by SUCKING_UP. -->
++		<!-- custom: as much as we like our partners, it is in our interest if
++		rivals fight each other, we conquer back the cities they lost, liberate
++		it for them to gain favour, or keep it as our expansion, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_PRESERVATION_OF_PARTNERS</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>80</iDefineIntVal>
+ 	</Define>
+   <!-- The next four - Reconquista, Rebuke, Fidelity and Hired Hand - are about
+ 	   upholding a reputation. Since Civ 4 doesn't have a reputation system,
+@@ -71,8 +81,14 @@
+ 	<Define>
+ 		<!-- By reconquering previously owned cities, we show that it's not
+ 			 worthwhile to conquer our cities; we'll get them back. -->
++		<!-- custom: city has our culture, so worth more and easier to benefit from
++		than a rival's city. It may sometimes be wise to give up the city short	term
++		or even mid or long term maybe too sometimes so not increasing it a lot,
++		was 100 
++		May be especially more important to defend our cities and their religion
++			 now i mean with the future religion changes i made,  was 100 -->
+ 		<DefineName>UWAI_WEIGHT_RECONQUISTA</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>130</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- We show we can take by force what was denied to us when we
+@@ -80,26 +96,41 @@
+ 			 they "refused to give us tribute". A rebuked demand can also lead
+ 			 to an immediate change in war planning, but that's handled by
+ 			 WarAndPeaceAI::Team::respondToRebuke, not in XML. -->
++		<!-- custom: tribute is not just for show, hopefully this maybe also
++		improves immersion, however AI demands are sometimes ridiculous,
++		so increase it only a bit. It does currently feel that they would
++		never ever declare war even though they have reason to (according to
++		what they think/value it seems i think maybe), was 100. -->
+ 		<DefineName>UWAI_WEIGHT_REBUKE</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>110</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- By declaring war on a civ that recently attacked one of our
+ 			 partners, we demonstrate that it's worthwhile to be our partner,
+ 			 and dangerous to attack our partners. -->
++		<!-- custom: may make the early game more interesting and also punish
++		overexpanding/overwarmongering players that may have been a bit too
++		careless about their defenses while doing so, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_FIDELITY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>110</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- We continue a war because we've been paid for it. (Or maybe, rather,
+ 			 to prove that we're a reliable hireling.) -->
++		<!-- custom: just because we are paid for a war is no incentive to risk
++		weakening our mainland, incentive should be more focused on potential
++		gains (vs risk of loss), was 100 -->
+ 		<DefineName>UWAI_WEIGHT_HIRED_HAND</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>0</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- By conquering cities, we reduce culture pressure on our cities. -->
++		<!-- custom: some culture pressure is maybe better than a war, especially if
++		mid late game, at this point rivals would just/more be neighbours (more
++		realistic/immersive too this way i think maybe), so make AI more likely to
++		tolerate it, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_BORDER_DISPUTES</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>90</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Fight a joint war for the "mutual struggle" diplo bonus. -->
+@@ -108,8 +139,10 @@
+ 	</Define>
+ 	<Define>
+ 		<!-- To weaken a civ that we perceive as a long-term military threat. -->
++		<!-- custom: may help AI attack sooner a rival that blocks its expansion?,
++		was 100-->
+ 		<DefineName>UWAI_WEIGHT_PREEMPTIVE_WAR</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>125</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Stop civs that we don't like from winning the game, or even civs
+@@ -117,8 +150,12 @@
+ 			 winners can be civs close to a victory condition, but also civs
+ 			 that have gotten ahead in score or that we expect to get ahead
+ 			 through an ongoing war. -->
++		<!-- custom: more so that they are kept in check and punished sooner for
++		running away with the game without taking necessary/some preparations,
++		may also make the game more dynamic and less one-sided for more immersion
++		possibly too, was 100-->
+ 		<DefineName>UWAI_WEIGHT_KING_MAKING</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>105</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Our military build-up, lost units and ravages of war. Adjusted
+@@ -132,8 +169,10 @@
+ 	<Define>
+ 		<!-- The risk of losing cities or vassals in the war, or even having to
+ 			 capitulate or being eliminated. -->
++		<!-- custom: slightly increase this to prevent excessive war declarations
++		(that may backfire for the AI maybe), was 100-->
+ 		<DefineName>UWAI_WEIGHT_RISK</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>105</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- The negative diplomatic consequences of war: angering the civ
+@@ -152,13 +191,18 @@
+ 		<!-- Distractions from fighting multiple wars are already covered by
+ 			 the military analysis, but not quite reliably, so this is an
+ 			 extra cost to discourage wars on multiple fronts. -->
++		<!-- custom: AI is unlikely to win 2+ wars at the same time, almost always
++		likely to end bad for the AI, so may help the AI to further discourage
++		it, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_DISTRACTION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>300</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Anger from war weariness and bonds of faith. -->
+ 		<DefineName>UWAI_WEIGHT_PUBLIC_OPPOSITION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<!-- custom: should matter less if war is short or/and conquered city has
++		new ressources, was 100 -->
++		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- War leaves fewer units stationed in cities, which can lead to
+@@ -172,14 +216,21 @@
+ 		<!-- Applies only when we're paid to start a war and the sponsor isn't
+ 			 apparently in need of assistance (or not even at war). Why hire
+ 			 us then? Will have to pay extra to allay our suspicions. -->
++		<!-- custom: need to pay more to make us going to war for/with someone
++		as it is more likely to bite us back (or we'd be manipulated in doing
++		so), was 100 -->
+ 		<DefineName>UWAI_WEIGHT_ULTERIOR_MOTIVES</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>200</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Discourages early war against humans; not fair when the AI has a
+ 			 head start. -->
++		<!-- custom: give a bit more time for the human player to catch up, but
++		not too much. Hopefully this also helps prevent suicidal war declarations
++		that are done too soon and do not profit the player that declared war vs
++		the rivals developing their economy in the early game instead, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_FAIR_PLAY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>125</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- War as its own purpose. Before this aspect was added, there was too
+@@ -187,7 +238,12 @@
+ 			 Especially affects AI leaders with aggressive/ suicidal
+ 			 personalities. -->
+ 		<DefineName>UWAI_WEIGHT_BELLICOSITY</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<!-- custom: the human player (and other players too) can't just play it
++		safe and focus only on economy for ultra late game win, this should be
++	    punished by players that are strong enough to profit from that immediate
++		advantage, and the human or other players should instead have a more
++		balanced approach and be aware of that, was 100 -->
++		<iDefineIntVal>120</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Is the tactical situation favorable, i.e. do we/ do they have
+@@ -196,8 +252,10 @@
+ 			 increased war utility. If still preparing war: Do we have suffi-
+ 			 cient units to start the war; is there still enough time to build
+ 			 them? -->
++		<!-- custom: hopefully helps the AI have a more dynamic or/and
++		opportunistic response to local position, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_TACTICAL_SITUATION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>140</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 		<!-- Pacifism for humanitarian reasons (roleplaying). This is different
+@@ -213,16 +271,22 @@
+ 	<Define>
+ 	<!-- We're wary of waging war when a dangerous third party appears likely
+ 		 to intervene against us. -->
++		<!-- custom: overexpansion would kill the player, so some caution if
++		outnumbered	may help a lot, possibly the player being outnumbered to
++		make a comeback later too?, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_THIRD_PARTY_INTERVENTION</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>200</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+ 	<!-- To keep the game entertaining for human players, we're more inclined
+ 		 to start a war if none has been fought among civs known to us for a
+ 		 long time. Conversely, we're more inclined to make peace if many wars
+ 		 have been ongoing for a long time. -->
++		<!-- custom: focus should be more on actual gains and risks of losses,
++		not on entertaining the human player especially if doing a foolish war
++		declaration	that would later be exploited by other players, was 100 -->
+ 		<DefineName>UWAI_WEIGHT_DRAMATIC_ARC</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
+ 
+ 	<Define>
+@@ -242,16 +306,29 @@
+ 			 the faith" though.) UWAI_PERSONALITY_PERCENT>100 makes the
+ 			 personalities more pronounced (not tested). Negative values invert
+ 			 the personalities (not tested and not recommended). -->
++		<!-- custom: have personalities be more pronounced (experimental), maybe
++		it would make the game more entertaining, or games in general more
++		varied, without affecting as much effectiveness of decisions as compared
++		to dramatic_war?, was 100 -->
+ 		<DefineName>UWAI_PERSONALITY_PERCENT</DefineName>
+-		<iDefineIntVal>100</iDefineIntVal>
++		<iDefineIntVal>120</iDefineIntVal>
+ 	</Define>
+ 	<!-- [/advc.104x] -->
+ 	<!-- [advc.104] Misc. UWAI parameters -->
+ 	<Define>
+ 		<!-- Added to the utility threshold for starting a war while already in
+ 			 a war. Recommended: 10 (or sth. between 0 and 25). -->
++		<!-- custom: testing 25, would this make AIs less willing/likely to fight
++		multi wars, thus increasing AI efficiency?, was 10-->
++		<!-- custom: now i want to increase this more to see, seemed to perform
++		quite well in the (few) tests i made, was 25 last time i changed it,
++		not to totally prevent it, but very strongly discourage it, it really
++		should be very bad for the AI to fight multi wars in terms of wining
++		i mean, as for roleplaying it is not my core concern at least about this
++		point that affects AI performance meaning its strength i mean, i think,
++		was 25 last time i modified it -->
+ 		<DefineName>UWAI_MULTI_WAR_RELUCTANCE</DefineName>
+-		<iDefineIntVal>10</iDefineIntVal>
++		<iDefineIntVal>50</iDefineIntVal>
+ 	</Define>
+     <Define>
+ 		<!-- When computing per-civ power values (which play an important role
+@@ -265,8 +342,31 @@
+ 			 166%; one Spearman then corresponds to 3.15 Warriors. -->
+ 		<!-- advc.159: A fraction (3/4) of this value is also used for some
+ 			 tactical decisions outside the UWAI component. -->
++		<!-- custom: Extra checking the AdvCiv's value:
++		2^1.66 = 3.160 and 4^1.66 = 9.987 , so one spearman is as strong, corrected,
++		as 9.987 / 3.160 = 3.160 (too) warriors, about same as AdvCiv's value indeed
++		((very) slightly different due to rounding so 3.15 becomes 3.16 in my case i
++		mean anyways), so my math is hopefully correct in this case at least i mean
++		anyways.
++
++		Now changing it to a maybe more fit for my purpose value or how i think
++		it may fit better the game:
++		2^1.59 = 3.010 strength corrected and 4^1.59 = 9.063
++		approximately so a spearman (basing myself on base BTS/AdvCiv strength,
++		just as an example mostly used to illustrate the math a bit i mean
++		anyways) is closer to 3	(9.063 / 3.010 = 3.011 , to be more exact
++		(still approximate)) warriors now, so maybe this is good enough odds
++		to consider attacking with the 3 warriors now?
++		May also help AI stacks	not stare at each other too long and start city
++		attacks sooner?
++		
++		Increased it to 160 to be safer (than 159), so one warrior is
++		2^1.6 = 3.031 corrected strength now and one spearman is 4^1.6 = 9.190
++		corrected strength now,	and so one spearman	is now as worth as
++		9.190 / 3.031 = 3.032 warriors, which is maybe a bit safer,
++		was 166 -->
+         <DefineName>POWER_CORRECTION</DefineName>
+-		<iDefineIntVal>166</iDefineIntVal>
++		<iDefineIntVal>160</iDefineIntVal>
+     </Define>
+ 	<!-- [/advc.104] -->
+ 
+@@ -276,46 +376,95 @@
+ 	<!-- -->
+ 	<Define> <!-- redefine -->
+ 		<!-- War success value of capturing a city.  BBAI: 25, BtS 10
+-			 advc.130r: Reduce a little. Caveat: Should be careful about
+-			 changing this value, it's used as a baseline in many places. -->
++		advc.130r: Reduce a little. Caveat: Should be careful about
++		changing this value, it's used as a baseline in many places. -->
+ 		<DefineName>WAR_SUCCESS_CITY_CAPTURING</DefineName>
+ 		<iDefineIntVal>22</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Ratio of enemy power to team power for AI to consider running TURTLE (all out defense, no offensive forays) strategy.  
++		<!-- Ratio of enemy power to team power for AI to consider
++		running TURTLE (all out defense, no offensive forays) strategy.
+ 		Equal power would be 100.  BBAI default: 250 -->
++		<!-- custom: try turtling sooner to avoid a too late to defend
++		situation. I would want to reduce further this value but would
++		need more changes, as in some cases AI turtles too much early
++		just because one player that is	sometimes far from them produces
++		(way) more units than the other players. Maybe this creates a
++		vicious loop where the "angry" unit pomper (think montezuma/
++		khmer/boudica AI in the early game maybe as an example maybe
++		if i am not mistaken i mean) sees that they have now less and
++		(in their perception) not enough units (more) than the other
++		rivals, so they produce	more, inducing the other players to
++		produce more etc.
++		To prevent that, i am putting the value higher than i would
++		want to, at	160	currently.
++		Ideally	if higher than 110 power ratio the AI should start
++		to turtle, else it's a big	gamble to bet on not being attacked
++		(for what reason i	mean anyways?), especially with my changes
++		that aim at making the AI more pragmatic and opportunistic, to
++		increase its strength and realism too maybe i mean, so that i
++		can enjoy the game more and hopefully others if they try these
++		changes i made and want a similar type of gameplay (else they
++		may tweak or not it as they see fit maybe i mean)), was 250 -->
+ 		<DefineName>BBAI_TURTLE_ENEMY_POWER_RATIO</DefineName>
+-		<iDefineIntVal>250</iDefineIntVal>
++		<iDefineIntVal>160</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Minimum stack strength ratio at which AI will attack enemy city it is next to, higher means less suicide.  BTS default: 120, BBAI: 125, now: 123 -->
++		<!-- Minimum stack strength ratio at which AI will attack enemy
++		city it is next to, higher means less suicide.
++		BTS default: 120, BBAI: 125, now: 123 -->
++		<!-- custom: many times AI troops are too long to start an
++		attack and keep staring at	each other, facilitate a bit more
++		the AI attack to start, was 123 -->
+ 		<DefineName>BBAI_ATTACK_CITY_STACK_RATIO</DefineName>
+-		<iDefineIntVal>123</iDefineIntVal>
++		<iDefineIntVal>122</iDefineIntVal>
+ 	</Define>
+ 	<!-- advc.003j: Obsoleted by K-Mod code (CvUnitAI::AI_bombardCity) -->
+-	<!-- Minimum attack odds of best attacker for AI to skip bombarding a city
+-		 and just attack.  BBAI default: 12 -->
++	<!-- Minimum attack odds of best attacker for AI to skip bombarding 
++	a city and just attack.  BBAI default: 12 -->
+ 	<!--Define>
+ 		<DefineName>BBAI_SKIP_BOMBARD_BEST_ATTACK_ODDS</DefineName>
+ 		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define-->
+ 	<Define>
+-		<!-- Base ratio of stack strengths for AI considering skipping bombard and just attacking enemy city.
+-		This ratio is reduced by the AI's best attacker odds and how long it will take to bombard the city.
+-		Lower means AI will more readily skip bombarding.  BBAI default: 300 -->
++		<!-- Base ratio of stack strengths for AI considering skipping
++		bombard	and just attacking enemy city. This ratio is reduced by
++		the AI's best attacker odds and how long it will take to bombard
++		the city.
++		Lower means AI will more readily skip bombarding.
++		BBAI default: 300 -->
+ 		<!-- advc.114c: Was 260 in K-Mod, now 250. -->
++		<!-- custom: speed up a bit the early conquest, later in the
++		game having	a good pace/tempo and short war should also be
++		valuable for the AI, would give less time to build more defenders
++		while city is bombarded too so maybe it balances itself out this
++		way -->
+ 		<DefineName>BBAI_SKIP_BOMBARD_BASE_STACK_RATIO</DefineName>
+-		<iDefineIntVal>250</iDefineIntVal>
++		<iDefineIntVal>240</iDefineIntVal>
+ 	</Define>
+ 	<Define>
+-		<!-- Minimum stack strength ratio for AI to skip bombarding city and just attack, higher is more conservative.  BBAI default: 150 -->
++		<!-- Minimum stack strength ratio for AI to skip bombarding city
++		and	just attack, higher is more conservative.  BBAI default: 150 -->
+ 		<!-- advc.114c: Was 140 in K-Mod, now 137. -->
++		<!-- custom: similar as for skip_bombard_base_stack_ratio, to
++		facilitate a bit more early attack, with in mind the possible
++		benefits of doing so too, was 137 -->
+ 		<DefineName>BBAI_SKIP_BOMBARD_MIN_STACK_RATIO</DefineName>
+-		<iDefineIntVal>137</iDefineIntVal>
+-	</Define>
+-	<Define>
+-		<!-- Minimum city site value that the AI will consider settling. default: 600. (K-Mod) -->
++		<iDefineIntVal>135</iDefineIntVal>
++	</Define>
++	<Define>
++		<!-- Minimum city site value that the AI will consider settling.
++		default: 600. (K-Mod) -->
++		<!-- custom: at first i thought some cities are not good enough
++		but AI still settles them and cripples itself, hopefully this
++		improves that while not hurting AI growth too much, but it didn't
++		seem to do too much especially if increased too much. A very low
++		value (around 300 for example) seemed to be mostly ignored too
++		(except AI had more cities that were a bit too crammed.
++		Trying other values, it seems 550 somehow, i don't know why, but
++		consistently provides better city spots to the AI, would need
++		more testing to make sure., was 600 -->
+ 		<DefineName>BBAI_MINIMUM_FOUND_VALUE</DefineName>
+-		<iDefineIntVal>600</iDefineIntVal>
++		<iDefineIntVal>550</iDefineIntVal>
+ 	</Define>
+ </Civ4Defines>
+\ No newline at end of file
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 90073fe8a..03425217e 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1569,7 +1569,8 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>20</iHillsDefense>
++			<!-- custom: similarly to woodsman promotions, make it more even between levels, was 20 -->
++			<iHillsDefense>25</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+ 			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+@@ -1644,7 +1645,8 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>30</iHillsDefense>
++			<!-- custom: similarly to woodsman promotions, make it more even between levels, was 30 -->
++			<iHillsDefense>25</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+ 			<iRevoltProtection>0</iRevoltProtection>
+ 			<iCollateralDamageProtection>0</iCollateralDamageProtection>
+@@ -1807,15 +1809,31 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
++			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
++		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
++			at offense in such terrains
++			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
++			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
++			would still not affect too much the warfare in the end so it would not be OP.
++			Also tweak the values a bit for it to be more gradual, was 20 -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>20</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>20</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitCombatMods/>
+@@ -1891,15 +1909,31 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
++			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
++		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
++			at offense in such terrains
++			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
++			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
++			would still not affect too much the warfare in the end so it would not be OP.
++			Also tweak the values a bit for it to be more gradual, was 30 -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>30</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>30</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitCombatMods/>
+@@ -1984,17 +2018,34 @@
+ 			<iExperiencePercent>0</iExperiencePercent>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
++			<!-- custom: give woodsman promotion same attack bonuses than jungle bonuses it has,
++		    no specific reason why units would be good at defense in forest/jungle but weirdly not as good
++			at offense in such terrains
++			may also buff the woodsman promotion which is quite a bit weaker than other promotions, and since
++			city inner tile is never a forest or a jungle tile after city is planted, the woodsman promotion
++			would still not affect too much the warfare in the end so it would not be OP.
++			Also tweak the values a bit for it to be more gradual, was 50 -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>50</iFeatureAttack>
++					<iFeatureAttack>25</iFeatureAttack>
+ 				</FeatureAttack>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>50</iFeatureAttack>
++					<iFeatureAttack>25</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+-			<FeatureDefenses/>
++			<!-- custom: was 0 -->
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+@@ -2283,7 +2334,13 @@
+ 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>20</iCityDefense>
++			<!-- custom: make this promotion gradual too, also as strong as an option as guerilla
++			promotions with their change now, was 20. It could be also said perhaps that cities are
++			easier to garrison than to attack, especially at earlier/lower levels (anyone could maybe
++			defend the city or barricade, but fewer would be able to attack maybe.
++			This also makes defender units slightly more attractive as only them can have this
++			promotion unless i'm mistaken) -->
++			<iCityDefense>25</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+@@ -2305,6 +2362,20 @@
+ 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<!-- custom: spearmen reworked, trying it to make them a more versatile unit,
++				and better defenders too to be more realistic/accurate maybe and also
++				competitive, as they are a bit too weak currently.
++				While doing this rework, i noticed (and thought before too briefly i mean)
++				that there is no specific reason why melee units can't defend cities too,
++				so i am adding the city defense promotion to them too
++				I am not sure it is necessary to add more strict UNITAI tags to make sure
++				melee units are strictly offensive units, it may be fine if the AI uses them
++				at defense too, but should try to still give defensive units an edge and specific
++				value-->
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2376,6 +2447,11 @@
+ 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<!-- custom: allowing this promotion too for melee units -->
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2425,7 +2501,9 @@
+ 			<iAdjacentTileHealChange>0</iAdjacentTileHealChange>
+ 			<iCombatPercent>0</iCombatPercent>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>30</iCityDefense>
++			<!-- custom: make this promotion gradual in line with the other city garrison
++			ones, was 30 -->
++			<iCityDefense>25</iCityDefense>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<iKamikazePercent>0</iKamikazePercent>
+@@ -2438,12 +2516,10 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>10</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<!-- custom: since more units have access to this promotion now, make it a bit weaker,
++			not only for balance, also because defenders can be good against all invaders, not only
++			a specific type, i think it's more realistic this way, was UNITCOMBAT_MELEE 10 -->
++			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+@@ -2452,6 +2528,11 @@
+ 					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<!-- custom: allowing this promotion too for melee units -->
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2892,6 +2973,10 @@
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -2904,6 +2989,8 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<Button>,Art/Interface/Buttons/Promotions/Barrage1.dds,Art/Interface/Buttons/Promotions_Atlas.dds,4,1</Button>
+ 		</PromotionInfo>
++		<!-- custom: barrage op due to versatility (out of city
++		attack too) and multi unit damage, nerf it a bit -->
+ 		<PromotionInfo>
+ 			<Type>PROMOTION_BARRAGE2</Type>
+ 			<Description>TXT_KEY_PROMOTION_BARRAGE2</Description>
+@@ -2930,7 +3017,7 @@
+ 			<iEvasionChange>0</iEvasionChange>
+ 			<iWithdrawalChange>0</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+-			<iCollateralDamageChange>30</iCollateralDamageChange>
++			<iCollateralDamageChange>20</iCollateralDamageChange>
+ 			<iBombardRateChange>0</iBombardRateChange>
+ 			<iFirstStrikesChange>0</iFirstStrikesChange>
+ 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+@@ -2954,12 +3041,7 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>10</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+@@ -2968,6 +3050,10 @@
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3006,7 +3092,7 @@
+ 			<iEvasionChange>0</iEvasionChange>
+ 			<iWithdrawalChange>0</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+-			<iCollateralDamageChange>50</iCollateralDamageChange>
++			<iCollateralDamageChange>20</iCollateralDamageChange>
+ 			<iBombardRateChange>0</iBombardRateChange>
+ 			<iFirstStrikesChange>0</iFirstStrikesChange>
+ 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+@@ -3030,12 +3116,7 @@
+ 			<TerrainDefenses/>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
+-					<iUnitCombatMod>10</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<DomainMods/>
+ 			<TerrainDoubleMoves/>
+ 			<FeatureDoubleMoves/>
+@@ -3044,6 +3125,10 @@
+ 					<UnitCombatType>UNITCOMBAT_SIEGE</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+@@ -3062,8 +3147,8 @@
+ 			<Sound>AS2D_IF_LEVELUP</Sound>
+ 			<LayerAnimationPath>NONE</LayerAnimationPath>
+ 			<PromotionPrereq>NONE</PromotionPrereq>
+-			<PromotionPrereqOr1>PROMOTION_CITY_RAIDER1</PromotionPrereqOr1>
+-			<PromotionPrereqOr2>PROMOTION_BARRAGE1</PromotionPrereqOr2>
++			<PromotionPrereqOr1>NONE</PromotionPrereqOr1>
++			<PromotionPrereqOr2>NONE</PromotionPrereqOr2>
+ 			<TechPrereq>NONE</TechPrereq>
+ 			<StateReligionPrereq>NONE</StateReligionPrereq>
+ 			<bLeader>0</bLeader>
+@@ -3083,7 +3168,7 @@
+ 			<iWithdrawalChange>0</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+ 			<iCollateralDamageChange>0</iCollateralDamageChange>
+-			<iBombardRateChange>8</iBombardRateChange>
++			<iBombardRateChange>10</iBombardRateChange>
+ 			<iFirstStrikesChange>0</iFirstStrikesChange>
+ 			<iChanceFirstStrikesChange>0</iChanceFirstStrikesChange>
+ 			<iEnemyHealChange>0</iEnemyHealChange>
+@@ -3147,7 +3232,7 @@
+ 			<iAirRangeChange>0</iAirRangeChange>
+ 			<iInterceptChange>0</iInterceptChange>
+ 			<iEvasionChange>0</iEvasionChange>
+-			<iWithdrawalChange>10</iWithdrawalChange>
++			<iWithdrawalChange>15</iWithdrawalChange>
+ 			<iCargoChange>0</iCargoChange>
+ 			<iCollateralDamageChange>0</iCollateralDamageChange>
+ 			<iBombardRateChange>0</iBombardRateChange>
+@@ -3182,6 +3267,10 @@
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+ 				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
+ 				<UnitCombat>
+ 					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
+ 					<bUnitCombat>1</bUnitCombat>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 5e1d12ea6..2f36e5319 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -4,6 +4,47 @@
+ <!-- Copyright Firaxis Games 2005 -->
+ <!-- -->
+ <!-- Unit Infos -->
++<!-- custom: multiply iPower by:
++- 10 for standard military units for example (clubman (warrior)),
++i don't know if this takes into account promotions and other
++multipliers such as natural base stats, but maybe this helps the
++problem of suicidal war declarations in particular, idea i got from
++realism invictus's commit https://sourceforge.net/p/civ4mods/code/5464/
++(name/description) (without actually looking at their code, but i can take it from there,
++about this i
++mean anywyas, as is or not but i mean anyways, thanks, )
++for example
++10 strength x 10 multiplier = 100 iPower for the clubman
++- 7 for cover military units or (more) specialized defenders, for
++example for the archer, they will not directly attack cities, even
++if they may participate in the assault but a bit of a threat, for ex
++6 strength x 7 multiplier = 42 iPower
++- 5 for animals: not used currently but if some players were to control
++animals, these animals may ont be able to (be) use(d in) advanced
++strategy(ies) maybe, but their raw power, usually higher than of
++humans, should not be ignored for example for the lion
++15 strength x 5 = 75 iPower
++- 5 for support military too: for example the explorer has good enough
++stats to attack in some cases, but more often than not is not a threat
++against regular military at all, so for example would be
++6 strength x 5 = 30 iPower
++- 2 for support units (worker if i give them strength), for example
++an ancient worker
++3 strength x 2 = 6 iPower, not entirely useless (may delay city
++capture or very rarely fight animals, but mostly not a threat)
++- 1 (much less) for naval units, for example x1, indeed they
++can barely have any major influence on land warfare, and their
++strength may be misleading, for the calculation for example
++3 strength (early sailboat) x 1 = 1 iPower
++10 strength (early frigate) x 1 = 10 iPower
++
++As for iAsset, as this should not directly affect combat tactics
++or choices (i think), increase it just by strength count, so that
++it scales accurately, for example for the clubman:
++10 stregth = iAsset value of 10
++for example for the archer
++6 strength = iAsset value of 6
++-->
+ <Civ4UnitInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<UnitInfos>
+ 		<UnitInfo>
+@@ -110,7 +151,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<iCombat>15</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -162,8 +203,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>15</iAsset>
++			<iPower>75</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -289,7 +330,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>3</iCombat>
++			<iCombat>20</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -333,8 +374,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>20</iAsset>
++			<iPower>100</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -460,7 +501,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<iCombat>14</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -504,8 +545,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>14</iAsset>
++			<iPower>70</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -631,7 +672,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>1</iCombat>
++			<iCombat>12</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -684,8 +725,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>1</iPower>
++			<iAsset>12</iAsset>
++			<iPower>60</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -855,7 +896,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>4</iAsset>
++			<iAsset>25</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>4</iGroupSize>
+@@ -1052,7 +1093,7 @@
+ 			</ProductionTraits>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>60</iCost>
++			<iCost>35</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1115,7 +1156,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>20</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+@@ -1370,7 +1411,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+@@ -1414,7 +1455,13 @@
+ 			<!-- advc.315a: Replaced with OnlyAttackAnimals -->
+ 			<bOnlyDefensive>0</bOnlyDefensive>
+ 			<!-- advc.315a -->
+-			<bOnlyAttackAnimals>1</bOnlyAttackAnimals>
++			<!-- custom: minor rework, allow the scout to attack (or
++			defend against) all rivals units and cities, but it should
++			be disincentivized enough for players due its low strength
++			and not much bonuses especially in city	attack-defense,
++			still better than nothing in this case i mean anyways,
++			thanks,	-->
++			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
+ 			<!-- advc.315b -->
+ 			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
+ 			<bNoCapture>0</bNoCapture>
+@@ -1464,7 +1511,46 @@
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: making	extra sure scouts are not used/confused
++			by the AI as attackers or even defenders. -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -1507,7 +1593,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>1</iCombat>
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -1524,10 +1610,13 @@
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<!-- advc.315c: Was 100; now BarbarianCombat instead. -->
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<iBarbarianCombat>100</iBarbarianCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: scout rework. Make scouts especially good against
++			animals (it is a sort of hunting after all), not so much
++			against	other humans even if they are barbarians, was 0 -->
++			<iAnimalCombat>200</iAnimalCombat>
++			<iBarbarianCombat>25</iBarbarianCombat>
++			<iHillsAttack>25</iHillsAttack>
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+@@ -1548,8 +1637,8 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>0</iPower>
++			<iAsset>15</iAsset>
++			<iPower>20</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -1567,7 +1656,22 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: i think explore units should be good at exploring,
++			navigating forest type terrains is a good way to do so. -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<!-- custom: also give flaking 1 (only) to scouts, should be valuable
++				and also realistic. Exploring should involve to some extent (i think)
++				being good at retreating too. Explore units have a quite low strength
++				so this is more for defense in this case i mean anyways, thanks,-->
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -1594,9 +1698,11 @@
+ 			<!-- advc.315a -->
+ 			<bOnlyAttackAnimals>0</bOnlyAttackAnimals>
+ 			<!-- advc.315b -->
+-			<bOnlyAttackBarbarians>1</bOnlyAttackBarbarians>
++			<!-- custom: unit reworked -->
++			<bOnlyAttackBarbarians>0</bOnlyAttackBarbarians>
+ 			<!-- advc.315b: Not supposed to conquer Barbarian cities -->
+-			<bNoCapture>1</bNoCapture>
++			<!-- custom: can conquer cities, was 1 -->
++			<bNoCapture>0</bNoCapture>
+ 			<bQuickCombat>0</bQuickCombat>
+ 			<bRivalTerritory>0</bRivalTerritory>
+ 			<bMilitaryHappiness>0</bMilitaryHappiness>
+@@ -1639,7 +1745,45 @@
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_SPECIAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -1658,7 +1802,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1682,7 +1826,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<iCombat>6</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -1698,9 +1842,19 @@
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: a bit weaker than the scout in some aspects
++			(animals, but better than the scout in others (barbarians),
++			may include a sort of simulation of realism of the
++			colonization that happened later in history too, as
++			western countries started to explore, if there are any
++			barbarians cities left i mean anyways, which may happen
++			more often now with the boosts i made to barbarians or
++			will make or not i mean anyways about this for barbarians
++			i mean anyways, thanks, ) -->
++			<iAnimalCombat>100</iAnimalCombat>
++			<iBarbarianCombat>100</iBarbarianCombat>
++			<iHillsAttack>25</iHillsAttack>
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+@@ -1722,8 +1876,8 @@
+ 			<!-- advc.315c: was 0 -->
+ 			<iCultureGarrison>3</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
+-			<iPower>2</iPower>
++			<iAsset>35</iAsset>
++			<iPower>30</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>2</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -1741,11 +1895,44 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- advc.315c: was PROMOTION_GUERILLA1 and PROMOTION_WOODSMAN1 -->
+-			<FreePromotions/>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_WOODSMAN2</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING2</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<!-- custom: use a spy dedicated txt key entry to remove much
++		of the unclear or mistaken or not relevant to a mod information
++		about espionage as a whole: we only want the relevant infos
++		about the spy as a unit, also solves some display issues in the
++		sevopedia, while fixing potentially existing or future
++		inaccuracies so i think is very good, doing it for my mod
++		but implemented with this file so that it could be more
++		easily exported in other mods or base advciv if wished, but
++		is just a suggestion i mean anyways, else i am regardless
++		using it i mean anyways, focsuing on me i mean anyways,
++		as is or not i mean anyways, thanks, -->
++		<!-- custom: for reference, old data was:
++		<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
++		putting it outside of the class to make sure no weird bugs are
++		caused by in-class comments, about this at least i mean anyways,
++		thanks,
++		-->
+ 		<UnitInfo>
+ 			<Class>UNITCLASS_SPY</Class>
+ 			<Type>UNIT_SPY</Type>
+@@ -1758,7 +1945,7 @@
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_SPY</Description>
+-			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR</Civilopedia>
++			<Civilopedia>TXT_KEY_CONCEPT_ESPIONAGE_PEDIA_SR_SPY_UNIT_PEDIA_CUSTOM</Civilopedia>
+ 			<Strategy>TXT_KEY_UNIT_SPY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+@@ -1831,7 +2018,7 @@
+ 				</Flavor>
+ 			</Flavors>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -1894,7 +2081,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>15</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2003,7 +2190,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2066,7 +2253,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2170,7 +2357,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2233,7 +2420,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2337,7 +2524,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2400,7 +2587,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2504,7 +2691,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2567,7 +2754,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2671,7 +2858,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2734,7 +2921,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -2838,7 +3025,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -2901,7 +3088,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3005,7 +3192,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>100</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3068,7 +3255,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>3</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3173,7 +3360,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3236,7 +3423,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3340,7 +3527,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3403,7 +3590,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3507,7 +3694,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3570,7 +3757,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3674,7 +3861,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3737,7 +3924,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -3841,7 +4028,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -3904,7 +4091,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -4008,7 +4195,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4071,7 +4258,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -4175,7 +4362,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>-1</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4238,7 +4425,7 @@
+ 			<iConscription>0</iConscription>
+ 			<iCultureGarrison>0</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>2</iAsset>
++			<iAsset>30</iAsset>
+ 			<iPower>0</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>1</iGroupSize>
+@@ -4269,7 +4456,11 @@
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<!-- custom: make them default to defenders for safer AI early but
++			really they could be attackers and maybe i should not block this about
++			this i mean anyways growth i mean anyways hold it back their potential
++			about this i mean anyways -->
++			<DefaultUnitAI>UNITAI_RESERVE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+ 			<Description>TXT_KEY_UNIT_WARRIOR</Description>
+@@ -4326,17 +4517,21 @@
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
++				<!-- custom: warriors are valuable as city defenders too-->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -4355,7 +4550,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>15</iCost>
++			<iCost>25</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4379,7 +4574,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<iCombat>10</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -4389,13 +4584,13 @@
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
++			<iWithdrawalProb>5</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>25</iCityDefense>
+-			<iAnimalCombat>0</iAnimalCombat>
++			<iCityDefense>10</iCityDefense>
++			<iAnimalCombat>50</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+@@ -4418,8 +4613,8 @@
+ 			<iConscription>1</iConscription>
+ 			<iCultureGarrison>3</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>2</iPower>
++			<iAsset>10</iAsset>
++			<iPower>100</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -4442,7 +4637,7 @@
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_WARRIOR</Class>
++			<Class>UNITCLASS_SPEARMAN</Class>
+ 			<Type>UNIT_INCAN_QUECHUA</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+@@ -4491,37 +4686,56 @@
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<!-- advc.907b: Upgrade to MACEMAN disabled -->
++			<!-- custom: unit is versatile now and maceman is sooner so enabled
++			it or/and other possible reasons about this at least i mean anyways
++			-->
+ 			<UnitClassUpgrades>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_AXEMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_SPEARMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>0</bUnitClassUpgrade>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
++			<UnitCombatDefenders>
++			<!-- custom: now that the unit is reworked, quecha is not especially good
++			against archer type of units currently, was 1 -->
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_ARCHER</UnitCombatDefenderType>
++					<bUnitCombatDefender>0</bUnitCombatDefender>
++				</UnitCombatDefender>
++			<!-- custom: since it is now based on the spearman, adding this just in case,
++			to not first target mounted units we are not especially good against now -->
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<bUnitCombatDefender>0</bUnitCombatDefender>
++				</UnitCombatDefender>
++			</UnitCombatDefenders>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs/>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -4533,15 +4747,19 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>NONE</PrereqTech>
+-			<TechTypes/>
++			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_HUNTING</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- advc.907b: was 20 -->
+-			<iCost>15</iCost>
++			<iCost>20</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -4565,7 +4783,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>2</iCombat>
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -4580,22 +4798,59 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>25</iCityDefense>
++			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<iHillsAttack>30</iHillsAttack>
++			<iHillsDefense>50</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
+-			<UnitClassAttackMods/>
+-			<UnitClassDefenseMods/>
+-			<!-- advc.907b: Combat bonus vs. Archer (100) removed -->
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++			<!-- custom: quechua rework (ctrl+f maybe helpful for that too etc)-->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PEAK</TerrainType>
++					<iTerrainAttack>50</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>15</iTerrainDefense>
++				</TerrainDefense>		
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PEAK</TerrainType>
++					<iTerrainDefense>100</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++				<FeatureAttack>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++				<FeatureDefense>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<!-- advc.907b: Combat bonus vs. Archer (100) removed -->
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
+ 					<iUnitCombatMod>0</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+@@ -4629,12 +4884,9 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<!-- custom: unit reworked, it is strong enough and cheap enough to not need combat 1,
++			was PROMOTION_COMBAT1-->
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -5000,8 +5252,20 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 			<FreePromotions>
++				<!-- custom: i've read/watched quickly a few sources about this unit, none seem to
++				mention it being especially good in the woods, however many highlight the fact that
++				they are elite units which are very strong in battlefield and have sort of prestige
++				i mean in society, therefore i replaced it with the leader promotion that maybe will
++				be more useful for the AI (or/and the player) too, as i think the unit is quite weak
++				currently (weaker than axeman for same price, weaker than swordsman for not much
++				gold difference), added combat 1 promotion too as unit should still be quite weak
++				even with that, was PROMOTION_WOODSMAN1 was -->
+ 				<FreePromotion>
+-					<PromotionType>PROMOTION_WOODSMAN1</PromotionType>
++					<PromotionType>PROMOTION_LEADERSHIP</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+ 			</FreePromotions>
+@@ -5551,8 +5815,27 @@
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: axes could be useful in navigating or fighting in the woods maybe. -->
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++				<FeatureAttack>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++				<FeatureDefense>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+@@ -6871,7 +7154,18 @@
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
++			<!-- custom: now that the unit is reworked, defend first rather against these types:
++			(i don't know if it overwrites previous settings or just adds these though) -->
++			<UnitCombatDefenders>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++			</UnitCombatDefenders>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+@@ -6950,22 +7244,52 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
++			it is a bit weaker than the other early units currently, was 0 -->
++			<iCityDefense>25</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
++			could be useful (to help in) for uphill battles maybe now, was 0 -->
++			<iHillsAttack>10</iHillsAttack>
++			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++				<FeatureAttack>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++				<FeatureDefense>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as it
++			is a bit weaker than the other early units currently, was UNITCOMBAT_MOUNTED 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -7060,7 +7384,18 @@
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
++			<!-- custom: now that the unit is reworked, defend first rather against these types:
++			(i don't know if it overwrites previous settings or just adds these though) -->
++			<UnitCombatDefenders>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++			</UnitCombatDefenders>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+@@ -7143,22 +7478,62 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
++			it is a bit weaker than the other early units currently, was 0 -->
++			<iCityDefense>25</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
++			could be useful (to help in) for uphill battles maybe now, was 0 -->
++			<iHillsAttack>10</iHillsAttack>
++			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>20</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>20</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++				<FeatureAttack>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++				<FeatureDefense>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as it
++			is a bit weaker than the other early units currently, was UNITCOMBAT_MOUNTED 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -7258,7 +7633,18 @@
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
++			<!-- custom: now that the unit is reworked, defend first rather against these types:
++			(i don't know if it overwrites previous settings or just adds these though) -->
++			<UnitCombatDefenders>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++			</UnitCombatDefenders>
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+@@ -7336,22 +7722,52 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
++			it is a bit weaker than the other early units currently, was 0 -->
++			<iCityDefense>25</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
++			could be useful (to help in) for uphill battles maybe now, was 0 -->
++			<iHillsAttack>10</iHillsAttack>
++			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++				<FeatureAttack>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++				<FeatureDefense>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as it
++			is a bit weaker than the other early units currently, was UNITCOMBAT_MOUNTED 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -7450,8 +7866,20 @@
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
++			<!-- custom: now that the unit is reworked, defend first rather against these types:
++			(i don't know if it overwrites previous settings or just adds these though) -->
++			<UnitCombatDefenders>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++			</UnitCombatDefenders>
+ 			<FlankingStrikes/>
++			<!-- custom: same as the reworked spearman-->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+@@ -7478,10 +7906,19 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+-			<TechTypes/>
++			<!-- custom: unit reworked and more versatile now, also trying to obtain it
++			 sooner in same time as the other medieval units, and since copper is also
++			 allowed to make pikes now, iron working is not a requirement anymore, only
++			 bronze working is, was engineering only -->
++			<PrereqTech>TECH_FEUDALISM</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>BONUS_IRON</BonusType>
+ 			<PrereqBonuses/>
++
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+@@ -7524,22 +7961,56 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>0</iCityDefense>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit too as
++			it is a bit weaker than the other early units currently, was 0 -->
++			<iCityDefense>25</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: unit rework, make the spearman a more versatile unit, spearmen
++			could be useful (to help in) for uphill battles maybe now, was 0 -->
++			<iHillsAttack>10</iHillsAttack>
++			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++		    <!-- custom: unlike spearmen, pikemen are a bit too heavy and could maybe be
++			ambushed in the woods rather than benefitting from them maybe . Also their
++			pike is a long spear so more easy to spot from a distance maybe, also harder
++			to navigate in this tight terrain maybe mostly too maybe i mean. -->
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>-15</iFeatureAttack>
++    			</FeatureAttack>
++				<FeatureAttack>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureAttack>-20</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>-15</iFeatureDefense>
++    			</FeatureDefense>
++				<FeatureDefense>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureDefense>-20</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit
++			too	as it is a bit weaker than the other early units currently, was
++			UNITCOMBAT_MOUNTED 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
++					<iUnitCombatMod>25</iUnitCombatMod>
++				</UnitCombatMod>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -7638,14 +8109,21 @@
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+ 			<UnitClassDefenders/>
+-			<UnitCombatDefenders/>
++			<!-- custom: now that the unit is reworked, defend first rather against these types:
++			(i don't know if it overwrites previous settings or just adds these though) -->
++			<UnitCombatDefenders>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MELEE</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++				<UnitCombatDefender>
++					<UnitCombatDefenderType>UNITCOMBAT_MOUNTED</UnitCombatDefenderType>
++					<bUnitCombatDefender>1</bUnitCombatDefender>
++				</UnitCombatDefender>
++			</UnitCombatDefenders>
+ 			<FlankingStrikes/>
++			<!-- custom: same as the reworked spearman-->
+ 			<UnitAIs>
+-				<!-- K-Mod -->
+-				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+@@ -7671,14 +8149,33 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ENGINEERING</PrereqTech>
+-			<TechTypes/>
+-			<BonusType>BONUS_IRON</BonusType>
+-			<PrereqBonuses/>
++			<!-- custom: unit reworked and more versatile now, similar to what was
++			done for pikemen but it seems the holy roman special unit operated
++			at a later era in history than pikemen, and since the theme of them
++			being mercenaries and being recruted seems to fit quite well, i moved
++			it to civil service.
++			Maybe it also helps this unit that was a bit too op (or less balanced
++			overall maybe?) as compared to other pikemen. -->
++			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
++				<PrereqTech>TECH_FEUDALISM</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
++			<!-- custom: also allow copper (i view it as equivalent to bronze in this
++			game i mean) to make pikes, it may be a good enough material for that,
++			and allow diversity of gameplays maybe, was iron only-->
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_COPPER</BonusType>
++				<BonusType>BONUS_IRON</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>60</iCost>
++			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -7717,26 +8214,64 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
++			<!-- custom: since they are more mercenaries from the little i've read
++			and prone to mutiny, unlike the reworked pikemen i do not give them any
++			city defense bonus -->
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<!-- custom: unit rework, higher than the reworked pikeman as they seem
++			to have been doing very well in most terrains, was 0 -->
++			<iHillsAttack>25</iHillsAttack>
++			<!-- custom: unit rework, make the spearman a more versatile unit, was 0 -->
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++		    <!-- custom: unlike the reworked pikemen, the holy roman special unit seems
++			to good in most (all?) terrains, so removing the grass and plains penalties
++			that the reworked pikemen have, and adding grassland and plains bonuses,
++			which should be quite strong especially considering it applies to city
++			attacks and defenses if city is planted on this tile.
++			Also note that this buffs the plains terrain more than the grassland
++			terrain, despite lower bonuses, because now a player needs to plant on
++			a more valuable grassland tiles to have the defense bonuses, or if AI
++			plants less optimally on a grassland tile it would not affect them as
++			if they planted on plains. The human player though could also purposely
++			plant on grassland for these bonuses though. -->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>30</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>15</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>30</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>15</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
++			<!-- custom: unit rework, make the spearman more versatile and buff it a bit
++			too	as it is a bit weaker than the other early units currently, was
++			UNITCOMBAT_MOUNTED 100 -->
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
++					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>100</iUnitCombatMod>
++					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -7769,7 +8304,21 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: from what i've read it seems they were very good at using
++			many war formations, so it seems to fit the theme to give them this
++			promotion. I had also intended to make them extra good against mounted
++			units. Considering they are available later and more expensive than
++			regular pikemen, they could be useful against knights and cuirassiers.
++			I am not sure they would be good enough against cavalries but i think
++			it would still help a bit maybe, but at the time cavalries appeared
++			it was not the era of the holy roman special unit anymore so should be
++			fine maybe and optimal even maybe. -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FORMATION</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -10333,10 +10882,10 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_FASCISM</PrereqTech>
++			<PrereqTech>TECH_FLIGHT</PrereqTech>
+ 			<TechTypes>
++				<PrereqTech>TECH_FASCISM</PrereqTech>
+ 				<PrereqTech>TECH_RIFLING</PrereqTech>
+-				<PrereqTech>TECH_FLIGHT</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+@@ -10683,15 +11232,40 @@
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<NotUnitAIs>
++				<UnitAI>
++						<UnitAIType>UNITAI_ATTACK</UnitAIType>
++						<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -10710,7 +11284,7 @@
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>25</iCost>
++			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -10734,21 +11308,21 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>3</iCombat>
++			<iCombat>6</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+ 			<iFirstStrikes>1</iFirstStrikes>
+-			<iChanceFirstStrikes>0</iChanceFirstStrikes>
++			<iChanceFirstStrikes>1</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>0</iWithdrawalProb>
+-			<iCollateralDamage>0</iCollateralDamage>
+-			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+-			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
++			<iWithdrawalProb>50</iWithdrawalProb>
++			<iCollateralDamage>10</iCollateralDamage>
++			<iCollateralDamageLimit>25</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>50</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+@@ -10757,8 +11331,26 @@
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>25</iFeatureAttack>
++    			</FeatureAttack>
++				<FeatureAttack>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureAttack>25</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>25</iFeatureDefense>
++    			</FeatureDefense>
++				<FeatureDefense>
++        			<FeatureType>FEATURE_JUNGLE</FeatureType>
++        			<iFeatureDefense>25</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -10777,7 +11369,7 @@
+ 			<iPower>3</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+-				<fMaxSpeed>1.75</fMaxSpeed>
++				<fMaxSpeed>2</fMaxSpeed>
+ 				<fPadTime>1</fPadTime>
+ 				<iMeleeWaveSize>3</iMeleeWaveSize>
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+@@ -10792,7 +11384,12 @@
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -10862,15 +11459,279 @@
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
++			<Builds/>
++			<ReligionSpreads/>
++			<CorporationSpreads/>
++			<GreatPeoples/>
++			<Buildings/>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<PrereqBuilding>NONE</PrereqBuilding>
++			<PrereqTech>TECH_ARCHERY</PrereqTech>
++			<TechTypes/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses/>
++			<ProductionTraits/>
++			<Flavors/>
++			<iAIWeight>0</iAIWeight>
++			<iCost>25</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iMoves>1</iMoves>
++			<bNoRevealMap>0</bNoRevealMap>
++			<iAirRange>0</iAirRange>
++			<iAirUnitCap>0</iAirUnitCap>
++			<iDropRange>0</iDropRange>
++			<iNukeRange>-1</iNukeRange>
++			<iWorkRate>0</iWorkRate>
++			<iBaseDiscover>0</iBaseDiscover>
++			<iDiscoverMultiplier>0</iDiscoverMultiplier>
++			<iBaseHurry>0</iBaseHurry>
++			<iHurryMultiplier>0</iHurryMultiplier>
++			<iBaseTrade>0</iBaseTrade>
++			<iTradeMultiplier>0</iTradeMultiplier>
++			<iGreatWorkCulture>0</iGreatWorkCulture>
++			<iEspionagePoints>0</iEspionagePoints>
++			<TerrainImpassables/>
++			<FeatureImpassables/>
++			<TerrainPassableTechs/>
++			<FeaturePassableTechs/>
++			<iCombat>4</iCombat>
++			<iCombatLimit>100</iCombatLimit>
++			<iAirCombat>0</iAirCombat>
++			<iAirCombatLimit>0</iAirCombatLimit>
++			<iXPValueAttack>4</iXPValueAttack>
++			<iXPValueDefense>2</iXPValueDefense>
++			<!-- advc.907d: was 1 -->
++			<iFirstStrikes>0</iFirstStrikes>
++			<iChanceFirstStrikes>1</iChanceFirstStrikes>
++			<iInterceptionProbability>0</iInterceptionProbability>
++			<iEvasionProbability>0</iEvasionProbability>
++			<iWithdrawalProb>0</iWithdrawalProb>
++			<iCollateralDamage>0</iCollateralDamage>
++			<iCollateralDamageLimit>0</iCollateralDamageLimit>
++			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
++			<iCityAttack>0</iCityAttack>
++			<iCityDefense>10</iCityDefense>
++			<iAnimalCombat>0</iAnimalCombat>
++			<iHillsAttack>0</iHillsAttack>
++			<iHillsDefense>0</iHillsDefense>
++			<TerrainNatives/>
++			<FeatureNatives/>
++			<!-- custom: skirmisher (useful for ctrl+f too maybe etc)-->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>30</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>50</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>40</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>75</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
++			<UnitClassAttackMods/>
++			<UnitClassDefenseMods/>
++			<UnitCombatMods/>
++			<UnitCombatCollateralImmunes/>
++			<DomainMods/>
++			<BonusProductionModifiers/>
++			<iBombRate>0</iBombRate>
++			<iBombardRate>0</iBombardRate>
++			<SpecialCargo>NONE</SpecialCargo>
++			<DomainCargo>NONE</DomainCargo>
++			<iCargo>0</iCargo>
++			<iConscription>0</iConscription>
++			<iCultureGarrison>4</iCultureGarrison>
++			<iExtraCost>0</iExtraCost>
++			<iAsset>1</iAsset>
++			<iPower>4</iPower>
++			<UnitMeshGroups>
++				<iGroupSize>3</iGroupSize>
++				<fMaxSpeed>1.75</fMaxSpeed>
++				<fPadTime>1</fPadTime>
++				<iMeleeWaveSize>3</iMeleeWaveSize>
++				<iRangedWaveSize>3</iRangedWaveSize>
++				<UnitMeshGroup>
++					<iRequired>3</iRequired>
++					<EarlyArtDefineTag>ART_DEF_UNIT_MALI_SKIRMISHER</EarlyArtDefineTag>
++				</UnitMeshGroup>
++			</UnitMeshGroups>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
++			<LeaderPromotion>NONE</LeaderPromotion>
++			<iLeaderExperience>0</iLeaderExperience>
++		</UnitInfo>
++		<UnitInfo>
++			<Class>UNITCLASS_ARCHER</Class>
++			<Type>UNIT_BABYLON_BOWMAN</Type>
++			<UniqueNames/>
++			<Special>NONE</Special>
++			<Capture>NONE</Capture>
++			<Combat>UNITCOMBAT_ARCHER</Combat>
++			<Domain>DOMAIN_LAND</Domain>
++			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
++			<Invisible>NONE</Invisible>
++			<SeeInvisible>NONE</SeeInvisible>
++			<Description>TXT_KEY_UNIT_BABYLON_BOWMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_BABYLON_BOWMAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_BABYLON_BOWMAN_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<bAnimal>0</bAnimal>
++			<bFood>0</bFood>
++			<bNoBadGoodies>0</bNoBadGoodies>
++			<bOnlyDefensive>0</bOnlyDefensive>
++			<bNoCapture>0</bNoCapture>
++			<bQuickCombat>0</bQuickCombat>
++			<bRivalTerritory>0</bRivalTerritory>
++			<bMilitaryHappiness>1</bMilitaryHappiness>
++			<bMilitarySupport>1</bMilitarySupport>
++			<bMilitaryProduction>1</bMilitaryProduction>
++			<bPillage>1</bPillage>
++			<bSpy>0</bSpy>
++			<bSabotage>0</bSabotage>
++			<bDestroy>0</bDestroy>
++			<bStealPlans>0</bStealPlans>
++			<bInvestigate>0</bInvestigate>
++			<bCounterSpy>0</bCounterSpy>
++			<bFound>0</bFound>
++			<bGoldenAge>0</bGoldenAge>
++			<bInvisible>0</bInvisible>
++			<bFirstStrikeImmune>0</bFirstStrikeImmune>
++			<bNoDefensiveBonus>0</bNoDefensiveBonus>
++			<bIgnoreBuildingDefense>0</bIgnoreBuildingDefense>
++			<bCanMoveImpassable>0</bCanMoveImpassable>
++			<bCanMoveAllTerrain>0</bCanMoveAllTerrain>
++			<bFlatMovementCost>0</bFlatMovementCost>
++			<bIgnoreTerrainCost>0</bIgnoreTerrainCost>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqBonuses>0</bPrereqBonuses>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bMechanized>0</bMechanized>
++			<bSuicide>0</bSuicide>
++			<bHiddenNationality>0</bHiddenNationality>
++			<bAlwaysHostile>0</bAlwaysHostile>
++			<UnitClassUpgrades>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_LONGBOWMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
++			</UnitClassUpgrades>
++			<UnitClassTargets/>
++			<UnitCombatTargets/>
++			<UnitClassDefenders/>
++			<UnitCombatDefenders/>
++			<FlankingStrikes/>
++			<UnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</UnitAIs>
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-			</UnitAIs>
+-			<NotUnitAIs/>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -10913,35 +11774,67 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>4</iCombat>
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+ 			<iXPValueAttack>4</iXPValueAttack>
+ 			<iXPValueDefense>2</iXPValueDefense>
+-			<!-- advc.907d: was 1 -->
+-			<iFirstStrikes>0</iFirstStrikes>
+-			<iChanceFirstStrikes>1</iChanceFirstStrikes>
++			<iFirstStrikes>1</iFirstStrikes>
++			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+ 			<iWithdrawalProb>0</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>50</iCityDefense>
++			<iCityAttack>10</iCityAttack>
++			<iCityDefense>10</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>25</iHillsDefense>
++			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>35</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>40</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>40</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++			    <FeatureAttack>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureAttack>10</iFeatureAttack>
++    			</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++			    <FeatureDefense>
++        			<FeatureType>FEATURE_FOREST</FeatureType>
++        			<iFeatureDefense>10</iFeatureDefense>
++    			</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>20</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -10963,22 +11856,27 @@
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_MALI_SKIRMISHER</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_BABYLON_BOWMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_RANGED</FormationType>
++			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_ARCHER</Class>
+-			<Type>UNIT_BABYLON_BOWMAN</Type>
++			<Class>UNITCLASS_LONGBOWMAN</Class>
++			<Type>UNIT_LONGBOWMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -10987,9 +11885,9 @@
+ 			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_BABYLON_BOWMAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_BABYLON_BOWMAN_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_BABYLON_BOWMAN_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_LONGBOWMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_LONGBOWMAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_LONGBOWMAN_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -11027,11 +11925,7 @@
+ 			<bAlwaysHostile>0</bAlwaysHostile>
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_LONGBOWMAN</UnitClassUpgradeType>
+-					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+-				</UnitClassUpgrade>
+-				<UnitClassUpgrade>
+-					<UnitClassUpgradeType>UNITCLASS_CROSSBOWMAN</UnitClassUpgradeType>
++					<UnitClassUpgradeType>UNITCLASS_RIFLEMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+@@ -11042,15 +11936,47 @@
+ 			<FlankingStrikes/>
+ 			<UnitAIs>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: if AI is strong enough to start an offensive on someone, it may not hurt to take a few defenders
++				as an extra to do so. If these defenders die then AI could build offensive units maybe now instead.
++				They may also help defend other cities by roaming -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<NotUnitAIs>
++				<!-- custom: longbowmen are not strong enough to be valuable as an attacker, much more efficient/valuable
++				to keep them as a defeender only instead-->
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<!-- custom: make extra sure these defender type units are not baited or suicide during enemy invasion
++				or other related situations -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -11062,14 +11988,18 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_ARCHERY</PrereqTech>
+-			<TechTypes/>
++			<PrereqTech>TECH_FEUDALISM</PrereqTech>
++			<TechTypes>
++				<PrereqTech>TECH_ARCHERY</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++				<PrereqTech>NONE</PrereqTech>
++			</TechTypes>
+ 			<BonusType>NONE</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>25</iCost>
++			<iCost>50</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11093,7 +12023,7 @@
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>3</iCombat>
++			<iCombat>6</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -11108,7 +12038,7 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>50</iCityDefense>
++			<iCityDefense>25</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+@@ -11120,12 +12050,7 @@
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods>
+-				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>50</iUnitCombatMod>
+-				</UnitCombatMod>
+-			</UnitCombatMods>
++			<UnitCombatMods/>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -11135,10 +12060,10 @@
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+ 			<iConscription>0</iConscription>
+-			<iCultureGarrison>4</iCultureGarrison>
++			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+-			<iAsset>1</iAsset>
+-			<iPower>4</iPower>
++			<iAsset>2</iAsset>
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11147,33 +12072,38 @@
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_BABYLON_BOWMAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_LONGBOWMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+-			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
++			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_FLANKING1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+ 		<UnitInfo>
+-			<Class>UNITCLASS_LONGBOWMAN</Class>
+-			<Type>UNIT_LONGBOWMAN</Type>
++			<Class>UNITCLASS_CROSSBOWMAN</Class>
++			<Type>UNIT_CROSSBOWMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_ARCHER</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_CITY_DEFENSE</DefaultUnitAI>
++			<DefaultUnitAI>UNITAI_COUNTER</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_LONGBOWMAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_LONGBOWMAN_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_LONGBOWMAN_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_CROSSBOWMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_CROSSBOWMAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_CROSSBOWMAN_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -11214,6 +12144,10 @@
+ 					<UnitClassUpgradeType>UNITCLASS_RIFLEMAN</UnitClassUpgradeType>
+ 					<bUnitClassUpgrade>1</bUnitClassUpgrade>
+ 				</UnitClassUpgrade>
++				<UnitClassUpgrade>
++					<UnitClassUpgradeType>UNITCLASS_GRENADIER</UnitClassUpgradeType>
++					<bUnitClassUpgrade>1</bUnitClassUpgrade>
++				</UnitClassUpgrade>
+ 			</UnitClassUpgrades>
+ 			<UnitClassTargets/>
+ 			<UnitCombatTargets/>
+@@ -11226,7 +12160,15 @@
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_COUNTER</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -11242,18 +12184,18 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_FEUDALISM</PrereqTech>
++			<PrereqTech>TECH_MACHINERY</PrereqTech>
+ 			<TechTypes>
+ 				<PrereqTech>TECH_ARCHERY</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+-			<BonusType>NONE</BonusType>
++			<BonusType>BONUS_IRON</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>50</iCost>
++			<iCost>60</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -11292,10 +12234,10 @@
+ 			<iCollateralDamageLimit>0</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>0</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>25</iCityDefense>
++			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>25</iHillsDefense>
++			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+@@ -11304,7 +12246,12 @@
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -11317,7 +12264,7 @@
+ 			<iCultureGarrison>6</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<iPower>6</iPower>
++			<iPower>7</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -11326,7 +12273,7 @@
+ 				<iRangedWaveSize>3</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_LONGBOWMAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_CROSSBOWMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_RANGED</FormationType>
+@@ -11339,9 +12286,12 @@
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
++		<!-- custom: first commit this then test if it works, to save the data
++		about this and in this case, first, i mean anyways, about this i mean
++		anywyas, will edit/tweak later about this i mean anyways-->
+ 		<UnitInfo>
+ 			<Class>UNITCLASS_CROSSBOWMAN</Class>
+-			<Type>UNIT_CROSSBOWMAN</Type>
++			<Type>UNIT_PEOPLE_OF_BENIN_DISCIPLINED_CROSSBOWMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+@@ -12832,7 +13782,7 @@
+ 			<iChanceFirstStrikes>0</iChanceFirstStrikes>
+ 			<iInterceptionProbability>0</iInterceptionProbability>
+ 			<iEvasionProbability>0</iEvasionProbability>
+-			<iWithdrawalProb>20</iWithdrawalProb>
++			<iWithdrawalProb>50</iWithdrawalProb>
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>100</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>6</iCollateralDamageMaxUnits>
+@@ -13970,9 +14920,9 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
++			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -14167,9 +15117,9 @@
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
++			<PrereqTech>TECH_RIFLING</PrereqTech>
+ 			<TechTypes>
+-				<PrereqTech>TECH_RIFLING</PrereqTech>
++				<PrereqTech>TECH_MILITARY_TRADITION</PrereqTech>
+ 				<PrereqTech>TECH_HORSEBACK_RIDING</PrereqTech>
+ 				<PrereqTech>NONE</PrereqTech>
+ 			</TechTypes>
+@@ -15494,8 +16444,31 @@
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -15675,12 +16648,31 @@
+ 					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+-			<NotUnitAIs/>
++			<!-- custom: tentative change to avoid catapults suicides/getting baited during enemy invasion -->
++			<NotUnitAIs>
++				<UnitAI>
++					<UnitAIType>UNITAI_COLLATERAL</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_ATTACK</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+ 			<CorporationSpreads/>
+@@ -15861,6 +16853,11 @@
+ 					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs>
+ 				<UnitAI>
+@@ -15871,6 +16868,15 @@
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
++				<!-- custom: tentative change to avoid trebuchets suicides/getting baited during enemy invasion -->
++				<UnitAI>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_PILLAGE</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
+ 			</NotUnitAIs>
+ 			<Builds/>
+ 			<ReligionSpreads/>
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=123466

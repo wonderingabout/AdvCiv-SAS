@@ -1,0 +1,188 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4268
+# Commit: 45b9fbf4f1c2f21d87f7dabe27f3b5ee4cf9f84e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 2778172d3df4383a990ceb7c84d2bd23f35a2e99
+# Title: Misc. minor refactoring/ comment changes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+13	11	Assets/XML/GlobalDefines_advc.xml
+0	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+0	15	CvGameCoreDLL/CvGame.cpp
+15	0	CvGameCoreDLL/CvGameInterface.cpp
+1	2	CvGameCoreDLL/CvUnit.cpp
+0	1	CvGameCoreDLL/SelfMod.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+index 5f07b12ad..3f1cae2b3 100644
+--- a/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugMapOptionsTab.py
+@@ -60,8 +60,8 @@ class BugMapOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addSpacer(screen, center, "SpacerCenter1") # advc.004
+ 		# <advc.002f>
+ 		self.addLabel(screen, center, "CityIcons", "City Billboards:")
+-		# advc.095:
+ 		centerL, centerR = self.addTwoColumnLayout(screen, center, "CityIcons", False)
++		# advc.095:
+ 		self.addCheckbox(screen, centerL, "MainInterface__WideCityBars")
+ 		self.addCheckbox(screen, centerR, "MainInterface__AvoidGrowthIcon")
+ 		self.addCheckbox(screen, centerL, "MainInterface__CityNetworkIcon")
+
+diff --git a/Assets/XML/GlobalDefines_advc.xml b/Assets/XML/GlobalDefines_advc.xml
+index 21de10612..f4db730d4 100644
+--- a/Assets/XML/GlobalDefines_advc.xml
++++ b/Assets/XML/GlobalDefines_advc.xml
+@@ -12,14 +12,6 @@
+ 
+ <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+ 
+-	<!-- advc: 000 in BtS - which makes sense because mods can be compatible
+-		 with outdated versions of BtS. AdvCiv, however, requires v3.19.
+-		 If the MIN_VERSION check (in the EXE) fails, a warning is displayed. -->
+-	<Define> <!-- redefine -->
+-		<DefineName>MIN_VERSION</DefineName>
+-		<iDefineIntVal>319</iDefineIntVal>
+-	</Define>
+-
+ 	<!-- advc.002b: The DLL needs to know (well, it's not crucial ...) the
+ 		 font size of Size2_Normal in Civ4Theme_Common.thm. AdvCiv sets that
+ 		 to 16. If a mod-mod changes Size2_Normal, then FONT_SIZE_FACTOR should
+@@ -99,6 +91,14 @@
+ 		<iDefineIntVal>10</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- advc: 000 in BtS - which makes sense because mods can be compatible
++		 with outdated versions of BtS. AdvCiv, however, requires v3.19.
++		 If the MIN_VERSION check (in the EXE) fails, a warning is displayed. -->
++	<Define> <!-- redefine -->
++		<DefineName>MIN_VERSION</DefineName>
++		<iDefineIntVal>319</iDefineIntVal>
++	</Define>
++
+ 	<!-- advc.002h: 0 only hides the clouds. Their shadows are hidden through
+ 		 BML.fpk. Original value: 1. If BML.fpk is removed, then this value
+ 		 should be set back to 1; otherwise, there will be cloud shadows without
+@@ -622,9 +622,11 @@
+ 	<!-- [advc.099]
+ 	     If set to 0 or less (BtS behavior), foreign culture can only
+ 		 cause a city to revolt if the owner of the foreign culture has a
+-		 city nearby. If set to 1 (recommended), revolts can occur in any
+-		 cities with high foreign culture, even if the owner of that culture
+-		 is no longer alive.
++		 city nearby. Should then probably also revert related changes to
++		 the occupation countdown; see OCCUPATION_COUNTDOWN_EXPONENT.
++		 If set to 1 (recommended), revolts can occur in any cities with
++		 high foreign culture, even if the owner of that culture is
++		 no longer alive.
+ 		 Either way, the revolt can only flip the city if the foreign
+ 		 culture is alive and nearby. -->
+ 	<Define>
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 55e13a266..d2d47af4e 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -2605,7 +2605,6 @@ bool CvDLLButtonPopup::launchEventPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 	EventTriggeredData* pTriggeredData = kActivePlayer.getEventTriggered(info.getData1());
+ 	if (pTriggeredData == NULL)
+ 		return false;
+-
+ 	if (pTriggeredData->m_eTrigger == NO_EVENTTRIGGER)
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index b1c71ca46..c300390e3 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9459,21 +9459,6 @@ void CvGame::onAllGameDataRead()
+ 	} // </advc.134a>
+ }
+ 
+-/*	advc: Called once the EXE signals that graphics have been initialized
+-	(w/e that means exactly) */
+-void CvGame::onGraphicsInitialized()
+-{
+-	// advc.095:
+-	setCityBarWidth(BUGOption::isEnabled("MainInterface__WideCityBars", false));
+-	/*	<advc.001> After loading, the camera tries to center on some unit
+-		(apparently; I don't know where that's implemented). If there is
+-		none, it seems to center on some random(?) unrevealed tile. */
+-	if (GET_PLAYER(getActivePlayer()).getNumUnits() == 0)
+-		setUpdateTimer(UPDATE_LOOK_AT_STARTING_PLOT, 1);
+-	// </advc.001>
+-	GC.getPythonCaller()->callScreenFunction("updateCameraStartDistance"); // advc.004m
+-}
+-
+ 
+ void CvGame::saveReplay(PlayerTypes ePlayer)
+ {	// advc.106i: Hack to prepend sth. to the replay file name
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index b640d6a2b..70bce3c05 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -2678,6 +2678,21 @@ EndTurnButtonStates CvGame::getEndTurnState() const
+ 	return END_TURN_GO;
+ }
+ 
++/*	advc: Called once the EXE signals that graphics have been initialized
++	(w/e that means exactly) */
++void CvGame::onGraphicsInitialized()
++{
++	// advc.095:
++	setCityBarWidth(BUGOption::isEnabled("MainInterface__WideCityBars", false));
++	/*	<advc.001> After loading, the camera tries to center on some unit
++		(apparently; I don't know where that's implemented). If there is
++		none, it seems to center on some random(?) unrevealed tile. */
++	if (GET_PLAYER(getActivePlayer()).getNumUnits() == 0)
++		setUpdateTimer(UPDATE_LOOK_AT_STARTING_PLOT, 1);
++	// </advc.001>
++	GC.getPythonCaller()->callScreenFunction("updateCameraStartDistance"); // advc.004m
++}
++
+ // advc.095:
+ void CvGame::setCityBarWidth(bool bWide)
+ {
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index ecdfab118..ac7331a94 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -5568,8 +5568,7 @@ bool CvUnit::spread(ReligionTypes eReligion)
+ 				pCity->setHasReligion(eFailedReligion, false, true, false,
+ 						getOwner()); // advc.106e
+ 				bSuccess = true;
+-			}
+-			// K-Mod
++			} // K-Mod end
+ 		}
+ 
+ 		// Python Event
+
+diff --git a/CvGameCoreDLL/SelfMod.cpp b/CvGameCoreDLL/SelfMod.cpp
+index b6ee85be4..c41de2a3c 100644
+--- a/CvGameCoreDLL/SelfMod.cpp
++++ b/CvGameCoreDLL/SelfMod.cpp
+@@ -470,7 +470,6 @@ void Civ4BeyondSwordPatches::patchPlotIndicatorSize()
+ 	}
+ }
+ 
+-
+ // advc.092c:
+ void Civ4BeyondSwordPatches::setHelpTextAreaSize(float fWidth)
+ {
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=6259

@@ -1,0 +1,844 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1376
+# Commit: 525e919195916c8e061678b29cf21817eb9f07b8
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d7b78d09a226b9c9163076d616a3be788351f08e
+# Title: Bugfixes in naval AI; reduced UWAI dogpiling; diplo decay tweaked (DLL included)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+3	2	CvGameCoreDLL/CvCity.h
+27	12	CvGameCoreDLL/CvCityAI.cpp
+7	4	CvGameCoreDLL/CvCityAI.h
+23	6	CvGameCoreDLL/CvDeal.cpp
+3	6	CvGameCoreDLL/CvDeal.h
+5	2	CvGameCoreDLL/CvPlayer.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+3	3	CvGameCoreDLL/CvTeamAI.cpp
+12	11	CvGameCoreDLL/CvUnit.cpp
+103	140	CvGameCoreDLL/CvUnitAI.cpp
+1	0	CvGameCoreDLL/CvUnitAI.h
+37	19	CvGameCoreDLL/WarUtilityAspect.cpp
+-	-	manual_0.94.odt
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 764756be2..ef1acf972 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -1101,8 +1101,9 @@ public:
+ 	// <advc.139>
+ 	virtual int AI_neededDefenders(bool ignoreEvac = false) = 0;
+ 	virtual int AI_neededFloatingDefenders(bool ignoreEvac = false) = 0;
+-	virtual void updateEvacuating(double relativeCityVal)=0;
+-	virtual bool isEvacuating() const=0; // </advc.139>
++	virtual void updateSafety(double relativeCityVal)=0;
++	virtual bool isEvacuating() const=0;
++	virtual bool isSafe() const=0; // </advc.139>
+ 	virtual int AI_neededAirDefenders() = 0;
+ 	virtual int AI_minDefenders() = 0;
+ 	virtual bool AI_isEmphasizeAvoidGrowth() const = 0;
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b3a5b972c..3bd5f4822 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -164,7 +164,7 @@ void CvCityAI::AI_reset()
+ 	
+ 	m_iNeededFloatingDefenders = -1;
+ 	m_iNeededFloatingDefendersCacheTurn = -1;
+-	bEvacuate = false; // advc.139
++	bEvacuate = bSafe = false; // advc.139
+ 
+ 	m_iWorkersNeeded = 0;
+ 	m_iWorkersHave = 0;
+@@ -6685,9 +6685,11 @@ bool CvCityAI::AI_isDanger()
+ 
+ 
+ // <advc.139>
+-void CvCityAI::updateEvacuating(double relativeCityVal) {
++void CvCityAI::updateSafety(double relativeCityVal) {
+ 
++	PROFILE_FUNC();
+ 	bEvacuate = false;
++	bSafe = true;
+ 	CvPlayerAI const& o = GET_PLAYER(getOwner());
+ 	if(o.getNumCities() <= 1)
+ 		return;
+@@ -6698,23 +6700,36 @@ void CvCityAI::updateEvacuating(double relativeCityVal) {
+ 	int attackerCount = 0;
+ 	int attStr = o.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 1,
+ 			true, false, false, &attackerCount);
+-	if(attStr <= 0 || // shortcut
+-			// Only bail if they can take the city in one turn or almost
+-			attackerCount < plot()->getNumDefenders(getOwnerINLINE()) + 1)
++	if(attStr <= 0) // shortcut
+ 		return;
+ 	int defStr = o.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 3);
+-	int thresh = GC.getDefineINT("AI_EVACUATION_THRESH");
+-	//  Higher threshold for important cities
+-	if(relativeCityVal > 0.5)
+-		thresh = ::round(thresh * (0.5 + relativeCityVal));
+-	if(o.getNumCities() <= 2 && isCapital())
+-		thresh *= 2;
+-	bEvacuate = (::round((attStr * 100) / (defStr + 1.0)) > thresh);
++	bSafe = (attStr * 2 < defStr);
++	// Potentially expensive
++	if(bSafe && GET_TEAM(getTeam()).getAtWarCount(false, true) > 0) {
++		int attStrWiderRange = o.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND,
++				3);
++		bSafe = (attStrWiderRange * 2 < defStr);
++	}
++	// Only bail if they can take the city in one turn or almost
++	if(attackerCount + 1 >= plot()->getNumDefenders(getOwnerINLINE())) {
++		int thresh = GC.getDefineINT("AI_EVACUATION_THRESH");
++		//  Higher threshold for important cities
++		if(relativeCityVal > 0.5)
++			thresh = ::round(thresh * (0.5 + relativeCityVal));
++		if(o.getNumCities() <= 2 && isCapital())
++			thresh *= 2;
++		bEvacuate = (::round((attStr * 100) / (defStr + 1.0)) > thresh);
++	}
+ }
+ 
+ bool CvCityAI::isEvacuating() const {
+ 
+ 	return bEvacuate;
++}
++
++bool CvCityAI::isSafe() const {
++
++	return bSafe;
+ } // </advc.139>
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index af69a97b4..23331abc2 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -75,9 +75,10 @@ public:
+ 	int AI_neededFloatingDefenders(bool ignoreEvac = false);
+ 	void AI_updateNeededFloatingDefenders();
+ 	// <advc.139>
+-	void updateEvacuating(double relativeCityVal);
+-	bool isEvacuating() const; // </advc.139>
+-
++	void updateSafety(double relativeCityVal);
++	bool isEvacuating() const;
++	bool isSafe() const;
++	// </advc.139>
+ 	int AI_getEmphasizeAvoidGrowthCount() const;
+ 	bool AI_isEmphasizeAvoidGrowth() const;
+ 
+@@ -181,8 +182,10 @@ protected:
+ 
+ 	int m_iNeededFloatingDefenders;
+ 	int m_iNeededFloatingDefendersCacheTurn;
+-	// advc.139: Updated during AI turns; no need for serialization
++	// <advc.139>
++	// Updated during AI turns; no need for serialization
+ 	bool bEvacuate;
++	bool bSafe; // </advc.139>
+ 
+ 	int m_iWorkersNeeded;
+ 	int m_iWorkersHave;
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 81f058589..87ce95bad 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -76,31 +76,48 @@ void CvDeal::reset(int iID, PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer)
+ 
+ void CvDeal::kill(bool bKillTeam)
+ {
+-	if ((getLengthFirstTrades() > 0) || (getLengthSecondTrades() > 0))
+-	{
++	if (getLengthFirstTrades() > 0 || getLengthSecondTrades() > 0)
++	{	// <advc.106j>
++		bool bForce = false;
++		for(CLLNode<TradeData>* node = headFirstTradesNode(); node != NULL; node =
++				nextFirstTradesNode(node)) {
++			if(isDual(node->m_data.m_eItemType) ||
++					(node->m_data.m_eItemType == TRADE_RESOURCES &&
++					!GET_PLAYER(getFirstPlayer()).canTradeNetworkWith(
++					getSecondPlayer()))) {
++				bForce = true;
++				break;
++			}
++		} // </advc.106j>
+ 		CvWString szString;
+ 		CvWStringBuffer szDealString;
+ 		CvWString szCancelString = gDLL->getText("TXT_KEY_POPUP_DEAL_CANCEL");
+-		if (GET_TEAM(GET_PLAYER(getFirstPlayer()).getTeam()).isHasMet(GET_PLAYER(getSecondPlayer()).getTeam()))
++		if (TEAMREF(getFirstPlayer()).isHasMet(TEAMID(getSecondPlayer())))
+ 		{
+ 			szDealString.clear();
+ 			GAMETEXT.getDealString(szDealString, *this, getFirstPlayer(),
+ 					true); // advc.004w
+ 			szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.getCString());
+-			gDLL->getInterfaceIFace()->addHumanMessage(getFirstPlayer(), true, GC.getEVENT_MESSAGE_TIME(), szString, "AS2D_DEAL_CANCELLED",
++			gDLL->getInterfaceIFace()->addHumanMessage(getFirstPlayer(),
++					bForce, // advc.106j
++					GC.getEVENT_MESSAGE_TIME(), szString,
++					bForce ? "AS2D_DEAL_CANCELLED" : NULL, // advc.106j
+ 					// <advc.127b>
+ 					MESSAGE_TYPE_INFO, NULL, NO_COLOR,
+ 					GET_PLAYER(getSecondPlayer()).getCapitalX(),
+ 					GET_PLAYER(getSecondPlayer()).getCapitalY()); // </advc.127b>
+ 		}
+ 
+-		if (GET_TEAM(GET_PLAYER(getSecondPlayer()).getTeam()).isHasMet(GET_PLAYER(getFirstPlayer()).getTeam()))
++		if (TEAMREF(getSecondPlayer()).isHasMet(TEAMID(getFirstPlayer())))
+ 		{
+ 			szDealString.clear();
+ 			GAMETEXT.getDealString(szDealString, *this, getSecondPlayer(),
+ 					true); // advc.004w
+ 			szString.Format(L"%s: %s", szCancelString.GetCString(), szDealString.getCString());
+-			gDLL->getInterfaceIFace()->addHumanMessage(getSecondPlayer(), true, GC.getEVENT_MESSAGE_TIME(), szString, "AS2D_DEAL_CANCELLED",
++			gDLL->getInterfaceIFace()->addHumanMessage(getSecondPlayer(),
++					bForce, // advc.106j
++					GC.getEVENT_MESSAGE_TIME(), szString,
++					bForce ? "AS2D_DEAL_CANCELLED" : NULL, // advc.106j
+ 					// <advc.127b>
+ 					MESSAGE_TYPE_INFO, NULL, NO_COLOR,
+ 					GET_PLAYER(getFirstPlayer()).getCapitalX(),
+
+diff --git a/CvGameCoreDLL/CvDeal.h b/CvGameCoreDLL/CvDeal.h
+index 0446a9d0d..094099e8e 100644
+--- a/CvGameCoreDLL/CvDeal.h
++++ b/CvGameCoreDLL/CvDeal.h
+@@ -65,12 +65,9 @@ public:
+ 	const CLinkList<TradeData>* getSecondTrades() const;
+ 
+ 	DllExport bool isCancelable(PlayerTypes eByPlayer = NO_PLAYER, CvWString* pszReason = NULL);
+-	/*  advc.130f: I've tried adding a bool param with default value to
+-		isCancelable. This lead to a crash from the EXE when canceling a deal
+-		through the Trade Screen (which was nasty to debug). Adding parameters
+-		to DllExports isn't always a problem; see e.g. CvPlayer::canResearch.
+-		Not sure why it doesn't work in this case.
+-		Anyway, new function instead. */
++	/*  advc.130f: Adding a bool param with default value to isCancelable leads to
++		a crash from the EXE when canceling a deal through the Trade Screen.
++		New function instead: */
+ 	bool isEverCancelable(PlayerTypes eByPlayer) const;
+ 	DllExport int turnsToCancel(PlayerTypes eByPlayer = NO_PLAYER);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 0df25e9ad..39c4ebbdd 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -2912,7 +2912,10 @@ void CvPlayer::disbandUnit(bool bAnnounce)
+ 						iValue += (pLoopUnit->getExperience() * 20);
+ 						iValue += (pLoopUnit->getLevel() * 100);
+ 
+-						if (pLoopUnit->canDefend() && pLoopUnit->plot()->isCity())
++						if (pLoopUnit->canDefend() && pLoopUnit->plot()->isCity()
++								/*  advc.001s: I suppose this clause is intended for
++									potential city defenders */
++								&& pLoopUnit->getDomainType() == DOMAIN_LAND)
+ 						{
+ 							iValue *= 2;
+ 						}
+@@ -25048,7 +25051,7 @@ void CvPlayer::announceEspionageToThirdParties(EspionageMissionTypes eMission, P
+ 
+ 	bool bReligion = (GC.getEspionageMissionInfo(eMission).
+ 			getSwitchReligionCostFactor() > 0);
+-	CvWString szBuffer = szBuffer = gDLL->getText((bReligion ?
++	CvWString szBuffer = gDLL->getText((bReligion ?
+ 			"TXT_KEY_ESPIONAGE_3RD_PARTY_SWITCH_RELIGION" :
+ 			"TXT_KEY_ESPIONAGE_3RD_PARTY_SWITCH_CIVIC"),
+ 			GET_PLAYER(eTarget).getCivilizationAdjectiveKey()).GetCString();
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9818d04a9..78aea6500 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -498,7 +498,7 @@ void CvPlayerAI::updateCacheData()
+ 		// i appears to be unreliable, skips numbers
+ 		int j = 0;
+ 		for(CvCity* c = firstCity(&i); c != NULL; c = nextCity(&i), j++)
+-			c->updateEvacuating(1 - ::percentileRank(cityValues, cityValues[j]));
++			c->updateSafety(1 - ::percentileRank(cityValues, cityValues[j]));
+ 		// </advc.139>
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 6a05fb71b..7f0c434b2 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5077,9 +5077,9 @@ void CvTeamAI::AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange)
+ // <advc.130p><advc.130m> To keep the rate consistent between TeamAI and PlayerAI
+ double CvTeamAI::getDiploDecay() const {
+ 
+-	/*  On Normal speed, this decay rate halves a value in about 40 turns:
+-		0.983^40 = 0.501 */
+-	return 1.7 / GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).
++	/*  On Normal speed, this decay rate halves a value in about 50 turns:
++		0.9865^50 = 0.507 */
++	return 1.45 / GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).
+ 			getGoldenAgePercent();
+ } // </advc.130m>
+ // Needed for both RivalTrade and "fair trade"
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 3ea1d3235..cd6440e9c 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7997,8 +7997,14 @@ CvCity* CvUnit::getUpgradeCity(UnitTypes eUnit, bool bSearch, int* iSearchValue)
+ 							if (!generatePath(pLoopCity->plot(), 0, true))
+ 							{
+ 								iValue *= 16;
+-							}
+-
++							} /* <advc.139> This should really be checked in a
++								 CvUnitAI function. That said, the whole search part
++								 of this function is really AI code; I don't think
++								 it's ever used for human units. */
++							if((!canFight() || getDomainType() != DOMAIN_LAND) &&
++									!pLoopCity->isSafe())
++								iValue *= (pLoopCity->isEvacuating() ? 12 : 6);
++							// </advc.139>
+ 							if (iValue < iBestValue)
+ 							{
+ 								iBestValue = iValue;
+@@ -9066,16 +9072,11 @@ bool CvUnit::canAttack(const CvUnit& defender) const
+ }
+ 
+ bool CvUnit::canDefend(const CvPlot* pPlot) const
+-{
+-	if (pPlot == NULL)
+-	{
+-		pPlot = plot();
+-	}
+-
+-	if (!canFight())
+-	{
++{	// <advc.003> Swapped these two
++	if(!canFight())
+ 		return false;
+-	}
++	if(pPlot == NULL)
++		pPlot = plot(); // </advc.003>
+ 
+ 	if (!pPlot->isValidDomainForAction(*this))
+ 	{
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index a848a28a5..a9498cd03 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -6914,17 +6914,7 @@ void CvUnitAI::AI_attackSeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			if (AI_anyAttack(2, 50))
+ 			{
+@@ -7183,17 +7173,7 @@ void CvUnitAI::AI_reserveSeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			if (AI_anyAttack(2, 60))
+ 			{
+@@ -7409,17 +7389,7 @@ void CvUnitAI::AI_escortSeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true)) //prioritize getting outta there
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			if (AI_anyAttack(1, 60))
+ 			{
+@@ -7628,17 +7598,7 @@ void CvUnitAI::AI_exploreSeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true)) //prioritize getting outta there
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			if (!isHuman())
+ 			{
+@@ -8582,17 +8542,7 @@ void CvUnitAI::AI_settlerSeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			if( bEmpty )
+ 			{
+@@ -8975,17 +8925,7 @@ void CvUnitAI::AI_missionarySeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			// Retreat to primary area first
+ 			if (AI_retreatToCity(true))
+@@ -9086,17 +9026,7 @@ void CvUnitAI::AI_spySeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			// Retreat to primary area first
+ 			if (AI_retreatToCity(true))
+@@ -9200,17 +9130,7 @@ void CvUnitAI::AI_carrierSeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			if (AI_retreatToCity(true))
+ 			{
+@@ -9328,17 +9248,7 @@ void CvUnitAI::AI_missileCarrierSeaMove()
+ /********************************************************************************/
+ 	if (plot()->isCity(true))
+ 	{
+-		// K-Mod
+-		int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
+-		int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
+-		// K-Mod end
+-
+-		if( getDamage() > 0 )	// extra risk to leaving when wounded
+-		{
+-			iOurDefense *= 2;
+-		}
+-
+-		if (iEnemyOffense > iOurDefense/2) // was 1 vs 1/4
++		if(AI_isThreatenedFromLand()) // advc.139: Code moved into subroutine
+ 		{
+ 			if (AI_shadow(UNITAI_ASSAULT_SEA, 1, 50, false, true, baseMoves()))
+ 			{
+@@ -9431,7 +9341,8 @@ void CvUnitAI::AI_attackAirMove()
+ 	//int iDX, iDY;
+ 
+ 	// Check for sufficient defenders to stay
+-	int iDefenders = plot()->plotCount(PUF_canDefend, -1, -1, plot()->getOwner());
++	int iDefenders = plot()->plotCount(PUF_canDefend, -1, -1, plot()->getOwner(),
++			NO_TEAM, PUF_isDomainType, DOMAIN_LAND); // advc.001s
+ 
+ 	int iAttackAirCount = plot()->plotCount(PUF_canAirAttack, -1, -1, NO_PLAYER, getTeam());
+ 	iAttackAirCount += 2 * plot()->plotCount(PUF_isUnitAIType, UNITAI_ICBM, -1, NO_PLAYER, getTeam());
+@@ -13119,6 +13030,37 @@ bool CvUnitAI::AI_heal(int iDamagePercent, int iMaxPath)
+ 	return bPushedMission;
+ }
+ 
++/*  <advc.139> Mostly cut and pasted from AI_escortSeaMove, AI_attackSeaMove,
++	AI_reserveSeaMove, AI_exploreSeaMove, AI_settlerSeaMove, AI_missionarySeaMove,
++	AI_spySeaMove and AI_missileCarrierSeaMove (duplicate code).
++	AI_assaultSeaMove, AI_attackAirMove, AI_defenseAirMove and AI_missileAirMove
++	still contain similar code. */
++bool CvUnitAI::AI_isThreatenedFromLand() const {
++
++	FAssert(getDomainType() != DOMAIN_LAND);
++	bool bDamaged = (getDamage() > 0);
++	if(!bDamaged) { // Can save some computing time then
++		CvCity* pPlotCity = plot()->getPlotCity();
++		if(pPlotCity != NULL)
++			return !pPlotCity->isSafe();
++	}
++	/********************************************************************************/
++	/* 	BETTER_BTS_AI_MOD						06/14/09	Solver & jdog5000		*/
++	/* 																				*/
++	/* 	Naval AI																	*/
++	/********************************************************************************/
++	// (with K-Mod adjustments)
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwnerINLINE());
++	int iOurDefense = kOwner.AI_localDefenceStrength(plot(), getTeam(), DOMAIN_LAND, 0);
++	int iEnemyOffense = kOwner.AI_localAttackStrength(plot(), NO_TEAM, DOMAIN_LAND, 2);
++	// (was based on AI_getOurPlotStrength in BBAI)
++	if(bDamaged) // extra risk to leaving when wounded
++		iOurDefense *= 2;
++	return (iEnemyOffense > iOurDefense/2); // (was 1 vs 1/4 in BBAI)
++	/********************************************************************************/
++	/* 	BETTER_BTS_AI_MOD						END									*/
++	/********************************************************************************/
++} // </advc.139>
+ 
+ // Returns true if a mission was pushed...
+ bool CvUnitAI::AI_afterAttack()
+@@ -15020,7 +14962,7 @@ bool CvUnitAI::AI_safety()
+ 				if (pLoopPlot && AI_plotValid(pLoopPlot) && !pLoopPlot->isVisibleEnemyUnit(this))
+ 				{
+ 					/*  <advc.306> Consider only unobserved plots (and cities) safe
+-						for barb sea units. This should help them receive spawned
++						for Barbarian sea units. This should help them receive spawned
+ 						cargo. */
+ 					if(isBarbarian() && pLoopPlot->isWater() &&
+ 							pLoopPlot->isVisibleToCivTeam())
+@@ -16417,7 +16359,9 @@ bool CvUnitAI::AI_leaveAttack(int iRange, int iOddsThreshold, int iStrengthThres
+ 				// K-Mod end
+ 					return false;
+ 			}
+-			if (plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE()) <= getGroup()->getNumUnits())
++			if (plot()->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE(),
++					NO_TEAM, PUF_isDomainType, DOMAIN_LAND) // advc.001s
++					<= getGroup()->getNumUnits())
+ 			{
+ 				return false;
+ 			}
+@@ -19403,6 +19347,7 @@ bool CvUnitAI::AI_carrierSeaTransport()
+ 											{
+ 												// BBAI: Support/air defense for land troops
+ 												iValue += pLoopPlotAir->plotCount(PUF_canDefend, -1, -1, getOwnerINLINE());
++												// advc.001s (comment): Also counts ships, but I guess that's OK.
+ 											}
+ 										}
+ 									}
+@@ -21165,7 +21110,7 @@ bool CvUnitAI::AI_travelToUpgradeCity()
+ 		bool bCanAirliftUnit = (getDomainType() == DOMAIN_LAND);
+ 		bool bShouldSkipToUpgrade = (getDomainType() != DOMAIN_AIR);
+ 
+-		// if we at the upgrade city, stop, wait to get upgraded
++		// if we are at the upgrade city, stop, wait to get upgraded
+ 		if (pUpgradeCity->plot() == pPlot)
+ 		{
+ 			if (!bShouldSkipToUpgrade)
+@@ -21295,48 +21240,58 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 	}
+ 
+ 	//for (iPass = 0; iPass < 4; iPass++)
+-	// K-Mod. originally; pass 0 required the dest to have less plot danger unless the unit could fight; pass 1 was just an ordinary move; 
+-	// pass 2 was a 1 turn move with "ignore plot danger" and pass 3 was the full iMaxPath with ignore plot danger.
+-	// I've changed it so that if the unit can fight, the pass 0 just skipped (because it's the same as the pass 1)
+-	// and pass 2 is always skipped because it's a useless test.
+-	// -- and I've renumbered the passes.
++	/*  K-Mod. originally; pass 0 required the dest to have less plot danger
++		unless the unit could fight;
++		pass 1 was just an ordinary move; 
++		pass 2 was a 1 turn move with "ignore plot danger" and
++		pass 3 was the full iMaxPath with ignore plot danger.
++		I've changed it so that if the unit can fight, the pass 0 just skipped
++		(because it's the same as the pass 1) and
++		pass 2 is always skipped because it's a useless test.
++		-- and I've renumbered the passes. */
+ 	CvPlot* pBestPlot = NULL;
+ 	int iShortestPath = MAX_INT;
+-	bool evac = (pCity != NULL && pCity->isEvacuating()); // advc.139
+-	/*  advc.003: Used after the loop (pushMission MISSION_MOVE_TO). I don't see
+-		how the K-Mod code (iPass declared in the loop's init statement) even
+-		compiles. */
+-	int iPass = 0;
+-	for (iPass = (getGroup()->canDefend() ? 1 : 0) ; iPass < 3; iPass++)
+-	{
+-		int iLoop;
++	// <advc.139>
++	bool bEvac = (pCity != NULL && pCity->isEvacuating());
++	bool bSafe = (pCity != NULL && pCity->isSafe());
++	// </advc.139>
++	// <advc.003>
++	int iPass = 0; // Used after the loop
++	CvPlayerAI const& kOwner = GET_PLAYER(getOwnerINLINE()); // </advc.003>
++	for (iPass = ((getGroup()->canDefend()
++			&& getDomainType() == DOMAIN_LAND) // advc.001s
++			? 1 : 0); iPass < 3; iPass++)
++	{	int iLoop=-1;
+ 		bool bNeedsAirlift = false;
+-		for (CvCity* pLoopCity = GET_PLAYER(getOwnerINLINE()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(getOwnerINLINE()).nextCity(&iLoop))
+-		{
++		for(CvCity* pLoopCity = kOwner.firstCity(&iLoop); pLoopCity != NULL;
++				pLoopCity = kOwner.nextCity(&iLoop)) {
+ 			if (!AI_plotValid(pLoopCity->plot()))
+ 				continue;
+-
+-			if (bPrimary && !GET_PLAYER(getOwnerINLINE()).AI_isPrimaryArea(pLoopCity->area()))
++			if (bPrimary && !kOwner.AI_isPrimaryArea(pLoopCity->area()))
+ 				continue;
+-
+ 			if (bNeedsAirlift && pLoopCity->getMaxAirlift() == 0)
+ 				continue;
+-
+-			/*  <advc.139> When evacuating, exclude other cities that also evacuate
++			// <advc.139>
++			/*  When evacuating, exclude other cities that also evacuate
+ 				(and exclude the current city). */
+-			CvPlayerAI& o = GET_PLAYER(getOwnerINLINE());
+-			if(evac && pLoopCity->isEvacuating())
+-				continue; // </advc.139>
+-
+-			int iPathTurns;
++			if(bEvac && pLoopCity->isEvacuating())
++				continue;
++			/*  Avoid path and danger computation if we already know that we're safer
++				where we are. */
++			if(!pLoopCity->isSafe() && (bSafe || iCurrentDanger <= 0 ||
++					/*  Even when threatened at sea, a ship won't seek refuge in
++						an unsafe city. */
++					getDomainType() != DOMAIN_LAND))
++				continue;
++			// </advc.139>
++			int iPathTurns=-1;
+ 			if (generatePath(pLoopCity->plot(), (iPass >= 2 ? MOVE_IGNORE_DANGER : 0), true, &iPathTurns, iMaxPath)) // was iPass >= 3
+-			{
+-				// Water units can't defend a city
+-				// Any unthreatened city acceptable on 0th pass, solves problem where sea units
+-				// would oscillate in and out of threatened city because they had iCurrentDanger = 0
+-				// on turns outside city
+-
+-				if (iPass > 0 || o.AI_getPlotDanger(pLoopCity->plot()) <= iCurrentDanger)
++			{/* (comment by jdog5000, 08/19/09)
++				Water units can't defend a city
++				Any unthreatened city acceptable on 0th pass, solves problem where sea units
++				would oscillate in and out of threatened city because they had iCurrentDanger = 0
++				on turns outside city */
++				if (iPass > 0 || kOwner.AI_getPlotDanger(pLoopCity->plot()) <= iCurrentDanger)
+ 				{
+ 					// If this is the first viable air-lift city, then reset iShortestPath.
+ 					if (bPrioritiseAirlift && !bNeedsAirlift && pLoopCity->getMaxAirlift() > 0)
+@@ -21356,8 +21311,8 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
+ 							not any detours that could be safer.
+ 							Adding a maxDanger parameter to generatePath
+ 							(or generalizing MOVE_IGNORE_DANGER) could help. */
+-						&& (!evac || o.AI_getPlotDanger(getPathEndTurnPlot())
+-						<= o.getCurrentEra())
++						&& (!bEvac || kOwner.AI_getPlotDanger(getPathEndTurnPlot())
++						<= kOwner.getCurrentEra())
+ 						// </advc.139>
+ 						)
+ 					{
+@@ -22000,7 +21955,8 @@ int CvUnitAI::AI_airOffenseBaseValue( CvPlot* pPlot )
+ 	CvPlot* pLoopPlot = NULL;
+ 	CvCity* pCity = pPlot->getPlotCity();
+ 
+-	int iDefenders = pPlot->plotCount(PUF_canDefend, -1, -1, pPlot->getOwner());
++	int iDefenders = pPlot->plotCount(PUF_canDefend, -1, -1, pPlot->getOwner(),
++			NO_TEAM, PUF_isDomainType, DOMAIN_LAND); // advc.001s
+ 
+ 	int iAttackAirCount = pPlot->plotCount(PUF_canAirAttack, -1, -1, NO_PLAYER, getTeam());
+ 	iAttackAirCount += 2 * pPlot->plotCount(PUF_isUnitAIType, UNITAI_ICBM, -1, NO_PLAYER, getTeam());
+@@ -24661,9 +24617,16 @@ bool CvUnitAI::AI_defendPlot(CvPlot* pPlot)
+ 	}
+ 	else
+ 	{
+-		if (pPlot->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE()) <= ((atPlot(pPlot)) ? 1 : 0))
++		if (pPlot->plotCount(PUF_canDefendGroupHead, -1, -1, getOwnerINLINE(),
++				// advc.001s: Want up to 1 defender per domain type
++				NO_TEAM, PUF_isDomainType, getDomainType())
++				<= ((atPlot(pPlot)) ? 1 : 0))
+ 		{
+-			if (pPlot->plotCount(PUF_cannotDefend, -1, -1, getOwnerINLINE()) > 0)
++			if (pPlot->plotCount(PUF_cannotDefend, -1, -1, getOwnerINLINE(),
++					/*  advc.001s: A land unit can defend non-land units in a Fort,
++						but not vice versa. */
++					NO_TEAM, getDomainType() == DOMAIN_LAND ? NULL : PUF_isDomainType, getDomainType())
++					> 0)
+ 			{
+ 				return true;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.h b/CvGameCoreDLL/CvUnitAI.h
+index 981b75bb7..c426a495c 100644
+--- a/CvGameCoreDLL/CvUnitAI.h
++++ b/CvGameCoreDLL/CvUnitAI.h
+@@ -151,6 +151,7 @@ protected:
+ 	bool AI_pickupTargetSpy();
+ 	bool AI_chokeDefend();
+ 	bool AI_heal(int iDamagePercent = 0, int iMaxPath = MAX_INT);
++	bool AI_isThreatenedFromLand() const; // advc.139
+ 	bool AI_afterAttack();
+ 	bool AI_goldenAge();
+ 	bool AI_spreadReligion();
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index 3c1cebb98..89dea4007 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -3284,37 +3284,43 @@ FairPlay::FairPlay(WarEvalParameters& params) : WarUtilityAspect(params) {}
+ void FairPlay::evaluate() {
+ 
+ 	if(TEAMREF(theyId).isAVassal() ||
+-			// Once we've gone through the trouble of preparing war, it's too late.
+ 			m->getWarsDeclaredBy(weId).count(theyId) <= 0 ||
+-			agent.AI_isSneakAttackReady(TEAMID(theyId)) ||
+-			// No kid gloves if they've attacked us before
+-			we->AI_getMemoryAttitude(theyId, MEMORY_DECLARED_WAR) < 0 ||
+-			they->AI_isDoVictoryStrategyLevel3())
++			// No kid gloves if they've attacked us recently or repeatedly
++			we->AI_getMemoryAttitude(theyId, MEMORY_DECLARED_WAR) < -2 ||
++			they->AI_isDoVictoryStrategyLevel3() ||
++			// Then our attack dooms them regardless of other war parties
++			agent.warAndPeaceAI().isPushover(TEAMID(theyId)) ||
++			/*  If they can't win anymore, we shouldn't hold back. Don't want to
++				leave all the loot to others. A human with such poor war success
++				isn't going to win either, but if the human is a good sport and
++				keeps playing, the AI shouldn't punish that. */
++			(!they->isHuman() && TEAMREF(theyId).AI_getWarSuccessRating() <= -60))
+ 		return;
+ 	// Avoid big dogpiles (or taking turns attacking a single target)
+-	double otherEnemies = 0;
+-	int potentialOtherEnemies = 0;
+-	CvGame& g = GC.getGameINLINE();
+-	int theirRank = g.getPlayerRank(theyId);
++	double otherEnemies = 0; // Apart from us
++	int iPotentialOtherEnemies = 0;
++	CvGame const& g = GC.getGameINLINE();
++	int iTheirRank = g.getPlayerRank(theyId);
+ 	for(size_t i = 0; i < properCivs.size(); i++) {
+ 		CvPlayerAI const& other = GET_PLAYER(properCivs[i]);
+ 		if(other.getTeam() == agentId || other.getID() == theyId || other.isAVassal())
+ 			continue;
+-		potentialOtherEnemies++;
+-		bool immediateWar = (TEAMREF(theyId).isAtWar(other.getTeam()) ||
++		iPotentialOtherEnemies++;
++		bool bWar = (TEAMREF(theyId).isAtWar(other.getTeam()) ||
+ 				m->getWarsDeclaredBy(other.getID()).count(theyId) > 0);
+-		if(immediateWar || they->AI_getMemoryAttitude(other.getID(),
++		if(bWar || they->AI_getMemoryAttitude(other.getID(),
+ 				MEMORY_DECLARED_WAR) <= -2) {
+ 			double incr = 1.15;
+-			if(!immediateWar) {
++			if(!bWar) {
+ 				incr *= 0.73;
+ 				if(they->AI_getMemoryAttitude(other.getID(),
+ 						MEMORY_DECLARED_WAR) == -2)
+ 					incr *= 0.85;
+ 			}
++			int iOtherRank = g.getPlayerRank(other.getID());
+ 			// Ganging up on the leader is less problematic
+-			if(theirRank < g.getPlayerRank(other.getID()))
+-				incr /= 2;
++			if(iTheirRank < iOtherRank)
++				incr *= (iTheirRank + 1.0) / (iOtherRank + 1.0);
+ 			otherEnemies += incr;
+ 			log("Another enemy of %s: %s; increment: %d percent",
+ 					report.leaderName(theyId),
+@@ -3323,7 +3329,7 @@ void FairPlay::evaluate() {
+ 		else if(TEAMREF(theyId).AI_shareWar(other.getTeam())) {
+ 			log("An ally of %s: %s", report.leaderName(theyId),
+ 					report.leaderName(other.getID()));
+-			otherEnemies--;
++			otherEnemies -= 1.0 / std::max(1, GET_TEAM(other.getTeam()).getAtWarCount(true, true));
+ 		}
+ 		if(other.AI_getMemoryAttitude(theyId,
+ 				MEMORY_DECLARED_WAR) <= -2) {
+@@ -3331,9 +3337,21 @@ void FairPlay::evaluate() {
+ 			otherEnemies -= 0.5;
+ 		}
+ 	}
+-	if(potentialOtherEnemies > 0 && otherEnemies > 0) {
+-		double fromOtherEnemies = 30 * (otherEnemies /
+-				std::sqrt((double)potentialOtherEnemies) - 0.5);
++	if(otherEnemies > 0.1) {
++		double fromOtherEnemies = 30 * ((otherEnemies + std::sqrt((double)std::max(0,
++				/*  The number of cities we expect them to lose to others.
++					The subtracted conquests of ours could include cities of
++					other civs, but, in that case, we're apparently busy with
++					another enemy and our DoW won't really hurt. */
++				((int)m->lostCities(theyId).size()) -
++				((int)m->conqueredCities(weId).size())))) /
++				std::sqrt((double)std::max(1, iPotentialOtherEnemies)) - 0.33);
++		/*  Once we've gone through the trouble of preparing war, we'd like to go
++			through with it, but if there are many civs in the game, there's a good
++			chance that several of them start plotting at the same time, so
++			enforcing fairness only before and during preparations isn't enough. */
++		if(agent.AI_isSneakAttackReady(TEAMID(theyId)))
++			fromOtherEnemies *= ::dRange(iPotentialOtherEnemies / 10.0, 0.25, 0.75);
+ 		if(fromOtherEnemies > 0.5) {
+ 			log("From other enemies: %d", ::round(fromOtherEnemies));
+ 			u -= ::round(fromOtherEnemies);
+
+[PATCH OMITTED] file=a/manual_0.94.odt b/manual_0.94.odt reason=binary/generated-file changedLines=0 bytes=140
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=12 omittedFiles=2 embeddedPatchBytes=32760

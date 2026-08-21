@@ -1,0 +1,159 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6117
+# Commit: 91454e007cda083ef2edf512f08aaaa0d5b90d50
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 112e830fe244bccd47436a19066806d56daf7027
+# Title: (Fixed) Let AdvCiv's uncapped OneArea-resource pass revisit capped landmasses (KI#202)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+2	2	Assets/Python/SASBillboardScale.py
+3	0	CvGameCoreDLL/CvMapGenerator.cpp
+2	2	README.md
+14	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+17	12	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/SASBillboardScale.py b/Assets/Python/SASBillboardScale.py
+index 9018baf92..8fa61a94a 100644
+--- a/Assets/Python/SASBillboardScale.py
++++ b/Assets/Python/SASBillboardScale.py
+@@ -56,8 +56,8 @@ def _rewriteDetailManagerXML(szPath, scaledKeyLines):
+ 		BugUtil.error("SASBillboardScale: cannot read %s", szPath)
+ 		return False
+ 
+-	# Match the CITYBILLBOARD_SCALE fader block and replace its Key lines.
+-	pattern = r"(<Name>CITYBILLBOARD_SCALE</Name>\s*\n)((?:\s*<Key>[^<]*</Key>\s*\n)+)"
++	# <!-- custom: Restoring archived comments beside active XML values put comments between this Name and its Keys; the old immediate-Key match failed and disabled runtime billboard scaling. Match and preserve intervening XML comments. (GPT-5.6-Sol) -->
++	pattern = r"(<Name>CITYBILLBOARD_SCALE</Name>\s*\n(?:\s*<!--[\s\S]*?-->\s*\n)*)((?:\s*<Key>[^<]*</Key>\s*\n)+)"
+ 	replacement = r"\1" + "\n".join(scaledKeyLines) + "\n"
+ 
+ 	match = re.search(pattern, content)
+
+diff --git a/CvGameCoreDLL/CvMapGenerator.cpp b/CvGameCoreDLL/CvMapGenerator.cpp
+index 80190d042..7582d9215 100644
+--- a/CvGameCoreDLL/CvMapGenerator.cpp
++++ b/CvGameCoreDLL/CvMapGenerator.cpp
+@@ -651,6 +651,9 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
+ 	for (int iPass = 0; iPass < (bSASAdvCivOneAreaBonusDistribution ? 2 : 1); iPass++)
+ 	{	/*  Two passes - just to make sure that the new per-area limit doesn't
+ 			lead to fewer resources overall. */
++		// <!-- custom: AdvCiv's uncapped second pass could not revisit areas capped during the first pass because this inherited set was never cleared. Resetting it allows the second pass to fill the remaining target where valid plots exist. See KI#202. (GPT-5.6-Sol) -->
++		if (iPass > 0)
++			areas_tried.clear();
+ 		bool const bIgnoreAreaLimit = (!bSASAdvCivOneAreaBonusDistribution || iPass == 1); // </advc.129>
+ 		while (/* advc.129: */kMap.getNumBonuses(eBonus) < iTarget)
+ 		{
+
+diff --git a/README.md b/README.md
+index d42f0f9f8..e3f8184d8 100644
+--- a/README.md
++++ b/README.md
+@@ -74,7 +74,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ [Mapscripts](/README.md#mapscripts)\
+ &emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Large_Facing_Islands, SAS_Longworld, SAS_Parallel_Lines, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues)\
+ &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)\
+-&emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)\
++&emsp;[New .dds for mapscripts in Simple Game](/README.md#new-dds-for-mapscripts-in-simple-game)\
+ [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)\
+ [Long Comments Archive](/README.md#long-comments-archive)\
+ [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)\
+@@ -814,7 +814,7 @@ Some of them are selectable in the Simple Game menu, while others only via Custo
+ <img src="./_1_AdvCiv-SAS/Images/mapscript_previews/0.3200_new_maps_btg_cross (1).JPG" alt="0.3200_new_maps_btg_cross (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/mapscript_previews/0.3200_new_maps_btg_cross (2).JPG" alt="0.3200_new_maps_btg_cross (2).JPG" width="250"></img>
+ 
+-### New .dds for maps in Simple Game
++### New .dds for mapscripts in Simple Game
+ 
+ As part of adding, modifying, or removing some maps in Simple Game, redid some of their .dds, as a dark globe or inaccurate dds was not accurate or informative or immersive: adjusted a ratio in the the EXE of around 467 W x 377 H at 1080p, empirically with Paint.NET with a canvas size of 336 W x 256 H with empty bands to avoid overfill and preserve image ratio.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index cb89e54dd..991b7d712 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -7768,3 +7768,17 @@ AdvCiv-SAS now controls this factor through `SAS_AI_TECH_TRADE_RELATIVE_STRENGTH
+ The DLL compiled and an in-game smoke test ran successfully with the new default. Broader BBAI technology-trade diagnostics are deliberately postponed until after release: useful logging should connect contact selection, denials, candidate packages, individual valuation modifiers, counterproposals and the final accepted or rejected deal, rather than flooding the log with every speculative `AI_techTradeVal` call.
+ 
+ Fixed/improved based on the linked player report and with the help of GPT-5.6-Sol thanks.
++
++## 202 - (Fixed) Base AdvCiv's uncapped second OneArea-resource pass could not revisit landmasses capped during its first pass
++
++The map-generation audit preceding the previous [map-generation compatibility commit `d2c3107`](https://github.com/wonderingabout/AdvCiv-SAS/commit/d2c310774e5e93787c6609b01c9fb60880d6311c) also exposed a Base AdvCiv small bug: change `advc.129` relaxed BTS's single-landmass resource placement and added a first-pass limit of `2 + (area tiles / 25)` copies of a OneArea resource per area. Excess copies were intended to spread to other suitable areas first. A documented second pass then ignored this per-area limit so that the new distribution rule would not reduce the total number of resources when the first pass could not reach `calculateNumBonusesToAdd`'s target.
++
++The second pass could not perform that intended fallback. Its `areas_tried` set was inherited from the earlier single-pass BTS/K-Mod algorithm, declared outside the new two-pass loop, and never cleared. Every area selected during the capped first pass therefore remained excluded during the uncapped second pass. The second pass could occasionally select an area that the first pass had never selected, including through a newly randomized positive area score, but it could not return to any area where the new cap had actually stopped placement. This could leave fewer OneArea resources than the calculated target even when those previously selected areas still contained valid plots.
++
++AdvCiv-SAS now clears `areas_tried` when the uncapped second pass begins. The first pass still prefers spreading the resource across suitable areas and applies the inherited AdvCiv cap. Only when the target remains unmet does the second pass reconsider each area once without that cap; all ordinary tile eligibility, latitude, resource-spacing, clustering and target-count rules still apply, so genuinely impossible placements remain absent. The BTS alternative selected by disabling `SAS_MAP_ADVCIV_ONE_AREA_BONUS_DISTRIBUTION_ENABLE` still uses only its original single pass and is unchanged.
++
++This affects XML bonuses with `bArea=1`, currently Banana, Maize, Cattle, Deer, Pig, Rice, Sheep, Wheat, Dye, Incense, Elephants, Silk, Spices, Sugar and Grapes in AdvCiv-SAS. It does not change their XML frequency settings or calculated targets; it changes whether the generator can fulfill those targets. When the capped first pass already reaches a bonus's target, the second pass does nothing and the direct result is unchanged. When the first pass undershoots and a previously selected area still has valid plots, the fixed second pass can place more copies of that bonus than the broken behavior did, but never more than the existing target. Those restored copies are placed on suitable areas that the first pass had already capped rather than remaining absent. Their exact locations, and potentially later resource placement through occupied plots and the advancing map random-number sequence, can consequently differ even though the target calculation itself is unchanged.
++
++The defect was introduced in Base AdvCiv commit `f25a2b91a` when the area cap and two-pass fallback were added together; this fix is therefore a correction of that algorithm's documented intent rather than a new resource-distribution policy.
++
++Fixed with the help of GPT-5.6-Sol thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index b078ddfcb..caabfa6c6 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -48,6 +48,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
+ &emsp;[General changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#general-changes)\
+ &emsp;[Game Speeds](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#game-speeds)\
+ &emsp;[World Size/Scaling](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#world-sizescaling)\
++&emsp;[Map Generation (Common)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#map-generation-common)\
+ &emsp;[Mapscripts](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mapscripts)\
+ &emsp;[Handicaps](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#handicaps)\
+ &emsp;[Terrains / Features](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#terrains--features)\
+@@ -610,24 +611,28 @@ Make some of the data-dense advisors use using a **higher constrast background t
+ - **Research — sea level**: `iResearchPercent = 100` for High / Medium / Low (**was** `117 / 100 / 87`). Sea level no longer alters research pace.
+ - **Research — world size**: `iResearchPercent` rescaled from `95 / 98 / 102 / 115 / 137 / 150` to `85 / 90 / 95 / 100 / 105 / 110` (so **Standard = 100**). Rationale: on larger maps the AI doesn’t start with proportionally more early cities, so heavier early research multipliers left it behind. We now tune tech costs directly in XML. **Examples** (illustrative, see Sevopedia/XML for current values): on **Standard**, `TECH_MATHEMATICS` = 250 (was 285) and `TECH_ALIEN_LIFE` = 16000 (was 18400).
+ 
++## Map Generation (Common)
++
++- (Requires AdvCiv-SAS 6114+) **Optional XML-tunable BTS/AdvCiv standard-map generation:** AdvCiv-SAS's default map generation uses the shared [`CvMapGeneratorUtil.py`](/Assets/Python/CvMapGeneratorUtil.py) helpers and [`CvMapGenerator.cpp`](/CvGameCoreDLL/CvMapGenerator.cpp) DLL behavior inherited from base AdvCiv. New independent SAS defines let players select BTS alternatives for individual shared generation steps, including standard terrain and feature generation, fractal defaults, latitude, coastal Peaks, rivers, lakes, and bonus placement/distribution, without recompiling the DLL. The defaults continue to use AdvCiv's behavior because that remains the intended AdvCiv-SAS setting. These controls do not override separate Python mapscripts, or undo the changes that AdvCiv-SAS has made to Terrain/Feature/Bonus XML Info and other map-related GlobalDefines. A fresh map also generated successfully with the complete BTS-style shared-generator setting combination; this smoke-tests the alternate branches without claiming exact BTS map parity or balance because SAS content and mapscript behavior remain independent. See the documented map-generation block in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
++- (Requires AdvCiv-SAS 6117+) **Fixed AdvCiv's OneArea-resource fallback:** AdvCiv's capped first distribution pass could leave fewer food and luxury resources such as Banana, Wheat, Dye and Spices than their calculated targets because its uncapped second pass could not revisit landmasses already tried. The second pass now reconsiders those landmasses when needed. This does not change XML frequencies or calculated targets: mapscripts where the first pass already succeeds are directly unchanged, while mapscripts that previously undershot can gain the missing copies up to their existing targets; exact locations and later resource placement can consequently differ. See [KI#202](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#202---fixed-base-advcivs-uncapped-second-onearea-resource-pass-could-not-revisit-landmasses-capped-during-its-first-pass).
++
+ ## Mapscripts
+ 
+-- (Requires AdvCiv-SAS 6114+) **Optional XML-tunable BTS/AdvCiv standard-map generation:** AdvCiv-SAS's default map generation uses the shared [`CvMapGeneratorUtil.py`](/Assets/Python/CvMapGeneratorUtil.py) helpers and [`CvMapGenerator.cpp`](/CvGameCoreDLL/CvMapGenerator.cpp) DLL behavior inherited from base AdvCiv. New independent SAS defines let players select BTS alternatives for individual shared generation steps, including standard terrain and feature generation, fractal defaults, latitude, coastal Peaks, rivers, lakes, and bonus placement/distribution, without recompiling the DLL. The defaults continue to use AdvCiv's behavior because that remains the intended AdvCiv-SAS setting. These controls do not override separate Python map scripts, or undo the changes that AdvCiv-SAS has made to Terrain/Feature/Bonus XML Info and other map-related GlobalDefines. See the documented map-generation block in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - Modify **Highlands** so it supports AdvCiv-SAS's new world sizes. Also increase its players supported from 18 to 48+ (for the 48 civs DLL). Change in the new [Highlands.py](/PrivateMaps/Highlands.py). Grid size **computed dynamically beyond Huge**. See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py). See also: [Modding ressources (Mapscripts)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#mapscripts).
+ - Similarly also fix **other maps** to make them **compatible with AdvCiv-SAS**: [aDebugMap.py](/PrivateMaps/aDebugMap.py), [Fantasy_Realm.py](/PrivateMaps/Fantasy_Realm.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Ice_Age.py](/PrivateMaps/Ice_Age.py), [Inland_Sea.py](/PrivateMaps/Inland_Sea.py), [Lakes.py](/PrivateMaps/Lakes.py), [Maze.py](/PrivateMaps/Maze.py), [Hub.py](/PrivateMaps/Hub.py), [Mirror.py](/PrivateMaps/Mirror.py), [Oasis.py](/PrivateMaps/Oasis.py), [Ring.py](/PrivateMaps/Ring.py), [Team_Battleground.py](/PrivateMaps/Team_Battleground.py), [Tilted_Axis.py](/PrivateMaps/Tilted_Axis.py), [Wheel.py](/PrivateMaps/Wheel.py), [Arboria.py](/PrivateMaps/Arboria.py), [Donut.py](/PrivateMaps/Donut.py), [Earth2.py](/PrivateMaps/Earth2.py) (see below), [Global_Highlands.py](/PrivateMaps/Global_Highlands.py), [PerfectMongoose.py](/PrivateMaps/PerfectMongoose.py), [Rainforest.py](/PrivateMaps/Rainforest.py), [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py), [Terra.py](/PrivateMaps/Terra.py).
+-- Added shared Mapscript-related world-size helpers. Note: done in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) rather than in the [PrivateMaps](/PrivateMaps/) folder as a .py file. This is because such a previous design caused the helper-as-a-playable-mapscript related bug, in AdvCiv-SAS only, of RandomScriptMap and Archipelago, e.g. at Huge world size, being generated far too small (`60 x 44`). After the fix it returned to `120 x 84`, matching base AdvCiv visually at a glance, and not being overly cramped anymore. The same issue may also have affected other map scripts that imported the old helper. The old helper now only keeps the minimal new playable mapscript code, not imported by other mapscripts anymore, in the new **SAS_Simple_Flat_Grass**: a simple sandbox map with almost all land and mostly flat grass tiles. See [SAS_Simple_Flat_Grass.py](/PrivateMaps/SAS_Simple_Flat_Grass.py).
+-- Tuned several inherited map scripts: [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py) is trimmed slightly; [Medium_and_Small.py](/PrivateMaps/Medium_and_Small.py) is enlarged a little from Large onward because lower islets usually are not assigned to players, leaving the upper continent-style area cramped; [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Custom_Continents.py](/PrivateMaps/Custom_Continents.py), and [Donut.py](/PrivateMaps/Donut.py) are trimmed on larger tiers because Huge tested too large.
+-- **Reduced the grid size** of some maps that are **almost entirely composed of land** plots: city spacing **was too wide** due to the **excess of land** and **lack of water** plots. See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py).
++- Added shared Mapscript-related world-size helpers. Note: done in [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py) rather than in the [PrivateMaps](/PrivateMaps/) folder as a .py file. This is because such a previous design caused the helper-as-a-playable-mapscript related bug, in AdvCiv-SAS only, of RandomScriptMap and Archipelago, e.g. at Huge world size, being generated far too small (`60 x 44`). After the fix it returned to `120 x 84`, matching base AdvCiv visually at a glance, and not being overly cramped anymore. The same issue may also have affected other mapscripts that imported the old helper. The old helper now only keeps the minimal new playable mapscript code, not imported by other mapscripts anymore, in the new **SAS_Simple_Flat_Grass**: a simple sandbox mapscript with almost all land and mostly flat grass tiles. See [SAS_Simple_Flat_Grass.py](/PrivateMaps/SAS_Simple_Flat_Grass.py).
++- Tuned several inherited mapscripts: [RandomScriptMap.py](/PrivateMaps/RandomScriptMap.py) is trimmed slightly; [Medium_and_Small.py](/PrivateMaps/Medium_and_Small.py) is enlarged a little from Large onward because lower islets usually are not assigned to players, leaving the upper continent-style area cramped; [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Custom_Continents.py](/PrivateMaps/Custom_Continents.py), and [Donut.py](/PrivateMaps/Donut.py) are trimmed on larger tiers because Huge tested too large.
++- **Reduced the grid size** of some mapscripts that are **almost entirely composed of land** plots: city spacing **was too wide** due to the **excess of land** and **lack of water** plots. See [SAS_WorldSizeUtils.py](/Assets/Python/SAS_WorldSizeUtils.py).
+ - **Earth2 start distribution rework:** for Huge and beyond world sizes, keep Earth2 at its existing **Huge-scale sizing** (already large enough), but solve crowding by **populating underused landmasses instead** (e.g., min 16 players before Africa is populated, min 32 players before the whole world is populated) of enlarging the script further. **Thresholds are based on player count** (not world size). See [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml).
+ - **Reduce grid size** for each worldsize in [Global_Highlands.py](/PrivateMaps/Global_Highlands.py) by one world size (e.g. World Size Huge was `(38,24)` -> `(32,20)` (old World Size Large's dimensions)): empirically even accounting for the many peaks it has (compensated by a larger grid at each world size than usual), **cities were still too sparse**. See [KI#138](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#138---fixed-base-advciv-issue-global-highlands-map-sizes-were-too-large).
+-- Add **Deer percentage map option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) maps like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**. See also [KI#105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal).
+-- **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+-- **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Mixed_Continents.py](/PrivateMaps/Mixed_Continents.py), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+-- **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+-- **Add** new AdvCiv-SAS original maps: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified, similarly also [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets), [SAS_Large_Facing_Islands.py](/PrivateMaps/SAS_Large_Facing_Islands.py) (Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough)), and [SAS_Parallel_Lines.py](/PrivateMaps/SAS_Parallel_Lines.py) (Parallel lines map where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues).
+-- **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the map in both **Simple Game** and **Custom Game** lists. **Increase BTG_Cross grid dimensions** with explicit per-world-size rows (instead of all derived from Huge only): **Huge** and several smaller base sizes were **too cramped**, and direct rows make the tuning adjustable. Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py). See also [KI#137](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#137---fixed-btg-cross-reused-huge-grid-size-for-every-world-size-of-huge-and-below).
+-- **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant bonuses choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)), [Water.py](/PrivateMaps/Water.py) (from [CFC](https://forums.civfanatics.com/resources/water.15334/)) (actually has many lakes unlike [Lakes.py](/PrivateMaps/Lakes.py); also **adjusted city spacing** that **was too wide**).
+-- Make other maps **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
++- Add **Deer percentage mapscript option** (e.g., `0/10/25/50/75/100`) for [Arboria.py](/PrivateMaps/Arboria.py) and [Boreal.py](/PrivateMaps/Boreal.py): **high-food terrain** (e.g. grass) mapscripts like Arboria, or **lower-food terrain** ones (e.g. tundra/plains) like Boreal, had **too much deer**. See also [KI#105](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#105---fixed-base-advciv-bug-of-most-bonuses-eg-deer-sometimes-not-appearing-at-first-civ4-launch-in-some-maps-eg-boreal).
++- **Order mapscripts alphabetically** in **Simple Game** or **Custom Game** (by adding missing mapscripts in **PrivateMaps**).
++- **Remove from Simple Game** some mapscripts that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Mixed_Continents.py](/PrivateMaps/Mixed_Continents.py), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
++- **Add** or **redo** the .dds (i.e. image) in **Simple Game** for mapscripts so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for mapscripts in Simple Game)](/README.md#new-dds-for-mapscripts-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
++- **Add** new AdvCiv-SAS original maps: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified, similarly also [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical mapscript with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets), [SAS_Large_Facing_Islands.py](/PrivateMaps/SAS_Large_Facing_Islands.py) (Each player starts on a large island, with rivals on the east and west sides, and a rival facing north or south (when world size is large enough)), and [SAS_Parallel_Lines.py](/PrivateMaps/SAS_Parallel_Lines.py) (Parallel lines mapscript where the world is optionally (default) connected horizontally (WrapX) and vertically (WrapY). Fixed number of players per line (3 or 4), and height per player). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_large_facing_islands-sas_longworld-sas_parallel_lines-sas_spiky_avenues).
++- **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) mapscript (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the mapscript in both **Simple Game** and **Custom Game** lists. **Increase BTG_Cross grid dimensions** with explicit per-world-size rows (instead of all derived from Huge only): **Huge** and several smaller base sizes were **too cramped**, and direct rows make the tuning adjustable. Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py). See also [KI#137](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#137---fixed-btg-cross-reused-huge-grid-size-for-every-world-size-of-huge-and-below).
++- **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS mapscript compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant bonuses choice), and **bug fixes** (including robust direction handling). Expose the mapscript in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)), [Water.py](/PrivateMaps/Water.py) (from [CFC](https://forums.civfanatics.com/resources/water.15334/)) (actually has many lakes unlike [Lakes.py](/PrivateMaps/Lakes.py); also **adjusted city spacing** that **was too wide**).
++- Make other mapscripts **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+ 
+ ## Handicaps
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=28008

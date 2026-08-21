@@ -1,0 +1,273 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 534
+# Commit: 5a2074d6e004b43bf91c7e7113d8ed2f1ad5ccfb
+# History segment: K-Mod history
+# Parent used for diff: ff9c7aacf1578743d1de9ce3951f44fa72b1ffb4
+# Title: Reformatted the "actual effects" text for buildings and specialists. It is now called "Net Effect", and it appears at the bottom of the list, in grey text, e...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	3	Assets/xml/Text/BULL_CIV4GameText.xml
+8	8	CvGameCoreDLL/CvCity.h
+35	34	CvGameCoreDLL/CvGameTextMgr.cpp
+1	4	CvGameCoreDLL/CvGameTextMgr.h
+
+[PATCHES]
+
+diff --git a/Assets/xml/Text/BULL_CIV4GameText.xml b/Assets/xml/Text/BULL_CIV4GameText.xml
+index 0d4669a2b..1813cb161 100644
+--- a/Assets/xml/Text/BULL_CIV4GameText.xml
++++ b/Assets/xml/Text/BULL_CIV4GameText.xml
+@@ -227,11 +227,11 @@
+ 
+ 	<TEXT>
+ 		<Tag>TXT_KEY_ACTUAL_EFFECTS</Tag>
+-		<English>Actual</English>
+-		<French>Actual</French>
++		<English>Net Effect</English>
++		<French>Net Effect</French>
+ 		<German>Effektiv</German>
+ 		<Italian>Effettivo</Italian>
+-		<Spanish>Actual</Spanish>
++		<Spanish>Net Effect</Spanish>
+ 	</TEXT>
+ 
+ <!-- Min/Max Commerce Rate Buttons -->
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 8bc614b73..b972b6789 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -323,8 +323,8 @@ public:
+ // BUG - Building Additional Great People - end
+ 
+ // BUG - Specialist Additional Great People - start
+-	int getAdditionalGreatPeopleRateBySpecialist(SpecialistTypes eSpecialist, int iChange) const;
+-	int getAdditionalBaseGreatPeopleRateBySpecialist(SpecialistTypes eSpecialist, int iChange) const;
++	int getAdditionalGreatPeopleRateBySpecialist(SpecialistTypes eSpecialist, int iChange = 1) const;
++	int getAdditionalBaseGreatPeopleRateBySpecialist(SpecialistTypes eSpecialist, int iChange = 1) const;
+ // BUG - Specialist Additional Great People - end
+ 
+ 	int getGreatPeopleProgress() const;													// Exposed to Python
+@@ -683,8 +683,8 @@ public:
+ // BUG - Building Additional Yield - end
+ 
+ // BUG - Specialist Additional Yield - start
+-	int getAdditionalYieldBySpecialist(YieldTypes eIndex, SpecialistTypes eSpecialist, int iChange) const;
+-	int getAdditionalBaseYieldRateBySpecialist(YieldTypes eIndex, SpecialistTypes eSpecialist, int iChange) const;
++	int getAdditionalYieldBySpecialist(YieldTypes eIndex, SpecialistTypes eSpecialist, int iChange = 1) const;
++	int getAdditionalBaseYieldRateBySpecialist(YieldTypes eIndex, SpecialistTypes eSpecialist, int iChange = 1) const;
+ // BUG - Specialist Additional Yield - end
+ 
+ 	int getBaseYieldRate(YieldTypes eIndex) const;								// Exposed to Python
+@@ -744,10 +744,10 @@ public:
+ 	void changeSpecialistCommerce(CommerceTypes eIndex, int iChange);			// Exposed to Python
+ 
+ // BUG - Specialist Additional Commerce - start
+-	int getAdditionalCommerceBySpecialist(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange) const;				// Exposed to Python
+-	int getAdditionalCommerceTimes100BySpecialist(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange) const;		// Exposed to Python
+-	int getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange) const;		// Exposed to Python
+-	int getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange) const;
++	int getAdditionalCommerceBySpecialist(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange = 1) const;				// Exposed to Python
++	int getAdditionalCommerceTimes100BySpecialist(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange = 1) const;		// Exposed to Python
++	int getAdditionalBaseCommerceRateBySpecialist(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange = 1) const;		// Exposed to Python
++	int getAdditionalBaseCommerceRateBySpecialistImpl(CommerceTypes eIndex, SpecialistTypes eSpecialist, int iChange = 1) const;
+ // BUG - Specialist Additional Commerce - end
+ 
+ 	int getReligionCommerce(CommerceTypes eIndex) const;																				// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 881fa1277..1e72d9497 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -6440,15 +6440,7 @@ void CvGameTextMgr::parseCivInfos(CvWStringBuffer &szInfoText, CivilizationTypes
+ //	return szInfoText;
+ }
+ 
+-// BUG - Specialist Actual Effects - start
+ void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString, SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText)
+-{
+-	parseSpecialistHelpActual(szHelpString, eSpecialist, pCity, bCivilopediaText, 0);
+-}
+-
+-//void CvGameTextMgr::parseSpecialistHelp(CvWStringBuffer &szHelpString, SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText)
+-void CvGameTextMgr::parseSpecialistHelpActual(CvWStringBuffer &szHelpString, SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText, int iChange)
+-// BUG - Specialist Actual Effects - end
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -6515,30 +6507,34 @@ void CvGameTextMgr::parseSpecialistHelpActual(CvWStringBuffer &szHelpString, Spe
+ 		}
+ 
+ // BUG - Specialist Actual Effects - start
+-		if (iChange != 0 && NULL != pCity && pCity->getOwnerINLINE() == GC.getGame().getActivePlayer() && getBugOptionBOOL("MiscHover__SpecialistActualEffects", false, "BUG_MISC_SPECIALIST_HOVER_ACTUAL_EFFECTS"))
++		if (pCity && pCity->getOwnerINLINE() == GC.getGame().getActivePlayer() && (gDLL->altKey() || getBugOptionBOOL("MiscHover__SpecialistActualEffects", false, "BUG_MISC_SPECIALIST_HOVER_ACTUAL_EFFECTS")))
+ 		{
+ 			bool bStarted = false;
+-			CvWString szStart = gDLL->getText("TXT_KEY_ACTUAL_EFFECTS");
++			CvWString szStart;
++			szStart.Format(L"\n"SETCOLR L"(%s", TEXT_COLOR("COLOR_LIGHT_GREY"), gDLL->getText("TXT_KEY_ACTUAL_EFFECTS").GetCString());
+ 
+ 			// Yield
+ 			int aiYields[NUM_YIELD_TYPES];
+ 			for (int iI = 0; iI < NUM_YIELD_TYPES; ++iI)
+ 			{
+-				aiYields[iI] = pCity->getAdditionalYieldBySpecialist((YieldTypes)iI, eSpecialist, iChange);
++				aiYields[iI] = pCity->getAdditionalYieldBySpecialist((YieldTypes)iI, eSpecialist);
+ 			}
+-			bStarted = setResumableYieldChangeHelp(szHelpString, szStart, L": ", L"", aiYields, false, true, bStarted);
++			bStarted = setResumableYieldChangeHelp(szHelpString, szStart, L": ", L"", aiYields, false, false, bStarted);
+ 
+ 			// Commerce
+ 			int aiCommerces[NUM_COMMERCE_TYPES];
+ 			for (int iI = 0; iI < NUM_COMMERCE_TYPES; ++iI)
+ 			{
+-				aiCommerces[iI] = pCity->getAdditionalCommerceTimes100BySpecialist((CommerceTypes)iI, eSpecialist, iChange);
++				aiCommerces[iI] = pCity->getAdditionalCommerceTimes100BySpecialist((CommerceTypes)iI, eSpecialist);
+ 			}
+-			bStarted = setResumableCommerceTimes100ChangeHelp(szHelpString, szStart, L": ", L"", aiCommerces, true, bStarted);
++			bStarted = setResumableCommerceTimes100ChangeHelp(szHelpString, szStart, L": ", L"", aiCommerces, false, bStarted);
+ 
+ 			// Great People
+-			int iGreatPeopleRate = pCity->getAdditionalGreatPeopleRateBySpecialist(eSpecialist, iChange);
+-			bStarted = setResumableValueChangeHelp(szHelpString, szStart, L": ", L"", iGreatPeopleRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR), false, true, bStarted);
++			int iGreatPeopleRate = pCity->getAdditionalGreatPeopleRateBySpecialist(eSpecialist);
++			bStarted = setResumableValueChangeHelp(szHelpString, szStart, L": ", L"", iGreatPeopleRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR), false, false, bStarted);
++
++			if (bStarted)
++				szHelpString.append(L")" ENDCOLR);
+ 		}
+ // BUG - Specialist Actual Effects - end
+ 
+@@ -9174,23 +9170,25 @@ void CvGameTextMgr::setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBu
+ /*
+  * Adds the actual effects of adding a building to the city.
+  */
+-void CvGameTextMgr::setBuildingActualEffects(CvWStringBuffer &szBuffer, CvWString& szStart, BuildingTypes eBuilding, CvCity* pCity, bool bNewLine)
++void CvGameTextMgr::setBuildingNetEffectsHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, CvCity* pCity)
+ {
+ 	if (NULL != pCity)
+ 	{
+ 		bool bStarted = false;
++		CvWString szStart;
++		szStart.Format(L"\n"SETCOLR L"(%s", TEXT_COLOR("COLOR_LIGHT_GREY"), gDLL->getText("TXT_KEY_ACTUAL_EFFECTS").GetCString());
+ 
+ 		// Defense
+ 		int iDefense = pCity->getAdditionalDefenseByBuilding(eBuilding);
+-		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iDefense, gDLL->getSymbolID(DEFENSE_CHAR), true, bNewLine, bStarted);
++		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iDefense, gDLL->getSymbolID(DEFENSE_CHAR), true, false, bStarted);
+ 		
+ 		// Happiness
+ 		int iGood = 0;
+ 		int iBad = 0;
+ 		pCity->getAdditionalHappinessByBuilding(eBuilding, iGood, iBad);
+-		int iAngryPop = pCity->getAdditionalAngryPopuplation(iGood, iBad);
+-		bStarted = setResumableGoodBadChangeHelp(szBuffer, szStart, L": ", L"", iGood, gDLL->getSymbolID(HAPPY_CHAR), iBad, gDLL->getSymbolID(UNHAPPY_CHAR), false, bNewLine, bStarted);
+-		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iAngryPop, gDLL->getSymbolID(ANGRY_POP_CHAR), false, bNewLine, bStarted);
++		//int iAngryPop = pCity->getAdditionalAngryPopuplation(iGood, iBad);
++		bStarted = setResumableGoodBadChangeHelp(szBuffer, szStart, L": ", L"", iGood, gDLL->getSymbolID(HAPPY_CHAR), iBad, gDLL->getSymbolID(UNHAPPY_CHAR), false, false, bStarted);
++		//bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iAngryPop, gDLL->getSymbolID(ANGRY_POP_CHAR), false, bNewLine, bStarted);
+ 
+ 		// Health
+ 		iGood = 0;
+@@ -9198,9 +9196,9 @@ void CvGameTextMgr::setBuildingActualEffects(CvWStringBuffer &szBuffer, CvWStrin
+ 		pCity->getAdditionalHealthByBuilding(eBuilding, iGood, iBad);
+ 		int iSpoiledFood = pCity->getAdditionalSpoiledFood(iGood, iBad);
+ 		int iStarvation = pCity->getAdditionalStarvation(iSpoiledFood);
+-		bStarted = setResumableGoodBadChangeHelp(szBuffer, szStart, L": ", L"", iGood, gDLL->getSymbolID(HEALTHY_CHAR), iBad, gDLL->getSymbolID(UNHEALTHY_CHAR), false, bNewLine, bStarted);
+-		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iSpoiledFood, gDLL->getSymbolID(EATEN_FOOD_CHAR), false, bNewLine, bStarted);
+-		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iStarvation, gDLL->getSymbolID(BAD_FOOD_CHAR), false, bNewLine, bStarted);
++		bStarted = setResumableGoodBadChangeHelp(szBuffer, szStart, L": ", L"", iGood, gDLL->getSymbolID(HEALTHY_CHAR), iBad, gDLL->getSymbolID(UNHEALTHY_CHAR), false, false, bStarted);
++		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iSpoiledFood, gDLL->getSymbolID(EATEN_FOOD_CHAR), false, false, bStarted);
++		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iStarvation, gDLL->getSymbolID(BAD_FOOD_CHAR), false, false, bStarted);
+ 
+ 		// Yield
+ 		int aiYields[NUM_YIELD_TYPES];
+@@ -9208,7 +9206,7 @@ void CvGameTextMgr::setBuildingActualEffects(CvWStringBuffer &szBuffer, CvWStrin
+ 		{
+ 			aiYields[iI] = pCity->getAdditionalYieldByBuilding((YieldTypes)iI, eBuilding);
+ 		}
+-		bStarted = setResumableYieldChangeHelp(szBuffer, szStart, L": ", L"", aiYields, false, bNewLine, bStarted);
++		bStarted = setResumableYieldChangeHelp(szBuffer, szStart, L": ", L"", aiYields, false, false, bStarted);
+ 		
+ 		// Commerce
+ 		int aiCommerces[NUM_COMMERCE_TYPES];
+@@ -9218,11 +9216,14 @@ void CvGameTextMgr::setBuildingActualEffects(CvWStringBuffer &szBuffer, CvWStrin
+ 		}
+ 		// Maintenance - add to gold
+ 		aiCommerces[COMMERCE_GOLD] += pCity->getSavedMaintenanceTimes100ByBuilding(eBuilding);
+-		bStarted = setResumableCommerceTimes100ChangeHelp(szBuffer, szStart, L": ", L"", aiCommerces, bNewLine, bStarted);
++		bStarted = setResumableCommerceTimes100ChangeHelp(szBuffer, szStart, L": ", L"", aiCommerces, false, bStarted);
+ 
+ 		// Great People
+ 		int iGreatPeopleRate = pCity->getAdditionalGreatPeopleRateByBuilding(eBuilding);
+-		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iGreatPeopleRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR), false, bNewLine, bStarted);
++		bStarted = setResumableValueChangeHelp(szBuffer, szStart, L": ", L"", iGreatPeopleRate, gDLL->getSymbolID(GREAT_PEOPLE_CHAR), false, false, bStarted);
++
++		if (bStarted)
++			szBuffer.append(L")" ENDCOLR);
+ 	}
+ }
+ 
+@@ -9430,13 +9431,6 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 				}
+ 			}
+ 		}
+-// BUG - Building Actual Effects - start
+-		if (bActual && NULL != pCity && pCity->getOwnerINLINE() == GC.getGame().getActivePlayer() && getBugOptionBOOL("MiscHover__BuildingActualEffects", false, "BUG_BUILDING_HOVER_ACTUAL_EFFECTS"))
+-		{
+-			CvWString szStart = gDLL->getText("TXT_KEY_ACTUAL_EFFECTS");
+-			setBuildingActualEffects(szBuffer, szStart, eBuilding, pCity);
+-		}
+-// BUG - Building Actual Effects - end
+ 	}
+ 
+ 	// test for unique building
+@@ -10476,6 +10470,13 @@ void CvGameTextMgr::setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTyp
+ 			}
+ 			else
+ 			{
++		// BUG - Building Actual Effects (edited and moved by K-Mod) - start
++				if (bActual && pCity->getOwnerINLINE() == GC.getGame().getActivePlayer() && (gDLL->altKey() || getBugOptionBOOL("MiscHover__BuildingActualEffects", false, "BUG_BUILDING_HOVER_ACTUAL_EFFECTS")))
++				{
++					setBuildingNetEffectsHelp(szBuffer, eBuilding, pCity);
++				}
++		// BUG - Building Actual Effects - end
++
+ 				szBuffer.append(NEWLINE);
+ 				szBuffer.append(gDLL->getText("TXT_KEY_BUILDING_NUM_TURNS", pCity->getProductionTurnsLeft(eBuilding, ((gDLL->ctrlKey() || !(gDLL->shiftKey())) ? 0 : pCity->getOrderQueueLength()))));
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index c3ec9f36b..212aafa5c 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -66,9 +66,6 @@ public:
+ 	DllExport void parseLeaderShortTraits(CvWStringBuffer &szInfoText, LeaderHeadTypes eLeader);
+ 	DllExport void parseCivInfos(CvWStringBuffer &szHelpString, CivilizationTypes eCivilization, bool bDawnOfMan = false, bool bLinks = true);
+ 	DllExport void parseSpecialistHelp(CvWStringBuffer &szHelpString, SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText = false);
+-// BUG - Specialist Actual Effects - start
+-	void parseSpecialistHelpActual(CvWStringBuffer &szHelpString, SpecialistTypes eSpecialist, CvCity* pCity, bool bCivilopediaText = false, int iChange = 0);
+-// BUG - Specialist Actual Effects - end
+ 	DllExport void parseFreeSpecialistHelp(CvWStringBuffer &szHelpString, const CvCity& kCity);
+ 	DllExport void parsePromotionHelp(CvWStringBuffer &szBuffer, PromotionTypes ePromotion, const wchar* pcNewline = NEWLINE);
+ 	DllExport void parseCivicInfo(CvWStringBuffer &szBuffer, CivicTypes eCivic, bool bCivilopediaText = false, bool bPlayerContext = false, bool bSkipName = false);
+@@ -86,7 +83,7 @@ public:
+ 	DllExport void setUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
+ 	DllExport void setBuildingHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL);
+ // BUG - Building Additional Happiness - start
+-	void setBuildingActualEffects(CvWStringBuffer &szBuffer, CvWString &szStart, BuildingTypes eBuilding, CvCity* pCity, bool bNewLine = true);
++	void setBuildingNetEffectsHelp(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, CvCity* pCity);
+ 	void setBuildingHelpActual(CvWStringBuffer &szBuffer, BuildingTypes eBuilding, bool bCivilopediaText = false, bool bStrategyText = false, bool bTechChooserText = false, CvCity* pCity = NULL, bool bActual = true);
+ // BUG - Building Additional Happiness - end
+ 	DllExport void setProjectHelp(CvWStringBuffer &szBuffer, ProjectTypes eProject, bool bCivilopediaText = false, CvCity* pCity = NULL);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=15294

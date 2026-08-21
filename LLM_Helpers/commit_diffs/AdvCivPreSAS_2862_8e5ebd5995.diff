@@ -1,0 +1,83 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2862
+# Commit: 8e5ebd59950d56ade627a12cefa59e51118f0517
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1f5533a0eeb00eb17f9a5bfcefa647d2b10e8b2c
+# Title: Delete obsolete CvMap::setFlagsDirty
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	CvGameCoreDLL/CvGame.cpp
+0	8	CvGameCoreDLL/CvMap.cpp
+1	2	CvGameCoreDLL/CvMap.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 2200274a0..a09fbaefa 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -5340,7 +5340,8 @@ void CvGame::toggleDebugMode()
+ 	GC.getMap().updateVisibility();
+ 	GC.getMap().updateSymbols();
+ 	GC.getMap().updateMinimapColor();
+-	GC.getMap().setFlagsDirty(); // K-Mod
++	// advc.001w: Let updateVisibility handle it
++	//GC.getMap().setFlagsDirty(); // K-Mod
+ 	updateColoredPlots(); // K-Mod
+ 
+ 	gDLL->getInterfaceIFace()->setDirty(GameData_DIRTY_BIT, true);
+
+diff --git a/CvGameCoreDLL/CvMap.cpp b/CvGameCoreDLL/CvMap.cpp
+index e12bf6c57..a7da0ec1e 100644
+--- a/CvGameCoreDLL/CvMap.cpp
++++ b/CvGameCoreDLL/CvMap.cpp
+@@ -287,7 +287,6 @@ void CvMap::setAllPlotTypes(PlotTypes ePlotType)
+ 	//printToConsole(CvString::format("[Jason] setAllPlotTypes: %f\n", endTime - startTime).c_str());
+ }
+ 
+-
+ // XXX generalize these funcs? (macro?)
+ void CvMap::doTurn()
+ {
+@@ -296,13 +295,6 @@ void CvMap::doTurn()
+ 		getPlotByIndex(iI).doTurn();
+ }
+ 
+-// K-Mod
+-void CvMap::setFlagsDirty()
+-{
+-	for(int i = 0; i < numPlots(); i++) // advc
+-		plotByIndex(i)->setFlagDirty(true);
+-}
+-// K-Mod end
+ 
+ void CvMap::updateFlagSymbols()
+ {
+
+diff --git a/CvGameCoreDLL/CvMap.h b/CvGameCoreDLL/CvMap.h
+index ccf3b8823..aac47f56f 100644
+--- a/CvGameCoreDLL/CvMap.h
++++ b/CvGameCoreDLL/CvMap.h
+@@ -270,9 +270,8 @@ public: // advc: made several functions const
+ 
+ 	void doTurn();
+ 
+-	void setFlagsDirty(); // K-Mod
+ 	DllExport void updateFlagSymbols();
+-
++	//void setFlagsDirty(); // K-Mod (advc.001w: Obsolete, deleted.)
+ 	DllExport void updateFog();
+ 	void updateVisibility();																// Exposed to Python
+ 	DllExport void updateSymbolVisibility();
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=1713

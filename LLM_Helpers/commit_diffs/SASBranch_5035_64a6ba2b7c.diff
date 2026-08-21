@@ -1,0 +1,599 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5035
+# Commit: 64a6ba2b7c20dbbcc4c11364ab9b6d33645015c0
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: c3d736ff5c86c9c50fce56e71ede27a0173feaea
+# Title: more performance optimizations + crash/code fix it seems we had a crash at turn 32 after doing these, but it may be due to the previous commit before this on...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	4	CvGameCoreDLL/CvCity.cpp
+33	20	CvGameCoreDLL/CvCityAI.cpp
+5	1	CvGameCoreDLL/CvDLLButtonPopup.cpp
+38	8	CvGameCoreDLL/CvDLLWidgetData.cpp
+84	19	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 812274b76..aaf563ca4 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11131,6 +11131,11 @@ void CvCity::doReligion()
+ 	std::partial_sort(religion_grips.begin(), religion_grips.begin() + iChances,
+ 			religion_grips.end(), std::greater<std::pair<int,ReligionTypes> >());
+ 
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const int iReligionSpreadRand = GC.getDefineINT("RELIGION_SPREAD_RAND");
++
+ 	for (int i = 0; i < iChances; i++)
+ 	{
+ 		int iLoopGrip = religion_grips[i].first;
+@@ -11198,10 +11203,6 @@ void CvCity::doReligion()
+ 			iChancePercent /= 1 + iReligionCities;
+ 		}*/
+ 		// <advc>
+-
+-		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+-		static const int iReligionSpreadRand = GC.getDefineINT("RELIGION_SPREAD_RAND");
+-
+ 		static scaled const rRELIGION_SPREAD_DIV = std::max(scaled::epsilon(),
+ 				per100(iReligionSpreadRand));
+ 		rSpreadProb /= std::max(scaled::epsilon(),
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index ae820ce38..7db92d3b8 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -3130,6 +3130,8 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 	// - UNITAI_MISSILE_CARRIER_SEA: similar to UNITAI_CARRIER_SEA but for missiles
+ 	// - UNITAI_PIRATE_SEA: Wander around pointlessly, sometimes run a blockade if the die roll tells you to and you are in enemy territory
+ 
++	const int iNumCities = kOwner.getNumCities();
++
+ 	int iDummy=-1;
+ 	if (!bFinancialTrouble && (bPrimaryArea ?
+ 		//kOwner.findBestFoundValue() > 0 : getArea().getBestFoundValue(getOwner()) > 0
+@@ -3161,7 +3163,7 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			(bWarPlan || bLandWar || bAssault ? 5 : 8) +
+ 			(bPrimaryArea ? 1 : 0);
+ 
+-	//aiUnitAIVal[UNITAI_DEFENSE_AIR] += (kOwner.getNumCities() + 1);
++	//aiUnitAIVal[UNITAI_DEFENSE_AIR] += (iNumCities + 1);
+ 	aiUnitAIVal[UNITAI_DEFENSE_AIR] += kOwner.AI_getTotalAirDefendersNeeded(); // K-Mod
+ 	aiUnitAIVal[UNITAI_CARRIER_AIR] += kOwner.AI_countCargoSpace(
+ 			UNITAI_CARRIER_SEA);
+@@ -3195,56 +3197,59 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 
+ 		if (pWaterArea != NULL)
+ 		{
++			// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc; since they are in different scopes, fine to redefine it later when we use it again (after null check) if i understood it correctly and after asking chatgpt 5, check if accurate anyways etc -->
++			const int iPWaterAreaGetNumTiles = pWaterArea->getNumTiles();
++
+ 			aiUnitAIVal[UNITAI_WORKER_SEA] += AI_neededSeaWorkers();
+-			if (kOwner.getNumCities() > 3 || getArea().getNumUnownedTiles() < 10)
++			if (iNumCities > 3 || getArea().getNumUnownedTiles() < 10)
+ 			{
+ 				if (bPrimaryArea)
+ 					aiUnitAIVal[UNITAI_EXPLORE_SEA] += kOwner.AI_neededExplorers(*pWaterArea);
+ 				if (bPrimaryArea && kOwner.findBestFoundValue() > 0 &&
+-					pWaterArea->getNumTiles() > 300)
++					iPWaterAreaGetNumTiles > 300)
+ 				{
+ 					aiUnitAIVal[UNITAI_SETTLER_SEA]++;
+ 				}
+ 				if (bPrimaryArea &&
+ 					kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_MISSIONARY) > 0 &&
+-					pWaterArea->getNumTiles() > 400)
++					iPWaterAreaGetNumTiles > 400)
+ 				{
+ 					aiUnitAIVal[UNITAI_MISSIONARY_SEA]++;
+ 				}
+ 
+ 				if (bPrimaryArea && kOwner.AI_totalAreaUnitAIs(getArea(), UNITAI_SPY) > 0 &&
+-					pWaterArea->getNumTiles() > 500)
++					iPWaterAreaGetNumTiles > 500)
+ 				{
+ 					aiUnitAIVal[UNITAI_SPY_SEA]++;
+ 				}
+ 
+-				aiUnitAIVal[UNITAI_PIRATE_SEA] += pWaterArea->getNumTiles() / 600;
++				aiUnitAIVal[UNITAI_PIRATE_SEA] += iPWaterAreaGetNumTiles / 600;
+ 
+ 				// <!-- custom: be careful, do not use this bWarPossible, this is always true at last for the 100 turns where i tested it, using this for settler build control logic resulted in no settler at all in 100 turns (probably true longer but didn't test anyways etc) -->
+ 				// if (bWarPossible)
+ 				// {
+ 				// K-Mod note: this is bogus. TODO: change it so that it scales properly with map size.
+ 				aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
+-						pWaterArea->getNumTiles() / 150,
++						iPWaterAreaGetNumTiles / 150,
+ 						(iCoastalCities * 2 + iMilitaryWeight / 9) / (bAssault ? 4 : 6) +
+ 						(bPrimaryArea ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
+-						pWaterArea->getNumTiles() / 200,
++						iPWaterAreaGetNumTiles / 200,
+ 						(iCoastalCities * 2 + iMilitaryWeight / 7) / 5 +
+ 						(bPrimaryArea ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_ESCORT_SEA] += (kOwner.AI_totalWaterAreaUnitAIs(
+ 						*pWaterArea, UNITAI_ASSAULT_SEA) +
+ 						(kOwner.AI_totalWaterAreaUnitAIs(
+ 						*pWaterArea, UNITAI_CARRIER_SEA) * 2));
+-				aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(pWaterArea->getNumTiles() / 250,
++				aiUnitAIVal[UNITAI_ASSAULT_SEA] += std::min(iPWaterAreaGetNumTiles / 250,
+ 						(iCoastalCities * 2 + iMilitaryWeight / 6) / (bAssault ? 5 : 8) +
+ 						(bPrimaryArea ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_CARRIER_SEA] += std::min(
+-						pWaterArea->getNumTiles() / 350,
++						iPWaterAreaGetNumTiles / 350,
+ 						(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
+ 						(bPrimaryArea ? 1 : 0));
+ 				aiUnitAIVal[UNITAI_MISSILE_CARRIER_SEA] += std::min(
+-						pWaterArea->getNumTiles() / 350,
++						iPWaterAreaGetNumTiles / 350,
+ 						(iCoastalCities * 2 + iMilitaryWeight / 8) / 7 +
+ 						(bPrimaryArea ? 1 : 0));
+ 				// }
+@@ -3278,26 +3283,32 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 						iMilitaryWeight / (bLandWar || bAssault ? 4 : 8) +
+ 						(bPrimaryArea && !bAreaAlone ? 1 : 0);
+ 
+-				//aiUnitAIVal[UNITAI_ATTACK_AIR] += (kOwner.getNumCities() + 1);
++				//aiUnitAIVal[UNITAI_ATTACK_AIR] += (iNumCities + 1);
+ 				// K-Mod (extra air attack and defence). Note: iMilitaryWeight is (pArea->getPopulationPerPlayer(getID()) + pArea->getCitiesPerPlayer(getID())
+ 				aiUnitAIVal[UNITAI_ATTACK_AIR] += (bLandWar ? 2 : 1) *
+-						kOwner.getNumCities() + 1;
++						iNumCities + 1;
+ 				// it would be nice if this was based on enemy air power...
+ 				aiUnitAIVal[UNITAI_DEFENSE_AIR] += (bDefense ? 1 : 0) *
+-						kOwner.getNumCities() + 1;
++						iNumCities + 1;
+ 
+ 				// <!-- custom: add a check `&& isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")` here as well as advised by gemini ai: if city is landlocked (i assume it means is in a lake, do not build any military naval unit on it is quite pointless or at least do not prioritize it further anyways etc) ; note: i don't know if this is the correct way to access MIN_WATER_SIZE_FOR_OCEAN or whichever thing if i may say but anyways etc is relevant for our check of city being landlocked if i am not mistaken but anyways etc, but it compiled successfully and gemini ai provided it to me based on our global search results and a code sample i provided too so hopefully accurate but anyways etc (if not i wouldn't mind less military naval units, but i hope this is as intended though and there are still a bit of military naval units still but not too much or/and too prioritized if i am not mistaken too if i may say but anyways etc). -->
+ 				// if (pWaterArea != NULL)
+-				if (pWaterArea != NULL && isCoastal(GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN")))
++				// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++				static const int iMinWaterSizeForOcean = GC.getDefineINT("MIN_WATER_SIZE_FOR_OCEAN");
++
++				if (pWaterArea != NULL && isCoastal(iMinWaterSizeForOcean))
+ 				{
+-					if (kOwner.getNumCities() > 3 || getArea().getNumUnownedTiles() < 10)
++					// <!-- custom: dereference risk here so define only after null check according to chatgpt 5 if i understood it correctly, check if accurate, anyways etc -->
++					const int iPWaterAreaGetNumTiles = pWaterArea->getNumTiles();
++
++					if (iNumCities > 3 || getArea().getNumUnownedTiles() < 10)
+ 					{
+ 						aiUnitAIVal[UNITAI_ATTACK_SEA] += std::min(
+-								pWaterArea->getNumTiles() / 100,
++								iPWaterAreaGetNumTiles / 100,
+ 								(iCoastalCities * 2 + iMilitaryWeight / 10) / (bAssault ? 5 : 7) +
+ 								(bPrimaryArea ? 1 : 0));
+ 						aiUnitAIVal[UNITAI_RESERVE_SEA] += std::min(
+-								pWaterArea->getNumTiles() / 150,
++								iPWaterAreaGetNumTiles / 150,
+ 								(iCoastalCities * 2 + iMilitaryWeight / 11) / 8 +
+ 								(bPrimaryArea ? 1 : 0));
+ 					}
+@@ -3709,7 +3720,6 @@ UnitTypes CvCityAI::AI_bestUnit(bool bAsync, AdvisorTypes eIgnoreAdvisor, UnitAI
+ 			// <!-- custom: if this small city is stagnant (indirectly also check excessive unhealthiness, without the risk of worker loop maybe but anyways etc, and more flexible as well to cover other causes of stagnation, as well as allowing city to stop producing workers sooner even if some unhealthiness remains if i am not mistaken (e.g. we have a lot of excess food maybe which is core concern to fix if i am not mistaken but anyways etc)), a worker would be of great use, perhaps to chop jungle or such or grow the city in some other way maybe, but anyways etc -->
+ 			// <!-- custom: make pop requirement quite a bit tighter if i may say in this case but anyways etc pop check to avoid worker spam / loop trap, as chatgpt noted that could happen so i had the idea to add this but anyways etc-->
+ 			bool const bStagnant = (!isFoodProduction() && foodDifference() <= 0);
+-			int const iNumCities = kOwner.getNumCities();
+ 			// <!-- custom: make sure we don't overbuild workers, used only in the context of blocking forced settlers builds and aoviding chain worker loops if i am not mistaken, so maybe fine to be a bit stricter and maybe workers would still be produced with more relaxed conditions hopefully and if i am not mistaken but check to be sure but anyways etc ; each city needs maximum 2 workers before it's too much -->
+ 			bool const bTooMuchWorkers = GET_PLAYER(getOwner()).AI_totalUnitAIs(UNITAI_WORKER) >= (2 * iNumCities);
+ 
+@@ -9061,8 +9071,11 @@ void CvCityAI::AI_updateSafety(bool bUpdatePerfectSafety)
+ 	// Only bail if they can take the city in one turn or almost
+ 	if (iAttackers + 1 >= iDefenders)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iAIEvacuationThresh = GC.getDefineINT("AI_EVACUATION_THRESH");
++
+ 		static scaled const rAI_EVACUATION_THRESH = per100(
+-				GC.getDefineINT("AI_EVACUATION_THRESH"));
++				iAIEvacuationThresh);
+ 		scaled rThresh = rAI_EVACUATION_THRESH;
+ 		//  Higher threshold for important cities
+ 		scaled rRelativeCityVal = per100(AI_getCityValPercent());
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index d7db3e3e2..0c6953309 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -1401,7 +1401,11 @@ bool CvDLLButtonPopup::launchRazeCityPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		FAssert(false);
+ 		return false;
+ 	}
+-	if (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0)
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const bool bPlayerAlwaysRazesCities = (GC.getDefineINT("PLAYER_ALWAYS_RAZES_CITIES") != 0);
++
++	if (bPlayerAlwaysRazesCities)
+ 	{
+ 		kPlayer.raze(*pNewCity);
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 080ca3fc6..203bc2c50 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -79,10 +79,22 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
+ 		break;
+ 
+ 	case WIDGET_PLOT_LIST_SHIFT:
++	// <!-- custom: when making a static const here we got a compile error:
++	// 	1>..\CvDLLWidgetData.cpp(89): error C2360: initialization of 'iMaxPlotListSize' is skipped by 'case' label
++	// 	1>          ..\CvDLLWidgetData.cpp(83) : see declaration of 'iMaxPlotListSize'
++ 	// 
++	// So i  added braces here as recommended by chatgpt 5, check if accurate as i don't know a lot about these errors if at all i mean but anyways etc -->
++	// You hit the classic MSVC “switch-init” rule. In old MSVC (and standard C++), a declaration with an initializer directly under a case label is illegal unless you introduce a new block. The compiler treats case labels like gotos; control can jump into the middle and “skip” the initialization → C2360.
++	//
++	// Fix (wrap the case in braces)
++	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
++
+ 		szBuffer.assign(gDLL->getText("TXT_KEY_MISC_CTRL_SHIFT",
+-				GC.getDefineINT("MAX_PLOT_LIST_SIZE") - 1));
++				iMaxPlotListSize - 1));
+ 		break;
+-
++	}
+ 	case WIDGET_CITY_SCROLL:
+ 		break;
+ 
+@@ -1274,8 +1286,11 @@ void CvDLLWidgetData::doPlotListShift(int iChange, bool bMaxStep)
+ 	int iStep = 10;
+ 	if (gDLL->UI().isCityScreenUp())
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iMaxPlotListSize = GC.getDefineINT("MAX_PLOT_LIST_SIZE");
++
+ 		// (Not sure that this is really a maximal limit of anything)
+-		int const iBigStep = GC.getDefineINT("MAX_PLOT_LIST_SIZE"); // 100
++		int const iBigStep = iMaxPlotListSize; // 100
+ 		/*	BUG drawing method will only ever show a single row on the city screen.
+ 			Don't want to expand rapidly upon the first right-shift then.
+ 			Instead, let the bMaxStep param jump to the final column. */
+@@ -1988,7 +2003,10 @@ void CvDLLWidgetData::parseConscriptHelp(CvWidgetDataStruct &widgetDataStruct, C
+ 		}
+ 	}
+ 	{
+-		int iMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iConscriptMinCulturePercent = GC.getDefineINT("CONSCRIPT_MIN_CULTURE_PERCENT");
++
++		int iMinCulturePercent = iConscriptMinCulturePercent;
+ 		if (pHeadSelectedCity->getPlot().calculateTeamCulturePercent(
+ 			pHeadSelectedCity->getTeam()) < iMinCulturePercent)
+ 		{
+@@ -6172,27 +6190,39 @@ void CvDLLWidgetData::parsePollutionHelp(CvWidgetDataStruct &widgetDataStruct,
+ 
+ 	if (eFlags & CvPlayer::POLLUTION_POPULATION)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iGlobalWarmingPopulationWeight = GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT");
++		
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POPULATION",
+-				GC.getDefineINT("GLOBAL_WARMING_POPULATION_WEIGHT")));
++				iGlobalWarmingPopulationWeight));
+ 	}
+ 	if (eFlags & CvPlayer::POLLUTION_BUILDINGS)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iGlobalWarmingBuildingWeight = GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT");
++
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BUILDINGS",
+-				GC.getDefineINT("GLOBAL_WARMING_BUILDING_WEIGHT")));
++				iGlobalWarmingBuildingWeight));
+ 	}
+ 	if (eFlags & CvPlayer::POLLUTION_BONUSES)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iGlobalWarmingBonusWeight = GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT");
++
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_BONUSES",
+-				GC.getDefineINT("GLOBAL_WARMING_BONUS_WEIGHT")));
++				iGlobalWarmingBonusWeight));
+ 	}
+ 	if (eFlags & CvPlayer::POLLUTION_POWER)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iGlobalWarmingPowerWeight = GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT");
++
+ 		szBuffer.append(NEWLINE);
+ 		szBuffer.append(gDLL->getText("TXT_KEY_POLLUTION_FROM_POWER",
+-				GC.getDefineINT("GLOBAL_WARMING_POWER_WEIGHT")));
++				iGlobalWarmingPowerWeight));
+ 	}
+ } // </K-Mod>
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 7f149565c..a3dcdd739 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -262,7 +262,11 @@ void CvGame::setInitialItems()
+ 	for (PlayerAIIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 		it->AI_updateFoundValues();
+ 	// <advc.tsl>
+-	if (m_iMapRegens < GC.getDefineINT("AUTO_REGEN_MAP"))
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iAutoRegenMap = GC.getDefineINT("AUTO_REGEN_MAP");
++
++	if (m_iMapRegens < iAutoRegenMap)
+ 		regenerateMap(true); // </advc.tsl>
+ }
+ 
+@@ -527,7 +531,10 @@ void CvGame::setStartTurnYear(int iTurn)
+ 	}
+ 	else setEstimateEndTurn(getGameTurn() + getMaxTurns());
+ 
+-	setStartYear(GC.getDefineINT("START_YEAR"));
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iStartYear = GC.getDefineINT("START_YEAR");
++
++	setStartYear(iStartYear);
+ }
+ 
+ /*	Initialize data members that are serialized. (advc: I'm also initializing some
+@@ -591,6 +598,7 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 
+ 	m_eHandicap = eHandicap;
+ 	// <advc.127>
++	// <!-- custom: note: not doing static const here as there seems to be some required init condition and as recommended by chatgpt 5, check if accurate anyways etc -->
+ 	m_eAIHandicap = (bConstructorCall ? NO_HANDICAP :
+ 			// (XML not loaded when constructor called)
+ 			(HandicapTypes)GC.getDefineINT("STANDARD_HANDICAP")); // </advc.127>
+@@ -1797,8 +1805,12 @@ void CvGame::normalizeRemovePeaks()
+ {
+ 	// <advc.108>
+ 	scaled rRemovalProb = 1;
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iRemovalChancePeak = GC.getDefineINT("REMOVAL_CHANCE_PEAK");
++
+ 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
+-		rRemovalProb = per100(GC.getDefineINT("REMOVAL_CHANCE_PEAK"));
++		rRemovalProb = per100(iRemovalChancePeak);
+ 	// </advc.108>
+ 
+ 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+@@ -1877,8 +1889,9 @@ bool CvGame::normalizeCanAddLakeTo(CvPlot const& kPlot) const
+ 
+ void CvGame::normalizeRemoveBadFeatures()
+ {
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
+ 	// advc.108:
+-	int const iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
++	static const int iThreshBadFeatPerCity = GC.getDefineINT("THRESH-BAD-FEAT-PER-CITY");
+ 
+ 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+@@ -1971,10 +1984,13 @@ void CvGame::normalizeRemoveBadFeatures()
+ 
+ void CvGame::normalizeRemoveBadTerrain()
+ {
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iRemovalChanceBadTerrain = GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN");
++
+ 	// <advc.108>
+ 	scaled rKeepProb;
+ 	if (m_eNormalizationLevel <= NORMALIZE_LOW)
+-		rKeepProb = 1 - per100(GC.getDefineINT("REMOVAL_CHANCE_BAD_TERRAIN"));
++		rKeepProb = 1 - per100(iRemovalChanceBadTerrain);
+ 	// </advc.108>
+ 	int const iCityRange = CITY_PLOTS_RADIUS;
+ 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+@@ -2705,7 +2721,11 @@ void CvGame::updateStartingPlotRange() const
+ {
+ 	CvMap const& kMap = GC.getMap();
+ 	int iRange = kMap.maxStepDistance() + 10;
+-	iRange *= GC.getDefineINT("STARTING_DISTANCE_PERCENT");
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iStartingDistancePercent = GC.getDefineINT("STARTING_DISTANCE_PERCENT");
++
++	iRange *= iStartingDistancePercent;
+ 	iRange /= 100;
+ 	int const iAlive = countCivPlayersAlive();
+ 	int const iLand = kMap.getLandPlots();
+@@ -2725,7 +2745,11 @@ void CvGame::updateStartingPlotRange() const
+ 	iRange += std::min((iMajorAreas + 1) / 2, iAlive);
+ 	iRange *= 100 + GC.getPythonCaller()->minStartingDistanceMod();
+ 	iRange /= 100;
+-	m_iStartingPlotRange = std::max(iRange, GC.getDefineINT("MIN_CIV_STARTING_DISTANCE"));
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iMinCivStartingDistance = GC.getDefineINT("MIN_CIV_STARTING_DISTANCE");
++
++	m_iStartingPlotRange = std::max(iRange, iMinCivStartingDistance);
+ }
+ 
+ // advc: Cut, refactored from normalizeAddExtras
+@@ -3154,6 +3178,10 @@ void CvGame::updateGwPercentAnger()
+ 		iGlobalDefence = calculateGwLandDefence(NO_PLAYER);
+ 	} // advc: Ensure initialization
+ 	else iGlobalPollution = iGwSeverityRating = iGlobalDefence = -1;
++
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const int iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
++
+ 	for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+ 		int iAngerPercent = 0;
+@@ -3171,7 +3199,6 @@ void CvGame::updateGwPercentAnger()
+ 			// amplify the affects of responsibility
+ 			iResponsibilityFactor = std::max(0, 2*iResponsibilityFactor-100);
+ 
+-			static int const iGLOBAL_WARMING_BASE_ANGER_PERCENT = GC.getDefineINT("GLOBAL_WARMING_BASE_ANGER_PERCENT"); // advc.opt
+ 			iAngerPercent = iGLOBAL_WARMING_BASE_ANGER_PERCENT * iGwSeverityRating * iResponsibilityFactor;
+ 			iAngerPercent = intdiv::round(iAngerPercent, 100 * 100);
+ 		}
+@@ -3677,7 +3704,11 @@ bool CvGame::isTeamVoteEligible(TeamTypes eTeam, VoteSourceTypes eVoteSource) co
+ 		if (it->isForceTeamVoteEligible(eVoteSource))
+ 			iCount++;
+ 	}
+-	int iExtraEligible = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES") - iCount;
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iTeamVoteMinCandidates = GC.getDefineINT("TEAM_VOTE_MIN_CANDIDATES");
++
++	int iExtraEligible = iTeamVoteMinCandidates - iCount;
+ 	if (iExtraEligible <= 0)
+ 		return false;
+ 	for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(eTeam); it.hasNext(); ++it)
+@@ -4702,7 +4733,11 @@ int CvGame::getGlobalWarmingChances() const
+ 		number of turns in the game, so, by scaling the chances, and the
+ 		probability per chance, I hope to get roughly the same number of
+ 		actual events per game. */
+-	scaled rIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iGlobalWarmingIndexPerChance = GC.getDefineINT("GLOBAL_WARMING_INDEX_PER_CHANCE");
++
++	scaled rIndexPerChance = iGlobalWarmingIndexPerChance;
+ 	rIndexPerChance *= per100(getSpeedPercent());
+ 	/*	advc.055: The more teams there are, the less evenly the world tends to
+ 		develop. GW causes the most damage when much of the world has a similar
+@@ -4758,8 +4793,12 @@ int CvGame::calculateGwSustainabilityThreshold(PlayerTypes ePlayer) const
+ 	/*	expect each pop to give ~10 pollution per turn at the time
+ 		we cross the threshold, and ~1 pop per land tile...
+ 		so default resistance should be around 10 per tile. */
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iGlobalWarmingResistance = GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
++
+ 	int iGlobalThreshold = GC.getMap().getLandPlots() *
+-			GC.getDefineINT("GLOBAL_WARMING_RESISTANCE");
++			iGlobalWarmingResistance;
+ 
+ 	/*	maybe we should add some points for coastal tiles as well,
+ 		so that watery maps don't get too much warming */
+@@ -4792,7 +4831,11 @@ int CvGame::calculateGwSeverityRating() const
+ 	I recommend looking at the graph of this function to get a sense of how it works. */
+ 	/*	advc: Was long, which is equivalent to int. Could use long long,
+ 		but it looks like 32 bit should suffice. */
+-	int const x = GC.getDefineINT("GLOBAL_WARMING_PROB") * getGlobalWarmingIndex() /
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
++
++	int const x = iGlobalWarmingProb * getGlobalWarmingIndex() /
+ 			(GC.getMap().getLandPlots() * 4 * getSpeedPercent());
+ 	// shape parameter. Lower values result in the function being steeper earlier.
+ 	int const b = 55; // advc.055: was 70
+@@ -5923,10 +5966,15 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
+ 	//updateCitySight(false, true);
+ 	m_aeHolyCity.set(eReligion, pCity == NULL ? NO_PLOT_NUM : pCity->plotNum());
+ 	//updateCitySight(true, true);
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const int iHolyCityInfluence = GC.getDefineINT("HOLY_CITY_INFLUENCE");
++
+ 	if (pOldCity != NULL)
+ 	{
+ 		pOldCity->changeReligionInfluence(eReligion,
+-				-GC.getDefineINT("HOLY_CITY_INFLUENCE"));
++				-iHolyCityInfluence);
+ 		pOldCity->updateReligionCommerce();
+ 		pOldCity->setInfoDirty(true);
+ 	}
+@@ -5936,7 +5984,7 @@ void CvGame::setHolyCity(ReligionTypes eReligion, CvCity* pCity, bool bAnnounce)
+ 
+ 	CvCity* pHolyCity = getHolyCity(eReligion);
+ 	pHolyCity->setHasReligion(eReligion, true, bAnnounce, true);
+-	pHolyCity->changeReligionInfluence(eReligion, GC.getDefineINT("HOLY_CITY_INFLUENCE"));
++	pHolyCity->changeReligionInfluence(eReligion, iHolyCityInfluence);
+ 	pHolyCity->updateReligionCommerce();
+ 	pHolyCity->setInfoDirty(true);
+ 	if (!bAnnounce || !isFinalInitialized() || gDLL->GetWorldBuilderMode())
+@@ -6385,11 +6433,16 @@ void CvGame::doGlobalWarming()
+ 	// advc.055:
+ 	std::vector<PreGWPlot> aChangedPlots;
+ 	bool bSoundPlayed = false; // advc.002l
++
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
++	static const int iGlobalWarmingProb = GC.getDefineINT("GLOBAL_WARMING_PROB");
++
+ 	for (int i = 0; i < iGlobalWarmingRolls; i++)
+ 	{
+ 		// note, warming prob out of 1000, not percent.
+ 		int iLeftOdds = 10 * getSpeedPercent();
+-		if (SyncRandNum(iLeftOdds) >= GC.getDefineINT("GLOBAL_WARMING_PROB"))
++		if (SyncRandNum(iLeftOdds) >= iGlobalWarmingProb)
+ 			continue;
+ 		//CvPlot* pPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
+ 		/*	Global warming is no longer completely random.
+@@ -6513,8 +6566,11 @@ void CvGame::doGlobalWarming()
+ 	updateGwPercentAnger();
+ 	if (getGlobalWarmingIndex() > 0)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iGlobalWarmingRestorationRate = GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0);
++
+ 		changeGlobalWarmingIndex(-getGlobalWarmingIndex() *
+-				GC.getDefineINT("GLOBAL_WARMING_RESTORATION_RATE", 0)/100);
++				iGlobalWarmingRestorationRate/100);
+ 	}
+ 	// <advc.055>
+ 	/*	advc.706 (note): These will be shortlived INFO-type messages,
+@@ -7050,8 +7106,11 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
+ 		}
+ 	}
+ 
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iMinBarbarianStartingDistance = GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE");
++
+ 	CitySiteEvaluator citySiteEval(GET_PLAYER(BARBARIAN_PLAYER),
+-			GC.getDefineINT("MIN_BARBARIAN_CITY_STARTING_DISTANCE"));
++			iMinBarbarianStartingDistance);
+ 	/*	<advc.300> Randomize penalty on short inter-city distance for more variety
+ 		in Barbarian settling patterns. Was 8 in K-Mod. */
+ 	citySiteEval.discourageBarbarians(5 + SyncRandNum(7));
+@@ -7345,7 +7404,10 @@ void CvGame::createAnimals()
+ 	if (getElapsedGameTurns() < 5)
+ 		return;
+ 
+-	int const iMinAnimalStartingDist = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE"); // advc.300
++	// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++	static const int iMinAnimalStartingDistance = GC.getDefineINT("MIN_ANIMAL_STARTING_DISTANCE");
++
++	int const iMinAnimalStartingDist = iMinAnimalStartingDistance; // advc.300
+ 	FOR_EACH_AREA(pLoopArea)
+ 	{
+ 		if (pLoopArea->isWater())
+@@ -9452,8 +9514,11 @@ void CvGame::addPlayer(PlayerTypes eNewPlayer, LeaderHeadTypes eLeader, Civiliza
+ 	}
+ 	if (bFindNewColor)
+ 	{
++		// <!-- custom: make these static const for performance optimization anyways etc and as advised by chatgpt 5 too, if i am not mistaken, check if accurate, anyways etc -->
++		static const int iBarbarianCivilization = GC.getDefineINT("BARBARIAN_CIVILIZATION");
++
+ 		PlayerColorTypes const eBarbarianColor = (PlayerColorTypes)GC.getInfo((CivilizationTypes)
+-				GC.getDefineINT("BARBARIAN_CIVILIZATION")).getDefaultPlayerColor();
++				iBarbarianCivilization).getDefaultPlayerColor();
+ 		FOR_EACH_ENUM(PlayerColor)
+ 		{
+ 			if (eLoopPlayerColor == eBarbarianColor)
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=5 omittedFiles=1 embeddedPatchBytes=31542

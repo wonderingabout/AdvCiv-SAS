@@ -1,0 +1,169 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2382
+# Commit: 00a1df2b6cdffdd76d21dbe017c12f176bb3a90a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 473d5c468d8e89cf217df9df8574cf276bf722f2
+# Title: StartingPositionIteration: consider a wider range of moves
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+46	31	CvGameCoreDLL/StartingPositionIteration.cpp
+3	1	CvGameCoreDLL/StartingPositionIteration.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 28f031c8d..26578ef55 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -337,47 +337,58 @@ void StartingPositionIteration::PotentialSites::recordSite(
+ 	}
+ 
+ 	// Update Voronoi cells
+-	PlayerTypes eClosestPlayer = closestPlayer(kPlot);
+-	if (eClosestPlayer == NO_PLAYER) // Remote sites will be set by updateCurrSites
++	vector<PlayerTypes> aClosestPlayers;
++	closestPlayers(kPlot, aClosestPlayers);
++	if (aClosestPlayers.empty()) // Remote sites will be set by updateCurrSites
+ 		return;
+-	map<PlayerTypes,VoronoiCell*>::iterator pos = m_sitesClosestToCurrSite.
+-			find(eClosestPlayer);
+-	VoronoiCell& kCell = *pos->second;
+-	PlotNumTypes ePlotNum = kMap.plotNum(kPlot);
+-	if (bAdd)
+-		kCell.insert(ePlotNum);
+-	else
+-	{
+-		VoronoiCell::iterator pos = kCell.find(ePlotNum);
+-		if (pos != kCell.end())
+-			kCell.erase(pos);
+-		else FAssert(pos != kCell.end());
++	for (size_t i = 0; i < aClosestPlayers.size(); i++)
++	{
++		map<PlayerTypes,VoronoiCell*>::iterator pos = m_sitesClosestToCurrSite.
++				find(aClosestPlayers[i]);
++		VoronoiCell& kCell = *pos->second;
++		PlotNumTypes ePlotNum = kMap.plotNum(kPlot);
++		if (bAdd)
++			kCell.insert(ePlotNum);
++		else
++		{
++			VoronoiCell::iterator pos = kCell.find(ePlotNum);
++			if (pos != kCell.end())
++				kCell.erase(pos);
++			else FAssert(pos != kCell.end());
++		}
+ 	}
+ }
+ 
+ 
+-PlayerTypes StartingPositionIteration::PotentialSites::closestPlayer(
+-	CvPlot const& kPlot) const
++void StartingPositionIteration::PotentialSites::closestPlayers(
++	CvPlot const& kPlot, vector<PlayerTypes>& kResult) const
+ {
+-	PlayerTypes eClosestPlayer = NO_PLAYER;
++	FAssert(kResult.empty());
++	vector<std::pair<int,PlayerTypes> > aiePlayersByDistance;
+ 	CvMap const& kMap = GC.getMap();
+ 	int iShortestDist = MAX_INT;
++	int const iRemoteSiteThresh = 30;
+ 	for (PlayerIter<CIV_ALIVE> itPlayer; itPlayer.hasNext(); ++itPlayer)
+ 	{
+ 		int iDist = kMap.stepDistance(&kPlot, itPlayer->getStartingPlot());
+ 		if (iDist <= 0) // Don't include the current sites themselves in Voronoi cells
+-			return NO_PLAYER;
++			return;
+ 		if (!kPlot.isArea(itPlayer->getStartingPlot()->getArea()))
+ 			iDist += 25;
+-		if (iDist < iShortestDist)
+-		{
+-			iShortestDist = iDist;
+-			eClosestPlayer = itPlayer->getID();
+-		}
++		aiePlayersByDistance.push_back(make_pair(iDist, itPlayer->getID()));
++		iShortestDist = std::min(iShortestDist, iDist);
++	}
++	if (iShortestDist > iRemoteSiteThresh)
++		return;
++	// Probably faster w/o sorting
++	//std::sort(aiePlayersByDistance.begin(), aiePlayersByDistance.end());
++	int const iDistThresh = std::min(2 * iShortestDist, iRemoteSiteThresh);
++	for (size_t i = 0; i < aiePlayersByDistance.size(); i++)
++	{
++		if (aiePlayersByDistance[i].first < iDistThresh)
++			kResult.push_back(aiePlayersByDistance[i].second);
++		//else break;
+ 	}
+-	if (iShortestDist > 30) // remote site
+-		return NO_PLAYER;
+-	return eClosestPlayer;
+ }
+ 
+ 
+@@ -421,14 +432,18 @@ void StartingPositionIteration::PotentialSites::updateCurrSites(bool bUpdateCell
+ 	{
+ 		PlotNumTypes ePlotNum = it->first;
+ 		CvPlot const& kPlot = kMap.getPlotByIndex(ePlotNum);
+-		PlayerTypes eClosestPlayer = closestPlayer(kPlot);
+-		if (eClosestPlayer == NO_PLAYER)
++		vector<PlayerTypes> aClosestPlayers;
++		closestPlayers(kPlot, aClosestPlayers);
++		if (aClosestPlayers.empty())
+ 		{
+ 			m_remoteSitesByAreaSize.push_back(make_pair(
+ 					kPlot.getArea().getNumTiles() * 100 + it->second, ePlotNum));
+ 		}
+ 		else if (bUpdateCells)
+-			m_sitesClosestToCurrSite[eClosestPlayer]->insert(ePlotNum);
++		{
++			for (size_t i = 0; i < aClosestPlayers.size(); i++)
++				m_sitesClosestToCurrSite[aClosestPlayers[i]]->insert(ePlotNum);
++		}
+ 	}
+ 	std::sort(m_remoteSitesByAreaSize.rbegin(), m_remoteSitesByAreaSize.rend());
+ }
+@@ -1676,8 +1691,8 @@ void StartingPositionIteration::doIterations(PotentialSites& kPotentialSites)
+ 		for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+ 		{
+ 			// Focus on negative outliers while the avg. error is high
+-			scaled rNegativeOutlierExtraWeight = fixp(1.1) * 
+-					(m_currSolutionAttribs.m_rAvgError - fixp(0.15));
++			scaled rNegativeOutlierExtraWeight = fixp(1.25) * 
++					(m_currSolutionAttribs.m_rAvgError - fixp(0.1));
+ 			// A little bit of randomness
+ 			if (iStepsConsidered % 2 == 0)
+ 				rNegativeOutlierExtraWeight += fixp(0.25);
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.h b/CvGameCoreDLL/StartingPositionIteration.h
+index 3c4d74bb1..1225be507 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.h
++++ b/CvGameCoreDLL/StartingPositionIteration.h
+@@ -68,6 +68,8 @@ private:
+ 
+ 	static scaled weightedDistance(std::vector<short>& kDistances);
+ 
++	/*	These cells are going to have some overlap, so they're not really
++		Voronoi cells. */
+ 	typedef std::set<PlotNumTypes> VoronoiCell;
+ 	class PotentialSites
+ 	{
+@@ -92,7 +94,7 @@ private:
+ 
+ 		scaled computeMinFoundValue();
+ 		void recordSite(CvPlot const& kPlot, short iFoundValue, bool bAdd);
+-		PlayerTypes closestPlayer(CvPlot const& kPlot) const;
++		void closestPlayers(CvPlot const& kPlot, std::vector<PlayerTypes>& kResult) const;
+ 		int fewestPotentialSites() const;
+ 	};
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=5254

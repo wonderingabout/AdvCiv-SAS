@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5517
+# Commit: 238d35129e6e03306fe0ce6a720ab0da31bcb661
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 831aed2806dcc34f99d3fb25134a4fd42649eb46
+# Title: fix domestic advisor not scaling down when sas defines are reduced
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	4	Assets/Python/Screens/CvDomesticAdvisor.py
+3	3	Assets/XML/GlobalDefines_advciv_sas.xml
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvDomesticAdvisor.py b/Assets/Python/Screens/CvDomesticAdvisor.py
+index ec47f9685..c2557ddb1 100644
+--- a/Assets/Python/Screens/CvDomesticAdvisor.py
++++ b/Assets/Python/Screens/CvDomesticAdvisor.py
+@@ -208,10 +208,7 @@ class CvDomesticAdvisor:
+ 		screen.setTableText( "CityListBackground", 0, i, "", ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath(), WidgetTypes.WIDGET_ZOOM_CITY, pLoopCity.getOwner(), pLoopCity.getID(), CvUtil.FONT_LEFT_JUSTIFY)
+ 
+ 		# <advc.193>
+-		iCellFontSize = getSASUIFontLabel()
+-		if self.nTableWidth / float(self.nNormalizedTableWidth) > 1.36:
+-			iCellFontSize += 1
+-		iCellFontSize = min(4, iCellFontSize)
++		iCellFontSize = getSASUIFontBody()
+ 		# (Uses of these tags in the code below aren't tagged w/ comments)
+ 		szFontTagOpen = u"<font=" + unicode(iCellFontSize) + u">"
+ 		szFontTagClose = SAS_FONT_TAG_CLOSE
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index feda711c3..c9e6c9add 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -324,17 +324,17 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: shared UI tiny font size used for compact labels where screen space is limited. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_TINY</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI body font size for standard list/table/content text. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_BODY</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>2</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI label font size for emphasized labels and section captions. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_UI_FONT_LABEL</DefineName>
+-		<iDefineIntVal>4</iDefineIntVal>
++		<iDefineIntVal>3</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: shared UI title font size for advisor/screen titles and primary action text. Keep in [1..4]. (GPT-5.3-Codex) -->
+ 	<Define>
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=2115

@@ -1,0 +1,45 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4497
+# Commit: a0f8d0e2c52287b685eb39d8ecab34070e9da5fb
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 550dfd10952f953fbeb256000b2af2c89c20fcb8
+# Title: todo, adding "Natural" for extra clarity but now the text does not use the full box width, todo
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index d9b392217..8340b7cbe 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -167,11 +167,11 @@
+ 	thanks, -->
+ 	<TEXT> 
+ 		<Tag>TXT_KEY_PEDIA_BONUS_YIELDS_CUSTOM_PANEL_TEXT</Tag>
+-		<English>Bonus Tile Yields</English>
+-		<French>Bonus Tile Yields</French>
+-		<German>Bonus Tile Yields</German>
+-		<Italian>Bonus Tile Yields</Italian>
+-		<Spanish>Bonus Tile Yields</Spanish>
++		<English>Natural Bonus Tile Yields</English>
++		<French>Natural Bonus Tile Yields</French>
++		<German>Natural Bonus Tile Yields</German>
++		<Italian>Natural Bonus Tile Yields</Italian>
++		<Spanish>Natural Bonus Tile Yields</Spanish>
+ 	</TEXT>
+ 	<!-- custom: translate everything technical i want to
+ 	clarify in English, not sure the translation are
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=886

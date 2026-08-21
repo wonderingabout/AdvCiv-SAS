@@ -1,0 +1,76 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1825
+# Commit: 981e5c8d644142389e9a68a472110ac53865d050
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 572c0bb680e660810028d738d0de9eb3cd7ef0cb
+# Title: AI tweak: Halt settler production when all sites taken
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	CvGameCoreDLL/CvCityAI.cpp
+5	8	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index e2bd997fb..2970409de 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -419,12 +419,12 @@ void CvCityAI::AI_chooseProduction()
+ 	{
+ 		if (getProduction() > 0)
+ 		{
+-			if (getProductionUnitAI() == UNITAI_SETTLE && kPlayer.AI_isFinancialTrouble())
+-			{}
+ 			//if we are killing our growth to train this, then finish it.
+-			else if (!bDanger && isFoodProduction())
++			if (!bDanger && isFoodProduction() && (getProductionUnitAI() != UNITAI_SETTLE ||
++				(!kPlayer.AI_isFinancialTrouble() &&
++				kPlayer.AI_getNumCitySites() > 0))) // advc.031b
+ 			{
+-				if ((area()->getAreaAIType(getTeam()) != AREAAI_DEFENSIVE))
++				if (area()->getAreaAIType(getTeam()) != AREAAI_DEFENSIVE)
+ 				{
+ 					return;
+ 				}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index d0c554f8f..92ce5ed4d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1505,19 +1505,16 @@ void CvUnitAI::AI_settleMove()
+ 	{
+ 		if (GC.getGame().getGameTurn() - getGameTurnCreated() > 20)
+ 		{
+-			if (NULL != getTransportUnit())
+-			{
++			if (getTransportUnit() != NULL)
+ 				getTransportUnit()->unloadAll();
+-			}
+ 
+-			if (NULL == getTransportUnit())
++			if (getTransportUnit() == NULL)
+ 			{
+ 				// BETTER_BTS_AI_MOD, Unit AI, 11/30/08, jdog5000: guard added
+ 				if (kOwner.AI_unitTargetMissionAIs(getGroup()->getHeadUnit(), MISSIONAI_PICKUP) == 0)
+-				{	// advc.test:
+-					FAssertMsg(false, "Just to see how frequently the AI scraps settlers");
+-					//may seem wasteful, but settlers confuse the AI.
+-					scrap();
++				{
++					//FAssertMsg(false, "advc.test: Just to see how frequently the AI scraps settlers");
++					scrap(); //may seem wasteful, but settlers confuse the AI.
+ 					return;
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1824

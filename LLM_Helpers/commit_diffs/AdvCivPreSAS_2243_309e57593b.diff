@@ -1,0 +1,1478 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2243
+# Commit: 309e57593b21b6222f26dc2b696aee0b6174cb5c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d54801b867d31d6b8c9b9086add60aa6b0be0803
+# Title: Misc. refactoring (mainly AI build eval)
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/CitySiteEvaluator.cpp
+1	1	CvGameCoreDLL/CvCity.cpp
+148	113	CvGameCoreDLL/CvCityAI.cpp
+18	9	CvGameCoreDLL/CvCityAI.h
+7	10	CvGameCoreDLL/CvDLLWidgetData.cpp
+14	11	CvGameCoreDLL/CvGame.cpp
+36	27	CvGameCoreDLL/CvGameTextMgr.cpp
+21	31	CvGameCoreDLL/CvInfo_Terrain.cpp
+11	11	CvGameCoreDLL/CvInfo_Terrain.h
+3	2	CvGameCoreDLL/CvPlayer.cpp
+32	41	CvGameCoreDLL/CvPlayerAI.cpp
+7	5	CvGameCoreDLL/CvPlot.cpp
+8	8	CvGameCoreDLL/CvTeam.cpp
+5	5	CvGameCoreDLL/CvUnit.cpp
+1	1	CvGameCoreDLL/UWAICache.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CitySiteEvaluator.cpp b/CvGameCoreDLL/CitySiteEvaluator.cpp
+index 8ea643b2b..99e1b1af7 100644
+--- a/CvGameCoreDLL/CitySiteEvaluator.cpp
++++ b/CvGameCoreDLL/CitySiteEvaluator.cpp
+@@ -1332,14 +1332,14 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
+ 			bRemoveFeature = bRemove;
+ 		}
+ 	}
+-	TechTypes eTradeTech = (TechTypes)GC.getInfo(eBonus).getTechCityTrade();
++	TechTypes eTradeTech = GC.getInfo(eBonus).getTechCityTrade();
+ 	bCanTradeSoon = (bCanTradeSoon && isNearTech(eTradeTech));
+ 	bCanTrade = (bCanTrade && bCanTradeSoon && kTeam.isHasTech(eTradeTech));
+ 	/*  <advc.108> Depending on the NormalizationLevel, eBonus can be unrevealed
+ 		when placing starting locations. */
+ 	if (kSet.isStartingLoc())
+ 	{
+-		TechTypes eRevealTech = (TechTypes)GC.getInfo(eBonus).getTechReveal();
++		TechTypes eRevealTech = GC.getInfo(eBonus).getTechReveal();
+ 		if (!isNearTech(eTradeTech))
+ 		{
+ 			bCanTradeSoon = false;
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 4ddc4d6e8..58c1ca136 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -7689,7 +7689,7 @@ void CvCity::updateCorporationBonus()  // advc: style changes
+ 			BonusTypes eBonusProduced = (BonusTypes)GC.getInfo(eLoopCorporation).getBonusProduced();
+ 			if (eBonusProduced == NO_BONUS ||
+ 				kTeam.isBonusObsolete(eBonusProduced) ||
+-				!kTeam.isHasTech((TechTypes)GC.getInfo(eBonusProduced).getTechCityTrade()))
++				!kTeam.isHasTech(GC.getInfo(eBonusProduced).getTechCityTrade()))
+ 			{
+ 				continue;
+ 			}
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 798b2833e..770a32ad1 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -6908,7 +6908,8 @@ int CvCityAI::AI_clearFeatureValue(CityPlotTypes ePlot) // advc.enum: CityPlotTy
+ 	// ... except the bit about keeping good features on top of bonuses
+ 	int iValue = 0;
+ 	BonusTypes eBonus = pPlot->getNonObsoleteBonusType(getTeam());
+-	if (eBonus != NO_BONUS && !GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getInfo(eBonus).getTechCityTrade()))
++	if (eBonus != NO_BONUS &&
++		!GET_TEAM(getTeam()).isHasTech(GC.getInfo(eBonus).getTechCityTrade()))
+ 	{
+ 		iValue += kFeatureInfo.getYieldChange(YIELD_FOOD) * 100;
+ 		iValue += kFeatureInfo.getYieldChange(YIELD_PRODUCTION) * 80; // was 60
+@@ -7045,10 +7046,14 @@ int CvCityAI::AI_getTargetPopulation() const
+ 	return iTargetSize;
+ }
+ 
+-// K-Mod note: This function was once used for Debug only, but I've made it the one and only way to get the yield multipliers.
+-// This way we don't have to put up with duplicated code.
+-// This function has been mostly rewritten for K-Mod. Some parts of the original code still exist (particularly near the end), but most of the old code is gone.
+-void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMultiplier, int &iCommerceMultiplier, int &iDesiredFoodChange) const
++/*	K-Mod note: This function was once used for Debug only,
++	but I've made it the one and only way to get the yield multipliers.
++	This way we don't have to put up with duplicated code.
++	This function has been mostly rewritten for K-Mod.
++	Some parts of the original code still exist (particularly near the end),
++	but most of the old code is gone. */
++void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMultiplier,
++	int &iCommerceMultiplier, int &iDesiredFoodChange) const
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -7109,7 +7114,8 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 		}
+ 	}
+ 
+-	// I'd like to use AI_getTargetPopulation here, to avoid code duplication, but that would result in us doing a bunch of unneccessary recalculations.
++	/*	I'd like to use AI_getTargetPopulation here, to avoid code duplication,
++		but that would result in us doing a bunch of unneccessary recalculations. */
+ 	int iSpecialistCount = getSpecialistPopulation() - totalFreeSpecialists();
+ 	int iHealth = goodHealth() - badHealth();
+ 			// advc.120e: Mustn't de-emphasize food in response to spy attack!
+@@ -7123,11 +7129,12 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 				TargetSize would be capped at 10, resulting in 3 bad health once the
+ 				city gets there. My formula sets TargetSize to 9 in this example.
+ 				1.55 to ensure that we round up when Health is even. */
+-			::round(1.55 + getPopulation() + iHealth/2.0));
++			(fixp(1.55) + getPopulation() + scaled(iHealth, 2)).round());
+ 
+ 	if (iTargetSize < getPopulation())
+ 	{
+-		iTargetSize = std::max(iTargetSize, getPopulation() - AI_countWorkedPoorPlots() + std::min(0, iHealth/2));
++		iTargetSize = std::max(iTargetSize, getPopulation() -
++				AI_countWorkedPoorPlots() + std::min(0, iHealth/2));
+ 	}
+ 
+ 	iTargetSize = std::min(iTargetSize, 1 + getPopulation()+(happyLevel()-unhappyLevel()));
+@@ -7147,8 +7154,11 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	int iFutureFoodAdjustment = 0;
+ 	if (iUnworkedPlots > 0)
+ 	{
+-		// calculate approximately how much extra food we could work if we used our specialists and our extra population.
+-		iFutureFoodAdjustment = std::min(iSpecialistCount + std::max(0, iTargetSize - getPopulation()), iUnworkedPlots) * aiUnworkedYield[YIELD_FOOD] / iUnworkedPlots;
++		/*	calculate approximately how much extra food we could work
++			if we used our specialists and our extra population. */
++		iFutureFoodAdjustment = (std::min(iUnworkedPlots,
++				iSpecialistCount + std::max(0, iTargetSize - getPopulation())) *
++				aiUnworkedYield[YIELD_FOOD]) / iUnworkedPlots;
+ 	}
+ 	iFoodTotal += iFutureFoodAdjustment;
+ 	iProductionTotal += aiUnworkedYield[YIELD_PRODUCTION];
+@@ -7160,12 +7170,12 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 		   food surplus is desirable. The original formula doesn't seem to grow
+ 		   the cities fast enough. (The proper TargetSize is a different
+ 		   question, but if you want to grow, do so quickly.) */
+-		int delta = iTargetSize - getPopulation() - 1; /*  TargetSize is often
++		int iDelta = iTargetSize - getPopulation() - 1; /*  TargetSize is often
+ 				one greater than what the current happiness supports. Not what I
+ 				want here, so subtract 1. */
+-		if(delta <= 3)
+-			iExtraFoodForGrowth = std::max(0, delta + 1);
+-		else iExtraFoodForGrowth = delta;
++		if(iDelta <= 3)
++			iExtraFoodForGrowth = std::max(0, iDelta + 1);
++		else iExtraFoodForGrowth = iDelta;
+ 		// K-Mod formula now only for Barbarians:
+ 		if(isBarbarian()) // advc.300:
+ 			iExtraFoodForGrowth = (iTargetSize - getPopulation())/2 + 1;
+@@ -7196,21 +7206,24 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 		iProductionMultiplier += 8 * (iProductionTarget - iProductionTotal);
+ 	}
+ 
+-	// K-mod
+-	if (kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) > 0 || kPlayer.AI_getFlavorValue(FLAVOR_MILITARY) >= 10
+-		|| isBarbarian()) // advc.300
++	// K-Mod.
++	if (kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) > 0 ||
++		kPlayer.AI_getFlavorValue(FLAVOR_MILITARY) >= 10 ||
++		isBarbarian()) // advc.300
+ 	{
+ 		/* iProductionMultiplier *= 113 + 2 * kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) + kPlayer.AI_getFlavorValue(FLAVOR_MILITARY);
+ 		iProductionMultiplier /= 100; */
+ 		iCommerceMultiplier *= 100;
+-		iCommerceMultiplier /= 113 + 2 * kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) + kPlayer.AI_getFlavorValue(FLAVOR_MILITARY);
++		iCommerceMultiplier /= 113 + 2 * kPlayer.AI_getFlavorValue(FLAVOR_PRODUCTION) +
++				kPlayer.AI_getFlavorValue(FLAVOR_MILITARY);
+ 	}
+ 	// K-Mod end
+ 	// <advc.300>
+ 	if(isBarbarian())
+ 		return; // </advc.300>
+ 	int iNetCommerce = kPlayer.AI_getAvailableIncome(); // K-Mod
+-	int iNetExpenses = kPlayer.calculateInflatedCosts() + std::max(0, -kPlayer.getGoldPerTurn()); // unofficial patch
++	int iNetExpenses = kPlayer.calculateInflatedCosts() +
++			std::max(0, -kPlayer.getGoldPerTurn()); // unofficial patch
+ 
+ 	int iRatio = (100 * iNetExpenses) / std::max(1, iNetCommerce);
+ 
+@@ -7283,7 +7296,8 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 			iProductionMultiplier += 20;
+ 			iCommerceMultiplier -= 20;
+ 		}
+-		else if (findBaseYieldRateRank(YIELD_PRODUCTION) <= kPlayer.getNumCities()/3 && findBaseYieldRateRank(YIELD_PRODUCTION) < findBaseYieldRateRank(YIELD_COMMERCE))
++		else if (3 * findBaseYieldRateRank(YIELD_PRODUCTION) <= kPlayer.getNumCities() &&
++			findBaseYieldRateRank(YIELD_PRODUCTION) < findBaseYieldRateRank(YIELD_COMMERCE))
+ 		{
+ 			iProductionMultiplier += 10;
+ 			iCommerceMultiplier -= 10;
+@@ -7305,22 +7319,24 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	}
+ 
+ 	if (iProductionMultiplier < 100)
+-	{
+ 		iProductionMultiplier = 10000 / (200 - iProductionMultiplier);
+-	}
+ 	if (iCommerceMultiplier < 100)
+-	{
+ 		iCommerceMultiplier = 10000 / (200 - iCommerceMultiplier);
+-	}
+ 
+ 	// K-Mod. experimental food value
+ 	//iFoodMultiplier = (80 * iProduction + 40 * iCommerce) / (food needed for jobs)  * (Food needed for jobs + growth) / (food have total)
+ 	//iFoodMultiplier = (80 * iProductionMultiplier * iProductionTotal + 40 * iCommerceMultiplier * iCommerceTotal) * (iFoodTotal + iDesiredFoodChange) / std::max(1, 100 * iTargetSize * GC.getFOOD_CONSUMPTION_PER_POPULATION() * iFoodTotal);
+ 
+-	// emphasise the yield that we are working, so that the weakest of the 'good' plots don't drag down the average quite so much.
+-	// note: the multipliers on production and commerce should match the numbers used in AI_getImprovementValue.
+-	iFoodMultiplier = 80 * iProductionMultiplier * (aiUnworkedYield[YIELD_PRODUCTION] + aiWorkedYield[YIELD_PRODUCTION] * 2) * (iUnworkedPlots + iWorkedPlots);
+-	iFoodMultiplier += 40 * iCommerceMultiplier * (aiUnworkedYield[YIELD_COMMERCE] + aiWorkedYield[YIELD_COMMERCE] * 2) * (iUnworkedPlots + iWorkedPlots);
++	/*	emphasise the yield that we are working, so that
++		the weakest of the 'good' plots don't drag down the average quite so much.
++		note: the multipliers on production and commerce
++		should match the numbers used in AI_getImprovementValue. */
++	iFoodMultiplier = 80 * iProductionMultiplier *
++			(aiUnworkedYield[YIELD_PRODUCTION] + aiWorkedYield[YIELD_PRODUCTION] * 2) *
++			(iUnworkedPlots + iWorkedPlots);
++	iFoodMultiplier += 40 * iCommerceMultiplier *
++			(aiUnworkedYield[YIELD_COMMERCE] + aiWorkedYield[YIELD_COMMERCE] * 2) *
++			(iUnworkedPlots + iWorkedPlots);
+ 	iFoodMultiplier /= 100 * std::max(1, iUnworkedPlots + 2*iWorkedPlots);
+ 	iFoodMultiplier += 160 * iDesiredFoodChange;
+ 	iFoodMultiplier = std::max(iFoodMultiplier, 200); // (a minimum yield value for small cities.)
+@@ -7329,7 +7345,9 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	//iFoodMultiplier /= std::max(iTargetSize, getPopulation() + iUnworkedPlots - std::max(0, iDesiredFoodChange));
+ 
+ 	iFoodMultiplier *= (iFoodTotal + iDesiredFoodChange);
+-	iFoodMultiplier /= std::max(1, (iUnworkedPlots + iWorkedPlots) * GC.getFOOD_CONSUMPTION_PER_POPULATION() * (iFoodTotal-iExtraFoodForGrowth));
++	iFoodMultiplier /= std::max(1, (iUnworkedPlots + iWorkedPlots) *
++			GC.getFOOD_CONSUMPTION_PER_POPULATION() *
++			(iFoodTotal-iExtraFoodForGrowth));
+ 
+ 	// Note: this food multiplier calculation still doesn't account for possible food yield multipliers. Sorry.
+ 
+@@ -7341,9 +7359,7 @@ void CvCityAI::AI_getYieldMultipliers(int &iFoodMultiplier, int &iProductionMult
+ 	// K-Mod end
+ 
+ 	if (iFoodMultiplier < 100)
+-	{
+ 		iFoodMultiplier = 10000 / (200 - iFoodMultiplier);
+-	}
+ }
+ 
+ // advc: Made the plot param const
+@@ -7412,7 +7428,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 	if (eFinalImprovement == NO_IMPROVEMENT)
+ 		eFinalImprovement = eImprovement;
+ 
+-	int iValue = 0;
++	scaled rValue;
+ 	//int aiDiffYields[NUM_YIELD_TYPES]; // removed by K-Mod (replaced by time-weighted yields!)
+ 	//int aiFinalYields[NUM_YIELD_TYPES];
+ 
+@@ -7422,8 +7438,8 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 		if (kOwner.doesImprovementConnectBonus(eFinalImprovement, eNonObsoleteBonus))
+ 		{
+ 			// K-Mod
+-			iValue += (kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50);
+-			iValue += 100;
++			rValue += kOwner.AI_bonusVal(eNonObsoleteBonus, 1) * 50;
++			rValue += 100;
+ 			// K-Mod end
+ 			/* <advc.121> Make sure the AI prefers improvements with yields over
+ 				Forts. Don't want to rule out Forts altogether b/c of Gems in a
+@@ -7433,7 +7449,7 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 			for(int i = 0; i < NUM_YIELD_TYPES; i++)
+ 				iImprYieldChange += imp.getYieldChange(i);
+ 			if(iImprYieldChange <= 0 && kPlot.getWorkingCity() != NULL)
+-				iValue /= 5;
++				rValue /= 5;
+ 			// </advc.121>
+ 		}
+ 		else
+@@ -7444,21 +7460,21 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 			if (kOwner.doesImprovementConnectBonus(kPlot.getImprovementType(), eNonObsoleteBonus))
+ 			{
+ 				// By the way, AI_bonusVal is typically 10 for the first bonus, and 2 for subsequent.
+-				iValue -= (kOwner.AI_bonusVal(eNonObsoleteBonus, -1) * 50);
+-				iValue -= 100;
++				rValue -= kOwner.AI_bonusVal(eNonObsoleteBonus, -1) * 50;
++				rValue -= 100;
+ 			}
+ 		}
+ 	}
+ 	else
+ 	{
+-		for (int iJ = 0; iJ < GC.getNumBonusInfos(); iJ++)
++		FOR_EACH_ENUM(Bonus)
+ 		{
+-			if (GC.getInfo(eFinalImprovement).getImprovementBonusDiscoverRand(iJ) > 0)
+-				iValue++;
++			if (GC.getInfo(eFinalImprovement).getImprovementBonusDiscoverRand(eLoopBonus) > 0)
++				rValue++;
+ 		}
+ 	}
+ 
+-	//if (iValue >= 0) // condition disabled by K-Mod. (maybe the yield will be worth it!)
++	//if (rValue >= 0) // condition disabled by K-Mod. (maybe the yield will be worth it!)
+ 	// K-Mod. Get a weighted average of the yields for improvements which upgrade (eg. cottages).
+ 	int iTimeScale = 60;
+ 	iTimeScale += (100*GC.getGame().getElapsedGameTurns()/GC.getGame().getEstimateEndTurn() < 30 ? 10 : 0);
+@@ -7483,16 +7499,19 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 	iTimeScale = iTimeScale * GC.getInfo(GC.getGame().getStartEra()).getImprovementPercent()/100;
+ 	iTimeScale = iTimeScale / kOwner.getImprovementUpgradeRate();
+ 
+-	std::vector<float> weighted_final_yields(NUM_YIELD_TYPES);
+-	std::vector<float> weighted_yield_diffs(NUM_YIELD_TYPES);
++	std::vector<scaled> weighted_final_yields(NUM_YIELD_TYPES);
++	std::vector<scaled> weighted_yield_diffs(NUM_YIELD_TYPES);
+ 
+ 	// Getting the time-weighted yields for the new and old improvements; then use them to calculate the final yield and yield difference.
+ 	AI_timeWeightedImprovementYields(&kPlot, eImprovement, iTimeScale, weighted_final_yields);
+ 	AI_timeWeightedImprovementYields(&kPlot, kPlot.getImprovementType(), iTimeScale, weighted_yield_diffs);
+-	for (int iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
++	FOR_EACH_ENUM(Yield)
+ 	{
+-		weighted_final_yields[iJ] += kPlot.calculateNatureYield((YieldTypes)iJ, getTeam(), bIgnoreFeature);
+-		weighted_yield_diffs[iJ] = weighted_final_yields[iJ] - (weighted_yield_diffs[iJ] + kPlot.calculateNatureYield((YieldTypes)iJ, getTeam()));
++		weighted_final_yields[eLoopYield] += kPlot.calculateNatureYield(
++				eLoopYield, getTeam(), bIgnoreFeature);
++		weighted_yield_diffs[eLoopYield] = weighted_final_yields[eLoopYield] -
++				(weighted_yield_diffs[eLoopYield] +
++				kPlot.calculateNatureYield(eLoopYield, getTeam()));
+ 	}
+ 
+ 	// K-Mod
+@@ -7504,50 +7523,56 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 	int iCorrectedFoodPriority = iFoodPriority;
+ 	if (weighted_yield_diffs[YIELD_FOOD] != 0 && isWorkingPlot(&kPlot))
+ 	{
++		/*	16 is arbitrary. It would be possible to get something better
++			using targetPop and so on, but that would be slower... */
+ 		int iTotalFood = 16 * GC.getFOOD_CONSUMPTION_PER_POPULATION();
+-		// 16 is arbitrary. It would be possible to get something better using targetPop and so on, but that would be slower...
+-		iCorrectedFoodPriority = (int)(iCorrectedFoodPriority * (iTotalFood - weighted_yield_diffs[YIELD_FOOD]) / std::max(1, iTotalFood));
++		iCorrectedFoodPriority = (iCorrectedFoodPriority *
++				(iTotalFood - weighted_yield_diffs[YIELD_FOOD]) /
++				std::max(1, iTotalFood)).round();
+ 	}
+-	FAssert(iCorrectedFoodPriority == iFoodPriority || (iCorrectedFoodPriority < iFoodPriority == weighted_yield_diffs[YIELD_FOOD] > 0));
++	FAssert(iCorrectedFoodPriority == iFoodPriority ||
++			(iCorrectedFoodPriority < iFoodPriority == weighted_yield_diffs[YIELD_FOOD] > 0));
+ 	// This corrected priority isn't perfect, but I think it will be better than nothing.
+ 	// K-Mod end
+ 
+-	iValue += (int)(weighted_yield_diffs[YIELD_FOOD] * 100 * iCorrectedFoodPriority / 100);
+-	iValue += (int)(weighted_yield_diffs[YIELD_PRODUCTION] * 80 * iProductionPriority / 100); // was 60
+-	iValue += (int)(weighted_yield_diffs[YIELD_COMMERCE] * 40 * iCommercePriority / 100);
++	rValue += weighted_yield_diffs[YIELD_FOOD] * iCorrectedFoodPriority;
++	rValue += weighted_yield_diffs[YIELD_PRODUCTION] * iProductionPriority * fixp(0.8); // was 0.6
++	rValue += weighted_yield_diffs[YIELD_COMMERCE] * iCommercePriority * fixp(0.4);
+ 
+ 	// K-Mod. If we're going to have too much food regardless of the improvement on this plot, then reduce the food value
+-	if (iDesiredFoodChange < 0 && -iDesiredFoodChange >= weighted_final_yields[YIELD_FOOD] - weighted_yield_diffs[YIELD_FOOD])
++	if (iDesiredFoodChange < 0 && -iDesiredFoodChange >=
++		weighted_final_yields[YIELD_FOOD] - weighted_yield_diffs[YIELD_FOOD])
+ 	{
+-		iValue -= (int)(weighted_yield_diffs[YIELD_FOOD] * iCorrectedFoodPriority * 40 / 100); // reduce the weight of food. (cf. values above.)
++		 // reduce the weight of food. (cf. values above.)
++		rValue -= weighted_yield_diffs[YIELD_FOOD] * iCorrectedFoodPriority * fixp(0.4);
+ 	} // K-Mod end
+ 
+-	if (iValue > 0)
++	if (rValue > 0)
+ 	{
+ 		// this is mainly to make it improve better tiles first
+ 		//flood plain > grassland > plain > tundra
+-		iValue += (int)(weighted_final_yields[YIELD_FOOD] * 8); // was 10
+-		iValue += (int)(weighted_final_yields[YIELD_PRODUCTION] * 7); // was 6
+-		iValue += (int)(weighted_final_yields[YIELD_COMMERCE] * 4);
++		rValue += weighted_final_yields[YIELD_FOOD] * 8; // was 10
++		rValue += weighted_final_yields[YIELD_PRODUCTION] * 7; // was 6
++		rValue += weighted_final_yields[YIELD_COMMERCE] * 4;
+ 
+ 		if (weighted_final_yields[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION())
+ 		{
+ 			//this is a food yielding tile
+ 			if (iCorrectedFoodPriority > 100)
+-			{
+-				iValue *= 100 + iCorrectedFoodPriority;
+-				iValue /= 200;
+-			}
++				rValue.mulDiv(100 + iCorrectedFoodPriority, 200);
+ 			if (iDesiredFoodChange > 0)
+ 			{
+ 				//iValue += (10 * (1 + aiDiffYields[YIELD_FOOD]) * (1 + aiFinalYields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * iDesiredFoodChange * iCorrectedFoodPriority) / 100;
+-				iValue += (int)(10 * (1 + weighted_yield_diffs[YIELD_FOOD]) * (1 + weighted_final_yields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) * std::min(1 + iDesiredFoodChange/3, 4) * iCorrectedFoodPriority / 100); // K-Mod
++				// <K-Mod>
++				rValue += (10 * (1 + weighted_yield_diffs[YIELD_FOOD]) *
++						(1 + weighted_final_yields[YIELD_FOOD] - GC.getFOOD_CONSUMPTION_PER_POPULATION()) *
++						std::min(1 + iDesiredFoodChange / 3, 4) * iCorrectedFoodPriority) / 100; // </K-Mod>
+ 			}
+ 			if (iCommercePriority > 100)
+ 			{
+ 				//iValue *= 100 + (((iCommercePriority - 100) * aiDiffYields[YIELD_COMMERCE]) / 2);
+ 				//iValue /= 100;
+-				iValue += (int)(iValue*((iCommercePriority - 100) * weighted_yield_diffs[YIELD_COMMERCE]))/200;
++				rValue += (rValue * ((iCommercePriority - 100) * weighted_yield_diffs[YIELD_COMMERCE])) / 200;
+ 			}
+ 		}
+ 		/* else if (aiFinalYields[YIELD_FOOD] < GC.getFOOD_CONSUMPTION_PER_POPULATION()) {
+@@ -7562,27 +7587,27 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 
+ 		if (iCorrectedFoodPriority < 100 && iProductionPriority > 100)
+ 		{
+-			iValue *= (int)(200 + ((iProductionPriority - 100)*weighted_final_yields[YIELD_PRODUCTION]));
+-			iValue /= 200;
++			rValue *= 200 + (iProductionPriority - 100) * weighted_final_yields[YIELD_PRODUCTION];
++			rValue /= 200;
+ 		}
+ 		if (eNonObsoleteBonus == NO_BONUS)
+ 		{
+ 			if (iDesiredFoodChange > 0)
+ 			{
+ 				//We want more food.
+-				iValue *= 2 + std::max(0, (int)weighted_yield_diffs[YIELD_FOOD]);
+-				iValue /= 2 * (1 + std::max(0, -(int)weighted_yield_diffs[YIELD_FOOD]));
++				rValue *= 2 + scaled::max(0, weighted_yield_diffs[YIELD_FOOD]);
++				rValue /= 2 * (1 + scaled::max(0, -weighted_yield_diffs[YIELD_FOOD]));
+ 			}
+ 		}
+ 	}
+ 
+ 	if (bEmphasizeIrrigation && GC.getInfo(eFinalImprovement).isCarriesIrrigation())
+-		iValue += 500;
++		rValue += 500;
+ 	if (getImprovementFreeSpecialists(eFinalImprovement) > 0)
+-		iValue += 2000;
++		rValue += 2000;
+ 	if (kOwner.getAdvancedStartPoints() < 0)
+ 	{	// <advc.901> Code moved into (recursive) auxiliary function
+-		iValue += AI_healthHappyImprovementValue(kPlot, eImprovement, eFinalImprovement,
++		rValue += AI_healthHappyImprovementValue(kPlot, eImprovement, eFinalImprovement,
+ 				bIgnoreFeature, false); // </advc.901>
+ 	}
+ 	/*  <advc.131> When considering to replace an improvement, iValue is
+@@ -7590,15 +7615,15 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 		new improvement is almost as good as the old one. Temporarily increase
+ 		the value to allow ImprovementWeightModifier to tip the scales. */
+ 	int const iPadding = 50;
+-	iValue += iPadding; // </advc.131>
+-	if (!isHuman() /* advc.131: */ && iValue > 0)
++	rValue += iPadding; // </advc.131>
++	if (!isHuman() /* advc.131: */ && rValue > 0)
+ 	{
+-		iValue *= std::max(0, GC.getInfo(getPersonalityType()).
++		rValue *= std::max(0, GC.getInfo(getPersonalityType()).
+ 				// advc.005a: was +200
+ 				getImprovementWeightModifier(eFinalImprovement) + 100);
+-		iValue /= 100; // advc.005a: was /=200
++		rValue /= 100; // advc.005a: was /=200
+ 	}
+-	iValue -= iPadding; // advc.131
++	rValue -= iPadding; // advc.131
+ 	if (!kPlot.isImproved())
+ 	{
+ 		if (kPlot.isBeingWorked() &&
+@@ -7606,8 +7631,8 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 			(iClearFeatureValue >= 0 || eBestTempBuild == NO_BUILD ||
+ 			!GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType())))
+ 		{
+-			iValue *= 5;
+-			iValue /= 4;
++			rValue *= 5;
++			rValue /= 4;
+ 		}
+ 		/*if (eBestTempBuild != NO_BUILD) {
+ 			if (kPlot.isFeature()) {
+@@ -7623,7 +7648,8 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 	else
+ 	{
+ 		// cottage/villages (don't want to chop them up if turns have been invested)
+-		ImprovementTypes eImprovementDowngrade = (ImprovementTypes)GC.getInfo(kPlot.getImprovementType()).getImprovementPillage();
++		ImprovementTypes eImprovementDowngrade = GC.getInfo(kPlot.getImprovementType()).
++				getImprovementPillage();
+ 		/*while (eImprovementDowngrade != NO_IMPROVEMENT) {
+ 			CvImprovementInfo& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
+ 			iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
+@@ -7635,17 +7661,17 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 			std::set<ImprovementTypes> cited_improvements;
+ 			while (eImprovementDowngrade != NO_IMPROVEMENT && cited_improvements.insert(eImprovementDowngrade).second)
+ 			{
+-				const CvImprovementInfo& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
+-				iValue -= kImprovementDowngrade.getUpgradeTime() * 8;
+-				eImprovementDowngrade = (ImprovementTypes)kImprovementDowngrade.getImprovementPillage();
++				CvImprovementInfo const& kImprovementDowngrade = GC.getInfo(eImprovementDowngrade);
++				rValue -= kImprovementDowngrade.getUpgradeTime() * 8;
++				eImprovementDowngrade = kImprovementDowngrade.getImprovementPillage();
+ 			}
+ 		} // K-Mod end
+ 
+ 		if (GC.getInfo(kPlot.getImprovementType()).getImprovementUpgrade() != NO_IMPROVEMENT)
+ 		{
+-			iValue -= (GC.getInfo(kPlot.getImprovementType()).
+-					getUpgradeTime() * 8 * (kPlot.getUpgradeProgress())) / std::max(1,
+-					GC.getGame().getImprovementUpgradeTime(kPlot.getImprovementType()));
++			rValue -= scaled(GC.getInfo(kPlot.getImprovementType()).
++					getUpgradeTime() * 8 * (kPlot.getUpgradeProgress()),
++					std::max(1, GC.getGame().getImprovementUpgradeTime(kPlot.getImprovementType())));
+ 		}
+ 		if (eNonObsoleteBonus == NO_BONUS)
+ 		{
+@@ -7655,26 +7681,26 @@ int CvCityAI::AI_getImprovementValue(CvPlot const& kPlot, ImprovementTypes eImpr
+ 					weighted_final_yields[YIELD_FOOD] >= GC.getFOOD_CONSUMPTION_PER_POPULATION()) ||
+ 					GC.getInfo(kPlot.getImprovementType()).getImprovementPillage() != NO_IMPROVEMENT)
+ 				{
+-					iValue -= 70;
+-					iValue *= 2;
+-					iValue /= 3;
++					rValue -= 70;
++					rValue.mulDiv(2, 3);
+ 				}
+ 			}
+ 		}
+ 		if (kOwner.isOption(PLAYEROPTION_SAFE_AUTOMATION))
+-			iValue /= 4;	//Greatly prefer builds which are legal.
++			rValue /= 4; // Greatly prefer builds which are legal.
+ 	}
+ 	// K-Mod. Feature value. (moved from the 'no improvement' block above.)
+-	if (kPlot.isFeature() && eBestTempBuild != NO_BUILD && GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
++	if (kPlot.isFeature() && eBestTempBuild != NO_BUILD &&
++		GC.getInfo(eBestTempBuild).isFeatureRemove(kPlot.getFeatureType()))
+ 	{
+ 		/*CvCity* pCity; iValue += kPlot.getFeatureProduction(eBestTempBuild, getTeam(), &pCity) * 2; // handle chop value elsewhere
+ 		FAssert(pCity == this);*/
+-		iValue += iClearFeatureValue;
++		rValue += iClearFeatureValue;
+ 	} // K-Mod end
+ 	if (peBestBuild != NULL)
+ 		*peBestBuild = eBestTempBuild;
+ 
+-	return iValue;
++	return rValue.round();
+ }
+ 
+ /*  advc.901: Cut from AI_getImprovementValue so that benefits for nearby team cities
+@@ -10424,55 +10450,64 @@ bool CvCityAI::AI_finalImprovementYieldDifference(/* advc: */ CvPlot const& kPlo
+ }
+ 
+ 
+-// For improvements which upgrade when worked, this function calculates a time-weighted average of their yields.
+-// The average is calculated with continous weighting such that ~63% of the weight is in the time from now until 'time_scale' turns have past.
+-// (More precisely, the weight drops exponentially w.r.t. the number of turns, decreasing by a factor of `e` for each `time_scale` turns.)
+-bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const* pPlot, ImprovementTypes eImprovement, int time_scale, std::vector<float>& weighted_yields) const
++/*	For improvements which upgrade when worked, this function calculates
++	a time-weighted average of their yields.
++	The average is calculated with continous weighting such that
++	~63% of the weight is in the time from now until 'time_scale' turns have past.
++	(More precisely, the weight drops exponentially w.r.t. the number of turns,
++	decreasing by a factor of `e` for each `time_scale` turns.) */
++bool CvCityAI::AI_timeWeightedImprovementYields(CvPlot const* pPlot, ImprovementTypes eImprovement,
++	int iTimeScale, std::vector<scaled>& weighted_yields) const // advc: was vector<float>&
+ {
+ 	PROFILE_FUNC();
+ 
+-	FAssert(pPlot);
+-	FAssert(time_scale > 0);
++	FAssert(pPlot != NULL);
++	FAssert(iTimeScale > 0);
+ 
+-	// This is an experimental function, designed to be 'the right way' to evaluate improvements which upgrade over time, with no concern for calculation speed.
+-	// If it isn't too slow, I'll use it for lots of things.
++	/*	This is an experimental function, designed to be 'the right way'
++		to evaluate improvements which upgrade over time,
++		with no concern for calculation speed.
++		If it isn't too slow, I'll use it for lots of things. */
+ 	// weighted yield = integral from 0 to inf. of (yield(t) * e^(-t/scale)), w.r.t.  t
+ 
+ 	weighted_yields.assign(NUM_YIELD_TYPES, 0);
+ 	std::set<ImprovementTypes> cited_improvements;
+ 	int iTotalTurns = 0;
+ 
+-	while (eImprovement != NO_IMPROVEMENT && cited_improvements.insert(eImprovement).second)
++	while (eImprovement != NO_IMPROVEMENT &&
++		cited_improvements.insert(eImprovement).second)
+ 	{
+-		const CvImprovementInfo& kImprovement = GC.getInfo(eImprovement);
++		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+ 
+ 		// piecewise integration
+-		// each piece is exp(-t0/T) - exp(t1/T)
+-		const float value_factor = exp(-(float)iTotalTurns/time_scale) - (kImprovement.getImprovementUpgrade() != NO_IMPROVEMENT ? exp(-(float)(iTotalTurns+kImprovement.getUpgradeTime())/time_scale) : 0);
++		// each piece is exp(-t0/T) - exp(-t1/T)  [advc: The comment had said 't1' instead of '-t1']
++		scaled const rValueFactor = scaled(iTotalTurns, -iTimeScale).exp() -
++				(kImprovement.getImprovementUpgrade() == NO_IMPROVEMENT ? 0 :
++				scaled(iTotalTurns + kImprovement.getUpgradeTime(), -iTimeScale).exp());
+ 
+-		for (YieldTypes i = (YieldTypes)0; i < NUM_YIELD_TYPES; i=(YieldTypes)(i+1))
++		FOR_EACH_ENUM(Yield)
+ 		{
+-			int iYieldDiff = pPlot->calculateImprovementYieldChange(eImprovement, i, getOwner());
++			int iYieldDiff = pPlot->calculateImprovementYieldChange(eImprovement, eLoopYield, getOwner());
+ 			//if (kOwner.getExtraYieldThreshold(i) > 0) // todo: Extra yield for finacial civs (see AI_finalImprovementYieldDifference for guidence.)
+ 				// ;
+ 
+-			weighted_yields[i] += iYieldDiff * value_factor;
++			weighted_yields[eLoopYield] += iYieldDiff * rValueFactor;
+ 		}
+ 
+ 		iTotalTurns += kImprovement.getUpgradeTime();
+-		eImprovement = (ImprovementTypes)kImprovement.getImprovementUpgrade();
++		eImprovement = kImprovement.getImprovementUpgrade();
+ 	}
+ 
+ 	if (eImprovement != NO_IMPROVEMENT)
+ 	{
+-		// If we didn't reach final improvemnet; normalise the yield values based on what we've got so far.
++		// If we didn't reach final improvement; normalise the yield values based on what we've got so far.
+ 		for (size_t i = 0; i < NUM_YIELD_TYPES; ++i)
+ 		{
+-			weighted_yields[i] /= (1-exp(-(float)iTotalTurns/time_scale));
++			weighted_yields[i] /= (1 - scaled(iTotalTurns, -iTimeScale).exp());
+ 		}
+ 	}
+-
+-	return cited_improvements.size() > 1; // return true if the improvement had any upgrades
++	// return true if the improvement had any upgrades
++	return (cited_improvements.size() > 1);
+ }
+ 
+ // K-Mod. Value for working a plot in addition to its yields.
+@@ -10497,7 +10532,7 @@ int CvCityAI::AI_specialPlotImprovementValue(CvPlot* pPlot) const
+ 		{
+ 			FOR_EACH_ENUM(Bonus)
+ 			{
+-				if (GET_TEAM(getTeam()).isHasTech((TechTypes)(GC.getInfo(eLoopBonus).getTechReveal())))
++				if (GET_TEAM(getTeam()).isHasTech(GC.getInfo(eLoopBonus).getTechReveal()))
+ 				{
+ 					if (GC.getInfo(eImprovement).getImprovementBonusDiscoverRand(eLoopBonus) > 0)
+ 						iValue += 20;
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index d2e39a9f6..be35309ee 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -230,16 +230,25 @@ protected:
+ 	bool AI_foodAvailable(int iExtra = 0) const;*/
+ 	//int AI_yieldValue(short* piYields, short* piCommerceYields, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false, bool bWorkerOptimization = false) const;
+ 	//int AI_plotValue(CvPlot* pPlot, bool bAvoidGrowth, bool bRemove, bool bIgnoreFood = false, bool bIgnoreGrowth = false, bool bIgnoreStarvation = false) const;
+-	// K-Mod. Note: iGrowthValue < 0 means "automatic". It will use AI_growthValuePerFood. iGrowthValue == 0 means "ignore growth".
+-	int AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemove, bool bIgnoreFood, bool bIgnoreStarvation, bool bWorkerOptimization, int iGrowthValue) const;
+-	int AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, int> old_job, bool bIgnoreFood, bool bIgnoreStarvation, int iGrowthValue) const; // value gained by swapping jobs. (bIsSpecialist, iIndex) pairs.
+-		// advc: Made plot param const in these two functions
+-	int AI_plotValue(CvPlot const* pPlot, bool bRemove, bool bIgnoreFood, bool bIgnoreStarvation, int iGrowthValue) const;
+-	bool AI_finalImprovementYieldDifference(CvPlot const& kPlot, short* piYields) const; // difference between current yields and yields after plot improvement reaches final upgrade.
+-	bool AI_timeWeightedImprovementYields(CvPlot const* pPlot, ImprovementTypes eImprovement, int time_scale, std::vector<float>& weighted_yields) const; // time-weighted yields for improvements which have upgrades
+-	int AI_specialPlotImprovementValue(CvPlot* pPlot) const; // value for working a plot in addition to its yields
++	/*	K-Mod. Note: iGrowthValue < 0 means "automatic".
++		It will use AI_growthValuePerFood. iGrowthValue == 0 means "ignore growth". */
++	int AI_yieldValue(short* piYields, short* piCommerceYields, bool bRemove, bool bIgnoreFood,
++			bool bIgnoreStarvation, bool bWorkerOptimization, int iGrowthValue) const;
++	// value gained by swapping jobs. (bIsSpecialist, iIndex) pairs.
++	int AI_jobChangeValue(std::pair<bool, int> new_job, std::pair<bool, int> old_job, bool bIgnoreFood,
++			bool bIgnoreStarvation, int iGrowthValue) const;
++	  // advc: Made plot param const in these two functions
++	int AI_plotValue(CvPlot const* pPlot, bool bRemove, bool bIgnoreFood, bool bIgnoreStarvation,
++			int iGrowthValue) const;
++	// difference between current yields and yields after plot improvement reaches final upgrade.
++	bool AI_finalImprovementYieldDifference(CvPlot const& kPlot, short* piYields) const;
++	// time-weighted yields for improvements which have upgrades
++	bool AI_timeWeightedImprovementYields(CvPlot const* pPlot, ImprovementTypes eImprovement,
++			int iTimeScale, std::vector<scaled>& weighted_yields) const;
++	// value for working a plot in addition to its yields
++	int AI_specialPlotImprovementValue(CvPlot* pPlot) const;
+ 	int AI_growthValuePerFood() const;
+-	// K-mod end  // <advc.901>
++	// K-Mod end  // <advc.901>
+ 	int AI_healthHappyImprovementValue(CvPlot const& kPlot, ImprovementTypes eImprovement,
+ 			ImprovementTypes eFinalImprovement, bool bIgnoreFeature,
+ 			bool bIgnoreOtherCities = true) const; // </advc.901>
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 0aedd980e..ce5e45ae2 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -2965,23 +2965,20 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 			else
+ 			{
+ 				int iLast = 0;
+-				FAssertMsg(0 < GC.getNumBonusInfos(), "GC.getNumBonusInfos() is negative but an array is being allocated in CvDLLWidgetData::parseActionHelp_Mission");
+-				for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++				FOR_EACH_ENUM2(Bonus, eRandBonus)
+ 				{
+-					BonusTypes eRandBonus = (BonusTypes)iI;
+-					if (kUnitTeam.isHasTech((TechTypes)GC.getInfo(eRandBonus).
+-							getTechReveal()))
++					if (kUnitTeam.isHasTech(GC.getInfo(eRandBonus).getTechReveal()))
+ 					{
+-						if (kImprov.getImprovementBonusDiscoverRand(iI) > 0
+-							&& kMissionPlot.canHaveBonus(eRandBonus, false, // advc.rom3
++						if (kImprov.getImprovementBonusDiscoverRand(eRandBonus) > 0 &&
++							kMissionPlot.canHaveBonus(eRandBonus, false, // advc.rom3
+ 							true)) // advc.129
+ 						{
+ 							szFirstBuffer.Format(L"%s%s", NEWLINE,
+ 									gDLL->getText("TXT_KEY_ACTION_CHANCE_DISCOVER").c_str());
+ 							szTempBuffer.Format(L"%c", GC.getInfo(eRandBonus).getChar());
+ 							setListHelp(szBuffer, szFirstBuffer, szTempBuffer, L", ",
+-									kImprov.getImprovementBonusDiscoverRand(iI) != iLast);
+-							iLast = kImprov.getImprovementBonusDiscoverRand(iI);
++									kImprov.getImprovementBonusDiscoverRand(eRandBonus) != iLast);
++							iLast = kImprov.getImprovementBonusDiscoverRand(eRandBonus);
+ 						}
+ 					}
+ 				}
+@@ -3011,7 +3008,7 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction,
+ 				szBuffer.append(gDLL->getText("TXT_KEY_ACTION_DEFENSE_MODIFIER",
+ 						kImprov.getDefenseModifier()));
+ 			}
+-			ImprovementTypes eUpgr = (ImprovementTypes)kImprov.getImprovementUpgrade();
++			ImprovementTypes eUpgr = kImprov.getImprovementUpgrade();
+ 			if (eUpgr != NO_IMPROVEMENT)
+ 			{
+ 				int iTurns = kMissionPlot.getUpgradeTimeLeft(eImprovement,
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 2eb19ec2d..6cb4e10fd 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1750,8 +1750,8 @@ void CvGame::normalizeAddFoodBonuses()  // advc: style changes
+ 				CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+ 				if (kBonus.getYieldChange(YIELD_FOOD) > 0)
+ 				{
+-					if (kBonus.getTechCityTrade() == NO_TECH || GC.getInfo((TechTypes)
+-						kBonus.getTechCityTrade()).getEra() <= getStartEra())
++					if (kBonus.getTechCityTrade() == NO_TECH ||
++						GC.getInfo(kBonus.getTechCityTrade()).getEra() <= getStartEra())
+ 					{
+ 						if (p.isWater())
+ 							iFoodBonus += 2;
+@@ -1767,7 +1767,9 @@ void CvGame::normalizeAddFoodBonuses()  // advc: style changes
+ 							int iHighFoodThreshold = 2*iFoodPerPop; // ie. 4 food.
+ 							bool bHighFood = iNaturalFood + 1 >= iHighFoodThreshold; // (+1 just as a shortcut to save time for obvious cases.)
+ 
+-							for (ImprovementTypes eImp = (ImprovementTypes)0; !bHighFood && eImp < GC.getNumImprovementInfos(); eImp=(ImprovementTypes)(eImp+1))
++							for (ImprovementTypes eImp = (ImprovementTypes)0;
++								!bHighFood && eImp < GC.getNumImprovementInfos();
++								eImp=(ImprovementTypes)(eImp+1))
+ 							{
+ 								if (GC.getInfo(eImp).isImprovementBonusTrade(eBonus))
+ 								{
+@@ -1808,12 +1810,12 @@ void CvGame::normalizeAddFoodBonuses()  // advc: style changes
+ 					continue;
+ 
+ 				if (kLoopBonus.getTechCityTrade() != NO_TECH &&
+-					GC.getInfo((TechTypes)kLoopBonus.getTechCityTrade()).
++					GC.getInfo(kLoopBonus.getTechCityTrade()).
+ 					getEra() > getStartEra())
+ 				{
+ 					continue;
+ 				}
+-				if (!GET_TEAM(kPlayer.getTeam()).isHasTech((TechTypes)kLoopBonus.getTechReveal()))
++				if (!GET_TEAM(kPlayer.getTeam()).isHasTech(kLoopBonus.getTechReveal()))
+ 					continue;
+ 				// <advc.108> Don't place the food resource on a bad feature
+ 				FeatureTypes const eFeature = p.getFeatureType();
+@@ -1822,7 +1824,8 @@ void CvGame::normalizeAddFoodBonuses()  // advc: style changes
+ 				{
+ 					CvFeatureInfo& kFeature = GC.getInfo(eFeature);
+ 					bValid = false;
+-					if(m_eNormalizationLevel >= NORMALIZE_HIGH || kFeature.getYieldChange(YIELD_FOOD) > 0 ||
++					if(m_eNormalizationLevel >= NORMALIZE_HIGH ||
++						kFeature.getYieldChange(YIELD_FOOD) > 0 ||
+ 						kFeature.getYieldChange(YIELD_PRODUCTION) > 0)
+ 					{
+ 						bValid = true;
+@@ -2239,7 +2242,7 @@ bool CvGame::isValidExtraBonus(BonusTypes eBonus, PlayerTypes eStartPlayer,
+ 		return false;
+ 	}
+ 	if (kBonus.getTechCityTrade() != NO_TECH &&
+-		GC.getInfo((TechTypes)(kBonus.getTechCityTrade())).getEra() > getStartEra())
++		GC.getInfo(kBonus.getTechCityTrade()).getEra() > getStartEra())
+ 	{
+ 		return false;
+ 	}
+@@ -7649,7 +7652,7 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& a)
+ 		TechTypes eAndBonusTech = NO_TECH;
+ 		if (eAndBonus != NO_BONUS)
+ 		{
+-			eAndBonusTech = (TechTypes)GC.getInfo(eAndBonus).getTechCityTrade();
++			eAndBonusTech = GC.getInfo(eAndBonus).getTechCityTrade();
+ 			if((eAndBonusTech != NO_TECH &&
+ 				!GET_TEAM(BARBARIAN_TEAM).isHasTech(eAndBonusTech)) ||
+ 				!a.hasAnyAreaPlayerBonus(eAndBonus))
+@@ -7677,15 +7680,15 @@ UnitTypes CvGame::randomBarbarianUnit(UnitAITypes eUnitAI, CvArea const& a)
+ 			if(eOrBonus == NO_BONUS)
+ 				continue;
+ 			CvBonusInfo const& kOrBonus = GC.getInfo(eOrBonus);
+-			TechTypes eOrBonusTech = (TechTypes)kOrBonus.getTechCityTrade();
++			TechTypes eOrBonusTech = kOrBonus.getTechCityTrade();
+ 			if (eOrBonusTech != NO_TECH)
+ 			{
+ 				bRequires = true;
+-				if (GET_TEAM(BARBARIAN_TEAM).isHasTech(eOrBonusTech)
++				if (GET_TEAM(BARBARIAN_TEAM).isHasTech(eOrBonusTech) &&
+ 					/*  advc.301: Also require the resource to be connected by
+ 						someone on this continent; in particular, don't spawn
+ 						Horse Archers on a horseless continent. */
+-					&& a.hasAnyAreaPlayerBonus(eOrBonus))
++					a.hasAnyAreaPlayerBonus(eOrBonus))
+ 				{
+ 					bFound = true;
+ 					break;
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 3af187180..e521fa96d 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -4707,15 +4707,14 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 				szString.append(szTempBuffer);
+ 			}
+ 			CvWStringBuffer szReqs; // advc.047
+-			if (!GET_TEAM(eActiveTeam).isHasTech((TechTypes)GC.getInfo(eBonus).getTechCityTrade()))
++			if (!GET_TEAM(eActiveTeam).isHasTech(GC.getInfo(eBonus).getTechCityTrade()))
+ 			{
+ 				/*szString.append(gDLL->getText("TXT_KEY_PLOT_RESEARCH",
+ 					GC.getInfo((TechTypes)GC.getInfo(eBonus).
+ 					getTechCityTrade()).getTextKeyWide())); */
+ 				// <advc.047>
+ 				szTempBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_WARNING_TEXT"),
+-						GC.getInfo((TechTypes)GC.getInfo(eBonus).
+-						getTechCityTrade()).getText());
++						GC.getInfo(GC.getInfo(eBonus).getTechCityTrade()).getText());
+ 				szReqs.append(szTempBuffer);
+ 			}
+ 			bool bCity = pPlot->isCity();
+@@ -4942,11 +4941,13 @@ void CvGameTextMgr::setPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
+ 			{
+ 				int iTurns = pPlot->getUpgradeTimeLeft(ePlotImprovement, eRevealedOwner);
+ 
+-				szString.append(gDLL->getText("TXT_KEY_PLOT_IMP_UPGRADE", iTurns, GC.getInfo((ImprovementTypes) GC.getInfo(ePlotImprovement).getImprovementUpgrade()).getTextKeyWide()));
++				szString.append(gDLL->getText("TXT_KEY_PLOT_IMP_UPGRADE", iTurns,
++						GC.getInfo(GC.getInfo(ePlotImprovement).getImprovementUpgrade()).getTextKeyWide()));
+ 			}
+ 			else
+ 			{
+-				szString.append(gDLL->getText("TXT_KEY_PLOT_WORK_TO_UPGRADE", GC.getInfo((ImprovementTypes) GC.getInfo(ePlotImprovement).getImprovementUpgrade()).getTextKeyWide()));
++				szString.append(gDLL->getText("TXT_KEY_PLOT_WORK_TO_UPGRADE",
++						GC.getInfo(GC.getInfo(ePlotImprovement).getImprovementUpgrade()).getTextKeyWide()));
+ 			}
+ 		}
+ 	}
+@@ -5454,42 +5455,44 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 			std::vector<int> viBonusClassRevealed(GC.getNumBonusClassInfos(), 0);
+ 			std::vector<int> viBonusClassUnrevealed(GC.getNumBonusClassInfos(), 0);
+ 			std::vector<int> viBonusClassHave(GC.getNumBonusClassInfos(), 0);
+-			for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++			FOR_EACH_ENUM(Bonus)
+ 			{
+-				TechTypes eRevealTech = (TechTypes)GC.getInfo((BonusTypes)iI).getTechReveal();
+-				BonusClassTypes eBonusClass = (BonusClassTypes)GC.getInfo((BonusTypes)iI).getBonusClassType();
++				TechTypes eRevealTech = GC.getInfo(eLoopBonus).getTechReveal();
++				BonusClassTypes eBonusClass = (BonusClassTypes)GC.getInfo(eLoopBonus).getBonusClassType();
+ 				if (eRevealTech != NO_TECH)
+ 				{
+ 					if ((GET_TEAM(kPlot.getTeam()).isHasTech(eRevealTech)))
+ 						viBonusClassRevealed[eBonusClass]++;
+ 					else viBonusClassUnrevealed[eBonusClass]++;
+-					if (kOwner.getNumAvailableBonuses((BonusTypes)iI) > 0)
++					if (kOwner.getNumAvailableBonuses(eLoopBonus) > 0)
+ 						viBonusClassHave[eBonusClass]++;
+-					else if (kOwner.AI_countOwnedBonuses((BonusTypes)iI) > 0)
++					else if (kOwner.AI_countOwnedBonuses(eLoopBonus) > 0)
+ 						viBonusClassHave[eBonusClass]++;
+ 				}
+ 			}
+ 			bool bDummy;
+-			for (int iI = 0; iI < GC.getNumTechInfos(); iI++)
++			FOR_EACH_ENUM(Tech)
+ 			{
+-				int iPathLength = kOwner.findPathLength(((TechTypes)iI), false);
+-				if (iPathLength <= 3 && !GET_TEAM(kPlot.getTeam()).isHasTech((TechTypes)iI))
++				int iPathLength = kOwner.findPathLength(eLoopTech, false);
++				if (iPathLength <= 3 && !GET_TEAM(kPlot.getTeam()).isHasTech(eLoopTech))
+ 				{
+ 					szString.append(CvWString::format(L"\n%s(%d)=%8d",
+-							GC.getInfo((TechTypes)iI).getDescription(),
+-							iPathLength, kOwner.AI_techValue((TechTypes)iI,
++							GC.getInfo(eLoopTech).getDescription(),
++							iPathLength, kOwner.AI_techValue(eLoopTech,
+ 							1, false, true, viBonusClassRevealed,
+ 							viBonusClassUnrevealed, viBonusClassHave)));
+-					szString.append(CvWString::format(L" (bld:%d, ", kOwner.AI_techBuildingValue((TechTypes)iI, true, bDummy)));
+-					int iObs = kOwner.AI_obsoleteBuildingPenalty((TechTypes)iI, true);
++					szString.append(CvWString::format(L" (bld:%d, ",
++							kOwner.AI_techBuildingValue(eLoopTech, true, bDummy)));
++					int iObs = kOwner.AI_obsoleteBuildingPenalty(eLoopTech, true);
+ 					if (iObs != 0)
+ 						szString.append(CvWString::format(L"obs:%d, ", -iObs));
+ 					// <k146>
+-					int iPrj = kOwner.AI_techProjectValue((TechTypes)iI, 1, bDummy);
++					int iPrj = kOwner.AI_techProjectValue(eLoopTech, 1, bDummy);
+ 					if (iPrj != 0)
+ 						szString.append(CvWString::format(L"prj:%d, ", iPrj));
+ 					// </k146>
+-					szString.append(CvWString::format(L"unt:%d)", kOwner.AI_techUnitValue((TechTypes)iI, 1, bDummy)));
++					szString.append(CvWString::format(L"unt:%d)",
++							kOwner.AI_techUnitValue(eLoopTech, 1, bDummy)));
+ 				}
+ 			}
+ 		}
+@@ -5503,8 +5506,10 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 			int iNumOtherCitySites = (kPlot.waterArea() == NULL) ? 0 :
+ 					kPlayer.AI_getNumAdjacentAreaCitySites(
+ 					iOtherSiteBestValue, *kPlot.waterArea(), kPlot.area());
+-			szString.append(CvWString::format(L"\n\nArea Sites = %d (%d)", iNumAreaCitySites, iAreaSiteBestValue));
+-			szString.append(CvWString::format(L"\nOther Sites = %d (%d)", iNumOtherCitySites, iOtherSiteBestValue));
++			szString.append(CvWString::format(L"\n\nArea Sites = %d (%d)",
++					iNumAreaCitySites, iAreaSiteBestValue));
++			szString.append(CvWString::format(L"\nOther Sites = %d (%d)",
++					iNumOtherCitySites, iOtherSiteBestValue));
+ 		}
+ 	}
+ 	else if (kPlot.getOwner() != NO_PLAYER && pPlotCity == NULL)
+@@ -8048,13 +8053,15 @@ void CvGameTextMgr::parseCivicInfo(CvWStringBuffer &szHelpText, CivicTypes eCivi
+ 	{
+ 		bFirst = true;
+ 
+-		for (iI = 0; iI < GC.getNumImprovementInfos(); ++iI)
++		FOR_EACH_ENUM(Improvement)
+ 		{
+-			if (GC.getInfo((ImprovementTypes)iI).getImprovementUpgrade() != NO_IMPROVEMENT)
++			if (GC.getInfo(eLoopImprovement).getImprovementUpgrade() != NO_IMPROVEMENT)
+ 			{
+-				szFirstBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_CIVIC_IMPROVEMENT_UPGRADE", kCivic.getImprovementUpgradeRateModifier()).c_str());
++				szFirstBuffer.Format(L"%s%s", NEWLINE, gDLL->getText("TXT_KEY_CIVIC_IMPROVEMENT_UPGRADE",
++						kCivic.getImprovementUpgradeRateModifier()).c_str());
+ 				CvWString szImprovement;
+-				szImprovement.Format(L"<link=literal>%s</link>", GC.getInfo((ImprovementTypes)iI).getDescription());
++				szImprovement.Format(L"<link=literal>%s</link>",
++						GC.getInfo(eLoopImprovement).getDescription());
+ 				setListHelp(szHelpText, szFirstBuffer, szImprovement, L", ", bFirst);
+ 				bFirst = false;
+ 			}
+@@ -13961,7 +13968,8 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 			!GET_TEAM(eActivePlayer).isHasTech(eRevealTech))) // </advc.004w>
+ 		{
+ 			szBuffer.append(NEWLINE);
+-			szBuffer.append(gDLL->getText("TXT_KEY_BONUS_REVEALED_BY", GC.getInfo((TechTypes)GC.getInfo(eBonus).getTechReveal()).getTextKeyWide()));
++			szBuffer.append(gDLL->getText("TXT_KEY_BONUS_REVEALED_BY",
++					GC.getInfo(GC.getInfo(eBonus).getTechReveal()).getTextKeyWide()));
+ 		}
+ 	}
+ 
+@@ -15868,7 +15876,8 @@ void CvGameTextMgr::setImprovementHelp(CvWStringBuffer &szBuffer, ImprovementTyp
+ 		int iTurns = GC.getGame().getImprovementUpgradeTime(eImprovement);
+ 
+ 		szBuffer.append(NEWLINE);
+-		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_EVOLVES", GC.getInfo((ImprovementTypes) info.getImprovementUpgrade()).getTextKeyWide(), iTurns));
++		szBuffer.append(gDLL->getText("TXT_KEY_IMPROVEMENT_EVOLVES",
++				GC.getInfo(info.getImprovementUpgrade()).getTextKeyWide(), iTurns));
+ 	}
+ 
+ 	int iLast = -1;
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.cpp b/CvGameCoreDLL/CvInfo_Terrain.cpp
+index 8857dea73..a23ff6f6e 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.cpp
++++ b/CvGameCoreDLL/CvInfo_Terrain.cpp
+@@ -405,9 +405,9 @@ bool CvFeatureInfo::read(CvXMLLoadUtility* pXML)
+ CvBonusInfo::CvBonusInfo() :
+ m_iBonusClassType(NO_BONUSCLASS),
+ m_iChar(0),
+-m_iTechReveal(0),
+-m_iTechCityTrade(0),
+-m_iTechObsolete(0),
++m_eTechReveal(NO_TECH),
++m_eTechCityTrade(NO_TECH),
++m_eTechObsolete(NO_TECH),
+ m_iAITradeModifier(0),
+ m_iAIObjective(0),
+ m_iHealth(0),
+@@ -632,9 +632,9 @@ void CvBonusInfo::read(FDataStreamBase* stream)
+ 
+ 	stream->Read(&m_iBonusClassType);
+ 	stream->Read(&m_iChar);
+-	stream->Read(&m_iTechReveal);
+-	stream->Read(&m_iTechCityTrade);
+-	stream->Read(&m_iTechObsolete);
++	stream->Read((int*)&m_eTechReveal);
++	stream->Read((int*)&m_eTechCityTrade);
++	stream->Read((int*)&m_eTechObsolete);
+ 	stream->Read(&m_iAITradeModifier);
+ 	stream->Read(&m_iAIObjective);
+ 	stream->Read(&m_iHealth);
+@@ -682,9 +682,9 @@ void CvBonusInfo::write(FDataStreamBase* stream)
+ 
+ 	stream->Write(m_iBonusClassType);
+ 	stream->Write(m_iChar);
+-	stream->Write(m_iTechReveal);
+-	stream->Write(m_iTechCityTrade);
+-	stream->Write(m_iTechObsolete);
++	stream->Write(m_eTechReveal);
++	stream->Write(m_eTechCityTrade);
++	stream->Write(m_eTechObsolete);
+ 	stream->Write(m_iAITradeModifier);
+ 	stream->Write(m_iAIObjective);
+ 	stream->Write(m_iHealth);
+@@ -727,9 +727,9 @@ bool CvBonusInfo::read(CvXMLLoadUtility* pXML)
+ 		pXML->GetChildXmlValByName(szTextVal, "ArtDefineTag");
+ 		setArtDefineTag(szTextVal);
+ 	}
+-	pXML->SetInfoIDFromChildXmlVal(m_iTechReveal, "TechReveal");
+-	pXML->SetInfoIDFromChildXmlVal(m_iTechCityTrade, "TechCityTrade");
+-	pXML->SetInfoIDFromChildXmlVal(m_iTechObsolete, "TechObsolete");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechReveal, "TechReveal");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechCityTrade, "TechCityTrade");
++	pXML->SetInfoIDFromChildXmlVal((int&)m_eTechObsolete, "TechObsolete");
+ 
+ 	if (gDLL->getXMLIFace()->SetToChildByTagName(pXML->GetXML(),"YieldChanges"))
+ 	{
+@@ -910,8 +910,8 @@ m_iAirBombDefense(0),
+ m_iDefenseModifier(0),
+ m_iHappiness(0),
+ m_iPillageGold(0),
+-m_iImprovementPillage(NO_IMPROVEMENT),
+-m_iImprovementUpgrade(NO_IMPROVEMENT),
++m_eImprovementPillage(NO_IMPROVEMENT),
++m_eImprovementUpgrade(NO_IMPROVEMENT),
+ m_bActsAsCity(false), // advc: was true
+ m_bHillsMakesValid(false),
+ m_bFreshWaterMakesValid(false),
+@@ -994,21 +994,11 @@ int CvImprovementInfo::getFeatureGrowthProbability() const
+ 	return m_iFeatureGrowthProbability;
+ }
+ 
+-int CvImprovementInfo::getUpgradeTime() const
+-{
+-	return m_iUpgradeTime;
+-}
+-
+ int CvImprovementInfo::getPillageGold() const
+ {
+ 	return m_iPillageGold;
+ }
+ 
+-int CvImprovementInfo::getImprovementPillage() const
+-{
+-	return m_iImprovementPillage;
+-}
+-
+ const TCHAR* CvImprovementInfo::getArtDefineTag() const
+ {
+ 	return m_szArtDefineTag;
+@@ -1154,7 +1144,7 @@ ImprovementTypes CvImprovementInfo::finalUpgrade(ImprovementTypes eImprov)
+ 		return NO_IMPROVEMENT;
+ 	int iLoopDetector = GC.getNumImprovementInfos();
+ 	while (GC.getInfo(eImprov).getImprovementUpgrade() != NO_IMPROVEMENT && --iLoopDetector > 0)
+-		eImprov = (ImprovementTypes)GC.getInfo(eImprov).getImprovementUpgrade();
++		eImprov = GC.getInfo(eImprov).getImprovementUpgrade();
+ 	return (iLoopDetector == 0 ? NO_IMPROVEMENT : eImprov);
+ } // K-Mod end
+ 
+@@ -1197,8 +1187,8 @@ void CvImprovementInfo::read(FDataStreamBase* stream)
+ 	stream->Read(&m_iDefenseModifier);
+ 	stream->Read(&m_iHappiness);
+ 	stream->Read(&m_iPillageGold);
+-	stream->Read(&m_iImprovementPillage);
+-	stream->Read(&m_iImprovementUpgrade);
++	stream->Read((int*)&m_eImprovementPillage);
++	stream->Read((int*)&m_eImprovementUpgrade);
+ 	stream->Read(&m_bActsAsCity);
+ 	stream->Read(&m_bHillsMakesValid);
+ 	stream->Read(&m_bFreshWaterMakesValid);
+@@ -1284,8 +1274,8 @@ void CvImprovementInfo::write(FDataStreamBase* stream)
+ 	stream->Write(m_iDefenseModifier);
+ 	stream->Write(m_iHappiness);
+ 	stream->Write(m_iPillageGold);
+-	stream->Write(m_iImprovementPillage);
+-	stream->Write(m_iImprovementUpgrade);
++	stream->Write(m_eImprovementPillage);
++	stream->Write(m_eImprovementUpgrade);
+ 	stream->Write(m_bActsAsCity);
+ 	stream->Write(m_bHillsMakesValid);
+ 	stream->Write(m_bFreshWaterMakesValid);
+@@ -1462,10 +1452,10 @@ bool CvImprovementInfo::readPass2(CvXMLLoadUtility* pXML)
+ 	CvString szTextVal;
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "ImprovementPillage");
+-	m_iImprovementPillage = GC.getInfoTypeForString(szTextVal);
++	m_eImprovementPillage = (ImprovementTypes)GC.getInfoTypeForString(szTextVal);
+ 
+ 	pXML->GetChildXmlValByName(szTextVal, "ImprovementUpgrade");
+-	m_iImprovementUpgrade = GC.getInfoTypeForString(szTextVal);
++	m_eImprovementUpgrade = (ImprovementTypes)GC.getInfoTypeForString(szTextVal);
+ 
+ 	return true;
+ }
+
+diff --git a/CvGameCoreDLL/CvInfo_Terrain.h b/CvGameCoreDLL/CvInfo_Terrain.h
+index 42de8e3a9..99068c4a5 100644
+--- a/CvGameCoreDLL/CvInfo_Terrain.h
++++ b/CvGameCoreDLL/CvInfo_Terrain.h
+@@ -202,9 +202,9 @@ public: // All the const functions are exposed to Python
+ 	int getBonusClassType() const;
+ 	int getChar() const;
+ 	void setChar(int i);
+-	inline int getTechReveal() const { return m_iTechReveal; }
+-	inline int getTechCityTrade() const { return m_iTechCityTrade; }
+-	inline int getTechObsolete() const { return m_iTechObsolete; }
++	inline TechTypes getTechReveal() const { return m_eTechReveal; }
++	inline TechTypes getTechCityTrade() const { return m_eTechCityTrade; }
++	inline TechTypes getTechObsolete() const { return m_eTechObsolete; }
+ 	int getAITradeModifier() const;
+ 	int getAIObjective() const;
+ 	inline int getHealth() const { return m_iHealth; }
+@@ -254,9 +254,9 @@ public: // All the const functions are exposed to Python
+ protected:
+ 	int m_iBonusClassType;
+ 	int m_iChar;
+-	int m_iTechReveal;
+-	int m_iTechCityTrade;
+-	int m_iTechObsolete;
++	TechTypes m_eTechReveal;
++	TechTypes m_eTechCityTrade;
++	TechTypes m_eTechObsolete;
+ 	int m_iAITradeModifier;
+ 	int m_iAIObjective;
+ 	int m_iHealth;
+@@ -383,13 +383,13 @@ public: /*  All the const functions are exposed to Python except those dealing w
+ 	int getTilesPerGoody() const;
+ 	int getGoodyUniqueRange() const;
+ 	int getFeatureGrowthProbability() const;
+-	int getUpgradeTime() const;
++	inline int getUpgradeTime() const { return m_iUpgradeTime; }
+ 	inline int getAirBombDefense() const { return m_iAirBombDefense; }
+ 	inline int getDefenseModifier() const { return m_iDefenseModifier; }
+ 	inline int getHappiness() const { return m_iHappiness; }
+ 	int getPillageGold() const;
+-	int getImprovementPillage() const;
+-	int getImprovementUpgrade() const { return m_iImprovementUpgrade; }
++	ImprovementTypes getImprovementPillage() const { return m_eImprovementPillage; }
++	ImprovementTypes getImprovementUpgrade() const { return m_eImprovementUpgrade; }
+ 
+ 	inline bool isActsAsCity() const { return m_bActsAsCity; }
+ 	inline bool isHillsMakesValid() const { return m_bHillsMakesValid; }
+@@ -467,8 +467,8 @@ protected:
+ 	int m_iDefenseModifier;
+ 	int m_iHappiness;
+ 	int m_iPillageGold;
+-	int m_iImprovementPillage;
+-	int m_iImprovementUpgrade;
++	ImprovementTypes m_eImprovementPillage;
++	ImprovementTypes m_eImprovementUpgrade;
+ 	int m_iWorldSoundscapeScriptId;
+ 
+ 	CvString m_szArtDefineTag;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 5513116b9..381f3bee5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -14077,7 +14077,7 @@ bool CvPlayer::doEspionageMission(EspionageMissionTypes eMission, PlayerTypes eT
+ 			{
+ 				szBuffer = gDLL->getText("TXT_KEY_ESPIONAGE_TARGET_SOMETHING_DESTROYED",
+ 						GC.getInfo(pPlot->getImprovementType()).getDescription()).GetCString();
+-				pPlot->setImprovementType((ImprovementTypes)(GC.getInfo(pPlot->getImprovementType()).getImprovementPillage()));
++				pPlot->setImprovementType(GC.getInfo(pPlot->getImprovementType()).getImprovementPillage());
+ 				bSomethingHappened = true;
+ 			}
+ 			else if (pPlot->isRoute())
+@@ -17931,7 +17931,8 @@ bool CvPlayer::canDoEvent(EventTypes eEvent, const EventTriggeredData& kTriggere
+ 
+ 	if (NO_BONUS != kEvent.getBonusRevealed())
+ 	{
+-		if (GET_TEAM(getTeam()).isHasTech((TechTypes)GC.getInfo((BonusTypes)kEvent.getBonusRevealed()).getTechReveal()))
++		if (GET_TEAM(getTeam()).isHasTech(GC.getInfo((BonusTypes)kEvent.getBonusRevealed()).
++			getTechReveal()))
+ 		{
+ 			return false;
+ 		}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a9f104cab..2dd3a11d5 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -3569,30 +3569,20 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
+ 	std::vector<int> viBonusClassUnrevealed(GC.getNumBonusClassInfos(), 0);
+ 	std::vector<int> viBonusClassHave(GC.getNumBonusClassInfos(), 0);
+ 	// k146 (comment): Find make lists of which bonuses we have / don't have / can see. This is used for tech evaluation
+-	for (int iI = 0; iI < GC.getNumBonusInfos(); iI++)
++	FOR_EACH_ENUM(Bonus)
+ 	{
+-		TechTypes eRevealTech = (TechTypes)GC.getInfo((BonusTypes)iI).getTechReveal();
+-		BonusClassTypes eBonusClass = (BonusClassTypes)GC.getInfo((BonusTypes)iI).getBonusClassType();
+-		if (eRevealTech != NO_TECH)
+-		{
+-			if ((kTeam.isHasTech(eRevealTech)))
+-			{
+-				viBonusClassRevealed[eBonusClass]++;
+-			}
+-			else
+-			{
+-				viBonusClassUnrevealed[eBonusClass]++;
+-			}
++		TechTypes eRevealTech = GC.getInfo(eLoopBonus).getTechReveal();
++		BonusClassTypes eBonusClass = (BonusClassTypes)GC.getInfo(eLoopBonus).getBonusClassType();
++		if (eRevealTech == NO_TECH)
++			continue; // advc
++		if (kTeam.isHasTech(eRevealTech))
++			viBonusClassRevealed[eBonusClass]++;
++		else viBonusClassUnrevealed[eBonusClass]++;
+ 
+-			if (getNumAvailableBonuses((BonusTypes)iI) > 0)
+-			{
+-				viBonusClassHave[eBonusClass]++;
+-			}
+-			else if (AI_countOwnedBonuses((BonusTypes)iI) > 0)
+-			{
+-				viBonusClassHave[eBonusClass]++;
+-			}
+-		}
++		if (getNumAvailableBonuses(eLoopBonus) > 0)
++			viBonusClassHave[eBonusClass]++;
++		else if (AI_countOwnedBonuses(eLoopBonus) > 0)
++			viBonusClassHave[eBonusClass]++;
+ 	}
+ 
+ #ifdef DEBUG_TECH_CHOICES
+@@ -4684,15 +4674,16 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 					continue; // advc
+ 				int iBonusValue = 0;
+ 
+-				TechTypes eConnectTech = (TechTypes)kBonusInfo.getTechCityTrade();
++				TechTypes eConnectTech = kBonusInfo.getTechCityTrade();
+ 				if((kTeam.isHasTech(eConnectTech) || eConnectTech == eTech) &&
+ 					!kTeam.isBonusObsolete(eLoopBonus) &&
+-					kBonusInfo.getTechObsolete() != eTech) {
+-						// note: this is in addition to the getTechCityTrade evaluation lower in this function.
+-						iBonusValue += AI_bonusVal(eLoopBonus, 1, true) * iCityCount;
+-						if (bRevealed)
+-							iBonusValue += (iNumBonuses-1) * iBonusValue / 10;
+-						else iBonusValue /= 2;
++					kBonusInfo.getTechObsolete() != eTech)
++				{
++					// note: this is in addition to the getTechCityTrade evaluation lower in this function.
++					iBonusValue += AI_bonusVal(eLoopBonus, 1, true) * iCityCount;
++					if (bRevealed)
++						iBonusValue += (iNumBonuses-1) * iBonusValue / 10;
++					else iBonusValue /= 2;
+ 				}
+ 				int iYieldValue = 0;
+ 				FOR_EACH_ENUM(Yield)
+@@ -4818,7 +4809,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 			BonusTypes ePrereqBonus = (BonusTypes)GC.getInfo(eRoute).getPrereqBonus();
+ 			if (ePrereqBonus != NO_BONUS && !hasBonus(ePrereqBonus))
+ 			{
+-				if ((kTeam.isHasTech((TechTypes)(GC.getInfo(ePrereqBonus).getTechReveal())) ||
++				if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+ 					kTeam.isForceRevealedBonus(ePrereqBonus)) &&
+ 					AI_countOwnedBonuses(ePrereqBonus) == 0)
+ 				{
+@@ -4921,7 +4912,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 			// K-Mod
+ 			// If we don't yet have the 'enable' tech, reduce the value of the reveal.
+ 			if (kLoopBonus.getTechCityTrade() != eTech &&
+-				!kTeam.isHasTech((TechTypes)kLoopBonus.getTechCityTrade()))
++				!kTeam.isHasTech(kLoopBonus.getTechCityTrade()))
+ 			{
+ 				iRevealValue /= 3;
+ 			}
+@@ -4931,7 +4922,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech,
+ 		}
+ 		// K-Mod: Value for enabling resources that are already revealed
+ 		else if (kLoopBonus.getTechCityTrade() == eTech &&
+-			(kTeam.isHasTech((TechTypes)kLoopBonus.getTechReveal()) ||
++			(kTeam.isHasTech(kLoopBonus.getTechReveal()) ||
+ 			kTeam.isForceRevealedBonus(eLoopBonus)))
+ 		{
+ 			int iOwned = AI_countOwnedBonuses(eLoopBonus);
+@@ -6332,7 +6323,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 				}
+ 				else
+ 				{
+-					if ((kTeam.isHasTech((TechTypes)(GC.getInfo(ePrereqBonus).getTechReveal())) ||
++					if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+ 						kTeam.isForceRevealedBonus(ePrereqBonus)) &&
+ 						AI_countOwnedBonuses(ePrereqBonus) == 0)
+ 					{
+@@ -6354,7 +6345,7 @@ int CvPlayerAI::AI_techUnitValue(TechTypes eTech, int iPathLength, bool& bEnable
+ 		BonusTypes ePrereqBonus = kLoopUnit.getPrereqAndBonus();
+ 		if (ePrereqBonus != NO_BONUS && !hasBonus(ePrereqBonus))
+ 		{
+-			if ((kTeam.isHasTech((TechTypes)GC.getInfo(ePrereqBonus).getTechReveal()) ||
++			if ((kTeam.isHasTech(GC.getInfo(ePrereqBonus).getTechReveal()) ||
+ 				kTeam.isForceRevealedBonus(ePrereqBonus)) &&
+ 				AI_countOwnedBonuses(ePrereqBonus) == 0)
+ 			{
+@@ -10623,9 +10614,9 @@ int CvPlayerAI::AI_bonusVal(BonusTypes eBonus, int iChange, bool bAssumeEnabled,
+ 			const CvTeam& kTeam = GET_TEAM(getTeam());
+ 			//if (!kTeam.isBonusRevealed(eBonus))
+ 			// note. the tech is used here as a kind of proxy for the civ's readiness to use the bonus.
+-			if (!kTeam.isHasTech((TechTypes)GC.getInfo(eBonus).getTechReveal()))
++			if (!kTeam.isHasTech(GC.getInfo(eBonus).getTechReveal()))
+ 				iValue /= (bTrade ? 3 : 2); // advc.036: was /=2
+-			if (!kTeam.isHasTech((TechTypes)GC.getInfo(eBonus).getTechCityTrade()))
++			if (!kTeam.isHasTech(GC.getInfo(eBonus).getTechCityTrade()))
+ 				iValue /= (bTrade ? 3 : 2); // advc.036: was /=2
+ 		}
+ 		// K-Mod end
+@@ -14430,7 +14421,7 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, CvCityAI cons
+ 				iBonuses += AI_countOwnedBonuses(eBonus);
+ 			else iBonuses += pCity->getNumBonuses(eBonus);
+ 			// maybe use getNumAvailableBonuses ?
+-			if (!kTeam.isHasTech((TechTypes)GC.getInfo(eBonus).getTechReveal()) &&
++			if (!kTeam.isHasTech(GC.getInfo(eBonus).getTechReveal()) &&
+ 				!kTeam.isForceRevealedBonus(eBonus))
+ 			{
+ 				iBonuses++; // expect that we'll get one of each unrevealed resource
+@@ -14507,12 +14498,12 @@ int CvPlayerAI::AI_corporationValue(CorporationTypes eCorporation, CvCityAI cons
+ 	if (eBonusProduced != NO_BONUS)
+ 	{
+ 		//int iBonuses = getNumAvailableBonuses((BonusTypes)kCorp.getBonusProduced());
+-		iBonuses = pCity ? pCity->getNumBonuses(eBonusProduced) :
+-				AI_countOwnedBonuses(eBonusProduced);
++		iBonuses = (pCity != NULL ? pCity->getNumBonuses(eBonusProduced) :
++				AI_countOwnedBonuses(eBonusProduced));
+ 		/*	pretend we have 1 bonus if it is not yet revealed.
+ 			(so that we don't overvalue the corp before the resource gets revealed) */
+-		iBonuses += (!kTeam.isHasTech((TechTypes)
+-				GC.getInfo(eBonusProduced).getTechReveal()) ? 1 : 0);
++		if (!kTeam.isHasTech(GC.getInfo(eBonusProduced).getTechReveal()))
++			iBonuses++;
+ 		iValue += AI_baseBonusVal(eBonusProduced) * 25 /
+ 				(1 + 2 * iBonuses * (iBonuses+3));
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlot.cpp b/CvGameCoreDLL/CvPlot.cpp
+index ef3484902..a9024c6f9 100644
+--- a/CvGameCoreDLL/CvPlot.cpp
++++ b/CvGameCoreDLL/CvPlot.cpp
+@@ -270,7 +270,7 @@ void CvPlot::doImprovement()  // advc: some style changes
+ 		FOR_EACH_ENUM(Bonus)
+ 		{
+ 			CvBonusInfo const& kLoopBonus = GC.getInfo(eLoopBonus);
+-			if (!GET_TEAM(getTeam()).isHasTech((TechTypes)kLoopBonus.getTechReveal()))
++			if (!GET_TEAM(getTeam()).isHasTech(kLoopBonus.getTechReveal()))
+ 				continue;
+ 			/*if (GC.getInfo(getImprovementType()).getImprovementBonusDiscoverRand(eLoopBonus) > 0) { // BtS
+ 				if (GC.getGame().getSorenRandNum(GC.getInfo(getImprovementType()).getImprovementBonusDiscoverRand(eLoopBonus), "Bonus Discovery") == 0) {*/
+@@ -310,8 +310,8 @@ void CvPlot::doImprovementUpgrade()
+ 	if (!isImproved())
+ 		return; // advc
+ 
+-	ImprovementTypes eImprovementUpdrade = (ImprovementTypes)GC.getInfo(
+-			getImprovementType()).getImprovementUpgrade();
++	ImprovementTypes eImprovementUpdrade = GC.getInfo(getImprovementType()).
++			getImprovementUpgrade();
+ 	if (eImprovementUpdrade != NO_IMPROVEMENT)
+ 	{
+ 		if ((isBeingWorked() &&
+@@ -4596,9 +4596,11 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected
+ 	{
+ 		// note: this checks whether the bonus is connected for the owner of the plot, from the point of view of eTeam.
+ 		TeamTypes ePlotTeam = getTeam();
+-		if (ePlotTeam == NO_TEAM || !GET_TEAM(ePlotTeam).isHasTech((TechTypes)GC.getInfo(eBonus).getTechCityTrade()))
++		if (ePlotTeam == NO_TEAM ||
++			!GET_TEAM(ePlotTeam).isHasTech(GC.getInfo(eBonus).getTechCityTrade()))
++		{
+ 			return NO_BONUS;
+-
++		}
+ 		// note: this function is used inside CvPlot::updatePlotGroupBonuses, which is called during CvPlot::setImprovementType
+ 		// between when the improvement is changed and the revealed improvement type is updated...
+ 		// therefore when eTeam == ePlotTeam, we use the real improvement, not the revealed one.
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 07d720aae..22bb56c71 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -2204,10 +2204,8 @@ bool CvTeam::hasBonus(BonusTypes eBonus) const
+ 
+ bool CvTeam::isBonusObsolete(BonusTypes eBonus) const
+ {
+-	TechTypes eObsoleteTech = (TechTypes) GC.getInfo(eBonus).getTechObsolete();
+-	if (eObsoleteTech != NO_TECH && isHasTech(eObsoleteTech))
+-		return true;
+-	return false;
++	TechTypes eObsoleteTech = GC.getInfo(eBonus).getTechObsolete();
++	return (eObsoleteTech != NO_TECH && isHasTech(eObsoleteTech));
+ }
+ 
+ /*  <advc.301>: Only used for Barbarians so far. Should arguably also check if the
+@@ -4696,9 +4694,9 @@ bool CvTeam::doesImprovementConnectBonus(ImprovementTypes eImprovement, BonusTyp
+ 	const CvImprovementInfo& kImprovementInfo = GC.getInfo(eImprovement);
+ 	const CvBonusInfo& kBonusInfo = GC.getInfo(eBonus);
+ 
+-	if (!isHasTech((TechTypes)kBonusInfo.getTechCityTrade()) ||
++	if (!isHasTech(kBonusInfo.getTechCityTrade()) ||
+ 		(kBonusInfo.getTechObsolete() != NO_TECH &&
+-		isHasTech((TechTypes)kBonusInfo.getTechObsolete())))
++		isHasTech(kBonusInfo.getTechObsolete())))
+ 	{
+ 		return false;
+ 	}
+@@ -4920,7 +4918,7 @@ bool CvTeam::isForceRevealedBonus(BonusTypes eBonus) const
+ 
+ bool CvTeam::isBonusRevealed(BonusTypes eBonus) const // K-Mod
+ {
+-	return (isHasTech((TechTypes)GC.getInfo(eBonus).getTechReveal()) || isForceRevealedBonus(eBonus));
++	return (isHasTech(GC.getInfo(eBonus).getTechReveal()) || isForceRevealedBonus(eBonus));
+ }
+ 
+ // <advc.108> Based on CvPlayer::initFreeUnits
+@@ -5132,8 +5130,10 @@ void CvTeam::updatePlotGroupBonus(TechTypes eTech, bool bAdd)
+ 			continue;
+ 		CvBonusInfo const& kBonus = GC.getInfo(eBonus);
+ 		if (kBonus.getTechReveal() == eTech || kBonus.getTechCityTrade() == eTech ||
+-				kBonus.getTechObsolete() == eTech)
++			kBonus.getTechObsolete() == eTech)
++		{
+ 			kPlot.updatePlotGroupBonus(bAdd);
++		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 099e70141..47288615f 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -4164,7 +4164,7 @@ bool CvUnit::airBomb(int iX, int iY)
+ 							szBuffer, kPlot, "AS2D_PILLAGED", MESSAGE_TYPE_INFO,
+ 							getButton(), GC.getColorType("RED"));
+ 				}
+-				kPlot.setImprovementType((ImprovementTypes)(GC.getInfo(kPlot.getImprovementType()).getImprovementPillage()));
++				kPlot.setImprovementType(GC.getInfo(kPlot.getImprovementType()).getImprovementPillage());
+ 			}
+ 			else
+ 			{
+@@ -4443,8 +4443,8 @@ bool CvUnit::pillage()
+ 				}
+ 			}
+ 		}
+-		kPlot.setImprovementType((ImprovementTypes)GC.getInfo(
+-				kPlot.getImprovementType()).getImprovementPillage());
++		kPlot.setImprovementType(GC.getInfo(kPlot.getImprovementType()).
++				getImprovementPillage());
+ 	}
+ 	else if (kPlot.isRoute())
+ 	{
+@@ -4691,8 +4691,8 @@ bool CvUnit::sabotage()
+ 	CvWString szBuffer;
+ 	if (!bCaught)
+ 	{
+-		kPlot.setImprovementType((ImprovementTypes)
+-				GC.getInfo(kPlot.getImprovementType()).getImprovementPillage());
++		kPlot.setImprovementType(GC.getInfo(kPlot.getImprovementType()).
++				getImprovementPillage());
+ 		finishMoves();
+ 		CvCity* pNearestCity = GC.getMap().findCity(kPlot.getX(), kPlot.getY(),
+ 				kPlot.getOwner(), NO_TEAM, false);
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index 1f6c176b1..1d7906c70 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -928,7 +928,7 @@ void UWAICache::updateVassalScore(PlayerTypes civId) {
+ 	FOR_EACH_ENUM(Bonus) {
+ 		if(GET_TEAM(ownerId).isBonusObsolete(eLoopBonus))
+ 			continue;
+-		TechTypes revealTech = (TechTypes)GC.getInfo(eLoopBonus).getTechReveal();
++		TechTypes revealTech = GC.getInfo(eLoopBonus).getTechReveal();
+ 		bool availableToMaster = false;
+ 		if(GET_TEAM(ownerId).isHasTech(revealTech)) {
+ 			if(GET_PLAYER(ownerId).getNumAvailableBonuses(eLoopBonus) > 0) {
+
+[PATCH COVERAGE]
+patchFiles=15 embeddedFiles=15 omittedFiles=0 embeddedPatchBytes=69419

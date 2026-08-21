@@ -1,0 +1,90 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4572
+# Commit: 8bf9edeb47791c720334d1cd69340d3fe5496f6c
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e741008f5c6d3ea974c8815d5bd7000873b205bb
+# Title: minor update docs, code comments, and tech tree map view for the_wheel loistician requirement change
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+44	1	Assets/XML/Units/CIV4PromotionInfos.xml
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+-	-	_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+
+[PATCHES]
+
+diff --git a/Assets/XML/Units/CIV4PromotionInfos.xml b/Assets/XML/Units/CIV4PromotionInfos.xml
+index 5aa467c6f..dcc8dbbe8 100644
+--- a/Assets/XML/Units/CIV4PromotionInfos.xml
++++ b/Assets/XML/Units/CIV4PromotionInfos.xml
+@@ -1,7 +1,50 @@
+ <?xml version="1.0" encoding="UTF-8"?><!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Jon Shafer (Firaxis Games) --><!-- Sid Meier's Civilization 4 --><!-- Copyright Firaxis Games 2005 --><!-- --><!-- Promotion Infos -->
+ <!--
+ custom: for <UnitCombats> please alphabetical/sevopedia listing order,
+-else it gets messy really quickly, thanks, -->
++else it gets messy really quickly, thanks, 
++
++full order to take from for quick editing or/and copy/paste:
++
++			<UnitCombats>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_AIR</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARCHER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_ARMOR</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_GUN</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_HELICOPTER</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_MOUNTED</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_NAVAL</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++				<UnitCombat>
++					<UnitCombatType>UNITCOMBAT_RECON</UnitCombatType>
++					<bUnitCombat>1</bUnitCombat>
++				</UnitCombat>
++			</UnitCombats>
++
++-->
+ <Civ4PromotionInfos xmlns="x-schema:CIV4UnitSchema.xml">
+ 	<PromotionInfos>
+ 		<PromotionInfo>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png
+index 2ac293ab2..fb47e9b54 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.32_Techtree_default_modified.png differ
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png
+index 38e7f3899..ee123c9aa 100644
+Binary files a/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png and b/_1_AdvCiv-SAS/Docs_And_Appendixes/0.33_Techtree_modified.png differ
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2682

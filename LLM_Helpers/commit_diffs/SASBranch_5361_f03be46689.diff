@@ -1,0 +1,341 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5361
+# Commit: f03be46689aa0cf637481efa00306a74582cfd12
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b5edaf36160d1b77fb24fee4b197fe51cdfc2da6
+# Title: Optionally hide unit bar in city screen, fix Tech Advisor value 2 having same effect as 3 - "optionally hide the unit plot list bar only while a city is sele...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	25	Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+4	4	Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+1	0	Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+19	3	Assets/Python/Screens/CvMainInterface.py
+3	5	Assets/Python/Screens/CvMilitaryAdvisor.py
+2	2	Assets/Python/Screens/CvTechChooser.py
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+8	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG
+-	-	_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+index 067ccc099..d5ce52526 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMain.py
+@@ -353,6 +353,27 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 			if szLinkKey:
+ 				self.SAS_mainLinkToCategory[szLinkKey] = iEnum
+ 
++		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
++		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
++		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
++		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
++		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
++		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
++		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY") > 0)
++		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY") > 0)
++		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY") > 0)
++		self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY") > 0)
++
+ 
+ 
+ 	# <!-- custom: type-to-filter search bar helper methods (chatgpt 5.2 + claude opus 4.5) -->
+@@ -725,23 +746,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 		self.TOC_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_CONTENTS", (), eYellow).upper() + u"</font>"
+ 		self.INDEX_ACTIVE_TEXT = u"<font=4>"  + localText.getColorText("TXT_KEY_PEDIA_SCREEN_INDEX",  (), eYellow).upper() + u"</font>"
+ 
+-		# <!-- custom: add highlight text for sevopedia sorting needs as we added, here fetched once for performance optimization or such -->
+-		self.COLOR_HIGHLIGHT_TEXT = gc.getInfoTypeForString('COLOR_HIGHLIGHT_TEXT')
+-		self.IS_SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CIVICS_GROUP_BY_CIVIC_TYPES") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TECHS_GROUP_BY_ERA") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDINGS_GROUP_BY_ERA") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_UNITS_GROUP_BY_ERA") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_CORPORATIONS_GROUP_BY_ERA") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_RELIGIONS_GROUP_BY_ERA") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_PROJECTS_GROUP_BY_ERA") > 0)
+-		self.SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
+-		self.IS_SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_SPECIALISTS_GROUP_BY_TYPE") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BONUSES_GROUP_BY_IMPROVEMENT") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_IMPROVEMENTS_GROUP_BY_TERRAIN") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_BUILDS_GROUP_BY_TYPE") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_TERRAINS_GROUP_BY_LAND_WATER") > 0)
+-		self.IS_SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER = (gc.getDefineINT("SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER") > 0)
+-
+ 		# These are terrain TYPES that should be classified under the "GraphicalOnly (High)" header rather than "Land". This is purely a UI grouping choice.
+ 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_TYPES = ("TERRAIN_HILL", "TERRAIN_PEAK")
+ 		self.SAS_SEVOPEDIA_TERRAIN_GRAPHICAL_ONLY_HIGH_IDS = []
+@@ -2611,10 +2615,6 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 				szEraName = info.getDescription() + " " + localText.getText("TXT_KEY_PEDIA_ERA", ())
+ 				addSection(szEraName, eraItems)
+ 
+-			bIntroPeaceFirstOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY") > 0)
+-			bPeaceFirstOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY") > 0)
+-			bIntroWarFirstLeaderOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY") > 0)
+-			bWarFirstLeaderOnly = (gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY") > 0)
+ 			leaderIntroPeaceItems = []
+ 			leaderPeaceItems = []
+ 			leaderIntroWarItems = []
+@@ -2637,7 +2637,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 							szEraName = szEraName[:-len(" Era")]
+ 					iPeaceIntroId = leaderInfo.getDiploPeaceIntroMusicScriptIds(iEra)
+ 					if iPeaceIntroId > 0:
+-						if (not bIntroPeaceFirstOnly) or (not bAddedIntroPeace):
++						if (not self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_PEACE_FIRST_ONLY) or (not bAddedIntroPeace):
+ 							szLabel = szLeaderName
+ 							if szEraName:
+ 								szLabel = szLabel + " (" + szEraName + ")"
+@@ -2648,7 +2648,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 					iPeaceId = leaderInfo.getDiploPeaceMusicScriptIds(iEra)
+ 					if iPeaceId > 0:
+-						if (not bPeaceFirstOnly) or (not bAddedPeace):
++						if (not self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_PEACE_FIRST_ONLY) or (not bAddedPeace):
+ 							szLabel = szLeaderName
+ 							if szEraName:
+ 								szLabel = szLabel + " (" + szEraName + ")"
+@@ -2659,7 +2659,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 					iWarIntroId = leaderInfo.getDiploWarIntroMusicScriptIds(iEra)
+ 					if iWarIntroId > 0:
+-						if bIntroWarFirstLeaderOnly:
++						if self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_INTRO_WAR_FIRST_LEADER_ONLY:
+ 							if iWarIntroLeaderChosen == -1:
+ 								iWarIntroLeaderChosen = iLeader
+ 							if iWarIntroLeaderChosen != iLeader:
+@@ -2673,7 +2673,7 @@ class SevoPediaMain(CvPediaScreen.CvPediaScreen):
+ 
+ 					iWarId = leaderInfo.getDiploWarMusicScriptIds(iEra)
+ 					if iWarId > 0:
+-						if bWarFirstLeaderOnly:
++						if self.IS_SAS_SEVOPEDIA_MUSIC_LEADER_WAR_FIRST_LEADER_ONLY:
+ 							if iWarLeaderChosen == -1:
+ 								iWarLeaderChosen = iLeader
+ 							if iWarLeaderChosen != iLeader:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+index abd707643..e900cf4a6 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaMusic.py
+@@ -27,10 +27,10 @@ class SevoPediaMusic:
+ 		self.SAS_musicSoundId = None
+ 
+ 		# Offset for the extra width of Music items list vs base width
+-		iMusicItemsWidth = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
+-		if iMusicItemsWidth <= 0:
+-			iMusicItemsWidth = self.top.W_ITEMS
+-		iExtraWidth = iMusicItemsWidth - self.top.W_ITEMS
++		I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = gc.getDefineINT("SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH")
++		if I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH <= 0:
++			I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH = self.top.W_ITEMS
++		iExtraWidth = I_SAS_SEVOPEDIA_MUSIC_ITEMS_WIDTH - self.top.W_ITEMS
+ 
+ 		self.X_HEADER = self.top.X_PEDIA_PAGE + iExtraWidth
+ 		self.Y_HEADER = self.top.Y_PEDIA_PAGE
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+index c333777fa..36dd3583b 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTrait.py
+@@ -32,6 +32,7 @@ IS_SHOW_ZERO_TRAIT_PAIRS_LEFT = (gc.getDefineINT("SAS_SEVOPEDIA_TRAIT_SHOW_ZERO_
+ TRAIT_STATISTICS_CACHE = None
+ 
+ 
++
+ def precomputeTraitStatisticsCache():
+ 	# Precompute and cache trait statistics data. Called once from SevoPediaMain.placeTraits()
+ 	# on first Traits category click. Returns the cache dict.
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 3a8faf9f3..0bca3a106 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -449,9 +449,8 @@ class CvMainInterface:
+ 		# self.SIDE_PANELS_WIDTH = 297
+ 		self.SIDE_PANELS_WIDTH = 341
+ 
+-		# <!-- custom: fetching the define once may be cheaper (not sure). (GPT-5.2-Codex (summarized)) -->
+ 		# <!-- custom: initialize cheaply once. -->
+-		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here; might also be cheaper than fetching gc each call (not sure). (GPT-5.2-Codex (summarized)) -->
++		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here. (GPT-5.2-Codex (summarized)) -->
+ 		self.iBarExtraRows = None
+ 		self.iBarExtraRowsExtraManualAdjust = None
+ 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
+@@ -461,6 +460,8 @@ class CvMainInterface:
+ 		self.iCityBuildBarPinnedRow = None
+ 		# <!-- custom: add buttons in the city screen production queue elements. Credit: Claude Opus 4.5. (GPT-5.2-Codex (summarized)) -->
+ 		self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = None
++		# <!-- custom: optional UI convenience: hide the unit plot list bar while a city is selected to avoid overlapping with multi-row build bars. (ChatGPT-5.2 Thinking) -->
++		self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION = None
+ 
+ 
+ 
+@@ -1619,12 +1620,14 @@ class CvMainInterface:
+ 		xResolution = self.xResolution
+ 		yResolution = self.yResolution
+ 
+-		# <!-- custom: compute cheaply once that fetching the define once is cheaper -->
++		# <!-- custom: compute cheaply once so it is cheaper. Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
+ 		if self.iBarExtraRows is None:
+ 			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
+ 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
+ 		if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS is None:
+ 			self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS") > 0)
++		if self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION is None:
++			self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION") > 0)
+ 
+ 		lTop = gRect("Top")
+ 
+@@ -3019,6 +3022,19 @@ class CvMainInterface:
+ 		screen = self.screen
+ 		self.updatePlotListButtons_Hide(screen)
+ 		self.updatePlotListButtons_Common(screen)
++
++		# <!-- custom: optionally hide the unit plot list bar only while a city is selected (ChatGPT-5.2 Thinking) -->
++		# This avoids overlap when the city build bar is configured to show extra rows.
++		if (self.IS_SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION and CyInterface().isCitySelection()):
++			# Make sure any navigation arrows are hidden too (they are shown only in the draw methods).
++			screen.hide("PlotListMinus")
++			screen.hide("PlotListPlus")
++			screen.hide(self.PLE.PLOT_LIST_MINUS_NAME)
++			screen.hide(self.PLE.PLOT_LIST_PLUS_NAME)
++			screen.hide(self.PLE.PLOT_LIST_UP_NAME)
++			screen.hide(self.PLE.PLOT_LIST_DOWN_NAME)
++			return 0
++
+ # BUG - draw methods
+ 		#sDrawMethod = self.DRAW_METHODS[PleOpt.getDrawMethod()]
+ 		# <advc.069> Replacing the above (getDrawMethod removed)
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index 3fdec6e5b..381b3ec1c 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -146,7 +146,9 @@ class CvMilitaryAdvisor:
+ 		# Position: Screen Height - Bottom Panel - Bar Height - Padding
+ 		self.Y_GREAT_GENERAL_BAR = self.H_SCREEN - 55 - self.H_GREAT_GENERAL_BAR - 15
+ 
+-		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = None
++		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it doesn't work in many ingame py file (tech chooser, main interface for those i tried), so use safer pattern reliably rather -->
++		self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
++
+ 
+ 
+ 	def getScreen(self):
+@@ -166,10 +168,6 @@ class CvMilitaryAdvisor:
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
+ 
+-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
+-		if self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS is None:
+-			self.IS_SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS = (gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_UNIT_COMBATS_UNITS_BUTTONS") > 0)
+-
+ 		self.EXIT_TEXT = u"<font=4>" + localText.getText("TXT_KEY_PEDIA_SCREEN_EXIT", ()).upper() + "</font>"
+ 		self.TITLE = u"<font=4b>" + localText.getText("TXT_KEY_MILITARY_ADVISOR_TITLE", ()).upper() + "</font>"
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 5021c324c..8d263cfb7 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -193,7 +193,7 @@ class CvTechChooser:
+ 		# Create a new screen, called TechChooser, using the file CvTechChooser.py for input
+ 		screen = self.getScreen()
+ 
+-		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)) -->
++		# <!-- custom: cache the define lookup once. (GPT-5.2-Codex (summarized)). Note: done here rather than in init since it somehow doesn't work unlike in some other files -->
+ 		if self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE is None:
+ 			self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE = gc.getDefineINT("SAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE")
+ 		
+@@ -210,7 +210,7 @@ class CvTechChooser:
+ 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 153
+ 			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+ 		elif self.iSAS_CV_TECH_CHOOSER_HORIZONTAL_DEPTH_MODE == 2:
+-			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 1
++			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 105
+ 			# <!-- custom: other variables unchanged. (GPT-5.2-Codex (summarized)) -->
+ 		else:
+ 			self.W_RIGHT_SPACE_FOR_SCOREBOARD = 0
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index dadd67771..fc5b3f5d2 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -230,6 +230,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
+ 		<iDefineIntVal>-17</iDefineIntVal>
+ 	</Define>
++	<!-- custom: hide the unit bar (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_HIDE_UNIT_BAR_IN_CITY_SELECTION</DefineName>
++		<iDefineIntVal>1</iDefineIntVal>
++	</Define>
+ 	<!-- custom: add buttons city screen in the production queue's elements with the help of claude opus 4.5 -->
+ 	<Define>
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS</DefineName>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 33ff3805d..6bdc8c7ca 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -3071,4 +3071,12 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILD_FOREST_PRESERVE_HELP</Tag>
+ 		<English>[TAB]Order a worker-type unit to establish a forest preserve improvement on a suitable tile.</English>
+ 	</TEXT>
++
++
++
++	<!-- custom: simplify defense text to only show the char for concision and quicker read, was "%F1 Defense: %D2%%" -->
++	<TEXT>
++		<Tag>TXT_KEY_MAIN_CITY_DEFENSE</Tag>
++		<English>%F1: %D2%%</English>
++	</TEXT>
+ </Civ4GameText>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e3fcf9882..054f90b8c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -277,7 +277,7 @@ Note 2: Master–vassal(s) changes are intended to strengthen overall AI play by
+ - Did a similar rework of the **Info Screen** (F9 key) in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons, and the **Graph** Tab and possibly other tabs also show buttons (leader buttons as text, emojis, etc.) following the AdvCiv-SAS's [Images as Buttons](/README.md#images-as-buttons) approach, or add other information (turn numbers in the Graph tab, etc.).
+ - Beautified the **Victory Screen** (F8 key) in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py): **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)).
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** (tunable) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
++- Enhanced the **City Screen**: added a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and (Requires AdvCiv-SAS 5361+) **optionally hide the unit bar** (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels** (that now display more information). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [City Screen rework](/README.md#city-screen-rework).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. Players can **tune the advisor's width (4 different options)** in [GlobalDefines_advciv_sas.xml](/Assets/XML/GlobalDefines_advciv_sas.xml). See [Customizable technology advisor width](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md#customizable-technology-advisor-width).
+ - (Requires AdvCiv-SAS 5319+) **Inverted BUG Options** for the **Technology Advisor** and the **Religious Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG b/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG
+index b7ae451e0..29f57ba18 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG and b/_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG
+index fc61b6024..c1281c658 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG
+index 8457534bf..a3707f2be 100644
+Binary files a/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG and b/_1_AdvCiv-SAS/Images/ui_other/0.400_city_screen (2).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=12 embeddedFiles=12 omittedFiles=0 embeddedPatchBytes=23597

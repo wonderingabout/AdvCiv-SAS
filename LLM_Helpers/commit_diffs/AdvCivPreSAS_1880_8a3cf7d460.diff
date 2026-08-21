@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1880
+# Commit: 8a3cf7d4606d71b4dc5cca74a7103ff24f7c7355
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 535d9dc6d650ee20a43e0964e21ab08f058f648e
+# Title: AI may pay for peace even if it thinks that both sides want it
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/UWAI.h
+29	15	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/UWAI.h b/CvGameCoreDLL/UWAI.h
+index f7b09ab8d..e8550930c 100644
+--- a/CvGameCoreDLL/UWAI.h
++++ b/CvGameCoreDLL/UWAI.h
+@@ -47,7 +47,7 @@ public:
+ 	static int const preparationTimeLimitedNaval = 10;
+ 	static int const preparationTimeTotal = 15;
+ 	static int const preparationTimeTotalNaval = 20;
+-	// Modifier for all AI payments for peace
++	// Modifier for any AI payments for peace
+ 	static int const reparationsAIPercent = 50;
+ 	/*  Modifier for human payments for peace, i.e what the AI asks a human to pay
+ 		(no modifier for brokering, i.e. 100%) */
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 150c1fe73..43c7e5eec 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1532,29 +1532,34 @@ int UWAI::Team::endWarVal(TeamTypes enemyId) const {
+ 		return 0;
+ 	// Really just utility given how peaceThreshold is computed for humans
+ 	int humanUtility = human.uwai().reluctanceToPeace(ai.getID(), false);
+-	// Neither side pays if both want peace and the AI wants it more than the human
+-	if(humanUtility <= 0 && aiReluct <= humanUtility)
++	/*	Neither side pays if both want peace and the AI wants it
++		more badly than the human - but not far more badly. */
++	if(humanUtility <= 0 && aiReluct < humanUtility && aiReluct >= 2 * humanUtility)
+ 		return 0;
+ 	double reparations = 0;
+-	if(humanUtility > 0 && aiReluct < 0) {
++	// Only AI wants to end the more or AI wants to end it much more badly
++	if(aiReluct < 0 && (humanUtility >= 0 || aiReluct < 2 * humanUtility)) {
+ 		// Human pays nothing if AI pays
+ 		if(agentHuman)
+ 			return 0;
++		if(humanUtility >= 0) {
++			// Rely more on war utility of the AI side than on human war utility
++			reparations = 0.5 * (std::min(-aiReluct, humanUtility) - aiReluct);
++		}
++		// Both negative: A rather symbolic payment - unless the war is disastrous for the AI
++		else reparations = humanUtility - 0.5 * aiReluct;
+ 		/*  What if human declares war, but never sends units, although we believe
+ 			that it would hurt us and benefit them (all things considered)?
+ 			Then we're probably wrong somewhere and shouldn't trust our
+ 			utility computations. */
+-		double wsAdjustment = 1;
+ 		if(ai.AI_getMemoryCount(human.getID(), MEMORY_DECLARED_WAR) > 0 &&
+ 				ai.getNumCities() > 0) {
+ 			int wsDelta = std::max(0, human.AI_getWarSuccess(ai.getID()) -
+ 					ai.AI_getWarSuccess(human.getID()));
+-			wsAdjustment = std::min(1.0, (4.0 * wsDelta) /
++			double wsAdjustment = std::min(1.0, (4.0 * wsDelta) /
+ 					(GC.getWAR_SUCCESS_CITY_CAPTURING() * ai.getNumCities()));
++			reparations *= wsAdjustment;
+ 		}
+-		// Rely more on war utility of the AI side than on human war utility
+-		reparations = 0.5 * (std::min(-aiReluct, humanUtility) - aiReluct) *
+-				wsAdjustment;
+ 		reparations = ai.uwai().reparationsToHuman(reparations);
+ 		reparations *= UWAI::reparationsAIPercent / 100.0;
+ 	}
+@@ -1585,9 +1590,7 @@ int UWAI::Team::endWarVal(TeamTypes enemyId) const {
+ 			double greedFactor = 0.05;
+ 			if(aiReluct > 0)
+ 				greedFactor += 0.1;
+-			int delta = -humanUtility;
+-			if(aiReluct < 0)
+-				delta = aiReluct - humanUtility;
++			int delta = std::min(0, aiReluct) - humanUtility;
+ 			FAssert(delta > 0);
+ 			// Conversion based on human's economy
+ 			reparations += greedFactor * human.uwai().utilityToTradeVal(delta);
+@@ -1699,10 +1702,21 @@ double UWAI::Team::reparationsToHuman(double u) const {
+ 		be less generous with humans */
+ 	double const cap = (4 * maxReparations) / 5;
+ 	/*  If utility for reparations is above the cap, we become less
+-		willing to pay b/c we don't believe that the peace can last.
+-		Bottom reached at u=-140. */
+-	if(r > cap)
+-		r = std::max(cap / 4.0, cap - (r - cap) / 6.0);
++		willing to pay b/c we don't believe that the peace can last. */
++	if(r > cap) {
++		double const bottom = cap / 4.0;
++		double const gradient = -1/6.0;
++		double delta = (r - cap);
++		/*	Decreasing linearly from cap to bottom seems a bit too
++			steep for small delta. Choose an exponent and divisor
++			so that the delta for which r reaches the bottom
++			remains unchanged (fixpoint). */
++		double const deltaBottom = (-1 / gradient) * (cap - bottom);
++		double const div = 3;
++		double const exponent = std::log(deltaBottom * div) / std::log(deltaBottom);
++		delta = std::pow(delta, exponent) / div;
++		r = std::max(bottom, cap + delta * gradient);
++	}
+ 	// Trade value based on our economy
+ 	return utilityToTradeVal(r);
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=4463

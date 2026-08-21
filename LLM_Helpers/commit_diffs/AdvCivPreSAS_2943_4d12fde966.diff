@@ -1,0 +1,68 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2943
+# Commit: 4d12fde966633e6c3d5da2a43cd0c9ec8b3e9d5e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fb49f50665bbbb4cc0765b6869dd890e0656c6f8
+# Title: Tweak UWAI prediction of siege outcomes
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	6	CvGameCoreDLL/InvasionGraph.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index e9edbeeed..a88c038a4 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -1242,14 +1242,25 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		defendingArmyPow = (targetCavPow + (targetArmyPow - targetCavPow) *
+ 				powerCorrect(1 + tileBonus + armyModDef)) * confDef *
+ 				defArmyPortion;
+-	double defenderPow = localGarrisonPow + ralliedGarrisonPow
+-			+ defendingArmyPow;
++	double garrisonPow = localGarrisonPow + ralliedGarrisonPow;
++	/*	The way that attacking and defending units get paired by the combat system
++		generally gives the defender an advantage. This adjustment rather underestimates
++		that factor I think. It wasn't in place at all until AdvCiv 1.0; don't want to
++		go overboard with it now. advc.159 adds similar code to
++		CvPlayerAI::AI_localDefenceStrength.*/
++	double powFromDefAdvantage = garrisonPow / 8;
++	// A stack of just garrisons is going to lack in (rock-paper-scissors) diversity
++	garrisonPow = std::min(garrisonPow, defendingArmyPow / 3);
++	if (canSoften)
++		powFromDefAdvantage /= 1.55;
++	garrisonPow += powFromDefAdvantage;
++	double defenderPow = garrisonPow + defendingArmyPow;
+ 	report.log("City defender power: %d (%d from local garrisons, "
+ 			   "%d from rallied garrisons, %d from retreated army"
+-			   " (%d percent))",
++			   " (%d percent)), %d from defender advantage)"",
+ 			::round(defenderPow), ::round(localGarrisonPow),
+ 			::round(ralliedGarrisonPow), ::round(defendingArmyPow),
+-			::round(100 * defArmyPortion));
++			::round(100 * defArmyPortion), ::round(powFromDefAdvantage));
+ 	report.log("Besieger power: %d", ::round(armyPowMod));
+ 	double powRatio = armyPowMod / std::max(1.0, defenderPow);
+ 	double threat = powRatio;
+@@ -1303,8 +1314,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 			to account (at least a bit) for the possibility of losing the city. */
+ 		r.reducePower(defender.id, HOME_GUARD, guardPowUnmodified * 0.75 * threat);
+ 		// Few losses for defending army
+-		if(defenderOutnumbered &&
+-				armyPowMod > localGarrisonPow + ralliedGarrisonPow) {
++		if(defenderOutnumbered && armyPowMod > garrisonPow) {
+ 			double lossesDefArmy = targetArmyPow * defArmyPortion * 0.50 * threat;
+ 			r.reducePower(defender.id, ARMY, lossesDefArmy);
+ 			if(targetArmyPow > 0.5)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2410

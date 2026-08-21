@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 951
+# Commit: b7bca4a02495c1417cf6d30c6cf55a667927bcf2
+# History segment: K-Mod history
+# Parent used for diff: d77a157e705c7de972e7677cbf36eae2db0bd778
+# Title: Implemented some basic logging of combat odds and outcomes.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+16	0	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 984e6dbd2..7a30695e7 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -1114,9 +1114,16 @@ void CvUnit::updateAirCombat(bool bQuick)
+ 	}
+ }
+ 
++//#define LOG_COMBAT_OUTCOMES // K-Mod -- this makes the game log the odds and outcomes of every battle, to help verify the accuracy of the odds calculation.
++
+ // K-Mod. I've edited this function so that it handles the battle planning internally rather than feeding details back to the caller.
+ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ {
++#ifdef LOG_COMBAT_OUTCOMES
++	int iLoggedOdds = getCombatOdds(this, pDefender);
++	iLoggedOdds += (1000 - iLoggedOdds)*withdrawalProbability()/100;
++#endif
++
+ 	// K-Mod. Initialize battle info.
+ 	// Note: kBattle is only relevant if we are going to show the battle animation.
+ 	CvBattleDefinition kBattle;
+@@ -1297,6 +1304,15 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
+ 			gDLL->getEntityIFace()->AddMission(&kBattle);
+ 		}
+ 	}
++
++#ifdef LOG_COMBAT_OUTCOMES
++	if (!isBarbarian() && !pDefender->isBarbarian()) // don't log barb battles, because they have special rules.
++	{
++		TCHAR message[20];
++		_snprintf(message, 20, "%.2f\t%d\n", (float)iLoggedOdds/1000, isDead() ? 0 : 1);
++		gDLL->logMsg("combat.txt", message ,false, false);
++	}
++#endif
+ }
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1393

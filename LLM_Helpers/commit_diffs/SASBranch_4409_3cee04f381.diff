@@ -1,0 +1,64 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4409
+# Commit: 3cee04f381179510a89de38a98a9590bdca829c8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 607837e3b1abb0ec5e4577c98f2b5391ed19d453
+# Title: Tweak to reparations demanded from AI from human (UWAI)
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+16	3	CvGameCoreDLL/UWAIAgent.cpp
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/UWAIAgent.cpp b/CvGameCoreDLL/UWAIAgent.cpp
+index 462c954a9..c7a61b409 100644
+--- a/CvGameCoreDLL/UWAIAgent.cpp
++++ b/CvGameCoreDLL/UWAIAgent.cpp
+@@ -1983,6 +1983,21 @@ int UWAI::Team::endWarVal(TeamTypes eEnemy) const
+ 						r = iMaxHumanCanPay;
+ 					}
+ 				}
++				// Demand more if they have a lot. Also to avoid asking for a pittance.
++				else if (r > 0)
++				{
++					scaled const rMaxExtraMult = fixp(1.5);
++					scaled const rAssetsImpact = fixp(0.25);
++					// Recompute because earlier calculation had stopped at the current r
++					kAI.uwai().leaderUWAI().canTradeAssets(
++							(r * rMaxExtraMult / rAssetsImpact).ceil(),
++							kHuman.getLeaderID(), &iMaxHumanCanPay, true);
++					if (iMaxHumanCanPay > r)
++					{
++						r *= 1 + scaled::min(rMaxExtraMult,
++								rAssetsImpact * iMaxHumanCanPay / r);
++					}
++				}
+ 			}
+ 		}
+ 	}
+@@ -2633,9 +2648,7 @@ bool UWAI::Player::isPeaceDealPossible(PlayerTypes eHuman) const
+ 
+ 
+ bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman,
+-	int* piAvailableTradeVal,
+-	// (advc.ctr: Now unused b/c the AI will always accept cities as payment)
+-	bool bIgnoreCities) const
++	int* piAvailableTradeVal, bool bIgnoreCities) const
+ {
+ 	if (piAvailableTradeVal != NULL)
+ 		*piAvailableTradeVal = iTargetTradeVal;
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=1 omittedFiles=1 embeddedPatchBytes=1308

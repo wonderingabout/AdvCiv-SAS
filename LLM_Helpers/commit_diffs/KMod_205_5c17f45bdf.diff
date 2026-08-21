@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 205
+# Commit: 5c17f45bdfe3054ee6788d970c73d1fd010c539f
+# History segment: K-Mod history
+# Parent used for diff: 2099a04811a5d7106868a4c48c2dda1230e88b44
+# Title: Big espionage / espionage economy now uses the average of the 3 minimum modifier cities, rather than the average of all cities (for each team).
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	5	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 21f60d881..95fa6055b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -14330,21 +14330,28 @@ void CvPlayerAI::AI_doCommerce()
+ 						CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+ 						if (kLoopPlayer.getTeam() == iTeam && kLoopPlayer.getNumCities() > 0)
+ 						{
++							std::vector<int> cityModifiers;
+ 							CvCity* pLoopCity;
+ 							int iLoop;
+-							int iModifier = 0;
+ 							int iTargetCities = 0;
+ 							for (pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
+ 							{
+ 								if (pLoopCity->area() != NULL && AI_isPrimaryArea(pLoopCity->area()))
+ 								{
+-									iTargetCities++;
+-									iModifier += getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, (PlayerTypes)iPlayer, pLoopCity->plot());
++									cityModifiers.push_back(getEspionageMissionCostModifier(NO_ESPIONAGEMISSION, (PlayerTypes)iPlayer, pLoopCity->plot()));
+ 								}
+ 							}
+-							if (iTargetCities > 0)
++							if (cityModifiers.size() > 0)
+ 							{
+-								iModifier /= iTargetCities; // average modifier of targetable cities
++								// Get the average of the lowest 3 cities.
++								int iSampleSize = std::min(3, (int)cityModifiers.size());
++								std::partial_sort(cityModifiers.begin(), cityModifiers.begin()+iSampleSize, cityModifiers.end());
++								int iModifier = 0;
++								for (std::vector<int>::iterator it = cityModifiers.begin(); it != cityModifiers.begin()+iSampleSize; ++it)
++								{
++									iModifier += *it;
++								}
++								iModifier /= iSampleSize;
+ 
+ 								if (iModifier < iMinModifier ||
+ 									(iModifier == iMinModifier && iAttitude < GET_TEAM(getTeam()).AI_getAttitudeVal(eMinModTeam)))
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1803

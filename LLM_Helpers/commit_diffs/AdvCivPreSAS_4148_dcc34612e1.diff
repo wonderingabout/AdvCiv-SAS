@@ -1,0 +1,102 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4148
+# Commit: dcc34612e117daf045028f70389ece2129e2c6e5
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 03366689c93022857d8f77229fe8a2bbd8fd2b49
+# Title: Fix AI issues caused by disabled Culture victory
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+19	3	CvGameCoreDLL/CvGame.cpp
+2	5	CvGameCoreDLL/CvGame.h
+6	4	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c36b60399..157cb6550 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9744,12 +9744,28 @@ void CvGame::setVoteSourceReligion(VoteSourceTypes eVoteSource,
+ 	}
+ }
+ 
++// advc.001: For culturalVictoryNumCultureCities. Infinity that doesn't easily overflow.
++namespace
++{
++	enum CultVictCityThresh
++	{
++		CULT_VICT_CITY_TRESH_INFINITE = arithm_traits<short>::max,
++	};
++}
++
++
++int CvGame::culturalVictoryNumCultureCities() const
++{
++	//return m_iNumCultureVictoryCities;
++	/*	advc.001: Easier to return infinity here than to ensure that all
++		call locations check for culturalVictoryValid */
++	return (culturalVictoryValid() ? m_iNumCultureVictoryCities : CULT_VICT_CITY_TRESH_INFINITE);
++}
++
+ 
+ CultureLevelTypes CvGame::culturalVictoryCultureLevel() const
+ {
+-	if (m_iNumCultureVictoryCities > 0)
+-		return m_eCultureVictoryCultureLevel;
+-	return NO_CULTURELEVEL;
++	return (culturalVictoryValid() ? m_eCultureVictoryCultureLevel : NO_CULTURELEVEL);
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 62b304a5f..9169de695 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -876,13 +876,10 @@ public:
+ 	void changeShrineBuilding(BuildingTypes eBuilding, ReligionTypes eReligion, bool bRemove = false);*/
+ 
+ 	bool culturalVictoryValid() const
+-	{
++	{	// (advc, note: Important not to call culturalVictoryNumCultureCities here.)
+ 		return (m_iNumCultureVictoryCities > 0);
+ 	}
+-	int culturalVictoryNumCultureCities() const
+-	{
+-		return m_iNumCultureVictoryCities;
+-	}
++	int culturalVictoryNumCultureCities() const;
+ 	CultureLevelTypes culturalVictoryCultureLevel() const;
+ 	int getCultureThreshold(CultureLevelTypes eLevel) const;
+ 	int freeCityCultureFromTrait(TraitTypes eTrait) const; // advc.908b
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 417acfc6b..1bc03fdd9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -2450,10 +2450,12 @@ void CvPlayerAI::AI_updateCommerceWeights()
+ 	int const iVictoryCities = kGame.culturalVictoryNumCultureCities();
+ 
+ 	// Use culture slider to decide whether a human player is going for cultural victory
+-	bool const bUseCultureRank = (AI_atVictoryStage(AI_VICTORY_CULTURE2) ||
+-			getCommercePercent(COMMERCE_CULTURE) >= 40);
+-	bool const bC3 = (AI_atVictoryStage(AI_VICTORY_CULTURE3) ||
+-			getCommercePercent(COMMERCE_CULTURE) >= 70);
++	bool const bUseCultureRank = ((AI_atVictoryStage(AI_VICTORY_CULTURE2) ||
++			getCommercePercent(COMMERCE_CULTURE) >= 40) &&
++			kGame.culturalVictoryValid()); // advc.001
++	bool const bC3 = ((AI_atVictoryStage(AI_VICTORY_CULTURE3) ||
++			getCommercePercent(COMMERCE_CULTURE) >= 70) &&
++			bUseCultureRank); // advc.001
+ 	bool const bWarPlans = AI_isFocusWar(); // advc.105
+ 			//GET_TEAM(getTeam()).getAnyWarPlanCount(true) > 0;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=2893

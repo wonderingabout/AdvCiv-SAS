@@ -1,0 +1,474 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5991
+# Commit: b07682a2d1b7406f77723507d6890db5baaa92ad
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fe270ae40c771580a59e18f8599dcc437afb4bba
+# Title: Reduce K-Mod AI one-time corporation-founder specialist pressure on recurring specialist selection - Add BBAI diagnostics for the sources and strategic conte...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+5	0	Assets/XML/GlobalDefines_advciv_sas.xml
+25	2	CvGameCoreDLL/CvCityAI.cpp
+70	1	CvGameCoreDLL/CvPlayerAI.cpp
+49	10	CvGameCoreDLL/CvUnitAI.cpp
+20	0	_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+1	0	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a9c9e1ef0..8179ccc60 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -1136,6 +1136,11 @@ Created as part of AdvCiv-SAS improvements
+ 		<DefineName>SAS_AI_GREAT_PERSON_MAX_GOLDEN_AGE_WAIT_TURNS_NORMAL</DefineName>
+ 		<iDefineIntVal>12</iDefineIntVal>
+ 	</Define>
++	<!-- custom: Corporation-founding buildings can be extremely valuable as one-shot Great Person actions, but feeding the full building value into recurring Great Person point weights can make ordinary citizens overproduce that Great Person type for many turns. This keeps the full settled-specialist baseline, then preserves this percent of only the corporation-founder excess above that baseline when calculating Great Person weights. 100 restores old behavior; 50 halves only the excess; 0 caps corporation-founder building value at the settled-specialist baseline. Actual Great Person action choice is unchanged. (ChatGPT-5.5 + GPT-5.5 review) -->
++	<Define>
++		<DefineName>SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT</DefineName>
++		<iDefineIntVal>50</iDefineIntVal>
++	</Define>
+ 	<!-- custom: Base AdvCiv can park ready city-attack stacks because enough units have upgrade potential, even when no unit can actually upgrade now. Allow important ready stacks with close targets to skip that wait: attacking can use the existing military advantage before enemies catch up, spend obsolete units so they no longer need upgrades or future upkeep, and capture cities that increase economy, unit support, and growth. See KI#156. (ChatGPT-5.5 + GPT-5.5); also if we wait our units risk becoming obsolete later so better use them now while they are strong and available. -->
+ 	<Define>
+ 		<DefineName>SAS_AI_ATTACK_CITY_SKIP_UPGRADE_WAIT_ENABLE</DefineName>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index b03f90734..563b1d4da 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -343,6 +343,29 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
+ 		if (iArtistCount > 0 || AI_getCultureVictoryInvestmentPercent() > 0)
+ 		{
+ 			CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
++			// <!-- custom: Many assigned Artists can still produce another Great Person when earlier mixed GPP dominate the pool. Log the projected Great Artist share and its accumulated/current rate before deciding whether corporation-founder specialist pressure is excessive. (GPT-5.5) -->
++			UnitClassTypes const eGreatArtistClass = (UnitClassTypes)GC.getInfo(eArtist).getGreatPeopleUnitClass();
++			UnitTypes const eGreatArtist = (eGreatArtistClass == NO_UNITCLASS ? NO_UNIT : kOwner.getCivilization().getUnit(eGreatArtistClass));
++			FAssert(eGreatArtist != NO_UNIT);
++			int iGreatArtistProgress = -1;
++			int iGreatArtistRate = -1;
++			int iGreatArtistProjectedPercent = -1;
++			if (eGreatArtist != NO_UNIT)
++			{
++				iGreatArtistProgress = getGreatPeopleUnitProgress(eGreatArtist);
++				iGreatArtistRate = getGreatPeopleUnitRate(eGreatArtist);
++				iGreatArtistProjectedPercent = 0;
++				std::vector<std::pair<UnitTypes, int> > aeGreatPersonProjection;
++				GPProjection(aeGreatPersonProjection);
++				for (std::vector<std::pair<UnitTypes, int> >::const_iterator it = aeGreatPersonProjection.begin(); it != aeGreatPersonProjection.end(); ++it)
++				{
++					if (it->first == eGreatArtist)
++					{
++						iGreatArtistProjectedPercent = it->second;
++						break;
++					}
++				}
++			}
+ 			int const iGrowthValue = AI_growthValuePerFood();
+ 			int const iFoodSurplus = getYieldRate(YIELD_FOOD) - foodConsumption();
+ 			int iForcedSpecialistCount = 0;
+@@ -364,8 +387,8 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
+ 				}
+ 			}
+ 			int const iArtistToBestPlotValue = (iArtistCount <= 0 || pBestUnworkedPlot == NULL ? MIN_INT : AI_jobChangeValue(std::make_pair(false, (int)getCityPlotIndex(*pBestUnworkedPlot)), std::make_pair(true, (int)eArtist), false, false, iGrowthValue));
+-			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d focusWar=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
+-					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), kOwner.AI_isFocusWar(), iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), getProductionName(), (pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
++			logBBAI("CULTURE_ARTIST_EVALUATION turn=%d player=%d %S city=%S cityId=%d culture1=%d culture2=%d culture3=%d culture4=%d cultureVictoryRank=%d cultureInvestmentPercent=%d cultureWeight=%d culturePressure=%d focusWar=%d artists=%d forcedArtists=%d specialists=%d forcedSpecialists=%d population=%d workingPopulation=%d freeSpecialists=%d foodSurplus=%d happySurplus=%d healthSurplus=%d greatPeopleProgress=%d greatPeopleRate=%d greatPeopleModifier=%d greatPeopleTurnsLeft=%d greatArtistProgress=%d greatArtistRate=%d greatArtistProjectedPercent=%d production=%S bestUnworkedPlotValue=%d artistToBestPlotValue=%d bestUnworkedPlotX=%d bestUnworkedPlotY=%d bestUnworkedPlotFood=%d bestUnworkedPlotProduction=%d bestUnworkedPlotCommerce=%d",
++					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationShortDescription(), getName().GetCString(), getID(), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE1), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE2), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3), kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4), AI_getCultureVictoryRank(), AI_getCultureVictoryInvestmentPercent(), AI_getCultureWeight(), AI_culturePressureFactor(), kOwner.AI_isFocusWar(), iArtistCount, getForceSpecialistCount(eArtist), getSpecialistPopulation(), iForcedSpecialistCount, getPopulation(), getWorkingPopulation(), totalFreeSpecialists(), iFoodSurplus, happyLevel() - unhappyLevel(0), goodHealth() - badHealth(), getGreatPeopleProgress(), getGreatPeopleRate(), getTotalGreatPeopleRateModifier(), GPTurnsLeft(), iGreatArtistProgress, iGreatArtistRate, iGreatArtistProjectedPercent, getProductionName(), (pBestUnworkedPlot == NULL ? -1 : iBestUnworkedPlotValue), (iArtistToBestPlotValue == MIN_INT ? -1 : iArtistToBestPlotValue), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getX()), (pBestUnworkedPlot == NULL ? -1 : pBestUnworkedPlot->getY()), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_FOOD)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_PRODUCTION)), (pBestUnworkedPlot == NULL ? 0 : pBestUnworkedPlot->getYield(YIELD_COMMERCE)));
+ 			FOR_EACH_ENUM(Specialist)
+ 			{
+ 				int const iAssignedCount = getSpecialistCount(eLoopSpecialist);
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index a24e03ab5..1442cce98 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -28166,6 +28166,18 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 	if (isHuman())
+ 		return; // Humans can use their own reasoning for choosing specialists
+ 
++	// <!-- custom: BBAI culture diagnostics found high Artist counts outside cultural-victory plans, but the final Great Person weight did not show whether K-Mod derived it from settling the Great Person or constructing a special building.
++	// At culture log level 3, retain those intermediate values and their winning sources for diagnosis; this logging itself does not change the weights. (ChatGPT-5.5 + GPT-5.5) -->
++	bool const bLogCultureGreatPersonWeights = (gCultureLogLevel >= 3);
++	// <!-- custom: Corporation-founding buildings are one-shot Great Person actions, but K-Mod feeds their full building value into recurring Great Person point weights.
++	// Keep the corporation founder preference, but damp only the excess above the best settled-specialist value so ordinary specialist assignment is not dominated by one future corporation founder. (ChatGPT-5.5 + GPT-5.5 review) -->
++	static int const iSASCorporationFounderExcessPercent = range(GC.getDefineINT("SAS_AI_GREAT_PERSON_WEIGHT_CORPORATION_FOUNDER_EXCESS_PERCENT"), 0, 100);
++	std::map<UnitClassTypes, int> sasSettledGreatPersonValues;
++	std::map<UnitClassTypes, int> sasBuildingGreatPersonOriginalValues;
++	std::map<UnitClassTypes, int> sasBuildingGreatPersonValues;
++	std::map<UnitClassTypes, SpecialistTypes> sasSettledGreatPersonSources;
++	std::map<UnitClassTypes, BuildingTypes> sasBuildingGreatPersonSources;
++
+ 	// // <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+ 	// // <!-- custom: code/performance optimization: hoist -->
+ 	// static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)GC.getDEFAULT_SPECIALIST();
+@@ -28203,6 +28215,8 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 			continue; // don't try to evaluate combat units.
+ 
+ 		int iValue = 0;
++		int iBestSettledValue = 0;
++		SpecialistTypes eBestSettledSpecialist = NO_SPECIALIST;
+ 		// value of joining a city as a super-specialist
+ 		FOR_EACH_ENUM2(Specialist, eSuperSpecialist)
+ 		{
+@@ -28213,12 +28227,21 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 				/*	Note, specialistValue is roughly 400x the commerce it provides.
+ 					So /= 4 to make it 100x. */
+ 				int iTempValue = pLoopCity->AI_permanentSpecialistValue(eSuperSpecialist) / 4;
++				if (iTempValue > iBestSettledValue)
++				{
++					iBestSettledValue = iTempValue;
++					if (bLogCultureGreatPersonWeights)
++						eBestSettledSpecialist = eSuperSpecialist;
++				}
+ 				iValue = std::max(iValue, iTempValue);
+ 			}
+ 		} // <advc.opt>
+ 		int const iCurrentEra = getCurrentEra();
+ 		int const iCurrentGP = AI_totalUnitAIs(kGP.getDefaultUnitAIType());
+ 		// </advc.opt>
++		int iBestBuildingOriginalValue = 0;
++		int iBestBuildingValue = 0;
++		BuildingTypes eBestBuilding = NO_BUILDING;
+ 		// value of building something.
+ 		if (kGP.isAnyBuildings()) // advc.003t
+ 		{
+@@ -28253,7 +28276,16 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 
+ 						// reduce the value if we already have great people of this type
+ 						iTempValue /= 1 + iCurrentGP;
++						int const iOriginalTempValue = iTempValue;
++						if (GC.getInfo(eBuilding).getFoundsCorporation() != NO_CORPORATION && iSASCorporationFounderExcessPercent < 100 && iTempValue > iBestSettledValue)
++							iTempValue = iBestSettledValue + (iTempValue - iBestSettledValue) * iSASCorporationFounderExcessPercent / 100;
+ 
++						if (bLogCultureGreatPersonWeights && iTempValue > iBestBuildingValue)
++						{
++							iBestBuildingOriginalValue = iOriginalTempValue;
++							iBestBuildingValue = iTempValue;
++							eBestBuilding = eBuilding;
++						}
+ 						iValue = std::max(iValue, iTempValue);
+ 					}
+ 				}
+@@ -28264,6 +28296,14 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 		// store the value in the weights map - but remember, this isn't yet the actual weight.
+ 		FAssert(iValue >= 0);
+ 		m_GreatPersonWeights[eGreatPersonClass] = iValue;
++		if (bLogCultureGreatPersonWeights)
++		{
++			sasSettledGreatPersonValues[eGreatPersonClass] = iBestSettledValue;
++			sasBuildingGreatPersonOriginalValues[eGreatPersonClass] = iBestBuildingOriginalValue;
++			sasBuildingGreatPersonValues[eGreatPersonClass] = iBestBuildingValue;
++			sasSettledGreatPersonSources[eGreatPersonClass] = eBestSettledSpecialist;
++			sasBuildingGreatPersonSources[eGreatPersonClass] = eBestBuilding;
++		}
+ 	}
+ 
+ 	// find the mean value.
+@@ -28283,14 +28323,43 @@ void CvPlayerAI::AI_updateGreatPersonWeights()
+ 	int const iMin = (AI_getFlavorValue(FLAVOR_SCIENCE) == 0 ? 50 :
+ 			35 - AI_getFlavorValue(FLAVOR_SCIENCE));
+ 	FAssert(iMin > 10 && iMin < 95);
++	int iCultureStage = -1;
++	int iSpaceStage = -1;
++	int iConquestStage = -1;
++	int iDominationStage = -1;
++	int iDiplomacyStage = -1;
++	if (bLogCultureGreatPersonWeights)
++	{
++		AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
++		iCultureStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CULTURE1, AI_VICTORY_CULTURE2, AI_VICTORY_CULTURE3, AI_VICTORY_CULTURE4);
++		iSpaceStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_SPACE1, AI_VICTORY_SPACE2, AI_VICTORY_SPACE3, AI_VICTORY_SPACE4);
++		iConquestStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_CONQUEST1, AI_VICTORY_CONQUEST2, AI_VICTORY_CONQUEST3, AI_VICTORY_CONQUEST4);
++		iDominationStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DOMINATION1, AI_VICTORY_DOMINATION2, AI_VICTORY_DOMINATION3, AI_VICTORY_DOMINATION4);
++		iDiplomacyStage = getSASVictoryStageLevel(eVictoryStageHash, AI_VICTORY_DIPLOMACY1, AI_VICTORY_DIPLOMACY2, AI_VICTORY_DIPLOMACY3, AI_VICTORY_DIPLOMACY4);
++	}
+ 	// (smaller iMin means more focus on high-value specialists)
+ 	for (it = m_GreatPersonWeights.begin(); it != m_GreatPersonWeights.end(); ++it)
+ 	{
+-		int iValue = it->second;
++		int const iRawValue = it->second;
++		int iValue = iRawValue;
+ 		iValue = 100 * iValue / std::max(1, iMean);
+ 		//iValue = (40000 + 500 * iValue) / (800 + iValue);
+ 		iValue = (800*iMin + (9*100-8*iMin) * iValue) / (800 + iValue);
+ 		it->second = iValue;
++		if (bLogCultureGreatPersonWeights)
++		{
++			UnitClassTypes const eGreatPersonClass = it->first;
++			UnitTypes const eGreatPerson = getCivilization().getUnit(eGreatPersonClass);
++			CvUnitInfo const& kGreatPerson = GC.getInfo(eGreatPerson);
++			SpecialistTypes const eSettledSpecialist = sasSettledGreatPersonSources[eGreatPersonClass];
++			BuildingTypes const eBuilding = sasBuildingGreatPersonSources[eGreatPersonClass];
++			logBBAI("CULTURE_GREAT_PERSON_WEIGHT turn=%d player=%d %S greatPersonClass=%s greatPerson=%s settledSource=%s settledValue=%d buildingSource=%s buildingOriginalValue=%d buildingValue=%d rawValue=%d meanValue=%d normalizationMin=%d normalizedWeight=%d existingGreatPeople=%d cultureStage=%d spaceStage=%d conquestStage=%d dominationStage=%d diplomacyStage=%d focusWar=%d",
++					GC.getGame().getGameTurn(), getID(), getCivilizationShortDescription(), GC.getInfo(eGreatPersonClass).getType(), kGreatPerson.getType(),
++					(eSettledSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSettledSpecialist).getType()), sasSettledGreatPersonValues[eGreatPersonClass],
++					(eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), sasBuildingGreatPersonOriginalValues[eGreatPersonClass], sasBuildingGreatPersonValues[eGreatPersonClass],
++					iRawValue, iMean, iMin, iValue, AI_totalUnitAIs(kGreatPerson.getDefaultUnitAIType()),
++					iCultureStage, iSpaceStage, iConquestStage, iDominationStage, iDiplomacyStage, AI_isFocusWar());
++		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 7ad803b5a..a19db40b3 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -13,6 +13,7 @@
+ #include "CvInfo_Terrain.h"
+ #include "CvInfo_GameOption.h"
+ #include "CvInfo_Building.h" // advc.003x: Only needed for the special buildings that GP can construct
++#include "CvInfo_City.h" // <!-- custom: Great Artist decision diagnostics log specialist XML types. (GPT-5.5) -->
+ #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+ 
+ //#define FOUND_RANGE (7) // advc: unused
+@@ -62,6 +63,22 @@ static void logSASWorkerSeaMoveDetail(char const* szReason, CvUnitAI const& kUni
+ 		(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), iMissionQueue, kPlayer.AI_isAnyWaterDanger(kPlot), (pMissionPlot == NULL ? NO_PLAYER : pMissionPlot->getOwner()), szTargetBonus, szTargetImprovement, szTargetWorkingCity.GetCString(), (pTargetWorkingCity == NULL ? -1 : pTargetWorkingCity->getID()), (pMissionPlot == NULL ? 0 : kPlayer.AI_isAnyWaterDanger(*pMissionPlot)), iTargetMissionAIsSkipSelf, iTargetMissionAIsIncludingSelf);
+ }
+ 
++// <!-- custom: Great Person weights can favor Artists because of a valuable corporation-founding building, but the resulting Great Artist separately chooses among construction, settling, discovery, Golden Age, trade, and Great Work.
++// At culture log level 3, record that actual choice and all competing scores to reveal whether specialist weighting and eventual Great Artist use agree; keep this separate from broad unit logging. (ChatGPT-5.5 + GPT-5.5) -->
++static void logSASCultureGreatArtistDecision(char const* szAction, CvUnitAI const& kUnit, int iChoice, int iScoreThreshold, int iSlowValue, int iDiscoverValue, int iGoldenAgeValue, int iTradeValue, int iCultureValue, CvCity const* pTargetCity, CvPlot const* pMovePlot, SpecialistTypes eSpecialist, BuildingTypes eBuilding)
++{
++	CvGame const& kGame = GC.getGame();
++	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
++	CvSelectionGroupAI const* pGroup = kUnit.AI_getGroup();
++	CorporationTypes const eCorporation = (eBuilding == NO_BUILDING ? NO_CORPORATION : GC.getInfo(eBuilding).getFoundsCorporation());
++	int const iAge = kGame.getGameTurn() - kUnit.getGameTurnCreated();
++	int const iAgeNormal = 100 * iAge / std::max(1, kGame.getSpeedPercent());
++	logBBAI("CULTURE_GREAT_ARTIST_DECISION action=%s turn=%d player=%d %S unitId=%d age=%d ageNormal=%d plot=(%d,%d) choice=%d threshold=%d slow=%d discover=%d golden=%d trade=%d culture=%d targetCity=%S targetCityId=%d targetPlot=(%d,%d) movePlot=(%d,%d) specialist=%s building=%s corporation=%s missionAI=%d",
++			szAction, kGame.getGameTurn(), kUnit.getOwner(), kOwner.getCivilizationDescription(0), kUnit.getID(), iAge, iAgeNormal, kUnit.getX(), kUnit.getY(), iChoice, iScoreThreshold, iSlowValue, iDiscoverValue, iGoldenAgeValue, iTradeValue, iCultureValue,
++			(pTargetCity == NULL ? L"-" : pTargetCity->getName().GetCString()), (pTargetCity == NULL ? -1 : pTargetCity->getID()), (pTargetCity == NULL ? -1 : pTargetCity->getX()), (pTargetCity == NULL ? -1 : pTargetCity->getY()), (pMovePlot == NULL ? -1 : pMovePlot->getX()), (pMovePlot == NULL ? -1 : pMovePlot->getY()),
++			(eSpecialist == NO_SPECIALIST ? "NONE" : GC.getInfo(eSpecialist).getType()), (eBuilding == NO_BUILDING ? "NONE" : GC.getInfo(eBuilding).getType()), (eCorporation == NO_CORPORATION ? "NONE" : GC.getInfo(eCorporation).getType()), (pGroup == NULL ? NO_MISSIONAI : pGroup->AI_getMissionAIType()));
++}
++
+ // <!-- custom: Evaluate a first-city candidate's revealed non-home BFC with the shared potential-food score. Bonus-specific improvements count because unlike a generic Farm/Cottage choice they are the resource plot's intended development; water-bonus improvement food follows the shared Work Boat-access check (the candidate or another owned city borders the connected water area, or a connecting improvement already exists), and ocean-coastal candidates additionally assume the configured Harbor-class food building. Add one extra point for each citizen-unworkable plot: peaks and ice are not merely 0F but dead BFC slots, whereas an Oasis is citizen-workable and rich despite being worker-unimprovable. (GPT-5.5 + ChatGPT 5.5) -->
+ static void SAS_evaluateFirstCityBFCFoodEnvironment(CvPlot const& kCityPlot, PlayerTypes ePlayer, TeamTypes eTeam, int& iFoodBonuses, int& iFoodEnvironmentScore, int* piCitizenUnworkablePlots = NULL)
+ {
+@@ -7663,6 +7680,8 @@ void CvUnitAI::AI_generalMove()
+ void CvUnitAI::AI_greatPersonMove()
+ {
+ 	const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
++	bool const bLogCultureGreatArtistDecision = (gCultureLogLevel >= 3 && AI_getUnitAIType() == UNITAI_GREAT_ARTIST);
++	bool const bLogUnitGreatPersonDecision = (gUnitLogLevel > 2);
+ 
+ 	enum
+ 	{
+@@ -7678,6 +7697,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 	// 3) Attempt to carry out missions, starting with the highest value.
+ 
+ 	CvPlot* pBestPlot = NULL;
++	CvCityAI const* pBestCity = NULL;
+ 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
+ 	BuildingTypes eBestBuilding = NO_BUILDING;
+ 	int iBestValue = 1;
+@@ -7708,6 +7728,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					if (bLogCultureGreatArtistDecision) pBestCity = pLoopCity;
+ 					eBestSpecialist = eLoopSpecialist;
+ 					eBestBuilding = NO_BUILDING;
+ 				}
+@@ -7729,6 +7750,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					if (bLogCultureGreatArtistDecision) pBestCity = pLoopCity;
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
+ 				}
+@@ -7773,6 +7795,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 				{
+ 					iBestValue = iValue;
+ 					pBestPlot = &getPathEndTurnPlot();
++					if (bLogCultureGreatArtistDecision) pBestCity = pLoopCity;
+ 					iBestPathTurns = iPathTurns;
+ 					eBestBuilding = eBuilding;
+ 					eBestSpecialist = NO_SPECIALIST;
+@@ -7947,17 +7970,18 @@ void CvUnitAI::AI_greatPersonMove()
+ 			if (canDiscover(plot()))
+ 			{
+ 				getGroup()->pushMission(MISSION_DISCOVER);
+-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'discover' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eDiscoverTech).getDescription(), getName(0).GetCString(), rDiscoverValue.round(), iChoice);
++				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DISCOVER", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
++				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'discover' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), GC.getInfo(eDiscoverTech).getDescription(), getName(0).GetCString(), rDiscoverValue.round(), iChoice);
+ 				return;
+ 			}
+ 			break;
+ 
+ 		case GP_TRADE:
+ 			{
+-				MissionAITypes eOldMission = AI_getGroup()->AI_getMissionAIType(); // just used for the log message below
+ 				if (AI_doTradeMission(pBestTradePlot))
+ 				{
+-					if (gUnitLogLevel > 2) logBBAI("    %S %s 'trade mission' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), eOldMission == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iTradeValue, iChoice);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("TRADE_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestTradePlot == NULL ? NULL : pBestTradePlot->getPlotCity()), pBestTradePlot, NO_SPECIALIST, NO_BUILDING);
++					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'trade mission' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iTradeValue, iChoice);
+ 					return;
+ 				}
+ 				break;
+@@ -7965,10 +7989,11 @@ void CvUnitAI::AI_greatPersonMove()
+ 
+ 		case GP_CULTURE:
+ 			{
+-				MissionAITypes eOldMission = AI_getGroup()->AI_getMissionAIType(); // just used for the log message below
+ 				if (AI_doGreatWork(pBestCulturePlot))
+ 				{
+-					if (gUnitLogLevel > 2) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), eOldMission == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GREAT_WORK_OR_MOVE", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, (pBestCulturePlot == NULL ? NULL : pBestCulturePlot->getPlotCity()), pBestCulturePlot, NO_SPECIALIST, NO_BUILDING);
++					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
++					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
+ 					return;
+ 				}
+ 				break;
+@@ -7977,7 +8002,8 @@ void CvUnitAI::AI_greatPersonMove()
+ 		case GP_GOLDENAGE:
+ 			if (AI_goldenAge())
+ 			{
+-				if (gUnitLogLevel > 2) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
++				if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("GOLDEN_AGE", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
++				if (bLogUnitGreatPersonDecision) logBBAI("    %S chooses 'golden age' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), getName(0).GetCString(), iGoldenAgeValue, iChoice);
+ 				return;
+ 			}
+ 			else if (kOwner.AI_totalUnitAIs(AI_getUnitAIType()) < 2)
+@@ -8011,7 +8037,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 						// lets say 1% per turn.
+ 						iScoreThreshold = std::max(iScoreThreshold, it->first * (100 - iRelativeWaitTime) / 100);
+ 					}
+-					else if (gUnitLogLevel > 2)
++					else if (bLogUnitGreatPersonDecision)
+ 					{
+ 						logBBAI("    GP_GOLDEN_WAIT_CAP turn=%d player=%d %S unitId=%d unit=%S age=%d ageNormal=%d capNormal=%d golden=%d threshold=%d",
+ 								kGame.getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(), getName(0).GetCString(),
+@@ -8027,26 +8053,31 @@ void CvUnitAI::AI_greatPersonMove()
+ 				break;
+ 			if (eBestSpecialist != NO_SPECIALIST)
+ 			{
+-				if (gUnitLogLevel > 2) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY?"continues" :"chooses", getName(0).GetCString(), iSlowValue, iChoice);
++				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'join' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_JOIN_CITY?"continues" :"chooses", getName(0).GetCString(), iSlowValue, iChoice);
+ 				if (at(*pBestPlot))
+ 				{
+ 					getGroup()->pushMission(MISSION_JOIN, eBestSpecialist);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("JOIN", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
+ 					return;
+ 				}
+ 				else
+ 				{
+ 					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, MISSIONAI_JOIN_CITY);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("MOVE_TO_JOIN", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, NO_BUILDING);
+ 					return;
+ 				}
+ 			}
+ 			if (eBestBuilding != NO_BUILDING)
+ 			{
+ 				MissionAITypes eMissionAI = canConstruct(pBestPlot, eBestBuilding) ? MISSIONAI_CONSTRUCT : MISSIONAI_HURRY;
+-				if (gUnitLogLevel > 2) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
++				if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'build' (%S) with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == eMissionAI?"continues" :"chooses", GC.getInfo(eBestBuilding).getDescription(), getName(0).GetCString(), iSlowValue, iChoice);
+ 				if (at(*pBestPlot))
+ 				{
+ 					if (eMissionAI == MISSIONAI_CONSTRUCT)
++					{
+ 						getGroup()->pushMission(MISSION_CONSTRUCT, eBestBuilding);
++						if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("CONSTRUCT", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
++					}
+ 					else
+ 					{
+ 						// switch and hurry.
+@@ -8054,7 +8085,10 @@ void CvUnitAI::AI_greatPersonMove()
+ 						if (pCity->getProductionBuilding() != eBestBuilding)
+ 							pCity->pushOrder(ORDER_CONSTRUCT, eBestBuilding);
+ 						if (pCity->getProductionBuilding() == eBestBuilding && canHurry(plot()))
++						{
+ 							getGroup()->pushMission(MISSION_HURRY);
++							if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("HURRY", *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
++						}
+ 						else
+ 						{
+ 							FErrorMsg("great person cannot hurry what it intended to hurry.");
+@@ -8066,6 +8100,7 @@ void CvUnitAI::AI_greatPersonMove()
+ 				else
+ 				{
+ 					pushGroupMoveTo(*pBestPlot, eMoveFlags, false, false, eMissionAI);
++					if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision((eMissionAI == MISSIONAI_CONSTRUCT ? "MOVE_TO_CONSTRUCT" : "MOVE_TO_HURRY"), *this, iChoice, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, NO_SPECIALIST, eBestBuilding);
+ 					return;
+ 				}
+ 			}
+@@ -8099,9 +8134,13 @@ void CvUnitAI::AI_greatPersonMove()
+ 	if (GET_PLAYER(getOwner()).AI_isAnyPlotDanger(getPlot(), 2)) // K-Mod (there are good reasons for saving a great person)
+ 	{
+ 		if (AI_discover())
++		{
++			if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("DANGER_DISCOVER", *this, -1, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, getPlot().getPlotCity(), &getPlot(), NO_SPECIALIST, NO_BUILDING);
+ 			return;
++		}
+ 	}
+-	if (gUnitLogLevel > 2)
++	if (bLogCultureGreatArtistDecision) logSASCultureGreatArtistDecision("NO_MISSION_SELECTED", *this, -1, iScoreThreshold, iSlowValue, rDiscoverValue.round(), iGoldenAgeValue, iTradeValue, iCultureValue, pBestCity, pBestPlot, eBestSpecialist, eBestBuilding);
++	if (bLogUnitGreatPersonDecision)
+ 	{
+ 		// <!-- custom: Great People sometimes logged repeated waits, but the old line lacked turn, unit id, plot, mission state, and the candidate values needed to tell whether the unit was truly stuck or waiting for a better action. Keep this diagnostic gated behind the existing unit log level for reviewing wait decisions. See KI#154. (GPT-5.5 + ChatGPT-5.5) -->
+ 		logBBAI("    GP_WAIT turn=%d player=%d %S unitId=%d unit=%S type=%S plot=(%d,%d) age=%d ageNormal=%d threshold=%d slow=%d discover=%d golden=%d trade=%d culture=%d missionAI=%d",
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+index b05bf5990..cc78728f5 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues.md
+@@ -203,6 +203,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
+ [164 - (Fixed) Base Civ4 Oasis map script had shadowed Python callbacks (found by the Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#164---fixed-base-civ4-oasis-map-script-had-shadowed-python-callbacks-found-by-the-python-ruff-github-actions-workflow)  
+ [165 - (Fixed) Base AdvCiv bug: Dormant RectLayout `upperLeft` helper returned undefined `Point` instead of `PointLayout` (found by Python Ruff GitHub Actions Workflow)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#165---fixed-base-advciv-bug-dormant-rectlayout-upperleft-helper-returned-undefined-point-instead-of-pointlayout-found-by-python-ruff-github-actions-workflow)
+ [166 - (Fixed/Addressed) Base AdvCiv issue of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): replays no longer try to use vanilla BtS-compatible replay storage after shifted XML enum order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#166---fixedaddressed-base-advciv-issue-of-trying-to-support-reading-mod-eg-advcivadvciv-sas-replayhall-of-fame-data-in-unmodded-bts-or-unmodded-bts-replayhall-of-fame-data-in-the-mod-eg-advcivadvciv-sas-replays-no-longer-try-to-use-vanilla-bts-compatible-replay-storage-after-shifted-xml-enum-order)  
++[167 - (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#167---fixed-incorrect-bbai-logging-argument-check-of-missionai_trade-instead-of-missionai_great_work-near-if-ai_dogreatworkpbestcultureplot-and-gate-the-old-eoldmission-behind-a-logging-guard-for-per-opt)  
+ 
+ ## 1 - Redundant attribute values for all AI Civs
+ 
+@@ -6159,3 +6160,22 @@ Rather than adding a full remapping layer for a compatibility mode that is not n
+ - Opening AdvCiv-SAS replay/save data in vanilla BtS, or vanilla BtS data in AdvCiv-SAS, is not a supported goal.
+ 
+ Fixed/documented with the help of ChatGPT-5.5 after a Codex review pointed out that the old `getWorldSize() > 5` BtS replay guard had become stale once `WORLDSIZE_HUGE` moved to XML index `6`.
++
++## 167 - (Fixed) Incorrect BBAI logging argument check of `MISSIONAI_TRADE` instead of `MISSIONAI_GREAT_WORK` near `if (AI_doGreatWork(pBestCulturePlot))` (and gate the old `eOldMission` behind a logging guard for per opt)
++
++Found and fixed:
++
++```cpp
++					if (gUnitLogLevel > 2) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), eOldMission == MISSIONAI_TRADE?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
++```
++
++to:
++
++```cpp
++					// <!-- custom: fixed an inherited logging typo: Great Work continuation now checks MISSIONAI_GREAT_WORK, not MISSIONAI_TRADE (GPT-5.5); See KI#167. -->
++					if (bLogUnitGreatPersonDecision) logBBAI("    %S %s 'great work' with their %S (value: %d, choice #%d)", GET_PLAYER(getOwner()).getCivilizationDescription(0), AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GREAT_WORK?"continues" :"chooses", getName(0).GetCString(), iCultureValue, iChoice);
++```
++
++Also gated the old `eOldMission`'s `AI_getGroup()->AI_getMissionAIType()` behind a logging guard so it is not computed needlessly if BBAI logging is disabled.
++
++Done with the help of GPT-5.5 (on codex) and reviewed OK with the help of ChatGPT-5.5 thanks.
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index c3cedf9fc..eca0ddea9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -206,6 +206,7 @@ Note: cultural victory bullets as of now assume 3 legendary cities are required,
+ - Add **sanity guards**: in small cities (and larger ones with headroom), don’t newly assign specialists until growth caps are reached (with food/happiness checks). **Barbarian** cities, on top of these rules, may only run **Scientist** specialists when they must run any. See [KI#45](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#45---addressed--patched--worked-around-ai-cities-assigning-too-soon-orand-too-often-specialists-resulting-in-early-stagnation-very-inefficiently-now-added-sanity-rules-to-not-go-for-a-specialist).
+ - (Requires AdvCiv-SAS 5987+) Update: existing specialists **can still switch to a better specialist type** because doing so **does not reduce worked population or growth**. BBAI culture diagnostics exposed this when Barcelona had 8 existing Priests/Merchants but the growth guard forbade considering any switch between specialist types; normal valuation can now compare them and choose another type (e.g. Artist, Engineer, Scientist) when better.
+ - (Requires AdvCiv-SAS 5990+) **Reassign existing AI specialists to a better plot or specialist type:** K-Mod's quick initial estimate could leave a city population member assigned as a specialist even when K-Mod's existing full city-aware comparison rated an available plot or another specialist type higher. The AI now applies that full comparison through an additional pass that can reassign the specialist to the better plot or specialist type (an assignable free-specialist slot (counted by `totalFreeSpecialists()`), which does not use a population member, may change to a better allowed type; fixed-type free specialists (`getFreeSpecialistCount(type)`) remain unchanged, and explicitly AI/DLL-forced specialist assignments are not changed by this pass). This pass only reassigns existing specialists; it never removes a population member from a worked city plot to create a new specialist, preserving the AdvCiv-SAS growth-first safeguards against excessive specialist assignment, and every change must still pass the full city-aware valuation and starvation checks. Compared with the preceding BBAI run without this additional reassignment pass, both measured through turn 402, the new run made 1,963 approved reassignments (918 to plots and 1,045 between specialist types) and reduced remaining logged specialist-origin misses from 2,601 to 0. As a directional sanity check within the new run rather than a before/after comparison, this pass made 201 reassignments from Artist to another job and 46 reassignments to Artist.
++- (Requires AdvCiv-SAS 5991+) **Reduce one-time corporation-founder pressure on recurring specialist selection:** Before founding a corporation, K-Mod repeatedly used the full value of its headquarters when deciding how strongly cities should favor specialist jobs that generate the required Great Person type. This helps produce the one founder, but a very valuable headquarters could make the AI assign too many of those specialists while waiting for that single Great Person (e.g., if at war but with many artist assignments). The AI now keeps the full value of eventually using the generated Great Person's Join City action, but counts only 50% (by default, tunable) of the corporation's additional value over Join City toward specialist selection. This reduces excessive pre-founder specialist pressure while retaining an incentive to produce the founder, and makes other specialist types or worked plots more competitive without forbidding the required Great Person type. This applies to every Great Person type that can found a corporation, not only Great Artists. Once generated, the Great Person still evaluates founding the corporation at full value. Behavior after the corporation is founded is unchanged. In the BBAI test, this reduced Corporation 7's contribution to Great Artist selection from 31,987 to 18,089; the corporation remained valuable enough that Rome still generated the required Great Artist on turn 297 and founded it on turn 298.
+ - Exception to the sanity guards rule, and AI enhancement: if a city hasn’t expanded to its **BFC** yet, auto-assign exactly **one Artist** to pop borders, then stop once secured. Implemented in `CvCity::AI_doTurn`.
+ 
+ #### Civics (AI)
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=40579

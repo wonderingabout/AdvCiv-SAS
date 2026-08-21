@@ -1,0 +1,821 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5292
+# Commit: de6ad59ae18dbce211ca369035ea7b349bba3236
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 55a2425f1e055eee2693a57d2e1a7f409d34fe5e
+# Title: expose handicap info getters to python; enhance and beautify sevoedia handicap chart
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	AGENTS.md
+-	-	Assets/CvGameCoreDLL.dll
+128	21	Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+12	23	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+7	1	Assets/XML/GlobalDefines_advciv_sas.xml
+8	0	CvGameCoreDLL/CvInfo_GameOption.h
+20	0	CvGameCoreDLL/CyInfoInterface2.cpp
+8	4	CvGameCoreDLL/CyInfoInterface3.cpp
+0	120	_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv
+0	21	_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_legend_base_advciv.md
+5	2	_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG
+-	-	_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG
+0	94	handicap_info_to_csv_advciv-sas.csv
+0	21	handicap_info_to_csv_legend_advciv-sas.md
+ delete mode 100644 _0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv
+ delete mode 100644 _0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_legend_base_advciv.md
+ create mode 100644 _1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG
+ delete mode 100644 handicap_info_to_csv_advciv-sas.csv
+ delete mode 100644 handicap_info_to_csv_legend_advciv-sas.md
+
+[PATCHES]
+
+diff --git a/AGENTS.md b/AGENTS.md
+index 2f0c5026f..50912727b 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -94,6 +94,8 @@ These rules apply to me GPT-Codex Guidelines or other agents now and later (futu
+ - Prefer robust UI identifiers: widget names can strip numeric suffixes, so use descriptive text suffixes and map widget IDs to data for event handling.
+ - In fragile Civ4 Python, wrap risky calls in try/except and trust UI state when engine state can drift.
+ - When adding guidance, include at least one simple code example so other agents can copy the pattern.
++- Avoid silent fallbacks or placeholder defaults when data is missing; prefer fatal errors with clear messages so issues surface early, and validate list structures (e.g., assert expected prefixes/types in debug checks).
++- When parsing large structured data, validate against expected samples or assertions early, and log diagnostics to surface schema/list mistakes (e.g., missing commas or malformed enum lists).
+ 
+ ### Docs
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+index 19e47d7a0..555172a0e 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaHandicapChart.py
+@@ -21,7 +21,10 @@ class SevoPediaHandicapChart:
+ 
+ 		self.MARGIN = 12
+ 		self.ROW_H = 28
+-		self.W_FIELD = 340
++		self.W_FIELD = 290
++		self.TABLE_FILL_PERCENT = gc.getDefineINT("SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT")
++		if self.TABLE_FILL_PERCENT <= 0:
++			raise ValueError("[FATAL] SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT must be >= 1.")
+ 
+ 	def interfaceScreen(self):
+ 		screen = self.top.getScreen()
+@@ -57,7 +60,8 @@ class SevoPediaHandicapChart:
+ 		if nCols < 2:
+ 			return
+ 
+-		remainingW = max(0, tableW - self.W_FIELD)
++		totalW = (tableW * self.TABLE_FILL_PERCENT) / 100
++		remainingW = max(0, totalW - self.W_FIELD)
+ 		wNum = remainingW / (nCols - 1)
+ 
+ 		screen.addTableControlGFC(table, nCols, tableX, tableY, tableW, tableH, True, False, self.ROW_H, self.ROW_H, TableStyles.TABLE_STYLE_EMPTY)
+@@ -88,12 +92,7 @@ class SevoPediaHandicapChart:
+ 		if self._cachedTable is not None:
+ 			return self._cachedTable
+ 
+-		data = []
+-		try:
+-			data = self._buildTableFromGameData()
+-		except:
+-			data = []
+-
++		data = self._buildTableFromGameData()
+ 		self._cachedTable = data
+ 		return data
+ 
+@@ -101,13 +100,17 @@ class SevoPediaHandicapChart:
+ 		field_getters = (
+ 			("iAIAttitudeChangePercent", "getAIAttitudeChangePercent"),
+ 			("iAIAdvancedStartPercent", "getAIAdvancedStartPercent"),
+-			("iAIAnimalCombatModifier", "getAIAnimalCombatModifier"),
+-			("iAIBarbarianCombatModifier", "getAIBarbarianCombatModifier"),
++			("iAIAnimalBonus", "getAIAnimalCombatModifier"),
++			("iAIBarbarianBonus", "getAIBarbarianCombatModifier"),
+ 			("iAICivicUpkeepPercent", "getAICivicUpkeepPercent"),
++			("iAIConstructPercent", "getAIConstructPercent"),
+ 			("iAICreatePercent", "getAICreatePercent"),
+ 			("iAIDeclareWarProb", "getAIDeclareWarProb"),
++			("iAIGPThresholdPercent", "getAIGPThresholdPercent"),
+ 			("iAIGrowthPercent", "getAIGrowthPercent"),
++			("iAIHandicapIncrementTurns", "getAIHandicapIncrementTurns"),
+ 			("iAIInflationPercent", "getAIInflationPercent"),
++			("iAIResearchPercent", "getAIResearchPercent"),
+ 			("iAIStartingDefenseUnits", "getAIStartingDefenseUnits"),
+ 			("iAIStartingExploreUnits", "getAIStartingExploreUnits"),
+ 			("iAIStartingUnitMultiplier", "getAIStartingUnitMultiplier"),
+@@ -121,21 +124,31 @@ class SevoPediaHandicapChart:
+ 			("iAIWorldConstructPercent", "getAIWorldConstructPercent"),
+ 			("iAIWorldCreatePercent", "getAIWorldCreatePercent"),
+ 			("iAIWorldTrainPercent", "getAIWorldTrainPercent"),
++			("iAdvancedStartPointsMod", "getAdvancedStartPointsMod"),
+ 			("iAnimalAttackProb", "getAnimalAttackProb"),
+-			("iAnimalCombatModifier", "getAnimalCombatModifier"),
++			("iAnimalBonus", "getAnimalCombatModifier"),
+ 			("iAttitudeChange", "getAttitudeChange"),
++			("iBarbarianBonus", "getBarbarianCombatModifier"),
++			("iBarbarianCityAttackBonus", "getBarbarianCityAttackBonus"),
+ 			("iBarbarianCityCreationProb", "getBarbarianCityCreationProb"),
+ 			("iBarbarianCityCreationTurnsElapsed", "getBarbarianCityCreationTurnsElapsed"),
+-			("iBarbarianCombatModifier", "getBarbarianCombatModifier"),
+ 			("iBarbarianCreationTurnsElapsed", "getBarbarianCreationTurnsElapsed"),
+-			("iBarbarianInitialDefenders", "getBarbarianInitialDefenders"),
++			("iBarbarianDefenders", "getBarbarianInitialDefenders"),
++			("iBaseGrowthThresholdPercent", "getBaseGrowthThresholdPercent"),
++			("iBuildTimePercent", "getBuildTimePercent"),
+ 			("iCivicUpkeepPercent", "getCivicUpkeepPercent"),
+ 			("iColonyMaintenancePercent", "getColonyMaintenancePercent"),
++			("iConstructPercent", "getConstructPercent"),
+ 			("iCorporationMaintenancePercent", "getCorporationMaintenancePercent"),
++			("iCreatePercent", "getCreatePercent"),
++			("iCultureLevelPercent", "getCultureLevelPercent"),
+ 			("iDifficulty", "getDifficulty"),
+ 			("iDistanceMaintenancePercent", "getDistanceMaintenancePercent"),
++			("iForeignCultureStrength", "getForeignCultureStrength"),
+ 			("iFreeUnits", "getFreeUnits"),
+ 			("iFreeWinsVsBarbs", "getFreeWinsVsBarbs"),
++			("iGold", "getStartingGold"),
++			("iGPThresholdPercent", "getGPThresholdPercent"),
+ 			("iHappyBonus", "getHappyBonus"),
+ 			("iHealthBonus", "getHealthBonus"),
+ 			("iInflationPercent", "getInflationPercent"),
+@@ -144,18 +157,29 @@ class SevoPediaHandicapChart:
+ 			("iNoTechTradeModifier", "getNoTechTradeModifier"),
+ 			("iNumCitiesMaintenancePercent", "getNumCitiesMaintenancePercent"),
+ 			("iResearchPercent", "getResearchPercent"),
++			("iSeaBarbarianBonus", "getSeaBarbarianBonus"),
++			("iSeaBarbarianExtraMoves", "getSeaBarbarianExtraMoves"),
+ 			("iStartingDefenseUnits", "getStartingDefenseUnits"),
+ 			("iStartingExploreUnits", "getStartingExploreUnits"),
+-			("iStartingGold", "getStartingGold"),
+ 			("iStartingLocPercent", "getStartingLocationPercent"),
+ 			("iStartingWorkerUnits", "getStartingWorkerUnits"),
+ 			("iTechTradeKnownModifier", "getTechTradeKnownModifier"),
++			("iTrainPercent", "getTrainPercent"),
++			("iUnitCostPercent", "getUnitCostPercent"),
+ 			("iUnownedTilesPerBarbarianCity", "getUnownedTilesPerBarbarianCity"),
+ 			("iUnownedTilesPerBarbarianUnit", "getUnownedTilesPerBarbarianUnit"),
+ 			("iUnownedTilesPerGameAnimal", "getUnownedTilesPerGameAnimal"),
+ 			("iUnownedWaterTilesPerBarbarianUnit", "getUnownedWaterTilesPerBarbarianUnit"),
+-			("iUnitCostPercent", "getUnitCostPercent"),
+ 		)
++		# <!-- custom: fail fast if the DLL doesn't expose required CvHandicapInfo getters for the handicap chart. (GPT-5.2-Codex) -->
++		if gc.getNumHandicapInfos() > 0:
++			info = gc.getHandicapInfo(0)
++			missing = []
++			for field_name, getter_name in field_getters:
++				if not hasattr(info, getter_name):
++					missing.append(getter_name)
++			if missing:
++				raise RuntimeError("[FATAL] Your mod DLL does not expose the required CvHandicapInfo Python getters: %s. Please expose them in CyInfoInterface2.cpp and rebuild the DLL." % ", ".join(missing))
+ 		goody_types = (
+ 			"GOODY_LOW_GOLD",
+ 			"GOODY_HIGH_GOLD",
+@@ -170,7 +194,17 @@ class SevoPediaHandicapChart:
+ 			"GOODY_BARBARIANS_WEAK",
+ 			"GOODY_BARBARIANS_STRONG",
+ 		)
++		goody_groups = (
++			("Goody Gold (Low / High)", ("GOODY_LOW_GOLD", "GOODY_HIGH_GOLD")),
++			("Goody (Experience / Healing)", ("GOODY_EXPERIENCE", "GOODY_HEALING")),
++			("Goody (Map / Tech)", ("GOODY_MAP", "GOODY_TECH")),
++			("Goody (Scout / Warrior)", ("GOODY_SCOUT", "GOODY_WARRIOR")),
++			("Goody (Worker / Settler)", ("GOODY_WORKER", "GOODY_SETTLER")),
++			("Goody Barbarians (Weak / Strong)", ("GOODY_BARBARIANS_WEAK", "GOODY_BARBARIANS_STRONG")),
++		)
+ 		anchor_field = gc.getDefineSTRING("SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD")
++		if not anchor_field:
++			raise ValueError("[FATAL] Missing SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD define.")
+ 		abbrev_tech_names = {
+ 			"Animal Husbandry": "Animal H.",
+ 			"Bronze Working": "Bronze W.",
+@@ -194,12 +228,8 @@ class SevoPediaHandicapChart:
+ 			handicap_dict = {}
+ 
+ 			for field_name, getter_name in field_getters:
+-				value = ""
+-				try:
+-					getter = getattr(info, getter_name)
+-					value = getter()
+-				except:
+-					value = ""
++				getter = getattr(info, getter_name)
++				value = getter()
+ 				handicap_dict[field_name] = str(value)
+ 				all_fields[field_name] = 1
+ 
+@@ -226,6 +256,8 @@ class SevoPediaHandicapChart:
+ 				row[difficulty] = value
+ 			rows.append(row)
+ 
++		rows = self._mergeHumanAiRows(rows, difficulty_types, none_text)
++
+ 		before = []
+ 		goody_rows = []
+ 		nested = []
+@@ -237,6 +269,33 @@ class SevoPediaHandicapChart:
+ 			else:
+ 				before.append(row)
+ 
++		if goody_rows:
++			goody_rows_by_field = {}
++			for grow in goody_rows:
++				goody_rows_by_field[grow["Field"]] = grow
++
++			grouped_goody_rows = []
++			skipped_goody_fields = {}
++			for label, (goody_left, goody_right) in goody_groups:
++				left_row = goody_rows_by_field.get(goody_left)
++				right_row = goody_rows_by_field.get(goody_right)
++				if left_row is None or right_row is None:
++					continue
++				new_row = {"Field": label}
++				for difficulty in difficulty_types:
++					left_val = left_row.get(difficulty, "0")
++					right_val = right_row.get(difficulty, "0")
++					new_row[difficulty] = "%s / %s" % (left_val, right_val)
++				grouped_goody_rows.append(new_row)
++				skipped_goody_fields[goody_left] = True
++				skipped_goody_fields[goody_right] = True
++
++			for grow in goody_rows:
++				if grow["Field"] not in skipped_goody_fields:
++					grouped_goody_rows.append(grow)
++
++			goody_rows = grouped_goody_rows
++
+ 		new_rows = []
+ 		for row in before:
+ 			new_rows.append(row)
+@@ -317,6 +376,54 @@ class SevoPediaHandicapChart:
+ 		name = re.sub(r"_", " ", name)
+ 		return name.title()
+ 
++	def _mergeHumanAiRows(self, rows, difficulty_types, none_text):
++		row_by_field = {}
++		for row in rows:
++			row_by_field[row["Field"]] = row
++
++		merged = []
++		skip_fields = {}
++		for row in rows:
++			field = row["Field"]
++			if field in skip_fields:
++				continue
++			if field.startswith("iAI"):
++				human_field = "i" + field[3:]
++				if human_field in row_by_field:
++					continue
++				merged.append(row)
++				continue
++			if not field.startswith("i"):
++				merged.append(row)
++				continue
++
++			ai_field = "iAI" + field[1:]
++			ai_row = row_by_field.get(ai_field)
++			if ai_row is None:
++				merged.append(row)
++				continue
++
++			label = self._humanAiLabel(field)
++			new_row = {"Field": label}
++			for difficulty in difficulty_types:
++				human_val = row.get(difficulty, "")
++				ai_val = ai_row.get(difficulty, "")
++				if not human_val:
++					human_val = none_text
++				if not ai_val:
++					ai_val = none_text
++				new_row[difficulty] = "%s / %s" % (human_val, ai_val)
++			merged.append(new_row)
++			skip_fields[ai_field] = True
++		return merged
++
++	def _humanAiLabel(self, field):
++		base = field
++		if base.startswith("i"):
++			base = base[1:]
++		base = re.sub(r"([a-z])([A-Z])", r"\1 \2", base)
++		return base + " (Human / AI)"
++
+ 	def _format_tech_list(self, value, return_list, none_text, abbrev_tech_names):
+ 		if not value:
+ 			if return_list:
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 3f31a41f4..952c8e2c8 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -176,36 +176,25 @@ def _compute_leader_cache_internal():
+ 
+ 
+ 
+-	def check_required_newly_exposed_python_getters_gc_leader_exist():
+-		# <!-- custom: note: to use the AI personality feature in another mod, you need to modify the DLL to expose python BBAI getters and at if i am not mistaken base advciv's getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold as of now, see README.md fixes section or/and in particular known issues readme of advciv-sas (ctrl+f "expose" or "getter" or "bbai" or something similar) if the info is still there on these readmes anwyays etc, as of now it contains info with google drive link and screenshots on how to do it yourself, adding raise error to make user or modder aware of this if they are missing, see also sevopedia_helpers py file debug output code comments for details too; and raise an error if so. -->
+-
+-		REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER = (
+-			# <!-- custom: BBAI victory weights newly exposed victorily by me and chatgpt hehe, but if you want to do it too see readme links with google drive sscreenshots if links or/and screenshots and such are still there -->
+-			"getCultureVictoryWeight",
+-			"getSpaceVictoryWeight",
+-			"getConquestVictoryWeight",
+-			"getDominationVictoryWeight",
+-			"getDiplomacyVictoryWeight",
+-			# <!-- custom: some seemingly base advciv specific new attitude threshold fields not in base civ4 (didn't check) but at least that don't have getters exposed to python but anyways etc... -->
+-			"getCityRefuseAttitudeThreshold",
+-			"getNativeCityRefuseAttitudeThreshold",
+-		)
++	def check_required_newly_exposed_python_getters_gc_leader_exist(required_getters):
++		# <!-- custom: verify all getters used by the leader display config are exposed in the DLL. (GPT-5.2-Codex) -->
++		if not required_getters:
++			return
+ 
+ 		for iLeader in NON_EXCLUDED_LEADERS:
+ 			missing = []
+-			for getter in REQUIRED_TO_NEWLY_BE_EXPOSED_TO_PYTHON_GETTERS_GC_LEADER:
+-				if not hasattr(gc.getLeaderHeadInfo(iLeader), getter):
++			leader_info = gc.getLeaderHeadInfo(iLeader)
++			for getter in required_getters:
++				if not hasattr(leader_info, getter):
+ 					missing.append(getter)
+ 
+ 			if missing:
+-				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from iLeader=%d). Please expose them in .cpp files and build the DLL again (and replace old DLL with new one anyways etc) (or check if this getter matches an existing XML field in your mod and possibly adjust this code based on this if intended as such that this/these getter(s) triggering this error is/are missing). See README.md or AdvCiv-SAS documentation for help or such." % (", ".join(missing), iLeader))
++				raise RuntimeError(u"[FATAL] Your mod DLL does not expose the following required Python getters:\n%s\n\nMissing for example from iLeader=%d. Please expose them in .cpp files and build the DLL again (or adjust the leader field list if your mod removes or renames these getters)." % (", ".join(missing), iLeader))
+ 			
+ 			# success: only check first real leader
+ 			if IS_DEBUG_LEADER:
+ 				print("[DEBUG] Getter check passed for iLeader=%d. All required Python getters are present." % iLeader)
+-			break  # ✅ success: no need to check further
+-
+-	check_required_newly_exposed_python_getters_gc_leader_exist()
++			break  # ?. success: no need to check further
+ 
+ 
+ 
+@@ -645,9 +634,8 @@ def _compute_leader_cache_internal():
+ 
+ 	# <!-- custom: store only the fields we want to display in the AI personality panel not the other / not all XML fields, see sevopedia debuggers py file and debugPrintLeaderHeadInfoFieldsToFetch and or its example of output for details anyways etc -->
+ 	fields_with_direct_getters, fields_attitude_thresholds = get_fields_directly_parsed()
+-
+-
+-
++	required_getters = tuple(fields_with_direct_getters.keys()) + tuple(fields_attitude_thresholds.keys())
++	check_required_newly_exposed_python_getters_gc_leader_exist(required_getters)
+ 	def get_leader_info_minimums_and_maximums(fields_with_direct_getters, fields_attitude_thresholds, leaders_info_aggregated_raw_contact_probs, leaders_info_aggregated_raw_positive_and_negative_memory_affections_and_resentments):
+ 		# <!-- custom: fake leaders that stores minimum values among all leader for each field we want to display regardless of inversions anyways etc, same for maximum values too anyways etc -->
+ 		leader_info_minimums = {}
+@@ -1883,3 +1871,4 @@ class SevoPediaLeader:
+ 			else:
+ 				self.top.getScreen().leaderheadKeyInput(self.leaderWidget, inputClass.getData())
+ 		return 0
++
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 89f0640ba..03f55cc4b 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -116,11 +116,16 @@
+ 		<DefineName>SAS_SEVOPEDIA_MAIN_FEATURES_GROUP_BY_LAND_WATER</DefineName>
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+-	<!-- custom: For modders: set where GOODY and AIFreeTechs/FreeTechs rows resume in the Sevopedia handicap chart; default appends them at the end (excluding those rows). Based on Middle-earth Platypedia CvHandicapInfo approach. Credit: GPT-5.2-Codex. (GPT-5.2-Codex (summarized)) --> 
++	<!-- custom: For modders: set where GOODY and AIFreeTechs/FreeTechs rows resume in the Sevopedia handicap chart; default appends them at the end (excluding those rows). Based on Middle-earth Platypedia CvHandicapInfo approach. (GPT-5.2-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_ANCHOR_FIELD</DefineName>
+ 		<DefineTextVal>iUnownedWaterTilesPerBarbarianUnit</DefineTextVal>
+ 	</Define>
++	<!-- custom: set the handicap chart table fill percent for the columns area; 100 uses full width, lower leaves empty space on the right for tighter reading. (GPT-5.2-Codex) -->
++	<Define>
++		<DefineName>SAS_SEVOPEDIA_HANDICAP_CHART_TABLE_FILL_PERCENT</DefineName>
++		<iDefineIntVal>65</iDefineIntVal>
++	</Define>
+ 
+ 
+ 
+@@ -1995,3 +2000,4 @@
+ 
+ 
+ </Civ4Defines>
++
+
+diff --git a/CvGameCoreDLL/CvInfo_GameOption.h b/CvGameCoreDLL/CvInfo_GameOption.h
+index 0f601eca5..5dc3a14ed 100644
+--- a/CvGameCoreDLL/CvInfo_GameOption.h
++++ b/CvGameCoreDLL/CvInfo_GameOption.h
+@@ -488,6 +488,14 @@ public:
+ 	int getConstructPercent() const { return m_iConstructPercent; }
+ 	int getCreatePercent() const { return m_iCreatePercent; }
+ 	// </advc.251>
++
++	// <!-- custom: expose extra handicap fields to Python for Sevopedia handicap chart. (GPT-5.2-Codex) -->
++	int getForeignCultureStrength() const { return get(ForeignCultureStrength); }
++	int getBarbarianCityAttackBonus() const { return get(BarbarianCityAttackBonus); }
++	int getSeaBarbarianBonus() const { return get(SeaBarbarianBonus); }
++	int getSeaBarbarianExtraMoves() const { return get(SeaBarbarianExtraMoves); }
++	// <!-- custom: End - expose extra handicap fields to Python for Sevopedia handicap chart. (GPT-5.2-Codex) -->
++
+ 	int getDistanceMaintenancePercent() const;
+ 	int getNumCitiesMaintenancePercent() const;
+ 	int getMaxNumCitiesMaintenance() const;
+
+diff --git a/CvGameCoreDLL/CyInfoInterface2.cpp b/CvGameCoreDLL/CyInfoInterface2.cpp
+index 63499f57a..45352b977 100644
+--- a/CvGameCoreDLL/CyInfoInterface2.cpp
++++ b/CvGameCoreDLL/CyInfoInterface2.cpp
+@@ -104,6 +104,26 @@ void CyInfoPythonInterface2()
+ 		.def("getFreeUnits", &CvHandicapInfo::getFreeUnits, "int ()")
+ 		.def("getUnitCostPercent", &CvHandicapInfo::getUnitCostPercent, "int ()")
+ 		.def("getResearchPercent", &CvHandicapInfo::getResearchPercent, "int ()")
++
++		// <!-- custom: expose additional CvHandicapInfo getters for the Sevopedia handicap chart. (GPT-5.2-Codex) -->
++		.def("getAIResearchPercent", &CvHandicapInfo::getAIResearchPercent, "int ()")
++		.def("getBuildTimePercent", &CvHandicapInfo::getBuildTimePercent, "int ()")
++		.def("getBaseGrowthThresholdPercent", &CvHandicapInfo::getBaseGrowthThresholdPercent, "int ()")
++		.def("getGPThresholdPercent", &CvHandicapInfo::getGPThresholdPercent, "int ()")
++		.def("getAIGPThresholdPercent", &CvHandicapInfo::getAIGPThresholdPercent, "int ()")
++		.def("getCultureLevelPercent", &CvHandicapInfo::getCultureLevelPercent, "int ()")
++		.def("getTrainPercent", &CvHandicapInfo::getTrainPercent, "int ()")
++		.def("getConstructPercent", &CvHandicapInfo::getConstructPercent, "int ()")
++		.def("getCreatePercent", &CvHandicapInfo::getCreatePercent, "int ()")
++		.def("getAdvancedStartPointsMod", &CvHandicapInfo::getAdvancedStartPointsMod, "int ()")
++		.def("getAIAttitudeChangePercent", &CvHandicapInfo::getAIAttitudeChangePercent, "int ()")
++		.def("getAIHandicapIncrementTurns", &CvHandicapInfo::getAIHandicapIncrementTurns, "int ()")
++		.def("getForeignCultureStrength", &CvHandicapInfo::getForeignCultureStrength, "int ()")
++		.def("getBarbarianCityAttackBonus", &CvHandicapInfo::getBarbarianCityAttackBonus, "int ()")
++		.def("getSeaBarbarianBonus", &CvHandicapInfo::getSeaBarbarianBonus, "int ()")
++		.def("getSeaBarbarianExtraMoves", &CvHandicapInfo::getSeaBarbarianExtraMoves, "int ()")
++		// <!-- custom: End - expose additional CvHandicapInfo getters for the Sevopedia handicap chart. (GPT-5.2-Codex) -->
++
+ 		.def("getDistanceMaintenancePercent", &CvHandicapInfo::getDistanceMaintenancePercent, "int ()")
+ 		.def("getNumCitiesMaintenancePercent", &CvHandicapInfo::getNumCitiesMaintenancePercent, "int ()")
+ 		.def("getMaxNumCitiesMaintenance", &CvHandicapInfo::getMaxNumCitiesMaintenance, "int ()")
+
+diff --git a/CvGameCoreDLL/CyInfoInterface3.cpp b/CvGameCoreDLL/CyInfoInterface3.cpp
+index 8f83717f1..35df98b77 100644
+--- a/CvGameCoreDLL/CyInfoInterface3.cpp
++++ b/CvGameCoreDLL/CyInfoInterface3.cpp
+@@ -43,13 +43,15 @@ void CyInfoPythonInterface3()
+ 		.def("getTechTradeKnownPercent", &CvLeaderHeadInfo::getTechTradeKnownPercent, "int ()")
+ 		.def("getMaxGoldTradePercent", &CvLeaderHeadInfo::getMaxGoldTradePercent, "int ()")
+ 		.def("getMaxGoldPerTurnTradePercent", &CvLeaderHeadInfo::getMaxGoldPerTurnTradePercent, "int ()")
+-		// <!-- custom: as for BBAI weights getter methods if i am not mistaken, they are not exposed in sevopedia leader (gc) if i am not mistaken but what being exposed means that we can't access these/their data as their getetrs dont exist in gc, so adding them for our AI personality panel's code to display them directly from xml, based on the BBAI code sample i have found in (adjust to your mod path anyways etc) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvInfo_Civilization.h , and now modified for this gc getter to add so we can see/access these methods in gc in sevopedia leader as well anyways etc, based on where getMaxWarRand is here as well and BBAI specifically missing here, maybe this is where we can add it anyways etc (if no code comment update means it most likely worked-functioned especially if the getters are here now in gc of sevopedia leader anyways etc, see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\Assets\Python\Contrib\Sevopedia\__SevoPediaLeader-gc-inner-debug-content.txt or whichever such a debug output file is if it is in our mod folders anyways etc): -->
++
++		// <!-- custom: as for BBAI weights getter methods if i am not mistaken, they are not exposed in sevopedia leader (gc) so we can't access their data in python, so adding them for our AI personality panel's code to display them directly from xml, based on the BBAI code sample i have found in CvInfo_Civilization.h, based on the fact that getMaxWarRand is here as well yet BBAI is specifically missing here -->
+ 		.def("getCultureVictoryWeight", &CvLeaderHeadInfo::getCultureVictoryWeight, "int ()")
+ 		.def("getSpaceVictoryWeight", &CvLeaderHeadInfo::getSpaceVictoryWeight, "int ()")
+ 		.def("getConquestVictoryWeight", &CvLeaderHeadInfo::getConquestVictoryWeight, "int ()")
+ 		.def("getDominationVictoryWeight", &CvLeaderHeadInfo::getDominationVictoryWeight, "int ()")
+ 		.def("getDiplomacyVictoryWeight", &CvLeaderHeadInfo::getDiplomacyVictoryWeight, "int ()")
+-		// <!-- custom: end of BBAI new additon of getters i mean for gc in sevopedia leader anyways etc -->
++		// <!-- custom: end of BBAI new additon of getters i mean for gc in sevopedia leader -->
++
+ 		.def("getMaxWarRand", &CvLeaderHeadInfo::getMaxWarRand, "int ()")
+ 		.def("getMaxWarNearbyPowerRatio", &CvLeaderHeadInfo::getMaxWarNearbyPowerRatio, "int ()")
+ 		.def("getMaxWarDistantPowerRatio", &CvLeaderHeadInfo::getMaxWarDistantPowerRatio, "int ()")
+@@ -94,10 +96,12 @@ void CyInfoPythonInterface3()
+ 		.def("getDemandTributeAttitudeThreshold", &CvLeaderHeadInfo::getDemandTributeAttitudeThreshold, "int ()")
+ 		.def("getNoGiveHelpAttitudeThreshold", &CvLeaderHeadInfo::getNoGiveHelpAttitudeThreshold, "int ()")
+ 		.def("getTechRefuseAttitudeThreshold", &CvLeaderHeadInfo::getTechRefuseAttitudeThreshold, "int ()")
+-		// <!-- custom: similarly beginning of addition to python expose for sevopedia leader's gc if i am not mistaken anyways etc... -->
++
++		// <!-- custom: similarly beginning of addition to python expose for sevopedia leader's gc if i am not mistaken. -->
+ 		.def("getCityRefuseAttitudeThreshold", &CvLeaderHeadInfo::getCityRefuseAttitudeThreshold, "int ()")
+ 		.def("getNativeCityRefuseAttitudeThreshold", &CvLeaderHeadInfo::getNativeCityRefuseAttitudeThreshold, "int ()")
+-		// <!-- custom: end of new additions to python expose for sevopedia leader's gc if i am not mistaken  anyways etc -->
++		// <!-- custom: end of new additions to python expose for sevopedia leader's gc if i am not mistaken. -->
++
+ 		.def("getStrategicBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getStrategicBonusRefuseAttitudeThreshold, "int ()")
+ 		.def("getHappinessBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getHappinessBonusRefuseAttitudeThreshold, "int ()")
+ 		.def("getHealthBonusRefuseAttitudeThreshold", &CvLeaderHeadInfo::getHealthBonusRefuseAttitudeThreshold, "int ()")
+
+diff --git a/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv b/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv
+deleted file mode 100644
+index 3b3a76b8d..000000000
+--- a/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_base_advciv.csv
++++ /dev/null
+@@ -1,120 +0,0 @@
+-Field,Settler,Chieftain,Warlord,Noble,Prince,Monarch,Emperor,Immortal,Deity
+-iAIAdvancedStartPercent,67,75,90,100,125,145,175,210,270
+-iAIAnimalBonus,-25,-25,-25,-25,-25,-25,-25,-25,-25
+-iAIAttitudeChangePercent,30,30,30,30,40,50,60,70,90
+-iAIBarbarianBonus,-25,-25,-25,-25,-25,-25,-25,-25,-25
+-iAICivicUpkeepPercent,100,100,100,100,95,90,85,80,75
+-iAIConstructPercent,120,115,105,100,95,95,90,80,75
+-iAICreatePercent,110,105,100,100,95,90,85,80,75
+-iAIDeclareWarProb,25,50,75,100,100,100,100,100,100
+-iAIGPThresholdPercent,125,120,110,100,100,95,90,85,80
+-iAIGrowthPercent,125,120,110,100,100,95,90,85,80
+-iAIHandicapIncrementTurns,0,0,0,0,100,50,33,25,20
+-iAIInflationPercent,100,90,80,80,80,80,80,80,80
+-iAIResearchPercent,90,100,100,100,103,110,115,120,124
+-iAIStartingDefenseUnits,0,0,0,0,0,1,2,2,3
+-iAIStartingExploreUnits,0,0,0,0,0,0,0,0,1
+-iAIStartingUnitMultiplier,0,0,0,0,0,0,0,0,0
+-iAIStartingWorkerUnits,0,0,0,0,0,0,0,1,1
+-iAITrainPercent,125,120,110,100,95,95,95,90,85
+-iAIUnitCostPercent,100,100,100,100,95,90,85,80,75
+-iAIUnitSupplyPercent,50,50,50,50,50,50,50,50,50
+-iAIUnitUpgradePercent,50,50,50,50,50,50,50,50,50
+-iAIWarWearinessPercent,100,90,80,80,80,75,70,60,50
+-iAIWorkRateModifier,0,0,0,0,5,10,15,20,25
+-iAIWorldConstructPercent,125,120,110,100,100,95,95,90,85
+-iAIWorldCreatePercent,125,120,110,100,100,95,95,90,85
+-iAIWorldTrainPercent,125,120,110,100,100,95,95,90,85
+-iAdvancedStartPointsMod,100,100,100,100,100,100,100,100,100
+-iAnimalAttackProb,30,50,60,70,70,70,70,70,70
+-iAnimalBonus,-60,-45,-30,-25,-20,-15,-10,-5,0
+-iAttitudeChange,3,2,1,0,0,0,0,0,0
+-iBarbarianBonus,-40,-30,-20,-10,-5,-5,-5,-5,0
+-iBarbarianCityAttackBonus,,,,,-20,-20,-20,-15,-10
+-iBarbarianCityCreationProb,4,5,5,6,6,7,7,8,8
+-iBarbarianCityCreationTurnsElapsed,60,55,50,45,40,35,30,25,25
+-iBarbarianCreationTurnsElapsed,48,44,40,36,32,28,24,20,16
+-iBarbarianDefenders,1,1,1,2,2,3,3,3,4
+-iBaseGrowthThresholdPercent,80,95,100,100,100,100,110,120,130
+-iBuildTimePercent,100,100,100,100,100,100,110,115,120
+-iCivicUpkeepPercent,60,70,80,90,95,100,100,100,100
+-iColonyMaintenancePercent,60,80,90,100,105,110,115,120,130
+-iConstructPercent,85,95,100,100,100,100,105,110,115
+-iCorporationMaintenancePercent,60,80,90,100,105,110,115,120,130
+-iCreatePercent,70,80,90,100,100,100,100,110,120
+-iCultureLevelPercent,100,100,100,100,100,106,112,118,129
+-iDifficulty,0,10,20,30,40,50,60,70,85
+-iDistanceMaintenancePercent,50,60,70,80,85,90,95,100,100
+-iForeignCultureStrength,10,15,20,25,29,32,35,38,40
+-iFreeUnits,20,15,10,7,5,4,3,2,1
+-iFreeWinsVsBarbs,4,3,2,1,0,0,0,0,0
+-iGPThresholdPercent,80,95,100,100,100,100,110,120,130
+-iGold,0,0,0,0,0,0,0,0,0
+-iHappyBonus,5,5,4,4,4,4,4,4,4
+-iHealthBonus,3,3,2,2,2,2,2,2,2
+-iInflationPercent,60,70,80,90,95,100,100,100,100
+-iMaxColonyMaintenance,200,200,200,200,200,200,200,200,200
+-iMaxNumCitiesMaintenance,4000,4000,5000,5000,6000,6000,7000,7000,8000
+-iNoTechTradeModifier,100,85,75,64,56,48,40,32,24
+-iNumCitiesMaintenancePercent,45,55,65,75,80,85,90,95,100
+-iResearchPercent,72,85,90,95,108,115,130,140,150
+-iSeaBarbarianBonus,,,,,,,,,-5
+-iSeaBarbarianExtraMoves,,,,,,,,,0
+-iStartingDefenseUnits,0,0,0,0,0,0,0,0,0
+-iStartingExploreUnits,0,0,0,0,0,0,0,0,0
+-iStartingLocPercent,10,20,35,49,55,65,75,85,95
+-iStartingWorkerUnits,0,0,0,0,0,0,0,0,0
+-iTechTradeKnownModifier,-100,-50,-25,0,0,0,0,0,0
+-iTrainPercent,80,95,100,100,100,100,110,120,130
+-iUnitCostPercent,36,44,52,60,68,76,84,92,100
+-iUnownedTilesPerBarbarianCity,160,150,140,130,120,110,100,90,80
+-iUnownedTilesPerBarbarianUnit,125,80,66,56,48,42,38,34,30
+-iUnownedTilesPerGameAnimal,85,70,62,52,50,44,40,36,32
+-iUnownedWaterTilesPerBarbarianUnit,750,600,550,500,450,400,350,300,250
+-GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,2,3,4
+-GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,3,3,3
+-GOODY_EXPERIENCE (*),1,1,1,2,2,2,1,1,1
+-GOODY_HEALING (*),1,1,1,1,1,1,1,1,1
+-GOODY_HIGH_GOLD (*),4,3,3,2,1,1,0,0,0
+-GOODY_LOW_GOLD (*),2,2,2,3,4,3,4,4,4
+-GOODY_MAP (*),1,1,2,2,2,2,2,2,1
+-GOODY_SCOUT (*),1,1,1,1,1,1,1,1,1
+-GOODY_SETTLER (*),1,1,0,0,0,0,0,0,0
+-GOODY_TECH (*),4,4,4,4,4,3,3,3,3
+-GOODY_WARRIOR (*),2,2,2,2,2,2,1,1,1
+-GOODY_WORKER (*),2,2,1,0,0,0,0,0,0
+-AIFreeTechs,,,,,,AIFT_0,AIFT_1,AIFT_2,AIFT_3
+-FreeTechs,FT_0,FT_1,FT_2,,,,,,
+-
+-
+-
+-
+-,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
+-,-------,-------,-------,-------,-------,AIFT_0,AIFT_1,AIFT_2,AIFT_3
+-,-,-,-,-,-,Archery,Archery,Archery,Archery
+-,-,-,-,-,-,Mathematics,Mathematics,Mathematics,Mathematics
+-,-,-,-,-,-,Machinery,Machinery,Machinery,Machinery
+-,-,-,-,-,-,Printing Press,Printing Press,Printing Press,Printing Press
+-,-,-,-,-,-,Steam Power,Steam Power,Steam Power,Steam Power
+-,-,-,-,-,-,Plastics,Plastics,Plastics,Plastics
+-,-,-,-,-,-,-,Hunting,Hunting,Hunting
+-,-,-,-,-,-,-,-,-,The Wheel
+-,-,-,-,-,-,-,-,-,Iron W.
+-,-,-,-,-,-,-,-,-,Feudalism
+-,-,-,-,-,-,-,-,-,Gunpowder
+-,-,-,-,-,-,-,-,-,Steel
+-,-,-,-,-,-,-,-,-,Refrigeration
+-,FT_0,FT_1,FT_2,-------,-------,-------,-------,-------,-------
+-,The Wheel,The Wheel,The Wheel,-,-,-,-,-,-
+-,Agriculture,Agriculture,-,-,-,-,-,-,-
+-,Mining,-,-,-,-,-,-,-,-
+-,Mathematics,Mathematics,-,-,-,-,-,-,-
+-,Alphabet,-,-,-,-,-,-,-,-
+-,Machinery,Machinery,-,-,-,-,-,-,-
+-,Feudalism,-,-,-,-,-,-,-,-
+-,Printing Press,Printing Press,-,-,-,-,-,-,-
+-,Gunpowder,-,-,-,-,-,-,-,-
+-,Steam Power,Steam Power,-,-,-,-,-,-,-
+-,Steel,-,-,-,-,-,-,-,-
+-,Plastics,Plastics,-,-,-,-,-,-,-
+-,Refrigeration,-,-,-,-,-,-,-,-
+
+diff --git a/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_legend_base_advciv.md b/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_legend_base_advciv.md
+deleted file mode 100644
+index b3916fcf7..000000000
+--- a/_0_Common_Docs/AdvCiv_Base_Doc/handicap_info_to_csv_legend_base_advciv.md
++++ /dev/null
+@@ -1,21 +0,0 @@
+-# Handicap Info Legend Notes
+-
+-## Goodies Footnote
+-
+-> (*): This element is listed under the heading **"Goodies (20)"** in the XML file.
+-> It indicates the chance (x-in-20) of a goody hut yielding this result when "popped" by the player.
+-> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)
+-
+-## Abbreviation Keys
+-
+-- **AIFT_**: `AIFreeTechs`
+-- **FT_**: `FreeTechs`
+-
+-## Abbreviated Tech Names
+-
+-The following technology names were shortened for compactness in the table view:
+-
+-- **Animal H.** → `Animal Husbandry`
+-- **Bronze W.** → `Bronze Working`
+-- **Industr.** → `Industrialism`
+-- **Iron W.** → `Iron Working`
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+index 7b44ff5fe..39fe66bce 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
++++ b/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md
+@@ -74,11 +74,14 @@ Note: history handling (i.e. not remembering all visited pages with the arrows i
+ 
+ New sevopedia category pages were added in AdvCiv-SAS such as the Handicap Chart page, added with the help of GPT-5.2-Codex and based on the Middle-earth's Platypedia code.
+ 
+-Note: in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
++Note: as for sevopedia leader's AI Personality Panel where we exposed in AdvCiv-SAS the BBAI victory weights getters, in the Handicap Chart we have also exposed to python some missing HandicapInfo fields, which requires a recompile of the DLL. If missing in your DLL, the Handicap Chart page will raise an error.
++
++Note 2 : in AdvCiv-SAS we don't use AIFreeTechs nor FreeTechs so these are shown only for demonstration purposes.
+ 
+ <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG" alt="0.625_sevopedia_handicap_chart (1).JPG" width="250"></img>
+ <img src="../Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG" alt="0.625_sevopedia_handicap_chart (2).JPG" width="250"></img>
+-<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.6251_sevopedia_handicap_chart_free_techs.JPG" alt="0.6251_sevopedia_handicap_chart_free_techs.JPG" width="250"></img>
++<img src="../Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" alt="0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG" width="250"></img>
+ 
+ ## Sevopedia Pages individual reworks
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG
+new file mode 100644
+index 000000000..06458e0f4
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.6252_sevopedia_handicap_chart_DLL_getters_required.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG
+index 475892b87..4b7d0e26d 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG
+index b51fa6f6c..359dc2e13 100644
+Binary files a/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG and b/_1_AdvCiv-SAS/Images/sevopedia_reworks/0.625_sevopedia_handicap_chart (2).JPG differ
+
+diff --git a/handicap_info_to_csv_advciv-sas.csv b/handicap_info_to_csv_advciv-sas.csv
+deleted file mode 100644
+index 0e941fd4f..000000000
+--- a/handicap_info_to_csv_advciv-sas.csv
++++ /dev/null
+@@ -1,94 +0,0 @@
+-Field,Settler,Chieftain,Warlord,Noble,Prince,Monarch,Emperor,Immortal,Deity
+-iAIAdvancedStartPercent,70,80,90,100,120,140,160,180,200
+-iAIAnimalBonus,-30,-15,0,0,0,0,0,0,0
+-iAIAttitudeChangePercent,10,20,30,40,50,60,70,80,90
+-iAIBarbarianBonus,-30,-15,0,0,0,0,0,0,0
+-iAICivicUpkeepPercent,118,112,106,100,94,88,82,76,70
+-iAIConstructPercent,115,110,105,100,95,90,85,80,75
+-iAICreatePercent,106,104,102,100,97,94,91,88,85
+-iAIDeclareWarProb,80,90,100,110,120,130,140,150,160
+-iAIGPThresholdPercent,115,110,105,100,95,90,85,80,75
+-iAIGrowthPercent,115,110,105,100,95,90,85,80,75
+-iAIHandicapIncrementTurns,0,0,0,0,0,0,0,0,0
+-iAIInflationPercent,115,110,105,100,95,90,85,80,75
+-iAIResearchPercent,118,112,106,100,94,88,82,76,70
+-iAIStartingDefenseUnits,1,1,1,1,1,1,1,1,1
+-iAIStartingExploreUnits,0,0,0,0,0,0,0,0,0
+-iAIStartingUnitMultiplier,0,0,0,0,0,0,0,0,0
+-iAIStartingWorkerUnits,0,0,0,0,0,0,0,0,0
+-iAITrainPercent,115,110,105,100,95,90,85,80,75
+-iAIUnitCostPercent,100,100,100,100,100,100,100,100,100
+-iAIUnitSupplyPercent,100,100,100,100,100,100,100,100,100
+-iAIUnitUpgradePercent,100,100,100,100,100,100,100,100,100
+-iAIWarWearinessPercent,118,112,106,100,94,88,82,76,70
+-iAIWorkRateModifier,0,0,0,0,0,0,0,0,0
+-iAIWorldConstructPercent,100,100,100,100,100,100,100,100,100
+-iAIWorldCreatePercent,100,100,100,100,100,100,100,100,100
+-iAIWorldTrainPercent,100,100,100,100,100,100,100,100,100
+-iAdvancedStartPointsMod,100,100,100,100,100,100,100,100,100
+-iAnimalAttackProb,10,20,30,40,50,60,70,80,90
+-iAnimalBonus,-30,-20,-10,0,0,0,0,0,0
+-iAttitudeChange,2,1,1,0,0,0,0,0,0
+-iBarbarianBonus,-30,-15,0,0,0,0,0,0,0
+-iBarbarianCityAttackBonus,,,,,0,0,0,0,0
+-iBarbarianCityCreationProb,5,10,15,20,25,30,35,40,45
+-iBarbarianCityCreationTurnsElapsed,40,39,38,37,36,35,34,33,32
+-iBarbarianCreationTurnsElapsed,34,33,32,31,30,29,28,27,26
+-iBarbarianDefenders,1,1,1,1,1,1,1,1,1
+-iBaseGrowthThresholdPercent,85,90,95,100,105,110,115,120,125
+-iBuildTimePercent,100,100,100,100,100,100,100,100,100
+-iCivicUpkeepPercent,100,100,100,100,100,100,100,100,100
+-iColonyMaintenancePercent,85,90,95,100,105,110,115,120,130
+-iConstructPercent,100,100,100,100,100,100,100,100,100
+-iCorporationMaintenancePercent,85,90,95,100,105,110,115,120,125
+-iCreatePercent,100,100,100,100,100,100,100,100,100
+-iCultureLevelPercent,100,100,100,100,100,100,100,100,100
+-iDifficulty,10,20,30,40,50,60,70,80,90
+-iDistanceMaintenancePercent,60,65,70,75,80,85,90,95,100
+-iForeignCultureStrength,11,14,17,20,23,26,29,32,35
+-iFreeUnits,20,8,7,6,5,4,3,2,1
+-iFreeWinsVsBarbs,2,1,0,0,0,0,0,0,0
+-iGPThresholdPercent,85,90,95,100,105,110,115,120,125
+-iGold,0,0,0,0,0,0,0,0,0
+-iHappyBonus,5,5,4,4,4,4,4,4,4
+-iHealthBonus,3,3,2,2,2,2,2,2,2
+-iInflationPercent,100,100,100,100,100,100,100,100,100
+-iMaxColonyMaintenance,200,200,200,200,200,200,200,200,200
+-iMaxNumCitiesMaintenance,4000,4000,5000,5000,6000,6000,7000,7000,8000
+-iNoTechTradeModifier,80,72,66,60,54,48,42,36,30
+-iNumCitiesMaintenancePercent,60,65,70,75,80,85,90,95,100
+-iResearchPercent,100,100,100,100,100,100,100,100,100
+-iSeaBarbarianBonus,,,,,,,,,0
+-iSeaBarbarianExtraMoves,,,,,,,,,0
+-iStartingDefenseUnits,1,1,1,1,1,1,1,1,1
+-iStartingExploreUnits,0,0,0,0,0,0,0,0,0
+-iStartingLocPercent,11,22,33,44,55,66,77,88,99
+-iStartingWorkerUnits,0,0,0,0,0,0,0,0,0
+-iTechTradeKnownModifier,-30,-20,-10,0,0,0,0,0,0
+-iTrainPercent,100,100,100,100,100,100,100,100,100
+-iUnitCostPercent,100,100,100,100,100,100,100,100,100
+-iUnownedTilesPerBarbarianCity,130,125,120,115,110,105,100,95,90
+-iUnownedTilesPerBarbarianUnit,64,61,58,55,52,49,46,43,40
+-iUnownedTilesPerGameAnimal,52,49,46,43,40,37,34,31,28
+-iUnownedWaterTilesPerBarbarianUnit,475,450,425,400,375,350,325,300,275
+-GOODY_BARBARIANS_STRONG (*),0,0,1,1,1,1,1,2,2
+-GOODY_BARBARIANS_WEAK (*),0,1,1,2,3,4,5,5,6
+-GOODY_EXPERIENCE (*),1,1,1,2,2,2,2,2,2
+-GOODY_HEALING (*),1,1,1,1,1,1,1,1,1
+-GOODY_HIGH_GOLD (*),4,3,3,2,1,1,0,0,0
+-GOODY_LOW_GOLD (*),2,2,2,3,4,3,4,4,4
+-GOODY_MAP (*),1,1,2,2,2,2,2,2,1
+-GOODY_SCOUT (*),1,1,1,1,1,1,1,1,1
+-GOODY_SETTLER (*),0,0,0,0,0,0,0,0,0
+-GOODY_TECH (*),4,4,4,4,4,3,3,3,3
+-GOODY_WARRIOR (*),2,2,2,2,2,2,1,1,1
+-GOODY_WORKER (*),0,0,0,0,0,0,0,0,0
+-AIFreeTechs,,,,,,,,,
+-FreeTechs,,,,,,,,,
+-
+-
+-
+-
+-,[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND],[LEGEND]
+-,-------,-------,-------,-------,-------,-------,-------,-------,-------
+-,-------,-------,-------,-------,-------,-------,-------,-------,-------
+
+diff --git a/handicap_info_to_csv_legend_advciv-sas.md b/handicap_info_to_csv_legend_advciv-sas.md
+deleted file mode 100644
+index b3916fcf7..000000000
+--- a/handicap_info_to_csv_legend_advciv-sas.md
++++ /dev/null
+@@ -1,21 +0,0 @@
+-# Handicap Info Legend Notes
+-
+-## Goodies Footnote
+-
+-> (*): This element is listed under the heading **"Goodies (20)"** in the XML file.
+-> It indicates the chance (x-in-20) of a goody hut yielding this result when "popped" by the player.
+-> Source: [Civ4 Difficulty Wiki](https://civilization.fandom.com/wiki/Difficulty_level_(Civ4)?utm_source=chatgpt.com)
+-
+-## Abbreviation Keys
+-
+-- **AIFT_**: `AIFreeTechs`
+-- **FT_**: `FreeTechs`
+-
+-## Abbreviated Tech Names
+-
+-The following technology names were shortened for compactness in the table view:
+-
+-- **Animal H.** → `Animal Husbandry`
+-- **Bronze W.** → `Bronze Working`
+-- **Industr.** → `Industrialism`
+-- **Iron W.** → `Iron Working`
+
+[PATCH COVERAGE]
+patchFiles=16 embeddedFiles=15 omittedFiles=1 embeddedPatchBytes=40936

@@ -1,0 +1,552 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2840
+# Commit: 04543e82d72d61f2d48cc0027efda50fb8a2e291
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 29ec9f8034a42209c84136c2baca2491453f0e2b
+# Title: Replace some floating-point math
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	4	Assets/XML/AI_Variables_GlobalDefines.xml
+5	9	CvGameCoreDLL/CvCity.cpp
+9	1	CvGameCoreDLL/CvGameCoreUtils.h
+0	3	CvGameCoreDLL/CvGlobals.cpp
+2	3	CvGameCoreDLL/CvGlobals.h
+1	1	CvGameCoreDLL/CvPlayer.cpp
+34	30	CvGameCoreDLL/CvPlayerAI.cpp
+47	44	CvGameCoreDLL/CvTeamAI.cpp
+1	1	CvGameCoreDLL/CvTeamAI.h
+10	9	CvGameCoreDLL/CvUnitAI.cpp
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 42908a6ff..9126b1ec4 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -243,16 +243,16 @@
+ 		<!-- When computing per-civ power values (which play an important role
+ 			 in decisions on war and peace), the power value of each individual
+ 			 unit is raised to the power of (i.e. exponentiated by)
+-			 POWER_CORRECTION. For example, if POWER_CORRECTION is 2, per-unit
+-			 power values are squared. POWER_CORRECTION = 1 is the BtS behavior;
++			 POWER_CORRECTION. For example, if POWER_CORRECTION is 200%, per-unit
++			 power values are squared. POWER_CORRECTION = 100% is the BtS behavior;
+ 			 power values then typically equal unit strength, e.g. two Warriors
+ 			 are as good as one Spearman. When squaring, one Spearman is as
+ 			 good as four Warriors. (That seems too much.) Recommended:
+-			 1.66; one Spearman then corresponds to 3.15 Warriors. -->
++			 166%; one Spearman then corresponds to 3.15 Warriors. -->
+ 		<!-- advc.159: A fraction (3/4) of this value is also used for some
+ 			 tactical decisions outside the UWAI component. -->
+         <DefineName>POWER_CORRECTION</DefineName>
+-        <fDefineFloatVal>1.66</fDefineFloatVal>
++		<iDefineIntVal>166</iDefineIntVal>
+     </Define>
+ 	<!-- [/advc.104] -->
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index ade633e36..99c4f0dcf 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -3923,7 +3923,7 @@ int CvCity::getHurryCost(bool bExtra, int iProductionLeft, int iHurryModifier, i
+ 	if(iProductionLeft <= 0)
+ 		return 0;
+ 	// </advc.064b>
+-	int iProduction = (iProductionLeft * iHurryModifier + 99) / 100; // round up
++	int iProduction = intdiv::uceil(iProductionLeft * iHurryModifier, 100);
+ 
+ 	if (bExtra)
+ 	{
+@@ -3931,12 +3931,8 @@ int CvCity::getHurryCost(bool bExtra, int iProductionLeft, int iHurryModifier, i
+ 			/*  advc.064c (comment): Passing 0 here instead of iModifier would
+ 				only apply generic modifiers */
+ 				iModifier);
+-		if (iExtraProduction > 0)
+-		{
+-			int iAdjustedProd = iProduction * iProduction;
+-			// round up
+-			iProduction = (iAdjustedProd + (iExtraProduction - 1)) / iExtraProduction;
+-		}
++		if (iExtraProduction > 0) // adjust production
++			iProduction = intdiv::uceil(SQR(iProduction), iExtraProduction);
+ 	}
+ 
+ 	return std::max(0, iProduction);
+@@ -10869,7 +10865,7 @@ void CvCity::doGreatPeople()
+ 		// <advc> Should only happen in old savegames (due to a bug in AdvCiv 0.97)
+ 		bool const bOverflow = (iTotalGreatPeopleUnitProgress > CvRandom::getRange());
+ 		if (bOverflow)
+-			iTotalGreatPeopleUnitProgress = scaled(iTotalGreatPeopleUnitProgress, 100).ceil(); // </advc>
++			iTotalGreatPeopleUnitProgress = per100(iTotalGreatPeopleUnitProgress).ceil(); // </advc>
+ 
+ 		int iGreatPeopleUnitRand = GC.getGame().getSorenRandNum(
+ 				iTotalGreatPeopleUnitProgress, "Great Person");
+@@ -10881,7 +10877,7 @@ void CvCity::doGreatPeople()
+ 			int iLoopProgress = getGreatPeopleUnitProgress(eLoopGP);
+ 			// <advc> (see above)
+ 			if (bOverflow)
+-				iLoopProgress = scaled(iLoopProgress, 100).ceil(); // </advc>
++				iLoopProgress = per100(iLoopProgress).ceil(); // </advc>
+ 			if (iGreatPeopleUnitRand < iLoopProgress)
+ 			{
+ 				eGreatPeopleUnit = eLoopGP;
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index 02e86e323..c413a4e58 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -23,12 +23,20 @@ class FAStar;
+ inline int ROUND_DIVIDE(int a, int b)
+ {
+ 	//return (a+((a/b>0)?1:-1)*(b/2)) / b;
+-	// <advc.001> ^That'll round 2/3 to 0
++	// <advc.001> The above would round 2/3 to 0
+ 	int iSign = ((a ^ b) >= 0 ? 1 : -1);
+ 	return (a + iSign * b / 2) / b;
+ 	// </advc.001>
+ }
+ 
++namespace intdiv
++{
++	inline int uceil(int a, int b)
++	{
++		return 1 + (a - 1) / b;
++	}
++}
++
+ /*	advc.opt: MSVC produces branches for std::max and std::min.
+ 	There is a cmov instruction, but 32-bit MSVC won't generate that.
+ 	(There might be an intrinsic that we could use though.)
+
+diff --git a/CvGameCoreDLL/CvGlobals.cpp b/CvGameCoreDLL/CvGlobals.cpp
+index 5d7c1abf1..a139745e4 100644
+--- a/CvGameCoreDLL/CvGlobals.cpp
++++ b/CvGameCoreDLL/CvGlobals.cpp
+@@ -67,7 +67,6 @@ m_fCAMERA_MAX_TURN_OFFSET(0), m_fCAMERA_MIN_DISTANCE(0),
+ m_fCAMERA_UPPER_PITCH(0), m_fCAMERA_LOWER_PITCH(0),
+ m_fFIELD_OF_VIEW(0), m_fSHADOW_SCALE(0),
+ m_fUNIT_MULTISELECT_DISTANCE(0),
+-m_fPOWER_CORRECTION(0), // advc.104
+ // <advc> Safer to initialize these
+ m_pArtFileMgr(NULL),
+ m_paszEntityEventTypes(NULL),
+@@ -736,8 +735,6 @@ void CvGlobals::cacheGlobalFloats(
+ 	m_fCAMERA_LOWER_PITCH = getDefineFLOAT("CAMERA_LOWER_PITCH");
+ 	m_fSHADOW_SCALE = getDefineFLOAT("SHADOW_SCALE");
+ 	m_fUNIT_MULTISELECT_DISTANCE = getDefineFLOAT("UNIT_MULTISELECT_DISTANCE");
+-
+-	m_fPOWER_CORRECTION = getDefineFLOAT("POWER_CORRECTION"); // advc.104
+ }
+ 
+ void CvGlobals::cacheGlobals()
+
+diff --git a/CvGameCoreDLL/CvGlobals.h b/CvGameCoreDLL/CvGlobals.h
+index f6de139a1..a69f7b3dd 100644
+--- a/CvGameCoreDLL/CvGlobals.h
++++ b/CvGameCoreDLL/CvGlobals.h
+@@ -545,7 +545,8 @@ public:
+ 		DO(LFB_ENABLE) DO(LFB_BASEDONGENERAL) DO(LFB_BASEDONEXPERIENCE) \
+ 		DO(LFB_BASEDONLIMITED) DO(LFB_BASEDONHEALER) DO(LFB_DEFENSIVEADJUSTMENT) \
+ 		DO(LFB_USESLIDINGSCALE) DO(LFB_ADJUSTNUMERATOR) DO(LFB_ADJUSTDENOMINATOR) \
+-		DO(LFB_USECOMBATODDS) /* BETTER_BTS_AI_MOD: END */
++		DO(LFB_USECOMBATODDS) /* BETTER_BTS_AI_MOD: END */ \
++		DO(POWER_CORRECTION) /* advc.104 */
+ 	#define MAKE_ENUMERATOR(VAR) VAR,
+ 	enum GlobalDefines
+ 	{
+@@ -612,7 +613,6 @@ public:
+ 	int getNUM_OR_TECH_PREREQS() const;
+ 	int getNUM_ROUTE_PREREQ_OR_BONUSES() const;
+ 	int getNUM_CORPORATION_PREREQ_BONUSES() const;*/
+-	inline float getPOWER_CORRECTION() const { return m_fPOWER_CORRECTION; } // advc.104
+ 	// advc: All inlined and constified
+ 	DllExport inline float getCAMERA_MIN_YAW() { CvGlobals const& kThis = *this; return kThis.getCAMERA_MIN_YAW(); }
+ 	inline float getCAMERA_MIN_YAW() const { return m_fCAMERA_MIN_YAW; }
+@@ -907,7 +907,6 @@ protected:
+ 	ImprovementTypes m_eRUINS_IMPROVEMENT;
+ 	SpecialistTypes m_eDEFAULT_SPECIALIST;
+ 	TerrainTypes m_aeWATER_TERRAIN[2]; // </advc.opt>
+-	float m_fPOWER_CORRECTION; // advc.104
+ 
+ 	float m_fCAMERA_MIN_YAW;
+ 	float m_fCAMERA_MAX_YAW;
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index cb46070c3..c281dfffc 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -6385,7 +6385,7 @@ int CvPlayer::getResearchTurnsLeft(TechTypes eTech, bool bOverflow) const
+ {
+ 	int iTurnsLeft = getResearchTurnsLeftTimes100(eTech, bOverflow);
+ 	if(iTurnsLeft >= 0) // advc.004x
+-		iTurnsLeft = (iTurnsLeft + 99) / 100; // round up
++		iTurnsLeft = intdiv::uceil(iTurnsLeft, 100);
+ 	//return std::max(1, iTurnsLeft);
+ 	return iTurnsLeft; // advc.004x: -1 now means infinitely many turns
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 2e07a09af..d7ac8c112 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9947,10 +9947,10 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const& kThe
+ 	}
+ 	if (bMayAddGold)
+ 	{
+-		int iGoldData = ((iTheyReceive - iWeReceive) * 100 +
+-				// bTheyGenerous: round up or down
+-				(bTheyGenerous ? (iGoldValuePercent - 1) : 0)) /
+-				iGoldValuePercent;
++		int iGoldData = (iTheyReceive - iWeReceive) * 100;
++		if (bTheyGenerous)
++			iGoldData = intdiv::uceil(iGoldData, iGoldValuePercent);
++		else iGoldData /= iGoldValuePercent;
+ 		// if(kPlayer.AI_maxGoldTrade(getID()) >= iGoldData)
+ 		// <advc.026>
+ 		int iMaxGold = ((isHuman() && bTheyGenerous) ?
+@@ -10291,10 +10291,10 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const& kThe
+ 	{
+ 		if (bMayAddGold)
+ 		{
+-			int iGoldData = ((iTheyReceive - iWeReceive) * 100 +
+-					// bGenerous: round up or down
+-					(bTheyGenerous ? (iGoldValuePercent - 1) : 0)) /
+-					iGoldValuePercent;
++			int iGoldData = (iTheyReceive - iWeReceive) * 100;
++			if (bTheyGenerous)
++				iGoldData = intdiv::uceil(iGoldData, iGoldValuePercent);
++			else iGoldData /= iGoldValuePercent;
+ 			//int iMaxGold = kPlayer.AI_maxGoldTrade(getID());
+ 			// <advc.026> (same procedure as in the initial gold check)
+ 			int iMaxGold = ((bTheyGenerous && isHuman()) ?
+@@ -17999,8 +17999,8 @@ void CvPlayerAI::AI_doCounter()
+ 
+ 	CvGame& kGame = GC.getGame();
+ 	CvTeamAI const& kOurTeam = GET_TEAM(getTeam());
+-	CvLeaderHeadInfo& kPersonality = GC.getInfo(getPersonalityType());
+-	double decayFactor = 1 - GET_TEAM(getTeam()).AI_getDiploDecay(); // advc.130k
++	CvLeaderHeadInfo const& kPersonality = GC.getInfo(getPersonalityType());
++	scaled rDecayFactor = 1 - GET_TEAM(getTeam()).AI_getDiploDecay(); // advc.130k
+ 	// <advc.130k>
+ 	for (PlayerIter<MAJOR_CIV,KNOWN_TO> it(getTeam()); it.hasNext(); ++it)
+ 	{
+@@ -18016,8 +18016,8 @@ void CvPlayerAI::AI_doCounter()
+ 		}
+ 		else
+ 		{
+-			AI_setSameReligionCounter(ePlayer, (int)
+-					(decayFactor * AI_getSameReligionCounter(ePlayer)));
++			AI_setSameReligionCounter(ePlayer,
++					(AI_getSameReligionCounter(ePlayer) * rDecayFactor).floor());
+ 		}
+ 		if (getStateReligion() != NO_RELIGION &&
+ 			kPlayer.getStateReligion() != NO_RELIGION &&
+@@ -18029,20 +18029,23 @@ void CvPlayerAI::AI_doCounter()
+ 		{
+ 			AI_changeDifferentReligionCounter(ePlayer, kOurTeam.AI_randomCounterChange());
+ 		}
+-		else AI_setDifferentReligionCounter(ePlayer, (int)(
+-				decayFactor * AI_getDifferentReligionCounter(ePlayer)));
++		else AI_setDifferentReligionCounter(ePlayer,
++				(AI_getDifferentReligionCounter(ePlayer) * rDecayFactor).floor());
+ 		if (kPersonality.getFavoriteCivic() != NO_CIVIC)
+ 		{
+ 			CivicTypes eFavCivic = (CivicTypes)kPersonality.getFavoriteCivic();
+-			if(isCivic(eFavCivic) && kPlayer.isCivic(eFavCivic))
++			if (isCivic(eFavCivic) && kPlayer.isCivic(eFavCivic))
+ 				AI_changeFavoriteCivicCounter(ePlayer, kOurTeam.AI_randomCounterChange());
+-			else AI_setFavoriteCivicCounter(ePlayer, (int)(
+-				decayFactor * AI_getFavoriteCivicCounter(ePlayer)));
++			else
++			{
++				AI_setFavoriteCivicCounter(ePlayer,
++						(AI_getFavoriteCivicCounter(ePlayer) * rDecayFactor).floor());
++			}
+ 		} // <advc.130p>
+-		AI_setPeacetimeGrantValue(ePlayer, (int)(
+-				decayFactor * AI_getPeacetimeGrantValue(ePlayer)));
+-		AI_setPeacetimeTradeValue(ePlayer, (int)(
+-				decayFactor * AI_getPeacetimeTradeValue(ePlayer)));
++		AI_setPeacetimeGrantValue(ePlayer,
++				(AI_getPeacetimeGrantValue(ePlayer) * rDecayFactor).floor());
++		AI_setPeacetimeTradeValue(ePlayer,
++				(AI_getPeacetimeTradeValue(ePlayer) * rDecayFactor).floor());
+ 		// </advc.130p>
+ 		// <advc.149>
+ 		int iAttitudeDiv = kPersonality.getBonusTradeAttitudeDivisor();
+@@ -18056,8 +18059,8 @@ void CvPlayerAI::AI_doCounter()
+ 		{
+ 			/*  BtS decreases the BonusTradeCounter by 1 + kPlayer.getNumCities() / 4,
+ 				but let's just do exponential decay instead. */
+-			AI_setBonusTradeCounter(ePlayer, (int)(
+-					decayFactor * AI_getBonusTradeCounter(ePlayer)));
++			AI_setBonusTradeCounter(ePlayer,
++					(AI_getBonusTradeCounter(ePlayer) * rDecayFactor).floor());
+ 		}
+ 		else
+ 		{
+@@ -18073,8 +18076,8 @@ void CvPlayerAI::AI_doCounter()
+ 				scaled rExportable;
+ 				FOR_EACH_ENUM(Bonus)
+ 				{
+-					int iAvail = kPlayer.getNumAvailableBonuses(eLoopBonus)
+-							+ kPlayer.getBonusExport(eLoopBonus);
++					int iAvail = kPlayer.getNumAvailableBonuses(eLoopBonus) +
++							kPlayer.getBonusExport(eLoopBonus);
+ 					if (iAvail > 1)
+ 						rExportable += std::min(iAvail - 1, 3);
+ 				} /* Mean of capBonuses and a multiple of exportable, but
+@@ -18090,10 +18093,11 @@ void CvPlayerAI::AI_doCounter()
+ 					kPersonality.getBonusTradeAttitudeChangeLimit()).round(),
+ 					rIncr / 2)); // Halved b/c it's a binomial distrib w/ 2 trials
+ 			// <advc.036>
+-			int iOldGoldTraded = AI_getGoldTradedTo(ePlayer);
+-			int iNewGoldTraded = (int)(decayFactor * iOldGoldTraded);
+-			AI_changeGoldTradedTo(ePlayer, iNewGoldTraded - iOldGoldTraded);
+-			// </advc.036>
++			{
++				int iOldGoldTraded = AI_getGoldTradedTo(ePlayer);
++				int iNewGoldTraded = (rDecayFactor * iOldGoldTraded).floor();
++				AI_changeGoldTradedTo(ePlayer, iNewGoldTraded - iOldGoldTraded);
++			} // </advc.036>
+ 		} // </advc.149> </advc.130k>
+ 	}
+ 
+@@ -24035,7 +24039,7 @@ void CvPlayerAI::AI_updateStrategyHash()
+ 				// Memory of them declaring on us and our friends
+ 				int iWarMemory = AI_getMemoryCount((PlayerTypes)iI, MEMORY_DECLARED_WAR);
+ 				iWarMemory += (AI_getMemoryCount((PlayerTypes)iI, MEMORY_DECLARED_WAR_ON_FRIEND) + 1)/2;
+-				iWarMemory = (int)ceil(iWarMemory / 2.5); // advc.130j
++				iWarMemory = (iWarMemory / fixp(2.5)).ceil(); // advc.130j
+ 				if (iWarMemory > 0)
+ 				{
+ 					//they are a snake
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 1ec2c2b4a..b1c86ca5b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -4329,29 +4329,20 @@ void CvTeamAI::AI_reportSharedWarSuccess(int iIntensity, TeamTypes eWarAlly,
+ 	/*  War success against us as a measure of how distressed we are, i.e. how
+ 		much we need the assistance from agentId. Counts all our enemies,
+ 		not just enemyId. */
+-	double distress = 0;
+-	double const maxDistress = GC.getWAR_SUCCESS_CITY_CAPTURING() / 5.0;
+-	if(getNumCities() > 0)
++	scaled rDistress;
++	scaled const rMaxDistress(GC.getWAR_SUCCESS_CITY_CAPTURING(), 5);
++	if (getNumCities() > 0)
+ 	{
+-		if(bIgnoreDistress) // Not "ignored", I guess, but computed differently
+-			// The divisor is half the number of cities, rounded up
+-			distress = maxDistress / ((int)(getNumCities() / 2.0 + 0.5));
++		if (bIgnoreDistress) // Not "ignored", I guess, but computed differently.
++			rDistress = rMaxDistress / scaled(getNumCities(), 2).ceil();
+ 		else
+ 		{
+-			// advc.test: To assert that eEnemy is among our enemies
+-			//std::set<TeamTypes> ourEnemies;
+-			for(int i = 0; i < MAX_CIV_TEAMS; i++)
++			for (TeamIter<MAJOR_CIV,ENEMY_OF> itEnemy(getID());
++				itEnemy.hasNext(); ++itEnemy)
+ 			{
+-				CvTeamAI const& kLoopEnemy = GET_TEAM((TeamTypes)i);
+-				if(kLoopEnemy.isAlive() && !kLoopEnemy.isMinorCiv() &&
+-					isAtWar(kLoopEnemy.getID()))
+-				{
+-					//ourEnemies.insert(kLoopEnemy.getID()); // advc.test
+-					distress += kLoopEnemy.AI_getWarSuccess(getID());
+-				}
++				rDistress += itEnemy->AI_getWarSuccess(getID());
+ 			}
+-			//FAssert(ourEnemies.count(eEnemy) > 0 || eEnemy == BARBARIAN_TEAM || GET_TEAM(eEnemy).isMinorCiv()); // advc.test
+-			distress /= getNumCities();
++			rDistress /= getNumCities();
+ 		}
+ 	}
+ 	/*  Don't give distress too much weight. It's mostly there to discount
+@@ -4360,16 +4351,17 @@ void CvTeamAI::AI_reportSharedWarSuccess(int iIntensity, TeamTypes eWarAlly,
+ 		war success as taking the city itself, the highest possible distress is
+ 		2 * WAR_SUCCESS_CITY_CAPTURING * NumCities. If our distress is just 10%
+ 		of that, the distress multiplier already takes its maximal value. */
+-	distress = std::min(distress, maxDistress);
++	rDistress = std::min(rDistress, rMaxDistress);
+ 	int iOldValue = AI_getSharedWarSuccess(eWarAlly);
+ 	// Asymptote at 5000
+-	double brakeFactor = std::max(0.0, 1 - iOldValue / 5000.0);
+-	int iNewValue = ::round(iOldValue + brakeFactor *
+-			100.0 * distress * iIntensity / // Times 100 for accuracy
++	scaled rBrakeFactor = scaled::max(0, 1 - scaled(iOldValue, 5000));
++	int const iPrecision = 100; // Precision of what we'll store (in an int)
++	int iNewValue = iOldValue +
++			((rBrakeFactor * iPrecision * rDistress * iIntensity) /
+ 			/*  Use number of cities as an indicator of how capable the war ally is
+ 				militarily - how difficult was this war success to accomplish, or
+ 				how big a sacrifice was the loss. */
+-			std::max(1, GET_TEAM(eWarAlly).getNumCities()));
++			std::max(1, GET_TEAM(eWarAlly).getNumCities())).round();
+ 	FAssert(iNewValue >= iOldValue);
+ 	AI_setSharedWarSuccess(eWarAlly, iNewValue);
+ }
+@@ -4415,11 +4407,11 @@ void CvTeamAI::AI_changeEnemyPeacetimeTradeValue(TeamTypes eIndex, int iChange)
+ }
+ 
+ // <advc.130p>, advc.130m To keep the rate consistent between TeamAI and PlayerAI
+-double CvTeamAI::AI_getDiploDecay() const
++scaled CvTeamAI::AI_getDiploDecay() const
+ {
+ 	/*  On Normal speed, this decay rate halves a value in about 50 turns:
+ 		0.9865^50 = 0.507 */
+-	return 1.45 / GC.getInfo(GC.getGame().getGameSpeedType()).
++	return fixp(1.45) / GC.getInfo(GC.getGame().getGameSpeedType()).
+ 			getGoldenAgePercent();
+ }
+ 
+@@ -5451,14 +5443,14 @@ void CvTeamAI::AI_doCounter()
+ 		{
+ 			AI_changeAtPeaceCounter(eOther, AI_getAtPeaceCounter(eOther) == 0 ?
+ 					1 : AI_randomCounterChange());
+-		}  // <advc>
++		} 
+ 		if(!isHasMet(eOther) || isBarbarian() || GET_TEAM(eOther).isBarbarian())
+-			continue; // </advc>
++			continue;
+ 		AI_changeHasMetCounter(eOther, 1);
+ 		// <advc>
+ 		if (isMinorCiv() || GET_TEAM(eOther).isMinorCiv())
+ 			continue; // </advc>
+-		double decay = AI_getDiploDecay(); // advc.130k
++		scaled const rDecayFactor = 1 - AI_getDiploDecay(); // advc.130k
+ 		// <advc.130i>
+ 		if(isOpenBorders(eOther))
+ 		{
+@@ -5466,31 +5458,42 @@ void CvTeamAI::AI_doCounter()
+ 			int iMax = 2 * AI_getOpenBordersAttitudeDivisor() + 10;
+ 			AI_changeOpenBordersCounter(eOther, AI_randomCounterChange(iMax, rProb));
+ 		} // </advc.130i>  <advc.130k>
+-		else AI_setOpenBordersCounter(eOther, (int)(
+-				(1 - decay) * AI_getOpenBordersCounter(eOther))); // </advc.130k>
++		else
++		{
++			AI_setOpenBordersCounter(eOther,
++					(AI_getOpenBordersCounter(eOther) * rDecayFactor).floor());
++		} // </advc.130k>
+ 		if(isDefensivePact(eOther))
+ 			AI_changeDefensivePactCounter(eOther, AI_randomCounterChange());
+ 		// <advc.130k>
+-		else AI_setDefensivePactCounter(eOther, (int)(
+-				(1 - decay) * AI_getDefensivePactCounter(eOther))); // </advc.130k>
++		else
++		{
++			AI_setDefensivePactCounter(eOther,
++					(AI_getDefensivePactCounter(eOther) * rDecayFactor).floor());
++		} // </advc.130k>
+ 		if(AI_shareWar(eOther))
+ 			AI_changeShareWarCounter(eOther, AI_randomCounterChange()); // </advc.130k>
+ 		// <advc.130m> Decay by 1 with 10% probability
+ 		else if(AI_getShareWarCounter(eOther) > 0 &&
+-				::bernoulliSuccess(0.1, "advc.130m"))
++			fixp(0.1).bernoulliSuccess(GC.getGame().getSRand(), "share war decay"))
++		{
+ 			AI_changeShareWarCounter(eOther, -1);
+-		AI_setSharedWarSuccess(eOther, (int)
+-				((1 - decay) * AI_getSharedWarSuccess(eOther))); // </advc.130m>
+-		// <advc.130p>
+-		AI_changeEnemyPeacetimeGrantValue(eOther, -(int)std::ceil(
+-				decay * AI_getEnemyPeacetimeGrantValue(eOther)));
+-		AI_changeEnemyPeacetimeTradeValue(eOther, -(int)std::ceil(
+-				decay * AI_getEnemyPeacetimeTradeValue(eOther)));
++		}
++		AI_setSharedWarSuccess(eOther,
++				(AI_getSharedWarSuccess(eOther) * rDecayFactor).floor());
++		// </advc.130m>  <advc.130p>
++		AI_setEnemyPeacetimeGrantValue(eOther,
++				(AI_getEnemyPeacetimeGrantValue(eOther) * rDecayFactor).floor());
++		AI_setEnemyPeacetimeTradeValue(eOther,
++				(AI_getEnemyPeacetimeTradeValue(eOther) * rDecayFactor).floor());
+ 		// </advc.130p>
+-		// <advc.130r> Double decay rate for war success
+-		int iWSOld = AI_getWarSuccess(eOther);
+-		int iWSNew = std::max(0, iWSOld - (int)std::ceil(2 * decay * iWSOld));
+-		AI_setWarSuccess(eOther, iWSNew); // </advc.130r>
++		// <advc.130r>
++		{	// Double decay rate for war success
++			int iWSOld = AI_getWarSuccess(eOther);
++			int iWSNew = (iWSOld * std::max(fixp(0.5),
++					1 - 2 * AI_getDiploDecay())).floor();
++			AI_setWarSuccess(eOther, iWSNew);
++		} // </advc.130r>
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index c5921d2f4..c0b4f34b1 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -181,7 +181,7 @@ public:
+ 			bool bPeaceDeal = false) const;
+ 	// 0 or less if eEnemy isn't an enemy at all
+ 	int AI_enmityValue(TeamTypes eEnemy) const;
+-	double AI_getDiploDecay() const;
++	scaled AI_getDiploDecay() const;
+ 	scaled AI_recentlyMetMultiplier(TeamTypes eOther) const;
+ 	// </advc.130p>
+ 	// advc.130k: Public b/c CvPlayerAI needs it too
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 53deb44be..778d86b4d 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1099,18 +1099,19 @@ int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther,
+ 		evaluating imminent stack-on-stack combat. When we already know that
+ 		a stack of stronger units is facing a larger stack of weaker units
+ 		we need to assume a high chance of having to fight multiple enemies in a row. */
+-	static double exponent = std::max(1.0, 0.75 * GC.getPOWER_CORRECTION());
+-	static double const normalizationFactor = (exponent < 1.05 ? 1 :
++	static scaled const rExponent = scaled::max(1,
++			fixp(3/4.) * per100(GC.getDefineINT(CvGlobals::POWER_CORRECTION)));
++	static scaled const rNormalizationFactor = (rExponent < fixp(1.05) ? 1 :
+ 			// Pretty arbitrary; only need to weigh rounding errors against the danger of overflow.
+-			25000 / std::pow(10000.0, exponent));
++			25000 / scaled(10000).pow(rExponent));
+ 	/*  Make the AI overestimate weak units a little bit on the low and medium difficulty settings.
+ 		(Not static b/c difficulty can change through load/ new game.) */
+-	double exponentAdjusted = exponent - GC.getInfo(
+-			GC.getGame().getHandicapType()).getFreeWinsVsBarbs() / 25.0;
+-	int r = std::min(25000, // Guard against overflow problems for caller
+-			::round(std::pow((double)iCombatStrengthPercent, exponentAdjusted) *
+-			normalizationFactor));
+-	return std::max(1, r); // Don't round down to 0
++	scaled rExponentAdjusted = rExponent - scaled(std::max(0,
++			50 - GC.getInfo(GC.getGame().getHandicapType()).getDifficulty()), 250);
++	int iR = std::min(25000, // Guard against overflow problems for caller
++			(scaled(iCombatStrengthPercent).pow(rExponentAdjusted) *
++			rNormalizationFactor).round());
++	return std::max(1, iR); // Don't round down to 0
+ }
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index e0e2dfe93..8961f3548 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -19,7 +19,7 @@ using std::string;
+ 
+ namespace {
+ 	inline double powerCorrect(double multiplier) {
+-		 return std::pow(multiplier, (double)GC.getPOWER_CORRECTION());
++		 return std::pow(multiplier, GC.getDefineINT(CvGlobals::POWER_CORRECTION) / 100.0);
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=11 embeddedFiles=11 omittedFiles=0 embeddedPatchBytes=22429

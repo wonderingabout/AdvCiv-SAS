@@ -1,0 +1,740 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3186
+# Commit: 22867fe3c4fc8cbe5eea38e3b15a587271db3bfd
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 1133f775a81c1b11bf17a5257f5cf650f4ae6540
+# Title: Address an issue with premature allocation in ArrayEnumMap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+223	228	CvGameCoreDLL/EnumMap.h
+2	0	CvGameCoreDLL/EnumMapTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 30038f7b5..5e0c723a8 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -101,7 +101,7 @@ for (std::pair<TeamTypes,int> perTeamVal;
+ 	void assign(T const& kOther)
+ 
+ // Memory shared by all enum map classes
+-// Actually, make it a template so that static variables can be defined in the header.
++// Actually, make it a template so that static data members can be defined in the header.
+ template<class Dummy>
+ class EnumMapNonTempl
+ {
+@@ -117,7 +117,7 @@ long long EnumMapNonTempl<Dummy>::m_lDummy = 0;
+ 	Meaning, unfortunately, that fractional default values (for float, ScaledNum)
+ 	aren't possible. */
+ template<class Derived, typename E, class V, class CV, int iDEFAULT>
+-class EnumMapBase : EnumMapNonTempl
++class EnumMapBase : EnumMapNonTempl<int>
+ {
+ protected:
+ 	// CRT pattern (static polymorphism)
+@@ -147,6 +147,7 @@ protected:
+ 			is_same_type<CompactV,BitBlock>::value));
+ 	static bool const bBIT_BLOCKS = (is_same_type<V,bool>::value &&
+ 			is_same_type<CompactV,BitBlock>::value);
++	enum Operation { OP_ASSIGN, OP_ADD, OP_MULT, OP_DIV, OP_TOGGLE, OP_UNKNOWN };
+ 
+ public:
+ 	// Externally visible statics ...
+@@ -181,42 +182,33 @@ protected:
+ 
+ public:
+ 	/*	At a minimum, derived classes need to define a reset function,
+-		getUnsafe or getCompact, and either setUnsafe or a lookup function
+-		(lookupUnsafe or lookupCompact).
+-		If bARITHMETIC is true and no lookup function is defined, then
+-		addCompact, multiplyCompact and divideCompact (or _add, _multiply, _divide)
+-		are also needed.
+-		If array bounds need to be checked, then those checks should be made in
+-		public functions, not in the protected ...Unsafe or ...Compact functions. */
++		a get function and a lookup function template.
++		Derived classes with bARITHMETIC=false can implement setUnsafe
++		(or setCompact) instead of lookup.*/
+ 	V get(E eKey) const
+ 	{
+ 		return derived().getUnsafe(eKey);
+ 	}
+ 	void set(E eKey, V vValue)
+ 	{
+-		derived().setUnsafe(eKey, vValue);
++		derived().changeValue<OP_ASSIGN>(eKey, vValue);
+ 	}
+-
+ 	void add(E eKey, V vAddend)
+ 	{
+-		addUnsafe(eKey, vAddend);
++		derived().changeValue<OP_ADD>(eKey, vAddend);
+ 	}
+ 	void multiply(E eKey, V vMultiplier)
+ 	{
+-		multiplyUnsafe(eKey, vMultiplier);
++		derived().changeValue<OP_MULT>(eKey, vMultiplier);
+ 	}
+ 	void divide(E eKey, V vDivisor)
+ 	{
+-		divideUnsafe(eKey, vDivisor);
++		derived().changeValue<OP_DIV>(eKey, vDivisor);
+ 	}
+ 	void toggle(E eKey)
+ 	{
+-		toggleUnsafe(eKey);
++		derived().changeValue<OP_TOGGLE>(eKey, false);
+ 	}
+-
+-	/*	Derived classes may be able to implement some of the remaining
+-		functions more efficiently */
+-
+ 	void reset()
+ 	{
+ 		FOR_EACH_KEY(eKey)
+@@ -273,6 +265,8 @@ public:
+ 		E eKey = static_cast<E>(iKey);
+ 	#ifdef ENUM_MAP_EXTRA_ASSERTS
+ 		FAssertInfoEnum(eKey);
++		// insert is not supposed to change values that are already stored
++		FAssert(derived().get(eKey) == vDEFAULT);
+ 		derived().setUnsafe(eKey, vValue);
+ 	#else
+ 		derived().set(eKey, vValue);
+@@ -344,105 +338,85 @@ public:
+ 	}
+ 
+ protected:
+-	CompactV& cvDummy()
+-	{
+-		BOOST_STATIC_ASSERT((sizeof(CompactV) <= sizeof(m_lDummy)));
+-		return *reinterpret_cast<CompactV*>(&m_lDummy);
+-	}
+-	/*	Can return cvDummy() if no value exists for eKey; however, the default
+-		implementations of the calling functions assume that a reference to a
+-		proper value is returned.
+-		Tbd.: This pattern has been a bit ill-considered. It doesn't work for
+-		list-based maps. It does work for array-based maps, but isn't ideal
+-		because it'll trigger lazy allocation even when the value isn't changed
+-		after the lookup (e.g. addition of 0). Should perhaps implement the more
+-		flexible op code pattern used by ListEnumMap at EnumMapBase instead. */
+-	CompactV& lookup(E eKey)
+-	{
+-		return derived().lookupUnsafe(eKey);
+-	}
+-
+ 	V getUnsafe(E eKey) const
+ 	{
+ 		return uncompactValue<V,CompactV>(derived().getCompact(compactKey(eKey)), eKey);
+ 	}
++	CompactV getCompact(CompactE ceKey) const
++	{
++		return derived().getCompact(ceKey);
++	}
+ 	void setUnsafe(E eKey, V vValue)
+ 	{
+-		CompactV& cvVal = derived().lookup(eKey);
+-		// Specialize for bool
+-		derived().assignVal<CompactV,V>(cvVal, vValue, eKey);
++		derived().changeValueUnsafe<OP_ASSIGN>(eKey, vValue);
+ 	}
+ 	void resetValUnsafe(E eKey)
+ 	{
+-		derived().set(eKey, vDEFAULT);
++		derived().setUnsafe(eKey, vDEFAULT);
+ 	}
+-	void addUnsafe(E eKey, V vAddend)
++	template<Operation eOP>
++	void changeValue(E eKey, V vOperand)
+ 	{
+-		_add<bARITHMETIC>(eKey, vAddend);
++		derived().changeValueUnsafe<eOP>(eKey, vOperand);
+ 	}
+-	void multiplyUnsafe(E eKey, V vMultiplier)
++	template<class T>
++	static T& getDummy()
+ 	{
+-		_multiply<bARITHMETIC>(eKey, vMultiplier);
++		BOOST_STATIC_ASSERT((sizeof(T) <= sizeof(m_lDummy)));
++		T* pDummy = reinterpret_cast<T*>(&m_lDummy);
++		return *pDummy;
+ 	}
+-	void divideUnsafe(E eKey, V vDivisor)
++	static CompactV& cvDummy()
+ 	{
+-		_divide<bARITHMETIC>(eKey, vDivisor);
++		CompactV& dummy = getDummy<CompactV>();
++		dummy = cvDEFAULT;
++		return dummy;
+ 	}
+-	void toggleUnsafe(E eKey)
++	static V& vDummy()
+ 	{
+-		_toggle<V>(eKey);
++		V& dummy = getDummy<V>();
++		dummy = vDEFAULT;
++		return dummy;
+ 	}
+-	CompactV& lookupUnsafe(E eKey)
++	/*	The operation and operand are given so that a derived class can decide
++		not to allocate memory based on isNeutralToDefaultVal or other criteria.
++		In that case cvDummy() should be returned, which means that any write
++		operation of the caller will have no effect. */
++	template<Operation eOP>
++	CompactV& lookup(E eKey, CompactV cvOperand)
+ 	{
+-		return derived().lookupCompact(compactKey(eKey));
++		return derived().lookupUnsafe<eOP>(eKey, cvOperand);
+ 	}
+-
+-	CompactV getCompact(CompactE ceKey) const
++	template<Operation eOP>
++	CompactV& lookupUnsafe(E eKey, CompactV cvOperand)
+ 	{
+-		return derived().getCompact(ceKey);
++		return derived().lookupCompact<eOP>(compactKey(eKey), cvOperand);
+ 	}
+-	CompactV& lookupCompact(CompactE ceKey)
+-	{
+-		return derived().lookupCompact(ceKey);
++	template<Operation eOP>
++	CompactV& lookupCompact(CompactE ceKey, CompactV cvValue)
++	{	// (Derived classes have to override one of the lookup function templates)
++		return derived().lookupCompact<eOP>(ceKey, cvValue);
+ 	}
+ 
+-	template<typename ValueType>
+-	bool _nextNonDefaultPair(int& iIter, std::pair<E,ValueType>& kPair) const
++	template<Operation eOP>
++	void changeValueUnsafe(E eKey, V vOperand)
+ 	{
+-		for (; iIter < getLength(); iIter++)
+-		{
+-			V val = derived().getUnsafe(static_cast<E>(iIter));
+-			if (val != vDEFAULT)
+-			{
+-				kPair.first = static_cast<E>(iIter);
+-				kPair.second = static_cast<ValueType>(val);
+-				iIter++;
+-				return true;
+-			}
+-		}
+-		return false;
++		BOOST_STATIC_ASSERT(false); // eOP not supported
+ 	}
+-	E _nextNonDefaultKey(int& iIter) const
++	template<>
++	void changeValueUnsafe<OP_ASSIGN>(E eKey, V vValue)
+ 	{
+-		for (; iIter < getLength(); iIter++)
+-		{
+-			V val = getUnsafe(static_cast<E>(iIter));
+-			if (val != vDEFAULT)
+-				return static_cast<E>(iIter++);
+-		}
+-		return endKey();
++		CompactV cvNewVal = compactValue(vValue);
++		CompactV& cvVal = derived().lookup<OP_ASSIGN>(eKey, cvNewVal);
++		CompactV cvOldVal = cvVal;
++		// Specialize for bool
++		derived().assignVal<CompactV,V>(cvVal, vValue, eKey);
++		derived().processValueChange(cvOldVal, cvNewVal);
+ 	}
+-
+-	// Only for arithmetic V
+-	template<bool bVALID>
+-	void _add(E, V) { BOOST_STATIC_ASSERT(false); }
+-	template<bool bVALID>
+-	void _multiply(E, V) { BOOST_STATIC_ASSERT(false); }
+-	template<bool bVALID>
+-	void _divide(E, V) { BOOST_STATIC_ASSERT(false); }
+ 	template<>
+-	void _add<true>(E eKey, V vAddend)
++	void changeValueUnsafe<OP_ADD>(E eKey, V vAddend)
+ 	{
++		BOOST_STATIC_ASSERT(bARITHMETIC);
+ 		CompactV cvAddend = compactValue(vAddend);
+ 	#ifdef ENUM_MAP_EXTRA_ASSERTS
+ 		CompactV cOldVal = derived().getCompact(compactKey(eKey));
+@@ -450,11 +424,12 @@ protected:
+ 				(cOldVal <= arithm_traits<CompactV>::max - cvAddend) :
+ 				(cOldVal >= arithm_traits<CompactV>::min - cvAddend));
+ 	#endif
+-		derived().addCompact<true>(eKey, cvAddend);
++		derived().changeValueCompact<OP_ADD>(eKey, cvAddend);
+ 	}
+ 	template<>
+-	void _multiply<true>(E eKey, V vMultiplier)
++	void changeValueUnsafe<OP_MULT>(E eKey, V vMultiplier)
+ 	{
++		BOOST_STATIC_ASSERT(bARITHMETIC);
+ 		CompactV cvMultiplier = compactValue(vMultiplier);
+ 	#ifdef ENUM_MAP_EXTRA_ASSERTS
+ 		CompactV cOldVal = derived().getCompact(compactKey(eKey));
+@@ -462,47 +437,120 @@ protected:
+ 				(cOldVal <= arithm_traits<CompactV>::max / cvMultiplier &&
+ 				cOldVal >= arithm_traits<CompactV>::min / cvMultiplier));
+ 	#endif
+-		derived().multiplyCompact<true>(eKey, cvMultiplier);
++		derived().changeValueCompact<OP_MULT>(eKey, cvMultiplier);
+ 	}
+ 	template<>
+-	void _divide<true>(E eKey, V cvDivisor)
++	void changeValueUnsafe<OP_DIV>(E eKey, V vDivisor)
+ 	{
+-		derived().divideCompact<true>(eKey, compactValue(cvDivisor));
++		BOOST_STATIC_ASSERT(bARITHMETIC);
++		derived().changeValueCompact<OP_DIV>(eKey, compactValue(vDivisor));
+ 	}
+-
+-	// Only for arithmetic V
+-	template<bool bVALID>
+-	void addCompact(E, CompactV) { BOOST_STATIC_ASSERT(false); }
+-	template<bool bVALID>
+-	void multiplyCompact(E, CompactV) { BOOST_STATIC_ASSERT(false); }
+-	template<bool bVALID>
+-	void divideCompact(E, CompactV) { BOOST_STATIC_ASSERT(false); }
+ 	template<>
+-	void addCompact<true>(E eKey, CompactV cvAddend)
++	void changeValueUnsafe<OP_TOGGLE>(E eKey, V vDummy)
++	{
++		BOOST_STATIC_ASSERT((is_same_type<V,bool>::value));
++		if (is_same_type<CompactV,bool>::value)
++			derived().changeValueCompact<OP_TOGGLE>(eKey, compactValue(vDummy));
++		// changeValueCompact doesn't support Bitblock as the CompactV type
++		else
++		{
++			V vOldVal = get(eKey);
++			V vNewVal = !vOldVal;
++			derived().set(eKey, vNewVal);
++			derived().processValueChange(vOldVal, vNewVal);
++		}
++	}
++	template<class T>
++	void processValueChange(T tOld, T tNew)
++	{
++		/*	Derived classes can update any cached data here.
++			T can be either V or CompactV. */
++	}
++	template<Operation eOP>
++	void changeValueCompact(E eKey, CompactV cvOperand)
++	{
++		CompactV& val = derived().lookup<eOP>(eKey, cvOperand);
++		CompactV cvOldVal = val;
++		applyOp<eOP>(val, cvOperand);
++		derived().processValueChange(cvOldVal, val);
++	}
++	template<Operation eOP>
++	void applyOp(CompactV&, CompactV) { BOOST_STATIC_ASSERT(false); }
++	template<>
++	void applyOp<OP_ADD>(CompactV& cvValue, CompactV cvAddend)
+ 	{
+-		CompactV& val = derived().lookup(eKey);
+ 		// Cast b/c CompactV might be an enum type, or e.g. short getting promoted to int.
+-		val = static_cast<CompactV>(val + cvAddend);
++		cvValue = static_cast<CompactV>(cvValue + cvAddend);
+ 	}
+ 	template<>
+-	void multiplyCompact<true>(E eKey, CompactV cvMultiplier)
++	void applyOp<OP_MULT>(CompactV& cvValue, CompactV cvMultiplier)
+ 	{
+-		CompactV& val = derived().lookup(eKey);
+-		val = static_cast<CompactV>(val * cvMultiplier);
++		cvValue = static_cast<CompactV>(cvValue * cvMultiplier);
+ 	}
+ 	template<>
+-	void divideCompact<true>(E eKey, CompactV cvDivisor)
++	void applyOp<OP_DIV>(CompactV& cvValue, CompactV cvDivisor)
+ 	{
+-		CompactV& val = derived().lookup(eKey);
+-		val = static_cast<CompactV>(val / cvDivisor);
++		cvValue = static_cast<CompactV>(cvValue / cvDivisor);
++	}
++	template<>
++	void applyOp<OP_TOGGLE>(CompactV& cvValue, CompactV cvDummy)
++	{
++		cvValue = !cvValue;
++	}
++	/*	Will applying eOP to the default value and the given operand
++		result in the default value? To help derived classes avoid unnecessary
++		memory allocation when implementing lookup. */
++	template<Operation eOP>
++	bool isNeutralToDefaultVal(CompactV)
++	{
++		return false;
+ 	}
+-
+-	template<class T>
+-	void _toggle(E) { BOOST_STATIC_ASSERT(false); } // only for bool
+ 	template<>
+-	void _toggle<bool>(E eKey)
++	bool isNeutralToDefaultVal<OP_ASSIGN>(CompactV cvOperand)
+ 	{
+-		derived().set(eKey, !get(eKey));
++		return (cvOperand == cvDEFAULT);
++	}
++	template<>
++	bool isNeutralToDefaultVal<OP_ADD>(CompactV cvOperand)
++	{
++		return (cvOperand == 0);
++	}
++	template<>
++	bool isNeutralToDefaultVal<OP_MULT>(CompactV cvOperand)
++	{
++		return (cvDEFAULT == 0 || cvOperand == static_cast<CompactV>(1));
++	}
++	template<>
++	bool isNeutralToDefaultVal<OP_DIV>(CompactV cvOperand)
++	{
++		return isNeutralToDefaultVal<OP_MULT>(cvOperand);
++	}
++
++	template<typename ValueType>
++	bool _nextNonDefaultPair(int& iIter, std::pair<E,ValueType>& kPair) const
++	{
++		for (; iIter < getLength(); iIter++)
++		{
++			V val = derived().getUnsafe(static_cast<E>(iIter));
++			if (val != vDEFAULT)
++			{
++				kPair.first = static_cast<E>(iIter);
++				kPair.second = static_cast<ValueType>(val);
++				iIter++;
++				return true;
++			}
++		}
++		return false;
++	}
++	E _nextNonDefaultKey(int& iIter) const
++	{
++		for (; iIter < getLength(); iIter++)
++		{
++			V val = getUnsafe(static_cast<E>(iIter));
++			if (val != vDEFAULT)
++				return static_cast<E>(iIter++);
++		}
++		return endKey();
+ 	}
+ 
+ 	// (Can't overload these two under the name "compact" b/c E and V can coincide)
+@@ -669,8 +717,6 @@ protected:
+ 		are sorted, a capacity mechanism would not be trivial to implement. */
+ 	short m_iNonDefault;
+ 
+-	enum Operation { OP_ASSIGN, OP_ADD, OP_MULT, OP_DIV, OP_TOGGLE };
+-
+ public:
+ 	ListEnumMap() : m_aKeys(NULL), m_aValues(NULL)
+ 	{
+@@ -706,7 +752,6 @@ public:
+ 		std::memcpy(m_aKeys, kOther.m_aKeys, m_iSize * sizeof(kOther.m_aKeys[0]));
+ 		std::memcpy(m_aValues, kOther.m_aValues, m_iSize * sizeof(kOther.m_aValues[0]));
+ 	}
+-
+ 	void reset()
+ 	{
+ 		uninit();
+@@ -891,109 +936,51 @@ protected:
+ 		return cvDEFAULT;
+ 	}
+ 
+-	/*	Looking up the key, growing the arrays and updating the nondefault count
+-		are too intertwined for the lookup pattern used by the base class;
+-		will have to do it all in one function. */
+-	template<Operation OP>
+-	void changeValue(E eKey, CompactV cvOperand)
++	template<Operation eOP>
++	CompactV& lookupCompact(CompactE ceKey, CompactV cvOperand)
+ 	{
+-		CompactE const ceKey = compactKey(eKey);
+ 		short iPos = 0;
+ 		while (bEND_MARKER || iPos < m_iSize)
+ 		{
+ 			CompactE const ceLoopKey = m_aKeys[iPos];
+ 			if (ceLoopKey == ceKey)
+-			{
+-				CompactV& cvOldVal = m_aValues[iPos];
+-				CompactV cvNewVal = applyOp<OP>(cvOldVal, cvOperand);
+-				if (cvNewVal != cvDEFAULT)
+-					m_iNonDefault++;
+-				if (cvOldVal != cvDEFAULT)
+-				{
+-					if ((--m_iNonDefault) == 0 &&
+-						/*	Otherwise not worth the risk of having to reallocate later.
+-							Well, a test suggests that this check helps marginally
+-							at best and that checking >=4 would hurt more than help. */
+-						m_iSize >= 2)
+-					{
+-						reset();
+-						return;
+-					}
+-				}
+-				cvOldVal = cvNewVal;
+-				return;
+-			}
++				return m_aValues[iPos];
+ 			if (ceLoopKey > ceKey)
+ 				break;
+ 			iPos++;
+ 		}
+-		CompactV const cvNewVal = applyOp<OP>(cvDEFAULT, cvOperand);
+-		if (cvNewVal == cvDEFAULT)
+-			return;
+-		m_iNonDefault++;
++		/*	At this point, we know whether m_iNonDefault needs to be incremented.
++			Will have to let processValueChange handle it though - resulting in two
++			unnecessary comparisons. :( */
++		if (isNeutralToDefaultVal<eOP>(cvOperand))
++			return cvDummy();
+ 		incrementSize(iPos);
+ 		m_aKeys[iPos] = ceKey;
+-		m_aValues[iPos] = cvNewVal;
+-	}
+-	void setUnsafe(E eKey, V vValue)
+-	{
+-		changeValue<OP_ASSIGN>(eKey, compactValue(vValue));
+-	}
+-	template<bool bVALID>
+-	void addCompact(E, CompactV);
+-	template<bool bVALID>
+-	void multiplyCompact(E, CompactV);
+-	template<bool bVALID>
+-	void divideCompact(E, CompactV);
+-	template<typename T>
+-	void _toggle(E);
+-	template<>
+-	void addCompact<true>(E eKey, CompactV cvAddend)
+-	{
+-		changeValue<OP_ADD>(eKey, cvAddend);
+-	}
+-	template<>
+-	void multiplyCompact<true>(E eKey, CompactV cvMultiplier)
+-	{
+-		changeValue<OP_MULT>(eKey, cvMultiplier);
+-	}
+-	template<>
+-	void divideCompact<true>(E eKey, CompactV cvDivisor)
+-	{
+-		changeValue<OP_DIV>(eKey, cvDivisor);
+-	}
+-	template<>
+-	void _toggle<bool>(E eKey)
+-	{
+-		changeValue<OP_TOGGLE>(eKey, false);
+-	}
+-
+-	template<Operation OP>
+-	CompactV applyOp(CompactV, CompactV) { BOOST_STATIC_ASSERT(false); } // op not supported
+-	template<>
+-	CompactV applyOp<OP_ASSIGN>(CompactV cvOldVal, CompactV cvNewVal)
+-	{
+-		return cvNewVal;
+-	}
+-	template<>
+-	CompactV applyOp<OP_ADD>(CompactV cvFirst, CompactV cvSecond)
+-	{
+-		return static_cast<CompactV>(cvFirst + cvSecond);
+-	}
+-	template<>
+-	CompactV applyOp<OP_MULT>(CompactV cvFirst, CompactV cvSecond)
+-	{
+-		return static_cast<CompactV>(cvFirst * cvSecond);
++		m_aValues[iPos] = cvDEFAULT;
++		return m_aValues[iPos];
+ 	}
++	/*	The T=V version exists only for the sake of bit arrays (bBIT_BLOCKS)
++		-- this class doesn't use. We always use CompactV=bool when V=bool. */
++	template<class T>
++	void processValueChange(T, T) { BOOST_STATIC_ASSERT(false); }
+ 	template<>
+-	CompactV applyOp<OP_DIV>(CompactV cvDividend, CompactV cvDivisor)
+-	{
+-		return static_cast<CompactV>(cvDividend / cvDivisor);
+-	}
+-	template<> // Only allowed for bool
+-	CompactV applyOp<OP_TOGGLE>(CompactV bOldValue, CompactV bDummy)
++	void processValueChange<CompactV>(CompactV cvOld, CompactV cvNew)
+ 	{
+-		return !bOldValue;
++		if (cvNew == cvOld)
++			return;
++		if (cvOld == cvDEFAULT)
++			m_iNonDefault++;
++		else
++		{
++			if ((--m_iNonDefault) == 0 &&
++				/*	Otherwise not worth the risk of having to reallocate later.
++					Well, a test suggests that this check helps marginally
++					at best and that checking >=4 would hurt more than help. */
++				m_iSize >= 2)
++			{
++				reset();
++			}
++		}
+ 	}
+ 
+ 	template<typename ValueType>
+@@ -1030,13 +1017,6 @@ protected:
+ 		}
+ 		return uncompactKey(m_aKeys[iIter++]);
+ 	}
+-private:
+-	CompactV& lookupCompact(CompactE ceKey)
+-	{	/*	Need to define this function to avoid infinite recusrion warning
+-			about the base class function */
+-		FErrorMsg("Should not used by this class");
+-		return cvDummy();
+-	}
+ };
+ #undef ListEnumMapBase
+ 
+@@ -1087,6 +1067,9 @@ public:
+ 	{
+ 		setUnsafe(eKey, bValue);
+ 	}
++private: // Hide public base function
++	void toggle(E eKey) {}
++public:
+ 
+ 	void reset()
+ 	{
+@@ -1174,10 +1157,12 @@ protected:
+ 		}
+ 		return vDEFAULT;
+ 	}
+-	bool& lookupCompact(CompactE ceKey)
+-	{
+-		FErrorMsg("This enum set can only be modified through the set function");
+-		return cvDummy(); // will crash
++	template<Operation eOP>
++	bool& lookupCompact(CompactE ceKey, CompactV cvOperand)
++	{	/*	Can't be reached, but compiler will warn about infinite recursion
++			if no lookup function is defined. */
++		FErrorMsg("Can only be modified through insert function");
++		return cvDummy();
+ 	}
+ 
+ 	template<typename ValueType>
+@@ -1213,8 +1198,12 @@ template<typename E, class V,
+ 		False leaves it up to the class whether to allocate eagerly or lazily. */
+ 	bool bEAGER_ALLOC = false,
+ 	/*	By default, use static memory if that would make the size of ArrayEnumMap
+-		at most twice as big as it would be using dynamic memory. (Use of
+-		static memory also implies eager allocation, obviously.) */
++		at most twice as big as it would be using dynamic memory. Use of
++		static memory also implies eager allocation, obviously.
++		(The storage duration is going to be the same as that of our instance,
++		so it could, ultimately, be dynamic memory, i.e. "static" might not be
++		the best term to use here. WtP uses the term "inline memory" - which I
++		don't think is widely used or understood.) */
+ 	int iMAX_STATIC_BYTES = 8>
+ class ArrayEnumMap : public ArrayEnumMapBase
+ {
+@@ -1300,7 +1289,7 @@ public:
+ 	V get(E eKey) const
+ 	{
+ 		FAssertEnumBounds(eKey);
+-		return getUnsafe(eKey);
++		return ArrayEnumMapBase::get(eKey);
+ 	}
+ 	void reset()
+ 	{
+@@ -1348,7 +1337,7 @@ public:
+ 	{	/*	Can only implement this when V and CompactV coincide
+ 			(unless we want to return CompactV - but I want that type to be used
+ 			only internally). */
+-		return *randAccess<is_same_type<V,CompactV>::value>(eKey);
++		return randAccess<is_same_type<V,CompactV>::value>(eKey);
+ 	}
+ 	V operator[](E eKey) const
+ 	{	// (I don't think we can unhide this through a using declaration)
+@@ -1408,10 +1397,11 @@ protected:
+ 		}
+ 		return ceKey;
+ 	}
+-	CompactV& lookup(E eKey)
++	template<Operation eOP>
++	CompactV& lookup(E eKey, CompactV cvOperand)
+ 	{
+ 		FAssertEnumBounds(eKey);
+-		return lookupUnsafe(eKey);
++		return ArrayEnumMapBase::lookup<eOP>(eKey, cvOperand);
+ 	}
+ 	CompactV getCompact(CompactE ceKey) const
+ 	{
+@@ -1419,10 +1409,15 @@ protected:
+ 			return values()[keyToIndex(ceKey)];
+ 		return cvDEFAULT;
+ 	}
+-	CompactV& lookupCompact(CompactE ceKey)
++	template<Operation eOP>
++	CompactV& lookupCompact(CompactE ceKey, CompactV cvOperand)
+ 	{
+ 		if (!isAllocated())
++		{
++			if (isNeutralToDefaultVal<eOP>(cvOperand))
++				return cvDummy();
+ 			init();
++		}
+ 		return values()[keyToIndex(ceKey)];
+ 	}
+ 	bool isAllocated() const
+@@ -1478,12 +1473,12 @@ protected:
+ 	V& randAccess<false>(E)
+ 	{	// No V instances exist in this map, only CompactV.
+ 		BOOST_STATIC_ASSERT(false);
+-		return cvDummy();
++		return vDummy();
+ 	}
+ 	template<>
+ 	V& randAccess<true>(E eKey) // When V and CompactV coincide
+ 	{
+-		return derived().lookupUnsafe(eKey);
++		return derived().lookupUnsafe<OP_UNKNOWN>(eKey, 0);
+ 	}
+ };
+ #undef ArrayEnumMapBase
+@@ -1530,7 +1525,7 @@ public:
+ 
+ 	compact_t& operator[](E eKey)
+ 	{
+-		return lookupUnsafe(eKey);
++		return lookupUnsafe<OP_UNKNOWN>(eKey, 0);
+ 	}
+ 	V operator[](E eKey) const
+ 	{	// (I don't think we can unhide this through a using declaration)
+@@ -1728,7 +1723,7 @@ protected: // reduce visibility
+ 	void set(EOuter eOuterKey, InnerEnumMap* pInnerMap)
+ 	{
+ 		FAssertMsg(pInnerMap != NULL, "Memory leak; use resetVal instead.");
+-		setUnsafe(eOuterKey, pInnerMap);
++		EnumMap2DBase::set(eOuterKey, pInnerMap);
+ 	}
+ public:
+ 	void set(EOuter eOuterKey, EInner eInnerKey, VInner vInnerValue)
+
+diff --git a/CvGameCoreDLL/EnumMapTest.cpp b/CvGameCoreDLL/EnumMapTest.cpp
+index eb642fa1b..07c41550d 100644
+--- a/CvGameCoreDLL/EnumMapTest.cpp
++++ b/CvGameCoreDLL/EnumMapTest.cpp
+@@ -561,6 +561,8 @@ void TestEnumMap()
+ 		FAssert(!test.get((CivicTypes)1));
+ 		FAssert(test.get((CivicTypes)5));
+ 		test.set((CivicTypes)3, true);
++		//test.toggle((CivicTypes)2); // private
++		//test.add((CivicTypes)2, 1); // should fail static assert
+ 		FOR_EACH_NON_DEFAULT_KEY(test, Civic)
+ 		{
+ 			FAssert(eLoopCivic == 5 || eLoopCivic == 3);
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=22323

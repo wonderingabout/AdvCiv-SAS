@@ -1,0 +1,189 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1347
+# Commit: 1cfdc903dee1e2c07dffa44e872425028a09a04e
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d5af82dfc8e681e1238f80525e9525fcf1f8ee2a
+# Title: Players are asked to select a tech to research as soon as they found a first city (not with a 1-turn delay), and if they end the turn without selecting one,...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvCity.cpp
+15	3	CvGameCoreDLL/CvGame.cpp
+11	6	CvGameCoreDLL/CvPlayer.cpp
+3	0	CvGameCoreDLL/CvPlayer.h
+4	3	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index 34476efe6..e538c554b 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -316,7 +316,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits,
+ 				)
+ 			{
+ 				changeOverflowProduction(GC.getDefineINT("INITIAL_AI_CITY_PRODUCTION"), 0);
+-			}
++			} // <advc.124g>
++			if(isHuman() && eOwner == GC.getGameINLINE().getActivePlayer())
++				GET_PLAYER(eOwner).chooseTech(); // </advc.124g>
+ 		}
+ 	}
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index a81545df3..52805f29a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -375,6 +375,10 @@ void CvGame::regenerateMap()
+ 	{
+ 		GET_PLAYER((PlayerTypes)iI).setFoundedFirstCity(false);
+ 		GET_PLAYER((PlayerTypes)iI).setStartingPlot(NULL, false);
++		// <advc.004x>
++		if(GET_PLAYER((PlayerTypes)iI).isHuman())
++			GET_PLAYER((PlayerTypes)iI).killAll(BUTTONPOPUP_CHOOSETECH);
++		// </advc.004x>
+ 	}
+ 
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+@@ -394,6 +398,7 @@ void CvGame::regenerateMap()
+ 	setGameTurn(0);
+ 	setStartTurn(0);
+ 	setStartTurnYear();
++	m_iElapsedGameTurns = 0;
+ 	// </advc.151><advc.004j>
+ 	CvEventReporter::getInstance().resetStatistics();
+ 
+@@ -922,8 +927,16 @@ void CvGame::initScenario() {
+ 
+ 	initFreeState(); // Tech from handicap
+ 	// <advc.030>
+-	if(GC.getDefineINT("PASSABLE_AREAS") > 0)
++	if(GC.getDefineINT("PASSABLE_AREAS") > 0) {
++		/*  recalculateAreas can't handle preplaced cities. Or perhaps it can
++			(Barbarian cities are fine in most cases), but there's going to
++			be other stuff, like free units, that causes problems. */
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			if(GET_PLAYER((PlayerTypes)i).getNumCities() > 0)
++				return;
++		}
+ 		GC.getMap().recalculateAreas();
++	}
+ 	// </advc.030>
+ }
+ 
+@@ -931,8 +944,7 @@ void CvGame::initFreeUnits() {
+ 
+ 	/*  In scenarios, neither setInitialItems nor initFreeState is called; the
+ 		EXE only calls initFreeUnits, so initialization of freebies needs to
+-		happen here. (If a scenario places cities, then initFreeUnits isn't
+-		called either - no additional freebies from the DLL then.) */
++		happen here. */
+ 	if(GC.getInitCore().isScenario())
+ 		initScenario();
+ 	initFreeUnitsBulk();
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 7a9d63f4c..0605d7f8b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -8614,7 +8614,8 @@ int CvPlayer::getResearchTurnsLeftTimes100(TechTypes eTech, bool bOverflow) cons
+ 				if ((iI == getID()) || (GET_PLAYER((PlayerTypes)iI).getCurrentResearch() == eTech))
+ 				{
+ 					//iResearchRate += GET_PLAYER((PlayerTypes)iI).calculateResearchRate(eTech);
+-					iResearchRate += std::max(1, GET_PLAYER((PlayerTypes)iI).calculateResearchRate(eTech)); // K-Mod (replacing the minimum which use to be in calculateResearchRate)
++					// K-Mod (replacing the minimum which use to be in calculateResearchRate)
++					iResearchRate += std::max(1, GET_PLAYER((PlayerTypes)iI).calculateResearchRate(eTech));
+ 					iOverflow += (GET_PLAYER((PlayerTypes)iI).getOverflowResearch() * calculateResearchModifier(eTech)) / 100;
+ 				}
+ 			}
+@@ -14420,13 +14421,17 @@ void CvPlayer::clearResearchQueue()
+ //	and its pre-reqs into the queue.  If it is not an append it will change
+ //	research immediately and should be used with clear.  Clear will clear the entire queue.
+ bool CvPlayer::pushResearch(TechTypes eTech, bool bClear)
+-{
++{	// <advc.004x>
++	return pushResearchBulk(eTech, bClear);
++}
++bool CvPlayer::pushResearchBulk(TechTypes eTech, bool bClear, bool bKillPopup)
++{ // </advc.004x>
+ 	int i;
+ 	int iNumSteps;
+ 	int iShortestPath;
+ 	bool bOrPrereqFound;
+ 	TechTypes ePreReq;
+-  TechTypes eShortestOr;
++	TechTypes eShortestOr;
+ 
+ 	FAssertMsg(eTech != NO_TECH, "Tech is not assigned a valid value");
+ 
+@@ -14525,7 +14530,7 @@ bool CvPlayer::pushResearch(TechTypes eTech, bool bClear)
+ 	// ONEVENT - Tech selected (any)
+ 	CvEventReporter::getInstance().techSelected(eTech, getID());
+ 	// <advc.004x>
+-	if(wasEmpty && getID() == GC.getGameINLINE().getActivePlayer())
++	if(bKillPopup && wasEmpty && getID() == GC.getGameINLINE().getActivePlayer())
+ 		killAll(BUTTONPOPUP_CHOOSETECH, 0); // </advc.004x>
+ 	return true;
+ }
+@@ -15343,8 +15348,8 @@ void CvPlayer::doResearch()
+ 			{
+ 				chooseTech();
+ 			}
+-
+-			if (GC.getGameINLINE().getElapsedGameTurns() > 4)
++			// advc.124g: Commented out
++			//if (GC.getGameINLINE().getElapsedGameTurns() > 0)
+ 			{
+ 				AI_chooseResearch();
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 25feb0766..234353a5c 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -943,6 +943,9 @@ public:
+ 	int getQueuePosition(TechTypes eTech) const;																											// Exposed to Python
+ 	DllExport void clearResearchQueue();																												// Exposed to Python
+ 	DllExport bool pushResearch(TechTypes eTech, bool bClear = false);													// Exposed to Python
++	// <advc.004x> Safer not to add a param to DLLExport
++	bool pushResearchBulk(TechTypes eTech, bool bClear = false,
++			bool bKillPopup = true); // </advc.004x>
+ 	void popResearch(TechTypes eTech);																													// Exposed to Python
+ 	int getLengthResearchQueue() const;																																// Exposed to Python
+ 	CLLNode<TechTypes>* nextResearchQueueNode(CLLNode<TechTypes>* pNode) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 781c26570..0bf5ec0ff 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7983,7 +7983,7 @@ int CvPlayerAI::AI_techBuildingValue(TechTypes eTech, bool bConstCache, bool& bE
+ 
+ 			if (relevant_cities.empty())
+ 			{
+-				FAssertMsg(isBarbarian(), "No revelent cities in AI_techBuildingValue");
++				FAssertMsg(isBarbarian(), "No relevant cities in AI_techBuildingValue");
+ 				return 0;
+ 			}
+ 		}
+@@ -8981,8 +8981,9 @@ void CvPlayerAI::AI_chooseResearch()
+ 		}
+ 
+ 		if (eBestTech != NO_TECH)
+-		{
+-			pushResearch(eBestTech);
++		{	/*  advc.004x: Don't kill popup when AI chooses tech for human
++				(instead prod the human each turn to pick a tech him/herself) */
++			pushResearchBulk(eBestTech, false, false);
+ 		}
+ 	}
+ }
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=6248

@@ -19,8 +19,8 @@ CvMapGenerator& CvMapGenerator::GetInstance() // singleton accessor
 }
 
 
-bool CvMapGenerator::canPlaceBonusAt(BonusTypes eBonus, int iX, int iY,  // refactored
-	bool bIgnoreLatitude, /* advc.129: */ bool bCheckRange) const
+// refactored <!-- custom: hoisted from multiline signature between `iY` and `bIgnoreLatitude` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
+bool CvMapGenerator::canPlaceBonusAt(BonusTypes eBonus, int iX, int iY, bool bIgnoreLatitude, /* advc.129: */ bool bCheckRange) const
 {
 	PROFILE_FUNC();
 
@@ -87,26 +87,31 @@ bool CvMapGenerator::canPlaceBonusAt(BonusTypes eBonus, int iX, int iY,  // refa
 		}
 	}
 
+	// <!-- custom: AdvCiv limits tightly packed clusters beyond the BTS XML range rules. Keep that rule together with AdvCiv's other cluster-shaping changes under one control. (GPT-5.6-Sol) -->
+	static const bool bSASAdvCivBonusClustering = GC.getDefineBOOL("SAS_MAP_ADVCIV_BONUS_CLUSTERING_ENABLE");
 	// <advc.129> Prevent more than one adjacent copy regardless of range.
-	int iFound = 0;
-	FOR_EACH_ADJ_PLOT(p)
+	if (bSASAdvCivBonusClustering)
 	{
-		if (!pAdj->isArea(kArea))
-			continue;
-		if (pAdj->getBonusType() == eBonus)
+		int iFound = 0;
+		FOR_EACH_ADJ_PLOT(p)
 		{
-			iFound++;
-			if (iFound >= 2)
-				return false;
-			/*  A single adjacent copy could already have another adjacent copy.
-				However, if that's prohibited, clusters of more than 2 resources
-				won't be placed at all. (They're only placed around one central
-				tile, which also gets the resource.) Better to change the placement
-				pattern then (addUniqueBonusType). */
-			/*FOR_EACH_ADJ_PLOT2(pAdjAdj, *pAdj) {
-				if(pAdjAdj->isArea(kArea) && pAdjAdj->getBonusType() == eBonus)
+			if (!pAdj->isArea(kArea))
+				continue;
+			if (pAdj->getBonusType() == eBonus)
+			{
+				iFound++;
+				if (iFound >= 2)
 					return false;
-			}*/
+				/*  A single adjacent copy could already have another adjacent copy.
+					However, if that's prohibited, clusters of more than 2 resources
+					won't be placed at all. (They're only placed around one central
+					tile, which also gets the resource.) Better to change the placement
+					pattern then (addUniqueBonusType). */
+				/*FOR_EACH_ADJ_PLOT2(pAdjAdj, *pAdj) {
+					if(pAdjAdj->isArea(kArea) && pAdjAdj->getBonusType() == eBonus)
+						return false;
+				}*/
+			}
 		}
 	} // </advc.129>
 
@@ -183,16 +188,20 @@ void CvMapGenerator::addLakes()
 
 	gDLL->NiTextOut("Adding Lakes...");
 	// <advc.129e>
-	int const iLAKE_PLOT_RAND = GC.getDefineINT("LAKE_PLOT_RAND");
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iLAKE_PLOT_RAND = GC.getDefineINT("LAKE_PLOT_RAND");
 	int iLakeRollSides = iLAKE_PLOT_RAND;
-	TerrainTypes const eDesert = (TerrainTypes)GC.getDefineINT("BARREN_TERRAIN");
+	static const TerrainTypes eDesert = (TerrainTypes)GC.getDefineINT("BARREN_TERRAIN");
+	// <!-- custom: AdvCiv makes desert lake candidates one quarter as likely while preserving the overall expected lake count, and no longer lets lakes replace Peaks. Expose those choices independently. (GPT-5.6-Sol) -->
+	static const int iSASDesertLakeRelativePercent = GC.getDefineINT("SAS_MAP_DESERT_LAKE_RELATIVE_PERCENT");
+	static const bool bSASLakePeakReplacement = GC.getDefineBOOL("SAS_MAP_LAKE_PEAK_REPLACEMENT_ENABLE");
 	int iDesert = 0;
 	std::vector<std::pair<CvPlot*,bool> > apbCandidates;
 	FOR_EACH_ENUM(PlotNum)
 	{
 		CvPlot& p = GC.getMap().getPlotByIndex(eLoopPlotNum);
 		if (!p.isWater() && !p.isCoastalLand() && !p.isRiver() && // as in BtS
-			p.getPlotType() != PLOT_PEAK)
+			(bSASLakePeakReplacement || p.getPlotType() != PLOT_PEAK))
 		{
 			bool bDesert = (p.getTerrainType() == eDesert);
 			apbCandidates.push_back(std::make_pair(&p, bDesert));
@@ -200,7 +209,7 @@ void CvMapGenerator::addLakes()
 				iDesert++;
 		}
 	}
-	scaled rDesertProbMult = fixp(1/4.);
+	scaled rDesertProbMult = per100(iSASDesertLakeRelativePercent);
 	int const iCandidates = (int)apbCandidates.size();
 	if (iCandidates > 0)
 	{	// This keeps the expected number of lakes the same as in BtS
@@ -238,20 +247,26 @@ void CvMapGenerator::addRivers()
 
 	gDLL->NiTextOut("Adding Rivers...");
 
-	int const iRiverSourceRange = GC.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
-	int const iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
-	int const iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
+	// <!-- custom: avoid repeated lookups as recommended by chatgpt 5, reuse existing pattern in file -->
+	// <!-- custom: note: not using const as it causes a compile error: "CvMapGenerator.cpp(287): error C2662: 'CvMap::findWater' : cannot convert 'this' pointer from 'const CvMap' to 'CvMap &'" -->
+	CvMap& kMap = GC.getMap();
+	const int nPlots = kMap.numPlots();
+	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+	static const int iRiverSourceRange = GC.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
+	static const int iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
+	static const int iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
+	// <!-- custom: AdvCiv replaced the retained BTS river-source traversal and direction-scoring block for advc.129. Make either routing path selectable; enabled by default to preserve current AdvCiv-SAS maps. (GPT-5.6-Sol) -->
+	static const bool bSASAdvCivRiverRouting = GC.getDefineBOOL("SAS_MAP_ADVCIV_RIVER_ROUTING_ENABLE");
 	// advc.129: Randomize the traversal
-	int* aiShuffledIndices = mapRand().shuffle(GC.getMap().numPlots());
+	int* aiShuffledIndices = (bSASAdvCivRiverRouting ? mapRand().shuffle(kMap.numPlots()) : NULL);
 	for (int iPass = 0; iPass < 4; iPass++)
 	{
 		int iRiverSourceRangeLoop = (iPass <= 1 ? iRiverSourceRange : iRiverSourceRange / 2);
 		int iSeaWaterRangeLoop =  (iPass <= 1 ? iSeaWaterRange : iSeaWaterRange / 2);
 
-		for (int i = 0; i < GC.getMap().numPlots(); i++)
+		for (int i = 0; i < nPlots; i++)
 		{
-			CvPlot const& p = GC.getMap().getPlotByIndex(
-					aiShuffledIndices[i]); // advc.129
+			CvPlot const& p = kMap.getPlotByIndex(bSASAdvCivRiverRouting ? aiShuffledIndices[i] : i); // advc.129
 			if (p.isWater())
 				continue;
 
@@ -279,8 +294,8 @@ void CvMapGenerator::addRivers()
 				continue;
 
 			gDLL->callUpdater(); // advc.opt: Moved down; shouldn't need to update the UI in every iteration.
-			if (!GC.getMap().findWater(&p, iRiverSourceRangeLoop, true) &&
-				!GC.getMap().findWater(&p, iSeaWaterRangeLoop, false))
+			if (!kMap.findWater(&p, iRiverSourceRangeLoop, true) &&
+				!kMap.findWater(&p, iSeaWaterRangeLoop, false))
 			{
 				CvPlot* pStartPlot = p.getInlandCorner();
 				if (pStartPlot != NULL)
@@ -288,13 +303,12 @@ void CvMapGenerator::addRivers()
 			}
 		}
 	}
+	// <!-- custom: The BTS traversal leaves the optional AdvCiv shuffled-index array NULL; SAFE_DELETE_ARRAY accepts NULL. (GPT-5.6-Sol) -->
 	SAFE_DELETE_ARRAY(aiShuffledIndices); // advc.129
 }
 
 // pStartPlot = the plot at whose SE corner the river is starting
-void CvMapGenerator::doRiver(CvPlot* pStartPlot,
-	CardinalDirectionTypes eLastCardinalDirection,
-	CardinalDirectionTypes eOriginalCardinalDirection, short iThisRiverID)
+void CvMapGenerator::doRiver(CvPlot* pStartPlot, CardinalDirectionTypes eLastCardinalDirection, CardinalDirectionTypes eOriginalCardinalDirection, short iThisRiverID)
 {
 	if (iThisRiverID == -1)
 	{
@@ -577,14 +591,20 @@ void CvMapGenerator::addBonuses()
 	::removeDuplicates(aiOrdinals);
 	FAssertMsg(aiOrdinals.size() <= (uint)12, "Shuffling the bonus indices this often might be slow(?)");
 	std::sort(aiOrdinals.begin(), aiOrdinals.end());
+	// <!-- custom: BTS resolves equal PlacementOrder values in XML order; AdvCiv randomizes those ties so crowded maps do not consistently omit later resource entries. (GPT-5.6-Sol) -->
+	static const bool bSASAdvCivBonusTieRandomization = GC.getDefineBOOL("SAS_MAP_ADVCIV_BONUS_TIE_RANDOMIZATION_ENABLE");
 	//for (int iOrder = 0; iOrder < GC.getNumBonusInfos(); iOrder++)
 	for (size_t i = 0; i < aiOrdinals.size(); i++)
 	{
 		int iOrder = aiOrdinals[i];	
 		/*  advc.129: Break ties in the order randomly (perhaps better
 			not to do this though if the assertion above fails) */
-		FOR_EACH_ENUM_RAND(Bonus, GC.getGame().getMapRand())
+		std::vector<int> aiBonusIndices(GC.getNumBonusInfos());
+		if (bSASAdvCivBonusTieRandomization)
+			mapRand().shuffle(aiBonusIndices);
+		for (int j = 0; j < GC.getNumBonusInfos(); j++)
 		{
+			BonusTypes eLoopBonus = (BonusTypes)(bSASAdvCivBonusTieRandomization ? aiBonusIndices[j] : j);
 			//gDLL->callUpdater();
 			if (GC.getInfo(eLoopBonus).getPlacementOrder() != iOrder)
 				continue;
@@ -612,6 +632,9 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 			kBonus.isTerrain(GC.getWATER_TERRAIN(false)));
 	FAssertMsg(kBonus.isOneArea(), "addUniqueBonusType called with non-unique bonus type");
 	CvMap& kMap = GC.getMap();
+	// <!-- custom: AdvCiv spreads OneArea resources across suitable landmasses and caps the first allocation per area; BTS concentrates each type according to total area size and existing unique types. (GPT-5.6-Sol) -->
+	static const bool bSASAdvCivOneAreaBonusDistribution = GC.getDefineBOOL("SAS_MAP_ADVCIV_ONE_AREA_BONUS_DISTRIBUTION_ENABLE");
+	static const bool bSASAdvCivBonusClustering = GC.getDefineBOOL("SAS_MAP_ADVCIV_BONUS_CLUSTERING_ENABLE");
 
 	/*	K-Mod note: the areas tried stuff was originally done using an array.
 		I've rewritten it to use std::set, for no good reason. The functionality is unchanged.
@@ -622,12 +645,16 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 	std::vector<std::pair<int,int> > areasBySize;
 	FOR_EACH_AREA(pLoopArea)
 		areasBySize.push_back(std::make_pair(pLoopArea->getNumTiles(), pLoopArea->getID()));
-	std::sort(areasBySize.rbegin(), areasBySize.rend());
+	if (bSASAdvCivOneAreaBonusDistribution)
+		std::sort(areasBySize.rbegin(), areasBySize.rend());
 
-	for (int iPass = 0; iPass < 2; iPass++)
+	for (int iPass = 0; iPass < (bSASAdvCivOneAreaBonusDistribution ? 2 : 1); iPass++)
 	{	/*  Two passes - just to make sure that the new per-area limit doesn't
 			lead to fewer resources overall. */
-		bool const bIgnoreAreaLimit = (iPass == 1); // </advc.129>
+		// <!-- custom: AdvCiv's uncapped second pass could not revisit areas capped during the first pass because this inherited set was never cleared. Resetting it allows the second pass to fill the remaining target where valid plots exist. See KI#202. (GPT-5.6-Sol) -->
+		if (iPass > 0)
+			areas_tried.clear();
+		bool const bIgnoreAreaLimit = (!bSASAdvCivOneAreaBonusDistribution || iPass == 1); // </advc.129>
 		while (/* advc.129: */kMap.getNumBonuses(eBonus) < iTarget)
 		{
 			int iBestValue = 0;
@@ -648,7 +675,7 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 					continue;
 				} // </advc>
 				int iAddedTotal = kMap.getNumBonuses(eBonus);
-				if (iAddedTotal * 3 < 2 * iTarget &&
+				if (bSASAdvCivOneAreaBonusDistribution && iAddedTotal * 3 < 2 * iTarget &&
 					iNumTiles < 4 * NUM_CITY_PLOTS) // K-Mod
 				{
 					continue;
@@ -656,27 +683,36 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 				// number of unique bonuses starting on the area, plus this one
 				int iNumUniqueBonusesOnArea = 1 + kLoopArea.countNumUniqueBonusTypes();
 				//int iValue = iNumTiles / iNumUniqueBonusesOnArea;
-				int iValue = ((iNumTiles *
-						// advc.129: Decrease the impact of iNumTiles when approaching the target resource count
-						(iTarget - iAddedTotal)) / iTarget +
-						MapRandNum(3 * NUM_CITY_PLOTS)) / iNumUniqueBonusesOnArea;
-				// <advc.129>
-				if (iValue <= iBestValue) // To save time
-					continue;
-				int iEligible = 0;
-				for (int j = 0; j < kMap.numPlots(); j++)
+				int iValue;
+				if (bSASAdvCivOneAreaBonusDistribution)
 				{
-					CvPlot const& kTestPlot = kMap.getPlotByIndex(j);
-					if (kTestPlot.isArea(kLoopArea) &&
-						canPlaceBonusAt(eBonus, kTestPlot.getX(), kTestPlot.getY(),
-						false, false)) // Save some time by skipping range checks
-					{
-						iEligible++;
-					}
+					iValue = ((iNumTiles *
+							// advc.129: Decrease the impact of iNumTiles when approaching the target resource count
+							(iTarget - iAddedTotal)) / iTarget +
+							MapRandNum(3 * NUM_CITY_PLOTS)) / iNumUniqueBonusesOnArea;
 				}
-				scaled rSuitability(iEligible, iNumTiles);
-				rSuitability = (rSuitability + 2) / 3; // dilute
-				iValue = (rSuitability * iValue).round(); // </advc.129>
+				else iValue = iNumTiles / iNumUniqueBonusesOnArea; // BTS
+				// <advc.129>
+				if (bSASAdvCivOneAreaBonusDistribution && iValue <= iBestValue) // To save time
+					continue;
+				if (bSASAdvCivOneAreaBonusDistribution)
+				{
+					int iEligible = 0;
+					for (int j = 0; j < kMap.numPlots(); j++)
+					{
+						CvPlot const& kTestPlot = kMap.getPlotByIndex(j);
+						if (kTestPlot.isArea(kLoopArea) &&
+							canPlaceBonusAt(eBonus, kTestPlot.getX(), kTestPlot.getY(),
+							false, false)) // Save some time by skipping range checks
+						{
+							iEligible++;
+						}
+					}
+					scaled rSuitability(iEligible, iNumTiles);
+					rSuitability = (rSuitability + 2) / 3; // dilute
+					iValue = (rSuitability * iValue).round();
+				}
+				// </advc.129>
 				if (iValue > iBestValue)
 				{
 					iBestValue = iValue;
@@ -718,7 +754,7 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 					b/c that may get in the way of (early) resource trades too much and
 					make the map less exciting than it could be. So I've moved the
 					problematic resources into a new class "precious" (id greater than 0). */
-				if (kBonus.getGroupRand() > 0 && eClassToAvoid > 0)
+				if (bSASAdvCivBonusClustering && kBonus.getGroupRand() > 0 && eClassToAvoid > 0)
 				{
 					bool bSkip = false;
 					/*	Check a range that makes it difficult to cover more than
@@ -798,12 +834,32 @@ void CvMapGenerator::addNonUniqueBonusType(BonusTypes eBonus)
 }
 
 // advc.129:
-int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter,
-	bool bIgnoreLatitude, int iLimit)
+int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter, bool bIgnoreLatitude, int iLimit)
 {
 	CvBonusInfo const& kBonus = GC.getInfo(eBonus);
 	// The one in the center is already placed, but that doesn't count here.
 	int iPlaced = 0;
+	// <!-- custom: BTS scans the XML GroupRange square in fixed order at the full GroupRand chance; AdvCiv randomizes a circular range and reduces that chance after each placement to make large clusters exponentially unlikely. (GPT-5.6-Sol) -->
+	static const bool bSASAdvCivBonusClustering = GC.getDefineBOOL("SAS_MAP_ADVCIV_BONUS_CLUSTERING_ENABLE");
+	if (!bSASAdvCivBonusClustering)
+	{
+		for (int iDX = -kBonus.getGroupRange(); iDX <= kBonus.getGroupRange(); iDX++)
+		{
+			for (int iDY = -kBonus.getGroupRange(); iDY <= kBonus.getGroupRange() && iLimit > 0; iDY++)
+			{
+				CvPlot* pPlot = plotXY(kCenter.getX(), kCenter.getY(), iDX, iDY);
+				if (pPlot == NULL || (kBonus.isOneArea() && !pPlot->sameArea(kCenter)))
+					continue;
+				if (canPlaceBonusAt(eBonus, pPlot->getX(), pPlot->getY(), bIgnoreLatitude) && MapRandNum(100) < kBonus.getGroupRand())
+				{
+					pPlot->setBonusType(eBonus);
+					iLimit--;
+					iPlaced++;
+				}
+			}
+		}
+		return iPlaced;
+	}
 	std::vector<CvPlot*> apGroupRange;
 	// BtS used a square here (but also only used GroupRange 1)
 	for (PlotCircleIter it(kCenter, kBonus.getGroupRange()); it.hasNext(); ++it)
@@ -1029,51 +1085,60 @@ int CvMapGenerator::getRiverValueAtPlot(CvPlot const& kPlot) const // advc: cons
 		return pyValue;
 	int iSum = pyValue; // Add to value from Python
 
-	/*iSum += (NUM_PLOT_TYPES - kPlot.getPlotType()) * 20;
-	FOR_EACH_ENUM(Direction) {
-		CvPlot* pAdj = plotDirection(kPlot.getX(), kPlot.getY(), eLoopDirection);
-		if (pAdj != NULL)
-			iSum += (NUM_PLOT_TYPES - pAdj->getPlotType());
-		else iSum += (NUM_PLOT_TYPES * 10);
-	}*/
+	static const bool bSASAdvCivRiverRouting = GC.getDefineBOOL("SAS_MAP_ADVCIV_RIVER_ROUTING_ENABLE");
+	static const int iSASRiverDirectionRandomness = GC.getDefineINT("SAS_MAP_RIVER_DIRECTION_RANDOMNESS");
+	if (!bSASAdvCivRiverRouting)
+	{
+		iSum += (NUM_PLOT_TYPES - kPlot.getPlotType()) * 20;
+		FOR_EACH_ENUM(Direction)
+		{
+			CvPlot* pAdj = plotDirection(kPlot.getX(), kPlot.getY(), eLoopDirection);
+			if (pAdj != NULL)
+				iSum += (NUM_PLOT_TYPES - pAdj->getPlotType());
+			else iSum += (NUM_PLOT_TYPES * 10);
+		}
+	}
 	/*	<advc.129> kPlot is the plot at whose southeastern corner the river will arrive.
 		That corner also touches 3 other plots, which are no less important.
 		In addition to those 4, I'm going to count the 8 plots orthogonally adjacent
 		to them, resulting in a 4x4 square without its 4 corners.
 		(This range is awkward to traverse b/c it doesn't have a center plot.) */
-	CvMap const& kMap = GC.getMap();
-	for (int iDX = 0; iDX < 4; iDX++)
+	if (bSASAdvCivRiverRouting)
 	{
-		int const iX = kPlot.getX() - 1 + iDX; // west to east
-		for (int iDY = 0; iDY < 4; iDY++)
+		CvMap const& kMap = GC.getMap();
+		for (int iDX = 0; iDX < 4; iDX++)
 		{
-			int const iY = kPlot.getY() + 1 - iDY; // north to south
-			// Skip corners
-			if ((iDX == 0 || iDX == 3) && (iDY == 0 || iDY == 3))
-				continue;
-			CvPlot const* p = kMap.plotValidXY(iX, iY);
-			int iPlotVal = NUM_PLOT_TYPES * 3; // p == NULL
-			if (p != NULL)
+			int const iX = kPlot.getX() - 1 + iDX; // west to east
+			for (int iDY = 0; iDY < 4; iDY++)
 			{
-				if (p->isWater() && !p->isLake())
-				{	/*	The term in the else branch (as in BtS) counts 1 more
-						for hills than for flat and would count 1 less
-						for water than for flat. I'm making (non-lake) water
-						symmetrical with peak instead. */
-					iPlotVal = 0;
+				int const iY = kPlot.getY() + 1 - iDY; // north to south
+				// Skip corners
+				if ((iDX == 0 || iDX == 3) && (iDY == 0 || iDY == 3))
+					continue;
+				CvPlot const* p = kMap.plotValidXY(iX, iY);
+				int iPlotVal = NUM_PLOT_TYPES * 3; // p == NULL
+				if (p != NULL)
+				{
+					if (p->isWater() && !p->isLake())
+					{	/*	The term in the else branch (as in BtS) counts 1 more
+							for hills than for flat and would count 1 less
+							for water than for flat. I'm making (non-lake) water
+							symmetrical with peak instead. */
+						iPlotVal = 0;
+					}
+					else iPlotVal = NUM_PLOT_TYPES - p->getPlotType();
 				}
-				else iPlotVal = NUM_PLOT_TYPES - p->getPlotType();
+				// Inner plots have much higher weight
+				if ((iDX == 1 || iDX == 2) && (iDY == 1 || iDY == 2))
+					iPlotVal *= 6;
+				iSum += iPlotVal;
 			}
-			// Inner plots have much higher weight
-			if ((iDX == 1 || iDX == 2) && (iDY == 1 || iDY == 2))
-				iPlotVal *= 6;
-			iSum += iPlotVal;
 		}
 	} // <advc.129>
 	CvRandom riverRand;
 	riverRand.init(kPlot.getX() * 43251267 + kPlot.getY() * 8273903);
 	// advc.129: Was 10. The scale hasn't really changed; I just want more randomness.
-	iSum += riverRand.get(20, "River Rand");
+	iSum += riverRand.get(iSASRiverDirectionRandomness, "River Rand");
 
 	return iSum;
 }
@@ -1096,8 +1161,12 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
 			if (kPlot.canHaveBonus(eBonus, bIgnoreLatitude))
 				iNumPossible++;
 		}
+
+		// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+		static const bool bSublinearBonusQuantities = GC.getDefineBOOL("SUBLINEAR_BONUS_QUANTITIES");
+
 		// <advc.129>
-		if (GC.getDefineBOOL("SUBLINEAR_BONUS_QUANTITIES"))
+		if (bSublinearBonusQuantities)
 		{
 			int iSubtrahend = kBonus.getTilesPer(); // Typically 16 or 32
 			// For normalization; don't want to place fewer resources in general.
@@ -1121,19 +1190,26 @@ int CvMapGenerator::calculateNumBonusesToAdd(BonusTypes eBonus)
 			iFromTiles += (iNumPossible / kBonus.getTilesPer());
 	}
 
-	scaled rFromPlayers = GC.getGame().countCivPlayersAlive() *
-			per100(kBonus.getPercentPerPlayer());
-	/*	<advc.129> Same as in BtS for 8 players, a bit less for high player counts,
-		a bit more for small player counts. */
-	rFromPlayers.exponentiate(fixp(0.85));
-	rFromPlayers *= fixp(4/3.); // </advc.129>
+	// <!-- custom: AdvCiv bends the XML per-player resource component around 8 players; BTS scales it linearly. This is independent of eligible-tile scaling above. (GPT-5.6-Sol) -->
+	static const bool bSASAdvCivBonusPlayerCountScaling = GC.getDefineBOOL("SAS_MAP_ADVCIV_BONUS_PLAYER_COUNT_SCALING_ENABLE");
+	int iFromPlayers;
+	if (bSASAdvCivBonusPlayerCountScaling)
+	{
+		scaled rFromPlayers = GC.getGame().countCivPlayersAlive() * per100(kBonus.getPercentPerPlayer());
+		/*	<advc.129> Same as in BtS for 8 players, a bit less for high player counts,
+			a bit more for small player counts. */
+		rFromPlayers.exponentiate(fixp(0.85));
+		rFromPlayers *= fixp(4/3.);
+		iFromPlayers = rFromPlayers.round(); // </advc.129>
+	}
+	else iFromPlayers = (GC.getGame().countCivPlayersAlive() * kBonus.getPercentPerPlayer()) / 100; // BTS
 	int iMult = kBonus.getConstAppearance();
 	iMult +=
 			MapRandNum(kBonus.getRandAppearance1()) +
 			MapRandNum(kBonus.getRandAppearance2()) +
 			MapRandNum(kBonus.getRandAppearance3()) +
 			MapRandNum(kBonus.getRandAppearance4());
-	int iBonusCount = (iMult * (iFromTiles + rFromPlayers.round())) / 100;
+	int iBonusCount = (iMult * (iFromTiles + iFromPlayers)) / 100;
 	return std::max(1, iBonusCount);
 }
 

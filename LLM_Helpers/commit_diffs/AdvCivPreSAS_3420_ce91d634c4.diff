@@ -1,0 +1,42 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3420
+# Commit: ce91d634c486b909eced4e5b167c6d3b09d9de3b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 023dddb66fb448a3a855afd5dbeb85ec518074f0
+# Title: Repair v1.00 saves affected by AP membership bug
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index f25209608..c6af30fe8 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -11549,8 +11549,11 @@ void CvCity::read(FDataStreamBase* pStream)
+ 				{
+ 					if (GC.getInfo(eLoopBuilding).getReligionType() == eAPReligion)
+ 					{
+-						changeBuildingYieldChange(CvCivilization::buildingClass(eLoopBuilding),
+-								YIELD_PRODUCTION, -1);
++						setBuildingYieldChange(CvCivilization::buildingClass(eLoopBuilding),
++								/*	Set the yield to 1 rather than adding 1.
++									To address a bug that had existed in AdvCiv 1.00
++									and had, in some circumstances, set the yield to 0. */
++								YIELD_PRODUCTION, 1);
+ 					}
+ 				}
+ 			}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=730

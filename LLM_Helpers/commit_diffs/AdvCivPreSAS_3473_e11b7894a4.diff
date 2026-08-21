@@ -1,0 +1,175 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3473
+# Commit: e11b7894a447517d98bb4836a6e6c80ae9143690
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: fd4024d2108a9e3920f52a32e5f63772b7630d51
+# Title: Clean up default values of AI "closeness" functions
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+3	1	CvGameCoreDLL/CvCityAI.h
+8	5	CvGameCoreDLL/CvGameTextMgr.cpp
+1	1	CvGameCoreDLL/CvPlayerAI.cpp
+2	1	CvGameCoreDLL/CvPlayerAI.h
+5	7	CvGameCoreDLL/CvTeamAI.cpp
+2	1	CvGameCoreDLL/CvTeamAI.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.h b/CvGameCoreDLL/CvCityAI.h
+index 7a651d6cb..3010ad8e0 100644
+--- a/CvGameCoreDLL/CvCityAI.h
++++ b/CvGameCoreDLL/CvCityAI.h
+@@ -4,6 +4,7 @@
+ #define CIV4_CITY_AI_H
+ 
+ #include "CvCity.h"
++#include "AIStrategies.h" // advc.enum
+ 
+ typedef std::vector<std::pair<UnitAITypes, int> > UnitTypeWeightArray;
+ 
+@@ -147,7 +148,8 @@ public:
+ 	int AI_countNumImprovableBonuses(bool bIncludeNeutral, TechTypes eExtraTech = NO_TECH,
+ 			bool bLand = true, bool bWater = false) const; // BBAI
+ 
+-	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance = 7,
++	int AI_playerCloseness(PlayerTypes eIndex,
++			int iMaxDistance /* advc: */ = DEFAULT_PLAYER_CLOSENESS,
+ 			bool bConstCache = false) const; // advc.001n
+ 	int AI_highestTeamCloseness(TeamTypes eTeam, // K-Mod
+ 			bool bConstCache) const; // advc.001n
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index e03dfb2a3..a28006690 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -3851,8 +3851,9 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 					szString.append(CvWString::format(L" [%d, ", iPlayerCloseness));
+ 					if(kPlayer.getTeam() != kLoopPlayer.getTeam())
+ 					{
+-						szString.append(CvWString::format(L"%d]", GET_TEAM(kPlayer.
+-								getTeam()).AI_teamCloseness(kLoopPlayer.getTeam(), DEFAULT_PLAYER_CLOSENESS,
++						szString.append(CvWString::format(L"%d]",
++								GET_TEAM(kPlayer.getTeam()).AI_teamCloseness(
++								kLoopPlayer.getTeam(), DEFAULT_PLAYER_CLOSENESS,
+ 								false, true))); // advc.001n
+ 					/*  advc.001n: Only relevant for the K-Mod war AI, and I'm not totally sure that
+ 						CvTeamAI::AI_startWarVal is safe for networked games
+@@ -3899,13 +3900,15 @@ void CvGameTextMgr::setPlotHelpDebug_Ctrl(CvWStringBuffer& szString, CvPlot cons
+ 						bFirst = false;
+ 						szString.append(CvWString::format(L"\n\nCloseness:"));
+ 					}
+-					szString.append(CvWString::format(L"\n%s(%d) : %d ", kLoopPlayer.getName(), DEFAULT_PLAYER_CLOSENESS, iCloseness));
+-					szString.append(CvWString::format(L" [%d, ", kPlayer.AI_playerCloseness(eLoopPlayer, DEFAULT_PLAYER_CLOSENESS,
++					szString.append(CvWString::format(L"\n%s(%d) : %d ", kLoopPlayer.getName(),
++							DEFAULT_PLAYER_CLOSENESS, iCloseness));
++					szString.append(CvWString::format(L" [%d, ",
++							kPlayer.AI_playerCloseness(eLoopPlayer, DEFAULT_PLAYER_CLOSENESS,
+ 							true))); // advc.001n
+ 					if (kPlayer.getTeam() != kLoopPlayer.getTeam())
+ 					{
+ 						szString.append(CvWString::format(L"%d]", GET_TEAM(kPlayer.getTeam()).
+-								AI_teamCloseness( kLoopPlayer.getTeam(), DEFAULT_PLAYER_CLOSENESS,
++								AI_teamCloseness(kLoopPlayer.getTeam(), DEFAULT_PLAYER_CLOSENESS,
+ 								false, true))); // advc.001n
+ 					}
+ 					else szString.append(CvWString::format(L"-]"));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index bcd786cf5..b589ea81b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -25987,7 +25987,7 @@ int CvPlayerAI::AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
+ 	//PROFILE_FUNC(); // advc.003o (the cache seems to be very effective)
+ 	FAssert(GET_PLAYER(eIndex).isAlive());
+ 	FAssert(eIndex != getID());
+-
++	FAssert(iMaxDistance >= 0); // advc (no longer treated as DEFAULT_PLAYER_CLOSENESS)
+ 	int iValue = 0;
+ 	FOR_EACH_CITYAI(pLoopCity, *this)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index fec3a550e..326965949 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -604,7 +604,8 @@ public:
+ 	int AI_averageCulturePressure() const; // K-Mod
+ 	int AI_averageCommerceExchange(CommerceTypes eCommerce) const;
+ 
+-	int AI_playerCloseness(PlayerTypes eIndex, int iMaxDistance,
++	int AI_playerCloseness(PlayerTypes eIndex,
++			int iMaxDistance /* advc: */ = DEFAULT_PLAYER_CLOSENESS,
+ 			bool bConstCache = false) const; // advc.001n
+ 
+ 	int AI_getTotalCityThreat() const;
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index f93911eed..967edd038 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -1579,7 +1579,8 @@ int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan,
+ 		}
+ 
+ 		// increase the cost for distant targets...
+-		if (0 == AI_teamCloseness(eTarget, /* advc.001n: */ -1, false, bConstCache))
++		if (0 == AI_teamCloseness(eTarget,
++			DEFAULT_PLAYER_CLOSENESS, false, bConstCache)) // advc.001n
+ 		{
+ 			// ... in the early game.
+ 			if (getNumCities() < GC.getInfo(GC.getMap().getWorldSize()).getTargetNumCities() * getAliveCount())
+@@ -2525,7 +2526,8 @@ DenialTypes CvTeamAI::AI_surrenderTrade(TeamTypes eMasterTeam, int iPowerMultipl
+ 	scaled128_t rMasterPower = kMasterTeam.getPower(false);
+ 	// <advc.112>
+ 	if(bFaraway ||
+-		(getNumWars() <= 0 && AI_teamCloseness(eMasterTeam, -1, false, true) <= 0))
++		(getNumWars() <= 0 &&
++		AI_teamCloseness(eMasterTeam, DEFAULT_PLAYER_CLOSENESS, false, true) <= 0))
+ 	{
+ 		rMasterPower *= fixp(0.7); // </advc.112>
+ 	}
+@@ -4898,10 +4900,6 @@ int CvTeamAI::AI_teamCloseness(TeamTypes eIndex, int iMaxDistance,
+ 	bool bConstCache) const // advc.001n
+ {
+ 	//PROFILE_FUNC(); // advc.003o (the cache seems to be very effective)
+-
+-	if (iMaxDistance == -1)
+-		iMaxDistance = DEFAULT_PLAYER_CLOSENESS;
+-
+ 	FAssert(eIndex != getID());
+ 	int iValue = 0;
+ 	for (MemberAIIter itOurMember(getID()); itOurMember.hasNext(); ++itOurMember)
+@@ -5608,7 +5606,7 @@ scaled CvTeamAI::AI_getOpenBordersCounterIncrement(TeamTypes eOther) const
+ 	int iTheirCities = GET_TEAM(eOther).getNumCities();
+ 	if (iOurCities > 0 && iTheirCities > 0)
+ 	{
+-		rFromCloseness = AI_teamCloseness(eOther, DEFAULT_PLAYER_CLOSENESS) /
++		rFromCloseness = AI_teamCloseness(eOther) /
+ 				(scaled(iOurCities + iTheirCities).sqrt() * 20);
+ 	}
+ 	/*  Would be nice to add another, say, 0.25 if any of our units w/o
+
+diff --git a/CvGameCoreDLL/CvTeamAI.h b/CvGameCoreDLL/CvTeamAI.h
+index ccd940e86..0e068adbe 100644
+--- a/CvGameCoreDLL/CvTeamAI.h
++++ b/CvGameCoreDLL/CvTeamAI.h
+@@ -313,7 +313,8 @@ public:
+ 	// advc.158:
+ 	AIStrengthMemoryMap& AI_strengthMemory() const { return m_strengthMemory; }
+ 	// advc.104:
+-	int AI_teamCloseness(TeamTypes eIndex, int iMaxDistance = -1,
++	int AI_teamCloseness(TeamTypes eIndex,
++			int iMaxDistance = DEFAULT_PLAYER_CLOSENESS,
+ 			bool bConsiderLandTarget = false, // advc.104o
+ 			bool bConstCache = false) const; // advc.001n
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=6481

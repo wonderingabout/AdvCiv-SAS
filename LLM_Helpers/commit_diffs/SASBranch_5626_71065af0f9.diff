@@ -1,0 +1,327 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5626
+# Commit: 71065af0f953f20b556de5d216ff12d0f6947b1f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: b32e95eb5c8e54152dd9c2c05b019b20e5ed968e
+# Title: increase base font size from body to label in main interface - move specialists breakdown above culture breakdown (since there is room above and so there is...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+40	46	Assets/Python/Screens/CvMainInterface.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 799751462..f7288cc8e 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -15,6 +15,7 @@ import CvUtil
+ import ScreenInput
+ import CvScreenEnums
+ from SASFontUtils import *
++# <!-- custom: in main interface, use LABEL as the base text font instead of BODY because it is more readable. (GPT-5.3-Codex) -->
+ import CvEventInterface
+ import time
+ import BugDll # BUG - DLL
+@@ -4722,7 +4723,7 @@ class CvMainInterface:
+ 				#if (gc.getPlayer(ePlayer).isCommerceFlexible(eCommerce) or (CyInterface().isCityScreenUp() and (eCommerce == CommerceTypes.COMMERCE_GOLD))):
+ 				if not self.showCommercePercent(eCommerce, ePlayer): # K-Mod
+ 					continue
+-				szOutText = SAS_FONT_TAG_BODY + u"%c:%d%%" %(
++				szOutText = SAS_FONT_TAG_LABEL + u"%c:%d%%" %(
+ 						gc.getCommerceInfo(eCommerce).getChar(),
+ 						gc.getPlayer(ePlayer).getCommercePercent(eCommerce)) + SAS_FONT_TAG_CLOSE
+ 				szString = "PercentText" + str(iCount)
+@@ -4733,7 +4734,7 @@ class CvMainInterface:
+ 						# <advc.004p>
+ 						and (eCommerce != CommerceTypes.COMMERCE_CULTURE or
+ 						MainOpt.isShowTotalCultureRate())): # </advc.004p>
+-					szOutText = SAS_FONT_TAG_BODY + localText.getText(
++					szOutText = SAS_FONT_TAG_LABEL + localText.getText(
+ 							"TXT_KEY_MISC_POS_GOLD_PER_TURN",
+ 							(gc.getPlayer(ePlayer).getCommerceRate(CommerceTypes(eCommerce)),))
+ 					szOutText += SAS_FONT_TAG_CLOSE
+@@ -4938,7 +4939,7 @@ class CvMainInterface:
+ 		szText = GPUtil.getGreatPeopleText(pGPCity, iGPTurns,
+ 				gRect(szGPBar).width(),
+ 				MainOpt.isGPBarTypesNone(), MainOpt.isGPBarTypesOne(), True)
+-		szText = SAS_FONT_TAG_BODY + u"%s" % (szText) + SAS_FONT_TAG_CLOSE
++		szText = SAS_FONT_TAG_LABEL + u"%s" % (szText) + SAS_FONT_TAG_CLOSE
+ 		if pGPCity:
+ 			iCityID = pGPCity.getID()
+ 		else:
+@@ -4983,7 +4984,7 @@ class CvMainInterface:
+ 		iCombatExp = pPlayer.getCombatExperience()
+ 		iThresholdExp = pPlayer.greatPeopleThreshold(True)
+ 		iNeededExp = iThresholdExp - iCombatExp
+-		szText = SAS_FONT_TAG_BODY + u"%s" %(GGUtil.getGreatGeneralText(iNeededExp)) + SAS_FONT_TAG_CLOSE
++		szText = SAS_FONT_TAG_LABEL + u"%s" %(GGUtil.getGreatGeneralText(iNeededExp)) + SAS_FONT_TAG_CLOSE
+ # BUG - Bars on single line for higher resolution screens - start
+ 		self.setLabel("GreatGeneralBarText", "Background", szText,
+ 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.GAME_FONT, -0.4,
+@@ -5426,7 +5427,7 @@ class CvMainInterface:
+ 					self.szFoodIcon)
+ 			# draw label below
+ 		# advc.004: BULL widget help enabled
+-		self.setLabel("PopulationInputText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++		self.setLabel("PopulationInputText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
+ 				WidgetTypes.WIDGET_FOOD_MOD_HELP)
+ 		screen.show("PopulationInputText")
+@@ -5448,7 +5449,7 @@ class CvMainInterface:
+ 				szBuffer = localText.getText(
+ 						"INTERFACE_CITY_HEALTH_GOOD_NO_BAD",
+ 						(pHeadSelectedCity.goodHealth(),))
+-			self.setLabel("HealthText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++			self.setLabel("HealthText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
+ 					WidgetTypes.WIDGET_HELP_HEALTH)
+ 			screen.show("HealthText")
+@@ -5572,7 +5573,7 @@ class CvMainInterface:
+ 		else:
+ 			szBuffer = u"%d%s" %(iProductionDiffNoFood,
+ 					self.szProductionIcon)
+-		self.setLabel("ProductionInputText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++		self.setLabel("ProductionInputText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
+ 				WidgetTypes.WIDGET_PRODUCTION_MOD_HELP)
+ 		screen.show("ProductionInputText")
+@@ -5608,7 +5609,7 @@ class CvMainInterface:
+ 				if iAngerTimer > 0:
+ 					szBuffer += u" (%i)" % iAngerTimer
+ # BUG - Anger Display - end
+-			self.setLabel("HappinessText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++			self.setLabel("HappinessText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.GAME_FONT, -0.3,
+ 					WidgetTypes.WIDGET_HELP_HAPPINESS)
+ 			screen.show("HappinessText")
+@@ -5681,7 +5682,7 @@ class CvMainInterface:
+ 								self.szUnhappyIcon)
+ 					szBuffer = szBuffer + szTempBuffer
+ 				szName = "CityPercentText" + str(iCount)
+-				self.setLabel(szName, "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++				self.setLabel(szName, "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 						CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3,
+ 						WidgetTypes.WIDGET_COMMERCE_MOD_HELP, eCommerce)
+ 				screen.show(szName)
+@@ -6139,13 +6140,13 @@ class CvMainInterface:
+ 				pHeadSelectedCity.getOwner()).calculateInflationRate()
+ 		iMaintenance /= 100 # </K-Mod>
+ 		szBuffer = self.szTextMaintenance
+-		self.setLabel("MaintenanceText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++		self.setLabel("MaintenanceText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 				CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.3, 
+ 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
+ 		screen.show("MaintenanceText")
+ 		szBuffer = u"-%d.%02d %c" %(iMaintenance/100, iMaintenance%100,
+ 				gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar())
+-		self.setLabel("MaintenanceAmountText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++		self.setLabel("MaintenanceAmountText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 				CvUtil.FONT_RIGHT_JUSTIFY, FontTypes.SMALL_FONT, -0.3,
+ 				WidgetTypes.WIDGET_HELP_MAINTENANCE)
+ 		screen.show("MaintenanceAmountText")
+@@ -6375,7 +6376,7 @@ class CvMainInterface:
+ 		szBuffer = u"%d%% %s" %(
+ 				pHeadSelectedCity.plot().calculateCulturePercent(pHeadSelectedCity.getOwner()),
+ 				gc.getPlayer(pHeadSelectedCity.getOwner()).getCivilizationAdjective(0))
+-		self.setLabel("NationalityText", "Background", SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE,
++		self.setLabel("NationalityText", "Background", SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE,
+ 				CvUtil.FONT_CENTER_JUSTIFY, FontTypes.SMALL_FONT, -0.3)
+ 		screen.setHitTest("NationalityText", HitTestTypes.HITTEST_NOHIT)
+ 		screen.show("NationalityText")
+@@ -6536,22 +6537,21 @@ class CvMainInterface:
+ 				szTurns = u"(-)"
+ 
+ 			# 3. Construct ROW 1 (Top Line): "(5 [Silver Star] 3 [Cit]) +25% [GP]"
+-			szRow1 = SAS_FONT_TAG_BODY + u"(%d%s %d%s)" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
++			szRow1 = SAS_FONT_TAG_LABEL + u"(%d%s %d%s)" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
+ 			if iModPercent != 0:
+ 				szRow1 += u" +%d%%" % (iModPercent)
+ 			szRow1 += SAS_FONT_TAG_CLOSE
+ 
+ 			# 4. Construct ROW 2 (Bottom Line): "10 [GP]: 109/249 (14)"
+-			szRow2 = SAS_FONT_TAG_BODY + u"%d%s: %d/%d %s" % (iTotalRate, self.szGreatPeopleIcon, iProgress, iThreshold, szTurns) + SAS_FONT_TAG_CLOSE
++			szRow2 = SAS_FONT_TAG_LABEL + u"%d%s: %d/%d %s" % (iTotalRate, self.szGreatPeopleIcon, iProgress, iThreshold, szTurns) + SAS_FONT_TAG_CLOSE
+ 
+ 			# 5. Positioning & Rendering (Split into TWO Labels)
+ 			# screen.setLabel ignores \n, so we must draw two separate text widgets.
+ 			iX = gRect("CityRightPanelContents").x() + 2
+ 		
+-			# Position Row 2 (Bottom) just above the yellow bar
+-			iY2 = gRect("GreatPeopleBar").y() - 22
+-			# Position Row 1 (Top) above Row 2
+-			iY1 = gRect("GreatPeopleBar").y() - 42
++			# Position specialist rows above culture rows
++			iY2 = gRect("GreatPeopleBar").y() - 62
++			iY1 = gRect("GreatPeopleBar").y() - 82
+ 
+ 			# Draw Label 1 (Top)
+ 			screen.setLabel("SpecBreakdownLabel1", "Background", szRow1, CvUtil.FONT_LEFT_JUSTIFY, iX, iY1, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+@@ -6617,7 +6617,7 @@ class CvMainInterface:
+ 				if iBaseRate > 0 and iTotalCultureRateTimes100 > iBaseRate * 100:
+ 					iModPercent = (iTotalCultureRateTimes100 / iBaseRate) - 100
+ 				
+-				szRow1 = SAS_FONT_TAG_BODY + u"(%d%s %d%s %d%s %d%s %d%s)" % (
++				szRow1 = SAS_FONT_TAG_LABEL + u"(%d%s %d%s %d%s %d%s %d%s)" % (
+ 						iRelCulture, self.szReligionIcon,
+ 						iCorpCulture, self.szTradeIcon,
+ 						iBldgCulture, self.szProductionIcon,
+@@ -6643,15 +6643,9 @@ class CvMainInterface:
+ 				iProgFrac = iCultureProgressTimes100 % 100
+ 				szRate = u"%d.%02d" % (iRateWhole, iRateFrac)
+ 				szProgress = u"%d.%02d" % (iProgWhole, iProgFrac)
+-				szRow2 = SAS_FONT_TAG_BODY + u"%s%s: %s/%d %s" % (szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
+-				
+-				iSpecW1 = CyInterface().determineWidth(szRow1)
+-				iSpecW2 = CyInterface().determineWidth(szRow2)
+-				iSpecW = max(iSpecW1, iSpecW2)
+-				iSpecMaxW = (gRect("CityRightPanelContents").width() / 2) - HSPACE(18)
+-				iSpecW = min(iSpecW, iSpecMaxW)
+-				wSpecCultureBreakdownsSpacingAdjust = - HSPACE(10)
+-				iXRight = iX + iSpecW + wSpecCultureBreakdownsSpacingAdjust
++				szRow2 = SAS_FONT_TAG_LABEL + u"%s%s: %s/%d %s" % (szRate, self.szCultureIcon, szProgress, iCultureThreshold, szTurns) + SAS_FONT_TAG_CLOSE
++				
++				iXRight = iX
+ 				iY2 = gRect("GreatPeopleBar").y() - 22
+ 				iY1 = gRect("GreatPeopleBar").y() - 42
+ 				screen.setLabel("CultureBreakdownLabel1", "Background", szRow1,
+@@ -6670,7 +6664,7 @@ class CvMainInterface:
+ 		if iAmount > 1:
+ 			self.addDDS("CityBonusCircle" + szIndex, "WHITE_CIRCLE_40",
+ 					WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS, iBonus)
+-			szAmount = (SAS_FONT_TAG_BODY
++			szAmount = (SAS_FONT_TAG_LABEL
+ 					+ localText.changeTextColor(str(iAmount),
+ 					self.colorYellow)
+ 					+ SAS_FONT_TAG_CLOSE)
+@@ -6883,7 +6877,7 @@ class CvMainInterface:
+ 					szBuffer += u" %.1f - %.1f%s" % (fMinMoves, fMaxMoves,
+ 							self.szMovesIcon)
+ 			if (szBuffer.find("<font=") == -1):
+-				szBuffer = SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE
++				szBuffer = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
+ 			self.setText("SelectedUnitLabel", "Background", szBuffer,
+ 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1,
+ 					WidgetTypes.WIDGET_UNIT_NAME)
+@@ -6918,7 +6912,7 @@ class CvMainInterface:
+ 							screen.moveToFront(szName)
+ 							screen.show(szName)
+ 							szName = "PromotionButtonCount" + str(iPromotionCount)
+-							szText = SAS_FONT_TAG_BODY + u"%d" % iCount + SAS_FONT_TAG_CLOSE
++							szText = SAS_FONT_TAG_LABEL + u"%d" % iCount + SAS_FONT_TAG_CLOSE
+ 							if iCount == iNumUnits:
+ 								szText = BugUtil.colorText(szText, iSPColorAll)
+ 							else:
+@@ -6949,8 +6943,8 @@ class CvMainInterface:
+ 								szRightBuffer = u"(" + str(iCount) + u")"
+ 							szBuffer = szLeftBuffer + u"  " + szRightBuffer
+ 							screen.appendTableRow("SelectedUnitText")
+-							szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+-							szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
++							szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
++							szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+ 							screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, szButton,
+ 							# <!-- custom: End - add buttons to unit selection panel in the main map view (Claude code Sonnet 4.5) -->
+ 									WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
+@@ -6967,9 +6961,9 @@ class CvMainInterface:
+ 				szBuffer = localText.getText("INTERFACE_PANE_UNIT_NAME_HOT_KEY",
+ 						(pHeadSelectedUnit.getHotKeyNumber(), pHeadSelectedUnit.getName()))
+ 			if (len(szBuffer) > 60):
+-				szBuffer = SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE
++				szBuffer = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
+ 			if (szBuffer.find("<font=") == -1):
+-				szBuffer = SAS_FONT_TAG_BODY + szBuffer + SAS_FONT_TAG_CLOSE
++				szBuffer = SAS_FONT_TAG_LABEL + szBuffer + SAS_FONT_TAG_CLOSE
+ 			self.setText("SelectedUnitLabel", "Background", szBuffer,
+ 					CvUtil.FONT_LEFT_JUSTIFY, FontTypes.SMALL_FONT, -0.1, 
+ 					WidgetTypes.WIDGET_UNIT_NAME)
+@@ -7010,8 +7004,8 @@ class CvMainInterface:
+ 				szBuffer = szLeftBuffer + szRightBuffer
+ 				if (szBuffer):
+ 					screen.appendTableRow("SelectedUnitText")
+-					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+-					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
++					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
++					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+ 					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
+ 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
+@@ -7060,8 +7054,8 @@ class CvMainInterface:
+ # BUG - Unit Movement Fraction - end
+ 				szBuffer = szLeftBuffer + "  " + szRightBuffer
+ 				screen.appendTableRow("SelectedUnitText")
+-				szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+-				szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
++				szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
++				szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+ 				screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
+ 						WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 				screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
+@@ -7075,8 +7069,8 @@ class CvMainInterface:
+ 					szRightBuffer = u"%d" %(pHeadSelectedUnit.getLevel())
+ 					szBuffer = szLeftBuffer + "  " + szRightBuffer
+ 					screen.appendTableRow("SelectedUnitText")
+-					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+-					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
++					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
++					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+ 					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
+ 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
+@@ -7091,8 +7085,8 @@ class CvMainInterface:
+ 							pHeadSelectedUnit.experienceNeeded())
+ 					szBuffer = szLeftBuffer + "  " + szRightBuffer
+ 					screen.appendTableRow("SelectedUnitText")
+-					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+-					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
++					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
++					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+ 					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
+ 							WidgetTypes.WIDGET_HELP_SELECTED, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
+@@ -7131,8 +7125,8 @@ class CvMainInterface:
+ 								gc.getMissionInfo(pSelectedGroup.getMissionType(i)).getDescription())
+ 					szBuffer = szLeftBuffer + "  " + szRightBuffer
+ 					screen.appendTableRow("SelectedUnitText")
+-					szLeftText = SAS_FONT_TAG_BODY + szLeftBuffer + SAS_FONT_TAG_CLOSE
+-					szRightText = SAS_FONT_TAG_BODY + szRightBuffer + SAS_FONT_TAG_CLOSE
++					szLeftText = SAS_FONT_TAG_LABEL + szLeftBuffer + SAS_FONT_TAG_CLOSE
++					szRightText = SAS_FONT_TAG_LABEL + szRightBuffer + SAS_FONT_TAG_CLOSE
+ 					screen.setTableText("SelectedUnitText", 0, iRow, szLeftText, "",
+ 							WidgetTypes.WIDGET_HELP_SELECTED, i, -1, CvUtil.FONT_LEFT_JUSTIFY)
+ 					screen.setTableText("SelectedUnitText", 1, iRow, szRightText, "",
+@@ -7225,7 +7219,7 @@ class CvMainInterface:
+ 					# advc.085: Moved to BUG Scoreboard
+ 					if (Scoreboard.Scoreboard.isShowPlayerScore(ePlayer) and
+ 							gc.getPlayer(ePlayer).getTeam() == eTeam):
+-						szBuffer = SAS_FONT_TAG_BODY
++						szBuffer = SAS_FONT_TAG_LABEL
+ # BUG - Align Icons - start
+ 						if bAlignIcons:
+ 							scores.addPlayer(gc.getPlayer(ePlayer), j)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4bfab33b7..8d577f36c 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -340,7 +340,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Added in the **Info Screen** a new **Score Tab** showing a **sortable (default ordered by highest score) table** with all relevant scoreboard fields, plus **new fields** like Player ID (to distinguish identical Name/Civ/Leader/Player Color), Player color, total Power (of a player, distinct from power ratios), total Power per City, Land%, V/M. Added a clickable **"Legend"** text that **redirects to Sevopedia Concepts' "Score Tab Columns" page**. Note that unlike military ratios, PowT and PoT/C are shown even for the human player, since these vary every turn. If table has more than max rows, table expands and Legend link moves to top right. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Score Tab](/README.md#score-tab-in-the-info-screen-advisor).
+ - Beautified the **Victory Screen**: **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)). (Requires AdvCiv-SAS 5523+) **Always show** the **Resolutions** and **Members** tabs so now all tabs are shown **even if they are empty**, and add a **fallback table** showing **required wonders** (as of now Apostolic Palace or United Nations) to make these tabs active for exhaustiveness and clarity. Change in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py). See also [KI#115](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab).
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+-- **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left). See [Main interface rework](/README.md#main-interface-rework).
++- **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left). **Increase base font** size **from body (i.e. 2) to label (i.e. 3)** as it is **more readable**. See [Main interface rework](/README.md#main-interface-rework).
+ - **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). And other changes. Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=22921

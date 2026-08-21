@@ -1,0 +1,184 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5784
+# Commit: 7d2431155e7d4759a2f0a90300efed964c3d9130
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 5383b0c4f6c4071965b2273915bcc4be5cfc603c
+# Title: increase promotion size to unit icon size (also no longer DLL-hardcoded); reduce leader icon reduction (now mild no longer halved) in maps tab
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+6	3	Assets/Python/Screens/CvMilitaryAdvisor.py
+5	3	CvGameCoreDLL/CvGameTextMgr.cpp
+3	1	CvGameCoreDLL/CvGameTextMgr.h
+3	3	CvGameCoreDLL/CyGameTextMgr.cpp
+2	1	CvGameCoreDLL/CyGameTextMgr.h
+2	1	CvGameCoreDLL/CyGameTextMgrInterface.cpp
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/Screens/CvMilitaryAdvisor.py b/Assets/Python/Screens/CvMilitaryAdvisor.py
+index b8e98249c..212a13487 100644
+--- a/Assets/Python/Screens/CvMilitaryAdvisor.py
++++ b/Assets/Python/Screens/CvMilitaryAdvisor.py
+@@ -97,6 +97,7 @@ class CvMilitaryAdvisor:
+ 		# <!-- custom: keep the Map tab as the single spatial unit browser. A separate Map 2 tab with different minimap geometry had several tab-switch issues: stale dimensions, blank minimaps, or minimap bleed into other tabs depending on the attempted fix. The stable compromise is to widen the existing unit list and preserve the individual-units toggle. (GPT-5.5) -->
+ 		self.H_LEADERS = 380
+ 		self.LEADER_BUTTON_SIZE = 64
++		self.LEADER_BUTTON_SIZE_OVERFLOW = self.LEADER_BUTTON_SIZE - 8
+ 		self.LEADER_MARGIN = 12
+ 
+ 		self.bUnitDetails = False
+@@ -257,6 +258,8 @@ class CvMilitaryAdvisor:
+ 		self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_BASE
+ 		if self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT > 0 and screen.getYResolution() >= self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_HIGH_RES_MIN_HEIGHT:
+ 			self.iInlineIconSize = self.iSAS_CV_MILITARY_ADVISOR_INLINE_ICON_SIZE_HIGH_RES
++		# <!-- custom: Increase expanded-row promotion icons from the old DLL-hardcoded size 16 to our new Military Advisor row unit-icon size. The row already has this height, so promotion icons become more readable without increasing row height. (GPT-5.5) -->
++		self.iPromotionInlineIconSize = self.iInlineIconSize
+ 		self.PAGE_LINK_WIDTH[:] = getAdvisorRuntimeLinkWidths(CyInterface(), self.PAGE_NAME_LIST, self.EXIT_TEXT, self.X_EXIT)
+ 
+ 
+@@ -1170,7 +1173,7 @@ class CvMilitaryAdvisor:
+ 				
+ 					if (self.bUnitDetails):
+ 						# <!-- custom: Expanded Map-tab unit rows already belong to the selected player; use the DLL omit-owner wrapper to avoid repeated owner suffixes like "PC", which also corrupted worker build rows such as "Build a Cottage" into "Build a PC". See KI#130. (GPT-5.5); note: this also fixes stray leader name in unit rows, which was unneeded since selected leader is already visible. -->
+-						szDescription = CyGameTextMgr().getSpecificUnitHelpOmitOwner(loopUnit, true, false)
++						szDescription = CyGameTextMgr().getSpecificUnitHelpOmitOwner(loopUnit, true, false, self.iPromotionInlineIconSize)
+ 
+ 						listMatches = re.findall("<.*?color.*?>", szDescription)	
+ 						for szMatch in listMatches:
+@@ -1228,10 +1231,10 @@ class CvMilitaryAdvisor:
+ 				listLeaders.append(iLoopPlayer)
+ 				
+ 		iNumLeaders = len(listLeaders)
+-		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; the old hardcoded 2-row threshold wasted the extra height now used to widen the unit list while keeping the map stable. (GPT-5.5) -->
++		# <!-- custom: shrink leader icons only after all full-size rows allowed by H_LEADERS are filled; at 1080p with 5 rows, SAS48 needs only a mild size reduction (roughly 10 columns x 5 rows) rather than the old half-size icon. (GPT-5.5) -->
+ 		iFullLeaderRows = max(1, int(self.H_LEADERS / (self.LEADER_BUTTON_SIZE + self.LEADER_MARGIN)))
+ 		if iNumLeaders > iFullLeaderRows * self.LEADER_COLUMNS:
+-			iButtonSize = self.LEADER_BUTTON_SIZE / 2
++			iButtonSize = self.LEADER_BUTTON_SIZE_OVERFLOW
+ 		else:
+ 			iButtonSize = self.LEADER_BUTTON_SIZE
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index 11b115965..a56a52a60 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -407,7 +407,9 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 	bool bOneLine, bool bShort,
+ 	bool bColorAllegiance, // advc.048
+ 	bool bOmitOwner, // advc.061
+-	bool bIndicator) // advc.007
++	bool bIndicator, // advc.007
++	// <!-- custom: Promotion icon size was formerly hardcoded as 16; pass it through so external UI wrappers can control the generated image markup cleanly. (GPT-5.5) -->
++	int iPromotionIconSize)
+ {
+ 	PROFILE_FUNC();
+ 
+@@ -594,8 +596,8 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit,
+ 			if (pUnit->isHasPromotion(eLoopPromotion))
+ 			{
+ 				CvWString szTempBuffer;
+-				szTempBuffer.Format(L"<img=%S size=16 />",
+-						GC.getInfo(eLoopPromotion).getButton());
++				szTempBuffer.Format(L"<img=%S size=%d />",
++						GC.getInfo(eLoopPromotion).getButton(), iPromotionIconSize);
+ 				// <advc.004>
+ 				if (bFirst)
+ 				{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.h b/CvGameCoreDLL/CvGameTextMgr.h
+index cbe3e3229..e9a39dd99 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.h
++++ b/CvGameCoreDLL/CvGameTextMgr.h
+@@ -44,7 +44,9 @@ public:
+ 			bool bOneLine = false, bool bShort = false,
+ 			bool bColorAllegiance = false, // advc.048
+ 			bool bOmitOwner = false, // advc.061
+-			bool bIndicator = false); // advc.007
++			bool bIndicator = false, // advc.007
++			// <!-- custom: Promotion icon size was hardcoded inside setUnitHelp; expose it as a parameter so Python UI callers can request a clean advisor-specific size instead of rewriting emitted image markup. (GPT-5.5) -->
++			int iPromotionIconSize = 16);
+ 	// advc.004 (Exposed to Python, replacing redundant code in CyMainInterface.py)
+ 	void setHurtUnitStrength(CvWString& szBuffer, CvUnit const& kUnit,
+ 			int iHP = -1); // advc.048c
+
+diff --git a/CvGameCoreDLL/CyGameTextMgr.cpp b/CvGameCoreDLL/CyGameTextMgr.cpp
+index 7a03956a6..ee43cdb41 100644
+--- a/CvGameCoreDLL/CyGameTextMgr.cpp
++++ b/CvGameCoreDLL/CyGameTextMgr.cpp
+@@ -103,13 +103,13 @@ std::wstring CyGameTextMgr::getSpecificUnitHelp(CyUnit* pUnit, bool bOneLine, bo
+ 	return szBuffer.getCString();
+ }
+ 
+-std::wstring CyGameTextMgr::getSpecificUnitHelpOmitOwner(CyUnit* pUnit, bool bOneLine, bool bShort)
++std::wstring CyGameTextMgr::getSpecificUnitHelpOmitOwner(CyUnit* pUnit, bool bOneLine, bool bShort, int iPromotionIconSize)
+ {
+ 	CvWStringBuffer szBuffer;
+ 	if (pUnit && pUnit->getUnit())
+ 	{
+-		// <!-- custom: The Military Advisor Map tab already filters by selected player, so repeated owner text ("PC") clutters each unit row and can visually corrupt worker build text such as "Build a Cottage" into "Build a PC". Expose setUnitHelp's existing omit-owner path to Python instead of patching formatted UI strings after the fact. See KI#130. (GPT-5.5) -->
+-		GAMETEXT.setUnitHelp(szBuffer, pUnit->getUnit(), bOneLine, bShort, false, true);
++		// <!-- custom: The Military Advisor Map tab already filters by selected player, so repeated owner text ("PC") clutters each unit row and can visually corrupt worker build text such as "Build a Cottage" into "Build a PC". Expose setUnitHelp's existing omit-owner path and promotion icon size to Python so advisor UI controls DLL-generated image markup directly instead of patching formatted strings afterward. See KI#130. (GPT-5.5) -->
++		GAMETEXT.setUnitHelp(szBuffer, pUnit->getUnit(), bOneLine, bShort, false, true, false, iPromotionIconSize);
+ 	}
+ 	return szBuffer.getCString();
+ }
+
+diff --git a/CvGameCoreDLL/CyGameTextMgr.h b/CvGameCoreDLL/CyGameTextMgr.h
+index ab0488c15..91e2e4abf 100644
+--- a/CvGameCoreDLL/CyGameTextMgr.h
++++ b/CvGameCoreDLL/CyGameTextMgr.h
+@@ -35,7 +35,8 @@ public:
+ 	std::wstring getBasicUnitHelp(int iUnit, bool bCivilopediaText);
+ 	std::wstring getSpecificUnitHelp(CyUnit* pUnit, bool bOneLine, bool bShort);
+ 	// <!-- custom: Expose the existing omit-owner setUnitHelp path to Python for Military Advisor Map-tab unit rows; see KI#130. (GPT-5.5) -->
+-	std::wstring getSpecificUnitHelpOmitOwner(CyUnit* pUnit, bool bOneLine, bool bShort);
++	// <!-- custom: Also pass promotion icon size through to avoid hardcoded DLL image sizing when an advisor needs larger inline icons. (GPT-5.5) -->
++	std::wstring getSpecificUnitHelpOmitOwner(CyUnit* pUnit, bool bOneLine, bool bShort, int iPromotionIconSize);
+ 	std::wstring getHurtUnitStrength(CyUnit* pUnit); // advc.004
+ 	std::wstring getBuildingHelp(int iBuilding, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CyCity* pCity);
+ 	std::wstring getProjectHelp(int iProject, bool bCivilopediaText, CyCity* pCity);
+
+diff --git a/CvGameCoreDLL/CyGameTextMgrInterface.cpp b/CvGameCoreDLL/CyGameTextMgrInterface.cpp
+index 162c76c50..71d153b3a 100644
+--- a/CvGameCoreDLL/CyGameTextMgrInterface.cpp
++++ b/CvGameCoreDLL/CyGameTextMgrInterface.cpp
+@@ -26,7 +26,8 @@ void CyGameTextMgrInterface()
+ 		.def("getBasicUnitHelp", &CyGameTextMgr::getBasicUnitHelp, "wstring (int iUnit, bool bCivilopediaText)")
+ 		.def("getSpecificUnitHelp", &CyGameTextMgr::getSpecificUnitHelp, "wstring (CyUnit* pUnit, bool bOneLine, bool bShort)")
+ 		// <!-- custom: Python needs the omit-owner unit-help wrapper for Military Advisor Map-tab rows; see KI#130. (GPT-5.5) -->
+-		.def("getSpecificUnitHelpOmitOwner", &CyGameTextMgr::getSpecificUnitHelpOmitOwner, "wstring (CyUnit* pUnit, bool bOneLine, bool bShort)")
++		// <!-- custom: Expose promotion icon size too so callers can control DLL-generated image markup directly. (GPT-5.5) -->
++		.def("getSpecificUnitHelpOmitOwner", &CyGameTextMgr::getSpecificUnitHelpOmitOwner, "wstring (CyUnit* pUnit, bool bOneLine, bool bShort, int iPromotionIconSize)")
+ 		// advc.004:
+ 		.def("getHurtUnitStrength", &CyGameTextMgr::getHurtUnitStrength, "wstring (CyUnit* pUnit)")
+ 		.def("getBuildingHelp", &CyGameTextMgr::getBuildingHelp, "wstring (int iBuilding, bool bCivilopediaText, bool bStrategyText, bool bTechChooserText, CyCity* pCity)")
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 822637c2c..8f170d100 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -358,7 +358,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5522+) New **Policy Advisor**. **Beautified**: enlarge **top panels text** so **long civic names don't overflow**. **Remove multiline nationality** information which was **uninfomative** and **crowded vertically** in the **Religions tab** and the **Corporations tab**; use more precise and compact `Leader (ID)` and `HQ (ID)` **one-liner instead** (**ID** also handles **one leader name being used by several players**); **increase row spacing** (now **unified** (was crowded)). **Remove multiline wrapped bonuses** splitting logic in the **Corporations tab**: use one natural comma-separated line (bonuses row height reduced/standardized) since there is enough space after expanding the Policy Advisor and it is more readable. Also add **new rows** (**Bonuses Generated**, **Yields Generated**), and add **first column descriptions** for rows (as of now `Built By:`, `Consumes:`, `Generates:`, `Generates 2:`). Add a **Great Person icon** in `Built By:` row. Change in [CvPolicyAdvisorScreen.py](/Assets/Python/Screens/CvPolicyAdvisorScreen.py).
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+-- Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** to **accomodate lengthy unit rows** (e.g., avoid line wrap if unit name is long, if there are many promotions). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, at 1080p 5 rows allow to show up to 45 players (including barbarian) at full leader icon size before leader icon size is reduced, which should now cover most games. Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported. See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer).
++- Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **unit icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440), and **promotion icon size** is **increased** (no longer DLL-hardcoded (was 16)). (Requires AdvCiv-SAS 5777+) **Lift up the unit panel to full height** (reduces the need for scrolling vertically) and **expand it laterally** to **accomodate lengthy unit rows** (e.g., avoid line wrap if unit name is long, if there are many promotions). Make **show/hide individual unit text clickable** too (more accessible than the small +/- button alone). **Increase leader icon bar from 1 to multiple rows**, and **do not reduce icon size until all rows are full**. For example, at 1080p, 5 rows allow to show up to 45 players (including barbarian) at full leader icon size before leader icon size is reduced. **Reduce Leader icon size reduction** when all rows are full (**mild reduction**, no longer halved). See also [KI#123](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#123---fixed-bug-domesticmilitary-advisor-variant-toggles-required-restarting-civ4), [KI#130](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#130---fixed-base-advciv-bug-of-unit-rows-showing-build-player-name-instead-of-improvement-text-military-advisor-map-tab), and [KI#131](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#131---fixed-base-advciv-bug-of-live-unit-build-action-text-not-being-space-separated-from-its-turn-timer). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
+ - (Requires AdvCiv-SAS 5771+) Added a new **Battles tab** in the Military Advisor, showing as a **sortable table** the detailed **record of each battle** for the selected player in debug dropdown (or the active player or its vassals outside debug mode): **Turn**, **Year**, **Result** (Won, Lost, Retreat) as emoji, **Estimated Odds %** (simple starting effective strength comparison, not exact Civ4 combat odds), **Role** (Are we the attacker?) as emoji, **base Strength** (XML), **start effective Strength** (including modifiers at that battle), **end effective Strength**, **max effective Strength**, **XP before combat** (yellow if Great-General-led), **Our Unit**, **Their Unit** (unit name in yellow if Great-General-led), **same** strength/XP columns for their unit, **Civ icon**, **Player icon**, **Player ID** (to cover the same leader picked by several leaders (custom games, etc.)), **Captured Unit type**, **Captured Unit icon**, **Hill or Peak icon**, **Terrain icon**, **Feature icon**, **Click Plot icon** (**on click camera is moved to this plot** (as the wonder tabs' (Info Screen) text does), with distinct art for normal plot, defended city, and captured city battles). Icons are **hoverable to sevopedia** (or have a camera effect). **Text color** is added for Result (Won: green; Lost: red; Retreat: yellow), effective Strength (white: 100%, green: > 66%, yellow: > 33%; red <= 33%), and captured units (we gained a unit amount: green; we lost a unit amout: red). Implemented a **legend link**, and **LOG Button** (as the Timeline tab). Examples of LOG: `163 | 760 AD | Lost | 43 | A | 6 | 6.04 |  | 7.20 | 8 | 0 | Camel Archer | Longbowman | 5 | 0 | 4 | 8.10 | 5.04 | 9.00 | 9 | 0 |  |  | TERRAIN_GRASS |  | 54 | 30`, `133 | 10 BC | Won | 64 | A | 3 | 3.30 | 1.81 | 3.30 | 2 | 0 | Trireme | Galley | 1 | 0 | 2 | 1.84 |  | 2.20 | 48 | 0 |  |  | TERRAIN_COAST |  | 32 | 10`. Main files changed: [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py), [SASBattleHistory.py](/Assets/Python/SASBattleHistory.py), [CvEventManager.py](/Assets/Python/CvEventManager.py), [BugEventManager.py](/Assets/Python/BUG/BugEventManager.py), [CvUnit.cpp](/CvGameCoreDLL/CvUnit.cpp), [CvDllPythonEvents.cpp](/CvGameCoreDLL/CvDllPythonEvents.cpp), [CvDllPythonEvents.h](/CvGameCoreDLL/CvDllPythonEvents.h), [CvEventReporter.cpp](/CvGameCoreDLL/CvEventReporter.cpp), [CvEventReporter.h](/CvGameCoreDLL/CvEventReporter.h).
+ - (Requires AdvCiv-SAS 5775+) Added a new **Composition Tab**, as a set of **sortable tables** for **Current** (unlike saved data in the Statistics Tab in the Info Screen) **Units** (non-civilian, including Animal (including Barbarian in debug mode)), **Promotions**, and **Unit Combats** **counts**, default-**sorted from most to least** for no tedium (as done in the Statistics Tab). See also [KI#129](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#129---fixed-military-advisor-map-tab-minimap-disappeared-after-switching-tabs).
+ - Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+
+[PATCH COVERAGE]
+patchFiles=8 embeddedFiles=7 omittedFiles=1 embeddedPatchBytes=19806

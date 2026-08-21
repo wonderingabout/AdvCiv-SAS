@@ -142,7 +142,7 @@
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
+					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 					<UntilEra>ERA_FUTURE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
@@ -340,8 +340,8 @@
 			</DiscouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_CLAM</Type>
-			<BonusType>BONUS_CLAM</BonusType>
+			<Type>TRU_MOLLUSCS</Type>
+			<BonusType>BONUS_MOLLUSCS</BonusType>
 			<EncouragedCivs>
 				<EncouragedCiv>
 					<CivilizationType>CIVILIZATION_KOREA</CivilizationType>
@@ -350,8 +350,8 @@
 			</EncouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_CORN</Type>
-			<BonusType>BONUS_CORN</BonusType>
+			<Type>TRU_MAIZE</Type>
+			<BonusType>BONUS_MAIZE</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
@@ -399,8 +399,8 @@
 			</EncouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_COW</Type>
-			<BonusType>BONUS_COW</BonusType>
+			<Type>TRU_CATTLE</Type>
+			<BonusType>BONUS_CATTLE</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_SOUTH_AMERICA</GeoRegion>
@@ -467,7 +467,7 @@
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
+					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 					<UntilEra>NONE</UntilEra>
 				</EncouragedCiv>
 				<EncouragedCiv>
@@ -675,8 +675,8 @@
 			</EncouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_GEMS</Type>
-			<BonusType>BONUS_GEMS</BonusType>
+			<Type>TRU_GEMSTONES</Type>
+			<BonusType>BONUS_GEMSTONES</BonusType>
 			<!-- Don't bother with civs that most likely won't satisfy the
 				 placement reqs for Gems -->
 			<DiscouragedCivs>
@@ -752,7 +752,7 @@
 					<UntilEra>NONE</UntilEra>
 				</DiscouragedCiv>
 				<DiscouragedCiv>
-					<CivilizationType>CIVILIZATION_VIKING</CivilizationType>
+					<CivilizationType>CIVILIZATION_SCANDINAVIA</CivilizationType>
 					<UntilEra>NONE</UntilEra>
 				</DiscouragedCiv>
 				<DiscouragedCiv>
@@ -813,8 +813,8 @@
 			</EncouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_IVORY</Type>
-			<BonusType>BONUS_IVORY</BonusType>
+			<Type>TRU_ELEPHANTS</Type>
+			<BonusType>BONUS_ELEPHANTS</BonusType>
 			<DiscouragedRegions>
 				<DiscouragedRegion>
 					<GeoRegion>ARTSTYLE_EUROPEAN</GeoRegion>
@@ -1098,8 +1098,8 @@
 			</DiscouragedCivs>
 		</TruBonusInfo>
 		<TruBonusInfo>
-			<Type>TRU_WINE</Type>
-			<BonusType>BONUS_WINE</BonusType>
+			<Type>TRU_GRAPES</Type>
+			<BonusType>BONUS_GRAPES</BonusType>
 			<!-- Don't discourage the Americas. Suitable vines did grow there,
 				 and it's not proven that they weren't fermented. -->
 			<DiscouragedCivs>

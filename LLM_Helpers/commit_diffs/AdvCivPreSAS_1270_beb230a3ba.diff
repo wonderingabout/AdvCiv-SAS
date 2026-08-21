@@ -1,0 +1,1952 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1270
+# Commit: beb230a3bafeecd05c7efba87b45b6bd1615e121
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 08e2f890e6ae89ccf9bdc2920cc23a7725adea20
+# Title: More additions to v0.89rc: * Shift+F8 (Quick Load) briefly exits to main menu before loading the savegame. This is much faster than loading directly (though...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	0	Assets/Config/BULL Core.xml
+-	-	Assets/CvGameCoreDLL.dll
+9	0	Assets/Python/BUG/BugDll.py
+3	0	Assets/Python/Contrib/Civ4lerts.py
+10	6	Assets/Python/Contrib/MoreCiv4lerts.py
+4	5	Assets/Python/K-Mod/AIAutoPlay.py
+1	1	Assets/Python/Screens/CvVictoryScreen.py
+104	52	Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+1	7	Assets/xml/GameInfo/CIV4Hints.xml
+4	2	Assets/xml/Text/CIV4GameText_advc.008.xml
+10	9	Assets/xml/Text/CIV4GameText_advc.008d.xml
+29	10	Assets/xml/Text/CIV4GameText_advc.xml
+24	3	Assets/xml/Text/K-Mod hints.xml
+3	0	CvGameCoreDLL/AdvCiv4lerts.cpp
+16	17	CvGameCoreDLL/CvDLLButtonPopup.cpp
+5	3	CvGameCoreDLL/CvDeal.cpp
+41	8	CvGameCoreDLL/CvGame.cpp
+6	1	CvGameCoreDLL/CvGame.h
+28	2	CvGameCoreDLL/CvGameInterface.cpp
+34	7	CvGameCoreDLL/CvPlayer.cpp
+2	1	CvGameCoreDLL/CvPlayer.h
+28	17	CvGameCoreDLL/CvPlayerAI.cpp
+69	9	CvGameCoreDLL/CvTeam.cpp
+1	0	CvGameCoreDLL/CvTeam.h
+6	0	CvGameCoreDLL/CyGame.cpp
+1	0	CvGameCoreDLL/CyGame.h
+1	0	CvGameCoreDLL/CyGameInterface.cpp
+13	5	CvGameCoreDLL/RFChapterScore.cpp
+55	6	CvGameCoreDLL/RiseFall.cpp
+2	1	CvGameCoreDLL/RiseFall.h
+3	0	CvGameCoreDLL/WarAndPeaceAI.cpp
+2	2	PublicMaps/PerfectMongoose.py
+-	-	manual.pdf
+
+[PATCHES]
+
+diff --git a/Assets/Config/BULL Core.xml b/Assets/Config/BULL Core.xml
+index 2eea5d0bb..cb6f1c607 100644
+--- a/Assets/Config/BULL Core.xml	
++++ b/Assets/Config/BULL Core.xml	
+@@ -7,6 +7,7 @@
+ 
+ 	Copyright (c) 2010 The BUG Mod.
+ -->
++<!-- advc.003d: getUserDir added -->
+ <mod id="BULL" 
+ 	 name="BULL Core" 
+ 	 module="BugDll"
+@@ -19,6 +20,7 @@
+ 	<export function="getOptionINT" to="CvAppInterface"/>
+ 	<export function="getOptionFLOAT" to="CvAppInterface"/>
+ 	<export function="getOptionSTRING" to="CvAppInterface"/>
++	<export function="getUserDirStr" to="CvAppInterface"/>
+ 	
+ 	<export module="CvModName" function="getNameAndVersion" to="CvAppInterface" as="getModNameAndVersion"/>
+ </mod>
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/Python/BUG/BugDll.py b/Assets/Python/BUG/BugDll.py
+index ecbbc34bc..ef025db50 100644
+--- a/Assets/Python/BUG/BugDll.py
++++ b/Assets/Python/BUG/BugDll.py
+@@ -38,6 +38,8 @@
+ from CvPythonExtensions import *
+ import BugOptions
+ import BugUtil
++# advc.003d:
++import BugPath
+ 
+ gc = CyGlobalContext()
+ 
+@@ -182,6 +184,13 @@ def castOptionValue(func, id, default):
+ 	except:
+ 		return default
+ 
++# <advc.003d>
++def getUserDirStr():
++	r = BugPath.getUserDir()
++	if r == None:
++		return ""
++	return str(r)
++# </advc.003d>
+ 
+ def init():
+ 	"""
+
+diff --git a/Assets/Python/Contrib/Civ4lerts.py b/Assets/Python/Contrib/Civ4lerts.py
+index f94459167..80a90441d 100644
+--- a/Assets/Python/Contrib/Civ4lerts.py
++++ b/Assets/Python/Contrib/Civ4lerts.py
+@@ -151,6 +151,9 @@ def addMessage(iPlayer, szString, szIcon, iFlashX=-1, iFlashY=-1, bOffArrow=Fals
+ 	
+ 	Culture:  Zoom to City, Ignore
+ 	"""
++	# <advc.706>
++	if gc.getGame().isRFBlockPopups():
++		return # </advc.706>
+ 	# advc.106c: Reduced time from LONG to normal
+ 	eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
+ 	CyInterface().addMessage(iPlayer, True, eventMessageTimeLong,
+
+diff --git a/Assets/Python/Contrib/MoreCiv4lerts.py b/Assets/Python/Contrib/MoreCiv4lerts.py
+index 041216936..eb0abb452 100644
+--- a/Assets/Python/Contrib/MoreCiv4lerts.py
++++ b/Assets/Python/Contrib/MoreCiv4lerts.py
+@@ -54,7 +54,11 @@ class AbstractMoreCiv4lertsEvent(object):
+ 
+ 	def _addMessage(self, iPlayer, szString, szIcon, iFlashX, iFlashY, bOffArrow, bOnArrow, iColor):
+ 			#Displays an on-screen message.
+-			eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME_LONG")
++			# <advc.706>
++			if gc.getGame().isRFBlockPopups():
++				return # </advc.706>
++			# advc.106c: Reduced time from LONG to normal
++			eventMessageTimeLong = gc.getDefineINT("EVENT_MESSAGE_TIME")
+ 			# advc.135b: Ignore iPlayer. Shouldn't be necessary b/c
+ 			# the iActivePlayer (on the caller side) should always
+ 			# be iOwner. Tbd.: Remove the iPlayer attribute from all
+@@ -160,7 +164,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 		#iGameTurn = argsList[0] # advc.003: Unused
+ 		# <advc.706>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			pass # </advc.706>
++			return # </advc.706>
+ 		iPlayer = gc.getGame().getActivePlayer()
+ 		if iPlayer == self.iOwner: # advc.135b
+ 			self.CheckForAlerts(iPlayer, PyPlayer(iPlayer).getTeam(), True)
+@@ -169,7 +173,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 		owner, playerType, city, bConquest, bTrade = argsList
+ 		# <advc.706>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			pass # </advc.706>
++			return # </advc.706>
+ 		iPlayer = city.getOwner()
+ 		if (not self.getCheckForDomVictory()): return
+ 		if (iPlayer == self.iOwner): # advc.135b
+@@ -179,7 +183,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 		city = argsList[0]
+ 		# <advc.706>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			pass # </advc.706>
++			return # </advc.706>
+ 		iPlayer = city.getOwner()
+ 		# advc.135b: All uses replaced with self.iOwner
+ 		#iActivePlayer = gc.getGame().getActivePlayer()
+@@ -210,7 +214,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 		if (not self.getCheckForDomVictory()): return
+ 		# <advc.706>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			pass # </advc.706>
++			return # </advc.706>
+ 		if (iPlayer == self.iOwner): # advc.135b
+ 			self.CheckForAlerts(iPlayer, PyPlayer(iPlayer).getTeam(), False)
+ 
+@@ -218,7 +222,7 @@ class MoreCiv4lertsEvent( AbstractMoreCiv4lertsEvent):
+ 		city = argsList[0]
+ 		# <advc.706>
+ 		if not gc.getPlayer(self.iOwner).isHuman():
+-			pass # </advc.706>
++			return # </advc.706>
+ 		iPlayer = city.getOwner()
+ 		if (not self.getCheckForDomVictory()): return
+ 		if (iPlayer == self.iOwner): # advc.135b
+
+diff --git a/Assets/Python/K-Mod/AIAutoPlay.py b/Assets/Python/K-Mod/AIAutoPlay.py
+index 8aaacce98..ab36f5200 100644
+--- a/Assets/Python/K-Mod/AIAutoPlay.py
++++ b/Assets/Python/K-Mod/AIAutoPlay.py
+@@ -143,11 +143,11 @@ class AIAutoPlay :
+ 
+         if( game.getAIAutoPlay() == 1 and iPlayer > game.getActivePlayer() and gc.getActivePlayer().isAlive() ) :
+             # Forces isHuman checks to come through positive for everything after human players turn
+-            # <advc.127> Commented out; pass instead. (The setAIAutoPlay
++            # <advc.127> Commented out; return instead. (The setAIAutoPlay
+             # call might be superfluous in any case.)
+             #self.checkPlayer()
+             #game.setAIAutoPlay(0)
+-            pass # </advc.127>
++            return # </advc.127>
+         
+         elif( self.bSaveAllDeaths ) :
+             if( game.getAIAutoPlay() == 0 and not gc.getActivePlayer().isAlive() and iPlayer > game.getActivePlayer() ) :
+@@ -165,7 +165,7 @@ class AIAutoPlay :
+         #if (iPlayer == gc.getBARBARIAN_PLAYER() and game.getAIAutoPlay() == 1):
+         turnsLeft = game.getAIAutoPlay()
+         if turnsLeft > 1:
+-            pass
++            return
+         # Find the closest player preceding the disabled human in the turn order
+         # (normally the barbarians)
+         disabledHuman = -1
+@@ -174,7 +174,7 @@ class AIAutoPlay :
+                 disabledHuman = x
+                 break
+         if disabledHuman == -1:
+-            pass
++            return
+         preceding = iPlayer
+         turnsLeftTarget = 0
+         m = gc.getMAX_PLAYERS()
+@@ -189,7 +189,6 @@ class AIAutoPlay :
+             # </advc.127>
+             # About to turn off automation
+             self.checkPlayer() # advc.127: Un-commented this line.
+-            pass
+ 
+     def checkPlayer( self ) :
+
+diff --git a/Assets/Python/Screens/CvVictoryScreen.py b/Assets/Python/Screens/CvVictoryScreen.py
+index e4c50afbd..591eca78d 100644
+--- a/Assets/Python/Screens/CvVictoryScreen.py
++++ b/Assets/Python/Screens/CvVictoryScreen.py
+@@ -323,7 +323,7 @@ class CvVictoryScreen:
+ 		# <advc.703> Add info from Members tab
+ 		if not gc.getGame().isOption(GameOptionTypes.GAMEOPTION_RISE_FALL):
+ 			self.drawTabs()
+-			pass
++			return
+ 		screen.appendTableRow(szTable) # Empty row as separator
+ 		self.appendMemberRows(screen, szTable)
+ 		# </advc.703>
+
+diff --git a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+index ea13d930b..76804629a 100644
+--- a/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
++++ b/Assets/xml/Civilizations/CIV4LeaderHeadInfos.xml
+@@ -533,9 +533,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -1159,9 +1160,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -1795,9 +1797,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -2424,9 +2427,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -3058,9 +3062,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -3694,9 +3699,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -4336,9 +4342,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -4962,9 +4969,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -5591,9 +5599,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -6230,9 +6239,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -6871,9 +6881,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -7509,9 +7520,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -8143,9 +8155,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -8777,9 +8790,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -9409,9 +9423,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -10015,9 +10030,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -10649,9 +10665,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -11274,9 +11291,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -11912,9 +11930,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -12552,9 +12571,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -13183,9 +13203,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -13815,9 +13836,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -14460,9 +14482,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -15098,9 +15121,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -15727,9 +15751,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -16356,9 +16381,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -16990,9 +17016,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -17628,9 +17655,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -18253,9 +18281,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -18891,9 +18920,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -19525,9 +19555,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -20165,9 +20196,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -20798,9 +20830,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -21436,9 +21469,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -22074,9 +22108,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -22712,9 +22747,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -23357,9 +23393,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -23984,9 +24021,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -24616,9 +24654,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -25249,9 +25288,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -25882,9 +25922,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -26514,9 +26555,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -27146,9 +27188,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -27775,9 +27818,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -28420,9 +28464,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -29063,9 +29108,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -29695,9 +29741,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -30328,9 +30375,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -30960,9 +31008,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -31606,9 +31655,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -32259,9 +32309,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+@@ -32903,9 +32954,10 @@
+ 					<MemoryType>MEMORY_DENIED_STOP_TRADING</MemoryType>
+ 					<iMemoryRand>50</iMemoryRand>
+ 				</MemoryDecay>
++				<!-- advc.130f: was 30 -->
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_STOPPED_TRADING_RECENT</MemoryType>
+-					<iMemoryRand>30</iMemoryRand>
++					<iMemoryRand>25</iMemoryRand>
+ 				</MemoryDecay>
+ 				<MemoryDecay>
+ 					<MemoryType>MEMORY_MADE_DEMAND_RECENT</MemoryType>
+
+diff --git a/Assets/xml/GameInfo/CIV4Hints.xml b/Assets/xml/GameInfo/CIV4Hints.xml
+index ff7ca0195..2828a0880 100644
+--- a/Assets/xml/GameInfo/CIV4Hints.xml
++++ b/Assets/xml/GameInfo/CIV4Hints.xml
+@@ -627,7 +627,7 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_21</Description>
+ 		</HintInfo>
+-		<!-- Skip 22-27; shouldn't be as frequent. -->
++		<!-- Skip 22-25; shouldn't be as frequent. -->
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_1</Description>
+ 		</HintInfo>
+@@ -703,11 +703,5 @@
+ 		<HintInfo>
+ 			<Description>TXT_KEY_ADVC_HINT_25</Description>
+ 		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_26</Description>
+-		</HintInfo>
+-		<HintInfo>
+-			<Description>TXT_KEY_ADVC_HINT_27</Description>
+-		</HintInfo>
+ 	</HintInfos>
+ </Civ4Hints>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008.xml b/Assets/xml/Text/CIV4GameText_advc.008.xml
+index b1dd9395c..3a1815e3c 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008.xml
+@@ -246,10 +246,12 @@
+ 	
+ 	<!-- advc.250b: Added mention of the new SPaH option and a clarification
+ 		 that later-era start and advanced start are separate things.
+-		 Overwrites text in Civ4GameText_BTS.xml. -->
++		 Overwrites text in Civ4GameText_BTS.xml.
++		 advc.004g: "Single Player menu" instead of "Single Player game menu"
++		 to avoid any confusion with the in-game "Game Menu". -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_CONCEPT_LATE_START_PEDIA</Tag>
+-		<English>[H1]Advanced Start[\H1][PARAGRAPH:2]The Advanced Start system allows players to begin a game of Civilization 4 in a later era, customizing their civilization as though they'd played the game up to their starting year. To play an Advanced Start game, go to the "Custom Game" option under the Single Player game menu. The Advanced Start checkbox is listed under "Game Options." This option is also available in the multiplayer game setup screen. [BOLD]AdvCiv[\BOLD]: Clarification - Games can be configured to start in a later era without enabling Advanced Start; it's a separate mechanism. About the new Start-Points-as-Handicap option, see the AdvCiv manual. If that option is not selected, then Advanced Start works as described here without fundamental changes.  [NEWLINE][NEWLINE][BOLD]Advanced Start Rules[\BOLD][PARAGRAPH:1]Players will receive a certain amount of Gold which may then be spent on Cities, Buildings, City Population, Culture, Units,  Improvements, Technologies, and Plot Visibility. Certain items, once purchased cannot be removed, so be sure you really want them. These items are: Techs, Cities, Culture, and Visibility. Units and Buildings must be placed in cities. Buildings, Population, and Improvements may all be removed once placed by selecting the item from the Advanced Start menu and then right clicking on the plot where the item you want to remove is located. [PARAGRAPH:1]Leader Traits and Resources which would normally reduce the production time of select buildings or units now provide discounts to such items. For example, an Expansive leader may build [LINK=BUILDING_HARBOR]Harbors[\LINK] at a discount while a leader with access to the Stone resource may build [LINK=BUILDING_WALLS]Walls[\LINK] at half price. The amount of Gold a player receives depends upon the size of the map, the era in which the player begins their game, and their selected Difficulty Level. The later the era, the larger the map, and the lower the selected handicap, the more Gold the player receives. By starting a Custom Game in either Single or Multiplayer, players can adjust the number of Advanced Start points available for that game.[PARAGRAPH:1]The player may then place items on the map. Players may only place items for which they have the appropriate technologies and resources. By using gold to purchase new techs, more advanced units, buildings, etc. become available. Extended visibility may be purchased to expand a player's usable territory. Improvements can give access to necessary resources. Any gold that is not used during the Advanced Start phase is added to the player's treasury when the game starts. </English>
++		<English>[H1]Advanced Start[\H1][PARAGRAPH:2]The Advanced Start system allows players to begin a game of Civilization 4 in a later era, customizing their civilization as though they'd played the game up to their starting year. To play an Advanced Start game, go to the "Custom Game" option under the Single Player menu. The Advanced Start checkbox is listed under "Game Options." This option is also available in the multiplayer game setup screen. [BOLD]AdvCiv[\BOLD]: Clarification - Games can be configured to start in a later era without enabling Advanced Start; it's a separate mechanism. About the new Start-Points-as-Handicap option, see the AdvCiv manual. If that option is not selected, then Advanced Start works as described here without fundamental changes.  [NEWLINE][NEWLINE][BOLD]Advanced Start Rules[\BOLD][PARAGRAPH:1]Players will receive a certain amount of Gold which may then be spent on Cities, Buildings, City Population, Culture, Units,  Improvements, Technologies, and Plot Visibility. Certain items, once purchased cannot be removed, so be sure you really want them. These items are: Techs, Cities, Culture, and Visibility. Units and Buildings must be placed in cities. Buildings, Population, and Improvements may all be removed once placed by selecting the item from the Advanced Start menu and then right clicking on the plot where the item you want to remove is located. [PARAGRAPH:1]Leader Traits and Resources which would normally reduce the production time of select buildings or units now provide discounts to such items. For example, an Expansive leader may build [LINK=BUILDING_HARBOR]Harbors[\LINK] at a discount while a leader with access to the Stone resource may build [LINK=BUILDING_WALLS]Walls[\LINK] at half price. The amount of Gold a player receives depends upon the size of the map, the era in which the player begins their game, and their selected Difficulty Level. The later the era, the larger the map, and the lower the selected handicap, the more Gold the player receives. By starting a Custom Game in either Single or Multiplayer, players can adjust the number of Advanced Start points available for that game.[PARAGRAPH:1]The player may then place items on the map. Players may only place items for which they have the appropriate technologies and resources. By using gold to purchase new techs, more advanced units, buildings, etc. become available. Extended visibility may be purchased to expand a player's usable territory. Improvements can give access to necessary resources. Any gold that is not used during the Advanced Start phase is added to the player's treasury when the game starts. </English>
+ 		<French>[H1]D&#233;marrage avanc&#233;[\H1][PARAGRAPH:2]Le syst&#232;me de d&#233;marrage avanc&#233; vous permet de commencer une partie de Civilization IV &#224; une p&#233;riode tardive, comme si vous aviez jou&#233; au jeu depuis l'ann&#233;e de d&#233;part. Pour faire une partie avec d&#233;marrage avanc&#233;, s&#233;lectionnez l'option "Partie personnalis&#233;e" dans le menu solo. "D&#233;marrage avanc&#233;" se trouve dans "Options de jeu". Cette option &#224; cocher est aussi disponible dans l'&#233;cran de configuration des parties multijoueur.[NEWLINE][NEWLINE][BOLD]R&#232;gles de d&#233;marrage avanc&#233;[\BOLD][PARAGRAPH:1]Vous recevez une certaine quantit&#233; d'or, que vous pouvez d&#233;penser pour acheter des villes, des b&#226;timents, de la population, de la culture, des unit&#233;s, des am&#233;liorations, des technologies et des unit&#233;s ou pour am&#233;liorer votre champ de vision. N'achetez que les &#233;l&#233;ments que vous voulez vraiment, car certains ne peuvent pas &#234;tre supprim&#233;s une fois plac&#233;s. Ces &#233;l&#233;ments sont : les technologies, les villes, la culture et le champ de vision. Les unit&#233;s et les b&#226;timents doivent &#234;tre plac&#233;s dans les villes. Pour supprimer les b&#226;timents, la population et les am&#233;liorations apr&#232;s les avoir plac&#233;s, s&#233;lectionnez-les dans le menu de d&#233;marrage avanc&#233;, puis faites un clic droit sur la case o&#249; se trouve l'&#233;l&#233;ment que vous voulez supprimer. [PARAGRAPH:1]Les ressources et les traits de caract&#232;re des chefs, qui r&#233;duisaient le temps de production de certains b&#226;timents et de certaines unit&#233;s, r&#233;duisent d&#233;sormais leur co&#251;t. Un chef accessible, par exemple, peut construire des [LINK=BUILDING_HARBOR]Ports[\LINK] pour un prix r&#233;duit, alors qu'un chef ayant acc&#232;s &#224; de la pierre peut construire des [LINK=BUILDING_WALLS]Murailles[\LINK] pour la moiti&#233; de leur prix. La quantit&#233; d'or que vous recevez d&#233;pend de la taille de la carte, de la p&#233;riode &#224; laquelle vous commencez la partie et du niveau de difficult&#233; s&#233;lectionn&#233;. Plus la p&#233;riode de jeu est r&#233;cente, plus la carte est grande et plus le niveau de difficult&#233; est faible, plus vous recevez d'or. En commen&#231;ant une partie personnalis&#233;e en mode solo ou multijoueur, vous pouvez r&#233;gler le nombre de points de d&#233;marrage avanc&#233; disponibles pour la partie.[PARAGRAPH:1]Vous pouvez ensuite placer des &#233;l&#233;ments sur la carte, mais seulement si vous disposez des technologies et des ressources n&#233;cessaires. En utilisant de l'or pour acheter de nouvelles technologies, vous d&#233;bloquerez des unit&#233;s avanc&#233;es, des b&#226;timents, etc. Vous pouvez &#233;tendre votre territoire utilisable en d&#233;pensant de l'or pour am&#233;liorer votre champ de vision. Les am&#233;liorations peuvent donner acc&#232;s aux ressources n&#233;cessaires. Tout l'or que vous n'utilisez pas durant la phase de d&#233;marrage avanc&#233; est ajout&#233; &#224; votre tr&#233;sor au d&#233;but de la partie.</French>
+ 		<German>[H1]Fortgeschrittener Start[\H1][PARAGRAPH:2]Mit dem Fortgeschrittenen Start k&#246;nnen Sie ein Civilization 4-Spiel in einem sp&#228;teren Zeitalter beginnen, indem Sie Ihre Zivilisation so konfigurieren, als ob Sie bereits bis zum Startjahr gespielt h&#228;tten. W&#228;hlen Sie dazu im Einzelspieler-Men&#252; die Option "Eigenes Spiel" und hier unter "Spieloptionen" die Option "Fortgeschrittener Start". Im Multiplayer-Men&#252; steht diese Option im Bildschirm "Spiel-Setup" zur Verf&#252;gung.[NEWLINE][NEWLINE][BOLD]Regeln f&#252;r den Fortgeschrittenen Start[\BOLD][PARAGRAPH:1]Die beteiligten Spieler erhalten jeweils einen bestimmten Goldbetrag, den sie f&#252;r St&#228;dte, Geb&#228;ude, die Stadtbev&#246;lkerung, die Kultur, Einheiten, Modernisierungen, Technologien und die Gel&#228;ndefeld-Sichtbarkeit verwenden k&#246;nnen. Bestimmte Spielelemente lassen sich nach ihrem Erwerb nicht mehr entfernen, daher sollten Sie sich gut &#252;berlegen, ob Sie sie auch wirklich haben wollen. Hierbei handelt es sich um: Technologien, St&#228;dte, Kultur und Sichtbarkeit. Einheiten und Geb&#228;ude m&#252;ssen dar&#252;ber hinaus in St&#228;dten platziert werden. Geb&#228;ude, Bev&#246;lkerung und Modernisierungen k&#246;nnen nach ihrer Positionierung auf der Karte allerdings auch wieder entfernt werden, indem Sie das gew&#252;nschte Objekt im Men&#252; "Fortgeschrittener Start" ausw&#228;hlen und dann mit der rechten Maustaste auf das Gel&#228;ndefeld klicken, auf dem es sich befindet. [PARAGRAPH:1]Die Merkmale der Staatsoberh&#228;upter und Ressourcen, die normalerweise die Produktionszeiten f&#252;r die gew&#228;hlten Geb&#228;ude oder Einheiten senken, bewirken nun Preisnachl&#228;sse. So ist die Errichtung von [LINK=BUILDING_HARBOR]H&#228;fen[\LINK] f&#252;r expansiv orientierte Staatsoberh&#228;upter nun beispielsweise mit weniger Kostenaufwand verbunden, und Herrscher, die &#252;ber die Ressource "Stein" verf&#252;gen, k&#246;nnen [LINK=BUILDING_WALLS]Stadtmauern[\LINK] zum halben Preis bauen. Der Goldbetrag, der einem Spieler zugestanden wird, ist von der Gr&#246;&#223;e der Karte, dem Startzeitalter und dem gew&#228;hlten Schwierigkeitsgrad abh&#228;ngig. Dabei gilt: Je fortgeschrittener das Zeitalter, je gr&#246;&#223;er die Karte und je geringer der gew&#228;hlte Schwierigkeitsgrad, desto mehr Gold erh&#228;lt der Spieler. Nach dem Start eines "Eigenen Spiels" im Einzelspieler- oder Multiplayer-Modus k&#246;nnen die Spieler die Anzahl der f&#252;r dieses Spiel verf&#252;gbaren Punkte f&#252;r den Fortgeschrittenen Start festlegen.[PARAGRAPH:1]Danach k&#246;nnen sie Spielelemente auf der Karte platzieren, allerdings nur, wenn die daf&#252;r erforderlichen Technologien und Ressourcen bereitstehen. Wer auf fortschrittlichere Einheiten, Geb&#228;ude etc. zugreifen m&#246;chte, kann neue Technologien hinzukaufen. Auch eine gr&#246;&#223;ere Sichtweite l&#228;sst sich zwecks Erweiterung des nutzbaren Territoriums k&#228;uflich erwerben. Au&#223;erdem erm&#246;glichen Modernisierungen den Zugang zu den ben&#246;tigten Ressourcen. Das Gold, das w&#228;hrend der Startphase nicht verwendet wird, wandert zu Beginn des Spiels in die Schatzkammer des Spielers. </German>
+ 		<Italian>[H1]Avvio avanzato[\H1][PARAGRAPH:2]Il sistema di Avvio avanzato permette ai giocatori di iniziare una partita di Civilization 4 in un'epoca pi&#249; avanzata, personalizzando le proprie civilt&#224; come se si fosse giocato fino al momento iniziale della partita. Seleziona la voce Partita personalizzata dal menu Giocatore singolo. Questa opzione &#232; disponibile anche nella schermata di impostazione delle partite multigiocatore.[NEWLINE][NEWLINE][BOLD]Regole Avvio avanzato[\BOLD][PARAGRAPH:1]I giocatori ricevono un certo quantitativo di oro che pu&#242; essere speso in citt&#224;, edifici, popolazione, cultura, unit&#224;, miglioramenti, tecnologie e visibilit&#224; delle zone. Una volta acquistati, alcuni beni non possono pi&#249; essere rimossi, quindi prendi le decisioni giuste. Le caratteristiche che non possono essere eliminate sono tecnologie, citt&#224;, cultura; e visibilit&#224;. Unit&#224; ed edfici devono essere collocati nelle citt&#224;. Edifici, popolazione e miglioramenti possono essere eliminati una volta posizionati, selezionandoli del menu di Avvio avanzato e poi cliccando con il pulsante destro sulla casella desiderata. [PARAGRAPH:1]Le caratteristiche dei leader e le risorse che ridurrebbero normalmente i tempi di produzione di unit&#224; ed edifici, ora forniscono sconti sull'acquisto. Per esempio, un leader espansionista pu&#242; costruire [LINK=BUILDING_HARBOR]Porti[\LINK] scontati, mentre un leader che ha l'accesso alla pietra pu&#242; realizzare le [LINK=BUILDING_WALLS]Mura[\LINK] a met&#224; prezzo. Il quantitativo di oro percepito dai giocatori dipende dalla dimensione della mappa, dall'epoca di partenza e dal livello di difficolt&#224;. I giocatori ricevono pi&#249; oro se l'epoca iniziale &#232; avanzata, se la dimensione della mappa &#232; grande e se il livello di difficolt&#224; &#232; pi&#249; basso. Iniziando una Partita personalizzata, a giocatore singolo o multigiocatore, si pu&#242; regolare il numero di punti disponibili nella partita Avvio avanzato.[PARAGRAPH:1]I giocatori posizionano gli oggetti sulla mappa e solamente se si possiedono le tecnologie o le risorse necessarie. Acquistando con l'oro le tecnologie, diventano disponibili unit&#224; ed edifici avanzati. Acquistando visibilit&#224;, si ha la possibilit&#224; di aumentare il controllo sul territorio. I miglioramenti possono fornire l'accesso alle risorse necessarie. Tutto l'oro che non viene utilizzato durante la fase di Avvio avanzato viene aggiunto al tesoro del giocatore. </Italian>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.008d.xml b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+index 2f82ab4d1..5f8ef48c7 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.008d.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.008d.xml
+@@ -120,6 +120,16 @@
+ 	<Spanish>Use [Alt + M] to set a reminder for yourself.</Spanish>
+ </TEXT>
+ 
++<!-- "Go-To (All Units) by pressing ALT+G" - has anyone ever used this? -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_INTERFACE_53</Tag>
++	<English>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</English>
++	<French>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</French>
++	<German>Wenn Sie Cheats aktiviert haben (Codewort "chipotle"), k�nnen Sie per [Shift + Ctrl + X] der KI vor�bergehend die Kontrolle �ber Ihre Zivilisation �bertragen.</German>
++	<Italian>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</Italian>
++	<Spanish>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</Spanish>
++</TEXT>
++
+ <!-- advc.102: I've extended this hint a bit. -->
+ <TEXT>
+ 	<Tag>TXT_KEY_HINT_INTERFACE_15</Tag>
+@@ -373,13 +383,4 @@
+ 	<Spanish>Press [ALT + X] to show the city radius ("big fat cross") around the cursor. You can mark a future city site by left-clicking; right-click removes a mark.</Spanish>
+ </TEXT>
+ 
+-<TEXT>
+-	<Tag>TXT_KEY_ADVC_HINT_26</Tag>
+-	<English>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</English>
+-	<French>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</French>
+-	<German>Wenn Sie Cheats aktiviert haben (Codewort "chipotle"), k�nnen Sie per [Shift + Ctrl + X] der KI vor�bergehend die Kontrolle �ber Ihre Zivilisation �bertragen.</German>
+-	<Italian>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</Italian>
+-	<Spanish>If you have cheats enabled (code "chipotle"), you can press [Shift + Ctrl + X] to enable AI Auto Play, i.e. to shift control of your civilization to the AI for a number of turns.</Spanish>
+-</TEXT>
+-
+ </Civ4GameText>
+
+diff --git a/Assets/xml/Text/CIV4GameText_advc.xml b/Assets/xml/Text/CIV4GameText_advc.xml
+index 14da7e043..b9f72052a 100644
+--- a/Assets/xml/Text/CIV4GameText_advc.xml
++++ b/Assets/xml/Text/CIV4GameText_advc.xml
+@@ -632,6 +632,17 @@
+ 		</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004g: Originally in CIV4GameText_Misc1.xml. "Game menu" doesn't
++		 translate well; just "menu" will have to do. -->
++	<TEXT>
++		<Tag>TXT_KEY_MAIN_MENU</Tag>
++		<English>Open Game Menu</English>
++		<French>Ouvrir le menu</French>
++		<German>Men&#252; &#246;ffnen</German>
++		<Italian>Apri il menu</Italian>
++		<Spanish>Abrir men&#250;</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004s: Originally in CIV4GameTextInfos.xml;
+ 		 says just "(Gold)" there. Translation from TXT_KEY_RESEARCH
+ 		 in CIV4GameText_Misc1.xml.
+@@ -1814,11 +1825,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_POPUP_FINAL_TURN</Tag>
+-		<English>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</English>
+-		<French>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</French>
+-		<German>Letzte Runde des %d1_Chpt. Abschnitts. Noch weitreichende Entscheidungen auf den letzten Dr�cker? (Krieg/ Frieden, Staatsform, Bef�rderungen ...). Haben Sie Ihre n�chste Zivilisation ins Auge gefasst?</German>
+-		<Italian>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</Italian>
+-		<Spanish>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, use of Great People ...). Have you already decided on your next civ?</Spanish>
++		<English>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, promotions, use of Great People ...). Have you already decided on your next civ?</English>
++		<French>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, promotions, use of Great People ...). Have you already decided on your next civ?</French>
++		<German>Letzte Runde des %d1_Chpt. Abschnitts. Noch weitreichende Entscheidungen auf den letzten Dr�cker? (Krieg/ Frieden, Staatsform, Bef�rderungen, Einsatz Gro�er Pers�nlichkeiten ...). Haben Sie Ihre n�chste Zivilisation ins Auge gefasst?</German>
++		<Italian>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, promotions, use of Great People ...). Have you already decided on your next civ?</Italian>
++		<Spanish>This is the final turn of Chapter %d1_Chpt. Any lasting decisions on the last minute? (Start/ end wars, civic changes, promotions, use of Great People ...). Have you already decided on your next civ?</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_POPUP_AUTO_PLAY</Tag>
+@@ -2190,11 +2201,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_POPUP_RECOMMEND_RETIRE</Tag>
+-		<English>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</English>
+-		<French>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</French>
+-		<German>Empfehlung: Falls Sie nicht noch in diesem Spielabschnitt gewinnen k�nnen, sollten Sie eine Abdankung (Hauptmen�) in Betracht ziehen. Da Sie schon in F�hrung sind, wird sich Ihre Punktzahl f�r diesen Abschnitt kaum noch erh�hen, aber %s1_Civ k�nnte in sp�teren Abschnitten ein gef�hrlicher Gegner werden. Die Abdankung l�sst die KI den Abschnitt zu Ende spielen und bringt einige Zusatzpunkte.</German>
+-		<Italian>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Italian>
+-		<Spanish>Recommendation: Unless you can win in this chapter, it may be time to retire (main menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Spanish>
++		<English>Recommendation: Unless you can win in this chapter, it may be time to retire (through the game menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</English>
++		<French>Recommendation: Unless you can win in this chapter, it may be time to retire (through the game menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</French>
++		<German>Empfehlung: Falls Sie nicht noch in diesem Spielabschnitt gewinnen k�nnen, sollten Sie eine Abdankung (�ber das ESC-Men�) in Betracht ziehen. Da Sie schon in F�hrung sind, wird sich Ihre Punktzahl f�r diesen Abschnitt kaum noch erh�hen, aber %s1_Civ k�nnte in sp�teren Abschnitten ein gef�hrlicher Gegner werden. Die Abdankung l�sst die KI den Abschnitt zu Ende spielen und bringt einige Zusatzpunkte.</German>
++		<Italian>Recommendation: Unless you can win in this chapter, it may be time to retire (through the game menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Italian>
++		<Spanish>Recommendation: Unless you can win in this chapter, it may be time to retire (through the game menu). Since you've already reached rank 1, your score is not going to improve much, but %s1_Civ could become a major obstacle in later chapters. Retiring lets the AI finish this chapter and yields some bonus points.</Spanish>
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_DEFEAT</Tag>
+@@ -2268,6 +2279,14 @@
+ 		<Italian>You've already played this civ in Chapter %d1. If you select it again, the score for Chapter %d2 will be halved.</Italian>
+ 		<Spanish>You've already played this civ in Chapter %d1. If you select it again, the score for Chapter %d2 will be halved.</Spanish>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_RF_CIV_SELECTION_VICTSTAGE</Tag>
++		<English>Victory stage</English>
++		<French>Victory stage</French>
++		<German>Siegesgewissheit</German>
++		<Italian>Victory stage</Italian>
++		<Spanish>Victory stage</Spanish>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_RF_CIV_SELECTION_SCORE</Tag>
+ 		<English>Current Civ Score: %d1_Pts</English>
+
+diff --git a/Assets/xml/Text/K-Mod hints.xml b/Assets/xml/Text/K-Mod hints.xml
+index ee2140ce3..757275bf4 100644
+--- a/Assets/xml/Text/K-Mod hints.xml	
++++ b/Assets/xml/Text/K-Mod hints.xml	
+@@ -12,12 +12,12 @@
+ 	(even those that are just included in K-Mod because, without further
+ 	context, players may not know that e.g. "BUG" is the name of a mod). -->
+ 
+-<!-- advc.008c: Now also hints at main menu button -->
++<!-- advc.008c: Now also hints at menu button -->
+ <TEXT>
+ 	<Tag>TXT_KEY_BUG_HINT_INTERFACE_1</Tag>
+-	<English>You can customize the BUG mod from the main menu, or by pressing [ALT + CTRL + O].</English>
++	<English>You can customize the BUG mod from the game menu [ESC], or by pressing [ALT + CTRL + O].</English>
+ 	<French>Pressez [ALT + CTRL + O] pour acc�der aux �crans d'options du BUG Mod.</French>
+-	<German>Der BUG-Mod l�sst sich vom Hauptmen� aus konfigurieren, oder mit der Tastenkombination [STRG + ALT + O].</German>
++	<German>Die BUG-Mod l�sst sich vom Men� [ESC] aus konfigurieren, oder mit der Tastenkombination [STRG + ALT + O].</German>
+ 	<Italian>Premi [ALT + CTRL + O] per accedere alla schermata di configurazione del BUG Mod.</Italian>
+ 	<Spanish>Presiona [ALT + CTRL + O] para abrir la pantalla de opciones de BUG.</Spanish>
+ </TEXT>
+@@ -345,4 +345,25 @@
+ 	<Spanish>Las maravillas del mundo no solo proporcionan beneficios &#250;nicos, sino que tambi&#233;n son una inspiraci&#243;n para el pueblo. En las ciudades que construyan maravillas de la antig&#252;edad o varias grandes maravillas aparecer&#225;n m&#225;s grandes personajes.</Spanish>
+ </TEXT>
+ 
++<!-- advc.008c: Shortened this a bit -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_67</Tag>
++	<English>While the HQ of a corporation generates extra income, each city hosting a corporation branch suffers increased maintenance costs. Unless you build courthouses in your branch cities and a bank in the HQ city, you may actually run at a net loss.</English>
++	<French>Si vous choisissez de fonder une soci&#233;t&#233; commerciale, sachez que m&#234;me si le si&#232;ge social b&#233;n&#233;ficiera de revenus suppl&#233;mentaires, chaque ville abritant cette soci&#233;t&#233; subira une hausse de ses co&#251;ts d'entretien. Construisez des tribunaux dans toutes ces villes et des banques pr&#232;s de vos si&#232;ges sociaux, sous peine de subir une banqueroute.</French>
++	<German>Ein Unternehmenssitz liefert zwar Zusatzeinnahmen, aber gleichzeitig verursachen die Niederlassungen Unterhaltskosten. Errichten Sie in St�dten mit Niederlassungen Gerichtsgeb�ude und in der Stadt mit dem Unternehmenssitz eine Bank, um nicht unterm Strich einen Verlust zu machen.</German>
++	<Italian>Se decidi di fondare una Corporazione, ricorda che sebbene i quartieri generali beneficeranno di rendite extra, ogni citt� che ospita una corporazione vedr� aumentare i suoi costi di mantenimento. Costruisci Palazzi di giustizia nelle citt� con le Corporazioni e Banche nei quartieri generali, altrimenti la Corporazione potrebbe andare in passivo.</Italian>
++	<Spanish>Si eliges fundar una corporaci�n, recuerda que -aunque sus sedes gocen de beneficios extra- toda ciudad que albergue una corporaci�n tendr� mayores costes de mantenimiento. Construye delegaciones en todas tus ciudades con corporaciones y bancos en tus sedes; de otro modo, la corporaci�n no har� m�s que generar p�rdidas.</Spanish>
++</TEXT>
++
++<!-- advc.008c: Said "ALT-I" (instead of plus), which was confusing. Improved
++	 German translation. -->
++<TEXT>
++	<Tag>TXT_KEY_HINT_INTERFACE_2</Tag>
++	<English>Press [CTRL + I] to play with a minimized interface. Press [ALT + I] to play without interface.</English>
++	<French>Appuyez sur [CTRL + I] pour jouer avec une interface r&#233;duite. Appuyez sur [ALT + I] pour jouer sans interface.</French>
++	<German>Dr&#252;cken Sie [STRG + I], um die Bedienoberfl�che zu minimieren oder [ALT + I], um sie ganz auszublenden.</German>
++	<Italian>Premi [CTRL + I] per giocare con l'interfaccia minimizzata. Premi [ALT + I] per giocare senza interfaccia...</Italian>
++	<Spanish>Pulsar [CTRL + I] para jugar con una interfaz minimizada. Pulsar [ALT + I] para jugar sin interfaz.</Spanish>
++</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/AdvCiv4lerts.cpp b/CvGameCoreDLL/AdvCiv4lerts.cpp
+index e9bf71ec2..b963ca071 100644
+--- a/CvGameCoreDLL/AdvCiv4lerts.cpp
++++ b/CvGameCoreDLL/AdvCiv4lerts.cpp
+@@ -21,6 +21,9 @@ void AdvCiv4lert::msg(CvWString s, LPCSTR icon, int x, int y, int goodOrBad) con
+ 
+ 	if(isSilent)
+ 		return;
++	CvGame& g = GC.getGame();
++	if(g.isOption(GAMEOPTION_RISE_FALL) && g.getRiseFall().isBlockPopups())
++		return;
+ 	int color = GC.getInfoTypeForString("COLOR_WHITE");
+ 	if(goodOrBad > 0)
+ 		color = GC.getInfoTypeForString("COLOR_GREEN");
+
+diff --git a/CvGameCoreDLL/CvDLLButtonPopup.cpp b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+index 7c9bce3af..bc4db3c0c 100644
+--- a/CvGameCoreDLL/CvDLLButtonPopup.cpp
++++ b/CvGameCoreDLL/CvDLLButtonPopup.cpp
+@@ -894,14 +894,22 @@ void CvDLLButtonPopup::OnFocus(CvPopup* pPopup, CvPopupInfo &info)
+ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ {
+ 	// <advc.706>
+-	if(info.getButtonPopupType() == BUTTONPOPUP_RF_CHOOSECIV)
+-		return GC.getGameINLINE().getRiseFall().launchCivSelectionPopup(pPopup, info);
+-	if(info.getButtonPopupType() == BUTTONPOPUP_RF_DEFEAT)
+-		return GC.getGameINLINE().getRiseFall().launchDefeatPopup(pPopup, info);
+-	if(!CvPlot::activeVisibility)
+-		return false;
+-	// </advc.706>
+-
++	CvGame& g = GC.getGame();
++	if(g.isOption(GAMEOPTION_RISE_FALL)) {
++		ButtonPopupTypes bpt = info.getButtonPopupType();
++		if(bpt == BUTTONPOPUP_RF_CHOOSECIV)
++			return GC.getGameINLINE().getRiseFall().launchCivSelectionPopup(pPopup, info);
++		if(bpt == BUTTONPOPUP_RF_DEFEAT)
++			return GC.getGameINLINE().getRiseFall().launchDefeatPopup(pPopup, info);
++		if(!CvPlot::activeVisibility)
++			return false;
++		/*  The EXE launches these popups after human takeover; afterwards(?),
++			the AI makes a choice, and the popup is killed once the player clicks
++			on it. */
++		if((bpt == BUTTONPOPUP_CHOOSEPRODUCTION || bpt == BUTTONPOPUP_CHOOSETECH) &&
++				g.getRiseFall().isBlockPopups())
++			return false;
++	} // </advc.706>
+ 	FAssert(GC.getGameINLINE().getActivePlayer() != NO_PLAYER); // K-Mod
+ 
+ 	bool bLaunched = false;
+@@ -912,15 +920,6 @@ bool CvDLLButtonPopup::launchButtonPopup(CvPopup* pPopup, CvPopupInfo &info)
+ 		bLaunched = launchTextPopup(pPopup, info);
+ 		break;
+ 	case BUTTONPOPUP_CHOOSEPRODUCTION:
+-		{	/*  <advc.706> The EXE launches this popup after human takeover;
+-				afterwards(?), the AI chooses the production, and the popup
+-				is killed once the player clicks on it. Easiest solutions seems
+-				to block choose-production popups on the initial turn of a
+-				R&F chapter. */
+-			CvGame& g = GC.getGame();
+-			if(g.isOption(GAMEOPTION_RISE_FALL) && g.getRiseFall().isBlockPopups())
+-				break; // </advc.706>
+-		}
+ 		bLaunched = launchProductionPopup(pPopup, info);
+ 		break;
+ 	case BUTTONPOPUP_CHANGERELIGION:
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index ec2261ef2..a66eb88ce 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -928,8 +928,10 @@ bool CvDeal::startTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eT
+ 				continue; // </advc.003>
+ 			// advc.130j:
+ 			attacked.AI_rememberEvent(eToPlayer, MEMORY_HIRED_WAR_ALLY);
+-			// advc.104i: Same code as in CvPlayer::handleDiploEvent
+-			attacked.AI_changeMemoryCount(eFromPlayer, MEMORY_STOPPED_TRADING_RECENT, 1);
++			// <advc.104i> Same code as in CvPlayer::handleDiploEvent
++			if(attacked.AI_getMemoryCount(eFromPlayer, MEMORY_STOPPED_TRADING_RECENT) <= 0)
++				attacked.AI_changeMemoryCount(eFromPlayer, MEMORY_STOPPED_TRADING_RECENT, 1);
++			// </advc.104i>
+ 		}
+ 		break;
+ 
+@@ -1150,7 +1152,7 @@ void CvDeal::addEndTradeMemory(PlayerTypes eFromPlayer, PlayerTypes eToPlayer,
+ 			else if(dealType == TRADE_VASSAL)
+ 				mem = MEMORY_CANCELLED_VASSAL_AGREEMENT;
+ 			// advc.130j:
+-			GET_PLAYER(eToTeamMember).AI_rememberEvent(eFromTeamMember, mem);
++			GET_PLAYER(eToTeamMember).AI_changeMemoryCount(eFromTeamMember, mem, 2);
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index bb087b5ac..16dfda78a 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -760,6 +760,15 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
+ 	// advc.011:
+ 	delayUntilBuildDecay = bConstructorCall ? -1 : GC.getDefineINT("DELAY_UNTIL_BUILD_DECAY");
+ 	turnLoadedFromSave = -1; // advc.044
++	// <advc.004m>
++	if(bConstructorCall)
++		bResourceLayer = true;
++	else if(GC.getDefineINT("SHOW_RESOURCE_BUBBLES_AT_GAME_START") <= 0) {
++		/*  This causes the resource layer to be disabled when returning to the
++			main menu. (Rather than remembering the latest status.) */
++		bResourceLayer = false;
++	} // </advc.004m>
++	resourceLayerSet = false; // advc.003d
+ }
+ 
+ 
+@@ -2492,6 +2501,13 @@ void CvGame::update()
+ 			are just a few instructions (unless there is actually text to restore). */
+ 		if(isOption(GAMEOPTION_RISE_FALL))
+ 			riseFall.restoreDiploText(); // </advc.705>
++		// <advc.003d>
++		if(!resourceLayerSet) {
++			gDLL->getEngineIFace()->setResourceLayer(isResourceLayer());
++			/*  This flag is only for performance - who knows how long the
++				line above takes (even if bOn already equals bResourceLayer). */
++			resourceLayerSet = true;
++		} // </advc.003d>
+ 	}
+ 	PROFILE_END();
+ 	stopProfilingDLL(false);
+@@ -3025,14 +3041,21 @@ bool CvGame::selectionListIgnoreBuildingDefense() const
+ 
+ 
+ void CvGame::implementDeal(PlayerTypes eWho, PlayerTypes eOtherWho, CLinkList<TradeData>* pOurList, CLinkList<TradeData>* pTheirList, bool bForce)
+-{
+-	CvDeal* pDeal;
+-
+-	FAssertMsg(eWho != NO_PLAYER, "Who is not assigned a valid value");
+-	FAssertMsg(eOtherWho != NO_PLAYER, "OtherWho is not assigned a valid value");
+-	FAssertMsg(eWho != eOtherWho, "eWho is not expected to be equal with eOtherWho");
+-
+-	pDeal = addDeal();
++{	// <advc.003> Minor refactoring
++	FAssert(eWho != NO_PLAYER);
++	FAssert(eOtherWho != NO_PLAYER);
++	FAssert(eWho != eOtherWho); // </advc.003>
++	// <advc.032>
++	if(TEAMREF(eWho).isForcePeace(TEAMID(eOtherWho))) {
++		for(CLLNode<TradeData>* item = pOurList->head(); item != NULL;
++				item = pOurList->next(item)) {
++			if(item->m_data.m_eItemType == TRADE_PEACE_TREATY) {
++				if(GET_PLAYER(eWho).resetPeaceTreaty(eOtherWho))
++					return;
++			}
++		}
++	} // </advc.032>
++	CvDeal* pDeal = addDeal(); 
+ 	pDeal->init(pDeal->getID(), eWho, eOtherWho);
+ 	pDeal->addTrades(pOurList, pTheirList, !bForce);
+ 	if ((pDeal->getLengthFirstTrades() == 0) && (pDeal->getLengthSecondTrades() == 0))
+@@ -10879,6 +10902,16 @@ bool CvGame::pythonIsBonusIgnoreLatitudes() const
+ 	return false;
+ }
+ 
++// <advc.004m>
++bool CvGame::isResourceLayer() const {
++
++	return bResourceLayer;
++}
++void CvGame::reportResourceLayerToggled() {
++
++	bResourceLayer = !bResourceLayer;
++}
++// </advc.004m>
+ // advc.104:
+ bool CvGame::useKModAI() const { return !GC.getGame().warAndPeaceAI().isEnabled(); }
+ // advc.250b:
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index ae2bcb66b..d25ff9f16 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -617,7 +617,10 @@ public:
+ 	DllExport void handleDiplomacySetAIComment(DiploCommentTypes eComment) const;
+ 
+ 	std::set<int> m_ActivePlayerCycledGroups; // K-Mod. This is used to track which groups have been cycled through in the current turn. Note: it does not need to be kept in sync for multiplayer games.
+-
++	// <advc.004m>
++	bool isResourceLayer() const;
++	void reportResourceLayerToggled();
++	// </advc.004m>
+ 	/* advc.104: Doesn't belong here, but I didn't want to add Python wrapper
+ 	   classes just for that one function. */
+ 	bool useKModAI() const; // Exposed to Python
+@@ -749,6 +752,8 @@ protected:
+ 	int		m_eCultureVictoryCultureLevel;
+ 	int minimapWaterMode; // advc.002a: Cached for better performance
+ 	int delayUntilBuildDecay; // advc.011
++	bool bResourceLayer; // advc.004m
++	bool resourceLayerSet; // advc.003d
+ 
+ 	StartPointsAsHandicap spah; // advc.250b
+ 	RiseFall riseFall; // advc.700
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 3e52ed022..e90672cc5 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -11,6 +11,8 @@
+ #include "CvGameTextMgr.h"
+ #include "CvMessageControl.h"
+ #include "CvBugOptions.h"
++// advc.003d:
++#include <fstream>
+ 
+ void CvGame::updateColoredPlots()
+ {
+@@ -1824,6 +1826,9 @@ void CvGame::doControl(ControlTypes eControl)
+ 
+ 	case CONTROL_RESOURCE_ALL:
+ 		gDLL->getEngineIFace()->toggleResourceLayer();
++		/*  advc.004m: Need to keep track of toggling in order to be able to
++			tell whether it's enabled. */
++		GC.getGame().reportResourceLayerToggled();
+ 		break;
+ 
+ 	case CONTROL_UNIT_ICONS:
+@@ -1876,7 +1881,24 @@ void CvGame::doControl(ControlTypes eControl)
+ 
+ 	case CONTROL_QUICK_LOAD:
+ 		if (!(isNetworkMultiPlayer()))	// SP only!
+-		{
++		{	// <advc.003d>
++			/*  Loading works fine in windowed mode, and when a debugger is
++				attached, exitingToMainMenu can actually be quite slow.
++				(Fullscreen pretty much rules out that a debugger is attached.) */
++			if(gDLL->getGraphicOption(GRAPHICOPTION_FULLSCREEN)) {
++				// Based on code in CvBugOptions.cpp
++				CvString quickSavePath; //="C:\\Users\\Administrator\\Documents\\My Games\\Beyond the Sword\\Saves\\single\\quick\\QuickSave.CivBeyondSwordSave";
++				gDLL->getPythonIFace()->callFunction(PYBugOptionsModule, "getUserDirStr", NULL, &quickSavePath);
++				if(!quickSavePath.empty()) {
++					quickSavePath += "\\Beyond the Sword\\Saves\\single\\quick\\QuickSave.CivBeyondSwordSave";
++					// CTD if loading fails, so let's make sure that the file is good.
++					std::ifstream quickSaveFile(quickSavePath);
++					if(quickSaveFile.good()) {
++						gDLL->getInterfaceIFace()->exitingToMainMenu(quickSavePath.c_str());
++						break;
++					}
++				}
++			} // </advc.003d>
+ 			gDLL->QuickLoad();
+ 		}
+ 		break;
+@@ -2069,7 +2091,11 @@ void CvGame::doControl(ControlTypes eControl)
+ void CvGame::retire()
+ {
+ 	FAssert(canDoControl(CONTROL_RETIRE));
+-
++	// <advc.706>
++	if(isOption(GAMEOPTION_RISE_FALL)) {
++		riseFall.retire();
++		return;
++	} // </advc.706>
+ 	if (!isGameMultiPlayer() || countHumanPlayersAlive() == 1)
+ 	{
+ 		if (gDLL->GetAutorun())
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 3125dba4b..fbc2ed363 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -3552,9 +3552,7 @@ void CvPlayer::doTurn()
+ 	if(isHuman())
+ 		gDLL->getInterfaceIFace()->clearEventMessages();
+ 	// </advc.106b>
+-	// <advc.700>
+-	if(g.isOption(GAMEOPTION_RISE_FALL))
+-		g.getRiseFall().atTurnEnd(getID()); // </advc.700>
++
+ 	CvEventReporter::getInstance().beginPlayerTurn( GC.getGameINLINE().getGameTurn(),  getID());
+ 
+ 	doUpdateCacheOnTurn();
+@@ -3638,7 +3636,9 @@ void CvPlayer::doTurn()
+ 	gDLL->getInterfaceIFace()->setDirty(CityInfo_DIRTY_BIT, true);
+ 
+ 	AI_doTurnPost();
+-
++	// <advc.700>
++	if(g.isOption(GAMEOPTION_RISE_FALL))
++		g.getRiseFall().atTurnEnd(getID()); // </advc.700>
+ /************************************************************************************************/
+ /* BETTER_BTS_AI_MOD                      07/08/09                                jdog5000      */
+ /*                                                                                              */
+@@ -4780,8 +4780,11 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
+ 				continue; // </advc.003>
+ 			// advc.130j:
+ 			attacked.AI_rememberEvent(getID(), MEMORY_HIRED_WAR_ALLY);
+-			// advc.104i: Just +1, i.e. for 15 turns on average
+-			attacked.AI_changeMemoryCount(ePlayer, MEMORY_STOPPED_TRADING_RECENT, 1);
++			// <advc.104i>
++			if(attacked.AI_getMemoryCount(ePlayer, MEMORY_STOPPED_TRADING_RECENT) <= 0) {
++				// For 0.5*25 turns on average
++				attacked.AI_changeMemoryCount(ePlayer, MEMORY_STOPPED_TRADING_RECENT, 1);
++			} // </advc.104i>
+ 		}
+ 		break;
+ 
+@@ -5621,7 +5624,8 @@ void CvPlayer::stopTradingWithTeam(TeamTypes eTeam,
+ 			{   // <advc.130j>
+ 				if(diploPenalty) // advc.130f: RECENT causes only refusal to talk
+ 					civ.AI_rememberEvent(getID(), MEMORY_STOPPED_TRADING);
+-				civ.AI_rememberEvent(getID(), MEMORY_STOPPED_TRADING_RECENT);
++				// Don't rememberEvent - not supposed to be based on attitude
++				civ.AI_changeMemoryCount(getID(), MEMORY_STOPPED_TRADING_RECENT, 2);
+ 			}   // </advc.130j>
+ 		}
+ 	}
+@@ -22922,6 +22926,29 @@ void CvPlayer::forcePeace(PlayerTypes ePlayer)
+ 	}
+ }
+ 
++// <advc.032>
++bool CvPlayer::resetPeaceTreaty(PlayerTypes otherId) {
++
++	CvGame& g = GC.getGameINLINE(); int dummy=-1;
++	for(CvDeal* d = g.firstDeal(&dummy); d != NULL; d = g.nextDeal(&dummy)) {
++		if((d->getFirstPlayer() == getID() &&
++				d->getSecondPlayer() == otherId) ||
++				(d->getSecondPlayer() == getID() &&
++				d->getFirstPlayer() == otherId)) {
++			if(d->getFirstTrades() == NULL)
++				continue;
++			for(CLLNode<TradeData>* item = d->getFirstTrades()->head();
++					item != NULL; item = d->getFirstTrades()->next(item)) {
++				if(item->m_data.m_eItemType == TRADE_PEACE_TREATY) {
++					d->setInitialGameTurn(g.getGameTurn());
++					return true; // Assume that there is at most 1 peace treaty
++				}
++			}
++		}
++	}
++	return false;
++} // </advc.032>
++
+ bool CvPlayer::canSpiesEnterBorders(PlayerTypes ePlayer) const
+ {
+ 	for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 15503af19..d4a39d6be 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -1076,7 +1076,8 @@ public:
+ 	bool canHaveTradeRoutesWith(PlayerTypes ePlayer) const;
+ 
+ 	void forcePeace(PlayerTypes ePlayer);    // exposed to Python
+-
++	// advc.032: True iff a treaty was found and its turnsToCancel reset
++	bool resetPeaceTreaty(PlayerTypes otherId);
+ 	bool canSpiesEnterBorders(PlayerTypes ePlayer) const;
+ 	int getNewCityProductionValue() const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index e0c01ab81..7b2564898 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -16899,24 +16899,32 @@ void CvPlayerAI::AI_doCounter()
+ 		PlayerTypes civId = (PlayerTypes)iI; 
+ 		if(!GET_PLAYER(civId).isAlive())
+ 			continue; 
+-		for (iJ = 0; iJ < NUM_MEMORY_TYPES; iJ++)
+-		{	MemoryTypes mId = (MemoryTypes)iJ;
+-			if(AI_getMemoryCount(civId, mId) <= 0 ||
+-					GC.getLeaderHeadInfo(getPersonalityType()).
++		for (iJ = 0; iJ < NUM_MEMORY_TYPES; iJ++) {
++			MemoryTypes mId = (MemoryTypes)iJ;
++			int c = AI_getMemoryCount(civId, mId);
++			if(c <= 0 || GC.getLeaderHeadInfo(getPersonalityType()).
+ 					getMemoryDecayRand(mId) <= 0)
+ 				continue; // </advc.003>
+ 			// <advc.144> No decay of MADE_DEMAND_RECENT while peace treaty
+ 			if(mId == MEMORY_MADE_DEMAND_RECENT &&
+ 					GET_TEAM(getTeam()).isForcePeace(TEAMID(civId)))
+ 				continue; // </advc.144>
+-			// <advc.130r> No decay while war ongoing
+-			if(mId == MEMORY_DECLARED_WAR &&
+-					GET_TEAM(getTeam()).isAtWar(TEAMID(civId)))
+-				continue;
++			// <advc.130r>
++			if(GET_TEAM(getTeam()).isAtWar(TEAMID(civId))) {
++				// No decay while war ongoing
++				if(mId == MEMORY_DECLARED_WAR)
++					continue;
++				// Limited decay while war ongoing
++				if((mId == MEMORY_CANCELLED_OPEN_BORDERS ||
++						mId == MEMORY_CANCELLED_DEFENSIVE_PACT ||
++						mId == MEMORY_CANCELLED_VASSAL_AGREEMENT) &&
++						c <= 1)
++					continue;
++			}
+ 			if(mId == MEMORY_DECLARED_WAR_ON_FRIEND &&
+ 					atWarWithPartner(TEAMID(civId)))
+-				continue; // </advc.130r>
+-			// <advc.130j>
++				continue;
++			// </advc.130r><advc.130j>
+ 			/*  Need to decay at least twice as fast b/c each
+ 				request now counts twice (on average). */
+ 			double div = 2;
+@@ -16927,9 +16935,8 @@ void CvPlayerAI::AI_doCounter()
+ 			if(getWPAI.isEnabled() && (mId == MEMORY_REJECTED_DEMAND ||
+ 					mId == MEMORY_ACCEPT_DEMAND))
+ 				div *= (10 / 6.0); // 60% faster decay // </advc.104m>
+-			int c = AI_getMemoryCount(civId, mId);
+ 			// <advc.130r> Faster yet if multiple requests remembered
+-			if(c > 3) // c=3 could stem from a single request
++			if(c > 3) // c==3 could stem from a single request
+ 				div = 2 * std::sqrt(c / 2.0); // </advc.130r>
+ 			int decayRand = GC.getLeaderHeadInfo(getPersonalityType()).
+ 					getMemoryDecayRand(mId);
+@@ -17760,11 +17767,7 @@ void CvPlayerAI::AI_doDiplo()
+ 		{
+ 			return;
+ 		}
+-	} /* <advc.706> Don't want player to receive diplo msgs on the first turn
+-		 of a chapter. */
+-	CvGame& g = GC.getGame();
+-	if(g.isOption(GAMEOPTION_RISE_FALL) && g.getRiseFall().isBlockPopups())
+-		return; // </advc.706>
++	}
+ 	iGoldValuePercent = AI_goldTradeValuePercent();
+ 
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+@@ -17789,6 +17792,14 @@ void CvPlayerAI::AI_doDiplo()
+ 			if(!civ.isAlive() || civ.isHuman() != (iPass == 1) || civId == getID() ||
+ 					civ.getNumCities() <= 0) // advc.701
+ 				continue;
++			/*  <advc.706> Don't want player to receive diplo msgs on the
++				first turn of a chapter. */
++			if(civ.isHuman()) {
++				CvGame& g = GC.getGame();
++				if(g.isOption(GAMEOPTION_RISE_FALL) &&
++						g.getRiseFall().isBlockPopups())
++					continue;
++			} // </advc.706>
+ 			//if (GET_PLAYER((PlayerTypes)iI).getTeam() != getTeam()) // disabled by K-Mod
+ 			for(pLoopDeal = GC.getGameINLINE().firstDeal(&iLoop); pLoopDeal != NULL; pLoopDeal = GC.getGameINLINE().nextDeal(&iLoop))
+ 			{
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index ff9afb8b7..8eac22abd 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1422,7 +1422,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 			CvPlayerAI& kPlayer_j = GET_PLAYER(j);
+ 
+ 			if (!kPlayer_j.isAlive()
+-					// advc.003b: Doesn't hurt to include them, I guess, but no need
++					// advc.003b: Doesn't hurt to include them, I guess, but no need.
+ 					|| j == BARBARIAN_PLAYER || kPlayer_j.isMinorCiv())
+ 				continue;
+ 
+@@ -1457,6 +1457,7 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 				{
+ 					if (kTeam_j.AI_getAttitude(eTeam) >= ATTITUDE_PLEASED &&
+ 							// <advc.130h>
++							!GET_TEAM(eTeam).isCapitulated() &&
+ 							GET_TEAM(eTeam).getMasterTeam() != kTeam_j.getMasterTeam() &&
+ 							/*  Not if eTeam is also fighting a partner and
+ 								(appears to have) started it. */
+@@ -1715,15 +1716,21 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 	{
+ 		cancelDefensivePacts();
+ 	}
+-
++	bool defPactTriggered = false; // advc.104i
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		if (iI != getID() && iI != eTeam && GET_TEAM((TeamTypes)iI).isAlive())
+-		{	// dlph.3: Ally can already be at war with the aggressor
+-			if(GET_TEAM((TeamTypes)iI).isAtWar(eTeam)) continue;
++		{	// <dlph.3> Ally can already be at war with the aggressor
++			if(GET_TEAM((TeamTypes)iI).isAtWar(eTeam))
++				continue; // </dlph.3>
+ 			if (GET_TEAM((TeamTypes)iI).isDefensivePact(eTeam))
+ 			{
+ 				GET_TEAM((TeamTypes)iI).declareWar(getID(), bNewDiplo, WARPLAN_DOGPILE, false);
++				// <advc.104i>
++				defPactTriggered = true;
++				/*  Team iI declares war on us, and this makes our team
++					unwilling to talk to iI. */
++				makeUnwillingToTalk((TeamTypes)iI); // </advc.104i>
+ 			}
+ 			else if( (GC.getBBAI_DEFENSIVE_PACT_BEHAVIOR() > 1) && GET_TEAM((TeamTypes)iI).isDefensivePact(getID()))
+ 			{
+@@ -1739,6 +1746,10 @@ void CvTeam::declareWar(TeamTypes eTeam, bool bNewDiplo, WarPlanTypes eWarPlan,
+ 	}
+ 	// K-Mod / BBAI end.
+ 	GET_TEAM(eTeam).allowDefensivePactsToBeCanceled(); // dlph.3
++	/*  <advc.104i> When other teams come to the help of eTeam through a
++		defensive pact, then eTeam becomes unwilling to talk with us. */
++	if(defPactTriggered)
++		GET_TEAM(eTeam).makeUnwillingToTalk(getID()); // </advc.104i>
+ 	for (iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+ 		if (iI != getID() && iI != eTeam)
+@@ -4641,7 +4652,20 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 
+ 		setForcePeace(eIndex, false);
+ 		GET_TEAM(eIndex).setForcePeace(getID(), false);
+-
++		// <advc.130o> Forget tribute demands
++		for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++			CvPlayerAI& ourMember = GET_PLAYER((PlayerTypes)i);
++			if(!ourMember.isAlive() || ourMember.getTeam() != getID())
++				continue;
++			for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++				CvPlayer& other = GET_PLAYER((PlayerTypes)j);
++				if(!other.isAlive() || other.isMinorCiv())
++					continue;
++				int mem = ourMember.AI_getMemoryCount(other.getID(), MEMORY_MADE_DEMAND);
++				if(mem > 0)
++					ourMember.AI_changeMemoryCount(other.getID(), MEMORY_MADE_DEMAND, -mem);
++			}
++		} // </advc.130o>
+ 		// advc.130y: Used to be done after declaring wars
+ 		// <advc.003> Refactored
+ 		for(int i = 0; i < MAX_CIV_TEAMS; i++) {
+@@ -6121,10 +6145,10 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
+ 				for (iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+ 				{
+ 					pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-					if ((pLoopPlot->getTeam() != getID()
+-							// <advc.004r>
+-							&& pLoopPlot->getTeam() != NO_TEAM &&
+-							pLoopPlot->getTeam() != BARBARIAN_TEAM) ||
++					// <advc.004r>
++					TeamTypes revTeam = pLoopPlot->getRevealedTeam(getID(), false);
++					if((revTeam != getID() && revTeam != NO_TEAM &&
++							revTeam != BARBARIAN_TEAM) ||
+ 							!pLoopPlot->isRevealed(getID(), false)) // </advc.004r>
+ 						continue; // advc.003
+ 					eBonus = pLoopPlot->getBonusType();
+@@ -7098,6 +7122,42 @@ void CvTeam::allowDefensivePactsToBeCanceled() {
+ 	}
+ } // </dlph.3>
+ 
++// <advc.104i>
++void CvTeam::makeUnwillingToTalk(TeamTypes otherId) {
++
++	// No need to make vassals unwilling to talk; can't negotiate war/ peace anyway.
++	if(otherId == NO_TEAM || isAVassal() || GET_TEAM(otherId).isAVassal())
++		return;
++	/*  Make each member i of our team unwilling to talk to every member j
++		of the other team. */
++	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
++		CvPlayerAI& ourMember = GET_PLAYER((PlayerTypes)i);
++		if(!ourMember.isAlive() || ourMember.getTeam() != getID())
++			continue;
++		for(int j = 0; j < MAX_CIV_PLAYERS; j++) {
++			CvPlayer& theirMember = GET_PLAYER((PlayerTypes)j);
++			if(!theirMember.isAlive() || theirMember.getTeam() != otherId)
++				continue;
++			if(!ourMember.isHuman() &&
++					// Same code as in CvDeal::startTrade, case WAR_TRADE
++					ourMember.AI_getMemoryCount(theirMember.getID(),
++					MEMORY_STOPPED_TRADING_RECENT) <= 0) {
++				ourMember.AI_changeMemoryCount(theirMember.getID(),
++						MEMORY_STOPPED_TRADING_RECENT, 1);
++			}
++			/*  STOPPED_TRADING memory has no effect on humans. Make the
++				other side unwilling to talk then. Could simply always make both
++				sides unwilling, but then, the expected duration until peace can
++				be negotiated would get longer. */
++			else if(ourMember.isHuman() && theirMember.AI_getMemoryCount(
++					ourMember.getID(), MEMORY_STOPPED_TRADING_RECENT) <= 0) {
++				theirMember.AI_changeMemoryCount(ourMember.getID(),
++						MEMORY_STOPPED_TRADING_RECENT, 1);
++			}
++		}
++	}
++} // </advc.104i>
++
+ void CvTeam::read(FDataStreamBase* pStream)
+ {
+ 	// Init data before load
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 17d1077a6..688baffff 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -540,6 +540,7 @@ protected:
+ 
+ 	void cancelDefensivePacts();
+ 	void allowDefensivePactsToBeCanceled(); // dlph.3
++	void makeUnwillingToTalk(TeamTypes otherId); // advc.104i
+ 	void announceTechToPlayers(TechTypes eIndex, bool bPartial = false);
+ 
+ 	virtual void read(FDataStreamBase* pStream);
+
+diff --git a/CvGameCoreDLL/CyGame.cpp b/CvGameCoreDLL/CyGame.cpp
+index 306d53271..8d5e32999 100644
+--- a/CvGameCoreDLL/CyGame.cpp
++++ b/CvGameCoreDLL/CyGame.cpp
+@@ -1287,6 +1287,12 @@ bool CyGame::isRFInterlude() {
+ 	return (m_pGame->isOption(GAMEOPTION_RISE_FALL) &&
+ 			m_pGame->getRiseFall().getInterludeCountdown() >= 0);
+ }
++bool CyGame::isRFBlockPopups() {
++	if(m_pGame == NULL)
++		return false;
++	return (m_pGame->isOption(GAMEOPTION_RISE_FALL) &&
++			m_pGame->getRiseFall().isBlockPopups());
++}
+ bool CyGame::isAITurn() {
+ 	if(m_pGame == NULL)
+ 		return false;
+
+diff --git a/CvGameCoreDLL/CyGame.h b/CvGameCoreDLL/CyGame.h
+index 60d7f881d..7f6411f01 100644
+--- a/CvGameCoreDLL/CyGame.h
++++ b/CvGameCoreDLL/CyGame.h
+@@ -307,6 +307,7 @@ public:
+ 	// </advc.703>
+ 	// <advc.706>
+ 	bool isRFInterlude();
++	bool isRFBlockPopups();
+ 	bool isAITurn(); // </advc.706>
+ 
+ protected:
+
+diff --git a/CvGameCoreDLL/CyGameInterface.cpp b/CvGameCoreDLL/CyGameInterface.cpp
+index 9128d2366..c87ba13b8 100644
+--- a/CvGameCoreDLL/CyGameInterface.cpp
++++ b/CvGameCoreDLL/CyGameInterface.cpp
+@@ -299,6 +299,7 @@ void CyGamePythonInterface()
+ 		.def("riseScoreBreakdown", &CyGame::riseScoreBreakdown)
+ 		// </advc.704><advc.706>
+ 		.def("isRFInterlude", &CyGame::isRFInterlude, "bool ()")
++		.def("isRFBlockPopups", &CyGame::isRFBlockPopups, "bool ()")
+ 		.def("isAITurn", &CyGame::isAITurn, "bool ()")
+ 		// </advc.706>
+ 		;
+
+diff --git a/CvGameCoreDLL/RFChapterScore.cpp b/CvGameCoreDLL/RFChapterScore.cpp
+index 2e25c67f3..95caed860 100644
+--- a/CvGameCoreDLL/RFChapterScore.cpp
++++ b/CvGameCoreDLL/RFChapterScore.cpp
+@@ -92,9 +92,10 @@ std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores) {
+ 	double ourRank = 1;
+ 	int ourRivals = 0;
+ 	CvGame& g = GC.getGame();
+-	PlayerTypes we = chapter->getCiv();
+-	bool weVassal = TEAMREF(we).isAVassal();
+-	int ourScore = modifiedCivScore(we);
++	CvPlayerAI const& we = GET_PLAYER(chapter->getCiv());
++	bool weVassal = GET_TEAM(we.getTeam()).isAVassal();
++	int ourVictStage = g.getRiseFall().victoryStage(we.getID());
++	int ourScore = modifiedCivScore(we.getID());
+ 	for(int i = 0; i < MAX_CIV_PLAYERS; i++) {
+ 		CvPlayer const& they = GET_PLAYER((PlayerTypes)i);
+ 		if(!they.isAlive() || they.isMinorCiv() || they.isAVassal()) {
+@@ -104,12 +105,19 @@ std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores) {
+ 		}
+ 		if(storeCivScores)
+ 			initialCivScores[i] = modifiedCivScore(they.getID());
+-		if(they.getID() == we ||
++		if(they.getID() == we.getID() ||
+ 				/*  Current player civ can't hurt our rank if we're a
+ 					previous player civ */
+ 				they.getID() == g.getActivePlayer())
+ 			continue;
+ 		ourRivals++;
++		int theirVictStage = g.getRiseFall().victoryStage(they.getID());
++		if(theirVictStage > ourVictStage) {
++			ourRank++;
++			continue;
++		}
++		if(ourVictStage > theirVictStage)
++			continue;
+ 		int theirScore = modifiedCivScore(they.getID());
+ 		if(theirScore > ourScore)
+ 			ourRank++;
+@@ -118,7 +126,7 @@ std::pair<int,int> RFChapterScore::computeRank(bool storeCivScores) {
+ 	}
+ 	/*  Assume that the player starts in the middle, even if the AI starts with
+ 		more free tech. */
+-	if(g.getGameTurn() <= g.getStartTurn() && GET_PLAYER(we).isAlive())
++	if(g.getGameTurn() <= g.getStartTurn() && we.isAlive())
+ 		ourRank = 1 + ourRivals / 2.0;
+ 	ourRank += 0.01; // Just to be explicit about rounding up
+ 	return std::make_pair<int,int>(::round(ourRank), ourRivals);
+
+diff --git a/CvGameCoreDLL/RiseFall.cpp b/CvGameCoreDLL/RiseFall.cpp
+index 21fe6be1b..4236297a0 100644
+--- a/CvGameCoreDLL/RiseFall.cpp
++++ b/CvGameCoreDLL/RiseFall.cpp
+@@ -271,15 +271,26 @@ bool RiseFall::hasRetired() const {
+ 
+ int RiseFall::getAutoPlayCountdown() const {
+ 
+-	if(hasRetired() && GET_PLAYER(GC.getGameINLINE().getActivePlayer()).
+-			isHumanDisabled()) {
++	if(isSelectingCiv()) /* Not sure if needed; be sure we're not showing
++							a countdown while the popup is open. */
++		return 0;
++	PlayerTypes activePl = GC.getGameINLINE().getActivePlayer();
++	if(activePl == NO_PLAYER) {
++		FAssert(activePl != NO_PLAYER);
++		return -1;
++	}
++	CvPlayer const& pl = GET_PLAYER(activePl);
++	if(pl.isHuman() && !pl.isHumanDisabled()) // Normal play
++		return 0;
++	if(hasRetired() && pl.isHumanDisabled()) {
+ 		int r = GC.getGameINLINE().getAIAutoPlay();
+ 		if(interludeCountdown < 0) // Anticipate interlude
+ 			r += interludeLength;
+ 		else r += interludeCountdown;
+-		return r;
++		return r + 1; // +1 for the turn of retirement
+ 	}
+-	else return std::max(0, interludeCountdown);
++	// +1 for the turn on which the chapter is ended
++	return std::max(0, interludeCountdown + 1);
+ }
+ 
+ void RiseFall::atTurnEnd(PlayerTypes civId) {
+@@ -496,6 +507,10 @@ void RiseFall::setPlayerName() {
+ void RiseFall::welcomeToNextChapter(int pos) {
+ 
+ 	FAssert(pos > 0);
++	/*  Message about revolution from the turn before human takeover lingers
++		for some reason (and perhaps other messages too). Player will have to
++		check the Event Log anyway, so let's just clear the screen. */
++	gDLL->getInterfaceIFace()->clearEventMessages();
+ 	RFChapter& ch = *chapters[pos];
+ 	setPlayerName();
+ 	CvPlayer& p = GET_PLAYER(ch.getCiv());
+@@ -672,7 +687,10 @@ bool RiseFall::isBlockPopups() const {
+ 		Conceivable exception: The player conquers a city on the initial turn,
+ 		and there is no disorder because the city was formerly owned. I guess
+ 		in this case, the player won't be prompted to choose production, which
+-		is bad, but rare and won't crash the game. */
++		is bad, but rare and won't crash the game.
++		
++		I'm now also using this function for tech-choice popups, contact by
++		the AI and Civ4lerts. */
+ 	return chapters[pos]->getStartTurn() == GC.getGame().getGameTurn();
+ }
+ 
+@@ -695,7 +713,9 @@ bool RiseFall::isDeliverMessages(PlayerTypes civId) const {
+ 
+ bool RiseFall::isCooperationRestricted(PlayerTypes aiCiv) const {
+ 
+-	aiCiv = GET_TEAM(GET_PLAYER(aiCiv).getMasterTeam()).getLeaderID();
++	PlayerTypes masterId = GET_TEAM(GET_PLAYER(aiCiv).getMasterTeam()).getLeaderID();
++	if(masterId != aiCiv && isCooperationRestricted(masterId))
++		return true;
+ 	PlayerTypes human = GC.getGameINLINE().getActivePlayer();
+ 	if(aiCiv == human)
+ 		return false;
+@@ -946,6 +966,11 @@ void RiseFall::assignCivSelectionHelp(CvWStringBuffer& szBuffer,
+ 	CvGame& g = GC.getGame();
+ 	wstringstream wss;
+ 	wss << knownName(selectedCiv, false) << L"\n";
++	int victStage = victoryStage(selectedCiv);
++	if(victStage > 0) {
++		wss << gDLL->getText("TXT_KEY_RF_CIV_SELECTION_VICTSTAGE") << L": "
++				<< victStage << L"/4\n";
++	}
+ 	wss << gDLL->getText("TXT_KEY_RF_CIV_SELECTION_SCORE",
+ 			g.getPlayerScore(selectedCiv));
+ 	CvTeam& t = TEAMREF(selectedCiv);
+@@ -1067,6 +1092,12 @@ bool RiseFall::byRecommendation(PlayerTypes one, PlayerTypes two) {
+ 		return false;
+ 	if(p2.isAVassal() && !p1.isAVassal())
+ 		return true;
++	int vs1 = victoryStage(one);
++	int vs2 = victoryStage(two);
++	if(vs1 > vs2)
++		return false;
++	if(vs2 > vs1)
++		return false;
+ 	CvGame const& g = GC.getGameINLINE();
+ 	int sc1 = g.getPlayerScore(one);
+ 	int sc2 = g.getPlayerScore(two);
+@@ -1077,6 +1108,24 @@ bool RiseFall::byRecommendation(PlayerTypes one, PlayerTypes two) {
+ 	return g.getPlayerRank(one) > g.getPlayerRank(two);
+ }
+ 
++int RiseFall::victoryStage(PlayerTypes civId) {
++
++	if(civId == NO_PLAYER) {
++		FAssert(false);
++		return 0;
++	}
++	CvPlayerAI const& civ = GET_PLAYER(civId);
++	if(!civ.isAlive())
++		return -1;
++	int r = 0;
++	// Stages 1 and 2 aren't meaningful enough
++	if(civ.AI_isDoVictoryStrategyLevel3())
++		r = 3;
++	if(civ.AI_isDoVictoryStrategyLevel4())
++		r = 4;
++	return r;
++}
++
+ CvWString RiseFall::retireConfirmMsg() const {
+ 
+ 	CvWString r = gDLL->getText("TXT_KEY_RF_CONFIRM_RETIRE", getRetireTurns());
+
+diff --git a/CvGameCoreDLL/RiseFall.h b/CvGameCoreDLL/RiseFall.h
+index e8cfa309d..aed89399f 100644
+--- a/CvGameCoreDLL/RiseFall.h
++++ b/CvGameCoreDLL/RiseFall.h
+@@ -33,6 +33,7 @@ public:
+ 	void prepareForExtendedGame();
+ 	int getFinalRiseScore() const;
+ 	int getNormalizedFinalScore() const;
++	static int victoryStage(PlayerTypes civId);
+ 	// Callbacks for CvDLLButtonPopup
+ 	  bool launchDefeatPopup(CvPopup* popup, CvPopupInfo& info);
+ 	  void handleDefeatPopup(int buttonClicked);
+@@ -43,7 +44,6 @@ public:
+ 			PlayerTypes selectedCiv);
+ 	  CvWString retireConfirmMsg() const;
+ 	  bool isSelectingCiv() const; // Waiting for callback
+-	bool isBlockPopups() const;
+ 	bool isDeliverMessages(PlayerTypes civId) const;
+ 	bool isCooperationRestricted(PlayerTypes aiCiv) const;
+ 	// Some deals are non-collusive regardless of trade value
+@@ -67,6 +67,7 @@ public:
+ 		  before all chapters are through */
+ 	  int getMaxChapters() const;
+ 	  int getCurrentChapter() const;
++	  bool isBlockPopups() const;
+ 
+ private:
+ 	RFChapter* mostRecentlyFinished() const;
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 29c91114f..fee96a64d 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2067,6 +2067,9 @@ bool WarAndPeaceAI::Civ::considerGiftRequest(PlayerTypes theyId,
+ 
+ bool WarAndPeaceAI::Civ::isPeaceDealPossible(PlayerTypes humanId) const {
+ 
++	/*  Could simply call CvPlayerAI::AI_counterPropose, but I think there are rare
++		situations when a deal is possible but AI_counterPropose doesn't find it.
++		It's also slower. */
+ 	// <advc.705>
+ 	CvGame const& g = GC.getGameINLINE();
+ 	if(g.isOption(GAMEOPTION_RISE_FALL) &&
+
+diff --git a/PublicMaps/PerfectMongoose.py b/PublicMaps/PerfectMongoose.py
+index b74cb8885..9a2882a0b 100644
+--- a/PublicMaps/PerfectMongoose.py
++++ b/PublicMaps/PerfectMongoose.py
+@@ -4078,7 +4078,7 @@ class BonusPlacer:
+ 		
+ 		# <advc.021b> As in Civ 4 Reimagined; skip the code below.
+ 		CyPythonMgr().allowDefaultImpl()
+-		pass # </advc.021b>
++		return # </advc.021b>
+ 
+ 		#first get bonus/area link
+ 		bonus = self.bonusList[self.bonusDict[eBonus]]
+@@ -4925,7 +4925,7 @@ class StartingPlotFinder:
+ 							plot.setFeatureType(FeatureTypes.NO_FEATURE, -1)
+ 		#ensure maximum number of bad features
+ 		# advc.021b: Let normalizeRemoveBadFeatures handle it
+-		pass
++		return
+ 	
+ 		badFeaturesToRemove = badFeaturesFound - mc.MaxBadFeaturesInFC
+ 		if badFeaturesToRemove > 0:
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=33 embeddedFiles=31 omittedFiles=2 embeddedPatchBytes=92737

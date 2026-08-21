@@ -1,0 +1,1573 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2936
+# Commit: 882e0f4609f58286443a89189c22c32aa9d2e828
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7768da5548c3364a78310ba0e5cc03445e436d39
+# Title: Merge 0.99 into 1.00
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+41	42	Assets/Python/EntryPoints/CvRandomEventInterface.py
+2	2	Assets/XML/Text/BUG Main Interface Options.xml
+2	2	CvGameCoreDLL/CvCity.h
+32	29	CvGameCoreDLL/CvDLLWidgetData.cpp
+59	59	CvGameCoreDLL/CvDllPythonEvents.cpp
+3	3	CvGameCoreDLL/CvGame.cpp
+3	2	CvGameCoreDLL/CvPlayer.cpp
+6	2	CvGameCoreDLL/CvPlayerAI.cpp
+6	6	CvGameCoreDLL/CvStatistics.cpp
+20	10	CvGameCoreDLL/CvTeamAI.cpp
+4	4	CvGameCoreDLL/CvUnit.cpp
+47	31	CvGameCoreDLL/CvUnitAI.cpp
+19	0	CvGameCoreDLL/EnumMap.h
+1	1	CvGameCoreDLL/InvasionGraph.cpp
+1	1	CvGameCoreDLL/MilitaryAnalyst.cpp
+14	14	CvGameCoreDLL/UWAICache.cpp
+25	24	CvGameCoreDLL/WarUtilityAspect.cpp
+1	1	links.txt
+-	-	manual.odt
+-	-	manual.pdf
+
+[PATCHES]
+
+diff --git a/Assets/Python/EntryPoints/CvRandomEventInterface.py b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+index 79d444f2d..6dc56d560 100644
+--- a/Assets/Python/EntryPoints/CvRandomEventInterface.py
++++ b/Assets/Python/EntryPoints/CvRandomEventInterface.py
+@@ -18,6 +18,12 @@ gc = CyGlobalContext()
+ localText = CyTranslator()
+ 
+ 
++# advc.137: All event preconditions that use DefaultPlayers in BtS are going to use this function instead. Using default player counts was a bad idea to begin with, and now that I've increased the default player count on Deity, it's totally out of whack.
++def worldSizeTarget():
++	# 5 adjusted by building class prereq modifier, rounded to nearest.
++	return ((5 * (100 + gc.getWorldInfo(gc.getMap().getWorldSize()).getBuildingClassPrereqModifier())) + 50) // 100
++
++
+ ######## BLESSED SEA ###########
+ 
+ def getHelpBlessedSea1(argsList):
+@@ -153,7 +159,7 @@ def getHelpHolyMountain1(argsList):
+ 	kTriggeredData = argsList[1]
+ 	
+ 	map = gc.getMap()
+-	iMinPoints = 2 * gc.getWorldInfo(map.getWorldSize()).getDefaultPlayers()
++	iMinPoints = 2 * worldSizeTarget()
+ 	
+ 	iBuilding = -1
+ 	iReligion = gc.getPlayer(kTriggeredData.ePlayer).getStateReligion()
+@@ -238,7 +244,7 @@ def canTriggerHolyMountainRevealed(argsList):
+ 			elif (gc.getBuildingInfo(i).getSpecialBuildingType() == CvUtil.findInfoTypeNum(gc.getSpecialBuildingInfo,gc.getNumSpecialBuildingInfos(),'SPECIALBUILDING_MONASTERY')):
+ 				iNumPoints += player.countNumBuildings(i)
+ 				
+-	if (iNumPoints < 2 * gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()):
++	if iNumPoints < 2 * worldSizeTarget():
+ 		return false
+ 
+ 	plot = gc.getMap().plot(kOrigTriggeredData.iPlotX, kOrigTriggeredData.iPlotY)
+@@ -2467,7 +2473,7 @@ def getHelpHorseWhispering1(argsList):
+ 	
+ 	map = gc.getMap()
+ 	
+-	iNumStables = gc.getWorldInfo(map.getWorldSize()).getDefaultPlayers()
++	iNumStables = worldSizeTarget()
+ 	szHelp = localText.getText("TXT_KEY_EVENT_HORSE_WHISPERING_HELP", (iNumStables, ))
+ 
+ 	return szHelp
+@@ -2478,7 +2484,7 @@ def canTriggerHorseWhisperingDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+ 	iStable = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_STABLE')
+-	if gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() > player.getBuildingClassCount(iStable):
++	if worldSizeTarget() > player.getBuildingClassCount(iStable):
+ 		return false
+ 	
+ 	return true
+@@ -2489,7 +2495,7 @@ def getHelpHorseWhisperingDone1(argsList):
+ 	
+ 	map = gc.getMap()
+ 	
+-	iNumUnits = gc.getWorldInfo(map.getWorldSize()).getDefaultPlayers()
++	iNumUnits = worldSizeTarget()
+ 	szHelp = localText.getText("TXT_KEY_EVENT_HORSE_WHISPERING_DONE_HELP_1", (iNumUnits, ))
+ 
+ 	return szHelp
+@@ -2501,7 +2507,7 @@ def applyHorseWhisperingDone1(argsList):
+ 
+ 	map = gc.getMap()
+ 	plot = map.plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+-	iNumUnits = gc.getWorldInfo(map.getWorldSize()).getDefaultPlayers()
++	iNumUnits = worldSizeTarget()
+ 	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_HORSE_ARCHER')
+ 	iUnitType = gc.getCivilizationInfo(player.getCivilizationType()).getCivilizationUnits(iUnitClassType)
+ 	
+@@ -2515,7 +2521,7 @@ def getHelpHarbormaster1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 		
+-	iHarborsRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iHarborsRequired = worldSizeTarget()
+ 	iCaravelsRequired = iHarborsRequired / 2 + 1
+ 
+ 	szHelp = localText.getText("TXT_KEY_EVENT_HARBORMASTER_HELP", (iHarborsRequired, iCaravelsRequired))
+@@ -2552,7 +2558,7 @@ def canTriggerHarbormasterDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+ 	iHarbor = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_HARBOR')
+-	iHarborsRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iHarborsRequired = worldSizeTarget()
+ 	if iHarborsRequired > player.getBuildingClassCount(iHarbor):
+ 		return false
+ 
+@@ -2577,8 +2583,7 @@ def getHelpClassicLiterature1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 		
+-	iLibrariesRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
+-
++	iLibrariesRequired = worldSizeTarget()
+ 	szHelp = localText.getText("TXT_KEY_EVENT_CLASSIC_LITERATURE_HELP_1", (iLibrariesRequired, ))
+ 
+ 	return szHelp
+@@ -2590,7 +2595,7 @@ def canTriggerClassicLiteratureDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+ 	iLibrary = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_LIBRARY')
+-	iBuildingsRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iLibrary):
+ 		return false
+ 	
+@@ -2701,8 +2706,7 @@ def getHelpMasterBlacksmith1(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 		
+-	iRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
+-	
++	iRequired = worldSizeTarget()
+ 	szHelp = localText.getText("TXT_KEY_EVENT_MASTER_BLACKSMITH_HELP_1", (iRequired, player.getCity(kTriggeredData.iCityId).getNameKey()))
+ 
+ 	return szHelp
+@@ -2723,7 +2727,7 @@ def canTriggerMasterBlacksmithDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 		
+ 	iForge = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_FORGE')
+-	iBuildingsRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iForge):
+ 		return false
+ 
+@@ -2808,8 +2812,7 @@ def getHelpBestDefense1(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 		
+-	iRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
+-	
++	iRequired = worldSizeTarget()
+ 	szHelp = localText.getText("TXT_KEY_EVENT_BEST_DEFENSE_HELP_1", (iRequired, ))
+ 
+ 	return szHelp
+@@ -2820,7 +2823,7 @@ def canTriggerBestDefenseDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 		
+ 	iCastle = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_CASTLE')
+-	iBuildingsRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iCastle):
+ 		return false
+ 		
+@@ -2876,7 +2879,7 @@ def getHelpSportsLeague1(argsList):
+ 	kTriggeredData = argsList[1]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 		
+-	iRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iRequired = worldSizeTarget()
+ 	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_STATUE_OF_ZEUS')
+ 	
+ 	szHelp = localText.getText("TXT_KEY_EVENT_SPORTS_LEAGUE_HELP_1", (iRequired, gc.getBuildingInfo(iBuilding).getTextKey()))
+@@ -2889,7 +2892,7 @@ def canTriggerSportsLeagueDone(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 		
+ 	iCastle = CvUtil.findInfoTypeNum(gc.getBuildingClassInfo, gc.getNumBuildingClassInfos(), 'BUILDINGCLASS_COLOSSEUM')
+-	iBuildingsRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iBuildingsRequired = worldSizeTarget()
+ 	if iBuildingsRequired > player.getBuildingClassCount(iCastle):
+ 		return false
+ 		
+@@ -2992,7 +2995,7 @@ def getHelpCrusadeDone1(argsList):
+ 	
+ 	holyCity = gc.getGame().getHolyCity(kTriggeredData.eReligion)
+ 	szUnit = gc.getUnitInfo(holyCity.getConscriptUnit()).getTextKey()
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() / 2 + 1
++	iNumUnits = worldSizeTarget() / 2 + 1
+ 	szHelp = localText.getText("TXT_KEY_EVENT_CRUSADE_DONE_HELP_1", (iNumUnits, szUnit, holyCity.getNameKey()))	
+ 
+ 	return szHelp
+@@ -3014,7 +3017,7 @@ def applyCrusadeDone1(argsList):
+ 	
+ 	holyCity = gc.getGame().getHolyCity(kTriggeredData.eReligion)						
+ 	iUnitType = holyCity.getConscriptUnit()
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() / 2 + 1
++	iNumUnits = worldSizeTarget() / 2 + 1
+ 	
+ 	if iUnitType != -1:
+ 		for i in range(iNumUnits):
+@@ -3061,7 +3064,7 @@ def getHelpCrusadeDone3(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 	
+-	iNumCities = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iNumCities = worldSizeTarget()
+ 	holyCity = gc.getGame().getHolyCity(kTriggeredData.eReligion)
+ 	
+ 	szHelp = localText.getText("TXT_KEY_EVENT_CRUSADE_DONE_HELP_3", (gc.getReligionInfo(kTriggeredData.eReligion).getTextKey(), iNumCities))	
+@@ -3072,8 +3075,7 @@ def canApplyCrusadeDone3(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 	
+-	iNumCities = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
+-
++	iNumCities = worldSizeTarget()
+ 	if gc.getGame().getNumCities() == gc.getGame().countReligionLevels(kTriggeredData.eReligion):
+ 		return false
+ 		
+@@ -3100,7 +3102,7 @@ def applyCrusadeDone3(argsList):
+ 	#listCities.sort()
+ 	listCities.sort(key=itemgetter(0)) # K-Mod. Sorting by pointers can cause OOS.
+ 	
+-	iNumCities = min(gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers(), len(listCities))
++	iNumCities = min(worldSizeTarget(), len(listCities))
+ 	
+ 	for i in range(iNumCities):
+ 		iDistance, loopCity = listCities[i]
+@@ -3397,7 +3399,7 @@ def getHelpGreedDone1(argsList):
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 	
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() / 2 + 1
++	iNumUnits = worldSizeTarget() / 2 + 1
+ 	iUnitType = getGreedUnit(player, plot)
+ 	
+ 	if iUnitType != -1:	
+@@ -3412,7 +3414,7 @@ def applyGreedDone1(argsList):
+ 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
+ 		
+ 	iUnitType = getGreedUnit(player, plot)
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() / 2 + 1
++	iNumUnits = worldSizeTarget() / 2 + 1
+ 	
+ 	if iUnitType != -1:
+ 		for i in range(iNumUnits):
+@@ -3434,7 +3436,7 @@ def getHelpWarChariots1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 		
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	szHelp = localText.getText("TXT_KEY_EVENT_WAR_CHARIOTS_HELP_1", (iNumUnits, ))
+ 
+ 	return szHelp
+@@ -3443,8 +3445,7 @@ def canTriggerWarChariotsDone(argsList):
+ 	kTriggeredData = argsList[0]
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+-	
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_CHARIOT')
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+ 		return false
+@@ -3461,7 +3462,7 @@ def getHelpEliteSwords1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 		
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	szHelp = localText.getText("TXT_KEY_EVENT_ELITE_SWORDS_HELP_1", (iNumUnits, ))
+ 
+ 	return szHelp
+@@ -3470,7 +3471,7 @@ def canTriggerEliteSwordsDone(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_SWORDSMAN')
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+ 		return false
+@@ -3513,8 +3514,7 @@ def getHelpWarships1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 		
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
+-	
++	iNumUnits = worldSizeTarget()
+ 	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_GREAT_LIGHTHOUSE')
+ 	szHelp = localText.getText("TXT_KEY_EVENT_WARSHIPS_HELP_1", (iNumUnits, gc.getBuildingInfo(iBuilding).getTextKey()))
+ 
+@@ -3524,7 +3524,7 @@ def canTriggerWarshipsDone(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers()
++	iNumUnits = worldSizeTarget()
+ 	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_TRIREME')
+ 
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+@@ -3550,7 +3550,7 @@ def getHelpGunsButter1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 		
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_TAJ_MAHAL')
+ 	
+ 	szHelp = localText.getText("TXT_KEY_EVENT_GUNS_BUTTER_HELP_1", (iNumUnits, gc.getBuildingInfo(iBuilding).getTextKey()))
+@@ -3561,7 +3561,7 @@ def canTriggerGunsButterDone(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_MUSKETMAN')
+ 
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+@@ -3608,7 +3608,7 @@ def getHelpNobleKnights1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 		
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	iBuilding = CvUtil.findInfoTypeNum(gc.getBuildingInfo, gc.getNumBuildingInfos(), 'BUILDING_ORACLE')
+ 	
+ 	szHelp = localText.getText("TXT_KEY_EVENT_NOBLE_KNIGHTS_HELP_1", (iNumUnits, gc.getBuildingInfo(iBuilding).getTextKey()))
+@@ -3619,7 +3619,7 @@ def canTriggerNobleKnightsDone(argsList):
+ 	kTriggeredData = argsList[0]
+ 	player = gc.getPlayer(kTriggeredData.ePlayer)
+ 	
+-	iNumUnits = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
++	iNumUnits = worldSizeTarget() + 1
+ 	iUnitClassType = CvUtil.findInfoTypeNum(gc.getUnitClassInfo, gc.getNumUnitClassInfos(), 'UNITCLASS_KNIGHT')
+ 
+ 	if player.getUnitClassCount(iUnitClassType) < iNumUnits:
+@@ -3792,8 +3792,7 @@ def getHelpCorporateExpansion1(argsList):
+ 	iEvent = argsList[0]
+ 	kTriggeredData = argsList[1]
+ 	
+-	iNumCities = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1
+-	
++	iNumCities = worldSizeTarget() + 1
+ 	szHelp = localText.getText("TXT_KEY_EVENT_CORPORATE_EXPANSION_HELP_1", (gc.getCorporationInfo(kTriggeredData.eCorporation).getTextKey(), iNumCities))
+ 
+ 	return szHelp
+@@ -3804,7 +3803,7 @@ def canTriggerCorporateExpansionDone(argsList):
+ 	trigger = gc.getEventTriggerInfo(kTriggeredData.eTrigger)
+ 	kOrigTriggeredData = player.getEventOccured(trigger.getPrereqEvent(0))
+ 	
+-	iNumCitiesRequired = gc.getWorldInfo(gc.getMap().getWorldSize()).getDefaultPlayers() + 1 + kOrigTriggeredData.iOtherPlayerCityId
++	iNumCitiesRequired = worldSizeTarget() + 1 + kOrigTriggeredData.iOtherPlayerCityId
+ 	
+ 	if iNumCitiesRequired > gc.getGame().countCorporationLevels(kOrigTriggeredData.eCorporation):
+ 		return false
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 8dc6e0770..8693fbbfa 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -685,8 +685,8 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__TRIBALVILLAGEICONS_HOVER</Tag>
+-		<English>When checked, the Resource Display highlights Tribal Villages in addition to resources. However, Tribal Villages are never highlighted by the Resource Display if [COLOR_HIGHLIGHT_TEXT]Unit Action Recommendations[COLOR_REVERT] (Ctrl + O) are enabled. (Because that setting also highlights Tribal Villages.)</English>
+-		<German>Markiert zus�tzlich zu Ressourcen auch Stammesd�rfer, wenn die Ressourcenanzeige aktiv ist. Ausnahme: Die Ressourcenanzeige markiert keine Stammesd�rfer, wenn [COLOR_HIGHLIGHT_TEXT]Einheitenempfehlungen[COLOR_REVERT] (Strg + O) eingeschaltet ist, da diese Option ebenfalls Stammesd�rfer hervorhebt.</German>
++		<English>When checked, the Resource Display highlights Tribal Villages in addition to resources. Note: The [COLOR_HIGHLIGHT_TEXT]Unit Action Recommendations[COLOR_REVERT] option (Ctrl + O) also highlights Tribal Villages, but only when a nearby combat unit is selected.</English>
++		<German>Markiert zus�tzlich zu Ressourcen auch Stammesd�rfer, wenn die Ressourcenanzeige aktiv ist. Bemerkung: Die Option [COLOR_HIGHLIGHT_TEXT]Einheitenempfehlungen[COLOR_REVERT] (Strg + O) hebt ebenfalls Stammesd�rfer hervor, jedoch nur wenn eine Kampfeinheit in der N�he ausgew�hlt ist.</German>
+ 	</TEXT>
+ 	
+ 	<!-- advc.004h -->
+
+diff --git a/CvGameCoreDLL/CvCity.h b/CvGameCoreDLL/CvCity.h
+index 24ae13f26..afea4c367 100644
+--- a/CvGameCoreDLL/CvCity.h
++++ b/CvGameCoreDLL/CvCity.h
+@@ -302,8 +302,8 @@ public:
+ 	int getNumActiveWorldWonders(/* advc: */ int iStopCountAt = MAX_INT,
+ 			PlayerTypes eOwner = NO_PLAYER) const; // advc.104d: Hypothetical owner
+ 
+-	int getReligionCount() const { return m_abHasReligion.getTotal(); } // advc.opt								// Exposed to Python
+-	int getCorporationCount() const { return m_abHasCorporation.getTotal(); } // advc.opt						// Exposed to Python
++	int getReligionCount() const { return m_abHasReligion.getSupportSz(); } // advc.opt							// Exposed to Python
++	int getCorporationCount() const { return m_abHasCorporation.getSupportSz(); } // advc.opt					// Exposed to Python
+ 	static CvCity* fromIDInfo(IDInfo id); // advc
+ 	// <advc.inl>
+ 	DllExport inline int getID() const { return m_iID; }														// Exposed to Python
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 97834a6c3..758d53bf6 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -4568,47 +4568,34 @@ void CvDLLWidgetData::parseEmphasizeHelp(CvWidgetDataStruct &widgetDataStruct, C
+ }
+ 
+ 
+-void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
++void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct,
++	CvWStringBuffer &szBuffer)
+ {
+ 	szBuffer.clear();
+ 	CvGame& kGame = GC.getGame();
+-	PlayerTypes eWhoFrom = NO_PLAYER;
++	PlayerTypes eWhoFrom = kGame.getActivePlayer();
+ 	PlayerTypes eWhoTo = NO_PLAYER;
+-	if (widgetDataStruct.m_bOption)
+-	{
+-		if (gDLL->isDiplomacy())
+-			eWhoFrom = (PlayerTypes)gDLL->getDiplomacyPlayer();
+-		else if (gDLL->isMPDiplomacyScreenUp())
+-			eWhoFrom = (PlayerTypes)gDLL->getMPDiplomacyPlayer();
+-		eWhoTo = kGame.getActivePlayer();
+-	}
+-	else
+-	{
+-		eWhoFrom = kGame.getActivePlayer();
+-		if (gDLL->isDiplomacy())
+-			eWhoTo = (PlayerTypes)gDLL->getDiplomacyPlayer();
+-		else if (gDLL->isMPDiplomacyScreenUp())
+-			eWhoTo = (PlayerTypes)gDLL->getMPDiplomacyPlayer();
+-	}
+-
++	if (gDLL->isDiplomacy())
++		eWhoTo = (PlayerTypes)gDLL->getDiplomacyPlayer();
++	else if (gDLL->isMPDiplomacyScreenUp())
++		eWhoTo = (PlayerTypes)gDLL->getMPDiplomacyPlayer();
++	// <advc> Simplified
+ 	if (eWhoFrom == NO_PLAYER || eWhoTo == NO_PLAYER)
+-		return; // advc
+-
+-	PlayerTypes eWhoDenies = eWhoFrom;
+-	TradeableItems eItemType = (TradeableItems)widgetDataStruct.m_iData1;
++		return;
++	bool const bToActivePlayer = widgetDataStruct.m_bOption;
++	if (bToActivePlayer)
++		std::swap(eWhoTo, eWhoFrom); // </advc>
++	TradeableItems const eItemType = (TradeableItems)widgetDataStruct.m_iData1;
+ 	switch (eItemType)
+ 	{
+ 	case TRADE_TECHNOLOGIES:
+ 		GAMETEXT.setTechHelp(szBuffer, (TechTypes)widgetDataStruct.m_iData2);
+-		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
+ 		break;
+ 	case TRADE_RESOURCES:
+ 		GAMETEXT.setBonusHelp(szBuffer, (BonusTypes)widgetDataStruct.m_iData2);
+-		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
+ 		break;
+ 	case TRADE_CITIES:
+ 		szBuffer.assign(gDLL->getText("TXT_KEY_TRADE_CITIES"));
+-		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : eWhoTo);
+ 		break;
+ 	case TRADE_PEACE:
+ 		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_PEACE",
+@@ -4647,11 +4634,9 @@ void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWSt
+ 	// BETTER_BTS_AI_MOD, Diplomacy, 12/07/09, jdog5000: START
+ 	case TRADE_SURRENDER:
+ 		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_CAPITULATE"));
+-		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
+ 		break;
+ 	case TRADE_VASSAL:
+ 		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_VASSAL"));
+-		eWhoDenies = (widgetDataStruct.m_bOption ? eWhoFrom : NO_PLAYER);
+ 		break;
+ 	// BETTER_BTS_AI_MOD: END
+ 	case TRADE_OPEN_BORDERS:
+@@ -4707,7 +4692,25 @@ void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWSt
+ 	WarEvaluator::disableCache(); // advc.104l
+ 	if (eDenial == NO_DENIAL)
+ 		return;
+-
++	// <advc> Moved out of the switch block above
++	PlayerTypes eWhoDenies = eWhoFrom;
++	if (!bToActivePlayer)
++	{
++		switch (eItemType)
++		{
++		case TRADE_TECHNOLOGIES:
++		case TRADE_RESOURCES:
++		case TRADE_CITIES:
++			eWhoDenies = eWhoTo;
++			break;
++		// BETTER_BTS_AI_MOD, Diplomacy, 12/07/09, jdog5000: START
++		case TRADE_SURRENDER:
++		case TRADE_VASSAL:
++			eWhoDenies = NO_PLAYER;
++			break;
++		// BETTER_BTS_AI_MOD: END
++		}
++	} // </advc>
+ 	// BETTER_BTS_AI_MOD, Diplomacy, 12/07/09, jdog5000: START
+ 	if (eWhoDenies == NO_PLAYER)
+ 	{
+
+diff --git a/CvGameCoreDLL/CvDllPythonEvents.cpp b/CvGameCoreDLL/CvDllPythonEvents.cpp
+index cc177a2ad..b027e90ec 100644
+--- a/CvGameCoreDLL/CvDllPythonEvents.cpp
++++ b/CvGameCoreDLL/CvDllPythonEvents.cpp
+@@ -222,7 +222,7 @@ void CvDllPythonEvents::reportBeginPlayerTurn(int iGameTurn, PlayerTypes ePlayer
+ 		CyArgsList eventData;
+ 		eventData.add("BeginPlayerTurn");				// add key to lookup python handler fxn
+ 		eventData.add(iGameTurn);
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -234,7 +234,7 @@ void CvDllPythonEvents::reportEndPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
+ 		CyArgsList eventData;
+ 		eventData.add("EndPlayerTurn");				// add key to lookup python handler fxn
+ 		eventData.add(iGameTurn);
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -245,8 +245,8 @@ void CvDllPythonEvents::reportFirstContact(TeamTypes eTeamID1, TeamTypes eTeamID
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("firstContact");				// add key to lookup python handler fxn
+-		eventData.add((int)eTeamID1);
+-		eventData.add((int)eTeamID2);
++		eventData.add(eTeamID1);
++		eventData.add(eTeamID2);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -332,7 +332,7 @@ void CvDllPythonEvents::reportPlotRevealed(CvPlot *pPlot, TeamTypes eTeam)
+ 
+ 		CyPlot* pCyPlot = new CyPlot(pPlot);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+-		eventData.add((int)eTeam);
++		eventData.add(eTeam);
+ 
+ 		postEvent(eventData);
+ 		delete pCyPlot;
+@@ -350,7 +350,7 @@ void CvDllPythonEvents::reportPlotFeatureRemoved(CvPlot *pPlot, FeatureTypes eFe
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+ 		CyCity* pCyCity= new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+-		eventData.add((int)eFeature);
++		eventData.add(eFeature);
+ 
+ 		postEvent(eventData);
+ 		delete pCyPlot;
+@@ -400,7 +400,7 @@ void CvDllPythonEvents::reportGotoPlotSet(CvPlot *pPlot, PlayerTypes ePlayer)
+ 
+ 		CyPlot* pCyPlot = new CyPlot(pPlot);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyPlot;
+@@ -431,7 +431,7 @@ void CvDllPythonEvents::reportCityRazed(CvCity *pCity, PlayerTypes ePlayer)
+ 
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -444,8 +444,8 @@ void CvDllPythonEvents::reportCityAcquired(PlayerTypes eOldOwner, PlayerTypes eP
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("cityAcquired");					// add key to lookup python handler fxn
+-		eventData.add((int)eOldOwner);
+-		eventData.add((int)ePlayer);
++		eventData.add(eOldOwner);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pCyCity = new CyCity(pOldCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+@@ -463,7 +463,7 @@ void CvDllPythonEvents::reportCityAcquiredAndKept(PlayerTypes ePlayer, CvCity* p
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("cityAcquiredAndKept");					// add key to lookup python handler fxn
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pCyCity = new CyCity(pOldCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+@@ -497,7 +497,7 @@ void CvDllPythonEvents::reportCultureExpansion(CvCity *pCity, PlayerTypes ePlaye
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -514,7 +514,7 @@ void CvDllPythonEvents::reportCityGrowth(CvCity *pCity, PlayerTypes ePlayer)
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -531,7 +531,7 @@ void CvDllPythonEvents::reportCityProduction(CvCity *pCity, PlayerTypes ePlayer)
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -548,7 +548,7 @@ void CvDllPythonEvents::reportCityBuildingUnit(CvCity *pCity, UnitTypes eUnitTyp
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) eUnitType);
++		eventData.add(eUnitType);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -565,7 +565,7 @@ void CvDllPythonEvents::reportCityBuildingBuilding(CvCity *pCity, BuildingTypes
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) eBuildingType);
++		eventData.add(eBuildingType);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -597,7 +597,7 @@ void CvDllPythonEvents::reportCityHurry(CvCity *pCity, HurryTypes eHurry)
+ 		CyCity* pCyCity = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyCity));
+ 
+-		eventData.add((int) eHurry);
++		eventData.add(eHurry);
+ 
+ 		postEvent(eventData);
+ 		delete pCyCity;
+@@ -730,7 +730,7 @@ void CvDllPythonEvents::reportUnitKilled(CvUnit* pUnit, PlayerTypes eAttacker)
+ 
+ 		CyUnit* pyu = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+-		eventData.add((int)eAttacker);
++		eventData.add(eAttacker);
+ 		postEvent(eventData);
+ 		delete pyu;
+ 	}
+@@ -761,7 +761,7 @@ void CvDllPythonEvents::reportUnitPromoted(CvUnit* pUnit, PromotionTypes ePromot
+ 
+ 		CyUnit* pyu = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+-		eventData.add((int)ePromotion);
++		eventData.add(ePromotion);
+ 		postEvent(eventData);
+ 		delete pyu;
+ 	}
+@@ -807,9 +807,9 @@ void CvDllPythonEvents::reportUnitPillage(CvUnit* pUnit, ImprovementTypes eImpro
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eImprovement);
+-		eventData.add((int) eRoute);
+-		eventData.add((int) ePlayer);
++		eventData.add(eImprovement);
++		eventData.add(eRoute);
++		eventData.add(ePlayer);
+ 
+ 		postEvent(eventData);
+ 		delete pCyUnit;
+@@ -825,7 +825,7 @@ void CvDllPythonEvents::reportUnitSpreadReligionAttempt(CvUnit* pUnit, ReligionT
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eReligion);
++		eventData.add(eReligion);
+ 		eventData.add(bSuccess);
+ 
+ 		postEvent(eventData);
+@@ -842,7 +842,7 @@ void CvDllPythonEvents::reportUnitGifted(CvUnit* pUnit, PlayerTypes eGiftingPlay
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eGiftingPlayer);
++		eventData.add(eGiftingPlayer);
+ 		CyPlot* pCyPlot = new CyPlot(pPlotLocation);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyPlot));
+ 
+@@ -863,7 +863,7 @@ void CvDllPythonEvents::reportUnitBuildImprovement(CvUnit* pUnit, BuildTypes eBu
+ 
+ 		CyUnit* pCyUnit = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pCyUnit));
+-		eventData.add((int) eBuild);
++		eventData.add(eBuild);
+ 		eventData.add(bFinished);
+ 
+ 		postEvent(eventData);
+@@ -878,7 +878,7 @@ void CvDllPythonEvents::reportGoodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyP
+ 		CyArgsList eventData;
+ 		eventData.add("goodyReceived");						// add key to lookup python handler fxn
+ 
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		CyPlot* py = new CyPlot(pGoodyPlot);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
+@@ -886,7 +886,7 @@ void CvDllPythonEvents::reportGoodyReceived(PlayerTypes ePlayer, CvPlot *pGoodyP
+ 		CyUnit* pyu = new CyUnit(pGoodyUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+ 
+-		eventData.add((int) eGoodyType);
++		eventData.add(eGoodyType);
+ 
+ 		postEvent(eventData);
+ 
+@@ -905,7 +905,7 @@ void CvDllPythonEvents::reportGreatPersonBorn(CvUnit *pUnit, PlayerTypes ePlayer
+ 		CyUnit* py = new CyUnit(pUnit);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(py));
+ 
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -959,9 +959,9 @@ void CvDllPythonEvents::reportTechAcquired(TechTypes eType, TeamTypes eTeam, Pla
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("techAcquired");					// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)eTeam);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(eTeam);
++		eventData.add(ePlayer);
+ 		eventData.add(bAnnounce);
+ 		postEvent(eventData);
+ 	}
+@@ -973,8 +973,8 @@ void CvDllPythonEvents::reportTechSelected(TechTypes eTech, PlayerTypes ePlayer)
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("techSelected");					// add key to lookup python handler fxn
+-		eventData.add((int)eTech);
+-		eventData.add((int)ePlayer);
++		eventData.add(eTech);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -985,8 +985,8 @@ void CvDllPythonEvents::reportReligionFounded(ReligionTypes eType, PlayerTypes e
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("religionFounded");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -997,8 +997,8 @@ void CvDllPythonEvents::reportReligionSpread(ReligionTypes eType, PlayerTypes eP
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("religionSpread");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1014,8 +1014,8 @@ void CvDllPythonEvents::reportReligionRemove(ReligionTypes eType, PlayerTypes eP
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("religionRemove");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1031,8 +1031,8 @@ void CvDllPythonEvents::reportCorporationFounded(CorporationTypes eType, PlayerT
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("corporationFounded");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1043,8 +1043,8 @@ void CvDllPythonEvents::reportCorporationSpread(CorporationTypes eType, PlayerTy
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("corporationSpread");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1060,8 +1060,8 @@ void CvDllPythonEvents::reportCorporationRemove(CorporationTypes eType, PlayerTy
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("corporationRemove");			// add key to lookup python handler fxn
+-		eventData.add((int)eType);
+-		eventData.add((int)ePlayer);
++		eventData.add(eType);
++		eventData.add(ePlayer);
+ 
+ 		CyCity* pyu = new CyCity(pSpreadCity);
+ 		eventData.add(gDLL->getPythonIFace()->makePythonObject(pyu));
+@@ -1077,7 +1077,7 @@ void CvDllPythonEvents::reportGoldenAge(PlayerTypes ePlayer)
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("goldenAge");			// add key to lookup python handler fxn
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1088,7 +1088,7 @@ void CvDllPythonEvents::reportEndGoldenAge(PlayerTypes ePlayer)
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("endGoldenAge");			// add key to lookup python handler fxn
+-		eventData.add((int)ePlayer);
++		eventData.add(ePlayer);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1100,8 +1100,8 @@ void CvDllPythonEvents::reportChangeWar(bool bWar, TeamTypes eTeam, TeamTypes eO
+ 		CyArgsList eventData;
+ 		eventData.add("changeWar");			// add key to lookup python handler fxn
+ 		eventData.add(bWar);
+-		eventData.add((int)eTeam);
+-		eventData.add((int)eOtherTeam);
++		eventData.add(eTeam);
++		eventData.add(eOtherTeam);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1112,8 +1112,8 @@ void CvDllPythonEvents::reportVictory(TeamTypes eNewWinner, VictoryTypes eNewVic
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("victory");					// add key to lookup python handler fxn
+-		eventData.add((int)eNewWinner);
+-		eventData.add((int)eNewVictory);
++		eventData.add(eNewWinner);
++		eventData.add(eNewVictory);
+ 		postEvent(eventData);
+ 	}
+ }
+@@ -1124,8 +1124,8 @@ void CvDllPythonEvents::reportVassalState(TeamTypes eMaster, TeamTypes eVassal,
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("vassalState");					// add key to lookup python handler fxn
+-		eventData.add((int)eMaster);
+-		eventData.add((int)eVassal);
++		eventData.add(eMaster);
++		eventData.add(eVassal);
+ 		eventData.add(bVassal);
+ 
+ 		postEvent(eventData);
+@@ -1138,7 +1138,7 @@ void CvDllPythonEvents::reportSetPlayerAlive(PlayerTypes ePlayerID, bool bNewVal
+ 	{
+ 		CyArgsList eventData;
+ 		eventData.add("setPlayerAlive");
+-		eventData.add((int)ePlayerID);
++		eventData.add(ePlayerID);
+ 		eventData.add(bNewValue);
+ 		postEvent(eventData);
+ 	}
+@@ -1151,9 +1151,9 @@ void CvDllPythonEvents::reportPlayerChangeStateReligion(PlayerTypes ePlayerID, R
+ 		CyArgsList eventData;
+ 		eventData.add("playerChangeStateReligion");			// add key to lookup python handler fxn
+ 
+-		eventData.add((int)ePlayerID);
+-		eventData.add((int)eNewReligion);
+-		eventData.add((int)eOldReligion);
++		eventData.add(ePlayerID);
++		eventData.add(eNewReligion);
++		eventData.add(eOldReligion);
+ 
+ 		postEvent(eventData);
+ 	}
+@@ -1167,8 +1167,8 @@ void CvDllPythonEvents::reportPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTyp
+ 		CyArgsList eventData;
+ 		eventData.add("playerGoldTrade");			// add key to lookup python handler fxn
+ 
+-		eventData.add((int)eFromPlayer);
+-		eventData.add((int)eToPlayer);
++		eventData.add(eFromPlayer);
++		eventData.add(eToPlayer);
+ 		eventData.add(iAmount);
+ 
+ 		postEvent(eventData);
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4676cbb3c..4432279a8 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -4113,10 +4113,10 @@ EraTypes CvGame::getCurrentEra() const
+ // advc:
+ EraTypes CvGame::getHighestEra() const
+ {
+-	EraTypes r = NO_ERA;
++	EraTypes eMax = NO_ERA;
+ 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
+-		r = (EraTypes)std::max<int>(r, it->getCurrentEra());
+-	return r;
++		eMax = std::max(eMax, it->getCurrentEra());
++	return eMax;
+ }
+ 
+ // advc.groundbr: Normalize tech costs when groundbreaking penalties are enabled
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 8ade5e906..53a7e0b2b 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -19205,8 +19205,9 @@ void CvPlayer::getUnitLayerColors(GlobeLayerUnitOptionTypes eOption,
+ 
+ // advc.004z:
+ bool CvPlayer::showGoodyOnResourceLayer() const
+-{
+-	return (isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&
++{	/*	Let's let the player decide whether they want to show hut indicators
++		alongside action recommendations */
++	return (/*isOption(PLAYEROPTION_NO_UNIT_RECOMMENDATIONS) &&*/
+ 			BUGOption::isEnabled("MainInterface__TribalVillageIcons", true));
+ }
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0b102e5c9..f8cf55d3a 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -15244,6 +15244,7 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 
+ 	FAssert(bMoveToTarget || !bCheckMoves); // it doesn't make much sense to check moves if the defenders are meant to stay put.
+ 	FAssert(eDomainType != DOMAIN_AIR && eDomainType != DOMAIN_IMMOBILE); // advc: Air combat strength isn't counted
++	int iDefenders = 0; // advc.159
+ 	for (SquareIter it(*pDefencePlot, iRange); it.hasNext(); ++it)
+ 	{
+ 		CvPlot const& p = *it;
+@@ -15295,6 +15296,7 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 						bMoveToTarget ? pDefencePlot : &p, // </advc.159>
+ 						NULL, false, 0, false, iHP, bAssumePromo); // advc.139
+ 				iPlotTotal += iUnitStr;
++				iDefenders++; // advc.159
+ 			}
+ 		}
+ 		/*	since we're here, we might as well update our memory.
+@@ -15310,8 +15312,10 @@ int CvPlayerAI::AI_localDefenceStrength(const CvPlot* pDefencePlot, TeamTypes eD
+ 		}
+ 		iTotal += iPlotTotal;
+ 	}
+-
+-	return iTotal;
++	//return iTotal;
++	// <advc.159> Large defensive stacks are difficult to assail
++	iDefenders = std::min(iDefenders, 13);
++	return (iTotal * (75 + (iDefenders - 1))) / 75; // </advc.159>
+ }
+ 
+ /*	Total attack strength of units that can move iRange steps to reach pAttackPlot
+
+diff --git a/CvGameCoreDLL/CvStatistics.cpp b/CvGameCoreDLL/CvStatistics.cpp
+index 4a6c54692..a53b8ebd8 100644
+--- a/CvGameCoreDLL/CvStatistics.cpp
++++ b/CvGameCoreDLL/CvStatistics.cpp
+@@ -177,22 +177,22 @@ int CvPlayerRecord::getNumUnitsWasKilled(int iUnitType) const
+ 
+ void CvPlayerRecord::buildingBuilt(BuildingTypes eBuilding)
+ {
+-	++m_piNumBuildingsBuilt[(int)eBuilding];
++	++m_piNumBuildingsBuilt[eBuilding];
+ }
+ 
+ int CvPlayerRecord::getNumBuildingsBuilt(BuildingTypes eBuilding) const
+ {
+-	return m_piNumBuildingsBuilt[(int)eBuilding];
++	return m_piNumBuildingsBuilt[eBuilding];
+ }
+ 
+ void CvPlayerRecord::religionFounded(ReligionTypes eReligion)
+ {
+-	m_pbReligionFounded[(int)eReligion] = true;
++	m_pbReligionFounded[eReligion] = true;
+ }
+ 
+ bool CvPlayerRecord::getReligionFounded(ReligionTypes eReligion) const
+ {
+-	return m_pbReligionFounded[(int)eReligion];
++	return m_pbReligionFounded[eReligion];
+ }
+ 
+ void CvPlayerRecord::setPlayerID(int iID)
+@@ -380,11 +380,11 @@ void CvStatistics::setVictory(TeamTypes eWinner, VictoryTypes eVictory)
+ }
+ void CvStatistics::setTimePlayed(PlayerTypes ePlayer, int iTime)
+ {
+-	getPlayerRecord((int)ePlayer)->setTimePlayed(iTime);
++	getPlayerRecord(ePlayer)->setTimePlayed(iTime);
+ }
+ void CvStatistics::setLeader(PlayerTypes ePlayer, LeaderHeadTypes eLeader)
+ {
+-	getPlayerRecord((int)ePlayer)->setLeader(eLeader);
++	getPlayerRecord(ePlayer)->setLeader(eLeader);
+ }
+ 
+ //
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 9f6555de2..aef23cc44 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -3733,22 +3733,32 @@ int CvTeamAI::AI_declareWarTradeVal(TeamTypes eTarget, TeamTypes eSponsor) const
+ {
+ 	// <advc.104o>
+ 	PROFILE_FUNC();
+-	int r = -1;
++	int iTradeVal = -1;
+ 	if(getUWAI.isEnabled())
+ 	{
+-		r = GET_TEAM(eSponsor).uwai().declareWarTradeVal(
++		iTradeVal = GET_TEAM(eSponsor).uwai().declareWarTradeVal(
+ 				// eWarTeam can be a (voluntary) vassal
+ 				GET_TEAM(eTarget).getMasterTeam(), getID());
+ 	}
+-	else r = AI_declareWarTradeValLegacy(eTarget, eSponsor);
+-	// Don't charge much less than for an embargo
+-	CvPlayerAI const& kAllyLeader = GET_PLAYER(GET_TEAM(eSponsor).getLeaderID());
+-	if(kAllyLeader.canStopTradingWithTeam(eTarget))
++	else iTradeVal = AI_declareWarTradeValLegacy(eTarget, eSponsor);
++
++	/*	Don't charge much less than for an embargo. An embargo (weirdly)
++		would only compel one player to stop trading with the (whole) target team,
++		so we need to sum up the embargo trade values of the members of this team. */
++	int iEmbargoTradeVal = 0;
++	for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
+ 	{
+-		r = std::max(r, ::round(0.83 * GET_PLAYER(getLeaderID()).AI_stopTradingTradeVal(
+-				eTarget, kAllyLeader.getID(), true)));
+-	} // </advc.104o>
+-	return AI_roundTradeVal(r); // advc.104k
++		if (itMember->canStopTradingWithTeam(eTarget))
++		{
++			/*	AI_declareWarTradeVal gets called on the hireling, whereas
++				AI_stopTradingTradeVal gets called on the sponsor. */
++			iEmbargoTradeVal += GET_PLAYER(GET_TEAM(eSponsor).getLeaderID()).
++					AI_stopTradingTradeVal(eTarget, itMember->getID(), true);
++		}
++	}
++	iTradeVal = std::max(iTradeVal, (fixp(0.83) * iEmbargoTradeVal).round());
++	// </advc.104o>
++	return AI_roundTradeVal(iTradeVal); // advc.104k
+ }
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index 850ad8c87..4c862dd25 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -7233,13 +7233,13 @@ int CvUnit::currEffectiveStr(CvPlot const* pPlot, CvUnit const* pAttacker,
+ 	CombatDetails* pCombatDetails,
+ 	int iCurrentHP) const // advc.139
+ {
+-	int currStr = currCombatStr(pPlot, pAttacker, pCombatDetails);
++	int iCurrStr = currCombatStr(pPlot, pAttacker, pCombatDetails);
+ 
+-	currStr *= (maxHitPoints() + /* advc.139: */ (iCurrentHP > 0 ? iCurrentHP :
++	iCurrStr *= (maxHitPoints() + /* advc.139: */ (iCurrentHP > 0 ? iCurrentHP :
+ 			currHitPoints()));
+-	currStr /= (2 * maxHitPoints());
++	iCurrStr /= (2 * maxHitPoints());
+ 
+-	return currStr;
++	return iCurrStr;
+ }
+ 
+ float CvUnit::maxCombatStrFloat(const CvPlot* pPlot, const CvUnit* pAttacker) const
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 81a106487..42e9166eb 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -1076,14 +1076,17 @@ int CvUnitAI::AI_currEffectiveStr(CvPlot const* pPlot, CvUnit const* pOther,
+ 	{
+ 		int iPossibleTargets = collateralDamageMaxUnits();
+ 		if (bCheckCanAttack && pPlot != NULL && pPlot->isVisible(getTeam()))
+-			iPossibleTargets = std::min(iPossibleTargets, pPlot->getNumVisibleEnemyDefenders(this) - 1);
++		{
++			iPossibleTargets = std::min(iPossibleTargets,
++					pPlot->getNumVisibleEnemyDefenders(this) - 1);
++		}
+ 		// If !bCheckCanAttack, then lets not assume kPlot won't get more units on it.
+ 		// advc: But let's put some cap on the number of targets
+ 		else iPossibleTargets = std::min(10, iPossibleTargets);
+ 		if (iPossibleTargets > 0)
+ 		{
+-			// collateral damage is not trivial to calculate. This estimate is pretty rough.
+-			// (Note: collateralDamage() and iBaseCollateral both include factors of 100.)
++			/*	collateral damage is not trivial to calculate. This estimate is pretty rough.
++				(Note: collateralDamage() and iBaseCollateral both include factors of 100.) */
+ 			iCombatStrengthPercent += baseCombatStr() * iBaseCollateral *
+ 					collateralDamage() * iPossibleTargets / 10000;
+ 		}
+@@ -13056,11 +13059,12 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 	int iOurOffence = -1; // We calculate this for the first city only.
+ 	CvUnit* pBestTransport = NULL;
+-	// iLoadTurns < 0 implies we should look for a transport; otherwise, it is the number of turns to reach the transport.
+-	// Also, we only consider using transports if we aren't in enemy territory.
+-	int iLoadTurns = isEnemy(getPlot()) ? MAX_INT : -1;
++	/*	iLoadTurns < 0 implies we should look for a transport;
++		otherwise, it is the number of turns to reach the transport.
++		Also, we only consider using transports if we aren't in enemy territory. */
++	int iLoadTurns = (isEnemy(getPlot()) ? MAX_INT : -1);
+ 	//GroupPathFinder transportPath;
+-	GroupPathFinder& transportPath = CvSelectionGroup::getClearPathFinder(); // advc.opt
++	GroupPathFinder& kTransportPath = CvSelectionGroup::getClearPathFinder(); // advc.opt
+ 	// K-Mod end
+ 
+ 	CvCity* pTargetCity =  // advc.300:
+@@ -13085,7 +13089,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 			{
+ 				// K-Mod. Look for either a direct land path, or a sea transport path.
+ 				int iPathTurns = MAX_INT;
+-				bool bLandPath = generatePath(pLoopCity->getPlot(), eFlags, true,
++				bool const bLandPath = generatePath(pLoopCity->getPlot(), eFlags, true,
+ 						&iPathTurns, iMaxPathTurns);
+ 				if (pLoopCity->isCoastal() && (pBestTransport != NULL || iLoadTurns < 0))
+ 				{
+@@ -13125,14 +13129,14 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 					int iMaxTransportTurns = std::min(iMaxPathTurns, iPathTurns) - iLoadTurns;
+ 					if (pBestTransport != NULL && iMaxTransportTurns > 0)
+ 					{
+-						transportPath.setGroup(*pBestTransport->getGroup(),
++						kTransportPath.setGroup(*pBestTransport->getGroup(),
+ 								eFlags & MOVE_DECLARE_WAR, iMaxTransportTurns,
+ 								GC.getMOVE_DENOMINATOR());
+-						if (transportPath.generatePath(pLoopCity->getPlot()))
++						if (kTransportPath.generatePath(pLoopCity->getPlot()))
+ 						{
+ 							// faster by boat
+-							FAssert(transportPath.getPathTurns() + iLoadTurns <= iPathTurns);
+-							iPathTurns = transportPath.getPathTurns() + iLoadTurns;
++							FAssert(kTransportPath.getPathTurns() + iLoadTurns <= iPathTurns);
++							iPathTurns = kTransportPath.getPathTurns() + iLoadTurns;
+ 						}
+ 					}
+ 				}
+@@ -13167,7 +13171,7 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 				}
+ 				if (iOurOffence == -1)
+ 				{
+-					/*  note: with bCheckCanAttack == false, AI_sumStrength should be
++					/*  note: with bCheckCanAttack=false, AI_sumStrength should be
+ 						roughly the same regardless of which city we are targeting.
+ 						... except if lots of our units have a hills-attack promotion
+ 						or something like that. */
+@@ -13188,8 +13192,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 							GC.getDefineINT(CvGlobals::HILLS_EXTRA_DEFENSE) : 0);
+ 					iValue *= std::max(25, 125 - iMod);
+ 					iValue /= 25; // the denominator is arbitrary, and unimportant.
+-					/*  note: the value reduction from high defences which are bombardable should not
+-						be more than the value reduction from simply having higher iPathTurns. */
++					/*  note: the value reduction from high defences
++						which are bombardable should not be more than
++						the value reduction from simply having higher iPathTurns. */
+ 				}
+ 				// prefer cities which are close to the main target.
+ 				if (pLoopCity == pTargetCity)
+@@ -13222,8 +13227,9 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 						int iCap = 100 + 100 * (6 - iPathTurns) / 5;
+ 						iValue *= std::min(iCap, 100 * iOurOffence / std::max(1, iEnemyDefence));
+ 						iValue /= 100;
+-						// an additional bonus if we're already adjacent
+-						// (we can afford to be generous with this bonus, because the enemy has no time to bring in reinforcements)
++						/*	an additional bonus if we're already adjacent
++							(we can afford to be generous with this bonus,
++							because the enemy has no time to bring in reinforcements) */
+ 						if (iPathTurns <= 1)
+ 						{
+ 							iValue *= std::min(300, 150 * iOurOffence / std::max(1, iEnemyDefence));
+@@ -13231,31 +13237,41 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 						}
+ 					}
+ 				}
+-				// Reduce the value if we can see, or remember, that the city is well defended.
+-				// Note. This adjustment can be more heavy handed because it is harder to feign strong defence than weak defence.
++				/*	Reduce the value if we can see, or remember,
++					that the city is well defended.
++					Note. This adjustment can be more heavy-handed
++					because it is harder to feign strong defence than weak defence. */
+ 				iEnemyDefence = kOurTeam.AI_strengthMemory().get(pLoopCity->getPlot());
+ 				if (iEnemyDefence > iTotalOffence)
+ 				{
+-					// a more sensitive adjustment than usual (w/ modifier on the denominator), so as not to be too deterred before bombarding.
++					/*	a more sensitive adjustment than usual
++						(w/ modifier on the denominator),
++						so as not to be too deterred before bombarding. */
+ 					iEnemyDefence *= 130;
+ 					iEnemyDefence /= 130 + (bombardRate() > 0 ? pLoopCity->getDefenseModifier(false) : 0);
+ 					WarPlanTypes eWarPlan = kOurTeam.AI_getWarPlan(pLoopCity->getTeam());
+-					// If we aren't fully committed to the war, then focus on taking easy cities - but try not to be completely predictable.
++					/*	If we aren't fully committed to the war, then focus on
++						taking easy cities - but try not to be completely predictable. */
+ 					bool bCherryPick = (eWarPlan == WARPLAN_LIMITED ||
+ 							eWarPlan == WARPLAN_PREPARING_LIMITED ||
+ 							eWarPlan == WARPLAN_DOGPILE);
+-					bCherryPick = bCherryPick && (AI_unitBirthmarkHash(GC.getGame().getElapsedGameTurns()/4) % 4);
++					bCherryPick = bCherryPick && (AI_unitBirthmarkHash(
++							GC.getGame().getElapsedGameTurns() / 4) % 4 != 0);
+ 
+-					int iBase = bCherryPick ? 100 : 110;
+-					if (100 * iEnemyDefence > iBase * iTotalOffence) // an uneven comparison, just in case we can get some air support or other help somehow.
++					int iBase = (bCherryPick ? 100 : 110);
++					/*	an uneven comparison, just in case we can get
++						some air support or other help somehow. */
++					if (100 * iEnemyDefence > iBase * iTotalOffence)
+ 					{
+ 						iValue *= bCherryPick ?
+-								std::max(20, (3 * iBase * iTotalOffence - iEnemyDefence) / (2*iEnemyDefence)) :
++								std::max(20, (3 * iBase * iTotalOffence - iEnemyDefence) /
++								(2 * iEnemyDefence)) :
+ 								std::max(33, iBase * iTotalOffence / iEnemyDefence);
+ 						iValue /= 100;
+ 					}
+ 				}
+-				// A const-random component, so that the AI doesn't always go for the same city.
++				/*	A const-random component, so that the AI
++					doesn't always go for the same city. */
+ 				iValue *= 80 + AI_unitPlotHash(pLoopCity->plot()) % 41;
+ 				iValue /= 100;
+ 				iValue *= 1000;
+@@ -13278,8 +13294,8 @@ CvCity* CvUnitAI::AI_pickTargetCity(MovementFlags eFlags, int iMaxPathTurns, boo
+ 					pBestCity = pLoopCity;
+ 				}
+ 			} // end if revealed.
+-			// K-Mod. If no city in the area is revealed,
+-			// then assume the AI is able to deduce the position of the closest city.
++			/*	K-Mod. If no city in the area is revealed,
++				then assume the AI is able to deduce the position of the closest city. */
+ 			else if (iBestValue == 0 && !pLoopCity->isBarbarian() && (pBestCity == NULL ||
+ 				stepDistance(getX(), getY(), pBestCity->getX(), pBestCity->getY()) >
+ 				stepDistance(getX(), getY(), pLoopCity->getX(), pLoopCity->getY())))
+@@ -13609,8 +13625,8 @@ bool CvUnitAI::AI_cityAttack(int iRange, int iOddsThreshold,
+ 			if ((bFollow ? canMoveOrAttackInto(p, bDeclareWar) :
+ 				generatePath(p, eFlags, true, &iPathTurns, iRange)))
+ 			{
+-				int iValue = AI_isAnyEnemyDefender(p) ? 100 :
+-						AI_getGroup()->AI_getWeightedOdds(&p, true);
++				int iValue = (!AI_isAnyEnemyDefender(p) ? 100 :
++						AI_getGroup()->AI_getWeightedOdds(&p, true));
+ 				if (iValue >= iOddsThreshold)
+ 				{
+ 					if (iValue > iBestValue)
+@@ -14166,7 +14182,7 @@ bool CvUnitAI::AI_stackVsStack(int iSearchRange, int iAttackThreshold, int iRisk
+ 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+ 
+ 	//int iOurDefence = kOwner.AI_localDefenceStrength(plot(), getTeam());
+-	int const iOurDefence = AI_getGroup()->AI_sumStrength(0); // not counting defensive bonuses
++	int const iOurDefence = AI_getGroup()->AI_sumStrength(NULL); // not counting defensive bonuses
+ 
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = 0;
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 075c68cd1..d7447ec8f 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -99,6 +99,7 @@ public:
+ 
+ 	// get the sum of all elements // advc.fract: return type was int
+ 	T getTotal() const;
++	int getSupportSz() const; // advc.fract: Since the above is no longer usable for bool
+ 
+ 	// Check if there is non-default contents.
+ 	// isAllocated() test for a null pointer while hasContent() will loop the array to test each index for default value.
+@@ -681,6 +682,24 @@ T EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::getTotal() const
+ 	return tReturnVal;
+ }
+ 
++/*	advc.fract: Replacing getTotal for bool; might also have other uses.
++	The support of a vector is the set of nonzero elements.
++	This function returns the cardinality of that set. */
++template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
++int EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>::getSupportSz() const
++{
++	if (!bINLINE && !isAllocated())
++		return (DEFAULT == 0 ? 0 : getLength());
++	int iReturnVal = 0;
++	const int iLength = getLength();
++	for (IndexType eIndex = First(); eIndex < iLength; ++eIndex)
++	{
++		if (get(eIndex) != 0)
++			iReturnVal++;
++	}
++	return iReturnVal;
++}
++
+ template<class IndexType, class T, int DEFAULT, class T_SUBSET, class LengthType>
+ inline bool EnumMapBase<IndexType, T, DEFAULT, T_SUBSET, LengthType>
+ ::isAllocated() const
+
+diff --git a/CvGameCoreDLL/InvasionGraph.cpp b/CvGameCoreDLL/InvasionGraph.cpp
+index 8961f3548..e9edbeeed 100644
+--- a/CvGameCoreDLL/InvasionGraph.cpp
++++ b/CvGameCoreDLL/InvasionGraph.cpp
+@@ -966,7 +966,7 @@ SimulationStep* InvasionGraph::Node::step(double armyPortionDefender,
+ 		(and hidden knowledge unless id==weId). */
+ 	if(battleArea != NULL) {
+ 		if(remainingCitiesAtt > 0) {
+-			if(!isNaval && !clashOnly) {
++			if(!isNaval || clashOnly) {
+ 				/*  Fixme(?): getCitiesPerPlayer should be reduced based on lost
+ 					cities */
+ 				areaWeightAtt = battleArea->getCitiesPerPlayer(id) /
+
+diff --git a/CvGameCoreDLL/MilitaryAnalyst.cpp b/CvGameCoreDLL/MilitaryAnalyst.cpp
+index f42b7ff11..c8b799acd 100644
+--- a/CvGameCoreDLL/MilitaryAnalyst.cpp
++++ b/CvGameCoreDLL/MilitaryAnalyst.cpp
+@@ -275,7 +275,7 @@ void MilitaryAnalyst::simulateNuclearWar() {
+ 		double enemyNukes = enemy.uwai().getCache().
+ 				getPowerValues()[NUCLEAR]->num();
+ 		if(ourNukes + enemyNukes < 0.5)
+-			return;
++			continue;
+ 		// The AI is (much) more willing to fire nukes in total war than in limited war
+ 		WarPlanTypes ourWarplan = agent.AI_getWarPlan(enemy.getTeam());
+ 		WarPlanTypes civWarplan = GET_TEAM(enemy.getTeam()).AI_getWarPlan(agent.getID());
+
+diff --git a/CvGameCoreDLL/UWAICache.cpp b/CvGameCoreDLL/UWAICache.cpp
+index aaa0efa11..709a46c73 100644
+--- a/CvGameCoreDLL/UWAICache.cpp
++++ b/CvGameCoreDLL/UWAICache.cpp
+@@ -1415,7 +1415,7 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 				c->getYieldRate(YIELD_PRODUCTION) < 5 + era))
+ 			continue;
+ 		CvPlot* p = c->plot();
+-		int pwd = -1; // pairwise (travel) duration
++		int pwd = MAX_INT; // pairwise (travel) duration
+ 		/*	Search from target to source. TeamStepMetric is symmetrical in that regard.
+ 			Doing it backwards allows intermediate results to be reused. */
+ 		if(pf->landFinder().generatePath(targetCity.getPlot(), *p)) {
+@@ -1430,47 +1430,47 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 		}
+ 		if(trainAnyCargo &&
+ 				// This ignores cities that can access the ocean only through a canal
+-				p->isCoastalLand(-1)) {
+-			bool valid = true;
++				p->isCoastalLand(-1) &&
++				// Don't bother with a naval path if it's at best a couple turns faster
++				pwd > seaPenalty + 2) {
++			CvPlot const* transportDest = targetCity.plot();
+ 			/*	We're unlikely to be able to pass through a canal near the target;
+ 				not losing much here. */
+ 			if(!targetCity.isCoastal(-1)) {
+ 				// Can reach cities that are one off the coast
+-				CvPlot const* newDest = NULL;
++				CvPlot const* transportDest = NULL;
+ 				int shortestStepDist = MAX_INT;
+ 				FOR_EACH_ADJ_PLOT(targetCity.getPlot()) {
+ 					if(pAdj->isCoastalLand(-1)) {
+ 						int d = ::stepDistance(p, pAdj);
+ 						if(d < shortestStepDist) {
+-							newDest = pAdj;
++							transportDest = pAdj;
+ 							shortestStepDist = d;
+ 						}
+ 					}
+ 				}
+-				if(newDest == NULL)
+-					valid = false;
+ 			}
+-			if(valid) {
++			if(transportDest != NULL) {
+ 				int d = -1;
+ 				if(trainDeepSeaCargo) {
+-					if(pf->anyWaterFinder().generatePath(targetCity.getPlot(), *p))
++					if(pf->anyWaterFinder().generatePath(*transportDest, *p))
+ 						d = pf->anyWaterFinder().getPathCost();
+ 				}
+ 				else {
+-					if(pf->shallowWaterFinder().generatePath(targetCity.getPlot(), *p))
++					if(pf->shallowWaterFinder().generatePath(*transportDest, *p))
+ 						d = pf->shallowWaterFinder().getPathCost();
+ 				}
+ 				if(d > 0) {
+ 					d = seaPenalty + intdiv::uround(d,
+ 							GC.getMOVE_DENOMINATOR() * cacheOwner.uwai().shipSpeed());
+-					if(pwd < 0 || d < pwd) {
++					if(d < pwd) {
+ 						pwd = d;
+ 						reachBySea = true;
+ 					}
+ 				}
+ 			}
+ 		}
+-		if(pwd >= 0) {
++		if(pwd < MAX_INT) {
+ 			pairwDurations.push_back(pwd);
+ 			// Extra weight for our capital
+ 			if(c == capital)
+@@ -1488,12 +1488,12 @@ void UWAICache::City::updateDistance(CvCity const& targetCity, TeamPathFinders*
+ 	FAssert(pairwDurations[0] >= 0);
+ 	double sumOfWeights = 0;
+ 	double weightedSum = 0;
+-	// Allow distances to increase at most by 10 per rank
+-	int cap = pairwDurations[0] + 10;
++	int cap = pairwDurations[0];
+ 	for(size_t i = 0; i < pairwDurations.size(); i++) {
+ 		double w = 2.0 / (3 * (i + 1) - 1);
+ 		sumOfWeights += w;
+ 		int d = std::min(pairwDurations[i], cap);
++		// Allow distances to increase at most by 10 per rank
+ 		cap = d + 10;
+ 		weightedSum += d * w;
+ 	}
+
+diff --git a/CvGameCoreDLL/WarUtilityAspect.cpp b/CvGameCoreDLL/WarUtilityAspect.cpp
+index a839bcd90..1b11d2c97 100644
+--- a/CvGameCoreDLL/WarUtilityAspect.cpp
++++ b/CvGameCoreDLL/WarUtilityAspect.cpp
+@@ -738,10 +738,10 @@ double GreedForAssets::medianDistFromOurConquests(PlayerTypes civId) {
+ 		if(!c.canReachByLand()) // Don't worry about naval attacks
+ 			d += 100;
+ 		if(d < 0)
+-			d = MAX_INT; // -1 means unreachable
++			d = 1000; // -1 means unreachable
+ 		distances.push_back(d);
+ 	}
+-	double r = MAX_INT;
++	double r = 1000;
+ 	if(!distances.empty())
+ 		r = ::dMedian(distances);
+ 	return r;
+@@ -1487,7 +1487,7 @@ void Assistance::evaluate() {
+ 	if(!we->isHuman() && towardsThem >= ATTITUDE_FRIENDLY) {
+ 		double uPureAffection = assistRatio * 20;
+ 		log("Utility raised to %d for pure affection", ::round(uPureAffection));
+-		uMinus = std::min(uMinus, uPureAffection);
++		uMinus = std::max(uMinus, uPureAffection);
+ 	}
+ 	double OBUtil = 0;
+ 	if(agent.isOpenBorders(TEAMID(theyId)))
+@@ -1869,7 +1869,7 @@ void SuckingUp::evaluate() {
+ 	}
+ 	/*  Diplo bonus with just one civ less important in large games, but also in
+ 		very small games or when there are few civs left. */
+-	u += ::round(uPlus / std::sqrt((double)std::min(4, nAlive)));
++	u += ::round(uPlus / std::sqrt((double)std::max(4, nAlive)));
+ }
+ 
+ void PreEmptiveWar::evaluate() {
+@@ -1949,7 +1949,7 @@ void PreEmptiveWar::evaluate() {
+ 	double threatChange = sqrt((double)abs(theirGain));
+ 	if(theirGain < 0) threatChange *= -1;
+ 	log("Change in threat: %d percent", ::round(threatChange * 100));
+-	double uPlus = threat * -100 * theirGain;
++	double uPlus = threat * -90 * threatChange;
+ 	double distrustFactor = 1;
+ 	if(!we->isHuman())
+ 		distrustFactor = weAI->distrustRating();
+@@ -2147,7 +2147,7 @@ void KingMaking::addLeadingCivs(std::set<PlayerTypes>& r, double margin, bool bP
+ 
+ void KingMaking::evaluate() {
+ 
+-	if(winningPresent.empty() || winningPresent.count(theyId) <= 0)
++	if(winningPresent.empty() || winningFuture.count(theyId) <= 0)
+ 		return;
+ 	// Vassals are assumed to be out of contention
+ 	if(GET_TEAM(theyId).isAVassal())
+@@ -2733,23 +2733,25 @@ void IllWill::evalRevenge() {
+ 		long-term risk. Offering a token of goodwill might help and can't really hurt.
+ 		This isn't a matter of PreEmptiveWar b/c the trend of the power ratio
+ 		isn't relevant here - they'll always be stronger than us. */
+-	if(agent.isAtWar(TEAMID(theyId)) && powRatio > 1.45 &&
+-			GET_TEAM(theyId).AI_getWarSuccess(agentId) -
+-			agent.AI_getWarSuccess(TEAMID(theyId)) >
+-			2.4 * GC.getWAR_SUCCESS_CITY_CAPTURING()) {
+-		/*	If we expect to lose further cities to them, then they're not distracted;
+-			the Risk aspect will handle it. */
+-		CitySet const& weLose = m->lostCities(weId);
+-		for(CitySetIter it = weLose.begin(); it != weLose.end(); ++it) {
+-			if(m->conqueredCities(theyId).count(*it) > 0)
++	if(agent.isAtWar(TEAMID(theyId))) {
++		if(powRatio > 1.45 &&
++				GET_TEAM(theyId).AI_getWarSuccess(agentId) -
++				agent.AI_getWarSuccess(TEAMID(theyId)) >
++				2.4 * GC.getWAR_SUCCESS_CITY_CAPTURING()) {
++			/*	If we expect to lose further cities to them, then they're not distracted;
++				the Risk aspect will handle it. */
++			CitySet const& weLose = m->lostCities(weId);
++			for(CitySetIter it = weLose.begin(); it != weLose.end(); ++it) {
++				if(m->conqueredCities(theyId).count(*it) > 0)
++					return;
++			}
++			// If they're not succeeding overall, then our coalition may yet beat them.
++			if(GET_TEAM(theyId).AI_getWarSuccessRating() < 30)
+ 				return;
++			uMinus += (1 - we->uwai().prideRating()) * 5.5;
++					//dRange(agent.AI_getWarSuccessRating() / -10.0, 3, 6.5);//instead of 5.5?
++			log("Cost for hopeless stalemate: %d", ::round(uMinus));
+ 		}
+-		// If they're not succeeding overall, then our coalition may yet beat them.
+-		if(GET_TEAM(theyId).AI_getWarSuccessRating() < 30)
+-			return;
+-		uMinus += (1 - we->uwai().prideRating()) * 5.5;
+-				//dRange(agent.AI_getWarSuccessRating() / -10.0, 3, 6.5);//instead of 5.5?
+-		log("Cost for hopeless stalemate: %d", ::round(uMinus));
+ 		return;
+ 	}
+ 	double revengeCost = 0;
+@@ -3643,12 +3645,11 @@ void TacticalSituation::evalEngagement() {
+ 		turn, it's still the beginning of the turn, so we can probably save
+ 		our units. */
+ 	double initiativeFactor = 0.25; // Low if they have the initiative
+-	if(gDLL->isDiplomacy() || // I.e. we're negotiating with a human
+-			we->isHuman() || they->isHuman())
++	if(we->isHuman() || they->isHuman())
+ 		initiativeFactor = 0.5;
+ 	double uPlus = (4.0 * (initiativeFactor * theirExposed -
+ 			(1 - initiativeFactor) * ourExposed) + ourMissions) /
+-			ourTotal;
++			std::max(1, ourTotal);
+ 	// getNumUnits is an information cheat, but it's all quite fuzzy anyway.
+ 	uPlus += (2.0 * entangled) / std::max(1, ourTotal + they->getNumUnits());
+ 	if(we->getTotalPopulation() > 0)
+
+diff --git a/links.txt b/links.txt
+index f65177043..a10238dbd 100644
+--- a/links.txt
++++ b/links.txt
+@@ -9,4 +9,4 @@ Discussion thread on CivFanatics:
+ Since July 2020, there is also a dedicated subforum:
+ 	https://forums.civfanatics.com/forums/civ-4-advanced-civ.603/
+ A half-finished Earth scenario for AdvCiv:
+-	https://github.com/f1rpo/AdvCiv/tree/master/EuroWorld%20scenario
+\ No newline at end of file
++	https://github.com/f1rpo/Civ4EuroWorld
+\ No newline at end of file
+
+[PATCH OMITTED] file=a/manual.odt b/manual.odt reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH OMITTED] file=a/manual.pdf b/manual.pdf reason=binary/generated-file changedLines=0 bytes=120
+
+[PATCH COVERAGE]
+patchFiles=20 embeddedFiles=18 omittedFiles=2 embeddedPatchBytes=64277

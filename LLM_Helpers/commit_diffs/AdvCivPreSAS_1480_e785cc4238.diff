@@ -1,0 +1,1318 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1480
+# Commit: e785cc423836597bee7d0b5ee8633af22ac4aca6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0aaacb31a78018f0499ae8e6d550013360f34436
+# Title: Partly merged Kek-Mod updates 0.23 and 0.24
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+38	3	Assets/Python/BUG/Scoreboard.py
+10	0	Assets/Python/Screens/CvMainInterface.py
+7	6	Assets/xml/Text/Advanced Scoreboard Options.xml
+6	6	CvGameCoreDLL/CvCityAI.cpp
+12	9	CvGameCoreDLL/CvDLLPython.cpp
+18	21	CvGameCoreDLL/CvGame.cpp
+5	2	CvGameCoreDLL/CvGameTextMgr.cpp
+130	83	CvGameCoreDLL/CvPlayer.cpp
+4	1	CvGameCoreDLL/CvPlayer.h
+77	124	CvGameCoreDLL/CvPlayerAI.cpp
+89	68	CvGameCoreDLL/CvTeam.cpp
+1	1	CvGameCoreDLL/CvTeam.h
+0	2	CvGameCoreDLL/CyCityInterface1.cpp
+14	0	CvGameCoreDLL/CyCityInterface2.cpp
+1	0	CvGameCoreDLL/Project/AdvCiv.vcxproj
+20	5	PrivateMaps/not_too_Big_or_Small.py
+-	-	manual_0.95b.odt
+ create mode 100644 CvGameCoreDLL/CyCityInterface2.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index ad2f22a39..b75fecd2b 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -28,7 +28,7 @@ gc = CyGlobalContext()
+ Z_DEPTH = -0.3
+ 
+ # Columns IDs
+-NUM_PARTS = 25
++NUM_PARTS = 27
+ (
+ 	ALIVE,
+ 	WAR,
+@@ -54,7 +54,8 @@ NUM_PARTS = 25
+ 	CITIES,
+ 	WAITING,
+ 	NET_STATS,
+-	OOS
++	OOS,
++	LEADER_ICON, CIV_ICON # dlph.30
+ ) = range(NUM_PARTS)
+ 
+ # Types
+@@ -91,7 +92,7 @@ def init():
+ 	
+ 	# Used keys:
+ 	# ABCDEFHIKLMNOPQRSTUVWZ*?
+-	# GJXY
++	# (unused: JXY)
+ 	columns.append(Column('', ALIVE))
+ 	columns.append(Column('S', SCORE, DYNAMIC))
+ 	columns.append(Column('Z', SCORE_DELTA, DYNAMIC))
+@@ -117,6 +118,10 @@ def init():
+ 	columns.append(Column('*', WAITING, FIXED, smallText("*")))
+ 	columns.append(Column('L', NET_STATS, DYNAMIC))
+ 	columns.append(Column('O', OOS, DYNAMIC))
++	# <dlph.30>
++	columns.append(Column('F', LEADER_ICON, SPECIAL))
++	columns.append(Column('G', CIV_ICON, SPECIAL))
++	# </dlph.30>
+ 	
+ 	global WAR_ICON, PEACE_ICON
+ 	WAR_ICON = smallSymbol(FontSymbols.WAR_CHAR)
+@@ -287,7 +292,13 @@ class Scoreboard:
+ 		
+ 	def setOOS(self, value):
+ 		self._set(OOS, smallText(value))
++	# <dlph.30>
++	def setLeaderIcon(self, leader):
++		self._set(LEADER_ICON, leader)
+ 
++	def setCivIcon(self, civ):
++		self._set(CIV_ICON, civ)
++	# </dlph.30>
+ 		
+ 	def _getContactWidget(self):
+ 		return (WidgetTypes.WIDGET_CONTACT_CIV, self._currPlayerScore.getID(), -1)
+@@ -473,6 +484,30 @@ class Scoreboard:
+ 					x -= techIconSize
+ 					totalWidth += techIconSize + spacing
+ 					spacing = defaultSpacing
++				# <dlph.30>
++				elif (c == LEADER_ICON):
++					x -= spacing
++					for p, playerScore in enumerate(self._playerScores):
++						if (playerScore.has(c)):
++							leader = playerScore.value(c)
++							name = "ScoreLeader%d" % p
++							info = gc.getLeaderHeadInfo(leader)
++							screen.addDDSGFC( name, info.getButton(), x - techIconSize, y - p * height - 1, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, leader, 1 )
++					x -= techIconSize
++					totalWidth += techIconSize + spacing
++					spacing = defaultSpacing
++				elif (c == CIV_ICON):
++					x -= spacing
++					for p, playerScore in enumerate(self._playerScores):
++						if (playerScore.has(c)):
++							civ = playerScore.value(c)
++							name = "ScoreCiv%d" % p
++							info = gc.getCivilizationInfo(civ)
++							screen.addDDSGFC( name, info.getButton(), x - techIconSize, y - p * height - 1, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, civ, -1 )
++					x -= techIconSize
++					totalWidth += techIconSize + spacing
++					spacing = defaultSpacing
++				# </dlph.30>
+ 		
+ 		for playerScore in self._playerScores:
+ 			interface.checkFlashReset( playerScore.getID() )
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index d27aa52e7..cbedeabce 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -5044,6 +5044,11 @@ class CvMainInterface:
+ 			screen.hide( szName )
+ 			szName = "ScoreTech" + str(i)
+ 			screen.hide( szName )
++			# <dlph.30>
++			szName = "ScoreLeader" + str(i)
++			screen.hide( szName )
++			szName = "ScoreCiv" + str(i)
++			screen.hide( szName ) # </dlph.30>
+ 			for j in range( Scoreboard.NUM_PARTS ):
+ 				szName = "ScoreText%d-%d" %( i, j )
+ 				screen.hide( szName )
+@@ -5208,6 +5213,11 @@ class CvMainInterface:
+ 													szBuffer = szBuffer + (" ?")
+ 													if (bAlignIcons):
+ 														scores.setNotMet()
++												# <dlph.30>
++												if (bAlignIcons):
++													scores.setLeaderIcon(gc.getPlayer(ePlayer).getLeaderType())
++													scores.setCivIcon(gc.getPlayer(ePlayer).getCivilizationType())
++												# </dlph.30>
+ 												if gc.getTeam(eTeam).isAlive() and (gc.getTeam(gc.getGame().getActiveTeam()).isHasMet(eTeam) or gc.getGame().isDebugMode()):
+ 												# K-Mod end
+ 													if (gc.getTeam(eTeam).isAtWar(gc.getGame().getActiveTeam())):
+
+diff --git a/Assets/xml/Text/Advanced Scoreboard Options.xml b/Assets/xml/Text/Advanced Scoreboard Options.xml
+index 04dae88cd..18a789e02 100644
+--- a/Assets/xml/Text/Advanced Scoreboard Options.xml	
++++ b/Assets/xml/Text/Advanced Scoreboard Options.xml	
+@@ -360,14 +360,15 @@
+ 	</TEXT>
+ 
+ 	<!-- advc.004: Revised (only English); explanation for N (trade
+-		 network) matches advc.124. -->
++		 network) matches advc.124.
++		 dlph.30: Leader and civ icon -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_SCORES__DISPLAYORDER_HOVER</Tag>
+-		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon for civilizations that have at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Internal player (slot) ID number[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet civilizations (for Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've accumulated more espionage points against them than vice versa[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if you have a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have Open borders with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religions) [NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - A star next to players waiting for you to finish your turn[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.</English>
+-		<French>Ceci d�termine l'ordre dans lequel les colonnes apparaissent.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Vous �tes en guerre contre cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score de la civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nom de la civilisation et/ou du dirigeant.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Vous n'avez pas encore rencontr� cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - The civ refuses to talk to you.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Votre pro rata d'espionnage avec cette civilisation est bon.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Pro rata du pouvoir de cette civilisation compar� � vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - La technologie que la civilisation recherche (vassaux, �quipe et espionnage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Le nombre de tours qui restent � la recherche.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Cette civilisation est connect�e � votre r�seau de commerce.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Vous avez une accord de fronti�res ouvertes avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Vous avez un pacte d�fensif avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - La religion nationale de cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - L'attitude de cette civilisation envers vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Vous attendez que cette civilisation finisse son tour.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Statistique de R�seau (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Le joueur est out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</French>
+-		<German>Bestimmt die Reihenfolge, in der die Spalten der Punkteanzeige angeordnet werden:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Wertung einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Ver�nderung der Wertung einer Zivilisation seit der letzten Runde[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rang einer Zivilisation basierend auf ihrer Wertung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte, �ber die eine Zivilisation verf�gt[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Eine Zivilisation hat mindestens einen Vasallen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Spieler-ID-Nummer einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Name einer Zivilisation/eines Oberhaupts/eines Spielers[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Zivilisation noch nicht kontaktiert[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Gespr�chsverweigerung einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Gutes Spionagepunktverh�ltnis gegen�ber einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Machtverh�ltnis zwischen der eigenen und einer gegnerischen Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeitiges Forschungsprojekt einer Zivilisation (bei Vasallen, Verb�ndeten und durch Spionage erlangt)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Anzahl verbleibender Runden bis zur Erforschung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Handelsverbindungen mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - "Offene Grenzen" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - "Verteidigungsb�ndis" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Staatsreligion einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Einstellung einer Zivilisation gegen�ber der eigenen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Erzfeind der eigenen Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Warten auf den Zug einer Zivilisation (im Multiplayer)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik einer Zivilisation (Ping)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Verbundener Spieler ist "out-of-sync"[NEWLINE][NEWLINE]Zwischen den Codes f�r die Spalten k�nnen (positive oder negative) Zahlen gesetzt werden, die den eingestellten Standardabstand au�er Kraft setzen</German>
+-		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civilt� in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Il munero delle citt� della Civilt�.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civilt� ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civilt�/del Leader della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Il Leader della Civilt� rifiuta di parlarti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - la Potenza della Civilt� rispetto alla tua (o viceversa);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civilt� sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civilt� � connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civilt� verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civilt� finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civilt� (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civilt� � "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
+-		<Spanish>Determina el orden en el que las distintas columnas aparecen.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Est�s en guerra o tienes un tratado de paz con esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Puntuaci�n de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Cambios en puntuaci�n desde el �ltimo turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rango de la civ basado en su puntuaci�n.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - N�mero de ciudades de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - La civ tiene al menos un vasallo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - ID de jugador de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nombre de civ / l�der / jugador.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - A�n no te has encontrado con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - La civ se niega a hablar.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Tienes una proporci�n positiva de puntos de espionaje contra esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Proporci�n de fuerza de la civ comparada contigo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Tecnolog�a que est� siendo investigada (vasallos, equipo y espionajes).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - N�mero de turnos de investigaci�n restantes.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - La civ est� conectada a tu red de comercio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Tienes apertura de fronteras con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Tienes un acuerdo de protecci�n con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religi�n oficial de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Actitud de la civ hacia ti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Eres el peor enemigo de esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Esta civ espera a que termines tu turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Estado de la conexi�n de esta civ (ping)..[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Este jugador est� fuera de l�nea.[NEWLINE][NEWLINE]Puedes colocar un n�mero (positivo o negativo) entre c�digos de columna para reemplazar el espaciado por defecto.</Spanish>
++		<English>The entered string determines which columns appear on the scoreboard and in which order. Available columns (legend):[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Icon indicating war or active peace treaty[NEWLINE][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score[NEWLINE][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Score delta[NEWLINE][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rank[NEWLINE][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - City count[NEWLINE][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Vassal icon for civilizations that have at least one vassal[NEWLINE][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Internal player (slot) ID number[NEWLINE][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Leader icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Civilization icon[NEWLINE][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - The civilization's display name[NEWLINE][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Question mark for unmet civilizations (for Debug mode)[NEWLINE][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Exclamation mark when refusing to talk[NEWLINE][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - [ICON_ESPIONAGE] icon if you've accumulated more espionage points against them than vice versa[NEWLINE][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Power ratio[NEWLINE][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Technology that is currently being researched[NEWLINE][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - The number of research turns left[NEWLINE][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - [ICON_TRADE] icon if you have a trade connection with their capital[NEWLINE][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - [ICON_OPENBORDERS] icon if you have Open borders with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - [ICON_DEFENSIVEPACT] icon if you have a Defensive Pact with them[NEWLINE][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religion icon (state religions) [NEWLINE][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Smiley indicating AI attitude toward you[NEWLINE][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - [ICON_ANGRYPOP] icon if you're their worst enemy[NEWLINE][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - A star next to players waiting for you to finish your turn[NEWLINE][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Network stats (ping)[NEWLINE][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - "OOS" warning next to players who are out of sync[NEWLINE][NEWLINE]To override the default spacing, place a number (positive or negative) in between two column codes.</English>
++		<French>Ceci d�termine l'ordre dans lequel les colonnes apparaissent.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Vous �tes en guerre contre cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Score de la civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - The change in the civ's score since previous turn.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - The civ's rank based on their score.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - The number of cities the civ owns.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - The civ has at least one vassal.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - The civ's player ID number.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Ic&#244;ne de chef[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Ic&#244;ne de la civilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nom de la civilisation et/ou du dirigeant.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Vous n'avez pas encore rencontr� cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - The civ refuses to talk to you.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Votre pro rata d'espionnage avec cette civilisation est bon.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Pro rata du pouvoir de cette civilisation compar� � vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - La technologie que la civilisation recherche (vassaux, �quipe et espionnage).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Le nombre de tours qui restent � la recherche.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Cette civilisation est connect�e � votre r�seau de commerce.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Vous avez une accord de fronti�res ouvertes avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Vous avez un pacte d�fensif avec cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - La religion nationale de cette civilisation.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - L'attitude de cette civilisation envers vous.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - You are the civ's worst enemy.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Vous attendez que cette civilisation finisse son tour.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Statistique de R�seau (ping).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Le joueur est out-of-sync.[NEWLINE][NEWLINE]You can place a number (positive or negative) between column codes to override the default spacing.</French>
++		<German>Bestimmt die Reihenfolge, in der die Spalten der Punkteanzeige angeordnet werden:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Kriegszustand oder Friedensvertrag mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Wertung einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Ver�nderung der Wertung einer Zivilisation seit der letzten Runde[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rang einer Zivilisation basierend auf ihrer Wertung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Anzahl der St�dte, �ber die eine Zivilisation verf�gt[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - Eine Zivilisation hat mindestens einen Vasallen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - Spieler-ID-Nummer einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Staatsoberhaupt-Symbol[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Zivilisationssymbol[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Name einer Zivilisation/eines Oberhaupts/eines Spielers[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - Zivilisation noch nicht kontaktiert[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Gespr�chsverweigerung einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Gutes Spionagepunktverh�ltnis gegen�ber einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Machtverh�ltnis zwischen der eigenen und einer gegnerischen Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Derzeitiges Forschungsprojekt einer Zivilisation (bei Vasallen, Verb�ndeten und durch Spionage erlangt)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - Anzahl verbleibender Runden bis zur Erforschung[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - Handelsverbindungen mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - "Offene Grenzen" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - "Verteidigungsb�ndis" mit einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Staatsreligion einer Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Einstellung einer Zivilisation gegen�ber der eigenen[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Erzfeind der eigenen Zivilisation[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Warten auf den Zug einer Zivilisation (im Multiplayer)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Netzwerkstatistik einer Zivilisation (Ping)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Verbundener Spieler ist "out-of-sync"[NEWLINE][NEWLINE]Zwischen den Codes f�r die Spalten k�nnen (positive oder negative) Zahlen gesetzt werden, die den eingestellten Standardabstand au�er Kraft setzen</German>
++		<Italian>Determina l'ordine in base al quale vengono visualizzate le colonne del Pannello del Punteggio:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - sei in guerra o hai un trattato di pace con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - il Punteggio della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - la variazione nel punteggio rispetto al turno precedente;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - La posizione della Civilt� in base al punteggio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - Il munero delle citt� della Civilt�.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - mostra l'icona di una stella argentata se la Civilt� ha dei Vassalli;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - il numero di identificazione della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icona del leader[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icona di civilt&#224;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - il Nome della Civilt�/del Leader della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - non hai ancora incontrato questa Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - Il Leader della Civilt� rifiuta di parlarti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - hai un Rapporto di Spionaggio positivo verso la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - la Potenza della Civilt� rispetto alla tua (o viceversa);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - la Tecnologia che la Civilt� sta ricercando (nota per Vassalli e Alleati o mediante Spionaggio);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - il numero di Turni di Ricerca rimasti alla Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - la Civilt� � connessa alla tua rete commerciale;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - hai un accordo di Libero Scambio con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - hai un Patto Difensivo con la Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - la Religione di Stato della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - l'atteggiamento della Civilt� verso di te;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - siete il Peggior Nemico della Civilt�;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - sei in attesa che questa Civilt� finisca il suo turno;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - le statistiche di connessione del giocatore della Civilt� (ping);[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - il giocatore di questa Civilt� � "out-of-sync".[NEWLINE][NEWLINE]Un numero definisce la spaziatura (in pixel) che deve seguire la colonna precedente (se visualizzata), prevalendo sulla spaziatura di default; un numero negativo comporta il ravvicinamento (ed al limite anche la sovrapposizione) fra le due colonne.[NEWLINE]Gli spazi vengono ignorati, per cui possono essere utilizzati per semplificare la lettura della stringa di codici.</Italian>
++		<Spanish>Determina el orden en el que las distintas columnas aparecen.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT] - Est�s en guerra o tienes un tratado de paz con esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]S[COLOR_REVERT] - Puntuaci�n de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Z[COLOR_REVERT] - Cambios en puntuaci�n desde el �ltimo turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]K[COLOR_REVERT] - Rango de la civ basado en su puntuaci�n.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Q[COLOR_REVERT] - N�mero de ciudades de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]V[COLOR_REVERT] - La civ tiene al menos un vasallo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]I[COLOR_REVERT] - ID de jugador de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]F[COLOR_REVERT] - Icono de l&#237;der[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]G[COLOR_REVERT] - Icono de la civilizaci&#243;n[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]C[COLOR_REVERT] - Nombre de civ / l�der / jugador.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]?[COLOR_REVERT] - A�n no te has encontrado con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]![COLOR_REVERT] - La civ se niega a hablar.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]E[COLOR_REVERT] - Tienes una proporci�n positiva de puntos de espionaje contra esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]P[COLOR_REVERT] - Proporci�n de fuerza de la civ comparada contigo.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]T[COLOR_REVERT] - Tecnolog�a que est� siendo investigada (vasallos, equipo y espionajes).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]U[COLOR_REVERT] - N�mero de turnos de investigaci�n restantes.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]N[COLOR_REVERT] - La civ est� conectada a tu red de comercio.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]B[COLOR_REVERT] - Tienes apertura de fronteras con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D[COLOR_REVERT] - Tienes un acuerdo de protecci�n con la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]R[COLOR_REVERT] - Religi�n oficial de la civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]A[COLOR_REVERT] - Actitud de la civ hacia ti.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]H[COLOR_REVERT] - Eres el peor enemigo de esta civ.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]*[COLOR_REVERT] - Esta civ espera a que termines tu turno.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]L[COLOR_REVERT] - Estado de la conexi�n de esta civ (ping)..[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]O[COLOR_REVERT] - Este jugador est� fuera de l�nea.[NEWLINE][NEWLINE]Puedes colocar un n�mero (positivo o negativo) entre c�digos de columna para reemplazar el espaciado por defecto.</Spanish>
+ 	</TEXT>
+ 	
+ 	<TEXT>
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 650cea80d..d9a6fae45 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -2243,8 +2243,9 @@ void CvCityAI::AI_chooseProduction()
+ 	} // <dlph.15>
+ 	int iMissileCarriers = kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_CARRIER_SEA);		
+ 	if (!bFinancialTrouble && iMissileCarriers > 0 && !bImportantCity)
+-	{
+-		if( (iProductionRank <= ((kPlayer.getNumCities() / 2) + 1)) )
++	{	// Bugfix(?): was '<=' in BtS
++		// advc: Make it '>=' though, not '>'.
++		if (iProductionRank >= kPlayer.getNumCities() / 2 + 1)
+ 		{
+ 			UnitTypes eBestMissileCarrierUnit = NO_UNIT;  
+ 			kPlayer.AI_bestCityUnitAIValue(UNITAI_MISSILE_CARRIER_SEA, NULL, &eBestMissileCarrierUnit);
+@@ -2257,11 +2258,10 @@ void CvCityAI::AI_chooseProduction()
+ 				if ((kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded) || 
+ 						(bPrimaryArea && (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_CARRIER_SEA) *
+ 						GC.getUnitInfo(eBestMissileCarrierUnit).getCargoSpace()
+-						// Bugfix: was "<" in BtS
+-						>
+-						kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_AIR))))
++						// Bugfix: was '<' in BtS
++						> kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_MISSILE_AIR))))
+ 				{
+-					// Don't always build missiles, more likely if really low
++					// Don't always build missiles, more likely if really low on missiles.
+ 					if (AI_chooseUnit(UNITAI_MISSILE_AIR, (kPlayer.AI_totalUnitAIs(UNITAI_MISSILE_AIR) < iMissileCarrierAirNeeded/2) ? 50 : 20))
+ 					{
+ 						if( gCityLogLevel >= 2 ) logBBAI("      City %S uses build missile", getName().GetCString());
+
+diff --git a/CvGameCoreDLL/CvDLLPython.cpp b/CvGameCoreDLL/CvDLLPython.cpp
+index f4512c2a5..e07eb9a20 100644
+--- a/CvGameCoreDLL/CvDLLPython.cpp
++++ b/CvGameCoreDLL/CvDLLPython.cpp
+@@ -8,6 +8,7 @@
+ #include "CyCity.h"
+ 
+ void CyCityPythonInterface1(python::class_<CyCity>& x);
++void CyCityPythonInterface2(python::class_<CyCity>& x); // dlph.34
+ void CyPlotPythonInterface1(python::class_<CyPlot>& x);
+ void CyPlayerPythonInterface1(python::class_<CyPlayer>& x);
+ void CyPlayerPythonInterface2(python::class_<CyPlayer>& x);
+@@ -61,21 +62,23 @@ DllExport void DLLPublishToPython()
+ 	// large interfaces which can be split across files if need be
+ 	//
+ 	python::class_<CyCity> city ("CyCity");		// define city class
+-	CyCityPythonInterface1(city);				// publish it's methods
++	// publish its methods
++	CyCityPythonInterface1(city);
++	CyCityPythonInterface2(city); // dlph.34
+ 
+ 	python::class_<CyPlayer> player ("CyPlayer");	// define player class
+-	CyPlayerPythonInterface1(player);				// publish it's methods
+-	CyPlayerPythonInterface2(player);				// publish it's methods
++	CyPlayerPythonInterface1(player);				// publish its methods
++	CyPlayerPythonInterface2(player);				// publish its methods
+ 
+ 	python::class_<CyUnit> unit ("CyUnit");		// define unit class
+-	CyUnitPythonInterface1(unit);				// publish it's methods
++	CyUnitPythonInterface1(unit);				// publish its methods
+ 
+ 	python::class_<CyPlot> plot ("CyPlot");		// define plot class
+-	CyPlotPythonInterface1(plot);				// publish it's methods
++	CyPlotPythonInterface1(plot);				// publish its methods
+ 
+ 	python::class_<CyGlobalContext> gc ("CyGlobalContext");	// define globals class 
+-	CyGlobalContextPythonInterface1(gc);					// publish it's methods 
+-	CyGlobalContextPythonInterface2(gc);					// publish it's methods
+-	CyGlobalContextPythonInterface3(gc);					// publish it's methods
+-	CyGlobalContextPythonInterface4(gc);					// publish it's methods 
++	CyGlobalContextPythonInterface1(gc);					// publish its methods 
++	CyGlobalContextPythonInterface2(gc);					// publish its methods
++	CyGlobalContextPythonInterface3(gc);					// publish its methods
++	CyGlobalContextPythonInterface4(gc);					// publish its methods 
+ }
+\ No newline at end of file
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 6799994aa..90043500c 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1072,34 +1072,31 @@ void CvGame::assignStartingPlots()
+ 			for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 			{
+ 				int iLoopTeam = ((iI + iRandOffset) % MAX_CIV_TEAMS);
++				if (!GET_TEAM((TeamTypes)iLoopTeam).isAlive())
++					continue;
+ 
+-				if (GET_TEAM((TeamTypes)iLoopTeam).isAlive())
++				for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+ 				{
+-					for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+-					{	// <advc.003>
+-						CvPlayer& member = GET_PLAYER((PlayerTypes)iJ);
+-						if(!member.isAlive())
+-							continue; // </advc.003>
+-						if (member.getTeam() == iLoopTeam
+-								// <advc.108b>
+-								&& !newPlotFound[iJ]) {
+-							if(member.getStartingPlot() == NULL)
+-								member.setStartingPlot(member.findStartingPlot(), true);
+-							if(member.getStartingPlot() != NULL) {
+-								playerOrder.push_back(member.getID());
+-								bStartFound = true;
+-								newPlotFound[member.getID()] = true;
+-								break;
+-							}
+-						} // </advc.108b>
+-					}
++					CvPlayer& kMember = GET_PLAYER((PlayerTypes)iJ);
++					if(!kMember.isAlive())
++						continue; // </advc.003>
++					if (kMember.getTeam() == iLoopTeam
++							// <advc.108b>
++							&& !newPlotFound[iJ]) {
++						if(kMember.getStartingPlot() == NULL)
++							kMember.setStartingPlot(kMember.findStartingPlot(), true);
++						if(kMember.getStartingPlot() != NULL) {
++							playerOrder.push_back(kMember.getID());
++							bStartFound = true;
++							newPlotFound[kMember.getID()] = true;
++							break;
++						}
++					} // </advc.108b>
+ 				}
+ 			}
+ 
+ 			if (!bStartFound)
+-			{
+ 				break;
+-			}
+ 		}
+ 
+ 		//check all players have starting plots
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index b23809a4e..c4c088983 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -16004,7 +16004,8 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 	if(!bConstCache && bSHowHiddenAttitude && iTotal != iTotalCached &&
+ 			!g.isOption(GAMEOPTION_RANDOM_PERSONALITIES) && !g.isNetworkMultiPlayer() &&
+ 			!g.isDebugMode()) {
+-		FAssertMsg(iTotal == iTotalCached, "Attitude cache out of date (OK if AI Auto Play has just ended)");
++		FAssertMsg(iTotal == iTotalCached, "Attitude cache out of date "
++				"(OK if AI Auto Play has just ended or after loading a pre-0.95 save)");
+ 		kPlayer.AI_updateAttitudeCache(eTargetPlayer, true);
+ 		// Try again, this time without recursion. szBuffer hasn't been changed yet.
+ 		getAttitudeString(szBuffer, ePlayer, eTargetPlayer, true);
+@@ -19176,7 +19177,9 @@ void CvGameTextMgr::setEspionageCostHelp(CvWStringBuffer &szBuffer, EspionageMis
+ 	//szBuffer.assign(kMission.getDescription());
+ 
+ 	int iMissionCost = kPlayer.getEspionageMissionBaseCost(eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
+-	iMissionCost *= GET_TEAM(kPlayer.getTeam()).getNumMembers(); // K-Mod
++	//iMissionCost *= GET_TEAM(kPlayer.getTeam()).getNumMembers(); // K-Mod
++	// dlph.33/advc:
++	iMissionCost = kPlayer.adjustMissionCostToTeamSize(iMissionCost, eTargetPlayer);
+ 
+ 	if (kMission.isDestroyImprovement())
+ 	{
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index 2623003af..c757b2290 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -1881,79 +1881,83 @@ int CvPlayer::coastRiverStartingAreaScore(CvArea const& a) const {
+ 	return r;
+ } // </advc.027>
+ 
+-
++// <dlph.35>
++class VectorPairSecondGreaterComparator {
++public:
++	bool operator() (const std::pair<int,int> &a, const std::pair<int,int> &b) {
++		return (a.second >= b.second);
++	}
++}; // </dlph.35>
+ // Returns the id of the best area, or -1 if it doesn't matter:
+-int CvPlayer::findStartingArea() const
++//int CvPlayer::findStartingArea() const
++// dlph.35: "Returns a vector of all starting areas sorted by their value (instead of one best starting area)."
++std::vector<std::pair<int,int> > CvPlayer::findStartingAreas() const  // advc.003: style changes
+ {
+ 	PROFILE_FUNC();
+ 
++	std::vector<std::pair<int,int> > areas_by_value; // dlph.35
++	CvMap const& m = GC.getMapINLINE();
++
+ 	long result = -1;
+ 	CyArgsList argsList;
+ 	argsList.add(getID());		// pass in this players ID
+-	if (gDLL->getPythonIFace()->callFunction(gDLL->getPythonIFace()->getMapScriptModule(), "findStartingArea", argsList.makeFunctionArgs(), &result))
+-	{
+-		if (!gDLL->getPythonIFace()->pythonUsingDefaultImpl()) // Python override
+-		{
+-			if (result == -1 || GC.getMapINLINE().getArea(result) != NULL)
+-			{
+-				return result;
+-			}
+-			else
+-			{
+-				FAssertMsg(false, "python findStartingArea() must return -1 or the ID of a valid area");
++	if (gDLL->getPythonIFace()->callFunction(gDLL->getPythonIFace()->getMapScriptModule(), "findStartingArea", argsList.makeFunctionArgs(), &result)) {
++		if (!gDLL->getPythonIFace()->pythonUsingDefaultImpl()) {
++			if (result == -1 || m.getArea(result) != NULL) {
++				//return result; // <dlph.35>
++				areas_by_value.push_back(std::make_pair(result, 1));
++				return areas_by_value; // </dlph.35>
+ 			}
++			else FAssertMsg(false, "python findStartingArea() must return -1 or the ID of a valid area");
+ 		}
+ 	}
+ 
+-	int iBestValue = 0;
+-	int iBestArea = -1;
+-	int iValue;
+-	int iLoop = 0;
+-
+-	CvArea *pLoopArea = NULL;
+-
+ 	// find best land area
+-	for(pLoopArea = GC.getMapINLINE().firstArea(&iLoop); pLoopArea != NULL; pLoopArea = GC.getMapINLINE().nextArea(&iLoop))
++	//int iBestValue = 0; int iBestArea = -1; // dlph.35
++	int iLoop = 0;
++	for(CvArea* pLoopArea = m.firstArea(&iLoop); pLoopArea != NULL; pLoopArea = m.nextArea(&iLoop))
+ 	{
+-		if (!pLoopArea->isWater())
+-		{
+-			// iNumPlayersOnArea is the number of players starting on the area, plus this player
+-			int iNumPlayersOnArea = (pLoopArea->getNumStartingPlots() + 1);
+-			// <advc.027>
+-			int iTileValue = 1 + pLoopArea->calculateTotalBestNatureYield() + 
+-					/*2 * pLoopArea->countCoastalLand() +
+-					pLoopArea->getNumRiverEdges() +*/
+-					coastRiverStartingAreaScore(*pLoopArea) + // Replacing the above
+-					// New: factor in bonus resources
+-					::round(pLoopArea->getNumTotalBonuses() * 1.5) +
+-					pLoopArea->getNumTiles() / 2; // Halved
+-			// </advc.027>
+-			iValue = iTileValue / iNumPlayersOnArea;
+-
+-			iValue *= std::min(NUM_CITY_PLOTS + 1, pLoopArea->getNumTiles() + 1);
+-			iValue /= (NUM_CITY_PLOTS + 1);
+-
+-			if (iNumPlayersOnArea <= 2)
+-			{
+-				iValue *= 4;
+-				iValue /= 3;
+-			}
++		if (pLoopArea->isWater())
++			continue;
+ 
+-			if (iValue > iBestValue)
+-			{
+-				iBestValue = iValue;
+-				iBestArea = pLoopArea->getID();
+-			}
+-		}
++		// iNumPlayersOnArea is the number of players starting on the area, plus this player
++		int iNumPlayersOnArea = (pLoopArea->getNumStartingPlots() + 1);
++		// <advc.027>
++		int iTileValue = 1 + pLoopArea->calculateTotalBestNatureYield() + 
++				/*2 * pLoopArea->countCoastalLand() +
++				pLoopArea->getNumRiverEdges() +*/
++				coastRiverStartingAreaScore(*pLoopArea) + // Replacing the above
++				// New: factor in bonus resources
++				::round(pLoopArea->getNumTotalBonuses() * 1.5) +
++				pLoopArea->getNumTiles() / 2; // Halved
++		// </advc.027>
++		int iValue = iTileValue / iNumPlayersOnArea;
++		iValue *= std::min(NUM_CITY_PLOTS + 1, pLoopArea->getNumTiles() + 1);
++		iValue /= (NUM_CITY_PLOTS + 1);
++
++		if (iNumPlayersOnArea <= 2)
++		{
++			iValue *= 4;
++			iValue /= 3;
++		}
++		/*if (iValue > iBestValue) {
++			iBestValue = iValue;
++			iBestArea = pLoopArea->getID();
++		}*/ // dlph.35:
++		areas_by_value.push_back(std::make_pair(pLoopArea->getID(), iValue));
+ 	}
+-
+-	return iBestArea;
++	//return iBestArea; // <dlph.35>
++	VectorPairSecondGreaterComparator kComparator;
++	std::sort(areas_by_value.begin(), areas_by_value.end(), kComparator);
++	areas_by_value.resize(8); // advc: No need to pass around every little island
++	return areas_by_value; // </dlph.35>
+ }
+ 
+ 
+ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ {
+ 	PROFILE_FUNC();
++	CvMap const& m = GC.getMapINLINE();
+ 
+ 	long result = -1;
+ 	CyArgsList argsList;
+@@ -1961,7 +1965,7 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 	if (gDLL->getPythonIFace()->callFunction(gDLL->getPythonIFace()->
+ 			getMapScriptModule(), "findStartingPlot", argsList.makeFunctionArgs(), &result)) {
+ 		if (!gDLL->getPythonIFace()->pythonUsingDefaultImpl()) { // Python override
+-			CvPlot *pPlot = GC.getMapINLINE().plotByIndexINLINE(result);
++			CvPlot *pPlot = m.plotByIndexINLINE(result);
+ 			if (pPlot != NULL)
+ 				return pPlot;
+ 			else {
+@@ -1976,11 +1980,14 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 		}
+ 	}
+ 
+-	int iBestArea = -1;
++	//int iBestArea = -1;
++	// dlph.35: "This function is adjusted to work with a list of possible starting areas instead of a single one."
++	std::vector<std::pair<int,int> > areas_by_value;
+ 	bool bNew = false;
+ 	if (getStartingPlot() != NULL)
+ 	{
+-		iBestArea = getStartingPlot()->getArea();
++		//iBestArea = getStartingPlot()->getArea(); // dlph.35:
++		areas_by_value.push_back(std::make_pair(getStartingPlot()->getArea(), 0));
+ 		setStartingPlot(NULL, true);
+ 		bNew = true;
+ 	}
+@@ -1989,32 +1996,56 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 	
+ 	if (!bNew)
+ 	{
+-		iBestArea = findStartingArea();
++		//iBestArea = findStartingArea();
++		areas_by_value = findStartingAreas(); // dlph.35
+ 	}
+ 
+ 	int iRange = startingPlotRange();
+ 	/*  <advc.140> Cut and pasted from CvMap::maxPlotDistance. I've changed that
+ 		function, but I think the original formula might be needed here.
+-		(I'm not sure I understand the purpose of this outer loop.) */
+-	CvMap const& m = GC.getMapINLINE();
+-	int iMaxPlotDist = std::max(1, ::plotDistance(0, 0, ((m.isWrapXINLINE()) ?
++		I'm not sure I understand the purpose of this outer loop. */
++	// ^dlph.35 replaces the outer loop
++	/*int iMaxPlotDist = std::max(1, ::plotDistance(0, 0, ((m.isWrapXINLINE()) ?
+ 			(m.getGridWidthINLINE() / 2) : (m.getGridWidthINLINE() - 1)),
+ 			((m.isWrapYINLINE()) ? (m.getGridHeightINLINE() / 2) :
+ 			(m.getGridHeightINLINE() - 1))));
+-	for(int iPass = 0; iPass < iMaxPlotDist; iPass++) // </advc.140>
+-	{
+-		CvPlot *pBestPlot = NULL;
+-		int iBestValue = 0;
+-		
+-		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
+-		{
+-			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
+-
+-			if ((iBestArea == -1) || (pLoopPlot->getArea() == iBestArea))
++	for(int iPass = 0; iPass < iMaxPlotDist; iPass++)*/ // </advc.140>
++	/*  <dlph.35> "First pass avoids starting locations that have very little food
++		(before normalization) to avoid starting on the edge of very bad terrain." */
++	for(int iPass = 0; iPass < 2; iPass++)
++	{
++		for(size_t iJ = 0; iJ < areas_by_value.size(); iJ++)
++		{ // </dlph.35>
++			CvPlot *pBestPlot = NULL;
++			int iBestValue = 0;
++			for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 			{
++				CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
++				//if ((iBestArea == -1) || (pLoopPlot->getArea() == iBestArea))
++				// <dlph.35>
++				if (pLoopPlot->getArea() != areas_by_value[iJ].first)
++					continue;
++				if (iPass == 0) // "Avoid very bad terrain in the first pass."
++				{
++					int iTotalFood = 0;
++					int iLandPlots = 0;
++					for (int iX = -2; iX <= 2; iX++)
++					{
++						for (int iY = -2; iY <= 2; iY++)
++						{
++							CvPlot* pCheckPlot = plotXY(pLoopPlot->getX_INLINE(), pLoopPlot->getY_INLINE(), iX, iY);
++							if (pCheckPlot != NULL && !pCheckPlot->isWater())
++							{
++								iLandPlots++;
++								iTotalFood += pCheckPlot->calculateBestNatureYield(YIELD_FOOD, NO_TEAM);
++							}
++						}
++					}
++					if (iTotalFood < std::max(1, iLandPlots) / 2)
++						continue;
++				} // </dlph.35>
+ 				//the distance factor is now done inside foundValue
+ 				int iValue = pLoopPlot->getFoundValue(getID());
+-
+ 				if (bRandomize && iValue > 0)
+ 				{	/*  advc.003 (comment): That's a high random portion (found values tend
+ 						to range between 0 and 9999 too), but I'm not sure which map scripts
+@@ -2029,13 +2060,10 @@ CvPlot* CvPlayer::findStartingPlot(bool bRandomize)
+ 					pBestPlot = pLoopPlot;
+ 				}
+ 			}
+-		}
+-
+-		if (pBestPlot != NULL)
+-		{
+-			return pBestPlot;
+-		}
+ 
++			if (pBestPlot != NULL)
++				return pBestPlot;
++		} // dlph.35: end of areas_by_value loop
+ 		FAssertMsg(iPass != 0, "CvPlayer::findStartingPlot - could not find starting plot in first pass.");
+ 	}
+ 
+@@ -15397,18 +15425,17 @@ bool CvPlayer::canSpy() const {
+ 	return false;
+ } // </advc.120d>
+ 
+-int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
++int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer,
++		const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
+ {
+ 	int iMissionCost = getEspionageMissionBaseCost(eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
+-
+-	if (-1 == iMissionCost)
+-	{
++	if (iMissionCost < 0)
+ 		return -1;
+-	}
+ 
+-	// advc.003: Moved this up (unmarked K-Mod 1.45 change)
+ 	// Multiply cost of mission * number of team members
+-	iMissionCost *= GET_TEAM(getTeam()).getNumMembers();
++	//iMissionCost *= GET_TEAM(getTeam()).getNumMembers(); // K-Mod
++	// dlph.33/advc
++	iMissionCost = adjustMissionCostToTeamSize(iMissionCost, eTargetPlayer);
+ 
+ 	iMissionCost *= getEspionageMissionCostModifier(eMission, eTargetPlayer, pPlot, iExtraData, pSpyUnit);
+ 	iMissionCost /= 100;
+@@ -15416,6 +15443,26 @@ int CvPlayer::getEspionageMissionCost(EspionageMissionTypes eMission, PlayerType
+ 	return std::max(0, iMissionCost);
+ }
+ 
++// advc: Auxiliary function for dlph.33
++int CvPlayer::adjustMissionCostToTeamSize(int iBaseCost, PlayerTypes eTargetPlayer) const {
++
++	// Don't compute anything when the teams have equal size
++	int iOurTeamSize = GET_TEAM(getTeam()).getNumMembers();
++	int iTheirTeamSize = TEAMREF(eTargetPlayer).getNumMembers();
++	if(iOurTeamSize == iTheirTeamSize)
++		return iBaseCost;
++	// Tie it to the tech cost modifier
++	double extraTeamMemberModifier = GC.getDefineINT("TECH_COST_EXTRA_TEAM_MEMBER_MODIFIER") / 100.f;
++	/* <dlph.33> "New formula for espionage costs in team. Essentially, I want costs
++		to scale with 1+0.5(number of members - 1), but since there are two teams
++		(and two directions) involved, it will scale with the square root of the
++		ratio of those values. Idea for formula by Fran." */
++	return (int)(iBaseCost * std::sqrt(
++			(1 + extraTeamMemberModifier * (iOurTeamSize - 1)) /
++			(1 + extraTeamMemberModifier * (iTheirTeamSize - 1)))); // </dlph.33>
++}
++
++
+ int CvPlayer::getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const
+ {
+ 	if (eMission == NO_ESPIONAGEMISSION) // K-Mod
+
+diff --git a/CvGameCoreDLL/CvPlayer.h b/CvGameCoreDLL/CvPlayer.h
+index 2bb0d9ae3..7eb0f7242 100644
+--- a/CvGameCoreDLL/CvPlayer.h
++++ b/CvGameCoreDLL/CvPlayer.h
+@@ -81,7 +81,8 @@ public:
+ 	int startingPlotRange() const;																																									// Exposed to Python
+ 	bool startingPlotWithinRange(CvPlot* pPlot, PlayerTypes ePlayer, int iRange, int iPass) const;									// Exposed to Python
+ 	int startingPlotDistanceFactor(CvPlot* pPlot, PlayerTypes ePlayer, int iRange) const;
+-	int findStartingArea() const;
++	//int findStartingArea() const;
++	std::vector<std::pair<int,int> > findStartingAreas() const; // dlph.35
+ 	// advc.027: New auxiliary function (public only for Debug mode info)
+ 	int coastRiverStartingAreaScore(CvArea const& a) const;
+ 	CvPlot* findStartingPlot(bool bRandomize = false);																																									// Exposed to Python
+@@ -390,6 +391,8 @@ public:
+ 	bool canDoEspionageMission(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pUnit) const;		// Exposed to Python
+ 	int getEspionageMissionBaseCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot, int iExtraData, const CvUnit* pSpyUnit) const;
+ 	int getEspionageMissionCost(EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, const CvPlot* pPlot = NULL, int iExtraData = -1, const CvUnit* pSpyUnit = NULL) const;		// Exposed to Python
++	// dlph.33/advc:
++	int adjustMissionCostToTeamSize(int iBaseCost, PlayerTypes eTargetPlayer) const;
+ 	// <advc.120d> New functions, all exposed to Python
+ 	TechTypes getStealCostTech(PlayerTypes eTargetPlayer) const;
+ 	bool canSeeTech(PlayerTypes otherId) const;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 5dad756b5..78d401316 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -4856,40 +4856,29 @@ int CvPlayerAI::AI_militaryWeight(CvArea* pArea) const
+ }
+ 
+ // This function has been edited by Mongoose, then by jdog5000, and then by me (karadoc). Some changes are marked, others are not.
+-int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreAttackers) const
++int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreAttackers) const // advc.003: some style changes
+ {
+ 	PROFILE_FUNC();
+-
+ 	FAssertMsg(pCity != NULL, "City is not assigned a valid value");
+ 
++	CvGame& g = GC.getGameINLINE();
++	CvPlayerAI const& kOwner = GET_PLAYER(pCity->getOwnerINLINE());
+ 	//int iValue = 1 + pCity->getPopulation() * (50 + pCity->calculateCulturePercent(getID())) / 100;
+ 	int iValue = 5 + pCity->getPopulation() * (100 + pCity->calculateCulturePercent(getID())) / 150; // K-Mod (to dilute the other effects)
+ 
+-	const CvPlayerAI& kOwner = GET_PLAYER(pCity->getOwnerINLINE());
+-
+ 	if (pCity->isCoastal())
+-	{
+ 		iValue += 2;
+-	}
+ 
+ 	// <advc.104d> Replacing the BBAI code below (essentially with K-Mod code)
+ 	iValue += AI_cityWonderVal(*pCity);
+ 	/*iValue += 4*pCity->getNumActiveWorldWonders();
+-
+-	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++)
+-	{
+-		if (pCity->isHolyCity((ReligionTypes)iI))
+-		{
++	for (int iI = 0; iI < GC.getNumReligionInfos(); iI++) {
++		if (pCity->isHolyCity((ReligionTypes)iI)) {
+ 			iValue += 2 + ((GC.getGameINLINE().calculateReligionPercent((ReligionTypes)iI)) / 5);
+-
+ 			if (kOwner.getStateReligion() == iI)
+-			{
+ 				iValue += 2;
+-			}
+ 			if( getStateReligion() == iI )
+-			{
+ 				iValue += 8;
+-			}
+ 		}
+ 	}*/ // </advc.104d>
+ 	// <cdtw.2>
+@@ -4904,104 +4893,81 @@ int CvPlayerAI::AI_targetCityValue(CvCity* pCity, bool bRandomize, bool bIgnoreA
+ 	if (pCity->isEverOwned(getID()))
+ 	{
+ 		iValue += 4;
+-
+ 		if( pCity->getOriginalOwner() == getID() )
+-		{
+ 			iValue += 2;
+-		}
+ 	}
+ 
+ 	if (!bIgnoreAttackers)
+-	{
+-		iValue += std::min( 8, (AI_adjacentPotentialAttackers(pCity->plot()) + 2)/3 );
+-	}
++		iValue += std::min(8, (AI_adjacentPotentialAttackers(pCity->plot()) + 2) / 3);
+ 
+ 	for (int iI = 0; iI < NUM_CITY_PLOTS; iI++)
+ 	{
+ 		CvPlot* pLoopPlot = plotCity(pCity->getX_INLINE(), pCity->getY_INLINE(), iI);
+-
+-		if (pLoopPlot != NULL)
+-		{
+-			if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS)
+-			{
+-				iValue += std::max(1, AI_bonusVal(pLoopPlot->getBonusType(getTeam()), 1, true)/5);
+-			}
+-
+-			if (pLoopPlot->getOwnerINLINE() == getID())
+-			{
+-				iValue++;
+-			}
+-
+-			if (pLoopPlot->isAdjacentPlayer(getID(), true))
+-			{
+-				iValue++;
+-			}
++		if (pLoopPlot == NULL)
++			continue;
++		if (pLoopPlot->getBonusType(getTeam()) != NO_BONUS) {
++			iValue += std::max(1, AI_bonusVal(pLoopPlot->getBonusType(
++					getTeam()), 1, true) / 5);
+ 		}
++		if (pLoopPlot->getOwnerINLINE() == getID())
++			iValue++;
++		if (pLoopPlot->isAdjacentPlayer(getID(), true))
++			iValue++;
+ 	}
+ 
+ 	if( kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE3) )
+ 	{
+-		if( pCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel() - 1) )
++		if (pCity->getCultureLevel() >= g.culturalVictoryCultureLevel() - 1)
+ 		{
+ 			iValue += 15;
+-			
+ 			if( kOwner.AI_isDoVictoryStrategy(AI_VICTORY_CULTURE4) )
+ 			{
+ 				iValue += 25;
+-
+-				 if (pCity->getCultureLevel() >= (GC.getGameINLINE().culturalVictoryCultureLevel()) ||
+-					 pCity->findCommerceRateRank(COMMERCE_CULTURE) <= GC.getGameINLINE().culturalVictoryNumCultureCities()) // K-Mod
+-				{
++				if (pCity->getCultureLevel() >= (g.culturalVictoryCultureLevel()) ||
++						// K-Mod:
++						pCity->findCommerceRateRank(COMMERCE_CULTURE) <=
++						g.culturalVictoryNumCultureCities()) 
+ 					iValue += 60; // was 10
+-				}
+ 			}
+ 		}
+ 	}
+ 
+ 	if( kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE3) )
+ 	{
+-		if( pCity->isCapital() )
++		if (pCity->isCapital())
+ 		{
+ 			iValue += 10;
+-
+-			if( kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4) )
++			if (kOwner.AI_isDoVictoryStrategy(AI_VICTORY_SPACE4))
+ 			{
+ 				iValue += 10; // was 20
+-
+-				if( GET_TEAM(pCity->getTeam()).getVictoryCountdown(GC.getGameINLINE().getSpaceVictory()) >= 0 )
+-				{
++				if (GET_TEAM(pCity->getTeam()).getVictoryCountdown(g.getSpaceVictory()) >= 0)
+ 					iValue += 100; // was 30
+-				}
+ 			}
+ 		}
+ 	}
+-
+-	CvCity* pNearestCity = GC.getMapINLINE().findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), getID());
+-
++	CvMap& m = GC.getMapINLINE();
++	CvCity* pNearestCity = m.findCity(pCity->getX_INLINE(), pCity->getY_INLINE(), getID());
+ 	if (pNearestCity != NULL)
+ 	{
+ 		// Now scales sensibly with map size, on large maps this term was incredibly dominant in magnitude
+ 		int iTempValue = 30;
+-		iTempValue *= std::max(1, ((GC.getMapINLINE().maxStepDistance() * 2) - GC.getMapINLINE().calculatePathDistance(pNearestCity->plot(), pCity->plot())));
+-		iTempValue /= std::max(1, (GC.getMapINLINE().maxStepDistance() * 2));
+-
++		iTempValue *= std::max(1, m.maxStepDistance() * 2 -
++				m.calculatePathDistance(pNearestCity->plot(), pCity->plot()));
++		iTempValue /= std::max(1, m.maxStepDistance() * 2);
+ 		iValue += iTempValue;
+ 	}
+ 
+ 	if (bRandomize)
+-	{
+-		iValue += GC.getGameINLINE().getSorenRandNum(((pCity->getPopulation() / 2) + 1), "AI Target City Value");
+-	}
++		iValue += g.getSorenRandNum((pCity->getPopulation() / 2) + 1, "AI Target City Value");
+ 
+-	// K-Mod
+-	if (pCity->getHighestPopulation() < 1)
+-	{
+-		// Usually this means the city would be auto-razed.
+-		// (We can't use isAutoRaze for this, because that assumes the city is already captured.)
+-		iValue = (iValue +2)/3;
+-	}
++	// K-Mod.
++	//if (pCity->getHighestPopulation() < 1)
++	// Usually this means the city would be auto-razed.
++	// (We can't use isAutoRaze for this, because that assumes the city is already captured.)
++	// dlph.29 (bugfix):
++	if (pCity->getHighestPopulation() == 1 && !g.isOption(GAMEOPTION_NO_CITY_RAZING))
++		iValue = (iValue + 2) / 3;
+ 	// K-Mod end
+-
+ 	return iValue;
+ }
+ 
+@@ -26571,81 +26537,70 @@ UnitTypes CvPlayerAI::AI_bestAdvancedStartUnitAI(CvPlot* pPlot, UnitAITypes eUni
+ 	return eBestUnit;
+ }
+ 
+-CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()
+-{
++CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()  // advc.003: style changes
++{	// Not quite what Kek-Mod does, but would have the same result:
++	// <dlph.35> "Don't exchange team members starting location."
++	/*CvPlot* pCurrentStart = getStartingPlot();
++	if(pCurrentStart != NULL && getAdvancedStartCityCost(true, pCurrentStart) > 0)
++		return pCurrentStart;*/ // </dlph.35>
++	// advc: However, I don't want to make that change for now.
++	CvMap& m = GC.getMapINLINE();
+ 	CvPlot* pBestPlot = NULL;
+ 	int iBestValue = -1;
+-	
+ 	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; iPlayer++)
+ 	{
+-		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+-		if (kPlayer.isAlive())
++		CvPlayer& kMember = GET_PLAYER((PlayerTypes)iPlayer);
++		if (!kMember.isAlive() || kMember.getTeam() != getTeam())
++			continue;
++
++		CvPlot* pLoopPlot = kMember.getStartingPlot();
++		if (pLoopPlot == NULL)
+ 		{
+-			if (kPlayer.getTeam() == getTeam())
+-			{
+-				CvPlot* pLoopPlot = kPlayer.getStartingPlot();
+-				if (pLoopPlot != NULL)
+-				{
+-					if (getAdvancedStartCityCost(true, pLoopPlot) > 0)
+-					{
+-					int iX = pLoopPlot->getX_INLINE();
+-					int iY = pLoopPlot->getY_INLINE();
++			FAssertMsg(false, "StartingPlot for a live player is NULL!");
++			continue;
++		}
++		if (getAdvancedStartCityCost(true, pLoopPlot) <= 0)
++			continue;
+ 			
+-						int iValue = 1000;
+-						if (iPlayer == getID())
+-						{
+-							iValue += 1000;
+-						}
+-						else
+-						{
+-							iValue += GC.getGame().getSorenRandNum(100, "AI Advanced Start Choose Team Start");
+-						}
+-						CvCity * pNearestCity = GC.getMapINLINE().findCity(iX, iY, NO_PLAYER, getTeam());
+-						if (NULL != pNearestCity)
+-						{
+-							FAssert(pNearestCity->getTeam() == getTeam());
+-							int iDistance = ::stepDistance(iX, iY, pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE());
+-							if (iDistance < 10)
+-							{
+-								iValue /= (10 - iDistance);
+-							}
+-						}
++		int iValue = 1000;
++		if (kMember.getID() == getID())
++			iValue += 1000;
++		else iValue += GC.getGame().getSorenRandNum(100, "AI Advanced Start Choose Team Start");
+ 
+-						if (iValue > iBestValue)
+-						{
+-							iBestValue = iValue;
+-							pBestPlot = pLoopPlot;							
+-						}
+-					}
+-				}
+-				else
+-				{
+-					FAssertMsg(false, "StartingPlot for a live player is NULL!");
+-				}
+-			}
++		int iX = pLoopPlot->getX_INLINE();
++		int iY = pLoopPlot->getY_INLINE();
++		CvCity* pNearestCity = m.findCity(iX, iY, NO_PLAYER, getTeam());
++		if (NULL != pNearestCity)
++		{
++			FAssert(pNearestCity->getTeam() == getTeam());
++			int iDistance = m.stepDistance(iX, iY, pNearestCity->getX_INLINE(), pNearestCity->getY_INLINE());
++			if (iDistance < 10)
++				iValue /= 10 - iDistance;
++		}
++		if (iValue > iBestValue)
++		{
++			iBestValue = iValue;
++			pBestPlot = pLoopPlot;							
+ 		}
+ 	}
+ 	
+ 	if (pBestPlot != NULL)
+-	{
+ 		return pBestPlot;
+-	}
+ 	
+ 	FAssertMsg(false, "AS: Failed to find a starting plot for a player");
+-	
+ 	//Execution should almost never reach here.
+ 	
+ 	//Update found values just in case - particulary important for simultaneous turns.
+-	AI_updateFoundValues();
++	AI_updateFoundValues(/* dlph.35 (bugfix): */ true);
+ 	
+ 	pBestPlot = NULL;
+ 	iBestValue = -1;
+ 	
+-	if (NULL != getStartingPlot())
++	if (getStartingPlot() != NULL)
+ 	{
+-		for (int iI = 0; iI < GC.getMapINLINE().numPlotsINLINE(); iI++)
++		for (int iI = 0; iI < m.numPlotsINLINE(); iI++)
+ 		{
+-			CvPlot* pLoopPlot = GC.getMapINLINE().plotByIndexINLINE(iI);
++			CvPlot* pLoopPlot = m.plotByIndexINLINE(iI);
+ 			if (pLoopPlot->getArea() == getStartingPlot()->getArea())
+ 			{
+ 				int iValue = pLoopPlot->getFoundValue(getID());
+@@ -26665,9 +26620,7 @@ CvPlot* CvPlayerAI::AI_advancedStartFindCapitalPlot()
+ 	}
+ 	
+ 	if (pBestPlot != NULL)
+-	{
+ 		return pBestPlot;
+-	}
+ 	
+ 	//Commence panic.
+ 	FAssertMsg(false, "Failed to find an advanced start starting plot");
+
+diff --git a/CvGameCoreDLL/CvTeam.cpp b/CvGameCoreDLL/CvTeam.cpp
+index 916a7bae6..0a55e9c0e 100644
+--- a/CvGameCoreDLL/CvTeam.cpp
++++ b/CvGameCoreDLL/CvTeam.cpp
+@@ -1202,73 +1202,7 @@ void CvTeam::doTurn()
+ 		m_abJustDeclaredWar[i] = false;
+ 	// </advc.162>
+ 	if (isBarbarian())
+-	{
+-		// <advc.307>
+-		CvGame& g = GC.getGameINLINE();
+-		bool bNoBarbCities = GC.getEraInfo(g.getCurrentEra()).isNoBarbCities();
+-		bool bIgnorePrereqs = bNoBarbCities;
+-				/*  Barbs get all tech from earlier eras for free. Don't need
+-					to catch up. */ //|| (((int)g.getStartEra()) > 0);
+-		// </advc.307>
+-		/*  K-Mod. Delay the start of the barbarian research. (This is an
+-			experimental change. It is currently compensated by an increase in
+-			the barbarian tech rate.) */
+-		const CvPlayerAI& kBarbPlayer = GET_PLAYER(getLeaderID());
+-		const CvGame& kGame = GC.getGameINLINE();
+-		if (kGame.getElapsedGameTurns() >= GC.getHandicapInfo(kGame.getHandicapType()).getBarbarianCreationTurnsElapsed() * GC.getGameSpeedInfo(kGame.getGameSpeedType()).getBarbPercent() / 200)
+-		{
+-			for (TechTypes i = (TechTypes)0; i < GC.getNumTechInfos(); i = (TechTypes)(i+1))
+-			{
+-				//if (!isHasTech((TechTypes)iI))
+-				if (!isHasTech(i) && 
+-					(bIgnorePrereqs || // advc.307
+-					kBarbPlayer.canResearch(i, false, true))) // K-Mod. Make no progress on techs until prereqs are researched.
+-				{
+-					int iCount = 0;
+-					int iPossibleCount = 0;
+-					int hasTechCount = 0; // advc.307
+-
+-					for (int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
+-					{
+-						// advc.003: kLoopTeam
+-						CvTeam const& kLoopTeam = GET_TEAM((TeamTypes)iJ);
+-						if (kLoopTeam.isAlive())
+-						{
+-							if (kLoopTeam.isHasTech(i)
+-									// advc.302:
+-									&& kLoopTeam.isInContactWithBarbarians()
+-								)
+-							{
+-								iCount++;
+-							}
+-
+-							iPossibleCount++;
+-							// <advc.307>
+-							if(kLoopTeam.isHasTech(i))
+-								hasTechCount++; // </advc.307>
+-						}
+-					} /*  advc.302: Don't stop barb research entirely even when
+-						  there is no contact with civs */
+-					iCount = std::max(iCount, hasTechCount / 3);
+-					if (iCount > 0)
+-					{
+-						FAssertMsg(iPossibleCount > 0, "iPossibleCount is expected to be greater than 0");
+-						/*  advc.307: In the late game, count all civs as
+-							having contact with barbs if at least one of them has
+-							contact. Otherwise, New World barbs catch up too slowly
+-							when colonized only by one or two civs. */
+-						if(bNoBarbCities)
+-							iCount = std::max(iCount, (2 * hasTechCount) / 3);
+-						//changeResearchProgress(((TechTypes)iI), ((getResearchCost((TechTypes)iI) * ((GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / iPossibleCount)) / 100), getLeaderID());
+-						// K-Mod. Adjust research rate for game-speed & start-era - but _not_ world-size. And fix the rounding error.
+-						int iBaseCost = getResearchCost(i, false) * GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent() / 100;
+-						changeResearchProgress(i, std::max(1, iBaseCost * GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount / (100 * iPossibleCount)), kBarbPlayer.getID());
+-						// K-Mod end
+-					}
+-				}
+-			}
+-		}
+-	}
++		doBarbarianResearch(); // advc.003: Moved into subroutine
+ 
+ 	for (int iI = 0; iI < MAX_TEAMS; iI++)
+ 	{
+@@ -5155,7 +5089,7 @@ void CvTeam::setVassal(TeamTypes eIndex, bool bNewValue, bool bCapitulated)
+ 					if (GET_TEAM(eIndex).isAtWar((TeamTypes)iI))
+ 					{
+ 						//declareWar((TeamTypes)iI, false, WARPLAN_DOGPILE);
+-						// dlph.26:
++						// dlph.26: "These wars declared by capitulated vassal don't trigger defensive pacts."
+ 						queueWar(getID(), (TeamTypes)iI, false, WARPLAN_DOGPILE, !bCapitulated);
+ 					}
+ 					else if (isAtWar((TeamTypes)iI))
+@@ -7340,6 +7274,92 @@ void CvTeam::doWarWeariness()
+ 	}
+ }
+ 
++// advc.003: Body cut from doTurn
++void CvTeam::doBarbarianResearch() {
++
++	FAssert(isBarbarian());
++	CvGame& g = GC.getGameINLINE();
++	int iElapsed = g.getElapsedGameTurns();
++	/*  <dlph.28> "Give some starting research to barbarians in advanced start
++		depending on other players' tech status after advanced start. */
++	if(iElapsed == 1 && // This function isn't called on turn 0
++			g.isOption(GAMEOPTION_ADVANCED_START)) {
++		for(TechTypes i = (TechTypes)0; i < GC.getNumTechInfos(); i = (TechTypes)(i+1)) {
++			if(isHasTech((TechTypes)i))
++				continue;
++			int iCount = 0;
++			int iPossibleCount = 0;
++			for(int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++) {
++				if(GET_TEAM((TeamTypes)iJ).isAlive()) {
++					if (GET_TEAM((TeamTypes)iJ).isHasTech(i))
++						iCount++;
++					iPossibleCount++;
++				}
++			}
++			if(iCount > 0)
++				setResearchProgress(i, (getResearchCost(i) * iCount) / iPossibleCount, getLeaderID());
++		}
++	} // </dlph.28>
++	// <advc.307>
++	bool bNoBarbCities = GC.getEraInfo(g.getCurrentEra()).isNoBarbCities();
++	bool bIgnorePrereqs = bNoBarbCities;
++			/*  Barbs get all tech from earlier eras for free. Don't need
++				to catch up. */ //|| g.getStartEra() > 0;
++	// </advc.307>
++	/*  K-Mod. Delay the start of the barbarian research. (This is an
++		experimental change. It is currently compensated by an increase in
++		the barbarian tech rate.) */
++	if (iElapsed < GC.getHandicapInfo(g.getHandicapType()).
++			getBarbarianCreationTurnsElapsed() *
++			GC.getGameSpeedInfo(g.getGameSpeedType()).getBarbPercent() / 200)
++		return;
++
++	CvPlayerAI const& kBarbPlayer = GET_PLAYER(BARBARIAN_PLAYER);
++	for (TechTypes i = (TechTypes)0; i < GC.getNumTechInfos(); i = (TechTypes)(i+1))
++	{
++		//if (!isHasTech((TechTypes)iI))
++		if (!isHasTech(i) && /* advc.307: */ (bIgnorePrereqs || 
++				// K-Mod. Make no progress on techs until prereqs are researched.
++				kBarbPlayer.canResearch(i, false, true)))
++		{
++			int iCount = 0;
++			int iPossible = 0;
++			int iHasTech = 0; // advc.307
++			for (int iJ = 0; iJ < MAX_CIV_TEAMS; iJ++)
++			{
++				CvTeam const& kLoopTeam = GET_TEAM((TeamTypes)iJ);
++				if (!kLoopTeam.isAlive())
++					continue; // advc.003
++				if (kLoopTeam.isHasTech(i)
++						&& kLoopTeam.isInContactWithBarbarians()) // advc.302
++					iCount++;
++				iPossible++;
++				// <advc.307>
++				if(kLoopTeam.isHasTech(i))
++					iHasTech++; // </advc.307>
++			} /* advc.302: Don't stop barb research entirely even when there is
++				 no contact with any civs */
++			iCount = std::max(iCount, iHasTech / 3);
++			if (iCount > 0)
++			{
++				FAssert(iPossible > 0);
++				/*  advc.307: In the late game, count all civs as having contact with
++					barbs if at least one of them has contact. Otherwise, New World barbs
++					catch up too slowly when colonized only by one or two civs. */
++				if(bNoBarbCities)
++					iCount = std::max(iCount, (2 * iHasTech) / 3);
++				//changeResearchProgress(((TechTypes)iI), ((getResearchCost((TechTypes)iI) * ((GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount) / iPossibleCount)) / 100), getLeaderID());
++				// K-Mod. Adjust research rate for game-speed & start-era - but _not_ world-size. And fix the rounding error.
++				int iBaseCost = getResearchCost(i, false) * GC.getWorldInfo(GC.getMapINLINE().getWorldSize()).getResearchPercent() / 100;
++				changeResearchProgress(i, std::max(1, iBaseCost *
++						GC.getDefineINT("BARBARIAN_FREE_TECH_PERCENT") * iCount /
++						(100 * iPossible)), kBarbPlayer.getID());
++				// K-Mod end
++			}
++		}
++	}
++}
++
+ void CvTeam::updateTechShare(TechTypes eTech)
+ {
+ 	if (isHasTech(eTech))
+@@ -7379,6 +7399,7 @@ void CvTeam::updateTechShare(TechTypes eTech)
+ 		if (iCount >= iBestShare)
+ 		{
+ 			setHasTech(eTech, true, NO_PLAYER, true, true);
++			setNoTradeTech(eTech, true); // dlph.31
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvTeam.h b/CvGameCoreDLL/CvTeam.h
+index 2b499ff92..27608cd46 100644
+--- a/CvGameCoreDLL/CvTeam.h
++++ b/CvGameCoreDLL/CvTeam.h
+@@ -589,7 +589,7 @@ protected:
+ 	// </dlph.26>
+ 
+ 	void doWarWeariness();
+-
++	void doBarbarianResearch(); // advc.003
+ 	void updateTechShare(TechTypes eTech);
+ 	void updateTechShare();
+
+diff --git a/CvGameCoreDLL/CyCityInterface1.cpp b/CvGameCoreDLL/CyCityInterface1.cpp
+index b37057828..802e75f6d 100644
+--- a/CvGameCoreDLL/CyCityInterface1.cpp
++++ b/CvGameCoreDLL/CyCityInterface1.cpp
+@@ -460,8 +460,6 @@ void CyCityPythonInterface1(python::class_<CyCity>& x)
+ 		.def("AI_isEmphasize", &CyCity::AI_isEmphasize, "bool (int iEmphasizeType)")
+ 		.def("AI_countBestBuilds", &CyCity::AI_countBestBuilds, "int (CyArea* pArea)")
+ 		.def("AI_cityValue", &CyCity::AI_cityValue, "int ()")
+-		// advc.001n:
+-		.def("AI_neededFloatingDefenders", &CyCity::AI_neededFloatingDefenders, "int ()")
+ 
+ 		.def("getScriptData", &CyCity::getScriptData, "str () - Get stored custom data (via pickle)")
+ 		.def("setScriptData", &CyCity::setScriptData, "void (str) - Set stored custom data (via pickle)")
+
+diff --git a/CvGameCoreDLL/CyCityInterface2.cpp b/CvGameCoreDLL/CyCityInterface2.cpp
+new file mode 100644
+index 000000000..1c1b4f91b
+--- /dev/null
++++ b/CvGameCoreDLL/CyCityInterface2.cpp
+@@ -0,0 +1,14 @@
++#include "CvGameCoreDLL.h"
++#include "CyCity.h"
++
++// dlph.34/advc: Added in order to reduce the size of CyCityInterface1.cpp
++
++void CyCityPythonInterface2(python::class_<CyCity>& x)
++{
++	OutputDebugString("Python Extension Module - CyCityPythonInterface2\n");
++
++	x
++		// advc.001n: (Moved here from CyCityInterface1.cpp as an example)
++		.def("AI_neededFloatingDefenders", &CyCity::AI_neededFloatingDefenders, "int ()")
++		;
++}
+
+diff --git a/CvGameCoreDLL/Project/AdvCiv.vcxproj b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+index a654141d1..83fb029f0 100644
+--- a/CvGameCoreDLL/Project/AdvCiv.vcxproj
++++ b/CvGameCoreDLL/Project/AdvCiv.vcxproj
+@@ -98,6 +98,7 @@
+     <ClCompile Include="..\CyArtFileMgrInterface.cpp" />
+     <ClCompile Include="..\CyCity.cpp" />
+     <ClCompile Include="..\CyCityInterface1.cpp" />
++    <ClCompile Include="..\CyCityInterface2.cpp" />
+     <ClCompile Include="..\CyDeal.cpp" />
+     <ClCompile Include="..\CyEnumsInterface.cpp" />
+     <ClCompile Include="..\CyGame.cpp" />
+
+diff --git a/PrivateMaps/not_too_Big_or_Small.py b/PrivateMaps/not_too_Big_or_Small.py
+index e32b2044e..35105ab7f 100644
+--- a/PrivateMaps/not_too_Big_or_Small.py
++++ b/PrivateMaps/not_too_Big_or_Small.py
+@@ -34,13 +34,14 @@ def isAdvancedMap():
+ 	return 0
+ 
+ def getNumCustomMapOptions():
+-	return 2
++	return 3 # dlph.32
+ 	
+ def getCustomMapOptionName(argsList):
+ 	[iOption] = argsList
+ 	option_names = {
+ 		0:	"TXT_KEY_MAP_SCRIPT_CONTINENTS_SIZE",
+-		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE"
++		1:	"TXT_KEY_MAP_SCRIPT_ISLANDS_SIZE",
++		2:	"TXT_KEY_MAP_WORLD_WRAP" # dlph.32
+ 		}
+ 	translated_text = unicode(CyTranslator().getText(option_names[iOption], ()))
+ 	return translated_text
+@@ -49,7 +50,8 @@ def getNumCustomMapOptionValues(argsList):
+ 	[iOption] = argsList
+ 	option_values = {
+ 		0:	3,
+-		1:	2
++		1:	2,
++		2:	3 # dlph.32
+ 		}
+ 	return option_values[iOption]
+ 	
+@@ -64,7 +66,13 @@ def getCustomMapOptionDescAt(argsList):
+ 		1:	{
+ 			0: "TXT_KEY_MAP_SCRIPT_ISLANDS",
+ 			1: "TXT_KEY_MAP_SCRIPT_TINY_ISLANDS"
+-			}
++			},
++		# <dlph.32>
++		2:	{
++			0: "TXT_KEY_MAP_WRAP_FLAT",
++			1: "TXT_KEY_MAP_WRAP_CYLINDER",
++			2: "TXT_KEY_MAP_WRAP_TOROID"
++			} # </dlph.32>
+ 		}
+ 	translated_text = unicode(CyTranslator().getText(selection_names[iOption][iSelection], ()))
+ 	return translated_text
+@@ -73,9 +81,16 @@ def getCustomMapOptionDefault(argsList):
+ 	[iOption] = argsList
+ 	option_defaults = {
+ 		0:	1,
+-		1:	0
++		1:	0,
++		2:	1 # dlph.32
+ 		}
+ 	return option_defaults[iOption]
++# <dlph.32>
++def getWrapX():
++	return (CyMap().getCustomMapOption(2) >= 1)
++
++def getWrapY():
++	return (CyMap().getCustomMapOption(2) == 2) # </dlph.32>
+ 
+ def minStartingDistanceModifier():
+ 	return -12
+
+[PATCH OMITTED] file=a/manual_0.95b.odt b/manual_0.95b.odt reason=binary/generated-file changedLines=0 bytes=144
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=16 omittedFiles=1 embeddedPatchBytes=74643

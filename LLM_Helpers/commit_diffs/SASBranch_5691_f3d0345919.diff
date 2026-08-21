@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5691
+# Commit: f3d0345919c23538b88de252cb76c9ecf5823ff7
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: bdd90ecbc37a80e6a1194de508c61e173230882a
+# Title: make scoreboard leader tech right-align on tech chooser open, and default align on close not added to SAS defines due to added complexity
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+9	3	Assets/Python/BUG/Scoreboard.py
+6	0	Assets/Python/Screens/CvTechChooser.py
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/Scoreboard.py b/Assets/Python/BUG/Scoreboard.py
+index b6aee2e9b..8ab7db693 100644
+--- a/Assets/Python/BUG/Scoreboard.py
++++ b/Assets/Python/BUG/Scoreboard.py
+@@ -23,6 +23,7 @@ import re
+ import MonkeyTools # advc.085: For checking Ctrl key
+ import LayoutDict # advc.092
+ import CvScreensInterface # advc.092
++import CvScreenEnums
+ import SASTextScale
+ # <!-- custom: AdvCiv-SAS readability pass: use LABEL as the base scoreboard text tag (instead of BODY) for clearer upscaled UI text. (GPT-5.3-Codex) -->
+ 
+@@ -512,6 +513,11 @@ class Scoreboard:
+ 		# </advc.085>
+ 		format = re.findall('(-?[0-9]+|[^0-9])', szDisplayOrder.replace(' ', '').upper())
+ 		format.reverse()
++		# <!-- custom: when Tech Chooser is open, right-align scoreboard names to recover usable width near the left edge of the panel; keep normal alignment elsewhere. (GPT-5.3-Codex) -->
++		bLeftAlignName = ScoreOpt.isLeftAlignName()
++		bTechChooserActive = CyGInterfaceScreen("TechChooser", CvScreenEnums.TECH_CHOOSER).isActive()
++		if bTechChooserActive:
++			bLeftAlignName = False
+ 		for k in format:
+ 			if k == '-':
+ 				spacing = 0
+@@ -590,7 +596,7 @@ class Scoreboard:
+ 					if (playerScore.has(c)):
+ 						value = playerScore.value(c)
+ 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
+-							if (ScoreOpt.isLeftAlignName()):
++							if (bLeftAlignName):
+ 								value = VASSAL_PREFIX + value
+ 							else:
+ 								value += VASSAL_POSTFIX
+@@ -607,7 +613,7 @@ class Scoreboard:
+ 					if (playerScore.has(c)):
+ 						value = playerScore.value(c)
+ 						if (c == NAME and playerScore.isVassal() and ScoreOpt.isGroupVassals()):
+-							if (ScoreOpt.isLeftAlignName()):
++							if (bLeftAlignName):
+ 								value = VASSAL_PREFIX + value
+ 							else:
+ 								value += VASSAL_POSTFIX
+@@ -616,7 +622,7 @@ class Scoreboard:
+ 						adjustX = 0
+ 						if (c == NAME):
+ 							name = "ScoreText%d" % playerScore.getID() # advc.085: was p
+-							if (ScoreOpt.isLeftAlignName()):
++							if (bLeftAlignName):
+ 								align = CvUtil.FONT_LEFT_JUSTIFY
+ 								adjustX = width
+ 								# advc.001: Only a workaround? Can't figure out exactly
+
+diff --git a/Assets/Python/Screens/CvTechChooser.py b/Assets/Python/Screens/CvTechChooser.py
+index 3a60e8963..b8b9afa66 100644
+--- a/Assets/Python/Screens/CvTechChooser.py
++++ b/Assets/Python/Screens/CvTechChooser.py
+@@ -243,6 +243,8 @@ class CvTechChooser:
+ 
+ 		# Hide the screen
+ 		screen.hideScreen()
++		# <!-- custom: force scoreboard redraw when closing Tech Chooser so any Tech-Chooser-specific alignment/layout rules revert immediately. (GPT-5.3-Codex) -->
++		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
+ 
+ 	def updateRuntimeLayout(self, screen):
+ 		# <!-- custom: runtime geometry wrapper to mirror Info/Foreign advisor structure: keep resolution-dependent bounds in one place and out of init-time setup. (GPT-5.3-Codex) -->
+@@ -289,6 +291,8 @@ class CvTechChooser:
+ 
+ 		screen.setRenderInterfaceOnly(True)
+ 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
++		# <!-- custom: force scoreboard redraw when opening Tech Chooser so Tech-Chooser-specific scoreboard alignment applies immediately (not only after hover-triggered redraw). (GPT-5.3-Codex) -->
++		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
+ 
+ 		screen.hide("AddTechButton")
+ 		screen.hide("ASPointsLabel")
+@@ -1551,6 +1555,8 @@ class CvTechChooser:
+ 			screen.hide("AddTechButton")
+ 
+ 	def onClose(self):
++		# <!-- custom: ensure scoreboard alignment state resets even when Tech Chooser closes through onClose (not hideScreen). (GPT-5.3-Codex) -->
++		CyInterface().setDirty(InterfaceDirtyBits.Score_DIRTY_BIT, True)
+ 		pPlayer = gc.getPlayer(self.iCivSelected)
+ 		if (pPlayer.getAdvancedStartPoints() >= 0):
+ 			CyInterface().setDirty(InterfaceDirtyBits.Advanced_Start_DIRTY_BIT, true)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 4b37d48bf..1f40d9bf8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -344,7 +344,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Foreign Advisor**: refined its tabs so they can display **up to 12 players**. Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+ - Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ - Reworked the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now with Unit Combat and Units **icons**. (Requires AdvCiv-SAS 5530+) Note: **icon size** is **increased** at **higher resolutions** (e.g., from 24 to 32 if resolution height >= 1440). Note 2: as of now the [CvBUGMilitaryAdvisor.py](/Assets/Python/Screens/CvBUGMilitaryAdvisor.py) is not supported.
+-- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked).
++- Similarly Beautified and Enhanced the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py) so it uses more of the screen while still preserving key information. (Requires AdvCiv-SAS 5519+) Players can **optionally** set an **alternative lower right space for scoreboard** on **lower game resolutions** (e.g., 1920*1080) so that an **extra column or more is visible** in the technology advisor, and an **alternative top space space** for **advisor buttons** (in map view) because this alternative right space may cover these advisor buttons. **Boldened title** for consistency. (Requires AdvCiv-SAS 5520+) See also [KI#114](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#114---fixed-base-advciv-bug-of-tech-advisor-on-save-load-initially-shown-current-tech-missing-turns-left-timer-until-another-tech-is-clicked). (Requires AdvCiv-SAS 5691+) **When opening** Technology Advisor, **right-align scoreboard leader text** so it is easier to read (because text is often not visible due to advisor width expansion). **On Technology Advisor close**, it **reverts back** to usual alignment.
+ - **Inverted BUG Options** for the **Technology Advisor** and the **Religion Advisor** so they are more accessible. They are now **enabled as a default**, and ticking their box disables them. Rewrote their text for clarity (e.g. "GP Research" -> **"Hide bulbing indicators"**). See [Inverted BUG options](/README.md#inverted-bug-options).
+ - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** a new **Timeline Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: Timeline Tab](/README.md#timeline-tab-in-the-info-screen-advisor).
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9932

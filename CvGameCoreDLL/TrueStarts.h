@@ -104,52 +104,29 @@ private:
 
 	void overrideScenarioOptions();
 	void initTargetLatitudes();
-	bool canHaveBonus(CvPlot const& kPlot, BonusTypes eBonus,
-			bool bIgnoreFeature = false) const;
-	bool changingVegetationMakesBonusValid(CvPlot const& kPlot, BonusTypes eBonus,
-			FeatureTypes* peFeature = NULL) const;
-	CvPlot* findValidBonusSwapDest(CvPlot& kOriginalDest, CvPlot const& kSource,
-			FeatureTypes* peFeature = NULL) const;
+	bool canHaveBonus(CvPlot const& kPlot, BonusTypes eBonus, bool bIgnoreFeature = false) const;
+	bool changingVegetationMakesBonusValid(CvPlot const& kPlot, BonusTypes eBonus, FeatureTypes* peFeature = NULL) const;
+	CvPlot* findValidBonusSwapDest(CvPlot& kOriginalDest, CvPlot const& kSource, FeatureTypes* peFeature = NULL) const;
 	int changeVegetation(CvPlot& kPlot, BonusTypes eNewBonus, bool bReplace) const;
 	void logVegetationChange(CvPlot const& kPlot, BonusTypes eBonus) const;
 	void initContemporaries();
-	void setPlayerWeightsPerPlot(PlotNumTypes ePlot,
-			EagerEnumMap<PlayerTypes,scaled>& kPlayerWeights,
-			scaled rHumanMult = 1) const;
+	void setPlayerWeightsPerPlot(PlotNumTypes ePlot, EagerEnumMap<PlayerTypes, scaled>& kPlayerWeights, scaled rHumanMult = 1) const;
 	void calculatePlotWeights(CvPlayer const& kPlayer);
 	std::auto_ptr<PlotCircleIter> getSurroundings(CvPlayer const& kPlayer) const;
-	bool isBonusDiscouraged(CvPlot const& kPlot, CivilizationTypes eCiv,
-		BonusTypes eBonus = NO_BONUS) const
-	{
-		return isTruBonusDiscouraged(getTruBonus(kPlot, eBonus), eCiv);
-	}
-	bool isBonusEncouraged(CvPlot const& kPlot, CivilizationTypes eCiv,
-		BonusTypes eBonus = NO_BONUS) const
-	{
-		return isTruBonusEncouraged(getTruBonus(kPlot, eBonus), eCiv);
-	}
-	CvTruBonusInfo const* getTruBonus(CvPlot const& kPlot,
-			BonusTypes eBonus = NO_BONUS) const;
-	bool isTruBonusDiscouraged(CvTruBonusInfo const* pTruBonus,
-			CivilizationTypes eCiv) const;
-	bool isTruBonusEncouraged(CvTruBonusInfo const* pTruBonus,
-			CivilizationTypes eCiv) const;
+	bool isBonusDiscouraged(CvPlot const& kPlot, CivilizationTypes eCiv, BonusTypes eBonus = NO_BONUS) const { return isTruBonusDiscouraged(getTruBonus(kPlot, eBonus), eCiv); }
+	bool isBonusEncouraged(CvPlot const& kPlot, CivilizationTypes eCiv, BonusTypes eBonus = NO_BONUS) const { return isTruBonusEncouraged(getTruBonus(kPlot, eBonus), eCiv); }
+	CvTruBonusInfo const* getTruBonus(CvPlot const& kPlot, BonusTypes eBonus = NO_BONUS) const;
+	bool isTruBonusDiscouraged(CvTruBonusInfo const* pTruBonus, CivilizationTypes eCiv) const;
+	bool isTruBonusEncouraged(CvTruBonusInfo const* pTruBonus, CivilizationTypes eCiv) const;
 	void calculateRadius(CvPlayer const& kPlayer);
 	void updateFitnessValues();
-	int calcFitness(CvPlayer const& kPlayer, CivilizationTypes eCiv,
-			LeaderHeadTypes eLeader, bool bLog = false) const;
-	int calcClimateFitness(CvPlayer const& kPlayer, int iTargetPrecipitation,
-			int iTargetVariation, bool bLog = false) const;
+	int calcFitness(CvPlayer const& kPlayer, CivilizationTypes eCiv, LeaderHeadTypes eLeader, bool bLog = false) const;
+	int calcClimateFitness(CvPlayer const& kPlayer, int iTargetPrecipitation, int iTargetVariation, bool bLog = false) const;
 	int precipitation(CvPlot const& kPlot, int iDistStart) const;
-	scaled calcBonusFitness(CvPlot const& kPlot,
-			EagerEnumMap<PlayerTypes,scaled> const& kPlayerWeights,
-			BonusTypes eBonus = NO_BONUS, bool bLog = false) const;
-	scaled calcBonusFitness(CvPlot const& kPlot, CvPlayer const& kPlayer,
-			BonusTypes eBonus, bool bLog = false) const;
-	scaled calcBonusSwapUtil(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot,
-			scaled rFirstFitness, scaled rSecondFitness, bool bLog = false) const;
-	scaled calcBonusSwapDisturbance(CvPlot const& kDest, CvPlot const& kOriginalDest,
-			BonusTypes eNewBonus, bool bLog = false) const;
+	scaled calcBonusFitness(CvPlot const& kPlot, EagerEnumMap<PlayerTypes, scaled> const& kPlayerWeights, BonusTypes eBonus = NO_BONUS, bool bLog = false) const;
+	scaled calcBonusFitness(CvPlot const& kPlot, CvPlayer const& kPlayer, BonusTypes eBonus, bool bLog = false) const;
+	scaled calcBonusSwapUtil(CvPlot const& kFirstPlot, CvPlot const& kSecondPlot, scaled rFirstFitness, scaled rSecondFitness, bool bLog = false) const;
+	scaled calcBonusSwapDisturbance(CvPlot const& kDest, CvPlot const& kOriginalDest, BonusTypes eNewBonus, bool bLog = false) const;
 };
 
 #endif

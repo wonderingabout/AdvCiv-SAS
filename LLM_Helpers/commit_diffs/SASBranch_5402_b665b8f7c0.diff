@@ -1,0 +1,439 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5402
+# Commit: b665b8f7c0f8fd4f8ca92a2eca0f696efd5438f8
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 29542f4db907fb0664c4c7470b2d5308c23a1265
+# Title: better support Earth2 and other maps' heaviness computation Earth2 now treated as Land type, and other map types missing added with the help of GPT-5.2-Codex...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+10	0	Assets/XML/GlobalDefines_advciv_sas.xml
+87	25	CvGameCoreDLL/CvGame.cpp
+62	149	_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+2	0	_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index a72f1d6de..1b09dba91 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -67,6 +67,16 @@ Created as part of AdvCiv-SAS improvements
+ 		<iDefineIntVal>1</iDefineIntVal>
+ 	</Define>
+ 
++	<!-- custom: starting area thresholds based on starting-plot landmasses; higher means stricter. (GPT-5.2-Codex) -->
++	<Define>
++		<DefineName>SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT</DefineName>
++		<iDefineIntVal>75</iDefineIntVal>
++	</Define>
++	<Define>
++		<DefineName>SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT</DefineName>
++		<iDefineIntVal>66</iDefineIntVal>
++	</Define>
++
+ 
+ 
+ 	<!-- custom: in sevopedia civics, order civics by civic type (e.g. Government, Economy, etc.) instead of an alphabetical unordered very long list, as RFC DOC mod does and that this code is based on, with the help of chatgpt 5.2 thanks -->
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 69a0f201e..c8da408bd 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -274,34 +274,89 @@ void CvGame::setInitialItems()
+ 		regenerateMap(true); // </advc.tsl>
+ }
+ 
+-// <!-- custom: new helpers addition quite self explanatory xd, see also known issue as of now 42 for details as well, and also done with chatgpt 5's help and check if accurate too or most relevant or if there is a better way perhaps to do this; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too. -->
+-// CvGame.cpp — the “braindead” recompute (just ==)
++// <!-- custom: new helpers, see also KI#42; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map during civ4 run time, as advised by chatgpt 5 too. (GPT-5.2-Codex (summarized)) -->
++// <!-- custom: CvGame.cpp - recompute from map script name, then starting-area distribution (else neutral). (GPT-5.2-Codex) -->
+ void CvGame::recomputeMapnameHeaviness()
+ {
+-    const CvWString name = GC.getInitCore().getMapScriptName(); // whatever you already use
++	CvWString const szName = GC.getInitCore().getMapScriptName();
++
++	m_bLandHeavyMapname =
++		(szName == L"Fractal") ||
++		(szName == L"Hemispheres") ||
++		(szName == L"Pangaea") ||
++		(szName == L"PerfectMongoose") ||
++		(szName == L"Tectonics") ||
++		(szName == L"Terra") || // <!-- custom: empirically and based on map descriptions looks landHeavy -->
++		(szName == L"Balanced") ||
++		(szName == L"Continents") ||
++		(szName == L"Custom_Continents") ||
++		(szName == L"Fantasy_Realm") || // <!-- custom: empirically looks landHeavy -->
++		(szName == L"Great_Plains") ||
++		(szName == L"Highlands") ||
++		(szName == L"Ice_Age") ||
++		(szName == L"Inland_Sea") || // <!-- custom: empirically looks landHeavy -->
++		(szName == L"Maze") || // <!-- custom: empirically looks landHeavy -->
++		(szName == L"Lakes") ||
++		(szName == L"Oasis") ||
++		(szName == L"Team_Battleground") || // <!-- custom: empirically looks landHeavy -->
++		(szName == L"Tilted_Axis") ||
++		(szName == L"Arboria") ||
++		(szName == L"Boreal") ||
++		(szName == L"Donut") || // <!-- custom: empirically looks landHeavy -->
++		(szName == L"Earth2") ||
++		(szName == L"Global_Highlands") ||
++		(szName == L"Rainforest");
++
++	m_bNavalHeavyMapname =
++		(szName == L"Archipelago") ||
++		(szName == L"Islands");
++
++	if (m_bLandHeavyMapname || m_bNavalHeavyMapname)
++		return;
+ 
+-    // land-heavy – your exact list
+-    m_bLandHeavyMapname =
+-        (name == L"Pangaea") ||
+-        (name == L"Continents") ||
+-        (name == L"Custom_Continents") ||
+-        (name == L"Terra") ||
+-        (name == L"Great_Plains") ||
+-        (name == L"Highlands") ||
+-        (name == L"Inland_Sea") ||
+-        (name == L"Oasis") ||
+-        (name == L"Fantasy_Realm") ||
+-        (name == L"Balanced");
++	std::map<int,int> aiAreaStarts;
++	int iMajorCivs = 0;
++	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
++	{
++		CvPlot const* pStart = it->getStartingPlot();
++		if (pStart == NULL)
++			continue;
++		++iMajorCivs;
++		aiAreaStarts[pStart->getArea().getID()]++;
++	}
++	if (iMajorCivs > 1)
++	{
++		int iLargestAreaStartCount = 0;
++		for (std::map<int,int>::const_iterator it = aiAreaStarts.begin();
++			it != aiAreaStarts.end(); ++it)
++		{
++			if (it->second > iLargestAreaStartCount)
++				iLargestAreaStartCount = it->second;
++		}
++		int const iAreaCount = static_cast<int>(aiAreaStarts.size());
++		int const iDistinctAreaPercent = (iAreaCount * 100) / iMajorCivs;
++		int const iLargestAreaPercent = (iLargestAreaStartCount * 100) / iMajorCivs;
++		static const int iNavalHeavyStartAreaPercentMin =
++				GC.getDefineINT("SAS_MAP_STARTING_AREAS_NAVAL_HEAVY_MIN_PCT");
++		static const int iLandHeavyStartAreaPercentMin =
++				GC.getDefineINT("SAS_MAP_STARTING_AREAS_LAND_HEAVY_MIN_PCT");
+ 
+-    // naval-heavy – your exact list
+-    m_bNavalHeavyMapname =
+-        (name == L"Archipelago") ||
+-        (name == L"Islands") ||
+-        (name == L"Ring");
++		if (iDistinctAreaPercent >= iNavalHeavyStartAreaPercentMin)
++		{
++			m_bNavalHeavyMapname = true;
++			m_bLandHeavyMapname = false;
++			return;
++		}
++		if (iLargestAreaPercent >= iLandHeavyStartAreaPercentMin)
++		{
++			m_bLandHeavyMapname = true;
++			m_bNavalHeavyMapname = false;
++			return;
++		}
++	}
+ 
+-    // tie-break (just in case you add overlapping names later)
+-    if (m_bLandHeavyMapname && m_bNavalHeavyMapname)
+-        m_bLandHeavyMapname = false; // prefer naval if ambiguous
++	m_bLandHeavyMapname = false;
++	m_bNavalHeavyMapname = false;
+ }
+ 
+ 
+@@ -8984,6 +9039,10 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	// m_bPlayerOptionsSent not saved
+ 	pStream->Read(&m_bNukesValid);
+ 
++	// <!-- custom: map heaviness is persisted in saves; no recompute on load, only on new-game map generation. (GPT-5.2-Codex) -->
++	pStream->Read(&m_bLandHeavyMapname);
++	pStream->Read(&m_bNavalHeavyMapname);
++
+ 	pStream->Read((int*)&m_eHandicap);
+ 	pStream->Read((int*)&m_eAIHandicap); // advc.127
+ 	pStream->Read((int*)&m_ePausePlayer);
+@@ -9157,10 +9216,10 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	applyOptionEffects(); // advc.310
+ 	m_bFPTestDone = !isNetworkMultiPlayer(); // advc.003g
+ 
+-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided by chatgpt 5 which i adjusted or not, check if accurate -->
++	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). Added with the help of chatgpt 5 thanks -->
+ 	// 5) Call sites (in CvGame.cpp) — recap
+ 	// After loading a save: end of CvGame::read(FDataStreamBase*)
+-	recomputeMapnameHeaviness();
++	// Update: Now loaded from save (no recompute here). (GPT-5.2-Codex)
+ }
+ 
+ 
+@@ -9215,6 +9274,9 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	// m_bPlayerOptionsSent not saved
+ 	pStream->Write(m_bNukesValid);
+ 
++	pStream->Write(m_bLandHeavyMapname);
++	pStream->Write(m_bNavalHeavyMapname);
++
+ 	pStream->Write(m_eHandicap);
+ 	pStream->Write(m_eAIHandicap); // advc.127
+ 	pStream->Write(m_ePausePlayer);
+
+diff --git a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+index 17bbd0ea1..87d8cbd60 100644
+--- a/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
++++ b/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md
+@@ -384,155 +384,68 @@ For unit AIs that are correct in the OP, I didn't write anything.
+ 
+ ## Find and select map type in the DLL
+ 
+-While trying to fix the issue of too many naval units hehe (no reference to another mod xd is first thing that i wrote unconsciously), i have found these map types with chatgpt 5's help (who/which helped me write this doc section btw)
+-
+-Default Map Scripts – Civilization IV: Beyond the Sword
+-
+-### Location
+-
+-`C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\PublicMaps\`
+-
+-### Map Script Files
+-
+-- `Archipelago.py`
+-- `Balanced.py`
+-- `Continents.py`
+-- `Custom_Continents.py`
+-- `Fantasy_Realm.py`
+-- `Fractal.py`
+-- `Great_Plains.py`
+-- `Highlands.py`
+-- `Hub.py`
+-- `Ice_Age.py`
+-- `Inland_Sea.py`
+-- `Islands.py`
+-- `Lakes.py`
+-- `Maze.py`
+-- `Mirror.py`
+-- `Oasis.py`
+-- `Pangaea.py`
+-- `Ring.py`
+-- `Shuffle.py`
+-- `Team_Battleground.py`
+-- `Terra.py`
+-- `Tilted_Axis.py`
+-- `Wheel.py`
+-- `aDebugMap.py` *(testing/development)*
+-
+-### Map type summary
+-
+-Done by chatgpt 5 (so/but check to be sure it is accurate) and i formatted it.
+-
+-Below is a quick-reference summary of all default map scripts in *Beyond the Sword*, with short descriptions of their typical gameplay impact.
+-
+-#### Archipelago
+-
+-Multiple varied-sized islands surrounded by ocean. Limited land in each spot means players rely on fishing and naval expansion. Ideal for exploration-focused play and slower-paced growth.
+-
+-#### Balanced
+-
+-One big landmass with several smaller surrounding islets. Players start near the ocean on the main continent, offering a mix of naval and land play opportunities.
+-
+-#### Continents
+-
+-Two to three large continents separated by oceans. Civs are spread across them, fostering mid-game naval competition and territorial strategies.
+-
+-#### Custom Continents
+-
+-Like Continents but with multiple tiny islands scattered around. Encourages periodic naval moments and strategic planning across both land and sea.
+-
+-#### Fantasy Realm
+-
+-A solid, continuous landmass with many freshwater lakes. Terrain is wildly mixed—desert, tundra, and ice appear randomly, adding variety to exploration.
+-
+-#### Fractal
+-
+-Strange, thin, snakelike landmasses created from mathematical formulas. Shoreline spawns are common, and landscapes are notoriously unpredictable.
+-
+-#### Great Plains
+-
+-Inspired by the US plains—large open areas with rivers, patches of desert, forests, and strategic resources like stone and marble. Good for land-based development.
+-
+-#### Highlands
+-
+-Steppes and hills fill the map, resembling Indo-Asian terrain. Forests, minor jungle, tundra, and hills dominate—adds vertical strategic depth.
+-
+-#### Hub
+-
+-One central landmass with "spokes" radiating out. Designed for multiplayer (up to ~10 players), with players starting on separate spokes for balanced connections.
+-
+-#### Ice Age
+-
+-Ice and tundra dominate the map. Habitable land is scarce and spread thin, often in island-like formations, making expansion challenging.
+-
+-#### Inland Sea
+-
+-A large sea surrounded by continents—land wraps around central water. Strategic naval chokepoints and inland water access define this map’s dynamic.
+-
+-#### Islands
+-
+-Moderate-sized islands spread across the map, typically one per civilization. Encourages early naval focus and avoiding land-based wars.
+-
+-#### Lakes
+-
+-One large landmass featuring multiple large saltwater lakes. Starting positions are typically near water, aiding lake-based trade and exploration.
+-
+-#### Mirror
+-
+-The map is symmetrically mirrored. Player placements and landforms reflect across an axis, offering balanced starts and fairness in multiplayer.
+-
+-#### Oasis
+-
+-Desert centre with water along one edge. Civilizations often start near the desert border, establishing survival and resource strategies early.
+-
+-#### Pangaea
+-
+-A single large continent with water edges. Starts are random, leading to land-heavy conflicts and limited early naval warfare.
+-
+-#### Maze
+-
+-Land forms maze-like paths between water. Complex navigation makes exploration and expansion tricky but strategically rich.
+-
+-#### Ring
+-
+-A ring of interconnected islands surrounding a cold or snowy center. Offers a unique, circular naval-limited game flow.
+-
+-#### Shuffle
+-
+-Essentially "Random" — all aspects are scrambled. Starts and continent patterns are fluid and unpredictable.
+-
+-#### Team Battleground
+-
+-Layered terrain: snow/tundra, grassland, desert, then back again. Similar to Mirror but with more randomness—balanced starts and mixed weather zones.
+-
+-#### Terra
+-
+-Earth-like layout—multiple continents with islands. Players usually start on sizable landmasses, encouraging territorial tussles.
+-
+-### Modding note
+-
+-When calling `getMapScriptName()` or checking the selected script in the DLL (e.g., `updatePangaea()`), Civ4 uses the **filename without `.py`** — e.g., `Pangaea.py` → `"Pangaea"`. If you want to treat multiple map types the same way in AI logic (e.g., `"Continents"` like `"Pangaea"`), explicitly check for each name.
+-
+-Examples of usage based on real mod existing samples in the mod (for example in [/CvGameCoreDLL/CvInitCore.cpp](/CvGameCoreDLL/CvInitCore.cpp)) before our changes hehe:
+-
+-```cpp
+-bool const isPangea = GC.getInitCore().isPangaea();
+-```
+-
+-or
+-
+-```cpp
+-bool const isLandMap = (
+-    getMapScriptName().compare(L"Pangaea") == 0 ||
+-    getMapScriptName().compare(L"Continents") == 0
+-)
+-```
+-
+-Note: not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map maybe (i don't know but in case i mean, check to be sure) during civ4 run time, as advised by chatgpt 5 too
+-
+-As for implementation, see what i did for example in as of now `isNavalHeavyMap` and `isLandHeavyMap` but check if it is accurate or there is a better way to characterize maps or not
+-
+-See also [KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc).
++### Locations
++
++Adjust to your mod path:
++
++- AdvCiv-SAS: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\PrivateMaps\`
++- BTS: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\PublicMaps\`
++- Warlords: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Warlords\PublicMaps\`
++- Base Civ 4: `C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\PublicMaps\`
++
++### Map types
++
++Done with the help of GPT-5.2 Thinking thanks:
++
++| Map script name        | Description                                                                                                                                       | Map Type                                 | Folders (oldest -> newest)           |
++| ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------- | ------------------------------------ |
++| `Fractal`              | Approximative: Standard random world generator; usually produces a few sizable landmasses with varied coastlines.                                 | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
++| `Hemispheres`          | Two (or few) major landmasses separated by ocean; tends to split starts across them.                                                              | Land                                     | BTS, AdvCiv-SAS                      |
++| `Mixed_Continents`     | Hybrid continents + smaller land/island pieces; not purely “big continents” nor purely islands.                                                   | Other (hybrid land + islands)            | AdvCiv-SAS                           |
++| `not_too_Big_or_Small` | Hybrid landmass sizing tuned to avoid extremes (not one supercontinent, not tiny-islands-only).                                                   | Other (hybrid land + islands)            | AdvCiv-SAS                           |
++| `Pangaea`              | One massive primary continent (most civs share early land contact).                                                                               | Land                                     | Base Civ4, Warlords, AdvCiv-SAS      |
++| `PerfectMongoose`      | Approximative: Third-party “planet” style generator; typically aims for more natural-looking geography (still mostly standard land/sea gameplay). | Land                                     | AdvCiv-SAS                           |
++| `Tectonics`            | Plate-tectonics style continents with strong mountain chains and structured geography.                                                            | Land                                     | BTS, AdvCiv-SAS                      |
++| `Terra`                | Old World starts with a separate “New World” to discover/colonize later; `<!-- custom: Land, see description -->` | Other (old world/new world colonization); `<!-- custom: empirically and based on map descriptions looks landHeavy -->` | Base Civ4, Warlords, BTS, AdvCiv-SAS |
++| `aDebugMap`            | Approximative: Debug/testing script; not meant for normal balanced play (layout can be artificial).                                               | Other (debug/test map)                   | Base Civ4                            |
++| `Archipelago`          | Many small islands; heavy naval emphasis early.                                                                                                   | Water                                    | Base Civ4, Warlords                  |
++| `Balanced`             | Land/sea like standard scripts but biased toward fairer starts.                                                                                   | Land                                     | Base Civ4, Warlords                  |
++| `Continents`           | Several large continents separated by ocean; naval matters for contact, but landmasses are large.                                                 | Land                                     | Base Civ4, Warlords                  |
++| `Custom_Continents`    | Continents-style with extra customization knobs; still “big continent” gameplay.                                                                  | Land                                     | Base Civ4, Warlords                  |
++| `Fantasy_Realm`        | Approximative: “Fantasy/exotic” generation (more extreme/unusual geography than standard scripts); `<!-- custom: empirically looks landHeavy -->` | Other (script-specific exotic geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords                  |
++| `Great_Plains`         | Very land-dominant, open terrain focus (fewer big natural barriers).                                                                              | Land                                     | Base Civ4, Warlords                  |
++| `Highlands`            | Rugged, hill/mountain-heavy world with more chokepoints.                                                                                          | Land                                     | Base Civ4, Warlords, BTS             |
++| `Hub`                  | Structured hub-and-spokes style connectivity (nonstandard geometry).                                                                              | Other (structured hub geometry)          | Base Civ4, Warlords                  |
++| `Ice_Age`              | Cold-biome leaning world (more tundra/snow feel than default).                                                                                    | Land                                     | Base Civ4                            |
++| `Inland_Sea`           | Central inland sea with surrounding land; coastal play is central but not an island world; `<!-- custom: empirically looks landHeavy -->`         | Other (central inland sea layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords                  |
++| `Islands`              | Island-heavy map (often fewer/larger islands than Archipelago, depending on script).                                                              | Water                                    | Base Civ4, Warlords                  |
++| `Lakes`                | Land-heavy with many internal lakes and inland coastlines.                                                                                        | Land                                     | Base Civ4, Warlords                  |
++| `Maze`                 | Labyrinth corridors and chokepoints (movement constrained by channels); `<!-- custom: empirically looks landHeavy -->` | Other (maze/chokepoint geometry); `<!-- custom: Land, see description -->` | Base Civ4, Warlords                  |
++| `Medium_and_Small`     | Mix of medium landmasses plus smaller islands; more hybrid than pure continents.                                                                  | Other (hybrid land + islands)            | BTS                                  |
++| `Mirror`               | Symmetrical/mirrored layout for fairness (often MP-friendly).                                                                                     | Other (symmetry-based layout)            | Base Civ4, Warlords                  |
++| `Oasis`                | Desert-heavy with fertile pockets; expansion routes revolve around green clusters.                                                                | Land                                     | Base Civ4, Warlords                  |
++| `Ring`                 | Ring-shaped primary land distribution (distinct wraparound feel).                                                                                 | Other (ring geometry)                    | Base Civ4, Warlords                  |
++| `Shuffle`              | Randomly selects among multiple generator styles each game.                                                                                       | Random                                   | Base Civ4, Warlords                  |
++| `Team_Battleground`    | Team-oriented, typically symmetric starts/front lines (purpose-built for teams); `<!-- custom: empirically looks landHeavy -->`                   | Other (team/symmetry layout); `<!-- custom: Land, see description -->` | Base Civ4, Warlords, BTS             |
++| `Tilted_Axis`          | Standard landmasses, but climate bands are “tilted” vs normal north-south.                                                                        | Land                                     | Base Civ4, Warlords                  |
++| `Wheel`                | Wheel/spokes-style structure (highly nonstandard geometry).                                                                                       | Other (wheel/spokes geometry)            | Base Civ4, Warlords                  |
++| `Arboria`              | Forest-heavy/“lush” world variant (terrain emphasis more than geometry).                                                                          | Land                                     | BTS                                  |
++| `Big_and_Small`        | Mix of a few big landmasses plus many smaller islands; both land and naval matter.                                                                | Other (hybrid land + islands)            | BTS                                  |
++| `Boreal`               | Cold/taiga-biome emphasis (forests/tundra feel).                                                                                                  | Land                                     | BTS                                  |
++| `Donut`                | Donut-shaped land ring with central water (distinct navigation); `<!-- custom: empirically looks landHeavy -->`                                   | Other (donut/ring geometry); `<!-- custom: Land, see description -->`              | BTS                                  |
++| `Earth2`               | Approximative: Earth-like distribution feel (not necessarily a fixed real Earth map).                                                             | Land                                     | BTS                                  |
++| `Global_Highlands`     | Highlands-like ruggedness applied broadly (more hills/peaks overall).                                                                             | Land                                     | BTS                                  |
++| `Rainforest`           | Jungle-heavy/wet-biome emphasis (terrain/feature density changes).                                                                                | Land                                     | BTS                                  |
++| `RandomScriptMap`      | Meta-script that selects one of the installed scripts at random (often from a curated set).                                                       | Random                                   | BTS                                  |
++
++[1: The Complete Guide to Map Creation (image heavy) - CivFanatics](https://civfanatics.com/civ4/strategy/references/the-complete-guide-to-map-creation-image-heavy/)
++[2: scribd.com/document/597223574/AdvCiv-manual](https://www.scribd.com/document/597223574/AdvCiv-manual)
++[3: map-script-which-one-do-you-usually-play.471862](https://forums.civfanatics.com/threads/map-script-which-one-do-you-usually-play.471862/)
++[4: https://forums.civfanatics.com/threads/odd-scenarios.363992/](https://forums.civfanatics.com/threads/odd-scenarios.363992/)
++
++### old info
++
++[KI#42](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#42---enhancedaddressed-tune-ais-preferred-based-unitai-based-on-war-status-offense-mode-defense-mode-combined-power-ratios-of-ennemies-etc-if-any-other-general-sanity-checks-and-efficiency-city-size-map-type-land-heavy-vs-water-heavy-vs-other-if-any-for-example-general-suicide-or-such-tendencies-etc).
+ 
+ ## Where to find Python errors or debug (so no need to copy them either if you need to ask chatgpt or such or a forum)
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index d8552b3ce..95d878f15 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -1387,6 +1387,8 @@ Here are the things i changed:
+ 
+ Update: now caching mapname is landheavy or mapname is navalheavy info as boolean only once per map load (new game, load save, etc if anymore we hopefully handle, see the new `CvGame::recomputeMapnameHeaviness` we added for details and their corresponding new `m_bLandHeavyMapname` and `m_bNavalHeavyMapname` (check if accurate as i don't know too much about these, done with the help of chatgpt 5). Seems to be behaving as intended though from quick testing in autoplay (as much land units in land maps with low naval units as intended, and many naval units in naval heavy maps, so hopefully safe enough or safe and working as intended i mean if i may say but check to be sure).
+ 
++Update 2: include more map types and change the way we evaluate this, see code for details
++
+ ## 43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites, and other related changes
+ 
+ Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1TTw-Ya5yHNh3iuXgGWw-9vw_E6ykdps8?usp=sharing).
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=4 omittedFiles=1 embeddedPatchBytes=27841

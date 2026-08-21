@@ -1,0 +1,94 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3778
+# Commit: ccb608907cb1495e8ed5125c151ca281fbea633d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 603e37d586cb6f6eafd7362e10e4145e6c1c796c
+# Title: More detailed hover text for BUG specialist options
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/Config/BUG City Screen.xml
+14	12	Assets/XML/Text/BUG City Screen Options.xml
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index d96d653ca..949ee8229 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -97,9 +97,10 @@
+ 			
+ 			<!-- Specialist Stacker by TheLopez -->
+ 			<!-- Specialist Chevrons by Ruff_Hi -->
++			<!-- advc.004: "Default" renamed to "BtS" -->
+ 			<list   id="Specialists" key="City Specialists" 
+ 					type="int" default="2" listType="string" 
+-					values="Default|Stacker|Chevron" 
++					values="BtS|Stacker|Chevron" 
+ 					get="getCitySpecialist" dirtyBit="CityScreen">
+ 				<choice id="Default" get="isCitySpecialist_Default"/>
+ 				<choice id="Stacker" get="isCitySpecialist_Stacker"/>
+
+diff --git a/Assets/XML/Text/BUG City Screen Options.xml b/Assets/XML/Text/BUG City Screen Options.xml
+index d7241f3fb..0b839cec7 100644
+--- a/Assets/XML/Text/BUG City Screen Options.xml	
++++ b/Assets/XML/Text/BUG City Screen Options.xml	
+@@ -232,33 +232,35 @@
+ 		<Spanish>Si se activa, muestra s�lo las corporaciones que est�n presentes en la ciudad y permite m�s de siete corporaciones.</Spanish>
+ 	</TEXT>
+ 
+-	<!-- advc.004: German was too long -->
++	<!-- advc.004: Was "City Specialists", which is redundant b/c we're on the
++		 "City" tab. And too long in translations. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__SPECIALISTS_TEXT</Tag>
+-		<English>City Specialists</English>
++		<English>Specialist Layout</English>
+ 		<French>Sp�cialistes</French>
+ 		<German>Spezialisten</German>
+ 		<Italian>Specialisti</Italian>
+ 		<Spanish>Especialistas</Spanish>
+ 	</TEXT>
+-	<!-- Only replaced "vanilla BtS" with "BtS" - calling BtS vanilla is always
+-		 a little confusing. -->
++	<!-- Description wasn't really informative; rewritten.
++		 NB: The highlighting of forced specialists was probably disabled b/c it
++		 would look odd with the stacked up icons, and b/c a chevron icon represents
++		 several specialists, some of which may be forced, some non-forced. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__SPECIALISTS_HOVER</Tag>
+-		<English>Determines how specialists are displayed:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Default[COLOR_REVERT] - Shows specialists using the BtS format.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Stacker[COLOR_REVERT] - Shows specialists stacked using the Stacked Specialist mod.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Chevron[COLOR_REVERT] - Shows specialists grouped into 5 (single chevron), 10 (capped chevron) and 20 (boxed capped chevron) format.</English>
++		<English>Determines how city specialists are displayed:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BtS[COLOR_REVERT] - Shows assigned specialist icons side by side (until running out of space). Manually assigned specialists are highlighted; the other two layouts disable this.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Stacker[COLOR_REVERT] - Shows icons to indicate both the assigned and allowed specialists - and lets the icons overlap when running out of space. [NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Chevron[COLOR_REVERT] - Like the BtS layout except that groups of 5 or more specialists are represented by a single icon with a tiny chevron symbol.</English>
+ 		<French>Determine comment les sp�cialistes sont montr�s.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]D�faut[COLOR_REVERT] - Montre les sp�cialistes comme BtS.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Tas[COLOR_REVERT] - Tasse les sp�cialistes.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Chevrons[COLOR_REVERT] - Groupe les sp�cialistes par 5 (simple chevron), 10 (chevron plein) et 20 (chevron plein plus carr�).</French>
+-		<German>Bestimmt die Anordnung der Spezialisten im Stadt-Bildschirm:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Standard[COLOR_REVERT] - Spezialisten werden wie in "Beyond the Sword" angeordnet[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Stapel[COLOR_REVERT] - Spezialisten werden gestapelt angeordnet (verwendet die "Stacked Specialist"-Mod)[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Chevron[COLOR_REVERT] - Spezialisten werden zu Gruppen aus 5 (einfaches Chevron), 10 (geschlossenes Chevron) und 20 (eingerahmtes geschlossenes Chevron) Spezialisten zusammengefasst</German>
++		<German>Bestimmt die Anordnung der Spezialisten im Stadt-Bildschirm:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]BtS[COLOR_REVERT] - Spezialisten-Symbole werden, wie in BtS, Seite-an-Seite angeordnet bis kein Platz mehr ist. Manuell zugewiesene Spezialisten werden hervorgehoben (die anderen beiden Optionen tun dies nicht).[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Stapel[COLOR_REVERT] - Auch die maximal arlaubte Anzahl von Spezialisten wird durch Symbole angezeigt. Wenn nicht genug Platz ist, werden die Symbole teilweise �berlagert ("gestapelt").[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Chevron[COLOR_REVERT] - Wie in BtS, aber Gruppen von 5 oder mehr Spezialisten werden durch ein einzelnes Symbol ersetzt, das mit einem kleinen Haken versehen ist.</German>
+ 		<Italian>Determina quanti Specialisti vengono mostrati:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Predefinito[COLOR_REVERT] - mostra gli Specialisti utilizzando il formato standard di Civ4:BtS;[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Impilati[COLOR_REVERT] - mostra gli Specialisti utilizzando il formato a pile dello 'Stacked Specialist Mod';[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Galloni[COLOR_REVERT] - mostra gli Specialisti raggruppati per 5, 10 e 20 utilizzando il formato a galloni dello 'Chevron Mod'.</Italian>
+ 		<Spanish>Determina c�mo se muestra a los especialistas:[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Por Defecto[COLOR_REVERT] - Muestra a los especialistas en el formato por defecto de BtS.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Apilados[COLOR_REVERT] - Muestra a los especialistas apilados empleando el mod Stacked Specialists.[NEWLINE][ICON_BULLET][COLOR_HIGHLIGHT_TEXT]Grupos[COLOR_REVERT] - Muestra a los especialistas agrupados en 5 (grupo simple), 10 (grupo con raya superior) y 20 (grupo en caja).</Spanish>
+ 	</TEXT>
+-
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_CITYSCREEN__SPECIALISTS_LIST</Tag>
+-		<English>Default|Stacker|Chevron</English>
+-		<French>D�faut|Tas|Chevrons</French>
+-		<German>Standard|Stapel|Chevron</German>
+-		<Italian>Predefinito|Impilati|Galloni</Italian>
+-		<Spanish>Por Defecto|Apilados|Grupos</Spanish>
++		<English>BtS|Stacker|Chevron</English>
++		<French>BtS|Tas|Chevrons</French>
++		<German>BtS|Stapel|Chevron</German>
++		<Italian>BtS|Impilati|Galloni</Italian>
++		<Spanish>BtS|Apilados|Grupos</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- advc.004: Minor changes -->
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=6606

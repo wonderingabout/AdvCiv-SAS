@@ -1,0 +1,225 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 116
+# Commit: 47f56c9c4e1c528bda9b1a6bfbe3eafb4f768ae4
+# History segment: K-Mod history
+# Parent used for diff: 19b260ce8a8d535dcbf1b551f6fcdef21b44d595
+# Title: Rewrote the BBAI war success ratio code to scale properly for wars of different sizes in different eras. Generally reduced the build probability of defensive...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+6	3	CvGameCoreDLL/CvCityAI.cpp
+34	11	CvGameCoreDLL/CvPlayerAI.cpp
+39	1	CvGameCoreDLL/CvTeamAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 7468070d4..230d63154 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1566,7 +1566,7 @@ void CvCityAI::AI_chooseProduction()
+ 	floatingDefenderTypes.push_back(std::make_pair(UNITAI_CITY_COUNTER, 100));
+ 	//floatingDefenderTypes.push_back(std::make_pair(UNITAI_CITY_SPECIAL, 0));
+ 	floatingDefenderTypes.push_back(std::make_pair(UNITAI_RESERVE, 100));
+-	floatingDefenderTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 100));
++	floatingDefenderTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 80)); // K-Mod, down from 100
+ 	
+ 	if (iTotalFloatingDefenders < ((iNeededFloatingDefenders + 1) / (bGetBetterUnits ? 3 : 2)))
+ 	{
+@@ -1578,14 +1578,17 @@ void CvCityAI::AI_chooseProduction()
+ 	}
+ 
+ 	// If losing badly in war, need to build up defenses and counter attack force
+-	if( bLandWar && (iWarSuccessRatio < -30 || iEnemyPowerPerc > 150) )
++	//if( bLandWar && (iWarSuccessRatio < -30 || iEnemyPowerPerc > 150) )
++	// K-Mod. I've changed the condition on this; but to be honest, I'm thinking it should just be completely removed.
++	// The noraml unit selection function should know what kind of units we should be building...
++	if (bLandWar && iWarSuccessRatio < -10 && iEnemyPowerPerc - iWarSuccessRatio > 150)
+ 	{
+ 		UnitTypeWeightArray defensiveTypes;
+ 		defensiveTypes.push_back(std::make_pair(UNITAI_COUNTER, 100));
+ 		defensiveTypes.push_back(std::make_pair(UNITAI_ATTACK, 100));
+ 		defensiveTypes.push_back(std::make_pair(UNITAI_RESERVE, 60));
+ 		//defensiveTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 60));
+-		defensiveTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 100));
++		defensiveTypes.push_back(std::make_pair(UNITAI_COLLATERAL, 80));
+ 		if ( bDanger || (iTotalFloatingDefenders < (5*iNeededFloatingDefenders)/(bGetBetterUnits ? 6 : 4)))
+ 		{
+ 			defensiveTypes.push_back(std::make_pair(UNITAI_CITY_DEFENSE, 200));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 0abc8fc6e..260577840 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -7357,6 +7357,8 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 				}
+ 
+ 				// Is ePeaceTeam winning wars?
++				int iPeaceTeamPower = GET_TEAM(ePeaceTeam).getPower(true);
++
+ 				for (iI = 0; iI < MAX_CIV_TEAMS; iI++)
+ 				{
+ 					if (GET_TEAM((TeamTypes)iI).isAlive())
+@@ -7368,7 +7370,6 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData,
+ 								int iPeaceTeamSuccess = GET_TEAM(ePeaceTeam).AI_getWarSuccess((TeamTypes)iI);
+ 								int iOtherTeamSuccess = GET_TEAM((TeamTypes)iI).AI_getWarSuccess(ePeaceTeam);
+ 
+-								int iPeaceTeamPower = GET_TEAM(ePeaceTeam).getPower(true);
+ 								int iOtherTeamPower = GET_TEAM((TeamTypes)iI).getPower(true);
+ 
+ 								if (iPeaceTeamSuccess * iPeaceTeamPower > (iOtherTeamSuccess + iSuccessScale) * iOtherTeamPower)
+@@ -12834,7 +12835,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		}
+ 	}
+ 
+-	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() > 0)
++	if (GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() > 0)
+ 	{
+ 		if (NULL != pPlot)
+ 		{
+@@ -12845,9 +12846,16 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				{
+ 					int iCultureAmount = GC.getEspionageMissionInfo(eMission).getCityInsertCultureAmountFactor() * pPlot->getCulture(getID());
+ 					iCultureAmount /= 100;
+-					if (pCity->calculateCulturePercent(getID()) > 40)
++					/* if (pCity->calculateCulturePercent(getID()) > 40)
+ 					{
+ 						iValue += iCultureAmount * 3;
++					}*/
++					// K-Mod
++					int iClossness = pCity->AI_playerCloseness(getID(), DEFAULT_PLAYER_CLOSENESS);
++					if (iClossness > 20 && pCity->calculateCulturePercent(getID()) > 20)
++					{
++						int iMultiplier = std::min(2, iClossness * pCity->culturePressureFactor() / 4000);
++						iValue += iCultureAmount * iMultiplier;
+ 					}
+ 				}
+ 			}
+@@ -12951,7 +12959,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 
+ 	// K-Mod
+ 	if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE)
+-		&& iValue < 30*getCurrentEra()*getCurrentEra() // 30, 120, 270, 480, 750, ...
++		&& iValue < 50*getCurrentEra()*getCurrentEra() // 50, 200, 450, 800, 1250, ...
+ 		&& iValue < 2*getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iData))
+ 	{
+ 		return 0;
+@@ -13411,18 +13419,32 @@ int CvPlayerAI::AI_calculateGoldenAgeValue() const
+     iValue = 0;
+     for (iI = 0; iI <  NUM_YIELD_TYPES; ++iI)
+     {
++		/* original bts code
+         iTempValue = (GC.getYieldInfo((YieldTypes)iI).getGoldenAgeYield() * AI_yieldWeight((YieldTypes)iI));
+-        iTempValue /= std::max(1, (1 + GC.getYieldInfo((YieldTypes)iI).getGoldenAgeYieldThreshold()));
++        iTempValue /= std::max(1, (1 + GC.getYieldInfo((YieldTypes)iI).getGoldenAgeYieldThreshold())); */
++		// K-Mod
++		iTempValue = GC.getYieldInfo((YieldTypes)iI).getGoldenAgeYield() * AI_yieldWeight((YieldTypes)iI) * AI_averageYieldMultiplier((YieldTypes)iI);
++		iTempValue /= 1 + GC.getYieldInfo((YieldTypes)iI).getGoldenAgeYieldThreshold();
++		if (iI == YIELD_PRODUCTION)
++			iTempValue *= 2;
++		if (iI == YIELD_FOOD)
++			iTempValue *= 3;
++		//
+         iValue += iTempValue;
+     }
+ 
+-    iValue *= getTotalPopulation();
+-    //iValue *= GC.getGameINLINE().goldenAgeLength(); // original BtS code
+-	iValue *= getGoldenAgeLength(); // K-Mod
+-    iValue /= 100;
++    /* original bts code
++	iValue *= getTotalPopulation();
++    iValue *= GC.getGameINLINE().goldenAgeLength(); // original BtS code
++    iValue /= 100; */
++	// K-Mod
++	iValue *= getTotalPopulation();
++	iValue *= getGoldenAgeLength();
++    iValue /= 10000;
+ 
+ 	// K-Mod. Add some value if we would use the opportunity to switch civics
+-	if (getAnarchyModifier() + 100 > 0)
++	// Note: this first "if" isn't necessary. It just saves us checking civics when we don't need to.
++	if (getMaxAnarchyTurns() != 0 && !isGoldenAge() && getAnarchyModifier() + 100 > 0)
+ 	{
+ 		CivicTypes* paeBestCivic = new CivicTypes[GC.getNumCivicOptionInfos()];
+ 		for (int iI = 0; iI < GC.getNumCivicOptionInfos(); iI++)
+@@ -19660,7 +19682,8 @@ void CvPlayerAI::AI_convertUnitAITypesForCrush()
+ 		if (rit->first > 0 && spare_units[rit->second->area()->getID()] > 0)
+ 		{
+ 			rit->second->AI_setUnitAIType(UNITAI_ATTACK_CITY);
+-			spare_units[rit->second->area()->getID()]--;
++			// only convert half of our spare units, so that we can reevaluate which units we need before converting more.
++			spare_units[rit->second->area()->getID()]-=2;
+ 		}
+ 	}
+ }
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index 3dbafd2e9..04874b79f 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -2305,6 +2305,7 @@ bool CvTeamAI::AI_isAnyMemberDoVictoryStrategyLevel3() const
+ /// to perhaps have another player capitulate to us.
+ int CvTeamAI::AI_getWarSuccessCapitulationRatio() const
+ {
++	/* original BBAI code
+ 	int iSumWarSuccess = 0;
+ 
+ 	for( int iI = 0; iI < MAX_CIV_TEAMS; iI++ )
+@@ -2323,7 +2324,44 @@ int CvTeamAI::AI_getWarSuccessCapitulationRatio() const
+ 
+ 	iSumWarSuccess = range((100*iSumWarSuccess)/iDivisor, -99, 99);
+ 
+-	return iSumWarSuccess;
++	return iSumWarSuccess; */
++
++	// K-Mod
++	// I swear, more often than not the AI at minus 99 would be the one demanding cities for peace.
++	// The original version of this function was so completely off the mark that I pretty much anything
++	// would be an improvement. So let me have a shot at it, without trying to be too fancy.
++	// Based on my code for Force Peace diplomacy voting.
++	int iMilitaryUnits = 0;
++	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
++	{
++		const CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iI);
++		if (kLoopPlayer.getTeam() == getID())
++		{
++			iMilitaryUnits += kLoopPlayer.getNumMilitaryUnits();
++		}
++	}
++	int iSuccessScale = iMilitaryUnits * GC.getDefineINT("WAR_SUCCESS_ATTACKING") / 5;
++
++	int iThisTeamPower = getPower(true);
++	int iScore = 0;
++
++	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
++	{
++		const CvTeam& kLoopTeam = GET_TEAM((TeamTypes)iI);
++		if (iI != getID() && isAtWar((TeamTypes)iI) && kLoopTeam.isAlive() && !kLoopTeam.isAVassal())
++		{
++			int iThisTeamSuccess = AI_getWarSuccess((TeamTypes)iI);
++			int iOtherTeamSuccess = kLoopTeam.AI_getWarSuccess(getID());
++
++			int iOtherTeamPower = kLoopTeam.getPower(true);
++
++			iScore += (iThisTeamSuccess+iSuccessScale) * iThisTeamPower;
++			iScore -= (iOtherTeamSuccess+iSuccessScale) * iOtherTeamPower;
++		}
++	}
++	iScore = range((100*iScore)/std::max(1, iThisTeamPower*iSuccessScale*5), -99, 99);
++	return iScore;
++// K-Mod end
+ }
+ 
+ /// \brief Compute power of enemies as percentage of our power.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=8806

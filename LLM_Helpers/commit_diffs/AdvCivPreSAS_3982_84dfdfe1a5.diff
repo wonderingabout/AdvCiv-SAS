@@ -1,0 +1,110 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3982
+# Commit: 84dfdfe1a533748359b22b2a4bf7d93db1e70f8b
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 0801d1ff80f59a659744dbe03a13aec592d97a8e
+# Title: Amend AI-to-human peace offers
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+10	10	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 9884ef9e3..67b0de1d9 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -815,14 +815,14 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ 	TradeData peaceTreaty(TRADE_PEACE_TREATY);
+ 	/*	AI_counterPropose (and the EXE) don't like peace treaties on both sides
+ 		(not needed by AI_dealVal either) */
+-	if (weGive.getLength() <= 0)
++	if (weGive.getLength() <= 0 && (theyGive.getLength() > 0 || iTheirBenefit > iOurBenefit))
+ 		theyGive.insertAtEnd(peaceTreaty);
+ 	else
+ 	{
+ 		FAssert(theyGive.getLength() <= 0);
+ 		weGive.insertAtEnd(peaceTreaty);
+ 	}
+-	if(kOther.isHuman() && iTheirBenefit < iOurBenefit && theyGive.getLength() == 0)
++	if (kOther.isHuman() && iTheirBenefit < iOurBenefit && theyGive.getLength() == 0)
+ 	{
+ 		/*  Really can't make an attractive offer w/o considering all tradeable items,
+ 			including map and gpt. */
+@@ -873,7 +873,7 @@ bool CvPlayerAI::AI_negotiatePeace(PlayerTypes eOther, int iTheirBenefit, int iO
+ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 	int iDelta, int* iGold, TechTypes* eBestTech, CvCity const** pBestCity)
+ {
+-	int r = 0;
++	int iR = 0;
+ 	CvPlayerAI& kRecipient = GET_PLAYER(eRecipient);
+ 	CvPlayerAI& kGiver = GET_PLAYER(eGiver);
+ 	// <advc.104h> Pay gold if peace vals are similar. (Tbd.: gold per turn)
+@@ -920,7 +920,7 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 	if (*eBestTech != NO_TECH)
+ 	{
+ 		// advc.104h: techTradeVal reduced by passing peaceDeal=true
+-		r += GET_TEAM(kRecipient.getTeam()).AI_techTradeVal(*eBestTech,
++		iR += GET_TEAM(kRecipient.getTeam()).AI_techTradeVal(*eBestTech,
+ 				kGiver.getTeam(), true, true);
+ 	}
+ 
+@@ -930,7 +930,7 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 		Instead, we just pretend that the receiver gets 1 point per gold,
+ 		and the giver loses nothing. (effectively a value of 2) */
+ 	{
+-		int iTradeGold = std::min(iDelta - r, kGiver.AI_maxGoldTrade(eRecipient,
++		int iTradeGold = std::min(iDelta - iR, kGiver.AI_maxGoldTrade(eRecipient,
+ 				true)); // advc.134a
+ 		if (iTradeGold > 0)
+ 		{
+@@ -938,12 +938,12 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 				TRADE_GOLD, iTradeGold), true))
+ 			{
+ 				*iGold = iTradeGold;
+-				r += iTradeGold;
++				iR += iTradeGold;
+ 			}
+ 		}
+ 	}
+ 	// advc.104h: Don't add a city to the trade if it's already almost square
+-	if (iDelta - r > 0.2 * iDelta &&
++	if (iDelta - iR > 0.2 * iDelta &&
+ 		kGiver.canPossiblyTradeItem(eRecipient, TRADE_CITIES)) // advc.opt
+ 	{
+ 		CvCityAI const* pBestCityAI = NULL;
+@@ -957,7 +957,7 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 					city, but make it less strict. */
+ 				//(eRecipient == getID() || kRecipient.AI_cityTradeVal(*pLoopCity) <= iDelta - r)
+ 				kRecipient.AI_cityTradeVal(*pLoopCity) <=
+-				iDelta - r + 0.2 * iDelta) // </advc.104h>
++				iDelta - iR + 0.2 * iDelta) // </advc.104h>
+ 			{
+ 				int iValue = pLoopCity->getPlot().calculateCulturePercent(eRecipient);
+ 				if (iValue > iBestValue)
+@@ -969,11 +969,11 @@ int CvPlayerAI::AI_negotiatePeace(PlayerTypes eRecipient, PlayerTypes eGiver,
+ 		}
+ 		if (pBestCityAI != NULL)
+ 		{
+-			r += kRecipient.AI_cityTradeVal(*pBestCityAI);
++			iR += kRecipient.AI_cityTradeVal(*pBestCityAI);
+ 			*pBestCity = pBestCityAI;
+ 		}
+ 	}
+-	return r;
++	return iR;
+ }
+ 
+ void CvPlayerAI::AI_offerCapitulation(PlayerTypes eTo)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3576

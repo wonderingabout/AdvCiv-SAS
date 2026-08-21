@@ -1,0 +1,37 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2660
+# Commit: 9eae149c879e043d6c08a96e5cdee19b4fd8ca65
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: d3d97c0530a96cd4c089c118841657b15b79d4fa
+# Title: Fix overflow in game score computation
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	CvGameCoreDLL/CvGame.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 32ac37aae..6c8a2dac0 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -2915,7 +2915,7 @@ int CvGame::getScoreComponent(int iRawScore, int iInitial, int iMax,
+ 	scaled rScore = iMultiplier;
+ 	scaled rDiv = rFreeScore + rMax;
+ 	if (rDiv >= 1)
+-		rScore = iMultiplier * (iRawScore + rFreeScore) / rDiv;
++		rScore = (iRawScore + rFreeScore) * (iMultiplier / rDiv);
+ 	if (!bVictory && !bFinal)
+ 		return rScore.round();
+ 	if (bVictory)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=524

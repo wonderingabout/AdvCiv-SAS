@@ -1,0 +1,158 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1171
+# Commit: fe731b39de0c1a1d2a4d6a26392317bf4166b4a6
+# History segment: K-Mod history
+# Parent used for diff: c11a1ba76f3b9ff04bab80395eae10f5294dbbff
+# Title: Capitulation power is now determined after cities are reassigned.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+31	37	CvGameCoreDLL/CvDeal.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvDeal.cpp b/CvGameCoreDLL/CvDeal.cpp
+index 72b7aab30..600d86474 100644
+--- a/CvGameCoreDLL/CvDeal.cpp
++++ b/CvGameCoreDLL/CvDeal.cpp
+@@ -117,11 +117,6 @@ void CvDeal::kill(bool bKillTeam)
+ 
+ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList, bool bCheckAllowed)
+ {
+-	CLLNode<TradeData>* pNode;
+-	bool bAlliance;
+-	bool bSave;
+-	int iValue;
+-
+ 	if (isVassalTrade(pFirstList) && isVassalTrade(pSecondList))
+ 	{
+ 		return;
+@@ -129,7 +124,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 
+ 	if (pFirstList != NULL)
+ 	{
+-		for (pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
++		for (CLLNode<TradeData>* pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
+ 		{
+ 			if (bCheckAllowed)
+ 			{
+@@ -143,7 +138,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 
+ 	if (pSecondList != NULL)
+ 	{
+-		for (pNode = pSecondList->head(); pNode; pNode = pSecondList->next(pNode))
++		for (CLLNode<TradeData>* pNode = pSecondList->head(); pNode; pNode = pSecondList->next(pNode))
+ 		{
+ 			if (bCheckAllowed && !(GET_PLAYER(getSecondPlayer()).canTradeItem(getFirstPlayer(), pNode->m_data)))
+ 			{
+@@ -209,7 +204,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 		{
+ 			if ((pSecondList != NULL) && (pSecondList->getLength() > 0))
+ 			{
+-				iValue = GET_PLAYER(getFirstPlayer()).AI_dealVal(getSecondPlayer(), pSecondList, true);
++				int iValue = GET_PLAYER(getFirstPlayer()).AI_dealVal(getSecondPlayer(), pSecondList, true);
+ 
+ 				if ((pFirstList != NULL) && (pFirstList->getLength() > 0))
+ 				{
+@@ -222,7 +217,7 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 			}
+ 			if ((pFirstList != NULL) && (pFirstList->getLength() > 0))
+ 			{
+-				iValue = GET_PLAYER(getSecondPlayer()).AI_dealVal(getFirstPlayer(), pFirstList, true);
++				int iValue = GET_PLAYER(getSecondPlayer()).AI_dealVal(getFirstPlayer(), pFirstList, true);
+ 
+ 				if ((pSecondList != NULL) && (pSecondList->getLength() > 0))
+ 				{
+@@ -240,55 +235,54 @@ void CvDeal::addTrades(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* p
+ 		}
+ 	}
+ 
++	bool bAlliance = false;
++
+ 	if (pFirstList != NULL)
+ 	{
+-		for (pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
++		// K-Mod. Vassal deals need to be implemented last, so that master/vassal power is set correctly.
++		for (CLLNode<TradeData>* pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
+ 		{
+-			bSave = startTrade(pNode->m_data, getFirstPlayer(), getSecondPlayer());
+-			bBumpUnits = bBumpUnits || pNode->m_data.m_eItemType == TRADE_PEACE; // K-Mod
+-
+-			if (bSave)
++			if (isVassal(pNode->m_data.m_eItemType))
+ 			{
+-				insertAtEndFirstTrades(pNode->m_data);
++				pFirstList->moveToEnd(pNode);
++				break;
+ 			}
+ 		}
+-	}
+-
+-	if (pSecondList != NULL)
+-	{
+-		for (pNode = pSecondList->head(); pNode; pNode = pSecondList->next(pNode))
++		// K-Mod end
++		for (CLLNode<TradeData>* pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
+ 		{
+-			bSave = startTrade(pNode->m_data, getSecondPlayer(), getFirstPlayer());
++			bool bSave = startTrade(pNode->m_data, getFirstPlayer(), getSecondPlayer());
+ 			bBumpUnits = bBumpUnits || pNode->m_data.m_eItemType == TRADE_PEACE; // K-Mod
+ 
+ 			if (bSave)
+-			{
+-				insertAtEndSecondTrades(pNode->m_data);
+-			}
++				insertAtEndFirstTrades(pNode->m_data);
++			if (pNode->m_data.m_eItemType == TRADE_PERMANENT_ALLIANCE)
++				bAlliance = true;
+ 		}
+ 	}
+ 
+-	bAlliance = false;
+-
+-	if (pFirstList != NULL)
++	if (pSecondList != NULL)
+ 	{
+-		for (pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
++		// K-Mod. Vassal deals need to be implemented last, so that master/vassal power is set correctly.
++		for (CLLNode<TradeData>* pNode = pFirstList->head(); pNode; pNode = pFirstList->next(pNode))
+ 		{
+-			if (pNode->m_data.m_eItemType == TRADE_PERMANENT_ALLIANCE)
++			if (isVassal(pNode->m_data.m_eItemType))
+ 			{
+-				bAlliance = true;
++				pFirstList->moveToEnd(pNode);
++				break;
+ 			}
+ 		}
+-	}
+-
+-	if (pSecondList != NULL)
+-	{
+-		for (pNode = pSecondList->head(); pNode; pNode = pSecondList->next(pNode))
++		// K-Mod end
++		for (CLLNode<TradeData>* pNode = pSecondList->head(); pNode; pNode = pSecondList->next(pNode))
+ 		{
++			bool bSave = startTrade(pNode->m_data, getSecondPlayer(), getFirstPlayer());
++			bBumpUnits = bBumpUnits || pNode->m_data.m_eItemType == TRADE_PEACE; // K-Mod
++
++			if (bSave)
++				insertAtEndSecondTrades(pNode->m_data);
++
+ 			if (pNode->m_data.m_eItemType == TRADE_PERMANENT_ALLIANCE)
+-			{
+ 				bAlliance = true;
+-			}
+ 		}
+ 	}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=4717

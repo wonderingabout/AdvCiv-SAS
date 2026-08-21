@@ -1,0 +1,306 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3580
+# Commit: 8097cf2866be8707d85b0de742f61b41bfde013a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 4977b513daa6bc436f6d0ea9e8ee011b131b8d36
+# Title: Restore game option ID of Lock Modified Assets
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+27	31	Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+8	9	CvGameCoreDLL/CvEnums.h
+23	16	CvGameCoreDLL/CvGame.cpp
+8	2	CvGameCoreDLL/CvInitCore.h
+4	4	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+index dfec8ad9a..96e3361ab 100644
+--- a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+@@ -2,8 +2,8 @@
+ <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Alex Mantzaris (Firaxis Games) -->
+ <!-- Sid Meier's Civilization 4 -->
+ <!-- Copyright Firaxis Games 2005 -->
+-<!-- -->
+-<!-- Game Option -->
++<!-- advc (caveat): Order needs to be the same as in CvEnums.h.
++	 See warnings there about options whose position mustn't be changed. -->
+ <Civ4GameOptionInfos xmlns="x-schema:CIV4GameInfoSchema.xml">
+ 	<GameOptionInfos>
+ 
+@@ -65,9 +65,6 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+-		<!-- advc: According to DarkLunaPhantom, this option has to remain
+-			 in the eighth position.
+-			 github.com/DarkLunaPhantom/Civ4-K-Mod/commit/908160ecea97d427cc24736fb4fb1e1b51f282f3 -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_RANDOM_PERSONALITIES</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_RANDOM_PERSONALITIES</Description>
+@@ -133,35 +130,33 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>0</bVisible>
+ 		</GameOptionInfo>
+-		<!-- advc.701: Taking the spot of NEW_RANDOM_SEED so that it's grouped
+-			 with the other special challenge options. -->
+ 		<GameOptionInfo>
+-			<Type>GAMEOPTION_RISE_FALL</Type>
+-			<Description>TXT_KEY_GAME_OPTION_RISE_FALL</Description>
+-			<Help>TXT_KEY_GAME_OPTION_RISE_FALL_HELP</Help>
++			<Type>GAMEOPTION_NEW_RANDOM_SEED</Type>
++			<Description>TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED</Description>
++			<Help>TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP</Help>
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+-		<!-- advc.tsl: Taking the spot of LOCK_MODS -->
+ 		<GameOptionInfo>
+-			<Type>GAMEOPTION_TRUE_STARTS</Type>
+-			<Description>TXT_KEY_GAME_OPTION_TRUE_STARTS</Description>
+-			<Help>TXT_KEY_GAME_OPTION_TRUE_STARTS_HELP</Help>
++			<Type>GAMEOPTION_LOCK_MODS</Type>
++			<Description>TXT_KEY_GAME_OPTION_LOCK_MODS</Description>
++			<Help>TXT_KEY_GAME_OPTION_LOCK_MODS_HELP</Help>
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+-		<!-- advc.701: Taking the spot of COMPLETE_KILLS (removed). -->
++		<!-- advc.701: Taking the spot of COMPLETE_KILLS (removed) -->
+ 		<GameOptionInfo>
+-			<Type>GAMEOPTION_NEW_RANDOM_SEED</Type>
+-			<Description>TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED</Description>
+-			<Help>TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP</Help>
++			<Type>GAMEOPTION_RISE_FALL</Type>
++			<Description>TXT_KEY_GAME_OPTION_RISE_FALL</Description>
++			<Help>TXT_KEY_GAME_OPTION_RISE_FALL_HELP</Help>
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
++		<!-- advc.tsl: Taking the spot of NO_VASSAL_STATES -->
+ 		<GameOptionInfo>
+-			<Type>GAMEOPTION_NO_VASSAL_STATES</Type>
+-			<Description>TXT_KEY_GAME_OPTION_NO_VASSAL_STATES</Description>
+-			<Help>TXT_KEY_GAME_OPTION_NO_VASSAL_STATES_HELP</Help>
++			<Type>GAMEOPTION_TRUE_STARTS</Type>
++			<Description>TXT_KEY_GAME_OPTION_TRUE_STARTS</Description>
++			<Help>TXT_KEY_GAME_OPTION_TRUE_STARTS_HELP</Help>
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+@@ -179,12 +174,13 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
++		<!-- advc.tsl: Moved down, taking the spot of NO_ESPIONAGE. -->
+ 		<GameOptionInfo>
+-			<Type>GAMEOPTION_NO_ESPIONAGE</Type>
+-			<Description>TXT_KEY_GAME_OPTION_NO_ESPIONAGE</Description>
+-			<Help>TXT_KEY_GAME_OPTION_NO_ESPIONAGE_HELP</Help>
++			<Type>GAMEOPTION_NO_VASSAL_STATES</Type>
++			<Description>TXT_KEY_GAME_OPTION_NO_VASSAL_STATES</Description>
++			<Help>TXT_KEY_GAME_OPTION_NO_VASSAL_STATES_HELP</Help>
+ 			<bDefault>0</bDefault>
+-			<bVisible>0</bVisible>
++			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_NO_CITY_RAZING</Type>
+@@ -193,7 +189,7 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+-		<!-- advc.309: Added NO_ANIMALS and made NO_ESPIONAGE invisible. -->
++		<!-- advc.309 -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_NO_ANIMALS</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_NO_ANIMALS</Description>
+@@ -209,13 +205,13 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+-		<!-- advc.tsl: Moved down -->
++		<!-- advc.tsl: Moved to the end, advc.309: hidden. -->
+ 		<GameOptionInfo>
+-			<Type>GAMEOPTION_LOCK_MODS</Type>
+-			<Description>TXT_KEY_GAME_OPTION_LOCK_MODS</Description>
+-			<Help>TXT_KEY_GAME_OPTION_LOCK_MODS_HELP</Help>
++			<Type>GAMEOPTION_NO_ESPIONAGE</Type>
++			<Description>TXT_KEY_GAME_OPTION_NO_ESPIONAGE</Description>
++			<Help>TXT_KEY_GAME_OPTION_NO_ESPIONAGE_HELP</Help>
+ 			<bDefault>0</bDefault>
+-			<bVisible>1</bVisible>
++			<bVisible>0</bVisible>
+ 		</GameOptionInfo>
+ 
+ 	</GameOptionInfos>
+
+diff --git a/CvGameCoreDLL/CvEnums.h b/CvGameCoreDLL/CvEnums.h
+index f742bec3e..ba67f98ad 100644
+--- a/CvGameCoreDLL/CvEnums.h
++++ b/CvGameCoreDLL/CvEnums.h
+@@ -574,8 +574,7 @@ ENUM_START(Commerce, COMMERCE)
+ 	COMMERCE_ESPIONAGE,
+ ENUM_END(Commerce, COMMERCE)
+ 
+-/*	advc: Enumerators 0 and 7 probably mustn't change. The Custom Game screen
+-	(in the EXE) acts on those options. */
++// advc: Enumerators 0 and 7, 8 and 18 mustn't change, the EXE relies on them.
+ ENUM_START(GameOption, GAMEOPTION)
+ 	GAMEOPTION_ADVANCED_START = 0,
+ 	GAMEOPTION_SPAH, // advc.250b: Taking the spot of NO_CITY_RAZING
+@@ -585,7 +584,7 @@ ENUM_START(GameOption, GAMEOPTION)
+ 	GAMEOPTION_RAGING_BARBARIANS,
+ 	GAMEOPTION_AGGRESSIVE_AI,
+ 	GAMEOPTION_LEAD_ANY_CIV = 7,
+-	GAMEOPTION_RANDOM_PERSONALITIES,
++	GAMEOPTION_RANDOM_PERSONALITIES = 8,
+ 	GAMEOPTION_PICK_RELIGION,
+ 	GAMEOPTION_NO_TECH_TRADING,
+ 	GAMEOPTION_NO_TECH_BROKERING,
+@@ -594,17 +593,17 @@ ENUM_START(GameOption, GAMEOPTION)
+ 	GAMEOPTION_ALWAYS_PEACE,
+ 	GAMEOPTION_ONE_CITY_CHALLENGE,
+ 	GAMEOPTION_NO_CHANGING_WAR_PEACE,
+-	GAMEOPTION_RISE_FALL, // advc.701: Taking the spot of NEW_RANDOM_SEED
+-	GAMEOPTION_TRUE_STARTS, // advc.tsl: Taking the spot of LOCK_MODS
+-	GAMEOPTION_NEW_RANDOM_SEED, // advc.701: Taking the spot of COMPLETE_KILLS
+-	GAMEOPTION_NO_VASSAL_STATES,
++	GAMEOPTION_NEW_RANDOM_SEED,
++	GAMEOPTION_LOCK_MODS = 18,
++	GAMEOPTION_RISE_FALL, // advc.701: Taking the spot of COMPLETE_KILLS
++	GAMEOPTION_TRUE_STARTS, // advc.tsl: Taking the spot of NO_VASSAL_STATES
+ 	GAMEOPTION_NO_GOODY_HUTS,
+ 	GAMEOPTION_NO_EVENTS,
+-	GAMEOPTION_NO_ESPIONAGE,
++	GAMEOPTION_NO_VASSAL_STATES, // advc.tsl: Taking the spot of NO_ESPIONAGE
+ 	GAMEOPTION_NO_CITY_RAZING, // advc.250b: Moved down
+ 	GAMEOPTION_NO_ANIMALS, // advc.309
+ 	GAMEOPTION_NO_SLAVERY, // advc.912d
+-	GAMEOPTION_LOCK_MODS, // advc.tsl: Moved down
++	GAMEOPTION_NO_ESPIONAGE, // advc.tsl: Moved to the bottom (hidden anyway)
+ ENUM_END(GameOption, GAMEOPTION)
+ 
+ ENUM_START(MultiplayerOption, MPOPTION)
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 4ac146b6a..152cb6762 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9363,26 +9363,32 @@ void CvGame::read(FDataStreamBase* pStream)
+ 		pStream->Read(&m_initialRandSeed.uiMap);
+ 		pStream->Read(&m_initialRandSeed.uiSync);
+ 	} // </advc.027b>
++	// <advc.tsl>, advc.701: Options have been shuffled around a few times
++	bool bNewSeed = isOption((GameOptionTypes)
++			(uiFlag < 2 || uiFlag >= 17 ? 17 : 19));
++	bool bLockMods = isOption((GameOptionTypes)
++			(uiFlag >= 15 && uiFlag < 17 ? 27 : 18));
++	bool bNoVassals = isOption((GameOptionTypes)
++			(uiFlag >= 17 ? 23 : 20));
++	bool bNoEspionage = isOption((GameOptionTypes)
++			(uiFlag >= 17 ? 27 : 23));
++	bool bRiseFall = isOption((GameOptionTypes)
++			(uiFlag < 2 ? false : (uiFlag < 17 ? 17 : 19)));
++	bool bTrueStarts = isOption((GameOptionTypes)
++			(uiFlag < 15 ? false : (uiFlag < 17 ? 18 : 20)));
++	setOption(GAMEOPTION_NEW_RANDOM_SEED, bNewSeed);
++	setOption(GAMEOPTION_LOCK_MODS, bLockMods);
++	setOption(GAMEOPTION_RISE_FALL, bRiseFall);
++	setOption(GAMEOPTION_TRUE_STARTS, bTrueStarts);
++	setOption(GAMEOPTION_NO_VASSAL_STATES, bNoVassals);
++	setOption(GAMEOPTION_NO_ESPIONAGE, bNoEspionage);
++	// </advc.tsl>
+ 	// <advc.250b>
+ 	if (isOption(GAMEOPTION_SPAH))
+ 		m_pSpah->read(pStream); // </advc.250b>
+ 	// <advc.701>
+-	if (uiFlag >= 2)
+-	{
+-		if(isOption(GAMEOPTION_RISE_FALL))
+-			m_pRiseFall->read(pStream);
+-	}
+-	else // Options have been shuffled around
+-	{
+-		setOption(GAMEOPTION_NEW_RANDOM_SEED, isOption(GAMEOPTION_RISE_FALL));
+-		setOption(GAMEOPTION_RISE_FALL, false);
+-	} // </advc.701>
+-	// <advc.tsl>
+-	if (uiFlag < 15)
+-	{
+-		setOption(GAMEOPTION_LOCK_MODS, isOption(GAMEOPTION_TRUE_STARTS));
+-		setOption(GAMEOPTION_TRUE_STARTS, false);
+-	} // </advc.tsl>
++	if (isOption(GAMEOPTION_RISE_FALL))
++		m_pRiseFall->read(pStream); // </advc.701>
+ 	{
+ 		clearReplayMessageMap();
+ 		ReplayMessageList::_Alloc::size_type iSize;
+@@ -9519,6 +9525,7 @@ void CvGame::write(FDataStreamBase* pStream)
+ 	//uiFlag = 14; // advc.148, advc.130n, advc.130x (religion attitude)
+ 	//uiFlag = 15; // advc.tsl: new game option
+ 	uiFlag = 16; // advc.tsl: map regen counter
++	uiFlag = 17; // advc.tsl: game options moved around
+ 	pStream->Write(uiFlag);
+ 	REPRO_TEST_BEGIN_WRITE("Game pt1");
+ 	pStream->Write(m_iElapsedGameTurns);
+
+diff --git a/CvGameCoreDLL/CvInitCore.h b/CvGameCoreDLL/CvInitCore.h
+index d60abfd2c..6c771cef0 100644
+--- a/CvGameCoreDLL/CvInitCore.h
++++ b/CvGameCoreDLL/CvInitCore.h
+@@ -409,7 +409,13 @@ protected:
+ 	And think about whether they need to by synchronized in network games. */
+ BOOST_STATIC_ASSERT(sizeof(CvInitCore) ==
+ 		(sizeof(ArrayEnumMap<PlayerTypes,bool>) > 4 ? 448 : 424));
+-// advc: Custom Game screen probably relies on this
+-BOOST_STATIC_ASSERT(GAMEOPTION_LEAD_ANY_CIV == 7 && GAMEOPTION_ADVANCED_START == 0);
++// <advc>
++BOOST_STATIC_ASSERT(
++		// Custom Game screen probably relies on these
++		GAMEOPTION_LEAD_ANY_CIV == 7 && GAMEOPTION_ADVANCED_START == 0 &&
++		// EXE relies on this for assigning the random personalities
++		GAMEOPTION_RANDOM_PERSONALITIES == 8 &&
++		// EXE explicitly sets this one to false (under unknown circumstances)
++		GAMEOPTION_LOCK_MODS == 18); // </advc>
+ 
+ #endif
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index b945de462..8afc20e40 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -563,17 +563,17 @@ void CyEnumsPythonInterface()
+ 		.value("GAMEOPTION_ALWAYS_PEACE", GAMEOPTION_ALWAYS_PEACE)
+ 		.value("GAMEOPTION_ONE_CITY_CHALLENGE", GAMEOPTION_ONE_CITY_CHALLENGE)
+ 		.value("GAMEOPTION_NO_CHANGING_WAR_PEACE", GAMEOPTION_NO_CHANGING_WAR_PEACE)
++		.value("GAMEOPTION_NEW_RANDOM_SEED", GAMEOPTION_NEW_RANDOM_SEED)
++		.value("GAMEOPTION_LOCK_MODS", GAMEOPTION_LOCK_MODS)
+ 		.value("GAMEOPTION_RISE_FALL", GAMEOPTION_RISE_FALL) // advc.701
+ 		.value("GAMEOPTION_TRUE_STARTS", GAMEOPTION_TRUE_STARTS) // advc.tsl
+-		.value("GAMEOPTION_NEW_RANDOM_SEED", GAMEOPTION_NEW_RANDOM_SEED) // advc.701
+-		.value("GAMEOPTION_NO_VASSAL_STATES", GAMEOPTION_NO_VASSAL_STATES)
+ 		.value("GAMEOPTION_NO_GOODY_HUTS", GAMEOPTION_NO_GOODY_HUTS)
+ 		.value("GAMEOPTION_NO_EVENTS", GAMEOPTION_NO_EVENTS)
+-		.value("GAMEOPTION_NO_ESPIONAGE", GAMEOPTION_NO_ESPIONAGE)
++		.value("GAMEOPTION_NO_VASSAL_STATES", GAMEOPTION_NO_VASSAL_STATES) // advc.tsl (moved down)
+ 		.value("GAMEOPTION_NO_CITY_RAZING", GAMEOPTION_NO_CITY_RAZING) // advc.250b
+ 		.value("GAMEOPTION_NO_ANIMALS", GAMEOPTION_NO_ANIMALS) // advc.309
+ 		.value("GAMEOPTION_NO_SLAVERY", GAMEOPTION_NO_SLAVERY) // advc.912d
+-		.value("GAMEOPTION_LOCK_MODS", GAMEOPTION_LOCK_MODS) // advc.tsl
++		.value("GAMEOPTION_NO_ESPIONAGE", GAMEOPTION_NO_ESPIONAGE) // advc.tsl (moved down)
+ 		.value("NUM_GAMEOPTION_TYPES", NUM_GAMEOPTION_TYPES)
+ 		;
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=11748

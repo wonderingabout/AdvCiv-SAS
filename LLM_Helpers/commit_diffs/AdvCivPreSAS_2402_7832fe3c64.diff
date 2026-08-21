@@ -1,0 +1,39 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2402
+# Commit: 7832fe3c64b62e54b459962e5133c9116f59e2db
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f7b9bcaad6fba529fd7daae2f0227c2af59fb1bc
+# Title: Amend StartingPositionIteration tweak
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	2	CvGameCoreDLL/StartingPositionIteration.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/StartingPositionIteration.cpp b/CvGameCoreDLL/StartingPositionIteration.cpp
+index 038dabfdf..2d05e70e0 100644
+--- a/CvGameCoreDLL/StartingPositionIteration.cpp
++++ b/CvGameCoreDLL/StartingPositionIteration.cpp
+@@ -1167,8 +1167,8 @@ void StartingPositionIteration::computeStartValues(
+ 				neighbors will make it likelier that SPI places civs with too much
+ 				space close together to compensate. Better to discourage close starts
+ 				through volatility. */
+-			kResult.m_volatilityValues.add(itPlayer->getID(), scaled::max(0,
+-					1 - 2 * rRivalDistFactor - fixp(1/16.)));
++			kResult.m_volatilityValues.add(itPlayer->getID(), 2 * scaled::max(0,
++					1 - rRivalDistFactor - fixp(1/16.)));
+ 		}
+ 		else
+ 		{
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=737

@@ -1,0 +1,1778 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4894
+# Commit: 0c8c5d8906ba50d94e463a782022da256885a991
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 3816ed06c12bb80365b1fb8dd9d2e689783f4d6b
+# Title: add terrain or/and feature modifiers for remaining intended civ-specific units, rework the aztec_jaguar to be now based on the axeman (not swordsman anymore)...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	.vscode/settings.json
+1	1	Assets/Python/BUG/configobj.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+1	1	Assets/XML/AI_Variables_GlobalDefines.xml
+14	14	Assets/XML/Art/CIV4ArtDefines_Unit.xml
+1	1	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+514	240	Assets/XML/Units/CIV4UnitInfos.xml
+20	9	README.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+2	2	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.220_world_map_terrain_with_new_civs.png
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg
+-	-	_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.220_world_map_terrain_with_new_civs.png
+ create mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg
+ delete mode 100644 _1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png
+
+[PATCHES]
+
+diff --git a/.vscode/settings.json b/.vscode/settings.json
+index 5ba7cad8f..d5c8dc890 100644
+--- a/.vscode/settings.json
++++ b/.vscode/settings.json
+@@ -1,4 +1,4 @@
+-// <!-- custom: vs code settings for advciv-sas, it seems specifically for settings.json comments are allowed so no (need to anyways etc use anyways etc) .jsonc and using instead .json so we can add comments too if i am not mistaken and according to chatgpt/becomingthough (who also provided parts if not lot or most of code below which i tweaked or/and added on too anyways etc anyways etc anyways etc) -->
++// <!-- custom: vs code settings for advciv-sas, it seems specifically for settings.json comments are allowed so no (need to anyways etc use anyways etc) .jsonc and using instead .json so we can add comments too if i am not mistaken and according to chatgpt (who also provided parts if not lot or most of code below which i tweaked or/and added on too anyways etc anyways etc anyways etc) -->
+ {
+     // Use real tab characters instead of spaces
+     "editor.insertSpaces": false,
+
+diff --git a/Assets/Python/BUG/configobj.py b/Assets/Python/BUG/configobj.py
+index 7bd9d65c5..18097d719 100644
+--- a/Assets/Python/BUG/configobj.py
++++ b/Assets/Python/BUG/configobj.py
+@@ -319,7 +319,7 @@ class Section(dict):
+         return value
+ 
+     def _interpolation_replace(self, match):
+-        # <!-- custom: the evil empty "ghost" string lures its head, beware, to be safe i have safely scientifically exorcised it using the power of science and blind truth, at least according to chatgpt/becomignthrough xd, if you are ever curious i added a few screenshots about this in the google drive mod journey of advciv-sas anyways etc... Not much backstory but a bit still maybe anyways etc xd but anyways etc... The evil or not evil maybe but anyways etc boss of the BUG docstring dungeon has finally been defeated, not that it was ever there or threatening rather or maybe yes, but anyways etc... -->
++        # <!-- custom: the evil empty "ghost" string lures its head, beware, to be safe i have safely scientifically exorcised it using the power of science and blind truth, at least according to chatgpt xd, if you are ever curious i added a few screenshots about this in the google drive mod journey of advciv-sas anyways etc... Not much backstory but a bit still maybe anyways etc xd but anyways etc... The evil or not evil maybe but anyways etc boss of the BUG docstring dungeon has finally been defeated, not that it was ever there or threatening rather or maybe yes, but anyways etc... -->
+         # """ """
+         #
+         s = match.group(1)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 13c595a2c..3e43c74ac 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -333,7 +333,7 @@ class SevoPediaBuilding:
+ 		# - 5. Health/Unhealth: Shows health effects
+ 		# - 6. Great People: Shows great people rate changes with button and great people modifiers too anyways etc
+ 		# -->
+-		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt/becomingthorugh (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc... -->
++		# <!-- custom: note: we have a risk of overflow of data/items to display, if all or most of these fields are full, while only having 9 grid positions to do so, this should be extremely rare, but if it were to happen, you can increase grid size to 3 columns * 4 rows (to do that, you could for example reduce line height spacing (but may be a bit ugly (maybe) but anyways), reduce upper padding (but maybe not needed or not lot as we can even now display a 4th row but not as pretty if starting from current "padded"(?)/upper padding), or for example artifically increase the panel height so the code thinks it has more room to fill one more row (which it has but then is bit ugly(ier) anyways etc) (the 4th before going to a new column and back to 1st row anyways etc), or maybe tweak the code i proudly as in rather funnily? did if that is a word hehe by myself based on old code from sevopedia leader's grid code (renderCategories and such if i am not mistaken and they are still named the same now anyways etc which we created as well with chatgpt (see authors for details) but anyways etc anyways etc anyways etc...) and adjusting/refatoring it for our need for this sevopedia building's placeStats anyways etc anyways etc anyways etc), or/and other things ways maybe to refactor it or not so it fits a 4th row or yes or and other or and not anyways etc. Since we don't have to do this, 9 grid of 3 columns * 3 rows are probably enough for us so staying/sticking with that maybe anyways etc anyways etc anyways etc... -->
+ 
+ 		# <!-- custom: blue panel style PanelStyles.PANEL_STYLE_BLUE50 is/can be anyways etc useful for debugging, otherwise we don't need a blue on blue color, prefer transparent ("EMPTY" if i am not mistaken anyways etc), anyways etc -->
+ 		self.setupStatsPanel(screen, panelName, placeStatsTxtKeyPanel, PanelStyles.PANEL_STYLE_EMPTY)
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+index 6d8cf1709..be8917792 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaLeader.py
+@@ -29,7 +29,7 @@
+ #	 - Exclude leaders (typically barbarian, as for defaults DLL has excluded it entirely from idnexes it seems in abse advciv and since we use similar if not identical code since we didn't modify  this part thanks for making it anyways etc, no need to handle leader_defaults it seems anyways etc)
+ #	 - Compute raw aggregated fields (contact probs, and positive and negative memory affections and resentments): they are now flat fields like any other field, ready to be processed then stored anyways etc.
+ # 	 - Store minmax of all fields we want to parse, like Base peace weight, max war rand, sometimes flattening fields liek flavors that are initially nested in XML, now stored for exmapel as iFlavorMilitary or iFlavorReligion if i am not mistaken too for example anyways etc flat fields anyways etc, also including raw aggregated fields like iAggregatedContactProbReligionPressure for example, and similarly for raw aggregated positive and negative memory affections and resentments anyways etc
+-#	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt/becomignthorugh or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc....)
++#	 - Cache in LEADERS_INFO_CACHED tuples of as of now at least if not always or not but anyways etc (label (with raw value display in the label too so no need to fetch it later again at UI just to display it in label, faster performance this way if i am not mistaken too, also from using tuples or and such rather than dicts but anyways etc), normalized value for display, and scale precomputed to enhance performance as well as advised by chatgpt or maybe it was me or both but i think it was it but anyways etc in all cases thanks to it and me too or and other or and not anwyays etc....)
+ #	 - Categories precomputing as well as tuples as well anyways etc: the ai_category_header that handles also emoji buttons in header label too anyways etc (which is anyways etc) optionally displayed based on/if config flag is set to True, including also in the ai_category tuple the x_offset for each category (a bit redundant but so we don't need to check it again, could optimize it further but also allows for more cusotmization later if needed maybe evne though is a qutie weak argument if i may say but anyways etc, still fine as is maybe anyways etc, the main point is this x_offset is toif needed to accomodate these emoji buttons as text anyways etc ; and then also packign all categories with an inter category order within their main "categories" tuple (as of now right, middle, left, since we have 3 tables in the AI personality panel feature as of now anyways etc)
+ # 2) UI: nothing remains only displayign it, nothign left to compute, a bit of tuple direct unpacking without any check if i am not mistaken, so display is very fast despite the quite big data if i may say but anyways etc anyways etc anyways etc.
+ #
+
+diff --git a/Assets/XML/AI_Variables_GlobalDefines.xml b/Assets/XML/AI_Variables_GlobalDefines.xml
+index 9c4fa7041..b846ed38e 100644
+--- a/Assets/XML/AI_Variables_GlobalDefines.xml
++++ b/Assets/XML/AI_Variables_GlobalDefines.xml
+@@ -1,5 +1,5 @@
+ <?xml version="1.0"?>
+-<!-- custom: shriking XML comments to one line does not help performance at all even a bit it seems if i understood chatgpt/becominhtrough's explanation, due to the parser still reading the entire line regardless, unlike with a # in python for example where rest of line is skipped if i am not mistaken anyways etc, but doing so sometimes as it improves word wrap especially if screen is split for example anyways etc, still less incentive to do so since no perfomance gain, (i anyways etc) may or not do so inconsistenly in the xml files, see main readme.md for details in the as of now fixes section anyways etc hopefully helpful or not or yes or etc anyways etc -->
++<!-- custom: shriking XML comments to one line does not help performance at all even a bit it seems if i understood chatgpt's explanation, due to the parser still reading the entire line regardless, unlike with a # in python for example where rest of line is skipped if i am not mistaken anyways etc, but doing so sometimes as it improves word wrap especially if screen is split for example anyways etc, still less incentive to do so since no perfomance gain, (i anyways etc) may or not do so inconsistenly in the xml files, see main readme.md for details in the as of now fixes section anyways etc hopefully helpful or not or yes or etc anyways etc -->
+ <!-- custom: maybe most likely also much faster if i ask chatgpt becomginthrough to do it, todo maybe later but not guaranteed though may or may not do anyways etc -->
+ <!-- [advc.104x] This file used to be called BBAI_AI_Variables_GlobalDefines.xml; now also contains UWAI parameters. -->
+ <!-- UWAI breaks down the computation of AI war utility into a sum of 28 "aspects", most of which are either in favor of war (added to the total war utility) or against war (subtracted). There are a few mixed aspects that could either increase or decrease war utility. Each aspect corresponds to one particular motivation for or against war. Through this file, a weight is assigned to each aspect. This weight is interpreted as a percentage by which the aspect utility is multiplied. The default (recommended) weights are all 100. This doesn't imply though that all aspects contribute equally by default; the weights are only a final adjustment to the (hardcoded) formulas.-->
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Unit.xml b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+index 457313337..8243e0ba5 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Unit.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Unit.xml
+@@ -570,48 +570,48 @@
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_SWORDSMAN</Type>
+-			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,5</Button>
++			<Type>ART_DEF_UNIT_AZTEC_JAGUAR</Type>
++			<Button>,Art/Interface/Buttons/Units/Jaguar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,4</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Swordsman/Swordsman.nif</NIF>
+-			<KFM>Art/Units/Swordsman/Swordsman.kfm</KFM>
+-			<SHADERNIF>Art/Units/Swordsman/Swordsman_FX.nif</SHADERNIF>
++			<NIF>Art/Units/Unique/Aztec/Jaguar/Aztec_Jaguar.nif</NIF>
++			<KFM>Art/Units/Unique/Aztec/Jaguar/Aztec_Jaguar.kfm</KFM>
++			<SHADERNIF>Art/Units/Unique/Aztec/Jaguar/Aztec_Jaguar_FX.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+ 				<fShadowScale>1.0</fShadowScale>
+ 			</ShadowDef>
+-			<fBattleDistance>0.35</fBattleDistance>
++			<fBattleDistance>0.4</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
++			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+ 				<AudioRunTypeEnd/>
+ 			</AudioRunSounds>
+ 		</UnitArtInfo>
+ 		<UnitArtInfo>
+-			<Type>ART_DEF_UNIT_AZTEC_JAGUAR</Type>
+-			<Button>,Art/Interface/Buttons/Units/Jaguar.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,4</Button>
++			<Type>ART_DEF_UNIT_SWORDSMAN</Type>
++			<Button>,Art/Interface/Buttons/Units/Swordsman.dds,Art/Interface/Buttons/Unit_Resource_Atlas.dds,4,5</Button>
+ 			<fScale>0.44</fScale>
+ 			<fInterfaceScale>1.0</fInterfaceScale>
+ 			<bActAsLand>0</bActAsLand>
+ 			<bActAsAir>0</bActAsAir>
+-			<NIF>Art/Units/Unique/Aztec/Jaguar/Aztec_Jaguar.nif</NIF>
+-			<KFM>Art/Units/Unique/Aztec/Jaguar/Aztec_Jaguar.kfm</KFM>
+-			<SHADERNIF>Art/Units/Unique/Aztec/Jaguar/Aztec_Jaguar_FX.nif</SHADERNIF>
++			<NIF>Art/Units/Swordsman/Swordsman.nif</NIF>
++			<KFM>Art/Units/Swordsman/Swordsman.kfm</KFM>
++			<SHADERNIF>Art/Units/Swordsman/Swordsman_FX.nif</SHADERNIF>
+ 			<ShadowDef>
+ 				<ShadowNIF>Art/Units/01_UnitShadows/UnitShadow.nif</ShadowNIF>
+ 				<ShadowAttachNode>BIP Pelvis</ShadowAttachNode>
+ 				<fShadowScale>1.0</fShadowScale>
+ 			</ShadowDef>
+-			<fBattleDistance>0.4</fBattleDistance>
++			<fBattleDistance>0.35</fBattleDistance>
+ 			<fRangedDeathTime>0.31</fRangedDeathTime>
+ 			<bActAsRanged>0</bActAsRanged>
+-			<TrainSound>AS2D_UNIT_BUILD_UNIQUE_UNIT</TrainSound>
++			<TrainSound>AS2D_UNIT_BUILD_UNIT</TrainSound>
+ 			<AudioRunSounds>
+ 				<AudioRunTypeLoop/>
+ 				<AudioRunTypeEnd/>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index a0edf2d35..eff50849f 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -300,7 +300,7 @@
+ 			</Buildings>
+ 			<Units>
+ 				<Unit>
+-					<UnitClassType>UNITCLASS_SWORDSMAN</UnitClassType>
++					<UnitClassType>UNITCLASS_AXEMAN</UnitClassType>
+ 					<UnitType>UNIT_AZTEC_JAGUAR</UnitType>
+ 				</Unit>
+ 			</Units>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index 9dc93cc07..e0b214252 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -1366,15 +1366,33 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>50</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>10</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -1623,10 +1641,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<!-- custom: not functionnal as of now if i am not mistaken as workers are non-fighters as of now in advciv-sas but added for flavor as in for theme and for accuracy and/or exhaustiveness if i may say but anyways etc -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -5459,10 +5498,38 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>50</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<!-- custom: was UNITCLASS_CHARIOT 100 -->
+ 			<UnitClassDefenseMods/>
+@@ -5659,8 +5726,26 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>50</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+@@ -5855,9 +5940,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+@@ -5869,14 +5958,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
+-				</TerrainAttack>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+@@ -5930,21 +6023,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_SWORDSMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<Class>UNITCLASS_SWORDSMAN</Class>
+-			<Type>UNIT_SWORDSMAN</Type>
++		<UnitInfo> <!-- custom: class: UNITCLASS_AXEMAN, type: UNIT_AZTEC_JAGUAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<Class>UNITCLASS_AXEMAN</Class>
++			<Type>UNIT_AZTEC_JAGUAR</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<!-- advc.131: was UNITAI_ATTACK -->
+-			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
++			<!-- K-Mod: was UNITAI_COUNTER -->
++			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_SWORDSMAN</Description>
+-			<Civilopedia>TXT_KEY_UNIT_SWORDSMAN_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_SWORDSMAN_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_AZTEC_JAGUAR</Description>
++			<Civilopedia>TXT_KEY_UNIT_AZTEC_JAGUAR_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -5980,6 +6073,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bSuicide>0</bSuicide>
+ 			<bHiddenNationality>0</bHiddenNationality>
+ 			<bAlwaysHostile>0</bAlwaysHostile>
++			<!-- custom: since the unit is so strong, make sure it cannot be upgraded to swordsmen in particular for this unit, may help the AI in particular, as of now it seems axemen cannot be upgraded to swordsmen, but adding this line as reminder if we or some other mod ever wants to change it, that the jaguar should be stronger without upgrading to swordsmen. -->
+ 			<UnitClassUpgrades>
+ 				<UnitClassUpgrade>
+ 					<UnitClassUpgradeType>UNITCLASS_MACEMAN</UnitClassUpgradeType>
+@@ -5991,18 +6085,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
+-			<!-- K-Mod: UNITAI_CITY_DEFENSE removed -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_ATTACK_CITY</UnitAIType>
++					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 				<UnitAI>
+-					<UnitAIType>UNITAI_RESERVE</UnitAIType>
++					<UnitAIType>UNITAI_COUNTER</UnitAIType>
++					<bUnitAI>1</bUnitAI>
++				</UnitAI>
++				<UnitAI>
++					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+ 			</UnitAIs>
+@@ -6018,14 +6115,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqReligion>NONE</PrereqReligion>
+ 			<PrereqCorporation>NONE</PrereqCorporation>
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+-			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
++			<PrereqTech>TECH_BRONZE_WORKING</PrereqTech>
+ 			<TechTypes/>
+-			<BonusType>BONUS_IRON</BonusType>
+-			<PrereqBonuses/>
++			<BonusType>NONE</BonusType>
++			<PrereqBonuses>
++				<BonusType>BONUS_COPPER</BonusType>
++				<BonusType>BONUS_IRON</BonusType>
++				<BonusType>NONE</BonusType>
++				<BonusType>NONE</BonusType>
++			</PrereqBonuses>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>40</iCost>
++			<!-- custom: note: aztec warrior reworked, now based on the axeman not the swordsman anymore. This works well i think if i may say as the low/now lower but anyways etc cost as well as earlier unit availability in this case but anyways etc allows for very early rushes (usually the AI may have a mix of axemen and swordsmen=jaguars but anyways etc which was inefficient, hopefully this favours more the rushing profile of the aztec civilization, at least for as of now only leader moctezuma we have but anyways etc), it may synergize especially well with their sacrifice/slaving profile or/and buildings or such anyways etc -->
++			<iCost>35</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -6049,7 +6152,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>6</iCombat>
++			<iCombat>5</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -6063,6 +6166,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<!-- custom: also give it the swordsman's city attack bonus, this goes quite well with their theme of early aggression if i am not mistaken but anyways etc, and they retain most of their previous advantages as swordsmen, but now available sooner and cheaper in cost despite the strength reduction, overall the unit should be much stronger now hopefully balanced and not op ; it was way too weak before, but anyways etc, was 0 -->
+ 			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+@@ -6072,11 +6176,35 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<!-- custom: axes could be useful in navigating or fighting in the woods maybe. -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>10</iFeatureAttack>
++				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>10</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+-			<UnitCombatMods/>
++			<UnitCombatMods>
++				<UnitCombatMod>
++					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
++					<iUnitCombatMod>50</iUnitCombatMod>
++				</UnitCombatMod>
++			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+ 			<DomainMods/>
+ 			<BonusProductionModifiers/>
+@@ -6085,10 +6213,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<SpecialCargo>NONE</SpecialCargo>
+ 			<DomainCargo>NONE</DomainCargo>
+ 			<iCargo>0</iCargo>
+-			<iConscription>1</iConscription>
+-			<iCultureGarrison>5</iCultureGarrison>
++			<iConscription>2</iConscription>
++			<iCultureGarrison>4</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
++			<!-- custom: was 5 -->
+ 			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+@@ -6098,7 +6227,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_SWORDSMAN</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_AZTEC_JAGUAR</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -6107,24 +6236,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<FreePromotions/>
++			<!-- custom: if i am not mistaken from my memory i mean, i seem to i mean anyways etc remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say this may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, overall they should mostly be used for offense but this also allows some room for defense and covers the overall "elite forces" feeling/theme of the unit if i may say but or not but or yes but but anyways etc, was PROMOTION_WOODSMAN1 -->
++			<FreePromotions>
++				<FreePromotion>
++					<PromotionType>PROMOTION_COMBAT1</PromotionType>
++					<bFreePromotion>1</bFreePromotion>
++				</FreePromotion>
++			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+-		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_AZTEC_JAGUAR (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++		<UnitInfo> <!-- custom: class: UNITCLASS_SWORDSMAN, type: UNIT_SWORDSMAN (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<Class>UNITCLASS_SWORDSMAN</Class>
+-			<Type>UNIT_AZTEC_JAGUAR</Type>
++			<Type>UNIT_SWORDSMAN</Type>
+ 			<UniqueNames/>
+ 			<Special>NONE</Special>
+ 			<Capture>NONE</Capture>
+ 			<Combat>UNITCOMBAT_MELEE</Combat>
+ 			<Domain>DOMAIN_LAND</Domain>
+-			<DefaultUnitAI>UNITAI_ATTACK</DefaultUnitAI>
++			<!-- advc.131: was UNITAI_ATTACK -->
++			<DefaultUnitAI>UNITAI_ATTACK_CITY</DefaultUnitAI>
+ 			<Invisible>NONE</Invisible>
+ 			<SeeInvisible>NONE</SeeInvisible>
+-			<Description>TXT_KEY_UNIT_AZTEC_JAGUAR</Description>
+-			<Civilopedia>TXT_KEY_UNIT_AZTEC_JAGUAR_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_UNIT_AZTEC_JAGUAR_STRATEGY</Strategy>
++			<Description>TXT_KEY_UNIT_SWORDSMAN</Description>
++			<Civilopedia>TXT_KEY_UNIT_SWORDSMAN_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_UNIT_SWORDSMAN_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_MILITARY</Advisor>
+ 			<bAnimal>0</bAnimal>
+ 			<bFood>0</bFood>
+@@ -6171,6 +6307,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitClassDefenders/>
+ 			<UnitCombatDefenders/>
+ 			<FlankingStrikes/>
++			<!-- K-Mod: UNITAI_CITY_DEFENSE removed -->
+ 			<UnitAIs>
+ 				<UnitAI>
+ 					<UnitAIType>UNITAI_ATTACK</UnitAIType>
+@@ -6184,10 +6321,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<UnitAIType>UNITAI_RESERVE</UnitAIType>
+ 					<bUnitAI>1</bUnitAI>
+ 				</UnitAI>
+-				<UnitAI>
+-					<UnitAIType>UNITAI_CITY_DEFENSE</UnitAIType>
+-					<bUnitAI>1</bUnitAI>
+-				</UnitAI>
+ 			</UnitAIs>
+ 			<NotUnitAIs/>
+ 			<Builds/>
+@@ -6203,13 +6336,12 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<PrereqBuilding>NONE</PrereqBuilding>
+ 			<PrereqTech>TECH_IRON_WORKING</PrereqTech>
+ 			<TechTypes/>
+-			<BonusType>NONE</BonusType>
++			<BonusType>BONUS_IRON</BonusType>
+ 			<PrereqBonuses/>
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: note: trying to cost quite low as it is as of now anyways etc as it synergizes quite well if not very well with their sacrifice/slaving profile, so give them a bunch of averely stronger cheaper units rather than a few elite ones even though may be more accurate historically to do so though if i am not mistaken from my memory of it (see code comment at freepromotions for tiny bit in this case i mean anyways etc more info about this i mean anyways etc), so keeping as is 35 as of now at least if not always or not but anyways etc -->
+-			<iCost>35</iCost>
++			<iCost>40</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -6233,7 +6365,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>5</iCombat>
++			<iCombat>6</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -6254,30 +6386,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks>
+-				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
+-				</TerrainAttack>
+-			</TerrainAttacks>
+-			<TerrainDefenses>	
+-				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
+-				</TerrainDefense>	
+-			</TerrainDefenses>
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>25</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<TerrainAttacks/>
++			<TerrainDefenses/>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -6293,8 +6405,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCultureGarrison>5</iCultureGarrison>
+ 			<iExtraCost>0</iExtraCost>
+ 			<iAsset>2</iAsset>
+-			<!-- advc.104e: was 6 -->
+-			<iPower>5</iPower>
++			<iPower>6</iPower>
+ 			<UnitMeshGroups>
+ 				<iGroupSize>3</iGroupSize>
+ 				<fMaxSpeed>1.75</fMaxSpeed>
+@@ -6303,7 +6414,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				<iRangedWaveSize>0</iRangedWaveSize>
+ 				<UnitMeshGroup>
+ 					<iRequired>3</iRequired>
+-					<EarlyArtDefineTag>ART_DEF_UNIT_AZTEC_JAGUAR</EarlyArtDefineTag>
++					<EarlyArtDefineTag>ART_DEF_UNIT_SWORDSMAN</EarlyArtDefineTag>
+ 				</UnitMeshGroup>
+ 			</UnitMeshGroups>
+ 			<FormationType>FORMATION_TYPE_DEFAULT</FormationType>
+@@ -6312,17 +6423,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<bShiftDown>0</bShiftDown>
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+-			<!-- custom: if i am not mistaken from my memory i mean, i seem to i mean anyways etc remember that the jaguars are elite forces valued in society, since the unit is so weak, may be fine to buff it as such anyways etc, in terms of civ4 if i may say these new promotions, city-oriented, may fit quite well their aggressive profile of the trait i mean if i am not mistaken anyways etc, was PROMOTION_WOODSMAN1 -->
+-			<FreePromotions>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_CITY_RAIDER1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_CITY_GARRISON1</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+-			</FreePromotions>
++			<FreePromotions/>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+ 		</UnitInfo>
+@@ -6470,10 +6571,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -6662,10 +6783,38 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>50</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -6706,10 +6855,6 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<PromotionType>PROMOTION_COMBAT1</PromotionType>
+ 					<bFreePromotion>1</bFreePromotion>
+ 				</FreePromotion>
+-				<FreePromotion>
+-					<PromotionType>PROMOTION_COMBAT2</PromotionType>
+-					<bFreePromotion>1</bFreePromotion>
+-				</FreePromotion>
+ 			</FreePromotions>
+ 			<LeaderPromotion>NONE</LeaderPromotion>
+ 			<iLeaderExperience>0</iLeaderExperience>
+@@ -6862,8 +7007,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+@@ -6872,7 +7017,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+@@ -7283,8 +7428,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in eastern europe and asia, see code comment at the german_hussar about the Köppen climate classification map for details hopefully helpful or otn or yes or etc but anyways etc anyways etc anyways etc -->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+@@ -7521,7 +7677,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_SNOW</TerrainType>
+-					<iTerrainDefense>25</iTerrainDefense>
++					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+@@ -7971,7 +8127,11 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>20</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+@@ -7983,24 +8143,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>50</iTerrainDefense>
++				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: spearmen could have some range advantage fighting in the woods maybe. -->
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureAttack>10</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>10</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<!-- custom: no room to give the woods range advantage of spearmen, unit would have too many modifiers as well -->
++			<FeatureAttacks/>
++			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods>
+@@ -8209,11 +8363,19 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureAttack>25</iFeatureAttack>
+ 				</FeatureAttack>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>10</iFeatureAttack>
++				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>10</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -8426,8 +8588,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_PEAK</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+@@ -8435,13 +8597,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+-				<TerrainAttack>
++				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
+-				</TerrainAttack>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_PEAK</TerrainType>
+-					<iTerrainDefense>75</iTerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+@@ -8453,7 +8615,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>10</iFeatureDefense>
++					<iFeatureDefense>25</iFeatureDefense>
+ 				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+@@ -8834,7 +8996,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 60 -->
+-			<iCost>90</iCost>
++			<iCost>85</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -8874,38 +9036,33 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+ 			<iCityAttack>0</iCityAttack>
+-			<!-- custom: since they are more mercenaries from what i've read and prone
+-			to mutiny, unlike the reworked pikemen i do not give them any city defense
+-			bonus -->
++			<!-- custom: since they are more mercenaries from what i've read and prone to mutiny, unlike the reworked pikemen i do not give them any city defense bonus -->
+ 			<iCityDefense>0</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+-			<!-- custom: unit rework, higher than the reworked pikeman as they seem
+-			to have been doing very well in most terrains, was 0 -->
++			<!-- custom: unit rework, higher than the reworked pikeman as they seem to have been doing very well in most terrains, was 0 -->
+ 			<iHillsAttack>25</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: unlike the reworked pikemen, the holy roman special unit seems
+-			to good in most if not all terrains, so removing the penalties that the reworked
+-			pikemen have. May affect city attack/defense/planting strategy. -->
++			<!-- custom: unlike the reworked pikemen, the holy roman special unit seems to be good in most if not all terrains, so removing the woods penalties that the reworked pikemen have, otherwise respecting consistently if i may say but anyways etc the civ's geography with adjustments based on climate (see german_hussar 's code comment at terrain and feature attacks and defenses for details but anyways etc hopefully helpful or not or yes or etc but anyways etc) -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainAttack>20</iTerrainAttack>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>15</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_GRASS</TerrainType>
+-					<iTerrainDefense>20</iTerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainDefense>15</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+@@ -9582,7 +9739,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<ProductionTraits/>
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>25</iCost>
++			<iCost>30</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -9606,7 +9763,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureImpassables/>
+ 			<TerrainPassableTechs/>
+ 			<FeaturePassableTechs/>
+-			<iCombat>5</iCombat>
++			<!-- custom: was 3 -->
++			<iCombat>4</iCombat>
+ 			<iCombatLimit>100</iCombatLimit>
+ 			<iAirCombat>0</iAirCombat>
+ 			<iAirCombatLimit>0</iAirCombatLimit>
+@@ -9621,23 +9779,31 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
++			<!-- custom: was 0 and 0 anyways etc -->
+ 			<iCityAttack>10</iCityAttack>
+ 			<iCityDefense>10</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+-			<iHillsDefense>0</iHillsDefense>
++			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: according to https://www.quora.com/Why-was-ancient-Babylon-located-in-a-desert/answer/Thomas-Edward-Samuel-Thomas there was no desert or something around it close to it at the time, i don't know if all accurate as i didn't check, but assuming it is, adjust terrain modifiers for this unit, favouring buffing plains when possible as it is a weaker terrain and if not too teidous ideally i may to apply it to more units if it doesn't add too much complexity as well but anyways etc, also trying to make sure it doesn't break balance anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+@@ -9658,7 +9824,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<UnitCombatMods>
+ 				<UnitCombatMod>
+ 					<UnitCombatType>UNITCOMBAT_MELEE</UnitCombatType>
+-					<iUnitCombatMod>20</iUnitCombatMod>
++					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 			</UnitCombatMods>
+ 			<UnitCombatCollateralImmunes/>
+@@ -9864,8 +10030,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iCollateralDamage>0</iCollateralDamage>
+ 			<iCollateralDamageLimit>200</iCollateralDamageLimit>
+ 			<iCollateralDamageMaxUnits>3</iCollateralDamageMaxUnits>
+-			<iCityAttack>0</iCityAttack>
+-			<iCityDefense>25</iCityDefense>
++			<iCityAttack>10</iCityAttack>
++			<iCityDefense>50</iCityDefense>
+ 			<iAnimalCombat>0</iAnimalCombat>
+ 			<iHillsAttack>0</iHillsAttack>
+ 			<iHillsDefense>25</iHillsDefense>
+@@ -10265,8 +10431,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>25</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+@@ -10865,8 +11041,34 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_DESERT</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+ 			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+@@ -11052,10 +11254,30 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>25</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -11234,14 +11456,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: was empty -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>10</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+@@ -11254,20 +11479,13 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: was empty -->
+-			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>10</iFeatureAttack>
+-				</FeatureAttack>
+-			</FeatureAttacks>
+-			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>25</iFeatureDefense>
+-				</FeatureDefense>
+-			</FeatureDefenses>
++			<FeatureAttacks/>
++			<FeatureDefenses/>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<UnitCombatMods/>
+@@ -11679,8 +11897,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<FeatureNatives/>
+ 			<TerrainAttacks/>
+ 			<TerrainDefenses/>
+-			<FeatureAttacks/>
+-			<FeatureDefenses/>
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
++			<FeatureDefenses>
++				<FeatureDefense>
++					<FeatureType>FEATURE_FOREST</FeatureType>
++					<iFeatureDefense>50</iFeatureDefense>
++				</FeatureDefense>
++			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+ 			<!-- custom: was "MOUNTED" 25 and UNITCOMBAT_GUN 25 -->
+@@ -11690,7 +11918,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iUnitCombatMod>50</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+-					<UnitCombatType>UNITCOMBAT_MOUNTED_MELEE</UnitCombatType>
++					<UnitCombatType>UNITCOMBAT_MOUNTED_RANGED</UnitCombatType>
+ 					<iUnitCombatMod>25</iUnitCombatMod>
+ 				</UnitCombatMod>
+ 				<UnitCombatMod>
+@@ -11891,12 +12119,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+ 					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_TUNDRA</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+@@ -13885,12 +14121,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>50</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: see code comment at the generic chariot at FeatureAttacks and/or FeatureDefenses if any code comments are there anyways etc for details anyways etc, was empty -->
+ 			<FeatureAttacks>
+@@ -14335,12 +14579,20 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainAttack>50</iTerrainAttack>
+ 				</TerrainAttack>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<!-- custom: give forest and jungle penalty for most if not all mounted_melee units anyways etc, as i assume it would be less practical (also as they are overall larger in this case anyways etc mount + rider it would be harder for them to take cover if i am not mistaken anyways etc, so simplifying this by giving an overall penalty identical to most if not all mounted_melee units anyways etc, see code comments at featureattacks or featuredefenses of mounted_ranged units if any penalty or such modifiers also or not applies to them anyways etc) for them to navigate these features and they would lose their speed or such advantage too if i am not mistaken anyways etc, and would now be at a disadvantage vs melee or such units i assume if i am not mistaken anyways etc, so give them both attack and defense penalty, should be too op or significant if i may say anyways etc militarily as cities don't have forest or jungle in the tiles they are founded on after they are founded on a tile if i am not mistaken i mean anyways etc ; also even assuming tile is roaded, their escape options may still be limited to the road path and they may get ambushed, so simplifying this with a global penalty as of now at least if not always or not or yes but anyways etc for mounted_melee units on forest and jungle as of now anyways etc, the other terrains i mean such as grassland and plains that are flat do not give a significant advantage that is not already part of the unit's strength/stats, also would be op as they'd get a grassland or plains modifier advantage on attacking cities and or such, and then melee units would need them too, so unless the advantage is strong or the tile weak, avoiding to buff too much terrains at least for mounted_melee or/and other such or other units anyways etc, was empty -->
+ 			<FeatureAttacks>
+@@ -14570,10 +14822,10 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+@@ -14583,26 +14835,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+-					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
+ 					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
++			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc . also remove forest penalties due to civ geographic in world map advantage of forest, see other units code comments at terrainattacks or and such hopefully helpful or not or yes or etc but anyways etc, was empty -->
+ 			<FeatureAttacks>
+-				<FeatureAttack>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureAttack>-25</iFeatureAttack>
+-				</FeatureAttack>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureAttack>-25</iFeatureAttack>
+ 				</FeatureAttack>
+ 			</FeatureAttacks>
+ 			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -14809,21 +15053,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
++			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -15033,7 +15277,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+@@ -15269,17 +15513,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+-			<FeatureAttacks/>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; remove jungle defense penalty and give an additional jungle attack advantage as of now anyways etc for this civ-specific unit if i may say but anyways etc due to civ geography world map advantage, see other units's code comments for details or/and additional info anyways etc -->
++			<FeatureAttacks>
++				<FeatureAttack>
++					<FeatureType>FEATURE_JUNGLE</FeatureType>
++					<iFeatureAttack>25</iFeatureAttack>
++				</FeatureAttack>
++			</FeatureAttacks>
+ 			<FeatureDefenses>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+ 				</FeatureDefense>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_JUNGLE</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
+ 			</FeatureDefenses>
+ 			<UnitClassAttackMods/>
+ 			<UnitClassDefenseMods/>
+@@ -15707,8 +15952,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<!-- custom: see longer code comment at one of the other mounted_melee units that have the forest/jungle penalty as well for details anyways etc, was empty -->
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+@@ -15931,21 +16186,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
++			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -16181,17 +16436,17 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>75</iTerrainAttack>
++					<iTerrainAttack>50</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>75</iTerrainDefense>
++					<iTerrainDefense>50</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -16632,15 +16887,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainAttack>25</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_PLAINS</TerrainType>
++					<iTerrainDefense>50</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the unit's forest penalty similarly due to world map, see code comments at other unit's terrainattacks or such for details anyways etc -->
+ 			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -16849,15 +17110,22 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<!-- custom: sometimes i slightly deviated from strict terrain world map real layout, as of now for example in europe due to it being only forestic with no obvious terrain in the world maps i saw but anyways etc, but eastern europe is cold, so symbolize as having a bit of tundra in civ4 terms but anyways etc (see for example this Köppen climate classification map https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification for details or maybe rather info or such hopefulyl helpful if i may say but anyways etc...) -->
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_TUNDRA</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; removing the forest penalty due to their geography favouring forest if i am not mistaken in doing so at least i want so hopefulyl helpful or not or yes or etc but anyways etc, see also as of now the korean civ-specific unit for similar example / type of example if i may say but anyways etc -->
+ 			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -17067,21 +17335,21 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<!-- custom: make camel units better/stronger in desert and similar terrain +/- features anyways etc -->
++			<!-- custom: make camel units better/stronger in desert and such terrains, but not buffing them too much as they are the generic unit and it may skew warfare too much to use them both for offense or defense against stronger units they shouldn't win again, so buff it moderately but quite a bit in this case at least if i may say but anyways etc -->
+ 			<TerrainAttacks>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainAttack>50</iTerrainAttack>
++					<iTerrainAttack>25</iTerrainAttack>
+ 				</TerrainAttack>
+ 				<TerrainAttack>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+-					<iTerrainAttack>25</iTerrainAttack>
++					<iTerrainAttack>10</iTerrainAttack>
+ 				</TerrainAttack>
+ 			</TerrainAttacks>
+ 			<TerrainDefenses>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_DESERT</TerrainType>
+-					<iTerrainDefense>50</iTerrainDefense>
++					<iTerrainDefense>25</iTerrainDefense>
+ 				</TerrainDefense>
+ 				<TerrainDefense>
+ 					<TerrainType>TERRAIN_PLAINS</TerrainType>
+@@ -17523,12 +17791,8 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 				</TerrainDefense>
+ 			</TerrainDefenses>
+ 			<FeatureAttacks/>
+-			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc -->
++			<!-- custom: see code comment at featureattacks or/and featuredefenses of one of the mounted_ranged units for details anyways etc ; also remove the forest penalty due to civ's world map advantage, see other units 's code comments for details anyways etc -->
+ 			<FeatureDefenses>
+-				<FeatureDefense>
+-					<FeatureType>FEATURE_FOREST</FeatureType>
+-					<iFeatureDefense>-25</iFeatureDefense>
+-				</FeatureDefense>
+ 				<FeatureDefense>
+ 					<FeatureType>FEATURE_JUNGLE</FeatureType>
+ 					<iFeatureDefense>-25</iFeatureDefense>
+@@ -18971,8 +19235,18 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<iHillsDefense>0</iHillsDefense>
+ 			<TerrainNatives/>
+ 			<FeatureNatives/>
+-			<TerrainAttacks/>
+-			<TerrainDefenses/>
++			<TerrainAttacks>
++				<TerrainAttack>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainAttack>10</iTerrainAttack>
++				</TerrainAttack>
++			</TerrainAttacks>
++			<TerrainDefenses>
++				<TerrainDefense>
++					<TerrainType>TERRAIN_GRASS</TerrainType>
++					<iTerrainDefense>25</iTerrainDefense>
++				</TerrainDefense>
++			</TerrainDefenses>
+ 			<FeatureAttacks>
+ 				<FeatureAttack>
+ 					<FeatureType>FEATURE_FOREST</FeatureType>
+
+diff --git a/README.md b/README.md
+index 326895184..942433086 100644
+--- a/README.md
++++ b/README.md
+@@ -182,10 +182,27 @@ I am not doing the ingame art though, just the buttons, unless i would unexpecte
+ 
+ See [README_Dds_button_size_comparison_analysis.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Dds_button_size_comparison_analysis.md) for details
+ 
++## Civs you can expect in this mod
++
++### World map with civs
++
++The civs you can expect in this mod come from these parts of the world (circled numbers are the added new civ's real world location):
++
++![0.220_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.220_world_map_terrain_with_new_civs.png)
++
++### Other map(s) i used for terrain modifiers for civ-specific units
++
++Among other maps or information i found online but anyways etc, i mostly also used the map below as well in order to determine if i may say but anyways etc anyways etc anyways etc, which civs should get which terrain/feature modifiers in advciv-sas:
++
++![0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg)
++
++Note: sometimes i slightly deviated from strict terrain world map real layout, as of now only in europe and eastern asia due to them being only forestic with no obvious terrain in the world maps i saw but anyways etc, but they is cold, so symbolize it as having a bit of tundra in civ4 terms but anyways etc (see for example this [Köppen climate classification map on wikipedia](https://en.wikipedia.org/wiki/K%C3%B6ppen_climate_classification) for details or maybe rather info or such hopefulyl helpful if i may say but anyways etc...)
++
+ ## Project Goals and global view on gameplay changes
+ 
+-For a quick starter guide on the main changes between base AdvCiv and
+-Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
++For a quick starter guide on the main changes between base AdvCiv and Advciv-SAS, please see rather the [README_Quick_Get_Started_Guide.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md)
++
++Note: what is written is a general draft and to gather ideas, that may not be updated (missing or not anymore considered ideas maybe anyways etc) anymore with current advciv-sas development state, see rather the quick get started guide linked in this section for details.
+ 
+ The more general gameplay type of changes consist of:
+ 
+@@ -220,12 +237,6 @@ the finished version.
+ - Some bug fixes if i found them or and tweaks anyways etc (see docs for details anyways etc, in particular [README.md#known-issues-in-base-advciv-orand-civ4](/README.md#known-issues-in-base-advciv-orand-civ4) and [README.md#main-bugsissues-fixed-from-base-advciv-code](/README.md#main-bugsissues-fixed-from-base-advciv-code) or/and main README.md for details anyways etc)
+ - many changes, unlisted and still undone, so far this project is in the early stages, and some of the stated above may change too, refer to ingame sevopedia or and get started guide linked above for hopefully more accurate versions especially ingame sevopedia which always uses latest xml data if i am not mistaken anyways etc
+ 
+-## Civs you can expect in this mod
+-
+-The civs you can expect in this mod come from these parts of the world (circled numbers are the added new civ's real world location):
+-
+-![0.22_world_map_terrain_with_new_civs.png](/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png)
+-
+ ## Known issues in base AdvCiv or/and Civ4
+ 
+ See the [README_Known_Issues_In_Base_AdvCiv_Civ4.md](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md) for details
+@@ -241,7 +252,7 @@ Non-exhaustive list of fixes, see docs for details or/and additional info anyway
+ - Fixed (technically not strictly a fix as data was not used, but now fixed as in the data is also displayed here like the rest fo the leader info anyways etc read after brackets for details if i may say but anyways etc anyways etc anyways etc...) missing BBAI getters expose them to sevopedia leader info in gc too for display anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#17---now-fixed-missing-bbai-getters-expose-them-to-sevopedia-leader-info-in-gc-too-for-display-anyways-etc) on how this was implemented (google drive with screenshots link there too anyways etc hopefully helpful or not or yes or and other or and not but anyways etc anyways etc anyways etc)
+ - Fixed similarly missing base advciv specific xml fields in gc of sevopedia leader, now exposed there as well these new getCityRefuseAttitudeThreshold and getNativeCityRefuseAttitudeThreshold anyways etc
+ - Fixed unclear sevopedia unit terrainimpassable and feature impassable message: applies only outside of cultural borders, and regardless of roaded status of the tile in all tiles as well also i mean ; also added this info that was missing in ingame in map view of the unit's effects bullet points by modifying the DLL anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#21---now-fixed-missing-cannot-enter-terrain-orand-feature-info-in-map-view-of-unit-effects-unlike-in-sevopedia-where-it-is-also-not-clear-enough-about-restrictions-cultural-borders--not-affected-by-roads-if-i-am-not-mistaken-anyways-etc-now-added-this-info-as-well-anyways-etc) for details
+-- Not listed in known issues: commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt), exceptions being for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if we/i anyways etc or you or all or not or both or etc anyways etc comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example if there are other or not but anyways etc), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it in this case i mean anyways etc, added info if helps here anyways etc. See also some information in this [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) with screenshots (non-exhaustive) or such anyways etc, including some benchmarks chatgpt/becomingtrough ran in its interface as in my prompt i mean and its suggestions perhaps indeed too but anyways etc thanks to it and perhaps me too indeed and all or not or yes or etc but anyways etc hopefully data is helpful in all cases if i may say or not or yes or other or etc anyways etc. (note: also i have done this to most docstrings in the code and there were many xd like 1500 approximately hehe but was quite fun but also tedious but anyways etc... thankfully now done i mean anyways etc)
++- Not listed in known issues: commented-out most python docstrings, instead with a `#`, as for very long ones, they are moved to specific files instead, for example as of now the changelog giant (500+ line approximately from my memory anyways etc) in configobj.py has been moved to [/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt](/_0_Common_Docs/BUG%20Doc/configobj_changelog_py_notes.txt), exceptions being for example test docstrings as comenting them out causes ingame errors for example in configobj py file, and empty if commented out which causes ingame error with VS Code unexpected indent at the next function (i.e. if we/i anyways etc or you or all or not or both or etc anyways etc comment-out this function that has only a docstirng, everything else being a comment out or empty, then the function below it has unexpected indent error, which causes ingame errors as well, such as in eventsigns py file for example if there are other or not but anyways etc), and maybe some ambiguous other cases if i have forgotten them or maybe not, but in all cases hopefully this increases even if a bit if not lot loading times and reduces memory usage from what i understand chatgpt's explanation, and as according to/advised by chatgpt, they are not used ingame, and from my quick autoplay test(s) game seems to run fine without it in this case i mean anyways etc, added info if helps here anyways etc. See also some information in this [google drive folder link](https://drive.google.com/drive/folders/1oOiKggm9nHVyp07QF8HM_WgXY5Gtcg44?usp=sharing) with screenshots (non-exhaustive) or such anyways etc, including some benchmarks chatgpt ran in its interface as in my prompt i mean and its suggestions perhaps indeed too but anyways etc thanks to it and perhaps me too indeed and all or not or yes or etc but anyways etc hopefully data is helpful in all cases if i may say or not or yes or other or etc anyways etc. (note: also i have done this to most docstrings in the code and there were many xd like 1500 approximately hehe but was quite fun but also tedious but anyways etc... thankfully now done i mean anyways etc)
+ - Similar to python comment trimming to one line, but this time not for performance as it seems one giant comment line vs a 10 line comment has exact same performance in xml parsing from what i understood of chatgpt's explanation (due to parser still reading the entire comment line regardless, not skipping like in python seenig a `#` for example if i am not mistaken anyways etc), but doing so as it helps for word wrapping, but since performance seems to be the same if i am not mistaken based on my understanding of and on too anyways etc chatgpt's explanation, less incentive to do so and optimize it, even though i am still quite motivated maybe i think to be fair, but less or no benefit or less to do so, but anyways etc. Not in known issues as well similarly to python comment cleanup issue, and see also as well some information (screenshots and such info in them i mean anyways etc) in this [google drive folder link](https://drive.google.com/drive/folders/1fWa7xXOgnXW2w2_b6JHGcDaoSqhGHree?usp=sharing) thanks anyways etc thanks anyways etc hopefully helpful or not or yes or etc anyways etc
+ - using ruff linter (vs code extension) and chatgpt to fix or/and sanitize a lot of ruff warnings or errors in our/the python code anyways etc (see notes at some useful tools in readme as well about rust for details anyways etc and also see google drive link there for examples anyways etc, as well as additional info from (what is written anyways etc) here maybe too anyways etc), while minding to be python 2.4 comaptible for civ4 if i am not mistaken this is the version civ4 uses anyways etc, examples include fixing suboptimal multiple statements per line, but also needless semicolons at end of line, bare except instead of catching with Exception or similar if i am not mistaken anyways etc from what i understand of chatgpt's explanation and rephrasing it while understanding it in my own way too from my past knowlege too but anyways etc, inconsitent use of tabs and indentations, and many others even though some/most seem to be detected by pylance it helps that ruff flags them all too and some not detected by pylance it seems as well but in all cases or not or yes or etc anyways etc thanks anyways etc anyways etc anyways etc, also a lot of cleaning up of poor code formatting that i annoted if i may say as much as possible but i may not have done all purposely or not i mean hopefully quite accurate i mean most importantly exhaustive, also tried to remove needless imports like `import string` when deemed possible by rewriting code a bit with ruff or pylance's warnings/errors as well as chatgpt's help and my prompts too anyways etc, as well also as real fixes like mismatch in placeholder count in string format anyways etc
+ - Fixed obsolete bonuses (such as BONUS_ELEPHANTS, BONUS_DRAMA, etc anyways etc) in tech advisor (i.e. tech tree view anyways etc) failing to redirect to their corresponding sevopedia bonus page, with id none causing an error, unlike obsolete buildings (like BUILDING_SPIRAL_MINARET for example anyways etc) successfully showing the building item's page anyways etc. The issue/bug/error anyways etc was seemingly caused by a new base advciv code in CvDLLWidgetData.cpp, now reverted to using `iData1` same as obsolete buildings did (and which didn't have the issue again but anyways etc) and not `widgetDataStruct.m_iData2`, which fixed it now if i am not mistaken anyways etc, see [README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#22---partially-fixedworkedaround-obsolete-bonuses-such-as-bonus_elephants-anyways-etc-in-tech-advisor-ie-tech-tree-view-anyways-etc-redirect-to-sevopedia-bonus-with-id-none-causing-an-error-unlike-obsolete-buildings-like-building_spiral_minaret-for-example-anyways-etc-successfully-showing-the-building-items-page-anyways-etc) for details anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+index eb24b4ac3..742119949 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_AI_Personality_Panel.md
+@@ -171,7 +171,7 @@ And since our mod AdvCiv-SAS is based on AdvCiv, we don't use it by extension, a
+ Currently, again as of me now writing this doc, there are a few attirbutes missing from the table, such as:
+ 
+ - Attitude changes +/- limits +/- divisors aggregation (may aggregate them too for easier read), or/and move some of them in (other categories (like "core personality, etc))
+-- improvements (would be nice if i could (we? with chatgpt/becomginthrough)) anyways etc also display leader preferences for which improvements (such values exist in xml), for example some leaders prefer mines, others farms etc, with their scale and before that normalized score too (plus raw value in label too ideally) woudl be even nicer, but there are many improvements, wouuld need to find a way to comapct the view, perhaps only showing values > 0.
++- improvements (would be nice if i could (we? with chatgpt)) anyways etc also display leader preferences for which improvements (such values exist in xml), for example some leaders prefer mines, others farms etc, with their scale and before that normalized score too (plus raw value in label too ideally) woudl be even nicer, but there are many improvements, wouuld need to find a way to comapct the view, perhaps only showing values > 0.
+ - unitais (which ai leaders build for example more ai settle units, or more ai sea explore units for example if i'm not mistaken, etc.) with scales and normalized score(s) (before that) and ranking (as thus if that is a word/expression anyways etc anyways) would be very nice too, perhaps in a compact way like for improvements, especially if some room is freed somewhere in the panel (or writing under the panel xd.. works too maybe indeed, but etc anyways etc anyways...)
+ 
+ ## Note about the value of 0 not always being 0, and a value > 0 sometimes being 0
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+index a0c2dc62a..a1e44d42d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_ChatGPT.md
+@@ -24,7 +24,7 @@ Finally, at the end or towards it anyways etc of this readme file, i have also a
+ 
+ - taught me some nice tricks, such as [centering text labels](https://github.com/wonderingabout/AdvCiv-SAS/commit/f0f55128ea391cdb174a051fffc5f97dc1155ced) or information in general about civ4 code, thanks too ChatGPT helped a lot, and to those who told me aobut it and that i could use it in civ4 in particular, and also thanks maybe to other thanks or not anyways, (but sometimes it struggles or gives incorrect information so check it etc, anyways thanks etc thanks! (Really), anyways,)
+ - on top of that wrote docs, gave and entirely almost if not only by itself (and my prompts but anyways thanks a lot chatgpt!!!) wrote new features (such as AI personality and AI personality [aggregates (deprecated now but to illustrate maybe etc anyways) for example](https://github.com/wonderingabout/AdvCiv-SAS/commit/c59c8dc78a4a685b3512b921853f507d01e12773) in python and [their sevopedia doc in XML too for example part 1](https://github.com/wonderingabout/AdvCiv-SAS/commit/c9fcdad5902ec58d29f91a062a96c88072c9ef83) and [for example part 2 here too (may be other parts or not but anyways)](https://github.com/wonderingabout/AdvCiv-SAS/commit/5257f49065bf97c29ca90d367d4f596c1ede79f0))
+-- has memory so you can tell it here is my code remember it (until memory trims sadly but anyways...), correct its mistakes and it will remember them too, and update to such new code etc, writes commit notes, follows a style and such, taught and told me about code refactoring ([for example part 1](https://github.com/wonderingabout/AdvCiv-SAS/commit/6cd58d51cd2c86593a50efb103d7dcc8902d72b0) and [for example part 2](https://github.com/wonderingabout/AdvCiv-SAS/commit/04c2d5b3d3742c26c38fbe016b99413135a6ae46) or/and hints, probably many other things i didn't lsit hee too or not but anyways, thanks a lot ChatGPT (or chatgpt maybe too anyways), i cannot thank you enough ChatGPT/chatgpt thanks a lot :) (!!!)
++- has memory so you can tell it here is my code remember it (until memory trims sadly but anyways...), correct its mistakes and it will remember them too, and update to such new code etc, writes commit notes, follows a style and such, taught and told me about code refactoring ([for example part 1](https://github.com/wonderingabout/AdvCiv-SAS/commit/6cd58d51cd2c86593a50efb103d7dcc8902d72b0) and [for example part 2](https://github.com/wonderingabout/AdvCiv-SAS/commit/04c2d5b3d3742c26c38fbe016b99413135a6ae46) or/and hints, probably many other things i didn't lsit hee too or not but anyways, thanks a lot ChatGPT (or chatgpt maybe too anyways), i cannot thank you enough ChatGPT thanks a lot :) (!!!)
+ - It may even suggest or help you impleemnt or/and do itself the code part and commit notes [full performance improvements, for example this](https://github.com/wonderingabout/AdvCiv-SAS/commit/9b7a6735ce834e0d85aed7f94bff17a9155a0853) especially to extensive changesand [for example this 2 (too etc)](https://github.com/wonderingabout/AdvCiv-SAS/commit/bf8764cb337550b4e84cef5106acdaaf4b159018), be careful though as now it seems to invent evne more than (some (older) time than) before (where it used to work great) if i'm not mistaken though sadly.
+ - but anyways, also when you have issues tell it (you can to chatgpt i mean anyways) tell it to forget all latest tries and copy paste your entire latest working file (at least i can with my version/plan of it which is not highest but not lowest may be possible in lowest too or not i don't know anyways was to mention the solution but anyways) then sometimes it will remove its grip and come with an actual solution, else you may digest the problem in smalelr parts and after you do the smallest part of the problem (like building a tbale and putting its coordinates (you can ask it how) then it manages much easier the rest after asking ti again frm this code point, which is why git helps a lot as chatgpt connect to it (but i copy paste my code too just in case or to be exhsutive anyways)(may or not be accurate and sometiems would not work or would work is just/feedback/suggestin not responsible but hope helps, anyways) but anyways),
+ - make sure you commit smaller steps before trying its code so you can stash it to latest known working code if it doesnt work and resume from there and see diff more easily (see below git bash credit, not much epxlanaiton as of now if alwyas or not etc not gauranteed may not or may or may not etc anyways hope helpful though but anyways) ;
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+index b771d2341..10d5f725c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Python_Scripts.md
+@@ -352,7 +352,7 @@ In cmd, for example for Steam users (adapt to your AdvCiv-SAS install path), go
+ cd C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\ & python scan_xml_duplicates-3.3.py
+ ```
+ 
+-(Note: keeping version name as such to not mistaken it ith newer versions that had some issues or diverged so prefer to use this one here while keeping version naming for reliability, ease of use, and also memory/"honor" it if you may say as chatgpt/beomingthrough often tells me etc but anwyays and thanks, anyways,)
++(Note: keeping version name as such to not mistaken it ith newer versions that had some issues or diverged so prefer to use this one here while keeping version naming for reliability, ease of use, and also memory/"honor" it if you may say as chatgpt often tells me etc but anwyays and thanks, anyways,)
+ 
+ Result is output in a logfile in the Logs\XML_Duplication_Scans folder, for example for Steam users (adapt to your AdvCiv-SAS install path):
+ 
+@@ -362,7 +362,7 @@ Here is an [example of output file](/scan_xml_duplicates-log_example_of_output.t
+ 
+ (Note: files are in .gitignore if you use git, else dont mind this specific remark, anyways)
+ 
+-Line numbers don't print perfectly ("duplicated" you could say hehe.. (but) anyways), but info should be otherwise helpful hopefully ; also some duplicates are intended and expected if i am not mistaken and part of the game architecture, such as the iCommerce ones if i understood ChatGPT's explanation correctly and based on my own memories's understanding anyways, and TXT_KEY_HINT_`*` where `*` is anything for example, maybe for publicity and purposely repeated, according to ChatGPT/becomingthorugh anyways too and seems to make sense, if i am not msitaken and understand it and it's explanation correctly too
++Line numbers don't print perfectly ("duplicated" you could say hehe.. (but) anyways), but info should be otherwise helpful hopefully ; also some duplicates are intended and expected if i am not mistaken and part of the game architecture, such as the iCommerce ones if i understood ChatGPT's explanation correctly and based on my own memories's understanding anyways, and TXT_KEY_HINT_`*` where `*` is anything for example, maybe for publicity and purposely repeated, according to ChatGPT anyways too and seems to make sense, if i am not msitaken and understand it and it's explanation correctly too
+ 
+ In all cases, here is an example of output for Steam users (adjust paths and/or such similar things anyways if not steam user) (click on the images below to view them full size) :
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 6bf5a200b..00141061a 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -139,7 +139,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ 
+ ### Civilizations (non-exhaustive, see sevopedia or/and xml for details)
+ 
+-- new civilizations, for example as of now only the kingdom of benin anyways etc.
++- new civilizations, for example as of now only the kingdom of benin anyways etc. See also world map with civilizations in this advciv-sas mod if i may say but anyways etc here [README.md#world-map-with-civs](/README.md#world-map-with-civs)
+ 
+ ### Leaders (non-exhaustive, see sevopedia or/and xml for details)
+ 
+@@ -195,7 +195,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - Unit combat types refers to unit categories/types, for example in Civ4 BTS/base AdvCiv these were for example archery units, recon units (scout, explorer), melee units (spearman, axeman, swordsman, maceman, pikeman, etc.), etc. There are many new unit combat types, still a todo as of now but some have been implemented already (not sure will be done further or/and immediately nor soon if at all, may or may not anyways etc), see the sevopedia entry "Unit Combat Types" for details. This allows to give specific bonuses to specific combat types. For example, there are now new combat types of units (and modified existing ones too), for example the archers combat type is now subdivided instead into new archers (bow, short), archers (long), and archers (crossbow) if one wants to give specific combat modifiers based on these types more specifically if i may say anyways etc (i.e. modifier vs crossbows but not vs longbowmen, or vs short bows and longbows but not vs crossbows or a different modifier i mean anyways etc) ; as of now if i am not mistaken though there should not be much if at all differences between how these units are handled so this is as of now only a functional difference if i may say but ideally one may want to add differences between them maybe, for example crossbows defending first or such against units, but not implemented in advciv-sas as of now if i am not mistaken (didn't check but i don't remember such a change or type of change if i am not mistaken anyways etc).
+ - This also changes warfare tactics and such for some other unit combat where i made such small or not modifications in this case but anyways etc anyways etc, for example mounted units are now split into mounted melee and mounted range units, so for example pikemen as of now are strong against mounted melee (like the horse knight) but not against the mounted ranged (such as the horse archer or cuirassier for example anyways etc). Also note that some civ-specific units are not in same combat type than their generic "parent" if i may say anyways etc, for example the ballista elephant is mounted ranged vs the war elephant being mounted melee if i may say anyways etc. I have tweaked a bit the advantages of most of the mounted melee units to buff them relatively a bit as they would be a bit weaker otherwise if i am not mistaken anyways etc as of now at least anyways etc, also there are other small or not differences anyways etc such as the defend order or such too if i am not mistaken.
+ - new camel units related to the BONUS_CAMEL changes, as an alternative mount to the horse. Also reworked the arabian empire's civ-specific unit as well
+-- terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... ; as it is tedious and less intuitive mostly anyways etc). This is still unfinished but did it in several units in advciv-sas, see sevopedia entry of each unit for details, for example the camel knight or the zulu impi are stronger in desert or/and other terrains as well ; see also/as well anyways etc the sevopedia terrains and features categories that now display which units are stronger or/and relevant to currently selected/shown in sevopedia terrain or feature (see [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) for details as well if i may say anyways etc)
++- terrains and features have a higher importance in military, more units have terrain/feature bonuses, and sometimes rarely terrain maluses (i prefer to buff the weak than nerf the strong, unless i think it is relevant (quite strongly) anyways etc... ; as it is also tedious and less intuitive mostly if i may say too and not necessarily worth it or as i would want it maybe but anyways etc). Civ-specific units in particular as of now almost all have terrain +/- feature modifiers, see sevopedia entry of each unit for details about each unit's modifiers, or see sevopedia terrain or/and sevopedia feature page to see all units modifiers for said terrain/feature (see for more details [README_Sevopedia_Reworks.md#example-9-terrains-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-9-terrains-category) and [README_Sevopedia_Reworks.md#example-3-features-category](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Sevopedia_Reworks.md#example-3-features-category) anyways etc). For example the camel knight or the zulu impi are stronger in desert or/and other terrains as well. Some generic units have terrain or/and feature modifiers although generally less and as of now only for few units to not skew the balance and as is quite needless, only civ-specific units should have strongest modifiers, but generic units can have modifiers as well at least in advciv-sas when relevant. See also [README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units](/README.md#other-maps-i-used-for-terrain-modifiers-for-civ-specific-units) for additional info anyways etc
+ - All units now are affected by city defenses (walls, castles, etc if any more/other), even gunpowder and later on units, seems more realistic to me this way, as walls can help against guns and against all (almost?) units, actually even if not having the tech for guns itself. See also for details: bIgnoreBuildingDefense in CIV4UnitInfos.xml or/and (tranlslate to english ((following) web page (anyways etc)) using web browser or such) [https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense](https://gforestshade.github.io/kujira/post/civ4unitinfos/#bignorebuildingdefense) for details (too anyways etc(.)) anyways etc...
+ - some units are buildable at different times/tech, also for historical accuracy, see tech tree i.e. tech advisor for details anyways etc
+ - explore units can attack: but their strength should be quite low
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.220_world_map_terrain_with_new_civs.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.220_world_map_terrain_with_new_civs.png
+new file mode 100644
+index 000000000..86cf5710c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.220_world_map_terrain_with_new_civs.png differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg
+new file mode 100644
+index 000000000..df8e5a29c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.221_main_world_map_for_civs_terrain_feature_modifiers.jpg differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png b/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png
+deleted file mode 100644
+index 80961c325..000000000
+Binary files a/_1_AdvCiv-SAS/Images_In_General/misc_0.x/0.22_world_map_terrain_with_new_civs.png and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index 6629e49fd..622263f18 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+index 2f829740a..f74ffae2c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG
+index cb1cccadd..b3a2d523a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG
+index 6a6076115..5564780dc 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.680_sevopedia_units_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index a233ed01d..b1fdc511c 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index ef5732309..b8587b05d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 52ae96b93..4e48fe43a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=23 embeddedFiles=23 omittedFiles=0 embeddedPatchBytes=113012

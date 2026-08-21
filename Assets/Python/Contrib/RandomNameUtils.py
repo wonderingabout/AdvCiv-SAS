@@ -6,12 +6,12 @@
 from CvPythonExtensions import *
 
 import CvUtil
+# <!-- custom: remove or comment out seemingly unused imports -->
 import sys
 import math
-import string
+#import string
 
 gc = CyGlobalContext()	
-
 
 # Lists of names have been generated using
 # NameMage
@@ -78,7 +78,7 @@ civilizationNameHash =	{
 							"CIVILIZATION_FRANCE" :
 							{
 								"PRE" : ("St. ","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","","",""),	
-								"MID" : ("Adora","Alavda","Aleron","Algernon","Amarante","Ancel","Andrew","Angevin","Aramis","Armand","Audric","Babette","Bailey","Bari","Barry","Bayard","Beau","Beaumont","Bebe","Bedelia","Bellamy","Belle","Belle","Bella","Berangèr","Berenger","Boden","Bogart","Bonamy","Boswell","Boyce","Bret","Briand","Brie","Brier","Bruce","Byron","Cable","Campbell","Carel","Caresse","Carissa","Caron","Carrie","Caroline","Case","Chancellor","Chandler","Chanel","Chaney","Chantal","Chapin","Charlene","Charlotte","Chase","Cheney","Cheryl","Chevalier","Ciel","Corbin","Crescent","Cyprien","Dacio","Darell","Dartagnan","Deja","Delano","Delmar","Demi","Destinee","Destry","Diamanta","Dominique","Donatien","Doreen","Dori","Drew","Egil","Elaine","Elise","Elita","Eliza","Elle","Eloise","Etienne","Fantine","Fawne","Faye","Fayme","Felicite","Flannery","Fleur","Forest","Foster","Frank","Franklin","Fraser","Frasier","Gareth","Garland","Gay","Gaye","Gaylord","Geneva","Genevieve","Germain","Ghislaine","Granville","Grosvenor","Guy","Hamlin","Harcourt","Iolanthe","Jaimie","Jamari","Javier","Jean","Jeanne","Jenay","Jolie","Lacy","Lance","Laverna","Laverne","leala","leroy","Liana","Linette","Linus","Lionel","Lyle","Mabel","Macy","Magnolia","Maine","Mala","Marcel","Margot","Marguerite","Marian","Marianne","Marie","Marjorie","Marlon","Marshall","Marvelle","Maslin","Mason","Maurice","Mercy","Merci","Michelle","Mignon","Montague","Montgomery","Mortimer","Musetta","Neville","Noel","Noella","Noelle","Norman","Norris","Odelette","Odetta","Odette","Odil","Olive","Oliver","Orane","Oriel","Orville","Page","Pansy","Papillon","Pascal","Pascale","Percival","Percival","Percy","Pierre","Porter","Prewitt","Purvis","Quennel","Quennell","Questa","Quincy","Quiterie","Raissa","Rance","Ranger","Ray","Remy","Riva","Rochelle","Roslin","Roy","Ruby","Rush","Russel","Russell","Sargent","Searlait","Seaton","Sennett","Seymour","Shannelle","Shantay","Shantelle","Sigourney","Sinclair","Sinjon","Solange","Soleil","Sumner","Sydney","Talbot","Tayce","Taylar","Telo","Tempest","Tenenan","Thibaud","Thosa","Tiffany","Tracy","Travis","Travis","Travers","Tremeur","Trifine","Troilus","Troy","Tudi","Tugdual","Tujan","Turiau","Tyson","Ursanne","Vachel","Vail","Valeray","Valerie","Vallis","Varden","Vardon","Varocher","Vedette","Vere","Verney","Vernon","Verrin","Vinvella","Voletta","Warren","Yannick","Yvonne","Abadie","Abbe","Achard","Adam","Aigremont","Alain","Albert","Alein","Alexandre","Allaire","Allard","Allemand","Amyot","Andre","Andrieu","Antoine","Archambault","Armand","Arnaud","Arpin","Arrive","Asselin","Aube","Aubert","Aubertin","Aubin","Aubry","Auclerc","Audet","Auger","Augereau","Aurelle","Auriole","Babin","Bachelier","Bacon","Baillon","Balan","Barbe","Barbeau","Barbier","Bard","Bardeau","Bardot","Barette","Baril","Barnabe","Baron","Barre","Barthelemy","Basque","Basset","Bastide","Bataille","Baudet","Baudin","Baudoin","Baudry","Bazin","Beaubois","Beauchamp","Beauchesne","Beauclair","Beaudet","Beaudouin","Beaufort","Beaujeu","Beaulieu","Beaumont","Beaupre","Beauregard","Beauvais","Beauvoir","Bechard","Belair","Belard","Bellanger","Belle","isle","Bellemare","Bellevaux","Belmont","Benard","Benoist","Benoit","Berard","Berger","Bergeron","Bergevin","Berlo","Bernard","Bernier","Berthelot","Berthier","Bertin","Bertrand","Besse","Besset","Besson","Bibau","Bigot","Billard","Binet","Biron","Bisson","Bissot","Blain","Blais","Blaise","Blanc","Blanchard","Blanchet","Blin","Blondeau","Blot","Blouin","Bodin","Boileau","Bois","Boisseau","Boivert","Boivin","Bombarde","Boncourt","Bonhomme","Bonin","Bonnaire","Bonnard","Bonneau","Bonnefoix","Bonnet","Bonnin","Bordes","Bosse","Bouchard","Bouche","Boucher","Bouchet","Boudet","Boulanger","Boulay","Boulet","Bouquet","Bourbon","Bourgeois","Bourgoin","Bourree","Bousquet","Boutet","Boutillier","Boutin","Bouvet","Bouvier","Boyer","Brabant","Brassard","Breau","Breton","Briand","Bridot","Briene","Brin","Brisson","Brossard","Brosset","Broussard","Brousse","Bruley","Brullet","Brun","Bruneau","Brunel","Brunet","Bruyere","Bugeaud","Buisson","Bureau","Cailly","Campagne","Camus","Carbonneau","Cardinal","Carlier","Caron","Carpentier","Carre","Carreau","Carrier","Carriere","Cartier","Castel","Cauchon","Cavelier","Chabert","Chabot","Chabrieres","Chalon","Chambly","Champeaux","Champion","Chapelain","Chapelle","Chapellier","Chaperon","Charette","Charles","Charlot","Charon","Charrette","Charrier","Charron","Chauvet","Chauvin","Chenart","Chenier","Chesnay","Chesne","Chevalier","Chevrier","Chirac","Chouet","Chrestien","Chretien","Clavel","Clemenceau","Clement","Clerc","Clermont","Coffin","Coin","Colas","Colbert","Colin","Collard","Collet","Collin","Combe","Comiers","Comte","le","Constant","Constantine","Coq le","Corbin","Cordier","Cormier","Cornu","Corre le","Coste","Coulon","Court","Cousin","Cousinot","Couture","Couturier","Cros","Crosnier","Crozet","Daigremont","D'amours","Daniel","David","Delahaye","Delisle","Delmas","Delorme","Denis","Denys","Deschamps","Deshayes","Desjardins","Desmarais","Desprez","Desvilliers","Devaux","Didier","Doucet","Dubois","Dubreuil","Duclos","Dufaux","Dufour","Dufresne","Dugas","Duguay","Duhamel","Dumas","Dumay","Dumont","Dumoulin","Dupin","Dupont","Dupre","Dupuis","Dupuy","Durand","Duval","Etienne","Evrard","Fabre","Faucher","Faure","Ferrand","Fillion","Fleury","Fontaine","Forest","Forestier","Fort","Fortin","Fosse","Foucaud","Foucault","Foucher","Fougeres","Fouquet","Fournier","Francois","Frenier","Gagne","Gagnon","Gaillard","Galland","Gallet","Garneau","Garnier","Gauthier","Gautier","Gendron","Geoffroy","Georges","Gerard","Germain","Gervais","Gibert","Gillet","Girard","Giraud","Godard","Gosselin","Goullet","Goyer","Goyet","Grandjean","Grangers","Gregoire","Gros","Guerin","Guichard","Guillaume","Guillon","Guillot","Hubert","Huet","Huguet","Humbert","Imbert","Jacob","Jacquemin","Jacques","Jacquet","Jardin","Jean","Jerome","Jobidon","Jobin","Joly","Joseph","Joubert","Jourdain","Jouve","Jouy","Lacoste","Lacour","Lacroix","Ladoucette","Lafont","Lalande","Lalane","Lambert","Langlois","Laporte","Laroche","Lasseur","Laurent","Lauzon","Laval","Lavallee","Lavergne","Lavoir","le goff","leblanc","lebon","lebrun","leclerc","lecomte","lefebvre","lefevre","leger","legrand","lemaire","lemoine","lemonnier","leon","leonard","lepage","leroux","leroy","lesage","Louis","Lucas","Maillard","Maillet","Maillot","Maire","Mallet","Marc","Marchal","Marchand","Marechal","Marie","Marin","Marquet","Martin","Martinais","Martineau","Martinet","Masson","Mathieu","Maury","Menard","Mercier","Meunier","Meyer","Michaud","Michel","Millet","Monnier","Montagne","Monteil","Montfort","Montigny","Montmorency","Morand","Moreau","Morel","Morin","Moulin","Mounier","Mouton","Muller","Nicolas","Noel","Olive","Olivet","Olivier","Origny","Orleans","Ouvrard","Page","Paget","Paradis","Parent","Parisot","Parmentier","Pellerin","Pelletier","Perrault","Perret","Perrier","Perrin","Perrot","Petit","Philippe","Picard","Pichon","Picot","Pierre","Pillon","Poirier","Poisson","Poitiers","Poulain","Poullin","Prat","Prevost","Prigent","Proust","Provost","Prudhomme","Puget","Quesnel","Racine","Ratelle","Raynaud","Remy","Renard","Renaud","Renault","Rey","Richard","Richer","Riel","Rioux","Riviere","Roberge","Robert","Robillard","Rochefort","Roger","Roland","Rousseau","Roussel","Roux","Roy","Royer","Simon","Soullier","Laurent","Amour","Andre","Aubin","Croix","Denis","Etienne","George","Germain","Jacques","Jean","Joseph","Julien","leger","Marc","marie","martin","michel","Paul","Sylvestre","Tardif","Terrien","Tessier","Thebaud","Thibaudeau","Thierry","Thomas","Touchet","Tournier","Tremblay","Turpin","Vacher","Vachon","Vaillant","Vanier","Vasseur","Verdier","Vidal","Vignaux","Vigne de la","Villeneuve","Vincent"),
+								"MID" : ("Adora","Alavda","Aleron","Algernon","Amarante","Ancel","Andrew","Angevin","Aramis","Armand","Audric","Babette","Bailey","Bari","Barry","Bayard","Beau","Beaumont","Bebe","Bedelia","Bellamy","Belle","Belle","Bella","Beranger","Berenger","Boden","Bogart","Bonamy","Boswell","Boyce","Bret","Briand","Brie","Brier","Bruce","Byron","Cable","Campbell","Carel","Caresse","Carissa","Caron","Carrie","Caroline","Case","Chancellor","Chandler","Chanel","Chaney","Chantal","Chapin","Charlene","Charlotte","Chase","Cheney","Cheryl","Chevalier","Ciel","Corbin","Crescent","Cyprien","Dacio","Darell","Dartagnan","Deja","Delano","Delmar","Demi","Destinee","Destry","Diamanta","Dominique","Donatien","Doreen","Dori","Drew","Egil","Elaine","Elise","Elita","Eliza","Elle","Eloise","Etienne","Fantine","Fawne","Faye","Fayme","Felicite","Flannery","Fleur","Forest","Foster","Frank","Franklin","Fraser","Frasier","Gareth","Garland","Gay","Gaye","Gaylord","Geneva","Genevieve","Germain","Ghislaine","Granville","Grosvenor","Guy","Hamlin","Harcourt","Iolanthe","Jaimie","Jamari","Javier","Jean","Jeanne","Jenay","Jolie","Lacy","Lance","Laverna","Laverne","leala","leroy","Liana","Linette","Linus","Lionel","Lyle","Mabel","Macy","Magnolia","Maine","Mala","Marcel","Margot","Marguerite","Marian","Marianne","Marie","Marjorie","Marlon","Marshall","Marvelle","Maslin","Mason","Maurice","Mercy","Merci","Michelle","Mignon","Montague","Montgomery","Mortimer","Musetta","Neville","Noel","Noella","Noelle","Norman","Norris","Odelette","Odetta","Odette","Odil","Olive","Oliver","Orane","Oriel","Orville","Page","Pansy","Papillon","Pascal","Pascale","Percival","Percival","Percy","Pierre","Porter","Prewitt","Purvis","Quennel","Quennell","Questa","Quincy","Quiterie","Raissa","Rance","Ranger","Ray","Remy","Riva","Rochelle","Roslin","Roy","Ruby","Rush","Russel","Russell","Sargent","Searlait","Seaton","Sennett","Seymour","Shannelle","Shantay","Shantelle","Sigourney","Sinclair","Sinjon","Solange","Soleil","Sumner","Sydney","Talbot","Tayce","Taylar","Telo","Tempest","Tenenan","Thibaud","Thosa","Tiffany","Tracy","Travis","Travis","Travers","Tremeur","Trifine","Troilus","Troy","Tudi","Tugdual","Tujan","Turiau","Tyson","Ursanne","Vachel","Vail","Valeray","Valerie","Vallis","Varden","Vardon","Varocher","Vedette","Vere","Verney","Vernon","Verrin","Vinvella","Voletta","Warren","Yannick","Yvonne","Abadie","Abbe","Achard","Adam","Aigremont","Alain","Albert","Alein","Alexandre","Allaire","Allard","Allemand","Amyot","Andre","Andrieu","Antoine","Archambault","Armand","Arnaud","Arpin","Arrive","Asselin","Aube","Aubert","Aubertin","Aubin","Aubry","Auclerc","Audet","Auger","Augereau","Aurelle","Auriole","Babin","Bachelier","Bacon","Baillon","Balan","Barbe","Barbeau","Barbier","Bard","Bardeau","Bardot","Barette","Baril","Barnabe","Baron","Barre","Barthelemy","Basque","Basset","Bastide","Bataille","Baudet","Baudin","Baudoin","Baudry","Bazin","Beaubois","Beauchamp","Beauchesne","Beauclair","Beaudet","Beaudouin","Beaufort","Beaujeu","Beaulieu","Beaumont","Beaupre","Beauregard","Beauvais","Beauvoir","Bechard","Belair","Belard","Bellanger","Belle","isle","Bellemare","Bellevaux","Belmont","Benard","Benoist","Benoit","Berard","Berger","Bergeron","Bergevin","Berlo","Bernard","Bernier","Berthelot","Berthier","Bertin","Bertrand","Besse","Besset","Besson","Bibau","Bigot","Billard","Binet","Biron","Bisson","Bissot","Blain","Blais","Blaise","Blanc","Blanchard","Blanchet","Blin","Blondeau","Blot","Blouin","Bodin","Boileau","Bois","Boisseau","Boivert","Boivin","Bombarde","Boncourt","Bonhomme","Bonin","Bonnaire","Bonnard","Bonneau","Bonnefoix","Bonnet","Bonnin","Bordes","Bosse","Bouchard","Bouche","Boucher","Bouchet","Boudet","Boulanger","Boulay","Boulet","Bouquet","Bourbon","Bourgeois","Bourgoin","Bourree","Bousquet","Boutet","Boutillier","Boutin","Bouvet","Bouvier","Boyer","Brabant","Brassard","Breau","Breton","Briand","Bridot","Briene","Brin","Brisson","Brossard","Brosset","Broussard","Brousse","Bruley","Brullet","Brun","Bruneau","Brunel","Brunet","Bruyere","Bugeaud","Buisson","Bureau","Cailly","Campagne","Camus","Carbonneau","Cardinal","Carlier","Caron","Carpentier","Carre","Carreau","Carrier","Carriere","Cartier","Castel","Cauchon","Cavelier","Chabert","Chabot","Chabrieres","Chalon","Chambly","Champeaux","Champion","Chapelain","Chapelle","Chapellier","Chaperon","Charette","Charles","Charlot","Charon","Charrette","Charrier","Charron","Chauvet","Chauvin","Chenart","Chenier","Chesnay","Chesne","Chevalier","Chevrier","Chirac","Chouet","Chrestien","Chretien","Clavel","Clemenceau","Clement","Clerc","Clermont","Coffin","Coin","Colas","Colbert","Colin","Collard","Collet","Collin","Combe","Comiers","Comte","le","Constant","Constantine","Coq le","Corbin","Cordier","Cormier","Cornu","Corre le","Coste","Coulon","Court","Cousin","Cousinot","Couture","Couturier","Cros","Crosnier","Crozet","Daigremont","D'amours","Daniel","David","Delahaye","Delisle","Delmas","Delorme","Denis","Denys","Deschamps","Deshayes","Desjardins","Desmarais","Desprez","Desvilliers","Devaux","Didier","Doucet","Dubois","Dubreuil","Duclos","Dufaux","Dufour","Dufresne","Dugas","Duguay","Duhamel","Dumas","Dumay","Dumont","Dumoulin","Dupin","Dupont","Dupre","Dupuis","Dupuy","Durand","Duval","Etienne","Evrard","Fabre","Faucher","Faure","Ferrand","Fillion","Fleury","Fontaine","Forest","Forestier","Fort","Fortin","Fosse","Foucaud","Foucault","Foucher","Fougeres","Fouquet","Fournier","Francois","Frenier","Gagne","Gagnon","Gaillard","Galland","Gallet","Garneau","Garnier","Gauthier","Gautier","Gendron","Geoffroy","Georges","Gerard","Germain","Gervais","Gibert","Gillet","Girard","Giraud","Godard","Gosselin","Goullet","Goyer","Goyet","Grandjean","Grangers","Gregoire","Gros","Guerin","Guichard","Guillaume","Guillon","Guillot","Hubert","Huet","Huguet","Humbert","Imbert","Jacob","Jacquemin","Jacques","Jacquet","Jardin","Jean","Jerome","Jobidon","Jobin","Joly","Joseph","Joubert","Jourdain","Jouve","Jouy","Lacoste","Lacour","Lacroix","Ladoucette","Lafont","Lalande","Lalane","Lambert","Langlois","Laporte","Laroche","Lasseur","Laurent","Lauzon","Laval","Lavallee","Lavergne","Lavoir","le goff","leblanc","lebon","lebrun","leclerc","lecomte","lefebvre","lefevre","leger","legrand","lemaire","lemoine","lemonnier","leon","leonard","lepage","leroux","leroy","lesage","Louis","Lucas","Maillard","Maillet","Maillot","Maire","Mallet","Marc","Marchal","Marchand","Marechal","Marie","Marin","Marquet","Martin","Martinais","Martineau","Martinet","Masson","Mathieu","Maury","Menard","Mercier","Meunier","Meyer","Michaud","Michel","Millet","Monnier","Montagne","Monteil","Montfort","Montigny","Montmorency","Morand","Moreau","Morel","Morin","Moulin","Mounier","Mouton","Muller","Nicolas","Noel","Olive","Olivet","Olivier","Origny","Orleans","Ouvrard","Page","Paget","Paradis","Parent","Parisot","Parmentier","Pellerin","Pelletier","Perrault","Perret","Perrier","Perrin","Perrot","Petit","Philippe","Picard","Pichon","Picot","Pierre","Pillon","Poirier","Poisson","Poitiers","Poulain","Poullin","Prat","Prevost","Prigent","Proust","Provost","Prudhomme","Puget","Quesnel","Racine","Ratelle","Raynaud","Remy","Renard","Renaud","Renault","Rey","Richard","Richer","Riel","Rioux","Riviere","Roberge","Robert","Robillard","Rochefort","Roger","Roland","Rousseau","Roussel","Roux","Roy","Royer","Simon","Soullier","Laurent","Amour","Andre","Aubin","Croix","Denis","Etienne","George","Germain","Jacques","Jean","Joseph","Julien","leger","Marc","marie","martin","michel","Paul","Sylvestre","Tardif","Terrien","Tessier","Thebaud","Thibaudeau","Thierry","Thomas","Touchet","Tournier","Tremblay","Turpin","Vacher","Vachon","Vaillant","Vanier","Vasseur","Verdier","Vidal","Vignaux","Vigne de la","Villeneuve","Vincent"),
 								"END" : ()								
 							},
 							"CIVILIZATION_GERMANY" :
@@ -159,7 +159,7 @@ civilizationNameHash =	{
 								"MID" : (),
 								"END" : ()
 							},
-							"CIVILIZATION_VIKING" :
+							"CIVILIZATION_SCANDINAVIA" :
 							{
 								"PRE" : ("A","Ab","c","Ad","Af","Agr","st","As","Al","Adw","Adr","Ar","r","h","ad","D","r","w","d","th","Et","Er","El","ow","F","r","r","w","wyd","l","l","a","b","er","ed","th","r","eg","r","d","l","c","n","r","h","ev","k","a","r","h","h","b","ic"),
 								"MID" : ("a","e","u","o","re","ale","li","ay","rdo","e","i","i","ra","la","li","nda","erra","i","e","ra","la","li","o","ra","go","i","e","re","y"),
@@ -191,8 +191,6 @@ civilizationNameHash =	{
 							},
 						}	
 
-
-
 def getRandomCivilizationName(iCivilizationType):
 	unitName = ""
 
@@ -204,15 +202,13 @@ def getRandomCivilizationName(iCivilizationType):
 	if(len(unitName) < 14):
 		middleName = generateCivilizationName(iCivilizationType)
 		unitName = firstName + " " + middleName + " " + lastName
-		
 
 	return unitName
 
-
 def generateCivilizationName(iCivilizationType):
 	strCivilizationType = "DEFAULT"
-	
-	if(gc.getCivilizationInfo(iCivilizationType) != None):		
+
+	if(gc.getCivilizationInfo(iCivilizationType) is not None):		
 		strCivilizationType = gc.getCivilizationInfo(iCivilizationType).getType()
 		if not civilizationNameHash.has_key(strCivilizationType):
 			strCivilizationType = "DEFAULT"
@@ -221,7 +217,7 @@ def generateCivilizationName(iCivilizationType):
 	strMid = ""
 	strEnd = ""
 	random = gc.getASyncRand()
-	
+
 	if(len(civilizationNameHash[strCivilizationType]["PRE"]) > 0):
 		strPre = civilizationNameHash[strCivilizationType]["PRE"][random.get(len(civilizationNameHash[strCivilizationType]["PRE"]), "Random Name")]
 
@@ -230,18 +226,21 @@ def generateCivilizationName(iCivilizationType):
 
 	if(len(civilizationNameHash[strCivilizationType]["END"]) > 0):	
 		strEnd = civilizationNameHash[strCivilizationType]["END"][random.get(len(civilizationNameHash[strCivilizationType]["END"]), "Random Name")]	
-	
-	strName = string.capwords(strPre+strMid+strEnd)
-	
+
+	# <!-- custom: no need to import string just to concatenate and capitalize 3 strings; use capitalize directly. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+	#strName = string.capwords(strPre+strMid+strEnd)
+	#strName = (strPre+strMid+strEnd).capitalize()
+	# <!-- custom: cover the PRE/MID/END-with-spaces edge case by inlining capwords logic. Credit: ChatGPT. (GPT-5.2-Codex (summarized)) -->
+	strName = " ".join(w.capitalize() for w in (strPre + strMid + strEnd).split())
+
 	return strName
-	
-	
+
 # Returns a random unique name not found in the global mercenary pool
 def getRandomName():
 
 	unitName = ""
 	random = gc.getASyncRand()
-	
+
 	firstName = firstNameList[random.get(len(firstNameList), "Random Name")]
 	lastName = lastNamesList[random.get(len(lastNamesList), "Random Name")]
 
@@ -250,7 +249,6 @@ def getRandomName():
 	if(len(unitName) < 14):
 		middleName = middleNameList[random.get(len(middleNameList), "Random Name")]
 		unitName = firstName + " " + middleName + " " + lastName
-		
 
 	return unitName
-	
+

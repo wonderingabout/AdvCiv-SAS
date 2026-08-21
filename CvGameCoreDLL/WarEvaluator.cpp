@@ -7,6 +7,8 @@
 #include "WarEvalParameters.h"
 #include "CoreAI.h"
 #include "CvInfo_GameOption.h"
+#include "BBAILog.h" // <!-- custom: Threshold-gated SAS war diagnostics log huge UWAI utility by aspect so high target-drive values can be traced without enabling the separate UWAI report. (GPT-5.5) -->
+#include "CvGameCoreUtils.h"
 
 using std::vector;
 using std::string;
@@ -31,6 +33,80 @@ namespace
 	WarEvalParamID aiLastCallParams[iCACHE_SZ];
 	int aiLastCallResult[iCACHE_SZ];
 	int iLastIndex;
+
+	int getSASHighWarUtilityLogThreshold()
+	{
+		static const int iThreshold = GC.getDefineINT("SAS_UWAI_HIGH_UTILITY_LOG_THRESHOLD");
+		return iThreshold;
+	}
+
+	bool isSASHighWarUtility(int iUtility)
+	{
+		int const iThreshold = getSASHighWarUtilityLogThreshold();
+		return (iUtility >= iThreshold || iUtility <= -iThreshold);
+	}
+
+	bool isSASSuspiciousPeaceLead(WarEvalParameters const& kParams)
+	{
+		if (!kParams.isConsideringPeace())
+			return false;
+		CvTeamAI& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI& kTarget = GET_TEAM(kParams.getTarget());
+		return (kAgent.isAtWar(kTarget.getID()) && kAgent.getNumCities() > kTarget.getNumCities() &&
+			kAgent.getPower(true) * 2 >= kTarget.getPower(true) * 3 &&
+			kAgent.AI_getWarSuccess(kTarget.getID()) >= kTarget.AI_getWarSuccess(kAgent.getID()) + 25);
+	}
+
+	void logSASBBAISuspiciousPeaceScenario(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, char const* szScenario, int iScenarioUtility, std::vector<CvString> const& asAspectNames, std::vector<int> const& aiAspectUtilities)
+	{
+		CvTeamAI& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI& kTarget = GET_TEAM(kParams.getTarget());
+		ostringstream componentList;
+		bool bFirstComponent = true;
+		for (size_t i = 0; i < aiAspectUtilities.size(); i++)
+		{
+			if (aiAspectUtilities[i] == 0)
+				continue;
+			if (!bFirstComponent)
+				componentList << ",";
+			componentList << asAspectNames[i].GetCString() << ":" << aiAspectUtilities[i];
+			bFirstComponent = false;
+		}
+		logBBAI("WAR_PEACE_UTILITY_SCENARIO turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s scenarioUtility=%d naval=%d prepTurns=%d ourPower=%d targetPower=%d ourCities=%d targetCities=%d ourWarSuccess=%d targetWarSuccess=%d components=\"%s\"",
+				GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, iScenarioUtility, bNaval, iPreparationTime, kAgent.getPower(true), kTarget.getPower(true), kAgent.getNumCities(), kTarget.getNumCities(), kAgent.AI_getWarSuccess(kTarget.getID()).round(), kTarget.AI_getWarSuccess(kAgent.getID()).round(), componentList.str().c_str());
+	}
+
+	void logSASBBAISuspiciousPeaceFinal(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, int iWarScenarioUtility, int iPeaceScenarioUtility, int iFinalUtility)
+	{
+		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
+		logBBAI("WAR_PEACE_UTILITY turn=%d background=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d",
+				GC.getGame().getGameTurn(), getUWAI().isEnabled(true), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities());
+	}
+
+	void logSASBBAIHighWarUtilityScenario(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, char const* szScenario, int iScenarioUtility, std::vector<CvString> const& asAspectNames, std::vector<int> const& aiAspectUtilities)
+	{
+		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
+		logBBAI("WAR_UTILITY_SCENARIO_HIGH turn=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s scenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, iScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+		for (size_t i = 0; i < aiAspectUtilities.size(); i++)
+		{
+			if (aiAspectUtilities[i] != 0)
+			{
+				logBBAI("WAR_UTILITY_SCENARIO_HIGH_COMPONENT turn=%d agentTeam=%d targetTeam=%d warPlan=%s scenario=%s aspect=%s utility=%d",
+						GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), szScenario, asAspectNames[i].GetCString(), aiAspectUtilities[i]);
+			}
+		}
+	}
+
+	void logSASBBAIHighWarUtilityFinal(WarEvalParameters const& kParams, WarPlanTypes eWarPlan, bool bNaval, int iPreparationTime, int iWarScenarioUtility, int iPeaceScenarioUtility, int iFinalUtility)
+	{
+		CvTeamAI const& kAgent = GET_TEAM(kParams.getAgent());
+		CvTeamAI const& kTarget = GET_TEAM(kParams.getTarget());
+		logBBAI("WAR_UTILITY_HIGH turn=%d agentTeam=%d targetTeam=%d warPlan=%s finalUtility=%d warScenarioUtility=%d peaceScenarioUtility=%d naval=%d prepTurns=%d ourCities=%d targetCities=%d ourWars=%d targetWars=%d",
+				GC.getGame().getGameTurn(), kAgent.getID(), kTarget.getID(), getSASWarPlanType(eWarPlan), iFinalUtility, iWarScenarioUtility, iPeaceScenarioUtility, bNaval, iPreparationTime, kAgent.getNumCities(), kTarget.getNumCities(), kAgent.getNumWars(true, true), kTarget.getNumWars(true, true));
+	}
 }
 
 void WarEvaluator::enableCache()
@@ -58,7 +134,7 @@ WarEvaluator::WarEvaluator(WarEvalParameters& kWarEvalParams, bool bUseCache)
 :	m_kParams(kWarEvalParams), m_kReport(m_kParams.getReport()),
 	m_kAgent(GET_TEAM(m_kParams.getAgent())),
 	m_kTarget(GET_TEAM(m_kParams.getTarget())),
-	m_bUseCache(bUseCache), m_bPeaceScenario(false)
+	m_bPeaceScenario(false), m_bUseCache(bUseCache), m_bSASLogSuspiciousPeace(false)
 {
 	static bool bInitCache = true;
 	if (bInitCache)
@@ -286,20 +362,41 @@ int WarEvaluator::evaluate(WarPlanTypes eWarPlan, bool bNaval, int iPreparationT
 	fillWithAspects(apAspects);
 	for (MemberIter itMember(m_kAgent.getID()); itMember.hasNext(); ++itMember)
 		evaluate(itMember->getID(), apAspects);
+	bool const bSASHighUtilityLog = (gWarLogLevel >= 3 && getSASHighWarUtilityLogThreshold() > 0);
+	// <!-- custom: Save-file 452 showed Mali seeking peace immediately after capturing two Maya cities despite leading heavily in cities, power and war success. For similarly dominant wars, retain each utility aspect for both scenarios so a sudden reversal can be traced without enabling broad level-3 UWAI spam. (GPT-5.6-Sol) -->
+	bool const bSASSuspiciousPeaceLog = (m_bSASLogSuspiciousPeace && isSASSuspiciousPeaceLead(m_kParams));
+	bool const bSASAspectLog = (bSASHighUtilityLog || bSASSuspiciousPeaceLog);
+	std::vector<CvString> asAspectNames;
+	std::vector<int> aiAspectUtilities;
 	int iU = 0;
 	for (size_t i = 0; i < apAspects.size(); i++)
 	{
 		int iDelta = apAspects[i]->utility();
 		iU += iDelta;
+		if (bSASAspectLog)
+		{
+			asAspectNames.push_back(apAspects[i]->aspectName());
+			aiAspectUtilities.push_back(iDelta);
+		}
 		if (iDelta != 0)
 			m_kReport.log("%s total: %d", apAspects[i]->aspectName(), iDelta);
 		delete apAspects[i];
 	}
 	m_kReport.log("Bottom line: %d\n", iU);
+	if (bSASSuspiciousPeaceLog)
+		logSASBBAISuspiciousPeaceScenario(m_kParams, eWarPlan, bNaval, iPreparationTime, m_bPeaceScenario ? "PEACE" : "WAR", iU, asAspectNames, aiAspectUtilities);
+	if (bSASHighUtilityLog && isSASHighWarUtility(iU))
+		logSASBBAIHighWarUtilityScenario(m_kParams, eWarPlan, bNaval, iPreparationTime, m_bPeaceScenario ? "PEACE" : "WAR", iU, asAspectNames, aiAspectUtilities);
 	if (!m_bPeaceScenario)
 	{
-		iU -= evaluate(NO_WARPLAN, false, iPreparationTime);
+		int const iWarScenarioUtility = iU;
+		int const iPeaceScenarioUtility = evaluate(NO_WARPLAN, false, iPreparationTime); // Required for final war-minus-peace utility; stored only so high-utility diagnostics can show both sides.
+		iU -= iPeaceScenarioUtility;
 		m_kReport.log("Utility war minus peace: %d\n", iU);
+		if (bSASSuspiciousPeaceLog)
+			logSASBBAISuspiciousPeaceFinal(m_kParams, eWarPlan, bNaval, iPreparationTime, iWarScenarioUtility, iPeaceScenarioUtility, iU);
+		if (bSASHighUtilityLog && isSASHighWarUtility(iU))
+			logSASBBAIHighWarUtilityFinal(m_kParams, eWarPlan, bNaval, iPreparationTime, iWarScenarioUtility, iPeaceScenarioUtility, iU);
 		// Restore params (changed by recursive call)
 		m_kParams.setNaval(bNaval);
 		m_kParams.setTotal(eWarPlan == WARPLAN_TOTAL ||

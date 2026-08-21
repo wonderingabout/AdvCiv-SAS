@@ -45,7 +45,7 @@ with GFC_Control_SizeGrip
 			.TopLayer							=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-												
+
 			// Control flag change masks		
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
@@ -58,32 +58,32 @@ with GFC_Control_SizeGrip
 			// Control flag change masks		
 			//.SizeGripMask_InvalidateControl	=	GFlags(GSizeGripCtrl);
 		}				
-								
+
 		with .Color							
 		{								
 			.Inner								=	GFC_Control_Color_Surface;
 			.Grip								=	GFC_Control_Color_Border_Default;
 			.GripShadow							=	GFC_Control_Color_Inner_Default;
 		}													
-													
+
 		with .Combine								
 		{										
 			.Inner								=	GFC_Control_Combine_Surface;
 			.Grip								=	GFC_Control_Combine_Surface;
 			.GripShadow							=	GFC_Control_Combine_Surface;
 		}									
-												
+
 		with .Size								
 		{									
 			.Margin								=	GRectMargin(0,0,0,0);
 			.Default							=	GSize(18,18);
 		}									
-												
+
 		GFC_Control_Cursor_Default				=	GFC_Control_Cursor_Size_DownRight;
 
 
 		// ******* Initialize all the Bitmap theme SizeGrip properties to avoid inheritance problems
-		
+
 		with GFC_CtrlTheme_Bitmap_Control_SizeGrip_Skin
 		{
 			// Skin used to render the selected skin

@@ -1,0 +1,62 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 39
+# Commit: d0c48cfb04207a8a5a6dee60e4dd30e9e744e9d2
+# History segment: K-Mod history
+# Parent used for diff: 50c23e46e5eaba016bfbd9bd943dfef44dc73048
+# Title: Made some adjustments to AI espionage mission evaluation.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+12	1	CvGameCoreDLL/CvPlayerAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index d922d2dac..610d75d1d 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -13086,6 +13086,8 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				int iCityHealth = pCity->goodHealth() - pCity->badHealth(false, 0);
+ 				int iBaseUnhealth = GC.getEspionageMissionInfo(eMission).getCityPoisonWaterCounter();
+ 
++				// K-Mod: fixing some "wtf".
++				/*
+ 				int iAvgFoodShortage = std::max(0, iBaseUnhealth - iCityHealth) - pCity->foodDifference();
+ 				iAvgFoodShortage += std::max(0, iBaseUnhealth/2 - iCityHealth) - pCity->foodDifference();
+ 				
+@@ -13094,6 +13096,15 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				if( iAvgFoodShortage > 0 )
+ 				{
+ 					iValue += 8 * iAvgFoodShortage * iAvgFoodShortage;
++				}*/
++				int iAvgFoodShortage = std::max(0, iBaseUnhealth - iCityHealth) - pCity->foodDifference();
++				iAvgFoodShortage += std::max(0, -iCityHealth) - pCity->foodDifference();
++				
++				iAvgFoodShortage /= 2;
++				
++				if( iAvgFoodShortage > 0 )
++				{
++					iValue += 4 * iAvgFoodShortage * iBaseUnhealth;
+ 				}
+ 			}
+ 		}
+@@ -13113,7 +13124,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 				
+ 				if (iAvgUnhappy < 0)
+ 				{
+-					iValue += 14 * abs(iAvgUnhappy) * iBaseAnger;
++					iValue += 10 * abs(iAvgUnhappy) * iBaseAnger;// down from 14
+ 				}
+ 			}
+ 		}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1503

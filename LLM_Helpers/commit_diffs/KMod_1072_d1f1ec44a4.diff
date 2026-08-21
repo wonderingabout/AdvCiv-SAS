@@ -1,0 +1,137 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1072
+# Commit: d1f1ec44a4a99dde71f4e5cea574658fae682013
+# History segment: K-Mod history
+# Parent used for diff: 3cf6a3e5877fe683bbf36aee7bcc4de533a7edca
+# Title: Added some plot culture dependence to CvCity::getLiberationPlayer.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+54	38	CvGameCoreDLL/CvCity.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCity.cpp b/CvGameCoreDLL/CvCity.cpp
+index c2ef1c550..42243e39f 100644
+--- a/CvGameCoreDLL/CvCity.cpp
++++ b/CvGameCoreDLL/CvCity.cpp
+@@ -15386,54 +15386,70 @@ PlayerTypes CvCity::getLiberationPlayer(bool bConquest) const
+ 	int iBestValue = 0;
+ 
+ 	int iTotalCultureTimes100 = countTotalCultureTimes100();
++	// K-Mod - Base culture which is added to dilute the true culture values
++	const int iBaseCulture = GC.getNumCultureLevelInfos() > 1
++		? 50 * GC.getCultureLevelInfo((CultureLevelTypes)1).getSpeedThreshold(GC.getGameINLINE().getGameSpeedType())
++		: 100;
++	// K-Mod end
+ 
+-	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
++	// K-Mod. I've flattened the if blocks into if! continue conditions.
++	// and I've changed the type of the iterator of the loop, from int to PlayerTypes
++
++	//for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
++	for (PlayerTypes ePlayer = (PlayerTypes)0; ePlayer < MAX_CIV_PLAYERS; ePlayer = (PlayerTypes)(ePlayer+1))
+ 	{
+-		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
++		CvPlayerAI& kLoopPlayer = GET_PLAYER(ePlayer);
+ 
+-		if (kLoopPlayer.isAlive())
+-		{
+-			if (kLoopPlayer.canReceiveTradeCity())
+-			{
+-				CvCity* pCapital = kLoopPlayer.getCapitalCity();
+-				if (NULL != pCapital)
+-				{
+-					int iCapitalDistance = ::plotDistance(getX_INLINE(), getY_INLINE(), pCapital->getX_INLINE(), pCapital->getY_INLINE());
+-					if (area() != pCapital->area())
+-					{
+-						iCapitalDistance *= 2;
+-					}
++		if (!kLoopPlayer.isAlive())
++			continue;
+ 
+-					int iCultureTimes100 = getCultureTimes100((PlayerTypes)iPlayer);
++		if (!kLoopPlayer.canReceiveTradeCity())
++			continue;
+ 
+-					if (bConquest)
+-					{
+-						if (iPlayer == getOriginalOwner())
+-						{
+-							iCultureTimes100 *= 3;
+-							iCultureTimes100 /= 2;
+-						}
+-					}
++		CvCity* pCapital = kLoopPlayer.getCapitalCity();
++		if (pCapital == NULL)
++			continue;
+ 
+-					if (GET_PLAYER((PlayerTypes)iPlayer).getTeam() == getTeam() 
+-						|| GET_TEAM(GET_PLAYER((PlayerTypes)iPlayer).getTeam()).isVassal(getTeam()) 
+-						|| GET_TEAM(getTeam()).isVassal(GET_PLAYER((PlayerTypes)iPlayer).getTeam()))
+-					{
+-						// K-Mod: I don't see why the total culture should be used in this way. (I haven't changed anything)
+-						iCultureTimes100 *= 2;
+-						iCultureTimes100 = (iCultureTimes100 + iTotalCultureTimes100) / 2;
+-					}
++		int iCapitalDistance = ::plotDistance(getX_INLINE(), getY_INLINE(), pCapital->getX_INLINE(), pCapital->getY_INLINE());
++		if (area() != pCapital->area())
++		{
++			iCapitalDistance *= 2;
++		}
+ 
+-					int iValue = std::max(100, iCultureTimes100) / std::max(1, iCapitalDistance);
++		//int iCultureTimes100 = getCultureTimes100(ePlayer);
++		int iCultureTimes100 = iBaseCulture + getCultureTimes100(ePlayer);// K-Mod
+ 
+-					if (iValue > iBestValue)
+-					{
+-						iBestValue = iValue;
+-						eBestPlayer = (PlayerTypes)iPlayer;
+-					}
+-				}
++		if (bConquest)
++		{
++			if (iPlayer == getOriginalOwner())
++			{
++				iCultureTimes100 *= 3;
++				iCultureTimes100 /= 2;
+ 			}
+ 		}
++
++		if (kLoopPlayer.getTeam() == getTeam()
++			|| GET_TEAM(kLoopPlayer.getTeam()).isVassal(getTeam())
++			|| GET_TEAM(getTeam()).isVassal(kLoopPlayer.getTeam()))
++		{
++			// K-Mod: I don't see why the total culture should be used in this way. (I haven't changed anything)
++			iCultureTimes100 *= 2;
++			iCultureTimes100 = (iCultureTimes100 + iTotalCultureTimes100) / 2;
++		}
++
++		// K-Mod - adjust culture score based on plot ownership.
++		iCultureTimes100 *= 100 + plot()->calculateTeamCulturePercent(kLoopPlayer.getTeam());
++		iCultureTimes100 /= 100;
++		// K-Mod end
++
++		//int iValue = std::max(100, iCultureTimes100) / std::max(1, iCapitalDistance);
++		int iValue = iCultureTimes100 / std::max(1, iCapitalDistance); // K-Mod (minimum culture moved higher up)
++
++		if (iValue > iBestValue)
++		{
++			iBestValue = iValue;
++			eBestPlayer = ePlayer;
++		}
+ 	}
+ 
+ 	if (NO_PLAYER != eBestPlayer)
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=3958

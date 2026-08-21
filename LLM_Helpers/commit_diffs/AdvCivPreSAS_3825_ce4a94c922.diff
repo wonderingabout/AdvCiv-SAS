@@ -1,0 +1,311 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3825
+# Commit: ce4a94c922cfcf8b34a0dd4c3fce4097106afa37
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: ac91311251477c426ac9d2230a9603b9d93a73b4
+# Title: Fix nextNonDefault functions of ListEnumMap
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+20	20	CvGameCoreDLL/CvInfo_Building.h
+4	4	CvGameCoreDLL/CvInfo_RandomEvent.h
+44	13	CvGameCoreDLL/EnumMap.h
+25	1	CvGameCoreDLL/EnumMapTest.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvInfo_Building.h b/CvGameCoreDLL/CvInfo_Building.h
+index 2a18e2f17..97ddd75f6 100644
+--- a/CvGameCoreDLL/CvInfo_Building.h
++++ b/CvGameCoreDLL/CvInfo_Building.h
+@@ -65,7 +65,7 @@ public: // All the const functions are exposed to Python
+ 	bool isMonument() const { return m_bMonument; }
+ 	/*  advc (note): Unused in XML. Number of buildings of this class required for
+ 		team victory as a necessary (not sufficient) condition. No AI code for this. */
+-	DEF_INFO_ENUM_MAP(VictoryThreshold, Victory, int, short, ListEnumMap);
++	DEF_INFO_ENUM_MAP(VictoryThreshold, Victory, int, short, NonDefaultEnumMap);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 	bool readPass3();
+@@ -269,13 +269,13 @@ public:
+ 	DEF_SHORT_INFO_ENUM_MAP(StateReligionCommerce, Commerce, CommerceChangeMap);
+ 	DEF_SHORT_INFO_ENUM_MAP(CommerceHappiness, Commerce, CommercePercentMap);
+ 
+-	DEF_INFO_ENUM_MAP(ReligionChange, Religion, int, char, ListEnumMap);
++	DEF_INFO_ENUM_MAP(ReligionChange, Religion, int, char, NonDefaultEnumMap);
+ 	DEF_INFO_ENUM_MAP(SpecialistCount, Specialist, int, char, ArrayEnumMap);
+-	DEF_INFO_ENUM_MAP(FreeSpecialistCount, Specialist, int, char, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(BonusHealthChanges, Bonus, int, char, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(BonusHappinessChanges, Bonus, int, char, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(BonusProductionModifier, Bonus, int, short, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(UnitCombatFreeExperience, UnitCombat, int, char, ListEnumMap);
++	DEF_INFO_ENUM_MAP(FreeSpecialistCount, Specialist, int, char, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(BonusHealthChanges, Bonus, int, char, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(BonusHappinessChanges, Bonus, int, char, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(BonusProductionModifier, Bonus, int, short, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(UnitCombatFreeExperience, UnitCombat, int, char, NonDefaultEnumMap);
+ 	DEF_INFO_ENUM_MAP(DomainFreeExperience, Domain, int, char, ArrayEnumMap);
+ 	DEF_INFO_ENUM_MAP(DomainProductionModifier, Domain, int, short, ArrayEnumMap);
+ 
+@@ -294,18 +294,18 @@ public:
+ 	int py_getPrereqAndTechs(int i) const;
+ 	int py_getPrereqOrBonuses(int i) const;
+ 
+-	DEF_INFO_ENUM_MAP(ProductionTraits, Trait, int, short, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(HappinessTraits, Trait, int, char, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(BuildingHappinessChanges, BuildingClass, int, char, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(PrereqNumOfBuildingClass, BuildingClass, int, char, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(FlavorValue, Flavor, int, short, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(ImprovementFreeSpecialist, Improvement, int, char, ListEnumMap);
++	DEF_INFO_ENUM_MAP(ProductionTraits, Trait, int, short, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(HappinessTraits, Trait, int, char, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(BuildingHappinessChanges, BuildingClass, int, char, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(PrereqNumOfBuildingClass, BuildingClass, int, char, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(FlavorValue, Flavor, int, short, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(ImprovementFreeSpecialist, Improvement, int, char, NonDefaultEnumMap);
+ 	DEF_INFO_ENUM_MAP_BOOL(CommerceFlexible, Commerce, ArrayEnumMap);
+ 	DEF_INFO_ENUM_MAP_BOOL(CommerceChangeOriginalOwner, Commerce, ArrayEnumMap);
+ 	DEF_INFO_ENUM_SET(BuildingClassNeededInCity, BuildingClass);
+ 	// (Replacing optimizations by UNOFFICIAL_PATCH, 06/27/10, Afforess & jdog5000)
+-	DEF_INFO_ENUM2SHORT_MAP(SpecialistYieldChange, Specialist, Yield, YieldChangeMap, ListEnumMap);
+-	DEF_INFO_ENUM2SHORT_MAP(BonusYieldModifier, Bonus, Yield, YieldPercentMap, ListEnumMap);
++	DEF_INFO_ENUM2SHORT_MAP(SpecialistYieldChange, Specialist, Yield, YieldChangeMap, NonDefaultEnumMap);
++	DEF_INFO_ENUM2SHORT_MAP(BonusYieldModifier, Bonus, Yield, YieldPercentMap, NonDefaultEnumMap);
+ 	// <advc.003w> for convenience
+ 	bool isWorldWonder() const
+ 	{
+@@ -487,7 +487,7 @@ public: // All the const functions are exposed to Python
+ 
+ 	bool isValid() const { return m_bValid; }
+ 
+-	DEF_INFO_ENUM_MAP(ProductionTraits, Trait, int, short, ListEnumMap);
++	DEF_INFO_ENUM_MAP(ProductionTraits, Trait, int, short, NonDefaultEnumMap);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 
+@@ -669,10 +669,10 @@ public: // All const functions are exposed to Python
+ 	bool nameNeedsArticle() const;
+ 
+ 	// Arrays access ...
+-	DEF_INFO_ENUM_MAP(BonusProductionModifier, Bonus, int, short, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(VictoryThreshold, Victory, int, short, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(VictoryMinThreshold, Victory, int, short, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(ProjectsNeeded, Project, int, short, ListEnumMap);
++	DEF_INFO_ENUM_MAP(BonusProductionModifier, Bonus, int, short, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(VictoryThreshold, Victory, int, short, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(VictoryMinThreshold, Victory, int, short, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(ProjectsNeeded, Project, int, short, NonDefaultEnumMap);
+ 
+ 	bool read(CvXMLLoadUtility* pXML);
+ 	bool readPass2(CvXMLLoadUtility* pXML);
+
+diff --git a/CvGameCoreDLL/CvInfo_RandomEvent.h b/CvGameCoreDLL/CvInfo_RandomEvent.h
+index e472af5ab..daedda8ad 100644
+--- a/CvGameCoreDLL/CvInfo_RandomEvent.h
++++ b/CvGameCoreDLL/CvInfo_RandomEvent.h
+@@ -87,10 +87,10 @@ public: // All the const functions returning primitive types are exposed to Pyth
+ 	int getNumWorldNews() const;
+ 
+ 	// <advc.003t> Replacing vectors of tuples
+-	DEF_INFO_ENUM2SHORT_MAP(BuildingYieldChange, BuildingClass, Yield, YieldChangeMap, ListEnumMap);
+-	DEF_INFO_ENUM2SHORT_MAP(BuildingCommerceChange, BuildingClass, Commerce, CommerceChangeMap, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(BuildingHappyChange, BuildingClass, int, char, ListEnumMap);
+-	DEF_INFO_ENUM_MAP(BuildingHealthChange, BuildingClass, int, char, ListEnumMap);
++	DEF_INFO_ENUM2SHORT_MAP(BuildingYieldChange, BuildingClass, Yield, YieldChangeMap, NonDefaultEnumMap);
++	DEF_INFO_ENUM2SHORT_MAP(BuildingCommerceChange, BuildingClass, Commerce, CommerceChangeMap, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(BuildingHappyChange, BuildingClass, int, char, NonDefaultEnumMap);
++	DEF_INFO_ENUM_MAP(BuildingHealthChange, BuildingClass, int, char, NonDefaultEnumMap);
+ 	// </advc.003t>
+ 
+ 	const char* getPythonCallback() const;
+
+diff --git a/CvGameCoreDLL/EnumMap.h b/CvGameCoreDLL/EnumMap.h
+index 0337dd951..a96d54f98 100644
+--- a/CvGameCoreDLL/EnumMap.h
++++ b/CvGameCoreDLL/EnumMap.h
+@@ -685,7 +685,7 @@ EnumMapBase<Derived,E,V,CV,iDEFAULT>::cvDEFAULT =
+ 	If such a class is needed, the AdvCiv code from July 2021 should be consulted.) */
+ 
+ #define ListEnumMapBase \
+-	EnumMapBase<ListEnumMap<E,V,CV,iDEFAULT,bEND_MARKER>, E, V, \
++	EnumMapBase<ListEnumMap<E,V,CV,iDEFAULT,bMONOTONE,bEND_MARKER>, E, V, \
+ 	/* void ptr means use the default. List-based maps have their own default */ \
+ 	/* b/c they shouldn't use compact bit blocks for V=bool. */ \
+ 	typename \
+@@ -694,6 +694,10 @@ EnumMapBase<Derived,E,V,CV,iDEFAULT>::cvDEFAULT =
+ template<typename E, class V,
+ 	class CV = void*,
+ 	int iDEFAULT = (int)enum_traits<V>::none,
++	/*	Promises not to change a key from a value other than iDEFAULT to iDEFAULT
++		except when the whole map is (explicitly) reset.
++		The promise will not be enforced nor (reliably) asserted. */
++	bool bMONOTONE = false,
+ 	/*	Storing a dummy key and value at the end of the list avoids checking for
+ 		the end of the list when searching for a key (and its value).
+ 		Tbd.: Is that worth the extra memory? Perhaps only in mappings read
+@@ -710,10 +714,10 @@ protected:
+ 	CompactE* m_aKeys;
+ 	CompactV* m_aValues;
+ 	short m_iSize;
+-	/*	Keeping this counter probably isn't gaining us much, but the memory would
+-		otherwise be used for padding. Alternatively, it could be used for a
+-		capacity variable (like std::vector) -- however, given that the arrays
+-		are sorted, a capacity mechanism would not be trivial to implement. */
++	/*	Keeping this counter probably isn't gaining us much (nothing if bMONOTONE),
++		but the memory would otherwise be used for padding. Alternatively, it could
++		be used for a capacity variable (like std::vector) -- however, given that the
++		arrays are sorted, a capacity mechanism would not be trivial to implement. */
+ 	short m_iNonDefault;
+ 
+ public:
+@@ -804,6 +808,8 @@ public:
+ 			#endif
+ 				pStream->Write(m_aKeys[i]);
+ 			}
++			else if (bMONOTONE)
++				FErrorMsg("bMONOTONE ListEnumMap storing non-default value");
+ 		}
+ 	#ifdef FASSERT_ENABLE
+ 		FAssert(iWritten == m_iNonDefault);
+@@ -980,13 +986,21 @@ protected:
+ 			m_iNonDefault++;
+ 		if (cvOld != cvDEFAULT)
+ 		{
+-			if ((--m_iNonDefault) == 0 &&
++			if ((--m_iNonDefault) == 0)
++			{
++				if (bMONOTONE)
++					FErrorMsg("bMONOTONE promise broken");
+ 				/*	Otherwise not worth the risk of having to reallocate later.
+ 					Well, a test suggests that this check helps marginally
+ 					at best and that checking >=4 would hurt more than help. */
+-				m_iSize >= 2)
++				if (m_iSize >= 2)
++					reset();
++			}
++			else if (bMONOTONE)
+ 			{
+-				reset();
++			#ifdef ENUM_MAP_EXTRA_ASSERTS
++				FAssertMsg(cvNew != cvDEFAULT || m_iSize == 0, "bMONOTONE promise broken");
++			#endif
+ 			}
+ 		}
+ 	}
+@@ -1006,9 +1020,16 @@ protected:
+ 				return false;
+ 		}
+ 		kPair.first = uncompactKey(m_aKeys[iIter]);
+-		kPair.second = static_cast<ValueType>(m_aValues[iIter]);
++		CompactV const val = m_aValues[iIter];
++		kPair.second = static_cast<ValueType>(val);
+ 		iIter++;
+-		return (bEND_MARKER ? (kPair.first != endKey()) : true);
++		bool bFound = (bEND_MARKER ? (kPair.first != endKey()) : true);
++		if (!bMONOTONE) // Skip default values if they can exist
++		{
++			if (bFound && val == cvDEFAULT)
++				return _nextNonDefaultPair(iIter, kPair); // tail recursion
++		}
++		return bFound;
+ 	}
+ 	E _nextNonDefaultKey(int& iIter) const
+ 	{
+@@ -1023,11 +1044,20 @@ protected:
+ 			if (iIter >= m_iSize)
+ 				return endKey();
+ 		}
+-		return uncompactKey(m_aKeys[iIter++]);
++		CompactE eKey = m_aKeys[iIter++];
++		if (bMONOTONE || getCompact(eKey) != cvDEFAULT)
++			return uncompactKey(eKey);
++		return _nextNonDefaultKey(iIter);
+ 	}
+ };
+ #undef ListEnumMapBase
+ 
++template<typename E, class V, class CV = void*,
++	int iDEFAULT = (int)enum_traits<V>::none, bool bEND_MARKER = false>
++class NonDefaultEnumMap : public ListEnumMap<E, V, CV, iDEFAULT,
++	/*bMONOTONE=*/true, bEND_MARKER>
++{};
++
+ #define OfflineListEnumSetBase \
+ 	EnumMapBase<OfflineListEnumSet<E>, E, bool, bool, false>
+ /*	A list enum map with boolean value type doesn't need to store values at all;
+@@ -2019,10 +2049,11 @@ class ArrayEnumMap2D : public EnumMap2D<
+ 
+ template<typename EOuter, typename EInner, class V,
+ 	class CV = void*,
+-	int iDEFAULT = (int)enum_traits<V>::none>
++	int iDEFAULT = (int)enum_traits<V>::none,
++	bool bMONOTONE = false>
+ class ListEnumMap2D : public EnumMap2D<
+ 	ListEnumMap<EOuter,
+-	ArrayEnumMap<EInner, V, CV, iDEFAULT, true>*>,
++	ArrayEnumMap<EInner, V, CV, iDEFAULT, true>*, void*, NULL, bMONOTONE>,
+ 	ArrayEnumMap<EInner, V, CV, iDEFAULT, true> >
+ {};
+
+diff --git a/CvGameCoreDLL/EnumMapTest.cpp b/CvGameCoreDLL/EnumMapTest.cpp
+index 07c41550d..e23692a9a 100644
+--- a/CvGameCoreDLL/EnumMapTest.cpp
++++ b/CvGameCoreDLL/EnumMapTest.cpp
+@@ -417,6 +417,16 @@ void TestEnumMap()
+ 		test.resetVal(eKey);
+ 		FAssert(test.get(eKey) == 0);
+ 		FAssert(!test.isAnyNonDefault());
++		/*	After resetting eKey, it'll still be (explicitly) stored,
++			but the loops should skip it. */
++		int iCount = 0;
++		FOR_EACH_NON_DEFAULT_PAIR(test, Building, int)
++			iCount++;
++		FAssert(iCount == 0);
++		iCount = 0;
++		FOR_EACH_NON_DEFAULT_KEY(test, Building)
++			iCount++;
++		FAssert(iCount == 0);
+ 		test.add(eKey, 2);
+ 		test.multiply(eKey, 3);
+ 		FAssert(test.get(eKey) == 6);
+@@ -532,7 +542,7 @@ void TestEnumMap()
+ 		FAssert(test.get((UnitTypes)3) == 5);
+ 	}
+ 	{	// List enum map with end marker
+-		ListEnumMap<UnitTypes,int,char,0,true> test;
++		ListEnumMap<UnitTypes,int,char,0,false,true> test;
+ 		test.set((UnitTypes)8, 5);
+ 		FAssert(test.get((UnitTypes)1) == 0);
+ 		FAssert(test.get((UnitTypes)8) == 5);
+@@ -555,6 +565,20 @@ void TestEnumMap()
+ 		test.read(&stream);
+ 		FAssert(test.get((UnitTypes)3) == -3);
+ 	}
++	{	// Monotone ListEnumMap
++		NonDefaultEnumMap<BuildingTypes,short> test;
++		BuildingTypes eKey = static_cast<BuildingTypes>(3);
++		FAssert(test.get(eKey) == 0);
++		FAssert(!test.isAnyNonDefault());
++		test.set(eKey, 1);
++		FAssert(test.isAnyNonDefault());
++		FAssert(test.get(eKey) == 1);
++		//test.resetVal(eKey); // Should fail runtime assertion
++		FOR_EACH_NON_DEFAULT_PAIR(test, Building, int)
++		{
++			FAssert(perBuildingVal.first == eKey && perBuildingVal.second == 1);
++		}
++	}
+ 	{	// Offline list-based enum set
+ 		OfflineListEnumSet<CivicTypes> test;
+ 		test.set((CivicTypes)5, true);
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=12715

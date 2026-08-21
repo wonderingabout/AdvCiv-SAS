@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 3582
+# Commit: 58936bfe844ce7db8e972ce8681711d19f6d9a9a
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 6efe4ecf5357389c8d149c98ad71b7de313bb23c
+# Title: Tweaks to reproducibility test code
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+29	2	CvGameCoreDLL/AIStrengthMemoryMap.cpp
+2	0	CvGameCoreDLL/CvGameTextMgr.cpp
+2	2	CvGameCoreDLL/CvTeamAI.cpp
+9	8	CvGameCoreDLL/ReproTest.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/AIStrengthMemoryMap.cpp b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+index e38160592..82a18dc91 100644
+--- a/CvGameCoreDLL/AIStrengthMemoryMap.cpp
++++ b/CvGameCoreDLL/AIStrengthMemoryMap.cpp
+@@ -80,13 +80,40 @@ void AIStrengthMemoryMap::write(FDataStreamBase* pStream) const
+ 	/*pStream->Write(m_aiMap.size());
+ 	if (!m_aiMap.empty())
+ 		pStream->Write(m_aiMap.size(), &m_aiMap[0]);*/
+-	// Using PlotStrengthMap:
+-	pStream->Write(m_map.size());
++	// Using PlotStrengthMap (and discarding zeros):
++#ifndef ENABLE_REPRO_TEST
++	size_t uiSize = 0;
+ 	for (PlotStrengthMap::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
+ 	{
++		if (it->second != 0)
++			uiSize++;
++	}
++	pStream->Write(uiSize);
++	for (PlotStrengthMap::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
++	{
++		if (it->second == 0)
++			continue;
+ 		pStream->Write(it->first);
+ 		pStream->Write(it->second);
+ 	}
++	// hash_map seems to have an unstable order, not reproducible after reloading.
++#else
++	std::vector<std::pair<PlotNumTypes,int> > aeiSorted;
++	for (PlotStrengthMap::const_iterator it = m_map.begin(); it != m_map.end(); ++it)
++	{
++		if (it->second != 0)
++			aeiSorted.push_back(std::make_pair(it->first, it->second));
++	}
++	std::sort(aeiSorted.begin(), aeiSorted.end());
++	REPRO_TEST_BEGIN_WRITE(CvString::format("AIStrengthMemoryMap(%d)", m_eTeam).GetCString());
++	pStream->Write(aeiSorted.size());
++	for (size_t i = 0; i < aeiSorted.size(); i++)
++	{
++		pStream->Write(aeiSorted[i].first);
++		pStream->Write(aeiSorted[i].second);
++	}
++	REPRO_TEST_END_WRITE();
++#endif
+ }
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d842a8fa6..22d273e3f 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -15823,6 +15823,7 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 				"TXT_KEY_MISC_ATTITUDE_WAR");
+ 	}
+ 	// <advc.004q>
++#ifndef ENABLE_REPRO_TEST
+ 	int iTotalCached = kPlayer.AI_getAttitudeVal(eTargetPlayer, false);
+ 	if (!bConstCache && bSHowHiddenAttitude && !bObscurePersonality &&
+ 		iTotal != iTotalCached && !kGame.isNetworkMultiPlayer() &&
+@@ -15836,6 +15837,7 @@ void CvGameTextMgr::getAttitudeString(CvWStringBuffer& szBuffer, PlayerTypes ePl
+ 		getAttitudeString(szBuffer, ePlayer, eTargetPlayer, true);
+ 		return;
+ 	}
++#endif
+ 	// Attitude string - append this to szBuffer before appending the breakdown
+ 	szBuffer.append(NEWLINE);
+ 	//szBuffer.append(gDLL->getText("TXT_KEY_ATTITUDE_TOWARDS", GC.getInfo(kPlayer.AI_getAttitude(eTargetPlayer)).getTextKeyWide(), GET_PLAYER(eTargetPlayer).getNameKey()));
+
+diff --git a/CvGameCoreDLL/CvTeamAI.cpp b/CvGameCoreDLL/CvTeamAI.cpp
+index ff75acab4..99c40db1b 100644
+--- a/CvGameCoreDLL/CvTeamAI.cpp
++++ b/CvGameCoreDLL/CvTeamAI.cpp
+@@ -5061,11 +5061,11 @@ void CvTeamAI::write(FDataStreamBase* pStream)
+ 	if (!m_aeNukeExplosions.empty())
+ 		pStream->Write((int)m_aeNukeExplosions.size(), (int*)&m_aeNukeExplosions[0]);
+ 	// </advc.650>
++	REPRO_TEST_END_WRITE();
+ 	m_strengthMemory.write(pStream); // advc.158
+ 	// <advc.104>
+-	if(isEverAlive() && !isBarbarian() && !isMinorCiv())
++	if (isEverAlive() && !isBarbarian() && !isMinorCiv())
+ 		uwai().write(pStream); // </advc.104>
+-	REPRO_TEST_END_WRITE();
+ }
+ 
+ // advc.012:
+
+diff --git a/CvGameCoreDLL/ReproTest.h b/CvGameCoreDLL/ReproTest.h
+index a332ea1aa..37ebb3437 100644
+--- a/CvGameCoreDLL/ReproTest.h
++++ b/CvGameCoreDLL/ReproTest.h
+@@ -3,14 +3,15 @@
+ #ifndef REPRO_TEST_H
+ #define REPRO_TEST_H
+ 
+-/*	When ENABLE_REPRO_TEST is defined, then contacting an AI leader via right click in the
+-	Foreign Advisor (see startTest call in CvDLLWidgetData.cpp) will start a
+-	"reproducibility test": Quick-save; run AI Auto Play for a number of turns equal to
+-	the id of the contacted player; upon auto-saving after AI Auto Play, copy all
+-	synchronized savegame data to a place that doesn't get reset upon loading (namely to
+-	m_pReproTest->m_aaSaveData); quick-load; run AI Auto Play for the same number of
+-	turns as before; upon auto-saving, compare the synchronized data that gets written
+-	to the savegame with the data kept in memory and assert that they're the same.
++/*	advc.repro: When ENABLE_REPRO_TEST is defined, then contacting an AI leader via
++	right click in the Foreign Advisor (see startTest call in CvDLLWidgetData.cpp)
++	will start a "reproducibility test": Quick-save; run AI Auto Play for a number
++	of turns equal to the id of the contacted player; upon auto-saving after AI Auto Play,
++	copy all synchronized savegame data to a place that doesn't get reset upon loading
++	(namely to m_pReproTest->m_aaSaveData); quick-load; run AI Auto Play for the
++	same number of turns as before; upon auto-saving, compare the synchronized data
++	that gets written to the savegame with the data kept in memory and assert that
++	they're the same.
+ 	Prerequisites: Assert (or Debug) build, AutoSaveInterval = 1 in CivilizationIV.ini.
+ 	May also want to enable the BBAI log (BBAILog.h) and MessageLog, maybe also RandLog
+ 	in CivilizationIV.ini. (See comment in ReproTest constructor about comparing logs.)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=5124

@@ -1,0 +1,123 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2581
+# Commit: 520f2ccb071ba20f8ba8cd65e675ed1284c35f51
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 9990f1ed5cbd5dd1b6a048f2aa97cc4ae7f6cca5
+# Title: Add macros to make CvRandom more convenient to use
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	2	CvGameCoreDLL/CvGame.cpp
+0	2	CvGameCoreDLL/CvGame.h
+5	0	CvGameCoreDLL/CvGameInterface.cpp
+35	0	CvGameCoreDLL/CvRandom.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index 3dd526fc9..69cb99531 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -1,5 +1,3 @@
+-// game.cpp
+-
+ #include "CvGameCoreDLL.h"
+ #include "CvGame.h"
+ #include "CvDeal.h"
+@@ -29,6 +27,11 @@
+ #include "BBAILog.h" // BBAI
+ #include "CvBugOptions.h" // K-Mod
+ 
++/*	<advc.007b> Use this CvGame instance instead of GC.getGame() for RNG calls.
++	(Won't matter so long as CvGame is a singleton class.) */
++#undef GET_CVGAME_INSTANCE_FOR_RNG
++#define GET_CVGAME_INSTANCE_FOR_RNG (*this) // </advc.007b>
++
+ 
+ CvGame::CvGame() :
+ 	m_pRiseFall(new RiseFall()), // advc.700
+
+diff --git a/CvGameCoreDLL/CvGame.h b/CvGameCoreDLL/CvGame.h
+index 48e3b7d0b..aa69f3baf 100644
+--- a/CvGameCoreDLL/CvGame.h
++++ b/CvGameCoreDLL/CvGame.h
+@@ -1,7 +1,5 @@
+ #pragma once
+ 
+-// game.h
+-
+ #ifndef CIV4_GAME_H
+ #define CIV4_GAME_H
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 1c8051027..17aa2fb94 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -23,6 +23,11 @@
+ 	Functions previously implemented in CvGame.cpp were moved here.
+ 	I guess the idea is to separate the UI code from the game rules. */
+ 
++/*	<advc.007b> The functions in this header arguably shouldn't use any of the
++	synchronized RNGs that are part of CvGame. */
++#undef GET_CVGAME_INSTANCE_FOR_RNG
++#define GET_CVGAME_INSTANCE_FOR_RNG NULL // </advc.007b>
++
+ void CvGame::updateColoredPlots()
+ {
+ 	PROFILE_FUNC();
+
+diff --git a/CvGameCoreDLL/CvRandom.h b/CvGameCoreDLL/CvRandom.h
+index 44e0f1d11..e039254b5 100644
+--- a/CvGameCoreDLL/CvRandom.h
++++ b/CvGameCoreDLL/CvRandom.h
+@@ -50,4 +50,39 @@ protected:
+ 	unsigned short getInt(unsigned short usNum, TCHAR const* szLog, int iData1, int iData2);
+ };
+ 
++/*	<advc.007b> Some macros that should make the logging aspect less tedious.
++	Still unsure if I want to use them. Unused (and untested) so far. */
++
++/*	I don't think logging the ASyncRand calls is all that useful,
++	so I'm setting the default message to NULL. */
++#define ASRAND(iNumOutcomes) \
++	GC.getASyncRand().get((iNumOutcomes), NULL)
++
++// May well be useful elsewhere, but let's put it where it gets used for now.
++#define STRINGIFY_HELPER2(x) #x
++#define STRINGIFY_HELPER1(x) STRINGIFY_HELPER2(x)
++#define CALL_LOC_STR __FUNCTION__ "(" __FILE__ "):" STRINGIFY_HELPER1(__LINE__)
++
++// The rest will require the CvGame header:
++
++/*	Implementation files that include the CvRandom header can re-define this
++	to use a different CvGame instance */
++#define GET_CVGAME_INSTANCE_FOR_RNG GC.getGame()
++
++/*	The similarity with srand in stdlib is unfortunate. "s" doesn't stand
++	for "seed" here but for "synchronized" and, more specifically for
++	CvGlobals::m_game->m_sorenRand. */
++#define SRAND(iNumOutcomes) \
++	GET_CVGAME_INSTANCE_FOR_RNG.getSRandNum((iNumOutcomes), CALL_LOC_STR)
++#define MAP_RAND(iNumOutcomes) \
++	GET_CVGAME_INSTANCE_FOR_RNG.getMapRandNum((iNumOutcomes), CALL_LOC_STR)
++/*	These take a ScaledNum instance or instantiation as parameter
++	and will therefore require the ScaledNum header. */
++#define SRAND_FRACTION(T) \
++	T::rand(GET_CVGAME_INSTANCE_FOR_RNG.getSRand(), CALL_LOC_STR)
++#define SRAND_SUCCESS(rSuccessProbability) \
++	(rSuccessProbability).bernoulliSuccess( \
++	GET_CVGAME_INSTANCE_FOR_RNG.getSRand(), CALL_LOC_STR)
++// </advc.007b>
++
+ #endif
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=3394

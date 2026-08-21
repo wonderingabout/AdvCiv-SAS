@@ -1,0 +1,59 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2580
+# Commit: 832377b87858c53ca899f3cbfa34657b422a7e0c
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c70e40d7ee42736cda01b44790b7652384d1a08a
+# Title: Fix issue with action recommendations at game start
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	1	CvGameCoreDLL/CvGame.cpp
+9	0	CvGameCoreDLL/CvPlayer.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGame.cpp b/CvGameCoreDLL/CvGame.cpp
+index c5e330413..a2c1d0330 100644
+--- a/CvGameCoreDLL/CvGame.cpp
++++ b/CvGameCoreDLL/CvGame.cpp
+@@ -9035,7 +9035,10 @@ void CvGame::read(FDataStreamBase* pStream)
+ 	if(uiFlag >= 5)
+ 	{
+ 		pStream->Read((int*)&m_eCurrentLayer);
+-		m_bLayerFromSavegame = true;
++		/*	Initial autosave doesn't contain valid info about the globe layers.
++			b/c it gets created before Python calls reportCurrentLayer */
++		if (getTurnSlice() > 0)
++			m_bLayerFromSavegame = true;
+ 	} // </advc.004m>
+ 	pStream->ReadString(m_szScriptData);
+
+diff --git a/CvGameCoreDLL/CvPlayer.cpp b/CvGameCoreDLL/CvPlayer.cpp
+index c4acc627a..c03ab02a5 100644
+--- a/CvGameCoreDLL/CvPlayer.cpp
++++ b/CvGameCoreDLL/CvPlayer.cpp
+@@ -9733,6 +9733,15 @@ bool CvPlayer::isOption(PlayerOptionTypes eOption) const
+ void CvPlayer::setOption(PlayerOptionTypes eOption, bool bNewValue)
+ {
+ 	m_abOptions.set(eOption, bNewValue);
++	/*	<advc.004z>, advc.001: At game start, colors and plot indicators get
++		updated before player options are set. Need to do another update after
++		the recommendations option has been set. And, actually, should always
++		do an update when that option changes. */
++	if (eOption == PLAYEROPTION_NO_UNIT_RECOMMENDATIONS)
++	{
++		gDLL->UI().setDirty(GlobeLayer_DIRTY_BIT, true);
++		gDLL->UI().setDirty(ColoredPlots_DIRTY_BIT, true);
++	} // </advc.004z>
+ }
+
+[PATCH COVERAGE]
+patchFiles=2 embeddedFiles=2 omittedFiles=0 embeddedPatchBytes=1395

@@ -1,0 +1,301 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5179
+# Commit: daa528a5571ef110a069fbb6da9b3e0d51be326f
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 39fcce8ec0d9ebf9bf6d0a79ce604252bf4d434b
+# Title: add CvDLLWidgetData::parseVassalWillingnessHelp helper anyways etc.
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/CvGameCoreDLL.dll
+59	116	CvGameCoreDLL/CvDLLWidgetData.cpp
+6	0	CvGameCoreDLL/CvDLLWidgetData.h
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+2	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG
+
+[PATCHES]
+
+[PATCH OMITTED] file=a/Assets/CvGameCoreDLL.dll b/Assets/CvGameCoreDLL.dll reason=binary/generated-file changedLines=0 bytes=176
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 550b0a1bc..433ba03db 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -657,44 +657,8 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
+ 		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+ 		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+ 		// Vassal Check for Leaderhead Widget (Column Headers / General)
+-		{
+-			const PlayerTypes eRival = (PlayerTypes)widgetDataStruct.m_iData1;
+-			const PlayerTypes eActivePlayer = getActivePlayer();
+-
+-			// Ensure valid player, not us, and not a generic index
+-			if (eRival != NO_PLAYER && eRival != eActivePlayer && eRival < MAX_CIV_PLAYERS)
+-			{
+-				CvPlayer& kRival = GET_PLAYER(eRival);
+-				
+-				// 1. Check Voluntary Vassal (Peace)
+-				TradeData itemVassal;
+-				itemVassal.m_eItemType = TRADE_VASSAL;
+-				
+-				// Can they trade it to US?
+-				if (kRival.canTradeItem(eActivePlayer, itemVassal, false))
+-				{
+-					if (kRival.getTradeDenial(eActivePlayer, itemVassal) == NO_DENIAL)
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+-					}
+-				}
+-				// 2. Check Capitulation (War)
+-				else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(eActivePlayer).getTeam()))
+-				{
+-					TradeData itemSurrender;
+-					itemSurrender.m_eItemType = TRADE_SURRENDER;
+-					if (kRival.canTradeItem(eActivePlayer, itemSurrender, false))
+-					{
+-						if (kRival.getTradeDenial(eActivePlayer, itemSurrender) == NO_DENIAL)
+-						{
+-							szBuffer.append(NEWLINE);
+-							szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+-						}
+-					}
+-				}
+-			}
+-		}
++		// eRival = m_iData1 (The face we are hovering), ePlayer = Us
++		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, getActivePlayer());
+ 		// End - Vassal Check for Leaderhead Widget (Column Headers / General)
+ 
+ 		break;
+@@ -706,49 +670,11 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
+ 		//parseLeaderheadHelp(widgetDataStruct, szBuffer);
+ 		parseLeaderheadRelationsHelp(widgetDataStruct, szBuffer); // BULL - Leaderhead Relations
+ 
+-		// <!-- custom: also hoist them if it helps performance if i'm not mistaken (check if accurate) but anyways etc; is hopefully cautious enough as such but anyways etc -->
+-		const PlayerTypes eRival = (PlayerTypes)widgetDataStruct.m_iData1;
+-		const PlayerTypes ePlayer = (PlayerTypes)widgetDataStruct.m_iData2;
+-
+-		// Might as well call GAMETEXT right here
+-		GAMETEXT.parseWarTradesHelp(szBuffer, eRival, ePlayer);
+-
+ 		// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
+ 		// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
+ 		// Vassal Check for Glance Screen
+-		// m_iData1 is the Column (The Rival), m_iData2 is the Row (You)
+-		if (ePlayer == getActivePlayer() && eRival != getActivePlayer())
+-		{
+-			CvPlayer& kRival = GET_PLAYER(eRival);
+-
+-			// 1. Check Voluntary Vassal (Peace)
+-			TradeData itemVassal;
+-			itemVassal.m_eItemType = TRADE_VASSAL;
+-			// Check if they can trade it TO us
+-			if (kRival.canTradeItem(ePlayer, itemVassal, false))
+-			{
+-				if (kRival.getTradeDenial(ePlayer, itemVassal) == NO_DENIAL)
+-				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+-				}
+-			}
+-			// 2. Check Capitulation (War)
+-			// Only check if they are at war with us
+-			else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+-			{
+-				TradeData itemSurrender;
+-				itemSurrender.m_eItemType = TRADE_SURRENDER;
+-				if (kRival.canTradeItem(ePlayer, itemSurrender, false))
+-				{
+-					if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+-					}
+-				}
+-			}
+-		}
++		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
++		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+ 		// End - Vassal Check for Glance Screen
+ 
+ 		break; // </advc.152>
+@@ -766,44 +692,8 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer,
+ 		// You added the code to the first one, but your game is likely using the second one. You need to add the same logic to case WIDGET_LEADERHEAD_RELATIONS in CvDLLWidgetData.cpp.
+ 		// Here is the corrected code block for CvDLLWidgetData.cpp
+ 		// Vassal Check for Glance Screen (Standard Widget)
+-		// Define the players from the widget data
+-		// Data1 = Column (The Rival), Data2 = Row (You)
+-		const PlayerTypes eRival = (PlayerTypes)widgetDataStruct.m_iData1;
+-		const PlayerTypes ePlayer = (PlayerTypes)widgetDataStruct.m_iData2;
+-
+-		// Ensure valid players and that we are looking at OUR row (Active Player)
+-		if (ePlayer != NO_PLAYER && eRival != NO_PLAYER && 
+-			ePlayer == getActivePlayer() && eRival != getActivePlayer())
+-		{
+-			CvPlayer& kRival = GET_PLAYER(eRival);
+-
+-			// 1. Check Voluntary Vassal (Peace)
+-			TradeData itemVassal;
+-			itemVassal.m_eItemType = TRADE_VASSAL;
+-			
+-			if (kRival.canTradeItem(ePlayer, itemVassal, false))
+-			{
+-				if (kRival.getTradeDenial(ePlayer, itemVassal) == NO_DENIAL)
+-				{
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
+-				}
+-			}
+-			// 2. Check Capitulation (War)
+-			else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
+-			{
+-				TradeData itemSurrender;
+-				itemSurrender.m_eItemType = TRADE_SURRENDER;
+-				if (kRival.canTradeItem(ePlayer, itemSurrender, false))
+-				{
+-					if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
+-					{
+-						szBuffer.append(NEWLINE);
+-						szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
+-					}
+-				}
+-			}
+-		}
++		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
++		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
+ 		// End - Vassal Check for Glance Screen
+ 
+ 		break; // BULL - Leaderhead Relations - end
+@@ -5933,6 +5823,59 @@ void CvDLLWidgetData::parseLeaderheadRelationsHelp(CvWidgetDataStruct &widgetDat
+ 	GAMETEXT.parseLeaderHeadRelationsHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1,
+ 			(PlayerTypes)widgetDataStruct.m_iData2);
+ } // BULL - Leaderhead Relations - end
++
++// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
++// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
++// Helper for Vassal Willingness Tooltip
++// eRival  = The Foreign Leader we are hovering over (Potential Vassal)
++// ePlayer = The Active Player / Viewer (Potential Master)
++void CvDLLWidgetData::parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, PlayerTypes eRival, PlayerTypes ePlayer)
++{
++	// 1. Safety Checks
++	if (eRival == NO_PLAYER || ePlayer == NO_PLAYER) return;
++	
++	// 2. Spoiler Check: Only show this if WE (Active Player) are the potential master.
++	if (ePlayer != getActivePlayer()) return;
++
++	// 3. Don't check ourselves
++	if (eRival == ePlayer) return;
++
++	// 4. Index safety check
++	if (eRival >= MAX_CIV_PLAYERS || ePlayer >= MAX_CIV_PLAYERS) return;
++
++	CvPlayer& kRival = GET_PLAYER(eRival);
++
++	// 5. Check Voluntary Vassal (Peace)
++	TradeData itemVassal;
++	itemVassal.m_eItemType = TRADE_VASSAL;
++
++	// Can eRival trade it to ePlayer?
++	if (kRival.canTradeItem(ePlayer, itemVassal, false))
++	{
++		if (kRival.getTradeDenial(ePlayer, itemVassal) == NO_DENIAL)
++		{
++			szBuffer.append(NEWLINE);
++			szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_VOLUNTARY"));
++		}
++	}
++	// 6. Check Capitulation (War)
++	// Only check if eRival is at war with ePlayer's team
++	else if (GET_TEAM(kRival.getTeam()).isAtWar(GET_PLAYER(ePlayer).getTeam()))
++	{
++		TradeData itemSurrender;
++		itemSurrender.m_eItemType = TRADE_SURRENDER;
++		
++		if (kRival.canTradeItem(ePlayer, itemSurrender, false))
++		{
++			if (kRival.getTradeDenial(ePlayer, itemSurrender) == NO_DENIAL)
++			{
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_WILLING_TO_BECOME_VASSAL_CAPITULATE"));
++			}
++		}
++	}
++}
++
+ // advc.003j (comment): unused
+ void CvDLLWidgetData::parseCloseScreenHelp(CvWStringBuffer& szBuffer)
+ {
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.h b/CvGameCoreDLL/CvDLLWidgetData.h
+index aeec16f88..faba662e4 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.h
++++ b/CvGameCoreDLL/CvDLLWidgetData.h
+@@ -197,6 +197,12 @@ protected:
+ 	void parseLeaderHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+ 	// BULL - Leaderhead Relations:
+ 	void parseLeaderheadRelationsHelp(CvWidgetDataStruct& widgetDataStruct, CvWStringBuffer &szBuffer);
++
++	// <!-- custom: add "Willing to become a vassal" type of button as it is useful for the human player to see it in UI in the glances tab anyways etc. -->
++	// <!-- custom: this adds the tooltip in the foreign advisor's glance tab; code added with the help of gemini 3 pro, check if accurate anyways etc. -->
++	// Helper for Vassal Willingness Tooltip
++	void parseVassalWillingnessHelp(CvWStringBuffer &szBuffer, PlayerTypes eRival, PlayerTypes ePlayer);
++
+ 	void parseDescriptionHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer, bool bMinimal);
+ 	void parseCloseScreenHelp(CvWStringBuffer &szBuffer);
+ 	void parseKillDealHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer);
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 530448c8b..896119c5c 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -122,7 +122,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ - add the "Cannot be traded" and the "Can be researched multiple times" information tooltips in the tech advisor as well anyways etc. See for details [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens. Code added in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ 
+ ## Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index c31cd6b7f..0beb773ce 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -3144,3 +3144,5 @@ Update: now also added a tooltip (on hover), in [CvDLLWidgetData.cpp](/CvGameCor
+ And now also using our own advciv-sas save file (see drive link for details anyways etc.)
+ 
+ Trick: autoplay on settler we are more likely to be stronger and thus to have rivals, helped quickly get a save file sample for screenshots and testing i mean but anyways etc.
++
++Update 2: now added to a helper (`CvDLLWidgetData::parseVassalWillingnessHelp`) to avoid reuse and as is cleaner as such i mean if i may say, with gemini 3 pro's help as well thanks but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index ec528276d..6612ecbca 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -115,7 +115,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ - Added "Cannot be traded" and "Can be researched multiple times" tooltips to the Tech Advisor screen. See [README.md#untradeable-techs-btrade-display-information](/README.md#untradeable-techs-btrade-display-information) for details.
+ - (Requires AdvCiv-SAS 5173+ to 5174+) **Beautified** the **Domestic Advisor** (F1 key) (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+ - (Requires AdvCiv-SAS 5162+ to 5169+) **Enlarged, excentered the Foreign Advisor**'s (F4 key) screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). (Requires AdvCiv-SAS 5166+) Did a similar rework of the **Military Advisor** (F5 key) in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks).
+-- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens. Code added in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
++- (Requires AdvCiv-SAS 5177+ to 5178+) Added **"Willing to become vassal"** and **"Vassal"** **icons** in the Foreign Advisor's Glance tab in the human player's row, to help avoid the need to tediously check these up through other screens, in [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py), and in [CvDLLWidgetData.cpp](/CvGameCoreDLL/CvDLLWidgetData.cpp) for the corresponding **tooltip** (on hover). See ["Willing to become a vassal" and "vassal" icons](/README.md#willing-to-become-a-vassal-and-vassal-icons-in-foreign-advisors-glance-tab).
+ 
+ ### Code/Performance optimizations
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG
+index 4638c5cd1..ce85ac152 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG and b/_1_AdvCiv-SAS/Images_In_General/advisors_reworks/0.5132_willing_vassal_trade.JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=6 omittedFiles=1 embeddedPatchBytes=17941

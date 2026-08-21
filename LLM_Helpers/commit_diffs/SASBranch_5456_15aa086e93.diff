@@ -1,0 +1,599 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5456
+# Commit: 15aa086e93d382d53198ecec7a592856d0557b21
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: fa79a78fde6e898e6401c2b77b6da2bb7fc5b1e8
+# Title: add SAS_Spiky_Avenues.py (AdvCiv-SAS original new mapscript)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	.claude/settings.local.json
+1	3	.gitignore
+-	-	Assets/Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds
+1	1	Assets/XML/GlobalDefines_advciv_sas.xml
+27	0	Assets/XML/Interface/CIV4WorldPickerInfos.xml
+357	0	PrivateMaps/SAS_Spiky_Avenues.py
+17	4	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.3202_technique_paint_net_fast_resize_map (1).PNG => 0.3210_technique_paint_net_fast_resize_map (1).PNG}
+-	-	_1_AdvCiv-SAS/Images/main_menu/{0.3202_technique_paint_net_fast_resize_map (2).PNG => 0.3210_technique_paint_net_fast_resize_map (2).PNG}
+ create mode 100644 Assets/Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds
+ create mode 100644 PrivateMaps/SAS_Spiky_Avenues.py
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.3202_technique_paint_net_fast_resize_map (1).PNG => 0.3210_technique_paint_net_fast_resize_map (1).PNG} (100%)
+ rename _1_AdvCiv-SAS/Images/main_menu/{0.3202_technique_paint_net_fast_resize_map (2).PNG => 0.3210_technique_paint_net_fast_resize_map (2).PNG} (100%)
+
+[PATCHES]
+
+diff --git a/.claude/settings.local.json b/.claude/settings.local.json
+index 2b826de77..bef8208b1 100644
+--- a/.claude/settings.local.json
++++ b/.claude/settings.local.json
+@@ -14,7 +14,8 @@
+       "WebFetch(domain:forums.civfanatics.com)",
+       "Bash(dir:*)",
+       "Bash(git -C \"c:/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier''s Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS\" diff --stat -- \"CvGameCoreDLL/*.cpp\" \"CvGameCoreDLL/*.h\")",
+-      "Bash(git -C \"c:/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier''s Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS\" diff -- \"CvGameCoreDLL/*.cpp\" \"Assets/XML/*.xml\" \"Long_Comments/*.xml\")"
++      "Bash(git -C \"c:/Program Files \\(x86\\)/Steam/steamapps/common/Sid Meier''s Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS\" diff -- \"CvGameCoreDLL/*.cpp\" \"Assets/XML/*.xml\" \"Long_Comments/*.xml\")",
++      "Read(//c/Users/PC/Documents/My Games/beyond the sword/ScreenShots/**)"
+     ]
+   }
+ }
+
+diff --git a/.gitignore b/.gitignore
+index 6c72606e0..471e999d3 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -22,8 +22,6 @@
+ *.vcxproj.filters
+ *.vcxproj.user
+ *.opensdf
++__pycache__
+ /Logs/
+-/__pycache__/
+-/tests/__pycache__/
+-/Assets/Python/Contrib/Sevopedia/__pycache__/
+ /Assets/CvGameCoreDLL_d.dll
+
+diff --git a/Assets/Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds b/Assets/Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds
+new file mode 100644
+index 000000000..8669a4416
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds differ
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index 392064aa2..45c55655f 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -302,7 +302,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: comma-separated map script names (optional .py/path tolerated) treated as land-heavy by DLL cache (GPT-5.3-Codex) -->
+ 	<Define>
+ 		<DefineName>SAS_MAP_SCRIPT_NAMES_LAND_HEAVY</DefineName>
+-		<DefineTextVal>Fractal,Hemispheres,Pangaea,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,SAS_Longworld,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross,BTG_Grid,BTG_Lagoon,Planet_Generator_0_68,Peirce</DefineTextVal>
++		<DefineTextVal>Fractal,Hemispheres,Pangaea,Tectonics,Terra,aDebugMap,Balanced,Continents,Custom_Continents,Ice_Age,Inland_Sea,Maze,Ring,SAS_Longworld,SAS_Spiky_Avenues,Arboria,Wheel,Donut,Earth2,Global_Highlands,BTG_Cross,BTG_Grid,BTG_Lagoon,Planet_Generator_0_68,Peirce</DefineTextVal>
+ 	</Define>
+ 	<!-- custom: almost entirely land; DLL currently folds this into land-heavy logic, while keeping the distinction for future tuning. (GPT-5.3-Codex); note: may not be up to date since i didn't review all map scripts yet -->
+ 	<Define>
+
+diff --git a/Assets/XML/Interface/CIV4WorldPickerInfos.xml b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+index c50925059..9c890982b 100644
+--- a/Assets/XML/Interface/CIV4WorldPickerInfos.xml
++++ b/Assets/XML/Interface/CIV4WorldPickerInfos.xml
+@@ -778,6 +778,33 @@
+ 				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
+ 			</WaterLevelGloss>
+ 		</WorldPickerInfo>
++		<WorldPickerInfo>
++			<MapName>SAS_Spiky_Avenues</MapName>
++			<ModelFile>Art/Interface/Screens/WorldPicker/GlobeFLAT.nif</ModelFile>
++			<Sizes>
++				<Size>1.0</Size> <!-- Random -->
++				<Size>0.128</Size> <!-- Arena (14x10) -->
++				<Size>0.214</Size> <!-- Duel -->
++				<Size>0.358</Size> <!-- Tiny -->
++				<Size>0.604</Size> <!-- Small -->
++				<Size>1.0</Size> <!-- Standard -->
++				<Size>1.463</Size> <!-- Large -->
++				<Size>2.308</Size> <!-- Huge -->
++				<Size>3.141</Size> <!-- SAS24 -->
++				<Size>4.103</Size> <!-- SAS32 -->
++				<Size>5.192</Size> <!-- SAS40 -->
++				<Size>6.346</Size> <!-- SAS48 -->
++			</Sizes>
++			<Climates>
++				<ClimatePath>Art/Interface/Screens/WorldPicker/MapBlank.dds</ClimatePath> <!-- Random -->
++			</Climates>
++			<WaterLevelDecals>
++				<WaterLevelDecalPath>Art/AdvCiv_SAS/Maps/SAS_Spiky_Avenues/FLAT_SAS_Spiky_Avenues.dds</WaterLevelDecalPath>
++			</WaterLevelDecals>
++			<WaterLevelGloss>
++				<WaterLevelGlossPath>Art/Interface/Screens/WorldPicker/MapBlank.dds</WaterLevelGlossPath> <!-- Random -->
++			</WaterLevelGloss>
++		</WorldPickerInfo>
+ 		<WorldPickerInfo>
+ 			<MapName>Terra</MapName>
+ 			<ModelFile>Art/Interface/Screens/WorldPicker/Globe.nif</ModelFile>
+
+diff --git a/PrivateMaps/SAS_Spiky_Avenues.py b/PrivateMaps/SAS_Spiky_Avenues.py
+new file mode 100644
+index 000000000..9f50c9aea
+--- /dev/null
++++ b/PrivateMaps/SAS_Spiky_Avenues.py
+@@ -0,0 +1,357 @@
++# AI, UI, or other modifications
++# Created as part of AdvCiv-SAS improvements
++# (c) 2026 wonderingabout & AI helpers (see Authors in root README.md)
++#
++# FILE: SAS_Spiky_Avenues.py
++# PURPOSE: Competitive avenue map with streets, houses (spikes), and bridges.
++#
++# AUTHORS: wonderingabout & GPT-5.3-Codex & Claude code Opus 4.6
++#
++# LAYOUT OVERVIEW:
++# Picture a real-world residential street seen from above: a road with houses on
++# both sides, separated by driveways. This map replicates that pattern in Civ4 tiles.
++#
++# Terminology (smallest to largest):
++#   house  = rectangular land block where one player starts (5 tiles wide).
++#   spike  = one column of two facing houses: one above the ribbon, one below.
++#            So 1 spike = 2 houses = 2 player starts.
++#   ribbon = the full continuous horizontal land strip spanning the entire map width.
++#   avenue = the section of the ribbon between the first and last spike
++#            (the shared land lane that all houses connect to).
++#   bridge = the ribbon sections beyond the avenue on each side, plus vertical land
++#            connectors at the left/right map edges (which wrap in X) that link
++#            adjacent streets so units can walk between them in just a few tiles.
++#   street = one complete unit: ribbon + its spikes (houses above and below).
++#
++# Streets are stacked vertically (along Y). Houses within a street are separated
++# by water gaps one house wide for culture separation. The profile (streets, spikes)
++# scales with world size to match default player counts.
++# Example: LARGE  = 2 streets x 3 spikes =  6 houses/street, 12 total for 11 players.
++#          SAS48  = 4 streets x 6 spikes = 12 houses/street, 48 total for 48 players.
++
++from CvPythonExtensions import *
++from CvMapGeneratorUtil import TerrainGenerator
++from CvMapGeneratorUtil import FeatureGenerator
++
++sas_spiky_layout = None
++sas_slot_assignments = {}
++sas_used_start_plots = set()
++
++
++def getVersion():
++	return "1.00"
++
++
++def getDescription():
++	return "Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map."
++
++
++def isAdvancedMap():
++	"This map should show up in Simple Game."
++	# <!-- custom: No custom map options in this script, so the stale multi-option/Simple Game cache guard is not needed (empirically verified in-game). (GPT-5.3-Codex) -->
++	return 0
++
++
++def getWrapX():
++	return True
++
++
++def getWrapY():
++	return False
++
++
++def getTopLatitude():
++	return 70
++
++
++def getBottomLatitude():
++	return -70
++
++
++def minStartingDistanceModifier():
++	# <!-- custom: Dense tactical layouts need a low start-distance floor to avoid turn-0 defeats at high player counts. (GPT-5.3-Codex) -->
++	return -95
++
++
++def getGridSize(argsList):
++	if argsList[0] == -1:
++		return []
++
++	[eWorldSize] = argsList
++	(iStreets, iSpikesPerStreet) = _profile_for_world_size(eWorldSize)
++	if iStreets <= 0 or iSpikesPerStreet <= 0:
++		return []
++
++	iAvenueHeight = 4
++	iSpikeDepth = 5
++	iHouseWidth = 5
++	# <!-- custom: widen inter-house spacing to one house-width and keep it as water lanes for culture separation. (GPT-5.3-Codex) -->
++	iHouseGap = iHouseWidth
++	iBridgeWidth = 1
++	iBridgeBuffer = 2
++	# <!-- custom: keep one-house vertical spacing between streets to avoid early culture collisions. (GPT-5.3-Codex) -->
++	iStreetGap = iHouseWidth
++	# <!-- custom: leave at least 3 polar-edge tiles so starts near top/bottom are still usable even with ice,
++	# while keeping the no-top-enemy pole advantage controlled. (GPT-5.3-Codex) -->
++	iEdgeMarginY = 3
++
++	iHouseNeedWidth = iSpikesPerStreet * iHouseWidth + (iSpikesPerStreet - 1) * iHouseGap
++	iAvenueWidth = iHouseNeedWidth + 2 * iBridgeBuffer
++	iWidth = iAvenueWidth + 2 * iBridgeWidth + 4
++	iStreetBand = iAvenueHeight + 2 * iSpikeDepth
++	iHeight = iStreets * iStreetBand + (iStreets - 1) * iStreetGap + 2 * iEdgeMarginY
++	# <!-- custom: Civ4 multiplies grid-cell counts by 4 to get actual plot dimensions.
++	# Return grid cells so actual map is tight around the content. (Claude code Opus 4.6) -->
++	return ((iWidth + 3) / 4, (iHeight + 3) / 4)
++
++
++def _profile_for_world_size(eWorldSize):
++	# # <!-- custom:  Use integer indices (matching AdvCiv's 0-6 vanilla + 7-10 SAS world sizes)
++	# instead of WorldSizeTypes enums, which are offset by 1 due to ARENA at index 0. (Claude code Opus 4.6) -->
++	profiles = {
++		0:  (1, 1),  # ARENA
++		1:  (1, 1),  # DUEL
++		2:  (1, 1),  # TINY
++		3:  (1, 2),  # SMALL
++		4:  (2, 2),  # STANDARD
++		5:  (2, 3),  # LARGE      (11 players -> 3 spikes * 2 streets = 12 houses)
++		6:  (2, 4),  # HUGE       (16 players -> 4 spikes * 2 streets = 16 houses)
++		7:  (3, 4),  # SAS24      (24 players -> 4 spikes * 3 streets = 24 houses)
++		8:  (4, 4),  # SAS32      (32 players -> 4 spikes * 4 streets = 32 houses)
++		9:  (4, 5),  # SAS40      (40 players -> 5 spikes * 4 streets = 40 houses)
++		10: (4, 6),  # SAS48      (48 players -> 6 spikes * 4 streets = 48 houses)
++	}
++	iWorldSize = int(eWorldSize)
++	if iWorldSize in profiles:
++		return profiles[iWorldSize]
++	return profiles[max(profiles.keys())]
++
++
++def _build_layout():
++	global sas_spiky_layout
++	if "sas_spiky_layout" in globals() and sas_spiky_layout is not None:
++		return sas_spiky_layout
++
++	gc = CyGlobalContext()
++	map_obj = CyMap()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	(iStreets, iSpikesPerStreet) = _profile_for_world_size(map_obj.getWorldSize())
++
++	iAvenueHeight = 4
++	iSpikeDepth = 5
++	iHouseWidth = 5
++	iHouseGap = iHouseWidth
++	iStreetGap = iHouseWidth
++	iBridgeWidth = 1
++	iBridgeBuffer = 2
++
++	iStreetTopMargin = 3
++	iStreetBand = iAvenueHeight + 2 * iSpikeDepth
++	iTotalHeight = iStreets * iStreetBand + (iStreets - 1) * iStreetGap
++	iTopBase = max(iStreetTopMargin, (iH - iTotalHeight) / 2)
++
++	iLeftBridgeStart = 0
++	iRightBridgeStart = iW - iBridgeWidth
++	iAvenueLeft = iLeftBridgeStart + iBridgeWidth + 2
++	iAvenueRight = iRightBridgeStart - 3
++
++	iHouseNeedWidth = iSpikesPerStreet * iHouseWidth + (iSpikesPerStreet - 1) * iHouseGap
++	iHouseZoneLeft = iAvenueLeft + iBridgeBuffer
++	iHouseZoneRight = iAvenueRight - iBridgeBuffer
++	iHouseZoneWidth = iHouseZoneRight - iHouseZoneLeft + 1
++	if iHouseNeedWidth > iHouseZoneWidth:
++		iHouseNeedWidth = iHouseZoneWidth
++
++	iHouseStart = iHouseZoneLeft + max(0, (iHouseZoneWidth - iHouseNeedWidth) / 2)
++	house_rects = []
++	for i in range(iSpikesPerStreet):
++		iX0 = iHouseStart + i * (iHouseWidth + iHouseGap)
++		iX1 = min(iHouseZoneRight, iX0 + iHouseWidth - 1)
++		iXC = (iX0 + iX1) / 2
++		house_rects.append((iX0, iX1, iXC))
++
++	start_slots = []
++	street_rows = []
++	for t in range(iStreets):
++		iStreetTop = iTopBase + t * (iStreetBand + iStreetGap)
++		iAvenueTop = iStreetTop + iSpikeDepth
++		iAvenueBottom = iAvenueTop + iAvenueHeight - 1
++		iStreetBottom = iStreetTop + iStreetBand - 1
++		street_rows.append((iStreetTop, iAvenueTop, iAvenueBottom, iStreetBottom))
++		for (_, _, iXC) in house_rects:
++			# <!-- custom: one start slot per house, at center X and outer Y edge (farthest from avenue). (GPT-5.3-Codex) -->
++			start_slots.append((iXC, iStreetTop))
++			start_slots.append((iXC, iStreetBottom))
++
++	sas_spiky_layout = {
++		"streets": iStreets,
++		"street_rows": street_rows,
++		"left_bridge_start": iLeftBridgeStart,
++		"right_bridge_start": iRightBridgeStart,
++		"bridge_width": iBridgeWidth,
++		"avenue_left": iAvenueLeft,
++		"avenue_right": iAvenueRight,
++		"house_rects": house_rects,
++		"slots": start_slots,
++	}
++	return sas_spiky_layout
++
++
++def beforeGeneration():
++	global sas_spiky_layout, sas_slot_assignments, sas_used_start_plots
++	sas_spiky_layout = None
++	sas_slot_assignments = {}
++	sas_used_start_plots = set()
++	_build_layout()
++
++
++def _is_valid_start_plot(pPlot):
++	return pPlot is not None and not pPlot.isWater() and not pPlot.isImpassable()
++
++
++def generatePlotTypes():
++	NiTextOut("Setting Plot Types (Python SAS_Spiky_Avenues) ...")
++	layout = _build_layout()
++	map_obj = CyMap()
++	dice = CyGlobalContext().getGame().getMapRand()
++	iW = map_obj.getGridWidth()
++	iH = map_obj.getGridHeight()
++	plot_types = [PlotTypes.PLOT_OCEAN] * (iW * iH)
++
++	# <!-- custom: Build every configured street fully from world-size profile, independent of alive player count. (GPT-5.3-Codex) -->
++	for iStreet in range(len(layout["street_rows"])):
++		(iStreetTop, iAvenueTop, iAvenueBottom, iStreetBottom) = layout["street_rows"][iStreet]
++		# Main central avenue
++		for x in range(layout["avenue_left"], layout["avenue_right"] + 1):
++			for y in range(iAvenueTop, iAvenueBottom + 1):
++				plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++		# Spikes: facing houses on both sides of avenue.
++		for (iX0, iX1, _) in layout["house_rects"]:
++			for x in range(iX0, iX1 + 1):
++				for y in range(iStreetTop, iAvenueTop):
++					plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++				for y in range(iAvenueBottom + 1, iStreetBottom + 1):
++					plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++		# <!-- custom: keep house-gap columns as water in house bands only; preserve avenue land lanes. (GPT-5.3-Codex) -->
++		if len(layout["house_rects"]) > 1:
++			for i in range(len(layout["house_rects"]) - 1):
++				(_, iLeftX1, _) = layout["house_rects"][i]
++				(iRightX0, _, _) = layout["house_rects"][i + 1]
++				for x in range(iLeftX1 + 1, iRightX0):
++					for y in range(iStreetTop, iAvenueTop):
++						plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_OCEAN
++					for y in range(iAvenueBottom + 1, iStreetBottom + 1):
++						plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_OCEAN
++		# Soft avenue end-caps near bridges for smoother side movement.
++		for y in range(iAvenueTop, iAvenueBottom + 1):
++			plot_types[map_obj.plotNum(layout["avenue_left"] - 1, y)] = PlotTypes.PLOT_LAND
++			plot_types[map_obj.plotNum(layout["avenue_right"] + 1, y)] = PlotTypes.PLOT_LAND
++			if y == iAvenueTop or y == iAvenueBottom:
++				plot_types[map_obj.plotNum(layout["avenue_left"] - 2, y)] = PlotTypes.PLOT_LAND
++				plot_types[map_obj.plotNum(layout["avenue_right"] + 2, y)] = PlotTypes.PLOT_LAND
++		# Bridge endpoints on both map edges for this street.
++		for y in range(iAvenueTop, iAvenueBottom + 1):
++			for x in range(layout["left_bridge_start"], layout["left_bridge_start"] + layout["bridge_width"]):
++				plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++			for x in range(layout["right_bridge_start"], layout["right_bridge_start"] + layout["bridge_width"]):
++				plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++		# Edge bridges connect this street to next street; movement between streets is routed via avenue edge.
++		if iStreet < len(layout["street_rows"]) - 1:
++			(_, nextAvenueTop, nextAvenueBottom, _) = layout["street_rows"][iStreet + 1]
++			iStartY = (iAvenueTop + iAvenueBottom) / 2
++			iEndY = (nextAvenueTop + nextAvenueBottom) / 2
++			iConnTop = min(iStartY, iEndY)
++			iConnBottom = max(iStartY, iEndY)
++			for x in range(layout["left_bridge_start"], layout["left_bridge_start"] + layout["bridge_width"]):
++				for y in range(iConnTop, iConnBottom + 1):
++					plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++			for x in range(layout["right_bridge_start"], layout["right_bridge_start"] + layout["bridge_width"]):
++				for y in range(iConnTop, iConnBottom + 1):
++					plot_types[map_obj.plotNum(x, y)] = PlotTypes.PLOT_LAND
++
++	# Texture: sparse hills only on land.
++	for i in range(iW * iH):
++		if plot_types[i] != PlotTypes.PLOT_LAND:
++			continue
++		iChance = dice.get(20, "SAS_Spiky_Avenues hills")
++		if iChance <= 2:
++			plot_types[i] = PlotTypes.PLOT_HILLS
++
++	return plot_types
++
++
++def findStartingPlot(argsList):
++	global sas_slot_assignments, sas_used_start_plots
++	[playerID] = argsList
++	layout = _build_layout()
++	map_obj = CyMap()
++	gc = CyGlobalContext()
++
++	player_ids = []
++	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):
++		if gc.getPlayer(iPlayer).isAlive():
++			player_ids.append(iPlayer)
++	if len(player_ids) == 0:
++		CyPythonMgr().allowDefaultImpl()
++		return
++	player_ids.sort()
++	if playerID not in player_ids:
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	if playerID in sas_slot_assignments:
++		return sas_slot_assignments[playerID]
++
++	slots = layout["slots"]
++	if len(slots) == 0:
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	iIndex = player_ids.index(playerID)
++	if iIndex >= len(slots):
++		CyPythonMgr().allowDefaultImpl()
++		return
++
++	(iX, iY) = slots[iIndex]
++	pSlot = map_obj.plot(iX, iY)
++	if _is_valid_start_plot(pSlot):
++		iNum = map_obj.plotNum(iX, iY)
++		if iNum not in sas_used_start_plots:
++			sas_used_start_plots.add(iNum)
++			sas_slot_assignments[playerID] = iNum
++			return iNum
++
++	# Safety search only near this house slot; never steal distant slots and never reuse an already-used start plot.
++	for iRadius in range(1, 3):
++		for dx in range(-iRadius, iRadius + 1):
++			for dy in range(-iRadius, iRadius + 1):
++				iNX = iX + dx
++				iNY = iY + dy
++				if iNX < 0 or iNX >= map_obj.getGridWidth() or iNY < 0 or iNY >= map_obj.getGridHeight():
++					continue
++				pTry = map_obj.plot(iNX, iNY)
++				if not _is_valid_start_plot(pTry):
++					continue
++				iNum = map_obj.plotNum(iNX, iNY)
++				if iNum in sas_used_start_plots:
++					continue
++				sas_used_start_plots.add(iNum)
++				sas_slot_assignments[playerID] = iNum
++				return iNum
++
++	CyPythonMgr().allowDefaultImpl()
++	return
++
++
++def generateTerrainTypes():
++	NiTextOut("Generating Terrain (Python SAS_Spiky_Avenues) ...")
++	terrain_gen = TerrainGenerator()
++	return terrain_gen.generateTerrain()
++
++
++def addFeatures():
++	NiTextOut("Adding Features (Python SAS_Spiky_Avenues) ...")
++	feature_gen = FeatureGenerator()
++	feature_gen.addFeatures()
++	return 0
+
+diff --git a/README.md b/README.md
+index 29ea4627e..fa13862f4 100644
+--- a/README.md
++++ b/README.md
+@@ -8,7 +8,7 @@ The core changes brought by this mod are as of now an AI overhaul to make it muc
+ 
+ Heavy reworks were made, while otherwise mostly staying in the base Advciv 1.12 frame, but with a focus on historical accuracy, game balance, and as for in particular UI in Sevopedia (item grouping, new Search Bar, Keyboard navigation, Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to)), most Advisor screens reworked or new ones (e.g. new History Tab in the Info Screen), and the city screen rework, transitioning to a modern upscaled and beautified 16:9 display, reducing the need for players to scroll, and with new information displayed as well; Main Menu rework.
+ 
+-New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Longworld`).
++New mechanics as well, including but not only new Game Speeds (Nitro, Turbo, Slow, Very Slow); new World Sizes (Arena, SAS24, SAS32, SAS40, SAS48); new optional XML fields (e.g., `ObsoleteTech` for units); new Mapscripts (e.g., `BTG_Cross`, `BTG_Lagoon`, `Equal_Islands_V2_beta`, etc.), including AdvCiv-SAS original ones (e.g., `SAS_Longworld`, `SAS_Spiky_Avenues`).
+ 
+ Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, balance, AI strength, etc).
+ 
+@@ -58,6 +58,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
+ &emsp;[How to use](/README.md#how-to-use)  
+ &emsp;[New AdvCiv-SAS World Sizes (SAS24, SAS32, SAS40, SAS48; Arena) (Recommended to use with the 48 Civs DLL)](/README.md#new-advciv-sas-world-sizes-sas24-sas32-sas40-sas48-arena-recommended-to-use-with-the-48-civs-dll)  
+ [Mapscripts](/README.md#mapscripts)  
++&emsp;[AdvCiv-SAS original mapscripts (e.g., SAS_Longworld, SAS_Spiky_Avenues)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld-sas_spiky_avenues)  
+ &emsp;[New Maps (e.g., BTG_Cross, BTG_Lagoon)](/README.md#new-maps-eg-btg_cross-btg_lagoon)  
+ &emsp;[New .dds for maps in Simple Game](/README.md#new-dds-for-maps-in-simple-game)  
+ [Change from short to int the Found value pipeline](/README.md#change-from-short-to-int-the-found-value-pipeline)  
+@@ -532,7 +533,9 @@ See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1
+ 
+ ## Mapscripts
+ 
+-### AdvCiv-SAS original mapscripts (e.g., SAS_Longworld)
++### AdvCiv-SAS original mapscripts (e.g., SAS_Longworld, SAS_Spiky_Avenues)
++
++#### SAS_Longworld
+ 
+ We have added our own new mapscripts in AdvCiv-SAS, notably SAS_Longworld with the help of GPT-5.3-Codex thanks, which is based on [Ringworld3 v1.02](https://forums.civfanatics.com/threads/map-script-ringworld3.371831/) but with a heavily simplified code.
+ 
+@@ -544,6 +547,16 @@ Like all mapscripts in AdvCiv-SAS as of now, it supports SAS48 worldsize and pla
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (2).JPG" alt="0.3202_maps_sas_longworld (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_maps_sas_longworld (3).JPG" alt="0.3202_maps_sas_longworld (3).JPG" width="250"></img>
+ 
++#### SAS_Spiky_Avenues
++
++Similarly we also added our new original SAS_Spiky_Avenues mapscript with the help of GPT-5.3-Codex and Claude code Opus 4.6 thanks. We took some ideas from SAS_Longworld but with a different concept:
++
++>Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets. One player starts per house. Bigger world sizes increase street/spike counts (not house size). Examples: in Large worldsize (11 default players), 3 spikes per street (6 houses) and 2 streets (12 houses total); in SAS48 (48 Civs DLL) worldsize (48 default players), 6 spikes per street (12 houses) and 4 streets (48 houses total). Recommended to play this map on SAS48. This is an AdvCiv-SAS original map.
++
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG" alt="0.3203_maps_sas_spiky_avenues (1).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG" alt="0.3203_maps_sas_spiky_avenues (2).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG" alt="0.3203_maps_sas_spiky_avenues (3).JPG" width="250"></img>
++
+ ### New Maps (e.g., BTG_Cross, BTG_Lagoon)
+ 
+ We have also added new maps, for example the (based on the Beyond the Game 2.43 mod's version of it, and adjusted for AdvCiv-SAS with the help of GPT-5.3-Codex: supports max players, SAS48 world size, removed unused options in AdvCiv-SAS, etc.)
+@@ -566,8 +579,8 @@ This definitely feels like masonry but works and fun xd i guess after having ted
+ 
+ Trick: by having the view box in a water or snow zone you can edit it later and remove it easier when making the .dds. Maybe there is a better way but this works quite well. Some examples below:
+ 
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG" alt="0.3202_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG" alt="0.3202_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG" alt="0.3210_technique_paint_net_fast_resize_map (1).PNG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG" alt="0.3210_technique_paint_net_fast_resize_map (2).PNG" width="250"></img>
+ 
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (1).JPG" alt="0.3201_maps_simple_game (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/main_menu/0.3201_maps_simple_game (2).JPG" alt="0.3201_maps_simple_game (2).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index d2c334df7..084470dd9 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -356,7 +356,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - (Requires AdvCiv-SAS 5446+) **Order maps alphabetically** in **Simple Game** or **Custom Game** (by adding missing map scripts in **PrivateMaps**).
+ - (Requires AdvCiv-SAS 5439+) **Remove from Simple Game** some maps that are deemed not essential or unbalanced; they are remain playable via the **Custom Game** menu: [Big_and_Small.py](/PrivateMaps/Big_and_Small.py), [Great_Plains.py](/PrivateMaps/Great_Plains.py), [Earth2.py](/PrivateMaps/Earth2.py), [Hemispheres.py](/PrivateMaps/Hemispheres.py), [Lakes.py](/PrivateMaps/Lakes.py) (has too few lakes), [Oasis.py](/PrivateMaps/Oasis.py), [Shuffle.py](/PrivateMaps/Shuffle.py), [Tectonics.py](/PrivateMaps/Tectonics.py).
+ - (Requires AdvCiv-SAS 5439+) **Add** or **redo** the .dds (i.e. image) in **Simple Game** for maps so it is more illustrative or accurate than a dark or incorrect globe map. See [Readme.md (New .dds for maps in Simple Game)](/README.md#new-dds-for-maps-in-simple-game) and [CIV4WorldPickerInfos.xml](/Assets/XML/Interface/CIV4WorldPickerInfos.xml).
+-- (Requires AdvCiv-SAS 5455+) **Add** a new AdvCiv-SAS original map: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified. See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld)
++- (Requires AdvCiv-SAS 5455+) **Add** a new AdvCiv-SAS original map: [SAS_Longworld](/PrivateMaps/SAS_Longworld.py): A lightweight long-format world for AdvCiv-SAS: one connected horizontal landmass with wavy borders, inspired by Ringworld3_102_mst.py but heavily simplified. Similarly also **add** [SAS_Spiky_Avenues.py](/PrivateMaps/SAS_Spiky_Avenues.py) (Compact tactical map with repeated streets: each street has facing houses (spikes), a central avenue, and bridges on left/right edges to connect streets). See [Readme.md (AdvCiv-SAS original mapscripts)](/README.md#advciv-sas-original-mapscripts-eg-sas_longworld-sas_spiky_avenues).
+ - (Requires AdvCiv-SAS 5437+) **Add** and **adapt** [BTG_Cross.py](/PrivateMaps/BTG_Cross.py) map (from the Beyond the Game mod (v2.43)): remove non-AdvCiv BTG options/logic, **fix script compatibility issues**, support **max player count** and up to **world size SAS48**, **change some options** (e.g., allow Desert as Default), and expose the map in both **Simple Game** and **Custom Game** lists. (Requires AdvCiv-SAS 5438+) Similarly add **other BTG maps**: [BTG_Grid.py](/PrivateMaps/BTG_Grid.py), [BTG_Lagoon.py](/PrivateMaps/BTG_Lagoon.py).
+ - (Requires AdvCiv-SAS 5449+) **Add and adapt** [Planet_Generator_0_68.py](/PrivateMaps/Planet_Generator_0_68.py) (from [CFC](https://forums.civfanatics.com/resources/planet-generator-0-68.1817/)): keeps its core behavior (unpredictable continent shapes with balanced continent sizes) while applying AdvCiv-SAS map compatibility changes, notably **world-size percentage scaling**, **removed unneeded options** (map-size override and redundant resources choice), and **bug fixes** (including robust direction handling). Expose the map in both **Simple Game** and **Custom Game** lists. Similarly add [Equal_Islands_V2_beta.py](/PrivateMaps/Equal_Islands_V2_beta.py) (from [CFC](https://forums.civfanatics.com/resources/equal-islands-v2-beta.19405/)).
+ - (Requires AdvCiv-SAS 5445+) Make other maps **also appear in Simple Game**: [Boreal.py](/PrivateMaps/Boreal.py), [Donut.py](/PrivateMaps/Donut.py), [Ring.py](/PrivateMaps/Ring.py), [Wheel.py](/PrivateMaps/Wheel.py)
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG
+index abf2ef8b3..7eca6fae9 100644
+Binary files a/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG and b/_1_AdvCiv-SAS/Images/main_menu/0.310_main_menu_simple_game (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG
+new file mode 100644
+index 000000000..c671daecb
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG
+new file mode 100644
+index 000000000..b5e9b179e
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG
+new file mode 100644
+index 000000000..ce21e531c
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/main_menu/0.3203_maps_sas_spiky_avenues (3).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG b/_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (1).PNG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (1).PNG
+
+diff --git a/_1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG b/_1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG
+similarity index 100%
+rename from _1_AdvCiv-SAS/Images/main_menu/0.3202_technique_paint_net_fast_resize_map (2).PNG
+rename to _1_AdvCiv-SAS/Images/main_menu/0.3210_technique_paint_net_fast_resize_map (2).PNG
+
+[PATCH COVERAGE]
+patchFiles=14 embeddedFiles=14 omittedFiles=0 embeddedPatchBytes=31348

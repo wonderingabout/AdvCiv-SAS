@@ -1,0 +1,371 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5584
+# Commit: 59b10e4620d3cbc6a6f25504ed2588c93b914744
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: e138ad4f8279ab874d8ce183bf8b3d3d59acc1a1
+# Title: beautify and upscale the espionage tab to screen resolution
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+86	52	Assets/Python/Screens/CvForeignAdvisor.py
+3	2	README.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG
+-	-	_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG
+ delete mode 100644 _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG
+ create mode 100644 _1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvForeignAdvisor.py b/Assets/Python/Screens/CvForeignAdvisor.py
+index 2c51ea549..ce49ac7d0 100644
+--- a/Assets/Python/Screens/CvForeignAdvisor.py
++++ b/Assets/Python/Screens/CvForeignAdvisor.py
+@@ -415,42 +415,56 @@ class CvForeignAdvisor:
+ 		self.ESP_W_SCREEN = self.W_SCREEN
+ 		self.ESP_H_SCREEN = self.H_SCREEN
+ 
+-		self.ESP_X_LEFT_PANE = max(12, self.ESP_W_SCREEN * 2 / 100)
+-		self.ESP_Y_LEFT_PANE = 70
+-		self.ESP_W_LEFT_PANE = max(340, self.ESP_W_SCREEN * 34 / 100)
+-		self.ESP_H_LEFT_PANE = max(420, self.ESP_H_SCREEN - 148)
+-
+-		self.ESP_X_SCROLL = self.ESP_X_LEFT_PANE + 20
+-		self.ESP_Y_SCROLL = self.ESP_Y_LEFT_PANE + 20
+-		self.ESP_W_SCROLL = max(220, self.ESP_W_LEFT_PANE - 40)
+-		self.ESP_H_SCROLL = max(220, self.ESP_H_LEFT_PANE - 40)
+-
+-		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + 20
++		# <!-- custom: use contiguous blue panels (no yellow gutters): zero outer margins and zero inter-panel gap; keep a small inner inset only for readability. (GPT-5.3-Codex) -->
++		self.ESP_OUTER_MARGIN = 0
++		self.ESP_PANEL_GAP = 0
++		self.ESP_INNER_MARGIN = 12
++
++		# <!-- custom: slightly overdraw the shared Espionage backdrop so no yellow rim leaks through; use tiny horizontal bleed and larger vertical bleed. (GPT-5.3-Codex) -->
++		self.ESP_MAIN_BLEED_X = 4
++		self.ESP_MAIN_BLEED_Y = 12
++		self.ESP_X_MAIN_PANE = -self.ESP_MAIN_BLEED_X
++		self.ESP_Y_MAIN_PANE = 54 - self.ESP_MAIN_BLEED_Y
++		self.ESP_W_MAIN_PANE = self.ESP_W_SCREEN + (2 * self.ESP_MAIN_BLEED_X)
++		self.ESP_H_MAIN_PANE = (self.Y_BOTTOM_PANEL - self.ESP_Y_MAIN_PANE) + self.ESP_MAIN_BLEED_Y
++
++		self.ESP_X_LEFT_PANE = self.ESP_OUTER_MARGIN
++		self.ESP_Y_LEFT_PANE = self.ESP_Y_MAIN_PANE + self.ESP_OUTER_MARGIN
++		self.ESP_W_LEFT_PANE = max(380, self.ESP_W_SCREEN * 38 / 100)
++		self.ESP_H_LEFT_PANE = max(420, self.ESP_H_MAIN_PANE - self.ESP_OUTER_MARGIN)
++
++		self.ESP_X_SCROLL = self.ESP_X_LEFT_PANE + self.ESP_INNER_MARGIN
++		self.ESP_Y_SCROLL = self.ESP_Y_LEFT_PANE + self.ESP_INNER_MARGIN
++		self.ESP_W_SCROLL = max(220, self.ESP_W_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
++		self.ESP_H_SCROLL = max(220, self.ESP_H_LEFT_PANE - (2 * self.ESP_INNER_MARGIN))
++
++		self.ESP_X_TOTAL_PANE = self.ESP_X_LEFT_PANE + self.ESP_W_LEFT_PANE + self.ESP_PANEL_GAP
+ 		self.ESP_Y_TOTAL_PANE = self.ESP_Y_LEFT_PANE
+-		self.ESP_W_TOTAL_PANE = max(380, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - 20)
++		self.ESP_W_TOTAL_PANE = max(320, self.ESP_W_SCREEN - self.ESP_X_TOTAL_PANE - self.ESP_OUTER_MARGIN)
+ 		self.ESP_H_TOTAL_PANE = 60
+ 
+ 		self.ESP_X_RIGHT_PANE = self.ESP_X_TOTAL_PANE
+-		self.ESP_Y_RIGHT_PANE = self.ESP_Y_TOTAL_PANE + self.ESP_H_TOTAL_PANE + 20
++		# <!-- custom: remove Espionage top-summary area from active layout; commerce sliders on the right already provide this info, so the extra panel is redundant/noisy. Reuse that space for city/effects/missions content. Keep total-pane coordinates defined for easy future restoration. (GPT-5.3-Codex) -->
++		self.ESP_Y_RIGHT_PANE = self.ESP_Y_LEFT_PANE
+ 		self.ESP_W_RIGHT_PANE = self.ESP_W_TOTAL_PANE
+-		self.ESP_H_RIGHT_PANE = max(260, self.ESP_H_LEFT_PANE - self.ESP_H_TOTAL_PANE - 20)
++		self.ESP_H_RIGHT_PANE = self.ESP_H_LEFT_PANE
+ 
+-		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + 40
+-		self.ESP_Y_CITY_LIST = self.ESP_Y_RIGHT_PANE + 60
+-		self.ESP_W_CITY_LIST = max(130, self.ESP_W_RIGHT_PANE * 28 / 100)
+-		self.ESP_H_CITY_LIST = max(150, self.ESP_H_RIGHT_PANE - 90)
++		self.ESP_X_CITY_LIST = self.ESP_X_RIGHT_PANE + self.ESP_INNER_MARGIN
++		self.ESP_Y_CITY_LIST = self.ESP_Y_RIGHT_PANE + 45
++		self.ESP_W_CITY_LIST = max(110, self.ESP_W_RIGHT_PANE * 21 / 100)
++		self.ESP_H_CITY_LIST = max(150, self.ESP_H_RIGHT_PANE - (45 + self.ESP_INNER_MARGIN))
+ 
+-		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + 20
++		self.ESP_X_EFFECTS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + self.ESP_INNER_MARGIN
+ 		self.ESP_Y_EFFECTS_LIST = self.ESP_Y_CITY_LIST
+-		self.ESP_W_EFFECTS_LIST = max(140, self.ESP_W_RIGHT_PANE * 38 / 100)
++		self.ESP_W_EFFECTS_COSTS_LIST = max(52, self.ESP_W_RIGHT_PANE * 9 / 100)
++		self.ESP_W_EFFECTS_LIST = max(140, self.ESP_W_RIGHT_PANE - (self.ESP_X_EFFECTS_LIST - self.ESP_X_RIGHT_PANE) - 10 - self.ESP_W_EFFECTS_COSTS_LIST - self.ESP_INNER_MARGIN)
+ 		self.ESP_H_EFFECTS_LIST = max(70, (self.ESP_H_CITY_LIST / 3) - 50)
+ 
+ 		self.ESP_X_EFFECTS_COSTS_LIST = self.ESP_X_EFFECTS_LIST + self.ESP_W_EFFECTS_LIST + 10
+ 		self.ESP_Y_EFFECTS_COSTS_LIST = self.ESP_Y_EFFECTS_LIST
+-		self.ESP_W_EFFECTS_COSTS_LIST = max(50, self.ESP_W_RIGHT_PANE * 10 / 100)
+ 		self.ESP_H_EFFECTS_COSTS_LIST = self.ESP_H_EFFECTS_LIST
+ 
+-		self.ESP_X_MISSIONS_LIST = self.ESP_X_CITY_LIST + self.ESP_W_CITY_LIST + 20
++		self.ESP_X_MISSIONS_LIST = self.ESP_X_EFFECTS_LIST
+ 		self.ESP_Y_MISSIONS_LIST = self.ESP_Y_EFFECTS_LIST + self.ESP_H_EFFECTS_LIST + 50
+ 		self.ESP_W_MISSIONS_LIST = self.ESP_W_EFFECTS_LIST
+ 		self.ESP_H_MISSIONS_LIST = max(90, self.ESP_H_CITY_LIST * 2 / 3)
+@@ -464,6 +478,19 @@ class CvForeignAdvisor:
+ 		self.ESP_Y_MISSION_BUTTON = self.ESP_Y_MISSIONS_LIST + self.ESP_H_MISSIONS_LIST + 10
+ 		self.ESP_W_MISSION_BUTTON = self.ESP_W_MISSIONS_LIST + self.ESP_W_MISSIONS_COSTS_LIST + 10
+ 		self.ESP_H_MISSION_BUTTON = 30
++		# <!-- custom: leader-row anchors are runtime-dependent so larger SAS fonts don't overlap fixed vanilla coordinates at 1080p/1440p+. (GPT-5.3-Codex) -->
++		self.ESP_ROW_X_NAME = 55
++		self.ESP_ROW_X_WEIGHT = 58
++		self.ESP_ROW_X_RIGHT = max(205, self.ESP_W_SCROLL - 120)
++		self.ESP_ROW_Y_TOP = -15
++		self.ESP_ROW_Y_BOTTOM = 2
++		self.ESP_ROW_Y_WEIGHT = 9
++		self.ESP_ROW_Y_AMOUNT = self.ESP_ROW_Y_WEIGHT
++		# <!-- custom: place +/- under the leader icon (instead of mid-line text area) to avoid click interference with scaled text and to use free left-side space more cleanly. (GPT-5.3-Codex) -->
++		self.ESP_ROW_X_BUTTON_PLUS = 21
++		self.ESP_ROW_X_BUTTON_MINUS = 37
++		self.ESP_ROW_Y_BUTTON = 16
++		self.ESP_ROW_Y_ICON = -3
+ 
+ 		# <!-- custom: initialize language-dependent text once, then recompute tab widths from runtime geometry. (GPT-5.3-Codex) -->
+ 		self.initText()
+@@ -2457,9 +2484,13 @@ class CvForeignAdvisor:
+ 		pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+ 		pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+ 
++		self.ESP_szMainPaneWidget = "EspionageMainPane"
++		screen.addPanel( self.ESP_szMainPaneWidget, "", "", true, true,
++			self.ESP_X_MAIN_PANE, self.ESP_Y_MAIN_PANE, self.ESP_W_MAIN_PANE, self.ESP_H_MAIN_PANE, PanelStyles.PANEL_STYLE_MAIN )
++
+ 		self.ESP_szLeftPaneWidget = "LeftPane"
+ 		screen.addPanel( self.ESP_szLeftPaneWidget, "", "", true, true,
+-			self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_MAIN )
++			self.ESP_X_LEFT_PANE, self.ESP_Y_LEFT_PANE, self.ESP_W_LEFT_PANE, self.ESP_H_LEFT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+ 
+ 		self.ESP_szScrollPanel = "ScrollPanel"
+ 		screen.addPanel( self.ESP_szScrollPanel, "", "", true, true,
+@@ -2488,19 +2519,21 @@ class CvForeignAdvisor:
+ 		############################
+ 		#### Total EPs Per Turn Text
+ 		############################
+-
+-		self.ESP_szTotalPaneWidget = "TotalPane"
+-		screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true,
+-			self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
+-
+-		# <advc.120c> Replace TOTAL_NUM_EPS text with espionage slider
+-		# (The slider is in the refresh function though)
+-		#self.szMakingText = "MakingText"
+-		#self.X_MAKING_TEXT = 490
+-		#self.Y_MAKING_TEXT = 85
+-		#szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_ESPIONAGE_SCREEN_TOTAL_NUM_EPS", (pActivePlayer.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE), )) + SAS_FONT_TAG_CLOSE
+-		#screen.setLabel(self.szMakingText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_MAKING_TEXT, self.Y_MAKING_TEXT, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+-		# </advc.120c>
++		# <!-- custom: top summary panel intentionally disabled in integrated Foreign->Espionage tab.
++		# Redundant now that global commerce sliders are visible on the right; preserving this block commented
++		# keeps rollback trivial if we want a dedicated Espionage header again later. (GPT-5.3-Codex) -->
++		#self.ESP_szTotalPaneWidget = "TotalPane"
++		#screen.addPanel( self.ESP_szTotalPaneWidget, "", "", true, true,
++		#	self.ESP_X_TOTAL_PANE, self.ESP_Y_TOTAL_PANE, self.ESP_W_TOTAL_PANE, self.ESP_H_TOTAL_PANE, PanelStyles.PANEL_STYLE_MAIN )
++		#
++		## <advc.120c> Replace TOTAL_NUM_EPS text with espionage slider
++		## (The slider is in the refresh function though)
++		##self.szMakingText = "MakingText"
++		##self.X_MAKING_TEXT = 490
++		##self.Y_MAKING_TEXT = 85
++		##szText = SAS_FONT_TAG_TITLE + localText.getText("TXT_KEY_ESPIONAGE_SCREEN_TOTAL_NUM_EPS", (pActivePlayer.getCommerceRate(CommerceTypes.COMMERCE_ESPIONAGE), )) + SAS_FONT_TAG_CLOSE
++		##screen.setLabel(self.szMakingText, "Background", szText, CvUtil.FONT_LEFT_JUSTIFY, self.X_MAKING_TEXT, self.Y_MAKING_TEXT, self.ESP_Z_CONTROLS, FontTypes.GAME_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++		## </advc.120c>
+ 
+ 		############################
+ 		#### Right Panel
+@@ -2508,7 +2541,7 @@ class CvForeignAdvisor:
+ 
+ 		self.ESP_szRightPaneWidget = "RightPane"
+ 		screen.addPanel( self.ESP_szRightPaneWidget, "", "", true, true,
+-			self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_MAIN )
++			self.ESP_X_RIGHT_PANE, self.ESP_Y_RIGHT_PANE, self.ESP_W_RIGHT_PANE, self.ESP_H_RIGHT_PANE, PanelStyles.PANEL_STYLE_EMPTY )
+ 
+ 		if (self.ESP_iTargetPlayer != -1):
+ 
+@@ -2573,15 +2606,15 @@ class CvForeignAdvisor:
+ 				szName = "NameText%d" %(iPlayerID)
+ 				szTempBuffer = u"<color=%d,%d,%d,%d>%s (%s)</color>" %(pTargetPlayer.getPlayerTextColorR(), pTargetPlayer.getPlayerTextColorG(), pTargetPlayer.getPlayerTextColorB(), pTargetPlayer.getPlayerTextColorA(), pTargetPlayer.getName(), self.getEspionageMultiplierAgainstTarget(iPlayerID))
+ 				szText = SAS_FONT_TAG_BODY + szTempBuffer + SAS_FONT_TAG_CLOSE
+-				screen.setLabelAt( szName, attach, szText, 0, iX + 55, iY -15, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, iX + self.ESP_ROW_X_NAME, iY + self.ESP_ROW_Y_TOP, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "PointsText%d" %(iPlayerID)
+ 				szText = SAS_FONT_TAG_BODY + localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS", (pActiveTeam.getEspionagePointsAgainstTeam(iTargetTeam), )) + SAS_FONT_TAG_CLOSE
+-				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 14, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_TOP + 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "SpendingText%d" %(iPlayerID)
+ 				szText = SAS_FONT_TAG_BODY + (u"%s: %d" %(self.TEXT_ESPIONAGE_WEIGHT, pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam))) + SAS_FONT_TAG_CLOSE
+-				screen.setLabelAt( szName, attach, szText, 0, 85, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "AmountText%d" %(iPlayerID)
+ 				if (pActivePlayer.getEspionageSpending(iTargetTeam) > 0):
+@@ -2590,7 +2623,7 @@ class CvForeignAdvisor:
+ 					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+ 
+ 
+-				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "SpendingIcon%d" %(iPlayerID)
+ 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+@@ -2598,15 +2631,15 @@ class CvForeignAdvisor:
+ 				else:
+ 					szText = u""
+ 
+-				screen.setLabelAt( szName, attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				iSize = 16
+ 				self.ESP_iIncreaseButtonID = 555
+ 				szName = "IncreaseButton%d" %(iPlayerID)
+-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), 53, iY + 1, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
++				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_PLUS").getPath(), self.ESP_ROW_X_BUTTON_PLUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iIncreaseButtonID, iPlayerID )
+ 				self.ESP_iDecreaseButtonID = 556
+ 				szName = "DecreaseButton%d" %(iPlayerID)
+-				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath(), 68, iY + 1, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
++				screen.setImageButtonAt( szName, attach, ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_MINUS").getPath(), self.ESP_ROW_X_BUTTON_MINUS, iY + self.ESP_ROW_Y_BUTTON, iSize, iSize, WidgetTypes.WIDGET_GENERAL, self.ESP_iDecreaseButtonID, iPlayerID )
+ 
+ 
+ 				iPlayerLoop += 1
+@@ -2650,7 +2683,8 @@ class CvForeignAdvisor:
+ 			pActivePlayer = gc.getPlayer(self.ESP_iActivePlayer)
+ 			pActiveTeam = gc.getTeam(pActivePlayer.getTeam())
+ 
+-			self.drawEspionageSlider() # advc.120c
++			# <!-- custom: disabled the Espionage slider draw here: global commerce sliders already exist on the right, so this duplicate control is redundant/noisy in the integrated Foreign tab. Keep drawEspionageSlider() code for possible future reuse. (GPT-5.3-Codex) -->
++			# self.drawEspionageSlider() # advc.120c
+ 
+ 			iPlayerLoop = 0
+ 
+@@ -2667,7 +2701,7 @@ class CvForeignAdvisor:
+ 				szName = "SpendingText%d" %(iPlayerID)
+ 				szText = SAS_FONT_TAG_BODY + self.TEXT_ESPIONAGE_WEIGHT + ": %d" %(pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam)) + SAS_FONT_TAG_CLOSE
+ 				screen.deleteWidget(szName)
+-				screen.setLabelAt( szName, attach, szText, 0, 85, iY, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_WEIGHT, iY + self.ESP_ROW_Y_WEIGHT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "AmountText%d" %(iPlayerID)
+ 
+@@ -2677,7 +2711,7 @@ class CvForeignAdvisor:
+ 					szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+ 
+ 				screen.deleteWidget(szName)
+-				screen.setLabelAt( szName, attach, szText, 0, 247, iY - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, self.ESP_ROW_X_RIGHT, iY + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 				szName = "SpendingIcon%d" %(iPlayerID)
+ 				if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+@@ -2686,7 +2720,7 @@ class CvForeignAdvisor:
+ 					szText = u""
+ 
+ 				screen.deleteWidget(szName)
+-				screen.setLabelAt( szName, attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++				screen.setLabelAt( szName, attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 
+ 				iPlayerLoop += 1
+@@ -2945,7 +2979,7 @@ class CvForeignAdvisor:
+ 					else:
+ 						szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+ 
+-					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, 247, 15 - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++					screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 					if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+ 						szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+@@ -2953,7 +2987,7 @@ class CvForeignAdvisor:
+ 						szText = u""
+ 					attach = "LeaderContainer%d" % (iPlayerID)
+ 					iY = 15
+-					screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++					screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 					CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+ 
+@@ -2978,7 +3012,7 @@ class CvForeignAdvisor:
+ 						else:
+ 							szText = SAS_FONT_TAG_BODY + (u"<color=192,0,0,0>%s</color>" %(localText.getText("TXT_KEY_ESPIONAGE_NUM_EPS_PER_TURN", (pActivePlayer.getEspionageSpending(iTargetTeam), )))) + SAS_FONT_TAG_CLOSE
+ 
+-						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, 247, 15 - 1, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++						screen.setLabelAt( "AmountText%d" %(iPlayerID), "LeaderContainer%d" % (iPlayerID), szText, 0, self.ESP_ROW_X_RIGHT, 15 + self.ESP_ROW_Y_AMOUNT, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 						if (pActivePlayer.getEspionageSpendingWeightAgainstTeam(iTargetTeam) > 0):
+ 							szText = SAS_FONT_TAG_BODY + (u"%c" %(gc.getCommerceInfo(CommerceTypes.COMMERCE_ESPIONAGE).getChar())) + SAS_FONT_TAG_CLOSE
+@@ -2986,7 +3020,7 @@ class CvForeignAdvisor:
+ 							szText = u""
+ 						attach = "LeaderContainer%d" % (iPlayerID)
+ 						iY = 15
+-						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY - 9, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
++						screen.setLabelAt( "SpendingIcon%d" %(iPlayerID), attach, szText, 0, 3, iY + self.ESP_ROW_Y_ICON, self.ESP_Z_CONTROLS, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1 )
+ 
+ 						CyInterface().setDirty(InterfaceDirtyBits.Espionage_Advisor_DIRTY_BIT, True)
+
+diff --git a/README.md b/README.md
+index c0a6893e2..5513e4454 100644
+--- a/README.md
++++ b/README.md
+@@ -210,15 +210,16 @@ For the technology advisor in particular, players can now tune as they prefer th
+ 
+ Also refactored to make the display more dynamic so that if the advisor's screen dimensions are changed in their respective python file, the rest of the info follows instead of staying stuck at old position which would be weirdly displayed, or so it is easier to change an advisor's screen dimensions if desired later, plus doing some performance optimizations or such i found relevant.
+ 
+-We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons.
++We notably also renamed the Foreign Advisor's Active tab to the "Treaties" tab, removing the redundant bonuses information and beautifying it with icons, and more generally reorganized tabs (for example moving the espionage screen to now being a tab of the foreign advisor (plus beautified and upscaled to screen resolution the espionage tab).
+ 
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.530_domestic_advisor.JPG" alt="0.530_domestic_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (1).JPG" alt="0.510_foreign_advisor (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (2).JPG" alt="0.510_foreign_advisor (2).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (3).JPG" alt="0.510_foreign_advisor (3).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (4).JPG" alt="0.510_foreign_advisor (4).JPG" width="250"></img>
+-<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG" alt="0.510_foreign_advisor (5).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG" alt="0.510_foreign_advisor (5)_FONT_4.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG" alt="0.510_foreign_advisor (6).JPG" width="250"></img>
++<img src="./_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG" alt="0.510_foreign_advisor (7).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.520_military_advisor.JPG" alt="0.520_military_advisor.JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (1).JPG" alt="0.516_info_screen (1).JPG" width="250"></img>
+ <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_info_screen (4).JPG" alt="0.516_info_screen (4).JPG" width="250"></img>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index 7164671be..94c8608ef 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -325,7 +325,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - **Worker recommendation highlights disabled**: turned off tile coloring for "worker-recommended plot to improve" (in `CvGame::updateColoredPlots` within `CvGameInterface.cpp`). Reasons: (1) avoids extra computation in both debug ([see for related info this autoplay info](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#how-to-autoplay-let-the-ai-play-for-you-super-fast-gameplay--testing-tool-in-map-loaded-save-file-new-game-etc-view)) and normal play; (2) our worker logic now relies on `CvUnitAI::AI_bestCityBuild`, so the vanilla highlight often disagrees and can mislead; (3) the highlight was easily confused with **city site** recommendations. City-site suggestions remain enabled and intentionally prominent; in practice, they frequently pick **strong** locations—quite often as good as, or better than, typical manual choices. See [Settlers (AI)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#settlers-ai). *Note:* the **displayed recommended settle city plots** don’t always match what the AI would settle if it were playing your civ in autoplay; the UI hint path may be (not sure) using a different logic from the reworked/optimized `AIFoundValue::evaluate`. Treat them as general information, not guarantees.
+ - (Requires AdvCiv-SAS 5517+) **Reorganized advisors**. For example, **merged the espionage screen into the Foreign Advisor** so it is one of its tabs now.
+ - **Beautified** the **Domestic Advisor** (now shows in "Producing" column the **button (i.e. icon) of the current item being built** (unit, building, project, process)) and updated its dimensions so it occupies the **full game window width** and more elements are visible (Espionage slider, HUD, selected units row(s)). Change in [CvDomesticAdvisor.py](/Assets/Python/Screens/CvDomesticAdvisor.py). See [Main Advisors reworks](/README.md#main-advisors-reworks-eg-score-tab-history-tab-in-the-info-screen-advisor).
+-- **Enlarged, excentered the Foreign Advisor**'s screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`).
++- **Enlarged, excentered the Foreign Advisor**'s screen, and refined its tabs so they can display **up to 12 players** and **overall more information** so **less scrolling** is needed while still **preserving key relevant information** for display (scoreboard, map, commerce sliders and values, etc.). The code was also refactored to improve **dynamic scaling**, ensuring most UI elements automatically realign if dimensions are changed in [CvForeignAdvisor.py](/Assets/Python/Screens/CvForeignAdvisor.py) and [CvExoticForeignAdvisor.py](/Assets/Python/Screens/CvExoticForeignAdvisor.py). Notably renamed the Active tab to **Treaties** tab (no longer shows redundant bonuses (since their deal can be cancelled from the bonuses tab)), and **beautified** it with **icons**. (Requires AdvCiv-SAS 5516+) Always use the unified **table-style info layout** (`drawInfoImproved`) for the Info Tab for stable column behavior: the old hardcoded text spacing (`drawInfoOriginal`) did not **scale with upscaled font text** nor **adjust depending on advisor screen size**. Plus the improved layout has additional **information** like general or specific **colored leader attitude text** related to civic/religion choices (e.g., `[-2]` or `[+1]`). (Requires AdvCiv-SAS 5518+) **Beautified** the **Espionage Tab** similarly; notably **removed redundant Espionage slider** now that commerce sliders are on the right side of main interface in map view, and **improved text spacing** that **was colliding or overflowing** beyond its panel, and **moved + - buttons under the leader icon** where there is more room and it is more intuitive and easier to click it.
+ - Did a similar rework of the **Military Advisor** in [CvMilitaryAdvisor.py](/Assets/Python/Screens/CvMilitaryAdvisor.py) now expanded and with **Unit Combat and Units buttons** (i.e. icons); also reworked the **Technology Advisor** in [CvTechChooser.py](/Assets/Python/Screens/CvTechChooser.py).
+ - Did a similar rework of the **Info Screen** in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py); in particular in **Top 5 Cities** we now use a multilist to display more wonders in a prettier way, and in the **Wonders** tab we now **show the Wonders' Buttons** (i.e. icons) in the first column (**click to move to city** mechanic is moved to the City column instead); the **Statistics** tab now also shows buttons (plus **change default ordering** from alphabetical to **from most to least Built/Current** (avoids tedious manual user ordering each time)), and the **Graph** Tab and possibly other tabs also show buttons (e.g., **leader icons before text**, **emojis**). Also added other information (e.g., turn numbers in the Graph tab).
+ - Additionally, added in the **Info Screen** a new **History Tab**, showing a **text-colored spoiler-free** account of the key moments that happened each turn. Based on the **ReplayScreen**'s text, so **preserves information on save reload** unlike the Event Log. Optional **LOG button** allows to export to `PythonDbg.log` text file the output, and has optional **caching** for performance. Change in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py). See [README.md: History Tab](/README.md#history-tab-in-the-info-screen-advisor).
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG
+deleted file mode 100644
+index fd4477101..000000000
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5).JPG and /dev/null differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG
+new file mode 100644
+index 000000000..dff6e6b48
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (5)_FONT_4.JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG
+index c3e30158b..fd4477101 100644
+Binary files a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (6).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG
+new file mode 100644
+index 000000000..c3e30158b
+Binary files /dev/null and b/_1_AdvCiv-SAS/Images/advisors/0.510_foreign_advisor (7).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=7 embeddedFiles=7 omittedFiles=0 embeddedPatchBytes=29689

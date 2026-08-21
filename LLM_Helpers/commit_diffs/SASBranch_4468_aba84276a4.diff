@@ -1,0 +1,172 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4468
+# Commit: aba84276a42511c48d3ed910b78c2fb32ab8549e
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 7f5213a1480e4b0ac4f4afc0fcd67916ca6ea64f
+# Title: Add quick install and setup guide for AdvCiv SAS from scratchj (quick guide) and some few military updates
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	AdvCiv-SAS - Steam shortcut.lnk
+2	2	AdvCiv.ini
+6	0	README.md
+7	0	_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
+26	2	_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+35	0	_1_AdvCiv_SAS/Quick_Install_Setup_Guide.md
+ create mode 100644 AdvCiv-SAS - Steam shortcut.lnk
+ create mode 100644 _1_AdvCiv_SAS/Quick_Install_Setup_Guide.md
+
+[PATCHES]
+
+diff --git a/AdvCiv-SAS - Steam shortcut.lnk b/AdvCiv-SAS - Steam shortcut.lnk
+new file mode 100644
+index 000000000..22bdeb989
+Binary files /dev/null and b/AdvCiv-SAS - Steam shortcut.lnk differ
+
+diff --git a/AdvCiv.ini b/AdvCiv.ini
+index ea64215ca..c3ce6a94d 100644
+--- a/AdvCiv.ini
++++ b/AdvCiv.ini
+@@ -38,7 +38,7 @@ AllowPublicMaps = 1
+ ImageFile = 0
+ 
+ ; Name of Mod
+-Name = AdvCiv
++Name = AdvCiv-SAS
+ 
+ ; Description of Mod
+-Description = A mod for advanced players, building on K-Mod: Far Beyond the Sword.
++Description = AdvCiv SAS (Simple Advanced Strategy), a mod for AdvCiv (which is a mod for Civilization 4 Beyond the Sword)
+
+diff --git a/README.md b/README.md
+index 211085a1f..66c29d750 100644
+--- a/README.md
++++ b/README.md
+@@ -7,7 +7,13 @@ but these are the (main) goals/purposes/features.
+ 
+ ![img1](/_1_AdvCiv_SAS/Docs_And_Appendixes/0.33_Techtree_modified.png)
+ 
++## How to play?
++
++If you are a new player and/or want to play this mod and would like a few instructions on how
++to install it and play it, i have provided a few instructions [here](/_1_AdvCiv_SAS/Quick_Install_Setup_Guide.md)
++
+ ## Quick Start Guide
++
+ If you just want to play and do not need all the project bigger details, i added
+ a quick guide of the main changes from Civ4 and base AdvCiv players:
+ [here](/_1_AdvCiv_SAS/Quick_Get_Started_Guide.md)
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
+index aaa7048cb..e2ec0ca29 100644
+--- a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
++++ b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_military_unit_imports_listing_only.txt
+@@ -18,6 +18,13 @@ spearman 2: pikeman (fanti dar mar) from realism invictus (or keep old pikeman o
+ spearman 3 (medieval): heavy spearman from realism invictus
+ spearman 4: (renaissance) pikeman halberdier from realism invictus
+ 
++assasin units:
++courtesan: 
++assassin (arab i think unit or generic)
++thief
++
++
++
+ carabinier? c2c
+ 
+ add lancer?
+
+diff --git a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_unit_design_choices b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+index 4960c7495..b0c52dfd1 100644
+--- a/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_unit_design_choices
++++ b/_1_AdvCiv_SAS/Docs_And_Appendixes/notes_about_unit_design_choices
+@@ -92,7 +92,31 @@ more, about this i mean anyways)
+ anyways at least?
+ 
+ - paganist religious unit too
++
+ - and for buddhism monks maybe?
+ 
+-- add type melee_fist too for this, and melee_assasin maybe? That woudl target
+-most annoying units? Etc. About this i mean anyways, etc.
+\ No newline at end of file
++- add type melee_fist too for this
++
++- need to add melee_assasin maybe? That woudl target most annoying units? Etc.
++About this i mean anyways, etc. Maybe the courtesan too? Etc (150% attack against
++all melee units (mounted too fast to see her maybe... i mean anyways about this
++i mean anyways)but 90% less defense against all military units, can attack in stacks maybe)
++
++- free starting worker may help ais a lot, realistic too
++
++- starting with 3 military units also solves the problem of early barbarians,
++AIs less vulnerable to them, maybe i could buff barbarians now even, and now
++units can be more expensive too with more gradual diff, clubman could win
++against swordsman much more often realistic too i think
++
++- add melee_thief class maybe too?
++
++- give flanking 2 or 3 to courtesan? make ehr a special unit too maybe, else would
++be spammed and if used as a tactic troops would not fall for it or less can work
++only once about this i mean maybe not indeed i mean anywys or i mean anyways
++
++- ninja is the chinese (?? if historically accurate would need to check assasin?)
++
++- create male and female assasin?
++
++- merge assassin and thief to simplify design?
+\ No newline at end of file
+
+diff --git a/_1_AdvCiv_SAS/Quick_Install_Setup_Guide.md b/_1_AdvCiv_SAS/Quick_Install_Setup_Guide.md
+new file mode 100644
+index 000000000..2bf8f5e49
+--- /dev/null
++++ b/_1_AdvCiv_SAS/Quick_Install_Setup_Guide.md
+@@ -0,0 +1,35 @@
++To install and play this mod AdvCiv SAS, you can follow these steps:
++
++# Install Civilization 4 Beyond the Sword (skip if already done)
++
++(skip if already done)
++
++First you need to install (or have it installed already ) Civilization 4 Beyond the Sword.
++
++# Download (or clone from git if you know how and prefer) this mod AdvCiv SAS
++
++Then download (or clone from git if you know how as you prefer) this AdvCiv SAS
++mod. Extract the archive in the Mods folder of BTS/BTS (be careful twice BTS), for example,
++using Steam the path of AdvCiv should be:
++
++C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\
++
++If you don't use Steam you can still play this mod, you'll just have to change the path to where civ4 was installed (and might have less DRMs at the same time so may be even betetr as you prefer)
++
++# Place a shortcut on your desktop
++
++Finally, add a shortcut to your desktop which link is, for example for Steam:
++
++"C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Civ4BeyondSword.exe" mod=\AdvCiv-SAS
++
++For convenience i have also provided a shortcut of this same link just above, ready to use,
++(AdvCiv-SAS - Steam shortcut.lnk). You can just move (cut then paste, it's just a link so is safe) it
++to the desktop for your convenience
++
++# Configure your game
++
++Recommended, change your config as you prefer, see this page for details todo
++
++There is one annoying option about system not compatible, i may provide an example file for convenience later maybe or/and complete these instructions maybe ideally i mean anyways but not sure, is about this i mean anyways, thanks,
++
++todo test if changing AdvCiv to AdvCiv-SAS work, may be safer to rename mod folder (and update link with same mod fodler name too) if it doesn not work or until i test it, but still impelmented initial changes of it and maybe it will work
+\ No newline at end of file
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=6150

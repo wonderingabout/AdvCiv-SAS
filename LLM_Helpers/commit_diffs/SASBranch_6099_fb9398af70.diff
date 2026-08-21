@@ -1,0 +1,1064 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 6099
+# Commit: fb9398af70651f8c92369e384fa81bfb44310601
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 40007b3cec7c992874aa0fbdd0563c408a364d85
+# Title: Change USA from Supermarket to Courthouse (Federal Courthouse), Native America from Monument to Jail (Soldiers' Lodge) and other minor changes
+# Full commit message/metadata: see _SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/Tipi.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/nativeamerican_plains.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/teepee.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds
+22	20	Assets/XML/Art/CIV4ArtDefines_Building.xml
+267	276	Assets/XML/Buildings/CIV4BuildingInfos.xml
+4	4	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+16	0	Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+8	0	Assets/XML/Text/AdvCiv-SAS_main.xml
+2	2	Settings/CustomDomAdv/CustomDomAdv.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ger.txt
+2	2	Settings/CustomDomAdv/CustomDomAdv_ita.txt
+2	2	Settings/CustomDomAdv/WS_CustomDomAdv.txt
+2	2	_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/Tipi.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/nativeamerican_plains.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/teepee.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/Tipi.dds b/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/Tipi.dds
+new file mode 100644
+index 000000000..b9f9994b5
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/Tipi.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/nativeamerican_plains.dds b/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/nativeamerican_plains.dds
+new file mode 100644
+index 000000000..2c173f415
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/nativeamerican_plains.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/teepee.nif b/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/teepee.nif
+new file mode 100644
+index 000000000..c83308b74
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/teepee.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.dds b/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.dds
+new file mode 100644
+index 000000000..e895899de
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif b/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif
+new file mode 100644
+index 000000000..cf58f095c
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds b/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds
+new file mode 100644
+index 000000000..662dc4e86
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds differ
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 119b37275..2837787fd 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -405,16 +405,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,2,8</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</Type>
+-			<LSystem>LSYSTEM_2x1</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.6</fScale>
+-			<fInterfaceScale>0.4</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/NativeAmerican_TotemPole/NativeAmerican_TotemPole.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Obelisk.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,7,7</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_EGYPTIAN_OBELISK</Type>
+ 			<LSystem>LSYSTEM_1x1</LSystem>
+@@ -619,16 +609,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/BroadcastTower.dds,Art/Interface/Buttons/Buildings_Atlas.dds,8,1</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_AMERICAN_MALL</Type>
+-			<LSystem>LSYSTEM_2x3</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>2.09</fScale>
+-			<fInterfaceScale>0.48</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Shopping Mall/Mall.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/Supermarket.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,1</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_MARKET</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+@@ -761,6 +741,17 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/Courthouse.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,1,7</Button>
+ 		</BuildingArtInfo>
++		<!-- custom: art from Destiny mod's reichstag thanks. -->
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_AMERICAN_FEDERAL_COURTHOUSE</Type>
++			<LSystem>LSYSTEM_3x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>0.4</fScale>
++			<fInterfaceScale>0.5</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/nif/reichstag.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/USA_Federal_Courthouse/reichstag_button.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_JAIL</Type>
+ 			<LSystem>LSYSTEM_2x1</LSystem>
+@@ -771,6 +762,17 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,9</Button>
+ 		</BuildingArtInfo>
++		<BuildingArtInfo>
++		<!-- custom: art from ri mod's tipi thanks. -->
++			<Type>ART_DEF_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</Type>
++			<LSystem>LSYSTEM_2x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>0.2</fScale>
++			<fInterfaceScale>1.0</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/nif/teepee.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/Native_Soldiers_Lodge/Tipi.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_INTELLIGENCE_AGENCY</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 1a59fc46a..ff9facd72 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -8477,202 +8477,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_NATIVE_AMERICA_TOTEM -->
+-			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+-			<Type>BUILDING_NATIVE_AMERICA_TOTEM</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_NATIVE_AMERICA_TOTEM_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_NATIVE_AMERICA_TOTEM</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<!-- custom: TECH_BANKING may have been (i'm guessing, idk for sure) thematically closer but weaker than generic monument so do not do it, as detected with the new Github Workflow. -->
+-			<ObsoleteTech>TECH_LIBERALISM</ObsoleteTech>
+-			<PrereqTech>TECH_MYSTICISM</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>0</bPower>
+-			<bDirtyPower>0</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>1</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>1</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>30</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>0</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<!-- custom: update: now removed: old advciv-sas rationale: alternative effect than unit exp, less tedious, maybe makes
+-			more sense too, also removed the trait-dependent happiness effect for
+-			same reason, applied it directly here, so civ is free to change traits
+-			without affecting this building (don't bind trait-specific/dependent
+-			effects on civ-specific buildings i think makes more sense this way)
+-			-->
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>2</iAsset>
+-			<!-- custom: was 1 -->
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<CommerceChanges/>
+-			<!-- custom: was 1 in the generic monument -->
+-			<ObsoleteSafeCommerceChanges>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>2</iCommerce>
+-			</ObsoleteSafeCommerceChanges>
+-			<CommerceChangeDoubleTimes>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>0</iCommerce>
+-				<iCommerce>1000</iCommerce>
+-			</CommerceChangeDoubleTimes>
+-			<CommerceModifiers/>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<!-- custom: new thematic effect tied to gold but more balance than previous advciv-sas aggressive early, quite unbalanced and plain commerce modifiers; also justifies reducing the building's cost which was quite high so early -->
+-			<SpecialistCounts>
+-				<SpecialistCount>
+-					<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
+-					<iSpecialistCount>1</iSpecialistCount>
+-				</SpecialistCount>
+-			</SpecialistCounts>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_MONUMENT</ConstructSound>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs/>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: was 10 Culture; should also count the free promo -->
+-			<!-- custom: modified -->
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_CULTURE</FlavorType>
+-					<iFlavor>6</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+-		<!-- custom: reworked based on https://en.wikipedia.org/wiki/Aztecs#Religion and https://en.wikipedia.org/wiki/Human_sacrifice#Pre-Columbian_Americas -->
+ 		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_MONUMENT, type: BUILDING_AZTEC_SACRIFICIAL_ALTAR -->
+ 			<BuildingClass>BUILDINGCLASS_MONUMENT</BuildingClass>
+ 			<Type>BUILDING_AZTEC_SACRIFICIAL_ALTAR</Type>
+@@ -13957,7 +13761,7 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: custom similarly than for the base grocer in advciv-sas as i have independently assessed and as the effect is weaker too so further reason to reduce it -->
++			<!-- custom: custom similarly than for the base grocer in advciv-sas as i have independently assessed and as the effect is weaker too so further reason to reduce it; also add flavor_science to match the new science modifier effect -->
+ 			<!-- advc.020: was 10 Gold, but also helpful for Growth -->
+ 			<Flavors>
+ 				<Flavor>
+@@ -13968,6 +13772,10 @@
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>4</iFlavor>
+ 				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_SCIENCE</FlavorType>
++					<iFlavor>3</iFlavor>
++				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+ 			<bAltDown>0</bAltDown>
+@@ -14500,15 +14308,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_SUPERMARKET, type: BUILDING_AMERICAN_MALL -->
+-			<BuildingClass>BUILDINGCLASS_SUPERMARKET</BuildingClass>
+-			<Type>BUILDING_AMERICAN_MALL</Type>
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COURTHOUSE, type: BUILDING_COURTHOUSE -->
++			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
++			<Type>BUILDING_COURTHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_AMERICAN_MALL</Description>
+-			<Civilopedia>TXT_KEY_CHANGED_BUILDING_AMERICAN_MALL_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_COURTHOUSE</Description>
++			<Civilopedia>TXT_KEY_BUILDING_COURTHOUSE_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_GROWTH</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_AMERICAN_MALL</ArtDefineTag>
++			<Advisor>ADVISOR_ECONOMY</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_COURTHOUSE</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -14520,15 +14328,19 @@
+ 			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+ 			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+ 			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
++			<FreeStartEra>ERA_MODERN</FreeStartEra>
+ 			<MaxStartEra>NONE</MaxStartEra>
+ 			<ObsoleteTech>NONE</ObsoleteTech>
+-			<!-- custom: was TECH_REFRIGERATION (now removed) with tech types empty -->
+-			<PrereqTech>TECH_CORPORATION</PrereqTech>
++			<PrereqTech>TECH_CODE_OF_LAWS</PrereqTech>
+ 			<TechTypes/>
+ 			<Bonus>NONE</Bonus>
+ 			<PrereqBonuses/>
+-			<ProductionTraits/>
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_ORGANIZED</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
+ 			<HappinessTraits/>
+ 			<NoBonus>NONE</NoBonus>
+ 			<PowerBonus>NONE</PowerBonus>
+@@ -14562,8 +14374,7 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<!-- custom: was 150 -->
+-			<iCost>200</iCost>
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -14592,7 +14403,7 @@
+ 			<iFreeSpecialist>0</iFreeSpecialist>
+ 			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+ 			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iMaintenanceModifier>-50</iMaintenanceModifier>
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+@@ -14600,8 +14411,7 @@
+ 			<iHealth>0</iHealth>
+ 			<iAreaHealth>0</iAreaHealth>
+ 			<iGlobalHealth>0</iGlobalHealth>
+-			<!-- custom: was 0 -->
+-			<iHappiness>1</iHappiness>
++			<iHappiness>0</iHappiness>
+ 			<iAreaHappiness>0</iAreaHappiness>
+ 			<iGlobalHappiness>0</iGlobalHappiness>
+ 			<iStateReligionHappiness>0</iStateReligionHappiness>
+@@ -14620,51 +14430,39 @@
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+ 			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>8</iAsset>
++			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+ 			<SeaPlotYieldChanges/>
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges>
+-				<iYield>1</iYield>
+-			</YieldChanges>
+-			<CommerceChanges/>
++			<YieldChanges/>
++			<CommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>2</iCommerce>
++			</CommerceChanges>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
+-			<!-- custom: was 20 -->
+-			<CommerceModifiers>
+-				<iCommerce>50</iCommerce>
+-			</CommerceModifiers>
++			<CommerceModifiers/>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<StateReligionCommerces/>
+ 			<CommerceHappinesses/>
+ 			<ReligionChanges/>
+-			<SpecialistCounts/>
++			<!-- advc.911a: was 1 spy -->
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_SPY</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
+ 			<FreeSpecialistCounts/>
+ 			<CommerceFlexibles/>
+ 			<CommerceChangeOriginalOwners/>
+-			<ConstructSound>AS2D_BUILD_GROCERY</ConstructSound>
+-			<BonusHealthChanges>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_CATTLE</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_DEER</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_PIG</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+-				<BonusHealthChange>
+-					<BonusType>BONUS_SHEEP</BonusType>
+-					<iHealthChange>1</iHealthChange>
+-				</BonusHealthChange>
+-			</BonusHealthChanges>
+-			<!-- custom: remove hit bonuses/ressources from building_american_mall too, rework building instead by giving more gold which may be fine for a building so late in the game -->
++			<ConstructSound>AS2D_BUILD_COURTHOUSE</ConstructSound>
++			<BonusHealthChanges/>
+ 			<BonusHappinessChanges/>
+ 			<BonusProductionModifiers/>
+ 			<UnitCombatFreeExperiences/>
+@@ -14672,24 +14470,20 @@
+ 			<DomainProductionModifiers/>
+ 			<BuildingHappinessChanges/>
+ 			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs>
+-				<BuildingClassNeeded>
+-					<BuildingClassType>BUILDINGCLASS_GROCER</BuildingClassType>
+-					<bNeededInCity>1</bNeededInCity>
+-				</BuildingClassNeeded>
+-			</BuildingClassNeededs>
++			<BuildingClassNeededs/>
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- custom: adjust flavors, was flavor growth 10 -->
++			<!-- custom: remove flavor military as this does not seem related to war and increase gold and espionage flavors-->
++			<!-- advc.020: was 10 Gold, 3 Espionage -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_GROWTH</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<FlavorType>FLAVOR_GOLD</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -14698,15 +14492,15 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COURTHOUSE, type: BUILDING_COURTHOUSE -->
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_COURTHOUSE, type: BUILDING_AMERICAN_FEDERAL_COURTHOUSE -->
+ 			<BuildingClass>BUILDINGCLASS_COURTHOUSE</BuildingClass>
+-			<Type>BUILDING_COURTHOUSE</Type>
++			<Type>BUILDING_AMERICAN_FEDERAL_COURTHOUSE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_COURTHOUSE</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_COURTHOUSE_PEDIA</Civilopedia>
++			<Description>TXT_KEY_BUILDING_AMERICAN_FEDERAL_COURTHOUSE</Description>
++			<Civilopedia>TXT_KEY_BUILDING_AMERICAN_FEDERAL_COURTHOUSE_PEDIA</Civilopedia>
+ 			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
+ 			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_COURTHOUSE</ArtDefineTag>
++			<ArtDefineTag>ART_DEF_BUILDING_AMERICAN_FEDERAL_COURTHOUSE</ArtDefineTag>
+ 			<MovieDefineTag>NONE</MovieDefineTag>
+ 			<HolyCity>NONE</HolyCity>
+ 			<ReligionType>NONE</ReligionType>
+@@ -14764,7 +14558,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>110</iCost>
++			<!-- custom: American federal courts share a national institutional framework across states, so administrative standards and infrastructure need not be established independently in every city. The lower cost represents this overlap and helps commonly large American empires integrate new or conquered cities sooner, but is not reduced close to half price because that would make the building nearly automatic instead of preserving a production and integration tradeoff. (GPT-5.6-Sol) -->
++			<iCost>80</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -14793,7 +14588,8 @@
+ 			<iFreeSpecialist>0</iFreeSpecialist>
+ 			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+ 			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>-50</iMaintenanceModifier>
++			<!-- custom: Deploying the same standardized administration across a large empire creates greater economies of scale, represented by a moderate additional maintenance reduction. The federal court system gives this effect a strong American thematic fit; keep it below the Rathaus so the Holy Roman building retains the stronger permanent maintenance advantage. (GPT-5.6-Sol) -->
++			<iMaintenanceModifier>-60</iMaintenanceModifier>
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
+ 			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+ 			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+@@ -14819,7 +14615,8 @@
+ 			<iDefense>0</iDefense>
+ 			<iBombardDefense>0</iBombardDefense>
+ 			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
++			<!-- custom: Federal institutions provide nationwide legal oversight and coordination; abstractly extend the Courthouse's law-enforcement role to national security and resistance against foreign infiltration or sabotage. This supports defensive strategies without further accelerating America's economy. (GPT-5.6-Sol) -->
++			<iEspionageDefense>25</iEspionageDefense>
+ 			<iAsset>4</iAsset>
+ 			<iPower>0</iPower>
+ 			<fVisibilityPriority>1.0</fVisibilityPriority>
+@@ -14864,19 +14661,15 @@
+ 			<SpecialistYieldChanges/>
+ 			<BonusYieldModifiers/>
+ 			<ImprovementFreeSpecialists/>
+-			<!-- advc.020: was 10 Gold, 3 Espionage -->
++			<!-- advc.020: was 10 Gold, 3 Espionage; increased a bit for the espionage defense effect (although i don't know if it should be increased as it is maybe offensive effect but i don't know and maybe fine) and increased flavors when needed, remove flavor military as this does not seem related to war -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -15054,17 +14847,13 @@
+ 			<ImprovementFreeSpecialists/>
+ 			<!-- advc.020: was 10 Gold, 3 Espionage -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -15264,7 +15053,209 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>3</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE -->
++			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
++			<Type>BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</Description>
++			<Civilopedia>TXT_KEY_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<!-- advc.126: was ERA_MODERN -->
++			<FreeStartEra>NONE</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<PrereqTech>TECH_CONSTITUTION</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<!-- K-Mod -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_AGGRESSIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
++			<!-- custom: was empty -->
++			<HappinessTraits>
++				<HappinessTrait>
++					<HappinessTraitType>TRAIT_ORGANIZED</HappinessTraitType>
++					<iHappinessTrait>1</iHappinessTrait>
++				</HappinessTrait>
++			</HappinessTraits>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>0</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>0</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 120 -->
++			<iCost>110</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>66</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
++			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>-25</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<!-- custom: Akicita societies combined policing, judicial, and community-order roles. Strong Espionage Defense expresses Sitting Bull's Protective and cautious identity through counter-intelligence rather than additional military bonuses. (GPT-5.6-Sol) -->
++			<iEspionageDefense>50</iEspionageDefense>
++			<iAsset>1</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<!-- custom: was 0 / 0 / 0 / 2 -->
++			<CommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 4 -->
++				<iCommerce>4</iCommerce>
++			</CommerceChanges>
++			<ObsoleteSafeCommerceChanges/>
++			<CommerceChangeDoubleTimes/>
++			<!-- custom: was 0 / 0 / 0 / 50 -->
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<!-- custom: was 25. Sitting Bull's high espionage preference gains a strong specialized route comparable to other civ-specific commerce modifiers, but it still requires allocating commerce to Espionage. (GPT-5.6-Sol) -->
++				<iCommerce>50</iCommerce>
++			</CommerceModifiers>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<!-- custom: was 1. A second assignable Spy makes the espionage advantage require citizen commitment and gives Philosophical Sitting Bull a deliberate Great Spy route instead of an automatic flat benefit. (GPT-5.6-Sol) -->
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_SPY</SpecialistType>
++					<iSpecialistCount>2</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound/>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: adjust flavors, was flavor espionage 10 miltary 6; but as for this civ-specific building, increase flavor espionage to match the new effects -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>10</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index aeae57c6a..e9fb35bdb 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -87,8 +87,8 @@ Created as part of AdvCiv-SAS improvements
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_SUPERMARKET</BuildingClassType>
+-					<BuildingType>BUILDING_AMERICAN_MALL</BuildingType>
++					<BuildingClassType>BUILDINGCLASS_COURTHOUSE</BuildingClassType>
++					<BuildingType>BUILDING_AMERICAN_FEDERAL_COURTHOUSE</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+@@ -2870,8 +2870,8 @@ Created as part of AdvCiv-SAS improvements
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_MONUMENT</BuildingClassType>
+-					<BuildingType>BUILDING_NATIVE_AMERICA_TOTEM</BuildingType>
++					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
++					<BuildingType>BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+index 1c8f7bb58..c05ceb404 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_Sevopedia_Lengthy.xml
+@@ -531,6 +531,22 @@ Created as part of AdvCiv-SAS improvements
+ 
+ 
+ 
++	<!-- custom: based on https://www.uscourts.gov/about-federal-courts/court-role-and-structure and https://www.uscourts.gov/about-federal-courts/educational-resources/annual-observances/anniversary-federal-court-system (GPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_AMERICAN_FEDERAL_COURTHOUSE_PEDIA</Tag>
++		<English>[TAB]The Constitution established the judicial branch of the United States as a system distinct from the courts of the individual states. Congress organized the federal judiciary through the Judiciary Act of 1789, creating district and circuit courts beneath the Supreme Court.[PARAGRAPH:1]Federal courthouses serve as local seats of this national judicial system. As the United States expanded, Congress created and reorganized judicial districts and circuits to extend federal administration across new states and territories.[PARAGRAPH:1]Sources: https://www.uscourts.gov/about-federal-courts/court-role-and-structure; https://www.uscourts.gov/about-federal-courts/educational-resources/annual-observances/anniversary-federal-court-system</English>
++	</TEXT>
++
++
++
++	<!-- custom: based on https://plainshumanities.unl.edu/encyclopedia/doc/egp.law.022.html and https://www.sdhspress.com/journal/south-dakota-history-29-3/reservation-akicitas-the-pine-ridge-indian-police-1879-1885/vol-29-no-3-reservation-akicitas.pdf (GPT-5.6-Sol) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE_PEDIA</Tag>
++		<English>[TAB]Among the Lakota, traditional law enforcers known as akicitas came from men's societies and were appointed by a band's camp administrator. They policed camp movements, regulated communal buffalo hunts, and enforced tribal laws and customs. When dealing with lawbreakers, akicitas could perform judicial as well as policing duties.[PARAGRAPH:1]Akicita societies also trained warriors and participated in hunts and warfare, joining military responsibility with the maintenance of order within the community. Sitting Bull rose to prominence as a hunter and war leader and belonged to several prestigious warrior societies.[PARAGRAPH:1]The Soldiers' Lodge represents these connected warrior, policing, judicial, and community institutions.[PARAGRAPH:1]Sources: https://plainshumanities.unl.edu/encyclopedia/doc/egp.law.022.html; https://www.sdhspress.com/journal/south-dakota-history-29-3/reservation-akicitas-the-pine-ridge-indian-police-1879-1885/vol-29-no-3-reservation-akicitas.pdf</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: based on https://apsaraauthority.gov.kh/2021/08/12/preah-khan-temple/ -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_KHMER_HALL_OF_DANCERS_PEDIA</Tag>
+
+diff --git a/Assets/XML/Text/AdvCiv-SAS_main.xml b/Assets/XML/Text/AdvCiv-SAS_main.xml
+index 855cb9815..364c3a09e 100644
+--- a/Assets/XML/Text/AdvCiv-SAS_main.xml
++++ b/Assets/XML/Text/AdvCiv-SAS_main.xml
+@@ -2617,6 +2617,14 @@ Created as part of AdvCiv-SAS improvements
+ 		<Tag>TXT_KEY_BUILDING_SPANISH_LONJA</Tag>
+ 		<English>Lonja</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_AMERICAN_FEDERAL_COURTHOUSE</Tag>
++		<English>Federal Courthouse</English>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE</Tag>
++		<English>Soldiers' Lodge</English>
++	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_KHMER_HALL_OF_DANCERS</Tag>
+ 		<English>Hall of Dancers</English>
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv.txt b/Settings/CustomDomAdv/CustomDomAdv.txt
+index d858251a5..a7be0802e 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv.txt
+@@ -554,7 +554,7 @@ p232
+ I22
+ g215
+ tp233
+-a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_TOTEM'
++a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE'
+ p234
+ I22
+ S'bldg'
+@@ -720,7 +720,7 @@ p307
+ I22
+ g303
+ tp308
+-a(S'BLDGCIV_BUILDING_AMERICAN_MALL'
++a(S'BLDGCIV_BUILDING_AMERICAN_FEDERAL_COURTHOUSE'
+ p309
+ I22
+ g235
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ger.txt b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+index 6c14d14b3..035cf9bd2 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ger.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ger.txt
+@@ -554,7 +554,7 @@ p232
+ I22
+ g215
+ tp233
+-a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_TOTEM'
++a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE'
+ p234
+ I22
+ S'bldg'
+@@ -720,7 +720,7 @@ p307
+ I22
+ g303
+ tp308
+-a(S'BLDGCIV_BUILDING_AMERICAN_MALL'
++a(S'BLDGCIV_BUILDING_AMERICAN_FEDERAL_COURTHOUSE'
+ p309
+ I22
+ g235
+
+diff --git a/Settings/CustomDomAdv/CustomDomAdv_ita.txt b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+index 6dfe2e0f8..6f7bd5be9 100644
+--- a/Settings/CustomDomAdv/CustomDomAdv_ita.txt
++++ b/Settings/CustomDomAdv/CustomDomAdv_ita.txt
+@@ -478,7 +478,7 @@ p201
+ I22
+ g183
+ tp202
+-a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_TOTEM'
++a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE'
+ p203
+ I22
+ S'bldg'
+@@ -619,7 +619,7 @@ p266
+ I22
+ g262
+ tp267
+-a(S'BLDGCIV_BUILDING_AMERICAN_MALL'
++a(S'BLDGCIV_BUILDING_AMERICAN_FEDERAL_COURTHOUSE'
+ p268
+ I22
+ g204
+
+diff --git a/Settings/CustomDomAdv/WS_CustomDomAdv.txt b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+index 891f04c0e..d81b09f0e 100644
+--- a/Settings/CustomDomAdv/WS_CustomDomAdv.txt
++++ b/Settings/CustomDomAdv/WS_CustomDomAdv.txt
+@@ -498,7 +498,7 @@ p209
+ I22
+ g191
+ tp210
+-a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_TOTEM'
++a(S'BLDGCIV_BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE'
+ p211
+ I22
+ S'bldg'
+@@ -652,7 +652,7 @@ p278
+ I22
+ g274
+ tp279
+-a(S'BLDGCIV_BUILDING_AMERICAN_MALL'
++a(S'BLDGCIV_BUILDING_AMERICAN_FEDERAL_COURTHOUSE'
+ p280
+ I22
+ g212
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+index 90a786cca..7ea5d42c8 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
++++ b/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md
+@@ -215,7 +215,7 @@ Note: water buildings are generally avoided as they are too situational (useless
+ 
+ | Civ | Before (Base AdvCiv) | After (AdvCiv-SAS) | Rationale |
+ | --- | --- | --- | --- |
+-| America | Mall (Supermarket) | **Keep** (Keep) | |
++| America | Mall (Supermarket) | **Federal Courthouse** (Courthouse) | The Mall arrives too late to shape most games, while the federal court system is a strong thematic part of American history. Lower construction and maintenance costs represent shared national institutions, administrative overlap and economies of scale across states, helping the commonly large American empires in gameplay integrate new or conquered cities. Espionage defense represents federal legal oversight and the broader national-security role of resisting foreign infiltration or sabotage (thematically ties to FBI/CIA/NSA and strong USA security importance theme i guess too), supporting defensive strategies without adding another economic bonus. The Rathaus remains stronger at permanently reducing maintenance, preserving its distinct advantage. |
+ | Arabia | Madrassa (Library) | **Keep** (Keep) | Reduce its excessive early flat Culture and add Health from Camel instead. Early Culture has an outsized effect on borders but little long-term value outside a Cultural Victory; Camel Health scales with city growth and Saladin's Charismatic Happiness, and keeps Camel strategically useful after camel units lose military relevance. The Priest slots preserve the religious-library identity. Note: a University may have been closer historically, but Library is much stronger or relevant because religion is not as effective or useful later in the game. |
+ | Aztec | Sacrificial Altar (Courthouse) | **Keep** (Monument) | Move it much earlier so the Aztecs can benefit from Slavery during their ancient military window. Avoid an early specialist (artist for ceremonial theme) effect that could make the cheap building disproportionately strong for border pressure and Great Person generation. Happiness with Maize instead reinforces the Aztec Slavery economy: the Granary already grants Health with Maize, while its retained Food accelerates population regrowth after repeated whipping, making the resource more strategically important to the Aztecs than to the Maya, on top of being a thematic fit (Americas' food). |
+ | Babylon | Garden (Colosseum) | **Keep** (Grocer) | A Garden fits poorly as a public-entertainment Colosseum and more naturally joins the Grocer's produce, health, and growth role. Hammurabi already has solid early/mid-game advantages, so this later peaceful benefit complements them and remains useful as cities grow; Food and Wheat Health reinforce Babylon's fertile-city identity. |
+@@ -240,7 +240,7 @@ Note: water buildings are generally avoided as they are too situational (useless
+ | Mali | Mint (Forge) | **Keep** (Keep) | |
+ | Maya | Ball Court (Colosseum) | **Keep** (Keep) | Its strong flat Happiness was too automatic for an early building. Make more of its strength conditional through Gemstones, which can abstract jade and creates a strategic resource preference matching Maya ritual prestige. |
+ | Mongol | Ger (Stable) | **Keep** (Keep) | Less OP mounted XP military identity; gains happiness with Cattle, trading some raw military power for a pastoral/economic benefit (helps buff otherwise very weak livestock bonuses) |
+-| Native America | Totem (Monument) | **Keep** (Keep) | |
++| Native America | Totem (Monument) | **Soldiers' Lodge** (Jail) | The Totem's short-lived early Culture and Merchant effect fits Sitting Bull poorly. Jails arrive soon enough in AdvCiv-SAS for a Soldiers' Lodge to support his strong espionage preference, Philosophical Great Spy route, Protective trait, cautious diplomacy and defensive posture. Stronger active espionage and an additional assignable Spy reward commitment to that route, while counter-intelligence expresses defense through policing, information and internal cohesion rather than further military bonuses. |
+ | Netherlands | Dike (Levee) | **Keep** (Keep) | |
+ | Ottoman | Hammam (Aqueduct) | **Keep** (Keep) | Reduce its high cost and make its broadly stronger effects less automatic by moving part of its Happiness to Marble. The result is a more balanced and versatile Aqueduct replacement: easier to use generally, still especially strong with the right resource, and a lasting Ottoman use for Marble beyond wonder production. |
+ | Persia | Apothecary (Grocer) | **Keep** (Keep) | Its additional flat Health was useful but plain. Buff and distinguish the Apothecary through stronger Spices Health and Research, making access to medicinal resources matter and expressing Persian medicine through both science and economy. |
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index e6cdafc51..a52f69ef2 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -805,7 +805,7 @@ Note: The shipped stable example [`handicap_infos_compared.md`](/LLM_Helpers/exa
+ - Removed buildings that didn’t carry their weight or distorted pacing (e.g., **Space Elevator**, **West Point**).
+ - **Iron Works:** now requires **both Coal and Iron empire-wide**; city requirement count lowered; cost up moderately (e.g., 700 -> 800).
+ - **Heroic Epic** (`iMilitaryProductionModifier`): **100% → 50%**. The always-on military production boost was too strong and could let AIs run away; this tones it down while keeping the building relevant.
+-- Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Celtic **Dun** (Walls, mostly useless for an aggressive-leaning Civ) replaced with **La Tène Smithy** (forge-based). See [Assets rebalancing: Civ-specific buildings rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-buildings-rework) for detailed rationales and before/after changes table.
++- Some **civ-specific** buildings replaced (especially late-game or underwhelming ones). Example: Celtic **Dun** (Walls, mostly useless for an aggressive-leaning Civ) replaced with **La Tène Smithy** (forge-based), or (Requires AdvCiv-SAS 6099+) the USA's too late to be useful **Supermarket** with the sooner and more thematic and tailored to the Civ's needs **Federal Courthouse** (helps the Civ scale into a large empire as it seems to often do in autoplay, with a spy/security theme too that can be useful for defense or offense). See [Assets rebalancing: Civ-specific buildings rework](/_1_AdvCiv-SAS/Docs/README_Assets_Rebalancing.md#civ-specific-buildings-rework) for detailed rationales and before/after changes table.
+ - Added `BuildingClassRequired` chains to curb spam and improve AI focus: e.g., **Drydock** now requires **Port**.
+ - **Culture rebalance:** Trimmed incidental culture from science buildings (e.g., **Library: +2 → +1**) and from some non-purely-cultural national wonders (**Heroic Epic**, **National Epic**, **Forbidden Palace**). In exchange, **buffed/reworked culture-focused buildings** (e.g., **Colosseum** and civ variants) to keep the culture path meaningful.
+
+[PATCH COVERAGE]
+patchFiles=17 embeddedFiles=17 omittedFiles=0 embeddedPatchBytes=49129

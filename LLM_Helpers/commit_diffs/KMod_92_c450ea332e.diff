@@ -1,0 +1,396 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 92
+# Commit: c450ea332ee01ffd518cc31a04bbd219e0715e8f
+# History segment: K-Mod history
+# Parent used for diff: 31f6f28cfcffbbaef65f9796b69fef2c2f9a9b28
+# Title: Fixed a bug in the espionage evaluation which caused it to only consider counter-espionage missions! Made some tweaks to military tech evaluation, and espion...
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	0	CvGameCoreDLL/CvCityAI.cpp
+140	16	CvGameCoreDLL/CvPlayerAI.cpp
+36	31	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 085459935..6b7549f23 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -4956,6 +4956,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 								if (GC.getGame().isCompetingCorporation(eCorporation, (CorporationTypes)iCorp))
+ 								{
+ 									// K-Mod note: evaluation of the other corp for this particular city is ok.
++									iCorpValue /= 2; // expect to spread the corp to fewer cities.
+ 									if (kOwner.AI_corporationValue((CorporationTypes)iCorp, this) > iCorpValue)
+ 									{
+ 										iCorpValue = -1;
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index ffb95abd9..90e854f07 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -1573,6 +1573,115 @@ void CvPlayerAI::AI_doCentralizedProduction()
+ 	}
+ 	*/
+ 
++	// Cycle through all buildings looking for limited buildings (wonders)
++	// Identify the cities that will benefit the most. If the best city is not busy, build the wonder.
++	/*
++	for (iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
++	{
++		if (!(GET_PLAYER(getOwnerINLINE()).isBuildingClassMaxedOut(((BuildingClassTypes)iI), GC.getBuildingClassInfo((BuildingClassTypes)iI).getExtraPlayerInstances())))
++		{
++			BuildingTypes eLoopBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(iI);
++			bool bWorld = isWorldWonderClass((BuildingClassTypes)iI);
++			bool bNational = isNationalWonderClass((BuildingClassTypes)iI);
++
++						if (canConstruct(eLoopBuilding))
++						{
++							// city loop.
++							iValue = AI_buildingValueThreshold(eLoopBuilding);
++
++							if (GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass() != NO_BUILDINGCLASS)
++							{
++								BuildingTypes eFreeBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType()).getCivilizationBuildings(GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass());
++								if (NO_BUILDING != eFreeBuilding)
++								{
++									iValue += (AI_buildingValue(eFreeBuilding, iFocusFlags) * (GET_PLAYER(getOwnerINLINE()).getNumCities() - GET_PLAYER(getOwnerINLINE()).getBuildingClassCountPlusMaking((BuildingClassTypes)GC.getBuildingInfo(eLoopBuilding).getFreeBuildingClass())));
++								}
++							}
++
++							if (iValue > 0)
++							{
++								iTurnsLeft = getProductionTurnsLeft(eLoopBuilding, 0);
++
++								if (isWorldWonderClass((BuildingClassTypes)iI))
++								{
++									if (iProductionRank <= std::min(3, ((GET_PLAYER(getOwnerINLINE()).getNumCities() + 2) / 3)))
++									{
++										if (bAsync)
++										{
++											iTempValue = GC.getASyncRand().get(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand ASYNC");
++										}
++										else
++										{
++											iTempValue = GC.getGameINLINE().getSorenRandNum(GC.getLeaderHeadInfo(getPersonalityType()).getWonderConstructRand(), "Wonder Construction Rand");
++										}
++										
++										if (bAreaAlone)
++										{
++											iTempValue *= 2;
++										}
++										iValue += iTempValue;
++									}
++								}
++
++								if (bAsync)
++								{
++									iValue *= (GC.getASyncRand().get(25, "AI Best Building ASYNC") + 100);
++									iValue /= 100;
++								}
++								else
++								{
++									iValue *= (GC.getGameINLINE().getSorenRandNum(25, "AI Best Building") + 100);
++									iValue /= 100;
++								}
++
++								iValue += getBuildingProduction(eLoopBuilding);
++								
++								
++								bool bValid = ((iMaxTurns <= 0) ? true : false);
++								if (!bValid)
++								{
++									bValid = (iTurnsLeft <= GC.getGameINLINE().AI_turnsPercent(iMaxTurns, GC.getGameSpeedInfo(GC.getGameINLINE().getGameSpeedType()).getConstructPercent()));
++								}
++								if (!bValid)
++								{
++									for (int iHurry = 0; iHurry < GC.getNumHurryInfos(); ++iHurry)
++									{
++										if (canHurryBuilding((HurryTypes)iHurry, eLoopBuilding, true))
++										{
++											if (AI_getHappyFromHurry((HurryTypes)iHurry, eLoopBuilding, true) > 0)
++											{
++												bValid = true;
++												break;
++											}
++										}
++									}
++								}
++
++								if (bValid)
++								{
++									FAssert((MAX_INT / 1000) > iValue);
++									iValue *= 1000;
++									iValue /= std::max(1, (iTurnsLeft + 3));
++
++									iValue = std::max(1, iValue);
++
++									if (iValue > iBestValue)
++									{
++										iBestValue = iValue;
++										eBestBuilding = eLoopBuilding;
++									}
++								}
++							}
++						}
++					}
++				}
++			}
++		}
++	}
++	return eBestBuilding;
++	*/
++
++
+ // K-Mod end, the rest is some unfinished code from BBAI
+ 
+ 	// BBAI TODO: Temp testing
+@@ -5679,11 +5788,14 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 						break;
+ 
+ 					case UNITAI_ATTACK_AIR:
+-						iMilitaryValue += ((bWarPlan) ? 1200 : 800);
++						//iMilitaryValue += ((bWarPlan) ? 1200 : 800);
++						// K-Mod, I've decreased the value here but added something extra a bit lower down.
++						iMilitaryValue += ((bWarPlan) ? 1000 : 600);
+ 						break;
+ 
+ 					case UNITAI_DEFENSE_AIR:
+-						iMilitaryValue += ((bWarPlan) ? 1200 : 800);
++						//iMilitaryValue += ((bWarPlan) ? 1200 : 800);
++						iMilitaryValue += ((bWarPlan) ? 1000 : 600);
+ 						break;
+ 
+ 					case UNITAI_CARRIER_AIR:
+@@ -5707,12 +5819,13 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 					{
+ 						if( kLoopUnit.getUnitAIType(UNITAI_COLLATERAL) )
+ 						{
+-							iUnitValue += 500;
++							//iUnitValue += 500;
++							iMilitaryValue += 500 * GC.getGameINLINE().AI_combatValue(eLoopUnit)/100; // K-Mod
+ 						}
+ 
+ 						if( kLoopUnit.getUnitAIType(UNITAI_CITY_DEFENSE) )
+ 						{
+-							iUnitValue += (1000 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100;
++							iMilitaryValue += (1000 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100; // K-Mod, was iUnitValue
+ 						}
+ 					}
+ 					
+@@ -5720,12 +5833,13 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 					{
+ 						if( kLoopUnit.getUnitAIType(UNITAI_COLLATERAL) )
+ 						{
+-							iUnitValue += 1000;
++							//iUnitValue += 1000;
++							iMilitaryValue += 1000 * GC.getGameINLINE().AI_combatValue(eLoopUnit)/100; // K-Mod
+ 						}
+ 
+ 						if( kLoopUnit.getUnitAIType(UNITAI_CITY_DEFENSE) )
+ 						{
+-							iUnitValue += (2000 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100;
++							iMilitaryValue += (2000 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100; // K-Mod, was iUnitValue
+ 						}
+ 					}
+ 
+@@ -5733,14 +5847,14 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 					{
+ 						if( kLoopUnit.getUnitAIType(UNITAI_ATTACK_CITY) )
+ 						{
+-							iUnitValue += (1500 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100;
++							iMilitaryValue += (1500 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100; // K-Mod, was iUnitValue
+ 						}
+ 					}
+ 					else if( AI_isDoVictoryStrategy(AI_VICTORY_CONQUEST1) )
+ 					{
+ 						if( kLoopUnit.getUnitAIType(UNITAI_ATTACK_CITY) )
+ 						{
+-							iUnitValue += (500 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100;
++							iMilitaryValue += (500 * GC.getGameINLINE().AI_combatValue(eLoopUnit))/100; // K-Mod, was iUnitValue
+ 						}
+ 					}
+ 					
+@@ -5789,6 +5903,12 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 						}
+ 					}
+ 					
++					// K-Mod
++					if (kLoopUnit.getDomainType() == DOMAIN_AIR)
++					{
++						iMilitaryValue += (bWarPlan? 600 : 400) * GC.getGameINLINE().AI_combatValue(eLoopUnit)/100;
++					}
++					
+ 					if (iNavalValue > 0)
+ 					{
+ 						if (getCapitalCity() != NULL)
+@@ -5883,9 +6003,9 @@ int CvPlayerAI::AI_techUnitValue( TechTypes eTech, int iPathLength, bool &bEnabl
+ 						}
+ 
+ 						// K-Mod
+-						if (AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
++						if (AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS) && kLoopUnit.getDomainType() == DOMAIN_LAND)
+ 						{
+-							iMilitaryValue += 2 * GC.getGameINLINE().AI_combatValue(eLoopUnit);
++							iMilitaryValue += 3 * GC.getGameINLINE().AI_combatValue(eLoopUnit);
+ 							iMilitaryValue *= 3;
+ 							iMilitaryValue /= 2;
+ 						}
+@@ -12409,8 +12529,9 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 						CvBuildingInfo& kBuilding = GC.getBuildingInfo((BuildingTypes)iData);
+ 						if ((kBuilding.getProductionCost() > 1) && !isWorldWonderClass((BuildingClassTypes)kBuilding.getBuildingClassType()))
+ 						{
+-							iValue += pCity->AI_buildingValue((BuildingTypes)iData);
++							//iValue += pCity->AI_buildingValue((BuildingTypes)iData);
+ 							// K-Mod
++							iValue += 2 * pCity->AI_buildingValue((BuildingTypes)iData);
+ 							iValue *= 60 + kBuilding.getProductionCost();
+ 							iValue /= 100;
+ 						}
+@@ -12495,10 +12616,11 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 		{
+ 			/* int iGoldStolen = (GET_PLAYER(eTargetPlayer).getGold() * GC.getEspionageMissionInfo(eMission).getStealTreasuryTypes()) / 100;
+ 			iGoldStolen *= pPlot->getPlotCity()->getPopulation();
+-			iGoldStolen /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());*/
++			iGoldStolen /= std::max(1, GET_PLAYER(eTargetPlayer).getTotalPopulation());
++			iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));*/
+ 			// K-Mod
+ 			int iGoldStolen = getEspionageGoldQuantity(eMission, eTargetPlayer, pPlot->getPlotCity());
+-			iValue += ((GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble()) ? 4 : 2) * (2 * std::max(0, iGoldStolen - iCost));
++			iValue += (GET_PLAYER(eTargetPlayer).AI_isFinancialTrouble() || AI_isFinancialTrouble() ? 4 : 2) * iGoldStolen;
+ 		}
+ 	}
+ 
+@@ -12606,7 +12728,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 
+ 	if (bMalicious && GC.getEspionageMissionInfo(eMission).getCityRevoltCounter() > 0)
+ 	{
+-		// Handled else where
++		// Handled elsewhere
+ 	}
+ 
+ 	if (GC.getEspionageMissionInfo(eMission).getBuyTechCostFactor() > 0)
+@@ -12618,7 +12740,9 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 
+ 			if( GET_TEAM(getTeam()).getBestKnownTechScorePercent() < 85 )
+ 			{
+-				iTempValue *= 2;
++				//iTempValue *= 2;
++				iTempValue *= 3;
++				iTempValue /= 2;
+ 			}
+ 
+ 			iValue += iTempValue;
+@@ -12641,7 +12765,7 @@ int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes
+ 	}
+ 
+ 	// K-Mod
+-	if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && iValue < 100*getCurrentEra() && iValue < 2*getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iData))
++	if (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) && iValue < 100*getCurrentEra() && iValue < 2*iCost)
+ 	{
+ 		return 0;
+ 	}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index ef059d145..c7cda7431 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -22341,7 +22341,7 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer,
+ 
+ 	FAssert(pSpyPlot != NULL);
+ 
+-	int iSpyValue = 4*kPlayer.getProductionNeeded(getUnitType());
++	int iSpyValue = 3*kPlayer.getProductionNeeded(getUnitType());
+ 	if (kPlayer.getCapitalCity() != NULL)
+ 	{
+ 		iSpyValue += stepDistance(getX(), getY(), kPlayer.getCapitalCity()->getX(), kPlayer.getCapitalCity()->getY()) / 2;
+@@ -22373,42 +22373,47 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(PlayerTypes& eTargetPlayer,
+ 			for (int iMission = 0; iMission < GC.getNumEspionageMissionInfos(); ++iMission)
+ 			{
+ 				CvEspionageMissionInfo& kMissionInfo = GC.getEspionageMissionInfo((EspionageMissionTypes)iMission);
+-				if (kMissionInfo.getCounterespionageMod() > 0 && kMissionInfo.getCounterespionageNumTurns() > 0)
++				int iTestData = 1;
++				if (kMissionInfo.getBuyTechCostFactor() > 0)
+ 				{
+-					int iTestData = 1;
+-					if (kMissionInfo.getBuyTechCostFactor() > 0)
+-					{
+-						iTestData = GC.getNumTechInfos();
+-					}
+-					else if (kMissionInfo.getDestroyProjectCostFactor() > 0)
++					iTestData = GC.getNumTechInfos();
++				}
++				else if (kMissionInfo.getDestroyProjectCostFactor() > 0)
++				{
++					iTestData = GC.getNumProjectInfos();
++				}
++				else if (kMissionInfo.getDestroyBuildingCostFactor() > 0)
++				{
++					iTestData = GC.getNumBuildingInfos();
++				}
++
++				// estimate the risk cost of losing the spy.
++				int iOverhead = iEscapeCost + iSpyValue * iBaseIntercept * (100 + kMissionInfo.getDifficultyMod()) / 10000;
++
++				for ( ; iTestData >= 0; iTestData--)
++				{
++					if (kPlayer.canDoEspionageMission((EspionageMissionTypes)iMission, pSpyPlot->getOwnerINLINE(), pSpyPlot, iTestData, this))
+ 					{
+-						iTestData = GC.getNumProjectInfos();
+-					}
+-					else if (kMissionInfo.getDestroyBuildingCostFactor() > 0)
++						int iValue = kPlayer.AI_espionageVal(pSpyPlot->getOwnerINLINE(), (EspionageMissionTypes)iMission, pSpyPlot, iTestData);
++						iValue *= 80 + GC.getGameINLINE().getSorenRandNum(60, "AI best espionage mission");
++						iValue /= 100;
++						iValue -= iOverhead;
++
++					/* idea...
++					// If we can't do the mission yet, don't completely give up. It might be worth saving points for.
++					if (!kPlayer.canDoEspionageMission((EspionageMissionTypes)iMission, pSpyPlot->getOwnerINLINE(), pSpyPlot, iTestData, this))
+ 					{
+-						iTestData = GC.getNumBuildingInfos();
++						iValue *= our points / getEspionageMissionCost(eMission, eTargetPlayer, pPlot, iExtraData, pUnit)
+ 					}
++					*/
+ 							
+-					// estimate the risk cost of losing the spy.
+-					int iOverhead = iEscapeCost + iSpyValue * iBaseIntercept * (100 + kMissionInfo.getDifficultyMod()) / 10000;
+-
+-					for ( ; iTestData >= 0; iTestData--)
+-					{							
+-						if (kPlayer.canDoEspionageMission((EspionageMissionTypes)iMission, pSpyPlot->getOwnerINLINE(), pSpyPlot, iTestData, this))
++						if (iValue > iBestValue)
+ 						{
+-							int iValue = kPlayer.AI_espionageVal(pSpyPlot->getOwnerINLINE(), (EspionageMissionTypes)iMission, pSpyPlot, iTestData);
+-							iValue *= 75 + GC.getGameINLINE().getSorenRandNum(50, "AI best espionage mission");
+-							iValue /= 100;
+-							iValue -= iOverhead;
+-								
+-							if (iValue > iBestValue)
+-							{
+-								iBestValue = iValue;
+-								eBestMission = (EspionageMissionTypes)iMission;
+-								eTargetPlayer = pSpyPlot->getOwnerINLINE();
+-								pPlot = pSpyPlot;
+-								iData = iTestData;
+-							}
++							iBestValue = iValue;
++							eBestMission = (EspionageMissionTypes)iMission;
++							eTargetPlayer = pSpyPlot->getOwnerINLINE();
++							pPlot = pSpyPlot;
++							iData = iTestData;
+ 						}
+ 					}
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=14771

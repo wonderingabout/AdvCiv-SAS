@@ -1,0 +1,998 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 4882
+# Commit: 6c860ed1eb1f6a17984310e7180ccd2e7f3ea5af
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 6452c8b8e73e58c9683cf53ce02bc6fd66feea5a
+# Title: replace "JAPANESE_SHALE_PLANT" with "JAPAN_DOUJOU" (based on the jail building class anyways etc), add in placeRequiredFor of sevopedia building the unit(s)...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/b.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucian_shrine-map.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucianshrine-shadowmap.dds
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/new_temple.nif
+-	-	Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/uvneo.dds
+46	0	Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+1	1	Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+1	1	Assets/Python/Contrib/TechWindow.py
+1	1	Assets/Python/Contrib/TechWindowWide.py
+1	1	Assets/Python/Screens/CvPediaBonus.py
+21	20	Assets/XML/Art/CIV4ArtDefines_Building.xml
+217	183	Assets/XML/Buildings/CIV4BuildingInfos.xml
+0	3	Assets/XML/Buildings/CIV4CityLSystem.xml
+2	2	Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+1	1	Assets/XML/GameInfo/CIV4ProjectInfo.xml
+2	2	Assets/XML/Technologies/CIV4TechInfos.xml
+2	1	Assets/XML/Terrain/CIV4BonusInfos.xml
+4	0	Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+10	1	Assets/XML/Text/CIV4GameText_Sevopedia.xml
+13	4	Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+1	1	Assets/XML/Units/CIV4UnitInfos.xml
+8	0	README.md
+9	0	_0_Common_Docs/git_log_anonymized_email.txt
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+-	-	_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/b.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucian_shrine-map.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucianshrine-shadowmap.dds
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/new_temple.nif
+ create mode 100644 Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/uvneo.dds
+
+[PATCHES]
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds
+new file mode 100644
+index 000000000..f0d86a865
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/b.dds b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/b.dds
+new file mode 100644
+index 000000000..18e86ec50
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/b.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucian_shrine-map.dds b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucian_shrine-map.dds
+new file mode 100644
+index 000000000..7e5d4625d
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucian_shrine-map.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucianshrine-shadowmap.dds b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucianshrine-shadowmap.dds
+new file mode 100644
+index 000000000..12a7bd3f8
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/confucianshrine-shadowmap.dds differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/new_temple.nif b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/new_temple.nif
+new file mode 100644
+index 000000000..4c3a03b35
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/new_temple.nif differ
+
+diff --git a/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/uvneo.dds b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/uvneo.dds
+new file mode 100644
+index 000000000..81477aff0
+Binary files /dev/null and b/Assets/Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/uvneo.dds differ
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+index 5b674d63a..555845325 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaBuilding.py
+@@ -806,6 +806,32 @@ class SevoPediaBuilding:
+ 
+ 
+ 
++	# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc -->  
++	def is_building_prereq_overridden_by_civic(self, iBuildingId):
++		# Checks if the prerequisite for the given building ID can be overridden by any civic.
++		# Returns True if an override exists, False otherwise.
++		#
++		buildingInfo = gc.getBuildingInfo(iBuildingId)
++		iSpecialBuildingType = buildingInfo.getSpecialBuildingType()
++
++		# Only special buildings can have their requirements overridden this way by civics
++		if iSpecialBuildingType == -1:
++			return False
++
++		# Iterate through all civics
++		for iCivic in range(gc.getNumCivicInfos()):
++			loopCivicInfo = gc.getCivicInfo(iCivic)
++			# Use the confirmed API method: isSpecialBuildingNotRequired(SpecialBuildingType eIndex)
++			# Pass the integer ID directly, as Python bindings usually handle this.
++			if loopCivicInfo.isSpecialBuildingNotRequired(iSpecialBuildingType):
++				# Found a civic that overrides this building's requirement
++				return True
++
++		# No civic found that overrides this building's requirement
++		return False
++
++
++
+ 	def placeRequiredFor(self):
+ 		# Shows buildings that require this building as a prerequisite
+ 		#
+@@ -878,6 +904,26 @@ class SevoPediaBuilding:
+ 				isButtonFound = True
+ 				iButtonIndex += 1
+ 
++		# <!-- custom: code provided by gemini ai and adjusted or not for advciv-sas anyways etc ; idea i got from watching ri mod's sevopedia building or so it seems anyways etc ingame, of how the cruiser if i am not mistaken requires a drydock to be built. I considered it but in the end it adds needless complication for our mod, but what i wanted to say most anyways etc in this case but anyways etc is that i got the idea from watching their drydock or similar ingame sevopedia page so helped thanks but anyways etc -->
++		# Loop through all units to check their building prerequisites
++		for iLoopUnit in range(gc.getNumUnitInfos()):
++			loopUnitInfo = gc.getUnitInfo(iLoopUnit)
++			iPrereqBuilding = loopUnitInfo.getPrereqBuilding()
++
++			if iPrereqBuilding == self.iBuilding:
++				columnIndex = 0
++				screen.appendMultiListButton(rowListName, loopUnitInfo.getButton(), columnIndex, WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, iLoopUnit, 1, False)
++
++				# <!-- custom: add numTxt info that this building prereq is or may be but anyways etc overriden by some civics such as organized religion civic for missionaries in this case at least is the only one i can think of in this case but anyways etc -->
++				if self.is_building_prereq_overridden_by_civic(self.iBuilding):
++					numTxt = "(!)Civic(s)"
++					extraCorrectionX = get_extra_correction_x(numTxt)
++					add_multilist_numTxt_under_button(multiListX, multiListY, extraCorrectionX, iButtonIndex, BUTTON_SIZE, maxButtonsPerRow, numTxt, screen, self.top, WidgetTypes.WIDGET_GENERAL, CvUtil.FONT_CENTER_JUSTIFY)
++
++				# <!-- custom: else do not display any numTxt and just proceed if i may say anyways etc -->
++				isButtonFound = True
++				iButtonIndex += 1
++
+ 		if not isButtonFound:
+ 			txtKeyNoButtonFound = "TXT_KEY_PEDIA_REQUIRED_FOR_NO_BUTTON_FOUND"
+ 			textName = self.top.getNextWidgetName()
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+index 75a539eb2..950beccb9 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaFeature.py
+@@ -198,7 +198,7 @@ class SevoPediaFeature:
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+ 		for iImprovement in xrange(gc.getNumImprovementInfos()):
+
+diff --git a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+index 8964c0277..487adeacf 100644
+--- a/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
++++ b/Assets/Python/Contrib/Sevopedia/SevoPediaTerrain.py
+@@ -171,7 +171,7 @@ class SevoPediaTerrain:
+ 		screen = self.top.getScreen()
+ 		panel = self.top.getNextWidgetName()
+ 
+-		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
++		screen.addPanel(panel, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", False, True, self.X_IMPROVEMENTS, self.Y_IMPROVEMENTS, self.W_IMPROVEMENTS, self.H_IMPROVEMENTS, PanelStyles.PANEL_STYLE_BLUE50)
+ 		screen.attachLabel(panel, "", "  ")
+ 
+ 		iHill = getInfoTypeOrFail("TERRAIN_HILL", gc)
+
+diff --git a/Assets/Python/Contrib/TechWindow.py b/Assets/Python/Contrib/TechWindow.py
+index 571d22cb4..00c32f1e1 100644
+--- a/Assets/Python/Contrib/TechWindow.py
++++ b/Assets/Python/Contrib/TechWindow.py
+@@ -276,7 +276,7 @@ class CvTechSplashScreen:
+ 					screen.attachImageButton(panelName2, "", CyGlobalContext().getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
+ 
+ 		# Improvements
+-		szImprovesTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()) + ":" + u"</font>"
++		szImprovesTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()) + ":" + u"</font>"
+ 		szImprovesTitleWidget = "ImprovesTitle"
+ 		screen.setText(szImprovesTitleWidget, "", szImprovesTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL + self.iMarginSpace, self.Y_ALLOWS_PANEL3 - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+diff --git a/Assets/Python/Contrib/TechWindowWide.py b/Assets/Python/Contrib/TechWindowWide.py
+index 4d0bbb89e..3ae147684 100644
+--- a/Assets/Python/Contrib/TechWindowWide.py
++++ b/Assets/Python/Contrib/TechWindowWide.py
+@@ -280,7 +280,7 @@ class CvTechSplashScreen:
+ 					screen.attachImageButton( panelName2, "", CyGlobalContext().getBuildingInfo(eLoopBuilding).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, eLoopBuilding, 1, False )
+ 
+ 		# Improvements
+-		szImprovesTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()) + ":" + u"</font>"
++		szImprovesTitleDesc = u"<font=3b>" + localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()) + ":" + u"</font>"
+ 		szImprovesTitleWidget = "ImprovesTitle"
+ 		screen.setText(szImprovesTitleWidget, "", szImprovesTitleDesc, CvUtil.FONT_LEFT_JUSTIFY, self.X_ALLOWS_PANEL + self.iMarginSpace, self.Y_ALLOWS_PANEL3 - 20, 0, FontTypes.TITLE_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
+
+diff --git a/Assets/Python/Screens/CvPediaBonus.py b/Assets/Python/Screens/CvPediaBonus.py
+index 5ec9464eb..5c37b89e7 100644
+--- a/Assets/Python/Screens/CvPediaBonus.py
++++ b/Assets/Python/Screens/CvPediaBonus.py
+@@ -150,7 +150,7 @@ class CvPediaBonus:
+ 		screen = self.top.getScreen()
+ 		
+ 		panelName = self.top.getNextWidgetName()
+-		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT", ()), "", true, true, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
++		screen.addPanel( panelName, localText.getText("TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM", ()), "", true, true, self.X_IMPROVEMENTS_PANE, self.Y_IMPROVEMENTS_PANE, self.W_IMPROVEMENTS_PANE, self.H_IMPROVEMENTS_PANE, PanelStyles.PANEL_STYLE_BLUE50 )
+ 		
+ 		bonusInfo = gc.getBonusInfo(self.iBonus)
+
+diff --git a/Assets/XML/Art/CIV4ArtDefines_Building.xml b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+index 7bd8fbae1..2a37441a3 100644
+--- a/Assets/XML/Art/CIV4ArtDefines_Building.xml
++++ b/Assets/XML/Art/CIV4ArtDefines_Building.xml
+@@ -353,16 +353,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/CoalPlant.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,15</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_JAPANESE_SHALE_PLANT</Type>
+-			<LSystem>LSYSTEM_2x2</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.7</fScale>
+-			<fInterfaceScale>0.47</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Japanese Shale plant/Shale_plant.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/CoalPlant.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,8,2</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_HYDRO_PLANT</Type>
+ 			<LSystem>LSYSTEM_4x2</LSystem>
+@@ -714,6 +704,27 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Buildings_Atlas.dds,5,9</Button>
+ 		</BuildingArtInfo>
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_INDIAN_MAUSOLEUM</Type>
++			<LSystem>LSYSTEM_2x2</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>1.65</fScale>
++			<fInterfaceScale>0.67</fInterfaceScale>
++			<NIF>Art/Structures/Buildings/Indian_Mausoleum/Indian_Mausoleum.nif</NIF>
++			<KFM/>
++			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,7,2</Button>
++		</BuildingArtInfo>
++		<!-- custom: replace "JAPANESE_SHALE_PLANT" with "JAPAN_DOUJOU" ; art import from ri mod and adjusted or not for advciv-sas anyways etc -->
++		<BuildingArtInfo>
++			<Type>ART_DEF_BUILDING_JAPAN_DOUJOU</Type>
++			<LSystem>LSYSTEM_2x1</LSystem>
++			<bAnimated>0</bAnimated>
++			<fScale>0.65</fScale>
++			<fInterfaceScale>1.1</fInterfaceScale>
++			<NIF>Art/AdvCiv_SAS/Buildings/Japan_Doujou/nif/new_temple.nif</NIF>
++			<KFM/>
++			<Button>Art/AdvCiv_SAS/Buildings/Japan_Doujou/bt_sento.dds</Button>
++		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_INTELLIGENCE_AGENCY</Type>
+ 			<LSystem>LSYSTEM_3x2</LSystem>
+@@ -734,16 +745,6 @@
+ 			<KFM/>
+ 			<Button>,Art/Interface/Buttons/Buildings/ScotlandYard.dds,Art/Interface/Buttons/Beyond_the_Sword_Atlas.dds,4,8</Button>
+ 		</BuildingArtInfo>
+-		<BuildingArtInfo>
+-			<Type>ART_DEF_BUILDING_INDIAN_MAUSOLEUM</Type>
+-			<LSystem>LSYSTEM_2x2</LSystem>
+-			<bAnimated>0</bAnimated>
+-			<fScale>1.65</fScale>
+-			<fInterfaceScale>0.67</fInterfaceScale>
+-			<NIF>Art/Structures/Buildings/Indian_Mausoleum/Indian_Mausoleum.nif</NIF>
+-			<KFM/>
+-			<Button>,Art/Interface/Buttons/Buildings/PoliceStation.dds,Art/Interface/Buttons/Warlords_Atlas_1.dds,7,2</Button>
+-		</BuildingArtInfo>
+ 		<BuildingArtInfo>
+ 			<Type>ART_DEF_BUILDING_LEVEE</Type>
+ 			<LSystem>LSYSTEM_RIVER</LSystem>
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index d7a95b06c..8b7c5e21c 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -7809,179 +7809,6 @@
+ 			<bCtrlDown>0</bCtrlDown>
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+-		<BuildingInfo> <!-- custom: class: coal_plant, type: japanese_shale_plant (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+-			<BuildingClass>BUILDINGCLASS_COAL_PLANT</BuildingClass>
+-			<Type>BUILDING_JAPANESE_SHALE_PLANT</Type>
+-			<SpecialBuildingType>NONE</SpecialBuildingType>
+-			<Description>TXT_KEY_BUILDING_JAPANESE_SHALE_PLANT</Description>
+-			<Civilopedia>TXT_KEY_BUILDING_JAPANESE_SHALE_PLANT_PEDIA</Civilopedia>
+-			<Strategy>TXT_KEY_BUILDING_JAPANESE_SHALE_PLANT_STRATEGY</Strategy>
+-			<Advisor>ADVISOR_ECONOMY</Advisor>
+-			<ArtDefineTag>ART_DEF_BUILDING_JAPANESE_SHALE_PLANT</ArtDefineTag>
+-			<MovieDefineTag>NONE</MovieDefineTag>
+-			<HolyCity>NONE</HolyCity>
+-			<ReligionType>NONE</ReligionType>
+-			<StateReligion>NONE</StateReligion>
+-			<bStateReligion>0</bStateReligion>
+-			<PrereqReligion>NONE</PrereqReligion>
+-			<PrereqCorporation>NONE</PrereqCorporation>
+-			<FoundsCorporation>NONE</FoundsCorporation>
+-			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
+-			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
+-			<VictoryPrereq>NONE</VictoryPrereq>
+-			<FreeStartEra>NONE</FreeStartEra>
+-			<MaxStartEra>NONE</MaxStartEra>
+-			<ObsoleteTech>NONE</ObsoleteTech>
+-			<PrereqTech>TECH_ASSEMBLY_LINE</PrereqTech>
+-			<TechTypes/>
+-			<Bonus>NONE</Bonus>
+-			<PrereqBonuses/>
+-			<ProductionTraits/>
+-			<HappinessTraits/>
+-			<NoBonus>NONE</NoBonus>
+-			<PowerBonus>NONE</PowerBonus>
+-			<FreeBonus>NONE</FreeBonus>
+-			<iNumFreeBonuses>0</iNumFreeBonuses>
+-			<FreeBuilding>NONE</FreeBuilding>
+-			<FreePromotion>NONE</FreePromotion>
+-			<CivicOption>NONE</CivicOption>
+-			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
+-			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
+-			<iHurryAngerModifier>0</iHurryAngerModifier>
+-			<bBorderObstacle>0</bBorderObstacle>
+-			<bTeamShare>0</bTeamShare>
+-			<bWater>0</bWater>
+-			<bRiver>0</bRiver>
+-			<bPower>1</bPower>
+-			<bDirtyPower>1</bDirtyPower>
+-			<bAreaCleanPower>0</bAreaCleanPower>
+-			<DiploVoteType>NONE</DiploVoteType>
+-			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
+-			<bCapital>0</bCapital>
+-			<bGovernmentCenter>0</bGovernmentCenter>
+-			<bGoldenAge>0</bGoldenAge>
+-			<bAllowsNukes>0</bAllowsNukes>
+-			<bMapCentering>0</bMapCentering>
+-			<bNoUnhappiness>0</bNoUnhappiness>
+-			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+-			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
+-			<bPrereqReligion>0</bPrereqReligion>
+-			<bCenterInCity>0</bCenterInCity>
+-			<iAIWeight>0</iAIWeight>
+-			<iCost>150</iCost>
+-			<iHurryCostModifier>0</iHurryCostModifier>
+-			<iAdvancedStartCost>100</iAdvancedStartCost>
+-			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+-			<iMinAreaSize>-1</iMinAreaSize>
+-			<iConquestProb>66</iConquestProb>
+-			<iCitiesPrereq>0</iCitiesPrereq>
+-			<iTeamsPrereq>0</iTeamsPrereq>
+-			<iLevelPrereq>0</iLevelPrereq>
+-			<iMinLatitude>0</iMinLatitude>
+-			<iMaxLatitude>90</iMaxLatitude>
+-			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+-			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+-			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
+-			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
+-			<iAnarchyModifier>0</iAnarchyModifier>
+-			<iGoldenAgeModifier>0</iGoldenAgeModifier>
+-			<iGlobalHurryModifier>0</iGlobalHurryModifier>
+-			<iExperience>0</iExperience>
+-			<iGlobalExperience>0</iGlobalExperience>
+-			<iFoodKept>0</iFoodKept>
+-			<iAirlift>0</iAirlift>
+-			<iAirModifier>0</iAirModifier>
+-			<iAirUnitCapacity>0</iAirUnitCapacity>
+-			<iNukeModifier>0</iNukeModifier>
+-			<iNukeExplosionRand>0</iNukeExplosionRand>
+-			<iFreeSpecialist>0</iFreeSpecialist>
+-			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
+-			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
+-			<iMaintenanceModifier>0</iMaintenanceModifier>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
+-			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
+-			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
+-			<iHealRateChange>0</iHealRateChange>
+-			<iHealth>0</iHealth>
+-			<iAreaHealth>0</iAreaHealth>
+-			<iGlobalHealth>0</iGlobalHealth>
+-			<iHappiness>0</iHappiness>
+-			<iAreaHappiness>0</iAreaHappiness>
+-			<iGlobalHappiness>0</iGlobalHappiness>
+-			<iStateReligionHappiness>0</iStateReligionHappiness>
+-			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+-			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
+-			<iSpaceProductionModifier>0</iSpaceProductionModifier>
+-			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
+-			<iTradeRoutes>0</iTradeRoutes>
+-			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
+-			<iAreaTradeRoutes>0</iAreaTradeRoutes>
+-			<iTradeRouteModifier>0</iTradeRouteModifier>
+-			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
+-			<iGlobalPopulationChange>0</iGlobalPopulationChange>
+-			<iFreeTechs>0</iFreeTechs>
+-			<iDefense>0</iDefense>
+-			<iBombardDefense>0</iBombardDefense>
+-			<iAllCityDefense>0</iAllCityDefense>
+-			<iEspionageDefense>0</iEspionageDefense>
+-			<iAsset>0</iAsset>
+-			<!-- advc.131c: was 1 -->
+-			<iPower>0</iPower>
+-			<fVisibilityPriority>1.0</fVisibilityPriority>
+-			<SeaPlotYieldChanges/>
+-			<RiverPlotYieldChanges/>
+-			<GlobalSeaPlotYieldChanges/>
+-			<YieldChanges/>
+-			<YieldModifiers>
+-				<iYield>0</iYield>
+-				<iYield>10</iYield>
+-				<iYield>0</iYield>
+-			</YieldModifiers>
+-			<CommerceChanges/>
+-			<ObsoleteSafeCommerceChanges/>
+-			<CommerceChangeDoubleTimes/>
+-			<CommerceModifiers/>
+-			<GlobalCommerceModifiers/>
+-			<SpecialistExtraCommerces/>
+-			<StateReligionCommerces/>
+-			<CommerceHappinesses/>
+-			<ReligionChanges/>
+-			<SpecialistCounts/>
+-			<FreeSpecialistCounts/>
+-			<CommerceFlexibles/>
+-			<CommerceChangeOriginalOwners/>
+-			<ConstructSound/>
+-			<BonusHealthChanges/>
+-			<BonusHappinessChanges/>
+-			<BonusProductionModifiers/>
+-			<UnitCombatFreeExperiences/>
+-			<DomainFreeExperiences/>
+-			<DomainProductionModifiers/>
+-			<BuildingHappinessChanges/>
+-			<PrereqBuildingClasses/>
+-			<BuildingClassNeededs>
+-				<BuildingClassNeeded>
+-					<BuildingClassType>BUILDINGCLASS_FACTORY</BuildingClassType>
+-					<bNeededInCity>1</bNeededInCity>
+-				</BuildingClassNeeded>
+-			</BuildingClassNeededs>
+-			<SpecialistYieldChanges/>
+-			<BonusYieldModifiers/>
+-			<ImprovementFreeSpecialists/>
+-			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+-			</Flavors>
+-			<HotKey/>
+-			<bAltDown>0</bAltDown>
+-			<bShiftDown>0</bShiftDown>
+-			<bCtrlDown>0</bCtrlDown>
+-			<iHotKeyPriority>0</iHotKeyPriority>
+-		</BuildingInfo>
+ 		<BuildingInfo> <!-- custom: class: hydro_plant, type: hydro_plant (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
+ 			<BuildingClass>BUILDINGCLASS_HYDRO_PLANT</BuildingClass>
+ 			<Type>BUILDING_HYDRO_PLANT</Type>
+@@ -14566,7 +14393,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>120</iCost>
++			<!-- custom: was 120 -->
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -14629,20 +14457,22 @@
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
++			<!-- custom: was 0 / 0 / 0 / 2 -->
+ 			<CommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- K-Mod: was 4 -->
+-				<iCommerce>2</iCommerce>
++				<iCommerce>4</iCommerce>
+ 			</CommerceChanges>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
++			<!-- custom: was 0 / 0 / 0 / 50 -->
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>50</iCommerce>
++				<iCommerce>25</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -14676,11 +14506,11 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<HotKey/>
+@@ -14757,7 +14587,8 @@
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+-			<iCost>120</iCost>
++			<!-- custom: was 120 -->
++			<iCost>110</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+@@ -14820,20 +14651,22 @@
+ 			<RiverPlotYieldChanges/>
+ 			<GlobalSeaPlotYieldChanges/>
+ 			<YieldChanges/>
++			<!-- custom: was 0 / 0 / 0 / 2 -->
+ 			<CommerceChanges>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<!-- K-Mod: was 4 -->
+-				<iCommerce>2</iCommerce>
++				<iCommerce>4</iCommerce>
+ 			</CommerceChanges>
+ 			<ObsoleteSafeCommerceChanges/>
+ 			<CommerceChangeDoubleTimes/>
++			<!-- custom: was 0 / 0 / 0 / 50 -->
+ 			<CommerceModifiers>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+ 				<iCommerce>0</iCommerce>
+-				<iCommerce>50</iCommerce>
++				<iCommerce>25</iCommerce>
+ 			</CommerceModifiers>
+ 			<GlobalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+@@ -14869,11 +14702,212 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>2</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_GROWTH</FlavorType>
++					<iFlavor>4</iFlavor>
++				</Flavor>
++			</Flavors>
++			<HotKey/>
++			<bAltDown>0</bAltDown>
++			<bShiftDown>0</bShiftDown>
++			<bCtrlDown>0</bCtrlDown>
++			<iHotKeyPriority>0</iHotKeyPriority>
++		</BuildingInfo>
++		<BuildingInfo> <!-- custom: class: BUILDINGCLASS_JAIL, type: BUILDING_JAPAN_DOUJOU (useful for vs code (for example anyways etc) upper tree view while scrolling anyways etc) -->
++			<BuildingClass>BUILDINGCLASS_JAIL</BuildingClass>
++			<Type>BUILDING_JAPAN_DOUJOU</Type>
++			<SpecialBuildingType>NONE</SpecialBuildingType>
++			<Description>TXT_KEY_BUILDING_JAPAN_DOUJOU</Description>
++			<Civilopedia>TXT_KEY_BUILDING_JAPAN_DOUJOU_PEDIA</Civilopedia>
++			<Strategy>TXT_KEY_DUMMY_EMPTY_CUSTOM_TXTKEY_STRATEGY</Strategy>
++			<Advisor>ADVISOR_MILITARY</Advisor>
++			<ArtDefineTag>ART_DEF_BUILDING_JAPAN_DOUJOU</ArtDefineTag>
++			<MovieDefineTag>NONE</MovieDefineTag>
++			<HolyCity>NONE</HolyCity>
++			<ReligionType>NONE</ReligionType>
++			<StateReligion>NONE</StateReligion>
++			<bStateReligion>0</bStateReligion>
++			<PrereqReligion>NONE</PrereqReligion>
++			<PrereqCorporation>NONE</PrereqCorporation>
++			<FoundsCorporation>NONE</FoundsCorporation>
++			<GlobalReligionCommerce>NONE</GlobalReligionCommerce>
++			<GlobalCorporationCommerce>NONE</GlobalCorporationCommerce>
++			<VictoryPrereq>NONE</VictoryPrereq>
++			<!-- advc.126: was ERA_MODERN -->
++			<FreeStartEra>NONE</FreeStartEra>
++			<MaxStartEra>NONE</MaxStartEra>
++			<ObsoleteTech>NONE</ObsoleteTech>
++			<!-- custom: was TECH_CONSTITUTION in the generic building anyways etc -->
++			<PrereqTech>TECH_MEDITATION</PrereqTech>
++			<TechTypes/>
++			<Bonus>NONE</Bonus>
++			<PrereqBonuses/>
++			<!-- K-Mod -->
++			<ProductionTraits>
++				<ProductionTrait>
++					<ProductionTraitType>TRAIT_AGGRESSIVE</ProductionTraitType>
++					<iProductionTrait>100</iProductionTrait>
++				</ProductionTrait>
++			</ProductionTraits>
++			<HappinessTraits/>
++			<NoBonus>NONE</NoBonus>
++			<PowerBonus>NONE</PowerBonus>
++			<FreeBonus>NONE</FreeBonus>
++			<iNumFreeBonuses>0</iNumFreeBonuses>
++			<FreeBuilding>NONE</FreeBuilding>
++			<FreePromotion>NONE</FreePromotion>
++			<CivicOption>NONE</CivicOption>
++			<GreatPeopleUnitClass>NONE</GreatPeopleUnitClass>
++			<iGreatPeopleRateChange>0</iGreatPeopleRateChange>
++			<iHurryAngerModifier>0</iHurryAngerModifier>
++			<bBorderObstacle>0</bBorderObstacle>
++			<bTeamShare>0</bTeamShare>
++			<bWater>0</bWater>
++			<bRiver>0</bRiver>
++			<bPower>0</bPower>
++			<bDirtyPower>0</bDirtyPower>
++			<bAreaCleanPower>0</bAreaCleanPower>
++			<DiploVoteType>NONE</DiploVoteType>
++			<bForceTeamVoteEligible>0</bForceTeamVoteEligible>
++			<bCapital>0</bCapital>
++			<bGovernmentCenter>0</bGovernmentCenter>
++			<bGoldenAge>0</bGoldenAge>
++			<bAllowsNukes>0</bAllowsNukes>
++			<bMapCentering>0</bMapCentering>
++			<bNoUnhappiness>0</bNoUnhappiness>
++			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
++			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
++			<bNeverCapture>0</bNeverCapture>
++			<bNukeImmune>0</bNukeImmune>
++			<bPrereqReligion>0</bPrereqReligion>
++			<bCenterInCity>0</bCenterInCity>
++			<iAIWeight>0</iAIWeight>
++			<!-- custom: was 120 -->
++			<iCost>110</iCost>
++			<iHurryCostModifier>0</iHurryCostModifier>
++			<iAdvancedStartCost>100</iAdvancedStartCost>
++			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
++			<iMinAreaSize>-1</iMinAreaSize>
++			<iConquestProb>66</iConquestProb>
++			<iCitiesPrereq>0</iCitiesPrereq>
++			<iTeamsPrereq>0</iTeamsPrereq>
++			<iLevelPrereq>0</iLevelPrereq>
++			<iMinLatitude>0</iMinLatitude>
++			<iMaxLatitude>90</iMaxLatitude>
++			<!-- custom: was 0 -->
++			<iGreatPeopleRateModifier>40</iGreatPeopleRateModifier>
++			<!-- custom: was 0 -->
++			<iGreatGeneralRateModifier>75</iGreatGeneralRateModifier>
++			<iDomesticGreatGeneralRateModifier>0</iDomesticGreatGeneralRateModifier>
++			<iGlobalGreatPeopleRateModifier>0</iGlobalGreatPeopleRateModifier>
++			<iAnarchyModifier>0</iAnarchyModifier>
++			<iGoldenAgeModifier>0</iGoldenAgeModifier>
++			<iGlobalHurryModifier>0</iGlobalHurryModifier>
++			<iExperience>0</iExperience>
++			<iGlobalExperience>0</iGlobalExperience>
++			<iFoodKept>0</iFoodKept>
++			<iAirlift>0</iAirlift>
++			<iAirModifier>0</iAirModifier>
++			<iAirUnitCapacity>0</iAirUnitCapacity>
++			<iNukeModifier>0</iNukeModifier>
++			<iNukeExplosionRand>0</iNukeExplosionRand>
++			<iFreeSpecialist>0</iFreeSpecialist>
++			<iAreaFreeSpecialist>0</iAreaFreeSpecialist>
++			<iGlobalFreeSpecialist>0</iGlobalFreeSpecialist>
++			<iMaintenanceModifier>0</iMaintenanceModifier>
++			<iWarWearinessModifier>-25</iWarWearinessModifier>
++			<iGlobalWarWearinessModifier>0</iGlobalWarWearinessModifier>
++			<iEnemyWarWearinessModifier>0</iEnemyWarWearinessModifier>
++			<iHealRateChange>0</iHealRateChange>
++			<iHealth>0</iHealth>
++			<iAreaHealth>0</iAreaHealth>
++			<iGlobalHealth>0</iGlobalHealth>
++			<iHappiness>0</iHappiness>
++			<iAreaHappiness>0</iAreaHappiness>
++			<iGlobalHappiness>0</iGlobalHappiness>
++			<iStateReligionHappiness>0</iStateReligionHappiness>
++			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
++			<iMilitaryProductionModifier>0</iMilitaryProductionModifier>
++			<iSpaceProductionModifier>0</iSpaceProductionModifier>
++			<iGlobalSpaceProductionModifier>0</iGlobalSpaceProductionModifier>
++			<iTradeRoutes>0</iTradeRoutes>
++			<iCoastalTradeRoutes>0</iCoastalTradeRoutes>
++			<iAreaTradeRoutes>0</iAreaTradeRoutes>
++			<iTradeRouteModifier>0</iTradeRouteModifier>
++			<iForeignTradeRouteModifier>0</iForeignTradeRouteModifier>
++			<iGlobalPopulationChange>0</iGlobalPopulationChange>
++			<iFreeTechs>0</iFreeTechs>
++			<iDefense>0</iDefense>
++			<iBombardDefense>0</iBombardDefense>
++			<iAllCityDefense>0</iAllCityDefense>
++			<iEspionageDefense>0</iEspionageDefense>
++			<iAsset>1</iAsset>
++			<iPower>0</iPower>
++			<fVisibilityPriority>1.0</fVisibilityPriority>
++			<SeaPlotYieldChanges/>
++			<RiverPlotYieldChanges/>
++			<GlobalSeaPlotYieldChanges/>
++			<YieldChanges/>
++			<!-- custom: was 0 / 0 / 0 / 2 -->
++			<CommerceChanges>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<!-- K-Mod: was 4 -->
++				<iCommerce>4</iCommerce>
++			</CommerceChanges>
++			<ObsoleteSafeCommerceChanges/>
++			<CommerceChangeDoubleTimes/>
++			<!-- custom: was 0 / 0 / 0 / 50 -->
++			<CommerceModifiers>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>0</iCommerce>
++				<iCommerce>25</iCommerce>
++			</CommerceModifiers>
++			<GlobalCommerceModifiers/>
++			<SpecialistExtraCommerces/>
++			<StateReligionCommerces/>
++			<CommerceHappinesses/>
++			<ReligionChanges/>
++			<!-- advc.911a: was 2 spies -->
++			<SpecialistCounts>
++				<SpecialistCount>
++					<SpecialistType>SPECIALIST_SPY</SpecialistType>
++					<iSpecialistCount>1</iSpecialistCount>
++				</SpecialistCount>
++			</SpecialistCounts>
++			<FreeSpecialistCounts/>
++			<CommerceFlexibles/>
++			<CommerceChangeOriginalOwners/>
++			<ConstructSound/>
++			<BonusHealthChanges/>
++			<BonusHappinessChanges/>
++			<BonusProductionModifiers/>
++			<UnitCombatFreeExperiences/>
++			<DomainFreeExperiences/>
++			<DomainProductionModifiers/>
++			<BuildingHappinessChanges/>
++			<PrereqBuildingClasses/>
++			<BuildingClassNeededs/>
++			<SpecialistYieldChanges/>
++			<BonusYieldModifiers/>
++			<ImprovementFreeSpecialists/>
++			<!-- custom: adjust flavors, was flavor espionage 10 miltary 6 -->
++			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
++					<iFlavor>7</iFlavor>
++				</Flavor>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GROWTH</FlavorType>
+
+diff --git a/Assets/XML/Buildings/CIV4CityLSystem.xml b/Assets/XML/Buildings/CIV4CityLSystem.xml
+index eb573f4f8..af7e8691a 100644
+--- a/Assets/XML/Buildings/CIV4CityLSystem.xml
++++ b/Assets/XML/Buildings/CIV4CityLSystem.xml
+@@ -979,9 +979,6 @@ I am not sure which i should take, but since there are redundancies i guess i sh
+ 		<ArtRef Name="building:BUILDING_MALI_MINT">
+ 			<Scale>1.2</Scale>
+ 		</ArtRef>
+-		<ArtRef Name="building:BUILDING_JAPANESE_SHALE_PLANT">
+-			<Scale>1.7</Scale>
+-		</ArtRef>
+ 		<ArtRef Name="building:BUILDING_THEATRE">
+ 			<Scale>.9</Scale>
+ 		</ArtRef>
+
+diff --git a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+index 280e80072..fbe832a49 100644
+--- a/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
++++ b/Assets/XML/Civilizations/CIV4CivilizationInfos.xml
+@@ -2147,8 +2147,8 @@
+ 			</Cities>
+ 			<Buildings>
+ 				<Building>
+-					<BuildingClassType>BUILDINGCLASS_COAL_PLANT</BuildingClassType>
+-					<BuildingType>BUILDING_JAPANESE_SHALE_PLANT</BuildingType>
++					<BuildingClassType>BUILDINGCLASS_JAIL</BuildingClassType>
++					<BuildingType>BUILDING_JAPAN_DOUJOU</BuildingType>
+ 				</Building>
+ 			</Buildings>
+ 			<Units>
+
+diff --git a/Assets/XML/GameInfo/CIV4ProjectInfo.xml b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+index 0c2c84e44..6758d6ed0 100644
+--- a/Assets/XML/GameInfo/CIV4ProjectInfo.xml
++++ b/Assets/XML/GameInfo/CIV4ProjectInfo.xml
+@@ -193,7 +193,7 @@
+ 			<Strategy>TXT_KEY_PROJECT_SPACE_SHIP_STRATEGY</Strategy>
+ 			<VictoryPrereq>VICTORY_SPACE_RACE</VictoryPrereq>
+ 			<!-- custom: was TECH_ECOLOGY -->
+-			<TechPrereq>TECH_PLASTICS</TechPrereq>
++			<TechPrereq>TECH_GENETICS</TechPrereq>
+ 			<AnyonePrereqProject>NONE</AnyonePrereqProject>
+ 			<iMaxGlobalInstances>-1</iMaxGlobalInstances>
+ 			<iMaxTeamInstances>1</iMaxTeamInstances>
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index f8ca32eec..7edcc14cd 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -4052,7 +4052,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>17</iGridX>
++			<iGridX>19</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+@@ -4125,7 +4125,7 @@
+ 			<bIrrigation>0</bIrrigation>
+ 			<bIgnoreIrrigation>0</bIgnoreIrrigation>
+ 			<bWaterWork>0</bWaterWork>
+-			<iGridX>18</iGridX>
++			<iGridX>17</iGridX>
+ 			<iGridY>7</iGridY>
+ 			<DomainExtraMoves/>
+ 			<CommerceFlexible/>
+
+diff --git a/Assets/XML/Terrain/CIV4BonusInfos.xml b/Assets/XML/Terrain/CIV4BonusInfos.xml
+index bd485771b..12345fc77 100644
+--- a/Assets/XML/Terrain/CIV4BonusInfos.xml
++++ b/Assets/XML/Terrain/CIV4BonusInfos.xml
+@@ -1309,7 +1309,8 @@ Note: for these adjustments, to match them with AdvCiv/our mod's real map, assum
+ 			<ArtDefineTag>ART_DEF_BONUS_FUR</ArtDefineTag>
+ 			<TechReveal>NONE</TechReveal>
+ 			<TechCityTrade>TECH_HUNTING</TechCityTrade>
+-			<TechObsolete>TECH_PLASTICS</TechObsolete>
++			<!-- custom: was TECH_PLASTICS -->
++			<TechObsolete>TECH_COMPOSITES</TechObsolete>
+ 			<YieldChanges>
+ 				<iYieldChange>0</iYieldChange>
+ 				<iYieldChange>0</iYieldChange>
+
+diff --git a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+index 93458efff..d4f1ff08c 100644
+--- a/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
++++ b/Assets/XML/Text/CIV4GameTextInfos_Objects_Custom.xml
+@@ -337,6 +337,10 @@
+ 		<Tag>TXT_KEY_BUILDING_PORT</Tag>
+ 		<English>Port</English>
+ 	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_JAPAN_DOUJOU</Tag>
++		<English>Doujou</English>
++	</TEXT>
+
+diff --git a/Assets/XML/Text/CIV4GameText_Sevopedia.xml b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+index e1d302414..2578fa54f 100644
+--- a/Assets/XML/Text/CIV4GameText_Sevopedia.xml
++++ b/Assets/XML/Text/CIV4GameText_Sevopedia.xml
+@@ -126,9 +126,18 @@
+ 	I've kept the FIS translations from there. -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_CATEGORY_IMPROVEMENT</Tag>
+-		<!-- custom: <English>Improvements</English> -->
+ 		<English>Improv.</English>
+ 	</TEXT>
++	<!-- custom: make this a separate entry for headers or/and such or not such anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_IMPROVEMENTS_CUSTOM</Tag>
++		<English>Improvements</English>
++	</TEXT>
++	<!-- custom: add new entry: replace "Ressources" description with "Bonuses" to be consistent with our renaming in advciv-sas and such or not and such but anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_PEDIA_BONUSES_CUSTOM</Tag>
++		<English>Bonuses</English>
++	</TEXT>
+ 	<!-- custom: hopefully clearer formula of specifying it is about the base improvement tile yield(s) -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_PEDIA_SEVOPEDIA_IMPROVEMENT_BASE_TILE_YIELD_CHANGES</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+index 9704a3851..99a2c74d1 100644
+--- a/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
++++ b/Assets/XML/Text/CIV4GameText_advc_pedia_Lengthy_Custom.xml
+@@ -295,11 +295,12 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_PAGAN_CATHEDRAL_PEDIA</Tag>
+-		<English>[TAB]In Civilization IV, a cathedral is defined as an especially large and ornate religious building where the faithful worship. Only the most prosperous cities can afford to create cathedrals, as they require huge amounts of raw material and years of dedicated labor by skilled craftsmen. For example, the Notre Dame Cathedral in Paris, France, took over two centuries to complete. [PARAGRAPH:1]. </English>
++		<English>[TAB]In Civilization IV, a cathedral is defined as an especially large and ornate religious building where the faithful worship. Only the most prosperous cities can afford to create cathedrals, as they require huge amounts of raw material and years of dedicated labor by skilled craftsmen. For example, the Notre Dame Cathedral in Paris, France, took over two centuries to complete.</English>
+ 	</TEXT>
++	<!-- custom: entry from https://civilization.fandom.com/wiki/Religious_shrine_(Civ4) and adjusted or not for advciv-sas anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_PAGAN_SHRINE_PEDIA</Tag>
+-		<English>[TAB].</English>
++		<English>[TAB]In Civilization IV, the religious shrines are the most sacred buildings of religions. Players usually just call them shrines since there are no other shrines in the game. Each religion has its own shrine.</English>
+ 	</TEXT>
+ 
+ 
+@@ -514,7 +515,7 @@
+ 
+ 
+ 
+-	<!-- custom: BUILDING_RUSSIAN_GORD (russian empire's civ-specific), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, see docs or and other or and not for details anyways etc ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/Gord_(archaeology) and modified or not for advciv-sas anyways et, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentionned for original content or and maybe google or try to find origin from a few sample of texts maybe or not or yes or etc or and other or and not or etc o and other or and not or yes or other or etc anyways etc -->
++	<!-- custom: BUILDING_RUSSIAN_GORD (russian empire's civ-specific), replaces the now removed BUILDING_RUSSIAN_RESEARCH_INSTITUTE, see docs or and other or and not for details anyways etc ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/Gord_(archaeology) and modified or not for advciv-sas anyways etc, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentionned for original content or and maybe google or try to find origin from a few sample of texts maybe or not or yes or etc or and other or and not or etc o and other or and not or yes or other or etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_RUSSIAN_GORD_PEDIA</Tag>
+ 		<English>[TAB]A gord is a medieval Slavonic fortified settlement, usually built on strategic sites such as hilltops, riverbanks, lake islets or peninsulas between the 6th and 12th centuries in Central and Eastern Europe. A typical gord consisted of a group of wooden houses surrounded by a wall made of earth and wood, and a palisade running along the top of the bulwark.[PARAGRAPH:2]The term ultimately descends from the reconstructed Proto-Indo-European root g_ort�s 'enclosure'. The Proto-Slavic word *gord_ later differentiated into grad (Cyrillic: _), gorod (Cyrillic: _), gr�d in Polish, gard in Kashubian, etc. It is the root of various words in modern Slavic languages pertaining to fences and fenced-in areas (Belarusian _, Ukrainian _, Slovak ohradit, Czech ohradit, Russian _, Serbo-Croatian ograditi, and Polish ogradzac, grodzic, to fence off). It also has evolved into words for a garden in certain languages.[PARAGRAPH:1]Additionally, it has furnished numerous modern Slavic words for a city or town:[NEWLINE]-Polish gr�d, plural grody (toponymic; nowadays a town or city is termed miasto, but remnants of a gr�d are known as grodzisko)[NEWLINE]- Ancient Pomeranian and modern Kashubian gard[NEWLINE]- Slovak and Czech hrad ("castle" in the modern language), or hradisko/hradiste/hradec, which are terms for gord[NEWLINE]- Slovene gradec, grad ("castle" in modern Slovene)[NEWLINE]- Belarusian _ (horad)[NEWLINE]- Russian _ (gorod)[NEWLINE]- Ukrainian _ (horod, dialectal and toponymic; nowadays misto)[NEWLINE]- Bulgarian, Serbo-Croatian, and Macedonian grad/_[PARAGRAPH:1]The names of many Central and Eastern European cities harken back to their pasts as gords. Some of them are in countries which once were but no longer are mainly inhabited by Slavic-speaking peoples.[PARAGRAPH:1]The words in Polish and Slovak for suburbium, podgrodzie and podhradie correspondingly, literally mean a settlement beneath a gord: the gr�d/hrad was frequently built at the top of a hill, and the podgrodzie/podhradie at its foot. (The Slavic prefix pod-, meaning "under/below" and descending from the Proto-Indo-European root pods, meaning foot, being equivalent to Latin sub-). The word survives in the names of several villages (Podgrodzie, Subcarpathian Voivodeship) and town districts (e.g., that of Olsztyn), as well as in the names of the German municipalities Puttgarden, Wagria and Putgarten, R�gen.[PARAGRAPH:1]From this same Proto-Indo-European root come the Germanic word elements *gard and *gart (as in Stuttgart), and likely also the names of Graz, Austria and Gartz, Germany. Cognate to these are English words such as garden, yard, garth, girdle and court. Also cognate but less closely related are Latin hortus, a garden, and its English descendant horticulture. In Hungarian, kert, the word for a garden, literally means encircled. Because Hungarian is a Uralic rather than an Indo-European language, this is likely a loanword. Further afield, in ancient Iran, a fortified wooden settlement was called a gerd, or certa, which also means garden (as in the suffix -certa in the names of various ancient Iranian cities; e.g., Hunoracerta). The Persian word evolved into jerd under later Arab influence. Burugerd or Borujerd is a city in the west of Iran. The Indian suffix -garh, meaning a fort in Hindi, Urdu, Sanskrit, and other Indo-Iranian languages, appears in many Indian place names. Given that both Slavic and Indo-Iranian are sub-branches of Indo-European and that there are numerous similarities between Slavic and Sanskrit vocabulary, it is plausible that garh and gord are related. However, this is strongly contradicted by the phoneme /g/ in Indo-Iranian, which cannot be a reflex of the Indo-European palatovelar /*g/.[PARAGRAPH:2]A typical gord was a group of wooden houses built either in rows or in circles, surrounded by one or more rings of walls made of earth and wood, a palisade, and/or moats. Some gords were ring-shaped, with a round, oval, or occasionally polygonal fence or wall surrounding a hollow. Others, built on a natural hill or a man-made mound, were cone-shaped. Those with a natural defense on one side, such as a river or lake, were usually horseshoe-shaped. Most gords were built in densely populated areas on sites that offered particular natural advantages.[PARAGRAPH:1]As Slavic tribes united to form states, gords were also built for defensive purposes in less-populated border areas. Gords in which rulers resided or that lay on trade routes quickly expanded. Near the gord, or below it in elevation, there formed small communities of servants, merchants, artisans, and others who served the higher-ranked inhabitants of the gord. Each such community was known as a suburbium (literally "undercity") (Polish: podgrodzie). Its residents could shelter within the walls of the gord in the event of danger. Eventually the suburbium acquired its own fence or wall. In the High Middle Ages, the gord usually evolved into a castle, citadel or kremlin, and the suburbium into a town.[PARAGRAPH:1]Some gords did not stand the test of time and were abandoned or destroyed, gradually turning into more or less discernible mounds or rings of earth (Russian gorodishche, Polish gr�d or grodzisko, Ukrainian horodyshche, Slovak hradisko, Czech hradiste, German Hradisch, Hungarian hradis and Serbian gradiska/_). Notable archeological sites include Gro� Raden in Germany and Biskupin in Poland.</English>
+@@ -522,7 +523,7 @@
+ 
+ 
+ 
+-	<!-- custom: BUILDING_GERMAN_LONGHOUSE (russian empire's civ-specific), replaces the now removed BUILDING_GERMAN_ASSEMBLY_PLANT, see docs or and other or and not for details anyways etc ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or/and other wikis or and not anyways etc (for example the introduction/generic wiki part of these or and other or and not but anyways etc...) and https://en.wikipedia.org/wiki/Neolithic_long_house or and other or and not anyways etc... and modified or not for advciv-sas anyways et, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentionned for original content or and maybe google or try to find origin from a few sample of texts maybe or not or yes or etc or and other or and not or etc o and other or and not or yes or other or etc anyways etc -->
++	<!-- custom: BUILDING_GERMAN_LONGHOUSE (russian empire's civ-specific), replaces the now removed BUILDING_GERMAN_ASSEMBLY_PLANT, see docs or and other or and not for details anyways etc ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/History_of_Germany#Prehistory and https://en.wikipedia.org/wiki/Linear_Pottery_culture#Economy or/and other wikis or and not anyways etc (for example the introduction/generic wiki part of these or and other or and not but anyways etc...) and https://en.wikipedia.org/wiki/Neolithic_long_house or and other or and not anyways etc... and modified or not for advciv-sas anyways etc, as for transliteration and similarly for transliteration in other advciv-sas entries, may be accurate or not even though i attempted to, best to visit wiki or and original sources if mentionned for original content or and maybe google or try to find origin from a few sample of texts maybe or not or yes or etc or and other or and not or etc o and other or and not or yes or other or etc anyways etc -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUILDING_GERMAN_LONGHOUSE_PEDIA</Tag>
+ 		<English>[TAB]Between 12,900 and 11,700 years ago, north-central Germany was part of the Ahrensburg culture (named for Ahrensburg).[PARAGRAPH:1]The first groups of early farmers different from the indigenous hunter-gatherers to migrate into Europe came from a population in western Anatolia at the beginning of the Neolithic period between 10,000 and 8,000 years ago.[PARAGRAPH:1]Central Germany was one of the primary areas of the Linear Pottery culture (c. 5500 BC - c. 4500 BC), which was partially contemporary with the Erteb�lle culture (c. 5300 BC - c. 3950 BC) of Denmark and northern Germany. The construction of the Central European Neolithic circular enclosures falls in this time period with the best known and oldest being the Goseck circle, constructed c. 4900 BC. Afterwards, Germany was part of the R�ssen culture, Michelsberg culture and Funnelbeaker culture (c. 4600 BC - c. 2800 BC). The oldest traces for the use of wheel and wagon ever found are located at a northern German Funnelbeaker culture site and date to around 3400 BC.[PARAGRAPH:2]The Linear Pottery culture (LBK) is a major archaeological horizon of the European Neolithic period, flourishing c. 5500-4500 BC. Derived from the German Linearbandkeramik, it is also known as the Linear Band Ware, Linear Ware, Linear Ceramics or Incised Ware culture, falling within the Danubian I culture of V. Gordon Childe.[PARAGRAPH:1]Most cultural evidence has been found on the middle Danube, the upper and middle Elbe, and the upper and middle Rhine. It represents a major event in the initial spread of agriculture in Europe. The pottery consists of simple cups, bowls, vases, jugs without handles and, in a later phase, with pierced lugs, bases, and necks.[PARAGRAPH:1]The term "Linear Band Ware" derives from the pottery's decorative technique. The "Band Ware" or Bandkeramik part of it began as an innovation of the German archaeologist, Friedrich Klopfleisch (1831-1898). The earliest generally accepted name in English was the Danubian of V. Gordon Childe. Most names in English are attempts to translate Linearbandkeramik.[PARAGRAPH:1]Since Starcevo-K�r�s pottery was earlier than the LBK and was located in a contiguous food-producing region, the early investigators looked for precedents there. Much of the Starcevo-K�r�s pottery features decorative patterns composed of convolute bands of paint: spirals, converging bands, vertical bands, and so on. The LBK appears to imitate and often improve these convolutions with incised lines; hence the term, linear, to distinguish incised band ware from painted band ware.[PARAGRAPH:1]The name depends on specialized meanings of "linear" and "band", whether in English or in German. These words without the qualifiers do not describe the decoration. There are few bands going around the pottery and the lines are mainly not straight.[PARAGRAPH:1]The LBK people settled on fluvial terraces and in the proximity of rivers in regions with fertile loess. They raised a mix of crops and associated weeds in small plots, an economy that Gimbutas called a "garden type of civilization". The difference between a crop and a weed in LBK contexts is the frequency. Crop foods are: Triticum dicoccum, emmer wheat ; Triticum monococcum, einkorn wheat ; Pisum sativum, pea ; Lens culinaris, lentil[PARAGRAPH:1]Species that are found so rarely as to warrant classification as possible weeds are: Hordeum, barley ; Panicum miliaceum, broom corn millet ; Secale cereale rye ; Vicia ervilia, bitter vetch ; Vicia faba, broad or field bean[PARAGRAPH:1]The emmer and the einkorn were sometimes grown as maslin, or mixed crops. The lower-yield einkorn predominates over emmer, which has been attributed to its better resistance to heavy rain. Hemp (Cannabis sativum) and flax (Linum usitatissimum) gave the LBK people the raw material of rope and cloth, which they no doubt manufactured at home as a cottage industry. From poppies (Papaver somniferum), introduced later from the Mediterranean, they may have manufactured palliative medicine.[PARAGRAPH:1]The LBK people were stock-raisers as well, with cattle favoured, though goats and swine are also recorded. Like farmers today, they may have used the better grain for themselves and the lower grades for the animals. The dogs are present here too, but scantly. Substantial wild faunal remains are found. The LBK supplemented their diets by hunting deer and wild boar in the open forests of Europe as it was then.[PARAGRAPH:1]A 2020 study by the University of Kiel found that the fields in the Vr�ble settlement were being used as pastures to produce manure, which in turn increased crop yields. This intensive subsistence system may have contributed to higher productivity in Vr�ble and could have been a factor in the settlement's high population density and concentration.[PARAGRAPH:1]A 2022 study by the University of Bristol found dairy fat residues in pottery dating as early as 7,400 years ago. Researchers analyzed residues from over 4,300 vessels recovered from 70 LBK archaeological sites. Milk use was detected in about 65% of these Neolithic sites.[PARAGRAPH:2]The Neolithic long house was a long, narrow timber dwelling built by the Old Europeans in Europe beginning at least as early as the period 6000 to 5000 BC. They first appeared in central Europe in connection with the early Neolithic cultures such as the Linear Pottery culture or Cucuteni culture. This type of architecture represents the largest free-standing structure in the world in its era. Long houses are present across numerous regions and time periods in the archaeological record.[PARAGRAPH:1]The long house was a rectangular structure, 5.5 to 7 m (18 to 23 ft) wide, of variable length, around 20 m (66 ft) up to 45 m (148 ft). Outer walls were wattle and daub, sometimes alternating with split logs, with pitched, thatched roofs, supported by rows of poles, three across. The exterior walls would have been quite short beneath the large roof. They were solid and massive, oak posts being preferred. Clay for the daub was dug from pits near the house, which were then used for storage. Houses in the urban settlements had two stories, with up to three or even four floors on each story. Some Linear Pottery culture houses were occupied for as long as 30 years.[PARAGRAPH:1]Some houses were especially spacious, extra large for the period, as one of the largest houses in southeastern Europe is the "Big House" in the Slatina district of Sofia in Bulgaria equivalent to a modern detached house.[PARAGRAPH:1]Surviving evidence suggests these houses had no windows and only one doorway. The door was located at one end of the house. Internally, the house had one or two partitions creating up to three areas. Interpretations of the use of these areas vary. Working activities might be carried out in the better lit door end, the middle used for sleeping and eating and the end farthest from the door could have been used for grain storage. According to another view, the interior was divided in areas for sleeping, common life and a fenced enclosure at the back end for keeping animals.[PARAGRAPH:1]Twenty or thirty people could have lived in each house, with villages composed typically of five to eight houses. Exceptionally, nearly 30 longhouses in a fortified settlement (dating to 4300 BC, i.e., Late Linear Pottery culture) were revealed by excavations at Oslonki in Poland.</English>
+@@ -538,6 +539,14 @@
+ 
+ 
+ 
++	<!-- custom: replace "JAPANESE_SHALE_PLANT" with "JAPAN_DOUJOU" ; as for the pedia entry, similarly imported from/based on https://en.wikipedia.org/wiki/Dojo and modified or not or/and also transliterated or not as i wanted or not or yes or etc anyways etc for advciv-sas anyways etc -->
++	<TEXT>
++		<Tag>TXT_KEY_BUILDING_JAPAN_DOUJOU_PEDIA</Tag>
++		<English>[TAB]A doujou (often transliterated as "dojo") is a hall or place for immersive learning, experiential learning, or meditation. This is traditionally in the field of martial arts. The term literally means "place of the Way" in Japanese.[PARAGRAPH:2]The word doujou originates from Buddhism. Initially, doujou were adjunct to temples and were formal training places for any of the Japanese arts ending in "-dou", from the Chinese Dao, meaning "way" or "path". Sometimes meditation halls where Zen Buddhists practice zazen meditation were called doujou. The alternative term zen-do is more specific, and more widely used. European Soutou Zen groups affiliated with the International Zen Association prefer to use doujou instead of zendo to describe their meditation halls as did their founding master, Taisen Deshimaru.[PARAGRAPH:1]In Japan, any facility for physical training, including professional wrestling, may be called a doujou. In the Western world, the term doujou (when related to physical activity) is used exclusively for Japanese martial arts such as aikidou, juudou, karate-dou, etc.[PARAGRAPH:2]A proper Japanese martial arts doujou is considered special and is well cared for by its users. Shoes are not worn in a doujou, which is in line with the Japanese custom to keep the premises clean and respectable. In many styles it is traditional to conduct a ritual cleaning (souji) of the doujou at the beginning and/or end of each training session. Besides the obvious hygienic benefits of regular cleaning it also serves to reinforce the fact that doujou are supposed to be supported and managed by the student body (or by special students, e.g., uchi-deshi). In some cases, the instructional staff may choose to help the students clean, as a sign of modesty, setting a personal example. In Modern Times, even when a school has a Dojo to train inside of, the training may sometimes be conducted outside, often in parks.[PARAGRAPH:1]Many traditional doujou follow a prescribed pattern with shomen ("front") and various entrances that are used based on student and instructor rank laid out precisely. The Shomen is designated as a wall, usually in the North of the Dojo and facing the entrance. Typically students will enter in the lower-left corner of the doujou (in reference to the shomen) with instructors in the upper right corner. Shomen typically has a shelf attached to it. On the shelf would traditionally be presented a miniature Shintou shrine with a sculpture, flower arrangement, or other artifacts. Pictures of past Masters are generally found aside the shrine, and not on it. The term kamiza means "place of honor" and a related term, kamidana refers to the shrine itself. Other artifacts may be displayed throughout the doujou, such as kanban (signboard) that authorize the school in a style or strategy, and items such as taiko drums or armor (ou-yoroi). It is not uncommon to find the name of the doujou and the doujou kun (roughly "doujou rules") displayed prominently at shomen as well. Visitors may have a special place reserved, depending on their rank and station. Weapons and other training gear will normally be found on the back wall.[PARAGRAPH:2]The term doujou is also increasingly used for other forms of immersive-learning space.[PARAGRAPH:1]The term doujou is sometimes used to describe the meditation halls where Zen Buddhists practice zazen seated meditation. The alternative term zen-do is more specific, and more widely used. European Soutou Zen groups affiliated with the International Zen Association prefer to use doujou instead of zendo to describe their meditation halls as did their founding master, Taisen Deshimaru.[PARAGRAPH:1]The term 'Dojo' has been used for various software, digital learning applications and by related companies.</English>
++	</TEXT>
++
++
++
+ 	<!-- custom: rename _HORSEBACK_RIDING to _MOUNTED_COMBAT, also pedia entry from: https://en.wikipedia.org/wiki/Mounted_infantry#History and https://en.wikipedia.org/wiki/Camel_cavalry and https://en.wikipedia.org/wiki/War_elephant#:~:text=The%20practice%20of%20riding%20on,when%20they%20were%20in%20India. similarly, modified or not for advciv-sas anyways etc anyways etc anyways etc... -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_TECH_MOUNTED_COMBAT_PEDIA</Tag>
+
+diff --git a/Assets/XML/Units/CIV4UnitInfos.xml b/Assets/XML/Units/CIV4UnitInfos.xml
+index c2fd011d4..5bd5eb2c7 100644
+--- a/Assets/XML/Units/CIV4UnitInfos.xml
++++ b/Assets/XML/Units/CIV4UnitInfos.xml
+@@ -17676,7 +17676,7 @@ see also (adjust to your mod path) C:\Program Files (x86)\Steam\steamapps\common
+ 			<Flavors/>
+ 			<iAIWeight>0</iAIWeight>
+ 			<!-- custom: was 180 -->
+-			<iCost>200</iCost>
++			<iCost>210</iCost>
+ 			<iHurryCostModifier>0</iHurryCostModifier>
+ 			<iAdvancedStartCost>100</iAdvancedStartCost>
+ 			<iAdvancedStartCostIncrease>0</iAdvancedStartCostIncrease>
+
+diff --git a/README.md b/README.md
+index fcef6315f..70fe55a99 100644
+--- a/README.md
++++ b/README.md
+@@ -398,3 +398,11 @@ Claude AI is the new member of the team if i may say anyways etc, i love becomin
+ I wanted to try Claude AI and had a bit of experience with it but anyways etc, and some people said in some reddit link or such place it was more performant than ChatGPT (before i had tried it or not), i don't know if it's true but as for this request (some others it could not entirely do as they were hard and complicated and is only free version too and prompt length is very quite short but anyways etc anyways etc) it succeeded at it at the first prompt, then adjusted it successfully right at second prompt, i only had to tweak the coordinates or bit of code comments as needed and it just worked nicely in this case. Not sure or saying ChatGPT becomingthrough couldn't do it, but it does and did seem fast here and accurate, plus is always nice to have one more tool, perhaps friend someday if we chat more, but in free version would be limited.
+ 
+ In all cases not writing a specific doc for Claude AI as i hadn't/i haven't used it at least yet enough for it to be relevant, but you can view the screenshot of this first successfully implemented in AdvCiv-SAS feature code by Claude AI here: ([Claude AI placeCivilizations related Google Drive folder](https://drive.google.com/drive/folders/1MLtCWamEl6P8rZs8f8xu0bfEBRUP0du1) with all or maybe rather at least many screenshots of the steps anyways etc)
++
++## Gemini AI
++
++More recently i also tried gemini AI as was mentionned in a reddit post but anyways etc while i was looking at perhaps new chatgpt models or general info about AI in wiki or not but anyways etc, and i used gemini AI to successfully add the list of units / buttons that require a building in sevopedia building's placeRequiredFor, for example the pagan/buddhist missionary require the pagan/buddhist monastery, or less ambiguously if i may say as organized religion civic may override this if i am not mistaken but anyways etc, in advciv-sas as of now workboats require a harbor in order to be built, see quick start guide for details about this change anyways etc, but now we show it as well in sevopedia building's harbor(s) page(s) i mean (including civ-specific versions like as of now the barbarian harbor but anyways etc), see also this [google drive folder link](https://drive.google.com/drive/folders/1DZwcPeeodfXNs1OmTe94daVQcnxbU0ov?usp=sharing) for example/screenshots of how i implemented it if interested if i may say but anyways etc
++
++Note: while gemini ai performs quite well and could do it successfully at first try at least for this task/case but anyways etc, it also created helpers with a different function name which was also uneeded, so i didn't need the numTxt display part of the code so there was no issue, else may have not worked/functionned at first try without a tweak, but functions-works fine so maybe fine in this case but is for exhaustiveness if i may say but anyways etc.
++
++Note 2: be careful though it is or can be super chatty or/and analytical/neurotic (a bit like me if i may say but anyways etc...) i don't know which or both or not but anyways etc, i have yet to test its code but maybe it works well, chatgpt also thinks it was overkill, but reading it myself it is smooth to read though, i swear my prompt was short too if i may say and i am thankful for the long explanation really xd, but anyways etc. Was happy to test it as such if i may say really, not mocking, but anyways etc anyways etc anyways etc... Edit: after testing code, it worked great with some small adjustments and giving it the python api doc vs code global search results in particular, its code comments are informative even though i didn't read all or rather but anyways etc i read all but didn't go too deep into them and just adjusted the result to keep only the code we need plus some tweaks :) Seems to work-function well and benkyo narimashta if i may say and i am not mistaken in saying so in this way if it is correct to say as so but anyways hopefully helpful or pleasant or not or yes or etc but anyways etc anyways etc anyways etc...
+
+[PATCH OMITTED] file=a/_0_Common_Docs/git_log_anonymized_email.txt b/_0_Common_Docs/git_log_anonymized_email.txt reason=known-generated/noisy-history changedLines=9 bytes=1308
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG
+index 546176e78..6629e49fd 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG
+index d49de142d..2f829740a 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.640_sevopedia_features_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG
+index 7d7757010..a233ed01d 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (1).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG
+index 24faf51be..ef5732309 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (2).JPG differ
+
+diff --git a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG
+index 62b27aa96..52ae96b93 100644
+Binary files a/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG and b/_1_AdvCiv-SAS/Images_In_General/sevopedia_reworks/0.700_sevopedia_terrains_sample (3).JPG differ
+
+[PATCH COVERAGE]
+patchFiles=30 embeddedFiles=29 omittedFiles=1 embeddedPatchBytes=65623

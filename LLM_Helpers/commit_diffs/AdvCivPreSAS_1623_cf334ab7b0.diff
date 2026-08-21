@@ -1,0 +1,182 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1623
+# Commit: cf334ab7b0045c22cf3edfda232beaae0938d3f2
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 40649c33d1a3152a5a91394be8ff2d1628e81c86
+# Title: Merged GameFont Display
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	0	Assets/Python/BUG/BugEventManager.py
+1	64	Assets/Python/CvEventManager.py
+3	2	Assets/Python/EntryPoints/CvScreensInterface.py
+1	1	Assets/Python/GameFontDisplay.py
+2	0	Assets/Python/Screens/CvScreenEnums.py
+
+[PATCHES]
+
+diff --git a/Assets/Python/BUG/BugEventManager.py b/Assets/Python/BUG/BugEventManager.py
+index 82549c862..044b50066 100644
+--- a/Assets/Python/BUG/BugEventManager.py
++++ b/Assets/Python/BUG/BugEventManager.py
+@@ -108,6 +108,7 @@ import types
+ import CvUtil
+ import CvScreensInterface
+ # </advc.007b>
++import GameFontDisplay # advc.gfd
+ # --------- Better BTS AI mod (1/2) -------------
+ import AIAutoPlay
+ import ChangePlayer
+@@ -511,6 +512,10 @@ class BugEventManager(CvEventManager.CvEventManager):
+ 						if not unit.isNone():
+ 							d = max(0, unit.getDamage() - 10)
+ 							unit.setDamage(d, PlayerTypes.NO_PLAYER)
++					# <advc.gfd> Keep Nightinggale's key combination
++					elif theKey == int(InputTypes.KB_F1) and self.bShift and self.bCtrl:
++						GameFontDisplay.GameFontDisplay().interfaceScreen()
++						return 1 # </advc.gfd>
+ 					elif theKey == int(InputTypes.KB_F1):
+ 						if self.bShift:
+ 							CvScreensInterface.replayScreen.showScreen(False)
+
+diff --git a/Assets/Python/CvEventManager.py b/Assets/Python/CvEventManager.py
+index f9a8969ef..aeaeb9119 100644
+--- a/Assets/Python/CvEventManager.py
++++ b/Assets/Python/CvEventManager.py
+@@ -222,70 +222,7 @@ class CvEventManager:
+ #################### ON EVENTS ######################
+ 	def onKbdEvent(self, argsList):
+ 		'keypress handler - return 1 if the event was consumed'
+-
+-		eventType,key,mx,my,px,py = argsList
+-		game = gc.getGame()
+-		
+-		if (self.bAllowCheats):
+-			# notify debug tools of input to allow it to override the control
+-			argsList = (eventType,key,self.bCtrl,self.bShift,self.bAlt,mx,my,px,py,gc.getGame().isNetworkMultiPlayer())
+-			if ( CvDebugTools.g_CvDebugTools.notifyInput(argsList) ):
+-				return 0
+-		
+-		if ( eventType == self.EventKeyDown ):
+-			theKey=int(key)
+-			
+-			CvCameraControls.g_CameraControls.handleInput( theKey )
+-						
+-			if (self.bAllowCheats):
+-				# Shift - T (Debug - No MP)
+-				if (theKey == int(InputTypes.KB_T)):
+-					if ( self.bShift ):
+-						self.beginEvent(CvUtil.EventAwardTechsAndGold)
+-						#self.beginEvent(CvUtil.EventCameraControlPopup)
+-						return 1
+-							
+-				elif (theKey == int(InputTypes.KB_W)):
+-					if ( self.bShift and self.bCtrl):
+-						self.beginEvent(CvUtil.EventShowWonder)
+-						return 1
+-							
+-				# Shift - ] (Debug - currently mouse-overd unit, health += 10
+-				elif (theKey == int(InputTypes.KB_LBRACKET) and self.bShift ):
+-					unit = CyMap().plot(px, py).getUnit(0)
+-					if ( not unit.isNone() ):
+-						d = min( unit.maxHitPoints()-1, unit.getDamage() + 10 )
+-						unit.setDamage( d, PlayerTypes.NO_PLAYER )
+-					
+-				# Shift - [ (Debug - currently mouse-overd unit, health -= 10
+-				elif (theKey == int(InputTypes.KB_RBRACKET) and self.bShift ):
+-					unit = CyMap().plot(px, py).getUnit(0)
+-					if ( not unit.isNone() ):
+-						d = max( 0, unit.getDamage() - 10 )
+-						unit.setDamage( d, PlayerTypes.NO_PLAYER )
+-					
+-				elif (theKey == int(InputTypes.KB_F1)):
+-					if ( self.bShift ):
+-						CvScreensInterface.replayScreen.showScreen(False)
+-						return 1
+-					# don't return 1 unless you want the input consumed
+-				
+-				elif (theKey == int(InputTypes.KB_F2)):
+-					if ( self.bShift ):
+-						import CvDebugInfoScreen
+-						CvScreensInterface.showDebugInfoScreen()
+-						return 1
+-				
+-				elif (theKey == int(InputTypes.KB_F3)):
+-					if ( self.bShift ):
+-						CvScreensInterface.showDanQuayleScreen(())
+-						return 1
+-						
+-				elif (theKey == int(InputTypes.KB_F4)):
+-					if ( self.bShift ):
+-						CvScreensInterface.showUnVictoryScreen(())
+-						return 1
+-											
++		# advc.007b: Body (mostly cheat commands) deleted; keyboard input is handled by BugEventManager.py.
+ 		return 0
+ 
+ 	def onModNetMessage(self, argsList):
+
+diff --git a/Assets/Python/EntryPoints/CvScreensInterface.py b/Assets/Python/EntryPoints/CvScreensInterface.py
+index 217590d48..8b1b10976 100644
+--- a/Assets/Python/EntryPoints/CvScreensInterface.py
++++ b/Assets/Python/EntryPoints/CvScreensInterface.py
+@@ -36,6 +36,7 @@ import CvWorldBuilderDiplomacyScreen
+ 
+ import CvDebugTools
+ import CvDebugInfoScreen
++import GameFontDisplay # advc.gfd
+ #import CvDiplomacy
+ 
+ import CvUtil
+@@ -1152,11 +1153,11 @@ HandleInputMap = {  MAIN_INTERFACE : mainInterface,
+ 					VICTORY_MOVIE_SCREEN : victoryMovie,
+ 					ESPIONAGE_ADVISOR : espionageAdvisor,
+ 					DAN_QUAYLE_SCREEN : danQuayleScreen,
+-
+ 					WORLDBUILDER_SCREEN : worldBuilderScreen,
+ 					WORLDBUILDER_DIPLOMACY_SCREEN : worldBuilderDiplomacyScreen,
+-					
+ 					DEBUG_INFO_SCREEN : debugInfoScreen,
++					# advc.gfd:
++					GAMEFONT_DISPLAY_SCREEN : GameFontDisplay.GameFontDisplay(),
+ 				
+ 				# add new screens here
+ 				}
+
+diff --git a/Assets/Python/GameFontDisplay.py b/Assets/Python/GameFontDisplay.py
+index 7a574f4f4..9d4b5ea89 100644
+--- a/Assets/Python/GameFontDisplay.py
++++ b/Assets/Python/GameFontDisplay.py
+@@ -4,7 +4,7 @@ import ScreenInput
+ import CvScreenEnums
+ gc = CyGlobalContext()
+ 
+-
++# advc.gfd: Main class of Nightinggale's GameFont Display component
+ class GameFontDisplay:
+ 	def __init__(self):
+ 		return
+
+diff --git a/Assets/Python/Screens/CvScreenEnums.py b/Assets/Python/Screens/CvScreenEnums.py
+index 8cd0ddcfb..8d4803381 100644
+--- a/Assets/Python/Screens/CvScreenEnums.py
++++ b/Assets/Python/Screens/CvScreenEnums.py
+@@ -36,6 +36,8 @@ ESPIONAGE_ADVISOR = 27
+ SPACE_SHIP_SCREEN = 28
+ CORPORATION_SCREEN = 29
+ 
++GAMEFONT_DISPLAY_SCREEN = 75 # advc.gfd
++
+ MAIN_INTERFACE = 99
+ DEBUG_INFO_SCREEN = 100
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=5459

@@ -1,0 +1,293 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1448
+# Commit: a8812e96d77d6bcf3b452b0758f32998635a2843
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 7a48b42c2865dbda37bd00e61b9d37113789c3c8
+# Title: Fixed pre-build command in multiplayer
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+5	5	CvGameCoreDLL/CvGameInterface.cpp
+4	12	CvGameCoreDLL/CvMessageControl.cpp
+2	4	CvGameCoreDLL/CvMessageControl.h
+11	67	CvGameCoreDLL/CvMessageData.cpp
+6	24	CvGameCoreDLL/CvMessageData.h
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index fe1129b68..98b6cc782 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -1140,10 +1140,9 @@ void CvGame::selectionListGameNetMessage(int eMessage, int iData2, int iData3, i
+ 							pSelectedUnitNode = gDLL->getInterfaceIFace()->nextSelectionListNode(pSelectedUnitNode);
+ 						}
+ 					}
+-
+-					//CvMessageControl::getInstance().sendPushMission(pHeadSelectedUnit->getID(), ((MissionTypes)iData2), iData3, iData4, iFlags, bShift);
+-					CvMessageControl::getInstance().sendPushMission(pHeadSelectedUnit->getID(), ((MissionTypes)iData2), iData3, iData4, iFlags & ~ MOVE_DECLARE_WAR, bShift);
+-					// K-Mod end
++					CvMessageControl::getInstance().sendPushMission(pHeadSelectedUnit->getID(), ((MissionTypes)iData2), iData3, iData4,
++							iFlags & ~ MOVE_DECLARE_WAR, bShift, // K-Mod end
++							GC.ctrlKey()); // advc.011b
+ 				}
+ 				else
+ 				{
+@@ -2448,7 +2447,8 @@ void CvGame::applyFlyoutMenu(const CvFlyoutMenuData& kItem)
+ 					pUnitNode = pPlot->nextUnitNode(pUnitNode);
+ 					if (pLoopUnit->isGroupHead() && pLoopUnit->getOwnerINLINE() == getActivePlayer()) // K-Mod
+ 					{
+-						CvMessageControl::getInstance().sendPushMission(pLoopUnit->getID(), ((pLoopUnit->isFortifyable()) ? MISSION_FORTIFY : MISSION_SLEEP), -1, -1, 0, false);
++						CvMessageControl::getInstance().sendPushMission(pLoopUnit->getID(), ((pLoopUnit->isFortifyable()) ? MISSION_FORTIFY : MISSION_SLEEP), -1, -1, 0, false,
++								GC.ctrlKey()); // advc.011b
+ 					}
+ 				}
+ 			}
+
+diff --git a/CvGameCoreDLL/CvMessageControl.cpp b/CvGameCoreDLL/CvMessageControl.cpp
+index 2eae5e130..4c51f95b6 100644
+--- a/CvGameCoreDLL/CvMessageControl.cpp
++++ b/CvGameCoreDLL/CvMessageControl.cpp
+@@ -128,23 +128,15 @@ void CvMessageControl::sendJoinGroup(int iUnitID, int iHeadID)
+ 	}
+ }
+ 
+-void CvMessageControl::sendPushMission(int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift)
++void CvMessageControl::sendPushMission(int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift,
++		bool bModified) // advc.011b
+ {
+ 	if (NO_PLAYER != GC.getGameINLINE().getActivePlayer())
+ 	{
+-		gDLL->sendMessageData(new CvNetPushMission(GC.getGameINLINE().getActivePlayer(), iUnitID, eMission, iData1, iData2, iFlags, bShift));
++		gDLL->sendMessageData(new CvNetPushMission(GC.getGameINLINE().getActivePlayer(), iUnitID, eMission, iData1, iData2, iFlags, bShift,
++				bModified)); // advc.011b
+ 	}
+ }
+-// <advc.011b>
+-void CvMessageControl::sendPushModifiedMission(int iUnitID, MissionTypes eMission,
+-		int iData1, int iData2, int iFlags, bool bShift, bool bModified) {
+-
+-	PlayerTypes eActivePlayer = GC.getGameINLINE().getActivePlayer();
+-	if(eActivePlayer != NO_PLAYER) {
+-		gDLL->sendMessageData(new CvNetPushModifiedMission(eActivePlayer, iUnitID,
+-				eMission, iData1, iData2, iFlags, bShift, bModified));
+-	}
+-} // </advc.011b>
+ 
+ void CvMessageControl::sendAutoMission(int iUnitID)
+ {
+
+diff --git a/CvGameCoreDLL/CvMessageControl.h b/CvGameCoreDLL/CvMessageControl.h
+index abc6bddeb..8779f98ca 100644
+--- a/CvGameCoreDLL/CvMessageControl.h
++++ b/CvGameCoreDLL/CvMessageControl.h
+@@ -23,10 +23,8 @@ public:
+ 	DllExport void sendLaunch(PlayerTypes ePlayer, VictoryTypes eVictory);
+ 	void sendEventTriggered(PlayerTypes ePlayer, EventTypes eEvent, int iEventTriggeredId);
+ 	DllExport void sendJoinGroup(int iUnitID, int iHeadID);
+-	void sendPushMission(int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift);
+-	// <advc.011b>
+-	void sendPushModifiedMission(int iUnitID, MissionTypes eMission, int iData1,
+-			int iData2, int iFlags, bool bShift, bool bModified); // </advc.011b>
++	void sendPushMission(int iUnitID, MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift,
++			bool bModified); // advc.011b
+ 	void sendAutoMission(int iUnitID);
+ 	void sendDoCommand(int iUnitID, CommandTypes eCommand, int iData1, int iData2, bool bAlt);
+ 	void sendPercentChange(CommerceTypes eCommerce, int iChange);
+
+diff --git a/CvGameCoreDLL/CvMessageData.cpp b/CvGameCoreDLL/CvMessageData.cpp
+index 5e08772e2..d04e75280 100644
+--- a/CvGameCoreDLL/CvMessageData.cpp
++++ b/CvGameCoreDLL/CvMessageData.cpp
+@@ -4,7 +4,6 @@
+ #include "CvDLLUtilityIFaceBase.h"
+ #include "CvDLLInterfaceIFaceBase.h"
+ #include "CvEventReporter.h"
+-#include "CvMessageControl.h" // advc.011b
+ 
+ CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
+ {
+@@ -46,9 +45,6 @@ CvMessageData* CvMessageData::createMessage(GameMessageTypes eType)
+ 		return new CvNetJoinGroup();
+ 	case GAMEMESSAGE_PUSH_MISSION: 
+ 		return new CvNetPushMission();
+-	// <advc.011b>
+-	case GAMEMESSAGE_PUSH_MODIFIED_MISSION: 
+-		return new CvNetPushModifiedMission(); // </advc.011b>
+ 	case GAMEMESSAGE_AUTO_MISSION: 
+ 		return new CvNetAutoMission();
+ 	case GAMEMESSAGE_DO_COMMAND: 
+@@ -758,21 +754,17 @@ void CvNetJoinGroup::SetFromBuffer(FDataStreamBase* pStream)
+ 
+ CvNetPushMission::CvNetPushMission() :
+ 	CvMessageData(GAMEMESSAGE_PUSH_MISSION), m_ePlayer(NO_PLAYER), m_iUnitID(-1),
+-	m_eMission(NO_MISSION), m_iData1(-1), m_iData2(-1), m_iFlags(0), m_bShift(false)
++	m_eMission(NO_MISSION), m_iData1(-1), m_iData2(-1), m_iFlags(0), m_bShift(false),
++	m_bModified(false) // advc.011b
+ {}
+ 
+ CvNetPushMission::CvNetPushMission(PlayerTypes ePlayer, int iUnitID,
+-		MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift) :
++		MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift,
++		bool bModified) : // advc.011b
+ 	CvMessageData(GAMEMESSAGE_PUSH_MISSION), m_ePlayer(ePlayer), m_iUnitID(iUnitID),
+-	m_eMission(eMission), m_iData1(iData1), m_iData2(iData2), m_iFlags(iFlags), m_bShift(bShift)
++	m_eMission(eMission), m_iData1(iData1), m_iData2(iData2), m_iFlags(iFlags), m_bShift(bShift),
++	m_bModified(bModified) // advc.011b
+ {}
+-// <advc.011b>
+-CvNetPushMission::CvNetPushMission(GameMessageTypes eMessageType,
+-		PlayerTypes ePlayer, int iUnitID,
+-		MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift) :
+-	CvMessageData(eMessageType), m_ePlayer(ePlayer), m_iUnitID(iUnitID),
+-	m_eMission(eMission), m_iData1(iData1), m_iData2(iData2), m_iFlags(iFlags), m_bShift(bShift)
+-{} // </advc.011b>
+ 
+ void CvNetPushMission::Debug(char* szAddendum) 
+ {		
+@@ -788,16 +780,9 @@ void CvNetPushMission::Execute()
+ 		{
+ 			CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
+ 			if (pSelectionGroup != NULL)
+-			{	/*  <advc.011b> All machines receive the push-mission message.
+-					Everyone except the group owner discards the message. The
+-					group owner checks the CTRL key and sends a new message around
+-					that contains the CTRL key status. */
+-				if(pSelectionGroup->getOwnerINLINE() == GC.getGameINLINE().getActivePlayer()) {
+-					CvMessageControl::getInstance().sendPushModifiedMission(
+-							m_iUnitID, m_eMission, m_iData1, m_iData2, m_iFlags, m_bShift,
+-							GC.ctrlKey());
+-				} // </advc.011b>
+-				//pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2, m_iFlags, m_bShift, true);
++			{
++				pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2, m_iFlags, m_bShift,
++						false, NO_MISSIONAI, NULL, NULL, m_bModified); // advc.011b
+ 			}
+ 		}
+ 	}
+@@ -812,6 +797,7 @@ void CvNetPushMission::PutInBuffer(FDataStreamBase* pStream)
+ 	pStream->Write(m_iData2);
+ 	pStream->Write(m_iFlags);
+ 	pStream->Write(m_bShift);
++	pStream->Write(m_bModified); // advc.011b
+ }
+ 
+ void CvNetPushMission::SetFromBuffer(FDataStreamBase* pStream)
+@@ -823,51 +809,9 @@ void CvNetPushMission::SetFromBuffer(FDataStreamBase* pStream)
+ 	pStream->Read(&m_iData2);
+ 	pStream->Read(&m_iFlags);
+ 	pStream->Read(&m_bShift);
++	pStream->Read(&m_bModified); // advc.011b
+ }
+ 
+-// <advc.011b>
+-CvNetPushModifiedMission::CvNetPushModifiedMission() :
+-	CvNetPushMission(), m_bModified(false) {}
+-
+-CvNetPushModifiedMission::CvNetPushModifiedMission(PlayerTypes ePlayer, int iUnitID,
+-		MissionTypes eMission, int iData1, int iData2, int iFlags, bool bShift,
+-		bool bModified) :
+-	CvNetPushMission(GAMEMESSAGE_PUSH_MODIFIED_MISSION, ePlayer, iUnitID,
+-	eMission, iData1, iData2, iFlags, bShift), m_bModified(bModified)
+-{}
+-
+-void CvNetPushModifiedMission::Debug(char* szAddendum)  {
+-	CvNetPushMission::Debug(szAddendum);
+-	sprintf(szAddendum, "%s", m_bModified ? ", Modifier key is down" : "");
+-}
+-
+-void CvNetPushModifiedMission::Execute()
+-{	// What CvNetPushMission::Execute used to do
+-	if(m_ePlayer == NO_PLAYER)
+-		return;
+-	CvUnit* pUnit = GET_PLAYER(m_ePlayer).getUnit(m_iUnitID);
+-	if(pUnit == NULL)
+-		return;
+-	CvSelectionGroup* pSelectionGroup = pUnit->getGroup();
+-	if(pSelectionGroup != NULL) {
+-		pSelectionGroup->pushMission(m_eMission, m_iData1, m_iData2, m_iFlags, m_bShift, true,
+-				NO_MISSIONAI, NULL, NULL, m_bModified);
+-	}
+-}
+-
+-void CvNetPushModifiedMission::PutInBuffer(FDataStreamBase* pStream) {
+-
+-	CvNetPushMission::PutInBuffer(pStream);
+-	pStream->Write(m_bModified);
+-}
+-
+-void CvNetPushModifiedMission::SetFromBuffer(FDataStreamBase* pStream) {
+-
+-	CvNetPushMission::SetFromBuffer(pStream);
+-	pStream->Read(&m_bModified);
+-}
+-// </advc.011b>
+-
+ CvNetAutoMission::CvNetAutoMission() : CvMessageData(GAMEMESSAGE_AUTO_MISSION), m_ePlayer(NO_PLAYER), m_iUnitID(-1)
+ {
+ }
+
+diff --git a/CvGameCoreDLL/CvMessageData.h b/CvGameCoreDLL/CvMessageData.h
+index ca329594c..7a232b16f 100644
+--- a/CvGameCoreDLL/CvMessageData.h
++++ b/CvGameCoreDLL/CvMessageData.h
+@@ -287,18 +287,13 @@ class CvNetPushMission : public CvMessageData
+ public:
+ 	CvNetPushMission();
+ 	CvNetPushMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission,
+-			int iData1, int iData2, int iFlags, bool bShift);
++			int iData1, int iData2, int iFlags, bool bShift,
++			bool bModified); // advc.011b
+ 	virtual void Debug(char* szAddendum);
+ 	virtual void Execute();
+ 	virtual void PutInBuffer(FDataStreamBase* pStream);
+ 	virtual void SetFromBuffer(FDataStreamBase* pStream);
+-//private: // <advc.011b>
+-protected:
+-	// To allow sublasses to set a different message type
+-	CvNetPushMission(GameMessageTypes eMessageType,
+-			PlayerTypes ePlayer, int iUnitID, MissionTypes eMission,
+-			int iData1, int iData2, int iFlags, bool bShift);
+-	// </advc.011b>
++private:
+ 	PlayerTypes m_ePlayer;
+ 	int m_iUnitID;
+ 	MissionTypes m_eMission;
+@@ -306,23 +301,10 @@ protected:
+ 	int m_iData2;
+ 	int m_iFlags;
+ 	bool m_bShift;
+-};
+-// <advc.011b>
+-class CvNetPushModifiedMission : public CvNetPushMission
+-{
+-public:
+-	CvNetPushModifiedMission();
+-	CvNetPushModifiedMission(PlayerTypes ePlayer, int iUnitID, MissionTypes eMission,
+-			int iData1, int iData2, int iFlags, bool bShift, bool bModified);
+-	virtual void Debug(char* szAddendum);
+-	virtual void Execute();
+-	virtual void PutInBuffer(FDataStreamBase* pStream);
+-	virtual void SetFromBuffer(FDataStreamBase* pStream);
+-protected:
+-	/*  Modifier key down (I'm going to use CTRL, but let's not commit to that by
+-		calling the variable bCtrl.) */
++	/*  advc.011b: Modifier key down (I'm going to use CTRL, but let's not commit to
++		that by calling the variable bCtrl.) */
+ 	bool m_bModified;
+-}; // </advc.011b>
++};
+ 
+ class CvNetAutoMission : public CvMessageData
+ {
+
+[PATCH COVERAGE]
+patchFiles=5 embeddedFiles=5 omittedFiles=0 embeddedPatchBytes=11203

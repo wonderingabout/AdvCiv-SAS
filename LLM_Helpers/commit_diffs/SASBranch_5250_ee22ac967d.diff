@@ -1,0 +1,92 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5250
+# Commit: ee22ac967d547f3d19888bf90dc0e2c414fbb4d6
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: f4adfa89115b0edbce83ba43724b86782f497e1d
+# Title: disable events as default in base new game mode ("play now") - The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+2	1	Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+5	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+index 96e3361ab..3a1ab0869 100644
+--- a/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
++++ b/Assets/XML/GameInfo/CIV4GameOptionInfos.xml
+@@ -167,11 +167,12 @@
+ 			<bDefault>0</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
++		<!-- custom: events are annoying and it's tedious to go to a custom game just to disable them, set up all players, etc., so make it the default to be no event: players can add events if they want to via a custom game instead, as recommended by chatgpt 5.2 thanks anyways etc., was bDefault 0 -->
+ 		<GameOptionInfo>
+ 			<Type>GAMEOPTION_NO_EVENTS</Type>
+ 			<Description>TXT_KEY_GAME_OPTION_NO_EVENTS</Description>
+ 			<Help>TXT_KEY_GAME_OPTION_NO_EVENTS_HELP</Help>
+-			<bDefault>0</bDefault>
++			<bDefault>1</bDefault>
+ 			<bVisible>1</bVisible>
+ 		</GameOptionInfo>
+ 		<!-- advc.tsl: Moved down, taking the spot of NO_ESPIONAGE. -->
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index e5b116d00..e4c70fdbb 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -44,6 +44,7 @@ The aim is to make more and more options player-tunable via XML in SAS defines,
+ &emsp;[Civics (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#civics-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Technologies (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#technologies-non-exhaustive-see-sevopedia-orand-tech-advisor-orand-xml-for-details)  
+ &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#eras)  
++&emsp;[Events](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#events)  
+ &emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#culture)  
+ &emsp;[Religions (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#religions-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+ &emsp;[Corporations (non-exhaustive…)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#corporations-non-exhaustive-see-sevopedia-orand-xml-for-details)  
+@@ -397,6 +398,10 @@ Note: please see note here as well in this custom main changes guide about the .
+ - similarly increased `iBuildPercent` and `iImprovementPercent` from 100/100/100/90/80/70/60 to 100 at all eras; even assuming 2-4 years per road in later eras it doesn't seem too far-fetched or unrealistic, or 10-20 years in industrial era or such maybe (imaginary numbers anyways etc), so no reason to over-realism here either or whatever the reason was but anyways etc.
+ - also increased `iCulturePercent` from 100/100/80/70/60/50/50 to 100 at all eras. I don't want culture to have an exponential growth later on for no reason, keep scaling consistent and only increased by commerce not some weird things; no reason why ancient culture isn't as valuable as modern one too btw but anyways (or increase the values for modern culture buildings/units or/and such rather if needed than this weird modifier thing anyways etc).
+ 
++### Events
++
++- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
++
+ ### Culture
+ 
+ - rebalanced great artist: nerf/reduce early bomb culture instant culture gain from 700 to 500 per era, and increase culture per turn for long term victory culture path or and other uses from 12 to 18 per turn anyways etc
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index 6ba6c795a..1fc41f884 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -44,6 +44,7 @@ Many of these changes are partially or entirely tunable via [`GlobalDefines_advc
+ &emsp;[Civics (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#civics-non-exhaustive)  
+ &emsp;[Technologies (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#technologies-non-exhaustive)  
+ &emsp;[Eras](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#eras)  
++&emsp;[Events](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#events)  
+ &emsp;[Culture](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#culture)  
+ &emsp;[Religions (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#religions-non-exhaustive)  
+ &emsp;[Corporations (non-exhaustive)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#corporations-non-exhaustive)  
+@@ -385,6 +386,10 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ - **Eras — worker builds & improvements scaling flattened**: set `iBuildPercent` and `iImprovementPercent` from **100/100/100/90/80/70/60 → 100** at **all eras**. The original reason for the era-based scaling isn’t known; this change is intentional to keep tile-development pacing **predictable and consistent** across eras and to tune balance directly through base costs/worker rates rather than hidden era multipliers.
+ - **Eras — culture scaling flattened**: set `iCulturePercent` from **100/100/80/70/60/50/50 → 100** at **all eras**. Removes late-era culture acceleration so culture growth stays **consistent** and driven by **commerce/buildings**, not hidden era multipliers. In **AdvCiv-SAS**, if we ever want modern (or ancient) culture to weigh differently, we prefer adjusting the **explicit culture values on buildings/units** rather than reintroducing era-wide modifiers.
+ 
++### Events
++
++- (Requires AdvCiv-SAS 5250+) The standard new game mode (**Play Now**) now has **Events Disabled** by default. We find they can be annoying, distracting, or frustrating; they do not bring a real gameplay value to make up for that, and setting up a Custom Game every time to disable them is tedious. Players can still enable events via the **Custom Game** mode: make sure the "No Random Events" option is unticked, or alternatively revert this change. Change in [CIV4GameOptionInfos.xml](/Assets/XML/GameInfo/CIV4GameOptionInfos.xml) (`GAMEOPTION_NO_EVENTS`'s `bDefault`: `0` -> `1`).
++
+ ### Culture
+ 
+ - **Great Artist rebalance:** culture bomb strength reduced (**700 → 500 per era**), but long-term culture output increased (**12 → 18 culture/turn**). This strengthens long-term culture play while toning down early spikes.
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=7232

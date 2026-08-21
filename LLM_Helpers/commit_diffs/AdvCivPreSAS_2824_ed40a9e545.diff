@@ -1,0 +1,141 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2824
+# Commit: ed40a9e545db9306166a65dcf4e1f8c2e6371cf6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 3354ca48c50b70a95c14d367f04833964546052b
+# Title: Disable RMB back-cycling via worker cycling button
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Python/Screens/CvMainInterface.py
+5	5	Assets/XML/Text/BUG Main Interface Options.xml
+3	2	CvGameCoreDLL/CvDLLWidgetData.cpp
+1	1	CvGameCoreDLL/CvGameCoreUtils.h
+5	2	CvGameCoreDLL/CvGameInterface.cpp
+2	0	CvGameCoreDLL/CyEnumsInterface.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 3f3d6afcb..4ba47a090 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -124,7 +124,7 @@ NUM_SELECTION_BUTTONS = SELECTION_BUTTON_ROWS * SELECTION_BUTTON_COLUMNS
+ g_iNumBuildingWidgets = MAX_DISPLAYABLE_BUILDINGS
+ g_iNumTradeRouteWidgets = MAX_DISPLAYABLE_TRADE_ROUTES
+ 
+-iBottomButtonContainerOffsetY = 113 # advc.154
++iBottomButtonContainerOffsetY = 113 # advc
+ # END OF TURN BUTTON POSITIONS
+ ######################
+ iEndOfTurnButtonSize = 32
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 62296a3ba..caa10fda5 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -715,11 +715,11 @@
+ 	</TEXT>
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__UNITCYCLINGBUTTONS_HOVER</Tag>
+-		<English>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</English>
+-		<French>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</French>
+-		<German>Schaltfl�chen (Buttons) zum Wechseln der ausgew�hlten Einheit.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zwei Buttons[COLOR_REVERT]: Ein Button f�r den regul�ren Einheitenwechsel und, falls Arbeiter ([COLOR_UNIT_TEXT]Bautrupps[COLOR_REVERT] oder [COLOR_UNIT_TEXT]Arbeitsboote[COLOR_REVERT]) Befehle ben�tigen, ein weiterer Button zum Arbeiterwechsel. Wenn die n�chste Einheit jedenfalls ein Arbeiter ist, wird nur ein einzelner Button angezeigt.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Button zeigen[COLOR_REVERT]: Zeigt den Einheitenwechsel-Button an, aber nicht den Arbeiterwechsel-Button.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Kein Button[COLOR_REVERT]: Keiner der beiden Buttons wird angezeigt.[NEWLINE][NEWLINE]Ein Rechtsklick auf einen der Buttons wechselt zur zuletzt ausgew�hlten Einheit. Die BtS Tastaturk�rzel funktionieren unabh�ngig von den Buttons: [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] oder [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] f�r den Einheitenwechsel, [COLOR_HIGHLIGHT_TEXT]#[COLOR_REVERT] f�r den Arbeiterwechsel und [COLOR_HIGHLIGHT_TEXT]^[COLOR_REVERT] um zur vorhergehenden Einheit zu wechseln.</German>
+-		<Italian>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</Italian>
+-		<Spanish>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking either of the unit cycling buttons jumps backwards in the unit cycle. Even if the buttons are disabled, one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</Spanish>
++		<English>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking the unit cycling button jumps backwards in the unit cycle. Note that one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</English>
++		<French>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking the unit cycling button jumps backwards in the unit cycle. Note that one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</French>
++		<German>Schaltfl�chen (Buttons) zum Wechseln der ausgew�hlten Einheit.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Zwei Buttons[COLOR_REVERT]: Ein Button f�r den regul�ren Einheitenwechsel und, falls Arbeiter ([COLOR_UNIT_TEXT]Bautrupps[COLOR_REVERT] oder [COLOR_UNIT_TEXT]Arbeitsboote[COLOR_REVERT]) Befehle ben�tigen, ein weiterer Button zum Arbeiterwechsel. Wenn die n�chste Einheit jedenfalls ein Arbeiter ist, wird nur ein einzelner Button angezeigt.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Button zeigen[COLOR_REVERT]: Zeigt den Einheitenwechsel-Button an, aber nicht den Arbeiterwechsel-Button.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Kein Button[COLOR_REVERT]: Keiner der beiden Buttons wird angezeigt.[NEWLINE][NEWLINE]Ein Rechtsklick auf den Einheitenwechsel-Button wechselt zur zuletzt ausgew�hlten Einheit. Unabh�ngig von den Buttons existieren folgende Tastaturk�rzel (wie in BtS): [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] oder [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] f�r den Einheitenwechsel, [COLOR_HIGHLIGHT_TEXT]#[COLOR_REVERT] f�r den Arbeiterwechsel und [COLOR_HIGHLIGHT_TEXT]^[COLOR_REVERT] um zur vorhergehenden Einheit zu wechseln.</German>
++		<Italian>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking the unit cycling button jumps backwards in the unit cycle. Note that one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</Italian>
++		<Spanish>Whether to show unit cycling buttons (to the left of the big flag).[NEWLINE][COLOR_HIGHLIGHT_TEXT]Two Buttons[COLOR_REVERT]: Shows a button for unit cycling and, if any worker units need orders, a separate button for worker cycling. If the next unit in the whole cycle (workers and non-workers) is a worker, then only a single button is shown.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Enabled[COLOR_REVERT]: Enables only the regular unit cycling button; no separate button for worker cycling.[NEWLINE][COLOR_HIGHLIGHT_TEXT]Disabled[COLOR_REVERT]: No unit cycling buttons are shown.[NEWLINE][NEWLINE]Right-clicking the unit cycling button jumps backwards in the unit cycle. Note that one can always use the (BtS) hotkeys [COLOR_HIGHLIGHT_TEXT]W[COLOR_REVERT], [COLOR_HIGHLIGHT_TEXT]NUM5[COLOR_REVERT] or [COLOR_HIGHLIGHT_TEXT]Enter[COLOR_REVERT] for unit cycling, [COLOR_HIGHLIGHT_TEXT]/[COLOR_REVERT] for worker cycling and [COLOR_HIGHLIGHT_TEXT]\[COLOR_REVERT] for cycling backwards.</Spanish>
+ 	</TEXT>
+ 
+ 	<!-- 002m: -->
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index 390e01ac4..cf7139007 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -55,7 +55,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
+ 		}
+ 	} // </advc.085>
+ 	/*	advc: (Note - Better not to assume that this is valid, widgets might perhaps
+-		get triggered while returning to main memory or sth. like that.) */
++		get triggered while returning to main menu or sth. like that.) */
+ 	PlayerTypes const eActivePlayer = GC.getGame().getActivePlayer();
+ 	switch (widgetDataStruct.m_eWidgetType)
+ 	{
+@@ -1129,7 +1129,8 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataStruct)
+ 		if (pUnit != NULL)
+ 			gDLL->getEngineIFace()->cameraLookAt(pUnit->getPlot().getPoint());*/
+ 		// Maybe better: cycle backwards
+-		GC.getGame().doControl(CONTROL_LASTUNIT);
++		if (iData1 == 0) // (but not on the worker button)
++			GC.getGame().doControl(CONTROL_LASTUNIT);
+ 		break;
+ 	} // </advc.154>
+ 	default:
+
+diff --git a/CvGameCoreDLL/CvGameCoreUtils.h b/CvGameCoreDLL/CvGameCoreUtils.h
+index e10d8d4d8..02e86e323 100644
+--- a/CvGameCoreDLL/CvGameCoreUtils.h
++++ b/CvGameCoreDLL/CvGameCoreUtils.h
+@@ -260,7 +260,7 @@ DllExport bool isCardinalDirection(DirectionTypes eDirection);															//
+ DirectionTypes estimateDirection(int iDX, int iDY);																// Exposed to Python
+ DllExport DirectionTypes estimateDirection(const CvPlot* pFromPlot, const CvPlot* pToPlot);
+ 
+-// advc: Moved from CvXMLLoadUtility
++// advc: Moved from CvXMLLoadUtility. (CvHotKeyInfo might be an even better place?)
+ namespace hotkeyDescr
+ {
+ 	CvWString keyStringFromKBCode(TCHAR const* szDescr);
+
+diff --git a/CvGameCoreDLL/CvGameInterface.cpp b/CvGameCoreDLL/CvGameInterface.cpp
+index 6c2fb67aa..6a7625bcf 100644
+--- a/CvGameCoreDLL/CvGameInterface.cpp
++++ b/CvGameCoreDLL/CvGameInterface.cpp
+@@ -608,14 +608,17 @@ CvUnit* CvGame::getCycleButtonUnit(bool bForward, bool bWorkers) const
+ 			bForward, bWorkers, bDummy, pDummy);
+ 	if (pNextGroup == NULL || pNextGroup->getNumUnits() <= 0)
+ 		return NULL;
+-	for (int iPass = 0; iPass < (bWorkers ? 1 : 2); iPass++)
++	for (int iPass = 0; iPass < (/*bWorkers ? 1 :*/ 2); iPass++)
+ 	{
+ 		FOR_EACH_UNIT_VAR_IN(pUnit, *pNextGroup)
+ 		{
+ 			if (!pUnit->IsSelected() && pUnit->canMove() &&
+ 				/*	!bWorkers doesn't exclude all-worker groups, so we can only
+ 					_prefer_ selecting a non-worker. */
+-				(iPass == 1 || bWorkers == pUnit->isWorker()))
++					/*	Actually, let's always prefer to select a worker. Don't want
++						to show different icons on the two buttons if they refer
++						to the same group. */
++				(iPass == 1 || /*bWorkers == */pUnit->isWorker()))
+ 			{
+ 				return pUnit;
+ 			}
+
+diff --git a/CvGameCoreDLL/CyEnumsInterface.cpp b/CvGameCoreDLL/CyEnumsInterface.cpp
+index 1227f7d18..234610dd0 100644
+--- a/CvGameCoreDLL/CyEnumsInterface.cpp
++++ b/CvGameCoreDLL/CyEnumsInterface.cpp
+@@ -9,6 +9,8 @@
+ //
+ // Python interface for free enums
+ //
++/*	advc.enum (note): Unfortunately, these .value calls can't easily be generated
++	through macros. The string arguments are the main obstacle. */
+ 
+ void CyEnumsPythonInterface()
+ {
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=14698

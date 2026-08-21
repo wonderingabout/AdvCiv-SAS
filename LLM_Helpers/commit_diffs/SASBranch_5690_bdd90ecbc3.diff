@@ -1,0 +1,156 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5690
+# Commit: bdd90ecbc37a80e6a1194de508c61e173230882a
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: cea9de8907a541b3f7c850523500f22943713af4
+# Title: lift blue ribbon up and adjust extra rows dimensions, with optional separate blue ribbon, bar Y position and bar height tunables done with the very nice help...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+25	2	Assets/Python/Screens/CvMainInterface.py
+12	2	Assets/XML/GlobalDefines_advciv_sas.xml
+1	1	_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/Python/Screens/CvMainInterface.py b/Assets/Python/Screens/CvMainInterface.py
+index 66f647e31..ebfdc9785 100644
+--- a/Assets/Python/Screens/CvMainInterface.py
++++ b/Assets/Python/Screens/CvMainInterface.py
+@@ -176,7 +176,7 @@ class CvMainInterface:
+ 				gRect("CenterBottomPanel").x(), gRect("CenterBottomPanel").y(),
+ 				gRect("CenterBottomPanel").width(), gRect("CenterBottomPanel").height())
+ 	def cityScreenBottomLift(self):
+-		# <!-- custom: lift by 1 row plus an extra gap to mirror bottom spacing. (GPT-5.2-Codex) -->
++		# <!-- custom: base city-screen lift used by side panels/bars; keep shared behavior stable. (GPT-5.3-Codex) -->
+ 		return self.bottomListBtnSize() + VSPACE(16)
+ 
+ 	def _cacheCityScreenSideLiftRects(self):
+@@ -194,6 +194,7 @@ class CvMainInterface:
+ 		aRects = [
+ 			"LowerLeftCornerPanel", "LowerLeftCornerBackgr", "LowerLeftCorner",
+ 			"LowerRightCornerPanel", "LowerRightCorner",
++			"CenterBottomPanel", "CenterBottom",
+ 			"CultureBars", "CultureBar",
+ 			"GreatPeopleBar",
+ 		]
+@@ -211,10 +212,20 @@ class CvMainInterface:
+ 		if bEnable == self.bCityScreenSideLiftApplied:
+ 			return
+ 		iLift = self.cityScreenBottomLift()
++		iRibbonExtraLift = self.iCityScreenBlueRibbonExtraLift
+ 		for szName in self._cityScreenSideLiftRectNames():
+ 			lBase = self.cityScreenSideLiftRects[szName].copy()
+ 			if bEnable:
+-				if szName in ("LowerLeftCornerPanel", "LowerRightCornerPanel"):
++				if szName == "CenterBottomPanel":
++					# <!-- custom: decorative ribbon gets the full lift (base + ribbon-extra). (Claude code Opus 4.7) -->
++					iCenterLift = iLift + iRibbonExtraLift
++					lBase.move(0, -iCenterLift)
++					lBase.adjustSize(0, iCenterLift)
++				elif szName == "CenterBottom":
++					# <!-- custom: bar container gets base lift only, so the bar rect (and iMaxHeight feeding updateBottomButtonList) stays independent of the ribbon-extra-lift knob. (Claude code Opus 4.7) -->
++					lBase.move(0, -iLift)
++					lBase.adjustSize(0, iLift)
++				elif szName in ("LowerLeftCornerPanel", "LowerRightCornerPanel"):
+ 					lBase.move(0, -iLift)
+ 					lBase.adjustSize(0, iLift)
+ 				else:
+@@ -239,6 +250,9 @@ class CvMainInterface:
+ 		self.screen.setPanelSize("LowerRightCornerPanel",
+ 				gRect("LowerRightCornerPanel").x(), gRect("LowerRightCornerPanel").y(),
+ 				gRect("LowerRightCornerPanel").width(), gRect("LowerRightCornerPanel").height())
++		self.screen.setPanelSize("CenterBottomPanel",
++				gRect("CenterBottomPanel").x(), gRect("CenterBottomPanel").y(),
++				gRect("CenterBottomPanel").width(), gRect("CenterBottomPanel").height())
+ 		self.screen.setPanelSize("CityLeftPanel",
+ 				gRect("CityLeftPanel").x(), gRect("CityLeftPanel").y(),
+ 				gRect("CityLeftPanel").width(), gRect("CityLeftPanel").height())
+@@ -659,6 +673,8 @@ class CvMainInterface:
+ 		# <!-- custom: unlike in other files, setting this as a global and reading from gc in global scope doesn't work; regardless of the SAS define value, extra rows for the city screen production chooser stay disabled in-game. So set it here. (GPT-5.2-Codex (summarized)) -->
+ 		self.iBarExtraRows = None
+ 		self.iBarExtraRowsExtraManualAdjust = None
++		self.iBarExtraHeightExtraManualAdjust = None
++		self.iCityScreenBlueRibbonExtraLift = None
+ 		# <!-- custom: fix production chooser bar auto-scrolling when clicking lower rows; it is distracting and unnecessary since the player can scroll. Credit: ChatGPT 5.2. (GPT-5.2-Codex (summarized)) -->
+ 		# When your BottomButtonList is tall enough to show multiple rows, clicking the lower visible row changes CityTabSelectionRow, and then the selectMultiList() call scrolls the control so that row becomes the top row.
+ 		# Minimal fix: "pin" the top visible row, and only change it via the tab/scroll buttons
+@@ -1965,6 +1981,10 @@ class CvMainInterface:
+ 		if self.iBarExtraRows is None:
+ 			self.iBarExtraRows = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS")
+ 			self.iBarExtraRowsExtraManualAdjust = gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST")
++		if self.iBarExtraHeightExtraManualAdjust is None:
++			self.iBarExtraHeightExtraManualAdjust = VSPACE(gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_HEIGHT_EXTRA_MANUAL_ADJUST"))
++		if self.iCityScreenBlueRibbonExtraLift is None:
++			self.iCityScreenBlueRibbonExtraLift = VSPACE(gc.getDefineINT("SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BLUE_RIBBON_EXTRA_LIFT"))
+ 		if self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS is None:
+ 			self.IS_SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS = (gc.getDefineINT("SAS_CV_MAIN_INTERFACE_PRODUCTION_QUEUE_BUTTONS") > 0)
+ 		if self.IS_SAS_CV_MAIN_INTERFACE_HIDE_PLOT_LIST_PANEL_IN_CITY_SCREEN is None:
+@@ -2590,6 +2610,9 @@ class CvMainInterface:
+ 		iMaxHeight = gRect("CenterBottom").height() - 2 * VSPACE(1)
+ 		iHeight = max(iButtonSize, iMaxHeight - (iMaxHeight % iButtonSize)
+ 				+ 4) # A little extra to avoid a vertical slider
++		# <!-- custom: optional city-screen build-bar height tweak; raw pixel add so the last row can fit (e.g. 3.9 -> 4.0 rows) without growing the decorative ribbon. Safe because CenterBottom (and thus iMaxHeight) no longer varies with the ribbon-extra-lift knob. (GPT-5.3-Codex + Claude code Opus 4.7) -->
++		if CyInterface().isCityScreenUp() and self.iBarExtraHeightExtraManualAdjust != 0:
++			iHeight += self.iBarExtraHeightExtraManualAdjust
+ 		iVMargin = iMaxHeight - iHeight + 2 * VSPACE(1)
+ 		# <advc.004> Lower position goes better with the filter buttons
+ 		if PleOpt.isPLE_Style() and PleOpt.isShowButtons:
+
+diff --git a/Assets/XML/GlobalDefines_advciv_sas.xml b/Assets/XML/GlobalDefines_advciv_sas.xml
+index b580d6161..a430ba43c 100644
+--- a/Assets/XML/GlobalDefines_advciv_sas.xml
++++ b/Assets/XML/GlobalDefines_advciv_sas.xml
+@@ -490,7 +490,17 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: extra vertical adjustment for the city-screen things-to-build bar (inactive if SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS <= 0). Value is resolution-scaled and sign-preserving: < 0 moves the bar up, > 0 moves it down, 0 keeps base placement. Adjust as you see fit. (GPT-5.3-Codex (summarized)) -->
+ 	<Define>
+ 		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_IEXTRAROWS_EXTRA_MANUAL_ADJUST</DefineName>
+-		<iDefineIntVal>-15</iDefineIntVal>
++		<iDefineIntVal>5</iDefineIntVal>
++	</Define>
++	<!-- custom: extra city-screen build-bar height tweak (pixels, VSPACE-scaled). Positive = taller (helps clipped bottom-row icons), negative = shorter. 0 keeps base behavior. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BAR_HEIGHT_EXTRA_MANUAL_ADJUST</DefineName>
++		<iDefineIntVal>30</iDefineIntVal>
++	</Define>
++	<!-- custom: extra city-screen center blue-ribbon lift only (on top of base city-screen lift). Positive lifts more, negative lowers. 0 keeps base behavior. (GPT-5.3-Codex) -->
++	<Define>
++		<DefineName>SAS_CV_MAIN_INTERFACE_CITY_SCREEN_BLUE_RIBBON_EXTRA_LIFT</DefineName>
++		<iDefineIntVal>27</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: hide the unit bar ("PlotListPanel") (not needed and partially hidden by the production chooser's extra rows), with the help of ChatGPT-5.2 Thinking thanks -->
+ 	<Define>
+@@ -500,7 +510,7 @@ Created as part of AdvCiv-SAS improvements
+ 	<!-- custom: city-screen camera recenter north-bias percent (integer percent of one-plot north delta). With current camera orientation, increasing this value moves the city view lower; decrease it to lift the city higher and free bottom-space for city UI rows. (GPT-5.3-Codex); Base AdvCiv value: 23. -->
+ 	<Define>
+ 		<DefineName>SAS_CITY_SCREEN_CAMERA_NORTH_BIAS_PERCENT</DefineName>
+-		<iDefineIntVal>-2</iDefineIntVal>
++		<iDefineIntVal>-3</iDefineIntVal>
+ 	</Define>
+ 	<!-- custom: extra north-bias percent applied when BUG "Enlarge HUD" is enabled. (GPT-5.3-Codex); Base AdvCiv value: 3. -->
+ 	<Define>
+
+diff --git a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+index fa90a5355..4b37d48bf 100644
+--- a/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md
+@@ -352,7 +352,7 @@ Note: New panels added or modified mostly not mentioned here for concision. See
+ - Beautified the **Victory Screen**: **added Buttons/Icons** (Leaders, Religions, Apostolic Palace, UN, Spaceship parts, Traits as chars, etc.), **Thousands Separators**, **Victory Culture Percentages** (mirroring the changes in [CvInfoScreen.py](/Assets/Python/Screens/CvInfoScreen.py)). (Requires AdvCiv-SAS 5523+) **Always show** the **Resolutions** and **Members** tabs so now all tabs are shown **even if they are empty**, and add a **fallback table** showing **required wonders** (as of now Apostolic Palace or United Nations) to make these tabs active for exhaustiveness and clarity. Change in [CvVictoryScreen.py](/Assets/Python/Screens/CvVictoryScreen.py). See also [KI#115](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#115---fixed-likely-base-advciv-issue-victory-screen-vote-requirement-text-spacing-in-resolutions-tab).
+ - Beautified the **Diplomacy Screen**'s **trading rows** with **icons** (e.g., Gold, Gold Per Turn, World Map, Open Borders, Vassal, Defensive Pact; and **leader icons** (make peace / declare war / embargo)). Change in `CvPlayer::getItemTradeString`. See [README.md: Diplomacy Screen](/README.md#diplomacy-screen).
+ - **Main Interface (Common)**: Moved **minimap to the right-edge** for quicker read. Add **details** to most **progress bars**; e.g. in the Tech bar `Fusion: 2245 / 5774 (35)`. Show **chars in the GP bar even if 100%** (e.g. `Great Scientist: Lyons (3) - [RESEARCH_CHAR] 100%`) Change in [GPUtil.py](/Assets/Python/BUG/GPUtil.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5514+) **Swap top left** (e.g., Treasury) **and top right** (e.g., Turn and Year) **text position**, and optionally **move commerce sliders to the right side** (allows to freely expand advisors so they use the entire left side, and is visually closer to scoreboard and most mouse controls) **in city screen or map view**. Show **Era text default ON** (as of now on top left); **strip " Era" suffix** so text is now only e.g., `Renaissance` not `Renaissance Era` (would overflow during golden age when text is upscaled, plus it is unneeded). See [Main interface rework](/README.md#main-interface-rework).
+-- **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
++- **Main Interface (City Screen)**: Enhanced with a new **Great Person +n ICON** information in relevant Buildings' rows; added a new **Specialists Breakdown** and **Culture Breakdown**; added **optional extra rows** in the **Production Chooser Bar** ((Requires AdvCiv-SAS 5690+) with optional separate blue ribbon, bar Y position and bar height position fine-tuning tunables (e.g., helps remove needless scroll bar when there are not more than max rows, or keep display symetric or prettier)) and **optionally hide the unit bar** (`"PlotListPanel"`) (note: does not affect the production chooser outside of the city screen); added **Buttons** (i.e. icons) in the **Production Queue**; fixed some hard anchored items that now **dynamically** adjust to sides' width. **Beautified** it as well: removed the 3 gray bars ("Trade Routes", "Buildings", "Specialists"), increased sides' width, made bonuses columns even in width, and other changes. These changes allow to now display more information and reduce the need for scrolling or hovering. Also **enlarged** the **Bottom-Left** and **Bottom-Right** panels so they align dynamically with the enlarged **Side Panels**. Enhanced the **city bar** and **other bars**, e.g., `Lakamha: 16 - 12372 (4500BC)` or `Growing - 30/43 (4 Turns)`. Split the **Draft group** into hurry controls on the right (and a **new draft button**) and config options on the right. Add building list filtering buttons ("Show All Buildings", "Show Regular Buildings Only", "Show National Wonders Only", "Show World Wonders Only"). (Requires AdvCiv-SAS 5526+) Reduce **food/production top bars' size** so text does not overflow when upscaled (also helps preserve overall distance to side panels due to increasing base font size from body to label). Change in [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). (Requires AdvCiv-SAS 5689+) Adjust **city camera** to the north (tunable) so extra rows can be shown without overflowing into bottom BFC plots in `CvGame::onCityScreenChange`. And other changes. See also [KI#101](/_1_AdvCiv-SAS/Docs/README_Known_Issues_In_Base_AdvCiv_Civ4.md#101---fixed-base-advciv-bug-of-gp-bar-tooltip-in-city-screen-not-showing-gp-from-obsolete-buildings-yet-seemignly-counting-them-for-the-total-gp-calculation).
+ - **Main Interface (Map View)**: **Reordered buttons** (end turn, city change arrows) and wrapped them in a **pretty panel**. Added buttons to unit stack, selected unit. (Requires AdvCiv-SAS 5503+) Make **left-click on GP bar** open the **corresponding city's city screen**.
+ - (Requires AdvCiv-SAS 5507+) **Main Interface (civilization flag):** **Removed the civilization flag** from the production buttons bar (next to minimap) to show more buttons instead and have a more efficient display. Instead, added **optional compact top-left civilization flag** (with same preserved BtS hover/click behavior) (if **enabled**, left **top text spacing is shifted to make room for the compact flag**). Unlike base AdvCiv, this **optional flag** is **also visible in city screen** because it does not interfere with bottom city-action buttons. This flag is useful to know player civ, hover for player traits, and click to capital's city screen. Default disabled (tunable) as it can be distracting and undesired.
+ - (Requires AdvCiv-SAS 5533+) **Scoreboard**: do **not draw beyond** bottom of commerce sliders (previously it would overflow beyond top of the screen), add **+ (up) and - (down) scroll buttons** to choose **first and last leader shown** when the **number of leaders is high** (e.g., if there are 48 leaders to display and the scoreboard can only show ~30 leaders max). Note: the Info screen's score tab allows to see all leaders so this is a fine trade-off to avoid vertical overflow. Add a **Lock scoreboard hover toggle button** so scoreboard is always hovered on even without hover (e.g., to see power ratios without having to hover). Note: in first turns of the game this effectively has no effect since power ratios are not yet visible. Change in [Scoreboard.py](/Assets/Python/BUG/Scoreboard.py) and [CvMainInterface.py](/Assets/Python/Screens/CvMainInterface.py). See [README.md (Scoreboard)](/README.md#scoreboard)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=16676

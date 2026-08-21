@@ -1,0 +1,106 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 143
+# Commit: abdfb7a8480b2a5248ee3d6d1644480ec4c3c8cf
+# History segment: K-Mod history
+# Parent used for diff: 9c1c652e749132df1ba8c4d396a52f530665ec04
+# Title: Fixed an original BtS bug which caused the AI to continuously build "early sea explorers" in the late game. Tweaked some value numbers.
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_001_K-Mod.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	3	CvGameCoreDLL/CvCityAI.cpp
+2	2	CvGameCoreDLL/CvPlayerAI.cpp
+7	10	CvGameCoreDLL/CvUnitAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 5c5a01f9a..0e22a3d09 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1498,7 +1498,8 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 				if( iOdds >= 0 )
+ 				{
+-					if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_EXPLORE_SEA) == 0)
++					// if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_EXPLORE_SEA) == 0) // original code
++					if (kPlayer.AI_totalWaterAreaUnitAIs(pWaterArea, UNITAI_EXPLORE_SEA) == 0 && kPlayer.AI_neededExplorers(pWaterArea) > 0) // K-Mod!
+ 					{
+ 						if (AI_chooseUnit(UNITAI_EXPLORE_SEA, iOdds))
+ 						{
+@@ -3992,7 +3993,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 				// some extra value if we are still growing (this is a positive change bias)
+ 				if (iAngerDelta < 0 && iFoodDifference > 1)
+ 				{
+-					iValue -= 8 * iAngerDelta;
++					iValue -= 10 * iAngerDelta;
+ 				}
+ 				// finally, a little bit of value for happiness which gives us some padding
+ 				iValue += 64 * std::max(0, iBuildingActualHappiness)/(4 + std::max(0, iHappinessLevel+iBuildingActualHappiness) + std::max(0, iHappinessLevel));
+@@ -4080,7 +4081,7 @@ int CvCityAI::AI_buildingValueThreshold(BuildingTypes eBuilding, int iFocusFlags
+ 				// some extra value if the change will help us grow (this is a positive change bias)
+ 				if (iWasteDelta < 0 && iHappinessLevel > 1)
+ 				{
+-					iValue -= 6 * iWasteDelta;
++					iValue -= 8 * iWasteDelta;
+ 				}
+ 				// finally, a little bit of value for health which gives us some padding
+ 				iValue += 36 * std::max(0, iBuildingActualHealth)/(2 + std::max(0, iHealthLevel+iBuildingActualHealth) + std::max(0, iHealthLevel));
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 4ae89e6ae..f8ffb4d98 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -683,8 +683,8 @@ void CvPlayerAI::AI_doTurnUnitsPost()
+ /* BETTER_BTS_AI_MOD                       END                                                  */
+ /************************************************************************************************/	
+ 										{										
+-										
+-											pLoopUnit->kill(false);
++											//pLoopUnit->kill(false); // original code
++											pLoopUnit->scrap(); // K-Mod
+ 											bKilled = true;
+ 											pLastUpgradePlot = NULL;
+ 										}
+
+diff --git a/CvGameCoreDLL/CvUnitAI.cpp b/CvGameCoreDLL/CvUnitAI.cpp
+index 72ab7aa4e..3e4ce7796 100644
+--- a/CvGameCoreDLL/CvUnitAI.cpp
++++ b/CvGameCoreDLL/CvUnitAI.cpp
+@@ -5306,19 +5306,16 @@ bool CvUnitAI::AI_greatPersonMove()
+ 	if (eDiscoverTech != NO_TECH)
+ 	{
+ 		iDiscoverValue = getDiscoverResearch(eDiscoverTech);
++		// if this isn't going to immediately help our research, it isn't worth as much.
++		if (iDiscoverValue < GET_TEAM(getTeam()).getResearchLeft(eDiscoverTech) && kPlayer.getCurrentResearch() != eDiscoverTech)
++		{
++			iDiscoverValue *= 3;
++			iDiscoverValue /= 4;
++		}
+ 		if (kPlayer.AI_isFirstTech(eDiscoverTech)) // founding relgions / free techs / free great people
+ 		{
+-			if (iDiscoverValue >= GET_TEAM(getTeam()).getResearchLeft(eDiscoverTech) || kPlayer.getCurrentResearch() == eDiscoverTech)
+-			{
+-				iDiscoverValue *= 2;
+-			}
+-			else
+-			{
+-				iDiscoverValue *= 3;
+-				iDiscoverValue /= 2;
+-			}
++			iDiscoverValue *= 2;
+ 		}
+-		// add extra value for being instant, and extra value for techs being undiscovered by other civs
+ 		// amplify the 'undiscovered' bonus based on how likely we are to try to trade the tech.
+ 		iDiscoverValue *= 100 + (200 - GC.getLeaderHeadInfo(kPlayer.getPersonalityType()).getTechTradeKnownPercent())*GET_TEAM(getTeam()).AI_knownTechValModifier(eDiscoverTech)/100;
+ 		iDiscoverValue /= 100;
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=3768

@@ -1,0 +1,159 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5109
+# Commit: 4f730807f90aa652cf2ee5a9d52e5771a9d9fb89
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 221d218f2d062ba70454d0c75efe18da84eecaeb
+# Title: rebalance/rework government civics - nerf CIVIC_REPRESENTATION: remove the commerce espionage per specialist gain effect, remove the happiness in largest cit...
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+28	15	Assets/XML/GameInfo/CIV4CivicInfos.xml
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+1	1	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/GameInfo/CIV4CivicInfos.xml b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+index 1476369ea..7d61e3054 100644
+--- a/Assets/XML/GameInfo/CIV4CivicInfos.xml
++++ b/Assets/XML/GameInfo/CIV4CivicInfos.xml
+@@ -175,7 +175,7 @@
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<!-- custom: was 3 -->
+-			<iLargestCityHappiness>1</iLargestCityHappiness>
++			<iLargestCityHappiness>0</iLargestCityHappiness>
+ 			<iWarWearinessModifier>0</iWarWearinessModifier>
+ 			<iFreeSpecialist>0</iFreeSpecialist>
+ 			<iTradeRoutes>0</iTradeRoutes>
+@@ -199,7 +199,7 @@
+ 				<iCommerce>1</iCommerce>
+ 				<iCommerce>1</iCommerce>
+ 				<iCommerce>1</iCommerce>
+-				<iCommerce>1</iCommerce>
++				<iCommerce>0</iCommerce>
+ 			</SpecialistExtraCommerces>
+ 			<Hurrys/>
+ 			<SpecialBuildingNotRequireds/>
+@@ -219,7 +219,8 @@
+ 			<Button>,Art/Interface/Buttons/Civics/Universal_Sufferage.dds,Art/Interface/Buttons/Civics_Civilizations_Religions_Atlas.dds,8,3</Button>
+ 			<TechPrereq>TECH_DEMOCRACY</TechPrereq>
+ 			<iAnarchyLength>1</iAnarchyLength>
+-			<Upkeep>UPKEEP_MEDIUM</Upkeep>
++			<!-- custom: was UPKEEP_MEDIUM -->
++			<Upkeep>UPKEEP_HIGH</Upkeep>
+ 			<iAIWeight>0</iAIWeight>
+ 			<iGreatPeopleRateModifier>0</iGreatPeopleRateModifier>
+ 			<iGreatGeneralRateModifier>0</iGreatGeneralRateModifier>
+@@ -244,8 +245,10 @@
+ 			<iMaxConscript>0</iMaxConscript>
+ 			<iExpInBorderModifier>0</iExpInBorderModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+-			<iLargestCityHappiness>0</iLargestCityHappiness>
+-			<iWarWearinessModifier>0</iWarWearinessModifier>
++			<!-- custom: was 0 -->
++			<iLargestCityHappiness>3</iLargestCityHappiness>
++			<!-- custom: was 0 -->
++			<iWarWearinessModifier>25</iWarWearinessModifier>
+ 			<iFreeSpecialist>0</iFreeSpecialist>
+ 			<iTradeRoutes>0</iTradeRoutes>
+ 			<bNoForeignTrade>0</bNoForeignTrade>
+@@ -263,13 +266,7 @@
+ 			<CapitalYieldModifiers/>
+ 			<TradeYieldModifiers/>
+ 			<CommerceModifiers/>
+-			<!-- custom: was empty -->
+-			<CapitalCommerceModifiers>
+-				<iCommerce>15</iCommerce>
+-				<iCommerce>15</iCommerce>
+-				<iCommerce>15</iCommerce>
+-				<iCommerce>15</iCommerce>
+-			</CapitalCommerceModifiers>
++			<CapitalCommerceModifiers/>
+ 			<SpecialistExtraCommerces/>
+ 			<!-- custom: was HURRY_GOLD 1 -->
+ 			<Hurrys/>
+@@ -278,10 +275,19 @@
+ 			<BuildingHappinessChanges/>
+ 			<BuildingHealthChanges/>
+ 			<FeatureHappinessChanges/>
++			<!-- custom: also add smaller cities hammer boost as nicely recommended by chatgpt 5 thanks, fit the theme of all cities/people contributing nicely as well if i may say i mean but anyways etc -->
++			<!-- NEW: help midgame—Villages contribute to projects too -->
+ 			<ImprovementYieldChanges>
++				<ImprovementYieldChange>
++					<ImprovementType>IMPROVEMENT_VILLAGE</ImprovementType>
++					<ImprovementYields>
++						<iYield>0</iYield>
++						<iYield>1</iYield>
++						<iYield>0</iYield>
++					</ImprovementYields>
++				</ImprovementYieldChange>
+ 				<ImprovementYieldChange>
+ 					<ImprovementType>IMPROVEMENT_TOWN</ImprovementType>
+-					<!-- custom: was 0 / 1 / 0 -->
+ 					<ImprovementYields>
+ 						<iYield>0</iYield>
+ 						<iYield>1</iYield>
+@@ -313,7 +319,8 @@
+ 			<iFreeExperience>0</iFreeExperience>
+ 			<iWorkerSpeedModifier>0</iWorkerSpeedModifier>
+ 			<iImprovementUpgradeRateModifier>0</iImprovementUpgradeRateModifier>
+-			<iMilitaryProductionModifier>25</iMilitaryProductionModifier>
++			<!-- custom: was 25 -->
++			<iMilitaryProductionModifier>20</iMilitaryProductionModifier>
+ 			<iBaseFreeUnits>0</iBaseFreeUnits>
+ 			<iBaseFreeMilitaryUnits>0</iBaseFreeMilitaryUnits>
+ 			<iFreeUnitsPopulationPercent>0</iFreeUnitsPopulationPercent>
+@@ -348,7 +355,13 @@
+ 			<SpecialistExtraCommerces/>
+ 			<Hurrys/>
+ 			<SpecialBuildingNotRequireds/>
+-			<SpecialistValids/>
++			<!-- custom: changed so civic stays relevant longer in the game and to buff it, was empty anyways etc -->
++			<SpecialistValids>
++				<SpecialistValid>
++					<SpecialistType>SPECIALIST_SPY</SpecialistType>
++					<bValid>1</bValid>
++				</SpecialistValid>
++			</SpecialistValids>
+ 			<BuildingHappinessChanges/>
+ 			<BuildingHealthChanges/>
+ 			<FeatureHappinessChanges/>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+index 566486f8c..dda85c320 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Quick_Get_Started_Guide.md
+@@ -363,7 +363,7 @@ Note: please see note here as well in this quick guide about the .csv tables whe
+ ### Civics (non-exhaustive, see sevopedia or/and xml for details)
+ 
+ - some civics have been rebalanced. For example for CIVIC_REPRESENTATION, it was mainly because it is available sooner in advciv-sas mod, but also to tweak or change its effect a bit too anyways etc, or CIVIC_SLAVERY has been buffed (upkeep changed from medium to low to make it relevant longer as well as in the early game vs other civics for versatility), or CIVIC_CASTE_SYSTEM has been nerfed (as of now changed upkeep from medium to high, was too op (now is strong but requires some foundation to leverage it i mean but anyways etc)).
+-- (Requires AdvCiv-SAS 5104+) some civics have been reworked: for example CIVIC_WAGE_LABOR (old emancipation civic) is now a production/economy civic available sooner which should be stronger and historically more accurate, or CIVIC_SERFDOM has been buffed a to be a much stronger agrarian/food based civic now. (Requires AdvCiv-SAS 5107+) Also, some religious civics were buffed/reworked should so that they are now more about religion and stay relevant longer in the game. These should allow for more strategic options and versatile strategies while also improving balance (no one op civic that beats all at least much less but anyways etc)
++- (Requires AdvCiv-SAS 5104+) some civics have been reworked: for example CIVIC_WAGE_LABOR (old emancipation civic) is now a production/economy civic available sooner which should be stronger and historically more accurate, or CIVIC_SERFDOM has been buffed a to be a much stronger agrarian/food based civic now. (Requires AdvCiv-SAS 5107+) Also, some religious civics were buffed/reworked should so that they are now more about religion and stay relevant longer in the game (note: in particular, the new civic_theocracy `iCivicPercentAnger` effect (a part of this civic's rework) uses a lower value of 200 instead of the value of 400 the former civic_emancipation had). These should allow for more strategic options and versatile strategies while also improving balance (no one op civic that beats all at least much less but anyways etc)
+ - some other civics such as CIVIC_SLAVERY have been moved sooner or at another position in tech tree, as of now for example at tech_agriculture for CIVIC_SLAVERY, for historical accuracy and also gameplay balance or/and strategical variety: having it out of the military tree reduces the power/strength of tech_bronze_working in a quite nice way and rewards additional paths as well. So hopefully all in all best or fine to do/try in our mod if i may say as such but anyways etc
+ - (Requires AdvCiv-SAS 5105+) Adjust the civics' order in xml so that their display order ingame in the civics advisor (F3 key anyways etc) matches tech tree pace (e.g. Universal Suffrage is before Police State not after, Vassalage is after Caste System not before, Pacifism is before Organized Religion not after, Environmentalism is before State Property not after) but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+index 8624bd5f2..1935b7ad6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Very_Quick_Get_Started_Guide_By_ChatGPT.md
+@@ -343,7 +343,7 @@ See the **CSV/MD tables** for exact values ([handicap tables readme section](/RE
+ ### Civics (non-exhaustive)
+ 
+ - **Civics rebalance (selective):** `CIVIC_REPRESENTATION` adjusted (unlocks earlier in AdvCiv-SAS; effects tweaked to fit timing); `CIVIC_SLAVERY` buffed (**Upkeep: Medium → Low**); `CIVIC_CASTE_SYSTEM` nerfed (**Upkeep: Medium → High**) to curb early snowball. See Sevopedia/XML.
+-- **(Requires AdvCiv-SAS 5104+) Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer into the game. Net effect: more viable paths, fewer must-picks.
++- **(Requires AdvCiv-SAS 5104+) Civic reworks:** `CIVIC_WAGE_LABOR` (former Emancipation) retuned into an earlier **production/economy** civic for greater impact and historical accuracy; `CIVIC_SERFDOM` strengthened into a more **agrarian/food-focused** civic. (Requires AdvCiv-SAS 5107+) Some religion civics are buffed/reworked to be refocused on religious play and to stay relevant longer; notably, `CIVIC_THEOCRACY` now uses `iCivicPercentAnger` = 200 (vs 400 on former civic_emancipation). Net effect: more viable paths, fewer must-picks.
+ - **(Requires AdvCiv-SAS 5105+) Civics order aligned to tech pace:** Reordered civics in XML so the **Civics Advisor** (F3 key) displays them in rough unlock order (UI only; no rules change). Examples: **Universal Suffrage** before **Police State**; **Vassalage** after **Caste System**; **Pacifism** before **Organized Religion**; **Environmentalism** before **State Property**.
+ 
+ ### Buildings (non-exhaustive)
+
+[PATCH COVERAGE]
+patchFiles=3 embeddedFiles=3 omittedFiles=0 embeddedPatchBytes=9829

@@ -1,0 +1,98 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1787
+# Commit: 9bfd09a5337d5703c82a887d15077ebd5e1a533d
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: e73b8e460050b1704c94c35ea6b84604b3198c5b
+# Title: Reduce AI probability of training exploration units a little
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+11	15	CvGameCoreDLL/CvCityAI.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvCityAI.cpp b/CvGameCoreDLL/CvCityAI.cpp
+index 8373fc767..0b6267d07 100644
+--- a/CvGameCoreDLL/CvCityAI.cpp
++++ b/CvGameCoreDLL/CvCityAI.cpp
+@@ -1184,20 +1184,15 @@ void CvCityAI::AI_chooseProduction()
+ 			defensiveTypes.push_back(std::make_pair(UNITAI_CITY_DEFENSE, 200));
+ 			defensiveTypes.push_back(std::make_pair(UNITAI_CITY_COUNTER, 50));
+ 		}
+-
+ 		int iOdds = iBuildUnitProb;
+ 		if (iWarSuccessRating < -50)
+-		{
+-			iOdds += abs(iWarSuccessRating/3);
+-		}
++			iOdds -= iWarSuccessRating / 3;
+ 		// K-Mod
+-		iOdds *= (-iWarSuccessRating+20 + iBestBuildingValue);
++		iOdds *= (-iWarSuccessRating + 20 + iBestBuildingValue);
+ 		iOdds /= (-iWarSuccessRating + 2 * iBestBuildingValue);
+ 		// K-Mod end
+ 		if (bDanger)
+-		{
+ 			iOdds += 10;
+-		}
+ 
+ 		if (AI_chooseLeastRepresentedUnit(defensiveTypes, iOdds))
+ 		{
+@@ -1206,7 +1201,7 @@ void CvCityAI::AI_chooseProduction()
+ 		}
+ 	}
+ 
+-	if (!(bDefenseWar && iWarSuccessRating < -50))
++	if (!bDefenseWar && iWarSuccessRating < -50)
+ 	{
+ 	/*  K-Mod, 10/sep/10, Karadoc
+ 		Disabled iExistingWorkers == 0. Changed Pop > 3 to Pop >=3.
+@@ -1551,12 +1546,13 @@ void CvCityAI::AI_chooseProduction()
+ 
+ 		if (!bLandWar && !bDanger && !bFinancialTrouble)
+ 		{
+-			if (kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_EXPLORE) < (kPlayer.AI_neededExplorers(pArea)))
++			int iMissingExplorers = kPlayer.AI_neededExplorers(pArea) -
++					kPlayer.AI_totalAreaUnitAIs(pArea, UNITAI_EXPLORE);
++			if (iMissingExplorers > 0)
+ 			{
+-				if (AI_chooseUnit(UNITAI_EXPLORE))
+-				{
++				if (AI_chooseUnit(UNITAI_EXPLORE,
++						34 * iMissingExplorers)) //advc.131: was 100 flat
+ 					return;
+-				}
+ 			}
+ 		}
+ 
+@@ -1576,8 +1572,7 @@ void CvCityAI::AI_chooseProduction()
+ 		iNeededSpies -= (bDefenseWar ? 1 : 0);
+ 		if (kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY))
+ 			iNeededSpies++;
+-		else
+-			iNeededSpies /= kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS) ? 2 : 1;
++		else iNeededSpies /= kPlayer.AI_isDoStrategy(AI_STRATEGY_ECONOMY_FOCUS) ? 2 : 1;
+ 
+ 		if (iNumSpies < iNeededSpies)
+ 		{
+@@ -1649,7 +1644,8 @@ void CvCityAI::AI_chooseProduction()
+ 				if(!kMember.isAlive() || kMember.isMinorCiv() || kMember.getTeam() != getTeam())
+ 					continue;
+ 				iWaterUnits += pWaterArea->getNumAIUnits(kMember.getID(), NO_UNITAI);
+-				if(iWaterUnits >= 3) {
++				if(iWaterUnits >= 3)
++				{
+ 					bEnoughWaterUnits = true;
+ 					break;
+ 				}
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=2407

@@ -1,0 +1,667 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 5141
+# Commit: f43ea2be6f15404a50b1ebd1257989931aa19490
+# History segment: AdvCiv-SAS branch history
+# Parent used for diff: 829c236b48b5afc5bc7f3735f88c9c98f48324ee
+# Title: overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 , TECH_CIVIL_SERVICE 3->8)
+# Full commit message/metadata: see _1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+77	104	Assets/XML/Technologies/CIV4TechInfos.xml
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+6	6	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+1	0	_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+
+[PATCHES]
+
+diff --git a/Assets/XML/Technologies/CIV4TechInfos.xml b/Assets/XML/Technologies/CIV4TechInfos.xml
+index 835bc1dcc..aa497a7ab 100644
+--- a/Assets/XML/Technologies/CIV4TechInfos.xml
++++ b/Assets/XML/Technologies/CIV4TechInfos.xml
+@@ -415,11 +415,8 @@
+ 			</CommerceFlexible>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!--custom: was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+ 					<iFlavor>4</iFlavor>
+@@ -496,10 +493,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+@@ -567,11 +565,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 2 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+ 					<iFlavor>5</iFlavor>
+@@ -650,11 +645,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc, reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc -->
++			<!-- custom: add FLAVOR_MILITARY to account for vassal state addition to this tech now as of now i mean if i may say but anyways etc, reduce FLAVOR_CULTURE (was 10), remove FLAVOR_RELIGION anyways etc, change FLAVOR_MILITARY (was 3) -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -953,10 +948,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_RELIGION</FlavorType>
+@@ -1045,7 +1041,7 @@
+ 			<!-- custom: was flavors military 2 production 5 gold 2 culture 1 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+@@ -1192,10 +1188,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -1277,7 +1274,7 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -1566,11 +1563,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>4</iFlavor>
+@@ -1642,10 +1636,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 4 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -2019,10 +2014,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 2 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -2337,11 +2333,8 @@
+ 			</TerrainTrades>
+ 			<!-- advc.124: now always enabled -->
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 1 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+ 					<iFlavor>3</iFlavor>
+@@ -2492,11 +2485,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 1 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>1</iFlavor>
+@@ -3403,8 +3393,12 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: was flavors production 2 gold 1 science 10; note: i didn't add military flavor here to not mislead AI leaders from main military path (as of now chivalry / civil service rather or/and other techs but anyways etc) -->
++			<!-- custom: was flavors production 2 gold 1 science 10 and military missing -->
+ 			<Flavors>
++				<Flavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<iFlavor>3</iFlavor>
++				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>2</iFlavor>
+@@ -3482,11 +3476,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 1 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>2</iFlavor>
+@@ -3630,11 +3621,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 1 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>2</iFlavor>
+@@ -3711,11 +3699,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 1 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>1</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>4</iFlavor>
+@@ -3928,10 +3913,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 4 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>4</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -4009,10 +3995,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 5 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -4077,18 +4064,10 @@
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+-					<iFlavor>10</iFlavor>
+-				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_COMPOSITES</PrereqTech>
+@@ -4156,7 +4135,7 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+ 					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -4368,11 +4347,11 @@
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>12</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+-					<iFlavor>12</iFlavor>
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -4457,8 +4436,8 @@
+ 					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+@@ -4520,7 +4499,7 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+ 					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -4667,10 +4646,6 @@
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+ 					<iFlavor>3</iFlavor>
+@@ -4897,10 +4872,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 6 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -4979,7 +4955,7 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+ 					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -5060,10 +5036,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 7 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>8</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -5137,10 +5114,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 7 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>7</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -5379,11 +5357,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 6 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>6</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>10</iFlavor>
+@@ -5453,10 +5428,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 2 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -5473,7 +5449,6 @@
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_MATHEMATICS</PrereqTech>
+-
+ 			</OrPreReqs>
+ 			<AndPreReqs>
+ 				<PrereqTech>TECH_MOUNTED_COMBAT</PrereqTech>
+@@ -5531,11 +5506,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
+-			<!-- custom: add flavor_gold 4 as per our reworked effects in buildings anyways etc -->
++			<!-- custom: add flavor_gold 4 as per our reworked effects in buildings anyways etc; + was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>1</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -5614,10 +5589,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 9 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>9</iFlavor>
++					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -5765,10 +5741,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 10 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<iFlavor>5</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -5835,7 +5812,7 @@
+ 			<bRiverTrade>0</bRiverTrade>
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
+ 					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+@@ -5906,11 +5883,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 4 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>4</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>8</iFlavor>
+@@ -5988,10 +5962,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 6 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>6</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -6062,11 +6037,8 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
+-				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+ 					<iFlavor>10</iFlavor>
+@@ -6149,7 +6121,7 @@
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
++					<iFlavor>3</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -6219,10 +6191,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 10 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>10</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>7</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -6286,10 +6259,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 2 -->
+ 			<Flavors>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>2</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>10</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -6570,6 +6544,7 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!-- custom: was FLAVOR_MILITARY 5 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_PRODUCTION</FlavorType>
+@@ -6583,10 +6558,6 @@
+ 					<FlavorType>FLAVOR_CULTURE</FlavorType>
+ 					<iFlavor>3</iFlavor>
+ 				</Flavor>
+-				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>5</iFlavor>
+-				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+ 				<PrereqTech>TECH_INDUSTRIALISM</PrereqTech>
+@@ -6721,10 +6692,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!--custom: was FLAVOR_MILITARY 8 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>8</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_SCIENCE</FlavorType>
+@@ -6789,10 +6761,11 @@
+ 			<CommerceFlexible/>
+ 			<TerrainTrades/>
+ 			<bRiverTrade>0</bRiverTrade>
++			<!--custom: was FLAVOR_MILITARY 3 -->
+ 			<Flavors>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<iFlavor>2</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+ 					<FlavorType>FLAVOR_GOLD</FlavorType>
+@@ -6944,8 +6917,8 @@
+ 					<iFlavor>4</iFlavor>
+ 				</Flavor>
+ 				<Flavor>
+-					<FlavorType>FLAVOR_MILITARY</FlavorType>
+-					<iFlavor>3</iFlavor>
++					<FlavorType>FLAVOR_MILITARY</FlavorType><!--custom: >=6 -> key high military tech -->
++					<iFlavor>6</iFlavor>
+ 				</Flavor>
+ 			</Flavors>
+ 			<OrPreReqs>
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+index 7e8118d50..4f1c155e1 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md
+@@ -191,6 +191,7 @@ For the new content or modified one in this mod (AdvCiv-SAS), only English trans
+ #### Technologies (AI)
+ 
+ - (Requires AdvCiv-SAS 5134+) devalue researching techs our vassal(s) or master already knows as this is inefficient, in `CvPlayerAI::AI_techValue`. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Custom_Main_Changes_Guide.md#diplomacy-ai) anyways etc. (Requires AdvCiv-SAS 5137+) Update: also added vassal<->vassal(s) siblings devaluation to self research logic (if any of our sibling vassal(s) has the tech, devalue researching it ourselves).
++- (Requires AdvCiv-SAS 5141+) overhaul `FLAVOR_MILTIARY` of techs so AI better understands/values the military importance of techs (e.g. TECH_CORPORATION 3->0 (not viewed as a military tech anymore), TECH_CIVIL_SERVICE 3->8 (viewed much more as a military tech, which matches our tech tree changes but also more generally should be more in line with its important military role anyways etc.))
+ 
+ #### Leaders (AI)
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+index 02bccff80..a836335e6 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md
+@@ -3007,19 +3007,19 @@ I asked chatgpt 5.1 about this which said:
+ >
+ >In Civ4 as it’s actually structured, and especially for AI:
+ >
+->	- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
+->	 	- Protects it,
+->	 	- Wins wars,
+->	 	- And makes the cluster hard to exploit.
++>- The vassal’s day-to-day best interest is to have a strong, tech-advanced master who:
++>	  - Protects it,
++>	  - Wins wars,
++>	  - And makes the cluster hard to exploit.
+ >
+ >So your current master–vassal cluster-first tech logic is fully consistent with a sane vassal “interest model” in this engine.
+ 
+ Similarly, a stronger vassal is also more likely to be more useful to its master, as gemini 3 pro highlighted when i asked it about it:
+ 
+-> The Master's Calculation: "The Force Multiplier"
++>The Master's Calculation: "The Force Multiplier"
+ >The note states the goal is to "strengthen overall AI play". In a strategy game like Civ4, a weak vassal is a liability—they get invaded easily, dragging the Master into wars, and they contribute nothing to the war effort.
+ >
+->	- Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
++> - Rational Logic: By sharing tech, the Master isn't being "nice"; they are upgrading their own buffer state. A Vassal with Riflemen (via trade) can actually defend the Master's borders, whereas a Vassal stuck with Longbows is just dead weight. It turns the Vassal into a functional asset.
+ 
+ So all in all it does seem like a suitable change in most cases to bet on i mean if i may say but anyways etc.
+
+diff --git a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+index caca05796..294c7db0d 100644
+--- a/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
++++ b/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md
+@@ -181,6 +181,7 @@ To help compare difficulty (“handicap”) settings, tables are generated as CS
+ #### Technologies (AI)
+ 
+ - (Requires AdvCiv-SAS 5134+) **Master–vassal tech overlap penalty:** In `CvPlayerAI::AI_techValue`, reduce the value of researching techs already known by our vassal(s) or master to discourage redundant research and encourage complementary paths/trades instead. See [KI#77](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Known_Issues_In_Base_AdvCiv_Civ4.md#77---improved-devalue-researching-techs-our-master-or-vassals-already-knows-as-this-is-very-inefficient-anyways-etc). See also [Diplomacy (AI)](/_1_AdvCiv-SAS/Docs_And_Appendixes/README_Main_Changes_Guide.md#diplomacy-ai). **Update:** also apply the same devaluation between **sibling vassals** in the self-research logic (if any of our fellow vassal(s) already has the tech, we value researching it less ourselves).
++- (Requires AdvCiv-SAS 5141+) **Tech military flavor overhaul:** Retuned `FLAVOR_MILITARY` on many techs so the AI better recognizes their true military importance (e.g. `TECH_CORPORATION` **3 → 0** — no longer treated as a military tech; `TECH_CIVIL_SERVICE` **3 → 8** — now strongly flagged as military to better match its role in the reworked tree and its general impact).
+ 
+ #### Leaders (AI)
+
+[PATCH COVERAGE]
+patchFiles=4 embeddedFiles=4 omittedFiles=0 embeddedPatchBytes=22692

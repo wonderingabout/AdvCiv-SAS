@@ -1,0 +1,210 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1778
+# Commit: e1d5345f80f8f150ae441dd92b9dd58fbcb07107
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: c0439987e092e0adea07aedba24a9b4bce933487
+# Title: Option for Sea Patrol mission added to BUG menu
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+4	0	Assets/Config/BUG Main Interface.xml
+2	0	Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+18	0	Assets/XML/Text/BUG Main Interface Options.xml
+11	0	Assets/XML/Text/CIV4GameText_advc.xml
+9	14	CvGameCoreDLL/CvSelectionGroup.cpp
+11	11	CvGameCoreDLL/CvUnit.cpp
+
+[PATCHES]
+
+diff --git a/Assets/Config/BUG Main Interface.xml b/Assets/Config/BUG Main Interface.xml
+index 363e6a967..5b09c6f5d 100644
+--- a/Assets/Config/BUG Main Interface.xml	
++++ b/Assets/Config/BUG Main Interface.xml	
+@@ -167,6 +167,10 @@
+ 			<option id="SimpleSelection" key="Simple Selection"
+ 					type="boolean" default="True"/>
+ 
++			<!-- advc.004k -->
++			<option id="SeaPatrol" key="Sea Patrol"
++					type="boolean" default="False" dirtyBit="SelectionButtons"/>
++			
+ 			<!-- advc.004z -->
+ 			<option id="ScoresInGlobeView" key="Scores in Globe View" 
+ 					type="boolean" default="True"
+
+diff --git a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+index 37f09d607..1be323f79 100644
+--- a/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
++++ b/Assets/Python/BUG/Tabs/BugGeneralOptionsTab.py
+@@ -78,6 +78,8 @@ class BugGeneralOptionsTab(BugOptionsTab.BugOptionsTab):
+ 		self.addCheckbox(screen, panel, "MainInterface__SimpleSelection")
+ 		self.addCheckbox(screen, panel, "MainInterface__RapidUnitCycling")
+ 		# </advc.004>
++		# advc.004k:
++		self.addCheckbox(screen, panel, "MainInterface__SeaPatrol")
+ 		
+ 	def createTechSplashPanel(self, screen, panel):
+ 		self.addLabel(screen, panel, "TechWindow", "Tech Splash Screen:")
+
+diff --git a/Assets/XML/Text/BUG Main Interface Options.xml b/Assets/XML/Text/BUG Main Interface Options.xml
+index 63b98e5af..d16c13ef4 100644
+--- a/Assets/XML/Text/BUG Main Interface Options.xml	
++++ b/Assets/XML/Text/BUG Main Interface Options.xml	
+@@ -590,6 +590,24 @@
+ 		<Spanish>Activada, seleccionando unidades con la tecla [May�s] s�lo a�adir una unidad cada vez.</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004k: same as TXT_KEY_MISSION_SEAPATROL (CIV4GameText_BTS.xml) -->
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SEAPATROL_TEXT</Tag>
++		<English>Sea Patrol</English>
++		<French>Patrouille des mers</French>
++		<German>Seepatrouille</German>
++		<Italian>Pattuglia marina</Italian>
++		<Spanish>Patrulla mar&#237;tima</Spanish>
++	</TEXT>
++	<TEXT>
++		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SEAPATROL_HOVER</Tag>
++		<English>Enables the "Sea Patrol" mission. When unchecked, the mission button is removed and the AI won't use the mission either.</English>
++		<French>Enables the "Sea Patrol" mission. When unchecked, the mission button is removed and the AI won't use the mission either.</French>
++		<German>Erlaubt den Einheiten-Befehl "Seepatroullie"</German>
++		<Italian>Enables the "Sea Patrol" mission. When unchecked, the mission button is removed and the AI won't use the mission either.</Italian>
++		<Spanish>Enables the "Sea Patrol" mission. When unchecked, the mission button is removed and the AI won't use the mission either.</Spanish>
++	</TEXT>
++	
+ 	<!-- advc.004z -->
+ 	<TEXT>
+ 		<Tag>TXT_KEY_BUG_OPT_MAININTERFACE__SCORESINGLOBEVIEW_TEXT</Tag>
+
+diff --git a/Assets/XML/Text/CIV4GameText_advc.xml b/Assets/XML/Text/CIV4GameText_advc.xml
+index bcc1a60c6..f1c75f9da 100644
+--- a/Assets/XML/Text/CIV4GameText_advc.xml
++++ b/Assets/XML/Text/CIV4GameText_advc.xml
+@@ -5875,4 +5875,15 @@
+ 		<Spanish>[ICON_BULLET]%d1_Mod%% a la defensa en todas las ciudades</Spanish>
+ 	</TEXT>
+ 
++	<!-- advc.004k: From CIV4GameText_BTS.xml. Clarify who attacks and
++		 under which circumstances. German was totally wrong. (FIS unchanged)-->
++	<TEXT>
++		<Tag>TXT_KEY_MISSION_SEAPATROL_HELP</Tag>
++		<English>Guard improvements in adjacent water tiles. When attempting to pillage those tiles, weaker enemy units are forced to attack the unit on Sea Patrol.</English>
++		<French>Ordonner &#224; l'unit&#233; d'attaquer les navires ennemis se livrant au pillage de cases adjacentes</French>
++		<German>Bewache angrenzende Wasser-Gel�ndefelder. Schw�chere feindliche Schiffe, die versuchen, dort eine Modernisierung zu pl�ndern, sind gezwungen, die Einheit auf Seepatroullie anzugreifen.</German>
++		<Italian>Questo ordine far&#224; in modo che l'unit&#224; attacchi le navi nemiche che cercano di saccheggiare le caselle circostanti</Italian>
++		<Spanish>Esta orden le dir&#225; a la unidad que ataque a los barcos enemigos que intenten saquear las casillas adyacentes.</Spanish>
++	</TEXT>
++
+ </Civ4GameText>
+
+diff --git a/CvGameCoreDLL/CvSelectionGroup.cpp b/CvGameCoreDLL/CvSelectionGroup.cpp
+index b698363de..d55583c54 100644
+--- a/CvGameCoreDLL/CvSelectionGroup.cpp
++++ b/CvGameCoreDLL/CvSelectionGroup.cpp
+@@ -3352,21 +3352,16 @@ bool CvSelectionGroup::canDoMission(int iMission, int iData1, int iData2,
+ 				return true; // note: this mission will automatically ungroup any unsuitable units.
+ 			break;
+ 
+-		case MISSION_SEAPATROL: // <advc.004k>
+-			if(isHuman())
+-				return false;
+-			else { // </advc.004k>
+-				if (!bValid && pLoopUnit->canSeaPatrol(pPlot))
+-				{
+-					if (!bCheckMoves)
+-						return true;
+-
+-					bValid = true;
+-				}
+-				if (!pLoopUnit->canMove())
+-					return false;
+-				break;
++		case MISSION_SEAPATROL:
++			if (!bValid && pLoopUnit->canSeaPatrol(pPlot))
++			{
++				if (!bCheckMoves)
++					return true;
++				bValid = true;
+ 			}
++			if (!pLoopUnit->canMove())
++				return false;
++			break;
+ 		case MISSION_HEAL:
+ 			if (pLoopUnit->canHeal(pPlot)
+ 					// advc.004l: AI control check only for performance
+
+diff --git a/CvGameCoreDLL/CvUnit.cpp b/CvGameCoreDLL/CvUnit.cpp
+index f6a35763b..47bf86571 100644
+--- a/CvGameCoreDLL/CvUnit.cpp
++++ b/CvGameCoreDLL/CvUnit.cpp
+@@ -3532,8 +3532,8 @@ bool CvUnit::canSeaPatrol(const CvPlot* pPlot) const
+ 	//if (isWaiting())
+ 	if (getGroup()->getActivityType() == ACTIVITY_PATROL) // K-Mod
+ 		return false;
+-
+-	return true;
++	// advc.004k: (Do the cheaper checks first)
++	return getBugOptionBOOL("MainInterface__SeaPatrol", false);
+ }
+ 
+ 
+@@ -4582,11 +4582,11 @@ bool CvUnit::pillage()
+ 				return false;
+ 		}
+ 	}
+-
+-	if (pPlot->isWater())
++	if (pPlot->isWater()
++		&& getBugOptionBOOL("MainInterface__SeaPatrol", false)) // advc.004k
+ 	{
+ 		CvUnit* pInterceptor = bestSeaPillageInterceptor(this, GC.getCOMBAT_DIE_SIDES() / 2);
+-		if (NULL != pInterceptor)
++		if (pInterceptor != NULL)
+ 		{
+ 			setMadeAttack(false);
+ 			int iWithdrawal = withdrawalProbability();
+@@ -4596,7 +4596,6 @@ bool CvUnit::pillage()
+ 			return false;
+ 		}
+ 	}
+-
+ 	if (pPlot->getImprovementType() != NO_IMPROVEMENT)
+ 	{
+ 		eTempImprovement = pPlot->getImprovementType();
+@@ -7940,9 +7939,10 @@ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ {
+ 	CvUnit* pBestUnit = NULL;
+ 	int pBestUnitRank = -1; // BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000
+-	for (int iDX = -1; iDX <= 1; ++iDX)
++	int const iRange = 1; // advc
++	for (int iDX = -iRange; iDX <= iRange; ++iDX)
+ 	{
+-		for (int iDY = -1; iDY <= 1; ++iDY)  // advc: some changes to reduce indentation
++		for (int iDY = -iRange; iDY <= iRange; ++iDY)  // advc: some changes to reduce indentation
+ 		{
+ 			CvPlot* pLoopPlot = plotXY(pPillager->getX(), pPillager->getY(), iDX, iDY);
+ 			if (pLoopPlot == NULL)
+@@ -7965,9 +7965,9 @@ CvUnit* CvUnit::bestSeaPillageInterceptor(CvUnit* pPillager, int iMinOdds) const
+ 					pLoopUnit->getDomainType() == DOMAIN_SEA &&
+ 					pLoopUnit->getGroup()->getActivityType() == ACTIVITY_PATROL)
+ 				{
+-					if (NULL == pBestUnit || pLoopUnit->isBetterDefenderThan(pBestUnit, this,
+-							// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
+-							&pBestUnitRank))
++					if (pBestUnit == NULL || pLoopUnit->isBetterDefenderThan(pBestUnit, this,
++						// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000:
++						&pBestUnitRank))
+ 					{
+ 						if (getCombatOdds(pPillager, pLoopUnit) < iMinOdds)
+ 							pBestUnit = pLoopUnit;
+
+[PATCH COVERAGE]
+patchFiles=6 embeddedFiles=6 omittedFiles=0 embeddedPatchBytes=7624

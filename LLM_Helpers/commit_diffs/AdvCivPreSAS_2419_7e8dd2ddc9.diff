@@ -1,0 +1,67 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2419
+# Commit: 7e8dd2ddc99cfb78c1166d445ae7e120964a0eb7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: f30907a2caed49668d1e136f8f5fb3a183c8b3cc
+# Title: Make GP-created buildings nuke-immune
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+7	4	Assets/XML/Buildings/CIV4BuildingInfos.xml
+
+[PATCHES]
+
+diff --git a/Assets/XML/Buildings/CIV4BuildingInfos.xml b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+index 3c6f3a584..912b48ec0 100644
+--- a/Assets/XML/Buildings/CIV4BuildingInfos.xml
++++ b/Assets/XML/Buildings/CIV4BuildingInfos.xml
+@@ -177,7 +177,7 @@
+ 			<iHotKeyPriority>0</iHotKeyPriority>
+ 		</BuildingInfo>
+ 		<BuildingInfo>
+-			<BuildingClass>BUILDINGCLASS_GREAT_PALACE</BuildingClass>
++			<BuildingClass>BUILDINGCLASS_GREAT_PALACE</BuildingClass> <!-- advc: a.k.a. Forbidden Palace -->
+ 			<Type>BUILDING_GREAT_PALACE</Type>
+ 			<SpecialBuildingType>NONE</SpecialBuildingType>
+ 			<Description>TXT_KEY_BUILDING_GREAT_PALACE</Description>
+@@ -7558,7 +7558,8 @@
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
++			<!-- advc.650: was 0 -->
++			<bNukeImmune>1</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+@@ -21132,7 +21133,8 @@
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
++			<!-- advc.650: was 0 -->
++			<bNukeImmune>1</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+@@ -25863,7 +25865,8 @@
+ 			<iUnhealthyPopulationModifier>0</iUnhealthyPopulationModifier>
+ 			<bBuildingOnlyHealthy>0</bBuildingOnlyHealthy>
+ 			<bNeverCapture>0</bNeverCapture>
+-			<bNukeImmune>0</bNukeImmune>
++			<!-- advc.650: was 0 -->
++			<bNukeImmune>1</bNukeImmune>
+ 			<bPrereqReligion>0</bPrereqReligion>
+ 			<bCenterInCity>0</bCenterInCity>
+ 			<iAIWeight>0</iAIWeight>
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=1786

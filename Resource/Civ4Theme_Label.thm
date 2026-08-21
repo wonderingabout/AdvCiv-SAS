@@ -50,17 +50,17 @@ with GFC_Control_Label
 			.TopLayer						=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYER);
 			.TopLayerBitmap					=	0;	//GFlags(GCtrl, GFC_CF_TOPLAYERBITMAP);
 			.BottomLayerBitmap				=	0;	//GFlags(GCtrl, GFC_CF_BOTTOMLAYERBITMAP);
-											
+
 			// Control flag change masks	
 			.Mask_InvalidateControl				=	GFlags(GCtrl, GFC_CF_DISABLED, GFC_CF_TRANSPARENT, GFC_CF_TOPLAYER);
 		}
-												
+
 		with .Flag
 		{
 			// Label flags
 			.VAlign							=	GFlags(GLabelCtrl, GFC_CF_LABEL_VCENTER);
 			.HAlign							=	GFlags(GLabelCtrl, GFC_CF_LABEL_LEFT);
-											
+
 			.Text_VAlign					=	GFlags(GLabelCtrl, GFC_CF_LABEL_TEXT_VCENTER);
 			.Text_HAlign					=	GFlags(GLabelCtrl, GFC_CF_LABEL_TEXT_RIGHT);
 			.Multiline						=	0;	//GFlags(GLabelCtrl, GFC_CF_LABEL_MULTILINE);
@@ -77,25 +77,25 @@ with GFC_Control_Label
 		{
 			.Image_Default						=	GFC_Control_Color_Image_Default;
 			.Image_Disable						=	GFC_Control_Color_Image_Disable;
-												
+
 			.Text_Default						=	GFC_Control_Color_Text_Default;
 			.Text_Disable						=	GFC_Control_Color_Text_Disable;
 			.Text_Winoff						=	.Text_Default;
 			.Text_WinoffDisable					=	.Text_Disable;
-												
+
 			.TextShadow_Default					=	GFC_Control_Color_TextShadow_Default;
 			.TextShadow_Disable					=	GFC_Control_Color_TextShadow_Disable;
 			.TextShadow_Winoff					=	.TextShadow_Default;
 			.TextShadow_WinoffDisable			=	.TextShadow_Disable;
 		}										
-													
+
 		with .Combine								
 		{										
 			.Image_Default_Dest					=	GFC_Control_Combine_Image_Default_Dest;
 			.Image_Default_Factor				=	GFC_Control_Combine_Image_Default_Factor;
 			.Image_Disable_Dest					=	GFC_Control_Combine_Image_Disable_Dest;
 			.Image_Disable_Factor				=	GFC_Control_Combine_Image_Disable_Factor;
-												
+
 			.Text_Default_Dest					=	GFC_Control_Combine_Text_Default_Dest;
 			.Text_Default_Factor				=	GFC_Control_Combine_Text_Default_Factor;
 			.Text_Disable_Dest					=	GFC_Control_Combine_Text_Disable_Dest;
@@ -104,7 +104,7 @@ with GFC_Control_Label
 			.Text_Winoff_Factor					=	.Text_Default_Factor;
 			.Text_WinoffDisable_Dest			=	.Text_Disable_Dest;	
 			.Text_WinoffDisable_Factor			=	.Text_Disable_Factor;
-												
+
 			.TextShadow_Default_Dest			=	GFC_Control_Combine_TextShadow_Default_Dest;
 			.TextShadow_Default_Factor			=	GFC_Control_Combine_TextShadow_Default_Factor;
 			.TextShadow_Disable_Dest			=	GFC_Control_Combine_TextShadow_Disable_Dest;
@@ -122,7 +122,7 @@ with GFC_Control_Label
 			.TextOffset						=	GPoint(0,-1);
 			.Default						=	GSize(0,31);
 		}
-																											
+
 		with .Font
 		{
 			.Text_Default						=	SF_CtrlTheme_Civ4_Control_Font_Size3_Normal;
@@ -131,7 +131,7 @@ with GFC_Control_Label
 			.Text_WinoffDisable					=	.Text_Disable;
 		}
 
-		
+
 		// ******* Initialize all the Bitmap theme Label properties to avoid inheritance problems
 
 		with GFC_CtrlTheme_Bitmap_Control_Label_Skin
@@ -144,7 +144,7 @@ with GFC_Control_Label
 			.Winoff									= 0;
 			.WinoffDisable							= 0;
 		}
-		
+
 		map GFC_Control			=	GFC_Control_DefaultControl_Style;
 	}	// end GFC_Control_DefaultLabel_Style
 

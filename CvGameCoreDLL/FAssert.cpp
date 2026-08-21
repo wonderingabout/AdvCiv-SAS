@@ -162,8 +162,7 @@ namespace
 
 } // end anonymous namespace
 
-bool FAssertDlg( const char* szExpr, const char* szMsg, const char* szFile, unsigned int line,
-	/* <advc.006f> */ const char* szFunction, /* </advc006f> */ bool& bIgnoreAlways )
+bool FAssertDlg(const char* szExpr, const char* szMsg, const char* szFile, unsigned int line, /* <advc.006f> */ const char* szFunction, /* </advc006f> */ bool& bIgnoreAlways)
 {
 	g_AssertInfo.szExpression = szExpr;
 	g_AssertInfo.szMessage = szMsg;
@@ -186,7 +185,7 @@ bool FAssertDlg( const char* szExpr, const char* szMsg, const char* szFile, unsi
 		return false;
 	// <advc.006l>
 	case ASSERT_DLG_STOP:
-		GC.getGame().setAIAutoPlay(0);
+		GC.getGame().setAIAutoPlay(0, true, SAS_AUTOPLAY_END_ASSERTION);
 		return false; // </advc.006l>
 
 	case ASSERT_DLG_EXIT:

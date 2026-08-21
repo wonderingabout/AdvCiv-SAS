@@ -1,0 +1,171 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 2756
+# Commit: 9069271991ebde21734b8fcf82b400f17ead30c7
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: 587405fc93d4399b3182b84f9f2ebc313184d18e
+# Title: Minor refactoring in buildCityBillboardIconString
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+30	40	CvGameCoreDLL/CvGameTextMgr.cpp
+
+[PATCHES]
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d21e529fb..bb46b28b3 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -18620,30 +18620,20 @@ void CvGameTextMgr::parseGreatGeneralHelp(CvWStringBuffer &szBuffer, CvPlayer& k
+ }
+ 
+ 
+-//------------------------------------------------------------------------------------------------
+-
+ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvCity* pCity)
+ {
+ 	szBuffer.clear();
+ 
+ 	// government center icon
+ 	if (pCity->isGovernmentCenter() && !(pCity->isCapital()))
+-	{
+ 		szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(SILVER_STAR_CHAR)));
+-	}
+-
+ 	// happiness, healthiness, superlative icons
+ 	if (pCity->canBeSelected())
+ 	{
+ 		if (pCity->angryPopulation() > 0)
+-		{
+ 			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(UNHAPPY_CHAR)));
+-		}
+-
+ 		if (pCity->healthRate() < 0)
+-		{
+ 			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(UNHEALTHY_CHAR)));
+-		}
+ 		// advc.076: Disabled
+ 		/*if (gDLL->getGraphicOption(GRAPHICOPTION_CITY_DETAIL)) {
+ 			if (GET_PLAYER(pCity->getOwner()).getNumCities() > 2) {
+@@ -18666,81 +18656,81 @@ void CvGameTextMgr::buildCityBillboardIconString( CvWStringBuffer& szBuffer, CvC
+ 		// BUG - Airport Icon - start
+ 		if (BUGOption::isEnabled("MainInterface__AirportIcon", true))
+ 		{
+-			BuildingClassTypes eAirportClass = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_AIRPORT"
++			BuildingClassTypes eAirportClass = (BuildingClassTypes)
++					GC.getInfoTypeForString("BUILDINGCLASS_AIRPORT"
+ 					// Mod-mods that don't have an airport should set bHideAssert:
+ 					/*,true*/);
+ 			if (eAirportClass != NO_BUILDINGCLASS)
+ 			{
+-				BuildingTypes eAirport = pCity->getCivilization().getBuilding(eAirportClass);
++				BuildingTypes eAirport = pCity->getCivilization().
++						getBuilding(eAirportClass);
+ 				if (eAirport != NO_BUILDING && pCity->getNumBuilding(eAirport) > 0)
+ 				{
+-					szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(AIRPORT_CHAR)));
++					szBuffer.append(CvWString::format(L"%c",
++							gDLL->getSymbolID(AIRPORT_CHAR)));
+ 				}
+ 			}
+ 		} // BUG - Airport Icon - end
+ 		// </advc.002f>
+ 	}
+-
+ 	// religion icons
+-	for (int iI = 0; iI < GC.getNumReligionInfos(); ++iI)
++	FOR_EACH_ENUM(Religion)
+ 	{
+-		if (pCity->isHasReligion((ReligionTypes)iI))
++		if (pCity->isHasReligion(eLoopReligion))
+ 		{
+-			if (pCity->isHolyCity((ReligionTypes)iI))
++			if (pCity->isHolyCity(eLoopReligion))
+ 			{
+-				szBuffer.append(CvWString::format(L"%c", GC.getInfo((ReligionTypes) iI).getHolyCityChar()));
++				szBuffer.append(CvWString::format(L"%c",
++						GC.getInfo(eLoopReligion).getHolyCityChar()));
+ 			}
+ 			else
+ 			{
+-				szBuffer.append(CvWString::format(L"%c", GC.getInfo((ReligionTypes) iI).getChar()));
++				szBuffer.append(CvWString::format(L"%c",
++						GC.getInfo(eLoopReligion).getChar()));
+ 			}
+ 		}
+ 	}
+-
+ 	// corporation icons
+-	for (int iI = 0; iI < GC.getNumCorporationInfos(); ++iI)
++	FOR_EACH_ENUM2(Corporation, eLoopCorp)
+ 	{
+-		if (pCity->isHeadquarters((CorporationTypes)iI))
++		if (pCity->isHeadquarters(eLoopCorp))
+ 		{
+-			if (pCity->isHasCorporation((CorporationTypes)iI))
++			if (pCity->isHasCorporation(eLoopCorp))
+ 			{
+-				szBuffer.append(CvWString::format(L"%c", GC.getInfo((CorporationTypes) iI).getHeadquarterChar()));
++				szBuffer.append(CvWString::format(L"%c",
++						GC.getInfo(eLoopCorp).getHeadquarterChar()));
+ 			}
+ 		}
+ 		else
+ 		{
+-			if (pCity->isActiveCorporation((CorporationTypes)iI))
++			if (pCity->isActiveCorporation(eLoopCorp))
+ 			{
+-				szBuffer.append(CvWString::format(L"%c", GC.getInfo((CorporationTypes) iI).getChar()));
++				szBuffer.append(CvWString::format(L"%c",
++						GC.getInfo(eLoopCorp).getChar()));
+ 			}
+ 		}
+ 	}
+-
+-	if (pCity->getTeam() == GC.getGame().getActiveTeam())
++	if (pCity->getTeam() == GC.getGame().getActiveTeam() && pCity->isPower())
+ 	{
+-		if (pCity->isPower())
+-		{
+-			szBuffer.append(CvWString::format(L"%c", gDLL->getSymbolID(POWER_CHAR)));
+-		}
++		szBuffer.append(CvWString::format(L"%c",
++				gDLL->getSymbolID(POWER_CHAR)));
+ 	}
+-
+-	// XXX out this in bottom bar???
+-	if (pCity->isOccupation())
++	if (pCity->isOccupation()) // XXX out this in bottom bar???
+ 	{
+-		szBuffer.append(CvWString::format(L" (%c:%d)", gDLL->getSymbolID(OCCUPATION_CHAR), pCity->getOccupationTimer()));
++		szBuffer.append(CvWString::format(L" (%c:%d)",
++				gDLL->getSymbolID(OCCUPATION_CHAR), pCity->getOccupationTimer()));
+ 	}
+-
+ 	// defense icon and text
+ 	//if (pCity->getTeam() != GC.getGame().getActiveTeam())
+ 	{
+ 		if (pCity->isVisible(GC.getGame().getActiveTeam(), true))
+ 		{
+-			int iDefenseModifier = pCity->getDefenseModifier(GC.getGame().selectionListIgnoreBuildingDefense());
+-
++			int iDefenseModifier = pCity->getDefenseModifier(
++					GC.getGame().selectionListIgnoreBuildingDefense());
+ 			if (iDefenseModifier != 0)
+ 			{
+ 				//szBuffer.append(CvWString::format(L" %c:%s%d%%", gDLL->getSymbolID(DEFENSE_CHAR), ((iDefenseModifier > 0) ? "+" : ""), iDefenseModifier));
+-				// <advc.002f> Replacing the above
++				// <advc.002f>
+ 				szBuffer.append(CvWString::format(L"   " SETCOLR L"%s%d%%" ENDCOLR L"%c",
+ 						// I've tried some other colors, but they're no easier to read.
+ 						TEXT_COLOR("COLOR_WHITE"),
+
+[PATCH COVERAGE]
+patchFiles=1 embeddedFiles=1 omittedFiles=0 embeddedPatchBytes=5342

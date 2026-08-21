@@ -1,0 +1,411 @@
+# AdvCiv-SAS reachable-history commit diff
+# Email privacy: email-shaped addresses redacted from generated commit-history text.
+# History metadata layout: 3 (history-segment label; title-only diff header; full message redirected to anonymized Git logs).
+# Cache format: 2
+# Cache policy: 8c87d6e4bd0f
+# Practical commit count: 1483
+# Commit: 9a2822040f0ae6cd2241a7a2efc593afe971ebc6
+# History segment: pre-SAS AdvCiv history
+# Parent used for diff: b8f734949eaf6ebb97dab79054d4fe6ea2eb7c36
+# Title: Trade hovers take into account AI willingness to talk
+# Full commit message/metadata: see _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt.
+# History segments describe ancestry/log partition, not authorship: SASBranch includes SAS work plus later upstream AdvCiv commits merged/imported into this branch.
+# Practical commit counts can repeat on divergent/merged history; the full Git SHA is the canonical unique commit identifier.
+# Diff policy: preserve textual source/docs/config history; summarize known generated/binary/noisy or exceptionally huge file patches.
+# Git textconv/external diff drivers are disabled; redundant document formats such as ODT/PDF are summarized rather than converted.
+
+[CHANGE SUMMARY - NUMSTAT + RENAME/MODE SUMMARY]
+1	1	Assets/Config/Advanced Scoreboard.xml
+1	1	Assets/Config/BUG City Screen.xml
+9	6	Assets/Python/Screens/CvExoticForeignAdvisor.py
+2	10	CvGameCoreDLL/CvDLLWidgetData.cpp
+42	19	CvGameCoreDLL/CvGameTextMgr.cpp
+10	23	CvGameCoreDLL/CvPlayerAI.cpp
+5	1	CvGameCoreDLL/CvPlayerAI.h
+1	6	CvGameCoreDLL/CyPlayer.cpp
+34	0	CvGameCoreDLL/WarAndPeaceAI.cpp
+4	0	CvGameCoreDLL/WarAndPeaceAI.h
+
+[PATCHES]
+
+diff --git a/Assets/Config/Advanced Scoreboard.xml b/Assets/Config/Advanced Scoreboard.xml
+index 412f9f431..b2e45b0e3 100644
+--- a/Assets/Config/Advanced Scoreboard.xml	
++++ b/Assets/Config/Advanced Scoreboard.xml	
+@@ -73,7 +73,7 @@
+ 					type="boolean" default="False" dirtyBit="Score"/>
+ 			<!-- advc.106d: Default was !?2WSZVC6EPTUNBDRAHQ*LO -->
+ 			<option id="DisplayOrder" key="Display Order" 
+-					type="string" default="!?2W_D_B_NSZCPTURAHQ*LO"
++					type="string" default="_D_B_N!?2WSZCPTURAHQ*LO"
+ 					get="getDisplayOrder" set="setDisplayOrder" dirtyBit="Score"/>
+ 			<list   id="DefaultSpacing" key="Default Column Spacing" 
+ 					type="int" default="0" values="0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10"
+
+diff --git a/Assets/Config/BUG City Screen.xml b/Assets/Config/BUG City Screen.xml
+index 1cfbac3d0..d5b3dce7c 100644
+--- a/Assets/Config/BUG City Screen.xml	
++++ b/Assets/Config/BUG City Screen.xml	
+@@ -3,7 +3,7 @@
+ 	BUG City Screen
+ 	by EmperorFool, Dresden, Chinese American, Ruff_Hi, TheLopez, Sevo
+ 	
+-	Collects all of the various main interface mods.
++	Collects all of the various city screen mods.
+ 	
+ 	Copyright (c) 2008 The BUG Mod.
+ -->
+
+diff --git a/Assets/Python/Screens/CvExoticForeignAdvisor.py b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+index 47d56a1e1..5cd20015e 100644
+--- a/Assets/Python/Screens/CvExoticForeignAdvisor.py
++++ b/Assets/Python/Screens/CvExoticForeignAdvisor.py
+@@ -1149,7 +1149,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 										, 64, WidgetTypes.WIDGET_LEADERHEAD, iLoopPlayer, self.iActiveLeader )
+ 				
+ 				# gold
+-				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()):
++				# advc.036:
++				bWillTalk = currentPlayer.AI_isWillingToTalk(self.iActiveLeader)
++				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
+ 					sAmount = str(gc.getPlayer(iLoopPlayer).AI_maxGoldPerTurnTrade(self.iActiveLeader))
+ 					self.resIconGrid.setText(currentRow, self.canPayCol, sAmount)
+ 				
+@@ -1169,13 +1171,13 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						# <advc.073> Replacing the above: separate column now for must-be-joking resources
+ 						iDenial = currentPlayer.getTradeDenial(self.iActiveLeader, tradeData)
+ 						# Human isn't going to deny, but I still want to populate the noNeedCol and wontExportCol.
+-						if iDenial == -1 and currentPlayer.isHuman():
++						if iDenial == DenialTypes.NO_DENIAL and currentPlayer.isHuman():
+ 							if activePlayer.getNumAvailableBonuses(iLoopBonus) > 0 and activePlayer.AI_corporationBonusVal(iLoopBonus) <= 0:
+ 								iDenial = DenialTypes.DENIAL_JOKING
+ 							elif currentPlayer.getNumAvailableBonuses(iLoopBonus) < 2 or currentPlayer.AI_corporationBonusVal(iLoopBonus) > 0:
+ 								iDenial = DenialTypes.DENIAL_NO_GAIN
+ 						if iDenial != DenialTypes.DENIAL_JOKING:
+-							if iDenial < 0:
++							if iDenial == DenialTypes.NO_DENIAL and bWillTalk:
+ 								# Use the BONUS_TRADE widget from BULL everywhere (also needed for advc.036). Was willTradeCol.
+ 								self.resIconGrid.addIcon( currentRow, self.willExportCol, gc.getBonusInfo(iLoopBonus).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_BONUS_TRADE, iLoopBonus, iLoopPlayer )
+ 							else: # won't trade
+@@ -1308,8 +1310,9 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 
+ 				self.techIconGrid.setText(currentRow, iTechColStatus, zsStatus)
+ # BUG - AI status - end
+-
+-				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()):
++				# advc.036:
++				bWillTalk = currentPlayer.AI_isWillingToTalk(self.iActiveLeader)
++				if (gc.getTeam(activePlayer.getTeam()).isGoldTrading() or gc.getTeam(currentPlayer.getTeam()).isGoldTrading()) and bWillTalk:
+ 					sAmount = str(gc.getPlayer(iLoopPlayer).AI_maxGoldTrade(self.iActiveLeader))
+ 					self.techIconGrid.setText(currentRow, iTechColGold, sAmount)
+ 
+@@ -1325,7 +1328,7 @@ class CvExoticForeignAdvisor (CvForeignAdvisor.CvForeignAdvisor):
+ 						elif currentPlayer.canResearch(iLoopTech, False):
+ 							self.techIconGrid.addIcon( currentRow, iTechColResearch, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 						if (currentPlayer.canTradeItem(self.iActiveLeader, tradeData, False)):
+-							if (currentPlayer.getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL): # will trade
++							if currentPlayer.getTradeDenial(self.iActiveLeader, tradeData) == DenialTypes.NO_DENIAL and bWillTalk: # will trade
+ 								self.techIconGrid.addIcon( currentRow, iTechColWill, gc.getTechInfo(iLoopTech).getButton(), 64, WidgetTypes.WIDGET_PEDIA_JUMP_TO_TECH, iLoopTech )
+ 							else: # won't trade
+ 								# advc.073: Changed so that WIDGET_PEDIA_JUMP_TO_TECH_TRADE works w/o BugDll
+
+diff --git a/CvGameCoreDLL/CvDLLWidgetData.cpp b/CvGameCoreDLL/CvDLLWidgetData.cpp
+index bcf3036ec..70259c3e5 100644
+--- a/CvGameCoreDLL/CvDLLWidgetData.cpp
++++ b/CvGameCoreDLL/CvDLLWidgetData.cpp
+@@ -3569,16 +3569,8 @@ void CvDLLWidgetData::parseContactCivHelp(CvWidgetDataStruct &widgetDataStruct,
+ 			szBuffer.append(NEWLINE);
+ 			GAMETEXT.getEspionageString(szBuffer, ((PlayerTypes)widgetDataStruct.m_iData1), eActivePlayer);
+ 		} */
+-		bool bWillTalk = false;  // <advc.085>
+-		if(eActivePlayer == ePlayer)
+-			bWillTalk = true;
+-		else { // </advc.085>
+-			// <advc.104l>
+-			WarEvaluator::enableCache();
+-			// Don't check this twice; potentially costly.
+-			bool bWillTalk = kPlayer.AI_isWillingToTalk(eActivePlayer);
+-			WarEvaluator::disableCache(); // </advc.104l>
+-		}
++		bool bWillTalk = (eActivePlayer == ePlayer || // advc.085
++				kPlayer.AI_isWillingToTalk(eActivePlayer, /* advc.104l: */ true));
+ 		// K-Mod
+ 		if (!bWillTalk)
+ 		{
+
+diff --git a/CvGameCoreDLL/CvGameTextMgr.cpp b/CvGameCoreDLL/CvGameTextMgr.cpp
+index d4fbcfa20..3bf2d610a 100644
+--- a/CvGameCoreDLL/CvGameTextMgr.cpp
++++ b/CvGameCoreDLL/CvGameTextMgr.cpp
+@@ -8957,7 +8957,17 @@ void CvGameTextMgr::setTechTradeHelp(CvWStringBuffer &szBuffer, TechTypes eTech,
+ 		{
+ 			DenialTypes eDenial = GET_PLAYER(eTradePlayer).getTradeDenial(
+ 					eActivePlayer, item);
+-			if (eDenial != NO_DENIAL)
++			// <advc.073>
++			if (eDenial == NO_DENIAL)
++			{
++				if(!GET_PLAYER(eTradePlayer).isHuman() && !GET_PLAYER(eTradePlayer).
++						AI_isWillingToTalk(eActivePlayer, true))
++				{
++					szBuffer.append(NEWLINE);
++					szBuffer.append(gDLL->getText("TXT_KEY_MISC_REFUSES_TO_TALK"));
++				}
++			} // </advc.073>
++			else
+ 			{
+ 				szTempBuffer.Format(SETCOLR L"%s" ENDCOLR,
+ 						TEXT_COLOR("COLOR_NEGATIVE_TEXT"),
+@@ -13839,9 +13849,9 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 				if(!kTaker.isAlive() || kTaker.isHuman() ||
+ 						!TEAMREF(eActivePlayer).isHasMet(kTaker.getTeam()))
+ 					continue;
+-				if(!pActivePlayer->canTradeItem(kTaker.getID(), item, true))
+-					continue;
+-				aTakers.push_back(kTaker.getID());
++				if(pActivePlayer->canTradeItem(kTaker.getID(), item, true) &&
++						kTaker.AI_isWillingToTalk(eActivePlayer, true))
++					aTakers.push_back(kTaker.getID());
+ 			}
+ 			if(aTakers.empty())
+ 				return;
+@@ -13885,29 +13895,42 @@ void CvGameTextMgr::setBonusTradeHelp(CvWStringBuffer &szBuffer, BonusTypes eBon
+ 				return;
+ 			} 
+ 			else if(eDenial == NO_DENIAL && !bHuman) {
++				if(GET_PLAYER(eTradePlayer).AI_isWillingToTalk(eActivePlayer, true)) {
++					::setTradeItem(&item, TRADE_GOLD_PER_TURN, 1);
++					if(pActivePlayer->canTradeItem(eTradePlayer, item, false)) {
++						int iGold = pActivePlayer->AI_goldForBonus(eBonus, eTradePlayer);
++						if(iGold > 0) {
++							szBuffer.append(NEWLINE);
++							szBuffer.append(CvWString::format(L"%s %d%c",
++									gDLL->getText("TXT_KEY_MISC_WILL_ASK").GetCString(),
++									iGold, iGoldChar));
++							return;
++						}
++					}
++				}
++				else {
++					szBuffer.append(NEWLINE);
++					szBuffer.append(gDLL->getText("TXT_KEY_MISC_REFUSES_TO_TALK"));
++				}
++			}
++		} 
++		if(bImport && !bHuman) {
++			bool bWillTalk = GET_PLAYER(eTradePlayer).AI_isWillingToTalk(eActivePlayer, true);
++			if(bWillTalk && pActivePlayer->canTradeItem(eTradePlayer, item, true)) {
+ 				::setTradeItem(&item, TRADE_GOLD_PER_TURN, 1);
+-				if(pActivePlayer->canTradeItem(eTradePlayer, item, false)) {
+-					int iGold = pActivePlayer->AI_goldForBonus(eBonus, eTradePlayer);
++				if(GET_PLAYER(eTradePlayer).canTradeItem(eActivePlayer, item, false)) {
++					int iGold = GET_PLAYER(eTradePlayer).AI_goldForBonus(eBonus, eActivePlayer);
+ 					if(iGold > 0) {
+ 						szBuffer.append(NEWLINE);
+ 						szBuffer.append(CvWString::format(L"%s %d%c",
+-								gDLL->getText("TXT_KEY_MISC_WILL_ASK").GetCString(),
++								gDLL->getText("TXT_KEY_MISC_WILL_PAY").GetCString(),
+ 								iGold, iGoldChar));
+-						return;
+ 					}
+ 				}
+ 			}
+-		} 
+-		if(bImport && !bHuman && pActivePlayer->canTradeItem(eTradePlayer, item, true)) {
+-			::setTradeItem(&item, TRADE_GOLD_PER_TURN, 1);
+-			if(GET_PLAYER(eTradePlayer).canTradeItem(eActivePlayer, item, false)) {
+-				int iGold = GET_PLAYER(eTradePlayer).AI_goldForBonus(eBonus, eActivePlayer);
+-				if(iGold > 0) {
+-					szBuffer.append(NEWLINE);
+-					szBuffer.append(CvWString::format(L"%s %d%c",
+-							gDLL->getText("TXT_KEY_MISC_WILL_PAY").GetCString(),
+-							iGold, iGoldChar));
+-				}
++			else if(!bWillTalk) {
++				szBuffer.append(NEWLINE);
++				szBuffer.append(gDLL->getText("TXT_KEY_MISC_REFUSES_TO_TALK"));
+ 			}
+ 		} // </advc.036>
+ 	}
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.cpp b/CvGameCoreDLL/CvPlayerAI.cpp
+index 6f715af4b..c916845ff 100644
+--- a/CvGameCoreDLL/CvPlayerAI.cpp
++++ b/CvGameCoreDLL/CvPlayerAI.cpp
+@@ -9015,7 +9015,7 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
+ }
+ 
+ // return true if we are willing to talk to ePlayer
+-bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
++bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer, /* advc.104l: */ bool bAsync) const
+ {
+ 	FAssert(getPersonalityType() != NO_LEADER);
+ 	FAssert(ePlayer != getID());
+@@ -9054,35 +9054,22 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 			// advc.104i: Get this out of the way too:
+ 			|| kTheirTeam.isAVassal())
+ 		return false;
+-
+ 	// K-Mod
+ 	if(kOurTeam.isHuman()) // ie. we are an AI player, but our team is human
+ 		return false; // let the human speak for us.
+ 	// K-Mod end
+-
+ 	// <advc.104i>
+-	int atWarCounter = kOurTeam.AI_getAtWarCounter(kTheirTeam.getID());
++	int iTurnsAtWar = kOurTeam.AI_getAtWarCounter(kTheirTeam.getID());
+ 	if(getWPAI.isEnabled()) {
+-		if(kOurTeam.AI_surrenderTrade(kTheirTeam.getID()) == NO_DENIAL)
+-			return true;
+-		// 1 turn RTT and let the team leader handle peace negotiation
+-		if(atWarCounter <= 1 || kOurTeam.getLeaderID() != getID())
++		// advc.104l: Synchronized code mustn't read from the war evaluator cache
++		int iWillTalk = warAndPeaceAI().willTalk(ePlayer, iTurnsAtWar, bAsync);
++		if(iWillTalk < 0)
+ 			return false;
+-		// bValid=true: want to return true, but still need to check for DECLARED_WAR_RECENT.
+-		bool bValid = false;
+-		/*  Checking for a possible peace deal only serves as a convenience for
+-			human players; no need to do it for AI-AI peace. */
+-		if(!GET_PLAYER(ePlayer).isHuman())
+-			bValid = true;
+-		else bValid = (kOurTeam.AI_surrenderTrade(kTheirTeam.getID()) == NO_DENIAL ||
+-					warAndPeaceAI().isPeaceDealPossible(ePlayer));
+-		if(AI_getMemoryCount(ePlayer, MEMORY_DECLARED_WAR_RECENT) > 0) {
+-			if(!bValid)
+-				return false; // else RTT as in BtS
+-		}
+-		else return bValid;
++		if(iWillTalk > 0)
++			return true;
++		// iWillTalk==0: RTT as in BtS
+ 	}
+-	if(!getWPAI.isEnabled()) { // </advc.104i>
++	else { // </advc.104i>
+ 		// K-Mod
+ 		if(kOurTeam.AI_refusePeace(kTheirTeam.getID())) {
+ 			TradeData item;
+@@ -9093,7 +9080,7 @@ bool CvPlayerAI::AI_isWillingToTalk(PlayerTypes ePlayer) const
+ 	}
+ 	// advc.104i: Moved into a new function
+ 	int iRefuseDuration = AI_refuseToTalkTurns(ePlayer);
+-	return (atWarCounter >= iRefuseDuration);
++	return (iTurnsAtWar >= iRefuseDuration);
+ }
+ 
+ // advc.104i: Cut from AI_isWillingToTalk
+
+diff --git a/CvGameCoreDLL/CvPlayerAI.h b/CvGameCoreDLL/CvPlayerAI.h
+index bbed976b9..407c8486b 100644
+--- a/CvGameCoreDLL/CvPlayerAI.h
++++ b/CvGameCoreDLL/CvPlayerAI.h
+@@ -172,7 +172,11 @@ public:
+ 	void AI_chooseResearch();
+ 
+ 	DllExport DiploCommentTypes AI_getGreeting(PlayerTypes ePlayer) const;
+-	bool AI_isWillingToTalk(PlayerTypes ePlayer) const; // Exposed to Python
++	bool AI_isWillingToTalk(PlayerTypes ePlayer) const {								 // Exposed to Python
++		// <advc.104l> ^Virtual function that the EXE may well call; mustn't change signature.
++		return AI_isWillingToTalk(ePlayer, false);
++	}
++	bool AI_isWillingToTalk(PlayerTypes ePlayer, bool bAsync) const; // </advc.104l>
+ 	int AI_refuseToTalkTurns(PlayerTypes ePlayer) const; // advc.104i
+ 	bool AI_demandRebukedSneak(PlayerTypes ePlayer) const;
+ 	bool AI_demandRebukedWar(PlayerTypes ePlayer) const;
+
+diff --git a/CvGameCoreDLL/CyPlayer.cpp b/CvGameCoreDLL/CyPlayer.cpp
+index 957850ed9..dbe6f8522 100644
+--- a/CvGameCoreDLL/CyPlayer.cpp
++++ b/CvGameCoreDLL/CyPlayer.cpp
+@@ -11,7 +11,6 @@
+ #include "CvPlayerAI.h"
+ #include "CvMap.h"
+ #include "CySelectionGroup.h"
+-#include "WarEvaluator.h" // advc.104l
+ #include "CvDLLPythonIFaceBase.h"
+ 
+ CyPlayer::CyPlayer() : m_pPlayer(NULL)
+@@ -2135,11 +2134,7 @@ bool CyPlayer::AI_isWillingToTalk(int /*PlayerTypes*/ ePlayer) {
+ 	CvPlayerAI const& p = GET_PLAYER((PlayerTypes)ePlayer);
+ 	if(p.getNumCities() <= 0 && p.getNumUnits() <= 0)
+ 		return false; // </advc.001>
+-	// AI_isWillingToTalk gets called frequently by Civ4lerts
+-	WarEvaluator::enableCache();
+-	bool r = m_pPlayer->AI_isWillingToTalk(p.getID());
+-	WarEvaluator::disableCache();
+-	return r;
++	return m_pPlayer->AI().AI_isWillingToTalk(p.getID(), true);
+ } // </advc.104l>
+ 
+ bool CyPlayer::AI_demandRebukedWar(int /*PlayerTypes*/ ePlayer)
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.cpp b/CvGameCoreDLL/WarAndPeaceAI.cpp
+index 564fe8327..01769d65d 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.cpp
++++ b/CvGameCoreDLL/WarAndPeaceAI.cpp
+@@ -2483,6 +2483,40 @@ bool WarAndPeaceAI::Civ::considerGiftRequest(PlayerTypes theyId,
+ 	double thresh = utilityToTradeVal(-u);
+ 	return thresh >= tradeVal;
+ }
++// Wrapper that handles the war evaluator cache
++int WarAndPeaceAI::Civ::willTalk(PlayerTypes theyId, int atWarCounter, bool useCache) const {
++
++	if(useCache)
++		WarEvaluator::enableCache();
++	int r = willTalk(theyId, atWarCounter);
++	if(useCache)
++		WarEvaluator::disableCache();
++	return r;
++}
++
++int WarAndPeaceAI::Civ::willTalk(PlayerTypes theyId, int atWarCounter) const {
++
++	CvTeamAI const& agent = TEAMREF(weId);
++	if(agent.AI_surrenderTrade(TEAMID(theyId)) == NO_DENIAL)
++		return 1;
++	// 1 turn RTT and let the team leader handle peace negotiation
++	if(atWarCounter <= 1 || agent.getLeaderID() != weId)
++		return -1;
++	// valid=true: want to return 1, but still need to check for DECLARED_WAR_RECENT.
++	bool valid = false;
++	/*  Checking for a possible peace deal only serves as a convenience for
++		human players; no need to do it for AI-AI peace. */
++	if(!GET_PLAYER(theyId).isHuman())
++		valid = true;
++	else valid = (agent.AI_surrenderTrade(TEAMID(theyId)) == NO_DENIAL ||
++			isPeaceDealPossible(theyId));
++	if(GET_PLAYER(weId).AI_getMemoryCount(theyId, MEMORY_DECLARED_WAR_RECENT) > 0) {
++		if(valid)
++			return 0;
++		return -1;
++	}
++	return (valid ? 1 : -1);
++}
+ 
+ bool WarAndPeaceAI::Civ::isPeaceDealPossible(PlayerTypes humanId) const {
+
+diff --git a/CvGameCoreDLL/WarAndPeaceAI.h b/CvGameCoreDLL/WarAndPeaceAI.h
+index 7d6928772..bab8e3625 100644
+--- a/CvGameCoreDLL/WarAndPeaceAI.h
++++ b/CvGameCoreDLL/WarAndPeaceAI.h
+@@ -238,6 +238,9 @@ public:
+ 		bool considerDemand(PlayerTypes theyId, int tradeVal) const;
+ 		bool considerGiftRequest(PlayerTypes theyId, int tradeVal) const;
+ 		bool amendTensions(PlayerTypes humanId) const;
++		/*  Returns -1 if unwilling, 1 if willing and 0 to leave the decision to the
++			BtS AI */
++		int willTalk(PlayerTypes theyId, int atWarCounter, bool useCache) const;
+ 		// False if all assets of the human civ wouldn't nearly be enough
+ 		bool isPeaceDealPossible(PlayerTypes humanId) const;
+ 		/*  Can humanId trade assets to us with a total value of at least
+@@ -308,6 +311,7 @@ public:
+ 	private:
+ 		// Probability assumed by the AI if this civ is human
+ 		double humanBuildUnitProb() const;
++		int willTalk(PlayerTypes theyId, int atWarCounter) const;
+ 
+ 		PlayerTypes weId;
+ 		WarAndPeaceCache cache;
+
+[PATCH COVERAGE]
+patchFiles=10 embeddedFiles=10 omittedFiles=0 embeddedPatchBytes=16621
