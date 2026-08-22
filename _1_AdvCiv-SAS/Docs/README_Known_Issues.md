@@ -356,6 +356,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#323---improved-inherited-rfcdoc-unit-chart-added-missing-chance-first-strike-information)\
 [324 - (Rejected finding; not a defect) Zero-base collateral rows should be hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#324---rejected-finding-not-a-defect-zero-base-collateral-rows-should-be-hidden)\
 [324.2 - (Fixed AdvCiv-SAS bug) SAS collateral expansion retained an inherited zero-base promotion veto](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3242---fixed-advciv-sas-bug-sas-collateral-expansion-retained-an-inherited-zero-base-promotion-veto)\
+[326 - (Fixed minor inherited K-Mod diagnostic issue; no gameplay effect) OOS attitude checksum used invalid high-player shifts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#326---fixed-minor-inherited-k-mod-diagnostic-issue-no-gameplay-effect-oos-attitude-checksum-used-invalid-high-player-shifts)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8849,3 +8850,11 @@ The inherited zero-base veto was not an upstream defect by itself. The AdvCiv-SA
 The fix removes only base damage from that promotion-validity veto. A unit still needs a nonzero collateral limit, a nonzero maximum-defender count, a UnitCombat type enabled by the promotion and all ordinary prerequisites; only-defense units retain their separate rejection. The Unit Chart, individual Unit page and actual-unit hover continue showing zero-base collateral capacity for eligible military units, while civilian suppression remains unchanged. The DLL compiled and the resulting build ran without an observed issue at a glance.
 
 The original KI#324 display-only diagnosis was reviewed and rejected: its proposed row removal would have hidden intentional SAS capability information, so KI#324 is not counted as a defect. KI#324.2 is instead an AdvCiv-SAS integration bug caused by retaining an inherited eligibility assumption after broadening the collateral-promotion design. Found through archaeology and runtime validation with the help of ChatGPT-5.6-Sol and wonderingabout; traced, fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 326 - (Fixed minor inherited K-Mod diagnostic issue; no gameplay effect) OOS attitude checksum used invalid high-player shifts
+
+K-Mod practical 1099 mixed each rival's cached attitude into the multiplayer Out-Of-Sync checksum by left-shifting a signed attitude value by that rival's player ID. SAS supports 48 civilization slots, so IDs 32-47 exceeded the width of the 32-bit value; negative signed attitudes also made the inherited shift nonportable. On Civ4's target x86/MSVC environment the practical concern was reduced checksum uniqueness, not gameplay corruption: this deliberately lossy diagnostic value does not control simulation state, AI decisions or saves.
+
+The cleanup replaces those shifts with position-sensitive unsigned polynomial mixing, then folds the safe result into the existing checksum. Every rival position can influence the diagnostic value without an invalid shift. This remains a diagnostic-only issue rather than a gameplay/correctness defect.
+
+Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.

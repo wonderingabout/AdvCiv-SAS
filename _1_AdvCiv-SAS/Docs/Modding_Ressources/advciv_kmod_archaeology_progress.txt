@@ -1136,8 +1136,8 @@ These checks are preserved so later review does not rediscover the same candidat
 KMod practical 1158 - AI_retreatToCity rewrite ancestry - ALREADY COVERED
   The retreat rewrite intersects the unsafe-current-city retreat behavior eventually fixed/documented under KI#204. Treat as known lineage, not a new systematic finding.
 
-KMod practical 1099 - OOS checksum player-index shift - NO KI / POSSIBLE DIAGNOSTIC CLEANUP
-  Current SAS can iterate 48 player slots while an old OOS-checksum expression shifts an int by the player index. Indices >= 32 are dubious in portable C/C++, but this value is only a deliberately lossy diagnostic checksum, not simulation/game state. On the target x86/MSVC behavior the practical concern is reduced checksum uniqueness, not gameplay corruption. Do not classify as a gameplay/correctness defect without stronger evidence.
+KMod practical 1099 - OOS checksum player-index shift - KI#326 / MINOR DIAGNOSTIC CLEANUP IMPLEMENTED
+  SAS can iterate 48 civilization-player slots while K-Mod's OOS attitude-cache checksum shifted signed attitude values by the player index. Negative signed operands were questionable already, and indices >= 32 exceeded the width of a 32-bit int; this was only a deliberately lossy diagnostic checksum, not simulation/game state. KI#326 documents it explicitly while retaining the diagnostic-only, no-gameplay-defect classification outside the confirmed-defect counters. Replaced the shifts with position-sensitive unsigned polynomial mixing so all rival slots contribute safely to the diagnostic value.
 
 KMod practical 861 - AI_vassalTrade exclusion rewrite - HISTORICAL BUG, CURRENTLY SAFE
   A rewrite changed the old exclusion of self OR prospective master into an && form that did not preserve the original logic in normal cases. This was a genuine historical bug in that revision, but later AdvCiv refactored the path into relation-filtered enemy iterators and current SAS no longer contains the bad condition.

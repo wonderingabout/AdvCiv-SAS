@@ -8794,17 +8794,26 @@ int CvGame::calculateSyncChecksum()
 				break;
 			// K-Mod - new checks.
 			case 4: // attitude cache
+			{
 				// <advc.003n>
 				if (iI == BARBARIAN_PLAYER)
 					break; // </advc.003n>
+				// <!-- custom: K-Mod encoded rival slots by shifting signed attitude values by the player ID. SAS supports 48 civilization slots, so IDs 32-47 exceeded the 32-bit shift width.
+				// Position-sensitive unsigned mixing lets every rival slot contribute safely to this diagnostic OOS checksum. This strengthens diagnostic uniqueness only and does not change game state. See KI#326. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				uint uiAttitudeHash = 0;
 				for (iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
 				{
 					if (iI != iJ) // advc: self-attitude should never matter
-						iMultiplier += kPlayer.AI_getAttitudeVal((PlayerTypes)iJ, false) << iJ;
+					{
+						int const iAttitude = kPlayer.AI_getAttitudeVal((PlayerTypes)iJ, false);
+						uiAttitudeHash = (uiAttitudeHash + static_cast<uint>(iAttitude)) * 31u;
+					}
 				}
+				iMultiplier ^= static_cast<int>(uiAttitudeHash & MAX_INT);
 				// strategy hash
 				//iMultiplier += kPlayer.AI_getStrategyHash() * 367291;
 				break;
+			}
 			case 5: // city religions and corporations
 				FOR_EACH_CITY(pLoopCity, kPlayer)
 				{
