@@ -622,8 +622,9 @@ bool CvUnitInfo::isPromotionValid(PromotionTypes ePromotion, bool bLeader) const
 	/*if (getMoves() == 1 && kPromotion.isBlitz())
 		return false;*/
 
-	if (getCollateralDamage() == 0 || getCollateralDamageLimit() == 0 ||
-		getCollateralDamageMaxUnits() == 0)
+	// <!-- custom: SAS broadened collateral promotions across military UnitCombat types and gave zero-base-damage units nonzero limit/max values, but retained an inherited base-damage veto that made this SAS capability unobtainable.
+	// collateralCombat explicitly supports positive extra collateral with zero base collateral strength; keep only the limit/max safety guards. See KI#324.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (getCollateralDamageLimit() == 0 || getCollateralDamageMaxUnits() == 0)
 	{
 		if (kPromotion.getCollateralDamageChange() != 0)
 			return false;

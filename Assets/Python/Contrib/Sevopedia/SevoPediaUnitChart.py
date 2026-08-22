@@ -97,7 +97,8 @@ class SevoPediaUnitChart:
 			#szSpecial = "Bombard"
 		#else:
 		#	szSpecial = "1st Strike"
-		szFirstStrike = u"1st Strike"
+		# <!-- custom: Chance first strikes now make this a minimum-to-maximum range rather than a guaranteed count alone. See KI#323. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		szFirstStrike = u"1st Strike Range"
 		szBombard = u"%c" % CyGame().getSymbolID(FontSymbols.DEFENSE_CHAR)
 		szCollateral = u"Collateral"
 
@@ -123,7 +124,7 @@ class SevoPediaUnitChart:
 		# Avoid extra micro-retuning here to reduce tedium. (GPT-5.3-Codex) -->
 		szStrengthtext = chart_font2(_headerPad(15) + szStrength)
 		szMoveText = chart_font2(_headerPad(15) + szMove)
-		szFirstStrikeText = chart_font2(_headerPad(7) + szFirstStrike)
+		szFirstStrikeText = chart_font2(_headerPad(2) + szFirstStrike)
 		szBombardText = chart_font2(_headerPad(14) + szBombard)
 		szCollateralText = chart_font2(_headerPad(12) + szCollateral)
 		szCostText = chart_font2(_headerPad(15) + szCost)
@@ -213,8 +214,14 @@ class SevoPediaUnitChart:
 
 	def placeTableFirstStrike(self, screen, table, iCol, iRow, UnitInfo):
 		# First Strikes
-		if UnitInfo.getFirstStrikes() > 0:
-			szFirstStrikesNum = u"%d" % UnitInfo.getFirstStrikes()
+		# <!-- custom: The inherited RFC/DoC chart did not include chance first strikes, leaving chance-only units blank and understating mixed units.
+		# Match DLL help: show guaranteed strikes alone, or guaranteed-to-maximum when chance strikes exist. See KI#323. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iFirstStrikes = UnitInfo.getFirstStrikes()
+		iChanceFirstStrikes = UnitInfo.getChanceFirstStrikes()
+		if iChanceFirstStrikes > 0:
+			szFirstStrikesNum = u"%d-%d" % (iFirstStrikes, iFirstStrikes + iChanceFirstStrikes)
+		elif iFirstStrikes > 0:
+			szFirstStrikesNum = u"%d" % iFirstStrikes
 		# <!-- custom: keep this beautification; it's more readable than many 0s. (GPT-5.2-Codex (summarized)) -->
 		else:
 			szFirstStrikesNum = u""
@@ -234,6 +241,8 @@ class SevoPediaUnitChart:
 
 	def placeTableCollateral(self, screen, table, iCol, iRow, UnitInfo):
 		# Collateral
+		# <!-- custom: Keep zero-base-damage military rows when their limit is nonzero: SAS uses them to expose collateral capacity enabled by promotions.
+		# KI#324.2 repairs the inherited promotion-validity guard that prevented this displayed capability from being acquired. See KI#324.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if UnitInfo.getCollateralDamage() > 0 or UnitInfo.getCollateralDamageLimit():
 			szCollateralRate = u"%d%%/%d%% (%d)" % (UnitInfo.getCollateralDamage(), UnitInfo.getCollateralDamageLimit(), UnitInfo.getCollateralDamageMaxUnits())
 		else:

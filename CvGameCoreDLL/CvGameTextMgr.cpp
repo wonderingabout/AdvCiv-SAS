@@ -984,9 +984,10 @@ void CvGameTextMgr::setUnitHelp(CvWStringBuffer &szString, const CvUnit* pUnit, 
 	}
 
 	// <!-- custom: also show collateral damage info (with defenders too) if collateral damage limit > 0 as well, may be useful to know -->
-	// <!-- custom: use pUnit->collateralDamageLimit() instead of 100 * kInfo.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS() , i had done so in an attempt to solve an issue of limit not displaying if base collateral damage is 0, but the issue was something else (we needed to also apply the change in u. unit so it (also) appears in sevopedia unit, not in this seemingly ingame panel), still, is maybe cleaner (but i don't know again as i don't know a lot about these) and the catapult still seems to have the limit info shown, so since display seems to function fine and same as before, leaving it as is it now with our change, but check to be sure, even though seems to be fine. -->
 	// <!-- custom: Hide collateral lines for civilians, but `canFight()` checks only base combat and therefore hid functional Bomber/Stealth Bomber collateral from actual-unit hover text.
 	// Match the basic/unit-info help by accepting either base or air combat strength. See KI#235. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol fix) -->
+	// <!-- custom: Keep zero-base-damage military rows when their limit is nonzero: SAS uses them to expose collateral capacity enabled by promotions.
+	// KI#324.2 repairs the inherited promotion-validity guard that prevented this displayed capability from being acquired. See KI#324.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if ((pUnit->collateralDamage() > 0 || pUnit->collateralDamageLimit() > 0) &&
 		(pUnit->canFight() || pUnit->airBaseCombatStr() > 0))
 	{
@@ -9473,9 +9474,9 @@ void CvGameTextMgr::setBasicUnitHelp(CvWStringBuffer &szBuffer, UnitTypes eUnit,
 				(100 * u.getCombatLimit()) / GC.getMAX_HIT_POINTS()));
 	}
 
-	// <!-- custom: display collateral limit info in Sevopedia unit placeSpecial panel even for units with base collateral damage of 0. Credit: ChatGPT. (Claude code Sonnet 4.5 (summarized)) -->
+	// <!-- custom: Keep zero-base-damage military rows when their limit is nonzero: SAS uses them to expose collateral capacity enabled by promotions.
+	// KI#324.2 repairs the inherited promotion-validity guard that prevented this displayed capability from being acquired. See KI#324.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int const iCollateralDamageLimit = 100 * u.getCollateralDamageLimit() / GC.getMAX_HIT_POINTS();
-	// <!-- custom: hide collateral lines for non-combat units for readability; they can't use collateral anyway. (GPT-5.3-Codex) -->
 	if ((u.getCollateralDamage() > 0 || u.getCollateralDamageLimit() > 0) &&
 		(u.getCombat() > 0 || u.getAirCombat() > 0))
 	{

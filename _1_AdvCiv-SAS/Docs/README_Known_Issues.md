@@ -350,6 +350,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [297 - (Fixed AdvCiv-SAS bug) Highlands always kept its north-cold climate orientation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#297---fixed-advciv-sas-bug-highlands-always-kept-its-north-cold-climate-orientation)\
 [298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#298---fixed-advciv-sas-bug-highlands-arena-could-lack-legal-sites-for-48-civilizations)\
 [298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2982---fixed-advciv-sas-bug-highlands-was-undersized-beyond-the-arena-capacity-case)\
+[323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#323---improved-inherited-rfcdoc-unit-chart-added-missing-chance-first-strike-information)\
+[324 - (Rejected finding; not a defect) Zero-base collateral rows should be hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#324---rejected-finding-not-a-defect-zero-base-collateral-rows-should-be-hidden)\
+[324.2 - (Fixed AdvCiv-SAS bug) SAS collateral expansion retained an inherited zero-base promotion veto](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3242---fixed-advciv-sas-bug-sas-collateral-expansion-retained-an-inherited-zero-base-promotion-veto)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -8795,3 +8798,27 @@ Runtime testing showed that the shared compact profile's problem was broader tha
 The KI#298 repair therefore restores Highlands' entire inherited Duel-through-Huge progression rather than special-casing Arena alone, adds a 6x4 Arena tier below Duel and calibrates SAS tiers from Huge by expected player count. The climate, mountain, lake and start-generation settings remain unchanged. Runtime validation confirmed 32x20 Duel and 24x16 Arena generation.
 
 This is an AdvCiv-SAS map-size regression introduced by applying an excessively compact shared profile to Highlands. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information
+
+The imported Unit Chart displayed only `getFirstStrikes()`. Units with chance first strikes but no guaranteed strike, such as Samurai and Cacador, therefore had a blank First Strike cell; units with both kinds showed only their guaranteed value. This disagreed with Civ4's DLL help, which treats chance first strikes as part of the unit's real range.
+
+The fix leaves the cell blank only when both values are zero. It displays the guaranteed value alone when no chance first strikes exist, or the guaranteed-to-maximum range when they do; for example, zero guaranteed plus one chance is shown as `0-1`, while one guaranteed plus one chance is shown as `1-2`. Runtime testing confirmed the new ranges, and the column title is now `1st Strike Range` so their meaning is explicit. The final compiled build ran without an observed issue at a glance.
+
+This Unit Chart omission is inherited from RFC Dawn of Civilization. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 324 - (Rejected finding; not a defect) Zero-base collateral rows should be hidden
+
+Archaeology initially classified Unit Chart entries such as `0%/200% (3)` as false collateral information and proposed hiding rows whose base damage was zero. Review rejected that proposal: SAS intentionally exposes the unit's promotion-enabled collateral limit and maximum defender count, and hiding the row would misleadingly imply that collateral progression was unavailable.
+
+This rejected finding is retained explicitly to explain the numbering and review outcome, but is not counted as a defect. The review instead exposed the separate gameplay integration bug fixed as KI#324.2. Investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol, wonderingabout and GPT-5.6-Sol thanks.
+
+## 324.2 - (Fixed AdvCiv-SAS bug) SAS collateral expansion retained an inherited zero-base promotion veto
+
+Runtime review initially treated Unit Chart entries such as `0%/200% (3)` as false collateral information. Screenshots 0148 and 0151 showed the same base-0%, nonzero-limit/defender details in individual Unit pages. Further review established that these displays are intentional AdvCiv-SAS capability metadata: the Main Changes Guide says collateral promotions are broadly available where eligible, Collateral Damage 1/2 XML enables many military UnitCombat types, and the nonzero limit plus maximum-defender values define how those units should function after acquiring extra collateral damage. Removing the rows would hide useful distinctions such as three versus five affected defenders.
+
+The inherited zero-base veto was not an upstream defect by itself. The AdvCiv-SAS integration became inconsistent when SAS broadened Collateral Damage promotion eligibility and configured zero-base units with nonzero collateral limit/max values without adapting `CvUnitInfo::isPromotionValid`, which still rejected every collateral-damage promotion whenever base collateral damage was zero. `CvUnit::collateralCombat` already contains an explicit positive-extra-collateral path when base collateral strength is zero, so gameplay supports the SAS progression once the promotion can be acquired.
+
+The fix removes only base damage from that promotion-validity veto. A unit still needs a nonzero collateral limit, a nonzero maximum-defender count, a UnitCombat type enabled by the promotion and all ordinary prerequisites; only-defense units retain their separate rejection. The Unit Chart, individual Unit page and actual-unit hover continue showing zero-base collateral capacity for eligible military units, while civilian suppression remains unchanged. The DLL compiled and the resulting build ran without an observed issue at a glance.
+
+The original KI#324 display-only diagnosis was reviewed and rejected: its proposed row removal would have hidden intentional SAS capability information, so KI#324 is not counted as a defect. KI#324.2 is instead an AdvCiv-SAS integration bug caused by retaining an inherited eligibility assumption after broadening the collateral-promotion design. Found through archaeology and runtime validation with the help of ChatGPT-5.6-Sol and wonderingabout; traced, fixed and documented with the help of GPT-5.6-Sol thanks.
