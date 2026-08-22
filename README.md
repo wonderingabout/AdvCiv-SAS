@@ -100,10 +100,9 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 
 Before going more in depth about/in the changes and how to play or such documentation or other topics, here is a view of the reworked tech tree in AdvCiv-SAS (currently unfinished) (click on the images to view them in full screen or bigger size)
 
+<img src="./_1_AdvCiv-SAS/Images/advisors/0.5160_tech_tree_merged.png" alt="0.5160_tech_tree_merged.png" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (1).JPG" alt="0.516_technology_advisor (1).JPG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (2).JPG" alt="0.516_technology_advisor (2).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (3).JPG" alt="0.516_technology_advisor (3).JPG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/advisors/0.516_technology_advisor (4).JPG" alt="0.516_technology_advisor (4).JPG" width="250"></img>
 
 For more details on how the tech tree was made, which historical timeline it follows, sources, more screenshots and such, upcoming changes if any more, or other information or not or etc, please visit [README_Tech_Tree.md](/_1_AdvCiv-SAS/Docs/README_Tech_Tree.md)
 
