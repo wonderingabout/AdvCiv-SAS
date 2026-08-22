@@ -350,6 +350,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [297 - (Fixed AdvCiv-SAS bug) Highlands always kept its north-cold climate orientation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#297---fixed-advciv-sas-bug-highlands-always-kept-its-north-cold-climate-orientation)\
 [298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#298---fixed-advciv-sas-bug-highlands-arena-could-lack-legal-sites-for-48-civilizations)\
 [298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2982---fixed-advciv-sas-bug-highlands-was-undersized-beyond-the-arena-capacity-case)\
+[315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
+[316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#316---fixed-advciv-sas-bug-unlimited-specialist-civic-value-ignored-baseline-great-person-points)\
+[317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#317---fixed-advciv-sas-bug-civic-anger-valuation-skipped-cities-that-would-become-unhappy)\
 [323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#323---improved-inherited-rfcdoc-unit-chart-added-missing-chance-first-strike-information)\
 [324 - (Rejected finding; not a defect) Zero-base collateral rows should be hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#324---rejected-finding-not-a-defect-zero-base-collateral-rows-should-be-hidden)\
 [324.2 - (Fixed AdvCiv-SAS bug) SAS collateral expansion retained an inherited zero-base promotion veto](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3242---fixed-advciv-sas-bug-sas-collateral-expansion-retained-an-inherited-zero-base-promotion-veto)\
@@ -8798,6 +8801,30 @@ Runtime testing showed that the shared compact profile's problem was broader tha
 The KI#298 repair therefore restores Highlands' entire inherited Duel-through-Huge progression rather than special-casing Arena alone, adds a 6x4 Arena tier below Duel and calibrates SAS tiers from Huge by expected player count. The climate, mountain, lake and start-generation settings remain unchanged. Runtime validation confirmed 32x20 Duel and 24x16 Arena generation.
 
 This is an AdvCiv-SAS map-size regression introduced by applying an excessively compact shared profile to Highlands. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit
+
+AdvCiv-SAS generalized `AI_civicValue` to estimate the yields, commerce and Great Person Points from the specialist types that a civic makes unlimited. This is an intrinsic positive component of the civic's absolute score, but the implementation multiplied it by `iS`: `+1` while considering adoption and `-1` while evaluating the currently active civic. The same benefit was therefore added before adoption but subtracted afterward, systematically undervaluing active unlimited-specialist civics and encouraging pick-then-drop behavior.
+
+The fix always adds this intrinsic benefit. Adoption/drop state remains available to genuinely marginal effects and switching/anarchy costs elsewhere; the specialist-capacity estimate, weights, soft caps and anarchy scaling are unchanged.
+
+This is an AdvCiv-SAS civic-valuation sign regression introduced by the generalized unlimited-specialist logic. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points
+
+The same AdvCiv-SAS block says it values each specialist's Great Person Points at the player's average Great Person multiplier, but subtracted the normal 100% baseline before applying that multiplier. At the ordinary 100% rate, positive base Great Person Points therefore contributed exactly zero; only multiplier bonuses above 100% had value.
+
+The fix applies the full nonnegative average Great Person multiplier. The existing conversion divisor and all specialist yield/commerce weights remain unchanged; the correction restores the missing baseline rather than retuning the component.
+
+This is an independent AdvCiv-SAS arithmetic regression in the generalized unlimited-specialist valuation. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy
+
+AdvCiv-SAS replaced the inherited broad civic-pressure estimate with city-level valuation and added separate tuning for happy and unhappy cities. The city loop nevertheless skipped every currently happy city before calculating the hypothetical anger change. Its happy-city scale was unreachable, and dropping an active pressure civic ignored a currently happy city even when the added anger would cross its happiness cap.
+
+The fix converts the hypothetical pressure change to angry citizens with signed rounding, compares each city's current and changed angry-citizen counts and ignores only changes that leave that count unchanged. A city that remains safely happy still contributes nothing; a city that becomes unhappy, remains unhappy with a changed deficit or becomes happy is valued using the reachable post-change scale. No pressure value, happiness cap or XML tuning define changes.
+
+This is an AdvCiv-SAS hypothetical-state ordering regression in civic-anger valuation. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
 ## 323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information
 

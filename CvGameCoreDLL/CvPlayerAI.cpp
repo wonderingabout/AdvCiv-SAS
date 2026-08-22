@@ -18945,24 +18945,21 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 
 			FOR_EACH_CITYAI(pCity, *this)
 			{
-				// Happy slack: how many heads we can add before going unhappy
-				const int iSlack = pCity->happyLevel() - pCity->unhappyLevel(0);
-				const bool bCityHappy = (iSlack >= 0);
-
-				// Skip truly safe cities
-				if (bCityHappy)
-					continue;
-
-				// Convert per-mil anger delta to heads (rounded)
-				const int iDeltaUnhappy = (iPermilDelta * pCity->getPopulation() + D/2) / D;
+				const int iDeltaUnhappy = intdiv::round(iPermilDelta * pCity->getPopulation(), D);
 				if (iDeltaUnhappy == 0)
 					continue;
 
-				// Weight edge / unhappy cities a bit more
-				const int iPressureScale = (!bCityHappy ? iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY); // tune if desired
-
-				// Turn “less unhappy" into a positive score for the AI
-				const int iCityVal = (12 * AI_getHappinessWeight(-iDeltaUnhappy, 1, true)) / 100;
+				// <!-- custom: The previous pre-change-happiness filter skipped every happy city, so the configured happy-city branch was unreachable and dropping this civic ignored cities that its anger would make unhappy.
+				// Compare actual angry citizens before and after the hypothetical change; safely happy cities still contribute nothing, while welfare changes use the reachable post-change scale. See KI#317. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				const int iCurrentSlack = pCity->happyLevel() - pCity->unhappyLevel(0);
+				const int iChangedSlack = iCurrentSlack - iDeltaUnhappy;
+				const int iCurrentAngry = std::max(0, -iCurrentSlack);
+				const int iChangedAngry = std::max(0, -iChangedSlack);
+				const int iAngryCitizenChange = iChangedAngry - iCurrentAngry;
+				if (iAngryCitizenChange == 0)
+					continue;
+				const int iPressureScale = (iChangedAngry > 0 ? iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY);
+				const int iCityVal = -12 * iAngryCitizenChange;
 				iTotal += iCityVal * iPressureScale / 100;
 			}
 			iValue += iTotal;
@@ -19457,7 +19454,6 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	// 	iValue += intdiv::uround(iTempValue, /*2*/3); // </advc.192>
 	// }
 	// --- Unlimited specialists: value the actual types we unlock ---
-	int iDelta = iS; // +1 if adopting this civic, -1 if dropping
 	int iTotal = 0;
 
 	// <!-- custom: compute these once as computationally more efficient-->
@@ -19466,6 +19462,7 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	static const int iSAS_ENEMY_STRONG_POWER_THRESHOLD = GC.getDefineINT("SAS_ENEMY_STRONG_POWER_THRESHOLD"); // e.g. 120
 	const bool bEnemyStrong = (iEnemyPowerPercent >= iSAS_ENEMY_STRONG_POWER_THRESHOLD);
 	const bool bNeedHammers = bEnemyStrong;
+	const int iAverageGreatPeopleMultiplier = AI_averageGreatPeopleMultiplier();
 
 	FOR_EACH_ENUM(Specialist)
 	{
@@ -19534,8 +19531,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		const int iGPP = kSpec.getGreatPeopleRateChange();
 		if (iGPP > 0)
 		{
-			// modest conversion: 1 GPP ~ 0.04 “commerce" at average GP multiplier
-			iPer += iGPP * std::max(0, AI_averageGreatPeopleMultiplier() - 100) / 25;
+			// <!-- custom: The normal 100% Great Person multiplier is the baseline value of specialist GPP, not a bonus to subtract. Using only the amount above 100 made ordinary GPP worth zero. See KI#316. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iPer += iGPP * std::max(0, iAverageGreatPeopleMultiplier) / 25;
 		}
 
 		// accumulate (iPer is already on the same “commerce-ish" scale)
@@ -19569,7 +19566,8 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 		}
 	}
 
-	iValue += iDelta * iTotal;
+	// <!-- custom: AI_civicValue compares absolute civic scores. Multiplying this intrinsic positive benefit by iS made an active unlimited-specialist civic subtract its own value and encouraged pick-then-drop behavior; state-dependent switching costs remain handled separately. See KI#315. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	iValue += iTotal;
 	// --- end - Unlimited specialists: value the actual types we unlock ---
 
 	/*	K-Mod. When aiming for a diplomatic victory,
