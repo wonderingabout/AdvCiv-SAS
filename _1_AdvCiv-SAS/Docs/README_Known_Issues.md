@@ -353,6 +353,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
 [316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#316---fixed-advciv-sas-bug-unlimited-specialist-civic-value-ignored-baseline-great-person-points)\
 [317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#317---fixed-advciv-sas-bug-civic-anger-valuation-skipped-cities-that-would-become-unhappy)\
+[318 - (Fixed AdvCiv-SAS bug) Zero WonderConstructRand disabled fixed opportunistic-Wonder chances](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#318---fixed-advciv-sas-bug-zero-wonderconstructrand-disabled-fixed-opportunistic-wonder-chances)\
+[320 - (Fixed AdvCiv-SAS bug) Happiness-based hammer reduction ran after production value was consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#320---fixed-advciv-sas-bug-happiness-based-hammer-reduction-ran-after-production-value-was-consumed)\
 [323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#323---improved-inherited-rfcdoc-unit-chart-added-missing-chance-first-strike-information)\
 [324 - (Rejected finding; not a defect) Zero-base collateral rows should be hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#324---rejected-finding-not-a-defect-zero-base-collateral-rows-should-be-hidden)\
 [324.2 - (Fixed AdvCiv-SAS bug) SAS collateral expansion retained an inherited zero-base promotion veto](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3242---fixed-advciv-sas-bug-sas-collateral-expansion-retained-an-inherited-zero-base-promotion-veto)\
@@ -8826,6 +8828,22 @@ AdvCiv-SAS replaced the inherited broad civic-pressure estimate with city-level 
 The fix converts the hypothetical pressure change to angry citizens with signed rounding, compares each city's current and changed angry-citizen counts and ignores only changes that leave that count unchanged. A city that remains safely happy still contributes nothing; a city that becomes unhappy, remains unhappy with a changed deficit or becomes happy is valued using the reachable post-change scale. No pressure value, happiness cap or XML tuning define changes.
 
 This is an AdvCiv-SAS hypothetical-state ordering regression in civic-anger valuation. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 318 - (Fixed AdvCiv-SAS bug) Zero WonderConstructRand disabled fixed opportunistic-Wonder chances
+
+Practical 5092 intended to fix an inherited `CvRandom` debug-assert failure caused by negative `iWonderConstructRand` values reaching an RNG that requires a nonnegative range. It correctly excluded those invalid values, but three `CvCityAI::AI_chooseProduction` paths guarded their entire opportunistic-Wonder calculations with `iWonderConstructRand > 0`. Zero is a valid deterministic range under `CvRandom`; before the guard it contributed zero randomness while preserving fixed opportunity terms of +7 turns, +8 turns or a base probability of 8. Ordinary zero-valued leaders such as Montezuma and Sitting Bull consequently lost all three opportunities instead. A fourth guard in `AI_bestBuildingThreshold` is unaffected because that location has no fixed term outside the random contribution.
+
+The fix admits nonnegative values in the three affected paths. Zero restores the fixed opportunity calculations without advancing the current RNG or reviving the negative-range assertion; negative values remain excluded and positive values retain their existing random contribution.
+
+This is an AdvCiv-SAS regression introduced while fixing an inherited debug-assert failure from invalid negative Wonder randomness. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+## 320 - (Fixed AdvCiv-SAS bug) Happiness-based hammer reduction ran after production value was consumed
+
+KI#40's city-tile policy increases food value when a city has spare happiness and, at three or more surplus happiness, divides hammer value so growth can compete with a strong production plot. The hammer division was placed after `iProductionValue` had already been normalized and added to the function's result. It therefore modified a local value that was never read again, leaving the documented hammer half of the policy completely inactive while the food multiplier worked.
+
+The fix applies the existing happiness divisor before production is normalized and added. At three surplus happiness it halves hammer value; larger surpluses retain the existing progressively stronger growth preference. The food multiplier, happiness thresholds, Worker/Settler food-production exception and all tuning values remain unchanged.
+
+This is an AdvCiv-SAS order-of-operations regression in `CvCityAI::AI_yieldValue`. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
 
 ## 323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information
 

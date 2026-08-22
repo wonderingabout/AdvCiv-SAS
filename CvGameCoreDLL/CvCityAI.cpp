@@ -2405,20 +2405,10 @@ void CvCityAI::AI_chooseProduction()
 		// K-Mod. Don't do this if there is any war at all.
 		if (kArea.getAreaAIType(getTeam()) == AREAAI_NEUTRAL)
 		{
-			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details -->
-			// Assert Failed
-			// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
-			// Line:  48
-			// Func:  CvRandom::getInt
-			// Expression:  iNum >= 0
-			// Message:  getInt: range<0 (-4) msg=CvCityAI::AI_chooseProduction@L1634 d1=-2147483648 d2=-2147483648
-			//
-			// Yep—that crash is because this line can pass a negative range into the RNG:
-			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
-			// Minimal, correct fix (skip the roll when disabled)
-			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
+			// <!-- custom: The negative-range guard added at practical 5092 also suppressed the inherited fixed opportunity for ordinary leaders whose WonderConstructRand is 0.
+			// CvRandom defines a zero range as a deterministic 0 result, so exclude only invalid negative values. See KI#318. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
-			if (iWC > 0) // <-- guard: only roll with a valid positive range
+			if (iWC >= 0)
 			{
 				int iWonderTime = SyncRandNum(iWC);
 				iWonderTime /= 5;
@@ -3027,20 +3017,9 @@ void CvCityAI::AI_chooseProduction()
 		// For civ at war, don't build wonders if losing
 		if (!bTotalWar && (!bLandWar || iWarSuccessRating > 0)) // was -30
 		{
-			// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details -->
-			// Assert Failed
-			// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
-			// Line:  48
-			// Func:  CvRandom::getInt
-			// Expression:  iNum >= 0
-			// Message:  getInt: range<0 (-4) msg=CvCityAI::AI_chooseProduction@L2112 d1=-2147483648 d2=-2147483648
-			//
-			// Yep—that crash is because this line can pass a negative range into the RNG:
-			// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
-			// Minimal, correct fix (skip the roll when disabled)
-			// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
+			// <!-- custom: Preserve this path's fixed opportunity when WonderConstructRand is 0 while still excluding invalid negative ranges. See KI#318. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
-			if (iWC > 0) // <-- guard: only roll with a valid positive range
+			if (iWC >= 0)
 			{
 				int iWonderTime = SyncRandNum(iWC);
 				iWonderTime /= 5;
@@ -3985,20 +3964,9 @@ void CvCityAI::AI_chooseProduction()
 	// Ideally we'd look at relative production, not just rank.
 	if (iProductionRank <= iNumCities / 9 + 2 && iCityPopulation > 3)
 	{
-		// <!-- custom: getInt assert in CvRandom.h fails, fix it as advised by chatgpt 5, check if accurate, see known issue as of now 72 for details -->
-		// Assert Failed
-		// File:  c:\program files (x86)\steam\steamapps\common\sid meier's civilization iv beyond the sword\beyond the sword\mods\advciv-sas\cvgamecoredll\CvRandom.h
-		// Line:  48
-		// Func:  CvRandom::getInt
-		// Expression:  iNum >= 0
-		// Message:  getInt: range<0 (-4) msg=CvCityAI::AI_chooseProduction@L2889 d1=-2147483648 d2=-2147483648
-		//
-		// Yep—that crash is because this line can pass a negative range into the RNG:
-		// Some leaders (or your defaults) have getWonderConstructRand() <= 0 (your assert showed -4). Passing that to getSorenRandNum/SyncRandNum triggers the Debug assert.
-		// Minimal, correct fix (skip the roll when disabled)
-		// Treat <= 0 as “don’t roll / don’t do opportunistic wonder":
+		// <!-- custom: Preserve the base-8 opportunity probability when WonderConstructRand is 0 while still excluding invalid negative ranges. See KI#318. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		const int iWC = GC.getInfo(getPersonalityType()).getWonderConstructRand();
-		if (iWC > 0) // <-- guard: only roll with a valid positive range
+		if (iWC >= 0)
 		{
 			const int iWonderTime = SyncRandNum(iWC);
 			int iWonderRand = 8 + iWonderTime;
@@ -16274,6 +16242,12 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove, 
 		iCommerceValue = std::max(1, iCommerceValue);
 	}
 
+	// <!-- custom: KI#40 intends spare happiness to make growth compete with strong hammer plots, but the hammer reduction was applied only after iProductionValue had already been normalized and added to iValue.
+	// Apply the existing divisor first; at 3 surplus happiness this halves hammer value, while larger surpluses increasingly favor using the available growth capacity. See KI#320. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iHappySurplus = happyLevel() - unhappyLevel(0); // >0 means room to grow
+	if (iHappySurplus >= 3 && !isFoodProduction())
+		iProductionValue /= (iHappySurplus - 1);
+
 	if (iProductionValue > 0)
 	{
 		if (bFoodIsProduction)
@@ -16308,7 +16282,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove, 
 	// boost food if there is spare happiness
 	// ------------------------------------------------------------------
 	// Zero change if happiness ≤ unhappiness, so starving / angry cities stay cautious.
-	int const iHappySurplus = happyLevel() - unhappyLevel(0);      // >0 means room to grow
 	// <!-- custom: exception to this rule: if food is production (worker, settler, etc if any), then 6 hammer is fine and better than 2 or 3 food. I just don't know if AI would swap its tiles later or not-->
 	if (iHappySurplus > 0 && !isFoodProduction())
 	{
@@ -16318,14 +16291,6 @@ int CvCityAI::AI_yieldValue(int* piYields, int* piCommerceYields, bool bRemove, 
 		// <!-- custom: update: this change seems very effective, china ai grows its city very fast, although at another spot, and has 3 cities at turn 50 now not just 2 with high pop. These cities opt for high food at low pop, then at high pop they seem to successfully switch or focus on hammer a lot more, i am very happy of these changes, i think AI is stronger and reacts more dynamically to its environment now, without being too food focused. At turn 60, China AI has a 4th city growing as well already, very nice; i did another run in autoplay as welland the results seem even better. China AI settled its city C at same location, improved the copper, although a bit later, then continuously ignored it, grew, and slaved a few times, while still favouring growth and being way over happiness cap in this cap; at turn 100 it has a few more buildings than when it stayed passively low pop on copper. It seemed also as said before to adopt a produciton profile again at hgiher pop, beijing would produce the great wall :) looking inside beijing the hammer production is decent: most high hammer tiles are worked, while most are still food tiles, but this seems very efficient or nice :) i am very happy of these changes and result, and i think AI is quite a lot stronger now, see also known issue as of now 40 for details or additional info -->
 		// <!-- custom: note: if happiness surplus is exactly 1, this seems to do nothing as noted by chatgpt 3-o if i may say and which although it annoyed me bit with math xd it helped me lot so thanks a lot chagpt 3-o too (:)), as we multiply by 1, but since i'm satisfied with these results, leaving it as such, probably not too bad or maybe even fine as such as 1 happiness is about full no happy almost anyways -->
 		iFoodValue *= iHappySurplus;
-
-		/*  Optional: nudge hammers downward when the city is very happy
-			so a lone 6-hammer hill won’t override a 3-food pasture.           */
-		if (iHappySurplus >= 3)
-		{
-			// <!-- custom: so for example with 9 happy and 1 unhappy, we'd have 9 - 1 = 8 happy surplus, so we'd want to reduce hammer value a lot and capitalize on our happiness to grow, and so it production value would be divided by 8 - 1 = 7 so we'd have iProductionValue reduced to 1 / 7 = 14.3 % (approximately) of its former value, so we'd grow much more ideally, but if happiness suprplus is say only 3 (for example 9 happy and 6 unhappy), the extra divider would be 3 - 1 = 2, so we'd have iProductionValue reduced to = 1 / 2 = 50% of its former value which is fine i think, we still have some room to grow after all, better use that and capitalize on long term -->
-			iProductionValue /= (iHappySurplus - 1);
-		}
 	}
 
 	if (iFoodValue > 0)
