@@ -855,7 +855,30 @@ void CvCity::doTurn()
 						bInnerRingMostlyWaterNonPeak, iInnerRingNonWaterNonPeak, iCurrentEra, getBaseYieldRate(YIELD_PRODUCTION), bDanger, bAtWar, iEnemyPowerPercent, bEnemyStrong, bEnemyWeakNotZero);
 				}
 
-				if (!bEmergencyBuilding && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE && !bInnerRingMostlyWaterNonPeak)
+				// <!-- custom: Water-heavy cities should prefer their configured economic buildings, but all three can be unavailable or already built. If none is queued, continue into the same safe unit fallback as other empty AI cities instead of ending the turn without production. See KI#310. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (!bEmergencyBuilding && bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE && bInnerRingMostlyWaterNonPeak)
+				{
+					if (SASTryEmergencyBuilding(eWaterFoodBuildingClass))
+						bEmergencyBuilding = true;
+
+					static const BuildingClassTypes eWaterHammerBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME"));
+					if (!bEmergencyBuilding && SASTryEmergencyBuilding(eWaterHammerBuildingClass))
+						bEmergencyBuilding = true;
+
+					static const BuildingClassTypes eWaterGoldBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_GOLD_BUILDING_BUILDINGCLASS_FULL_NAME"));
+					if (!bEmergencyBuilding && SASTryEmergencyBuilding(eWaterGoldBuildingClass))
+						bEmergencyBuilding = true;
+
+					if (bLogMilitaryProduction)
+					{
+						BuildingTypes const eWaterFallbackBuilding = getProductionBuilding();
+						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=%s building=%s",
+							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
+							(bEmergencyBuilding ? "WATER_BUILDING_PUSHED" : "WATER_BUILDING_NONE_CONTINUE"), (eWaterFallbackBuilding == NO_BUILDING ? "-" : GC.getInfo(eWaterFallbackBuilding).getType()));
+					}
+				}
+
+				if (!bEmergencyBuilding && bSAS_DO_TURN_NO_PRODUCTION_FORCE_FALLBACK_UNIT_INSTEAD_OPTIMIZE)
 				{
 					// <!-- custom: as of now eras are (see xml for details or updated version -->
 					// 18,5: 			<Type>ERA_ANCIENT</Type>
@@ -1028,48 +1051,7 @@ void CvCity::doTurn()
 							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID());
 					}
 				}
-				// <!-- custom: lean more on economy, in particular on hammer for these watery cities that may benefit more from these buildings as fallback buildings if we have a no production (rather than a unit or such) -->
-				// <!-- custom: note: to reply to chatgpt 5.1's question thanks: it seems to me these watery cities are not so encircled or threatened for it to be worth it to be as focused on building tons of units, so maybe don't fallback unit if no watery fallback water building -->
-				// <!-- custom: note 2: also to reply to chatgpt 5.1's suggestion thanks: "food is key" + "lighthouse is sooner, but with more hammer we'll build more lighthouses or such anwyay right? And hammer may be more urgent as well maybe too" -->
-				else if (!bEmergencyBuilding && bSAS_DO_TURN_WATER_BUILDINGS_NO_PRODUCTION_FALLBACK_OPTIMIZE && bInnerRingMostlyWaterNonPeak)
-				{
-					// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
-					if (!bEmergencyBuilding)
-					{
-						if (SASTryEmergencyBuilding(eWaterFoodBuildingClass))
-						{
-							bEmergencyBuilding = true;
-						}
-					}
-
-					static const BuildingClassTypes eWaterHammerBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_HAMMER_BUILDING_BUILDINGCLASS_FULL_NAME"));
-					// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
-					if (!bEmergencyBuilding)
-					{
-						if (SASTryEmergencyBuilding(eWaterHammerBuildingClass))
-						{
-							bEmergencyBuilding = true;
-						}
-					}
-
-					static const BuildingClassTypes eWaterGoldBuildingClass = (BuildingClassTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_WATER_GOLD_BUILDING_BUILDINGCLASS_FULL_NAME"));
-					// <!-- custom: note: this helper also pushes an emergency building if it returns true -->
-					if (!bEmergencyBuilding)
-					{
-						if (SASTryEmergencyBuilding(eWaterGoldBuildingClass))
-						{
-							bEmergencyBuilding = true;
-						}
-					}
-					if (bLogMilitaryProduction)
-					{
-						BuildingTypes const eWaterFallbackBuilding = getProductionBuilding();
-						logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=%s building=%s",
-							kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),
-							(bEmergencyBuilding ? "WATER_BUILDING_PUSHED" : "WATER_BUILDING_NONE"), (eWaterFallbackBuilding == NO_BUILDING ? "-" : GC.getInfo(eWaterFallbackBuilding).getType()));
-					}
-				}
-				else if (bLogMilitaryProduction)
+				else if (!bEmergencyBuilding && bLogMilitaryProduction)
 				{
 					logBBAI("MILITARY_PRODUCTION_DOTURN_FALLBACK turn=%d player=%d %S city=%S cityId=%d stage=RESULT result=NO_FALLBACK_BRANCH forceUnitEnabled=%d waterBuildingEnabled=%d mostlyWater=%d",
 						kGame.getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getName().GetCString(), getID(),

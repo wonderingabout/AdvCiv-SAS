@@ -361,11 +361,13 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#308---fixed-advciv-sas-bug-city-screen-specialist-breakdown-inferred-inaccurate-great-person-modifiers)\
 [308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3082---fixed-advciv-sas-bug-city-screen-culture-breakdown-inferred-its-modifier-from-a-truncated-base-rate)\
 [309 - (Fixed AdvCiv-SAS bug) AI religion value counted full team and vassal-bloc power once per non-vassal team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#309---fixed-advciv-sas-bug-ai-religion-value-counted-full-team-and-vassal-bloc-power-once-per-non-vassal-team-member)\
+[310 - (Fixed AdvCiv-SAS bug) Water-heavy AI city fallback could leave production empty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#310---fixed-advciv-sas-bug-water-heavy-ai-city-fallback-could-leave-production-empty)\
 [311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#311---rejected-archaeology-finding-get_teamplayertypes-correctly-resolves-the-players-team)\
 [315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
 [316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#316---fixed-advciv-sas-bug-unlimited-specialist-civic-value-ignored-baseline-great-person-points)\
 [317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#317---fixed-advciv-sas-bug-civic-anger-valuation-skipped-cities-that-would-become-unhappy)\
-[318 - (Fixed AdvCiv-SAS bug) Zero WonderConstructRand disabled fixed opportunistic-Wonder chances](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#318---fixed-advciv-sas-bug-zero-wonderconstructrand-disabled-fixed-opportunistic-wonder-chances)\
+[318 - (Fixed AdvCiv-SAS follow-up regression in an inherited-assert fix) Zero WonderConstructRand disabled fixed opportunistic-Wonder chances](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#318---fixed-advciv-sas-follow-up-regression-in-an-inherited-assert-fix-zero-wonderconstructrand-disabled-fixed-opportunistic-wonder-chances)\
+[319 - (Fixed AdvCiv-SAS follow-up regression in an inherited-loop fix) AI no-progress tripwire skipped a remaining group after its head changed role and detached](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#319---fixed-advciv-sas-follow-up-regression-in-an-inherited-loop-fix-ai-no-progress-tripwire-skipped-a-remaining-group-after-its-head-changed-role-and-detached)\
 [320 - (Fixed AdvCiv-SAS bug) Happiness-based hammer reduction ran after production value was consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#320---fixed-advciv-sas-bug-happiness-based-hammer-reduction-ran-after-production-value-was-consumed)\
 [323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#323---improved-inherited-rfcdoc-unit-chart-added-missing-chance-first-strike-information)\
 [324 - (Rejected finding; not a defect) Zero-base collateral rows should be hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#324---rejected-finding-not-a-defect-zero-base-collateral-rows-should-be-hidden)\
@@ -8921,6 +8923,14 @@ The fix keeps the player/religion loop and weights each known player's own state
 
 This is an AdvCiv-SAS AI religion-valuation regression introduced with power weighting. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+## 310 - (Fixed AdvCiv-SAS bug) Water-heavy AI city fallback could leave production empty
+
+AdvCiv-SAS's hard AI-production safety net normally replaces an empty or invalid queue with a restricted military fallback unit. Mostly-water inner-ring cities were excluded from that branch so they could prefer three configured economic building classes instead: currently Harbor, Port and Lighthouse. If all three buildings were unavailable or already present, the water branch logged `WATER_BUILDING_NONE` and ended without selecting anything. This was reachable both before the required technologies and after a city owned all three buildings, leaving the exact empty-production state that the safety net exists to prevent.
+
+The fix tries the three water buildings first. If one is constructible, the economic preference is preserved; if none can be queued, `WATER_BUILDING_NONE_CONTINUE` records the fallthrough and the city uses the same already-audited safe unit fallback as every other empty AI city. Its cost, role, siege and Settler-veto safeguards remain unchanged. Explicitly disabling the general fallback define still disables that final unit rescue.
+
+This is an AdvCiv-SAS AI production-fallback control-flow regression introduced by the water-heavy-city exception. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
 ## 311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team
 
 The initial archaeology review suspected four inherited player-versus-team identity bugs because `AI_bonusTradeVal` and `AI_processPeacetimeValue` pass an `eFromPlayer` value of type `PlayerTypes` to `GET_TEAM`. Replacing it with the existing `eTheirTeam` in `AI_bonusTradeVal`, and caching `TEAMID(eFromPlayer)` as `eFromTeam` in `AI_processPeacetimeValue`, appeared to protect permanent-team and custom-team games where player and team IDs differ.
@@ -8955,13 +8965,21 @@ The fix converts the hypothetical pressure change to angry citizens with signed 
 
 This is an AdvCiv-SAS hypothetical-state ordering regression in civic-anger valuation. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
-## 318 - (Fixed AdvCiv-SAS bug) Zero WonderConstructRand disabled fixed opportunistic-Wonder chances
+## 318 - (Fixed AdvCiv-SAS follow-up regression in an inherited-assert fix) Zero WonderConstructRand disabled fixed opportunistic-Wonder chances
 
 Practical 5092 intended to fix an inherited `CvRandom` debug-assert failure caused by negative `iWonderConstructRand` values reaching an RNG that requires a nonnegative range. It correctly excluded those invalid values, but three `CvCityAI::AI_chooseProduction` paths guarded their entire opportunistic-Wonder calculations with `iWonderConstructRand > 0`. Zero is a valid deterministic range under `CvRandom`; before the guard it contributed zero randomness while preserving fixed opportunity terms of +7 turns, +8 turns or a base probability of 8. Ordinary zero-valued leaders such as Montezuma and Sitting Bull consequently lost all three opportunities instead. A fourth guard in `AI_bestBuildingThreshold` is unaffected because that location has no fixed term outside the random contribution.
 
 The fix admits nonnegative values in the three affected paths. Zero restores the fixed opportunity calculations without advancing the current RNG or reviving the negative-range assertion; negative values remain excluded and positive values retain their existing random contribution.
 
 This is an AdvCiv-SAS regression introduced while fixing an inherited debug-assert failure from invalid negative Wonder randomness. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+## 319 - (Fixed AdvCiv-SAS follow-up regression in an inherited-loop fix) AI no-progress tripwire skipped a remaining group after its head changed role and detached
+
+AdvCiv-SAS added a no-progress tripwire to stop an AI Explorer/Scout update from repeatedly returning without moving, queuing a mission or becoming busy. The tripwire compared only the head unit's coordinates and remaining moves plus mission-queue length. Ordinary `AI_setUnitAIType` role conversions call `joinGroup(NULL)`, detaching the acting head from its old group. When another unit remained on the same plot with the same moves, the old group looked geometrically unchanged and received `MISSION_SKIP`, consuming the remaining stack's turn even though its head and membership had changed.
+
+The fix also snapshots and compares the head unit ID and UnitAI role. The tripwire still immediately skips the genuinely unchanged Scout/Explorer case it was designed for, but a head replacement or role conversion now counts as progress and lets the remaining group continue through the normal update loop. No persistent or save-format state is added.
+
+The original Scout/Explorer no-progress loop and failed attempt-limit assertion were inherited from Base AdvCiv, so adding a tripwire was a valid correction rather than unnecessary SAS logic. KI#319 is the AdvCiv-SAS follow-up regression introduced by that correction's incomplete predicate. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
 
 ## 320 - (Fixed AdvCiv-SAS bug) Happiness-based hammer reduction ran after production value was consumed
 

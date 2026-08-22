@@ -155,16 +155,15 @@ bool CvSelectionGroupAI::AI_update()
 			before it terminates. Debugger stops in CvSelectionGroup::pushMission,
 			startMission and in CvUnitAI::AI_update have been helpful to me. */
 
-		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
-		// 1) Snapshot state at the start of each loop iteration
-		// Place this right after setForceUpdate(false); and the iAttempts++; line, before any attack/AI_update logic:
-		// --- SAS no-progress snapshot (begin) ---
-		CvUnitAI const* sas_u0 = AI_getHeadUnit();
-		int sas_x0 = (sas_u0 ? sas_u0->getX() : -1);
-		int sas_y0 = (sas_u0 ? sas_u0->getY() : -1);
-		int sas_m0 = (sas_u0 ? sas_u0->movesLeft() : -1);
-		int sas_q0 = getLengthMissionQueue();
-		// --- SAS no-progress snapshot (end) ---
+		// <!-- custom: The SAS no-progress tripwire fixed an inherited Scout/Explorer spin, but originally compared only head geometry/moves and queue length.
+		// Snapshot head identity and role too, because legitimate AI_setUnitAIType transitions detach the acting head and leave another same-tile unit in this group. See KI#319. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvUnitAI const* pHeadBefore = AI_getHeadUnit();
+		const int iHeadIDBefore = (pHeadBefore == NULL ? -1 : pHeadBefore->getID());
+		const UnitAITypes eHeadAIBefore = (pHeadBefore == NULL ? NO_UNITAI : pHeadBefore->AI_getUnitAIType());
+		const int iHeadXBefore = (pHeadBefore == NULL ? -1 : pHeadBefore->getX());
+		const int iHeadYBefore = (pHeadBefore == NULL ? -1 : pHeadBefore->getY());
+		const int iHeadMovesBefore = (pHeadBefore == NULL ? -1 : pHeadBefore->movesLeft());
+		const int iMissionQueueLengthBefore = getLengthMissionQueue();
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
@@ -248,24 +247,16 @@ bool CvSelectionGroupAI::AI_update()
 			}
 		}
 
-		// <!-- custom: attempt to fix this issue as advised by chatgpt 5, check if accurate -->
-		// 2) Tripwire right after the action block
-		// insert the no-progress check before the existing if (doDelayedDeath()):
-		// --- SAS no-progress tripwire (begin) ---
-		// If this iteration didn't move, push, or get busy, consume the turn to avoid spin.
-		CvUnitAI const* sas_u1 = AI_getHeadUnit();
-		if (!isBusy() && readyToMove(true) && sas_u1 &&
-			sas_u1->getX() == sas_x0 && sas_u1->getY() == sas_y0 &&
-			sas_u1->movesLeft() == sas_m0 && getLengthMissionQueue() == sas_q0)
+		// <!-- custom: Consume the turn only when the same head unit, including its AI role, made no observable progress. Head replacement or role conversion must let the remaining group continue its normal update. See KI#319. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvUnitAI const* pHeadAfter = AI_getHeadUnit();
+		if (!isBusy() && readyToMove(true) && pHeadAfter != NULL &&
+			pHeadAfter->getID() == iHeadIDBefore && pHeadAfter->AI_getUnitAIType() == eHeadAIBefore &&
+			pHeadAfter->getX() == iHeadXBefore && pHeadAfter->getY() == iHeadYBefore &&
+			pHeadAfter->movesLeft() == iHeadMovesBefore && getLengthMissionQueue() == iMissionQueueLengthBefore)
 		{
 			pushMission(MISSION_SKIP); // finishes moves cleanly
 			break;
 		}
-		// --- SAS no-progress tripwire (end) ---
-		// That’s it.
-		// Why this fixes your scout spins
-		// Your asserts show unit=Scout, AI=13 (Explorer), moves=120, ready=1, busy=0, queue=0, and attempts hitting the cap. That means AI_update() returns false without moving or queuing anything. The tripwire detects exactly that “no state change" iteration and safely MISSION_SKIPs the group so the loop exits (same end result as the built-in bailout, just immediate and deterministic).
-		// You can keep your current early-assert block; with the tripwire in place, you shouldn’t hit it anymore.
 
 		if (doDelayedDeath())
 		{
