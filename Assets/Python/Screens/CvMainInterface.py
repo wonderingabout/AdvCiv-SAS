@@ -1127,19 +1127,25 @@ class CvMainInterface:
 		self.szGoldIcon = u"%c" % gc.getCommerceInfo(CommerceTypes.COMMERCE_GOLD).getChar()
 		# Precomputed constants
 		self.iMoveDenominator = gc.getMOVE_DENOMINATOR()
-		# Precomputed localText strings (called with empty tuple - constant results)
-		# Unit pane labels
+		# <!-- custom: K-Mod/Base AdvCiv already key Info and Foreign Advisor text caches by language, and SAS correctly retained/extended that pattern in other advisor initText paths.
+		# These Main Interface translations were instead cached only when initState ran, so changing language during a game left them in the previous language. Retain the cache but key it by current language and refresh it from updateScreen. See KI#307. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		self.iLanguageLoaded = -1
+		self.updateCachedLocalizedText()
+
+	def updateCachedLocalizedText(self):
+		iCurrentLanguage = CyGame().getCurrentLanguage()
+		if self.iLanguageLoaded == iCurrentLanguage:
+			return
+		self.iLanguageLoaded = iCurrentLanguage
 		self.szTextStrength = localText.getText("INTERFACE_PANE_STRENGTH", ())
 		self.szTextAirStrength = localText.getText("INTERFACE_PANE_AIR_STRENGTH", ())
 		self.szTextMovement = localText.getText("INTERFACE_PANE_MOVEMENT", ())
 		self.szTextRange = localText.getText("INTERFACE_PANE_RANGE", ())
 		self.szTextLevel = localText.getText("INTERFACE_PANE_LEVEL", ())
 		self.szTextExperience = localText.getText("INTERFACE_PANE_EXPERIENCE", ())
-		# City screen labels
 		self.szTextStarving = localText.getText("INTERFACE_CITY_STARVING", ())
 		self.szTextStagnant = localText.getText("INTERFACE_CITY_STAGNANT", ())
 		self.szTextMaintenance = localText.getText("INTERFACE_CITY_MAINTENANCE", ())
-		# Scoreboard
 		self.szTextDeadCiv = localText.getText("TXT_KEY_BUG_DEAD_CIV", ())
 
 	def setMiniMapRects(self):
@@ -2270,6 +2276,7 @@ class CvMainInterface:
 			gPoint("EndTurnText")
 		except KeyError:
 			return # </advc.009b>
+		self.updateCachedLocalizedText()
 
 #		BugUtil.debug("update - Turn %d, Player %d, Interface %d, End Turn Button %d ===", gc.getGame().getGameTurn(), gc.getGame().getActivePlayer(), CyInterface().getShowInterface(), CyInterface().getEndTurnState())
 

@@ -354,6 +354,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#301---fixed-advciv-sas-compatibility-bug-non-sevopedia-build-links-opened-unrelated-improvements)\
 [302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#302---fixed-advciv-sas-bug-terrain-units-any-build-omitted-hill-and-water-builders)\
 [303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#303---fixed-advciv-sas-issue-specialist-extra-yields-omitted-building-wide-specialist-commerce)\
+[305 - (Fixed AdvCiv-SAS bug) World Size Chart called WorldInfo grid cells playable tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#305---fixed-advciv-sas-bug-world-size-chart-called-worldinfo-grid-cells-playable-tiles)\
+[307 - (Fixed AdvCiv-SAS bug) Main Interface cached translated labels across live language changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#307---fixed-advciv-sas-bug-main-interface-cached-translated-labels-across-live-language-changes)\
 [308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#308---fixed-advciv-sas-bug-city-screen-specialist-breakdown-inferred-inaccurate-great-person-modifiers)\
 [308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3082---fixed-advciv-sas-bug-city-screen-culture-breakdown-inferred-its-modifier-from-a-truncated-base-rate)\
 [315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
@@ -8846,6 +8848,28 @@ The Sevopedia Specialist page's Extra Yields panel lists Civic and Technology `S
 The fix exposes the existing `CvBuildingInfo` commerce enum-map getter to Python and combines those commerce changes with each Building's existing per-specialist yield changes in the same row. This is display-only; the DLL already applies these effects to gameplay. Runtime testing confirmed the expected Great Library +1 research and Rock 'n Roll +2 culture rows in screenshot 0178.
 
 This is an AdvCiv-SAS Sevopedia information omission introduced with the Specialist Extra Yields panel. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 305 - (Fixed AdvCiv-SAS bug) World Size Chart called WorldInfo grid cells playable tiles
+
+The World Size Chart labeled `CvWorldInfo.getGridWidth() * getGridHeight()` as `Grid Tiles` and divided that product into `Tiles Per Default Player`. These WorldInfo dimensions are terrain-cell units rather than final playable `CvPlot` dimensions. Ordinary map generation doubles both axes, producing four plots per WorldInfo cell; custom map scripts can override the dimensions and use a different scaling path. For example, Standard's 39 x 28 WorldInfo grid contains 1,092 cells, while ordinary generation produces 78 x 56 = 4,368 playable plots.
+
+Because a static WorldInfo chart cannot know which map script will consume the selected size, the fix retains the useful raw XML-derived quantities but labels them explicitly as `WorldInfo Grid Cells` and `Cells Per Default Player`. Internal field/local names, the in-game legend and the related root/Main Changes documentation use the same terminology, while the size ratios remain numerically unchanged.
+
+Runtime screenshot 0181 confirmed the corrected Huge values of 60 x 42 WorldInfo grid cells, 2,520 total cells and 158 cells per default player. It also showed that the first explicit label clipped in the field column; shortening it to `Usual Grid Cells W x H` retained the map-script qualification and fixed the presentation.
+
+This is an AdvCiv-SAS World Size Chart unit/label regression introduced with the derived rows. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 307 - (Fixed AdvCiv-SAS bug) Main Interface cached translated labels across live language changes
+
+AdvCiv-SAS practical 5279 (`a728524ed6`) moved selected-unit Strength, Air Strength, Movement, Range, Level and Experience labels, City Screen Maintenance text and the BUG dead-civilization tag into `CvMainInterface.initState()` as a performance optimization. That initializer runs when the interface is created or Python is reloaded, not when the in-game language changes, so the Main Interface could keep displaying those labels in the previous language.
+
+The language-ID cache pattern itself is established and correct. K-Mod practical 693 (`3265fc03b6`) introduced it for the Info Screen and Exotic Foreign Advisor, and the local Base AdvCiv 1.14 retains both implementations. AdvCiv-SAS practical 5617 (`f21276c11a`) later retained or extended the guarded text-cache pattern across the Domestic, Foreign, Info, Military and Policy Advisors, Tech Chooser and Victory Screen; practical 5711 (`3ad8ca1d07`) also carried it into the World Advisor. Their entry/redraw paths call language-aware `initText()` methods and rebuild the cached strings when the current language differs. The persistent Main Interface optimization was the outlier because it cached translations without carrying over that invalidation guard.
+
+The fix retains the translation cache but records the language ID. The ordinary Main Interface refresh performs one integer comparison and rebuilds these few strings only after `CyGame().getCurrentLanguage()` changes; all static icon and numeric caches remain untouched.
+
+AdvCiv-SAS officially supports English only, so this is a low-priority robustness repair rather than a promise of complete multilingual support. Runtime testing after loading a save and changing language confirmed that affected Main Interface labels refreshed without recreating the interface.
+
+This is an AdvCiv-SAS Main Interface localization-cache invalidation regression. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
 ## 308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers
 

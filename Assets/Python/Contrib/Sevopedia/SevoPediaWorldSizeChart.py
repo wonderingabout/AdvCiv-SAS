@@ -136,14 +136,15 @@ class SevoPediaWorldSizeChart:
 		row_specs = (
 			# NOTE: Some rows are direct XML fields, others are convenience composites.
 			# Use a trailing '*' in the *display label* when the displayed value is not a single XML tag.
-			# Example: "Grid Tiles*" is computed as GridWidth * GridHeight, while the "(W x H)" row just formats the XML GridWidth/GridHeight.
+			# <!-- custom: CvWorldInfo GridWidth/GridHeight are terrain-cell units. Ordinary map generation doubles each axis into plots, while custom map scripts can override the dimensions and scaling; label their product as cells rather than tiles/plots. See KI#305. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			# <!-- custom: use "Usual" to clarify the grid size may change (e.g., depending on mapscripts like SAS_Longworld being low height and high width) -->
 			# (field_name, display_label_or_None, getter_name_or_None, icon_token)
-			("GridSize",                       "WorldInfo (usual) Size (W x H)", None,                          "glyph:map"),
+			("GridSize",                       "Usual Grid Cells W x H",        None,                               "glyph:map"),
 			("GridRatio",                      "W/H Ratio*",                 None,                               "glyph:map"),
 			("RatioToStandard",                "Ratio to Standard*",        None,                               "glyph:map"),
 			("RatioToLargest",                 "Ratio to Largest*",         None,                               "glyph:map"),
-			("GridTiles",                      "Grid Tiles*",               None,                               "glyph:map"),
-			("TilesPerDefaultPlayer",          "Tiles Per Default Player*", None,                               "glyph:map"),
+			("GridCells",                      "WorldInfo Grid Cells*",     None,                               "glyph:map"),
+			("CellsPerDefaultPlayer",          "Cells Per Default Player*", None,                               "glyph:map"),
 			("iDefaultPlayers",                "Default Players",           "getDefaultPlayers",                "glyph:citizen"),
 			("iTargetNumCities",               "Target Num Cities",         "getTargetNumCities",               "glyph:citizen"),
 			("iNumFreeBuildingBonuses",        "Free Building Bonuses",     "getNumFreeBuildingBonuses",        "glyph:prod"),
@@ -266,56 +267,56 @@ class SevoPediaWorldSizeChart:
 			grid_h = info.getGridHeight()
 			world_dict["GridSize"] = "%d x %d" % (grid_w, grid_h)
 			world_dict["GridRatio"] = self._format_ratio(grid_w, grid_h)
-			world_dict["GridTiles"] = str(grid_w * grid_h)
+			world_dict["GridCells"] = str(grid_w * grid_h)
 
 			parsed_data[world_type] = world_dict
 
 		# Derived rows (AdvCiv-SAS: XXL-inspired extra world sizes, adjusted for SAS; e.g. SAS24/SAS32/SAS40/SAS48)
 		# Computed fields are marked in the UI with a trailing \"*\".
 		# Added with help from ChatGPT (GPT-5.2 Thinking)
-		iStandardTiles = None
+		iStandardCells = None
 		if parsed_data.has_key("WORLDSIZE_STANDARD"):
 			try:
-				iStandardTiles = int(parsed_data["WORLDSIZE_STANDARD"].get("GridTiles", "0"))
+				iStandardCells = int(parsed_data["WORLDSIZE_STANDARD"].get("GridCells", "0"))
 			except:
-				iStandardTiles = None
+				iStandardCells = None
 
-		iLargestTiles = None
+		iLargestCells = None
 		if world_types:
 			try:
-				iLargestTiles = int(parsed_data.get(world_types[-1], {}).get("GridTiles", "0"))
+				iLargestCells = int(parsed_data.get(world_types[-1], {}).get("GridCells", "0"))
 			except:
-				iLargestTiles = None
+				iLargestCells = None
 
-		# Ratio to Standard: GridTiles / Standard GridTiles (3 decimals).
-		# Ratio to Largest: GridTiles / Largest GridTiles (3 decimals).
-		# Tiles Per Default Player: GridTiles / iDefaultPlayers (rounded to int).
+		# Ratio to Standard: GridCells / Standard GridCells (3 decimals).
+		# Ratio to Largest: GridCells / Largest GridCells (3 decimals).
+		# Cells Per Default Player: GridCells / iDefaultPlayers (rounded to int).
 		for world_type in world_types:
 			try:
-				iTiles = int(parsed_data.get(world_type, {}).get("GridTiles", "0"))
+				iCells = int(parsed_data.get(world_type, {}).get("GridCells", "0"))
 			except:
-				iTiles = 0
+				iCells = 0
 
 			# Ratio
-			if iStandardTiles is not None and iStandardTiles > 0:
-				parsed_data[world_type]["RatioToStandard"] = ("%.3f" % (float(iTiles) / float(iStandardTiles)))
+			if iStandardCells is not None and iStandardCells > 0:
+				parsed_data[world_type]["RatioToStandard"] = ("%.3f" % (float(iCells) / float(iStandardCells)))
 			else:
 				parsed_data[world_type]["RatioToStandard"] = ""
 
-			if iLargestTiles is not None and iLargestTiles > 0:
-				parsed_data[world_type]["RatioToLargest"] = ("%.3f" % (float(iTiles) / float(iLargestTiles)))
+			if iLargestCells is not None and iLargestCells > 0:
+				parsed_data[world_type]["RatioToLargest"] = ("%.3f" % (float(iCells) / float(iLargestCells)))
 			else:
 				parsed_data[world_type]["RatioToLargest"] = ""
 
-			# Tiles per default player
+			# Cells per default player
 			try:
 				iDefaultPlayers = int(parsed_data.get(world_type, {}).get("iDefaultPlayers", "0"))
 			except:
 				iDefaultPlayers = 0
-			if iTiles > 0 and iDefaultPlayers > 0:
-				parsed_data[world_type]["TilesPerDefaultPlayer"] = str(int(round(float(iTiles) / float(iDefaultPlayers))))
+			if iCells > 0 and iDefaultPlayers > 0:
+				parsed_data[world_type]["CellsPerDefaultPlayer"] = str(int(round(float(iCells) / float(iDefaultPlayers))))
 			else:
-				parsed_data[world_type]["TilesPerDefaultPlayer"] = ""
+				parsed_data[world_type]["CellsPerDefaultPlayer"] = ""
 
 		# Recommended DLL: show "48 civs" when iDefaultPlayers exceeds the base DLL cap (18).
 		for world_type in world_types:

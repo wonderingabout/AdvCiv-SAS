@@ -486,7 +486,7 @@ Also added a new "LOG" button to print to `PythonDbg.log` the tables output, and
 
 Also Added with the help of GPT-5.3-Codex and Claude code Opus 4.6, notably with new calibration tools ([compare_speed_summaries.py](/LLM_Helpers/compare_speed_summaries.py) and [autotune_speed_from_xml.py](/LLM_Helpers/autotune_speed_from_xml.py) in [LLM_Helpers](/LLM_Helpers/) for finer LLM-enhanced tuning.
 
-Charts overall also notably add fields that do not are not direct XML info fields, such as `Ratio to Standard*` (e.g. "3.640" for SAS24 World Size), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), `Tiles Per Default Player*` (e.g. 145 for World Size Huge), `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro). They are marked with an `*` at the end of their tail for clarity.
+Charts overall also notably add fields that do not are not direct XML info fields, such as `Ratio to Standard*` (e.g. "3.640" for SAS24 World Size), `Ratio to Largest*` (e.g. "0.502" for SAS24 World Size), `Recommended DLL*` (e.g. "48 Civs" for the SAS24 World Size), `Cells Per Default Player*` (e.g. 158 for World Size Huge), `Total Turns*` (e.g. "165" (turns) for the Game Speed Nitro). They are marked with an `*` at the end of their tail for clarity. WorldInfo grid dimensions are terrain-cell units rather than final playable-plot dimensions, which depend on the map script. See [KI#305](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#305---fixed-advciv-sas-bug-world-size-chart-called-worldinfo-grid-cells-playable-tiles).
 
 Also, the Eras Chart page also features optional era buttons.
 
@@ -743,15 +743,15 @@ This DLL is the recommended DLL for the new World Sizes (SAS24, SAS32, SAS40, SA
 
 The adjustment of the XXL World Mod's World sizes was made by GPT-5.2-Codex. For information, here is a comparative .md table showing how the XXL World's World Sizes compare to the AdvCiv-SAS' new World Sizes, and notes, by GPT-5.2-Codex as well.
 
-| AdvCiv-SAS size | SAS WorldInfo (usual) Size (W x H) | SAS Tiles | SAS Default players | SAS Ratio vs Std | XXL reference size | XXL Grid (W x H) | XXL Tiles | XXL Default players | XXL Ratio vs Std |
+| AdvCiv-SAS size | SAS WorldInfo Grid Cells (W x H) | SAS Grid Cells | SAS Default players | SAS Ratio vs Std | XXL reference size | XXL Grid Cells (W x H) | XXL Grid Cells | XXL Default players | XXL Ratio vs Std |
 | --- | ---: | ---: | ---: | ---: | --- | ---: | ---: | ---: | ---: |
 | SAS24 | 70 x 49 | 3430 | 24 | 3.141 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
 | SAS32 | 80 x 56 | 4480 | 32 | 4.103 | XXL | 40 x 25 | 1000 | 24 | 3.663 |
 | SAS40 | 90 x 63 | 5670 | 40 | 5.192 | GIGA | 50 x 32 | 1600 | 34 | 5.861 |
 | SAS48 | 99 x 70 | 6930 | 48 | 6.346 | ULTRA | 60 x 40 | 2400 | 34 | 8.791 |
 
-Note: XXL/GIGA/ULTRA values come from XXL World `CIV4WorldInfo.xml`. XXL ratio vs Std uses XXL World's Standard size (21 x 13 = 273 tiles). SAS ratio vs Std uses the AdvCiv-SAS standard size in our XML.
-Note 2: XXL uses a much smaller baseline and far fewer tiles per default player. In XXL World, Standard is 21 x 13 = 273 tiles for 7 players (~39 tiles/player), and XXL is 40 x 25 = 1000 tiles for 24 players (~41.7 tiles/player). In AdvCiv-SAS, Standard is 39 x 28 = 1092 tiles for 8 players (~137 tiles/player). That’s why SAS24 is much larger even though both list 24 default players.
+Note: XXL/GIGA/ULTRA values come from XXL World `CIV4WorldInfo.xml`. XXL ratio vs Std uses XXL World's Standard size (21 x 13 = 273 grid cells). SAS ratio vs Std uses the AdvCiv-SAS standard size in our XML.
+Note 2: XXL uses a much smaller baseline and far fewer WorldInfo grid cells per default player. In XXL World, Standard is 21 x 13 = 273 cells for 7 players (~39 cells/player), and XXL is 40 x 25 = 1000 cells for 24 players (~41.7 cells/player). In AdvCiv-SAS, Standard is 39 x 28 = 1092 cells for 8 players (~137 cells/player). That’s why SAS24 has a much larger WorldInfo grid even though both list 24 default players. These are not final playable-plot counts; the map script controls their conversion or override.
 Note 3: XXL map scripts also override grid sizes directly (e.g., XXL World Pangaea uses 16 x 10 for Standard and 40 x 25 for XXL in `PrivateMaps/Pangaea.py`), so the XML sizes aren’t the only source of truth; this keeps XXL maps smaller while still advertising higher default player counts.
 
 See also [README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md#example-07-world-sizes-chart-category).
