@@ -1,10 +1,12 @@
 # AdvCiv-SAS (Simple Advanced Strategy)
 
-AdvCiv-SAS (Simple Advanced Strategy) ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is a mod based on [AdvCiv 1.14](https://github.com/f1rpo/AdvCiv/tree/1.14), and will/may update whenever there are new changes that are stable.
+AdvCiv-SAS (Simple Advanced Strategy), sometimes called SAS or the SAS mod, ([Discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/)) is a mod based on [AdvCiv 1.14](https://github.com/f1rpo/AdvCiv/tree/1.14), and will/may update whenever there are new changes that are stable.
 
 AdvCiv-SAS is now available at [CFC Modpacks downloads section](https://forums.civfanatics.com/resources/advciv-sas-simple-advanced-strategy.32513/) and at the [ModDB website](https://www.moddb.com/mods/advciv-sas-simple-advanced-strategy), not just on github anymore (read [below for download/install instructions](/README.md#how-to-play)).
 
 The core changes brought by this mod are as of now an AI overhaul to make it much more efficient with its workers and settlers and most gameplay areas with a focus on opportunism and avoiding self-sabotaging/suicidal AI play.
+
+Another significant part of the project is [historical source archaeology](/README.md#historical-source-archaeology): instead of reviewing only the current source, historical BtS, K-Mod, AdvCiv and AdvCiv-SAS changes are followed through their actual commit diffs and lineage to find inherited bugs, regressions and suspicious logic that can survive for years unnoticed. The completed primary investigation currently records 131 confirmed findings (43 inherited/pre-SAS and 88 SAS-specific); fixes are implemented incrementally rather than delaying normal releases until every deferred finding is repaired.
 
 Heavy reworks were made, while otherwise mostly staying in the base AdvCiv frame, but with a focus on game balance, generally more historical accuracy (but not too much else gameplay is impractical (e.g. religions appearing too late or too few or not varied enough to be gameplay relevant or effective at all)) and strategic value (e.g. if all religions beeline from same tech path it would not be too balanced or strategically diverse or valuable), and as for in particular UI in Sevopedia (e.g., item grouping, new Search Bar, Keyboard navigation (UP/DOWN for category-list items; LEFT/RIGHT for BACK/NEXT pages visited), Index as Category, new charts and Leader AI Personality Panel, Media Player (Movies with audio support, and Music with the ~1750 audio scripts that can be listened to), Vote (Votesources and Votes), EventTrigger (Event Triggers and Events), Exapnded Text Panels), and the city screen rework, main Menu rework (notably multiple random main menu music support (shuffle-bag)).
 
@@ -83,6 +85,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[BBAI logging and head example](/README.md#bbai-logging-and-head-example)\
 &emsp;[SASGameRecord log](/README.md#sasgamerecord-log)\
 [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)\
+[Historical source archaeology](/README.md#historical-source-archaeology)\
 [Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
 ["Temporary" crashes](/README.md#temporary-crashes)\
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)\
@@ -981,6 +984,16 @@ See:
 
 <img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
+
+## Historical source archaeology
+
+AdvCiv-SAS also maintains a systematic source-archaeology investigation across the Civ4 BtS -> K-Mod -> AdvCiv -> AdvCiv-SAS lineage. Rather than only inspect the current code, the review follows historical code changes commit by commit, with the actual before/after diffs as the core evidence and Git logs, map/source references, and lineage traces used to understand why suspicious code exists and whether an old bug or regression survived into the current source. This can find issues that are easy to miss when looking only at the final code, including inherited BtS/K-Mod/AdvCiv problems and later AdvCiv-SAS regressions.
+
+The primary investigation phase was carried out with ChatGPT-5.6-Sol and is complete for its defined runtime-source scope. At the current completed checkpoint it records **131 confirmed findings: 43 inherited/pre-SAS and 88 SAS-specific**. Of those, **84 are fixed**, **46 surgical repairs are intentionally deferred**, and **KI#213** is the one broader repair still pending. Investigation completion and implementation completion are deliberately separate: useful fixes can be released now while the remaining deferred findings stay recorded for later work instead of holding back a long-planned release.
+
+Implementation, review, and validation are being done progressively by the project author with substantial GPT-5.6-Sol (Codex) assistance, followed by the usual compile/runtime/autoplay testing. Several SAS-origin fixes have also flowed back into base AdvCiv 1.14, and a related SAS tiny-island map-script bugfix was also adopted into Taurus.
+
+For the exact scope, methodology, review checkpoints, findings, lineage traces, and implementation status, see the [AdvCiv/K-Mod historical bug-archeology progress tracker](/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt).
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or Civ4
 

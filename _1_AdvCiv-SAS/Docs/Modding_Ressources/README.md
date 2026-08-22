@@ -7,7 +7,7 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 [Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#modding-disclaimer-and-general-information)\
 [DLL compilation guide (command-line workflow primarily for LLM/AI helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md)\
 [Release preparation/checklist (for user + LLM/AI helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md)\
-[AdvCiv/K-Mod historical bug-archeology progress tracker](/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt)\
+[Historical source archaeology](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#historical-source-archaeology)\
 [A few useful tips](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-tips)\
 &emsp;[Insert a google drive image link in an html tag](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-a-google-drive-image-link-in-an-html-tag)\
 &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)\
@@ -55,6 +55,18 @@ I can also not be held responsible for any damage resulting of following these i
 Hopefully you'll find them helpful though, but in case not or something happens, this is just to protect myself and talk to you in all fairness.
 
 Else or additionally, you may find more help asking your question(s) directly on [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/) rather maybe. Hopefully this data i provided is also helpful though.
+
+## Historical source archaeology
+
+AdvCiv-SAS keeps a resumable source-archeology investigation for bugs, regressions, suspicious behavior changes, and useful fixes that may have survived through the Civ4 BtS -> K-Mod -> AdvCiv -> AdvCiv-SAS lineage.
+
+The core method is not simply to search the current source or trust commit messages. The investigation systematically reviews historical K-Mod and AdvCiv commit diffs and then AdvCiv-SAS runtime-source history, comparing the actual before/after code and tracing suspicious changes across lineage boundaries when needed. The local light-source tooling makes this practical by keeping greppable commit-diff mirrors, Git logs, map/source references, and exact practical/SHA anchors together; large EOL/whitespace-only churn can be normalized so the substantive code change is still reviewed. Commit messages are useful clues, but the diff and resulting source behavior are the main evidence.
+
+The primary investigation phase was carried out with ChatGPT-5.6-Sol and is now complete for its defined runtime-source scope. At the current completed checkpoint, the tracker records **131 confirmed findings: 43 inherited/pre-SAS and 88 SAS-specific**. Of those, **84 are fixed**, **46 surgical repairs are intentionally deferred**, and **KI#213** is the one broader repair still pending. This does not mean every deferred fix must be implemented before a release: the investigation and identification work can be complete while implementation continues incrementally.
+
+The fixes are then implemented/reviewed separately, primarily by the project author with GPT-5.6-Sol (Codex) assistance and normal compile/runtime/autoplay validation. Some SAS-origin fixes have also flowed back into base AdvCiv 1.14, and a related SAS tiny-island map-script bugfix was also adopted into Taurus, so the archaeology can improve more than only AdvCiv-SAS.
+
+See the detailed [AdvCiv/K-Mod historical bug-archeology progress tracker](/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt) for the exact scope, counters, review checkpoints, findings, lineage traces, and implementation status.
 
 ## A few useful tips
 
