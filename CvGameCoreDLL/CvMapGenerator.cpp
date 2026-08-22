@@ -242,8 +242,30 @@ void CvMapGenerator::addRivers()
 {
 	PROFILE_FUNC();
 
-	if (GC.getPythonCaller()->addRivers())
+	// <!-- custom: Water.py temporarily changes the default river generator's defines. Snapshot them before the map-script callback, consume the active values after it, then restore the shared globals so Water remains effective and cannot contaminate later map generations.
+	// CvGlobals::getInstance() is intentional: AdvCiv's GC accessor is const, but restoring changed defines requires the established mutable singleton accessor.
+	// See KI#243. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvGlobals& kGlobals = CvGlobals::getInstance();
+	const int iOriginalRiverSourceRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
+	const int iOriginalSeaWaterRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
+	const int iOriginalPlotsPerRiverEdge = kGlobals.getDefineINT("PLOTS_PER_RIVER_EDGE");
+	const bool bPythonHandled = kGlobals.getPythonCaller()->addRivers();
+	const int iRiverSourceRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
+	const int iSeaWaterRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
+	const int iPlotsPerRiverEdge = kGlobals.getDefineINT("PLOTS_PER_RIVER_EDGE");
+	const bool bRiverSourceRangeChanged = (iRiverSourceRange != iOriginalRiverSourceRange);
+	const bool bSeaWaterRangeChanged = (iSeaWaterRange != iOriginalSeaWaterRange);
+	const bool bPlotsPerRiverEdgeChanged = (iPlotsPerRiverEdge != iOriginalPlotsPerRiverEdge);
+	if (bPythonHandled)
+	{
+		if (bRiverSourceRangeChanged)
+			kGlobals.setDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE", iOriginalRiverSourceRange);
+		if (bSeaWaterRangeChanged)
+			kGlobals.setDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE", iOriginalSeaWaterRange);
+		if (bPlotsPerRiverEdgeChanged)
+			kGlobals.setDefineINT("PLOTS_PER_RIVER_EDGE", iOriginalPlotsPerRiverEdge);
 		return;
+	}
 
 	gDLL->NiTextOut("Adding Rivers...");
 
@@ -251,10 +273,6 @@ void CvMapGenerator::addRivers()
 	// <!-- custom: note: not using const as it causes a compile error: "CvMapGenerator.cpp(287): error C2662: 'CvMap::findWater' : cannot convert 'this' pointer from 'const CvMap' to 'CvMap &'" -->
 	CvMap& kMap = GC.getMap();
 	const int nPlots = kMap.numPlots();
-	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-	static const int iRiverSourceRange = GC.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
-	static const int iSeaWaterRange = GC.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
-	static const int iPlotsPerRiverEdge =  GC.getDefineINT("PLOTS_PER_RIVER_EDGE");
 	// <!-- custom: AdvCiv replaced the retained BTS river-source traversal and direction-scoring block for advc.129. Make either routing path selectable; enabled by default to preserve current AdvCiv-SAS maps. (GPT-5.6-Sol) -->
 	static const bool bSASAdvCivRiverRouting = GC.getDefineBOOL("SAS_MAP_ADVCIV_RIVER_ROUTING_ENABLE");
 	// advc.129: Randomize the traversal
@@ -305,6 +323,12 @@ void CvMapGenerator::addRivers()
 	}
 	// <!-- custom: The BTS traversal leaves the optional AdvCiv shuffled-index array NULL; SAFE_DELETE_ARRAY accepts NULL. (GPT-5.6-Sol) -->
 	SAFE_DELETE_ARRAY(aiShuffledIndices); // advc.129
+	if (bRiverSourceRangeChanged)
+		kGlobals.setDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE", iOriginalRiverSourceRange);
+	if (bSeaWaterRangeChanged)
+		kGlobals.setDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE", iOriginalSeaWaterRange);
+	if (bPlotsPerRiverEdgeChanged)
+		kGlobals.setDefineINT("PLOTS_PER_RIVER_EDGE", iOriginalPlotsPerRiverEdge);
 }
 
 // pStartPlot = the plot at whose SE corner the river is starting

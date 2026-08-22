@@ -303,6 +303,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [240 - (Fixed AdvCiv-SAS bug) Medieval Copper denial overrode live strategic and corporation value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#240---fixed-advciv-sas-bug-medieval-copper-denial-overrode-live-strategic-and-corporation-value)\
 [241 - (Fixed and beautified AdvCiv-SAS bug) Treaties rows hid resource terms while canceling their complete mixed deal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#241---fixed-and-beautified-advciv-sas-bug-treaties-rows-hid-resource-terms-while-canceling-their-complete-mixed-deal)\
 [242 - (Fixed AdvCiv-SAS bug) Large Facing Islands underprovided islands for default Arena and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#242---fixed-advciv-sas-bug-large-facing-islands-underprovided-islands-for-default-arena-and-small-games)\
+[243 - (Fixed inherited Water bug broadened by AdvCiv-SAS) River overrides leaked across map generations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#243---fixed-inherited-water-bug-broadened-by-advciv-sas-river-overrides-leaked-across-map-generations)\
+[244 - (Fixed inherited Water topology bug) One-tile lake cleanup wrapped the non-wrapping Y axis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#244---fixed-inherited-water-topology-bug-one-tile-lake-cleanup-wrapped-the-non-wrapping-y-axis)\
 [245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#245---fixed-advciv-sas-bug-spiky-avenues-underprovided-houses-for-default-tiny-and-small-games)\
 [247 - (Fixed AdvCiv-SAS bug) Grid's duplicate source region defeated its capacity fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#247---fixed-advciv-sas-bug-grids-duplicate-source-region-defeated-its-capacity-fallback)\
 [254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#254---fixed-inherited-third-party-peirce-bug-crease-distance-used-bitwise-xor-instead-of-squared-coordinates)\
@@ -8434,6 +8436,26 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 The fix increases Arena from 1 to 2 islands and Small from 4 to 5 islands, exactly matching their default-player counts and the already-correct Duel/Tiny/Standard-and-larger profile contract. Island footprint, coast lanes, connectors, custom player-count overflow behavior and all other world sizes remain unchanged. Screenshot 0066 confirms two distinct islands for Arena's two default players; screenshot 0067 confirms five distinct islands for Small's five default players. Both generated successfully in the same Civ4 process as the other batch tests, with an empty refreshed `PythonErr.log`.
 
 This is an AdvCiv-SAS bug introduced with `SAS_Large_Facing_Islands` in practical 5460 (`d185fc9208`). Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 243 - (Fixed inherited Water bug broadened by AdvCiv-SAS) River overrides leaked across map generations
+
+The imported Water script requests extra rivers by halving the current `PLOTS_PER_RIVER_EDGE`, setting the two river-source distance defines and then invoking Civ4's default river generator. The original script never restores those shared globals. Base AdvCiv reads them for each generation, so Water receives its intended denser rivers but contaminates later maps in the same Civ4 process; generating Water repeatedly also keeps halving the already-modified value.
+
+AdvCiv-SAS later made these three reads function-local `static const` values. That broadened the inherited state leak into an initialization-order dependency: Water generated first permanently cached its river settings for later maps, while a normal map generated first permanently cached normal settings and made Water's later override ineffective. Regenerating a map does not reload the DLL or reset function statics.
+
+The fix snapshots the three shared values before calling the map script, reads the active values afterward for that generation and restores only changed values after either the Python or default river implementation finishes. The map-script-mutable reads are no longer process-static; Water retains its intended denser rivers without changing subsequent maps or compounding across repeated generation. The independent immutable AdvCiv/BTS routing toggle remains cached.
+
+Screenshots 0183 and 0184 confirm that the compiled Water map generated with many rivers and continued normally through turn 101.
+
+This is an inherited third-party Water shared-state bug broadened by an AdvCiv-SAS optimization. The original script was checked through `LLM_Helpers/map_refs/Water`. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+## 244 - (Fixed inherited Water topology bug) One-tile lake cleanup wrapped the non-wrapping Y axis
+
+Water wraps east/west but not north/south. Its one-tile-lake cleanup nevertheless used modulo arithmetic for both coordinates while checking cardinal neighbors. A north-edge water tile could therefore treat an unrelated south-edge water tile at the same X as directly adjacent and remain water even when all of its real neighbors were land; the same false connection applied in the opposite direction.
+
+The fix retains modulo wrapping for X but treats an out-of-bounds Y neighbor as no connected water. The cleanup now follows the topology declared by the script and used by `CvMap`, without changing ordinary interior lakes or east/west seam adjacency.
+
+This topology bug is present in the downloaded original Water script and is therefore inherited third-party behavior rather than an AdvCiv-SAS adaptation regression. Focused topology checks confirmed that opposite Y edges are separated while X wrapping remains intact; the compiled Water runtime smoke test completed without an observed issue. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
 
 ## 245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games
 
