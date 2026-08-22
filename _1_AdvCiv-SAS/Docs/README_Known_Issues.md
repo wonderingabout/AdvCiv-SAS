@@ -354,7 +354,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#301---fixed-advciv-sas-compatibility-bug-non-sevopedia-build-links-opened-unrelated-improvements)\
 [302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#302---fixed-advciv-sas-bug-terrain-units-any-build-omitted-hill-and-water-builders)\
 [303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#303---fixed-advciv-sas-issue-specialist-extra-yields-omitted-building-wide-specialist-commerce)\
+[304 - (Fixed AdvCiv-SAS bug) Python found-value callback still narrowed int results to short](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#304---fixed-advciv-sas-bug-python-found-value-callback-still-narrowed-int-results-to-short)\
 [305 - (Fixed AdvCiv-SAS bug) World Size Chart called WorldInfo grid cells playable tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#305---fixed-advciv-sas-bug-world-size-chart-called-worldinfo-grid-cells-playable-tiles)\
+[306 - (Fixed AdvCiv-SAS bug) Government-center maintenance ranking cache could go stale within a turn](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#306---fixed-advciv-sas-bug-government-center-maintenance-ranking-cache-could-go-stale-within-a-turn)\
 [307 - (Fixed AdvCiv-SAS bug) Main Interface cached translated labels across live language changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#307---fixed-advciv-sas-bug-main-interface-cached-translated-labels-across-live-language-changes)\
 [308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#308---fixed-advciv-sas-bug-city-screen-specialist-breakdown-inferred-inaccurate-great-person-modifiers)\
 [308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3082---fixed-advciv-sas-bug-city-screen-culture-breakdown-inferred-its-modifier-from-a-truncated-base-rate)\
@@ -8849,6 +8851,16 @@ The fix exposes the existing `CvBuildingInfo` commerce enum-map getter to Python
 
 This is an AdvCiv-SAS Sevopedia information omission introduced with the Specialist Extra Yields panel. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
+## 304 - (Fixed AdvCiv-SAS bug) Python found-value callback still narrowed int results to short
+
+AdvCiv-SAS practical 5314 (`e8659a5e4c`) migrated the city-site found-value pipeline from signed 16-bit `short` storage to `int`, including the `CvPythonCaller::AI_foundValue` declaration. Its function body nevertheless retained the inherited `MAX_SHORT` assertion and `safeIntCast<short>` return. The cast asserts but does not clamp: a supported `USE_GET_CITY_FOUND_VALUE_CALLBACK` result above 32,767 can therefore assert in a debug DLL and narrow/wrap in a release DLL before entering the otherwise-`int` pipeline. For example, a callback result of 40,000 would not remain 40,000.
+
+The callback is disabled by default, so ordinary stock AdvCiv-SAS games do not reach this path. The option remains registered and supported through `PythonCallbackDefines`, however, and no source contract limits custom found values to `short`. The fix removes the obsolete assertion/narrowing and uses the same `long`-to-`int` conversion as neighboring numeric Python callbacks. The declaration/body comments now document the complete `int` contract and `See KI#304.`
+
+The DLL compiled successfully and an ordinary game smoke test ran without an observed issue. Because the callback is disabled by default, this validates the compiled integration and ordinary path; the corrected callback width is established directly by the source contract rather than by forcing a custom callback into the stock test.
+
+This is a narrow AdvCiv-SAS found-value migration regression rather than a broader surviving `short`-storage problem. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
 ## 305 - (Fixed AdvCiv-SAS bug) World Size Chart called WorldInfo grid cells playable tiles
 
 The World Size Chart labeled `CvWorldInfo.getGridWidth() * getGridHeight()` as `Grid Tiles` and divided that product into `Tiles Per Default Player`. These WorldInfo dimensions are terrain-cell units rather than final playable `CvPlot` dimensions. Ordinary map generation doubles both axes, producing four plots per WorldInfo cell; custom map scripts can override the dimensions and use a different scaling path. For example, Standard's 39 x 28 WorldInfo grid contains 1,092 cells, while ordinary generation produces 78 x 56 = 4,368 playable plots.
@@ -8858,6 +8870,16 @@ Because a static WorldInfo chart cannot know which map script will consume the s
 Runtime screenshot 0181 confirmed the corrected Huge values of 60 x 42 WorldInfo grid cells, 2,520 total cells and 158 cells per default player. It also showed that the first explicit label clipped in the field column; shortening it to `Usual Grid Cells W x H` retained the map-script qualification and fixed the presentation.
 
 This is an AdvCiv-SAS World Size Chart unit/label regression introduced with the derived rows. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 306 - (Fixed AdvCiv-SAS bug) Government-center maintenance ranking cache could go stale within a turn
+
+AdvCiv-SAS practical 5281 (`3e072ae409`) cached each player's best and second-best city maintenance plus the number of high-maintenance cities under `(player, game turn, city count)`. The government-center building gate then reused this ranking throughout the turn. Civ4 processes a player's cities sequentially, and an earlier city can grow before a later city chooses production; population changes immediately recalculate maintenance without changing the turn or city count. The later city's government-center evaluation could consequently use an empire ranking captured before that growth and choose or reject the candidate from stale values.
+
+The fix removes only this maintenance cache. The live empire scan already occurs solely for a non-Palace government-center candidate after the existing city-count, capital, war-plan and danger gates, so correctness costs one small city loop only on that rare evaluation path. It remains side-effect-free for `bConstCache`, while the separate top-production-city cache and all government-center thresholds/priorities remain unchanged. The code comment records the mid-turn invalidation reason and `See KI#306.`
+
+The compiled game smoke test ran without an observed AI-production or general runtime issue.
+
+This is an AdvCiv-SAS AI building-value cache-invalidation regression. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
 
 ## 307 - (Fixed AdvCiv-SAS bug) Main Interface cached translated labels across live language changes
 

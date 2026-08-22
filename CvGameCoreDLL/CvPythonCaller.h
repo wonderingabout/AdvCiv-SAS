@@ -100,7 +100,7 @@ public:
 	bool canDoCivicOverride(PlayerTypes ePlayer, CivicTypes eCivic) const;
 	bool doGold(PlayerTypes ePlayer) const;
 	bool doResearch(PlayerTypes ePlayer) const;
-	// <!-- custom: found-value callback returns int (not short) to avoid overflow/underflow. (GPT-5.2-Codex (summarized)) -->
+	// <!-- custom: Keep the Python found-value callback on the migrated int contract throughout; the old body still narrowed the result to short. See KI#304. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int AI_foundValue(PlayerTypes ePlayer, CvPlot const& kPlot) const;
 	TechTypes AI_chooseTech(PlayerTypes ePlayer, bool bFree) const;
 	bool AI_doDiplo(PlayerTypes ePlayer) const;
