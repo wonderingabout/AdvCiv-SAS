@@ -223,6 +223,10 @@ class SevoPediaSpecialist:
 			szText = u""
 			for k in xrange(YieldTypes.NUM_YIELD_TYPES):
 				szText = self._append_change_text(szText, buildingInfo.getSpecialistYieldChange(self.iSpecialist, k), gc.getYieldInfo(k).getChar())
+			# <!-- custom: Building SpecialistExtraCommerce applies to every specialist, independently of the per-specialist yield map already shown here.
+			# Include both effects in the same Building row. See KI#303. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			for k in xrange(CommerceTypes.NUM_COMMERCE_TYPES):
+				szText = self._append_change_text(szText, buildingInfo.getSpecialistExtraCommerce(k), gc.getCommerceInfo(k).getChar())
 			if szText:
 				entries.append((buildingInfo.getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_BUILDING, iBuilding, szText))
 

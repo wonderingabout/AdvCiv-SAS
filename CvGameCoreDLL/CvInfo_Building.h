@@ -211,7 +211,8 @@ public:
 	DEF_SHORT_INFO_ENUM_MAP(CommerceChangeDoubleTime, Commerce, CommercePercentMap);
 	DEF_SHORT_INFO_ENUM_MAP(CommerceModifier, Commerce, CommercePercentMap);
 	DEF_SHORT_INFO_ENUM_MAP(GlobalCommerceModifier, Commerce, CommercePercentMap);
-	DEF_SHORT_INFO_ENUM_MAP(SpecialistExtraCommerce, Commerce, CommercePercentMap); // (not exposed to Python)
+	// <!-- custom: Expose this existing enum-map wrapper to Python so the Sevopedia Specialist Extra Yields panel can include building-wide specialist commerce. See KI#303. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	DEF_SHORT_INFO_ENUM_MAP(SpecialistExtraCommerce, Commerce, CommercePercentMap);
 	DEF_SHORT_INFO_ENUM_MAP(StateReligionCommerce, Commerce, CommerceChangeMap);
 	DEF_SHORT_INFO_ENUM_MAP(CommerceHappiness, Commerce, CommercePercentMap);
 

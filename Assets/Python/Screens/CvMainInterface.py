@@ -5648,18 +5648,11 @@ class CvMainInterface:
 					iSpecRaw += (iCount * iRate)
 
 			# 2. Get Totals & Progress
-			iTotalRaw = iBldgRaw + iSpecRaw
 			iTotalRate = pHeadSelectedCity.getGreatPeopleRate()
 
-			# --- FIX: Calculate REAL Modifier from the Result ---
-			# The discrepancy happens because pCity.getGreatPeopleRateModifier() in the Python API often only returns the building modifiers (like the National Epic), but ignores Traits (Philosophical) or Golden Ages. The C++ tooltip adds those up separately.
-			# Instead of trying to hunt down every single bonus source in Python (which is complex and prone to errors), we can reverse-engineer the correct modifier by comparing the Final Total (which the game gives us) against the Raw Base (which we calculated).
-			# If the game says you have 10 Total Points, and you counted 8 Raw Points, the modifier must be +25%. This method is 100% accurate because it is derived from the final result.
-			# The Fix: "Reverse Engineering" the Modifier. Instead of asking the API for the modifier (which misses Golden Ages/Traits), we calculate it: (Final / Raw) - 100%
-			iModPercent = 0
-			if iTotalRaw > 0 and iTotalRate > iTotalRaw:
-				# We use integer math: (10 * 100) / 8 = 125. 125 - 100 = 25%
-				iModPercent = ((iTotalRate * 100) / iTotalRaw) - 100
+			# <!-- custom: Before KI#308, this breakdown reverse-engineered its modifier from the already integer-truncated final GPP rate. It displayed +33% for 3 raw GPP at +50%, and omitted +25% when 3 raw GPP still rounded to 3.
+			# CyCity exposes the exact total modifier, including Traits and Golden Ages; using it directly fixed both cases. See KI#308. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iModPercent = pHeadSelectedCity.getTotalGreatPeopleRateModifier() - 100
 
 			iProgress = pHeadSelectedCity.getGreatPeopleProgress()
 			pPlayer = gc.getPlayer(pHeadSelectedCity.getOwner())
@@ -5675,7 +5668,7 @@ class CvMainInterface:
 			# 3. Construct ROW 1 (Top Line): "(5 [Silver Star] 3 [Cit]) +25% [GP]"
 			szRow1 = sasFontTagLabel + u"(%d%s %d%s)" % (iBldgRaw, self.szMapIcon, iSpecRaw, self.szCitizenIcon)
 			if iModPercent != 0:
-				szRow1 += u" +%d%%" % (iModPercent)
+				szRow1 += u" %+d%%" % (iModPercent)
 			szRow1 += SAS_FONT_TAG_CLOSE
 
 			# 4. Construct ROW 2 (Bottom Line): "10 [GP]: 109/249 (14)"
@@ -5696,7 +5689,7 @@ class CvMainInterface:
 			screen.setLabel("SpecBreakdownLabel2", "Background", szRow2, CvUtil.FONT_LEFT_JUSTIFY, iX, iY2, -0.1, FontTypes.SMALL_FONT, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			# --- END: Specialist Breakdown Widget ---
 
-			# <!-- custom: culture breakdown summary (per-source base culture and total/turns), placed in the right half below specialists to mirror the specialist breakdown while keeping all other panels unchanged. Uses reverse-engineered modifier so traits/golden age/civics are included. (GPT-5.2-Codex) -->
+			# <!-- custom: Culture breakdown summary (per-source base culture and total/turns), placed in the right half below specialists to mirror the specialist breakdown while keeping all other panels unchanged. (GPT-5.2-Codex) -->
 			if pHeadSelectedCity:
 				if hasattr(pHeadSelectedCity, "getReligionCommerce"):
 					iRelCulture = pHeadSelectedCity.getReligionCommerce(CommerceTypes.COMMERCE_CULTURE)
@@ -5731,20 +5724,14 @@ class CvMainInterface:
 					iSpecPop = pHeadSelectedCity.getSpecialistPopulation()
 					iSpecGreat = pHeadSelectedCity.getNumGreatPeople()
 					iSpecCulture += iSpecExtraPer * (iSpecPop + iSpecGreat)
-				iBaseCulture = (iRelCulture + iCorpCulture + iBldgCulture + iTraitCulture + iSpecCulture)
-				iBaseRate = iBaseCulture
-				if hasattr(pHeadSelectedCity, "getBaseCommerceRate"):
-					iBaseRate = pHeadSelectedCity.getBaseCommerceRate(CommerceTypes.COMMERCE_CULTURE)
-				if iBaseRate <= 0:
-					iBaseRate = iBaseCulture
 				iTotalCultureRateTimes100 = pHeadSelectedCity.getCommerceRateTimes100(CommerceTypes.COMMERCE_CULTURE)
-				iModPercent = 0
-				if iBaseRate > 0 and iTotalCultureRateTimes100 > iBaseRate * 100:
-					iModPercent = (iTotalCultureRateTimes100 / iBaseRate) - 100
+				# <!-- custom: Before KI#308.2, the Culture Breakdown inferred its modifier by dividing the precise final rate by getBaseCommerceRate(), which had already truncated fractional slider commerce.
+				# CyCity exposes the exact combined commerce modifier; using it directly prevents the displayed percentage from depending on that rounding. See KI#308.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				iModPercent = pHeadSelectedCity.getTotalCommerceRateModifier(CommerceTypes.COMMERCE_CULTURE) - 100
 
 				szRow1 = sasFontTagLabel + u"(%d%s %d%s %d%s %d%s %d%s)" % (iRelCulture, self.szReligionIcon, iCorpCulture, self.szTradeIcon, iBldgCulture, self.szProductionIcon, iTraitCulture, self.szStarIcon, iSpecCulture, self.szCitizenIcon)
 				if iModPercent != 0:
-					szRow1 += u" +%d%%" % (iModPercent)
+					szRow1 += u" %+d%%" % (iModPercent)
 				szRow1 += SAS_FONT_TAG_CLOSE
 
 				iCultureProgressTimes100 = pHeadSelectedCity.getCultureTimes100(pHeadSelectedCity.getOwner())

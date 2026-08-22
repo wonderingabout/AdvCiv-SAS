@@ -351,8 +351,11 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#298---fixed-advciv-sas-bug-highlands-arena-could-lack-legal-sites-for-48-civilizations)\
 [298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2982---fixed-advciv-sas-bug-highlands-was-undersized-beyond-the-arena-capacity-case)\
 [299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#299---fixed-advciv-sas-bug-movie-to-music-left-the-users-no-movies-option-disabled)\
-[301 - (Fixed latent AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#301---fixed-latent-advciv-sas-compatibility-bug-non-sevopedia-build-links-opened-unrelated-improvements)\
+[301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#301---fixed-advciv-sas-compatibility-bug-non-sevopedia-build-links-opened-unrelated-improvements)\
 [302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#302---fixed-advciv-sas-bug-terrain-units-any-build-omitted-hill-and-water-builders)\
+[303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#303---fixed-advciv-sas-issue-specialist-extra-yields-omitted-building-wide-specialist-commerce)\
+[308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#308---fixed-advciv-sas-bug-city-screen-specialist-breakdown-inferred-inaccurate-great-person-modifiers)\
+[308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3082---fixed-advciv-sas-bug-city-screen-culture-breakdown-inferred-its-modifier-from-a-truncated-base-rate)\
 [315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
 [316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#316---fixed-advciv-sas-bug-unlimited-specialist-civic-value-ignored-baseline-great-person-points)\
 [317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#317---fixed-advciv-sas-bug-civic-anger-valuation-skipped-cities-that-would-become-unhappy)\
@@ -8818,13 +8821,13 @@ Runtime testing with No Movies enabled confirmed that Movie-to-Music followed by
 
 This is an AdvCiv-SAS Sevopedia media-state regression introduced when the Movie-to-Music transition was added. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
-## 301 - (Fixed latent AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements
+## 301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements
 
 `pediaJumpToBuild()` correctly opens the custom Builds category when Sevopedia is enabled, but its inherited standard-Civilopedia fallback passed the raw `BuildTypes` ID to an Improvement page. The two enums are independent: for example, Build 0 is Road while Improvement 0 is Land Worked. If that fallback is instantiated, non-improvement Build links such as Road, Railroad and feature removal therefore open unrelated Improvement entries.
 
 Standard Civilopedia has no Build or Route page. The fix redirects an improvement-producing Build through its actual `ImprovementTypes` value and safely leaves unsupported route/feature-removal links on the current screen instead of inventing a false destination.
 
-Unticking the inherited Sevopedia BUG option and restarting still left current AdvCiv-SAS using Sevopedia: non-improvement Build links opened the correct Build pages, and improvement Builds opened their correct Improvement pages. The standard-Pedia branch was therefore not exercised at runtime and is not treated as a supported current player-facing mode; this safe source-level correction is retained so the latent fallback cannot reinterpret one enum as another if reached.
+Runtime follow-up confirmed that the inherited BUG option does switch AdvCiv-SAS to the standard Civilopedia after the required restart; the first attempted test had remained in the already-created Sevopedia instance. The fallback is therefore reachable compatibility behavior rather than dormant code. The repaired ID mapping itself remains source-reviewed because Sevopedia was re-enabled after confirming the old screen.
 
 This is an AdvCiv-SAS enum-namespace regression in the inherited Build-to-Pedia compatibility fallback. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-reviewed with the help of wonderingabout, thanks.
 
@@ -8835,6 +8838,32 @@ The Terrain Improvements panel reconstructs the broader rules for Hill and water
 The fix centralizes the complete terrain/improvement-validity predicate and uses it for both panels. Direct terrain validity, water validity and the existing Hill terrain/feature/bonus reconstruction now select the same improvement Builds before capable units are collected; Peaks and graphical-only/Goody improvements retain their exclusions. Runtime testing confirmed Workers on Hills and Workboats on both Coast and Ocean. The older screenshot only demonstrates that ordinary Grassland already showed Workers, so it neither proves nor contradicts the separate Hill/water defect.
 
 This is an AdvCiv-SAS duplicate-predicate regression in `SevoPediaTerrain`. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce
+
+The Sevopedia Specialist page's Extra Yields panel lists Civic and Technology `SpecialistExtraCommerce` effects and Building `SpecialistYieldChange` effects, but omitted Building `SpecialistExtraCommerce`. Unlike the per-specialist yield map, this Building field applies its commerce to every specialist. Current examples are the Great Library (+1 research), Temple of Kukulcan and Natya Shastra (+1 culture), and Rock 'n Roll (+2 culture) per specialist.
+
+The fix exposes the existing `CvBuildingInfo` commerce enum-map getter to Python and combines those commerce changes with each Building's existing per-specialist yield changes in the same row. This is display-only; the DLL already applies these effects to gameplay. Runtime testing confirmed the expected Great Library +1 research and Rock 'n Roll +2 culture rows in screenshot 0178.
+
+This is an AdvCiv-SAS Sevopedia information omission introduced with the Specialist Extra Yields panel. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers
+
+The City Screen Specialist Breakdown tried to reconstruct its Great Person modifier from the final integer-truncated rate: `((final rate * 100) / raw rate) - 100`. That calculation is not reversible. For example, 3 raw Great Person Points at +50% become 4 after DLL integer arithmetic and were displayed as +33%; at +25% they remain 3 and the modifier disappeared entirely.
+
+`CyCity.getTotalGreatPeopleRateModifier()` already exposes the exact combined modifier used by the DLL, including Traits and Golden Ages. The fix reads that value directly and retains `getGreatPeopleRate()` only for the final rate and turns estimate; explicit signed formatting also remains correct if a mod-mod introduces a negative modifier. Runtime testing in screenshot 0180 showed 49 raw Great Person Points, +275% and 183 final points: `49 * 375 / 100 = 183` under the DLL's integer arithmetic, confirming that the displayed modifier and final rate agree.
+
+This is an AdvCiv-SAS City Screen display regression introduced with the Specialist Breakdown. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate
+
+Validation of KI#308 exposed the same unnecessary reconstruction pattern in the adjacent Culture Breakdown. Its final culture rate retains hundredths, but it divided that value by `CyCity.getBaseCommerceRate()`, which had already truncated fractional commerce created by the culture slider. Screenshot 0180 happened to infer the correct +75%, but the formula could still produce rounding-dependent percentages for other base rates.
+
+`CyCity.getTotalCommerceRateModifier(COMMERCE_CULTURE)` already exposes the exact combined DLL modifier. The fix reads it directly and retains the precise final culture rate for display and the turns estimate. Explicit signed formatting also handles negative modifiers correctly for mod-mod data.
+
+Runtime follow-up across multiple cities showed only the expected 25-point modifier increments, including screenshot 0180's +75%, rather than the irregular inferred percentages seen before.
+
+This is a sibling AdvCiv-SAS City Screen display regression discovered while validating KI#308. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 ## 315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit
 
