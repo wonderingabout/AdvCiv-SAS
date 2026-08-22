@@ -13103,6 +13103,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		itThird.hasNext(); ++itThird)
 	{
 		CvPlayerAI const& kThird = *itThird;
+		// <!-- custom: Replacing eFromPlayer with the existing eTheirTeam was reviewed and rejected as a semantic no-op: GET_TEAM is intentionally overloaded for PlayerTypes and resolves the player's actual team through TEAMID. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (!GET_TEAM(eFromPlayer).isHasMet(kThird.getTeam()))
 			continue;
 		/*  The trade partners don't necessarily know all those cities, but the
@@ -13169,6 +13170,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 	if(!isHuman()) // Never pay more than it's worth to us
 		r.decreaseTo(rOurVal);
 	r *= per100(std::max(0, GC.getInfo(eBonus).getAITradeModifier() + 100));
+	// <!-- custom: Replacing eFromPlayer with the existing eTheirTeam here and in the commented gold-trading check below was rejected as a semantic no-op because the AI GET_TEAM overload resolves PlayerTypes through TEAMID. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if(GET_TEAM(eFromPlayer).isVassal(eOurTeam) &&
 		!GET_TEAM(eFromPlayer).isCapitulated())
 	{
@@ -19775,49 +19777,28 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 	// 	}
 	// }
 	//
-	// Weight diplomacy by Power Block (Master + Vassals)
+	// <!-- custom: This loop evaluates each known player's own state religion, so weight it by that same player's power.
+	// Full team/vassal-bloc power counted a multi-player team once per non-vassal member, while skipping the vassals whose distinct religions the loop should evaluate. See KI#309. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int iTotalPower = 0;
 	int iLikedReligionPower = 0;
 
 	for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> itOther(getTeam()); itOther.hasNext(); ++itOther)
 	{
-		// 1. AVOID DOUBLE COUNTING
-		// If this player is a Vassal, their power is already included 
-		// in their Master's getPower(true). So we skip them here.
-		if (GET_TEAM(itOther->getTeam()).isAVassal())
-		{
-			continue; 
-		}
-
-		// 2. Get the Power of the whole "Bloc" (Master + all Vassals)
-		// We use the Team function getPower(true)
-		int iBlocPower = 100 + GET_TEAM(itOther->getTeam()).getPower(true);
-
-		iTotalPower += iBlocPower;
-
-		// 3. Check the MASTER'S Religion (itOther is the Master/Independent)
+		const int iPlayerPower = 100 + itOther->getPower();
+		iTotalPower += iPlayerPower;
 		if (itOther->getStateReligion() == eReligion)
 		{
-			int iAddedWeight = iBlocPower;
-
-			// Optional: Bonus if we are Friendly with the Master
-			AttitudeTypes eAttitude = AI_getAttitude(itOther->getID(), false);
+			int iAddedWeight = iPlayerPower;
+			const AttitudeTypes eAttitude = AI_getAttitude(itOther->getID(), false);
 			if (eAttitude >= ATTITUDE_FRIENDLY)
-			{
 				iAddedWeight = (iAddedWeight * 4) / 3;
-			}
-
 			iLikedReligionPower += iAddedWeight;
 		}
 	}
 
-	// 4. THE FORMULA
 	int iLikedReligionCivs = 0;
-
 	if (iTotalPower > 0)
-	{
 		iLikedReligionCivs = ((iLikedReligionPower * 100) / iTotalPower);
-	}
 	// <!-- custom: End - account for power between rivals rather -->
 
 	/*	up to +100% boost for liked civs having this as their state religion.
@@ -20423,6 +20404,7 @@ void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange, 
 			AI_peacetimeTradeMultiplier(eFromPlayer);
 	// <advc.130v>
 	PlayerTypes eFromMaster = NO_PLAYER;
+	// <!-- custom: Caching TEAMID(eFromPlayer) as eFromTeam for this call was reviewed and rejected as a semantic no-op because the AI GET_TEAM overload already performs that conversion. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if(GET_TEAM(eFromPlayer).isCapitulated())
 	{
 		rIncrease /= 2;
@@ -20467,6 +20449,7 @@ void CvPlayerAI::AI_processPeacetimeValue(PlayerTypes eFromPlayer, int iChange, 
 		if(rEnemyIncrease <= 0)
 			continue;
 		// <advc.130v>
+		// <!-- custom: Caching TEAMID(eFromPlayer) as eFromTeam for this call was reviewed and rejected as a semantic no-op because the AI GET_TEAM overload already performs that conversion. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if(GET_TEAM(eFromPlayer).isCapitulated() && !bGrant) // Vassals don't make gifts
 		{
 			rEnemyIncrease /= 2;

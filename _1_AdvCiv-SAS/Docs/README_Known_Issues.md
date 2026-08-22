@@ -360,6 +360,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [307 - (Fixed AdvCiv-SAS bug) Main Interface cached translated labels across live language changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#307---fixed-advciv-sas-bug-main-interface-cached-translated-labels-across-live-language-changes)\
 [308 - (Fixed AdvCiv-SAS bug) City Screen Specialist Breakdown inferred inaccurate Great Person modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#308---fixed-advciv-sas-bug-city-screen-specialist-breakdown-inferred-inaccurate-great-person-modifiers)\
 [308.2 - (Fixed AdvCiv-SAS bug) City Screen Culture Breakdown inferred its modifier from a truncated base rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3082---fixed-advciv-sas-bug-city-screen-culture-breakdown-inferred-its-modifier-from-a-truncated-base-rate)\
+[309 - (Fixed AdvCiv-SAS bug) AI religion value counted full team and vassal-bloc power once per non-vassal team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#309---fixed-advciv-sas-bug-ai-religion-value-counted-full-team-and-vassal-bloc-power-once-per-non-vassal-team-member)\
+[311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#311---rejected-archaeology-finding-get_teamplayertypes-correctly-resolves-the-players-team)\
 [315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
 [316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#316---fixed-advciv-sas-bug-unlimited-specialist-civic-value-ignored-baseline-great-person-points)\
 [317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#317---fixed-advciv-sas-bug-civic-anger-valuation-skipped-cities-that-would-become-unhappy)\
@@ -8910,6 +8912,24 @@ Validation of KI#308 exposed the same unnecessary reconstruction pattern in the 
 Runtime follow-up across multiple cities showed only the expected 25-point modifier increments, including screenshot 0180's +75%, rather than the irregular inferred percentages seen before.
 
 This is a sibling AdvCiv-SAS City Screen display regression discovered while validating KI#308. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 309 - (Fixed AdvCiv-SAS bug) AI religion value counted full team and vassal-bloc power once per non-vassal team member
+
+AdvCiv-SAS changed `CvPlayerAI::AI_religionValue` from equal-player diplomatic weighting to military-power weighting. Its loop still examined each known player's state religion, but skipped vassals and assigned every remaining player the full power of that player's team plus all of its vassals. A two-player rival team therefore contributed the same full bloc power twice, while an equally powerful one-player team contributed it once. Mixed-religion teammates were also both credited with the full team power, and vassals' own religions were omitted.
+
+The fix keeps the player/religion loop and weights each known player's own state religion by that same player's power. Each player, including each vassal and each member of a permanent team, is now counted exactly once. The existing baseline weight and Friendly-attitude bonus remain unchanged.
+
+This is an AdvCiv-SAS AI religion-valuation regression introduced with power weighting. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team
+
+The initial archaeology review suspected four inherited player-versus-team identity bugs because `AI_bonusTradeVal` and `AI_processPeacetimeValue` pass an `eFromPlayer` value of type `PlayerTypes` to `GET_TEAM`. Replacing it with the existing `eTheirTeam` in `AI_bonusTradeVal`, and caching `TEAMID(eFromPlayer)` as `eFromTeam` in `AI_processPeacetimeValue`, appeared to protect permanent-team and custom-team games where player and team IDs differ.
+
+Deeper lineage and accessor review rejected that diagnosis. In AI source, AdvCiv's `GET_TEAM(x)` macro dispatches to overloaded `CoreAI::getTeam` functions. Its `PlayerTypes` overload already calls `CvTeamAI::AI_getTeam(TEAMID(ePlayer))`, so the original expressions resolve the player's actual team correctly. AdvCiv practical 1782 / commit `1c56cc6ac` deliberately introduced this overload while replacing the older `TEAMREF(PlayerTypes)` spelling; pre-refactor source confirms that the same call sites already used the correct player-to-team conversion.
+
+The proposed explicit conversions were semantic no-ops and were removed before compilation. KI#311 is retained as a rejected entry so future audits can find the overload evidence instead of rediscovering the same false positive. This is neither a BtS bug nor an AdvCiv/SAS bug.
+
+Initially identified through the systematic archaeology with the help of ChatGPT-5.6-Sol; rejected and documented after local source/accessor/lineage review with the help of GPT-5.6-Sol, thanks.
 
 ## 315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit
 
