@@ -488,7 +488,8 @@ def assignStartingPlots():
 					if iFertileCheck > 1: # If the plot has extra food, count it.
 						iRegionNetYield += (2 * (iFertileCheck - 1))
 					if pPlot.isAdjacentToLand(): # Coastal plot
-						if pPlot.isFreshWater:
+						# <!-- custom: The inherited script tested a bound method object, which is always truthy, instead of the plot's freshwater result. See KI#249. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						if pPlot.isFreshWater():
 							iNumCoastalPlots += 1
 							iRegionNetYield += 2
 						else:

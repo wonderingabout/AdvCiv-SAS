@@ -307,6 +307,12 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [244 - (Fixed inherited Water topology bug) One-tile lake cleanup wrapped the non-wrapping Y axis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#244---fixed-inherited-water-topology-bug-one-tile-lake-cleanup-wrapped-the-non-wrapping-y-axis)\
 [245 - (Fixed AdvCiv-SAS bug) Spiky Avenues underprovided houses for default Tiny and Small games](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#245---fixed-advciv-sas-bug-spiky-avenues-underprovided-houses-for-default-tiny-and-small-games)\
 [247 - (Fixed AdvCiv-SAS bug) Grid's duplicate source region defeated its capacity fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#247---fixed-advciv-sas-bug-grids-duplicate-source-region-defeated-its-capacity-fallback)\
+[248 - (Fixed AdvCiv-SAS bug) Grid contained an inverted nine-hub region](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#248---fixed-advciv-sas-bug-grid-contained-an-inverted-nine-hub-region)\
+[249 - (Fixed inherited Firaxis/third-party map-script bug) Freshwater tests checked method objects instead of results](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#249---fixed-inherited-firaxisthird-party-map-script-bug-freshwater-tests-checked-method-objects-instead-of-results)\
+[250 - (Fixed AdvCiv-SAS bug) Grid Start Distance read the Empty Land option](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#250---fixed-advciv-sas-bug-grid-start-distance-read-the-empty-land-option)\
+[251 - (Fixed AdvCiv-SAS bug) Grid regional starts failed on untuned player counts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#251---fixed-advciv-sas-bug-grid-regional-starts-failed-on-untuned-player-counts)\
+[252 - (Fixed AdvCiv-SAS bug) Grid fallback could mirror stale regional state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#252---fixed-advciv-sas-bug-grid-fallback-could-mirror-stale-regional-state)\
+[253 - (Fixed AdvCiv-SAS bug) Grid advertised more player hubs than its templates provided](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#253---fixed-advciv-sas-bug-grid-advertised-more-player-hubs-than-its-templates-provided)\
 [254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#254---fixed-inherited-third-party-peirce-bug-crease-distance-used-bitwise-xor-instead-of-squared-coordinates)\
 [255 - (Fixed inherited third-party Peirce bug) E-W companion arms discarded their intended second anchors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#255---fixed-inherited-third-party-peirce-bug-e-w-companion-arms-discarded-their-intended-second-anchors)\
 [262 - (Fixed inherited map-script bug) Tiny-island Y positions reused longitude instead of latitude](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#262---fixed-inherited-map-script-bug-tiny-island-y-positions-reused-longitude-instead-of-latitude)\
@@ -8474,6 +8480,42 @@ BTG Grid generates one selected source hub first, but its inherited second regio
 The fix removes the source from both region pools, records each physical region once and retains the existing pre-assignment fallback. The guard now measures real hub capacity and delegates the entire start assignment to the DLL before any player is assigned whenever distinct regions are insufficient. It therefore also benefits from the shared KI#274 bookkeeping repair below; ordinary in-capacity Grid layouts keep their custom regional starts. A Huge Grid map generated successfully without an observed issue.
 
 Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 248 - (Fixed AdvCiv-SAS bug) Grid contained an inverted nine-hub region
+
+The imported Grid script's nine-region `1 Line Flat` template defined region 5 as west `0.755` to east `0.666`. This was the only inverted rectangle in the template set. It gave that hub negative width, so ordinary generation could pass invalid dimensions into its fractal and mirrored generation could retain an uncopied/landless region for starting logic.
+
+The fix restores the contiguous intended west boundary `0.555`, between the neighboring `0.444 -> 0.555` and `0.666 -> 0.777` regions. A nine-player Standard 1-Line map generated successfully under all four Mirrored Hubs choices and completed turn-11 autoplays without an observed map issue. This data defect was imported into AdvCiv-SAS with BTG Grid rather than inherited from Base AdvCiv. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-validated with the help of wonderingabout, thanks.
+
+## 249 - (Fixed inherited Firaxis/third-party map-script bug) Freshwater tests checked method objects instead of results
+
+Grid and Cross each had three `if pPlot.isFreshWater:` conditions, while Archipelago, Islands and Equal Islands each had one. In Python 2, the bound method object is itself truthy; without `()`, every tested plot followed the freshwater branch. This erased the intended freshwater preference in custom starting-plot scoring and misclassified adjacent water while calculating regional yield.
+
+The fix calls `pPlot.isFreshWater()` at all nine live sites. A focused audit found no additional runtime map-script `isX`/`canX`/`hasX` predicate with the same callable-object form. Grid, both open and mirrored Cross, Archipelago, Islands and Equal Islands all generated successfully; the latter three produced the expected `78x56` maps, and Equal Islands placed each player on a separate landmass. The pattern predates SAS in third-party/Firaxis-style scripts, so this is one inherited family rather than five SAS regressions. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-validated with the help of wonderingabout, thanks.
+
+## 250 - (Fixed AdvCiv-SAS bug) Grid Start Distance read the Empty Land option
+
+Grid offers Normal, Far and Far Mixed physical spacing through custom option 7. Its first grid-size branch instead tested option 5, `Empty Land`. With the default empty-land choice, every distance selection used the Normal dimensions; with Empty Land disabled, Normal incorrectly used the mixed dimensions.
+
+The fix selects all three size tables solely from Start Distance option 7. Empty Land remains limited to whether unused hub regions are generated. Nine-player Standard 1-Line tests produced the exact expected `84x16` Normal, `104x20` Far and `104x16` Far Mixed dimensions and completed turn-11 autoplays without an observed map issue. This option-index drift was present when Grid was imported into AdvCiv-SAS. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-validated with the help of wonderingabout, thanks.
+
+## 251 - (Fixed AdvCiv-SAS bug) Grid regional starts failed on untuned player counts
+
+Grid indexed its minimum-distance tuning table directly, but that table omits supported region counts such as 1, 13, 14 and 17. Those configurations raised a Python `KeyError` before custom starts were assigned, causing the DLL to abandon the intended regional placement and fall back to generic starts.
+
+The fix retains every tuned value and uses the same conservative `[0.05, 0.08]` fallback already used by sibling BTG Cross for other counts. This makes the lookup total without pretending that every unusual capacity has bespoke tuning. A 14-player Huge 3-Line map generated at `84x48` and completed a turn-11 autoplay normally after restarting from an unrelated recurrent autoplay-start crash. The incomplete lookup is an AdvCiv-SAS imported-script defect. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-validated with the help of wonderingabout, thanks.
+
+## 252 - (Fixed AdvCiv-SAS bug) Grid fallback could mirror stale regional state
+
+Grid initialized its mirrored-region coordinates only inside custom regional plot generation, but later called `mirrorizeMap()` unconditionally for the fully mirrored choice. A generation that used a generic/failure fallback could therefore read undefined regional globals on a fresh interpreter or stale geometry left by a previous map in the same Civ4 process.
+
+The fix resets the per-generation mirroring state in `beforeGeneration`, records successful completion of regional plot generation and mirrors later layers only when that explicit completion flag is set. Repeated Grid generations exercised all four mirroring choices, including a fully mirrored 48-player SAS48 map, while the latter high-player test and the subsequent map-script tests ran successively in the same Civ4 session without a mirroring-state error. This is an AdvCiv-SAS high-player/fallback integration defect. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-validated with the help of wonderingabout, thanks.
+
+## 253 - (Fixed AdvCiv-SAS bug) Grid advertised more player hubs than its templates provided
+
+Grid says that each player has a separate hub and advertises SAS high-player support, but its static layouts stop at 10 one-line, 12 two-line and 15 three-line hubs. Default Huge already has 16 players, while SAS24-SAS48 use 24-48. The safety fallback could keep a game launchable, but generic starting placement could not create the missing hub geometry.
+
+The fix derives the required one-, two- or three-row capacity from the real player count and dynamically builds equal rectangular rows whenever no tuned static template exists. Static layouts remain unchanged where supplied; 1-48-player capacities now contain one distinct valid rectangle per generated hub, and the former 18-player generic-fractal/custom-start caps are removed. Larger SAS world sizes preserve the chosen fixed row count and add horizontal columns while retaining Huge's per-hub area, instead of reshaping the map through generic aspect-ratio calibration. A default 48-player SAS48 3-Line fully mirrored map generated at the exact expected `252x48` and ran normally at a glance. This corrects the SAS adaptation contract rather than changing an inherited Base AdvCiv map. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-validated with the help of wonderingabout, thanks.
 
 ## 254 - (Fixed inherited third-party Peirce bug) Crease distance used bitwise XOR instead of squared coordinates
 

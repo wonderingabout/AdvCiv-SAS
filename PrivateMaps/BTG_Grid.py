@@ -208,6 +208,22 @@ def getWrapY():
 	map = CyMap()
 	return (map.getCustomMapOption(0) == 2)
 
+# <!-- custom: Generic SAS calibration preserves aspect ratio, but Grid's selectable 1/2/3-row geometry needs fixed height and additional horizontal columns as player count grows. Use a Grid-specific lookup so its dynamic hubs retain Huge's per-hub area. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+def lookupGridSizeWithSASRows(eWorldSize, grid_sizes):
+	key = sas_find_world_size_key(eWorldSize, grid_sizes)
+	if key is not None:
+		return grid_sizes[key]
+	iAnchorWorldSize = sas_largest_world_size_key(grid_sizes)
+	iWorldSize = int(eWorldSize)
+	if iWorldSize > int(iAnchorWorldSize) and iWorldSize <= int(WorldSizeTypes.WORLDSIZE_SAS48):
+		(iAnchorWidth, iAnchorHeight) = grid_sizes[iAnchorWorldSize]
+		iAnchorPlayers = sas_world_default_players(iAnchorWorldSize)
+		iTargetPlayers = sas_world_default_players(iWorldSize)
+		# <!-- custom: Grid keeps a fixed 1/2/3-row layout, so SAS sizes must add horizontal columns rather than change the anchor's aspect ratio; this preserves its per-hub area while dynamic templates add players. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iTargetWidth = max(1, int((float(iAnchorWidth) * iTargetPlayers / iAnchorPlayers) + 0.5))
+		return (iTargetWidth, iAnchorHeight)
+	return grid_sizes[iAnchorWorldSize]
+
 def getGridSize(argsList):
 	if (argsList[0] == -1): # (-1,) is passed to function on loads
 		return []
@@ -217,7 +233,8 @@ def getGridSize(argsList):
 	# <!-- custom: Use DLL WorldSizeTypes values aligned with CIV4WorldInfo.xml order. (Claude code Opus 4.7; GPT-5.5) -->
 	if True:
 		# Section 1 - if  default option "16 tiles" is clicked
-		if (CyMap().getCustomMapOption(5) == 0):
+		# <!-- custom: Start Distance is option 7; reading Empty Land (option 5) made the advertised distance choices select the wrong grid dimensions. See KI#250. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (CyMap().getCustomMapOption(7) == 0):
 			if (CyMap().getCustomMapOption(3) == 0):
 				grid_sizes = {
 					WorldSizeTypes.WORLDSIZE_ARENA:		(6,4),
@@ -314,10 +331,25 @@ def getGridSize(argsList):
 				}			
 
 		[eWorldSize] = argsList
-		# <!-- custom: Keep existing BTG line options untouched; only extend world-size support by calibrating SAS sizes from Huge instead of falling back to Huge dimensions. (GPT-5.3-Codex) -->
-		grid_size = sas_lookup_world_size_with_calibrated_sas(eWorldSize, grid_sizes)
+		# <!-- custom: Keep existing BTG base-size tables and extend SAS tiers from Huge according to the fixed row layout. See KI#253. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		grid_size = lookupGridSizeWithSASRows(eWorldSize, grid_sizes)
 
 	return grid_size
+
+# <!-- custom: Static BTG templates stop below the player counts advertised by AdvCiv-SAS. Build equal rectangular rows for every missing capacity so each supported player can still receive a distinct hub. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+def buildGridTemplate(iRegions, iRows):
+	iColumns = iRegions // iRows
+	template = {}
+	iRegion = 0
+	for iRow in range(iRows):
+		fSouth = float(iRow) / iRows
+		fNorth = float(iRow + 1) / iRows
+		for iColumn in range(iColumns):
+			fWest = float(iColumn) / iColumns
+			fEast = float(iColumn + 1) / iColumns
+			template[iRegion] = [fWest, fEast, fSouth, fNorth]
+			iRegion += 1
+	return template
 
 def beforeGeneration():
 	global iNumRegions
@@ -325,6 +357,18 @@ def beforeGeneration():
 	global regions_in_use
 	global remaining_regions
 	global remaining_regionsTwo
+	# <!-- custom: These mirroring globals persist with the loaded map-script module and must be shared with generation/normalization callbacks. See KI#252. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	global bGridRegionalGenerationCompleted
+	global region_duplicated
+	global other_regions
+
+	# <!-- custom: Reset all generated-region and mirroring state before each map so fallback paths cannot read undefined or earlier-map geometry. See KI#252. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bGridRegionalGenerationCompleted = False
+	region_duplicated = []
+	other_regions = []
+	regions_in_use = []
+	remaining_regions = []
+	remaining_regionsTwo = []
 
 	#2.22
 	global isBTPon
@@ -339,19 +383,21 @@ def beforeGeneration():
 	iW = map.getGridWidth()
 	iH = map.getGridHeight()
 	iPlayersCount = gc.getGame().countCivPlayersEverAlive()
-	iPlayersCountClamped = min(iPlayersCount, 18)
 	global iPlayers
 
-	# Number of regions
+	# <!-- custom: Derive row capacity from the real player count instead of clamping at 18; missing static layouts are generated below. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (CyMap().getCustomMapOption(3) == 0):
-		configs = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18]
-		iNumRegions = configs[iPlayersCountClamped]
+		iRows = 1
+		iNumRegions = iPlayersCount
 	elif (CyMap().getCustomMapOption(3) == 1):	
-		configs = [0, 2, 2, 4, 4, 6, 6, 8, 8, 10, 10, 12, 12, 14, 14, 16, 16, 18, 18]
-		iNumRegions = configs[iPlayersCountClamped]
+		iRows = 2
+		iNumRegions = ((iPlayersCount + 1) / 2) * 2
 	else:	
-		configs = [0, 1, 2, 3, 6, 6, 6, 9, 9, 9, 12, 12, 12, 15, 15, 15, 18, 18, 18]
-		iNumRegions = configs[iPlayersCountClamped]
+		iRows = max(1, min(iPlayersCount, 3))
+		if iPlayersCount < 3:
+			iNumRegions = iPlayersCount
+		else:
+			iNumRegions = ((iPlayersCount + 2) / 3) * 3
 
 	# Do the real player count now, trick for spoiling number of player / region
 	if (CyMap().getCustomMapOption(5) == 0):
@@ -363,14 +409,11 @@ def beforeGeneration():
 		iPlayers = gc.getGame().countCivPlayersEverAlive()
 		iNumRegionsForShape = iNumRegions
 	iNumRegions = min(iNumRegions, iNumRegionsForShape)
-	# Error catching.
-	if iPlayers < 1 or iPlayers > 18:
+	# <!-- custom: Dynamic templates removed the former 18-player ceiling; only a generation with no players needs the generic fallback. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if iPlayers < 1:
 		return None
 
 	# Some regions may go unused. We need to track the ones that have been used.
-	regions_in_use = []
-	remaining_regions = []
-	remaining_regionsTwo = []	
 	for loopy in range(iNumRegionsForShape):
 		remaining_regions.append(loopy)
 		remaining_regionsTwo.append(loopy)
@@ -417,7 +460,8 @@ def beforeGeneration():
 					2: [0.222, 0.333, 0.0, 1.0],
 					3: [0.333, 0.444, 0.0, 1.0],
 					4: [0.444, 0.555, 0.0, 1.0],
-					5: [0.755, 0.666, 0.0, 1.0],
+					# <!-- custom: BTG's west boundary was 0.755, producing the only inverted rectangle in the template set. See KI#248. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					5: [0.555, 0.666, 0.0, 1.0],
 					6: [0.666, 0.777, 0.0, 1.0],
 					7: [0.777, 0.888, 0.0, 1.0],
 					8: [0.888, 1.000, 0.0, 1.0]},
@@ -526,15 +570,6 @@ def beforeGeneration():
 						14: [0.8, 1.0, 0.667, 1.0]},
 		}
 	# End of template data.
-	if iNumRegionsForShape > (max(templates.keys()) + 1):
-		iNumRegionsForShape = max(templates.keys()) + 1
-		iNumRegions = min(iNumRegions, iNumRegionsForShape)
-		regions_in_use = []
-		remaining_regions = []
-		remaining_regionsTwo = []
-		for loopy in range(iNumRegionsForShape):
-			remaining_regions.append(loopy)
-			remaining_regionsTwo.append(loopy)
 
 	# List region_coords: [WestLon, EastLon, SouthLat, NorthLat]
 	global region_coords
@@ -542,18 +577,8 @@ def beforeGeneration():
 	if templates.has_key(iNumRegionsForShape):
 		region_coords = templates[iNumRegionsForShape]
 	else:
-		# <!-- custom: For higher civ counts where static template key is missing (e.g. 18 in 3-line mode), use the largest available template key. (GPT-5.3-Codex) -->
-		region_coords = templates[max(templates.keys())]
-	iTemplateRegions = len(region_coords.keys())
-	if iNumRegionsForShape > iTemplateRegions:
-		iNumRegionsForShape = iTemplateRegions
-		iNumRegions = min(iNumRegions, iNumRegionsForShape)
-		regions_in_use = []
-		remaining_regions = []
-		remaining_regionsTwo = []
-		for loopy in range(iNumRegionsForShape):
-			remaining_regions.append(loopy)
-			remaining_regionsTwo.append(loopy)
+		# <!-- custom: Preserve tuned BTG layouts where present and synthesize only missing capacities, including Huge/SAS high-player layouts. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		region_coords = buildGridTemplate(iNumRegionsForShape, iRows)
 
 class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 	def addLandPlot(self, i):
@@ -576,6 +601,8 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 
 		global region_duplicated
 		global other_regions#
+		# <!-- custom: Share an explicit completion flag with normalization; it must remain false unless this regional generator reaches its successful end. See KI#252. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		global bGridRegionalGenerationCompleted
 		# Add the land (two fractals per region to ensure cohesion).
 		#global region_coords
 		#global regions_in_use
@@ -773,6 +800,8 @@ class GridMultilayeredFractal(CvMapGeneratorUtil.MultilayeredFractal):
 					if spoke_width > 4:#2.21z
 						self.addLandPlot(i - 2)				
 
+		# <!-- custom: Mark regional geometry usable only after hub and spoke generation completed, preventing later mirroring after generic/failed generation. See KI#252. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bGridRegionalGenerationCompleted = True
 		return self.wholeworldPlotTypes
 
 '''
@@ -793,8 +822,8 @@ def generatePlotTypes():
 	#iPlayers = CyGlobalContext().getGame().countCivPlayersEverAlive()
 	#I've already declared this
 
-	# Check for valid number of players.
-	if iPlayers > 0 and iPlayers < 19:
+	# <!-- custom: Dynamic templates support the advertised SAS player range, so high-player games retain Grid geometry instead of becoming an ordinary fractal. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if iPlayers > 0:
 		pass
 	else: # Error catching.
 		fractal_world = FractalWorld()
@@ -861,8 +890,8 @@ def assignStartingPlots():
 	#iPlayers = gc.getGame().countCivPlayersEverAlive()
 	#I've already declared this
 
-	# Error catching.
-	if iPlayers < 1 or iPlayers > 18:
+	# <!-- custom: High-player regional starts remain valid now that region capacity grows with the player count. See KI#253. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if iPlayers < 1:
 		CyPythonMgr().allowDefaultImpl()
 		return
 	iActualPlayers = gc.getGame().countCivPlayersEverAlive()
@@ -886,7 +915,11 @@ def assignStartingPlots():
 				15: [0.06, 0.1],
 				16: [0.07, 0.07],
 				18: [0.05, 0.1]}
-	[minLon, minLat] = minimums[iNumRegions]
+	# <!-- custom: Supported Grid capacities can omit a tuned legacy key; use Cross's conservative fallback instead of raising and silently abandoning regional starts. See KI#251. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if iNumRegions in minimums:
+		[minLon, minLat] = minimums[iNumRegions]
+	else:
+		[minLon, minLat] = [0.05, 0.08]
 	minX = max(3, int(minLon * iW))
 	minY = max(3, int(minLat * iH))
 
@@ -930,7 +963,8 @@ def assignStartingPlots():
 					if iFertileCheck > 1: # If the plot has extra food, count it.
 						iRegionNetYield += (2 * (iFertileCheck - 1))
 					if pPlot.isAdjacentToLand(): # Coastal plot
-						if pPlot.isFreshWater:
+						# <!-- custom: The inherited scripts tested bound method objects, which are always truthy, instead of each plot's freshwater result. See KI#249. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						if pPlot.isFreshWater():
 							iNumCoastalPlots += 1
 							iRegionNetYield += 2
 						else:
@@ -1083,7 +1117,8 @@ def assignStartingPlots():
 							if validFn is not None and not validFn(playerID, iX, iY):
 								continue
 							val = pPlot.getFoundValue(playerID)
-							if pPlot.isFreshWater:
+							# <!-- custom: Apply the corrected freshwater result to this first custom-start branch too. See KI#249. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+							if pPlot.isFreshWater():
 								val += 1000
 							if val > iBestValue:
 								valid = True
@@ -1215,7 +1250,8 @@ def assignStartingPlots():
 								if validFn is not None and not validFn(playerID, iX, iY):
 									continue
 								val = pPlot.getFoundValue(playerID)
-								if pPlot.isFreshWater:
+								# <!-- custom: Apply the corrected freshwater result to this mirrored custom-start branch too. See KI#249. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+								if pPlot.isFreshWater():
 									val += 1000
 								if val > iBestValue:
 									valid = True
@@ -1372,7 +1408,8 @@ def normalizeAddExtras():
 
 	# BTG Resources option removed: keep default behavior (no BTG extra-resource injections).
 
-	if (CyMap().getCustomMapOption(1) == 3):
+	# <!-- custom: Only mirror layers when this generation completed the regional Grid path; generic/failure fallbacks have no valid regional geometry. See KI#252. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (CyMap().getCustomMapOption(1) == 3 and bGridRegionalGenerationCompleted):
 		mirrorizeMap() #2020 06 - BTP 2.15 - Restart feature
 
 	# BTG Resources option removed: no sulphur-on-capital mode.

@@ -765,7 +765,8 @@ def assignStartingPlots():
 					if iFertileCheck > 1: # If the plot has extra food, count it.
 						iRegionNetYield += (2 * (iFertileCheck - 1))
 					if pPlot.isAdjacentToLand(): # Coastal plot
-						if pPlot.isFreshWater:
+						# <!-- custom: The inherited scripts tested bound method objects, which are always truthy, instead of each plot's freshwater result. See KI#249. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						if pPlot.isFreshWater():
 							iNumCoastalPlots += 1
 							iRegionNetYield += 2
 						else:
@@ -930,7 +931,8 @@ def assignStartingPlots():
 								if validFn is not None and not validFn(playerID, iX, iY):
 									continue
 								val = pPlot.getFoundValue(playerID)
-								if pPlot.isFreshWater:
+								# <!-- custom: Apply the corrected freshwater result to this first custom-start branch too. See KI#249. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+								if pPlot.isFreshWater():
 									val += 1000
 								if val > iBestValue:
 									valid = True
@@ -1067,7 +1069,8 @@ def assignStartingPlots():
 								if validFn is not None and not validFn(playerID, iX, iY):
 									continue
 								val = pPlot.getFoundValue(playerID)
-								if pPlot.isFreshWater:
+								# <!-- custom: Apply the corrected freshwater result to this mirrored custom-start branch too. See KI#249. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+								if pPlot.isFreshWater():
 									val += 1000
 								if val > iBestValue:
 									valid = True
