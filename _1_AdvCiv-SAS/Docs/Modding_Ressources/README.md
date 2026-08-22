@@ -201,12 +201,12 @@ cd "C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Be
 git fetch origin
 
 # choose names
-TAG=6020
+TAG=6200
 NEWNAME="AdvCiv-SAS $TAG"
-NEWSHA=feddabdf89f022dcf6412aab0cab414a54b4610c
+NEWSHA=0f2004eafc0455342f0e9d45240a83cc37fa24c2
 
-OLDNAME="AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release), which is in fact AdvCiv-SAS 5912"
-OLDSHA=82f042a44f4cd4bbc2b687444356d220b83131c1
+OLDNAME="AdvCiv-SAS 6020"
+OLDSHA=feddabdf89f022dcf6412aab0cab414a54b4610c
 
 WHEN=$(git show -s --format=%cI "$NEWSHA") # or %aI if you prefer author date
 COMPARE_URL="https://github.com/wonderingabout/AdvCiv-SAS/compare/$OLDSHA...$NEWSHA"
@@ -233,8 +233,8 @@ Note: although redundant, we as of now keep in code comment the version where it
 
 ```shell
 # 1. Set your commit hashes here
-NEWSHA=feddabdf89f022dcf6412aab0cab414a54b4610c # new (included), e.g.: AdvCiv-SAS 6020
-OLDSHA=82f042a44f4cd4bbc2b687444356d220b83131c1 # old (excluded, which is fine since was part of last batch as the former NEWSHA), e.g.: AdvCiv-SAS 5860 Update 4 (2026-06-04: 11 days after release)
+NEWSHA=0f2004eafc0455342f0e9d45240a83cc37fa24c2 # new (included), e.g. AdvCiv-SAS 6200
+OLDSHA=feddabdf89f022dcf6412aab0cab414a54b4610c # old (excluded, which is fine since was part of last batch as the former NEWSHA), e.g. AdvCiv-SAS 6020
 
 # 2. Run the command (uses the variables above)
 cd "C:/Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization IV Beyond the Sword/Beyond the Sword/Mods/AdvCiv-SAS/" && 

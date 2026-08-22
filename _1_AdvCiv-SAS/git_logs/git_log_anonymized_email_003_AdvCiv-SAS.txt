@@ -1,3 +1,2019 @@
+commit 0f2004eafc0455342f0e9d45240a83cc37fa24c2
+Author: wonderingabout <hidden>
+Date:   2026-08-22 08:55:15 +0200
+
+Update 18 civs DLL
+
+commit b9f1242dbea9c1b4c109e9be9151f4f43c4f1445
+Author: wonderingabout <hidden>
+Date:   2026-08-22 08:50:32 +0200
+
+Update docs (pre-release)
+
+commit acf8ca816e30af6037f6d5a15900197b72990957
+Author: wonderingabout <hidden>
+Date:   2026-08-22 08:49:16 +0200
+
+Add pre release doc info
+
+commit c5ddba4b9959d99974e6968cefc4c42708752c50
+Author: wonderingabout <hidden>
+Date:   2026-08-21 21:03:30 +0200
+
+Fix 8 inherited and AdvCiv-SAS map-script bugs through archaeology and complete AdvCiv-SAS runtime-source archaeology through practical 4345
+
+- fix AdvCiv-SAS Oasis river-bound and undersized-grid regressions (KI#293, KI#293.2)
+- fix inherited Firaxis/Warlords Mirror team-ID assignment and AdvCiv-SAS NULL-start/undersizing follow-up (KI#294, KI#294.2)
+- fix inherited Firaxis/Warlords Inland Sea empty 17-player start regions (KI#295)
+- fix AdvCiv-SAS Highlands climate-orientation regression (KI#297)
+- fix AdvCiv-SAS Highlands Arena capacity and broader undersizing regressions (KI#298, KI#298.2)
+
+Investigated through historical archaeology with the help of ChatGPT-5.6-Sol; fixed with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+Advance AdvCiv-SAS archaeology through practical 5067:
+
+- review 306 more runtime-source SHAs through SAS-C138, reaching 911/1,317
+- document 27 surviving defects as KI#293-KI#319
+- reconcile parallel KI#247-KI#292 repairs and combined defect accounting
+
+Investigated through historical archaeology with the help of ChatGPT-5.6-Sol; reconciled with the current AdvCiv-SAS history with the help of GPT-5.6-Sol and wonderingabout, thanks.
+
+Complete AdvCiv-SAS runtime-source archaeology through practical 4345
+
+- complete the corrected 1,292-SHA runtime-source sweep through SAS-C156
+- document four AdvCiv-SAS defects as KI#320-KI#322 and KI#324
+- document inherited RFC/DoC and BtS defects as KI#323 and KI#325
+- reconcile the parallel KI#293-KI#298.2 fixes and final 131-defect accounting
+
+Investigated through historical archaeology with the help of ChatGPT-5.6-Sol; reconciled with current AdvCiv-SAS history with the help of GPT-5.6-Sol and wonderingabout, thanks.
+
+commit e0531d2b1881ef71b346a7c35662bf0f8bfce9a5
+Author: wonderingabout <hidden>
+Date:   2026-08-21 13:25:26 +0200
+
+Fix inherited Hub, Ring, and Wheel buffer overlap through archaeology (KI#292)
+
+- Correct the shared nine-player Buffered upper-region boundary from 0.677 to 0.667 (KI#292).
+- Match the symmetric lower region and adjacent neutral-buffer boundary without changing other template geometry.
+- Document successful nine-player Large/Huge Hub, Ring, and Wheel runtime validation.
+
+Investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+commit 17fd484a2477b82f55adc629376a1050755e6d31
+Author: wonderingabout <hidden>
+Date:   2026-08-21 13:07:34 +0200
+
+Fix Team Battleground geometry and starts through archaeology (KI#267, KI#288-KI#291)
+
+- Fix the SAS practical 5423 scalar world-size lookup regression affecting SAS24-SAS48 Four Corners and Donut geometry (KI#288).
+- Give inherited BTS/Ruff Start Separated distinct Round, Donut, and >4-team placement behavior (KI#289).
+- Fix inherited BTS/Ruff Python 2 integer-angle truncation in circular starting positions (KI#290).
+- Prevent duplicate high-player Round/Donut starts by validating the complete circle and using full engine fallback when necessary (KI#291).
+- Enumerate actual ever-alive player IDs for Team Battleground’s sparse-slot portion of KI#267.
+- Document successful SAS24 Four Corners, SAS24 Donut, and 20-player Arena Round runtime validation.
+
+Investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+commit 7124c4091e36e6fc2fc9e881bb3b47b09f39a89b
+Author: wonderingabout <hidden>
+Date:   2026-08-21 12:33:08 +0200
+
+Fix CyGlobalContext() map-generator and geometry bugs from archaeology (KI#283-KI#284.2, KI#287)
+
+- Fix inherited Firaxis Donut wrapped-seam shifting that misaligned fixed-center plots and terrain (KI#283).
+- Fix inherited Firaxis/Base AdvCiv Y-seam guards comparing strip size with width instead of height (KI#284).
+- Fix the AdvCiv-SAS practical 6114 / d2c310774e CyGlobalContext() regression exposed by Boreal subclasses (KI#284.2).
+- Restore inherited Firaxis Hub, Ring and Wheel east/north Evergreen transition bands (KI#287).
+- Document archaeology provenance and successful Donut, Boreal, Hub, Ring and Wheel runtime validation.
+
+Investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+commit 23b18a0b9beafd3692cb027d9e89b80d1087e3cb
+Author: wonderingabout <hidden>
+Date:   2026-08-21 11:51:40 +0200
+
+Fix archaeology-found map-script world-size bugs (KI#278-KI#282.3)
+
+- fix SAS Rainforest forced-bonus scaling and its undersized Arena grid
+- tune Rainforest Duel-SAS48 after validation caught an oversized restored BTS anchor
+- align SAS Global Highlands Mountain Pattern grains across all world sizes
+- restore SAS Earth2 staged starts, fixed-Huge sizing, and Arena regional grain
+- add missing Arena grain handling to SAS-adapted Pangaea
+- fix missing Arena percentage tables across inherited AdvCiv/Firaxis map scripts
+- document archaeology findings, prepared-fix follow-up, and runtime validation
+
+Investigated through systematic AdvCiv/K-Mod archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol; runtime-tested with the help of wonderingabout, thanks.
+
+commit 56468e94ffdc5fa497ba28b3f163ae0711f1dc4e
+Author: wonderingabout <hidden>
+Date:   2026-08-21 10:03:59 +0200
+
+Fix inherited Random Script Map bugs and label (KI#275-KI#277, KI#275.2)
+
+- restore Coastal on Largest Continent validation (KI#275)
+- document that its existing no-match fallback can still place the player inland
+- correct its inherited "OR" label to "ON" (KI#275.2)
+- restore Medium-and-Small's intended opposite vertical-shift assignments (KI#276)
+- keep randomized Terra quadrant regions within map bounds (KI#277)
+- validate Terra geometry, Huge map generation, and empty Python error logs
+- update the Main Changes Guide, Known Issues, and archaeology
+
+Investigated through AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, reconciled, tested, and documented with the help of GPT-5.6-Sol thanks.
+
+commit cbe0dcc89874e0c747e955697054df52ecee06c7
+Author: wonderingabout <hidden>
+Date:   2026-08-21 09:27:41 +0200
+
+Fix BTG Grid/Cross region generation and starts (KI#247, KI#271-KI#274)
+
+- make Grid's capacity fallback count distinct physical hubs (KI#247)
+- prevent Cross from reusing hubs and restore its three implemented positioning choices (KI#271, KI#272)
+- keep Cross mirrored copies within their common region footprint (KI#273)
+- generate, record, and rank each Grid/Cross source region exactly once (KI#274)
+- validate Huge map generation and update Known Issues and archaeology
+
+Investigated through AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, reconciled, tested, and documented with the help of GPT-5.6-Sol thanks.
+
+commit d88d352eda7c67843f49fc1ff2b76110366d9445
+Author: wonderingabout <hidden>
+Date:   2026-08-21 09:08:26 +0200
+
+Fix BTG Lagoon/Cross map bugs and advance archaeology (KI#267-KI#270)
+
+- use actual player IDs for Lagoon and Cross custom starts (partial KI#267)
+- prevent Lagoon Top v Bottom from retrying forever with unequal teams (KI#268)
+- realign Lagoon land-band widths after the SAS Arena insertion (KI#269)
+- keep wrapped Lagoon geography aligned with fixed-coordinate follow-up logic (KI#270)
+- reconcile archaeology through C121 and KI#292
+
+Investigated through AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, reconciled, tested, and documented with the help of GPT-5.6-Sol thanks.
+
+commit 0bf9dc325c8ddf0782c9f2c66f87f7caa64fb5e4
+Author: wonderingabout <hidden>
+Date:   2026-08-21 08:30:46 +0200
+
+fix KI#264 and KI#265 AdvCiv-SAS 48-slot map compatibility and advance archaeology
+
+- clamp the inherited Firaxis Custom Continents 2-18 weighting table for SAS 19-48-player games (KI#264)
+- replace inherited fixed 0..17 player and team enumeration with SAS DLL limits in Archipelago, Islands, Tectonics and Custom Continents (KI#265)
+- document successful Huge-map 11-turn autoplays, an empty Python error log and the minor Custom Continents sizing observations
+- reconcile the systematic archaeology through C118, practical 5425 and KI#287
+- credit the BTG 2.43 map-script corpus for its archaeological reference value
+
+Investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol; fixed, validated, reconciled and documented with the help of GPT-5.6-Sol, thanks.
+
+commit b5704a24760c5a28dc857904491b307984f84814
+Author: wonderingabout <hidden>
+Date:   2026-08-20 23:06:38 +0200
+
+fix inherited KI#262 KI#263 KI#266 map-script bugs and expand archaeology tooling (with inherited map-scripts)
+
+- fix the stock Firaxis/Base AdvCiv-descended tiny-island longitude-for-latitude error across five map scripts (KI#262)
+- fix the inherited stock BtS Medium and Small eastern-continent grain reuse (KI#263)
+- fix the inherited stock Warlords Custom Continents six-continent shift-axis typo (KI#266)
+- add byte-preserved third-party map-script references for local and light-source archaeology
+- exclude reference/history corpora from releases, GitHub language statistics, ordinary diffs and line-ending normalization
+- document successful Huge-map generation and 10-turn autoplay validation
+
+With the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, thanks.
+
+commit e298fd84b883283604597c32ed008db0af2c4b90
+Author: wonderingabout <hidden>
+Date:   2026-08-20 21:31:08 +0200
+
+Fix KI#254 and KI#255 inherited Peirce mapscript geometry issues and advance archaeology
+
+- replace KI#254 bitwise-XOR crease math with actual squared distances
+- use the intended second anchors for all eight KI#255 E-W companion arms
+- confirm both defects were inherited from the original third-party Peirce script
+- document both fixes and successful toroidal and no-wrap E-W generation tests
+- reconcile archaeology checkpoint C103 and record KI#262 through KI#266
+
+with the help of ChatGPT-5.6-Sol, thanks
+with the help of GPT-5.6-Sol, thanks
+
+commit 256402817cba360bf88618eba010f736a700fa17
+Author: wonderingabout <hidden>
+Date:   2026-08-20 21:12:32 +0200
+
+Fix and beautify KI#241 AdvCiv-SAS Treaties rows and advance archaeology
+
+- show every resource and non-resource term canceled by clickable mixed-deal rows
+- retain intentional resource-only filtering and ordinary treaty formatting
+- add bonus, gold and leader icons with localized trade-direction text
+- fix the Foreign Advisor regression inherited from SAS practical 5478
+- advance archaeology through practical 5449 and record KI#254-KI#261
+- reconcile newer archaeology findings with recently fixed KI statuses
+
+The new archaeology findings were investigated with the help of ChatGPT-5.6-Sol thanks.
+KI#241 was fixed, beautified, reviewed and documented with the help of GPT-5.6-Sol thanks.
+
+commit 9fb1f179a4c7a3e5be4d06c35ff1f159697f83ea
+Author: wonderingabout <hidden>
+Date:   2026-08-20 18:43:34 +0200
+
+Fix KI#239 and KI#240 AdvCiv-SAS AI bonus-trade regressions
+
+- restrict dominated strategic-resource buy denials to AI recipients
+- preserve Copper purchases without Iron and corporation-useful resources
+- document the current-balance rules and modmod disable option
+- advance archaeology for the practical 5484 trade regressions
+- validate the DLL build and general in-game runtime smoke test
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, reviewed and documented with the help of GPT-5.6-Sol thanks.
+
+commit 49732aa36963d0a61c8dece3ef437afba1370785
+Author: wonderingabout <hidden>
+Date:   2026-08-20 18:12:55 +0200
+
+Fix KI#238, KI#242 and KI#245 AdvCiv-SAS map capacity bugs and advance archaeology
+
+- delegate excess Parallel Lines players to unique DLL starting-plot placement
+- provide enough Large Facing Islands islands for default Arena and Small games
+- provide enough Spiky Avenues houses for default Tiny and Small games
+- validate all five layouts in one Civ4 session with screenshots 0065-0069
+- integrate archaeology checkpoint C098 and findings KI#247-KI#253
+- add greppable KI closing notes and complete the recent Known Issues menu
+
+Found through systematic archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, validated, harmonized and documented with the help of GPT-5.6-Sol thanks.
+
+commit df3da878022205a0dad9c0786146b27870a0e678
+Author: wonderingabout <hidden>
+Date:   2026-08-20 17:30:47 +0200
+
+Fix KI#237 and KI#237.2 inherited Great Person text fitting Base AdvCiv bug and K-Mod/BUG-era bug, and advance archaeology
+
+- reject Maximum-types candidates before they exceed the GP bar width
+- replace the inherited fixed 230px city GP budget with its runtime bar width
+- validate Poverty Point's 53% / 42% / 5% display using save file 478
+- integrate archaeology checkpoints C083-C097 through practical 5455
+- document the nine new AdvCiv-SAS findings KI#238-KI#246
+
+Found through systematic archaeology and runtime testing with the help of ChatGPT-5.6-Sol thanks.
+Fixed, validated, reconciled and documented with the help of GPT-5.6-Sol thanks.
+
+commit f2ecb1334c434b3ca295720e328500332ddc1ad1
+Author: wonderingabout <hidden>
+Date:   2026-08-20 14:50:31 +0200
+
+Fix KI#235 AdvCiv-SAS Bomber hover and advance archaeology
+
+- include positive air combat in the actual-unit collateral help gate
+- preserve civilian collateral-noise suppression without including nukes
+- validate Stealth Bomber and Settler hovers with the successfully compiled DLL
+- trace the merged-branch practical 5506 regression into mainline practical 5544
+- integrate archaeology checkpoints C071-C082 through practical 5492
+- document pending KI#237 inherited K-Mod/BUG-era Great Person width fitting
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, validated, reconciled and documented with the help of GPT-5.6-Sol thanks.
+
+commit 26b2ac78844a4b8a6faecb841535ffb8ea9b48f8
+Author: wonderingabout <hidden>
+Date:   2026-08-20 14:29:41 +0200
+
+Fix KI#236 inherited Executive requirement in Sevopedia Unit and record archaeology
+
+- show each Executive's required corporation in the Sevopedia Unit Requires panel
+- provide the correct corporation hover and Sevopedia jump navigation
+- document the inherited Base AdvCiv omission and screenshots 0047/0049 validation
+- record pending KI#235 and the externally reported C077 archaeology state
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, validated and documented with the help of GPT-5.6-Sol thanks.
+
+commit fbd121d7fc5636bdf8413e05db7193d63aade5c4
+Author: wonderingabout <hidden>
+Date:   2026-08-20 14:04:54 +0200
+
+Fix KI#234 AdvCiv-SAS stale Espionage target state
+
+- validate the persistent Foreign Advisor Espionage target against the rebuilt alive/met rival list
+- preserve still-valid selections while clearing stale target, city and mission state together
+- select the first current rival after an invalid target disappears
+- document the SAS practical 5583 regression and Lincoln-to-Julius-Caesar runtime validation
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, validated and documented with the help of GPT-5.6-Sol thanks.
+
+commit 31becb027ab013df99546d43d0db5cc94df8d175
+Author: wonderingabout <hidden>
+Date:   2026-08-20 13:40:50 +0200
+
+Fix 3 AdvCiv-SAS advisor archaeology regressions and advance archaeology (KI#231-KI#233)
+
+- scale Policy Advisor corporation yield/commerce values from stored hundredths with world-size modifiers (KI#231; SAS practical 5614)
+- preserve the active player's map visibility in Policy Advisor vassal perspectives (KI#232; SAS practical 5755 over practicals 5610-5611)
+- restore Base AdvCiv's Free Colony/Liberate action lost by the SAS Domestic Advisor shell refactor (KI#233; SAS practical 5599)
+- validate the fixes with screenshots 0043-0045 and an empty PythonErr.log
+- advance the SAS source archaeology through practical 5568 at 486/1,317 and record KI#234 as pending
+
+Found and investigated through the systematic AdvCiv-SAS archaeology with the help of ChatGPT-5.6-Sol thanks.
+Fixed, validated, reconciled and documented with the help of GPT-5.6-Sol thanks.
+
+commit 0a96cdaa7520a1dc29cff42b3e124a7d581e4364
+Author: wonderingabout <hidden>
+Date:   2026-08-20 13:03:09 +0200
+
+Fix 2 AdvCiv-SAS archaeology UI regressions and advance archaeology (Hall of Fame and Sevopedia Leader item-width)
+
+- restore Hall of Fame date-typed header sorting while retaining the shared scalable label font
+- honor the documented nonpositive Sevopedia Leader item-width cutoff and clarify its at-or-above threshold
+- advance the AdvCiv-SAS archaeology through C062/practical 5590, document KI#229 and KI#230, and retain KI#231-KI#233 as pending findings
+Found and investigated with the help of ChatGPT-5.6-Sol, and fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+commit c99ab79e5b33b2cf72d67a7166dca9569bffdcb3
+Author: wonderingabout <hidden>
+Date:   2026-08-20 12:13:11 +0200
+
+Fix KI#228 AdvCiv-SAS aligned scoreboard scrolling and advance archaeology
+
+- make SAS scrolling, active-player centering, button states and drawing share the inherited BUG scoreboard's post-sort/post-Max Players order
+- preserve aligned vassal grouping while leaving the non-aligned scoreboard path unchanged
+- record archaeology checkpoint C046 and document the AdvCiv-SAS regression, repair and runtime validation
+
+Found and investigated with the help of ChatGPT-5.6-Sol, and fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+commit b8a7805fe271571f27abbee904a8f1f31162b0d6
+Author: wonderingabout <hidden>
+Date:   2026-08-20 11:41:12 +0200
+
+Fix KI#225 AdvCiv-SAS Event Trigger era grouping and advance archaeology
+
+- aggregate building and unit requirement pools by their earliest eligible class
+- apply distinct religion/corporation thresholds and city-count semantics to indirect era grouping
+- correctly group Man Named Jed, Blessed Sea and Experienced Captain by their earliest possible era
+- document the practical 5700 / db46a59ae5 regression and merge archaeology checkpoints through practical 5668
+
+Investigated through archaeology with the help of ChatGPT-5.6-Sol and implemented and documented with the help of GPT-5.6-Sol, thanks.
+
+commit fa4a1468df17b864240e51089777f0cafc0aaefc
+Author: wonderingabout <hidden>
+Date:   2026-08-20 11:25:21 +0200
+
+Fix KI#224 World Advisor vassal map-information leak
+
+- separate the selected vassal subject from the active human map observer
+- use the active player's team for plot revelation and bonus knowledge outside debug mode
+- use observer-specific revealed improvements and routes instead of raw live state
+- preserve existing debug behavior and document the AdvCiv-SAS practical 5755 / 1fabcaa557 regression
+
+Investigated through archaeology with the help of ChatGPT-5.6-Sol and implemented and documented with the help of GPT-5.6-Sol, thanks.
+
+commit c8903d21a66e9e152dd177307ab89496e51c10ef
+Author: wonderingabout <hidden>
+Date:   2026-08-20 11:12:56 +0200
+
+Fix 3 AdvCiv-SAS archaeology UI regressions
+
+- make Domestic Advisor founding years sort chronologically using numeric cells, fixing the AdvCiv-SAS practical 5722 / 7de906fcdd regression
+- label Event Sevopedia pillage bounds as improvement counts rather than gold, fixing the AdvCiv-SAS practical 5698 / 218460e3fb regression
+- keep vote trade-route bonuses under Effects rather than duplicating them as Requirements, fixing the AdvCiv-SAS practical 5692 / fb18bad9c4 regression
+- document KI#223, KI#226 and KI#227 and update the archaeology tracker
+
+Investigated through archaeology with the help of ChatGPT-5.6-Sol and implemented and documented with the help of GPT-5.6-Sol, thanks.
+
+commit 962e912da534375e395e8455063c35a6e65dbef4
+Author: wonderingabout <hidden>
+Date:   2026-08-20 11:01:12 +0200
+
+fix KI#214 and advance AdvCiv-SAS source archaeology (AdvCiv-SAS irrigation-chain constrained routing)
+
+- fix practical 6076's plot-only cost pruning by retaining the best cost for each bounded (plot, route length) state
+- preserve least-cost routing while allowing shorter higher-overwrite routes that alone satisfy the maximum plot limit
+- validate the compiled DLL with save file 478 through a 497-turn Huge Pangaea autoplay
+- use BBAI to verify 12,089 selected routes and exact depth-limit behavior, and SASGameRecord to confirm clean completion and safe 32-bit memory headroom
+- advance the systematic AdvCiv-SAS source archaeology to 365 of 1,317 runtime commits, certified through practical 5692
+- record surgical KI#223-KI#227 candidates covering Domestic and World Advisor correctness plus Event and Vote Sevopedia presentation
+
+Found and investigated with the help of ChatGPT-5.6-Sol; fixed, validated, and documented with the help of GPT-5.6-Sol, thanks.
+
+commit c36032deb5f5304de4eaecdd5ef5c9b6ad457381
+Author: wonderingabout <hidden>
+Date:   2026-08-20 10:06:03 +0200
+
+fix two AdvCiv-SAS battle-history capture attribution bugs (KI#221 and KI#222)
+
+- fix practical 5772 city-capture attribution by requiring a lethal battle at the captured city's exact plot
+- fix practical 5765 civilian-capture attribution by matching the escort-clearing battle by plot and player direction instead of civilian unit type
+- document KI#221 and KI#222 and update the archaeology checkpoint through practical 5749
+
+Found and investigated with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+commit 53ee909e9987fe076dd0c39d4d9a43ea3f4b2c60
+Author: wonderingabout <hidden>
+Date:   2026-08-20 09:39:34 +0200
+
+Fix inherited Base AdvCiv 1.12/1.14 PerfectMongoose and AdvCiv-SAS Military Summary archaeology findings (KI#218–220)
+
+- Fix inherited Base AdvCiv 1.12/1.14 PerfectMongoose meteor boundary ordering and crater rasterization (KI#218)
+- Fix AdvCiv-SAS Military Summary displaying support costs that anarchy actually waives (KI#219)
+- Fix AdvCiv-SAS Military Summary excluding free Great-General upgrades from minimum and average costs (KI#220)
+- Document the findings, lineage, effects, and repairs
+
+Found, fixed, and documented with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, thanks.
+
+commit 79410b2dba3261084e6470d9829a3f5f7f644c7c
+Author: wonderingabout <hidden>
+Date:   2026-08-20 09:27:45 +0200
+
+Fix inherited and AdvCiv-SAS AI archaeology findings (KI#213–217)
+
+- Document pending AdvCiv-SAS Worker-policy and irrigation-chain search repairs (KI#213–214)
+- Fix inherited K-Mod/Base AdvCiv no-site Settler cleanup unloading unrelated transport cargo (KI#215)
+- Fix inherited Better BTS AI/K-Mod/Base AdvCiv Work Boat demand counting the same accessible water area twice (KI#216)
+- Fix AdvCiv-SAS ready-attack upgrade counting using the stack head's UnitAI for every member (KI#217)
+- Continue the AdvCiv-SAS archaeology through practical 5800 and identify pending KI#218–220
+
+Found, fixed, and documented with the help of ChatGPT-5.6-Sol and GPT-5.6-Sol, thanks.
+
+commit 9968f036011c92f2efe25453562dfce7a80d28bf
+Author: wonderingabout <hidden>
+Date:   2026-08-20 01:05:09 +0200
+
+(Fixed minor inherited K-Mod/Base AdvCiv bug) AI Barbarian attacker CombatDetails were written to the defender-barbarian field (KI#212)
+
+- Fixed minor inherited K-Mod/Base AdvCiv `CombatDetails` copy-paste: an AI defender attacked by a Barbarian stored the correct AI-Barbarian modifier in the defender/TB field instead of the attacker/AB field (KI#212). (ChatGPT-5.6-Sol)
+- Continued practical-3 archaeology; KI#212 is a minor exposed-data/API correctness fix only, and practical 3 remains OPEN before practical 2. (ChatGPT-5.6-Sol)
+
+commit cf1272d7fed57ee154d84305c2d1bb8937ae4e58
+Author: wonderingabout <hidden>
+Date:   2026-08-20 00:09:31 +0200
+
+(Fixed inherited K-Mod/Base AdvCiv bug) Terrain attack bonuses were reversed in AI attacker-strength estimates against unknown defenders (KI#211)
+
+- Fixed inherited terrain-attack sign reversal in `CvUnit::maxCombatStr` unknown-defender attacker-strength estimates by keeping terrain attack in the same reversible subtotal as city/hills/feature attack modifiers (KI#211). (ChatGPT-5.6-Sol)
+- Systematic K-Mod archaeology practical 3 remains OPEN after KI#211; resume its deep audit after compile/run/commit validation before moving to practical 2. (ChatGPT-5.6-Sol)
+
+commit 0e7098a6a6cec07557def9b7d04123286bbdda3f
+Author: wonderingabout <hidden>
+Date:   2026-08-19 19:58:48 +0200
+
+(Fixed Base AdvCiv bug) Vote-selection iterator refactor could pair a voting team with itself, creating bogus self first-contact state (KI#210)
+
+- Fixed inherited Base AdvCiv `CvGame::doVoteSelection` bug from practical 2502: its iterator refactor lost the old `iTeam2 = iTeam1 + 1` self-exclusion, allowing an AP/UN voting team to call the contact path on itself. Skip self-pairs before contact; see KI#210. (ChatGPT-5.6-Sol)
+- Continued the systematic AdvCiv/K-Mod archaeology through AdvCivPreSAS practical 2502: 30 additional unique commits reviewed from 2531 through 2502, with KI#210 as the fourth previously-unfixed surviving systematic finding; next is practical 2501. (ChatGPT-5.6-Sol)
+
+commit eaf4c8ac19989a3465d21b8c0e3a756b718db497
+Author: wonderingabout <hidden>
+Date:   2026-08-19 19:31:59 +0200
+
+(Fixed Base AdvCiv bug) Player reassignment saved random-leader status from the random-civilization flag, corrupting independent setup state (KI#209)
+
+- Fixed an inherited Base AdvCiv copy/paste bug in `CvInitCore::reassignPlayer`: preserve `m_abLeaderChosenRandomly` independently from `m_abCivChosenRandomly` so player-slot reassignment does not corrupt random leader/civilization setup provenance when the two choices differ. See KI#209. (ChatGPT-5.6-Sol)
+- Continued the systematic AdvCiv/K-Mod archaeology through AdvCivPreSAS practical 2532: 1,876 / 4,343 historical commits reviewed, with KI#209 the third previously-unfixed surviving defect found by the sweep; next is practical 2531. (ChatGPT-5.6-Sol)
+
+commit 6b2c7382955cfce3d7bbf335dd2a254d1e48972f
+Author: wonderingabout <hidden>
+Date:   2026-08-19 19:08:37 +0200
+
+(Fixed Base AdvCiv bug) Worst-enemy trade-memory optimization could forget a required recalculation when later teams overwrote its flag (KI#208)
+
+- Fixed inherited Base AdvCiv `CvTeamAI::AI_updateWorstEnemy` iteration-order bug from practical 2833: once trade/grant-memory decay modifies the tentative new worst enemy, keep the required second selection pass sticky instead of letting a later unrelated team overwrite the flag. See KI#208. (ChatGPT-5.6-Sol)
+- Advanced the systematic AdvCivPreSAS archaeology sweep through practical 2833: 1,511 / 4,343 planned historical commits reviewed, with KI#208 as the second previously-unfixed surviving defect found by the sweep; next is practical 2832. (ChatGPT-5.6-Sol)
+
+commit d3b1b898221303a468a89be609009f1160047b3d
+Author: wonderingabout <hidden>
+Date:   2026-08-19 18:40:19 +0200
+
+(Fixed Base AdvCiv bug) UWAI random team-member selection mixed 0-based random indexes with iterator positions, biasing the first member and excluding the last (KI#207); add filtered commit-diff archaeology mirror
+
+- Fixed inherited Base AdvCiv UWAI bug from practical 2945: `CvTeam::getRandomMemberAlive` mixed a 0-based synchronized random index with `MemberIter::nextIndex()`, biasing selection toward the first member and making the last eligible member unreachable; human-only selection also mixed human-count and all-member index spaces. Use an explicit zero-based eligible-member counter while preserving the single synchronized RNG roll. See KI#207. (ChatGPT-5.6-Sol)
+- Recorded KI#207 as the first previously-unfixed surviving defect found by the systematic AdvCiv/K-Mod historical sweep itself after reviewing AdvCivPreSAS practical 4343 through 2945 (1,399 commits). The earlier real defect encountered at practical 3956 was already independently fixed/documented by SAS as KI#92. Resume at practical 2944. (ChatGPT-5.6-Sol)
+- Track filtered commit-diff archaeology mirror
+
+commit 179e5e1f3e000cae44d24bf2be0ed8f7fc0d6ffa
+Author: wonderingabout <hidden>
+Date:   2026-08-19 17:35:44 +0200
+
+(Fixed K-Mod bug) AI random-event building-change valuation missed percent normalization, making building creation or destruction worth 100 times the intended production-cost component (KI#206); increase Worker cost back to BTS/Base AdvCiv value
+
+- Restored the normal Worker production cost from 50 to the Civ4/K-Mod 60-production baseline, including the Indian Fast Worker, Dutch Swift Worker and Maya Quick Worker replacements. The earlier AdvCiv-SAS reduction made additional Workers increasingly cheap and less strategically meaningful once cities became productive. At 60, training another Worker remains affordable but competes more meaningfully with buildings, units and other production choices; Worker UUs now also use this same new baseline cost. Intentionally very cheap Barbarian Worker remains unchanged. (ChatGPT-5.6-Sol)
+- Raised `SAS_AI_CHOOSE_UNIT_NONCOMBAT_FOOD_PRODUCTION_MAX_TURNS_NORMAL_GAMESPEED` from 5 to 6 at the same time, preserving the allocator's previous approximate 10 production-equivalent-per-turn "fast enough" threshold (`50 / 5 = 60 / 6 = 10`) instead of making secondary Worker pumps 20% harder to qualify accidentally.
+- Audit current-tree raw XML `iCost` / `getProductionCost()` semantics after KI#205. Most uses are intentional, but fix KI#206: inherited K-Mod/Base AdvCiv `CvPlayerAI::AI_eventValue` multiplied building-event production value by `ConstructPercent` without dividing by 100, making that component 100x too large. Base AdvCiv 1.14 still has the bug; K-Mod practical 3 (`2414225e64`) already contains the omission, and K-Mod practical 478 (`bfc3c3cca7`) later normalized both analogous unit-event paths while missing the building path. ChatGPT-5.6-Sol found the bug in the current-tree semantic audit and then traced its K-Mod lineage locally from the light-source ZIP commit-diff archive without Internet lookup. Start a tracked/export-ignored AdvCiv/K-Mod archaeology progress file with counters and exact commit/SHA references. Resolve the two remaining audit candidates without speculative code changes: unit-gift scaling is game-speed safe because all current SAS Train/Construct/Build/Research percentages match per speed, while K-Mod history shows `AI_espionageVal` deliberately uses different rough valuation formulas for buildings, projects and the disabled buy-unit mission. (ChatGPT-5.6-Sol)
+
+commit 0f6627db846ffc17fdb58a60fc278674f506d2fe
+Author: wonderingabout <hidden>
+Date:   2026-08-19 15:10:12 +0200
+
+Merge remote-tracking branch 'upstream/1.14' into main
+
+- Refresh current base-AdvCiv references for the 1.14 merge without rewriting intentionally historical/frozen 1.12 comparisons; move the long-lived comparison-PR CI exclusions to the mirrored `1.14` branch without baking a PR number into workflow comments. Add `LLM_Helpers/convert_advciv_manual_to_txt.py`, a dependency-free Python 3 ODT `content.xml` extractor, and document it as the reproducible way to keep the grep/LLM-friendly `manual.txt` synchronized with upstream `manual.odt`. (ChatGPT-5.6-Sol)
+
+- Add a living AdvCiv-SAS release-preparation/checklist document for the user and LLM/AI helpers, covering upstream-merge integration including newly appearing release-branch detection and historical comparison-PR rollover, DLL/build validation, selective version-reference/manual refreshes, user-led screenshot review with LLM-suggested likely stale candidates, a short high-level release overview plus cumulative plain-text changelog construction from the final net changes, Git-log/light-source updates, final release review, and user-controlled tagging/publication using the preferred advanced tag example. Link it from Modding Ressources and AGENTS.md so future release work can reuse and improve the process; track the reusable 6020 release-changelog example for future clones/LLM review while excluding it from exported release archives through .gitattributes. (ChatGPT-5.6-Sol)
+
+- Merge the 34 newer base AdvCiv commits through AdvCiv 1.14 while preserving newer/stronger AdvCiv-SAS behavior in overlapping AI fixes and integrating upstream improvements such as experience-aware upgrade ordering, the route-build exemption for stale worker mission protection, and UWAI/other fixes. (ChatGPT-5.6-Sol merge-conflict review)
+- Extend the light-source ZIP snapshot with separate `_SNAPSHOT_CONTEXT/pending_upstream/` fetched-but-not-yet-merged base AdvCiv history, exact `MERGE_HEAD` handling during merges, deduplicated union discovery across release-like upstream refs between merges, explicit `--upstream-ref` overrides for future naming changes/special maintenance lines, topic/experimental-ref awareness without treating them as releases, and optional `--fetch-upstream` (`git fetch upstream --prune`) before ZIP creation. Also record exact current working-tree byte sizes in the tracked-file manifest, including tracked binaries omitted from the light ZIP, and include the exact base-AdvCiv `manual.odt` as a narrow binary exception so ZIP-only LLMs can run/test the repository-local manual-to-text converter. This keeps current-HEAD ancestry truthful while making long gaps between upstream merges and merge conflicts reviewable from the ZIP alone. (ChatGPT-5.6-Sol)
+
+ChatGPT-5.6-Sol: I handled the remaining C++ conflicts and added that snapshot feature.
+
+For the four unresolved C++ files:
+
+- CvPlayerAI.cpp
+  - kept SAS's already-correct KI#172 percentile logic;
+  - incorporated AdvCiv 1.14's new experience/upgrade-priority ordering;
+  - kept SAS's KI#160 upgrade-budget protection and diagnostics;
+  - added the new discounted-upgrade pass without reintroducing overspending;
+  - kept SAS's newer culture-victory logic, which already supersedes the simpler upstream spaceship-vs-culture addition. Upstream's upgrade work specifically prioritizes units by upgrade-aware experience and adds discounted upgrades as a special pass.
+- CvSelectionGroup.cpp
+  - incorporated upstream's improvement to our KI#176 Worker fix: routes are exempt from the stale-target cancellation because route-to missions can legitimately build along the path.
+  - retained our detailed diagnostic comment/logging;
+  - verified groupBuild() executes once, not twice.
+- CvUnitAI.cpp
+  - incorporated the useful general pBestCity handling from upstream;
+  - retained SAS's newer KI#168–170 Great Person mission classification/action tracking, which supersedes upstream's older inference from canConstruct. The upstream change itself was based on an earlier SAS fix.
+- UWAIAgent.cpp
+  - retained our grep-friendly one-line signature;
+  - upstream's actual reparations logic was already merged automatically elsewhere in that file.
+
+commit 989950ec6ced6ba2785365ad28d6b7821d969031
+Author: f1rpo <hidden>
+Date:   2026-08-19 12:11:35 +0200
+
+Update DLL
+
+commit b358fae0538bbeaa95b7f99313d1124b20dc56f2
+Author: f1rpo <hidden>
+Date:   2026-08-19 11:53:54 +0200
+
+Fix K-Mod bug in AI wonder evaluation
+
+Adopted from SAS:
+https://github.com/wonderingabout/AdvCiv-SAS/commit/8951d71560a01e9dc8d166b4db40a4b666efaaa4
+
+Was introduced by K-Mod 0.99 in this commit:
+418581f6bd5c51570f664e9ddee46cdd3bcb53f0
+
+In a quick test on AI Auto Play for 150 turns, the bugfix caused one AI to produce Stonehenge early on and another to produce the Statue of Zeus. Nearly 90% of the wonders were constructed regardless of the bugfix. It only affects the three "opportunistic" wonder construction rules, which, apparently, aren't that crucial. [advc.001]
+
+commit 8a99ee0dc0b0e3c6bd6c1a90d5424da645172a59
+Author: f1rpo <hidden>
+Date:   2026-08-19 11:46:28 +0200
+
+Fix an AdvCiv AI tweak for constructing culture buildings
+
+Random find when reviewing code. Seems pretty clear that the culture building check was missing; I haven't verified this through testing. [advc.192]
+
+commit 8951d71560a01e9dc8d166b4db40a4b666efaaa4
+Author: wonderingabout <hidden>
+Date:   2026-08-18 21:53:38 +0200
+
+(Fixed/Improved) Major K-Mod World-Wonder focus refactor bug rejected the AI's best production cities, while an AdvCiv-SAS game-speed regression could almost disable cheap-Wonder catch-up on slow speeds
+
+- Fixed two World-Wonder AI correctness problems (KI#205): restored game-speed scaling for AdvCiv-SAS's era-based cheap-Wonder catch-up thresholds, which had become much too strict on Slow/Very Slow speeds, and corrected an inherited K-Mod refactor inversion that rejected the top three production cities when `BUILDINGFOCUS_WORLDWONDER` was explicitly requested. The new full-history light-source commit diffs made it possible to trace the SAS regression to practical commit 5477 and the inherited inversion to K-Mod commit 1030. A repeat Huge Donut / Slow autoplay then confirmed the fix: the pre-fix turn-601 run had zero ordinary World Wonders and zero cities producing any Wonder at turn 600, while the post-fix run had 7 completed ordinary World Wonders and, at turn 600, 15 ordinary World-Wonder builds active across 9 civilizations (9 Parthenons and 6 Temples of Kukulkan), plus 1 Heroic Epic. (ChatGPT-5.6-Sol) (KI#205)
+
+commit d24bbb2e55bffb97820d0de32a35b6c8641e25a3
+Author: wonderingabout <hidden>
+Date:   2026-08-18 20:44:28 +0200
+
+Fix Military Advisor leader-button vertical overflow on maps that are low width (e.g. Donut), when alive player count is high (e.g. SAS48 and all players are still alive), and at fairly low resolution (e.g. 1080p); rebalance Wonder GP slots (especially Great Engineer and Great Prophet that were highest which was not too versatile or varied)
+
+- Make Military Advisor leader-button sizing fit-aware instead of relying on one fixed overflow size. Start from the normal 64 px leader buttons and reduce in 8 px steps only when required, choosing the largest size that lets all currently displayed leaders fit within the available leader panel width and height.
+- Rebalanced World Wonder Great Person points to reduce unnecessary early Great Prophet concentration and broaden thematic Great Person sources without simply creating a new Engineer/Artist skew: Temple of Artemis Great Prophet -> Great Merchant, Parthenon Great Prophet -> Great Spy, Hanging Gardens Great Artist -> Great Scientist, Statue of Zeus Great Engineer -> Great Artist, Moai Statues Great Prophet -> Great Engineer, Eiffel Tower Great Artist -> Great Scientist, and Pentagon Great Spy -> Great Engineer. (ChatGPT-5.6-Sol)
+
+Addresses and related to player feedback at https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16971507
+
+commit 5f54e562ac775f5055514fe25f6bb0da12b9f8e7
+Author: wonderingabout <hidden>
+Date:   2026-08-18 17:52:30 +0200
+
+Fix Great General AI asymmetry and Improve light-source Git history (add email-anonymized cache-derived commit diff)
+
+- Great General Instructor-first consistency: if a Great General is already standing in an `AI_isSafe` city, allow the immediate Military Instructor join even when radius-2 danger is nonzero. This matches the existing immediate Military Academy behavior because neither action exposes the General to travel; destination/travel danger checks remain unchanged. See KI#204.
+
+- Light-source Git history: include filtered textual diffs for the full commit ancestry reachable from current `HEAD`, spanning K-Mod, pre-SAS AdvCiv and the later AdvCiv-SAS branch history, so ZIP-only/LLM reviewers can investigate inherited and historical code/XML/documentation changes without `.git` or GitHub.
+- Distinguish history segments as `KMod`, `AdvCivPreSAS` and `SASBranch`; `SASBranch` is a post-fork history segment rather than an authorship label and can therefore include later upstream AdvCiv commits merged/imported after SAS development began.
+- Keep `INDEX.txt` as a compact commit locator and add `PATH_HISTORY_INDEX.txt` for path-to-commit lookup. Practical commit counts can repeat across merged history, so the Git SHA remains the canonical unique identifier.
+- Avoid duplicating full commit messages in every historical diff: retain a short title and redirect reviewers to the included anonymized K-Mod/AdvCiv/AdvCiv-SAS Git logs, with generated snapshot history covering recent SAS-branch commits not yet recorded there.
+- Keep historical handoffs compact by summarizing generated, binary, redundant and exceptionally large historical file changes instead of embedding their full patches, while retaining useful source/config additions and per-commit change statistics.
+- Cache generated historical commit diffs by immutable Git SHA under `.git`, so unchanged commits are reused across normal reruns, hard resets and computer restarts; old SAS cache entries can be migrated in place while newly included AdvCiv/K-Mod commits are rendered once.
+- Harden history generation by disabling external/textconv diff helpers, avoiding unnecessary historical ODT/PDF processing, deriving practical commit counts from the reachable Git DAG, and excluding unrelated/unmerged branch history.
+- Preserve the existing anonymized Git-log privacy policy: Git author/committer emails are not exported and email-shaped strings embedded in generated historical titles or patch contents are redacted.
+- Document the snapshot/Git-history handoff, history segments, navigation, filtering, privacy and persistent cache behavior in the root, LLM helper and Main Changes Guide documentation.
+
+commit 234f87f13c4d7c23411c83faa13186f4f5bc7823
+Author: wonderingabout <hidden>
+Date:   2026-08-18 15:37:21 +0200
+
+Make production overflow information more compact in SASGameRecord while preserving details
+
+- SASGameRecord production overflow: preserve exact per-completion overflow evolution without duplicate routine rows by appending `rawModifiedOverflow`, `unmodifiedOverflow`, `keptOverflow`, `lostProduction`, `unusedOverflowCapacity`, and `overflowGold` to level-3 `UNIT_COMPLETED`, `BUILDING_COMPLETED`, and `PROJECT_BUILT` rows. Keep the existing player interval `GAME_RECORD_PRODUCTION_FLOW` aggregate for quick analysis; level 2 still emits standalone exceptional overflow loss/gold and Barbarian overflow where the detailed completion/flow rows are unavailable.
+
+Implemented the overflow-row merge above following the review of Claude Sonnet 5 SASGameRecord compactness feedback.
+
+commit 574e50ba532286ada297fca3a49a9af375c1bcc5
+Author: wonderingabout <hidden>
+Date:   2026-08-18 12:32:36 +0200
+
+Fix several Great General AI/UI Base AdvCiv and AdvCiv-SAS bugs/issues (KI#204)
+
+- Fixed Base AdvCiv issue where automatic Great General birth-city selection ignored city safety and could spawn a defenseless General directly into a besieged city despite safer alternatives; now prefer safe cities when one exists while preserving the original all-city fallback and synchronized RNG consumption.
+ - Fixed Base AdvCiv bug where the Military Academy `AI_construct` city filter inverted `AI_isSafe()` and rejected safe cities instead of unsafe ones.
+ - Hardened inherited Great General travel so ownership-safe path flags are not mistaken for tactical safety: avoid enemy pressure, reject unsafe end-turn plots, but still allow a General already in danger to move to a strictly safer nonzero-danger plot.
+ - Fixed Base AdvCiv/K-Mod-derived retreat issue where a threatened defenseless unit could choose its current unsafe city as a zero-turn retreat destination and `MISSION_SKIP` instead of considering a real escape city.
+ - Improved SAS policy by making the additional Military Instructor-first priority era-tunable (`-1` disables; nonnegative values apply through that era; dynamically resolved `ERA_FUTURE` or higher means all eras) while keeping the existing fallback sequence.
+- Improved Great General death UI/history by using the replay unit name so unit type + personal name stay visible and by persisting player-caused Great General deaths to replay data for the Info Screen Timeline.
+- Improved SASGameRecord/BBAI diagnostics by recording direct player-kills of defenseless Great People, birth `unitId`/spawn coordinates and focused Great General danger/rejection information.
+- Post-fix 457-turn autoplay: 91 Great General births, 90 Military Instructor joins and 1 death; all 6 Generals whose first AI decision began in radius-2 danger successfully escaped and joined. The sole death was born in Russia's last city on the same turn it was captured and had no BBAI move before dying, so it was not another movement/retreat failure. (ChatGPT-5.6-Sol)
+
+commit 058039116ddc435b540329bf1a2b7609fec3aee3
+Author: wonderingabout <hidden>
+Date:   2026-08-17 22:01:12 +0200
+
+Adjust some Tech and Building Flavors, Make TECH_LIBERALISM tradeable again, and add a redundant defaults CI (e.g. TechTypes NONE instead of empty, Flavor 0)
+
+- XML cleanup / KI#22.7: remove redundant explicit default/list entries found during the flavor audit (Constitution's explicit `FLAVOR_PRODUCTION = 0` and Modern Infantry's all-`NONE` `TechTypes` list), and add a narrow CI guard for these proven redundant forms without treating ordinary required zero-valued XML fields as errors
+- TECH_LIBERALISM: restore technology tradeability after the SAS tree/reward rework; Naturalism remains protected/untradeable, while Liberalism no longer needs the same no-trade protection and being exchangeable can modestly support the peaceful/economic route
+
+commit 24104e1ce96d7d0470df04faff36127d3840a462
+Author: wonderingabout <hidden>
+Date:   2026-08-17 16:48:26 +0200
+
+Change Portugal from Galleon to Grenadier (Cacador), Maya from Spearman to Worker (Quick Worker), make iWorkRate visible in Sevopedia Unit and Unit button hover
+
+- UNIT_PORTUGAL_CARRACK: replace Portugal's map-dependent Carrack/Galleon naval UU with UNIT_PORTUGAL_CACADOR, a Grenadier land UU. Keep the generic Grenadier's 12 strength, 120-hammer cost, +25% vs Gun, +10% city attack and light collateral package; add free Combat III, +1 chance first strike, 25% withdrawal instead of 20%, Grass +10% attack/defense and Forest +10% attack/defense. Combat III is the main enduring perk so veteran Portuguese units are less likely to waste the UU bonus on an already-owned low Combat rank and can carry it into later upgrades; the smaller intrinsic effects give the Caçador a light-infantry/skirmisher identity without overloading raw strength. Coincidentally, both start with "ca" which is funny (and both units started with a "G" (Galleon in AdvCiv-SAS before removal) but anyway).
+- As a result of the Netherlands East Indiaman and Portugal Carrack replacements, playable civilizations currently have no naval civ-specific units: naval UUs can be effectively absent on land-heavy maps or disproportionately important on naval-heavy maps unless enough comparable naval counterparts exist.
+- UNIT_MAYA_HOLKAN: replace Maya's Holkan Spearman UU with UNIT_MAYA_QUICK_WORKER, a Worker UU. Pacal/Maya have often underperformed or lost early in autoplay, while both the very weak base Civ4/AdvCiv Holkan and the later SAS Spearman/skirmisher attempt remain a narrow early military identity with a short usefulness window; the culture-oriented Ball Court is also relatively specialized rather than a broad compensating power spike. The Quick Worker instead strengthens Maya more generally and keeps Pacal strategically versatile: keep the generic Worker's 50-hammer cost, 2 movement and normal movement rules, but raise work rate from 100 to 125 (+25%), helping resource connection, roads, tile development, chopping, expansion, economy, wonder building or military logistics. This fits Maya intensive agriculture/infrastructure and organized labor, stays distinct from India's terrain-cost immunity and the Dutch Swift Worker's extra movement, and loosely echoes Civ3's worker-oriented Agricultural/Industrious Maya and Javelin Thrower Enslave mechanic.
+
+- Worker unit-info visibility: show each builder unit's base `iWorkRate` from `CIV4UnitInfos.xml` directly as `Work Rate: X%` through shared unit help in both Sevopedia Unit special abilities and normal unit hover help, replacing the relative-vs-default comparison so the Quick Worker, Barbarian Worker and other Worker variants are immediately distinguishable; keep technology/civic/building build-speed modifiers as a separate Sevopedia line.
+
+commit df8d30b6c671641bbb1b75c415fd50caa8ff0b93
+Author: wonderingabout <hidden>
+Date:   2026-08-16 22:46:00 +0200
+
+Simplify (mostly nerf as was too swingy and sometimes OP) and rebalance terrain/feature/geography effects and otherwise units more generally, add a corresponding doc section in README_Assets_Rebalancing.md, Improve light source ZIP snapshot context and Git metadata, buff UNIT_OTTOMAN_JANISSARY and other changes
+
+- Rebalanced unit terrain/feature modifiers toward gameplay rather than full historical simulation: Terrain and Hills now use 10/20% tiers with an absolute 20% cap because they can affect city combat; Features use 10/20/40% tiers because cities remove features; City modifiers remain separately balanced. Generic units normally use lighter values, while civ-specific units can use the stronger tier when the specialization is part of their identity.
+- Corrected terrain/feature defense on units with `bNoDefensiveBonus`: unintended positive explicit terrain/feature defense no longer broadly bypasses the intended defensive limitation. The generic Camel Archer deliberately retains only +10% Desert defense as a small specific identity exception; mounted/camel/elephant and relevant civ-specific units otherwise lose positive terrain/feature defense where it conflicted with their role.
+- Moved the cross-cutting terrain/feature combat rationale out of the civ-specific-unit roster into a dedicated documentation section, and expanded that section into concise generic-unit and civ-specific-unit terrain/feature rosters so the current values and their balance intent can be reviewed in one place without overwriting each UU's main gameplay rationale.
+- Tightened the terrain review with a focused-specialization guideline: every combat-capable civ-specific unit keeps at least one deliberate terrain or feature identity; Hills/Peaks are plot types and can complement that identity separately, while its added positive terrain package normally uses one strong 20% terrain or at most two weak 10% terrains; relevant generic-unit affinities/weaknesses can carry through or be strengthened, while feature bonuses remain a separate, narrower budget.
+- For the shared balance rules, historical/thematic reasoning and exact current terrain/feature packages, see README_Assets_Rebalancing.md (Unit terrain and feature combat modifiers). The entries below record what changed in this pass rather than repeating the full rationale.
+
+Note: the current balance is a tamer but more balanced and sometimes more varied (e.g., new Sumerian Vulture Flood Plains effect) version of the old AdvCiv-SAS terrain/feature and such effects, done with the help of ChatGPT-5.6-Sol (i mostly only reviewed or gave a few ideas a bit or such) thanks.
+
+- UNIT_LION: reduce strength from 4 to 3 and add +20% Plains / +10% Grass attack, localizing most of its former danger to suitable open habitat.
+- UNIT_BEAR: reduce strength from 5 to 4 and add +20% Forest attack, localizing its former peak danger to Forest.
+- UNIT_PANTHER: add +20% Jungle attack as its defining habitat specialization.
+- UNIT_WOLF: add +20% Snow and +10% Tundra attack as a focused cold-climate specialization.
+- UNIT_INDIAN_FAST_WORKER: remove dead Plains/Desert/Jungle combat modifiers while the civilian unit has no combat strength.
+- UNIT_NETHERLANDS_SWIFT_WORKER: remove dead +50% Forest attack/defense while the civilian unit has no combat strength.
+- UNIT_SCOUT: reduce Hills attack/defense from +25% to +20% to fit the terrain cap.
+- UNIT_EXPLORER: reduce Hills attack/defense from +25% to +20% to fit the terrain cap.
+- UNIT_WARRIOR: reduce animal combat from +50% to +33%; at 3 base strength this gives the Ancient Maceman about 4 effective strength against animals while keeping it the stronger generic anti-animal fighter relative to Archers.
+- UNIT_AXEMAN: keep +10% Forest/Jungle attack and defense; axes can cut/clear dense vegetation both offensively and defensively, and these feature effects do not affect city combat.
+- UNIT_SUMERIAN_VULTURE: replace the old broad Grass/Desert package with Flood Plains +20% attack/+10% defense and inherit the Axeman-family +10% Forest/Jungle attack/defense affinity.
+- UNIT_NATIVE_AMERICA_DOG_SOLDIER: replace the old Desert/Grass/Plains/Tundra spread with focused Plains +20% attack/+10% defense and inherit the Axeman-family +10% Forest/Jungle attack/defense affinity.
+- UNIT_AZTEC_JAGUAR: reduce Jungle attack from +25% to +20% and Jungle defense from +50% to +40%; retain the minor +10% Forest attack/defense affinity.
+- UNIT_CELTIC_GALLIC_WARRIOR: reduce Forest attack/defense from +50% to +40%, keeping Forest as the defining feature specialization.
+- UNIT_ROMAN_LEGIONARY: focus the terrain package on Plains +20% attack/+10% defense plus the separate minor Forest +10% attack/defense affinity; remove the secondary Desert bonus.
+- UNIT_PERSIA_IMMORTAL: reduce the old Desert/Grass +25% attack/defense package to two weak +10% attack/defense affinities; keep attack and defense equal because the unit's spear/lance-like reach and shield make the same small defensive benefit reasonable.
+- UNIT_INCAN_QUECHUA: replace the former broad Desert/Grass/Forest/Hills package with Tundra +10% attack/defense plus Hills +10% attack/defense, giving the Quechua a weak actual terrain affinity alongside its separate highland plot-type identity without stacking strong bonuses on Peak movement and Sentry.
+- UNIT_JAPAN_SAMURAI: reduce Forest attack/defense from +50% to +20% and remove the secondary Tundra affinity, keeping Forest as the focused feature identity alongside its other combat advantages.
+- UNIT_SCANDINAVIA_VIKING: use weak Snow/Tundra +10% attack/defense affinities and remove Forest, keeping a clear northern identity without making rare Snow disproportionately strong or spreading the Viking across three favored environments.
+- UNIT_SPEARMAN: reduce Hills defense from +25% to +10%, leaving the generic early polearm with only a minor rough-ground affinity.
+- UNIT_ZULU_IMPI: replace the broad Grass/Plains/Desert package with Plains +20% attack/+10% defense; keep Hills and Forest/Jungle at the generic Spearman +10% attack/defense baseline.
+- UNIT_MAYA_HOLKAN: reduce Jungle attack from +25% to +20% and Jungle defense from +50% to +40%; retain the minor +10% Forest affinity.
+- UNIT_GREEK_HOPLITE: keep Plains as the sole boosted terrain at +20% attack/+10% defense; keep Hills and Forest/Jungle at the generic Spearman +10% attack/defense baseline and remove the extra Grass affinity.
+- UNIT_PIKEMAN: reduce Hills defense from +25% to +20%, Forest attack/defense from -15% to -10%, and retain Jungle -20% attack/defense; the dense-feature penalties represent the awkwardness of long heavy pikes among trees and restricted ground.
+- UNIT_ARCHER: reduce animal combat from +50% to +25%, Hills defense from +25% to +20%, and Forest/Jungle attack/defense from +25% to +20%; keeps the Archer's field-defense identity while making it a weaker generic anti-animal fighter than the Ancient Maceman.
+- UNIT_LONGBOWMAN: reduce Hills defense from +25% to +20% to fit the terrain cap while preserving its stronger positional-defense identity relative to Crossbowman.
+- UNIT_MALI_SKIRMISHER: reduce Plains/Desert from +25% to weak +10% attack/defense each, remove the Jungle affinity, and retain the generic Longbowman +20% Hills defense.
+- UNIT_BABYLON_BOWMAN: remove the old Grass bonus and focus the UU on Desert +20% attack/+10% defense while retaining the generic Longbowman +20% Hills defense; avoids stacking two strong broad terrains on an already stronger 5-strength Longbow replacement.
+- UNIT_CROSSBOWMAN: reduce Hills attack/defense from +25% to +10%, leaving the generic Crossbow primarily defined by its strong and versatile unit matchups while Longbow remains the more terrain-specialized defender.
+- UNIT_CHINA_ZHUGE_NU: remove the old Grass/Forest breadth and keep Hills +20% attack/defense as a direct stronger version of the generic Crossbowman's +10% Hills affinity.
+- UNIT_KINGDOM_OF_BENIN_DISCIPLINED_CROSSBOWMAN: remove Plains, return Hills to the generic Crossbowman +10% attack/defense baseline, and change Jungle from the old +50% attack/defense to +20% attack/+40% defense so Jungle is the clear defining specialization.
+- UNIT_ENGLISH_YEOMAN_ARCHER: reduce Forest from +25% attack/+50% defense to +20% attack/+40% defense and return Hills to the generic Crossbowman +10% attack/defense baseline, keeping Forest as the defining specialization.
+- UNIT_OTTOMAN_JANISSARY: remove the old strong Grass bonus, retain Plains/Desert +10% attack/defense as two weak affinities, replace free Combat II with free Combat III, and add +10% city attack; Combat III keeps the elite-infantry perk broadly useful and less likely to be redundant on experienced upgraded units, while the modest city-attack edge supports Ottoman assault warfare without over-specializing the unit.
+- UNIT_FRENCH_MUSKETEER: reduce Forest attack/defense from +50% to +20%, leaving its other +10% terrain affinities unchanged.
+- UNIT_ETHIOPIAN_OROMO_WARRIOR: replace the former Plains/Grass/Desert package with focused Hills +20% attack/+10% defense as a highland specialization.
+- UNIT_IRELAND_FLYING_COLUMN: reduce Hills attack and Forest attack from +25% to +20% and Forest defense from +50% to +40%, retaining Forest ambush/defense as the defining specialization.
+- UNIT_USA_PATRIOT: remove the former Grass/Tundra/Desert breadth and keep Forest +20% attack/defense as the single field-feature specialization.
+- UNIT_GUNSHIP: reduce Forest/Jungle attack penalties from -25% to -20%.
+- UNIT_CHARIOT: reduce Forest/Jungle attack penalties from -50% to -40% and defense penalties from -25% to -20%; the severe feature weakness remains because wheeled units are highly impractical to maneuver through dense, uneven vegetation.
+- UNIT_EGYPTIAN_WAR_CHARIOT: focus the positive terrain identity on Desert +20% attack, remove the old secondary Grass bonus and positive terrain defense, and normalize the generic Chariot Forest/Jungle penalties to -40% attack/-20% defense.
+- UNIT_HORSE_ARCHER: reduce Forest/Jungle defense penalties from -25% to -20%; retain no automatic positive open-terrain bonus so the generic mounted-ranged baseline stays broadly versatile rather than terrain-specialized.
+- UNIT_CARTHAGE_NUMIDIAN_CAVALRY: focus the positive terrain identity on Plains +20% attack, remove the secondary Desert bonus and positive terrain defense, and retain the mounted-ranged Forest/Jungle -20% defense weakness.
+- UNIT_CAMEL_ARCHER: reduce the old Desert defense from +25% to +10%, retain +10% Desert attack, and reduce Forest/Jungle defense penalties from -25% to -20%; the small +10% Desert attack/defense package is a deliberate exception to the usual `bNoDefensiveBonus` rule.
+- UNIT_WAR_ELEPHANT: remove positive Plains defense and reduce Forest/Jungle attack/defense penalties from -25% to -20%; retain the minor Plains attack affinity.
+- UNIT_KHMER_BALLISTA_ELEPHANT: return Plains to the generic War Elephant +10% attack baseline and use Jungle +20% attack as the UU-specific feature specialization; retain Forest -20% defense.
+- UNIT_HORSE_KNIGHT: reduce Forest/Jungle attack/defense penalties from -25% to -20%.
+- UNIT_BYZANTINE_CATAPHRACT: keep Grass +20% attack as the single positive terrain specialization, remove secondary Plains/Desert bonuses and positive terrain defense, and retain the heavy-mounted Forest/Jungle -20% attack/defense weakness.
+- UNIT_MONGOL_KHISHIGTEN: replace simultaneous strong Desert/Grass bonuses with focused Plains +20% attack and restore the generic Horse Knight -20% Forest/Jungle attack/defense weakness.
+- UNIT_CAMEL_KNIGHT: reduce Desert attack from +25% to +10%, remove positive Desert defense, and reduce Forest/Jungle attack/defense penalties from -25% to -20%.
+- UNIT_ARABIA_HAJJAN: reduce Desert attack from +35% to +20%, remove positive Desert defense, and reduce Forest/Jungle defense penalties from -25% to -20%; remains the stronger Desert attacker relative to generic Camel Archer.
+- UNIT_HORSE_CUIRASSIER: reduce Forest/Jungle defense penalties from -25% to -20%.
+- UNIT_SPANISH_CONQUISTADOR: focus the positive terrain identity on Plains +20% attack/+10% defense, remove the old Forest attack bonus, and retain Jungle -20% defense.
+- UNIT_CAMEL_CUIRASSIER: reduce Desert attack from +25% to +10%, remove positive Desert defense, and reduce Forest/Jungle defense penalties from -25% to -20%.
+- UNIT_DRAGOON: reduce Forest/Jungle defense penalties from -25% to -20%.
+- UNIT_RUSSIA_COSSACK: reduce Tundra/Snow to weak +10% attack affinities, remove the old Forest attack bonus and positive terrain defense, and retain Jungle -20% defense.
+- UNIT_GERMAN_HUSSAR: remove positive Tundra defense, reduce Forest attack from +25% to +20%, and reduce Jungle defense penalty from -25% to -20%; retain +10% Tundra attack.
+- UNIT_CATAPULT: reduce Forest/Jungle attack/defense penalties from -50% to -40%, retaining dense features as a defining early-siege weakness.
+- UNIT_TREBUCHET: reduce Forest/Jungle attack/defense penalties from -50% to -40%, retaining dense features as a defining early-siege weakness.
+- UNIT_KOREAN_HWACHA: remove positive Grass and Forest defense, reduce Forest attack from +50% to +20%, and retain the smaller +10% Grass attack; generic Cannon and later artillery remain terrain-neutral.
+- UNIT_HOLY_ROMAN_HOUFNICE: remove positive Tundra/Plains and Forest defense, reduce Forest attack from +50% to +20%, and retain +10% Tundra/Plains attack; generic Cannon and later artillery remain terrain-neutral.
+- UNIT_PORTUGAL_CARRACK: reduce Ocean attack/defense and Coast defense from +25% to +20%; retain +10% Coast attack pending the separate review/replacement of this map-dependent naval UU.
+- UNIT_IRONCLAD: reduce Coast defense from +25% to +20% to fit the terrain cap.
+
+- UNIT_GRENADIER: increase withdrawal chance from 15% to 20%; reinforces its versatile hit-and-run/foot-bomber role without increasing base strength or its already substantial +25% vs Gun modifier.
+- UNIT_MACHINE_GUN: increase cost from 130 to 150 hammers; keeps its very strong specialized defensive package intact while making it less hammer-efficient relative to general-purpose gun units.
+
+- Actually merged the duplicated 275-cost technology columns visually: old `iGridX` columns 5 and 6 now share column 5, and all later technology columns shift left by one. Technology prerequisites/costs are unchanged by this layout-only adjustment.
+- reduce tech costs from 50/80/125/175/275/450 to 50/80/120/175/260/425; slightly eases the early/mid revised tree without broadly reverting the recent technology-cost increase.
+
+- Add a ZIP-only _SNAPSHOT_CONTEXT folder for useful context that is not otherwise available from the exported repository files.
+- Keep the tracked repository file manifest separate from Git working-tree state.
+- Add staged and unstaged no-EOL diffs for distinguishing index and working tree changes.
+- Add incremental Git history from the newest commit recorded by the tracked AdvCiv-SAS Git log through snapshot HEAD; order this generated history from oldest to newest, unlike the tracked newest-to-oldest Git log.
+- Record branch, HEAD, commit count, upstream, locally known ahead/behind state, and short tracked working-tree status.
+- Treat the commit count as the practical AdvCiv-SAS version number used by documentation such as "requires AdvCiv-SAS X+", while retaining HEAD as the exact source identifier.
+- List selected archive files that are not tracked by Git, such as the temporary changes.md, without exposing unrelated untracked files.
+- Add a compact tree of locally present Git-ignored paths.
+- Move generated snapshot metadata out of the ZIP root and document that the context is useful to humans, LLMs, and other review/debugging tools without being part of the repository itself.
+
+commit 3ffd61d7959e56861c8a056237981310642bcee1
+Author: wonderingabout <hidden>
+Date:   2026-08-16 09:36:25 +0200
+
+Improve unattended AI Auto Play, add explicit run outcomes to SASGameRecord (KI#203); finalize era-based offensive-production tuning (KI#197.10)
+
+- Set the Classical offensive-production floor from 10% to 0% after save-file 468 testing favored unrestricted Ancient and Classical development
+- Suppress harmless informational and player-handoff popups during AI Auto Play
+- Record autoplay request IDs, requested/completed turns, player changes, and explicit end causes
+- Expose shared SASAutoPlayEndCause values to the DLL and Python
+
+commit e67adf522de45321fad3d46ce137796f3ab83e48
+Author: wonderingabout <hidden>
+Date:   2026-08-15 22:11:19 +0200
+
+Make SASGameRecord map text optional and improve Markdown/LLM tooling
+
+- add per-layer SASGameRecord map-text enable defines
+- add CI checks for local Markdown images, links, and heading anchors
+- fix stale and broken Markdown image/link/anchor references
+- include a generated Git tracked-file manifest in light-source ZIPs for LLM context
+- document Git tree manifest handling and canonical Assets/Res casing
+- document the new Markdown CI and light-source Git tree support
+
+commit 91454e007cda083ef2edf512f08aaaa0d5b90d50
+Author: wonderingabout <hidden>
+Date:   2026-08-15 11:24:53 +0200
+
+(Fixed) Let AdvCiv's uncapped OneArea-resource pass revisit capped landmasses (KI#202)
+
+- Reset inherited tried-area tracking before the uncapped second pass so remaining valid resources can reach their calculated target.
+- Fix the city-billboard runtime scaler to tolerate and preserve comments restored beside active XML values.
+- Document successful fresh-map smoke testing of the complete BTS-style shared-generator profile.
+
+commit 112e830fe244bccd47436a19066806d56daf7027
+Author: wonderingabout <hidden>
+Date:   2026-08-15 10:30:25 +0200
+
+(Improved / tuned) An era-progressive offensive production floor preserves early AI strategies while still correcting weak middle and late armies (KI#197.10)
+
+commit 39499ccef2aae5b36268e75dd3dd09c3a3fb2515
+Author: wonderingabout <hidden>
+Date:   2026-08-14 19:31:55 +0200
+
+(Fixed/Improved) Disable Base AdvCiv relative-strength tech-trade rubber-banding that guaranteed weaker recipients discounts without bargaining risk (KI#201) (now optionally tunable: default disabled in AdvCiv-SAS as we don't want this rubber-banding change)
+
+Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16979072 and https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16979573
+
+commit d2c310774e5e93787c6609b01c9fb60880d6311c
+Author: wonderingabout <hidden>
+Date:   2026-08-14 14:43:43 +0200
+
+Make AdvCiv map generation XML-tunable with BTS alternatives
+
+- Add independent C++ and Python map-generator controls while preserving AdvCiv defaults; document the distinction from AdvCiv-SAS XML, GlobalDefines, and map-script changes. Addresses player feedback at: https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16979072
+- Restore archived XML comments beside their active values and remove redundant for_comments.xml copies.
+- Add DLL compile instructions (mostly aimed at LLMs because they don't use Visual C++ 2010 Express nor any UI tool)
+
+commit 86b81c25b764c5d8a34ad17a6534b05ec7370cf6
+Author: wonderingabout <hidden>
+Date:   2026-08-14 10:31:40 +0200
+
+Rework Arabia, Babylon, Carthage, Germany, Ireland, Korea, Netherlands, Portugal, Russia, and Scandinavia's civ-specific buildings; rebalance related buildings
+
+- BUILDING_ARABIAN_MADRASSA: replace with BUILDING_ARABIAN_FURUSIYYA_MAYDAN and change BuildingClass from BUILDINGCLASS_LIBRARY to BUILDINGCLASS_STABLE, PrereqTech from TECH_WRITING to TECH_MOUNTED_COMBAT and iCost from 80 to 60; retain normal Stable mounted experience, add two Priest slots and 1 Health with BONUS_HORSE/BONUS_CAMEL, giving Saladin direct military/religious effects without forcing him into a science path; "Maydan" presents a riding/training ground rather than another academic school, while the conditional Health keeps mounted bonuses useful after their military windows
+- BUILDING_BABYLON_GARDEN: change BuildingClass from BUILDINGCLASS_GROCER to BUILDINGCLASS_GRANARY, PrereqTech from TECH_MATHEMATICS to TECH_POTTERY and iCost from 110 to 45; replace the previous flat Food with normal Granary Food storage/cereal Health, 1 permanent Health, 1 additional Health with BONUS_BANANA and 1 Happiness with BONUS_GRAPES/BONUS_SUGAR, giving Babylon an early agricultural identity with modest permanent value and gradual bonus-based growth scaling
+- BUILDING_CARTHAGE_COTHON: replace with BUILDING_CARTHAGE_PUNIC_AGORA and change BuildingClass from BUILDINGCLASS_PORT to BUILDINGCLASS_GROCER, PrereqTech from TECH_NAVIGATION to TECH_MATHEMATICS (+ TECH_CURRENCY) and iCost from 150 to 110; retain normal Grocer effects, increase Gold from 15% to 35% and Merchant slots from two to three, supporting Carthage's commercial and military-expansion profiles without depending on coastlines or foreign trade
+- BUILDING_GERMAN_LONGHOUSE: replace with BUILDING_GERMAN_ZUNFTHAUS and change BuildingClass from BUILDINGCLASS_GRANARY to BUILDINGCLASS_FORGE, PrereqTech from TECH_POTTERY to TECH_METAL_CASTING and iCost from 45 to 100; replace early flat Food with 35% general Production and two Engineer slots, giving both German leaders a versatile craft/manufacturing identity
+- BUILDING_IRELAND_SCRIPTORIUM: replace with BUILDING_IRELAND_MUILEANN_UISCE and change BuildingClass from BUILDINGCLASS_UNIVERSITY to BUILDINGCLASS_AQUEDUCT, PrereqTech from TECH_BROADER_EDUCATION to TECH_MATHEMATICS and iCost from 200 to 90; replace the late religious/science effects with 1H on worked river plots and 1 Happiness with BONUS_WHEAT, giving Ireland useful Production/economic infrastructure before its late civ-specific unit
+- BUILDING_KOREAN_GYEONGDANG: remove the 10% Great General modifier and add PROMOTION_COMBAT1 to newly trained units, expressing combined civil and martial education more directly while retaining its early science identity and three Scientist slots; the first-tier promotion saves experience without letting an early, widely built Library bypass Combat I and immediately unlock advanced promotion branches
+- BUILDING_NETHERLANDS_DIKE: replace with BUILDING_NETHERLANDS_BEURS and change BuildingClass from BUILDINGCLASS_LEVEE to BUILDINGCLASS_BANK, PrereqTech from TECH_PHYSICS to TECH_BANKING and iCost from 180 to 200; replace the late geography-dependent effects with normal Bank Gold, +50% trade-route yield and an additional +100% foreign trade-route yield, making the Dutch exchange a substantial later investment with a reliable domestic floor and a stronger diplomacy-dependent foreign-trade advantage
+- BUILDING_PORTUGAL_FEITORIA: replace with BUILDING_PORTUGAL_PEIXARIA and change BuildingClass from BUILDINGCLASS_CUSTOM_HOUSE to BUILDINGCLASS_GROCER, PrereqTech from TECH_BANKING to TECH_MATHEMATICS and iCost from 160 to 110; retain normal Grocer bonus effects and add 1 Health with BONUS_FISH/BONUS_MOLLUSCS and 1 Happiness with BONUS_CRAB/BONUS_WHALE, distributing Portugal's marine-bonus identity inland without requiring another automatic trade modifier
+- BUILDING_RUSSIAN_RESEARCH_INSTITUTE: replace with BUILDING_RUSSIAN_PRIKAZ and change BuildingClass from BUILDINGCLASS_UNIVERSITY to BUILDINGCLASS_COURTHOUSE, PrereqTech from TECH_BROADER_EDUCATION to TECH_CODE_OF_LAWS and iCost from 200 to 110; increase flat Espionage from 2 to 3, add a 25% Espionage modifier and two Spy slots, supporting Russia's large-empire administration and intelligence identity while keeping Great Spy generation optional rather than polluting Great Person pools
+- BUILDING_SCANDINAVIA_TRADING_POST: replace with BUILDING_SCANDINAVIA_CHIEFTAINS_HALL and change BuildingClass from BUILDINGCLASS_PORT to BUILDINGCLASS_BARRACKS, PrereqTech from TECH_NAVIGATION to TECH_HUNTING and iCost from 150 to 50; replace its map-dependent naval/economic effects with PROMOTION_CITY_RAIDER1 for newly trained units and -10% local War Weariness, supporting Ragnar's early offensive and later raider identity
+- BUILDING_ENGLISH_STOCK_EXCHANGE: add 2 Great Merchant points, giving the late financial building a lasting distinction that unrestricted Merchant slots cannot make redundant
+- BUILDING_GREEK_ODEON: remove Happiness with BONUS_GRAPES while retaining BONUS_DYE, avoiding overlap with the Garden's cultivated-bonus identity
+- BUILDING_ZULU_IKHANDA: change iCost from 60 to the normal Barracks cost of 50; its early maintenance and military effects are individually modest, while a higher cost makes Shaka significantly less competitive militarily, especially early
+- BUILDING_MONGOL_GER, BUILDING_MT_RUSHMORE and BUILDING_PENTAGON: increase the narrow military Production modifier from 10% to 15%, keeping it meaningful beside civ-specific buildings with stronger general Production
+- BUILDING_CASTLE: change iCost from 110 to 130 because its combined defensive and economic effects were too easy to establish before an invasion
+- BUILDING_UNIVERSITY and BUILDING_FRENCH_SALON: change iCost from 200 to 190 because the streamlined later technology tree leaves less time to repay the cost, while the small reduction still requires commitment from non-scientific leaders
+- BUILDING_AQUEDUCT and BUILDING_IRELAND_MUILEANN_UISCE: change iCost from 80 to 90 because the broadly useful early Health building and the stronger Irish variant were too inexpensive; change BUILDING_OTTOMAN_HAMMAM to the same 90 cost and add 1 Health with BONUS_MARBLE alongside its conditional Happiness
+
+- UNIT_DUTCH_SWIFT_WORKER: rename to UNIT_NETHERLANDS_SWIFT_WORKER, including its art and text identifiers, to match CIVILIZATION_NETHERLANDS and the Netherlands building identifiers; gameplay is unchanged
+
+- Art/text: rename and reassign the replaced buildings, add dedicated art and Pedia entries for the new identities, and remove obsolete local old art asset files
+- CI: validate civilization/leader and civ-specific replacement mappings, plus unused or missing SAS GameText/Pedia references
+
+commit 968e0404f6cccc9be93b78246d2c044be80450ae
+Author: wonderingabout <hidden>
+Date:   2026-08-12 12:03:26 +0200
+
+Make AI Worker reserves city-count tunable and validate -1/-1/-1 defaults (KI#198)
+
+- Split the primary-landmass signed Worker reserve into independently tunable 1-city, 2-city, and 3+-city defines
+- Document save-file 459 and 463 comparisons showing that higher reserves improved more plots sooner but generally hurt expansion, population, production, and military strength
+- Retain the final -1/-1/-1 defaults while leaving local Worker assignment, notably for neglected jungle or new cities, as a separate possible issue
+
+commit 8ab3703280e87ffb7a8a8cc3fb9c349c7ffa165a
+Author: wonderingabout <hidden>
+Date:   2026-08-12 09:37:36 +0200
+
+Show natural food quality through SASGameRecord terrain-map letter case
+
+- Capitalize terrain symbols whose natural food can feed the population point working them
+- Account for hills, features, lakes, rivers, and permanent plot-yield effects
+- Add a tunable surplus threshold and document the derived symbols in the map legend
+
+commit ea2f16e4e5904286e8facc7e026d259cf5e5f573
+Author: wonderingabout <hidden>
+Date:   2026-08-11 21:53:09 +0200
+
+Add directional river maps and rendered map references to SASGameRecord
+
+- Draw exact southern/eastern river boundaries with high-contrast symbols, dotted land, and marked lakes
+- Preserve source-edge totals and coordinates while logging rare later river edits without bloating ordinary plot-change rows
+- Add rendered text-map screenshots to the documentation/light-source archive and organize map preview images
+
+commit 129d438d80ac106aa77b3acebe613eb9fab3b6e2
+Author: wonderingabout <hidden>
+Date:   2026-08-11 19:10:30 +0200
+
+Expand SASGameRecord ASCII previews with bonus maps and quantitative legends
+
+- Add an initial omniscient bonus map with mnemonic runtime-validated symbols and a collision marker for resampled cells
+- Record runtime IDs and type totals for terrain, features, bonuses and source plot types
+- Add logical-cell, drawing-character and per-symbol counts to every map layer
+- Clarify unrevealed-bonus visibility and why ice overrides its underlying Coast/Ocean terrain
+
+commit 404d43461d2c67af87862341b7609ac882782b0e
+Author: wonderingabout <hidden>
+Date:   2026-08-11 18:00:12 +0200
+
+Expand SASGameRecord text maps with terrain and evolving feature layers
+
+- Add configurable terrain and feature pictures with validated runtime palettes and strategic Coast/ice handling
+- Repeat changing feature and political pictures while keeping geography and terrain setup-only
+- Keep political pictures ownership-focused and map symbols safely to player setup rows
+
+commit ad20f152bd488a871c26a72c4471e5d3beba63cd
+Author: wonderingabout <hidden>
+Date:   2026-08-11 14:00:38 +0200
+
+Add aspect-correct SASGameRecord ASCII maps and full LLM review examples
+
+- Render clean level-3 geography and political pictures with direct player, civilization, and displayed-name mappings
+- Preserve horizontal, square, and vertical map proportions with tunable bounds, monospace correction, and validated symbol palettes
+- Confirm native 78x56 map output as consistently aligned 156x56 picture content
+- Bundle a full SASGameRecord example and external LLM review for portable analysis reference
+
+commit a7a071f1be63b652070811ccb7eda27a7b1cfbdf
+Author: wonderingabout <hidden>
+Date:   2026-08-11 12:02:54 +0200
+
+Expand SASGameRecord with Barbarian cities, spawns, positions, and combat pressure
+
+commit 724500d4a0ac6604f0df2e817629981a09e42ec9
+Author: wonderingabout <hidden>
+Date:   2026-08-11 11:17:03 +0200
+
+Add ReplayInfo calendar, player-color, and final-score context to SASGameRecord; include selected screenshots and compression in light source ZIP
+
+- Add key AdvCiv-SAS image folders for external LLM/UI review.
+- Compress the whole ZIP by default, with configurable compression level.
+- Print final ZIP size and optional write duration.
+
+commit a84d4747204a99de6214942f94a80e7c2360745f
+Author: wonderingabout <hidden>
+Date:   2026-08-11 08:03:33 +0200
+
+Expand SASGameRecord with millisecond timing and privacy-tiered performance context
+
+- Reorder/organize image folders and files in docs
+
+commit e990260efc0d4f22d0718a443d18e66b522e0e79
+Author: wonderingabout <hidden>
+Date:   2026-08-11 00:35:42 +0200
+
+Add synthetic whole-war outcome summaries to SASGameRecord
+
+- Aggregate war duration, war success, units and production cost destroyed, city-plot battles, conquests, and captured population
+- Preserve declaration, peace, capitulation, loaded-save, elimination, and ongoing victory/autoplay context
+- Validate all 115 wars in a turn-474 run: 91 ordinary peace, 4 capitulations, 13 state changes/eliminations, and 7 ongoing
+- Keep team-pair validation release-safe so invalid NO_TEAM records cannot reach reconciliation
+
+commit fd869b094ef88b16a9c7bc4952462e9fba0d6106
+Author: wonderingabout <hidden>
+Date:   2026-08-10 23:30:08 +0200
+
+Record game session context in SASGameRecord and share diagnostic enum names
+
+* Log game type, mode, multiplayer format, turn handling, and multiplayer options in SASGameRecord
+* Add shared GameType and GameMode enum-token helpers
+* Reuse shared WarPlan tokens in UWAI reports for consistent, greppable diagnostics
+* Avoid guessing the unpersisted Simple Game versus Custom Game distinction
+
+commit 5d00ec19e86215271fb6aa37b4933f1a55c7e3ac
+Author: wonderingabout <hidden>
+Date:   2026-08-10 23:10:38 +0200
+
+Add technology-acquisition provenance to SASGameRecord
+
+* Carry explicit acquisition causes through research completion and direct technology grants
+* Distinguish research, trade, free choices, huts, Great People, espionage, sharing, inheritance, setup, and other engine paths
+* Record the source on each TECH_ACQUIRED row without changing gameplay
+
+commit d24d15505cd41a53df3579aa9844c347cb618025
+Author: wonderingabout <hidden>
+Date:   2026-08-10 18:03:39 +0200
+
+Expand SASGameRecord with compact production, military, and policy histories
+
+commit fb9398af70651f8c92369e384fa81bfb44310601
+Author: wonderingabout <hidden>
+Date:   2026-08-10 17:03:19 +0200
+
+Change USA from Supermarket to Courthouse (Federal Courthouse), Native America from Monument to Jail (Soldiers' Lodge) and other minor changes
+
+- BUILDING_AMERICAN_MALL: replace with BUILDING_AMERICAN_FEDERAL_COURTHOUSE and change BuildingClass from BUILDINGCLASS_SUPERMARKET to BUILDINGCLASS_COURTHOUSE; reduce Production from 110 to 80 and Maintenance from -50% to -60%, and add +25% Espionage Defense; represent America's federal history, shared administration across states and national-security role while helping its commonly large empires integrate new or conquered cities; the Rathaus remains stronger at -70% Maintenance
+- BUILDING_NATIVE_AMERICA_TOTEM: replace with BUILDING_NATIVE_AMERICA_SOLDIERS_LODGE and change BuildingClass from BUILDINGCLASS_MONUMENT to BUILDINGCLASS_JAIL; keep normal Jail effects and cost, increase Espionage from +25% to +50%, Spy slots from 1 to 2 and Espionage Defense from 0% to +50%; replace the Totem's short-lived Culture/Merchant identity with active espionage and nonmilitary defense matching Sitting Bull's high espionage preference, Philosophical/Protective traits, cautious diplomacy and defensive posture
+
+commit 40007b3cec7c992874aa0fbdd0563c408a364d85
+Author: wonderingabout <hidden>
+Date:   2026-08-10 13:05:54 +0200
+
+Change Khmer from Aqueduct to Theater (Hall of Dancers), India from Jail to Colosseum (same), Spain from Citadel to Market (Lonja), Russia from Castle to University (Research Institute), Arabia from University to Library (same), and rework other civ-specific buildings and add related XML/text asset checks
+
+- BUILDING_ARABIAN_MADRASSA: change BuildingClass from BUILDINGCLASS_UNIVERSITY to BUILDINGCLASS_LIBRARY, retain two Priest slots, reduce Culture to flat 2, and add 1 Health with BONUS_CAMEL, restoring an early religious-library identity (because religion is not as effective or useful later in the game) without excessive early border pressure and keeping Camel useful after its military window
+- BUILDING_BABYLON_GARDEN: change BuildingClass from BUILDINGCLASS_COLOSSEUM to BUILDINGCLASS_GROCER and add 1 Food and 1 Health with BONUS_WHEAT, moving the Garden from public entertainment to a later peaceful growth role that complements Hammurabi's early/mid-game advantages (since Rice is as of now used by China, and Maize as of now By Aztec (see below))
+- BUILDING_GREEK_ODEON: change BuildingClass from BUILDINGCLASS_COLOSSEUM to BUILDINGCLASS_THEATRE, retain 1 flat Happiness and 1 Great Artist point, and add 1 Happiness with BONUS_GRAPES, fitting a performance venue better while filling the underused Theatre class and aligning with Greece's religion/culture paths
+- BUILDING_KHMER_BARAY: replace with BUILDING_KHMER_HALL_OF_DANCERS and change BuildingClass from BUILDINGCLASS_AQUEDUCT to BUILDINGCLASS_THEATRE; double culture-slider Happiness from 5 to 10 and add 1 Happiness with BONUS_ELEPHANTS, letting Suryavarman's Creative/cultural path support city growth
+- BUILDING_INDIAN_MAUSOLEUM: change BuildingClass from BUILDINGCLASS_JAIL to BUILDINGCLASS_COLOSSEUM, replacing a late Espionage/security role poorly suited to India with normal Colosseum Happiness/Culture and 1 Happiness with BONUS_GOLD on the earlier, versatile Construction infrastructure/siege path; also "Mausolleum" and "Colosseum" somehow sounds the same so suitable too perhaps, and may also be a better thematic fit than Jail was.
+- BUILDING_RUSSIAN_GORD: replace with BUILDING_RUSSIAN_RESEARCH_INSTITUTE and change BuildingClass from BUILDINGCLASS_CASTLE to BUILDINGCLASS_UNIVERSITY; add three Engineer slots, giving Russia an earlier applied-science and Great Engineer identity after Observatory removal
+- BUILDING_SPANISH_CITADEL: replace with BUILDING_SPANISH_LONJA and change BuildingClass from BUILDINGCLASS_CASTLE to BUILDINGCLASS_MARKET; replace the awkward defensive-Castle Siege experience with 1 Trade Route and 1 Happiness with BONUS_SILVER for a broadly useful imperial-trade identity
+- BUILDING_OTTOMAN_HAMMAM: change iCost from 100 to the normal Aqueduct's 80, reduce flat Happiness from 2 to 1, and add 1 Happiness with BONUS_MARBLE, making it more accessible and versatile while preserving its maximum conditionally
+- BUILDING_PERSIAN_APOTHECARY: change flat Health from 2 to 1, increase BONUS_SPICES Health from 1 to 2, and add a 10% Research modifier, buffing and distinguishing it from a merely healthier Grocer through medicinal-resource and scientific effects
+- BUILDING_MAYA_BALL_COURT: replace BONUS_MAIZE Happiness with BONUS_GEMSTONES Happiness, making more of its strength conditional through a resource that can abstract jade and Maya ritual prestige
+- BUILDING_AZTEC_SACRIFICIAL_ALTAR: remove the early Artist slot and add 1 Happiness with BONUS_MAIZE, avoiding disproportionate border/Great Person pressure while reinforcing its Slavery economy through the Granary's Maize Health and faster population regrowth after whipping
+- BUILDING_ROMAN_FORUM: add 1 Great Scientist point, which thematically treats the Forum as a place of ideas and in terms of gameplay gives its reduced local Great Person modifier a more gradual science/economy effect even before assigning specialists (+50% GP was too strong early, but after our nerf to +25% GP was a bit too weak; adding this is good early but not too OP, but decent late game and not too impactful)
+
+- Art/text: rename the Russian Gord, Spanish Citadel, and Khmer Baray to Research Institute, Lonja, and Hall of Dancers; reuse inherited Research Institute art, add dedicated Lonja and Hall of Dancers art, and remove obsolete local Gord art files
+
+- CI: add checks for stray text between schema-defined non-GameText XML child elements; whitespace in local DDS button/image paths outside `nif` folders (KI#118); web tracking query parameters in active XML text; unused SAS-owned GameText entries; and orphaned technology audio scripts
+
+commit c7bfe6cc181619ccc59a9f0694b4b8b898558ae2
+Author: wonderingabout <hidden>
+Date:   2026-08-09 12:06:35 +0200
+
+(Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks (KI#200)
+
+- AI combat ordering: risky stack attacks can now spend tactically suitable obsolete units as expendables / cannon fodder before current units instead of letting inherited sacrifice selection replace the obsolete choice with a stronger current unit. Very safe current attacks remain unchanged; XML-tunable sacrifice-value, tactical-role and odds safeguards keep the behavior selective. This can soften defenders, preserve current units for safer follow-up attacks, and naturally clear obsolete excess and its support or often-poor-value future-upgrade pressure.
+- AI combat diagnostics: retained/expanded level-3 WAR_ATTACK_ORDER candidate, obsolete-expenditure, exact unit-ID, withdrawal and combat-limit logging used to validate the new ordering across multiple autoplay runs. Save file 454 logged 29 obsolete-expenditure overrides among 1,426 non-Barbarian attack selections; six genuinely bypassed the normal 25-point odds-deficit limit, with several expendable units materially damaging defenders and preserved current units later winning safer attacks.
+
+commit b5a184403ef9fdd75d3dd30c5e3a3ef070b56f55
+Author: wonderingabout <hidden>
+Date:   2026-08-09 10:11:53 +0200
+
+Ensure via CI and corresponding SAS define names turn values are scaled depending on game speed when needed
+
+- Add a CI-enforced SAS turn-define naming convention: `TURN(S)_NORMAL_GAMESPEED` for Normal-speed values that code must scale, and `TURN(S)_UNSCALED_GAMESPEED` for intentional literal game/path turns; rename the existing turn-valued SAS defines accordingly.
+- (Fixed) Scale SAS UWAI victory-denial countdown windows with `VictoryDelayPercent`, matching the game-speed scaling of the victory countdown itself; physical movement/path-turn limits remain intentionally unscaled.
+
+commit 39eab367845417860483f5c34d2b81d9fcd227aa
+Author: f1rpo <hidden>
+Date:   2026-08-09 10:02:44 +0200
+
+Tweak AI target for floating defenders when unit spending high
+
+Based on this SAS commit:
+https://github.com/wonderingabout/AdvCiv-SAS/commit/2be4fd2642f193dd11df172eb97ac08b919cbb09
+
+That commit halves the target for floating defenders or even divides it by three when unit spending is clearly above the desired (aspirational) cap. I've gone with a reduction to 72% floating defenders. This does not result in unit deletions, to be clear; the AI just won't train more floating defenders when unit spending is too high (unless in a land war). When I monitored the effect for 250 turns on AI Auto Play, it looked beneficial; saved the AI from producing a few units that it had no need for anyway. As before, production of floating defenders is fully suspended when in financial trouble. [advc.107]
+
+commit 153bab2691c3a88edefa75a941776ecb1579ef8c
+Author: f1rpo <hidden>
+Date:   2026-08-09 09:16:49 +0200
+
+Fix rare precision problem in AI_ejectBestDefender
+
+Was causing a (harmless) failed assertion when all units in a conquered city were badly damaged and poorly suited for defense. Seems that either changes adopted from MNAI (advc.mnai) were the cause or advc.159.
+
+commit 1125ab30704a50318e65661e6666c1c0c1664e08
+Author: wonderingabout <hidden>
+Date:   2026-08-09 08:50:29 +0200
+
+(Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pumps (observed with Workers) (KI#198.2)
+
+commit 8227c7d3284e3dd3ebe4a8e30901f79c0495ba38
+Author: wonderingabout <hidden>
+Date:   2026-08-08 14:34:54 +0200
+
+Tune AI offensive military production / economy maximizing tradeoff closer to a middle ground and more military leaning; improve war-target reach, and make reserve AI Worker floor -1 so 1st city's settler is not delayed by too early unneeded workers (KI#197.9, KI#61, KI#198)
+
+- (Improved) Healthy AI empires could still devote too little productive capacity to offensive units even after BuildUnitProb and spending-limit fixes (KI#197.9)
+  - Add an XML-tunable offensive production-capacity floor; default to 40% after 0/40/100 autoplay comparisons showed a substantially stronger military than 0% while preserving better infrastructure/economic scaling than 100%
+  - Increase UWAI land/sea war-target contact limits from 3/12 to 15/20 approximate path turns so worthwhile reachable wars can reach normal UWAI evaluation instead of being hard-rejected too early (KI#61)
+- Make the primary-area AI Worker reserve signed and default it to -1, so the stronger 2-Workers-per-city floor does not make a one-city empire delay its second Settler to produce excess early Workers (KI#198)
+- Add BBAI logging for:
+  - whether expendable/obsolete units are actually spent first in combat
+  - why an AI with overwhelming military superiority can fail to convert that advantage into cities/economic power
+
+commit b3b83cf78fc58a509bc639573445452f0903e9b1
+Author: wonderingabout <hidden>
+Date:   2026-08-07 20:11:39 +0200
+
+(Tremendously Improved) Fix very unimproved cities due to too low AI Worker count (regression and broader too low min worker issue); fix Anti-air land units (SAM) being disproportionately too high
+
+- AI Workers (KI#198): fixed an AdvCiv-SAS Worker-demand regression where currently worked, featureless owned land could be invisible to `AI_updateWorkersHaveAndNeeded` because SAS intentionally bypasses the legacy city best-build cache for ordinary land improvements. A similar severe under-improved-city symptom had already been reported as high priority in Base AdvCiv example 208 (Shanghai still almost unimproved in 325 AD despite being founded in 2320 BC), although that historical case does not establish the same code-level cause.
+- AI Workers (KI#198): substantially strengthened the primary-area standing Worker minimum, now XML-tunable and defaulting to 2 Workers per city plus 1 reserve. The same minimum is synchronized through `AI_neededWorkers`, production ceilings, and Worker-scrapping safeguards, while the one-city early-growth limit and demand-driven secondary-area behavior remain. In save file 459, the original run had only 3 Russian Workers through turn 220 with 39/62 worked plots unimproved at turn 150 and 58/91 at turn 200; the final stronger-policy branch had 9 Workers for 4 cities by turn 100 and 11 for 5 cities by turn 150, when only 7/54 worked plots were unimproved and Moscow was 16/16 improved.
+- AI military composition (KI#199): save file 459 exposed dedicated land anti-air units leaking into generic combat roles, including a turn-350 Saladin army with 41 Mobile SAMs among 108 combat units. SAM Infantry and Mobile SAM now explicitly place `UNITAI_ATTACK`, `UNITAI_ATTACK_CITY`, and `UNITAI_RESERVE` in `NotUnitAIs`, while retaining their intended `UNITAI_COUNTER`, `UNITAI_CITY_COUNTER`, and `UNITAI_CITY_SPECIAL` roles.
+
+commit c30e4e1ef0d37675aba12d668ca8b514e079ce26
+Author: wonderingabout <hidden>
+Date:   2026-08-07 17:35:37 +0200
+
+(Improved) Under-strength AI military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable (KI#197.8)
+- Add to SASGameRecord current/undamaged city-defense state and bombard damage on city snapshots, synthetic consecutive city-bombard sequences with actual before/after defense reduction and unit counts, plus individual air strikes, interceptions, and plot-air-bomb attempts so military-unit ownership can be compared with actual tactical use.
+
+commit 63eef1e11158ca8a0b69d415f927fab70c5a7bb9
+Author: wonderingabout <hidden>
+Date:   2026-08-07 11:57:21 +0200
+
+Make Base AdvCiv/K-Mod early building production respect military pressure, add BBAI and SASGameRecord Military Production and Unit Composition information, tentatively seemingly fix a CTD
+
+-  (Fixed/Improved) Base AdvCiv/K-Mod early building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 1) ignored BuildUnitProb and could start fresh infrastructure despite maximum military-production pressure (KI#197.7)
+- SASGameRecord also records `UnitCombat` shares alongside raw army-composition counts, compact air/missile/nuclear posture including carrier and missile cargo, and per-city air-unit occupancy/capacity, making late-game force composition and air basing easier to compare without adding separate repetitive snapshot rows.
+- (Tentatively Seemingly Fixed) Reproducible T259 `CvCity::getProductionBarPercentages+0x522` invalid-pointer crash exposed during AI military-production testing (KI#162.3)
+
+commit 1a80ca7cff111011fa27c8f19ebf19fe44b5fe0b
+Author: wonderingabout <hidden>
+Date:   2026-08-07 09:05:51 +0200
+
+Add SASGameRecord geography information, and fix Base AdvCiv/K-Mod AI naval-trade sea-explorer military production (KI#197.6)
+
+- Add SASGameRecord initial map/landmass geography and resource/yield context
+- (Fixed/Improved) Base AdvCiv/K-Mod naval-trade sea-explorer fallback could ignore docked/queued ships and keep producing explorers after the relevant water area was fully revealed (KI#197.6)
+
+commit 2be4fd2642f193dd11df172eb97ac08b919cbb09
+Author: wonderingabout <hidden>
+Date:   2026-08-06 17:05:01 +0200
+
+Fix multiple AI military production follow-up issues
+
+* KI#197.3 - (Fixed/Improved) Base AdvCiv/K-Mod late floating-defender retry ignored military unit-spending limits and could keep producing extra defenders far above budget in peace
+* KI#197.4 - (Fixed/Improved) AdvCiv-SAS excess-defender optimization could replace explicitly required `UNITAI_CITY_DEFENSE` production with offensive UnitAIs, including minimum defenders and Settler escorts
+* KI#197.5 - (Fixed/Improved) Base AdvCiv/K-Mod generic city-hunting-stack production ignored military unit-spending limits and could keep growing peaceful offensive stacks far above budget
+
+commit a9690eb86bfbef33c92ca27d37de53c0f1945911
+Author: wonderingabout <hidden>
+Date:   2026-08-06 12:20:10 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override strong military-production pressure immediately before generic unit production (KI#197.2)
+
+commit 6c8d14b04eb5077109296d1379231b3c883b60be
+Author: wonderingabout <hidden>
+Date:   2026-08-06 10:46:07 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only throttled strong AIs (KI#197)
+
+commit bff444456275a42631f5ad449fec942dfb6ff310
+Author: wonderingabout <hidden>
+Date:   2026-08-05 23:11:20 +0200
+
+Fix AdvCiv-SAS No Production AI Process fallback military units overproduction and SASGameRecord combat-unit counts bugs
+
+- Stop the no-production fallback from replacing valid Processes with forced military units. Full-run fallback unit pushes dropped from 410 to 83; the previous 356 Process-headed fallback cases disappeared while 86 genuine empty-queue cases remained.
+- Split SASGameRecord `combatUnits` from Civ4 `militarySupportUnits`, whose XML-based meaning could badly undercount late-game armies. At victory, Kublai had 81 combat units vs 38 military-support units while remaining top power at 3167.
+
+commit f651eeade3e95dcb49670625ee2fd5dcaa3a92dd
+Author: wonderingabout <hidden>
+Date:   2026-08-05 22:29:39 +0200
+
+Add BBAI and SASGameRecord information for AI military production
+
+commit b67e6210638191af81b21fd1c8079344c48365b1
+Author: wonderingabout <hidden>
+Date:   2026-08-05 19:28:55 +0200
+
+Extend SASGameRecord espionage context without adding rows
+- Record actual rounded per-rival EP spending alongside allocation weights, the AI `BIG_ESPIONAGE` / `ESPIONAGE_ECONOMY` strategy flags, and per-city espionage output, output modifier, and defense modifier.
+
+commit cac3fa4d2bdd225f744c7ee3bc5231e63aad37d0
+Author: wonderingabout <hidden>
+Date:   2026-08-05 19:01:33 +0200
+
+Rename SASGameSummary to SASGameRecord and add more documentation to downloaded archives (no longer excluded in .gitattributes)
+
+- Rename and standardize the unreleased structured game-record feature as `SASGameRecord` throughout DLL filenames/symbols, XML defines, `GAME_RECORD_*` rows, generated log filenames, CI, and documentation terminology; "record" better reflects that the feature captures factual game state/actions for later analysis rather than interpreting them itself.
+- Keep useful offline documentation, modding references, lightweight Sevopedia debug helpers, and git logs in GitHub/source ZIP archives by removing their `export-ignore` rules; keep other release-irrelevant material excluded.
+
+commit c76975220385d950c7d21a7db22cd43d37bcd0ac
+Author: wonderingabout <hidden>
+Date:   2026-08-05 17:46:28 +0200
+
+Increase tech costs, merge columns 5 and 6 of the tech tree, increase the importance of otherwise very weak livestock bonuses (Pig, Cattle, Sheep) (as of now through Buildings) and other changes
+
+- Increase Technology costs by column to accommodate faster AI technology progression (several civilizations reached Industrial by turn 201 on Monarch/Large/Pangaea (as the SASGameSummary shows too), likely due to AI enhancements already visible before the technology-tree rework), with old and new values below (275 is duplicated because these columns are now merged, showed twice for easier comparison of old vs new, see below bullets for details):
+40/65/100/150/225/300/425/600/800/1050/1300/1650/1900/2100/2250/2400/2500/2650/2800/3000
+50/80/125/175/275/275/450/650/850/1100/1400/1700/1900/2100/2300/2500/2600/2700/2800/3000
+- Move TECH_MATHEMATICS from column 5 to 6 and TECH_ENGINEERING/TECH_WATER_WHEEL from columns 7/8 to 8/9, delaying Crossbows and Castles while preserving the branch progression; move Catapults to TECH_MATHEMATICS and Trebuchets to TECH_ENGINEERING, and increase the later BUILDING_HANGING_GARDEN from 225 to 250 production.
+- Merge Technology columns 5 and 6 into a shared 275-cost timing tier (notably addresses swordsmen appearing too late to be useful before their counters or stronger units outmatch them); standardize BUILDING_MAUSOLEUM_OF_MAUSSOLLOS, BUILDING_NATYA_SHASTRA, and BUILDING_HANGING_GARDEN at 250 production across the shared tier, and update the world-wonder cost CI to recognize equal-cost visual columns as one timing tier.
+
+- Rebalance livestock Bonuses (`BONUS_CATTLE`, `BONUS_SHEEP`, `BONUS_PIG`) to give them more secondary strategic uses beyond their already strong tile yields and base Health: BUILDING_ARTEMIS now gives +1 Happiness from each Cattle, Sheep, and Pig; the existing Sumerian Ziggurat keeps +1 Health from Sheep; BUILDING_MONGOL_GER gains +1 Happiness from Cattle; and BUILDING_ROMAN_FORUM gains +1 Happiness from Pig. This gives livestock more reasons to connect or trade without forcing every Bonus into the same building pattern.
+
+- BUILDING_MONGOL_GER: reduce cost from 70 to 60 and mounted free XP from 3 to 2, while retaining +10% military production and adding +1 Happiness from Cattle; shifts some power from raw mounted XP into a broader pastoral/economic benefit.
+- BUILDING_ROMAN_FORUM: reduce its local Great Person rate modifier from +50% to +25% and add +1 Happiness from Pig; the Forum remains a strong Market replacement but is less dominated by an unusually large unconditional GPP multiplier.
+- BUILDING_ARTEMIS: replace +1 global Health and its free Priest with +1 Happiness from each connected Cattle, Sheep, and Pig, keeping the Hanging Gardens' growth identity distinct and reserving the free Priest incentive for the later Apostolic Palace.
+
+commit 38afe787cdc0a80320fab5a2fae96d71854a751c
+Author: wonderingabout <hidden>
+Date:   2026-08-05 13:39:56 +0200
+
+Rework the technology tree: replace TECH_POSTAXIAL_RELIGION, TECH_LATER_ABRAHAMISM, and TECH_ECOLOGY with TECH_DRAMA, TECH_SACRED_ARCHITECTURE, and TECH_AUTOMOBILES, then redistribute prerequisites, religions, assets, and timings across the remaining branches.
+
+- RELIGION_JUDAISM and BUILDING_JEWISH_SHRINE: move from TECH_MONOTHEISM to TECH_CODE_OF_LAWS; RELIGION_CHRISTIANITY and BUILDING_CHRISTIAN_SHRINE: move from TECH_POSTAXIAL_RELIGION to TECH_MONOTHEISM; RELIGION_ISLAM and BUILDING_ISLAMIC_SHRINE: move from TECH_LATER_ABRAHAMISM to TECH_NAVIGATION, making more religions available sooner and distributing their races across legal, religious, and naval paths
+
+- TECH_POLYTHEISM and TECH_LITERATURE: remove their unrelated TECH_MINING and TECH_POLYTHEISM secondary requirements respectively, leaving direct TECH_MYSTICISM -> Polytheism and TECH_WRITING -> Literature paths
+- TECH_THE_WHEEL and TECH_CONSTRUCTION: move The Wheel to the upper row, let TECH_MASONRY or TECH_ANIMAL_HUSBANDRY lead to it without TECH_POTTERY, and let TECH_SAILING or The Wheel lead to Construction without another Masonry requirement; make TECH_ANIMAL_HUSBANDRY an explicit Chariot requirement so the mounted-unit gate remains visible and robust despite The Wheel's Masonry route
+- TECH_MOUNTED_COMBAT: require TECH_ANIMAL_HUSBANDRY + TECH_THE_WHEEL, preventing it from being available too soon alongside newly unlocked Chariots while cleaning the Wheel/Construction arrow junction
+- TECH_METAL_CASTING: remove its TECH_MASONRY requirement and move from column 3 to 2 with matching cost so the TECH_MINING metal branch remains independent and jungle removal is not delayed
+- TECH_ENGINEERING: remove TECH_IRON_WORKING while retaining TECH_THE_WHEEL, so Catapults and Crossbows provide a real alternative to the melee branch
+- TECH_CODE_OF_LAWS: replace TECH_MONARCHY + TECH_LITERATURE with TECH_CALENDAR + TECH_WRITING and move from column 5 to 4 with matching cost/asset values, giving codified administration direct record-keeping prerequisites
+- TECH_MONARCHY: move from column 3 to 5 with matching cost/asset values, require TECH_CODE_OF_LAWS only, and place it on TECH_MONOTHEISM's row so the Code of Laws -> Philosophy arrow no longer passes through it and Monarchy -> Monotheism has a direct horizontal link
+- TECH_CURRENCY: move from column 4 to 5 with matching cost/asset values and require TECH_CODE_OF_LAWS + TECH_BRONZE_WORKING instead of TECH_MONARCHY + TECH_METAL_CASTING, matching enforceable currency rules with coinage metallurgy; move TECH_BRONZE_WORKING and TECH_IRON_WORKING one row lower to separate the economic and metal branches visually
+- TECH_POSTAXIAL_RELIGION and TECH_LATER_ABRAHAMISM: rename their internal types to TECH_DRAMA and TECH_SACRED_ARCHITECTURE now that this technology-tree revision already breaks save compatibility
+- TECH_DRAMA: move from column 8 to 5 with matching cost/asset values, require TECH_POLYTHEISM instead of TECH_LITERATURE, unlock the culture slider, PROCESS_CULTURE, BUILDING_THEATRE, and BUILDING_NATYA_SHASTRA, and retune its identity/flavors toward culture
+- TECH_MONOTHEISM: move to column 7 with matching cost/asset values and require TECH_MONARCHY + TECH_POLYTHEISM, moving the religious commitment from Monarchy to the explicitly religious tech and removing the redundant Drama/Aesthetics double arrow
+- TECH_SACRED_ARCHITECTURE: place it one column after TECH_MONOTHEISM and require TECH_DRAMA + TECH_MONOTHEISM before leading to TECH_AESTHETICS
+- TECH_AESTHETICS: move to column 9 with matching cost/asset values, require TECH_SACRED_ARCHITECTURE, and restore the original Civ4/AdvCiv button as the later concentrated cultural-wonder payoff
+- TECH_PAPER: retain TECH_LITERATURE and restore TECH_CONSTRUCTION as its cross-branch beeline gate, keeping the builder path relevant instead of concentrating another important technology on the already strong TECH_CODE_OF_LAWS path
+- TECH_BROADER_EDUCATION: move from column 10 to 9 with matching cost/asset values and require TECH_CONSTITUTION + TECH_PAPER; make it branch into TECH_BANKING and TECH_MEDICINE
+- TECH_BANKING: move from column 11 to 10 with matching cost/asset values and onto the TECH_BROADER_EDUCATION/TECH_DEMOCRACY row; use TECH_BROADER_EDUCATION as its OrPreReq and TECH_CURRENCY as its AndPreReq to retain both requirements without Currency's long advisor arrow, then lead to Democracy with TECH_PRINTING_PRESS
+- TECH_MEDICINE and TECH_NATURALISM: move them onto a parallel medical/scientific row, make TECH_BROADER_EDUCATION -> TECH_MEDICINE -> TECH_NATURALISM, and add TECH_AESTHETICS as Naturalism's AndPreReq so the cultural/philosophical branch has a later continuation
+- TECH_MILITARY_SCIENCE: remove its unrelated TECH_DEMOCRACY requirement; TECH_CHEMISTRY + TECH_PHYSICS already gate the military/scientific branch sufficiently
+- TECH_ECONOMICS and TECH_CORPORATION: move them out of the bottom row; make TECH_LIBERALISM lead to Economics without repeating the Banking requirement that Liberalism already guarantees, then let Economics branch to Corporation and TECH_COMMUNISM
+- TECH_COMMUNISM: replace TECH_LIBERALISM + TECH_ECOLOGY with TECH_ECONOMICS + TECH_NATIONALISM, making it the political alternative to TECH_FASCISM after Nationalism
+- TECH_ECOLOGY: remove it; make TECH_BIOLOGY lead directly to TECH_THEORY_OF_EVOLUTION and distribute Ecology's remaining assets among TECH_THEORY_OF_EVOLUTION, TECH_ENVIRONMENTALISM, and TECH_COMPOSITES
+- TECH_FASCISM: move from column 17 to 16 with matching cost/asset/era values, require TECH_NATIONALISM only, and retain its political effects plus UNIT_INFANTRY and UNIT_MACHINE_GUN while the armored unlocks move later
+- TECH_AUTOMOBILES: add it at Fascism's former column 17 position, require TECH_FASCISM + TECH_COMBUSTION, unlock UNIT_TANK and PROMOTION_COUNTER_TANK, and lead to TECH_INDUSTRIALISM
+- Technology quotes/audio: reuse the removed Priesthood/Postaxial Religion and Ecology recordings through thematic swaps so every technology retains a distinct spoken quote, including Drama/Romanticism/Mysticism and Automobiles/Environmentalism; explicitly define Drama in the mod-local audio tables and fix the Communism/Aesthetics multiplayer references
+- TECH_ASSEMBLY_LINE: remove its unrelated TECH_ECONOMICS requirement so TECH_STEAM_POWER remains a versatile production path
+- TECH_ADVANCED_FLIGHT: remove its unrelated TECH_FASCISM requirement so Gunships are not delayed behind a political branch despite their important role as the counter to Tanks
+- TECH_INDUSTRIALISM: require TECH_AUTOMOBILES instead of TECH_FASCISM while temporarily retaining TECH_THEORY_OF_EVOLUTION as its beeline gate
+- TECH_FISSION: remove TECH_ARTILLERY and require TECH_RADIO only, keeping it parallel to TECH_INDUSTRIALISM without restricting it to the artillery branch
+- TECH_ENVIRONMENTALISM: move from column 19 to 20 with matching cost, require only TECH_MASS_MEDIA so it competes with TECH_INDUSTRIALISM instead of depending on it, and receive Ecology's fallout cleanup and related event timing
+- TECH_COMPOSITES: remove its TECH_ENVIRONMENTALISM requirement and receive BUILDING_RECYCLING_CENTER while retaining the late armored unit
+- TECH_GAME_THEORY: remove its overloaded TECH_COMMUNISM requirement; TECH_THEORY_OF_EVOLUTION + TECH_CORPORATION remain required
+- TECH_DEPOPULATION: replace its remote TECH_LIBERALISM requirement with TECH_ENVIRONMENTALISM and remove TECH_FISSION
+
+- BUILDING_COLOSSUS: reduce its cost from 175 to 150 and culture from 6 to 4 after TECH_METAL_CASTING moves one column earlier
+- BUILDING_PARTHENON: reduce its cost from 225 to 200 after TECH_CODE_OF_LAWS moves one column earlier
+- BUILDING_NATYA_SHASTRA: move from TECH_AESTHETICS to TECH_DRAMA and reduce its cost from 275 to 225 to match the earlier wonder column
+- BUILDING_HAGIA_SOPHIA and BUILDING_NOTRE_DAME: move to TECH_SACRED_ARCHITECTURE and increase their culture from 6 to 8
+- BUILDING_SPIRAL_MINARET: reduce its cost from 400 to 350 after TECH_SACRED_ARCHITECTURE moves one column earlier
+- BUILDING_TAJ_MAHAL, BUILDING_GLOBE_THEATRE, and BUILDING_HERMITAGE: move to TECH_AESTHETICS; reduce Globe Theatre's cost from 475 to 400 and Hermitage's from 500 to 400 to match the wonder column
+- BUILDING_MAUSOLEUM_OF_MAUSSOLLOS: increase its cost from 200 to 225 after TECH_CURRENCY moves one column later
+- BUILDING_OXFORD_UNIVERSITY and BUILDING_SANKORE: reduce their cost from 450 to 400 after TECH_BROADER_EDUCATION moves one column earlier
+- BUILDING_MT_RUSHMORE: reduce its cost from 625 to 600 after TECH_FASCISM moves one column earlier
+- BUILDING_CORPORATION_1 (Cereal Mills) and its Executive: move from TECH_ENVIRONMENTALISM to TECH_THEORY_OF_EVOLUTION; its Biology path fits the food corporation, gives the scientific branch an economic payoff, and avoids crowding Environmentalism while TECH_CORPORATION remains required
+
+- UNIT_HORSE_ARCHER, UNIT_CAMEL_ARCHER, UNIT_CARTHAGE_NUMIDIAN_CAVALRY, UNIT_WAR_ELEPHANT, and UNIT_KHMER_BALLISTA_ELEPHANT: remove TECH_HUNTING/TECH_ANIMAL_HUSBANDRY requirements that TECH_MOUNTED_COMBAT already guarantees
+
+- CIVIC_ORGANIZED_RELIGION: move from TECH_MONOTHEISM to TECH_POLYTHEISM so monastery-free missionaries can affect early religious spread; Polytheism is a more specialized commitment than TECH_CALENDAR's broader policy path, and the civic's high upkeep keeps the earlier timing deliberate
+- CIVIC_THEOCRACY: move to TECH_MONOTHEISM after introducing TECH_DRAMA, leaving one non-default civic unlock per technology
+
+- Events: replace or remove former religious-tech timing references so moving TECH_DRAMA earlier does not prematurely obsolete events or duplicate guaranteed prerequisites; move former Ecology timing to TECH_ENVIRONMENTALISM
+
+- CI: add a GameText character check for Unicode typography that Civ4 renders as artifacts and repeated question marks that indicate lost characters, while allowing accented letters; add a technology audio check for complete mod-local normal/multiplayer mappings and distinct spoken recordings
+
+commit b06853446ea41b0cfbab3d433593bddbba9715c2
+Author: wonderingabout <hidden>
+Date:   2026-08-05 02:04:56 +0200
+
+Add non-breaking tech-tree and asset balance rework/changes
+
+- BUILDING_GRANARY and its replacements: change PrereqTech from TECH_AGRICULTURE to TECH_POTTERY, making their growth effect available from the beginning
+- BUILDING_PYRAMID: change PrereqTech from TECH_MASONRY to TECH_MINING and iCost from 150 to 125, giving the early wonder more time to matter and matching its new tech-tree column
+- BUILDING_TEMPLE_OF_KUKULCAN: change PrereqTech from TECH_ENGINEERING to TECH_CONSTRUCTION, ObsoleteTech from TECH_GUNPOWDER to TECH_CHEMISTRY and iCost from 275 to 200, making it useful earlier without an overly short window
+- BUILDING_ARTEMIS: change requirements from TECH_CONSTRUCTION + TECH_POLYTHEISM to TECH_POLYTHEISM only and iCost from 200 to 150, making Polytheism more specialized and reducing overloaded Construction
+- BUILDING_STATUE_OF_LIBERTY: change PrereqTech from TECH_DEMOCRACY to TECH_LIBERALISM and iCost from 500 to 525
+- BUILDING_CRISTO_REDENTOR: change PrereqTech from TECH_LIBERALISM to TECH_ROMANTICISM and iCost from 525 to 550, fitting the theme and strengthening Romanticism
+- BUILDING_CUSTOM_HOUSE and BUILDING_PORTUGAL_FEITORIA: change PrereqTech from TECH_ASTRONOMY to TECH_BANKING, strengthening weaker Banking and reducing overloaded Astronomy
+- BUILDING_APOSTOLIC_PALACE: change PrereqTech from TECH_CONSTITUTION to TECH_PHILOSOPHY and iCost from 300 to 275, and add 1 free SPECIALIST_PRIEST, strengthening Philosophy, making the wonder available sooner, and giving its builder an immediate reward and Great Prophet progress alongside its shared religious effects
+- BUILDING_MAUSOLEUM_OF_MAUSSOLLOS: change PrereqTech from TECH_AESTHETICS to TECH_CURRENCY and iCost from 275 to 200, making its Golden Age extension available early enough to affect more of the game
+- World-wonder cost consistency: change BUILDING_NATYA_SHASTRA iCost from 350 to 275 and BUILDING_MOAI_STATUES from 475 to 500
+- World-wonder culture and Great Person point consistency: standardize flat culture to 4 in the first two Ancient-era columns, 6 through the rest of the Ancient and Classical eras, and 8 through the Medieval and Renaissance eras; wonders with a culture percentage modifier have no flat culture, while from the Industrial era onward culture-advisor wonders without a modifier have 10 and other wonders have none; restore BUILDING_BROADWAY culture modifier from 25% to 50%
+- BUILDING_UNITED_NATIONS: change iCost from 1500 to 1200, remaining substantially more expensive than other late world wonders while making its diplomatic-victory role more practical to pursue
+- BUILDING_INTELLIGENCE_AGENCY: change iCost from 180 to 200 and remove its flat 8 espionage, retaining +50% espionage and two Spy slots as a late-game multiplier for cities committed to espionage
+
+- SPECIALBUILDING_MONASTERY: change TechPrereq from TECH_MONARCHY to TECH_CALENDAR, giving Calendar another useful religious unlock
+
+- RELIGION_HINDUISM: change TechPrereq from TECH_MONARCHY to TECH_CALENDAR, making the religion an earlier alternative with more time to matter; change BUILDING_HINDU_SHRINE PrereqTech to match
+
+- CIVIC_SLAVERY: change TechPrereq from TECH_AGRICULTURE to TECH_MASONRY, keeping Agriculture focused and making early research paths more distinct
+- CIVIC_PACIFISM: change TechPrereq from TECH_MEDITATION to TECH_MEDICINE, strengthening Medicine and separating the early religious branch from the powerful Great Person policy
+
+- BUILD_PLANTATION: change PrereqTech from TECH_CALENDAR to TECH_AGRICULTURE
+- BUILD_REMOVE_JUNGLE and all improvement builds that remove FEATURE_JUNGLE: change PrereqTech from TECH_MASONRY to TECH_METAL_CASTING so Masonry does not combine Slavery with both forest and jungle removal
+- BUILD_SCRUB_FALLOUT: change FEATURE_FALLOUT PrereqTech from TECH_FISSION to TECH_ENVIRONMENTALISM
+
+- UNIT_SPY: change PrereqTech from TECH_CALENDAR to TECH_MONARCHY; change BUILDING_SCOTLAND_YARD from TECH_PHILOSOPHY to match, placing the espionage unit and its Great Spy investment together
+- UNITCLASS_CROSSBOWMAN units: change requirements from TECH_CIVIL_SERVICE + TECH_HUNTING to TECH_ENGINEERING only, reducing the rewards concentrated on the Bureaucracy path and removing Hunting once Engineering already guarantees it
+- UNIT_GUNSHIP: remove the redundant TECH_ASSEMBLY_LINE additional requirement because TECH_ADVANCED_FLIGHT already guarantees it
+- UNIT_CHINA_ZHUGE_NU: change iCollateralDamage from 10 to 15, retaining 15 native collateral with the free promotion's 15% modifier while its reduction from 2 guaranteed first strikes to 1 guaranteed first strike + 1 first-strike chance remains the main nerf
+
+- PROMOTION_COUNTER_TANK: change TechPrereq from TECH_ARTILLERY to TECH_FASCISM, where tanks become available
+
+- TECH_CIVIL_SERVICE: remove TECH_IRON_WORKING AndPreReq (Maceman units retain their individual TECH_IRON_WORKING requirement), allowing the Bureaucracy path to be researched independently without also unlocking heavy melee units
+- TECH_IRON_WORKING: remove TECH_CURRENCY AndPreReq, keeping the metal branch independent while Iron Working's high research cost remains its gate
+- TECH_AI, TECH_BIOENGINEERING, TECH_FUSION and TECH_SPACE_EXPLORATION: remove their TECH_COMPUTERS/TECH_GENETICS/TECH_FISSION/TECH_SATELLITES AndPreReqs because TECH_DEPOPULATION already requires the modern branches, making the Future-era branches parallel
+- TECH_TRANSHUMANISM: change TECH_AI from an AndPreReq to an OrPreReq alongside TECH_BIOENGINEERING, letting either branch lead to it
+- First free Great People: move UNITCLASS_GREAT_SCIENTIST from TECH_FUSION to TECH_TERRAFORMING and UNITCLASS_GREAT_MERCHANT from TECH_TERRAFORMING to TECH_SPACE_EXPLORATION, reducing the already strong Robotic Tank path and rewarding the weaker Space Exploration branch
+
+- CI: add checks for world-wonder cost progression; era-relative wonder culture and Great Person point progression, including national/ordinary GP-building ceilings; and stale redundant unit/building tech prerequisites
+
+commit 921cbbd9c7a6298ed8b20ca3f8e8c13c9fa096e8
+Author: wonderingabout <hidden>
+Date:   2026-08-04 15:57:30 +0200
+
+Rework BUILDING_JAPAN_DOUJOU from Jail to Barracks; balance and other changes
+
+- BUILDINGCLASS_ARTEMIS: change iMilitaryProductionModifier from 10 to 0
+- BUILDING_CARTHAGE_COTHON: change sea plot yields from 0F/1H/0C to 0F/1H/1C, remove free SPECIALIST_MERCHANT and 2 Merchant slots
+- BUILDING_AZTEC_SACRIFICIAL_ALTAR: change iHurryAngerModifier from -75 to -50, remove 1 happiness, add 1 Artist slot
+- BUILDING_BYZANTINE_HIPPODROME: remove culture-slider happiness and add -20% war weariness, which better matches its military Stable role and supports warfare with Byzantium's strong Cataphract
+- BUILDING_JAPAN_DOUJOU: change from Jail to Barracks replacement, PrereqTech from TECH_MEDITATION to TECH_HUNTING and iCost from 120 to 50; additionally to BUILDING_BARRACKS, now has 1 Spy slot, and the empire-wide iGreatGeneralRateModifier per Doujou +15% (was +25% before this rework). These previous effects before this rework are now removed: -25% war weariness, +4 espionage, +25% espionage, the free Spy, +25% Great Person rate and Organized happiness
+- BUILDING_ZULU_IKHANDA: change iCost from 65 to 60
+- BUILDING_SPANISH_CITADEL and BUILDING_RUSSIAN_GORD: change ObsoleteTech from TECH_NATIONALISM to TECH_COMBUSTION (Combustion is mandatory enough and not far beyond TECH_MILITARY_SCIENCE, extending these civ-specific buildings' useful window without making obsolescence easy to avoid)
+
+- UNIT_MODERN_TANK: change iFirstStrikes from 1 to 0 and iCost from 270 to 280
+- UNIT_ROBOTIC_TANK: change iCost from 320 to 340
+- UNIT_LONGBOWMAN: change iCityAttack from 10 to 0, iCityDefense from 50 to 25, iCost from 45 to 40
+- UNIT_MALI_SKIRMISHER: change iCityDefense from 25 to 10
+- UNIT_BABYLON_BOWMAN: change iCityDefense from 25 to 10, FreePromotion from PROMOTION_CITY_RAIDER1 to PROMOTION_RETREAT1 (same as the generic advciv-sas longbowman), iCost from 45 to 40, remove UNITAI_ATTACK_CITY
+- UNIT_CHINA_ZHUGE_NU: change iFirstStrikes from 2 to 1, iChanceFirstStrikes from 0 to 1 and iCollateralDamage from 15 to 10 (keep free PROMOTION_COLLATERAL_DAMAGE1 for its smaller multiplicative bonus and because it can persist through upgrades; combining first strikes with collateral keeps the unit useful against collateral-immune units or stacks too small for collateral to matter)
+- UNIT_HOLY_ROMAN_HOUFNICE: remove free PROMOTION_CITY_BOMBARD_DAMAGE (City Bombard Damage remains selectable with experience, requiring a tradeoff against City Raider or other siege promotions); keep iCost at 130
+
+- BONUS_CAMEL: change base yields from 3F/0H/0C to 2F/0H/0C and pasture yields from 1F/2H/2C to 2F/1H/2C, so it is 4F/1H/2C on desert vs 3F/2H/2C on grass for horse (+ not too op as lone desert tiles can be near otherwise rich BFC places so do not make it too OP (this way food increase is gradual too))
+- BONUS_DEER: change base yields from 1F/0H/0C to 2F/0H/0C and camp yields from 3F/0H/1C to 2F/0H/1C, splitting the +4 food evenly between the resource and improvement and helping buff the usually food-poor plots and regions where deer appears
+
+- TECH_BIOENGINEERING and TECH_SPACE_EXPLORATION: fix bGoodyTech from 1 to 0
+
+- iAICreatePercent (HANDICAP_ROOKIE to HANDICAP_WARLORD): 108/106/104/102 -> 112/109/106/103 (fixes the previously uneven progression so iAICreatePercent now changes evenly by 3 at every handicap)
+- iUnownedTilesPerGameAnimal (HANDICAP_ROOKIE to HANDICAP_DEITY_PLUS): 55/52/49/46/43/40/37/34/31/28/25 -> 65/62/59/56/53/50/47/44/41/38/35 (there seemed to be too many animals on HANDICAP_DEITY_PLUS (higher values produce fewer animals))
+
+- Promotion text keys: rename legacy BTS keys to match the existing AdvCiv-SAS promotion names (e.g. TXT_KEY_PROMOTION_COMMANDO -> TXT_KEY_PROMOTION_LOGISTICS); promotion types and gameplay are unchanged
+
+commit 0ef2c68d4224fed92d8dfb7890be9d8c2f16ad32
+Author: f1rpo <hidden>
+Date:   2026-07-29 14:29:50 +0200
+
+Update DLL
+
+commit 8e07e207e1e572110f8f452d5768c236598856a0
+Author: f1rpo <hidden>
+Date:   2026-07-29 14:29:00 +0200
+
+Minor refactor in CvUnit::updateFoundingBorder
+
+(FOR_EACH_UNIT_IN skips NULL plots anyway.)
+
+commit ed82efc3b27b922fe85087ff8d2943a76cf7629e
+Author: f1rpo <hidden>
+Date:   2026-07-29 14:27:42 +0200
+
+Close BtS leak of rival cities in Fog of War (Go To mode)
+
+Reported here on CFC:
+https://forums.civfanatics.com/threads/advanced-civ.614217/post-16975402
+
+I had previously left it up to the EXE to handle the particular settings combination of Founding Yields and Adjacent founding borders because those are the settings that correspond to the BtS behavior. But this meant that the BtS info leak was not fixed when using those settings. Now handled by the DLL, and founding borders are no longer shown in Go To mode at all. I've put code for showing them in CvGameTextMgr::setPlotHelp, but decided to comment that out. Seems inconsistent to show founding border for the Go-To destination but not unit action buttons and recommendations. [advc.004h]
+
+commit ff73bdf88e63510df2d964caec4a59380318a636
+Author: f1rpo <hidden>
+Date:   2026-07-29 14:18:50 +0200
+
+Fix Work Boat counting by Minor Civ/ Barbarian AI
+
+Based on this SAS commit:
+https://github.com/wonderingabout/AdvCiv-SAS/commit/f03333ae1541517390a59da1afd60d73841f74da
+Minor civs definitely need to be able to count their own Work Boats; Barbarians probably also in rare circumstances. So this a bug I've introduced whenever I refactored the player loops [advc.agent].
+
+commit 21f1d6d6f68c20e40d50670da2474d9323fc8d05
+Author: f1rpo <hidden>
+Date:   2026-07-29 13:51:26 +0200
+
+Update version info to 1.14
+
+commit 10c6e91c1d0aa0ad5bc0a7900b3fb89e6332f721
+Author: dependabot[bot] <hidden>
+Date:   2026-07-23 17:14:08 +0000
+
+Bump the github-actions group across 1 directory with 2 updates
+
+Bumps the github-actions group with 2 updates in the / directory: [actions/setup-python](https://github.com/actions/setup-python) and [astral-sh/ruff-action](https://github.com/astral-sh/ruff-action).
+
+
+Updates `actions/setup-python` from 6 to 7
+- [Release notes](https://github.com/actions/setup-python/releases)
+- [Commits](https://github.com/actions/setup-python/compare/v6...v7)
+
+Updates `astral-sh/ruff-action` from 4.0.0 to 4.1.0
+- [Release notes](https://github.com/astral-sh/ruff-action/releases)
+- [Commits](https://github.com/astral-sh/ruff-action/compare/v4.0.0...v4.1.0)
+
+---
+updated-dependencies:
+- dependency-name: actions/setup-python
+  dependency-version: '7'
+  dependency-type: direct:production
+  update-type: version-update:semver-major
+  dependency-group: github-actions
+- dependency-name: astral-sh/ruff-action
+  dependency-version: 4.1.0
+  dependency-type: direct:production
+  update-type: version-update:semver-minor
+  dependency-group: github-actions
+...
+
+Signed-off-by: dependabot[bot] <support@github.com>
+commit b80afdad17c550772150ccfc41ed01067897335c
+Author: wonderingabout <hidden>
+Date:   2026-07-22 19:58:21 +0200
+
+Expand SASGameSummary with territory development, AI strategy, and runtime context
+
+- Track land and developable-water improvement coverage, routes, Farms, irrigation, and improved/unimproved bonus types
+- Record active mod identity, DLL slot boundaries, enabled victories, game limits, leader traits, and favorites
+- Record AI victory strategies and the target's victory context when war is declared
+- Identify player-wide health and happiness modifier sources
+
+commit 2cc4ccaf5da76691901b7d2a9b35c6144e9dbf36
+Author: wonderingabout <hidden>
+Date:   2026-07-22 18:32:07 +0200
+
+(Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice) (KI#196)
+
+- Replace the short connector heuristic with deterministic least-cost owned routes from available irrigation to actual dry BFC Farms, including bonus-specific Farms and flat-city carriers
+- Build each route from the irrigation-source side, recalculate after every completed link, penalize valuable improvement replacement, and add an XML-tunable maximum length
+- Irrigate Mayapan's previously dry Maize by turn 162; confirm long routes and genuinely blocked targets in save files 449, 450, and 452
+
+commit 22dc2f0abd71e870dcb333a5c82ed6c9338f5f18
+Author: wonderingabout <hidden>
+Date:   2026-07-22 16:44:41 +0200
+
+Add BBAI research and irrigation diagnostics and expand SASGameSummary state reporting
+- Trace research selection, stored research overflow, queue invalidation, dry farms, and missing irrigation-chain steps
+- Record production overflow and loss, production-to-commerce conversion, wonder/project fail gold, pollution sources, city buildings, and trade-capability unlocks
+- Clarify original human slots and AI Auto Play control in summary rows
+
+commit f03333ae1541517390a59da1afd60d73841f74da
+Author: wonderingabout <hidden>
+Date:   2026-07-22 14:35:22 +0200
+
+(Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats (KI#195)
+
+- Most players may not care about this, but i find it valuable to explore all parts of a problem and do as much or as may seem best as possible generally i mean, and as for the barbarian player seafood issue here, it is true that they can be invaded by all players, perhaps even prone to pillage and seemingly lost seafood improvements on conquest (i don't know for sure although temporarily seems so ingame before BFC is gained but anyway), but improving these seafood bonuses seems to still help at a glance, on top of giving local food for the city, it also gives health or such which should or may help this city and perhaps other cities too if they don't already have it in their network, even if a bit maybe not too bad and quite cool but anyway
+- Add BBAI diagnostics for Barbarian seafood and Work Boat failures
+
+commit 85b38183171be32048dc4083025e379583eacf69
+Author: wonderingabout <hidden>
+Date:   2026-07-22 12:34:04 +0200
+
+(Fixed/Improved) AdvCiv-SAS victory-denial integration issue: UWAI's ordinary contact limit could block eligible urgent Space wars (KI#184.2)
+
+- Let eligible stage-4 and countdown emergencies use the shared SAS victory-denial distance instead of being rejected by UWAI's shorter ordinary contact limit
+- Preserve close-range stage-3 direct wars while making the wider stage-3 contact bypass separately XML-tunable and disabled by default
+- Confirm in save file 449 that four launched spaceships were stopped by capital captures while the strongest fifth contender survived and won Space
+- Add BBAI diagnostics for victory-denial scheming blocked by non-war plans
+
+commit 1a66d77923f4a8ab58fb8a6334f9aa401425178a
+Author: wonderingabout <hidden>
+Date:   2026-07-22 12:03:11 +0200
+
+Add BBAI diagnostics for crowded peaceful-city army decisions
+
+- After KI#188.3, this appeared to be an additional parking issue, but save file 449 confirmed useful staging rather than harmful parking
+- Trace defense requirements, alternative-city shortages, regrouping, upgrade travel, vassal status, and AI_attackMove exit decisions at Unit log level 2
+- Further inspection showed that AI_retreatToCity can simply mean waiting in the current safe city: Zulu's concentrated reserve captured population-21 Edirne one turn after its master declared war, so no gameplay cure was applied; kept logging for additional info
+
+commit 659606e4e98683c47d36cc47d48031dcbe78f7a4
+Author: wonderingabout <hidden>
+Date:   2026-07-22 10:24:27 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod issue: upgrade-city routing ignored affordability and helped concentrate up to 72% of an AI's military in one city while units waited up to 63 turns (aggravated by its mismatch with AdvCiv-SAS economic-return gates) (KI#188.3.3)
+- Add BBAI diagnostics for upgrade-city army concentration, eligibility, budgets, and outcomes
+
+commit 9efdd416d91bf055442a5b0e3d8bba728b251b9c
+Author: wonderingabout <hidden>
+Date:   2026-07-22 09:56:17 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod targetless army parking across several groups could concentrate 71 units (68% of an AI's military) in low-value Mainz while much stronger Aachen and Nuremberg held only 4 each (KI#188.3.2)
+
+commit 9be0cd0f3ca0e7c93079d7bbb60a6912b18f3799
+Author: wonderingabout <hidden>
+Date:   2026-07-22 02:23:05 +0200
+
+Fix AdvCiv-SAS UWAI distance-gate instability during war preparation
+
+- Apply the land contact limit whenever a target is reachable by land, reserving the sea limit and transport requirement for genuinely naval targets
+- Let existing plans tolerate one XML-tunable extra contact turn so route fluctuations do not hard-reject an accepted mobilization, while new targets remain subject to the strict limit
+
+commit bf3cb1a389bf667ec2407b435546717c2d079ae2
+Author: wonderingabout <hidden>
+Date:   2026-07-22 00:58:53 +0200
+
+Add BBAI diagnostics for aggregate AI army concentration and crowded upgrade-city routing
+
+commit 875b071bcb9382b415edd23e44458f0526264f82
+Author: wonderingabout <hidden>
+Date:   2026-07-22 00:08:27 +0200
+
+Fix AdvCiv-SAS scrap protection trapping no-site Settlers and their escorts
+
+- Restore inherited cleanup for old AI Settlers with no valid city site or pending transport pickup
+- Keep the exception separate from general SAS anti-scrapping protection
+- Release attached military escorts before delayed Settler deletion
+- Save file 450 confirmed all 7 no-site decisions scrapped the Settler that turn; the previous 262-turn retry loop disappeared and 14 attached escorts were released
+
+commit 6210495792304d589225485f197d8d8954f5fde4
+Author: wonderingabout <hidden>
+Date:   2026-07-21 14:00:48 +0200
+
+Fix AdvCiv-SAS Settler regressions blocking worthwhile island expansion (KI#179, KI#194)
+
+- Restore Base AdvCiv/K-Mod's water-area fallback inside KI#181's final Settler-production gate, so inland capitals can use existing transports to settle worthwhile islands
+- Refine KI#179's escort rule so Settlers already on danger-free valid sites found immediately, while dangerous travel and founding remain guarded
+- Add BBAI diagnostics for overseas settlement candidates, BFC bonuses, Settler-transport availability, production gates, and founding safety
+
+commit 1951051b59405b7c39e9b0e6ab877eff597e0bd2
+Author: f1rpo <hidden>
+Date:   2026-07-21 23:03:42 +0200
+
+Update manual
+
+commit 3cee04f381179510a89de38a98a9590bdca829c8
+Author: f1rpo <hidden>
+Date:   2026-07-21 21:37:50 +0200
+
+Tweak to reparations demanded from AI from human (UWAI)
+
+When demanding payment for peace, adjust the amount a bit to how much the human player can currently give. This should make purely symbolic demands less common. (Though it probably doesn't help much. In stalemates, the difference in utility values as the AI sees them is often quite small. Should perhaps rather round the demand to 0 more aggressively ...)
+
+commit 607837e3b1abb0ec5e4577c98f2b5391ed19d453
+Author: f1rpo <hidden>
+Date:   2026-07-21 14:28:17 +0200
+
+Clarify a few comments in PerfectMongoose
+
+Follows up on commit ff0662a2. [advc.021b]
+
+commit ff0662a208f438ca2450779d2813515b327a7b26
+Author: f1rpo <hidden>
+Date:   2026-07-21 00:21:10 +0200
+
+Even faster temperature smoothing for PM
+
+LLM-generated; see my comment about that in the script. This seems to be quite fast, but the original smoothing radius still causes a noticeable delay. I wouldn't want to go back to that anyway, but I did dial it up a little (by just two plots on the 160x113 internal grid) again. [advc.021b]
+
+commit aa81ff32c2d9c22e2c0cc9ff8a214f81398eaad3
+Author: f1rpo <hidden>
+Date:   2026-07-19 20:33:37 +0200
+
+Fix degraded performance of PerfectMongoose
+
+Fixes commit a61a76dc. One wonders if the peculiar use of a circle instead of a disk had been intentional after all. A disk of this size (20 squares radius) really isn't easily possible without a very noticeable performance penalty. So I've shrunk the disk and tweaked the code. Still probably takes a couple of seconds, i.e. the Smooth call, and the Deviate call (7-square radius) also isn't harmless.
+
+The smoothing is used for the temperature maps (one for summer, one for winter; later, monsoon effects are derived from this two-season model). Temperatures are derived from latitude and land/ sea status. I suppose that latter criterion being binary creates a need for some wide-area smoothing. [advc.021b]
+
+I've thrown in some test code too. If need be, the smoothing could be done more efficiently by reusing results of adjacent plots -- they're derived mostly from the same disk, just shifted by one row or column. The tests can then come in handy for validation.
+
+commit 7b9eeda8937e814ddc3a416086e7b171c88a392e
+Author: f1rpo <hidden>
+Date:   2026-07-19 11:19:18 +0200
+
+Fix Unit layer options overlapping with scores in Globe view
+
+Amends commit 558603f2. So this never really worked; selecting the Unit layer hid the scores, but they'd pop back in in between turns. [advc.004z]
+
+commit 067246d659e22aa9d5723976eadf78c4ba844231
+Author: f1rpo <hidden>
+Date:   2026-07-21 14:18:06 +0200
+
+Update DLL (1.13rc)
+
+Don't want the known-as-stable 1.12 DLL on the 1.13 branch; so I'm deleting that one.
+
+commit c54b256ece7dc339eb5420ad484bf9903c6c4022
+Author: wonderingabout <hidden>
+Date:   2026-07-21 13:19:59 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land (KI#193.2)
+
+commit cd0fd0a2c657047a3f71bf8014d7c3c990da258e
+Author: wonderingabout <hidden>
+Date:   2026-07-21 11:23:40 +0200
+
+Add BBAI diagnostics for assault-transport production bottlenecks in dedicated overseas diagnostics
+
+commit e746edc8945e8d4ea30f65ca1d57913a36e3a38f
+Author: wonderingabout <hidden>
+Date:   2026-07-21 10:15:12 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets (KI#193)
+
+commit 5910459ff53e661116bcd935a56c6d9f0abaaf57
+Author: wonderingabout <hidden>
+Date:   2026-07-20 22:08:10 +0200
+
+Add overseas-transport BBAI diagnostics (SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL) and fix no Barbarian island Worker regression
+
+commit 08cb9d272ef47302e74c6dc795acdbde707e6ff0
+Author: wonderingabout <hidden>
+Date:   2026-07-20 18:03:24 +0200
+
+(Fixed/Improved) Deliver exact Worker demand and recover Workers from completed secondary landmasses (KI#192 follow-up)
+
+commit 71ff2a0ba7aa32853bf0e62f691d4817edc34b9b
+Author: wonderingabout <hidden>
+Date:   2026-07-20 13:39:14 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use (KI#192)
+- The AI worker desperately wanted to go to the island but it has no job to do there (lazy island for the worker, or to the worker, or lazy worker maybe xd, 14 times as per the doc), but the island may have tasks to do now or in future eras that may attract the AI worker to go to it, if the AI Worker has compatible tasks, and if the AI player who owns this island requests it.
+
+commit f24055b1f1257c5b5b35827fc618fe7eed35bd47
+Author: wonderingabout <hidden>
+Date:   2026-07-20 11:36:12 +0200
+
+Fix Base AdvCiv/K-Mod Barbarian/war-plan mismatch; enhance stop charity Barbarian cleanup for rivals (KI#188.4-188.5)
+- (Fixed) Base AdvCiv/K-Mod bug: AI armies preparing war against a civilization could still be classified as hunting only Barbarian cities (KI#188.4)
+- (Improved) AI armies could waste their strength razing distant Barbarian cities instead of leaving Barbarian pressure to weaken nearer rivals and remaining available for offense or defense (KI#188.5)
+
+commit 0b7a1566d7c17085171cc0ea49a30ffe419aed33
+Author: wonderingabout <hidden>
+Date:   2026-07-20 08:57:35 +0200
+
+Expand SASGameSummary with war origins, diplomacy memories, victory progress, and compact full-map revelation; add WarDeclarationCause shared enum
+
+commit 05b03177383c158c0962000fb2979a06850456ef
+Author: wonderingabout <hidden>
+Date:   2026-07-19 18:18:30 +0200
+
+Expand SASGameSummary with final victory snapshots, project-victory progress, exploration, and map/environment history
+
+commit 235980fe7153930fb4a664a06704b60088be52a7
+Author: wonderingabout <hidden>
+Date:   2026-07-19 15:03:31 +0200
+
+(Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival (KI#191)
+
+commit e9307c6bf89d374789c4f23d1a10779357b6a089
+Author: wonderingabout <hidden>
+Date:   2026-07-19 07:50:10 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod issue: anti-Space armies could waste the launch countdown on other cities and routine actions instead of trying to capture the spaceship owner's capital (KI#190)
+
+- Split targetless peaceful city-assault grouping into SAS_AI_TARGETLESS_PEACEFUL_ATTACK_CITY_GROUP_MIN_UNITS instead of sharing SAS_MIN_ATTACK_CITY_STACK_UNITS, because peacetime army organization and minimum attack readiness are separate decisions that should be tunable independently.
+- Add BBAI diagnostics for anti-Space capital targeting and make Base AdvCiv's pre-launch capital bonus tunable
+
+commit 34522d313b26b6f938f6073304ba6c421bc7b4cf
+Author: f1rpo <hidden>
+Date:   2026-07-19 10:23:52 +0200
+
+Merge 1.12 into 1.13
+
+I've branched "1.13" off of "1.12" at the start of 2026 because that's where I'd like the boundary between these two versions to be. The 2026 commits up to now are already on 1.12, and I can't remove them from there. So I'm merely merging them into 1.13, and they'll then exist on both branches. Clearly, tags would have been a better method to convey upcoming release numbers, but I'm not starting with that now.
+
+commit 51669177f8dd4b78d0e83c78605f0a63ffb0e3f3
+Author: f1rpo <hidden>
+Date:   2026-07-19 09:32:21 +0200
+
+Update DLL version info to 1.13
+
+commit 0ff7721d95405805b9a0e8f1d45ccedce52d833b
+Author: f1rpo <hidden>
+Date:   2026-07-19 06:59:15 +0200
+
+Rename current GameCore DLL to "1.13rc"
+
+Will be abandoning this branch now and make a release on a new branch "1.13". So that the DLLs from early 2025 to early 2026, when the mod was entirely dormant, can be considered as version 1.12.
+
+commit 3a31b23545b80e0071699f7aef89e8a4148d61c0
+Author: wonderingabout <hidden>
+Date:   2026-07-18 18:29:42 +0200
+
+(Fixed/Improved) Base AdvCiv UWAI issues: volatile war estimates, compounding random peace rolls and excessive future-war costs could prematurely end profitable campaigns (KI#189.2)
+
+- Add BBAI diagnostics for UWAI utility aspects for suspicious peace reviews
+
+commit 257007739823540334a2a6892e261c30be8cdc8b
+Author: wonderingabout <hidden>
+Date:   2026-07-18 14:33:34 +0200
+
+(Fixed/Improved) AdvCiv-SAS peace logic could abandon profitable multi-wars and internally accept blocked victory-denial treaties (KI#65, KI#184)
+
+- Replace the blunt 3-war emergency with tunable combined-enemy danger and end the least valuable negotiable war first
+- Reject victory-denial peace before UWAI and deal processing while keeping capitulation available
+- Add BBAI diagnostics for premature peace, weak-war opportunities, and ineffective victory-denial treaties
+
+commit 86cb561452df1ecda413a0b293173b0d17e9db30
+Author: wonderingabout <hidden>
+Date:   2026-07-18 13:34:39 +0200
+
+(Fixed) AdvCiv-SAS pre-war distance guard could force advantageous ongoing wars to end
+
+commit 37111e6874eb326fa68bde675dead6ab6ad2f645
+Author: wonderingabout <hidden>
+Date:   2026-07-18 09:07:23 +0200
+
+(Fixed/Improved) Major UWAI issue: repeated random reviews could cancel or redirect most war preparations before they became wars (KI#189)
+
+commit e88cb89821c63958b03c889ddc91a3dc07449029
+Author: wonderingabout <hidden>
+Date:   2026-07-17 20:48:24 +0200
+
+(Fixed/Improved) Major Base AdvCiv/K-Mod bug: city-assault armies without a reachable target or war plan could keep waiting for reinforcements indefinitely and park 40-53% of an AI's military (KI#188.3)
+
+- Add BBAI diagnostics for war plans, area targets, and assault transport rejection reasons for concentrated city-assault armies
+
+commit c89861b618e8512ea2731d1cfd832b33ec060970
+Author: wonderingabout <hidden>
+Date:   2026-07-17 20:02:45 +0200
+
+(Fixed/Improved) Base AdvCiv/K-Mod issue: offensive armies could ignore nearby endangered cities instead of going back to try to help defending them (KI#188.2)
+
+commit 29209f5a5b6f8d8c7815c243cfd9a4ce3a9591f1
+Author: wonderingabout <hidden>
+Date:   2026-07-17 11:23:40 +0200
+
+Add BBAI diagnostics for potential AI war-expedition leader gaps and missed defensive reinforcement opportunities
+
+commit 1545a3afc856351ffc1ebb278e02abce1f1e44f2
+Author: wonderingabout <hidden>
+Date:   2026-07-17 09:42:12 +0200
+
+(Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions (KI#188)
+
+commit 559ee966cbc17bcf6b9891acf367a9e0bfa10f24
+Author: wonderingabout <hidden>
+Date:   2026-07-16 15:28:19 +0200
+
+Log in SASGameSummary and BBAI diagnostics army concentration, attack-stack decisions, Great Person use, and espionage actions
+
+commit bad9bfb0ca7eaaed972a4abe8db2c7b32963562f
+Author: wonderingabout <hidden>
+Date:   2026-07-16 14:38:29 +0200
+
+(Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring (KI#187)
+
+- Replace the arbitrary 70% / roughly 33% values with an XML-tunable 15% loss per later connection era. Bonuses connectable in the current or an earlier era retain full health/happiness value.
+
+commit 41c913b8d88a618155bc8159239b2f8d6250f984
+Author: wonderingabout <hidden>
+Date:   2026-07-16 13:55:12 +0200
+
+Improve AI city-site health/happiness valuation for special buildings
+
+commit fbdef73e56e745f9d4edbe8af442ebbbf1e77d45
+Author: wonderingabout <hidden>
+Date:   2026-07-16 11:29:17 +0200
+
+Fix Base AdvCiv active-World-Wonder exemption blocking unsustainable faraway captured-city razes (KI#186.2)
+- also confirmed increasing farway distance tolerance from 8 to 9 is too greedy and hurt the AI so reverted as was
+
+commit 15a8ce3ad16f20ea8755bfd0136c69b3449561d5
+Author: f1rpo <hidden>
+Date:   2026-07-16 09:20:53 +0200
+
+Disable penalty for teams researching the same tech
+
+Can be re-enabled locally through XML by those who liked it. [advc.156]
+This CFC thread describes a problem with the penalty that I hadn't reckoned with when I introduced it:
+https://forums.civfanatics.com/threads/team-research-penalty-156-in-manual-has-unintended-consequences.703976/
+
+commit 30d8c34b80cd4ed808489ee2cc6d5d0780717dd7
+Author: f1rpo <hidden>
+Date:   2026-07-16 09:10:22 +0200
+
+Fix Always-War coop willingness to talk
+
+I'm guessing that I introduced this issue in the early days of the mod and never tested Always War team games sufficiently to notice. [advc.004i]
+Bug report:
+https://forums.civfanatics.com/threads/team-research-penalty-156-in-manual-has-unintended-consequences.703976/
+
+commit 701f2bf4941eb53293c97bd454bb32d39c6743b6
+Author: wonderingabout <hidden>
+Date:   2026-07-15 20:23:02 +0200
+
+Fix Base AdvCiv inefficient and incorrect AI_isAwfulSite raze/resettle flip-flopp and prevent unsustainable faraway city retention: use AI_isSASCityLikelyToBenefitUsLongTerm instead (KI#186)
+
+commit 7b6aeb7f17ccaa5b3d2440fb4362fc1c01f1c575
+Author: wonderingabout <hidden>
+Date:   2026-07-15 15:18:53 +0200
+
+Add city raze decision BBAI diagnostics
+
+commit 8c8b3184c49ae3e6b2d4d69585296d3553d73e01
+Author: wonderingabout <hidden>
+Date:   2026-07-15 13:20:37 +0200
+
+(Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting (KI#185)
+- After exploration, it may turn out that the new site may not have been better, and also that the old one was in fact better suited, so the settler wants to argue and to try to choose what seems best
+- Minor reorder BBAI settler/found so they are together and order is more natural and less error-prone
+
+commit f82aaa544451d38e1bbc77e29267a8f72e17e2d6
+Author: wonderingabout <hidden>
+Date:   2026-07-15 10:17:31 +0200
+
+Improve UWAI stage-3 Space victory denial before countdown (KI#184.2)
+- Treat high-completion stage-3 Space leaders near the parts leader as pre-countdown victory threats.
+- Apply the same predicate to UWAI utility, direct-war gates, and peace refusal.
+
+commit 7f966ec9fbddb45bd41f99596b34aec3d7cca464
+Author: f1rpo <hidden>
+Date:   2026-07-14 18:06:08 +0200
+
+Tweak the order of AI upgrades
+
+Instead of current XP as implemented by 0be952e4067715610119acfaf44f63203305ef9f, consider the XP after upgrading, which can be smaller due to MAX_EXPERIENCE_AFTER_UPGRADE - and discourage XP losses a little. I'm sure there are bigger problems with how the AI upgrades units; this just seemed like an oversight in the aforementioned commit. [advc.131e]
+
+commit 4210d5586a54d36c4ed65fafabc7c4b4d8450afb
+Author: wonderingabout <hidden>
+Date:   2026-07-14 09:08:47 +0200
+
+(Fixed/Improved) Multiple UWAI victory-denial issues could let imminent Space winners survive: no war before fixing this (regardless of whether AI was very strong militarily like in the Ramesses run or very weak like in the Lincoln run), then even after the initial fix wars were still too-late, too-short, or too-low-impact (KI#184)
+
+commit 60a21259371db272f9cbaba00ae76f2fbbeac4f8
+Author: wonderingabout <hidden>
+Date:   2026-07-13 15:54:49 +0200
+
+Add UWAI victory-threat BBAI war-target diagnostics
+
+commit 8295909da126b2721d8d9dd09095a73396716e7a
+Author: wonderingabout <hidden>
+Date:   2026-07-13 14:25:37 +0200
+
+Fix AdvCiv-SAS AI faraway-war Risk reject inflating UWAI utility (KI#183)
+
+commit 6d00b3d8383a1190ccf32beb15000d5444c0ee8e
+Author: f1rpo <hidden>
+Date:   2026-07-13 13:39:10 +0200
+
+Fix AI workers executing queued mission in wrong plot
+
+Based on SAS:
+https://github.com/wonderingabout/AdvCiv-SAS/commit/feddabdf89f022dcf6412aab0cab414a54b4610c
+
+This seems to come up a few times in most games: an AI worker's path gets blocked by enemy units or expanded borders, and then the queued build-improvement mission gets executed wherever the worker stopped. That's fairly consequential error - though probably not responsible for the demolition of valuable Town improvements that sometimes catches players' eyes; I don't think workers run into obstacles much in the late game. [advc.001]
+
+Might be that the SAS fix will block route-to missions; not sure. I'm exempting routes at any rate.
+
+Also not sure when this issue was introduced. This K-Mod commit ...
+201150ab61534364caaca3bc2c25ea49def1177d
+... added the activateHeadMission call that occurs after a move-to or route-to mission has failed. However, it seems that the base game made the same call via deleteMissionQueueNode, so I would guess that this problem has been in the game all along.
+
+commit 373e5275eec8eb2aacd6bea07a5db209d884ba33
+Author: wonderingabout <hidden>
+Date:   2026-07-13 12:55:30 +0200
+
+Prefer a closer weak/disliked land target when UWAI would otherwise prepare against a clearly farther target (KI#182)
+- Keep the guard narrow so equal-distance, closer, and naval/island target choices remain ordinary UWAI.
+
+commit cecab8af1e29b99c0996bbf68418aebbb66dd0d7
+Author: wonderingabout <hidden>
+Date:   2026-07-13 10:39:40 +0200
+
+Add WAR BBAI diagnostics (SAS_BBAI_WAR_LOG_LEVEL) and refactor
+
+commit d8bdd0602e765b4d945e6a4e25f447415b074241
+Author: wonderingabout <hidden>
+Date:   2026-07-13 08:31:41 +0200
+
+Enhance SASGameSummary and add /LLM_Helpers to GitHub download ZIP (.gitattributes)
+- Make SASGameSummary free-text fields parser-safe (e.g., key="my city name") (keep enum/type/count fields unquoted for simple key=value parsing).
+- Document using the light source ZIP alongside SASGameSummary logs for better LLM analysis.
+
+commit 85918612d1872b181517e8159719bf0e993be016
+Author: wonderingabout <hidden>
+Date:   2026-07-13 07:25:11 +0200
+
+Fix rare remaining AI Great General unit attachments to units (e.g. to low-value Longbowman) (prefer as of now stronger Military Instructor or Military Academy)
+- Add tunable high minimum gates for Great General unit-attachment paths.
+
+commit 892798dc1eee12c607bee35f6d7a88c67f0ee33f
+Author: wonderingabout <hidden>
+Date:   2026-07-12 16:47:53 +0200
+
+Add dedicated Great General BBAI diagnostics (SAS_BBAI_GREAT_GENERAL_LOG_LEVEL)
+
+commit 26b0d5967d691fc5d59a350856ffc7597b47c290
+Author: wonderingabout <hidden>
+Date:   2026-07-12 14:25:21 +0200
+
+Improve AI Worker danger handling and add BBAI and SASGameSummary information
+- Treat current plot danger as real for Workers even inside owned culture, while avoiding broad inside-border threat noise that caused excessive retreating.
+- Add Worker death context logging with mission, plot, danger, nearby enemy, city, and stack details.
+- Log game-summary bonus appearances/disappearances.
+
+commit 570fe0922fa2991e5873b7fa3d9bb580e0980759
+Author: wonderingabout <hidden>
+Date:   2026-07-12 01:05:44 +0200
+
+(Fixed/Improved) AI could train early/midgame Settlers for weak remaining sites after good expansion was gone (e.g., Paris's settler for snow/filler sites example) (KI#181)
+
+commit 1275684c8dbbced6498279ad6442f5f157531a4a
+Author: wonderingabout <hidden>
+Date:   2026-07-11 20:44:17 +0200
+
+(Fixed/Improved) AI Settlers could settle a merely valid current plot (e.g., after nearby Barbarian city spawn made remaining space smaller and poorer) even when a clearly better reachable city site existed (KI#180)
+- Avoid founding immediately on a merely valid current plot when a clearly better reachable city site exists.
+- Prevent AI_found path-cost scoring from pulling the Settler back to a very near but much weaker site after that direct-found guard.
+
+commit 63764fc572061f25bf12793c8ffa1018750be02b
+Author: wonderingabout <hidden>
+Date:   2026-07-11 19:40:33 +0200
+
+Fix exposed AI Settler founding with guarded city escorts (KI#179), and reassign a city defender to a waiting AI Settler to found faster and safe
+
+- Replace the old SAS early-settling safety override with explicit exposed-Settler blocking.
+- Let unescorted Settlers in own cities reassign one healthy local defender when the city keeps enough defenders behind.
+- Add Settler parking, escort-pool, attachment, and mission-decision logging.
+
+commit 876158dff2f27852320810189730865c68fd69e7
+Author: wonderingabout <hidden>
+Date:   2026-07-11 17:25:25 +0200
+
+Add BBAI and SASGameSummary AI Settler security information
+
+commit 6341d3d556a7f580e3664b8631d52446c2c7c4da
+Author: wonderingabout <hidden>
+Date:   2026-07-11 16:43:02 +0200
+
+(Fixed/Improved) City-site bonus valuation used broad trade-style `AI_bonusVal` instead of settlement-specific long-term value and other related AI bonus settler valuation issues (KI#178)
+- Replace broad AI_bonusVal-style non-yield city-site bonus scoring with explicit settlement-oriented health, happiness, and ordinary building-effect value.
+- Count early ordinary building effects such as Granary/Harbor through a tunable prereq-era gate, while excluding late/expensive buildings.
+- Avoid over-counting reliable duplicate bonuses already owned or covered by existing cities' future BFCs, while preserving value for contested bonuses.
+- Let Barbarian city-site scoring use the same long-term bonus value so captured Barbarian cities can become better sites.
+
+commit 088bc5d78f65d20019e3b0a401c3f1441310064b
+Author: wonderingabout <hidden>
+Date:   2026-07-11 12:58:55 +0200
+
+Add BBAI diagnostics for AI Settler/Found bonuses valuation
+
+commit 4097b75c38aa0c13d5267bcfc538d16beb7bea10
+Author: wonderingabout <hidden>
+Date:   2026-07-10 22:09:53 +0200
+
+(Fixed) Multiple base AdvCiv/K-Mod Barbarian AI city-placement issues could produce poor captured city sites (KI#177); make some related parameters tunable
+
+commit c023244d86276285ac0a6511f02316d71047dabc
+Author: wonderingabout <hidden>
+Date:   2026-07-10 11:33:02 +0200
+
+SAS Game summary log (#37)
+
+* Add structured game-summary (currently in BBAI logging)
+- Notably for compact autoplay/run LLM review
+
+* Allow summary-only logs without enabling the BBAI diagnostic master switch
+- Keep classic BBAI categories master-gated
+
+* Make SAS game-summary logging independent from BBAI (in SASGameSummaryLog.h and SASGameSummaryLog.cpp)
+- Output files are for example like SASGameSummary_20260710T051258Z_load1.log and BBAI_20260710T051258Z_load1.log
+
+* Minor rename BBAI and SAS game-summary startup/load helper parameters from event to row type
+- SAS game-summary uses "row" wording to avoid Civ4 EventInfo/random-event ambiguity
+- Keep GAME_SUMMARY_ACTION for chronological gameplay action rows: "<!-- custom: GAME_SUMMARY_ACTION is narrower than a generic row: it records chronological gameplay happenings such as techs, city ownership, war state, Great People, unit upgrades, and victory. Do not rename this to GAME_SUMMARY_ROW; "row" is too generic because every log line is already a row. This keeps the row type useful without using "event", which can be confused with Civ4 EventInfo/random events. (GPT-5.5) -->"
+
+* Expand SAS game summary benchmark rows: add economy rows, expansion rows, aggregate worked-plot rows
+- Add economy rows with all commerce sliders, commerce rates, flexibility, gold, and current research.
+- Add expansion rows with known land, open land, settler activity, and city-target context.
+- Add aggregate worked-plot rows to compare citizen allocation, yields, improvements, and terrain use between runs.
+
+* Expand SAS game summary benchmark rows 2: add statistics rows
+- Add statistics rows combining persistent built/razed city counts with logged acquired/lost/conquest/trade city counters.
+
+* Add city and battle history totals to SAS game summary statistics
+
+* Add unit composition (UnitAI does not distinguish e.g., Camel Archer and Dragoon) and Update docs
+commit dd71fa0a7f3fad9b18fc666a0dffe279fd0575bd
+Author: wonderingabout <hidden>
+Date:   2026-07-08 22:35:50 +0200
+
+Update docs
+
+commit 5ae87c37c6f6fbaa440d9371f537c48884c78e7a
+Author: f1rpo <hidden>
+Date:   2026-07-04 13:45:21 +0200
+
+AI suspends pursuit of culture victory when launched SS is faster
+
+Adopted from this SAS commit: [advc.sas]
+https://github.com/wonderingabout/AdvCiv-SAS/commit/08b51062869d340dbc37df3596cc0bd9cb461d28
+I suppose this is marginally better; can resume culture production immediately if capital (and thus the spaceship) is lost.
+
+commit e5b22895b05dc8317dcdb132fe4b5a798b171a77
+Author: f1rpo <hidden>
+Date:   2026-07-04 13:23:51 +0200
+
+Fix minor(?) K-Mod bugs in AI movement of GP
+
+Based on this SAS commit:
+https://github.com/wonderingabout/AdvCiv-SAS/commit/520df2a23aa4f328108e4760b50d4cb42a7065e8
+I didn't bother including the target city in the mission meta-data b/c I don't think that data gets used. The mission AI plot is only used in some specific cases, as far as I can tell.
+
+commit 1a3aea9ad01407dd290aa470b46202fe83e1bb3d
+Author: f1rpo <hidden>
+Date:   2026-07-04 12:41:24 +0200
+
+Fix another bug in use of asset values for AI city evac decision
+
+The earlier, recent bugfix was in the percentile rank calculation:
+commit 4392e521. Turns out that the ranks had also been used incorrectly. The percentile rank of a score, to quote Wikipedia, is "the percentage of scores [...] that are less than that score." So, while one might think that a high (i.e. good) score implies a low (i.e. good) rank, the highest score actually corresponds to 100% or something close to that. Adopted from the SAS mod: commit
+https://github.com/wonderingabout/AdvCiv-SAS/commit/e466b86faa145a17749e77ef1021d0da6afbfb6c
+
+commit 13a7fe526cbd7d11ce1f6dac76d4f1ed201f1a6a
+Author: f1rpo <hidden>
+Date:   2026-06-20 23:37:58 +0200
+
+Fix unused AdvCiv Python function
+
+From SAS:
+https://forums.civfanatics.com/threads/advanced-civ.614217/post-16963059
+
+commit bacba58f2d13f1b9d8d0a0e41b4c7e6dbe255e75
+Author: f1rpo <hidden>
+Date:   2026-06-11 15:55:52 +0200
+
+Remove some excess angle brackets in game text files
+
+Based on this CFC post:
+https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16959435
+
+commit 5ffc184c4022be1b17a0d9828756057f57dc09fd
+Author: f1rpo <hidden>
+Date:   2026-06-11 15:51:11 +0200
+
+Remove two duplicate city name entries
+
+Based on this CFC post:
+https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/post-16959415
+
+commit 8fb118e2557c5cadd6f3a3a78c8090e054e3e2e1
+Author: f1rpo <hidden>
+Date:   2026-06-11 15:46:04 +0200
+
+Fix some duplicate ActualQuotes text keys
+
+Amends change [advc.005f]. Based on this CFC post:
+https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/page-21#post-16959415
+
+commit e0296a3c534724ca39c2b07cea0b835350080da3
+Author: f1rpo <hidden>
+Date:   2026-06-10 16:19:20 +0200
+
+Delete a few duplicate XML keys
+
+Adopted from:
+https://github.com/wonderingabout/AdvCiv-SAS/commit/ca5b991a4ad5597e9dd24c2d0b8c3cbd35975c0b
+[advc.sas]
+I've left the tutorial alone; the 49A and 50A sound actually both seem to get played correctly.
+
+commit 0be952e4067715610119acfaf44f63203305ef9f
+Author: f1rpo <hidden>
+Date:   2026-07-04 17:30:19 +0200
+
+AI considers unit upgrades in order of experience
+
+Still first of all the one best defender per city and certain ships, but then experienced units get prioritized. And units with free upgrades (Leadership promo) or substantially discounted (future-proofing) get special priority; this part is inspired by a recent Realism Invictus change. [advc.131]
+(Committed DLL contains a bug as scrapping transports with cargo is still allowed in the compiled code.)
+
+commit 7118bb8ffda68e73a5c78017c7ff3ce8964010f3
+Author: f1rpo <hidden>
+Date:   2026-06-05 23:42:25 +0200
+
+Updated GameCore DLL (as a separate file for the time being)
+
+Seems that the outdated DLL on GitHub has mostly been working for people who have downloaded the 1.12 branch. So I don't want to overwrite that with a DLL that I've barely tested. Will need to do that testing and then make the proper v1.12 release on CivFanatics that is now more than a year overdue ...
+
 commit feddabdf89f022dcf6412aab0cab414a54b4610c
 Author: wonderingabout <hidden>
 Date:   2026-07-07 11:24:26 +0200
