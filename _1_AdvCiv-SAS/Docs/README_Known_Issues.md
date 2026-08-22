@@ -350,6 +350,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [297 - (Fixed AdvCiv-SAS bug) Highlands always kept its north-cold climate orientation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#297---fixed-advciv-sas-bug-highlands-always-kept-its-north-cold-climate-orientation)\
 [298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#298---fixed-advciv-sas-bug-highlands-arena-could-lack-legal-sites-for-48-civilizations)\
 [298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2982---fixed-advciv-sas-bug-highlands-was-undersized-beyond-the-arena-capacity-case)\
+[299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#299---fixed-advciv-sas-bug-movie-to-music-left-the-users-no-movies-option-disabled)\
+[301 - (Fixed latent AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#301---fixed-latent-advciv-sas-compatibility-bug-non-sevopedia-build-links-opened-unrelated-improvements)\
+[302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#302---fixed-advciv-sas-bug-terrain-units-any-build-omitted-hill-and-water-builders)\
 [315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
 [316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#316---fixed-advciv-sas-bug-unlimited-specialist-civic-value-ignored-baseline-great-person-points)\
 [317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#317---fixed-advciv-sas-bug-civic-anger-valuation-skipped-cities-that-would-become-unhappy)\
@@ -8804,6 +8807,34 @@ Runtime testing showed that the shared compact profile's problem was broader tha
 The KI#298 repair therefore restores Highlands' entire inherited Duel-through-Huge progression rather than special-casing Arena alone, adds a 6x4 Arena tier below Duel and calibrates SAS tiers from Huge by expected player count. The climate, mountain, lake and start-generation settings remain unchanged. Runtime validation confirmed 32x20 Duel and 24x16 Arena generation.
 
 This is an AdvCiv-SAS map-size regression introduced by applying an excessively compact shared profile to Highlands. Found and runtime-tested with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled
+
+Sevopedia movie playback saves the user's `GRAPHICOPTION_NO_MOVIES` preference and temporarily disables it so the selected movie can play. Ordinary Movie close restored the saved value, but the Movie-to-Music toggle stopped and closed the overlay directly before opening Music. A user who normally disabled movies could therefore leave the media player with that preference silently disabled for the rest of the session.
+
+The fix centralizes restoration in one movie-scoped helper used by ordinary close and Movie-to-Music. Movie replay and Movie-to-Movie navigation intentionally keep the temporary state because they do not leave Movie mode; a failed Music transition likewise leaves the active Movie unchanged.
+
+Runtime testing with No Movies enabled confirmed that Movie-to-Music followed by returning to the menu preserves the enabled preference (screenshot 0174).
+
+This is an AdvCiv-SAS Sevopedia media-state regression introduced when the Movie-to-Music transition was added. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 301 - (Fixed latent AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements
+
+`pediaJumpToBuild()` correctly opens the custom Builds category when Sevopedia is enabled, but its inherited standard-Civilopedia fallback passed the raw `BuildTypes` ID to an Improvement page. The two enums are independent: for example, Build 0 is Road while Improvement 0 is Land Worked. If that fallback is instantiated, non-improvement Build links such as Road, Railroad and feature removal therefore open unrelated Improvement entries.
+
+Standard Civilopedia has no Build or Route page. The fix redirects an improvement-producing Build through its actual `ImprovementTypes` value and safely leaves unsupported route/feature-removal links on the current screen instead of inventing a false destination.
+
+Unticking the inherited Sevopedia BUG option and restarting still left current AdvCiv-SAS using Sevopedia: non-improvement Build links opened the correct Build pages, and improvement Builds opened their correct Improvement pages. The standard-Pedia branch was therefore not exercised at runtime and is not treated as a supported current player-facing mode; this safe source-level correction is retained so the latent fallback cannot reinterpret one enum as another if reached.
+
+This is an AdvCiv-SAS enum-namespace regression in the inherited Build-to-Pedia compatibility fallback. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-reviewed with the help of wonderingabout, thanks.
+
+## 302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders
+
+The Terrain Improvements panel reconstructs the broader rules for Hill and water improvements, but its Units (Any Build) sibling considered only `ImprovementInfo.getTerrainMakesValid(terrain)`. Hill-valid Mine/Windmill and water improvements could consequently appear in Improvements while the capable Worker or Workboat variants were missing from Units (Any Build), or the entire unit panel disappeared.
+
+The fix centralizes the complete terrain/improvement-validity predicate and uses it for both panels. Direct terrain validity, water validity and the existing Hill terrain/feature/bonus reconstruction now select the same improvement Builds before capable units are collected; Peaks and graphical-only/Goody improvements retain their exclusions. Runtime testing confirmed Workers on Hills and Workboats on both Coast and Ocean. The older screenshot only demonstrates that ordinary Grassland already showed Workers, so it neither proves nor contradicts the separate Hill/water defect.
+
+This is an AdvCiv-SAS duplicate-predicate regression in `SevoPediaTerrain`. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
 ## 315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit
 

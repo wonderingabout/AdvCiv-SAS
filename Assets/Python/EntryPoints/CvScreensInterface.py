@@ -516,7 +516,10 @@ def pediaJumpToBuild(argsList):
 	if (bUsingSevopedia):
 		pediaMainScreen.pediaJump(SevoScreenEnums.PEDIA_BUILDS, argsList[0], True, False)
 	else:
-		pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, argsList[0], True)
+		# <!-- custom: Standard Civilopedia has no Build page, and BuildTypes IDs are unrelated to ImprovementTypes IDs. Redirect only improvement-producing Builds through their real ImprovementTypes value; unsupported route/feature-removal Builds now stay on the current screen instead of opening an unrelated Improvement. See KI#301. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iImprovement = gc.getBuildInfo(argsList[0]).getImprovement()
+		if iImprovement >= 0:
+			pediaMainScreen.pediaJump(PEDIA_IMPROVEMENT, iImprovement, True)
 
 def pediaJumpToCiv(argsList):
 	if (bUsingSevopedia):

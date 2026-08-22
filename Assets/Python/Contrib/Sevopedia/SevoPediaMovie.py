@@ -186,9 +186,7 @@ class SevoPediaMovie:
 		if not self.mediaPlayer.isOpen:
 			return
 
-		if self.SAS_savedNoMovies is not None:
-			CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, self.SAS_savedNoMovies)
-			self.SAS_savedNoMovies = None
+		self.restoreNoMoviesOption()
 
 		# <!-- custom: try to stop the specific 2D sound via Destroy2DSound(handle); if that fails, fall back to
 		# CyInterface().stop2DSound() as a global 2D stop for stubborn handles. Credit: CIV4BUG API docs.
@@ -197,6 +195,12 @@ class SevoPediaMovie:
 		self.mediaPlayer.closeScreen()
 
 		self.top.pediaJump(SevoScreenEnums.PEDIA_MOVIES, self.iMovie, False, False)
+
+	# <!-- custom: Movie playback temporarily disables the user's No Movies option. Ordinary close restored it, but Movie-to-Music bypassed that path and leaked the changed preference for the rest of the session; centralizing restoration fixes every transition that actually leaves Movie mode. See KI#299. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	def restoreNoMoviesOption(self):
+		if self.SAS_savedNoMovies is not None:
+			CyUserProfile().setGraphicOption(GraphicOptionTypes.GRAPHICOPTION_NO_MOVIES, self.SAS_savedNoMovies)
+			self.SAS_savedNoMovies = None
 
 	def isMoviePlayerOpen(self):
 		return self.mediaPlayer.isOpen
@@ -345,6 +349,7 @@ class SevoPediaMovie:
 		iFirstMusic = self.top.pediaMusic.SAS_getFirstPlayableMusic()
 		if iFirstMusic == -1:
 			return
+		self.restoreNoMoviesOption()
 		self.mediaPlayer.stopSound()
 		self.mediaPlayer.closeScreen()
 		self.top.pediaJump(SevoScreenEnums.PEDIA_MUSIC, iFirstMusic, True, False)

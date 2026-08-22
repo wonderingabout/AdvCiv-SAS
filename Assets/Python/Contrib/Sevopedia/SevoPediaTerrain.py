@@ -151,6 +151,16 @@ class SevoPediaTerrain:
 
 		screen.appendListBoxString(panel, SASTextScale.titleText(szStats), WidgetTypes.WIDGET_GENERAL, 0, 0, CvUtil.FONT_LEFT_JUSTIFY)
 
+	# <!-- custom: The Improvements and Units (Any Build) panels described the same buildable-improvement relation through different predicates, so Hill and water improvements could appear without their capable units.
+	# Share the complete terrain validity reconstruction across both panels. See KI#302. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	def isImprovementValidForTerrain(self, iImprovement):
+		ImprovementInfo = gc.getImprovementInfo(iImprovement)
+		if ImprovementInfo.isGraphicalOnly() or ImprovementInfo.isGoody() or self.iTerrain == self.I_TERRAIN_PEAK:
+			return False
+		if self.iTerrain == self.I_TERRAIN_HILL:
+			return ImprovementInfo.isHillsMakesValid() or self.isImprovementValidThroughHillTerrain(iImprovement) or self.isImprovementValidThroughHillFeature(iImprovement) or self.isImprovementValidThroughHillBonus(iImprovement)
+		return ImprovementInfo.getTerrainMakesValid(self.iTerrain) or (ImprovementInfo.isWater() and (self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN))
+
 	def placeBuildUnits(self):
 		screen = self.top.getScreen()
 		panelName = self.top.getNextWidgetName()
@@ -161,12 +171,8 @@ class SevoPediaTerrain:
 		for iBuild in xrange(gc.getNumBuildInfos()):
 			buildInfo = gc.getBuildInfo(iBuild)
 			iImprovement = buildInfo.getImprovement()
-			if iImprovement != -1:
-				improvementInfo = gc.getImprovementInfo(iImprovement)
-				if improvementInfo.isGoody():
-					continue
-				if improvementInfo.getTerrainMakesValid(self.iTerrain):
-					improvementBuilds.append(iBuild)
+			if iImprovement != -1 and self.isImprovementValidForTerrain(iImprovement):
+				improvementBuilds.append(iBuild)
 
 		if len(improvementBuilds) == 0:
 			return
@@ -310,15 +316,9 @@ class SevoPediaTerrain:
 			draw_none_text(screen, self.top, xPanel, yPanel, wPanel, hPanel, "TXT_KEY_PEDIA_TERRAIN_EXCLUDED_FROM_DISPLAY_PLOT_TYPE")
 
 		else:
-			isHillTerrain = (self.iTerrain == self.I_TERRAIN_HILL)
 			for iImprovement in xrange(gc.getNumImprovementInfos()):
 				ImprovementInfo = gc.getImprovementInfo(iImprovement)
-				if ImprovementInfo.isGraphicalOnly() or ImprovementInfo.isGoody():
-					continue
-				if isHillTerrain:
-					if ImprovementInfo.isHillsMakesValid() or self.isImprovementValidThroughHillTerrain(iImprovement) or self.isImprovementValidThroughHillFeature(iImprovement) or self.isImprovementValidThroughHillBonus(iImprovement):
-						screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
-				elif ImprovementInfo.getTerrainMakesValid(self.iTerrain) or (ImprovementInfo.isWater() and (self.iTerrain == self.I_TERRAIN_COAST or self.iTerrain == self.I_TERRAIN_OCEAN)):
+				if self.isImprovementValidForTerrain(iImprovement):
 					screen.attachImageButton(panel, "", ImprovementInfo.getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_IMPROVEMENT, iImprovement, 1, False)
 
 	def placeBonusesWithNoFeature(self):
