@@ -351,6 +351,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [283 - (Fixed inherited Firaxis bug) Wrapped Donut shifting misaligned its center plots and terrain](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#283---fixed-inherited-firaxis-bug-wrapped-donut-shifting-misaligned-its-center-plots-and-terrain)\
 [284 - (Fixed inherited Firaxis bug) Y seam guards compared strip size with width instead of height](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#284---fixed-inherited-firaxis-bug-y-seam-guards-compared-strip-size-with-width-instead-of-height)\
 [284.2 - (Fixed AdvCiv-SAS bug) Map-generator define checks required `self.gc` instead of using `CyGlobalContext()`](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2842---fixed-advciv-sas-bug-map-generator-define-checks-required-selfgc-instead-of-using-cyglobalcontext)\
+[285 - (Fixed inherited pre-SAS AdvCiv bug) Negative map-script starting-distance modifiers were discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#285---fixed-inherited-pre-sas-advciv-bug-negative-map-script-starting-distance-modifiers-were-discarded)\
 [286 - (Fixed AdvCiv-SAS bug) Wheel constrained 18 players during its over-18 fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#286---fixed-advciv-sas-bug-wheel-constrained-18-players-during-its-over-18-fallback)\
 [287 - (Fixed inherited Firaxis visual bug) Hub, Ring and Wheel lost east and north Evergreen transition bands](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#287---fixed-inherited-firaxis-visual-bug-hub-ring-and-wheel-lost-east-and-north-evergreen-transition-bands)\
 [288 - (Fixed AdvCiv-SAS bug) Team Battleground passed scalar geometry to the grid calibrator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#288---fixed-advciv-sas-bug-team-battleground-passed-scalar-geometry-to-the-grid-calibrator)\
@@ -8820,6 +8821,16 @@ The August 14, 2026 shared map-generation XML-tunability change in SAS practical
 The fix obtains the global context locally for these two once-per-generation define reads. This preserves the tunable behavior for ordinary generators and keeps inherited subclasses independent of base-constructor state. Boreal subsequently generated successfully on Tiny and Small with Toroidal wrapping, confirming both terrain and feature generation paths.
 
 This is an AdvCiv-SAS regression introduced by the map-generation XML-tunability change. Found through KI#284 runtime validation with the help of wonderingabout; traced, fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 285 - (Fixed inherited pre-SAS AdvCiv bug) Negative map-script starting-distance modifiers were discarded
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1W_NVCYr2EdQs63S0noDfJRoK2nY4IRFx?usp=sharing).
+
+BtS calls each map script's `minStartingDistanceModifier()` and applies `max(0, result + 100)` as a percentage of the ordinary starting range: `-95` deliberately means 5%, `-35` means 65%, zero means 100%, and values below `-100` clamp to zero. A pre-SAS AdvCiv refactor moved the callback into `CvPythonCaller::minStartingDistanceMod()` but changed its lower clamp to `max(0, result)`. `CvGame::updateStartingPlotRange()` still adds 100 afterward, so every negative script result became the same neutral 100% multiplier.
+
+The fix clamps the extracted modifier at `-100` instead. The existing caller's `100 + modifier` calculation then exactly restores the BtS negative-value contract while retaining every zero or positive result. A current source sweep finds 30 affected map scripts, including inherited Firaxis/AdvCiv maps and dense SAS layouts that intentionally return values as low as `-95`; their Python values and map generation code do not need individual changes. The Release DLL compiled successfully. Turn-11 runtime tests passed for `-95` on 48-player Arena Longworld and 18-player Standard Wheel, for inherited `-10` on eight-player Standard Arboria, and for a generic Large Pangaea baseline; every configured roster remained present and `PythonErr.log` was empty. This regression was introduced in pre-SAS AdvCiv practical 1648 and remains in Base AdvCiv 1.14, rather than originating in SAS or BtS.
+
+Found and investigated through targeted cross-lineage archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compiled/runtime-tested with the help of wonderingabout, thanks.
 
 ## 286 - (Fixed AdvCiv-SAS bug) Wheel constrained 18 players during its over-18 fallback
 

@@ -2805,6 +2805,7 @@ void CvGame::updateStartingPlotRange() const
 		iMajorAreas = iAlive;
 	// </advc.031>
 	iRange += std::min((iMajorAreas + 1) / 2, iAlive);
+	// <!-- custom: minStartingDistanceMod preserves BtS's [-100,+] callback contract; adding 100 here converts -95 to 5%, 0 to 100% and positive values to larger spacing. See KI#285. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	iRange *= 100 + GC.getPythonCaller()->minStartingDistanceMod();
 	iRange /= 100;
 

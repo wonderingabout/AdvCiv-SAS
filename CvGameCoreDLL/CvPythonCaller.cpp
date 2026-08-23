@@ -1465,7 +1465,8 @@ int CvPythonCaller::minStartingDistanceMod() const
 {
 	long lResult = 0;
 	call("minStartingDistanceModifier", lResult, m_python.getMapScriptModule(), false);
-	return std::max(0, toInt(lResult));
+	// <!-- custom: AdvCiv's callback extraction clamped negative script modifiers to 0 before CvGame added 100, turning inherited values such as -95 into neutral 100% instead of 5%. Restore BtS's -100 lower bound while preserving positive modifiers. See KI#285. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return std::max(-100, toInt(lResult));
 }
 
 CvArea* CvPythonCaller::findStartingArea(PlayerTypes eStartingPlayer) const

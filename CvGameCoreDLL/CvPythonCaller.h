@@ -147,6 +147,7 @@ public:
 	bool addRivers() const;
 	void riverStartCardinalDirection(CvPlot const& kPlot, CardinalDirectionTypes& r) const;
 	bool isHumanExplorerPlacementRandomized() const;
+	// <!-- custom: Return the map script's modifier clamped only at -100; CvGame applies it as 100 + modifier. See KI#285. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int minStartingDistanceMod() const;
 	CvArea* findStartingArea(PlayerTypes eStartingPlayer) const;
 	CvPlot* findStartingPlot(PlayerTypes eStartingPlayer) const;
