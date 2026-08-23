@@ -402,6 +402,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [328 - (Fixed minor inherited Planet/C2C bug) getGridSize returned a float to Civ4's integer callback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#328---fixed-minor-inherited-planetc2c-bug-getgridsize-returned-a-float-to-civ4s-integer-callback)\
 [329 - (Defensively hardened inherited BTG robustness hazards; no supported trigger reproduced) Grid retry and Cross/Grid forced-Silver fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#329---defensively-hardened-inherited-btg-robustness-hazards-no-supported-trigger-reproduced-grid-retry-and-crossgrid-forced-silver-fallback)\
 [330 - (Fixed AdvCiv-SAS bug) Master/vassal tech-contact power-bias exemption depended on an unrelated toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#330---fixed-advciv-sas-bug-mastervassal-tech-contact-power-bias-exemption-depended-on-an-unrelated-toggle)\
+[331 - (Fixed AdvCiv-SAS-only scrap-contract regression) Restrictive AI scrapping could veto removal while callers reported success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#331---fixed-advciv-sas-only-scrap-contract-regression-restrictive-ai-scrapping-could-veto-removal-while-callers-reported-success)\
+
 [332 - (Fixed inherited BUG/Base AdvCiv UI bug, broadened by AdvCiv-SAS) Leader hovers resolved trait production through Arabia instead of the displayed civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#332---fixed-inherited-bugbase-advciv-ui-bug-broadened-by-advciv-sas-leader-hovers-resolved-trait-production-through-arabia-instead-of-the-displayed-civilization)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -9281,6 +9283,18 @@ Fresh SAS24 Pangaea save file 490 completed its turn-101 autoplay smoke test aft
 
 Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
+## 331 - (Fixed AdvCiv-SAS-only scrap-contract regression) Restrictive AI scrapping could veto removal while callers reported success
+
+Base AdvCiv's `CvUnit::canScrap` was broadly permissive outside the fundamental no-scrapping-during-combat guard. The inherited AdvCiv/K-Mod/BBAI cleanup callers run outside combat, so treating the void sequence `scrap(); return;` as successful was valid under their original contract; no practical Base AdvCiv defect was established in them. AdvCiv-SAS practical 5945 introduced a deliberately restrictive AI preservation policy to stop wasteful scrapping, especially under the recommended obsolete-only mode, but retained the old silent-veto `scrap()` contract and did not adapt every inherited caller to the new vetoes.
+
+This interaction had several concrete consequences. Financial disband selection could spend its per-turn quota on an ineligible candidate without removing anything; upgrade cleanup could mark a surviving unit as killed and skip its ordinary upgrade path. Worker, land Explorer, sea Explorer, Escort Sea and trapped Barbarian-ship cleanup could return after a no-op and lose or repeatedly waste the unit's update. Settler-transport retirement could never remove a cargo-capable obsolete transport, doomed-city scorched-earth cleanup could report success while leaving a capturable civilian behind, and the inherited AdvCiv capitulation rule could leave an AI team's nuclear weapons armed because current nukes have no obsolete technology.
+
+The repair makes routine `scrap()` report whether removal occurred. Optional cleanup callers now return, consume a quota or mark a unit killed only after confirmed removal; financial selection also filters initial candidates through `canScrap` and keeps candidate traversal separate from the successful-disband quota in case eligibility changes after an earlier removal. The existing SAS policy remains restrictive rather than being weakened to satisfy incompatible callers.
+
+Explicit cleanup uses a forced scrap path after its own narrow conditions: the inherited Settler-transport branch has already unloaded an inferior non-upgradable transport, and doomed-city scorched earth has already passed its ownership, evacuation, capture-class, empire-survival and random-value checks. These discretionary AI paths still respect the absolute AI-scrap kill switch, while mandatory capitulation disarm bypasses that preference and removes every nuke. Forced cleanup retains the fundamental fighting-state guard, and both routine and forced removal retain central BBAI/SASGameRecord scrap logging. The older internal guard ordering was reviewed as robustness debt, but no supported caller exploit was established and no unrelated policy rewrite was added.
+
+This is an AdvCiv-SAS-only regression introduced by incomplete integration of SAS's restrictive preservation policy. The inherited AdvCiv/K-Mod/BBAI callers identify where the new SAS contract broke old assumptions; they are not classified as upstream defects. A turn-101 autoplay completed successfully after compilation without an observed issue. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, repaired and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
 ## 332 - (Fixed inherited BUG/Base AdvCiv UI bug, broadened by AdvCiv-SAS) Leader hovers resolved trait production through Arabia instead of the displayed civilization
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1H7pnko9mlch02F0K2wmrbVTXP3SdGZgL?usp=sharing).
@@ -9293,7 +9307,7 @@ The fix passes the actual civilization wherever the caller represents a player, 
 
 Screenshots 0234-0236 confirm that Shaka's Info Screen Score hover, Civic favorite-leader hover and Leader page now identify the Zulu Ikhanda. Screenshot 0237 confirms the intentionally generic Aggressive Trait page. Fresh SAS24 Pangaea save file 490 completed its turn-101 autoplay smoke test without an observed issue.
 
-This is an early AdvCiv-SAS UI defect broadened by later SAS UI work, not an issue inherited from Base AdvCiv or native BtS parsing. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+This is an inherited BUG/Base AdvCiv UI defect broadened by later AdvCiv-SAS UI work, not a native BtS parsing bug. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
 ## 334 - (Fixed inherited AdvCiv information leak amplified by AdvCiv-SAS) Great General death reports could reveal an unknown killer civilization
 

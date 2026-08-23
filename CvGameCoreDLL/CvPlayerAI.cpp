@@ -750,13 +750,14 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 										// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
 										if (gUnitLogLevel > 2) logBBAI("    SCRAP_DECISION reason=upgrade-cleanup turn=%d player=%d (%S) unitId=%d unitType=%d name=%S at=(%d,%d) exp=%d unitCostPerMil=%d maxUnitCostPerMil=%d totalUnits=%d",
 											GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pLoopUnit->getID(), pLoopUnit->getUnitType(), pLoopUnit->getName(0).GetCString(), pLoopUnit->getX(), pLoopUnit->getY(), iExp, iCostPerMil, AI_maxUnitCostPerMil(pLoopUnit->area(), 100), getNumUnits());
-										pLoopUnit->scrap();
-										/*	I could have just done kill(), but who knows
-											what extra work scrap() wants to do for us? */
-										pLoopUnit->doDelayedDeath();
-										bKilled = true;
-										pLastUpgradePlot = NULL;
-										iCostPerMil = AI_unitCostPerMil(); // recalculate
+										// <!-- custom: Restrictive SAS canScrap can veto inherited upgrade cleanup. Only mark the unit killed and skip its ordinary upgrade path after scrap confirms removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+										if (pLoopUnit->scrap())
+										{
+											pLoopUnit->doDelayedDeath();
+											bKilled = true;
+											pLastUpgradePlot = NULL;
+											iCostPerMil = AI_unitCostPerMil(); // recalculate
+										}
 									}
 								}
 							} // K-Mod end
@@ -21309,18 +21310,21 @@ void CvPlayerAI::AI_doMilitary()
 			FOR_EACH_UNITAI(pLoopUnit, *this)
 			{
 				int iValue = AI_disbandValue(*pLoopUnit);
-				if (iValue < MAX_INT)
+				// <!-- custom: Financial disband candidates must satisfy the restrictive SAS scrap policy before entering the quota-indexed list; a veto otherwise consumed the quota without removing anything. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (iValue < MAX_INT && pLoopUnit->canScrap())
 					unit_values.push_back(std::make_pair(iValue, pLoopUnit->getID()));
 			}
 			std::sort(unit_values.begin(), unit_values.end());
 
+			// <!-- custom: Traverse vetoed candidates independently so they do not consume the successful-disband quota or trap this loop if eligibility changes after an earlier removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			int iDisbandCount = 0;
+			int iDisbandCandidateIndex = 0;
 			do
 			{
-				if (unit_values.size() <= (size_t)iDisbandCount)
+				if (unit_values.size() <= (size_t)iDisbandCandidateIndex)
 					break;
 
-				CvUnit* pDisbandUnit = getUnit(unit_values[iDisbandCount].second);
+				CvUnit* pDisbandUnit = getUnit(unit_values[iDisbandCandidateIndex].second);
 				if (gUnitLogLevel > 2)
 				{
 					CvWString szAITypeString;
@@ -21328,12 +21332,15 @@ void CvPlayerAI::AI_doMilitary()
 					// <!-- custom: add more logging information for better scrap diagnostics (was too noisy or imprecise) with the help of ChatGPT-5.5 and GPT-5.5 thanks -->
 					logBBAI("    SCRAP_DECISION reason=financial-trouble turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) value=%d disbandIndex=%d candidates=%d unitCostPerMil=%d maxUnitCostPerMil=%d goldRate=%d gold=%d totalUnits=%d",
 						GC.getGame().getGameTurn(), getID(), getCivilizationDescription(0), pDisbandUnit->getID(), pDisbandUnit->getUnitType(), szAITypeString.GetCString(), pDisbandUnit->getName(0).GetCString(), pDisbandUnit->getX(), pDisbandUnit->getY(),
-						unit_values[iDisbandCount].first, iDisbandCount, (int)unit_values.size(), iCost, iMaxCost, calculateGoldRate(), getGold(), getNumUnits());
+						unit_values[iDisbandCandidateIndex].first, iDisbandCandidateIndex, (int)unit_values.size(), iCost, iMaxCost, calculateGoldRate(), getGold(), getNumUnits());
 				}
 
-				pDisbandUnit->scrap();
-				pDisbandUnit->doDelayedDeath();
-				iDisbandCount++;
+				iDisbandCandidateIndex++;
+				if (pDisbandUnit->scrap())
+				{
+					pDisbandUnit->doDelayedDeath();
+					iDisbandCount++;
+				}
 
 				iCost = AI_unitCostPerMil();
 			} while (iCost > 0 && (iCost > iMaxCost || calculateGoldRate() < 0) && AI_isFinancialTrouble() &&

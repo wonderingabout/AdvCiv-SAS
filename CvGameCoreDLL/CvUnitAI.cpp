@@ -5844,9 +5844,9 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 						int iFinancialTroubleMargin = kOwner.AI_financialTroubleMargin();
 						rScrapProb *= per100(100 - std::min(iFinancialTroubleMargin, 85));
 					}
-					if (SyncRandSuccess(rScrapProb))
+					// <!-- custom: Preserve the inherited scrap roll, but continue normal Worker fallback when restrictive SAS canScrap vetoes removal instead of burning the unit's turn. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if (SyncRandSuccess(rScrapProb) && scrap())
 					{ // </advc.113>
-						scrap();
 						return;
 					}
 				}
@@ -9062,10 +9062,12 @@ void CvUnitAI::AI_exploreMove()
 			{
 				// K-Mod. Maybe we can still use this unit.
 				if (GET_PLAYER(getOwner()).AI_unitValue(getUnitType(), UNITAI_ATTACK, area()) > 0)
+				{
 					AI_setUnitAIType(UNITAI_ATTACK);
-				else // K-Mod end
-					scrap();
-				return;
+					return;
+				}
+				// <!-- custom: If SAS preservation rejects disposal of an excess inherited Explorer, continue into stranded/patrol/safety handling instead of repeatedly returning after a no-op. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (scrap()) return; // K-Mod end
 			}
 		}
 	}
@@ -10473,9 +10475,9 @@ void CvUnitAI::AI_barbAttackSeaMove()
 				break;
 			}
 		}
-		if (bScrap)
+		// <!-- custom: A trapped Barbarian ship can be cargo-capable and therefore protected by SAS canScrap. Only end its update when removal succeeds; otherwise retain the inherited later movement/safety choices. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (bScrap && scrap())
 		{
-			scrap();
 			return;
 		}
 	}
@@ -11084,8 +11086,8 @@ void CvUnitAI::AI_escortSeaMove()
 					return;
 				}
 
-				scrap();
-				return; // advc.001: Always return after scrap
+				// <!-- custom: Escort cleanup is evaluated while carrying cargo, which SAS canScrap deliberately protects. Continue normal escort behavior when removal is vetoed instead of losing the whole update. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (scrap()) return; // advc.001: Return after successful scrap
 			}
 		}
 	} // BETTER_BTS_AI_MOD: END
@@ -11314,8 +11316,8 @@ void CvUnitAI::AI_exploreSeaMove()
 			int iBestValue = kOwner.AI_bestAreaUnitAIValue(AI_getUnitAIType(), pWaterArea);
 			if (iValue < iBestValue)
 			{
-				scrap();
-				return;
+				// <!-- custom: Cargo-capable sea explorers are intentionally protected by SAS canScrap; only stop after successful obsolete-role cleanup. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (scrap()) return;
 			}
 		} // </advc.017b>
 	}
@@ -11340,8 +11342,8 @@ void CvUnitAI::AI_exploreSeaMove()
 	{
 		if (kOwner.calculateUnitCost() > 0)
 		{
-			scrap();
-			return;
+			// <!-- custom: Excess sea-explorer cleanup can be vetoed for cargo-capable ships; continue to patrol/retreat/safety instead of repeatedly losing the update. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (scrap()) return;
 		}
 	}
 
@@ -12304,8 +12306,8 @@ void CvUnitAI::AI_settlerSeaMove()
 
 					if (kOwner.AI_isAnyImpassable(getUnitType()))
 					{
-						scrap();
-						return;
+						// <!-- custom: This inherited retirement path already unloaded an inferior, non-upgradable Settler transport. Force the deliberate cleanup because cargo capacity alone makes routine SAS canScrap reject it. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						if (scrapForced()) return;
 					}
 					else
 					{
@@ -24335,8 +24337,8 @@ bool CvUnitAI::AI_retreatToCity(bool bPrimary, bool bPrioritiseAirlift, int iMax
 			if (SyncRandSuccess(rScrapOdds))
 			{
 				if (bLogRetreatResult) logSASRetreatUnitResult("scrap", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);
-				scrap();
-				return true;
+				// <!-- custom: This inherited scorched-earth decision deliberately removes a capturable unit from a doomed owned city. Force it after the existing safety/random checks so SAS routine preservation cannot report success while leaving the unit for capture. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (scrapForced()) return true;
 			}
 		} // </advc.010>
 		if (bLogRetreatResult) logSASRetreatUnitResult("stay-no-safe-city", *this, pCity, NULL, NULL, -1, iCurrentDanger, bEvac);

@@ -90,7 +90,10 @@ public:
 	void automate(AutomateTypes eAutomate);
 
 	bool canScrap() const;																					// Exposed to Python
-	void scrap();
+	// <!-- custom: Inherited cleanup callers could validly treat scrap() as successful under Base AdvCiv's permissive non-combat contract. SAS made canScrap restrictive for AI preservation, so report success and let those callers distinguish the new vetoes from removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool scrap();
+	// <!-- custom: New caller-vetted forced-scrap path bypasses routine SAS preservation; its mandatory-game-rule mode can also override the absolute AI-scrap preference. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool scrapForced(bool bMandatoryGameRule = false);
 
 	bool canGift(bool bTestVisible = false, bool bTestTransport = true) const;								// Exposed to Python
 	void gift(bool bTestTransport = true);
@@ -838,7 +841,7 @@ protected:
 		May also want to override them. */
 	virtual void init(int iID, UnitTypes eUnit, PlayerTypes eOwner, int iX, int iY, DirectionTypes eFacingDirection);
 	virtual void finalizeInit(); // </advc.003u>
-	// <!-- custom: Share successful-scrap logging and deletion with the explicit no-valid-site Settler cure without adding a one-off parameter to the generic canScrap()/scrap() API. Callers must perform their appropriate safety checks first. (GPT-5.6-Sol) -->
+	// <!-- custom: Centralize successful routine and forced scrap logging/deletion. Forced callers must establish their narrow game-rule cleanup and safety conditions before bypassing generic SAS preservation. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void scrapInternal();
 
 	int m_iID;

@@ -3316,8 +3316,8 @@ void CvUnit::automate(AutomateTypes eAutomate)
 
 // <!-- custom: we scrap way too many military units in particular, as i have noticed it in the early game (+/- turn 40-50, could and most likely happens in other circumstances but didn't check check to be sure and if i'm not mistaken), so after we produce a unit we end up with 1 less, so this would mean we scrapped 2. Especially crippling early when barbarians are stronger, our military weak, and rivals dangerous as well potentially. Try to reduce scrapping with this tentative code change, while also not overdoing it in case it collapses our economy, here or in other places, see known issue as of now 52 for details; also code provided with the help of chatgpt 5 thanks -->
 // <!-- custom: the changes in CvPlayerAI::AI_doMilitary did not change the seemingly cyclical scrapping behaviour of new ancient macemen many turns on a row, so as advised by chatgpt 5 (genius idea it got, it may not seem too clean but great way to solve it xd thanks!), implementing our logic here as well, check if accurate -->
-// Why here? Anything that eventually calls scrap() must pass canScrap() first. With this guard, your land combat units won’t be culled every other turn in the early game or under threat, matching the pattern you observed (6→5→6→5).
 // <!-- custom: update!!! Tremendously fixed!!! No more scrapping and painful losing of these ancient macemen, will reduce handicap now to accommodate these and make sure we don't run bankrupt at leats early, else i don't care too much or as much, and give AI best chances, see known issue as of now 52 for details; in short we only aded some more prechecks here as we usually do, in an attempt to help improve AI efficiency or correct or help improve significant AI flaws, so hopefully AI is now stronger as such and we have to adjust some things to match these, see known issue mentioned here in these code comments for details, and we otherwise kept function the same -->
+// <!-- custom: Routine scrap() must pass canScrap(), preventing the observed repeated culling of protected land combat units. Explicit scrapForced() callers instead establish narrow mandatory-cleanup conditions; see KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 bool CvUnit::canScrap() const
 {
 	// <!-- custom: old function was a 3 liner -->
@@ -3685,11 +3685,24 @@ bool CvUnit::canScrap() const
 }
 
 
-void CvUnit::scrap()
+// <!-- custom: Return explicit success so callers cannot treat a restrictive SAS canScrap veto as removal. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvUnit::scrap()
 {
 	if (!canScrap())
-		return;
+		return false;
 	scrapInternal();
+	return true;
+}
+
+
+// <!-- custom: Forced cleanup bypasses routine SAS preservation after caller-specific eligibility, but retains the fundamental fighting guard and the absolute AI-scrap preference unless a mandatory game rule such as capitulation disarm says otherwise. See KI#331. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvUnit::scrapForced(bool bMandatoryGameRule)
+{
+	if (getPlot().isFighting()) return false;
+	static const bool bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE = GC.getDefineBOOL("SAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE");
+	if (!bMandatoryGameRule && bSAS_CAN_SCRAP_AI_ABSOLUTELY_DISABLE && !isHuman()) return false;
+	scrapInternal();
+	return true;
 }
 
 
@@ -3700,7 +3713,7 @@ void CvUnit::scrapInternal()
 		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
 		CvWString szAITypeString;
 		getUnitAIString(szAITypeString, AI_getUnitAIType());
-		// <!-- custom: Central actual-scrap event log. Caller logs are decision/context lines and can repeat; this line fires once per successful CvUnit::scrap() call before kill(), with stable unit id and turn fields so long logs can be deduplicated reliably. (ChatGPT-5.5 + GPT-5.5) -->
+		// <!-- custom: Central actual-scrap event log. Caller logs are decision/context lines and can repeat; this fires once per successful routine or forced scrap before kill(), with stable unit id and turn fields so long logs can be deduplicated reliably. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
 		logBBAI("    SCRAP_EVENT turn=%d player=%d (%S) unitId=%d unitType=%d unitAI='%S' name=%S at=(%d,%d) area=%d age=%d exp=%d cargo=%d/%d totalUnitsBefore=%d unitCostPerMil=%d goldRate=%d gold=%d",
 			GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getUnitType(), szAITypeString.GetCString(), getName(0).GetCString(),
 			getX(), getY(), (area() == NULL ? -1 : area()->getID()), GC.getGame().getGameTurn() - getGameTurnCreated(), getExperience(), getCargo(), cargoSpace(),
