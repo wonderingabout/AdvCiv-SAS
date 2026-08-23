@@ -405,6 +405,11 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [331 - (Fixed AdvCiv-SAS-only scrap-contract regression) Restrictive AI scrapping could veto removal while callers reported success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#331---fixed-advciv-sas-only-scrap-contract-regression-restrictive-ai-scrapping-could-veto-removal-while-callers-reported-success)\
 
 [332 - (Fixed inherited BUG/Base AdvCiv UI bug, broadened by AdvCiv-SAS) Leader hovers resolved trait production through Arabia instead of the displayed civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#332---fixed-inherited-bugbase-advciv-ui-bug-broadened-by-advciv-sas-leader-hovers-resolved-trait-production-through-arabia-instead-of-the-displayed-civilization)\
+[334 - (Fixed inherited AdvCiv information leak amplified by AdvCiv-SAS) Great General death reports could reveal an unknown killer civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#334---fixed-inherited-advciv-information-leak-amplified-by-advciv-sas-great-general-death-reports-could-reveal-an-unknown-killer-civilization)\
+[335 - (Fixed AdvCiv-SAS bug) Military Advisor Battles vassal perspective could expose hidden battle locations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#335---fixed-advciv-sas-bug-military-advisor-battles-vassal-perspective-could-expose-hidden-battle-locations)\
+[338 - (Fixed inherited AdvCiv bug) Human starting-location volatility checked the old plot instead of the assigned site](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#338---fixed-inherited-advciv-bug-human-starting-location-volatility-checked-the-old-plot-instead-of-the-assigned-site)\
+[339 - (Fixed inherited AdvCiv bug) Starting-handicap collision randomization calculated but ignored its rotation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#339---fixed-inherited-advciv-bug-starting-handicap-collision-randomization-calculated-but-ignored-its-rotation)\
+[340 - (Fixed inherited BtS bug) Team-start fallback mixed alive-team count with absolute team IDs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#340---fixed-inherited-bts-bug-team-start-fallback-mixed-alive-team-count-with-absolute-team-ids)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9330,3 +9335,39 @@ The fix keeps the vassal as the battle-history subject but uses the real active 
 Save file 489 runtime review confirmed that ordinary active-player and debug-selected-player Battles rows retained their plot icons and camera actions, and that both active-player and Mansa Musa debug-perspective LOG exports completed; the refreshed `PythonErr.log` remained empty. The run had no non-debug vassal with a battle on a human-hidden plot, so the exact blank-row contrast remains source-verified through the shared observer reveal gate rather than directly reproduced. Debug showing complete location/context for arbitrary selected players is the intended bypass, not a failure of the fix.
 
 This is an AdvCiv-SAS privacy regression introduced when practical 5758 enabled vassal perspectives over the Battles table added in practical 5757. It is separate from the analogous World Advisor KI#224 and Policy Advisor KI#232 implementations. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, repaired and documented with the help of GPT-5.6-Sol, thanks.
+
+## 338 - (Fixed inherited AdvCiv bug) Human starting-location volatility checked the old plot instead of the assigned site
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ZJVI-xnO8K9Ul8l61Qyy_bb0fdDO4vsm?usp=sharing).
+
+AdvCiv sorts generated starting sites by value and assigns the site at each sorted slot to the player occupying the corresponding handicap slot. Its safeguard against giving a human a highly volatile starting site nevertheless measured that human player's original pre-reassignment plot. The neighboring alternative-site checks correctly measured the sorted sites. A safe old plot could therefore hide a volatile site that the human was about to receive, while a volatile old plot could prompt an unnecessary swap away from a safe assigned site.
+
+The fix measures `apStartingSitesByValue[i]`, the site actually assigned to the human's current handicap slot. The existing volatility threshold, adjacent-slot search and protection against swapping with another human remain unchanged.
+
+Screenshot 0238 in save file 492 confirms that a new Fractal Large game with nine independent players reached turn 101 without an observed issue after compilation. This exercises the starting-site sorting and volatility path; whether a particular generated human site required a volatility swap remains source-verified rather than directly visible in the ordinary UI.
+
+This is an inherited AdvCiv regression from practical 2708's starting-site refactor: the pre-refactor safeguard had tested the site associated with the evaluated slot. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 339 - (Fixed inherited AdvCiv bug) Starting-handicap collision randomization calculated but ignored its rotation
+
+Screenshots/files for this issue: same google drive folder link as KI#338.
+
+AdvCiv's starting-handicap sorter separately selects a random human and AI agent as the traversal offset, preserving fair tie/collision handling when several players or teams map to the same preferred position. After locating and storing that random source index, however, the extracted helper always traversed the source list from index zero. The random draw changed the map RNG state but not the result, so equal or colliding `StartingLocationPercent` values resolved according to fixed input/player order.
+
+The fix rotates each human/AI placement pass from the already-selected eligible agent. It preserves the same deterministic map-RNG draw and the existing preferred-position/collision search while restoring the random priority that the pre-refactor code applied.
+
+The same screenshot-0238 in save file 492 Fractal Large game reached turn 101 normally with nine independent players, exercising the ordinary equal-handicap AI placement path after compilation. The corrected randomized collision priority is not exposed directly by the ordinary UI.
+
+This is an inherited AdvCiv regression from the starting-site helper extraction rather than an AdvCiv-SAS change. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 340 - (Fixed inherited BtS bug) Team-start fallback mixed alive-team count with absolute team IDs
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1RQoG7BL5LEiW_Ke7vQ1Vrn3b7VnXkMRv?usp=sharing).
+
+The BtS team-start fallback drew a random offset from the number of alive civilization teams, then applied that compact offset while scanning the full absolute team-ID range. With alive teams 5 and 20, for example, the only offsets were 0 and 1 and both scans reached team 5 first; team 20 could never receive first-choice priority. Sparse or high team IDs are supported by scenarios, and AdvCiv's StartingPositionIteration deliberately retains this fallback for supported team-game cases where it does not assign all sites itself.
+
+The fix builds the actual alive-team list and applies the random rotation within that compact list. Player selection within each team and the existing repeated assignment passes remain unchanged.
+
+A new save file 493 Fractal Large game with ten players split between sparse team IDs 5 and 20 generated and ran without an observed issue after compilation. This deliberately forces the inherited fallback and exercises its compact alive-team traversal; the stochastic first-choice distribution itself remains source-verified rather than established by one generated map.
+
+This is an inherited BtS team-assignment defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS regression. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.

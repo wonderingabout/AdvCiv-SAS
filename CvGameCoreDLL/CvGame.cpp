@@ -1222,18 +1222,22 @@ NormalizationTarget* CvGame::assignStartingPlots()
 		if (!bTeamAssignmentDone) // advc.027
 		{
 			EagerEnumMap<PlayerTypes,bool> abPlayerDone; // advc
+			// <!-- custom: BtS drew an offset from the compact alive-team count but applied it in the absolute team-ID space, so sparse/high-ID scenario teams could never receive first priority.
+			// Rotate the actual alive-team list instead. See KI#340. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			std::vector<TeamTypes> aeAliveTeams;
+			for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+				aeAliveTeams.push_back(itTeam->getID());
+			int const iAliveTeams = (int)aeAliveTeams.size();
 			// BtS team assignment
 			for (int iPass = 0; iPass < 2 * MAX_PLAYERS; iPass++)
 			{
 				bool bStartFound = false;
 				// advc.027b: instead of SyncRandNum
-				int const iRandOffset = MapRandNum(countCivTeamsAlive());
+				int const iRandOffset = MapRandNum(iAliveTeams);
 				gDLL->callUpdater(); // advc
-				for (int i = 0; i < MAX_CIV_TEAMS; i++)
+				for (int i = 0; i < iAliveTeams; i++)
 				{
-					TeamTypes eLoopTeam = (TeamTypes)((i + iRandOffset) % MAX_CIV_TEAMS);
-					if (!GET_TEAM(eLoopTeam).isAlive())
-						continue;
+					TeamTypes const eLoopTeam = aeAliveTeams[(i + iRandOffset) % iAliveTeams];
 					for (MemberIter itMember(eLoopTeam); itMember.hasNext(); ++itMember)
 					{
 						if (abPlayerDone.get(itMember->getID()))
@@ -1475,7 +1479,9 @@ void CvGame::applyStartingLocHandicaps(NormalizationTarget const* pStartValues) 
 			PlayerTypes const ePlayer = aePlayersByHandicap[i];
 			if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isHuman())
 				continue;
-			CvPlot const* pStart = GET_PLAYER(ePlayer).getStartingPlot();
+			// <!-- custom: AdvCiv's sorted-site refactor accidentally checked the human's old plot here. Evaluate the sorted site assigned to this handicap slot so the volatility safeguard swaps only the site the human is about to receive.
+			// See KI#338. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			CvPlot const* pStart = apStartingSitesByValue[i];
 			if (pStart == NULL)
 				continue;
 			scaled rVolatility = pStartValues->getVolatilityValue(*pStart);
@@ -1571,8 +1577,11 @@ void CvGame::sortByStartingLocHandicap(std::vector<std::pair<Agent*, int> > cons
 				break;
 			}
 		}
-		for (int i = 0; i < iAgents; i++)
+		// <!-- custom: AdvCiv retained the random eligible-agent offset above but stopped applying it after extracting this helper, making equal-handicap collisions resolve by fixed input/player order.
+		// Rotate traversal from that selected agent while preserving the existing map-RNG draw. See KI#339. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (int j = 0; j < iAgents; j++)
 		{
+			int const i = (j + iRandOffset) % iAgents;
 			std::pair<Agent*,int> piLoopPair = kStartingLocPercentPerAgent[i];
 			Agent& kAgent = *piLoopPair.first;
 			if (kAgent.isHuman() != bHuman)

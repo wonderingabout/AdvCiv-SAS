@@ -1,15 +1,16 @@
-AdvCiv-SAS C++ File Audit Album - current-tree checkpoint C008
+AdvCiv-SAS C++ File Audit Album - current-tree checkpoint C009
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 SOURCE IDENTITY
 Branch: main
-HEAD: bd95b7c42a05f1df06ac066a467591d9d0494a87
-Practical commit count: 6214
+HEAD: df985a491633723d20a33b5bb17bfae346090c2b
+Practical commit count: 6225
 Base comparison: local AdvCiv 1.14 source archive
 
 NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
 - C008's six provisional roots were therefore shifted from KI#327-KI#332 to provisional KI#330-KI#335. Stable F-numbers remain the preferred album identifiers until each candidate is independently reviewed and promoted.
+- C009 adds ten CvGame.cpp roots as stable F015-F024 with provisional KI#336-KI#345 aliases. These remain audit candidates in this Album; README_Known_Issues.md intentionally remains the independently reviewed/promoted issue ledger.
 
 METHOD
 - Primary queue = every current .cpp file, sorted by current line count longest -> shortest.
@@ -20,10 +21,10 @@ METHOD
 - False positives are recorded when useful so they are not rediscovered later.
 
 PROGRESS
-Files complete: 7 / 169
+Files complete: 8 / 169
 Files open: 1 / 169
-Current file: 008 CvGameCoreDLL/CvGame.cpp (10,836 lines) - OPEN
-New current defect roots established by this file-oriented pass: 6 (provisional KI#330, KI#331, KI#332, KI#333, KI#334, KI#335)
+Current file: 009 CvGameCoreDLL/CvPlot.cpp (8,705 lines) - OPEN
+New current defect roots established by this file-oriented pass: 16 (provisional KI#330-KI#345)
 Existing known defect roots materially broadened/reopened: 8 (KI#312, KI#21, KI#213, KI#48, KI#306, KI#70, KI#74, KI#11)
 
 FILE 001 - CvGameCoreDLL/CvPlayerAI.cpp - 32,289 lines - REVIEWED / NEW FINDINGS
@@ -576,21 +577,196 @@ FALSE POSITIVES / CLEAN TAIL CHECKS FROM FILE 007
 - Whole-file sentinel/null/static/lifetime scan found no extra enum-vs-NULL defect, stale mutable cache or post-kill dereference in the changed surface.
 
 
+FILE 008 - CvGameCoreDLL/CvGame.cpp - 10,841 lines - REVIEWED / TEN NEW FINDINGS
+
+RESULT
+- CvGame.cpp is closed after both a current-vs-AdvCiv semantic-diff pass and an independent whole-file inherited-code/invariant pass. The second layer was especially productive: several defects live in untouched inherited code and therefore were not natural targets for the older commit-oriented archaeology.
+- Ten new current roots survived full reachability/history/data checks: F015-F024 (provisional KI#336-KI#345).
+- The findings split into one SAS lifecycle/configuration defect (F015), one AdvCiv-replay x SAS-Timeline visibility interaction (F016), five inherited starting/score/global-warming/vote defects from AdvCiv/K-Mod/BtS lineage (F017-F022/F024), and one inherited BtS Lock Mods defect (F023).
+- Current-format CvGame serialization was mechanically paired at 88 corresponding read/write operations in the same order; no same-version stream mismatch was found.
+- Multiple attractive false positives were explicitly killed so they are not rediscovered later.
+
+F015 - provisional KI#336 - dynamic map-heaviness fallback is computed before starting plots exist and therefore caches a neutral result
+Status: NEW CURRENT SAS LIFECYCLE DEFECT ROOT; current default/support configuration reaches it.
+Intended contract:
+- SAS map-heaviness logic first classifies scripts listed explicitly as land-heavy or naval-heavy.
+- Scripts intentionally absent from both lists fall back to a dynamic start-area classifier that counts major-civilization starting plots and classifies the map from those areas.
+- Current XML deliberately leaves Big_and_Small, Hub, Medium_and_Small, RandomScriptMap, Shuffle and not_too_Big_or_Small unspecified so this dynamic fallback can decide them.
+Current lifecycle failure:
+- CvGame::initDiplomacy explicitly documents that the EXE invokes it after map generation but before assigning starting plots. recomputeMapnameHeaviness() is called at the end of that function.
+- regenerateMap likewise clears/has no starts, generates the map, calls recomputeMapnameHeaviness(), and only later reaches setInitialItems()/starting-plot assignment.
+- The dynamic branch therefore normally sees no major-civilization starting plots. With iMajorCivs <= 1 it leaves both heaviness flags false.
+- Those booleans are then cached and serialized correctly, so the problem is computation timing rather than persistence corruption.
+Lineage:
+- Practical 5032 introduced the script-name cache/call sites.
+- Practical 5402 added the start-area dynamic fallback and persistence without moving the computation to a post-start phase.
+Consequence:
+- Supported scripts intentionally delegated to dynamic classification normally remain neutral instead of receiving their intended land/naval heuristic classification. AI logic consuming these flags can therefore miss its map-specific tuning.
+Repair direction:
+- Split script-name classification from the start-area-dependent phase, or explicitly recompute the dynamic fallback after starting plots have been assigned (including scenario/regeneration lifecycle considerations).
+
+F016 - provisional KI#337 - AP/UN passed-resolution replay entries bypass the live voting-member audience when surfaced through Timeline
+Status: NEW CURRENT HIDDEN-INFORMATION INTERACTION; AdvCiv replay record plus SAS Timeline visibility model.
+Live audience contract:
+- CvGame::doVoteResults sends the detailed vote result only to voting members (with explicit spectator handling).
+- Passed non-Secretary-General resolutions are also persisted as coordinate-less REPLAY_MESSAGE_MAJOR_EVENT entries with NO_PLAYER.
+- The replay text can contain the vote source, Secretary-General team identity, vote totals and target civilization/city/resolution details.
+Timeline interaction:
+- CvReplayInfo::createInfo(activePlayer) copies the replay-message stream; its player argument does not filter individual messages by their original live audience.
+- Current Info Screen Timeline spoiler filtering can test replay-player diplomacy, plot reveal, plot owner and the special unknown-player color.
+- This entry has NO_PLAYER and no coordinates/owner metadata, so none of those generic gates can reconstruct the voting-member-only audience.
+Consequence:
+- A civilization that was not a voting member and therefore did not receive the live detailed result can later inspect that detailed record in Timeline.
+Scope/control:
+- This is not a blanket NO_PLAYER replay defect. The coordinate-less global-warming activation replay is deliberately broadcast live to all major civilizations, so global Timeline visibility is consistent there.
+- F013/KI#334 Great-General replay leakage has a related metadata limitation but a different observer contract (met killer vs voting membership); keep roots separate unless a generalized replay-visibility architecture deliberately repairs both.
+Repair direction:
+- Persist enough audience/visibility metadata for vote-result replay entries, omit/sanitize private detail in the globally visible replay text, or teach Timeline a vote-source membership rule that can be evaluated for the observer.
+
+F017 - provisional KI#338 - starting-location volatility safeguard tests the human's old start instead of the sorted site they are about to receive
+Status: NEW CURRENT INHERITED ADVCIV DEFECT ROOT; refactor regression proved by history.
+Evidence:
+- applyStartingLocHandicaps sorts actual starting sites into apStartingSitesByValue and ultimately assigns player at slot i to apStartingSitesByValue[i].
+- The human volatility safeguard instead sets pStart from GET_PLAYER(ePlayer).getStartingPlot(), i.e. that player's pre-reassignment/original start.
+- Its neighboring alternative/swap tests correctly inspect apStartingSitesByValue[iSwapPlayerIndex].
+Lineage:
+- Before practical 2708's starting-site refactor, the safeguard tested startPlots[i], the actual site associated with the slot being evaluated.
+- The refactor changed storage/ordering but accidentally changed this one check to the player's old plot.
+Consequence:
+- A human can be assigned a volatile site without the safeguard noticing because their old site was safe, or can be swapped unnecessarily because their old site was volatile even though the new assigned slot is safe.
+Repair direction:
+- Use apStartingSitesByValue[i] for pStart so the safeguard evaluates the site the human is actually about to receive.
+
+F018 - provisional KI#339 - starting-handicap collision randomization computes a random rotation and then never applies it
+Status: NEW CURRENT INHERITED ADVCIV DEFECT ROOT; practical tie/collision bias.
+Evidence:
+- sortByStartingLocHandicap separately processes human and AI agents, draws a random ordinal, walks to that agent and stores its actual source index in iRandOffset.
+- The placement pass then iterates the source list from index 0 without using iRandOffset at all.
+- The random draw therefore consumes map RNG but has no effect on ordering.
+Lineage:
+- Pre-refactor starting-site code used the random offset to rotate traversal, preventing fixed player-slot priority when equal/colliding StartingLocationPercent values mapped agents to the same positions.
+- The extracted/refactored helper retained calculation of the offset but dropped the rotated traversal.
+Consequence:
+- Players/teams sharing the same starting-location handicap can resolve collisions deterministically according to input/player ordering rather than the intended randomized order.
+Repair direction:
+- Restore a rotation over the eligible source-agent order using the computed starting index (or directly shuffle/rotate the eligible list in an equivalent deterministic-map-RNG-safe way).
+
+F019 - provisional KI#340 - team-start fallback uses compact alive-team count as an offset in the absolute team-ID space
+Status: NEW CURRENT INHERITED BTS DEFECT ROOT; sparse/high team IDs make the intended random priority non-uniform.
+Evidence:
+- assignStartingPlots draws iRandOffset from MapRandNum(countCivTeamsAlive()).
+- It then rotates through (i + iRandOffset) % MAX_CIV_TEAMS, which is the absolute team-ID domain rather than the compact list of alive teams.
+Concrete example:
+- If the two alive teams are IDs 5 and 20, countCivTeamsAlive()==2, so the only offsets are 0 and 1.
+- Scanning absolute IDs from either 0 or 1 reaches team 5 before team 20; team 20 can never receive first-choice priority.
+Reachability:
+- Sparse/high IDs are supported in scenarios and current SAS code, and StartingPositionIteration deliberately falls back to this inherited assignment path for supported cases such as sufficiently large team games.
+Repair direction:
+- Build the actual alive-team list and randomize/rotate within that compact list; never mix a compact count with absolute team IDs.
+
+F020 - provisional KI#341 - initScoreCalculation passes a civilization index to isCivilizationFreeTechs where the technology index is required
+Status: NEW CURRENT INHERITED ADVCIV DEFECT ROOT; practical 2011 enum-refactor regression, current-data consequence proved.
+Evidence:
+- initScoreCalculation loops over technologies and then playable civilizations to determine whether eLoopTech is a possible civilization free technology.
+- Current code calls GC.getInfo(eLoopCivilization).isCivilizationFreeTechs(eLoopCivilization), passing the civilization enum as the tech argument.
+- BtS/Civ4CE lineage passes the technology-loop index as intended.
+Current-data proof:
+- Current playable civilization/free-tech data contains no accidental civ-index/free-tech-index coincidence that rescues this predicate; the erroneous branch is false for every playable civilization.
+Consequence:
+- On an Ancient start, m_iInitTech receives 0 from this free-start-tech normalization instead of counting the current five distinct possible civilization starting technologies (each currently worth one technology-score point).
+- This defeats the routine's explicit intent to normalize the immediate-retirement score for free starting technologies. Later start eras mask much of the effect because earlier-era technologies are counted through the separate era branch.
+Repair direction:
+- Pass eLoopTech to isCivilizationFreeTechs.
+
+F021 - provisional KI#342 - global-warming target selection can accept the last rejected water/peak plot after exhausting its retry loop
+Status: NEW CURRENT INHERITED ADVCIV DEFECT ROOT; K-Mod control shows the lost exhaustion guard.
+Evidence:
+- getRandGWPlot tries up to 25 random plots for each pool candidate and accepts Ice or ordinary non-peak land.
+- Unsuitable open water/peaks are simply retried. If all 25 random draws are non-null but unsuitable, pTestPlot still points to the final rejected plot when the loop exits.
+- Current post-loop guard tests only pTestPlot == NULL, so the rejected plot proceeds into scoring/selection.
+- eTerrain is declared outside the outer candidate-pool loop and can therefore also carry the previous candidate's terrain value into this exhausted candidate.
+Lineage:
+- K-Mod retained an explicit exhaustion test in addition to the null test.
+- AdvCiv practical 1631 removed the loop-count guard on the theory that resetting pTestPlot made it redundant; resetting before a successful-but-unsuitable draw does not make it null after the final retry.
+Consequence:
+- On water/peak-heavy maps, a global-warming strike can be wasted on an unsuitable open-water/peak target, and stale eTerrain can mis-rank an exhausted candidate.
+Repair direction:
+- Track whether a suitable plot was actually found (or test retry exhaustion explicitly), and reset candidate-specific terrain state inside the outer pool iteration.
+
+F022 - provisional KI#343 - multiple missing AP/UN voters receive staggered one-turn grace periods based on player iteration order
+Status: NEW CURRENT INHERITED BTS MULTIPLAYER DEFECT ROOT; source contract explicit.
+Evidence:
+- doVoteResults comments that a player who has not voted should receive one more turn to submit a vote.
+- On the first NO_PLAYER_VOTE it changes only that voter to NO_PLAYER_VOTE_CHECKED, sets bAllVoted=false and immediately breaks from the voter loop.
+- On the next game turn, that first checked voter defaults to abstain, then the next still-missing voter receives the checked state; additional missing voters repeat the sequence.
+Consequence:
+- When several eligible voting members miss the same deadline, they do not receive the same one-turn grace period. Later players in iteration order can receive successively later deadlines.
+Repair direction:
+- In the first incomplete-vote pass, mark every currently missing eligible voter NO_PLAYER_VOTE_CHECKED, remember that voting is incomplete, and postpone processing until the next turn. Then all still-checked missing votes can default consistently.
+
+F023 - provisional KI#344 - Lock Modified Assets can randomly generate an empty admin password and fail to lock WorldBuilder
+Status: NEW CURRENT INHERITED BTS DEFECT ROOT; low-probability but direct option-contract failure.
+Evidence:
+- With GAMEOPTION_LOCK_MODS, CvGame::init generates seven arbitrary random char values from a range that includes zero, terminates the buffer, and supplies it as the admin password.
+- If the first generated byte is NUL, the C string passed to setAdminPassword is empty.
+- Current isDebugToolsAllowed(true) explicitly permits single-player WorldBuilder when the admin password is empty.
+Consequence:
+- A game started with Lock Modified Assets can therefore retain WorldBuilder/debug-tool access despite the option's stated purpose of assigning a random password to prevent it.
+- Under the normal Windows/MSVC signed-char range (0..127), first-byte NUL is approximately a 1/128 event per locked game. A later NUL merely shortens the password; the first-byte case is the concrete contract failure.
+Repair direction:
+- Generate from a non-NUL printable alphabet/range or encode a random integer into a guaranteed nonempty textual password.
+
+F024 - provisional KI#345 - extracted victory helper clears the cumulative End Score flag on every victory/team test
+Status: NEW CURRENT INHERITED K-MOD DEFECT ROOT; concrete Time-Victory tie behavior differs from BtS contract.
+Original contract:
+- BtS/Civ4CE's monolithic victory scan initializes bEndScore once before all teams/victories and only sets it true when any enabled/valid victory has End Score. The value is cumulative across the scan.
+Current/K-Mod extraction:
+- CvGame::testVictory(VictoryTypes, TeamTypes, bool*) begins by assigning *pbEndScore=false on every call, then sets it true only for that individual victory if appropriate.
+- The outer testVictory() passes the same bEndScore pointer through every team/victory pair and later treats it as the cumulative question "does this game have an End Score victory?".
+Current-data consequence:
+- VICTORY_TIME has End Score enabled but is followed in XML iteration by non-End-Score Conquest, Domination, Cultural, Space and Diplomatic victories. Those later calls reset bEndScore back to false.
+- Concrete trigger: when the Time Victory deadline is reached with the top teams tied, Time Victory correctly refuses to select a winner; the later non-End-Score calls then clear bEndScore, allowing the post-loop max-turn fallback to end the game anyway. BtS's cumulative flag remains true in this state and does not take that fallback.
+Lineage:
+- The per-call reset appears in the K-Mod helper extraction and survives AdvCiv/SAS.
+Repair direction:
+- Initialize the cumulative flag once in the outer caller and have the helper only set it true (OR semantics), never clear it; alternatively return the per-call property and OR it in the caller.
+
+FALSE POSITIVES / CLEAN TAIL CHECKS FROM FILE 008
+- Vote-source city coordinate leak candidate rejected: getVoteSourceCity(..., bDebug=true) still requires the observer to have revealed the city unless the game itself is actually in debug mode; the flag is not an unconditional reveal bypass.
+- sortByStartingLocHandicap's all-human/all-AI zero-agent pass calls MapRandNum(0), but CvRandom explicitly defines zero as legal: it returns 0 without advancing RNG. No separate zero-range random defect.
+- skipDuplicateNormalizationBonus appears able to divide by zero because the city-radius iterator includes the candidate plot, but all live callers invoke it while that candidate is bonus-free; the self plot therefore cannot pass the same-bonus test before the division.
+- The two perAreaUnowned.find(...)->second dereferences are safe under the local construction contract: the map is populated for every current CvArea immediately before the consuming plot scan.
+- randomBarbarianUnit's optional OR-resource/NO_TECH handling looked under-defensive, but current unit XML has no reachable unit configuration exercising the problematic path. Future/mod-mod robustness only.
+- Global-warming ordinary probability/defence denominators and current XML values were checked; no second denominator/configuration root survived beside F021.
+- clearSecretaryGeneral's apparently underinitialized target state does not escape through the negative processVote path; the relevant removal branch returns before target fields can be consumed.
+- goodyHutEffectFactor can only reach its questionable denominator if the relevant GlobalDefine is retuned outside current supported/default values; record as tuning robustness debt, not a current KI.
+- updateStartingPlotRange's denominator/range paths have current caller/data guards; no additional starting-distance arithmetic root established.
+- Current-format CvGame serialization was mechanically paired at 88 corresponding read/write operations in the same order. Variable-length string vectors and conditional SPAH, Rise & Fall and event-trigger blocks are symmetric.
+- Modern read() hard-coded option remap numbers were checked against the current enum: 17 New Random Seed, 18 Lock Mods, 19 Rise & Fall, 20 True Starts, 23 No Vassals and 27 No Espionage are all correct.
+- Map-heaviness members are reset and serialized correctly. F015 is specifically a lifecycle/computation-order failure, not stale persistence.
+- Cached CvGame gameplay defines were cross-checked against current runtime define mutation. The dynamically changed river-generation, camera/FOV and minimap values do not overlap these caches.
+- Global warming's coordinate-less NO_PLAYER replay message is intentionally broadcast live to all major civilizations; unlike F016, its Timeline visibility matches its live audience.
+- replaceCorporation iterator deletion, timer/active-player accesses, reviveActivePlayer, deal-iteration diagnostics and remaining FAssert(false) sites were traced to established iterator/UI/EXE contracts; no additional current defect survived.
+- calculateSyncChecksum concerns map to already-known/fixed KI#326 lineage; no new synchronization root from this file.
+- Constructor/reset/header/member ownership was checked: persistent enum maps/state have matching reset/read/write lifecycles, transient UI/cache state is reset rather than serialized, replay storage is cleared, and BarbarianWeightMap ownership/activity reset is coherent.
+- Post-C008 commits touching CvGame.cpp were checked: practical 6216 only adjusts/comment-documents starting-distance work; practical 6221 is KI#325 past-city-name signature/locale work. Neither repairs or invalidates F015-F024.
+- Final assertion/sentinel/container/iterator/enum/division scan found no additional live root. The remaining FAssert(false) sites are synchronization diagnostics or switch-default impossibilities under current enums.
+
 
 DEFERRED OBSERVATION POLICY
-- Observations in later files are not counted until that file reaches its turn. File 008 is now active.
+- Observations in later files are not counted until that file reaches its turn. File 009 is now active.
 
 QUEUE (current .cpp files, longest -> shortest)
-001  32289 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]
-002  28009 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]
+001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]
+002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]
-004  20672 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]
-006  13834 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]
+006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]
-008  10836 CvGameCoreDLL/CvGame.cpp [OPEN]
-009   8705 CvGameCoreDLL/CvPlot.cpp [PENDING]
-010   6859 CvGameCoreDLL/CvTeamAI.cpp [PENDING]
+008  10841 CvGameCoreDLL/CvGame.cpp [COMPLETE - REVIEWED/TEN NEW FINDINGS]
+009   8705 CvGameCoreDLL/CvPlot.cpp [OPEN]
+010   6854 CvGameCoreDLL/CvTeamAI.cpp [PENDING]
 011   6343 CvGameCoreDLL/SASGameRecordLog.cpp [PENDING]
 012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [PENDING]
 013   6190 CvGameCoreDLL/CvTeam.cpp [PENDING]
@@ -617,7 +793,7 @@ QUEUE (current .cpp files, longest -> shortest)
 034   1637 CvGameCoreDLL/CvInfo_Civilization.cpp [PENDING]
 035   1619 CvGameCoreDLL/CvInfo_GameOption.cpp [PENDING]
 036   1596 CvGameCoreDLL/CvMap.cpp [PENDING]
-037   1575 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]
+037   1576 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]
 040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]
