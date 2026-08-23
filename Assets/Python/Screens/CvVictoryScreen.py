@@ -562,6 +562,7 @@ class CvVictoryScreen:
 			self.drawVoteSourceInactiveFallback(self.TEXT_MEMBERS_NO_VOTING_YET, [])
 			return
 
+		# <!-- custom: K-Mod imported this advanced BUG poll disabled and without a visible options checkbox. An exact DLL prediction was runtime-tested but rejected because it would expose hidden AI vote state while retaining statistical-poll labels; keep the supported plain Members view as the default. See KI#327. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if AdvisorOpt.isMembers():
 			if  iRelVote == -1:
 				self.VoteBody = 2 # AP Not active

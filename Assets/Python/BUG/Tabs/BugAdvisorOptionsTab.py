@@ -80,6 +80,7 @@ class BugAdvisorOptionsTab(BugOptionsTab.BugOptionsTab):
 		self.addCheckbox(screen, center, "Advisors__BugReligiousTab")
 		self.addTextDropdown(screen, center, center, "Advisors__ShowReligions", True)
 
+		# <!-- custom: K-Mod imported the advanced BUG Members poll disabled and already hid these controls. Runtime review rejected exposing or making its prediction exact because that would reveal hidden AI vote state while still presenting a statistical poll. See KI#327. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		#self.addLabel(screen, center, "Victory_Conditions", "Victory [F8]:")
 		#self.addCheckbox(screen, center, "Advisors__BugVictoriesTab")
 		#self.addCheckbox(screen, center, "Advisors__BugMembersTab")
