@@ -470,6 +470,14 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: A replay record has only one visibility player and cannot require that a Timeline observer know both the victim and killer. Keep the public historical event without naming the potentially unknown killer; exact transient messages remain available to eligible observers. See KI#334. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_MISC_GENERAL_KILLED_PUBLIC</Tag>
+		<English>%s1_warlord (%s2_Civ) has died in combat!</English>
+	</TEXT>
+
+
+
 	<TEXT>
 		<Tag>TXT_KEY_TOP_5_CITIES_IN_THE_WORLD</Tag>
 		<English>Top 5 Cities in the World</English>

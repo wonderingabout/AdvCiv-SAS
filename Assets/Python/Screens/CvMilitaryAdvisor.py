@@ -643,6 +643,9 @@ class CvMilitaryAdvisor:
 		if tColumns is None:
 			return None
 		iTurn, iResult, iColor, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iX, iY = tColumns
+		# <!-- custom: The selected vassal remains the Battles subject, but outside debug mode the real active human is the map observer.
+		# Sanitize location and stored plot context when that observer has not revealed the battle plot; this protects the table, LOG output and camera path together. See KI#335. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iX, iY, iTerrain, iFeature, iHillPeakTerrain, iCityContext = self.getBattleObserverPlotContext(entry, iX, iY)
 		iWinner = entry[1]
 		iLoser = entry[2]
 		bRoleKnown = False
@@ -655,14 +658,27 @@ class CvMilitaryAdvisor:
 			if bRoleKnown:
 				iOurRole = 1
 			iAttackerXP, bAttackerGG, iDefenderXP, bDefenderGG = SASBattleHistory.getUnitContext(entry)
-			return (iTurn, iResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iAttackerXP, bAttackerGG, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iDefenderXP, bDefenderGG, iX, iY) + self.getBattleCapturePerspective(entry) + SASBattleHistory.getPlotContext(entry)
+			return (iTurn, iResult, iColor, iOurRole, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iAttackerXP, bAttackerGG, iDefender, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iDefenderXP, bDefenderGG, iX, iY) + self.getBattleCapturePerspective(entry) + (iTerrain, iFeature, iHillPeakTerrain, iCityContext)
 		if iDefender == self.iActivePlayer:
 			iOurRole = -1
 			if bRoleKnown:
 				iOurRole = 0
 			iAttackerXP, bAttackerGG, iDefenderXP, bDefenderGG = SASBattleHistory.getUnitContext(entry)
-			return (iTurn, iResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iDefenderXP, bDefenderGG, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iAttackerXP, bAttackerGG, iX, iY) + self.getBattleCapturePerspective(entry) + SASBattleHistory.getPlotContext(entry)
+			return (iTurn, iResult, iColor, iOurRole, iDefenderUnit, iDefenderCurrStr, iDefenderEndStr, iDefenderMaxStr, iDefenderXP, bDefenderGG, iAttacker, iAttackerUnit, iAttackerCurrStr, iAttackerEndStr, iAttackerMaxStr, iAttackerXP, bAttackerGG, iX, iY) + self.getBattleCapturePerspective(entry) + (iTerrain, iFeature, iHillPeakTerrain, iCityContext)
 		return None
+
+	# <!-- custom: Centralize subject-versus-observer plot privacy so every Battles consumer receives the same permitted coordinates and context. See KI#335. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	def getBattleObserverPlotContext(self, entry, iX, iY):
+		iTerrain, iFeature, iHillPeakTerrain, iCityContext = SASBattleHistory.getPlotContext(entry)
+		if CyGame().isDebugMode():
+			return (iX, iY, iTerrain, iFeature, iHillPeakTerrain, iCityContext)
+		kMap = CyMap()
+		if 0 <= iX < kMap.getGridWidth() and 0 <= iY < kMap.getGridHeight():
+			pPlot = kMap.plot(iX, iY)
+			iObserverTeam = gc.getPlayer(CyGame().getActivePlayer()).getTeam()
+			if pPlot is not None and not pPlot.isNone() and pPlot.isRevealed(iObserverTeam, False):
+				return (iX, iY, iTerrain, iFeature, iHillPeakTerrain, iCityContext)
+		return (-1, -1, -1, -1, -1, 0)
 
 	def getBattleCapturePerspective(self, entry):
 		if len(entry) < 16:
@@ -731,7 +747,10 @@ class CvMilitaryAdvisor:
 			return gc.getFeatureInfo(iFeature).getType()
 		return ""
 
-	def getBattlePlotButton(self, iCityContext):
+	# <!-- custom: Coordinates now accompany city context so an observer-hidden row has no clickable Plot art or apparent camera action. See KI#335. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	def getBattlePlotButton(self, iCityContext, iX, iY):
+		if iX < 0 or iY < 0:
+			return ""
 		if SASBattleHistory.isCityContextCaptured(iCityContext):
 			return self.ART_BATTLE_CITY_CAPTURED_BUTTON
 		if SASBattleHistory.isCityContextDefended(iCityContext):
@@ -801,7 +820,8 @@ class CvMilitaryAdvisor:
 		if aEntries:
 			entryFirst = aEntries[0]
 			entryLast = aEntries[-1]
-		return (self.iActivePlayer, CyGame().getCurrentLanguage(), self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, len(aEntries), entryFirst, entryLast)
+		# <!-- custom: Observer identity and debug mode control battle-location privacy, so include both in the preserved table's cache key rather than reusing rows built under another visibility context. See KI#335. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		return (self.iActivePlayer, CyGame().getActivePlayer(), CyGame().isDebugMode(), CyGame().getCurrentLanguage(), self.IS_SAS_CV_MILITARY_ADVISOR_BATTLE_PLOT_CONTEXT_ENABLE, self.BATTLE_NUM_COLS, iTableX, iTableY, iTableW, iTableH, len(aEntries), entryFirst, entryLast)
 
 	def canReuseBattleTableWidget(self, screen, aEntries):
 		# <!-- custom: Cache keys can survive Military Advisor close/reopen even when the table widget is gone; verify the preserved table still has enough rows before using the fast show/moveToFront path. (GPT-5.5) -->
@@ -940,7 +960,7 @@ class CvMilitaryAdvisor:
 			self.setBattleHillPeakCell(screen, iRow, iHillPeakTerrain)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_TERRAIN_COL_ID, iTerrain, True)
 			self.setBattleTerrainFeatureCell(screen, iRow, self.BATTLE_FEATURE_COL_ID, iFeature, False)
-		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, getAdvisorIconSortKey(iCityContext + 1, iRow), self.getBattlePlotButton(iCityContext), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
+		SASTextScale.setTableTextLabel(screen, self.BATTLE_TABLE_ID, self.BATTLE_PLOT_COL_ID, iRow, getAdvisorIconSortKey(iCityContext + 1, iRow), self.getBattlePlotButton(iCityContext, iX, iY), WidgetTypes.WIDGET_GENERAL, iX, iY, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def dbgLogBattleHistory(self):
 		aEntries = SASBattleHistory.getEntriesForPlayer(self.iActivePlayer)
@@ -950,7 +970,8 @@ class CvMilitaryAdvisor:
 		print("SAS_MILITARY_ADVISOR_BATTLE_HISTORY_BEGIN")
 		self.dbgLogBattleHistoryPerspectivePlayer()
 		self.dbgLogBattleHistoryPlayers(aEntries)
-		# <!-- custom: keep stored hill/peak, terrain, and feature context in copied logs even when the optional UI columns are hidden; logs are allowed to be more complete than the visible table when data already exists. (GPT-5.5) -->
+		# <!-- custom: Keep observer-permitted stored hill/peak, terrain, and feature context in copied logs even when the optional UI columns are disabled.
+		# getBattlePerspectiveColumns has already sanitized location/context that the real active player has not revealed under a vassal perspective. See KI#335. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		print("Turn | Year | Result | Est% | Role | OurStrB | OurStrS | OurStrE | OurStrM | OurXP | OurGG | OurUnit | TheirUnit | TheirXP | TheirGG | TheirStrB | TheirStrS | TheirStrE | TheirStrM | TheirPID | Cap# | CapUnit | HillPeak | Terrain | Feature | X | Y")
 		for entry in aEntries:
 			tColumns = self.getBattlePerspectiveColumns(entry)
@@ -964,6 +985,8 @@ class CvMilitaryAdvisor:
 		kPlayer = gc.getPlayer(self.iActivePlayer)
 		szLeaderType = gc.getLeaderHeadInfo(kPlayer.getLeaderType()).getType()
 		szCivType = gc.getCivilizationInfo(kPlayer.getCivilizationType()).getType()
+		# <!-- custom: Battles alone has subject-versus-observer map sanitization, so record the two inputs controlling it locally instead of imposing niche context fields on every advisor LOG button. See KI#335. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		print("BattleHistoryContext: DebugMode=%d | ObserverPID=%d" % (CyGame().isDebugMode(), CyGame().getActivePlayer()))
 		print("PerspectivePlayer: %d | %s | %s | %s" % (self.iActivePlayer, kPlayer.getName(), szLeaderType, szCivType))
 
 	def dbgLogBattleHistoryPlayers(self, aEntries):

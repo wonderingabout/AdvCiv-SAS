@@ -461,6 +461,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 		if (gGameRecordLogLevel >= 2 && !isFighting()) logSASGameRecordGreatPersonDied(this, ePlayer, "NONCOMBAT_PLAYER_KILL");
 		bool const bSASGreatGeneralUnit = (m_pUnitInfo->getDefaultUnitAIType() == UNITAI_GREAT_GENERAL);
 		bool const bSASGreatGeneralAttached = (getLeaderUnitType() != NO_UNIT);
+		// <!-- custom: The KI#334 visibility contract now needs the killer's team as well as its display identity across several branches; bind the validated ePlayer once instead of mixing repeated player lookups with victim/observer references. See KI#334. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvPlayer const& kKiller = GET_PLAYER(ePlayer);
 		if (gGreatGeneralLogLevel >= 1 && (bSASGreatGeneralUnit || bSASGreatGeneralAttached))
 		{
 			logBBAI("    GREAT_GENERAL_DIED turn=%d player=%d %S unitId=%d unitType=%s unitName=%S freeGreatGeneral=%d attachedGreatGeneral=%s killerPlayer=%d x=%d y=%d", GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), GC.getInfo(getUnitType()).getType(), getReplayName().GetCString(), bSASGreatGeneralUnit, bSASGreatGeneralAttached ? GC.getInfo(getLeaderUnitType()).getType() : "-", ePlayer, getX(), getY());
@@ -486,7 +488,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 				if(kObs.getID() == kOwner.getID())
 				{
 					szBuffer = gDLL->getText("TXT_KEY_MISC_YOUR_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(),
-								GET_PLAYER(ePlayer).getCivilizationShortDescription());
+								kKiller.getCivilizationShortDescription());
 					eColor = eColorRed;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitDefeatScript();
 				}
@@ -497,12 +499,17 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 					eColor = eColorGreen;
 					szSound = GC.getInfo(kObs.getCurrentEra()).getAudioUnitVictoryScript();
 				}
+				// <!-- custom: Base AdvCiv's public Great-General message names both civilizations but checked only whether the observer had met the victim. Require knowledge of both participants for the exact message.
+				// An observer who knows only the victim receives sanitized public text, while the victim, killer and spectators retain dedicated/unrestricted messages. See KI#334. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				else if(GET_TEAM(kOwner.getTeam()).isHasMet(kObs.getTeam()) || // advc.004u
 					kObs.isSpectator()) // advc.127
 				{
-					szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(),
-							kOwner.getCivilizationShortDescription(),
-							GET_PLAYER(ePlayer).getCivilizationShortDescription());
+					if (GET_TEAM(kKiller.getTeam()).isHasMet(kObs.getTeam()) || kObs.isSpectator())
+					{
+						szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(),
+								kOwner.getCivilizationShortDescription(), kKiller.getCivilizationShortDescription());
+					}
+					else szBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_PUBLIC", szSASGreatGeneralDisplayName.GetCString(), kOwner.getCivilizationShortDescription());
 					eColor = eColorUnitText;
 					// K-Mod (the other sound is not appropriate for most civs receiving the message.)
 					szSound = "AS2D_INTERCEPTED";
@@ -519,11 +526,11 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer)
 						// </advc.004u>
 			}
 		}
-		// <!-- custom: Base AdvCiv sends Great General deaths only through transient UI messages; it does not add a replay message. The SAS Info Screen Timeline reads replay data, so the same death consequently vanished from history.
-		// Persist it without coordinates (the original UI notification already exposes it to met observers) so Timeline/replay history can retain the event. See KI#204. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: Base AdvCiv sends Great General deaths only through transient UI messages; SAS added a coordinate-less replay record for Timeline persistence, but one replay player ID cannot express that an observer must know both victim and killer.
+		// Persist the public event without the killer identity; the victim, killer and third parties that know both still receive the exact transient message above. See KI#204 and KI#334. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (bSASGreatGeneralUnit || bSASGreatGeneralAttached)
 		{
-			CvWString szReplayBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED", szSASGreatGeneralDisplayName.GetCString(), kOwner.getCivilizationShortDescription(), GET_PLAYER(ePlayer).getCivilizationShortDescription());
+			CvWString szReplayBuffer = gDLL->getText("TXT_KEY_MISC_GENERAL_KILLED_PUBLIC", szSASGreatGeneralDisplayName.GetCString(), kOwner.getCivilizationShortDescription());
 			GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, kOwner.getID(), szReplayBuffer, eColorUnitText);
 		}
 	}
