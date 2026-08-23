@@ -421,7 +421,8 @@ def getGridSize(argsList):
 			fnW = (((continentSeparation * 2) + 1) * continentCount / minWidthDivision + continentCount) / 4
 			fH = int(fH * fnW / float(fW) * 4) / 4
 			fW = fnW
-	return (fW, fH)
+	# <!-- custom: Planet's center-spacing expansion can produce a float width, but Civ4 requests an integer vector and its SDK conversion asserts that every item is a Python int. Return the same truncation explicitly without relying on release-only bridge coercion. See KI#328. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return (int(fW), int(fH))
 	# return (10, 6) # tiny
 	#return (32, 20) # huge
 
