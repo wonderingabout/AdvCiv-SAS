@@ -1026,13 +1026,13 @@ class SevoPediaBuilding:
 				iCivBuilding = gc.getCivilizationInfo(iCiv).getCivilizationBuildings(iBuildingClass)
 				if iCivBuilding == self.iBuilding:
 					screen.attachImageButton(panelName, "", gc.getCivilizationInfo(iCiv).getButton(), GenericButtonSizes.BUTTON_SIZE_CUSTOM, WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iCiv, -1, False)
-		# If this is the default building, show "Available to all civilizations"
+		# <!-- custom: A class-default building is not available to civilizations that map its class to a replacement or NONE. Keep the one-token panel as `AllR`, with its exact All Remaining Civilizations scope explained in the Sevopedia Legend, instead of redundantly listing every ordinary civilization. See KI#321. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		else:
 			# <!-- custom: prettier display -->
 			#screen.attachLabel(panelName, "", localText.getText("TXT_KEY_PEDIA_AVAILABLE_ALL_CIVS", ()))
 			yPanelCenter = self.Y_CIVILIZATIONS + (self.H_CIVILIZATIONS / 2)
 			textName = self.top.getNextWidgetName()
-			szText = localText.getText("TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND", ())
+			szText = localText.getText("TXT_KEY_PEDIA_SAS_ALL_REMAINING_CIVS", ())
 			screen.addMultilineText(textName, SASTextScale.labelText(szText), self.X_CIVILIZATIONS + 7, yPanelCenter, self.W_CIVILIZATIONS - 14, self.H_CIVILIZATIONS - 20, WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 	# <!-- custom: add iconquestprob with the help of claude ai, quite similarly than for the getChopProductionText addition in sevopedia feature) -->

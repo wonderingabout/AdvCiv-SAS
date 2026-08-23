@@ -1508,10 +1508,6 @@ Created as part of AdvCiv-SAS improvements
 		<English>Civs</English>
 	</TEXT>
 	<TEXT>
-		<Tag>TXT_KEY_PEDIA_CIVILIZATIONS_NO_BUTTON_FOUND</Tag>
-		<English>All</English>
-	</TEXT>
-	<TEXT>
 		<Tag>TXT_KEY_PEDIA_OBSOLETE</Tag>
 		<English>Obsolete</English>
 	</TEXT>
@@ -1920,6 +1916,11 @@ Created as part of AdvCiv-SAS improvements
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_ALL</Tag>
 		<English>All</English>
+	</TEXT>
+	<!-- custom: Class-default Unit/Building pages use a compact exact-availability summary instead of falsely claiming availability to civilizations with a replacement or NONE mapping. See KI#321. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_PEDIA_SAS_ALL_REMAINING_CIVS</Tag>
+		<English>AllR</English>
 	</TEXT>
 	<TEXT>
 		<Tag>TXT_KEY_PEDIA_SAS_WEIGHT</Tag>
