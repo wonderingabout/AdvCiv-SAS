@@ -383,8 +383,24 @@ def round_half_away_from_zero(value):
 
 
 def round_current_runtime(value):
-	# <!-- custom: keep normal normalize_to_100 on the same round() behavior used by the existing AIP cache path. Making half-away-from-zero the default looked cleaner but changed current committed contact aggregate values: e.g. CONTACT_RELIGION_PRESSURE raw 52 in range 10..90 normalizes to 52.5, and the committed predump stores 52, while half-away would produce 53 and caused 21 mismatches. (ChatGPT-5.5) -->
-	return int(round(value))
+	# <!-- custom: Built-in round() differs at exact half ties between Civ4's Python 2.4 runtime and Python 3 predump tooling. Implement ties-to-even explicitly so both paths preserve the committed contact aggregate value 52 instead of Python 2.4 returning 53 for 52.5. See KI#322. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	iTruncated = int(value)
+	fFraction = value - iTruncated
+	if fFraction > 0.5 or (fFraction == 0.5 and iTruncated % 2 != 0):
+		return iTruncated + 1
+	if fFraction < -0.5 or (fFraction == -0.5 and iTruncated % 2 != 0):
+		return iTruncated - 1
+	return iTruncated
+
+
+def test_expected_rounding():
+	# <!-- custom: Cover positive/negative half ties and ordinary fractions so the shared Python 2.4/Python 3 rounding contract cannot silently regress. See KI#322. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	assert(round_current_runtime(52.5) == 52)
+	assert(round_current_runtime(53.5) == 54)
+	assert(round_current_runtime(-52.5) == -52)
+	assert(round_current_runtime(-53.5) == -54)
+	assert(round_current_runtime(52.4) == 52)
+	assert(round_current_runtime(52.6) == 53)
 
 
 def normalize_to_100_with_rounder(value, min_val, max_val, B_WARN, invert, attr_name, rounder):

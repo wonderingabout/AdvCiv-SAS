@@ -886,6 +886,26 @@ class CvInfoScreen:
 
 	# TIMELINE
 
+	def getReligionFoundingTimelineTexts(self):
+		# <!-- custom: Precompute localized religion-founding prefixes/suffixes once per Timeline rebuild; classification must remain independent of current plot visibility because a razed hidden holy-city plot can be revealed later. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		szCitySentinel = u"__SAS_TIMELINE_HOLY_CITY__"
+		aFoundingTexts = []
+		for iReligion in range(gc.getNumReligionInfos()):
+			szReligion = gc.getReligionInfo(iReligion).getDescription()
+			szKnown = localText.getText("TXT_KEY_MISC_REL_FOUNDED", (szReligion, szCitySentinel))
+			iSentinel = szKnown.find(szCitySentinel)
+			if iSentinel == -1:
+				continue
+			aFoundingTexts.append((szKnown[:iSentinel], szKnown[iSentinel + len(szCitySentinel):], localText.getText("TXT_KEY_MISC_REL_FOUNDED_UNKNOWN", (szReligion,))))
+		return aFoundingTexts
+
+	def getHiddenReligionFoundedText(self, szReplayText, aFoundingTexts):
+		# <!-- custom: Match the localized founding template through its sentinel-derived parts rather than an English substring or the current city object's current name. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for szPrefix, szSuffix, szUnknown in aFoundingTexts:
+			if szReplayText.startswith(szPrefix) and szReplayText.endswith(szSuffix):
+				return szUnknown
+		return None
+
 	# <!-- custom: Timeline cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
 	def buildTimelineCache(self, bForceRebuild = False):
 		replayInfo = CyGame().getReplayInfo()
@@ -934,7 +954,10 @@ class CvInfoScreen:
 		iGameSpeed = replayInfo.getGameSpeed()
 		iBarbarianPlayer = gc.getBARBARIAN_PLAYER()
 		iCityFoundedMessage = getattr(ReplayMessageTypes, "REPLAY_MESSAGE_CITY_FOUNDED", -1)
-		iReligionFoundedMessage = getattr(ReplayMessageTypes, "REPLAY_MESSAGE_RELIGION_FOUNDED", -1)
+		if self.bRevealAll:
+			aReligionFoundingTexts = []
+		else:
+			aReligionFoundingTexts = self.getReligionFoundingTimelineTexts()
 
 		# Iterate backwards (newest first) so no reverse needed later
 		for iMessage in range(iNumMessages - 1, -1, -1):
@@ -943,7 +966,8 @@ class CvInfoScreen:
 			iY = replayInfo.getReplayMessagePlotY(iMessage)
 			eColor = replayInfo.getReplayMessageColor(iMessage)
 			eMessageType = replayInfo.getReplayMessageType(iMessage)
-			bAllowHiddenPlotMessage = (eMessageType == iReligionFoundedMessage)
+			bAllowHiddenPlotMessage = False
+			szHiddenReligionText = None
 			szText = None
 			szTextNoColor = None
 
@@ -964,11 +988,13 @@ class CvInfoScreen:
 					if iRevealedOwner != iPlayer:
 						bHideCityFounded = True
 			# <!-- custom: hide "city founded" unless revealed owner matches the replay message player; this avoids barbarian spoilers when the plot is revealed but ownership is not. Finding a reliable barbarian hide required checking revealed owner rather than plot visibility alone; optional debug line left for future verification, not tested with this exact code path. (GPT-5.2-Codex); Long_Comments_py.txt #13 -->
-			if (not bAllowHiddenPlotMessage and not self.bRevealAll and (bPlotHidden or eColor in dUnknownColors)):
+			# <!-- custom: Classify founding messages even when the plot is now visible; a razed holy city has no current object from which to infer whether its historical replay name was known. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if not self.bRevealAll:
 				szText = replayInfo.getReplayMessageText(iMessage)
 				if szText:
 					szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
-					if " has been founded in " in szTextNoColor.lower():
+					szHiddenReligionText = self.getHiddenReligionFoundedText(szTextNoColor, aReligionFoundingTexts)
+					if szHiddenReligionText is not None:
 						bAllowHiddenPlotMessage = True
 
 			bHide = False
@@ -1010,7 +1036,10 @@ class CvInfoScreen:
 				szTextNoColor = self.RE_COLOR_CLOSE.sub("", self.RE_COLOR_OPEN.sub("", szText))
 			szText = szTextNoColor
 
-			if not self.bRevealAll and pPlot is not None:
+			if not self.bRevealAll and szHiddenReligionText is not None and (pPlot is None or bPlotHidden or pPlot.getPlotCity() is None):
+				# <!-- custom: A hidden religion founding remains globally visible, but its replay text must not reveal a historical holy-city name merely because the city was razed before the observer learned it. Use the localized unknown-location line identified above. See KI#300. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				szText = szHiddenReligionText
+			elif not self.bRevealAll and pPlot is not None:
 				pCity = pPlot.getPlotCity()
 				if pCity is not None:
 					bCityOwnerMet = False

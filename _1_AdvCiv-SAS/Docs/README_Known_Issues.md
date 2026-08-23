@@ -368,6 +368,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#298---fixed-advciv-sas-bug-highlands-arena-could-lack-legal-sites-for-48-civilizations)\
 [298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2982---fixed-advciv-sas-bug-highlands-was-undersized-beyond-the-arena-capacity-case)\
 [299 - (Fixed AdvCiv-SAS bug) Movie-to-Music left the user's No Movies option disabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#299---fixed-advciv-sas-bug-movie-to-music-left-the-users-no-movies-option-disabled)\
+[300 - (Fixed AdvCiv-SAS bug) Timeline could reveal a razed hidden holy city's name](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#300---fixed-advciv-sas-bug-timeline-could-reveal-a-razed-hidden-holy-citys-name)\
 [301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#301---fixed-advciv-sas-compatibility-bug-non-sevopedia-build-links-opened-unrelated-improvements)\
 [302 - (Fixed AdvCiv-SAS bug) Terrain Units (Any Build) omitted Hill and water builders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#302---fixed-advciv-sas-bug-terrain-units-any-build-omitted-hill-and-water-builders)\
 [303 - (Fixed AdvCiv-SAS issue) Specialist Extra Yields omitted building-wide specialist commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#303---fixed-advciv-sas-issue-specialist-extra-yields-omitted-building-wide-specialist-commerce)\
@@ -386,6 +387,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [318 - (Fixed AdvCiv-SAS follow-up regression in an inherited-assert fix) Zero WonderConstructRand disabled fixed opportunistic-Wonder chances](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#318---fixed-advciv-sas-follow-up-regression-in-an-inherited-assert-fix-zero-wonderconstructrand-disabled-fixed-opportunistic-wonder-chances)\
 [319 - (Fixed AdvCiv-SAS follow-up regression in an inherited-loop fix) AI no-progress tripwire skipped a remaining group after its head changed role and detached](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#319---fixed-advciv-sas-follow-up-regression-in-an-inherited-loop-fix-ai-no-progress-tripwire-skipped-a-remaining-group-after-its-head-changed-role-and-detached)\
 [320 - (Fixed AdvCiv-SAS bug) Happiness-based hammer reduction ran after production value was consumed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#320---fixed-advciv-sas-bug-happiness-based-hammer-reduction-ran-after-production-value-was-consumed)\
+[322 - (Fixed AdvCiv-SAS bug) AI Personality normalization differed between Python 2.4 and Python 3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#322---fixed-advciv-sas-bug-ai-personality-normalization-differed-between-python-24-and-python-3)\
 [323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#323---improved-inherited-rfcdoc-unit-chart-added-missing-chance-first-strike-information)\
 [324 - (Rejected finding; not a defect) Zero-base collateral rows should be hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#324---rejected-finding-not-a-defect-zero-base-collateral-rows-should-be-hidden)\
 [324.2 - (Fixed AdvCiv-SAS bug) SAS collateral expansion retained an inherited zero-base promotion veto](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3242---fixed-advciv-sas-bug-sas-collateral-expansion-retained-an-inherited-zero-base-promotion-veto)\
@@ -8960,6 +8962,16 @@ Runtime testing with No Movies enabled confirmed that Movie-to-Music followed by
 
 This is an AdvCiv-SAS Sevopedia media-state regression introduced when the Movie-to-Music transition was added. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
+## 300 - (Fixed AdvCiv-SAS bug) Timeline could reveal a razed hidden holy city's name
+
+Religion founding writes the real holy-city name into its replay message, while the live notification correctly uses the localized faraway-land text for observers who cannot see the city. The AdvCiv-SAS Info Screen Timeline deliberately keeps this globally known event visible, then formerly tried to hide the city name by replacing the current city object's current name. If the holy city had been razed before the observer revealed its plot, no current city object remained and the historical replay name was shown verbatim. Renaming could similarly make the current name differ from the historical replay text.
+
+The fix recognizes the localized religion-founding replay template with a sentinel city name rather than an English substring. When the founding plot remains hidden or no city still exists there, Timeline reconstructs the existing localized `TXT_KEY_MISC_REL_FOUNDED_UNKNOWN` faraway-land message independently of current city existence or name. This conservatively keeps a razed holy city's historical name hidden because replay data does not record whether the observer had learned it before razing.
+
+Runtime screenshot 0216 confirms that the ordinary known-city path remains intact: the active Ethiopian player correctly sees `Paganism has been founded in Aksum!`. The exact razed-before-reveal spoiler state was not reproduced; its corrected hidden/no-current-city branch is established by source review.
+
+This is an AdvCiv-SAS Timeline spoiler introduced with its hidden-event filtering. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol and fixed with the help of GPT-5.6-Sol, thanks.
+
 ## 301 - (Fixed AdvCiv-SAS compatibility bug) Non-Sevopedia Build links opened unrelated Improvements
 
 `pediaJumpToBuild()` correctly opens the custom Builds category when Sevopedia is enabled, but its inherited standard-Civilopedia fallback passed the raw `BuildTypes` ID to an Improvement page. The two enums are independent: for example, Build 0 is Road while Improvement 0 is Land Worked. If that fallback is instantiated, non-improvement Build links such as Road, Railroad and feature removal therefore open unrelated Improvement entries.
@@ -9119,6 +9131,14 @@ KI#40's city-tile policy increases food value when a city has spare happiness an
 The fix applies the existing happiness divisor before production is normalized and added. At three surplus happiness it halves hammer value; larger surpluses retain the existing progressively stronger growth preference. The food multiplier, happiness thresholds, Worker/Settler food-production exception and all tuning values remain unchanged.
 
 This is an AdvCiv-SAS order-of-operations regression in `CvCityAI::AI_yieldValue`. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+## 322 - (Fixed AdvCiv-SAS bug) AI Personality normalization differed between Python 2.4 and Python 3
+
+`ai_utils_shared_with_civ4.py` serves both Civ4's embedded Python 2.4 runtime and the outside-Civ4 Python 3 predump checker, but its normal normalizer formerly used `int(round(value))`. Python 2.4 rounds exact half ties away from zero while Python 3 uses ties-to-even. Disabling the predumped cache and computing in Civ4 therefore changed 30 displayed tuples from the committed predump: 21 Religion Pressure aggregates became 53 instead of 52, and 9 inverted Limited War values became 87 instead of 88.
+
+The fix implements ties-to-even explicitly with Python-2.4-compatible arithmetic, preserving the committed predump while making both runtimes deterministic. Focused assertions cover positive and negative half ties plus ordinary fractions, and the predump workflow runs them before its full comparison. The outside-Civ4 check still matches all 7,810 committed tuples with zero mismatches or missing entries. With predumped-cache loading disabled, runtime screenshot 0217 confirms that Bismarck's Religion Pressure remains 52 rather than the former Python-2.4 result of 53.
+
+This is an AdvCiv-SAS cross-runtime normalization regression in the shared AI Personality cache path. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol and fixed with the help of GPT-5.6-Sol, thanks.
 
 ## 323 - (Improved inherited RFC/DoC Unit Chart) Added missing chance-first-strike information
 

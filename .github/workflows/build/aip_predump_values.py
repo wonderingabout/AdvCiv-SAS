@@ -509,6 +509,8 @@ def main() -> int:
 	repo_root = find_repo_root(args.repo_root or Path.cwd())
 	shared_helpers = import_aip_shared_helpers(repo_root)
 	configure_shared_aip_constants(shared_helpers)
+	# <!-- custom: Exercise the explicit cross-runtime half-tie contract before validating the predump values. See KI#322. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	shared_helpers.test_expected_rounding()
 	leaders = read_leaders_from_xml(repo_root)
 	weight = read_global_define_int(repo_root, UWAI_DEFINE_NAME)
 	if args.no_uwai:
