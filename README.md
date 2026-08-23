@@ -20,7 +20,7 @@ Many practical changes are made, notably moving BBAI logging to SAS defines so t
 
 A separate `SASGameRecord_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
-Another significant part of the project is [historical source archaeology](/README.md#historical-source-archaeology): instead of reviewing only the current source, historical BtS, K-Mod, AdvCiv and AdvCiv-SAS changes are followed through their actual commit diffs and lineage to find inherited bugs, regressions and suspicious logic that can survive for years unnoticed. The completed primary investigation currently records 130+ confirmed candidate bug/issue findings; fixes are implemented incrementally rather than delaying normal releases until every deferred finding is repaired.
+Another significant part of the project is [LLM-assisted source analysis](/README.md#llm-assisted-source-analysis): completed historical archaeology follows BtS, K-Mod, AdvCiv and AdvCiv-SAS changes through their actual diffs and lineage, while current-tree audit albums review final files and cross-file contracts from complementary angles. The completed archaeology records 130+ confirmed candidate bug/issue findings; fixes and newer audits proceed incrementally rather than delaying normal releases.
 
 All in all, this simplifies gameplay to some extent, but greatly increases depth and should make the game much more challenging while not being too much of a grind (i.e. we don't want to increase penalties at higher handicaps, but instead aim to avoid/reduce them while trying to make the game harder (and ideally harder than base AdvCiv at all handicaps) through improved AI competency rather). There are a lot more changes, and details about these as well below explained in the following sections.
 
@@ -85,7 +85,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 &emsp;[BBAI logging and head example](/README.md#bbai-logging-and-head-example)\
 &emsp;[SASGameRecord log](/README.md#sasgamerecord-log)\
 [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)\
-[Historical source archaeology](/README.md#historical-source-archaeology)\
+[LLM-assisted source analysis](/README.md#llm-assisted-source-analysis)\
 [Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
 ["Temporary" crashes](/README.md#temporary-crashes)\
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)\
@@ -984,17 +984,19 @@ See:
 <img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (1).PNG" alt="claude_code_CuCuGS (1).PNG" width="250"></img>
 <img src="./_1_AdvCiv-SAS/Images/LLM/claude_code_CuCuGS (2).PNG" alt="claude_code_CuCuGS (2).PNG" width="250"></img>
 
-## Historical source archaeology
+## LLM-assisted source analysis
 
-AdvCiv-SAS also maintains a systematic source-archaeology investigation across the Civ4 BtS -> K-Mod -> AdvCiv -> AdvCiv-SAS lineage. Rather than only inspect the current code, the review follows historical code changes commit by commit, with the actual before/after diffs as the core evidence and Git logs, map/source references, and lineage traces used to understand why suspicious code exists and whether an old bug or regression survived into the current source. This can find issues that are easy to miss when looking only at the final code, including inherited BtS/K-Mod/AdvCiv problems and later AdvCiv-SAS regressions.
+### Light-source analysis
 
-The primary investigation phase was carried out with ChatGPT-5.6-Sol and is complete for its defined runtime-source scope. At the current completed checkpoint it records 131+ confirmed candidate bug/issue findings. Investigation completion and implementation completion are deliberately separate: useful fixes can be released now while the remaining deferred findings stay recorded for later work instead of holding back a long-planned release.
+The compact light-source ZIP lets external LLMs review the current source, supporting docs/data, repository state and selected historical context without the full installation or `.git` directory. Current AdvCiv-SAS source and Git remain authoritative; Base AdvCiv, tracked lineage, map references and Civ4CE answer different comparison questions.
 
-Implementation, review, and validation are being done progressively by the project author with substantial GPT-5.6-Sol (Codex) assistance, followed by the usual compile/runtime/autoplay testing. Several SAS-origin fixes have also flowed back into base AdvCiv, and a related SAS tiny-island map-script bugfix was also adopted into Taurus.
+### Historical source archaeology
 
-Different references answer different archaeology questions. Current AdvCiv-SAS source and Git define the mod; the latest base [AdvCiv 1.14 source](https://github.com/f1rpo/AdvCiv/tree/1.14) is the direct upstream comparison; the tracked commit-diff mirror follows K-Mod, AdvCiv and AdvCiv-SAS ancestry; and [Civ4CE](https://github.com/f1rpo/Civ4CE) provides an additional reconstruction of vanilla Civ4/BtS official and unofficial patch history. Civ4CE was discovered only after the completed primary sweep, so it supports future provenance checks without being retroactively claimed as evidence for the existing findings.
+The completed commit-oriented investigation follows Civ4 BtS -> K-Mod -> AdvCiv -> AdvCiv-SAS changes through their actual diffs and lineage to find surviving inherited defects and SAS regressions. See the [historical archaeology tracker](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt).
 
-For the exact scope, methodology, review checkpoints, findings, lineage traces, and implementation status, see the [AdvCiv/K-Mod historical bug-archeology progress tracker](/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt).
+### C++ File Audit Album
+
+The active current-tree [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) instead reviews every current `.cpp` file and its associated contracts from longest to shortest. This catches cross-file or cross-commit interactions in the final combined source and records clean files and false positives. Future Python, XML or other analysis albums can extend the same source-analysis family.
 
 ## Known issues that may be fixed or not fixed in base AdvCiv or Civ4
 

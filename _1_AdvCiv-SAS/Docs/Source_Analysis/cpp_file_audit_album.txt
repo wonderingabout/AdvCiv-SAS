@@ -1,0 +1,752 @@
+AdvCiv-SAS C++ File Audit Album - current-tree checkpoint C008
+Generated from local light-source snapshot only; no web/GitHub lookup used.
+
+SOURCE IDENTITY
+Branch: main
+HEAD: bd95b7c42a05f1df06ac066a467591d9d0494a87
+Practical commit count: 6214
+Base comparison: local AdvCiv 1.14 source archive
+
+NUMBERING RECONCILIATION
+- The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
+- C008's six provisional roots were therefore shifted from KI#327-KI#332 to provisional KI#330-KI#335. Stable F-numbers remain the preferred album identifiers until each candidate is independently reviewed and promoted.
+
+METHOD
+- Primary queue = every current .cpp file, sorted by current line count longest -> shortest.
+- Associated headers/XML/history are inspected when needed to establish contracts, configuration semantics, ancestry, or data reality.
+- Current-tree behavior is authoritative. Historical diffs are supporting archaeology, not a reason to report a defect that no longer survives.
+- Do not promote tuning disagreements, theoretical unsupported configurations, dead paths, or already-fixed history into new findings.
+- One root cause gets one finding even when several callers expose different symptoms.
+- False positives are recorded when useful so they are not rediscovered later.
+
+PROGRESS
+Files complete: 7 / 169
+Files open: 1 / 169
+Current file: 008 CvGameCoreDLL/CvGame.cpp (10,836 lines) - OPEN
+New current defect roots established by this file-oriented pass: 6 (provisional KI#330, KI#331, KI#332, KI#333, KI#334, KI#335)
+Existing known defect roots materially broadened/reopened: 8 (KI#312, KI#21, KI#213, KI#48, KI#306, KI#70, KI#74, KI#11)
+
+FILE 001 - CvGameCoreDLL/CvPlayerAI.cpp - 32,289 lines - REVIEWED / NEW FINDINGS
+
+F001 - provisional KI#330 - supported-config master/vassal tech-contact power-bias exemption depends on an unrelated toggle
+Status: NEW CURRENT SAS DEFECT ROOT, static evidence strong.
+Evidence:
+- AI_doDiplo initializes bVassalsOrMaster=false.
+- That relation flag is set only inside SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE.
+- The separately configurable SAS_AI_DO_DIPLO_POWER_TECH_TRADE_OPTIMIZE later skips its power modifier only when !bVassalsOrMaster is false.
+- XML documentation for the power-bias option explicitly promises that the bias is not applied between members of a master-vassal(s) locus, and both options are independently enable/disable toggles.
+Consequence:
+- With preferential master/vassal contact disabled but power-based tech contact enabled, master/vassal or sibling-vassal contacts are incorrectly treated as ordinary rivals for the power modifier.
+- Defaults mask the problem because both options are enabled.
+Repair direction:
+- Compute the master/vassal-locus relationship independently of the preferential-contact feature toggle; use that relation both for the contact bonus and for the power-bias exemption as appropriate.
+
+F002 - provisional KI#331 - restrictive AI canScrap policy silently vetoes callers that assume CvUnit::scrap succeeded
+Status: NEW CURRENT SAS CONTRACT DEFECT ROOT, cross-file; first proven from CvPlayerAI.cpp/CvUnit.cpp/CvTeam.cpp. CvUnitAI.cpp may broaden the caller set during file 002.
+Root contract:
+- CvUnit::scrap() returns void and silently returns when canScrap()==false.
+- SAS canScrap now rejects most AI units, especially in recommended obsolete-only mode.
+- Several inherited callers were written when canScrap was essentially only a fighting-state gate and therefore treat the call as if removal succeeded.
+Confirmed consequence A - AI_doMilitary financial disband quota:
+- Candidate collection uses AI_disbandValue and does not filter canScrap().
+- The loop calls scrap(), calls doDelayedDeath(), then increments iDisbandCount regardless of whether scrap() actually set delayed death.
+- A rejected candidate therefore consumes the per-turn disband quota and can prevent a later genuinely eligible obsolete unit from being considered.
+- Current data makes this practical: a unit can already be cheapened by AI_disbandValue when its ObsoleteTech is known while canScrap still rejects it until the configured obsolete-era delay has elapsed.
+Confirmed consequence B - AI_doTurnUnitsPost upgrade cleanup:
+- The cleanup path calls scrap(), doDelayedDeath(), then unconditionally sets bKilled=true.
+- If canScrap rejects the unit, doDelayedDeath is a no-op because scrap() never set delayed death, but the still-living unit is treated as killed and skips the later ordinary upgrade path.
+Confirmed consequence C - capitulation nuke disarm:
+- CvTeam::setVassal inherited advc.143b disarms a capitulating team by calling scrap() on every nuke.
+- Recommended SAS obsolete-only AI scrapping rejects units with ObsoleteTech=NONE before later UnitAI exceptions are reached.
+- Current UNIT_TACTICAL_NUKE and UNIT_ICBM both use UNITAI_ICBM and ObsoleteTech=NONE, so AI capitulation can retain nukes while a human capitulation still removes them because the restrictive gates are AI-only.
+Repair direction:
+- Routine optional disband/cleanup callers should prefilter canScrap and only consume quota / mark killed after successful removal (or the API could explicitly return success).
+- Mandatory game-rule actions such as capitulation disarm should use a forced/internal removal path that is not blocked by routine AI preservation policy.
+- Do not globally weaken canScrap merely to satisfy mandatory callers.
+
+F003 - KI#312 broadened - cluster-first tech redirect is bypassed by the independent high-research-progress gold-purchase fallback
+Status: EXISTING KNOWN ROOT, not counted as a new defect.
+Evidence:
+- AI_doDiplo independently selects eBestReceiveTech and eBestProgressTech from the outsider partner.
+- The SAS master/vassal cluster-first block can suppress eBestReceiveTech by setting it to NO_TECH when it believes a locus partner is an internal source.
+- The later advc.550f fallback runs when eBestProgressTech != NO_TECH && eBestProgressTech != eBestReceiveTech and can immediately buy that progress tech from the same outsider for gold.
+- Therefore setting eBestReceiveTech to NO_TECH can make the same outsider tech satisfy the fallback comparison rather than suppressing external acquisition consistently.
+Classification:
+- Keep this under KI#312 because that issue already covers the shared master/vassal internal-tech-supply predicate and the mismatch between merely-known / apparently-willing internal sources and legally/actually transferable techs.
+- A centralized internal-supply/acquisition predicate should govern every external acquisition route that is intended to obey cluster-first policy.
+
+FALSE POSITIVES / CLEAN TAIL CHECKS FROM FILE 001
+- AI_eventValue recursion warning: current CIV4EventInfos graph mechanically checked (339 events, 62 Additional/Clear edges); no non-self cycle/SCC exists. Dormant warning, not a current-data bug.
+- Negative-production-cost Great People cannot fall into the normal AI_disbandValue cost formula: productionCost < 0 returns MAX_INT first.
+- Deterministic disband arithmetic remains bounded under current unit data; no new overflow issue established.
+- AI_balanceDeal, AI_counterPropose, AI_techUnitValue, AI_techReligionValue, AI_getGreeting, AI_stopTradingTradeVal, AI_maxGoldTrade, AI_doAdvancedStart and numerous small tail diffs are caching/signature/enum refactors with no semantic defect found.
+- AI_isVictoryValid contains an unused cached Space-strategy define while still calling the original getter in that one branch. This is an incomplete micro-optimization only; behavior is unchanged and it is not promoted.
+- AI_religionValue current power weighting was checked against KI#309; the earlier bloc-power duplication is already fixed by weighting each known player by that player power.
+- Worker-demand/helper changes inspected here map to already-known KI#192/KI#198 lineage; no new defect established in file 001.
+- Culture-victory strategic additions have later repair lineage already captured by the prior archaeology (including the shorter-active-victory-countdown fix); no new surviving root established in this pass.
+
+
+FILE 002 - CvGameCoreDLL/CvUnitAI.cpp - 28,009 lines - REVIEWED / EXISTING ROOT STRENGTHENED
+
+RESULT
+- No third new defect root was established in CvUnitAI.cpp.
+- File 002 substantially strengthens provisional KI#331 by proving that the restrictive canScrap policy is structurally incompatible with several inherited CvUnitAI cleanup callers.
+- Existing pending KI#213 remains a real cross-file architecture defect involving CvUnitAI::AI_bestCityBuild and the deliberately empty land-side CvCityAI best-build cache; this file review did not duplicate it.
+- The major current Settler, Worker, city-assault, Great Person, Great General, transport, promotion, and naval changes otherwise map to already-documented fixes/policies or survive current-state checks.
+
+F002 / provisional KI#331 - CvUnitAI caller expansion
+Historical interaction:
+- The important ancestry is a cross-commit contract change, not a changed caller. Base AdvCiv's canScrap was broadly permissive outside a narrow fighting-state restriction, so inherited `scrap(); return;` code effectively meant "remove this unit and stop."
+- Practical 5945 introduced the recommended restrictive AI obsolete-only policy. Practical 5979 simplified that policy further, but the old CvUnitAI callers remained.
+- This explains why the earlier commit-oriented archaeology could inspect practical 5945 locally and miss the later current-tree consequence: the defect lives in the interaction between a new callee contract and unchanged old callers.
+- Current no-site Settler cleanup provides a useful internal contrast: `AI_scrapSettlerWithNoValidSite` deliberately uses `scrapInternal()` after its own guards because generic Settler scrap policy would otherwise block the mandatory cleanup.
+
+Confirmed CvUnitAI consequences:
+1. Worker self-cleanup no longer removes Workers under the recommended mode.
+   - Current Worker unit variants use `UNITAI_WORKER` and `ObsoleteTech=NONE`.
+   - The AI_workerMove cleanup branch can call `scrap(); return;` after productive actions fail.
+   - canScrap rejects these Workers, so the call can only burn that Worker's turn; it can also prevent later stranded/safety fallback in that update.
+
+2. Excess land Explorers can enter a repeated no-progress branch.
+   - In inherited AI_exploreMove, an excess explorer that has positive ATTACK value converts to UNITAI_ATTACK; otherwise it calls `scrap(); return;`.
+   - Current Scout/Explorer-style units explicitly disallow UNITAI_ATTACK, so the conversion fallback can be unavailable.
+   - Scout/Explorer/Airship can remain blocked until their configured obsolete delay permits scrapping.
+   - The current Robotic Recon Drone is stronger proof: it is an EXPLORE land unit, disallows ATTACK, has a positive production cost, and has `ObsoleteTech=NONE`. Once it reaches the excess-explorer cleanup with no earlier action, generic scrap has no future eligibility escape, so the inherited branch can repeatedly no-op and return.
+
+3. Escort Sea cleanup can be impossible exactly when invoked.
+   - The inherited inferior-escort cleanup branch is reached while `getCargo()>0`.
+   - If role conversion fails, it executes `scrap(); return;`.
+   - Recommended canScrap rejects units carrying cargo, so this removal is categorically vetoed at that call site.
+
+4. Explore Sea cleanup can repeatedly no-op for cargo-capable ships.
+   - Inherited obsolete-role and excess-explorer cleanup branches call `scrap(); return;` after failed role-conversion paths.
+   - Recommended policy rejects any cargo-capable unit even when empty because `cargoSpace()>0`.
+   - A cargo-capable ship assigned EXPLORE_SEA can therefore satisfy the caller's cleanup decision while being categorically ineligible for generic scrap.
+
+5. Barbarian trapped-ship cleanup can no-op.
+   - Inherited AI_barbAttackSeaMove periodically detects a ship that cannot generate a useful path and calls `scrap(); return;`.
+   - A cargo-capable Barbarian ship such as a Galley is categorically rejected by the new policy, turning the intended cleanup into a lost turn whenever that branch fires.
+
+6. Settler transport retirement after unloading can never use generic scrap in recommended mode.
+   - Inherited AI_settlerSeaMove can unload a now-inferior old transport and then call `scrap(); return;`.
+   - The transport remains cargo-capable even when empty, so canScrap rejects it solely from cargo capacity.
+
+7. Doomed-city capturable-unit scorched-earth cleanup can report success without removing the unit.
+   - AI_retreatToCity's inherited evacuation fallback can probabilistically scrap a capturable unit in an evacuating own city and immediately `return true`.
+   - Settlers/Workers are representative capturable units and have no ObsoleteTech.
+   - Recommended AI canScrap therefore rejects the removal, yet the caller reports that it handled the unit; the civilian can remain in the doomed city and be captured.
+
+Together with file 001's financial-disband quota, upgrade-cleanup, and capitulation-nuke cases, these are one contract root rather than separate KIs.
+
+Suggested root repair remains:
+- Optional cleanup: check `canScrap()` before treating the decision as completed, and only consume quotas / return success / mark killed after actual removal.
+- Mandatory removal: use an explicit forced/context-specific internal removal path.
+- If practical, make the public scrap operation return success so callers cannot silently confuse a veto with removal.
+- Do not weaken global canScrap just to accommodate mandatory callers.
+
+MAJOR SUBSYSTEMS REVIEWED / NO ADDITIONAL ROOT
+
+Settlers / founding:
+- `AI_settleMove`, `AI_foundFirstCity`, `AI_found`, `AI_foundFollow`, `AI_unloadSettlerCargoForDestination`, and no-site cleanup were checked as a family.
+- Current logic corresponds to KI#144, KI#179, KI#180, KI#185, KI#192, KI#194, and KI#215.
+- Destination-aware Worker cargo accounting is internally consistent for the intended founding voyage; no deterministic multi-transport failure was established.
+- The dangerous-unescorted and clearly-better-site founding guards return control to normal replanning rather than forcing a stale mission.
+
+Worker job selection / mobility:
+- `AI_workerMove`, `AI_bestCityBuild`, `AI_nextCityToImprove`, `AI_improveBonus`, `AI_improvePlot`, `AI_improveLocalPlot`, `AI_ferryWorkers`, `AI_findTransport`, `AI_handleStranded`, and `AI_pickupStranded` were reviewed together.
+- The customized candidate pipeline initializes candidate/output state, rejects NO_BUILD before use in the important paths, sorts before expensive path/reservation checks, and revalidates the concrete selected job enough for the same-turn execution path.
+- Completed-area Worker evacuation and Settler-transport reload prevention map cleanly to KI#192.
+- Off-BFC sea-bonus handling and stale Work Boat skipping map to KI#157.
+- `AI_betterPlotBuild` contains a superficially suspicious resource-route concept, but the earlier archaeology already chased the active resource-connection callers and proved current compensation. It remains a robustness/comment concern, not a current defect.
+- `AI_improvePlot`'s direct "first buildable route" choice on an improved bonus could be tuned more elegantly, but no concrete correctness failure was established; not promoted.
+- KI#59 remains the older empirical "partially improved" Worker-distribution note rather than a newly isolated static root.
+- KI#213 remains pending and is explicitly not duplicated: the current Worker policy recognizes valid land jobs that the deliberately empty legacy city-side land cache can hide from Worker-demand consumers.
+
+Worker XML/config parser and irrigation helpers:
+- The file-scope no-bonus Worker branch parser and improvement-list caches were audited separately from member methods.
+- All 28 current `SAS_WORKER_AI_BASE_BRANCH_*` definitions referenced by the code resolve to existing Build types.
+- All 8 current configured Worker improvement-list / chain-start definitions inspected resolve to existing Improvement types.
+- Parser null/invalid-token paths have runtime guards after assertions and do not index invalid Build values.
+- Generic branch scoring bounds-checks BuildTypes before indexing its optional adjustment vector.
+- Deterministic irrigation-chain search contains the fixed KI#214 state model: best cost is tracked per `(plot, steps)` rather than one cost per plot, with a bounded `(maxPlots + 1) * numPlots` state space and generation-stamp reset handling.
+
+Promotion policy:
+- `AI_promotionValue`'s large SAS hard-policy layer was reviewed as policy, not assumed defective because it is aggressive.
+- Optional type lookups use sentinel-safe resolution and the outer promotion validity guard prevents missing optional promotion names from matching a real promotion.
+- The large positive/negative policy sentinels are safely separated from ordinary promotion-value arithmetic in current use.
+- This remains documented KI#47 behavior; no current all-options-blocked state or other correctness defect was proved.
+
+City assault / combat organization:
+- `AI_attackCityMove`, `AI_attackMove`, `AI_guardCity`, `AI_omniGroup`, `AI_pickTargetCity`, and the file-scope barbarian-expedition / targetless-peacetime helper family were reviewed together.
+- Current changes map mainly to KI#104, KI#155, KI#156, KI#158, the KI#188 family, KI#190, and later diagnostic/hardening work.
+- KI#217 is genuinely fixed in current source: `SAS_getBestUpgradeForLog(CvUnit const&)` derives the iterated unit's own `AI_getUnitAIType()` instead of reusing the attack-stack head role.
+- Targetless-peacetime aggregate release and central merge caps now operate across same-plot ATTACK_CITY-led groups; the current selection-group no-progress tripwire repair (KI#319) also prevents role conversion/head detachment from falsely skipping the remaining old group.
+- The KI#190 Space-capital emergency target is limited to an active launch countdown and a reachable current capital; pre-launch team-wide project progress is not incorrectly treated as capital-local.
+- No new arithmetic/sentinel/target-lifetime defect was established in these current paths.
+
+Great People / Great Generals:
+- `AI_greatPersonMove`, `AI_generalMove`, `AI_join`, `AI_construct`, and `AI_lead` were checked against their documented issue lineage.
+- Current Great-Person target continuity/action classification corresponds to KI#154, KI#167, KI#168, KI#169 and KI#170.
+- Current Great-General travel/construction/join safety is the post-KI#204 hardened version, including the corrected inherited inverted safe-city test.
+- `AI_generalMove` contains a redundant second Military Academy attempt after the first fails with no intervening state change. It is behaviorally inert and not promoted.
+
+Naval / transport:
+- `AI_assaultSeaMove` / `AI_assaultSeaTransport` include the KI#193 / KI#188.5 distant-disposable Barbarian-target gate.
+- `AI_settlerSeaTransport` and the destination-aware unload helper preserve needed cargo while avoiding the KI#215 unrelated-cargo unload bug.
+- The ordinary transport/stranded helper changes preserve their base fallback structure.
+- The significant surviving naval concern from this file is the KI#331 scrap-contract interaction described above, not a separate target/pathfinding root.
+
+Upgrade routing:
+- `AI_upgrade(int iMaxUpgradePrice)` is the expected bool-return / price-cap extension; default/unbounded callers retain ordinary behavior.
+- `AI_travelToUpgradeCity` now asks for the exact selected upgrade and releases units whose real current upgrade gate fails while preserving foreign-territory travel where `canUpgrade` can fail for positional reasons.
+- This matches KI#188.3.3; no new current defect established.
+
+FALSE POSITIVES / NON-FINDINGS RECORDED FOR FILE 002
+- `AI_attackOdds` is not a giant changed hotspot. A brace-aware extractor proves the current 85-line member is behaviorally/textually unchanged from AdvCiv 1.14; the earlier rough parser had accidentally absorbed nearby file-scope helper code.
+- `AI_betterPlotBuild` resource-route inversion was already investigated through real callers in the prior archaeology and remains compensated in current behavior.
+- The second immediate `AI_construct(1)` in Great-General logic is redundant only.
+- Current Worker XML branch/improvement strings contain no unresolved configured Build/Improvement identifiers.
+- Promotion hard rules are intentionally strong policy; no evidence supports relabeling them as a defect.
+- The generic partially-improved Worker-distribution KI#59 is not treated as a new precise static finding.
+- No additional current CvUnitAI defect root was manufactured merely from a changed heuristic or tuning preference.
+
+
+FILE 003 - CvGameCoreDLL/CvGameTextMgr.cpp - 22,412 lines - REVIEWED / NEW FINDING + EXISTING ROOT REOPENED
+
+RESULT
+- One new current defect root was established: provisional KI#332, a wrong civilization-context convention in multiple leader-hover callers.
+- Existing KI#21 should be reopened/broadened: live-unit map help prints raw impassable terrain/feature flags without applying current passable-tech state, so it can contradict actual movement legality.
+- The previously noted self-referential default-specialist cache is real source code but currently masked exactly by data and was already captured by the old archaeology; it is not counted again.
+- All 34 current member functions with real executable/textual changes versus AdvCiv 1.14 were classified, and the file-scope/header surface was checked separately. No additional current defect root was established.
+
+F004 - provisional KI#332 - leader hover callers pass literal civilization 1, so trait help can resolve another civilization's units/buildings
+Status: NEW CURRENT SAS UI DEFECT ROOT, current-data proof strong.
+Native contract:
+- CvDLLWidgetData::parseLeaderHelp treats widget data2, when not -1, as a CivilizationTypes value and passes it to CvGameTextMgr::parseLeaderTraits.
+- parseLeaderTraits forwards that civilization to parseTraits.
+- parseTraits uses the supplied civilization to resolve trait fast-production UnitClass/BuildingClass entries to civilization-specific UnitTypes/BuildingTypes.
+Current caller problem:
+- Multiple Python WIDGET_PEDIA_JUMP_TO_LEADER callers pass literal data2=1 rather than the leader/player's civilization.
+- Current civilization index 1 is CIVILIZATION_ARABIA, so those hovers resolve fast-production classes through Arabia regardless of the displayed leader.
+- Current literal-1 callers occur in Scoreboard, Hall of Fame, Info Screen, Military Advisor, and several Sevopedia pages (Religion, Civic, Music).
+Concrete current consequence:
+- Shaka is Aggressive and Zulu; the Zulu Barracks-class replacement is the Ikhanda, and that class receives the Aggressive double-production trait effect.
+- Arabia has no Barracks-class replacement. A literal-Arabia context therefore makes Shaka's trait hover identify ordinary Barracks instead of his actual Ikhanda for that fast-production line.
+- Equivalent wrong-resolution opportunities exist for leaders whose civilization replaces other trait-affected classes.
+Ancestry/accounting:
+- The old commit-oriented archaeology had already source-proven this interaction while examining a later caller, but deliberately held it unnumbered until its birth commit.
+- Practical 4732 is a confirmed early/birth caller introducing WIDGET_PEDIA_JUMP_TO_LEADER with literal data2=1; the issue was then accidentally not promoted when the historical sweep eventually reached that commit.
+Repair direction:
+- Callers that know the real player/civilization should pass that CivilizationTypes value.
+- Generic leader contexts should reuse the same canonical leader-to-civilization selection used by the main Sevopedia Leader path.
+- Do not blindly substitute -1: parseLeaderHelp currently uses data2==-1 to suppress leader hover help entirely.
+
+F005 - KI#21 reopened/broadened - live-unit Cannot Enter help ignores current passable-tech state
+Status: EXISTING KNOWN ROOT, not counted as a new defect.
+Evidence:
+- The actual-unit setUnitHelp path lists pUnit->getTerrainImpassable / getFeatureImpassable directly when building the map-view Cannot Enter line. These are raw unit-info restrictions.
+- The detailed/basic Sevopedia unit help separately understands TerrainPassableTech / FeaturePassableTech and can render an Until Tech relationship.
+- CvUnit::canMoveInto permits a raw impassable terrain/feature once the unit's team owns the configured passable tech; own-team cultural-border exceptions can also make the raw flag insufficient by itself.
+Concrete current data:
+- UNIT_WORKBOAT has TERRAIN_OCEAN marked impassable and TECH_ASTRONOMY as its TerrainPassableTech.
+- After the Work Boat's team researches Astronomy, the engine allows Ocean movement while the live-unit hover can still print Cannot Enter: Ocean from the raw flag.
+Classification:
+- This is an incomplete dynamic-state part of KI#21's map-view Cannot Enter display feature, not a distinct root.
+- An older archaeology note had concluded no current raw-impassable + pass-tech contradiction existed; current Work Boat XML disproves that old data conclusion and should supersede it.
+Repair direction:
+- Build live-unit restriction text from effective current movement state, or at minimum account for the team's passable tech before printing the raw restriction. Preserve the cultural-border nuance as applicable.
+
+FALSE POSITIVES / NON-FINDINGS RECORDED FOR FILE 003
+- The source contains `static const SpecialistTypes eDefaultSpecialist = (SpecialistTypes)eDefaultSpecialist;` instead of GC.getDEFAULT_SPECIALIST(). Static zero-initialization makes it enum 0; current enum 0 is SPECIALIST_CITIZEN, which is also the current default specialist. The typo is presently exactly masked and was already recorded by the old archaeology; not promoted again.
+- The custom building-power help contains an explicit clean-or-dirty uncertainty branch. Engine tracing resolves the rule: area clean power overrides dirty-power health classification. Current XML has only Three Gorges Dam with area clean power, and it is not itself dirty, so the uncertain simultaneous area-clean+dirty branch is unreachable in current data. No new root.
+- Static Coal Plant-style health prose can be context-approximate when a city is already area-clean-powered, but this is inherited/static-help behavior and no SAS-created correctness root was established.
+- `buildBRepeatString` is coherent with repeatable-tech ownership semantics; current Tech XML contains no bRepeat=1 entries anyway.
+- Civilopedia suppression of generic obsolete/replacement/requirement prose was checked against the dedicated Sevopedia panels; the corresponding relationships remain represented, including Manhattan Project project requirements.
+- Worker-speed summary uses the same player-wide accumulator fed by current Tech/Civic/Building worker-speed modifiers; no category mismatch established.
+- Zero-base collateral capability rows remain intentional KI#324/KI#324.2 behavior and were not reopened.
+- Promotion icon-size plumbing, null guards, billboard colors, score/trade/event/espionage helpers, and numerous small changed methods are presentation/caching/hardening changes with no new semantic defect found.
+- No additional file-scope SAS helper layer exists in CvGameTextMgr.cpp that would sit outside the member-function comparison.
+
+
+FILE 004 - CvGameCoreDLL/CvPlayer.cpp - 20,672 lines - REVIEWED / CLEAN CURRENT
+
+RESULT
+- No new current defect root was established in CvPlayer.cpp.
+- All 104 member-function pairs with executable/token-level differences versus AdvCiv 1.14 were classified; the only genuinely new CvPlayer member is the key-early-strategic-bonus helper.
+- CvPlayer.h was compared at token level after stripping comments/formatting. Its only semantic addition versus AdvCiv 1.14 is the declaration of that helper; the many apparent header differences are signature collapsing/comment movement.
+- File-scope additions were audited separately. They are the SASGameRecord diplomacy text/logging helpers and do not alter gameplay state.
+- The file therefore closes as a useful clean result rather than manufacturing a finding from tuning, caching, logging, or unsupported old-save compatibility.
+
+CROSS-CONTRACT / DATA CHECKS
+1. Save read/write cleanup is internally paired for the supported current format.
+   - CvPlayer::write still writes uiFlag 22.
+   - Current CvPlayer::read consumes the same current-format fields that AdvCiv 1.14 read when uiFlag==22; removed branches are old migration/legacy representations.
+   - Same-version serialization therefore remains paired. The project does not promise cross-version save compatibility, so accepting an older save without migration is not promoted as a supported-current defect.
+
+2. Static GlobalDefine caching does not currently freeze a dynamically changed CvPlayer value.
+   - A mechanical scan collected the GlobalDefine names read by current CvPlayer.cpp and compared them against current runtime setDefineINT/setDefineFLOAT/setDefineSTRING usage in C++ and Python/map scripts.
+   - No overlap was found for the 103 define names used by this file.
+   - The static-local caches therefore preserve current runtime semantics under today's code/configuration.
+
+3. New key-early-strategic-bonus helper is explicit tuning, not a hidden contract mismatch.
+   - getNumAvailableBonusesHaveAnyKeyEarlyStrategicBonuses checks Copper, Iron, Horse, Camel and Elephants through getNumAvailableBonuses.
+   - All five define-resolved current BONUS_* names exist in CIV4BonusInfos.xml and the helper guards NO_BONUS.
+   - getNumAvailableBonuses is capital-plot-group scoped; comments on both declaration and implementation explicitly call out that capital-network-only approximation.
+   - Current callers use the helper to relax early siege composition/production caps. The approximation can make an isolated city's local options differ from the player-level signal, but that limitation is documented and intentional tuning rather than a newly proven correctness failure.
+
+4. TechAcquisitionCause arguments added at CvPlayer call sites are bookkeeping context only.
+   - Current CvTeam research helpers forward the cause to setHasTech when progress completes a technology.
+   - CvTeam::setHasTech forwards it to CvEventReporter::techAcquired; CvEventReporter uses it for SASGameRecord provenance while preserving the original Python tech-acquired event signature.
+   - No research/ownership legality branch depends on the cause enum.
+
+5. Diplomacy trade-row art additions resolve against current data.
+   - INTERFACE_TECH_VASSAL, INTERFACE_TECH_OPENBORDERS, INTERFACE_TECH_DEFENSIVEPACT and INTERFACE_TECH_PERMALLIANCE all exist in current CIV4ArtDefines_Interface.xml.
+   - Target-team leader icons retain the pre-existing valid-team assumption and guard NO_PLAYER/dead leaders before dereferencing the player/leader art.
+
+6. SASGameRecord hooks inspected from this file are observational.
+   - updateSASGameRecordPlayerTurnState increments only GameRecord accounting arrays.
+   - plot-change hooks buffer/log old-vs-new plot state after the gameplay mutation; they do not mutate the plot.
+   - diplomacy helpers format already-supplied event context and call the logger.
+   - technology acquisition source plumbing is likewise observational as described above.
+
+EXISTING-FIX / INTENT MAPPINGS CONFIRMED
+- canTrain ObsoleteTech enforcement maps to KI#93.
+- Human-only production/Great-Person rounding removal maps to KI#67.
+- Great-General safe-city birth selection maps to KI#204 and preserves SyncRandNum consumption before filtering.
+- Defensive city-name lookup guards map to KI#161; the separate translated-name identity problem remains KI#325 rather than a new CvPlayer finding.
+- getEventTriggerWeight now compares actual HandicapInfo iDifficulty values rather than enum-index*10. Current handicap values are 18,26,34,...,98, so the change is a real correctness improvement, not a regression.
+- War-declaration cause arguments and gWarLogLevel substitutions are diagnostic/context plumbing; no changed war-legality path was found here.
+
+FALSE POSITIVES / NON-FINDINGS RECORDED FOR FILE 004
+- Free-promotion storage initially looked like a UnitCombat->UnitClass contract replacement because the rough method matcher paired same-named overloads incorrectly. AdvCiv 1.14 already has both UnitCombat and UnitClass free-promotion arrays/overloads. Current CvUnit initialization, random-event application, and save read/write preserve both systems. Parser-overload false hotspot only.
+- CvPlayer::read's large line-count delta is dominated by deleting legacy uiFlag migration branches. Current uiFlag-22 layout remains paired with write; no same-version serialization defect established.
+- Static define caching was checked against actual runtime define mutation rather than treated as a theoretical risk; no current overlap exists.
+- getItemTradeString's treaty/target portrait additions were checked against current art definitions and existing target-team contracts; no bad art key or new invalid-player dereference established.
+- getSASGameRecordDiploData1Text has initially confusing player naming, but logSASGameRecordDiploEventAction passes `getID()` as its first player. CONVERT therefore logs the requesting player's state religion and REVOLUTION the requesting player's favorite civic, matching handleDiploEvent semantics.
+- The capital-network strategic-bonus helper has a consciously documented approximation. No deterministic wrong-state outcome strong enough to override that design intent was established in this file.
+- No new defect was promoted merely because a current method differs substantially in formatting, caching, diagnostics, enum-source annotation, or an intentional AI/game-balance policy.
+
+
+FILE 005 - CvGameCoreDLL/CvCityAI.cpp - 19,615 lines - REVIEWED / EXISTING ROOTS BROADENED OR REOPENED
+
+RESULT
+- No independent new defect root was established in CvCityAI.cpp; this file instead exposed several incomplete existing fixes/contracts that are better kept under their original KI families.
+- Existing KI#213 is materially broadened from a Worker-demand reporting/cache mismatch into production, transport, relocation and evacuation consequences.
+- Existing KI#48 should gain a focused follow-up (recommended KI#48.3): the building-value prefilter's growth signal subtracts unhealthiness twice and does not perform its own documented final zero clamp.
+- Existing KI#306 is reopened/broadened: the government-center maintenance cache was fixed, but the sibling top-production-city cache retains the same insufficient within-turn invalidation model and can feed hard Wonder eligibility gates.
+- Existing KI#70 is reopened: the forced-specialist sanitizer checks current assigned-specialist validity before deciding whether to trim an invalid forced count, allowing the historical invalid Artist/assert state to remain reachable.
+- Existing KI#74 is reopened/broadened: AI_bestSpreadUnit still returns an enum comparison against NULL, so NO_UNIT (-1) is reported as Boolean success; caller guards mask much of the damage but do not repair the helper contract.
+- Existing KI#11 is broadened: the current debug-map Actual/Standard Build Values display still calls AI_getImprovementValue, which now deliberately returns zero for every land plot.
+- The large production, building, citizen, Worker, Settler, military, hurry/draft, process/project, improvement, helper and serialization surfaces otherwise survived the current-data/cross-contract review without another correctness root being manufactured.
+
+F006 - KI#213 broadened - split Worker-demand architecture can now suppress or evacuate Workers, not merely undercount demand
+Status: EXISTING KNOWN ROOT, materially stronger current consequences.
+Root recap:
+- Current land Worker planning is intentionally handled by CvUnitAI::AI_bestCityBuild rather than the old city-side land evaluator/cache.
+- AI_updateWorkersHaveAndNeeded nevertheless still derives important demand signals from the old city-side best-build state plus partial compensating heuristics.
+- A worked, unimproved no-bonus Flood Plains tile is a concrete current job that the custom Worker policy can improve but the city-side demand workaround can miss, yielding AI_neededWorkers(area)==0 despite useful land work remaining.
+Newly proven consequences in the current tree:
+1. Concrete CvCityAI::AI_chooseUnit can treat AI_neededWorkers(area)==0 as an area-usefulness veto and suppress Worker production.
+2. CvUnitAI transport/relocation logic can use that same false zero to reject ferrying or unloading a Worker into the area.
+3. Existing Workers in the area can be classified as belonging to a completed area and become candidates for the KI#192 completed-area evacuation machinery even though the custom land evaluator still sees useful work there.
+Classification / repair direction:
+- Keep one KI#213 root. The right repair is a shared authoritative Worker-job/demand predicate (or demand source) that sees the same land jobs as the custom Worker planner; patching each consumer independently would preserve the architectural split.
+
+F007 - KI#48 broadened; recommended KI#48.3 - AI_buildingValue effective-food signal double-counts unhealthy-food loss
+Status: EXISTING BUILDING-VALUE FAMILY, current implementation defect confirmed.
+Current code:
+- AI_buildingValue obtains `iFoodDifference = foodDifference(false, true)` and `iHealthLevel = goodHealth() - badHealth() + ...`.
+- It then computes `iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel)` and only later forces zero for nonpositive happiness surplus.
+Engine contract:
+- CvCity::foodDifference(..., true) subtracts foodConsumption().
+- foodConsumption() already incorporates healthRate(), so unhealthy population has already reduced iFoodDifference before AI_buildingValue receives it.
+- Subtracting max(0,-iHealthLevel) therefore charges the same unhealthiness a second time.
+- The nearby worked example for a starving/unhealthy city explicitly says the result should be clamped to zero conceptually, but the implementation has no final `max(0, ...)` after the health subtraction and can leave iEffectiveFood negative.
+Consequence:
+- iEffectiveFood is not merely descriptive; it feeds hard force/skip gates for food-kept and health-building decisions. Thresholds can therefore flip because a mathematically wrong growth signal is used before the ordinary detailed building valuation runs.
+Ancestry / classification:
+- This logic was introduced in practical 4950 as part of the broad KI#48 building-value prefilter family. Treating it as KI#48.3 is cleaner than assigning a new root number.
+Repair direction:
+- Do not subtract current unhealthiness again from foodDifference when bIgnoreFood=false / food consumption is included. Derive the intended growth signal from one authoritative net-food quantity, then apply the documented nonnegative clamp and happiness gate.
+
+F008 - KI#306 reopened/broadened - sibling top-hammer city cache can go stale during sequential city turns
+Status: EXISTING CACHE-INVALIDATION ROOT; earlier repair was partial.
+Current cache:
+- AI_buildingValue keeps static per-player best/second/third base-production values keyed only by game turn and number of cities.
+- Those rankings feed exact hard Wonder filters, including top-2/top-3 and +5-hammer boundary tests.
+Concrete within-turn invalidation:
+- Building completion can change another city's getBaseYieldRate(YIELD_PRODUCTION) without changing the turn or city count.
+- Current Angkor Wat and Cristo Redentor each grant +1 production to Priest specialists through SpecialistYieldChanges.
+- CvPlayer building processing applies those effects through changeSpecialistExtraYield(); that calls updateExtraSpecialistYield() across the player's cities, and CvCity::updateExtraSpecialistYield changes each affected city's base yield rate immediately when Priests are assigned.
+- City turns/production choices are sequential. A top-HPT cache populated before such a completion can therefore be consumed later in the same player turn after one or more city production values have changed.
+Consequence:
+- Even a one-hammer stale ranking can cross the prefilter's exact top-city/+5 thresholds and change whether a later city is allowed to consider a Wonder.
+Ancestry / classification:
+- KI#306 fixed the same practical-5281 invalidation pattern for the government-center maintenance ranking cache while explicitly leaving the separate top-production cache in place. Reopen/broaden KI#306 rather than create a new cache root.
+Repair direction:
+- Avoid a turn+city-count cache for values that can change during city processing, or invalidate/recompute on relevant yield changes. A generation/revision counter for player city production state would be more precise than adding more ad hoc conditions.
+
+F009 - KI#70 reopened - forced-specialist sanitizer can skip an already-invalid forced count
+Status: EXISTING BASE/ADVCIV CITIZEN ROOT, current failure remains reachable.
+Current sanitizer shape:
+- AI_assignWorkingPlots enters its repair block only when `!isSpecialistValid(eSpecialist)`.
+- Inside that block it trims assigned specialists above max capacity and separately trims forced specialists above max capacity.
+Contract mismatch:
+- isSpecialistValid(e, 0) tests whether the city's current assigned count can remain valid; it does not mean the independent forced-specialist target is <= capacity.
+Concrete state:
+- Artist assigned=0, max=0, forced=1: current assignment is valid, so the outer sanitizer condition is false and forced=1 is not trimmed.
+- The later forced-specialist assignment pass sees the forced target and can assign the Artist anyway, after which the historical KI#70 debug assertion is reached because assigned=1 exceeds capacity=0.
+- In non-assert builds this is not purely diagnostic: the invalid forced assignment can exist transiently.
+Classification / repair direction:
+- Reopen KI#70. Sanitize assigned count and forced target against capacity independently; do not gate forced-count repair on validity of the current assigned count.
+
+F010 - KI#74 reopened/broadened - AI_bestSpreadUnit Boolean return still treats NO_UNIT as success
+Status: EXISTING BASE/ADVCIV HELPER-CONTRACT ROOT, caller guards only mask it.
+Current code:
+- AI_bestSpreadUnit ends with `return (*eBestSpreadUnit != NULL);`.
+- UnitTypes uses NO_UNIT=-1; NULL is integer/pointer zero in this comparison context.
+- Therefore a caller that initializes `eBestSpreadUnit=NO_UNIT` and receives no candidate gets `(-1 != 0) == true`.
+Current consequences / masking:
+- Current production and governor callers contain assertions and explicit `eBestSpreadUnit != NO_UNIT` guards before actually trying to choose the unit, preventing the worst queue/action consequences.
+- Those guards explain why the issue can look addressed, but the helper's Boolean contract itself remains false and the corresponding debug assertion remains reachable when no unit is selected but the helper reports success.
+Classification / repair direction:
+- Reopen KI#74 rather than add a new finding. The root fix is to compare against NO_UNIT (or return `iBestValue > 0` / an explicit success state consistently), then keep caller guards as defense in depth.
+
+F011 - KI#11 broadened - land Actual/Standard Build Values debug help is structurally empty under the custom Worker evaluator split
+Status: EXISTING DEBUG-MAP DISPLAY ROOT, no gameplay effect.
+Evidence:
+- Current CvCityAI::AI_getImprovementValue explicitly returns 0 (and NO_BUILD when requested) immediately for every non-water plot so the custom CvUnitAI land Worker policy has exclusive control.
+- CvGameTextMgr's debug-map `Actual Build Values` and `Standard Build Values` paths still call AI_getImprovementValue for the working city and candidate improvements.
+Consequence:
+- On land, those diagnostics no longer describe the values driving the real Worker AI and can show empty/zero build-value information even when the custom Worker planner has a strong valid job.
+Classification / repair direction:
+- Keep under KI#11's existing inaccurate/weird debug-map display umbrella. If these diagnostics are retained, point them at the authoritative custom land evaluator (or clearly label the legacy water-only evaluator) rather than reviving the old land decision path.
+
+AUDIT NOTE - direct Artist culture cache has an invalidation mismatch but is not promoted
+- SAS_AI_directArtistCultureValuePercent caches one result per turn/player/city.
+- AI citizen assignment can run before city turns and then again after that city's doCulture/doPlotCulture work in the same game turn, so the second call can reuse a pre-culture control/contestation verdict.
+- A city's own culture update moves the relevant control tests toward more local control, so the demonstrated stale direction chiefly delays the intended Artist dampening until the next turn.
+- This is a real cache-granularity/one-turn-lag observation, but no hard invariant or sufficiently serious current consequence was established. Keep as an audit note unless empirical evidence shows larger impact.
+
+FALSE POSITIVES / NON-FINDINGS RECORDED FOR FILE 005
+- Always-Peace ICBM production: apparent missing local guard is safely duplicated lower down. AI_nukeWeight returns zero when AI_isWarPossible() is false, so the high-priority nuke-production branch does not become reachable merely because its immediate block lacks `!bAlwaysPeace`.
+- Concrete AI_chooseUnit can syntactically end in `return true` after a guarded pushOrder. Current two-argument callers always supply a real UnitAI and the substitution path does not clear a valid unit, so no supported current no-push/success path was established.
+- A filtered diff made the small-city AI_jobChangeValue Artist restriction look as if it rejected every job. Full source retains `if (new_job.first)`, so the hard rejection applies only to specialist candidates; plots remain evaluable.
+- Preferred non-combat food-production delegation was checked for mutual deferral. A candidate must complete the same unit no slower than the current city, and deterministic population/stagnation/tie ordering prevents a supported mutual-defer loop; no queue deadlock established.
+- The `/*bFuture=*/true` label on getAdditionalHealthByBuilding is semantically wrong: the parameter is bAssumeStrategicBonuses. Current-data tracing does not turn that comment error into a separate gameplay defect. Furusiyya Maydan is the only building whose positive strategic BonusHealth can by itself flip intrinsic health classification, but its Stable gate already rejects it without Horse/Camel/Elephants; Hammam is health-positive without Marble; Factory/Industrial Park strategic effects are negative; resource-powered plants concern their required strategic resources.
+- AI_strictAdditionalHappy was compared against CvCity::getAdditionalHappinessByBuilding and current building XML. It intentionally computes a narrower reliable subset for the hard prefilter; no current omitted effect was shown to violate that stated contract.
+- All current hardcoded/configured type names used by the reviewed production/building helper layer resolve: the Horse/Camel/Elephants bonuses, Mounted Combat tech, Stable/Palace/Heroic Epic building classes, Renaissance era, six specialist IDs and Siege combat type.
+- The large concrete AI_chooseUnit fallback/substitution helper has a stale cautionary comment about booleans not being recomputed after unit replacement. Current downstream naval/civilian booleans are computed after substitution; the earlier siege/defender booleans are consumed before substitution. No current stale-boolean action was established.
+- Current culture-victory city rank/investment members are intentionally transient. They initialize to zero and are refreshed by CvPlayerAI's commerce-weight update before the relevant AI city-turn decisions; omission from CvCityAI serialization is not a same-version read/write mismatch.
+- Wonder prefilter arithmetic was checked for zero/negative turn denominators. Building production modifiers are engine-clamped sufficiently that the constructed multiplier remains positive, and explicit max/validity guards cover the new estimates. Rival-tech rejection is an intentionally conservative policy approximation, not represented as canConstruct legality.
+- AI_yieldValue, AI_permanentSpecialistValue, AI_buildUnitProb, AI_processValue, AI_minDefenders, hurry/draft, barbarian production, improvement valuation, culture pressure, specialist/yield helpers, threat/defender helpers and the remaining changed-method tail were reviewed for new sentinel/arithmetic/contract failures; changes that survived amount to policy, caching, diagnostics, or already-known issue lineage.
+- Whole-file sentinel/static-cache scan found no additional enum-vs-NULL defect beyond KI#74 and no additional behavior-sensitive mutable static cache beyond the KI#306 top-hammer cache plus the low-impact Artist note above.
+- No independent new CvCityAI defect root was manufactured merely because a heuristic is aggressive or could make a suboptimal strategic choice in an edge case.
+
+
+FILE 006 - CvGameCoreDLL/CvCity.cpp - 13,834 lines - REVIEWED / NEW FINDING + EXISTING ROOTS CONFIRMED
+
+RESULT
+- One new current defect root was established: provisional KI#333, a priority-order regression between the emergency Port/water-hammer branch and the older emergency-defense branch in CvCity::doTurn.
+- The large no-production / emergency-production additions otherwise map to existing KI#51, KI#310, KI#313 and related policy work or survive current cross-contract checks.
+- Production overflow/completion GameRecord hooks were verified as observational/accounting-only and preserve inherited gameplay/event ordering.
+- Current CvCity serialization is internally paired: a mechanical current read/write scan found 178 corresponding serialization operations in the same order.
+- No additional current defect root was established in the remaining 32 changed member functions, anonymous helper block, header surface, configured type names, or static-define cache pass.
+
+F012 - provisional KI#333 - emergency Port priority can preempt the documented stronger emergency-defense branch
+Status: NEW CURRENT SAS AI-PRODUCTION PRIORITY DEFECT ROOT, birth/history/current-data evidence strong.
+Birth and documented contract:
+- Practical 5919 / bd2153482f introduced the mature-coastal emergency water-hammer / Port branch.
+- The same birth commit's GlobalDefines documentation states that defense emergencies still run earlier in CvCity::doTurn so Castle/defense can go before Port when needed.
+- The same practical's Main Changes Guide likewise says immediate danger / defense logic still runs earlier, allowing Walls/Castle to go first when needed.
+Current control flow:
+- CvCity::doTurn actually runs the emergency Harbor block, then the practical-5919 Port/water-hammer block, and only afterward enters the Walls/Castle emergency-defense block.
+- The Port branch is gated by `!bDanger`, but not by `!bAtWar`, `!bEnemyStrong`, or the broader defense predicate.
+- On success SASTryEmergencyBuilding pushes Port and sets `bEmergencyBuilding=true`.
+- The later defense section is inside `if (!bEmergencyBuilding && !bHuman)`, so a successfully forced Port suppresses the entire defense branch for that turn/queue choice.
+Concrete supported state:
+- Mature ocean-coastal AI city, Navigation known, Port absent and constructible, sufficiently low production or food surplus, not locally flagged by AI_isDanger(), while its team is at war with a significantly stronger enemy (or otherwise satisfies the broader at-war defense predicate).
+- Port passes its local gate and is forced first.
+- The defense predicate would have requested Walls/Castle through bEnemyStrong / bAtWar, but is never evaluated because Port has already set bEmergencyBuilding.
+- Current Port is a normal positive-cost Navigation building and Walls remains independently constructible in overlapping eras, so this is not a theoretical unsupported XML state.
+Why the old commit-oriented pass missed it:
+- The earlier archaeology inspected practical 5919 locally and correctly found the Port legality helper itself safe for mature ocean-coastal, non-danger cities.
+- The defect is an insertion-order interaction with an older neighboring branch, exactly the kind of cross-commit/current-file interaction this second file-oriented pass is intended to expose.
+Repair direction:
+- Make the actual priority match the documented contract. The cleanest structure is to evaluate/force the broader emergency defense branch before Port, while retaining the explicit Harbor-first policy if that remains intentional; alternatively gate Port on the full defense-emergency predicate being false.
+- Preserve the existing local-danger exclusion, but do not treat `!AI_isDanger()` as equivalent to `no strategic defense emergency`, because the defense branch deliberately also covers stronger enemies and ongoing wars without immediate local danger.
+
+EXISTING ROOTS / CURRENT BEHAVIOR CONFIRMED IN FILE 006
+- KI#51: the hard no-production safety net remains the intended workaround. Current fallback detection excludes a valid Process and is limited to genuinely empty or invalid queues.
+- KI#310: current water-heavy fallback is repaired: if Harbor/Port/Lighthouse attempts all fail, control continues into the same restricted military fallback instead of ending without production.
+- KI#313: the human convenience BFC Artist helper still lacks provenance for the forced-Artist increment; its cleanup can decrement a human-forced Artist that was not created by the helper. This is existing KI#313, not a new root.
+- KI#44.5: the debug assertion in changeSpecialistCount fires on every positive default-Citizen addition, including legitimate inherited UI paths. This is intentionally broad instrumentation around the already-documented Citizen assignment/fallback family and is not counted again.
+- KI#162 / KI#162.2 / KI#162.3: getProductionBarPercentages contains the expected owner/registration, active-player and typed-order hardening. The current typed production calculation is consistent with the inherited production-bar semantics; no new crash root was established.
+- KI#161 / KI#161.2: setName contains the existing null/empty guard and acquisition-path duplicate-scan/past-name hardening. No additional current source-proven city-name root was established here.
+
+FALSE POSITIVES / NON-FINDINGS RECORDED FOR FILE 006
+- SASTryEmergencyBuilding calls `canConstruct(..., bIgnoreCost=true)` before clearing the queue, while pushOrder later performs normal canConstruct. In theory a future define retuned to a production-cost -1 class could make the helper clear the queue, fail to push, and still return true. All five current configured emergency classes map to ordinary positive-cost buildings for supported civilizations (Harbor, Port, Lighthouse, Walls, Castle; Barbarian Port maps to NONE), so no current supported defect is established. Keep as robustness/future-tuning debt only.
+- Clearing an existing queue between SASTryEmergencyBuilding's legality precheck and pushOrder does not make a currently legal building less legal under present contracts; removal of making-count pressure can only relax relevant max-count constraints.
+- The no-production unit fallback's concrete helper returns success only with valid Unit/UnitAI outputs chosen through canTrain. Its direct push is restricted away from UNITAI_SETTLE. Popping an invalid old head before push does not create a current canTrain failure path for the already selected unit.
+- The human/AI Artist force is intentionally applied via the assign-work-dirty mechanism: a force added late in one city turn is consumed by the next player-level citizen assignment. The resulting timing is not promoted as a correctness defect; the provenance problem is already KI#313.
+- The changeSpecialistCount default-Citizen assertion is not a new defect; see KI#44.5 above.
+- popOrder / handleOverflow additions pass exact overflow results to GameRecord logging. The logging helpers mutate only GameRecord aggregates/log output, and their placement preserves inherited unit/building/project gameplay-event order. Logging a produced air unit before possible no-capacity destruction is intentional production accounting.
+- handleOverflow still uses the inherited computeOverflow result for gameplay, setOverflowProduction and payOverflowGold. New output parameters split positive lost production from negative unused capacity for diagnostics only.
+- Current read/write serialization was mechanically paired: 178 corresponding operations occur in the same order, including enum maps and the newer tail fields. Removal of legacy uiFlag branches therefore does not create a current same-version save mismatch; cross-version save compatibility remains intentionally unsupported.
+- Current hardcoded/configured identifiers used by changed CvCity paths resolve (COLOR_ALT_HIGHLIGHT_TEXT, ERA_RENAISSANCE, EVENTTRIGGER_PARTISANS, SPECIALIST_ARTIST, UNITCOMBAT_SIEGE, and the configured Harbor/Port/Lighthouse/Walls/Castle building classes).
+- Static caching introduced in changed CvCity methods was checked against current runtime define mutation. Current code mutates river-generation, camera/FOV and minimap defines at runtime, not the cached CvCity gameplay/UI values reviewed here.
+- The anonymous addGoodOrBad/subtractGoodOrBad helper block is unchanged from AdvCiv 1.14.
+- No additional enum-vs-NULL, changed-header ABI, division-by-zero, stale mutable-cache, or completion-lifetime defect survived the final whole-file smell pass.
+
+FILE 007 - CvGameCoreDLL/CvUnit.cpp - 12,945 lines - REVIEWED / TWO NEW FINDINGS + KI#331 CONTRACT CONFIRMED
+
+RESULT
+- Two new current defect roots were established from the CvUnit/Battle-History surface: provisional KI#334 and provisional KI#335.
+- KI#334 is an inherited AdvCiv hidden-information leak in Great-General death notifications that SAS practical 6123 unintentionally made persistent in replay/Timeline history.
+- KI#335 is a SAS Military Advisor Battles subject-vs-observer visibility regression: vassal perspective can expose battle-location map knowledge held by the selected vassal but not by the real human/master observer.
+- CvUnit also confirms the callee side of provisional KI#331: scrap() is a void wrapper that silently returns when canScrap() vetoes the unit, while multiple inherited callers assume successful removal.
+- All 53 current CvUnit member functions with real token-level differences from AdvCiv 1.14 were classified. The changed header/nonmember surface and current XML/data reachability were checked separately.
+- Current CvUnit serialization is internally paired: a mechanical scan found 86 read/write serialization operations in corresponding order.
+- No additional current defect root survived the final sentinel/cache/lifetime/data-reachability pass.
+
+F013 - provisional KI#334 - Great-General death notifications can reveal the killer civilization to observers that know only the victim; SAS Timeline persistence preserves the leak
+Status: NEW CURRENT HIDDEN-INFORMATION DEFECT ROOT; inherited transient leak, SAS persistence amplification; source/visibility contract evidence strong.
+Inherited notification contract failure:
+- CvUnit::kill handles a Great-General death by notifying the owner, killer and eligible third parties.
+- For a third-party observer, the branch checks only whether the observer has met the victim owner's team (or is a spectator).
+- The actual TXT_KEY_MISC_GENERAL_KILLED text names both the victim civilization and the killer civilization: the General "has died in combat against %s3_Civ".
+- There is no corresponding check that the observer has met the killer team before GET_PLAYER(ePlayer).getCivilizationShortDescription() is inserted.
+- This victim-only gate and fully identified killer text are inherited from AdvCiv 1.14, so the transient on-screen leak predates SAS.
+Normal diplomacy-event contrast:
+- Comparable two-party public announcements use both-participant visibility. For example, CvTeam::announceWar suppresses the third-party announcement unless the observer has met both the aggressor and the target; permanent-alliance announcements follow the same principle.
+- The Great-General branch therefore violates the surrounding information-visibility convention rather than merely choosing a different cosmetic message.
+SAS persistence amplification:
+- Practical 6123 / 574e50ba53, while fixing KI#204 Great-General AI/UI issues, added a coordinate-less REPLAY_MESSAGE_MAJOR_EVENT containing the same fully identified victim + killer text.
+- The birth comment assumes the original notification already exposes the event safely to met observers, but that inherited notification itself has the victim-only visibility flaw above.
+- Current Info Screen Timeline spoiler filtering can evaluate the replay message player (the victim) and optional plot visibility. This entry has the victim as iPlayer and no coordinates, and it carries no killer-team visibility metadata.
+- Therefore an observer who has met the victim but not the killer can retain/read the killer civilization identity in replay/Timeline history as well as potentially receiving the transient notification.
+Repair direction:
+- Gate the fully identified third-party transient message on the observer knowing both victim and killer, or sanitize the unknown participant rather than naming it.
+- Do not persist a fully identified killer under a victim-only replay record unless Timeline/replay has enough metadata to apply both-participant visibility. A sanitized replay variant or explicit visibility-aware metadata would be safer than relying on the victim player ID alone.
+- Preserve spectator/debug behavior explicitly rather than weakening normal observer privacy.
+
+F014 - provisional KI#335 - Military Advisor Battles vassal perspective exposes the vassal's hidden battle-location map knowledge to the human/master observer
+Status: NEW CURRENT SAS ADVISOR VISIBILITY DEFECT ROOT; separate feature/fix surface from KI#224 and KI#232; current default configuration exposes it.
+Shared advisor contract:
+- SASUtils' advisor-perspective helper explicitly allows a master's vassal as a selectable perspective outside debug mode while promising that this does not reveal unrelated players or hidden map data.
+- The Main Changes Guide states the same user-facing privacy intent for vassal advisor perspectives.
+Birth/lineage:
+- Practical 5757 / 62ceac98ee introduced the persistent Battles table with exact stored battle coordinates, plot-row camera targeting and debug logging.
+- Practical 5758 / 4481a5877f then enabled the shared debug/vassal perspective selector for the Battles page (`bAllowVassalPerspective=True`) without adding an observer-team reveal filter to the pre-existing battle-location data.
+- Later plot-context work additionally stores/renders terrain, feature, hill/peak and city context, amplifying the same location-information root.
+Current behavior:
+- drawBattleHistory reads SASBattleHistory entries for `self.iActivePlayer`, which can legitimately be a selected vassal rather than the real active human.
+- Battle entries persist exact X/Y from the battle plot. Current plot-context display is enabled by default and derives/renders terrain, feature, hill/peak and city context for the stored location.
+- The Plot column caches the exact coordinates; clicking it hides the advisor and calls CyCamera().JustLookAtPlot(CyMap().plot(iX,iY)) with no reveal test against the actual human observer team.
+- The Battles LOG button is enabled by default and prints the stored location/context without an active-observer reveal check.
+Reachability / scope correction:
+- Master-vassal teams can possess different revealed-plot knowledge; vassalization does not merge the vassal's revealed map into the master's map. A vassal can therefore have fought on a plot that the human master has never revealed.
+- CvTeam::setVassal DOES synchronize diplomatic `hasMet` relationships between master and vassal. Therefore this finding should NOT claim that selecting a vassal reveals an otherwise-unmet opponent civilization; the live defect is hidden map/location/context knowledge.
+Classification relative to existing KIs:
+- KI#224 covers the World Advisor's vassal-perspective hidden map/resource leak.
+- KI#232 separately covers the Policy Advisor's corresponding hidden Holy City/HQ subject-vs-observer leak.
+- Battles is another independently implemented advisor feature with its own persisted coordinates, render path, log path and camera action, so keep it as a separate root rather than stretching KI#224's World-Advisor fix surface.
+Repair direction:
+- Keep the selected vassal as the battle-history SUBJECT, but outside debug mode use the actual active human's team as the OBSERVER for map information.
+- For battle plots the human observer has not revealed, hide/sanitize exact X/Y and terrain/feature/hill/city context, suppress those fields from LOG output, and disable the Plot camera action.
+- Debug/spectator modes can retain unrestricted inspection explicitly.
+
+KI#331 - CvUnit callee-side confirmation / robustness note
+- Current CvUnit::scrap() remains a void wrapper: `if (!canScrap()) return; scrapInternal();`.
+- The SAS obsolete-only AI policy contains early reject/allow paths before the inherited final plot-fighting guard. This is awkward defensive ordering, but no supported live caller was proved able to exploit that ordering as an independent gameplay defect: human manual deletion bypasses the AI policy, normal AI financial scrapping occurs in pre-turn processing, ordinary UnitAI cleanup runs through normal group updates, and delayed death itself will not complete while the unit is fighting.
+- Keep the guard-placement cleanup as robustness debt when repairing KI#331, not as another KI. The substantive current root remains callers assuming a silent-veto void API succeeded.
+
+FALSE POSITIVES / CLEAN TAIL CHECKS FROM FILE 007
+- Battle History initially looked as if vassal perspective could expose an opponent civilization unknown to the human master. This was rejected after tracing CvTeam::setVassal: master/vassal `hasMet` relations are synchronized. KI#335 is deliberately limited to hidden map/location/context knowledge.
+- Battle History funnels the DLL's `COMBAT_LIMIT` and true `WITHDRAWAL` non-lethal endings into one Retreated outcome. That would be semantically lossy if partial-lethal combat units existed, but current CIV4UnitInfos has zero combat-capable units with `0 < iCombatLimit < 100`: fighting units use combat limit 100, while 0 belongs to nonfighters. Current data therefore makes the COMBAT_LIMIT branch unreachable; future/mod-mod robustness only, no KI.
+- canScrap's AI-policy early return before the inherited plot-fighting guard was traced through current callers and delayed-death scheduling; no supported current exploit was established. Keep as robustness debt under KI#331.
+- canUpgrade's `bUpgradeCityKnown` extension is used with upgrade types established by getUpgradeCity and preserves the ordinary gold/ROI/other gates; this matches the KI#188.3.3 fix rather than creating a second upgrade-legality hole.
+- getUpgradeCity's optional chosen-upgrade output is initialized to NO_UNIT and set on successful direct/best-city results; no uninitialized output path found.
+- Current espionage GameRecord snapshots were compared with CvPlayer::doEspionageMission's actual calculations. Production destroyed, stolen gold, inserted culture, poison/unhappy/revolt values, player-anarchy duration and counterespionage duration use the corresponding engine calculations/game-speed scalers; no logging-value mismatch established.
+- Air strike/interception, bombard/pillage, blockade, nuke, range/flanking/collateral combat, Great-Person actions, upgrade, move/setXY and combat-message changes are logging/accounting hooks, enum renames or cached constants after contract review; no independent gameplay mutation survived.
+- maxCombatStr changes are the already-fixed KI#211/KI#212 lineage; no new combat-strength root established.
+- Current read/write serialization was mechanically paired at 86 corresponding operations. Removal of old uiFlag branches is unsupported legacy-save cleanup, not a current same-version mismatch.
+- All cached GlobalDefines used by changed CvUnit paths were checked against current runtime define mutation; no behavior-sensitive overlap was found.
+- Header changes (testSpyIntercepted phase label, canUpgrade bUpgradeCityKnown, getUpgradeCity output, impassability wrappers, scrapInternal exposure) match their implementations/callers; no ABI/contract mismatch established.
+- Whole-file sentinel/null/static/lifetime scan found no extra enum-vs-NULL defect, stale mutable cache or post-kill dereference in the changed surface.
+
+
+
+DEFERRED OBSERVATION POLICY
+- Observations in later files are not counted until that file reaches its turn. File 008 is now active.
+
+QUEUE (current .cpp files, longest -> shortest)
+001  32289 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]
+002  28009 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]
+003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]
+004  20672 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]
+005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]
+006  13834 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]
+007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]
+008  10836 CvGameCoreDLL/CvGame.cpp [OPEN]
+009   8705 CvGameCoreDLL/CvPlot.cpp [PENDING]
+010   6859 CvGameCoreDLL/CvTeamAI.cpp [PENDING]
+011   6343 CvGameCoreDLL/SASGameRecordLog.cpp [PENDING]
+012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [PENDING]
+013   6190 CvGameCoreDLL/CvTeam.cpp [PENDING]
+014   5002 CvGameCoreDLL/WarUtilityAspect.cpp [PENDING]
+015   4707 CvGameCoreDLL/CvSelectionGroup.cpp [PENDING]
+016   4592 CvGameCoreDLL/CitySiteEvaluator.cpp [PENDING]
+017   3700 CvGameCoreDLL/UWAIAgent.cpp [PENDING]
+018   2965 CvGameCoreDLL/CvGameInterface.cpp [PENDING]
+019   2810 CvGameCoreDLL/CvDLLButtonPopup.cpp [PENDING]
+020   2599 CvGameCoreDLL/CvInfo_Unit.cpp [PENDING]
+021   2503 CvGameCoreDLL/CyPlayer.cpp [PENDING]
+022   2448 CvGameCoreDLL/TrueStarts.cpp [PENDING]
+023   2430 CvGameCoreDLL/InvasionGraph.cpp [PENDING]
+024   2399 CvGameCoreDLL/CyCity.cpp [PENDING]
+025   2247 CvGameCoreDLL/StartingPositionIteration.cpp [PENDING]
+026   2132 CvGameCoreDLL/CvInitCore.cpp [PENDING]
+027   2099 CvGameCoreDLL/CvInfo_RandomEvent.cpp [PENDING]
+028   2095 CvGameCoreDLL/CvXMLLoadUtilitySet.cpp [PENDING]
+029   2052 CvGameCoreDLL/CyEnumsInterface.cpp [PENDING]
+030   1919 CvGameCoreDLL/CvInfo_Misc.cpp [PENDING]
+031   1812 CvGameCoreDLL/UWAICache.cpp [PENDING]
+032   1704 CvGameCoreDLL/CyUnit.cpp [PENDING]
+033   1672 CvGameCoreDLL/CvInfo_Terrain.cpp [PENDING]
+034   1637 CvGameCoreDLL/CvInfo_Civilization.cpp [PENDING]
+035   1619 CvGameCoreDLL/CvInfo_GameOption.cpp [PENDING]
+036   1596 CvGameCoreDLL/CvMap.cpp [PENDING]
+037   1575 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]
+038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
+039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]
+040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]
+041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [PENDING]
+042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]
+043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
+044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
+045   1281 CvGameCoreDLL/CvMapGenerator.cpp [PENDING]
+046   1268 CvGameCoreDLL/CyGame.cpp [PENDING]
+047   1214 CvGameCoreDLL/CvDllPythonEvents.cpp [PENDING]
+048   1128 CvGameCoreDLL/CvInfo_Building.cpp [PENDING]
+049   1081 CvGameCoreDLL/CvReplayInfo.cpp [PENDING]
+050   1067 CvGameCoreDLL/CyPlot.cpp [PENDING]
+051   1042 CvGameCoreDLL/CyTeam.cpp [PENDING]
+052    973 CvGameCoreDLL/CvXMLLoadUtilityGet.cpp [PENDING]
+053    970 CvGameCoreDLL/EnumMapTest.cpp [PENDING]
+054    844 CvGameCoreDLL/GroupPathFinder.cpp [PENDING]
+055    837 CvGameCoreDLL/CyInfoInterface3.cpp [PENDING]
+056    768 CvGameCoreDLL/CvInfo_Asset.cpp [PENDING]
+057    713 CvGameCoreDLL/CombatOdds.cpp [PENDING]
+058    693 CvGameCoreDLL/ArmamentForecast.cpp [PENDING]
+059    687 CvGameCoreDLL/CyGlobalContext.cpp [PENDING]
+060    686 CvGameCoreDLL/CvArea.cpp [PENDING]
+061    679 CvGameCoreDLL/CvEventReporter.cpp [PENDING]
+062    673 CvGameCoreDLL/MilitaryAnalyst.cpp [PENDING]
+063    643 CvGameCoreDLL/CyInfoInterface1.cpp [PENDING]
+064    623 CvGameCoreDLL/MilitaryBranch.cpp [PENDING]
+065    603 CvGameCoreDLL/CvStructs.cpp [PENDING]
+066    580 CvGameCoreDLL/CvInfo_Command.cpp [PENDING]
+067    576 CvGameCoreDLL/CvInfo_Civics.cpp [PENDING]
+068    551 CvGameCoreDLL/KmodPathFinderLegacy.cpp [PENDING]
+069    543 CvGameCoreDLL/AdvCiv4lerts.cpp [PENDING]
+070    494 CvGameCoreDLL/CvInfo_Base.cpp [PENDING]
+071    491 CvGameCoreDLL/CyInfoInterface2.cpp [PENDING]
+072    482 CvGameCoreDLL/CvStatistics.cpp [PENDING]
+073    476 CvGameCoreDLL/CyPlayerInterface1.cpp [PENDING]
+074    475 CvGameCoreDLL/WarEvaluator.cpp [PENDING]
+075    472 CvGameCoreDLL/SelfMod.cpp [PENDING]
+076    461 CvGameCoreDLL/CyCityInterface1.cpp [PENDING]
+077    451 CvGameCoreDLL/StartPointsAsHandicap.cpp [PENDING]
+078    435 CvGameCoreDLL/CvVirtualWrappers.cpp [PENDING]
+079    432 CvGameCoreDLL/ScaledNumTest.cpp [PENDING]
+080    428 CvGameCoreDLL/CyReplayInfo.cpp [PENDING]
+081    425 CvGameCoreDLL/CvInfo_Tech.cpp [PENDING]
+082    407 CvGameCoreDLL/CvFractal.cpp [PENDING]
+083    403 CvGameCoreDLL/FProfiler.cpp [PENDING]
+084    389 CvGameCoreDLL/CyUnitInterface1.cpp [PENDING]
+085    375 CvGameCoreDLL/FFreeListTrashArray.cpp [PENDING]
+086    374 CvGameCoreDLL/CvXMLLoadUtility.cpp [PENDING]
+087    348 CvGameCoreDLL/CyMap.cpp [PENDING]
+088    342 CvGameCoreDLL/CvInfo_Organization.cpp [PENDING]
+089    338 CvGameCoreDLL/CvGameAI.cpp [PENDING]
+090    330 CvGameCoreDLL/CyGameInterface.cpp [PENDING]
+091    328 CvGameCoreDLL/CySelectionGroup.cpp [PENDING]
+092    327 CvGameCoreDLL/BBAILog.cpp [PENDING]
+093    323 CvGameCoreDLL/CvPopupReturn.cpp [PENDING]
+094    304 CvGameCoreDLL/CvPlotGroup.cpp [PENDING]
+095    291 CvGameCoreDLL/CyGameTextMgr.cpp [PENDING]
+096    286 CvGameCoreDLL/CvMemoryManager.cpp [PENDING]
+097    282 CvGameCoreDLL/CvTalkingHeadMessage.cpp [PENDING]
+098    281 CvGameCoreDLL/RFChapterScore.cpp [PENDING]
+099    279 CvGameCoreDLL/CvDLLLogger.cpp [PENDING]
+100    277 CvGameCoreDLL/CvInfo_Water.cpp [PENDING]
+101    277 CvGameCoreDLL/RFChapter.cpp [PENDING]
+102    273 CvGameCoreDLL/CyPlotInterface1.cpp [PENDING]
+103    272 CvGameCoreDLL/CyGameCoreUtils.cpp [PENDING]
+104    269 CvGameCoreDLL/CvString.cpp [PENDING]
+105    265 CvGameCoreDLL/CvInfo_City.cpp [PENDING]
+106    264 CvGameCoreDLL/CvDiploParameters.cpp [PENDING]
+107    262 CvGameCoreDLL/FAStarFunc.cpp [PENDING]
+108    258 CvGameCoreDLL/CvAgents.cpp [PENDING]
+109    246 CvGameCoreDLL/CvPopupInfo.cpp [PENDING]
+110    240 CvGameCoreDLL/AgentIteratorTest.cpp [PENDING]
+111    240 CvGameCoreDLL/CvArtFileMgr.cpp [PENDING]
+112    237 CvGameCoreDLL/UWAI.cpp [PENDING]
+113    235 CvGameCoreDLL/CyTeamInterface.cpp [PENDING]
+114    211 CvGameCoreDLL/CvInfo_Symbol.cpp [PENDING]
+115    208 CvGameCoreDLL/CvMessageControl.cpp [PENDING]
+116    205 CvGameCoreDLL/CyArea.cpp [PENDING]
+117    204 CvGameCoreDLL/FAssert.cpp [PENDING]
+118    204 CvGameCoreDLL/FDialogTemplate.cpp [PENDING]
+119    191 CvGameCoreDLL/CyStructsInterface1.cpp [PENDING]
+120    186 CvGameCoreDLL/AgentIterator.cpp [PENDING]
+121    177 CvGameCoreDLL/CvXMLLoadUtilityInit.cpp [PENDING]
+122    175 CvGameCoreDLL/RFTotalScore.cpp [PENDING]
+123    175 CvGameCoreDLL/TeamPathFinder.cpp [PENDING]
+124    171 CvGameCoreDLL/CyGlobalContextInterface4.cpp [PENDING]
+125    166 CvGameCoreDLL/UWAIReport.cpp [PENDING]
+126    150 CvGameCoreDLL/CvDllTranslator.cpp [PENDING]
+127    149 CvGameCoreDLL/CyMapGenerator.cpp [PENDING]
+128    149 CvGameCoreDLL/ReproTest.cpp [PENDING]
+129    145 CvGameCoreDLL/AIStrengthMemoryMap.cpp [PENDING]
+130    137 CvGameCoreDLL/CvRandom.cpp [PENDING]
+131    134 CvGameCoreDLL/Shelf.cpp [PENDING]
+132    127 CvGameCoreDLL/CvReplayMessage.cpp [PENDING]
+133    124 CvGameCoreDLL/CyGlobalContextInterface1.cpp [PENDING]
+134    101 CvGameCoreDLL/CvInfo_Build.cpp [PENDING]
+135     96 CvGameCoreDLL/TSCProfiler.cpp [PENDING]
+136     95 CvGameCoreDLL/CyArgsList.cpp [PENDING]
+137     94 CvGameCoreDLL/CyMapInterface.cpp [PENDING]
+138     91 CvGameCoreDLL/CvDLLInterfaceIFaceBase.cpp [PENDING]
+139     90 CvGameCoreDLL/CyPlayerInterface2.cpp [PENDING]
+140     89 CvGameCoreDLL/CvCivilization.cpp [PENDING]
+141     84 CvGameCoreDLL/CvDLLEntity.cpp [PENDING]
+142     84 CvGameCoreDLL/CyArtFileMgr.cpp [PENDING]
+143     81 CvGameCoreDLL/CySelectionGroupInterface.cpp [PENDING]
+144     80 CvGameCoreDLL/CvDLLPython.cpp [PENDING]
+145     80 CvGameCoreDLL/CyDeal.cpp [PENDING]
+146     80 CvGameCoreDLL/CyMessageControl.cpp [PENDING]
+147     79 CvGameCoreDLL/CvInfo_TrueStarts.cpp [PENDING]
+148     79 CvGameCoreDLL/CyHallOfFameInterface.cpp [PENDING]
+149     78 CvGameCoreDLL/CvBugOptions.cpp [PENDING]
+150     76 CvGameCoreDLL/PlayerHistory.cpp [PENDING]
+151     74 CvGameCoreDLL/WarEvalParameters.cpp [PENDING]
+152     73 CvGameCoreDLL/BarbarianWeightMap.cpp [PENDING]
+153     73 CvGameCoreDLL/CyGameCoreUtilsInterface.cpp [PENDING]
+154     73 CvGameCoreDLL/CyGlobalContextInterface2.cpp [PENDING]
+155     62 CvGameCoreDLL/CyAreaInterface.cpp [PENDING]
+156     60 CvGameCoreDLL/CyGlobalContextInterface3.cpp [PENDING]
+157     57 CvGameCoreDLL/CyGameTextMgrInterface.cpp [PENDING]
+158     44 CvGameCoreDLL/CyCityInterface2.cpp [PENDING]
+159     43 CvGameCoreDLL/CyMapGeneratorInterface.cpp [PENDING]
+160     39 CvGameCoreDLL/CvHallOfFameInfo.cpp [PENDING]
+161     38 CvGameCoreDLL/CvGameCoreDLL.cpp [PENDING]
+162     31 CvGameCoreDLL/CyArtFileMgrInterface.cpp [PENDING]
+163     25 CvGameCoreDLL/CyMessageControlInterface.cpp [PENDING]
+164     24 CvGameCoreDLL/CyHallOfFameInfo.cpp [PENDING]
+165     20 CvGameCoreDLL/CyRandomInterface.cpp [PENDING]
+166     18 CvGameCoreDLL/ModName.cpp [PENDING]
+167     16 CvGameCoreDLL/PlotRadiusIterator.cpp [PENDING]
+168     11 CvGameCoreDLL/ArithmeticTraits.cpp [PENDING]
+169      5 CvGameCoreDLL/_precompile.cpp [PENDING]

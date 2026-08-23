@@ -32,4 +32,4 @@ rg -n "tinySouthY|iContinentsGrainEast" LLM_Helpers\map_refs PrivateMaps
 rg -n "isFreshWater|generatePlotsParallelContinent" LLM_Helpers\map_refs PrivateMaps
 ```
 
-When the same defect exists here and in the SAS import/birth commit, classify it as inherited third-party/pre-SAS rather than SAS-specific. Record which package/file established provenance in `advciv_kmod_archaeology_progress.txt` and the corresponding Known Issues entry.
+When the same defect exists here and in the SAS import/birth commit, classify it as inherited third-party/pre-SAS rather than SAS-specific. Record which package/file established provenance in `_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt` and the corresponding Known Issues entry.

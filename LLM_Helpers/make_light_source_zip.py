@@ -75,11 +75,13 @@ COMMIT_DIFF_CACHE_DIR_NAME = "advciv_sas_light_source_commit_diffs"
 # <!-- custom: The greppable tracked mirror is generated from this same history renderer.
 # Exclude it from rendered Git patches and ordinary light-ZIP file selection so history never recursively archives copies of itself. (ChatGPT-5.6-Sol) -->
 TRACKED_COMMIT_DIFF_DIR = "LLM_Helpers/commit_diffs"
-# <!-- custom: Include current map references in the light ZIP, but do not duplicate their vendored import inside generated historical patches. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+# <!-- custom: Include current map references and resumable source analyses in the light ZIP, but do not duplicate their imported/generated history inside generated historical patches. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 MAP_REFERENCE_DIR = "LLM_Helpers/map_refs"
+SOURCE_ANALYSIS_DIR = "_1_AdvCiv-SAS/Docs/Source_Analysis"
 COMMIT_DIFF_EXCLUDED_PATHS = (
     f"{TRACKED_COMMIT_DIFF_DIR}/**",
     f"{MAP_REFERENCE_DIR}/**",
+    f"{SOURCE_ANALYSIS_DIR}/**",
 )
 COMMIT_DIFF_MAX_FILE_PATCH_BYTES = 2 * 1024 * 1024
 COMMIT_DIFF_MAX_FILE_CHANGED_LINES = 10_000

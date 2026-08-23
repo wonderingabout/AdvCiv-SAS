@@ -7,7 +7,7 @@ This is a non-exhaustive page containing some ressources i found helpful and gen
 [Modding disclaimer and general information](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#modding-disclaimer-and-general-information)\
 [DLL compilation guide (command-line workflow primarily for LLM/AI helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md)\
 [Release preparation/checklist (for user + LLM/AI helpers)](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md)\
-[Historical source archaeology](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#historical-source-archaeology)\
+[LLM-assisted source analysis](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#llm-assisted-source-analysis)\
 [A few useful tips](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#a-few-useful-tips)\
 &emsp;[Insert a google drive image link in an html tag](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#insert-a-google-drive-image-link-in-an-html-tag)\
 &emsp;[Download media assets for example on youtube](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#download-media-assets-for-example-on-youtube)\
@@ -56,7 +56,13 @@ Hopefully you'll find them helpful though, but in case not or something happens,
 
 Else or additionally, you may find more help asking your question(s) directly on [CivFanaticsCenter's Civ4 Forum](https://forums.civfanatics.com/categories/civilization-iv.143/) rather maybe. Hopefully this data i provided is also helpful though.
 
-## Historical source archaeology
+## LLM-assisted source analysis
+
+### Light-source analysis
+
+[`LLM_Helpers/make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.py) packages current source, relevant docs/data, repository state, tracked history context, map references and selected screenshots for external LLM review without copying the full installation or `.git`. Current source and Git remain authoritative; the archive is a compact handoff rather than a separate source tree.
+
+### Historical source archaeology
 
 AdvCiv-SAS keeps a resumable source-archeology investigation for bugs, regressions, suspicious behavior changes, and useful fixes that may have survived through the Civ4 BtS -> K-Mod -> AdvCiv -> AdvCiv-SAS lineage.
 
@@ -66,7 +72,11 @@ The primary investigation phase was carried out with ChatGPT-5.6-Sol and is now 
 
 The fixes are then implemented/reviewed separately, primarily by the project author with GPT-5.6-Sol (Codex) assistance and normal compile/runtime/autoplay validation. Some SAS-origin fixes have also flowed back into base AdvCiv 1.14, and a related SAS tiny-island map-script bugfix was also adopted into Taurus, so the archaeology can improve more than only AdvCiv-SAS.
 
-See the detailed [AdvCiv/K-Mod historical bug-archeology progress tracker](/_1_AdvCiv-SAS/Docs/Modding_Ressources/advciv_kmod_archaeology_progress.txt) for the exact scope, counters, review checkpoints, findings, lineage traces, and implementation status.
+See the detailed [AdvCiv/K-Mod historical bug-archeology progress tracker](/_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt) for the exact scope, counters, review checkpoints, findings, lineage traces, and implementation status.
+
+### C++ File Audit Album
+
+The active [C++ File Audit Album](/_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt) complements commit-oriented archaeology by reviewing every current `.cpp` file from longest to shortest with the associated headers, data and neighboring contracts needed to judge it. It is especially useful for cross-file and cross-commit interactions that survive only in the final combined tree, and records clean files and false positives alongside findings. Future Python, XML or other file-oriented analyses belong in [`Docs/Source_Analysis/`](/_1_AdvCiv-SAS/Docs/Source_Analysis/).
 
 ## A few useful tips
 
