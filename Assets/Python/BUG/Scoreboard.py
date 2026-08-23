@@ -641,7 +641,8 @@ class Scoreboard:
 							leader = playerScore.value(c)
 							name = "ScoreLeader%d" % playerScore.getID() # advc.085: was p
 							info = gc.getLeaderHeadInfo(leader)
-							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, leader, 1 )
+							# <!-- custom: Leader-hover data2 is a civilization ID, not a generic enable flag; pass this scoreboard player's civilization so trait production help resolves civ-specific units/buildings instead of Arabia (literal ID 1). See KI#332. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+							screen.addDDSGFC(name, info.getButton(), x - techIconSize, y - p * height + iYIconOffset, techIconSize, techIconSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, leader, gc.getPlayer(playerScore.getID()).getCivilizationType())
 					x -= techIconSize
 					totalWidth += techIconSize + spacing
 					spacing = defaultSpacing

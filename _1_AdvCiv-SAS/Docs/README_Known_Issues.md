@@ -401,6 +401,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [327 - (Rejected finding; hidden inherited BUG/K-Mod poll) Exact diplomatic-vote prediction was not a desirable repair](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#327---rejected-finding-hidden-inherited-bugk-mod-poll-exact-diplomatic-vote-prediction-was-not-a-desirable-repair)\
 [328 - (Fixed minor inherited Planet/C2C bug) getGridSize returned a float to Civ4's integer callback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#328---fixed-minor-inherited-planetc2c-bug-getgridsize-returned-a-float-to-civ4s-integer-callback)\
 [329 - (Defensively hardened inherited BTG robustness hazards; no supported trigger reproduced) Grid retry and Cross/Grid forced-Silver fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#329---defensively-hardened-inherited-btg-robustness-hazards-no-supported-trigger-reproduced-grid-retry-and-crossgrid-forced-silver-fallback)\
+[330 - (Fixed AdvCiv-SAS bug) Master/vassal tech-contact power-bias exemption depended on an unrelated toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#330---fixed-advciv-sas-bug-mastervassal-tech-contact-power-bias-exemption-depended-on-an-unrelated-toggle)\
+[332 - (Fixed inherited BUG/Base AdvCiv UI bug, broadened by AdvCiv-SAS) Leader hovers resolved trait production through Arabia instead of the displayed civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#332---fixed-inherited-bugbase-advciv-ui-bug-broadened-by-advciv-sas-leader-hovers-resolved-trait-production-through-arabia-instead-of-the-displayed-civilization)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9266,6 +9268,32 @@ The defensive hardening moves Grid's retry state outside both retry loops and re
 These are inherited BTG robustness repairs, not two newly counted confirmed defects: focused archaeology did not reproduce an ordinary supported configuration that reached either failure. They are documented so the source hazards and lower evidence level remain explicit rather than being promoted or silently forgotten. Runtime screenshots 0226-0228 confirm that the requested ordinary Grid and Cross configurations generated and reached turn 11 without an observed issue. This validates the ordinary paths after hardening but does not pretend to reproduce either old fallback hazard.
 
 Reopened and investigated with the help of ChatGPT-5.6-Sol; reconciled and defensively hardened with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 330 - (Fixed AdvCiv-SAS bug) Master/vassal tech-contact power-bias exemption depended on an unrelated toggle
+
+AdvCiv-SAS has two independent AI technology-trade contact options. One preferentially increases contact within a master/vassal locus; the other varies contact frequency according to the other team's relative military power, but its XML contract explicitly exempts master/vassal and sibling-vassal partners because they cooperate rather than compete directly.
+
+The relationship flag used by the power-bias exemption was nevertheless initialized false and set only inside the separately configurable preferential-contact branch. Disabling preferential master/vassal contact while retaining power-based contact therefore made locus partners receive the ordinary rival power modifier. The default configuration enabled both options and masked the coupling.
+
+The fix computes the master/vassal-locus relationship independently before either optional policy is applied. The relation then controls the promised power-bias exemption regardless of whether preferential contact itself is enabled, while the existing three directional contact multipliers remain controlled only by their own toggle. This is an AdvCiv-SAS configuration-composition bug; the affected policies and toggles do not exist in Base AdvCiv.
+
+Fresh SAS24 Pangaea save file 490 completed its turn-101 autoplay smoke test after compilation without an observed issue. The exact nondefault toggle combination and randomized contact-frequency consequence remain source-verified rather than directly reproduced.
+
+Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
+## 332 - (Fixed inherited BUG/Base AdvCiv UI bug, broadened by AdvCiv-SAS) Leader hovers resolved trait production through Arabia instead of the displayed civilization
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1H7pnko9mlch02F0K2wmrbVTXP3SdGZgL?usp=sharing).
+
+The native `WIDGET_PEDIA_JUMP_TO_LEADER` contract treats widget data2 as a `CivilizationTypes` value. Leader-trait help uses that civilization to resolve fast-production unit and building classes to their civilization-specific replacements. Multiple Python callers instead passed literal `1` as though it were a generic tooltip-enable flag; civilization index 1 is Arabia, so every affected hover resolved those entries through Arabia.
+
+For example, Shaka's Aggressive trait doubles production of the Barracks class. Zulu replaces Barracks with the Ikhanda, but an affected hover named ordinary Barracks because it received Arabia's civilization context. Local Base AdvCiv 1.14 retains literal civilization ID 1 in its inherited BUG Scoreboard and Sevopedia Index leader widgets under the same DLL contract. AdvCiv-SAS inherited the Scoreboard case, corrected/replaced the Index path independently, and later broadened the wrong convention across the Hall of Fame, Info Screen, Military Advisor and the Civic, Religion and Music Sevopedia pages.
+
+The fix passes the actual civilization wherever the caller represents a player, replay or battle row. Generic Sevopedia links use the same canonical unique leader-to-civilization selection already used by the main Leader page; ambiguous leaders retain that established no-context behavior instead of choosing an arbitrary civilization. The Civilization, Trait, Index and main Leader paths already supplied real or canonical context and required no change. The generic Trait page intentionally continues naming generic unit/building classes because it describes a trait across all civilizations rather than one leader/civilization pairing.
+
+Screenshots 0234-0236 confirm that Shaka's Info Screen Score hover, Civic favorite-leader hover and Leader page now identify the Zulu Ikhanda. Screenshot 0237 confirms the intentionally generic Aggressive Trait page. Fresh SAS24 Pangaea save file 490 completed its turn-101 autoplay smoke test without an observed issue.
+
+This is an early AdvCiv-SAS UI defect broadened by later SAS UI work, not an issue inherited from Base AdvCiv or native BtS parsing. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
 ## 334 - (Fixed inherited AdvCiv information leak amplified by AdvCiv-SAS) Great General death reports could reveal an unknown killer civilization
 

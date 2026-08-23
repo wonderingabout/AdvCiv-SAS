@@ -234,8 +234,8 @@ Concrete current consequence:
 - Arabia has no Barracks-class replacement. A literal-Arabia context therefore makes Shaka's trait hover identify ordinary Barracks instead of his actual Ikhanda for that fast-production line.
 - Equivalent wrong-resolution opportunities exist for leaders whose civilization replaces other trait-affected classes.
 Ancestry/accounting:
-- The old commit-oriented archaeology had already source-proven this interaction while examining a later caller, but deliberately held it unnumbered until its birth commit.
-- Practical 4732 is a confirmed early/birth caller introducing WIDGET_PEDIA_JUMP_TO_LEADER with literal data2=1; the issue was then accidentally not promoted when the historical sweep eventually reached that commit.
+- The old commit-oriented archaeology had already source-proven this interaction while examining a later caller, but deliberately held it unnumbered pending firmer ancestry.
+- Local Base AdvCiv 1.14 retains literal data2=1 in its inherited BUG Scoreboard and Sevopedia Index leader widgets under the same DLL contract. Practical 4732 is an early SAS-lineage occurrence, not the upstream birth of the convention. Current SAS inherited the Scoreboard case, independently replaced/corrected the Index path and later broadened the wrong convention across additional screens.
 Repair direction:
 - Callers that know the real player/civilization should pass that CivilizationTypes value.
 - Generic leader contexts should reuse the same canonical leader-to-civilization selection used by the main Sevopedia Leader path.

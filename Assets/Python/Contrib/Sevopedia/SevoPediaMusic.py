@@ -89,7 +89,8 @@ class SevoPediaMusic:
 			elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_LEADER:
 				iLeaderId = self.top.SAS_getMusicLeaderId(self.iMusic)
 				if iLeaderId != -1:
-					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
+					# <!-- custom: Music's generic leader links use the Leader page's canonical unique civilization for trait production help; literal data2=1 incorrectly meant Arabia. See KI#332. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					screen.setImageButton(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, self.top.pediaLeader.getCiv(iLeaderId))
 				else:
 					screen.addDDSGFC(self.top.getNextWidgetName(), szButton, self.X_ICON + self.W_ICON / 2 - PANE_ICON_SIZE / 2, self.Y_ICON + self.H_ICON / 2 - PANE_ICON_SIZE / 2, PANE_ICON_SIZE, PANE_ICON_SIZE, WidgetTypes.WIDGET_GENERAL, -1, -1)
 			elif iMusicType == SAS_MAGIC_PEDIA_MUSIC_TYPE_CIV:
@@ -537,7 +538,8 @@ class SevoPediaMusic:
 				leaderInfo = gc.getLeaderHeadInfo(iLeaderId)
 				szLeaderButton = leaderInfo.getButton()
 				if szLeaderButton:
-					screen.setImageButton(szButtonName, szLeaderButton, iX, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, 1)
+					# <!-- custom: The separate Music Player leader buttons need the same canonical civilization context as the main Music page link above. See KI#332. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					screen.setImageButton(szButtonName, szLeaderButton, iX, iY, iButtonSize, iButtonSize, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeaderId, self.top.pediaLeader.getCiv(iLeaderId))
 
 	def placeTechDisplay(self, screen, iMusic, iImageX, iImageY, iImageW, iImageH):
 		iMusicType, iTechId = self.top.SAS_unpackMusicKey(iMusic)

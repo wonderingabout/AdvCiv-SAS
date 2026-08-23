@@ -475,10 +475,11 @@ class CvHallOfFameScreen:
 				iColumn += 1
 			# </advc.106i>
 			iReplayLeader = self.infoList[i][11]
-			if iReplayLeader >= 0 and iReplayLeader < gc.getNumLeaderHeadInfos():
-				SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, "", gc.getLeaderHeadInfo(iReplayLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iReplayLeader, 1, CvUtil.FONT_CENTER_JUSTIFY)
-			iColumn += 1
 			iReplayCiv = self.infoList[i][12]
+			if iReplayLeader >= 0 and iReplayLeader < gc.getNumLeaderHeadInfos():
+				# <!-- custom: Hall-of-Fame replay rows retain the matching civilization; use it for leader-hover trait replacements instead of literal civilization ID 1 (Arabia). See KI#332. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, "", gc.getLeaderHeadInfo(iReplayLeader).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iReplayLeader, iReplayCiv, CvUtil.FONT_CENTER_JUSTIFY)
+			iColumn += 1
 			if iReplayCiv >= 0 and iReplayCiv < gc.getNumCivilizationInfos():
 				SASTextScale.setTableTextLabel(screen, self.TABLE_ID, iColumn, i, "", gc.getCivilizationInfo(iReplayCiv).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, iReplayCiv, -1, CvUtil.FONT_CENTER_JUSTIFY)
 			iColumn += 1

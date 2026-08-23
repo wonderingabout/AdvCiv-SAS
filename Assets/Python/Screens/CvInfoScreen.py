@@ -1319,7 +1319,8 @@ class CvInfoScreen:
 
 			# <!-- custom: Score Tab is a reference matrix, so leader/civ identity cells open Sevopedia
 			# instead of diplomacy; contact actions are already covered by the scoreboard and Foreign Advisor. (GPT-5.5) -->
-			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, getAdvisorIconSortKey(pPlayer.getLeaderType() + 1, iRow), gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
+			# <!-- custom: Pass the displayed player's civilization to leader-hover trait help; literal data2=1 meant Arabia and could name the wrong civ-specific production replacement. See KI#332. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			SASTextScale.setTableTextLabel(screen, szTable, iColLeader, iRow, getAdvisorIconSortKey(pPlayer.getLeaderType() + 1, iRow), gc.getLeaderHeadInfo(pPlayer.getLeaderType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), pPlayer.getCivilizationType(), CvUtil.FONT_LEFT_JUSTIFY)
 			SASTextScale.setTableTextLabel(screen, szTable, iColCiv, iRow, getAdvisorIconSortKey(pPlayer.getCivilizationType() + 1, iRow), gc.getCivilizationInfo(pPlayer.getCivilizationType()).getButton(), WidgetTypes.WIDGET_PEDIA_JUMP_TO_CIV, pPlayer.getCivilizationType(), -1, CvUtil.FONT_LEFT_JUSTIFY)
 			szColor = self.SCORETAB_COLOR_MARKER
 			ePlayerColor = pPlayer.getPlayerColor()
@@ -1333,7 +1334,7 @@ class CvInfoScreen:
 			szName = pPlayer.getName()
 			if not bMet:
 				szName = localText.getText("TXT_KEY_TOPCIVS_UNKNOWN", ())
-			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), 1, CvUtil.FONT_LEFT_JUSTIFY)
+			SASTextScale.setTableTextLabel(screen, szTable, iColName, iRow, szName, "", WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, pPlayer.getLeaderType(), pPlayer.getCivilizationType(), CvUtil.FONT_LEFT_JUSTIFY)
 			# <!-- custom: Score Tab trait columns (T1/T2): trait icon chars for compact readability next to leader identity data. (GPT-5.3-Codex) -->
 			iTrait1 = -1
 			iTrait2 = -1

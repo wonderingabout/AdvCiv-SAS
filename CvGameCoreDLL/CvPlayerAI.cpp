@@ -23133,7 +23133,9 @@ void CvPlayerAI::AI_doDiplo()
 					const TeamTypes eOurTeam = getTeam();
 					const TeamTypes eTheirTeam = kPlayer.getTeam();
 					const TeamTypes eMasterTeam = kOurTeam.getMasterTeam();
-					bool bVassalsOrMaster = false;
+					CvTeamAI const& kTheirTeam = GET_TEAM(eTheirTeam);
+					// <!-- custom: The separately configurable power-based tech-contact bias promises not to affect master/vassal-locus partners, so compute that relationship independently of the preferential-contact toggle. Defaults enabled both toggles and masked the coupling. See KI#330. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					const bool bVassalsOrMaster = (kTheirTeam.isVassal(eOurTeam) || kOurTeam.isVassal(eTheirTeam) || (kOurTeam.isAVassal() && eMasterTeam != NO_TEAM && kTheirTeam.isVassal(eMasterTeam) && eTheirTeam != eOurTeam));
 
 					if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE)
 					{
@@ -23152,16 +23154,14 @@ void CvPlayerAI::AI_doDiplo()
 						// 	- The vassal not wasting time duplicating the master’s techs either.
 						// 	- More tech trades along that axis whenever there’s a reasonable deal.
 						// (1) When we are the master and ePlayer is our vassal → your MASTER_TO_VASSAL_CONTACT_PERCENT multiplies our chance to contact that vassal with a tech-trade proposal.
-						if (GET_TEAM(eTheirTeam).isVassal(eOurTeam))
+						if (kTheirTeam.isVassal(eOurTeam))
 						{
-							bVassalsOrMaster = true;
 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT");
 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_TO_VASSAL_CONTACT_PERCENT, 100);
 						}
 						// (2) When we are the vassal and ePlayer is our master → your VASSAL_TO_MASTER_CONTACT_PERCENT multiplies our chance to contact that master with a tech-trade proposal.
 						else if (kOurTeam.isVassal(eTheirTeam))
 						{
-							bVassalsOrMaster = true;
 							static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT");
 							rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_MASTER_CONTACT_PERCENT, 100);
 						}
@@ -23172,9 +23172,8 @@ void CvPlayerAI::AI_doDiplo()
 						// 	- No stacking: each pair hits at most one of (master→vassal, vassal→master, vassal↔vassal).
 						else if (kOurTeam.isAVassal())
 						{
-							if (eMasterTeam != NO_TEAM && GET_TEAM(eTheirTeam).isVassal(eMasterTeam) && eTheirTeam != eOurTeam) // safety; shouldn't ever be equal here
+							if (eMasterTeam != NO_TEAM && kTheirTeam.isVassal(eMasterTeam) && eTheirTeam != eOurTeam) // safety; shouldn't ever be equal here
 							{
-								bVassalsOrMaster = true;
 								static const int iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT = GC.getDefineINT("SAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT");
 								rContactProbMult.mulDiv(iSAS_AI_DO_DIPLO_TECH_TRADE_VASSAL_TO_VASSAL_CONTACT_PERCENT, 100);
 							}

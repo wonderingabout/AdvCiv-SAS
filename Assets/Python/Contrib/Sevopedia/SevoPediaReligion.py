@@ -148,7 +148,8 @@ class SevoPediaReligion:
 			leaderInfo = gc.getLeaderHeadInfo(iLeader)
 			if leaderInfo.getFavoriteReligion() == self.iReligion:
 				leaderInfo = gc.getLeaderHeadInfo(iLeader)
-				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, 1, False)
+				# <!-- custom: Generic Sevopedia leader links use the Leader page's canonical unique civilization for trait production help; literal data2=1 incorrectly meant Arabia. See KI#332. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				screen.appendMultiListButton(rowListName, leaderInfo.getButton(), SEVOPEDIA_MULTILIST_COLUMN_INDEX_AUTO, WidgetTypes.WIDGET_PEDIA_JUMP_TO_LEADER, iLeader, self.top.pediaLeader.getCiv(iLeader), False)
 
 	def placeReligionPane(self):
 		screen = self.top.getScreen()
