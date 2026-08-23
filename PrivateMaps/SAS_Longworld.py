@@ -13,6 +13,10 @@ from CvMapGeneratorUtil import TerrainGenerator
 from CvMapGeneratorUtil import FeatureGenerator
 from SAS_WorldSizeUtils import *
 
+# <!-- custom: Keep stable per-generation Longworld assignments so trimmed-edge fallback cannot return an already-used starting plot. See KI#246. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+longworldStartByPlayer = {}
+longworldUsedStarts = {}
+
 def getVersion():
 	return "1.00"
 
@@ -163,9 +167,20 @@ def getStripBounds(iH):
 		iTopRow = max(1, iBottomRow - iBandHeight + 1)
 	return (iTopRow, iBottomRow)
 
+# <!-- custom: Longworld's fallback may move a player onto another player's nominal strip tile. Reset the assignment cache and used-plot set for each generation. See KI#246. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+def beforeGeneration():
+	global longworldStartByPlayer
+	global longworldUsedStarts
+	longworldStartByPlayer = {}
+	longworldUsedStarts = {}
+
 def findStartingPlot(argsList):
-	# <!-- custom: Force starts onto the long central strip with even horizontal spacing so high player-count games always get valid starts. (GPT-5.3-Codex) -->
+	# <!-- custom: Force starts onto the long central strip with even horizontal spacing. Preserve assignments across repeated callbacks and skip already-used fallback plots so trimmed strip edges cannot give two players the same start. See KI#246. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	[playerID] = argsList
+	global longworldStartByPlayer
+	global longworldUsedStarts
+	if longworldStartByPlayer.has_key(playerID):
+		return longworldStartByPlayer[playerID]
 	gc = CyGlobalContext()
 	map_obj = CyMap()
 	iW = map_obj.getGridWidth()
@@ -197,18 +212,27 @@ def findStartingPlot(argsList):
 		iX = iW - 1
 	iY = strip_rows[iIndex % len(strip_rows)]
 
+	# <!-- custom: A trimmed or already-used nominal tile enters the nearest-column-first search, which now excludes every plot assigned earlier in this generation. See KI#246. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	iPlot = map_obj.plotNum(iX, iY)
 	pPlot = map_obj.plot(iX, iY)
-	if pPlot.isWater() or pPlot.isImpassable():
+	if pPlot.isWater() or pPlot.isImpassable() or longworldUsedStarts.has_key(iPlot):
 		for dx in range(iW):
 			iTryX = (iX + dx) % iW
 			for iTryY in strip_rows:
 				pTry = map_obj.plot(iTryX, iTryY)
-				if not pTry.isWater() and not pTry.isImpassable():
-					return map_obj.plotNum(iTryX, iTryY)
+				iTryPlot = map_obj.plotNum(iTryX, iTryY)
+				if not pTry.isWater() and not pTry.isImpassable() and not longworldUsedStarts.has_key(iTryPlot):
+					# <!-- custom: Cache the chosen fallback before returning so repeated callbacks stay stable and later players cannot reuse it. See KI#246. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					longworldStartByPlayer[playerID] = iTryPlot
+					longworldUsedStarts[iTryPlot] = True
+					return iTryPlot
 		CyPythonMgr().allowDefaultImpl()
 		return
 
-	return map_obj.plotNum(iX, iY)
+	# <!-- custom: Record a valid nominal assignment too, reserving it against later fallbacks and making repeated callbacks return the same plot. See KI#246. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	longworldStartByPlayer[playerID] = iPlot
+	longworldUsedStarts[iPlot] = True
+	return iPlot
 
 def getGridSize(argsList):
 	if argsList[0] == -1:

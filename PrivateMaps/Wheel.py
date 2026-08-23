@@ -1313,7 +1313,9 @@ def findStartingPlot(argsList):
 
 	# Set up for maximum of 18 players! If more, use default implementation.
 	global bSuccessFlag
-	if bSuccessFlag == False:
+	global bUseDefaultStartPlacement
+	# <!-- custom: SAS introduced bUseDefaultStartPlacement for Wheel games above 18 players, but this final validator ignored it and still constrained 18 players to handcrafted regions. Honor the all-player fallback already used by Hub and Ring. See KI#286. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if bSuccessFlag == False or bUseDefaultStartPlacement == True:
 		return CvMapGeneratorUtil.findStartingPlot(playerID)
 
 	def isValid(playerID, x, y):

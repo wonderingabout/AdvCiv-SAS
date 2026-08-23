@@ -480,15 +480,14 @@ def beforeGeneration():
 	}
 	# End of Templates data.
 
-	# Shuffle start points so that players are assigned templateIDs at random.
-	player_list = []
-	for playerLoop in range(CyGlobalContext().getGame().countCivPlayersEverAlive()):
-		player_list.append(playerLoop)
-	shuffledPlayers = []
-	for playerLoopTwo in range(gc.getGame().countCivPlayersEverAlive()):
-		iChoosePlayer = dice.get(len(player_list), "Shuffling Template IDs - Inland Sea PYTHON")
-		shuffledPlayers.append(player_list[iChoosePlayer])
-		del player_list[iChoosePlayer]
+	# <!-- custom: Inland Sea used compact list positions as real PlayerTypes, so sparse/high-ID players lost their handcrafted regions. Assign shuffled template IDs directly to the actual ever-alive player IDs. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	player_list = range(iPlayers)
+	shuffledPlayers = {}
+	for playerLoop in range(gc.getMAX_CIV_PLAYERS()):
+		if gc.getPlayer(playerLoop).isEverAlive():
+			iChoosePlayer = dice.get(len(player_list), "Shuffling Template IDs - Inland Sea PYTHON")
+			shuffledPlayers[playerLoop] = player_list[iChoosePlayer]
+			del player_list[iChoosePlayer]
 	return 0
 
 def minStartingDistanceModifier():
@@ -525,6 +524,9 @@ def findStartingPlot(argsList):
 		global templates
 		global shuffledPlayers
 		global iTemplateRoll
+		# <!-- custom: The repaired mapping is keyed by actual PlayerTypes rather than compact positions; reject only a genuinely unmapped player. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if not shuffledPlayers.has_key(playerID):
+			return false
 		playerTemplateAssignment = shuffledPlayers[playerID]
 		[fLat, fLon, varX, varY] = templates[(iPlayers, iTemplateRoll)][playerTemplateAssignment]
 

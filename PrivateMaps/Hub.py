@@ -1132,15 +1132,14 @@ def assignStartingPlots():
 		iStartY = regSouthY + int(regHeight / 2)
 		start_plots.append([iStartX, iStartY])
 
-	# Shuffle start points so that players are assigned templateIDs at random.
-	player_list = []
-	for playerLoop in range(gc.getGame().countCivPlayersEverAlive()):
-		player_list.append(playerLoop)
-	shuffledPlayers = []
-	for playerLoopTwo in range(gc.getGame().countCivPlayersEverAlive()):
-		iChoosePlayer = dice.get(len(player_list), "Shuffling Template IDs - Hub PYTHON")
-		shuffledPlayers.append(player_list[iChoosePlayer])
-		del player_list[iChoosePlayer]
+	# <!-- custom: Hub used compact list positions as real PlayerTypes, so sparse/high-ID players lost their handcrafted regions. Assign shuffled template IDs directly to the actual ever-alive player IDs. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	player_list = range(iPlayers)
+	shuffledPlayers = {}
+	for playerLoop in range(gc.getMAX_CIV_PLAYERS()):
+		if gc.getPlayer(playerLoop).isEverAlive():
+			iChoosePlayer = dice.get(len(player_list), "Shuffling Template IDs - Hub PYTHON")
+			shuffledPlayers[playerLoop] = player_list[iChoosePlayer]
+			del player_list[iChoosePlayer]
 
 	# Done setting up variables. Proceed to normal process.
 	CyPythonMgr().allowDefaultImpl()
@@ -1176,7 +1175,8 @@ def findStartingPlot(argsList):
 		global start_plots
 		global iPlotShift
 		global shuffledPlayers
-		if playerID < 0 or playerID >= len(shuffledPlayers):
+		# <!-- custom: The repaired mapping is keyed by actual PlayerTypes rather than compact positions; reject only a genuinely unmapped player. See KI#267. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if not shuffledPlayers.has_key(playerID):
 			return false
 		playerTemplateAssignment = shuffledPlayers[playerID]
 		if playerTemplateAssignment < 0 or playerTemplateAssignment >= len(start_plots):

@@ -722,7 +722,6 @@ def normalizeAddExtras():
 	global regionWidth
 	global regionHeight
 	forest = getInfoTypeOrFail("FEATURE_FOREST")
-	ice = getInfoTypeOrFail("FEATURE_ICE")
 	grass = getInfoTypeOrFail("TERRAIN_GRASS")
 	plains = getInfoTypeOrFail("TERRAIN_PLAINS")
 	desert = getInfoTypeOrFail("TERRAIN_DESERT")
@@ -896,13 +895,11 @@ def normalizeAddExtras():
 					if (not p0.isNone()) and (not p.isNone()):
 						p.setPlotType(p0.getPlotType(), True, True)
 						p.setTerrainType(p0.getTerrainType(), True, True)
+						# <!-- custom: Equal Islands promised exact player-region copies, but preserving independently generated target Ice could leave unequal barriers and copied seafood under impassable Ice.
+						# The hardcoded Ice-preservation branch is therefore intentionally removed; copy source Ice or no-Ice authoritatively before the matching source bonus. See KI#256. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+						p.setFeatureType(p0.getFeatureType(), -1)
 						p.setBonusType(p0.getBonusType(-1))
 						p.setImprovementType(p0.getImprovementType())
-						# don't change ice
-						if p.getFeatureType() != ice:
-							f0 = p0.getFeatureType()
-							if f0 != ice:
-								p.setFeatureType(f0, -1)
 
 			# copy rivers after land, otherwise river crossing counts might be set wrong
 			for x in range(westX0,eastX0+1):
