@@ -6462,6 +6462,7 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 	static const bool bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE");
 	int iSASPercentModifier = 100;
 
+	// <!-- custom: Across the master, vassal and sibling-vassal branches, discount self-research only for knowledge that an internal team can legally transfer. Present AI reluctance may change later, so this path tests legality without denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (bSAS_AI_TECH_VALUE_MASTER_FROM_TO_VASSAL_RESEARCH_PERCENT_OPTIMIZE && iValue > 0 && eFromPlayer == NO_PLAYER)
 	{
 		// (1) Master: devalue techs that our vassals already know
@@ -6470,7 +6471,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 			for (TeamIter<ALIVE, VASSAL_OF> itVassal(getTeam()); itVassal.hasNext(); ++itVassal)
 			{
 				CvTeam const& kVassal = *itVassal;
-				if (!kVassal.isHasTech(eTech))
+				// <!-- custom: isHasTech also accepted knowledge the vassal could not legally transfer; require a legal future source without freezing its current denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (!kTeam.AI_canTradeTechFrom(eTech, kVassal.getID(), false))
 					continue;
 
 				static const int iSAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_MASTER_FROM_VASSAL_TECH_RESEARCH_PERCENT");
@@ -6486,7 +6488,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 		{
 			TeamTypes const eMasterTeam = kTeam.getMasterTeam();
 			// Master
-			if (eMasterTeam != NO_TEAM && GET_TEAM(eMasterTeam).isHasTech(eTech))
+			// <!-- custom: isHasTech also accepted knowledge the master could not legally transfer; require a legal future source without freezing its current denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (eMasterTeam != NO_TEAM && kTeam.AI_canTradeTechFrom(eTech, eMasterTeam, false))
 			{
 				static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_MASTER_TECH_RESEARCH_PERCENT");
 
@@ -6500,7 +6503,8 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 					CvTeam const& kSibling = *itSibling;
 					if (kSibling.getID() == kTeam.getID())
 						continue; // skip ourselves
-					if (!kSibling.isHasTech(eTech))
+					// <!-- custom: isHasTech also accepted knowledge the sibling vassal could not legally transfer; require a legal future source without freezing its current denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if (!kTeam.AI_canTradeTechFrom(eTech, kSibling.getID(), false))
 						continue;
 
 					static const int iSAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT = GC.getDefineINT("SAS_AI_TECH_VALUE_VASSAL_FROM_VASSALS_TECH_RESEARCH_PERCENT");
@@ -23259,106 +23263,18 @@ void CvPlayerAI::AI_doDiplo()
 							}
 						}
 
-						// <!-- custom: do not contact players outside our master-vassal(s) locus for a tech trade if any member of our locus have this tech (in the hopes we get it from them rather). -->
-						// <!-- SAS vassalMasterFirstTechTrade: Prefer getting techs from our master/vassal locus instead of buying them from outsiders when possible. -->
-						// Conceptually:
-						// 	- For each potential trade partner ePlayer, the AI already:
-						// 	- Rolls for contact (AI_contactRoll(CONTACT_TRADE_TECH, rContactProbMult)),
-						// 	- Picks a best tech we’d like to receive from them (eBestReceiveTech),
-						// Then tries to find something to give in return.
-						// We add a “cluster redirect" step:
-						// 	- If this partner is outside our master–vassal locus,
-						// 	- And if any of our locus partners (master or vassals / sibling vassals) has that same eBestReceiveTech and is willing to trade it,
-						// 	- Then we drop eBestReceiveTech for this outsider and let the normal logic later pick up a trade with the locus partner instead (helped by the contact multipliers we already added).
-						// This doesn’t force a trade with the master/vassal – it just says: “don’t buy that tech from outsiders if there’s a viable internal source." So it’s conservative: it can only reduce external tech trades, never block internal ones.
+						// <!-- custom: Prefer a master/vassal-locus source over an outsider only when the shared predicate finds an immediately legal and non-denied internal deal.
+						// This prevents No Tech Trading, non-tradeable and no-broker copies from suppressing a viable outsider offer. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 						static const bool bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE");
 						if (bSAS_AI_DO_DIPLO_TECH_TRADE_MASTER_VASSALS_CLUSTER_FIRST_OPTIMIZE && eBestReceiveTech != NO_TECH)
 						{
-							// Only re-route when ePlayer is truly "outside" our locus:
-							//  - not our team,
-							//  - not our vassal,
-							//  - not our master.
-							if (eTheirTeam != eOurTeam && !GET_TEAM(eTheirTeam).isVassal(eOurTeam) && !kOurTeam.isVassal(eTheirTeam))
+							// <!-- custom: Only re-route when ePlayer is outside our complete master/vassal/sibling-vassal preference locus. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+							if (!kOurTeam.AI_isLocusMember(eTheirTeam))
 							{
-								bool bClusterHasAlternative = false;
-
-								// (1) If we are a vassal: check our master and sibling vassals
-								if (kOurTeam.isAVassal())
-								{
-									if (eMasterTeam != NO_TEAM)
-									{
-										// <!-- custom: fix compile error by using a CvTeamAI instead of undeclared GET_TEAM(eMasterTeam).
-										// 1>..\CvPlayerAI.cpp(22321): error C2039: 'AI_techTrade' : is not a member of 'CvTeam'
-										// 1>          c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
-										// 1>..\CvPlayerAI.cpp(22346): error C2039: 'AI_techTrade' : is not a member of 'CvTeam'
-										// 1>          c:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\CvGameCoreDLL\CvTeam.h(14) : see declaration of 'CvTeam'
-										// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2' -->
-										CvTeamAI const& kMaster = GET_TEAM(eMasterTeam);
-										if (kMaster.isHasTech(eBestReceiveTech) && kMaster.AI_techTrade(eBestReceiveTech, eOurTeam) == NO_DENIAL)
-										{
-											bClusterHasAlternative = true;
-										}
-										else
-										{
-											// Sibling vassals of the same master
-											// <!-- custom: fix compile error, use TeamAIIter instead of TeamIter.
-											// 1>..\CvPlayerAI.cpp(22323): error C2440: 'initializing' : cannot convert from 'CvTeam' to 'const CvTeamAI &'
-											// 1>          Reason: cannot convert from 'CvTeam' to 'const CvTeamAI'
-											// 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
-											// 1>..\CvPlayerAI.cpp(22343): error C2440: 'initializing' : cannot convert from 'CvTeam' to 'const CvTeamAI &'
-											// 1>          Reason: cannot convert from 'CvTeam' to 'const CvTeamAI'
-											// 1>          No constructor could take the source type, or constructor overload resolution was ambiguous
-											// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'-->
-											for (TeamAIIter<ALIVE, VASSAL_OF> itSibling(eMasterTeam); itSibling.hasNext() && !bClusterHasAlternative; ++itSibling)
-											{
-												CvTeamAI const& kSibling = *itSibling; // <-- CvTeamAI, not CvTeam
-												if (kSibling.getID() == eOurTeam)
-													continue; // skip ourselves
-												if (!kSibling.isHasTech(eBestReceiveTech))
-													continue;
-												if (kSibling.AI_techTrade(eBestReceiveTech, eOurTeam) == NO_DENIAL)
-												{
-													bClusterHasAlternative = true;
-													break;
-												}
-											}
-										}
-									}
-								}
-
-								// (2) If we are a master: check our vassals
-								if (!bClusterHasAlternative && kOurTeam.getVassalCount(NO_TEAM) > 0)
-								{
-									// <!-- custom: fix compile error, use TeamAIIter instead of TeamIter -->
-									for (TeamAIIter<ALIVE, VASSAL_OF> itVassal(eOurTeam); itVassal.hasNext(); ++itVassal)
-									{
-										CvTeamAI const& kVassal = *itVassal; // <-- CvTeamAI
-										TeamTypes eVassalTeam = kVassal.getID();
-
-										// Sanity; shouldn't normally be the outsider we're currently talking to
-										if (eVassalTeam == eTheirTeam)
-											continue;
-
-										if (!kVassal.isHasTech(eBestReceiveTech))
-											continue;
-
-										if (kVassal.AI_techTrade(eBestReceiveTech, eOurTeam) == NO_DENIAL)
-										{
-											bClusterHasAlternative = true;
-											break;
-										}
-									}
-								}
-
-								// If someone in the master–vassal cluster can trade this tech to us,
-								// don't buy it from the outsider; leave it for a "cluster" deal.
-								if (bClusterHasAlternative)
-								{
+								if (kOurTeam.AI_hasLocusTechTradeSource(eBestReceiveTech, eTheirTeam, true))
 									eBestReceiveTech = NO_TECH;
-								}
 							}
 						}
-						// End - SAS vassalMasterFirstTechTrade: prefer locus over outsiders
 
 						if (eBestReceiveTech != NO_TECH)
 						{

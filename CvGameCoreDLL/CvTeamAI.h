@@ -103,6 +103,12 @@ public:
 	// advc.550a <!-- custom: hoisted from multiline signature between `bIgnoreDiscount` and `bPeaceDeal` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	int AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnoreDiscount = false, bool bPeaceDeal = false) const; // advc.140h
 	DenialTypes AI_techTrade(TechTypes eTech, TeamTypes eToTeam) const;
+	// <!-- custom: Identify the complete master/vassal/sibling-vassal preference locus so internal sellers are not mistaken for outsiders. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool AI_isLocusMember(TeamTypes eTeam) const;
+	// <!-- custom: Replace raw isHasTech checks with the real player-level technology-transfer contract, optionally including AI denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool AI_canTradeTechFrom(TechTypes eTech, TeamTypes eSourceTeam, bool bTestDenial) const;
+	// <!-- custom: Search the complete preference locus for an actual legal source while excluding the outsider currently being evaluated. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool AI_hasLocusTechTradeSource(TechTypes eTech, TeamTypes eExcludedSourceTeam, bool bTestDenial) const;
 
 	int AI_mapTradeVal(TeamTypes eFromTeam) const;
 	DenialTypes AI_mapTrade(TeamTypes eToTeam) const;

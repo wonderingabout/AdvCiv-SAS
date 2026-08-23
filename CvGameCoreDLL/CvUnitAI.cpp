@@ -2693,6 +2693,18 @@ static bool SAS_shouldLogWorkerIrrigationRouteFailure(CvCityAI const& kCity, CvP
 	return aeLoggedTargets.insert(std::make_pair(kCity.plot()->plotNum(), kTargetPlot.plotNum())).second;
 }
 
+// <!-- custom: Positive build progress can remain after a Worker is interrupted and then persist before decaying. Treat a Farm as committed only while a same-owner unit is on the plot with that exact MISSION_BUILD active; this prevents stale progress from supplying imaginary future food or irrigation. See KI#296. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static bool SAS_isWorkerBuildActivelyCommitted(CvPlot const& kPlot, PlayerTypes eOwner, BuildTypes eBuild)
+{
+	FOR_EACH_UNIT_IN(pUnit, kPlot)
+	{
+		CvSelectionGroup const* pGroup = pUnit->getGroup();
+		if (pUnit->getOwner() == eOwner && pGroup != NULL && pGroup->getMissionType(0) == MISSION_BUILD && pGroup->getMissionData1(0) == eBuild)
+			return true;
+	}
+	return false;
+}
+
 // <!-- custom: The former four-plot target-side irrigation hunt could select one connector and then forget the intended route, while existing bonus Farms were excluded entirely. Search an actual owned farmable route from the dry BFC target to currently available irrigation and return the least-cost source-side Farm that can be built now. Repeating this after each completed Farm advances the same water connection toward the target; route cost prefers short chains and avoids replacing valuable improvements. (GPT-5.6-Sol) -->
 static bool SAS_findWorkerIrrigationChainStep(CvUnitAI const& kUnit, CvPlot& kTargetPlot, CvPlot const* pIgnorePlot, BuildTypes eBuildFarm, ImprovementTypes eImprovementFarm, ImprovementTypes eImprovementWorkshop, int iMaxPlots, int iGrowthOverwritePenalty, int iWorkshopOverwritePenalty, int iOtherOverwritePenalty, CvPlot*& pStepPlot, int& iRoutePlots, int& iRouteOverwritePenalty, SASWorkerIrrigationSearchDiagnostics* pDiagnostics)
 {
@@ -2968,7 +2980,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	// <!-- custom: count farms already being built in BFC to avoid over-farming.
 	// When multiple workers evaluate simultaneously, each one sees low food and picks farm.
 	// By pre-crediting the food from in-progress farms, subsequent workers see a higher
-	// effective surplus and choose cottages/workshops instead. (Claude code Opus 4.6) -->
+	// effective surplus and choose cottages/workshops instead. Require a live Farm mission because interrupted progress persists without a Worker commitment. See KI#296. (Claude code Opus 4.6 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int iFoodFromFarmsBeingBuiltInBFC = 0;
 	int iBFCMineFoodSupportPressure = 0;
 
@@ -2994,7 +3006,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			}
 		}
 
-		if (kBFCPlot.getBuildProgress(eBuildFarm) > 0)
+		if (SAS_isWorkerBuildActivelyCommitted(kBFCPlot, getOwner(), eBuildFarm))
 			iFoodFromFarmsBeingBuiltInBFC += kBFCPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner());
 	}
 
@@ -3266,7 +3278,9 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			// <!-- custom: note however that as for bonus tiles, they don't follow this logic: still overwrite a banana hamlet or even town, they shouldn't have been there at all ideally as per our code, but if they are or some other code handled it as such, then do not let the stupid banana hamlet or town persist, we'd get just as much yields with a regular plantation, connecting the bonus as a side effect -->
 			ImprovementTypes const ePlotCurrentImprovement = kPlot.getImprovementType();
 
-			// <!-- custom: Treat non-bonus farms as support infrastructure, not only emergency anti-starvation. In low-food or hill-heavy cities, a strong farm can unlock food-consuming mines, faster growth, or specialists. After chain irrigation, a farm can also carry water from a river/freshwater tile to a dry tile behind it; if this plot gets a cottage/workshop instead, that later dry farm may not be possible without wasting worker turns and, for cottages, growth time. Score farms against cottages/workshops using actual plot/player farm food and irrigation state, and taper the bonus once the city already has healthy surplus so this remains targeted support rather than broad irrigation spam. (GPT-5.5) -->
+			// <!-- custom: Treat non-bonus farms as support infrastructure, not only emergency anti-starvation. In low-food or hill-heavy cities, a strong farm can unlock food-consuming mines, faster growth, or specialists.
+			// After chain irrigation, a farm can also carry water from a river/freshwater tile to a dry tile behind it; if this plot gets a cottage/workshop instead, that later dry farm may not be possible without wasting worker turns and, for cottages, growth time.
+			// Score farms against cottages/workshops using actual plot/player farm food and irrigation state, and taper the bonus once the city already has healthy surplus so this remains targeted support rather than broad irrigation spam. (GPT-5.5) -->
 			bool const bCanBuildFarm = canBuild(kPlot, eBuildFarm);
 			int const iFarmFoodYieldChange = (bCanBuildFarm ? kPlot.calculateImprovementYieldChange(eImprovementFarm, YIELD_FOOD, getOwner()) : 0);
 			bool const bFarmGetsStrongFood = (iFarmFoodYieldChange >= 2);
@@ -3274,9 +3288,10 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 			bool const bFarmCanCarryIrrigation = (GET_TEAM(getTeam()).isIrrigation() && kPlot.canHavePotentialIrrigation() && kPlot.isIrrigationAvailable(true));
 			bool const bFarmGoodIrrigationTile = (bFarmCanCarryIrrigation || (kPlot.isFreshWater() && kPlot.canHavePotentialIrrigation()));
 			int iAdjacentDryFarmsIrrigatedByThisFarm = 0;
-			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && kPlot.getBuildProgress(eBuildFarm) <= 0)
+			if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && !kPlot.isHills() && bCanBuildFarm && bFarmCanCarryIrrigation && !SAS_isWorkerBuildActivelyCommitted(kPlot, getOwner(), eBuildFarm))
 			{
-				// <!-- custom: Hunt concrete chain-irrigation fixes, not abstract irrigation paths. In the Nippur 2014 AD test save, existing farms stayed dry because the missing water-carrying farm could be in another city's BFC and that plot had a cottage/workshop instead. If farming this exact plot would irrigate adjacent existing dry farms, value it enough to replace basic non-food improvements; skip dry farms already reachable or already being fixed by another in-progress farm so workers do not pile onto irrigation speculation. (GPT-5.5) -->
+				// <!-- custom: Hunt concrete chain-irrigation fixes, not abstract irrigation paths. In the Nippur 2014 AD test save, existing farms stayed dry because the missing water-carrying farm could be in another city's BFC and that plot had a cottage/workshop instead.
+				// If farming this exact plot would irrigate adjacent existing dry farms, value it enough to replace basic non-food improvements; skip dry farms already reachable or already being fixed by another in-progress farm so workers do not pile onto irrigation speculation. (GPT-5.5) -->
 				for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 				{
 					CvPlot* pAdjacentDryFarm = plotDirection(kPlot.getX(), kPlot.getY(), (DirectionTypes)iI);
@@ -3286,7 +3301,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 					for (int iJ = 0; iJ < NUM_DIRECTION_TYPES; iJ++)
 					{
 						CvPlot* pOtherPossibleSource = plotDirection(pAdjacentDryFarm->getX(), pAdjacentDryFarm->getY(), (DirectionTypes)iJ);
-						if (pOtherPossibleSource != NULL && pOtherPossibleSource != &kPlot && pOtherPossibleSource->getBuildProgress(eBuildFarm) > 0 && pOtherPossibleSource->canHavePotentialIrrigation() && pOtherPossibleSource->isIrrigationAvailable(true))
+						if (pOtherPossibleSource != NULL && pOtherPossibleSource != &kPlot && SAS_isWorkerBuildActivelyCommitted(*pOtherPossibleSource, getOwner(), eBuildFarm) && pOtherPossibleSource->canHavePotentialIrrigation() && pOtherPossibleSource->isIrrigationAvailable(true))
 						{
 							bAdjacentDryFarmAlreadyGettingIrrigation = true;
 							break;

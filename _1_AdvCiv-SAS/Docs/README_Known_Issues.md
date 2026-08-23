@@ -364,6 +364,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [294 - (Fixed inherited Firaxis/Warlords bug) Mirror assumed the two teams had IDs 0 and 1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#294---fixed-inherited-firaxiswarlords-bug-mirror-assumed-the-two-teams-had-ids-0-and-1)\
 [294.2 - (Fixed AdvCiv-SAS bug) Mirror's compact Arena grid could produce NULL starts and immediate defeat](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2942---fixed-advciv-sas-bug-mirrors-compact-arena-grid-could-produce-null-starts-and-immediate-defeat)\
 [295 - (Fixed inherited Firaxis/Warlords bug) Inland Sea could form empty 17-player start regions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#295---fixed-inherited-firaxiswarlords-bug-inland-sea-could-form-empty-17-player-start-regions)\
+[296 - (Fixed AdvCiv-SAS bug) Residual Farm progress was treated as an active Worker commitment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#296---fixed-advciv-sas-bug-residual-farm-progress-was-treated-as-an-active-worker-commitment)\
 [297 - (Fixed AdvCiv-SAS bug) Highlands always kept its north-cold climate orientation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#297---fixed-advciv-sas-bug-highlands-always-kept-its-north-cold-climate-orientation)\
 [298 - (Fixed AdvCiv-SAS bug) Highlands Arena could lack legal sites for 48 civilizations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#298---fixed-advciv-sas-bug-highlands-arena-could-lack-legal-sites-for-48-civilizations)\
 [298.2 - (Fixed AdvCiv-SAS bug) Highlands was undersized beyond the Arena capacity case](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#2982---fixed-advciv-sas-bug-highlands-was-undersized-beyond-the-arena-capacity-case)\
@@ -381,6 +382,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [309 - (Fixed AdvCiv-SAS bug) AI religion value counted full team and vassal-bloc power once per non-vassal team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#309---fixed-advciv-sas-bug-ai-religion-value-counted-full-team-and-vassal-bloc-power-once-per-non-vassal-team-member)\
 [310 - (Fixed AdvCiv-SAS bug) Water-heavy AI city fallback could leave production empty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#310---fixed-advciv-sas-bug-water-heavy-ai-city-fallback-could-leave-production-empty)\
 [311 - (Rejected archaeology finding) GET_TEAM(PlayerTypes) correctly resolves the player's team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#311---rejected-archaeology-finding-get_teamplayertypes-correctly-resolves-the-players-team)\
+[312 - (Fixed AdvCiv-SAS bug) Master/vassal technology preferences treated legally unavailable knowledge as supply](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#312---fixed-advciv-sas-bug-mastervassal-technology-preferences-treated-legally-unavailable-knowledge-as-supply)\
 [315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#315---fixed-advciv-sas-bug-active-unlimited-specialist-civics-subtracted-their-own-benefit)\
 [316 - (Fixed AdvCiv-SAS bug) Unlimited-specialist civic value ignored baseline Great Person Points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#316---fixed-advciv-sas-bug-unlimited-specialist-civic-value-ignored-baseline-great-person-points)\
 [317 - (Fixed AdvCiv-SAS bug) Civic-anger valuation skipped cities that would become unhappy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#317---fixed-advciv-sas-bug-civic-anger-valuation-skipped-cities-that-would-become-unhappy)\
@@ -8928,6 +8930,14 @@ The fix clamps each template center inside the safety envelope before constructi
 
 This start-region bug is inherited from Firaxis/Warlords Inland Sea. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
+## 296 - (Fixed AdvCiv-SAS bug) Residual Farm progress was treated as an active Worker commitment
+
+AdvCiv-SAS pre-credits future Farm food so multiple Workers do not all react to the same apparent food shortage. It formerly treated any positive `BUILD_FARM` progress as proof that another Worker was delivering that Farm. Civ4 deliberately retains interrupted build progress for eight turns before decay begins, so a chased, cancelled or reassigned Worker could leave residual progress that supplied imaginary future food for many turns. Irrigation-chain scoring reused the same assumption, allowing abandoned progress to suppress a real connector Farm.
+
+The fix centralizes a live-build-commitment predicate. A Farm counts as promised only when a same-owner unit is physically on the plot and its selection group's active head mission is `MISSION_BUILD` for `BUILD_FARM`. The BFC future-food credit, candidate reservation and alternate irrigation-source test now share that contract; genuine simultaneous Worker coordination remains intact while residual progress alone has no strategic effect. A full autoplay reached turn 436 and ended normally by Space Race; its BBAI log exercised 1,437 Worker assignments and thousands of irrigation-chain evaluations, with an empty Python error log. This is strong hot-path regression coverage, although the exact interrupted-partial-Farm state was not deliberately reproduced.
+
+This is an AdvCiv-SAS Worker-AI regression introduced with future-Farm coordination and broadened by irrigation-chain logic. Found and investigated through archaeology with the help of ChatGPT-5.6-Sol, fixed with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
+
 ## 297 - (Fixed AdvCiv-SAS bug) Highlands always kept its north-cold climate orientation
 
 Highlands is intended to randomize whether its cold region lies in the north or south. AdvCiv-SAS added a safe module-level default for `shiftMultiplier` but removed the `global` declaration from `beforeInit()`. The RNG roll was still consumed, but each assignment became function-local and was discarded; all later latitude callbacks continued reading the north-cold default.
@@ -9083,6 +9093,14 @@ Deeper lineage and accessor review rejected that diagnosis. In AI source, AdvCiv
 The proposed explicit conversions were semantic no-ops and were removed before compilation. KI#311 is retained as a rejected entry so future audits can find the overload evidence instead of rediscovering the same false positive. This is neither a BtS bug nor an AdvCiv/SAS bug.
 
 Initially identified through the systematic archaeology with the help of ChatGPT-5.6-Sol; rejected and documented after local source/accessor/lineage review with the help of GPT-5.6-Sol, thanks.
+
+## 312 - (Fixed AdvCiv-SAS bug) Master/vassal technology preferences treated legally unavailable knowledge as supply
+
+Three AdvCiv-SAS master/vassal optimizations inferred an internal technology source from `isHasTech()` alone. Self-research could therefore be heavily devalued during No Tech Trading or for one of the 32 current non-tradeable technologies. Under No Tech Brokering, a no-broker internal copy could suppress a valid outsider contact. Outsider trade valuation could likewise be discounted even though no locus member could legally supply the technology.
+
+The fix centralizes exact recipient-side predicates in `CvTeamAI`. They test the real player-level `canTradeItem` contract across source and recipient team members, covering No Tech Trading, per-technology tradeability, no-broker/no-trade state and recipient research legality. Self-research and outsider valuation allow a currently reluctant source to become willing later but require legal transferability; immediate contact redirection additionally requires `NO_DENIAL`. The existing master/vassal percentages and preference policy remain unchanged. A full turn-436 autoplay completed normally with technology trading and multiple master/vassal relationships active; this smoke-tests the shared paths, while the individual No Tech Trading and No Tech Brokering edge cases remain source-verified rather than separately reproduced.
+
+This is one AdvCiv-SAS technology-supply legality regression shared by the research, outsider-valuation and contact-redirection optimizations. Found and investigated through archaeology with the help of ChatGPT-5.6-Sol, fixed with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.
 
 ## 315 - (Fixed AdvCiv-SAS bug) Active unlimited-specialist civics subtracted their own benefit
 

@@ -1979,6 +1979,51 @@ scaled CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const
 	return 1 + r; // </advc.551>
 }
 
+// <!-- custom: Treat a master, any of its vassals and sibling vassals as one preference locus. This prevents an internal seller from being mistaken for an outsider merely because another internal source exists. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvTeamAI::AI_isLocusMember(TeamTypes eTeam) const
+{
+	if (eTeam == NO_TEAM)
+		return false;
+	TeamTypes const eAnchorTeam = (isAVassal() ? getMasterTeam() : getID());
+	if (eAnchorTeam == NO_TEAM)
+		return false;
+	return (eTeam == eAnchorTeam || GET_TEAM(eTeam).isVassal(eAnchorTeam));
+}
+
+// <!-- custom: Test the real player-level trade contract instead of treating team knowledge as supply. This covers No Tech Trading, non-tradeable technologies, No Tech Brokering/no-trade state, recipient research legality and optionally the source's denial. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvTeamAI::AI_canTradeTechFrom(TechTypes eTech, TeamTypes eSourceTeam, bool bTestDenial) const
+{
+	if (eSourceTeam == NO_TEAM || eSourceTeam == getID())
+		return false;
+	TradeData const kTechTrade(TRADE_TECHNOLOGIES, eTech);
+	for (MemberIter itSource(eSourceTeam); itSource.hasNext(); ++itSource)
+	{
+		for (MemberIter itRecipient(getID()); itRecipient.hasNext(); ++itRecipient)
+		{
+			if (itSource->canTradeItem(itRecipient->getID(), kTechTrade, bTestDenial))
+				return true;
+		}
+	}
+	return false;
+}
+
+// <!-- custom: Search the recipient team's actual master/vassal locus for a legal technology source, excluding the external seller currently being evaluated. Centralizing this keeps self-research, outsider valuation and contact redirection on the same supply contract. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvTeamAI::AI_hasLocusTechTradeSource(TechTypes eTech, TeamTypes eExcludedSourceTeam, bool bTestDenial) const
+{
+	TeamTypes const eAnchorTeam = (isAVassal() ? getMasterTeam() : getID());
+	if (eAnchorTeam == NO_TEAM)
+		return false;
+	if (eAnchorTeam != getID() && eAnchorTeam != eExcludedSourceTeam && AI_canTradeTechFrom(eTech, eAnchorTeam, bTestDenial))
+		return true;
+	for (TeamIter<ALIVE, VASSAL_OF> itVassal(eAnchorTeam); itVassal.hasNext(); ++itVassal)
+	{
+		TeamTypes const eVassalTeam = itVassal->getID();
+		if (eVassalTeam != getID() && eVassalTeam != eExcludedSourceTeam && AI_canTradeTechFrom(eTech, eVassalTeam, bTestDenial))
+			return true;
+	}
+	return false;
+}
+
 // advc (comment): How much this CvTeam is willing to pay to eFromTeam for eTech
 // advc.550a <!-- custom: hoisted from multiline signature between `bIgnoreDiscount` and `bPeaceDeal` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnoreDiscount, bool bPeaceDeal) const // advc.140h
@@ -2093,62 +2138,12 @@ int CvTeamAI::AI_techTradeVal(TechTypes eTech, TeamTypes eFromTeam, bool bIgnore
 		// End - SAS techTradePowerDanger
 	} // </advc.550a>
 
-	// <!-- custom: if a tech is in our master-vassal(s) locus, then we devalue it in tech trades with outsiders who'd want to sell it to us (since we can rather get it from our locus to make ourselves stronger); code added with the help of chatgpt 5.1 and with claude sonnet 4.5's review as well thanks, check if accurate -->
-	// Right, nice next step – this is basically the “backup sanity check" in case an outsider does get to the trade table with a tech your locus already has.
-	// Conceptually:
-	// If any team in our master–vassal cluster already knows eTech, and the offering team is not part of that cluster, then we value the tech less from them, because we have (or could have) an internal source.
-	// Notes:
-	// 	- We reuse the same master/vassal cluster logic style you already used in the research code.
-	// 	- We explicitly do not penalize when eFromTeam is a member of our cluster: master, vassal, or sibling vassal of the same master.
-	// 	- This block is independent of bIgnoreDiscount and the power/tech discount logic: it represents a different idea (“local alternative source"), so it’s cleaner to keep separate.
+	// <!-- custom: Devalue an outsider's technology only when the shared exact predicate finds a legally transferable internal source. This retains the intended locus preference without discounting for knowledge that cannot actually be supplied. See KI#312. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	static const bool bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE = GC.getDefineBOOL("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE");
-	if (bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE && !isHasTech(eTech)) // we wouldn't normally trade for tech we already own
+	if (bSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_OPTIMIZE && !isHasTech(eTech) && !AI_isLocusMember(eFromTeam) && AI_hasLocusTechTradeSource(eTech, eFromTeam, false))
 	{
-		// Define the "anchor" for our locus: master if we're a vassal, otherwise ourselves.
-		TeamTypes eAnchor = getID();
-		if (isAVassal())
-		{
-			const TeamTypes eMasterTeam = getMasterTeam();
-			if (eMasterTeam != NO_TEAM)
-				eAnchor = eMasterTeam;
-		}
-
-		bool bClusterHasTech = false;
-		bool bFromInCluster = false;
-
-		// Anchor itself
-		if (GET_TEAM(eAnchor).isHasTech(eTech))
-			bClusterHasTech = true;
-		if (eFromTeam == eAnchor)
-			bFromInCluster = true;
-
-		// All vassals of the anchor (includes us if we're a vassal of the anchor)
-		for (TeamAIIter<ALIVE, VASSAL_OF> it(eAnchor); it.hasNext(); ++it)
-		{
-			const TeamTypes eVassal = it->getID();
-
-			if (eVassal == getID())
-				continue; // We already know !isHasTech(eTech), so skip ourselves.
-
-			if (eVassal == eFromTeam)
-				bFromInCluster = true;
-
-			if (it->isHasTech(eTech))
-				bClusterHasTech = true;
-
-			if (bClusterHasTech && bFromInCluster)
-				break; // Nothing more to learn; early exit.
-		}
-
-		// If someone in our locus has the tech and eFromTeam is *not* in that locus,
-		// then this is a "redundant" external source → devalue it.
-		if (bClusterHasTech && !bFromInCluster)
-		{
-			static const int iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT");
-			// e.g. 70 => pay only 70% as much to outsiders,
-			// since we "should" try to get it from our locus instead.
-			rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT);
-		}
+		static const int iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT = GC.getDefineINT("SAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT");
+		rValue *= per100(iSAS_AI_TECH_TRADE_VAL_MASTER_VASSAL_CLUSTER_KNOWN_PERCENT);
 	}
 
 	// <advc.550g>
