@@ -521,7 +521,8 @@ public:
 	std::string getScriptData() const;																	// Exposed to Python
 	void setScriptData(std::string szNewValue);															// Exposed to Python
 
-	bool isPastCityName(CvWString& szName) const; // advc.005c: was "isDestroyedCityName"
+	// <!-- custom: Past-city lookup compares raw canonical keys/literals and their current rendered text. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool isPastCityName(CvWString const& szName) const; // advc.005c: was "isDestroyedCityName"
 	void addPastCityName(CvWString const& szName); // advc.005c: was "addDestroyedCityName"
 
 	bool isGreatPersonBorn(CvWString& szName) const;

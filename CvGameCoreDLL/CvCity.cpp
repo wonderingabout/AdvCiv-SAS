@@ -8894,8 +8894,9 @@ void CvCity::setName(const wchar* szNewValue, bool bFound, /* advc.106k: */ bool
 				m_szPreviousName = m_szName; // </advc.106k>
 			// <advc.005c>
 			// <!-- custom: Do not record the temporary placeholder name assigned by CvCity::init as a past city name when acquireCity immediately replaces it with the preserved old-city name. This also avoids an unnecessary getName text lookup in the city-transfer path. See KI#161.2. (ChatGPT-5.5) -->
+			// <!-- custom: Replace the old getName() call with m_szName below so the past-name registry stores the old raw key/literal as stable identity rather than its current translated display. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (!bInitial && !m_szName.empty())
-				GC.getGame().addPastCityName(getName()); // </advc.005c>
+				GC.getGame().addPastCityName(m_szName); // </advc.005c>
 			m_szName = szName;
 
 			setInfoDirty(true);

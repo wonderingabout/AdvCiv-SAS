@@ -6211,12 +6211,15 @@ void CvGame::setName(TCHAR const* szName)
 }
 
 
-bool CvGame::isPastCityName(CvWString& szName) const
+// <!-- custom: Accept the name by const reference because lookup does not modify it and generated-name callers now pass raw canonical keys.
+// Past cities store raw canonical keys or literal names. Match exact identity first and current rendered text second, preserving both cross-language canonical reservation and visible duplicate prevention. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvGame::isPastCityName(CvWString const& szName) const
 {
+	CvWString const szDisplayName = gDLL->getObjectText(szName, 0, true);
 	std::vector<CvWString>::const_iterator it;
 	for (it = m_aszPastCities.begin(); it != m_aszPastCities.end(); ++it)
 	{
-		if (*it == szName)
+		if (*it == szName || gDLL->getObjectText(*it, 0, true) == szDisplayName)
 			return true;
 	}
 	return false;
@@ -6225,6 +6228,7 @@ bool CvGame::isPastCityName(CvWString& szName) const
 
 void CvGame::addPastCityName(CvWString const& szName)
 {
+	// <!-- custom: Callers pass the raw canonical key or literal name so this registry does not freeze one language's display text. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	m_aszPastCities.push_back(szName);
 }
 

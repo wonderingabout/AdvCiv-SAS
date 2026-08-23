@@ -91,7 +91,8 @@ public:
 	void killCities();																								// Exposed to Python
 	CvWString getNewCityName() const;																				// Exposed to Python
 	void getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eCivilization) const;
-	bool isCityNameValid(CvWString& szName, bool bTestPast = true) const;
+	// <!-- custom: Accept raw canonical keys or literal names so city-name identity remains stable across language changes. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool isCityNameValid(CvWString const& szName, bool bTestPast = true) const;
 
 	// advc.003u: Set this default here rather than in CvUnit::init <!-- custom: hoisted from multiline signature between `eUnitAI` and `eFacingDirection` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, DirectionTypes eFacingDirection = DIRECTION_SOUTH); // Exposed to Python

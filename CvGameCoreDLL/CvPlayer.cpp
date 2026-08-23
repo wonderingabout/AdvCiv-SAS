@@ -2216,10 +2216,9 @@ CvWString CvPlayer::getNewCityName() const
 			continue;
 		}
 
-		szName = gDLL->getText(pNode->m_data); // (temp use of the buffer)
-		if (isCityNameValid(szName, true))
+		// <!-- custom: Validate the stored city-name key, not its current translation. The validity helper also compares current display text, preserving manual duplicate-name checks while making past-name identity language-independent. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (isCityNameValid(pNode->m_data, true))
 			szName = pNode->m_data;
-		else szName.clear(); // clear the buffer if the name is not valid!
 	}
 	/*	Note: unfortunately, the name-skipping system in getCivilizationCityName
 		does not apply here. */
@@ -2288,8 +2287,9 @@ void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eC
 			continue;
 		}
 
-		CvWString szName = gDLL->getText(szCityNameKey);
-		if (isCityNameValid(szName, true))
+		// <!-- custom: Keep the canonical XML text key as the generated-name identity. Translating before validation made the past/former-city registry language-dependent. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvWString const szNameKey(szCityNameKey);
+		if (isCityNameValid(szNameKey, true))
 		{
 			szBuffer = szCityNameKey;
 			break;
@@ -2298,8 +2298,10 @@ void CvPlayer::getCivilizationCityName(CvWString& szBuffer, CivilizationTypes eC
 }
 
 
-bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
+bool CvPlayer::isCityNameValid(CvWString const& szName, bool bTestPast) const
 {
+	// <!-- custom: Compare both stable stored identity and current rendered text. Canonical keys remain reserved across language changes, while literal/manual names still cannot duplicate what the player currently sees. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvWString const szDisplayName = gDLL->getObjectText(szName, 0, true);
 	if (bTestPast) // (advc.005c: renamed from "bTestDestroyed")
 	{
 		if (GC.getGame().isPastCityName(szName))
@@ -2309,7 +2311,7 @@ bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
 		{
 			FOR_EACH_CITY(pLoopCity, *it)
 			{
-				if (pLoopCity->getName() == szName)
+				if (szName == pLoopCity->getNameKey() || pLoopCity->getName() == szDisplayName)
 					return false;
 			}
 		}
@@ -2318,7 +2320,7 @@ bool CvPlayer::isCityNameValid(CvWString& szName, bool bTestPast) const
 
 	FOR_EACH_CITY(pLoopCity, *this)
 	{
-		if (pLoopCity->getName() == szName)
+		if (szName == pLoopCity->getNameKey() || pLoopCity->getName() == szDisplayName)
 			return false;
 	}
 	return true;
@@ -4742,7 +4744,8 @@ void CvPlayer::disband(CvCity& kCity) // advc: param was CvCity*
 {
 	if (getNumCities() == 1)
 		setFoundedFirstCity(false);
-	GC.getGame().addPastCityName(kCity.getName());
+	// <!-- custom: Preserve the disbanded city's raw canonical key or literal name in the past-name registry; a translated display string is not stable identity. See KI#325. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	GC.getGame().addPastCityName(kCity.getNameKey());
 	kCity.kill(true);
 }
 
