@@ -339,6 +339,16 @@ def getDescription():
 worldTypes = []
 chosenWorldType = -1
 
+# <!-- custom: Scale WorldInfo terrain cells through SAS_PLANET_GENERATOR_GRID_PERCENT, but retain the smallest default-supported 6x4 terrain-cell grid so low percentages cannot produce zero dimensions or four-plot-high edge seeds. See KI#260. (GPT-5.3-Codex; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+def getPlanetScaledGridSize(iWidth, iHeight):
+	cgc = CyGlobalContext()
+	iGridPercent = cgc.getDefineINT("SAS_PLANET_GENERATOR_GRID_PERCENT")
+	if iGridPercent < 1:
+		iGridPercent = 1
+	elif iGridPercent > 100:
+		iGridPercent = 100
+	return (max(6, int((iWidth * iGridPercent + 50) / 100)), max(4, int((iHeight * iGridPercent + 50) / 100)))
+
 def getGridSize(argsList):
 	"""Given an	argument of	[worldSize], where worldSize is	of type	WorldSizeTypes.
 	Can	be overridden to return	a (width, height) tuple	representing the number	of terrain cells
@@ -386,14 +396,7 @@ def getGridSize(argsList):
 		iW = 40
 		iH = 24
 
-	# <!-- custom: Planet Generator world-size scaling is controlled through global define SAS_PLANET_GENERATOR_GRID_PERCENT. Keep it clamped to [1,100] to avoid invalid sizes. (GPT-5.3-Codex) -->
-	iGridPercent = cgc.getDefineINT("SAS_PLANET_GENERATOR_GRID_PERCENT")
-	if iGridPercent < 1:
-		iGridPercent = 1
-	elif iGridPercent > 100:
-		iGridPercent = 100
-	fW = int((iW * iGridPercent + 50) / 100)
-	fH = int((iH * iGridPercent + 50) / 100)
+	(fW, fH) = getPlanetScaledGridSize(iW, iH)
 
 	distribution = getContinentDistribution()
 	minWidthDivision = 1
@@ -1276,11 +1279,11 @@ class TileBuilder:
 			if c == 0:
 				rem_ind.append(i)
 			i += 1
-		# remove unecessary builder tiles
-		x = len(rem_ind)
-		while x > 0:
-			x -= 1
-			self.builders.pop(x)
+		# <!-- custom: Planet recorded exhausted builders' real positions but popped 0..count-1 instead, removing productive frontiers and retaining exhausted ones. Remove recorded positions from highest to lowest and keep creation-order bookkeeping synchronized. See KI#261. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		while len(rem_ind) > 0:
+			removedBuilder = self.builders.pop(rem_ind.pop())
+			if removedBuilder[0] in self.builderList:
+				self.builderList.remove(removedBuilder[0])
 		return result
 
 def generateRandomMap():
@@ -2331,8 +2334,9 @@ def getContinentDistribution():
 	else:
 		worldInfo = worldTypes[chosenWorldType]
 
-	# <!-- custom: Size buckets are defined in plot-space (e.g. 40x24), so compare against plot-space area directly. (GPT-5.3-Codex) -->
-	mapArea = worldInfo.getGridHeight() * worldInfo.getGridWidth()
+	# <!-- custom: Smart Selection buckets below are plot-space areas. Classify the SAS-scaled terrain-cell grid and restore Planet's 4x4-cell area conversion; SAS previously compared unscaled cell counts directly and selected much smaller buckets. See KI#258. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	(iScaledWidth, iScaledHeight) = getPlanetScaledGridSize(worldInfo.getGridWidth(), worldInfo.getGridHeight())
+	mapArea = iScaledWidth * iScaledHeight * 16
 
 	if distributionOption == "smart-random":
 		if mapArea <= 40 * 24: #duel
@@ -2535,6 +2539,7 @@ def addLakes():
 
 #Step 4: add features to your terrain
 #this is responsible for things like oasis, ice floes on the ocean, floodplains
+# <!-- custom: Feature spreading retains its source plot while inspecting neighbors. CyMap.sPlot() reuses one process-static CyPlot wrapper, so keep that source in an independent managed plot() wrapper; transient neighbor/standalone lookups can retain the cheaper static wrapper. See KI#257. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 def addFeatures():
 	collectGarbage()
 
@@ -2648,7 +2653,8 @@ def addFeatures():
 	# Feature generation
 	while len(seedList) > 0:
 		x, y, distanceFromRiver, feature = seedList.random(dice)
-		plot = map.sPlot(x,y)
+		# <!-- custom: This retained spread source specifically needs an independent wrapper because later sPlot() neighbor lookups retarget the process-static wrapper. See KI#257. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		plot = map.plot(x,y)
 		terrain = plot.getTerrainType()
 		tileTemperature = getTileTemperature(y,iH)
 
@@ -3010,17 +3016,19 @@ def isRiverCrossing(plot1,plot2):
 	x2 = plot2.getX()
 	y2 = plot2.getY()
 
-	if x2 >= iW:
-		x2 = 0
-	elif x2 < 0:
-		x2 = iW - 1
-	if y2 >= iH:
-		y2 = 0
-	elif y2 < 0:
-		y2 = iH - 1
-
 	dx = x2 - x1
 	dy = y2 - y1
+	# <!-- custom: Planet wraps X, so seam-adjacent plots at 0/W-1 need the shortest wrapped delta before selecting E/W river direction. Apply the same rule generically if Y wrapping is ever enabled. See KI#257. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if map.isWrapX():
+		if dx > iW / 2:
+			dx -= iW
+		elif dx < -iW / 2:
+			dx += iW
+	if map.isWrapY():
+		if dy > iH / 2:
+			dy -= iH
+		elif dy < -iH / 2:
+			dy += iH
 
 	direction = -1
 	if dx < 0 and dy == 0:
@@ -3680,24 +3688,22 @@ def getWrapY():
 	"Can be	overridden to change whether the map wraps around in the Y direction. Default is false"
 	return False
 
-def getTopLatitude():
-	"Can be	overridden to change whether the the top latitude. Default is 90"
+# <!-- custom: Several Planet climate combinations inverted the signed latitude callbacks. Return one clamped absolute extent for both callbacks so top is always >= bottom while preserving the intended symmetric climate band and AdvCiv True Starts latitude support. See KI#259. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+def getPlanetLatitudeExtent():
 	initClimateSettings()
 	cgc = CyGlobalContext()
 	map = cgc.getMap()
 	iH = map.getGridHeight()
-	topLatitudeTemperature = getTileTemperature(0,iH)
-	result = 30 - topLatitudeTemperature * 2
-	return int(result)
+	polarTemperature = getTileTemperature(0,iH)
+	return min(90, abs(int(30 - polarTemperature * 2)))
+
+def getTopLatitude():
+	"Can be	overridden to change whether the the top latitude. Default is 90"
+	return getPlanetLatitudeExtent()
 
 def getBottomLatitude():
 	"Can be	overridden to change whether the the bottom	latitude. Default is -90"
-	cgc = CyGlobalContext()
-	map = cgc.getMap()
-	iH = map.getGridHeight()
-	topLatitudeTemperature = getTileTemperature(0,iH)
-	result = - (30 - topLatitudeTemperature * 2)
-	return int(result)
+	return -getPlanetLatitudeExtent()
 
 def isBonusIgnoreLatitude():
 	"Can be	overridden to determine	whether	bonus generation ignores latitude. Default is false"
