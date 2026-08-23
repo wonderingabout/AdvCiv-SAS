@@ -398,6 +398,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [324.2 - (Fixed AdvCiv-SAS bug) SAS collateral expansion retained an inherited zero-base promotion veto](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#3242---fixed-advciv-sas-bug-sas-collateral-expansion-retained-an-inherited-zero-base-promotion-veto)\
 [325 - (Fixed inherited BtS bug, broadened by AdvCiv-SAS) Past city-name identity depended on the current language](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#325---fixed-inherited-bts-bug-broadened-by-advciv-sas-past-city-name-identity-depended-on-the-current-language)\
 [326 - (Fixed minor inherited K-Mod diagnostic issue; no gameplay effect) OOS attitude checksum used invalid high-player shifts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#326---fixed-minor-inherited-k-mod-diagnostic-issue-no-gameplay-effect-oos-attitude-checksum-used-invalid-high-player-shifts)\
+[327 - (Prepared inherited BUG/K-Mod UI bug exposed by Base AdvCiv vote logic) Victory Screen predicted diplomatic votes through an arbitrary team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#327---prepared-inherited-bugk-mod-ui-bug-exposed-by-base-advciv-vote-logic-victory-screen-predicted-diplomatic-votes-through-an-arbitrary-team-member)\
+[328 - (Fixed minor inherited Planet/C2C bug) getGridSize returned a float to Civ4's integer callback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#328---fixed-minor-inherited-planetc2c-bug-getgridsize-returned-a-float-to-civ4s-integer-callback)\
+[329 - (Defensively hardened inherited BTG robustness hazards; no supported trigger reproduced) Grid retry and Cross/Grid forced-Silver fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#329---defensively-hardened-inherited-btg-robustness-hazards-no-supported-trigger-reproduced-grid-retry-and-crossgrid-forced-silver-fallback)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9229,3 +9232,35 @@ K-Mod practical 1099 mixed each rival's cached attitude into the multiplayer Out
 The cleanup replaces those shifts with position-sensitive unsigned polynomial mixing, then folds the safe result into the existing checksum. Every rival position can influence the diagnostic value without an invalid shift. This remains a diagnostic-only issue rather than a gameplay/correctness defect.
 
 Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed and documented with the help of GPT-5.6-Sol thanks.
+
+## 327 - (Prepared inherited BUG/K-Mod UI bug exposed by Base AdvCiv vote logic) Victory Screen predicted diplomatic votes through an arbitrary team member
+
+The inherited BUG Victory Screen predicts each AI member's Secretary General or diplomatic-victory vote. Its Python approximation converts each candidate team into the first player slot belonging to that team, then compares visible player-to-player attitude categories and modifier totals. The helper does not require that representative to be alive, so a permanent/multiplayer team can be represented by an arbitrary or defeated teammate.
+
+That representative choice also affects more than the displayed leader. The actual Base AdvCiv DLL vote routine evaluates `CvTeamAI::AI_getAttitudeVal` across every living member pair, applies distinct Secretary General and victory thresholds, handles vassal/master attitude substitution, abstains on tied best candidates and can abstain during a stage-4 victory pursuit. The inherited Python approximation does none of those things and can therefore predict a different candidate even for an ordinary one-player team; multi-member teams broaden the mismatch because one player's attitude is not the team average.
+
+The prepared fix exposes the DLL's existing `CvPlayerAI::AI_diploVote` team-vote result through `CyPlayer` and uses it for the prediction columns, while human rows retain the screen's existing self-vote/otherwise-abstain convention. Player-level attitude columns still use a representative for readable details, but now prefer the team's current living leader rather than the first matching slot. This changes UI prediction only, not the AI's actual vote decision.
+
+Runtime screenshots 0222 and 0224 exercised the default plain Members view, not this advanced BUG prediction path. The underlying `Members` option has defaulted to false and its BUG Advisors checkbox has been commented out since K-Mod's initial import, although the retained branch can still be selected manually through `AdvCiv-SAS/Settings/BUG Advisors.ini`. This provenance narrows KI#327 to retained hidden-option code rather than the ordinary default Members screen; focused validation therefore remains pending before deciding whether to keep the repair or reject the dormant finding.
+
+This is inherited BUG/K-Mod UI prediction logic that was not kept aligned with the more exact Base AdvCiv DLL team-vote rules. Reopened from discarded archaeology hints and investigated with the help of ChatGPT-5.6-Sol; reconciled, repaired and documented with the help of GPT-5.6-Sol, thanks.
+
+## 328 - (Fixed minor inherited Planet/C2C bug) getGridSize returned a float to Civ4's integer callback
+
+Planet's Around center continent distribution computes a floating radius and can return the expanded width directly from that calculation. A supported 18-continent, separation-10 example produces approximately `64.458` terrain cells rather than a Python integer. Civ4 requests `getGridSize()` through an integer-vector callback, and the supplied SDK conversion explicitly asserts `PyInt_Check` for every sequence item before calling `PyInt_AsLong`. A release build can therefore coerce/truncate the float while a Debug build can report a type-contract assertion.
+
+The fix explicitly returns `int(fW), int(fH)`. This preserves the release conversion's truncation and existing generated dimensions while satisfying the callback type contract in every build. The same floating return exists in the downloaded Planet 0.68/C2C reference, confirming inherited provenance rather than an AdvCiv-SAS adaptation.
+
+Runtime screenshot 0225 confirms that the exact 18-continent, separation-10, Around center configuration generated successfully as a 256-by-188-plot map. That deliberately extreme spacing request explains the sparse result with 11 players and its long generation time; the integer correction preserves those dimensions rather than enlarging the map.
+
+Reopened from discarded archaeology hints and investigated with the help of ChatGPT-5.6-Sol; reconciled, repaired and documented with the help of GPT-5.6-Sol and runtime-validated with the help of wonderingabout, thanks.
+
+## 329 - (Defensively hardened inherited BTG robustness hazards; no supported trigger reproduced) Grid retry and Cross/Grid forced-Silver fallback
+
+Two inherited BTG code hazards were real at source level but remained below the confirmed-defect threshold because no supported generated map was shown to trigger them. Grid's two regional starting-plot branches reset `iPass` inside their retry loop. If a region contains a land area but no acceptable pass-0 plot, the loop repeats the same search rather than advancing to its finite default-placement fallback. Separately, Grid and Cross's optional forced-Silver normalization indexed `plotsboundaries[0]` without proving that their narrow diagonal boundary candidate list was nonempty.
+
+The defensive hardening moves Grid's retry state outside both retry loops and resolves the player/range before scanning areas, matching the finite current Cross structure and safely reaching default placement even for an empty area list. For forced Silver, both maps now fall back from an empty boundary list to an empty legal land plot already collected within seven tiles; if neither list contains a plot, they leave this optional normalization unmet instead of raising `IndexError`.
+
+These are inherited BTG robustness repairs, not two newly counted confirmed defects: focused archaeology did not reproduce an ordinary supported configuration that reached either failure. They are documented so the source hazards and lower evidence level remain explicit rather than being promoted or silently forgotten. Runtime screenshots 0226-0228 confirm that the requested ordinary Grid and Cross configurations generated and reached turn 11 without an observed issue. This validates the ordinary paths after hardening but does not pretend to reproduce either old fallback hazard.
+
+Reopened and investigated with the help of ChatGPT-5.6-Sol; reconciled and defensively hardened with the help of GPT-5.6-Sol and runtime-tested with the help of wonderingabout, thanks.

@@ -1094,17 +1094,19 @@ def assignStartingPlots():
 			area_list = region_best_areas[reg]
 			# Print Data for debugging
 			# Error Handling (if valid start plot not found, reduce MinDistance)
+			# <!-- custom: Keep iPass outside the retry loop so a failed regional search reaches the finite default-placement fallback instead of repeating pass 0 forever. Resolve the player/range before the area loop so an empty area list also falls back safely.
+			# No supported trigger was reproduced; this defensively restores the retry contract used by current BTG_Cross. See KI#329. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			player = gc.getPlayer(playerID)
+			player.AI_updateFoundValues(True)
+			iRange = player.startingPlotRange()
+			iPass = 0
+			validFn = None
 			while (true):
 				iBestValue = 0
 				pBestPlot = None
 				# Loop through best areas in this region
 				for areaLoop in range(iNumAreas):
 					areaID = area_list[areaLoop]
-					player = gc.getPlayer(playerID)
-					player.AI_updateFoundValues(True)
-					iRange = player.startingPlotRange()
-					iPass = 0
-					validFn = None
 					# Loop through all plots in the region.
 					for iX in range(westX, eastX + 1):
 						for iY in range(southY, northY + 1):
@@ -1227,17 +1229,18 @@ def assignStartingPlots():
 				area_list = region_best_areas[reg]
 				# Print Data for debugging
 				# Error Handling (if valid start plot not found, reduce MinDistance)
+				# <!-- custom: Apply the same finite retry/fallback state to the mirrored-positioning branch. See KI#329. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				player = gc.getPlayer(playerID)
+				player.AI_updateFoundValues(True)
+				iRange = player.startingPlotRange()
+				iPass = 0
+				validFn = None
 				while (true):
 					iBestValue = 0
 					pBestPlot = None
 					# Loop through best areas in this region
 					for areaLoop in range(iNumAreas):
 						areaID = area_list[areaLoop]
-						player = gc.getPlayer(playerID)
-						player.AI_updateFoundValues(True)
-						iRange = player.startingPlotRange()
-						iPass = 0
-						validFn = None
 						# Loop through all plots in the region.
 						for iX in range(westX, eastX + 1):
 							for iY in range(southY, northY + 1):
@@ -1385,8 +1388,13 @@ def normalizeAddExtras():
 							p.setBonusType(silver)
 							has_precious = True
 							break
+					# <!-- custom: The inherited forced-Silver fallback indexed an unproven nonempty boundary list. If narrow/tiny geometry has no diagonal boundary candidate, use an empty legal land plot already collected within seven tiles; if neither list has a plot, safely leave the optional normalization unmet. See KI#329. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 					if not has_precious:
-						p = plotsboundaries[0]
+						plotsforced = plotsboundaries
+						if len(plotsforced) == 0:
+							plotsforced = [pLoop for pLoop in plotsfurther if pLoop.getBonusType(-1) == BonusTypes.NO_BONUS]
+					if not has_precious and len(plotsforced) > 0:
+						p = plotsforced[0]
 						p.setPlotType(PlotTypes.PLOT_LAND, True, True)
 						p.setTerrainType(desert, True, True)
 						p.setFeatureType(-1,-1)#2.34 -- Because Sometimes Oil is on floodplain

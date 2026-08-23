@@ -1245,8 +1245,13 @@ def normalizeAddExtras():
 							p.setBonusType(silver)
 							has_precious = True
 							break
+					# <!-- custom: The inherited forced-Silver fallback indexed an unproven nonempty boundary list. If the boundary list is empty, use an empty legal land plot already collected within seven tiles; if neither list has a plot, safely leave the optional normalization unmet. See KI#329. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 					if not has_precious:
-						p = plotsboundaries[0]
+						plotsforced = plotsboundaries
+						if len(plotsforced) == 0:
+							plotsforced = [pLoop for pLoop in plotsfurther if pLoop.getBonusType(-1) == BonusTypes.NO_BONUS]
+					if not has_precious and len(plotsforced) > 0:
+						p = plotsforced[0]
 						p.setPlotType(PlotTypes.PLOT_LAND, True, True)
 						p.setTerrainType(getInfoTypeOrFail("TERRAIN_DESERT"), True, True)
 						p.setBonusType(silver)
