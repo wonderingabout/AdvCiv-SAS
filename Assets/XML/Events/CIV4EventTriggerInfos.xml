@@ -7651,6 +7651,7 @@
 			<PythonCallback/>
 		</EventTriggerInfo>
 		<EventTriggerInfo>
+			<!-- custom: Keep the established internal Earth Day type/text keys to avoid needless XML/callback churn, but retheme this Trade Bloc event for players as the World Trade Forum. See KI#314. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			<Type>EVENTTRIGGER_EARTHDAY</Type>
 			<WorldNewsTexts>
 				<Text>TXT_KEY_EVENTTRIGGER_EARTHDAY</Text>
@@ -7666,6 +7667,7 @@
 			<iWeight>100</iWeight>
 			<bProbabilityUnitMultiply>0</bProbabilityUnitMultiply>
 			<bProbabilityBuildingMultiply>0</bProbabilityBuildingMultiply>
+			<!-- custom: Trade Bloc is intentionally the trigger civic now that the event's visible theme matches its economic-integration effect. See KI#314. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			<Civic>CIVIC_TRADE_BLOC</Civic>
 			<iMinTreasury>0</iMinTreasury>
 			<iMinPopulation>0</iMinPopulation>

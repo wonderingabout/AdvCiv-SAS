@@ -4850,4 +4850,25 @@ Created as part of AdvCiv-SAS improvements
 		<Tag>TXT_KEY_PEDIA_SAS_CLEAR</Tag>
 		<English>Clear</English>
 	</TEXT>
+	<!-- custom: BtS Earth Day became mechanically tied to Trade Bloc without changing its environmental presentation. Override the player-facing English text as the World Trade Forum; established internal keys remain because renaming them adds no gameplay value. See KI#314. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_EVENTTRIGGER_EARTHDAY</Tag>
+		<English>The %s1_civ_adjective Empire has announced the first annual World Trade Forum, promoting international commerce and economic integration.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_EVENT_TRIGGER_EARTHDAY_1</Tag>
+		<English>Our government announces the first annual World Trade Forum to promote commerce and closer economic cooperation.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_EVENT_EARTHDAY_1</Tag>
+		<English>Host the forum as a national trade fair.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_EVENT_EARTHDAY_2</Tag>
+		<English>Fund an international economic-integration initiative alongside the forum.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_EVENT_EARTHDAY_HELP_2</Tag>
+		<English>[ICON_BULLET]Persuade other nations to adopt [COLOR_HIGHLIGHT_TEXT]Trade Bloc[COLOR_REVERT] (at least one civilization must have the ability to do so).</English>
+	</TEXT>
 </Civ4GameText>

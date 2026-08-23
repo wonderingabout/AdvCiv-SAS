@@ -1505,7 +1505,7 @@ def canApplyEarthDay2(argsList):
 
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 
-	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: The legacy Earth Day identifiers now display the World Trade Forum theme, matching this Trade Bloc eligibility/effect instead of presenting environmental text for an economic civic. See KI#314. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	iCivic = findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
 
 	for iPlayer in range(gc.getMAX_CIV_PLAYERS()):			
@@ -1526,7 +1526,7 @@ def applyEarthDay2(argsList):
 	kTriggeredData = argsList[1]
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 
-	# <!-- custom: replace the old CIVIC_ENVIRONMENTALISM with CIVIC_TRADE_BLOC. (GPT-5.2-Codex (summarized)) -->
+	# <!-- custom: Apply the rethemed World Trade Forum's international option to the Economy civic slot; established callback names remain because renaming them adds no gameplay value. See KI#314. (GPT-5.2-Codex (summarized) + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	iCivic = findInfoTypeNumOrFail(gc.getCivicInfo,gc.getNumCivicInfos(),'CIVIC_TRADE_BLOC')
 	iCivicOption = findInfoTypeNumOrFail(gc.getCivicOptionInfo,gc.getNumCivicOptionInfos(),'CIVICOPTION_ECONOMY')
 

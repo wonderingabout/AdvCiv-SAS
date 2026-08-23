@@ -126,6 +126,8 @@ CvCity::CvCity() // advc.003u: Merged with the deleted reset function
 	m_bInvestigate = false; // advc.103
 	m_bMostRecentUnit = false; // advc.004x
 	m_bChooseProductionDirty = false;
+	// <!-- custom: A new city has not yet received or opted out of the human BFC convenience Artist. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_iSASAutoBFCHumanArtistState = SAS_AUTO_BFC_HUMAN_ARTIST_AVAILABLE;
 
 	m_eOwner = NO_PLAYER;
 	m_ePreviousOwner = NO_PLAYER;
@@ -1090,6 +1092,8 @@ void CvCity::doTurn()
 
 			if (!bHuman)
 			{
+				// <!-- custom: AI cities do not use human-choice provenance; clear any state retained across an ownership change. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				m_iSASAutoBFCHumanArtistState = SAS_AUTO_BFC_HUMAN_ARTIST_AVAILABLE;
 				// <!-- custom: save some computation, only run this if we are in no BFC -->
 				if (bNoCultureLevelReqYet)
 				{
@@ -1111,60 +1115,43 @@ void CvCity::doTurn()
 			}
 			else if (bHuman && bSAS_DO_TURN_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE)
 			{
-				// <!-- custom: simplify and strengthen formula for the human player, as we don't want this to fire mid game needlessly after we have our BFC -->
+				// <!-- custom: The old cleanup guessed that any forced Artist in a narrow post-BFC culture window belonged to this helper. Record ownership when we add one, and let any manual Artist adjustment permanently transfer control to the human instead. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				const int iForcedArtists = getForceSpecialistCount(eArtist);
+				if (m_iSASAutoBFCHumanArtistState == SAS_AUTO_BFC_HUMAN_ARTIST_FORCED && iForcedArtists <= 0)
+					m_iSASAutoBFCHumanArtistState = SAS_AUTO_BFC_HUMAN_ARTIST_FINISHED;
 
 				// <!-- custom: save some computation, only run this if we are in no BFC -->
 				if (bNoCultureLevelReqYet)
 				{
 					const int iCpt = getCommerceRate(COMMERCE_CULTURE);
 					// <!-- custom: note: after first artist is assigned, city's culture per turn is 4+, so we won't assign a second artist with this code i guess, and so no need to check or handle these cases -->
-					if (iCpt <= iLowCpt)
+					if (m_iSASAutoBFCHumanArtistState == SAS_AUTO_BFC_HUMAN_ARTIST_AVAILABLE && iCpt <= iLowCpt)
 					{
 						if (iForcedArtists < 1)
 						{
 							if (isSpecialistValid(eArtist, 1))
 							{
 								changeForceSpecialistCount(eArtist, 1);
+								m_iSASAutoBFCHumanArtistState = SAS_AUTO_BFC_HUMAN_ARTIST_FORCED;
 							}
 						}
 					}
 				}
-				// <!-- custom: remove artist specialist after we have our BFC, in a way that does not conflict with human player's choices. Autoplay results show AI CvCityAI::AI_jobChangeValue is ineffective in doing that. Credit: ChatGPT 5.1. (Claude code Sonnet 4.5 (summarized)) -->
-				else
+				// <!-- custom: Preserve the existing game-speed-aware cleanup delay, but remove one Artist only when this helper still owns it. The former upper-window guess is unnecessary once provenance is exact. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				else if (m_iSASAutoBFCHumanArtistState == SAS_AUTO_BFC_HUMAN_ARTIST_FORCED)
 				{
-					// <!-- custom: only do so when not conflicting with human player's choices (later we may want to run one or many forced artists for whatever reason (maybe? I don't know too much about these, is just a guess, check if accurate / to be sure) so do not prevent that here), i.e. very early for BFC and if artist was forced -->
 					const int iCityCulture = getCulture(getOwner());
-					// Culture needed to *reach* that level
 					// <!-- custom: this way we're adjusted to game speed such as BFC being as of now at 10 in normal, 20 in marathon, 6 in quick -->
-					// That automatically incorporates:
-					// 	- Game speed,
-					// 	- Start era,
-					// 	- Handicap modifiers,
-					// via your existing getCultureThreshold logic.
-					// No “10 / 6 / 20" sprinkled in C++.
 					const int iBFCThreshold = GC.getGame().getCultureThreshold((CultureLevelTypes)iSAS_DO_TURN_FORCE_ARTIST_MIN_NO_CULTURE_LEVEL_THRESHOLD);
 					static const int iEnoughSanity = GC.getDefineINT("SAS_CONVENIENCE_HUMAN_FORCE_ARTIST_IF_NO_BFC_AND_LOW_CULTURE_STOP_ONCE_ENOUGH_SANITY");
 
-					// <!-- custom: if we have this much more culture than BFC and the human player still didn't manually unassign their forced artist, do it ourselves manually. The human player can reassign a non-forced artist if they want then. -->
-					// Sanity rule (human only):
-					//   - If we are clearly past BFC (culture > BFC + margin)
-					//   - but not *too* far (culture <= 2*BFC + margin)
-					// then assume that forced Artist is our auto-BFC helper and unforce it once.
-					// After that window, we never touch forced Artists in this city again. <!-- custom: for this part of the code (else we don't handle it) -->
 					const bool bFarEnoughFromBFC = (iCityCulture > iBFCThreshold + iEnoughSanity);
-					const bool bTooFarFromBFC = (iCityCulture > (2 * iBFCThreshold) + iEnoughSanity);
-					if (bFarEnoughFromBFC && !bTooFarFromBFC)
+					if (bFarEnoughFromBFC)
 					{
-						if (iForcedArtists > 0)
-						{
-							if (isSpecialistValid(eArtist, -1))
-							{
-								changeForceSpecialistCount(eArtist, -1);
-							}
-						}
+						if (iForcedArtists > 0 && isSpecialistValid(eArtist, -1))
+							changeForceSpecialistCount(eArtist, -1);
+						m_iSASAutoBFCHumanArtistState = SAS_AUTO_BFC_HUMAN_ARTIST_FINISHED;
 					}
-					// else: do nothing, we’re far past BFC; don’t fight human choices.
 				}
 			}
 		}
@@ -9294,6 +9281,10 @@ void CvCity::alterSpecialistCount(SpecialistTypes eSpecialist, int iChange)
 {
 	if(iChange == 0)
 		return;
+	// <!-- custom: Any human adjustment of the Artist count takes ownership away from the automatic BFC helper. It must neither re-add nor later remove an Artist chosen by the human. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	static SpecialistTypes const eArtist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ARTIST");
+	if (isHuman() && eSpecialist == eArtist)
+		m_iSASAutoBFCHumanArtistState = SAS_AUTO_BFC_HUMAN_ARTIST_FINISHED;
 
 	if (isCitizensAutomated())
 	{
@@ -11854,7 +11845,6 @@ bool CvCity::isMeltdownBuildingSuperseded(BuildingTypes eDangerBuilding) const
 
 void CvCity::read(FDataStreamBase* pStream)
 {
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, as according to chatgpt 5 they are stale now and don't apply to current version of the DLL anymore; note: i wanted to remove the uiflag entirely, including these read write definitions, but chatgpt advised against it saying it would break save file compatibility with saves. Since i am still testing, i would like to use same save files and it seems safe enough plus we targeted and removed most excess code so maybe fine as such (check if accurate as i don't know too much about these). -->
 	uint uiFlag=0;
 	pStream->Read(&uiFlag);
 
@@ -11965,6 +11955,8 @@ void CvCity::read(FDataStreamBase* pStream)
 	// </advc.103> <advc.003u>
 	pStream->Read(&m_bChooseProductionDirty);
 	// </advc.003u>
+	// <!-- custom: Current city saves persist exact BFC helper ownership so save/reload cannot lose provenance. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pStream->Read(&m_iSASAutoBFCHumanArtistState);
 	pStream->Read((int*)&m_eOwner);
 	pStream->Read((int*)&m_ePreviousOwner);
 	pStream->Read((int*)&m_eOriginalOwner);
@@ -12078,7 +12070,6 @@ void CvCity::write(FDataStreamBase* pStream)
 {
 	PROFILE_FUNC(); // advc
 	REPRO_TEST_BEGIN_WRITE(CvString::format("City(%d,%d)", getX(), getY()));
-	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag;
 	uiFlag = 17; // advc.313: Disorganized promo removed, advc.enum: bugfix.
 	pStream->Write(uiFlag);
@@ -12185,6 +12176,8 @@ void CvCity::write(FDataStreamBase* pStream)
 	pStream->Write(m_bPlundered);
 	pStream->Write(m_bInvestigate); // advc.103
 	pStream->Write(m_bChooseProductionDirty); // advc.003u
+	// <!-- custom: Persist whether the human BFC helper still owns its automatically forced Artist. See KI#313. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pStream->Write(m_iSASAutoBFCHumanArtistState);
 
 	pStream->Write(m_eOwner);
 	pStream->Write(m_ePreviousOwner);
