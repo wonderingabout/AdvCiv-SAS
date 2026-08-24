@@ -14,11 +14,10 @@ LOCAL RECONCILIATION AFTER C010-WIP7 IMPORT
 - WIP7 again imported the previously rejected F024/F026/F027 ancestry changes: local Civ4CE BtS contains the same End Score helper reset/outer reuse, successful-Python-found-value omission and host-team air-capacity argument. The independently promoted BtS ancestry for KI#345, KI#347 and KI#348 remains authoritative.
 - Reconciliation also restores the seven-finding F017-F022/F024 count and the open-file cursor to file 010. The new F045-F047 findings survive an initial current-tree structural check but remain provisional pending independent promotion. (GPT-5.6-Sol)
 
-LOCAL RECONCILIATION AFTER C010-WIP12 IMPORT
-- ChatGPT-5.6-Sol's cumulative WIP8-WIP12 handoff was generated from HEAD 80cb8f4be at practical 6239. Current local HEAD is 6333073c6 at practical 6241 after two independently reviewed CvTeamAI repair batches.
-- F032-F035 / KI#353-KI#356 were fixed by d8157f78d; F036-F039 / KI#357-KI#360 were fixed by 6333073c6. Both batches compiled and completed Legacy Aggressive AI autoplays with multi-member teams. Their Album entries remain valid root-cause and ancestry evidence but are no longer outstanding provisional repairs.
-- F040-F049 / provisional KI#361-KI#370 remain pending while CvTeamAI.cpp stays open. The new F048/KI#369 and F049/KI#370 cross-file merge omissions structurally survive in current CvTeam.cpp: `shareCounters` still omits own-side SharedWarSuccess, and the reverse third-party merge still omits OpenBordersCounter.
-- WIP8-WIP12 deliberately preserve cumulative intermediate evidence and stale per-checkpoint authority blocks. This reconciliation note and current source/Git are authoritative until ChatGPT receives the next light-source handoff; finalized C011 should consolidate the layers and mark implemented findings accordingly. (GPT-5.6-Sol)
+LOCAL RECONCILIATION AFTER C010-WIP22 IMPORT
+- ChatGPT-5.6-Sol's cumulative WIP13-WIP22 handoff was generated from practical 6239 / HEAD 80cb8f4be. Current local HEAD is practical 6243 / c6f1f31d3 after independently reviewed repairs through KI#363; current source and reviewed Known Issues remain authoritative.
+- F032-F042 have been promoted and fixed as KI#353-KI#363. The WIP20 root normalization is accepted: F043, F044 and F046 are manifestations of F037's single practical-1842 `AI_preDeclareWar` population substitution, not independent roots. Current work completes their compiled and runtime-smoke-tested common repair under KI#358; provisional KI#364, KI#365 and KI#367 remain reserved merged aliases rather than reviewed KI entries.
+- WIP22 adds explicit method-inventory coverage and strengthens F042/F048-F052 without introducing F053 or changing the normalized root set. F045/KI#366, broadened F047/KI#368, F048/KI#369, F049/KI#370 and F050-F052/KI#371-KI#373 remain pending independent current-tree review. WIP22 is still an open-file recovery checkpoint, not durable C011 completion; its embedded older authority blocks and superseded intermediate wording remain evidence only. (GPT-5.6-Sol)
 
 NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
@@ -3080,3 +3079,1645 @@ EXACT RECOVERY CURSOR AFTER C010-WIP12
    - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
 
 END WORKING CHECKPOINT C010-WIP12
+================================================================================
+WORKING CHECKPOINT C010-WIP13 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP12.
+- Authoritative repository snapshot:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots remain F032-F049 / provisional KI#353-KI#370.
+- F050 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the post-WIP12 adversarial certification work before continuing.
+
+POST-WIP12 ADVERSARIAL CERTIFICATION PROGRESS
+
+1. F046 re-proved against exact current declaration ordering
+Current `CvTeam::declareWar` ordering is:
+- `AI_preDeclareWar(...)`
+- set both teams at war
+- establish first contact with `meet(...)`
+- post-declaration processing
+- trigger Defensive Pact / vassal cascading wars.
+
+Cascading declarations still enter the normal `declareWar()` path.
+Therefore a Defensive-Pact or vassal-alignment team that has never met the eventual victim can enter
+`AI_preDeclareWar()` BEFORE first contact is created.
+
+This re-proves F046:
+- practical 1842's outer `KNOWN_POTENTIAL_ENEMY_OF(getID())` requires pre-existing contact,
+- so the direct victim can be filtered out during a first-contact cascading declaration,
+- the later `meet()` call does not replay the omitted `MEMORY_DECLARED_WAR`.
+No later restoration path was found.
+
+2. F047 re-proved through tactical DOW execution
+Legacy `AI_doWar()` can still write a chosen/preparing plan on a voluntary VASSAL team ID.
+The following current query/execution APIs normalize that target to its MASTER:
+- `AI_isChosenWar(vassal)`
+- `AI_isSneakAttackPreparing(vassal)`
+- `AI_isSneakAttackReady(vassal)`
+- `AI_mayAttack(vassal)`
+- AI group/path `MOVE_DECLARE_WAR` readiness
+- `CvUnit::canMoveInto(..., bDeclareWar=true)` AI readiness
+- `CvUnitAI::AI_considerDOW()` readiness.
+
+Direct AI declaration search found no general strategic bypass that repairs the mismatch.
+A separate opportunistic "poach undefended units" declaration path exists, but it is independent no-plan behavior
+and does not make the vassal-keyed strategic preparation visible to the master-normalized tactical layer.
+
+Important wording correction retained:
+- practical 1842 does NOT exclude a FOREIGN voluntary vassal from raw AI_doWar maintenance merely because it is a vassal.
+- F047 remains the advc.104j / practical-1366 read-vs-write key split, not an 1842 foreign-vassal exclusion.
+
+3. F048/F049 Permanent Alliance pair re-proved as conspicuous directional omissions
+Exact source reconstruction confirms:
+- `shareCounters()` deliberately contains OpenBordersCounter on absorbed-team -> outsider direction.
+- reverse outsider -> merged-team block omits OpenBordersCounter = F049.
+- reverse block explicitly contains SharedWarSuccess.
+- `shareCounters()` omits SharedWarSuccess = F048.
+Neighboring durable directional relationship state is substantially merged/recomputed, making these two omissions
+stand out rather than reflecting an intentionally lossy merge design.
+
+4. F042 re-proved against exact `setVassal` ordering
+- `setVassal(..., false, ...)` attempts to re-add existing plans against the newly freed target while the target's
+  `m_eMaster` / vassal status is still old.
+- `AI_updateWarPlanCounts()` explicitly returns for current vassal targets.
+- The intended restoration is therefore blocked by stale transition state exactly as F042 claims.
+
+5. F045 re-proved as incumbent/replacement eligibility divergence
+- `setVassal` DOES trigger broad attitude / worst-enemy refresh.
+- Therefore F045 is not a missing-refresh bug.
+- `AI_updateWorstEnemy()` evaluates the incumbent directly through `AI_enmityValue`,
+  while replacement candidates pass the same-master-locus exclusion of `KNOWN_POTENTIAL_ENEMY_OF`.
+- A voluntary master/vassal relation does not force the master's attitude toward the vassal to Friendly.
+- A formerly valid worst enemy can therefore remain grandfathered despite being impossible to choose from scratch
+  in the same post-vassal state.
+- Repair should centralize worst-enemy eligibility for incumbent and replacements.
+
+6. Recent-nuke-memory timing concern closed clean
+- Birth history explicitly introduced recent nuke-target memory for same-turn repeated-nuke valuation.
+- It is intentionally remembered only for one game turn.
+- Its sole current consumer is the second/repeated-strike nuke valuation path.
+- No persistence/merge defect established.
+
+7. Practical-1842 mechanical hunk inventory effectively exhausted
+- All 166 `CvTeamAI.cpp` hunks from practical 1842 have now been inventoried by affected function.
+- Remaining iterator/control substitutions not already owned resolve as:
+  - equivalent populations,
+  - intentional no-cheating / master-locus behavior,
+  - unused helper changes,
+  - or heuristics below correctness threshold.
+- The lingering same-aggressor-locus population difference in `AI_warDiplomacyCost` remains BELOW THRESHOLD:
+  it is a prospective heuristic and no hard source contract proves that a subordinate observer's current displeasure
+  must be included.
+- Do not promote it without stronger evidence.
+
+8. Final mechanical sanity progress
+- Fresh type/domain scan did not produce F050.
+- F032 remains the unique confirmed incompatible vote-count/team-ID comparison.
+- Remaining direct arrays/vectors are guarded.
+- Remaining FAssert/default branches are enum-complete or dormant under supported current data.
+- TODO/FIXME comments map to already-owned findings or heuristic-quality debt.
+- No new current root established.
+
+9. Collision state
+- Reconciled Known-Issues collision pass remains clean through F049.
+- F045 remains distinct from KI#208:
+  KI#208 = stale recalculation-flag/order repair;
+  F045 = incumbent-vs-replacement eligibility after relationship transition.
+- No existing reviewed KI found for F046-F049 roots.
+
+SUPERSEDED WORDING TO AVOID IN DURABLE C011
+- F041:
+  DO NOT claim excess Open Borders counter survives agreement cancellation and then decays.
+  OB status transition resets the OB counter.
+  Strong current consequence is the Bonus Trade sibling's accumulated excess and later decay.
+- F047:
+  DO NOT claim practical 1842 excludes foreign voluntary vassals from raw planner maintenance.
+  A foreign voluntary vassal is outside OUR master locus and remains a potential enemy.
+  Root is the practical-1366/advc.104j strategic write key vs tactical/query master key split.
+- Earlier WIP2/WIP3 statements saying practical 1842 had already been "exhausted" before F043-F046 were found
+  are superseded by the renewed complete hunk inventory.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 / KI#369
+- F049 / KI#370
+- F050 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP13
+1. Finish the final adversarial finding-by-finding reread, especially F042-F049:
+   - current reachability
+   - exact ancestry
+   - bounded consequence
+   - surgical repair wording.
+2. Run one final independent whole-file sanity scan after the completed practical-1842 inventory:
+   - state setter/getter symmetry
+   - raw sentinel contracts
+   - divisors/percent arithmetic
+   - default/assert reachability
+   - header/member/storage invariants.
+3. Confirm no open candidate remains and no superseded WIP wording leaks into the durable summary.
+4. If closure is not yet fully satisfying, freeze C010-WIP14 rather than forcing completion.
+5. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP13
+================================================================================
+WORKING CHECKPOINT C010-WIP14 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP13.
+- Authoritative repository snapshot:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots remain F032-F049 / provisional KI#353-KI#370.
+- F050 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- Main change from WIP13: F047 is broadened into the full incomplete master/vassal war-plan
+  canonicalization root rather than only the legacy vassal-write/master-read symptom.
+
+F047 / provisional KI#368 - BROADENED
+Revised root:
+- `advc.104j` / practical 1366 established the conceptual rule:
+  "a war plan against a master implies a war plan against its vassal."
+- It canonicalized several important query/tactical paths to the target MASTER,
+  but did not make war-plan target canonicalization universal.
+- Current code therefore contains BOTH directions of key inconsistency:
+  A) some writers/raw-maintenance paths use a VASSAL key while tactical/query readers normalize to MASTER;
+  B) some normal master-keyed preparations are invisible to raw per-vassal area/enemy helper reads.
+
+Manifestation A - legacy planner vassal-key write vs master-normalized tactical read
+- Legacy `AI_doWar()` can select a suitable VOLUNTARY VASSAL as `eBestTarget`.
+- It writes PREPARING/LIMITED/TOTAL/DOGPILE state on that vassal team ID.
+- `AI_isChosenWar(vassal)`, `AI_isSneakAttackPreparing/Ready(vassal)`,
+  `AI_mayAttack(vassal)` and AI border/path DOW execution normalize the target to the MASTER.
+- No automatic sibling plan is created on the enemy master by that legacy selection/write path.
+- Raw AI_doWar plan maintenance can still see/age the vassal-keyed plan;
+  do NOT claim practical 1842 hides foreign vassals from that raw loop.
+- The tactical layer can nevertheless fail to recognize the plan under the master key,
+  leading to prepare/age/abandon behavior without normal strategic DOW execution.
+- Reachable when UWAI is disabled / legacy K-Mod-style war planning is active.
+
+Manifestation B - canonical master-key preparation omitted by raw vassal area/enemy reads
+- This one is reachable even with normal/default UWAI-style strategic planning.
+- A normal plan against independent master M is stored on M.
+- `AI_setWarPlan(M, PREPARING_...)` propagates preparations to OUR AI vassals;
+  it does NOT create plan entries on M's target vassals.
+- Before actual war, therefore:
+  `AI_getWarPlan(M) != NO_WARPLAN`
+  but for target vassal V:
+  `AI_getWarPlan(V) == NO_WARPLAN`.
+- Current raw helper/AreaAI code still uses those per-team keys:
+  - `AI_countEnemyPowerByArea` loops enemy players and includes area power only when
+    `AI_getWarPlan(kEnemy.getTeam()) != NO_WARPLAN`.
+  - `AI_countEnemyCitiesByArea` uses the same raw team-plan test.
+  - `AI_countEnemyPopulationByArea` also has the same raw test (currently unused).
+  - `AI_calculateAreaAIType`'s target and relative-enemy loops similarly skip teams whose raw
+    `AI_getWarPlan(team) == NO_WARPLAN`.
+- Consequently M's vassal forces/cities can be omitted during PREPARATION even though they will
+  necessarily become enemies when war with M begins.
+
+Concrete current consequences of manifestation B
+- `AI_calculateAreaAIType` uses `AI_countEnemyPowerByArea` to choose defensive/massing/offensive
+  posture and compares own area power against planned-enemy power.
+- It also derives target/enemy-city presence from raw per-team plan loops.
+- `CvPlayerAI::AI_getTotalFloatingDefendersNeeded` uses
+  `AI_countEnemyCitiesByArea` while focusing on land war / sneak preparation.
+- Several `CvUnitAI` naval/worker/transport decisions use `AI_countEnemyPowerByArea`.
+- During preparation against a master with a substantial vassal presence in the area,
+  the AI can therefore underestimate future enemy area power/city presence and underprepare
+  defenses or choose the wrong AreaAI posture.
+- Once the war is actually declared, `CvTeam::declareWar` cascades war to target vassals and
+  `AI_postDeclareWar` creates raw war plans for those declarations; the omission is primarily
+  a PRE-WAR planning-state defect.
+
+Why this is the same root, not F050
+- Both manifestations come from incomplete canonicalization after practical 1366 / advc.104j:
+  some code treats the master as the canonical strategic war target while other reads/writes
+  still use raw team IDs.
+- Splitting by direction would duplicate the same invariant:
+  every logical war-plan lookup/write should consistently map a vassal target to its master
+  unless the code explicitly needs a tactical subtarget.
+- F047 should therefore be renamed/reframed around inconsistent master/vassal war-plan keying,
+  with both manifestations documented.
+
+Historical control
+- K-Mod was internally same-key for the relevant vassal target queries/writes.
+- Practical 1366 changed `AI_isChosenWar` and `AI_isSneakAttackPreparing` to read the target master
+  and modified tactical/path behavior under the explicit "master plan implies vassal plan" idea.
+- The same practical left `AI_isOkayVassalTarget` in place and even commented that it no longer
+  seemed conceptually relevant.
+- Area enemy-count helpers and several raw plan loops were not comprehensively canonicalized.
+- This supports classifying F047 as an AdvCiv incomplete-fix / cross-contract regression.
+
+Revised repair direction
+1. Introduce one canonical helper for strategic war-plan target keys, e.g. conceptually:
+   `canonicalWarPlanTarget(eTeam) = GET_TEAM(eTeam).getMasterTeam()`
+   where appropriate.
+2. Use the canonical key consistently for strategic plan WRITES and READS.
+3. Where tactical code intentionally wants a particular vassal front/subtarget, keep that separate
+   from the strategic plan key rather than overloading `m_aeWarPlan`.
+4. Audit area/enemy helper loops so a master-key plan includes the master's vassal members/cities/power
+   exactly once during preparation.
+5. Reassess/remove `AI_isOkayVassalTarget` from strategic key selection; practical 1366 already notes
+   that a master-key plan should make direct vassal strategic targeting conceptually unnecessary.
+
+OTHER POST-WIP13 CLOSURE RESULTS
+- `AI_enemyTradeResentmentFactor` apparent NO_TEAM worst-enemy sentinel risk is now killed with timing evidence:
+  `declareWar` -> queued cascade handling -> `triggerWars(true)` -> global AI attitude refresh occurs before the
+  declaration stack returns to ordinary AI trade evaluation. A live war enemy therefore has a recalculated
+  worst-enemy state before normal resentment callers execute.
+- Current-vs-Base AdvCiv whitespace-insensitive semantic diff was re-enumerated (~43 hunks):
+  substantive current SAS changes remain the already-reviewed Barbarian AreaAI option, KI#312 tech-locus repair,
+  victory-denial peace hook, KI#208 worst-enemy repair, diagnostics/logging, and current-format serialization cleanup.
+  No overlooked SAS-specific semantic root was found in that pass.
+- Persistent member storage vs reset/read/write/cross-file transitions remains symmetric apart from already-owned:
+  F042, F045, F048, F049.
+- F050 remains UNUSED.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368 - BROADENED as above
+- F048 / KI#369
+- F049 / KI#370
+- F050 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP14
+1. Continue final independent caller-oriented pass over raw `AI_getWarPlan` uses:
+   - distinguish intentional raw active-war state from places that should use the canonical master target,
+   - broaden F047 further if same invariant; do not create duplicate roots.
+2. Finish tiny-helper / trade-value / area-enemy / sentinel / divisor / assert / header checks.
+3. Complete final adversarial reread F032-F049 with corrected F047 architecture.
+4. Confirm practical 1842 final inventory has no unresolved candidate.
+5. Confirm no superseded WIP wording remains in the eventual durable C011 synthesis.
+6. If not fully satisfied, freeze C010-WIP15 rather than force completion.
+7. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP14
+================================================================================
+WORKING CHECKPOINT C010-WIP15 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP14.
+- Authoritative repository snapshot:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots now extend through F050 / provisional KI#371.
+- F051 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects F050 and the post-WIP14 F047 broadening/caller verification before further closure work.
+
+F050 - provisional KI#371 - K-Mod war-success coalition formulas exclude vassal battle results while including vassal power
+Status: CONFIRMED CURRENT INHERITED K-MOD COALITION-AGGREGATION DEFECT.
+
+Core state contract:
+- Ordinary WarSuccess is stored directionally by ACTUAL team ID.
+- Combat/city results call `AI_changeWarSuccess` on the actual attacker/defender/city-owner team:
+  - defender-side success against actual attacker team,
+  - attacker-side success against actual defender team,
+  - city capture against actual city team.
+- `CvTeam::setVassal()` does NOT transfer ordinary `AI_getWarSuccess` between vassal and master.
+- Current `AI_countEnemyWarSuccess()` provides a useful internal control:
+  it iterates `CIV_ALIVE, ENEMY_OF`, i.e. all alive enemy teams including vassals, and sums their
+  actual WarSuccess against us.
+
+K-Mod `AI_getWarSuccessRating()` population mismatch:
+- Current function loops:
+  `TeamAIIter<FREE_MAJOR_CIV, ENEMY_OF>`
+  and therefore excludes all enemy vassal team IDs.
+- For each free enemy master it reads only:
+  - `AI_getWarSuccess(master)`
+  - `master.AI_getWarSuccess(getID())`.
+- It does not sum that master's vassal teams' WarSuccess.
+- Yet its power terms use:
+  - `iThisTeamPower = getPower(true)`
+  - `iOtherTeamPower = master.getPower(true)`.
+- `CvTeam::getPower(true)` explicitly adds all alive vassal players' power.
+- Therefore the formula measures military POWER over master+vassal coalitions while measuring
+  BATTLE RESULTS only over the free-master team IDs.
+
+Symmetric own-side inconsistency:
+- When this team is a free master, `getPower(true)` includes OUR vassals.
+- WarSuccess earned by our vassal teams remains keyed to those vassal team IDs and is not folded into
+  our own `AI_getWarSuccess(masterEnemy)` value.
+- Thus combat by either side's vassals can disappear from the success term even while those units
+  remain included in coalition power.
+
+Concrete supported case:
+1. Free team A is at war with free master M and M's vassal V.
+2. Most/all actual fighting occurs between A and V.
+3. A destroys many V units; V scores little or nothing.
+4. The victories are recorded in `A.AI_getWarSuccess(V)`.
+5. `AI_getWarSuccessRating()` never visits V because V is not FREE_MAJOR_CIV.
+6. No ordinary WarSuccess transfer moves `A->V` into `A->M`.
+7. M's `getPower(true)` nevertheless includes V's military power.
+8. The rating can remain neutral/negative based largely on coalition power despite A actually
+   winning the battles that the function contract says it is supposed to reflect.
+- The reverse loss case is likewise ignored if V is the one defeating A.
+
+Function contract / historical evidence:
+- K-Mod practical 116 (`47f56c9c4e...`) explicitly rewrote the BBAI ratio and says:
+  - it should "scale properly for wars of different sizes in different eras",
+  - +99 means "we are soundly defeating our enemies",
+  - zero is neutral.
+- That rewrite explicitly filtered enemy teams with `!kLoopTeam.isAVassal()`
+  while simultaneously using `getPower(true)`.
+- K-Mod practical 455 later renamed the function to `AI_getWarSuccessRating`,
+  explicitly stating that it "has nothing to do with capitulation" and is a general war-success rating.
+- AdvCiv later refactors preserve the free-enemy population (`FREE_MAJOR_CIV, ENEMY_OF`);
+  scaled WarSuccess conversion also preserves it.
+- No descendant aggregation of vassal WarSuccess into the master was found.
+
+Force-Peace sibling manifestation:
+- K-Mod practical 86 rewrote Force-Peace vote decision similarly:
+  - explicitly excludes vassal enemy teams,
+  - uses free enemy master's `getPower(true)`,
+  - reads only direct `ePeaceTeam <-> free master` WarSuccess.
+- Thus the same coalition-population mismatch also exists in that K-Mod force-peace evaluator.
+- Current AdvCiv comment notes UWAI can overwrite most K-Mod Force-Peace results when enabled,
+  so F050 should not rely solely on this path for current impact.
+- Treat it as a sibling manifestation of the same K-Mod aggregation design.
+
+Current impact:
+- `AI_getWarSuccessRating()` remains widely consumed by:
+  - CvCityAI production / panic / wonder / unit decisions,
+  - CvPlayerAI military/economic strategy,
+  - CvUnitAI behavior,
+  - UWAICache / UWAIAgent,
+  - WarUtilityAspect,
+  - CvTeamAI war decisions,
+  - UI/debug help.
+- Therefore omitted vassal battle results can affect default/current AI behavior even when full UWAI is enabled.
+
+Why this is one root:
+- K-Mod deliberately tried to avoid treating each vassal as an independent war by iterating only free teams.
+- But it canonicalized only the POWER side of the coalition through `getPower(true)`;
+  it never canonicalized/aggregated WarSuccess state to the same master coalition.
+- The repair invariant is population consistency: coalition power and coalition battle success must cover
+  the same master/vassal membership.
+
+Collision:
+- Semantic searches of current repository Album and reviewed README_Known_Issues found no same-root
+  "vassal WarSuccess omitted from free-master coalition rating / Force Peace" issue.
+
+Repair direction:
+1. For each free enemy coalition master, aggregate directional WarSuccess across the master and all its vassals
+   before applying coalition power.
+2. If the rating concept includes our own vassal power through `getPower(true)`, likewise aggregate the
+   WarSuccess earned/suffered by our vassal teams so numerator/state population matches own coalition power.
+3. Prefer a centralized coalition/master-locus WarSuccess helper so Force-Peace and `AI_getWarSuccessRating`
+   cannot independently repeat the same free-team/raw-team mismatch.
+4. Avoid simply re-including every vassal as a separate top-level enemy while retaining `master.getPower(true)`,
+   which would double-count coalition power; aggregate vassal battle results under the free master instead.
+
+POST-WIP14 F047 BROADENING / CALLER VERIFICATION
+- F047 remains ONE incomplete master/vassal war-plan canonicalization root, not F050:
+  - legacy vassal-key strategic writes can be missed by master-normalized tactical/read APIs,
+  - canonical master-key preparations can be missed by raw per-vassal area/enemy helpers.
+- Additional current consequence confirmed:
+  `AI_updateWarPlanCounts()` deliberately ignores plans whose RAW target is currently a vassal.
+  Therefore manifestation A's legacy vassal-keyed plan may also leave:
+  - `m_bAnyWarPlan == false`
+  - per-plan cached counts == 0
+  even though the raw planner contains a real preparation/war plan.
+- Many production/strategy helpers consume `AI_isAnyWarPlan()`, so manifestation A is not limited to
+  tactical border-crossing readiness.
+- Conversely, master-key preparations make the global cache correct but still leave raw target-vassal
+  AreaAI/enemy aggregators blind during the preparation phase.
+- This reinforces one canonical-key invariant rather than creating extra roots.
+
+OTHER POST-WIP14 CLOSURE RESULT
+- Fresh free/master-only enemy aggregation audit identified F050 above.
+- No other independent finding has yet emerged from that pass.
+- F051 currently UNUSED.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368 - broadened incomplete war-plan canonicalization
+- F048 / KI#369
+- F049 / KI#370
+- F050 / KI#371
+- F051 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP15
+1. Continue free/master-only team aggregation audit:
+   - WarSuccess / war weariness / power / enemy-state helpers,
+   - determine whether any sibling mismatch belongs under F050 or is intentional.
+2. Finish final independent tiny-helper/caller/sentinel/divisor/assert/header pass.
+3. Complete adversarial reread F032-F050:
+   - exact current reachability,
+   - ancestry classification,
+   - bounded consequence,
+   - surgical repair direction.
+4. Verify practical-1842 inventory has no unresolved candidate and no superseded wording survives.
+5. Deep collision search against reconciled Album + reviewed KI through current practical 6239.
+6. If not fully satisfied, freeze C010-WIP16 rather than force C011.
+7. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP15
+================================================================================
+WORKING CHECKPOINT C010-WIP16 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP15.
+- Authoritative source snapshot remains practical 6239:
+  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots remain F032-F050 / provisional KI#353-KI#371.
+- F051 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the clean final-scan work performed after WIP15 before the next adversarial pass.
+
+POST-WIP15 FINAL-SCAN PROGRESS
+
+1. Quantitative claims revalidated against current practical-6239 XML/data
+- F034:
+  current XML has exactly five default air UnitClasses with DOMAIN_AIR and positive iAirCombat:
+  Fighter, Jet Fighter, Bomber, Stealth Bomber, Guided Missile.
+  Therefore the simple current-data example in which the rival-team denominator is inflated by roughly 5x
+  remains accurate.
+- F041 / F049:
+  ordinary leader defaults remain:
+  - BonusTradeAttitudeDivisor = 50
+  - BonusTradeAttitudeChangeLimit = +2
+  - OpenBordersAttitudeDivisor = 25
+  - OpenBordersAttitudeChangeLimit = +2
+  The numeric examples remain current.
+
+2. F035 independence assumption revalidated
+- GET_BETTER_UNITS strategy is generated from military-unit quality/availability conditions.
+- DAGGER is generated separately from an aggression/early-rush strategic score.
+- financial trouble is separately computed state.
+- No implication relation was found among these sets.
+- Therefore subtracting total Dagger count from FinancialTrouble / GET_BETTER_UNITS counts remains invalid
+  set arithmetic, and F035 survives unchanged.
+
+3. F041 birth history revalidated
+- Practical 1386 introduced the randomized relationship-counter helper and the large Open Borders / Bonus Trade
+  "cap" arguments in the same change.
+- Helper semantics cap only the returned 0-2 per-turn binomial increment.
+- The large caller caps were therefore ineffective from birth; this is not a later semantic drift.
+- Preserve the corrected consequence:
+  - Open Borders counter resets on agreement status changes;
+  - do NOT claim OB excess survives cancellation;
+  - Bonus Trade excess + later decay remains the strong current effect.
+
+4. Division / modulo sweep
+- Every syntactically unguarded division/modulo site in CvTeamAI was enumerated and checked against live caller/data invariants.
+- Representative `AI_refuseToTalkWarThreshold()` member-count divisor is only reached for a live player's
+  at-war team and is therefore nonzero.
+- Demographic/yield/team-attitude averages have nonempty team or explicit positive denominator invariants.
+- Variable percentage denominators are guarded.
+- No F051 from divide-by-zero or denominator reachability.
+
+5. Tiny-army `AI_getWarSuccessRating()` scale - held below threshold
+- `militaryUnits * WAR_SUCCESS_ATTACKING / 5` can become very small/zero for tiny armies.
+- K-Mod deliberately scaled WarSuccess sensitivity by army size and guards the eventual divisor with max(1,...).
+- No source-backed correctness threshold says tiny wars must be smoothed differently.
+- Keep as tuning territory, not a finding.
+
+6. Sentinel / type-domain sweep
+- Raw NO_TEAM / enum-map callers rechecked.
+- APIs using NO_TEAM as "any team" branch before raw indexing.
+- Integer-vs-team/player/enum comparisons were scanned again.
+- F032 remains the unique confirmed incompatible vote-count/team-ID comparison.
+- No new current sentinel/type root.
+
+7. FAssert / default-switch sweep
+- Live attitude/yield switches cover current valid enum domains.
+- Missing UNITAI_ATTACK_CITY_LEMMING arm in tech-monopoly switch remains dormant because current XML has no
+  Lemming `<DefaultUnitAI>`.
+- Other default/assert branches are unreachable for supported current enum/data.
+- No F051.
+
+8. Unused-parameter / ignored-argument scan
+- F033 remains the meaningful ignored target-team parameter caused by own-team iteration.
+- `AI_forgiveEnemy(..., bFreed)` is explicitly documented in AdvCiv as unused/not needed.
+- `AI_reportSharedWarSuccess(..., eEnemy, ...)` matches the aggregated-distress design; enemy identity is not
+  currently semantically required.
+- `AI_teamCloseness(..., bConsiderLandTarget, ...)` remains historical API residue after the effect moved to
+  AI_playerCloseness.
+- No new dropped-behavior root.
+
+9. Comment debt / FIXME / TODO inventory
+- Concrete Defensive Pact double-count FIXME = F040.
+- Remaining XXX/TODO comments concern strategic approximations, old replaced code, or possible tuning improvements.
+- No unowned explicit correctness FIXME remains.
+
+10. Persistent member / reset-read-write-state pass
+- CvTeamAI persistent member storage was re-enumerated against constructor/reset/read/write and major diplomacy transitions.
+- Apart from already-owned lifecycle/merge roots:
+  - F042 war-plan-count restoration,
+  - F045 worst-enemy incumbent eligibility,
+  - F048 SharedWarSuccess own-side PA merge,
+  - F049 OpenBordersCounter reverse PA merge,
+  remaining persistent state examined is symmetric, reconstructed, derived, or intentionally transient.
+- Current read/write structure remains paired.
+- `AI_finalizeInit()` not initially forcing `m_bAnyWarPlan=false` remains a robustness improvement only; no
+  independent supported stale-true/no-plan lifecycle was established.
+
+11. Free/master-only aggregation scan
+- F050 was the surviving coalition-population defect:
+  WarSuccessRating / Force-Peace free-master loops omit vassal battle results while power uses getPower(true).
+- Possible capitulation/surrender sibling was NOT automatically folded in:
+  surrender code contains explicit design comments about how vassal WarSuccess should affect master's
+  capitulation chances, so that subsystem has separate intentional semantics and is below the current defect threshold.
+- No additional coalition-aggregation root established after F050.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368 - broadened incomplete master/vassal war-plan canonicalization
+- F048 / KI#369
+- F049 / KI#370
+- F050 / KI#371
+- F051 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP16
+1. Continue the final adversarial finding-by-finding reread F032-F050:
+   try to KILL, narrow or merge findings rather than merely confirm them.
+2. Complete one final independent caller-oriented pass over tiny helpers and state consumers.
+3. Run deep semantic collision search against current reconciled Album + reviewed KI through practical 6239.
+4. Ensure no superseded wording survives:
+   - F041: no OB post-cancellation decay claim.
+   - F047: no practical-1842 foreign-vassal exclusion claim.
+   - old "1842 exhausted" WIP statements are historical/superseded only.
+5. Confirm no open candidate remains.
+6. If any uncertainty remains at handoff:
+   freeze C010-WIP17 rather than forcing completion.
+7. Only when genuinely satisfied the whole file is exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP16
+================================================================================
+WORKING CHECKPOINT C010-WIP17 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP16.
+- Authoritative repository snapshot remains:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots remain F032-F050 / provisional KI#353-KI#371.
+- F051 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the post-WIP16 ancestry corrections and narrowed repair guidance before further certification work.
+
+F049 / provisional KI#370 - ANCESTRY CORRECTION
+Correct classification:
+- F049 is NOT introduced by K-Mod practical 941.
+- The reverse Permanent-Alliance OpenBordersCounter omission is inherited from original Firaxis team-merge code.
+
+Historical control:
+- Civ4 / Warlords / BtS historical source snapshots already show the same directional asymmetry:
+  - absorbed-team -> outsider `shareCounters()` preserves OpenBordersCounter,
+  - outsider -> merged-team reverse averaging combines neighboring counters but omits OpenBordersCounter.
+- K-Mod practical 941 ("Made some changes to how data is merged when two teams merge") refactored team-merge logic
+  but preserved the pre-existing omission.
+- K-Mod, AdvCiv and SAS therefore inherit this root from Firaxis/Civ4 lineage.
+
+Current defect statement remains unchanged:
+- when survivor A absorbs B and B has Open Borders history with outsider C,
+  B->C can be preserved into A->C by `shareCounters`,
+  while C->B is not merged into C->A;
+- if A lacked Open Borders with C, creation of the inherited relationship resets C->A to zero and no reverse merge restores B's history;
+- if A already had OB, only A's prior history survives instead of the combined team history.
+- Current Open Borders attitude consumes that directional counter, so the outsider can lose relationship attitude history.
+
+Repair remains:
+- add reverse team-size-weighted OpenBordersCounter merging in `CvTeam::addTeam`,
+  following the existing reverse relationship-counter policy.
+
+F047 / provisional KI#368 - REPAIR SCOPE NARROWED
+- Do NOT globally replace every raw `AI_getWarPlan(team)` with master-key lookup.
+- After war begins, cascading declarations create genuine per-vassal raw war plans, and some code intentionally needs actual-team active-war state.
+- The broken invariant is chiefly PRE-WAR / STRATEGIC canonicalization:
+  - strategic plan writes/reads disagree on vassal vs master key,
+  - `AI_isAnyWarPlan()` cache ignores raw vassal-key plans,
+  - master-key preparations can leave target-vassal area/enemy helpers blind until actual war declaration.
+- Preferred repair architecture:
+  1. canonicalize strategic/preparation war-plan identity to the master team;
+  2. keep tactical subtarget/front selection separate from the strategic key;
+  3. preserve actual per-team active-war plans once war is declared;
+  4. audit area/enemy preparation helpers to include the master's vassal coalition exactly once.
+
+F050 / provisional KI#371 - SCOPE CHECK
+- Additional FREE_MAJOR_CIV / ENEMY_OF loops were inspected.
+- Most are correctly asking an independent-master question (e.g. which coalition master would enter/leave war).
+- F050 remains distinct because its formulas mix populations:
+  - WarSuccess from free-master team IDs only,
+  - power through `getPower(true)` including vassals.
+- Surrender/capitulation code has explicit separate comments/policies for vassal WarSuccess; do not broaden F050 into that subsystem without a direct contradiction.
+- Current best root remains coalition-population consistency in `AI_getWarSuccessRating` plus the Force-Peace sibling.
+
+POST-WIP16 ANCESTRY ANCHORS
+- SharedWarSuccess feature lineage first appears in AdvCiv practical 1253 / advc.130m family; this supports F048's
+  "new field omitted from one older merge side" classification.
+- `AI_randomCounterChange` relationship-counter randomization/cap helper appears in practical 1386; F041's ineffective
+  large caller caps are born together with the helper contract rather than later drift.
+- `AI_updateWarPlanCounts` / cached plan-count optimization appears in practical 1677; F042's setVassal ordering defect
+  belongs to that optimization lineage.
+- F049 corrected to Firaxis/Civ4 ancestry as above.
+
+POST-WIP16 CLEAN CERTIFICATION RESULTS
+- Repeated persistent-member lifecycle scan found no fifth durable state omission beyond:
+  F042, F045, F048, F049.
+- Repeated divisor/denominator, NO_TEAM, enum/ID, direct-index, FAssert/default, unused-parameter and FIXME/TODO scans
+  produced no F051.
+- F032 remains the unique confirmed incompatible count-vs-team-ID comparison.
+- Current practical-6239 CvTeamAI source remains unchanged from original practical-6225 audit baseline.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368 - broadened incomplete strategic master/vassal war-plan canonicalization
+- F048 / KI#369
+- F049 / KI#370 - FIRAXIS/CIV4 inherited ancestry
+- F050 / KI#371
+- F051 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP17
+1. Continue ancestry/adversarial reread F032-F050, trying to kill/narrow/merge rather than merely affirm.
+2. Verify birth/practical ancestry especially for:
+   - F032/F033/F036-F039/F043-F046 practical-1842 family,
+   - F040 inherited DP coalition logic,
+   - F045 worst-enemy candidate iterator change,
+   - F048 SharedWarSuccess feature merge,
+   - F050 K-Mod war-success coalition rewrite.
+3. Finish final caller-oriented pass over tiny helpers and state consumers.
+4. Deep semantic collision search against reconciled Album + reviewed Known Issues through practical 6239.
+5. Confirm no open candidate and no superseded wording.
+6. If uncertainty remains, freeze C010-WIP18.
+7. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP17
+================================================================================
+WORKING CHECKPOINT C010-WIP18 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP17.
+- Authoritative source snapshot remains practical 6239:
+  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots remain F032-F050 / provisional KI#353-KI#371.
+- F051 is currently an OPEN UNNUMBERED declare-war-trade candidate.
+- Do NOT promote this checkpoint to C011.
+
+POST-WIP17 PROTECTED PROGRESS
+
+F047 / provisional KI#368 - additional same-root raw-plan callers
+The broadened incomplete master/vassal strategic war-plan canonicalization root now has additional
+pre-war readers that expose the same mismatch:
+
+1. `AI_isHasPathToEnemyCity()`
+- Raw per-team `AI_getWarPlan(eLoopTeam)` filtering can omit cities belonging to a target master's
+  vassal during preparation when the canonical strategic plan exists only on the master.
+- This can make path-to-enemy-city reasoning understate the future coalition before declaration.
+
+2. `AI_getRivalAirPower()`
+- Enemy-air treatment checks raw `AI_getWarPlan(itRival->getID())`.
+- During preparation against a master, air units belonging to the master's vassal can remain outside
+  the "enemy" component because no raw plan exists on that vassal yet.
+- They may still contribute to the broader rival average, but planned-coalition enemy weighting is incomplete.
+
+3. `AI_getTechMonopolyValue(eTech,eTeam)`
+- Military-tech monopoly valuation sets war-plan context through raw `AI_getWarPlan(eTeam)`.
+- If `eTeam` is a foreign vassal of the planned master, the strategic coalition is logically part of the
+  future war but the raw vassal key can report NO_WARPLAN during preparation.
+
+These are NOT separate findings. They reinforce the same repair invariant:
+- canonicalize strategic/preparation coalition identity,
+- preserve true per-team active-war state after declaration,
+- audit raw plan reads only where they are intended to represent preparation rather than actual team-local war state.
+
+F050 / provisional KI#371 - additional population precision
+- `AI_getWarSuccessRating()` mixes populations in one more term:
+  - `iThisTeamPower = getPower(true)` includes our vassals,
+  - but `iSuccessScale` is based on `getNumMilitaryUnits()` for this team itself.
+- Therefore even the WarSuccess smoothing/normalization scale is narrower than the coalition whose power is
+  used in the same formula.
+- Keep this under F050; it is the same coalition-population consistency defect, not a separate root.
+- The key repair remains to define one master/vassal coalition population and use it consistently for:
+  WarSuccess earned/suffered, military scale and power.
+
+OPEN UNNUMBERED CANDIDATE - possible F051
+Candidate:
+- Legacy `AI_declareWarTradeValLegacy()` may underprice a declaration of war against a VOLUNTARY VASSAL
+  by valuing the named vassal rather than the master coalition that necessarily enters the war.
+
+Current wrapper:
+- `AI_declareWarTradeVal(eTarget,eSponsor)`:
+  - with UWAI enabled, explicitly canonicalizes:
+    `GET_TEAM(eSponsor).uwai().declareWarTradeVal(GET_TEAM(eTarget).getMasterTeam(), getID())`
+    and comments that the target can be a voluntary vassal;
+  - without UWAI, calls:
+    `AI_declareWarTradeValLegacy(eTarget,eSponsor)`
+    with the raw target ID.
+
+Legacy value terms use raw target:
+- target city count
+- target total population
+- target nukes
+- `GET_TEAM(eWarTeam).getPower(true)`.
+For a voluntary vassal, `getPower(true)` includes that vassal's own vassals (if any) but NOT its master.
+
+Coalition contrast:
+- `CvTeam::getDefensivePower()` canonicalizes through `getMasterTeam()` and includes the full same-master coalition.
+- `AI_declareWarTrade` denial/power logic can therefore see the full master/vassal coalition while the legacy
+  price formula appears to value only the named vassal.
+
+War-propagation fact already established:
+- declaring war on a voluntary vassal queues vassal-alignment war against its master / same-locus partners.
+- Therefore accepting the trade entails war with more than the named vassal.
+
+Historical anchor:
+- AdvCiv practical 1263 / advc.104o split the old K-Mod/BtS valuation into `AI_declareWarTradeValLegacy`.
+- The new UWAI branch already normalized a voluntary-vassal target to its master and explicitly documented that
+  the raw target can be a voluntary vassal.
+- Legacy branch intentionally preserved old raw-target valuation.
+
+DO NOT PROMOTE YET.
+Proof still required:
+1. Show a supported non-UWAI current trade path can actually request/price war against a voluntary vassal.
+2. Show legacy valuation materially omits the master coalition and no later floor/adjustment reliably compensates.
+3. Determine whether the legacy formula's raw-front valuation was intentionally preserved or is simply inherited
+   K-Mod/BtS behavior made inconsistent with AdvCiv's master-normalized war semantics.
+4. Search current Album / reviewed KI for same-root collision.
+5. If confirmed, assign F051 / provisional KI#372; otherwise record as heuristic approximation.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 / KI#369
+- F049 / KI#370
+- F050 / KI#371
+- F051 currently OPEN / UNNUMBERED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP18
+1. Prove or kill the legacy voluntary-vassal declare-war-trade valuation candidate.
+2. Continue final ancestry/adversarial reread F032-F050.
+3. Finish caller-oriented raw war-plan audit under F047 without splitting duplicate roots.
+4. Deep collision search against reconciled Album + reviewed KI through practical 6239.
+5. If handoff occurs before closure, freeze C010-WIP19.
+6. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP18
+================================================================================
+WORKING CHECKPOINT C010-WIP19 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP18.
+- Authoritative source snapshot remains practical 6239:
+  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots now extend through F052 / provisional KI#373.
+- F053 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- F051 is a late cross-file CvPlayerAI regression discovered while proving the CvTeamAI war-trade caller contract.
+- F052 is a cross-contract AdvCiv UWAI/TRADE_WAR feature mismatch.
+- The earlier unnumbered "legacy voluntary-vassal price undercounts master" candidate is NOT independently current-reachable because F052's game-rule gate blocks vassal TRADE_WAR items; retain it only as a repair hazard if voluntary-vassal war trades are enabled in legacy mode.
+
+F051 - provisional KI#372 - legacy AI joint-war proposal uses untouched -1 cached war price
+Status: CONFIRMED CURRENT CONFIGURATION-REACHABLE CROSS-FILE REGRESSION.
+Root file: `CvPlayerAI.cpp`, discovered through `CvTeamAI::AI_declareWarTradeVal` caller tracing.
+
+Current control flow:
+- `CvPlayerAI::AI_proposeWarTrade(eHireling)` initializes:
+  `int iBestTeamPrice = -1;`
+- UWAI target-selection branch:
+  - evaluates candidate joint-war utility,
+  - calls `AI_declareWarTradeVal`,
+  - assigns `iBestTeamPrice = iTheirPrice` when choosing a target.
+- Legacy/K-Mod branch:
+  - independently chooses a legal target,
+  - never assigns `iBestTeamPrice`.
+- After either branch:
+  `int iWeReceive = iBestTeamPrice;`
+  so the legacy path enters deal balancing with -1.
+
+Concrete no-tech consequence:
+1. UWAI disabled / Aggressive AI (Legacy) active.
+2. AI sponsor is at war and finds a legal AI hireling + target.
+3. Legacy branch chooses `eBestTarget`.
+4. No tradable tech is available, so `iHirelingReceives = 0`.
+5. `iWeReceive = -1`.
+6. Gold-balancing branches do not repair the sentinel.
+7. Final deal test:
+   `4 * iHirelingReceives > 3 * iWeReceive`
+   becomes `0 > -3`, true.
+8. AI implements a deal in which the hireling gives `TRADE_WAR` and the sponsor can give nothing.
+
+With a tradable tech:
+- positive `iHirelingReceives > -1`,
+- because legacy `iBestTargetValue` remains 0, the code can enter the branch that asks the HIRELING to pay gold back
+  to the sponsor, even though the sponsor is the one asking for military help.
+
+Ancestry:
+- Before AdvCiv practical 1341, the common post-selection path always called:
+  `ourTeam.AI_declareWarTradeVal(eBestTeam, civ.getTeam())`
+  after either UWAI or legacy target selection.
+- Practical 1341 / `a5724ff581...`, title "Some small AI changes":
+  - introduced `iBestTeamPrice = -1`,
+  - cached/assigned the price only in the UWAI branch,
+  - replaced the old common `AI_declareWarTradeVal(...)` call with `iBestTeamPrice`.
+- The legacy branch was left without an assignment.
+- Later refactors (including extraction to `AI_proposeWarTrade`) preserve the sentinel and branch structure.
+- No descendant repair found.
+
+Current supported reachability:
+- AdvCiv explicitly supports disabling UWAI through:
+  - Custom Game "Aggressive AI (Legacy)" / K-Mod mode,
+  - `DISABLE_UWAI`,
+  - related legacy testing configurations.
+- `AI_proposeWarTrade` is called for AI-AI diplomacy regardless; it has explicit UWAI vs legacy branches.
+- Therefore this is not dormant debug code.
+
+Collision:
+- No current reviewed Known Issue / Album root for `iBestTeamPrice` or free/inverted legacy AI joint-war compensation found.
+
+Repair direction:
+- Restore a valid legacy price before common deal balancing.
+- Minimal safe repair:
+  after `eBestTarget` is selected, if UWAI is disabled:
+  `iBestTeamPrice = kOurTeam.AI_declareWarTradeVal(eBestTarget, kHireling.getTeam());`
+  (or assign the price when selecting the legacy target).
+- Keep the UWAI cached-price optimization.
+- Add/assert `iBestTeamPrice >= 0` once `eBestTarget != NO_TEAM` before monetary/tech balancing so this sentinel cannot silently reappear.
+
+F052 - provisional KI#373 - intended UWAI voluntary-vassal war-trade targets are blocked by inherited BtS TRADE_WAR gate
+Status: CONFIRMED CURRENT ADV-CIV INCOMPLETE FEATURE / CROSS-CONTRACT DEFECT.
+
+Inherited game-rule gate:
+- Current `CvPlayer::canTradeItem(... TRADE_WAR ...)` requires:
+  `!GET_TEAM(eTargetTeam).isAVassal()`.
+- Thus ALL vassal teams, including voluntary non-capitulated vassals, are rejected before AI denial/value logic.
+
+Historical lineage:
+- Original Civ4 TRADE_WAR game-rule code did not have the universal target-vassal exclusion.
+- Warlords used a narrower vassal restriction.
+- BtS changed the target rule to reject any `isAVassal()` team.
+- AdvCiv inherited that BtS gate unchanged through current practical 6239.
+
+AdvCiv `advc.104o` later introduces an explicit contradictory target contract:
+- In `CvPlayerAI::AI_proposeWarTrade`, UWAI target-selection comment says:
+  an unpopular VOLUNTARY vassal "should be a valid target even if the master would not be."
+- The code itself rejects only `kTarget.isCapitulated()` before testing `canTradeItem`, showing voluntary vassals are intended to remain candidates.
+- `CvTeamAI::AI_declareWarTradeVal` UWAI branch explicitly comments:
+  "`eWarTeam` can be a (voluntary) vassal"
+  and canonicalizes the valuation target to `GET_TEAM(eTarget).getMasterTeam()`.
+- `CvTeam::canEventuallyDeclareWar(eTarget)` calls `canChangeWarPeace(eTarget, true)`,
+  which permits declaration against a FOREIGN voluntary vassal.
+- `CvTeam::declareWar` contains the vassal-alignment cascade that brings the target's master/locus into the war.
+- Therefore the underlying war system supports the state that the trade-item gate suppresses.
+
+Concrete lost behavior:
+1. Sponsor A is at war with voluntary vassal V (and therefore V's master M).
+2. Potential hireling H dislikes V enough to accept a war trade against V but likes M too much to accept the same trade when M is named.
+3. AdvCiv UWAI code explicitly intends V to be a valid target in this case.
+4. `H.canTradeItem(A, TRADE_WAR(V), ...)` reaches the inherited BtS game-rule gate.
+5. `V.isAVassal()` makes the item invalid before `AI_declareWarTrade` / UWAI target valuation runs.
+6. The intended target choice is therefore impossible.
+
+User-facing side:
+- The same `canTradeItem` contract also prevents ordinary trade UI / AI deal machinery from constructing a war-trade item whose named target is a voluntary vassal.
+- The strongest source-backed design contradiction, however, is AdvCiv's own UWAI AI-AI target comment and master-normalized valuation path.
+
+Collision:
+- No current reviewed KI / Album entry for the voluntary-vassal `TRADE_WAR` game-rule gate versus advc.104o intent found.
+- Distinct from F047:
+  F047 = strategic war-plan key canonicalization.
+  F052 = diplomatic TRADE_WAR target availability.
+
+Repair direction:
+Conservative UWAI-preserving option:
+- Relax the target-vassal gate only for VOLUNTARY/non-capitulated vassals when the relevant supported UWAI war-trade path is active.
+- Continue rejecting capitulated-vassal target items if that remains the desired user/game-rule policy.
+General option:
+- Replace universal `!isAVassal()` with a deliberate capitulation/voluntary distinction (e.g. reject only capitulated),
+  then ensure both UWAI and legacy valuation/denial paths are coalition-correct.
+
+IMPORTANT REPAIR HAZARD - dormant legacy valuation mismatch
+- The earlier unnumbered candidate about `AI_declareWarTradeValLegacy(vassal, sponsor)` underpricing the target master is
+  NOT independently current-reachable through normal TRADE_WAR item construction because F052's gate blocks all vassal targets.
+- If F052 is fixed by enabling voluntary-vassal targets in LEGACY/K-Mod mode too, this latent mismatch becomes reachable:
+  - legacy value uses raw vassal cities/population/nukes/power,
+  - `getPower(true)` on a vassal does not include its master,
+  - declaring war on the vassal necessarily aligns the master,
+  - embargo floor is also raw-target based and does not reliably restore coalition valuation.
+- Therefore either:
+  1. enable voluntary-vassal war-trade targets only in UWAI mode (whose valuation already canonicalizes to master), or
+  2. canonicalize `AI_declareWarTradeValLegacy` to the master coalition at the same time.
+- Do NOT assign a separate current finding to the dormant raw legacy price under the present gate.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 / KI#369
+- F049 / KI#370
+- F050 / KI#371
+- F051 / KI#372 - late cross-file CvPlayerAI joint-war pricing regression
+- F052 / KI#373 - blocked AdvCiv UWAI voluntary-vassal war-trade target feature
+- F053 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP19
+1. Continue final adversarial/caller pass after F051/F052:
+   - inspect war-trade/peace-trade helper contracts for any same-root sibling,
+   - do not duplicate F051/F052 by counting repair hazards as current defects.
+2. Continue raw-plan caller audit under F047.
+3. Finish ancestry table/reread F032-F052 and deep collision search.
+4. Run final whole-file state/sentinel/divisor/assert/header sanity pass.
+5. If uncertainty remains, freeze C010-WIP20.
+6. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP19
+================================================================================
+WORKING CHECKPOINT C010-WIP20 - ROOT-NORMALIZED, CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP19.
+- Authoritative source snapshot remains practical 6239:
+  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Root normalization performed before durable C011:
+  F043, F044 and F046 are now MERGED HISTORICAL ALIASES of F037 rather than independent roots.
+- Confirmed/provisional independent roots are therefore:
+  F032-F042, F045, F047-F052 (with gaps intentionally retained for traceability).
+- Provisional KI#364, KI#365 and KI#367 are MERGED/RESERVED aliases under KI#358; they should not become
+  separate reviewed Known-Issue entries unless later evidence establishes an independent root.
+- F053 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+
+ROOT NORMALIZATION - F037 absorbs F043 / F044 / F046
+Canonical root:
+F037 / provisional KI#358
+Practical-1842 `AI_preDeclareWar()` uses one attacker-relative `KNOWN_POTENTIAL_ENEMY_OF`
+outer population for four inner memory contracts that originally had different populations.
+
+Why one root:
+- Pre-1842 code had one broad loop over every alive non-minor/major player.
+- Each inner branch then applied its OWN semantic predicate:
+  1. war-despite-tribute reputation:
+     observer must know the tribute-paying VICTIM and satisfy separate master-locus conditions;
+  2. `MEMORY_MADE_DEMAND` reset:
+     declaring player forgets the memory toward ALL other living major players;
+  3. direct victim `MEMORY_DECLARED_WAR`:
+     target-team members are processed whenever a valid declaration occurs, including a first-contact cascade;
+  4. third-party `MEMORY_DECLARED_WAR_ON_FRIEND`:
+     `AI_disapprovesOfDoW()` itself defines the valid observer population and intentionally does not require
+     prior contact with the aggressor.
+- Practical 1842 replaced the common broad loop with:
+  `PlayerIter<MAJOR_CIV, KNOWN_POTENTIAL_ENEMY_OF>(getID())`
+  keyed to the AGGRESSOR before any of those inner branches execute.
+- That single population substitution imposes:
+  - aggressor contact,
+  - exclusion of aggressor same-master-locus players,
+  - and an attacker-relative population,
+  on all four logically different contracts.
+- Restoring the original broad major-player population (or splitting the four operations into correctly scoped loops)
+  repairs all four manifestations together.
+- Therefore counting four separate bugs would overstate one refactor root.
+
+Canonical F037 manifestations to preserve:
+A. Former F037 / KI#358 manifestation - war despite received tribute
+- Observer population should be based on knowledge of the tribute-paying VICTIM plus the original locus condition.
+- 1842 instead keys outer eligibility to knowledge/locus relative to the AGGRESSOR.
+- Can both omit a valid victim-knowing observer and admit an attacker-knowing observer that lacks the victim-contact
+  condition intended by the original code.
+
+B. Former F043 / provisional KI#364 - all arrogant-demand reset
+- Practical 1260 explicitly promised that AI civs forget ALL "arrogant demands" when declaring any war.
+- Pre-1842 broad loop cleared `MEMORY_MADE_DEMAND` toward all other living major players.
+- 1842 only clears players in the aggressor's current potential-enemy iterator.
+- Existing demand memories toward current master/vassal-locus players can survive contrary to the feature contract.
+- `setVassal()` does not symmetrically clear the master's memories about the new vassal.
+
+C. Former F044 / provisional KI#365 - war-on-friend observer memory
+- Pre-1842 broad population let `AI_disapprovesOfDoW()` enforce its own semantics.
+- That helper deliberately does NOT require the observer to have met the aggressor and does not simply reject an
+  observer for sharing the aggressor's master locus.
+- 1842 silently removes those observers before the helper is called.
+- Historical `MEMORY_DECLARED_WAR_ON_FRIEND` can therefore be omitted and later diplomacy/war utility altered.
+
+D. Former F046 / provisional KI#367 - direct victim memory on first-contact cascading declaration
+- `CvTeam::declareWar()` calls `AI_preDeclareWar()` BEFORE `meet()`.
+- Defensive Pact / vassal-alignment cascades can declare war between teams that had not previously met.
+- The 1842 outer contact filter can therefore remove the direct target's players before the
+  `MEMORY_DECLARED_WAR` branch.
+- Later contact establishment does not replay the missed memory.
+
+Historical aliases / counting policy:
+- F043, F044, F046 remain in WIP history for traceability but are RETIRED AS INDEPENDENT ROOTS.
+- KI#364, KI#365, KI#367 are provisional merged aliases; do not create four separate KI entries from this root.
+- Later F numbers and provisional KI aliases are NOT renumbered in WIP history, because the user/Codex have already
+  received those identifiers.
+- If reviewed Known-Issue numbering is deliberately compacted during implementation, do that explicitly and record
+  the mapping rather than silently reusing provisional aliases.
+
+Canonical repair direction for F037:
+Preferred:
+1. Do not drive all pre-declaration memory work through `KNOWN_POTENTIAL_ENEMY_OF(aggressor)`.
+2. Restore/builder a broad living-major observer loop and keep each branch's own semantic predicate,
+   matching the pre-1842 contract.
+Or:
+3. Split the four operations into dedicated loops/targeted team operations:
+   - direct victim -> target-team members directly;
+   - all-demand reset -> all other alive major players;
+   - tribute reputation -> observers satisfying victim-contact/locus conditions;
+   - war-on-friend -> broad observers, then `AI_disapprovesOfDoW`.
+This is clearer and less likely to reintroduce cross-population coupling.
+
+WHY OTHER CLUSTERS REMAIN SEPARATE
+- F048 vs F049:
+  both involve Permanent-Alliance merge completeness, but:
+  - F048 = AdvCiv-added SharedWarSuccess omitted on merged team's own direction;
+  - F049 = Firaxis-inherited OpenBordersCounter omitted on outsider->merged reverse direction.
+  Different state fields, ancestry and merge statements; separate roots.
+- F047 vs F050:
+  both concern master/vassal coalitions, but:
+  - F047 = strategic war-plan key canonicalization/read-write identity;
+  - F050 = WarSuccess/military-scale/power population aggregation.
+  Different state contracts and ancestry; separate roots.
+- F051 vs F052:
+  - F051 = practical-1341 legacy joint-war proposal leaves cached price at -1;
+  - F052 = inherited BtS TRADE_WAR gate blocks AdvCiv's intended UWAI voluntary-vassal target.
+  Different configuration paths and surgical fixes; separate roots.
+
+CURRENT INDEPENDENT ROOT SET AFTER NORMALIZATION
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358 - CANONICAL AI_preDeclareWar population root
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364 - MERGED INTO F037
+- F044 / KI#365 - MERGED INTO F037
+- F045 / KI#366
+- F046 / KI#367 - MERGED INTO F037
+- F047 / KI#368
+- F048 / KI#369
+- F049 / KI#370
+- F050 / KI#371
+- F051 / KI#372
+- F052 / KI#373
+- F053 currently UNUSED.
+
+Independent-root count represented by the above:
+- 18 surviving independent roots:
+  F032-F042 = 11,
+  plus F045, F047, F048, F049, F050, F051, F052 = 7.
+- F043/F044/F046 are manifestations/aliases, not additional roots.
+
+POST-WIP19 NEGATIVE CONTROL
+- Brokered peace does not show the F052 mirror:
+  `AI_makePeaceTrade` deliberately rejects vassal peace targets and uses the independent/master team as the
+  coalition representative.
+- This strengthens F052's classification as a specific war-trade/advc.104o contract mismatch rather than a
+  general "all diplomacy should name vassals" assumption.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP20
+1. Continue final adversarial/root-normalization pass:
+   - try to merge/kill/narrow any remaining findings rather than grow the count.
+2. Finish finding-by-finding source/history/caller reread of the 18 independent roots.
+3. Complete deep collision search against practical-6239 Album + reviewed Known Issues.
+4. Re-run one last independent whole-file sentinel/divisor/state/header sanity scan.
+5. Ensure durable synthesis never counts F043/F044/F046 independently and never repeats superseded WIP wording.
+6. If not fully satisfied, freeze C010-WIP21.
+7. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP20
+================================================================================
+WORKING CHECKPOINT C010-WIP21 - ROOT-NORMALIZED, CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending root-normalized C010-WIP20.
+- Authoritative source snapshot remains practical 6239:
+  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Independent surviving roots remain the 18-root normalized set:
+  F032-F042, F045, F047-F052.
+- F043/F044/F046 remain MERGED historical aliases of canonical F037.
+- F053 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- Main purpose of WIP21: protect ancestry corrections and current supported-option evidence found after WIP20.
+
+F032 / KI#353 - ANCESTRY CORRECTION
+- Earlier WIPs incorrectly described practical 1832 as the birth of the vote-count/team-ID comparison.
+- Practical 1832 merely MOVED the already-buggy helper from `WarAndPeaceAgent` into `CvTeamAI` nearly verbatim.
+- The deleted pre-move implementation already contains the same incompatible comparison:
+  conceptually `if (firstMostVotes == agentId)`.
+- The same bug is visible in the initial tracked AdvCiv/WPAI import practical 1253 (`f6ff6a182f`, "Initial commit (cont.)").
+- Durable classification:
+  present from the initial tracked AdvCiv/WPAI code imported into this ancestry; later moved to CvTeamAI by practical 1832.
+- Do NOT say practical 1832 introduced F032.
+
+F035 / KI#356 - UPSTREAM BIRTH CONFIRMED
+- The invalid Dagger set-subtraction logic already exists in the large BBAI/K-Mod baseline import
+  `KMod_3_2414225e64.diff`.
+- The comments themselves say "half the non-dagger teammates" while the implementation subtracts independent
+  Dagger totals from FinancialTrouble / GET_BETTER_UNITS totals.
+- Later K-Mod / AdvCiv changes largely preserve/reformat it.
+- Durable classification: inherited BBAI/K-Mod baseline design defect, not an AdvCiv regression.
+
+F040 / KI#361 - ANCESTRY PRECISION
+- Shared Defensive Pact double-counting predates AdvCiv practical 1366.
+- Pre-1366 chosen-war code already summed each chosen target's `getDefensivePower(getID())`; overlapping DP
+  allies could therefore be counted more than once.
+- Practical 1366 added vassal de-duplication and explicitly left the note that DP allies can still be double-counted.
+- Durable classification:
+  inherited BBAI/K-Mod coalition-summation defect, explicitly acknowledged but left unfixed by AdvCiv 1366.
+- Do NOT describe 1366 as the birth of the bug.
+
+F045 / KI#366 - ANCESTRY / SCOPE NUANCE
+- Pre-1842 `AI_enmityValue()` explicitly rejected `isVassal(eEnemy)`, i.e. OUR MASTER.
+- Practical 1842 removed that local check while moving candidate eligibility into
+  `KNOWN_POTENTIAL_ENEMY_OF`, apparently relying on the iterator to enforce master-locus eligibility.
+- Current `AI_updateWorstEnemy()` nevertheless evaluates the INCUMBENT directly through `AI_enmityValue`
+  before iterating replacement candidates.
+- Thus the historically strongest unambiguous regression case is:
+  a former worst enemy later becomes OUR MASTER; the old value function would have rejected it, while the
+  current incumbent path can bypass the iterator exclusion.
+- Current candidate semantics are broader and exclude the whole same-master locus, so an own voluntary vassal
+  can likewise become grandfathered after a relationship transition.
+- Durable wording should focus on the CURRENT invariant:
+  incumbent and replacement worst-enemy eligibility diverge.
+- Use "our master" as the strongest historical-control example; do not overstate that pre-1842 code had exactly
+  the same broad same-locus policy in every direction.
+
+F048 / KI#369 - FEATURE-LINEAGE ANCHOR
+- SharedWarSuccess is visible in the initial tracked AdvCiv/advc.130m implementation practical 1253.
+- That implementation explicitly includes SharedWarSuccess in the outsider -> merged-team Permanent Alliance
+  merge while the older own-side `shareCounters()` routine omits the new field.
+- Durable classification:
+  omission present in the initial tracked AdvCiv/advc.130m SharedWarSuccess implementation.
+- Since the local tracked history begins around this import, avoid claiming practical 1253 is necessarily the
+  first-ever external conception of the feature; it is the first tracked ancestry point and already contains the mismatch.
+
+F050 / KI#371 - K-MOD BIRTH CONFIRMED
+- K-Mod practical 116 (`47f56c9c4e...`) rewrote the BBAI war-success ratio to scale across war sizes/eras.
+- The rewrite explicitly combines:
+  - WarSuccess only from non-vassal/free enemy team IDs,
+  - coalition power through `getPower(true)` including vassals.
+- Later code preserves that population mismatch.
+- Durable classification: K-Mod practical-116 coalition-aggregation design defect.
+
+F051 / KI#372 - SUPPORTED LEGACY CONFIGURATION REACHABILITY CONFIRMED
+Current option plumbing makes the legacy joint-war path an intentional supported game configuration:
+- `CvGameAI::AI_sortOutUWAIOptions()` maps the normal Custom Game "Aggressive AI (Legacy)" option to
+  `setUseLegacyAI(true)`.
+- `GlobalDefines_devel.xml` documents:
+  - `DISABLE_UWAI`
+  - `UWAI_IN_BACKGROUND` (UWAI logs, K-Mod/legacy makes decisions).
+- `GlobalDefines_advc.xml` exposes `USE_KMOD_AI_NONAGGRESSIVE`.
+- UI text names the option "Aggressive AI (Legacy)".
+- Therefore F051 is not developer-only or reachable only through unsupported source hacking.
+
+POST-WIP20 ROOT-NORMALIZATION / COLLISION PROGRESS
+- The four practical-1842 AI_preDeclareWar manifestations remain correctly merged under canonical F037.
+- Other clusters were re-tested with the "would one surgical fix repair all manifestations?" rule:
+  - F048/F049 remain separate: different directional fields, ancestry and statements.
+  - F047/F050 remain separate: plan-key identity vs coalition WarSuccess aggregation.
+  - F051/F052 remain separate: sentinel pricing regression vs item-validity/feature contract.
+- Mechanical repository searches by both function names and semantic concepts have not revealed a reviewed KI
+  collision for the normalized roots.
+- Final deeper adjacent-KI reread is still required before durable C011.
+
+CURRENT INDEPENDENT ROOT SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358 - canonical AI_preDeclareWar population root
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364 - MERGED alias of F037
+- F044 / KI#365 - MERGED alias of F037
+- F045 / KI#366
+- F046 / KI#367 - MERGED alias of F037
+- F047 / KI#368
+- F048 / KI#369
+- F049 / KI#370
+- F050 / KI#371
+- F051 / KI#372
+- F052 / KI#373
+- F053 currently UNUSED.
+
+Independent surviving root count: 18.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP21
+1. Continue ancestry/adversarial reread for all 18 independent roots.
+2. Finish deep semantic collision inspection of likely adjacent reviewed Known Issues, not only grep-level search.
+3. Continue final caller-oriented whole-file pass, especially:
+   - raw strategic war-plan reads under F047,
+   - master/free-team aggregation under F050,
+   - war/peace brokerage symmetry around F051/F052.
+4. Run one final independent state/sentinel/divisor/default/assert/header sanity scan.
+5. Ensure durable synthesis contains:
+   - corrected F032/F040/F045 ancestry wording,
+   - F049 Firaxis ancestry,
+   - F043/F044/F046 merged aliases only,
+   - corrected F041 and F047 consequence wording.
+6. If any uncertainty remains, freeze C010-WIP22.
+7. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP21
+================================================================================
+WORKING CHECKPOINT C010-WIP22 - ROOT-NORMALIZED, CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending root-normalized C010-WIP21.
+- Authoritative source snapshot remains practical 6239:
+  HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Independent surviving roots remain the 18-root normalized set:
+  F032-F042, F045, F047-F052.
+- F043/F044/F046 remain MERGED historical aliases of canonical F037.
+- F053 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the explicit function-coverage work and the post-WIP21 adversarial reproofs before further closure work.
+
+POST-WIP21 EXPLICIT FUNCTION-COVERAGE PASS
+- Parsed the current CvTeamAI implementation into an explicit method inventory rather than relying only on
+  "interesting-region" coverage.
+- Roughly 154 current CvTeamAI method definitions were inventoried.
+- Helpers that had only been implicitly covered through callers are now being individually dispositioned.
+
+Tiny/helper families explicitly reviewed so far:
+- constructor / reset / doTurnPre / doTurnPost
+- area-target updates
+- financial-trouble / military-weight wrappers
+- demographic and yield estimators
+- primary-area helpers
+- attitude / memory wrappers
+- tech / map / vassal trade helpers
+- trade-denial helpers
+- counter / state wrappers
+- master-planning helpers
+- vote wrappers
+- circumnavigation helpers
+- no-war probability helpers
+- Open Borders counter increment logic
+- religious-victory proximity wrappers
+- victory-source helpers
+- peace trade value helpers
+- enemy-danger-by-area helper
+- current SAS KI#312 tech-locus helper trio
+
+Specific clean dispositions:
+1. `AI_countVSNonMembers`
+- Intentionally counts PLAYER-level nonmembers for the diplomatic-victory obstacle metric.
+- Its callers use alive civilization player counts too.
+- No team/player-domain bug.
+
+2. `AI_isAnyCloseToReligiousVictory`
+- Straight any-member wrapper.
+- No population mismatch.
+
+3. Circumnavigation / map-trade helper
+- Team-wide "can any member train a suitable sea unit?" logic is intentional for team map-trade valuation/refusal.
+- No first-member or wrong-team defect.
+
+4. `AI_isMasterPlanningLandWar`
+- Inherited BBAI/K-Mod comment "Master has no presence here" can be imprecise when the master's AreaAI is merely NEUTRAL.
+- Behavior is a stochastic production heuristic, not a hard zero-city/presence contract.
+- Retain as comment/heuristic debt only.
+
+5. `AI_refuseToTalkWarThreshold`
+- Member-count divisor has no explicit max(1), but live caller concerns a living at-war team and therefore has at least one alive member.
+- No current divide-by-zero.
+
+6. `AI_noWarProbAdjusted`
+- Raw attitude enum zero means ATTITUDE_FURIOUS in the current enum domain.
+- No enum/sentinel defect.
+
+7. `AI_countEnemyDangerByArea`
+- PUF data passes a leader player ID, but PUF_isPotentialEnemy converts the supplied player through TEAMID.
+- No TeamTypes/PlayerTypes mismatch.
+
+8. `AI_makePeaceTradeVal`
+- Counter/attitude averaging and denominators remain guarded / positive under live contracts.
+- No new root.
+
+9. `AI_makeUnwillingToTalk`
+- Behavior matches its intended diplomacy-state contract.
+
+10. Current SAS KI#312 tech-locus helpers
+- Re-read under practical 6239; no new regression.
+
+No F053 has emerged from the explicit helper-coverage pass so far.
+
+F042 / KI#363 - TRANSITION DIRECTION REFINED
+Exact `CvTeam::setVassal` ordering now proves a useful asymmetry:
+- BECOMING a vassal:
+  cache removal happens BEFORE `m_eMaster` is assigned.
+  Target still appears independent, so `AI_updateWarPlanCounts` removes the old count correctly.
+- BECOMING FREE:
+  attempted cache restoration happens BEFORE `m_eMaster` is cleared.
+  Target still appears a vassal, so `AI_updateWarPlanCounts` returns and the restoration is blocked.
+- Therefore F042 is a clean one-direction transition-order bug, not a vague general vassal-cache lifecycle problem.
+
+F048 / KI#369 - SEMANTIC REPROOF
+- `AI_changeWarSuccess` reports contribution to allies through `AI_reportSharedWarSuccess`.
+- `AI_reportSharedWarSuccess` stores directional, accumulating partner-contribution state with decay.
+- `CvPlayerAI::AI_getShareWarAttitude` directly consumes
+  `kOurTeam.AI_getSharedWarSuccess(eTeam)`.
+- `CvTeam::addTeam` reverse outsider->merged-team merge explicitly combines SharedWarSuccess,
+  while own-side `shareCounters` omits it.
+- Thus the omitted state is unquestionably live relationship history after a Permanent Alliance merge.
+
+F049 / KI#370 - SEMANTIC REPROOF
+- `CvPlayerAI::AI_getOpenBordersAttitude` directly consumes:
+  `GET_TEAM(getTeam()).AI_getOpenBordersCounter(TEAMID(ePlayer))`.
+- own-side `shareCounters` preserves OpenBordersCounter;
+  reverse outsider->merged-team `addTeam` merge omits it.
+- Firaxis/Civ4 ancestry correction from WIP17 remains authoritative.
+
+F050 / KI#371 - SEMANTIC REPROOF
+- `CvTeam::getPower(true)` explicitly sums own members plus all vassal players.
+- ordinary WarSuccess remains keyed to actual team IDs.
+- `AI_getWarSuccessRating` reads only free enemy master-team WarSuccess while using coalition power.
+- The population mismatch is therefore real and current.
+
+F051 / KI#372 - EXACT BIRTH + CALLER REPROOF
+- Practical 1341 / `a5724ff581...` exact diff was inspected again.
+- Before the practical, the common post-target-selection path computed:
+  `AI_declareWarTradeVal(eBestTeam, hirelingTeam)`
+  after either UWAI or legacy selection.
+- Practical 1341:
+  - introduced `iBestTeamPrice = -1`,
+  - assigned it only while selecting the UWAI target,
+  - replaced the old common price call with that cached variable,
+  - left the legacy target-selection branch without any assignment.
+- Current `CvPlayerAI::AI_proposeWarTrade` preserves this.
+- Supported reachability is explicit:
+  - Custom Game "Aggressive AI (Legacy)" -> legacy AI,
+  - DISABLE_UWAI,
+  - UWAI_IN_BACKGROUND,
+  - USE_KMOD_AI_NONAGGRESSIVE.
+- The city-for-war fallback suspicion is KILLED:
+  `kHireling.AI_cityTradeVal(city, kHireling.getID())` is the correct acquire-value contract when callee==recipient.
+
+F052 / KI#373 - ADVERSARIAL FEATURE-CONTRACT REPROOF
+Current game rule:
+- `CvPlayer::canTradeItem(... TRADE_WAR ...)` universally rejects target teams with `isAVassal()`.
+
+Current core-war negative control:
+- An outside team CAN eventually declare war on a foreign voluntary vassal through
+  `canEventuallyDeclareWar` / `canChangeWarPeace(..., true)`.
+- Declaration then aligns the target's master/locus normally.
+- So the intended voluntary-vassal target is a supported war state; only TRADE_WAR item validity blocks it.
+
+Historical gate lineage:
+- Original Civ4: no universal target-vassal TRADE_WAR exclusion.
+- Warlords: narrower vassal restriction.
+- BtS: universal `!target.isAVassal()` gate.
+- AdvCiv inherits the BtS gate.
+
+AdvCiv feature contradiction:
+- Initial tracked AdvCiv/UWAI source practical 1253 already says an unpopular VOLUNTARY vassal
+  should be a valid joint-war target even if the master would not be.
+- The selection rejects only capitulated vassals before testing `canTradeItem`.
+- Practical 1263 split legacy/UWAI valuation; UWAI path explicitly says `eWarTeam` can be a voluntary vassal and
+  canonicalizes its war-trade value to the target MASTER.
+- No later policy statement intentionally disabling this feature has been found.
+- Therefore F052 remains a strong inherited BtS gate vs AdvCiv feature-contract mismatch.
+
+Brokered-peace negative control:
+- Peace brokerage intentionally uses the independent/master team as coalition representative.
+- No mirror defect established.
+
+DEEP COLLISION PASS PROGRESS
+Current Known-Issue adjacency reviewed beyond simple grep:
+- KI#208 worst-enemy recalculation flag is distinct from F045 incumbent eligibility.
+- KI#327 rejected exact diplomatic-vote UI prediction is distinct from F032 private AI count-vs-ID logic.
+- KI#108 vassal/surrender deal consistency is distinct from F051/F052 joint-war brokerage/item validity.
+- KI#210 vote first-contact iterator issue is distinct from F046 manifestation of canonical F037.
+- KI#309 religion-block power double-count is distinct from F040 coalition Defensive Pact double-count.
+- KI#312 tech-locus repair is distinct from F047 war-plan canonicalization.
+- KI#343 AP/voter-stagger issue is distinct from F032/F037 vote/diplomacy logic.
+- No same-root reviewed KI collision found so far for F048-F052.
+
+CURRENT INDEPENDENT ROOT SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358 - canonical AI_preDeclareWar population root
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364 - MERGED alias of F037
+- F044 / KI#365 - MERGED alias of F037
+- F045 / KI#366
+- F046 / KI#367 - MERGED alias of F037
+- F047 / KI#368
+- F048 / KI#369
+- F049 / KI#370
+- F050 / KI#371
+- F051 / KI#372
+- F052 / KI#373
+- F053 currently UNUSED.
+
+Independent surviving root count: 18.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP22
+1. Complete explicit function-name coverage:
+   identify any CvTeamAI method still not individually or caller-wise dispositioned, especially tiny state getters/setters,
+   vote helpers, trade wrappers, area/enemy helpers and war-plan utilities.
+2. Continue caller-oriented raw strategic-war-plan audit under F047;
+   fold same invariant into F047 rather than creating duplicate roots.
+3. Continue F052 descendant/policy search for any explicit intentional statement disabling voluntary-vassal war trades;
+   none found so far.
+4. Finish ancestry/adversarial reread for all 18 independent roots.
+5. Finish deep adjacent-KI semantic collision pass.
+6. Run one final independent state/sentinel/divisor/default/assert/header sanity scan.
+7. If uncertainty remains, freeze C010-WIP23.
+8. Only when genuinely exhausted:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP22

@@ -1015,12 +1015,13 @@ void CvTeamAI::AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool b
 						MEMORY_MADE_DEMAND_RECENT, iDelta);
 			}
 		}
-		for (PlayerAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(getID());
-			itEnemy.hasNext(); ++itEnemy)
+		// <!-- custom: AdvCiv practical 1842 narrowed this loop to known potential enemies of the aggressor, but its three memory contracts require a broader population: every old arrogant demand must be cleared, a cascading declaration's direct victim may not have met the aggressor yet, and AI_disapprovesOfDoW applies its own observer eligibility rules.
+		// Restore all living major players and retain each contract's specific inner test. See KI#358. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerAIIter<MAJOR_CIV> itEnemy; itEnemy.hasNext(); ++itEnemy)
 		{
 			CvPlayerAI& kPlayer = *itEnemy;
 			// <advc.130o>
-			if (bPrimaryDoW)
+			if (bPrimaryDoW && kOurMember.getID() != kPlayer.getID())
 				kOurMember.AI_setMemoryCount(kPlayer.getID(), MEMORY_MADE_DEMAND, 0);
 			// </advc.130o>
 			if (kPlayer.getTeam() == eTarget)
