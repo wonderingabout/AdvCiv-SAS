@@ -478,10 +478,12 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea const& kArea, bool bPreparin
 	{
 		CvTeam const& kTarget = *it;
 		TeamTypes const eTarget = kTarget.getID();
-		if (AI_getWarPlan(eTarget) == NO_WARPLAN)
+		// <!-- custom: During preparation, the strategic plan can be stored on a target vassal's master while this loop still needs each locus member's actual cities and power. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		WarPlanTypes const eTargetWarPlan = AI_getWarPlanForPreparation(eTarget);
+		if (eTargetWarPlan == NO_WARPLAN)
 			continue;
 
-		if (AI_getWarPlan(eTarget) == WARPLAN_ATTACKED_RECENT)
+		if (eTargetWarPlan == WARPLAN_ATTACKED_RECENT)
 		{
 			FAssert(isAtWar(eTarget));
 			bRecentAttack = true;
@@ -584,7 +586,8 @@ AreaAITypes CvTeamAI::AI_calculateAreaAIType(CvArea const& kArea, bool bPreparin
 		for (TeamAIIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> it(getID()); it.hasNext(); ++it)
 		{
 			CvTeamAI const& kLoopTeam = *it;
-			if (AI_getWarPlan(kLoopTeam.getID()) == NO_WARPLAN)
+			// <!-- custom: Include each target-vassal team's area strength when its master is the undeclared strategic target. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (AI_getWarPlanForPreparation(kLoopTeam.getID()) == NO_WARPLAN)
 				continue;
 
 			int iPower = 100 * kLoopTeam.countPowerByArea(kArea);
@@ -806,7 +809,8 @@ bool CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom, bool bIgnoreBarb) co
 	{
 		if (bIgnoreBarb && (itEnemy->isBarbarian() || itEnemy->isMinorCiv()))
 			continue;
-		if (AI_getWarPlan(itEnemy->getID()) != NO_WARPLAN &&
+		// <!-- custom: A master-keyed preparation must also test paths to its vassals' actual cities. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (AI_getWarPlanForPreparation(itEnemy->getID()) != NO_WARPLAN &&
 			AI_isHasPathToEnemyCity(kFrom, *itEnemy))
 		{
 			return true;
@@ -3139,6 +3143,9 @@ int CvTeamAI::AI_getWarSuccessRating() const
 	int iMilitaryUnits = 0;
 	for (MemberIter it(getID()); it.hasNext(); ++it)
 		iMilitaryUnits += it->getNumMilitaryUnits();
+	// <!-- custom: getPower(true) includes our vassals, so use the same population for the WarSuccess normalization scale. See KI#371. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (PlayerIter<ALIVE,VASSAL_OF> itVassal(getID()); itVassal.hasNext(); ++itVassal)
+		iMilitaryUnits += itVassal->getNumMilitaryUnits();
 
 	int iSuccessScale = iMilitaryUnits * GC.getDefineINT(CvGlobals::WAR_SUCCESS_ATTACKING) / 5;
 
@@ -3147,8 +3154,9 @@ int CvTeamAI::AI_getWarSuccessRating() const
 
 	for (TeamAIIter<FREE_MAJOR_CIV,ENEMY_OF> itEnemy(getID()); itEnemy.hasNext(); ++itEnemy)
 	{
-		scaled rThisTeamSuccess = AI_getWarSuccess(itEnemy->getID());
-		scaled rOtherTeamSuccess = itEnemy->AI_getWarSuccess(getID());
+		// <!-- custom: K-Mod paired master-plus-vassal power with only master-to-master WarSuccess. Aggregate both directional success terms over those same coalitions. See KI#371. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled const rThisTeamSuccess = AI_getWarSuccessAgainstTeamAndVassals(itEnemy->getID());
+		scaled const rOtherTeamSuccess = itEnemy->AI_getWarSuccessAgainstTeamAndVassals(getID());
 		int iOtherTeamPower = itEnemy->getPower(true);
 		iScore += (rThisTeamSuccess + iSuccessScale).uround() * iThisTeamPower;
 		iScore -= (rOtherTeamSuccess + iSuccessScale).uround() * iOtherTeamPower;
@@ -3293,7 +3301,8 @@ int CvTeamAI::AI_getRivalAirPower() const
 					// advc (note): This is cheating
 					itRival->getUnitClassCount(kUnit.getUnitClassType());
 			iRivalAirPower += iUnitPower;
-			if (AI_getWarPlan(itRival->getID()) != NO_WARPLAN)
+			// <!-- custom: Treat a target vassal's air units as planned-enemy power when preparation is stored on its master. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (AI_getWarPlanForPreparation(itRival->getID()) != NO_WARPLAN)
 				iEnemyAirPower += iUnitPower;
 		}
 	}
@@ -4596,6 +4605,21 @@ void CvTeamAI::AI_setWarSuccess(TeamTypes eTeam, scaled rNewValue)
 	FAssert(AI_getWarSuccess(eTeam) >= 0);
 }
 
+// <!-- custom: WarSuccess is stored by actual team ID while K-Mod coalition formulas use master-plus-vassal power. Sum every directional pairing across those same two populations without counting either coalition's power more than once. See KI#371. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled CvTeamAI::AI_getWarSuccessAgainstTeamAndVassals(TeamTypes eTeam) const
+{
+	scaled rSuccess = AI_getWarSuccess(eTeam);
+	for (TeamIter<CIV_ALIVE,VASSAL_OF> itTargetVassal(eTeam); itTargetVassal.hasNext(); ++itTargetVassal)
+		rSuccess += AI_getWarSuccess(itTargetVassal->getID());
+	for (TeamAIIter<CIV_ALIVE,VASSAL_OF> itOurVassal(getID()); itOurVassal.hasNext(); ++itOurVassal)
+	{
+		rSuccess += itOurVassal->AI_getWarSuccess(eTeam);
+		for (TeamIter<CIV_ALIVE,VASSAL_OF> itTargetVassal(eTeam); itTargetVassal.hasNext(); ++itTargetVassal)
+			rSuccess += itOurVassal->AI_getWarSuccess(itTargetVassal->getID());
+	}
+	return rSuccess;
+}
+
 // advc:
 scaled CvTeamAI::AI_countEnemyWarSuccess() const
 {
@@ -4768,7 +4792,8 @@ int CvTeamAI::AI_countEnemyPowerByArea(CvArea const& kArea) const
 		CvPlayer const& kEnemy = *it;
 		//if (isAtWar(GET_PLAYER((PlayerTypes)iI).getTeam()))
 		// BETTER_BTS_AI_MOD, General AI, 01/11/09, jdog5000: Count planned wars as well
-		if (AI_getWarPlan(kEnemy.getTeam()) != NO_WARPLAN)
+		// <!-- custom: Count a target vassal's actual area power when the undeclared strategic plan is stored on its master. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (AI_getWarPlanForPreparation(kEnemy.getTeam()) != NO_WARPLAN)
 			iCount += kArea.getPower(kEnemy.getID());
 	}
 	return iCount;
@@ -4781,7 +4806,8 @@ int CvTeamAI::AI_countEnemyCitiesByArea(CvArea const& kArea) const // advc.003u:
 	for (PlayerIter<ALIVE,KNOWN_POTENTIAL_ENEMY_OF> it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer const& kEnemy = *it;
-		if (AI_getWarPlan(kEnemy.getTeam()) != NO_WARPLAN)
+		// <!-- custom: Count a target vassal's actual area cities when the undeclared strategic plan is stored on its master. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (AI_getWarPlanForPreparation(kEnemy.getTeam()) != NO_WARPLAN)
 			iCount += kArea.getCitiesPerPlayer(kEnemy.getID());
 	}
 	return iCount; // advc.001: was 'return 0'
@@ -4813,7 +4839,8 @@ int CvTeamAI::AI_countEnemyPopulationByArea(CvArea const& kArea) const
 	for (PlayerIter<ALIVE,KNOWN_POTENTIAL_ENEMY_OF> it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer const& kEnemy = *it;
-		if (AI_getWarPlan(kEnemy.getTeam()) != NO_WARPLAN)
+		// <!-- custom: Keep this unused sibling consistent by counting target-vassal population under its master's undeclared strategic plan. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (AI_getWarPlanForPreparation(kEnemy.getTeam()) != NO_WARPLAN)
 			iCount += kArea.getPopulationPerPlayer(kEnemy.getID());
 	}
 	return iCount;
@@ -4840,6 +4867,16 @@ bool CvTeamAI::AI_isChosenWar(TeamTypes eIndex) const
 {
 	return (AI_isChosenWarPlan( // advc.105: Code moved into AI_isChosenWarPlan
 			AI_getWarPlan(/* advc.104j: */ GET_TEAM(eIndex).getMasterTeam())));
+}
+
+// <!-- custom: Strategic plans are master-keyed after KI#368, but active wars legitimately retain actual-team plans. Let preparation consumers include a target vassal through its master's plan without replacing live raw state. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+WarPlanTypes CvTeamAI::AI_getWarPlanForPreparation(TeamTypes eIndex) const
+{
+	WarPlanTypes const eRawWarPlan = AI_getWarPlan(eIndex);
+	if (eRawWarPlan != NO_WARPLAN || isAtWar(eIndex))
+		return eRawWarPlan;
+	WarPlanTypes const eMasterWarPlan = AI_getWarPlan(GET_TEAM(eIndex).getMasterTeam());
+	return (AI_isChosenWarPlan(eMasterWarPlan) ? eMasterWarPlan : NO_WARPLAN);
 }
 
 // advc.105: Body cut from AI_isChosenWar
@@ -6547,7 +6584,8 @@ void CvTeamAI::AI_doWar()
 										if (iValue > iBestValue)
 										{
 											iBestValue = iValue;
-											eBestTarget = eTarget;
+											// <!-- custom: AdvCiv's strategic readers normalize a voluntary-vassal target to its master, but Legacy AI stored the preparation on the raw vassal key. Preserve the vassal as the evaluated tactical front while storing the strategic plan on its master. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+											eBestTarget = eLoopMasterTeam;
 										}
 									}
 								}
@@ -6599,7 +6637,8 @@ void CvTeamAI::AI_doWar()
 								{
 									//FAssert(!AI_shareWar(eTarget)); // disabled by K-Mod. (It isn't always true.)
 									iBestValue = iValue;
-									eBestTarget = eTarget;
+									// <!-- custom: Store Legacy limited-war preparation on the target master while retaining the selected vassal as the tactical valuation front. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+									eBestTarget = eLoopMasterTeam;
 								}
 							}
 						}
@@ -6661,7 +6700,8 @@ void CvTeamAI::AI_doWar()
 								{
 									//FAssert(!AI_shareWar((TeamTypes)iI)); // disabled by K-Mod. (why is this even here?)
 									iBestValue = iValue;
-									eBestTarget = eTarget;
+									// <!-- custom: Store Legacy dogpile preparation on the target master while retaining the selected vassal as the tactical valuation front. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+									eBestTarget = eLoopMasterTeam;
 								}
 							}
 						}
@@ -6719,7 +6759,8 @@ int CvTeamAI::AI_getTechMonopolyValue(TechTypes eTech, TeamTypes eTeam) const
 {
 	PROFILE_FUNC(); // advc: called not that infrequently
 	//bool bWarPlan = (getAnyWarPlanCount(eTeam) > 0);
-	bool const bWarPlan = (AI_getWarPlan(eTeam) != NO_WARPLAN); // advc.001
+	// <!-- custom: A technology recipient that is a vassal belongs to its master's undeclared strategic target locus even before a raw plan exists on the vassal. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bWarPlan = (AI_getWarPlanForPreparation(eTeam) != NO_WARPLAN); // advc.001
 	int iValue = 0;
 	// <advc.550c> Evaluate each team member so that UU and UB can be taken into account
 	MemberIter it(eTeam);

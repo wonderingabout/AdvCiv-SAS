@@ -214,6 +214,8 @@ public:
 
 	// advc.130r: Use scaled for increased precision
 	scaled AI_getWarSuccess(TeamTypes eIndex) const { return m_arWarSuccess.get(eIndex); } // Exposed to Python
+	// <!-- custom: K-Mod coalition ratings include vassal power, so expose matching directional WarSuccess across this team and its vassals against the target team and its vassals. See KI#371. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled AI_getWarSuccessAgainstTeamAndVassals(TeamTypes eTeam) const;
 	void AI_setWarSuccess(TeamTypes eTeam, scaled rNewValue);
 	void AI_changeWarSuccess(TeamTypes eITeam, scaled rChange);
 	scaled AI_countEnemyWarSuccess() const; // advc
@@ -237,6 +239,8 @@ public:
 	int AI_countEnemyDangerByArea(CvArea const& kArea, TeamTypes eEnemyTeam = NO_TEAM) const; // bbai		// Exposed to Python
 	int AI_countEnemyPopulationByArea(CvArea const& kArea) const; // bbai (advc: unused)
 	WarPlanTypes AI_getWarPlan(TeamTypes eIndex) const { return m_aeWarPlan.get(eIndex); }
+	// <!-- custom: Preparation consumers need the raw active-war plan when present, otherwise the strategic plan stored on a vassal target's master. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	WarPlanTypes AI_getWarPlanForPreparation(TeamTypes eIndex) const;
 	bool AI_isChosenWar(TeamTypes eIndex) const;
 	bool AI_isAnyChosenWar() const; // advc.105
 	int AI_countChosenWars(bool bIgnoreMinors = true) const; // advc: Moved from CvTeam; unused.			// Exposed to Python

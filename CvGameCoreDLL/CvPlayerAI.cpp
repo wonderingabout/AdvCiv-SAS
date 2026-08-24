@@ -9537,8 +9537,13 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 		bool bWinningBig = false;
 		bool bThisPlayerWinning = false;
 
-		int iSuccessScale = GET_PLAYER(kVoteData.ePlayer).getNumMilitaryUnits() *
-				GC.getDefineINT(CvGlobals::WAR_SUCCESS_ATTACKING) / 5;
+		// <!-- custom: K-Mod's Force-Peace comparison uses the peace team's master-plus-vassal power, so build its normalization scale from the same player population. See KI#371. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iPeaceTeamMilitaryUnits = 0;
+		for (MemberIter itMember(ePeaceTeam); itMember.hasNext(); ++itMember)
+			iPeaceTeamMilitaryUnits += itMember->getNumMilitaryUnits();
+		for (PlayerIter<ALIVE,VASSAL_OF> itVassal(ePeaceTeam); itVassal.hasNext(); ++itVassal)
+			iPeaceTeamMilitaryUnits += itVassal->getNumMilitaryUnits();
+		int iSuccessScale = iPeaceTeamMilitaryUnits * GC.getDefineINT(CvGlobals::WAR_SUCCESS_ATTACKING) / 5;
 		bool const bAggressiveAI = kGame.isOption(GAMEOPTION_AGGRESSIVE_AI);
 		if (bAggressiveAI)
 		{
@@ -9553,10 +9558,9 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 		{
 			CvTeamAI const& kEnemy = *itEnemy; // advc (note): Could be kOurTeam
 
-			int const iPeaceTeamSuccess = GET_TEAM(ePeaceTeam).
-					AI_getWarSuccess(kEnemy.getID()).uround();
-			int const iOtherTeamSuccess = kEnemy.
-					AI_getWarSuccess(ePeaceTeam).uround();
+			// <!-- custom: Match each coalition power term with WarSuccess across the same master and vassal teams instead of only the two master IDs. See KI#371. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int const iPeaceTeamSuccess = GET_TEAM(ePeaceTeam).AI_getWarSuccessAgainstTeamAndVassals(kEnemy.getID()).uround();
+			int const iOtherTeamSuccess = kEnemy.AI_getWarSuccessAgainstTeamAndVassals(ePeaceTeam).uround();
 			int const iOtherTeamPower = kEnemy.getPower(true);
 			if (iPeaceTeamSuccess * iPeaceTeamPower >
 				(iOtherTeamSuccess + iSuccessScale) * iOtherTeamPower)
@@ -9577,7 +9581,8 @@ PlayerVoteTypes CvPlayerAI::AI_diploVote(const VoteSelectionSubData& kVoteData, 
 				{
 					bLosingBig = true;
 				}
-				if (kEnemy.getID() == getTeam())
+				// <!-- custom: The iterator represents each enemy coalition by its free master, including when this voting player belongs to that master's vassal locus. See KI#371. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (kEnemy.getID() == kOurTeam.getMasterTeam())
 					bThisPlayerWinning = true;
 			}
 			else if (GET_TEAM(ePeaceTeam).AI_getAtWarCounter(kEnemy.getID()) < 10)
