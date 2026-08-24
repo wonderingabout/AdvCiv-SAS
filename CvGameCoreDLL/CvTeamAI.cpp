@@ -992,24 +992,34 @@ void CvTeamAI::AI_preDeclareWar(TeamTypes eTarget, WarPlanTypes eWarPlan, bool b
 	for (MemberAIIter itOur(getID()); itOur.hasNext(); ++itOur)
 	{
 		CvPlayerAI& kOurMember = *itOur;
+		// <!-- custom: AdvCiv practical 1842 changed the observers of a human war despite prior tribute from AIs who knew the tribute-paying victim to potential enemies who knew the attacker. Restore the victim-contact audience while preserving the master/vassal-locus exclusion. See KI#358. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (bPrimaryDoW && kOurMember.isHuman() &&
+			kTarget.AI_getMemoryCount(getID(), MEMORY_MADE_DEMAND) > 0)
+		{
+			for (PlayerAIIter<MAJOR_CIV> itObserver; itObserver.hasNext(); ++itObserver)
+			{
+				CvPlayerAI& kObserver = *itObserver;
+				if (kObserver.isHuman() ||
+					GET_TEAM(kObserver.getTeam()).getMasterTeam() == getMasterTeam() ||
+					!kTarget.isHasMet(kObserver.getTeam()))
+				{
+					continue;
+				}
+				// Raise it to 8 (or what XML says)
+				int iMemory = kObserver.AI_getMemoryCount(kOurMember.getID(),
+						MEMORY_MADE_DEMAND_RECENT);
+				static int const iWAR_DESPITE_TRIBUTE_MEMORY = GC.getDefineINT(
+						"WAR_DESPITE_TRIBUTE_MEMORY");
+				int iDelta = std::max(iMemory, iWAR_DESPITE_TRIBUTE_MEMORY) - iMemory;
+				kObserver.AI_changeMemoryCount(kOurMember.getID(),
+						MEMORY_MADE_DEMAND_RECENT, iDelta);
+			}
+		}
 		for (PlayerAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(getID());
 			itEnemy.hasNext(); ++itEnemy)
 		{
 			CvPlayerAI& kPlayer = *itEnemy;
 			// <advc.130o>
-			if (bPrimaryDoW && kOurMember.isHuman() && !kPlayer.isHuman() &&
-				kTarget.AI_getMemoryCount(getID(), MEMORY_MADE_DEMAND) > 0)
-			{
-				// Raise it to 8 (or what XML says)
-				int iMemory = kPlayer.AI_getMemoryCount(kOurMember.getID(),
-						MEMORY_MADE_DEMAND_RECENT);
-				static int const iWAR_DESPITE_TRIBUTE_MEMORY = GC.getDefineINT(
-						"WAR_DESPITE_TRIBUTE_MEMORY");
-				int iDelta = iWAR_DESPITE_TRIBUTE_MEMORY;
-				iDelta = std::max(iMemory, iDelta) - iMemory;
-				kPlayer.AI_changeMemoryCount(kOurMember.getID(),
-						MEMORY_MADE_DEMAND_RECENT, iDelta);
-			}
 			if (bPrimaryDoW)
 				kOurMember.AI_setMemoryCount(kPlayer.getID(), MEMORY_MADE_DEMAND, 0);
 			// </advc.130o>
@@ -1683,7 +1693,8 @@ int CvTeamAI::AI_warCommitmentCost(TeamTypes eTarget, WarPlanTypes eWarPlan, boo
 		{
 			CvPlayerAI const& kMember = *it;
 			 // (ugly, I know. But that's just how it's done.)
-			int iEstimatedPercentAnger = kMember.getModifiedWarWearinessPercentAnger(iWWCost) / 10;
+			// <!-- custom: AdvCiv practical 1842 accidentally passed the accumulating AI cost back as raw war weariness. Restore K-Mod's `iTotalWW` input so every member evaluates the actual weariness that triggered this branch. See KI#357. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int iEstimatedPercentAnger = kMember.getModifiedWarWearinessPercentAnger(iTotalWW) / 10;
 			// note. Unfortunately, we haven't taken the effect of jails into account.
 			iWWCost += iS * kMember.getNumCities() * kMember.AI_getHappinessWeight(iS * iEstimatedPercentAnger *
 					(100 + kMember.getWarWearinessModifier()) / 100, 0, true) / 20;
@@ -1964,7 +1975,10 @@ scaled CvTeamAI::AI_knownTechValModifier(TechTypes eTech) const
 	for (TeamIter<CIV_ALIVE,OTHER_KNOWN_TO> it(getID()); it.hasNext(); ++it)
 	{
 		CvTeam const& kOther = *it;
-		if (kOther.isHasTech(eTech) /* advc.551: */ && !kOther.isCapitulated())
+		// <!-- custom: AdvCiv practical 1842 left capitulated teams in the known-civilization denominator while excluding them from the tech-owner numerator. Exclude them from both populations as before the refactor. See KI#360. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kOther.isCapitulated())
+			continue;
+		if (kOther.isHasTech(eTech)) // advc.551
 			iTechCivs++;
 		iCivsMet++;
 	}
@@ -3324,7 +3338,8 @@ bool CvTeamAI::AI_acceptSurrender(TeamTypes eSurrenderTeam) const
 	{
 		if (itOther->getID() == getID()) 
 			continue;
-		if (kSurrenderTeam.AI_getAtWarCounter(itOther->getID()) <
+		// <!-- custom: AdvCiv practical 1842 inverted K-Mod's minimum war-duration condition, treating an early rival war as evidence of likely capitulation and dropping that evidence once the intended threshold was reached. Restore the long-enough-war comparison. See KI#359. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kSurrenderTeam.AI_getAtWarCounter(itOther->getID()) >=
 			12 - itOther->AI_getCurrEraFactor() && // advc.112: was 10 flat
 			kSurrenderTeam.AI_getWarSuccess(itOther->getID()) +
 			std::min(kSurrenderTeam.getNumCities(), 4) *

@@ -428,6 +428,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [354 - (Fixed inherited AdvCiv iterator-refactor bug) War planning checked our cities instead of the proposed target's cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#354---fixed-inherited-advciv-iterator-refactor-bug-war-planning-checked-our-cities-instead-of-the-proposed-targets-cities)\
 [355 - (Fixed inherited K-Mod bug) Rival air-power averaging counted each rival once per air class](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#355---fixed-inherited-k-mod-bug-rival-air-power-averaging-counted-each-rival-once-per-air-class)\
 [356 - (Fixed inherited K-Mod/BBAI bug) Dagger teammates were subtracted from unrelated economic and upgrade populations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#356---fixed-inherited-k-modbbai-bug-dagger-teammates-were-subtracted-from-unrelated-economic-and-upgrade-populations)\
+[357 - (Fixed inherited AdvCiv refactor bug) War-commitment valuation passed accumulated AI cost as raw war weariness](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#357---fixed-inherited-advciv-refactor-bug-war-commitment-valuation-passed-accumulated-ai-cost-as-raw-war-weariness)\
+[358 - (Fixed inherited AdvCiv iterator-refactor bug) War despite tribute used the attacker's knowledge population instead of the victim's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#358---fixed-inherited-advciv-iterator-refactor-bug-war-despite-tribute-used-the-attackers-knowledge-population-instead-of-the-victims)\
+[359 - (Fixed inherited AdvCiv refactor bug) Alternative-master capitulation logic reversed its minimum war duration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#359---fixed-inherited-advciv-refactor-bug-alternative-master-capitulation-logic-reversed-its-minimum-war-duration)\
+[360 - (Fixed inherited AdvCiv iterator-refactor bug) Capitulated teams affected only the technology-rarity denominator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#360---fixed-inherited-advciv-iterator-refactor-bug-capitulated-teams-affected-only-the-technology-rarity-denominator)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9564,3 +9568,43 @@ The fix counts the actual non-Dagger population and its intersections with Finan
 After compilation, a Large Pangaea autoplay with `Aggressive AI (Legacy)` enabled and AI teams of two and three members completed successfully without an observed issue. The Victory screen and `SASGameRecord` both confirmed that the legacy option was active; the multi-member arrangement exercised the team structure for which the corrected set accounting matters.
 
 This is an inherited K-Mod/BBAI multi-member-team set-counting defect retained by AdvCiv, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 357 - (Fixed inherited AdvCiv refactor bug) War-commitment valuation passed accumulated AI cost as raw war weariness
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1lWhuQDQGkPoDTtbsvJY76DwanDEUVovi?usp=sharing).
+
+`CvTeamAI::AI_warCommitmentCost` estimates the strategic cost of a proposed legacy-AI war. Its war-weariness branch first totals the raw weariness against the prospective enemy coalition, then estimates each team member's resulting anger and adds that member's economic cost. AdvCiv practical 1842 accidentally passed the accumulating output cost, initially zero and measured in AI-value units, to `getModifiedWarWearinessPercentAnger` instead of the raw weariness total. The first member could therefore ignore the nonzero weariness that activated the branch, while later members received feedback from an unrelated unit domain.
+
+The fix restores K-Mod's raw total as every member's anger input and retains the separate accumulated cost solely as output. After compilation, a Huge Pangaea game with 16 players across eight starting teams and `Aggressive AI (Legacy)` enabled completed all 500 turns and ended normally by Time Victory. `SASGameRecord` confirmed sustained wars and multi-member teams throughout the legacy-AI run without an observed issue.
+
+This is an inherited AdvCiv practical-1842 refactor regression in the supported legacy war evaluator, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 358 - (Fixed inherited AdvCiv iterator-refactor bug) War despite tribute used the attacker's knowledge population instead of the victim's
+
+Screenshots/files for this issue: same google drive folder link as KI#357.
+
+When a human declares war after previously extracting tribute from the victim, `CvTeamAI::AI_preDeclareWar` gives eligible AI observers the recent-demand memory. The pre-refactor logic required the observer to have met the tribute-paying victim and excluded observers in the attacker's master/vassal locus. AdvCiv practical 1842 replaced the broad player scan with potential enemies known to the attacker, silently changing the information contract: an AI that knew the attacker but had never met the victim could learn the event, while an AI that knew the victim but had not met the attacker could miss it.
+
+The fix restores a dedicated victim-contact observer pass with the original master/vassal-locus exclusion. Other declaration memories remain in their existing population pending their separately reviewed KI findings. The compiled fix completed the same 500-turn Huge Legacy-AI autoplay without an observed issue; the exact human-tribute observer combination was not reproduced manually because it requires a narrow diplomatic setup.
+
+This is an inherited AdvCiv practical-1842 iterator-population regression, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 359 - (Fixed inherited AdvCiv refactor bug) Alternative-master capitulation logic reversed its minimum war duration
+
+Screenshots/files for this issue: same google drive folder link as KI#357.
+
+`CvTeamAI::AI_acceptSurrender` checks whether a losing team might capitulate to another enemy before deciding whether to accept it first. Before AdvCiv practical 1842, an alternative enemy was considered only after its war had lasted at least the era-adjusted threshold and its war success was overwhelming. The refactor combined these tests with `<`, reversing the duration condition: an early war could qualify, then stop qualifying precisely when it became old enough to satisfy the intended rule.
+
+The fix restores the minimum-duration `>=` comparison while retaining the existing war-success requirement and later surrender valuation. The 500-turn Huge Legacy-AI autoplay completed normally and `SASGameRecord` recorded multiple vassalage transitions and vassal-alignment wars without an observed issue, providing broad runtime coverage of the surrounding surrender and team-diplomacy systems.
+
+This is an inherited AdvCiv practical-1842 comparator regression in K-Mod/BBAI capitulation logic, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 360 - (Fixed inherited AdvCiv iterator-refactor bug) Capitulated teams affected only the technology-rarity denominator
+
+Screenshots/files for this issue: same google drive folder link as KI#357.
+
+`CvTeamAI::AI_knownTechValModifier` raises a technology's AI trade and Great-Person discovery value when few eligible known teams possess it. Before AdvCiv practical 1842, capitulated teams were excluded from both the known-team denominator and tech-owner numerator. The refactored loop kept excluding them from the numerator but counted them unconditionally in the denominator, so every known capitulated team made technologies appear artificially rarer regardless of its actual technologies.
+
+The fix skips capitulated teams before both counts, restoring a consistent eligible population. The 500-turn Huge Legacy-AI autoplay reached the Future era with active vassal relationships and completed normally, broadly validating the surrounding late-game technology valuation; whether a logged relationship was specifically capitulated rather than voluntary was not established by this test.
+
+This is an inherited AdvCiv practical-1842 iterator-population regression retained by AdvCiv-SAS, not an SAS-specific change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
