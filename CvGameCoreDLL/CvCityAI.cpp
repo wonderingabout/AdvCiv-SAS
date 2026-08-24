@@ -608,29 +608,30 @@ void CvCityAI::AI_assignWorkingPlots(/* advc.131d: */ bool bEmphasize)
 	verifyWorkingPlots();
 
 	// if we have more specialists of any type than this city can have, reduce to the max
+	// <!-- custom: K-Mod gated its forced-target cap on the current assigned count already being invalid. Validate the assigned count and the independent forced target separately so a stale unavailable Artist target cannot be reapplied; player-wide unlimited and default specialists remain valid through isSpecialistValid. See KI#70. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	FOR_EACH_ENUM2(Specialist, e)
 	{
+		int const iMaxSpecialistCount = getMaxSpecialistCount(e);
 		if (!isSpecialistValid(e))
 		{
-			if (getSpecialistCount(e) > getMaxSpecialistCount(e))
-			{
-				setSpecialistCount(e, getMaxSpecialistCount(e));
-			}
-			// K-Mod. Apply the cap to forced specialist count as well.
-			if (getForceSpecialistCount(e) > getMaxSpecialistCount(e))
-				setForceSpecialistCount(e, getMaxSpecialistCount(e));
-
-			// <!-- custom: adding a more detailed assert here just in case if it helps or if it fires too-->
-			// FAssert(isSpecialistValid(e));
+			if (getSpecialistCount(e) > iMaxSpecialistCount)
+				setSpecialistCount(e, iMaxSpecialistCount);
+			// <!-- custom: Retain the detailed historical assertion on the assigned-count repair path. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			FAssertMsg(isSpecialistValid(e),
 				CvString::format("T%d city=%S owner=%S type=%s e=%d value=%d",
 					GC.getGame().getGameTurn(),
 					getName().GetCString(),
 					GET_PLAYER(getOwner()).getName(),
-					GC.getInfo(e).getType(), // gives e.g. SPECIALIST_CITIZEN
+					GC.getInfo(e).getType(),
 					(int)e,
-					getSpecialistCount(e)   // <- 'value'. swap to isSpecialistValid(e) or getMaxSpecialistCount(e) if you prefer
-				).c_str());
+					getSpecialistCount(e)).c_str());
+		}
+		int const iMissingForcedSpecialists = getForceSpecialistCount(e) -
+				getSpecialistCount(e);
+		if (iMissingForcedSpecialists > 0 &&
+			!isSpecialistValid(e, iMissingForcedSpecialists))
+		{
+			setForceSpecialistCount(e, iMaxSpecialistCount);
 		}
 	}
 
@@ -5674,48 +5675,9 @@ int CvCityAI::AI_buildingValue(BuildingTypes eBuilding, int iFocusFlags, int iTh
 			//kTeam.getAnyWarPlanCount(true) > 0; // K-Mod
 
 	int const iFoodKept = kOwner.getFoodKept(eBuilding); // advc.912d
-	// <!-- custom: update: but after all as per chatgpt 5's review, may be inaccurate due to doubling count of food difference, use something else instead in an attempt to not over or understimate our expected growth; note: not changing previously defined iEstGrowth to keep old code working as intended, but as for us using this new var rather for our purpose as advised by chatgpt 5 (from another thread xd but thanks lot still, also check if accurate) -->
-
-	// Example scenarios for the growth signal:
-	// Inputs: iFoodDifference (food surplus/turn), iHealthLevel (good-bad), iHappinessSurplus
-	// Formula we use:
-	//   int iEffectiveFood = max(0, iFoodDifference) - max(0, -iHealthLevel);
-	//   if (iHappinessSurplus <= 0) iEffectiveFood = 0;
-	//   // iEstGrowthNew = iEffectiveFood
-
-	// A) Healthy, happy, solid surplus
-	//    iFoodDifference= +4, iHealthLevel= +1, iHappinessSurplus= +2
-	//    iEffectiveFood = max(0,4) - max(0, -1) = 4 - 0 = 4
-	//    (happy>0) → iEstGrowthNew = 4  // grow fast → favor Granary/health if needed
-
-	// B) Unhealthy cancels surplus
-	//    iFoodDifference= +3, iHealthLevel= -2, iHappinessSurplus= +3
-	//    iEffectiveFood = max(0,3) - max(0, 2) = 3 - 2 = 1
-	//    iEstGrowthNew = 1  // growth is slow → Granary is ok; big health buildings are valuable
-
-	// C) No food surplus, but healthy/happy
-	//    iFoodDifference= 0, iHealthLevel= +3, iHappinessSurplus= +2
-	//    iEffectiveFood = max(0,0) - max(0, -3) = 0 - 0 = 0
-	//    iEstGrowthNew = 0  // skip growth buildings; fix tiles/food first
-
-	// D) Surplus but unhappy cap blocks growth
-	//    iFoodDifference= +5, iHealthLevel= +1, iHappinessSurplus= 0
-	//    iEffectiveFood = max(0,5) - max(0, -1) = 5 - 0 = 5 → then cap sets to 0
-	//    (happy<=0) → iEstGrowthNew = 0  // prioritize happiness; Granary isn’t urgent
-
-	// E) Starving & unhealthy
-	//    iFoodDifference= -2, iHealthLevel= -3, iHappinessSurplus= +1
-	//    iEffectiveFood = max(0,-2)=0 - max(0,3)=3 → 0 - 3 = -3 → clamp to 0 conceptually
-	//    iEstGrowthNew = 0  // growth-focused buildings won’t help until food/health fixed
-
-	// food surplus we can use after health; clamp at 0
-	int iEffectiveFood = std::max(0, iFoodDifference) - std::max(0, -iHealthLevel);
-	// If you want to use that “happy gate" directly in code:
-	// use iEffectiveFood as your growth signal in the later rules
-	if (iHappinessSurplus <= 0)
-	{
-		iEffectiveFood = 0;
-	}
+	// <!-- custom: foodDifference(false, true) already subtracts health-adjusted foodConsumption, so subtracting negative iHealthLevel again double-counted unhealthiness and could make this growth signal negative. Use the nonnegative net food once, with the existing happiness-cap gate. See KI#48.3. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iEffectiveFood = (iHappinessSurplus <= 0 ? 0 :
+			std::max(0, iFoodDifference));
 
 	bool bForeignTrade = false;
 
@@ -14626,7 +14588,8 @@ bool CvCityAI::AI_bestSpreadUnit(bool bMissionary, bool bExecutive, int iBaseCha
 		}
 	}
 
-	return (*eBestSpreadUnit != NULL);
+	// <!-- custom: BtS compared the UnitTypes output with NULL (0), so NO_UNIT (-1) incorrectly reported success. Compare with the enum sentinel; existing caller guards remain defense in depth. See KI#74. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return (*eBestSpreadUnit != NO_UNIT);
 }
 
 bool CvCityAI::AI_chooseBuilding(int iFocusFlags, int iMaxTurns, int iMinThreshold, int iOdds) // BBAI
