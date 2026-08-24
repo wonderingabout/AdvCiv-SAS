@@ -778,26 +778,27 @@ Repair direction:
 - If an incremental processArea(-1/+1) repair is considered, first fix or bypass the dormant processArea defects recorded below.
 
 F026 - provisional KI#347 - lazy getFoundValue ignores a successful Python city-found-value override
-Status: NEW CURRENT SUPPORTED-CONFIGURATION API DEFECT, inherited from K-Mod lazy-path implementation.
+Status: NEW CURRENT SUPPORTED-CONFIGURATION API DEFECT, inherited from BtS.
 Evidence:
 - CvPlot::getFoundValue() calls CvPythonCaller::AI_foundValue().
 - If Python returns -1, the DLL computes and stores its own value in m_aiFoundValue.
 - If Python returns a real override, the function never copies iValue into m_aiFoundValue; the cache remains -1.
 - It then tests/returns the still--1 cache entry, fails to update the area's best-found value from the Python result, and repeats the callback on the next lazy read.
 - Current SAS still registers/configures getCityFoundValue as a supported BUG/GameUtils callback; default is -1, but enabling the callback is an explicit supported configuration.
-- Historical K-Mod bulk found-value paths do store a non--1 Python result, making the lazy path's omission inconsistent rather than intentional.
+- Local Civ4CE BtS 3.19 source has the same lazy callback path and missing non--1 cache assignment; K-Mod and AdvCiv retain it through later wrappers/refactors.
 Consequence:
 - A valid Python override can be ignored specifically through lazy CvPlot::getFoundValue(), producing -1 instead of the supplied city-site value and leaving associated caches inconsistent.
 Repair direction:
 - In the non--1 branch, store iValue into m_aiFoundValue before area-best comparison and return.
 
 F027 - provisional KI#348 - foreign friendly air units inherit the host city's enhanced air capacity
-Status: NEW CURRENT GAMEPLAY DEFECT, inherited from K-Mod/BBAI helper.
+Status: NEW CURRENT GAMEPLAY DEFECT, inherited from BtS.
 Evidence:
 - CvPlot::airUnitSpaceAvailable(TeamTypes eTeam) correctly counts aircraft belonging to the requested eTeam.
 - On a city plot it asks pCity->getAirUnitCapacity(getTeam()), where getTeam() is the plot/city owner's team, not eTeam.
 - CvCity::getAirUnitCapacity(eTeam) is intentionally team-sensitive: the city team receives building-enhanced capacity, while a different friendly team receives only the base capacity.
 - Current gameplay permits peaceful foreign-team air basing/rebasing, and ordinary callers query airUnitSpaceAvailable for the visiting team.
+- Local Civ4CE BtS 3.19 source contains both the wrong plot-team argument and the team-sensitive city-capacity contract; K-Mod and AdvCiv retain them.
 Consequence:
 - Visiting allied/vassal/open-borders aircraft can be admitted using the host owner's Airport-enhanced capacity even though the underlying city API intentionally denies that expansion to foreign teams.
 Repair direction:
@@ -850,7 +851,7 @@ Evidence:
 - The later FOR_EACH_ENUM(Player) loop spans the full PlayerTypes domain through MAX_PLAYERS and reads abInRadius[eLoopPlayer].
 - Therefore a positive Barbarian-culture entry reaches abInRadius[48], one element past the stack array.
 - Reachability is normal current gameplay, not a malformed save: Barbarian cities/adjacent plots receive ordinary plot culture, legal Barbarian/civilization city spacing permits overlapping/contested radius plots, and the decay branch can process such a plot.
-- Historical intent around practical 1289 explicitly discussed excluding Barbarian tiles from the extra city-radius decay, so the mismatch is especially likely to be an array-domain implementation error.
+- The implementation excludes Barbarian cities only as protecting radius sources; base culture decay explicitly covers civilization and Barbarian culture, and the full-player target loop requires a full-player lookup domain.
 Consequence:
 - Release builds have undefined behavior. The likely visible symptom is nondeterministic application of accelerated culture decay to Barbarian culture on contested plots; the one-past-end read is also a memory-safety defect in its own right.
 Repair direction:

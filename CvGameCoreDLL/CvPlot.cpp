@@ -5842,12 +5842,15 @@ int CvPlot::getFoundValue(PlayerTypes eIndex, /* advc.052: */ bool bRandomize) c
 	if (m_aiFoundValue.get(eIndex) == -1)
 	{
 		int iValue = GC.getPythonCaller()->AI_foundValue(eIndex, *this);
+		// <!-- custom: BtS cached only the native fallback, so a valid Python override remained -1 and was ignored on every lazy read.
+		// Resolve the fallback into the same local value, then cache either result before updating the area's best value. See KI#347. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (iValue == -1)
 		{
 			// advc: Otherwise bStartingLoc=true probably isn't correct
 			FAssert(GC.getGame().getElapsedGameTurns() <= 0);
-			m_aiFoundValue.set(eIndex, GET_PLAYER(eIndex).AI_foundValue(getX(), getY(), -1, true));
+			iValue = GET_PLAYER(eIndex).AI_foundValue(getX(), getY(), -1, true);
 		}
+		m_aiFoundValue.set(eIndex, iValue);
 		if (m_aiFoundValue.get(eIndex) > getArea().getBestFoundValue(eIndex))
 			getArea().setBestFoundValue(eIndex, m_aiFoundValue.get(eIndex));
 	}
@@ -7271,7 +7274,9 @@ void CvPlot::doCultureDecay()
 	int const iExclDecay = GC.getDefineINT(CvGlobals::CITY_RADIUS_DECAY);
 	// advc.099:
 	static int const iBaseDecayPerMill = GC.getDefineINT("TILE_CULTURE_DECAY_PER_MILL");
-	bool abInRadius[MAX_CIV_PLAYERS] = {false};
+	// <!-- custom: The later full PlayerTypes loop includes BARBARIAN_PLAYER, one slot beyond MAX_CIV_PLAYERS.
+	// Size its lookup to the same full domain while continuing to exclude Barbarian cities as protecting radius sources. See KI#352. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool abInRadius[MAX_PLAYERS] = {false};
 	bool bInAnyRadius = false;
 	int iMaxRadiusCulture = 0;
 	int iMinDist = 10;
@@ -8417,8 +8422,10 @@ int CvPlot::airUnitSpaceAvailable(TeamTypes eTeam) const
 {
 	int iMaxUnits = 0;
 	CvCity* pCity = getPlotCity();
+	// <!-- custom: BtS passed the host plot's team although CvCity deliberately grants building-enhanced capacity only to the queried team.
+	// Use the visiting team whose aircraft are counted. See KI#348. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (pCity != NULL)
-		iMaxUnits = pCity->getAirUnitCapacity(getTeam());
+		iMaxUnits = pCity->getAirUnitCapacity(eTeam);
 	else iMaxUnits = GC.getDefineINT(CvGlobals::CITY_AIR_UNIT_CAPACITY);
 	return iMaxUnits - countNumAirUnits(eTeam);
 }
@@ -8675,20 +8682,22 @@ bool CvPlot::isConnectSea() const
 
 /*  advc.031c: For found value log; but could also find other uses, possibly through
 	optional call parameters. */
-wchar const* CvPlot::debugStr() const
+// <!-- custom: AdvCiv returned c_str() from a temporary out.str() value.
+// Return an owning string so found-value logging cannot read a dangling pointer. See KI#349. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+CvWString CvPlot::debugStr() const
 {
 	static std::wostringstream out; // Perhaps not needed; safer this way?
 	out.str(L"");
 	if (isCity())
 	{
 		out << getPlotCity()->getName().c_str();
-		return out.str().c_str();
+		return out.str();
 	}
 	out << L"[" << getX() << L"," << getY() << L"]";
 	if (isPeak())
 	{
 		out << L" " << L"Peak";
-		return out.str().c_str();
+		return out.str();
 	}
 	if (getBonusType() != NO_BONUS)
 		out << L" " << GC.getInfo(getBonusType()).getDescription();
@@ -8701,5 +8710,5 @@ wchar const* CvPlot::debugStr() const
 		out << L" " << GC.getInfo(getFeatureType()).getDescription();
 	if (isOwned())
 		out << L" (" << GET_PLAYER(getOwner()).getCivilizationShortDescription() << L")";
-	return out.str().c_str();
+	return out.str();
 }

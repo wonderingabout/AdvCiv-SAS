@@ -2056,9 +2056,10 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 	if (isHome(*p))
 		return true;
 	// <advc.035>
+	// <!-- custom: debugStr now returns owning text; pass its live c_str() to the variadic found-value logger. See KI#349. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (abFlip[ePlot])
 	{
-		IFLOG logBBAI("Assumed to flip: %S", p->debugStr());
+		IFLOG logBBAI("Assumed to flip: %S", p->debugStr().c_str());
 		return true;
 	}
 	// </advc.035>
@@ -2083,7 +2084,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 		-- too difficult to estimate how many tiles each site will need. */
 	if (aiCitySiteRadius[ePlot] >= 0)
 	{
-		IFLOG logBBAI("%S reserved for higher-priority site at (%d,%d)", p->debugStr(),
+		IFLOG logBBAI("%S reserved for higher-priority site at (%d,%d)", p->debugStr().c_str(),
 				kPlayer.AI_getCitySite(aiCitySiteRadius[ePlot]).getX(), kPlayer.AI_getCitySite(aiCitySiteRadius[ePlot]).getY());
 		return false;
 	}
@@ -2122,7 +2123,7 @@ bool AIFoundValue::isUsablePlot(CityPlotTypes ePlot, int& iTakenTiles, bool& bCi
 				TEAMID(eOwner) == eTeam ||
 				kTeam.isVassal(TEAMID(eOwner))))
 			{
-				IFLOG logBBAI("Don't count on stealing %S from %S", p->debugStr(), cityName(*pOtherCity));
+				IFLOG logBBAI("Don't count on stealing %S from %S", p->debugStr().c_str(), cityName(*pOtherCity));
 				return false;
 			}
 			if (!bForeignOwned)
@@ -4337,7 +4338,8 @@ void AIFoundValue::logSite() const
 	if (gFoundLogLevel <= 0 || !isLoggingEnabled())
 		return;
 
-	logBBAI("Computing found value for %S", kPlot.debugStr());
+	// <!-- custom: Adapt the variadic logger to debugStr's owning return value. See KI#349. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	logBBAI("Computing found value for %S", kPlot.debugStr().c_str());
 	if (bCoastal)
 		logBBAI("Site is coastal");
 	if (!kSet.isStartingLoc() && !kSet.isNormalizing())
@@ -4353,7 +4355,8 @@ void AIFoundValue::logPlot(CvPlot const& p, int iPlotValue, int const* aiYield, 
 	int const F = YIELD_FOOD, P = YIELD_PRODUCTION, C = YIELD_COMMERCE;
 	if (isHome(p))
 		logBBAI("Home plot: val=%d, %dF%dP%dC", iPlotValue, aiYield[F], aiYield[P], aiYield[C]);
-	else logBBAI("Plot in radius: %S; val=%d, %dF%dP%dC", p.debugStr(), iPlotValue, aiYield[F], aiYield[P], aiYield[C]);
+	// <!-- custom: Adapt the variadic logger to debugStr's owning return value. See KI#349. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	else logBBAI("Plot in radius: %S; val=%d, %dF%dP%dC", p.debugStr().c_str(), iPlotValue, aiYield[F], aiYield[P], aiYield[C]);
 	if (iCultureModifier != 100)
 		logBBAI("Culture modifier: %d", iCultureModifier);
 	if (eBonus != p.getBonusType())

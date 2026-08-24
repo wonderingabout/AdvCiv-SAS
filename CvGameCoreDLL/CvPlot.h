@@ -607,7 +607,8 @@ public:
 	int numAdjacentPlots() const { return m_iAdjPlots; }
 	// </advc.003s>
 
-	wchar const* debugStr() const; // advc.031c
+	// <!-- custom: Return owned diagnostic text instead of a pointer into a destroyed temporary. See KI#349. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvWString debugStr() const; // advc.031c
 
 	void read(FDataStreamBase* pStream);
 	void write(FDataStreamBase* pStream);

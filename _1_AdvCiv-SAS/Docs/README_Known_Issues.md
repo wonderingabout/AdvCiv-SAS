@@ -414,6 +414,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [342 - (Fixed inherited AdvCiv bug) Exhausted global-warming retries could accept unsuitable water or peak plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#342---fixed-inherited-advciv-bug-exhausted-global-warming-retries-could-accept-unsuitable-water-or-peak-plots)\
 [344 - (Fixed inherited BtS bug) Lock Modified Assets could generate an empty admin password](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#344---fixed-inherited-bts-bug-lock-modified-assets-could-generate-an-empty-admin-password)\
 [345 - (Fixed rare inherited BtS bug) Time Victory ties could fall through to generic max-turn game over](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#345---fixed-rare-inherited-bts-bug-time-victory-ties-could-fall-through-to-generic-max-turn-game-over)\
+[347 - (Fixed inherited BtS bug) Python city-found-value overrides were ignored by lazy plot evaluation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#347---fixed-inherited-bts-bug-python-city-found-value-overrides-were-ignored-by-lazy-plot-evaluation)\
+[348 - (Fixed inherited BtS bug) Foreign friendly aircraft inherited the host city's enhanced air capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#348---fixed-inherited-bts-bug-foreign-friendly-aircraft-inherited-the-host-citys-enhanced-air-capacity)\
+[349 - (Fixed inherited AdvCiv bug) Plot debug strings returned dangling pointers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#349---fixed-inherited-advciv-bug-plot-debug-strings-returned-dangling-pointers)\
+[352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#352---fixed-inherited-advciv-bug-barbarian-culture-decay-read-past-its-city-radius-array)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9415,3 +9419,43 @@ The fix preserves `testVictory`'s per-call output contract but accumulates each 
 The same fresh Pangaea game reached turn 201 through autoplay without an observed issue after compilation, repeatedly exercising the ordinary victory scan. A normal autoplay to its deadline would not guarantee the repaired branch because it will usually produce a unique score leader; moreover, the old generic fallback selected Extended mode during autoplay, which could visually resemble continued play. Exact contrast testing would therefore require deliberately constructing a tied deadline and checking the resulting victory/game state. The rare tie remains source-verified rather than separately manufactured for runtime reproduction.
 
 This is an inherited BtS defect retained by K-Mod and AdvCiv, not the K-Mod-origin defect initially reported in C009. Local Civ4CE BtS 3.19 source contains the same helper reset and outer reuse; the audit album has been reconciled accordingly. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, corrected, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 347 - (Fixed inherited BtS bug) Python city-found-value overrides were ignored by lazy plot evaluation
+
+`CvPlot::getFoundValue` asks the configured Python `getCityFoundValue` callback for a city-site value. The callback uses -1 to request native calculation. BtS stored that native fallback but never copied a real Python result into the plot's found-value cache; the function consequently returned the cache's unchanged -1, omitted the result from the area's best-found value and repeated the callback on later lazy reads. AdvCiv retained the behavior through its `CvPythonCaller` wrapper, and AdvCiv-SAS still exposes the callback as a supported BUG/GameUtils configuration.
+
+The fix assigns either the Python result or, for the -1 sentinel, the native calculation to the same local value and then stores it once in the existing cache. Area-best comparison, scenario randomization and default native behavior remain unchanged.
+
+A fresh game completed turn 201 through autoplay without an observed issue after compilation. The default callback still requests native calculation, so the non-default real-override branch remains source-verified rather than directly configured for this smoke test.
+
+This is an inherited BtS supported-configuration defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS change. Local Civ4CE BtS 3.19 source contains the same missing non--1 assignment. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, ancestry-corrected, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 348 - (Fixed inherited BtS bug) Foreign friendly aircraft inherited the host city's enhanced air capacity
+
+`CvPlot::airUnitSpaceAvailable(eTeam)` counts aircraft belonging to the requested team, but on a city plot BtS queried `CvCity::getAirUnitCapacity` with the host plot's team. That city API is deliberately team-sensitive: the owning team receives capacity added by buildings such as Airports, while a different friendly team receives only the base capacity. Visiting allied or vassal aircraft could therefore be admitted according to the host owner's enhanced allowance rather than their intended foreign-team allowance.
+
+The fix passes the requested visiting team through to the city capacity query. Aircraft of the city's own team receive the same result as before; only foreign-team capacity now matches the existing `CvCity` contract and the team whose aircraft the function counts.
+
+The same fresh game completed turn 201 through autoplay without an observed issue. No foreign aircraft/city-capacity contrast was deliberately constructed, so the exact team-sensitive result remains source-verified.
+
+This is an inherited BtS gameplay defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS change. Local Civ4CE BtS 3.19 source contains both the wrong plot-team argument and the team-sensitive city implementation. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, ancestry-corrected, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 349 - (Fixed inherited AdvCiv bug) Plot debug strings returned dangling pointers
+
+AdvCiv added `CvPlot::debugStr` for found-value diagnostics. It built text in a static `std::wostringstream` but returned `out.str().c_str()`. The `str()` call creates a temporary `std::wstring`; its `c_str()` pointer becomes invalid at the end of the return expression regardless of the stream's static lifetime. Enabled found-value/BBAI diagnostic paths could therefore read stale or garbled text through undefined behavior.
+
+The fix returns an owning `CvWString` by value and passes its live `c_str()` to the five current logging calls. The diagnostic text and logging conditions remain unchanged; no gameplay path is affected.
+
+The same fresh game completed turn 201 through autoplay without an observed issue. Found-value BBAI logging was not enabled, so the corrected diagnostic string path remains source-verified rather than directly exercised.
+
+This is an inherited AdvCiv diagnostic defect, not an AdvCiv-SAS change and not present in BtS before AdvCiv added this helper. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array
+
+AdvCiv's plot-culture decay records which civilization players have a nearby city in `abInRadius[MAX_CIV_PLAYERS]`, then loops over the full `PlayerTypes` domain to decay every positive culture entry. In the current 48-civilization DLL, `BARBARIAN_PLAYER` is index 48 while that array ends at index 47. A contested plot with positive Barbarian culture and a nearby civilization city could therefore read one element past the stack array when deciding whether to apply additional city-radius decay.
+
+The fix sizes the lookup to `MAX_PLAYERS`, matching the later loop's domain. Barbarian cities remain intentionally excluded as sources of a protecting city radius, while Barbarian culture retains the base and additional decay rules described by the existing configuration; only the invalid lookup changes.
+
+A fresh game completed turn 201 through autoplay without an observed issue after compilation. The automated human ranked among the weaker civilizations while AI research and city development appeared normal, further confirming that the unusual leading-human samples observed during the preceding batch were ordinary game variance.
+
+This is an inherited AdvCiv memory-safety and culture-decay defect introduced with the city-radius decay implementation, not an AdvCiv-SAS change. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
