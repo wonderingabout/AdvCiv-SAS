@@ -7,11 +7,12 @@ HEAD: df985a491633723d20a33b5bb17bfae346090c2b
 Practical commit count: 6225
 Base comparison: local AdvCiv 1.14 source archive
 
-LOCAL RECONCILIATION AFTER C010-WIP3 IMPORT
-- The original audit baseline above remains the source identity for ChatGPT-5.6-Sol's cumulative checkpoint. GPT-5.6-Sol reconciled the imported WIP3 against current local HEAD ba44769c7 after the F001-F031 repair track.
-- The new findings F001-F004 and F012-F031 have been independently promoted and fixed as KI#330-KI#352 except F012/KI#333 and F015/KI#336, which remain pending. F032-F044 remain provisional while CvTeamAI.cpp is open.
-- WIP3's attempted F024/F026/F027 ancestry changes were rejected during reconciliation: local Civ4CE BtS contains the same End Score helper reset/outer reuse, successful-Python-found-value omission and host-team air-capacity argument. The independently promoted BtS ancestry for KI#345, KI#347 and KI#348 therefore remains authoritative.
-- Reconciliation also restores the seven-finding F017-F022/F024 count and the open-file cursor to file 010. (GPT-5.6-Sol)
+LOCAL RECONCILIATION AFTER C010-WIP7 IMPORT
+- The original audit baseline above remains the source identity for ChatGPT-5.6-Sol's cumulative checkpoint. GPT-5.6-Sol reconciled the imported WIP7 against current local HEAD 4dd9bd3ff after the F001-F031 repair track and the reopened KI#48.3/KI#70/KI#74 CvCityAI batch.
+- The new findings F001-F004 and F012-F031 have been independently promoted and fixed as KI#330-KI#352 except F012/KI#333 and F015/KI#336, which remain pending. The reopened F007/KI#48.3, F009/KI#70 and F010/KI#74 roots are now fixed too. F032-F047 remain provisional while CvTeamAI.cpp is open.
+- WIP7 was generated from the older df985a491 snapshot and therefore repeatedly embeds superseded WIP layers and recovery cursors. This is intentional loss-prevention evidence rather than the desired durable presentation; finalized C011 should consolidate the open-file work into one current section.
+- WIP7 again imported the previously rejected F024/F026/F027 ancestry changes: local Civ4CE BtS contains the same End Score helper reset/outer reuse, successful-Python-found-value omission and host-team air-capacity argument. The independently promoted BtS ancestry for KI#345, KI#347 and KI#348 remains authoritative.
+- Reconciliation also restores the seven-finding F017-F022/F024 count and the open-file cursor to file 010. The new F045-F047 findings survive an initial current-tree structural check but remain provisional pending independent promotion. (GPT-5.6-Sol)
 
 NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
@@ -731,7 +732,6 @@ Contract failure:
 Current-data consequence:
 - VICTORY_TIME has End Score enabled but is followed in XML iteration by non-End-Score Conquest, Domination, Cultural, Space and Diplomatic victories. Those later calls reset bEndScore back to false.
 - Concrete trigger: when the Time Victory deadline is reached with the top teams tied, Time Victory correctly refuses to select a winner; the later non-End-Score calls then clear bEndScore, allowing the post-loop max-turn fallback to end the game anyway. The outer guard's intended cumulative meaning is therefore defeated.
-- Scope: a unique score leader wins normally, so the failure requires the rare exact top-score tie at the deadline. Autoplay also makes the old fallback less visually obvious because it selects Extended mode instead of ordinary game over.
 Lineage:
 - Local Civ4CE BtS 3.19 contains the same helper, per-call reset and outer reuse. The defect is therefore inherited from BtS itself rather than introduced by K-Mod; tracked K-Mod and AdvCiv retain it.
 Repair direction:
@@ -1706,3 +1706,600 @@ EXACT RECOVERY CURSOR AFTER C010-WIP3
    - create C010-WIP4 and keep CvTeamAI.cpp OPEN.
 
 END WORKING CHECKPOINT C010-WIP3
+================================================================================
+WORKING CHECKPOINT C010-WIP4 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending C010-WIP3.
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed current roots now extend through F045 / provisional KI#366.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the post-WIP3 worst-enemy finding and the renewed practical-1842 progress before further investigation continues.
+
+F045 - provisional KI#366 - incumbent worst enemy can remain inside the same master/vassal locus even though such teams are excluded from all new candidates
+Status: CONFIRMED CURRENT WORST-ENEMY ELIGIBILITY / LIFECYCLE DEFECT.
+
+Current structure:
+- `AI_updateWorstEnemy()` treats the incumbent and replacement candidates differently.
+- Existing `m_eWorstEnemy` is evaluated directly through `AI_enmityValue(m_eWorstEnemy)`.
+- New/replacement candidates are searched through:
+  `TeamIter<MAJOR_CIV, KNOWN_POTENTIAL_ENEMY_OF>(getID())`
+- `KNOWN_POTENTIAL_ENEMY_OF` excludes teams sharing the same current master/vassal locus.
+- `AI_enmityValue()` itself does not equivalently reject a voluntary vassal/master-locus incumbent.
+
+History-dependent inconsistency:
+1. Team A legitimately has team B as worst enemy while both are independent.
+2. B later becomes A's VOLUNTARY vassal (or otherwise enters A's same-master locus).
+3. Vassalization triggers broad attitude / worst-enemy refreshes.
+4. `AI_updateWorstEnemy()` evaluates incumbent B directly, outside the candidate iterator's master-locus exclusion.
+5. If B's retained enmity remains large enough, B can stay `m_eWorstEnemy`.
+6. Starting from scratch in the exact same post-vassal state, B could never be chosen as a new worst enemy because the normal candidate population excludes it.
+
+Concrete gameplay consequence:
+- `AI_techTrade()` has an unconditional permission when WE are the recipient's vassal, but not the reverse master->vassal direction.
+- It subsequently checks whether `AI_getWorstEnemy() == eToTeam` and may return `DENIAL_WORST_ENEMY`.
+- Therefore an AI master can potentially refuse technology trade to its own voluntary vassal because that vassal remains a grandfathered stale worst enemy.
+- Other worst-enemy consumers can inherit the same impossible-by-fresh-selection state.
+
+Relation to existing KI#208:
+- KI#208 is a different root: the previously repaired sticky-worst-enemy flag/order problem where later enemy-trade-memory processing could overwrite the need to recalculate worst enemy.
+- F045 is candidate-eligibility asymmetry after a master/vassal relationship transition:
+  incumbent evaluation bypasses the population restriction imposed on all replacements.
+- Keep F045 separate from KI#208.
+
+Ancestry:
+- Practical 1842 moved the replacement scan to `KNOWN_POTENTIAL_ENEMY_OF` during the AgentIterator refactor.
+- The incumbent remained evaluated outside that iterator population.
+- No descendant repair for this incumbent/candidate asymmetry found so far.
+- Later AdvCiv work continues to treat master/vassal status as relevant to worst-enemy semantics, reinforcing that same-locus teams should not normally be eligible.
+
+Repair direction:
+- Apply the same eligibility predicate to the incumbent before retaining it.
+- If current `m_eWorstEnemy` is no longer a valid `KNOWN_POTENTIAL_ENEMY_OF` candidate (or exact intended equivalent), discard/recalculate it rather than grandfathering it.
+- Prefer centralizing candidate eligibility so incumbent and replacement paths cannot diverge again.
+
+POST-WIP3 RENEWED PRACTICAL-1842 PROGRESS
+- Practical-1842 re-audit remains OPEN.
+- Relationship-filter substitutions revisited after F043/F044:
+  - `AI_forgiveEnemy()` changes examined so far do not establish an independent lost-memory population.
+  - Large vassal/surrender iterator conversions examined preserve old master/vassal free-team cases or are intentional semantics.
+  - War-value / future-enemy iterator conversions examined use `isFutureWarEnemy()` and related logic to improve sibling-vassal / Defensive Pact accounting; no accidental population loss established.
+- F045 adds another practical-1842 survivor in the worst-enemy replacement population.
+- Current practical-1842 survivors now include at least:
+  F033, F036, F037, F038, F039, F043, F044, F045.
+- `AI_isWaterAreaRelevant()` practical-1842 rewrite is the exact currently OPEN subpass:
+  - own/master-locus cities are deliberately grouped together,
+  - "other" cities become known potential enemies,
+  - no-cheating `AI_deduceCitySite()` logic was added,
+  - no defect has yet been classified there.
+- Do not call practical 1842 exhausted until that and all remaining hunk populations are dispositioned.
+
+CURRENT FINDING SET AFTER WIP4
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP4
+1. Resume renewed practical-1842 audit at `AI_isWaterAreaRelevant()` and finish its exact pre/post population semantics.
+2. Continue every remaining high-risk practical-1842 iterator/control substitution; do not assume the refactor is exhausted.
+3. Continue independent whole-current-file audit after 1842:
+   - remaining public sentinel/wrapper contracts
+   - relationship and cached-state transitions
+   - fixed-array / enum / divisor / default-assert reachability
+   - TODO/FIXME and unused/mismatched parameter scan
+4. Deep semantic collision + wording reread F032-F045 against current Album and reviewed KI ledger.
+5. For every finding verify:
+   - current supported reachability
+   - exact ancestry/classification
+   - consequence without overstatement
+   - surgical repair direction
+6. If another handoff occurs before complete:
+   - freeze C010-WIP5 first.
+7. Only when all closure work is genuinely exhausted:
+   - mark CvTeamAI.cpp COMPLETE
+   - total becomes 10 / 169
+   - freeze durable C011
+   - validate reconstruction byte-for-byte
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP4
+================================================================================
+WORKING CHECKPOINT C010-WIP5 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending C010-WIP4.
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed current roots now extend through F046 / provisional KI#367.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the post-WIP4 renewed practical-1842 audit, including the cascading-war declared-war-memory defect and corrected observer-contact wording for F037/F044.
+
+F037 / provisional KI#358 - WORDING BROADENING / CORRECTION
+- Root remains the practical-1842 replacement of the original tribute-memory observer population with the broad outer:
+  `PlayerIter<MAJOR_CIV, KNOWN_POTENTIAL_ENEMY_OF>(getID())`
+  keyed to the AGGRESSOR.
+- Pre-1842 logic for the "war despite received tribute" memory explicitly required the OBSERVER to have met the tribute-paying VICTIM, plus its separate master/vassal exclusions.
+- `KNOWN_POTENTIAL_ENEMY_OF(aggressor)` instead:
+  - requires observer contact with the AGGRESSOR,
+  - excludes observer if in aggressor's same-master locus,
+  - does NOT itself guarantee observer contact with the tribute-paying victim.
+- Therefore the refactor can both:
+  1. suppress a formerly valid observer who knows the victim but has not met the aggressor, and
+  2. admit an observer who knows the aggressor but not the victim, subject to the remaining inner checks.
+- Keep this as F037: one observer-population regression in the tribute-memory contract.
+- Repair should reconstruct the ORIGINAL victim-knowledge population explicitly rather than reuse the aggressor-potential-enemy iterator.
+
+F044 / provisional KI#365 - WORDING BROADENING
+- Root remains the practical-1842 outer `KNOWN_POTENTIAL_ENEMY_OF(aggressor)` filter applied before `AI_disapprovesOfDoW`.
+- Earlier WIP wording emphasized observers in the aggressor's master/vassal locus.
+- Current helper trace proves the regression is broader:
+  `CvPlayerAI::AI_disapprovesOfDoW(eAggressor,eVictim)` deliberately does NOT require the observer to have met the aggressor:
+  `//!kOurTeam.isHasMet(eAggressor) // Not checked by BtS either`
+- The helper DOES require the observer to know the victim and applies the actual victim/friend/master-locus semantic filters.
+- Pre-1842 all-major-player iteration therefore allowed an outside observer who knows/likes the victim but has not yet met the aggressor to store `MEMORY_DECLARED_WAR_ON_FRIEND`.
+- Practical 1842 silently adds an aggressor-contact requirement and same-aggressor-locus exclusion before the helper gets a chance to decide.
+- This can suppress historical diplomatic memory that was intended to become meaningful later once contact/status changes.
+- Keep same-master-locus and no-aggressor-contact examples under the single F044 observer-population root.
+- Repair should restore the broad third-party observer population and let `AI_disapprovesOfDoW` enforce its own semantic eligibility.
+
+F046 - provisional KI#367 - practical 1842 can suppress direct victim `MEMORY_DECLARED_WAR` on cascading declarations before first contact
+Status: CONFIRMED CURRENT PRACTICAL-1842 CONTACT/ORDERING REGRESSION.
+
+Current declaration ordering:
+- `CvTeam::declareWar(eTarget,...)` calls:
+  1. `AI().AI_preDeclareWar(eTarget,...)`
+  2. sets both teams' at-war flags
+  3. performs other immediate war-state work
+  4. only later calls `meet(eTarget, false)`
+  5. later triggers Defensive Pact and vassal-alignment cascading wars.
+- Thus AI_preDeclareWar executes with the PRE-WAR contact graph.
+
+Why primary wars usually mask the defect:
+- Normal voluntary war-plan / `canEventuallyDeclareWar()` logic requires `isHasMet(eTarget)`.
+- Therefore the primary aggressor/victim pair is normally already known and passes `KNOWN_POTENTIAL_ENEMY_OF`.
+
+Why cascading wars are different:
+- Defensive Pact and vassal-alignment reactions queue new war declarations between teams that need not already have met each other.
+- `triggerDefensivePacts` can queue e.g. third-party defender C -> original attacker A with `bPrimary=false`.
+- `triggerWars` drains the queue by directly invoking `GET_TEAM(attacker).declareWar(defender,...)`; there is no separate pre-contact meeting before AI_preDeclareWar.
+- The nested declaration itself only establishes contact later through `meet`.
+
+Concrete supported example:
+1. A declares war on B.
+2. B has a Defensive Pact with C.
+3. C has never met A.
+4. The pact reaction queues C declaring war on A.
+5. C's `declareWar(A)` enters `AI_preDeclareWar(A,...)` before C/A meet.
+6. Practical-1842 outer iterator:
+   `PlayerIter<MAJOR_CIV, KNOWN_POTENTIAL_ENEMY_OF>(C)`
+   excludes A because A has not met C yet.
+7. Therefore the inner direct-victim branch:
+   `if (kPlayer.getTeam() == eTarget) ... MEMORY_DECLARED_WAR ...`
+   never sees A's members.
+8. The declaration then establishes C/A contact, but no later code replays the missed victim memory.
+
+Pre-1842 control:
+- The original all-living-major-player loop did not require prior aggressor/victim contact before reaching the direct-victim `MEMORY_DECLARED_WAR` branch.
+- Thus the victim correctly remembered that the newly encountered team had declared war on it.
+
+Current consequence:
+- `MEMORY_DECLARED_WAR` has current leader-memory XML values and real attitude/decay behavior.
+- UWAI / WarUtility and UWAIAgent logic also read this memory family.
+- Missing it on secondary/cascading declarations can therefore alter post-war attitude and strategic memory.
+
+Scope:
+- Distinct from F044:
+  - F044 = third-party `MEMORY_DECLARED_WAR_ON_FRIEND` observer audience.
+  - F046 = the DIRECT VICTIM's own `MEMORY_DECLARED_WAR`.
+- Distinct from F037:
+  - F037 = war-despite-tribute observer population.
+- Distinct from F043:
+  - F043 = all-player arrogant-demand reset narrowed by the same broad iterator.
+
+Ancestry:
+- Practical 1842 replaced the old broad per-player declaration-memory loop with `KNOWN_POTENTIAL_ENEMY_OF(getID())`.
+- The outer filter now imposes a contact requirement before the declaration's own later `meet()` call can establish that contact.
+- No descendant repair found so far.
+
+Repair direction:
+- Do not prefilter direct victim memory through an aggressor-contact iterator.
+- The direct target/victim branch should explicitly process the target team's members regardless of prior contact when a valid declaration occurs.
+- More generally, split AI_preDeclareWar's multiple distinct memory contracts into separately correct populations rather than driving all of them through one broad iterator.
+
+POST-WIP4 PRACTICAL-1842 AUDIT PROGRESS
+- `AI_isWaterAreaRelevant()` closes clean:
+  - same-team / same-master-locus cities form the "our side" population via `NOT_A_RIVAL_OF`,
+  - known outside-locus cities remain potential rivals regardless friendliness,
+  - `AI_deduceCitySite()` is a deliberate anti-cheating refinement,
+  - no lost legitimate current city population established.
+- Large voluntary-vassal / surrender iterator rewrites were re-expanded literally:
+  - `FREE_MAJOR_CIV` / enemy populations preserve the old intended free-team exceptions,
+  - prospective-master enemy and "other war success" populations preserve the old exclusions,
+  - threat loops preserve master/vassal cases.
+- Worst-enemy side-effect loop narrowing to `OTHER_KNOWN_TO` closes clean:
+  - rival-trade/grant values only exist meaningfully for contact-established third parties,
+  - no stale unknown-team value population established.
+- `AI_changeWarSuccess` major-civ restriction does not establish a lost current diplomatic-memory population for minor/barbarian teams.
+- `AI_countWarPlans` / sneak-attack iterator rewrites remain contact-equivalent under reachable war-plan creation.
+- `AI_doWar` practical-1842 target populations remain contact-equivalent apart from already-owned F033/F035 paths; dogpile-power no-cheat changes appear intentional.
+- `AI_warDiplomacyCost` / `AI_startWarVal` future-enemy rewrites appear intentional refinements to vassal / Defensive Pact handling rather than regressions.
+- Renewed practical-1842 survivor set now includes at least:
+  F033, F036, F037, F038, F039, F043, F044, F045, F046.
+- Practical 1842 is STILL OPEN until remaining hunks / same AI_preDeclareWar cascading semantics are fully dispositioned.
+
+CURRENT FINDING SET AFTER WIP5
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP5
+1. Continue `AI_preDeclareWar` / declaration-cascade audit:
+   - check every remaining branch in the shared practical-1842 outer iterator for pre-contact or same-locus population loss,
+   - check whether secondary vassal/Defensive Pact declarations create any additional distinct memory/state omission beyond F046.
+2. Finish renewed practical-1842 hunk-by-hunk audit and only then re-mark that subpass exhausted.
+3. Resume independent current whole-file closure:
+   - final public sentinel/wrapper contracts,
+   - arithmetic/divisor/default/assert/fixed-array pass,
+   - relationship/cache transitions,
+   - header/member/state invariants.
+4. Run exact semantic collision search for F046 and renewed F037/F044 wording against current Album + reviewed Known Issues.
+5. Reread F032-F046 one-by-one against current source/history:
+   - current supported reachability,
+   - exact ancestry,
+   - consequence without overstatement,
+   - surgical repair.
+6. If another handoff occurs first:
+   - freeze C010-WIP6.
+7. Only when all remaining work is genuinely closed:
+   - mark CvTeamAI.cpp COMPLETE
+   - total becomes 10 / 169
+   - freeze durable C011
+   - byte-validate reconstruction
+   - open file 011 SASGameRecordLog.cpp.
+
+END WORKING CHECKPOINT C010-WIP5
+================================================================================
+WORKING CHECKPOINT C010-WIP6 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending C010-WIP5.
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed current roots remain F032-F046 / provisional KI#353-KI#367.
+- F047 is currently UNUSED; one vassal-war-plan storage/query candidate is OPEN and deliberately UNNUMBERED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects all post-WIP5 work and the exact open candidate before further proof.
+
+POST-WIP5 PRACTICAL-1842 CLOSURE PROGRESS
+- The four distinct contracts sharing practical-1842's broad `AI_preDeclareWar` outer iterator have been separated:
+  - F037 = war-despite-tribute observer population.
+  - F043 = all-player arrogant-demand reset.
+  - F044 = third-party war-on-friend observer population.
+  - F046 = direct victim's `MEMORY_DECLARED_WAR` on first-contact cascading declarations.
+- Primary voluntary declarations normally require prior contact, so F046's first-contact omission is specifically relevant to cascading/secondary declarations such as Defensive Pact and vassal-alignment wars.
+- Vassal-alignment first-contact cases are the same F046 root, not a new issue.
+- Collision search for F046 against current Album / reviewed Known Issues found no same-root issue.
+
+OTHER PRACTICAL-1842 HUNKS DISPOSITIONED AFTER WIP5
+- `AI_countChosenWars()` population narrowing is technically different from old code but the function is unused in C++ and no current SAS Python consumer was found that gives the difference current gameplay/UI impact. API/history debt only.
+- Global `AI_isSneakAttackPreparing(NO_TEAM)` / `AI_isSneakAttackReady(NO_TEAM)` scan narrowed to MAJOR_CIV:
+  - live no-argument helpers are important,
+  - but current legacy war selection only creates PREPARING_TOTAL / PREPARING_LIMITED plans against major civs,
+  - minor/barbarian wars can have active/attacked plans but not the preparing state these helpers test,
+  - no current lost preparing-plan signal established.
+- `AI_changeWarSuccess` major-civ restriction:
+  - shared-war success is a major-civ diplomacy/relationship mechanism,
+  - minor/barbarian teams do not participate in the normal memory/attitude contracts,
+  - no current diplomatic loss established.
+- `AI_countEnemyCitiesByArea()` still comments that barbarian cities are included although its iterator now requires a known potential enemy.
+  - Current game initialization makes non-major teams declare war on alive civs.
+  - `declareWar()` establishes contact.
+  - Therefore barbarian team contact exists before these area war-plan/city helpers matter.
+  - Comment remains effectively true under current lifecycle.
+- Area/enemy helper family generally closes on the same basis:
+  - normal chosen/preparing plans are contact-gated,
+  - actual barbarian/minor wars establish contact,
+  - no hidden unmet-enemy population remains.
+
+INDEPENDENT CURRENT-FILE CLOSURE PROGRESS AFTER WIP5
+- Fresh trade-denial / swapped-TeamTypes argument pass:
+  - tech trade, map trade, vassal trade, Open Borders, Defensive Pact and permanent alliance directions remain internally consistent.
+  - own-vassal tech/map denial oddity remains a consequence of F045's otherwise-impossible stale own-vassal worst-enemy state, not a second trade root.
+- Fresh divisor concern in `AI_getDiploDecay()` killed:
+  - current XML grep appeared to have seven explicit `iAIMemoryRandPercent` tags for eight game speeds,
+  - loader/default is 100 (`kElements.addInt(...,100)`), not zero,
+  - missing explicit tag therefore cannot create division by zero.
+- `DIPLOMACY_VALUE_REMAINDER` and similar config denominators checked against current XML remain positive; configuration robustness only.
+- Current direct arrays/vectors, `nextIndex()` denominators, raw-team sentinel paths and enum/default scans remain clean beyond already-owned findings.
+- Trade/worst-enemy small-helper scan has not produced another independent root.
+- The whole-file audit is now sufficiently deep that remaining work is mainly the final inherited war-plan semantics + complete finding reread/collision pass.
+
+OPEN UNNUMBERED CANDIDATE - possible F047
+Title candidate:
+- Legacy AI may store a chosen/preparing war plan on a VOLUNTARY VASSAL team while query/readiness APIs redirect the same target to its MASTER team.
+
+Why it looks suspicious:
+- Legacy `AI_doWar()` explicitly considers voluntary vassals as war targets.
+- Target selection stores:
+  `eBestTarget = eTarget` (the vassal team itself)
+  and later calls:
+  `AI_setWarPlan(eBestTarget, WARPLAN_PREPARING_TOTAL/LIMITED/DOGPILE...)`.
+- `AI_isOkayVassalTarget(eTeam)` exists specifically to permit some voluntary-vassal targets while rejecting capitulated/inappropriate ones.
+- There is no obvious target->master normalization at the selection call site.
+
+But multiple query APIs redirect vassal targets to their master:
+- `AI_isChosenWar(eIndex)` reads:
+  `AI_getWarPlan(GET_TEAM(eIndex).getMasterTeam())`.
+- `AI_isSneakAttackPreparing(eIndex)` likewise queries the target's master plan.
+- `AI_mayAttack(eDefender)` gets defender master and requires an imminent plan against that master.
+- `AI_updateWarPlanCounts()` intentionally ignores war plans whose target is currently a vassal.
+- `AI_isAnyWarPlan()` and per-plan cache queries therefore do not count a vassal-stored plan.
+
+Potential mismatch:
+- Write key = vassal team.
+- Several readiness/query/cache keys = master team.
+- If no sibling/master plan is created elsewhere, legacy AI can select and store a vassal-target plan that later readiness/attack logic cannot observe through the normalized query APIs.
+
+Reachability:
+- Full UWAI returns before legacy AI_doWar selection.
+- Legacy path remains reachable in supported configurations when UWAI is disabled / K-Mod-style or related background modes.
+- Must still prove a complete supported behavioral failure before promotion.
+
+Important reasons NOT to promote yet:
+- `AI_doWar()`'s first live-plan loop reads raw `AI_getWarPlan(eLoopTeam)`, so the vassal-stored plan is not completely invisible.
+- It may advance PREPARING -> active on the vassal team.
+- Declaring war on the vassal can drag its master into war by game rules, so storing the raw plan on the vassal might be partially intentional.
+- Need determine whether:
+  1. a sibling plan is also created on the master,
+  2. the vassal plan is later normalized,
+  3. unit/city war-readiness consumers require the master-normalized APIs before actual declaration,
+  4. current supported non-UWAI configuration actually reaches the bad combination.
+
+Exact current source facts already established:
+- `AI_doWar()` target selection:
+  - iterates known potential enemy teams,
+  - computes `eLoopMasterTeam = GET_TEAM(eTarget).getMasterTeam()`,
+  - detects `bVassal`,
+  - permits via `AI_isOkayVassalTarget(eTarget)`,
+  - stores `eBestTarget = eTarget`,
+  - calls `AI_setWarPlan(eBestTarget, ...)`.
+- `AI_isOkayVassalTarget()`:
+  - rejects capitulated target,
+  - permits non-vassal directly,
+  - for voluntary vassal evaluates area/adjacency relationship between vassal and master and can return true.
+- Query redirects:
+  - AI_isChosenWar(eIndex) -> target master
+  - AI_isSneakAttackPreparing(eIndex) -> target master
+  - AI_mayAttack(eDefender) -> defender master
+- Cache:
+  - AI_updateWarPlanCounts returns without counting vassal targets.
+- Legacy `AI_doWar()` first plan-processing loop reads raw plans by actual team ID, so storage is still visible to that loop.
+
+Exact proof tasks for possible F047
+1. Trace every live caller of:
+   - AI_isChosenWar
+   - AI_isSneakAttackPreparing / Ready
+   - AI_mayAttack
+   - raw AI_getWarPlan
+   in CvUnitAI / CvSelectionGroupAI / CvCityAI / CvTeamAI and related war execution.
+2. Trace PREPARING_TOTAL/LIMITED stored on a vassal:
+   - how/when it transitions,
+   - what predicate starts actual attacks,
+   - whether declaration ultimately targets vassal or master.
+3. Search all `AI_setWarPlan` paths for automatic sibling/master plan creation.
+4. Trace `CvTeam::declareWar` / vassal-war propagation to see whether plan reconciliation occurs.
+5. Historical control:
+   - compare K-Mod / pre-1842 / AdvCiv practical(s), especially `advc.104j`,
+   - determine whether master redirects and vassal target selection were designed together or introduced separately.
+6. Current configuration reachability:
+   - prove supported legacy AI path can select a voluntary vassal while UWAI is disabled.
+7. Collision search if confirmed.
+8. Promote only if an actual current strategy/execution failure survives; otherwise record as intentional dual-key semantics or robustness debt.
+
+CURRENT CONFIRMED FINDING SET AFTER WIP6
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 currently UNUSED pending proof above.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP6
+1. Prove/kill the vassal-target war-plan storage/query candidate described above.
+2. If confirmed:
+   - collision search,
+   - assign F047 / provisional KI#368,
+   - verify ancestry and surgical repair.
+3. Finish remaining practical-1842 hunk audit and only then mark that historical subpass exhausted.
+4. Finish independent current whole-file closure.
+5. Reread every confirmed F032-F046 (+ F047 if promoted) against:
+   - current source,
+   - Base AdvCiv 1.14,
+   - historical controls,
+   - Album,
+   - reviewed Known Issues.
+6. Ensure no open candidate remains.
+7. If another handoff occurs first:
+   - freeze C010-WIP7.
+8. Only when genuinely complete:
+   - mark CvTeamAI.cpp COMPLETE
+   - total 10 / 169
+   - freeze durable C011
+   - byte-validate reconstruction
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP6
+================================================================================
+WORKING CHECKPOINT C010-WIP7 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending C010-WIP6.
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed current roots now extend through F047 / provisional KI#368.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the fully proved legacy voluntary-vassal war-plan storage/query mismatch before the remaining file-closure pass.
+
+F047 - provisional KI#368 - advc.104j master-normalized vassal war-plan queries but left legacy AI_doWar writing plans to the vassal team
+Status: CONFIRMED CURRENT CONFIGURATION-REACHABLE WAR-PLANNING DEFECT.
+
+Root:
+- K-Mod's original representation was internally consistent:
+  - war target selection could choose a voluntary vassal,
+  - `AI_setWarPlan(vassal, ...)` stored the plan on that vassal team,
+  - `AI_isChosenWar(vassal)` / `AI_isSneakAttackPreparing(vassal)` read the same vassal key.
+- AdvCiv practical 1366 (`82ed992626...`, change `advc.104j`) changed the READ/query side to normalize vassal targets to their master:
+  - `AI_isChosenWar(eIndex)` -> `AI_getWarPlan(GET_TEAM(eIndex).getMasterTeam())`
+  - `AI_isSneakAttackPreparing(eIndex)` -> master-keyed plan
+  - pathing / tactical readiness was likewise changed to use the target master.
+- Practical 1366's own comment says:
+  "Since a war plan against a master implies a war plan against its vassal, I don't think this function is relevant anymore."
+  about `AI_isOkayVassalTarget`.
+- Its commit log explicitly says:
+  "Fixed issues that had prevented the AI from starting a war by invading a vassal. [advc.104j]"
+- However, practical 1366 did NOT normalize the legacy `AI_doWar()` target-selection/write side.
+
+Current legacy selection/write path:
+- Legacy AI_doWar still iterates possible major targets and can select a VOLUNTARY VASSAL:
+  - `eTarget = it->getID()`
+  - `eLoopMasterTeam = GET_TEAM(eTarget).getMasterTeam()`
+  - `bVassal = (eLoopMasterTeam != eTarget)`
+  - if vassal, `AI_isOkayVassalTarget(eTarget)` can return true.
+- It intentionally rejects capitulated vassals, but some voluntary vassals remain valid targets.
+- If selected:
+  - `eBestTarget = eTarget` remains the VASSAL team ID,
+  - `AI_setWarPlan(eBestTarget, WARPLAN_PREPARING_TOTAL/LIMITED or DOGPILE...)`
+    stores the plan on the VASSAL key.
+- `AI_startWarVal(eTarget,...)` knows the target's master for coalition valuation but does not normalize the stored target.
+- Search of current AI_setWarPlan paths found no automatic creation of a sibling plan on the target MASTER when legacy AI_doWar selects the vassal.
+- AI_setWarPlan's own vassal propagation concerns OUR AI vassals inheriting our target; it does not normalize the ENEMY target to its master.
+
+Why the plan is partly visible but tactically unusable:
+- AI_doWar's first plan-maintenance loop reads raw:
+  `AI_getWarPlan(eLoopTeam)`.
+- Therefore a vassal-stored PREPARING plan can age and transition to WARPLAN_LIMITED / WARPLAN_TOTAL.
+- But the APIs that permit/execute an undeclared attack against that target normalize to the target master:
+  - `AI_isChosenWar(vassal)` -> master plan
+  - `AI_isSneakAttackPreparing(vassal)` -> master plan
+  - `AI_isSneakAttackReady(vassal)` -> master-keyed chosen/preparing tests
+  - `AI_mayAttack(vassal)` -> defender master plan
+  - `CvSelectionGroupAI::AI_isDeclareWar(vassal plot)` -> target master plan for limited-war semantics
+  - GroupPathFinder `MOVE_DECLARE_WAR` handling -> AI_isSneakAttackReady(target)
+  - `CvUnit::canMoveInto(..., bDeclareWar=true)` for AI requires AI_isSneakAttackReady(plot team)
+  - `CvUnitAI::AI_considerDOW()` only declares when AI_isSneakAttackReady(plot team) is true.
+- With only a vassal-keyed plan, all of those master-normalized readiness checks see NO_WARPLAN.
+- The AI therefore cannot use the normal tactical border-crossing / path-DOW mechanism to execute the planned undeclared war.
+
+Timeout consequence:
+- After a PREPARING vassal-keyed plan matures to LIMITED/TOTAL, AI_doWar's raw plan loop still sees it.
+- `AI_abandonWarPlanIfTimedOut()` checks whether any member has an enemy-target mission against the vassal team.
+- Because master-keyed readiness prevents normal mission/path declaration setup, the plan can remain inactive.
+- Once the state counter exceeds the normal abandon threshold, the vassal-keyed plan is cleared.
+- Thus the legacy planner can select, prepare and then abandon a war against a voluntary vassal without the tactical layer ever recognizing it as an imminent war.
+
+Current reachability:
+- Full UWAI returns before the legacy target-selection half of AI_doWar.
+- Legacy K-Mod/BBAI war planning remains a supported path when UWAI is disabled / legacy K-Mod-style configurations are used (the same configuration family relevant to F033).
+- `canEventuallyDeclareWar(vassal)` deliberately calls `canChangeWarPeace(eTeam, true)`, so an outside team may declare war on a voluntary vassal; target reachability is not blocked by the core diplomacy API.
+- AI_isOkayVassalTarget exists and remains called precisely to allow suitable voluntary-vassal targets.
+
+Ancestry classification:
+- K-Mod target storage/query was same-key and therefore did not have this particular split.
+- AdvCiv practical 1366 / advc.104j introduced master normalization on the tactical/query side while leaving K-Mod's vassal-target selection/write side intact.
+- This is best classified as an AdvCiv incomplete-fix / cross-contract regression surviving SAS.
+
+Collision:
+- Semantic searches for `AI_isOkayVassalTarget`, `advc.104j`, vassal war-plan/invasion/sneak-plan wording found no same-root current Album or reviewed Known-Issues entry.
+
+Repair direction:
+Preferred architecture:
+1. Normalize the LEGACY target to the master before storing a chosen/preparing war plan:
+   - if selection evaluates a voluntary vassal's geography/value, retain that as the tactical subtarget if useful,
+   - but strategic war-plan key should be the master team, matching advc.104j's query/tactical contract.
+2. Or centralize a canonical `warPlanTargetTeam(eTeam)` helper and use it consistently for BOTH writes and reads.
+3. Reevaluate/remove `AI_isOkayVassalTarget()` from legacy strategic plan-key selection; practical 1366 already comments that the function became conceptually irrelevant once plans are master-keyed.
+4. Preserve the intended ability to invade a vassal when that is the attractive front of a war against its master; do not simply ban vassal invasion.
+
+CURRENT CONFIRMED FINDING SET AFTER WIP7
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP7
+1. Finish renewed practical-1842 hunk audit; most remaining hunk populations have now closed clean, but do not stamp exhausted until mechanically complete.
+2. Continue independent inherited/current CvTeamAI pass after F047:
+   - oldest BtS/K-Mod control comparisons,
+   - tiny helpers / trade denial / state setters,
+   - raw plan-state/cached-state lifecycle,
+   - remaining sentinel/divisor/default/assert/header invariants.
+3. Deep semantic collision + final wording pass for F032-F047:
+   - current supported reachability
+   - exact ancestry/classification
+   - consequence without overstatement
+   - surgical repair direction
+4. Recheck F047 specifically against the full legacy war execution lifecycle and any descendant changes before durable C011.
+5. Confirm no candidate remains OPEN.
+6. If another handoff occurs before completion:
+   - freeze C010-WIP8 first.
+7. Only when genuinely complete:
+   - mark CvTeamAI.cpp COMPLETE
+   - total 10 / 169
+   - freeze durable C011
+   - byte-validate reconstruction
+   - open file 011 SASGameRecordLog.cpp.
+
+END WORKING CHECKPOINT C010-WIP7
