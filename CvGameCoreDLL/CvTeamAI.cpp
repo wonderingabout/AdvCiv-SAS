@@ -689,7 +689,8 @@ int CvTeamAI::AI_calculateCapitalProximity(TeamTypes eTeam) const { ... }*/
 bool CvTeamAI::AI_haveSeenCities(TeamTypes eTeam, bool bPrimaryAreaOnly, int iMinimum) const
 {
 	int iCount = 0;
-	for (MemberIter it(getID()); it.hasNext(); ++it)
+	// <!-- custom: AdvCiv's practical-1842 iterator refactor substituted our own members for the requested target team, so known own cities could authorize war planning against an unseen rival. Restore the target-team population. See KI#354. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (MemberIter it(eTeam); it.hasNext(); ++it)
 	{
 		CvPlayer const& kMember = *it;
 		FOR_EACH_CITY(pLoopCity, kMember)
@@ -3241,25 +3242,24 @@ int CvTeamAI::AI_getRivalAirPower() const
 	int iRivalAirPower = 0;
 	int iEnemyAirPower = 0;
 	int iTeamCount = 0;
-	for (size_t i = 0; i < aeAirUnitTypes.size(); i++) // advc.opt
+	// <!-- custom: K-Mod counted the rival population once per qualifying air class, understating the average by roughly the number of air classes. Iterate eligible rivals outside the air-class sum so numerator and denominator use the same teams exactly once. See KI#355. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getID());
+	for (; itRival.hasNext(); ++itRival)
 	{
-		CvUnitInfo const& kUnit = GC.getInfo(aeAirUnitTypes[i]);
-		UnitClassTypes eUnitClass = kUnit.getUnitClassType();
-		// advc.001: Surely our vassals shouldn't count for rival air power
-		TeamAIIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(getID());
-		for (; itRival.hasNext(); ++itRival)
+		// <advc.131>
+		if (!isBarbarian() && itRival->AI_isAvoidWar(getID()))
+			continue; // </advc.131>
+		iTeamCount++;
+		for (size_t i = 0; i < aeAirUnitTypes.size(); i++) // advc.opt
 		{
-			// <advc.131>
-			if (!isBarbarian() && itRival->AI_isAvoidWar(getID()))
-				continue; // </advc.131>
+			CvUnitInfo const& kUnit = GC.getInfo(aeAirUnitTypes[i]);
 			int iUnitPower = kUnit.getPowerValue() *
 					// advc (note): This is cheating
-					itRival->getUnitClassCount(eUnitClass);
+					itRival->getUnitClassCount(kUnit.getUnitClassType());
 			iRivalAirPower += iUnitPower;
 			if (AI_getWarPlan(itRival->getID()) != NO_WARPLAN)
 				iEnemyAirPower += iUnitPower;
 		}
-		iTeamCount += itRival.nextIndex();
 	}
 	return iEnemyAirPower + iRivalAirPower / std::max(1, iTeamCount);
 }
@@ -5515,7 +5515,8 @@ TeamTypes CvTeamAI::AI_diploVoteCounterCandidate(VoteSourceTypes eVS) const
 {
 	/*  Only cover this obvious case: we're among the two teams with the
 		most votes (clearly ahead of the third). Otherwise, don't hazard a guess. */
-	TeamTypes eCounterCandidate = NO_TEAM;
+	// <!-- custom: AdvCiv practical 1832 compared the first-place vote count with our numeric team ID while trying to identify the other top-two team. Track the teams owning first and second place explicitly. See KI#353. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes eFirstTeam = NO_TEAM, eSecondTeam = NO_TEAM;
 	int iFirstMostVotes = -1, iSecondMostVotes = -1, iThirdMostVotes = -1;
 	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
@@ -5537,16 +5538,15 @@ TeamTypes CvTeamAI::AI_diploVoteCounterCandidate(VoteSourceTypes eVS) const
 				{
 					iThirdMostVotes = iSecondMostVotes;
 					iSecondMostVotes = iFirstMostVotes;
+					eSecondTeam = eFirstTeam;
 					iFirstMostVotes = iVotes;
-					if (kTeam.getID() != getID())
-						eCounterCandidate = kTeam.getID();
+					eFirstTeam = kTeam.getID();
 				}
 				else
 				{
 					iThirdMostVotes = iSecondMostVotes;
 					iSecondMostVotes = iVotes;
-					if (iFirstMostVotes == getID())
-						eCounterCandidate = kTeam.getID();
+					eSecondTeam = kTeam.getID();
 				}
 			}
 			else iThirdMostVotes = iVotes;
@@ -5558,7 +5558,12 @@ TeamTypes CvTeamAI::AI_diploVoteCounterCandidate(VoteSourceTypes eVS) const
 	{
 		return NO_TEAM;
 	}
-	return eCounterCandidate;
+	// <!-- custom: Return the opposing top-two team only when our team actually owns the other tracked position. See KI#353. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (eFirstTeam == getID())
+		return eSecondTeam;
+	if (eSecondTeam == getID())
+		return eFirstTeam;
+	return NO_TEAM;
 } // </advc.104>
 
 
@@ -6350,25 +6355,39 @@ void CvTeamAI::AI_doWar()
 	{
 		bool bAggressive = kGame.isOption(GAMEOPTION_AGGRESSIVE_AI);
 
+		// <!-- custom: K-Mod/BBAI subtracted the total Dagger population from independent Financial Trouble and Get Better Units populations. Count the intended non-Dagger intersections and denominator directly so one healthy Dagger member cannot cancel another member's economic or upgrade concern. See KI#356. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		int iFinancialTroubleCount = 0;
 		int iDaggerCount = 0;
 		int iGetBetterUnitsCount = 0;
+		int iNonDaggerCount = 0;
+		int iNonDaggerFinancialTroubleCount = 0;
+		int iNonDaggerGetBetterUnitsCount = 0;
 		for (MemberAIIter it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayerAI& kMember = *it;
-			if (kMember.AI_isDoStrategy(AI_STRATEGY_DAGGER) ||
+			bool const bDagger = (kMember.AI_isDoStrategy(AI_STRATEGY_DAGGER) ||
 				// <BBAI>
 				kMember.AI_atVictoryStage(AI_VICTORY_CONQUEST3) ||
-				kMember.AI_atVictoryStage(AI_VICTORY_DOMINATION4)) // </BBAI>
+				kMember.AI_atVictoryStage(AI_VICTORY_DOMINATION4)); // </BBAI>
+			if (bDagger)
 			{
 				iDaggerCount++;
 				bAggressive = true;
 			}
+			else iNonDaggerCount++;
 			if (kMember.AI_isDoStrategy(AI_STRATEGY_GET_BETTER_UNITS))
+			{
 				iGetBetterUnitsCount++;
+				if (!bDagger)
+					iNonDaggerGetBetterUnitsCount++;
+			}
 
 			if (kMember.AI_isFinancialTrouble())
+			{
 				iFinancialTroubleCount++;
+				if (!bDagger)
+					iNonDaggerFinancialTroubleCount++;
+			}
 		}
 
 		// if random in this range is 0, we go to war of this type (so lower numbers are higher probability)
@@ -6385,7 +6404,8 @@ void CvTeamAI::AI_doWar()
 
 		// we oppose war if half the non-dagger teammates in financial trouble
 		bool bFinancesOpposeWar = false;
-		if (iFinancialTroubleCount - iDaggerCount >= std::max(1, getNumMembers() / 2))
+		// <!-- custom: Use the actual financially troubled non-Dagger intersection and its matching population instead of subtracting unrelated totals. See KI#356. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (iNonDaggerFinancialTroubleCount >= std::max(1, iNonDaggerCount / 2))
 		{
 			// this can be overridden by by the pro-war booleans
 			bFinancesOpposeWar = true;
@@ -6413,7 +6433,9 @@ void CvTeamAI::AI_doWar()
 
 		// overall war check (quite frequently true)
 		bool bMakeWarChecks = false;
-		if ((iGetBetterUnitsCount - iDaggerCount) * 3 < iNumMembers * 2)
+		// <!-- custom: Let all-Dagger teams proceed; otherwise postpone only when at least two thirds of the actual non-Dagger members want better units. See KI#356. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (iNonDaggerCount <= 0 ||
+			iNonDaggerGetBetterUnitsCount * 3 < iNonDaggerCount * 2)
 		{
 			if (bFinancialProWar || !bFinancesOpposeWar)
 			{	// random overall war chance

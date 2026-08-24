@@ -424,6 +424,10 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [350 - (Fixed inherited AdvCiv information leak) Nuke reports revealed hidden-nationality unit owners](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#350---fixed-inherited-advciv-information-leak-nuke-reports-revealed-hidden-nationality-unit-owners)\
 [351 - (Fixed inherited BtS bug) Runtime river-edge edits left irrigation, fresh-water health and trade networks stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#351---fixed-inherited-bts-bug-runtime-river-edge-edits-left-irrigation-fresh-water-health-and-trade-networks-stale)\
 [352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#352---fixed-inherited-advciv-bug-barbarian-culture-decay-read-past-its-city-radius-array)\
+[353 - (Fixed inherited AdvCiv bug) Diplomatic-vote counter-candidate selection compared a vote count with a team ID](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#353---fixed-inherited-advciv-bug-diplomatic-vote-counter-candidate-selection-compared-a-vote-count-with-a-team-id)\
+[354 - (Fixed inherited AdvCiv iterator-refactor bug) War planning checked our cities instead of the proposed target's cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#354---fixed-inherited-advciv-iterator-refactor-bug-war-planning-checked-our-cities-instead-of-the-proposed-targets-cities)\
+[355 - (Fixed inherited K-Mod bug) Rival air-power averaging counted each rival once per air class](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#355---fixed-inherited-k-mod-bug-rival-air-power-averaging-counted-each-rival-once-per-air-class)\
+[356 - (Fixed inherited K-Mod/BBAI bug) Dagger teammates were subtracted from unrelated economic and upgrade populations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#356---fixed-inherited-k-modbbai-bug-dagger-teammates-were-subtracted-from-unrelated-economic-and-upgrade-populations)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9520,3 +9524,43 @@ The fix sizes the lookup to `MAX_PLAYERS`, matching the later loop's domain. Bar
 A fresh game completed turn 201 through autoplay without an observed issue after compilation. The automated human ranked among the weaker civilizations while AI research and city development appeared normal, further confirming that the unusual leading-human samples observed during the preceding batch were ordinary game variance.
 
 This is an inherited AdvCiv memory-safety and culture-decay defect introduced with the city-radius decay implementation, not an AdvCiv-SAS change. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 353 - (Fixed inherited AdvCiv bug) Diplomatic-vote counter-candidate selection compared a vote count with a team ID
+
+`CvTeamAI::AI_diploVoteCounterCandidate` estimates the obvious rival candidate when our team is clearly among the top two secular diplomatic-victory vote totals. AdvCiv practical 1832 tracked the three highest vote counts but, while inserting a second-place team, compared `iFirstMostVotes` with `getID()`. One value is a population/vote count and the other a numeric team identifier, so the branch normally failed and could leave the rival counter-candidate unknown even when our team led clearly. The estimate feeds diplomatic-victory progress and UWAI military-victory utility.
+
+The fix tracks the teams owning first and second place alongside their vote totals, then returns the other team only when our team actually occupies one of those positions. Existing vassal exclusion, incumbent vote-source handling and third-place closeness guard remain unchanged.
+
+This is an inherited AdvCiv practical-1832 domain-mismatch bug, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 354 - (Fixed inherited AdvCiv iterator-refactor bug) War planning checked our cities instead of the proposed target's cities
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1LcPcQfMEaLMSERsQbe1hCTvxStRZHDcD?usp=sharing).
+
+`CvTeamAI::AI_haveSeenCities(eTeam)` decides whether the AI has seen or legitimately deduced enough cities belonging to a proposed war target. AdvCiv practical 1842 replaced K-Mod's explicit target-player scan with `MemberIter(getID())`, iterating the evaluating team's own members while leaving `eTeam` unused for population selection. Once an AI knew one of its own cities, the supported legacy K-Mod war-selection path could therefore treat an unseen rival as having a known target city. Default full UWAI masks much of this path, but supported Aggressive AI, disabled/background UWAI and related legacy configurations reach it.
+
+The fix iterates `MemberIter(eTeam)`, restoring the requested target population while retaining the inherited city-site deduction, primary-area and minimum-count rules.
+
+After compilation, a Large Pangaea autoplay with `Aggressive AI (Legacy)` enabled and two multi-member AI teams completed successfully without an observed issue. The Victory screen and `SASGameRecord` both confirmed that the legacy option was active, directly validating the supported war-planning path containing this fix.
+
+This is an inherited AdvCiv practical-1842 iterator-substitution regression, corroborated by a sibling own-team/target-team repair in practical 1941 and not introduced by AdvCiv-SAS. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 355 - (Fixed inherited K-Mod bug) Rival air-power averaging counted each rival once per air class
+
+`CvTeamAI::AI_getRivalAirPower` adds known enemy air power to the average air power of other eligible rivals. K-Mod's unit-class rewrite placed the rival-team loop inside the air-class loop and added the iterator count to the denominator after every class. Current data has five qualifying default air classes, so a simple two-rival population could contribute ten denominator entries instead of two while each class's unit power was already part of the single combined numerator. AdvCiv's later avoid-war filter further allowed skipped teams to affect the iterator count without contributing power. Interceptor unit valuation, defensive-air production and air-defense building valuation consequently received a systematically understated rival average.
+
+The fix iterates eligible rivals outside the air-class sum, counts each included rival exactly once and accumulates all qualifying air classes within that rival. Enemy and average-rival components now use the same filtered population; unit-class deduplication and the inherited perfect-information count remain otherwise unchanged.
+
+This is an inherited K-Mod practical-199 averaging bug retained by AdvCiv, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 356 - (Fixed inherited K-Mod/BBAI bug) Dagger teammates were subtracted from unrelated economic and upgrade populations
+
+Screenshots/files for this issue: same google drive folder link as KI#354.
+
+The legacy `CvTeamAI::AI_doWar` gate intends to exempt aggressive Dagger teammates when asking whether enough non-Dagger members oppose war for financial reasons or want better units first. It instead subtracted the total Dagger count from the independently counted Financial Trouble and Get Better Units populations. These strategy sets are not complements: on a two-member team, one healthy Dagger member could cancel another non-Dagger member's genuine financial trouble. The financial threshold also used the full team population despite its comment specifying non-Dagger teammates.
+
+The fix counts the actual non-Dagger population and its intersections with Financial Trouble and Get Better Units. Financial opposition now uses the non-Dagger denominator, while an all-Dagger team remains eligible for war checks and the later total counts used for Dagger aggression, financial pro-war behavior and unit-upgrade pressure remain available unchanged.
+
+After compilation, a Large Pangaea autoplay with `Aggressive AI (Legacy)` enabled and AI teams of two and three members completed successfully without an observed issue. The Victory screen and `SASGameRecord` both confirmed that the legacy option was active; the multi-member arrangement exercised the team structure for which the corrected set accounting matters.
+
+This is an inherited K-Mod/BBAI multi-member-team set-counting defect retained by AdvCiv, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
