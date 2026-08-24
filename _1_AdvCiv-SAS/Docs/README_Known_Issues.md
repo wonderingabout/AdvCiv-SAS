@@ -418,6 +418,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [348 - (Fixed inherited BtS bug) Foreign friendly aircraft inherited the host city's enhanced air capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#348---fixed-inherited-bts-bug-foreign-friendly-aircraft-inherited-the-host-citys-enhanced-air-capacity)\
 [349 - (Fixed inherited AdvCiv bug) Plot debug strings returned dangling pointers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#349---fixed-inherited-advciv-bug-plot-debug-strings-returned-dangling-pointers)\
 [350 - (Fixed inherited AdvCiv information leak) Nuke reports revealed hidden-nationality unit owners](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#350---fixed-inherited-advciv-information-leak-nuke-reports-revealed-hidden-nationality-unit-owners)\
+[351 - (Fixed inherited BtS bug) Runtime river-edge edits left irrigation, fresh-water health and trade networks stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#351---fixed-inherited-bts-bug-runtime-river-edge-edits-left-irrigation-fresh-water-health-and-trade-networks-stale)\
 [352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#352---fixed-inherited-advciv-bug-barbarian-culture-decay-read-past-its-city-radius-array)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -9460,6 +9461,16 @@ Destroyed unit objects no longer exist when the per-observer report is assembled
 A compiled fresh game completed a save file 501 full autoplay (win at T458 by Space) without an observed issue. No visible foreign Privateer was deliberately preserved until a nuclear strike, so the exact observer-dependent report contrast remains source-verified.
 
 This is an inherited AdvCiv `advc.650` information leak, not an AdvCiv-SAS change and not a BtS report defect because AdvCiv added this detailed reporting path. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 351 - (Fixed inherited BtS bug) Runtime river-edge edits left irrigation, fresh-water health and trade networks stale
+
+BtS exposes `CvPlot::setNOfRiver` and `setWOfRiver` to Python and WorldBuilder for changing river edges after game initialization. The setters updated the stored edge, river crossings, yields, area river-edge count and graphics, but did not update three systems that consume the changed river state: irrigation propagation, city fresh-water health and river-based plot-group connectivity. A visible post-start river edit could therefore disagree with worked-plot yields, city health or resource/trade connections until some unrelated later rebuild happened.
+
+The fix runs only when the edge's presence actually changes after final game initialization, so initial map generation and direction-only corrections retain their existing inexpensive behavior. It refreshes irrigation from the changed plot and every adjacent plot, allowing the inherited irrigation pathfinder to propagate additions or removals through connected irrigation networks; updates fresh-water health for cities in the affected local radius; and rebuilds player plot groups and trade routes for potentially nonlocal river-network splits or merges. Existing river-crossing, yield, graphics and SASGameRecord updates remain unchanged.
+
+A fresh game completed turn 201 through autoplay without an observed issue after compilation. No post-start river edge was deliberately added or removed beside a city and irrigation network, so the exact derived-state contrast remains source-verified.
+
+This is an inherited BtS supported-API defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS change. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
 
 ## 352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array
 

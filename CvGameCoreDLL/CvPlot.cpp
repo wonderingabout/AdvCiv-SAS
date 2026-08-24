@@ -65,6 +65,22 @@ namespace
 		CvWString szName;
 		PlayerTypes aeVisualOwner[MAX_CIV_TEAMS];
 	};
+
+	// <!-- custom: BtS runtime river-edge setters updated the visible edge and yields but left irrigation, city fresh-water health and trade-network plot groups stale.
+	// Refresh irrigation from every locally affected plot, refresh nearby city health and rebuild plot groups after a finalized-game edge edit. See KI#351. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void updateRiverDerivedState(CvPlot& kPlot)
+	{
+		kPlot.updateIrrigated();
+		FOR_EACH_ADJ_PLOT_VAR(kPlot)
+			pAdj->updateIrrigated();
+		for (SquareIter itPlot(kPlot, 1); itPlot.hasNext(); ++itPlot)
+		{
+			CvCity* pCity = itPlot->getPlotCity();
+			if (pCity != NULL)
+				pCity->updateFreshWaterHealth();
+		}
+		GC.getGame().updatePlotGroups();
+	}
 }
 
 
@@ -3913,6 +3929,9 @@ void CvPlot::setNOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 	updateRiverSymbol(true, true);
 	// <!-- custom: The setup-only directional river picture would otherwise become stale after a rare WorldBuilder/script/event edge edit. Preserve the exact changed coordinate and before/after boundary state; map generation at elapsed turn zero skips the snapshot work. (GPT-5.6-Sol) -->
 	if (bLogRiverChange) logSASGameRecordRiverEdgeChanged(*this, bOldSouthBoundary, bOldEastBoundary);
+	// <!-- custom: A finalized-game south-edge change also changes fresh water and can change river trade connectivity. Refresh the inherited derived state that the setter omitted. See KI#351. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bOldSouthBoundary != bNewValue && GC.getGame().isFinalInitialized())
+		updateRiverDerivedState(*this);
 }
 
 
@@ -3952,6 +3971,9 @@ void CvPlot::setWOfRiver(bool bNewValue, CardinalDirectionTypes eRiverDir)
 
 	updateRiverSymbol(true, true);
 	if (bLogRiverChange) logSASGameRecordRiverEdgeChanged(*this, bOldSouthBoundary, bOldEastBoundary);
+	// <!-- custom: Apply the same derived-state refresh after a finalized-game east-edge change. See KI#351. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bOldEastBoundary != bNewValue && GC.getGame().isFinalInitialized())
+		updateRiverDerivedState(*this);
 }
 
 
