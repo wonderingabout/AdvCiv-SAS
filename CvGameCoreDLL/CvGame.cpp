@@ -61,6 +61,8 @@ void CvGame::init(HandicapTypes eHandicap)
 {
 	CvInitCore& ic = GC.getInitCore();
 
+	// <!-- custom: Preserve buffered observations in the preceding GameRecord session before reset destroys the old game and map state. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession();
 	reset(eHandicap); // Reset serialized data
 	// <!-- custom: Start distinct diagnostic/report files before map generation so a new game begun after save-file tests does not continue writing to the last loaded-save logs. Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) startSASBBAILogForNewGame();

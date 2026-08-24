@@ -7,6 +7,8 @@
 bool isSASGameRecordLogEnabled();
 int getSASGameRecordLogLevel();
 int getSASGameRecordTurnInterval();
+// <!-- custom: Finalize buffered observations in the old game state before a new game or loaded save resets/replaces it. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void finalizeSASGameRecordLogSession();
 void startSASGameRecordLogForNewGame();
 void logSASGameRecordNewGameStarted();
 void startSASGameRecordLogForLoadedSave();
@@ -88,7 +90,8 @@ void logSASGameRecordGreatPersonTradeMission(CvUnit const* pUnit, CvCity const* 
 void logSASGameRecordGreatPersonGreatWork(CvUnit const* pUnit, CvCity const* pCity, int iCulture);
 void logSASGameRecordGreatPersonInfiltrated(CvUnit const* pUnit, CvCity const* pCity, int iEspionage);
 void logSASGameRecordGreatPersonGoldenAgeConsumed(CvUnit const* pUnit);
-void logSASGameRecordGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsiblePlayer, char const* szCause);
+// <!-- custom: Combat can supply its actual target because a dead attacker still reports its origin; other death paths retain the unit's current plot. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void logSASGameRecordGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsiblePlayer, char const* szCause, CvPlot const* pDeathPlot = NULL);
 void logSASGameRecordEspionageMission(CvUnit const* pUnit, EspionageMissionTypes eMission, PlayerTypes eTargetPlayer, CvPlot const* pPlot, int iExtraData, int iCost, int iEPBefore, int iEPAfter, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit, int iEffectValue, char const* szEffectKind);
 void logSASGameRecordSpyIntercepted(CvUnit const* pUnit, PlayerTypes eTargetPlayer, char const* szPhase, int iModifier, int iInterceptChanceX100);
 void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit const* pTargetUnit, PromotionTypes ePromotion);
@@ -101,7 +104,8 @@ void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char 
 void logSASGameRecordAirStrike(CvUnit const* pUnit, CvUnit const* pDefender, int iDefenderDamageBefore, int iDefenderDamageAfter);
 void logSASGameRecordAirInterception(CvUnit const* pAttacker, CvUnit const* pInterceptor, CvPlot const* pTargetPlot, int iAttackerDamageTaken, int iInterceptorDamageTaken);
 void logSASGameRecordAirBombPlot(CvUnit const* pUnit, CvPlot const* pTargetPlot, char const* szTargetKind, char const* szTarget, bool bSuccess);
-void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser);
+// <!-- custom: pBattlePlot is the actual target supplied by CvUnit; deriving it from pLoser is wrong when the attacker loses. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot);
 void logSASGameRecordBonusChanged(CvPlot const* pPlot, BonusTypes eOldBonus, BonusTypes eNewBonus);
 
 #define gGameRecordLogLevel getSASGameRecordLogLevel() // <!-- custom: Structured game-state/action record for autoplay comparison and external review, independent from the classic BBAI master switch. (ChatGPT-5.5 + GPT-5.5) -->

@@ -1635,7 +1635,8 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted, bo
 
 		addDefenseSuccessMessages(*pDefender); // advc: Moved into new function
 		// report event to Python, along with some other key state
-		CvEventReporter::getInstance().combatResult(pDefender, this);
+		// <!-- custom: A dead attacker still occupies its origin here, so preserve pPlot as the actual combat target for GameRecord diagnostics. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvEventReporter::getInstance().combatResult(pDefender, this, pPlot);
 	}
 	else if (pDefender->isDead())
 	{
@@ -1686,7 +1687,8 @@ void CvUnit::updateCombat(bool bQuick, /* <advc.004c> */ bool* pbIntercepted, bo
 			}
 		} // <advc.130m>
 		// report event to Python, along with some other key state
-		CvEventReporter::getInstance().combatResult(this, pDefender);
+		// <!-- custom: Pass the same explicit combat target for both outcome directions so their diagnostic location contract cannot diverge. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvEventReporter::getInstance().combatResult(this, pDefender, pPlot);
 		bool bAdvance = false;
 		bool bCapture = false; // advc.010
 		if (isSuicide())

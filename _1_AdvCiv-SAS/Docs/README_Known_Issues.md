@@ -444,6 +444,12 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [374 - (Fixed AdvCiv-SAS diagnostic regression) Nearby-enemy helpers tested hostility at the center plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#374---fixed-advciv-sas-diagnostic-regression-nearby-enemy-helpers-tested-hostility-at-the-center-plot)\
 [375 - (Fixed AdvCiv-SAS diagnostic data-loss defect) Structured GameRecord rows silently stopped at 2047 bytes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#375---fixed-advciv-sas-diagnostic-data-loss-defect-structured-gamerecord-rows-silently-stopped-at-2047-bytes)\
 [376 - (Fixed AdvCiv-SAS diagnostic classification defect) Stationary-spy preparation included home-idle and Great Spies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#376---fixed-advciv-sas-diagnostic-classification-defect-stationary-spy-preparation-included-home-idle-and-great-spies)\
+[377 - (Fixed AdvCiv-SAS diagnostic location regression) Failed attacks were recorded at the attacker's origin](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#377---fixed-advciv-sas-diagnostic-location-regression-failed-attacks-were-recorded-at-the-attackers-origin)\
+[378 - (Fixed AdvCiv-SAS diagnostic interval defect) Battle summaries fabricated their start from the configured interval](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#378---fixed-advciv-sas-diagnostic-interval-defect-battle-summaries-fabricated-their-start-from-the-configured-interval)\
+[379 - (Fixed AdvCiv-SAS diagnostic schema defect) Log-session Golden Age and anarchy observations were labeled as lifetime totals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#379---fixed-advciv-sas-diagnostic-schema-defect-log-session-golden-age-and-anarchy-observations-were-labeled-as-lifetime-totals)\
+[380 - (Fixed AdvCiv-SAS diagnostic sentinel leak) Unavailable city-production values were logged as 2147483647](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#380---fixed-advciv-sas-diagnostic-sentinel-leak-unavailable-city-production-values-were-logged-as-2147483647)\
+[381 - (Fixed AdvCiv-SAS diagnostic accounting defect) Process conversion was reported during city disorder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#381---fixed-advciv-sas-diagnostic-accounting-defect-process-conversion-was-reported-during-city-disorder)\
+[382 - (Fixed AdvCiv-SAS diagnostic durability defect) Session rollover discarded buffered observations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---fixed-advciv-sas-diagnostic-durability-defect-session-rollover-discarded-buffered-observations)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9762,3 +9768,63 @@ The `GAME_RECORD_ESPIONAGE` fields `stationarySpies` and `maxFortifyTurns` were 
 The fix counts fortify turns only for ordinary `isSpy()` units on a structurally valid espionage-mission plot. `canEspionage(..., true)` deliberately validates the foreign target context without making the periodic diagnostic depend on whether the mission button is usable at that exact snapshot; Great Spies remain visible through their existing separate count and deployment fields. The compiled 500-turn autoplay wrote 550 espionage snapshots, including 76 with positive stationary preparation and three with Great Spies, and completed without an observed issue. AdvCiv-SAS practical 6046 introduced this diagnostic interpretation, so this is an AdvCiv-SAS-only classification defect.
 
 Found through the open `SASGameRecordLog.cpp` pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 377 - (Fixed AdvCiv-SAS diagnostic location regression) Failed attacks were recorded at the attacker's origin
+
+`CvUnit::updateCombat` knows the actual attacked plot as `pPlot`, but the GameRecord combat-result hook reconstructed the battle location from `pLoser->plot()`. A defeated defender already occupies the target, so successful attacks appeared correct. A defeated attacker still occupies its origin when the callback fires, so failed attacks were recorded on the wrong tile. A failed city attack consequently became `cityPlot=0`, and the wrong location propagated into exact battle and Barbarian rows, interval and per-war city-battle counters, attached-Great-General/Great-Person death rows and Settler-group combat context.
+
+The fix passes the actual combat target through the internal `CvEventReporter` and GameRecord hooks while preserving Python's established winner/loser event signature. Every location-dependent GameRecord consumer now uses that target for both outcome directions. The original AdvCiv-SAS practical-6083 combat instrumentation already reconstructed the wrong plot; practicals 6100/6103 widened its effects by reusing `cityPlot` in later aggregates. This is AdvCiv-SAS instrumentation debt, not inherited AdvCiv, K-Mod or BtS gameplay behavior.
+
+After compilation, the level-3 turn-0-to-201 and loaded turn-201-to-301 autoplay sessions wrote 1,064 exact battle rows; every recorded coordinate stayed within the tested 94x64 map. The exact failed-attacker case was not manually joined to its attack-order row, so that directional correction remains source-verified within this broad runtime coverage.
+
+Found through the continued open `SASGameRecordLog.cpp` audit after C011-WIP01 with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 378 - (Fixed AdvCiv-SAS diagnostic interval defect) Battle summaries fabricated their start from the configured interval
+
+`GAME_RECORD_BATTLE_SUMMARY` derived its displayed start as `currentTurn - configuredInterval + 1` instead of remembering when its counters were reset. Turn-0 combat could therefore contribute to a turn-10 row labeled `range=1-10`. Loading a save on an arbitrary turn or forcing a mid-interval victory snapshot made the mismatch larger because the configured interval no longer described the recorder's actual observation boundary.
+
+The fix adds an explicit battle-bucket start turn, initializes it with each new GameRecord session and advances it after each actual bucket flush. This matches the newer production/military-flow contract and preserves honest inclusive ranges across new games, loaded saves and victory-triggered snapshots. This is an AdvCiv-SAS battle-summary accounting defect, not inherited gameplay behavior.
+
+The compiled save/load autoplay wrote 252 battle summaries with no malformed range. Most importantly, the loaded session's first populated bucket was exactly `range=201-210`, confirming that its boundary began at the actual loaded-session turn rather than a fabricated interval offset.
+
+Found through the continued open `SASGameRecordLog.cpp` audit after C011-WIP01 with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 379 - (Fixed AdvCiv-SAS diagnostic schema defect) Log-session Golden Age and anarchy observations were labeled as lifetime totals
+
+Loading a save rolls a fresh GameRecord log and resets all recorder-local arrays. The fields `totalGoldenAgeTurns` and `totalAnarchyTurns` nevertheless restarted at zero without a validity or session qualifier, so a civilization loaded on turn 200 could appear to have experienced no earlier Golden Age or anarchy despite those fields sounding like lifetime totals. Other recorder-local fields already use names such as `loggedCities*`, unknown-start baselines or explicit delta validity.
+
+The fix renames both internal counters and all snapshot/action fields to `loggedGoldenAgeTurns` and `loggedAnarchyTurns`. They now state exactly what is available: turns observed during the current GameRecord log session. Persisting them in saves would add unnecessary schema/compatibility state for diagnostic data and is intentionally avoided. This is an AdvCiv-SAS log-schema defect, not an inherited game-state defect.
+
+Across the compiled new/load autoplay logs, 469 player snapshots used the renamed session fields and neither obsolete `totalGoldenAgeTurns` nor `totalAnarchyTurns` appeared. The loaded session restarted the counters and then accumulated only newly observed Golden Age/anarchy turns as intended.
+
+Found through the continued open `SASGameRecordLog.cpp` audit after C011-WIP01 with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 380 - (Fixed AdvCiv-SAS diagnostic sentinel leak) Unavailable city-production values were logged as 2147483647
+
+`CvCity::getProductionNeeded()` and `getProductionTurnsLeft()` use `MAX_INT` when no finite value exists. The raw sentinel repeatedly appeared as `2147483647` in structured city records for processes, empty queues and ordinary unit/building production stalled during disorder. The supplied GameRecord example directly contains all of these forms, so parsers could mistake an internal engine sentinel for an enormous real production cost or ETA.
+
+The fix converts only `MAX_INT` to the GameRecord's ordinary unavailable-value sentinel `-1`, preserving every genuine finite value. Both ordinary and Barbarian city production-turn fields use the shared sanitizer, while the ordinary city row also sanitizes production needed. This recorder behavior dates to the initial AdvCiv-SAS city-detail implementation around practical 6022; it is not an AdvCiv gameplay bug.
+
+The compiled new/load autoplay wrote 1,915 city-detail rows without one `2147483647` value. Process production and finite-but-stalled unit/building cases instead used `-1` for the unavailable cost or turn estimate while retaining their real finite companion fields.
+
+Found through the continued open `SASGameRecordLog.cpp` audit after C011-WIP01 with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 381 - (Fixed AdvCiv-SAS diagnostic accounting defect) Process conversion was reported during city disorder
+
+The `productionConversionX100` helper claims to mirror `CvCity::updateCommerce`, but previously computed production-to-commerce output whenever a process was selected. The actual city function wraps both ordinary commerce and process conversion in `if (!isDisorder())`. A human city can retain Wealth, Research or Culture production through disorder, so the GameRecord could report conversion that the city was currently receiving as zero.
+
+The fix returns no conversion output while the city is in disorder while retaining the selected process through the neighboring production fields. AdvCiv-SAS practical 6075 introduced the helper without the engine's disorder condition, so this is an AdvCiv-SAS diagnostic accounting defect rather than inherited gameplay behavior.
+
+The compiled new/load autoplay recorded ordinary Wealth, Research and Culture process conversions successfully. No sampled city retained a process while in disorder, so the new suppression branch remains source-verified rather than directly exercised.
+
+Found through the continued open `SASGameRecordLog.cpp` audit after C011-WIP01 with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 382 - (Fixed AdvCiv-SAS diagnostic durability defect) Session rollover discarded buffered observations
+
+The GameRecord deliberately buffers consecutive city bombard actions and same-turn plot-change and incremental-map-revelation coordinates so it can write compact ordered rows. Starting a new game or loading a save rolled to a new log and immediately reset that recorder-local state. If either action occurred before the ordinary end-turn or next-row flush, the valid pending observations disappeared from the preceding session. A quickload immediately after bombardment is one practical example.
+
+The fix explicitly finalizes the preceding GameRecord session before `CvGame::init` resets a game or `CvMap::read` resets and replaces the map during a load. The map hook is the reliable load boundary even if `CvGame` has already read the loaded game state. This timing matters: flushing from the existing new-session hooks would be too late because `onAllGameDataRead` runs after the loaded map has replaced the old one; incremental-revelation percentages could then be derived from the wrong session. Finalization instead writes the pending rows to the old log with their stored old turn while the matching old map still supplies the cumulative revelation totals, after which the established start hook rolls and resets the recorder for the new session.
+
+The compiled level-3 test ran to turn 201, saved and loaded into a distinct log beginning at turn 201, then continued to turn 301 without an observed issue. Together the two sessions wrote 134 bombard, 298 plot-change and 2,924 incremental-revelation rows. No buffer happened to remain pending at the tested load instant, so the non-empty finalization branch remains source-verified while its load lifecycle hook received runtime coverage.
+
+This buffering and rollover architecture is AdvCiv-SAS-only diagnostic code, so the defect is not inherited from AdvCiv, K-Mod or BtS. Found as F061/provisional KI#382 during ChatGPT-5.6-Sol's durable C012 closure of the `SASGameRecordLog.cpp` file-audit pass; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.

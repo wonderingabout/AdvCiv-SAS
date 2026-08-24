@@ -566,8 +566,9 @@ static int g_aiSASGameRecordTotalBattleWins[MAX_PLAYERS];
 static int g_aiSASGameRecordTotalBattleLosses[MAX_PLAYERS];
 static int g_aiSASGameRecordTotalCityBattleWins[MAX_PLAYERS];
 static int g_aiSASGameRecordTotalCityBattleLosses[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalGoldenAgeTurns[MAX_PLAYERS];
-static int g_aiSASGameRecordTotalAnarchyTurns[MAX_PLAYERS];
+// <!-- custom: These counters reset whenever a new GameRecord log session begins, including after loading a save. Name them as logged observations rather than misleading lifetime totals. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int g_aiSASGameRecordLoggedGoldenAgeTurns[MAX_PLAYERS];
+static int g_aiSASGameRecordLoggedAnarchyTurns[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesAcquired[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesLost[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
@@ -583,6 +584,8 @@ static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
 static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
 static int g_iSASGameRecordTotalActivePlayerChanges = 0;
 static int g_iSASGameRecordLastFullSnapshotTurn = -1;
+// <!-- custom: Battle counters reset at actual snapshot boundaries, which need not match the configured periodic interval after loading or a victory flush. Track their real inclusive start like the newer flow buckets. See KI#378. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int g_iSASGameRecordBattleStartTurn = 0;
 static int g_iSASGameRecordFlowStartTurn = 0;
 
 // <!-- custom: Level 3 preserves exact production, overflow and unit-lifecycle evidence, but thousands of routine rows can distract broad analysis. Accumulate the same strategic totals into one production and one military row per active player and snapshot interval for level 2+. Dynamic type buckets use the loaded mod's XML rather than fixed BTS categories.
@@ -1059,8 +1062,8 @@ static void resetSASGameRecordState()
 		g_aiSASGameRecordTotalBattleLosses[iI] = 0;
 		g_aiSASGameRecordTotalCityBattleWins[iI] = 0;
 		g_aiSASGameRecordTotalCityBattleLosses[iI] = 0;
-		g_aiSASGameRecordTotalGoldenAgeTurns[iI] = 0;
-		g_aiSASGameRecordTotalAnarchyTurns[iI] = 0;
+		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
+		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
 		g_aiSASGameRecordCitiesAcquired[iI] = 0;
 		g_aiSASGameRecordCitiesLost[iI] = 0;
 		g_aiSASGameRecordCitiesConquered[iI] = 0;
@@ -1078,6 +1081,7 @@ static void resetSASGameRecordState()
 	g_kSASGameRecordGlobalPrevious.bValid = false;
 	g_aSASGameRecordWars.clear();
 	g_iSASGameRecordLastFullSnapshotTurn = -1;
+	g_iSASGameRecordBattleStartTurn = GC.getGame().getGameTurn();
 	g_iSASGameRecordFlowStartTurn = GC.getGame().getGameTurn();
 	g_iSASGameRecordPendingPlotTurn = -1;
 	g_kSASGameRecordPendingCityBombard = SASGameRecordCityBombardPending();
@@ -1355,6 +1359,15 @@ void flushSASGameRecordTurnChanges(int iGameTurn)
 	g_aSASGameRecordPlotChanges.clear();
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 		g_aaSASGameRecordRevealedPlots[iI].clear();
+}
+
+// <!-- custom: Session rollover previously reset pending city-bombard, plot-change and incremental-revelation observations without writing them.
+// Flush while the old game/map still supply the matching turn and revelation totals, before CvGame::init or CvMap::read resets the corresponding state. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void finalizeSASGameRecordLogSession()
+{
+	if (g_iSASGameRecordPendingPlotTurn >= 0)
+		flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
+	else flushSASGameRecordPendingCityBombard();
 }
 
 static void prepareSASGameRecordTurnChanges()
@@ -3353,19 +3366,20 @@ static void logSASGameRecordTeamProjects(TeamTypes eTeam, int iGameTurn);
 
 static void logSASGameRecordBattleBuckets(int iGameTurn)
 {
-	const int iStartTurn = std::max(0, iGameTurn - getSASGameRecordTurnInterval() + 1);
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
 		if (g_aiSASGameRecordBattleWins[iI] == 0 && g_aiSASGameRecordBattleLosses[iI] == 0 && g_aiSASGameRecordCityBattleWins[iI] == 0 && g_aiSASGameRecordCityBattleLosses[iI] == 0)
 			continue;
 		logSASGameRecord("GAME_RECORD_BATTLE_SUMMARY turn=%d range=%d-%d player=%d wins=%d losses=%d cityPlotWins=%d cityPlotLosses=%d",
-				iGameTurn, iStartTurn, iGameTurn, eLoopPlayer, g_aiSASGameRecordBattleWins[iI], g_aiSASGameRecordBattleLosses[iI], g_aiSASGameRecordCityBattleWins[iI], g_aiSASGameRecordCityBattleLosses[iI]);
+				iGameTurn, g_iSASGameRecordBattleStartTurn, iGameTurn, eLoopPlayer, g_aiSASGameRecordBattleWins[iI], g_aiSASGameRecordBattleLosses[iI], g_aiSASGameRecordCityBattleWins[iI], g_aiSASGameRecordCityBattleLosses[iI]);
 		g_aiSASGameRecordBattleWins[iI] = 0;
 		g_aiSASGameRecordBattleLosses[iI] = 0;
 		g_aiSASGameRecordCityBattleWins[iI] = 0;
 		g_aiSASGameRecordCityBattleLosses[iI] = 0;
 	}
+	// <!-- custom: Advance from the actual reset boundary instead of fabricating the next range from the configured interval. This preserves turn-0 combat and mid-interval load/victory flushes. See KI#378. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	g_iSASGameRecordBattleStartTurn = iGameTurn + 1;
 }
 
 static void logSASGameRecordFlowBuckets(int iGameTurn)
@@ -4818,7 +4832,8 @@ static CvString getSASGameRecordCityBuildings(CvCity const& kCity, int& iTotal, 
 static CvString getSASGameRecordCityProductionConversion(CvCity const& kCity)
 {
 	CvString szConversion;
-	if (kCity.getProductionProcess() == NO_PROCESS)
+	// <!-- custom: CvCity::updateCommerce suppresses both ordinary commerce and production-to-commerce conversion during disorder. Preserve the selected process elsewhere on the city row, but do not report output the city is not receiving. See KI#381. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kCity.getProductionProcess() == NO_PROCESS || kCity.isDisorder())
 		return "-";
 	for (int iI = 0; iI < NUM_COMMERCE_TYPES; iI++)
 	{
@@ -4828,6 +4843,20 @@ static CvString getSASGameRecordCityProductionConversion(CvCity const& kCity)
 			appendSASGameRecordValue(szConversion, getSASGameRecordCommerceType(eCommerce), iRateX100);
 	}
 	return getSASGameRecordOrDash(szConversion);
+}
+
+// <!-- custom: CvCity uses MAX_INT when no finite production amount or ETA exists, including processes, empty queues and zero production during disorder. Emit the GameRecord's ordinary unavailable-value sentinel instead of presenting 2147483647 as a real statistic. See KI#380. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int getSASGameRecordCityProductionTurns(CvCity const& kCity)
+{
+	int const iTurns = kCity.getProductionTurnsLeft();
+	return iTurns == MAX_INT ? -1 : iTurns;
+}
+
+// <!-- custom: Apply the same unavailable-value contract to production cost because processes and empty queues have no finite amount needed. See KI#380. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static int getSASGameRecordCityProductionNeeded(CvCity const& kCity)
+{
+	int const iNeeded = kCity.getProductionNeeded();
+	return iNeeded == MAX_INT ? -1 : iNeeded;
 }
 
 static CvString getSASGameRecordCityTradePartners(CvCity const& kCity)
@@ -4938,7 +4967,7 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
 			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(), kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(), kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getCommerceRate(COMMERCE_ESPIONAGE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(), kCity.getDefenseModifier(false), kCity.getTotalDefense(false), kCity.getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), kCity.isBombarded(), kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
 			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
 			kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE),
-			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), kCity.getProductionTurnsLeft(), kCity.getProduction(), kCity.getProductionNeeded(), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
+			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), getSASGameRecordCityProductionTurns(kCity), kCity.getProduction(), getSASGameRecordCityProductionNeeded(kCity), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
 			kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameRecordCityGPOdds(kCity).GetCString());
 	logSASGameRecord("GAME_RECORD_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
 			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(),
@@ -5221,7 +5250,7 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 				iGameTurn, pLoopCity->getID(), getSASGameRecordQuotedCityName(pLoopCity).GetCString(), pLoopCity->getX(), pLoopCity->getY(), pLoopCity->getArea().getID(), pLoopCity->getGameTurnFounded(), iGameTurn - pLoopCity->getGameTurnFounded(),
 				pLoopCity->getPopulation(), pLoopCity->foodDifference(), pLoopCity->getYieldRate(YIELD_PRODUCTION), pLoopCity->getYieldRate(YIELD_COMMERCE), pLoopCity->getDefenseModifier(false), pLoopCity->getTotalDefense(false),
 				kCityUnits.iUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iWorkers, kCityUnits.iAttackers, kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved,
-				getSASGameRecordCityProductionKind(*pLoopCity), getSASGameRecordCityProductionType(*pLoopCity), pLoopCity->getProductionTurnsLeft());
+				getSASGameRecordCityProductionKind(*pLoopCity), getSASGameRecordCityProductionType(*pLoopCity), getSASGameRecordCityProductionTurns(*pLoopCity));
 	}
 	for (size_t iI = 0; iI < aszPositionChunks.size(); iI++)
 		logSASGameRecord("GAME_RECORD_BARBARIAN_POSITIONS turn=%d part=%d parts=%d units=%s", iGameTurn, (int)iI + 1, (int)aszPositionChunks.size(), aszPositionChunks[iI].GetCString());
@@ -5266,7 +5295,8 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	const bool bCurrentlyHumanControlled = kPlayer.isHuman();
 	const bool bAutoplayControlled = kPlayer.isHumanDisabled();
 	const bool bHumanSlot = (bCurrentlyHumanControlled || bAutoplayControlled);
-	logSASGameRecord("GAME_RECORD_PLAYER turn=%d player=%d team=%d civ=%s leader=%s isHuman=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d rank=%d deltaValid=%d score=%d scoreDelta=%+d cities=%d citiesDelta=%+d pop=%d popDelta=%+d land=%d landDelta=%+d units=%d unitsDelta=%+d combatUnits=%d combatUnitsDelta=%+d militarySupportUnits=%d militarySupportUnitsDelta=%+d power=%d powerDelta=%+d gold=%d goldDelta=%+d gpt=%d gptDelta=%+d researchRate=%d researchRateDelta=%+d researchPercent=%d currentResearch=%s researchOverflow=%d noResearchAvailable=%d researchTurns=%d era=%s stateReligion=%s techScorePercent=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d goldenAgeTurns=%d totalGoldenAgeTurns=%d anarchyTurns=%d totalAnarchyTurns=%d revolutionTimer=%d conversionTimer=%d wars=%s",
+	// <!-- custom: These observations begin with the current log session rather than the civilization's lifetime; expose that scope in the player-row field names. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_PLAYER turn=%d player=%d team=%d civ=%s leader=%s isHuman=%d humanSlot=%d currentlyHumanControlled=%d autoplayControlled=%d rank=%d deltaValid=%d score=%d scoreDelta=%+d cities=%d citiesDelta=%+d pop=%d popDelta=%+d land=%d landDelta=%+d units=%d unitsDelta=%+d combatUnits=%d combatUnitsDelta=%+d militarySupportUnits=%d militarySupportUnitsDelta=%+d power=%d powerDelta=%+d gold=%d goldDelta=%+d gpt=%d gptDelta=%+d researchRate=%d researchRateDelta=%+d researchPercent=%d currentResearch=%s researchOverflow=%d noResearchAvailable=%d researchTurns=%d era=%s stateReligion=%s techScorePercent=%d combatXP=%d greatPeopleCreated=%d greatGeneralsCreated=%d greatGeneralThreshold=%d goldenAgeTurns=%d loggedGoldenAgeTurns=%d anarchyTurns=%d loggedAnarchyTurns=%d revolutionTimer=%d conversionTimer=%d wars=%s",
 			iGameTurn, ePlayer, kPlayer.getTeam(), szCiv, szLeader, bCurrentlyHumanControlled, bHumanSlot, bCurrentlyHumanControlled, bAutoplayControlled, kGame.getPlayerRank(ePlayer) + 1, kPrevious.bValid,
 			iScore, getSASGameRecordDelta(kPrevious.bValid, iScore, kPrevious.iScore), iCities, getSASGameRecordDelta(kPrevious.bValid, iCities, kPrevious.iCities),
 			iPopulation, getSASGameRecordDelta(kPrevious.bValid, iPopulation, kPrevious.iPopulation), iLand, getSASGameRecordDelta(kPrevious.bValid, iLand, kPrevious.iLand),
@@ -5274,7 +5304,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 			iMilitarySupportUnits, getSASGameRecordDelta(kPrevious.bValid, iMilitarySupportUnits, kPrevious.iMilitarySupportUnits), iPower, getSASGameRecordDelta(kPrevious.bValid, iPower, kPrevious.iPower), iGold, getSASGameRecordDelta(kPrevious.bValid, iGold, kPrevious.iGold), iGoldRate, getSASGameRecordDelta(kPrevious.bValid, iGoldRate, kPrevious.iGoldRate),
 			iResearchRate, getSASGameRecordDelta(kPrevious.bValid, iResearchRate, kPrevious.iResearchRate), kPlayer.getCommercePercent(COMMERCE_RESEARCH), getSASGameRecordTechType(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns,
 			szEra, getSASGameRecordReligionType(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(), kPlayer.getGreatPeopleCreated(), kPlayer.getGreatGeneralsCreated(), kPlayer.greatPeopleThreshold(true),
-			kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordTotalGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordTotalAnarchyTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
+			kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordLoggedAnarchyTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
 	logSASGameRecord("GAME_RECORD_PLAYER_HISTORY turn=%d player=%d deltaValid=%d historyScore=%d historyScoreDelta=%+d historyEconomy=%d historyEconomyDelta=%+d historyIndustry=%d historyIndustryDelta=%+d historyAgriculture=%d historyAgricultureDelta=%+d historyPower=%d historyPowerDelta=%+d historyCulture=%d historyCultureDelta=%+d historyEspionage=%d historyEspionageDelta=%+d",
 			iGameTurn, ePlayer, kPrevious.bValid, iHistoryScore, getSASGameRecordDelta(kPrevious.bValid, iHistoryScore, kPrevious.iHistoryScore), iHistoryEconomy, getSASGameRecordDelta(kPrevious.bValid, iHistoryEconomy, kPrevious.iHistoryEconomy), iHistoryIndustry, getSASGameRecordDelta(kPrevious.bValid, iHistoryIndustry, kPrevious.iHistoryIndustry), iHistoryAgriculture, getSASGameRecordDelta(kPrevious.bValid, iHistoryAgriculture, kPrevious.iHistoryAgriculture), iHistoryPower, getSASGameRecordDelta(kPrevious.bValid, iHistoryPower, kPrevious.iHistoryPower), iHistoryCulture, getSASGameRecordDelta(kPrevious.bValid, iHistoryCulture, kPrevious.iHistoryCulture), iHistoryEspionage, getSASGameRecordDelta(kPrevious.bValid, iHistoryEspionage, kPrevious.iHistoryEspionage));
 	// <!-- custom: The environment row shows world pollution, but not which player produced it or whether buildings, bonuses, dirty power, or population caused it. Keep these city scans behind record level 2, and derive the total from the four components rather than scanning a fifth time. (GPT-5.6-Sol) -->
@@ -5409,15 +5439,16 @@ void logSASGameRecordTurn(int iGameTurn)
 	logSASGameRecordSnapshot(iGameTurn, "interval");
 }
 
+// <!-- custom: Accumulate Golden Age and anarchy turns observed in this GameRecord session only; loaded saves deliberately begin new logs rather than pretending these are persisted lifetime totals. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 		return;
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	if (kPlayer.getGoldenAgeTurns() > 0)
-		g_aiSASGameRecordTotalGoldenAgeTurns[ePlayer]++;
+		g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer]++;
 	if (kPlayer.getAnarchyTurns() > 0)
-		g_aiSASGameRecordTotalAnarchyTurns[ePlayer]++;
+		g_aiSASGameRecordLoggedAnarchyTurns[ePlayer]++;
 }
 
 
@@ -5514,19 +5545,20 @@ static bool logSASGameRecordSettlerCombatForPlot(CvUnit const* pWinner, CvUnit c
 	return true;
 }
 
-static void logSASGameRecordSettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit const* pLoser)
+// <!-- custom: Add the actual battle target for Settler-group context. Using the losing unit's plot falsely treated a failed attack launched from a Settler stack as an attack against that stack. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+static void logSASGameRecordSettlerCombatIfNeeded(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot)
 {
-	if (pWinner == NULL || pLoser == NULL)
+	if (pWinner == NULL || pLoser == NULL || pBattlePlot == NULL)
 		return;
 	bool const bLoserWasSettler = isSASGameRecordSettlerUnit(*pLoser);
 	bool const bWinnerWasSettler = isSASGameRecordSettlerUnit(*pWinner);
-	if (bLoserWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pLoser->plot(), pLoser->getOwner(), true, bWinnerWasSettler))
+	if (bLoserWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), true, bWinnerWasSettler))
 		return;
-	if (bWinnerWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pWinner->plot(), pWinner->getOwner(), bLoserWasSettler, true))
+	if (bWinnerWasSettler && logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), bLoserWasSettler, true))
 		return;
-	if (logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pLoser->plot(), pLoser->getOwner(), false, false))
+	if (logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pLoser->getOwner(), false, false))
 		return;
-	logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pWinner->plot(), pWinner->getOwner(), false, false);
+	logSASGameRecordSettlerCombatForPlot(pWinner, pLoser, pBattlePlot, pWinner->getOwner(), false, false);
 }
 
 // <!-- custom: GAME_RECORD_ACTION is narrower than a generic row: it records chronological gameplay happenings such as techs, city ownership, war state, Great People, unit upgrades, and victory. Do not rename this to GAME_RECORD_ROW; "row" is too generic because every log line is already a row. This keeps the row type useful without using "event", which can be confused with Civ4 EventInfo/random events. (GPT-5.5) -->
@@ -5726,12 +5758,14 @@ void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTyp
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CORPORATION_FOUNDED player=%d corporation=%s", GC.getGame().getGameTurn(), ePlayer, getSASGameRecordCorporationType(eCorporation));
 }
 
+// <!-- custom: Keep Golden Age/anarchy action rows consistent with the player snapshot by labeling recorder-local observations as logged turns. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void logSASGameRecordGoldenAge(PlayerTypes ePlayer, bool bStart)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 		return;
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d goldenAgeTurns=%d totalGoldenAgeTurns=%d anarchyTurns=%d totalAnarchyTurns=%d", GC.getGame().getGameTurn(), bStart ? "GOLDEN_AGE_STARTED" : "GOLDEN_AGE_ENDED", ePlayer, kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordTotalGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordTotalAnarchyTurns[ePlayer]);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d goldenAgeTurns=%d loggedGoldenAgeTurns=%d anarchyTurns=%d loggedAnarchyTurns=%d",
+			GC.getGame().getGameTurn(), bStart ? "GOLDEN_AGE_STARTED" : "GOLDEN_AGE_ENDED", ePlayer, kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordLoggedAnarchyTurns[ePlayer]);
 }
 
 void logSASGameRecordGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, int iOldGoldenAgeTurns, int iNewGoldenAgeTurns)
@@ -5739,7 +5773,8 @@ void logSASGameRecordGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, int
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 		return;
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOLDEN_AGE_TURNS_CHANGED player=%d change=%+d oldGoldenAgeTurns=%d newGoldenAgeTurns=%d goldenAgeTurns=%d totalGoldenAgeTurns=%d anarchyTurns=%d totalAnarchyTurns=%d", GC.getGame().getGameTurn(), ePlayer, iChange, iOldGoldenAgeTurns, iNewGoldenAgeTurns, kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordTotalGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordTotalAnarchyTurns[ePlayer]);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOLDEN_AGE_TURNS_CHANGED player=%d change=%+d oldGoldenAgeTurns=%d newGoldenAgeTurns=%d goldenAgeTurns=%d loggedGoldenAgeTurns=%d anarchyTurns=%d loggedAnarchyTurns=%d",
+			GC.getGame().getGameTurn(), ePlayer, iChange, iOldGoldenAgeTurns, iNewGoldenAgeTurns, kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getAnarchyTurns(), g_aiSASGameRecordLoggedAnarchyTurns[ePlayer]);
 }
 
 void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart)
@@ -5747,7 +5782,8 @@ void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart)
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 		return;
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d anarchyTurns=%d totalAnarchyTurns=%d goldenAgeTurns=%d totalGoldenAgeTurns=%d revolutionTimer=%d conversionTimer=%d", GC.getGame().getGameTurn(), bStart ? "ANARCHY_STARTED" : "ANARCHY_ENDED", ePlayer, kPlayer.getAnarchyTurns(), g_aiSASGameRecordTotalAnarchyTurns[ePlayer], kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordTotalGoldenAgeTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer());
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s player=%d anarchyTurns=%d loggedAnarchyTurns=%d goldenAgeTurns=%d loggedGoldenAgeTurns=%d revolutionTimer=%d conversionTimer=%d",
+			GC.getGame().getGameTurn(), bStart ? "ANARCHY_STARTED" : "ANARCHY_ENDED", ePlayer, kPlayer.getAnarchyTurns(), g_aiSASGameRecordLoggedAnarchyTurns[ePlayer], kPlayer.getGoldenAgeTurns(), g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer], kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer());
 }
 
 void logSASGameRecordCivicChanged(PlayerTypes ePlayer, CivicOptionTypes eCivicOption, CivicTypes eOldCivic, CivicTypes eNewCivic, ReligionTypes eOldEffectiveStateReligion, ReligionTypes eNewEffectiveStateReligion)
@@ -6078,12 +6114,14 @@ void logSASGameRecordGreatPersonGoldenAgeConsumed(CvUnit const* pUnit)
 			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY());
 }
 
-void logSASGameRecordGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsiblePlayer, char const* szCause)
+// <!-- custom: Add an optional explicit death plot because combat supplies its target while a dead attacker still reports its origin; other death paths retain the unit's current location. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void logSASGameRecordGreatPersonDied(CvUnit const* pUnit, PlayerTypes eResponsiblePlayer, char const* szCause, CvPlot const* pDeathPlot)
 {
 	if (pUnit == NULL || (!pUnit->isGoldenAge() && pUnit->getUnitInfo().getLeaderExperience() <= 0))
 		return;
+	CvPlot const* pPlot = (pDeathPlot == NULL ? pUnit->plot() : pDeathPlot);
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_PERSON_DIED player=%d unitId=%d unit=%s x=%d y=%d cause=%s responsiblePlayer=%d",
-			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getX(), pUnit->getY(), szCause, eResponsiblePlayer);
+			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), pPlot == NULL ? -1 : pPlot->getX(), pPlot == NULL ? -1 : pPlot->getY(), szCause, eResponsiblePlayer);
 }
 
 // <!-- custom: Periodic espionage totals showed investment against each rival but not what those points accomplished. Record only completed missions and actual interceptions at game-record level 2; mission selection and movement reasoning remain BBAI diagnostics. Resolve iExtraData to XML types so stolen technologies and sabotaged buildings/projects/units are readable. (GPT-5.6-Sol) -->
@@ -6265,14 +6303,16 @@ void logSASGameRecordAirBombPlot(CvUnit const* pUnit, CvPlot const* pTargetPlot,
 			GC.getGame().getGameTurn(), pUnit->getOwner(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), pUnit->getX(), pUnit->getY(), pTargetPlot->getOwner(), pTargetPlot->getX(), pTargetPlot->getY(), szTargetKind, szTarget, bSuccess);
 }
 
-void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
+// <!-- custom: Add the combat target supplied by CvUnit because a defeated attacker still occupies its origin at this callback.
+// Deriving the target from pLoser made failed attacks wrong across coordinates, city-battle counters and dependent action rows. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser, CvPlot const* pBattlePlot)
 {
-	if (pWinner == NULL || pLoser == NULL)
+	if (pWinner == NULL || pLoser == NULL || pBattlePlot == NULL)
 		return;
-	if (gGameRecordLogLevel > 0) logSASGameRecordSettlerCombatIfNeeded(pWinner, pLoser);
+	if (gGameRecordLogLevel > 0) logSASGameRecordSettlerCombatIfNeeded(pWinner, pLoser, pBattlePlot);
 	PlayerTypes eWinner = pWinner->getOwner();
 	PlayerTypes eLoser = pLoser->getOwner();
-	CvPlot const* pPlot = pLoser->plot();
+	CvPlot const* pPlot = pBattlePlot;
 	const bool bCityPlot = (pPlot != NULL && pPlot->isCity());
 	// <!-- custom: Aggregate battle rows omit the Barbarian player, and Settler-defense rows cover only one special case. At level 3, retain exact ordinary Barbarian/animal combat so spawned pressure can be followed through its actual outcome. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 3 && (pWinner->getOwner() == BARBARIAN_PLAYER || pLoser->getOwner() == BARBARIAN_PLAYER))
@@ -6338,13 +6378,13 @@ void logSASGameRecordCombatResult(CvUnit const* pWinner, CvUnit const* pLoser)
 	if (pLoser->getLeaderUnitType() != NO_UNIT)
 	{
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GREAT_GENERAL_UNIT_DIED player=%d unitId=%d unit=%s attachedGreatGeneral=%s winnerPlayer=%d winnerUnitId=%d winnerUnit=%s x=%d y=%d",
-				GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()), eWinner, pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), pLoser->getX(), pLoser->getY());
+				GC.getGame().getGameTurn(), eLoser, pLoser->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()), eWinner, pWinner->getID(), getSASGameRecordUnitType(pWinner->getUnitType()), pPlot->getX(), pPlot->getY());
 	}
-	logSASGameRecordGreatPersonDied(pLoser, eWinner, "COMBAT");
+	logSASGameRecordGreatPersonDied(pLoser, eWinner, "COMBAT", pPlot);
 	if (gGameRecordLogLevel >= 3)
 	{
 		// <!-- custom: Include exact unit IDs so WAR_ATTACK_ORDER attacker selections can be joined to the resulting battle even when several units of the same type fight on the same turn. (GPT-5.6 Thinking) -->
 		logSASGameRecord("GAME_RECORD_BATTLE turn=%d winner=%d loser=%d winnerUnit=%s winnerUnitId=%d loserUnit=%s loserUnitId=%d x=%d y=%d cityPlot=%d winnerBaseStr=%d loserBaseStr=%d winnerDamage=%d loserDamage=%d winnerLeaderUnit=%s loserLeaderUnit=%s",
-				GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), pWinner->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getID(), pLoser->getX(), pLoser->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
+				GC.getGame().getGameTurn(), eWinner, eLoser, getSASGameRecordUnitType(pWinner->getUnitType()), pWinner->getID(), getSASGameRecordUnitType(pLoser->getUnitType()), pLoser->getID(), pPlot->getX(), pPlot->getY(), bCityPlot, pWinner->baseCombatStr(), pLoser->baseCombatStr(), pWinner->getDamage(), pLoser->getDamage(), getSASGameRecordUnitType(pWinner->getLeaderUnitType()), getSASGameRecordUnitType(pLoser->getLeaderUnitType()));
 	}
 }

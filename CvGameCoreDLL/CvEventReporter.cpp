@@ -203,9 +203,10 @@ void CvEventReporter::firstContact(TeamTypes eTeamID1, TeamTypes eTeamID2)
 	m_kPythonEventMgr.reportFirstContact(eTeamID1, eTeamID2);
 }
 
-void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser)
+// <!-- custom: Add the combat target captured by CvUnit instead of reconstructing it from whichever unit lost. See KI#377. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvEventReporter::combatResult(CvUnit* pWinner, CvUnit* pLoser, CvPlot const* pBattlePlot)
 {
-	if (gGameRecordLogLevel >= 2) logSASGameRecordCombatResult(pWinner, pLoser);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCombatResult(pWinner, pLoser, pBattlePlot);
 	if (gWorkerLogLevel >= 2) logSASBBAIWorkerDeathContext(pWinner, pLoser);
 	m_kPythonEventMgr.reportCombatResult(pWinner, pLoser);
 }

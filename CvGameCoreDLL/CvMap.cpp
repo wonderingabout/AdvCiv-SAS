@@ -24,6 +24,7 @@
 #include "CvInfo_GameOption.h"
 #include "CvReplayInfo.h" // advc.106n
 #include "BarbarianWeightMap.h" // advc.304
+#include "SASGameRecordLog.h" // <!-- custom: CvMap::read uses the public SASGameRecord hook to finalize old-map observations before replacing that map. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 #include "CvDLLIniParserIFaceBase.h"
 #include <boost/algorithm/string.hpp> // advc.108b
 
@@ -1255,6 +1256,8 @@ void CvMap::invalidateBorderDangerCache(TeamTypes eTeam)
 // read object from a stream. used during load
 void CvMap::read(FDataStreamBase* pStream)
 {
+	// <!-- custom: A quickload can replace the map while its GameRecord still has buffered observations. Finalize them against the old map before this read resets it, even if CvGame has already read the loaded game state. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (isSASGameRecordLogEnabled()) finalizeSASGameRecordLogSession();
 	// <!-- custom: removed old uiflag code (e.g. `if(uiFlag < 12)`), and now running any modern compliant uiflag such as of now according to chatgpt 5 anyways where uiflag == xx latest for example == 17 is true such as uiflag >= 6, uiflag >= 15 or such, see code comment around as of now the top of CvCity::read. -->
 	uint uiFlag=0;
 
