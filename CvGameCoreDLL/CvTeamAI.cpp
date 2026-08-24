@@ -4485,11 +4485,10 @@ int CvTeamAI::AI_enmityValue(TeamTypes eEnemy) const
 	FAssert(eEnemy != getID() && !kEnemy.isMinorCiv() && kEnemy.isHasMet(getID()));
 	// advc.148: Rather than RELATIONS_THRESH_ANNOYED
 	int const iAttitudeThresh = GC.getDefineINT(CvGlobals::RELATIONS_THRESH_WORST_ENEMY);
-	if (!kEnemy.isAlive() ||
-		kEnemy.isCapitulated() || // advc.130d
-		((AI_getAttitudeVal(eEnemy) > iAttitudeThresh ||
-		AI_getAttitudeVal(eEnemy, false) > iAttitudeThresh) && // advc.130d
-		!isAtWar(eEnemy)))
+	// <!-- custom: AdvCiv practical 1842 moved replacement eligibility into a same-master-locus-filtered iterator but left the incumbent evaluated directly here, so an ineligible master, voluntary vassal or sibling vassal could remain grandfathered as worst enemy.
+	// Centralize the same locus rule for both paths. See KI#366. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// advc.130d
+	if (!kEnemy.isAlive() || kEnemy.getMasterTeam() == getMasterTeam() || kEnemy.isCapitulated() || ((AI_getAttitudeVal(eEnemy) > iAttitudeThresh || AI_getAttitudeVal(eEnemy, false) > iAttitudeThresh) && !isAtWar(eEnemy)))
 	{
 		return 0;
 	}

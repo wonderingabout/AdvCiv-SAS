@@ -528,56 +528,33 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		kOther.setEspionagePointsAgainstTeam(getID(), std::max(kOther.getEspionagePointsAgainstTeam(getID()), kOther.getEspionagePointsAgainstTeam(eTeam))); // unofficial patch*/
 		/*  <kekm.26> "These counters now scale properly with number of players in teams.
 			Also, espionage is now sum instead of max. */
-		kOther.AI_setAtWarCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getAtWarCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getAtWarCounter(eTeam)) / getNumMembers());
+		kOther.AI_setAtWarCounter(getID(), (iOriginalTeamSize * kOther.AI_getAtWarCounter(getID()) + iSecondTeamSize * kOther.AI_getAtWarCounter(eTeam)) / getNumMembers());
 		// advc: The at-war counters should be consistent
 		AI().AI_setAtWarCounter(kOther.getID(), kOther.AI_getAtWarCounter(getID()));
-		kOther.setStolenVisibilityTimer(getID(), (iOriginalTeamSize *
-				kOther.getStolenVisibilityTimer(getID()) + iSecondTeamSize *
-				kOther.getStolenVisibilityTimer(eTeam)) / getNumMembers());
-		kOther.AI_setAtPeaceCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getAtPeaceCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getAtPeaceCounter(eTeam)) / getNumMembers());
-		kOther.AI_setHasMetCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getHasMetCounter(eTeam)) / getNumMembers());
+		kOther.setStolenVisibilityTimer(getID(), (iOriginalTeamSize * kOther.getStolenVisibilityTimer(getID()) + iSecondTeamSize * kOther.getStolenVisibilityTimer(eTeam)) / getNumMembers());
+		kOther.AI_setAtPeaceCounter(getID(), (iOriginalTeamSize * kOther.AI_getAtPeaceCounter(getID()) + iSecondTeamSize * kOther.AI_getAtPeaceCounter(eTeam)) / getNumMembers());
+		kOther.AI_setHasMetCounter(getID(), (iOriginalTeamSize * kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize * kOther.AI_getHasMetCounter(eTeam)) / getNumMembers());
 		// <advc.003n>
 		if (kOther.isBarbarian())
 			continue; // </advc.003n>
-		kOther.setWarWeariness(getID(), (iOriginalTeamSize *
-				kOther.getWarWeariness(getID()) + iSecondTeamSize *
-				kOther.getWarWeariness(eTeam)) / getNumMembers());
-		kOther.AI_setDefensivePactCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getDefensivePactCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getDefensivePactCounter(eTeam)) / getNumMembers());
-		kOther.AI_setShareWarCounter(getID(), (iOriginalTeamSize *
-				kOther.AI_getShareWarCounter(getID()) + iSecondTeamSize *
-				kOther.AI_getShareWarCounter(eTeam)) / getNumMembers());
-		kOther.AI_setWarSuccess(getID(), (iOriginalTeamSize *
-				kOther.AI_getWarSuccess(getID()) + iSecondTeamSize *
-				kOther.AI_getWarSuccess(eTeam)) / getNumMembers());
+		// <!-- custom: Firaxis's reverse Permanent Alliance merge omitted the outsider's directional Open Borders history even though shareCounters preserves the absorbed team's own direction.
+		// Apply the neighboring team-size-weighted policy. See KI#370. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		kOther.AI_setOpenBordersCounter(getID(), (iOriginalTeamSize * kOther.AI_getOpenBordersCounter(getID()) + iSecondTeamSize * kOther.AI_getOpenBordersCounter(eTeam)) / getNumMembers());
+		kOther.setWarWeariness(getID(), (iOriginalTeamSize * kOther.getWarWeariness(getID()) + iSecondTeamSize * kOther.getWarWeariness(eTeam)) / getNumMembers());
+		kOther.AI_setDefensivePactCounter(getID(), (iOriginalTeamSize * kOther.AI_getDefensivePactCounter(getID()) + iSecondTeamSize * kOther.AI_getDefensivePactCounter(eTeam)) / getNumMembers());
+		kOther.AI_setShareWarCounter(getID(), (iOriginalTeamSize * kOther.AI_getShareWarCounter(getID()) + iSecondTeamSize * kOther.AI_getShareWarCounter(eTeam)) / getNumMembers());
+		kOther.AI_setWarSuccess(getID(), (iOriginalTeamSize * kOther.AI_getWarSuccess(getID()) + iSecondTeamSize * kOther.AI_getWarSuccess(eTeam)) / getNumMembers());
 		// <advc.130m>
-		kOther.AI_setSharedWarSuccess(getID(), (iOriginalTeamSize *
-				kOther.AI_getSharedWarSuccess(getID()) + iSecondTeamSize *
-				kOther.AI_getSharedWarSuccess(eTeam)) / getNumMembers());
+		kOther.AI_setSharedWarSuccess(getID(), (iOriginalTeamSize * kOther.AI_getSharedWarSuccess(getID()) + iSecondTeamSize * kOther.AI_getSharedWarSuccess(eTeam)) / getNumMembers());
 		// </advc.130m>
-		kOther.setEspionagePointsAgainstTeam(getID(),
-				kOther.getEspionagePointsAgainstTeam(getID()) +
-				kOther.getEspionagePointsAgainstTeam(eTeam));
+		kOther.setEspionagePointsAgainstTeam(getID(), kOther.getEspionagePointsAgainstTeam(getID()) + kOther.getEspionagePointsAgainstTeam(eTeam));
 		// <advc.130k>
-		kOther.setTurnsAtPeace(getID(), (iOriginalTeamSize *
-				kOther.getTurnsAtPeace(getID()) + iSecondTeamSize *
-				kOther.getTurnsAtPeace(eTeam)) / getNumMembers()); // </advc.130k>
+		kOther.setTurnsAtPeace(getID(), (iOriginalTeamSize * kOther.getTurnsAtPeace(getID()) + iSecondTeamSize * kOther.getTurnsAtPeace(eTeam)) / getNumMembers()); // </advc.130k>
 		// <advc.003n>
 		if (kOther.isMinorCiv())
 			continue; // </advc.003n>
-		kOther.AI_setEnemyPeacetimeTradeValue(getID(), (iOriginalTeamSize *
-				kOther.AI_getEnemyPeacetimeTradeValue(getID()) + iSecondTeamSize *
-				kOther.AI_getEnemyPeacetimeTradeValue(eTeam)) / getNumMembers());
-		kOther.AI_setEnemyPeacetimeGrantValue(getID(), (iOriginalTeamSize *
-				kOther.AI_getEnemyPeacetimeGrantValue(getID()) + iSecondTeamSize *
-				kOther.AI_getEnemyPeacetimeGrantValue(eTeam)) / getNumMembers());
+		kOther.AI_setEnemyPeacetimeTradeValue(getID(), (iOriginalTeamSize * kOther.AI_getEnemyPeacetimeTradeValue(getID()) + iSecondTeamSize * kOther.AI_getEnemyPeacetimeTradeValue(eTeam)) / getNumMembers());
+		kOther.AI_setEnemyPeacetimeGrantValue(getID(), (iOriginalTeamSize * kOther.AI_getEnemyPeacetimeGrantValue(getID()) + iSecondTeamSize * kOther.AI_getEnemyPeacetimeGrantValue(eTeam)) / getNumMembers());
 		// </kekm.26>
 
 		if (kOther.isAlive())
@@ -781,6 +758,10 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		if (kShareTeam.AI_getWarSuccess(eLoopTeam) > AI().AI_getWarSuccess(eLoopTeam))
 			AI().AI_setWarSuccess(eLoopTeam, kShareTeam.AI_getWarSuccess(eLoopTeam));
 		//else kShareTeam.AI_setWarSuccess(eLoopTeam, AI_getWarSuccess(eLoopTeam));
+		// <!-- custom: AdvCiv added SharedWarSuccess and merged the outsider's direction during a Permanent Alliance, but omitted the absorbed team's own direction from this older stronger-history merge.
+		// Retain the stronger directional history like the neighboring own-side counters. See KI#369. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kShareTeam.AI_getSharedWarSuccess(eLoopTeam) > AI().AI_getSharedWarSuccess(eLoopTeam))
+			AI().AI_setSharedWarSuccess(eLoopTeam, kShareTeam.AI_getSharedWarSuccess(eLoopTeam));
 
 		if (kShareTeam.AI_getEnemyPeacetimeTradeValue(eLoopTeam) > AI().AI_getEnemyPeacetimeTradeValue(eLoopTeam))
 			AI().AI_setEnemyPeacetimeTradeValue(eLoopTeam, kShareTeam.AI_getEnemyPeacetimeTradeValue(eLoopTeam));
