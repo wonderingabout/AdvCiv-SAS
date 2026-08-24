@@ -296,7 +296,7 @@ static bool SAS_isMapScriptListedInDefine(CvWString const& szMapScriptName, char
 	return false;
 }
 
-// <!-- custom: new helpers, see also KI#42; not static map type although would have been computationally nice, but to be safe in case map type changes when loading another save file or creating a new map during civ4 run time, as advised by chatgpt 5 too. (GPT-5.2-Codex (summarized)) -->
+// <!-- custom: Cache script-name classification early, then recompute after starting plots exist so unspecified scripts can use their dynamic starting-area classification. See KI#42 and KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void CvGame::recomputeMapnameHeaviness()
 {
 	CvWString const szName = GC.getInitCore().getMapScriptName();
@@ -412,9 +412,7 @@ void CvGame::regenerateMap(/* advc.tsl: */ bool bAutomated)
 	CvMapGenerator::GetInstance().generateRandomMap();
 	CvMapGenerator::GetInstance().addGameElements();
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided with the help of chatgpt 5 thanks -->
-	// 5) Call sites (in CvGame.cpp) — recap
-	// After regenerating map: right after addGameElements() in regenerateMap(...)
+	// <!-- custom: Clear stale map-heaviness state immediately after regeneration and classify explicit script lists before starting-plot work; the post-start pass in initFreeUnits finalizes dynamic unspecified scripts. See KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	recomputeMapnameHeaviness();
 
 	gDLL->getEngineIFace()->RebuildAllPlots();
@@ -796,9 +794,7 @@ void CvGame::initDiplomacy()
 		}
 	}
 
-	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided with the help of chatgpt 5 thanks. -->
-	// 5) Call sites (in CvGame.cpp) — recap
-	// After map exists for new/scenario games: end of CvGame::initDiplomacy()
+	// <!-- custom: Initialize map heaviness after map generation, before the EXE assigns ordinary starting plots; the post-start pass in initFreeUnits finalizes dynamic unspecified scripts. See KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	recomputeMapnameHeaviness();
 }
 
@@ -1109,6 +1105,8 @@ void CvGame::initFreeUnits()
 		if (itPlayer->getNumUnits() == 0 && itPlayer->getNumCities() == 0)
 			itPlayer->initFreeUnits();
 	}
+	// <!-- custom: The earlier initDiplomacy/regenerateMap pass runs before normal starting plots exist, making dynamic map-heaviness classification neutral for intentionally unspecified scripts. This shared post-start point covers ordinary games, regenerated maps and the EXE's separate scenario path after all normal/True Starts/SPaH reassignment, and fixes the cached classification before gameplay. See KI#336. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	recomputeMapnameHeaviness();
 	if (!bScenario)
 		return;
 	/*	<advc.250b> Advanced Start is always visible on the Custom Scenario screen,
