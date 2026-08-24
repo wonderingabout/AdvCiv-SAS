@@ -1479,8 +1479,7 @@ void CvGame::applyStartingLocHandicaps(NormalizationTarget const* pStartValues) 
 			PlayerTypes const ePlayer = aePlayersByHandicap[i];
 			if (ePlayer == NO_PLAYER || !GET_PLAYER(ePlayer).isHuman())
 				continue;
-			// <!-- custom: AdvCiv's sorted-site refactor accidentally checked the human's old plot here. Evaluate the sorted site assigned to this handicap slot so the volatility safeguard swaps only the site the human is about to receive.
-			// See KI#338. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			// <!-- custom: AdvCiv's sorted-site refactor accidentally checked the human's old plot here. Evaluate the sorted site assigned to this handicap slot so the volatility safeguard swaps only the site the human is about to receive. See KI#338. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			CvPlot const* pStart = apStartingSitesByValue[i];
 			if (pStart == NULL)
 				continue;
@@ -4686,8 +4685,9 @@ void CvGame::initScoreCalculation()
 			{
 				if (GC.getInfo(eLoopCivilization).isPlayable())
 				{
+					// <!-- custom: AdvCiv's enum refactor accidentally passed the civilization loop value as the technology argument, so current civilization free technologies were never included in initial-score normalization. See KI#341. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 					if (GC.getInfo(eLoopCivilization).isCivilizationFreeTechs(
-						eLoopCivilization))
+						eLoopTech))
 					{
 						m_iInitTech += getTechScore(eLoopTech);
 						break;
@@ -8456,7 +8456,12 @@ void CvGame::testVictory()
 		CvTeam& kTeam = *itTeam;
 		FOR_EACH_ENUM2(Victory, eVictory)
 		{
-			if (testVictory(eVictory, kTeam.getID(), &bEndScore))
+			// <!-- custom: BtS reused one output boolean across the full victory scan even though testVictory overwrites it per call, so later non-End-Score victories erased an enabled Time Victory and allowed a tied deadline to fall through to generic game over.
+			// Accumulate the per-call result explicitly. See KI#345. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			bool bThisEndScore = false;
+			bool const bVictory = testVictory(eVictory, kTeam.getID(), &bThisEndScore);
+			bEndScore = bEndScore || bThisEndScore;
+			if (bVictory)
 			{
 				if (kTeam.getVictoryCountdown(eVictory) < 0)
 				{

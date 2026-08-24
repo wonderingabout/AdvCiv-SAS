@@ -582,7 +582,7 @@ FILE 008 - CvGameCoreDLL/CvGame.cpp - 10,841 lines - REVIEWED / TEN NEW FINDINGS
 RESULT
 - CvGame.cpp is closed after both a current-vs-AdvCiv semantic-diff pass and an independent whole-file inherited-code/invariant pass. The second layer was especially productive: several defects live in untouched inherited code and therefore were not natural targets for the older commit-oriented archaeology.
 - Ten new current roots survived full reachability/history/data checks: F015-F024 (provisional KI#336-KI#345).
-- The findings split into one SAS lifecycle/configuration defect (F015), one AdvCiv-replay x SAS-Timeline visibility interaction (F016), five inherited starting/score/global-warming/vote defects from AdvCiv/K-Mod/BtS lineage (F017-F022/F024), and one inherited BtS Lock Mods defect (F023).
+- The findings split into one SAS lifecycle/configuration defect (F015), one AdvCiv-replay x SAS-Timeline visibility interaction (F016), seven inherited starting/score/global-warming/vote/victory defects from AdvCiv/BtS lineage (F017-F022/F024), and one inherited BtS Lock Mods defect (F023).
 - Current-format CvGame serialization was mechanically paired at 88 corresponding read/write operations in the same order; no same-version stream mismatch was found.
 - Multiple attractive false positives were explicitly killed so they are not rediscovered later.
 
@@ -716,20 +716,19 @@ Consequence:
 Repair direction:
 - Generate from a non-NUL printable alphabet/range or encode a random integer into a guaranteed nonempty textual password.
 
-F024 - provisional KI#345 - extracted victory helper clears the cumulative End Score flag on every victory/team test
-Status: NEW CURRENT INHERITED K-MOD DEFECT ROOT; concrete Time-Victory tie behavior differs from BtS contract.
-Original contract:
-- BtS/Civ4CE's monolithic victory scan initializes bEndScore once before all teams/victories and only sets it true when any enabled/valid victory has End Score. The value is cumulative across the scan.
-Current/K-Mod extraction:
+F024 - provisional KI#345 - victory scan clears the cumulative End Score flag on every victory/team test
+Status: NEW CURRENT INHERITED BTS DEFECT ROOT; concrete Time-Victory tie behavior contradicts the outer scan's cumulative use.
+Contract failure:
 - CvGame::testVictory(VictoryTypes, TeamTypes, bool*) begins by assigning *pbEndScore=false on every call, then sets it true only for that individual victory if appropriate.
-- The outer testVictory() passes the same bEndScore pointer through every team/victory pair and later treats it as the cumulative question "does this game have an End Score victory?".
+- The outer testVictory() passes the same bEndScore pointer through every team/victory pair, but later treats the final value as the cumulative question "does this game have an End Score victory?".
 Current-data consequence:
 - VICTORY_TIME has End Score enabled but is followed in XML iteration by non-End-Score Conquest, Domination, Cultural, Space and Diplomatic victories. Those later calls reset bEndScore back to false.
-- Concrete trigger: when the Time Victory deadline is reached with the top teams tied, Time Victory correctly refuses to select a winner; the later non-End-Score calls then clear bEndScore, allowing the post-loop max-turn fallback to end the game anyway. BtS's cumulative flag remains true in this state and does not take that fallback.
+- Concrete trigger: when the Time Victory deadline is reached with the top teams tied, Time Victory correctly refuses to select a winner; the later non-End-Score calls then clear bEndScore, allowing the post-loop max-turn fallback to end the game anyway. The outer guard's intended cumulative meaning is therefore defeated.
+- Scope: a unique score leader wins normally, so the failure requires the rare exact top-score tie at the deadline. Autoplay also makes the old fallback less visually obvious because it selects Extended mode instead of ordinary game over.
 Lineage:
-- The per-call reset appears in the K-Mod helper extraction and survives AdvCiv/SAS.
+- The local Civ4CE reconstruction of BtS 3.19 contains the same helper, per-call reset and outer reuse. The defect is therefore inherited from BtS itself rather than introduced by K-Mod; tracked K-Mod and AdvCiv retain it.
 Repair direction:
-- Initialize the cumulative flag once in the outer caller and have the helper only set it true (OR semantics), never clear it; alternatively return the per-call property and OR it in the caller.
+- Preserve the helper's per-call output contract and OR each result into a separate cumulative flag in the outer caller, or change the helper to set-only semantics explicitly.
 
 FALSE POSITIVES / CLEAN TAIL CHECKS FROM FILE 008
 - Vote-source city coordinate leak candidate rejected: getVoteSourceCity(..., bDebug=true) still requires the observer to have revealed the city unless the game itself is actually in debug mode; the flag is not an unconditional reveal bypass.

@@ -410,6 +410,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [338 - (Fixed inherited AdvCiv bug) Human starting-location volatility checked the old plot instead of the assigned site](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#338---fixed-inherited-advciv-bug-human-starting-location-volatility-checked-the-old-plot-instead-of-the-assigned-site)\
 [339 - (Fixed inherited AdvCiv bug) Starting-handicap collision randomization calculated but ignored its rotation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#339---fixed-inherited-advciv-bug-starting-handicap-collision-randomization-calculated-but-ignored-its-rotation)\
 [340 - (Fixed inherited BtS bug) Team-start fallback mixed alive-team count with absolute team IDs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#340---fixed-inherited-bts-bug-team-start-fallback-mixed-alive-team-count-with-absolute-team-ids)\
+[341 - (Fixed inherited AdvCiv enum-refactor bug) Initial score normalization ignored civilization free technologies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#341---fixed-inherited-advciv-enum-refactor-bug-initial-score-normalization-ignored-civilization-free-technologies)\
+[345 - (Fixed rare inherited BtS bug) Time Victory ties could fall through to generic max-turn game over](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#345---fixed-rare-inherited-bts-bug-time-victory-ties-could-fall-through-to-generic-max-turn-game-over)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9371,3 +9373,25 @@ The fix builds the actual alive-team list and applies the random rotation within
 A new save file 493 Fractal Large game with ten players split between sparse team IDs 5 and 20 generated and ran without an observed issue after compilation. This deliberately forces the inherited fallback and exercises its compact alive-team traversal; the stochastic first-choice distribution itself remains source-verified rather than established by one generated map.
 
 This is an inherited BtS team-assignment defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS regression. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 341 - (Fixed inherited AdvCiv enum-refactor bug) Initial score normalization ignored civilization free technologies
+
+`CvGame::initScoreCalculation` counts every possible civilization free technology as initial score so retiring immediately does not award score for knowledge granted at game start. While looping over technologies and playable civilizations, AdvCiv passed `eLoopCivilization` to `isCivilizationFreeTechs` even though that predicate expects a technology ID. Current civilization/free-technology data has no accidental index overlap that makes the wrong calls true, so an Ancient start recorded zero instead of the five possible civilization starting technologies, each currently worth one technology-score point.
+
+The fix passes `eLoopTech`. Earlier-era technologies on later starts continue through their separate branch, and the score formula itself is unchanged; this restores only the free-start-technology normalization already described by the inherited comment.
+
+A fresh Pangaea game reached turn 201 through autoplay without an observed issue after compilation. The corrected Ancient-start initial-technology total is additionally established directly from the current five distinct civilization free technologies and their one-point technology scores.
+
+This is an inherited AdvCiv enum-refactor regression introduced by practical 2011, not an AdvCiv-SAS change. BtS/Civ4CE passes the technology-loop index as intended. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 345 - (Fixed rare inherited BtS bug) Time Victory ties could fall through to generic max-turn game over
+
+The outer victory scan initializes `bEndScore` once and later asks whether any enabled victory uses the End Score rule before applying its generic max-turn shutdown. Its helper nevertheless resets the shared output flag on every team/victory test and sets it only for the current End Score entry. Time Victory is followed in current XML by several non-End-Score victories, so their later tests erased the flag.
+
+At the turn limit, Time Victory correctly refuses to choose a winner when the leading teams are tied. The erased flag then allowed the generic fallback to end the game anyway with no winning victory instead of leaving the enabled Time Victory to resolve the tie. A unique score leader wins normally and never reaches this failure, so the defect is limited to the rare exact top-score tie. Victory XML ordering could likewise change the result of what is intended to be a cumulative question.
+
+The fix preserves `testVictory`'s per-call output contract but accumulates each result separately in the outer scan. Ordinary victory tests, countdowns, winner selection, disabled-Time games and the generic max-turn fallback remain unchanged.
+
+The same fresh Pangaea game reached turn 201 through autoplay without an observed issue after compilation, repeatedly exercising the ordinary victory scan. A normal autoplay to its deadline would not guarantee the repaired branch because it will usually produce a unique score leader; moreover, the old generic fallback selected Extended mode during autoplay, which could visually resemble continued play. Exact contrast testing would therefore require deliberately constructing a tied deadline and checking the resulting victory/game state. The rare tie remains source-verified rather than separately manufactured for runtime reproduction.
+
+This is an inherited BtS defect retained by K-Mod and AdvCiv, not the K-Mod-origin defect initially reported in C009. Local Civ4CE BtS 3.19 source contains the same helper reset and outer reuse; the audit album has been reconciled accordingly. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, corrected, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
