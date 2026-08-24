@@ -21121,10 +21121,11 @@ void CvPlayerAI::AI_doCounter()
 				if (rWeight1 >= rWeight2)
 					rIncr = (rBonusVal / rWeight1) * rWeight2;
 			}
-			AI_changeBonusTradeCounter(ePlayer, kOurTeam.AI_randomCounterChange(
-					(fixp(1.25) * iAttitudeDiv *
-					kPersonality.getBonusTradeAttitudeChangeLimit()).round(),
-					rIncr / 2)); // Halved b/c it's a binomial distrib w/ 2 trials
+			// <!-- custom: AI_randomCounterChange caps only its 0-2 increment, so passing the accumulated Bonus Trade ceiling directly let hidden counter state grow beyond it.
+			// Limit the increment by the counter's remaining room. See KI#362. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int const iMax = (fixp(1.25) * iAttitudeDiv * kPersonality.getBonusTradeAttitudeChangeLimit()).round();
+			int const iRemaining = std::max(0, iMax - AI_getBonusTradeCounter(ePlayer));
+			AI_changeBonusTradeCounter(ePlayer, kOurTeam.AI_randomCounterChange(iRemaining, rIncr / 2)); // Halved b/c it's a binomial distrib w/ 2 trials
 			// <advc.036>
 			{
 				int iOldGoldTraded = AI_getGoldTradedTo(ePlayer);

@@ -3161,34 +3161,55 @@ int CvTeamAI::AI_getWarSuccessRating() const
 	Compute power of enemies as percentage of our power */
 int CvTeamAI::AI_getEnemyPowerPercent(bool bConsiderOthers) const
 {
-	int iEnemyPower = 0;
+	// <!-- custom: Each chosen target's defensive power independently included its master/vassal locus and Defensive Pact allies, so a shared ally could be counted once per target and again as a current enemy.
+	// The removed advc.104j FIXME already noted this overlap; explicit coalition expansion replaces its getDefensivePower call so members can be deduplicated. Record the strongest applicable relevance weight for each actual or committed defending team, then sum every team's power once. See KI#361. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CivTeamMap<int> aiWeightNumerator;
+	CivTeamMap<int> aiWeightDenominator;
 	for (TeamAIIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itEnemy(getID());
 		itEnemy.hasNext(); ++itEnemy)
 	{
 		CvTeamAI const& kEnemy = *itEnemy;
 		if(isAtWar(kEnemy.getID()))
 		{
-			int iTempPower = 220 * kEnemy.getPower(false);
-			iTempPower /= (AI_hasCitiesInPrimaryArea(kEnemy.getID()) ? 2 : 3);
-			iTempPower /= (kEnemy.isMinorCiv() ? 3 : 1);
-			iTempPower /= std::max(1, (bConsiderOthers ?
-					kEnemy.getNumWars(true, true) : 1));
-			iEnemyPower += iTempPower;
+			int const iNumerator = 220;
+			int const iDenominator = (AI_hasCitiesInPrimaryArea(kEnemy.getID()) ? 2 : 3) * (kEnemy.isMinorCiv() ? 3 : 1) * std::max(1, (bConsiderOthers ? kEnemy.getNumWars(true, true) : 1));
+			if (aiWeightDenominator.get(kEnemy.getID()) <= 0 || iNumerator * aiWeightDenominator.get(kEnemy.getID()) > aiWeightNumerator.get(kEnemy.getID()) * iDenominator)
+			{
+				aiWeightNumerator.set(kEnemy.getID(), iNumerator);
+				aiWeightDenominator.set(kEnemy.getID(), iDenominator);
+			}
 		}
 		else if(AI_isChosenWar(kEnemy.getID()) && // Haven't declared war yet
-			/*  advc.104j: getDefensivePower counts vassals already.
-				If planning war against multiple civs, DP allies could also be
-				double-counted (fixme). Could collect the war enemies in a std::set
-				in a first pass; though it sucks to implement the vassal/DP logic
-				multiple times (already in getDefensivePower and MilitaryAnalyst).
-				Also, the computation for bConsiderOthers above can be way off. */
 			!kEnemy.isAVassal())
 		{
-			int iTempPower = 240 * kEnemy.getDefensivePower(getID());
-			iTempPower /= (AI_hasCitiesInPrimaryArea(kEnemy.getID()) ? 2 : 3);
-			iTempPower /= 1 + (bConsiderOthers ? kEnemy.getNumWars(true, true) : 0);
-			iEnemyPower += iTempPower;
+			int const iNumerator = 240;
+			int const iDenominator = (AI_hasCitiesInPrimaryArea(kEnemy.getID()) ? 2 : 3) * (1 + (bConsiderOthers ? kEnemy.getNumWars(true, true) : 0));
+			TeamTypes const eEnemyMaster = kEnemy.getMasterTeam();
+			CvTeam const& kEnemyMaster = GET_TEAM(eEnemyMaster);
+			for (TeamAIIter<CIV_ALIVE> itDefender; itDefender.hasNext(); ++itDefender)
+			{
+				CvTeamAI const& kDefender = *itDefender;
+				if (kDefender.getID() == getID())
+					continue;
+				TeamTypes const eDefenderMaster = kDefender.getMasterTeam();
+				if (eDefenderMaster != eEnemyMaster && !kEnemyMaster.isDefensivePact(eDefenderMaster))
+				{
+					continue;
+				}
+				if (aiWeightDenominator.get(kDefender.getID()) <= 0 || iNumerator * aiWeightDenominator.get(kDefender.getID()) > aiWeightNumerator.get(kDefender.getID()) * iDenominator)
+				{
+					aiWeightNumerator.set(kDefender.getID(), iNumerator);
+					aiWeightDenominator.set(kDefender.getID(), iDenominator);
+				}
+			}
 		}
+	}
+	int iEnemyPower = 0;
+	for (TeamAIIter<CIV_ALIVE> itEnemy; itEnemy.hasNext(); ++itEnemy)
+	{
+		int const iDenominator = aiWeightDenominator.get(itEnemy->getID());
+		if (iDenominator > 0)
+			iEnemyPower += aiWeightNumerator.get(itEnemy->getID()) * itEnemy->getPower(false) / iDenominator;
 	}
 	//return (iEnemyPower/std::max(1, (isAVassal() ? getCurrentMasterPower(true) : getPower(true))));
 	// K-Mod - Lets not rely too much on our vassals...
@@ -5865,7 +5886,10 @@ void CvTeamAI::AI_doCounter()
 		{
 			scaled rProb = AI_getOpenBordersCounterIncrement(eOther) / 2;
 			int iMax = 2 * AI_getOpenBordersAttitudeDivisor() + 10;
-			AI_changeOpenBordersCounter(eOther, AI_randomCounterChange(iMax, rProb));
+			// <!-- custom: AI_randomCounterChange caps only its 0-2 increment, so passing the accumulated Open Borders ceiling directly was ineffective.
+			// Limit the increment by the counter's remaining room. See KI#362. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int const iRemaining = std::max(0, iMax - AI_getOpenBordersCounter(eOther));
+			AI_changeOpenBordersCounter(eOther, AI_randomCounterChange(iRemaining, rProb));
 		} // </advc.130i>  <advc.130k>
 		else
 		{

@@ -3381,9 +3381,9 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 			t.changeAtWarCount(-1, false, !bNewValue);
 		} // </advc.003m>
 		// <advc.opt> War plans against vassals don't count
+		// <!-- custom: Remove cached plans before the target becomes a vassal; restoration must wait until after its master is cleared below. See KI#363. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (bNewValue)
 			t.AI_updateWarPlanCounts(getID(), t.AI_getWarPlan(getID()), NO_WARPLAN);
-		else t.AI_updateWarPlanCounts(getID(), NO_WARPLAN, t.AI_getWarPlan(getID()));
 		// </advc.opt>
 	}
 	// <advc.opt>
@@ -3397,6 +3397,13 @@ void CvTeam::setVassal(TeamTypes eMaster, bool bNewValue, bool bCapitulated)
 		FAssert(m_eMaster == eMaster);
 		m_eMaster = NO_TEAM;
 	} // </advc.opt>
+	// <!-- custom: AdvCiv practical 1677 attempted to restore cached plans while this target still reported itself as a vassal, so AI_updateWarPlanCounts rejected every restoration.
+	// Re-add them only after independence is current. See KI#363. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!bNewValue)
+	{
+		for (TeamAIIter<ALIVE> it; it.hasNext(); ++it)
+			it->AI_updateWarPlanCounts(getID(), NO_WARPLAN, it->AI_getWarPlan(getID()));
+	}
 	// <advc.agent>
 	if (bNewValue)
 	{

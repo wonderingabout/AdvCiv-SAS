@@ -432,6 +432,9 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [358 - (Fixed inherited AdvCiv iterator-refactor bug) War despite tribute used the attacker's knowledge population instead of the victim's](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#358---fixed-inherited-advciv-iterator-refactor-bug-war-despite-tribute-used-the-attackers-knowledge-population-instead-of-the-victims)\
 [359 - (Fixed inherited AdvCiv refactor bug) Alternative-master capitulation logic reversed its minimum war duration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#359---fixed-inherited-advciv-refactor-bug-alternative-master-capitulation-logic-reversed-its-minimum-war-duration)\
 [360 - (Fixed inherited AdvCiv iterator-refactor bug) Capitulated teams affected only the technology-rarity denominator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#360---fixed-inherited-advciv-iterator-refactor-bug-capitulated-teams-affected-only-the-technology-rarity-denominator)\
+[361 - (Fixed inherited K-Mod/BBAI coalition-power defect) Shared Defensive Pact allies were counted once per planned target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#361---fixed-inherited-k-modbbai-coalition-power-defect-shared-defensive-pact-allies-were-counted-once-per-planned-target)\
+[362 - (Fixed inherited AdvCiv counter-cap defect) Relationship ceilings capped only each 0-2 increment](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#362---fixed-inherited-advciv-counter-cap-defect-relationship-ceilings-capped-only-each-0-2-increment)\
+[363 - (Fixed inherited AdvCiv cached-state defect) Freeing a vassal failed to restore cached war-plan counts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#363---fixed-inherited-advciv-cached-state-defect-freeing-a-vassal-failed-to-restore-cached-war-plan-counts)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9608,3 +9611,27 @@ Screenshots/files for this issue: same google drive folder link as KI#357.
 The fix skips capitulated teams before both counts, restoring a consistent eligible population. The 500-turn Huge Legacy-AI autoplay reached the Future era with active vassal relationships and completed normally, broadly validating the surrounding late-game technology valuation; whether a logged relationship was specifically capitulated rather than voluntary was not established by this test.
 
 This is an inherited AdvCiv practical-1842 iterator-population regression retained by AdvCiv-SAS, not an SAS-specific change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 361 - (Fixed inherited K-Mod/BBAI coalition-power defect) Shared Defensive Pact allies were counted once per planned target
+
+`CvTeamAI::AI_getEnemyPowerPercent` estimates the combined strength of current enemies and chosen undeclared-war targets. For every planned target, AdvCiv called `getDefensivePower`, which independently included that target's master/vassal locus and Defensive Pact allies. When several targets shared an ally, that ally's full power was included once per target; an ally already fighting the evaluator could also appear both as a current enemy and inside a planned coalition. The inflated percentage feeds inherited military strategy and city decisions as well as SAS danger-sensitive production weighting.
+
+The fix records the strongest applicable existing relevance weight for every actual or committed defending team, expands each planned target into the same master/vassal and Defensive Pact coalition used by `getDefensivePower`, then sums each team's power exactly once. Existing current-war versus planned-war coefficients, primary-area weighting, minor-civilization reduction and other-war adjustment remain intact. A compiled Huge Pangaea autoplay with 16 initially independent teams, Legacy Aggressive AI enabled and many wars completed normally with a Space Race victory on turn 447, broadly exercising this estimate during play.
+
+This is an inherited K-Mod/BBAI coalition-summation defect; AdvCiv practical 1366 documented the surviving double count as an `advc.104j` FIXME but did not introduce or repair it. It is not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 362 - (Fixed inherited AdvCiv counter-cap defect) Relationship ceilings capped only each 0-2 increment
+
+AdvCiv's Open Borders and Bonus Trade counter callers calculate meaningful long-term ceilings from leader attitude divisors and change limits. They passed those ceilings to `AI_randomCounterChange`, but that helper applies its upper bound only to the current binomial increment, whose natural maximum is already two. The large accumulated-counter ceilings were therefore ineffective. Sustained valuable bonus imports could grow hidden counter state beyond the intended ceiling; when imports disappeared and the counter decayed, that excess could preserve the capped positive attitude for additional turns. Ordinary Open Borders cancellation resets its counter, so it does not share that post-cancellation symptom even though its cap contract was also ineffective.
+
+The fix constrains each random increment by the accumulated counter's remaining room at both callers. The compiled 447-turn Huge Pangaea Legacy-AI autoplay completed normally and broadly exercised relationship-counter updates among 16 initially independent teams.
+
+This is an inherited AdvCiv caller/helper contract defect introduced with the randomized relationship counters, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 363 - (Fixed inherited AdvCiv cached-state defect) Freeing a vassal failed to restore cached war-plan counts
+
+AdvCiv's optimized war-plan counts intentionally exclude targets while they are vassals. `CvTeam::setVassal(..., false, ...)` attempted to restore existing plans against a newly independent team, but called `AI_updateWarPlanCounts` before clearing that team's master. The helper still saw a vassal and rejected every restoration. If an existing plan later changed type, normal transition bookkeeping could then decrement a count that had never been restored, producing a negative per-plan cache and disagreement between live plans and `AI_isAnyWarPlan` or cached strategy queries.
+
+The fix retains pre-transition removal when a team becomes a vassal and moves restoration until after its master is cleared when it becomes independent. The compiled Huge Pangaea autoplay directly exercised this lifecycle: team 5 became team 7's vassal on turn 126, regained independence on turn 139 and the game continued normally to its turn-447 Space Race victory.
+
+This is an inherited AdvCiv practical-1677 lifecycle-ordering defect introduced with the war-plan-count optimization, not an AdvCiv-SAS change. Found through the open CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
