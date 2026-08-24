@@ -14,6 +14,12 @@ LOCAL RECONCILIATION AFTER C010-WIP7 IMPORT
 - WIP7 again imported the previously rejected F024/F026/F027 ancestry changes: local Civ4CE BtS contains the same End Score helper reset/outer reuse, successful-Python-found-value omission and host-team air-capacity argument. The independently promoted BtS ancestry for KI#345, KI#347 and KI#348 remains authoritative.
 - Reconciliation also restores the seven-finding F017-F022/F024 count and the open-file cursor to file 010. The new F045-F047 findings survive an initial current-tree structural check but remain provisional pending independent promotion. (GPT-5.6-Sol)
 
+LOCAL RECONCILIATION AFTER C010-WIP12 IMPORT
+- ChatGPT-5.6-Sol's cumulative WIP8-WIP12 handoff was generated from HEAD 80cb8f4be at practical 6239. Current local HEAD is 6333073c6 at practical 6241 after two independently reviewed CvTeamAI repair batches.
+- F032-F035 / KI#353-KI#356 were fixed by d8157f78d; F036-F039 / KI#357-KI#360 were fixed by 6333073c6. Both batches compiled and completed Legacy Aggressive AI autoplays with multi-member teams. Their Album entries remain valid root-cause and ancestry evidence but are no longer outstanding provisional repairs.
+- F040-F049 / provisional KI#361-KI#370 remain pending while CvTeamAI.cpp stays open. The new F048/KI#369 and F049/KI#370 cross-file merge omissions structurally survive in current CvTeam.cpp: `shareCounters` still omits own-side SharedWarSuccess, and the reverse third-party merge still omits OpenBordersCounter.
+- WIP8-WIP12 deliberately preserve cumulative intermediate evidence and stale per-checkpoint authority blocks. This reconciliation note and current source/Git are authoritative until ChatGPT receives the next light-source handoff; finalized C011 should consolidate the layers and mark implemented findings accordingly. (GPT-5.6-Sol)
+
 NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
 - C008's six provisional roots were therefore shifted from KI#327-KI#332 to provisional KI#330-KI#335. Stable F-numbers remain the preferred album identifiers until each candidate is independently reviewed and promoted.
@@ -2303,3 +2309,774 @@ EXACT RECOVERY CURSOR AFTER C010-WIP7
    - open file 011 SASGameRecordLog.cpp.
 
 END WORKING CHECKPOINT C010-WIP7
+================================================================================
+WORKING CHECKPOINT C010-WIP8 - RECONCILED TO CURRENT HEAD 6239
+================================================================================
+
+STATUS
+- This cumulative recovery checkpoint is generated FROM the repository's reconciled
+  `_1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt`, not from the older standalone WIP7 file.
+- Repository snapshot reconciled here:
+  - Branch: main
+  - HEAD: 80cb8f4be721decb8bd82f744078160cabdd2460
+  - Practical commit count: 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional current-file roots remain F032-F047 / provisional KI#353-KI#368.
+- F048 is currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+
+WHY THIS RECONCILIATION IS SAFE
+- Current `CvGameCoreDLL/CvTeamAI.cpp` at practical 6239 is byte-for-byte identical to the original
+  practical-6225 audit snapshot:
+  SHA-256 = 0992277df3a76bcf98279cbdd49a901aad3591165e0c9ae2035dc278d9270382
+- Therefore none of the file-010 findings F032-F047 has been silently changed by the intervening
+  C009/C010 repair and documentation work.
+- The current path-history index confirms the most recent source commit touching CvTeamAI.cpp is
+  practical 6218, before the original practical-6225 file-010 audit baseline.
+- Practical 6239 itself reconciled the repository Album through open C010-WIP7 and explicitly retained
+  F045-F047 as structurally surviving but provisional pending durable C011 closure.
+
+CURRENT REPOSITORY / REVIEW STATE
+- README_Known_Issues.md currently promotes/fixes through KI#352 for the C010 CvPlot batch.
+- KI#346-KI#352 have now been independently reviewed/fixed/documented:
+  - KI#346 passable-area invalidation after Ice melt
+  - KI#347 Python city-found-value override caching
+  - KI#348 foreign-team city air capacity
+  - KI#349 plot debug-string dangling pointer
+  - KI#350 hidden-nationality nuke report leak
+  - KI#351 runtime river-edit derived-state refresh
+  - KI#352 Barbarian culture-decay array bound
+- The repository Album intentionally retains F032-F047 only as provisional open-file findings.
+- This preserves the intended architecture:
+  reviewed/promoted/fixed issues -> README_Known_Issues.md
+  still-open file-oriented investigation -> cpp_file_audit_album.txt / WIP checkpoint.
+
+POST-WIP7 CLEAN-PROGRESS STATE PRESERVED HERE
+After WIP7, before this practical-6239 reconciliation, the following closure work was completed without
+establishing F048:
+
+1. Practical-1842 hunk inventory / tail review
+- Remaining `CvTeamAI.cpp` practical-1842 hunks were inventoried by function rather than only by suspicious region.
+- Large tail families around relationship counters, team/personality averages, war-plan plumbing, religion,
+  fair-trade helpers, AI_doWar, no-war rolls and tech-monopoly logic were largely resolving as population-equivalent
+  or intentional.
+- No additional practical-1842 survivor beyond F033/F036-F039/F043-F046 was promoted in that post-WIP7 slice.
+- Renewed practical-1842 subpass is not yet stamped finally exhausted; explicit final disposition/collision reread remains.
+
+2. Type / domain / enum / array / assert pass
+- Fresh integer-vs-TeamTypes/PlayerTypes/enum comparison scan did not establish another incompatible-domain bug.
+- F032 remains the unique confirmed vote-count/team-ID domain mismatch.
+- Direct array/vector indexing remained guarded.
+- Remaining FAssert/default branches examined were enum-complete or dormant under current supported data.
+- No F048 from these mechanical passes.
+
+3. TODO/FIXME disposition
+- `AI_getEnemyPowerPercent()` shared Defensive Pact FIXME remains F040, not a second root.
+- Barbarian AreaAI `// XXX does this ever happen?` branch is reachable heuristic logic, not a correctness defect.
+- `AI_endWarVal` "should consider area power" is an explicit strategic-quality approximation.
+- `AI_doWar` "make sure they share an area" is heuristic/design debt, not a proved invariant violation.
+- No additional current correctness root from comment debt.
+
+4. State-symmetry / lifecycle pass begun
+- `AI_reset()` symmetrically clears this team's relationship arrays and reciprocal entries stored by other teams.
+- at-war / at-peace / met / Open Borders / Defensive Pact / shared-war / war-success setter/reset invariants checked so far remain coherent.
+- current read/write payload remains structurally paired.
+- `AI_finalizeInit()` still does not force `m_bAnyWarPlan=false` before rebuilding per-plan counts, but no independent
+  supported stale-true/no-plan lifecycle has been established; retain as robustness improvement only unless new evidence appears.
+- This state-symmetry pass was the exact open whole-file closure area when WIP7 handoff occurred.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER RECONCILED C010-WIP8
+1. Resume state-symmetry / relationship lifecycle audit:
+   - cached plan counts / aggregate any-war-plan flag
+   - relationship counters and reciprocal storage
+   - worst-enemy eligibility / transition consistency
+   - vassal / master / Defensive Pact / war-peace transitions
+2. Finish explicit practical-1842 hunk dispositions and only then call that historical subpass exhausted.
+3. Re-run the independent current whole-file tail after the new practical-6239 source reconciliation:
+   - tiny helpers / trade denial / state setters
+   - public sentinel/wrapper contracts
+   - divisor/default/assert/fixed-array/header invariants
+4. Deep final semantic collision + wording reread of F032-F047 against:
+   - current practical-6239 source
+   - Base AdvCiv 1.14
+   - relevant K-Mod/BtS/Civ4CE controls
+   - current repository Album
+   - reviewed README_Known_Issues
+5. Verify every finding for:
+   - current supported reachability
+   - exact ancestry classification
+   - consequence without overstatement
+   - surgical repair direction
+6. Confirm no candidate remains open and no earlier WIP statement remains superseded/incorrect.
+7. If another handoff occurs before file closure:
+   - freeze C010-WIP9 FROM THIS RECONCILED WIP8/current repo lineage.
+8. Only when genuinely complete:
+   - mark CvTeamAI.cpp COMPLETE
+   - total becomes 10 / 169
+   - freeze durable C011
+   - byte-validate reconstruction
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP8
+================================================================================
+WORKING CHECKPOINT C010-WIP9 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP8.
+- Authoritative repository snapshot remains:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots now extend through F048 / provisional KI#369.
+- F049 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+
+F048 - provisional KI#369 - Permanent Alliance merge discards absorbed team's SharedWarSuccess toward third parties
+Status: CONFIRMED CURRENT CROSS-FILE DIPLOMACY-STATE MERGE DEFECT, inherited AdvCiv.
+
+Feature semantics:
+- `advc.130m` introduced `SharedWarSuccess` as the actual-contribution component of the lasting shared-war relationship bonus.
+- Current `CvPlayerAI::AI_getShareWarAttitude` consumes:
+  - `AI_getShareWarCounter(eTeam)` for duration/cap, and
+  - `AI_getSharedWarSuccess(eTeam)` for the other side's actual military contribution.
+- The value therefore has current attitude and diplomacy consequences.
+
+Permanent Alliance state merge:
+- `CvTeam::addTeam(eTeam)` permanently absorbs `eTeam` into `getID()`.
+- `CvTeam::shareCounters(eTeam)` merges the absorbed team's OWN relationship state toward every third-party team.
+- It explicitly merges, among others:
+  - WarWeariness
+  - StolenVisibilityTimer
+  - AtWarCounter
+  - AtPeaceCounter
+  - TurnsAtPeace
+  - HasMetCounter
+  - OpenBordersCounter
+  - DefensivePactCounter
+  - ShareWarCounter
+  - WarSuccess
+  - EnemyPeacetimeTradeValue
+  - EnemyPeacetimeGrantValue
+- For these own-side counters, the established `shareCounters` policy is generally to retain the larger/stronger of the two team values.
+- `SharedWarSuccess` is absent from this merge.
+
+Opposite-direction evidence makes the omission particularly clear:
+- Later in the same `CvTeam::addTeam`, every third-party team `kOther` has its state TOWARD the merged team recomputed.
+- That code explicitly includes:
+  `kOther.AI_setSharedWarSuccess(getID(),
+      (iOriginalTeamSize * kOther.AI_getSharedWarSuccess(getID()) +
+       iSecondTeamSize * kOther.AI_getSharedWarSuccess(eTeam)) /
+       getNumMembers());`
+- Thus the merge handles SharedWarSuccess in the third-party -> merged-team direction,
+  while failing to merge the merged-team -> third-party direction.
+- After A absorbs B:
+  - outsider C's memory of A+B's contribution is combined,
+  - merged A's memory of C's contribution retains only old A's value,
+  - B's accumulated history of C's shared-war contribution is silently discarded.
+
+Historical evidence:
+- AdvCiv `advc.130m` feature lineage introduced SharedWarSuccess and explicitly added the third-party-side Permanent Alliance merge.
+- No corresponding addition to `shareCounters` was made.
+- This is consistent with a field added after the older K-Mod counter-merging routine and omitted from one side of the merge contract.
+- No descendant repair found.
+
+Current reachability:
+- `GAMEOPTION_PERMANENT_ALLIANCES` remains a visible supported game option.
+- Current `CIV4TechInfos.xml` contains a live tech with `<bPermanentAllianceTrading>1`.
+- Therefore `CvTeam::addTeam` / Permanent Alliance state merging remains supported current gameplay, not dormant compatibility code.
+
+Current consequence:
+- The absorbed alliance partner's accumulated shared-war contribution history toward third parties is lost at merge.
+- `AI_getShareWarAttitude()` thereafter uses the surviving merged-team SharedWarSuccess, so the resulting relationship bonus can be lower than the state carried by the absorbed team.
+- The relationship becomes directionally asymmetric despite explicit reverse-direction merging.
+
+Collision:
+- Current reviewed Known Issues / Album searches found no existing same-root Permanent Alliance + SharedWarSuccess merge issue.
+
+Repair direction:
+- Add `AI_getSharedWarSuccess` / `AI_setSharedWarSuccess` to `CvTeam::shareCounters`.
+- The conservative policy should follow that function's established OWN-side merge semantics (normally retain the stronger/max state), while preserving the existing team-size-weighted reverse direction.
+- The correctness requirement is that the absorbed team's SharedWarSuccess not be silently discarded; exact merge weighting can be reviewed alongside the surrounding Permanent Alliance policy.
+
+POST-WIP8 STATE-SYMMETRY PROGRESS
+- `CvTeamAI::AI_reset` remains symmetric:
+  - resets all local team-indexed counters and war plans,
+  - clears reciprocal entries stored by every other team,
+  - includes SharedWarSuccess,
+  - resets cached war-plan counts and aggregate `m_bAnyWarPlan`.
+- `CvTeam::setVassal` transition review still leaves F042 as the specific war-plan cache ordering defect; no second counter-array transition omission established.
+- `CvTeam::addTeam` / Permanent Alliance lifecycle review produced F048 above.
+- `AI_updateWorstEnemy` remains F045 for incumbent eligibility; post-vassal attitude refresh itself is present.
+- Open Borders, Defensive Pact, shared-war, war/peace and ordinary counter setter lifecycles remain coherent apart from F041's ineffective accumulated counter ceiling.
+- `AI_finalizeInit` missing an initial `m_bAnyWarPlan=false` remains robustness debt only; no independent current stale-true/no-plan lifecycle established.
+
+PRACTICAL-1842 CONTINUED DISPOSITION
+- Hunk 46 / `AI_warDiplomacyCost()`:
+  - outer `KNOWN_POTENTIAL_ENEMY_OF(aggressor)` does narrow out observers in the aggressor's same-master locus compared with pre-1842 code.
+  - The old code already required aggressor+victim contact with the observer, so no new no-contact issue exists here.
+  - `AI_disapprovesOfDoW` can semantically disapprove from a same-aggressor-locus observer, so the population difference is real.
+  - However, `AI_warDiplomacyCost` is a prospective strategic heuristic, and the source does not yet establish that counting a currently subordinate same-locus observer is a required correctness contract rather than an intentional/refactor simplification.
+  - HOLD BELOW THRESHOLD; do not promote as F049 without stronger design/behavior evidence.
+- `AI_isWaterAreaRelevant()` rewrite remains clean so far:
+  - own/master-locus cities intentionally grouped under NOT_A_RIVAL_OF,
+  - outside known potential enemies counted with anti-cheating city-site deduction,
+  - no lost current legitimate population established.
+- Other already-dispositioned practical-1842 iterator families remain as recorded in WIP8.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 / KI#369
+- F049 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP9
+1. Continue explicit practical-1842 hunk disposition from the current generated diff;
+   focus on remaining relation-predicate population changes (war diplomacy/value, surrender,
+   declare-war trade, enemy-area/war-plan helpers, counter/final tail).
+2. Continue independent state-symmetry/lifecycle audit:
+   - Permanent Alliance remainder after F048
+   - war-plan cache and plan-state transitions
+   - worst-enemy transitions
+   - reciprocal vs directional relationship storage
+3. Finish whole-current-file tiny-helper/sentinel/divisor/default/assert/fixed-array/header pass.
+4. Deep final semantic collision + wording reread F032-F048 against current practical-6239 source,
+   Base AdvCiv 1.14 and historical controls.
+5. Ensure every finding has current supported reachability, exact ancestry, bounded consequence and
+   surgical repair wording.
+6. If another handoff occurs before closure, freeze C010-WIP10.
+7. Only when genuinely exhausted:
+   - mark CvTeamAI.cpp COMPLETE
+   - total 10 / 169
+   - freeze durable C011
+   - byte-validate reconstruction
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP9
+================================================================================
+WORKING CHECKPOINT C010-WIP10 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP9.
+- Authoritative repository snapshot remains:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots remain F032-F048 / provisional KI#353-KI#369.
+- F049 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the clean post-WIP9 closure progress and one important F047 wording correction before further investigation.
+
+POST-WIP9 RECONCILIATION / CLEAN CLOSURE PROGRESS
+
+1. Current source synchronization remains exact
+- Current practical-6239 `CvTeamAI.cpp` is still byte-for-byte identical to the practical-6225 audit baseline.
+- Therefore no F032-F048 source finding was silently altered by the intervening reviewed C009/C010 implementation work.
+- The repository Album / Known-Issues architecture remains synchronized:
+  - reviewed/promoted/fixed C010 CvPlot issues through KI#352 live in README_Known_Issues.md,
+  - open CvTeamAI candidates remain provisional in the Album.
+
+2. Permanent Alliance completeness after F048 - no second current root
+- Continued `CvTeam::addTeam` / `CvTeam::shareCounters` review after F048.
+- `StrengthMemory` is not merged, but K-Mod/AdvCiv history treats it as tactical/fog-of-war estimation state rather than a durable diplomatic relationship counter with an explicit inheritance contract.
+- Merging it could be an AI enhancement, but no source-backed correctness requirement was established.
+- The one-turn / transient nuke-target-memory vector is even weaker as a merge obligation.
+- UWAI has its own team-merge integration hook.
+- Lonely-state and other derived team state are recomputed / updated rather than simply copied.
+- No second F048-like Permanent Alliance state-loss root established.
+
+3. Practical-1842 continued hunk disposition - mostly clean
+- `AI_isWaterAreaRelevant` continues to close clean:
+  - own/same-master-locus cities grouped intentionally,
+  - outside known potential enemies considered with `AI_deduceCitySite` anti-cheating logic.
+- `AI_postDeclareWar`, peace/attitude refresh, surrender/vassal populations, war-value populations and recent SAS tech-locus work continue to resolve as equivalent or intentional after predicate expansion.
+- The possible same-aggressor-locus omission in `AI_warDiplomacyCost` remains BELOW THRESHOLD:
+  - population difference exists,
+  - but the function is a prospective heuristic cost estimator,
+  - no clear source contract yet requires pricing the displeasure of a currently subordinate same-locus observer.
+- Do not promote this as F049 without stronger behavioral/design evidence.
+
+4. F047 important correction - DO NOT overstate practical 1842
+- A transient post-WIP9 thought suggested practical 1842 might further hide voluntary-vassal plans from legacy `AI_doWar()` maintenance by excluding the foreign vassal from `KNOWN_POTENTIAL_ENEMY_OF(ourTeam)`.
+- That interpretation is WRONG.
+- `KNOWN_POTENTIAL_ENEMY_OF(ourTeam)` excludes teams in OUR own master locus.
+- A FOREIGN voluntary vassal belonging to another master remains an outside-locus potential enemy and can still be iterated.
+- Therefore practical 1842 should NOT be cited as aggravating F047 by making the raw vassal-keyed plan invisible to AI_doWar's maintenance loop.
+- The correct F047 root remains exactly the original WIP7 analysis:
+  - legacy selection/write can store chosen/preparing plan on the voluntary VASSAL key,
+  - advc.104j query/tactical APIs normalize that target to the MASTER key,
+  - raw planner maintenance can still see/age the vassal-keyed plan,
+  - tactical readiness/path/DOW consumers looking under the master key can fail to recognize it.
+- Preserve this corrected wording in any durable C011 entry.
+
+5. Fresh type/domain/mechanical pass - no F049
+- Explicit hunk/function inventory of the remaining practical-1842 tail continued.
+- Relationship counters, team/personality averages, war-plan plumbing, religion/fair-trade helpers,
+  `AI_doWar`, no-war rolls and tech-monopoly logic largely resolved as population-equivalent or intentional.
+- Fresh integer-vs-TeamTypes/PlayerTypes/enum comparison scan found no second incompatible-domain bug:
+  F032 remains the unique confirmed vote-count/team-ID comparison.
+- Direct array/vector indexing remained guarded.
+- Remaining FAssert/default branches examined were enum-complete or dormant under current supported data.
+- No new sentinel/divisor/default/assert/fixed-array root.
+
+6. TODO/FIXME disposition - no new root
+- `AI_getEnemyPowerPercent` shared Defensive Pact FIXME remains F040 itself.
+- Barbarian AreaAI `// XXX does this ever happen?` branch is reachable heuristic logic.
+- `AI_endWarVal` area-power comment is an explicit strategic-quality approximation.
+- `AI_doWar` "make sure they share an area" comment is heuristic/design debt, not a proved invariant violation.
+- No correctness root created from comment debt alone.
+
+7. State-symmetry pass resumed - clean so far beyond owned findings
+- `AI_reset()` symmetrically clears local and reciprocal relationship arrays.
+- at-war / at-peace / has-met / Open Borders / Defensive Pact / shared-war / war-success setter/reset invariants remain coherent.
+- Current read/write payload remains structurally paired.
+- `AI_finalizeInit()` still does not force `m_bAnyWarPlan=false` before rebuilding per-plan counts.
+  No independent supported stale-true/no-plan lifecycle has been proved; keep as robustness improvement only.
+- Current open closure area remains state-symmetry / lifecycle plus final individual finding reread/collision.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 / KI#369
+- F049 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP10
+1. Resume state-symmetry / lifecycle pass:
+   - cached plan counts and aggregate `m_bAnyWarPlan`,
+   - relationship counters and reciprocal storage,
+   - worst-enemy transition consistency,
+   - vassal/master/Defensive-Pact/war-peace transitions,
+   - Permanent Alliance remainder already mostly closed after F048.
+2. Finish explicit practical-1842 hunk dispositions; do not stamp exhausted until mechanically complete.
+3. Finish whole-current-file tiny-helper / sentinel / divisor / default / assert / fixed-array / header pass.
+4. Deep final semantic collision + wording reread of F032-F048 against:
+   - practical-6239 current source,
+   - Base AdvCiv 1.14,
+   - relevant K-Mod/BtS/Civ4CE controls,
+   - repository Album,
+   - reviewed README_Known_Issues.
+5. Recheck F047 using the CORRECTED statement above; do not attribute foreign-vassal exclusion to practical 1842.
+6. Verify every finding has:
+   - current supported reachability,
+   - exact ancestry classification,
+   - bounded consequence,
+   - surgical repair direction.
+7. Confirm no candidate remains open and no older WIP statement remains superseded or overbroad.
+8. If another handoff occurs before closure:
+   - freeze C010-WIP11.
+9. Only when genuinely exhausted:
+   - mark CvTeamAI.cpp COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP10
+================================================================================
+WORKING CHECKPOINT C010-WIP11 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP10.
+- Authoritative repository snapshot:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots remain F032-F048 / provisional KI#353-KI#369.
+- F049 remains UNUSED at this exact checkpoint.
+- A strong Permanent-Alliance/Open-Borders counter candidate is OPEN and deliberately UNNUMBERED pending final proof.
+- Do NOT promote this checkpoint to C011.
+
+POST-WIP10 CLEAN CLOSURE PROGRESS
+1. Permanent Alliance completeness after F048
+- Continued checking state merged/recomputed by `CvTeam::addTeam` and `shareCounters`.
+- F048 remains the unique confirmed SharedWarSuccess own-side omission.
+- `StrengthMemory` is unmerged but is tactical/fog-of-war estimation state rather than a durable diplomatic-history field with a source-backed merge contract.
+- Transient nuke-target memory is even less suitable as a required inherited relationship field.
+- UWAI has its own team-merge hook.
+- Lonely/derived state is recomputed.
+- No second confirmed root from those fields.
+
+2. Practical-1842 / type-domain / comment-debt closure
+- Remaining iterator/hunk families continued to resolve as equivalent, documented, unused or heuristic.
+- F032 remains the unique confirmed incompatible vote-count/team-ID domain comparison.
+- Direct array/vector indexing and remaining enum/default/assert checks remained guarded/dormant under current data.
+- Existing FIXME/TODO comments did not produce another current correctness root:
+  - Defensive-Pact double-count FIXME = F040.
+  - Area-power / share-area comments = strategic heuristic debt.
+- The possible same-aggressor-locus population narrowing in `AI_warDiplomacyCost` remains below threshold because no source contract proves that a currently subordinate observer's displeasure must be included in this prospective heuristic.
+
+3. State-symmetry refinement of F045
+- F045 is broader than only "master retains voluntary vassal as worst enemy":
+  - pre-1842 `AI_enmityValue` explicitly excluded `isVassal(eEnemy)` (our master),
+  - 1842 removed that local check under the assumption that candidate iteration enforces locus eligibility,
+  - incumbent worst enemy is nevertheless evaluated outside the candidate iterator.
+- Therefore repair should centralize incumbent/replacement eligibility for the whole same-master locus rather than patch only one master->vassal trade symptom.
+
+OPEN UNNUMBERED CANDIDATE - possible F049
+Candidate title:
+- Permanent Alliance merge can discard the OUTSIDER'S Open Borders relationship counter toward the absorbed team.
+
+Current source structure:
+- `CvTeam::addTeam(eTeam)` permanently absorbs team B (`eTeam`) into surviving team A (`getID()`).
+- Before the final counter merge, relationship propagation can create A<->C Open Borders when B already had Open Borders with third-party C.
+- `CvTeam::setOpenBorders` resets the counter for the relationship endpoint whose status changes:
+  `AI().AI_setOpenBordersCounter(eIndex, 0)`.
+- Thus when A did not previously have Open Borders with C but B did:
+  - creation of A->C Open Borders resets new A->C counter to 0,
+  - creation of C->A Open Borders resets new C->A counter to 0,
+  - old B->C and C->B counters remain attached to B until merge cleanup.
+
+Own-side merge:
+- `CvTeam::shareCounters(B)` explicitly merges B->C into surviving A->C using the routine's established stronger/max counter semantics.
+- It includes `AI_getOpenBordersCounter` / `AI_setOpenBordersCounter`.
+- Therefore B's own Open Borders history toward C is preserved on the surviving team's side.
+
+Reverse third-party merge:
+- Later in `CvTeam::addTeam`, each outsider `kOther` has many values TOWARD the merged team combined:
+  - AtWarCounter
+  - AtPeaceCounter
+  - HasMetCounter
+  - WarWeariness
+  - DefensivePactCounter
+  - ShareWarCounter
+  - WarSuccess
+  - SharedWarSuccess
+  - espionage / peace / enemy-trade/grant state and related values.
+- This reverse-direction block does NOT merge `kOther.AI_getOpenBordersCounter(...)`.
+- Therefore C->A remains the newly reset 0 and old C->B relationship history is discarded.
+
+Concrete supported sequence under investigation:
+1. B and C have long-standing Open Borders, with a positive C->B OpenBordersCounter.
+2. A and C do not have Open Borders.
+3. A permanently allies with / absorbs B.
+4. The merged alliance inherits B-C Open Borders.
+5. A->C can preserve B's old counter through `shareCounters(B)`.
+6. C->A is newly reset to 0 and no reverse merge restores old C->B.
+7. C therefore loses accumulated Open Borders relationship history toward the absorbed alliance partner.
+
+Current behavioral consumer to finish proving:
+- `CvPlayerAI::AI_getOpenBordersAttitude` reads the team's OpenBordersCounter toward the other team, divides by the leader's OpenBordersAttitudeDivisor and clamps to the change limit.
+- Current leader XML is believed to have nonzero Open Borders attitude divisors/change limits.
+- Exact consumer/XML line proof still required before promotion.
+
+Ancestry evidence already found:
+- K-Mod's initial `CvTeam::shareCounters` includes OWN-side OpenBordersCounter merging.
+- K-Mod's initial reverse `CvTeam::addTeam` third-party merge includes several relationship counters but omits OpenBordersCounter.
+- Therefore this likely predates AdvCiv as a K-Mod Permanent-Alliance merge omission rather than a new SAS defect.
+- Need check later K-Mod/AdvCiv team-merge commits for deliberate semantic change or repair.
+
+Why this is probably distinct from existing roots:
+- F041 = counter ceiling/growth helper contract.
+- This candidate = Permanent Alliance transition discarding directional relationship history.
+- F048 = SharedWarSuccess omitted on merged team's own side.
+- Candidate concerns the opposite-direction Open Borders history and appears to have different ancestry.
+
+Proof tasks before F049 promotion:
+1. Confirm exact current `AI_getOpenBordersAttitude` use and current leader-data reachability.
+2. Confirm exact `setOpenBorders` counter-reset ordering in the Permanent Alliance sequence.
+3. Inspect later K-Mod / AdvCiv team-merge history for intended omission/repair.
+4. Search Album + reviewed Known Issues for same-root Permanent Alliance/OpenBordersCounter issue.
+5. Determine exact repair semantics:
+   - adding a late reverse merge may still use newly reset A-side data,
+   - preserving/cache old C->A/C->B values before relationship propagation may be required for exact member-weighted semantics.
+6. Promote only if all checks survive.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 / KI#369
+- F049 UNUSED pending candidate proof.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP11
+1. Prove/kill Permanent Alliance reverse OpenBordersCounter candidate above.
+2. If confirmed:
+   - collision search,
+   - assign F049 / provisional KI#370,
+   - lock ancestry and conservative repair wording.
+3. Finish state-symmetry / relationship lifecycle audit after the Permanent Alliance family.
+4. Finish explicit practical-1842 hunk disposition.
+5. Perform final finding-by-finding reread/collision F032-F048 (+F049 if promoted).
+6. Confirm no candidate remains open.
+7. If handoff occurs before closure, freeze C010-WIP12.
+8. Only when genuinely complete:
+   - mark CvTeamAI.cpp COMPLETE,
+   - total 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP11
+================================================================================
+WORKING CHECKPOINT C010-WIP12 - CvTeamAI.cpp STILL OPEN
+================================================================================
+
+STATUS
+- Cumulative recovery checkpoint extending reconciled C010-WIP11.
+- Authoritative repository snapshot:
+  - branch main
+  - HEAD 80cb8f4be721decb8bd82f744078160cabdd2460
+  - practical 6239
+- Durable completed-file checkpoint remains C010 = 9 / 169 COMPLETE.
+- File 010 `CvGameCoreDLL/CvTeamAI.cpp` remains OPEN.
+- Confirmed/provisional roots now extend through F049 / provisional KI#370.
+- F050 currently UNUSED.
+- Do NOT promote this checkpoint to C011.
+- This checkpoint protects the fully proved Permanent-Alliance/OpenBordersCounter root and the post-WIP11 state/practical-1842 closure progress.
+
+F049 - provisional KI#370 - Permanent Alliance reverse merge omits outsider OpenBordersCounter toward absorbed team
+Status: CONFIRMED CURRENT K-MOD PERMANENT-ALLIANCE MERGE DEFECT.
+
+Current relationship semantics:
+- `CvPlayerAI::AI_getOpenBordersAttitude(ePlayer)` reads the directional TEAM counter:
+  `GET_TEAM(getTeam()).AI_getOpenBordersCounter(TEAMID(ePlayer))`
+  divided by the leader's OpenBordersAttitudeDivisor and clamped to the OpenBordersAttitudeChangeLimit.
+- Current ordinary leader defaults use divisor 25 and change limit +2.
+- Therefore OpenBordersCounter is active directional diplomatic relationship state, not diagnostic bookkeeping.
+
+Permanent Alliance transition:
+- `CvTeam::addTeam(eTeam)` permanently absorbs team B (`eTeam`) into surviving team A (`getID()`).
+- During relationship propagation, if B has Open Borders with outsider C while A does not, the merge establishes:
+  - A -> C Open Borders
+  - C -> A Open Borders.
+- `CvTeam::setOpenBorders(eIndex, true)` resets the directional OpenBordersCounter when the status changes.
+- Thus the newly created A/C directions begin from zero while old B/C directional counters still exist on B until the later merge cleanup.
+
+Own-side merge is present:
+- `CvTeam::shareCounters(B)` explicitly includes:
+  `AI_getOpenBordersCounter` / `AI_setOpenBordersCounter`.
+- Consequently B -> C's old Open Borders history is preserved into surviving A -> C using the routine's established stronger/max own-side merge policy.
+
+Reverse third-party merge is missing OpenBordersCounter:
+- Later in `CvTeam::addTeam`, every outsider `kOther` has its relationship state TOWARD the merged team combined.
+- This block merges:
+  - AtWarCounter
+  - AtPeaceCounter
+  - HasMetCounter
+  - WarWeariness
+  - DefensivePactCounter
+  - ShareWarCounter
+  - WarSuccess
+  - SharedWarSuccess
+  - TurnsAtPeace
+  - espionage and enemy peacetime trade/grant state
+  - other neighboring relationship values.
+- It does NOT merge `kOther.AI_getOpenBordersCounter(...)`.
+
+Concrete supported consequence:
+1. B and C have had Open Borders for 50+ turns; C -> B OpenBordersCounter is therefore positive and can contribute +1/+2 attitude.
+2. A and C either:
+   a. do not currently have Open Borders, or
+   b. have a different, shorter Open Borders history.
+3. A absorbs B through Permanent Alliance.
+4. The new merged alliance inherits B-C Open Borders.
+5. B -> C history is merged into A -> C by `shareCounters`.
+6. C -> B history is never combined into C -> A.
+   - If A lacked Open Borders, C -> A remains the newly reset zero.
+   - If A already had Open Borders, only A's prior C -> A history survives instead of the team-size-weighted A/B history.
+7. C can therefore abruptly lose part or all of its positive Open Borders attitude toward the newly merged alliance.
+
+Historical evidence / ancestry:
+- K-Mod practical 941 (`94d44a04a0...`, "Made some changes to how data is merged when two teams merge") deliberately reworked Permanent-Alliance state combining.
+- It retained OpenBordersCounter in the absorbed-team -> outsider `shareCounters` merge.
+- Its reverse outsider -> merged-team averaging block combines neighboring relationship counters but omits OpenBordersCounter.
+- K-Mod practicals 943/944 and later AdvCiv team-merge descendants did not add the missing reverse merge.
+- Best classification: inherited K-Mod directional Permanent-Alliance merge omission surviving AdvCiv/SAS.
+
+Why this is distinct:
+- F041 = relationship-counter growth/ceiling helper contract.
+- F048 = SharedWarSuccess omitted on merged team's OWN side while reverse side is present.
+- F049 = OpenBordersCounter omitted on the OUTSIDER -> merged-team side while own side is present.
+- These are distinct state fields, directions and ancestry contracts.
+
+Field-symmetry evidence:
+- Comparing durable directional relationship fields confirms the Permanent Alliance merge is generally deliberate rather than broadly incomplete.
+- `shareCounters` own-side relationship fields and reverse `addTeam` fields correspond closely.
+- OpenBordersCounter is the conspicuous reverse-side omission.
+- SharedWarSuccess is the converse own-side omission already owned by F048.
+- Other unmerged state is transient/derived/tactical (e.g. StrengthMemory, recent nuke target memory) or has separate recomputation/merge machinery.
+
+Collision:
+- Current repository Album and reviewed README_Known_Issues contain no same-root Permanent Alliance + OpenBordersCounter issue.
+
+Repair direction:
+- Add reverse team-size-weighted OpenBordersCounter merging in `CvTeam::addTeam`, alongside HasMet/DefensivePact/ShareWar and the other directional relationship counters:
+  conceptually:
+  `kOther.AI_setOpenBordersCounter(getID(),
+      (iOriginalTeamSize * kOther.AI_getOpenBordersCounter(getID()) +
+       iSecondTeamSize * kOther.AI_getOpenBordersCounter(eTeam)) /
+      getNumMembers());`
+- No extra pre-reset cache appears required:
+  - if A did not already have OB with C, A's prior directional counter was already zero by ordinary status-reset semantics;
+  - if A already had OB, `setOpenBorders(true)` is a no-op and its old counter remains available;
+  - B's old counter remains accessible until the merge block.
+- Exact arithmetic should follow the existing reverse-block team-size-weighted policy.
+
+POST-WIP11 STATE / PRACTICAL-1842 CLOSURE PROGRESS
+
+1. State-field symmetry inventory
+- Aside from already-owned:
+  - F042 war-plan-count lifecycle,
+  - F045 worst-enemy incumbent eligibility,
+  - F048 SharedWarSuccess own-side merge,
+  - F049 OpenBordersCounter reverse-side merge,
+  the remaining CvTeamAI state examined has a symmetric transition/merge path or is intentionally transient/derived.
+- WarPlan / WarPlanStateCounter are deliberately cleared/reconciled on team merge.
+- `m_bAnyWarPlan` / cached per-plan counts are covered by F042; load-time reset wart remains robustness only.
+- worst enemy is recomputed but F045's incumbent eligibility is the surviving defect.
+- lonely state is derived/recomputed.
+- StrengthMemory is tactical/fog-of-war estimation state without a durable relationship inheritance contract.
+- recent nuke-target vector is transient.
+- UWAI has an explicit team-merge hook.
+
+2. Practical-1842 iterator inventory
+- Every introduced iterator/predicate in the high-risk CvTeamAI regions has been mechanically enumerated.
+- Remaining area/enemy, peace, surrender, vassal, declare-war trade, forgiveness, counter and tail substitutions are resolving as:
+  - old-population equivalent,
+  - intentional no-cheating / master-locus semantics,
+  - unused helper changes,
+  - or heuristic changes below correctness threshold.
+- `AI_warDiplomacyCost` still has a real same-aggressor-locus population difference, but remains BELOW THRESHOLD:
+  - pre-1842 code already required observer to know both aggressor and victim,
+  - unlike actual-memory F044 there is no new no-contact semantic loss,
+  - this is a prospective heuristic cost estimator,
+  - no hard source contract proves subordinate same-locus observer displeasure must be priced.
+- Do not promote without stronger evidence.
+
+3. Adversarial reread of practical-1842 memory roots
+- `AI_preDeclareWar` practical 1842 forced four different original contracts through one outer:
+  `PlayerIter<MAJOR_CIV, KNOWN_POTENTIAL_ENEMY_OF>(getID())`.
+- Revalidation confirms these remain distinct current roots:
+  - F037: victim-known "war despite tribute" observer reputation population.
+  - F043: all-major-player arrogant-demand reset.
+  - F044: helper-defined third-party war-on-friend observer population.
+  - F046: direct victim `MEMORY_DECLARED_WAR` on first-contact cascading declarations.
+- Current attitude/UWAI consumers still use these memory families; none is dead historical state.
+
+4. F045 adversarial reread
+- `CvTeam::setVassal` DOES trigger broad attitude / worst-enemy refresh after relationship transition.
+- Therefore F045 is not a missing refresh.
+- Root is specifically incumbent/replacement eligibility divergence inside `AI_updateWorstEnemy`:
+  current incumbent is evaluated directly while replacements use same-master-locus-excluding iterator.
+- Repair should centralize eligibility rather than add another transition refresh.
+
+5. F047 corrected wording remains mandatory
+- Do NOT claim practical 1842 hides foreign voluntary-vassal plans from raw AI_doWar maintenance.
+- A foreign voluntary vassal remains outside OUR master locus and is still a known potential enemy.
+- F047 remains the advc.104j / practical-1366 read-vs-write key split:
+  legacy planner can write vassal-keyed plan while tactical/read APIs canonicalize to master key.
+
+CURRENT CONFIRMED / PROVISIONAL FILE-010 SET
+- F032 / KI#353
+- F033 / KI#354
+- F034 / KI#355
+- F035 / KI#356
+- F036 / KI#357
+- F037 / KI#358
+- F038 / KI#359
+- F039 / KI#360
+- F040 / KI#361
+- F041 / KI#362
+- F042 / KI#363
+- F043 / KI#364
+- F044 / KI#365
+- F045 / KI#366
+- F046 / KI#367
+- F047 / KI#368
+- F048 / KI#369
+- F049 / KI#370
+- F050 currently UNUSED.
+
+EXACT RECOVERY CURSOR AFTER C010-WIP12
+1. Finish practical-1842 final explicit hunk disposition and decide whether that historical subpass can finally be marked exhausted.
+2. Finish final tiny-helper / sentinel / divisor / default / assert / fixed-array / header pass.
+3. Deep semantic collision + adversarial reread F032-F049 one by one against:
+   - practical-6239 current source,
+   - Base AdvCiv 1.14,
+   - relevant K-Mod/BtS/Civ4CE controls,
+   - repository Album,
+   - reviewed README_Known_Issues.
+4. Specifically verify no WIP wording remains superseded:
+   - F041 no Open-Borders post-cancellation decay claim,
+   - F047 no practical-1842 foreign-vassal exclusion claim,
+   - WIP2/WIP3 "1842 exhausted" statements superseded by later findings.
+5. Confirm no open candidate remains and no merely plausible heuristic is promoted.
+6. If another handoff occurs before closure:
+   - freeze C010-WIP13.
+7. Only when genuinely complete:
+   - mark `CvTeamAI.cpp` COMPLETE,
+   - total becomes 10 / 169,
+   - freeze durable C011,
+   - byte-validate reconstruction,
+   - open file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`.
+
+END WORKING CHECKPOINT C010-WIP12
