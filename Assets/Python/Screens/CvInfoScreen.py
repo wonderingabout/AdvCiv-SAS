@@ -908,10 +908,14 @@ class CvInfoScreen:
 
 	# <!-- custom: Timeline cache - builds cached entries for faster tab loading (Claude Opus 4.5) -->
 	def buildTimelineCache(self, bForceRebuild = False):
+		# <!-- custom: Reuse the observer-filtered replay normally, but rebuild it for Debug/reveal-all so an existing end-game replay cannot hide entries from the complete stream. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		replayInfo = CyGame().getReplayInfo()
-		if replayInfo.isNone():
+		if replayInfo.isNone() or self.bRevealAll:
 			replayInfo = CyReplayInfo()
-			replayInfo.createInfo(self.iActivePlayer)
+			iReplayPlayer = self.iActivePlayer
+			if self.bRevealAll:
+				iReplayPlayer = -1
+			replayInfo.createInfo(iReplayPlayer)
 
 		iNumMessages = replayInfo.getNumReplayMessages()
 		iGameTurn = CyGame().getGameTurn()

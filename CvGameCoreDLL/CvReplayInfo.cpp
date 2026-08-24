@@ -58,6 +58,8 @@ CvReplayInfo::~CvReplayInfo()
 
 void CvReplayInfo::createInfo(PlayerTypes ePlayer)
 {
+	// <!-- custom: Capture NO_PLAYER as the explicit Debug/reveal-all request before the inherited active-player fallback. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bRevealAllReplayMessages = (ePlayer == NO_PLAYER);
 	if (!isStoringReplaysAsBtS()) // advc.106i (and moved up)
 		m_szModName = GC.getModName().getFullPath();
 	CvGame const& kGame = GC.getGame();
@@ -187,8 +189,12 @@ void CvReplayInfo::createInfo(PlayerTypes ePlayer)
 	{
 		addSettingsMsg();
 	} // </advc.106h>
+	// <!-- custom: Ordinary replay snapshots copy only messages whose stored historical audience includes the requested observer. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	for (uint i = 0; i < kGame.getNumReplayMessages(); i++)
-	{	// <advc.enum>
+	{
+		if (!bRevealAllReplayMessages && !kGame.isReplayMessageVisibleTo(i, ePlayer))
+			continue;
+		// <advc.enum>
 		PlayerTypes eMsgPlayer = kGame.getReplayMessagePlayer(i);
 		PlayerTypes ePlayerIndex = (eMsgPlayer == NO_PLAYER ? NO_PLAYER :
 				aePlayerIndices.get(kGame.getReplayMessagePlayer(i))); // </advc.enum>

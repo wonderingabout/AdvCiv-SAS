@@ -9044,7 +9044,8 @@ void CvGame::handleUpdateTimer(UpdateTimerTypes eTimerType)
 }
 
 
-void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY)
+// <!-- custom: Store each replay event's historical audience alongside its unchanged CvReplayMessage payload. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvWString szText, ColorTypes eColor, int iPlotX, int iPlotY, qword uiVisibilityMask)
 {
 	int iGameTurn = getGameTurn();
 	CvReplayMessage* pMessage = new CvReplayMessage(iGameTurn, eType, ePlayer);
@@ -9058,6 +9059,7 @@ void CvGame::addReplayMessage(ReplayMessageTypes eType, PlayerTypes ePlayer, CvW
 	}
 	pMessage->setColor(eColor);
 	m_listReplayMessages.push_back(pMessage);
+	m_auiReplayMessageVisibility.push_back(uiVisibilityMask);
 }
 
 // advc: Wrapper with CvPlot param
@@ -9075,6 +9077,7 @@ void CvGame::clearReplayMessageMap()
 		SAFE_DELETE(*itList);
 	}
 	m_listReplayMessages.clear();
+	m_auiReplayMessageVisibility.clear();
 }
 
 
@@ -9128,6 +9131,16 @@ LPCWSTR CvGame::getReplayMessageText(uint i) const
 ColorTypes CvGame::getReplayMessageColor(uint i) const
 {
 	return (isValidReplayIndex(i) ? m_listReplayMessages[i]->getColor() : NO_COLOR);
+}
+
+
+// <!-- custom: Replay visibility is fixed when the event occurs; later AP/UN membership changes must not reveal or erase that historical audience. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvGame::isReplayMessageVisibleTo(uint i, PlayerTypes ePlayer) const
+{
+	if (!isValidReplayIndex(i) || ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return false;
+	FAssert(m_auiReplayMessageVisibility.size() == m_listReplayMessages.size());
+	return ((m_auiReplayMessageVisibility[i] & ((qword)1 << ePlayer)) != 0);
 }
 
 
@@ -9315,6 +9328,10 @@ void CvGame::read(FDataStreamBase* pStream)
 				pMessage->read(*pStream);
 			m_listReplayMessages.push_back(pMessage);
 		}
+		// <!-- custom: Read the current-version historical replay audiences after the unchanged message payloads. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_auiReplayMessageVisibility.resize(iSize);
+		for (ReplayMessageList::_Alloc::size_type i = 0; i < iSize; i++)
+			pStream->Read(&m_auiReplayMessageVisibility[i]);
 	}
 	// m_pReplayInfo not saved
 
@@ -9506,6 +9523,10 @@ void CvGame::write(FDataStreamBase* pStream)
 		if (pMessage != NULL)
 			pMessage->write(*pStream);
 	}
+	// <!-- custom: Save the parallel historical replay audiences without changing the Hall-of-Fame CvReplayMessage format. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FAssert(m_auiReplayMessageVisibility.size() == m_listReplayMessages.size());
+	for (ReplayMessageList::_Alloc::size_type i = 0; i < iSize; i++)
+		pStream->Write(m_auiReplayMessageVisibility[i]);
 	// m_pReplayInfo not saved
 	pStream->Write(m_iNumSessions);
 	/*	advc.tsl: Doesn't really have to be saved so far, but might become
@@ -10248,6 +10269,7 @@ void CvGame::doVoteResults()
 		else
 		{
 			bool bAllVoted = true;
+			// <!-- custom: The inherited loop stopped after the first missing voter, so additional simultaneous players received successively later one-turn grace periods. Mark every currently missing eligible voter before postponing the result. See KI#343. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 			{
 				if (!itPlayer->isVotingMember(eVoteSource))
@@ -10257,17 +10279,22 @@ void CvGame::doVoteResults()
 				{	//give player one more turn to submit vote
 					setPlayerVote(ePlayer, pVoteTriggered->getID(), NO_PLAYER_VOTE_CHECKED);
 					bAllVoted = false;
-					break;
-				}
-				else if (getPlayerVote(ePlayer, pVoteTriggered->getID())
-					== NO_PLAYER_VOTE_CHECKED)
-				{	//default player vote to abstain
-					setPlayerVote(ePlayer, pVoteTriggered->getID(), PLAYER_VOTE_ABSTAIN);
 				}
 			}
 
 			if (!bAllVoted)
 				continue;
+			// <!-- custom: Only after a complete grace turn has elapsed do all still-missing checked votes default together. See KI#343. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+			{
+				if (itPlayer->isVotingMember(eVoteSource) &&
+					getPlayerVote(itPlayer->getID(), pVoteTriggered->getID()) ==
+					NO_PLAYER_VOTE_CHECKED)
+				{
+					setPlayerVote(itPlayer->getID(), pVoteTriggered->getID(),
+							PLAYER_VOTE_ABSTAIN);
+				}
+			}
 			// <advc.150b>
 			szTargetCityName = "";
 			int iVotes = -1; // </advc.150b>
@@ -10479,8 +10506,16 @@ void CvGame::doVoteResults()
 						//getVoteRequired(eVote, eVoteSource),
 						countPossibleVote(eVote, eVoteSource),
 						szResolution.GetCString());
+				// <!-- custom: The live detailed result is limited to voting members and spectators. Preserve that exact historical audience so AdvCiv-SAS Timeline does not expose it to nonmembers later. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				qword uiReplayVisibility = 0;
+				for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
+				{
+					if (itObs->isVotingMember(eVoteSource) || itObs->isSpectator())
+						uiReplayVisibility |= ((qword)1 << itObs->getID());
+				}
 				addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT, NO_PLAYER, szMessage,
-						eColorHighlightText);
+						eColorHighlightText, INVALID_PLOT_COORD, INVALID_PLOT_COORD,
+						uiReplayVisibility);
 			} // </advc.150b>
 			for (PlayerIter<MAJOR_CIV> itObs; itObs.hasNext(); ++itObs)
 			{

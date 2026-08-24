@@ -407,11 +407,13 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [332 - (Fixed inherited BUG/Base AdvCiv UI bug, broadened by AdvCiv-SAS) Leader hovers resolved trait production through Arabia instead of the displayed civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#332---fixed-inherited-bugbase-advciv-ui-bug-broadened-by-advciv-sas-leader-hovers-resolved-trait-production-through-arabia-instead-of-the-displayed-civilization)\
 [334 - (Fixed inherited AdvCiv information leak amplified by AdvCiv-SAS) Great General death reports could reveal an unknown killer civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#334---fixed-inherited-advciv-information-leak-amplified-by-advciv-sas-great-general-death-reports-could-reveal-an-unknown-killer-civilization)\
 [335 - (Fixed AdvCiv-SAS bug) Military Advisor Battles vassal perspective could expose hidden battle locations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#335---fixed-advciv-sas-bug-military-advisor-battles-vassal-perspective-could-expose-hidden-battle-locations)\
+[337 - (Fixed inherited AdvCiv information leak exposed by AdvCiv-SAS) Timeline exposed private AP/UN resolution details](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#337---fixed-inherited-advciv-information-leak-exposed-by-advciv-sas-timeline-exposed-private-apun-resolution-details)\
 [338 - (Fixed inherited AdvCiv bug) Human starting-location volatility checked the old plot instead of the assigned site](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#338---fixed-inherited-advciv-bug-human-starting-location-volatility-checked-the-old-plot-instead-of-the-assigned-site)\
 [339 - (Fixed inherited AdvCiv bug) Starting-handicap collision randomization calculated but ignored its rotation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#339---fixed-inherited-advciv-bug-starting-handicap-collision-randomization-calculated-but-ignored-its-rotation)\
 [340 - (Fixed inherited BtS bug) Team-start fallback mixed alive-team count with absolute team IDs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#340---fixed-inherited-bts-bug-team-start-fallback-mixed-alive-team-count-with-absolute-team-ids)\
 [341 - (Fixed inherited AdvCiv enum-refactor bug) Initial score normalization ignored civilization free technologies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#341---fixed-inherited-advciv-enum-refactor-bug-initial-score-normalization-ignored-civilization-free-technologies)\
 [342 - (Fixed inherited AdvCiv bug) Exhausted global-warming retries could accept unsuitable water or peak plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#342---fixed-inherited-advciv-bug-exhausted-global-warming-retries-could-accept-unsuitable-water-or-peak-plots)\
+[343 - (Fixed inherited BtS multiplayer bug) Multiple missing AP/UN voters received staggered grace periods](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#343---fixed-inherited-bts-multiplayer-bug-multiple-missing-apun-voters-received-staggered-grace-periods)\
 [344 - (Fixed inherited BtS bug) Lock Modified Assets could generate an empty admin password](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#344---fixed-inherited-bts-bug-lock-modified-assets-could-generate-an-empty-admin-password)\
 [345 - (Fixed rare inherited BtS bug) Time Victory ties could fall through to generic max-turn game over](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#345---fixed-rare-inherited-bts-bug-time-victory-ties-could-fall-through-to-generic-max-turn-game-over)\
 [346 - (Fixed inherited AdvCiv bug) Melted Ice left passable areas and trade networks divided](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#346---fixed-inherited-advciv-bug-melted-ice-left-passable-areas-and-trade-networks-divided)\
@@ -9347,6 +9349,20 @@ Save file 489 runtime review confirmed that ordinary active-player and debug-sel
 
 This is an AdvCiv-SAS privacy regression introduced when practical 5758 enabled vassal perspectives over the Battles table added in practical 5757. It is separate from the analogous World Advisor KI#224 and Policy Advisor KI#232 implementations. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, repaired and documented with the help of GPT-5.6-Sol, thanks.
 
+## 337 - (Fixed inherited AdvCiv information leak exposed by AdvCiv-SAS) Timeline exposed private AP/UN resolution details
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13lm4GGaKPGOtim4OF1lKgIx07WnQbSLE?usp=sharing).
+
+AdvCiv sends each passed Apostolic Palace or United Nations resolution's detailed result only to current voting members and spectators. Its `advc.150b` replay addition nevertheless persisted the same text as a coordinate-less major event with `NO_PLAYER`, making the record globally visible. AdvCiv-SAS exposed the inherited mismatch through its expanded Info Screen Timeline: generic replay filters cannot reconstruct which players belonged to the resolution's voting body when the vote occurred. A nonmember could therefore read the resolution source, Secretary-General team, vote totals and target details, and later membership changes could not supply the correct historical audience either.
+
+The fix records a 64-bit historical visibility mask parallel to the live game's replay messages. Passed-resolution replay creation captures exactly the same voting-member and spectator audience as the transient report. Ordinary observer-specific replay snapshots copy only messages whose mask includes that player, while Debug/reveal-all explicitly requests the complete stream. Existing replay events default to global visibility, so no unrelated Timeline rows change.
+
+The current save schema now reads and writes the parallel masks after the unchanged replay-message payloads, consistent with AdvCiv-SAS supporting only saves from the current mod version. `CvReplayMessage` and `CvReplayInfo` serialization remain unchanged, preserving the established Hall-of-Fame replay-file format; each observer-specific replay file simply contains the rows that observer was historically allowed to receive.
+
+After compilation, a fresh game completed its autoplay, saved and reloaded successfully, and its ordinary Timeline opened without an observed issue. Screenshots 0247 and 0248 confirm that the Apostolic Palace had been built but the Resolutions tab still reported no resolution and both vote sources inactive, so the exact passed-resolution member/nonmember contrast remains source-verified rather than directly reproduced.
+
+This is an inherited AdvCiv `advc.150b` information-visibility defect exposed by the AdvCiv-SAS Timeline, not an original BtS/K-Mod or AdvCiv-SAS replay-persistence change. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
 ## 338 - (Fixed inherited AdvCiv bug) Human starting-location volatility checked the old plot instead of the assigned site
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ZJVI-xnO8K9Ul8l61Qyy_bb0fdDO4vsm?usp=sharing).
@@ -9402,6 +9418,18 @@ The fix resets terrain inside each pool iteration and nulls every rejected plot 
 After compilation, three fresh turn-201 autoplays completed without an observed issue. The automated human varied from a leading score to the weaker group across the samples while AI research and city development appeared normal, consistent with ordinary game-to-game variance rather than a systematic effect from this target-selection repair.
 
 This is an inherited AdvCiv global-warming regression introduced while simplifying K-Mod's retry guard, not an AdvCiv-SAS change. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 343 - (Fixed inherited BtS multiplayer bug) Multiple missing AP/UN voters received staggered grace periods
+
+Screenshots/files for this issue: same google drive folder link as KI#337.
+
+When an eligible Apostolic Palace or United Nations voter has not submitted a choice, BtS changes that player's value from `NO_PLAYER_VOTE` to `NO_PLAYER_VOTE_CHECKED`, postpones the result for one turn, and defaults the still-missing vote to abstention on the next pass. The inherited loop stopped after marking the first missing player. With several simultaneous missing voters, only one entered the checked state per turn; each later player consequently received a different, successively delayed grace period while the entire vote remained unresolved.
+
+The fix first scans every eligible voter, marks all currently missing votes checked and postpones the resolution once. On the following pass, when there are no newly missing votes, it defaults all still-checked votes to abstention together before tallying. Submitted choices, voter eligibility, the one-turn grace period and single-missing-voter behavior remain unchanged.
+
+The same fresh-game autoplay and save/reload smoke test completed without an observed issue after compilation. The exact simultaneous missing-human-voter case requires a coordinated multiplayer vote and was not reproduced; the corrected two-pass state transition remains source-verified.
+
+This is an inherited BtS multiplayer voting defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS regression. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
 
 ## 344 - (Fixed inherited BtS bug) Lock Modified Assets could generate an empty admin password
 

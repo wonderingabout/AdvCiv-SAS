@@ -569,7 +569,8 @@ public:
 	void doFPCheck(int iChecksum, PlayerTypes ePlayer); // advc.003g
 
 	// <advc> Move coords to the end - or to the start. <!-- custom: hoisted from multiline signature between `szText` and `eColor` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	void addReplayMessage(ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER, CvWString szText = L"", ColorTypes eColor = NO_COLOR, int iPlotX = INVALID_PLOT_COORD, int iPlotY = INVALID_PLOT_COORD);
+	// <!-- custom: Allow private replay events to retain their exact historical observer audience instead of becoming global when shown in Timeline. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void addReplayMessage(ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER, CvWString szText = L"", ColorTypes eColor = NO_COLOR, int iPlotX = INVALID_PLOT_COORD, int iPlotY = INVALID_PLOT_COORD, qword uiVisibilityMask = ~(qword)0);
 	void addReplayMessage(CvPlot const& kPlot, ReplayMessageTypes eType = NO_REPLAY_MESSAGE, PlayerTypes ePlayer = NO_PLAYER, CvWString szText = L"", ColorTypes eColor = NO_COLOR); // </advc>
 	void clearReplayMessageMap();
 	int getReplayMessageTurn(uint i) const;
@@ -580,6 +581,8 @@ public:
 	LPCWSTR getReplayMessageText(uint i) const;
 	uint getNumReplayMessages() const;
 	ColorTypes getReplayMessageColor(uint i) const;
+	// <!-- custom: Let observer-specific replay snapshots test the historical audience stored beside each message. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool isReplayMessageVisibleTo(uint i, PlayerTypes ePlayer) const;
 	// <advc>
 	void onAllGameDataRead();
 	bool isAllGameDataRead() const { return m_bAllGameDataRead; }
@@ -849,6 +852,8 @@ protected:
 	} m_initialRandSeed;
 	// </advc.027b>
 	ReplayMessageList m_listReplayMessages;
+	// <!-- custom: Parallel to m_listReplayMessages; each bit records a player who could see that message when it occurred. See KI#337. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<qword> m_auiReplayMessageVisibility;
 	CvReplayInfo* m_pReplayInfo;
 	int m_iNumSessions;
 	int m_iMapRegens; // advc.tsl
