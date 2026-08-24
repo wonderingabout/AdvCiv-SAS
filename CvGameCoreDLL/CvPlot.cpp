@@ -42,6 +42,29 @@ namespace
 	{
 		return GC.getGame().getActiveTeam();
 	}
+
+	// <!-- custom: AdvCiv grouped nuke reports by real unit owner after destroyed units were gone, revealing hidden nationality.
+	// Preserve each affected unit's observer-relative visual owner while it still exists, then report that identity. See KI#350. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	struct NukeUnitEffect
+	{
+		NukeUnitEffect(CvPlot const* pEffectPlot, CvUnit const& kUnit) : pPlot(pEffectPlot), szName(kUnit.getName())
+		{
+			for (int i = 0; i < MAX_CIV_TEAMS; i++)
+				aeVisualOwner[i] = NO_PLAYER;
+			for (PlayerIter<MAJOR_CIV> itObserver; itObserver.hasNext(); ++itObserver)
+				aeVisualOwner[itObserver->getTeam()] = kUnit.getVisualOwner(itObserver->getTeam());
+		}
+
+		PlayerTypes getVisualOwner(TeamTypes eObserver) const
+		{
+			FAssertBounds(0, MAX_CIV_TEAMS, eObserver);
+			return aeVisualOwner[eObserver];
+		}
+
+		CvPlot const* pPlot;
+		CvWString szName;
+		PlayerTypes aeVisualOwner[MAX_CIV_TEAMS];
+	};
 }
 
 
@@ -835,8 +858,10 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	typedef std::pair<CvPlot const*,CvWString> NukeEffect;
 	std::vector<NukeEffect> aImprovementDestroyed;
 	std::vector<NukeEffect> aFeatureDestroyed;
-	std::vector<std::vector<NukeEffect> > aaUnitDamaged(MAX_PLAYERS);
-	std::vector<std::vector<NukeEffect> > aaUnitKilled(MAX_PLAYERS);
+	// <!-- custom: Replace the real-owner-indexed unit lists with flat effect records.
+	// Each observer can then regroup them by stored visual owner. See KI#350. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<NukeUnitEffect> aUnitDamaged;
+	std::vector<NukeUnitEffect> aUnitKilled;
 	std::vector<NukeEffect> aBuildingDestroyed;
 	std::vector<NukeEffect> aCitizensKilled;
 	// </advc.650>
@@ -926,20 +951,18 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 					iNukeDamage *= std::max(0, pCity->getNukeModifier() + 100);
 					iNukeDamage /= 100;
 				}
+				// <!-- custom: Record every damaged or destroyed fighting, cargo and noncombat unit before damage/death can remove it.
+				// This preserves its observer-relative identity for the later report. See KI#350. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				if (pLoopUnit->canFight() || pLoopUnit->airBaseCombatStr() > 0)
 				{	// <advc.650>
 					bool const bLethal = pLoopUnit->isLethalDamage(iNukeDamage);
-					(bLethal ? aaUnitKilled : aaUnitDamaged)[pLoopUnit->getOwner()].
-							push_back(NukeEffect(&p, pLoopUnit->getName()));
+					(bLethal ? aUnitKilled : aUnitDamaged).push_back(NukeUnitEffect(&p, *pLoopUnit));
 					if (bLethal && pLoopUnit->hasCargo())
 					{
 						std::vector<CvUnit*> apCargo;
 						pLoopUnit->getCargoUnits(apCargo);
 						for (size_t i = 0; i < apCargo.size(); i++)
-						{
-							aaUnitKilled[apCargo[i]->getOwner()].push_back(
-									NukeEffect(&p, apCargo[i]->getName()));
-						}
+							aUnitKilled.push_back(NukeUnitEffect(&p, *apCargo[i]));
 					}
 					// </advc.650>
 					pLoopUnit->changeDamage(iNukeDamage, pNukeUnit != NULL ?
@@ -953,8 +976,7 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 					iNUKE_UNIT_DAMAGE_RAND_2 - 1) / 2)) // </kekm.20>
 				{
 					// <advc.650>
-					aaUnitKilled[pLoopUnit->getOwner()].push_back(
-							NukeEffect(&p, pLoopUnit->getName())); // </advc.650>
+					aUnitKilled.push_back(NukeUnitEffect(&p, *pLoopUnit)); // </advc.650>
 					pLoopUnit->kill(false, pNukeUnit != NULL ? pNukeUnit->getOwner() : NO_PLAYER);
 				}
 			}
@@ -1001,21 +1023,24 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 		CvWString szEffects;
 		bool bTeamUnitAffected = false;
 		bool bEnemyUnitAffected = false;
-		for (PlayerIter<ALIVE> itUnitOwner; itUnitOwner.hasNext(); ++itUnitOwner)
+		// <!-- custom: Scan the flat damaged/killed records and group visible effects by the identity this observer was allowed to see.
+		// Use that identity for civilization text and relationship flags instead of the concealed real owner. See KI#350. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerIter<ALIVE> itVisualOwner; itVisualOwner.hasNext(); ++itVisualOwner)
 		{
-			PlayerTypes const eUnitOwner = itUnitOwner->getID();
-			std::vector<NukeEffect> aUnitDamaged(aaUnitDamaged[eUnitOwner]);
-			std::vector<NukeEffect> aUnitKilled(aaUnitKilled[eUnitOwner]);
-			wchar const* szCivAdj = GET_PLAYER(eUnitOwner).
+			PlayerTypes const eVisualOwner = itVisualOwner->getID();
+			wchar const* szCivAdj = GET_PLAYER(eVisualOwner).
 					getCivilizationAdjectiveKey();
-			bool bListUnits = (TEAMID(eUnitOwner) == eObs ||
-					GET_TEAM(eUnitOwner).isAtWar(eObs));
+			bool bListUnits = (TEAMID(eVisualOwner) == eObs ||
+					GET_TEAM(eVisualOwner).isAtWar(eObs));
 			{
-				std::vector<CvWString*> apStrings;
+				std::vector<CvWString const*> apStrings;
 				for (size_t i = 0; i < aUnitKilled.size(); i++)
 				{
-					if (aUnitKilled[i].first->isVisible(eObs))
-						apStrings.push_back(&aUnitKilled[i].second);
+					if (aUnitKilled[i].pPlot->isVisible(eObs) &&
+						aUnitKilled[i].getVisualOwner(eObs) == eVisualOwner)
+					{
+						apStrings.push_back(&aUnitKilled[i].szName);
+					}
 				}
 				if (apStrings.size() > 8 || (!bListUnits && !apStrings.empty()))
 				{
@@ -1037,18 +1062,21 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 						szEffects.append(*apStrings[i]);
 						szEffects.append(i + 1 == apStrings.size() ? L"."SZSEP : L", ");
 					}
-					if (TEAMID(eUnitOwner) == eObs)
+					if (TEAMID(eVisualOwner) == eObs)
 						bTeamUnitAffected = true;
-					else if (GET_TEAM(eUnitOwner).isAtWar(eObs))
+					else if (GET_TEAM(eVisualOwner).isAtWar(eObs))
 						bEnemyUnitAffected = true;
 				}
 			}
 			{
-				std::vector<CvWString*> apStrings;
+				std::vector<CvWString const*> apStrings;
 				for (size_t i = 0; i < aUnitDamaged.size(); i++)
 				{
-					if (aUnitDamaged[i].first->isVisible(eObs))
-						apStrings.push_back(&aUnitDamaged[i].second);
+					if (aUnitDamaged[i].pPlot->isVisible(eObs) &&
+						aUnitDamaged[i].getVisualOwner(eObs) == eVisualOwner)
+					{
+						apStrings.push_back(&aUnitDamaged[i].szName);
+					}
 				}
 				if (apStrings.size() > 2 || (!bListUnits && !apStrings.empty()))
 				{
@@ -1069,9 +1097,9 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 						szEffects.append(*apStrings[i]);
 						szEffects.append(i + 1 == apStrings.size() ? L"."SZSEP : L", ");
 					}
-					if (TEAMID(eUnitOwner) == eObs)
+					if (TEAMID(eVisualOwner) == eObs)
 						bTeamUnitAffected = true;
-					else if (GET_TEAM(eUnitOwner).isAtWar(eObs))
+					else if (GET_TEAM(eVisualOwner).isAtWar(eObs))
 						bEnemyUnitAffected = true;
 				}
 			}

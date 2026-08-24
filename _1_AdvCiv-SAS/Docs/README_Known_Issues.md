@@ -417,6 +417,7 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [347 - (Fixed inherited BtS bug) Python city-found-value overrides were ignored by lazy plot evaluation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#347---fixed-inherited-bts-bug-python-city-found-value-overrides-were-ignored-by-lazy-plot-evaluation)\
 [348 - (Fixed inherited BtS bug) Foreign friendly aircraft inherited the host city's enhanced air capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#348---fixed-inherited-bts-bug-foreign-friendly-aircraft-inherited-the-host-citys-enhanced-air-capacity)\
 [349 - (Fixed inherited AdvCiv bug) Plot debug strings returned dangling pointers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#349---fixed-inherited-advciv-bug-plot-debug-strings-returned-dangling-pointers)\
+[350 - (Fixed inherited AdvCiv information leak) Nuke reports revealed hidden-nationality unit owners](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#350---fixed-inherited-advciv-information-leak-nuke-reports-revealed-hidden-nationality-unit-owners)\
 [352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#352---fixed-inherited-advciv-bug-barbarian-culture-decay-read-past-its-city-radius-array)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -9449,6 +9450,16 @@ The fix returns an owning `CvWString` by value and passes its live `c_str()` to 
 The same fresh game completed turn 201 through autoplay without an observed issue. Found-value BBAI logging was not enabled, so the corrected diagnostic string path remains source-verified rather than directly exercised.
 
 This is an inherited AdvCiv diagnostic defect, not an AdvCiv-SAS change and not present in BtS before AdvCiv added this helper. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 350 - (Fixed inherited AdvCiv information leak) Nuke reports revealed hidden-nationality unit owners
+
+AdvCiv's detailed nuke-effect report collected damaged and destroyed units by their real owning player, then named that player's civilization to every major observer who could see the affected plot. A visible hidden-nationality unit such as a Privateer is normally presented through `CvUnit::getVisualOwner(observerTeam)`, often as Barbarian unless the observer is entitled to its real identity. Nuclear damage or destruction instead produced text such as "Dutch unit destroyed" from the real owner grouping, disclosing information concealed by the unit itself.
+
+Destroyed unit objects no longer exist when the per-observer report is assembled, so the fix records each affected unit's visual owner for every alive major observer team while the unit still exists. Reports then group visible effects by that stored observer-relative identity. The real owner continues to see its own civilization; observers legitimately able to identify the unit retain the real civilization; other observers receive the visible Barbarian identity. Unit damage, death, visibility requirements and all non-unit nuke effects remain unchanged.
+
+A compiled fresh game completed a save file 501 full autoplay (win at T458 by Space) without an observed issue. No visible foreign Privateer was deliberately preserved until a nuclear strike, so the exact observer-dependent report contrast remains source-verified.
+
+This is an inherited AdvCiv `advc.650` information leak, not an AdvCiv-SAS change and not a BtS report defect because AdvCiv added this detailed reporting path. Found through C010 of the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
 
 ## 352 - (Fixed inherited AdvCiv bug) Barbarian culture decay read past its city-radius array
 
