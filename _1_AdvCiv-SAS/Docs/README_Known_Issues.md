@@ -411,6 +411,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [339 - (Fixed inherited AdvCiv bug) Starting-handicap collision randomization calculated but ignored its rotation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#339---fixed-inherited-advciv-bug-starting-handicap-collision-randomization-calculated-but-ignored-its-rotation)\
 [340 - (Fixed inherited BtS bug) Team-start fallback mixed alive-team count with absolute team IDs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#340---fixed-inherited-bts-bug-team-start-fallback-mixed-alive-team-count-with-absolute-team-ids)\
 [341 - (Fixed inherited AdvCiv enum-refactor bug) Initial score normalization ignored civilization free technologies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#341---fixed-inherited-advciv-enum-refactor-bug-initial-score-normalization-ignored-civilization-free-technologies)\
+[342 - (Fixed inherited AdvCiv bug) Exhausted global-warming retries could accept unsuitable water or peak plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#342---fixed-inherited-advciv-bug-exhausted-global-warming-retries-could-accept-unsuitable-water-or-peak-plots)\
+[344 - (Fixed inherited BtS bug) Lock Modified Assets could generate an empty admin password](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#344---fixed-inherited-bts-bug-lock-modified-assets-could-generate-an-empty-admin-password)\
 [345 - (Fixed rare inherited BtS bug) Time Victory ties could fall through to generic max-turn game over](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#345---fixed-rare-inherited-bts-bug-time-victory-ties-could-fall-through-to-generic-max-turn-game-over)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -9383,6 +9385,24 @@ The fix passes `eLoopTech`. Earlier-era technologies on later starts continue th
 A fresh Pangaea game reached turn 201 through autoplay without an observed issue after compilation. The corrected Ancient-start initial-technology total is additionally established directly from the current five distinct civilization free technologies and their one-point technology scores.
 
 This is an inherited AdvCiv enum-refactor regression introduced by practical 2011, not an AdvCiv-SAS change. BtS/Civ4CE passes the technology-loop index as intended. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 342 - (Fixed inherited AdvCiv bug) Exhausted global-warming retries could accept unsuitable water or peak plots
+
+K-Mod's weighted global-warming target selection samples a small pool of candidates, retrying each candidate up to 25 times until it finds Ice or ordinary non-peak land. K-Mod retained an explicit exhaustion check. AdvCiv practical 1631 removed that check after resetting `pTestPlot` at the start of each pool iteration, but every successful random draw assigns a non-null plot even when that plot is unsuitable. If all 25 draws were open water or peaks, the final rejected plot therefore survived the loop. The terrain variable was also shared across pool candidates and could retain the preceding candidate's value.
+
+The fix resets terrain inside each pool iteration and nulls every rejected plot before retrying. A suitable Ice/land candidate still retains its plot and terrain; an exhausted candidate now contributes nothing instead of potentially selecting open water or a peak using stale terrain scoring. The pool size, retry limit, valid targets and RNG draws remain unchanged.
+
+After compilation, three fresh turn-201 autoplays completed without an observed issue. The automated human varied from a leading score to the weaker group across the samples while AI research and city development appeared normal, consistent with ordinary game-to-game variance rather than a systematic effect from this target-selection repair.
+
+This is an inherited AdvCiv global-warming regression introduced while simplifying K-Mod's retry guard, not an AdvCiv-SAS change. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-tested with the help of wonderingabout, thanks.
+
+## 344 - (Fixed inherited BtS bug) Lock Modified Assets could generate an empty admin password
+
+Single-player games using Lock Modified Assets assign a random seven-character admin password so WorldBuilder and debug tools cannot be opened. BtS generated each byte from a range containing NUL and then treated the buffer as a C string. When the first byte was NUL, approximately one game in 128 supplied an empty password; the current WorldBuilder permission check explicitly allows access when that password is empty. A later NUL merely shortened the password, while the first-byte case directly defeated the option's lock contract.
+
+The fix selects all seven characters from a 62-character ASCII alphanumeric alphabet that contains no NUL, then appends the required terminator. This is an internal unknown lock token rather than localized UI text, so its stable ASCII bytes remain valid independently of the selected game language. It retains seven synchronized RNG draws while guaranteeing a nonempty printable password.
+
+This is an inherited BtS Lock Modified Assets defect retained by K-Mod and AdvCiv, not an AdvCiv-SAS change. Local Civ4CE BtS 3.19 source contains the same arbitrary-byte generation. Found through the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile-tested with the help of wonderingabout, thanks.
 
 ## 345 - (Fixed rare inherited BtS bug) Time Victory ties could fall through to generic max-turn game over
 

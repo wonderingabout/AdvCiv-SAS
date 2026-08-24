@@ -1,4 +1,4 @@
-AdvCiv-SAS C++ File Audit Album - current-tree checkpoint C009
+AdvCiv-SAS C++ File Audit Album - current-tree checkpoint C010
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 SOURCE IDENTITY
@@ -11,6 +11,7 @@ NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
 - C008's six provisional roots were therefore shifted from KI#327-KI#332 to provisional KI#330-KI#335. Stable F-numbers remain the preferred album identifiers until each candidate is independently reviewed and promoted.
 - C009 adds ten CvGame.cpp roots as stable F015-F024 with provisional KI#336-KI#345 aliases. These remain audit candidates in this Album; README_Known_Issues.md intentionally remains the independently reviewed/promoted issue ledger.
+- C010 adds seven CvPlot.cpp roots as stable F025-F031 with provisional KI#346-KI#352 aliases; no F032 was established during closure.
 
 METHOD
 - Primary queue = every current .cpp file, sorted by current line count longest -> shortest.
@@ -21,10 +22,10 @@ METHOD
 - False positives are recorded when useful so they are not rediscovered later.
 
 PROGRESS
-Files complete: 8 / 169
+Files complete: 9 / 169
 Files open: 1 / 169
-Current file: 009 CvGameCoreDLL/CvPlot.cpp (8,705 lines) - OPEN
-New current defect roots established by this file-oriented pass: 16 (provisional KI#330-KI#345)
+Current file: 010 CvGameCoreDLL/CvTeamAI.cpp (6,854 lines) - OPEN
+New current defect roots established by this file-oriented pass: 23 (provisional KI#330-KI#352)
 Existing known defect roots materially broadened/reopened: 8 (KI#312, KI#21, KI#213, KI#48, KI#306, KI#70, KI#74, KI#11)
 
 FILE 001 - CvGameCoreDLL/CvPlayerAI.cpp - 32,289 lines - REVIEWED / NEW FINDINGS
@@ -752,8 +753,132 @@ FALSE POSITIVES / CLEAN TAIL CHECKS FROM FILE 008
 - Final assertion/sentinel/container/iterator/enum/division scan found no additional live root. The remaining FAssert(false) sites are synchronization diagnostics or switch-default impossibilities under current enums.
 
 
+FILE 009 - CvGameCoreDLL/CvPlot.cpp - 8,705 lines - REVIEWED / SEVEN NEW FINDINGS
+
+RESULT
+- CvPlot.cpp is closed after a changed-surface pass, an independent inherited whole-file pass, and final owner/team-sentinel, fixed-array, iterator/container, constructor/header, serialization, supported-caller and known-KI collision sweeps.
+- Seven new current defect roots survive as F025-F031 / provisional KI#346-KI#352.
+- Current CvPlot read/write serialization was mechanically revalidated at 60 corresponding operations in the same structural order.
+- No F032 was established. Several genuine source defects remain recorded below as dormant/robustness debt because no supported current caller reaches the broken branch.
+
+F025 - provisional KI#346 - dynamic feature passability changes leave PASSABLE_AREAS and plot-group connectivity stale
+Status: NEW CURRENT DEFECT ROOT, inherited/AdvCiv topology interaction; supported global-warming trigger.
+Evidence:
+- AdvCiv's PASSABLE_AREAS behavior deliberately makes impassable shelf Ice part of water-area topology and performs an additional area calculation after Ice placement.
+- CvPlot::setFeatureType() changes the feature, calls updateImpassable() and updateYield(), but does not recalculate/reassign CvArea topology and does not rebuild trade/resource plot-group connectivity.
+- Ordinary current global warming can remove FEATURE_ICE through setFeatureType(NO_FEATURE).
+- After the removal, the plot's direct passability is updated immediately while its old CvArea identity and existing plot groups can still describe the Ice barrier.
+- isTradeNetwork() itself treats impassable feature state as relevant to connectivity, so the stale state is not merely diagnostic metadata.
+Consequence:
+- A melted channel can be traversable at plot level while naval/area-scoped AI and resource/trade-network logic still reason from the pre-melt disconnected topology.
+- CvArea::canBeEntered, water-area unit/resource/city accounting and several naval/worker/assault decisions deliberately consume these area divisions.
+Repair direction:
+- Treat a feature change that changes effective passability as a topology invalidation and perform a safe deferred area/plot-group refresh after the mutation batch.
+- Do not naively call wholesale recalculateAreas() inside every setFeatureType(); current area rebuild code has live-city bookkeeping caveats.
+- If an incremental processArea(-1/+1) repair is considered, first fix or bypass the dormant processArea defects recorded below.
+
+F026 - provisional KI#347 - lazy getFoundValue ignores a successful Python city-found-value override
+Status: NEW CURRENT SUPPORTED-CONFIGURATION API DEFECT, inherited from K-Mod lazy-path implementation.
+Evidence:
+- CvPlot::getFoundValue() calls CvPythonCaller::AI_foundValue().
+- If Python returns -1, the DLL computes and stores its own value in m_aiFoundValue.
+- If Python returns a real override, the function never copies iValue into m_aiFoundValue; the cache remains -1.
+- It then tests/returns the still--1 cache entry, fails to update the area's best-found value from the Python result, and repeats the callback on the next lazy read.
+- Current SAS still registers/configures getCityFoundValue as a supported BUG/GameUtils callback; default is -1, but enabling the callback is an explicit supported configuration.
+- Historical K-Mod bulk found-value paths do store a non--1 Python result, making the lazy path's omission inconsistent rather than intentional.
+Consequence:
+- A valid Python override can be ignored specifically through lazy CvPlot::getFoundValue(), producing -1 instead of the supplied city-site value and leaving associated caches inconsistent.
+Repair direction:
+- In the non--1 branch, store iValue into m_aiFoundValue before area-best comparison and return.
+
+F027 - provisional KI#348 - foreign friendly air units inherit the host city's enhanced air capacity
+Status: NEW CURRENT GAMEPLAY DEFECT, inherited from K-Mod/BBAI helper.
+Evidence:
+- CvPlot::airUnitSpaceAvailable(TeamTypes eTeam) correctly counts aircraft belonging to the requested eTeam.
+- On a city plot it asks pCity->getAirUnitCapacity(getTeam()), where getTeam() is the plot/city owner's team, not eTeam.
+- CvCity::getAirUnitCapacity(eTeam) is intentionally team-sensitive: the city team receives building-enhanced capacity, while a different friendly team receives only the base capacity.
+- Current gameplay permits peaceful foreign-team air basing/rebasing, and ordinary callers query airUnitSpaceAvailable for the visiting team.
+Consequence:
+- Visiting allied/vassal/open-borders aircraft can be admitted using the host owner's Airport-enhanced capacity even though the underlying city API intentionally denies that expansion to foreign teams.
+Repair direction:
+- Pass the requested team through: pCity->getAirUnitCapacity(eTeam).
+
+F028 - provisional KI#349 - CvPlot::debugStr returns a dangling c_str pointer
+Status: NEW CURRENT DIAGNOSTIC/UNDEFINED-BEHAVIOR DEFECT, introduced by AdvCiv.
+Evidence:
+- debugStr() returns wchar const* and uses a static std::wostringstream.
+- Every return expression is out.str().c_str().
+- std::wostringstream::str() returns a temporary std::wstring; c_str() therefore points into a temporary destroyed at the end of the return expression.
+- The static lifetime of the stream does not extend the lifetime of that temporary string.
+- Current found-value/BBAI diagnostic paths consume debugStr when those logs are enabled.
+Consequence:
+- Diagnostic logging reads a dangling pointer and can produce stale/garbled text or, under undefined behavior, worse failures.
+Repair direction:
+- Prefer returning CvWString/std::wstring by value, or assign out.str() to storage whose lifetime survives the call before returning c_str().
+
+F029 - provisional KI#350 - nuke effect reporting reveals the true owner of hidden-nationality units
+Status: NEW CURRENT HIDDEN-INFORMATION DEFECT, inherited AdvCiv reporting behavior.
+Evidence:
+- nukeExplosion() records damaged/killed units in per-real-owner vectors and later formats observer messages with GET_PLAYER(eUnitOwner).getCivilizationAdjectiveKey().
+- The observer gate checks whether each affected plot is visible, but does not apply the unit's observer-relative visual owner before naming the civilization.
+- Current UNIT_PRIVATEER is hidden-nationality and always-hostile, is not nuke-immune, and getVisualOwner(observerTeam) intentionally conceals its real civilization under ordinary visibility.
+- Such a unit can legitimately be damaged/killed by a nuclear blast.
+Consequence:
+- An observer who sees only an anonymous/Barbarian-looking Privateer can receive a nuke message naming its real civilization (for example, "Dutch unit destroyed"), revealing information the unit itself is designed to conceal.
+Repair direction:
+- Group/name affected units using observer-relative visual/combat ownership, or sanitize hidden-nationality entries rather than formatting them with the real owner's civilization adjective.
+- Keep this separate from the Great-General identity leak: the feature, data path and repair surface are different.
+
+F030 - provisional KI#351 - post-start river-edge edits leave several derived systems stale
+Status: NEW CURRENT SUPPORTED-API DEFECT, inherited from BtS.
+Evidence:
+- The source immediately around fresh-water logic explicitly notes that changing river state requires updateIrrigated and CvCity::updateFreshWaterHealth.
+- CvPlot::setNOfRiver() and setWOfRiver() can dynamically change that state, but neither performs those updates.
+- The setters update river crossings, yields and river-edge area counts, and adjust plot-group bonus counts, but do not rebuild trade/resource plot-group connectivity even though river edges can create/remove network connections.
+- Both setters remain publicly exposed through current CyPlot Python APIs; current SAS logging also explicitly supports rare post-start WorldBuilder/script/event river-edge edits.
+- Initial map generation is not the problematic case because later initialization rebuilds derived state; the defect concerns post-start mutation.
+Consequence:
+- A runtime river edit can leave irrigation propagation/yields, city fresh-water health and river-based resource/trade connectivity inconsistent with the visible river.
+Repair direction:
+- When an edge actually changes after initialization, invalidate/recompute irrigation around the affected edge, update fresh-water health for affected cities and refresh plot-group connectivity for relevant players/teams.
+
+F031 - provisional KI#352 - doCultureDecay reads one element past its city-radius array for Barbarian culture
+Status: NEW CURRENT MEMORY-SAFETY/LOGIC DEFECT, inherited AdvCiv practical 1289.
+Evidence:
+- doCultureDecay() allocates bool abInRadius[MAX_CIV_PLAYERS].
+- In the 48-civ DLL, valid array indices are civilization-player slots 0..47; BARBARIAN_PLAYER is 48 and MAX_PLAYERS is 49.
+- The later FOR_EACH_ENUM(Player) loop spans the full PlayerTypes domain through MAX_PLAYERS and reads abInRadius[eLoopPlayer].
+- Therefore a positive Barbarian-culture entry reaches abInRadius[48], one element past the stack array.
+- Reachability is normal current gameplay, not a malformed save: Barbarian cities/adjacent plots receive ordinary plot culture, legal Barbarian/civilization city spacing permits overlapping/contested radius plots, and the decay branch can process such a plot.
+- Historical intent around practical 1289 explicitly discussed excluding Barbarian tiles from the extra city-radius decay, so the mismatch is especially likely to be an array-domain implementation error.
+Consequence:
+- Release builds have undefined behavior. The likely visible symptom is nondeterministic application of accelerated culture decay to Barbarian culture on contested plots; the one-past-end read is also a memory-safety defect in its own right.
+Repair direction:
+- Either size the state to the full PlayerTypes domain (MAX_PLAYERS / PlayerMap<bool>) or explicitly skip BARBARIAN_PLAYER before indexing if the historical Barbarian exemption remains intended.
+
+DORMANT / ROBUSTNESS DEFECTS AND KILLED CANDIDATES FROM FILE 009
+- CvPlot::processArea contains two genuine source mistakes in a currently dormant negative/live-city path:
+  - `pWaterArea->getCitiesPerPlayer(getOwner()) > 0, true` uses the comma operator and is always true. The intended expression is evidently `pWaterArea->getCitiesPerPlayer(getOwner(), true) > 0`.
+  - The refactored building-area loop skips `iTotalChange <= 0`, suppressing removal effects; historical behavior indicates that only zero should be skipped.
+  Current supported area-changing paths do not reach those malformed negative branches with a living city still needing that bookkeeping. Do not promote them as present gameplay roots, but fix/avoid them before using incremental processArea(-1) as part of F025.
+- exclusiveRadius(ePlayer) can overwrite an inner-ring result (1) with a later same-owner outer-ring result (2) when city radii overlap. Its only logic consumer is currently dead/commented, so this is a dormant helper bug rather than a current KI.
+- Deprecated isCityExternal(bool, TeamTypes) compares `eForTeam == NULL`; NO_TEAM is -1, so its old parameterized ActsAsCity path would dereference GET_TEAM(NO_TEAM). Current supported callers use the ordinary no-parameter city check and the function/header explicitly treat the parameterized path as deprecated/EXE compatibility, so this remains robustness debt.
+- getNonObsoleteBonusType has a header default of NO_TEAM while its implementation asserts and dereferences a real team. No current zero-argument C++ caller was found and the Python wrapper requires the team argument; no live root established.
+- changeBuildProgress and shouldDisplayBridge also assume valid player arguments, but all supported engine/Python call contracts found supply a real player; no sentinel bug was promoted from hypothetical invalid external input.
+- The setFeatureType fresh-water facet is incomplete in general, but current dynamically changing feature data does not provide a supported post-start AddsFreshWater creation/removal path; it remains future/mod-mod robustness separate from F025.
+- Hidden-resource random-event eligibility is intentional for the one matching current event ("A Man Named Jed", Oil), whose design is to discover Oil; no information-leak root.
+- Culture-flip civilization names follow AdvCiv's established hasSeen/revealed-owner contract and do not require hasMet; no leak established.
+- The hidden-nationality visibility contact path acts on visual owner and does not identify the concealed real owner; no defect there.
+- getYieldWithBuild unowned-owner concern was killed by caller contracts: current callers operate on WorkablePlotIter/best-build plots with an owned/same-owner working city.
+- canHavePotentialIrrigation(...NO_TEAM...) safely propagates the sentinel to code that handles it; no invalid team dereference.
+- getPlotGroup(ePlayer) requires a real player, and current callers establish that contract.
+- Sight-recursion pointer lifetime/NULL concern was killed: reaching the recursive branch establishes the candidate plot.
+- Static GlobalDefine caches were cross-checked against current runtime define mutation; no cached CvPlot gameplay value overlaps the currently mutable river-generation/UI/camera/minimap define set.
+- Fixed-array/domain scan found no second MAX_CIV_PLAYERS/MAX_CIV_TEAMS local-array mismatch beyond F031.
+- Iterator erase patterns, constructor/member initialization, enum/container bounds and final division/sentinel scans produced no additional supported current root.
+
 DEFERRED OBSERVATION POLICY
-- Observations in later files are not counted until that file reaches its turn. File 009 is now active.
+- Observations in later files are not counted until that file reaches its turn. File 010 is now active.
 
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]
@@ -764,8 +889,8 @@ QUEUE (current .cpp files, longest -> shortest)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]
 008  10841 CvGameCoreDLL/CvGame.cpp [COMPLETE - REVIEWED/TEN NEW FINDINGS]
-009   8705 CvGameCoreDLL/CvPlot.cpp [OPEN]
-010   6854 CvGameCoreDLL/CvTeamAI.cpp [PENDING]
+009   8705 CvGameCoreDLL/CvPlot.cpp [COMPLETE - REVIEWED/SEVEN NEW FINDINGS]
+010   6854 CvGameCoreDLL/CvTeamAI.cpp [OPEN]
 011   6343 CvGameCoreDLL/SASGameRecordLog.cpp [PENDING]
 012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [PENDING]
 013   6190 CvGameCoreDLL/CvTeam.cpp [PENDING]

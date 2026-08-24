@@ -144,12 +144,13 @@ void CvGame::init(HandicapTypes eHandicap)
 		else
 		{
 			static const int iPasswordSize = 8;
+			// <!-- custom: BtS drew arbitrary char values including NUL, so a first-byte NUL produced an empty password and left WorldBuilder available despite Lock Modified Assets.
+			// Use a printable non-NUL ASCII alphabet while retaining seven RNG draws; this internal lock token does not depend on localized text. See KI#344. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			static char const szPasswordChars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+			static int const iPasswordChars = (int)sizeof(szPasswordChars) - 1;
 			char szRandomPassword[iPasswordSize];
 			for (int i = 0; i < iPasswordSize-1; i++)
-			{
-				szRandomPassword[i] = /* advc: */ safeIntCast<char>(
-						getSorenRandNum(CHAR_MAX + 1, NULL));
-			}
+				szRandomPassword[i] = szPasswordChars[getSorenRandNum(iPasswordChars, NULL)];
 			szRandomPassword[iPasswordSize-1] = 0;
 			ic.setAdminPassword(szRandomPassword);
 		}
@@ -6816,10 +6817,12 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
 	/*	Currently we just choose the coldest tile;
 		but I may include other tests in future versions. */
 	CvPlot* pBestPlot = NULL;
-	TerrainTypes eTerrain = NO_TERRAIN;
 	int iBestScore = -1; // higher score means better target plot
 	for (int i = 0; i < iPool; i++)
 	{
+		// <!-- custom: AdvCiv removed the retry-exhaustion test even though the final random draw can still be unsuitable.
+		// Reset terrain for each pool candidate and null every rejected plot so exhausted water/peak retries cannot be scored or selected. See KI#342. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		TerrainTypes eTerrain = NO_TERRAIN;
 		/*	I want to be able to select a water tile with ice on it;
 			so I can't just exclude water completely... */
 		//CvPlot* pTestPlot = GC.getMap().syncRandPlot(RANDPLOT_LAND | RANDPLOT_NOT_CITY);
@@ -6853,9 +6856,10 @@ CvPlot* CvGame::getRandGWPlot(int iPool)
 				break;
 			}
 			// not a suitable plot, try again.
+			// <!-- custom: Clear the rejected draw so retry exhaustion cannot leave its final unsuitable plot eligible. See KI#342. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			pTestPlot = NULL;
 		}
-		// advc: 2nd test unnecessary as I'm resetting pTestPlot in the outer loop
-		if (pTestPlot == NULL/* || j == 100*/)
+		if (pTestPlot == NULL)
 			continue;
 
 		/*	if only I could do this with a switch...
