@@ -6514,6 +6514,8 @@ void CvGame::doGlobalWarming()
 	// advc.055:
 	std::vector<PreGWPlot> aChangedPlots;
 	bool bSoundPlayed = false; // advc.002l
+	// <!-- custom: AdvCiv areas can let impassable Ice divide water topology, while trade networks and cached step distances also consume passability. Defer their whole-map refresh until all warming rolls finish instead of rebuilding them for every melted plot. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bPassabilityChanged = false;
 
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
@@ -6536,6 +6538,7 @@ void CvGame::doGlobalWarming()
 		TerrainTypes const eTerrain = pPlot->getTerrainType();
 		FeatureTypes const eFeature = pPlot->getFeatureType();
 		ImprovementTypes const eImprov = pPlot->getImprovementType();
+		bool const bWasImpassable = pPlot->isImpassable();
 		SASGameRecordPlotState kOldPlotState;
 		if (bLogMapHistory) kOldPlotState = SASGameRecordPlotState(*pPlot);
 		// Just for the announcements
@@ -6642,10 +6645,21 @@ void CvGame::doGlobalWarming()
 			}
 			aChangedPlots.push_back(preGWPlot);
 			if (bLogMapHistory) recordSASGameRecordPlotChange(*pPlot, kOldPlotState, "globalWarming", "GLOBAL_WARMING", true);
+			// <!-- custom: setFeatureType updates direct passability but not the area, path-distance or plot-group state that depends on it. Remember only effective changes for the deferred refresh. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (bWasImpassable != pPlot->isImpassable())
+				bPassabilityChanged = true;
 			// Do the announcements in a separate loop
 			// </advc.055>
 			changeGwEventTally(1);
 		}
+	}
+	// <!-- custom: Melting one or more Ice plots made traversal immediately possible, but inherited AdvCiv retained the pre-melt area and trade-network divisions. Rebuild once after the mutation batch; isthmus geometry did not change. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bPassabilityChanged)
+	{
+		GC.getMap().resetPathDistance();
+		if (GC.getDefineBOOL(CvGlobals::PASSABLE_AREAS))
+			GC.getMap().recalculateWaterAreas();
+		updatePlotGroups();
 	}
 	updateGwPercentAnger();
 	int iGlobalWarmingIndexBeforeRestoration = -1;

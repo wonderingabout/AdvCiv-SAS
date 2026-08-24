@@ -1122,6 +1122,39 @@ void CvMap::recalculateAreas(/* advc.opt: */bool bUpdateIsthmuses)
 }
 
 
+// <!-- custom: Wholesale recalculateAreas is unsafe for a live Ice melt because it recreates unrelated land areas and can process a coastal city before its new water area exists. Rebuild water only, then restore coastal-city counts after every water plot has its new area. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvMap::recalculateWaterAreas()
+{
+	PROFILE_FUNC();
+	std::vector<int> aWaterAreaIDs;
+	FOR_EACH_AREA(pArea)
+	{
+		if (pArea->isWater())
+			aWaterAreaIDs.push_back(pArea->getID());
+	}
+	for (int i = 0; i < numPlots(); i++)
+	{
+		CvPlot& kPlot = getPlotByIndex(i);
+		if (kPlot.isWater())
+			kPlot.setArea(NULL, false);
+	}
+	for (size_t i = 0; i < aWaterAreaIDs.size(); i++)
+		deleteArea(aWaterAreaIDs[i]);
+
+	calculateAreas_dfs();
+	calculateReprAreas();
+	for (int i = 0; i < numPlots(); i++)
+	{
+		CvPlot& kPlot = getPlotByIndex(i);
+		if (!kPlot.isCity())
+			continue;
+		CvArea* pWaterArea = kPlot.waterArea(true);
+		if (pWaterArea != NULL)
+			pWaterArea->changeCitiesPerPlayer(kPlot.getPlotCity()->getOwner(), 1);
+	}
+}
+
+
 void CvMap::resetPathDistance()
 {
 	gDLL->getFAStarIFace()->ForceReset(&GC.getStepFinder());

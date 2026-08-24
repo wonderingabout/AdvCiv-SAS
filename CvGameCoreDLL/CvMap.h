@@ -405,6 +405,8 @@ public: // advc: made several functions const
 	CvArea* nextArea(int *pIterIdx, bool bRev=false) const { return m_areas.nextIter(pIterIdx); } // Exposed to Python
 
 	void recalculateAreas(bool bUpdateIsthmuses = true);												// Exposed to Python
+	// <!-- custom: Rebuild only water topology after runtime Ice passability changes, preserving unaffected live land areas. See KI#346. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void recalculateWaterAreas();
 	// <advc.300>
 	void computeShelves();
 	void getShelves(CvArea const& kArea, std::vector<Shelf*>& kShelves) const;
