@@ -4056,8 +4056,7 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 	{
 		FAssertBounds(0, MAX_CIV_TEAMS, item.m_iData);
 		TeamTypes eTargetTeam = (TeamTypes)item.m_iData;
-		if (kToTeam.isHasMet(eTargetTeam) && //kOurTeam.isHasMet(eTargetTeam) && // advc: redundant
-			kOurTeam.isAtWar(eTargetTeam))
+		if (kToTeam.isHasMet(eTargetTeam) && /*kOurTeam.isHasMet(eTargetTeam) && // advc: redundant*/ kOurTeam.isAtWar(eTargetTeam))
 		{
 			bValid = true;
 		}
@@ -4067,9 +4066,11 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 	{
 		FAssertBounds(0, MAX_CIV_TEAMS, item.m_iData);
 		TeamTypes eTargetTeam = (TeamTypes)item.m_iData;
-		if (!GET_TEAM(eTargetTeam).isAVassal() &&
-			kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) &&
-			kOurTeam.canDeclareWar(eTargetTeam))
+		CvTeam const& kTargetTeam = GET_TEAM(eTargetTeam);
+		// <!-- custom: BtS's universal vassal-target gate made AdvCiv/UWAI's explicit voluntary-vassal joint-war selection unreachable even though UWAI prices and denies the master coalition correctly.
+		// Permit voluntary vassals only under full UWAI; keep capitulated targets and legacy/background modes blocked because legacy valuation still uses the raw vassal. See KI#373. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool const bValidTargetStatus = (!kTargetTeam.isAVassal() || (getUWAI().isEnabled() && !kTargetTeam.isCapitulated()));
+		if (bValidTargetStatus && kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) && kOurTeam.canDeclareWar(eTargetTeam))
 		{
 			bValid = true;
 		}
@@ -4080,13 +4081,8 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 		//PROFILE("CvPlayer::canTradeItem.EMBARGO");
 		FAssertBounds(0, MAX_CIV_TEAMS, item.m_iData);
 		TeamTypes eTargetTeam = (TeamTypes)item.m_iData;
-		if (!kOurTeam.isHuman() &&
-			kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) &&
-			canStopTradingWithTeam(eTargetTeam) &&
-			// <advc.130f>
-			(!GET_PLAYER(eWhoTo).isTradingWithTeam(eTargetTeam, true) ||
-			(kOurTeam.isCapitulated() && kOurTeam.isVassal(kToTeam.getID()))))
-			// </advc.130f>
+		// <advc.130f>
+		if (!kOurTeam.isHuman() && kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) && canStopTradingWithTeam(eTargetTeam) && (!GET_PLAYER(eWhoTo).isTradingWithTeam(eTargetTeam, true) || (kOurTeam.isCapitulated() && kOurTeam.isVassal(kToTeam.getID())))) // </advc.130f>
 		{
 			bValid = true;
 		}

@@ -16,8 +16,8 @@ LOCAL RECONCILIATION AFTER C010-WIP7 IMPORT
 
 LOCAL RECONCILIATION AFTER DURABLE C011 IMPORT
 - ChatGPT-5.6-Sol finalized C011 from current practical 6244 / HEAD 9f56202d8 after rereading the intervening KI#353-KI#363 and KI#358 repairs. Its root normalization, complete-file status and next-file cursor are accepted; the durable C011 section supersedes the cumulative WIP presentation while those layers remain recovery evidence.
-- F032-F042 are promoted and fixed as KI#353-KI#363; F043/F044/F046 remain reserved merged aliases of F037/KI#358. Current working-tree review additionally promotes and fixes F045/KI#366, F048/KI#369 and F049/KI#370, which compiled and completed a full autoplay on retry without an observed issue.
-- F047/KI#368 and F050-F052/KI#371-KI#373 remain pending independent implementation review. CvTeamAI.cpp is complete for file-oriented audit coverage, F053 remains unused, and the next audit queue entry is file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`. (GPT-5.6-Sol)
+- F032-F042 are promoted and fixed as KI#353-KI#363; F043/F044/F046 remain reserved merged aliases of F037/KI#358. Current practical 6245 / HEAD fcbb98f3f also contains the independently reviewed F045/KI#366, F048/KI#369 and F049/KI#370 repairs, which compiled and completed a full autoplay on retry without an observed issue.
+- Current working-tree review additionally promotes and fixes F051/KI#372 and F052/KI#373 with mode-appropriate pricing and target validity. The compiled tree completed both a full-UWAI Huge autoplay and an `Aggressive AI (Legacy)` Huge autoplay; the exact AI-to-AI deals remain source-verified. F047/KI#368 and F050/KI#371 remain pending independent implementation review. CvTeamAI.cpp is complete for file-oriented audit coverage, F053 remains unused, and the next audit queue entry is file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`. (GPT-5.6-Sol)
 
 NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.

@@ -6,9 +6,7 @@ Note: if a google drive link is missing or redundantly copy pasted from one know
 
 Note 2: this doc may be outdated or not updated for some parts, but it is still useful for documentation, google drive links with screenshots of before/after, documentation, context for the changes, observed results, etc. For the updated changes, see rather the main change guides, for example the [Main Changes Guide](/README.md#main-changes-guide).
 
-Note 3: all issues that have a drive link are also accessible via the [common known issues drive folder](https://drive.google.com/drive/folders/11wTFHidBHTutXXyiaRAhayA7y7d5Rg-8).
-
-Note 4: some entries especially later ones are written with the help of LLMs; while they may be generally correct in describing the problem, for explanation/causes i did not always check or verify it, and i may be mistaken too.
+Note 3: some entries especially later ones are written with the help of LLMs; while they may be generally correct in describing the problem, for explanation/causes i did not always check or verify it, and i may be mistaken too.
 
 ## Menu
 
@@ -438,6 +436,8 @@ Note 4: some entries especially later ones are written with the help of LLMs; wh
 [366 - (Fixed inherited AdvCiv iterator-refactor bug) A worst enemy could remain inside the same master/vassal locus](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#366---fixed-inherited-advciv-iterator-refactor-bug-a-worst-enemy-could-remain-inside-the-same-mastervassal-locus)\
 [369 - (Fixed inherited AdvCiv state-merge omission) Permanent Alliances discarded absorbed-team SharedWarSuccess](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#369---fixed-inherited-advciv-state-merge-omission-permanent-alliances-discarded-absorbed-team-sharedwarsuccess)\
 [370 - (Fixed inherited Firaxis state-merge omission) Permanent Alliances discarded reverse Open Borders history](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#370---fixed-inherited-firaxis-state-merge-omission-permanent-alliances-discarded-reverse-open-borders-history)\
+[372 - (Fixed inherited AdvCiv pricing regression) Legacy joint-war proposals balanced deals from -1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#372---fixed-inherited-advciv-pricing-regression-legacy-joint-war-proposals-balanced-deals-from--1)\
+[373 - (Fixed inherited BtS/AdvCiv contract mismatch) Voluntary-vassal UWAI joint-war targets were universally blocked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#373---fixed-inherited-btsadvciv-contract-mismatch-voluntary-vassal-uwai-joint-war-targets-were-universally-blocked)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9670,3 +9670,21 @@ This is an inherited AdvCiv SharedWarSuccess state-merge omission, not an AdvCiv
 The fix adds `OpenBordersCounter` to the reverse block using the same team-size-weighted policy as its neighboring relationship histories. Historical Civ4, Warlords and BtS source already contain this directional asymmetry; K-Mod's later team-merge refactor retained it, followed by AdvCiv and AdvCiv-SAS. The same compiled full-game smoke test completed normally on retry, but did not exercise a Permanent Alliance merge because that option was disabled.
 
 This is an inherited Firaxis/Civ4 Permanent Alliance state-merge omission, not a K-Mod, AdvCiv or AdvCiv-SAS regression. Found through the completed CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+## 372 - (Fixed inherited AdvCiv pricing regression) Legacy joint-war proposals balanced deals from -1
+
+`CvPlayerAI::AI_proposeWarTrade` lets one AI offer technologies, gold or occasionally a city to hire another AI into an existing war. AdvCiv practical 1341 introduced `iBestTeamPrice = -1`, assigned it while UWAI selected a target and replaced the former common post-selection price calculation with that cached value. The supported legacy target-selection branch still selected `eBestTarget` but never assigned the price. Common deal balancing therefore began from -1 for a valid Legacy Aggressive AI, disabled-UWAI, background-UWAI or `USE_KMOD_AI_NONAGGRESSIVE` proposal, distorting which compensation was assembled or whether the deal was offered.
+
+The fix caches `AI_declareWarTradeVal` when the legacy branch accepts a new best target, matching the old common calculation without changing legacy target selection or valuation. The legacy trade-item gate continues to exclude all vassal targets, so its raw-target valuation is not newly exposed to a master-coalition mismatch. After compilation, a custom Huge Pangaea autoplay with `Aggressive AI (Legacy)` enabled completed normally with a turn-415 Space Race victory. This broadly exercised the repaired legacy path; the exact AI-to-AI proposal remains source-verified rather than directly observed.
+
+This is an inherited AdvCiv practical-1341 joint-war pricing regression in a supported legacy-AI configuration, not an AdvCiv-SAS change. Found through the completed CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+## 373 - (Fixed inherited BtS/AdvCiv contract mismatch) Voluntary-vassal UWAI joint-war targets were universally blocked
+
+AdvCiv/UWAI explicitly distinguishes an unpopular voluntary vassal from a capitulated vassal when selecting a civilization that another team could be hired to attack. Its comments and selection logic retain voluntary vassals as valid candidates even when the master itself would not qualify, and its UWAI war-trade valuation and denial code canonicalize such a target to the master coalition. Core war rules likewise allow an outside team to declare war on a foreign voluntary vassal and then align the target's master/vassal locus.
+
+The inherited BtS `CvPlayer::canTradeItem(TRADE_WAR)` gate nevertheless rejected every vassal target before the UWAI contract could run. This made the intended feature unreachable. Original Civ4 lacked that universal restriction, Warlords used a narrower rule and BtS introduced the broad vassal exclusion later inherited alongside AdvCiv's contrary UWAI feature; no descendant policy statement retracting the feature was found.
+
+The fix permits a voluntary-vassal `TRADE_WAR` target only when full UWAI is enabled. Capitulated targets remain invalid. Legacy Aggressive AI, disabled UWAI and background UWAI also retain the universal vassal gate because their declaration valuation still prices the raw vassal instead of the required master coalition. Thus the intended UWAI feature becomes reachable without exposing the known legacy underpricing hazard. After compilation, a standard full-UWAI Huge Pangaea autoplay completed normally with a turn-439 Cultural victory. This broadly exercised UWAI diplomacy; the exact voluntary-vassal joint-war trade remains source-verified rather than directly observed.
+
+This is an inherited BtS gate conflicting with AdvCiv/UWAI's explicit voluntary-vassal joint-war contract, not an AdvCiv-SAS regression. Found through the completed CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.

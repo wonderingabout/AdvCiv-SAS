@@ -23692,6 +23692,9 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
 				{
 					iBestValue = iValue;
 					eBestTarget = kTarget.getID();
+					// <!-- custom: AdvCiv practical 1341 replaced the shared post-selection price calculation with a value cached only by the UWAI branch, leaving a supported legacy selection at the -1 sentinel during deal balancing.
+					// Cache the legacy target's price when selecting it. See KI#372. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					iBestTeamPrice = kOurTeam.AI_declareWarTradeVal(kTarget.getID(), kHireling.getTeam());
 				}
 			}
 		}
