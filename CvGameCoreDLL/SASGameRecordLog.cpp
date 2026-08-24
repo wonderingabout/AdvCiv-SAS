@@ -323,11 +323,14 @@ static void rollSASGameRecordLog(const char* szContext)
 
 static void logSASGameRecordFormattedLine(CvString const& szLogName, TCHAR* format, va_list args)
 {
-	static char buf[2048];
-	_vsnprintf(buf, sizeof(buf) - 1, format, args);
-	// <!-- custom: As with BBAI logging, guard this new game-record logger against MSVC 7.1 _vsnprintf leaving truncated output unterminated, which fixed rare logging/heap crash signatures. See KI#161.2. (ChatGPT-5.5 + GPT-5.5) -->
-	buf[sizeof(buf) - 1] = '\0';
-	gDLL->logMsg(szLogName.GetCString(), buf, false, false);
+	std::string szLine;
+	// <!-- custom: KI#161.2's explicit terminator stopped MSVC 7.1 truncation from leaving unsafe unterminated output, but the fixed 2048-byte buffer still silently discarded long structured rows such as late-game building, unit-type and promotion inventories.
+	// Reuse CvString's grow-and-retry formatter so the complete machine-readable row reaches the log; abort the row if even that bounded formatter fails. See KI#375. (ChatGPT-5.5 + GPT-5.5; ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bFormatted = CvString::formatv(szLine, format, args);
+	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
+	if (!bFormatted)
+		return;
+	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
 }
 
 void logSASGameRecord(TCHAR* format, ... )
@@ -3746,12 +3749,14 @@ static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
 		iSpies++;
 		if (eUnitAI == UNITAI_GREAT_SPY)
 			iGreatSpies++;
-		if (pLoopUnit->getFortifyTurns() > 0)
+		CvPlot const& kPlot = pLoopUnit->getPlot();
+		// <!-- custom: Fortified ordinary Spies at home and fortified Great Spies inflated the stationary mission-discount diagnostic even though they were not preparing a valid foreign espionage mission.
+		// Count fortify turns only for ordinary Spies on a structurally valid mission plot; bTestVisible deliberately ignores whether the mission button is usable at this exact snapshot. See KI#376. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (pLoopUnit->isSpy() && pLoopUnit->getFortifyTurns() > 0 && pLoopUnit->canEspionage(&kPlot, true))
 		{
 			iStationarySpies++;
 			iMaxFortifyTurns = std::max(iMaxFortifyTurns, pLoopUnit->getFortifyTurns());
 		}
-		CvPlot const& kPlot = pLoopUnit->getPlot();
 		PlayerTypes const ePlotOwner = kPlot.getOwner();
 		if (ePlotOwner != NO_PLAYER && kPlot.getTeam() != kPlayer.getTeam())
 		{
@@ -5435,7 +5440,9 @@ static void countSASGameRecordVisibleEnemiesNearPlot(CvPlot const& kCenter, Play
 			for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
 			{
 				CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
-				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, kCenter) || pLoopUnit->isInvisible(eTeam, false))
+				// <!-- custom: isEnemy resolves plot-sensitive combat ownership and always-hostile rules, so testing every nearby unit against the center plot could misclassify the diagnostic.
+				// Use the unit's actual loop plot. See KI#374. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, *pLoopPlot) || pLoopUnit->isInvisible(eTeam, false))
 					continue;
 				iVisibleEnemies++;
 				if (pLoopUnit->baseCombatStr() > 0 || pLoopUnit->canAttack())

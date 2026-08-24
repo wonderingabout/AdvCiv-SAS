@@ -229,7 +229,9 @@ static void SAS_countVisibleEnemiesNearPlot(CvPlot const& kCenter, PlayerTypes e
 			for (CLLNode<IDInfo> const* pUnitNode = pLoopPlot->headUnitNode(); pUnitNode != NULL; pUnitNode = pLoopPlot->nextUnitNode(pUnitNode))
 			{
 				CvUnit const* pLoopUnit = ::getUnit(pUnitNode->m_data);
-				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, kCenter) || pLoopUnit->isInvisible(eTeam, false))
+				// <!-- custom: Keep this BBAI/SAS Settler-parking diagnostic consistent with SASGameRecord: isEnemy needs the nearby unit's actual plot for plot-sensitive combat ownership and always-hostile rules, not the search center.
+				// Use the unit's actual loop plot. See KI#374. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (pLoopUnit == NULL || !pLoopUnit->isEnemy(eTeam, *pLoopPlot) || pLoopUnit->isInvisible(eTeam, false))
 					continue;
 				iVisibleEnemies++;
 				if (pLoopUnit->baseCombatStr() > 0 || pLoopUnit->canAttack())

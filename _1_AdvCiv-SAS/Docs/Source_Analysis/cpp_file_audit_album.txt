@@ -9,17 +9,20 @@ Base comparison: local AdvCiv 1.14 source archive
 
 LOCAL RECONCILIATION AFTER C010-WIP7 IMPORT
 - The original audit baseline above remains the source identity for ChatGPT-5.6-Sol's cumulative checkpoint. GPT-5.6-Sol reconciled the imported WIP7 against current local HEAD 4dd9bd3ff after the F001-F031 repair track and the reopened KI#48.3/KI#70/KI#74 CvCityAI batch.
-- The new findings F001-F004 and F012-F031 have been independently promoted and fixed as KI#330-KI#352. The reopened F007/KI#48.3, F009/KI#70 and F010/KI#74 roots are fixed too. F032-F047 were provisional while CvTeamAI.cpp remained open; their durable disposition is recorded below.
+- The new findings F001-F004 and F012-F031 have been independently promoted and fixed as KI#330-KI#352 except F012/KI#333 and F015/KI#336, which remain pending. The reopened F007/KI#48.3, F009/KI#70 and F010/KI#74 roots are now fixed too. F032-F047 remain provisional while CvTeamAI.cpp is open.
 - WIP7 was generated from the older df985a491 snapshot and therefore repeatedly embeds superseded WIP layers and recovery cursors. This is intentional loss-prevention evidence rather than the desired durable presentation; finalized C011 should consolidate the open-file work into one current section.
 - WIP7 again imported the previously rejected F024/F026/F027 ancestry changes: local Civ4CE BtS contains the same End Score helper reset/outer reuse, successful-Python-found-value omission and host-team air-capacity argument. The independently promoted BtS ancestry for KI#345, KI#347 and KI#348 remains authoritative.
 - Reconciliation also restores the seven-finding F017-F022/F024 count and the open-file cursor to file 010. The new F045-F047 findings survive an initial current-tree structural check but remain provisional pending independent promotion. (GPT-5.6-Sol)
 
-LOCAL RECONCILIATION AFTER DURABLE C011 IMPORT
-- ChatGPT-5.6-Sol finalized C011 from current practical 6244 / HEAD 9f56202d8 after rereading the intervening KI#353-KI#363 and KI#358 repairs. Its root normalization, complete-file status and next-file cursor are accepted; the durable C011 section supersedes the cumulative WIP presentation while those layers remain recovery evidence.
-- F032-F042 are promoted and fixed as KI#353-KI#363; F043/F044/F046 remain reserved merged aliases of F037/KI#358. Current practical 6245 / HEAD fcbb98f3f also contains the independently reviewed F045/KI#366, F048/KI#369 and F049/KI#370 repairs, which compiled and completed a full autoplay on retry without an observed issue.
-- Current practical 6246 / HEAD d6cfc8458 contains the independently reviewed F051/KI#372 and F052/KI#373 repairs with mode-appropriate pricing and target validity. The compiled tree completed both a full-UWAI Huge autoplay and an `Aggressive AI (Legacy)` Huge autoplay; the exact AI-to-AI deals remain source-verified.
-- Current working-tree review additionally promotes and fixes F047/KI#368 and F050/KI#371 through preparation-only war-plan canonicalization and population-consistent coalition WarSuccess aggregation. After compilation, Huge Pangaea Legacy-AI and full-UWAI autoplays completed normally after respectively exercising 444/1,602 war-plan transitions and 13/20 vassal-status events. All durable C011 findings are now independently promoted or merged; CvTeamAI.cpp remains complete for file-oriented audit coverage, F053 remains unused, and the next audit queue entry is file 011 `CvGameCoreDLL/SASGameRecordLog.cpp`. (GPT-5.6-Sol)
-- Current practical 6247 / HEAD 90f42a0f7 contains the completed C011 repairs. The new working tree also promotes and fixes the two deliberately deferred earlier findings: F012/KI#333 restores the documented Harbor > strategic defense > Port emergency-production priority, and F015/KI#336 recomputes dynamic map heaviness after final starting-plot assignment across ordinary, regenerated and scenario setup. After compilation, a Large Hub full autoplay completed normally and its dynamic classification reported land-heavy; Pangaea and Archipelago controls also reported their expected explicit classifications. SASGameRecord additionally quantified the Hub run's unrelated severe late warming without attributing it to either repair. No independently reviewed finding from files 001-010 remains pending; KI#213 is a separate pre-existing cross-file Worker architecture issue. (GPT-5.6-Sol)
+LOCAL RECONCILIATION AFTER C010-WIP22 IMPORT
+- ChatGPT-5.6-Sol's cumulative WIP13-WIP22 handoff was generated from practical 6239 / HEAD 80cb8f4be. Current local HEAD is practical 6243 / c6f1f31d3 after independently reviewed repairs through KI#363; current source and reviewed Known Issues remain authoritative.
+- F032-F042 have been promoted and fixed as KI#353-KI#363. The WIP20 root normalization is accepted: F043, F044 and F046 are manifestations of F037's single practical-1842 `AI_preDeclareWar` population substitution, not independent roots. Current work completes their compiled and runtime-smoke-tested common repair under KI#358; provisional KI#364, KI#365 and KI#367 remain reserved merged aliases rather than reviewed KI entries.
+- WIP22 adds explicit method-inventory coverage and strengthens F042/F048-F052 without introducing F053 or changing the normalized root set. F045/KI#366, broadened F047/KI#368, F048/KI#369, F049/KI#370 and F050-F052/KI#371-KI#373 remain pending independent current-tree review. WIP22 is still an open-file recovery checkpoint, not durable C011 completion; its embedded older authority blocks and superseded intermediate wording remain evidence only. (GPT-5.6-Sol)
+
+LOCAL RECONCILIATION AFTER DURABLE C012 IMPORT
+- ChatGPT-5.6-Sol's C012 is accepted as the durable closure of file 011, `CvGameCoreDLL/SASGameRecordLog.cpp`: 11 / 169 files are complete, F053-F061 are the nine normalized roots, F062 remains unused and file 012 is `CvGameCoreDLL/CvDLLWidgetData.cpp`. The separate C011-WIP03 and SASGameRecordLog handoff files are supporting recovery/review material rather than additional cumulative records that need importing.
+- C012 was produced from an older source/Known-Issues snapshot. Current local HEAD practical 6249 / e851d224d already contains the independently reviewed KI#374-KI#376 repairs, and the current worktree independently promotes and repairs C012's F056-F060 as KI#377-KI#381. Current source and the reviewed Known Issues ledger remain authoritative where C012 still says those numbers are provisional or absent.
+- C012's new F061 is accepted and independently promoted as KI#382. Session rollover now finalizes pending bombard, plot-change and incremental-revelation rows before `CvGame::init` resets a game or `CvMap::read` resets/replaces its map; the latter remains safe even if `CvGame` has already read loaded state, while flushing only from the later start hooks would derive old revelation observations from the wrong loaded map. This completes the reviewed F053-F061 repair batch without inventing F062. (ChatGPT-5.6-Sol + GPT-5.6-Sol)
 
 NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
@@ -4912,3 +4915,1149 @@ NEXT RECOVERY CURSOR AFTER DURABLE C011
 4. Keep F053 as the next unused stable audit finding number.
 
 END DURABLE CHECKPOINT C011
+
+================================================================================
+C011-WIP01 — FILE 011 OPEN: SASGameRecordLog.cpp — FIRST DURABLE CHECKPOINT
+================================================================================
+
+SOURCE BASELINE
+---------------
+Authoritative working tree supplied by user:
+  AdvCiv-SAS practical 6244 / HEAD 9f56202d8b2f8e61dccf739f9e490fa8d69edc5e
+Primary file:
+  CvGameCoreDLL/SASGameRecordLog.cpp (6343 lines)
+Comparison material available locally:
+  AdvCiv 1.14
+  Civ4CE-main
+Durable completed-file count remains 10 / 169. File 011 is OPEN.
+
+AUDIT STATUS AT THIS CHECKPOINT
+-------------------------------
+The first broad structural pass now covers the logger/session/reset layer, buffered turn-flow state,
+full-map revelation/resource hooks, geography/known-area/BFC machinery, ASCII-map helpers and
+palette/resampling safety, initial context, substantial global/team/player snapshot machinery,
+city happiness/health source reconstruction, the espionage snapshot, and nearby-enemy diagnostics.
+Caller and engine-contract greps have been used where a helper's meaning depends on another class.
+This is NOT a file-complete checkpoint; later player/city/unit/event-hook and final inventory passes
+still remain.
+
+NEW NORMALIZED ROOTS
+--------------------
+
+F053 / provisional KI#374 — nearby-enemy diagnostics pass the CENTER plot to CvUnit::isEnemy
+instead of the nearby unit's ACTUAL plot; the same defect is duplicated in CvUnitAI diagnostics.
+
+Primary evidence:
+  SASGameRecordLog.cpp, countSASGameRecordVisibleEnemiesNearPlot (around current line 5419):
+
+    for each pLoopPlot around kCenter
+      for each pLoopUnit on pLoopPlot
+        if (pLoopUnit == NULL ||
+            !pLoopUnit->isEnemy(eTeam, kCenter) ||
+            pLoopUnit->isInvisible(eTeam, false))
+          continue;
+
+The unit being classified is on pLoopPlot, but combat hostility is queried as though it occupied
+kCenter. This matters because CvUnit::isEnemy(TeamTypes, CvPlot const&) deliberately routes through
+getCombatOwner(eTeam, kPlot), and the supplied plot is semantically significant. Always-hostile /
+hidden-nationality handling can change with the plot; in particular CvUnit::isAlwaysHostile(kPlot)
+returns false on a friendly/base plot so that always-hostile units cannot attack into friendly cities.
+Consequently a nearby unit can be classified according to the center city's diplomatic/combat-owner
+context rather than its own location.
+
+Affected GameRecord fields include:
+  visibleEnemiesR2
+  visibleCombatEnemiesR2
+  nearestEnemyPlayer
+  nearestEnemyUnit
+  nearestEnemyDist
+
+Independent duplicate:
+  CvUnitAI.cpp contains SAS_countVisibleEnemiesNearPlot with the same
+  pLoopUnit->isEnemy(eTeam, kCenter) call, used by SAS_logSettlerParking. Thus the BBAI/SAS settler
+  diagnostic can be wrong for the same reason. This appears diagnostic-only, not a core AI decision.
+
+Ancestry:
+  Introduced in practical 6026 (commit 876158dff2..., "Add BBAI and SASGameSummary AI Settler
+  security information") with the wrong plot argument already present; later carried into the
+  GameRecord rename/expansion.
+
+Repair direction:
+  In both helpers, evaluate hostility at the loop/unit plot, e.g.
+    pLoopUnit->isEnemy(eTeam, *pLoopPlot)
+  subject to the local pointer/reference conventions. Do not globally replace other isEnemy calls:
+  this root is specifically the nearby-unit helper using the wrong spatial context.
+
+Impact:
+  Diagnostic/logging accuracy; especially hidden-nationality/always-hostile edge cases. No evidence
+  that this helper currently alters gameplay decisions.
+
+Confidence: HIGH.
+
+
+F054 / provisional KI#375 — the central structured GameRecord formatter silently truncates rows at
+2047 bytes, while multiple machine-readable rows contain unbounded/large dynamic inventories.
+
+Primary evidence:
+  logSASGameRecordFormattedLine uses a single fixed char buf[2048], calls _vsnprintf with
+  sizeof(buf)-1, then forcibly writes the final NUL. The KI#161.2-style hardening prevents an
+  unterminated buffer/crash after MSVC truncation, but it cannot preserve content beyond the fixed
+  capacity.
+
+Why this is a data-integrity bug here rather than merely a cosmetic logger limitation:
+  GameRecord rows are intended to be parsed as structured records, and several rows append lists
+  whose size scales with mod/game state, including at least:
+    GAME_RECORD_CITY_BUILDINGS ... buildings=%s
+    GAME_RECORD_UNIT_COMPOSITION ... unitTypes=%s unitAI=%s
+    GAME_RECORD_UNIT_PROMOTIONS ...
+    city/unit composition and other type inventories
+  A truncated row can therefore lose closing fields or cut a type/count token in half without an
+  explicit truncation marker.
+
+Current-tree scale check:
+  166 BuildingInfos exist in the supplied SAS XML. Building type names alone average roughly 22
+  characters and can reach roughly the high 30s. A mature/modded city inventory can therefore exceed
+  the entire formatter capacity independently of the fixed fields surrounding it. Unit and promotion
+  type inventories are also large enough to make the ceiling relevant.
+
+Strong negative/control:
+  Some intentionally huge coordinate/position rows are already manually chunked at roughly 1500
+  bytes before logging. That shows the 2048-byte sink ceiling is real and was consciously avoided in
+  selected producers, but the central formatter offers no equivalent protection to the many other
+  dynamically growing records.
+
+Bundled/sample logs checked so far do not prove a present truncation event (largest observed line in
+one supplied/example log was below the ceiling); the defect is the reachable silent-loss condition,
+not a claim that every normal game already hits it.
+
+Ancestry:
+  GameRecord inherited the fixed-buffer pattern when introduced around practical 6022; the earlier
+  KI#161.2 hardening addressed NUL termination/safety, not structured-row completeness.
+
+Repair direction:
+  Prefer a central solution that preserves the complete formatted record (grow/retry or an equivalent
+  old-MSVC-compatible formatting strategy). If that is awkward under the VC7.1-era va_list runtime,
+  explicitly chunk all variable inventories and/or detect truncation and emit continuation records.
+  Merely increasing 2048 to another arbitrary fixed number reduces but does not remove the invariant.
+
+Impact:
+  Structured log corruption/loss in sufficiently large rows; parsers can receive syntactically or
+  semantically incomplete records.
+
+Confidence: HIGH for the reachable bug; MEDIUM-HIGH for how often stock-sized games trigger it.
+
+
+F055 / provisional KI#376 — ESPIONAGE stationarySpies/maxFortifyTurns are documented as
+"stationary cost-reduction preparation" but count units whose fortify turns cannot represent an
+active espionage discount, including home-idle spies and Great Spies.
+
+Primary evidence:
+  logSASGameRecordEspionage accepts a unit when either:
+    pLoopUnit->isSpy()
+    OR AI_getUnitAIType() == UNITAI_GREAT_SPY
+  It then increments stationarySpies/maxFortifyTurns solely from getFortifyTurns() before checking
+  foreign deployment/territory.
+
+Engine semantics:
+  CvUnit::doTurn increments FortifyTurns for every unmoved, non-cargo unit under the normal fortify
+  mechanism; it is not an espionage-specific preparation counter.
+  CvPlayer::getEspionageMissionCostModifier applies the stationary spy discount only when an actual
+  pSpyUnit is supplied and uses that unit's current fortify turns at the mission location. A spy that
+  accumulated fortify turns while sitting at home must move to reach a foreign target, which resets
+  the preparation; those old home fortify turns therefore do not describe a usable mission discount.
+
+Great Spy contradiction:
+  Current UNIT_GREAT_SPY XML has bSpy=0 and its default AI is UNITAI_GREAT_SPY. The logger explicitly
+  includes such Great-Spy-role units in stationarySpies/maxFortifyTurns even though they are not
+  ordinary spy mission units receiving the normal stationary mission-cost discount.
+
+This conflicts with the function's own explanatory contract, which describes the fields as
+"stationary cost-reduction preparation," not merely "espionage-themed units that have stood still."
+
+Ancestry:
+  Introduced in practical 6046 (commit 559ee966cb..., espionage/army/GP diagnostic expansion) with
+  this interpretation already present.
+
+Repair direction:
+  If the metric is meant to measure mission-discount preparation, restrict it to real isSpy() units
+  that are stationary in a relevant foreign target context; continue reporting Great Spies through
+  their separate Great-Spy/deployment metrics. Alternatively rename/re-document the metric if the
+  desired meaning is only generic stationary espionage-role units, but that would abandon the current
+  cost-reduction claim.
+
+Impact:
+  Diagnostic/logging accuracy; can make a player look as though it has prepared discounted espionage
+  missions when it has only idle spies at home and/or stationary Great Spies.
+
+Confidence: HIGH.
+
+
+CHALLENGED BUT NOT PROMOTED
+---------------------------
+
+1. Shared player previous-state bValid / delta ordering:
+   Checked. Level-2 player subrows all consume/update their own previous values before the common
+   kPrevious.bValid flag is set at the end of logSASGameRecordPlayerSnapshot. No "first helper makes
+   later helpers believe old state exists" bug in the fixed-level snapshot path.
+
+2. City happiness / unhappiness / health source decomposition:
+   Checked directly against CvCity::happyLevel, unhappyLevel, goodHealth and badHealth. The GameRecord
+   helpers mirror the engine components essentially term-for-term. In particular, adding city and
+   player ExtraHappiness/ExtraHealth is correct: their getters expose distinct stored fields.
+
+3. globalWarming anger * 10:
+   Not a units bug. CvCity::unhappyLevel contains K-Mod's explicit explanation: GwPercentAnger is a
+   conventional percentage while Civ4's other anger-percent values are parts per thousand, so *10 is
+   the intended conversion. GameRecord matches engine behavior.
+
+4. tradeRoutes vs domesticTradeRoutes + foreignTradeRoutes:
+   The city summary's tradeRoutes value comes from CvCity::getTradeRoutes(), i.e. route-slot capacity,
+   while domestic/foreign counts enumerate populated getTradeCity slots. Therefore the three values
+   need not add up in disorder/plunder/no-partner situations. This is potentially ambiguous naming,
+   but "trade routes" is also the engine's established name for the capacity getter; no defect is
+   promoted without a stronger parser/documentation contract.
+
+5. revelation/resource hooks and known-area/BFC accounting:
+   No independent defect found in the inspected paths. Full-map revelation callers tightly bracket
+   the special state; ordinary plot reveal is invoked on the false->true transition; the old area-ID
+   varargs issue in the bonus hook is already repaired in current source.
+
+6. ASCII map arithmetic/palette/resampling:
+   No root found in the inspected pass. Candidate divisors are guarded; palette validation accounts
+   for derived aliases/player symbols; large map payloads are deliberately chunked in key producers.
+
+7. direct literal log-format arity:
+   Mechanical audit of 167 literal-format logSASGameRecord calls found zero format-specifier versus
+   argument-count mismatches. This does not prove type correctness for every vararg, but it closes a
+   broad class of accidental missing/extra arguments.
+
+8. duplicate #include "CvInfo_Symbol.h":
+   Harmless cleanup only; no normalized issue.
+
+
+NEXT CURSOR
+-----------
+Continue file 011 without renumbering or reopening the above roots:
+  - finish player bonus/economic/posture/worker/settler/city/unit snapshot semantics and engine
+    reconciliation where labels reconstruct gameplay quantities;
+  - finish later event hooks (combat/air/production/city acquisition/GP/victory/load) and caller timing;
+  - explicit definition/header/caller disposition inventory;
+  - final sentinel/divisor/index/state-lifetime/varargs-type sweep;
+  - ancestry/KI collision check for any additional root;
+  - only close SASGameRecordLog.cpp when the whole-file inventory is defensible.
+
+F056 is presently UNUSED.
+
+
+===============================================================================
+C011-WIP02 -- FILE 011 SASGameRecordLog.cpp CONTINUATION CHECKPOINT
+===============================================================================
+
+STATUS
+------
+Source baseline remains practical 6244 / HEAD 9f56202d8b... from the supplied
+AdvCiv-SAS_light_source_20260824T132346.zip.
+
+File 011 remains OPEN. Durable completed-file count remains 10/169.
+This checkpoint intentionally freezes progress before the final closure tail.
+
+Previously frozen roots F053-F055 remain live. The continuation work since
+C011-WIP01 adds F056-F060. F061 remains UNUSED.
+
+CURRENT NORMALIZED ROOT LEDGER
+------------------------------
+
+F053 / provisional KI#374 -- nearby-enemy diagnostics pass the wrong plot context to CvUnit::isEnemy
+
+The helper that counts nearby visible enemies iterates a unit on pLoopPlot but
+calls pLoopUnit->isEnemy(eTeam, kCenter), where kCenter is the city/settler
+center plot rather than the unit's actual plot. CvUnit::isEnemy uses the supplied
+plot to determine combat ownership / always-hostile behavior. Hidden-nationality
+or otherwise always-hostile units can therefore be classified using the wrong
+territorial context.
+
+Affected diagnostic outputs include visibleEnemiesR2, visibleCombatEnemiesR2 and
+nearestEnemy*; the same helper shape also exists in the CvUnitAI.cpp settler
+logging path. This is a telemetry/diagnostic correctness issue, not gameplay AI
+behavior by itself.
+
+Confidence: HIGH.
+
+
+F054 / provisional KI#375 -- fixed 2048-byte structured-row formatting ceiling can silently truncate rows
+
+All structured rows are formatted through a fixed 2048-byte temporary buffer.
+The KI#161.2 hardening guarantees termination / prevents unsafe overflow, but it
+does not preserve data beyond the buffer; oversized rows are silently truncated.
+
+This is materially relevant because several GameRecord rows intentionally contain
+variable-length machine-readable inventories (CITY_BUILDINGS, unit type/AI
+composition, promotion inventories, etc.). The supplied sample's longest observed
+row is only about 1.64 KB, so that sample does NOT demonstrate truncation.
+However a legality-aware upper-bound check makes the structural defect reachable:
+SAS has 123 building classes, and a legal mature city can still carry roughly 117
+distinct building entries after civilization UB mappings and ordinary national-
+wonder constraints. The building type/count payload alone is roughly 2.8 KB for
+several civs before fixed row fields are added.
+
+The codebase itself contains a useful negative control: intentionally large map /
+chunk payloads elsewhere are split around ~1500 bytes, showing the 2048 sink is a
+real design ceiling rather than an unlimited formatter.
+
+Confidence: HIGH for reachable structured-log truncation; NOT observed in the
+provided sample run.
+
+
+F055 / provisional KI#376 -- stationary-spy preparation metric counts states that do not represent usable mission discount
+
+The espionage diagnostic describes stationarySpies/maxFortifyTurns as stationary
+cost-reduction preparation, but it counts every unmoved non-cargo spy-like role
+unit, including spies idling at home and Great-Spy-role units. The actual mission
+stationary discount uses the acting ordinary spy's fortify turns in the relevant
+mission context. UNIT_GREAT_SPY has bSpy=0, yet Great-Spy-role units are explicitly
+included by this metric.
+
+Thus the recorder can report substantial "stationary preparation" when no usable
+ordinary spy discount is actually prepared against a target.
+
+Ancestry: introduced in practical 6046 (559ee966cb...).
+
+Confidence: HIGH.
+
+
+F056 / provisional KI#377 -- attacker-loss combat is logged at attacker origin instead of attacked plot
+
+CvUnit::updateCombat knows the actual combat target as pPlot. When the ATTACKER
+dies, the combatResult callback runs while that losing attacker still resides on
+its origin plot. logSASGameRecordCombatResult reconstructs battle location from
+pLoser->plot(), so attacker-loss battles are recorded at the attacker start tile
+rather than the tile attacked.
+
+Defender-loss combat happens to be correct because the losing defender occupies
+the battle target tile.
+
+Downstream consequences include wrong battle coordinates and, critically, wrong
+cityPlot classification for failed attacks against cities. That propagates into
+interval cityBattleWins/Losses, per-war cityPlotWins*, Barbarian combat-location
+rows, battle records and related diagnostic context.
+
+Ancestry: present in the original practical 6083 GameRecord combat implementation;
+later practical 6100/6103 flow and per-war summaries reused the derived cityPlot
+and widened the diagnostic damage rather than creating the original error.
+
+Confidence: HIGH.
+
+
+F057 / provisional KI#378 -- battle-summary displayed interval does not track the real counter-reset boundary
+
+GAME_RECORD_BATTLE_SUMMARY reconstructs its displayed start turn as
+currentTurn - configuredInterval + 1 rather than remembering the turn at which its
+battle counters were actually reset.
+
+This is already wrong for the first new-game bucket: turn-0 combat can contribute
+to the counters while a turn-10 summary can display range 1-10. It becomes more
+obviously wrong when a save is loaded at an arbitrary turn or when victory forces
+a snapshot/reset in the middle of the configured interval.
+
+The newer production/military-flow bucket is a strong internal negative control:
+it explicitly tracks g_iSASGameRecordFlowStartTurn to avoid exactly this class of
+false interval label.
+
+Confidence: HIGH.
+
+
+F058 / provisional KI#379 -- session-local Golden Age / anarchy observations are emitted as unqualified lifetime totals
+
+The recorder starts a fresh log session after loading a save and resets its local
+arrays. totalGoldenAgeTurns and totalAnarchyTurns are among those reset values.
+They then accumulate only turns observed since the new GameRecord session began,
+but their names and emitted fields say totalGoldenAgeTurns / totalAnarchyTurns
+without a logged/session validity qualifier.
+
+Elsewhere the recorder is careful about this distinction: recorder-local city and
+battle values are named loggedCities*/loggedBattle*, wars loaded midstream expose
+unknown start state, and delta rows expose deltaValid=0 until a previous snapshot
+exists. The GA/anarchy fields do not.
+
+Therefore loading a turn-200 save can legitimately produce totalGoldenAgeTurns=0
+for a civilization that had one or more earlier Golden Ages. Conservative repair
+is schema/metadata/renaming (e.g. logged/session totals or validity/start fields),
+unless true lifetime totals are deliberately persisted in save state.
+
+Confidence: HIGH as telemetry/schema accuracy; not gameplay logic.
+
+
+F059 / provisional KI#380 -- raw MAX_INT finite-production sentinels leak into structured city records
+
+The city snapshot writes CvCity::getProductionTurnsLeft() and
+CvCity::getProductionNeeded() directly as ordinary numbers. These getters use
+MAX_INT (2147483647) as an internal sentinel when no finite answer exists.
+
+Observed directly in the supplied GameRecord sample:
+  * PROCESS production rows can emit productionTurns=2147483647 and
+    productionNeeded=2147483647;
+  * cities with no current production order can emit the same sentinel pair;
+  * even ordinary UNIT/BUILDING production can emit productionTurns=2147483647
+    during disorder/anarchy because getProductionDifference() is zero there,
+    while productionNeeded remains finite.
+
+So a machine-readable field that visually looks like a real ETA/requirement leaks
+an implementation sentinel rather than an explicit unknown/infinite/not-applicable
+state.
+
+Ancestry: dates to practical 6022, the initial SASGameSummary city-detail row,
+which already logged these getters directly.
+
+Confidence: VERY HIGH; observed in supplied log and matched to engine getter contracts.
+
+
+F060 / provisional KI#381 -- productionConversionX100 reports process output during disorder when CvCity::updateCommerce produces zero
+
+The logger's process-conversion helper says it matches CvCity::updateCommerce, but
+it computes process conversion whenever a process is selected and omits the
+engine's !isDisorder() gate.
+
+CvCity::updateCommerce zeros ordinary commerce and production-to-commerce process
+conversion while the city is in disorder. A human city can retain a PROCESS while
+in disorder because CvCity::doProduction handles isProductionProcess() before its
+disorder early-return. Therefore the recorder can report Wealth/Research/Culture
+conversion output that the city is not actually receiving on that turn.
+
+Ancestry: introduced in practical 6075 / commit 22dc2f0abd... with the
+productionConversionX100 field.
+
+Confidence: HIGH.
+
+
+F061 -- UNUSED
+
+
+IMPORTANT NEGATIVE RESULTS / CHALLENGED CANDIDATES
+--------------------------------------------------
+
+* Shared per-player previous-state deltaValid ordering is correct. Level-2
+  subrows consume/update their individual prior values before the common valid
+  bit is set at the end of the snapshot.
+
+* Player-history snapshot timing is valid: periodic recording occurs after each
+  player has updated current-turn economy/industry/agriculture/power/culture/
+  espionage history. Apparent missing-current-turn concerns are rejected.
+
+* Golden Age/anarchy cumulative increment timing matches the turn played under
+  those states; F058 is specifically the load-session lifetime-label problem,
+  not an off-by-one decrement-timing bug.
+
+* City happiness/unhappiness/health source decomposition matches CvCity engine
+  accounting essentially term-for-term. The odd global-warming *10 is K-Mod's
+  explicit percentage-to-parts-per-thousand conversion and is intentional.
+
+* tradeRoutes is route-slot capacity while domesticTradeRoutes/foreignTradeRoutes
+  count populated routes. This naming is somewhat ambiguous but follows the
+  engine getter vocabulary; no defect promoted.
+
+* War start/end hooks, spaceship launch/failure, capital victory-state logging,
+  production overflow sampling and Great-Person action hooks are on defensible
+  sides of the relevant state transitions.
+
+* Combat Great-Person death is not double logged: lethal kill occurs while the
+  unit is still in combat, suppressing the noncombat death hook; combatResult is
+  the ordinary combat-death record.
+
+* Buffered bombard sequences have a defensible flush/ordering mechanism and a
+  recursion guard. No dropped/reordered-row root found.
+
+* Production overflow is not double-counted. handleOverflow increments the
+  interval overflow totals; completion hooks count completed objects and repeat
+  overflow values only on detailed attribution rows.
+
+* Worker buildTurnsLeft theoretically has a MAX_INT branch, but the recorder asks
+  it only for a live currently executing build where the worker itself contributes
+  work. No reachable zero-rate current-build state established; do not promote.
+
+* Great-Person specialist indexing would be unsafe for NO_SPECIALIST in isolation,
+  but the sole CvUnit::join caller reaches it only after canJoin validation rejects
+  NO_SPECIALIST / invalid specialist state. Unreachable; rejected.
+
+* visibleCombatEnemiesR2 excludes ordinary aircraft (base combat 0, air combat >0).
+  After tracing its settler/worker diagnostic purpose, this is not strong enough
+  to prove a bug: the field can reasonably mean nearby direct ground/naval danger,
+  and ordinary air attacks cannot capture settlers. Keep as naming ambiguity only.
+
+* researchTurns=-1 is explicitly AdvCiv's "infinitely many turns" contract;
+  victory countdown -1 is the real inactive-state contract; vote-source timers
+  are maintained nonnegative. No second accidental MAX_INT leak like F059 found.
+
+
+MECHANICAL / STRUCTURAL CLOSURE STATE
+-------------------------------------
+
+Definition inventory:
+  284 live top-level definitions / 280 unique callable names after reconciling
+  constructors and intentional overloads.
+
+Static helpers:
+  209 static helpers; every one has at least one live use. No orphan helper found.
+
+Header/definition/caller wiring:
+  Every header-declared hook has a definition.
+  Every externally intended hook checked has an external caller.
+  The apparent exceptions are intentional:
+    - two getter functions are consumed through header macros;
+    - logSASGameRecordRunStatus is intentionally internal to snapshot generation.
+
+Literal format arity:
+  Whole CvGameCoreDLL scan (including generic calls in CvPlayer.cpp, CvUnit.cpp,
+  CvDeal.cpp) found 172 literal logSASGameRecord call sites and ZERO
+  format-specifier / argument-count mismatches.
+
+Vararg type audit:
+  NOT YET COMPLETE. The format corpus contains approximately 1675 %d, 390 %s,
+  38 %S and 4 %u conversions. Argument counts are proven clean; the remaining
+  important closure task is to finish narrow/wide/integer argument-type checking.
+
+Index/enum/nullability sweep:
+  Largely complete and currently clean. Public textual hook arguments checked are
+  guarded or supplied from stable literal/XML-owned strings; mission-queue empty
+  state is safely NO_MISSION; representative enum-indexed containers use valid
+  engine enum state with expected NO_* guards.
+
+Divisor/sentinel sweep:
+  Largely complete. Percentage/division sites found so far are protected by
+  max(1,...), positive construction or valid populated-record contracts. No new
+  unsafe denominator promoted. No second accidental MAX_INT field beyond F059.
+
+Known-Issue collision check:
+  KI#374 through KI#381 are free in the current supplied tree.
+
+Source modifications:
+  NONE. Audit only.
+
+
+EXACT NEXT CURSOR
+-----------------
+File 011 remains OPEN.
+
+Resume from:
+  1. finish vararg TYPE audit (%d / %s / %S / %u), not just count audit;
+  2. finish any remaining event-hook mutation timing / string lifetime edge cases;
+  3. final adversarial reread of F053-F060 against engine contracts and ancestry;
+  4. recheck KI#374-KI#381 collision/current-source state;
+  5. decide whether SASGameRecordLog.cpp can become durable C012 (11/169 files)
+     or requires another WIP.
+
+F061 remains UNUSED. Do not invent one merely to increase the finding count.
+
+
+===============================================================================
+C011-WIP03 -- FILE 011 SASGameRecordLog.cpp LATE-CLOSURE CHECKPOINT
+===============================================================================
+
+STATUS
+------
+Source baseline remains practical 6244 / HEAD 9f56202d8b... from the supplied
+AdvCiv-SAS_light_source_20260824T132346.zip.
+
+File 011 remains OPEN while the final adversarial closure pass finishes.
+Durable completed-file count remains 10/169.
+
+C011-WIP02 is preserved byte-for-byte as the cumulative prefix. This append
+records the work performed after WIP02: completion of the structured-varargs
+type audit, static-state lifecycle closure, another adversarial reread of the
+existing roots, and promotion of one late independent telemetry root, F061.
+F062 is currently UNUSED.
+
+NEW ROOT
+--------
+
+F061 / provisional KI#382 -- session rollover can discard pending buffered telemetry
+
+The logger deliberately buffers some records until an ordering boundary rather
+than writing them immediately:
+
+* CITY_BOMBARD actions are accumulated in g_kSASGameRecordPendingCityBombard
+  and emitted by flushSASGameRecordPendingCityBombard().
+* batched plot-change coordinates are accumulated in
+  g_aSASGameRecordPlotChanges with g_iSASGameRecordPendingPlotTurn.
+* incremental revelation coordinates are accumulated in
+  g_aaSASGameRecordRevealedPlots.
+
+Ordinary ordering is sound: logSASGameRecord() flushes a pending bombard before
+an unrelated row, flushSASGameRecordTurnChanges() flushes bombard plus the
+turn-local coordinate buffers, and endGameTurn calls that turn flush.
+
+The session-start paths are different. Both
+startSASGameRecordLogForNewGame() and startSASGameRecordLogForLoadedSave() do:
+
+    rollSASGameRecordLog(...);
+    resetSASGameRecordState();
+
+resetSASGameRecordState() then clears the pending bombard object, pending plot
+turn, plot-change groups and revelation coordinate vectors. There is no flush
+before that reset. Loading is particularly concrete because
+CvGame::onAllGameDataRead() starts the new loaded-save log only after all saved
+game state has already been read. Therefore an old-session pending buffer cannot
+be reconstructed after the reset.
+
+Reachable example: perform a city bombardment at GameRecord level 3 and quickload
+before another ordinary GameRecord row/end-turn boundary. The bombard hook has
+only accumulated the action in static pending state. The loaded-save start path
+rolls to the new log and resets that state, so the final bombard sequence never
+appears in the old session log. Batched map/revelation coordinates have the same
+class of rollover loss when still pending.
+
+This is recorder durability/history loss, not gameplay behavior. It should not
+be overstated as corruption of already-written rows, and abrupt process exit may
+need a different solution. The deterministic load/new-game rollover path is the
+root established here.
+
+Repair direction needs care: simply flushing after onAllGameDataRead is too late
+for map-derived fields because the CvGame/CvMap object already represents the
+newly loaded state. A robust fix should flush/finalize pending old-session
+telemetry before destructive game-state replacement / before rolling the log, or
+make each pending record self-contained enough to finalize safely at rollover.
+CITY_BOMBARD itself is already largely self-contained; batched revelation rows
+also derive revealedPctX100 at flush time, so those need special attention.
+
+Ancestry: the pending plot-change architecture is already present when
+SASGameRecord replaces/absorbs SASGameSummary at practical 6083
+(cac3fa4d2b...). CITY_BOMBARD buffering is added at practical 6092
+(c30e4e1ef0...) together with reset-time clearing and ordinary-row/end-turn
+flushes, but no pre-session-rollover flush. Thus the common rollover gap is not
+inherited BtS/AdvCiv gameplay code; it belongs to SAS telemetry history.
+
+Confidence: HIGH for the deterministic pending-buffer loss; repair placement
+requires design care.
+
+
+VARARGS TYPE AUDIT -- COMPLETED
+-------------------------------
+
+A corrected whole-CvGameCoreDLL parser now recognizes comparison operators
+without mistaking '<'/'>' expressions for C++ template nesting. Exact literal
+logSASGameRecord corpus:
+
+* 172 literal call sites
+* 2,107 format conversions
+* 1,675 %d
+* 390 %s
+* 38 %S
+* 4 %u
+* zero format/argument-count mismatches
+
+The type-level follow-up is also clean:
+
+* all 38 %S values are genuine wide-string inputs (CvWString/wchar data),
+* all 4 %u values are unsigned values (CvRandom seed / uint timing values),
+* no %d site passes a Cv object/reference/pointer in the manner of the historical
+  pPlot->getArea() varargs crash; container .size() values are explicitly cast
+  to int, and numeric/bool/enum values have valid default promotions,
+* no %s/%S narrow/wide crossover was found; temporary CvString values whose
+  GetCString() is passed remain alive through the complete call expression.
+
+The old bonus-change CvArea& crash is therefore a useful negative control rather
+than evidence of another surviving formatter-type bug. No F062 from varargs.
+
+
+STATIC-STATE LIFECYCLE -- COMPLETED
+-----------------------------------
+
+All file-scope GameRecord state was inventoried again. Session identity/timing
+state (timestamp/context, session and previous-snapshot timer, display-context
+flag) is intentionally reset by rollSASGameRecordLog(). Recorder observation
+state (battle/city totals, player/team/global previous snapshots, flow buckets,
+war summaries, pending plot/revelation/bombard state, autoplay counters, etc.) is
+reset by resetSASGameRecordState().
+
+g_bSASGameRecordFlushingCityBombard is not persistent session data: it is a
+short synchronous recursion guard set immediately around one synthetic write and
+restored immediately afterward. No stale-session root was found there.
+
+The one state-lifecycle failure is F061 above: valid pending observations are
+cleared at rollover before being finalized.
+
+
+F053-F060 FINAL-CHALLENGE NOTES SO FAR
+--------------------------------------
+
+F053 remains HIGH confidence. CvUnit::isEnemy explicitly documents that the
+supplied plot controls combat ownership. getCombatOwner_bulk turns an
+always-hostile unit into BARBARIAN_PLAYER when isAlwaysHostile(kPlot) is true,
+while isAlwaysHostile(kPlot) deliberately becomes false in the unit owner's base
+territory. Passing the observer center instead of pLoopPlot can therefore change
+the answer. A concrete direction is an always-hostile/hidden-nationality unit on
+its own base tile near a foreign observer center: the actual unit plot suppresses
+always-hostile ownership, whereas the foreign center need not. The duplicated
+CvUnitAI diagnostic helper has the same wrong-plot expression.
+
+F054 remains HIGH confidence. The 2048-byte _vsnprintf sink silently truncates
+rather than failing safely at the schema level. The current sample does not hit
+it, but legality-aware city-building payloads can exceed it before fixed row
+fields are added.
+
+F055 remains HIGH confidence. The recorded field/comment specifically describes
+stationary espionage cost-reduction preparation, but all fortified spy-like
+units are counted regardless of deployment; ordinary mission cost reduction uses
+the acting pSpyUnit's fortify turns, and UNIT_GREAT_SPY has XML bSpy=0 while this
+metric explicitly includes UNITAI_GREAT_SPY.
+
+F056 remains VERY HIGH confidence. CvUnit::updateCombat calls combatResult before
+a surviving attacker advances. On attacker death, pLoser is therefore still on
+the attacker's origin plot; on defender death, pLoser is on the attacked target.
+Using pLoser->plot() cannot represent the battle tile symmetrically. This affects
+coordinates and the derived cityPlot aggregates, plus detailed death/battle rows.
+Simply substituting pWinner->plot() is not a universal repair because on a
+defender death the winning attacker also has not advanced yet; the actual target
+plot must be propagated/reconstructed from combat context.
+
+F057 remains VERY HIGH confidence. Battle counters can be reset by a forced
+victory snapshot mid-configured-interval and can begin observation only after an
+arbitrary-turn save load, yet range start is always back-calculated from the
+configured interval. The newer flow bucket's explicit g_iSASGameRecordFlowStartTurn
+is the local correct-pattern control.
+
+F058 remains HIGH confidence as a schema/session-accuracy root. The arrays are
+reset on every loaded-save log and only count player turns observed afterward,
+yet rows call them totalGoldenAgeTurns/totalAnarchyTurns without a session or
+validity qualifier. Nearby recorder-local aggregates are explicitly named
+logged* or carry validity/start metadata.
+
+F059 remains VERY HIGH confidence and directly observed. CvCity exposes MAX_INT
+for process/no-order production and for finite production with zero production
+difference; GameRecord writes 2147483647 as an ordinary productionTurns /
+productionNeeded value. The supplied example demonstrates the sentinel.
+
+F060 remains HIGH confidence. getSASGameRecordCityProductionConversion claims to
+match CvCity::updateCommerce but omits updateCommerce's !isDisorder() guard.
+CvCity::doProduction handles a retained production process before its own
+disorder early-return, so PROCESS+disorder is reachable while actual process
+commerce is zero.
+
+
+REJECTED / CLOSED LATE CANDIDATES
+---------------------------------
+
+* Ordinary CITY_BOMBARD ordering itself is sound: next ordinary rows and
+  end-turn flushes preserve sequence order. F061 is specifically durability at
+  session rollover, not ordinary ordering.
+* Static logger state is otherwise partitioned correctly between roll/reset.
+* Full-map revelation begin/end assertions are backed by the sole CvTeam caller,
+  which supplies a real acquired map-visible tech and a valid civ team; no
+  release-assert-only mutation/root found.
+* Pending-turn equality is protected by prepareSASGameRecordTurnChanges(), which
+  flushes an older pending turn before beginning the new one.
+* Spaceship arrivalTurn = launchTurn + countdown survives timing reconstruction:
+  the first countdown decrement is on the next game turn, so N reaches zero at
+  launchTurn+N.
+* Air-strike/interception/bomb target locations are supplied from the actual
+  target context and do not share F056's lethal-ground-combat reconstruction.
+* Player elimination reconciliation timing survives review.
+* Worker build ETA, researchTurns=-1, victory countdown=-1, and other examined
+  sentinels remain valid under their caller/engine contracts; F059 is still the
+  distinct accidental raw MAX_INT exposure.
+
+
+STRUCTURAL CLOSURE STATE
+------------------------
+
+* 284 live top-level definitions / 280 unique callable names reconciled.
+* 209 static helpers, all with at least one live use.
+* Every header-declared hook has a definition.
+* Every externally intended hook has a live external caller; the two getter
+  exceptions are consumed by header macros and logSASGameRecordRunStatus is
+  intentionally internal.
+* Whole-DLL literal structured-varargs audit complete as above.
+* enum/index/nullability/sentinel/divisor scans have not produced another root.
+* KI#374-KI#381 were previously confirmed free in the current Known Issues file.
+  Current Known Issues ends at KI#363; therefore provisional KI#382 is also free.
+
+
+CURRENT NORMALIZED ROOT LEDGER
+------------------------------
+
+F053 / provisional KI#374 -- wrong plot context in nearby-enemy isEnemy checks
+F054 / provisional KI#375 -- fixed 2048-byte structured-row truncation ceiling
+F055 / provisional KI#376 -- stationary-spy preparation counts ineligible state
+F056 / provisional KI#377 -- attacker-loss combat uses origin as battle location
+F057 / provisional KI#378 -- battle-summary range ignores actual reset boundary
+F058 / provisional KI#379 -- session GA/anarchy observations labeled as totals
+F059 / provisional KI#380 -- raw MAX_INT production sentinel leaks into rows
+F060 / provisional KI#381 -- process conversion reported during city disorder
+F061 / provisional KI#382 -- session rollover can discard pending buffered rows
+F062 -- UNUSED
+
+
+EXACT NEXT CURSOR
+-----------------
+
+SASGameRecordLog.cpp remains OPEN.
+Resume at F062 UNUSED.
+
+1. Finish the final adversarial challenge of F053-F061, especially whether F061
+   should remain one common buffered-rollover root and whether any documented
+   design contract intentionally permits dropping the old-session tail.
+2. One last whole-file closure/sanity sweep for anything invalidated by the late
+   F061 lifecycle observation; do not manufacture F062.
+3. Reconfirm provisional KI#374-KI#382 numbering against the current tree.
+4. If all roots survive and no uncovered structural family remains, freeze
+   durable C012 and advance completed-file count to 11/169.
+5. If a real uncertainty remains, freeze another WIP instead.
+
+No repository source has been modified by this audit.
+===============================================================================
+
+
+===============================================================================
+C012 -- FILE 011 SASGameRecordLog.cpp DURABLE CLOSURE
+===============================================================================
+
+STATUS
+------
+Source audited: practical 6244 / HEAD
+9f56202d8b2f8e61dccf739f9e490fa8d69edc5e from the supplied
+AdvCiv-SAS_light_source_20260824T132346.zip.
+
+FILE 011 IS NOW COMPLETE for the current file-oriented audit.
+Durable completed-file count advances from 10/169 to 11/169.
+
+C011-WIP03 is preserved byte-for-byte as the cumulative prefix of this C012
+artifact. No repository source was modified by the audit.
+
+Nine independent current-tree SASGameRecord roots survive final adversarial
+review: F053-F061. F062 remains UNUSED for the next file.
+
+The current Known Issues document ends at KI#363. No headings KI#374-KI#382
+exist, so all provisional numbers below remain collision-free in practical 6244.
+
+
+FINAL NORMALIZED ROOT LEDGER -- FILE 011
+----------------------------------------
+
+F053 / provisional KI#374
+Nearby-enemy diagnostics evaluate combat ownership at the observer center plot,
+not the unit's actual plot.
+
+countSASGameRecordVisibleEnemiesNearPlot iterates pLoopUnit on pLoopPlot but calls
+pLoopUnit->isEnemy(eTeam, kCenter). CvUnit::isEnemy explicitly uses the supplied
+plot to determine combat ownership. getCombatOwner_bulk can map an always-hostile
+unit to BARBARIAN_PLAYER depending on isAlwaysHostile(kPlot), while
+isAlwaysHostile(kPlot) deliberately becomes false in the unit owner's base
+territory. Therefore replacing pLoopPlot by kCenter can change enemy status.
+
+A concrete direction is an always-hostile/hidden-nationality unit standing on
+its own team's base tile near a foreign center: its actual tile suppresses
+always-hostile ownership, while the foreign center need not. The same wrong-plot
+expression is duplicated in CvUnitAI.cpp's settler diagnostic helper.
+
+Affected telemetry includes visibleEnemiesR2, visibleCombatEnemiesR2 and
+nearestEnemy*; no direct gameplay AI behavior is changed by the GameRecord copy,
+although the duplicated CvUnitAI diagnostic also becomes misleading.
+
+Repair direction: call isEnemy(eTeam, *pLoopPlot) / use the unit's actual plot.
+Confidence: HIGH.
+
+
+F054 / provisional KI#375
+The fixed 2048-byte structured formatter can silently truncate valid rows.
+
+logSASGameRecordFormattedLine formats every structured row through a static
+char[2048] using MSVC _vsnprintf. KI#161.2 correctly forces the final NUL byte,
+preventing the historical unterminated-buffer/heap-crash class, but oversized
+rows are still silently cut and then written as if complete.
+
+This is reachable for variable-length machine-readable inventories. The supplied
+example log does not hit the ceiling (largest observed row about 1.64 KB), which
+is preserved as an important negative observation. However SAS has 123 building
+classes; after civilization-specific building mappings and ordinary national-
+wonder constraints, a legal mature city can still hold roughly 117 distinct
+building entries. Their TYPE:count payload alone can be about 2.8 KB for several
+civilizations before the fixed GAME_RECORD_CITY_BUILDINGS fields are included.
+Other intentionally large map producers already chunk around ~1500 bytes, a
+useful local control showing that bounded output is part of the logger design.
+
+Repair direction: use a dynamically sized formatting path, or make every
+unbounded structured payload use explicit chunking with part/parts metadata.
+Confidence: HIGH (reachable structural data loss, not demonstrated in the sample).
+
+
+F055 / provisional KI#376
+The stationary espionage-preparation metric counts states that cannot provide the
+claimed ordinary-spy stationary cost reduction.
+
+logSASGameRecordEspionage describes foreign deployment, city infiltration and
+"stationary cost-reduction preparation". It counts any included unit with
+getFortifyTurns()>0, independent of where it is standing, and explicitly includes
+UNITAI_GREAT_SPY. Actual espionage mission cost reduction uses the acting
+pSpyUnit->getFortifyTurns(); a spy fortified at home is not presently positioned
+to use that target discount, and UNIT_GREAT_SPY has XML bSpy=0 despite the
+logger's UNITAI_GREAT_SPY inclusion.
+
+Thus stationarySpies/maxFortifyTurns can report apparent mission preparation
+that consists only of home-idle ordinary spies or Great Spies rather than a
+usable stationary infiltration state.
+
+Repair direction: define the metric explicitly and count only ordinary spy units
+in an eligible foreign/mission context if it is intended to measure current
+stationary mission discount. Alternatively rename/split the raw fortified-unit
+metric so it does not claim cost-reduction readiness.
+Ancestry: introduced in practical 6046 (559ee966cb...).
+Confidence: HIGH.
+
+
+F056 / provisional KI#377
+Lethal attacker losses are recorded at the attacker's origin, not the battle
+target, causing direction-dependent combat-location and city-battle accounting.
+
+CvUnit::updateCombat has the true target as pPlot. When the attacker dies it
+calls combatResult(pDefender, this) before the dead attacker has moved from its
+origin plot. When the defender dies it calls combatResult(this, pDefender), and
+the defender naturally resides on the target plot. logSASGameRecordCombatResult
+then reconstructs the battle tile as pLoser->plot(). The same expression is
+therefore correct only when the defender loses.
+
+Consequences for attacker-loss combat include wrong x/y, failed attacks against a
+city becoming cityPlot=0, wrong interval/per-war cityPlot wins/losses, and wrong
+locations on detailed BARBARIAN_COMBAT / GAME_RECORD_BATTLE rows. Combat Great
+General/Great Person death rows also read the losing unit's coordinates and can
+inherit the same attacker-origin location.
+
+Simply switching to pWinner->plot() is not a general repair because a winning
+attacker also has not advanced at the defender-death callback. The actual combat
+target plot (or equivalent attacker/defender context) should be propagated to the
+GameRecord hook.
+
+Ancestry: present in the original practical-6083 GameRecord combat implementation;
+6100/6103 later reused the derived cityPlot in additional flow/war summaries.
+Confidence: VERY HIGH.
+
+
+F057 / provisional KI#378
+GAME_RECORD_BATTLE_SUMMARY fabricates the displayed observation interval instead
+of tracking the actual counter-reset boundary.
+
+logSASGameRecordBattleBuckets derives startTurn as
+currentTurn - configuredInterval + 1. But its counters can start/reset at other
+boundaries: a loaded-save session can begin on an arbitrary turn, and victory can
+force a full snapshot/battle-bucket reset in the middle of the configured
+interval. The first new-game bucket also can contain turn-0 combat while a
+turn-10 / interval-10 row displays range=1-10.
+
+The newer production/military flow bucket is the local correct-pattern control:
+it carries g_iSASGameRecordFlowStartTurn, initializes it to the actual log-session
+turn, and advances it to iGameTurn+1 after a flush.
+
+Repair direction: track an explicit battle-bucket start turn and update it at
+every reset, analogous to the flow bucket.
+Confidence: VERY HIGH.
+
+
+F058 / provisional KI#379
+Golden Age/anarchy recorder-session observations are emitted as unqualified
+lifetime totals after a loaded save.
+
+g_aiSASGameRecordTotalGoldenAgeTurns and
+ g_aiSASGameRecordTotalAnarchyTurns are reset to zero whenever a new loaded-save
+GameRecord session starts, then increment once for each player turn observed in
+that session. Nevertheless GAME_RECORD_PLAYER and related action rows expose them
+as totalGoldenAgeTurns / totalAnarchyTurns without a validity/session qualifier.
+A turn-200 load can therefore report zero lifetime total despite earlier Golden
+Ages/anarchy that occurred before the load.
+
+This differs from nearby recorder-local quantities whose schema is explicit:
+loggedBattle*, loggedCities*, deltaValid, unknown loaded-war start baselines, and
+flow start turns.
+
+Repair direction: rename/qualify as logged/session totals and expose session start
+or validity, or persist/reconstruct true lifetime counters if lifetime semantics
+are desired.
+Confidence: HIGH (schema/telemetry accuracy, not gameplay logic).
+
+
+F059 / provisional KI#380
+Raw CvCity MAX_INT production sentinels leak into structured city rows as ordinary
+numeric values.
+
+GAME_RECORD_CITY writes CvCity::getProductionTurnsLeft() and
+getProductionNeeded() directly. CvCity returns MAX_INT for no finite current
+order / ORDER_MAINTAIN process, and getProductionTurnsLeft can also return MAX_INT
+for an ordinary unit/building/project whenever current production difference is
+zero, e.g. during disorder. The supplied example log directly contains
+2147483647 in these fields, including process/empty-production states and finite
+production under anarchy/disorder.
+
+GAME_RECORD_BARBARIAN_CITY also writes getProductionTurnsLeft() directly and
+shares the productionTurns sentinel exposure.
+
+Repair direction: translate MAX_INT to an explicit schema sentinel such as -1
+(or a textual state/validity field) and keep finite productionNeeded only where a
+finite train/construct/create order exists.
+Ancestry: dates to practical 6022's initial SASGameSummary city-detail row.
+Confidence: VERY HIGH and directly observed.
+
+
+F060 / provisional KI#381
+productionConversionX100 reports process output during disorder although
+CvCity::updateCommerce gives the city zero process commerce then.
+
+getSASGameRecordCityProductionConversion says it matches CvCity::updateCommerce,
+but if a process is selected it always multiplies production yield by the
+production-to-commerce modifier. The real CvCity::updateCommerce performs both
+ordinary commerce and process conversion only inside if (!isDisorder()).
+CvCity::doProduction can retain a production process during disorder because the
+process branch returns before doProduction's later disorder early-return.
+PROCESS + disorder is therefore a reachable state with actual conversion zero
+but positive GameRecord productionConversionX100.
+
+Repair direction: return '-' / zero conversion while isDisorder(), mirroring the
+engine contract the helper explicitly claims to reconstruct.
+Ancestry: introduced practical 6075 (22dc2f0abd...).
+Confidence: HIGH.
+
+
+F061 / provisional KI#382
+Starting a loaded/new game can discard still-buffered telemetry from the old log
+session before it is ever written.
+
+CITY_BOMBARD actions, batched plot-change coordinates and incremental revelation
+coordinates are intentionally buffered. During ordinary play, the generic logger
+and end-turn flush preserve ordering and eventually write them. However both
+startSASGameRecordLogForNewGame() and startSASGameRecordLogForLoadedSave() roll the
+log and then call resetSASGameRecordState(), which clears all pending buffers;
+there is no pre-roll/pre-reset finalization.
+
+Concrete deterministic example: perform a city bombard at log level 3, then
+quickload before another ordinary GameRecord row/end-turn. The bombard exists
+only in g_kSASGameRecordPendingCityBombard. CvGame::onAllGameDataRead starts the
+new loaded-save log after the new game state has been read, and reset discards the
+old pending action, so it never reaches the old session file. Pending map/reveal
+batches have the same class of tail loss.
+
+Project documentation describes SASGameRecord as a compact factual whole-game /
+autoplay record, and load sessions deliberately roll to distinct loadN logs; no
+contract was found that permits dropping the old branch tail. Victory explicitly
+flushes pending turn changes before its final snapshot, reinforcing that pending
+history is meant to be finalized at important boundaries.
+
+Repair placement needs care. Flushing map-derived rows only after
+onAllGameDataRead is too late because the game/map state already belongs to the
+newly loaded save; either finalize the old session before destructive state
+replacement/log roll or make buffered rows self-contained enough for safe late
+finalization.
+
+Ancestry: the pending plot architecture is already present when GameRecord is
+introduced/renamed at practical 6083 (cac3fa4d2b...); CITY_BOMBARD buffering is
+added at practical 6092 (c30e4e1ef0...) with normal-boundary flushes and
+reset-time clearing but no session-rollover flush.
+Confidence: HIGH for deterministic pending-buffer loss; repair architecture is
+less trivial than the diagnosis.
+
+
+FINAL WHOLE-FILE CLOSURE EVIDENCE
+---------------------------------
+
+1. Definition/header/helper inventory
+
+* 284 live top-level definitions / 280 unique callable names reconciled.
+* 209 static helpers; every one has at least one live use.
+* Every SASGameRecordLog.h declaration has a definition.
+* Every externally intended public hook has a live external caller. The two
+  apparent getter exceptions are consumed through header macros;
+  logSASGameRecordRunStatus is intentionally internal to snapshot generation.
+
+No orphan hook/helper root remains.
+
+2. Structured varargs audit
+
+A corrected parser over the entire CvGameCoreDLL finds exactly:
+
+* 172 literal logSASGameRecord call sites
+* 2,107 conversions total
+* 1,675 %d
+* 390 %s
+* 38 %S
+* 4 %u
+* zero format/argument-count mismatches
+
+Type challenge also closes cleanly: all %S arguments are wide strings, all %u
+arguments are unsigned values, narrow/wide %s crossover was not found, temporary
+CvString lifetimes survive the full call expression, container .size() arguments
+are explicitly int-cast, and no remaining %d expression passes a class/object
+reference like the already-fixed CvArea& bonus-change crash.
+
+3. Static state/reset lifecycle
+
+All session identity/timing state is deliberately owned by rollSASGameRecordLog;
+all recorder observation/counter/previous-state state is reset by
+resetSASGameRecordState. The bombard flushing bool is a synchronous recursion
+guard and cannot become ordinary stale session data. F061 is the one surviving
+lifecycle defect: valid pending observations are cleared rather than finalized.
+
+4. Index/enum/nullability/sentinel/divisor sweep
+
+No additional live invalid index or caller-nullability root survived. Several
+apparently unsafe helpers become safe under their sole validated callers (e.g.
+Great-Person join specialist indexing). Direct division sites have positive
+construction or explicit guards; landmass divisions run only for positive-sized
+landmasses and team percentages guard world totals. Worker build ETA, research
+-1, victory countdown -1 and vote timers follow valid engine contracts. F059 is
+the distinct accidental raw MAX_INT schema leak.
+
+5. Snapshot and event timing
+
+Player-history timing, Golden Age/anarchy per-turn sampling, city health/happiness
+reconstruction, production overflow ownership, war start/end, spaceship launch /
+failure, capital victory-progress removal, Great-Person actions, air strike /
+interception/bombing and player-elimination reconciliation were traced to their
+mutation points. No additional event-order root survived. Ground lethal combat
+location remains the asymmetric F056 exception.
+
+6. Rejected semantic candidates retained as negative controls
+
+* deltaValid common-bit ordering is correct.
+* tradeRoutes capacity versus populated domestic/foreign route counts is naming
+  ambiguity consistent with engine getter vocabulary, not a promoted defect.
+* ordinary bombard sequence ordering/recursion is correct; only rollover
+  durability is F061.
+* aircraft omission from visibleCombatEnemiesR2 was not strong enough to call a
+  bug under the settler/worker direct-danger diagnostic semantics.
+* combat Great-Person deaths are not normally double logged.
+* overflow totals are not double counted by completion rows.
+* full-map revelation assertion contracts are guaranteed by the sole CvTeam
+  caller in supported current flow.
+* spaceship arrivalTurn arithmetic matches countdown timing.
+* no second MAX_INT-like sentinel leak was established.
+
+7. Base / ancestry classification
+
+SASGameRecordLog is SAS-specific, so most roots are telemetry/schema issues rather
+than inherited AdvCiv/Civ4CE behavior. Base/AdvCiv engine code was used to prove
+contracts where necessary (CvUnit combat ownership, CvCity production/commerce,
+combat callback timing). Snapshot commit-diff archaeology was used to date the
+SAS regressions/features where useful. No root is being mislabeled as a base
+AdvCiv gameplay bug merely because an engine getter participates in it.
+
+
+CLOSURE DECISION
+----------------
+
+SASGameRecordLog.cpp is defensibly exhausted for this pass. The nine roots above
+remain independently actionable after explicit attempts to disprove them; late
+whole-file passes killed several weaker candidates instead of manufacturing
+F062. No uncovered method/helper/caller/state/index/format/divisor/event family
+remains that justifies keeping file 011 open.
+
+FILE 011 STATUS: COMPLETE -- REVIEWED / NINE NEW SAS TELEMETRY FINDINGS
+COMPLETED FILES: 11 / 169
+NEXT ROOT ID: F062 (UNUSED)
+
+NEXT FILE
+---------
+
+012  6326  CvGameCoreDLL/CvDLLWidgetData.cpp
+
+Start the next file from its structure/public entry points/callers, then proceed
+through tooltip/action/widget dispatch families and engine/UI contracts with the
+same evidence standard. Do not carry SASGameRecord-specific hypotheses into the
+new file unless a real caller/cross-file relationship requires it.
+
+No repository source was modified.
+===============================================================================

@@ -441,6 +441,9 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [371 - (Fixed inherited K-Mod coalition-aggregation defect) War-success ratings omitted vassal battles and unit scale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#371---fixed-inherited-k-mod-coalition-aggregation-defect-war-success-ratings-omitted-vassal-battles-and-unit-scale)\
 [372 - (Fixed inherited AdvCiv pricing regression) Legacy joint-war proposals balanced deals from -1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#372---fixed-inherited-advciv-pricing-regression-legacy-joint-war-proposals-balanced-deals-from--1)\
 [373 - (Fixed inherited BtS/AdvCiv contract mismatch) Voluntary-vassal UWAI joint-war targets were universally blocked](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#373---fixed-inherited-btsadvciv-contract-mismatch-voluntary-vassal-uwai-joint-war-targets-were-universally-blocked)\
+[374 - (Fixed AdvCiv-SAS diagnostic regression) Nearby-enemy helpers tested hostility at the center plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#374---fixed-advciv-sas-diagnostic-regression-nearby-enemy-helpers-tested-hostility-at-the-center-plot)\
+[375 - (Fixed AdvCiv-SAS diagnostic data-loss defect) Structured GameRecord rows silently stopped at 2047 bytes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#375---fixed-advciv-sas-diagnostic-data-loss-defect-structured-gamerecord-rows-silently-stopped-at-2047-bytes)\
+[376 - (Fixed AdvCiv-SAS diagnostic classification defect) Stationary-spy preparation included home-idle and Great Spies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#376---fixed-advciv-sas-diagnostic-classification-defect-stationary-spy-preparation-included-home-idle-and-great-spies)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9735,3 +9738,27 @@ The inherited BtS `CvPlayer::canTradeItem(TRADE_WAR)` gate nevertheless rejected
 The fix permits a voluntary-vassal `TRADE_WAR` target only when full UWAI is enabled. Capitulated targets remain invalid. Legacy Aggressive AI, disabled UWAI and background UWAI also retain the universal vassal gate because their declaration valuation still prices the raw vassal instead of the required master coalition. Thus the intended UWAI feature becomes reachable without exposing the known legacy underpricing hazard. After compilation, a standard full-UWAI Huge Pangaea autoplay completed normally with a turn-439 Cultural victory. This broadly exercised UWAI diplomacy; the exact voluntary-vassal joint-war trade remains source-verified rather than directly observed.
 
 This is an inherited BtS gate conflicting with AdvCiv/UWAI's explicit voluntary-vassal joint-war contract, not an AdvCiv-SAS regression. Found through the completed CvTeamAI pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol and compile/runtime-smoke-tested with the help of wonderingabout, thanks.
+
+## 374 - (Fixed AdvCiv-SAS diagnostic regression) Nearby-enemy helpers tested hostility at the center plot
+
+The SASGameRecord city-unit snapshot and BBAI/SAS Settler-parking diagnostic each scan units on nearby plots. Both helpers passed the search center to `CvUnit::isEnemy` instead of the nearby unit's actual plot. That plot argument affects combat ownership and always-hostile/hidden-nationality rules, so the logs could classify a nearby unit according to the city or Settler plot's context and report incorrect visible-enemy counts, combat-enemy counts, nearest-enemy identity or distance. The helpers are diagnostic-only and do not make AI decisions.
+
+The fix passes each unit's loop plot to `isEnemy` in both duplicated helpers. After compilation, a 500-turn full autoplay completed with a Time victory and wrote 186 nearby-enemy snapshot rows without an observed issue. AdvCiv-SAS practical 6026 introduced the helpers with the center-plot argument already present; this is an AdvCiv-SAS diagnostic regression, not an inherited AdvCiv, K-Mod or BtS issue.
+
+Found through the open `SASGameRecordLog.cpp` pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 375 - (Fixed AdvCiv-SAS diagnostic data-loss defect) Structured GameRecord rows silently stopped at 2047 bytes
+
+The central SASGameRecord formatter used one 2048-byte buffer. Its KI#161.2 hardening correctly guaranteed NUL termination when legacy MSVC `_vsnprintf` truncated the output, but the logger still silently discarded everything after byte 2047. Structured rows can contain growing building, unit-type, unit-AI and promotion inventories, so a mature or extended game could lose trailing fields or end midway through a machine-readable token. Manually chunked map rows avoided the ceiling, but the many other dynamic producers did not.
+
+The fix replaces the arbitrary fixed buffer with the DLL's existing old-MSVC-compatible `CvString::formatv` grow-and-retry formatter. A complete row now reaches `logMsg`; if the established bounded formatter itself fails, the row is asserted and omitted instead of logging silently truncated data. The compiled 500-turn autoplay wrote 78,355 rows through the new formatter and completed normally. Its longest row was 1,644 characters, so the ordinary formatter path received broad runtime coverage while the grow-beyond-2047 branch remains source-verified. The fixed-buffer pattern entered with the AdvCiv-SAS GameRecord around practical 6022, while KI#161.2 addressed its separate termination/crash hazard. This is an AdvCiv-SAS diagnostic data-integrity defect, not an inherited AdvCiv, K-Mod or BtS issue.
+
+Found through the open `SASGameRecordLog.cpp` pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 376 - (Fixed AdvCiv-SAS diagnostic classification defect) Stationary-spy preparation included home-idle and Great Spies
+
+The `GAME_RECORD_ESPIONAGE` fields `stationarySpies` and `maxFortifyTurns` were documented as stationary mission-cost-reduction preparation, but counted fortify turns for every ordinary Spy and every `UNITAI_GREAT_SPY` anywhere. Fortify turns are a general unmoved-unit counter: a Spy fortified at home must move and lose that preparation before reaching a foreign target, while Great Spies have `bSpy=0` and do not receive the ordinary stationary espionage-mission discount. The snapshot could therefore report prepared discounted missions when it contained only home-idle Spies or stationary Great Spies.
+
+The fix counts fortify turns only for ordinary `isSpy()` units on a structurally valid espionage-mission plot. `canEspionage(..., true)` deliberately validates the foreign target context without making the periodic diagnostic depend on whether the mission button is usable at that exact snapshot; Great Spies remain visible through their existing separate count and deployment fields. The compiled 500-turn autoplay wrote 550 espionage snapshots, including 76 with positive stationary preparation and three with Great Spies, and completed without an observed issue. AdvCiv-SAS practical 6046 introduced this diagnostic interpretation, so this is an AdvCiv-SAS-only classification defect.
+
+Found through the open `SASGameRecordLog.cpp` pass in the current-tree C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
