@@ -673,6 +673,8 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 		// <!-- custom: add tooltip in Foreign Advisor glance tab. Credit: Gemini 3 Pro. (Claude code Sonnet 4.5 (summarized)) -->
 		// Vassal Check for Glance Screen
 		// eRival = m_iData1 (Column), ePlayer = m_iData2 (Row)
+		// <!-- custom: The vassal-helper refactor accidentally removed AdvCiv's independent explanation for the optional War Trades fist. Restore it before appending vassal willingness so both visible statuses remain explained. See KI#383. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		GAMETEXT.parseWarTradesHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
 		parseVassalWillingnessHelp(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1, (PlayerTypes)widgetDataStruct.m_iData2);
 		// End - Vassal Check for Glance Screen
 
@@ -1123,7 +1125,6 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	CvPythonCaller const& py = *GC.getPythonCaller();
 	int iData1 = widgetDataStruct.m_iData1;
 	int iData2 = widgetDataStruct.m_iData2; // </advc.003y>
-	CvCivilization const& kActiveCiv = *GC.getGame().getActiveCivilization();
 	bool bHandled = true;
 	switch (widgetDataStruct.m_eWidgetType)
 	{
@@ -1143,11 +1144,25 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 		break;
 	// K-Mod end
 	case WIDGET_TRAIN:
-		py.jumpToPedia(kActiveCiv.getUnit((UnitClassTypes)iData1), "Unit");
+	{
+		// <!-- custom: AdvCiv hoisted this lookup above the switch, forming an invalid reference for every opening-menu Pedia right click where no active player/civilization exists. Only class-based city-production widgets require it; fail explicitly if one somehow appears without an active civilization. See KI#384. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvCivilization const* pActiveCiv = GC.getGame().getActiveCivilization();
+		FAssert(pActiveCiv != NULL);
+		if (pActiveCiv == NULL)
+			bHandled = false;
+		else py.jumpToPedia(pActiveCiv->getUnit((UnitClassTypes)iData1), "Unit");
 		break;
+	}
 	case WIDGET_CONSTRUCT:
-		py.jumpToPedia(kActiveCiv.getBuilding((BuildingClassTypes)iData1), "Building");
+	{
+		// <!-- custom: Resolve the active civilization locally for the second class-based production widget too, leaving all direct Pedia links safe in opening-menu state. See KI#384. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvCivilization const* pActiveCiv = GC.getGame().getActiveCivilization();
+		FAssert(pActiveCiv != NULL);
+		if (pActiveCiv == NULL)
+			bHandled = false;
+		else py.jumpToPedia(pActiveCiv->getBuilding((BuildingClassTypes)iData1), "Building");
 		break;
+	}
 	case WIDGET_CREATE:
 		py.jumpToPedia(iData1, "Project");
 		break;
@@ -2839,7 +2854,8 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
 		{
 			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
-			if (!kSelectedUnit.canEspionage(&kMissionPlot))
+			// <!-- custom: BtS tested the ordinary Spy espionage mission here, excluding Great Spies even when the Infiltrate action was valid. Use the mission's own visible-test predicate before displaying its espionage-point yield. See KI#386. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (!kSelectedUnit.canInfiltrate(&kMissionPlot, true))
 				continue;
 			szTempBuffer.Format(L"%s+%d%c", NEWLINE,
 					kSelectedUnit.getEspionagePoints(&kMissionPlot),
@@ -4720,6 +4736,7 @@ void CvDLLWidgetData::parseTradeItem(CvWidgetDataStruct &widgetDataStruct, CvWSt
 		break;
 	}
 	case TRADE_PEACE:
+		// <!-- custom: GET_TEAM accepts this PlayerTypes value through CvGamePlay::getTeam(PlayerTypes), which converts it with TEAMID; an additional explicit conversion would be redundant. This is the non-AI counterpart of the CoreAI overload reviewed in KI#311. See KI#387. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		szBuffer.append(gDLL->getText("TXT_KEY_TRADE_MAKE_PEACE",
 				GET_TEAM(eWhoFrom).getName().GetCString(),
 				GET_TEAM((TeamTypes)widgetDataStruct.m_iData2).getName().GetCString()));

@@ -13113,7 +13113,7 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		itThird.hasNext(); ++itThird)
 	{
 		CvPlayerAI const& kThird = *itThird;
-		// <!-- custom: Replacing eFromPlayer with the existing eTheirTeam was reviewed and rejected as a semantic no-op: GET_TEAM is intentionally overloaded for PlayerTypes and resolves the player's actual team through TEAMID. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: Replacing eFromPlayer with the existing eTheirTeam was reviewed and rejected as a semantic no-op: GET_TEAM is intentionally overloaded for PlayerTypes and resolves the player's actual team through TEAMID. KI#387 records the parallel non-AI CvGamePlay overload. See KI#311. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (!GET_TEAM(eFromPlayer).isHasMet(kThird.getTeam()))
 			continue;
 		/*  The trade partners don't necessarily know all those cities, but the

@@ -810,8 +810,7 @@ bool CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom, bool bIgnoreBarb) co
 		if (bIgnoreBarb && (itEnemy->isBarbarian() || itEnemy->isMinorCiv()))
 			continue;
 		// <!-- custom: A master-keyed preparation must also test paths to its vassals' actual cities. See KI#368. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (AI_getWarPlanForPreparation(itEnemy->getID()) != NO_WARPLAN &&
-			AI_isHasPathToEnemyCity(kFrom, *itEnemy))
+		if (AI_getWarPlanForPreparation(itEnemy->getID()) != NO_WARPLAN && AI_isHasPathToEnemyCity(kFrom, *itEnemy))
 		{
 			return true;
 		}

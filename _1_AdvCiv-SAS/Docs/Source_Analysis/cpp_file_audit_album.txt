@@ -19,11 +19,6 @@ LOCAL RECONCILIATION AFTER C010-WIP22 IMPORT
 - F032-F042 have been promoted and fixed as KI#353-KI#363. The WIP20 root normalization is accepted: F043, F044 and F046 are manifestations of F037's single practical-1842 `AI_preDeclareWar` population substitution, not independent roots. Current work completes their compiled and runtime-smoke-tested common repair under KI#358; provisional KI#364, KI#365 and KI#367 remain reserved merged aliases rather than reviewed KI entries.
 - WIP22 adds explicit method-inventory coverage and strengthens F042/F048-F052 without introducing F053 or changing the normalized root set. F045/KI#366, broadened F047/KI#368, F048/KI#369, F049/KI#370 and F050-F052/KI#371-KI#373 remain pending independent current-tree review. WIP22 is still an open-file recovery checkpoint, not durable C011 completion; its embedded older authority blocks and superseded intermediate wording remain evidence only. (GPT-5.6-Sol)
 
-LOCAL RECONCILIATION AFTER DURABLE C012 IMPORT
-- ChatGPT-5.6-Sol's C012 is accepted as the durable closure of file 011, `CvGameCoreDLL/SASGameRecordLog.cpp`: 11 / 169 files are complete, F053-F061 are the nine normalized roots, F062 remains unused and file 012 is `CvGameCoreDLL/CvDLLWidgetData.cpp`. The separate C011-WIP03 and SASGameRecordLog handoff files are supporting recovery/review material rather than additional cumulative records that need importing.
-- C012 was produced from an older source/Known-Issues snapshot. Current local HEAD practical 6249 / e851d224d already contains the independently reviewed KI#374-KI#376 repairs, and the current worktree independently promotes and repairs C012's F056-F060 as KI#377-KI#381. Current source and the reviewed Known Issues ledger remain authoritative where C012 still says those numbers are provisional or absent.
-- C012's new F061 is accepted and independently promoted as KI#382. Session rollover now finalizes pending bombard, plot-change and incremental-revelation rows before `CvGame::init` resets a game or `CvMap::read` resets/replaces its map; the latter remains safe even if `CvGame` has already read loaded state, while flushing only from the later start hooks would derive old revelation observations from the wrong loaded map. This completes the reviewed F053-F061 repair batch without inventing F062. (ChatGPT-5.6-Sol + GPT-5.6-Sol)
-
 NUMBERING RECONCILIATION
 - The parallel archaeology/repair track assigned KI#327-KI#329 before C008 was integrated into the repository.
 - C008's six provisional roots were therefore shifted from KI#327-KI#332 to provisional KI#330-KI#335. Stable F-numbers remain the preferred album identifiers until each candidate is independently reviewed and promoted.
@@ -6061,3 +6056,1214 @@ new file unless a real caller/cross-file relationship requires it.
 
 No repository source was modified.
 ===============================================================================
+
+
+===============================================================================
+C012-WIP01 -- FILE 012 IN PROGRESS: CvGameCoreDLL/CvDLLWidgetData.cpp
+Source baseline: practical 6244 / HEAD 9f56202d8b...
+File size: 6,326 lines
+Durable completed files entering this pass: 11 / 169
+Next root entering this pass: F062
+Repository source modified: NO
+===============================================================================
+
+RECOVERY CURSOR
+---------------
+
+CvDLLWidgetData.cpp is OPEN. Initial structural/SAS-delta pass completed; top-level
+parse/execute/isLink dispatchers and current SAS-only changes have begun detailed
+caller/ancestry validation. Resume with F063 unused after the confirmed F062 root,
+then continue inherited helper/action/tooltip families, index/nullability/divisor
+checks, header/caller inventory, and final root challenge before any C013 decision.
+
+CONFIRMED CURRENT ROOT
+----------------------
+
+F062 / provisional KI#383
+The SAS vassal-willingness helper refactor accidentally removed the existing
+War-Trades hover explanation from WIDGET_LH_GLANCE.
+
+Current CvForeignAdvisor.py deliberately selects WIDGET_LH_GLANCE for a Glance
+matrix relation cell when Advisors__ShowGlanceWarTrades is enabled. The visible
+fist icon itself is assembled in Python via AttitudeUtil.getAttitudeText(...,
+AdvisorOpt.isShowGlanceWarTrades()). In base AdvCiv 1.14, the matching C++
+WIDGET_LH_GLANCE tooltip path does two things:
+
+  1. parseLeaderheadRelationsHelp(...)
+  2. GAMETEXT.parseWarTradesHelp(szBuffer, data1, data2)
+
+The second call supplies the textual explanation for the special fist state --
+"willing to start war" against the relevant third party -- using the same
+eligibility checks as the Python icon.
+
+SAS current source still routes Show War Trades cells to WIDGET_LH_GLANCE, but
+its C++ case now performs parseLeaderheadRelationsHelp(...) followed only by
+parseVassalWillingnessHelp(...). The parseWarTradesHelp call is absent. Result:
+the War Trades option can still show its fist icon while hovering that cell no
+longer receives AdvCiv's dedicated war-trade explanation; the newly added vassal
+willingness line replaced rather than augmented that portion of the tooltip.
+
+Ancestry is exact:
+
+* practical 5178 / 39fcce8ec0... added the vassal-willingness tooltip while
+  preserving GAMETEXT.parseWarTradesHelp in WIDGET_LH_GLANCE.
+* practical 5179 / daa528a557... refactored the repeated vassal code into
+  CvDLLWidgetData::parseVassalWillingnessHelp and, in that refactor hunk, deleted
+  GAMETEXT.parseWarTradesHelp without replacing it.
+* AdvCiv 1.14 still contains the call, confirming this is a SAS regression rather
+  than an upstream policy change.
+
+Repair direction: restore GAMETEXT.parseWarTradesHelp for WIDGET_LH_GLANCE and
+then append parseVassalWillingnessHelp; the two describe independent status icons
+and are meant to coexist.
+Confidence: VERY HIGH.
+
+INITIAL NEGATIVE CONTROL
+------------------------
+
+The inherited WIDGET_MENU_ICON -> WIDGET_CONSCRIPT switch fallthrough looks
+alarming in both parseHelp and executeAction and exists all the way back through
+AdvCiv and vanilla Civ4CE. It was challenged before promotion:
+
+* CvMainInterface.py explicitly hides MainMenuButton whenever the city screen is
+  up, i.e. the ordinary state in which a city is selected and conscription UI is
+  meaningful.
+* Outside the city screen the button is shown only in ordinary map-interface
+  state; the current UI contract does not establish a reachable selected-city
+  list there that would make the fallthrough's selectedCitiesGameNetMessage
+  actually draft a city.
+* parseConscriptHelp likewise needs a head-selected city to add conscription help.
+
+Therefore this is retained as suspicious inherited dead/redundant fallthrough,
+not promoted as F063 without a reachable side effect. If later caller/UI evidence
+shows selected cities can coexist with the visible MainMenuButton, reopen it.
+
+INITIAL SAS-DELTA MAP
+---------------------
+
+Relative to current AdvCiv 1.14, substantive SAS changes in this file are small
+compared with the 6.3k-line inherited body. Current differences are chiefly:
+
+* cached immutable XML/global-define lookups for several hover helpers;
+* optional whole-tooltip <font=N> wrapping through SAS_UI_FONT_HOVER;
+* tech-advisor right-click bonus-ID fixes for reveal vs obsolete bonus widgets;
+* Foreign Advisor vassal-willingness tooltip support;
+* comment/signature formatting and the unified CvForeignAdvisor naming update.
+
+This makes a two-track audit useful: first prove all SAS deltas, then inspect the
+much larger inherited dispatch/tooltip body for older AdvCiv/BtS defects.
+
+NEXT CURSOR
+-----------
+
+F063 is UNUSED.
+
+Continue with:
+1. finish SAS-only delta validation (font wrapper, cached defines, obsolete-bonus
+   right-click routing, vassal helper bounds/semantics);
+2. inspect executeAction / executeAltAction / isLink symmetry and widget caller
+   construction in Python/C++;
+3. audit action/mission help, trade-item help, scoreboard/contact cheat text,
+   city/economic hover helpers, deal cancellation and city-trade decoding;
+4. perform whole-file enum/index/null-pointer/divisor/fallthrough checks;
+5. reconcile source definitions against CvDLLWidgetData.h and external callers;
+6. challenge every promoted root against AdvCiv/Civ4CE ancestry and current UI
+   reachability before closing file 012.
+===============================================================================
+
+
+================================================================================
+C012-WIP02 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
+================================================================================
+Baseline: AdvCiv-SAS practical 6244 / HEAD 9f56202d8b...
+Durable completion remains 11/169 files. This file remains OPEN.
+This checkpoint extends C012-WIP01; no source files were modified.
+
+ROOT LEDGER AT THIS CHECKPOINT
+
+F062 / provisional KI#383 — CONFIRMED — SAS-specific regression
+WIDGET_LH_GLANCE lost AdvCiv/BULL parseWarTradesHelp when SAS refactored the
+vassal-willingness hover into parseVassalWillingnessHelp. Practical 5178 still
+called both; practical 5179 (daa528a557...) removed parseWarTradesHelp while
+extracting the vassal helper. With BUG "Show War Trades" enabled, Python still
+uses WIDGET_LH_GLANCE and can still draw the war-trade fist, but the specialized
+"willing to start war" hover explanation is no longer appended. Repair should
+restore GAMETEXT.parseWarTradesHelp(...) and then append vassal willingness;
+the two statuses are independent.
+
+F063 / provisional KI#384 — STRONG — inherited AdvCiv regression
+CvDLLWidgetData::executeAltAction unconditionally executes:
+    CvCivilization const& kActiveCiv = *GC.getGame().getActiveCivilization();
+before switching on the widget type. CvGame::getActiveCivilization explicitly
+returns NULL when getActivePlayer()==NO_PLAYER. The opening-menu Civilopedia is
+an intended such state: Sevopedia stores iActivePlayer=-1, and CvGameTextMgr has
+explicit comments/branches for "NULL when in opening-menu Civilopedia". The
+right-click dispatcher contains many Pedia cases (tech/unit/project/religion/
+corporation/etc.) that require no civilization context, but all now encounter
+the unconditional dereference first. This widening dates to AdvCiv practical
+1648 (553b1a0f8d...), when old per-case doPedia* helpers were replaced by direct
+CvPythonCaller jumps and the active-civilization reference was hoisted for only
+the WIDGET_TRAIN/WIDGET_CONSTRUCT class-to-civ mappings. Vanilla/Civ4CE keeps
+civilization lookup local to those two helpers. Conservative repair: do not
+hoist/dereference the pointer; resolve active civ lazily only in cases that need
+it, with an opening-menu fallback/default-unit/default-building policy if those
+cases can themselves appear there.
+
+F064 / provisional KI#385 — CONFIRMED DIAGNOSTIC DRIFT — inherited, widened by SAS
+parseScoreboardCheatText contains a duplicate reconstruction of the legacy
+K-Mod/BBAI AI_doWar decision machinery, but it no longer matches the real
+CvTeamAI::AI_doWar. Concrete mismatches include:
+  * current SAS AI_doWar KI#356 counts non-Dagger members, non-Dagger financial
+    trouble, and non-Dagger GET_BETTER_UNITS intersections explicitly; the
+    tooltip still uses (financialTroubleCount-daggerCount) and
+    (getBetterUnitsCount-daggerCount) against the total team population.
+  * actual target loops require AI_haveSeenCities(eTarget); tooltip candidate
+    generation does not.
+  * actual target defensive power is getDefensivePower(getID()), excluding the
+    evaluating team from defensive-pact coalition power; tooltip uses
+    getDefensivePower() with no exclusion.
+  * actual total-war comparison additionally scales target defensive power by
+    2/3; the tooltip uses the unscaled value.
+  * actual dogpile support iterates MAJOR_CIV enemies and filters unseen teams;
+    the tooltip uses a broader CIV_ALIVE enemy set without the same knowledge
+    filter.
+Several of these discrepancies already exist in AdvCiv 1.14; SAS KI#356 makes
+the first two gate formulas newly/starkly wrong as a mirror of current SAS AI.
+This affects debug/diagnostic truth, not gameplay. Because the function presents
+war percentages, possible passes and candidates specifically as AI-debug info,
+its duplicate logic should either be synchronized with AI_doWar or replaced by
+shared query/helper calculations so future AI repairs cannot silently drift.
+
+F065 / provisional KI#386 — CONFIRMED — inherited BtS tooltip defect
+parseActionHelp_Mission's MISSION_INFILTRATE branch searches selected units with:
+    if (!kSelectedUnit.canEspionage(&kMissionPlot)) continue;
+but the mission being explained is Infiltration and CvUnit::infiltrate gates on
+canInfiltrate(plot()). CvUnit::canEspionage rejects !isSpy(), whereas SAS
+UNIT_GREAT_SPY has bSpy=0 and iEspionagePoints=3000; canInfiltrate instead
+requires positive espionage points and a foreign non-Barbarian city. Therefore
+a normal Great Spy that can perform MISSION_INFILTRATE fails the tooltip's
+predicate, so the intended "+N espionage" yield line is omitted. Civ4CE/BtS
+contains the same canEspionage mistake and AdvCiv 1.14 retains it. Repair: use
+canInfiltrate(&kMissionPlot, true) (matching the tooltip/test-visible context)
+before getEspionagePoints.
+
+REJECTED / DEFERRED IN THIS TRANCHE
+- WIDGET_MENU_ICON -> WIDGET_CONSCRIPT missing breaks remain suspicious inherited
+  fallthroughs, but MainMenuButton is hidden while city screen is up and no
+  verified visible-menu + selected-city path has been established. Do not call
+  this a bug without reachability evidence.
+- Debug war-percentage division by zero: XML literal zero war-rands belong only
+  to LEADER_BARBARIAN and fake LEADER_DEFAULTS. Extremely high vassal counts can
+  theoretically integer-reduce max-war rand to zero under FINAL_WAR, but this
+  is not being promoted independently absent a realistic/reproduced path.
+- SAS bonus right-click data routing (reveal=data2, obsolete=data1) matches the
+  actual CvTechChooser widget payloads and is accepted.
+- SAS global hover-font wrapper and cached immutable defines have no demonstrated
+  defect so far.
+
+NEXT CURSOR
+F066 UNUSED.
+Continue inside parseActionHelp_Mission after MISSION_INFILTRATE and then audit
+remaining action helpers, trade/deal/city/economic hover functions, dispatch
+symmetry, enum/index/null/divisor/fallthrough/static-state sweeps, full
+header/definition/caller inventory, ancestry and Known-Issue collision pass.
+Keep CvDLLWidgetData.cpp open until those closure gates are complete.
+================================================================================
+
+
+================================================================================
+C012-WIP03 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
+================================================================================
+Baseline: AdvCiv-SAS practical 6244 / HEAD 9f56202d8b...
+Durable completion remains 11/169 files. This file remains OPEN.
+This checkpoint extends C012-WIP02; no source files were modified.
+
+ROOT LEDGER AT THIS CHECKPOINT
+
+F062 / provisional KI#383 — CONFIRMED — SAS-specific regression
+Unchanged from WIP02: WIDGET_LH_GLANCE lost parseWarTradesHelp when practical
+5179 refactored the vassal-willingness hover into parseVassalWillingnessHelp.
+
+F063 / provisional KI#384 — STRONG — inherited AdvCiv regression
+Unchanged from WIP02: executeAltAction hoists and dereferences
+getActiveCivilization() before its widget switch, although opening-menu Pedia is
+an explicit NO_PLAYER/NULL-active-civilization state and most right-click Pedia
+cases need no civilization context. Introduced by practical 1648 refactor.
+
+F064 / provisional KI#385 — CONFIRMED DIAGNOSTIC DRIFT — inherited, widened by SAS
+Unchanged from WIP02: parseScoreboardCheatText's duplicated AI_doWar model has
+multiple stale gates/power/knowledge semantics; KI#356 widened the mismatch.
+
+F065 / provisional KI#386 — CONFIRMED — inherited BtS tooltip defect
+Unchanged from WIP02: MISSION_INFILTRATE tooltip tests canEspionage instead of
+canInfiltrate, suppressing the normal Great Spy infiltration EP-yield line.
+
+F066 / provisional KI#387 — CONFIRMED — inherited AdvCiv regression
+CvDLLWidgetData::parseTradeItem stores eWhoFrom as PlayerTypes but renders the
+TRADE_PEACE, TRADE_WAR and TRADE_EMBARGO labels through:
+    GET_TEAM(eWhoFrom).getName()
+This treats the player ID as though it were a team ID. Vanilla/Civ4CE BtS uses
+    GET_TEAM(GET_PLAYER(eWhoFrom).getTeam()).getName()
+and AdvCiv originally preserved that semantics through its TEAMREF(eWhoFrom)
+macro, where TEAMREF(ePlayer) was defined as GET_TEAM(TEAMID(ePlayer)).
+
+The regression can be pinned exactly to AdvCiv practical 1679
+(1c56cc6ac1...), whose broad TEAMREF-removal refactor mechanically changed:
+    TEAMREF(eWhoFrom)
+to:
+    GET_TEAM(eWhoFrom)
+for all three trade-item labels. That loses the required PlayerTypes ->
+TeamTypes conversion. In common one-player-per-team games player IDs often
+match team IDs and mask the problem. In real team games they need not: hovering
+'Make peace with', 'Declare war on' or 'Stop trading with' trade items can name
+the unrelated team whose team index happens to equal eWhoFrom, rather than the
+from-player's actual team. This is tooltip/diplomacy UI truth, not gameplay
+trade execution. Conservative repair: GET_TEAM(GET_PLAYER(eWhoFrom).getTeam())
+(or TEAMID(eWhoFrom)) in all three labels.
+
+ADDITIONAL REJECTED / CLEARED ITEMS SINCE WIP02
+- MISSION_BUILD feature-tech lookup is safe for builds whose feature prereq is
+  NO_TECH: CvTeam::isHasTech(NO_TECH) deliberately returns true, so the branch
+  never calls GC.getInfo(NO_TECH).
+- MISSION_BUILD getBuildTurnsLeft can theoretically return MAX_INT for zero
+  future work rate, but no normal reachable build-action hover with that state
+  has yet been established; do not conflate it with the proven GameRecord
+  production sentinel root.
+- MISSION_DISCOVER validates canDiscover before indexing the discovery tech;
+  canDiscover explicitly rejects NO_TECH and zero research.
+- MISSION_HURRY's production key is protected by the surrounding production-
+  building/action semantics; no independent null-string defect established.
+- The potential MISSION_LEAD queued-destination discrepancy is not promoted:
+  the actual warlord experience action resolves the units present at execution
+  time, and there is not yet a defensible contract that the hover should
+  predict a queued destination stack.
+
+ANCESTRY DETAIL FOR F066
+Tracked commit-diff evidence is local in:
+  _SNAPSHOT_CONTEXT/commit_diffs/AdvCivPreSAS_1679_1c56cc6ac1.diff
+The same diff explicitly removes:
+  #define TEAMREF(ePlayer) GET_TEAM(TEAMID(ePlayer))
+and replaces the three
+  TEAMREF(eWhoFrom)
+expressions in CvDLLWidgetData with raw GET_TEAM(eWhoFrom). The prior practical
+1417 trade-item refactor still used TEAMREF correctly, and Civ4CE/BtS retains
+the original explicit GET_PLAYER(eWhoFrom).getTeam() conversion.
+
+NEXT CURSOR
+F067 UNUSED.
+Continue after parseTradeItem through remaining city/economic/simple wrapper
+helpers, then audit execute/click payload symmetry and top-level dispatcher
+fallthroughs. After semantic passes, perform whole-file enum/index/null/divisor/
+static-state and definition/header/caller closure inventories; re-challenge
+F062-F066, check Known-Issue collisions, and only then decide durable C013.
+================================================================================
+
+
+================================================================================
+C012-WIP04 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
+================================================================================
+Baseline synchronized to new light source: AdvCiv-SAS practical 6250 /
+HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea.
+Durable completion remains 11/169 files. This file remains OPEN.
+This checkpoint corrects WIP03 after discovering the overloaded GET_TEAM
+contract and reconciles the open audit against the user's newer source tree.
+No repository source files were modified by this audit.
+
+CURRENT SOURCE / REVIEW STATUS
+------------------------------
+The updated source has independently reviewed/staged fixes for:
+  KI#383 / F062  WIDGET_LH_GLANCE War Trades hover restoration
+  KI#384 / F063  opening-menu Pedia NULL active-civilization dereference
+  KI#386 / F065  Great Spy Infiltration tooltip predicate
+KI#385 / F064 remains deliberately pending for focused review because the
+scoreboard cheat-war reconstruction is a broad diagnostic mirror of AI_doWar.
+
+WIP03 CORRECTION — FORMER F066 / KI#387 IS RETRACTED
+----------------------------------------------------
+WIP03 claimed that parseTradeItem's GET_TEAM(eWhoFrom), where eWhoFrom is a
+PlayerTypes value, treated the player's integer ID as a TeamTypes value. That
+claim is false in current AdvCiv/SAS.
+
+The relevant accessor is deliberately overloaded:
+  CvGamePlay.h:
+    getTeam(TeamTypes eTeam)      -> CvTeam::getTeam(eTeam)
+    getTeam(PlayerTypes ePlayer)  -> CvTeam::getTeam(TEAMID(ePlayer))
+  CoreAI.h has the analogous pair for CvTeamAI.
+And GET_TEAM(x) expands through the overloaded CvGamePlay/CoreAI getter in this
+translation-unit environment. Therefore GET_TEAM(eWhoFrom) with a statically
+PlayerTypes expression already performs the required PlayerTypes -> TeamTypes
+conversion. AdvCiv practical 1679's TEAMREF removal preserved semantics via this
+overload; comparing the call text mechanically to vanilla BtS was insufficient.
+
+The new staged explicit conversion:
+  GET_TEAM(GET_PLAYER(eWhoFrom).getTeam())
+is behaviorally equivalent and harmless, but it does NOT repair a team-game bug.
+KI#387's current documentation therefore should be retracted/corrected rather
+than preserved as a fixed defect. If the explicit conversion is retained, it is
+only a readability/defensive-explicitness change.
+
+This directly repeats the accessor lesson already recorded by rejected KI#311
+in the completed historical_source_archaeology.txt sweep. KI#311 traced the AI
+translation-unit form, CoreAI::getTeam(PlayerTypes), while this file uses the
+parallel non-AI CvGamePlay::getTeam(PlayerTypes) overload. Both resolve through
+TEAMID(ePlayer); KI#311 should therefore be cross-linked from KI#387 so either
+overload family leads future audits to the shared negative-control evidence.
+
+This is a useful negative control: ancestry can look compelling while a type-
+overloaded API preserves the old semantics invisibly at the call site. Future
+GET_TEAM(PlayerTypes) findings must inspect overload resolution before promotion.
+
+ROOT LEDGER AFTER RECONCILIATION
+--------------------------------
+F062 / KI#383 — confirmed; fixed in updated staged source.
+F063 / KI#384 — confirmed; fixed in updated staged source.
+F064 / KI#385 — confirmed diagnostic drift; intentionally still pending.
+F065 / KI#386 — confirmed; fixed in updated staged source.
+F066 — UNUSED.
+Former WIP03 F066 / provisional KI#387 — RETRACTED false positive.
+
+ADDITIONAL REJECTIONS CARRIED FORWARD
+-------------------------------------
+- WIDGET_MENU_ICON -> WIDGET_CONSCRIPT fallthrough: no demonstrated harmful
+  reachability; MainMenuButton display contract excludes a head-selected city.
+- MISSION_BUILD NO_TECH feature lookup: safe through isHasTech(NO_TECH).
+- MISSION_BUILD MAX_INT ETA: no normal reachable zero-work action context proved.
+- MISSION_DISCOVER NO_TECH: rejected by canDiscover before indexing.
+- MISSION_LEAD queued-destination mismatch: no defensible correctness contract.
+- parsePowerRatioHelp negative espionage thresholds: intentional margin semantics.
+- debug war-rand divide-by-zero: no ordinary major-civ XML-zero route established.
+
+NEXT CURSOR
+-----------
+F066 UNUSED.
+Continue after parseTradeItem through remaining city/economic/simple wrapper
+helpers, then execute/click payload symmetry and dispatcher fallthroughs. After
+semantic passes, perform whole-file enum/index/null/divisor/static-state and
+header/definition/caller inventories; re-challenge F062-F065 against the updated
+source and leave F064 clearly pending if no narrow safe repair emerges. Promote
+no new root without caller/type-contract evidence.
+================================================================================
+
+================================================================================
+C012-WIP05 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
+================================================================================
+Baseline: AdvCiv-SAS practical 6250 / HEAD
+2ac3faa2f6cb45cee0d417728410d325c32668ea.
+Durable completion remains 11/169 files. This file remains OPEN.
+No repository source files were modified by this audit.
+
+This checkpoint preserves the WIP04 correction that former WIP03 F066/KI#387
+was a false positive. Because the user's current staged Known-Issues document
+still occupies KI#387 with that retracted claim, the two newly promoted roots
+below use the next free provisional slots KI#388 and KI#389 rather than silently
+reusing 387. If KI#387 is removed during reconciliation, numbering may of course
+be compacted by the maintainer later.
+
+NEW F066 / provisional KI#388 — INFO-SCREEN POWER HOVER IMPORTS SCOREBOARD-ONLY
+EXPANSION STATE/TIMER SIDE EFFECT
+-------------------------------------------------------------------------------
+Current SAS adds WIDGET_POWER_RATIO cells to the Info Screen's custom Score tab:
+  Assets/Python/Screens/CvInfoScreen.py
+    SASTextScale.setTableTextLabel(...,
+      WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, ...)
+
+CvDLLWidgetData::parseHelp handles WIDGET_POWER_RATIO in two independent ways:
+  1. parsePowerRatioHelp(...) renders the intended ratio tooltip;
+  2. the post-switch scoreboard expansion block unconditionally calls
+       GET_PLAYER(getActivePlayer()).setScoreboardExpanded(true)
+     for WIDGET_POWER_RATIO regardless of iData2.
+The AdvCiv comment immediately above this special case explicitly says that
+WIDGET_POWER_RATIO needs iData2 for another purpose and therefore this WidgetType
+"must only" be used on the scoreboard.
+
+SAS practical 5483 / commit e92a36c49dca11cdb4f28526d85887a2c63012f0
+introduced the new Info Screen Score tab and reused WIDGET_POWER_RATIO there.
+The commit's stated purpose is the sortable Score tab/power display; there is no
+scoreboard-expansion intent.
+
+The side effect is real rather than merely a dirty-bit nuisance. In
+CvPlayer::setScoreboardExpanded, when the UI is focused (as with an advisor
+screen) and Scores__ExpandOnHover is enabled, b=true can set
+m_bScoreboardExpanded and schedules UPDATE_COLLAPSE_SCORE_BOARD. A collapse
+callback while UI focus remains active calls setScoreboardExpanded(false), but
+that focused branch does not clear the state (except diplomacy-specific logic);
+it schedules another collapse callback and returns. Thus hovering an Info Screen
+power cell can start/maintain the scoreboard's hidden expansion state and timer
+loop until focus ends, and can leave the scoreboard briefly/stalely expanded as
+the advisor closes before a later callback collapses it.
+
+This is SAS-specific cross-caller contract drift: the tooltip widget was reused
+outside the only context its C++ side-effect code says it supports. Gameplay is
+not affected, but UI state/timer behavior is. Conservative repair directions
+include a context-distinct power-ratio widget/helper or removing/guarding the
+scoreboard-expansion side effect for non-scoreboard callers; simply using
+WIDGET_GENERAL would avoid the side effect but would also lose the useful power
+hover.
+
+Negative control: BUG/Scoreboard.py is the intended original caller and uses
+WIDGET_POWER_RATIO on the scoreboard, where expansion-on-hover is desired.
+
+NEW F067 / provisional KI#389 — SPECIALIST "EXTRA SLOTS" REUSES A TECH-CONTEXT
+SPECIAL-BUILDING WIDGET WITH NO_TECH, PRODUCING FALSE HOVER TEXT
+-------------------------------------------------------------------------------
+SAS practical 5331 / commit d0360f3c4757a6b7a13181029bddd8fa2474ec3d
+added SevoPediaSpecialist's Extra Slots panel. For grouped special-building
+sources (Temple/Cathedral/Monastery), it constructs the button as:
+  WIDGET_HELP_SPECIAL_BUILDING, data1=-1, data2=iSpecialBuilding
+
+But CvDLLWidgetData::parseSpecialBuildingHelp forwards data1 as a TechTypes:
+  GAMETEXT.buildSpecialBuildingString(buffer,
+      (TechTypes)data1, (SpecialBuildingTypes)data2)
+and CvGameTextMgr::buildSpecialBuildingString is explicitly a tech-unlock
+formatter. It emits "Can Construct ..." when TechPrereq == eTech and
+"Any player can Construct ..." when TechPrereqAnyone == eTech.
+
+Current SAS CIV4SpecialBuildingInfos.xml has Temple, Cathedral and Monastery
+TechPrereqAnyone=NONE. NONE is -1, exactly the value supplied by the Specialist
+page. Therefore the sentinel is not neutral: it matches TechPrereqAnyone and can
+make an Extra Slots source button claim "Any player can Construct Temple /
+Cathedral / Monastery". That text does not describe why the building class is
+shown and is false/misleading in this context.
+
+Controls: CvTechChooser.py and SevoPediaTech.py also use
+WIDGET_HELP_SPECIAL_BUILDING, but correctly pass a real tech ID in data1. The
+C++ helper therefore behaves according to its intended contract; the defect is
+the SAS Specialist-page caller's widget/payload choice, discovered through this
+C++ contract audit.
+
+Conservative repair: do not feed NO_TECH to this tech-context widget for the
+Extra Slots grouping. Use a neutral/non-tech widget if the generic special-
+building icon is only representative, or introduce a dedicated Pedia/source
+hover that describes the special-building family/slot relationship.
+
+ROOT LEDGER AT THIS CHECKPOINT
+------------------------------
+F062 / KI#383 — confirmed; fixed in updated staged source.
+F063 / KI#384 — confirmed; fixed in updated staged source.
+F064 / KI#385 — confirmed diagnostic drift; intentionally still pending.
+F065 / KI#386 — confirmed; fixed in updated staged source.
+Former WIP03 F066 / KI#387 — RETRACTED false positive (GET_TEAM overload).
+F066 / provisional KI#388 — promoted; InfoScreen WIDGET_POWER_RATIO triggers
+  scoreboard-only expansion state/timer behavior.
+F067 / provisional KI#389 — promoted; Specialist Extra Slots feeds NO_TECH to
+  a tech-context special-building widget and gets false sentinel-matched hover.
+F068 — UNUSED.
+
+ADDITIONAL REJECTIONS / NEGATIVE CONTROLS
+------------------------------------------
+- WIDGET_MENU_ICON -> WIDGET_CONSCRIPT fallthrough remains rejected by the
+  MainMenuButton display/selected-city contract.
+- parsePowerRatioHelp's negative EP threshold remains intentional margin
+  semantics; F066 concerns the independent post-switch scoreboard side effect.
+- WIDGET_HELP_SPECIAL_BUILDING itself is not generically defective: its Tech
+  Chooser and SevoPedia Tech callers supply real tech IDs and match its contract.
+- Former parseTradeItem GET_TEAM(eWhoFrom) finding remains retracted: overload
+  resolution already converts PlayerTypes to that player's TeamTypes.
+
+NEXT CURSOR
+-----------
+F068 UNUSED.
+Continue the remaining encoded-widget payload/caller audit (finance, city trade,
+deal/advisor/Pedia helpers), mechanically reconcile parseHelp/executeAction/
+executeAltAction/isLink switch cases and fallthroughs, then perform the full
+whole-file enum/index/null/divisor/static-state and definition/header/caller
+closure inventory. Re-challenge F062-F067 against the current practical-6250
+source before deciding WIP vs durable C013.
+================================================================================
+
+================================================================================
+C012-WIP06 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
+================================================================================
+Baseline remains AdvCiv-SAS practical 6250 / HEAD
+2ac3faa2f6cb45cee0d417728410d325c32668ea.
+Durable completion remains 11/169 files. This file remains OPEN.
+No repository source files were modified by this audit.
+
+This checkpoint preserves WIP05 and records two important refinements from the
+encoded-widget caller audit: F066 is broader than its first power-cell example,
+and a new independent misleading-hover root F068 is promoted. Former WIP03
+F066/KI#387 remains RETRACTED; the current source's explicit player->team
+conversion is behaviorally redundant because GET_TEAM(PlayerTypes) already
+performs TEAMID(ePlayer).
+
+F066 / provisional KI#388 — BROADENED: INFO SCREEN SCORE TAB REUSES THREE
+SCOREBOARD-ONLY EXPANSION WIDGETS, IMPORTING HIDDEN SCOREBOARD STATE/TIMERS
+-------------------------------------------------------------------------------
+WIP05 first isolated this through the custom Score tab's WIDGET_POWER_RATIO
+cells. The caller audit now proves the same root at three independent Score-tab
+cell families in Assets/Python/Screens/CvInfoScreen.py:
+
+  active score cell:  WIDGET_SCORE_BREAKDOWN with data2=0
+  power ratio cell:   WIDGET_POWER_RATIO
+  trade-network cell: WIDGET_TRADE_ROUTES_SCOREBOARD
+
+CvDLLWidgetData::parseHelp's post-switch expansion block treats all three as
+scoreboard controls:
+  - WIDGET_SCORE_BREAKDOWN expands when data2==0;
+  - WIDGET_POWER_RATIO expands unconditionally;
+  - WIDGET_TRADE_ROUTES_SCOREBOARD expands unconditionally.
+
+The surrounding AdvCiv comment explicitly documents the scoreboard-only data
+contract for this machinery (notably WIDGET_POWER_RATIO's occupied data2).
+CvPlayer::setScoreboardExpanded then mutates the active player's scoreboard
+expansion state and schedules UPDATE_COLLAPSE_SCORE_BOARD callbacks. While an
+advisor owns UI focus, collapse attempts can reschedule rather than clear the
+state, so hovering these Info Screen cells can create/maintain hidden scoreboard
+state and timer churn until focus ends.
+
+This is best kept as ONE cross-context root, not three findings: the custom Info
+Screen Score tab reused scoreboard UI widgets for their useful text hovers but
+also inherited their unrelated scoreboard-expansion behavior. The power cell
+was simply the first observable instance. Repair should separate tooltip
+semantics from scoreboard-only state mutation or guard the expansion side effect
+to actual scoreboard context.
+
+NEW F068 / provisional KI#390 — MILITARY-ADVISOR "TOTAL COST + SUPPLY" ROW USES
+THE GLOBAL-INFLATED-EXPENSES TOOLTIP, SO ITS HOVER EXPLAINS UNRELATED COSTS
+-------------------------------------------------------------------------------
+The custom Military Advisor Summary tab displays:
+  Total Cost + Supply = post-inflation Unit Cost + post-inflation Unit Supply.
+The row binds:
+  WIDGET_HELP_FINANCE_INFLATED_COSTS, data1=self.iActivePlayer, data2=1.
+
+CvDLLWidgetData::parseFinanceInflatedCosts does NOT describe that subtotal. It
+calls CvGameTextMgr::buildFinanceInflationString, which obtains:
+  CvPlayer::calculatePreInflatedCosts()
+and the engine definition is:
+  calculateUnitCost() + calculateUnitSupply() + getTotalMaintenance()
+    + getCivicUpkeep() + Python extraExpenses().
+Thus the hover's pre-inflation base and inflation amount can include city
+maintenance, civic upkeep and other expenses that are absent from the visible
+"Total Cost + Supply" value.
+
+The original/current Domestic Finance screen is the clean control: it attaches
+WIDGET_HELP_FINANCE_INFLATED_COSTS to totalInflatedCosts / the overall Expenses
+row, where the helper's global expense-base contract matches the displayed
+number. The Summary tab's own introductory comment says rows bind the matching
+finance widget "where applicable", and its legend defines Total Cost + Supply
+specifically as Unit Cost + Unit Supply. Therefore this is not an intentional
+whole-economy hover; it is a cross-caller widget mismatch introduced with the
+Military Advisor Summary tab (initial implementation practical 5800).
+
+This is diagnostic/UI accuracy only, not gameplay. Conservative repair: use no
+hover on this subtotal, combine the already-correct Unit Cost and Away Supply
+breakdowns in a dedicated helper, or add a purpose-specific Cost+Supply tooltip.
+Do not use the global inflation/total-expenses helper for this row.
+
+ADDITIONAL NEGATIVE CONTROL
+---------------------------
+- The Summary tab's WIDGET_HELP_FINANCE_UNIT_COST and
+  WIDGET_HELP_FINANCE_AWAY_SUPPLY reuses are legitimate: their C++ helpers call
+  the exact player Unit Cost and Unit Supply breakdown builders. The mismatch is
+  specific to the combined Total Cost + Supply row.
+- WIDGET_HELP_FINANCE_NUM_UNITS is intentionally disabled by AdvCiv and therefore
+  produces no tooltip; using it on the Summary Total Units row is a no-op rather
+  than a false breakdown, so it is not promoted as a separate bug at this point.
+
+ROOT LEDGER AT THIS CHECKPOINT
+------------------------------
+F062 / KI#383 — confirmed; fixed in updated staged source.
+F063 / KI#384 — confirmed; fixed in updated staged source.
+F064 / KI#385 — confirmed diagnostic drift; intentionally still pending.
+F065 / KI#386 — confirmed; fixed in updated staged source.
+Former WIP03 F066 / KI#387 — RETRACTED false positive (GET_TEAM overload).
+F066 / provisional KI#388 — broadened: Info Screen Score tab reuses scoreboard-
+  only WIDGET_SCORE_BREAKDOWN / WIDGET_POWER_RATIO /
+  WIDGET_TRADE_ROUTES_SCOREBOARD expansion widgets.
+F067 / provisional KI#389 — Specialist Extra Slots misuses tech-context
+  WIDGET_HELP_SPECIAL_BUILDING with NO_TECH.
+F068 / provisional KI#390 — Military Summary Total Cost + Supply uses global
+  inflated-expenses hover whose numbers include unrelated expenses.
+F069 — UNUSED.
+
+NEXT CURSOR
+-----------
+F069 UNUSED. Continue encoded-widget payload/caller audit, especially remaining
+SAS-added advisor/Pedia help-widget reuses; then finish inherited C++ sections,
+parse/execute/isLink symmetry, exact definition/header/caller inventory, and
+whole-file enum/index/null/divisor/static-state closure. Re-challenge all live
+roots before durable C013.
+================================================================================
+
+================================================================================
+C012-WIP07 — file 012 CvGameCoreDLL/CvDLLWidgetData.cpp — INCOMPLETE CHECKPOINT
+================================================================================
+Baseline: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea.
+Durable completion remains 11/169 files. This file remains OPEN.
+No repository source files were modified by this audit.
+
+This checkpoint preserves WIP06 and records one new inherited cross-file payload
+root, F069. Former WIP03 F066/KI#387 remains RETRACTED; current normalized roots
+are F062-F069 with the current F066 numbering beginning at KI#388.
+
+NEW F069 / provisional KI#391 — OPTIONAL BUG DETAILED/WIDE TECH SPLASH PASSES
+BUILD ID AS TECH ID AND HARD-CODES BUILD ID 1 TO WIDGET_HELP_IMPROVEMENT
+-------------------------------------------------------------------------------
+Both live optional BUG tech-splash implementations contain the same caller:
+
+  Assets/Python/Contrib/TechWindow.py
+  Assets/Python/Contrib/TechWindowWide.py
+
+For a build enabled by the displayed technology whose BuildInfo has no
+ImprovementType, they attach the build button as:
+
+  WIDGET_HELP_IMPROVEMENT, j, 1
+
+where j is the BuildTypes index.
+
+The C++ widget contract is the opposite kind of payload:
+
+  CvDLLWidgetData::parseBuildHelp
+    data1 -> TechTypes
+    data2 -> BuildTypes
+
+and forwards them to:
+
+  CvGameTextMgr::buildImprovementString(szBuffer, eTech, eBuild)
+
+which tests the supplied build's technology prerequisite/feature technologies
+against the supplied technology and, on a match, prints "Can build <Build>".
+
+The normal/current CvTechChooser is the control: it passes (iTech, j), i.e. the
+actual technology in data1 and actual BuildTypes index in data2.
+
+Concrete current-SAS reachability:
+  Build 0  BUILD_ROAD          -> TECH_THE_WHEEL
+  Build 1  BUILD_RAILROAD      -> TECH_STEAM_POWER
+  Build 18 BUILD_REMOVE_JUNGLE -> feature tech TECH_METAL_CASTING
+  Build 19 BUILD_REMOVE_FOREST -> feature tech TECH_MASONRY
+  Build 20 BUILD_SCRUB_FALLOUT -> feature tech TECH_ENVIRONMENTALISM
+
+All five have ImprovementType=NONE and therefore use this erroneous TechWindow
+branch. data2 is always 1, i.e. BUILD_RAILROAD. data1 becomes raw build IDs
+0/1/18/19/20, which in current TechInfos correspond to unrelated technologies
+(Mysticism, Meditation, Liberalism, Democracy, Corporation). None is Steam
+Power, so buildImprovementString finds no match and the intended hover is empty.
+The same payload also prevents executeAltAction's WIDGET_HELP_IMPROVEMENT path
+from jumping anywhere useful because Build 1 has no ImprovementType.
+
+This is not SAS-specific. The exact bad pair is already present when the BUG
+TechWindow assets enter reachable K-Mod history in practical 4 / commit
+593c549b51b5726302484ad8d0e08602b010d4a9 ("assets to go with the initial
+commit"). Both Detailed and Wide variants contain it there. The UI remains live:
+Assets/Config/TechWindow.xml exposes View = Original|Detailed|Wide and
+CvScreensInterface.createTechSplash imports TechWindow/TechWindowWide when the
+corresponding user option is selected.
+
+Classification: inherited BUG/K-Mod UI tooltip/payload bug; no gameplay effect.
+Conservative repair: pass self.iTech (or the displayed technology ID) as data1
+and j as data2 in both files, matching CvTechChooser's established contract.
+
+ADDITIONAL NEGATIVE CONTROLS / PROGRESS
+---------------------------------------
+- Shifted mission-help plot dereference is safe: CvSelectionGroup::lastMissionPlot
+  falls back to the group's current plot when no queued movement target exists.
+- WIDGET_HELP_OBSOLETE / _BONUS / _SPECIAL casts in CvDLLWidgetData look odd
+  locally, but their CvGameTextMgr functions intentionally accept an int item ID
+  and reinterpret it as BuildingTypes / BonusTypes / SpecialBuildingTypes; the
+  current TechChooser callers therefore match the real callee contract.
+- WIDGET_HELP_TERRAIN_TRADE's -1 hazard is not reached by current callers:
+  terrain callers pass a real TerrainTypes index and river trade deliberately
+  uses getNumTerrainInfos() as its sentinel, which parseTerrainTradeHelp handles.
+
+ROOT LEDGER AT THIS CHECKPOINT
+------------------------------
+F062 / KI#383 — confirmed; fixed in updated source.
+F063 / KI#384 — confirmed; fixed in updated source.
+F064 / KI#385 — confirmed diagnostic drift; intentionally still pending.
+F065 / KI#386 — confirmed; fixed in updated source.
+Former WIP03 F066 / KI#387 — RETRACTED false positive (GET_TEAM overload).
+F066 / KI#388 — Info Screen Score tab imports scoreboard-only expansion state.
+F067 / KI#389 — Specialist Extra Slots misuses tech-context special-building help.
+F068 / KI#390 — Military Summary Cost+Supply uses whole-expense inflation hover.
+F069 / provisional KI#391 — BUG Detailed/Wide Tech Splash mis-encodes
+  WIDGET_HELP_IMPROVEMENT payload; build-action hover is empty/wrong.
+F070 — UNUSED.
+
+KI#391 collision check against the practical-6250 docs/source: no existing hit.
+
+NEXT CURSOR
+-----------
+F070 UNUSED. Continue the inherited parseActionHelp/mission/action payload audit
+and mechanically enumerate remaining SAS-added/nonstandard widget callers.
+Then finish parseHelp/executeAction/executeAltAction/isLink symmetry, reconcile
+168 live C++ definitions vs 170 header declarations (doCancelCivics/applyCityEdit
+currently appear dead), and perform whole-file enum/index/null/divisor/static-
+state closure. Re-challenge F062-F069 before durable C013.
+================================================================================
+
+
+================================================================================
+C012-WIP08 — FILE 012 CvDLLWidgetData.cpp — SAFETY CHECKPOINT
+Baseline synchronized to AdvCiv-SAS practical 6250 / HEAD
+2ac3faa2f6cb45cee0d417728410d325c32668ea.
+Status: INCOMPLETE. Durable completion remains 11/169. No source modified.
+================================================================================
+
+NORMALIZED ROOT LEDGER AT THIS CHECKPOINT
+
+F062 / KI#383 — LH Glance vassal-helper refactor dropped parseWarTradesHelp.
+  - SAS-specific regression; fixed in the current practical-6250 source.
+
+F063 / KI#384 — executeAltAction opening-menu Pedia active-civilization dereference.
+  - AdvCiv inherited; fixed in current source.
+
+F064 / KI#385 — parseScoreboardCheatText is a stale duplicate of AI_doWar.
+  - Diagnostic/debug-only drift; intentionally pending in current source.
+
+F065 / KI#386 — MISSION_INFILTRATE hover tested canEspionage instead of canInfiltrate.
+  - BtS/Civ4CE inherited; fixed in current source.
+
+Former WIP03 F066 / KI#387 — RETRACTED FALSE POSITIVE.
+  - GET_TEAM(PlayerTypes) is intentionally overloaded and performs TEAMID(ePlayer).
+  - The current explicit player->team spelling is behaviorally harmless/readability-only;
+    the old code did not confuse PlayerTypes with TeamTypes at runtime.
+
+F066 / KI#388 — Info Screen Score tab reuses scoreboard-only expansion widgets.
+  - CvInfoScreen.py uses WIDGET_SCORE_BREAKDOWN(data2=0), WIDGET_POWER_RATIO,
+    and WIDGET_TRADE_ROUTES_SCOREBOARD.
+  - CvDLLWidgetData::parseHelp treats these as scoreboard-hover controls and calls
+    setScoreboardExpanded(true), importing hidden scoreboard state/timer behavior into
+    an advisor screen. The C++ comments describe these widget uses as scoreboard-only.
+  - Origin: SAS practical 5483 / e92a36c49...
+
+F067 / KI#389 — SevoPedia Specialist Extra Slots misuses tech-context
+WIDGET_HELP_SPECIAL_BUILDING with data1=-1.
+  - buildSpecialBuildingString interprets data1 as TechTypes and compares it with both
+    the normal prerequisite and TechPrereqAnyone.
+  - Temple/Cathedral/Monastery special-building definitions use NONE (-1) for the
+    anyone-tech prerequisite, so the sentinel can match and generate misleading
+    "Any player can Construct ..." hover text instead of explaining slot provenance.
+  - Origin: SAS practical 5331 / d0360f3c47...
+
+F068 / KI#390 — Military Advisor "Total Cost + Supply" uses the wrong finance tooltip.
+  - Cell displays post-inflation Unit Cost + Unit Supply only.
+  - WIDGET_HELP_FINANCE_INFLATED_COSTS explains calculatePreInflatedCosts(), which also
+    includes city maintenance, civic upkeep and Python extra expenses.
+  - The normal Finance total-expense row is the correct control for that widget.
+  - Origin: SAS practical 5800.
+
+F069 / provisional KI#391 — BUG Detailed/Wide Tech Splash passes the wrong payload to
+WIDGET_HELP_IMPROVEMENT for non-improvement build actions.
+  - Bad caller shape in both TechWindow.py and TechWindowWide.py: (data1=j, data2=1),
+    where j is BuildTypes.
+  - C++ contract: data1 = TechTypes, data2 = BuildTypes.
+  - In current XML build ID 1 is BUILD_RAILROAD; affected build buttons include Road,
+    Railroad, Remove Jungle, Remove Forest and Scrub Fallout. The resulting hover asks
+    whether Railroad is unlocked by unrelated tech IDs equal to those build indices,
+    and therefore loses the intended build-help text.
+  - Correct control: CvTechChooser supplies (iTech, iBuild).
+  - Present since K-Mod practical 4 / 593c549b51...
+
+F070 / provisional KI#392 — Detailed Tech Splash has an undefined yWidgetTypes symbol.
+  Evidence / reachability:
+  - Assets/Python/Contrib/TechWindow.py line 253 currently executes:
+      ... yWidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT, eLoopUnit, 1, False
+    when the researched technology enables a civilization unit.
+  - No symbol/import/alias named yWidgetTypes exists anywhere else in the Python tree.
+  - Assets/Python/Contrib/TechWindowWide.py uses the correct WidgetTypes symbol at the
+    corresponding call; base AdvCiv also uses WidgetTypes.
+  - CvScreensInterface.createTechSplash imports TechWindow when the user selects the
+    live TechWindow "Detailed" view; TechWindow.xml exposes Original|Detailed|Wide.
+    Thus a normal tech-acquisition splash that unlocks a unit can execute this branch
+    and raise Python NameError, disrupting Detailed Tech Splash rendering.
+  Ancestry:
+  - Introduced by SAS practical 4847 / commit
+    2973ba48f3bd65d0a85956ed5aee0457858dc621 during Ruff/Pylance cleanup.
+  - The commit diff shows the prior correct two-line
+      WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT
+    call collapsed into a one-line call with the accidental leading "y".
+  - No KI#392 collision found in the current docs/source.
+  Repair direction:
+  - Replace yWidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT with
+    WidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT; no broader behavior change is needed.
+
+F071 UNUSED — next normalized root number.
+
+ADDITIONAL CLOSURE / NEGATIVE-CONTROL RESULTS SINCE WIP07
+
+1. Header inventory discrepancy is old dead declaration residue, not broken wiring.
+   - Current CvDLLWidgetData.cpp: 168 live out-of-line definitions.
+   - Header: 170 declarations.
+   - The only declaration-only names are doCancelCivics() and applyCityEdit().
+   - No callers/definitions exist in current CvGameCoreDLL, base AdvCiv or Civ4CE.
+   - K-Mod practical 3 / KMod_3_2414225e64.diff already introduced these two header
+     declarations without implementations. Keep as inherited dead residue unless a
+     cleanup task is desired; do not classify as a runtime bug.
+
+2. WIDGET_CHOOSE_EVENT active-player use is valid.
+   - Its live caller is CvDLLButtonPopup's in-game triggered-event popup; this is not an
+     opening-menu/Pedia path. The unguarded active player in parseEventHelp therefore
+     has the intended caller contract.
+
+3. Shifted mission plot dereference is valid.
+   - CvSelectionGroup::lastMissionPlot() falls back to the group's current plot, so
+     parseActionHelp_Mission does not obtain NULL merely because there is no queued
+     shifted destination.
+
+4. MISSION_BUILD / NO_TECH paths are sentinel-aware.
+   - CvTeam::isHasTech(NO_TECH) intentionally succeeds for the no-prerequisite case.
+   - The Sevopedia WIDGET_HELP_IMPROVEMENT NO_TECH caller is also intentional:
+     CvGameTextMgr::buildImprovementString handles feature-specific prerequisite techs
+     when BuildInfo::getTechPrereq()==NO_TECH.
+
+5. MISSION_JOIN / HURRY and several other apparent null/sentinel cases remain protected
+   by their can* caller predicates; no F071 was justified from them.
+
+6. Scoreboard-expansion follow-up in progress.
+   - WIDGET_PEDIA_JUMP_TO_TECH also participates in scoreboard expansion when data2==0.
+   - The actual scoreboard deliberately passes data2=0.
+   - Obvious non-scoreboard Tech/Pedia callers inspected so far pass -1 or 1, not zero.
+   - Continue enumerating CONTACT_CIV / DEAL_KILL / PEDIA_JUMP_TO_TECH and other
+     expansion-list callers before deciding whether any root exists beyond F066.
+
+EXACT RECOVERY CURSOR
+- Durable completion: 11/169.
+- File 012 CvDLLWidgetData.cpp remains OPEN.
+- Baseline: practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea.
+- Live normalized roots: F062-F070; former KI#387 retracted.
+- Next root number: F071 UNUSED.
+- Continue: finish hidden-scoreboard-expansion caller enumeration; compare remaining
+  Detailed/Wide TechWindow payloads and identifiers; mechanically audit SAS-added
+  Python widget payloads against CvDLLWidgetData contracts; finish inherited
+  parseActionHelp/executeAction/executeAltAction/isLink symmetry; final enum/index/
+  null/divisor/static-state/caller pass; adversarial reread F062-F070; decide C013 or
+  another WIP.
+================================================================================
+
+
+================================================================================
+C012-WIP09 — file 012 CvDLLWidgetData.cpp — INCOMPLETE SAFETY CHECKPOINT
+Baseline: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea
+Durable completion remains 11/169. File 012 remains OPEN. No source modified.
+Prior cumulative prefix: C012-WIP08 preserved byte-for-byte.
+
+NORMALIZED ROOT LEDGER AT THIS CHECKPOINT
+- F062 / KI#383 — LH Glance vassal-helper refactor dropped parseWarTradesHelp. Fixed in current source.
+- F063 / KI#384 — executeAltAction opening-Pedia active-civilization dereference. Fixed in current source.
+- F064 / KI#385 — scoreboard cheat war-decision mirror drifted from actual AI_doWar. Pending intentionally.
+- F065 / KI#386 — Infiltrate hover used canEspionage instead of canInfiltrate. Fixed in current source.
+- Former WIP03 F066 / KI#387 — RETRACTED. GET_TEAM(PlayerTypes) already performs TEAMID conversion.
+- F066 / KI#388 — Info Screen Score tab reuses scoreboard-only expansion widgets, importing scoreboard expansion/timer state.
+- F067 / KI#389 — SevoPedia Specialist Extra Slots passes data1=-1 into tech-context WIDGET_HELP_SPECIAL_BUILDING, enabling NONE-tech sentinel matches and misleading hover text.
+- F068 / KI#390 — Military Advisor Total Cost + Supply uses whole-expense WIDGET_HELP_FINANCE_INFLATED_COSTS and displays unrelated maintenance/upkeep/etc. in hover.
+- F069 / KI#391 — BUG Detailed/Wide Tech Splash passes WIDGET_HELP_IMPROVEMENT as (BuildTypes j, 1) instead of (TechTypes tech, BuildTypes build), losing intended non-improvement build hover.
+- F070 / KI#392 — Detailed Tech Splash uses undefined yWidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT and can NameError when a researched tech unlocks a unit.
+- F071 / provisional KI#393 — AdvCiv multi-unit city-bombard previews sum selected units that cannot actually execute the mission.
+- F072 / provisional KI#394 — AdvCiv Air Bomb mission prioritization does not filter per-unit target eligibility and can choose an invalid aircraft, causing a valid group mission to abort with no action.
+- F073 UNUSED.
+
+F071 / provisional KI#393 — MULTI-UNIT BOMBARD PREVIEWS COUNT INELIGIBLE UNITS
+
+CvDLLWidgetData.cpp MISSION_BOMBARD help (current ~2914):
+  for each UI-selected unit:
+      iDamage += kSelectedUnit.damageToBombardTarget(kMissionPlot);
+
+The preview does not require kSelectedUnit.canMove() or
+kSelectedUnit.canBombard(kMissionPlot). By contrast, actual execution in
+CvSelectionGroup::startMission repeatedly calls
+AI_bestUnitForMission(MISSION_BOMBARD), and that helper explicitly skips units
+that cannot move or fail canBombard(kAt).
+
+Reachable example: a selected siege group contains one fresh siege unit and one
+unit that has already spent its attack/bombard for the turn. At least one unit
+can still bombard, so the action remains available. The tooltip sums nominal
+damage from both; execution skips the spent unit. The preview can therefore
+promise more city-defense reduction than the mission can deliver.
+
+Sibling in CvGameTextMgr::getAirBombPlotHelp:
+  - the helper first establishes that one best unit can air-bomb the hovered
+    target;
+  - for revealed city targets it then loops over every selected unit and adds
+    airBombDefenseDamage without checking canMove/canAirBombAt(target).
+Thus a fresh eligible aircraft plus an exhausted or out-of-range selected
+companion can similarly overstate city-defense damage.
+
+Concrete SAS XML range control: Fighter range 6 / bomb rate 8; Bomber range 8 /
+bomb rate 16; Jet Fighter range 10 / bomb rate 12; Stealth Bomber range 12 /
+bomb rate 20; Guided Missile range 5 / bomb rate 16. For a city 7 tiles away,
+a Bomber can be valid while a selected Fighter is out of range; once the valid
+best-unit gate passes, the city preview still adds the Fighter's nominal
+airBombDefenseDamage.
+
+Ancestry: the ground and air multi-unit previews were introduced together in
+AdvCiv practical 2778 / commit 4098fbb24851e4cdc6f2f615f4458adedf97da75,
+"Various UI improvements for bombard and air bomb missions." The same commit
+also added per-unit eligibility-aware execution, making the omitted tooltip
+filters especially clear.
+
+Conservative repair direction:
+  - ground preview: add damage only for units that can move and
+    canBombard(kMissionPlot) (or otherwise mirror the actual mission selector);
+  - air-city preview: add damage only for units that can move and
+    canAirBombAt(kPlot).
+Do not merely test bombard/air-bomb base rate: target/move-state eligibility is
+the mismatch.
+
+F072 / provisional KI#394 — AIR BOMB BEST-UNIT SELECTION CAN ABORT A VALID GROUP ORDER
+
+Current CvSelectionGroupAI::AI_bestUnitForMission(MISSION_AIRBOMB, pMissionPlot):
+  - common loop filters !pUnit->canMove();
+  - city branch tests pUnit->canAirBomb(pMissionPlot), NOT canAirBombAt;
+  - CvUnit::canAirBomb's pFrom parameter is explicitly unused and it tests only
+    generic air-bomb ability / attack-spent state;
+  - non-city branch has no target-eligibility test at all.
+
+Actual group execution in CvSelectionGroup::startMission is:
+  while ((pUnit = AI_bestUnitForMission(MISSION_AIRBOMB, &kMissionPlot)) != NULL &&
+         pUnit->airBomb(kMissionPlot, ...))
+      ...
+CvUnit::airBomb begins with canAirBombAt(kTarget) and returns false if the chosen
+unit cannot attack that target. Because the while condition then fails, the
+mission loop stops instead of trying another eligible selected aircraft.
+
+CvSelectionGroup::canDoMission(MISSION_AIRBOMB) proves normal reachability:
+it returns true if ANY selected unit canAirBombAt(target), so invalid companion
+units are allowed to remain in a group whose Air Bomb order is valid.
+
+Concrete current-SAS example from CIV4UnitInfos.xml:
+  UNIT_BOMBER: iBombRate=16, iAirRange=8, cost=180
+  UNIT_JET_FIGHTER: iBombRate=12, iAirRange=10, cost=170
+Against a city 9 tiles away, the Jet Fighter is target-valid and makes the
+mission available; the Bomber is out of range. City prioritization nevertheless
+uses nominal airBombDefenseDamage and can prefer the higher-rate Bomber. The
+chosen Bomber's airBomb(target) then rejects range 9 and the while loop stops,
+so the valid Jet Fighter never acts. The same eligibility omission exists for
+non-city air-bomb targets.
+
+Ancestry:
+  - practical 2778 / 4098fbb248... introduced the smarter grouped Air Bomb
+    ordering with the same generic canAirBomb test for city targets and no
+    target filter in the non-city ordering;
+  - practical 2784 / 160fa499a896cf595f74bcbde68b7ce41bedc466 factored the
+    ordering into CvSelectionGroupAI::AI_bestUnitForMission and preserved the
+    missing target-eligibility check exactly;
+  - later bombard-priority work (e.g. practical 2809) retained it.
+
+Conservative repair direction: in MISSION_AIRBOMB selection, reject any unit
+that does not pUnit->canAirBombAt(*pMissionPlot) (using the proper current
+signature/origin semantics) before ranking it. That aligns selection with
+canDoMission, CvUnit::airBomb, and the target-specific mission contract.
+
+NEGATIVE/CONTROL RESULTS ADDED SINCE WIP08
+- General scoreboard-expansion caller enumeration found no new root beyond F066.
+  Ordinary non-scoreboard callers pass the non-expanding data2 variants; the
+  Info Screen Score tab remains the exceptional cross-context reuse.
+- Detailed-vs-Wide TechWindow differential produced no further sibling mismatch
+  beyond F069/F070.
+- Shifted lastMissionPlot remains safe through its current-plot fallback.
+- MISSION_BUILD NO_TECH and several JOIN/HURRY/Great-General caller-contract
+  suspicions remain rejected.
+
+EXACT NEXT CURSOR
+File 012 remains open. F073 unused.
+Continue inherited parseActionHelp_Mission and action/command help semantics;
+then mechanical parseHelp/executeAction/executeAltAction/isLink payload symmetry,
+remaining Python->C++ widget payloads, enum/index/null/divisor/state checks,
+caller/header closure, final adversarial reread F062-F072, and decide durable
+C013 vs another WIP.
+================================================================================
+
+
+================================================================================
+C012-WIP10 — file 012 CvDLLWidgetData.cpp — INCOMPLETE SAFETY CHECKPOINT
+Baseline: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea
+Durable completion remains 11/169. File 012 remains OPEN. No source modified.
+Prior cumulative prefix: C012-WIP09 preserved byte-for-byte.
+
+NORMALIZED LEDGER DELTA SINCE WIP09
+- F071 / provisional KI#393 is broadened, not split: the same causal UI-family
+  defect also affects Paradrop interception help. Multi-unit special-mission
+  previews choose/aggregate selected units without first filtering to the units
+  that can actually execute the hovered mission at the target.
+- F072 / provisional KI#394 unchanged and still independent: Air Bomb executor
+  ranking itself lacks target-specific eligibility and can abort a valid group
+  order by choosing an invalid aircraft first.
+- F073 remains UNUSED.
+
+F071 PARADROP SIBLING (ADDED AFTER WIP09)
+CvGameTextMgr::getParadropPlotHelp chooses the selected unit with the greatest
+interception-evasion value before applying target/move eligibility. It then
+emits interception help only if that chosen unit canParadropAt the target.
+
+This differs from actual group execution: CvSelectionGroupAI::AI_bestUnitForMission
+(MISSION_PARADROP) first requires canMove and canParadropAt(target), then ranks
+eligible units. Current SAS has UNIT_PARATROOPER with equal drop/evasion stats,
+so a normal mixed-move-state selection is enough: one tied Paratrooper has
+already moved, another is fresh. The fresh unit keeps the Paradrop order valid
+and is the unit execution can use, but the help loop can retain the moved tied
+unit and then suppress interception information when its final canParadropAt
+check fails.
+
+This is normalized under F071 because its cause and repair principle are the
+same as the already-recorded Ground Bombard and Air Bomb preview cases: first
+restrict the help population to mission-executable units at the target, then
+aggregate/rank them. Do not create a separate finding merely for each mission.
+
+REJECTED F073 CANDIDATE — MISSION_HEAL MAX_INT IS SEMANTICALLY REAL
+parseActionHelp_Mission computes the group Heal ETA as the maximum healTurns()
+of all selected units, and CvUnit::healTurns returns MAX_INT when a hurt unit's
+net heal rate at the plot is <= 0. At first this looked like another raw sentinel
+leak.
+
+Engine semantics show otherwise:
+- CvUnit::canHeal rejects healTurns()==MAX_INT, so such a unit alone cannot make
+  the Heal mission available.
+- If another selected unit can heal, the group can nevertheless enter
+  ACTIVITY_HEAL.
+- CvUnit::doTurn applies feature turn-damage and then doHeal to hurt stationary
+  units; the group remains ACTIVITY_HEAL while any member remains hurt (for a
+  human group, absent the separate sentry-danger wake condition).
+- Therefore a hurt selected unit whose healing is exactly cancelled/exceeded by
+  feature turn damage really can keep the group from ever becoming fully healed
+  at that plot. MAX_INT is meaningful as an infinite group ETA in that state,
+  not a finite-production-style sentinel masquerading as ordinary data.
+
+Result: reject this candidate. F073 stays unused.
+
+OTHER POST-WIP09 CONTROLS
+- Airlift, Recon and Range Strike group execution re-validates target eligibility
+  per selected unit; one invalid companion does not abort later valid units.
+- Paradrop execution is properly eligibility-filtered; only its interception
+  help selection shares F071's preview-population defect.
+- The apparent WIDGET_HELP_OBSOLETE parse/alt payload mismatch is not a bug:
+  buildObsoleteString takes an int item/building identifier despite the local
+  TechTypes cast annotation, and the callers/alt-action consistently encode a
+  BuildingTypes value.
+- WIDGET_HELP_FREE_UNIT intentionally dual-encodes unit in data1 and tech in
+  data2; parse and alt-action consume the appropriate half.
+
+CURRENT-TREE RECONCILIATION AFTER WIP10
+- The behaviorally redundant explicit player-to-team conversion described by
+  the earlier checkpoints was removed during review. Current source retains
+  GET_TEAM(eWhoFrom) plus a warning that CvGamePlay::getTeam(PlayerTypes)
+  converts through TEAMID, cross-referencing the parallel CoreAI overload in
+  rejected KI#311. KI#387 remains the local rejected false-positive record.
+- Direct current-source checks support provisional KI#391's payload mismatch
+  and confirm KI#392's undefined yWidgetTypes identifier. KI#393 and KI#394
+  remain plausible, source-supported mission-family roots pending focused
+  implementation review and runtime validation; none is promoted as fixed here.
+
+EXACT NEXT CURSOR
+File 012 remains open. F073 unused.
+Continue the remaining generic vassal-tooltip scope challenge and encoded-widget
+payload/dispatcher symmetry; then finish inherited action/command help,
+enum/index/null/divisor/state and caller/header closure, adversarial reread
+F062-F072, and decide durable C013 vs another WIP.
+================================================================================
+
+
+================================================================================
+C012-WIP14 RECONSTRUCTED CONTINUATION — file 012 CvDLLWidgetData.cpp — OPEN
+Authoritative current source: AdvCiv-SAS practical 6250 / HEAD 2ac3faa2f6cb45cee0d417728410d325c32668ea
+Reconstruction note: the attached C012-WIP10 artifact above is preserved exactly as the physical prefix. The original WIP11-WIP13 files were not re-uploaded into this new chat; their deltas below are reconstructed from the preserved previous-thread transcript and rechecked against the current practical-6250 source where relevant. This avoids pretending byte-for-byte possession of artifacts that are no longer mounted while preserving the audit state faithfully. No source files modified.
+
+RECOVERED WIP11 DELTA
+F073 / provisional KI#395 — BUG/AdvCiv Chevron angry-citizen overlay uses the specialist widget contract
+Status: inherited current UI defect; source/caller contract strong.
+Evidence:
+- The Chevron city-specialist display creates the ordinary angry-citizen button with WIDGET_ANGRY_CITIZEN.
+- It then draws a 10x10 DDS chevron directly over that angry-citizen button but tags the overlay WIDGET_CITIZEN with data1=j.
+- The neighboring specialist chevrons intentionally use WIDGET_CITIZEN because they really are specialist overlays; the angry-citizen branch is the copy/paste outlier.
+- addDDSGFC carries its own widget/data payload. Hovering the overlay therefore routes through parseCitizenHelp with j interpreted as a SpecialistTypes value; right-click routes to that specialist's Pedia instead of the angry-citizen contract.
+Repair direction:
+- Tag the angry-citizen chevron overlay with WIDGET_ANGRY_CITIZEN and the same payload convention as the underlying angry-citizen button, or make the overlay non-interactive if the engine permits that without breaking rendering.
+Rejected neighboring smell:
+- WIDGET_HELP_OBSOLETE's local TechTypes cast is misleading but not a runtime payload bug; buildObsoleteString consumes the integer as a Building ID, matching the caller/right-click contract.
+
+RECOVERED WIP12 DELTA
+F074 / provisional KI#396 — native Bonus/Tech trade-denial widgets lost their old Pedia fallback click/link behavior
+Status: inherited AdvCiv native-widget migration regression; pre/post behavior source-provable.
+Evidence:
+- Before AdvCiv practical 1419, the Foreign Advisor used BugDll.widget(... fallback=WIDGET_PEDIA_JUMP_TO_BONUS/TECH ...). Because the custom enum was not native, the fallback widgets supplied ordinary clickable Pedia navigation and isLink behavior.
+- Practical 1419 made WIDGET_PEDIA_JUMP_TO_BONUS_TRADE and WIDGET_PEDIA_JUMP_TO_TECH_TRADE native and added their richer denial-help parsing.
+- The native migration did not add the corresponding executeAction/isLink Pedia behavior, so selecting the custom widget stops using the clickable fallback.
+- WIDGET_DEAL_KILL is a clean migration control: when AdvCiv made that custom behavior native, it retained action/link machinery rather than assuming every rich-hover widget should be parse-only.
+- The bonus import column may encode its BonusTypes payload with +1000; any native Pedia action needs to normalize that encoding before jumping.
+Repair direction:
+- Restore Pedia click/link semantics for the native trade-denial widgets while preserving their denial hover text and payload encoding.
+
+RECOVERED WIP13 DELTA + POST-WIP13 NORMALIZATION
+F075 / provisional KI#397 — practical-1481 native BULL hover migration dropped contact fallback actions
+Status: inherited AdvCiv native-widget migration regression; two sibling manifestations, one root.
+Manifestation A — WIDGET_LEADERHEAD_RELATIONS:
+- Before practical 1481 (4a65bf5c0f...), callers were wrapped in BugDll.widgetVersion(... fallback=WIDGET_LEADERHEAD ...).
+- The fallback's C++ alt action contacted the civilization.
+- The Military/Foreign Advisor Python right-click handling still hides the advisor in preparation for that contact action.
+- Practical 1481 made WIDGET_LEADERHEAD_RELATIONS native and added rich hover parsing but no matching executeAltAction. A right-click can therefore hide the advisor and then do nothing instead of contacting the civ.
+Manifestation B — scoreboard trade-network widget:
+- Before practical 1481, the scoreboard trade icon used BugDll.widget("WIDGET_TRADE_ROUTES", ..., fallback=WIDGET_CONTACT_CIV, rival, -1), inheriting ordinary click-to-contact behavior.
+- Practical 1481 made the rich trade-routes hover native but added no execute action, dropping the fallback contact.
+- Practical 3396 (cf04fab335...) later split the scoreboard form to WIDGET_TRADE_ROUTES_SCOREBOARD only to stop Foreign Advisor hovers from expanding the scoreboard; it did not restore or intentionally revoke contact behavior.
+Repair direction:
+- Restore the lost contact action(s) explicitly on the native widgets, preserving the current rich hover behavior and the later scoreboard-only expansion distinction.
+Negative control:
+- WIDGET_DEAL_KILL shows that native migration can and does retain explicit click/link semantics when intended.
+
+POST-WIP13 STRICT-SWEEP CONTROL — WIDGET_MENU_ICON FALL-THROUGH REJECTED AS CURRENT BUG
+- parseHelp has WIDGET_MENU_ICON fall through into WIDGET_CONSCRIPT, whose parser uses assign() and would overwrite "Main Menu" help with conscription help when a selected city exists.
+- executeAction likewise calls doMenu() and then falls through to doConscript(). This shape is inherited and also present in the local controls.
+- Current normal UI hides the Main Menu button while the city screen / selected-city context is active, which masks the harmful city-dependent side of the fall-through in supported ordinary use.
+- Keep as ugly inherited control-flow / robustness debt, not F076, unless a normal reachable selected-city + visible-menu path is later proven.
+
+F076 / provisional KI#398 — group Espionage can abort a valid order by trying the first movable non-Spy
+Status: NEW INHERITED BTS GAMEPLAY / GROUP-MISSION CONTRACT DEFECT ROOT; current SAS reproduction and vanilla/BtS control proof strong.
+
+Mission-availability contract:
+- CvGame::canHandleAction delegates mission legality to the selected interface group's canStartMission.
+- CvSelectionGroup::canDoMission(MISSION_ESPIONAGE) iterates the group and returns true when ANY unit satisfies canEspionage(target, bTestVisible) and, when required, canMove().
+- Therefore a mixed same-domain group legitimately exposes/enables Espionage when one selected Spy can act, even if other selected units cannot.
+
+Execution contract failure:
+- CvSelectionGroup::startMission iterates units in group order, skipping only units that cannot move.
+- MISSION_ESPIONAGE calls pUnit->espionage(...) on the first movable unit it reaches and then unconditionally jumps to exit_unit_loop, explicitly to allow one unit at a time to do espionage.
+- CvUnit::espionage immediately returns false when canEspionage(plot()) is false; CvUnit::canEspionage rejects every non-Spy through !isSpy().
+- Consequently the executor stops after a failed attempt by an ineligible movable unit rather than continuing until it reaches the Spy that made the group mission legal.
+
+Concrete current SAS reproduction:
+- CvUnit::canJoinGroup allows same-owner units on the same plot to group when their domains match; it does not forbid Spy + combat-unit groups.
+- Current UNIT_AXEMAN is DOMAIN_LAND, DefaultUnitAI=UNITAI_ATTACK, bSpy=0.
+- Current UNIT_SPY is DOMAIN_LAND, DefaultUnitAI=UNITAI_SPY, bSpy=1.
+- CvSelectionGroup::addUnit orders units by AI_groupFirstVal (then second value). UNITAI_ATTACK has first value 13; UNITAI_SPY has 9. Thus a normal Axeman + Spy group deterministically puts the Axeman before the Spy.
+- On a rival-owned plot where the fresh Spy is legally able to perform espionage and the fresh Axeman can move, canDoMission returns true because of the Spy.
+- startMission reaches the Axeman first; Axeman::espionage returns false because it is not a Spy; the unconditional exit prevents the eligible Spy from acting. A valid Espionage order can therefore produce no espionage action/popup.
+
+Help sibling:
+- parseActionHelp_Mission(MISSION_ESPIONAGE) uses the head selected unit kUnit and passes only that unit to setEspionageMissionHelp.
+- setEspionageMissionHelp immediately returns for !isSpy(). In the same Axeman + Spy ordering, the action is enabled by the Spy but Spy-specific mission help is omitted because the head is the Axeman.
+- This reinforces the same group-selection assumption, though the executor failure is independently sufficient for F076.
+
+Ancestry/control:
+- The local Civ4CE BtS source has the same contract split: canDoMission iterates until any pLoopUnit->canEspionage succeeds, while execution attempts espionage on the current loop unit and then sets pUnitNode=NULL regardless of success to stop after one unit.
+- The AdvCiv/SAS goto exit_unit_loop is a readability/control-flow rewrite of that inherited BtS behavior, not the birth of the defect.
+
+Conservative repair direction:
+- Preserve the "one Spy per Espionage command" rule, but exit the unit loop only after selecting/attempting an actually eligible Spy.
+- With canMove already filtered by the outer loop, the MISSION_ESPIONAGE case can continue past units that fail canEspionage(plot()) and stop after the first eligible Spy performs/opens the espionage action.
+- Keep the two-phase/popup semantics intact; do not allow multiple Spies to execute one user command.
+- For help, derive the espionage-help subject from an eligible selected Spy rather than blindly from the group head.
+
+CURRENT REJECTION / CLOSURE NOTES CARRIED FORWARD
+- The two extra CvDLLWidgetData.h declarations doCancelCivics and applyCityEdit remain dead inherited header residue: no live definitions/callers established in current, base AdvCiv, or Civ4CE controls.
+- Generic enum casts without reachable bad widget producers remain non-findings; theoretical forged payloads are not being promoted.
+- WIDGET_EXAMINE_CITY's direct city lookup remains protected by ordinary live-owned-city callers; no supported stale-city path has been proven.
+- parseTradeRoutes' player IDs remain valid across all live callers inspected.
+- plot-list static iUnitsPerRow is refreshed on each forward-shift sequence rather than acting as a permanently stale layout cache.
+- MISSION_BUILD worker ETA does not double-count workers already performing the same build: getBuildTurnsLeft accounts for active builders while widget help adds selected workers only when their current build differs.
+
+NORMALIZED LEDGER / RECOVERY CURSOR
+- Durable prior files: 11 / 169.
+- File 012 CvGameCoreDLL/CvDLLWidgetData.cpp remains OPEN.
+- F062-F075 recovered/normalized from WIP10 + preserved thread; F075 includes the scoreboard trade-network contact sibling.
+- F076 / provisional KI#398 promoted in this checkpoint.
+- F077 UNUSED.
+- Next: finish remaining head-unit/special-mission help parity; strict enum/index/pointer/null/string/state inventory; reconcile 168 CPP definitions vs 170 header declarations; final custom-28-widget closure; adversarial reread F062-F076; then decide whether file 012 earns durable C013.
+================================================================================
+
+CURRENT-TREE RECONCILIATION OF WIP14 DELTA
+- Current caller spot checks also support KI#395's angry-citizen overlay mismatch
+  and the live widget families underlying KI#396-KI#397. KI#398's mixed-group
+  Espionage availability/execution mismatch is source-strong and especially
+  suitable for a focused reproduction, but all four remain provisional until
+  their own implementation review. File 012 therefore remains OPEN; this WIP14
+  reconstruction is preserved as evidence, not promoted as durable C013.

@@ -450,6 +450,11 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [380 - (Fixed AdvCiv-SAS diagnostic sentinel leak) Unavailable city-production values were logged as 2147483647](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#380---fixed-advciv-sas-diagnostic-sentinel-leak-unavailable-city-production-values-were-logged-as-2147483647)\
 [381 - (Fixed AdvCiv-SAS diagnostic accounting defect) Process conversion was reported during city disorder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#381---fixed-advciv-sas-diagnostic-accounting-defect-process-conversion-was-reported-during-city-disorder)\
 [382 - (Fixed AdvCiv-SAS diagnostic durability defect) Session rollover discarded buffered observations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---fixed-advciv-sas-diagnostic-durability-defect-session-rollover-discarded-buffered-observations)\
+[383 - (Fixed AdvCiv-SAS UI regression) Leader Glance lost its War Trades hover explanation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#383---fixed-advciv-sas-ui-regression-leader-glance-lost-its-war-trades-hover-explanation)\
+[384 - (Fixed inherited AdvCiv Pedia regression) Opening-menu right clicks formed a NULL civilization reference](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#384---fixed-inherited-advciv-pedia-regression-opening-menu-right-clicks-formed-a-null-civilization-reference)\
+[385 - (Pending inherited/SAS diagnostic drift) Scoreboard cheat war predictions duplicate stale AI_doWar logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#385---pending-inheritedsas-diagnostic-drift-scoreboard-cheat-war-predictions-duplicate-stale-ai_dowar-logic)\
+[386 - (Fixed inherited BtS tooltip defect) Great Spy Infiltration omitted its espionage yield](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#386---fixed-inherited-bts-tooltip-defect-great-spy-infiltration-omitted-its-espionage-yield)\
+[387 - (Rejected false positive) GET_TEAM(PlayerTypes) already converts the player to the correct team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#387---rejected-false-positive-get_teamplayertypes-already-converts-the-player-to-the-correct-team)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9828,3 +9833,55 @@ The fix explicitly finalizes the preceding GameRecord session before `CvGame::in
 The compiled level-3 test ran to turn 201, saved and loaded into a distinct log beginning at turn 201, then continued to turn 301 without an observed issue. Together the two sessions wrote 134 bombard, 298 plot-change and 2,924 incremental-revelation rows. No buffer happened to remain pending at the tested load instant, so the non-empty finalization branch remains source-verified while its load lifecycle hook received runtime coverage.
 
 This buffering and rollover architecture is AdvCiv-SAS-only diagnostic code, so the defect is not inherited from AdvCiv, K-Mod or BtS. Found as F061/provisional KI#382 during ChatGPT-5.6-Sol's durable C012 closure of the `SASGameRecordLog.cpp` file-audit pass; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 383 - (Fixed AdvCiv-SAS UI regression) Leader Glance lost its War Trades hover explanation
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1vpm8J2-juguu2uaff_5CPBnRMU8dHdDx?usp=sharing).
+
+With BUG's `Show War Trades` option enabled, Foreign Advisor Glance cells use `WIDGET_LH_GLANCE` and can display AdvCiv's fist for a leader willing to start a war. Base AdvCiv appends `parseWarTradesHelp` for that widget so hovering the cell explains the fist. AdvCiv-SAS still displayed the icon but no longer appended its dedicated explanation, while the independent vassal-willingness text remained.
+
+The fix restores `parseWarTradesHelp` before appending vassal willingness, allowing both independent statuses to coexist. AdvCiv-SAS practical 5178 initially added the vassal text while preserving War Trades; practical 5179 accidentally removed the existing call while extracting the repeated vassal logic into a helper. This is an AdvCiv-SAS-only UI regression, not an inherited AdvCiv/BULL issue.
+
+Compiled runtime testing in the Foreign Advisor Glance tab confirmed that hovering the restored War Trades status displays `Willing to declare war` while the vassal-willingness help remains available.
+
+Found as F062/provisional KI#383 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 384 - (Fixed inherited AdvCiv Pedia regression) Opening-menu right clicks formed a NULL civilization reference
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NQ8yD8bLOzNz9j0PB9AcY9RXr0xibMGN?usp=sharing).
+
+`executeAltAction` unconditionally dereferenced `getActiveCivilization()` before dispatching any right-click widget. The opening-menu Pedia deliberately has no active player, so that getter returns `NULL`; even direct Tech, Unit, Building, Project and other Pedia widgets that need no civilization mapping first formed an invalid C++ reference. Only the city-production `WIDGET_TRAIN` and `WIDGET_CONSTRUCT` cases actually need an active civilization to map a class to its civilization-specific unit or building.
+
+The fix resolves the active civilization locally in only those two class-based cases, asserts their city-production contract and reports them unhandled if they somehow occur without an active civilization. Every direct opening-menu Pedia link now avoids the unrelated NULL reference. AdvCiv practical 1648 introduced the regression by replacing the former per-case Pedia helpers and hoisting the civilization lookup; vanilla/Civ4CE BtS keeps that dependency local.
+
+Compiled opening-menu Sevopedia testing confirmed right-click navigation for generic and civilization-specific Unit buttons, Building buttons, Religion buttons and a Project button without an observed issue. Tech and Civic widgets are currently left-click-only under the dispatch table: `executeAltAction` has no cases for them, so their right click is reported unhandled rather than navigating. Before the fix, even those unhandled right clicks first formed the unrelated invalid active-civilization reference; their current harmless no-op therefore matches the dispatch contract rather than indicating a remaining KI#384 failure.
+
+This is an inherited AdvCiv Pedia regression, not an AdvCiv-SAS change. Found as F063/provisional KI#384 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 385 - (Pending inherited/SAS diagnostic drift) Scoreboard cheat war predictions duplicate stale AI_doWar logic
+
+The debug/cheat scoreboard reconstructs substantial parts of `CvTeamAI::AI_doWar` to display war percentages, passed gates and possible targets. That duplicated model has drifted from the real inherited AI through different knowledge, defensive-power, total-war and dogpile rules. SAS KI#356 further widened the disagreement by correcting the real AI's Dagger-member population formulas without updating the duplicate tooltip calculations.
+
+This affects diagnostic truth rather than AI decisions. It remains pending separate review because synchronizing or replacing the duplicated war model is materially broader than the independent widget fixes around it. Found as F064/provisional KI#385 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; current source review with the help of GPT-5.6-Sol confirms the drift but intentionally leaves its repair for a focused batch, thanks.
+
+## 386 - (Fixed inherited BtS tooltip defect) Great Spy Infiltration omitted its espionage yield
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1rGij3jPXhlb11pNgZ0dEGP3bIX8xEmOz?usp=sharing).
+
+The Infiltrate action tooltip searched the selected stack with `canEspionage`, the predicate for ordinary Spy missions. Great Spies have positive infiltration espionage points but are not ordinary `bSpy` units, so a Great Spy capable of infiltrating a foreign city failed that unrelated test and the intended `+N` espionage-yield line was omitted.
+
+The fix uses `canInfiltrate(..., true)`, the mission's own visible-test predicate, before displaying `getEspionagePoints`. The same mismatch exists in vanilla/Civ4CE BtS and remains in AdvCiv 1.14, so this is an inherited BtS tooltip defect rather than an AdvCiv or AdvCiv-SAS regression.
+
+Compiled runtime testing with a Great Spy on a foreign city confirmed that hovering Infiltrate displays the expected `+3000` espionage-point yield in screenshot 0264.
+
+Found as F065/provisional KI#386 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 387 - (Rejected false positive) GET_TEAM(PlayerTypes) already converts the player to the correct team
+
+The open `CvDLLWidgetData.cpp` audit initially reported that `parseTradeItem` passed its `PlayerTypes eWhoFrom` directly to `GET_TEAM` for the `TRADE_PEACE`, `TRADE_WAR` and `TRADE_EMBARGO` labels. A mechanical comparison with vanilla BtS's explicit player-to-team conversion made AdvCiv practical 1679's replacement of `TEAMREF(eWhoFrom)` with `GET_TEAM(eWhoFrom)` appear to treat the player ID as a raw team ID.
+
+Review of the active accessor contract disproved the finding. In this translation unit, `GET_TEAM(x)` dispatches to the overloaded `CvGamePlay::getTeam`; a statically typed `PlayerTypes` argument selects `getTeam(PlayerTypes ePlayer)`, which already resolves `TEAMID(ePlayer)`. AdvCiv's refactor therefore preserved the BtS behavior, and an explicit `GET_TEAM(GET_PLAYER(eWhoFrom).getTeam())` conversion is behaviorally equivalent rather than a fix. The source remains unchanged apart from a concise warning against repeating this false positive.
+
+This is the direct non-AI counterpart of [KI#311](#311---rejected-archaeology-finding-get_teamplayertypes-correctly-resolves-the-players-team): that earlier historical-archaeology finding was rejected after tracing `CoreAI::getTeam(PlayerTypes)`, while KI#387 concerns the parallel `CvGamePlay::getTeam(PlayerTypes)` overload. Both convert through `TEAMID(ePlayer)`, illustrating why enum/type findings behind accessor macros must trace the active overload in the caller's include context before promotion.
+
+Former F066/provisional KI#387 was retracted by ChatGPT-5.6-Sol in C012-WIP04 and reconfirmed through C012-WIP06; independently verified and documented with the help of GPT-5.6-Sol, thanks.
