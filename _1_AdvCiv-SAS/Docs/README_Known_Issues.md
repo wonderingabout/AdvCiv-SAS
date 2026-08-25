@@ -460,6 +460,13 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [390 - (Fixed AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explained unrelated expenses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#390---fixed-advciv-sas-military-advisor-tooltip-defect-total-cost--supply-explained-unrelated-expenses)\
 [391 - (Fixed inherited BUG/K-Mod Tech Splash tooltip defect) Build-action buttons encoded the wrong widget payload](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#391---fixed-inherited-bugk-mod-tech-splash-tooltip-defect-build-action-buttons-encoded-the-wrong-widget-payload)\
 [392 - (Fixed AdvCiv-SAS Extended Tech Splash regression) Enabled units raised NameError](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#392---fixed-advciv-sas-extended-tech-splash-regression-enabled-units-raised-nameerror)\
+[393 - (Pending inherited AdvCiv mission-help defect) Mixed selections describe units that cannot execute the mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#393---pending-inherited-advciv-mission-help-defect-mixed-selections-describe-units-that-cannot-execute-the-mission)\
+[394 - (Pending inherited AdvCiv Air Bomb executor defect) An invalid aircraft can abort a valid group order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#394---pending-inherited-advciv-air-bomb-executor-defect-an-invalid-aircraft-can-abort-a-valid-group-order)\
+[395 - (Fixed inherited BUG/AdvCiv city-screen widget defect) Angry-citizen Chevron used specialist help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#395---fixed-inherited-bugadvciv-city-screen-widget-defect-angry-citizen-chevron-used-specialist-help)\
+[396 - (Fixed inherited AdvCiv native-widget migration regression) Trade-denial icons lost Pedia navigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#396---fixed-inherited-advciv-native-widget-migration-regression-trade-denial-icons-lost-pedia-navigation)\
+[397 - (Fixed inherited AdvCiv native-widget migration regression) Relations and scoreboard widgets lost contact actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#397---fixed-inherited-advciv-native-widget-migration-regression-relations-and-scoreboard-widgets-lost-contact-actions)\
+[398 - (Pending inherited BtS group-Espionage defect) A movable non-Spy can abort a valid Spy order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#398---pending-inherited-bts-group-espionage-defect-a-movable-non-spy-can-abort-a-valid-spy-order)\
+[399 - (Pending inherited BtS Great General XP defect) Ineligible plot units consume remainder slots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#399---pending-inherited-bts-great-general-xp-defect-ineligible-plot-units-consume-remainder-slots)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9944,3 +9951,69 @@ The fix removes the accidental leading `y`. AdvCiv-SAS practical 4847 / commit `
 Runtime testing after selecting Extended and restarting confirmed that Hunting renders its three enabled Unit buttons and Barracks without a Python error in screenshot 0274. The corresponding Wide control also rendered normally in screenshot 0276.
 
 Found as F070/provisional KI#392 during ChatGPT-5.6-Sol's C012-WIP08 `CvDLLWidgetData.cpp` caller audit; independently traced, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 393 - (Pending inherited AdvCiv mission-help defect) Mixed selections describe units that cannot execute the mission
+
+Several multi-unit mission previews describe, rank or aggregate the selection head or all selected units instead of first restricting the population to units that can execute the hovered mission at its target. Proven siblings include spent or otherwise ineligible Ground Bombard and Air Bomb units contributing nominal damage; Paradrop help selecting a moved or tied high-evasion unit and suppressing valid interception information; Lead Troops using an ordinary combat head instead of the selected Great General; Discover deriving the bulb amount from an eligible unit but its technology-path explanation from the selection head; and Plunder reporting a non-plundering head unit's refusal although another selected naval unit makes the order executable. Mission Pillage and Corporation Spread were challenged and rejected as additional siblings.
+
+AdvCiv practical 1603 added the Ground Bombard and Air Bomb preview logic together with eligibility-aware group execution, establishing at least that original inherited mismatch; the later siblings share the same current contract defect. A correct repair must derive each preview from the same mission-executable subset as its executor rather than adding isolated rate checks. This remains pending because the family spans several distinct help paths and deserves one focused parity refactor instead of piecemeal patches.
+
+Found as F071/provisional KI#393 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 394 - (Pending inherited AdvCiv Air Bomb executor defect) An invalid aircraft can abort a valid group order
+
+`CvSelectionGroupAI::AI_bestUnitForMission(MISSION_AIRBOMB)` filters city-target candidates with generic `canAirBomb` rather than target-specific `canAirBombAt`, and the non-city branch likewise ranks candidates without the complete target test. Group execution then asks the chosen unit to `airBomb`; if that first candidate is out of range or otherwise invalid, its failure terminates the loop before another selected aircraft that could execute the order is tried. A current concrete family is a range-8 Bomber and range-10 Jet Fighter targeting a city at distance 9.
+
+This behavior belongs to AdvCiv's practical-1603 Air Bomb group-selection/execution refactor rather than AdvCiv-SAS. It remains pending because the executor must rank only target-valid candidates while preserving its city and non-city priorities, and should be repaired alongside or after KI#393's related preview/executor parity review.
+
+Found as F072/provisional KI#394 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 395 - (Fixed inherited BUG/AdvCiv city-screen widget defect) Angry-citizen Chevron used specialist help
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1gksf4vueD-w1qPP3tqmhSZaZ5eGyq3MB?usp=sharing).
+
+The optional BUG Chevron specialist display draws a small DDS overlay over every citizen button. Specialist chevrons correctly use `WIDGET_CITIZEN` with a `SpecialistTypes` payload, but the copied angry-citizen branch used the same contract even though its underlying button is `WIDGET_ANGRY_CITIZEN`. Hovering or right-clicking the chevron portion of an angry citizen could therefore request help or Pedia navigation for specialist index `j` rather than behave as the angry citizen below it.
+
+The fix gives the overlay the same `WIDGET_ANGRY_CITIZEN` contract as its underlying button. This inherited UI defect is present in the BUG-derived city interface retained by AdvCiv; it is not an AdvCiv-SAS regression.
+
+Compiled runtime testing confirmed that hovering the chevron portion now displays the underlying `Angry Citizen` help rather than specialist information in screenshot 0285.
+
+Found as F073/provisional KI#395 during ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` caller audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 396 - (Fixed inherited AdvCiv native-widget migration regression) Trade-denial icons lost Pedia navigation
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1wq0pgkgBpmQY2Mhe44fIFTMgbSUtDSp9?usp=sharing).
+
+Before AdvCiv practical 1419, Foreign Advisor Bonus and Tech denial hovers used non-native BULL widgets with ordinary `WIDGET_PEDIA_JUMP_TO_BONUS` and `WIDGET_PEDIA_JUMP_TO_TECH` fallbacks. Those fallbacks supplied clickable Pedia navigation and link-cursor behavior. Practical 1419 made the richer denial widgets native and implemented their hover parsing, but omitted equivalent `executeAction` and `isLink` handling, so the old Pedia interaction disappeared. Imported Bonus cells additionally encode their `BonusTypes` payload as `ID + 1000`.
+
+The fix restores native Bonus and Tech Pedia actions and link status without replacing their richer denial help, normalizing the import-column Bonus encoding before navigation. This is an inherited AdvCiv native-widget migration regression, not an AdvCiv-SAS change.
+
+Compiled runtime testing confirmed Sevopedia navigation from Foreign Advisor Bonus icons across `We Don't Need`, `Won't Export`, `Will Export` and encoded `Will Import` columns in screenshots 0290-0291. The separate `Importing` column correctly retained its active-deal cancellation contract instead. A Tech icon under `Can't Receive` also navigated in screenshot 0289, confirming the ordinary Pedia-widget control; a native denial icon specifically under `Not for Trade` remains source-verified rather than directly exercised.
+
+Found as F074/provisional KI#396 during ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently traced through the historical commit diffs, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 397 - (Fixed inherited AdvCiv native-widget migration regression) Relations and scoreboard widgets lost contact actions
+
+AdvCiv practical 1481 replaced several fallback BULL widgets with native richer-hover widgets but did not preserve two contact actions. `WIDGET_LEADERHEAD_RELATIONS` replaced a `WIDGET_LEADERHEAD` fallback whose alternate action contacted the rival; the Foreign and Military Advisor Python still hides its screen on right click in preparation for that missing action. The scoreboard trade-network widget similarly replaced a `WIDGET_CONTACT_CIV` fallback and lost ordinary click-to-contact. The later scoreboard-specific `WIDGET_TRADE_ROUTES_SCOREBOARD` retains the rival in `data2`, while the ordinary `WIDGET_TRADE_ROUTES` used outside the scoreboard was historically hover-only.
+
+The fix restores right-click contact for relations widgets and ordinary click-to-contact for the scoreboard-specific trade-network widget. It deliberately leaves the ordinary trade-routes widget hover-only, preserving the Info Screen KI#388 separation and the pre-migration Foreign Advisor contract. This is an inherited AdvCiv native-widget migration regression, not an AdvCiv-SAS change.
+
+Compiled runtime testing confirmed that a real scoreboard trade-network icon contacts its rival and Foreign Advisor relations widgets retain right-click contact. The Info Screen KI#388 Score-tab trade cell correctly remained hover-only while displaying its detailed trade-network help in screenshots 0286-0287. Military Advisor Map leader portraits are unrelated `WIDGET_MINIMAP_HIGHLIGHT` filters and correctly remained selection controls rather than contact actions.
+
+Found as F075/provisional KI#397 during ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently traced through the historical commit diffs, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 398 - (Pending inherited BtS group-Espionage defect) A movable non-Spy can abort a valid Spy order
+
+A mixed selection can expose the Espionage mission because `CvSelectionGroup::canDoMission` finds any selected Spy that passes `canEspionage`. During execution, however, `startMission` can reach a movable non-Spy first, call its failing `espionage` method and unconditionally leave the unit loop before the eligible Spy acts. Merely skipping non-Spies at that first point is insufficient: `BUTTONPOPUP_DOESPIONAGE` does not retain the acting Spy ID, and both popup stages later reacquire `getHeadSelectedUnit`, so the eligible actor's identity can still be lost. Lead Troops provides the established control pattern by storing the Great General's unit ID through its popup path.
+
+The same availability/execution and popup-identity contracts exist in vanilla/Civ4CE BtS and AdvCiv, making this an inherited BtS gameplay defect. It remains pending because the repair must preserve the eligible Spy end-to-end through mission execution and both popup returns rather than curing only the first abort.
+
+Found as F076/provisional KI#398 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 399 - (Pending inherited BtS Great General XP defect) Ineligible plot units consume remainder slots
+
+`CvUnit::giveExperience` calculates the Great General's total experience and division remainder from eligible same-owner recipients, and grants experience only to those eligible units. Its distribution index is nevertheless incremented for every unit on the plot, including the Great General and other ineligible units. Those entries can consume the first `remainder` positions without receiving the extra point, silently reducing the intended total award. For example, four eligible recipients should divide 26 XP as `7 + 7 + 6 + 6`; one ineligible entry before them can instead produce only `7 + 6 + 6 + 6` or `6 + 6 + 6 + 6` depending on ordering.
+
+The unconditional index increment exists in vanilla/Civ4CE BtS and remains in AdvCiv, so this is an inherited BtS gameplay defect. It remains pending as a small but distinct `CvUnit.cpp` repair: increment the remainder-distribution index only when a unit actually belongs to the eligible recipient population, then exercise exact deterministic recipient ordering.
+
+Found as cross-file F077/provisional KI#399 while ChatGPT-5.6-Sol followed the Lead Troops contract during the durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.

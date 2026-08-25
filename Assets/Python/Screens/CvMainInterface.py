@@ -3910,7 +3910,8 @@ class CvMainInterface:
 				iCount -= 1
 			if szArtKey:
 				szName = "AngryCitizenChevron" + str(j)
-				self.addDDS(szName, szArtKey, WidgetTypes.WIDGET_CITIZEN, j)
+				# <!-- custom: This overlay belongs to the underlying angry citizen, not to SpecialistTypes j; matching its widget prevents specialist help/Pedia actions over the chevron. See KI#395. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				self.addDDS(szName, szArtKey, WidgetTypes.WIDGET_ANGRY_CITIZEN)
 				screen.show(szName)
 			j += 1
 

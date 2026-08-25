@@ -1001,6 +1001,10 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_PEDIA_JUMP_TO_DERIVED_TECH:
 		py.jumpToPedia(iData1, "Tech");
 		break;
+	// <!-- custom: AdvCiv's native trade-denial hover stopped using the ordinary Tech Pedia fallback and lost its click action. Restore the same target while retaining the richer hover. See KI#396. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_TECH_TRADE:
+		py.jumpToPedia(iData1, "Tech");
+		break;
 
 	case WIDGET_PEDIA_BACK:
 		py.callScreenFunction("pediaBack");
@@ -1011,6 +1015,10 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 
 	case WIDGET_PEDIA_JUMP_TO_BONUS:
 		py.jumpToPedia(iData1, "Bonus");
+		break;
+	// <!-- custom: Restore the native trade-denial widget's old Bonus Pedia fallback action; the import column encodes its BonusTypes payload with +1000. See KI#396. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_BONUS_TRADE:
+		py.jumpToPedia(iData1 >= 1000 ? iData1 - 1000 : iData1, "Bonus");
 		break;
 
 	case WIDGET_PEDIA_MAIN:
@@ -1119,6 +1127,11 @@ bool CvDLLWidgetData::executeAction(CvWidgetDataStruct &widgetDataExternal)
 				(iData1 == 1 ? CONTROL_CYCLEWORKER : CONTROL_CYCLEUNIT_ALT));
 		break;
 	} // </advc.154>
+	// <!-- custom: The native scoreboard trade-routes hover replaced a WIDGET_CONTACT_CIV fallback and lost ordinary click-to-contact. data2 is the rival; keep the non-scoreboard widget hover-only. See KI#397. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_TRADE_ROUTES_SCOREBOARD:
+		widgetDataStruct.m_iData1 = widgetDataStruct.m_iData2;
+		doContactCiv(widgetDataStruct);
+		break;
 	}
 
 	return bHandled;
@@ -1230,6 +1243,8 @@ bool CvDLLWidgetData::executeAltAction(CvWidgetDataStruct &widgetDataExternal)
 	case WIDGET_HELP_CIVIC_REVEAL:
 		py.jumpToPedia(iData2, "Civic");
 		break;
+	// <!-- custom: AdvCiv's native relations hover replaced the WIDGET_LEADERHEAD fallback but omitted its right-click contact action. Restore that action through the same rival-in-data1 contract. See KI#397. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_LEADERHEAD_RELATIONS:
 	case WIDGET_LH_GLANCE: // advc.152
 	case WIDGET_LEADERHEAD:
 		#ifdef ENABLE_REPRO_TEST
@@ -1282,6 +1297,9 @@ bool CvDLLWidgetData::isLink(const CvWidgetDataStruct &widgetDataStruct) const
 	case WIDGET_PEDIA_JUMP_TO_UNIT_COMBAT:
 	case WIDGET_PEDIA_JUMP_TO_PROMOTION:
 	case WIDGET_PEDIA_JUMP_TO_BONUS:
+	// <!-- custom: Native trade-denial widgets retain their richer hover but should advertise the restored Pedia click like their old fallback widgets. See KI#396. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_PEDIA_JUMP_TO_BONUS_TRADE:
+	case WIDGET_PEDIA_JUMP_TO_TECH_TRADE:
 	case WIDGET_PEDIA_JUMP_TO_IMPROVEMENT:
 	case WIDGET_PEDIA_JUMP_TO_CIVIC:
 	case WIDGET_PEDIA_JUMP_TO_CIV:
