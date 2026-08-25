@@ -2241,8 +2241,10 @@ void PreEmptiveWar::evaluate()
 		whereas conquests by us or our vassals are assumed to be too recent to
 		contribute. However, cities of new vassals don't need time to become
 		productive. */
-	scaled rOurPredictedCities = kOurTeam.getNumCities()
-			- (int)militAnalyst().lostCities(eWe).size();
+	// <!-- custom: AdvCiv started from the whole team's city count but subtracted only the current member's predicted losses. Aggregate losses for every alive teammate so the predicted side matches the team-wide baseline. See KI#430. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled rOurPredictedCities = kOurTeam.getNumCities();
+	for (PlayerIter<ALIVE,MEMBER_OF> itOurMember(eOurTeam); itOurMember.hasNext(); ++itOurMember)
+		rOurPredictedCities -= (int)militAnalyst().lostCities(itOurMember->getID()).size();
 	scaled rOurCurrentCities = kOurTeam.getNumCities();
 	TeamSet const& kCapAccepted = militAnalyst().getCapitulationsAccepted(eOurTeam);
 	for (PlayerIter<MAJOR_CIV> itOurVassal; itOurVassal.hasNext(); ++itOurVassal)
@@ -2250,15 +2252,13 @@ void PreEmptiveWar::evaluate()
 		CvPlayer const& kOurVassal = *itOurVassal;
 		if (GET_TEAM(kOurVassal.getTeam()).isVassal(eOurTeam))
 		{
-			rOurCurrentCities += fixp(0.5) *
-					(kOurVassal.getNumCities()
-					- (int)militAnalyst().lostCities(kOurVassal.getID()).size());
+			// <!-- custom: Existing vassals belong to both present and predicted sides at half weight; AdvCiv put their postwar count only in the present side, making our coalition appear to shrink without a vassal-state change. See KI#430. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			rOurCurrentCities += fixp(0.5) * kOurVassal.getNumCities();
+			rOurPredictedCities += fixp(0.5) * (kOurVassal.getNumCities() - (int)militAnalyst().lostCities(kOurVassal.getID()).size());
 		}
 		else if (kCapAccepted.count(kOurVassal.getTeam()) > 0)
 		{
-			rOurPredictedCities += fixp(0.5) *
-					(kOurVassal.getNumCities()
-					- (int)militAnalyst().lostCities(kOurVassal.getID()).size());
+			rOurPredictedCities += fixp(0.5) * (kOurVassal.getNumCities() - (int)militAnalyst().lostCities(kOurVassal.getID()).size());
 		}
 	}
 	scaled const rOurPredictedToCurrCities = (rOurCurrentCities > 0 ?
@@ -3891,8 +3891,7 @@ void UlteriorMotives::evaluate()
 		offer. Once we've declared war, we should forget about our issues with the
 		sponsor's motives, and instead live up to our promise (as enforced by
 		HiredHand). */
-	if (militAnalyst().isPeaceScenario() || eThey != m_kParams.getSponsor() ||
-		!kWe.hasCapital() || !kThey.hasCapital())
+	if (militAnalyst().isPeaceScenario() || eThey != m_kParams.getSponsor() || !kWe.hasCapital() || !kThey.hasCapital())
 	{
 		return;
 	}
@@ -3912,14 +3911,9 @@ void UlteriorMotives::evaluate()
 	CvTeamAI const& kTarget = GET_TEAM(eTarget);
 	bool const bJointWar = militAnalyst().isWar(eTheirTeam, eTarget);
 	// If they're in a hot war, their motives seem clear (and honest) enough.
-	bool const bHot = (bJointWar && kTarget.AI_getWarSuccess(eTheirTeam) +
-			2 * kTheirTeam.AI_getWarSuccess(eTarget) >
-			3 * GC.getWAR_SUCCESS_CITY_CAPTURING() &&
-			kTarget.uwai().canReach(eTheirTeam)); // Perhaps no longer hot
-	if (bHot &&
-		// If the target is in our area but not theirs, that's fishy.
-		(!kTarget.AI_isPrimaryArea(kWe.getCapital()->getArea()) ||
-		kTarget.AI_isPrimaryArea(kThey.getCapital()->getArea())))
+	bool const bHot = (bJointWar && kTarget.AI_getWarSuccess(eTheirTeam) + 2 * kTheirTeam.AI_getWarSuccess(eTarget) > 3 * GC.getWAR_SUCCESS_CITY_CAPTURING() && kTarget.uwai().canReach(eTheirTeam)); // Perhaps no longer hot
+	// If the target is in our area but not theirs, that's fishy.
+	if (bHot && (!kTarget.AI_isPrimaryArea(kWe.getCapital()->getArea()) || kTarget.AI_isPrimaryArea(kThey.getCapital()->getArea())))
 	{
 		return;
 	}
@@ -3927,22 +3921,19 @@ void UlteriorMotives::evaluate()
 		demand extra payment to allay our suspicions. Use DWRAT (greater than
 		Annoyed, Cautious or Pleased respectively) as an indicator of how
 		suspicious we are. */
-	int iSuspicionFactor = kOurPersonality.getDeclareWarRefuseAttitudeThreshold()
-			- towardThem() + 1;
+	int iSuspicionFactor = kOurPersonality.getDeclareWarRefuseAttitudeThreshold() - towardThem() + 1;
 	if (towardThem() == ATTITUDE_FRIENDLY)
 		iSuspicionFactor--;
 	int iMotivesCost = 8 + 4 * iSuspicionFactor;
 	if (!bJointWar)
 		iMotivesCost += 4;
-	/*	An AI sponsor can, in principle, have ulterior motives. For example,
-		if they expect the war to hurt us, this could result in positive utility
-		from Kingmaking for them. This is a bit farfetched though, so ... */
+	// An AI sponsor can, in principle, have ulterior motives. For example, if they expect the war to hurt us, this could result in positive utility from Kingmaking for them. This is a bit farfetched though, so ...
 	if (!bHot && !kThey.isHuman())
 		iMotivesCost /= 2;
 	if (iMotivesCost > 0)
 	{
-		log("Attitude level towards %s: %d, refusal thresh: %d",
-				m_kReport.leaderName(eThey), towardThem());
+		// <!-- custom: AdvCiv's UWAI report format requested the DeclareWarRefuseAttitudeThreshold but omitted its vararg, producing undefined output when reporting was enabled. See KI#431. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		log("Attitude level towards %s: %d, refusal thresh: %d", m_kReport.leaderName(eThey), towardThem(), kOurPersonality.getDeclareWarRefuseAttitudeThreshold());
 		m_iU -= iMotivesCost;
 	}
 }

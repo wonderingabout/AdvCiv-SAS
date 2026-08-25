@@ -496,6 +496,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [427 - (Fixed inherited AdvCiv UWAI trade-cap defect) The fourth resource trade was discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#427---fixed-inherited-advciv-uwai-trade-cap-defect-the-fourth-resource-trade-was-discarded)\
 [428 - (Fixed inherited AdvCiv UWAI Domination defect) Exact population equality divided by zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#428---fixed-inherited-advciv-uwai-domination-defect-exact-population-equality-divided-by-zero)\
 [429 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Adjusted leaders were compared by raw score](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#429---fixed-inherited-advciv-uwai-kingmaking-defect-adjusted-leaders-were-compared-by-raw-score)\
+[430 - (Fixed inherited AdvCiv UWAI coalition defect) Our predicted side omitted existing vassals and teammate losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#430---fixed-inherited-advciv-uwai-coalition-defect-our-predicted-side-omitted-existing-vassals-and-teammate-losses)\
+[431 - (Fixed inherited AdvCiv UWAI reporting defect) A missing vararg produced undefined output](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#431---fixed-inherited-advciv-uwai-reporting-defect-a-missing-vararg-produced-undefined-output)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -10360,3 +10362,25 @@ Screenshots/files for this issue: same google drive folder link as KI#427.
 The repair centralizes the adjusted contender-score calculation and uses it in both passes. The existing human/AI margins and all threat adjustments remain unchanged, but the numerator and denominator now share the same definition. Base AdvCiv 1.14 contains the divergent two-pass calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F106/provisional KI#429 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The same compiled 486-turn autoplay exercised ordinary midgame and late-game Kingmaking across 16 starting civilizations and completed normally. UWAI reporting was not enabled, so the corrected adjusted leader set remains source-verified rather than directly compared in the runtime record.
+
+## 430 - (Fixed inherited AdvCiv UWAI coalition defect) Our predicted side omitted existing vassals and teammate losses
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1uzXiTczZJLsdforE_XXvOyr-zkAL2fbU?usp=sharing).
+
+`PreEmptiveWar::evaluate` compares each side's current and predicted city base to judge whether a threatening rival is likely to gain a long-term edge. The rival side consistently includes an existing vassal at half weight in both snapshots. AdvCiv's own side instead added an existing vassal's postwar cities only to the current snapshot, omitting it entirely from the predicted snapshot. A stable vassal could therefore make our coalition appear to shrink even without a vassal-state change, inflating pre-emptive-war utility.
+
+The own-side baseline was also team-wide, but its predicted copy subtracted city losses only for the current player. In a multi-member team, projected teammate losses remained counted and produced member-specific partial forecasts of the same team coalition. The repair constructs current and predicted snapshots from matching participants: every existing vassal contributes its current cities to the present side and its postwar cities to the predicted side at half weight; a newly capitulating vassal remains predicted-only; and losses from every alive member are subtracted from the team-wide predicted baseline. The inherited policy that our recent conquests do not yet contribute remains unchanged.
+
+Base AdvCiv 1.14 contains both construction mismatches, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F107/provisional KI#430 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+Compiled runtime testing used a Huge Pangaea autoplay with three two-player starting teams. Team 1 had an existing vassal by turn 200 and team 3 had another by turn 300, directly exercising the teammate/vassal coalition environment; the game completed normally with a Space Race victory on turn 356. UWAI reporting was not enabled, so the exact corrected PreEmptiveWar city snapshots remain source-verified rather than directly compared.
+
+## 431 - (Fixed inherited AdvCiv UWAI reporting defect) A missing vararg produced undefined output
+
+Screenshots/files for this issue: same google drive folder link as KI#430.
+
+When UWAI reporting is enabled and `UlteriorMotives` assigns a positive cost, its diagnostic format contains conversions for the rival name, current attitude and declaration-of-war refusal threshold. AdvCiv supplied only the first two arguments. The variadic formatter therefore read a nonexistent third argument, producing arbitrary output and invoking undefined C++ behavior in a live optional reporting path.
+
+The repair passes the agent personality's `DeclareWarRefuseAttitudeThreshold`, which is the same value used immediately above to calculate the reported suspicion factor. A mechanical audit recorded in the C++ File Audit Album found no other format/argument-count mismatch in `WarUtilityAspect.cpp`. Base AdvCiv 1.14 contains the same incomplete call, making this an inherited AdvCiv UWAI reporting defect rather than an AdvCiv-SAS regression. Found as F108/provisional KI#431 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same compiled multi-team autoplay completed normally. `REPORT_INTERVAL` remained disabled, so the corrected optional report row was not emitted during this test; its argument count and selected threshold remain source-verified.

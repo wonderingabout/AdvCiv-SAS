@@ -16770,3 +16770,437 @@ LOCAL RECONCILIATION AFTER C014-WIP28 IMPORT
 - ChatGPT-5.6-Sol's C014-WIP25 through C014-WIP28 append is compatible with current authority at HEAD d8498752b plus the staged KI#420/KI#421 repairs. The received append remains verbatim as evidence.
 - F098 / KI#420 and F099 / KI#421 are now fixed in the staged current source. Their repairs restore symmetric exact Permanent-Alliance history and statefully retire absorbed-team stolen-visibility relations; the new `WarUtilityAspect.cpp` findings do not supersede either repair.
 - F137-F139 / provisional KI#460-KI#462 are collision-free against the current reviewed Known Issues ledger. WIP28 broadens F122/KI#445, F124/KI#447 and F127/KI#450 without allocating another root. All remain provisional while `WarUtilityAspect.cpp` is open; no implementation is promoted from WIP25-WIP28 in this reconciliation. (GPT-5.6-Sol)
+
+
+===============================================================================
+C014-WIP29 APPEND -- current-6267 reconciliation + GreedForVassals team-state audit
+===============================================================================
+
+CURRENT-SOURCE RECONCILIATION
+-----------------------------
+This continuation rebases the open file-014 audit onto the user's fresh
+AdvCiv-SAS light-source snapshot `20260825T231107`:
+
+    branch: main
+    HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+    practical commit count: 6267
+
+The repository-side audit album has already reconciled C014-WIP25 through
+C014-WIP28 while the independently reviewed CvTeam repair track advanced through
+KI#420/KI#421. The WarUtilityAspect candidates remain provisional rather than
+silently fixed.
+
+Most importantly, current practical-6267 `CvGameCoreDLL/WarUtilityAspect.cpp` is
+byte-for-byte identical to the practical-6263 / 20260825T195953 copy used during
+the WIP12-WIP28 investigation. Thus no live file-014 candidate has changed shape
+merely because the surrounding CvTeam work advanced. All findings are still
+re-challenged against the current tree and current Known-Issues ledger before
+closure; this identity check is not a substitute for that semantic review.
+
+
+F140 / provisional KI#463 -- CONFIRMED -- INHERITED ADVCIV TEAM-STATE DUPLICATION
+GREEDFORVASSALS CHARGES ONE CAPITULATED-VASSAL DIPLOMATIC DOWNSIDE PER MEMBER
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv player-loop/team-vassal-state defect.
+
+ROOT
+
+`GreedForVassals::evaluate()` is entered through the ordinary per-rival-player
+WarUtilityAspect loop. It first decides whether the CURRENT RIVAL TEAM becomes a
+new vassal of the agent team:
+
+    TeamSet const& kNewVassals =
+        militAnalyst().getCapitulationsAccepted(eOurTeam);
+
+    if (kNewVassals.count(eTheirTeam) <= 0 || ...)
+        return;
+
+After valuing member-local research income, resources, trade routes and military
+support, the function unconditionally applies:
+
+    if (!kWe.AI_atVictoryStage(AI_VICTORY_CONQUEST3))
+        rUtility -= 5; // To account for the diplo penalty from capitulated vassals
+
+The condition that creates this cost is one `TeamTypes` capitulation relation,
+but the cost is emitted from a `PlayerTypes` callback. If target team V contains
+living members V1 and V2 and V capitulates to eOurTeam, both member evaluations
+see the same `kNewVassals.count(V)` result:
+
+    V1 pass: -5
+    V2 pass: -5
+
+Hence one capitulated-vassal team relation contributes a fixed -10 downside
+solely because the vassal team contains two players. With one living member the
+same relation contributes -5. The final `max(0, rUtility)` can mask the extra
+subtraction when a member's benefit is already small, but it does not repair the
+ownership error; whenever both passes remain above zero, the duplicated fixed
+cost survives directly, and near zero it can change whether an otherwise useful
+member contribution is discarded entirely.
+
+HISTORICAL INTENT IS EXPLICITLY TEAM-STATE-LIKE
+
+The original UWAI introduction did not merely contain an unexplained magic -5.
+Its comment was:
+
+    To account for downsides of vassals, in particular wars with third parties
+    that dislike the vassal
+
+Practical 2261 later shortened this to today's
+"diplo penalty from capitulated vassals" while adding love-of-peace handling;
+the -5 itself was preserved. Base AdvCiv 1.14 still has the same fixed cost in
+the same per-rival-player callback.
+
+Both stated downsides are consequences of acquiring a VASSAL TEAM, not of
+receiving the same team relation once for every player stored on that team.
+
+REAL DIPLOMACY CONTROL -- RIVAL-VASSAL ATTITUDE ITERATES VASSAL TEAMS
+
+The live attitude system gives a particularly strong ownership-domain control.
+`CvPlayerAI::AI_getRivalVassalAttitude(ePlayer)` computes dislike of another
+player's vassal bloc by iterating:
+
+    for (TeamIter<CIV_ALIVE,VASSAL_OF> itVassal(TEAMID(ePlayer)); ...)
+
+and, for each capitulated vassal TEAM, derives one score from:
+
+    itVassal->getNumCities()
+    itVassal->getCapitulationTurn()
+
+That `rCapitulatedScore` is then used in the rival-vassal attitude modifier. If
+one capitulated team owns eight cities, repartitioning those same eight cities
+between one or two player members does not produce a second TeamIter entry or a
+second capitulation relation. The score remains based on the same vassal team's
+aggregate city count and capitulation age.
+
+This team granularity is not a late SAS reinterpretation. K-Mod's original
+`AI_getRivalVassalAttitude` also queried the target player's TEAM and its vassal
+count/power; AdvCiv later refined the formula while retaining team-level vassal
+ownership.
+
+REAL GAME-STATE CONTROL -- VASSALAGE ITSELF IS ONE CvTeam RELATION
+
+`CvTeam::setVassal(TeamTypes eMaster, ...)` changes one team's `m_eMaster`,
+records one team capitulation/voluntary-vassal event, and updates wars/war plans
+through TeamTypes state. A multi-member team does not call `setVassal` once for
+each player member. The forced-war liability highlighted by the original UWAI
+comment therefore also originates from one team relation.
+
+WHY THIS IS NOT F129 AND NOT A BLANKET VASSAL NORMALIZATION
+
+F129/KI#452 concerns a different object: an already-owned TECHNOLOGY SET is
+team-owned but cached/credited once per vassal player. Fixing that cache does not
+touch this fixed -5 line.
+
+Conversely, many neighboring GreedForVassals benefits really can be member-local:
+
+* future commerce/research capacity can differ by player;
+* connected resource availability is player-owned (the negative control already
+  recorded under F129);
+* trade-route city counts and military branches are player-local contributions.
+
+Those quantities should not be blindly divided by team size. F140 is only the
+fixed downside whose own condition/comment and the real diplomacy/vassal systems
+identify it as one team-level capitulated-vassal state.
+
+RELATION TO F130 / WHY A SEPARATE ROOT IS USEFUL
+
+F130/KI#453 proves the same broad architectural hazard inside `Risk`: fixed
+capitulation cost and master-team vassal losses are re-emitted through member
+callbacks. F140 is not merged into F130 because the two defects have independent
+repair loci and independent modeled quantities:
+
+* F130 is Risk's own loss/capitulation accounting;
+* F140 is GreedForVassals' approximation of the diplomatic/forced-war downside
+  of ACQUIRING a vassal team.
+
+Repairing Risk cannot change GreedForVassals, and repairing the latter cannot
+change Risk. This follows the C014-WIP24 normalization rule that similar
+player/team smells remain separate when their state owners and nonlinear/fixed
+operations are independently emitted.
+
+ANCESTRY
+
+The fixed vassal-downside subtraction is present in the original UWAI lineage.
+Practical 2261 changed only the surrounding comment/peace-personality treatment,
+and later scaled-number/refactor commits retained the behavior. Current SAS and
+Base AdvCiv 1.14 still contain the same per-member emission. F140 is therefore
+inherited, not SAS-created.
+
+REPAIR DIRECTION
+
+Charge the fixed capitulated-vassal diplomatic/forced-war downside once per newly
+acquired VASSAL TEAM, or apportion one team-level cost across whatever living
+member callbacks are retained so the aggregate is roster-partition invariant.
+
+Do not normalize the whole GreedForVassals result. Keep genuinely player-local
+benefits additive, and handle F129's duplicated current-tech inventory at its own
+ownership boundary.
+
+
+CURRENT-6267 COLLISION / CONTROL NOTES
+--------------------------------------
+- Current `WarUtilityAspect.cpp` is unchanged from the WIP28 source base; no
+  F101-F139 root is retired merely by the practical-6267 rebase.
+- The reviewed Known-Issues ledger has no existing independently promoted root
+  that owns GreedForVassals' fixed per-member capitulated-vassal downside.
+  Provisional KI#463 is collision-free after KI#460-KI#462.
+- The nearby `iOurVassalPlayers` calculation still contains the already-recorded
+  F096/KI#418 live-vs-assigned-member denominator seam for predicted new vassal
+  teams. That is not F140.
+- BorderDisputes' capitulation branch is not generalized into F140: its
+  `AI_getCloseBordersAttitude(eThey)` input is genuinely player-to-player and can
+  differ between members. Rebuke likewise contains an explicit source comment
+  permitting repeated member-pair memory value. These are useful controls
+  against blanket team normalization.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP29
+CURRENT SOURCE: practical 6267 / HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+NEW ROOT IN THIS APPEND: F140 / provisional KI#463
+NEXT UNUSED ROOT: F141
+
+Continue the final current-ledger semantic-collision pass and adversarial reread
+of F101-F140. Revisit only untouched helper/scenario-state seams with a hard
+ownership/state invariant; a clean closure is preferable to manufacturing F141.
+No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP30 APPEND -- C++ polymorphic-lifetime closure + F141
+===============================================================================
+
+F141 / provisional KI#464 -- CONFIRMED -- INHERITED ADVCIV C++ LIFETIME DEFECT
+WARUTILITYASPECT HAS NO VIRTUAL DESTRUCTOR BUT DERIVED ASPECTS ARE DELETED THROUGH BASE POINTERS
+--------------------------------------------------------------------------------
+STATUS
+------
+NEW CURRENT INHERITED C++ DEFECT ROOT. Static language-contract evidence is
+conclusive; practical severity depends on compiler/optimizer/runtime because the
+operation is undefined behavior, but current derived classes contain non-trivial
+members whose destruction genuinely matters.
+
+ROOT CONTRACT
+-------------
+`WarUtilityAspect` is a polymorphic base class. Its current declaration contains
+multiple virtual functions, including:
+
+    virtual int evaluate(MilitaryAnalyst const& kMilitaryAnalyst);
+    virtual UWAI::AspectTypes xmlID() const=0;
+    virtual void evaluate()=0;
+    virtual int preEvaluate();
+    virtual bool concernsOnlyWarParties() const;
+
+but it declares no destructor at all. There is no
+`virtual ~WarUtilityAspect()` in the header, cpp file, or any derived class.
+Consequently the compiler supplies a non-virtual implicit base destructor.
+
+`WarEvaluator::fillWithAspects` then allocates concrete derived objects and
+stores them behind base pointers:
+
+    vector<WarUtilityAspect*> apAspects;
+    ...
+    v.push_back(new GreedForAssets(params));
+    ...
+    v.push_back(new KingMaking(params));
+    ...
+    v.push_back(new Revolts(params));
+    ...
+
+After evaluation, `WarEvaluator::evaluate` destroys every object through that
+base pointer:
+
+    delete apAspects[i];
+
+For a delete-expression whose static pointee type is a base class but whose
+dynamic object is derived, the base destructor must be virtual. Here it is not.
+Deleting any of these derived aspect objects through `WarUtilityAspect*` is
+therefore undefined behavior in C++.
+
+THIS IS NOT MERELY A STYLE/WARNING ISSUE
+----------------------------------------
+Two current derived classes make the missing derived destruction concretely
+important:
+
+`KingMaking` owns:
+
+    std::set<PlayerTypes> m_winningFuture;
+    std::set<PlayerTypes> m_winningPresent;
+
+and `Revolts` owns:
+
+    std::set<PlotNumTypes> m_countedCities;
+
+Their implicit derived destructors must destroy those sets. With a non-virtual
+base destructor, deleting the objects through `WarUtilityAspect*` does not have
+a valid language-level path that guarantees those derived destructors run.
+Under the ordinary implementation exhibited by a local C++03 compiler, only the
+base destructor is called, so dynamically allocated set nodes owned by the
+derived subobject are not released. The C++ rule itself is stronger: because the
+program has undefined behavior at the delete-expression, no particular runtime
+consequence should be assumed or relied upon.
+
+The base class also owns a `std::vector<PlotNumTypes>`, but that does not rescue
+the hierarchy: ordinary implementations can still destroy the base subobject
+while skipping the derived subobject, and the standard already makes the whole
+operation undefined when the base destructor is non-virtual.
+
+LOCAL COMPILER CORROBORATION -- ILLUSTRATIVE, NOT THE PROOF
+-----------------------------------------------------------
+A minimal C++03 reproduction with a polymorphic base lacking a virtual
+destructor and a derived class owning `std::set<int>` was compiled locally with:
+
+    g++ -std=c++03 -Wall -Wextra -Wdelete-non-virtual-dtor
+
+GCC 14.2 emits:
+
+    warning: deleting object of polymorphic class type 'Base' which has
+    non-virtual destructor might cause undefined behavior
+
+and the illustrative run prints only the base destructor, not the derived
+one. This corroborates the practical mechanism but is intentionally not used as
+a claim about the exact Visual C++ 2003 manifestation; undefined behavior permits
+implementation-dependent outcomes.
+
+CURRENT CALL/LIFETIME REACHABILITY
+----------------------------------
+This delete path is not dormant. Every uncached `WarEvaluator::evaluate` scenario
+constructs the aspect vector, evaluates it for the agent-team members, and then
+loops over the vector and executes `delete apAspects[i]` for every concrete
+aspect. War evaluation is a core UWAI path, so the invalid polymorphic deletion
+is repeatedly reachable during normal AI play.
+
+The non-trivial derived sets allocate only when populated, so a visible leak from
+those containers can vary by game state. `Revolts::m_countedCities` is populated
+when relevant cities are processed; `KingMaking`'s winner sets are populated once
+that aspect becomes active. The source-level undefined behavior, however, exists
+for every derived-object deletion regardless of whether those sets happen to be
+empty in a particular call.
+
+ANCESTRY -- INHERITED FROM THE ORIGINAL advc.104/UWAI CLASS INTRODUCTION
+------------------------------------------------------------------------
+Base AdvCiv 1.14 has the same defect:
+
+* `WarUtilityAspect.h` declares the same polymorphic base without a virtual
+  destructor;
+* `WarEvaluator::fillWithAspects` allocates derived aspects into
+  `vector<WarUtilityAspect*>`;
+* `WarEvaluator::evaluate` executes `delete apAspects[i]` through those pointers;
+* no `~WarUtilityAspect`, `~KingMaking` or `~Revolts` declaration exists.
+
+The original practical-1253 / advc.104 introduction already created the hierarchy
+this way. Its newly added `WarEvaluator::evaluate` constructed
+`vector<WarUtilityAspect*> aspects`, filled it with `new DerivedAspect(...)`, and
+then executed:
+
+    delete aspects[i];
+
+while the simultaneously introduced `WarUtilityAspect` declaration contained
+virtual methods but no virtual destructor. The original `Revolts` class already
+owned a `std::set<int> countedCities`, so a non-trivial derived destructor was
+required from the beginning. Later KingMaking evolution added further `std::set`
+members without changing the base destruction contract.
+
+A scan of the retained current commit-diff corpus finds no later
+`~WarUtilityAspect` addition/removal or manual compensating derived-destructor
+scheme. Current source and Base 1.14 therefore preserve the original lifetime
+bug.
+
+COLLISION / ROOT ACCOUNTING
+---------------------------
+No current reviewed Known-Issues entry or prior album root owns the missing
+virtual destructor / delete-through-base contract. Searches for virtual
+/destructor/delete-through-polymorphic-base wording found no collision.
+
+This is independent of every WarUtilityAspect semantic/modeling finding F101-
+F140. Repairing the destructor cannot change any utility arithmetic, player/team
+normalization or scenario-state predicate; conversely none of those repairs makes
+`delete apAspects[i]` language-defined.
+
+REPAIR DIRECTION
+----------------
+Give the polymorphic base a public virtual destructor. The project remains on an
+old C++ toolchain, so a conservative C++03-compatible declaration is preferable,
+for example:
+
+    public:
+        virtual ~WarUtilityAspect() {}
+
+or declare it in the header and define an empty destructor in the cpp file.
+
+It must be public because `WarEvaluator`, an unrelated caller, deletes through
+`WarUtilityAspect*`. Do not use C++11-only `= default` merely for this repair.
+Once the base destructor is virtual, the implicit derived destructors run in the
+proper order and clean their standard-library members before the base subobject
+is destroyed.
+
+Do not paper over the issue by manually clearing the current `std::set` members:
+that would leave the delete-expression undefined for every derived class and
+would regress again when another derived class gains a non-trivial member.
+
+
+EFFORT STRONGEST-RIVAL POWER CHALLENGE -- NOT PROMOTED
+------------------------------------------------------
+The closure pass also challenged `Effort::preEvaluate`, which estimates the
+future usefulness of our surviving military by taking the maximum
+`CvPlayer::getPower()` among known potential-enemy players. A hostile side with
+one 120-power player therefore yields a different benchmark from an otherwise
+similar two-member team split 60+60.
+
+This is structurally player-partition-sensitive, but the source describes the
+quantity as the power of our "most dangerous rival," and unlike F124/F134 there
+is no hard nonlinear war-legality/capability predicate or direct real-game team
+contract proving that this heuristic was intended to use combined team power.
+Independently controlled civ/player armies can reasonably be treated as separate
+post-war rivals even when teamed. No contradictory historical repair/comment has
+been found.
+
+Therefore this remains a DESIGN/MODELING REVIEW NOTE, not F142 (nor the former
+F141 candidate). The audit should not convert every player-power approximation
+into a team-power correctness defect merely because team partition can change a
+heuristic.
+
+
+C++ LIFETIME / OWNERSHIP CLOSURE CONTROLS
+-----------------------------------------
+- The missing virtual destructor is the only delete-through-polymorphic-base
+  contract established in this file hierarchy. Searches found no custom derived
+  destructors whose logic would mask or replace it.
+- The unchecked `ourCache().lookupCity(...)` dereferences remain covered by the
+  InvasionGraph/MilitaryAnalyst producer contract already recorded in WIP23;
+  no competing pointer-lifetime root was established.
+- Derived aspect members that intentionally persist across agent-member/rival
+  callbacks were rechecked in WIP25. The only proven persistent/local partition
+  defect remains F132 (`Revolts` numerator/denominator reset around
+  `m_countedCities`); the destructor issue here concerns object destruction only
+  after the entire scenario evaluation.
+- The current practical-6267 `WarUtilityAspect.cpp`/header hierarchy remains
+  source-compatible with the older WIP evidence; F141 is inherited rather than
+  introduced by the recent SAS reconciliation.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP30
+CURRENT SOURCE: practical 6267 / HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+NEW ROOT IN THIS APPEND: F141 / provisional KI#464
+NEXT UNUSED ROOT: F142
+
+Continue the final semantic-collision and adversarial closure of F101-F141,
+including one last scan of ownership/destruction and untouched helper contracts.
+Do not force C015 merely because the method inventory is complete; if the
+remaining passes stay clean, record the controls and then close file 014. No
+repository source files were modified.
+===============================================================================
+
+LOCAL RECONCILIATION AFTER C014-WIP30 IMPORT
+
+- ChatGPT-5.6-Sol's C014-WIP29 through C014-WIP30 append is compatible with current authority at HEAD 3a42d6bd7 plus the reviewed KI#430/KI#431 worktree repairs. The received append remains verbatim as evidence despite identifying its older practical-6267 / HEAD 52e0f9c06 source baseline.
+- F104-F106 / KI#427-KI#429 are fixed at current HEAD. F107-F108 / KI#430-KI#431 are fixed in the reviewed worktree: PreEmptiveWar now constructs matching team/vassal city snapshots, and UlteriorMotives supplies the missing UWAI-report vararg. The new findings do not supersede these repairs.
+- F140-F141 / provisional KI#463-KI#464 are collision-free against the current reviewed Known Issues ledger and remain provisional while `WarUtilityAspect.cpp` is open. No implementation is promoted from WIP29-WIP30 in this reconciliation. (GPT-5.6-Sol)
