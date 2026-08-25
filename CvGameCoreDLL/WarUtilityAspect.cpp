@@ -73,6 +73,8 @@ int WarUtilityAspect::evaluate(MilitaryAnalyst const& kMilitaryAnalyst)
 	this->m_pMilitaryAnalyst = &kMilitaryAnalyst;
 	m_pAgentPlayer = &(GET_PLAYER(kMilitaryAnalyst.getAgentPlayer()));
 	m_pAgentCache = &m_pAgentPlayer->uwai().getCache();
+	// <!-- custom: Aspect objects persist across all alive agent-team members. Preserve the prior members' weighted total so the XML weight applies once only to this member's raw delta. See KI#424. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iPriorUtility = m_iU;
 
 	int iOverallUtility = preEvaluate();
 	bool const bOnlyWarParties = concernsOnlyWarParties();
@@ -93,14 +95,17 @@ int WarUtilityAspect::evaluate(MilitaryAnalyst const& kMilitaryAnalyst)
 		log("*%s (from no one in particular): %d*", aspectName(), iOverallUtility);
 		m_iU += iOverallUtility;
 	}
-	scaled rXMLAdjust = getUWAI().aspectWeight(xmlID());
-	if (m_iU != 0 && rXMLAdjust != 1)
+	int iMemberUtility = m_iU - iPriorUtility;
+	scaled const rXMLAdjust = getUWAI().aspectWeight(xmlID());
+	if (iMemberUtility != 0 && rXMLAdjust != 1)
 	{
 		log("Adjustment from XML: %d percent", rXMLAdjust.getPercent());
-		m_iU = (m_iU * rXMLAdjust).round();
+		iMemberUtility = (iMemberUtility * rXMLAdjust).round();
+		m_iU = iPriorUtility + iMemberUtility;
 	}
 	reset();
-	return utility();
+	// <!-- custom: Return only this member's weighted contribution so WarEvaluator's per-player diagnostic is not cumulative across teammates. See KI#424. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return iMemberUtility;
 }
 
 
@@ -548,11 +553,13 @@ scaled WarUtilityAspect::partnerUtilFromTech() const
 
 AttitudeTypes WarUtilityAspect::techRefuseThresh(PlayerTypes ePlayer) const
 {
+	// <!-- custom: Resolve the queried player's identity and personality; AdvCiv used the agent's threshold for both sides of a prospective technology trade. See KI#426. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 	// Humans are callous
-	if (GET_PLAYER(ePlayer).isHuman())
+	if (kPlayer.isHuman())
 		return ATTITUDE_FURIOUS;
 	// The XML value is mostly ANNOYED; they'll trade at one above that.
-	return (AttitudeTypes)(kOurPersonality.getTechRefuseAttitudeThreshold() + 1);
+	return (AttitudeTypes)(GC.getInfo(kPlayer.getPersonalityType()).getTechRefuseAttitudeThreshold() + 1);
 }
 
 
@@ -2905,46 +2912,61 @@ int Risk::preEvaluate()
 	// <!-- custom: The older AdvCiv-SAS hard reject is only a pre-war target guard. Letting it fire in the recursive peace scenario made mediocre wars look artificially excellent (KI#183).
 	// Letting it fire during an ongoing war instead injected -100000 into peace reviews and forced stronger conquerors to stop after reaching a more distant remaining city. Evaluate distance and transport capacity only before war begins, which also avoids the cache scan in both excluded scenarios. (GPT-5.6-Sol) -->
 	const TeamTypes eTarget = m_kParams.getTarget();
-	if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget))
+	// <!-- custom: This is a team-level target-eligibility gate, not a per-member cost. Evaluate it once across every alive agent member so one remote teammate cannot veto another member's reachable front, and one collectively invalid target contributes only one hard reject. See KI#425. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!m_bSASContactGateEvaluated)
 	{
-		bool const bNaval = m_kParams.isNaval();
-		int iMinLandContact = INT_MAX;
-		int iMinAnyContact = INT_MAX;
-		for (int i = 0; i < ourCache().numCities(); ++i)
+		m_bSASContactGateEvaluated = true;
+		if (!militAnalyst().isPeaceScenario() && !kOurTeam.isAtWar(eTarget))
 		{
-			UWAICache::City& kCity = ourCache().cityAt(i);
-			if (kCity.city().getTeam() != eTarget) continue; // Target-specific
-			if (!kCity.canReach()) continue;
-			iMinAnyContact = std::min(iMinAnyContact, kCity.getDistance()); // Approximate turns including roads
-			if (kCity.canReachByLand()) iMinLandContact = std::min(iMinLandContact, kCity.getDistance());
-		}
-		// <!-- custom: Save-file 450 logging showed the same land-reachable target passing this guard as a naval plan during selection, then receiving about -100000 utility under the land limit during its next review. Holy Rome consequently started 12 preparations and canceled 11 while up to 110 of 142 military units waited in one staging city.
-		// When any target city is reachable by land, apply the land distance consistently even if UWAI temporarily prefers a naval scenario. Use the wider sea limit and transport requirement only when reaching the target actually requires naval transport; this prevents a single transport or evaluator-mode change from repeatedly creating and destroying the same plan. (GPT-5.6-Sol) -->
-		bool const bDistanceGateNaval = (bNaval && iMinLandContact == INT_MAX);
-		int const iMinContact = (iMinLandContact != INT_MAX ? iMinLandContact : (bDistanceGateNaval ? iMinAnyContact : INT_MAX));
-		int const iCanTrainCargo = (bDistanceGateNaval ? ourCache().canTrainAnyCargo() : -1);
-		bool const bNoLift = (bDistanceGateNaval && iCanTrainCargo == 0);
-		bool const bExistingPlan = (kOurTeam.AI_getWarPlan(eTarget) != NO_WARPLAN);
-		int const iContactTolerance = (bExistingPlan ? iExistingPlanTolerance : 0);
-		int const iMaxTurns = (bDistanceGateNaval ? iMaxSeaTurns : iMaxLandTurns) + iContactTolerance;
-		bool const bOrdinaryHardReject = (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift);
-		// <!-- custom: Save-file 449 showed the ordinary 3-turn land-contact gate assigning about -100000 utility to Celts and Aztecs even though the victory-denial policy approved them as nearby, stronger emergency responders to India's launched spaceship. If the exact shared urgency, power, distance and land-access policy approves the target using this evaluator's cached path turns, bypass only the ordinary distance veto; unreachable targets and naval plans without transport remain rejected.
-		// Applying the wider distance at stage 3 caused four independent declarations at only 8/16 spaceship parts. Preserve close stage-3 direct wars, but require stage 4/countdown urgency for this new bypass unless the separate XML switch explicitly enables it. (GPT-5.6-Sol) -->
-		bool const bVictoryDenialContactCandidate = (bOrdinaryHardReject && iMinContact != INT_MAX && !bNoLift);
-		int const iTargetMaxVictoryStage = (bVictoryDenialContactCandidate ? getSASTeamMaxVictoryStage(eTarget) : -1);
-		int const iTargetVictoryCountdown = (bVictoryDenialContactCandidate ? GET_TEAM(eTarget).AI_getLowestVictoryCountdown() : -1);
-		static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE");
-		bool const bWiderVictoryDenialContactAllowed = (bStage3SpaceContactBypassEnable || iTargetMaxVictoryStage >= 4 || iTargetVictoryCountdown >= 0);
-		bool const bVictoryDenialContactBypass = (bVictoryDenialContactCandidate && bWiderVictoryDenialContactAllowed && kOurTeam.uwai().isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, iMinContact));
-		// <!-- custom: In a confirming save-file 450 run, Holy Rome chose a profitable target at 3 cached path turns, but an Arabian road was pillaged two turns later and raised contact to 4; the hard reject then canceled the direct plan. Preserve the strict limit for new targets, but give an already-started plan a small XML-tunable tolerance so a single route or border fluctuation does not waste its mobilization. (GPT-5.6-Sol) -->
-		if (bOrdinaryHardReject && !bVictoryDenialContactBypass)
-		{
-			if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bDistanceGateNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d distanceGateNaval=%d existingPlan=%d contactToleranceTurns=%d preparationTurns=%d nearestContactTurns=%d nearestLandContactTurns=%d nearestAnyContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
+			bool const bNaval = m_kParams.isNaval();
+			int iMinLandContact = INT_MAX;
+			int iMinAnyContact = INT_MAX;
+			int iMinCargoContact = INT_MAX;
+			for (MemberIter itMember(eOurTeam); itMember.hasNext(); ++itMember)
+			{
+				UWAICache const& kMemberCache = GET_PLAYER(itMember->getID()).uwai().getCache();
+				bool const bMemberCanTrainCargo = kMemberCache.canTrainAnyCargo();
+				for (int i = 0; i < kMemberCache.numCities(); ++i)
+				{
+					UWAICache::City const& kCity = kMemberCache.cityAt(i);
+					if (kCity.city().getTeam() != eTarget) continue; // Target-specific
+					if (!kCity.canReach()) continue;
+					iMinAnyContact = std::min(iMinAnyContact, kCity.getDistance()); // Approximate turns including roads
+					if (bMemberCanTrainCargo) iMinCargoContact = std::min(iMinCargoContact, kCity.getDistance());
+					if (kCity.canReachByLand()) iMinLandContact = std::min(iMinLandContact, kCity.getDistance());
+				}
+			}
+			// <!-- custom: Save-file 450 logging showed the same land-reachable target passing this guard as a naval plan during selection, then receiving about -100000 utility under the land limit during its next review. Holy Rome consequently started 12 preparations and canceled 11 while up to 110 of 142 military units waited in one staging city.
+			// When any target city is reachable by land, apply the land distance consistently even if UWAI temporarily prefers a naval scenario. Use the wider sea limit and transport requirement only when reaching the target actually requires naval transport; this prevents a single transport or evaluator-mode change from repeatedly creating and destroying the same plan. (GPT-5.6-Sol) -->
+			bool const bDistanceGateNaval = (bNaval && iMinLandContact == INT_MAX);
+			// <!-- custom: A naval qualification requires the same teammate to supply both the reachable route and cargo-building capability; unrelated members cannot combine disconnected local caches. See KI#425. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int const iMinContact = (iMinLandContact != INT_MAX ? iMinLandContact : (bDistanceGateNaval ? iMinCargoContact : INT_MAX));
+			int const iCanTrainCargo = (bDistanceGateNaval ? (iMinCargoContact != INT_MAX) : -1);
+			bool const bNoLift = (bDistanceGateNaval && iCanTrainCargo == 0);
+			bool const bExistingPlan = (kOurTeam.AI_getWarPlan(eTarget) != NO_WARPLAN);
+			int const iContactTolerance = (bExistingPlan ? iExistingPlanTolerance : 0);
+			int const iMaxTurns = (bDistanceGateNaval ? iMaxSeaTurns : iMaxLandTurns) + iContactTolerance;
+			bool const bOrdinaryHardReject = (iMinContact == INT_MAX || iMinContact > iMaxTurns || bNoLift);
+			// <!-- custom: Save-file 449 showed the ordinary 3-turn land-contact gate assigning about -100000 utility to Celts and Aztecs even though the victory-denial policy approved them as nearby, stronger emergency responders to India's launched spaceship.
+			// If the exact shared urgency, power, distance and land-access policy approves the target using this evaluator's cached path turns, bypass only the ordinary distance veto; unreachable targets and naval plans without transport remain rejected.
+			// Applying the wider distance at stage 3 caused four independent declarations at only 8/16 spaceship parts. Preserve close stage-3 direct wars, but require stage 4/countdown urgency for this new bypass unless the separate XML switch explicitly enables it. (GPT-5.6-Sol) -->
+			bool const bVictoryDenialContactCandidate = (bOrdinaryHardReject && iMinContact != INT_MAX && !bNoLift);
+			int const iTargetMaxVictoryStage = (bVictoryDenialContactCandidate ? getSASTeamMaxVictoryStage(eTarget) : -1);
+			int const iTargetVictoryCountdown = (bVictoryDenialContactCandidate ? GET_TEAM(eTarget).AI_getLowestVictoryCountdown() : -1);
+			static const bool bStage3SpaceContactBypassEnable = GC.getDefineBOOL("SAS_UWAI_VICTORY_DENIAL_DIRECT_STAGE3_SPACE_CONTACT_BYPASS_ENABLE");
+			bool const bWiderVictoryDenialContactAllowed = (bStage3SpaceContactBypassEnable || iTargetMaxVictoryStage >= 4 || iTargetVictoryCountdown >= 0);
+			bool const bVictoryDenialContactBypass = (bVictoryDenialContactCandidate && bWiderVictoryDenialContactAllowed && kOurTeam.uwai().isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bNaval, iMinContact));
+			// <!-- custom: In a confirming save-file 450 run, Holy Rome chose a profitable target at 3 cached path turns, but an Arabian road was pillaged two turns later and raised contact to 4; the hard reject then canceled the direct plan.
+			// Preserve the strict limit for new targets, but give an already-started plan a small XML-tunable tolerance so a single route or border fluctuation does not waste its mobilization. (GPT-5.6-Sol) -->
+			if (bOrdinaryHardReject && !bVictoryDenialContactBypass)
+			{
+				if (gWarLogLevel >= 3 || (gOverseasTransportLogLevel >= 3 && bDistanceGateNaval) || (gOverseasTransportLogLevel >= 2 && bNoLift)) logBBAI("WAR_TARGET_HARD_REJECT turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d distanceGateNaval=%d existingPlan=%d contactToleranceTurns=%d preparationTurns=%d nearestContactTurns=%d nearestLandContactTurns=%d nearestAnyContactTurns=%d maxContactTurns=%d canTrainCargo=%d unreachable=%d tooFar=%d noLift=%d",
 					GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bDistanceGateNaval, bExistingPlan, iContactTolerance, m_kParams.getPreparationTime(), (iMinContact == INT_MAX ? -1 : iMinContact), (iMinLandContact == INT_MAX ? -1 : iMinLandContact), (iMinAnyContact == INT_MAX ? -1 : iMinAnyContact), iMaxTurns, iCanTrainCargo, (iMinContact == INT_MAX), (iMinContact != INT_MAX && iMinContact > iMaxTurns), bNoLift);
-			return -100000; // kill this (agent,target) war plan
-		}
-		if (bVictoryDenialContactBypass && gWarLogLevel >= 1) logBBAI("WAR_TARGET_VICTORY_DENIAL_CONTACT_BYPASS turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d existingPlan=%d nearestContactTurns=%d ordinaryMaxContactTurns=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetPowerPercent=%d",
+				return -100000; // kill this (agent,target) war plan
+			}
+			if (bVictoryDenialContactBypass && gWarLogLevel >= 1) logBBAI("WAR_TARGET_VICTORY_DENIAL_CONTACT_BYPASS turn=%d agentTeam=%d targetTeam=%d total=%d naval=%d existingPlan=%d nearestContactTurns=%d ordinaryMaxContactTurns=%d targetMaxVictoryStage=%d targetVictoryCountdown=%d targetPowerPercent=%d",
 				GC.getGame().getGameTurn(), eOurTeam, eTarget, m_kParams.isTotal(), bNaval, bExistingPlan, iMinContact, iMaxTurns, iTargetMaxVictoryStage, iTargetVictoryCountdown, 100 * GET_TEAM(eTarget).getDefensivePower(eOurTeam) / std::max(1, kOurTeam.getPower(true)));
+		}
 	}
 
 	// --- END RPE FILTER ---

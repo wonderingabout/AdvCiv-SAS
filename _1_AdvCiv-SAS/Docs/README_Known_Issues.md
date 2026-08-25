@@ -470,6 +470,9 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
+[424 - (Fixed SAS-activated inherited AdvCiv UWAI team arithmetic defect) Aspect weights compounded across teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#424---fixed-sas-activated-inherited-advciv-uwai-team-arithmetic-defect-aspect-weights-compounded-across-teammates)\
+[425 - (Fixed AdvCiv-SAS UWAI team-game regression) One remote teammate could veto a collectively reachable war target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#425---fixed-advciv-sas-uwai-team-game-regression-one-remote-teammate-could-veto-a-collectively-reachable-war-target)\
+[426 - (Fixed inherited AdvCiv UWAI personality defect) Rival technology-trade willingness used the agent's threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#426---fixed-inherited-advciv-uwai-personality-defect-rival-technology-trade-willingness-used-the-agents-threshold)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -10074,3 +10077,41 @@ Civ4CE/BtS contains the same positive Project-change and Permanent-Alliance merg
 The state transition and suppression boundary were source-verified. Exact runtime reproduction requires forming a Permanent Alliance where only the absorbed team owns a Project; that turn should no longer produce a duplicate Project-completion message or replay event for the surviving team. A compiled autoplay completed successfully as broad regression coverage; the exact Permanent-Alliance announcement case remains source-verified rather than directly reproduced.
 
 Found as F100/provisional KI#422 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 424 - (Fixed SAS-activated inherited AdvCiv UWAI team arithmetic defect) Aspect weights compounded across teammates
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1E-xdn_Cjw6lplQX7zWdJYAJB2bjS69Ha?usp=sharing).
+
+`WarEvaluator` deliberately reuses each `WarUtilityAspect` object while evaluating every alive member of the agent team, accumulating the members into one final team utility. AdvCiv applied the XML aspect weight to the object's entire accumulated utility after every member. Consequently, member N reweighted every earlier member again. For two members contributing +10 each to a 300% aspect, the intended result is `(10 + 10) * 3 = 60`; the inherited code calculated member 1 as 30, then `(30 + 10) * 3 = 120`. Three such members produced 390 instead of 90. Weights below 100% repeatedly suppressed earlier members, and unequal contributions made the result depend on member iteration order.
+
+Base AdvCiv 1.14 retains this arithmetic but currently assigns every global UWAI aspect a 100% weight, leaving the defect numerically dormant there. AdvCiv-SAS activates it strongly: 17 of the 27 current aspect weights are non-100%, including Distraction at 300%, Rebuke and Ulterior Motives at 200%, Reconquista at 130%, Tactical Situation at 140%, Loathing at 70% and Dramatic Arc at 10%. This is therefore inherited AdvCiv team arithmetic activated by AdvCiv-SAS configuration, not purely a stock-AdvCiv runtime issue or an SAS code regression.
+
+The fix snapshots the aspect total before evaluating each team member, applies the XML weight exactly once to that member's raw delta, then adds the weighted delta to the preserved earlier total. It also returns only that member's weighted contribution to `WarEvaluator`, correcting the diagnostic `Total utility for <player>` row that previously became cumulative for the second and later teammates even with 100% weights. No aspect implementation reads the earlier cumulative total for its own decision, so the correction preserves the intended additive team design.
+
+Compiled runtime testing completed two Huge Pangaea autoplays through the turn-500 Time victory. The default 16-team control recorded 107 war starts and 420 battle-summary rows. The team-game run began with 16 players on 10 teams, including four two-player teams and one three-player team, and completed with 67 war starts, 473 battle-summary rows and multiple vassalage transitions. The multi-member teams continued researching through late/Future technologies, expanding, fighting and making direct war decisions. `SASGameRecord_20260825T151658Z_new1.log` and `SASGameRecord_20260825T153102Z_new1.log` therefore provide strong ordinary and team-game regression coverage. UWAI reports were not enabled, so the exact corrected per-member aspect totals remain source-verified rather than directly compared in this test.
+
+Found as F101/provisional KI#424 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 425 - (Fixed AdvCiv-SAS UWAI team-game regression) One remote teammate could veto a collectively reachable war target
+
+Screenshots/files for this issue: same google drive folder link as KI#424.
+
+AdvCiv-SAS KI#61 added a hard pre-war sanity gate in `Risk::preEvaluate` to reject unreachable or excessively distant targets, including naval targets when the evaluator's player cannot train cargo ships. `WarEvaluator` evaluates the same team plan once per alive team member, but the distance and lift data came from the current member's player-local `UWAICache`. A teammate isolated from the target could therefore contribute the plan-killing `-100000` even when another teammate bordered the target and could conduct the war. Similarly, one member without transports could veto a naval plan that another member could execute. This contradicted the team-level target contract and the surrounding design that aggregates each member's ordinary benefits and costs.
+
+The fix evaluates the hard contact gate only once per war/peace scenario and derives its result from every alive team member's cache. The team passes when any member supplies an acceptable land route or when one member supplies both an acceptable sea route and cargo-building capability; disconnected local route and transport evidence from different members is not combined. Only collective failure produces one hard reject. Individual remote members still contribute their ordinary lower gains or higher risks through the remaining UWAI aspects. The existing KI#183 peace-scenario exclusion, ongoing-war exclusion, land-versus-sea limit, existing-plan tolerance, logging and victory-denial bypass remain intact.
+
+This hard gate does not exist in base AdvCiv 1.14, so the player-local veto is an AdvCiv-SAS regression in the otherwise valuable KI#61 faraway-war protection. The compiled team-game autoplay described under KI#424 directly exercised the new team-cache scan across four two-player teams and one three-player team for 500 turns. Multi-member teams 1, 3, 5 and 6 all made direct war declarations, and the game completed normally with continuing wars, vassalage transitions and 11 surviving players on 7 teams. This confirms broad team-war operation; an exact case where only one teammate satisfies the contact gate remains source-verified rather than isolated through UWAI reporting.
+
+Found as F102/provisional KI#425 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 426 - (Fixed inherited AdvCiv UWAI personality defect) Rival technology-trade willingness used the agent's threshold
+
+Screenshots/files for this issue: same google drive folder link as KI#424.
+
+`partnerUtilFromTech` estimates the value of preserving a prospective technology-trade partner and intentionally checks willingness in both directions. Its `techRefuseThresh(ePlayer)` helper honored `ePlayer` only for the human special case; for every AI, it read `kOurPersonality`, which is always the current agent's leader. The rival's willingness was consequently tested with the agent's technology-refusal threshold. Current leader XML includes meaningfully different thresholds, so a permissive rival could be treated as too strict or a strict rival as more willing than it really was. The resulting partner utility feeds Assistance, Ill Will/lost-partner costs and related war-utility decisions.
+
+The fix reads the queried AI player's own personality while retaining the inherited human behavior. The ordinary technology-trade rule in `CvPlayerAI` provides the semantic control by likewise using the prospective trading AI's own personality. Base AdvCiv 1.14 contains the same helper mismatch, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression.
+
+Both compiled 500-turn autoplays described under KI#424 exercised the helper across 16 varied leader personalities, with technology trading active for every surviving team by turn 100, and completed normally. Exact before/after partner utility for a chosen pair with different technology-refusal thresholds requires UWAI reporting and remains source-verified; the two long runs provide broad gameplay coverage across many live trade-partner pairings.
+
+Found as F103/provisional KI#426 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.

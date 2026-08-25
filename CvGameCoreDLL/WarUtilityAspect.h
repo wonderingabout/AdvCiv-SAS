@@ -344,11 +344,14 @@ public:
 class Risk : public WarUtilityAspect
 {
 public:
-	Risk(WarEvalParameters const& kParams)
-	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Initialize the one-shot team contact-gate latch for each war or peace scenario evaluation. See KI#425. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	Risk(WarEvalParameters const& kParams) : WarUtilityAspect(kParams), m_bSASContactGateEvaluated(false) {}
 	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::RISK; }
+private:
+	// <!-- custom: Prevent the team-wide SAS contact gate from being added once per teammate to the shared Risk utility. See KI#425. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool m_bSASContactGateEvaluated;
 };
 
 
