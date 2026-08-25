@@ -4563,7 +4563,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 		updatePlotGroupBonus(eTech, false); // advc: Code moved into auxiliary function
 		m_abHasTech.set(eTech, bNewValue);
 		// <!-- custom: AdvCiv's cached known-technology total incremented on both acquisition and removal.
-		// Follow the actual state transition so Advanced Start refunds cannot inflate gameplay consumers of the cache. See KI#405. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// Follow the actual state transition so True Starts map regeneration cannot inflate gameplay consumers of the cache. See KI#405. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		m_iTechCount += (bNewValue ? 1 : -1); // advc.101
 		FAssert(m_iTechCount >= 0);
 		updatePlotGroupBonus(eTech, true);

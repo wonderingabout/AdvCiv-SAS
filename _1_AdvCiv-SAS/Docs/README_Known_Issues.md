@@ -473,6 +473,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [403 - (Fixed inherited BtS Permanent-Alliance spaceship defect) An in-flight launch could be erased or re-enabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#403---fixed-inherited-bts-permanent-alliance-spaceship-defect-an-in-flight-launch-could-be-erased-or-re-enabled)\
 [404 - (Fixed inherited AdvCiv research bookkeeping defect) Completed-tech overflow was added twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#404---fixed-inherited-advciv-research-bookkeeping-defect-completed-tech-overflow-was-added-twice)\
 [405 - (Fixed inherited AdvCiv technology-cache defect) Removing a technology increased the known count](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#405---fixed-inherited-advciv-technology-cache-defect-removing-a-technology-increased-the-known-count)\
+[406 - (Rejected) Advanced Start could refund Satellites while retaining map revelation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#406---rejected-advanced-start-could-refund-satellites-while-retaining-map-revelation)\
+[407 - (Rejected) Advanced Start technology refunds left the player in a later era](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#407---rejected-advanced-start-technology-refunds-left-the-player-in-a-later-era)\
 [412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
@@ -10108,13 +10110,25 @@ Found as F082/provisional KI#404 during ChatGPT-5.6-Sol's durable C013 `CvTeam.c
 
 ## 405 - (Fixed inherited AdvCiv technology-cache defect) Removing a technology increased the known count
 
-AdvCiv caches each team's total number of known non-repeat technologies in `m_iTechCount`. `setHasTech` returned early when no state changed, but every real transition then incremented this cache unconditionally. Removing one known technology therefore made the cached count one higher while the real count became one lower: a single removal left the cache two above reality. Advanced Start explicitly supports technology refunds, so a remove/rebuy cycle could repeatedly inflate the cache.
+AdvCiv caches each team's total number of known non-repeat technologies in `m_iTechCount`. `setHasTech` returned early when no state changed, but every real transition then incremented this cache unconditionally. Removing one known technology therefore made the cached count one higher while the real count became one lower: a single removal left the cache two above reality. When regenerating a True Starts map, AdvCiv-SAS removes every team's existing technologies before rebuilding the initial state; each removal and subsequent reacquisition could therefore inflate the cache.
 
 The fix increments on acquisition and decrements on removal, with a nonnegative assertion guarding the cached invariant. Repeat technologies retain their separate per-technology count. Current gameplay consumers include city culture/revolt strength and AdvCiv AI building valuation, so this is not merely diagnostic bookkeeping.
 
-AdvCiv practical 2169 introduced `m_iTechCount` and the unconditional increment; Civ4CE/BtS did not have this cache. This is therefore an inherited AdvCiv cached-state defect rather than an AdvCiv-SAS regression. A compiled Large full autoplay completed normally as broad regression coverage; the supported Advanced Start removal transition and affected consumers remain source-verified rather than directly reproduced in that run.
+AdvCiv practical 2169 introduced `m_iTechCount` and the unconditional increment; Civ4CE/BtS did not have this cache. This is therefore an inherited AdvCiv cached-state defect rather than an AdvCiv-SAS regression. A compiled Large full autoplay completed normally as broad regression coverage; the True Starts map-regeneration removal transition and affected consumers remain source-verified rather than directly measured in that run.
 
 Found as F083/provisional KI#405 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 406 - (Rejected) Advanced Start could refund Satellites while retaining map revelation
+
+The backend accepts an `ADVANCEDSTARTACTION_TECH` removal and would not reverse Satellites' full-map revelation. However, the shipped BtS/AdvCiv Tech Chooser exposes only `AddTechButton`, queries only `getAdvancedStartTechCost(..., true)` and sends only `bAdd=true`. Advanced Start AI likewise purchases technologies but never removes them. No normal AdvCiv-SAS interface or AI caller can therefore perform the proposed refund; it would require a custom Python caller or crafted network action.
+
+Rejected after tracing every `ADVANCEDSTARTACTION_TECH` caller. The dormant removal branch may need review if a future modmod deliberately exposes technology refunds, but AdvCiv-SAS should not patch unreachable behavior preemptively. Found as F084/provisional KI#406 by ChatGPT-5.6-Sol and rejected after review with the help of GPT-5.6-Sol, thanks.
+
+## 407 - (Rejected) Advanced Start technology refunds left the player in a later era
+
+The proposed stale-`currentEra` sequence depends on the same backend technology-removal action as KI#406. The shipped human Tech Chooser and Advanced Start AI have no technology-refund caller, so a player cannot buy a later-era technology chain and sell it backward through supported gameplay.
+
+Rejected as an unreachable consequence of the same dormant branch. If technology refunds are intentionally exposed in the future, both derived-era rollback and irreversible technology effects must be designed together. Found as F085/provisional KI#407 by ChatGPT-5.6-Sol and rejected after review with the help of GPT-5.6-Sol, thanks.
 
 ## 412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted
 
