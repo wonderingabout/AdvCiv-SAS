@@ -13353,3 +13353,1133 @@ FOLLOW-UP REJECTION OF C013 F084-F085
 - The prepared DLL changes were therefore withdrawn and KI#406-KI#407 were retained as rejected findings. Re-audit both together if a future modmod exposes Advanced Start technology refunds through a supported interface. (GPT-5.6-Sol)
 - F083 / KI#405 remains valid independently: `CvGame::regenerateMap` removes all existing team technologies when True Starts is enabled before `setInitialItems` rebuilds them. The cache must decrement on that reachable false transition even though the Advanced Start Tech Chooser does not expose refunds. Its code comment and KI reproduction were corrected accordingly. (GPT-5.6-Sol)
 - F088 / KI#410 is rejected with the same caller evidence as F084-F085. Its incomplete dependency checks matter only if a custom caller sends the dormant technology-removal action; no shipped human or AI path does so. (GPT-5.6-Sol)
+
+
+===============================================================================
+C014-WIP12 CONTINUATION -- RECONCILED CURRENT SOURCE + F120/F121
+===============================================================================
+
+RECONCILIATION AGAINST CURRENT SAS HEAD 4ba8e58230 / PRACTICAL 6263
+-----------------------------------------------------------------
+This continuation was performed from the fresh AdvCiv-SAS light-source snapshot
+20260825T195953 rather than from the older WIP11 source copy.
+
+Current source and the locally reconciled album are authoritative. In particular:
+- F101-F103 / KI#424-KI#426 are already fixed, documented, compiled and autoplay-
+  exercised in current source. Their earlier audit entries remain discovery and
+  ancestry evidence rather than pending implementation instructions.
+- F113 / provisional KI#436 remains authoritatively RETRACTED; GET_TEAM has the
+  intended PlayerTypes overload through TEAMID.
+- F104-F112 and F114-F119 remain provisional/pending in the reconciled album at
+  this cursor; none of their source regions had been changed by the current HEAD.
+- The current working tree also contains later CvTeam reconciliation/fix work,
+  but no uncommitted WarUtilityAspect/MilitaryAnalyst/UWAICache edits that would
+  invalidate the checks below.
+
+F120 / provisional KI#443 -- FAIRPLAY NONZERO-START FIX DOUBLE-COUNTS LATER-ERA START POSITION
+----------------------------------------------------------------------------------------------
+CONFIRMED against current SAS and inherited Base AdvCiv.
+
+FairPlay's early-human protection says:
+
+    // All bets off by turn 100 ...
+    int iTargetTurn = 100 + m_kGame.getStartTurn();
+    ...
+    int const iElapsed = (m_kGame.getElapsedGameTurns() / rTrainMod).uround();
+    int iTurnsRemaining = iTargetTurn - iElapsed
+            - GC.getInfo(eStartEra).getStartPercent();
+
+The `+ getStartTurn()` term is NOT arbitrary dead code. Reachable AdvCiv history
+contains a targeted 2021 fix for FairPlay when start turn > 0. The intent was to
+avoid prematurely expiring the early-game protection in games whose game-turn
+counter starts above zero.
+
+The problem is that CvGame::setStartTurnYear proves getStartTurn contains the
+ORDINARY LATER-ERA BASELINE too:
+
+    iStartTurn = sum(game-speed turn increments);
+    iStartTurn *= StartPercent(startEra);
+    iStartTurn /= 100;
+
+FairPlay then separately subtracts that same era's StartPercent. Thus the old
+fix conflates two different quantities:
+1. an exceptional/nonstandard extra start-turn offset that may deserve
+   compensation; and
+2. the normal calendar/game-progress baseline caused merely by selecting a
+   later starting era, which FairPlay already tries to shorten through
+   StartPercent.
+
+CURRENT SAS NUMERIC CONTROL
+
+Current CIV4GameSpeedInfo totals and CIV4EraInfos give on NORMAL:
+
+    total scheduled turns = 526
+    Industrial StartPercent = 50 -> baseline startTurn = 263
+    Modern     StartPercent = 65 -> baseline startTurn = 341 (integer floor)
+    Future     StartPercent = 80 -> baseline startTurn = 420 (integer floor)
+
+At elapsed turn 0 and neutral map-density factor, current FairPlay therefore
+starts with approximately:
+
+    Industrial: 100 + 263 - 50 = 313 normalized fair-play turns remaining
+    Modern:     100 + 341 - 65 = 376
+    Future:     100 + 420 - 80 = 440
+
+Yet the entire normal-speed game remaining after those baselines is only about:
+
+    Industrial: 526 - 263 = 263 actual turns
+    Modern:     526 - 341 = 185
+    Future:     526 - 420 = 106
+
+The supposed early-game protection can therefore remain positive for the entire
+remaining later-era game even before considering map-density scaling. Slower
+speeds make the absolute mismatch still larger because startTurn scales with
+full game length while the separately subtracted StartPercent is only 0..100.
+
+This is stronger than merely saying two coordinate systems look mixed: current
+XML plus CvGame initialization gives a deterministic shipped reproduction.
+
+ANCESTRY / REPAIR BOUNDARY
+
+The historical nonzero-start fix was sensible for the case it targeted, so do
+NOT simply delete all start-turn compensation. Repair should distinguish the
+EXTRA start-turn component from the normal starting-era baseline, and compare
+all terms in one normalized elapsed-time unit. One conceptual baseline is:
+
+    normalEraStartTurn = totalScheduledTurns * StartPercent / 100
+    extraStartOffset   = max(0, getStartTurn() - normalEraStartTurn)
+
+then normalize only the extra component consistently with rTrainMod (or replace
+the whole grace calculation with a direct normalized elapsed-since-start gate).
+Preserve the existing crowded-map and era-advance modifiers after the timebase
+is made coherent.
+
+
+F121 / provisional KI#444 -- "LEAVE THE START ERA" USED AS A TEMPORARY STARTUP CLOCK CAN NEVER EXPIRE IN TERMINAL-ERA STARTS
+---------------------------------------------------------------------------------------------------------------------------
+CONFIRMED, inherited Base AdvCiv; two independent UWAI manifestations.
+
+ROOT
+
+Several UWAI systems use
+
+    currentEra <= startEra
+
+as a proxy for "we are still too early after game start to trust this signal."
+That is a plausible settling heuristic when there is guaranteed to be a later
+era transition. It is not a bounded time condition. If the game starts in the
+last defined era, no later era exists and the temporary guard becomes permanent.
+
+MANIFESTATION A -- KINGMAKING PERMANENTLY DISABLED
+
+KingMaking::preEvaluate says:
+
+    // Scoreboard ranks just aren't meaningful off the bat, even if the game
+    // starts in the Modern era. Leaving m_winningPresent empty causes 0 utility.
+    if (m_eGameEra <= m_kGame.getStartEra())
+        return 0;
+
+The comment explicitly describes a temporary "off the bat" grace period. Current
+SAS's final defined era is ERA_FUTURE (StartPercent 80). A Future-era start has
+no era after Future, so currentEra can never become greater than startEra.
+KingMaking therefore remains disabled for the entire game -- including late
+score/time/victory-stage situations the aspect exists specifically to police.
+
+MANIFESTATION B -- LONG-TERM THREAT / PREEMPTIVEWAR PERMANENTLY ZERO
+
+UWAICache::calculateThreatRating has the same proxy:
+
+    // Can't reliably estimate yield rates in the early game
+    if (GC.getGame().getCurrentEra() <= GC.getGame().getStartEra())
+        return 0;
+
+Threat ratings are refreshed from this function. PreEmptiveWar then begins from
+ourCache().threatRating(eThey) and immediately returns when it is below 0.15.
+Thus a terminal-era start permanently reports zero long-term threat and disables
+PreEmptiveWar as well.
+
+REACHABILITY / CONTROL
+
+SAS defines ERA_FUTURE as an ordinary EraInfo and uses it throughout start-era
+building/tech logic; there is no later EraInfo to advance into. Even apart from
+the normal custom-game era selector, scenarios can set InitCore era directly.
+The root therefore does not require a hypothetical future era or XML modmod.
+
+The neighboring DramaticArc startup gate is a strong control: it uses normalized
+elapsed turns (`elapsed * speedMult < 25`) and therefore expires even when the
+game begins in the terminal era. That is the correct kind of bounded startup
+clock for an "off the bat" concern.
+
+REPAIR BOUNDARY
+
+Do not special-case only ERA_FUTURE if avoidable. Replace these temporary
+"must leave the start era" gates with a bounded normalized elapsed-time/game-
+progress grace, optionally retaining an era-advance shortcut if desired. That
+preserves the intent for Ancient/Modern starts and remains well-defined at the
+terminal era.
+
+
+CONTROLS / OPEN QUESTIONS AT WIP12
+----------------------------------
+- Revolts::m_countedCities does not leak between separate war evaluations:
+  WarEvaluator constructs and destroys a fresh aspect set per war/peace
+  scenario. The set intentionally persists only across member/rival passes in
+  one scenario. No new root.
+- ThirdPartyIntervention's player-local <=50% power gate remains under challenge.
+  Its intervention probability is partly team-derived, but the original aspect
+  was designed as pairwise member utility with later team-size normalization.
+  No F122 without a harder invariant.
+- FairPlay F120 is specifically a partial historical start-turn fix that
+  overcompensates the normal later-era baseline; it is NOT a claim that all use
+  of getStartTurn is wrong.
+
+WIP12 CURRENT CURSOR
+--------------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP12
+CURRENT SOURCE BASE: practical 6263 / HEAD 4ba8e58230
+ALREADY FIXED IN CURRENT SOURCE: F101-F103 / KI#424-KI#426
+LIVE/PROVISIONAL FILE-014 ROOTS: F104-F112, F114-F121
+RETRACTED: former F101/KI#423; F113/KI#436
+NEXT ROOT ID: F122 UNUSED
+
+Continue remaining helper/aspect parameter/wrong-object/sign/state/nonlinear-team
+checks against CURRENT source, then adversarially re-challenge every still-live
+file-014 root (especially shipped reachability and intended approximation) before
+deciding whether C015 is earned. No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP13 CONTINUATION -- F122 DURABLE + F096 LOATHING BROADENING
+===============================================================================
+STATUS: WIP / append-only continuation of authoritative reconciled C014-WIP12.
+COMPLETED FILES: 13 / 169.
+CURRENT FILE: 014 CvGameCoreDLL/WarUtilityAspect.cpp OPEN.
+SOURCE SNAPSHOT: AdvCiv-SAS practical 6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12.
+NEXT UNUSED ROOT AFTER THIS CHECKPOINT: F123.
+NO REPOSITORY SOURCE FILES MODIFIED.
+
+RECONCILIATION / AUTHORITY
+--------------------------
+- All 783,033 bytes of the supplied C014-WIP12 are preserved as this file's exact
+  byte-for-byte prefix. The current source and independently reviewed Known Issues
+  remain authoritative over older provisional wording.
+- F113 / provisional KI#436 remains RETRACTED. CoreAI/CvGamePlay deliberately
+  overload GET_TEAM(PlayerTypes) through TEAMID; do not reintroduce that diagnosis.
+- Former F101 / provisional KI#423 remains RETRACTED.
+- F101-F103 / KI#424-KI#426 are already fixed in the supplied source snapshot and
+  remain historical discovery evidence in the cumulative album.
+- F120/F121 remain the latest physically durable roots from WIP12. This checkpoint
+  freezes the post-WIP12 F122 proof before continuing at F123.
+
+F096 / KI#418 -- ADDITIONAL WARUTILITYASPECT MANIFESTATION -- LOATHING MIXES
+LIVING-PLAYER COUNTS WITH ASSIGNED TEAM MEMBER COUNTS
+-------------------------------------------------------------------------------
+This remains the existing dead-roster semantic root, not a new F-number.
+
+Loathing::evaluate() computes the number of relevant free civilization players
+from living-player iteration:
+
+    int iFreeCivPlayers = countFreeRivals<false>();
+
+and its joint-war ally loop likewise uses PlayerIter<FREE_MAJOR_CIV,...>, i.e.
+living free major civilizations. If our team is not a vassal, however, it then
+adds:
+
+    iFreeCivPlayers += kOurTeam.getNumMembers();
+
+and finally says:
+
+    // Count Loathing only once per team member
+    ... / (iFreeCivDivisor * kOurTeam.getNumMembers())
+
+WarEvaluator's outer contribution loop is MemberIter and therefore evaluates only
+living members of the agent team. An eliminated-but-still-assigned teammate thus
+has two independent effects despite contributing no Loathing evaluation of its
+own: it increases the supposed number of free civilization players before the
+sqrt divisor is computed, and it increases the final team-member divisor.
+
+This gives Loathing a particularly clean F096 manifestation because both nearby
+quantities are explicitly framed in PLAYER units and the actual evaluator consumes
+living players. getAliveCount()/alive-player counting is the coherent denominator
+here. This is additional evidence for the WIP02 F096 broadening; it does not imply
+that every getNumMembers() in UWAI is automatically wrong.
+
+
+F122 / provisional KI#445 -- TACTICALSITUATION CAN REUSE THE SAME AGENT UNIT
+AGAINST MULTIPLE MEMBERS OF ONE ENEMY TEAM
+-------------------------------------------------------------------------------
+CONFIRMED against current SAS and inherited Base AdvCiv 1.14.
+
+ROOT / EXACT LOCAL INVARIANT
+
+TacticalSituation::evalEngagement() builds `weThreaten` from the current agent
+player's groups. When it inspects threatened plots, it counts only units whose
+combat owner is the CURRENT rival player eThey. It then explicitly enforces:
+
+    // Count at most one enemy unit per unit of ours as "entangled",
+    // i.e. count pairs of units.
+    iTheirUnits = std::min(iTheirUnits, iOurUnits);
+
+That cap is correct only inside one rival-player pass. WarUtilityAspect::evaluate
+iterates every living `KNOWN_POTENTIAL_ENEMY_OF` player in the military analysis
+and invokes the same TacticalSituation aspect once for each rival. Therefore the
+agent-side `weThreaten` inventory and its per-plot iOurUnits cap are rebuilt and
+reused independently for every living member of the same hostile team.
+
+DETERMINISTIC TEAM-PARTITION REPRODUCTION
+
+Let player A have one relevant unit able to attack a visible plot. The hostile
+team has players B and C, with one unit from each on that same plot.
+
+B pass:
+    iOurUnits = 1
+    B-owned units on plot = 1
+    entangled = min(1, 1) = 1
+
+C pass:
+    the same A unit is rebuilt into `weThreaten`
+    iOurUnits = 1
+    C-owned units on plot = 1
+    entangled = min(1, 1) = 1
+
+Across the two rival-player evaluations, the single A unit has therefore supplied
+two "pairs" despite the source-authored invariant saying to count at most one
+enemy unit per unit of ours.
+
+If the identical two hostile units are instead both owned by B, the one B pass is:
+
+    iOurUnits = 1
+    B-owned units = 2
+    entangled = min(2, 1) = 1
+
+Thus merely repartitioning an otherwise identical hostile team force between
+teammate ownership changes TacticalSituation utility. Team warfare itself has not
+changed, yet the nonlinear one-to-one cap is reset at the player boundary.
+
+RELATED MANIFESTATION
+
+The same structural boundary affects `iOurExposed`. For each current rival player,
+TacticalSituation asks:
+
+    kWe.AI_getPlotDanger(..., eThey)
+
+and can count the same damaged agent unit as exposed independently to B and then C.
+The entanglement invariant is the stronger exact proof, so F122 is normalized
+around agent-side tactical quantities being independently consumable by several
+members of one enemy team; it does not assert that every per-player Tactical term
+must be team-aggregated.
+
+ANCESTRY / NEGATIVE CONTROL
+
+Base AdvCiv 1.14 contains the same player-filtered tactical code. Its history also
+contains commit ac91311251477c426ac9d2230a9603b9d93a73b4, titled:
+
+    Fix UWAI bug with counting of entangled units
+
+The surviving multi-member-team case crosses the per-rival evaluation boundary
+that the local cap cannot see. This historical concern about double-counting
+strengthens the interpretation of the explicit current comment rather than merely
+suggesting a different tuning preference.
+
+REPAIR DIRECTION
+
+Do not merely divide final TacticalSituation utility by enemy-team size: a linear
+normalizer cannot restore a one-to-one relationship after the nonlinear per-player
+cap has already been applied. Safer directions are to aggregate relevant hostile
+units/danger across eTheirTeam before applying the caps, or to maintain shared
+per-enemy-team tactical accounting so one agent unit cannot be consumed again by
+another teammate pass. Preserve genuinely player-specific terms where ownership
+matters.
+
+
+NEGATIVE CONTROLS RETAINED BEFORE F123
+--------------------------------------
+- The broad claim "TacticalSituation should never run once per rival player" is
+  NOT promoted. Several subterms are intentionally player-specific. F122 is the
+  narrower cross-pass reuse defect proved by the one-pair invariant.
+- ThirdPartyIntervention's player-local power cutoff remains under challenge; its
+  pairwise architecture and later team-member normalization still leave intent
+  ambiguous enough that it is not assigned a root here.
+- The prior GreedForVassals zero-city/capital-null idea remains unpromoted under
+  current SAS game rules; normal established zero-city majors are eliminated.
+- Revolts' m_countedCities lifetime remains clean because aspect objects are fresh
+  per war/peace scenario and persist only across the intended member/rival passes.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP13
+LIVE NEW ROOT ADDED HERE: F122 / provisional KI#445
+NEXT UNUSED ROOT: F123
+
+Continue with Bellicosity's team-partition challenge first, then re-challenge the
+ThirdPartyIntervention collective-power cutoff and the remaining late
+aspect/helper sign/state/team semantics. Re-run the corrected GET_TEAM false-
+positive control before any player/team-looking candidate is promoted.
+===============================================================================
+
+===============================================================================
+C014-WIP14 APPEND -- F123 Bellicosity + F124 ThirdParty team-partition findings
+===============================================================================
+
+AUTHORITY / CONTINUATION
+------------------------
+This append continues directly from the physically verified C014-WIP13 built
+from the user's reconciled practical-6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12
+snapshot. F123 and F124 were re-proved against that current SAS source and Base
+AdvCiv 1.14 before promotion. The prior GET_TEAM(PlayerTypes) false-positive
+family F113/KI#436 remains retracted and is not reused here.
+
+
+F123 / provisional KI#446 -- BELLICOSITY'S ANTI-THIRD-PARTY LOSS CAP IS RESET
+FOR EACH MEMBER OF ONE ENEMY TEAM
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv defect / team-partition nonlinearity.
+
+CURRENT CODE / INTENDED SAFEGUARD
+
+Bellicosity::evaluate() is invoked separately for each rival player. For every
+relevant military branch it computes:
+
+    rOurLostPow = militAnalyst().lostPower(eWe, eBranch);
+    rOurMinusTheirLostPow +=
+        min(2.35 * rOurLostPow,
+            militAnalyst().lostPower(eThey, eBranch))
+        - 0.75 * rOurLostPow;
+
+The surrounding comment says that, if the rival loses much more than we do,
+"chances are that a third party is causing this." Historical ancestry makes the
+purpose even less ambiguous: AdvCiv commit ed1826faf199f4a18442c9196f181a46797e79c1
+explicitly records:
+
+    Fixed an issue with war utility from "bellicosity" counting war successes
+    of allies.
+
+That commit introduced the current min(2.35 * ourLost, theirLost) cap in place
+of the former direct enemy-loss subtraction. Base AdvCiv 1.14 and current SAS
+retain the same implementation.
+
+ROOT
+
+MilitaryAnalyst::lostPower(PlayerTypes, branch) is player-local. The eWe loss
+therefore has one fixed value for the current agent member, while the generic
+WarUtilityAspect rival loop calls Bellicosity once for every living rival player.
+Against a multi-member hostile team, the same agent loss budget is consequently
+reused once per teammate and the nonlinear anti-third-party cap is restarted at
+each player boundary.
+
+DETERMINISTIC PARTITION REPRODUCTION
+
+Take one branch, current aggressive power 100 and agent loss 10.
+
+If a one-player enemy side loses 20:
+
+    min(23.5, 20) - 7.5 = 12.5
+
+If an otherwise identical two-player enemy team has the same total 20 losses
+split 10 + 10:
+
+    B pass: min(23.5, 10) - 7.5 = 2.5
+    C pass: min(23.5, 10) - 7.5 = 2.5
+    total = 5
+
+The war-side loss balance is identical, but merely repartitioning ownership
+between teammates cuts the Bellicosity signal from 12.5 to 5.
+
+The nonlinearity can bend the other way too. With total enemy loss 40:
+
+    one player: min(23.5, 40) - 7.5 = 16
+    20 + 20:    12.5 + 12.5 = 25
+
+So this is not a missing constant team-size divisor. The result depends on where
+the min cap is applied. The later per-rival glory-rate calculation can introduce
+additional nonlinear saturation through decreaseTo(1).
+
+WHY THE TEAM BOUNDARY MATTERS HERE
+
+Bellicosity's own source describes a "good war" as one "that we win." The 2018
+repair is specifically trying not to credit enemy losses caused by allies or
+third parties. In a Civ4 team war, B and C are one war side; resetting the same
+A-loss comparison separately for B and C defeats that safeguard. Player-local
+loss storage is fine, but the side-level comparison cannot be reconstructed by
+applying min/subtraction independently and summing afterward.
+
+REPAIR DIRECTION
+
+Aggregate the relevant lost power of living members on eTheirTeam (and whatever
+other side membership the intended model explicitly wants) before applying the
+anti-third-party cap against eWe's loss once for that hostile team. Ensure the
+team is charged only once in this aspect. Preserve player-specific reachability
+or personality conditions deliberately rather than blindly replacing every
+PlayerTypes quantity with a team quantity.
+
+Do not repair by dividing the final utility by team size: linear normalization
+cannot undo the partition-sensitive min and later saturation.
+
+
+F124 / provisional KI#447 -- THIRDPARTYINTERVENTION USES FULL RIVAL-TEAM POWER
+TO ESTIMATE INTERVENTION PROBABILITY, THEN HARD-GATES DANGER ON ONE MEMBER'S ARMY
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv team-partition defect. This is independent of F115's
+game-speed peace-decay bug.
+
+THE INTERNAL UNIT SWITCH
+
+For a prospective third party eThey, ThirdPartyIntervention first estimates the
+chance of intervention through:
+
+    kWe.AI_paranoiaRating(eThey, iOurDefPow, false, true)
+
+AI_paranoiaRating immediately resolves:
+
+    CvTeamAI const& kRivalTeam = GET_TEAM(eRival);
+    int const iTheirPower = kRivalTeam.getPower(true);
+
+and uses that full team power together with team war state, enemy-power percent,
+worst-enemy state and team no-war probability. ThirdPartyIntervention also uses
+kTheirTeam's DogpileWarRand, LimitedWarRand and MaxWarRand.
+
+After a positive intervention probability has been established, however, the
+threat-strength model switches to:
+
+    rTheirPow = kThey.uwai().getCache().getPowerValues()[ARMY]->power();
+
+It then adds half the ARMY power of eTheirTeam's vassals, but never adds the army
+power of eThey's ordinary teammates. UWAICache military branches are created for
+one PlayerTypes owner, so this is genuinely player-local power rather than a
+hidden team aggregate.
+
+The player-local value is then subjected to the decisive nonlinear gate:
+
+    rTheirPowToOurs = rTheirPow / rOurPow;
+    if (rTheirPowToOurs <= 0.5)
+        return;
+
+Only much later, after all nonlinear ratio shaping, does the aspect divide cost
+by a function of both teams' member counts.
+
+TEAM-WAR CONTRACT
+
+CvTeam::declareWar changes the at-war state of the declaring TeamTypes and the
+target TeamTypes. The declaration is therefore not a war by one player while a
+teammate remains neutral; all living members of the rival team are on that war
+side. That matches the team-level power already used by AI_paranoiaRating.
+
+DETERMINISTIC THRESHOLD REPRODUCTION
+
+Let our relevant post-loss power be 100. Let a two-member potential-intervening
+team have 40 ARMY power in B and 40 in C, no relevant vassals/losses, and hold
+other player-local probability inputs equal/positive.
+
+The paranoia path can see the rival team at power 80 for either member. Yet the
+severity path evaluates:
+
+    B: 40 / 100 = 0.40 -> return
+    C: 40 / 100 = 0.40 -> return
+
+Total intervention cost is therefore zero.
+
+If the same team-wide 80 ARMY power is instead concentrated under B:
+
+    B: 80 / 100 = 0.80 -> passes the 0.50 gate
+
+and a nonzero cost can be produced. Team military capacity and the team-wide war
+that would result are unchanged; only teammate ownership partition changed.
+
+The later
+
+    rCost *= 2;
+    rCost /= (kOurTeam.getNumMembers() + kTheirTeam.getNumMembers());
+
+cannot repair this because it executes only after the hard return. More generally,
+the power-ratio transform is nonlinear, so summing separately transformed member
+powers is not equivalent to transforming the combined intervening-side power.
+
+ANCESTRY / INTENT CONTROL
+
+The player-local power block, vassal addition, 0.5 floor and later member-count
+normalization all date back to the original 2021 AdvCiv ThirdPartyIntervention
+commit f39e13df870c036c2e5d0db26437254760898bdf. Later 2023 commits explicitly
+retuned intervention probabilities and the power-ratio estimate but retained
+this team/member boundary. Base AdvCiv 1.14 therefore inherits it unchanged.
+
+That history cautions against replacing the whole pairwise model: intervention
+probability intentionally contains player-specific attitude, memory, closeness,
+victory-stage and capital-distance terms. F124 is narrower. Once the aspect asks
+"how dangerous would this intervention be?", the hard power gate must represent
+the team that will actually enter the war, especially because the immediately
+preceding paranoia model already measures that team's collective power.
+
+REPAIR DIRECTION
+
+Keep genuinely player-specific probability/influence terms if desired, but build
+the threat-strength ratio and its 0.5 gate from the combined living military
+power of the intervening team, with vassal treatment reviewed once at team scope.
+Then ensure the resulting team-level severity is not independently charged in
+full once per teammate; a canonical team pass or another explicit aggregation is
+safer than relying on the later linear member-count divisor.
+
+
+CONTROLS BEFORE NEXT ROOT
+-------------------------
+- F115/KI#438 remains the independent ThirdPartyIntervention game-speed bug: a
+  normalized peace-duration local is computed and discarded. F124 does not
+  subsume it.
+- F113/KI#436 remains retracted. GET_TEAM(eThey) is safe because the AdvCiv AI
+  accessors overload PlayerTypes and resolve TEAMID(eThey); F124 does not depend
+  on the rejected raw-array interpretation.
+- The mere fact that ThirdPartyIntervention evaluates player pairs is NOT called
+  defective. F124 is the narrower contradiction between its team-level danger /
+  declaration model and the nonlinear player-local military gate.
+- DramaticArc's existing F116 exact-counter bug remains independent. A possible
+  additional team-partition effect in its per-player action/fairness gates is
+  the next challenge; it is not promoted here.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP14
+NEW ROOTS IN THIS APPEND: F123 / provisional KI#446; F124 / provisional KI#447
+NEXT UNUSED ROOT: F125
+
+Continue with DramaticArc's per-player action/fairness gates under a team-wide
+war transition, then perform a full late-aspect/helper and live-ledger adversarial
+closure before deciding whether WarUtilityAspect.cpp genuinely deserves C015.
+===============================================================================
+
+
+===============================================================================
+C014-WIP15 CONTINUATION -- DRAMATICARC + DISTRACTION TEAM-WAR GATES
+===============================================================================
+
+CHECKPOINT BASIS
+----------------
+- This append continues the exact current-tree C014-WIP14 checkpoint from
+  practical 6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12.
+- Current SAS source, local Base AdvCiv 1.14 and the reconciled album were
+  rechecked locally. Civ4CE still supplies no UWAI/WarUtilityAspect comparison
+  surface for these roots.
+- F113/KI#436 remains authoritatively retracted. Nothing below depends on the
+  rejected GET_TEAM(PlayerTypes) interpretation.
+
+
+F096 / KI#418 -- ADDITIONAL WARUTILITYASPECT MANIFESTATIONS -- DEAD ASSIGNED
+TEAM MEMBERS DILUTE THIRDPARTYINTERVENTION AND DRAMATICARC
+-------------------------------------------------------------------------------
+EXISTING ROOT broadened only; no new F-number.
+
+The CvTeam audit established that getNumMembers() includes dead players still
+assigned to the team, whereas the WarEvaluator/WarUtilityAspect evaluation
+surface iterates living player members. WIP02 and WIP13 already proved this
+mismatch in normalizeUtility, flipped-tile losses, GreedForVassals and Loathing.
+Two more late-aspect uses have the same consumer-level proof:
+
+ThirdPartyIntervention ends with:
+
+    rCost *= 2;
+    rCost /= (kOurTeam.getNumMembers() + kTheirTeam.getNumMembers());
+
+DramaticArc ends with:
+
+    rUtil /= scaled(kOurTeam.getNumMembers() + kTheirTeam.getNumMembers(), 2);
+
+Both aspects are reached through the generic per-rival WarUtilityAspect loop,
+which evaluates living rival players; WarEvaluator itself evaluates living
+members of the agent team. A dead assigned teammate therefore contributes no
+corresponding aspect pass or military/player state, but still enlarges these
+normalization denominators and dilutes utility/cost.
+
+This is the same F096 roster-cardinality contract already established elsewhere,
+not a reason to replace every getNumMembers use mechanically. In particular,
+consumer semantics still need to be proved case by case.
+
+
+F125 / provisional KI#448 -- DRAMATICARC'S PLAYER-LOCAL SAFETY AND ACTION GATES
+CAN LICENSE THE SAME TEAM-WIDE WAR THROUGH ANOTHER TEAMMATE
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv team-partition defect, independent of F116's exact
+peace-counter bug and F096's dead-member denominator distortion.
+
+INTENDED ROLE / HISTORY CONTROL
+
+AdvCiv commit 03f2a564827127bc9f32cfa85362ab42aad6f7ec introduced the
+"Dramatic Arc" war-utility aspect to slightly encourage war after an unusually
+quiet period and discourage it when there is too much warfare. Four days later,
+commit 1c62194c840c55304b61e1e86a96618a8f299037 was explicitly titled:
+
+    UWAI: be careful about attacking humans for dramatic reasons
+
+and added the current human-capital-loss safeguard. Base AdvCiv 1.14 and current
+SAS retain the same DramaticArc::evaluate implementation.
+
+CURRENT GATES
+
+For a simulated transition into war with eTheirTeam, each rival-player pass
+starts from the same team-wide transition:
+
+    bWillBeAtWar = militAnalyst().isWar(eWe, eThey);
+    if (bWillBeAtWar == kOurTeam.isAtWar(eTheirTeam))
+        return;
+
+When positive dramatic utility would encourage a new war, however, fairness and
+"enough action" are checked through the current rival player:
+
+    iTheirLostCities = militAnalyst().lostCities(eThey).size();
+
+    if (iTheirLostCities > 2 ||
+        (kThey.isHuman() && iTheirLostCities == 1 && kThey.hasCapital() &&
+         lostCities(eThey).count(kThey.getCapital()->plotNum()) > 0 && ...))
+        return;
+
+    if ((iTheirLostCities == 0 && conqueredCities(eWe).empty()) ||
+        lostPower(eWe, ARMY) + lostPower(eThey, ARMY) < ourArmy / 20)
+        return;
+
+MilitaryAnalyst lostCities/lostPower are explicitly PlayerTypes result sets and
+values. The generic aspect loop invokes this independently for every living
+member of the hostile team.
+
+MANIFESTATION A -- THE HUMAN-SAFETY COMMIT CAN BE BYPASSED BY THE HUMAN'S AI
+TEAMMATE
+
+Take a two-member target team B+C, where B is human and C is AI. The simulated
+new war is a team-wide war against B+C. Suppose B is predicted to lose exactly
+its capital under the conditions targeted by the 2022 safeguard.
+
+B's pass sees kThey.isHuman() and returns, correctly refusing to award positive
+"dramatic" utility for that dangerous war.
+
+C's pass evaluates the same team-wide war transition but kThey.isHuman() is
+false. The explicit human-protection gate disappears. If C's player-local action
+checks pass, positive dramatic utility is still added for entering the war that
+B's pass deliberately rejected.
+
+The final team-size divisor can reduce the surviving C contribution, but it
+cannot restore a safety return that was applied only to B.
+
+MANIFESTATION B -- THE MINIMUM-ACTION GATE DEPENDS ON OWNERSHIP PARTITION
+
+Let our current ARMY power be 100, so the minimum predicted combined-loss gate
+is 5. Assume we conquer at least one target-team city, our own predicted ARMY
+loss is 0, and the hostile team loses 8 ARMY power total.
+
+If one teammate owns all 8 lost power, that member's pass clears the 5-point
+threshold and can add dramatic utility.
+
+If the same team-wide loss is split 4 + 4 between B and C, then both passes test
+only their own 4 against the same threshold and both return. The military event
+and war side are otherwise identical; merely repartitioning losses between
+teammates changes whether the war is judged sufficiently "real" to encourage.
+
+ROOT
+
+DramaticArc wants to decide whether a TEAM-WIDE war transition is a fair and
+substantive event before using it to steer global warfare tension. Its hard
+safety/action gates are nevertheless scoped to whichever PlayerTypes happens to
+be the current rival pass. A hard return is nonlinear; independently applying it
+per teammate and then summing/dividing cannot reproduce one team-war decision.
+
+REPAIR DIRECTION
+
+Evaluate the "safe/fair/substantive enough to use for dramatic tension" predicate
+once for the hostile team: aggregate relevant lost cities and ARMY loss across
+living members, and preserve the human-safety intent if any affected team member
+meets the protected human-capital condition. Then charge the team-wide dramatic
+transition canonically once, or otherwise ensure the aggregate decision is not
+reopened by another teammate pass.
+
+Keep F116 separate: the 8-turn HasMet tolerance remains an exact-counter/time
+bug even in one-player teams. Keep F096 separate: dead-member normalization is a
+roster-cardinality defect, not the live-member nonlinear gate here.
+
+
+F126 / provisional KI#449 -- DISTRACTION CHARGES THE SAME TEAM-WAR OPPORTUNITY
+COST ONCE PER LIVING ENEMY TEAMMATE
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv team/player aggregation defect. Current SAS's newer
+winning-war cap can modulate the amount but did not create this root.
+
+WHY BOTH TEAMMATES ARE EVALUATED
+
+WarUtilityAspect::evaluate(MilitaryAnalyst const&) loops every living known
+potential enemy player that is part of the military analysis. For a prospective
+war against target team T, MilitaryAnalyst::doWePlanToDeclWar(ePlayer) returns
+true whenever TEAMID(ePlayer) == WarEvalParameters::getTarget(); therefore every
+living known member of T is inserted into ourFutureOpponents/theirSide and then
+m_partOfAnalysis. For an existing war, living members are likewise included by
+the currently-at-war construction.
+
+Distraction::evaluate is thus called once for B and once for C when B+C are one
+multi-member target team, provided the ordinary player-pair reachability guard is
+satisfied for both.
+
+THE COST IT COMPUTES IS LARGELY THE SAME TEAM-WAR COST
+
+After the reachability check, the core inputs are team-scoped:
+
+    iWarDuration = kOurTeam.AI_getAtWarCounter(eTheirTeam);
+
+    rWarUtilityVsThem = normalizeUtility(
+        ourCache().warUtilityIgnoringDistraction(eTheirTeam));
+
+normalizeUtility's parameter is explicitly named rUtilityTeamOnTeam, and both B
+and C have the same eTheirTeam. Alternative targets are iterated as TeamTypes;
+their war plans, declaration legality, reachability and cached war utility are
+team quantities too.
+
+Most decisively, every qualifying actual alternative war plan adds a fixed:
+
+    rDistractionCost += 5.5;
+
+under the comment:
+
+    The war against eThey distracts us from our war against eAltTarget.
+
+For B and C on one target team, "the war against eThey" is the same Civ4 team
+war. Yet the fixed 5.5 is added independently in B's pass and C's pass. There is
+no final division or canonical-team guard before:
+
+    m_iU -= rDistractionCost.round();
+
+DETERMINISTIC DUPLICATION CONTROL
+
+Choose a two-member hostile team B+C such that both player pairs are reachable,
+no member is eliminated/almost-done, and our team has one qualifying alternative
+team D with an existing AI war plan. Hold all other optional opportunity-cost
+terms at zero if desired.
+
+Against a one-player target team, that alternative plan contributes the fixed
+5.5 distraction nudge once.
+
+Against an otherwise identical two-player target team B+C:
+
+    B pass: +5.5 distraction cost for the D war plan
+    C pass: +5.5 distraction cost for the same D war plan
+
+so the same opportunity cost becomes 11 before rounding. Team-size handling
+inside normalizeUtility applies only to the cached team-on-team war-utility
+inputs; it does not scale this fixed nudge or the final rDistractionCost.
+
+The broader opportunity-cost branch has the same structural duplication because
+its duration/current-target/alternative-target inputs are team-scoped and the
+result is again subtracted per rival pass. Player-local reachability and the
+"almost done" city multiplier can legitimately differ, but those differences do
+not justify charging a common team-war opportunity cost repeatedly once both
+passes clear their guards.
+
+ANCESTRY / INTERNAL CONTROLS
+
+Base AdvCiv 1.14 contains the same generic Distraction structure and fixed 5.5
+actual-war-plan nudge. Historical AdvCiv work explicitly describes/tunes the
+negative utility counted by "Distraction" and later refactors alternative war
+targets to teams; the current source itself labels the cached utility input as
+team-on-team.
+
+Current SAS adds a winning-war cap using target TEAM city count, TEAM power and
+TEAM war success. That addition further confirms the target-war quantity's team
+scope, but the duplicated per-member charge predates SAS and survives even when
+that cap never fires.
+
+REPAIR DIRECTION
+
+Compute Distraction once per hostile team (or nominate a canonical living member
+for the team-level charge), while retaining player-pair reachability only as a
+question of whether the war side is meaningfully reachable. Review the existing
+player-local almost-done multiplier separately: elimination of one member can be
+a real detail, but it should modulate one team-war distraction estimate rather
+than create multiple copies of the common opportunity cost.
+
+Do not "fix" this by dividing every per-rival result blindly by team size. Some
+Distraction guards are player-specific, and the fixed/common team cost plus
+nonlinear maxima/aggregation make canonical team-level evaluation clearer and
+less partition-sensitive.
+
+
+CONTROLS / NEXT CHALLENGE
+-------------------------
+- LoveOfPeace superficially has the same per-rival shape, but current SAS data
+  leaves iLoveOfPeace at 0; do not promote a dormant mod-mod configuration path
+  as a current defect merely for symmetry.
+- Revolts' m_countedCities lifetime remains a closed false positive: aspect
+  objects are fresh per WarEvaluator scenario, while the set intentionally
+  persists only across rival/member passes inside that scenario.
+- Distraction F126 is independent of the SAS winning-war cap. The inherited
+  fixed 5.5 duplicate is sufficient proof by itself.
+- F123 Bellicosity and F124 ThirdPartyIntervention remain separate nonlinear
+  partition roots; they are not collapsed into a vague umbrella issue.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP15
+NEW ROOTS IN THIS APPEND: F125 / provisional KI#448; F126 / provisional KI#449
+EXISTING ROOT BROADENED: F096 / KI#418
+NEXT UNUSED ROOT: F127
+
+Continue the systematic team-war/per-rival pass across the remaining late
+aspects and helpers, then re-challenge F101-F126 and the explicit false-positive
+ledger before deciding whether file 014 can close durably.
+===============================================================================
+
+
+===============================================================================
+C014-WIP16 CONTINUATION -- GLOBAL VICTORY CAPS + TEAM-KEYED HIRED-HAND OBLIGATION
+===============================================================================
+
+CHECKPOINT BASIS
+----------------
+- This append continues the exact C014-WIP15 current-tree checkpoint at practical
+  6263 / HEAD 4ba8e58230b1795449b97f56dc35d55030661b12.
+- Current SAS and local Base AdvCiv 1.14 were compared directly. The relevant
+  MilitaryVictory and HiredHand implementations are inherited unchanged.
+- F113/KI#436 remains retracted; neither finding below uses that false diagnosis.
+
+
+F127 / provisional KI#450 -- MILITARYVICTORY CAPS GLOBAL DOMINATION/DIPLO
+PROGRESS SEPARATELY INSIDE EACH RIVAL-PLAYER PASS
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv global-threshold aggregation defect. This is distinct
+from F105's exact Domination equality/divisor bug and F111's AP wrong-owner test.
+
+ARCHITECTURE
+
+MilitaryVictory is an ordinary WarUtilityAspect. For each living agent-team
+member, WarUtilityAspect::evaluate(MilitaryAnalyst const&) calls
+MilitaryVictory::evaluate() once for every living known rival player that is
+part of the analysis. MilitaryVictory then computes progress toward the agent's
+shared/global victory thresholds from the current eThey player's predicted
+losses.
+
+This player-by-player decomposition is harmless only while the progress function
+is additive. The current implementation applies global completion caps BEFORE
+rival contributions are combined.
+
+DOMINATION -- THE SOURCE'S OWN COMMENT STATES THE INVARIANT
+
+progressRatingDomination() uses the agent team's current global threshold:
+
+    iPopToGo = iPopTarget - kOurTeam.getTotalPopulation();
+
+It accumulates population gained from cities lost by the CURRENT rival player
+and then explicitly says:
+
+    // No use in population beyond the victory threshold
+    rPopGained.decreaseTo(iPopToGo);
+
+That is exactly the correct conceptual cap for the full military scenario: once
+we have gained the remaining required population, additional projected conquest
+cannot make us more than 100% complete on that Domination component.
+
+But the cap is reset for every eThey pass. MilitaryVictory::evaluate then clamps
+that rival's progress again to [0,1] and immediately converts it to utility.
+There is no later aggregate cap across rivals.
+
+DETERMINISTIC DOMINATION REPRODUCTION
+
+Suppose the agent team needs only 5 effective population to satisfy the remaining
+Domination population threshold, and land/city conditions are such that this
+component controls progress.
+
+If projected conquest from B supplies 6 population and C supplies none:
+
+    B pass: rPopGained -> capped to 5 -> 100% progress
+    C pass: 0
+
+If the same military scenario instead takes cities worth 6 population from B
+AND 6 from C:
+
+    B pass: independently capped to 5 -> 100%
+    C pass: independently capped to 5 -> 100%
+
+The global threshold has been credited twice. This can arise from two enemy teams
+or, especially cleanly, two members of one hostile team. Merely repartitioning
+otherwise equivalent conquered cities between members can change how many times
+the completion cap is reached.
+
+DIPLOMACY HAS THE SAME ROOT
+
+progressRatingDiplomacy() uses the global remaining vote requirement cached by
+preEvaluate:
+
+    m_iVotesToGo = kOurTeam.AI_votesToGoForVictory();
+
+After accumulating expected population/votes from the CURRENT rival's losses it
+caps:
+
+    rPopGained.decreaseTo(m_iVotesToGo);
+    rProgress = rPopGained / m_iVotesToGo;
+
+Again, if only 5 votes remain and B's projected conquests provide 6 while C's
+provide another 6, each rival pass can independently report 100% vote progress.
+The same five-vote global deficit is completed twice.
+
+The AP-obstacle subcomponent is player-count based and was already checked as a
+separate control; F127 does not relabel that numerator/denominator as defective.
+The defect is specifically the repeated GLOBAL vote/population completion cap.
+
+AGENT-TEAM MEMBERS CAN ALSO REPEAT THE GLOBAL CAP
+
+WarEvaluator reuses the aspect set while evaluating every living member of the
+agent team. Domination and diplo victory are team-owned conditions, but each
+agent member can contribute projected conquests through its own eWe pass. Thus
+the same global remaining threshold can be independently capped not only across
+rivals but also across agent-member/rival-member pairs when multiple teammates
+contribute to the projected gains.
+
+ANCESTRY / INTENT CONTROL
+
+The original AdvCiv MilitaryVictory implementation already had this per-rival
+architecture and per-rival [0,1] progress cap. Later commits increased the value
+of military-victory progress and added capitulation contributions without moving
+the global threshold cap outside the player pass. Base AdvCiv 1.14 and current
+SAS remain identical here.
+
+The comment "No use in population beyond the victory threshold" is the strongest
+intent control: the implementation itself wants surplus progress discarded, but
+its scope allows the same surplus boundary to reset once per player.
+
+REPAIR DIRECTION
+
+Aggregate projected Domination population/city progress and diplomatic-vote
+progress across the entire relevant military scenario before applying the
+remaining-threshold cap and converting progress to utility. A natural approach
+is one pre/global computation per agent team (or a cumulative marginal-progress
+budget shared across player passes), while leaving genuinely opponent-specific
+costs such as nukes separately attributable if desired.
+
+Do not simply divide final MilitaryVictory utility by rival/team size: the error
+is a reset global cap, not a linear scale problem. Conquest progress should be
+reviewed separately because eliminating distinct rivals can legitimately be
+additive; F127 is already proven by Domination and Diplomacy without claiming
+that every MilitaryVictory subcomponent must be globalized identically.
+
+
+F128 / provisional KI#451 -- HIREDHAND COUNTS ONE TEAM-KEYED SPONSORSHIP /
+OBLIGATION ONCE PER LIVING MEMBER OF THE SPONSORED-WAR TARGET TEAM
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv team-duplication defect.
+
+TEAM-KEYED CONTRACT
+
+UWAICache exposes:
+
+    int bountyAgainst(TeamTypes eTeam) const;
+    PlayerTypes sponsorAgainst(TeamTypes eTeam) const;
+
+HiredHand::evaluate therefore looks up the already-accepted sponsorship with:
+
+    eSponsor = ourCache().sponsorAgainst(eTheirTeam);
+    iOriginalUtility = ourCache().bountyAgainst(eTheirTeam);
+
+This describes one payment/obligation for war against a target TEAM, not a
+separate payment against every member player.
+
+Once the sponsorship is found, the main branch adds:
+
+    rUtility += eval(eSponsor, iOriginalUtility, 20);
+
+HiredHand::eval in turn measures how long the hired side has fought through the
+TEAM at-war counters against eTheirTeam. Its output therefore also describes the
+same team-war obligation.
+
+WHY IT IS DUPLICATED
+
+HiredHand is an ordinary concernsOnlyWarParties aspect. Against a multi-member
+hostile team B+C, both B and C are part of the analysis and the generic aspect
+loop calls HiredHand for each living player.
+
+For a continuing sponsored war, getWarsContinued(eWe).count(eThey) can be true
+for both B and C. Then:
+
+    B pass -> sponsorAgainst(team B+C), same bounty, same war counter -> obligation
+    C pass -> sponsorAgainst(team B+C), same bounty, same war counter -> obligation
+
+There is no member-count normalization or canonical-team guard before the two
+results accumulate into m_iU.
+
+DETERMINISTIC REPRODUCTION
+
+Assume D paid us once to fight target team B+C; original sponsorship utility is
+25 and the obligation ratio currently makes eval return, say, 20.
+
+A one-player target team contributes +20 HiredHand utility.
+
+With two living members B+C, holding all ordinary guards true:
+
+    B pass: +20 for the D sponsorship against team B+C
+    C pass: +20 for the same D sponsorship against team B+C
+    total:  +40
+
+No second payment or promise occurred. Only the target team's player count
+changed.
+
+SECOND INDEPENDENT MANIFESTATION -- HISTORICAL ROLE
+
+The fallback scenario rule says that, if we have been at war since the start of
+the game, we should play along for a while:
+
+    if (kOurTeam.AI_getAtWarCounter(eTheirTeam) >=
+        m_kGame.getElapsedGameTurns())
+        rUtility += eval(NO_PLAYER, 50, 12);
+
+That condition and eval timer are again entirely team-scoped. A scenario war
+against B+C therefore receives the same historical-role obligation once on B's
+pass and once again on C's.
+
+The branch where WE hired an ally contains some player-specific memory detail
+and should be reviewed on its own; F128 does not require it. The accepted
+sponsorship branch and historical-role branch already prove the root.
+
+ANCESTRY / INTERNAL CONTROL
+
+The original AdvCiv HiredHand implementation already queried sponsorship by
+TEAMID(theyId) and used the target team's at-war counter. Historical fixes later
+adjusted obligation duration/payment behavior (including a bug where a hired AI
+continued doggedly after the sponsor made peace) but retained the per-rival
+aspect placement. Base AdvCiv 1.14 and current SAS HiredHand::evaluate are
+textually identical.
+
+REPAIR DIRECTION
+
+Charge team-keyed HiredHand obligations once per hostile target team, e.g. by a
+canonical living target member or an explicit per-team pass. Preserve truly
+player-specific relationship/memory pieces separately where they matter. The
+sponsorship bounty and historical-role timer themselves should not be multiplied
+by the number of living players assigned to the enemy team.
+
+
+CONTROLS / NEXT CHALLENGE
+-------------------------
+- GreedForCash supplies a useful positive control: its comment explicitly says
+  "Only one team member will pay" and uses normalizeUtility(4), showing that this
+  codebase does deliberately normalize a team-level fixed amount when evaluated
+  through player passes.
+- Rebuke explicitly documents that counting capitulation utility multiple times
+  across team members is acceptable there because the underlying rebuke memory
+  is player-pair specific. Do not generalize F128 to every repeated team call.
+- MilitaryVictory's Conquest subcomponent remains under separate review; F127
+  does not need it and should not overclaim it.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP16
+NEW ROOTS IN THIS APPEND: F127 / provisional KI#450; F128 / provisional KI#451
+NEXT UNUSED ROOT: F129
+
+Continue the remaining per-rival/team-key audit (especially early aspects and
+team-keyed state), then re-challenge F101-F128 before any file-closure decision.
+===============================================================================
+
+LOCAL RECONCILIATION AFTER C014-WIP16 IMPORT
+--------------------------------------------
+- ChatGPT-5.6-Sol's C014-WIP12 through C014-WIP16 append is compatible with current authority at HEAD 4ba8e5823 plus the staged KI#414/KI#418 Tech Share repairs. Its occasional double blank lines are preserved as received because this is an append-only evidence record, not normalized source code.
+- F096 / KI#418 is now fixed in the staged current source by counting each qualifying team's living members. WIP13's broader living-participant analysis remains useful corroboration rather than a separate pending root.
+- F120-F128 / provisional KI#443-KI#451 are collision-free against the current reviewed Known Issues ledger, but remain provisional because `WarUtilityAspect.cpp` is still open and WIP16 explicitly requires a final adversarial reread before file closure. No current-source implementation is promoted from them yet. (GPT-5.6-Sol)

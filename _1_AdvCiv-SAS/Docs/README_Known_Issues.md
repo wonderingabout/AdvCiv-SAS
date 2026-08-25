@@ -480,6 +480,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [410 - (Rejected) Advanced Start could refund technologies beneath existing assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#410---rejected-advanced-start-could-refund-technologies-beneath-existing-assets)\
 [411 - (Fixed inherited K-Mod Permanent-Alliance identity defect) Historical civilization knowledge was lost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#411---fixed-inherited-k-mod-permanent-alliance-identity-defect-historical-civilization-knowledge-was-lost)\
 [412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
+[414 - (Fixed inherited AdvCiv Tech Share defect) The Internet depended on which team initiated contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#414---fixed-inherited-advciv-tech-share-defect-the-internet-depended-on-which-team-initiated-contact)\
+[418 - (Fixed inherited Kek-Mod/AdvCiv Tech Share defect) Dead teammates counted toward The Internet](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#418---fixed-inherited-kek-modadvciv-tech-share-defect-dead-teammates-counted-toward-the-internet)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
 [424 - (Fixed SAS-activated inherited AdvCiv UWAI team arithmetic defect) Aspect weights compounded across teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#424---fixed-sas-activated-inherited-advciv-uwai-team-arithmetic-defect-aspect-weights-compounded-across-teammates)\
@@ -10175,6 +10177,26 @@ The mismatch was introduced by AdvCiv's `advc.039` reparations announcements and
 The repair and all callers were source-verified. Exact runtime reproduction requires a Permanent Alliance followed by reparations in which a nonleader teammate cedes a city, so it remains impractical for the routine autoplay pass.
 
 Found as F090/provisional KI#412 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 414 - (Fixed inherited AdvCiv Tech Share defect) The Internet depended on which team initiated contact
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1oepnPeAs-zgsGDQDYzYPvvAn0syVwoK8?usp=sharing).
+
+`CvTeam::meet` establishes contact through two sequential directional `makeHasMet` calls. AdvCiv moved Tech Share evaluation into `makeHasMet`, but its optimized `OTHER_KNOWN_TO` scan asks whether each other team has met the receiver. During the first directional call, the newly encountered team's reciprocal contact bit was not set yet, so it was omitted. The second team scanned after both directions existed. Because The Internet is globally unique, only one side can own it; whether contact immediately granted a qualifying technology could therefore depend on which team initiated the meeting.
+
+The fix removes Tech Share evaluation from the directional helper and updates both teams after both `makeHasMet` calls complete. Contact state is symmetric before either scan, preserving the same technology result for both natural caller orientations.
+
+BtS scanned the receiver's already-set own contact relation. AdvCiv practical 1837 changed this to the reverse-direction iterator and practical 1842 retained that direction while excluding self, introducing the ordering regression that remains in AdvCiv 1.14. This is an inherited AdvCiv defect rather than an AdvCiv-SAS regression. A compiled Huge full autoplay recorded 136 first-contact events, built The Internet on turn 301 and completed normally on turn 498; all contacts preceded the project, so the exact post-Internet contact transition remains source-verified. Found as F092/provisional KI#414 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 418 - (Fixed inherited Kek-Mod/AdvCiv Tech Share defect) Dead teammates counted toward The Internet
+
+Screenshots/files for this issue: same google drive folder link as KI#414.
+
+Kek-Mod/AdvCiv changed Tech Share from counting qualifying teams to counting players, but the grant logic added each known team's total assigned membership through `getNumMembers()`. Eliminated players remain assigned to their team, so a team with one living and one dead member contributed two players toward The Internet's current threshold of two. The project could grant a technology known by only one living player.
+
+The fix adds each qualifying team's `getAliveCount()` instead. This preserves the intended player-count rule while matching the feature's AI project valuation, which already counts only living known players.
+
+AdvCiv practical 3116 introduced the player-count implementation without replacing total membership with living membership, and AdvCiv 1.14 retains it. This is an inherited Kek-Mod/AdvCiv counting defect rather than an AdvCiv-SAS regression. The compiled Huge turn-498 autoplay exercised a live Internet normally, while the exact dead-teammate threshold remains source-verified because its teams had one member each. Found as F096/provisional KI#418 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 ## 419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering
 

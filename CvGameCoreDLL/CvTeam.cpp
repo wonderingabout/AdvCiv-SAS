@@ -1672,6 +1672,10 @@ void CvTeam::meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData) // a
 	CvTeam& kTeam = GET_TEAM(eTeam);
 	CvPlot const* pAt = makeHasMet(eTeam, bNewDiplo, pData);
 	CvPlot const* pOtherAt = kTeam.makeHasMet(getID(), bNewDiplo, pData);
+	// <!-- custom: AdvCiv evaluated Tech Share inside each directional makeHasMet call, so the first team was scanned before reciprocal contact existed.
+	// Update both teams only after contact is symmetric; The Internet can then grant the same technology regardless of which team initiated contact. See KI#414. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	updateTechShare();
+	kTeam.updateTechShare();
 	if (gGameRecordLogLevel >= 2 && isAlive() && kTeam.isAlive() && !isBarbarian() && !kTeam.isBarbarian())
 	{
 		logSASGameRecordTeamMet(getID(), eTeam, bNewDiplo, pData == NULL ? -1 : pData->x1, pData == NULL ? -1 : pData->y1, pData == NULL ? -1 : pData->x2, pData == NULL ? -1 : pData->y2, pAt, pOtherAt);
@@ -2970,8 +2974,6 @@ CvPlot* CvTeam::makeHasMet(TeamTypes eOther, bool bNewDiplo, FirstContactData* p
 		FAssert(iGameTurn >= 0);
 		m_aiHasMetTurn.set(eOther, iGameTurn);
 	} // </advc.091>
-	updateTechShare();
-
 	/*if(GET_TEAM(eOther).isHuman()) {
 		for (iI = 0; iI < MAX_PLAYERS; iI++) {
 			if (GET_PLAYER((PlayerTypes)iI).isAlive()) {
@@ -5514,7 +5516,11 @@ void CvTeam::updateTechShare(TechTypes eTech, int iOtherKnownThreshold) // advc.
 		itOther.hasNext(); ++itOther)
 	{
 		if (itOther->isHasTech(eTech))
-			iCount += itOther->getNumMembers(); // kekm.38: was +1
+		{
+			// <!-- custom: Kek-Mod changed Tech Share to count players but used assigned membership, allowing dead teammates to satisfy The Internet.
+			// Count living players consistently with the feature's AI valuation. See KI#418. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iCount += itOther->getAliveCount(); // kekm.38: was +1
+		}
 		if (iCount >= iOtherKnownThreshold) // advc.opt: Moved into the loop
 		{
 			setHasTech(eTech, true, NO_PLAYER, true, true, false, TECH_ACQUISITION_TECH_SHARE);
