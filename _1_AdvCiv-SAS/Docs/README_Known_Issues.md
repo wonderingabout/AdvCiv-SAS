@@ -475,6 +475,10 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [405 - (Fixed inherited AdvCiv technology-cache defect) Removing a technology increased the known count](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#405---fixed-inherited-advciv-technology-cache-defect-removing-a-technology-increased-the-known-count)\
 [406 - (Rejected) Advanced Start could refund Satellites while retaining map revelation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#406---rejected-advanced-start-could-refund-satellites-while-retaining-map-revelation)\
 [407 - (Rejected) Advanced Start technology refunds left the player in a later era](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#407---rejected-advanced-start-technology-refunds-left-the-player-in-a-later-era)\
+[408 - (Fixed inherited AdvCiv Barbarian-research defect) Ancient-era contact was global rather than local](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#408---fixed-inherited-advciv-barbarian-research-defect-ancient-era-contact-was-global-rather-than-local)\
+[409 - (Fixed inherited BtS/K-Mod Permanent-Alliance espionage defect) Mutual points became self-target points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#409---fixed-inherited-btsk-mod-permanent-alliance-espionage-defect-mutual-points-became-self-target-points)\
+[410 - (Rejected) Advanced Start could refund technologies beneath existing assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#410---rejected-advanced-start-could-refund-technologies-beneath-existing-assets)\
+[411 - (Fixed inherited K-Mod Permanent-Alliance identity defect) Historical civilization knowledge was lost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#411---fixed-inherited-k-mod-permanent-alliance-identity-defect-historical-civilization-knowledge-was-lost)\
 [412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
@@ -10129,6 +10133,36 @@ Rejected after tracing every `ADVANCEDSTARTACTION_TECH` caller. The dormant remo
 The proposed stale-`currentEra` sequence depends on the same backend technology-removal action as KI#406. The shipped human Tech Chooser and Advanced Start AI have no technology-refund caller, so a player cannot buy a later-era technology chain and sell it backward through supported gameplay.
 
 Rejected as an unreachable consequence of the same dormant branch. If technology refunds are intentionally exposed in the future, both derived-era rollback and irreversible technology effects must be designed together. Found as F085/provisional KI#407 by ChatGPT-5.6-Sol and rejected after review with the help of GPT-5.6-Sol, thanks.
+
+## 408 - (Fixed inherited AdvCiv Barbarian-research defect) Ancient-era contact was global rather than local
+
+AdvCiv weights free Barbarian research toward civilizations that have geographic contact with Barbarians. Before the later city-based phase, `isInContactWithBarbarians` used the zero-based current era as both the civilization-unit and Barbarian-unit threshold. In the Ancient era this was zero: the civilization-presence check could never reject an area, while any Barbarian unit anywhere satisfied the opposing check. One remote Barbarian could therefore make every Ancient-era civilization count as being in contact and accelerate Barbarian research globally.
+
+The fix gives the threshold a positive floor of one while retaining later-era scaling. The early phase now requires at least one civilization unit in the area and more than one Barbarian unit there, including qualifying ships on adjacent shelves. The later city-based fallback is unchanged.
+
+AdvCiv introduced this contact-localization logic in `advc.302`; the zero-threshold behavior remains in AdvCiv 1.14 and is absent from the older BtS control. This is an inherited AdvCiv defect rather than an AdvCiv-SAS regression. A compiled full autoplay with Barbarians active completed normally through turn 375 as broad runtime coverage. Found as F086/provisional KI#408 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 409 - (Fixed inherited BtS/K-Mod Permanent-Alliance espionage defect) Mutual points became self-target points
+
+When team B was absorbed into team A through a Permanent Alliance, `shareItems` merged every directed espionage slot without excluding the two constituent teams. B's ordinary espionage against A was consequently stored as A's espionage against itself, while A's obsolete slot against disappearing team B also remained. These points are no longer usable against a rival.
+
+The self-target value was behaviorally active: K-Mod's `getTotalUnspentEspionage` summed every living civilization team, including the caller, and its sea-transport Spy AI used that inflated total as the denominator for each real target's espionage share. SASGameRecord used the same contaminated total. The repair merges only outsider-directed points, clears both constituent target slots, and defensively excludes self from the total-unspent iterator.
+
+BtS already merged every target slot through `max`; K-Mod practical 1400 changed the merge to a sum but retained the missing constituent exclusion, making this an inherited BtS/K-Mod defect with a current K-Mod AI consequence. A compiled full autoplay with Permanent Alliances enabled completed normally through turn 375 and recorded coherent espionage activity; no alliance formed, so the exact merge transition remains source-verified. Found as F087/provisional KI#409 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 410 - (Rejected) Advanced Start could refund technologies beneath existing assets
+
+The backend technology-removal validator checks later technologies and the acting player's dependent units/buildings, but not teammates or already-purchased improvements and routes. That would permit inconsistent persistent assets if an Advanced Start technology refund were sent.
+
+Rejected for the same reachability reason as KI#406-KI#407: the shipped Tech Chooser exposes only technology purchases, Advanced Start AI never removes technologies, and no other repository caller sends `ADVANCEDSTARTACTION_TECH` with `bAdd=false`. Revisit the whole refund contract if a future modmod deliberately exposes that action; do not patch its individual dormant consequences in AdvCiv-SAS. Found as F088/provisional KI#410 by ChatGPT-5.6-Sol and rejected after review with the help of GPT-5.6-Sol, thanks.
+
+## 411 - (Fixed inherited K-Mod Permanent-Alliance identity defect) Historical civilization knowledge was lost
+
+K-Mod's persistent `m_abHasSeen` records civilization identity learned through contact, map information, revealed ownership or cities even after the revealing evidence disappears. Permanent Alliances merged first-contact and current map state but not this historical knowledge. When B joined surviving team A, B's players could therefore forget an outsider C that only B had seen; conversely, outsider C could forget B's civilization because its future identity queries use C's knowledge of A.
+
+The fix unions both directions before the absorbed team disappears: A inherits every outsider historically seen by B, and each outsider that had seen B is marked as having seen A. First-contact dates remain governed separately by the KI#401 repair; this change transfers identity knowledge without inventing diplomatic contact.
+
+K-Mod practical 728 introduced `m_abHasSeen` without extending the inherited Permanent-Alliance merger, and AdvCiv 1.14 retains that omission. This is an inherited K-Mod state-migration defect rather than an AdvCiv-SAS regression. The compiled turn-375 Permanent-Alliances-enabled autoplay supplied broad runtime coverage, while the exact alliance transition remains source-verified because no alliance formed. Found as F089/provisional KI#411 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 ## 412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted
 

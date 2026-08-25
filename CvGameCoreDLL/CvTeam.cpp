@@ -267,6 +267,12 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	for (size_t i = 0; i < apOther.size(); i++)
 	{
 		TeamTypes const eOther = apOther[i]->getID();
+		// <!-- custom: K-Mod's historical identity knowledge was not migrated when a Permanent Alliance absorbed a team.
+		// Union both observer directions before the absorbed team disappears so neither its members nor outsiders forget civilizations they had already seen. See KI#411. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (GET_TEAM(eTeam).isHasSeen(eOther))
+			makeHasSeen(eOther);
+		if (apOther[i]->isHasSeen(eTeam))
+			apOther[i]->makeHasSeen(getID());
 		// <!-- custom: AdvCiv's first-contact turn replaced BtS's core team-contact boolean storage but was not added to Permanent Alliance migration.
 		// Preserve the earliest real contact date in both directions before meet fills missing entries with the alliance turn. See KI#401. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		int iOurHasMetTurn = getHasMetTurn(eOther);
@@ -654,12 +660,16 @@ void CvTeam::shareItems(TeamTypes eTeam)
 	for (int i = 0; i < MAX_TEAMS; i++)
 	{
 		TeamTypes eLoopTeam = (TeamTypes)i;
+		// <!-- custom: A Permanent Alliance made the absorbed team's espionage against the survivor become survivor self-target points.
+		// Mutual constituent points have no remaining rival target; discard both obsolete slots and merge only outsider-directed espionage. See KI#409. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (eLoopTeam == getID() || eLoopTeam == eTeam)
+			continue;
 		//setEspionagePointsAgainstTeam(eLoopTeam, std::max(GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam), getEspionagePointsAgainstTeam(eLoopteam)));
 		// <kekm.26> "Espionage is now sum instead of max."
-		setEspionagePointsAgainstTeam(eLoopTeam,
-				GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam) +
-				getEspionagePointsAgainstTeam(eLoopTeam)); // </kekm.26>
+		setEspionagePointsAgainstTeam(eLoopTeam, GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam) + getEspionagePointsAgainstTeam(eLoopTeam)); // </kekm.26>
 	}
+	setEspionagePointsAgainstTeam(getID(), 0);
+	setEspionagePointsAgainstTeam(eTeam, 0);
 	//setEspionagePointsEver(std::max(GET_TEAM(eTeam).getEspionagePointsEver(), getEspionagePointsEver())); // K-Mod
 	// kekm.26: Replacing the above
 	setEspionagePointsEver(GET_TEAM(eTeam).getEspionagePointsEver() + getEspionagePointsEver());
@@ -685,8 +695,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 					{
 						if(GET_PLAYER((PlayerTypes)k).getTeam() == getID())
 						{
-							GET_PLAYER((PlayerTypes)k).processBuilding(eBuilding,
-									iCityBuildings, pLoopCity->getArea());
+							GET_PLAYER((PlayerTypes)k).processBuilding(eBuilding, iCityBuildings, pLoopCity->getArea());
 						}
 					}
 				}
@@ -2124,8 +2133,9 @@ bool CvTeam::isInContactWithBarbarians() const
 		return true; // Needed for advc.314 (free unit from goody hut)
 	bool bCheckCity = kGame.getElapsedGameTurns() >=
 			GC.getInfo(kGame.getGameSpeedType()).getBarbPercent();
-	// (Perhaps just iUnitThresh=1 would have the same effect)
-	int iUnitThresh = kGame.getCurrentEra();
+	// <!-- custom: AdvCiv used the zero-based era as a unit threshold, so Ancient-era teams needed no unit presence and any Barbarian anywhere counted as contact.
+	// Require positive local presence while retaining later-era scaling for Barbarian research. See KI#408. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iUnitThresh = std::max(1, (int)kGame.getCurrentEra());
 	CvTeam const& kBarbarianTeam = GET_TEAM(BARBARIAN_TEAM);
 	FOR_EACH_AREA(pArea)
 	{
@@ -5186,7 +5196,9 @@ bool CvTeam::canSeeTech(TeamTypes eOther) const
 int CvTeam::getTotalUnspentEspionage() const
 {
 	int iTotal = 0;
-	for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
+	// <!-- custom: Self-target espionage has no usable rival target and can be left by inherited or external state.
+	// Exclude it defensively from K-Mod AI denominators and SASGameRecord totals. See KI#409. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> it(getID()); it.hasNext(); ++it)
 		iTotal += getEspionagePointsAgainstTeam(it->getID());
 	return iTotal;
 }
