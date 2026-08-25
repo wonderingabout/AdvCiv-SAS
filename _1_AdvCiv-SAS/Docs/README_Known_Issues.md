@@ -466,7 +466,7 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [396 - (Fixed inherited AdvCiv native-widget migration regression) Trade-denial icons lost Pedia navigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#396---fixed-inherited-advciv-native-widget-migration-regression-trade-denial-icons-lost-pedia-navigation)\
 [397 - (Fixed inherited AdvCiv native-widget migration regression) Relations and scoreboard widgets lost contact actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#397---fixed-inherited-advciv-native-widget-migration-regression-relations-and-scoreboard-widgets-lost-contact-actions)\
 [398 - (Pending inherited BtS group-Espionage defect) A movable non-Spy can abort a valid Spy order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#398---pending-inherited-bts-group-espionage-defect-a-movable-non-spy-can-abort-a-valid-spy-order)\
-[399 - (Pending inherited BtS Great General XP defect) Ineligible plot units consume remainder slots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#399---pending-inherited-bts-great-general-xp-defect-ineligible-plot-units-consume-remainder-slots)\
+[399 - (Fixed inherited BtS Great General XP defect) Ineligible plot units consumed remainder slots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#399---fixed-inherited-bts-great-general-xp-defect-ineligible-plot-units-consumed-remainder-slots)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -10010,10 +10010,14 @@ The same availability/execution and popup-identity contracts exist in vanilla/Ci
 
 Found as F076/provisional KI#398 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
 
-## 399 - (Pending inherited BtS Great General XP defect) Ineligible plot units consume remainder slots
+## 399 - (Fixed inherited BtS Great General XP defect) Ineligible plot units consumed remainder slots
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/18XuegGIOmmxnYOxI7Ab1-QkCbreb_LMR?usp=sharing).
 
 `CvUnit::giveExperience` calculates the Great General's total experience and division remainder from eligible same-owner recipients, and grants experience only to those eligible units. Its distribution index is nevertheless incremented for every unit on the plot, including the Great General and other ineligible units. Those entries can consume the first `remainder` positions without receiving the extra point, silently reducing the intended total award. For example, four eligible recipients should divide 26 XP as `7 + 7 + 6 + 6`; one ineligible entry before them can instead produce only `7 + 6 + 6 + 6` or `6 + 6 + 6 + 6` depending on ordering.
 
-The unconditional index increment exists in vanilla/Civ4CE BtS and remains in AdvCiv, so this is an inherited BtS gameplay defect. It remains pending as a small but distinct `CvUnit.cpp` repair: increment the remainder-distribution index only when a unit actually belongs to the eligible recipient population, then exercise exact deterministic recipient ordering.
+The fix advances the remainder-distribution index only after awarding XP to an eligible recipient, so exactly the population used to calculate the division can consume its remainder slots. The unconditional index increment exists in vanilla/Civ4CE BtS and remains in AdvCiv 1.14, so this is an inherited BtS gameplay defect rather than an AdvCiv or AdvCiv-SAS regression.
+
+Compiled WorldBuilder testing placed one Great General and four zero-XP Musketmen on the same plot. Attaching the General distributed exactly `7 + 7 + 6 + 6 = 26` XP across the four eligible recipients in screenshots 0295 and 0297, directly confirming that the ineligible General no longer consumes a remainder slot.
 
 Found as cross-file F077/provisional KI#399 while ChatGPT-5.6-Sol followed the Lead Troops contract during the durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.

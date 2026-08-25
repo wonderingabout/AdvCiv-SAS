@@ -7243,11 +7243,12 @@ bool CvUnit::giveExperience()
 		if (pUnit != this && pUnit->getOwner() == getOwner() &&
 			pUnit->canAcquirePromotionAny())
 		{
+			// <!-- custom: Only eligible recipients belong to the division population. BtS advanced this index for the Great General and other ineligible plot units, allowing them to consume remainder XP without receiving it. See KI#399. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			pUnit->changeExperience(i < iRemainder ?
 					iMinExperiencePerUnit + 1 : iMinExperiencePerUnit);
 			pUnit->testPromotionReady();
+			i++;
 		}
-		i++;
 	}
 	return true;
 }
