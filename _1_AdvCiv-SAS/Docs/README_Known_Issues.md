@@ -455,6 +455,11 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [385 - (Pending inherited/SAS diagnostic drift) Scoreboard cheat war predictions duplicate stale AI_doWar logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#385---pending-inheritedsas-diagnostic-drift-scoreboard-cheat-war-predictions-duplicate-stale-ai_dowar-logic)\
 [386 - (Fixed inherited BtS tooltip defect) Great Spy Infiltration omitted its espionage yield](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#386---fixed-inherited-bts-tooltip-defect-great-spy-infiltration-omitted-its-espionage-yield)\
 [387 - (Rejected false positive) GET_TEAM(PlayerTypes) already converts the player to the correct team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#387---rejected-false-positive-get_teamplayertypes-already-converts-the-player-to-the-correct-team)\
+[388 - (Pending AdvCiv-SAS UI state defect) Info Screen Score hovers trigger scoreboard expansion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#388---pending-advciv-sas-ui-state-defect-info-screen-score-hovers-trigger-scoreboard-expansion)\
+[389 - (Pending AdvCiv-SAS Sevopedia tooltip defect) Specialist Extra Slots misuses tech-context help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#389---pending-advciv-sas-sevopedia-tooltip-defect-specialist-extra-slots-misuses-tech-context-help)\
+[390 - (Pending AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explains unrelated expenses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#390---pending-advciv-sas-military-advisor-tooltip-defect-total-cost--supply-explains-unrelated-expenses)\
+[391 - (Fixed inherited BUG/K-Mod Tech Splash tooltip defect) Build-action buttons encoded the wrong widget payload](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#391---fixed-inherited-bugk-mod-tech-splash-tooltip-defect-build-action-buttons-encoded-the-wrong-widget-payload)\
+[392 - (Fixed AdvCiv-SAS Extended Tech Splash regression) Enabled units raised NameError](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#392---fixed-advciv-sas-extended-tech-splash-regression-enabled-units-raised-nameerror)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -9885,3 +9890,45 @@ Review of the active accessor contract disproved the finding. In this translatio
 This is the direct non-AI counterpart of [KI#311](#311---rejected-archaeology-finding-get_teamplayertypes-correctly-resolves-the-players-team): that earlier historical-archaeology finding was rejected after tracing `CoreAI::getTeam(PlayerTypes)`, while KI#387 concerns the parallel `CvGamePlay::getTeam(PlayerTypes)` overload. Both convert through `TEAMID(ePlayer)`, illustrating why enum/type findings behind accessor macros must trace the active overload in the caller's include context before promotion.
 
 Former F066/provisional KI#387 was retracted by ChatGPT-5.6-Sol in C012-WIP04 and reconfirmed through C012-WIP06; independently verified and documented with the help of GPT-5.6-Sol, thanks.
+
+## 388 - (Pending AdvCiv-SAS UI state defect) Info Screen Score hovers trigger scoreboard expansion
+
+The AdvCiv-SAS Info Screen Score tab reuses `WIDGET_SCORE_BREAKDOWN` with `data2=0`, `WIDGET_POWER_RATIO` and `WIDGET_TRADE_ROUTES_SCOREBOARD` for their useful scoreboard hover text. `CvDLLWidgetData::parseHelp` also treats all three as scoreboard expansion controls and calls `setScoreboardExpanded(true)`. Hovering these advisor cells can therefore import hidden scoreboard expansion state and collapse-timer activity into an unrelated focused screen.
+
+This is an AdvCiv-SAS cross-context regression introduced with the custom Score tab in practical 5483, not an inherited AdvCiv defect. It remains pending a focused repair that separates the useful tooltip semantics from scoreboard-only state mutation. Found as F066/provisional KI#388 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently source-reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 389 - (Pending AdvCiv-SAS Sevopedia tooltip defect) Specialist Extra Slots misuses tech-context help
+
+The Specialist page's Extra Slots panel uses `WIDGET_HELP_SPECIAL_BUILDING` with `data1=-1` for Temple, Cathedral and Monastery source groups. That widget interprets `data1` as a technology and compares it with both special-building technology prerequisites. Because these groups use `NONE` (`-1`) for `TechPrereqAnyone`, the sentinel can match and produce misleading `Any player can Construct ...` text instead of explaining the slot source.
+
+The C++ helper behaves correctly for its Tech Chooser and Sevopedia Tech callers, which pass real technologies. This is an AdvCiv-SAS caller-contract regression introduced with Extra Slots in practical 5331. It remains pending a neutral or purpose-specific hover. Found as F067/provisional KI#389 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently source-reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 390 - (Pending AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explains unrelated expenses
+
+The Military Advisor Summary displays Total Cost + Supply as post-inflation Unit Cost plus Unit Supply, but assigns `WIDGET_HELP_FINANCE_INFLATED_COSTS`. That helper explains the player's whole pre-inflation expense base, which additionally includes city maintenance, civic upkeep and Python extra expenses. Its numbers therefore do not describe the visible subtotal. The Finance screen's overall Expenses row is the correct inherited caller for this widget.
+
+This is an AdvCiv-SAS caller-contract regression introduced with the Summary tab in practical 5800. It remains pending a dedicated combined breakdown or removal of the unrelated hover. Found as F068/provisional KI#390 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently source-reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 391 - (Fixed inherited BUG/K-Mod Tech Splash tooltip defect) Build-action buttons encoded the wrong widget payload
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/147VfWOSDkGzhjUVRneNCbYREjjG0eEGK?usp=sharing).
+
+The optional Extended (internally named Detailed) and Wide BUG Tech Splashes assigned non-improvement build-action buttons `WIDGET_HELP_IMPROVEMENT` with `(data1=j, data2=1)`, where `j` is the `BuildTypes` index. The C++ widget contract instead reads `(TechTypes, BuildTypes)` and passes both to `buildImprovementString`. Current build ID 1 is Railroad, so Road, Railroad, Remove Jungle, Remove Forest and Scrub Fallout buttons tested unrelated technology IDs against Railroad and lost their intended unlock explanation. The Original splash uses a separate implementation and was never affected by this payload defect.
+
+The fix passes `(self.iTech, j)` in both splash implementations, matching `CvTechChooser`'s established caller contract. The bad payload entered with the initial reachable BUG assets in K-Mod practical 4 and remains in AdvCiv 1.14, so this is an inherited BUG/K-Mod tooltip defect rather than an AdvCiv-SAS regression.
+
+Runtime testing after the required option-change restarts confirmed that both Extended and Wide display The Wheel's Road action, and screenshot 0280 shows its corrected `Can Build a Road` hover. Right-clicking that button does not navigate because Road is a Build action with `ImprovementType=NONE`, while the native `WIDGET_HELP_IMPROVEMENT` alt-action only jumps for a Build backed by an actual Improvement; navigation was not part of this tooltip defect.
+
+Found as F069/provisional KI#391 during ChatGPT-5.6-Sol's C012-WIP07 `CvDLLWidgetData.cpp` caller audit; independently traced, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 392 - (Fixed AdvCiv-SAS Extended Tech Splash regression) Enabled units raised NameError
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1NzWYA7Et8YIPBoZGJ5kWpfu-sXxLLHiY?usp=sharing).
+
+The user-facing Extended Tech Splash, internally named Detailed by BUG and implemented in `TechWindow.py`, referred to `yWidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT` when listing a technology's enabled civilization units. No `yWidgetTypes` symbol exists, so reaching that ordinary branch raises Python `NameError` and disrupts the splash. The Original splash is a separate implementation; Wide and Base AdvCiv retain the correct `WidgetTypes` reference.
+
+The fix removes the accidental leading `y`. AdvCiv-SAS practical 4847 / commit `2973ba48f3bd65d0a85956ed5aee0457858dc621` introduced the regression while collapsing the previously correct multiline call during Ruff/Pylance cleanup, making this AdvCiv-SAS-only rather than inherited.
+
+Runtime testing after selecting Extended and restarting confirmed that Hunting renders its three enabled Unit buttons and Barracks without a Python error in screenshot 0274. The corresponding Wide control also rendered normally in screenshot 0276.
+
+Found as F070/provisional KI#392 during ChatGPT-5.6-Sol's C012-WIP08 `CvDLLWidgetData.cpp` caller audit; independently traced, fixed and documented with the help of GPT-5.6-Sol, thanks.
