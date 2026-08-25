@@ -480,7 +480,9 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [410 - (Rejected) Advanced Start could refund technologies beneath existing assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#410---rejected-advanced-start-could-refund-technologies-beneath-existing-assets)\
 [411 - (Fixed inherited K-Mod Permanent-Alliance identity defect) Historical civilization knowledge was lost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#411---fixed-inherited-k-mod-permanent-alliance-identity-defect-historical-civilization-knowledge-was-lost)\
 [412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
+[413 - (Fixed inherited AdvCiv forced-peace defect) Reparations could hide remaining treaty turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#413---fixed-inherited-advciv-forced-peace-defect-reparations-could-hide-remaining-treaty-turns)\
 [414 - (Fixed inherited AdvCiv Tech Share defect) The Internet depended on which team initiated contact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#414---fixed-inherited-advciv-tech-share-defect-the-internet-depended-on-which-team-initiated-contact)\
+[415 - (Fixed inherited AdvCiv war-weariness regression) Dead-team decay was unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#415---fixed-inherited-advciv-war-weariness-regression-dead-team-decay-was-unreachable)\
 [418 - (Fixed inherited Kek-Mod/AdvCiv Tech Share defect) Dead teammates counted toward The Internet](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#418---fixed-inherited-kek-modadvciv-tech-share-defect-dead-teammates-counted-toward-the-internet)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
@@ -10178,6 +10180,14 @@ The repair and all callers were source-verified. Exact runtime reproduction requ
 
 Found as F090/provisional KI#412 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
+## 413 - (Fixed inherited AdvCiv forced-peace defect) Reparations could hide remaining treaty turns
+
+`CvTeam::turnsOfForcedPeaceRemaining` recovers a mandatory peace treaty's remaining lifetime for UWAI war preparation and help/tribute diplomacy. After confirming the team-level forced-peace flag, the inherited AdvCiv helper recognized a matching deal only when `TRADE_PEACE_TREATY` was the first item of its first trade list. AdvCiv itself deliberately moves peace treaties to the bottom of diplomacy offer lists, and ordinary reparations can place gold, technologies or cities before the treaty. The deal could therefore enforce peace correctly while the helper returned zero turns remaining, causing its AI callers to plan and evaluate diplomacy from an incorrect treaty duration.
+
+The fix scans every item in both sides of each deal between the relevant master teams and uses the deal whenever either list contains the peace treaty. This removes physical list side and order from the logical team-level query while retaining the existing longest-remaining-deal behavior.
+
+AdvCiv introduced the helper in `advc.104`, and its normal deal construction supplies the reachable counterexample; this is an inherited AdvCiv defect rather than an AdvCiv-SAS regression. A compiled Huge full autoplay completed normally with a turn-382 Space Race victory and broad war/diplomacy coverage; the exact reparations-treaty AI timing remains source-verified rather than directly observed. Found as F091/provisional KI#413 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
 ## 414 - (Fixed inherited AdvCiv Tech Share defect) The Internet depended on which team initiated contact
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1oepnPeAs-zgsGDQDYzYPvvAn0syVwoK8?usp=sharing).
@@ -10187,6 +10197,14 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 The fix removes Tech Share evaluation from the directional helper and updates both teams after both `makeHasMet` calls complete. Contact state is symmetric before either scan, preserving the same technology result for both natural caller orientations.
 
 BtS scanned the receiver's already-set own contact relation. AdvCiv practical 1837 changed this to the reverse-direction iterator and practical 1842 retained that direction while excluding self, introducing the ordering regression that remains in AdvCiv 1.14. This is an inherited AdvCiv defect rather than an AdvCiv-SAS regression. A compiled Huge full autoplay recorded 136 first-contact events, built The Internet on turn 301 and completed normally on turn 498; all contacts preceded the project, so the exact post-Internet contact transition remains source-verified. Found as F092/provisional KI#414 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 415 - (Fixed inherited AdvCiv war-weariness regression) Dead-team decay was unreachable
+
+War weariness is stored separately against each opposing team. BtS iterated the full team domain and explicitly applied the stronger peace decay when a target team was dead. AdvCiv practical 1837 replaced that loop with `TeamIter<CIV_ALIVE>` but retained the `!isAlive()` condition inside it, making the dead-team branch unreachable. Weariness against an eliminated civilization consequently froze while it was absent. Because AdvCiv supports civilization revival, that stale value could later re-enter AI future-war cost evaluation and contribute to city war-weariness anger after a renewed war.
+
+The fix iterates all civilization teams that have ever lived. Living targets retain the existing war/peace decay behavior, dead targets again reach the inherited stronger decay, and never-used team slots and Barbarians remain excluded.
+
+The full-domain loop and explicit dead-target condition are inherited from BtS, while AdvCiv practical 1837 introduced the iterator regression retained in AdvCiv 1.14. This is an inherited AdvCiv regression rather than an AdvCiv-SAS change. The compiled Huge full autoplay completed normally on turn 382 and eliminated players 1, 6 and 13, supplying broad runtime coverage with dead civilization teams; the exact decay of a nonzero stored value remains source-verified. Found as F093/provisional KI#415 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 ## 418 - (Fixed inherited Kek-Mod/AdvCiv Tech Share defect) Dead teammates counted toward The Internet
 

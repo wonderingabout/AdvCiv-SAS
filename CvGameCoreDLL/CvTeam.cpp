@@ -3383,13 +3383,34 @@ int CvTeam::turnsOfForcedPeaceRemaining(TeamTypes eOther) const
 	{
 		TeamTypes eFirstMaster = GET_PLAYER(d->getFirstPlayer()).getMasterTeam();
 		TeamTypes eSecondMaster = GET_PLAYER(d->getSecondPlayer()).getMasterTeam();
-		if (((eFirstMaster == eOurMaster && eSecondMaster == eTheirMaster) ||
-			(eFirstMaster == eTheirMaster && eSecondMaster == eOurMaster)) &&
-			d->getLengthFirst() > 0 &&
-			d->getFirstList().head()->m_data.m_eItemType == TRADE_PEACE_TREATY)
+		// <!-- custom: Filter deals by the two master teams, then scan both trade lists because AdvCiv can place reparations before the peace treaty.
+		// This keeps forced-peace AI timing tied to the live treaty regardless of list side or order. See KI#413. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!((eFirstMaster == eOurMaster && eSecondMaster == eTheirMaster) || (eFirstMaster == eTheirMaster && eSecondMaster == eOurMaster)))
+			continue;
+		bool bPeaceTreaty = false;
 		{
-			r = std::max(r, d->turnsToCancel());
+			FOR_EACH_TRADE_ITEM(d->getFirstList())
+			{
+				if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+				{
+					bPeaceTreaty = true;
+					break;
+				}
+			}
 		}
+		if (!bPeaceTreaty)
+		{
+			FOR_EACH_TRADE_ITEM(d->getSecondList())
+			{
+				if (pItem->m_eItemType == TRADE_PEACE_TREATY)
+				{
+					bPeaceTreaty = true;
+					break;
+				}
+			}
+		}
+		if (bPeaceTreaty)
+			r = std::max(r, d->turnsToCancel());
 	}
 	return r;
 }
@@ -5379,7 +5400,9 @@ void CvTeam::doWarWeariness()
 	static int const iWW_DECAY_RATE = GC.getDefineINT("WW_DECAY_RATE"); // advc.opt
 	static int const iWW_DECAY_PEACE_PERCENT = GC.getDefineINT("WW_DECAY_PEACE_PERCENT"); // advc.opt
 	CvGame const& kGame = GC.getGame();
-	for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
+	// <!-- custom: AdvCiv practical 1837 restricted this BtS loop to living civilizations, making the retained dead-team decay branch unreachable and freezing stored war weariness until revival. Iterate every civilization team that has lived so dead-team weariness continues decaying.
+	// See KI#415. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (TeamIter<EVER_ALIVE> it; it.hasNext(); ++it)
 	{
 		TeamTypes eLoopTeam = it->getID();
 		if (getWarWeariness(eLoopTeam) > 0)
