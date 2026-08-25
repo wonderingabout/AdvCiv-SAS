@@ -1041,10 +1041,11 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot 
 		}
 		case MISSION_AIRBOMB:
 		{
+			// <!-- custom: Rank only aircraft that can execute Air Bomb at this target. AdvCiv used generic ability for cities and no target test for improvements, so an invalid first choice could abort a valid group order. See KI#394. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (pMissionPlot == NULL || !pUnit->canAirBombAt(*pMissionPlot))
+				continue;
 			if (pMissionPlot->isCity())
 			{
-				if (!pUnit->canAirBomb(pMissionPlot))
-					continue;
 				int iWasted = 0;
 				int const iDamage = pUnit->airBombDefenseDamage(*pTargetCity);
 				if (iDamage > 0)

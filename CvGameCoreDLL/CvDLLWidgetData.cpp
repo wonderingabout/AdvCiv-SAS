@@ -2424,6 +2424,10 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 	bool const bShift = GC.shiftKey();
 	CvWString szTempBuffer;
 	CvWString szFirstBuffer;
+	// <!-- custom: Retain the eligible Discover unit so its technology-path help does not fall back to the unrelated selection head. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvUnit const* pDiscoverUnit = NULL;
+	// <!-- custom: Remember the eligible-population result so the generic-help footer does not fall back to the unrelated selection head. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bBombardHelpHandled = false;
 
 	CvPlot const& kMissionPlot = (
 			(bShift && gDLL->UI().mirrorsSelectionGroup()) ?
@@ -2470,8 +2474,20 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 	}
 	case MISSION_PLUNDER:
 	{
+		// <!-- custom: A non-plundering selection head could report failure although another selected naval unit made Blockade executable. Test the selected mission population instead. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bCanPlunder = false;
+		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
+			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
+		{
+			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+			if (kSelectedUnit.canPlunder(kMissionPlot) && kSelectedUnit.canMove())
+			{
+				bCanPlunder = true;
+				break;
+			}
+		}
 		//if (kMissionPlot.getTeam() == kUnitTeam.getID())
-		if(!kUnit.canPlunder(kMissionPlot)) // advc.033
+		if (!bCanPlunder) // advc.033
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_ACTION_PLUNDER_IN_BORDERS"));
@@ -2751,6 +2767,8 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
 			if (!kSelectedUnit.canDiscover(&kMissionPlot))
 				continue;
+			// <!-- custom: The eligible unit supplies both the bulb amount here and the Discover path appended below; previously the latter used the selection head and could disappear for a mixed selection. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			pDiscoverUnit = &kSelectedUnit;
 			TechTypes const eTech = kSelectedUnit.getDiscoveryTech();
 			int const iResearchLeft = GET_TEAM(kSelectedUnit.getTeam()).
 					getResearchLeft(eTech);
@@ -2908,22 +2926,36 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 	}
 	case MISSION_LEAD:
 	{
-		if (kUnit.getUnitInfo().getLeaderExperience() > 0)
+		// <!-- custom: Lead can be exposed by a selected Great General while an ordinary combat unit is the selection head. Derive all mission help from the selected unit that can actually lead. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvUnit const* pLeader = NULL;
+		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
+			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
 		{
-			int iNumUnits = kUnit.canGiveExperience(kUnit.plot());
+			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+			if (kSelectedUnit.canLead(&kMissionPlot, kAction.getMissionData()) > 0)
+			{
+				pLeader = &kSelectedUnit;
+				break;
+			}
+		}
+		if (pLeader == NULL)
+			break;
+		if (pLeader->getUnitInfo().getLeaderExperience() > 0)
+		{
+			int iNumUnits = pLeader->canGiveExperience(&kMissionPlot);
 			if (iNumUnits > 0)
 			{
 				szBuffer.append(NEWLINE);
 				szBuffer.append(gDLL->getText("TXT_KEY_ACTION_LEAD_TROOPS",
-						kUnit.getStackExperienceToGive(iNumUnits)));
+						pLeader->getStackExperienceToGive(iNumUnits)));
 			}
 		}
-		if (kUnit.getUnitInfo().getLeaderPromotion() != NO_PROMOTION)
+		if (pLeader->getUnitInfo().getLeaderPromotion() != NO_PROMOTION)
 		{
 			szBuffer.append(NEWLINE);
 			szBuffer.append(gDLL->getText("TXT_KEY_PROMOTION_WHEN_LEADING"));
 			GAMETEXT.parsePromotionHelp(szBuffer, (PromotionTypes)
-				kUnit.getUnitInfo().getLeaderPromotion(), L"\n   ");
+				pLeader->getUnitInfo().getLeaderPromotion(), L"\n   ");
 		}
 		break;
 	}
@@ -2938,16 +2970,25 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 		for air bomb mission) */
 	case MISSION_BOMBARD:
 	{
-		CvCity const* pBombardCity = kUnit.bombardTarget(kMissionPlot);
-		if (pBombardCity == NULL)
-			break;
-		int const iMaxDamage = pBombardCity->getDefenseModifier(
-				kUnit.ignoreBuildingDefense());
+		CvCity const* pBombardCity = NULL;
+		int iMaxDamage = 0;
 		int iDamage = 0;
 		for (CLLNode<IDInfo> const* pNode = gDLL->UI().headSelectionListNode();
 			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
 		{
 			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+			// <!-- custom: Preview only selected units that AdvCiv's executor can actually use now. Spent/ineligible siege formerly contributed nominal damage, and an ineligible head could suppress the preview entirely. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (!kSelectedUnit.canMove() || !kSelectedUnit.canBombard(kMissionPlot))
+				continue;
+			CvCity const* const pSelectedTarget = kSelectedUnit.bombardTarget(kMissionPlot);
+			if (pBombardCity == NULL)
+			{
+				pBombardCity = pSelectedTarget;
+				iMaxDamage = pBombardCity->getDefenseModifier(
+						kSelectedUnit.ignoreBuildingDefense());
+			}
+			if (pSelectedTarget != pBombardCity)
+				continue;
 			iDamage += kSelectedUnit.damageToBombardTarget(kMissionPlot);
 			if (iDamage >= iMaxDamage)
 			{
@@ -2955,6 +2996,10 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 				break;
 			}
 		}
+		// <!-- custom: Without an eligible selected siege unit, leave the established generic mission help in control instead of marking the specialized preview as handled. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (pBombardCity == NULL)
+			break;
+		bBombardHelpHandled = true;
 		szBuffer.append(NEWLINE);
 		if (iDamage > 0)
 		{
@@ -3348,10 +3393,12 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 
 	if (!CvWString(GC.getInfo(eMission).getHelp()).empty())
 	{	// <advc.004a>
-		if (eMission == MISSION_DISCOVER)
-			GAMETEXT.setDiscoverPathHelp(szBuffer, kUnit.getUnitType());
+		// <!-- custom: Append Discover-path help from the eligible selected Great Person retained above, not the unrelated selection head. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (eMission == MISSION_DISCOVER && pDiscoverUnit != NULL)
+			GAMETEXT.setDiscoverPathHelp(szBuffer, pDiscoverUnit->getUnitType());
 		else // </advc.004a>  <advc.004c>
-		if (eMission == MISSION_BOMBARD && kUnit.bombardTarget(kMissionPlot) != NULL)
+		// <!-- custom: Ground Bombard already supplied its full specialized preview only when an eligible selected siege unit was found above. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (eMission == MISSION_BOMBARD && bBombardHelpHandled)
 		{} // Fully handled in switch block above
 		else // </advc.004c>
 		{

@@ -460,8 +460,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [390 - (Fixed AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explained unrelated expenses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#390---fixed-advciv-sas-military-advisor-tooltip-defect-total-cost--supply-explained-unrelated-expenses)\
 [391 - (Fixed inherited BUG/K-Mod Tech Splash tooltip defect) Build-action buttons encoded the wrong widget payload](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#391---fixed-inherited-bugk-mod-tech-splash-tooltip-defect-build-action-buttons-encoded-the-wrong-widget-payload)\
 [392 - (Fixed AdvCiv-SAS Extended Tech Splash regression) Enabled units raised NameError](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#392---fixed-advciv-sas-extended-tech-splash-regression-enabled-units-raised-nameerror)\
-[393 - (Pending inherited AdvCiv mission-help defect) Mixed selections describe units that cannot execute the mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#393---pending-inherited-advciv-mission-help-defect-mixed-selections-describe-units-that-cannot-execute-the-mission)\
-[394 - (Pending inherited AdvCiv Air Bomb executor defect) An invalid aircraft can abort a valid group order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#394---pending-inherited-advciv-air-bomb-executor-defect-an-invalid-aircraft-can-abort-a-valid-group-order)\
+[393 - (Fixed inherited BtS/AdvCiv mission-help defects) Mixed selections described units that could not execute the mission](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#393---fixed-inherited-btsadvciv-mission-help-defects-mixed-selections-described-units-that-could-not-execute-the-mission)\
+[394 - (Fixed inherited AdvCiv Air Bomb executor defect) An invalid aircraft could abort a valid group order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#394---fixed-inherited-advciv-air-bomb-executor-defect-an-invalid-aircraft-could-abort-a-valid-group-order)\
 [395 - (Fixed inherited BUG/AdvCiv city-screen widget defect) Angry-citizen Chevron used specialist help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#395---fixed-inherited-bugadvciv-city-screen-widget-defect-angry-citizen-chevron-used-specialist-help)\
 [396 - (Fixed inherited AdvCiv native-widget migration regression) Trade-denial icons lost Pedia navigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#396---fixed-inherited-advciv-native-widget-migration-regression-trade-denial-icons-lost-pedia-navigation)\
 [397 - (Fixed inherited AdvCiv native-widget migration regression) Relations and scoreboard widgets lost contact actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#397---fixed-inherited-advciv-native-widget-migration-regression-relations-and-scoreboard-widgets-lost-contact-actions)\
@@ -9952,21 +9952,31 @@ Runtime testing after selecting Extended and restarting confirmed that Hunting r
 
 Found as F070/provisional KI#392 during ChatGPT-5.6-Sol's C012-WIP08 `CvDLLWidgetData.cpp` caller audit; independently traced, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
-## 393 - (Pending inherited AdvCiv mission-help defect) Mixed selections describe units that cannot execute the mission
+## 393 - (Fixed inherited BtS/AdvCiv mission-help defects) Mixed selections described units that could not execute the mission
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1e54Zy9BpetHQWm8NGlG0R_1bdc1B1MJo?usp=sharing).
 
 Several multi-unit mission previews describe, rank or aggregate the selection head or all selected units instead of first restricting the population to units that can execute the hovered mission at its target. Proven siblings include spent or otherwise ineligible Ground Bombard and Air Bomb units contributing nominal damage; Paradrop help selecting a moved or tied high-evasion unit and suppressing valid interception information; Lead Troops using an ordinary combat head instead of the selected Great General; Discover deriving the bulb amount from an eligible unit but its technology-path explanation from the selection head; and Plunder reporting a non-plundering head unit's refusal although another selected naval unit makes the order executable. Mission Pillage and Corporation Spread were challenged and rejected as additional siblings.
 
-AdvCiv practical 1603 added the Ground Bombard and Air Bomb preview logic together with eligibility-aware group execution, establishing at least that original inherited mismatch; the later siblings share the same current contract defect. A correct repair must derive each preview from the same mission-executable subset as its executor rather than adding isolated rate checks. This remains pending because the family spans several distinct help paths and deserves one focused parity refactor instead of piecemeal patches.
+The fix now derives each preview from its mission's executable population. Ground Bombard and city Air Bomb damage include only movable units valid at the target; non-city Air Bomb structure help and Paradrop interception help use the same first target-valid unit chosen by AdvCiv's executor. Lead Troops finds the selected Great General that can lead, Discover retains the eligible bulbing unit for its technology path, and Plunder tests all selected units before reporting an inability. A separate handled-state flag prevents the Ground Bombard footer from falling back to the unrelated selection head.
 
-Found as F071/provisional KI#393 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+The Plunder and Lead head-unit assumptions are inherited from BtS/Civ4CE. AdvCiv practical 2778 added the affected Discover-path call, Ground Bombard and Air Bomb help/executor logic; practical 2784 added the Paradrop interception help. Those additions introduced the remaining mismatches while retaining the inherited head-unit pattern. This is therefore a mixed inherited BtS/AdvCiv help family, not an AdvCiv-SAS regression.
 
-## 394 - (Pending inherited AdvCiv Air Bomb executor defect) An invalid aircraft can abort a valid group order
+Found as F071/provisional KI#393 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+Runtime testing confirmed that an ordinary-unit-first mixed selection still showed the selected Great General's 20-XP Lead Troops help, and an ordinary-unit-first mixed selection still showed the selected Great Scientist's 2184-research Discover amount and subsequent technology path.
+
+## 394 - (Fixed inherited AdvCiv Air Bomb executor defect) An invalid aircraft could abort a valid group order
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1i3lrkBsOfCzygu-p5K9QdwZHMkECz5l1?usp=sharing).
 
 `CvSelectionGroupAI::AI_bestUnitForMission(MISSION_AIRBOMB)` filters city-target candidates with generic `canAirBomb` rather than target-specific `canAirBombAt`, and the non-city branch likewise ranks candidates without the complete target test. Group execution then asks the chosen unit to `airBomb`; if that first candidate is out of range or otherwise invalid, its failure terminates the loop before another selected aircraft that could execute the order is tried. A current concrete family is a range-8 Bomber and range-10 Jet Fighter targeting a city at distance 9.
 
-This behavior belongs to AdvCiv's practical-1603 Air Bomb group-selection/execution refactor rather than AdvCiv-SAS. It remains pending because the executor must rank only target-valid candidates while preserving its city and non-city priorities, and should be repaired alongside or after KI#393's related preview/executor parity review.
+The fix rejects every candidate that fails `canAirBombAt` before applying the established city or improvement priority formulas. Both help and execution use this selector, so an out-of-range or otherwise invalid aircraft can no longer outrank the valid selected companion or terminate the group order first. This behavior belongs to AdvCiv practical 2778's Air Bomb group-selection/execution refactor rather than AdvCiv-SAS.
 
-Found as F072/provisional KI#394 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+Found as F072/provisional KI#394 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+Runtime testing confirmed that a Jet Fighter + Bomber mixed group Air Bombed normally. Both aircraft reached and attacked the tested city, so that run provided broad mixed-group coverage but did not reproduce the exact out-of-range-first boundary.
 
 ## 395 - (Fixed inherited BUG/AdvCiv city-screen widget defect) Angry-citizen Chevron used specialist help
 

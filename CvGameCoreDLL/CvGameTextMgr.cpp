@@ -21325,6 +21325,9 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelecte
 			pNode != NULL; pNode = gDLL->UI().nextSelectionListNode(pNode))
 		{
 			CvUnit const& kSelectedUnit = *::getUnit(pNode->m_data);
+			// <!-- custom: Sum only aircraft that can execute Air Bomb at this target now; out-of-range or spent selected aircraft previously inflated the city-defense preview. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (!kSelectedUnit.canMove() || !kSelectedUnit.canAirBombAt(kPlot))
+				continue;
 			iDamage += kSelectedUnit.airBombDefenseDamage(*pBombardCity);
 			if (iDamage >= iMaxDamage)
 			{
@@ -21343,8 +21346,8 @@ void CvGameTextMgr::getAirBombPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelecte
 		return;
 	} 
 	// <advc.255>
-	CvUnit::StructureTypes const eStructure = kHeadSelectedUnit.
-			getDestructibleStructureAt(kPlot, true, /* advc.111: */ GC.ctrlKey());
+	// <!-- custom: Use the same target-eligible aircraft chosen for execution when identifying the destructible structure; the arbitrary selection head can be unable to Air Bomb here. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvUnit::StructureTypes const eStructure = pBestSelectedUnit->getDestructibleStructureAt(kPlot, true, /* advc.111: */ GC.ctrlKey());
 	if (eStructure == CvUnit::NO_STRUCTURE)
 		return; // </advc.255>
 	// Formula matches dice roll in CvUnit::airBomb
@@ -21410,23 +21413,10 @@ void CvGameTextMgr::getParadropPlotHelp(CvPlot const& kPlot, CvUnit& kHeadSelect
 	if (pSelectionList == NULL)
 		return;
 	// <!-- custom: end guard for selection list null in paradrop help. Credit: Claude code Opus 4.5. (GPT-5.2-Codex) -->
-	CvUnit const* pBestSelectedUnit = NULL;
-	int iMaxEvasionProb = MIN_INT;
-	FOR_EACH_UNIT_IN(pUnit, *pSelectionList)
-	{
-		int iLoopProb = pUnit->evasionProbability();
-		if (iLoopProb > iMaxEvasionProb)
-		{
-			iMaxEvasionProb = iLoopProb;
-			pBestSelectedUnit = pUnit;
-		}
-	}
-	if (pBestSelectedUnit != NULL &&
-		pBestSelectedUnit->canParadropAt(
-		pBestSelectedUnit->plot(), kPlot.getX(), kPlot.getY()))
-	{
+	// <!-- custom: Ask the mission executor for its first target-eligible Paratrooper. Ranking all selected units by evasion first could retain a moved/ineligible unit and suppress valid interception help. See KI#393. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvUnit const* pBestSelectedUnit = pSelectionList->AI().AI_bestUnitForMission(MISSION_PARADROP, &kPlot);
+	if (pBestSelectedUnit != NULL)
 		setInterceptPlotHelp(kPlot, *pBestSelectedUnit, szHelp);
-	}
 }
 
 void CvGameTextMgr::getInterfaceCenterText(CvWString& strText)
