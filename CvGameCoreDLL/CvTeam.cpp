@@ -4165,12 +4165,9 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 	{
 		gDLL->UI().setDirty(GameData_DIRTY_BIT, true);
 		gDLL->UI().setDirty(Score_DIRTY_BIT, true);
-		/*  <advc.004x> Update research-turns shown in popup (tbd.: perhaps setting
-			Popup_DIRTY_BIT would suffice here?) */
+		// <advc.004x> Update research-turns shown in popup (tbd.: perhaps setting Popup_DIRTY_BIT would suffice here?)
 		CvPlayer& kActivePlayer = GET_PLAYER(GC.getGame().getActivePlayer());
-		if (kActivePlayer.getCurrentResearch() == NO_TECH &&
-			kActivePlayer.isFoundedFirstCity() &&
-			kActivePlayer.isHuman()) // i.e. not during Auto Play
+		if (kActivePlayer.getCurrentResearch() == NO_TECH && kActivePlayer.isFoundedFirstCity() && kActivePlayer.isHuman()) // i.e. not during Auto Play
 		{
 			kActivePlayer.killAll(BUTTONPOPUP_CHOOSETECH);
 			kActivePlayer.chooseTech();
@@ -4179,12 +4176,12 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 
 	if (getResearchProgress(eIndex) >= getResearchCost(eIndex))
 	{
-		int iOverflow = (100 * (getResearchProgress(eIndex) - getResearchCost(eIndex))) /
-				std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
+		int iOverflow = (100 * (getResearchProgress(eIndex) - getResearchCost(eIndex))) / std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
 		GET_PLAYER(ePlayer).changeOverflowResearch(iOverflow);
 		// <advc> Cleaner to subtract the overflow. Cf. comment in getResearchProgress.
-		m_aiResearchProgress.add(eIndex,
-				getResearchProgress(eIndex) - getResearchCost(eIndex)); // </advc>
+		// <!-- custom: AdvCiv added the raw overflow to the already overflowing progress, doubling that portion instead of subtracting it.
+		// Preserve exactly the completed technology cost in stored progress. See KI#404. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_aiResearchProgress.add(eIndex, getResearchCost(eIndex) - getResearchProgress(eIndex)); // </advc>
 		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true, eCause);
 		/*if (!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && !GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			setNoTradeTech(eIndex, true);*/ // BtS
@@ -4565,7 +4562,10 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 	{
 		updatePlotGroupBonus(eTech, false); // advc: Code moved into auxiliary function
 		m_abHasTech.set(eTech, bNewValue);
-		m_iTechCount++; // advc.101
+		// <!-- custom: AdvCiv's cached known-technology total incremented on both acquisition and removal.
+		// Follow the actual state transition so Advanced Start refunds cannot inflate gameplay consumers of the cache. See KI#405. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_iTechCount += (bNewValue ? 1 : -1); // advc.101
+		FAssert(m_iTechCount >= 0);
 		updatePlotGroupBonus(eTech, true);
 	}
 

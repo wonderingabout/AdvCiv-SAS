@@ -471,6 +471,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [401 - (Fixed inherited AdvCiv Permanent-Alliance Info Screen regression) First-contact dates restarted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#401---fixed-inherited-advciv-permanent-alliance-info-screen-regression-first-contact-dates-restarted)\
 [402 - (Fixed inherited AdvCiv Permanent-Alliance Disengage defect) A live deal lost its enforcement flags](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#402---fixed-inherited-advciv-permanent-alliance-disengage-defect-a-live-deal-lost-its-enforcement-flags)\
 [403 - (Fixed inherited BtS Permanent-Alliance spaceship defect) An in-flight launch could be erased or re-enabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#403---fixed-inherited-bts-permanent-alliance-spaceship-defect-an-in-flight-launch-could-be-erased-or-re-enabled)\
+[404 - (Fixed inherited AdvCiv research bookkeeping defect) Completed-tech overflow was added twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#404---fixed-inherited-advciv-research-bookkeeping-defect-completed-tech-overflow-was-added-twice)\
+[405 - (Fixed inherited AdvCiv technology-cache defect) Removing a technology increased the known count](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#405---fixed-inherited-advciv-technology-cache-defect-removing-a-technology-increased-the-known-count)\
 [412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
@@ -10093,6 +10095,26 @@ The fix runs after Project migration, retains the minimum nonnegative constituen
 Civ4CE/BtS and AdvCiv 1.14 all transfer Project counts without the countdown, and Permanent Alliance trading does not prohibit an alliance after launch. This is an inherited BtS/Firaxis state-migration defect rather than an AdvCiv-SAS regression. A post-fix Huge autoplay with Permanent Alliances enabled completed normally as broad regression coverage; exact reproduction still requires an alliance after one or both teams launch.
 
 Found as F081/provisional KI#403 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 404 - (Fixed inherited AdvCiv research bookkeeping defect) Completed-tech overflow was added twice
+
+When research reaches a technology's cost, AdvCiv calculates and grants the player's adjusted overflow, then attempts to remove the raw overflow from the completed technology's stored progress. The implementation passed the positive raw overflow to `EnumMap::add`, however, so progress `cost + overflow` became `cost + 2 * overflow` rather than exactly `cost`. This is normally hidden because completed technologies report no research left, but the stored value is exposed to Python/debug tools and becomes live again if supported engine paths such as Advanced Start remove the technology.
+
+The fix reverses the subtraction operands passed to `add`, removing the raw overflow and retaining exactly the completed technology cost. Player overflow calculation and repeat-technology handling remain unchanged.
+
+AdvCiv practical 2082 introduced the faulty arithmetic while refactoring completed-technology progress; Civ4CE/BtS did not contain this extra addition. This is therefore an inherited AdvCiv bookkeeping defect rather than an AdvCiv-SAS regression. A compiled Large full autoplay completed normally and exercised ordinary technology completion across the teams as broad regression coverage; the exact stored-progress transition remains source-verified.
+
+Found as F082/provisional KI#404 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 405 - (Fixed inherited AdvCiv technology-cache defect) Removing a technology increased the known count
+
+AdvCiv caches each team's total number of known non-repeat technologies in `m_iTechCount`. `setHasTech` returned early when no state changed, but every real transition then incremented this cache unconditionally. Removing one known technology therefore made the cached count one higher while the real count became one lower: a single removal left the cache two above reality. Advanced Start explicitly supports technology refunds, so a remove/rebuy cycle could repeatedly inflate the cache.
+
+The fix increments on acquisition and decrements on removal, with a nonnegative assertion guarding the cached invariant. Repeat technologies retain their separate per-technology count. Current gameplay consumers include city culture/revolt strength and AdvCiv AI building valuation, so this is not merely diagnostic bookkeeping.
+
+AdvCiv practical 2169 introduced `m_iTechCount` and the unconditional increment; Civ4CE/BtS did not have this cache. This is therefore an inherited AdvCiv cached-state defect rather than an AdvCiv-SAS regression. A compiled Large full autoplay completed normally as broad regression coverage; the supported Advanced Start removal transition and affected consumers remain source-verified rather than directly reproduced in that run.
+
+Found as F083/provisional KI#405 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 ## 412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted
 
