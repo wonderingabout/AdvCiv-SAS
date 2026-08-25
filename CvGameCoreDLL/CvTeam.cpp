@@ -1850,12 +1850,15 @@ int CvTeam::getDefensivePower(TeamTypes eExcludeTeam) const
 	int iPow = 0;
 	// K-Mod. only our master will have defensive pacts.
 	CvTeam const& kOurMaster = GET_TEAM(getMasterTeam());
+	// <!-- custom: AdvCiv practical 1837 changed this team-level calculation to players but excluded only direct members of the supplied attacker.
+	// Exclude that team's whole master/vassal bloc so its vassals cannot be counted as defenders through the attacker's Defensive Pact with the target. See KI#417. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eExcludedMaster = (eExcludeTeam == NO_TEAM ? NO_TEAM : GET_TEAM(eExcludeTeam).getMasterTeam());
 	for (PlayerIter<CIV_ALIVE> it; it.hasNext(); ++it)
 	{
 		CvPlayer const& kPlayer = *it;
-		if (kPlayer.getTeam() == eExcludeTeam)
+		TeamTypes const eMaster = kPlayer.getMasterTeam();
+		if (eMaster == eExcludedMaster)
 			continue;
-		TeamTypes eMaster = kPlayer.getMasterTeam();
 		if (eMaster == kOurMaster.getID() || kOurMaster.isDefensivePact(eMaster))
 			iPow += kPlayer.getPower();
 	}
@@ -4608,7 +4611,9 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 	{
 		if (gTeamLogLevel >= 2) logBBAI("    Team %d (%S) acquires tech %S", getID(), getName().GetCString(), kTech.getDescription()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
-		for (MemberIter it(getID()); it.hasNext(); ++it)
+		// <!-- custom: AdvCiv practical 1837 made this inherited all-member era propagation alive-only.
+		// Include dead assigned teammates so a later revival does not retain an era older than the team's acquired technologies. See KI#416. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerIter<EVER_ALIVE,MEMBER_OF> it(getID()); it.hasNext(); ++it)
 		{
 			CvPlayer& kMember = *it;
 			if (kMember.getCurrentEra() < kTech.getEra())
@@ -5844,7 +5849,9 @@ void CvTeam::processTech(TechTypes eTech, int iChange, bool bEndOfTurn) // advc.
 		}
 	}
 
-	for (MemberIter it(getID()); it.hasNext(); ++it)
+	// <!-- custom: AdvCiv practical 1837 also made persistent player-level technology effects alive-only, but revival does not replay known team technologies.
+	// Process dead assigned teammates as BtS did so their modifiers remain synchronized for revival. See KI#416. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (PlayerIter<EVER_ALIVE,MEMBER_OF> it(getID()); it.hasNext(); ++it)
 	{
 		CvPlayer& kMember = *it;
 		kMember.changeFeatureProductionModifier(kTech.getFeatureProductionModifier() * iChange);

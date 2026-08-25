@@ -14483,3 +14483,1543 @@ LOCAL RECONCILIATION AFTER C014-WIP16 IMPORT
 - ChatGPT-5.6-Sol's C014-WIP12 through C014-WIP16 append is compatible with current authority at HEAD 4ba8e5823 plus the staged KI#414/KI#418 Tech Share repairs. Its occasional double blank lines are preserved as received because this is an append-only evidence record, not normalized source code.
 - F096 / KI#418 is now fixed in the staged current source by counting each qualifying team's living members. WIP13's broader living-participant analysis remains useful corroboration rather than a separate pending root.
 - F120-F128 / provisional KI#443-KI#451 are collision-free against the current reviewed Known Issues ledger, but remain provisional because `WarUtilityAspect.cpp` is still open and WIP16 explicitly requires a final adversarial reread before file closure. No current-source implementation is promoted from them yet. (GPT-5.6-Sol)
+
+
+===============================================================================
+C014-WIP17 APPEND -- WarUtilityAspect.cpp / vassal-score team-domain audit
+===============================================================================
+
+F129 / provisional KI#452 -- VASSAL CURRENT-TECH SCORE IS TEAM-OWNED BUT CACHED
+PER PLAYER AND SUMMED ONCE PER VASSAL MEMBER
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv team-duplication defect.
+
+ROOT CONTRACT
+
+UWAICache stores the value through a player-keyed map:
+
+    int vassalTechScore(PlayerTypes ePlayer) const;
+    CivPlayerMap<int> m_aiVassalTechScore;
+
+and updateVassalScore(PlayerTypes eRival) computes it by iterating every tech and
+asking:
+
+    GET_PLAYER(eRival).canTradeItem(m_eOwner,
+        TradeData(TRADE_TECHNOLOGIES, eLoopTech), false)
+
+then adding:
+
+    GET_TEAM(m_eOwner).AI_techTradeVal(
+        eLoopTech, TEAMID(eRival), true)
+
+Despite the PlayerTypes cache key, this CURRENT-TECH quantity is team-owned for
+the purpose being measured.
+
+WHY TEAMMATES RECEIVE THE SAME TECH SCORE
+
+The technology branch of CvPlayer::canTradeItem uses the source player's TEAM:
+
+    kOurTeam.isHasTech(eTech)
+    !kOurTeam.isNoTradeTech(eTech)
+
+and the fixed recipient team's ownership/research legality. updateVassalScore
+passes bTestDenial=false, so player-specific AI/human trade willingness is not
+consulted. canPossiblyTradeItem(TRADE_TECHNOLOGIES) is likewise team/game-option
+state.
+
+Therefore, for two living players B and C on the same prospective vassal team,
+and a fixed master player A:
+
+    vassalTechScore(B) == vassalTechScore(C)
+
+for the existing-tech component, because B and C expose the same team technology
+inventory and the same source TeamTypes to AI_techTradeVal.
+
+The actual trade confirms the unit of ownership. CvDeal executes a technology
+item with:
+
+    GET_TEAM(eToPlayer).setHasTech(...)
+
+so the recipient TEAM acquires the technology. Once A's team receives Tech X
+from member B, member C cannot independently provide a second copy of Tech X.
+
+CONFIRMED CONSUMER A -- acceptVassal SUMS THE DUPLICATE PLAYER CACHES
+
+UWAI::Team::acceptVassal explicitly iterates every member of eVassal:
+
+    for (MemberIter itVassalMember(eVassal); itVassalMember.hasNext(); ++itVassalMember)
+    {
+        iResourceScore += leaderCache().vassalResourceScore(
+                itVassalMember->getID());
+        iTechScore += leaderCache().vassalTechScore(
+                itVassalMember->getID());
+    }
+
+The resulting iTechScore is converted to utility as one of the benefits of
+accepting that VASSAL TEAM.
+
+If team B+C owns one tradable technology worth 1000 trade value to A:
+
+    one-member team B:      tech score = 1000
+    two-member team B+C:    B cache 1000 + C cache 1000 = 2000
+
+Nothing about the technology inventory changed. Only the number of players
+sharing that inventory changed.
+
+The later rVassalUtility.decreaseTo(25) can mask sufficiently large totals, but
+it does not repair the defect: below the cap, or when combined with other
+benefits/costs near the acceptance threshold, team membership changes the
+valuation of the same set of technologies.
+
+CONFIRMED CONSUMER B -- GreedForVassals REUSES THE SAME CURRENT-TECH COMPONENT
+ON EACH MEMBER PASS
+
+GreedForVassals::evaluate is called through the ordinary per-rival aspect loop.
+For each member of a newly capitulating target team it reads:
+
+    scaled const rTechScore = ourCache().vassalTechScore(eThey);
+
+and adds that score to the member's future research-income estimate before the
+per-pass tech-trade cap/reduction. Thus the same already-owned team technologies
+can also be credited once on B's pass and again on C's pass. The future research
+income itself is player-local and may legitimately be additive; F129 concerns
+the duplicated CURRENT technology inventory component.
+
+RESOURCE SCORE IS A USEFUL NEGATIVE CONTROL
+
+The neighboring vassalResourceScore is also cached per player, but its core
+availability check uses:
+
+    GET_PLAYER(eRival).getNumAvailableBonuses(eLoopBonus)
+
+Resources are actually owned/connected per player. B and C can therefore bring
+different tribute resources to the same team, so summing their resource scores
+can be meaningful. That contrast reinforces that the technology score is stored
+at the wrong ownership granularity rather than proving that every per-member
+vassal quantity should become team-wide.
+
+ANCESTRY
+
+The original AdvCiv WarAndPeaceCache implementation already used a per-player
+vassalTechScores[civId] cache and acceptVassal already summed the score once per
+vassal member. Later EnumMap/refactor commits preserved the ownership model.
+Base AdvCiv 1.14 and current SAS retain the same updateVassalScore,
+GreedForVassals and acceptVassal behavior. This is inherited, not SAS-created.
+
+REPAIR DIRECTION
+
+Compute/cache the already-owned tradable technology value once per prospective
+vassal TEAM (or deduplicate techs across member caches before summing). Keep
+player-local future research income and player-owned resource availability
+separate.
+
+For acceptVassal, do not sum identical current-tech inventories across MemberIter.
+For GreedForVassals, ensure the team-owned existing-tech benefit is charged once
+per newly acquired vassal team while preserving player-local commerce/research
+contributions as intended.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP17
+NEW ROOT IN THIS APPEND: F129 / provisional KI#452
+NEXT UNUSED ROOT: F130
+
+Continue the remaining early-aspect/team-key and nonlinear-state audit, then
+re-challenge F101-F129 before deciding whether WarUtilityAspect.cpp is ready for
+C015 closure. No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP18 APPEND -- WarUtilityAspect.cpp / Risk team-owned vassal-state costs
+===============================================================================
+
+F130 / provisional KI#453 -- RISK COUNTS TEAM-OWNED VASSAL/CAPITULATION COSTS
+ONCE PER AGENT/RIVAL MEMBER PASS
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv team-duplication defect; two independent manifestations.
+
+ROOT
+
+Risk mixes ordinary player-local loss accounting with costs whose ownership and
+state are explicitly TEAM-level. WarEvaluator, however, reuses the Risk aspect
+while evaluating every living agent-team member, and WarUtilityAspect then calls
+Risk::evaluate once for every relevant rival player. The team-owned pieces have
+no normalization/canonical-member guard.
+
+MANIFESTATION A -- ONE TEAM CAPITULATION GETS A FIXED 100 COST PER PLAYER PAIR
+
+Risk::evaluate tests:
+
+    militAnalyst().getCapitulationsAccepted(eTheirTeam).count(eOurTeam) > 0
+
+This is one predicted capitulation of the AGENT TEAM to the RIVAL TEAM. The
+condition is identical for every member pair A_i / B_j belonging to those two
+teams.
+
+When true, Risk halves that pair's ordinary loss estimate and then adds:
+
+    int const iCostForCapitulation = 100;
+    rUtility += iCostForCapitulation;
+
+The source comment describes the value as an extra cost "because of
+capitulation"; there is no player-pair memory or asset quantity behind the fixed
+100.
+
+DETERMINISTIC 2-v-2 REPRODUCTION
+
+Let agent team A contain A1+A2 and rival team B contain B1+B2, with the military
+analysis predicting that A capitulates to B. Assuming the capitulation-result
+lookup is available (including after F119/KI#442's team-slot repair):
+
+    A1 / B1 pass: +100
+    A1 / B2 pass: +100
+    A2 / B1 pass: +100
+    A2 / B2 pass: +100
+
+The same team capitulation therefore contributes +400 Risk cost before the
+pair-local lost-asset pieces are considered. A one-player-vs-one-player mapping
+contributes +100 for the same team-state event.
+
+This is not repaired by the preceding `rUtility /= 2`: that division applies to
+each pair's ordinary loss estimate before the fixed 100 is added.
+
+F119 INTERACTION
+
+F119/KI#442 established that MilitaryAnalyst currently writes the team-indexed
+capitulation result through a raw PlayerTypes slot. That can hide, swap or lose
+the predicted capitulation in some team-ID mappings. F130 is a separate consumer
+bug: whenever the team result is visible under the requested slot -- and
+certainly after F119 is repaired -- Risk multiplies one team capitulation by the
+number of member pairs. Do not treat the F119 storage repair as fixing F130.
+
+MANIFESTATION B -- PRE-EVALUATION RECOUNTS OUR TEAM'S SAME VASSAL LOSSES FOR EACH
+AGENT MEMBER
+
+Risk::preEvaluate has an explicit non-rival block:
+
+    // Handle potential losses of our vassals here
+    for (PlayerIter<ALIVE,VASSAL_OF> itVassal(eOurTeam); ...)
+
+It computes the projected loss of each vassal of eOurTeam, including a material
+loss cost up to 33 and a possible break-away cost, and returns the negative sum.
+
+`preEvaluate()` is invoked by WarUtilityAspect::evaluate(MilitaryAnalyst const&)
+for every agent player. WarEvaluator constructs the aspect set once, then calls:
+
+    evaluate(itMember->getID(), apAspects)
+
+for every living member of the agent team. There is no one-shot guard around the
+vassal-loss block and no division by the agent team's participant count.
+
+Thus even the simplest fixed material part duplicates:
+
+    one agent member + same vassal loses 100% assets -> about 33 cost
+    two agent members + same team-owned vassal loss -> about 33 + 33
+
+Only the roster of the master team changed; the same vassal and same projected
+vassal losses are being valued repeatedly.
+
+The break-away subcomponent is additionally player-partition-sensitive because
+its denominator uses eWe's player-local army cache/gained power, even though
+breaking free is a vassal-vs-master TEAM relation. F130 does not need that harder
+modeling question: the identical material-loss component already proves the
+member duplication.
+
+ANCESTRY / HISTORY CONTROL
+
+AdvCiv history shows that the vassal-loss code was deliberately moved from the
+ordinary per-rival Risk::evaluate path into Risk::preEvaluate (practical 1291,
+"Toward v0.92") so it could be handled outside the current `they` rival. The
+move introduced/retained the global vassal loop but did not add agent-team
+normalization.
+
+The fixed 100 capitulation cost also exists in the original AdvCiv UWAI lineage.
+Base AdvCiv 1.14 retains both behaviors. Current SAS adds a one-shot team-level
+faraway-target gate near the beginning of Risk::preEvaluate (KI#425), but the
+inherited vassal-cost block below it remains unguarded; F130 is not SAS-created.
+
+INTERNAL CONTROL
+
+GreedForCash explicitly uses `normalizeUtility(4)` with the comment "Only one
+team member will pay" when a fixed team-level payment is evaluated through the
+same player/member architecture. Risk's fixed team capitulation cost has the
+same ownership problem but no corresponding normalization.
+
+REPAIR DIRECTION
+
+Keep player-local lost-city/blockade/nuke Risk costs attributable to the relevant
+player pair, but charge team-owned state changes once at team scope.
+
+- The fixed capitulation penalty should be applied once for the predicted
+  eOurTeam -> eTheirTeam capitulation, or shared through a team/member
+  normalization that yields the same aggregate regardless of roster partition.
+- Vassal material-loss/break-away pre-evaluation should likewise be computed once
+  per master team (or normalized across agent members). For break-away danger,
+  review whether master-side power should be combined team power rather than the
+  current eWe player denominator.
+
+Do not simply divide all of Risk by team sizes; ordinary asset and military
+losses are player-owned and are intentionally accumulated across players.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP18
+NEW ROOT IN THIS APPEND: F130 / provisional KI#453
+NEXT UNUSED ROOT: F131
+
+Continue the explicit team-owned/fixed-state audit and then adversarially
+re-challenge the live F101-F130 ledger before any C015 closure. No repository
+source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP19 APPEND -- WarUtilityAspect.cpp physical city-site identity audit
+===============================================================================
+
+F131 / provisional KI#454 -- CONFIRMED -- INHERITED ADVCIV DUPLICATE-PLOT VALUE
+GREEDFORSPACE CAN COUNT ONE PHYSICAL CITY SITE ONCE PER ELIMINATED TEAMMATE
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv player-cache/team-aggregation defect.
+
+ROOT
+
+GreedForSpace values settlement opportunities that become available when a rival
+player is eliminated. City-site recommendations are cached separately by
+CvPlayerAI, but the object being valued is a physical map plot. Two teammates can
+therefore recommend the same plot independently, while one physical plot can
+ultimately host only one city.
+
+Current GreedForSpace::evaluate nevertheless runs once per rival player and
+counts each eliminated player's cached site list independently. There is no
+cross-member plot-identity deduplication.
+
+SOURCE CONTRACT -- CITY-SITE LISTS ARE PLAYER-LOCAL
+
+CvPlayerAI::AI_updateCitySites scans every map plot and accepts a candidate when:
+
+    iValue > iMinFoundValueThreshold && !AI_isPlotCitySite(kPlot)
+
+AI_isPlotCitySite checks only this CvPlayerAI instance's m_aeAICitySites vector:
+
+    std::find(m_aeAICitySites.begin(), m_aeAICitySites.end(),
+              kPlot.plotNum())
+
+The selected plot is then pushed only into that player's vector. Found values are
+also stored/evaluated for getID(). There is no teammate-site reservation or
+team-wide duplicate check in this pipeline.
+
+Thus, in a supported team game, B1 and B2 can both have the same physical plot P
+in their city-site lists. Shared team visibility can make this especially
+natural; different player found-value rankings are not required for overlap.
+
+GREEDFORSPACE CONSUMER
+
+For the current rival eThey, GreedForSpace first requires:
+
+    militAnalyst().isEliminated(eThey)
+
+It then loops that player's recommendations and increments iTheirSites for each
+visible/relevantly-visible site. The resulting count feeds:
+
+    rExpectedSites = iOurSites + 0.63 * iTheirSites
+
+and ultimately positive utility for the expansion space supposedly released by
+eliminating that player.
+
+WarUtilityAspect evaluates the same GreedForSpace object separately for every
+relevant rival player. Therefore, if B1 and B2 are members of the same target
+team, both are eliminated by the scenario, and both cached plot P as a city site:
+
+    B1 pass: P contributes one orphaned site
+    B2 pass: P contributes one orphaned site
+
+The aggregate evaluation has valued two future settlement opportunities even
+though P can be settled only once.
+
+This is a physical-identity double count, not merely a debate over how much a
+multi-member team should be worth. Reassigning the same plot recommendation from
+one target-team member to two members can increase war utility without creating
+any additional settleable land.
+
+AUTO-RAZE / DISTINCT-SITE CONTROL
+
+GreedForSpace also adds auto-razed cities conquered from the current rival to
+its site count. Those city plots are owner-specific physical losses and should
+remain additive when distinct. Likewise, genuinely different recommended plots
+held by B1 and B2 represent different expansion opportunities.
+
+The repair therefore should NOT simply divide all GreedForSpace utility by team
+size. The duplicated object is the plot ID itself.
+
+ANCESTRY / HISTORY CONTROL
+
+Current SAS and Base AdvCiv 1.14 have normalized-identical implementations of
+both GreedForSpace::evaluate and CvPlayerAI::AI_updateCitySites for this behavior.
+The defect is inherited.
+
+Practical 2949 ("Some minor tweaks to UWAI war evaluation") is a useful local
+historical control. In one adjacent patch it expanded GreedForSpace's site scan
+to respect visibility; immediately below, it changed GreedForCash from a raw
+fixed +4 to:
+
+    normalizeUtility(4) // Only one team member will pay
+
+Thus the lineage was already correcting a team-duplication problem in the same
+small aspect neighborhood, but GreedForSpace's player-local site lists remained
+aggregated without physical-plot deduplication.
+
+ADVERSARIAL NON-FINDING CONTROL -- OPEN BORDERS
+
+The preceding sweep also challenged Assistance/IllWill's fixed Open Borders
+partner value. That does not presently meet the F131 standard. The original UWAI
+implementation treats the OB term as part of the value of a particular partner,
+alongside that player's trade/technology/military utility; access to two
+teammates' separate territories can plausibly carry more strategic value than
+access to one. A team-to-team treaty alone is therefore insufficient evidence of
+double counting. No finding is promoted for that family here.
+
+REPAIR DIRECTION
+
+When valuing space released by elimination of multiple members of one rival team,
+collect the relevant recommended site plot IDs at the team/scenario level and
+count their UNION. Preserve distinct sites and distinct auto-razed city plots.
+
+A localized alternative is a per-evaluation set of already-counted plotNums that
+persists across rival-member passes for the same target team, with careful reset
+between independent WarEvaluator scenarios. Do not normalize by raw member count.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP19
+NEW ROOT IN THIS APPEND: F131 / provisional KI#454
+NEXT UNUSED ROOT: F132
+
+Continue the remaining helper/pre-evaluation/team-state sweep and then run an
+adversarial closure pass over the live C014 ledger before deciding whether file
+014 is ready for durable C015. No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP20 APPEND -- Revolts cross-rival accumulator/denominator audit
+===============================================================================
+
+F132 / provisional KI#455 -- CONFIRMED -- INHERITED ADVCIV ORDER-DEPENDENT RATIO
+REVOLTS PERSISTS THE "COUNTED CITY" SET BUT RESETS ITS NUMERATOR/DENOMINATOR
+ON EVERY RIVAL PASS, MAKING UTILITY DEPEND ON WHICH PLAYER CLAIMS A CITY FIRST
+-------------------------------------------------------------------------------
+CONFIRMED inherited AdvCiv state-partition / player-iteration-order defect,
+independent of F118/KI#441's negative-asset sign inversion.
+
+ROOT
+
+Revolts is evaluated once per relevant rival player. A member field:
+
+    std::set<PlotNumTypes> m_countedCities;
+
+persists across those rival calls, and the source explicitly says:
+
+    // Count each city only once
+
+However, the quantities used to turn those city risks into utility are LOCAL to
+each individual Revolts::evaluate call:
+
+    scaled rLossesFromRevolts;
+    int iTotalAssets = 0;
+
+For every newly encountered city, the current call adds its asset score to
+`iTotalAssets` and its expected revolt loss to `rLossesFromRevolts`. At the end
+of that one rival pass it charges:
+
+    rRevoltCost = (1 + amortizationMultiplier) *
+                  50 * rLossesFromRevolts / iTotalAssets;
+
+The next rival pass preserves which cities have already been claimed through
+m_countedCities, but resets both numerator and denominator to zero. The final
+aspect therefore sums NORMALIZED RATIOS OF ARBITRARY FIRST-CLAIM SUBSETS rather
+than normalizing the union of cities that the persistent set was designed to
+count once.
+
+WHY m_countedCities IS CROSS-RIVAL STATE
+
+Within one rival pass, the code loops map areas and then our cities in each area.
+A city belongs to only one CvArea, so the member set is not needed merely to stop
+the same city recurring in that local area traversal. It matters when different
+rivals regard the same area as primary and Revolts::evaluate is called again.
+
+WarUtilityAspect keeps the same Revolts object through its rival-player loop;
+resetRival() does not clear m_countedCities. The object itself is fresh for the
+next independent WarEvaluator scenario, which is why the earlier lifetime audit
+correctly rejected a cross-scenario leak. F132 concerns the intended intra-
+scenario persistence combined with per-call reset of the ratio accumulators.
+
+DETERMINISTIC PLAYER-ITERATION-ORDER REPRODUCTION
+
+Let our threatened cities X and Y each have asset score 100, revolt probability
+at or above the 10% cap, and no hopeless-revolt exclusion. Their individual loss
+multipliers are therefore both 0.5.
+
+Let two simultaneous war enemies B and C satisfy the ordinary Revolts gates such
+that:
+
+    B has a primary area containing X but not Y
+    C has primary areas containing both X and Y
+
+Both players and all military/game state can be held fixed. Only their numeric
+player iteration order changes.
+
+CASE 1 -- B is visited first
+
+B pass:
+    newly counted: X
+    numerator = 50, denominator = 100 -> ratio 0.5
+
+C pass:
+    X is skipped by m_countedCities; newly counted: Y
+    numerator = 50, denominator = 100 -> ratio 0.5
+
+Aggregate normalized ratio contribution: 1.0 (before common multiplier).
+
+CASE 2 -- C is visited first
+
+C pass:
+    newly counted: X + Y
+    numerator = 100, denominator = 200 -> ratio 0.5
+
+B pass:
+    X already counted; no newly counted assets -> returns
+
+Aggregate normalized ratio contribution: 0.5.
+
+The same cities, same revolt probabilities, same enemies, same wars and same
+primary-area relationships therefore produce roughly DOUBLE the Revolts cost
+solely from PlayerTypes iteration order / which rival gets first claim on X.
+That cannot be defended as a multi-front modeling choice.
+
+F118 SEPARATION
+
+F118/KI#441 established that negative per-city asset scores can make revolt loss
+negative and hence create positive war utility. F132 remains even when every
+asset score is strictly positive, as in the 100/100 reproduction above. A repair
+for one does not repair the other.
+
+ANCESTRY
+
+The original AdvCiv UWAI introduction already contains the same structural
+combination:
+
+    double revoltLoss = 0;
+    int totalAssets = 0;
+    ...
+    if (countedCities.count(c->plotNum()) > 0) continue;
+    countedCities.insert(c->plotNum());
+    ...
+    uMinus = ... * revoltLoss / totalAssets;
+
+and declares `countedCities` as a Revolts member set. Later refactors merely
+converted the arithmetic to scaled/fixed-point and renamed the member.
+Base AdvCiv 1.14 and current SAS retain the same behavior. F132 is inherited,
+not SAS-created.
+
+REPAIR DIRECTION
+
+The normalization domain must match the uniqueness domain.
+
+Preferred: evaluate the union of all relevant threatened own-city plot IDs once
+per agent member/scenario, accumulate one nonnegative expected-loss numerator
+and one corresponding asset denominator, then apply the Revolts formula once.
+This can naturally be combined with the F118 repair.
+
+If keeping per-rival callbacks, persistent cumulative numerator/denominator
+state must be used in a way that changes the aspect by only the delta of the
+single global ratio; simply retaining m_countedCities while restarting local
+ratios is not sufficient.
+
+Do not remove m_countedCities without replacement: that would reintroduce the
+more obvious duplicate-city count when several enemies share a primary area.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP20
+NEW ROOT IN THIS APPEND: F132 / provisional KI#455
+NEXT UNUSED ROOT: F133
+
+Continue the remaining arithmetic/state-domain sweep, with special attention to
+member fields that intentionally persist across rival calls and to local caps or
+normalizers whose state domain does not match that persistence. Then adversarially
+re-challenge F122-F132 before any C015 closure. No repository source files were
+modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP21 APPEND -- WarUtilityAspect.cpp victory-domain broadening + advc.035 ratio audit
+===============================================================================
+
+F127 / provisional KI#450 -- AUTHORITATIVE BROADENING -- CONQUEST TOO
+PLAYER ELIMINATION IS TREATED AS 100% CONQUEST PROGRESS EVEN WHEN THEIR TEAM
+STILL BLOCKS THE ACTUAL TEAM-LEVEL CONQUEST VICTORY
+-------------------------------------------------------------------------------
+WIP16 established F127 from Domination and Diplomacy: global/team victory
+completion caps are restarted inside each rival-player pass, so the same
+remaining global threshold can be independently completed more than once.
+The subsequent victory-boundary audit proves that Conquest belongs under the
+same root too, for an even more direct ownership-domain mismatch.
+
+ACTUAL VICTORY CONTRACT
+
+CvGame::testVictory evaluates Conquest for TeamTypes eTeam. After requiring the
+candidate team to own a city, it iterates every other ALIVE non-same team and
+rejects victory while any non-vassal OTHER TEAM still owns at least one city:
+
+    if (kVictory.isConquest())
+    {
+        if (kTeam.getNumCities() <= 0)
+            return false;
+        for (TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS> itOther(eTeam);
+            itOther.hasNext(); ++itOther)
+        {
+            if (!itOther->isVassal(eTeam) && itOther->getNumCities() > 0)
+                return false;
+        }
+    }
+
+The blocker is therefore the opposing TEAM, not each member player separately.
+Eliminating one member of a multi-member free team does not remove that team's
+Conquest obstruction while another member still has cities.
+
+MILITARYVICTORY MODEL
+
+MilitaryVictory::progressRatingConquest() instead begins:
+
+    if (militAnalyst().isEliminated(eThey) ||
+        militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam))
+    {
+        log("They're conquered entirely");
+        return 1;
+    }
+
+`eThey` / `isEliminated(PlayerTypes)` is player-local. Thus for target team B+C:
+
+* military simulation predicts all B cities lost;
+* C remains alive, free, and owns cities;
+* actual CvGame::testVictory still sees team B+C as a Conquest blocker;
+* B's MilitaryVictory pass nevertheless logs "They're conquered entirely" and
+  returns the maximum 1.0 Conquest progress;
+* C is then evaluated in its own player pass as well.
+
+This is not merely a different heuristic scale: a state labeled 100% Conquest
+progress by the aspect is explicitly insufficient for the engine's Conquest
+victory condition.
+
+`countFreeRivals<false>()` also iterates PlayerTypes rather than blocking teams,
+which reinforces the player-domain approximation in the partial-progress path.
+Distinct member losses can of course be genuinely incremental, so this does NOT
+prove that all partial Conquest asset loss should simply be deduplicated. The
+hard defect is that the full-completion condition and its surrounding progress
+normalization do not respect the team-level victory blocker.
+
+ANCESTRY
+
+The original local UWAI introduction already contains:
+
+    if(m->isEliminated(theyId) ||
+       m->getCapitulationsAccepted(agentId).count(TEAMID(theyId))) {
+        log("They're conquered entirely");
+        return 1;
+    }
+
+so player elimination -> full Conquest progress existed from birth. Base
+AdvCiv 1.14's current `progressRatingConquest` is textually identical to current
+SAS for this behavior. Later numeric/scaled refactors did not repair the domain.
+
+F127 NORMALIZED ROOT AFTER BROADENING
+
+MilitaryVictory measures shared global/team victory progress through independent
+rival-player passes and applies nonlinear completion/caps before those passes are
+combined. Proven manifestations now are:
+
+1. Domination: the same global remaining population/land threshold can be
+   independently saturated on multiple rival-player passes;
+2. Diplomacy: the same global remaining vote threshold can be independently
+   saturated on multiple rival-player passes;
+3. Conquest: eliminating one member is treated as full 1.0 progress although
+   the member's still-free team can continue to block the actual victory.
+
+Repair should move completion/saturation to the same team/global domain as the
+victory condition, while preserving genuinely additive marginal gains from
+separate players. Do not mechanically divide every player-local loss by team
+size.
+
+
+F133 / provisional KI#456 -- CONFIRMED -- INHERITED SUPPORTED-CONFIG RATIO DEFECT
+EXCLUSIVE-RADIUS FLIPPED-TILE LOSS IS ADDED TO LOSS NUMERATOR AFTER THE TOTAL
+ASSET DENOMINATOR IS FROZEN; LOSS RATIOS CAN EXCEED 100%
+-------------------------------------------------------------------------------
+Status: NEW CURRENT SUPPORTED-CONFIGURATION DEFECT. Shipped/default SAS sets
+`OWN_EXCLUSIVE_RADIUS=0`, so defaults mask it; the option is nevertheless an
+explicit maintained AdvCiv configuration, documented in GlobalDefines_advc.xml:
+
+    [advc.035] If set to 1, tiles that are only within the radius of one city
+    belong to the owner of that city regardless of culture. Recommended: 0 ...
+
+The audit therefore treats value 1 as a supported non-default configuration,
+not as an invented unsupported retuning.
+
+ROOT ORDERING DEFECT
+
+WarUtilityAspect::netLostRivalAssetScore accumulates city/nuke loss into
+`rNetLoss` and city assets into `rTotal`. It then deliberately raises total to
+cover non-city nuke loss:
+
+    rNetLoss += lossesFromNukes(eThey, eTo);
+    rTotal.increaseTo(rNetLoss);
+
+After that point it computes blockade loss from `(rTotal - rNetLoss)`, adds the
+blockade component, and only THEN adds advc.035 flipped-tile loss:
+
+    rNetLoss += rFromBlockade;
+    rNetLoss += lossesFromFlippedTiles(eThey, eTo); // advc.035
+    if (prTotalScore != NULL)
+        *prTotalScore = rTotal;
+
+Thus flipped-tile loss contributes to the numerator returned to every caller,
+but never to the `prTotalScore` denominator returned alongside it.
+
+The mismatch is not bounded elsewhere. UWAICache::updateLostTilesAtWar counts
+all contested plots that the owner team would lose under OWN_EXCLUSIVE_RADIUS;
+it stores that integer with no upper cap. lossesFromFlippedTiles then uses:
+
+    if (abs(iVictimLostTiles) <= 4 * iRivalMembers)
+        return 0;
+    r = scaled(125 * iVictimLostTiles,
+               max(5, GET_PLAYER(eVictim).getTotalLand()));
+    r /= iRivalMembers;
+
+For a solo rival, just five qualifying lost tiles clear the threshold. On a
+small empire the flipped-tile score can therefore be of order 125 while the
+asset denominator is independently based on visible/deduced city asset scores.
+There is no invariant requiring that city-based denominator to be >= the later
+flipped-tile score.
+
+EXPLICIT INTERNAL INVARIANT FAILURE -- Assistance
+
+Assistance::assistanceRatio() is the clearest consumer:
+
+    scaled rTheirAssets;
+    scaled rTheirLostAssets = netLostRivalAssetScore(NO_PLAYER, &rTheirAssets);
+    if (rTheirAssets <= 0)
+        return 0;
+    scaled r(rTheirLostAssets / rTheirAssets);
+    r.increaseTo(0);
+    FAssert(r <= 1);
+
+The source explicitly asserts that this loss ratio cannot exceed 100%. With
+advc.035 enabled, numerator-only flipped-tile loss invalidates that assertion.
+In non-assert builds the value can continue above 1, so Assistance can value a
+non-eliminated partner as losing more than 100% of the denominator used to
+measure its assets. If capitulation is also predicted, the subsequent
+
+    r += 0.5 * (1 - r)
+
+operates on an already out-of-domain ratio rather than repairing the root.
+
+OTHER CONSUMERS / CONSEQUENCE SCOPE
+
+This shared helper/denominator mismatch is not Assistance-only:
+
+* Loathing::lossRating uses `rTheirLostAssets / rTheirAssets` as one of its
+  relative-loss terms; flipped tiles can inflate it beyond the asset-total
+  domain that `rTheirAssets` purports to normalize.
+* MilitaryVictory::progressRatingConquest uses the same pair; it later caps its
+  partial ratio to 1, masking the overflow numerically but still saturating
+  Conquest progress from a numerator that the denominator never included.
+* IllWill's punishment ratio likewise uses the returned loss/assets pair,
+  although its final utility is capped separately.
+* ThirdParty/Risk-related helper consumers that ask for a total score inherit
+  the same numerator/denominator inconsistency whenever this advc.035 component
+  is included.
+
+One root should repair the shared helper rather than patching the Assistance
+assert alone.
+
+ANCESTRY
+
+The local advc.035 introducing diff added exactly:
+
+    r += lossesFromFlippedTiles(theyId, to);
+    if(returnTotal != NULL)
+        *returnTotal = total;
+
+with the flipped-tile addition inserted after `total` had already been fixed.
+The helper introduced in that same commit already used the 125 * lostTiles /
+landTiles weighting and per-rival-team-member split. Thus the domain mismatch
+was introduced with advc.035 itself, not by SAS.
+
+Base AdvCiv 1.14 retains the same ordering and Assistance assertion. Current SAS
+also retains it; only formatting/modern accessor details differ in the helper.
+
+REPAIR DIRECTION
+
+If flipped-tile loss is to be represented in the same "fraction of total
+assets lost" ratios, the denominator must be extended consistently with that
+asset component before it is returned, or the tile effect must be modeled as a
+separate bounded dimension rather than silently appended to only the numerator.
+Whichever model is chosen, restore the explicit Assistance invariant that a
+non-elimination loss ratio lies in [0,1].
+
+Do not merely clamp Assistance to 1: that hides the assertion but leaves
+Loathing, Conquest partial progress and other shared-helper consumers with the
+same mismatched measurement domains.
+
+
+ARITHMETIC / STATE-DOMAIN CLOSURE CONTROLS SINCE WIP20
+-------------------------------------------------------
+- Mechanical balanced-parser scan of every `log(...)` call in
+  WarUtilityAspect.cpp found exactly one printf-style argument-count mismatch:
+  the already-established F108/KI#431 UlteriorMotives call. No second varargs
+  root was found.
+- Affection's reciprocal-looking no-war calculation cannot reach a zero
+  denominator in the active path because the no-war percentage is explicitly
+  capped at 94 before exponentiation.
+- Risk floors its asset denominator with scaled::epsilon(), and the ordinary
+  vassal-relative-loss divisions inspected have positive floors/guards.
+- The Domination exact-population zero boundary remains F105/KI#428; it was not
+  duplicated under the denominator sweep.
+- Derived-member lifetime audit found no additional cross-scenario leak:
+  WarEvaluator creates a fresh aspect set per scenario. KingMaking clears its
+  winner sets per preEvaluate, MilitaryVictory overwrites its vote state,
+  IllWill resets its cost per rival, ThirdParty overwrites its pre-evaluation
+  power fields, and DramaticArc resets tension. Revolts::m_countedCities is the
+  intentional persistent exception whose incompatible local normalization is
+  already F132/KI#455.
+- LoveOfPeace would repeat its fixed per-war pacifism subtraction across rival
+  teammates, but all current SAS leaders resolve to iLoveOfPeace=0 and AdvCiv
+  documents the aspect as unused except by modmods. Unlike OWN_EXCLUSIVE_RADIUS,
+  there is no current enabled/supported data reproduction to justify a new KI;
+  keep it as dormant robustness information only.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP21
+AUTHORITATIVE BROADENING IN THIS APPEND: F127 / provisional KI#450 (Conquest)
+NEW ROOT IN THIS APPEND: F133 / provisional KI#456
+NEXT UNUSED ROOT: F134
+
+Continue exact assertion/boundary and pointer/cache-contract checks, then run an
+adversarial family re-challenge of F122-F133 before deciding whether file 014 is
+ready for durable C015 closure. No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP22 APPEND -- WarUtilityAspect.cpp IllWill team-war capability audit
+===============================================================================
+
+F134 / provisional KI#457 -- CONFIRMED -- INHERITED PLAYER/TEAM POWER-DOMAIN DEFECT
+ILLWILL PRICES TEAM-WIDE REVENGE/DOGPILE MILITARY RISK THROUGH ONE PLAYER'S
+ARMY POWER, SO NONLINEAR THRESHOLDS DEPEND ON HOW A TEAM'S POWER IS PARTITIONED
+-------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED DEFECT ROOT. The diplomatic motive represented by
+IllWill can legitimately differ by player, but the military capability used to
+cross its revenge/dogpile danger thresholds does not match the team-wide war
+that those motives can trigger.
+
+PLAYER-LOCAL POWER HELPER
+
+IllWill::theirToOurPowerRatio() computes:
+
+    scaled rOurPow = ourCache().getPowerValues()[ARMY]->power() +
+            militAnalyst().gainedPower(eWe, ARMY);
+    ...
+    scaled rTheirPow = kThey.uwai().getCache().getPowerValues()[ARMY]->power() +
+            militAnalyst().gainedPower(eThey, ARMY);
+    ...
+    return rTheirPow / scaled::max(10, rOurPow);
+
+Both sides are therefore one PlayerTypes member at a time. The nearby comment
+only says not to include vassals; it does not say that ordinary teammates should
+be excluded from the military side.
+
+The helper is then fed into NONLINEAR gates in evalRevenge:
+
+    if (rTheirToOurPow > 1.45 && ...team war-success tests...)
+        ... hopeless-stalemate cost ...
+
+and, for prospective revenge after our simulated DoW:
+
+    if (rTheirToOurPow > 0.7)
+        rRevengeCost += 4;
+
+    scaled rPowRatioMult = rTheirToOurPow - 1;
+    rPowRatioMult.clamp(0, 1);
+    rRevengeCost += rPowRatioMult * 28 * rAttitudeMult;
+
+Because these thresholds/clamps are applied BEFORE separate rival-player
+contributions are combined, evaluating members independently is not equivalent
+to evaluating the military side that would actually fight the war.
+
+DETERMINISTIC TEAM-PARTITION REPRODUCTION
+
+Take an agent side with 100 relevant ARMY power and a prospective enemy TEAM
+with two ordinary teammates B and C, each with 60 ARMY power after the military
+analysis. Ignore human-confidence modifiers and give both the same ordinary
+attitude for the control.
+
+Current IllWill evaluates B and C separately:
+
+    B : 60 / 100 = 0.60 -> below 0.70 -> no fixed revenge-danger cost
+    C : 60 / 100 = 0.60 -> below 0.70 -> no fixed revenge-danger cost
+
+The power-ratio multiplier is also clamped from (0.60 - 1) to zero on both
+passes. Thus the military-capability part of prospective revenge contributes
+zero.
+
+Now place the exact same 120 enemy ARMY power in one member D of an otherwise
+equivalent enemy team:
+
+    D : 120 / 100 = 1.20 -> passes 0.70, adds the fixed 4,
+                             and has a positive (1.20 - 1) multiplier.
+
+The same team-side military capacity therefore changes IllWill solely because
+it is split among teammates. Summing two player-local results cannot repair a
+threshold that has already zeroed both members.
+
+The ongoing-war 1.45 branch has the same mismatch and an especially clear
+mixed-domain structure: the surrounding war-success conditions are explicitly
+team-on-team (`kTheirTeam.AI_getWarSuccess(eOurTeam)`,
+`kOurTeam.AI_getWarSuccess(eTheirTeam)`, and
+`kTheirTeam.AI_getWarSuccessRating()`), while the decisive "they're far more
+powerful than we are" gate is still the current rival player's army divided by
+the current agent player's army.
+
+TEAM-WAR CONTRACT / INTERNAL CONTROL
+
+This is not merely a preference for different UWAI granularity.
+CvTeam::declareWar accepts TeamTypes eTarget, gathers MemberIter populations
+from BOTH teams and then executes:
+
+    setAtWar(eTarget, true);
+    kTarget.setAtWar(getID(), true);
+
+A revenge war initiated by any one member therefore commits the member's
+ordinary teammates and their military capacity too.
+
+The inherited non-UWAI war/peace logic uses that same domain. For example,
+CvTeamAI::AI_endWarVal compares:
+
+    getPower(true)
+
+against the opposing team's defensive power. CvTeamAI::AI_doWar likewise
+computes `iOurPower = getPower(true)` and tests target-team defensive power when
+selecting wars. CvTeamAI::AI_getAttitude(TeamTypes) separately averages the
+member-to-member diplomatic values. Those functions provide a useful design
+control: diplomatic motivation can be assembled from player attitudes while
+military capability is team power.
+
+IllWill currently preserves the player-specific motive (`towardUs()`, human
+status, trade/partner consequences) but also narrows the capability signal to
+that same player. It is the latter transition that creates the partition bug.
+
+SECOND CONSUMER -- ANGERED PARTNERS
+
+IllWill::evalAngeredPartners() reuses theirToOurPowerRatio() in the part that
+models exposure to a dogpile after worsening a partner's attitude:
+
+    ... + (bWillDisplease ? min(14.5, 9 * SQR(rTheirToOurPow)) : 0);
+
+The relationship penalty itself is appropriately player-specific, but the
+extra danger term is again the military ability of a TEAM-WIDE war response
+measured through one member's army. The square makes this nonlinear too, so
+member-by-member summation is not invariant under redistributing the same team
+power. This is a second manifestation of the same helper-domain root, not F135.
+
+ANCESTRY
+
+The original local UWAI introduction already implemented evalRevenge with
+player-local `ourCache` / `theirCache` ARMY power plus player-local gainedPower,
+then applied the 0.7 revenge threshold. Later AdvCiv added the ongoing-war
+hopeless-stalemate branch but reused the same player-local power ratio alongside
+team war-success state.
+
+Current SAS and Base AdvCiv 1.14 have byte-for-byte identical implementations
+of all three relevant IllWill members:
+
+* IllWill::evalRevenge
+* IllWill::theirToOurPowerRatio
+* IllWill::evalAngeredPartners
+
+This is therefore inherited AdvCiv behavior, not a SAS regression.
+
+REPAIR DIRECTION
+
+Keep player-specific relationship/motivation inputs where they belong, but
+compute the military-capability ratio over the alive ordinary members of the
+relevant teams before applying the 0.70 / 1.45 thresholds and nonlinear squared
+or clamped power terms. The existing comment intentionally excludes vassals;
+that policy can remain unless separately redesigned.
+
+Human-confidence adjustment needs care in mixed human/AI teams: aggregate the
+physical/military side first and apply confidence consistently to the relevant
+human-controlled component or team policy rather than accidentally multiplying
+the entire mixed team because the current rival member happens to be human.
+
+Do not merely normalize the finished per-player utility by member counts. Once
+a nonlinear gate has independently converted two 0.60 members to zero, a later
+divisor cannot reconstruct the 1.20 team-side threat.
+
+
+ASSERTION / POINTER / OWNERSHIP-DOMAIN CONTROLS SINCE WIP21
+------------------------------------------------------------
+- The remaining FAssert/FAssertMsg sites were challenged against their producer
+  contracts instead of being promoted merely because an assertion looked
+  fragile. No independent assertion-only root was established in this pass.
+- Risk's relative-vassal-loss assertion can see awkward asset-score edge cases,
+  but release behavior explicitly clamps the ratio; no independent current
+  correctness failure beyond already-recorded Risk roots was proved.
+- A suspicious KingMaking wrong-object read was deliberately rechecked against
+  the Album and is already F109/KI#432. It was not rediscovered as F134.
+- GreedForVassals capital-pointer uses were traced through current player-alive /
+  founded-city lifecycle. No supported current null-capital dereference was
+  proved from the inspected path.
+- Open-Borders/Assistance/Fidelity/Rebuke/BorderDisputes-style player-local
+  relationship values remain defensibly per-partner unless a separate
+  team-keyed or physical-identity invariant is present; they were not folded
+  mechanically into the recent team-partition findings.
+- Affection's existing team-game normalization is historical and internally
+  deliberate. No contradiction strong enough for another root was established.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP22
+NEW ROOT IN THIS APPEND: F134 / provisional KI#457
+NEXT UNUSED ROOT: F135
+
+Continue the pointer/cache-producer checks and exact state/boundary sweep, then
+re-challenge F122-F134 as a family for overgeneralization or hidden shared roots
+before deciding whether file 014 deserves durable C015 closure. No repository
+source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP23 APPEND -- ThirdParty decisive-target scope + cache contract controls
+===============================================================================
+
+F135 / provisional KI#458 -- CONFIRMED -- INHERITED ADVCIV TARGET-SCOPE DEFECT
+THIRDPARTY "WINNING DECISIVELY" SHORTCUT CAN FIRE WHILE TARGET TEAM SURVIVES
+-------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED DEFECT ROOT. Static evidence strong. Independent
+of F124/KI#447's later intervention-severity power gate and of F119/KI#442's
+raw player/team vector-index bug.
+
+ROOT CONTRACT
+
+ThirdPartyIntervention::evaluate() contains an early-return shortcut documented
+as:
+
+    /*  When already at war and winning decisively, try to wrap it up
+        before worrying about 3rd parties. */
+
+The shortcut is enabled while the WarEvaluator is considering peace with its
+specific TeamTypes target eTarget:
+
+    (m_kParams.isConsideringPeace() && eTarget != NO_TEAM &&
+    (militAnalyst().isEliminated(GET_TEAM(eTarget).getLeaderID()) ||
+     !militAnalyst().getCapitulationsAccepted(eOurTeam).empty()))
+
+Both predicates are only PROXIES for the stated condition. Neither actually
+establishes that the evaluated target team has been decisively defeated.
+
+MANIFESTATION A -- HYPOTHETICAL ELIMINATION OF THE CURRENT REAL TEAM LEADER
+
+CvTeam::getLeaderID() simply returns the team's stored m_eLeader. The real game
+updates that member through CvTeam::updateLeaderID when actual player state
+changes. MilitaryAnalyst/InvasionGraph, however, is a hypothetical simulation;
+it does not kill real CvPlayers and does not mutate CvTeam::m_eLeader.
+
+MilitaryAnalyst::isEliminated accepts a PlayerTypes and tests exactly that
+player's simulated city losses:
+
+    InvasionGraph::Node const* pNode = m_pInvGraph->getNode(ePlayer);
+    ...
+    return (((int)lost.size()) == GET_PLAYER(ePlayer).getNumCities());
+
+Therefore, for a current target team T={B,C} whose stored real leader is B, the
+simulation can predict:
+
+    B : all cities lost -> isEliminated(B) == true
+    C : cities remain   -> target team T still survives and fights
+
+while:
+
+    GET_TEAM(T).getLeaderID() == B
+
+still holds because the simulation never runs CvTeam::updateLeaderID on the
+real team. The shortcut returns immediately and ThirdPartyIntervention assigns
+zero intervention cost even though the target TEAM has not been wrapped up.
+
+This is not merely a stale-leader corner case. Permanent/multi-member teams are
+represented player-by-player in InvasionGraph and MilitaryAnalyst; individual
+members can be eliminated independently. F127's independently proven Conquest
+mismatch already provides another control that one player's elimination does
+not mean the whole non-vassal team has ceased to block team-level state.
+
+Moreover, InvasionGraph's capitulation test itself requires the defending real
+team to have at most one currently alive member (`kDefTeam.getAliveCount() <=
+1`). Thus a two-alive-member target team can reach precisely the state above --
+one member predicted eliminated while another survives -- without target-team
+capitulation rescuing the intended shortcut premise.
+
+MANIFESTATION B -- ANY CAPITULATION TO OUR TEAM, NOT THE TARGET'S CAPITULATION
+
+The second predicate is broader still:
+
+    !militAnalyst().getCapitulationsAccepted(eOurTeam).empty()
+
+The result is a TeamSet of every simulated team whose capitulation was accepted
+by eOurTeam. It is not filtered by eTarget.
+
+MilitaryAnalyst explicitly includes wars other than the evaluated target war.
+Its constructor gathers every player currently at war into `currentlyAtWar`,
+constructs the InvasionGraph from those wars, and, in the WAR scenario of a
+peace evaluation, continues the existing wars. In the recursive PEACE scenario
+it removes the evaluated target side while unrelated current wars remain.
+
+Consequently a concrete solo-agent control is sufficient and avoids any
+interaction with F119's multi-member result-storage defect:
+
+    A is currently at war with target team T and unrelated enemy team U.
+    WarEvaluator is considering peace with T.
+    MilitaryAnalyst predicts U capitulating to A.
+    T itself remains undefeated / does not capitulate.
+
+Then:
+
+    getCapitulationsAccepted(Ateam) == { U }
+
+is nonempty, so ThirdPartyIntervention returns under the comment that A is
+"winning decisively" and should "wrap it [the target war] up." U's unrelated
+capitulation does not establish that premise for T.
+
+This manifestation survives a correct F119 repair. F119 changes which TeamTypes
+slot the accepted-capitulation set is stored in; F135 is that the correctly
+retrieved set is queried with `.empty()` instead of asking whether the relevant
+target team is the capitulating team.
+
+HISTORY / ANCESTRY
+
+Reachable AdvCiv history practical 3485 / commit f39e13df87 is titled:
+
+    Add ThirdPartyIntervention war utility aspect
+
+and introduces this exact early-return condition, including both the current
+real target leader's PlayerTypes elimination and the unfiltered nonempty
+capitulations-accepted set. No later history correction found in the local
+reachable diffs changes the scope of this shortcut.
+
+Base AdvCiv 1.14 contains the same block verbatim. Current SAS also retains it
+unchanged. This is therefore inherited from the aspect's introduction, not a
+SAS regression.
+
+WHY THIS IS ONE ROOT AND NOT TWO
+
+Both manifestations violate the same documented predicate: "the evaluated
+TARGET war is already being won decisively." The first substitutes one current
+representative player for the target team; the second substitutes any accepted
+capitulation for the target team's capitulation. Either can make the shortcut
+true while the target remains an active opponent.
+
+The repair should therefore make the shortcut target-scoped rather than patch
+its two syntax shapes independently.
+
+REPAIR DIRECTION
+
+For the elimination side, require that the evaluated target team is actually
+eliminated in the simulated state -- e.g. all relevant alive target-team member
+nodes are eliminated -- rather than asking about the real team's pre-simulation
+leader player.
+
+For capitulation, test the evaluated target specifically, e.g. the target's
+simulated capitulation state or membership of eTarget in the accepted set,
+rather than `.empty()` on all capitulations accepted by eOurTeam.
+
+Keep the existing high-level policy if desired: when the TARGET really is
+nearly/fully defeated, suppressing concern about third-party intervention can
+still be intentional. F135 is about the predicates failing to prove that
+condition.
+
+Do not fold this into F124/KI#447. F124 remains the separate later nonlinear
+power-threshold domain mismatch for the prospective third party eThey; fixing
+that power calculation does nothing to this early target-war shortcut.
+
+
+CACHE / POINTER / SCENARIO CONTRACT CONTROLS SINCE WIP22
+---------------------------------------------------------
+- InvasionGraph::Node documents that city plots placed in its conquest/loss
+  result sets are guaranteed to exist, at the time of the call, in the agent's
+  UWAICache. Node::isValidTarget additionally rejects a target city when
+  `m_kAgentCache.lookupCity(kCacheCity.getID()) == NULL`. This validates the
+  otherwise alarming unchecked `ourCache().lookupCity(*it)` dereferences in
+  WarUtilityAspect consumers of MilitaryAnalyst conquest/loss sets; no null
+  pointer root was manufactured from those sites.
+- UWAICache::updateCities provides the broader known/deduced-city population,
+  while InvasionGraph imposes the stronger per-target cache-membership contract.
+  The producer/consumer chain is therefore explicit rather than accidental.
+- GreedForVassals' capital dereferences remain guarded by either direct
+  hasCapital checks or a preceding city-count/eliminated/capitulated filter;
+  no supported current null-capital path was established.
+- The Risk break-away player-local power denominator was rechecked and is
+  already recorded as a secondary team-partition manifestation under
+  F130/KI#453; it was not rediscovered as a new root.
+- F135 deliberately does not rely on F119/KI#442. Its unrelated-capitulation
+  reproduction can use a solo agent team, and its target-leader manifestation
+  concerns the PlayerTypes-vs-target-TeamTypes predicate before result storage.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP23
+NEW ROOT IN THIS APPEND: F135 / provisional KI#458
+NEXT UNUSED ROOT: F136
+
+Continue the remaining scenario-state / ownership-domain sweep and then perform
+an explicit adversarial normalization pass over F122-F135 (shared-root check,
+repair-independence check, and current-reachability challenge) before deciding
+whether file 014 is ready for durable C015 closure. No repository source files
+were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP24 APPEND -- partner-tech ownership + recent-root normalization matrix
+===============================================================================
+
+F136 / provisional KI#459 -- CONFIRMED -- INHERITED TEAM-TECH PARTNER DUPLICATION
+PARTNERUTILFROMTECH COUNTS THE SAME TEAM-OWNED FORESEEABLE TECHNOLOGY TRADES
+ONCE PER FRIENDLY TEAMMATE
+-------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED DEFECT ROOT. Narrowly scoped to the team-owned
+technology opportunity inside the partner helper; does NOT claim that trade,
+resource, military, attitude or commerce partner value is generally identical
+between teammates.
+
+TEAM-OWNED INPUT INSIDE A PLAYER-PARTNER HELPER
+
+WarUtilityAspect::partnerUtilFromTech() is called with the current rival player
+eThey, and appropriately contains some player-specific inputs such as human
+status, pairwise attitude and estimated player commerce. But its concrete
+near-future technology inventory is read from the two TEAMS:
+
+    bool bWeHaveIt = (kOurTeam.isHasTech(eTech) ||
+            kOurTeam.getResearchProgress(eTech) > 0);
+    bool bTheyHaveIt = (kTheirTeam.isHasTech(eTech) ||
+            (bCanSeeResearch && kTheirTeam.getResearchProgress(eTech) > 0));
+
+    if (bWeHaveIt && !bTheyHaveIt)
+        iWeCanOffer++;
+    else if (bTheyHaveIt && !bWeHaveIt)
+        iTheyCanOffer++;
+
+and then:
+
+    scaled rNearFutureTrades = std::min(iWeCanOffer, iTheyCanOffer);
+    ...
+    r += fixp(10/3.) * scaled::min(3, rNearFutureTrades);
+
+For ordinary teammates B and C, `kTheirTeam` is the exact same CvTeam. Known
+technologies and research progress are team state. With identical visibility /
+no hidden-progress complication, the `iWeCanOffer`, `iTheyCanOffer` and
+`rNearFutureTrades` sets/counts are therefore the same on B's and C's passes.
+
+REAL TRADE EFFECT IS TEAM-OWNED TOO
+
+CvPlayer::canTradeItem(TRADE_TECHNOLOGIES) checks source and recipient through
+team state:
+
+    kOurTeam.isHasTech(eTech)
+    !kOurTeam.isNoTradeTech(eTech)
+    !kToTeam.isHasTech(eTech)
+
+and CvDeal::startTrade applies a technology trade with:
+
+    GET_TEAM(eToPlayer).setHasTech(..., TECH_ACQUISITION_TRADE);
+
+Thus one actual trade through member B changes the recipient TEAM's technology
+ownership. If B and teammate C both currently provide the same technology X,
+X is not two independently consumable trade opportunities: after it is traded
+through either member, the shared team-tech difference is gone.
+
+The denial implementation reinforces that technology willingness itself has a
+team contract. CvPlayer::getTradeDenial routes TRADE_TECHNOLOGIES to:
+
+    kOurTeam.AI_techTrade(eTech, TEAMID(eWhoTo));
+
+and CvTeamAI::AI_techTrade applies team attitude plus member-personality rules.
+This does not mean every player-facing approximation inside partnerUtilFromTech
+must be discarded; it does make the team ownership of the technology inventory
+non-optional.
+
+CONCRETE DUPLICATION THROUGH ILLWILL
+
+A team-wide declaration of war against T={B,C} causes MilitaryAnalyst to mark
+war against both living members, and WarUtilityAspect evaluates IllWill once for
+B and once for C. In `IllWill::evalLostPartner`, each new-war member contributes:
+
+    partnerUtilFromTrade() +
+    (bTheyCapitulated ? 0 : partnerUtilFromTech()) +
+    partnerUtilFromMilitary();
+
+Choose B and C as equally friendly AI teammates, both visible, with equal
+player-local commerce for the simple control, and suppose the shared T tech
+inventory versus our team yields three foreseeable near-future trades.
+
+Then B's `partnerUtilFromTech` receives the bonus for those same three shared
+team-tech differences, and C's pass receives it again. The war does end the
+technology partnership with T, but it does not destroy two copies of each team
+technology or two independent chances to exchange the same three differences.
+
+Even without requiring the helper's commerce-derived base term to be treated
+team-wide, the `rNearFutureTrades` component is deterministically duplicated.
+That is sufficient for the root.
+
+SECOND CONSUMERS
+
+The same shared helper also feeds:
+
+* Assistance: expected loss of a trading partner is weighted by
+  `sqrt(assistanceRatio) * partnerUtilFromTech()`. When multiple members of one
+  partner team are damaged, the same team technology inventory can be valued
+  repeatedly even though surviving teammates may preserve the team-tech trade
+  channel.
+* IllWill::evalAngeredPartners: the cost assigned to alienating a prospective
+  partner includes `partnerUtilFromTech()` once per current rival player.
+
+These are manifestations of the helper's ownership mismatch, not additional
+F-numbers.
+
+NEGATIVE CONTROL -- PARTNERUTILFROMTRADE IS NOT THE SAME ROOT
+
+Do not globalize the entire partner-value family. `partnerUtilFromTrade()`
+walks CvDeals between the two actual players, player-owned bonus trades and
+trade routes whose partner city owner is exactly eThey. Those quantities can
+legitimately differ and add across teammates. F104's resource-item counting bug
+is separate.
+
+Likewise, player-specific relationship/willingness and commerce contribution in
+partnerUtilFromTech can remain relevant. F136 is specifically that a shared
+technology inventory / set of foreseeable tech differences is converted into a
+per-player reusable opportunity.
+
+RELATION TO F129 / KI#452
+
+F129 established another team-tech duplication in a DIFFERENT producer and
+consumer chain: UWAICache stores prospective-vassal current-tech value in a
+PlayerTypes-keyed `m_aiVassalTechScore`, then acceptVassal sums that score over
+vassal members.
+
+F136 shares the technology-ownership principle but not the repair locus:
+
+* repairing/rekeying `m_aiVassalTechScore` does not change partnerUtilFromTech;
+* repairing partnerUtilFromTech does not change the vassal-score cache or
+  acceptVassal member sum.
+
+Under the Album's one-practical-root rule these therefore remain separate roots,
+with the shared domain fact recorded as a cross-control rather than merging two
+independent implementations.
+
+RELATION TO F103 / KI#426
+
+F103's current SAS repair fixes a concrete old wrong-object bug where the helper
+ignored its ePlayer argument and used the AGENT leader's tech-refusal threshold
+for the rival too. F136 does not retract that repair: selecting the queried
+player's personality is strictly more coherent than substituting our leader.
+
+The full live tech denial is team-level and can be stricter than the helper's
+pairwise approximation in permanent teams. That is useful robustness context,
+but F136 does not require promoting a second willingness-threshold defect; its
+proof uses equally friendly teammates so willingness cannot explain the
+inventory duplication.
+
+ANCESTRY
+
+The original local AdvCiv/UWAI introduction of partnerUtilFromTech already
+iterated team technology ownership/research progress while exposing the result
+through a rival-player partner call. The same near-future-trade construction
+survives through Base AdvCiv 1.14.
+
+Current SAS changed `techRefuseThresh` for F103/KI#426 but did not alter the
+team-tech inventory counting or add a canonical partner-team allocation. The
+F136 root is therefore inherited rather than created by the recent SAS repair.
+
+REPAIR DIRECTION
+
+Separate the helper's genuinely team-owned technology opportunity from its
+player-specific relationship/economic modifiers.
+
+A robust design could compute foreseeable shared technology differences once
+per partner team, then assign/weight that team opportunity according to whether
+there is at least one viable trading contact / the team's actual denial model.
+Alternatively, keep player callbacks but maintain a per-team allocation so the
+same current/progress tech differences cannot be consumed again by the next
+teammate pass.
+
+Do not simply divide the entire partnerUtilFromTech result by team size. Team
+members can differ in attitude, human status, commerce contribution and contact
+viability; only the shared inventory/opportunity needs identity-aware handling.
+
+
+ADVERSARIAL NORMALIZATION PASS -- F122 THROUGH F136
+----------------------------------------------------
+Purpose: challenge the recent high-density team/state findings for accidental
+splitting of one code defect, generic "team games are different" reasoning, or
+repairs that would automatically fix several numbered roots.
+
+RESULT: no retraction or mandatory merge established. The roots fall at distinct
+state owners / nonlinear operations:
+
+F122 / KI#445 -- TacticalSituation
+    Shared scarce object: one agent tactical unit is independently consumed by
+    per-rival entanglement caps. Repair locus is TacticalSituation engagement
+    accounting / shared unit identity.
+
+F123 / KI#446 -- Bellicosity
+    Shared budget: the same agent lost-power budget is independently reused in
+    the historical anti-third-party `min` safeguard. Repair locus is
+    Bellicosity's loss aggregation before the cap.
+
+F124 / KI#447 -- ThirdPartyIntervention severity
+    Domain switch: intervention probability is team-aware, then the nonlinear
+    50% severity gate uses one prospective intervener member's ARMY. Repair
+    locus is the later threat-strength ratio/gate.
+
+F125 / KI#448 -- DramaticArc
+    Team-wide tension transition is licensed through player-local human-safety
+    and minimum-action gates. Repair locus is DramaticArc's gate aggregation.
+
+F126 / KI#449 -- Distraction
+    Team-war opportunity cost / fixed current-war-plan nudge is charged once per
+    target member. Repair locus is canonical hostile-team evaluation of the
+    Distraction cost.
+
+F127 / KI#450 -- MilitaryVictory
+    Global/team victory completion budgets are reset per rival player; Conquest
+    also confuses one player elimination with team-level victory progress.
+    Repair locus is scenario/global victory-progress aggregation.
+
+F128 / KI#451 -- HiredHand
+    Sponsor/bounty/history obligation is keyed by TeamTypes but consumed per
+    target player. Repair locus is team-keyed obligation accounting.
+
+F129 / KI#452 -- vassal current-tech cache
+    Team-owned existing technology value is cached under PlayerTypes and summed
+    over prospective vassal members. Repair locus spans UWAICache vassal-tech
+    storage and its explicit member-summing consumers.
+
+F130 / KI#453 -- Risk
+    Team-owned capitulation/vassal state costs are emitted through agent/rival
+    member passes, including a fixed 100 capitulation cost. Repair locus is Risk
+    team-state charging; ordinary player asset losses must remain separate.
+
+F131 / KI#454 -- GreedForSpace
+    Physical identity: the same plot can exist in two player city-site lists and
+    be counted twice. Repair locus is plot-ID union/deduplication, not team-size
+    normalization.
+
+F132 / KI#455 -- Revolts
+    Persistent uniqueness state (`m_countedCities`) is combined with reset local
+    numerator/denominator state, causing player-iteration-order dependence.
+    Repair locus is ratio/uniqueness lifetime alignment.
+
+F133 / KI#456 -- shared loss helper
+    Supported OWN_EXCLUSIVE_RADIUS tile loss augments only the numerator after
+    total assets are frozen. Repair locus is the shared asset-measurement domain,
+    independent of team-member iteration.
+
+F134 / KI#457 -- IllWill
+    Player-local ARMY capability crosses nonlinear revenge/dogpile thresholds
+    for a team-wide war. Repair locus is IllWill's military-capability helper;
+    diplomatic motive remains player-specific.
+
+F135 / KI#458 -- ThirdPartyIntervention decisive-target shortcut
+    Target-scoping failure: one pre-simulation leader player's elimination or
+    ANY capitulation to us is accepted as decisive victory over eTarget. Repair
+    locus is the early target-war shortcut. It is in the same aspect as F124 but
+    a correct F124 power repair cannot affect this branch.
+
+F136 / KI#459 -- partnerUtilFromTech
+    Team-owned technology differences are exposed as reusable per-player partner
+    opportunities. Repair locus is the shared partner-tech helper and its
+    allocation; F129's vassal-tech cache repair cannot affect it.
+
+WHY THESE ARE NOT ONE GENERIC ARCHITECTURE KI
+
+WarUtilityAspect intentionally uses pairwise player evaluation. Numerous clean
+controls in the same file genuinely require player ownership: resource deals,
+trade routes, attitudes, city assets, nuke source/victim accounting, distinct
+settlement plots, etc. Replacing the base loop with one TeamIter would break
+valid semantics.
+
+The recent findings survive only where an additional invariant identifies a
+more specific ownership/normalization domain -- a unique physical object, an
+explicit TeamTypes-keyed state, a team/global victory threshold, a team-wide war
+capability, a persistent uniqueness set, or an explicit target-scoped comment.
+Their repairs consequently remain local and independent rather than one common
+change to WarUtilityAspect::evaluate.
+
+CURRENT-REACHABILITY CHALLENGE
+
+The team-partition findings use ordinary supported multi-member teams/Permanent
+Alliances, not malformed IDs or dead code. Where a finding instead requires a
+nondefault rule, it is called out explicitly (F133: documented
+OWN_EXCLUSIVE_RADIUS=1). LoveOfPeace remains deliberately unpromoted because
+current SAS data sets its personality value to zero throughout; that contrast
+continues to enforce the current-reachability bar.
+
+No F122-F136 root was retracted by this normalization pass. This is not a claim
+that every possible numerical reproduction is equally severe; it is a claim
+that each numbered root has an independent current code condition and repair
+locus that survives the challenge.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP24
+NEW ROOT IN THIS APPEND: F136 / provisional KI#459
+NEXT UNUSED ROOT: F137
+
+Continue the last untouched-helper / scenario-state sweep with particular care
+not to promote merely approximate per-player modeling. Then re-run method/header
+inventory, Base ancestry and live-ledger collision checks before deciding on
+C015 closure. No repository source files were modified.
+===============================================================================
+
+LOCAL RECONCILIATION AFTER C014-WIP24 IMPORT
+
+- ChatGPT-5.6-Sol's C014-WIP17 through C014-WIP24 append is compatible with current authority at HEAD b10972a97 plus the staged KI#416/KI#417 repairs. The received append remains verbatim as evidence.
+- F094 / KI#416 and F095 / KI#417 are now fixed in the staged current source. Their repairs restore dead-teammate technology state and exclude the attacker's master/vassal bloc from target defensive power; the new WarUtility findings do not supersede either repair.
+- F129-F136 / provisional KI#452-KI#459 are collision-free against the current reviewed Known Issues ledger, but remain provisional while `WarUtilityAspect.cpp` is open. No implementation is promoted from WIP17-WIP24 in this reconciliation. (GPT-5.6-Sol)
