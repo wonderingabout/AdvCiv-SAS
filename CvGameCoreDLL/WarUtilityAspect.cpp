@@ -599,7 +599,8 @@ scaled WarUtilityAspect::partnerUtilFromTrade() const
 		{
 			iResourceTrades++;
 			int const iMaxResourceTrades = 4;
-			if (iResourceTrades >= iMaxResourceTrades)
+			// <!-- custom: AdvCiv documented a four-resource cap but its post-increment >= check discarded the fourth trade too. Skip only trades beyond the cap. See KI#427. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (iResourceTrades > iMaxResourceTrades)
 			{
 				log("Skipped resource trades in excess of %d", iMaxResourceTrades);
 				continue;
@@ -1458,11 +1459,9 @@ scaled MilitaryVictory::progressRatingDomination() const
 	log("%d pop gained, and %d cities", rPopGained.uround(), rCitiesGained.uround());
 	// No use in population beyond the victory threshold
 	rPopGained.decreaseTo(iPopToGo);
-	/*	The to-go values can be negative (already past the threshold). In the case
-		of rCitiesToGo it's not clear if we've really reached the land threshold -
-		perhaps our cities own relatively few land tiles. If iPopToGo is negative,
-		it's certain we've reached the pop threshold. */
-	if (iPopToGo < 0)
+	// <!-- custom: The to-go values can be non-positive. For rCitiesToGo, relatively sparse city borders make it unclear whether the land threshold is truly complete; for iPopToGo, CvGame accepts exact equality with the population threshold.
+	// Route equality through the completed-population branch instead of dividing by zero. See KI#428. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iPopToGo <= 0)
 	{
 		/*	If rCitiesToGo is non-positive, then boths victory thresholds
 			should be met -- but somehow we haven't won.
@@ -2480,43 +2479,39 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 }
 
 
+// <!-- custom: AdvCiv adjusted contender scores for commerce and overseas peaceful-victory threats only while finding the best score, then compared raw candidate scores against that adjusted denominator.
+// Centralizing the calculation keeps both Kingmaking passes consistent. See KI#429. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled KingMaking::adjustedContenderScore(PlayerTypes ePlayer, bool bPredict) const
+{
+	scaled rScore = (bPredict ? militAnalyst().predictedGameScore(ePlayer) : m_kGame.getPlayerScore(ePlayer));
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvCity const* pOurCapital = kWe.getCapital();
+	// Count extra score for commerce so that players that are getting far ahead in tech are identified as a threat
+	scaled const rPlayerEraAIFactor = kPlayer.AI_getCurrEraFactor();
+	// The late game is covered by victory stages
+	if (rPlayerEraAIFactor > fixp(2.5) && rPlayerEraAIFactor < fixp(4.5) && m_rGameEraAIFactor < fixp(4.5))
+	{
+		scaled rCommerceRate = kOurTeam.AI_estimateYieldRate(ePlayer, YIELD_COMMERCE);
+		rScore += rCommerceRate / 2;
+		// Beware of peaceful civs on other landmasses
+		CvCity const* pPlayerCapital = kPlayer.getCapital();
+		if (pOurCapital != NULL && pPlayerCapital != NULL && !pOurCapital->sameArea(*pPlayerCapital) && kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2 | AI_VICTORY_SPACE2) && pOurCapital->getArea().getNumStartingPlots() > pPlayerCapital->getArea().getNumStartingPlots())
+		{
+			rScore *= fixp(4/3.);
+		}
+	}
+	return rScore;
+}
+
+
 void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict) const
 {
-	CvCity const* pOurCapital = kWe.getCapital();
 	scaled rBestScore = 1;
 	for (PlayerIter<FREE_MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
-	{
-		PlayerTypes const ePlayer = itPlayer->getID();
-		scaled rScore = (bPredict ? militAnalyst().predictedGameScore(ePlayer) :
-				m_kGame.getPlayerScore(ePlayer));
-		CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
-		/*	Count extra score for commerce so that players that are getting far
-			ahead in tech are identified as a threat */
-		scaled const rPlayerEraAIFactor = kPlayer.AI_getCurrEraFactor();
-		if (rPlayerEraAIFactor > fixp(2.5) &&
-			// The late game is covered by victory stages
-			rPlayerEraAIFactor < fixp(4.5) && m_rGameEraAIFactor < fixp(4.5))
-		{
-			scaled rCommerceRate = kOurTeam.AI_estimateYieldRate(ePlayer, YIELD_COMMERCE);
-			rScore += rCommerceRate / 2;
-			// Beware of peaceful civs on other landmasses
-			CvCity const* pPlayerCapital = kPlayer.getCapital();
-			if (pOurCapital != NULL && pPlayerCapital != NULL &&
-				!pOurCapital->sameArea(*pPlayerCapital) &&
-				kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2 | AI_VICTORY_SPACE2) &&
-				pOurCapital->getArea().getNumStartingPlots() >
-				pPlayerCapital->getArea().getNumStartingPlots())
-			{
-				rScore *= fixp(4/3.);
-			}
-		}
-		rBestScore.increaseTo(rScore);
-	}
+		rBestScore.increaseTo(adjustedContenderScore(itPlayer->getID(), bPredict));
 	for (PlayerIter<FREE_MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
-		if ((bPredict ? militAnalyst().predictedGameScore(itPlayer->getID()) :
-			m_kGame.getPlayerScore(itPlayer->getID())) / rBestScore >=
-			(itPlayer->isHuman() ? fixp(0.7) : fixp(0.75)))
+		if (adjustedContenderScore(itPlayer->getID(), bPredict) / rBestScore >= (itPlayer->isHuman() ? fixp(0.7) : fixp(0.75)))
 		{
 			kLeading.insert(itPlayer->getID());
 		}

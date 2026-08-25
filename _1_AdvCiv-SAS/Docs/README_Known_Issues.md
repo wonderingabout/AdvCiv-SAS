@@ -493,6 +493,9 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [424 - (Fixed SAS-activated inherited AdvCiv UWAI team arithmetic defect) Aspect weights compounded across teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#424---fixed-sas-activated-inherited-advciv-uwai-team-arithmetic-defect-aspect-weights-compounded-across-teammates)\
 [425 - (Fixed AdvCiv-SAS UWAI team-game regression) One remote teammate could veto a collectively reachable war target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#425---fixed-advciv-sas-uwai-team-game-regression-one-remote-teammate-could-veto-a-collectively-reachable-war-target)\
 [426 - (Fixed inherited AdvCiv UWAI personality defect) Rival technology-trade willingness used the agent's threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#426---fixed-inherited-advciv-uwai-personality-defect-rival-technology-trade-willingness-used-the-agents-threshold)\
+[427 - (Fixed inherited AdvCiv UWAI trade-cap defect) The fourth resource trade was discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#427---fixed-inherited-advciv-uwai-trade-cap-defect-the-fourth-resource-trade-was-discarded)\
+[428 - (Fixed inherited AdvCiv UWAI Domination defect) Exact population equality divided by zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#428---fixed-inherited-advciv-uwai-domination-defect-exact-population-equality-divided-by-zero)\
+[429 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Adjusted leaders were compared by raw score](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#429---fixed-inherited-advciv-uwai-kingmaking-defect-adjusted-leaders-were-compared-by-raw-score)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -10327,3 +10330,33 @@ The fix reads the queried AI player's own personality while retaining the inheri
 Both compiled 500-turn autoplays described under KI#424 exercised the helper across 16 varied leader personalities, with technology trading active for every surviving team by turn 100, and completed normally. Exact before/after partner utility for a chosen pair with different technology-refusal thresholds requires UWAI reporting and remains source-verified; the two long runs provide broad gameplay coverage across many live trade-partner pairings.
 
 Found as F103/provisional KI#426 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 427 - (Fixed inherited AdvCiv UWAI trade-cap defect) The fourth resource trade was discarded
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1DeCsEG4zLjBDs62Z8gVnafZCCDcrtxHj?usp=sharing).
+
+`partnerUtilFromTrade` limits resource deals when estimating the value of preserving a trading partner. AdvCiv documented and configured a cap of four, but incremented the count before rejecting `>= 4`; only the first three deals contributed utility. Its diagnostic simultaneously claimed that only trades in excess of four were skipped. Assistance, Ill Will and other partner-loss calculations could consequently undervalue a relationship having four or more qualifying resource deals.
+
+The repair rejects only a count greater than four, making the implementation and diagnostic match the declared cap. Base AdvCiv 1.14 contains the same off-by-one condition, so this is an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F104/provisional KI#427 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+Compiled runtime testing completed a default-team Huge Pangaea autoplay normally with a turn-486 Domination victory. Its `SASGameRecord` contains 884 diplomatic-deal rows involving resource items, providing substantial live-path coverage for partner trade valuation. The exact fourth simultaneous qualifying deal was not isolated through UWAI reporting and remains source-verified.
+
+## 428 - (Fixed inherited AdvCiv UWAI Domination defect) Exact population equality divided by zero
+
+Screenshots/files for this issue: same google drive folder link as KI#427.
+
+`MilitaryVictory::progressRatingDomination` computes the remaining population requirement and treated it as completed only when the team was beyond the target. Civ4's real victory test also accepts exact equality. At equality, UWAI instead clamped projected population gain to zero and divided it by the zero population remainder while estimating the value of prospective conquests. Independently of the fixed-point implementation's response, this represented an already-completed population component incorrectly.
+
+The repair treats a non-positive remainder as population-complete, routing exact equality through the existing city/land progress calculation and removing the zero divisor. Base AdvCiv 1.14 contains the same strict-negative boundary, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F105/provisional KI#428 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same compiled autoplay reached an actual Domination victory on turn 486 after 67 primary war starts and completed without an observed issue. This broadly exercised military-victory utility; the exact population-equality instant was not isolated and remains source-verified.
+
+## 429 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Adjusted leaders were compared by raw score
+
+Screenshots/files for this issue: same google drive folder link as KI#427.
+
+`KingMaking::addLeadingPlayers` identifies competitive players in two passes. The first intentionally augmented midgame score with half the player's estimated commerce and could further raise an overseas peaceful-victory contender by one third. This adjusted value established the best-score denominator. The second pass compared every contender's unadjusted score against it. A technology or overseas victory leader could therefore raise the threshold and then fail its own comparison, defeating both threat adjustments and potentially leaving no recognized leader.
+
+The repair centralizes the adjusted contender-score calculation and uses it in both passes. The existing human/AI margins and all threat adjustments remain unchanged, but the numerator and denominator now share the same definition. Base AdvCiv 1.14 contains the divergent two-pass calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F106/provisional KI#429 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same compiled 486-turn autoplay exercised ordinary midgame and late-game Kingmaking across 16 starting civilizations and completed normally. UWAI reporting was not enabled, so the corrected adjusted leader set remains source-verified rather than directly compared in the runtime record.

@@ -325,6 +325,8 @@ private:
 	std::set<PlayerTypes> m_winningPresent;
 	void addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) const;
 	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict = true) const;
+	// <!-- custom: Use the same commerce/overseas-adjusted contender score to find and compare Kingmaking leaders. See KI#429. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled adjustedContenderScore(PlayerTypes ePlayer, bool bPredict) const;
 	void addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict = true) const;
 	scaled theirRelativeLoss() const;
 };
