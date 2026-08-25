@@ -1940,11 +1940,13 @@ bool CvDLLButtonPopup::launchLeadUnitPopup(CvPopup* pPopup, CvPopupInfo &info)
 
 bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info)
 {
-	CvUnit* pUnit = m_kUI.getHeadSelectedUnit();
+	// <!-- custom: Use the eligible selected Spy rather than the arbitrary selection head throughout the first Espionage popup. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvSelectionGroup const* pSelectionGroup = m_kUI.getSelectionList();
+	CvUnit const* pUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
 	if (pUnit == NULL)
 		return false;
 
-	CvPlot* pPlot = pUnit->plot();
+	CvPlot const* pPlot = pUnit->plot();
 	if (pPlot == NULL)
 		return false;
 
@@ -1991,7 +1993,9 @@ bool CvDLLButtonPopup::launchDoEspionagePopup(CvPopup* pPopup, CvPopupInfo &info
 
 bool CvDLLButtonPopup::launchDoEspionageTargetPopup(CvPopup* pPopup, CvPopupInfo &info)
 {
-	CvUnit* pSpyUnit = m_kUI.getHeadSelectedUnit();
+	// <!-- custom: Re-resolve the same first eligible selected Spy for the second Espionage popup instead of losing its identity to the selection head. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvSelectionGroup const* pSelectionGroup = m_kUI.getSelectionList();
+	CvUnit const* pSpyUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
 	if (pSpyUnit == NULL)
 		return false;
 	CvPlot const& kPlot = pSpyUnit->getPlot();

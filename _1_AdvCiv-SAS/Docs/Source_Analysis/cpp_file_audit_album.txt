@@ -7872,3 +7872,3736 @@ not rediscover or double-count it.
 
 No repository source was modified.
 ===============================================================================
+
+
+===============================================================================
+C013-WIP01 -- FILE 013 CvTeam.cpp -- PERMANENT-ALLIANCE STATE MERGE TRANCHE
+Current source: practical 6252 / 08:50 synchronized working tree
+Prior durable prefix: C013, preserved byte-for-byte
+Status: CvTeam.cpp OPEN
+Next root id after this checkpoint: F082 UNUSED
+===============================================================================
+
+RECOVERY / SYNCHRONIZATION
+--------------------------
+
+The 08:50 light-source ZIP and its bundled audit album are authoritative. C013
+closed CvDLLWidgetData.cpp with F078 unused and began CvTeam.cpp. This WIP
+continues that exact cursor; no divergent WIP15 reconstruction is involved.
+
+The first CvTeam.cpp pass is intentionally centered on CvTeam::addTeam,
+shareItems and shareCounters because Permanent Alliance merging has already
+produced several source-proven directional-state defects (KI#369/KI#370). The
+method was treated as a state migration: enumerate team-indexed and transient
+team state, then prove whether both the survivor->outsider and outsider->survivor
+directions retain semantically live values after absorbed players are reassigned.
+
+F078 / provisional KI#400 -- inherited Permanent Alliance merge drops active
+Counterespionage effects in both directions
+--------------------------------------------------------------------------
+
+STATE / CONTRACT
+- CvTeam owns two directional arrays:
+  m_aiCounterespionageTurnsLeftAgainstTeam and
+  m_aiCounterespionageModAgainstTeam.
+- The live Counterespionage mission in current SAS has exactly one nonzero
+  definition: 10 turns and +100 modifier. CvPlayer::doEspionageMission applies
+  both values to the acting team's entry against the target team.
+- Espionage mission cost reads the target team's Counterespionage modifier
+  against the acting spy's current team. The effect is therefore keyed strictly
+  by current TeamTypes identity, not by player identity.
+- An active effect cannot normally be started again against the same target while
+  its turns-left entry is positive, so each directional team pair represents one
+  live effect rather than an arbitrary stack.
+
+MERGE FAILURE
+- shareCounters explicitly preserves neighboring temporary/history state such as
+  StolenVisibilityTimer, WarWeariness and AI relation counters, but it never
+  transfers either Counterespionage array from the absorbed team to the survivor.
+- CvTeam::addTeam's reverse outsider-direction merge likewise combines
+  StolenVisibilityTimer and EspionagePointsAgainstTeam but never combines the
+  outsider's Counterespionage entries against the two constituent teams.
+- After absorbed players change from team B to survivor A, entries keyed to B are
+  unreachable for ordinary espionage cost calculations.
+
+CONCRETE REPRODUCTION
+1. Team B performs Counterespionage against team C and has, e.g., 7 turns of the
+   +100 effect remaining.
+2. B enters a Permanent Alliance and is absorbed into A.
+3. A had no corresponding effect against C.
+4. Former B spies/territory now belong to team A, so all checks use A<->C.
+5. B's still-positive B->C timer/modifier remain on the dead team entry and the
+   +100 effect disappears immediately. The reverse C->B case is lost analogously.
+
+CONTROL / ANCESTRY
+- Base AdvCiv 1.14 and the supplied Civ4CE/BtS source contain the same omission.
+- Firaxis already preserves StolenVisibilityTimer in this exact merge family,
+  making Counterespionage the conspicuous neighboring temporary espionage state
+  that was not migrated.
+
+REPAIR DIRECTION
+- Preserve the live pair in both directions when team identities collapse.
+- Current data has only the single +100 mission, so choosing the longer remaining
+  active effect is unambiguous in practical SAS. Do not sum durations/modifiers.
+- If future XML adds different Counterespionage modifiers, copy a coherent
+  timer+modifier pair rather than independently manufacturing maxima.
+
+Classification: inherited BtS/Firaxis defect retained by AdvCiv/SAS.
+
+
+F079 / provisional KI#401 -- AdvCiv Permanent Alliance resets inherited
+first-contact dates used by Info Screen graphs
+--------------------------------------------------------------------------
+
+STATE / ORIGIN
+- AdvCiv practical 2468 (f91c93bea834f12a3f5da1894d8afaa1a07b4cac,
+  "Show score graph (Info screen) regardless of espionage") replaced the old
+  boolean has-met state with m_aiHasMetTurn.
+- makeHasMet records the current game turn in that array.
+- CvInfoScreen uses getHasMetTurn to hide pre-contact score history and to gate
+  partial score graphs for five turns after first contact.
+- That introducing commit changed reset/serialization/makeHasMet and the Info
+  Screen but did not update CvTeam::addTeam/shareCounters.
+
+MERGE FAILURE
+- addTeam propagates missing contacts by calling meet(eOther,false) before the
+  absorbed players are reassigned.
+- If B met C long ago but survivor A did not, A.meet(C) writes the alliance turn
+  as A's new first-contact date; the reciprocal C->A entry is also written now.
+- The old B<->C timestamps remain attached to the soon-dead B identity.
+- Even when both constituent teams had met C, the merged team does not normalize
+  the timestamp to the earliest inherited contact.
+- The older AI_getHasMetCounter *is* merged, so the omission is specifically the
+  later-added real timestamp used by the UI.
+
+CONCRETE REPRODUCTION
+- B and C first meet on turn 50.
+- A has never met C.
+- A absorbs B through a Permanent Alliance on turn 100.
+- A and C become known through addTeam, but both relevant new A<->C timestamps
+  become 100 rather than inheriting 50.
+- Info Screen graph history that should be available through the allied team's
+  prior knowledge is hidden as if first contact occurred on turn 100, and the
+  five-turn partial-graph delay is restarted.
+
+REPAIR DIRECTION
+- For each inherited known relation, preserve the earliest nonnegative constituent
+  has-met turn in both directions. A missing (-1) value must not beat a real date.
+
+Classification: inherited AdvCiv regression introduced when advc.091 added the
+first-contact timestamp without extending Permanent Alliance state migration.
+
+
+F080 / provisional KI#402 -- AdvCiv Permanent Alliance can leave a live
+Disengage deal without its enforcement flag
+--------------------------------------------------------------------------
+
+STATE / ORIGIN
+- AdvCiv practical 1285 (8aaaae059d3db7d47d430c099ace4adc92e3afdb,
+  "Temporary right of passage after making peace") introduced TRADE_DISENGAGE and
+  m_abDisengage.
+- The trade is a dual player-to-player CvDeal, while actual movement/diplomacy
+  enforcement uses directional CvTeam::isDisengage flags.
+- Starting the trade sets the team flag; ending it clears the flag and may bump
+  units from territory that is no longer friendly.
+
+MERGE FAILURE
+- CvDeal::isBetween(TeamTypes,TeamTypes) derives the teams dynamically from the
+  deal's stored players via TEAMID.
+- Therefore a live B<->C Disengage deal automatically becomes an A<->C deal when
+  B's player is reassigned to survivor team A during addTeam.
+- addTeam explicitly transfers Open Borders, Defensive Pact, Force Peace and other
+  team relations, but never transfers m_abDisengage from B<->C to A<->C.
+- The practical-1285 implementation did add TRADE_DISENGAGE to the list of deals
+  canceled *between the two merging teams*; it did not address outsider deals.
+- A B<->C outsider Disengage deal is not killed by that merged-team cleanup: after
+  reassignment it is an A<->C deal, not an A<->A deal.
+
+CONSEQUENCE
+- The deal remains present and continues counting down, but the team-level flag
+  that grants its temporary right of passage is false on A<->C unless A happened
+  to have an independent effect.
+- Unit/plot/diplomacy code querying isDisengage therefore stops honoring the still
+  live deal. At eventual deal termination, endTrade operates on the players'
+  *current* teams and clears A<->C, further demonstrating that the deal itself is
+  considered migrated even though its enforcement state was not.
+
+REPAIR DIRECTION
+- When an absorbed team has a live Disengage relation with an outsider, migrate
+  the corresponding team relation to survivor<->outsider (both directions as
+  required by the dual trade), or deliberately cancel the surviving outsider deal
+  and enforce that as a documented policy. Silently keeping the deal while losing
+  its state is inconsistent.
+
+Classification: inherited AdvCiv defect introduced with advc.034.
+
+
+F081 / provisional KI#403 -- Permanent Alliance can erase an in-flight
+spaceship launch / victory countdown
+--------------------------------------------------------------------------
+
+STATE / REACHABILITY
+- Permanent Alliance trading has no condition prohibiting the trade after a team
+  has launched a spaceship; the human path can therefore reach this normally.
+- launch() stores the actual in-flight state in m_aiVictoryCountdown and clears
+  canLaunch for that victory.
+- shareCounters transfers spaceship ProjectCount state (using the established
+  max-of-two-teams rule). changeProjectCount subsequently recomputes canLaunch
+  from the merged project requirements.
+- addTeam/shareCounters never transfer m_aiVictoryCountdown.
+
+CONCRETE REPRODUCTION
+1. Team B launches and has 5 turns remaining before arrival.
+2. B joins A via Permanent Alliance while the game is still running.
+3. B's project/component counts are transferred to A.
+4. B's countdown remains keyed to the dead B team and A retains its own default
+   -1 (not launched) countdown.
+5. The transferred projects can make A canLaunch again; the merged team has lost
+   the existing ship-in-flight and must launch again from a fresh full delay (or
+   can simply remain indefinitely in the not-launched state).
+
+CONTROLS
+- Current SAS, base AdvCiv 1.14 and supplied Civ4CE/BtS all omit countdown state
+  from addTeam.
+- CvPlayer::canPossiblyTradeItem(TRADE_PERMANENT_ALLIANCE) checks team/vassal/war/
+  member/trading conditions but does not reject a live victory countdown.
+
+TWO-LAUNCH COLLISION / REPAIR DIRECTION
+- The merged team has only one countdown slot per victory. If either constituent
+  has a live countdown, preserve it; if both do, preserve the minimum nonnegative
+  value (earliest arrival), which is the least destructive representation of two
+  already-launched team victories.
+- While a countdown is active, keep canLaunch false; transferred project counts
+  must not silently re-enable a second launch.
+
+Classification: inherited BtS/Firaxis Permanent Alliance state-migration defect.
+
+
+NEGATIVE CONTROLS / NEIGHBORING STATE CHECKED SO FAR
+----------------------------------------------------
+
+- m_abHasSeen does not immediately justify another root: addTeam copies absorbed
+  revealed-map/city information to the survivor and explicitly meets inherited
+  contacts, both of which invoke the existing identity-seen machinery.
+- m_abJustDeclaredWar is reset each turn and war synchronization in addTeam runs
+  through ordinary declaration paths where a new declaration is actually needed;
+  no independent persistent-state loss has been established.
+- KI#369 SharedWarSuccess and KI#370 reverse OpenBordersCounter are already fixed
+  in the authoritative practical-6252 tree and were used as controls, not
+  rediscovered.
+- m_aiTurnsAtPeace is already merged in both the own and outsider directions by
+  advc.130k / the existing SAS fixes.
+- EspionagePointsAgainstTeam and EspionagePointsEver are explicitly summed during
+  the merge; no loss found there.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F081
+NEXT ROOT ID: F082 UNUSED
+
+Next work:
+1. Finish the remaining Permanent-Alliance state-migration matrix, including
+   project-art/victory-adjacent, relation and scalar/team-derived state.
+2. Adversarially challenge F078-F081 against trade/victory turn ordering and any
+   compensating caller after addTeam.
+3. Then leave addTeam/shareItems/shareCounters and continue CvTeam.cpp in source
+   order: doTurn/reset state, war/peace queues and relation transitions, vassal
+   state, tech/research processing, reveal/trade helpers, victory/project paths,
+   serialization and final caller/index/divisor closure.
+4. Freeze the next WIP early if another stable tranche emerges.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP02 -- CvTeam.cpp continued closure checkpoint
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
+
+This checkpoint is append-only relative to C013-WIP01. No repository source was
+modified.
+
+
+F081 / provisional KI#403 -- strengthening: even the SURVIVING launched team can
+be made launchable again by the Permanent Alliance project transfer
+--------------------------------------------------------------------------
+
+The WIP01 root remains valid and is stronger than the absorbed-team reproduction
+alone showed.
+
+- CvPlayer::launch stores the in-flight state in m_aiVictoryCountdown and calls
+  setCanLaunch(eVictory, false).
+- shareCounters transfers a larger absorbed project count through
+  changeProjectCount.
+- changeProjectCount recomputes setCanLaunch(eVictory,
+  GC.getGame().testVictory(eVictory, getID())) for every victory threshold touched.
+- CvGame::testVictory checks the project/victory conditions but does not test an
+  already-live victory countdown.
+
+Therefore, if survivor A itself has already launched and B brings a higher count
+of any victory-relevant spaceship component, the merge can set A.canLaunch back to
+true while A's original countdown is still running. The problem is not only that
+an absorbed B countdown is lost; transferred project state can also contradict a
+survivor countdown already present.
+
+Normalized repair requirement: after project counts have been merged, restore the
+chosen live countdown (minimum nonnegative constituent countdown) and force
+canLaunch=false for that victory whenever that countdown is active.
+
+
+F082 / provisional KI#404 -- AdvCiv doubles the overflow portion in stored
+completed-tech research progress
+--------------------------------------------------------------------------
+
+INTRODUCTION / INTENT
+- AdvCiv practical 2082, commit 5a6bff0b8fbdb037f0c875aab7d3d6ed61beba09
+  ("Some misc. refactoring") added the line while explicitly describing the work
+  as cleaner/safer handling of research progress for already-discovered techs.
+- The local source comment says: "Cleaner to subtract the overflow. Cf. comment in
+  getResearchProgress."
+- The adjacent getResearchProgress comment says that, once a tech is known, the
+  stored value is the beakers the team put into it and can even be 0.
+
+ACTUAL ARITHMETIC
+Suppose the completion call has research progress P = C + O, where C is cost and
+O is adjusted overflow. The code correctly grants player overflow from O, then:
+
+    m_aiResearchProgress.add(eIndex,
+        getResearchProgress(eIndex) - getResearchCost(eIndex));
+
+EnumMap::add is ordinary arithmetic addition. Thus the stored value becomes:
+
+    (C + O) + O = C + 2O
+
+rather than subtracting O as the comment says. Vanilla/Civ4CE simply leaves the
+old C+O value; this extra distortion is AdvCiv-specific.
+
+REACHABILITY / IMPACT
+- The wrong stored value is exposed through CyTeam::getResearchProgress and debug
+  facilities.
+- Most normal gameplay consumers first test isHasTech, which explains why this can
+  remain quiet in ordinary play.
+- Tech removal is nevertheless a supported engine operation (Advanced Start,
+  regeneration/debug/WB-style paths use setHasTech(false)). Once a completed tech
+  is removed, its stored progress becomes live research state again; an inflated
+  >=cost value can therefore leak back into research/recompletion/overflow logic.
+
+REPAIR DIRECTION
+Subtract the adjusted overflow portion from the stored progress rather than add it
+(or otherwise explicitly set the intended post-completion value). Keep repeat-tech
+handling in mind; practical 2088 separately amended that family.
+
+Classification: inherited AdvCiv arithmetic/bookkeeping defect introduced by
+advc refactoring.
+
+
+F083 / provisional KI#405 -- AdvCiv cached tech count increments when a tech is
+REMOVED instead of decrementing
+--------------------------------------------------------------------------
+
+INTRODUCTION
+- AdvCiv practical 2169, commit 91ebe9eaa0fac82efca5ba70c7dfb8b968c51be8
+  ("Tweak revolt chance penalties, nationality bar help"), advc.101, introduced
+  cached CvTeam::m_iTechCount and getTechCount().
+- The cache is initialized/serialized and used specifically to avoid repeatedly
+  counting known techs.
+
+BUG
+In the non-repeat branch of CvTeam::setHasTech:
+
+    m_abHasTech.set(eTech, bNewValue);
+    m_iTechCount++;
+
+The cache increments for BOTH bNewValue=true and bNewValue=false.
+
+A transition true -> false should decrease the count by one. Instead it increases
+by one, leaving the cache two higher than the real number of known techs after a
+single removal.
+
+NORMAL SUPPORTED REPRODUCTION
+Advanced Start explicitly supports removing a purchased/owned technology through
+getAdvancedStartTechCost(..., false) and then:
+
+    setHasTech(eTech, false, ...)
+
+subject to dependency/unit/building checks. Thus this is not confined to hostile
+or impossible calls. A remove/rebuy cycle can repeatedly increase the cache even
+though the actual number of known technologies returns to its starting value.
+Map-regeneration/initialization cleanup also contains false transitions and is an
+additional cache-drift risk.
+
+GAMEPLAY CONSUMERS
+- CvCity::cultureStrength uses getTechCount()/numTechInfos to derive its era-like
+  culture/revolt-strength factor.
+- CvPlayerAI building valuation uses getTechCount() around the early-war pacing
+  threshold (advc.131).
+Therefore the stale cache can affect gameplay, not merely diagnostics.
+
+REPAIR DIRECTION
+Use a signed update corresponding to the state transition, e.g.
+
+    m_iTechCount += (bNewValue ? 1 : -1);
+
+with the existing early equality return guaranteeing that only real transitions
+are counted. Preserve the existing special handling for repeatable techs.
+
+Classification: inherited AdvCiv cached-state defect introduced with advc.101.
+
+
+ADDITIONAL NEGATIVE CONTROLS / SECTIONS CLOSED IN THIS TRANCHE
+--------------------------------------------------------------
+
+- CvTeam::setVassal was reread through creation and liberation. KI#363 remains the
+  genuine war-plan-cache defect already fixed in the authoritative tree; the
+  reordered restoration now waits until m_eMaster is cleared. Contact/war
+  alignment goes through meet / queueWar / triggerWars, and no second independent
+  vassal-transition state loss was established in this pass.
+- assignVassal/freeVassal deal plumbing is consistent with current master/vassal
+  state; no new root promoted.
+- changeProjectCount's project-art vector sizing is balanced. The project-art
+  style chosen by an absorbed team may not be preserved through PA project-count
+  maxing, but this remains cosmetic/visual state and does not meet the bug bar yet.
+- VictoryCountdown / canLaunch remains normalized under F081, not split into
+  multiple roots.
+- Counterespionage setters, EspionagePointsAgainstTeam, ForceRevealedBonus and
+  their ordinary update helpers did not expose an additional non-PA defect in
+  this pass.
+- processTech's map-centering flag is intentionally one-way-looking (also true for
+  map-centering buildings); because map centering acts as a one-time/permanent UI
+  capability and has multiple sources, no tech-removal bug is promoted from that
+  shape without stronger behavioral evidence.
+- Circumnavigation correctly rejects non-wrapping maps in
+  CvGame::circumnavigationAvailable before CvTeam::testCircumnavigated runs.
+- Current serialization remains symmetric under the project's explicit current-
+  schema-only policy (KI#46); old uiFlag branches are not being rediscovered.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F083
+NEXT ROOT ID: F084 UNUSED
+
+Source-order progress now covers the Permanent-Alliance state matrix through the
+main vassal transition and into project/victory, research acquisition,
+espionage/reveal helpers, tech sharing and processTech. The file tail and a final
+cross-caller/adversarial pass remain open.
+
+Next work:
+1. Continue from processTech / remaining late CvTeam helpers and serialization
+   controls, then return to any source-order gaps not fully challenged.
+2. Audit setHasTech/processTech false-transition behavior further now that F082 and
+   F083 demonstrate this is a productive boundary, while avoiding duplicate roots
+   for consequences of the same cache/arithmetic causes.
+3. Continue current-vs-base/Civ4CE differential checks and caller reachability.
+4. Freeze another WIP after the next stable tranche; do not declare C014 until the
+   whole CvTeam.cpp file has survived an adversarial reread.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP03 -- CvTeam.cpp false-transition / Advanced Start checkpoint
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
+
+This checkpoint is append-only relative to C013-WIP02. No repository source was
+modified.
+
+
+F084 / provisional KI#406 -- Advanced Start can refund a map-visible technology
+while retaining its irreversible full-map reveal
+--------------------------------------------------------------------------
+
+CURRENT SAS REPRODUCTION
+- TECH_SATELLITES has iAdvancedStartCost=100 and bMapVisible=1.
+- CvPlayer::getAdvancedStartTechCost allows removal/refund of an owned tech when
+  no still-owned dependent tech and no placed unit/building requires it.
+- CvPlayer::doAdvancedStartAction(ADVANCEDSTARTACTION_TECH,...,false) then calls
+  CvTeam::setHasTech(eTech,false,...) and refunds the points.
+- Acquiring a bMapVisible tech enters CvTeam::setHasTech's owned-tech branch and
+  calls GC.getMap().setRevealedPlots(getID(), true, true), permanently revealing
+  all plots to the team.
+- The false transition has no inverse map-unreveal operation. This is sensible in
+  isolation because plot knowledge can also be legitimate from exploration,
+  visibility, map trades, espionage and other sources; blindly unrevealing the
+  world would destroy independent knowledge.
+
+Therefore Advanced Start supports the sequence:
+
+    buy Satellites -> reveal full world -> refund Satellites -> keep full world
+
+The source technology and its points are gone while the irreversible benefit
+remains.
+
+ANCESTRY / CONTROL
+The same fundamental shape is present in the supplied Civ4CE/BtS control; this is
+not introduced by recent SAS GameRecord plumbing.
+
+REPAIR DIRECTION
+Do not try to reverse per-plot knowledge. The conservative repair is to prohibit
+Advanced Start removal/refund of a tech with bMapVisible once acquired (or more
+generally mark irreversible tech effects nonrefundable).
+
+A neighboring bMapCentering tech is also one-way in processTech, but current SAS
+uses that as a UI/presentation capability and it does not independently meet the
+bug bar established for the full-map reveal.
+
+Classification: inherited BtS Advanced Start irreversible-effect/refund defect.
+
+
+F085 / provisional KI#407 -- Advanced Start tech refund does not roll back
+currentEra, allowing later-era mechanics to persist without the corresponding
+techs
+--------------------------------------------------------------------------
+
+STATE TRANSITION
+In CvTeam::setHasTech, acquiring any non-repeat tech with an era above a member's
+current era does:
+
+    if (kMember.getCurrentEra() < kTech.getEra())
+        kMember.setCurrentEra((EraTypes)kTech.getEra());
+
+There is no corresponding downward update on setHasTech(..., false). Search of the
+current DLL shows that normal era advancement is otherwise not periodically
+recomputed from the team's known-tech set; outside initialization/Python, this
+acquisition path is what moves player era forward.
+
+ADVANCED START REACHABILITY
+Advanced Start explicitly permits reversible tech purchases. A player can buy a
+later-era tech (after satisfying its prerequisites), thereby advance currentEra,
+and then refund/remove that tech once no dependent owned content blocks removal.
+The player remains in the higher era. With enough points the player can walk a
+tech chain upward and refund it backward while retaining the highest reached era.
+
+GAMEPLAY IMPACT
+currentEra is not merely art/music state. Concrete current-SAS consumers include:
+- CvUnit::getGreatWorkCulture multiplies Great Work culture by
+  (owner.currentEra + 1).
+- CvPlayer::doEvents uses the current era's EventChancePerTurn.
+- CvPlayer::canBuild visibility/era tests depend on currentEra.
+- Many AdvCiv/SAS AI valuation, military, worker, culture-victory and strategy
+  heuristics depend directly on player currentEra.
+
+Thus the Advanced Start refund can preserve real later-era mechanics after the
+technology that caused the era transition has been removed.
+
+ANCESTRY
+The monotonic-era plus reversible-Advanced-Start-tech combination is inherited
+from BtS/Civ4CE rather than introduced by SAS.
+
+REPAIR DIRECTION
+Keep ordinary gameplay era progression monotonic. On an Advanced Start tech
+removal, recompute each affected team member's era from the highest remaining
+known non-repeat technology (bounded by the game start era), or equivalently
+prevent removal when it would leave currentEra unsupported. Recomputing only in
+the Advanced Start removal path avoids making normal post-start eras regress.
+
+Classification: inherited BtS Advanced Start cached/derived-state defect.
+
+
+ADDITIONAL NEGATIVE CONTROLS / STRENGTHENING
+--------------------------------------------
+
+- F081 was challenged for an ordinary post-launch reproduction independent of
+  Permanent Alliances. CvPlayer::canCreate rejects victory-prerequisite projects
+  whenever that victory already has a nonnegative countdown, including the
+  bContinue=true queue path. Ordinary city production therefore cannot normally
+  finish more spaceship parts after launch and re-enable canLaunch. F081 remains
+  correctly scoped to project-count state changes that bypass normal construction,
+  especially Permanent-Alliance project transfer.
+- Repeat technologies use a separate acquisition-count path and are not evidence
+  that F083's ordinary cached total-tech-count bug should be broadened.
+- Tech-reveal bonus visibility, routes, trading counters, commerce flexibility,
+  improvement yields, obsolete-building state and the ordinary signed processTech
+  effects are generally reversed through iChange. No duplicate root was created
+  merely because tech removal is uncommon.
+- First-to-discover religion/free-tech/free-unit perks do not create an Advanced
+  Start rebuy exploit through this path because Advanced Start acquisition calls
+  setHasTech with bFirst=false.
+- Current SpecialBuilding XML has no live TechPrereqAnyone value other than NONE,
+  so no current-SAS global-special-building refund exploit was promoted.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F085
+NEXT ROOT ID: F086 UNUSED
+
+Source-order progress now covers the main Permanent-Alliance merge family,
+vassal/project/victory transitions, technology acquisition/research, espionage and
+reveal helpers, Advanced Start false-transition interactions and processTech.
+Serialization has been checked for current-schema read/write symmetry, but the
+file is not closed.
+
+Next work:
+1. Continue from processTech into the remaining late helpers and serialization /
+   spaceship utility tail, then backfill earlier source-order gaps.
+2. Keep challenging false transitions and derived/cached team state, but distinguish
+   irreversible-effect policy from actual reachable refund/state defects.
+3. Reconcile remaining current-vs-base/Civ4CE semantic deltas and callers.
+4. Perform a mechanical field/state-transition audit and adversarially challenge
+   F078-F085 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP04 -- CvTeam.cpp Barbarian-contact / early-source checkpoint
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
+
+This checkpoint is append-only relative to C013-WIP03. No repository source was
+modified.
+
+
+F086 / provisional KI#408 -- Ancient-era Barbarian-contact threshold of zero
+turns local contact into global contact and over-accelerates Barbarian research
+--------------------------------------------------------------------------
+
+CURRENT CODE / REACHABILITY
+CvTeam::isInContactWithBarbarians is the advc.302 gate used by
+CvTeam::doBarbarianResearch when deciding how many civilization teams should
+contribute to Barbarian free research.
+
+During the early phase, before the city-contact fallback is enabled, it sets:
+
+    int iUnitThresh = GC.getGame().getCurrentEra();
+
+and is meant to skip map areas in which the civilization has too little unit
+presence:
+
+    if (!bCheckCity && countNumUnitsByArea(*pArea) < iUnitThresh)
+        continue;
+
+It then accepts contact when the same area contains more than iUnitThresh
+Barbarian units.
+
+In the Ancient era, currentEra is 0. Therefore:
+
+    ownUnits < 0
+
+can never be true. No area is filtered by the civilization's own presence. The
+function consequently scans every area on the map, and any Barbarian unit
+anywhere satisfies:
+
+    barbarianUnits > 0
+
+Thus, during the period when the function is specifically supposed to localize
+contact through nearby units, one remote Barbarian unit can make every Ancient-
+era civilization count as being in contact with Barbarians.
+
+GAMEPLAY EFFECT
+CvTeam::doBarbarianResearch counts civilization teams that both know a technology
+and return true from isInContactWithBarbarians. F086 therefore inflates the
+contact-weighted Barbarian research rate during the early phase, defeating the
+geographic/contact distinction introduced for advc.302. The later fallback that
+counts a fraction of all known civilizations does not make this harmless; the
+whole point of the earlier branch is that actual contact should matter more.
+
+ANCESTRY / INTENT CONTROL
+The zero-threshold shape is inherited from AdvCiv's Barbarian-contact feature,
+not introduced by current SAS. The source comment immediately above the threshold
+already notes that perhaps a threshold of 1 would have the same effect, which is
+consistent with the intended threshold being a positive unit-presence test rather
+than zero in the Ancient era.
+
+REPAIR DIRECTION
+Give the unit threshold an explicit positive floor while retaining later-era
+scaling, e.g. conceptually:
+
+    iUnitThresh = max(1, currentEra)
+
+Then the early phase requires at least some civilization presence in an area and
+more than that threshold of Barbarian units, instead of globalizing contact in
+era 0.
+
+Classification: inherited AdvCiv Barbarian-research/contact-localization defect.
+
+
+ADDITIONAL NEGATIVE CONTROLS / SECTIONS CLOSED IN THIS TRANCHE
+--------------------------------------------------------------
+
+- AgentIterator::nextIndex was challenged because KI#207 established that it can
+  be the wrong denominator when a caller applies an extra manual filter. That is
+  not happening in the current CvTeam uses. MemberIter and TeamIter<CIV_ALIVE>
+  either traverse exact cached sequences or account internally for predicate
+  skips, so getCurrentEra, getHandicapType and both Barbarian-research alive-team
+  divisors use valid counts. F086 is specifically the zero contact threshold.
+- Permanent-Alliance field/state backfill did not establish another omitted live
+  state beyond F078-F081. Tech and team-shared-building effects are deliberately
+  cross-applied before player reassignment; project-making counts need their
+  explicit merge because CvPlayer::setTeam does not transfer them automatically.
+- The irreversible global Manhattan Project unlock is not a project-removal bug.
+  Normal resetVictoryProgress only removes spaceship projects, while the
+  Manhattan unlock is intentionally global/historical once completed.
+- Cached war-enemy classification remains coherent when an existing wartime
+  opponent changes vassal status: CvTeam::setVassal explicitly adjusts the
+  cached vassal-war-enemy component on every team currently at war with it.
+- Defensive-pact / peace-treaty first-list assumptions continue to be supported
+  by the deal construction contract for those symmetric one-item trade deals.
+- testCircumnavigated deliberately marks an already-complete very-early map as
+  circumnavigated without awarding movement when the elapsed-turn gate is not
+  met. Advanced Start full-map visibility can reach that policy, but this is an
+  intentional early/scenario anti-reward shape, not promoted independently from
+  F084.
+- CvTeam::doTurn contains a source-authored "Known issue in networked
+  multiplayer" around the advc.134a peace-offer staging workaround. It is being
+  retained as an acknowledged limitation to investigate, not promoted as F087
+  without a concrete reproducible state failure and repair contract.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F086
+NEXT ROOT ID: F087 UNUSED
+
+Source-order backfill now includes the early turn/war/contact aggregates,
+Barbarian contact/research, team-size/iterator denominators, relation caches,
+Permanent-Alliance field-state reconciliation, project/victory state, research
+and technology transitions, espionage/reveal helpers, and most late helpers.
+The file remains open.
+
+Next work:
+1. Continue war/peace/contact and other earlier source-order gaps, including the
+   acknowledged advc.134a network-MP staging limitation only if concrete behavior
+   can be proven.
+2. Audit remaining unchanged inherited helpers as well as current-vs-base/Civ4CE
+   semantic deltas; do not assume a quiet SAS diff means inherited code is safe.
+3. Continue divisor/index/state-transition checks and caller reachability.
+4. Adversarially challenge F078-F086 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP05 -- CvTeam.cpp Permanent-Alliance espionage self-target checkpoint
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
+
+This checkpoint is append-only relative to C013-WIP04. No repository source was
+modified.
+
+
+F087 / provisional KI#409 -- Permanent Alliance redirects absorbed-team
+espionage against the survivor into the survivor's self-target EP, polluting
+K-Mod's total-unspent denominator and AI sea-spy targeting
+--------------------------------------------------------------------------
+
+CURRENT CODE / REACHABILITY
+CvTeam::shareItems merges the survivor A and absorbed team B's directed
+espionage-point arrays by iterating every TeamTypes slot without excluding the
+two constituent team IDs:
+
+    setEspionagePointsAgainstTeam(eLoopTeam,
+        GET_TEAM(eTeam).getEspionagePointsAgainstTeam(eLoopTeam) +
+        getEspionagePointsAgainstTeam(eLoopTeam));
+
+For the iteration where eLoopTeam == A (the surviving team's own ID), this
+becomes conceptually:
+
+    A.EPvsA = B.EPvsA + A.EPvsA
+
+B.EPvsA is perfectly ordinary pre-alliance espionage accumulated against the
+future ally. Once B's players are reassigned to team A, however, those points
+have no valid external target. They have instead been stored as A's espionage
+against itself.
+
+The analogous A->B constituent slot is also obsolete after B disappears and
+should not become meaningful merged espionage. Outsider-target slots are the
+ones that should be combined.
+
+SELF EP IS NOT DEAD STATE
+K-Mod's CvTeam::getTotalUnspentEspionage sums:
+
+    for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
+        iTotal += getEspionagePointsAgainstTeam(it->getID());
+
+TeamIter<CIV_ALIVE> is backed directly by CvAgents::CIV_ALIVE, whose cache
+contains every alive non-Barbarian civilization team. There is no relation
+predicate excluding the iterating team; AgentPredicates explicitly distinguishes
+NOT_SAME_TEAM_AS / OTHER_KNOWN_TO when self is supposed to be excluded. Thus A's
+new A->A EP is included in getTotalUnspentEspionage.
+
+GAMEPLAY EFFECT
+CvUnitAI::AI_specialSeaTransportSpy uses getTotalUnspentEspionage as the
+denominator when measuring how much of the team's espionage stock is aimed at
+each real target:
+
+    iValue = 1000 * EPvsTarget / max(1, iTotalPoints);
+
+For example, suppose before the alliance:
+
+    A has 1000 EP against outsider C
+    B has 1000 EP against A
+
+After B is absorbed, the current merge leaves A with 1000 EP against C plus
+1000 EP against itself. A's real C target therefore falls from a 100% share of
+its useful unspent EP to only 50% in AI_specialSeaTransportSpy, despite no real
+espionage having been redirected away from C. This depresses the base values used
+to select and route sea-transported spies and can alter whether/where those
+missions are pursued. SASGameRecord's total-unspent value is contaminated too.
+
+Other espionage AI code often uses explicit OTHER/NOT_SAME team iterators and is
+therefore protected; that is a useful control and confirms that the unfiltered
+K-Mod total is semantically intended to represent useful rival-target EP rather
+than self-target residue.
+
+ANCESTRY
+The bad constituent-slot merge is inherited. Vanilla/Civ4CE's shareItems loops
+all MAX_TEAMS too and uses max rather than sum, so B->A EP can already be written
+into A->A. Kek-Mod/AdvCiv practical 1400 ([dlph.26], "Permanent alliance
+bugfixes and adjustments") changed espionage merging from max to sum but retained
+the same missing constituent-team exclusion. Current AdvCiv/SAS inherits that
+shape.
+
+REPAIR DIRECTION
+During Permanent-Alliance espionage merging:
+
+1. Sum the two constituent teams' EP only for genuine outsider targets.
+2. Discard/clear the survivor-self and absorbed-team target slots; espionage
+   previously spent by A against B or B against A cannot remain useful after the
+   two teams become one.
+3. As defensive hardening, make getTotalUnspentEspionage explicitly exclude the
+   team's own ID (e.g. a NOT_SAME_TEAM_AS iterator), so stale/corrupt self-target
+   EP can never distort AI denominators again.
+
+Do not redistribute mutual constituent espionage to unrelated rivals; there is no
+source-supported target for such a transfer.
+
+Classification: inherited BtS/K-Mod Permanent-Alliance espionage-state defect
+with current K-Mod AI gameplay consequence.
+
+
+ADDITIONAL NEGATIVE CONTROLS / SECTIONS CLOSED IN THIS TRANCHE
+--------------------------------------------------------------
+
+- The F087 effect is not caused by AgentIterator counting semantics. The
+  CvAgents::CIV_ALIVE cache itself includes the survivor team; getTotalUnspent
+  simply chooses an unfiltered iterator. This is distinct from the earlier
+  KI#207 nextIndex/manual-filter bug.
+- Outsider -> merged-team espionage is separately combined later in addTeam and
+  is directionally correct. F087 concerns the constituent A/B target slots in
+  the survivor's own espionage array, not the outsider reverse merge.
+- The absorbed-team target slot A->B becomes irrelevant once B is dead and is
+  normally excluded from alive-team totals; the harmful slot is specifically
+  B->A being redirected into survivor A->A. Clearing both constituent slots is
+  nevertheless the clean merge invariant.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F087
+NEXT ROOT ID: F088 UNUSED
+
+The Permanent-Alliance field/state matrix has now additionally covered directed
+espionage-point target identity and the relevant K-Mod total/AI consumer. The
+file remains open.
+
+Next work:
+1. Continue remaining war/peace/contact and source-order gaps, then unchanged
+   inherited helpers and late state transitions.
+2. Keep the advc.134a network-MP peace-offer limitation unpromoted unless a
+   concrete reproducible failure and repair contract emerge.
+3. Continue raw state/index/divisor/caller checks and current/base/Civ4CE
+   comparisons.
+4. Adversarially challenge F078-F087 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+===============================================================================
+C013-WIP06 -- CvTeam.cpp Advanced-Start dependency + hasSeen merge checkpoint
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+2026-08-25 08:50 light-source snapshot, practical 6252 / HEAD ad022a3f... plus
+its bundled/reconciled audit album and staged KI#388-KI#390 implementation.
+
+This checkpoint appends to the user-received C013-WIP05 artifact. No repository
+source was modified.
+
+
+F088 / provisional KI#410 -- Advanced Start tech refunds validate only later
+techs and the acting player's units/buildings, allowing live team/map
+infrastructure dependencies to survive after their prerequisite tech is sold
+-------------------------------------------------------------------------------
+
+CURRENT CODE / REACHABILITY
+CvPlayer::doAdvancedStartAction(ADVANCEDSTARTACTION_TECH) obtains the refund
+price from getAdvancedStartTechCost(eTech, false), then removes the technology
+from the entire team through:
+
+    GET_TEAM(getTeam()).setHasTech(eTech, false, getID(), false, false);
+
+and refunds the Advanced Start points.
+
+The removal-side validator in CvPlayer::getAdvancedStartTechCost does check:
+
+1. later team technologies that require eTech;
+2. units belonging to *this player* whose unit definition requires eTech;
+3. buildings in *this player's* cities whose building definition requires eTech.
+
+Two live dependency classes are omitted.
+
+A. OWNED IMPROVEMENTS / ROUTES
+------------------------------
+The validator never scans map infrastructure already purchased through the
+technology. The Advanced Start add-cost helpers do enforce the build technology
+when the infrastructure is placed, but removing the technology later does not
+remove the resulting improvement/route and does not retroactively invalidate its
+ordinary plot yield/movement effect.
+
+Current SAS gives simple reachable examples:
+
+- TECH_AGRICULTURE has an Advanced Start cost and enables BUILD_FARM and
+  BUILD_PLANTATION. Farms/Plantations themselves have Advanced Start costs.
+  Agriculture can therefore be bought, the infrastructure purchased, and the
+  technology refunded while the placed infrastructure remains.
+- TECH_THE_WHEEL enables BUILD_ROAD. A Road can be purchased and then the tech
+  refunded while the physical route remains.
+- Current SAS places BUILD_RAILROAD behind TECH_STEAM_POWER. Railroad likewise
+  has an Advanced Start cost, so the same buy-place-refund sequence exists there.
+
+Technology loss can remove some *technology-gated* secondary effects (for
+example bonus revelation/connectivity through the normal team-tech machinery),
+but it does not erase the infrastructure's own persistent map state and ordinary
+route/improvement benefits. Thus the refund can retain value whose prerequisite
+was paid only temporarily.
+
+B. TEAMMATE UNIT / BUILDING DEPENDENCIES
+----------------------------------------
+Technology ownership is team-wide, but the unit/building validation uses only
+FOR_EACH_UNIT(..., *this) and FOR_EACH_CITY(..., *this) for the player pressing
+Refund. It never iterates the other members of that team.
+
+Therefore, on a multi-player team, player B can satisfy the local refund check
+while teammate A still owns units/buildings that require eTech; the subsequent
+setHasTech(false) removes the technology from the whole team anyway. This is the
+same incomplete dependency-validation root, not a separate finding.
+
+CONTROL / ANCESTRY
+------------------
+Base AdvCiv 1.14 retains the same removal validator shape. The supplied
+Civ4CE/BtS control likewise checks dependent team techs followed by the acting
+player's units/cities and does not cover existing routes/improvements or the
+other team members. This is therefore an inherited BtS Advanced Start contract
+hole, not a SAS regression.
+
+REPAIR DIRECTION
+----------------
+Keep the repair at the Advanced Start refund-validation boundary rather than
+trying to destroy objects after team technology has already been removed:
+
+1. For bAdd == false, validate unit/building dependencies across *all* living
+   members of the team, because the state being removed is team-wide.
+2. Reject removal while an owned improvement or route whose construction/build
+   requires eTech remains on the map (using the actual build/prerequisite
+   relationship rather than a hard-coded improvement/route list).
+3. Preserve the existing later-tech dependency checks.
+
+This also composes naturally with F084/F085: Advanced Start technology removal
+needs to be treated as a reversible transaction only when all persistent state
+that depends on that technology can remain internally valid.
+
+Classification: inherited BtS Advanced Start dependency/refund-validation defect.
+
+
+F089 / provisional KI#411 -- Permanent Alliance fails to merge K-Mod hasSeen
+historical civilization-identity knowledge, so absorbed players can forget a
+civilization identity they knew before joining the surviving team
+-------------------------------------------------------------------------------
+
+CURRENT STATE / CONTRACT
+------------------------
+K-Mod practical 728 (77a9b8d554...) introduced CvTeam::m_abHasSeen. Its commit
+message explicitly describes this as broader than first contact: it tracks teams
+that have "been seen" and can become true through "map trading and things like
+that." The flag is deliberately historical/persistent and is used by AdvCiv/K-Mod
+to decide whether a civilization's leader/civilization identity and player color
+may be shown to an observer.
+
+Current sources set hasSeen when, among other things:
+
+- a team actually meets another team (makeHasMet/makeHasSeen);
+- a revealed plot exposes an owner (CvPlot::setRevealedOwner);
+- a city becomes revealed (CvCity::setRevealed).
+
+PERMANENT-ALLIANCE OMISSION
+---------------------------
+CvTeam::addTeam unions actual first-contact state by calling meet for contacts
+known to either constituent team, and later transfers revealed plot/city data.
+However, addTeam/shareItems/shareCounters never union m_abHasSeen itself.
+
+Current-map transfer often masks this omission: if the absorbed team currently
+has a revealed city or a revealed owner that still matches the plot's current
+owner, copying that information causes the survivor to call makeHasSeen again.
+But hasSeen is historical precisely because that current evidence need not still
+exist.
+
+CONCRETE LOSS CASE
+------------------
+A normal sequence can therefore be:
+
+1. Team B learns civilization C's identity without first contact, e.g. through
+   map/city information; B.hasSeen(C) becomes true.
+2. The particular city/territory through which C was identified later changes
+   owner (or otherwise no longer supplies current C-owned revealed evidence),
+   while C remains alive elsewhere and B still correctly retains historical
+   hasSeen(C).
+3. B forms a Permanent Alliance into surviving team A, which has never seen/met
+   C.
+4. The transferred current map can identify the *current* owner, but there is no
+   code transferring historical B.hasSeen(C).
+5. B's players are reassigned to team A. Their identity-visibility checks now
+   consult A.hasSeen(C), which remains false. The former B player can therefore
+   have C's name/civilization/color concealed again despite having known it
+   immediately before the alliance.
+
+The state loss is especially clear because the absorbed CvTeam object is no
+longer used after the merge; leaving the bit only on B is equivalent to deleting
+that historical knowledge.
+
+ANCESTRY / CONTROL
+------------------
+The omission follows K-Mod's addition of m_abHasSeen: the K-Mod practical-728
+change introduced/reset/serialized the field and hooked it to reveal/contact
+paths, while the inherited Permanent-Alliance merger was not taught to combine
+it. Current base AdvCiv 1.14 still has no hasSeen union in addTeam/shareItems or
+shareCounters. Vanilla Civ4CE/BtS predates this K-Mod field and therefore cannot
+serve as a field-level control.
+
+REPAIR DIRECTION
+----------------
+During Permanent Alliance, union historical identity knowledge explicitly:
+
+    if (absorbed.isHasSeen(eOther))
+        survivor.makeHasSeen(eOther);
+
+for relevant team IDs (and, if the disappearing team's state is needed during
+pre-reassignment processing, preserve the symmetric temporary direction as
+appropriate). Do not rely on current revealed ownership to reconstruct a
+historical flag; that loses exactly the cases m_abHasSeen was introduced to
+remember.
+
+Classification: inherited K-Mod Permanent-Alliance state-merge omission with
+observer-facing identity regression.
+
+
+ADDITIONAL NEGATIVE CONTROLS / SECTIONS CLOSED IN THIS TRANCHE
+--------------------------------------------------------------
+
+- A mechanical current-schema serialization matrix compared all 72 live CvTeam
+  data members declared in the persistent/transient state block against reset,
+  read and write. Every persistent member has symmetric read/write handling.
+  The only two members intentionally absent from serialization are advc.134a's
+  m_eOfferingPeace and m_iPeaceOfferStage; both are transient EXE diplomacy-
+  handshake state reset to NO_TEAM/0 rather than durable game state. No hidden
+  save/load root was found there.
+- The advc.134a source comment still acknowledges a networked-multiplayer peace-
+  offer limitation, but no deterministic state failure + repair contract has yet
+  been established. It remains unpromoted rather than turning an author warning
+  into an unsupported finding.
+- Defensive Pact/Open Borders/peace-treaty deal paths that look one-sided locally
+  are constructed as symmetric/dual deal data where their callers require that
+  contract; no additional relation-state root was established from those paths.
+- hasSeen should *not* be inferred solely from hasMet: K-Mod intentionally made
+  it broader than contact. Conversely, current-map transfer can legitimately
+  re-create many hasSeen bits, which is why F089 is specifically about the
+  historical residue that current revealed ownership cannot reconstruct.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F089
+NEXT ROOT ID: F090 UNUSED
+
+The source-order and state-matrix audit has now additionally covered Advanced
+Start technology-refund dependency scope, all current CvTeam serialization
+members, and K-Mod hasSeen identity state across Permanent Alliances. The file
+remains open.
+
+Next work:
+1. Continue unchanged inherited war/peace/contact helpers and cached-counter
+   transitions, then remaining source-order gaps.
+2. Continue raw state/index/divisor/caller checks and current/base/Civ4CE
+   comparisons; keep distinguishing inherited defects from SAS regressions.
+3. Revisit the advc.134a network-MP staging warning only if a concrete reachable
+   failure and repair can be proven.
+4. Adversarially challenge F078-F089 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP07 -- CvTeam.cpp audit continuation
+===============================================================================
+
+Authoritative source remains the 2026-08-25 08:50 light-source snapshot,
+practical 6252 / HEAD ad022a3f... plus its bundled/reconciled audit album and
+staged KI#388-KI#390 implementation.
+
+This checkpoint appends directly to the user-received C013-WIP06 artifact. No
+repository source was modified.
+
+
+F090 / provisional KI#412 -- AdvCiv reparations announcements resolve
+player-local city IDs through the giving team's leader, so a city ceded by a
+nonleader teammate can be misnamed or omitted
+-------------------------------------------------------------------------------
+
+PAYLOAD CONTRACT
+----------------
+TRADE_CITIES stores the city ID belonging to the specific player who owns and
+cedes the city. City IDs are player-local, not team-global. CvDeal::startTrade
+uses the correct contract when executing a city trade:
+
+    kFromPlayer.getCity(trade.m_iData)
+
+where kFromPlayer is the actual player on the giving side of that deal item.
+
+ADVCIV ANNOUNCEMENT MISMATCH
+----------------------------
+The advc.039 reparations-announcement path discards that player identity before
+formatting the peace terms. CvTeam::tradeItemString receives only the giving
+TeamTypes and, for TRADE_CITIES, resolves the same numeric city ID through:
+
+    GET_PLAYER(kFrom.getLeaderID()).getCity(iData)
+
+That is only correct if the giving player is the team leader. After a Permanent
+Alliance, one team can contain several players with independent city-ID
+namespaces, so identical numeric city IDs can refer to entirely different
+cities.
+
+CONCRETE REACHABLE CASE
+-----------------------
+1. Players A and B are members of the same team after a Permanent Alliance; A is
+   the team's leader.
+2. B participates in a later peace deal and cedes B's city ID 0.
+3. A also owns its own unrelated city ID 0.
+4. CvDeal executes the item correctly through B and transfers B's city.
+5. The advc.039 announcement formatter later resolves numeric ID 0 through team
+   leader A and can announce A's different city as the reparations city.
+6. If A has no city with that local ID, the lookup fails and the city term can
+   disappear from the formatted reparations instead.
+
+The deal path is not leader-only: CvDeal participants are PlayerTypes, and the
+peace-treaty/trade machinery remains reachable for individual members of a
+multi-player team. Therefore this is not merely a malformed synthetic payload.
+
+ANCESTRY / CONTROL
+------------------
+The mismatch is already present in the AdvCiv advc.039 implementation. The
+ordinary CvDeal execution path provides the clean control because it retains the
+specific giving player and resolves TRADE_CITIES correctly from that player's
+city table.
+
+The neighboring reparations payloads do not share this defect:
+- technologies, civics and religions use global info IDs;
+- maps are naturally team-level;
+- the relevant target/team arguments are otherwise supplied consistently.
+City IDs are exceptional because they are allocated independently per player.
+
+REPAIR DIRECTION
+----------------
+Do not try to recover the city owner by scanning members of the giving team:
+two teammates can legitimately own the same numeric city ID. Preserve the actual
+reparations-giving PlayerTypes from CvDeal through the announcement path and use
+that player when formatting TRADE_CITIES. TeamTypes can remain sufficient for
+team-global trade-item kinds.
+
+Classification: inherited AdvCiv advc.039 UI/reporting payload-identity defect.
+
+
+ADDITIONAL NEGATIVE CONTROLS / SECTIONS CLOSED IN THIS TRANCHE
+--------------------------------------------------------------
+
+- Other trade-item formatting cases around tradeItemString were checked for the
+  same player-vs-team identity loss. No comparable mismatch was established:
+  their IDs are global or intentionally team-level.
+- The BBAI Defensive Pact behavior-2 source warning remains unpromoted. Current
+  SAS config uses behavior 0, and the stale warning alone is not enough evidence
+  for a current reachable F091 without a deterministic failure + repair.
+- advc.134a's networked-multiplayer peace-offer warning likewise remains an
+  acknowledged source limitation rather than an audit root until a precise
+  reachable state failure can be demonstrated.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F090
+NEXT ROOT ID: F091 UNUSED
+
+Next work:
+1. Continue remaining aggregate/cached-counter and first-contact helpers, then
+   remaining source-order gaps.
+2. Continue raw state/index/divisor/caller checks and inherited/base/Civ4CE
+   comparisons.
+3. Revisit dormant source warnings only if normal current-SAS reachability and a
+   concrete repair contract can be proven.
+4. Adversarially challenge F078-F090 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP08 -- CvTeam.cpp audit continuation
+===============================================================================
+
+Authoritative source remains the 2026-08-25 08:50 light-source snapshot,
+practical 6252 / HEAD ad022a3f... plus its bundled/reconciled audit album and
+staged KI#388-KI#390 implementation.
+
+This checkpoint appends directly to C013-WIP07. No repository source was
+modified.
+
+
+F091 / provisional KI#413 -- AdvCiv forced-peace duration helper assumes a
+peace treaty is the first item of the first deal list, so valid reparations
+peace can be reported as having zero turns remaining
+-------------------------------------------------------------------------------
+
+ROOT
+----
+CvTeam::turnsOfForcedPeaceRemaining is meant to recover the remaining lifetime
+of a mandatory peace treaty from live CvDeal objects. After confirming that the
+team-level isForcePeace flag is active, it scans deals between the relevant
+master teams but recognizes a treaty only when:
+
+    d->getLengthFirst() > 0 &&
+    d->getFirstList().head()->m_data.m_eItemType == TRADE_PEACE_TREATY
+
+This makes physical list side and list order part of a logical team-level
+forced-peace query.
+
+NORMAL REACHABLE COUNTEREXAMPLE
+-------------------------------
+AdvCiv itself deliberately places peace treaties at the bottom of offer lists.
+CvPlayer::updateTradeList removes/re-appends peacetime treaty items specifically
+so that they are at the bottom for the diplomacy Python UI.
+
+The ordinary AI peace/reparations path also constructs lists in which a giving
+side may contain, for example:
+
+    TRADE_GOLD / TRADE_TECHNOLOGIES / TRADE_CITIES ... TRADE_PEACE_TREATY
+
+and then ensures the other side contains a treaty too before either opening the
+human diplomacy popup or calling CvGame::implementDeal for AI-AI peace.
+Consequently the resulting deal can have fully symmetric, valid forced peace
+while the head of the first list is a reparations item rather than the treaty.
+
+In that state isForcePeace(eOther) is true, but
+turnsOfForcedPeaceRemaining(eOther) ignores the live treaty and returns 0.
+
+GAMEPLAY / AI CONSEQUENCE
+-------------------------
+The helper is not cosmetic. UWAI uses the remaining duration to:
+- delay concluding war preparations while more than three treaty turns remain;
+- decide whether a switch to an alternative target can fit before forced peace
+  ends;
+- reduce war-preparation drive in proportion to the treaty time remaining.
+CvPlayerAI also uses the helper to gate help/tribute diplomatic actions.
+
+Returning zero therefore lets AI planning and diplomacy behave as though
+mandatory peace has already expired even though CvTeam::canDeclareWar still
+correctly blocks an actual declaration until the treaty ends.
+
+ANCESTRY
+--------
+The list-head assumption is present in the advc.104 introduction of
+turnsOfForcedPeaceRemaining at AdvCiv practical 1253 / f6ff6a182f.... A later
+null/empty-list guard did not change the physical first-list/head requirement.
+This is therefore an inherited AdvCiv helper defect rather than an SAS
+regression.
+
+REPAIR DIRECTION
+----------------
+Search both trade lists of each matching deal and recognize
+TRADE_PEACE_TREATY anywhere in either list. The logical duration query should
+not depend on which participant physically stores the treaty item or on its
+position among reparations/annual items.
+
+Do not merely move peace treaties to the head: AdvCiv intentionally keeps some
+trade UI lists ordered with the treaty at the bottom, and the robust contract is
+that the helper locate the item rather than impose UI list order on deal state.
+
+Classification: inherited AdvCiv advc.104 forced-peace duration / deal-layout
+contract defect.
+
+
+ADDITIONAL CONTROLS / OPEN NEIGHBOR
+-----------------------------------
+
+- The cached major/minor/vassal war-count audit did not produce a minor-status
+  sibling: CvInitCore explicitly treats changing minor-civ status after game
+  start as unsupported, while setVassal already repairs the supported live
+  vassal reclassification.
+- CvPlayer::resetDualDeal also assumes first-list storage, but unlike F091 it
+  scans the whole first list rather than only the head. Normal symmetric peace
+  construction therefore still finds the treaty there. A separate defect would
+  require proving a final live one-sided-treaty representation, so this remains
+  under challenge rather than being promoted from the source comment alone.
+- K-Mod/AdvCiv deliberately uses one-sided peace-treaty items transiently while
+  counter-proposing because the EXE dislikes adding the item to both sides.
+  Whether every accepted route later symmetrizes the team-level forced-peace
+  state is still being traced. F091 does not depend on this unresolved question.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F091
+NEXT ROOT ID: F092 UNUSED
+
+Next work:
+1. Finish the one-sided peace-treaty / resetDualDeal challenge only if a normal
+   accepted-deal path can be proven; otherwise reject it explicitly.
+2. Continue remaining war/peace/contact helpers, cached transitions and
+   unchanged inherited source-order gaps.
+3. Continue raw state/index/divisor/caller closure and current/base/Civ4CE
+   controls.
+4. Adversarially challenge F078-F091 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP09 -- CvTeam.cpp audit continuation
+===============================================================================
+
+Authoritative source remains the 2026-08-25 08:50 light-source snapshot,
+practical 6252 / HEAD ad022a3f... plus its bundled/reconciled audit album and
+staged KI#388-KI#390 implementation.
+
+This checkpoint appends directly to C013-WIP08. No repository source was
+modified.
+
+
+F092 / provisional KI#414 -- AdvCiv's optimized Tech Share first-contact scan
+uses the reverse directional hasMet relation before it is initialized, making
+The Internet's free-tech grant depend on which team initiates contact
+-------------------------------------------------------------------------------
+
+ROOT
+----
+CvTeam::meet establishes contact by calling makeHasMet in sequence:
+
+    makeHasMet(eTeam, ...);
+    GET_TEAM(eTeam).makeHasMet(getID(), ...);
+
+Each makeHasMet sets only its own directional has-met turn and immediately calls
+updateTechShare(). Current updateTechShare iterates:
+
+    TeamIter<CIV_ALIVE,OTHER_KNOWN_TO> itOther(getID())
+
+but AgentIterator's OTHER_KNOWN_TO predicate is deliberately directional in the
+opposite direction:
+
+    GET_TEAM(getTeam(kAgent)).isHasMet(m_eTeam)
+
+Thus the first team's Tech Share scan runs before the second team has recorded
+that it knows the first team. The newly encountered team is absent from that
+scan even though the first team has already set its own hasMet(other) state.
+The second team's makeHasMet then gets the reciprocal state and scans normally.
+
+CURRENT-SAS REPRODUCTION
+------------------------
+The current XML has one Tech Share source, PROJECT_THE_INTERNET, with
+<iTechShare>2</iTechShare> and <iMaxGlobalInstances>1</iMaxGlobalInstances>.
+That makes a clean asymmetric reproduction:
+
+- A owns The Internet and already knows C.
+- C and newly encountered B both know technology X; A does not.
+- B does not own The Internet (the project is globally unique).
+- Contact with B should raise A's known holders of X from one player to two and
+  immediately grant X.
+
+If the contact path calls A.meet(B), A is processed first. Its updateTechShare
+scan sees C but cannot yet see B through OTHER_KNOWN_TO, so it remains at 1/2
+and X is not granted. B is processed second but has no Tech Share capability and
+cannot compensate.
+
+If the same first contact is reached with B.meet(A), B is processed first and A
+second. By the time A scans, B's reciprocal has-met state exists, so A sees both
+B and C and correctly receives X.
+
+Both caller orientations occur naturally. Unit movement can call the observing
+team's meet(movingTeam), while plot/territory visibility can call the owning
+team's meet(viewingTeam). There is no invariant that the Internet owner is
+always second.
+
+WHY THE LOSS CAN PERSIST
+------------------------
+Tech Share updates are event-driven, not continuously recomputed. They run on
+first contact, on Tech Share count changes, and when a team acquires a
+technology (which asks other teams to update that particular tech). In the
+reproduction B already had X before first contact, and B cannot build a second
+Internet. Therefore no same-contact fallback necessarily rechecks X for A.
+The missed grant can persist until some unrelated later event causes another
+full Tech Share update.
+
+ANCESTRY
+--------
+Vanilla BtS updateTechShare scans alive teams and checks the receiving team's own
+relation:
+
+    if (isHasMet((TeamTypes)iI))
+
+By the time makeHasMet calls updateTechShare, that receiving-side relation has
+already been set, so vanilla includes the newly met team.
+
+AdvCiv practical 1837 / 74de2f9c0f... optimized the scan to
+TeamIter<CIV_ALIVE,KNOWN_TO>. AgentIterator's KNOWN_TO relation uses the reverse
+other.isHasMet(this) direction. Practical 1842 later changed KNOWN_TO to
+OTHER_KNOWN_TO only to exclude self; it retained the same directional predicate
+and therefore the ordering defect. Current SAS inherits it.
+
+REPAIR DIRECTION
+----------------
+Prefer establishing both reciprocal has-met states before evaluating Tech Share.
+A causal repair is to remove updateTechShare() from makeHasMet and, in meet,
+call updateTechShare() for both teams only after both makeHasMet calls have
+finished. This also gives Tech Share the natural logical contract: first make
+contact symmetric, then evaluate effects that depend on contact.
+
+Alternatively, updateTechShare could explicitly iterate from the receiving
+team's own isHasMet relation, but keeping dependent updates after reciprocal
+contact is less fragile and avoids similar ordering assumptions later.
+
+Classification: inherited AdvCiv practical-1837 first-contact / AgentIterator
+relation-direction regression.
+
+
+ADDITIONAL CONTROLS / REJECTIONS
+---------------------------------
+
+- A possible stale m_abNoTradeTech state after tech removal/reacquisition was
+  rejected for normal gameplay. The live ordinary tech-removal paths are
+  Advanced Start and pregame True-Starts map regeneration. Advanced Start techs
+  are self-purchased and do not set NoTradeTech; map regeneration rebuilds setup
+  state. A stale true flag requires an external Python/WorldBuilder-style
+  removal after a traded/stolen tech, so it is robustness/API residue rather
+  than a normal-game F092 root.
+- The earlier one-sided peace-treaty neighbor remains rejected as a separate
+  finding because the final human-acceptance transformation is partly inside
+  the closed EXE. F091 remains independently proven by ordinary symmetric
+  reparations deals and does not depend on that representation.
+- Team death/revival and setTeam member/alive-count transitions were re-read as
+  controls. When an absorbed PA team reaches zero alive members, its dead-team
+  war/war-plan cleanup operates on the obsolete team while the surviving team's
+  already-propagated relations remain live; no independent root was established
+  there.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F092
+NEXT ROOT ID: F093 UNUSED
+
+Next work:
+1. Continue remaining member/death/revival, vote/trading-counter, first-contact
+   and war-weariness helpers after the F092 contact-order root.
+2. Continue circumnavigation and remaining unchanged inherited source-order
+   sections, then raw field/index/divisor/caller closure.
+3. Reconcile unusual helpers against base AdvCiv/Civ4CE and commit archaeology
+   before promotion.
+4. Adversarially challenge F078-F092 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+===============================================================================
+C013-WIP10 -- CvTeam.cpp audit continuation
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+F093 / provisional KI#415 -- AdvCiv alive-only war-weariness iterator freezes
+weariness against dead civilizations instead of applying BtS's explicit decay
+-------------------------------------------------------------------------------
+
+ROOT
+----
+CvTeam::doWarWeariness stores war weariness per opposing team. Vanilla BtS /
+the local Civ4CE control iterate the full civilization-team domain and contain
+an explicit stronger peace-decay condition for a dead target team. AdvCiv
+practical 1837 (74de2f9c0f...) converted this loop to TeamIter<CIV_ALIVE> while
+leaving the inherited !target.isAlive() branch in place. That branch is now
+unreachable by construction.
+
+CONSEQUENCE
+-----------
+When an opponent dies, stored war weariness against it no longer receives the
+BtS dead-team decay; it freezes indefinitely while the target is absent. AdvCiv
+has a real civilization/player revival path, so the stale value can later
+become relevant again: it re-enters AI future-war cost evaluation and, upon a
+renewed war, can again contribute to city war-weariness anger.
+
+CONTROL / ANCESTRY
+------------------
+The Civ4CE/BtS implementation proves that dead teams were intentionally part of
+the loop: it iterates all teams and explicitly tests !isAlive() in the decay
+condition. Practical 1837's iterator optimization removed those teams without
+removing or replacing that semantic requirement. This is therefore an
+inherited AdvCiv practical-1837 iterator-regression family, independent of
+F092's directional first-contact Tech Share regression from the same commit.
+
+REPAIR DIRECTION
+----------------
+Restore iteration over the full civilization-team domain for stored nonzero war
+weariness, or otherwise process dead targets explicitly so the inherited
+strong dead-team decay remains reachable.
+
+Classification: inherited AdvCiv practical-1837 iterator semantic regression.
+
+
+CONTROLS / REJECTIONS SINCE WIP09
+---------------------------------
+- A possible stale m_abNoTradeTech flag after tech removal/reacquisition was
+  rejected for normal gameplay. Ordinary removal paths do not naturally create
+  the required traded/stolen-tech stale state.
+- A turn-zero/very-early circumnavigation oddity remains unpromoted: K-Mod's
+  source history explicitly changed the minimum elapsed-turn behavior, so the
+  observed early-map behavior is consistent with deliberate policy rather than
+  a source-proven defect.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F093
+NEXT ROOT ID: F094 UNUSED
+
+Next work:
+1. Use AdvCiv practical 1837 as a focused differential oracle: compare every
+   iterator substitution against the precise condition it removed, especially
+   directional KNOWN_TO relations and ALIVE/MAJOR_CIV restrictions.
+2. Continue remaining vote/trading/war/contact/circumnavigation source-order
+   gaps, then raw field/index/divisor/caller closure.
+3. Reconcile any candidate against base AdvCiv/Civ4CE and commit archaeology.
+4. Adversarially challenge F078-F093 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+===============================================================================
+C013-WIP11 -- CvTeam.cpp audit continuation
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+F094 / provisional KI#416 -- AdvCiv practical-1837 alive-only team-member
+optimization skips dead teammates during tech acquisition, so revived members
+can permanently miss era advancement and player-level tech effects
+-------------------------------------------------------------------------------
+
+ROOT
+----
+AdvCiv practical 1837 (74de2f9c0f...) replaced several explicit all-player
+team loops in CvTeam::setHasTech / CvTeam::processTech with MemberIter. MemberIter
+is an ALIVE,MEMBER_OF player iterator. Two of the replaced BtS loops
+intentionally had no isAlive test:
+
+1. setHasTech advanced every player assigned to the team to the acquired
+   technology's era when needed.
+2. processTech applied the technology's persistent per-player modifiers to
+   every player assigned to the team.
+
+After practical 1837, both operations silently exclude a dead member of a
+still-alive multi-player team.
+
+REACHABLE CONSEQUENCE
+---------------------
+A multi-member team can remain alive while one member is dead. The surviving
+member can continue researching. If the dead member is later revived, the
+player still belongs to the team and therefore shares its known technologies,
+but CvPlayer::setAlive(true) does not replay the team's known technologies or
+reconstruct the skipped player-level effects.
+
+Current SAS contains many concrete player-level tech effects that can therefore
+be missed while dead, including (examples, not an exhaustive list):
+- Mathematics: +50% feature production;
+- Currency / Corporation: +1 trade route;
+- Electricity: +50% worker speed;
+- Bioengineering: +3 health;
+- AI: +50% worker speed, +1 health, +2 happiness;
+- Naturalism: +1 specialist research.
+
+The same optimization also means a dead member does not receive the normal
+currentEra increase when a later-era team technology is acquired. On revival,
+that player can therefore have the team's technology set but stale era and
+stale persistent player modifiers.
+
+CONTROL / ANCESTRY
+------------------
+The Civ4CE/BtS control loops all players and checks only player.getTeam()==this
+for these persistent tech-acquisition effects; there is deliberately no alive
+condition. Practical 1837 is the exact change that replaces those loops with
+alive-only MemberIter. The real AdvCiv revival path (CvPlayer::setAlive(true),
+including CvGame::reviveActivePlayer / verifyAlive) does not replay known team
+technologies.
+
+REPAIR DIRECTION
+----------------
+Restore the old semantic population for persistent team-tech effects: process
+players assigned to the team even while dead (e.g. an appropriate EVER_ALIVE /
+team-membership iteration where safe), both for current-era advancement and
+processTech's persistent per-player modifiers. Alternatively, revival would
+need an explicit complete replay/reconstruction of all team-tech effects, which
+is broader and more fragile.
+
+Classification: inherited AdvCiv practical-1837 alive-filter semantic
+regression.
+
+
+F095 / provisional KI#417 -- AdvCiv practical-1837 getDefensivePower refactor
+can count the excluded attacker's own vassals as defenders of a Defensive-Pact
+target
+-------------------------------------------------------------------------------
+
+ROOT
+----
+CvTeam::getDefensivePower(eExcludeTeam) is used by UWAI / legacy war evaluation
+to estimate a target's defensive coalition while excluding the evaluating /
+attacking team.
+
+Before practical 1837, the function iterated teams. It skipped eExcludeTeam at
+the team level, then added getPower(true) for the target master and its
+Defensive-Pact partners. K-Mod's own comment records the important invariant:
+vassals cannot themselves hold Defensive Pacts; only their master does.
+
+Practical 1837 rewrote the function to iterate individual alive players. It now
+skips a player only when player.getTeam()==eExcludeTeam, then derives that
+player's master and counts the player whenever the target master is the same as,
+or has a Defensive Pact with, that master.
+
+REACHABLE CONSEQUENCE
+---------------------
+Let master A own vassal V and have a Defensive Pact with target T. Masters with
+vassals are allowed to sign Defensive Pacts; only being a vassal blocks pact
+signing. UWAI can also evaluate / scheme against a current DP partner because
+canEventuallyDeclareWar does not treat a Defensive Pact as permanent forced
+peace.
+
+For T.getDefensivePower(A):
+- old code skips A. V has no independent DP with T, so V is not counted;
+- new code skips A's direct players, but V's players have master==A. Since T's
+  master has a DP with A, every V player is added to T's defensive power.
+
+Thus the attacker's own vassal military can be counted on the target's side.
+This inflates target-power ratios used throughout UWAI / CvTeamAI and can make
+wars against a DP partner look materially harder simply because the attacker
+has vassals that would actually belong to the attacking bloc.
+
+CONTROL / ANCESTRY
+------------------
+The exact team-to-player rewrite appears in AdvCiv practical 1837 /
+74de2f9c0f.... The old implementation's team-level exclusion plus the K-Mod
+"only our master will have defensive pacts" invariant avoids this case.
+Current CvPlayer::canPossiblyTradeItem permits a non-vassal master to sign a DP
+even when it owns vassals.
+
+REPAIR DIRECTION
+----------------
+Exclude the attacking/master bloc before applying the defensive-coalition test,
+not merely players whose direct team equals eExcludeTeam. For the principal
+UWAI call contract, players whose master is the excluded attacking master must
+not be counted as defenders of a DP target. Preserve careful behavior for any
+rare callers that pass a vassal as eExcludeTeam rather than assuming every
+caller is a free master.
+
+Classification: inherited AdvCiv practical-1837 refactor semantic regression.
+
+
+PRACTICAL-1837 CONTROLS / REJECTIONS SINCE WIP10
+-------------------------------------------------
+- setVassal's optimized KNOWN_POTENTIAL_ENEMY_OF(master) war-plan cleanup was
+  challenged but not promoted. That branch explicitly clears plans the master
+  may have forced upon the vassal; requiring the master to know the rival is
+  coherent, while an independent vassal plan against a civ unknown to the
+  master need not be erased.
+- getVotes / isFullMember alive-member conversion was not promoted: dead
+  players contribute no live voting population/cities, and no persistent
+  state is skipped.
+- getTypicalUnitValue, assets, units/cities/population/power-by-area and making
+  counts are dynamic live-state aggregates; their old loops already filtered
+  alive players where relevant, so MemberIter preserves the population.
+- setOpenBorders attitude-cache updates remain a negative control: revival
+  performs broader AI attitude recomputation, so the alive-only update does not
+  establish a persistent missing-state root analogous to F094.
+- verifySpyUnitsValidPlot's old loop already required isAlive, so MemberIter is
+  semantically equivalent there.
+- getHasMetCivCount / other KNOWN_TO helpers retain a transient directional
+  asymmetry during the first half of CvTeam::meet, but the durable concrete
+  Tech Share failure is already normalized as F092; no separate root has been
+  manufactured without another persistent consequence.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F095
+NEXT ROOT ID: F096 UNUSED
+
+Next work:
+1. Finish the practical-1837 iterator differential, especially relation filters
+   and any old branches made impossible by ALIVE / MAJOR_CIV restrictions.
+2. Resume remaining vote/trading/contact/war/circumnavigation source-order gaps,
+   then raw field/index/divisor/caller closure.
+3. Reconcile every surviving candidate against base AdvCiv/Civ4CE and commit
+   archaeology before promotion.
+4. Adversarially challenge F078-F095 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+===============================================================================
+C013-WIP12 -- CvTeam.cpp audit continuation
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+This checkpoint continues directly from C013-WIP11. It physically anchors the
+post-WIP11 Tech Share player-count finding and records the latest whole-file /
+Permanent-Alliance negative controls before the audit continues from F097.
+
+F096 / provisional KI#418 -- Kek-Mod player-count Tech Share counts dead team
+members through getNumMembers(), allowing eliminated teammates to satisfy The
+Internet threshold
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Kek-Mod / AdvCiv changed Tech Share (currently The Internet in SAS) from
+counting qualifying TEAMS to counting qualifying PLAYERS. The live
+CvTeam::updateTechShare implementation does this by iterating alive known teams
+and, when a team knows the candidate technology, adding that team's
+getNumMembers():
+
+    if (itOther->isHasTech(eTech))
+        iCount += itOther->getNumMembers(); // kekm.38: was +1
+
+CvTeam::getNumMembers() is total assigned team membership, not alive-member
+count. A dead teammate remains a member of its surviving team, so a qualifying
+alive team can contribute eliminated players to the Tech Share threshold.
+
+CONCRETE SAS CASE
+-----------------
+The Internet is the current globally unique Tech Share source and uses
+TechShare threshold 2. Let Internet owner A know team X. Team X has two members,
+one alive and one eliminated, and knows technology T (technology ownership is
+team-wide). A does not know T.
+
+updateTechShare sees one alive qualifying team X, but adds
+X.getNumMembers()==2. A therefore receives T immediately even though only one
+living player / civilization on X currently knows it.
+
+INTERNAL CONTROL
+----------------
+The same feature's AI project valuation counts known PLAYERS through an alive
+player iterator (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO>). Thus the implementation
+and its AI valuation disagree about whether eliminated teammates count. The AI
+sees one living known player in the example above; the actual grant logic sees
+two through getNumMembers().
+
+ANCESTRY
+--------
+AdvCiv practical 3116 / 2cf365b350... is titled "Internet project counts
+players, not teams" and changes the grant logic from +1 per team to
+getNumMembers(). The commit did not substitute an alive-member count. This is
+therefore inherited from the Kek-Mod / AdvCiv player-count implementation, not
+an SAS regression.
+
+REPAIR DIRECTION
+----------------
+Count living members of each qualifying team (e.g. getAliveCount() or an
+alive-member iteration), matching the feature's player-count intent and its AI
+valuation. Do not revert to team count merely to avoid the dead-member case.
+
+Classification: inherited Kek-Mod / AdvCiv Tech Share counting defect.
+
+
+POST-WIP11 CONTROLS / REJECTIONS
+---------------------------------
+- Practical-1837 iterator differential is effectively exhausted. Apart from
+  F092/F093/F094/F095, the remaining substitutions preserve the old semantic
+  population or affect dynamic live-state queries where alive filtering is
+  appropriate.
+- CvTeam::getName / getReplayName were challenged because the current callers
+  do not manually set bFirst=false. Rejected: AdvCiv practical 2882 explicitly
+  refactored setListHelp to take bool& and update bFirst internally, then
+  deliberately removed those assignments.
+- Counterespionage/stolen-visibility/turns-at-peace timers pause while the
+  counterpart team is dead, but unlike F093 this alive-only policy already
+  exists in the BtS control; no contrary inherited decay rule was made
+  unreachable.
+- Permanent-Alliance project counts do NOT sum duplicate projects. Live
+  shareCounters computes a positive delta only when the absorbed team has the
+  larger count, thereby setting the survivor to max(oldA, oldB). The older
+  sum-looking version is commented out. Thus two constituent teams owning the
+  same team-limited project do not by themselves push the merged count beyond
+  MaxTeamInstances.
+- Other nearby getNumMembers uses are not generalized into F096. PA weighting
+  and research-cost team-size scaling have different semantics; F096 is strong
+  because this feature was explicitly changed to count players who know a tech
+  while its own AI valuation counts alive players.
+
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F096
+NEXT ROOT ID: F097 UNUSED
+
+Next work:
+1. Resume whole-file CvTeam.cpp closure after the practical-1837 differential:
+   remaining relation/state helpers, signed/cached counters, project/victory
+   state, raw field/index/divisor/caller audit.
+2. Challenge any suspicious team/member count against its exact semantic
+   population rather than treating getNumMembers / alive iterators generically.
+3. Reconcile new candidates against base AdvCiv/Civ4CE and commit archaeology.
+4. Adversarially reread F078-F096 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP13 -- CvTeam.cpp audit continuation
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+This checkpoint continues directly from C013-WIP12. It physically anchors the
+cross-file Domestic Advisor coordinate defect found while tracing
+CvTeam::isMapCentering and records the latest Permanent-Alliance/state/refactor
+controls before the audit continues from F098.
+
+F097 / provisional KI#419 -- AdvCiv Customizable Domestic Advisor X-coordinate
+wrapper returns Y, so both coordinate columns display Y once map centering is
+unlocked
+-------------------------------------------------------------------------------
+
+ROOT
+----
+AdvCiv added map-centering-aware wrappers for the Customizable Domestic Advisor
+coordinate columns so that city coordinates remain hidden until the active team
+has obtained map centering. The X wrapper contains a direct copy/paste typo:
+
+    def getX (self, city, szKey, arg):
+        if PyPlayer(CyGame().getActivePlayer()).getTeam().isMapCentering():
+            return city.getY()
+        return "?"
+
+The neighboring Y wrapper also returns city.getY(), as intended. Therefore,
+once map centering is available, LOCATION_X and LOCATION_Y both display the
+city's Y coordinate.
+
+REACHABILITY / CURRENT SAS CONTROL
+----------------------------------
+CvCustomizableDomesticAdvisor registers both fields as live optional columns:
+
+    LOCATION_X -> self.getX
+    LOCATION_Y -> self.getY
+
+Current SAS also has ordinary map-centering sources (notably TECH_PAPER and
+BUILDING_STONEHENGE), so the true-coordinate branch is reachable. Before map
+centering both wrappers intentionally return "?"; after unlocking, the X value
+is simply wrong whenever city.getX()!=city.getY().
+
+ANCESTRY
+--------
+AdvCiv practical 3061 / ace7bb9bf28989b2a30e9200cf376a4646099d6f,
+"Fix info leaks in Customizable Domestic Advisor", introduced these wrappers.
+The original patch already contained return city.getY() in getX. The later
+merge-history copy preserves the same typo. This is therefore an inherited
+AdvCiv Python/UI defect, not an SAS regression.
+
+REPAIR DIRECTION
+----------------
+Change the successful branch of getX to:
+
+    return city.getX()
+
+No C++ behavior change is required.
+
+Classification: inherited AdvCiv UI / coordinate-reporting bug, surfaced
+cross-file through the CvTeam::isMapCentering audit.
+
+
+POST-WIP12 CONTROLS / REJECTIONS
+---------------------------------
+- Permanent-Alliance m_aiExtraMoves merge was challenged because K-Mod itself
+  says provenance cannot be distinguished reliably. Under the actual SAS/BtS
+  source set, the live merge order is nevertheless coherent: shareItems first
+  shares all technologies both ways, thereby equalizing additive technology
+  DomainExtraMoves; the later max merge then only needs to preserve a unique
+  constituent-only source such as circumnavigation. No F097 from extra moves.
+- Tech bMapCentering is one-way in processTech and current TECH_PAPER is an
+  Advanced Start removable map-centering technology. This remains a sibling
+  challenge to the already-normalized Advanced Start irreversible-state family
+  (especially F084/F085); it is not split into another root in this checkpoint.
+- The apparent getName/getReplayName missing bFirst=false remains rejected:
+  practical 2882 deliberately moved bFirst mutation into setListHelp(bool&).
+- changeNoFearForSafetyCount's upper assertion was challenged against XML.
+  Current SAS has exactly one NoFearForSafety technology (TECH_NATIONALISM), so
+  a normal singleton team cannot accumulate multiple tech-derived increments.
+- Permanent-Alliance project counts remain max-merged, not summed.
+- Project-art provenance was challenged separately: when the absorbed team has
+  more projects, newly created survivor m_aaiProjectArtTypes entries begin at
+  -1 and absorbed default/per-instance art is not explicitly copied. However,
+  default project-art selection crosses an exported/closed EXE contract and
+  -1 is an explicit supported "undefined/default" state finalized at launch.
+  A visible failure cannot be source-proved from the supplied trees, so this is
+  retained only as an unresolved cosmetic-risk note, not F098.
+- Remaining signed capability counters audited in this tranche continue to be
+  driven by signed processTech(iChange) transitions; no F083-style fixed-sign
+  sibling has survived so far.
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F097
+NEXT ROOT ID: F098 UNUSED
+
+Next work:
+1. Continue whole-file CvTeam.cpp closure: remaining relation/state helpers,
+   persistent-field provenance, raw index/divisor/caller and sentinel checks.
+2. Keep using base AdvCiv/Civ4CE differences only as leads, not proof.
+3. Reconcile any new candidate against current SAS reachability and commit
+   archaeology before promotion.
+4. Adversarially reread F078-F097 before any C014 decision.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP14 -- CvTeam.cpp audit continuation
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+This checkpoint continues directly from C013-WIP13. It physically anchors the
+Permanent-Alliance TurnsAtPeace merge defect found during the final persistent-
+field provenance/adversarial pass and normalizes several late controls before
+the audit continues from F099.
+
+F098 / provisional KI#420 -- AdvCiv exact TurnsAtPeace counter is merged
+asymmetrically by Permanent Alliance: outsider direction uses a team-size-
+weighted average while survivor direction takes the maximum
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Change advc.130k introduced CvTeam::m_aiTurnsAtPeace as a deterministic,
+team-level replacement for the randomized CvTeamAI at-peace counter specifically
+because the latter was incorrectly being used for the sustained-peace trade-
+route modifier. Outside Permanent Alliances, this state is maintained as a
+bilateral exact counter: war declaration resets both directions to 0 and, while
+both teams remain alive and at peace, each side increments its direction once
+per turn.
+
+Permanent Alliance merging handles the two directions differently.
+
+For an outsider kOther looking toward the new combined team, CvTeam::addTeam
+explicitly computes a team-size-weighted average:
+
+    kOther.setTurnsAtPeace(getID(),
+        (iOriginalTeamSize * kOther.getTurnsAtPeace(getID()) +
+         iSecondTeamSize * kOther.getTurnsAtPeace(eTeam)) /
+        getNumMembers());
+
+But for the new combined team looking toward that same outsider,
+CvTeam::shareCounters uses the older generic stronger-history/max pattern:
+
+    if (kShareTeam.getTurnsAtPeace(eLoopTeam) > getTurnsAtPeace(eLoopTeam))
+        setTurnsAtPeace(eLoopTeam, kShareTeam.getTurnsAtPeace(eLoopTeam));
+
+That breaks the bilateral counter invariant immediately after a merge.
+
+CONCRETE REPRODUCTION
+---------------------
+For equal-size constituent teams A and B and outsider C:
+
+    A -> C TurnsAtPeace = 100
+    B -> C TurnsAtPeace =   5
+
+Before the alliance the reciprocal values are normally the same in each pair.
+After A absorbs B:
+
+    C -> (A+B) = (100 + 5) / 2 = 52   [reverse weighted merge]
+    (A+B) -> C = max(100, 5) = 100    [shareCounters]
+
+The same post-alliance bilateral relation therefore has two different values
+for what advc.130k introduced as an exact turns-at-peace counter.
+
+GAMEPLAY CONSEQUENCE
+--------------------
+CvCity::getPeaceTradeModifier reads the city owner's directional
+getTurnsAtPeace(otherTeam) value when calculating the sustained-peace foreign-
+trade modifier. The asymmetric PA merge can therefore give cities on opposite
+sides of the same relationship different peace-history credit solely because
+one direction was max-merged and the other weighted. WarUtilityAspect also
+uses this counter as real inter-team peace-history state.
+
+ANCESTRY / INTENT CONTROL
+-------------------------
+AdvCiv commit dc322128c7de2fce6befbc891d577c271340e95e, "Keep exact count of
+turns at peace", introduced m_aiTurnsAtPeace because the randomized AI counter
+must not drive the sustained-peace trade-route modifier. The new field was then
+inserted into two pre-existing PA merge patterns with different policies:
+shareCounters' own-side max pattern and addTeam's reverse team-size-weighted
+pattern. No explicit rationale was found for making this exact bilateral state
+asymmetric.
+
+REPAIR DIRECTION
+----------------
+Merge both directions with the same explicit policy. The least invasive repair
+is to use the same team-size-weighted average for the survivor's own direction
+that addTeam already uses for the outsider direction, calculated before member
+reassignment while both constituent team sizes are still known. An alternative
+policy could be chosen deliberately, but it must be symmetric; the current
+max-vs-weighted split cannot preserve the field's bilateral meaning.
+
+Classification: inherited AdvCiv Permanent-Alliance history/state merge bug.
+
+
+POST-WIP13 CONTROLS / NORMALIZATION
+-----------------------------------
+- Advanced Start / map-centering sibling strengthened: current TECH_PAPER is
+  Advanced-Start refundable and has bMapCentering=1. processTech applies map
+  centering only for iChange>0 and no normal false transition clears it.
+  Buying Paper, enabling map centering, then refunding Paper retains the effect.
+  This is normalized as another manifestation of the already-recorded Advanced
+  Start irreversible/refundable-state family (alongside F084/F085), not split
+  into a new root.
+- PermanentWarPeace reverse-flag transfer was challenged. addTeam transfers the
+  survivor-side flag but does not rewrite every outsider's stale absorbed-team
+  slot. Normal behavior checks both orientations (our flag || their flag), and
+  the transferred survivor-side flag preserves the restriction; no normal
+  gameplay failure was source-proved. Rejected as F098.
+- Permanent-Alliance ProjectMaking is summed while constituent cities may both
+  be producing the same team-limited project. Normal production validation
+  subsequently drops conflicting continuing queues and decrements ProjectMaking
+  back into range. The choice of which queue survives can depend on city order,
+  but invested production remains stored and no sufficiently irreversible
+  failure was established. Retained as a quality-risk note only.
+- m_aiProjectDefaultArtTypes / m_aaiProjectArtTypes provenance loss across PA
+  remains an unresolved cosmetic-risk note because -1 is a supported default
+  state and final art selection crosses the closed EXE contract.
+- PA m_aiExtraMoves max merge remains rejected as a bug under current sources:
+  shareItems first equalizes all tech-derived DomainExtraMoves; max then safely
+  preserves the only constituent-specific source such as circumnavigation.
+- setListHelp refactor control remains clean: practical 2882 intentionally made
+  setListHelp(bool&) mutate bFirst, so getName/getReplayName need no manual
+  bFirst=false assignment.
+- Raw divisor, list-head and pointer closure remained quiet in this tranche;
+  F091 continues to be the only source-proved positional trade-list misuse.
+- canSeeTech and similar exposed helpers are less defensive than their comments
+  imply, but all live source callers found pass valid team/player arguments; no
+  forged Python/API sentinel case was promoted.
+
+ADVERSARIAL STATUS
+------------------
+The reread has not retracted F078-F097 so far. In particular:
+- F078/F081 remain reachable because PA trading has no Counterespionage or
+  spaceship-countdown prohibition.
+- F080's player-level Disengage deal survives team reassignment while the team-
+  level enforcement flag does not transfer.
+- F082/F083 remain direct arithmetic/signed-transition defects.
+- F084/F085/F088 remain live through the ordinary Advanced Start removal path.
+- F094 revival does not replay known-team-tech player modifiers.
+- F095 still admits players whose direct team differs from the excluded attacker
+  but whose master team is that attacker.
+- F096 still counts dead roster members through getNumMembers in Tech Share.
+- F097 remains the direct Domestic Advisor getX -> getY typo.
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F098
+NEXT ROOT ID: F099 UNUSED
+
+Next work:
+1. Finish adversarial reread of F078-F098 against current XML/callers and later
+   refactors; retract or merge anything that no longer survives.
+2. Complete final persistent-field/source-order/caller checklist, including the
+   remaining team history/victory/espionage/relation state families.
+3. Reconcile any new candidate against base AdvCiv/Civ4CE and ancestry before
+   promotion.
+4. Only if the entire closure remains coherent, decide whether CvTeam.cpp earns
+   durable C014; otherwise freeze another WIP first.
+
+No repository source was modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP15 -- CvTeam.cpp audit continuation
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+This checkpoint continues directly from C013-WIP14. It physically anchors the
+stolen-visibility Permanent-Alliance lifecycle defect found during the final
+espionage/persistent-field closure and preserves the current adversarial state
+before the audit continues from F100.
+
+F099 / provisional KI#421 -- Permanent Alliance leaves live teams' stolen-
+visibility relation to the absorbed team active after that target dies, so the
+old target's plot-level stolen visibility can become permanent
+-------------------------------------------------------------------------------
+
+ROOT
+----
+CvTeam::setStolenVisibilityTimer is not merely timer bookkeeping. Whenever a
+team-target relation crosses zero, it adds or removes one
+CvPlot::StolenVisibilityCount for the stealing team on every plot currently
+visible to the target team:
+
+    if (bOldStolenVisibility != isStolenVisibility(eIndex))
+        for every plot visible to eIndex
+            changeStolenVisibilityCount(getID(), active ? +1 : -1);
+
+Permanent Alliance merging transfers the absorbed team's ordinary visibility
+into the surviving team and merges stolen-visibility timers, but it never
+performs the corresponding old-target -> 0 transition for live teams that had
+stolen visibility against the absorbed team.
+
+CONCRETE OUTSIDER REPRODUCTION
+------------------------------
+Let A absorb B while outsider C has an active stolen-visibility timer against B.
+Before the alliance, C's C->B timer has already added +1 stolen-visibility count
+to every plot B can currently see.
+
+During CvTeam::addTeam:
+1. B's ordinary visibility is copied into A.
+2. The reverse outsider merge computes/sets a weighted C->A stolen-visibility
+   timer from C->A and C->B.
+3. C->B itself is never cleared through setStolenVisibilityTimer(B, 0).
+4. B's players are now members of A and B is no longer an alive team.
+
+CvTeam::doTurn decrements stolen-visibility timers only over
+TeamIter<CIV_ALIVE,NOT_SAME_TEAM_AS>. C therefore never visits dead B again and
+its old positive C->B timer freezes indefinitely.
+
+When the new C->A timer later expires, setStolenVisibilityTimer(A,0) subtracts
+only the plot-level +1 belonging to the new A relation. The old +1 originally
+created by C->B remains on B's pre-alliance visible plots, leaving C with
+permanent visibility there.
+
+A weighted merged timer that rounds to zero makes the defect even simpler: no
+new C->A relation need be created at all, yet the old C->B plot counts remain.
+
+SURVIVOR-INTERNAL SIBLING
+-------------------------
+The cleanup also has to include survivor A's own A->B stolen-visibility
+relation. After B's real sight has been copied into A, A no longer needs an
+espionage relation against its new teammate. Leaving A->B active gives A an
+extra plot-level stolen-visibility +1 tied to a dead target. As legitimate
+merged sight later changes, that stale +1 can continue to reveal former-B plots.
+
+WHY LATER RESET DOES NOT REPAIR IT
+----------------------------------
+CvTeam::reset does not call setStolenVisibilityTimer when clearing another
+team's target slot. It directly executes:
+
+    kLoopTeam.m_aiStolenVisibilityTimer.resetVal(getID());
+
+Thus a later reset can erase the frozen timer value without invoking the
+zero-transition that removes plot-level stolen-visibility counts. The leaked
+plot state can therefore become permanently detached from its timer bookkeeping.
+
+ANCESTRY / CONTROL
+------------------
+The underlying Permanent-Alliance stolen-timer merge exists in Civ4CE/BtS and
+base AdvCiv as well. K-Mod/Kek-Mod later added a specifically documented fix for
+"permanent espionage visibility" during Permanent Alliances, but that repair
+only clears CvCity espionage visibility for the absorbed team through
+CvCity::setEspionageVisibility. In the same merge machinery the stolen map-
+visibility timers continue to be averaged/transferred without clearing the old
+absorbed-target relation. No later current-source cleanup path was found.
+
+REPAIR DIRECTION
+----------------
+The order matters because the old relation's plot counts must be removed without
+throwing away legitimate merged sight:
+
+1. Copy B's real visibility into survivor A as today.
+2. Compute/set each live team's intended post-merge stolen-visibility timer
+   against A, using the chosen PA merge policy while the old B timer is still
+   available as input.
+3. After that transfer, clear every live non-B team's stolen-visibility timer
+   against B through setStolenVisibilityTimer(B, 0), not direct array reset.
+   This includes survivor A itself and all outsiders such as C.
+
+Calling the setter is essential: it subtracts the old B-derived plot-level
+stolen counts. If the live team retains a merged A relation, A's legitimate
+visibility/timer contribution remains independently represented.
+
+Classification: inherited BtS/K-Mod Permanent-Alliance espionage-visibility
+lifecycle bug.
+
+
+POST-WIP14 CONTROLS / NORMALIZATION
+-----------------------------------
+- Repeat-tech Permanent-Alliance sharing was challenged because shareItems uses
+  isHasTech while repeat technologies store counts separately and deliberately
+  leave isHasTech false. Current SAS contains no bRepeat=1 technologies, so no
+  live reproduction exists; retained as generic/modmod robustness only.
+- The old Kek-Mod Permanent-Alliance "permanent espionage visibility" fix was
+  traced and confirmed to address city espionage visibility only; it does not
+  clear StolenVisibilityTimer relations or CvPlot stolen-visibility counts.
+- CvPlayer::setTeam changes team aggregate membership/city/population/land state
+  but performs no stolen-visibility cleanup.
+- CvTeam::changeAliveCount(0) ends wars and related war-plan state but performs
+  no stolen-visibility cleanup.
+- CvTeam::doTurn's stolen-visibility decrement domain is explicitly alive target
+  teams, proving that a surviving team's positive timer against absorbed/dead B
+  does not naturally expire.
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F099
+NEXT ROOT ID: F100 UNUSED
+
+Next work:
+1. Continue the final persistent-field/source-order/caller closure from F100,
+   with special attention to remaining espionage/victory/relation lifecycle
+   state and any direct array resets that bypass stateful setters.
+2. Finish adversarial reread of F078-F099 against current XML, current callers
+   and later refactors; retract or merge anything that no longer survives.
+3. Reconcile any new candidate against base AdvCiv/Civ4CE and ancestry before
+   promotion.
+4. Only after the closure remains coherent decide whether CvTeam.cpp earns C014;
+   otherwise freeze another WIP first.
+
+No repository source was modified.
+===============================================================================
+
+===============================================================================
+C013-WIP16 -- FILE 013 CvTeam.cpp -- F100 PROJECT-INHERITANCE ANNOUNCEMENT ROOT
+===============================================================================
+
+This checkpoint continues directly from C013-WIP15. It physically anchors the
+false project-completion/replay event emitted when a Permanent Alliance inherits
+projects from the absorbed team, and preserves the current closure state before
+continuing from F101.
+
+F100 / provisional KI#422 -- Permanent-Alliance project inheritance reuses the
+ordinary positive project-completion path, generating false duplicate project
+completion announcements and replay events
+-------------------------------------------------------------------------------
+
+ROOT
+----
+CvTeam::shareCounters merges completed Project counts by raising the survivor to
+the maximum constituent count. When the absorbed team has more copies of a
+project, it calls the survivor's ordinary positive transition:
+
+    int iDelta = kShareTeam.getProjectCount(eProject) - getProjectCount(eProject);
+    if (iDelta > 0)
+    {
+        changeProjectCount(eProject, iDelta);
+        GC.getGame().incrementProjectCreatedCount(eProject, -iDelta);
+    }
+
+The later incrementProjectCreatedCount compensation repairs the global numerical
+"projects created" count. It cannot undo the other positive-completion side
+effects that changeProjectCount has already emitted.
+
+FALSE EVENT PATH
+----------------
+CvTeam::changeProjectCount(...,+N) enters the normal "a project was just
+completed by this team" branch whenever the game is final-initialized and not in
+WorldBuilder. It builds TXT_KEY_MISC_COMPLETES_PROJECT[_THE], permanently adds a
+REPLAY_MESSAGE_MAJOR_EVENT attributed to the survivor's leader/team name, and
+sends every living major player the corresponding
+TXT_KEY_MISC_SOMEONE_HAS_COMPLETED[_THE] notification with the project-completed
+sound.
+
+Permanent Alliances occur during an ordinary final-initialized game, so this
+branch is live during shareCounters.
+
+CONCRETE CURRENT-SAS REPRODUCTION
+---------------------------------
+Current SAS has ordinary pre-alliance projects such as PROJECT_APOLLO_PROGRAM,
+PROJECT_SDI, PROJECT_THE_INTERNET, PROJECT_MANHATTAN_PROJECT and spaceship
+components. There is no Permanent-Alliance rule requiring the two teams to own
+identical project sets.
+
+Let survivor A lack Apollo while absorbed team B already owns Apollo. During
+A.addTeam(B):
+1. shareCounters runs while B is still a separate team and its players have not
+   yet been reassigned to A.
+2. B.ProjectCount(Apollo)=1 and A.ProjectCount(Apollo)=0, so shareCounters calls
+   A.changeProjectCount(Apollo,+1).
+3. changeProjectCount emits a fresh replay event/message saying team A completes
+   Apollo, even though B completed that Apollo earlier and no new project was
+   built at the alliance turn.
+4. shareCounters then decrements the global ProjectCreatedCount by one, restoring
+   only that numerical counter.
+5. B's players are reassigned to A later in addTeam. The already-created replay
+   record and notifications remain permanently false/duplicated.
+
+The same mechanism applies to any project where the absorbed team has a higher
+count than the survivor. Multi-copy spaceship projects can emit the completion
+message once per positive merge call as well, regardless of how many copies were
+actually inherited in iDelta.
+
+ORDERING CONTROL
+----------------
+CvTeam::addTeam calls shareCounters(eTeam) before looping through the absorbed
+team's players and calling CvPlayer::setTeam(getID()). Therefore getReplayName,
+getName and getLeaderID inside the survivor's changeProjectCount describe the
+surviving team at the moment the false completion event is created; they do not
+somehow report the absorbed team as the historical builder.
+
+ANCESTRY / CONTROL
+------------------
+The same underlying pattern is present in Civ4CE/BtS: shareCounters calls
+changeProjectCount for inherited positive project deltas and only afterward
+compensates ProjectCreatedCount; BtS changeProjectCount also emits replay and
+major-event project-completion notifications for every positive change. Base
+AdvCiv retains the pattern. This is therefore an inherited BtS Permanent-
+Alliance transition bug, not an SAS regression.
+
+REPAIR DIRECTION
+----------------
+Project inheritance needs the state/effect processing of a positive project
+count change but must not masquerade as a newly completed project. A conservative
+repair is to give changeProjectCount (or a dedicated PA-transfer helper) an
+explicit "announce completion" / transfer-mode control and suppress replay/UI
+completion events during shareCounters inheritance while retaining legitimate
+state updates such as project count, project effects, Tech Share count, victory
+re-evaluation and AI production invalidation. The existing global-created-count
+compensation can remain or be folded into the same transfer-aware path.
+
+Classification: inherited BtS Permanent-Alliance project-transfer reporting bug.
+
+
+POST-WIP15 CONTROLS / NORMALIZATION
+-----------------------------------
+- Current Project XML was checked for a concrete live reproduction: Apollo, SDI,
+  The Internet, Manhattan and spaceship components provide ordinary projects
+  whose counts can differ between two teams before a Permanent Alliance.
+- addTeam ordering was rechecked: shareCounters runs before absorbed players are
+  reassigned, so the completion event is deterministically attributed to the
+  survivor rather than being neutralized by the later team merge.
+- Civ4CE/BtS changeProjectCount contains the same positive-project replay/message
+  branch, while its shareCounters likewise compensates only the numerical global
+  project-created count after inheritance. F100 is therefore not caused by an
+  SAS-only announcement customization.
+- The earlier project-count-limit concern remains rejected: current PA project
+  counts are max-merged, not summed; the old sum implementation is commented out.
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F100
+NEXT ROOT ID: F101 UNUSED
+
+Next work:
+1. Continue the final stateful-setter/persistent-field/source-order/caller closure
+   from F101, especially any transition helper whose ordinary setter owns
+   secondary state but PA/death/reset bypasses it.
+2. Finish adversarial reread of F078-F100 against current XML, current callers,
+   and later AdvCiv/K-Mod refactors; retract or merge anything that fails.
+3. Complete method/field/index/divisor/list assumptions and source-order coverage.
+4. Only after those closure controls remain coherent decide whether CvTeam.cpp
+   earns durable C014; otherwise freeze another WIP first.
+
+No repository source was modified.
+===============================================================================
+
+===============================================================================
+C013-WIP17 -- FILE 013 CvTeam.cpp -- F101 AUTOLOG NO_PLAYER TECH-EVENT ROOT
+===============================================================================
+
+This checkpoint continues directly from C013-WIP16. It physically anchors the
+optional BUG Autolog integration defect exposed by Permanent-Alliance technology
+sharing and preserves the closure state before continuing from F102.
+
+F101 / provisional KI#423 -- Permanent-Alliance technology sharing fires the
+legitimate techAcquired player sentinel NO_PLAYER, but BUG Autolog dereferences
+that sentinel as a real player and raises a Python handler exception
+-------------------------------------------------------------------------------
+
+ROOT
+----
+CvTeam::shareItems shares technologies between the two constituent teams before
+players are reassigned. For a technology known by one constituent but not the
+other, it deliberately calls setHasTech with no unique discovering player:
+
+    setHasTech(eTech, true, NO_PLAYER, true, false, false,
+               TECH_ACQUISITION_TEAM_MERGE);
+
+CvTeam::setHasTech then sends the normal Python techAcquired event. SAS adds
+TechAcquisitionCause only to its GameRecord logging; CvEventReporter explicitly
+keeps the original Python signature and forwards ePlayer unchanged.
+
+The base CvEventManager handler documents the contract directly:
+
+    # Note that iPlayer may be NULL (-1) and not a refer to a player object
+
+and guards player-only behavior with iPlayer > -1.
+
+BUG Autolog's parallel handler does not preserve that contract. With technology
+logging enabled it reaches, in its player-specific traded-tech branch:
+
+    zsCiv = gc.getPlayer(iPlayer).getName() + ...
+
+without first excluding iPlayer == -1.
+
+SENTINEL FAILURE
+----------------
+CyGlobalContext::getCyPlayer explicitly returns NULL when idx == NO_PLAYER.
+Therefore gc.getPlayer(-1) is exposed to Python as None. Calling getName or
+getCivilizationShortDescription on it raises a Python exception.
+
+BugEventManager catches exceptions from individual event handlers and traces the
+failure, so this is not asserted to crash the DLL/game process. The Autolog
+techAcquired handler nevertheless fails, the intended log entry is lost, and a
+Python error/trace is produced.
+
+NORMAL PERMANENT-ALLIANCE REPRODUCTION
+--------------------------------------
+1. Enable BUG Autolog and technology logging (LogTech defaults true once logging
+   itself is active).
+2. During the active human's normal input phase, accept/form a Permanent Alliance
+   with another team that knows at least one technology the survivor does not.
+3. CvDeal processes TRADE_PERMANENT_ALLIANCE immediately and calls CvTeam::addTeam.
+4. addTeam -> shareItems transfers the differing tech with ePlayer=NO_PLAYER and
+   fires techAcquired before the absorbed players are reassigned.
+5. Autolog receives iPlayer=-1.
+6. When its bHumanPlaying branch is active, it tries gc.getPlayer(-1).getName()
+   and the handler raises.
+
+The bHumanPlaying reachability is not guessed from its name. Autolog sets it true
+on EndGameTurn and the sequential-turn player lifecycle does not enter
+CvPlayer::doTurn / the handler's BeginPlayerTurn transition until the player ends
+its active input turn. Human diplomacy and CvDeal acceptance occur during that
+input window, so a human-formed PA can hit the branch normally.
+
+ANCESTRY / CONTROL
+------------------
+Base AdvCiv 1.14 retains both sides of the mismatch: PA shareItems calls
+setHasTech(...,NO_PLAYER,...) and autologEventManager.onTechAcquired performs the
+unguarded gc.getPlayer(iPlayer) access. The ordinary CvEventManager in the same
+base tree already guards the documented -1 contract, providing a direct correct
+control. This is therefore an inherited BUG/AdvCiv optional-Autolog integration
+bug, not an SAS regression.
+
+REPAIR DIRECTION
+----------------
+Handle NO_PLAYER explicitly in autologEventManager.onTechAcquired before any
+player lookup. The smallest safe repair is to skip the player-specific traded-
+tech formatting when iPlayer < 0. A richer repair can log a team/alliance
+acquisition using iTeam instead; it must not synthesize an arbitrary player
+because team merges deliberately have no unique discovering/trading player.
+
+Classification: inherited BUG/AdvCiv optional Autolog sentinel-contract bug,
+exposed by CvTeam Permanent-Alliance tech sharing.
+
+
+POST-WIP16 CONTROLS / NORMALIZATION
+-----------------------------------
+- CvDllPythonEvents was traced to confirm that the techAcquired Python signature
+  remains (tech, team, player, announce); SAS's new acquisition-cause enum is
+  intentionally GameRecord-only and does not sanitize the player sentinel.
+- CyGlobalContext::getCyPlayer was traced rather than assumed: NO_PLAYER returns
+  NULL, establishing the Python None dereference concretely.
+- BugEventManager's event dispatch was traced: handler exceptions are caught and
+  logged, so F101 is described as a Python handler failure/error, not a guaranteed
+  whole-game crash.
+- Autolog.xml was checked: Autolog itself is optional/disabled by default, while
+  LogTech defaults true conditional on logging being active. F101 is therefore a
+  live optional-feature defect, not a default-every-game failure.
+- The earlier first-contact half-initialized state was checked against current
+  Python firstContact handlers; no additional live handler failure beyond F092's
+  Tech Share timing was established.
+
+CURRENT CURSOR
+--------------
+
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+NORMALIZED NEW ROOTS IN THIS FILE: F078-F101
+NEXT ROOT ID: F102 UNUSED
+
+Next work:
+1. Continue final persistent-field/stateful-setter/source-order closure from F102.
+2. Finish adversarial reread of F078-F101, including optional-feature/current-XML
+   reachability and later-refactor controls.
+3. Complete remaining method/index/divisor/list/caller assumptions.
+4. Decide C014 only after the entire closure remains coherent; otherwise freeze
+   another WIP first.
+
+No repository source was modified.
+===============================================================================
+
+================================================================================
+C013-WIP18 -- FILE 013 CvTeam.cpp -- ADVERSARIAL CORRECTION OF FORMER F101
+================================================================================
+
+PURPOSE
+-------
+Freeze the first correction produced by the final adversarial reread. WIP17
+promoted an Autolog NO_PLAYER hypothesis as F101 / provisional KI#423. That
+hypothesis is false because it stopped tracing the actor parameter one step too
+early. The explicit NO_PLAYER supplied by Permanent-Alliance shareItems is
+normalized inside CvTeam::setHasTech before the Python event is fired.
+
+FORMER F101 / provisional KI#423 -- RETRACTED FALSE POSITIVE
+------------------------------------------------------------
+Incorrect WIP17 claim:
+- Permanent-Alliance technology sharing calls setHasTech with ePlayer=NO_PLAYER.
+- BUG Autolog's techAcquired handler does not guard iPlayer == -1.
+- Therefore PA tech sharing was claimed to pass -1 to Autolog and trigger a
+  Python None.getName()/None.getCivilizationShortDescription error.
+
+Adversarial correction:
+- CvTeam::shareItems really does call setHasTech(..., NO_PLAYER, ...).
+- However CvTeam::setHasTech immediately performs:
+
+      if (ePlayer == NO_PLAYER)
+          ePlayer = getLeaderID();
+
+  before either repeat-tech or ordinary-tech EventReporter calls.
+- The later call is therefore:
+
+      CvEventReporter::getInstance().techAcquired(
+          eTech, getID(), ePlayer, ...);
+
+  where ePlayer is already the valid team leader ID.
+- CvEventReporter preserves that now-valid value when forwarding the ordinary
+  Python techAcquired event.
+- The unguarded BUG Autolog handler is thus not reached with -1 through this PA
+  path. Its missing NO_PLAYER guard may still be weak defensive code, but this
+  audit has no normal producer that sends NO_PLAYER through CvTeam::setHasTech.
+- Base AdvCiv 1.14 has the same early NO_PLAYER -> getLeaderID normalization, so
+  this is not an SAS regression hidden by later changes.
+
+Conclusion:
+- RETRACT former F101 / provisional KI#423 completely.
+- Do not implement/document KI#423 as a PA Autolog bug.
+- Reopen F101 as the next unused root ID, matching the audit convention used
+  after the earlier former F066/KI#387 false positive.
+
+WHY THE FALSE POSITIVE WAS USEFUL TO RECORD
+-------------------------------------------
+The raw shareItems call and Python handler look convincing in isolation. The
+mistake was failing to carry the argument through the first lines of
+CvTeam::setHasTech. Recording this correction prevents the same cross-file
+NO_PLAYER hypothesis from being rediscovered later and strengthens the closure
+method: producer -> immediate normalizer -> reporter -> Python consumer must all
+be traced before promoting an integration root.
+
+CURRENT NORMALIZED STATE
+------------------------
+- F078-F100 remain live normalized CvTeam.cpp findings.
+- Former F101 / provisional KI#423 is RETRACTED FALSE POSITIVE.
+- NEXT ROOT ID: F101 UNUSED.
+- CvTeam.cpp remains OPEN; C014 has not been earned yet.
+- Continue final stateful-setter/persistent-field/source-order/caller closure
+  plus adversarial reread of F078-F100 from F101 unused.
+- No repository source files modified.
+
+LOCAL RECONCILIATION FOR THE NEXT-THREAD HANDOFF
+------------------------------------------------
+- This current repository album is authoritative over the downloaded C013-WIP18
+  artifact.
+- Preserve the corrected `WIDGET_MENU_ICON -> CONSCRIPT` spelling; the downloaded
+  artifact's `CONCRIPT` is only a typo.
+- Direct enumeration of current `CvEnums.h` confirms 193 WidgetTypes: 163 shared
+  with the Civ4CE/BtS control plus exactly 30 AdvCiv/SAS additions. Preserve 193,
+  not the downloaded artifact's incorrect 194.
+- Live provisional roots remain F078-F100. Former F101 / provisional KI#423 is
+  retracted and must not be implemented; F101 is the next unused root ID.
+- CvTeam.cpp remains OPEN. Continue its final closure and adversarial reread before
+  deciding whether the file earns durable C014.
+
+Reconciled with the help of GPT-5.6-Sol, thanks.
+
+
+===============================================================================
+C013-WIP19 -- CvTeam.cpp final-closure continuation
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+This checkpoint continues from the reconciled repository WIP18 state. It does not
+force C014. The purpose of this tranche is to preserve the post-WIP18 adversarial
+corrections/strengthenings and the mechanical raw-risk/persistent-field closure
+performed against the 2026-08-25 14:12 light-source snapshot before continuing
+from F101 unused.
+
+AUTHORITATIVE ROOT STATE
+------------------------
+- F078-F100 remain the live normalized CvTeam.cpp roots.
+- Former F101 / provisional KI#423 (PA setHasTech(NO_PLAYER) -> BUG Autolog
+  exception) remains RETRACTED. setHasTech normalizes NO_PLAYER to getLeaderID()
+  before EventReporter dispatch.
+- F101 is therefore UNUSED.
+- No repository source files were modified.
+
+F098 / KI#420 STRENGTHENING -- EXACT HasMetCounter IS A SECOND MANIFESTATION
+----------------------------------------------------------------------------
+WIP14 proved that Permanent Alliance merges the deterministic CvTeam
+m_aiTurnsAtPeace relation asymmetrically: survivor->outsider takes max while
+outsider->survivor takes a team-size-weighted average.
+
+The final counter audit shows that CvTeamAI::m_aiHasMetCounter belongs to the same
+root.
+
+CvTeamAI::AI_doCounter explicitly distinguishes exact from randomized counters:
+
+    /* No randomization for atWar and hasMet. These are used by the AI in
+       several places that more or less assume an exact count. */
+
+Both directions of a normal first-contact relation therefore start together and
+advance once per turn. Yet PA uses the same max-versus-weighted split:
+
+    shareCounters: survivor->C = max(A->C, B->C)
+    addTeam:        C->survivor = weighted(C->A, C->B)
+
+For equal-size A/B with 100 and 5 contact turns, the merged relation becomes
+100 in one direction and about 52 in the other. This breaks the exact bilateral
+contact-history invariant just as the TurnsAtPeace split does.
+
+Internal controls strengthen the classification:
+- AI_getAtPeaceCounter is deliberately randomized and may legitimately diverge,
+  so it does NOT join F098.
+- OpenBordersCounter, DefensivePactCounter and ShareWarCounter are likewise
+  randomized/decaying state in advc.130k and do not carry an exact bilateral
+  invariant.
+- AI_getAtWarCounter is exact, but PA explicitly reconciles the survivor's value
+  to the already-computed reverse weighted result; that neighboring code is a
+  direct control showing how exact bilateral state can be kept symmetric.
+
+Normalize F098/KI#420 as: Permanent Alliance asymmetrically merges exact bilateral
+peace/contact history. Proven manifestations are m_aiTurnsAtPeace and
+AI_getHasMetCounter.
+
+F099 / KI#421 PRECISION CONTROL -- ORDINARY ELIMINATION DOES NOT REPRODUCE PA LEAK
+---------------------------------------------------------------------------------
+The stolen-visibility lifecycle root remains PA-specific rather than a generic
+"target becomes dead" defect.
+
+During ordinary elimination, target-team units/cities lose legitimate sight and
+CvPlot::changeVisibilityCount continues to visit alive observing teams. If an
+observer still has isStolenVisibility(target), those sight-loss transitions
+subtract the observer's plot-level stolen-visibility counts. Thus the secondary
+plot state naturally drains as the defeated target loses visibility.
+
+Permanent Alliance is different: addTeam copies absorbed B's legitimate sight to
+survivor A and then kills team identity B by member reassignment, without driving
+B through the ordinary sight-loss transition and without clearing observer->B
+through setStolenVisibilityTimer(B,0). B's old plot-level stolen counts can
+therefore remain after the new observer->A timer later expires.
+
+This negative control narrows rather than weakens F099.
+
+F100 / KI#422 RECHECK
+---------------------
+The project-inheritance replay/message root remains direct and current-source
+provable. changeProjectCount(+delta) still runs its normal positive completion
+side effects before addTeam compensates only ProjectCreatedCount. The project-art
+vector is NOT a memory-safety sibling: changeProjectCount pushes one -1 art slot
+per inherited project and asserts vector-size/project-count balance. Thus the
+source-proven root remains false duplicate completion/message/replay state, not an
+out-of-bounds art-vector defect.
+
+RAW DIVISOR / INDEX / LIST / POINTER CLOSURE
+---------------------------------------------
+A fresh mechanical sweep of CvTeam.cpp did not produce F101.
+
+Divisors:
+- current-era averaging explicitly returns NO_ERA when the member divisor is <=0;
+- culture-ratio and espionage formulas check/clamp denominators;
+- Barbarian research divides only after at least one qualifying/alive team exists;
+- PA reverse weighting divides by the merged live team's member count;
+- remaining divisions are constants or structurally nonzero current domains.
+F082 remains the distinct research-progress arithmetic defect; no second divisor
+root emerged.
+
+Raw vector/index/list-head sites:
+- addTeam apOther and member vectors are accessed only under size-bounded loops;
+- reparations string vector is likewise size-bounded even if all strings filter
+  out (the nonempty assertion is semantic, not required for safe indexing);
+- turnsOfForcedPeaceRemaining checks getLengthFirst()>0 before head(), leaving
+  F091 as a positional/semantic first-item bug rather than a null-head bug;
+- allowDefensivePactsToBeCanceled has the same nonempty-list guard before head();
+- all six queued-war queues are pushed together exclusively by queueWar and popped
+  together exclusively by triggerWars, so testing attacking_queue.empty() is
+  sufficient under the current encapsulated call graph;
+- project-art getters/setters are count-indexed; changeProjectCount keeps the
+  vector size synchronized for normal internal callers.
+
+Random-member selector:
+- getRandomMemberAlive calls SyncRandNum(iValid) without a local iValid==0 guard.
+  All current C++ callers are UWAI paths whose agent/target iterators require live
+  teams. PlayerIter<HUMAN,MEMBER_OF> itself also implies alive status. No normal
+  zero-domain caller was established; retain the fallback FError as defensive
+  rather than promote an API-forged case.
+
+Leader-capital helper:
+- getLeaderCapital dereferences getLeaderID() before its fallback member scan, but
+  current source callers are live-team circumnavigation/trade-AI paths. No dead /
+  NO_PLAYER caller was established.
+
+Serialization:
+- current CvTeam read/write field order remains paired. Apparent extras from a
+  crude scan are the commented-out m_abVassal write and the manually symmetric
+  project-art loop.
+- old uiFlag migration branches are intentionally removed under KI#46 / current
+  same-version-save-only policy; unsupported old-save compatibility is not a new
+  CvTeam root.
+
+PERSISTENT-FIELD / PA PROVENANCE CONTROLS
+-----------------------------------------
+The remaining serialized/transient fields were challenged for state that is
+neither derived/recomputed nor explicitly migrated.
+
+m_abJustDeclaredWar:
+- PA does not explicitly inherit the absorbed team's flag.
+- Its live consumers are AdvCiv's same-turn invasion move-spending option and the
+  DoW-specific capturable-unit chance.
+- Current SAS has SPEND_ALL_MOVES_ON_INVASION=0 and both
+  BASE_UNIT_CAPTURE_CHANCE=50 and DOW_UNIT_CAPTURE_CHANCE=50.
+- Therefore changing the flag has no current behavioral consequence. Keep this as
+  config/modmod robustness only, not F101.
+
+m_bMapCentering:
+- The flag is one-way and PA does not explicitly max/copy it.
+- In normal current SAS, Permanent Alliance trading is enabled by TECH_GAME_THEORY.
+  Game Theory requires Corporation, whose current prerequisite chain runs through
+  Paper; TECH_PAPER itself has bMapCentering=1.
+- No current Python/gameplay path independently grants PA trading. Therefore every
+  normally PA-eligible constituent already has the Paper map-centering state.
+- A raw CyTeam API caller could manufacture a different state, but no normal
+  current-SAS reproduction exists. Do not promote.
+
+Repeat technologies / team-limited UnitClass/BuildingClass:
+- Current SAS has no repeatable technologies, so generic repeat-count PA weakness
+  remains dormant.
+- Current SAS has no positive UnitClass/BuildingClass MaxTeamInstances; generic
+  summed-count risk remains dormant. Projects are the live team-limited family
+  and receive their dedicated max merge.
+
+Vassal/master power and capitulation state:
+- These values describe a vassal agreement at signing and PA trading excludes
+  vassal teams. They therefore do not create a normal PA migration requirement.
+
+Project default/art provenance:
+- inherited counts create valid -1 project-art slots and -1 is a supported
+  undefined/default art state. Loss of the absorbed team's cosmetic/default art
+  choice remains a cosmetic/closed-EXE risk note only; no source-level gameplay
+  failure has been established.
+
+ITERATOR-PREDICATE CLOSURE
+--------------------------
+A mechanical sweep for alive/member iterator predicates versus contradictory
+inner branches found no second practical-1837-style root beyond the already
+normalized F093/F094 family.
+- doWarWeariness still contains the known impossible !target.isAlive() branch
+  under TeamIter<CIV_ALIVE> (F093).
+- MemberIter's alive-only semantics remain the mechanism in F094's tech-player
+  processing/revival defect.
+- Other nearby alive checks are function/caller guards or apply to different
+  objects, not impossible branches.
+
+ADVERSARIAL STATUS
+------------------
+No live root was retracted in this tranche. The final reread also rediscovered
+F082's suspicious "subtract overflow" line mechanically and correctly normalized
+it back into existing F082 rather than double-counting it; this is a useful
+control that the current audit ledger is preventing duplicate roots.
+
+The exact-counter reread strengthens F098. F099's ordinary-death negative control
+strengthens its PA-specific lifecycle classification. F100 survives its art-vector
+challenge. Former F101/KI#423 remains retracted.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+PHYSICAL CHECKPOINT: C013-WIP19
+LIVE NORMALIZED ROOTS IN THIS FILE: F078-F100
+RETRACTED: former F101 / KI#423
+NEXT ROOT ID: F101 UNUSED
+
+Remaining work before C014 can be earned:
+1. Finish the method/source-order and remaining scalar/caller closure, with special
+   attention to any stateful setter whose side effects could still be bypassed.
+2. Finish the explicit adversarial F078-F100 reread against current callers/XML
+   and any later SAS fixes, retracting or merging if needed.
+3. Reconcile any surviving new candidate against base AdvCiv 1.14, Civ4CE/BtS and
+   local history before promotion.
+4. Declare C014 only if those passes are genuinely exhausted; another WIP is
+   preferred to premature closure.
+
+No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C013-WIP20 -- CvTeam.cpp adversarial-ledger / final-tail checkpoint
+Date: 2026-08-25
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvTeam.cpp remains OPEN
+===============================================================================
+
+This checkpoint continues directly from the reconciled C013-WIP19 artifact and
+records the explicit F078-F100 adversarial reread plus the remaining list-head /
+source-order controls reached before a final C014 decision. It deliberately does
+not invent F101 merely to increase the finding count.
+
+AUTHORITATIVE ROOT STATE
+------------------------
+- F078-F100 remain live after the explicit adversarial reread.
+- Former F101 / KI#423 remains RETRACTED; setHasTech normalizes NO_PLAYER to the
+  team leader before EventReporter dispatch.
+- F101 remains UNUSED.
+- No repository source files were modified.
+
+ADVERSARIAL F078-F100 RESULT
+----------------------------
+Every currently live root was re-challenged against the 2026-08-25 14:12 SAS
+source, current XML/options where relevant, and the already-supplied AdvCiv 1.14
+/ Civ4CE controls. No additional retraction survived.
+
+F078 / KI#400 -- SURVIVES
+Counterespionage turns+modifier remain keyed by TeamTypes and are not migrated in
+either PA direction. Former-B players immediately use survivor A identity, so a
+live B->C effect disappears; outsider C->B is likewise stranded. Current XML has
+a live 10-turn/+100 Counterespionage mission, so this is not dormant capability.
+
+F079 / KI#401 -- SURVIVES
+m_aiHasMetTurn is genuine historical state consumed by the Info Screen graph /
+partial-score-graph gates. The objection "A itself only met C at the alliance"
+does not close the root: B's players become members of A, while the merged team
+has only one team-level first-contact timestamp. Resetting that timestamp to the
+alliance turn discards history possessed by members of the merged team. Both
+A->C and C->A need the inherited earliest real date.
+
+F080 / KI#402 -- SURVIVES
+A live B<->C Disengage deal follows its players and therefore becomes A<->C after
+B's player is reassigned, while the enforcement flag is TeamTypes-keyed and is
+not migrated. The deal continuing while its team flag vanishes remains a direct
+state/deal inconsistency.
+
+F081 / KI#403 -- SURVIVES
+Victory countdown/canLaunch is independent live team state. PA still has no
+post-launch prohibition. Project transfer can both strand absorbed B's active
+countdown and recompute survivor A's canLaunch from project counts even if A had
+already launched. Ordinary construction's countdown guard is a useful control:
+this is specifically a PA state-transfer path that bypasses it.
+
+F082 / KI#404 -- SURVIVES
+setResearchProgress still adds the overflow amount to an already-overflowed
+stored progress value instead of reducing the completed-tech progress to that
+overflow. The suspicious arithmetic is source-direct and independently
+rediscovered by the final mechanical arithmetic pass; it remains normalized to
+F082 rather than duplicated.
+
+F083 / KI#405 -- SURVIVES
+The non-repeat setHasTech transition still performs m_iTechCount++ for both
+true->false and false->true. Advanced Start supplies a supported false transition,
+and current gameplay consumers use the cached total. Save/load preserves the
+bad cache rather than repairing it.
+
+F084 / KI#406 -- SURVIVES
+Current TECH_SATELLITES remains Advanced-Start refundable and bMapVisible. Full
+plot revelation is irreversible, whereas the tech can be removed/refunded. The
+repair remains refund-policy/validation rather than attempting to erase possibly
+legitimate independent map knowledge.
+
+F085 / KI#407 -- SURVIVES
+Player currentEra remains monotonic in ordinary setHasTech acquisition and has
+no inverse on Advanced Start tech removal. Current-era consumers are live
+mechanics, not presentation only. Restricting any recomputation to the Advanced
+Start removal transaction remains the least disruptive repair direction.
+
+F086 / KI#408 -- SURVIVES
+isInContactWithBarbarians still derives iUnitThresh directly from current era.
+Era 0 therefore makes the own-unit filter `count < 0` impossible and the
+barbarian-unit test `count > 0`, globalizing the intended local early contact
+criterion as soon as any qualifying barbarian unit exists anywhere.
+
+F087 / KI#409 -- SURVIVES
+shareItems still processes the survivor team ID in the absorbed team's directed
+EP array, converting ordinary B->A espionage into A->A self-target EP. K-Mod's
+getTotalUnspentEspionage still includes self because it iterates CIV_ALIVE
+without NOT_SAME_TEAM_AS, and live spy-transport AI uses that total as a target
+share denominator. This is not harmless dead-slot residue.
+
+F088 / KI#410 -- SURVIVES
+Advanced Start removal validation is team-tech-wide at the mutation boundary but
+still checks only the acting player's units/buildings and no already-purchased
+map improvements/routes. Current Agriculture/The Wheel/etc. provide ordinary
+buy-infrastructure-refund examples. The root remains incomplete dependency
+validation, with teammate and infrastructure manifestations kept together.
+
+F089 / KI#411 -- SURVIVES AND BROADENS BIDIRECTIONALLY
+The historical K-Mod m_abHasSeen omission is real in BOTH observer directions.
+The prior wording established that absorbed B's players can lose identity
+knowledge of outsider C because A.hasSeen(C) is not unioned.
+
+The reverse is equally direct: if outsider C historically saw B but never A,
+then after B's player is reassigned to team A, identity-display checks for that
+player consult C.hasSeen(A). addTeam never transfers C.hasSeen(B) into
+C.hasSeen(A). Thus an outsider can also lose the identity of a civilization /
+player it had already seen merely because that player joined the surviving team.
+Current-map copying can reconstruct some cases but cannot reconstruct historical
+residue after the revealing city/owner evidence has changed. Normalize F089 as
+PA failure to union historical hasSeen identity knowledge in both directions.
+
+F090 / KI#412 -- SURVIVES
+TRADE_CITIES continues to carry a player-local city ID, while the reparations
+announcement formatter resolves it through the giving team's leader after
+player identity has been discarded. Multi-player teams created by PA make the
+namespace collision reachable. Deal execution itself remains the clean control
+because it uses the actual giving PlayerTypes.
+
+F091 / KI#413 -- SURVIVES
+turnsOfForcedPeaceRemaining still recognizes only a TRADE_PEACE_TREATY at the
+head of the first list. AdvCiv deliberately keeps treaty items at the bottom of
+ordinary offer lists, and valid reparations can precede them. The helper's live
+AI callers therefore can see zero remaining forced-peace turns while the team
+flag and deal still enforce peace.
+
+F092 / KI#414 -- SURVIVES
+meet still calls makeHasMet sequentially, and makeHasMet still triggers Tech
+Share before reciprocal contact has been initialized. OTHER_KNOWN_TO examines
+the reverse relation, preserving the initiator-dependent Internet grant. The
+later firstContact callback reread found no second independent persistent root;
+Tech Share remains the concrete gameplay manifestation.
+
+F093 / KI#415 -- SURVIVES
+The doWarWeariness loop remains CIV_ALIVE while retaining a branch explicitly
+intended to apply accelerated decay to dead targets. The dead-target branch is
+therefore unreachable after the AdvCiv iterator refactor, and old war-weariness
+can remain frozen until revival. Neighboring dead-target timer pausing that was
+already present in BtS is not folded into this regression.
+
+F094 / KI#416 -- SURVIVES
+Persistent tech effects and currentEra still use alive-only MemberIter even
+though the pre-practical-1837 loops intentionally processed every player
+assigned to the team. A dead member of a still-alive team can therefore miss
+later team tech effects, and revival does not replay the team's known techs.
+
+F095 / KI#417 -- SURVIVES
+getDefensivePower(eExcludeTeam) still excludes only direct players of the
+attacking team. A vassal whose master is eExcludeTeam can be counted through the
+target master's Defensive Pact with that same master, putting the attacker's own
+vassal power on the target side. Numerous UWAI/war-evaluation callers pass the
+attacking team explicitly, so this is not a Python-only API corner.
+
+F096 / KI#418 -- SURVIVES
+Tech Share still counts getNumMembers() for each alive known team with the tech,
+while getNumMembers includes dead assigned teammates. Current Internet threshold
+is 2 players and the feature's AI valuation uses alive player iteration, leaving
+a direct implementation/valuation semantic mismatch.
+
+F097 / KI#419 -- SURVIVES
+The Customizable Domestic Advisor X wrapper still returns city.getY() in its
+map-centering-unlocked branch while Y also returns getY(). Current Paper /
+Stonehenge map-centering sources make the branch reachable. This remains a
+cross-file Python/UI root surfaced from the CvTeam map-centering audit.
+
+F098 / KI#420 -- SURVIVES IN BROADENED FORM
+Both deterministic m_aiTurnsAtPeace and exact AI_getHasMetCounter are merged
+max-on-survivor versus weighted-on-outsider. AI_doCounter explicitly documents
+HasMet and AtWar as exact; AtWar's explicit post-merge reconciliation is the
+neighboring control. Randomized/decaying AtPeace/OpenBorders/DP/ShareWar counters
+do not join this root.
+
+F099 / KI#421 -- SURVIVES, PA-SPECIFIC
+setStolenVisibilityTimer owns secondary per-plot visibility counts. PA transfers
+B's real sight to A but never clears live observers' old ->B relation through the
+setter before B dies by member reassignment. Normal civilization elimination is
+a negative control because ordinary sight loss drains those plot counts. Direct
+resetVal later can erase bookkeeping without removing leaked plot state.
+
+F100 / KI#422 -- SURVIVES
+PA project inheritance still calls ordinary positive changeProjectCount before
+compensating only ProjectCreatedCount. The positive path can emit completion /
+replay/message side effects for a project that B completed earlier. Project-art
+vector sizing remains correct and is explicitly rejected as a memory-safety
+sibling.
+
+FINAL LIST-HEAD / SOURCE-ORDER CONTROL
+--------------------------------------
+The only other raw CvTeam.cpp `.head()` use is
+allowDefensivePactsToBeCanceled(). Mixed dual deals are genuinely possible in
+multiplayer (CvDeal::doTurn explicitly documents dual+GPT mixtures), so its
+head-only DP recognition is generically fragile. However current SAS has
+BBAI_DEFENSIVE_PACT_BEHAVIOR=0. In that mode triggerDefensivePacts first calls
+kTarget.cancelDefensivePacts(), whose implementation scans the full first list
+and kills every target DP deal before allowDefensivePactsToBeCanceled runs.
+Therefore the head-only helper has no demonstrated current-SAS behavioral
+consequence under the shipped configuration. Keep it as a configuration/modmod
+robustness note, not F101. If BBAI behavior 1/2 is ever enabled, it deserves a
+fresh focused audit.
+
+The PA-Tech-Share intermediate-state candidate also remains rejected: Internet
+thresholding counts players, so A and B as separate pre-merge teams contribute
+exactly the same A-members+B-members total they contribute after merging. Any
+dead-member inflation is already F096.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 12 / 169
+FILE 013: CvTeam.cpp OPEN
+PHYSICAL CHECKPOINT: C013-WIP20
+LIVE NORMALIZED ROOTS IN THIS FILE: F078-F100
+RETRACTED: former F101 / KI#423
+NEXT ROOT ID: F101 UNUSED
+
+The remaining task before C014 is now narrowly the final whole-file method /
+source-order exhaustion and one final ledger-integrity check. If that pass stays
+quiet, C014 can be earned with F101 still unused; finding count is not a closure
+criterion.
+
+No repository source files were modified.
+===============================================================================
+
+
+
+===============================================================================
+C014 -- FILE 013 CvTeam.cpp DURABLE CLOSURE
+===============================================================================
+
+STATUS
+------
+Authoritative current source reviewed for this closure:
+AdvCiv-SAS_light_source_20260825T141228.zip.
+
+Current CvTeam.cpp SHA-256 reviewed:
+b4349d1515cf551f34c68c75eddf34f020d8b4fe22f4cf7faca9f7aa44fb0866
+
+Independent local controls supplied and used where relevant:
+- AdvCiv 1.14 (`AdvCiv-1.14 (1)(3).zip`)
+- Civ4CE (`Civ4CE-main(3).zip`)
+
+The complete C013-WIP20 artifact is preserved byte-for-byte as the prefix of this
+C014 artifact. No repository source files were modified by this audit.
+
+FILE 013 IS NOW COMPLETE for the current file-oriented audit.
+Durable completed-file count advances from 12/169 to 13/169.
+
+No new independent root survived the final whole-file exhaustion after WIP20.
+F101 therefore remains UNUSED and becomes the next available root number for
+file 014.
+
+The former WIP17 F101 / provisional KI#423 remains RETRACTED FALSE POSITIVE and
+must not be implemented or reused. `shareItems` passes NO_PLAYER into setHasTech,
+but setHasTech normalizes NO_PLAYER to getLeaderID() before the event reporter,
+so BUG Autolog does not receive player -1 through that path.
+
+
+FINAL NORMALIZED ROOT LEDGER -- FILE 013 / CROSS-FILE ROOT REACHED FROM IT
+--------------------------------------------------------------------------
+
+F078 / KI#400 -- RETAINED
+Permanent Alliance fails to migrate active Counterespionage state in either
+relevant direction. The turns/modifier arrays are TeamTypes-keyed live gameplay
+state and current espionage missions still create nonzero 10-turn/+100 effects.
+Player reassignment cannot reconstruct them.
+
+F079 / KI#401 -- RETAINED
+Permanent Alliance does not union inherited first-contact dates
+`m_aiHasMetTurn`. The surviving team can replace an absorbed constituent's older
+real contact date with the alliance-turn contact created during `meet`, changing
+partial Info-Screen graph/history visibility for players who are now members of
+the same merged team. The correct invariant is the earliest real inherited date
+for the merged bilateral relationship, not merely the survivor's personal date.
+
+F080 / KI#402 -- RETAINED
+A live Disengage deal can follow reassigned players through a Permanent Alliance
+while the TeamTypes-keyed `m_abDisengage` enforcement flag is not migrated. The
+deal and the rule-enforcement state can therefore disagree after the merge.
+
+F081 / KI#403 -- RETAINED
+Permanent Alliance does not coherently merge spaceship/victory launch state.
+An absorbed team's active victory countdown can be lost, while inherited project
+counts can also make the survivor launch-capable again despite an earlier launch.
+The PA trade gate has no post-launch exclusion. This is persistent team gameplay
+state, not merely announcement/UI state.
+
+F082 / KI#404 -- RETAINED
+`setResearchProgress` mishandles completed-tech overflow by adding the computed
+overflow to the already-overflowed stored progress value. The final mechanical
+arithmetic pass independently rediscovered the same suspicious line and
+normalized it back into F082 rather than creating a duplicate root.
+
+F083 / KI#405 -- RETAINED
+The non-repeat `setHasTech` branch increments `m_iTechCount` on both false->true
+and true->false transitions. Advanced Start supplies a supported tech-removal
+transition, so refunds can increase the cached total-tech count instead of
+reducing it. Current gameplay consumers use that cache and save/load preserves
+it.
+
+F084 / KI#406 -- RETAINED
+Current `TECH_SATELLITES` is Advanced-Start refundable and has `bMapVisible=1`.
+Buying it reveals the full map irreversibly; refunding/removing the tech cannot
+separate that knowledge from other legitimate revelation sources. The clean
+repair direction is therefore to prevent/refine the refund rather than attempt a
+blind map rollback.
+
+F085 / KI#407 -- RETAINED
+Advanced Start tech removal does not lower player `currentEra`, although tech
+acquisition raises it. The era value has live gameplay consumers. Any repair
+should remain narrowly transaction-aware rather than making ordinary era state
+non-monotonic globally.
+
+F086 / KI#408 -- RETAINED
+`isInContactWithBarbarians` derives its own-unit threshold directly from current
+era. In ERA_ANCIENT that threshold is 0, making the own-unit test `< 0`
+impossible while the barbarian-unit side becomes `> 0`. The intended local
+contact criterion can therefore globalize as soon as any qualifying barbarian
+unit exists anywhere.
+
+F087 / KI#409 -- RETAINED
+Permanent-Alliance espionage summation includes the absorbed team's directed EP
+against the survivor and stores it as survivor self-target EP. K-Mod's
+`getTotalUnspentEspionage()` includes self because its alive-team iteration does
+not exclude the same team, and live spy-transport AI consumes that total as a
+share denominator. This is behaviorally observable state, not harmless dead-slot
+residue.
+
+F088 / KI#410 -- RETAINED
+Advanced Start tech-refund validation is incomplete at the team mutation
+boundary. It checks only the acting player's unit/building dependencies and does
+not cover teammates or already-purchased tech-dependent map infrastructure such
+as improvements/routes. Current Agriculture/The Wheel-style dependencies give
+ordinary reproductions. These manifestations remain one dependency-validation
+root.
+
+F089 / KI#411 -- RETAINED, BIDIRECTIONAL NORMALIZATION
+Permanent Alliance fails to union K-Mod historical `m_abHasSeen` identity
+knowledge in both directions.
+
+1. Absorbed B's players can lose historical identity knowledge of outsider C
+   because, after reassignment, their team identity queries use A.hasSeen(C).
+2. Outsider C can likewise lose historical identity knowledge of B's player/
+   civilization because that player now belongs to A and C.hasSeen(A) was never
+   inherited from C.hasSeen(B).
+
+Current map/revealed-state copying can reconstruct some present evidence, but it
+cannot reconstruct arbitrary historical residue once the original revealing
+city/ownership evidence has changed.
+
+F090 / KI#412 -- RETAINED
+Reparations city announcement formatting receives only TeamTypes and resolves a
+player-local city ID through the team's leader. Permanent Alliance makes
+multi-player teams normal, so a city belonging to a nonleader member can be
+misnamed or omitted. Deal execution is the control: it retains the actual giving
+PlayerTypes and resolves the local city namespace correctly.
+
+F091 / KI#413 -- RETAINED
+`turnsOfForcedPeaceRemaining` recognizes a peace treaty only when
+`TRADE_PEACE_TREATY` is the first item of the first deal list. Valid AdvCiv deal
+construction can place reparations/other items before the treaty. AI callers can
+therefore observe zero remaining forced-peace turns while `isForcePeace` and the
+actual deal still enforce peace.
+
+F092 / KI#414 -- RETAINED
+`meet` initializes contact directionally through two sequential `makeHasMet`
+calls, and `makeHasMet` triggers Tech Share before reciprocal contact is set.
+`OTHER_KNOWN_TO` tests the reverse relationship, so an Internet/Tech-Share grant
+can depend on which direction executes first. The final callback audit found no
+second independent persistent first-contact root; Tech Share remains the proven
+manifestation.
+
+F093 / KI#415 -- RETAINED
+`doWarWeariness` now iterates `TeamIter<CIV_ALIVE>` while retaining an inner
+branch explicitly intended for `!target.isAlive()`. That dead-target branch is
+unreachable after the iterator refactor, so war weariness against a dead team can
+remain frozen and later matter again if the team revives.
+
+F094 / KI#416 -- RETAINED
+Persistent tech/player effects and era propagation use alive-only `MemberIter`.
+A dead member of a still-alive team can miss tech-derived player state acquired
+while dead, and revival does not replay the team's known technologies. The
+pre-practical-1837 full-player loop provides the historical semantic control.
+
+F095 / KI#417 -- RETAINED
+`getDefensivePower(eExcludeTeam)` excludes only players whose direct team equals
+the attacking team. An attacker's vassal can still be counted on the target side
+through master/Defensive-Pact logic. Live UWAI/war-evaluation callers pass the
+attacker explicitly, so this is a real combat-evaluation accounting problem.
+
+F096 / KI#418 -- RETAINED
+Tech Share counts `getNumMembers()` for each alive known team possessing the
+technology. `getNumMembers()` includes dead assigned teammates, allowing dead
+players to satisfy the current Internet player threshold. The project's own AI
+valuation uses alive-player iteration, giving a strong internal semantic control.
+
+F097 / KI#419 -- RETAINED CROSS-FILE ROOT
+The Python Customizable Domestic Advisor X-coordinate wrapper returns
+`city.getY()` in its map-centering-enabled branch, while Y also returns getY().
+Current Paper/Stonehenge map-centering makes the branch reachable. This root was
+found through CvTeam's map-centering audit but belongs to the Python/UI source;
+do not rediscover or double-count it when that file is audited later.
+
+F098 / KI#420 -- RETAINED, BROADENED EXACT-HISTORY ROOT
+Permanent Alliance asymmetrically merges exact bilateral relationship history.
+Two proven manifestations now belong to the same causal root:
+- `m_aiTurnsAtPeace`
+- `AI_getHasMetCounter`
+
+The survivor direction takes the stronger/max constituent history while the
+outsider reverse direction receives a team-size-weighted merge. `AI_doCounter`
+explicitly documents HasMet and AtWar as exact counters. AtWar is the decisive
+neighboring control because PA explicitly reconciles its two directions after
+the weighted merge; HasMet and TurnsAtPeace are not reconciled. Randomized or
+decaying AtPeace/OpenBorders/DefensivePact/ShareWar counters are deliberately
+excluded from F098.
+
+F099 / KI#421 -- RETAINED, PA-SPECIFIC
+`setStolenVisibilityTimer` owns secondary per-plot stolen-visibility counts.
+Permanent Alliance transfers absorbed B's legitimate visibility into A but does
+not clear live observer->B timers through the stateful setter before B becomes a
+dead team through member reassignment. Those old plot counts can therefore
+survive after the intended observer->A timer expires. Direct resetVal can later
+erase the bookkeeping timer without removing the leaked plot state.
+
+Ordinary civilization elimination is an important negative control: normal
+unit/city sight loss drives `changeVisibilityCount` and drains observers' stolen
+plot counts even as the target dies. The leak is therefore specifically the PA
+state-transfer lifecycle, not generic dead-team timer pausing.
+
+F100 / KI#422 -- RETAINED
+Permanent-Alliance project inheritance calls ordinary positive
+`changeProjectCount` when the absorbed team owns more copies. That normal
+completion path can emit a new project-completion message/replay event for an
+already-completed inherited project. The later `ProjectCreatedCount`
+compensation repairs only the numerical global count; it cannot retract emitted
+side effects. Project-art vectors remain size-consistent and were explicitly
+rejected as a memory-safety sibling.
+
+FORMER F101 / provisional KI#423 -- RETRACTED FALSE POSITIVE
+The WIP17 Autolog hypothesis is authoritatively rejected. `shareItems` does call
+`setHasTech(..., NO_PLAYER, ...)`, but `setHasTech` immediately replaces
+NO_PLAYER with `getLeaderID()` before `CvEventReporter::techAcquired`. Python and
+BUG Autolog therefore receive a valid player ID. This historical false
+hypothesis remains in the cumulative prefix so it will not be rediscovered.
+
+F101 -- UNUSED
+No new independent root survived file-013 closure.
+
+
+FINAL WHOLE-FILE CLOSURE EVIDENCE
+---------------------------------
+
+1. Permanent-Alliance transition matrix exhausted
+
+The audit mechanically classified and challenged serialized/team-owned state
+against addTeam/shareItems/shareCounters and player reassignment. This produced
+or strengthened F078-F081, F087, F089 and F098-F100. Late candidate fields were
+not promoted without live consequences:
+- `m_abJustDeclaredWar` is not explicitly inherited, but current SAS config has
+  SPEND_ALL_MOVES_ON_INVASION=0 and identical base/DoW capture chances (50/50),
+  making the flag behaviorally inert in the shipped configuration.
+- `m_bMapCentering` is not explicitly merged, but normal current PA eligibility
+  arrives through Game Theory; the current prerequisite chain has already passed
+  Paper, which grants map centering. No normal current-SAS PA constituent lacks
+  the state.
+- repeat-tech count migration is generically weak, but current SAS has no
+  repeatable technology.
+- summed team-limited UnitClass/BuildingClass counts are a generic modmod risk,
+  but current SAS has no positive UnitClass/BuildingClass MaxTeamInstances.
+  Projects are the live team-limited family and have their own merge path.
+- project default/art provenance can lose cosmetic/default choices, but inherited
+  count slots are valid and no source-level gameplay/memory fault was proved.
+
+2. Stateful-setter / secondary-state matrix exhausted
+
+Stolen visibility remains exceptional because its timer setter owns secondary
+per-plot state. Neighboring war/open-borders/Defensive-Pact/force-peace and
+counter arrays either contain their gameplay state directly or are reset in
+initialization/transition contexts where no analogous unreconciled secondary
+state was established.
+
+The old Kek-Mod PA espionage fix was also used as a control: it clears city-level
+espionage visibility but never performs the stolen-map-visibility target cleanup,
+which is why F099 is a neighboring lifecycle omission rather than a repaired
+rediscovery.
+
+3. Relationship-setter/source-order pass exhausted
+
+Late candidates were explicitly challenged rather than inferred from “setter has
+side effects” alone:
+- Open Borders propagation can reset OpenBordersCounter, but ordinary
+  `setOpenBorders(false)` already resets that relation's counter; there is no
+  legitimate fading nonzero closed-treaty history to preserve.
+- Defensive Pact propagation can emit a new A-C relation event, but A-C genuinely
+  becomes a newly established relation through the merger, unlike F100's already
+  completed project. No false-event sibling was established.
+- `allowDefensivePactsToBeCanceled` inspects only the head trade item and is
+  generically fragile for mixed multiplayer dual deals. However shipped
+  `BBAI_DEFENSIVE_PACT_BEHAVIOR=0` first calls `cancelDefensivePacts`, whose full
+  first-list scan kills target DP deals before that helper can matter. Keep this
+  as configuration/modmod robustness debt; re-audit if behavior 1/2 is enabled.
+- PA tech sharing before member reassignment does not transiently inflate current
+  Internet thresholds: Tech Share counts players, and separate A-members +
+  B-members equals the final merged member count. Dead-member inflation remains
+  exactly F096.
+
+4. Tech acquisition/removal and Advanced Start one-way effects exhausted
+
+Every significant one-way `setHasTech/processTech` effect was challenged against
+supported tech removal and current XML:
+- cached total-tech count -> F083
+- full-map reveal -> F084
+- player currentEra -> F085
+- teammate/map-infrastructure dependency validation -> F088
+- map centering was normalized as an irreversible discovery-style state rather
+  than a new root; its PA omission is unreachable under current PA tech gating.
+- `makeSpecialBuildingValid` is another one-way acquisition side effect, but
+  current SAS XML contains no SpecialBuildingInfo with a live TechPrereqAnyone,
+  so there is no shipped Advanced-Start reproduction.
+- first-discovery religion/free-tech/free-unit effects do not create an Advanced
+  Start refund sibling because the Advanced Start acquisition path uses
+  `bFirst=false`.
+
+5. Exact-counter / iterator-predicate pass exhausted
+
+The counter audit distinguished exact bilateral histories from intentionally
+randomized directional AI counters. That distinction broadened F098 but rejected
+AI AtPeace/OpenBorders/DP/ShareWar siblings. Exact AtWar remains the local
+positive control because PA explicitly reconciles it.
+
+The iterator-predicate audit found the F093 dead-target contradiction and F094
+alive-only member regression, but no second impossible-branch analogue survived.
+First-contact callback/event consumers were also traced after F092; no second
+persistent callback-side half-contact bug was found.
+
+6. Divisor / raw index / list-head / queue / pointer closure
+
+A fresh mechanical pass covered the remaining arithmetic and container-risk
+sites:
+- current-era averaging checks the member divisor and returns NO_ERA for dead
+  teams;
+- culture/espionage denominators are guarded or clamped;
+- Barbarian research reaches division only with structurally positive live-team
+  domains;
+- PA weighted merges divide by the merged live team's positive member count;
+- addTeam/member vectors are size-bounded;
+- reparations string indexing is size-bounded;
+- F091's treaty-head bug is semantic ordering, not a null-head problem;
+- the six multi-war queues are pushed and popped only in lockstep through
+  queueWar/triggerWars;
+- `getRandomMemberAlive` lacks a local zero guard, but every current C++ caller
+  found operates through UWAI/live-team domains; no normal zero-domain call was
+  established;
+- `getLeaderCapital` has a strong live-team assumption, but every current caller
+  found is a live trade/circumnavigation path. No dead-team dereference root was
+  established.
+
+7. Building/improvement/helper warning blocks exhausted
+
+K-Mod's source-authored “heaps of bugs” comment around bonus connection describes
+the rationale for `doesImprovementConnectBonus`; current callers use the
+centralized helper and no new divergence was found.
+
+`updateActivePaths` and `isCityDefense` warning comments likewise describe known
+path/UI or assertion limitations, not a new reachable gameplay defect.
+
+`shareItems` team-shared-building ordering was challenged specifically: both
+teams' technology sets are synchronized before the building loops, so apparent
+cross-team obsolescence disagreement collapses. Building map-centering remains a
+one-way “ever discovered/obtained” state in inherited code and no independent
+current regression was established.
+
+8. Vassal / war-transition tail exhausted
+
+The final pass re-read `setVassal`, `assignVassal`, `freeVassal`, queueWar and
+triggerWars against the synchronized current source. Existing SAS repairs (for
+example the KI#363 war-plan-count restoration ordering) are already present.
+No new master/vassal transition ordering root survived.
+
+The queue family is internally encapsulated: all six parallel queues receive one
+entry per `queueWar` invocation and are consumed/popped together in
+`triggerWars`. Checking only attacking_queue.empty() therefore does not create a
+current desynchronization path.
+
+9. Serialization / initialization / final helper closure
+
+Current CvTeam read/write ordering is paired. Apparent scan mismatches reduce to
+commented-out old vassal storage and the deliberately manual symmetric project-
+art loop. `changeProjectCount` maintains project-art vector cardinality.
+
+The advc.134a peace-offer fields are intentionally transient and excluded from
+serialization; their source comment already acknowledges the networked-
+multiplayer limitation. No stronger concrete reproduction was established in
+this file audit, so it remains an acknowledged limitation rather than a newly
+numbered root.
+
+Old uiFlag migration branches have deliberately been removed under the current
+SAS same-version-save policy (KI#46). Unsupported historical save compatibility
+was not counted as a new defect.
+
+The final spaceship helper tail (`getCompletedSpaceshipProjects`,
+`getProjectPartNumber`, `hasLaunched`) is consistent with its current project
+call domains and did not produce an additional count/art/index root beyond F081
+and F100.
+
+10. Adversarial F078-F100 reread completed
+
+Every live root was actively challenged against current callers, current XML /
+GlobalDefines where relevant, and later SAS fixes. None of F078-F100 required
+retraction. Several were narrowed or strengthened instead:
+- F089 is explicitly bidirectional historical identity loss.
+- F098 contains only exact bilateral histories; randomized counters are excluded.
+- F099 is explicitly PA-specific; ordinary elimination is the negative control.
+- F100 is announcement/replay state, not project-art memory corruption.
+
+The process also caught its own WIP17 F101/KI#423 mistake before closure, which is
+why preserving adversarial retractions in the cumulative audit remains useful.
+A high finding count was never used as a closure criterion.
+
+
+CLOSURE DECISION
+----------------
+
+CvTeam.cpp is defensibly exhausted for this file-oriented pass. The surviving
+F078-F100 roots have been normalized, merged where manifestations share one
+cause, checked for current configuration/XML reachability, and adversarially
+re-read. The final method/source-order, setter-secondary-state, PA provenance,
+tech-transition, iterator, divisor/index/list/pointer, vassal/war, serialization
+and helper-tail passes produced no unresolved F101 candidate.
+
+FILE 013 STATUS: COMPLETE -- REVIEWED
+COMPLETED FILES: 13 / 169
+NEXT ROOT ID: F101 (UNUSED)
+
+NEXT FILE
+---------
+
+014  5002  CvGameCoreDLL/WarUtilityAspect.cpp
+
+Start from the synchronized 2026-08-25 current SAS source and supplied AdvCiv
+1.14 / Civ4CE controls. First build a structural/caller inventory and map the
+WarUtilityAspect subclasses/dispatch into UWAI war evaluation, then audit each
+aspect's arithmetic domains, sign/scale conventions, target/master/vassal
+semantics, cached/current state assumptions and cross-aspect aggregation. Carry
+F078-F100 only as existing CvTeam findings and F097 as an already-known
+cross-file amendment; do not rediscover or double-count them.
+
+No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP01 -- FILE 014 WarUtilityAspect.cpp OPEN -- FIRST PROMOTED ROOTS
+===============================================================================
+
+STATUS
+------
+Authoritative current source:
+AdvCiv-SAS_light_source_20260825T141228.zip.
+
+Current WarUtilityAspect.cpp SHA-256 reviewed:
+6a2422bf343527c5f5f3eb4073b3c9717d05cb844806946c2b081622e41e59a9
+
+Controls used locally:
+- supplied AdvCiv 1.14 source
+- supplied Civ4CE source where applicable (UWAI/WarUtilityAspect is AdvCiv-side)
+- current SAS XML/GlobalDefines and AdvCiv historical git-log/manual material
+
+The complete durable C014 artifact is preserved byte-for-byte as this WIP's
+prefix. File 013 CvTeam.cpp remains durably COMPLETE; file 014 is OPEN.
+No repository source files were modified.
+
+STRUCTURAL MAP ESTABLISHED
+--------------------------
+WarEvaluator creates one instance of each WarUtilityAspect subclass, then loops
+all alive members of the agent team:
+
+    vector<WarUtilityAspect*> apAspects;
+    fillWithAspects(apAspects);
+    for (MemberIter itMember(m_kAgent.getID()); itMember.hasNext(); ++itMember)
+        evaluate(itMember->getID(), apAspects);
+
+The same aspect objects are deliberately retained across member evaluations;
+WarUtilityAspect::m_iU is initialized to zero once and reset() does NOT clear it.
+The final team utility then sums each aspect object's cumulative utility once.
+This is consistent with AdvCiv's historical team-game design note that teammate
+war utility is "already covered by adding up the war utility of all team members
+in the end."
+
+Current SAS differs semantically from AdvCiv 1.14 in this file mainly through
+its faraway-target Risk::preEvaluate hard guard and its winning-war Distraction
+cap. In addition, current SAS activates many non-100 UWAI aspect weights through
+AI_Variables_GlobalDefines.xml; base AdvCiv 1.14 has all global aspect weights at
+100 and therefore leaves F101 below numerically dormant.
+
+
+F101 / provisional KI#424 -- CONFIRMED -- SAS-ACTIVATED INHERITED UWAI TEAM BUG
+NON-100 WAR-UTILITY ASPECT WEIGHTS COMPOUND ACROSS TEAM MEMBERS INSTEAD OF
+WEIGHTING EACH MEMBER ONCE
+-------------------------------------------------------------------------------
+WarUtilityAspect::evaluate(MilitaryAnalyst const&) adds the current member's raw
+contributions to the aspect object's persistent m_iU and then applies the XML
+weight to the WHOLE accumulated m_iU:
+
+    scaled rXMLAdjust = getUWAI().aspectWeight(xmlID());
+    if (m_iU != 0 && rXMLAdjust != 1)
+        m_iU = (m_iU * rXMLAdjust).round();
+
+reset() clears only transient player/rival pointers and helper state; it does not
+clear m_iU. WarEvaluator then calls this same method once for each alive team
+member on the same aspect objects. Therefore member N reweights every earlier
+member's already-weighted contribution again.
+
+For two team members whose raw contribution to a 300% aspect is +10 each:
+- intended additive team result: (10 + 10) * 3 = +60;
+- current member 1: 10 * 3 = 30;
+- current member 2: (30 + 10) * 3 = 120.
+
+With three equal +10 contributors at 300%, current result becomes 390 instead of
+90; with four it becomes 1200 instead of 120. Weights below 100 repeatedly
+suppress earlier members instead: at 50%, two +10 members yield about 7.5 (then
+integer/fixed-point rounding) instead of 10. The result is also member-iteration
+order dependent whenever member raw utilities differ: earlier players are
+reweighted once for every later teammate.
+
+This is strongly live in current SAS. Of 27 global UWAI aspect weights, 17 are
+currently non-100, including:
+- Loathing 70%
+- Military Victory 105%
+- Preservation of Partners 80%
+- Reconquista 130%
+- Rebuke 200%
+- Fidelity 110%
+- Hired Hand 0%
+- Border Disputes 90%
+- Preemptive War 125%
+- King Making 105%
+- Risk 105%
+- Distraction 300%
+- Ulterior Motives 200%
+- Fair Play 125%
+- Tactical Situation 140%
+- Third Party Intervention 200%
+- Dramatic Arc 10%.
+
+Base AdvCiv 1.14 contains the same cumulative weighting code but currently has
+all these global aspect weights at 100%, so the arithmetic defect is dormant in
+that baseline. Historical AdvCiv notes nevertheless explicitly support additive
+member aggregation, and older/modmod non-100 weights can activate the same root.
+
+No aspect implementation reads prior m_iU to make a cross-member decision; apart
+from the wrapper, implementations only add/subtract their result. A conservative
+repair can therefore preserve cumulative storage while weighting only the
+current member's delta, e.g. snapshot m_iU before preEvaluate/rival evaluation,
+compute the raw delta, apply rXMLAdjust to that delta once, then add the weighted
+delta back to the prior cumulative value. Returning that weighted delta would
+also repair the secondary diagnostic issue that WarEvaluator's current
+"Total utility for <player>" log becomes cumulative for the second and later
+team members even at 100% weights.
+
+This root affects normal starting-team games and teams enlarged by Permanent
+Alliances; its magnitude grows rapidly with member count for weights far from
+100%. It is gameplay-significant because the final WarEvaluator result directly
+feeds UWAI war/peace/war-trade decisions.
+
+
+F102 / provisional KI#425 -- CONFIRMED -- ADVCIV-SAS REGRESSION / TEAM-GAME BUG
+FARAWAY-WAR HARD REJECT USES ONE MEMBER'S PLAYER-LOCAL DISTANCE/LIFT CACHE AS A
+PLAN-KILLING TEAM-WIDE VETO
+-------------------------------------------------------------------------------
+The SAS KI#61 guard lives in Risk::preEvaluate. WarEvaluator invokes that
+preEvaluate once per alive member of the agent team, with m_pAgentCache pointing
+to the current member's UWAICache. The guard scans:
+
+    ourCache().cityAt(i)
+    kCity.getDistance()
+    kCity.canReachByLand()
+    ourCache().canTrainAnyCargo()
+
+and returns -100000 on unreachable / too-far / no-lift conditions, explicitly
+commented as:
+
+    return -100000; // kill this (agent,target) war plan
+
+WarEvalParameters::agent and target are TeamTypes, and the final war decision is
+team-level. But UWAICache::City::updateDistance(eCacheOwner) explicitly computes
+paths "for each city of the cache owner" and iterates FOR_EACH_CITY over that
+single player. Its getDistance/canReachByLand values are therefore player-local,
+not a minimum across the team. canTrainAnyCargo is likewise stored on the
+current player's cache.
+
+A normal two-member team can consequently have:
+- member A bordering target C, cached land contact 5 turns -> guard passes;
+- member B isolated from C, unreachable or >15 turns -> guard returns -100000.
+
+B's inability to personally reach C then overwhelms the aggregate team utility
+and rejects a war for which A has a perfectly valid nearby front. The analogous
+naval case lets one teammate with no transport capacity veto the team even when
+another teammate can conduct the invasion.
+
+This conflicts with the surrounding UWAI team design. WarEvaluator intentionally
+sums all members' ordinary gains/costs, and other aspects contain explicit team-
+size normalization/coordination logic. KI#61's own documentation describes an
+outer sanity bound on a prospective war TARGET before ordinary UWAI evaluates
+power, utility, diplomacy and context; it does not state that every teammate must
+personally be within the contact limit. A remote teammate's lower expected gain
+or higher risk can be represented by that member's normal utility; inability to
+attack is not by itself a reason to make the target categorically illegal for
+other members.
+
+The safest policy-level repair is to make the hard eligibility test team-aware
+and execute/derive it once per team: accept the contact sanity gate when at least
+one alive team member has the required land/naval reach (and, for genuinely
+naval contact, appropriate lift capability), while rejecting only when the team
+collectively lacks a qualifying route/capability. Exact implementation should
+preserve the existing KI#183 peace-scenario exclusion, ongoing-war exclusion,
+existing-plan tolerance and victory-denial bypass.
+
+This root is SAS-specific: base AdvCiv 1.14 has no KI#61 hard-reject block.
+
+
+F103 / provisional KI#426 -- CONFIRMED -- INHERITED ADVCIV SEMANTIC BUG
+PARTNER TECH-TRADE UTILITY TESTS THE RIVAL'S WILLINGNESS USING THE AGENT'S
+TECH-REFUSAL PERSONALITY THRESHOLD
+-------------------------------------------------------------------------------
+partnerUtilFromTech() intentionally tests both directions of potential future
+tech trade:
+
+    AttitudeTypes eOurAttitudeThresh = techRefuseThresh(eWe);
+    AttitudeTypes eTheirAttitudeThresh = techRefuseThresh(eThey);
+
+and rejects partner utility when either AI side's attitude is below its supposed
+threshold. But the helper is:
+
+    AttitudeTypes WarUtilityAspect::techRefuseThresh(PlayerTypes ePlayer) const
+    {
+        if (GET_PLAYER(ePlayer).isHuman())
+            return ATTITUDE_FURIOUS;
+        return (AttitudeTypes)(kOurPersonality.getTechRefuseAttitudeThreshold()+1);
+    }
+
+The ePlayer argument is honored for the human check but ignored for AI
+personality lookup: kOurPersonality is always the current AGENT player's leader.
+Thus the second call for eThey substitutes our leader's tech refusal threshold
+for the rival's.
+
+The live trade rule elsewhere in CvPlayerAI uses the prospective trading AI's
+own personality:
+
+    GC.getInfo(kPartner.getPersonalityType()).getTechRefuseAttitudeThreshold()
+
+so this is not an intentional shared/team threshold policy.
+
+Current SAS leader XML makes the difference very reachable: among parsed leader
+entries, thresholds include NONE, ATTITUDE_FURIOUS, ATTITUDE_ANNOYED and
+ATTITUDE_CAUTIOUS. For example, a permissive rival can be incorrectly treated as
+requiring the agent's stricter attitude, or a strict rival can be treated as
+more willing than it really is.
+
+partnerUtilFromTech feeds multiple gameplay utility families, including
+Assistance (value of preserving a partner), IllWill/lost-partner costs and the
+cost assigned to diplomatic penalties. It can therefore over- or understate war
+utility depending on the leader pairing.
+
+Base AdvCiv 1.14 has the same helper and call pattern; this is inherited rather
+than introduced by SAS. The direct repair is to read the personality of ePlayer
+for the AI case, e.g. GC.getInfo(GET_PLAYER(ePlayer).getPersonalityType()), while
+retaining the human special case.
+
+
+ACTIVE CHALLENGE AFTER F103
+---------------------------
+F096/KI#418 from CvTeam.cpp established that CvTeam::getNumMembers includes dead
+assigned teammates. WarUtilityAspect contains several team-size normalizations
+using getNumMembers even though WarEvaluator's MemberIter explicitly iterates
+ALIVE members and GreedForAssets::teamSizeMultiplier explicitly uses
+getAliveCount(). This may be another manifestation of the existing F096 dead-
+member semantic root rather than a new F104. It is under challenge; do not count
+it yet.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP01
+NEW LIVE ROOTS IN FILE 014: F101-F103
+RETRACTED HISTORICAL SLOT: former F101 / provisional KI#423 remains retracted
+NEXT ROOT ID: F104 UNUSED
+
+Continue with the dead-member normalization challenge, then systematic helper /
+aspect arithmetic-sign-state review. In particular keep F101's aggregation
+semantics in mind when evaluating all later aspects so compounded weights are
+not mistaken for independent aspect-formula defects.
+
+No repository source files were modified.
+===============================================================================

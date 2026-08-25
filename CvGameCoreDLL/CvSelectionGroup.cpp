@@ -1199,6 +1199,9 @@ void CvSelectionGroup::startMission()
 					bAction = true;
 				break;
 			case MISSION_ESPIONAGE:
+				// <!-- custom: A movable non-Spy can precede the Spy that made this group mission legal. Skip ineligible units and retain the one-Spy-per-command exit only after trying an eligible Spy. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (!pUnit->canEspionage(pUnit->plot()))
+					break;
 				if (pUnit->espionage((EspionageMissionTypes)iData1, iData2))
 					bAction = true;
 				goto exit_unit_loop; // allow one unit at a time to do espionage
@@ -4367,6 +4370,18 @@ CvUnit* CvSelectionGroup::getHeadUnit()
 {
 	CLLNode<IDInfo>* pNode = headUnitNode();
 	return (pNode != NULL ? ::getUnit(pNode->m_data) : NULL);
+}
+
+
+// <!-- custom: BtS mission availability searches the whole group, but Espionage help and popup stages formerly reacquired only the head unit. Centralize their actor selection on the first currently eligible Spy. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+CvUnit const* CvSelectionGroup::getEspionageUnit() const
+{
+	FOR_EACH_UNIT_IN(pUnit, *this)
+	{
+		if (pUnit->canEspionage(pUnit->plot()))
+			return pUnit;
+	}
+	return NULL;
 }
 
 

@@ -2963,7 +2963,11 @@ void CvDLLWidgetData::parseActionHelp_Mission(CvActionInfo const& kAction, CvUni
 	{
 		szBuffer.append(NEWLINE);
 		szBuffer.append(gDLL->getText("TXT_KEY_ACTION_ESPIONAGE_MISSION"));
-		GAMETEXT.setEspionageMissionHelp(szBuffer, &kUnit);
+		// <!-- custom: Show mission help for the selected Spy that makes Espionage executable, not an ordinary selection head that suppresses Spy-specific information. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvSelectionGroup const* pSelectionGroup = gDLL->UI().getSelectionList();
+		CvUnit const* pSpyUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
+		if (pSpyUnit != NULL)
+			GAMETEXT.setEspionageMissionHelp(szBuffer, pSpyUnit);
 		break;
 	}
 	/*	<advc.004c> (Note: similar code in CvGameTextMgr::getAirBombPlotHelp
@@ -5422,7 +5426,9 @@ void CvDLLWidgetData::parseTradeRouteCityHelp(CvWidgetDataStruct &widgetDataStru
 
 void CvDLLWidgetData::parseEspionageCostHelp(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
 {
-	CvUnit* pUnit = gDLL->UI().getHeadSelectedUnit();
+	// <!-- custom: Espionage popup cost help must use the same eligible selected Spy as the executor and both popup builders; the selection head can be a non-Spy. See KI#398. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvSelectionGroup const* pSelectionGroup = gDLL->UI().getSelectionList();
+	CvUnit const* pUnit = (pSelectionGroup == NULL ? NULL : pSelectionGroup->getEspionageUnit());
 	if (pUnit != NULL)
 	{
 		CvPlot* pPlot = pUnit->plot();

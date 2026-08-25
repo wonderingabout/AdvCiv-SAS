@@ -465,7 +465,7 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [395 - (Fixed inherited BUG/AdvCiv city-screen widget defect) Angry-citizen Chevron used specialist help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#395---fixed-inherited-bugadvciv-city-screen-widget-defect-angry-citizen-chevron-used-specialist-help)\
 [396 - (Fixed inherited AdvCiv native-widget migration regression) Trade-denial icons lost Pedia navigation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#396---fixed-inherited-advciv-native-widget-migration-regression-trade-denial-icons-lost-pedia-navigation)\
 [397 - (Fixed inherited AdvCiv native-widget migration regression) Relations and scoreboard widgets lost contact actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#397---fixed-inherited-advciv-native-widget-migration-regression-relations-and-scoreboard-widgets-lost-contact-actions)\
-[398 - (Pending inherited BtS group-Espionage defect) A movable non-Spy can abort a valid Spy order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#398---pending-inherited-bts-group-espionage-defect-a-movable-non-spy-can-abort-a-valid-spy-order)\
+[398 - (Fixed inherited BtS group-Espionage defect) A movable non-Spy could abort a valid Spy order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#398---fixed-inherited-bts-group-espionage-defect-a-movable-non-spy-could-abort-a-valid-spy-order)\
 [399 - (Fixed inherited BtS Great General XP defect) Ineligible plot units consumed remainder slots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#399---fixed-inherited-bts-great-general-xp-defect-ineligible-plot-units-consumed-remainder-slots)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -10012,13 +10012,15 @@ Compiled runtime testing confirmed that a real scoreboard trade-network icon con
 
 Found as F075/provisional KI#397 during ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently traced through the historical commit diffs, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
-## 398 - (Pending inherited BtS group-Espionage defect) A movable non-Spy can abort a valid Spy order
+## 398 - (Fixed inherited BtS group-Espionage defect) A movable non-Spy could abort a valid Spy order
 
 A mixed selection can expose the Espionage mission because `CvSelectionGroup::canDoMission` finds any selected Spy that passes `canEspionage`. During execution, however, `startMission` can reach a movable non-Spy first, call its failing `espionage` method and unconditionally leave the unit loop before the eligible Spy acts. Merely skipping non-Spies at that first point is insufficient: `BUTTONPOPUP_DOESPIONAGE` does not retain the acting Spy ID, and both popup stages later reacquire `getHeadSelectedUnit`, so the eligible actor's identity can still be lost. Lead Troops provides the established control pattern by storing the Great General's unit ID through its popup path.
 
-The same availability/execution and popup-identity contracts exist in vanilla/Civ4CE BtS and AdvCiv, making this an inherited BtS gameplay defect. It remains pending because the repair must preserve the eligible Spy end-to-end through mission execution and both popup returns rather than curing only the first abort.
+The fix centralizes selection of the first currently eligible selected Spy for action help, Espionage cost help and both popup phases. Group execution now skips units that cannot perform Espionage and retains the one-Spy-per-command exit only after trying an eligible Spy. This preserves the acting-unit contract end-to-end without changing popup or save data. The same availability/execution and popup-identity defects exist in vanilla/Civ4CE BtS and AdvCiv, making this an inherited BtS gameplay defect rather than an AdvCiv-SAS regression.
 
-Found as F076/provisional KI#398 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+Compiled runtime testing formed a two-unit selection by selecting a Musketman before a Spy on a Spanish Plantation. Spy-specific action help appeared, the Espionage popup offered Sabotage Improvement, its hover showed the complete 57-point cost and 75% success breakdown, and executing it used the Spy rather than aborting on the Musketman. The Spy was caught during the valid attempt, independently confirming that the eligible actor reached mission execution in screenshots 0312-0316.
+
+Found as F076/provisional KI#398 and retained after the final adversarial review in ChatGPT-5.6-Sol's durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 ## 399 - (Fixed inherited BtS Great General XP defect) Ineligible plot units consumed remainder slots
 
