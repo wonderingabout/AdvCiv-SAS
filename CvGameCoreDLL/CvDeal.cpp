@@ -351,22 +351,21 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 			// Call makePeace on the recipient of reparations
 			if(iFirstLength == 1 && iSecondLength > 1)
 			{
-				GET_TEAM(eFirstTeam).makePeace(eSecondTeam, false, NO_TEAM,
-						false, &kSecondList);
+				// <!-- custom: Preserve the actual reparations-giving player because city IDs are player-local within multi-member teams. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				GET_TEAM(eFirstTeam).makePeace(eSecondTeam, false, NO_TEAM, false, &kSecondList, false, getSecondPlayer());
 				bDone = true;
 			}
 			else if(iSecondLength == 1 && iFirstLength > 1)
 			{
-				GET_TEAM(eSecondTeam).makePeace(eFirstTeam, false, NO_TEAM,
-						false, &kFirstList);
+				// <!-- custom: Preserve the actual reparations-giving player for the opposite deal direction too. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				GET_TEAM(eSecondTeam).makePeace(eFirstTeam, false, NO_TEAM, false, &kFirstList, false, getFirstPlayer());
 				bDone = true;
 			}
 		}
 		if(!bDone) // </advc.039>
 		{
 		// <advc.034>
-			GET_TEAM(eFirstTeam).makePeace(eSecondTeam, false, NO_TEAM,
-					bSurrender); // advc.039
+			GET_TEAM(eFirstTeam).makePeace(eSecondTeam, false, NO_TEAM, bSurrender); // advc.039
 		} // </advc.034>
 		bBumpUnits = true;
 		// K-Mod end

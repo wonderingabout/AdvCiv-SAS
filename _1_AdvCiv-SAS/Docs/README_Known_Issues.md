@@ -467,6 +467,9 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [397 - (Fixed inherited AdvCiv native-widget migration regression) Relations and scoreboard widgets lost contact actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#397---fixed-inherited-advciv-native-widget-migration-regression-relations-and-scoreboard-widgets-lost-contact-actions)\
 [398 - (Fixed inherited BtS group-Espionage defect) A movable non-Spy could abort a valid Spy order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#398---fixed-inherited-bts-group-espionage-defect-a-movable-non-spy-could-abort-a-valid-spy-order)\
 [399 - (Fixed inherited BtS Great General XP defect) Ineligible plot units consumed remainder slots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#399---fixed-inherited-bts-great-general-xp-defect-ineligible-plot-units-consumed-remainder-slots)\
+[412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
+[419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
+[422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -10014,6 +10017,8 @@ Found as F075/provisional KI#397 during ChatGPT-5.6-Sol's durable C013 `CvDLLWid
 
 ## 398 - (Fixed inherited BtS group-Espionage defect) A movable non-Spy could abort a valid Spy order
 
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13nDZx880NwMiyKweYfcfCCQ-Vh75WD59?usp=sharing).
+
 A mixed selection can expose the Espionage mission because `CvSelectionGroup::canDoMission` finds any selected Spy that passes `canEspionage`. During execution, however, `startMission` can reach a movable non-Spy first, call its failing `espionage` method and unconditionally leave the unit loop before the eligible Spy acts. Merely skipping non-Spies at that first point is insufficient: `BUTTONPOPUP_DOESPIONAGE` does not retain the acting Spy ID, and both popup stages later reacquire `getHeadSelectedUnit`, so the eligible actor's identity can still be lost. Lead Troops provides the established control pattern by storing the Great General's unit ID through its popup path.
 
 The fix centralizes selection of the first currently eligible selected Spy for action help, Espionage cost help and both popup phases. Group execution now skips units that cannot perform Espionage and retains the one-Spy-per-command exit only after trying an eligible Spy. This preserves the acting-unit contract end-to-end without changing popup or save data. The same availability/execution and popup-identity defects exist in vanilla/Civ4CE BtS and AdvCiv, making this an inherited BtS gameplay defect rather than an AdvCiv-SAS regression.
@@ -10033,3 +10038,39 @@ The fix advances the remainder-distribution index only after awarding XP to an e
 Compiled WorldBuilder testing placed one Great General and four zero-XP Musketmen on the same plot. Attaching the General distributed exactly `7 + 7 + 6 + 6 = 26` XP across the four eligible recipients in screenshots 0295 and 0297, directly confirming that the ineligible General no longer consumes a remainder slot.
 
 Found as cross-file F077/provisional KI#399 while ChatGPT-5.6-Sol followed the Lead Troops contract during the durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted
+
+`TRADE_CITIES` stores the city ID belonging to the specific player who cedes the city. City IDs are player-local rather than team-global, and the ordinary deal executor correctly resolves the ID through that giving player. AdvCiv's reparations-announcement path instead discarded the player identity, retained only the giving team, and resolved a city term through the team's leader. After a Permanent Alliance creates a multi-player team, a city ceded by a nonleader teammate could therefore be announced under the unrelated name of the leader's city with the same numeric ID, or omitted when the leader had no such ID. Scanning the team cannot repair this because two teammates can legitimately own the same numeric city ID.
+
+The fix carries the actual reparations-giving `PlayerTypes` from `CvDeal` through `CvTeam::makePeace` and `announcePeace` into trade-item formatting. City terms now use that player's city table, while technologies, civics, religions and maps retain their appropriate team/global formatting. Existing non-reparations callers keep the default `NO_PLAYER`; the reparations path asserts that its required giver was supplied.
+
+The mismatch was introduced by AdvCiv's `advc.039` reparations announcements and remains in AdvCiv 1.14, while the ordinary inherited city-trade execution provides the correct player-aware control. This is therefore an inherited AdvCiv reporting defect rather than an AdvCiv-SAS regression.
+
+The repair and all callers were source-verified. Exact runtime reproduction requires a Permanent Alliance followed by reparations in which a nonleader teammate cedes a city, so it remains impractical for the routine autoplay pass.
+
+Found as F090/provisional KI#412 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1YABoagrdJw0dsnbMk3eEe8V3DHLY_1UE?usp=sharing)
+
+AdvCiv added map-centering-aware wrappers for the Customizable Domestic Advisor's optional X and Y city-coordinate columns. Before map centering, both intentionally display `?`; after map centering, the X wrapper accidentally returned `city.getY()`, exactly like the Y wrapper. The two columns therefore displayed the same Y coordinate whenever a city's X and Y differed.
+
+The fix returns `city.getX()` from the X wrapper. AdvCiv practical 3061 (`ace7bb9bf28989b2a30e9200cf376a4646099d6f`) introduced the typo while adding the coordinate information-leak guard, and the current optional columns plus ordinary Paper/Stonehenge map-centering sources keep it reachable. This is an inherited AdvCiv Python/UI defect rather than an AdvCiv-SAS regression. AdvCiv-SAS maintains its non-customizable Domestic Advisor rather than supporting this legacy optional BUG screen; the small correction is retained because the inherited screen remains available and the defect was directly established during the source audit.
+
+Compiled runtime testing temporarily enabled the unsupported Customizable Domestic Advisor, used its right arrow to reach the coordinate page and confirmed that Texcoco displayed `59 / 39`, matching its actual plot coordinates in screenshots 0321-0323. X and Y therefore no longer duplicate the Y value after map centering.
+
+Found as cross-file F097/provisional KI#419 while ChatGPT-5.6-Sol audited `CvTeam::isMapCentering` during the durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements
+
+When a Permanent Alliance absorbs a team that owns more copies of a Project, `CvTeam::shareCounters` raises the survivor's Project count through the ordinary positive `changeProjectCount` path. That path applies the required Project state and effects, but it also announces a newly completed Project and adds a major replay event. The later compensation of the global Projects-created count cannot retract those messages. The alliance could consequently claim that the survivor had just completed Apollo, SDI, The Internet, Manhattan or a spaceship component that the absorbed team had actually completed earlier.
+
+The fix gives `changeProjectCount` an explicit completion-announcement control and disables only that reporting when `shareCounters` inherits Projects. Project counts, effects, Tech Share state, victory re-evaluation, AI production invalidation and the existing global-count compensation remain unchanged; every ordinary Project completion retains the default announcement behavior.
+
+Civ4CE/BtS contains the same positive Project-change and Permanent-Alliance merge pattern, and AdvCiv retains it. This is therefore an inherited BtS Permanent-Alliance reporting defect rather than an AdvCiv-SAS regression.
+
+The state transition and suppression boundary were source-verified. Exact runtime reproduction requires forming a Permanent Alliance where only the absorbed team owns a Project; that turn should no longer produce a duplicate Project-completion message or replay event for the surviving team. A compiled autoplay completed successfully as broad regression coverage; the exact Permanent-Alliance announcement case remains source-verified rather than directly reproduced.
+
+Found as F100/provisional KI#422 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.

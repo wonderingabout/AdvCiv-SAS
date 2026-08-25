@@ -71,7 +71,8 @@ public:
 	// advc.100b <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	// advc.034 <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	// advc.039 <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	void makePeace(TeamTypes eTarget, bool bBumpUnits = true, TeamTypes eBroker = NO_TEAM, bool bCapitulate = false, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false); // advc.106g; Exposed to Python
+	// <!-- custom: Carry the actual reparations-giving player so announcement formatting can resolve player-local city IDs on multi-member teams. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void makePeace(TeamTypes eTarget, bool bBumpUnits = true, TeamTypes eBroker = NO_TEAM, bool bCapitulate = false, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false, PlayerTypes eReparationsFrom = NO_PLAYER); // advc.106g; Exposed to Python
 	bool canContact(TeamTypes eTeam, bool bCheckWillingness = false) const; // K-Mod, Exposed to Python
 	void meet(TeamTypes eTeam, bool bNewDiplo, FirstContactData* pData = NULL); // advc.071; Exposed to Python
 	void signPeaceTreaty(TeamTypes eTeam, bool bForce = false); // K-Mod (advc: bForce)
@@ -331,7 +332,8 @@ public:
 	DllExport void setProjectArtType(ProjectTypes eProject, int iIndex, int iValue);
 	bool isProjectMaxedOut(ProjectTypes eProject, int iExtra = 0) const;								// Exposed to Python
 	DllExport bool isProjectAndArtMaxedOut(ProjectTypes eProject) const;
-	void changeProjectCount(ProjectTypes eProject, int iChange);							// Exposed to Python
+	// <!-- custom: Allow Permanent-Alliance inheritance to apply project mechanics without announcing an already-completed project as new. See KI#422. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void changeProjectCount(ProjectTypes eProject, int iChange, bool bAnnounceCompletion = true);			// Exposed to Python
 	DllExport void finalizeProjectArtTypes();
 	int getProjectMaking(ProjectTypes eProject) const { return m_aiProjectMaking.get(eProject); } // Exposed to Python
 	void changeProjectMaking(ProjectTypes eProject, int iChange);
@@ -612,13 +614,15 @@ protected:
 	// New name for isMinorCiv (uncached)
 	bool checkMinorCiv() const; // </advc.003m>
 	// <advc.039>
-	CvWString const tradeItemString(TradeableItems eItem, int iData, TeamTypes eFrom) const; // </advc.039>
+	// <!-- custom: Trade-item formatting needs the giving player for player-local city IDs; team-global items derive the team from that player. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvWString const tradeItemString(TradeableItems eItem, int iData, PlayerTypes eFrom) const; // </advc.039>
 	bool isTechSplash() const; // advc
 	// advc.156 <!-- custom: hoisted from multiline signature between `eDiscoverPlayer` and `bPartial` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 	void announceTechToPlayers(TechTypes eIndex, PlayerTypes eDiscoverPlayer, bool bPartial = false);
 	// <advc>
 	void announceWar(TeamTypes eTarget, bool bPrimaryDoW, PlayerTypes eSponsor = NO_PLAYER, bool bRandomEvent = false);
-	void announcePeace(TeamTypes eTarget, TeamTypes eBroker = NO_TEAM, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false);
+	// <!-- custom: Retain the actual reparations-giving player through announcement formatting. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void announcePeace(TeamTypes eTarget, TeamTypes eBroker = NO_TEAM, CLinkList<TradeData> const* pReparations = NULL, bool bRandomEvent = false, PlayerTypes eReparationsFrom = NO_PLAYER);
 	// </advc>  <advc.106o>
 	void setWarPeacePartyStrings(TeamTypes eAgent, TeamTypes eTarget, CvWString& szAgents, CvWString& szTargets, bool bReplay = false);
 	void setWarPeacePartyStrings(TeamTypes eTeam, CvWString& szTeams, bool bReplay, bool bCapitalize);

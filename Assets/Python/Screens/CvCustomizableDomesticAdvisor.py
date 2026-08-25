@@ -1660,7 +1660,8 @@ class CvCustomizableDomesticAdvisor:
 	# <advc.004> Reveal coordinates only once the map has been centered
 	def getX (self, city, szKey, arg):
 		if PyPlayer(CyGame().getActivePlayer()).getTeam().isMapCentering():
-			return city.getY()
+			# <!-- custom: AdvCiv's X wrapper accidentally returned Y, making both optional coordinate columns identical after map centering. See KI#419. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			return city.getX()
 		return "?"
 
 	def getY (self, city, szKey, arg):

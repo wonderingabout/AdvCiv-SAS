@@ -789,7 +789,8 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		int iDelta = kShareTeam.getProjectCount(eProject) - getProjectCount(eProject);
 		if (iDelta > 0)
 		{
-			changeProjectCount(eProject, iDelta);
+			// <!-- custom: Inherit every project effect without emitting a false completion message/replay event for a project built earlier by the absorbed team. See KI#422. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			changeProjectCount(eProject, iDelta, false);
 			// don't count the additional projects that have been added in this way
 			GC.getGame().incrementProjectCreatedCount(eProject, -iDelta);
 		}
@@ -1232,7 +1233,8 @@ void CvTeam::triggerDefensivePacts(TeamTypes eTarget, bool bNewDiplo, bool bPrim
 // advc.100b <!-- custom: hoisted from multiline signature between `eBroker` and `bCapitulate` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 // advc.034 <!-- custom: hoisted from multiline signature between `bCapitulate` and `pReparations` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 // advc.039 <!-- custom: hoisted from multiline signature between `pReparations` and `bRandomEvent` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bool bCapitulate, CLinkList<TradeData> const* pReparations, bool bRandomEvent) // advc.106g
+// <!-- custom: Carry the reparations-giving player from CvDeal through the announcement path; TeamTypes alone cannot resolve player-local city IDs. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bool bCapitulate, CLinkList<TradeData> const* pReparations, bool bRandomEvent, PlayerTypes eReparationsFrom) // advc.106g
 {
 	FAssert(eTarget != NO_TEAM);
 	FAssert(eTarget != getID());
@@ -1289,7 +1291,7 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bo
 	// advc.106o: Vassals now mentioned along with their master
 	if (!isAVassal() && !kTarget.isAVassal())
 	{	// advc: Moved into new function
-		announcePeace(eTarget, eBroker, pReparations, bRandomEvent);
+		announcePeace(eTarget, eBroker, pReparations, bRandomEvent, eReparationsFrom);
 	}
 	CvEventReporter::getInstance().changeWar(false, getID(), eTarget);
 	for (TeamIter<MAJOR_CIV> it; it.hasNext(); ++it)
@@ -1411,7 +1413,8 @@ void CvTeam::announceWar(TeamTypes eTarget, bool bPrimaryDoW, PlayerTypes eSpons
 }
 
 // advc: Cut from makePeace
-void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker, CLinkList<TradeData> const* pReparations, bool bRandomEvent)
+// <!-- custom: Retain the reparations giver so TRADE_CITIES names the city from its real owner's local ID namespace. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker, CLinkList<TradeData> const* pReparations, bool bRandomEvent, PlayerTypes eReparationsFrom)
 {
 	CvWString szBuffer;
 	CvTeam const& kTarget = GET_TEAM(eTarget);
@@ -1470,11 +1473,11 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker, CLinkList<Trade
 		}
 		else szSound = "AS2D_THEIRMAKEPEACE";
 		// <advc.039>
-		if (pReparations != NULL && kObs.getID() != getLeaderID() &&
-			kObs.getID() != kTarget.getLeaderID()) 
+		if (pReparations != NULL && kObs.getID() != getLeaderID() && kObs.getID() != kTarget.getLeaderID())
 		{
-			szBuffer.Format(SETCOLR L"%s" ENDCOLR,
-					TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szBuffer.c_str());
+			// <!-- custom: Debug builds enforce the new player-identity contract before any local city ID is resolved. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol); (note: assertion untested since this was only run on a Release DLL) -->
+			FAssert(eReparationsFrom != NO_PLAYER);
+			szBuffer.Format(SETCOLR L"%s" ENDCOLR, TEXT_COLOR("COLOR_HIGHLIGHT_TEXT"), szBuffer.c_str());
 			eColor = NO_COLOR; // Don't color the whole message
 			szBuffer.append(L" ");
 			szBuffer.append(gDLL->getText("TXT_KEY_MISC_IN_EXCHANGE_FOR"));
@@ -1482,8 +1485,7 @@ void CvTeam::announcePeace(TeamTypes eTarget, TeamTypes eBroker, CLinkList<Trade
 			std::vector<CvWString> aszTradeItems;
 			FOR_EACH_TRADE_ITEM(*pReparations)
 			{
-				CvWString const szItem(tradeItemString(
-						pItem->m_eItemType, pItem->m_iData, eTarget));
+				CvWString const szItem(tradeItemString(pItem->m_eItemType, pItem->m_iData, eReparationsFrom));
 				if (szItem.length() > 0)
 					aszTradeItems.push_back(szItem);
 			}
@@ -3907,7 +3909,8 @@ void CvTeam::finalizeProjectArtTypes()
 }
 
 
-void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
+// <!-- custom: The transfer mode suppresses only completion reporting; inherited projects still update counts, effects, victory state and AI production normally. See KI#422. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange, bool bAnnounceCompletion)
 {
 	if (iChange == 0)
 		return;
@@ -3986,7 +3989,7 @@ void CvTeam::changeProjectCount(ProjectTypes eProject, int iChange)
 	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
-	if (GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
+	if (bAnnounceCompletion && GC.getGame().isFinalInitialized() && !gDLL->GetWorldBuilderMode())
 	{
 		CvWString szBuffer = gDLL->getText( // <advc.008e>
 				kProject.nameNeedsArticle() ?
@@ -4355,14 +4358,16 @@ bool CvTeam::isHasTech(TechTypes eIndex) const
 }
 
 // advc.039:
-CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, TeamTypes eFrom) const
+// <!-- custom: Resolve city IDs through the actual giver; retain team-level formatting for the remaining item types. See KI#412. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+CvWString const CvTeam::tradeItemString(TradeableItems eItem, int iData, PlayerTypes eFrom) const
 {
-	CvTeam const& kFrom = GET_TEAM(eFrom);
+	CvPlayer const& kFromPlayer = GET_PLAYER(eFrom);
+	CvTeam const& kFrom = GET_TEAM(kFromPlayer.getTeam());
 	switch(eItem)
 	{
 	case TRADE_CITIES:
 	{
-		CvCity* c = GET_PLAYER(kFrom.getLeaderID()).getCity(iData);
+		CvCity* c = kFromPlayer.getCity(iData);
 		if (c == NULL)
 			return L"";
 		return c->getName();
