@@ -564,6 +564,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		// advc: The at-war counters should be consistent
 		AI().AI_setAtWarCounter(kOther.getID(), kOther.AI_getAtWarCounter(getID()));
 		kOther.setStolenVisibilityTimer(getID(), (iOriginalTeamSize * kOther.getStolenVisibilityTimer(getID()) + iSecondTeamSize * kOther.getStolenVisibilityTimer(eTeam)) / getNumMembers());
+		// <!-- custom: After transferring an outsider's stolen-visibility timer to the surviving Permanent-Alliance team, clear its absorbed-team relation through the stateful setter so the old plot-level counts are removed. See KI#421. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kOther.isAlive())
+			kOther.setStolenVisibilityTimer(eTeam, 0);
 		// <!-- custom: Firaxis migrated neighboring temporary espionage state during a Permanent Alliance but omitted Counterespionage. Its effect is keyed to the current team identity,
 		// so retain the longer coherent timer/modifier pair from the outsider's direction rather than leaving it on the absorbed team. See KI#400. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (kOther.getCounterespionageTurnsLeftAgainstTeam(eTeam) > kOther.getCounterespionageTurnsLeftAgainstTeam(getID()))
@@ -572,7 +575,11 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			kOther.setCounterespionageModAgainstTeam(getID(), kOther.getCounterespionageModAgainstTeam(eTeam));
 		}
 		kOther.AI_setAtPeaceCounter(getID(), (iOriginalTeamSize * kOther.AI_getAtPeaceCounter(getID()) + iSecondTeamSize * kOther.AI_getAtPeaceCounter(eTeam)) / getNumMembers());
-		kOther.AI_setHasMetCounter(getID(), (iOriginalTeamSize * kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize * kOther.AI_getHasMetCounter(eTeam)) / getNumMembers());
+		// <!-- custom: HasMetCounter is exact bilateral history, but AdvCiv max-merged the survivor's direction and weighted the outsider's.
+		// Assign the same weighted Permanent-Alliance result to both directions like the neighboring exact AtWarCounter. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iMergedHasMetCounter = (iOriginalTeamSize * kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize * kOther.AI_getHasMetCounter(eTeam)) / getNumMembers();
+		kOther.AI_setHasMetCounter(getID(), iMergedHasMetCounter);
+		AI().AI_setHasMetCounter(kOther.getID(), iMergedHasMetCounter);
 		// <advc.003n>
 		if (kOther.isBarbarian())
 			continue; // </advc.003n>
@@ -588,7 +595,11 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		// </advc.130m>
 		kOther.setEspionagePointsAgainstTeam(getID(), kOther.getEspionagePointsAgainstTeam(getID()) + kOther.getEspionagePointsAgainstTeam(eTeam));
 		// <advc.130k>
-		kOther.setTurnsAtPeace(getID(), (iOriginalTeamSize * kOther.getTurnsAtPeace(getID()) + iSecondTeamSize * kOther.getTurnsAtPeace(eTeam)) / getNumMembers()); // </advc.130k>
+		// <!-- custom: TurnsAtPeace is also exact bilateral history.
+		// Reconcile both directions to the same weighted Permanent-Alliance value instead of retaining shareCounters' max-versus-weighted asymmetry. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iMergedTurnsAtPeace = (iOriginalTeamSize * kOther.getTurnsAtPeace(getID()) + iSecondTeamSize * kOther.getTurnsAtPeace(eTeam)) / getNumMembers();
+		kOther.setTurnsAtPeace(getID(), iMergedTurnsAtPeace);
+		setTurnsAtPeace(kOther.getID(), iMergedTurnsAtPeace); // </advc.130k>
 		// <advc.003n>
 		if (kOther.isMinorCiv())
 			continue; // </advc.003n>
@@ -604,6 +615,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			AI().AI_setWarPlan(kOther.getID(), NO_WARPLAN, false);
 		}
 	}
+	// <!-- custom: The survivor can also have stolen visibility against the team it just absorbed.
+	// Its real sight has now been copied, so clear the obsolete relation through the setter to remove the old plot-level counts. See KI#421. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	setStolenVisibilityTimer(eTeam, 0);
 
 	AI().AI_updateWorstEnemy();
 	// <advc.104t>
@@ -785,13 +799,7 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		if (kShareTeam.AI_getAtPeaceCounter(eLoopTeam) > AI().AI_getAtPeaceCounter(eLoopTeam))
 			AI().AI_setAtPeaceCounter(eLoopTeam, kShareTeam.AI_getAtPeaceCounter(eLoopTeam));
 		//else kShareTeam.AI_setAtPeaceCounter(eLoopTeam, AI_getAtPeaceCounter(eLoopTeam));
-		// <advc.130k>
-		if (kShareTeam.getTurnsAtPeace(eLoopTeam) > getTurnsAtPeace(eLoopTeam))
-			setTurnsAtPeace(eLoopTeam, kShareTeam.getTurnsAtPeace(eLoopTeam));
-		// </advc.130k>
-		if (kShareTeam.AI_getHasMetCounter(eLoopTeam) > AI().AI_getHasMetCounter(eLoopTeam))
-			AI().AI_setHasMetCounter(eLoopTeam, kShareTeam.AI_getHasMetCounter(eLoopTeam));
-		//else kShareTeam.AI_setHasMetCounter(eLoopTeam, AI_getHasMetCounter(eLoopTeam));
+		// <!-- custom: Exact TurnsAtPeace and HasMetCounter history is reconciled symmetrically after member reassignment, alongside the reverse-direction weighted merge. See KI#420. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 		if (kShareTeam.AI_getOpenBordersCounter(eLoopTeam) > AI().AI_getOpenBordersCounter(eLoopTeam))
 			AI().AI_setOpenBordersCounter(eLoopTeam, kShareTeam.AI_getOpenBordersCounter(eLoopTeam));

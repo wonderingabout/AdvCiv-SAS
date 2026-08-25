@@ -487,6 +487,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [417 - (Fixed inherited AdvCiv defensive-power regression) An attacker's vassals could count for the target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#417---fixed-inherited-advciv-defensive-power-regression-an-attackers-vassals-could-count-for-the-target)\
 [418 - (Fixed inherited Kek-Mod/AdvCiv Tech Share defect) Dead teammates counted toward The Internet](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#418---fixed-inherited-kek-modadvciv-tech-share-defect-dead-teammates-counted-toward-the-internet)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
+[420 - (Fixed inherited AdvCiv Permanent-Alliance history defect) Exact bilateral counters became asymmetric](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#420---fixed-inherited-advciv-permanent-alliance-history-defect-exact-bilateral-counters-became-asymmetric)\
+[421 - (Fixed inherited BtS/K-Mod Permanent-Alliance visibility defect) Stolen sight could become permanent](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#421---fixed-inherited-btsk-mod-permanent-alliance-visibility-defect-stolen-sight-could-become-permanent)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
 [424 - (Fixed SAS-activated inherited AdvCiv UWAI team arithmetic defect) Aspect weights compounded across teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#424---fixed-sas-activated-inherited-advciv-uwai-team-arithmetic-defect-aspect-weights-compounded-across-teammates)\
 [425 - (Fixed AdvCiv-SAS UWAI team-game regression) One remote teammate could veto a collectively reachable war target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#425---fixed-advciv-sas-uwai-team-game-regression-one-remote-teammate-could-veto-a-collectively-reachable-war-target)\
@@ -10247,6 +10249,34 @@ The fix returns `city.getX()` from the X wrapper. AdvCiv practical 3061 (`ace7bb
 Compiled runtime testing temporarily enabled the unsupported Customizable Domestic Advisor, used its right arrow to reach the coordinate page and confirmed that Texcoco displayed `59 / 39`, matching its actual plot coordinates in screenshots 0321-0323. X and Y therefore no longer duplicate the Y value after map centering.
 
 Found as cross-file F097/provisional KI#419 while ChatGPT-5.6-Sol audited `CvTeam::isMapCentering` during the durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 420 - (Fixed inherited AdvCiv Permanent-Alliance history defect) Exact bilateral counters became asymmetric
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/17xqHWiNeObVVi0PP5gSQTsei0zN702Cd?usp=sharing).
+
+AdvCiv introduced deterministic team-level `TurnsAtPeace` state because its randomized AI at-peace counter was unsuitable for the sustained-peace foreign-trade modifier. `AI_getHasMetCounter` is likewise explicitly maintained as exact contact history. Outside Permanent Alliances, both counters start and advance bilaterally. Permanent-Alliance merging nevertheless applied different policies to their two directions: `shareCounters` retained the maximum constituent history from the new combined team toward an outsider, while `addTeam` assigned the outsider's reverse direction a team-size-weighted average.
+
+For equal-size teams A and B with 100 and 5 turns of history toward C, A absorbing B could therefore produce 100 turns from A+B toward C but only 52 from C toward A+B. Cities on opposite sides could receive different sustained-peace trade credit from the same relationship, while AI contact-recency and war evaluation read similarly asymmetric history. Randomized/decaying AtPeace, OpenBorders, DefensivePact and ShareWar counters are intentionally not included in this fix.
+
+The repair removes the transient maximum merge for these two exact counters, computes the existing team-size-weighted result once per outsider, and assigns that identical value to both directions. This follows the neighboring `AtWarCounter` reconciliation and restores the bilateral invariant without changing the chosen weighting policy.
+
+Compiled runtime validation used a Huge Pangaea autoplay with Permanent Alliances enabled. Team 13 absorbed its former vassal team 14 by the turn-370 `SASGameRecord`; the merged team remained active and the game completed normally with a Space Race victory on turn 473. This directly exercised the repaired Permanent-Alliance merge path, while the exact hidden counter equality remains source-verified rather than exposed by the record.
+
+AdvCiv practical `advc.130k` introduced exact `TurnsAtPeace` into older Permanent-Alliance merge paths with conflicting policies; the exact HasMet counter already shared the same mismatch. Both remain in AdvCiv 1.14, making this an inherited AdvCiv Permanent-Alliance state-merge defect rather than an AdvCiv-SAS regression. Found as F098/provisional KI#420 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 421 - (Fixed inherited BtS/K-Mod Permanent-Alliance visibility defect) Stolen sight could become permanent
+
+Screenshots/files for this issue: same google drive folder link as KI#420.
+
+`CvTeam::setStolenVisibilityTimer` owns both a relation timer and secondary plot-level stolen-visibility counts. Crossing between zero and a positive timer adds or removes one count on every plot visible to the target. During a Permanent Alliance, the absorbed team's real visibility is copied into the survivor and outsider timers are merged toward the survivor, but live teams' old timers against the absorbed team were never cleared through this stateful setter.
+
+If outsider C had stolen visibility against absorbed team B, its C-to-B timer and B-derived plot counts remained after B's players joined A. Dead B no longer received timer decrements. When the new C-to-A timer later expired, only its A-relation counts were removed, leaving the old B-derived counts permanently attached to C. Survivor A could retain the same obsolete A-to-B relation. A later direct timer reset could erase bookkeeping without removing the detached plot counts.
+
+The fix preserves the required order: copy B's real visibility into A; merge each live outsider's intended timer toward A; then clear that outsider's B timer through `setStolenVisibilityTimer(B, 0)`. After all outsider transfers, A's own obsolete timer against B is cleared through the same setter. Legitimate merged sight and A-directed stolen visibility remain independently represented while every old B-derived count receives its required zero transition.
+
+The same compiled Huge Pangaea autoplay exercised a real Permanent-Alliance absorption by turn 370 and continued normally through the turn-473 Space Race victory. No active stolen-visibility mission was arranged at the merger, so this validates the surrounding runtime merge path while the timer/count transition itself remains source-verified.
+
+The underlying timer merge is inherited from BtS. K-Mod/Kek-Mod later cleared absorbed-team city espionage visibility but did not clear these map-visibility timers through their stateful owner. This is therefore an inherited BtS/K-Mod Permanent-Alliance lifecycle defect rather than an AdvCiv-SAS regression. Ordinary civilization elimination is not affected because normal unit/city sight loss drains stolen counts while the team dies. Found as F099/provisional KI#421 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 ## 422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements
 

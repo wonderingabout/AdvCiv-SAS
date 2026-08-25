@@ -16023,3 +16023,750 @@ LOCAL RECONCILIATION AFTER C014-WIP24 IMPORT
 - ChatGPT-5.6-Sol's C014-WIP17 through C014-WIP24 append is compatible with current authority at HEAD b10972a97 plus the staged KI#416/KI#417 repairs. The received append remains verbatim as evidence.
 - F094 / KI#416 and F095 / KI#417 are now fixed in the staged current source. Their repairs restore dead-teammate technology state and exclude the attacker's master/vassal bloc from target defensive power; the new WarUtility findings do not supersede either repair.
 - F129-F136 / provisional KI#452-KI#459 are collision-free against the current reviewed Known Issues ledger, but remain provisional while `WarUtilityAspect.cpp` is open. No implementation is promoted from WIP17-WIP24 in this reconciliation. (GPT-5.6-Sol)
+
+
+===============================================================================
+C014-WIP25 CONTINUATION -- PREEMPTIVEWAR TEAM-THREAT OWNERSHIP + CLOSURE PASS
+===============================================================================
+STATUS: WIP / append-only continuation of authoritative C014-WIP24.
+COMPLETED FILES: 13 / 169.
+CURRENT FILE: 014 CvGameCoreDLL/WarUtilityAspect.cpp OPEN.
+NO REPOSITORY SOURCE FILES MODIFIED.
+
+F137 / provisional KI#460 -- CONFIRMED -- INHERITED TEAM-THREAT DUPLICATION
+PREEMPTIVEWAR CONSUMES A TEAM-OWNED THREAT / SIDE FORECAST ONCE PER RIVAL PLAYER
+-------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED ADVCIV DEFECT ROOT. Static proof strong.
+
+ROOT CONTRACT
+
+PreEmptiveWar::evaluate() is entered through WarUtilityBroaderAspect's ordinary
+per-rival-player callback. WarUtilityAspect::evaluate(MilitaryAnalyst const&)
+therefore invokes it once for each known potential-enemy PLAYER, including every
+living member of the same rival team.
+
+Its first substantive input looks player-keyed:
+
+    scaled const rCurrThreat = ourCache().threatRating(eThey);
+
+but UWAICache::calculateThreatRating(PlayerTypes eRival) ultimately returns:
+
+    return teamThreat(TEAMID(eRival));
+
+apart from an individual rival-cache reachability early return. teamThreat then
+uses the rival TEAM's attitude, long-term TEAM/master-side power, victory stage,
+and alternative-target count. Thus, whenever two teammates B and C can both
+reach our capital, threatRating(B) == threatRating(C): they expose the same
+TeamBC threat through two PlayerTypes slots.
+
+PREEMPTIVEWAR THEN RECONSTRUCTS THE SAME TEAM SIDE
+
+The rest of the calculation does not make that shared threat player-specific.
+For the current eThey it builds the rival side by looping all major players and
+accepting anyone whose:
+
+    kTheirAlly.getMasterTeam() == GET_PLAYER(eThey).getMasterTeam()
+
+(or who is a newly accepted vassal of eTheirTeam).
+
+For teammates B and C, getMasterTeam() and eTheirTeam are identical. Therefore
+both callbacks aggregate the same current/predicted B+C+vassal city side. Within
+one MilitaryAnalyst evaluation eWe is fixed too, so the current/predicted agent
+side, rTheirEdge, threat-change transform, rival-team victory-stage modifier,
+and agent distrust factor are also identical.
+
+DETERMINISTIC REPRODUCTION
+
+Take one agent player A and a two-member rival team B+C. Assume:
+
+* B and C are both known potential enemies and both can reach A's capital;
+* teamThreat(TeamBC) is above the 0.15 gate;
+* the simulated scenario changes TeamBC's side enough for rTheirEdge != 0.
+
+B pass:
+
+    rCurrThreat = teamThreat(TeamBC)
+    rival city side = B + C + their vassals
+    -> utility X
+
+C pass:
+
+    rCurrThreat = teamThreat(TeamBC)
+    rival city side = B + C + their vassals
+    -> the same utility X
+
+The aspect total receives 2X. Moving the same players into one-member teams, or
+merely changing team membership while holding the combined military/economic
+side fixed, changes the long-term-threat utility because the same TeamBC threat
+is exposed once per member.
+
+PLAYER-SPECIFIC REACHABILITY DOES NOT RESCUE THE MODEL
+
+calculateThreatRating has one player-local gate before returning teamThreat: it
+checks whether the particular rival player's cache says our capital is
+reachable. This can make one teammate's slot zero and another's nonzero, but it
+does not justify counting the common team threat twice when both are reachable.
+It also exposes the deeper ownership mismatch: a team capability is cached under
+PlayerTypes after filtering it through one member's reachability.
+
+A robust repair should decide team reachability/capability explicitly (e.g. any
+material member can project force) and expose/canonicalize the resulting threat
+at team scope, rather than relying on whichever player slot is being consumed.
+
+ANCESTRY
+
+This is inherited, not SAS-created.
+
+* Current SAS and Base AdvCiv 1.14 have normalized-identical
+  PreEmptiveWar::evaluate().
+* Current SAS and Base AdvCiv 1.14 also have normalized-identical
+  UWAICache::calculateThreatRating and UWAICache::teamThreat.
+* The original local UWAI introduction (reachable-history practical 1253,
+  f6ff6a182f) already created a player-indexed threatRatings[civId] entry whose
+  calculateThreatRating(civId) returned teamThreat(TEAMID(civId)), and the
+  simultaneously introduced PreEmptiveWar iterated rival players while
+  rebuilding their master-team/vassal city side.
+
+So the player/team ownership mismatch exists from the feature's birth.
+
+RELATION TO F107 / KI#430
+
+Keep separate.
+
+F107 proves that PreEmptiveWar constructs present/predicted sides
+inconsistently: existing vassals disappear from our predicted baseline and a
+team-wide current-city base subtracts only the current agent member's losses.
+Correcting those baselines does NOT prevent a correct team forecast from being
+consumed once for B and again for teammate C.
+
+Conversely, evaluating/caching the long-term threat once per rival team does NOT
+repair F107's existing-vassal and teammate-loss asymmetries inside that one team
+forecast. The two roots therefore have different invariants and repair loci.
+
+RELATION TO F121 / KI#444
+
+F121's terminal-start manifestation forces calculateThreatRating to zero forever
+while currentEra <= startEra. That startup-clock bug can hide F137 in a
+terminal-era-start test, but fixing the clock merely allows the duplicated team
+threat to become active. The roots are independent.
+
+REPAIR DIRECTION
+
+Prefer a team-owned long-term threat object/calculation and consume its change
+once per distinct rival team (or otherwise allocate it exactly once), while
+preserving genuinely player-specific diplomatic/economic quantities elsewhere.
+If the reachability precondition remains, aggregate it at the same team scope
+rather than using one player's cache as a hidden switch for a teamThreat value.
+Do not simply divide every PreEmptiveWar result by team size without first
+fixing F107's side construction and deciding how team reachability should work.
+
+
+CLOSURE-PASS NOTE -- DERIVED MEMBER STATE
+-----------------------------------------
+The first derived-member lifetime inventory after WIP24 did NOT establish a
+second root:
+
+* MilitaryVictory::preEvaluate overwrites m_iVotesToGo/m_bEnoughVotes for each
+  agent member from the same agent-team victory state.
+* KingMaking::preEvaluate explicitly clears both winner sets on every member
+  call before repopulating them.
+* Risk::m_bSASContactGateEvaluated is intentionally scenario-wide after
+  KI#425/F102 so the team-wide hard contact gate fires only once.
+* IllWill::preEvaluate/evaluate overwrite the scratch scalar state needed for
+  each member before use.
+* ThirdPartyIntervention and DramaticArc overwrite their precomputed scalars on
+  every member preEvaluate call.
+* Revolts::m_countedCities is deliberately scenario-wide; its mismatch with
+  reset per-call numerator/denominator state is already F132/KI#455.
+
+This closes the obvious derived-state-lifetime surface without manufacturing a
+new finding.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP25
+NEW ROOT IN THIS APPEND: F137 / provisional KI#460
+NEXT UNUSED ROOT: F138
+
+Continue the untouched helper/scenario-state sweep and method/header inventory,
+then run Base-ancestry/current-ledger collision closure before deciding whether
+file 014 is ready for durable C015. No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP26 CONTINUATION -- TACTICAL OPERATIONAL READINESS TARGET-TEAM DUPLICATION
+===============================================================================
+STATUS: WIP / append-only continuation of authoritative C014-WIP25.
+COMPLETED FILES: 13 / 169.
+CURRENT FILE: 014 CvGameCoreDLL/WarUtilityAspect.cpp OPEN.
+NO REPOSITORY SOURCE FILES MODIFIED.
+
+F138 / provisional KI#461 -- CONFIRMED -- INHERITED TARGET-TEAM COST DUPLICATION
+TACTICALSITUATION::evalOperational CHARGES ONE AGENT READINESS DEFICIT ONCE PER TARGET MEMBER
+-------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED ADVCIV DEFECT ROOT. Static proof strong.
+
+EXPLICIT INTENT / DOMAIN
+
+TacticalSituation::evalOperational begins with an unusually clear scope comment:
+
+    Evaluate our readiness only for the target that we want to invade
+    (not its vassals or allies from def. pact)
+
+and enforces:
+
+    if (m_kParams.getTarget() != eTheirTeam)
+        return;
+
+The quantity being priced is therefore the current AGENT PLAYER's operational
+readiness for one target TEAM/war plan: attacker count, cargo capacity, escorts,
+preparation time and whether the planned target requires naval deployment.
+
+PER-PLAYER CALLBACK STILL REPEATS THAT TEAM COST
+
+TacticalSituation itself remains a normal WarUtilityAspect. Its evaluate() is
+called once for every rival player that belongs to the military analysis:
+
+    if (!militAnalyst().isWar(eWe, eThey)) return;
+    if (kOurTeam.isAtWar(eTheirTeam)) evalEngagement();
+    else evalOperational();
+
+For a new planned war against a multi-member target team B+C, both B and C are
+part of the simulated enemy side. Since both have eTheirTeam == target, both
+callbacks enter evalOperational.
+
+Within a fixed agent-member MilitaryAnalyst evaluation, almost every material
+input is then the same on both passes:
+
+* our attacker UNITAI inventory;
+* our logistics/cargo power;
+* our sea escort inventory;
+* our city count;
+* total/limited and naval/land war mode;
+* m_kParams.getPreparationTime();
+* the initial preparation-time configuration;
+* whether our army can bombard.
+
+The target-player inputs do not prevent a deterministic duplicate. Teammates
+share team technologies and can trivially be in the same era; choose B and C
+both with at least one reachable city and the same current-era factor. Then
+rTargetAttackers, readiness, passed preparation portion and the final
+`iUnreadinessCost` are identical.
+
+DETERMINISTIC REPRODUCTION
+
+Agent A plans war against TeamBC, which has two living members B and C. A is at
+60% operational readiness and has progressed far enough through preparation for
+an unreadiness cost X > 0. Both B and C have reachable cities and are in the
+same era.
+
+B callback:
+
+    target == TeamBC -> evalOperational
+    A readiness = 60%
+    -> m_iU -= X
+
+C callback:
+
+    target == TeamBC -> evalOperational
+    same A readiness = 60%
+    -> m_iU -= X again
+
+The scenario is one war preparation by A against one target team, but its
+readiness deficit is charged 2X solely because TeamBC has two players.
+
+This differs from genuinely additive rival-player quantities: A does not have a
+second copy of its attack stack, transport capacity or elapsed preparation just
+because another teammate owns cities on the same target team.
+
+AGENT TEAM MEMBERS ARE A DIFFERENT DIMENSION
+
+WarEvaluator also evaluates each living AGENT team member separately. That is
+not the root here: A and teammate A2 own different unit inventories, so separate
+readiness assessments for A and A2 can be meaningful. F138 concerns repeated
+charging of one fixed agent member's readiness across multiple members of the
+SAME target team.
+
+ANCESTRY
+
+Current SAS and Base AdvCiv 1.14 have normalized-identical
+TacticalSituation::evalOperational(). Reachable history shows the original UWAI
+introduction (practical 1253 / f6ff6a182f) already implemented the same design:
+
+    if(params.targetId() != TEAMID(theyId)) return;
+    ... compute our attackers/cargo/escort/preparation readiness ...
+    u -= unreadiness cost
+
+inside the ordinary per-rival-player TacticalSituation callback. The root is
+therefore inherited from the feature's birth, not caused by SAS.
+
+RELATION TO F122 / KI#445
+
+Keep separate despite sharing TacticalSituation.
+
+F122 concerns evalEngagement during an EXISTING war: the same physical agent
+unit can be consumed independently by rival-specific threat/entanglement caps.
+Its repair needs shared physical-unit accounting across rival engagement passes.
+
+F138 concerns evalOperational before the target war exists: one aggregate
+agent-force/preparation deficit is charged once per target-team member. Its
+repair can simply canonicalize/aggregate the target-team readiness calculation
+once for each agent member.
+
+Fixing the engagement unit-identity accounting does not touch evalOperational;
+canonicalizing pre-war readiness does not fix ongoing-war unit reuse.
+
+REPAIR DIRECTION
+
+Evaluate operational readiness once per agent member for the configured target
+TEAM, not once per target player. Target-specific era/reachability inputs should
+also be aggregated at team scope (e.g. relevant/reachable target members) rather
+than choosing one arbitrary member if the calculation is canonicalized.
+
+Do not divide the whole TacticalSituation aspect by target team size: the
+engagement branch contains genuinely player-owned enemy units/cities and needs
+its own F122 identity-aware repair.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP26
+NEW ROOT IN THIS APPEND: F138 / provisional KI#461
+NEXT UNUSED ROOT: F139
+
+Continue the remaining helper/aspect inventory and full method/header closure,
+then run Base-ancestry/current-ledger collision checks before deciding on C015.
+No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP27 CONTINUATION -- ILLWILL WAR-ON-FRIEND TEAM-EVENT COUNTING + CLOSURE CONTROLS
+===============================================================================
+STATUS: WIP / append-only continuation of authoritative C014-WIP26.
+COMPLETED FILES: 13 / 169.
+CURRENT FILE: 014 CvGameCoreDLL/WarUtilityAspect.cpp OPEN.
+NO REPOSITORY SOURCE FILES MODIFIED.
+
+F139 / provisional KI#462 -- CONFIRMED -- INHERITED TEAM-EVENT / PLAYER-SET COUNTING DEFECT
+ILLWILL::evalAngeredPartners CAN COUNT ONE DECLARATION-OF-WAR-ON-FRIEND MEMORY ONCE PER VICTIM-TEAM MEMBER
+-------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED ADVCIV DEFECT ROOT. Static producer/consumer proof strong.
+
+ROOT CONTRACT
+
+IllWill::evalAngeredPartners estimates the diplomatic penalty that an outside
+player eThey will assign to the AGENT PLAYER eWe for wars newly declared in the
+MilitaryAnalyst scenario. The actual relation event being modeled is
+MEMORY_DECLARED_WAR_ON_FRIEND.
+
+MilitaryAnalyst, however, represents declarations through player sets:
+
+    PlyrSet const& kWeDecl = militAnalyst().getWarsDeclaredBy(eWe);
+
+PlayerResult::setDoWBy accepts PlayerTypes, and the war-scenario construction
+crosses the declaring side with the opposing side. Thus, if A declares war on a
+two-member TeamBC, A's player result contains both B and C even though Civ4 has
+one team declaration against TeamBC.
+
+IllWill then loops those PLAYER entries and converts each one back to its team:
+
+    for (PlyrSetIter it = kWeDecl.begin(); it != kWeDecl.end(); ++it)
+    {
+        if (GET_TEAM(*it).isAVassal() || eTheirTeam == TEAMID(*it))
+            continue;
+        if (kThey.AI_disapprovesOfDoW(eOurTeam, TEAMID(*it)))
+        {
+            ...
+            rPenalties += rPenaltyPerDoW;
+        }
+    }
+
+For B and C, TEAMID(*it) is the same TeamBC. The same observer predicate and
+same fixed -1/-2 memory-attitude weight can therefore be added twice.
+
+REAL DIPLOMACY PATH IS THE DECISIVE CONTROL
+
+CvTeamAI::AI_preDeclareWar receives one `TeamTypes eTarget`. For each living
+member of the aggressor team it loops the outside observers once and does:
+
+    if (kPlayer.AI_disapprovesOfDoW(getID(), eTarget))
+        kPlayer.AI_rememberEvent(kOurMember.getID(),
+                MEMORY_DECLARED_WAR_ON_FRIEND);
+
+A declaration A -> TeamBC therefore gives qualifying observer D one
+war-on-friend memory toward A for that victim TEAM. The real code does not loop
+B and C and record the same memory twice merely because TeamBC has two players.
+
+This makes F139 stronger than a generic team-game weighting disagreement:
+IllWill is trying to predict a concrete diplomacy-memory effect and can predict
+more events than the real declaration path creates.
+
+DETERMINISTIC TWO-MEMBER REPRODUCTION
+
+Let A be the current agent player. TeamBC contains living B and C. Outside
+player D likes TeamBC enough that:
+
+    D.AI_disapprovesOfDoW(TeamA, TeamBC) == true
+
+and D's leader uses the usual -1 war-on-friend attitude weight.
+
+Military analysis for A's single declaration on TeamBC stores:
+
+    getWarsDeclaredBy(A) = { B, C }
+
+D's IllWill pass then evaluates:
+
+    B entry -> AI_disapprovesOfDoW(TeamA, TeamBC) -> rPenalties += 1
+    C entry -> AI_disapprovesOfDoW(TeamA, TeamBC) -> rPenalties += 1
+
+so the forecast is two relation points. The real AI_preDeclareWar call for that
+same TeamBC victim records one MEMORY_DECLARED_WAR_ON_FRIEND event toward A.
+The downstream partner-loss, dogpile-danger and diplomatic-victory costs are all
+scaled from the inflated rPenalties value.
+
+AGENT TEAM MEMBERS ARE NOT THE DUPLICATE
+
+CvTeamAI::AI_preDeclareWar deliberately records the observer memory separately
+toward every living member of the AGGRESSOR team. WarEvaluator likewise evaluates
+each agent member separately. Therefore A and teammate A2 can legitimately each
+incur one memory with D.
+
+The defect is only the VICTIM side: within A's one member evaluation, B and C
+are two PlayerTypes representations of one target-team declaration.
+
+CASCADING / DEFENSIVE-PACT WARS
+
+MilitaryAnalyst can also add declarations against Defensive-Pact allies. Those
+are distinct victim teams and correspond to additional real team declarations;
+they must remain separately chargeable. The correct aggregation is therefore
+not "one penalty total" but "one penalty per DISTINCT victim TeamTypes".
+
+A practical repair is to collect/deduplicate TEAMID(*it) from kWeDecl before
+calling AI_disapprovesOfDoW and adding rPenaltyPerDoW. Player-local report names
+can use a canonical/representative member only for logging.
+
+ANCESTRY
+
+The original local UWAI introduction (practical 1253 / f6ff6a182f) already
+implemented IllWill::evalAngeredPartners by iterating
+`m->getWarsDeclaredBy(weId)`, which was a PlayerTypes set, and adding one fixed
+penalty for every qualifying entry. Later advc.130h replaced the direct
+player-attitude test with AI_disapprovesOfDoW(agentId, TEAMID(*it)), making the
+team-domain contract even more explicit without deduplicating the player set.
+
+Current SAS and Base AdvCiv 1.14 have normalized-identical
+IllWill::evalAngeredPartners implementations for this behavior. The real
+AI_preDeclareWar memory path likewise remains team-targeted. F139 is inherited
+from UWAI's player-set representation of declarations, not SAS-created.
+
+RELATION TO F134 / KI#457 AND F136 / KI#459
+
+Keep separate.
+
+* F134 concerns IllWill::theirToOurPowerRatio: team-wide revenge/dogpile military
+  capability is measured through one player's army before nonlinear thresholds.
+* F136 concerns partnerUtilFromTech: the same team-owned technology opportunity
+  can be valued once per teammate.
+* F139 exists even if military capability and partner-tech value are both fixed:
+  the input relation-penalty COUNT itself can contain two predicted memory hits
+  for one real team declaration.
+
+REPAIR DIRECTION
+
+Within evalAngeredPartners, transform the PlayerTypes declaration set into the
+set of distinct victim teams before applying the war-on-friend observer test and
+memory-attitude penalty. Preserve separate penalties for genuinely separate
+victim teams (including cascading Defensive-Pact declarations), and preserve
+per-agent-member evaluation because the real memory is stored separately toward
+each aggressor player.
+
+
+F114 / provisional KI#437 -- ADVERSARIAL REVALIDATION -- REMAINS LIVE
+-------------------------------------------------------------------------------
+The closure pass briefly challenged F114's assumption that a target teammate
+passes FairPlay's:
+
+    kTheirTeam.isHasMet(kOther.getTeam())
+
+filter. A shallow read of CvTeam::reset would suggest a team does not meet
+itself because m_aiHasMetTurn defaults to -1. The complete initialization trace
+proves otherwise and therefore REVALIDATES F114 rather than retracting it.
+
+CvGame::initDiplomacy explicitly executes for every team:
+
+    itTeam->meet(itTeam->getID(), false);
+
+CvTeam::meet then calls makeHasMet on that same team object; the first call sets:
+
+    m_aiHasMetTurn.set(eOther, iGameTurn);
+
+with eOther == self. Hence isHasMet(self) is true in an initialized game. A
+second living member C of target TeamBC therefore is not filtered by the
+has-met condition merely because C shares eTheirTeam with B.
+
+The second F114 manifestation also survives: CvTeamAI::AI_shareWar(ownTeam)
+iterates the team's current enemies and returns true when an enemy is at war
+with the supplied own team. Therefore a target teammate that reaches the branch
+can indeed be classified as an "ally" of eThey while the target team is at war.
+
+No album correction is required: WIP07's F114 diagnosis remains authoritative.
+This note is retained so the tempting but incomplete "teams do not meet
+self" counterargument is not rediscovered later.
+
+
+METHOD / HEADER CLOSURE CONTROL -- NO UNINVENTORIED SAS SEMANTIC SURFACE
+-------------------------------------------------------------------------------
+A brace-aware inventory found 83 actual Class::member definitions in both
+current SAS WarUtilityAspect.cpp and Base AdvCiv 1.14 (plus the overload of the
+WarUtilityAspect entry point handled separately by the inventory). No SAS-only
+aspect/helper implementation is hiding outside the reviewed class surface.
+
+Token-level body comparison after stripping comments/formatting shows the
+meaningful current SAS-vs-Base implementation changes remain the already-known
+localized areas:
+
+* WarUtilityAspect::evaluate(MilitaryAnalyst const&) -- F101/KI#424 member-delta
+  XML-weight repair already present in current SAS;
+* WarUtilityAspect::techRefuseThresh -- F103/KI#426 repair already present;
+* Risk::preEvaluate -- SAS hard contact gate plus F102/KI#425 team-wide one-shot
+  repair;
+* Distraction::evaluate -- later SAS winning-war cap/policy addition, which does
+  not create F126's inherited team-cost duplication.
+
+The header token diff is correspondingly narrow: current SAS adds only
+Risk::m_bSASContactGateEvaluated and its constructor initialization relative to
+Base 1.14. Constructor/member lifetime review found no uninitialized derived
+state escaping into use: IllWill scratch values are overwritten before use,
+MilitaryVictory/KingMaking/ThirdParty/DramaticArc pre-state is reset per member,
+and Revolts' intentionally persistent set is already normalized under F132.
+
+This substantially closes the possibility of an unreviewed SAS-only helper or
+header-state regression in file 014. Remaining work is semantic/adversarial
+closure of the inherited aspect formulas and ledger, not discovery of hidden
+methods.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP27
+NEW ROOT IN THIS APPEND: F139 / provisional KI#462
+F114/KI#437: REVALIDATED, NOT RETRACTED
+NEXT UNUSED ROOT: F140
+
+Continue the untouched-helper/scenario-state and current-ledger collision pass,
+then adversarially reread the live F101-F139 root set (with F113 still the sole
+current file-014 retracted ID) before deciding whether a durable C015 is earned.
+No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP28 CONTINUATION -- SAME-ROOT NORMALIZATION BEFORE FINAL CLOSURE
+===============================================================================
+STATUS: WIP / append-only continuation of authoritative C014-WIP27.
+COMPLETED FILES: 13 / 169.
+CURRENT FILE: 014 CvGameCoreDLL/WarUtilityAspect.cpp OPEN.
+NO REPOSITORY SOURCE FILES MODIFIED.
+
+This pass deliberately challenged three already-live roots whose later source
+inspection exposed additional manifestations. All three survive as BROADENINGS
+of their existing root; no F140 is spent here.
+
+
+F124 / provisional KI#447 -- AUTHORITATIVE BROADENING -- THREAT-STRENGTH RATIO
+IS PLAYER-LOCAL ON THE AGENT SIDE TOO
+-------------------------------------------------------------------------------
+WIP14 established F124 from the potential intervener side: ThirdPartyIntervention
+estimates intervention probability with rival TEAM power/state, then switches to
+one rival PLAYER's cached ARMY before the nonlinear 0.50 severity gate. The final
+closure pass proves that the denominator has the symmetric team/member mismatch.
+
+PROBABILITY PATH ALREADY USES AGENT TEAM POWER
+
+For the paranoia branch, ThirdPartyIntervention computes:
+
+    int iOurDefPow = kOurTeam.getDefensivePower();
+    ...
+    kWe.AI_paranoiaRating(eThey, iOurDefPow, false, true);
+
+So its intervention-probability model explicitly supplies the full agent TEAM's
+defensive power.
+
+SEVERITY PATH SWITCHES TO CURRENT AGENT PLAYER
+
+preEvaluate() instead initializes:
+
+    m_rDefPow = ourCache().getPowerValues()[ARMY]->power();
+
+`ourCache()` belongs to current PlayerTypes eWe. The subsequent ally loop is:
+
+    PlayerAIIter<MAJOR_CIV,OTHER_KNOWN_TO> itAlly(eOurTeam)
+
+and AgentIterator's `OTHER_KNOWN_TO` predicate explicitly requires:
+
+    getTeam(kAgent) != m_eTeam
+
+(the enum comment likewise says "Not incl. the first agent's team, but incl. its
+vassals"). Therefore an ordinary teammate A2 on eOurTeam is categorically NOT
+added to m_rDefPow. Vassals and qualifying defensive-pact teams can be added at
+half weight; same-team members cannot.
+
+Later evaluate() uses this player-local value as:
+
+    scaled rOurPow = m_rDefPow;
+    ...
+    scaled rTheirPowToOurs = rTheirPow / rOurPow;
+    if (rTheirPowToOurs <= fixp(0.5))
+        return;
+
+This is the same nonlinear gate already proven under F124.
+
+DETERMINISTIC AGENT-PARTITION REPRODUCTION
+
+Let agent TeamA have two ordinary members A1 and A2 with 40 relevant ARMY power
+each (80 combined), and let potential intervener B have 30 relevant ARMY power.
+Ignore vassals/losses and hold the probability path positive.
+
+On A1's aspect pass:
+
+    rOurPow = 40
+    rTheirPowToOurs = 30 / 40 = 0.75 -> passes the 0.50 gate
+
+On A2's pass, the same calculation occurs again. But the team that B would have
+to fight has 80 combined power:
+
+    30 / 80 = 0.375 -> should fail the aspect's own "too weak to matter" gate
+
+Conversely, concentrating the same team power into one member changes the
+nonlinear result despite identical war-side military capacity. The later linear
+member-count divisor cannot undo a gate that has already passed/returned.
+
+This is especially strong because the preceding paranoia calculation already
+uses `kOurTeam.getDefensivePower()`: the same aspect first asks how likely B is
+to intervene against the TEAM, then judges how dangerous that intervention is
+against only the current member's army.
+
+ANCESTRY / REPAIR NORMALIZATION
+
+The original ThirdPartyIntervention introduction already initialized m_rDefPow
+from current-player cache power and iterated OTHER_KNOWN_TO for allies; Base
+AdvCiv 1.14 retains the same boundary. Later power-projection retuning did not
+change it.
+
+F124 is therefore best normalized as one root: ThirdPartyIntervention's
+nonlinear threat-strength ratio is built from member-local ordinary-team power
+on BOTH sides despite modelling a team-wide intervention. Keep genuinely
+player-specific probability/attitude inputs if desired, but construct the
+severity power ratio from the actual war sides before the nonlinear floor/gate.
+
+
+F122 / provisional KI#445 -- AUTHORITATIVE BROADENING -- PHYSICAL AGENT EXPOSURE
+AND EVACUATION CAN ALSO BE REUSED ACROSS TARGET-TEAM MEMBER PASSES
+-------------------------------------------------------------------------------
+WIP13's decisive F122 proof remains the explicit one-agent-unit/one-entangled-
+enemy cap. Two neighboring TacticalSituation::evalEngagement quantities share
+the same physical-asset reuse boundary and should be handled by the same repair.
+
+1. `iOurExposed`
+
+For every current rival player eThey, the function walks the SAME current agent
+groups and asks:
+
+    kWe.AI_getPlotDanger(kGroupPlot, 1, false, iGroupSize, false, eThey)
+
+CvPlayerAI::AI_countDangerousUnits honors that final PlayerTypes filter by
+counting only units whose combat owner equals eAttackPlayer. Thus a damaged A
+unit threatened by both B and teammate C can be counted as exposed in B's pass
+and then the exact same physical A unit can be counted again in C's pass.
+
+2. `iOurEvac`
+
+`evacPop(eWe, eThey)` walks the SAME physical cities of current agent eWe. For an
+evacuating city it again uses player-filtered plot danger:
+
+    kOwner.AI_getPlotDanger(..., eInvader) >= 2
+
+The source comment says this filter exists only to avoid attributing evacuation
+to an unrelated third party. Against two members B and C of the SAME hostile
+team, one physical evacuating city/population can satisfy the danger threshold
+for both passes and be charged twice.
+
+These do not need separate roots: they are the same F122 state-domain defect as
+entanglement -- agent-side physical tactical assets are independently consumable
+inside rival-player callbacks even though the assets themselves cannot be lost,
+exposed, evacuated or paired twice merely because enemy ownership is partitioned
+between teammates.
+
+Repair should aggregate/deduplicate the relevant target-team danger/engagement
+before applying physical-agent-asset caps. Do not simply globalize every
+TacticalSituation term; genuinely player-owned enemy units/cities remain valid
+inputs.
+
+
+F127 / provisional KI#450 -- AUTHORITATIVE BROADENING -- CONQUEST FULL COMPLETION
+CAN ALSO REPEAT ACROSS AGENT-TEAM MEMBERS
+-------------------------------------------------------------------------------
+WIP21 proved that `progressRatingConquest()` treats elimination of one rival
+PLAYER as full Conquest progress even while that player's TEAM can remain an
+actual CvGame::testVictory blocker.
+
+There is an additional aggregation manifestation under the already-established
+F127 global/team-victory root. Its first condition is:
+
+    if (militAnalyst().isEliminated(eThey) || ...)
+        return 1;
+
+The `isEliminated(eThey)` result is independent of which living agent-team member
+currently owns eWe. WarEvaluator evaluates the shared MilitaryVictory aspect for
+A1 and then A2. If B is predicted eliminated, both agent-member passes can reach
+that same unconditional 1.0 completion state for the same team-owned Conquest
+objective.
+
+WIP16 already proved this general repeated-agent-member completion-budget problem
+for Domination/Diplomacy; this note simply brings Conquest's later WIP21
+broadening under the same normalization. No new root is needed.
+
+The repair remains scenario/team-level victory-progress aggregation before any
+single global completion cap/full-completion state is converted to utility.
+
+
+CLOSURE CONTROL
+---------------
+These broadenings were intentionally NOT promoted as F140:
+
+* F122 already owns cross-rival reuse of physical agent tactical assets;
+* F124 already owns the player/team boundary inside ThirdPartyIntervention's
+  nonlinear threat-strength ratio;
+* F127 already owns repeated/global team-victory completion state inside
+  player/member callbacks.
+
+Keeping one repair locus per root is more useful than increasing the finding
+count.
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP28
+BROADENED ROOTS: F122/KI#445, F124/KI#447, F127/KI#450
+NEXT UNUSED ROOT: F140
+
+Continue the final untouched-helper/scenario-contract and current Known-Issues
+semantic-collision sweep. Then adversarially reread live F101-F139 before any
+C015 closure. No repository source files were modified.
+===============================================================================
+
+LOCAL RECONCILIATION AFTER C014-WIP28 IMPORT
+
+- ChatGPT-5.6-Sol's C014-WIP25 through C014-WIP28 append is compatible with current authority at HEAD d8498752b plus the staged KI#420/KI#421 repairs. The received append remains verbatim as evidence.
+- F098 / KI#420 and F099 / KI#421 are now fixed in the staged current source. Their repairs restore symmetric exact Permanent-Alliance history and statefully retire absorbed-team stolen-visibility relations; the new `WarUtilityAspect.cpp` findings do not supersede either repair.
+- F137-F139 / provisional KI#460-KI#462 are collision-free against the current reviewed Known Issues ledger. WIP28 broadens F122/KI#445, F124/KI#447 and F127/KI#450 without allocating another root. All remain provisional while `WarUtilityAspect.cpp` is open; no implementation is promoted from WIP25-WIP28 in this reconciliation. (GPT-5.6-Sol)
