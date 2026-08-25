@@ -52,12 +52,14 @@ class CvMilitaryAdvisor:
 		self.DEBUG_DROPDOWN_ID = "MilitaryAdvisorBattleDropdownWidget"
 		self.BATTLE_TABLE_ID = "MilitaryAdvisorBattleTable"
 		self.BATTLE_LOG_BUTTON_ID = "MilitaryAdvisorBattleLogButton"
-		# <!-- custom: Civ3-style Summary tab. The same support/composition/deployment numbers live elsewhere in Civ4 (Finance hover, Composition tab) but are scattered and discoverable only by hover; this tab consolidates them for diagnosis at a glance. Each numeric label still binds the matching WIDGET_HELP_FINANCE_* widget where applicable so the engine's per-line breakdown hover stays available. Named "Summary" rather than "Overview" to avoid confusion with the Domestic Advisor's OVERVIEW 1-4 tabs. (Claude code Opus 4.7) -->
+		# <!-- custom: Civ3-style Summary tab. The same support/composition/deployment numbers live elsewhere in Civ4 (Finance hover, Composition tab) but are scattered and discoverable only by hover; this tab consolidates them for diagnosis at a glance.
+		# Each numeric label still binds the matching WIDGET_HELP_FINANCE_* widget where applicable so the engine's per-line breakdown hover stays available. Named "Summary" rather than "Overview" to avoid confusion with the Domestic Advisor's OVERVIEW 1-4 tabs. (Claude code Opus 4.7) -->
 		self.PAGE_SUMMARY = 0
 		self.PAGE_MAP = 1
 		self.PAGE_BATTLES = 2
 		self.PAGE_COMPOSITION = 3
-		self.iActivePage = self.PAGE_SUMMARY
+		# <!-- custom: Apply the XML default on this advisor object's first opening, then retain the selected tab across close/reopen within the Civ4 session. See KI#129 (Update). (GPT-5.6-Sol) -->
+		self.iActivePage = None
 		self.PAGE_TAB_IDS = ["MilitaryAdvisorTabButton0", "MilitaryAdvisorTabButton1", "MilitaryAdvisorTabButton2", "MilitaryAdvisorTabButton3"]
 		self.PAGE_IDS = [self.PAGE_SUMMARY, self.PAGE_MAP, self.PAGE_BATTLES, self.PAGE_COMPOSITION]
 		self.PAGE_LINK_WIDTH = [0, 0, 0, 0]
@@ -130,7 +132,8 @@ class CvMilitaryAdvisor:
 		self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE = None
 		self.iINITIAL_OUTSIDE_UNIT_GOLD_PERCENT = None
 		self.iNUM_BUILDING_AND_TECH_PREREQS = None
-		# <!-- custom: lazy-init cache for required Summary tab XML IDs. getInfoTypeOrFail makes missing tags loud; this already showed that BUILDINGCLASS_WEST_POINT is not in current AdvCiv-SAS, whereas a silent lookup would have skipped it without a clear error. Class IDs are stored so civ-specific building replacements resolve through CvCivilizationInfo at use site. (Claude code Opus 4.7, GPT-5.5) -->
+		# <!-- custom: lazy-init cache for required Summary tab XML IDs. getInfoTypeOrFail makes missing tags loud; this already showed that BUILDINGCLASS_WEST_POINT is not in current AdvCiv-SAS, whereas a silent lookup would have skipped it without a clear error.
+		# Class IDs are stored so civ-specific building replacements resolve through CvCivilizationInfo at use site. (Claude code Opus 4.7, GPT-5.5) -->
 		self.iBldClassBarracks = None
 		self.iBldClassStable = None
 		self.iBldClassDrydock = None
@@ -157,7 +160,8 @@ class CvMilitaryAdvisor:
 		self.BATTLE_NUM_COLS = None
 
 	def initDefines(self):
-		# <!-- custom: Military Advisor was the remaining advisor here that read SAS XML UI defines directly in the constructor. Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here. Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart. Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. See KI#128. (GPT-5.5) -->
+		# <!-- custom: Military Advisor was the remaining advisor here that read SAS XML UI defines directly in the constructor. Changing defines while Civ4 was running could then produce crashy behaviour similar to hot-changing Python, unlike the Tech Chooser/Main Interface lazy/sentinel pattern used here.
+		# Cache once after screen setup starts; empirically, this helper pattern fixed that crashy behaviour so runtime XML changes simply have no effect until the required Civ4 restart. Check each cached define's sentinel instead of only the first one for cheap exhaustive safety. See KI#128. (GPT-5.5) -->
 		if self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB is None:
 			self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB = gc.getDefineINT("SAS_CV_MILITARY_ADVISOR_DEFAULT_TAB")
 			if self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB not in self.PAGE_IDS:
@@ -358,11 +362,13 @@ class CvMilitaryAdvisor:
 		self.ART_BATTLE_CITY_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_BUTTONS_CITYSELECTION").getPath()
 		self.ART_BATTLE_CITY_CAPTURED_BUTTON = ArtFileMgr.getInterfaceArtInfo("INTERFACE_RESISTANCE").getPath()
 		self.ART_BATTLE_ROLE_ATTACKER = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_CROSSED_SWORDS").getPath()
-		# <!-- custom: tried a military medal emoji but it reads as 2 half emoji with highly clashing colors; hard to read in a data-rich small column width table. Prefer the star emoji with darker variant that renders very well. Trophy seems more suited to races or competitions so not used in military context here -->
+		# <!-- custom: tried a military medal emoji but it reads as 2 half emoji with highly clashing colors; hard to read in a data-rich small column width table.
+		# Prefer the star emoji with darker variant that renders very well. Trophy seems more suited to races or competitions so not used in military context here -->
 		self.ART_BATTLE_RESULT_WON = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_WHITE_MEDIUM_STAR_2").getPath()
 		# <!-- custom: a red plain fairly uniform emoji like this one conveys very well visually the idea of lost/death and scans very fast -->
 		self.ART_BATTLE_RESULT_LOST = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_BROKEN_HEART").getPath()
-		# <!-- custom: this left arrow variant is fairly clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat. Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
+		# <!-- custom: this left arrow variant is fairly clearly distinguishable from the other 2 result emojis; it is plain and dense so fills the cell nicely for retreat.
+		# Person Running was not chosen because it is too thin and visually non-homogenous, making it harder to scan quickly. (GPT-5.5) -->
 		self.ART_BATTLE_RESULT_RETREAT = ArtFileMgr.getInterfaceArtInfo("SAS_EMOJI_LEFT_ARROW_2").getPath()
 		self.RESULT_WON = 0
 		self.RESULT_LOST = 1
@@ -380,7 +386,9 @@ class CvMilitaryAdvisor:
 		self.X_TITLE, self.X_EXIT, self.Y_EXIT, _, self.Y_BOTTOM_PANEL = getAdvisorRuntimeAnchors(self.W_SCREEN, self.H_SCREEN)
 		self.Y_LINK = self.Y_EXIT
 
-		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the taller multi-row leader bar keeps full icon size longer despite the narrower width. Leader-to-map-minimap vertical gap and bottom reserve are kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which can reduce leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge. The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7 + GPT-5.5) -->
+		# <!-- custom: unit list panel scrolls often once a player has many units, so it is lifted to the top and the leader bar trimmed to accommodate it; the upscaled advisor screen has the lateral room, and the taller multi-row leader bar keeps full icon size longer despite the narrower width.
+		# Leader-to-map-minimap vertical gap and bottom reserve are kept small because every pixel cut from H_MAP_MINIMAP_MAX shrinks W_MAP_MINIMAP via the world aspect ratio, which can reduce leader icons per row. Excess horizontal space (typical at 1080p+) is split evenly across left margin / center gap / right margin so all three look balanced instead of tight-tight-huge.
+		# The combat-experience bar tracks the Map tab minimap X / W to stay flush with it. (Claude code Opus 4.7 + GPT-5.5) -->
 		iAdvisorMargin = 20
 		iLeaderToMapMinimapGap = 5
 		iBottomReserve = 15
@@ -459,13 +467,16 @@ class CvMilitaryAdvisor:
 			return
 		screen.setRenderInterfaceOnly(True)
 		screen.showScreen(PopupStates.POPUPSTATE_IMMEDIATE, False)
-		# <!-- custom: Keep Military Advisor non-persistent. Empirically, screen.setPersistent(True) preserved expensive widgets such as the built Battles table across full advisor close/reopen, making very large late-game battle histories faster to reopen, but Civ4's native minimap did not survive that lifecycle reliably. Within one open Military Advisor instance, tab switching remained lightweight and kept the Map tab working; the failure happened after exiting and reopening the advisor, which left the minimap area as an empty blue panel. Debug mode triggered the same broken state, and turning debug mode back off did not restore it; only save reload did. See KI#129 (Update). (GPT-5.5-Thinking) -->
+		# <!-- custom: Keep Military Advisor non-persistent. Empirically, screen.setPersistent(True) preserved expensive widgets such as the built Battles table across full advisor close/reopen, making very large late-game battle histories faster to reopen, but Civ4's native minimap did not survive that lifecycle reliably.
+		# Within one open Military Advisor instance, tab switching remained lightweight and kept the Map tab working; the failure happened after exiting and reopening the advisor, which left the minimap area as an empty blue panel.
+		# Debug mode triggered the same broken state, and turning debug mode back off did not restore it; only save reload did. See KI#129 (Update). (GPT-5.5-Thinking) -->
 		# <!-- custom: note: Prefer always-correct Map tab rendering over the rarer benefit of preserving the Battles table across full advisor close/reopen. (GPT-5.5-Thinking) -->
 		screen.setPersistent(False)
 
 		self.initDefines()
-		# <!-- custom: This advisor object survives close/reopen, so its last selected tab otherwise becomes the next opening tab. Reapply the XML default only for a real advisor opening; in-screen tab switches use redrawContents and remain unchanged. (GPT-5.5) -->
-		self.iActivePage = self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB
+		# <!-- custom: Reapplying the XML default on every real opening discarded the user's last selected tab. Use it only on the first opening; this advisor object then retains later tab selections across close/reopen. See KI#129 (Update). (GPT-5.6-Sol) -->
+		if self.iActivePage is None:
+			self.iActivePage = self.iSAS_CV_MILITARY_ADVISOR_DEFAULT_TAB
 		self.initText()
 		self.updateRuntimeLayout(screen)
 		self.bMapMinimapInitDone = False
@@ -844,7 +855,8 @@ class CvMilitaryAdvisor:
 		if self.IS_SAS_CV_MILITARY_ADVISOR_BATTLES_LOG_BUTTON_ENABLE:
 			screen.setButtonGFC(self.BATTLE_LOG_BUTTON_ID, sasFontTagLabel + self.TEXT_BATTLES_LOG_BUTTON.upper() + SAS_FONT_TAG_CLOSE, "", self.X_EXIT - 110, self.Y_TITLE + 2, 64, 28, WidgetTypes.WIDGET_GENERAL, -1, -1, ButtonStyles.BUTTON_STYLE_STANDARD)
 		placeAdvisorLegendLink(self, "CONCEPT_SAS_MILITARY_ADVISOR_BATTLES_LEGEND", self.W_SCREEN - 12, self.Y_TITLE)
-		# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget makes same-open tab switches almost instant as long as the Military Advisor is not exited. Do not make the whole Military Advisor screen persistent just to preserve this table across full advisor close/reopen: testing showed that persistence breaks Civ4's native Map tab minimap after advisor exit/reopen and debug-mode transitions. Rebuild Battles after full close/reopen; keep the lightweight cache for tab switches within one advisor opening. See KI#129. (GPT-5.5-Thinking) -->
+		# <!-- custom: Late-game Battles tab opened slowly in a sample with 710+ rows. Data-layer caching and fully prepared row-payload caching were tested first and did not significantly help; preserving the built table widget makes same-open tab switches almost instant as long as the Military Advisor is not exited.
+		# Do not make the whole Military Advisor screen persistent just to preserve this table across full advisor close/reopen: testing showed that persistence breaks Civ4's native Map tab minimap after advisor exit/reopen and debug-mode transitions. Rebuild Battles after full close/reopen; keep the lightweight cache for tab switches within one advisor opening. See KI#129. (GPT-5.5-Thinking) -->
 		if self.BATTLE_TABLE_CACHE_KEY == battleTableCacheKey and self.canReuseBattleTableWidget(screen, aEntries):
 			screen.show(self.BATTLE_TABLE_ID)
 			screen.moveToFront(self.BATTLE_TABLE_ID)
@@ -1009,7 +1021,10 @@ class CvMilitaryAdvisor:
 			szCivType = gc.getCivilizationInfo(kPlayer.getCivilizationType()).getType()
 			print("OpponentPlayer: %d | %s | %s | %s" % (iPlayer, kPlayer.getName(), szLeaderType, szCivType))
 
-	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Map tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary. Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current. canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Map tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col. CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
+	# <!-- custom: Composition tab is a CURRENT snapshot, distinct from the Score-tab Stats panel (lifetime CyStatistics totals). Unlike the Map tab, it does not classify units by combat class for grouping; it is purely numerical counts, so the two tabs are complementary.
+	# Name picked over "Forces" or "Current" because "composition" by definition refers to the present make-up (it cannot mean a past composition without becoming a different one), so the tab is self-evidently current.
+	# canFight() filters by baseCombatStr > 0: civilians are excluded since they cannot fight and the Map tab already lists them without a combat group; animals also have no UnitCombat class but they can fight, so they belong here, appearing in the Units col and naturally dropping from the Combats col.
+	# CyUnit.isCombat() looks tempting but actually wraps isInCombat(); empirically the table came out empty with isCombat() and populated correctly after switching to canFight(). (Claude code Opus 4.7) -->
 	def collectCompositionData(self):
 		dUnits = {}
 		dPromotions = {}
@@ -1051,7 +1066,8 @@ class CvMilitaryAdvisor:
 			screen.setTableInt(szTable, 1, iRow, sasFontTagLabel + str(iCount) + SAS_FONT_TAG_CLOSE, "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_CENTER_JUSTIFY)
 
 	def collectSummaryData(self):
-		# <!-- custom: single unit-iteration pass collects everything the Summary tab needs (domain split, military/civilian split, deployment, wounded count, upgrade gold). canFight() is the established military filter for this advisor (see collectCompositionData). Upgrade options are walked per unit class because per-unit upgrade availability depends on the player's tech, not the unit info alone. (Claude code Opus 4.7) -->
+		# <!-- custom: single unit-iteration pass collects everything the Summary tab needs (domain split, military/civilian split, deployment, wounded count, upgrade gold). canFight() is the established military filter for this advisor (see collectCompositionData).
+		# Upgrade options are walked per unit class because per-unit upgrade availability depends on the player's tech, not the unit info alone. (Claude code Opus 4.7) -->
 		pPlayer = gc.getPlayer(self.iActivePlayer)
 		iCiv = pPlayer.getCivilizationType()
 		pCivInfo = gc.getCivilizationInfo(iCiv)
@@ -1098,16 +1114,19 @@ class CvMilitaryAdvisor:
 		# <!-- custom: separate unspent Great General units from combat units already carrying PROMOTION_LEADER; they answer "do I have a GG to attach?" vs "how many units are already GG-led?". (Claude code Opus 4.7, GPT-5.5) -->
 		iStandaloneGenerals = 0
 		iLedByGeneral = 0
-		# <!-- custom: army health stats. iMaxHealth tracks the highest hp (typically 100 for any uninjured unit), iMinHealth the most-wounded. iHealthSum / count gives the average. Health = 100 - (damage / max-hp * 100); CvUnit.currHitPoints() and maxHitPoints() return the engine's numbers, but for percentages we use (1 - getDamage()/100) since Civ4 stores damage as a 0..100 integer. (Claude code Opus 4.7) -->
+		# <!-- custom: army health stats. iMaxHealth tracks the highest hp (typically 100 for any uninjured unit), iMinHealth the most-wounded. iHealthSum / count gives the average. Health = 100 - (damage / max-hp * 100).
+		# CvUnit.currHitPoints() and maxHitPoints() return the engine's numbers, but for percentages we use (1 - getDamage()/100) since Civ4 stores damage as a 0..100 integer. (Claude code Opus 4.7) -->
 		iMaxHealth = -1
 		iMinHealth = -1
 		iHealthSum = 0
-		# <!-- custom: health-band buckets mirror the Battles tab's color tiers (=100 full, >66 high, >33 medium, else low) so distribution rows under Wounded read with the same mental model as combat-row tinting. Edge case: 0-hp units can't really exist in normal play (they'd die first) but if one shows up it counts in Low. (Claude code Opus 4.7) -->
+		# <!-- custom: health-band buckets mirror the Battles tab's color tiers (=100 full, >66 high, >33 medium, else low) so distribution rows under Wounded read with the same mental model as combat-row tinting.
+		# Edge case: 0-hp units can't really exist in normal play (they'd die first) but if one shows up it counts in Low. (Claude code Opus 4.7) -->
 		iHealthFull = 0
 		iHealthHigh = 0
 		iHealthMedium = 0
 		iHealthLow = 0
-		# <!-- custom: covert-unit categories: invisible (subs and similar - UnitInfo.getInvisibleType() != -1 declares an invisibility class), spies (isSpy flag), hidden-nationality (privateers and similar - pirate flag). A single unit can be more than one of these (e.g. a stealth spy in some mods); we count independently rather than partitioning. Named "covert" rather than "special" because Civ4 already uses "special" as a distinct concept (special unit classes, special buildings), so reusing that word would suggest a different categorization. (Claude code Opus 4.7) -->
+		# <!-- custom: covert-unit categories: invisible (subs and similar - UnitInfo.getInvisibleType() != -1 declares an invisibility class), spies (isSpy flag), hidden-nationality (privateers and similar - pirate flag).
+		# A single unit can be more than one of these (e.g. a stealth spy in some mods); we count independently rather than partitioning. Named "covert" rather than "special" because Civ4 already uses "special" as a distinct concept (special unit classes, special buildings), so reusing that word would suggest a different categorization. (Claude code Opus 4.7) -->
 		iInvisibleUnits = 0
 		iSpyUnits = 0
 		iHiddenNatUnits = 0
@@ -1116,9 +1135,12 @@ class CvMilitaryAdvisor:
 		iNumPromotionInfos = gc.getNumPromotionInfos()
 		# <!-- custom: build the upgrade-cost list rather than just the running total so we can compute min/avg/max afterwards. (Claude code Opus 4.7) -->
 		aUpgradeCosts = []
-		# <!-- custom: do NOT track an "average strength gained per upgrade" stat. CvUnitInfo::getCombat() returns base XML strength only and excludes combat modifiers (collateral, city attack, withdraw, first strikes). E.g. Catapult vs Trebuchet are concurrent siege units (not an upgrade chain in AdvCiv-SAS), with Trebuchet having lower base strength but stronger city-attack/collateral modifiers; either picked over the other for a real strategic reason that a base-strength delta would read as flat or negative. A delta number without those modifiers would mislead more than inform. (Claude code Opus 4.7) -->
+		# <!-- custom: do NOT track an "average strength gained per upgrade" stat. CvUnitInfo::getCombat() returns base XML strength only and excludes combat modifiers (collateral, city attack, withdraw, first strikes).
+		# E.g. Catapult vs Trebuchet are concurrent siege units (not an upgrade chain in AdvCiv-SAS), with Trebuchet having lower base strength but stronger city-attack/collateral modifiers; either picked over the other for a real strategic reason that a base-strength delta would read as flat or negative.
+		# A delta number without those modifiers would mislead more than inform. (Claude code Opus 4.7) -->
 
-		# <!-- custom: cache team relations once instead of re-fetching per unit; team lookups in Civ4 Python are cheap but iterate fast enough to be worth hoisting on large empires. The "ally" predicate is intentionally broad: same team OR mutual vassalage (us->them or them->us). Defensive pacts and open borders are deliberately NOT counted as ally here because they don't grant the same trust level for stationing armies. (Claude code Opus 4.7) -->
+		# <!-- custom: cache team relations once instead of re-fetching per unit; team lookups in Civ4 Python are cheap but iterate fast enough to be worth hoisting on large empires. The "ally" predicate is intentionally broad: same team OR mutual vassalage (us->them or them->us).
+		# Defensive pacts and open borders are deliberately NOT counted as ally here because they don't grant the same trust level for stationing armies. (Claude code Opus 4.7) -->
 		eMyTeam = pPlayer.getTeam()
 		kMyTeam = gc.getTeam(eMyTeam)
 		(pUnit, iter) = pPlayer.firstUnit(False)
@@ -1194,7 +1216,8 @@ class CvMilitaryAdvisor:
 			else:
 				iCivilian += 1
 
-			# <!-- custom: refined deployment buckets. Own/Allied/Enemy/Neutral civ territory + unowned Wild (land) + Open Water (sea). Allied = our team or mutual vassalage; Enemy = our team at war with the plot owner's team; Neutral = any other met civ. Wild = no owner AND not water; At Sea = no owner AND water. Wounded is a cross-cutting flag (already counted above). (Claude code Opus 4.7) -->
+			# <!-- custom: refined deployment buckets. Own/Allied/Enemy/Neutral civ territory + unowned Wild (land) + Open Water (sea). Allied = our team or mutual vassalage; Enemy = our team at war with the plot owner's team.
+			# Neutral = any other met civ. Wild = no owner AND not water; At Sea = no owner AND water. Wounded is a cross-cutting flag (already counted above). (Claude code Opus 4.7) -->
 			pPlot = pUnit.plot()
 			if pPlot and not pPlot.isNone():
 				iPlotOwner = pPlot.getOwner()
@@ -1242,7 +1265,8 @@ class CvMilitaryAdvisor:
 			iUpgradeTotal = sum(aUpgradeCosts)
 			iUpgradeAvg = iUpgradeTotal / len(aUpgradeCosts)
 
-		# <!-- custom: army averages need the military unit count (canFight()) as denominator, not getNumMilitaryUnits() - the latter is the surcharge-paying subset and would skew the average. Default to 0.0 to avoid divide-by-zero on civ-only perspectives or pre-game-start views. Floats (1 decimal place) because integer truncation hid useful gradations: an army averaging "2.7" XP reads very differently from "2.0", and the display row format string uses %.1f to surface that. (Claude code Opus 4.7) -->
+		# <!-- custom: army averages need the military unit count (canFight()) as denominator, not getNumMilitaryUnits() - the latter is the surcharge-paying subset and would skew the average. Default to 0.0 to avoid divide-by-zero on civ-only perspectives or pre-game-start views.
+		# Floats (1 decimal place) because integer truncation hid useful gradations: an army averaging "2.7" XP reads very differently from "2.0", and the display row format string uses %.1f to surface that. (Claude code Opus 4.7) -->
 		fAvgXp = 0.0
 		fAvgLevel = 0.0
 		fAvgHammers = 0.0
@@ -1272,7 +1296,8 @@ class CvMilitaryAdvisor:
 			szHighestCostButton = pHighestCostInfo.getButton()
 
 		# <!-- custom: one city pass collects building, military-production, generic new-XP, and building-defense stats for the Summary tab. Idea credit and section design from GPT-5.5-Thinking. (Claude code Opus 4.7 + GPT-5.5) -->
-		# <!-- custom: resolve BuildingClass -> civ-specific Building once per civ (cities owned by the active player all share the same civ). This handles civ-unique replacements correctly (a future modded UB that replaces Barracks would still be counted via its BuildingClass), and avoids re-doing the lookup per city. Returns -1 only if this civ has no building for the class (e.g. modder removed it for one civ). pCivInfo already exists above for getUpgradeTargets. (Claude code Opus 4.7) -->
+		# <!-- custom: resolve BuildingClass -> civ-specific Building once per civ (cities owned by the active player all share the same civ). This handles civ-unique replacements correctly (a future modded UB that replaces Barracks would still be counted via its BuildingClass), and avoids re-doing the lookup per city.
+		# Returns -1 only if this civ has no building for the class (e.g. modder removed it for one civ). pCivInfo already exists above for getUpgradeTargets. (Claude code Opus 4.7) -->
 		iBldBarracks = pCivInfo.getCivilizationBuildings(self.iBldClassBarracks)
 		iBldStable = pCivInfo.getCivilizationBuildings(self.iBldClassStable)
 		iBldDrydock = pCivInfo.getCivilizationBuildings(self.iBldClassDrydock)
@@ -1320,7 +1345,8 @@ class CvMilitaryAdvisor:
 				szHeroicEpicCity = szCityName
 			if iBldMilAcademy >= 0 and pCity.getNumBuilding(iBldMilAcademy) > 0:
 				szMilAcademyCity = szCityName
-			# <!-- custom: getMilitaryProductionModifier is the aggregate %-bonus this city gives to military-unit production (Barracks, Heroic Epic, West Point, Pentagon, Theocracy, etc. all roll into it). Sum + best-city tracking gives the "where do I train?" answer at a glance. Individual iMilitaryProductionModifier sources above 0 (including civics) are not enumerated because the Summary tab is already full; the aggregate keeps this concise, though less ideal than a full source breakdown. (GPT-5.5) -->
+			# <!-- custom: getMilitaryProductionModifier is the aggregate %-bonus this city gives to military-unit production (Barracks, Heroic Epic, West Point, Pentagon, Theocracy, etc. all roll into it). Sum + best-city tracking gives the "where do I train?" answer at a glance.
+			# Individual iMilitaryProductionModifier sources above 0 (including civics) are not enumerated because the Summary tab is already full; the aggregate keeps this concise, though less ideal than a full source breakdown. (GPT-5.5) -->
 			iProdMod = pCity.getMilitaryProductionModifier()
 			iProdModSum += iProdMod
 			if iProdMod > iBestProdMod:
@@ -1340,7 +1366,8 @@ class CvMilitaryAdvisor:
 				szBestDefenseCity = szCityName
 			(pCity, iCityIter) = pPlayer.nextCity(iCityIter, False)
 
-		# <!-- custom: allied hammers sum combat-unit production cost for teammates and mutual vassals only; defensive pacts/open borders do not make the army effectively ours. Keep this separate from the active player's own army loop. (Claude code Opus 4.7, GPT-5.5) -->
+		# <!-- custom: allied hammers sum combat-unit production cost for teammates and mutual vassals only; defensive pacts/open borders do not make the army effectively ours.
+		# Keep this separate from the active player's own army loop. (Claude code Opus 4.7, GPT-5.5) -->
 		iAlliedHammers = 0
 		for iLoopPlayer in range(gc.getMAX_PLAYERS()):
 			if iLoopPlayer == self.iActivePlayer:
@@ -1470,7 +1497,8 @@ class CvMilitaryAdvisor:
 			"tech_drydocks": self.summaryBuildingHasTech(kMyTeam, iBldDrydock),
 			"tech_heroic_epic": self.summaryBuildingHasTech(kMyTeam, iBldHeroicEpic),
 			"tech_mil_academy": self.summaryBuildingHasTech(kMyTeam, iBldMilAcademy),
-			# <!-- custom: building button paths read directly via gc.getBuildingInfo(iBld).getButton(). No -1 fallback: the iBldClass* resolutions in initDefines already passed getInfoTypeOrFail, and pCivInfo.getCivilizationBuildings(class) returning -1 here would mean the modder disabled one of these for the active civ. Letting that crash loudly is the same contract as the strict class lookups above - silent fallback to empty icon would hide a real data issue. (Claude code Opus 4.7); not cached because these buildings vary by civ and there would be many or it would be unclean, and would increase maintenance if these civ-specific variants change -->
+			# <!-- custom: building button paths read directly via gc.getBuildingInfo(iBld).getButton(). No -1 fallback: the iBldClass* resolutions in initDefines already passed getInfoTypeOrFail, and pCivInfo.getCivilizationBuildings(class) returning -1 here would mean the modder disabled one of these for the active civ.
+			# Letting that crash loudly is the same contract as the strict class lookups above - silent fallback to empty icon would hide a real data issue. (Claude code Opus 4.7); not cached because these buildings vary by civ and there would be many or it would be unclean, and would increase maintenance if these civ-specific variants change -->
 			"icon_barracks": gc.getBuildingInfo(iBldBarracks).getButton(),
 			"icon_stables": gc.getBuildingInfo(iBldStable).getButton(),
 			"icon_drydocks": gc.getBuildingInfo(iBldDrydock).getButton(),
@@ -1530,7 +1558,8 @@ class CvMilitaryAdvisor:
 		}
 
 	def drawSummaryColumn(self, screen, iColX, iColY, iColW, iColH, szTitle, aRows):
-		# <!-- custom: rows are (szLabel, szValue, eHelpWidget, iData1, iData2, iIndent, iValueColor). iIndent=0 is a main row, iIndent=1 is a sub-row (e.g. "Free Used/Cap" under "Total Units") that nudges the label right to reveal the formula breakdown. iValueColor=-1 leaves the value text default; passing a real COLOR_* tints just the right-aligned value so a "Total Cost + Supply" of 0 reads green at a glance. eHelpWidget=WIDGET_GENERAL means no hover, otherwise the engine's own per-line Finance breakdown surfaces on mouseover. (Claude code Opus 4.7, GPT-5.5) -->
+		# <!-- custom: rows are (szLabel, szValue, eHelpWidget, iData1, iData2, iIndent, iValueColor). iIndent=0 is a main row, iIndent=1 is a sub-row (e.g. "Free Used/Cap" under "Total Units") that nudges the label right to reveal the formula breakdown. iValueColor=-1 leaves the value text default.
+		# Passing a real COLOR_* tints just the right-aligned value so a "Total Cost + Supply" of 0 reads green at a glance. eHelpWidget=WIDGET_GENERAL means no hover, otherwise the engine's own per-line Finance breakdown surfaces on mouseover. (Claude code Opus 4.7, GPT-5.5) -->
 		iTitleMargin = 12
 		iRowMargin = 14
 		iIndentStep = 22
@@ -1551,7 +1580,9 @@ class CvMilitaryAdvisor:
 			iValueColor = -1
 			if len(tRow) > 6:
 				iValueColor = tRow[6]
-			# <!-- custom: optional 8th tuple element is an icon path (typically gc.getUnitInfo(...).getButton()); when present we draw a small DDS sized to the row so it doesn't grow row height, then shift the value text left of the icon. Empty/None path means no icon (default). Optional 9th tuple element is a SECOND icon path used by lucky/unlucky combat-callout rows that pair "our unit" with "their unit"; the two icons render side-by-side immediately left of the value text. Civ4 setLabel widgets can't host inline images, so we render image and text as separate widgets positioned manually. (Claude code Opus 4.7) -->
+			# <!-- custom: optional 8th tuple element is an icon path (typically gc.getUnitInfo(...).getButton()); when present we draw a small DDS sized to the row so it doesn't grow row height, then shift the value text left of the icon.
+			# Empty/None path means no icon (default). Optional 9th tuple element is a SECOND icon path used by lucky/unlucky combat-callout rows that pair "our unit" with "their unit"; the two icons render side-by-side immediately left of the value text.
+			# Civ4 setLabel widgets can't host inline images, so we render image and text as separate widgets positioned manually. (Claude code Opus 4.7) -->
 			szIconPath = u""
 			if len(tRow) > 7:
 				szIconPath = tRow[7]
@@ -1565,7 +1596,8 @@ class CvMilitaryAdvisor:
 			iIconSize = 22
 			iIconRightGap = 4
 			iValueTextX = iValueX
-			# <!-- custom: two-icon layout sits both icons at the row's right edge with the value text right-aligned to their left. Order on screen, left-to-right: label ... value-text [icon1][icon2]. Previous attempt put icons immediately after the label, where the right-aligned value text would overrun them when long (the "Luckiest Win" rows). Anchoring both icons to the right edge means value text always wraps cleanly to their left, regardless of text length. Single-icon path unchanged (icon at right edge, text just left of it). (Claude code Opus 4.7) -->
+			# <!-- custom: two-icon layout sits both icons at the row's right edge with the value text right-aligned to their left. Order on screen, left-to-right: label ... value-text [icon1][icon2]. Previous attempt put icons immediately after the label, where the right-aligned value text would overrun them when long (the "Luckiest Win" rows).
+			# Anchoring both icons to the right edge means value text always wraps cleanly to their left, regardless of text length. Single-icon path unchanged (icon at right edge, text just left of it). (Claude code Opus 4.7) -->
 			if szIconPath and szIconPath2:
 				iIconYOffset = self.getSummaryRowIconY(iRowY)
 				iIcon2Left = iValueX - iIconSize
@@ -1630,7 +1662,9 @@ class CvMilitaryAdvisor:
 		return True
 
 	def collectBattleStats(self):
-		# <!-- custom: reuse the Battles tab's recorded combat log (SASBattleHistory) to surface aggregate prowess on the Deployment column: totals, win/loss/retreat split, "good luck" wins (we beat odds < 50%) and "bad luck" losses (we lost despite odds > 50%), and the single luckiest win / unluckiest loss as one-liner callouts. Retreats are not classed as luck cases because the engine retreats are dictated by promotions (Combat I/II/III withdrawal chance) rather than dice odds; counting them would muddle the signal. Luckiest = win with the lowest pre-battle odds; Unluckiest = loss with the highest pre-battle odds. The thresholds at 50% are intentionally hard-edged so a 50%-odds win/loss is "expected" rather than lucky. (Claude code Opus 4.7) -->
+		# <!-- custom: reuse the Battles tab's recorded combat log (SASBattleHistory) to surface aggregate prowess on the Deployment column: totals, win/loss/retreat split, "good luck" wins (we beat odds < 50%) and "bad luck" losses (we lost despite odds > 50%), and the single luckiest win / unluckiest loss as one-liner callouts.
+		# Retreats are not classed as luck cases because the engine retreats are dictated by promotions (Combat I/II/III withdrawal chance) rather than dice odds; counting them would muddle the signal. Luckiest = win with the lowest pre-battle odds; Unluckiest = loss with the highest pre-battle odds.
+		# The thresholds at 50% are intentionally hard-edged so a 50%-odds win/loss is "expected" rather than lucky. (Claude code Opus 4.7) -->
 		iTotal = 0
 		iWins = 0
 		iLosses = 0
@@ -1661,7 +1695,8 @@ class CvMilitaryAdvisor:
 			iOdds = -1
 			if iOurCurrStr > 0 and iOtherCurrStr > 0:
 				iOdds = (100 * iOurCurrStr + (iOurCurrStr + iOtherCurrStr) / 2) / (iOurCurrStr + iOtherCurrStr)
-			# <!-- custom: assemble the lucky-row text once per candidate so we keep the icons paired with the same battle's strengths/odds/year. Strengths divided by 100 to match the Battles tab's stored-strength display; .1f gives enough precision without bloating the row. Unit names are intentionally omitted from the text - the two icons already identify the units, and dropping the names is what unblocks fitting the year + strengths in the same row width. (Claude code Opus 4.7) -->
+			# <!-- custom: assemble the lucky-row text once per candidate so we keep the icons paired with the same battle's strengths/odds/year. Strengths divided by 100 to match the Battles tab's stored-strength display; .1f gives enough precision without bloating the row.
+			# Unit names are intentionally omitted from the text - the two icons already identify the units, and dropping the names is what unblocks fitting the year + strengths in the same row width. (Claude code Opus 4.7) -->
 			def _luckText():
 				return u"%.1f vs %.1f %s (%d%%)" % (iOurCurrStr / 100.0, iOtherCurrStr / 100.0, self.getTurnDate(iTurn), iOdds)
 			if iResult == self.RESULT_WON:
@@ -1730,9 +1765,11 @@ class CvMilitaryAdvisor:
 		eHelpNumUnits = WidgetTypes.WIDGET_HELP_FINANCE_NUM_UNITS
 		eHelpUnitCost = WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST
 		eHelpAwaySupply = WidgetTypes.WIDGET_HELP_FINANCE_AWAY_SUPPLY
-		eHelpInflated = WidgetTypes.WIDGET_HELP_FINANCE_INFLATED_COSTS
+		# <!-- custom: Total Cost + Supply needs a combined hover for those two expenses only, not the whole-expense inflation breakdown. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		eHelpUnitCostAndSupply = WidgetTypes.WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY
 
-		# <!-- custom: row tuple is (label, value, helpWidget, data1, data2, indent, valueColor). Support column treats Total Units as the parent of all unit-support detail: Free Used/Cap and Paid for regular unit support, then No Mil. Cost Units/Mil. Cost Units for the military surcharge, then Outside Units for supply. Blank lines separate breakdowns that use different splitting logic, while one-level indentation shows they still depend on the Total Units set. Total Cost + Supply stays top-level because it combines unit cost and unit supply. Mil. Cost Units has its own Free Used/Cap and Paid threshold because paid military units are computed against getNumMilitaryUnits(), not against paid total units. No Mil. Cost includes any unit with bMilitarySupport=0, including civilians and certain combat units (e.g. Robotic Infantry); those units still count toward regular unit support. Keep count rows neutral; color only actual gold-cost rows. (Claude code Opus 4.7, GPT-5.5) -->
+		# <!-- custom: row tuple is (label, value, helpWidget, data1, data2, indent, valueColor). Support column treats Total Units as the parent of all unit-support detail: Free Used/Cap and Paid for regular unit support, then No Mil. Cost Units/Mil. Cost Units for the military surcharge, then Outside Units for supply. Blank lines separate breakdowns that use different splitting logic, while one-level indentation shows they still depend on the Total Units set.
+		# Total Cost + Supply stays top-level because it combines unit cost and unit supply. Mil. Cost Units has its own Free Used/Cap and Paid threshold because paid military units are computed against getNumMilitaryUnits(), not against paid total units. No Mil. Cost includes any unit with bMilitarySupport=0, including civilians and certain combat units (e.g. Robotic Infantry); those units still count toward regular unit support. Keep count rows neutral; color only actual gold-cost rows. (Claude code Opus 4.7, GPT-5.5) -->
 		# <!-- custom: Paid count rows are left default (white) rather than red, since "paid" just means "beyond the free threshold", not "unaffordable"; red is reserved for actual positive gold costs in the formulas and subtotals. (Claude code Opus 4.7, GPT-5.5) -->
 		# <!-- custom: Use simple burden coloring for the support math: green = 0 cost, red = positive cost. The earlier affordability coloring (yellow if the player still had nonnegative net gold/turn) made rows like `(84 x 100 x 82) / 10000 = 68` look merely cautionary even though this panel is explaining where the unit-support burden comes from. (GPT-5.5) -->
 		def _supportColor(iCost):
@@ -1805,7 +1842,8 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_GOLD_PER_OUTSIDE, szOutsideRateText, eHelpAwaySupply, self.iActivePlayer, 1, 2, -1),
 			(szUnitSupplyLabel, szUnitSupplyText, eHelpAwaySupply, self.iActivePlayer, 1, 1, -1),
 			(None, None, eNone, -1, -1, 0, -1),
-			(szTotalGoldLabel, szTotalGoldText, eHelpInflated, self.iActivePlayer, 1, 0, -1),
+			# <!-- custom: Match this combined subtotal with its exact unit-cost and away-supply breakdowns instead of unrelated whole-player expenses. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			(szTotalGoldLabel, szTotalGoldText, eHelpUnitCostAndSupply, self.iActivePlayer, 1, 0, -1),
 		]
 		# <!-- custom: Support appends city-level military infrastructure: building coverage, military-production modifier/new all-unit XP, and allied combat-unit hammers. Drydocks use coastal cities as denominator; national wonders show owning city or "-". (Claude code Opus 4.7 + GPT-5.5) -->
 		# <!-- custom: national-wonder cell: "-" until teched, then the owning city when built, else "0 / 1" (cap is 1 regardless of city count). (Claude code Opus 4.7) -->
@@ -1864,7 +1902,8 @@ class CvMilitaryAdvisor:
 			if iWhole <= 0:
 				return unicode(iCount)
 			return u"%d (%d%%)" % (iCount, _pctOf(iCount, iWhole))
-		# <!-- custom: exhaustive-partition formatter so the group totals 100%. Per-item floor alone undershoots, and the obvious "last = 100 - others" then wrongly tags an empty bucket: domain 20/1/0 of 21 was 95/4/0 (=99, Air shown "0 (1%)") -> 96/4/0; mil/civ 21/5 of 26 was 80/19 (=99) -> 81/19. Fix: floor each, give the remainder to the largest NONZERO bucket; zero-count buckets stay 0%. Partition buckets only, not overlapping/independent. (Claude code Opus 4.7) -->
+		# <!-- custom: exhaustive-partition formatter so the group totals 100%. Per-item floor alone undershoots, and the obvious "last = 100 - others" then wrongly tags an empty bucket: domain 20/1/0 of 21 was 95/4/0 (=99, Air shown "0 (1%)") -> 96/4/0; mil/civ 21/5 of 26 was 80/19 (=99) -> 81/19.
+		# Fix: floor each, give the remainder to the largest NONZERO bucket; zero-count buckets stay 0%. Partition buckets only, not overlapping/independent. (Claude code Opus 4.7) -->
 		def _partPct(aCounts, iWhole):
 			if iWhole <= 0:
 				return [unicode(c) for c in aCounts]
@@ -1917,7 +1956,8 @@ class CvMilitaryAdvisor:
 		for szPromoName, iPromoCount, szPromoButton in dStats["favorite_promotions"]:
 			# <!-- custom: promotion rows show count + %-of-military so a "Combat I 8 (62%)" reads as "most of my army has this" without further math. (Claude code Opus 4.7) -->
 			aArmy.append((szPromoName, _withPct(iPromoCount, iMilCount), eNone, -1, -1, 1, -1, szPromoButton))
-		# <!-- custom: covert-units block always emitted (even when all three categories are zero) so the section's existence and exhaustive coverage are discoverable. Previously suppressed-when-empty, which led to "I have no covert section, is the feature broken?" confusion. The block is short (parent + 3 rows) and its zero state is informative - it confirms there's no covert coverage in the current army. (Claude code Opus 4.7) -->
+		# <!-- custom: covert-units block always emitted (even when all three categories are zero) so the section's existence and exhaustive coverage are discoverable. Previously suppressed-when-empty, which led to "I have no covert section, is the feature broken?" confusion.
+		# The block is short (parent + 3 rows) and its zero state is informative - it confirms there's no covert coverage in the current army. (Claude code Opus 4.7) -->
 		aArmy.extend([(None, None, eNone, -1, -1), (self.TEXT_SUMMARY_COVERT_UNITS, u"", eNone, -1, -1, 0, -1), (self.TEXT_SUMMARY_INVISIBLE, _withPct(dStats["invisible_units"], dStats["total"]), eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_SPIES, _withPct(dStats["spy_units"], dStats["total"]), eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_HIDDEN_NAT, _withPct(dStats["hidden_nat_units"], dStats["total"]), eNone, -1, -1, 1, -1),])
 		aArmy.extend([(None, None, eNone, -1, -1), (self.TEXT_SUMMARY_UPGRADEABLE, unicode(dStats["upgradeable"]), eNone, -1, -1, 0, -1), (self.TEXT_SUMMARY_UPGRADE_MIN_COST, unicode(dStats["upgrade_min"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_UPGRADE_AVG_COST, unicode(dStats["upgrade_avg"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_UPGRADE_MAX_COST, unicode(dStats["upgrade_max"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1), (self.TEXT_SUMMARY_UPGRADE_TOTAL_COST, unicode(dStats["upgrade_total"]) + self.GOLD_CHAR, eNone, -1, -1, 1, -1),])
 
@@ -1936,7 +1976,8 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_BEST_DEFENDED, szBestDefendedRow, eNone, -1, -1, 1, -1),
 			(self.TEXT_SUMMARY_AVG_DEFENSE, u"+%d%%" % dStats["avg_defense"], eNone, -1, -1, 1, -1),
 		]
-		# <!-- custom: Allied / Neutral / Enemy collapsed into one tight block (no blank lines between them) because they're three states of the same concept - "this plot belongs to a foreign civ, and our diplomatic relation with them is X". Treating them as separate groups was visually misleading. In Own Territory keeps its own blank separator above as it's a different category (our own land, no diplomatic relation involved). Wild + At Sea also stay paired but get a separator from the diplomatic block since they're unowned plots, not "foreign". (Claude code Opus 4.7) -->
+		# <!-- custom: Allied / Neutral / Enemy collapsed into one tight block (no blank lines between them) because they're three states of the same concept - "this plot belongs to a foreign civ, and our diplomatic relation with them is X". Treating them as separate groups was visually misleading.
+		# In Own Territory keeps its own blank separator above as it's a different category (our own land, no diplomatic relation involved). Wild + At Sea also stay paired but get a separator from the diplomatic block since they're unowned plots, not "foreign". (Claude code Opus 4.7) -->
 		aDeployment.extend([
 			(self.TEXT_SUMMARY_IN_OWN_TERRITORY, unicode(dStats["in_own_territory"]), eNone, -1, -1),
 			(None, None, eNone, -1, -1),
@@ -1957,14 +1998,18 @@ class CvMilitaryAdvisor:
 			(self.TEXT_SUMMARY_AVG_HEALTH, u"%.1f%%" % dStats["avg_health"], eNone, -1, -1, 1, iAvgHealthColor),
 			(self.TEXT_SUMMARY_MIN_HEALTH, u"%d%%" % dStats["min_health"], eNone, -1, -1, 1, iMinHealthColor),
 			(None, None, eNone, -1, -1),
-			# <!-- custom: distribution by health band complements the Max/Avg/Min range rows above: range shows the spread, bands show the shape ("most of my army at full, 1 critical" vs "half medium-health"). Band rows are intentionally LEFT NEUTRAL (no color) - the value here is a count of units, not a health percentage, so the green/yellow/red tier rules from getSummaryHealthColor don't apply. Coloring "Low Health: 0 (0%)" red would falsely imply something is wrong. The Max/Avg/Min rows above already carry the colored health verdict; the band rows just show the distribution shape. (Claude code Opus 4.7) -->
+			# <!-- custom: distribution by health band complements the Max/Avg/Min range rows above: range shows the spread, bands show the shape ("most of my army at full, 1 critical" vs "half medium-health").
+			# Band rows are intentionally LEFT NEUTRAL (no color) - the value here is a count of units, not a health percentage, so the green/yellow/red tier rules from getSummaryHealthColor don't apply.
+			# Coloring "Low Health: 0 (0%)" red would falsely imply something is wrong. The Max/Avg/Min rows above already carry the colored health verdict; the band rows just show the distribution shape. (Claude code Opus 4.7) -->
 			(self.TEXT_SUMMARY_HEALTH_FULL, aHealthBands[0], eNone, -1, -1, 1, -1),
 			(self.TEXT_SUMMARY_HEALTH_HIGH, aHealthBands[1], eNone, -1, -1, 1, -1),
 			(self.TEXT_SUMMARY_HEALTH_MEDIUM, aHealthBands[2], eNone, -1, -1, 1, -1),
 			(self.TEXT_SUMMARY_HEALTH_LOW, aHealthBands[3], eNone, -1, -1, 1, -1),
 		])
 
-		# <!-- custom: battle-record block at the bottom of Deployment, sourced from the persisted SASBattleHistory log (same data feeding the Battles tab). Three sub-groups separated by blank rows: (1) outcome counts Won/Retreated/Lost (retreat in the middle because it's an intermediate outcome between win and loss); (2) luck against estimated odds - Good-Luck Wins / Bad-Luck Losses, "dice-overruled" outcomes; (3) the standout examples - Luckiest Win and Unluckiest Loss, rendered with the two-icon row layout (our unit + their unit + strengths + year + final odds). Unit names are dropped from those text rows because the icons identify the units and the freed width is what lets the year + strengths fit. Whole block suppressed when no battles have been recorded yet. (Claude code Opus 4.7) -->
+		# <!-- custom: battle-record block at the bottom of Deployment, sourced from the persisted SASBattleHistory log (same data feeding the Battles tab). Three sub-groups separated by blank rows:
+		# (1) outcome counts Won/Retreated/Lost (retreat in the middle because it's an intermediate outcome between win and loss); (2) luck against estimated odds - Good-Luck Wins / Bad-Luck Losses, "dice-overruled" outcomes; (3) the standout examples - Luckiest Win and Unluckiest Loss, rendered with the two-icon row layout (our unit + their unit + strengths + year + final odds).
+		# Unit names are dropped from those text rows because the icons identify the units and the freed width is what lets the year + strengths fit. Whole block suppressed when no battles have been recorded yet. (Claude code Opus 4.7) -->
 		dBattle = self.collectBattleStats()
 		if dBattle["total"] > 0:
 			aDeployment.append((None, None, eNone, -1, -1))

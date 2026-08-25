@@ -7267,3 +7267,608 @@ CURRENT-TREE RECONCILIATION OF WIP14 DELTA
   suitable for a focused reproduction, but all four remain provisional until
   their own implementation review. File 012 therefore remains OPEN; this WIP14
   reconstruction is preserved as evidence, not promoted as durable C013.
+
+
+================================================================================
+C012-WIP15 — file 012 CvDLLWidgetData.cpp — RESUMED CLOSURE CHECKPOINT
+Authoritative source snapshot: user-supplied AdvCiv-SAS_light_source_20260825T074323.zip
+Current reconciled source HEAD recorded by snapshot: 1b85d21477b2ba03435540cb41e457b73aa444ef
+Durable completion remains 11/169. File 012 remains OPEN. No source modified.
+This checkpoint appends to the current reconciled album, whose WIP14 reconstruction
+already contains F076 / provisional KI#398. True next finding slot is F077.
+
+RESUMED NORMALIZATION — F071 / provisional KI#393 BROADENED
+F071's causal family is now stronger than the previously recorded Ground Bombard,
+Air Bomb and Paradrop cases. Additional current-SAS mixed-selection reproductions
+show that parseActionHelp_Mission sometimes derives mission help from the head
+selected unit rather than from the unit(s) that actually make the group mission
+executable:
+
+1) MISSION_LEAD / Lead Troops
+- A normal Axeman + Great General land group can be ordered with the Axeman first:
+  UNITAI_ATTACK has group-first priority 13, while UNITAI_GREAT_GENERAL has 11.
+- The Great General makes Lead valid, but the help path receives the head Axeman.
+- The General-specific +20 XP / Leader-promotion explanation can therefore be
+  omitted even though the selected group can execute Lead.
+
+2) MISSION_DISCOVER
+- A normal Axeman + Great Scientist group can have the Axeman as head.
+- The main discovery-value calculation searches the selected units and can find
+  the Scientist correctly, but the later discovery-path helper receives the head
+  Axeman's UnitTypes value.
+- The Axeman has no discovery flavor/base discovery role, so the actual Great
+  Scientist bulb-path explanation can disappear from an otherwise valid action.
+
+3) MISSION_PLUNDER
+- Current UNIT_TRANSPORT uses UNITAI_ASSAULT_SEA (group-first 11) and bPillage=0.
+- Current UNIT_DESTROYER uses UNITAI_RESERVE_SEA (group-first 2) and bPillage=1.
+- In a Transport + Destroyer selection, the Destroyer can make Plunder/Blockade
+  legal while the Transport remains the group head.
+- Head-unit-only help can then emit the non-plundering unit's refusal/diagnostic
+  text despite another selected unit being the actual executable subject.
+
+Normalization: keep these under F071, not separate IDs. The common repair rule is
+to derive special-mission help from the same eligibility population that can
+execute the selected mission, then aggregate/rank only those eligible units.
+
+F076 / provisional KI#398 — REPAIR MODEL DEEPENED
+The WIP14 executor proof remains valid: a mixed Axeman + Spy group can expose
+Espionage because the Spy passes canDoMission, then startMission reaches the
+movable Axeman first, calls espionage(), receives false because it is not a Spy,
+and exits before reaching the eligible Spy.
+
+A naive repair of only that unit loop is NOT sufficient. The two-phase popup flow
+also loses the acting Spy identity:
+- CvUnit::espionage(NO_ESPIONAGEMISSION) queues BUTTONPOPUP_DOESPIONAGE without
+  storing the invoking Spy ID.
+- CvDLLButtonPopup::launchDoEspionagePopup later calls getHeadSelectedUnit() and
+  uses that unit to test/build available espionage missions.
+- In the concrete Axeman + Spy ordering, the head is still the Axeman; K-Mod's
+  canDoEspionageMission path rejects the non-Spy, so a merely loop-fixed command
+  can still open an empty/Cancel-only mission popup.
+- launchDoEspionageTargetPopup likewise reacquires getHeadSelectedUnit() for the
+  acting Spy; parseEspionageCostHelp also follows the head-selection identity.
+- Popup return messages push the selection-group mission and do not carry a Spy
+  unit ID that would repair this identity loss downstream.
+
+Repair implication: F076 is an end-to-end selected-actor identity problem, not
+only a missing `continue` in startMission. Preserve one-Spy-per-command and the
+existing two-phase popup semantics, but either carry the chosen eligible Spy
+through popup data or consistently resolve an eligible selected Spy at every
+phase. Do not mark a patch complete if it only skips non-Spies in startMission.
+
+STRICT-CLOSURE NOTES FROM THE RESUMED PASS
+- CvDLLWidgetData.h's 170 declarations vs 168 out-of-line CPP definitions is now
+  fully explained by doCancelCivics and applyCityEdit. Both are dead inherited
+  declarations with no definition/caller found in current SAS, base AdvCiv or
+  Civ4CE; this is residue, not broken wiring.
+- The decimal city-trade widget encoding remains safe under SAS's 48-player DLL:
+  it reserves two decimal digits per player (0..99), so player IDs 0..47 do not
+  collide.
+- WIDGET_MENU_ICON -> CONSCRIPT fall-through remains ugly inherited control flow,
+  but the harmful selected-city context is masked by normal supported UI button
+  visibility. Keep as robustness debt, not a promoted finding absent a normal
+  reachable reproduction.
+- The 28 AdvCiv/SAS custom widget types are now a bounded closure set. The known
+  incomplete-native-migration roots remain F074/F075; the other custom entries
+  checked so far have coherent parse/action ownership or are intentionally
+  informational/Python-owned.
+
+REJECTED AUDIT-TOOL ARTIFACT — DO NOT RESURRECT AS F077
+An apparent duplicate parseCityNameHelp() call in WIDGET_CITY_NAME was caused by
+my inspection command printing overlapping sed ranges ending/starting at source
+line 105. Direct reading of the authoritative ZIP entry shows one call, as does
+base AdvCiv. The extracted working copy's SHA-256 matches the ZIP entry exactly:
+f03b1bafdf8f65742e1c18819946a65d5434a2c9662eaa6926606e2f141c1fa1.
+There is no CITY_NAME duplication bug. F077 remains UNUSED.
+
+CURRENT COMMAND/HELP CLOSURE STATE
+The resumed pass has entered parseActionHelp's command family. Promotion and
+Upgrade help currently match their selected-unit/all-unit contracts. Gift is
+under parity review; Delete's expense projection remains coherent under current
+SAS's disabled extra-cost callback and has not produced a new root. Load/Unload
+and the remaining command action semantics still need their final execution
+parity check.
+
+EXACT NEXT CURSOR
+11/169 durable · file 012 CvDLLWidgetData.cpp OPEN · authoritative 2026-08-25
+source snapshot · F062-F076 normalized · F071 broadened with Lead/Discover/
+Plunder · F076 popup actor-identity repair caveat recorded · F077 UNUSED.
+Continue command/action parity (Gift/Delete/Load/Unload/Upgrade controls) ->
+strict enum/index/pointer/null/string/state inventory -> remaining native/custom
+widget closure -> final adversarial reread F062-F076 -> decide C013 vs WIP16.
+================================================================================
+
+
+================================================================================
+C012-WIP16 — file 012 CvDLLWidgetData.cpp — CROSS-FILE LEAD ROOT CHECKPOINT
+Authoritative source snapshot unchanged: AdvCiv-SAS_light_source_20260825T074323.zip
+Current snapshot HEAD: 1b85d21477b2ba03435540cb41e457b73aa444ef
+Durable completion remains 11/169. File 012 remains OPEN. No source modified.
+Prior C012-WIP15 prefix preserved byte-for-byte.
+
+F077 / provisional KI#399 — INHERITED BTS GREAT-GENERAL XP REMAINDER CAN BE LOST
+Status: strong inherited gameplay/mechanics defect discovered while following
+MISSION_LEAD help/execution from the open CvDLLWidgetData audit.
+
+Current code contract
+CvUnit::giveExperience():
+1. canGiveExperience(plot) counts only eligible own units other than the Warlord.
+2. getStackExperienceToGive(iNumUnits) computes a total XP pool from that eligible
+   count.
+3. iMinExperiencePerUnit = total / eligible count and iRemainder = total % count.
+4. The award loop correctly grants XP only when:
+      pUnit != this && same owner && pUnit->canAcquirePromotionAny()
+   BUT the remainder index `i` is incremented outside that eligibility block.
+
+Consequently every ineligible plot-list entry consumes a position in the
+`i < iRemainder` test despite receiving no XP. The intended remainder points can
+therefore disappear rather than being assigned to eligible recipients.
+
+Concrete current-SAS reproduction without any exotic stack
+- UNIT_GREAT_GENERAL has iLeaderExperience=20.
+- Current GlobalDefinesAlt has WARLORD_EXTRA_EXPERIENCE_PER_UNIT_PERCENT=10 and
+  WARLORD_MAXIMUM_EXTRA_EXPERIENCE_PERCENT=100.
+- With 4 eligible recipients, getStackExperienceToGive computes:
+      20 * (100 + (4-1)*10) / 100 = 26 XP.
+  Intended split: 7 + 7 + 6 + 6 = 26.
+- Current UnitTypes ordering places UNIT_GREAT_GENERAL at index 129 of 131;
+  ordinary current combat recipients are lower UnitTypes (e.g. Axeman 30,
+  Maceman 39, Rifleman 58, Infantry 61).
+- CvPlot::addUnit orders same-owner/same-domain plot units through
+  CvUnit::isBeforeUnitCycle; when unit types differ, higher UnitTypes come first.
+  Therefore the Great General itself normally precedes ordinary land recipients.
+- The loop sees the General first: it is excluded from XP, but the unconditional
+  `i++` changes i from 0 to 1. The four eligible recipients then see i=1,2,3,4.
+  With iRemainder=2, only the first recipient satisfies i<2. Actual award becomes
+  7+6+6+6 = 25 XP: 1 XP silently vanishes.
+- Additional ineligible units ordered before recipients (for example another
+  non-recipient) can consume still more remainder positions. No such extra unit
+  is required for the basic defect because the Warlord itself already does so.
+
+Why this is not merely a tooltip discrepancy
+getStackExperienceToGive returns the intended pool, and canGiveExperience supplies
+its eligible denominator. The award loop then fails to distribute that pool.
+This affects real unit experience and promotion progression. MISSION_LEAD help
+can additionally advertise the nominal pool, but the mechanics loss is the
+independent root and is sufficient for F077.
+
+Ancestry/control
+- AdvCiv 1.14 contains the same unconditional `i++` outside the eligibility block.
+- The supplied Civ4CE/BtS implementation has the same structure, including the
+  unconditional increment after each plot unit. This establishes the defect as
+  inherited BtS behavior rather than an AdvCiv-SAS regression.
+- K-Mod/AdvCiv increased Warlord scaling, which changes when/how much remainder
+  exists, but did not introduce the indexing mistake itself.
+
+Conservative repair direction
+Advance the remainder-distribution index only when an eligible unit actually
+receives experience, e.g. move `i++` into the eligibility branch after the award
+(or use an explicitly named `iEligibleRecipient`). This preserves plot iteration
+order and all existing total-XP/scaling rules while guaranteeing that exactly
+`iRemainder` eligible recipients receive the +1 point.
+
+NORMALIZATION NOTE
+F077 is cross-file (CvUnit.cpp), but it was source-reached directly through the
+CvDLLWidgetData MISSION_LEAD contract audit. Prior album findings already retain
+cross-caller/executor roots when they are necessary to explain the widget-visible
+behavior (e.g. F067/F072/F076), so preserving it here is consistent and useful.
+It should also be carried into the eventual CvUnit.cpp audit as an already-known
+root rather than rediscovered/double-counted there.
+
+PARALLEL WIP15 RECONCILIATION
+Two parallel threads produced different checkpoints named WIP15. The separately
+downloaded C012-WIP15_RECONSTRUCTED used practical 6250 / HEAD 2ac3faa2... and
+preserved the older WIP14 reconstruction as its prefix. The WIP15 embedded in
+this WIP16 used the later reconciled 20260825T074323 snapshot / HEAD 1b85d214...
+and retained intervening current-tree reconciliation, including the KI#311 /
+KI#387 accessor cross-reference. Therefore WIP16's statement that its WIP15
+prefix was preserved byte-for-byte refers to the WIP15 produced in the same
+newer thread, not the parallel WIP15_RECONSTRUCTED file. Direct comparison of
+the two downloaded full albums confirmed that they are not byte-identical and
+first diverge in the earlier reconciled prefix rather than at the new checkpoint.
+
+WIP16 remains authoritative for numbering, source state and continuation cursor.
+The following useful closure evidence from the alternate WIP15 is retained here
+so choosing WIP16 does not discard the parallel review:
+- MISSION_PILLAGE was challenged and rejected as another F071 sibling. Its help
+  uses the supplied unit chiefly for group-shared domain/team knowledge when
+  choosing improvement-versus-route context; no concrete false current output
+  was established from a non-pillaging group head.
+- Corporation Spread was challenged and rejected as another F071 sibling.
+  Spread cost and visible city-side failure reasons are player/city/corporation
+  based rather than Executive-type dependent; no independent false output or
+  failed-execution contract was established.
+- The 170 header declarations versus 168 CPP definitions discrepancy resolves
+  exactly to inherited dead declarations doCancelCivics and applyCityEdit in
+  current SAS, AdvCiv 1.14 and Civ4CE/BtS; it is not missing current wiring.
+- Cached GlobalDefines inspected in CvDLLWidgetData have no overlapping current
+  runtime setDefine writer. The plot-list iUnitsPerRow static is refreshed at
+  the forward-shift sequence before use rather than remaining stale.
+- Route-movement preview divisors have positive adjusted movement costs and the
+  power-ratio denominator is protected by max(1, power). The remaining raw
+  war-rand divisions belong to already-normalized F064 rather than a new root.
+- WIDGET_MENU_ICON falling through to Conscript is inherited but masked by the
+  supported UI: Main Menu is hidden in the selected-city context required for
+  the harmful path. It remains robustness debt absent a reachable reproduction.
+- The normalized current-versus-AdvCiv semantic surface was accounted for; no
+  large unexplained SAS C++ body remained. The native BUG/BULL fallback review
+  found action-loss families only in existing F074/F075; neighboring Finance
+  and Food widgets are intentionally hover-only, while WIDGET_DEAL_KILL is a
+  clean control with explicit native action/link handling.
+- Strict pointer/index checks retained WIDGET_EXAMINE_CITY, city-trade payloads,
+  trade-route player pairs and generic Pedia enum casts as negative controls;
+  no supported stale producer or concrete invalid current payload was proven.
+
+This reconciliation adds no finding and leaves F078 unused.
+
+CURRENT CURSOR
+F062-F077 normalized; F078 UNUSED. File 012 remains OPEN.
+Continue strict CvDLLWidgetData index/pointer/null/string/state closure and the
+remaining command/native-widget contracts; then adversarially challenge the full
+F062-F077 ledger and decide C013 vs another WIP. Do not let F077 substitute for
+finishing CvDLLWidgetData itself.
+================================================================================
+
+
+
+===============================================================================
+C013 -- FILE 012 CvDLLWidgetData.cpp DURABLE CLOSURE
+===============================================================================
+
+STATUS
+------
+Authoritative audit/implementation synchronization source:
+AdvCiv-SAS_light_source_20260825T085034.zip.
+
+Repository snapshot HEAD:
+ad022a3fc9f270fdcb77b9a5cc872e30eb1e4643 (practical 6252).
+
+The authoritative working tree also contains the then-staged KI#388-KI#390
+implementation batch. Those staged changes are part of the source actually
+reviewed for this closure rather than being treated as hypothetical patches.
+The supplied bundled audit album, including its WIP15 divergence reconciliation
+and authoritative WIP16 cursor, is preserved byte-for-byte as the prefix of this
+C013 artifact.
+
+FILE 012 IS NOW COMPLETE for the current file-oriented audit.
+Durable completed-file count advances from 11/169 to 12/169.
+
+No new independent root survived the final closure tranche. F078 therefore
+remains UNUSED and becomes the next available root number for the next file.
+
+No repository source was modified by this audit.
+
+
+FINAL NORMALIZED ROOT LEDGER -- FILE 012 / CROSS-FILE ROOTS REACHED FROM IT
+--------------------------------------------------------------------------
+
+F062 / KI#383 -- FIXED
+SAS WIDGET_LH_GLANCE vassal-willingness refactor dropped the inherited War Trades
+explanation from the Glance relationship hover. Current synchronized tree already
+contains the accepted repair.
+
+F063 / KI#384 -- FIXED
+Inherited opening-Pedia alt-click path could dereference an invalid active
+civilization while no real game player existed. Current synchronized tree already
+contains the accepted opening-menu guard.
+
+F064 / KI#385 -- PENDING BY DESIGN
+Scoreboard cheat/debug war-decision reconstruction has drifted from live
+CvTeamAI::AI_doWar behavior. This remains diagnostic/debug debt requiring a
+focused policy review rather than a rushed local patch. It is not merged with
+any later divisor concern; the unguarded war-rand divisions encountered during
+this file audit remain part of this already-normalized diagnostic family.
+
+F065 / KI#386 -- FIXED
+Inherited BtS Infiltrate help used the generic Espionage capability predicate
+instead of the actual Infiltrate predicate. Current synchronized tree contains
+the repair.
+
+Former KI#387 -- RETRACTED FALSE POSITIVE
+GET_TEAM(PlayerTypes) already performs PlayerTypes -> TeamTypes conversion through
+its overload/TEAMID path. The previously suspected player/team confusion was not
+a behavior bug. This retraction remains authoritative and must not be resurrected
+from an older divergent checkpoint.
+
+F066 / KI#388 -- FIXED/STAGED IN SYNCHRONIZED WORKING TREE
+The custom Info Screen Score tab reused scoreboard-only widgets and imported
+setScoreboardExpanded(true) state/timer behavior. The synchronized staged repair
+separates Info-Screen power help and avoids scoreboard-expansion payloads for the
+other Score-tab cells. The new WIDGET_POWER_RATIO_INFO_SCREEN contract was
+included in the final custom-widget closure and is correctly hover-only.
+
+F067 / KI#389 -- FIXED/STAGED IN SYNCHRONIZED WORKING TREE
+Specialist Pedia Extra Slots passed data1=-1 to tech-context
+WIDGET_HELP_SPECIAL_BUILDING, allowing the NO_TECH sentinel to match XML
+TechPrereqAnyone=NONE and generate misleading construction help. The synchronized
+repair uses a neutral widget for the grouped display.
+
+F068 / KI#390 -- FIXED/STAGED IN SYNCHRONIZED WORKING TREE
+Military Advisor Total Cost + Supply displayed the unit-cost/supply subtotal but
+borrowed WIDGET_HELP_FINANCE_INFLATED_COSTS, whose help describes the player's
+whole pre-inflation expense base. The synchronized repair adds a dedicated
+WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY helper. Its parser/declaration/action
+ownership was included in the final structural closure and is coherent.
+
+F069 / KI#391 -- FIXED/COMMITTED
+BUG Detailed/Wide Tech Splash supplied WIDGET_HELP_IMPROVEMENT as
+(buildID, 1) for non-improvement builds although the C++ contract is
+(techID, buildID), yielding empty/wrong help. The synchronized source contains
+the committed repair.
+
+F070 / KI#392 -- FIXED/COMMITTED
+Detailed Tech Splash contained yWidgetTypes.WIDGET_PEDIA_JUMP_TO_UNIT and could
+raise NameError when a researched tech unlocks a unit. The synchronized source
+contains the committed repair.
+
+F071 / provisional KI#393 -- RETAINED AFTER FINAL ADVERSARIAL REVIEW
+Multi-unit mission help can describe/rank/aggregate the selection head or all
+selected units instead of the subset that can actually execute the hovered
+mission. Proven siblings remain:
+- Ground Bombard can sum nominal bombard damage from spent/ineligible selected
+  siege units while execution filters through canBombard.
+- Air Bomb help can analogously overcount aircraft that cannot execute at the
+  target.
+- Paradrop interception help can select a moved/high-evasion or tied unit and
+  suppress information although another selected Paratrooper can execute.
+- Lead Troops help can use an ordinary combat head unit even when a selected
+  Great General makes the action executable, omitting the General-specific XP /
+  leader-promotion details.
+- Discover computes the main bulb amount through an eligible unit search but
+  later calls setDiscoverPathHelp with the selection-head unit type, so the path
+  explanation can disappear in a mixed selection.
+- Plunder/blockade can be executable through a selected pillaging naval unit
+  while a non-plundering head unit supplies a false inability diagnostic.
+MISSION_PILLAGE and Corporation Spread were explicitly challenged and rejected as
+additional siblings; they are not needed to support this root.
+
+F072 / provisional KI#394 -- RETAINED AFTER FINAL ADVERSARIAL REVIEW
+AI_bestUnitForMission(MISSION_AIRBOMB) does not consistently filter candidates by
+target eligibility. For city targets it uses generic canAirBomb rather than
+canAirBombAt; for non-city targets it can likewise rank without the target test.
+A chosen out-of-range/ineligible aircraft can then fail CvUnit::airBomb and stop
+the group mission before a valid selected companion acts. The current SAS
+Bomber-range-8 / Jet-Fighter-range-10 example against a city at distance 9
+remains a concrete reproduction family.
+
+F073 / provisional KI#395 -- RETAINED
+The BUG/AdvCiv Chevron angry-citizen overlay places a hit-testable DDS over the
+angry-citizen button but tags the overlay WIDGET_CITIZEN with a SpecialistTypes
+payload. Hover/right-click over the chevron portion can therefore route to
+specialist help/Pedia instead of angry-citizen behavior. The surrounding
+specialist chevrons are the copy-pattern control; the angry case is the outlier.
+
+F074 / provisional KI#396 -- RETAINED AFTER NATIVE-WIDGET CLOSURE
+When AdvCiv made the Bonus/Tech trade-denial BULL widgets native, the old
+BugDll.widget fallback to clickable Pedia-jump widgets stopped being used, but
+the native migration supplied rich parseHelp handling without corresponding
+executeAction/isLink behavior. Current Foreign Advisor constructors still use the
+native trade widgets and no compensating Python handler was found. The old Pedia
+interaction therefore remains lost.
+
+F075 / provisional KI#397 -- RETAINED AFTER NATIVE-WIDGET CLOSURE
+The practical-1481 native BULL-hover migration also dropped two contact fallbacks:
+- WIDGET_LEADERHEAD_RELATIONS lost the old WIDGET_LEADERHEAD right-click contact
+  action; current advisor Python can still hide the screen on right-click while
+  C++ has no relations-widget executeAltAction.
+- scoreboard WIDGET_TRADE_ROUTES[_SCOREBOARD] lost the old WIDGET_CONTACT_CIV
+  ordinary click-to-contact action.
+WIDGET_DEAL_KILL remains the clean migration control because its native action /
+link behavior was explicitly supplied.
+
+F076 / KI#398 -- RETAINED AND REPAIR SCOPE DEEPENED
+Mixed-group Espionage can be enabled by a selected Spy while
+CvSelectionGroup::startMission reaches a movable non-Spy first, calls its
+espionage(...) method and unconditionally exits the unit loop after failure.
+Furthermore a naive repair that merely skips non-Spies is insufficient:
+BUTTONPOPUP_DOESPIONAGE does not retain the acting Spy ID, and both espionage
+popup phases return to getHeadSelectedUnit(). The actor identity must survive the
+whole popup/return path. Lead Troops is a strong local negative control: its
+popup explicitly stores the Great General's unit ID and resolves that stored
+actor later, demonstrating the appropriate engine pattern.
+
+F077 / KI#399 -- RETAINED CROSS-FILE ROOT (CvUnit.cpp)
+CvUnit::giveExperience correctly calculates Great-General total XP and remainder
+from eligible recipients, but increments its remainder-distribution index for
+every plot unit, including units that receive no XP. Ineligible entries therefore
+consume remainder slots and silently destroy intended experience.
+
+The ordinary current-SAS four-recipient reproduction remains deterministic:
+20 base leader XP with current Warlord scaling yields 26 intended XP, nominally
+7+7+6+6. Same-owner/same-domain plot ordering places the high-UnitTypes Great
+General before ordinary land recipients; the General is excluded from the award
+but still consumes the first unconditional index increment, producing 7+6+6+6
+= 25 actual XP. Base AdvCiv 1.14 and Civ4CE/BtS preserve the same inherited loop
+shape. Repair direction remains to advance the remainder index only when XP is
+actually awarded to an eligible recipient.
+
+F077 is a post-C007 cross-file amendment reached through MISSION_LEAD during this
+widget audit. CvUnit.cpp was already durably audited earlier; do not rediscover or
+double-count this root later merely because implementation review returns to
+CvUnit.cpp.
+
+F078 -- UNUSED
+No additional independent root survived file-012 closure.
+
+
+FINAL WHOLE-FILE CLOSURE EVIDENCE
+---------------------------------
+
+1. Current-source structural inventory
+
+On the synchronized practical-6252 working tree (including staged KI#390):
+- CvDLLWidgetData.cpp has exactly 169 out-of-line CvDLLWidgetData definitions.
+- CvDLLWidgetData.h has exactly 171 method declarations.
+- Every current definition has a header declaration.
+- The only declarations without definitions are the same inherited dead residue:
+  doCancelCivics and applyCityEdit.
+
+The earlier 168/170 count was not instability: staged KI#390 added exactly one
+new declaration and one matching definition, moving the pair to 169/171 while
+leaving the same two inherited header-only declarations.
+
+2. Complete custom WidgetTypes ownership inventory
+
+The Civ4CE/BtS control has 163 WidgetTypes; the synchronized SAS tree has 193.
+All 30 SAS/AdvCiv extras were explicitly mapped across parseHelp, executeAction,
+executeAltAction and isLink rather than sampling the dispatcher. The 30 extras
+are:
+
+WIDGET_HELP_POLLUTION_OFFSETS
+WIDGET_HELP_POLLUTION_SOURCE
+WIDGET_HELP_SUSTAINABILITY_THRESHOLD
+WIDGET_HELP_GW_RELATIVE_CONTRIBUTION
+WIDGET_HELP_GW_INDEX
+WIDGET_HELP_GW_UNHAPPY
+WIDGET_HELP_GLOBAL_COMMERCE_MODIFIER
+WIDGET_HELP_EXTRA_SPECIALIST_COMMERCE
+WIDGET_RF_CIV_CHOICE
+WIDGET_LH_GLANCE
+WIDGET_SHOW_REPLAY
+WIDGET_PEDIA_JUMP_TO_BONUS_TRADE
+WIDGET_PEDIA_JUMP_TO_TECH_TRADE
+WIDGET_TRADE_ROUTES
+WIDGET_HELP_FINANCE_DOMESTIC_TRADE
+WIDGET_HELP_FINANCE_FOREIGN_TRADE
+WIDGET_HELP_FINANCE_SPECIALISTS
+WIDGET_LEADERHEAD_RELATIONS
+WIDGET_FOOD_MOD_HELP
+WIDGET_TRADE_ROUTES_SCOREBOARD
+WIDGET_EXPAND_SCORES
+WIDGET_POWER_RATIO
+WIDGET_GOLDEN_AGE
+WIDGET_ANARCHY
+WIDGET_CITY_TRADE
+WIDGET_CYCLE_UNIT
+WIDGET_EXAMINE_CITY
+WIDGET_HELP_NO_FEAR_FOR_SAFETY
+WIDGET_POWER_RATIO_INFO_SCREEN
+WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY
+
+No new incomplete native-action family survives beyond F074/F075. The two newly
+staged KI#388/KI#390 widget types are intentionally hover-only and have coherent
+parser ownership.
+
+3. Help/command/executor parity closure
+
+The large mission/action body was traced against actual unit/group execution
+rather than judged from local casts or names. F071/F072/F076 are the surviving
+execution/help families. Late command checks did not add F078:
+- Gift help/execution uses canGift and revalidates individual units.
+- Load deliberately requires all selected units to be loadable before issuing the
+  AdvCiv group command; this is not an accidental partial-selection mismatch.
+- Upgrade, Delete and Unload execution revalidate per unit.
+- The human Delete path remains coherent under normal selected-unit contracts.
+- Lead popups preserve the Great General actor ID, a negative control that both
+  rejects a speculative Lead-popup root and strengthens F076's Espionage actor
+  diagnosis.
+
+4. Strict index / enum / pointer / null / sentinel / string / divisor sweep
+
+No new reachable payload-safety root survived. Important negative controls:
+- WIDGET_EXAMINE_CITY has a locally strong city-pointer assumption, but all live
+  supported producers found pass a live owned city ID; no normal stale producer
+  was established.
+- city-trade decimal encoding reserves two decimal digits per player and is safe
+  for SAS's 48-player IDs (0-47).
+- parseTradeRoutes receives valid player pairs from every live caller found.
+- parseTerrainTradeHelp lacks a local data2>=0 test, but every live constructor
+  supplies a real terrain index 0..n-1 or exactly n for the deliberate River
+  Trade sentinel. A forged -1 payload is not a supported reproduction.
+- WIDGET_HELP_OBSOLETE's TechTypes-looking cast remains a type-annotation smell;
+  the text-manager helper consumes the integer as the intended Building ID.
+- plot-list iUnitsPerRow is refreshed at the forward-shift sequence before use.
+- cached GlobalDefines inspected here have no current runtime setDefine writer.
+- route/power/culture/finance divisors are structurally positive or guarded; the
+  raw war-rand divisions remain inside already-normalized F064 diagnostic logic.
+- Military Advisor minimap-highlight encoding uses data1=-owner, so player 0 is
+  encoded as -0/0; decoding still works because the action path accepts <=0.
+  The possible link-cursor asymmetry for player 0 does not break the action and
+  was not promoted.
+- generic enum casts were not treated as bugs without a concrete live producer
+  capable of manufacturing the invalid payload.
+
+5. Inherited control-flow and UI-state negative controls
+
+- WIDGET_MENU_ICON falling through toward Conscript is ugly inherited control
+  flow, but the harmful side is masked in supported UI because Main Menu is not
+  exposed in the selected-city context needed for Conscript behavior. It remains
+  robustness debt absent a reachable reproduction.
+- Heal MAX_INT can represent a genuinely indefinitely healing group when feature
+  turn damage exactly cancels healing; it is not a leaked finite ETA sentinel.
+- broader vassal-willingness text on non-Glance relationship widgets remains
+  observer-gated and truthful; broader presentation alone is not a bug.
+- shifted mission lastMissionPlot is protected by its fallback to the group's
+  current plot.
+- MISSION_BUILD's NO_TECH paths use sentinel-aware engine helpers.
+- no general scoreboard-expansion defect exists outside the already-normalized
+  F066 cross-context Info-Screen users.
+
+6. Current SAS versus base/controls accounted
+
+The semantic current-versus-AdvCiv diff was inspected after normalization rather
+than assuming every textual difference was suspicious. Remaining substantive SAS
+regions are accounted for by known fixes/features (vassal willingness, opening-
+Pedia repair, Infiltrate repair, hover-font wrapper, cached defines and the
+staged KI#388/KI#390 widget separation) or previously normalized findings. No
+large unexplained SAS-specific C++ behavior block remains.
+
+Civ4CE/BtS was used as an independent control where useful, especially for the
+native-widget set, inherited mission/action structures and Great-General XP loop;
+it was never assumed automatically correct merely because it differs.
+
+7. Final adversarial challenge of execution-sensitive retained roots
+
+The late pass explicitly attempted to disprove F071, F072, F076 and F077 rather
+than simply restating them:
+- F071 retains exact current call sites where the head/all-selected population
+  differs from the mission-executable population; spent/ineligible bombarders can
+  still contribute nominal damage because damageToBombardTarget is not itself the
+  full canBombard eligibility test.
+- F072 retains the generic canAirBomb versus target-specific canAirBombAt mismatch
+  and the executor's stop-on-failed-selected-unit behavior.
+- F076 retains both the first-movable-unit abort and the second-stage actor-loss in
+  popup construction; Lead's stored-unit-ID pattern is the negative control.
+- F077 retains the unconditional remainder-index increment plus deterministic
+  same-owner/same-domain Great-General ordering proof.
+
+F073-F075 were likewise rechecked against current Python/C++ producers/actions;
+no compensating Python action was found for F074, and the relations/scoreboard
+contact fallbacks in F075 remain absent from the current C++ dispatchers.
+
+8. Explicit rejected audit artifact
+
+An apparent duplicate parseCityNameHelp call found during a prior WIP was caused
+by overlapping source-inspection ranges printing the same boundary line twice.
+The working copy was hash-checked against the ZIP entry and the source contains
+only one call. It is permanently rejected and did not consume F077/F078.
+
+
+CLOSURE DECISION
+----------------
+
+CvDLLWidgetData.cpp is defensibly exhausted for this file-oriented pass. The
+surviving roots F062-F077 have been normalized, merged where causal siblings
+belong together, and adversarially challenged. The late command, custom-widget,
+pointer/index/null/state, divisor and current-versus-base closure passes did not
+produce an independent F078.
+
+FILE 012 STATUS: COMPLETE -- REVIEWED
+COMPLETED FILES: 12 / 169
+NEXT ROOT ID: F078 (UNUSED)
+
+NEXT FILE
+---------
+
+013  6190  CvGameCoreDLL/CvTeam.cpp
+
+Start from the current practical-6252 working tree, build an exact current/base /
+Civ4CE structural and semantic delta, enumerate public/state-mutating team
+contracts and callers, then follow war/peace, vassal, diplomacy, tech, map/reveal,
+trade and victory/team-state paths with the same caller/executor evidence
+standard. Carry F077 only as an already-known post-C007 cross-file amendment; do
+not rediscover or double-count it.
+
+No repository source was modified.
+===============================================================================

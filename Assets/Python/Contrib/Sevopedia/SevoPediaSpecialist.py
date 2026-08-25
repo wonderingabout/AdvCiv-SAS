@@ -141,7 +141,8 @@ class SevoPediaSpecialist:
 					if iSpecialBuilding > -1:
 						key = ("special", iSpecialBuilding)
 						if key not in specialSlots:
-							specialSlots[key] = [0, 0, gc.getSpecialBuildingInfo(iSpecialBuilding).getButton(), WidgetTypes.WIDGET_HELP_SPECIAL_BUILDING, -1, iSpecialBuilding]
+							# <!-- custom: This representative group icon has no concrete building or tech context; neutral help avoids interpreting NO_TECH as TechPrereqAnyone and claiming that any player can construct it. See KI#389. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+							specialSlots[key] = [0, 0, gc.getSpecialBuildingInfo(iSpecialBuilding).getButton(), WidgetTypes.WIDGET_GENERAL, -1, -1]
 						if iCount > specialSlots[key][0]:
 							specialSlots[key][0] = iCount
 						if iFree > specialSlots[key][1]:

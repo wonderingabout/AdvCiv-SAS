@@ -455,9 +455,9 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [385 - (Pending inherited/SAS diagnostic drift) Scoreboard cheat war predictions duplicate stale AI_doWar logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#385---pending-inheritedsas-diagnostic-drift-scoreboard-cheat-war-predictions-duplicate-stale-ai_dowar-logic)\
 [386 - (Fixed inherited BtS tooltip defect) Great Spy Infiltration omitted its espionage yield](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#386---fixed-inherited-bts-tooltip-defect-great-spy-infiltration-omitted-its-espionage-yield)\
 [387 - (Rejected false positive) GET_TEAM(PlayerTypes) already converts the player to the correct team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#387---rejected-false-positive-get_teamplayertypes-already-converts-the-player-to-the-correct-team)\
-[388 - (Pending AdvCiv-SAS UI state defect) Info Screen Score hovers trigger scoreboard expansion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#388---pending-advciv-sas-ui-state-defect-info-screen-score-hovers-trigger-scoreboard-expansion)\
-[389 - (Pending AdvCiv-SAS Sevopedia tooltip defect) Specialist Extra Slots misuses tech-context help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#389---pending-advciv-sas-sevopedia-tooltip-defect-specialist-extra-slots-misuses-tech-context-help)\
-[390 - (Pending AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explains unrelated expenses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#390---pending-advciv-sas-military-advisor-tooltip-defect-total-cost--supply-explains-unrelated-expenses)\
+[388 - (Fixed AdvCiv-SAS UI state defect) Info Screen Score hovers triggered scoreboard expansion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#388---fixed-advciv-sas-ui-state-defect-info-screen-score-hovers-triggered-scoreboard-expansion)\
+[389 - (Fixed AdvCiv-SAS Sevopedia tooltip defect) Specialist Extra Slots misused tech-context help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#389---fixed-advciv-sas-sevopedia-tooltip-defect-specialist-extra-slots-misused-tech-context-help)\
+[390 - (Fixed AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explained unrelated expenses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#390---fixed-advciv-sas-military-advisor-tooltip-defect-total-cost--supply-explained-unrelated-expenses)\
 [391 - (Fixed inherited BUG/K-Mod Tech Splash tooltip defect) Build-action buttons encoded the wrong widget payload](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#391---fixed-inherited-bugk-mod-tech-splash-tooltip-defect-build-action-buttons-encoded-the-wrong-widget-payload)\
 [392 - (Fixed AdvCiv-SAS Extended Tech Splash regression) Enabled units raised NameError](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#392---fixed-advciv-sas-extended-tech-splash-regression-enabled-units-raised-nameerror)\
 
@@ -5145,6 +5145,12 @@ Update:
 - Final behavior: keep the in-place tab redraw/cache path for same-open tab switching, but keep the whole Military Advisor screen non-persistent with `screen.setPersistent(False)`.
 - Trade-off: the Battles table cache is no longer preserved across full Military Advisor close/reopen, so very large late-game battle histories may reopen slower.
 - This is preferred because the Map tab should always render correctly, while the extreme late-game battle-history reopen case is rarer.
+
+Update 2:
+
+- Testing during KI#390 showed that every full Military Advisor close/reopen returned to the XML-configured Map tab instead of retaining the last selected tab. This was unrelated to the new finance hover: `interfaceScreen` explicitly reapplied `SAS_CV_MILITARY_ADVISOR_DEFAULT_TAB` on every opening.
+- The original change history described this option as the default first tab opened at Civ4 launch. The advisor object now applies that XML default only on its first opening and retains subsequent tab selections across close/reopen for the rest of the Civ4 session. This preserves the non-persistent screen/minimap cure above; only the Python page-selection state is retained.
+- Found and runtime-reproduced with the help of wonderingabout; fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 File changed:
 
@@ -9891,23 +9897,29 @@ This is the direct non-AI counterpart of [KI#311](#311---rejected-archaeology-fi
 
 Former F066/provisional KI#387 was retracted by ChatGPT-5.6-Sol in C012-WIP04 and reconfirmed through C012-WIP06; independently verified and documented with the help of GPT-5.6-Sol, thanks.
 
-## 388 - (Pending AdvCiv-SAS UI state defect) Info Screen Score hovers trigger scoreboard expansion
+## 388 - (Fixed AdvCiv-SAS UI state defect) Info Screen Score hovers triggered scoreboard expansion
 
-The AdvCiv-SAS Info Screen Score tab reuses `WIDGET_SCORE_BREAKDOWN` with `data2=0`, `WIDGET_POWER_RATIO` and `WIDGET_TRADE_ROUTES_SCOREBOARD` for their useful scoreboard hover text. `CvDLLWidgetData::parseHelp` also treats all three as scoreboard expansion controls and calls `setScoreboardExpanded(true)`. Hovering these advisor cells can therefore import hidden scoreboard expansion state and collapse-timer activity into an unrelated focused screen.
+The AdvCiv-SAS Info Screen Score tab reused `WIDGET_SCORE_BREAKDOWN` with `data2=0`, `WIDGET_POWER_RATIO` and `WIDGET_TRADE_ROUTES_SCOREBOARD` for their useful scoreboard hover text. `CvDLLWidgetData::parseHelp` also treats all three as scoreboard expansion controls and calls `setScoreboardExpanded(true)`. Hovering these advisor cells therefore imported hidden scoreboard expansion state and collapse-timer activity into an unrelated focused screen.
 
-This is an AdvCiv-SAS cross-context regression introduced with the custom Score tab in practical 5483, not an inherited AdvCiv defect. It remains pending a focused repair that separates the useful tooltip semantics from scoreboard-only state mutation. Found as F066/provisional KI#388 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently source-reviewed and documented with the help of GPT-5.6-Sol, thanks.
+This is an AdvCiv-SAS cross-context regression introduced with the custom Score tab in practical 5483, not an inherited AdvCiv defect. The fix preserves the active-player score breakdown with a non-expansion `data2` value, reuses the ordinary non-scoreboard trade-routes hover, and adds an Info Screen-specific power-ratio widget that shares the same tooltip parser without entering the scoreboard expansion list. Found as F066/provisional KI#388 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; fixed and documented with the help of GPT-5.6-Sol, thanks.
 
-## 389 - (Pending AdvCiv-SAS Sevopedia tooltip defect) Specialist Extra Slots misuses tech-context help
+Compile/runtime testing with the help of wonderingabout confirmed that hovering the Info Screen Score tab no longer changed the scoreboard state, thanks.
 
-The Specialist page's Extra Slots panel uses `WIDGET_HELP_SPECIAL_BUILDING` with `data1=-1` for Temple, Cathedral and Monastery source groups. That widget interprets `data1` as a technology and compares it with both special-building technology prerequisites. Because these groups use `NONE` (`-1`) for `TechPrereqAnyone`, the sentinel can match and produce misleading `Any player can Construct ...` text instead of explaining the slot source.
+## 389 - (Fixed AdvCiv-SAS Sevopedia tooltip defect) Specialist Extra Slots misused tech-context help
 
-The C++ helper behaves correctly for its Tech Chooser and Sevopedia Tech callers, which pass real technologies. This is an AdvCiv-SAS caller-contract regression introduced with Extra Slots in practical 5331. It remains pending a neutral or purpose-specific hover. Found as F067/provisional KI#389 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently source-reviewed and documented with the help of GPT-5.6-Sol, thanks.
+The Specialist page's Extra Slots panel used `WIDGET_HELP_SPECIAL_BUILDING` with `data1=-1` for Temple, Cathedral and Monastery source groups. That widget interprets `data1` as a technology and compares it with both special-building technology prerequisites. Because these groups use `NONE` (`-1`) for `TechPrereqAnyone`, the sentinel matched and produced misleading `Any player can Construct ...` text instead of explaining the slot source.
 
-## 390 - (Pending AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explains unrelated expenses
+The C++ helper behaves correctly for its Tech Chooser and Sevopedia Tech callers, which pass real technologies. This is an AdvCiv-SAS caller-contract regression introduced with Extra Slots in practical 5331. The fix makes the representative special-building group icon neutral: the adjacent row already identifies its slot effect, while the group icon has no single concrete building or technology that could support an accurate inherited hover. Found as F067/provisional KI#389 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; fixed and documented with the help of GPT-5.6-Sol, thanks.
 
-The Military Advisor Summary displays Total Cost + Supply as post-inflation Unit Cost plus Unit Supply, but assigns `WIDGET_HELP_FINANCE_INFLATED_COSTS`. That helper explains the player's whole pre-inflation expense base, which additionally includes city maintenance, civic upkeep and Python extra expenses. Its numbers therefore do not describe the visible subtotal. The Finance screen's overall Expenses row is the correct inherited caller for this widget.
+Compile/runtime testing with the help of wonderingabout confirmed that the grouped Temple and Cathedral icons are now neutral while the concrete Shrine entry retains its building-info hover, thanks.
 
-This is an AdvCiv-SAS caller-contract regression introduced with the Summary tab in practical 5800. It remains pending a dedicated combined breakdown or removal of the unrelated hover. Found as F068/provisional KI#390 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; independently source-reviewed and documented with the help of GPT-5.6-Sol, thanks.
+## 390 - (Fixed AdvCiv-SAS Military Advisor tooltip defect) Total Cost + Supply explained unrelated expenses
+
+The Military Advisor Summary displayed Total Cost + Supply as post-inflation Unit Cost plus Unit Supply, but assigned `WIDGET_HELP_FINANCE_INFLATED_COSTS`. That helper explains the player's whole pre-inflation expense base, which additionally includes city maintenance, civic upkeep and Python extra expenses. Its numbers therefore did not describe the visible subtotal. The Finance screen's overall Expenses row is the correct inherited caller for this widget.
+
+This is an AdvCiv-SAS caller-contract regression introduced with the Summary tab in practical 5800. The fix adds a dedicated widget that appends the established post-inflation unit-cost and away-supply breakdowns, matching the visible subtotal without including maintenance, civic upkeep or other expenses. Found as F068/provisional KI#390 during ChatGPT-5.6-Sol's open `CvDLLWidgetData.cpp` audit; fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The compiled Military Advisor Summary rendered its Total Cost + Supply rows correctly for the active player and multiple debug-selected AI players during runtime testing with the help of wonderingabout. Direct confirmation of the new combined hover text remained pending because the supplied screenshots showed the rows rather than the hover box itself, thanks.
 
 ## 391 - (Fixed inherited BUG/K-Mod Tech Splash tooltip defect) Build-action buttons encoded the wrong widget payload
 

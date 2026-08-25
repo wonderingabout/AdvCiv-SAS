@@ -517,6 +517,8 @@ ENUM_START(Widget, WIDGET)
 	WIDGET_CYCLE_UNIT, // advc.154
 	WIDGET_EXAMINE_CITY, // advc.186b (for BULL - Zoom City Details)
 	WIDGET_HELP_NO_FEAR_FOR_SAFETY, // advc.500c
+	WIDGET_POWER_RATIO_INFO_SCREEN, // <!-- custom: Appended to preserve existing EXE-facing WidgetTypes values. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY, // <!-- custom: Appended to preserve existing EXE-facing WidgetTypes values. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 ENUM_END(Widget, WIDGET)
 
 ENUM_START(ButtonPopup, BUTTONPOPUP)

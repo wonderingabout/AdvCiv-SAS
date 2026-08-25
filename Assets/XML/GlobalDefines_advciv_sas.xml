@@ -229,7 +229,7 @@ Created as part of AdvCiv-SAS improvements
 
 
 
-	<!-- custom: Zero-based position of the Military Advisor tab shown whenever the advisor is newly opened: 0 is the first tab (as of now Summary), then add 1 for each following tab (as of now Map is one tab after Summary, so Map = 1). Map is the most useful default for quickly locating and reviewing current units; tab switching during the open advisor remains unchanged. (GPT-5.5) -->
+	<!-- custom: Zero-based position of the Military Advisor tab shown on its first opening in a Civ4 session: 0 is the first tab (as of now Summary), then add 1 for each following tab (as of now Map is one tab after Summary, so Map = 1). Map is the most useful initial view for locating and reviewing current units; subsequent close/reopen retains the last selected tab. See KI#129 (Update). (GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_CV_MILITARY_ADVISOR_DEFAULT_TAB</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>

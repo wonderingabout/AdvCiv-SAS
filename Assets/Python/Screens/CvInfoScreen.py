@@ -1363,9 +1363,10 @@ class CvInfoScreen:
 			eScoreWidget = WidgetTypes.WIDGET_GENERAL
 			if ePlayer == eActivePlayer:
 				eScoreWidget = WidgetTypes.WIDGET_SCORE_BREAKDOWN
+			# <!-- custom: data2=-1 preserves the active-player score breakdown without triggering the scoreboard-only data2=0 expansion control. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			# <!-- custom: Score-tab sort fix: Civ4 table sorting is type-aware, and values inserted with setTableText sort lexicographically
 			# (e.g. "96" before "413"), which broke PoT/C and other numeric columns. Use setTableInt for numeric fields so ordering is truly numeric, while still keeping setTableText fallbacks where values are unknown/hidden so blanks remain blank instead of fake defaults. (GPT-5.3-Codex) -->
-			SASTextScale.setTableIntLabel(screen, szTable, iColScore, iRow, str(iScore), "", eScoreWidget, ePlayer, 0, CvUtil.FONT_RIGHT_JUSTIFY)
+			SASTextScale.setTableIntLabel(screen, szTable, iColScore, iRow, str(iScore), "", eScoreWidget, ePlayer, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 
 			iGameTurn = iActiveGameTurn
 			if ePlayer >= eActivePlayer:
@@ -1428,7 +1429,8 @@ class CvInfoScreen:
 						iPowerColorForWidget = iPowerColor
 					if iPowerColorForWidget > 0:
 						szPower = localText.changeTextColor(szPower, iPowerColorForWidget)
-			SASTextScale.setTableTextLabel(screen, szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
+			# <!-- custom: Use the same power-ratio help through an Info Screen-specific widget that has no scoreboard expansion side effect. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			SASTextScale.setTableTextLabel(screen, szTable, iColPower, iRow, szPower, "", WidgetTypes.WIDGET_POWER_RATIO_INFO_SCREEN, ePlayer, iPowerColorForWidget, CvUtil.FONT_RIGHT_JUSTIFY)
 			if iTheirPower > -1:
 				SASTextScale.setTableIntLabel(screen, szTable, iColPowerAbs, iRow, str(iTheirPower), "", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_RIGHT_JUSTIFY)
 			else:
@@ -1501,7 +1503,8 @@ class CvInfoScreen:
 			szTrade = u""
 			if bMet and ePlayer != eActivePlayer and pPlayer.canTradeNetworkWith(eActivePlayer):
 				szTrade = self.SCORETAB_TRADE_CHAR
-			SASTextScale.setTableTextLabel(screen, szTable, iColTrade, iRow, szTrade, "", WidgetTypes.WIDGET_TRADE_ROUTES_SCOREBOARD, eActivePlayer, ePlayer, CvUtil.FONT_CENTER_JUSTIFY)
+			# <!-- custom: The ordinary trade-routes widget provides the same hover without the scoreboard-only expansion side effect. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			SASTextScale.setTableTextLabel(screen, szTable, iColTrade, iRow, szTrade, "", WidgetTypes.WIDGET_TRADE_ROUTES, eActivePlayer, ePlayer, CvUtil.FONT_CENTER_JUSTIFY)
 
 			szBorders = u""
 			if bMet and pTeam.isOpenBorders(eActiveTeam):

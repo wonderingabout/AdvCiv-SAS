@@ -54,8 +54,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 		WIDGET_HELP_FINANCE_FOREIGN_INCOME, WIDGET_HELP_FINANCE_INFLATED_COSTS,
 		WIDGET_HELP_FINANCE_NUM_UNITS, WIDGET_HELP_FINANCE_SPECIALISTS,
 		WIDGET_HELP_FINANCE_UNIT_COST,
+		WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY, // <!-- custom: Validate the combined Military Advisor hover's player payload like its two component finance widgets. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		WIDGET_LEADERHEAD, WIDGET_LEADERHEAD_RELATIONS, WIDGET_LEADER_LINE,
 		WIDGET_CONTACT_CIV, WIDGET_SCORE_BREAKDOWN, WIDGET_POWER_RATIO,
+		WIDGET_POWER_RATIO_INFO_SCREEN, // <!-- custom: Validate the Info Screen-specific power hover's player payload like the scoreboard original. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		WIDGET_GOLDEN_AGE, WIDGET_ANARCHY
 	};
 	for (int i = 0; i < ARRAYSIZE(aePlayerAsData1); i++)
@@ -481,6 +483,10 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 	case WIDGET_HELP_FINANCE_AWAY_SUPPLY:
 		parseFinanceAwaySupply(widgetDataStruct, szBuffer);
 		break;
+	// <!-- custom: The Military Advisor Total Cost + Supply row needs these two exact breakdowns, not the whole-expense inflation hover. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	case WIDGET_HELP_FINANCE_UNIT_COST_AND_SUPPLY:
+		parseFinanceUnitCostAndSupply(widgetDataStruct, szBuffer);
+		break;
 
 	case WIDGET_HELP_FINANCE_CITY_MAINT:
 		parseFinanceCityMaint(widgetDataStruct, szBuffer);
@@ -777,6 +783,7 @@ void CvDLLWidgetData::parseHelp(CvWStringBuffer &szBuffer, CvWidgetDataStruct &w
 	case WIDGET_EXPAND_SCORES:
 		break; // Handled below (not the only widget that expands the scoreboard)
 	case WIDGET_POWER_RATIO:
+	case WIDGET_POWER_RATIO_INFO_SCREEN: // <!-- custom: Preserve the power-ratio hover without importing the scoreboard widget's expansion state. See KI#388. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		parsePowerRatioHelp(widgetDataStruct, szBuffer);
 		break;
 	case WIDGET_GOLDEN_AGE:
@@ -5645,6 +5652,16 @@ void CvDLLWidgetData::parseFinanceAwaySupply(CvWidgetDataStruct &widgetDataStruc
 	szBuffer.assign(gDLL->getText("TXT_KEY_ECON_AMOUNT_MONEY_UNITS_ENEMY_TERRITORY"));
 	if (widgetDataStruct.m_iData2 > 0)
 		GAMETEXT.buildFinanceAwaySupplyString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+}
+
+// <!-- custom: Append the established unit-cost and away-supply breakdowns to describe their combined Military Advisor subtotal exactly. See KI#390. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvDLLWidgetData::parseFinanceUnitCostAndSupply(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
+{
+	if (widgetDataStruct.m_iData2 > 0)
+	{
+		GAMETEXT.buildFinanceUnitCostString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+		GAMETEXT.buildFinanceAwaySupplyString(szBuffer, (PlayerTypes)widgetDataStruct.m_iData1);
+	}
 }
 
 void CvDLLWidgetData::parseFinanceCityMaint(CvWidgetDataStruct &widgetDataStruct, CvWStringBuffer &szBuffer)
