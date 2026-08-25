@@ -467,6 +467,10 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [397 - (Fixed inherited AdvCiv native-widget migration regression) Relations and scoreboard widgets lost contact actions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#397---fixed-inherited-advciv-native-widget-migration-regression-relations-and-scoreboard-widgets-lost-contact-actions)\
 [398 - (Fixed inherited BtS group-Espionage defect) A movable non-Spy could abort a valid Spy order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#398---fixed-inherited-bts-group-espionage-defect-a-movable-non-spy-could-abort-a-valid-spy-order)\
 [399 - (Fixed inherited BtS Great General XP defect) Ineligible plot units consumed remainder slots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#399---fixed-inherited-bts-great-general-xp-defect-ineligible-plot-units-consumed-remainder-slots)\
+[400 - (Fixed inherited BtS Permanent-Alliance espionage defect) Active Counterespionage effects disappeared](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#400---fixed-inherited-bts-permanent-alliance-espionage-defect-active-counterespionage-effects-disappeared)\
+[401 - (Fixed inherited AdvCiv Permanent-Alliance Info Screen regression) First-contact dates restarted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#401---fixed-inherited-advciv-permanent-alliance-info-screen-regression-first-contact-dates-restarted)\
+[402 - (Fixed inherited AdvCiv Permanent-Alliance Disengage defect) A live deal lost its enforcement flags](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#402---fixed-inherited-advciv-permanent-alliance-disengage-defect-a-live-deal-lost-its-enforcement-flags)\
+[403 - (Fixed inherited BtS Permanent-Alliance spaceship defect) An in-flight launch could be erased or re-enabled](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#403---fixed-inherited-bts-permanent-alliance-spaceship-defect-an-in-flight-launch-could-be-erased-or-re-enabled)\
 [412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#412---fixed-inherited-advciv-reparations-reporting-defect-nonleader-cities-could-be-misnamed-or-omitted)\
 [419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#419---fixed-inherited-advciv-domestic-advisor-coordinate-defect-x-displayed-y-after-map-centering)\
 [422 - (Fixed inherited BtS Permanent-Alliance reporting defect) Inherited projects emitted false completion announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#422---fixed-inherited-bts-permanent-alliance-reporting-defect-inherited-projects-emitted-false-completion-announcements)\
@@ -10042,6 +10046,54 @@ Compiled WorldBuilder testing placed one Great General and four zero-XP Musketme
 
 Found as cross-file F077/provisional KI#399 while ChatGPT-5.6-Sol followed the Lead Troops contract during the durable C013 `CvDLLWidgetData.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
 
+## 400 - (Fixed inherited BtS Permanent-Alliance espionage defect) Active Counterespionage effects disappeared
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1MG3NB7fF-2s2_HauvCGlv0V-gym2NhZC?usp=sharing).
+
+Counterespionage stores its remaining duration and modifier in directional team-indexed arrays. A Permanent Alliance already migrates neighboring temporary espionage state, but it did not move either Counterespionage pair from the absorbed team to the survivor or from an outsider's absorbed-team entry to its survivor entry. After the absorbed players changed teams, ordinary espionage-cost checks used the new team identity and the still-positive effects left under the dead identity became unreachable in both directions.
+
+The fix preserves the coherent timer/modifier pair with the longer remaining duration in each direction. It deliberately does not sum two effects, which would manufacture a stronger or longer mission than either constituent team had. Current AdvCiv-SAS XML has one live Counterespionage effect (+100 for 10 turns); retaining a coherent pair also keeps the migration valid if future XML gives different effects different modifiers.
+
+The omission exists in Civ4CE/BtS and remains in AdvCiv 1.14, making this an inherited BtS/Firaxis state-migration defect rather than an AdvCiv-SAS regression. A post-fix Huge autoplay with Permanent Alliances enabled completed normally as broad regression coverage; exact reproduction still requires arranging an active Counterespionage mission immediately before an alliance.
+
+Found as F078/provisional KI#400 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 401 - (Fixed inherited AdvCiv Permanent-Alliance Info Screen regression) First-contact dates restarted
+
+Screenshots/files for this issue: same google drive folder link as KI#400.
+
+AdvCiv replaced BtS's core `m_abHasMet` team-contact boolean storage with a first-contact turn used by the Info Screen to hide pre-contact graph history and delay partial score graphs for five turns. This is separate from the inherited `AI_getHasMetCounter`, which already existed in BtS, is not UWAI-specific and was already migrated by Permanent Alliances. When only absorbed team B had met outsider C, survivor A called `meet(C)` and recorded the alliance turn as a new A-C contact. Even when both constituents knew C, the merge did not normalize the date to their earliest inherited contact. The real B-C timestamp remained attached to the dead team identity.
+
+The fix snapshots the earliest nonnegative constituent contact date before `meet` fills missing entries with the current turn, then restores that inherited date in both the survivor-to-outsider and outsider-to-survivor directions. A missing `-1` entry cannot replace a real date.
+
+AdvCiv practical 2468 introduced `m_aiHasMetTurn` and the Info Screen behavior without extending Permanent Alliance state migration. This is therefore an inherited AdvCiv regression rather than an AdvCiv-SAS issue. A post-fix Huge autoplay with Permanent Alliances enabled completed normally as broad regression coverage; exact UI reproduction still requires an alliance between teams with different earlier contact histories.
+
+Found as F079/provisional KI#401 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 402 - (Fixed inherited AdvCiv Permanent-Alliance Disengage defect) A live deal lost its enforcement flags
+
+Screenshots/files for this issue: same google drive folder link as KI#400.
+
+AdvCiv's temporary Disengage right of passage is represented twice: its duration belongs to a player-to-player `CvDeal`, while movement and diplomacy enforcement query bilateral team flags. When an absorbed player moves from team B to survivor A, a live B-C deal automatically becomes an A-C deal because `CvDeal` derives its teams from the players' current identities. Permanent Alliance migration did not copy the separate B-C flags, so the still-live deal remained visible and counted down while no longer granting its promised right of passage.
+
+The fix transfers a live absorbed-team Disengage relation to both survivor-outsider directions before player reassignment. Deals between the two merging teams retain the established later cancellation path; only outsider relations migrate with their surviving deal.
+
+AdvCiv practical 1285 introduced `TRADE_DISENGAGE`, its team flags and partial Permanent Alliance cleanup without adding outsider-state migration. This is an inherited AdvCiv defect, not an AdvCiv-SAS regression. A post-fix Huge autoplay with Permanent Alliances enabled completed normally as broad regression coverage; exact reproduction still requires forming an alliance during the short Disengage interval after peace.
+
+Found as F080/provisional KI#402 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 403 - (Fixed inherited BtS Permanent-Alliance spaceship defect) An in-flight launch could be erased or re-enabled
+
+Screenshots/files for this issue: same google drive folder link as KI#400.
+
+A launched spaceship is represented by a team victory countdown. Permanent Alliance migration transfers the absorbed team's spaceship Project counts but omitted that countdown. If the absorbed team had launched, its ship therefore remained under the dead team identity and the survivor could be made launchable again. Even when the surviving team had launched, transferring a larger spaceship-component count re-ran the ordinary victory test and could incorrectly set `canLaunch` back to true while its countdown was still active.
+
+The fix runs after Project migration, retains the minimum nonnegative constituent countdown (the earliest arrival if both teams launched), and forces `canLaunch=false` while that countdown is live. This preserves one already-launched team victory without inventing a second ship or restarting its travel delay.
+
+Civ4CE/BtS and AdvCiv 1.14 all transfer Project counts without the countdown, and Permanent Alliance trading does not prohibit an alliance after launch. This is an inherited BtS/Firaxis state-migration defect rather than an AdvCiv-SAS regression. A post-fix Huge autoplay with Permanent Alliances enabled completed normally as broad regression coverage; exact reproduction still requires an alliance after one or both teams launch.
+
+Found as F081/provisional KI#403 during ChatGPT-5.6-Sol's durable C013 `CvTeam.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
 ## 412 - (Fixed inherited AdvCiv reparations-reporting defect) Nonleader cities could be misnamed or omitted
 
 `TRADE_CITIES` stores the city ID belonging to the specific player who cedes the city. City IDs are player-local rather than team-global, and the ordinary deal executor correctly resolves the ID through that giving player. AdvCiv's reparations-announcement path instead discarded the player identity, retained only the giving team, and resolved a city term through the team's leader. After a Permanent Alliance creates a multi-player team, a city ceded by a nonleader teammate could therefore be announced under the unrelated name of the leader's city with the same numeric ID, or omitted when the leader had no such ID. Scanning the team cannot repair this because two teammates can legitimately own the same numeric city ID.
@@ -10056,7 +10108,7 @@ Found as F090/provisional KI#412 during ChatGPT-5.6-Sol's durable C013 `CvTeam.c
 
 ## 419 - (Fixed inherited AdvCiv Domestic Advisor coordinate defect) X displayed Y after map centering
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1YABoagrdJw0dsnbMk3eEe8V3DHLY_1UE?usp=sharing)
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1YABoagrdJw0dsnbMk3eEe8V3DHLY_1UE?usp=sharing).
 
 AdvCiv added map-centering-aware wrappers for the Customizable Domestic Advisor's optional X and Y city-coordinate columns. Before map centering, both intentionally display `?`; after map centering, the X wrapper accidentally returned `city.getY()`, exactly like the Y wrapper. The two columns therefore displayed the same Y coordinate whenever a city's X and Y differed.
 

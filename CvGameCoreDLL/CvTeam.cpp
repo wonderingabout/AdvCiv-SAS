@@ -267,10 +267,24 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	for (size_t i = 0; i < apOther.size(); i++)
 	{
 		TeamTypes const eOther = apOther[i]->getID();
+		// <!-- custom: AdvCiv's first-contact turn replaced BtS's core team-contact boolean storage but was not added to Permanent Alliance migration.
+		// Preserve the earliest real contact date in both directions before meet fills missing entries with the alliance turn. See KI#401. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iOurHasMetTurn = getHasMetTurn(eOther);
+		int const iShareHasMetTurn = GET_TEAM(eTeam).getHasMetTurn(eOther);
+		if (iOurHasMetTurn < 0 || (iShareHasMetTurn >= 0 && iShareHasMetTurn < iOurHasMetTurn))
+			iOurHasMetTurn = iShareHasMetTurn;
+		int iOtherHasMetTurn = apOther[i]->getHasMetTurn(getID());
+		int const iOtherShareHasMetTurn = apOther[i]->getHasMetTurn(eTeam);
+		if (iOtherHasMetTurn < 0 || (iOtherShareHasMetTurn >= 0 && iOtherShareHasMetTurn < iOtherHasMetTurn))
+			iOtherHasMetTurn = iOtherShareHasMetTurn;
 		if (GET_TEAM(eTeam).isHasMet(eOther))
 			meet(eOther, false);
 		else if (isHasMet(eOther))
 			GET_TEAM(eTeam).meet(eOther, false);
+		if (iOurHasMetTurn >= 0)
+			m_aiHasMetTurn.set(eOther, iOurHasMetTurn);
+		if (iOtherHasMetTurn >= 0)
+			apOther[i]->m_aiHasMetTurn.set(getID(), iOtherHasMetTurn);
 	}
 
 	for (size_t i = 0; i < apOther.size(); i++)
@@ -352,6 +366,18 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		{
 			GET_TEAM(eTeam).setForcePeace(eOther, true);
 			apOther[i]->setForcePeace(eTeam, true);
+		}
+	}
+
+	// <!-- custom: AdvCiv outsider Disengage deals follow their players to the surviving Permanent Alliance team, but their separately stored enforcement flags did not.
+	// Preserve the live bilateral relation so the migrated deal keeps granting its temporary right of passage. See KI#402. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (size_t i = 0; i < apOther.size(); i++)
+	{
+		TeamTypes const eOther = apOther[i]->getID();
+		if (GET_TEAM(eTeam).isDisengage(eOther) || apOther[i]->isDisengage(eTeam))
+		{
+			setDisengage(eOther, true);
+			apOther[i]->setDisengage(getID(), true);
 		}
 	}
 	/*  <advc.opt> Some changes are necessary here b/c vassals now store only
@@ -532,6 +558,13 @@ void CvTeam::addTeam(TeamTypes eTeam)
 		// advc: The at-war counters should be consistent
 		AI().AI_setAtWarCounter(kOther.getID(), kOther.AI_getAtWarCounter(getID()));
 		kOther.setStolenVisibilityTimer(getID(), (iOriginalTeamSize * kOther.getStolenVisibilityTimer(getID()) + iSecondTeamSize * kOther.getStolenVisibilityTimer(eTeam)) / getNumMembers());
+		// <!-- custom: Firaxis migrated neighboring temporary espionage state during a Permanent Alliance but omitted Counterespionage. Its effect is keyed to the current team identity,
+		// so retain the longer coherent timer/modifier pair from the outsider's direction rather than leaving it on the absorbed team. See KI#400. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kOther.getCounterespionageTurnsLeftAgainstTeam(eTeam) > kOther.getCounterespionageTurnsLeftAgainstTeam(getID()))
+		{
+			kOther.setCounterespionageTurnsLeftAgainstTeam(getID(), kOther.getCounterespionageTurnsLeftAgainstTeam(eTeam));
+			kOther.setCounterespionageModAgainstTeam(getID(), kOther.getCounterespionageModAgainstTeam(eTeam));
+		}
 		kOther.AI_setAtPeaceCounter(getID(), (iOriginalTeamSize * kOther.AI_getAtPeaceCounter(getID()) + iSecondTeamSize * kOther.AI_getAtPeaceCounter(eTeam)) / getNumMembers());
 		kOther.AI_setHasMetCounter(getID(), (iOriginalTeamSize * kOther.AI_getHasMetCounter(getID()) + iSecondTeamSize * kOther.AI_getHasMetCounter(eTeam)) / getNumMembers());
 		// <advc.003n>
@@ -728,6 +761,14 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 			setStolenVisibilityTimer(eLoopTeam, kShareTeam.getStolenVisibilityTimer(eLoopTeam));
 		//else kShareTeam.setStolenVisibilityTimer(eLoopTeam, getStolenVisibilityTimer(eLoopTeam));
 
+		// <!-- custom: Firaxis migrated neighboring temporary espionage state during a Permanent Alliance but omitted Counterespionage.
+		// Retain the longer coherent timer/modifier pair in the survivor's direction; summing two live effects would manufacture a stronger mission. See KI#400. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kShareTeam.getCounterespionageTurnsLeftAgainstTeam(eLoopTeam) > getCounterespionageTurnsLeftAgainstTeam(eLoopTeam))
+		{
+			setCounterespionageTurnsLeftAgainstTeam(eLoopTeam, kShareTeam.getCounterespionageTurnsLeftAgainstTeam(eLoopTeam));
+			setCounterespionageModAgainstTeam(eLoopTeam, kShareTeam.getCounterespionageModAgainstTeam(eLoopTeam));
+		}
+
 		if (kShareTeam.AI_getAtWarCounter(eLoopTeam) > AI().AI_getAtWarCounter(eLoopTeam))
 			AI().AI_setAtWarCounter(eLoopTeam, kShareTeam.AI_getAtWarCounter(eLoopTeam));
 		//else kShareTeam.AI_setAtWarCounter(eLoopTeam, AI_getAtWarCounter(eLoopTeam));
@@ -802,6 +843,21 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 		// projects still under construction should be counted for both teams
 		changeProjectMaking(eProject, kShareTeam.getProjectMaking(eProject));
 		//kShareTeam.changeProjectMaking(eProject, getProjectMaking(eProject) - kShareTeam.setProjectMaking(eProject));
+	}
+
+	// <!-- custom: Firaxis Permanent Alliances migrated spaceship Projects but not an existing launch countdown, and Project transfer could re-enable launch for even the surviving in-flight ship.
+	// Preserve the earliest constituent arrival after merging Projects and keep a live countdown non-launchable. See KI#403. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FOR_EACH_ENUM(Victory)
+	{
+		int iCountdown = getVictoryCountdown(eLoopVictory);
+		int const iShareCountdown = kShareTeam.getVictoryCountdown(eLoopVictory);
+		if (iCountdown < 0 || (iShareCountdown >= 0 && iShareCountdown < iCountdown))
+			iCountdown = iShareCountdown;
+		if (iCountdown >= 0)
+		{
+			setVictoryCountdown(eLoopVictory, iCountdown);
+			setCanLaunch(eLoopVictory, false);
+		}
 	}
 
 	FOR_EACH_ENUM(UnitClass)
