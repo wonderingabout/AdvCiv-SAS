@@ -292,9 +292,12 @@ int CySelectionGroup::getLengthMissionQueue()
 	return m_pSelectionGroup ? m_pSelectionGroup->getLengthMissionQueue() : -1;
 }
 
+// <!-- custom: Firaxis exposed mission-queue node storage through a manage_new_object binding, making Python delete memory it did not own or retain a dangling object after queue mutation.
+// Return an independent copy that truthfully matches the owning binding. See KI#480. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 MissionData* CySelectionGroup::getMissionFromQueue(int iIndex)
 {
-	return m_pSelectionGroup ? m_pSelectionGroup->getMissionFromQueue(iIndex) : NULL;
+	MissionData const* pMission = m_pSelectionGroup ? m_pSelectionGroup->getMissionFromQueue(iIndex) : NULL;
+	return pMission == NULL ? NULL : new MissionData(*pMission);
 }
 
 CyUnit* CySelectionGroup::getHeadUnit()
