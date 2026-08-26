@@ -1052,7 +1052,13 @@ void CvSelectionGroup::startMission()
 		FOR_EACH_UNIT_VAR_IN(pUnit, *this)
 		{
 			if (!pUnit->canMove())
+			{
+				// <!-- custom: K-Mod's original Air Patrol contract left moveless members behind, but its later reorganized loop skipped them before classifying patrol participation.
+				// Do not trap an immobile Bomber or Fighter in the new Intercept group. See KI#473. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (headMissionQueueNode()->m_data.eMissionType == MISSION_AIRPATROL)
+					apUnitsLeftBehind.push_back(pUnit);
 				continue;
+			}
 			int iData1 = headMissionQueueNode()->m_data.iData1;
 			int iData2 = headMissionQueueNode()->m_data.iData2;
 			switch (headMissionQueueNode()->m_data.eMissionType)
@@ -1918,10 +1924,10 @@ bool CvSelectionGroup::canEverDoCommand(CommandTypes eCommand, int iData1, int i
 	{
 		if(bUseCache)
 		{
-			// see if any of the different units can upgrade to this unit type
-			for (size_t i = 0; i < m_aDifferentUnitCache.size(); i++)
+			// <!-- custom: Upgrade affordability is per-unit because promotions can change the price. Test every ready cached unit rather than one arbitrary representative per UnitType. See KI#474. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			for (size_t i = 0; i < m_aUpgradeUnitCache.size(); i++)
 			{
-				CvUnit const* pUnit = m_aDifferentUnitCache[i];
+				CvUnit const* pUnit = m_aUpgradeUnitCache[i];
 				if(pUnit->canDoCommand(eCommand, iData1, iData2, bTestVisible, false))
 					return true;
 			}
@@ -1935,25 +1941,12 @@ void CvSelectionGroup::setupActionCache()
 {
 	m_bIsBusyCache = isBusy(); // cache busy calculation
 
-	// cache different unit types
-	m_aDifferentUnitCache.erase(m_aDifferentUnitCache.begin(), m_aDifferentUnitCache.end());
+	// <!-- custom: Cache every ready upgrade candidate; same-type units can have different promotion-based upgrade discounts and therefore different affordability. See KI#474. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_aUpgradeUnitCache.clear();
 	FOR_EACH_UNIT_IN(pUnit, *this)
 	{
 		if (pUnit->isReadyForUpgrade())
-		{
-			UnitTypes eUnitType = pUnit->getUnitType();
-			bool bFound = false;
-			for(size_t i = 0; i < m_aDifferentUnitCache.size(); i++)
-			{
-				if (eUnitType == m_aDifferentUnitCache[i]->getUnitType())
-				{
-					bFound = true;
-					break;
-				}
-			}
-			if (!bFound)
-				m_aDifferentUnitCache.push_back(pUnit);
-		}
+			m_aUpgradeUnitCache.push_back(pUnit);
 	}
 }
 
@@ -3341,7 +3334,23 @@ bool CvSelectionGroup::groupAmphibMove(CvPlot const& kPlot, MovementFlags eFlags
 			for (size_t i = 0; i < apCargoGroups.size(); ++i)
 			{
 				CvSelectionGroup& kCargoGroup = *apCargoGroups[i];
+				// <!-- custom: A pushed cargo mission is not proof that this transport group can land. Require one of its own ready cargo members to be legally able to move or attack into the adjacent destination before consuming the deferred order.
+				// A mixed-carrier cargo group must not qualify through another ship's unit. See KI#472. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				bool bCanLand = false;
 				if (kCargoGroup.canAllMove())
+				{
+					FOR_EACH_UNIT_IN(pCargoUnit, kCargoGroup)
+					{
+						CvUnit const* pTransport = pCargoUnit->getTransportUnit();
+						if (pTransport != NULL && pTransport->getGroup() == this &&
+							pCargoUnit->canMoveOrAttackInto(kPlot))
+						{
+							bCanLand = true;
+							break;
+						}
+					}
+				}
+				if (bCanLand)
 				{
 					FAssert(!kCargoGroup.at(kPlot));
 					kCargoGroup.pushMission(MISSION_MOVE_TO, kPlot.getX(), kPlot.getY(),
@@ -4015,6 +4024,9 @@ void CvSelectionGroup::clearUnits()
 		m_eActivityType = ACTIVITY_AWAKE;
 	}
 	m_units.clear();
+	// <!-- custom: Full list clearing also changes every movement-relevant group property. Invalidate the reusable main finder; the alternate finder is reset before every execution use, and group deletion separately clears both stored group pointers.
+	// Do not reset the alternate finder during a live groupMove because its caller still consults that execution path afterward. See KI#475. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pathFinder().invalidateGroup(*this);
 	// <!-- custom: End -->
 }
 
@@ -4053,6 +4065,9 @@ bool CvSelectionGroup::addUnit(CvUnit* pUnit, bool bMinimalChange)
 	}
 	if (!bAdded)
 		m_units.insertAtEnd(pUnit->getIDInfo());
+	// <!-- custom: Reusable path nodes are keyed by group pointer but not membership. Adding a unit can change terrain legality, costs and combat strength without changing minimum moves, so discard cached main-finder state at the mutation boundary.
+	// Do not reset the alternate finder during a live groupMove because its caller still consults that execution path afterward. See KI#475. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pathFinder().invalidateGroup(*this);
 
 	if(!bMinimalChange && getOwner() == NO_PLAYER && getNumUnits() > 0)
 	{
@@ -4115,6 +4130,9 @@ CLLNode<IDInfo>* CvSelectionGroup::deleteUnitNode(CLLNode<IDInfo>* pNode)
 		}
 	}
 	pNextUnitNode = m_units.deleteNode(pNode);
+	// <!-- custom: Removing a unit can make previously closed paths legal while the surviving group keeps the same pointer and minimum moves. Invalidate reusable main-finder state after the actual membership mutation.
+	// Do not reset the alternate finder during a live groupMove because its caller still consults that execution path afterward. See KI#475. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pathFinder().invalidateGroup(*this);
 	return pNextUnitNode;
 }
 

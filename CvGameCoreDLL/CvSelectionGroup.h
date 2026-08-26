@@ -300,7 +300,8 @@ protected:
 
 	CLinkList<IDInfo> m_units;
 	CLinkList<MissionData> m_missionQueue;
-	std::vector<CvUnit const*> m_aDifferentUnitCache; // advc: const
+	// <!-- custom: Keep every ready upgrade candidate because same-type units can have different promotion-based upgrade prices. See KI#474. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<CvUnit const*> m_aUpgradeUnitCache; // advc: const
 	bool m_bIsBusyCache;
 
 	bool continueMission_bulk(int iSteps); // K-Mod

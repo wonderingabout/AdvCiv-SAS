@@ -10692,3 +10692,37 @@ AdvCiv clears a recon aircraft's remote visibility immediately when it rebases, 
 The repair matches group movement participation: when the destination is a revealed air base, clear old recon state for every member that currently has moves and can enter that destination. Air attacks remain excluded from the cleanup. Base AdvCiv 1.14 contains the head-only advc.029 hook introduced for this behavior, making this an inherited AdvCiv defect rather than an AdvCiv-SAS regression. Found as F148/provisional KI#471 during ChatGPT-5.6-Sol's C015 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The repaired DLL compiled successfully, and a Large Pangaea autoplay completed normally. The exact mixed Spy, hidden-nationality Sentry and grouped-aircraft rebase transitions were not reproduced because their manual setups were disproportionate, so KI#469-KI#471 remain source-verified rather than being recorded as directly exercised in-game.
+
+## 472 - (Fixed SAS-exposed inherited K-Mod/BtS amphibious defect) An illegal cargo mission consumed its transport's deferred landing
+
+Screenshots/files for this issue: same google drive folder link as KI#473.
+
+`CvSelectionGroup::groupAmphibMove` treated pushing a cargo group's `MISSION_MOVE_TO` as proof that an amphibious landing had been attempted, returned success and caused the enclosing transport order to be consumed. The pushed mission can still fail its own unit-level movement legality. Current AdvCiv-SAS exposes this inherited structural defect deterministically because Chariots, Catapults and Trebuchets cannot enter some Forest or Jungle features: movable cargo could fail to leave its adjacent transport while the transport discarded the deferred landing order.
+
+The repair requires at least one ready cargo member carried by the current transport group to be legally able to move or attack into the destination before pushing the cargo mission and reporting a landing attempt. Checking the actual carrier also prevents a cargo group spanning multiple transports from qualifying through a unit carried by another sea group. Temporarily immobile otherwise-legal cargo retains the deferred order for a later turn. K-Mod inherited the mission-push/result contract from BtS and reorganized the cargo-group loop; the underlying false-success behavior predates AdvCiv-SAS, while SAS feature-impassability provides the current supported reproduction. Found as F149/provisional KI#472 during ChatGPT-5.6-Sol's C015 `CvSelectionGroup.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 473 - (Fixed inherited K-Mod Air Patrol regression) A moveless unsuitable aircraft remained trapped in the Intercept group
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1_64N3-_2PSwvIWVroyVVs_wfjhhdyDi9?usp=sharing)
+
+Air Patrol admission—the internal `MISSION_AIRPATROL` action displayed as **Air Intercept** in the UI—intentionally lets one movable air defender start the mission while splitting unsuitable companions out of the resulting Intercept group. K-Mod's reorganized `startMission` loop nevertheless skipped every moveless unit before reaching its Air Patrol participation check. A Bomber that had already spent its moves could therefore remain grouped with a fresh Fighter, enter the group-wide Intercept activity and stay trapped there despite being unable to air-defend.
+
+The repair classifies moveless Air Patrol members as units left behind before the general `canMove` shortcut, while preserving the later `canAirDefend` check for movable companions. Base AdvCiv 1.14 inherits the same behavior introduced by K-Mod practical 1205, making this an inherited K-Mod regression rather than an AdvCiv-SAS issue. Found as F150/provisional KI#473 during ChatGPT-5.6-Sol's C015 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 474 - (Fixed inherited BtS upgrade action-cache defect) Same-type units shared one representative despite different upgrade prices
+
+Screenshots/files for this issue: same google drive folder link as KI#473.
+
+The selection-group action cache retained only one ready unit per `UnitType` when deciding whether an Upgrade command should be exposed. Upgrade feasibility is not type-wide: promotions can alter upgrade price, and current AdvCiv-SAS `PROMOTION_LEADER` gives a 100% upgrade discount. With insufficient gold for the arbitrarily retained ordinary unit, the cached query could hide an upgrade that a selected same-type Great-General-led unit could perform.
+
+The repair caches and tests every ready upgrade candidate. This remains a small UI-query cache, and the ordinary unit command still performs the authoritative target-specific validation. Civ4CE BtS contains the same one-representative-per-type design and Base AdvCiv 1.14 retains it, making this an inherited Firaxis BtS defect rather than an AdvCiv-SAS regression. Found as F151/provisional KI#474 during ChatGPT-5.6-Sol's C015 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 475 - (Fixed SAS-exposed inherited AdvCiv/K-Mod path-cache defect) Group membership changes retained reusable paths
+
+Screenshots/files for this issue: same google drive folder link as KI#473.
+
+AdvCiv's K-Mod-derived reusable `GroupPathFinder` keys cached state by selection-group pointer and movement summary, not by the group's actual member set. Adding or removing a unit can change terrain legality, movement cost and combat strength while retaining the same group pointer and minimum moves. Current AdvCiv-SAS supplies a deterministic same-turn trigger when Settler logic first searches a path, attaches a restrictive equal-move Chariot escort to that still-live group and searches again; the second search could reuse nodes calculated for the Settler alone.
+
+The repair invalidates the reusable main finder whenever `clearUnits`, `addUnit` or `deleteUnitNode` actually changes membership. It deliberately does not reset the alternate finder at those mutation points: `groupPathTo` resets that finder before each execution use, and `groupMove` can mutate membership while its caller still needs the active alternate path afterward. Full group deletion retains the existing invalidation of both stored group pointers. Base AdvCiv 1.14 has the same reuse contract and missing membership invalidation, making this an inherited AdvCiv/K-Mod defect whose concrete same-turn trigger is SAS-specific rather than an AdvCiv-SAS regression. Found as F152/provisional KI#475 during ChatGPT-5.6-Sol's C015 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully, and a Large autoplay completed normally. KI#473 was also reproduced directly: after a Bomber performed Recon, it was grouped with a still-ready Fighter; selecting the UI's Air Intercept action left the Fighter intercepting and split the spent Bomber back out of the group as intended. The exact heterogeneous amphibious cargo, promotion-discounted group upgrade and same-turn Settler/Chariot path-cache transitions were not reproduced because their manual setups were disproportionate, so KI#472, KI#474 and KI#475 remain source-verified.
