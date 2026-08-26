@@ -1570,14 +1570,16 @@ scaled MilitaryVictory::progressRatingDiplomacy() const
 		scaled rPop = it->second * (kCacheCity.city().getPopulation() - fixp(0.5));
 		PlayerTypes const eCityOwner = kCacheCity.city().getOwner();
 		// Weight for old owner
+		CvPlayerAI const& kCityOwner = GET_PLAYER(eCityOwner);
+		// <!-- custom: This block weights the conquered city's old owner, but AdvCiv tested the conqueror's AP membership. Use the old player's membership and attitude consistently.
+		// GET_TEAM(eCityOwner) is intentionally valid through the PlayerTypes overload; see rejected KI#311/KI#387 and retracted provisional KI#436. See KI#434. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (!GET_TEAM(eCityOwner).isHuman())
 		{
 			/*	AP: Conquests from non-full members are always worthwhile
 				b/c, as full members, we can make their votes count twice. */
-			if (bSecular || kThey.isFullMember(eVS))
+			if (bSecular || kCityOwner.isFullMember(eVS))
 			{
-				AttitudeTypes const eOwnerTowardUs = GET_PLAYER(eCityOwner).
-						AI_getAttitude(eWe);
+				AttitudeTypes const eOwnerTowardUs = kCityOwner.AI_getAttitude(eWe);
 				if (eOwnerTowardUs >= ATTITUDE_FRIENDLY)
 					rPop /= 3;
 				if (eOwnerTowardUs == ATTITUDE_PLEASED)
@@ -1651,11 +1653,8 @@ void MilitaryVictory::addConquestsByPartner(std::map<PlotNumTypes, scaled>& kWei
 		// Never good news when we lose cities
 		if (GET_PLAYER(eCityOwner).getMasterTeam() == kOurTeam.getMasterTeam())
 			continue;
-		/*	Don't bother checking AP membership here (although it would be smart
-			to count conquests by friends that are full members at the expense of
-			friends that aren't) */
-		if (GET_PLAYER(eCityOwner).AI_getAttitude(eWe) < eAttitudeThresh ||
-			GET_TEAM(eCityOwner).isHuman())
+		// Don't bother checking AP membership here (although it would be smart to count conquests by friends that are full members at the expense of friends that aren't)
+		if (GET_PLAYER(eCityOwner).AI_getAttitude(eWe) < eAttitudeThresh || GET_TEAM(eCityOwner).isHuman())
 		{
 			kWeightedConquests.insert(make_pair(*it, rWeight));
 		}

@@ -777,22 +777,15 @@ void UWAICache::updateWarAnger()
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	if (kOwner.isAnarchy())
 		return;
-	/*	Would be interesting to know the hypothetical anger from war weariness,
-		i.e. assuming that war breaks out. Currently, we only consider anger
-		from ongoing wars. */
+	// Would be interesting to know the hypothetical anger from war weariness, i.e. assuming that war breaks out. Currently, we only consider anger from ongoing wars.
 	scaled rAngerScore;
 	FOR_EACH_CITY(pCity, kOwner)
 	{
 		if (pCity->isDisorder())
 			continue;
-		/*	Disregard happiness from culture rate unless we need culture
-			regardless of happiness */
-		int iAngry = pCity->angryPopulation(0,
-				!kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3) &&
-				!kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4));
-		rAngerScore += scaled::min(iAngry, scaled(
-				pCity->getWarWearinessPercentAnger() * pCity->getPopulation(),
-				GC.getPERCENT_ANGER_DIVISOR()));
+		// Disregard happiness from culture rate unless we need culture regardless of happiness
+		int iAngry = pCity->angryPopulation(0, !kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE3) && !kOwner.AI_atVictoryStage(AI_VICTORY_CULTURE4));
+		rAngerScore += scaled::min(iAngry, scaled(pCity->getWarWearinessPercentAnger() * pCity->getPopulation(), GC.getPERCENT_ANGER_DIVISOR()));
 	}
 	if (rAngerScore <= 0)
 		return;
@@ -802,10 +795,8 @@ void UWAICache::updateWarAnger()
 	for (TeamIter<MAJOR_CIV,ENEMY_OF> itEnemy(kOwner.getTeam());
 		itEnemy.hasNext(); ++itEnemy)
 	{
-		/*	Never mind all the modifiers in CvPlayer::updateWarWearinessPercentAnger;
-			they apply equally to each contribution. */
-		int iContrib = GET_TEAM(kOwner.getTeam()).
-				getWarWeariness(itEnemy->getID(), true);
+		// Never mind all the modifiers in CvPlayer::updateWarWearinessPercentAnger; they apply equally to each contribution.
+		int iContrib = GET_TEAM(kOwner.getTeam()).getWarWeariness(itEnemy->getID(), true);
 		aiAngerContrib.set(itEnemy->getID(), iContrib);
 		iTotalAngerContribs += iContrib;
 	}
@@ -814,10 +805,11 @@ void UWAICache::updateWarAnger()
 	for (PlayerIter<CIV_ALIVE,ENEMY_OF> itEnemy(kOwner.getTeam());
 		itEnemy.hasNext(); ++itEnemy)
 	{
-		m_arWarAnger.set(itEnemy->getID(), rAngerScore *
-				// Turn per-team into per-civ
-				scaled(aiAngerContrib.get(itEnemy->getTeam()), iTotalAngerContribs) /
-				GET_TEAM(kOwner.getTeam()).getNumMembers());
+		// <!-- custom: aiAngerContrib is keyed by the enemy team and consumed once per living enemy player. Split it by that enemy team's living members; AdvCiv divided by our team size instead. See KI#435. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iEnemyTeamMembers = PlayerIter<CIV_ALIVE,MEMBER_OF>::count(itEnemy->getTeam());
+		FAssert(iEnemyTeamMembers > 0);
+		// Turn per-team into per-civ
+		m_arWarAnger.set(itEnemy->getID(), rAngerScore * scaled(aiAngerContrib.get(itEnemy->getTeam()), iTotalAngerContribs) / iEnemyTeamMembers);
 	}
 }
 

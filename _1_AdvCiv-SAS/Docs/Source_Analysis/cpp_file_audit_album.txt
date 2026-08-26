@@ -17204,3 +17204,1775 @@ LOCAL RECONCILIATION AFTER C014-WIP30 IMPORT
 - ChatGPT-5.6-Sol's C014-WIP29 through C014-WIP30 append is compatible with current authority at HEAD 3a42d6bd7 plus the reviewed KI#430/KI#431 worktree repairs. The received append remains verbatim as evidence despite identifying its older practical-6267 / HEAD 52e0f9c06 source baseline.
 - F104-F106 / KI#427-KI#429 are fixed at current HEAD. F107-F108 / KI#430-KI#431 are fixed in the reviewed worktree: PreEmptiveWar now constructs matching team/vassal city snapshots, and UlteriorMotives supplies the missing UWAI-report vararg. The new findings do not supersede these repairs.
 - F140-F141 / provisional KI#463-KI#464 are collision-free against the current reviewed Known Issues ledger and remain provisional while `WarUtilityAspect.cpp` is open. No implementation is promoted from WIP29-WIP30 in this reconciliation. (GPT-5.6-Sol)
+
+
+===============================================================================
+C014-WIP31 APPEND -- final denominator/API pass + exclusive-radius domain audit
+===============================================================================
+
+RECONCILIATION / SCOPE
+----------------------
+This continuation remains grounded in the reconciled practical-6267 tree:
+
+    HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+
+`WarUtilityAspect.cpp` is still byte-for-byte identical to the earlier source
+underlying WIP28-WIP30. Current source and the reviewed Known-Issues ledger remain
+authoritative; no repository source file was modified by this audit.
+
+The closure pass resumed from F142 unused. Several superficially dangerous
+construction/division paths were challenged before promoting anything:
+
+* The base/derived constructor initializer order is unusual -- `m_kAgentTeam`
+  appears early in the initializer list although it is declared after protected
+  state -- but C++ declaration-order initialization remains safe here. None of
+  the members initialized before `m_kAgentTeam` depends on it, `m_iU` is
+  initialized before use, and `reset()` initializes the per-evaluation scratch
+  state. No second construction-order root accompanies F141.
+* ThirdPartyIntervention can start from zero defensive ARMY power, but the
+  MilitaryAnalyst gained/lost-power contract prevents a reachable positive-cost
+  divide-by-zero state through that route. If both current and gained defensive
+  power are zero, lost power is zero and evaluation exits; positive projected
+  gain raises `m_rDefPow` before later divisions. No F142 there.
+* A second ThirdParty denominator challenge involving
+  `confidenceAgainstHuman()` also collapses in the current implementation:
+  `CvPlayerAI::confidenceAgainstHuman()` returns 1. The multiplication therefore
+  cannot zero the denominator under current code/data.
+* The remaining Risk/victory/partner ratio paths inspected in this pass have
+  explicit positive floors, producer guarantees, or map directly to established
+  F105/F127/F133 rather than defining another root.
+
+These controls matter because the finding below is not being inferred from a
+scary division alone. It has an explicit ownership-domain contradiction and a
+partition-invariant reproduction.
+
+
+F142 / provisional KI#465 -- CONFIRMED -- INHERITED SUPPORTED-CONFIG TEAM/PLAYER DOMAIN DEFECT
+EXCLUSIVE-RADIUS LOST-TILE CACHE IS TEAM-WIDE BUT IS NORMALIZED BY EACH RIVAL
+PLAYER'S LAND BEFORE THE INTENDED TEAM-SIZE SPLIT; THE SAME PHYSICAL TILE LOSS
+CHANGES WITH TEAM ROSTER PARTITION
+-------------------------------------------------------------------------------
+Status: NEW CURRENT SUPPORTED-CONFIGURATION DEFECT ROOT. Shipped/default SAS uses
+`OWN_EXCLUSIVE_RADIUS=0`, but, as established independently for F133, value 1 is
+an explicitly documented and maintained AdvCiv configuration rather than an
+invented unsupported retuning.
+
+This root is adjacent to F133 because both involve advc.035 flipped-tile loss,
+but the defects and repair loci are independent. F133 concerns the OUTER
+`netLostRivalAssetScore` numerator/denominator ordering. F142 is already present
+INSIDE `lossesFromFlippedTiles` even if that outer ordering is repaired.
+
+PRODUCER CONTRACT -- THE STORED LOST-TILE COUNT IS TEAM-WIDE
+-------------------------------------------------------------
+`UWAICache::updateLostTilesAtWar()` begins from the cache owner's TEAM:
+
+    CvTeam const& kOwnerTeam = GET_TEAM(m_eOwner);
+
+For every other major team it computes contested plots through:
+
+    contestedPlots(apFlipped, kOwnerTeam.getID(), itOther->getID());
+
+and counts a plot according to its current TEAM owner and the war relation of
+those two teams:
+
+    TeamTypes ePlotTeam = apFlipped[j]->getTeam();
+    if (ePlotTeam == (kOwnerTeam.isAtWar(itOther->getID()) ?
+        itOther->getID() : kOwnerTeam.getID()))
+    {
+        iLost++;
+    }
+
+The resulting value is stored by opposing TeamTypes:
+
+    m_aiPlotsLostAtWar.set(itOther->getID(), iLost);
+
+Nothing in this computation depends on which particular `m_eOwner` player inside
+`kOwnerTeam` owns a city, plot, army or share of the team's land. Consequently,
+two player caches belonging to the same team store the SAME team-wide
+`numPlotsLostAtWar(otherTeam)` value for the same opposing team.
+
+This is not an inferred interpretation. The original advc.035 implementation
+introduced the backing array as:
+
+    int lostTilesAtWar[MAX_CIV_TEAMS]; // per team
+
+and current storage remains indexed by TeamTypes.
+
+CONSUMER CONTRACT -- THE AUTHOR ALREADY TRIES TO APPORTION A TEAM QUANTITY
+-------------------------------------------------------------------------
+`WarUtilityAspect::lossesFromFlippedTiles(eVictim, eTo)` retrieves that cached
+team quantity through the current victim player's cache and accumulates it for
+relevant war teams. It then says explicitly:
+
+    int const iRivalMembers = kTheirTeam.getNumMembers();
+    ...
+    // Tiles are counted per team, but this function gets called once per rival player.
+    r /= iRivalMembers;
+
+The original advc.035 comment was equivalent and even more direct:
+
+    // Tiles are counted per team, but this is a per-civ function.
+
+So the `/ iRivalMembers` is not a speculative team-game redesign. It is the
+original implementation's own normalization contract: one team-wide lost-tile
+signal is being consumed once per rival player and therefore needs apportioning.
+
+THE DOMAIN MISMATCH OCCURS BEFORE THAT SPLIT
+--------------------------------------------
+Before dividing by the member count, however, the helper normalizes the shared
+team-wide lost-tile count by the CURRENT RIVAL PLAYER'S own land:
+
+    int iVictimLandTiles = GET_PLAYER(eVictim).getTotalLand();
+    r = scaled(125 * iVictimLostTiles,
+               std::max(5, iVictimLandTiles));
+    r /= iRivalMembers;
+
+`CvPlayer::getTotalLand()` is player-local. By contrast, the matching team-domain
+quantity exists directly:
+
+    int CvTeam::getTotalLand(bool bCheckVassals) const
+    {
+        ...
+        return m_iTotalLand + iVassalLand;
+    }
+
+and with `bCheckVassals=false` it returns the team's stored aggregate
+`m_iTotalLand`.
+
+The code therefore performs:
+
+    (team-wide lost tiles / player-local land) / team members
+
+rather than either of the ownership-consistent alternatives:
+
+* player-local lost tiles / player-local land, or
+* team-wide lost tiles / team-wide land, apportioned across per-player callbacks.
+
+DETERMINISTIC EQUAL-PARTITION REPRODUCTION
+------------------------------------------
+Hold the physical/team state constant:
+
+* the victim side controls 100 total land tiles;
+* it would lose 10 contested tiles under OWN_EXCLUSIVE_RADIUS;
+* no other inputs change.
+
+Case A -- one-player victim team:
+
+    lost-tile cache = 10
+    player land     = 100
+    team members    = 1
+
+    score = 125 * 10 / 100 / 1 = 12.5
+
+Case B -- the SAME 100 team land split evenly between teammates B and C:
+
+Each player's UWAICache still stores the SAME team-wide lost count 10, because
+`updateLostTilesAtWar` depends only on Team B+C versus the opposing team. Each
+player owns 50 land:
+
+    B pass = 125 * 10 / 50 / 2 = 12.5
+    C pass = 125 * 10 / 50 / 2 = 12.5
+
+The aspect is evaluated once for B and once for C, so aggregate utility becomes:
+
+    12.5 + 12.5 = 25
+
+The explicit `/ 2` normalization has not normalized the team partition at all;
+the halved player-land denominator cancels it. Merely splitting the same team's
+land between two members doubles the resulting total flipped-tile severity.
+
+With an even n-member partition, the same algebra makes each member reproduce the
+solo severity and the aggregate grows approximately n-fold. With uneven land
+shares, the sum instead depends on a harmonic-like combination of the members'
+land counts and can be dominated by a small-land teammate -- even though the
+numerator is still the same undivided team-wide lost-tile count for every member.
+
+THE SIGNIFICANCE GATE IS PARTITION-SENSITIVE TOO
+-------------------------------------------------
+Before scoring, the helper also uses:
+
+    if (std::abs(iVictimLostTiles) <= 4 * iRivalMembers)
+        return 0;
+
+Again `iVictimLostTiles` is one team-wide physical count. Changing only the
+number of player members changes whether the same lost plots are considered
+significant at all.
+
+For example, five team-wide lost plots:
+
+* one-member team: 5 > 4, so the loss is scored;
+* two-member team: 5 <= 8, so BOTH per-player calls return zero.
+
+Thus roster partition can not only multiply the score after the gate; it can
+switch the entire team-wide physical loss on or off before scoring.
+
+ANCESTRY -- PRESENT FROM advc.035 BIRTH; BASE 1.14 IDENTICAL
+------------------------------------------------------------
+The retained practical-1286 / advc.035 introducing diff adds all components of
+the defect together:
+
+* `lostTilesAtWar[MAX_CIV_TEAMS] // per team`;
+* team-vs-team contested-plot counting;
+* `victimLandTiles = GET_PLAYER(victimId).getTotalLand()`;
+* division by `teamSz` with the explicit comment that tiles are counted per team
+  while the helper is per civ.
+
+Current SAS and Base AdvCiv 1.14 `lossesFromFlippedTiles` are normalized-text
+identical. This is therefore an inherited original-design defect, not an SAS
+regression.
+
+SUPPORTED-CONFIGURATION REACHABILITY
+------------------------------------
+Current GlobalDefines_advc.xml documents OWN_EXCLUSIVE_RADIUS directly:
+
+    [advc.035] If set to 1, tiles that are only within the radius of one city
+    belong to the owner of that city regardless of culture. Recommended: 0 ...
+
+The implementation remains wired through CvPlot, CvCity, CitySiteEvaluator,
+CvPlayerAI, UWAICache and WarUtilityAspect. As with F133, recommended/default 0
+masks the defect in ordinary SAS play, but 1 remains a maintained supported
+AdvCiv configuration. This meets the album's supported-config bar.
+
+INDEPENDENCE FROM F133
+----------------------
+F133 repairs the fact that `netLostRivalAssetScore` freezes `rTotal` before
+adding flipped-tile loss to `rNetLoss`. One possible F133 repair is to extend the
+outer returned denominator so numerator and denominator remain comparable.
+
+That does NOT change the value returned by `lossesFromFlippedTiles` itself. The
+same team-wide 10 lost tiles would still produce 12.5 for a solo 100-land team
+and aggregate 25 for two 50-land teammates before entering the repaired outer
+asset accounting. F142 therefore survives a complete F133 outer-denominator
+repair.
+
+Conversely, repairing F142's ownership domain would not stop F133 from adding the
+now-correct flipped-tile score to the numerator after freezing its outer asset
+denominator. Both roots must be addressed independently.
+
+COLLISION / ROOT ACCOUNTING
+---------------------------
+The current reviewed Known-Issues ledger reaches KI#426; no reviewed entry owns
+this internal team-wide-lost-tiles / player-land normalization defect. Searches
+for OWN_EXCLUSIVE_RADIUS, flipped/lost tiles and the specific helper establish
+F133's outer-denominator issue but no existing root for this partition error.
+
+F142 is also not another generic F096 dead-member issue. The equal two-LIVING-
+member reproduction above already fails. Using `getNumMembers()` can add an F096
+secondary distortion when dead assigned members exist, but replacing it with an
+alive count alone does not fix the team/player land mismatch.
+
+REPAIR DIRECTION
+----------------
+Preserve one ownership domain from producer through normalization. Two coherent
+architectures are possible:
+
+1. Keep the current TEAM-WIDE cache:
+   * normalize the lost-tile count against the victim TEAM's land (normally
+     `GET_TEAM(eVictim).getTotalLand(false)` or the equivalent team-domain
+     quantity intended by the model),
+   * apply the significance threshold in that same team domain,
+   * then apportion the resulting team-level utility across the LIVING rival
+     members because the aspect still receives one callback per player.
+
+2. Change the producer to attribute lost plots to individual players, then use
+   each player's own lost-tile numerator with that same player's land denominator
+   and remove the artificial team-wide split.
+
+The first is much smaller and preserves advc.035's explicit "tiles counted per
+team" design. Whatever exact tuning is chosen, do not merely replace
+`getNumMembers()` with an alive count, and do not treat an F133 outer-denominator
+repair as sufficient.
+
+
+CURRENT CURSOR
+--------------
+COMPLETED FILES: 13 / 169
+FILE 014: CvGameCoreDLL/WarUtilityAspect.cpp OPEN
+PHYSICAL CHECKPOINT: C014-WIP31
+CURRENT SOURCE: practical 6267 / HEAD 52e0f9c06718fb444208840cf5cea7b7723267e0
+NEW ROOT IN THIS APPEND: F142 / provisional KI#465
+NEXT UNUSED ROOT: F143
+
+Continue the final mechanical/API and semantic closure pass, then adversarially
+re-read F101-F142 against current practical-6267 source and the reviewed KI
+ledger before deciding whether C014 has earned durable C015 closure. A clean
+remaining surface is preferable to manufacturing F143. No repository source
+files were modified.
+===============================================================================
+
+
+===============================================================================
+C014-WIP32 APPEND -- FINAL ADVERSARIAL / MECHANICAL CLOSURE PASS
+===============================================================================
+
+SOURCE AUTHORITY / RECONCILIATION
+---------------------------------
+This closure pass remains grounded in the fresh reconciled AdvCiv-SAS light-
+source snapshot supplied after C014-WIP28:
+
+    practical commit count: 6267
+    HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+
+Current WarUtilityAspect.cpp is byte-for-byte the same current file used for the
+WIP29-WIP31 investigation. The reviewed Known Issues ledger is authoritative for
+implementation status: KI#424-KI#426 / F101-F103 have been independently
+reviewed, fixed and documented in the current source. Provisional KI#427-KI#465
+remain unused by the reviewed ledger and therefore remain collision-free aliases
+for the still-pending file-014 findings.
+
+The purpose of this append is NOT to create another finding. It records the last
+adversarial challenge of the complete F101-F142 ledger, the repaired-source
+regression check, final API/registry/mechanical controls, and the evidence for
+closing WarUtilityAspect.cpp without manufacturing F143.
+
+
+CURRENT ROOT-STATUS NORMALIZATION
+---------------------------------
+The stable file-014 sequence F101-F142 contains 42 numerical slots.
+
+* F113 / provisional KI#436 is authoritatively RETRACTED. CoreAI.h and
+  CvGamePlay.h deliberately overload GET_TEAM for both TeamTypes and PlayerTypes;
+  the PlayerTypes overload converts through TEAMID. Preserve the old WIP05-WIP10
+  hypothesis only as anti-rediscovery evidence.
+* The remaining 41 roots are valid discoveries.
+* F101-F103 / KI#424-KI#426 are valid discoveries that are already FIXED in
+  practical 6267 after independent review.
+* F104-F112 and F114-F142 are 38 valid roots that still survive in practical
+  6267 and remain pending independent review/implementation.
+* Existing F096 / KI#418 was materially broadened by this file's alive-member
+  normalizer audit; that is an existing cross-file root, not another file-014
+  number.
+* F143 remains UNUSED.
+
+This distinction is important for C015: the album records what file 014 found,
+not merely what remains broken at the instant of closure.
+
+
+F119 -> F114 ADVERSARIAL REREAD -- ALL REMAIN LIVE
+---------------------------------------------------
+F119 / KI#442 -- team-indexed capitulation vector written by PlayerTypes
+
+The raw storage mismatch survives exactly. MilitaryAnalyst declares
+`vector<TeamSet> m_capitulationsAcceptedPerTeam`, sizes it by MAX_CIV_TEAMS and
+exposes it through a TeamTypes accessor. prepareResults nevertheless loops
+PlayerTypes ePlayer and writes directly to:
+
+    m_capitulationsAcceptedPerTeam[ePlayer]
+
+Unlike the retracted F113 GET_TEAM syntax, raw std::vector::operator[] has no
+type-aware overload that can convert PlayerTypes through TEAMID. InvasionGraph
+copies a master team's accepted capitulations into each live member node, so
+those player-node sets must be unioned into TEAMID(ePlayer), not scattered into
+player-numbered slots. Current source and Base AdvCiv 1.14 still contain the
+same line.
+
+F118 / KI#441 -- negative revolt asset value can become positive war utility
+
+Revolts still multiplies a city's possibly-negative cache asset score by a
+positive revolt-loss multiplier. Risk in the same file explicitly documents
+that per-city asset score can be negative because of maintenance and prevents a
+negative expected LOSS from becoming a gain. Revolts has no such protection;
+with positive total assets elsewhere, a negative threatened city can make
+`rLossesFromRevolts` negative and `m_iU -= rRevoltCost` increase war utility.
+The event being modeled is revolt damage/occupation/population harm, not the
+voluntary shedding of a maintenance liability. F118 remains independent of
+F132's later subset/denominator-order problem.
+
+F117 / KI#440 -- PublicOpposition mixes hypothetical religion anger with current
+angryPopulation
+
+The scenario deliberately calls `getReligionPercentAnger(eThey)` for a rival
+that the military simulation may make into a FUTURE enemy. The cap is still the
+real current city's `angryPopulation`, whose religion-anger construction only
+includes ACTUAL current enemies. A currently content city can therefore cap a
+hypothetical new-war religion anger contribution to zero. Conversely, separate
+enemy passes can reuse the same current angry citizens. The scenario/current-
+state domain mismatch remains direct and does not depend on F113.
+
+F116 / KI#439 -- DramaticArc's eight-turn HasMet tolerance masks real short wars
+
+The source still comments that the HasMet counter is "not exact", while
+CvTeamAI::AI_doCounter explicitly treats HasMet and atWar as exact counters.
+TurnsAtPeace is reset by war and then counts exact peaceful turns. A short recent
+war can leave HasMet-TurnsAtPeace < 8 and therefore be classified as if the pair
+had always been peaceful. The direct counter lifecycle remains a stronger
+contract than any approximate-tuning defense of the hard 8.
+
+F115 / KI#438 -- computed game-speed-normalized peace duration is discarded
+
+ThirdPartyIntervention still computes `rAtPeaceTurns` from GoldenAgePercent and
+then never reads it. The long-peace gate and decay continue to use raw
+`iAtPeaceTurns`. The normalization equals raw turns only at Normal speed and was
+present, unused, from the original aspect introduction. The final dead-local
+scan found no second comparable computed-but-unused normalization variable.
+
+F114 / KI#437 -- FairPlay includes target teammates as alleged third parties
+
+The adversarial self-contact challenge remains resolved in FAVOR of F114.
+CvGame::initDiplomacy establishes self-contact through `meet(self,false)`, so a
+second player on eTheirTeam passes FairPlay's `kTheirTeam.isHasMet(...)` test.
+The filter excludes only player ID `eThey`, not the whole eTheirTeam. The target
+teammate can therefore inflate the potential-other-enemy denominator and, when
+the target team has a war, satisfy `AI_shareWar(ownTeam)` and be logged/subtracted
+as an "ally" of its own team. The entire target team must be excluded from the
+independent-third-party loop.
+
+No root in F114-F119 was merged or retracted during this challenge.
+
+
+F112 -> F104 ADVERSARIAL REREAD -- ALL REMAIN LIVE
+---------------------------------------------------
+F112 / KI#435 -- wrong side used for war-anger per-civ normalization
+
+UWAICache::updateWarAnger still builds the contribution by ENEMY TeamTypes:
+
+    aiAngerContrib[enemyTeam] = ourTeam.getWarWeariness(enemyTeam, true)
+
+and immediately comments:
+
+    // Turn per-team into per-civ
+
+but divides each enemy-team contribution by the OWNER team's getNumMembers().
+The consumer is per living enemy player. A solo owner versus two-player enemy
+therefore duplicates the same team contribution, while a two-player owner versus
+solo enemy can halve it. This is an explicit producer/comment/denominator
+contract, not merely a preferred team-game model. The natural split is across
+living members of the enemy team; F096 additionally owns dead-member dilution.
+
+F111 / KI#434 -- AP/Diplomacy city-conquest weighting tests wrong player
+
+The loop stores `eCityOwner` and labels the block "Weight for old owner"; its
+attitude lookup also uses eCityOwner. The full-membership test in the middle
+still asks `kThey.isFullMember(eVS)`, i.e. the conqueror/current rival. Third-
+party conquest makes these players genuinely different. The wrong-object test
+survives unchanged.
+
+F110 / KI#433 -- KingMaking models team-owned victory candidacy with player state
+
+The direct controls remain CvGame team score and team-owned victory conditions.
+KingMaking ranks current/predicted player scores for Time/score leadership and
+uses individual population to decide whether a team-derived Domination
+trajectory has been thwarted. Its set<PlayerTypes> winner representation can
+also count two members of one winning team as two competitors. This is not a
+blanket request to replace all player inputs: culture and several heuristics are
+legitimately player-local. The proven team-owned victory-state portions remain
+mis-modeled.
+
+F109 / KI#432 -- theirRelativeLoss iterates allies but reuses current rival
+
+`theirRelativeLoss` still loops `eTheirAlly`, but both ordinary ally/vassal and
+new-vassal branches call `netLostRivalAssetScore(...)`, whose implicit victim is
+current aspect opponent eThey and which has no eTheirAlly parameter. The loop
+therefore reuses eThey's assets/losses for teammates and vassals. Predicted new
+vassals also retain the coupled full-weight-vs-half-weight error. The wrong-
+object construction is unchanged.
+
+F108 / KI#431 -- varargs mismatch
+
+The live call remains:
+
+    log("Attitude level towards %s: %d, refusal thresh: %d",
+        m_kReport.leaderName(eThey), towardThem());
+
+Three conversions, two arguments. A balanced scan of every log(...) call in
+WarUtilityAspect.cpp found no second format/argument-count mismatch. F108 remains
+one bounded inherited C/C++ varargs defect.
+
+F107 / KI#430 -- PreEmptiveWar present/predicted side construction mismatch
+
+The rival side still includes an existing vassal at half weight in both current
+and predicted states. Our side initializes a team-wide current and predicted city
+base, then adds an existing vassal only to `rOurCurrentCities`; it adds only a NEW
+predicted capitulation to `rOurPredictedCities`. Thus an unchanged existing
+vassal disappears from our future side. The team-wide base also subtracts losses
+of only current eWe. F137 later proves an independent repeated team-threat
+problem; repairing F137 does not repair this present-vs-future construction.
+
+F106 / KI#429 -- adjusted best score compared against raw candidates
+
+The first pass still adds commerce/tech strength and possible 4/3 peaceful-
+overseas-victory weighting before updating `rBestScore`. The second pass still
+divides raw predicted/current player score by that adjusted rBestScore. The
+player that established the adjusted maximum can therefore fail its own 70/75%
+cutoff. This candidate was briefly rediscovered late in the audit and correctly
+recognized as F106 rather than assigned a new number.
+
+F105 / KI#428 -- exact Domination population threshold equality
+
+The real CvGame victory test fails population only when:
+
+    100 * teamPopulation < totalPopulation * adjustedPopulationPercent
+
+so equality satisfies the population requirement. WarUtility instead treats the
+component as completed only for `iPopToGo < 0`; equality (`iPopToGo == 0`) enters
+the unfinished branch and divides by iPopToGo. ScaledNum's Win32 MulDiv backend
+means the release symptom need not be a native integer trap; that nuance does not
+repair the semantic boundary. Equality belongs in the already-satisfied branch.
+
+F104 / KI#427 -- first-four resource cap has both boundary and unit errors
+
+Current code still says "Count only the first four resource trades", increments
+before testing `>= 4`, and therefore keeps only three resource-containing deals.
+It also reduces all resource TradeData items in one deal to one boolean
+`bWeReceiveResource`, even though Civ4 can bundle and process several
+TRADE_RESOURCES items in one deal. The cap therefore both rejects the fourth
+resource-containing deal and counts bundled resource ITEMS in the wrong unit.
+No current-source change from KI#426's technology threshold repair touches this
+trade-deal defect.
+
+No root in F104-F112 was merged or retracted during this challenge.
+
+
+F103 -> F101 CURRENT-SOURCE REGRESSION CHECK -- FIXES HOLD
+----------------------------------------------------------
+These are no longer pending current defects, but their discovery evidence remains
+part of file 014 and their fixes were re-read against the same team/member
+contracts that exposed them.
+
+F101 / reviewed KI#424
+
+WarUtilityAspect::evaluate now snapshots `iPriorUtility`, computes this member's
+raw delta, applies the XML aspect weight only to `iMemberUtility`, restores:
+
+    m_iU = iPriorUtility + iMemberUtility
+
+and returns only that member's weighted contribution. Earlier members are not
+reweighted again. This matches the reused-aspect-object team architecture and
+also fixes the per-player diagnostic total.
+
+F102 / reviewed KI#425
+
+Risk owns one `m_bSASContactGateEvaluated` latch per aspect/scenario. The hard
+contact gate executes once and scans every alive MemberIter of eOurTeam. Land
+contact can come from any member; naval qualification requires the SAME member
+to provide both a reachable route and cargo-building ability. Collective failure
+produces one hard reject. The original one-remote-member team veto is gone while
+KI#183/ongoing-war/victory-denial behavior remains around it.
+
+F103 / reviewed KI#426
+
+`techRefuseThresh(PlayerTypes ePlayer)` now binds `CvPlayerAI const& kPlayer =
+GET_PLAYER(ePlayer)` and reads `GC.getInfo(kPlayer.getPersonalityType())` for the
+AI threshold. The human special case remains. The rival no longer inherits the
+agent's personality threshold.
+
+The current README_Known_Issues.md independently records these three as fixed and
+documents compiled/autoplay regression coverage. No regression was found in this
+closure reread.
+
+
+F120 -> F142 POST-WIP31 ADVERSARIAL STATUS
+------------------------------------------
+The newer block had already received repeated pairwise/team/state challenges
+through WIP12-WIP31. The final closure pass rechecked the producer/consumer
+contracts rather than merely rereading the prose. No root was retracted or
+merged.
+
+Key hard controls that remain decisive:
+
+* F120/KI#443 FairPlay start-turn: CvGame::setStartTurnYear creates the ordinary
+  later-era getStartTurn baseline from total game turns and StartPercent, while
+  FairPlay separately subtracts StartPercent. The historical nonzero-start fix
+  therefore conflates extra start delay with ordinary later-era position.
+* F121/KI#444 terminal-era startup clock: KingMaking and UWAICache threat use
+  `currentEra <= startEra` as a TEMPORARY early-game reliability gate. Future is
+  terminal, so the gate has no exit for a Future-era start.
+* F122/KI#445 TacticalSituation: one physical agent unit/city can be reused in
+  rival-player-specific engagement, exposure and evacuation accounting across
+  teammates. The repair locus is physical asset deduplication, not global
+  teamification of every tactical input.
+* F123/KI#446 Bellicosity: the historical anti-third-party loss budget is the
+  same agent loss amount but resets separately for each target member.
+* F124/KI#447 ThirdParty severity: intervention probability already uses team
+  danger/power, while the nonlinear <=50% severity gate is built from ordinary
+  member-local ARMY power on BOTH war sides. Ordinary teammates are omitted.
+* F125/KI#448 DramaticArc: a human member's explicit safety return can be bypassed
+  by the AI teammate pass for the same team-wide war; the too-little-action gate
+  has the same player partition.
+* F126/KI#449 Distraction: team-war duration/alternative-war opportunity cost,
+  including a fixed +5.5 actual-war-plan nudge, can be recharged per target
+  member. The later winning-war SAS cap does not normalize that inherited root.
+* F127/KI#450 MilitaryVictory: Domination/Diplomacy global remaining thresholds
+  are independently capped/completed per player/member pass. Conquest also
+  returns 1 when one rival PLAYER is eliminated although CvGame::testVictory
+  requires every other non-vassal TEAM to have zero cities; full completion can
+  repeat across agent members too.
+* F128/KI#451 HiredHand: sponsorAgainst/bountyAgainst and obligation age are
+  explicitly target-TeamTypes state but are consumed once per target member.
+* F129/KI#452 vassal current-tech score: technology ownership/transfer is team-
+  owned; member caches can hold the same current technology value and
+  acceptVassal explicitly sums them. Resource score is a negative control because
+  resource availability is player-owned.
+* F130/KI#453 Risk: team-owned capitulation/vassal costs are emitted through
+  member/rival callbacks. The fixed 100 capitulation cost gives an exact 2-v-2
+  multiplication reproduction.
+* F131/KI#454 GreedForSpace: AI city sites are stored independently per player and
+  teammates can recommend the exact same plotNum; one physical plot then becomes
+  two orphaned expansion sites if both members disappear. Distinct plots remain
+  legitimately additive.
+* F132/KI#455 Revolts: persistent m_countedCities spans rival passes but numerator
+  and denominator reset locally each evaluate call. Overlapping primary areas
+  make the result dependent on which rival player is iterated first.
+* F133/KI#456 supported OWN_EXCLUSIVE_RADIUS=1: netLostRivalAssetScore freezes the
+  returned total-assets denominator before adding flipped-tile loss to the
+  numerator; Assistance's explicit `FAssert(r <= 1)` can then be violated.
+* F134/KI#457 IllWill: revenge military capability is tested by nonlinear
+  thresholds using current player army power despite a revenge declaration being
+  a team war. Real CvTeamAI war valuation uses team power; attitude/motivation
+  can remain player-specific.
+* F135/KI#458 ThirdParty decisive-target shortcut: one proxy tests only the
+  target team's pre-simulation leader PLAYER; the other accepts any capitulation
+  anywhere in the simulated network, not necessarily the current target.
+* F136/KI#459 partnerUtilFromTech: near-future technology opportunity is derived
+  from team ownership/research and one tech trade changes the whole team, yet the
+  same opportunity can be counted for B and teammate C. Player-owned trade-route,
+  resource and deal terms are negative controls.
+* F137/KI#460 PreEmptiveWar: player-keyed threatRating resolves to the same
+  teamThreat for teammates, and the aspect reconstructs the same full master-
+  team/vassal city side again, producing an exact duplicate team-threat utility.
+  This is independent of F107's present/predicted side construction.
+* F138/KI#461 Tactical evalOperational: the branch explicitly evaluates OUR
+  readiness for the one target TEAM but is entered once for each reachable target
+  member. The same preparation/readiness cost can therefore repeat.
+* F139/KI#462 IllWill evalAngeredPartners: MilitaryAnalyst records wars-declared-
+  by as PlayerTypes, so one target-team DoW yields B and C; the real
+  AI_preDeclareWar path creates one declared-war-on-friend memory per victim
+  TEAM. Deduplication must be by victim team, while genuinely separate cascaded
+  victim teams remain separate.
+* F140/KI#463 GreedForVassals: the fixed -5 capitulated-vassal diplomatic/forced-
+  war downside represents one team vassal relationship. Real rival-vassal
+  attitude iterates vassal teams and their aggregate cities, but the fixed proxy
+  is charged once per vassal member. Player-owned vassal benefits stay additive.
+* F141/KI#464 C++ lifetime: WarUtilityAspect is polymorphic but has no virtual
+  destructor; WarEvaluator allocates derived aspects and deletes them through
+  WarUtilityAspect*. KingMaking/Revolts own std::set members requiring real
+  derived destruction. This is standard C++ undefined behavior and survives from
+  the original advc.104 hierarchy. C++03-compatible repair: public
+  `virtual ~WarUtilityAspect() {}`.
+* F142/KI#465 supported OWN_EXCLUSIVE_RADIUS=1: lost tiles are explicitly cached
+  per TEAM and then, inside a per-player helper, normalized by current PLAYER land
+  before dividing by team size. Equal partition of the same physical team land
+  doubles aggregate severity; the significance threshold is roster-partition
+  sensitive too. F133's outer denominator repair does not fix this internal
+  producer/denominator domain mismatch.
+
+The low-level ScaledNum check changed only consequence wording for zero divisors;
+it did not invalidate any of these semantic boundaries.
+
+
+FINAL MECHANICAL / API / REGISTRY CONTROLS
+------------------------------------------
+1. CURRENT-vs-BASE MEMBER SURFACE
+
+A normalized member-definition comparison found 84 paired current/Base
+WarUtilityAspect.cpp member definitions. Only four current methods have genuine
+executable semantic divergence from Base AdvCiv 1.14:
+
+* WarUtilityAspect::evaluate -- reviewed KI#424 weighting fix;
+* Risk::preEvaluate -- SAS faraway-target policy, including reviewed KI#425
+  team-aware latch/current repair;
+* techRefuseThresh -- reviewed KI#426 personality fix;
+* Distraction::evaluate -- documented SAS winning-war Distraction cap.
+
+The apparent fifth difference in MilitaryVictory::addConquestsByPartner was
+formatting/whitespace only. Thus there is no unexplained SAS-local executable
+WarUtilityAspect regression hiding outside the already reviewed/customized
+methods. The inherited findings deliberately remain visible because current vs
+Base identity cannot disprove an inherited defect.
+
+2. HEADER / DERIVED STATE LIFETIME
+
+The derived-state member audit covered MilitaryVictory vote state, KingMaking
+winner sets, Risk's SAS latch, IllWill scratch scalars, Revolts::m_countedCities,
+ThirdParty precomputed power state and DramaticArc tension state. State that
+persists across member/rival callbacks is either intentional scenario-wide state
+or already owned by a finding (especially F132). No uninitialized/stale derived
+scalar root survived. Constructor declaration order also does not create a
+second lifetime defect next to F141.
+
+3. POINTER / CACHE PROVENANCE
+
+InvasionGraph explicitly guarantees that city IDs exported in its conquest/loss
+results correspond to cities present in the agent UWAICache; target selection
+checks cache lookup before inserting relevant targets. The alarming unchecked
+`ourCache().lookupCity(...)` consumers therefore have a producer contract. No
+new dangling/null current root was established.
+
+4. CONTAINER / ITERATOR / STATIC CACHE PASS
+
+No independent iterator invalidation or ownership bug survived. The static
+aspectName buffer is consumed/copied at relevant diagnostic sites. Static SAS
+GlobalDefine reads in this file have no overlap with runtime setDefine* setters
+in the current repository, so caching them does not currently freeze a supported
+runtime mutation. The cached Domination VictoryTypes selection is over fixed game
+configuration, while the source correctly avoids statically caching the dynamic
+adjusted domination population target.
+
+5. LOG / VARARGS PASS
+
+Balanced parsing of every log(...) call found exactly one format/argument-count
+mismatch: F108. No second varargs root exists in file 014.
+
+6. DEAD-LOCAL PASS
+
+Only four plausible one-use local declarations surfaced mechanically. The
+meaningful unused computation is F115's rAtPeaceTurns. `conqFriendly` and
+`conqPleased` are side-effect-free CitySet leftovers that were unused from the
+original UWAI implementation while real logic uses weightedConq; they are dead-
+code cleanup, not gameplay defects. The fourth hit was a parser/regex false
+positive.
+
+7. ASSERTION / DIVISION / BOUNDARY PASS
+
+The remaining assert/denominator candidates either have producer guarantees,
+positive floors/release clamps, map to existing roots (notably F105/F133), or
+collapse under actual branch reachability. ThirdParty's all-zero defensive-power
+expression is a useful control: ScaledNum/MulDiv can produce its error sentinel,
+but the immediately clamped nonpositive ratio makes evaluate return before later
+power divisions. No new F143 boundary was established.
+
+8. ASPECT REGISTRY / ENUM / XML CONTRACT
+
+A final registry audit mechanically found:
+
+    UWAI::AspectTypes enum entries:       29 unique
+    concrete WarUtilityAspect xmlID IDs:  29 unique
+    WarEvaluator constructed subclasses: 29 unique
+
+Every enum entry has exactly one xmlID; there are no missing/extra/duplicate IDs,
+and every concrete aspect is constructed exactly once (Distraction conditionally
+omitted exactly as the existing NUM_ASPECTS assertion expects). All 29 generated
+`UWAI_WEIGHT_<ASPECT>` GlobalDefine tags exist in current XML. Construction order
+does not need to equal enum order because each aspect resolves its weight/name
+through its explicit xmlID and per-aspect reporting carries its own name.
+
+9. CURRENT REVIEWED-KI COLLISION PASS
+
+README_Known_Issues.md currently contains reviewed headings through KI#426 (with
+historical numbering gaps). Exact helper/aspect searches for the F104-F142
+surfaces find no reviewed owner for these roots; provisional aliases KI#427-
+KI#465 do not occur in the reviewed ledger. Existing Distraction/faraway-war
+entries describe different SAS policies and were explicitly separated from
+F126/F102 during root normalization. No pending F104-F142 root was found to be a
+renamed older KI.
+
+10. NEGATIVE CONTROLS PRESERVED
+
+Important rejected hypotheses remain useful closure evidence:
+
+* F113 GET_TEAM(PlayerTypes) broad family -- false because of overloads;
+* Affection one-sided team normalization -- defensible pairwise design;
+* BorderDisputes first-conqueror order -- conquest sets mutually exclusive under
+  InvasionGraph's no-recapture model;
+* Open-Borders partner values -- partner-specific territory/trade value can be
+  legitimately additive;
+* LoveOfPeace repeated fixed cost -- current SAS data has iLoveOfPeace=0 and the
+  dormant modmod-facing hook does not meet the current-data finding bar;
+* Effort strongest individual rival benchmark -- remains a defensible heuristic,
+  lacking a hard conserved team-state contract;
+* Loathing war-declaration duplication -- player/nemesis-specific vengefulness,
+  unlike F139's exact one-memory-per-victim-team contract;
+* GreedForAssets third-party defensibility -- player-specific geography and
+  independently controlled armies leave insufficient invariant evidence;
+* partnerUtilFromMilitary, SuckingUp and Fidelity -- explicit player-owned/
+  player-attitude quantities provide positive controls against blanket
+  "teamification";
+* ThirdParty all-zero defensive power -- branch/clamp reachability collapses it;
+* numerous assertion-only, tuning and current-data-dormant seams -- not promoted.
+
+These controls are part of why the dense team/player finding family is not being
+extended merely by analogy.
+
+
+C014-WIP32 CLOSURE DECISION
+---------------------------
+After the full method/header/helper surface, Base/current semantic comparison,
+producer/consumer and ownership-domain passes, assertion/division/log/dead-local
+mechanical sweeps, registry/XML check, reviewed-KI collision scan and an
+adversarial reread of the complete live finding ledger, NO independent F143 has
+been established.
+
+The remaining surface is now better supported as clean/intentional/covered than
+as merely unchecked. F101-F103's current repairs survive regression review;
+F104-F112 and F114-F142 survive adversarial review; F113 remains retracted.
+
+WarUtilityAspect.cpp is therefore READY FOR DURABLE FILE-014 CLOSURE. A separate
+C015 closure append may now mark 14 / 169 files complete and advance the queue to
+current file 015, CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines in practical
+6267), without implying that provisional KI#427-KI#465 have already been
+independently reviewed or implemented.
+
+No repository source files were modified by this audit pass.
+===============================================================================
+
+
+===============================================================================
+C015 DURABLE CHECKPOINT -- FILE 014 CLOSED / FILE 015 QUEUED
+===============================================================================
+
+SOURCE IDENTITY AT CLOSURE
+--------------------------
+Branch: main
+HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+Practical commit count: 6267
+Base comparison: local AdvCiv 1.14 source archive
+Current .cpp queue: 169 files, sorted by current line count longest -> shortest
+
+
+FILE 014 -- CvGameCoreDLL/WarUtilityAspect.cpp -- 5,024 lines -- REVIEWED / CLOSED
+---------------------------------------------------------------------------------
+The long C014 investigation is now durably closed after C014-WIP32's final
+adversarial/mechanical pass.
+
+Stable file-014 root accounting:
+
+* 41 valid F-roots remain in the historical discovery ledger:
+  F101/KI#424-F112/KI#435 and F114/KI#437-F142/KI#465.
+* F101-F103 / reviewed KI#424-KI#426 are already independently reviewed, fixed,
+  documented and regression-checked in practical 6267.
+* F104-F112 and F114-F142 = 38 valid roots still surviving in practical 6267 and
+  awaiting independent review/implementation. Their KI#427-KI#465 aliases are
+  provisional audit aliases only; the reviewed README_Known_Issues ledger does
+  not yet contain those numbers.
+* F113 / provisional KI#436 is RETRACTED. GET_TEAM(PlayerTypes) is intentionally
+  overloaded and converts through TEAMID. Preserve its old WIP evidence only to
+  prevent rediscovery.
+* The earlier former F101 / provisional KI#423 hypothesis is also retracted
+  history and is not part of the 41 valid roots above.
+* Existing F096 / KI#418 was materially broadened by file-014 alive-member
+  normalizer consumers; it remains one existing root rather than another F.
+* F143 was never allocated.
+
+This closure does NOT assert that every pending candidate should be implemented
+unchanged. The album is the investigative handoff. Current source and the
+independently reviewed Known Issues ledger remain implementation authority, and
+me/Codex review can accept, merge, refine or reject a provisional root as new
+runtime/testing evidence warrants.
+
+
+WHY FILE 014 IS CLOSED
+----------------------
+Closure is evidence-based rather than time-based. The final passes covered:
+
+* all current member definitions and associated WarUtilityAspect.h state;
+* normalized current-SAS vs Base AdvCiv executable differences;
+* player/team ownership and per-member/per-rival aggregation domains;
+* current-vs-simulated state and target-scope predicates;
+* all explicit team-size/living-member normalizers;
+* global victory completion/cap semantics;
+* denominator, boundary, sign and fixed-point arithmetic seams;
+* C/C++ varargs format/argument counts;
+* base-pointer/derived-object lifetime and destruction;
+* derived member initialization and cross-member lifetime;
+* raw pointer/cache-city producer contracts;
+* STL container/iterator and static-local/cache behavior;
+* computed-but-unused locals and author Tbd./assertion comments;
+* supported nondefault configuration reachability;
+* aspect enum/xmlID/construction/XML-weight registry integrity;
+* current reviewed Known-Issues semantic collisions;
+* original/pre-SAS ancestry where needed to distinguish inherited roots from SAS
+  regressions;
+* adversarial rereads of every live F101-F142 root and multiple negative controls.
+
+The final registry check found 29 unique AspectTypes, 29 unique concrete xmlIDs,
+29 unique constructed aspect subclasses and all 29 generated UWAI_WEIGHT_* XML
+defines. The final current-vs-Base member comparison found no unexplained SAS-
+local WarUtilityAspect executable difference beyond the reviewed/customized
+methods already accounted for. The log scan found only F108's one varargs
+mismatch; the dead-local scan found only F115's meaningful unused normalization;
+the final normalizer scan found no independent issue beyond existing roots such
+as F096 and F142.
+
+Repeated attempts to establish F143 instead produced clean controls or mapped
+back to an existing root. That is the desired stopping criterion.
+
+
+IMPORTANT RETRACTION / CONTROL REMINDERS FOR IMPLEMENTATION REVIEW
+-----------------------------------------------------------------
+* Do NOT implement F113/KI#436 from WIP05-WIP10. GET_TEAM(PlayerTypes) is safe in
+  this codebase through CoreAI/CvGamePlay overloads.
+* F114/KI#437 remains live despite a temporary adversarial concern: CvGame's
+  initialization deliberately establishes self-contact, so the target teammate
+  can pass FairPlay's HasMet condition.
+* Do not blanket-convert every player-local utility to team-level. Positive
+  controls in Affection, Open Borders/partner utility, partner military value,
+  SuckingUp, Fidelity and Loathing demonstrate legitimate player-specific state.
+* F133/F142 require OWN_EXCLUSIVE_RADIUS=1, which is recommended off but remains
+  an explicitly documented/maintained AdvCiv configuration. Preserve that
+  supported-config classification when reviewing priority.
+* F141/KI#464 is ordinary C++ correctness, not a modeling preference: deleting
+  concrete aspect objects through WarUtilityAspect* without a virtual base
+  destructor is undefined behavior. Use a C++03-compatible public virtual
+  destructor if accepted.
+* F105's exact zero-divisor runtime symptom should not be overstated: ScaledNum
+  uses Win32 MulDiv semantics. The root is the incorrect exact-threshold state
+  and division path, not a promise of one specific crash behavior.
+
+
+PROGRESS AFTER C014 CLOSURE
+---------------------------
+Files complete: 14 / 169
+Files open: 0 / 169
+Last completed file: 014 CvGameCoreDLL/WarUtilityAspect.cpp -- 5,024 lines
+
+NEXT QUEUED FILE:
+
+    015 CvGameCoreDLL/CvSelectionGroup.cpp -- 4,722 lines
+
+Following files by current practical-6267 line-count queue begin:
+
+    016 CvGameCoreDLL/CitySiteEvaluator.cpp -- 4,595 lines
+    017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines
+    018 CvGameCoreDLL/CvGameInterface.cpp -- 2,965 lines
+    019 CvGameCoreDLL/CvDLLButtonPopup.cpp -- 2,814 lines
+    020 CvGameCoreDLL/CvInfo_Unit.cpp -- 2,599 lines
+
+C015 is a durable boundary checkpoint. File 015 has NOT yet been audited in this
+continuation; start it from current practical 6267 on the next audit pass rather
+than carrying WarUtilityAspect hypotheses forward by analogy.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+================================================================================
+C015-WIP01 APPEND -- FILE 015 CvSelectionGroup.cpp OPENING / CURRENT-DIFF SURFACE
+================================================================================
+
+SOURCE RECONCILIATION
+---------------------
+Current source authority remains the user's reconciled 2026-08-25T23:11 light-source
+snapshot:
+
+- Branch: main
+- HEAD: 52e0f9c06718fb444208840cf5cea7b7723267e0
+- Practical commit count: 6267
+- Base comparison: local AdvCiv 1.14 source archive
+- Civ4CE BtS/Warlords/vanilla source is locally available for ancestry/cross-controls.
+
+Durable C015 closed file 014 WarUtilityAspect.cpp. File 015 is now:
+
+    CvGameCoreDLL/CvSelectionGroup.cpp -- 4,722 lines -- OPEN
+
+No repository source files were modified by this audit.
+
+
+MECHANICAL CURRENT-vs-BASE OPENING INVENTORY
+--------------------------------------------
+A comment/string-aware brace parser was used so braces in comments or string literals do
+not cause the rough-function-extractor expansion that can otherwise make a small change
+look like a giant method diff.
+
+- Current CvSelectionGroup.cpp member definitions: 133
+- Base AdvCiv 1.14 member definitions: 132
+- Current-only member: getEspionageUnit()
+- Method names with any normalized executable/token difference or new definition: 11
+
+    clearUnits
+    continueMission_bulk
+    deleteUnitNode
+    doTurn
+    getEspionageUnit
+    groupBuild
+    groupPathTo
+    groupRoadTo
+    read
+    startMission
+    updateTimers
+
+The corrected parser then proves that groupPathTo, groupRoadTo and updateTimers have ZERO
+executable/token difference after comments/formatting are stripped. They were false change
+signals from the earlier rough inventory and therefore leave only eight methods with real
+current-source semantic/instrumentation differences plus the current-only helper.
+
+CvSelectionGroup.h was independently token-compared after stripping comments/formatting.
+Its ONLY semantic addition versus Base AdvCiv 1.14 is:
+
+    CvUnit const* getEspionageUnit() const;
+
+No layout-changing data member was added; the existing sizeof(CvSelectionGroup)==80 ABI
+assert remains untouched.
+
+
+CHANGED-METHOD CLASSIFICATION -- NO F143 ESTABLISHED
+----------------------------------------------------
+
+1. clearUnits / deleteUnitNode -- EXISTING KI#163 HARDENING
+
+Current clearUnits deliberately no longer tears a whole group down by repeatedly invoking
+the normal single-unit deleteUnitNode callback path. It directly resets group-owned
+activity/automation/mission state and then clears m_units once. deleteUnitNode separately
+adds a null-node guard while preserving its ordinary single-unit-removal behavior.
+
+This is exactly the independently documented KI#163 rare group-teardown crash hardening.
+The Known Issues entry explicitly describes the same re-entrancy/lifetime concern and the
+same direct-full-teardown repair. Do not duplicate it as a new file-015 finding.
+
+2. getEspionageUnit / startMission MISSION_ESPIONAGE -- EXISTING KI#398 FIX
+
+Current source adds getEspionageUnit(), which returns the first selected unit that can
+currently perform Espionage. startMission's MISSION_ESPIONAGE case also skips a selected
+unit that cannot currently perform Espionage before allowing the eligible Spy to try.
+
+This is exactly independently reviewed/fixed KI#398: inherited BtS group-Espionage actor
+identity could expose a valid Spy mission but let an earlier movable non-Spy abort it.
+Callers in help/popup code use the same centralized actor helper. No new root here.
+
+3. doTurn -- WORKER DIAGNOSTICS + SAFE STATIC DEFINE CACHE
+
+The material additions are level-3 Worker diagnostics around turn-boundary group state and
+a static-local cache of MIN_TIMER_UNIT_DOUBLE_MOVES. The diagnostic reads/logs state but
+does not mutate gameplay state.
+
+A repository-wide runtime-define-setter scan found no setter for
+MIN_TIMER_UNIT_DOUBLE_MOVES. Current runtime setDefineINT/FLOAT/STRING calls modify other
+names (camera/minimap/map-generation defines). Caching this define therefore does not
+currently freeze a dynamically mutated supported value. No behavioral defect established.
+
+4. groupBuild -- SAFE COLOR LOOKUP HOIST
+
+Current source caches GC.getColorType("WHITE") in a static local and uses the result in the
+same UI message. This is a lookup of fixed XML type identity, not a mutable GlobalDefine.
+No gameplay/UI semantic change established.
+
+5. continueMission_bulk -- THREE DISTINCT CLASSES, ALL ACCOUNTED FOR SO FAR
+
+(a) Level-3 Worker execution diagnostics are observational.
+
+(b) The stale AI build-target guard is already present in the local AdvCiv 1.14 comparison
+source and is independently documented as KI#176 in SAS history. MISSION_BUILD stores a
+build type but no target coordinates, so non-route builds are canceled if the group is no
+longer on AI_getMissionAIPlot. This prevents a stale queued build from executing on the
+wrong physical plot.
+
+(c) Current SAS additionally preserves a queued follow-up after a MISSION_BUILD consumes
+all Worker movement:
+
+    if (missionData.eMissionType != MISSION_BUILD || readyForMission())
+        activateHeadMission();
+    else setActivityType(ACTIVITY_MISSION);
+
+Practical 6018 introduced this deliberately after observed Berlin/Beijing/Cologne feature-
+removal follow-ups were discarded: immediate activation deleted the queued improvement,
+while simply doing nothing left the group AWAKE and exposed it to AI turn-start cleanup.
+The current branch instead keeps the waiting follow-up in MISSION activity until a later
+turn. The original short-circuit semantics around groupBuild remain preserved, and current
+history documents this as an empirically validated Worker reliability change. No current
+contract failure has been established from it in this opening pass.
+
+6. read -- REMOVED LEGACY SAVE MIGRATION ONLY
+
+write() still writes uiFlag=3 and serializes, in order:
+
+    ID, mission timer, force-update, owner, activity, automation,
+    unit list, known-enemy list, current MissionData queue.
+
+Current read() consumes exactly that current-format sequence. Relative to Base 1.14 it
+removes only old uiFlag migration branches (pre-knownEnemies saves, MissionDataLegacy,
+and pre-v3 MOVE_ROUTE_TO conversion).
+
+This matches the project's already-established serialization policy from earlier file
+reviews: same-version current read/write pairing is authoritative; cross-version save
+migration is not a supported requirement. No same-version misalignment established.
+
+7. groupPathTo / groupRoadTo / updateTimers -- FALSE CHANGE SIGNALS
+
+The robust token/body comparison finds no executable difference at all. They remain Base
+AdvCiv 1.14 behavior in current source after comment/format normalization.
+
+
+OPENING NEGATIVE CONTROLS
+-------------------------
+- CvSelectionGroup header ABI/layout has not changed; getEspionageUnit is declaration-only.
+- No MIN_TIMER_UNIT_DOUBLE_MOVES runtime setter exists in current C++/Python/map-script
+  sources, so its static-local cache preserves current semantics.
+- Worker logging branches are gated diagnostics and have no intended state mutations.
+- Same-version CvSelectionGroup serialization is paired at uiFlag 3.
+- KI#163, KI#176 and KI#398 are explicitly collision-mapped rather than rediscovered.
+
+
+NEXT AUDIT CURSOR
+-----------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP01
+NEW FILE-015 ROOTS: none yet
+NEXT ROOT ID: F143 UNUSED
+
+Next pass: audit the large inherited/current-common mission/group surface rather than
+stopping at the small SAS diff. Priority order is startMission/continueMission_bulk and
+canDoMission as one availability/execution contract, then group movement/attack/build,
+linked-list/group lifetime helpers, mission queue/timers, path/cargo helpers, and finally
+serialization/header/caller closure. Compare Civ4CE BtS and local ancestry when they offer
+an independent contract or fix control; do not promote tuning, dormant unsupported states,
+or already-reviewed KI roots merely because the inherited code is old.
+
+
+================================================================================
+C015-WIP02 APPEND -- F143 / Sea Patrol mixed-group persistence contract
+================================================================================
+
+F143 / provisional KI#466 -- CONFIRMED -- INHERITED ADVCIV SEA-PATROL GROUP DEFECT
+MIXED SEA GROUP CAN ACCEPT PATROL, THEN AN INELIGIBLE MEMBER WAKES THE WHOLE GROUP
+--------------------------------------------------------------------------------
+Status: NEW CURRENT DEFECT ROOT, inherited from the interaction created by AdvCiv
+advc.004k. Static reachability/data evidence strong; no runtime game test performed by
+this audit.
+
+Mission-availability contract:
+
+CvSelectionGroup::canDoMission(MISSION_SEAPATROL) treats the order as valid when at least
+one member can Sea Patrol. With the ordinary canStartMission path bCheckMoves is false, so
+once a qualifying member is found the function returns true immediately. An earlier
+non-qualifying member is tolerated so long as it can still move.
+
+    if (!bValid && pUnit->canSeaPatrol(pPlot, true))
+    {
+        if (!bCheckMoves)
+            return true;
+        bValid = true;
+    }
+    if (!pUnit->canMove())
+        return false;
+
+CvSelectionGroup::startMission then handles MISSION_SEAPATROL as a WHOLE-GROUP activity:
+
+    setActivityType(ACTIVITY_PATROL);
+    bDelete = true;
+
+Unlike MISSION_AIRPATROL and MISSION_PARADROP, Sea Patrol does not collect unsuitable
+members into apUnitsLeftBehind and does not split them from the group. The mission node is
+deleted, but the mixed selection group remains intact in ACTIVITY_PATROL.
+
+Turn-boundary contradiction:
+
+CvUnit::isSeaPatrolling() is group-activity based. Every sea-domain member of such a group
+therefore reports itself as Sea Patrolling regardless of whether that unit individually
+satisfies CvUnit::canSeaPatrol:
+
+    getGroup()->getActivityType() == ACTIVITY_PATROL &&
+    getDomainType() == DOMAIN_SEA
+
+CvUnit::doTurn then contains AdvCiv's advc.004k validity cleanup:
+
+    if (isSeaPatrolling() && !canSeaPatrol())
+        getGroup()->setActivityType(ACTIVITY_AWAKE);
+
+The default canSeaPatrol call here deliberately ignores the current activity, but still
+rejects a sea unit that cannot fight, is OnlyDefensive, is on an invalid patrol plot, etc.
+Consequently one ineligible companion wakes the ENTIRE selection group, terminating the
+persistent patrol of the member that made the group command legal in the first place.
+
+Current-data supported reproduction:
+
+- CvUnit::canJoinGroup permits units to join when owner, plot and DOMAIN match; it does not
+  require common mission capability.
+- UNIT_DESTROYER is DOMAIN_SEA, combat-capable and not OnlyDefensive, and can satisfy Sea
+  Patrol on a normal valid water plot near a guardable owned water improvement.
+- UNIT_TRANSPORT is DOMAIN_SEA but current XML has bOnlyDefensive=1, so canSeaPatrol rejects
+  it.
+- UNIT_WORKBOAT is also DOMAIN_SEA and has iCombat=0, so canSeaPatrol rejects it.
+
+Thus a human can form e.g. Destroyer + Transport (or Destroyer + Work Boat), with both
+members still able to move, on a valid patrol plot. The qualifying Destroyer makes
+MISSION_SEAPATROL available and startMission sets the whole mixed group to PATROL. At the
+next unit turn, the Transport/Work Boat satisfies isSeaPatrolling() by group activity but
+fails canSeaPatrol(), so its doTurn changes the whole group's activity to AWAKE. The valid
+Destroyer silently loses its patrol after only that turn boundary.
+
+Ancestry/control:
+
+- Civ4CE/BtS already uses the broad group-availability shape where one qualifying unit can
+  expose Sea Patrol.
+- AdvCiv practical 3866 / ffbe05255f, title "Usability improvements for Sea Patrol"
+  (advc.004k), introduced the per-unit doTurn wake when a patrolling unit no longer passes
+  canSeaPatrol and changed the availability query to ignore the current patrol activity
+  appropriately when displaying the command.
+- The commit's stated intent was to make Sea Patrol available only when there is actually
+  something to guard and to improve patrol visibility/usability. It did not add mixed-
+  member separation or change the inherited any-member group availability rule.
+- Base AdvCiv 1.14 and current SAS practical 6267 both retain the resulting interaction.
+- No existing KI or earlier audit finding mentioning Sea Patrol/ACTIVITY_PATROL collides
+  with this root.
+
+Why this is not merely a UI/tuning preference:
+
+The same group-level API first says the order is executable and places the group in a
+persistent activity, then a member that was explicitly tolerated by that availability
+contract invalidates the persistent state for the qualifying member. Repartitioning the
+same selected ships into two groups makes the valid warship patrol persist; grouping them
+causes it to stop despite a successful accepted command.
+
+Repair direction:
+
+Reconcile mission availability, group activity and turn-boundary cleanup. Plausible
+repairs include:
+
+1. At mission start, split unsuitable Sea Patrol members from the patrol group, analogous
+   to Air Patrol's apUnitsLeftBehind handling; or
+2. Require every member of a group to be individually Sea-Patrol-capable before accepting
+   the group mission (less friendly for mixed escort groups); or
+3. Keep mixed groups intact, but make the doTurn cleanup wake the group only when NO member
+   remains able to Sea Patrol rather than when the current member cannot.
+
+Any repair should preserve advc.004k's intended wake when the patrol as a whole is no
+longer meaningful (e.g. no reachable guarded improvement), rather than simply deleting the
+validity cleanup.
+
+
+WIP02 CURRENT CURSOR
+--------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP02
+NEW FILE-015 ROOTS: F143 / provisional KI#466
+NEXT ROOT ID: F144 UNUSED
+
+Continue the canDoMission/startMission/continueMission contract audit, especially all
+mixed-group persistent activities and executor cases with early exit/whole-group state.
+Then move through group movement/attack/build, cargo/amphibious handling, linked-list and
+split/merge lifetime, timers/pathing, and caller/header closure. Do not generalize F143 to
+missions that explicitly split unsuitable units or whose effects are legitimately
+per-member.
+
+===============================================================================
+C015-WIP03 APPEND -- CvSelectionGroup.cpp persistent blockade lifecycle
+===============================================================================
+
+F144 / provisional KI#467 -- CONFIRMED -- INHERITED ADVCIV BLOCKADE GROUP DEFECT
+ONE FORMER BLOCKADER BECOMING INVALID WAKES/CANCELS STILL-VALID GROUP BLOCKADERS
+-------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED DEFECT ROOT. Independent of F143/KI#466.
+
+Root contract:
+- Blockade state is legitimately unit-local (`CvUnit::m_bBlockading`), while the
+  waiting/activity state is group-local (`ACTIVITY_PLUNDER`).
+- `CvUnit::doTurn` was changed by advc.033 so a blockading unit that can no longer
+  legally plunder clears its own flag and wakes its group:
+
+      if (isBlockading())
+      {
+          if (canPlunder(kPlot))
+              collectBlockadeGold();
+          else
+          {
+              setBlockading(false);
+              getGroup()->setActivityType(ACTIVITY_AWAKE);
+          }
+      }
+
+- `CvSelectionGroup::setActivityType` always calls `setBlockading(false)` before
+  changing activity. The group helper applies that call to EVERY member.
+- Therefore one former blockader becoming invalid does not merely wake/remove that
+  unit's blockade; it clears every still-valid member's blockade too.
+
+Concrete supported current-data reproduction:
+1. Human groups a Destroyer and Privateer on the same valid water plot during war.
+   `CvUnit::canJoinGroup` requires only same owner/plot/domain; hidden nationality
+   and blockade eligibility are not grouping restrictions.
+2. Current UNIT_DESTROYER and UNIT_PRIVATEER are both DOMAIN_SEA and bPillage=1.
+   During the war both can pass `canPlunder` and MISSION_PLUNDER calls `plunder()`
+   on each member, setting each unit's own m_bBlockading=true.
+3. Peace is then made while the group remains on a legal neutral/unowned blockade
+   plot. `CvTeam::makePeace` calls `updatePlunder(-1,false)` before changing war
+   state and `updatePlunder(1,false)` afterward, but these calls only rebuild the
+   blockade-count effects; they do NOT clear m_bBlockading or separate the group.
+4. After peace, Destroyer can no longer plunder because it is not a pirate and the
+   owner team has no wars. Privateer remains eligible because current XML gives it
+   bHiddenNationality=1 and bAlwaysHostile=1; `canPlunder` deliberately exempts a
+   pirate from the no-war rejection (subject to the ordinary plot restrictions).
+5. When the Destroyer reaches CvUnit::doTurn, advc.033 detects that its existing
+   blockade is no longer legal. It clears the Destroyer's local flag, then wakes
+   the whole selection group.
+6. The group wake calls CvSelectionGroup::setBlockading(false), which clears the
+   still-valid Privateer's blockade as well. If the Privateer had not been grouped
+   with the Destroyer, its blockade would legally persist after peace.
+
+The result therefore depends on grouping unrelated persistent blockaders: one unit
+whose legal state changes can terminate another member's still-valid blockade.
+This is not merely visual/activity UI state; the Privateer's actual blockade flag
+and plot blockade effects are removed.
+
+Ancestry:
+- Civ4/BtS already has unit-local blockade state and group PLUNDER activity.
+- AdvCiv change advc.033 (visible in the local practical-1407 ancestry diff and in
+  Base AdvCiv history) added the `canPlunder` recheck in CvUnit::doTurn and, on
+  failure, `setBlockading(false); group->setActivityType(ACTIVITY_AWAKE);`.
+- The corresponding history explicitly says non-Privateers can no longer blockade
+  when at peace with everyone and "blockading units are awoken if a blockade is no
+  longer allowed" so forgotten ships stop blockading after war.
+- That intent is sound for the invalid unit, but the inherited group-wide wake
+  also clears other members whose blockade remains allowed.
+- Base AdvCiv 1.14 and practical-6267 SAS retain this interaction.
+
+Why this is separate from F143/KI#466:
+- F143 Sea Patrol accepts a mixed group where some members were NEVER individually
+  eligible, represents patrol through one group activity, and then lets an
+  ineligible companion interpret itself as patrolling and wake everybody.
+- F144 Blockade starts with multiple individually valid per-unit blockades. The
+  failure occurs later when eligibility diverges and one unit's correct local
+  invalidation is escalated into group-wide blockade cancellation.
+- Fixing Sea Patrol mission admission/splitting does not repair this blockade
+  lifecycle, and fixing this lifecycle does not repair F143's initial mixed-group
+  patrol contract.
+
+Repair direction:
+- Preserve advc.033's requirement that an invalid former blockader stop blockading.
+- Do not wake/clear the whole PLUNDER group merely because one member becomes
+  invalid while another member can still legally maintain a blockade.
+- One conservative shape is: clear the invalid unit's local blockade, then wake the
+  group only if no remaining member is still blockading/can legally plunder;
+  otherwise separate the invalid unit or preserve the valid members' PLUNDER state.
+- Be careful that `setActivityType(ACTIVITY_AWAKE)` itself clears every member's
+  blockade, so simply moving that call without changing its condition is not
+  sufficient.
+
+CURRENT FILE-015 CURSOR AFTER WIP03
+----------------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP03
+NEW FILE-015 ROOTS: F143/KI#466, F144/KI#467
+NEXT ROOT ID: F145 UNUSED
+
+Continue the persistent-activity pipeline (Sleep/Fortify/Heal/Sentry/Plunder/
+SeaPatrol/AirPatrol) and then the wider canDoMission/startMission/continueMission
+availability/executor contract. Preserve one-root-per-cause discipline; do not
+assume every group-level activity issue is F143/F144.
+No repository source files were modified.
+
+LOCAL RECONCILIATION AFTER C015-WIP03 IMPORT
+
+- ChatGPT-5.6-Sol's C014-WIP31/WIP32, durable C015 checkpoint and C015-WIP01 through WIP03 append remains verbatim as evidence. It is compatible with current authority at HEAD df46c1a09 plus the reviewed KI#434/KI#435 worktree repairs, despite using the older practical-6267 / HEAD 52e0f9c06 source baseline.
+- The durable closure's retraction of F113 / provisional KI#436 is accepted: `GET_TEAM(PlayerTypes)` deliberately resolves through `TEAMID`, matching the existing KI#311/KI#387 and AGENTS control. The reviewed KI#434 code/documentation has been corrected not to repeat the superseded WIP05 hypothesis; its independent old-owner AP-membership defect remains fixed.
+- F104-F108 / KI#427-KI#431 are fixed at current HEAD. F111-F112 / KI#434-KI#435 are fixed in the reviewed worktree. F109-F110 / provisional KI#432-KI#433 remain pending independent review; the C014 closure inventory does not itself promote an implementation.
+- F142 / provisional KI#465 and the new file-015 F143-F144 / provisional KI#466-KI#467 are collision-free against the current reviewed Known Issues ledger and remain provisional. `WarUtilityAspect.cpp` is durably closed as an audit surface, while `CvSelectionGroup.cpp` remains open at C015-WIP03. No implementation is promoted from the imported append in this reconciliation. (GPT-5.6-Sol)
+
+
+================================================================================
+C015-WIP04 APPEND -- CvSelectionGroup.cpp COMMAND_LOAD shared-capacity contract
+================================================================================
+
+F145 / provisional KI#468 -- CONFIRMED -- INHERITED ADVCIV GROUP-LOAD DEFECT
+THE ALL-SELECTED LOAD PRECHECK REUSES THE SAME FREE CARGO SLOT FOR EACH UNIT
+----------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED DEFECT ROOT. Static UI/executor reproduction strong;
+no runtime game test performed by this audit.
+
+Intended AdvCiv contract is explicit:
+
+CvSelectionGroup::canDoCommand normally accepts a group command when ANY selected
+unit can execute it. `COMMAND_LOAD` is deliberately special-cased by advc.123c:
+
+    if (pUnit->canDoCommand(...))
+    {
+        if (eCommand != COMMAND_LOAD)
+            return true;
+    }
+    /* Normally, a group can do a command if any unit can do it,
+       but in the case of loading, it seems easier to make an exception than
+       to have the load command fail for some of the selected units. */
+    else if (eCommand == COMMAND_LOAD)
+        return false;
+    ...
+    return (eCommand == COMMAND_LOAD);
+
+Thus `COMMAND_LOAD` is accepted only if every selected/group unit individually
+passes `CvUnit::canDoCommand(COMMAND_LOAD)`.
+
+The individual check is not a group-capacity reservation:
+
+- CvUnit::canDoCommand(COMMAND_LOAD) calls `canLoadOntoAnyUnit(getPlot(), ...)`.
+- `canLoadOntoAnyUnit` returns true as soon as it finds one transport for which
+  `canLoadOnto` succeeds.
+- `canLoadOnto` in turn tests the transport's CURRENT
+  `cargoSpaceAvailable(specialCargo, domainCargo)`.
+- Repeating that independent query for the next selected unit does not reserve
+  the slot that the previous unit would consume.
+
+Therefore several selected cargo units can all answer "yes" by pointing at the
+same one remaining cargo slot.
+
+Concrete supported reproduction:
+
+1. Put one friendly sea transport on a plot with exactly one compatible free
+   cargo slot (for example a normal multi-slot transport already carrying all
+   but one of its capacity).
+2. Put two movable compatible land units on the same plot and select/group both.
+3. Before execution, unit A's `canLoadOntoAnyUnit` sees the one free slot and
+   returns true. Unit B independently sees that SAME unchanged slot and also
+   returns true. The special group `COMMAND_LOAD` test therefore succeeds even
+   though the transport cannot carry both selected units.
+4. The UI handles generic Load through `BUTTONPOPUP_LOADUNIT`. With only one
+   eligible transport, `launchLoadUnitPopup` auto-selects that transport and
+   sends `GAMEMESSAGE_DO_COMMAND, COMMAND_LOAD_UNIT` without requiring a choice.
+5. `CvGame::selectionListGameNetMessage(GAMEMESSAGE_DO_COMMAND, ...)` iterates
+   every selected unit and sends the command sequentially.
+6. Unit A executes first and fills the final slot. Unit B then revalidates
+   `COMMAND_LOAD_UNIT`; `cargoSpaceAvailable` is now zero, so its command fails.
+
+The result is a partial load from a command whose AdvCiv group-level exception
+was introduced specifically to avoid a load command failing for some selected
+units.
+
+The same root can occur with multiple transports or special-cargo constraints:
+checking that each selected unit has *some* individually legal destination does
+not prove that a simultaneous assignment of all selected units to the finite
+transport slots exists. The one-transport/one-free-slot/two-unit example is the
+minimal deterministic reproduction.
+
+Popup-target contract strengthens the proof:
+
+`launchLoadUnitPopup` lists a candidate transport when
+
+    pSelectionGroup->canDoCommand(COMMAND_LOAD_UNIT,
+        pUnit->getOwner(), pUnit->getID())
+
+is true. Unlike the special generic `COMMAND_LOAD` branch,
+`COMMAND_LOAD_UNIT` uses the ordinary ANY-member group rule. Thus even when the
+Load button's preliminary test happens to have enough aggregate capacity spread
+across several ships, the popup can still offer a particular transport that can
+load only a subset of the selection and then issue that target command to all
+selected units.
+
+Ancestry/control:
+
+- Vanilla/BtS/Civ4CE already has the ordinary per-unit loading/execution model.
+- AdvCiv advc.123c added the current all-selected `COMMAND_LOAD` exception and
+  the move-left loading restriction. The local pre-SAS history contains the
+  exact introducing comment quoted above.
+- Base AdvCiv 1.14 and practical-6267 SAS retain the independent per-unit
+  precheck plus ordinary ANY-member `COMMAND_LOAD_UNIT` popup filtering.
+- The earlier C006/CvDLLWidgetData closure had recorded "Load deliberately
+  requires all selected units to be loadable" as a negative control. F145 does
+  not contradict the local statement that each unit is checked; it overturns
+  the stronger implicit conclusion that those independent checks guarantee an
+  all-units load. Shared finite cargo capacity was not reserved in that earlier
+  pass.
+- No reviewed KI or earlier F-root found in the current ledger covers this
+  shared-capacity feasibility failure.
+
+Why this is not merely UI preference:
+
+The source states the desired group semantic explicitly: avoid a Load command
+that succeeds for only part of the selected units. The implemented precondition
+is mathematically insufficient for that stated goal because each unit is tested
+against the same unconsumed capacity. The deterministic one-slot/two-unit case
+violates the comment without relying on AI tuning, unusual XML or stale state.
+
+Repair direction:
+
+- Make group Load feasibility capacity-aware rather than checking each unit in
+  isolation. For a generic Load command, reserve compatible transport slots
+  while validating the selected units (potentially an assignment/matching
+  problem when transports have different special/domain cargo restrictions).
+- For `COMMAND_LOAD_UNIT`, offer/accept a target transport for a multi-unit
+  selection only when that transport can accommodate every selected unit that
+  the command is supposed to load; alternatively make partial loading explicit
+  in UI/semantics instead of claiming the all-selected invariant.
+- Preserve advc.123c's separate rule that land cargo must have movement left at
+  command time, including its first-check/after-move nuance.
+
+
+WIP04 CURRENT CURSOR
+--------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP04
+NEW FILE-015 ROOTS: F143/KI#466, F144/KI#467, F145/KI#468
+NEXT ROOT ID: F146 UNUSED
+
+Mission availability/executor and persistent-activity families have now been
+systematically classified. Continue through movement/cargo/amphibious group
+contracts, especially `setTransportUnit`, `groupAmphibMove`, `groupMove`, cargo
+move readiness and split/merge behavior. Then audit linked-list/group lifetime,
+mission timers/pathing and serialization before adversarial closure.
+No repository source files were modified.
+
+
+
+===============================================================================
+C015-WIP05 APPEND -- CvSelectionGroup.cpp cargo/lifetime controls + Spy wake root
+===============================================================================
+
+CURRENT CURSOR / SOURCE AUTHORITY
+---------------------------------
+- Current source remains reconciled AdvCiv-SAS practical 6267 / HEAD
+  52e0f9c06718fb444208840cf5cea7b7723267e0.
+- FILE 015 remains CvGameCoreDLL/CvSelectionGroup.cpp -- OPEN.
+- WIP04 remains authoritative through F145 / provisional KI#468.
+- This append establishes F146 / provisional KI#469 and records several
+  deliberately rejected neighboring cargo/split/merge hypotheses. F147 is unused.
+
+
+F146 / provisional KI#469 -- CONFIRMED -- INHERITED K-MOD / ADVCIV UI-LIFECYCLE DEFECT
+SLEEPING-SPY MAX-BONUS WAKE TESTS ONLY THE GROUP HEAD, SO A GROUPED NON-HEAD SPY NEVER WAKES
+-----------------------------------------------------------------------------------------
+Root contract:
+- K-Mod practical 1243 / commit 85efabbf9f is explicitly titled
+  "Sleeping spies now wake when they reach their maximum bonus."
+- Its CvSelectionGroup::doTurn implementation deliberately checks the wake before
+  CvUnit::doTurn increments fortify turns, so a sleeping Spy at
+  MAX_FORTIFY_TURNS - 1 is awakened exactly as it reaches the capped stationary
+  espionage preparation bonus.
+- Current Base AdvCiv 1.14 and SAS retain the same implementation and even the
+  explicit limitation in the source comment: "I'm only checking the head unit."
+
+Current implementation:
+
+    if (isHuman() && getActivityType() == ACTIVITY_SLEEP)
+    {
+        if (pHeadUnit->isSpy() && pHeadUnit->getPlot().getTeam() != getTeam())
+        {
+            if (pHeadUnit->getFortifyTurns() ==
+                GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
+            {
+                setActivityType(ACTIVITY_AWAKE);
+            }
+        }
+    }
+
+Why a real Spy can be outside that test:
+- CvUnit::canJoinGroup permits same-owner, same-plot units of the same domain to
+  group; it has no Spy-vs-combat-unit exclusion.
+- MISSION_SLEEP is a group mission exposed when ANY member passes canSleep(). A
+  Spy is not fortifyable and therefore canSleep(); startMission then sets the
+  WHOLE selection group to ACTIVITY_SLEEP.
+- CvSelectionGroup::addUnit orders members by descending AI_groupFirstVal.
+  UNITAI_SPY has first value 9. Current UNIT_SWORDSMAN / UNIT_MACEMAN default to
+  UNITAI_ATTACK_CITY, whose first value is 13-19 depending combat capability;
+  UNIT_AXEMAN defaults to UNITAI_ATTACK and likewise outranks a Spy in ordinary
+  cases. Thus an escort can deterministically be the group head while the Spy is
+  a later member.
+- Such same-owner land units can coexist and group in a foreign open-borders plot.
+
+Concrete reproduction:
+1. Human Spy and Swordsman/Maceman share a foreign open-borders plot and are
+   grouped. The attack-city escort sorts ahead of UNITAI_SPY and is group head.
+2. The Spy makes MISSION_SLEEP available; the command sets the whole group to
+   ACTIVITY_SLEEP.
+3. Each stationary, non-cargo unit independently increments its fortify turns in
+   CvUnit::doTurn, and setFortifyTurns caps the value at MAX_FORTIFY_TURNS.
+4. The espionage mission cost modifier uses the ACTING Spy's own fortify turns:
+
+       iModifier *= 100 - pSpyUnit->getFortifyTurns() *
+           ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE;
+
+5. At the turn boundary where the Spy has MAX_FORTIFY_TURNS - 1, the group-level
+   convenience check looks only at the non-Spy escort head. It therefore does not
+   wake the group.
+6. The Spy's own doTurn increments/caps it at the maximum stationary bonus, but
+   the group remains asleep. The advertised K-Mod wake behavior can remain absent
+   indefinitely until some unrelated wake condition occurs.
+
+This is not an espionage-mission actor-selection duplicate:
+- KI#398 repairs choosing/reacquiring the acting Spy for MISSION_ESPIONAGE and its
+  popup chain.
+- F146 occurs before any espionage mission is selected and concerns the persistent
+  sleeping-group lifecycle after a non-head Spy reaches its stationary bonus.
+
+Ancestry:
+- K-Mod practical 1243 / 85efabbf9f introduced the feature and the head-only test
+  together.
+- Base AdvCiv 1.14 retains it; current SAS retains it unchanged apart from nearby
+  logging/formatting changes.
+
+Consequence:
+- The human convenience feature fails for a supported mixed land group, so the
+  player may leave a fully prepared Spy asleep instead of receiving the intended
+  wake/reminder at maximum discount.
+- This is primarily a UI/usability defect rather than an AI-strength defect, but
+  its promised behavior and deterministic current-data reproduction are strong.
+
+Repair direction:
+- While a human group is ACTIVITY_SLEEP, scan all members for a Spy in foreign
+  territory whose fortify turns equal MAX_FORTIFY_TURNS - 1; wake the group when
+  any such Spy reaches the threshold.
+- Alternatively split/wake only the qualifying Spy if preserving the escort's
+  sleep is preferable, but that is a larger behavior change.
+- Preserve the pre-CvUnit::doTurn timing so the notification/wake still occurs
+  exactly as the qualifying Spy reaches the capped bonus.
+
+
+CARGO / AMPHIBIOUS / SPLIT-MERGE NEGATIVE CONTROLS
+---------------------------------------------------
+1. getLandCargoGroups duplicate group pointers are inefficient but currently inert.
+   - The helper appends one group pointer per land cargo UNIT rather than
+     deduplicating groups. handleBoarded can therefore put the same group into
+     aAwake more than once and eventually call mergeIntoGroup on itself.
+   - CvUnit::joinGroup immediately returns when the destination is the unit's
+     existing group.
+   - mergeIntoGroup's only other potentially behavioral branch changes UnitAI when
+     a source member has greater AI_groupFirstVal than the target head. addUnit
+     maintains descending AI_groupFirstVal ordering, so no member of a group can
+     outrank its own head under the tested invariant.
+   - Result: self-merge is wasted traversal / robustness cleanup, not a current
+     gameplay defect. Do not allocate F147 for it.
+
+2. setTransportUnit split-by-head-capacity did not yield a shipped-data defect.
+   - The only C++ selection-group caller is CvUnitAI::AI_load.
+   - Current AI_load callers are land-unit loading paths targeting ordinary
+     land-domain transports. Those ships use SpecialCargo=NONE and accept the
+     relevant land members, so the feared case where splitGroup selects members
+     incompatible with the head-compatible capacity could not be established in
+     current supported data/callers.
+   - Specialized Carrier/Missile cargo restrictions apply to DOMAIN_AIR and are
+     not reached by this land AI_load family.
+
+3. groupAmphibMove already deduplicates cargo groups.
+   - K-Mod explicitly repaired the old per-cargo-carrying-unit repetition by
+     collecting distinct CvSelectionGroup pointers with std::find.
+   - It requires each cargo group canAllMove before issuing the landing mission.
+     Ordinary groupMove then peels units that cannot enter the actual destination
+     into behind-groups, which is the intended general movement behavior rather
+     than a stale-pointer/cargo-group failure.
+
+4. canCargoAllMove matches its current transport-AI consumers.
+   - It checks every LAND cargo unit whose transport belongs to this entire sea
+     selection group, not merely cargo of one head ship; the K-Mod comment states
+     that this whole-group replacement was intentional.
+   - Current ferry/assault/missionary/spy-sea callers use it as a readiness gate
+     before moving/landing the transport group. No contradictory per-ship contract
+     was established.
+
+5. splitGroup / mergeIntoGroup linked-list mutation is structurally safe in the
+   reviewed core paths.
+   - FOR_EACH_UNIT_VAR_IN caches the next CLinkList node before executing the loop
+     body specifically so deleting/moving the current unit is safe.
+   - splitGroup reserves representation for the old head AI in the remainder and
+     the requested new head AI in the split group; current ppOtherGroup callers
+     either initialize their pointer or do not request it.
+   - No current iterator invalidation, empty-remainder dereference, or head-loss
+     root was established in this pass.
+
+
+C015-WIP05 CURRENT CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP05
+LIVE FILE-015 ROOTS: F143-F146 / provisional KI#466-KI#469
+NEXT ROOT ID: F147 UNUSED
+
+Continue with group attack/movement contracts, then top-of-file turn/timer/sentry
+state, mission-queue lifetime, pathing/static pathfinder ownership, serialization,
+and finally a full file-015 adversarial closure. No repository source files were
+modified.
+
+
+===============================================================================
+C015-WIP06 APPEND -- CvSelectionGroup.cpp sentry actor-semantics audit
+===============================================================================
+
+F147 / provisional KI#470 -- CONFIRMED -- INHERITED BTS/ADVCIV SENTRY HOSTILITY-ACTOR MISMATCH
+SENTRY ALERT BORROWS ONE MAX-RANGE UNIT'S ALWAYS-HOSTILE SEMANTICS FOR THE WHOLE GROUP
+----------------------------------------------------------------------------------------
+Status: NEW CURRENT INHERITED GAMEPLAY/UI-LIFECYCLE DEFECT ROOT. Static/current-data proof strong.
+
+Root contract:
+- CvSelectionGroup::sentryAlert first scans every member only to choose ONE pHeadUnit:
+  the member with greatest visibilityRange()+1.
+- It then uses that same unit both as the LOS/range representative and as the combat-
+  hostility actor in every visible-enemy test:
+
+      if (!kPlot.isVisibleEnemyUnit(pHeadUnit, pLoopUnit))
+          continue;
+
+- The LOS/range optimization is valid for ordinary same-plot group members: canSeePlot
+  uses the shared team plus range, and invisibility visibility is team-scoped.
+- Enemy classification is NOT necessarily shared. CvPlot::isVisibleEnemyUnit(attacker,
+  potentialEnemy) passes attacker->isAlwaysHostile(plot) into PUF_isEnemy. Thus an
+  always-hostile/hidden-nationality member can legally treat a neutral foreign unit as
+  an enemy while an ordinary teammate does not.
+
+Current supported reproduction:
+1. Current UNIT_PRIVATEER is DOMAIN_SEA, UNITCOMBAT_NAVAL, bHiddenNationality=1 and
+   bAlwaysHostile=1.
+2. Current UNIT_DESTROYER is DOMAIN_SEA and ordinary (both flags 0).
+3. CvUnit::canJoinGroup imposes no hidden-nationality/always-hostile compatibility
+   rule; same owner, plot and domain are sufficient here. A Privateer and Destroyer can
+   therefore legally share a human selection group.
+4. Current PROMOTION_SENTRY is available to UNITCOMBAT_NAVAL and gives
+   iVisibilityChange=+1. Give it to the ordinary Destroyer while the Privateer lacks it.
+   sentryAlert then deterministically selects the Destroyer as pHeadUnit because it has
+   the strictly greatest visibilityRange().
+5. Put the group on MISSION_SENTRY in neutral/open sea and let a visible ship belonging
+   to a team with which the owner is at peace newly enter even the Privateer's ordinary
+   visibility radius.
+6. For the chosen Destroyer, isAlwaysHostile is false, so PUF_isEnemy reduces to actual
+   team war state and says the neutral ship is not an enemy.
+7. For the Privateer on the same tile, isAlwaysHostile is true outside a friendly/base
+   plot; PUF_isEnemy therefore regards the same foreign combat owner as hostile even
+   without a declared war. That ship is a legally attackable hostile target for one
+   member of the sentry group.
+8. Because sentryAlert tests hostility only through the max-range Destroyer, the group
+   remains asleep instead of waking for the Privateer's newly visible enemy.
+
+Why this is not a generic visibility-range problem:
+- All members occupy the same plot/team. Using the largest range for geometrical LOS is
+  a valid optimization and does not need to be replaced with N complete radius scans.
+- Invisible detection is also team visibility in the called path.
+- The mismatched quantity is specifically the UNIT-local attacker hostility semantics
+  (notably isAlwaysHostile / hidden-nationality combat behavior). The scan actor was
+  selected for range, a property unrelated to that combat relationship.
+
+Ancestry:
+- Local Civ4CE BtS CvSelectionGroup::sentryAlert already chooses one maximum-range unit
+  and calls pPlot->isVisibleEnemyUnit(pHeadUnit). Thus the root predates AdvCiv.
+- AdvCiv advc.004l replaced the immediate boolean scan with known-enemy identity
+  tracking so units already in range would not wake Sentry repeatedly, but retained the
+  same one-unit hostility actor. Base AdvCiv 1.14 and current SAS therefore preserve the
+  inherited mismatch.
+- Current Known Issues contains hidden-nationality/always-hostile issues in other
+  producer contexts, but no collision with this sentry group-actor contract was found.
+
+Consequence:
+- A legal heterogeneous sentry group can fail to wake when a newly visible unit is an
+  enemy for an always-hostile member but not for whichever member happened to have the
+  greatest visibility range.
+- Promotion assignment can change this behavior without changing the Privateer's own
+  visibility or hostility: adding Sentry (+1 visibility) to the ordinary escort can make
+  that escort become the sole hostility representative for the entire stack.
+
+Repair direction:
+- Preserve the max-range geometry optimization, but determine whether a visible
+  potential enemy is hostile to ANY relevant group member rather than borrowing the
+  max-range unit's isAlwaysHostile semantics for everybody.
+- A cheap implementation can separate LOS/team-invisibility filtering from hostility:
+  only members whose own visibility range reaches the candidate plot need be considered
+  for member-specific PUF/isVisibleEnemyUnit hostility, or otherwise derive the union
+  of actual group combat-hostility semantics carefully.
+- Keep advc.004l knownEnemies tracking group-wide after that corrected predicate.
+
+CONTROLS / NON-FINDINGS FROM THE SAME PASS
+------------------------------------------
+- sentryAlert's single maximum-range member is sufficient for ordinary LOS geometry:
+  all group members share plot and team; canSeePlot receives only that plot/team/range.
+- Invisible-unit visibility in CvPlot::isVisibleEnemyUnit ultimately uses the viewer
+  team, so a dedicated see-invisible member contributes to team visibility; the defect
+  above is not that the max-range member personally lacks the detection promotion.
+- The doTurn Sentry-Heal wake test's pHeadUnit->canSentryHeal(plot()) initially looks
+  like another head-only actor bug, but current canSentryHeal is purely
+  !GET_TEAM(getTeam()).isRevealedCityHeal(plot). Same team + same plot makes its result
+  identical for every group member.
+- groupAttack's bBlitz / !bBlitz logic is intentional inherited K-Mod behavior. AdvCiv
+  merely rewrote K-Mod's `bNoBlitz = !isBlitz() || !isMadeAttack()` as the algebraically
+  equivalent `bBlitz = isBlitz() && isMadeAttack(); ... !bBlitz` when advc.164 expanded
+  Blitz counts. No new F-root was established there.
+
+WIP06 CURRENT CURSOR
+--------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP06
+CURRENT FILE-015 NEW ROOTS: F143-F147 / provisional KI#466-KI#470
+NEXT ROOT ID: F148 UNUSED
+
+Continue attack/movement and top-of-file timer/sentry lifecycle closure, then mission queue/
+path/build/serialization and remaining inherited surface. No repository source files were modified.
+
+LOCAL RECONCILIATION AFTER C015-WIP06 IMPORT
+
+- ChatGPT-5.6-Sol's C015-WIP04 through WIP06 append remains verbatim as evidence. It is compatible with current authority at HEAD df46c1a09 plus the reviewed KI#434/KI#435 worktree repairs, despite using the older practical-6267 / HEAD 52e0f9c06 source baseline.
+- F111-F112 / KI#434-KI#435 are fixed in the reviewed worktree, compiled and exercised by a full Huge multi-team autoplay through turn 500. The new `CvSelectionGroup.cpp` findings do not supersede those repairs; the prior WIP03 reconciliation and F113/provisional KI#436 retraction remain authoritative.
+- F145-F147 / provisional KI#468-KI#470 are collision-free against the current reviewed Known Issues ledger. They remain provisional while file 015 is open at C015-WIP06; no implementation is promoted from this imported append. (GPT-5.6-Sol)

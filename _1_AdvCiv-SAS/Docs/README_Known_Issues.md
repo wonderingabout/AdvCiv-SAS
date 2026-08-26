@@ -498,6 +498,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [429 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Adjusted leaders were compared by raw score](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#429---fixed-inherited-advciv-uwai-kingmaking-defect-adjusted-leaders-were-compared-by-raw-score)\
 [430 - (Fixed inherited AdvCiv UWAI coalition defect) Our predicted side omitted existing vassals and teammate losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#430---fixed-inherited-advciv-uwai-coalition-defect-our-predicted-side-omitted-existing-vassals-and-teammate-losses)\
 [431 - (Fixed inherited AdvCiv UWAI reporting defect) A missing vararg produced undefined output](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#431---fixed-inherited-advciv-uwai-reporting-defect-a-missing-vararg-produced-undefined-output)\
+[434 - (Fixed inherited AdvCiv UWAI AP defect) Conquests tested the conqueror instead of the old owner](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#434---fixed-inherited-advciv-uwai-ap-defect-conquests-tested-the-conqueror-instead-of-the-old-owner)\
+[435 - (Fixed inherited AdvCiv UWAI war-anger defect) Enemy contributions were divided by our team size](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#435---fixed-inherited-advciv-uwai-war-anger-defect-enemy-contributions-were-divided-by-our-team-size)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -10384,3 +10386,25 @@ When UWAI reporting is enabled and `UlteriorMotives` assigns a positive cost, it
 The repair passes the agent personality's `DeclareWarRefuseAttitudeThreshold`, which is the same value used immediately above to calculate the reported suspicion factor. A mechanical audit recorded in the C++ File Audit Album found no other format/argument-count mismatch in `WarUtilityAspect.cpp`. Base AdvCiv 1.14 contains the same incomplete call, making this an inherited AdvCiv UWAI reporting defect rather than an AdvCiv-SAS regression. Found as F108/provisional KI#431 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The same compiled multi-team autoplay completed normally. `REPORT_INTERVAL` remained disabled, so the corrected optional report row was not emitted during this test; its argument count and selected threshold remain source-verified.
+
+## 434 - (Fixed inherited AdvCiv UWAI AP defect) Conquests tested the conqueror instead of the old owner
+
+Screenshots/files for this issue: same google drive folder link as KI#435.
+
+`MilitaryVictory::progressRatingDiplomacy` estimates Apostolic Palace vote progress from cities conquered by the agent, its vassals or friendly partners. After weighting a conquest for its new owner, the code explicitly switches to the city's old owner to judge whether removing that population is useful. The local variable, comment and attitude lookup all identify the old owner, but AdvCiv tested the conquering rival's full AP membership. In third-party conquests the two players can have different membership, causing favorable vote removal to be discounted incorrectly or already favorable full-member population to receive too much credit.
+
+The repair uses the old owner's AP membership and attitude consistently. The neighboring `GET_TEAM(eCityOwner)` call is deliberately valid: this codebase overloads `GET_TEAM(PlayerTypes)` and resolves the player's current team through `TEAMID`, as already documented by rejected KI#311 and KI#387. ChatGPT-5.6-Sol's later C014 closure consequently retracted provisional KI#436's broader player/team-lookup hypothesis; it is not part of this repair.
+
+Base AdvCiv 1.14 contains the same wrong-object membership test, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F111/provisional KI#434 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully. A Huge Pangaea full autoplay with five two-player starting teams plus solo teams, Aggressive AI and diplomatic victory enabled completed normally with a Time victory on turn 500. The run exercised multi-team warfare and vassal state, but did not isolate the exact third-party AP conquest comparison; that narrow correction remains source-verified.
+
+## 435 - (Fixed inherited AdvCiv UWAI war-anger defect) Enemy contributions were divided by our team size
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1yV87aSp5DW1KP5Xzggs_i6GsIuhk4Zt4?usp=sharing).
+
+`UWAICache::updateWarAnger` first attributes the owner's total war-weariness anger to enemy teams, then stores one cached contribution for every living enemy player. The conversion from team contribution to per-civilization contribution divided by the owner's team size rather than the enemy team's living membership. A solo owner facing a two-player enemy could count the same enemy-team contribution twice, while a two-player owner facing a solo enemy could halve it. Equal team sizes concealed the mismatch.
+
+The repair divides each enemy-team contribution by that enemy team's `CIV_ALIVE` member count, exactly matching the living-enemy iterator that consumes the split and avoiding dilution by dead assigned members. `PublicOpposition` can then sum the per-player values back to the intended team contribution. Base AdvCiv 1.14 contains the wrong-side divisor, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F112/provisional KI#435 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same compiled turn-500 autoplay exercised five two-player starting teams alongside solo teams, wars and a vassal relationship present from turn 100 through turn 400. This directly covered unequal team membership and live UWAI cache updates without an observed issue; the exact cached war-anger values remain source-verified rather than separately reported.
