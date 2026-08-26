@@ -10623,17 +10623,23 @@ The repair requires every living member of the evaluated target team to be elimi
 
 Base AdvCiv 1.14 contains the same reusable team inventory, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must allocate the shared technology opportunity once while preserving player-specific relationship, contact and economic inputs; dividing the entire partner value by team size would be lossy. The issue remains pending. Found as F136/provisional KI#459 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
 
-## 460 - (Pending inherited AdvCiv UWAI Pre-emptive War defect) One team threat forecast repeats per reachable member
+## 460 - (Fixed inherited AdvCiv UWAI Pre-emptive War defect) One team threat forecast repeated per reachable member
 
 `PreEmptiveWar` reads a player-keyed threat cache whose substantive value is `teamThreat(TEAMID(eRival))`, then reconstructs the same master-team/vassal city side for each rival teammate. When several members pass the player-local reachability gate, the same team threat change is consumed repeatedly.
 
-Base AdvCiv 1.14 contains the same player exposure of a team forecast, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must define reachability at team scope and consume the forecast once without hiding KI#430's independently repaired side-construction rules. The issue remains pending. Found as F137/provisional KI#460 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+The repair tracks rival teams already evaluated for each agent member, takes the maximum of the living target members' player-keyed threat ratings and consumes that shared forecast once. Because reachable teammates expose the same underlying `teamThreat`, this is an explicit any-member reachability gate without choosing an arbitrary representative. KI#430's repaired team/vassal side construction remains unchanged inside the one retained evaluation.
 
-## 461 - (Pending inherited AdvCiv UWAI Tactical Situation defect) One operational-readiness deficit repeats per target teammate
+Base AdvCiv 1.14 contains the same player exposure of a team forecast, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F137/provisional KI#460 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 461 - (Fixed inherited AdvCiv UWAI Tactical Situation defect) One operational-readiness deficit repeated per target teammate
 
 `TacticalSituation::evalOperational` explicitly evaluates one agent player's readiness for the configured target team, yet the ordinary rival-player loop charges that same attacker, cargo, escort and preparation deficit once for every target member. Target era and reachability can differ by player, so choosing an arbitrary representative would introduce a separate distortion.
 
-Base AdvCiv 1.14 contains the same repeated target-team cost, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must evaluate operational readiness once per agent member and aggregate relevant target-side era/reachability at team scope. The issue remains pending and is separate from KI#445's ongoing-war physical-unit reuse. Found as F138/provisional KI#461 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+The repair resets one operational-evaluation latch for each agent member, then charges that member's attacker, cargo, escort and preparation deficit once for the configured target team. Reachability and era are aggregated across the target's living reachable members, so the retained calculation does not depend on whichever teammate the generic rival loop encounters first. This remains separate from KI#445's ongoing-war physical-unit reuse.
+
+Base AdvCiv 1.14 contains the same repeated target-team cost, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F138/provisional KI#461 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired Debug-opt DLL compiled successfully. A Huge Normal Pangaea full autoplay with 16 players across 11 teams, including five two-player teams, exercised the repaired team/member evaluation boundaries and completed normally with a Space Race victory on turn 372. The exact threat and operational-readiness values remain source-verified because UWAI reporting was not enabled.
 
 ## 462 - (Fixed inherited AdvCiv UWAI Ill Will defect) One war-on-friend event repeated per victim-team member
 

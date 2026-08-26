@@ -50,7 +50,7 @@ QUEUE (current .cpp files, longest -> shortest)
 028   2095 CvGameCoreDLL/CvXMLLoadUtilitySet.cpp [PENDING]
 029   2052 CvGameCoreDLL/CyEnumsInterface.cpp [PENDING]
 030   1919 CvGameCoreDLL/CvInfo_Misc.cpp [PENDING]
-031   1812 CvGameCoreDLL/UWAICache.cpp [PENDING]<-(priority next wip)
+031   1812 CvGameCoreDLL/UWAICache.cpp [PENDING]<-(priority next wip 2nd)
 032   1704 CvGameCoreDLL/CyUnit.cpp [PENDING]
 033   1672 CvGameCoreDLL/CvInfo_Terrain.cpp [PENDING]
 034   1637 CvGameCoreDLL/CvInfo_Civilization.cpp [PENDING]
@@ -60,11 +60,11 @@ QUEUE (current .cpp files, longest -> shortest)
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]<-(priority next wip)
 040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]<-(priority next wip)
-041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [PENDING]<-(priority next wip)
+041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [PENDING]<-(priority next wip 1st)
 042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]<-(priority next wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
-045   1281 CvGameCoreDLL/CvMapGenerator.cpp [PENDING]<-(priority next wip)
+045   1281 CvGameCoreDLL/CvMapGenerator.cpp [PENDING]<-(priority next wip 3rd)
 046   1268 CvGameCoreDLL/CyGame.cpp [PENDING]
 047   1214 CvGameCoreDLL/CvDllPythonEvents.cpp [PENDING]
 048   1128 CvGameCoreDLL/CvInfo_Building.cpp [PENDING]
@@ -24635,11 +24635,140 @@ No repository source files were modified by ChatGPT-5.6-Sol during this audit.
 ===============================================================================
 
 
-LOCAL RECONCILIATION AFTER KI#455-KI#456 AND KI#472-KI#480 REVIEW
+===============================================================================
+C017-WIP13 APPEND -- F197 / provisional KI#520
+===============================================================================
 
+F197 / provisional KI#520 -- INHERITED ADVCIV DEBUG ASSERTION DEFECT:
+UWAI brokered-peace valuation asserts that war duration is strictly positive even
+though a valid brokered-peace valuation can occur on the declaration turn with an
+at-war counter of 0; the formula itself is already safe for 0.
+
+LOCATION / LIVE CODE
+    CvGameCoreDLL/UWAIAgent.cpp, UWAI::Team::makePeaceTradeVal:
+
+        int iWarDuration = kAgent.AI_getAtWarCounter(eEnemy);
+        FAssert(iWarDuration > 0);
+        /*  warDuration could be as small as 1 I think. Then the mark-up is
+            +175% in the Ancient era. None for a Renaissance war after 15 turns. */
+        scaled rTimeModifier = (fixp(5.5) - kAgent.AI_getCurrEraFactor() / 2) /
+                scaled(iWarDuration + 1).sqrt();
+
+    The asserted invariant is stronger than both the actual trade API contract and
+    the arithmetic requirement. The expression is perfectly defined at 0 because it
+    takes sqrt(iWarDuration + 1).
+
+REACHABILITY / CALLER CONTRACT
+    CvTeamAI::AI_makePeaceTradeVal requires only that the two relevant teams are at
+    war before forwarding to UWAI. It has no minimum-war-age precondition.
+
+    TRADE_PEACE likewise has no age gate. CvPlayer::canTradeItem accepts a peace-
+    brokerage item whenever the AI's team is at war with that third team and the
+    ordinary contact/team-status conditions hold. CvPlayer::getTradeDenial forwards
+    the item to CvTeamAI::AI_makePeaceTrade; UWAI::Team::makePeaceTrade contains no
+    minimum at-war-counter check either.
+
+    The normal human-AI trade table exposes third-party TRADE_PEACE items from the AI
+    side when they are otherwise tradeable. If the AI's makePeaceTrade denial returns
+    NO_DENIAL, AI_considerOffer proceeds to AI_dealVal, whose TRADE_PEACE case calls
+    AI_makePeaceTradeVal and therefore reaches this assertion.
+
+ZERO-COUNTER LIFECYCLE
+    CvTeamAI::AI_doCounter increments AI_getAtWarCounter only during CvTeam::doTurn
+    when the teams are already at war. An ended war has its counter reset to 0 in
+    AI_postMakePeace. A declaration later in a turn does not pre-increment that
+    counter; AI_postDeclareWar resets peace/share-war state and installs war plans,
+    but leaves the new war duration at its legitimate initial value 0.
+
+    Therefore a war declared after the team's counter update has a real interval in
+    which isAtWar(eEnemy) is true while AI_getAtWarCounter(eEnemy) == 0. A broker can
+    reach diplomacy in that interval (particularly straightforward in human / network
+    turn-order cases). There is no denial-side age rule that excludes it.
+
+    NO_DENIAL at age 0 is also not forbidden by UWAI semantics. makePeaceTrade bases
+    the decision on the two teams' reluctanceToPeace values and contact state, not on
+    iWarDuration. For example, a modestly reluctant aggressor (<55) and an enemy whose
+    reluctance is nonpositive satisfies the normal no-denial branch; defensive-pact,
+    vassal/cascade and otherwise unattractive fresh wars provide ordinary ways for
+    immediate peace utility to be low or negative.
+
+ANCESTRY / INTERNAL CONTROL
+    This assertion and the accompanying "could be as small as 1" comment date to the
+    initial AdvCiv UWAI integration (practical commit 1253, f6ff6a182f, 2017-04-16)
+    and remain in Base AdvCiv 1.14 and current SAS.
+
+    The legacy CvTeamAI::AI_makePeaceTradeVal path is useful independent evidence that
+    the public valuation contract never required a positive age: it computes with
+
+        AI_getAtWarCounter(ePeaceTeam) + 10
+
+    and therefore naturally accepts a 0-turn war. UWAI changed the pricing formula but
+    did not add a caller-side minimum-age rule.
+
+CONSEQUENCE / SEVERITY
+    In assertion-enabled builds, a legitimate same-round brokered-peace valuation can
+    trip FAssert(iWarDuration > 0). This is a debug/developer correctness defect.
+
+    This is NOT a claim of a release-build divide-by-zero or invalid square root. The
+    current formula is safe at 0 and produces a defined, deliberately high early-war
+    markup. With assertions compiled out, the mathematical path continues normally.
+
+REPAIR DIRECTION
+    The narrow repair is to relax/remove the invalid positive-age assertion. If an
+    invariant check is desired, the actual domain is nonnegative:
+
+        FAssert(iWarDuration >= 0);
+
+    No denominator clamp or behavioral age gate is required; adding one would alter
+    valid pricing semantics rather than merely repair the assertion contract.
+
+NEGATIVE CONTROLS
+    * No TRADE_PEACE_TREATY/direct bilateral-peace behavior is implicated here; this
+      finding concerns the third-party TRADE_PEACE brokerage valuation.
+    * No claim is made that every declaration-turn brokerage is accepted. The defect
+      needs only one legal NO_DENIAL state; makePeaceTrade has no rule excluding age 0.
+    * The arithmetic itself is already robust at zero, so this root is intentionally
+      classified as assertion/debug-path scope rather than inflated into a gameplay
+      crash or numeric corruption finding.
+
+
+ADDITIONAL CLOSURE WORK SINCE C017-WIP12
+----------------------------------------
+* Remaining UWAICache lifecycle siblings were checked after F196. Sponsorship/bounty
+  is explicitly cleared by reportWarEnding; lost-plot, war-anger and undistraction
+  state are refreshed rather than acting as one-shot current-war authorization.
+* canBeHiredAgainst is deliberately hysteretic/serialized, but cannot authorize an
+  illegal already-at-war or force-peace declaration: CvTeamAI::AI_declareWarTrade
+  applies the declaration-legality gates before consulting UWAI hireability.
+* Background-mode branches that return simulated "changed" decisions while suppressing
+  mutation were revisited. No independent caller contract failure beyond the already-
+  recorded F194 cached-background mismatch has yet been proven.
+
+
+C017-WIP13 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 16 / 169
+FILE 017: CvGameCoreDLL/UWAIAgent.cpp -- OPEN, FINAL WHOLE-FILE CLOSURE PASS
+PHYSICAL CHECKPOINT: C017-WIP13
+CURRENT FILE-017 ROOTS: F183-F197 / provisional KI#506-KI#520
+NEXT ROOT ID: F198 UNUSED
+
+Resume with F198 unused. Finish the remaining assertion/Tbd/Hack census and the
+SAS-vs-Base modified-hunk comparison, then perform a final function/return-state sweep.
+If no independent root survives, close file 017 with F198 unused rather than inventing
+one.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+LOCAL RECONCILIATION AFTER C017-WIP13 IMPORT
+
+- C017-WIP13 has been imported without rewriting its append-only evidence. F197 / provisional KI#520 is collision-free against the current Known Issues ledger and remains provisional pending independent review. Its own cursor still leaves `UWAIAgent.cpp` open for one final whole-file closure pass with F198 unused; the next audit continuation should close that boundary before advancing to file 018.
 - F132 / KI#455 has been independently revalidated and fixed. `Revolts` now forms one scenario-wide union of threatened agent cities in `preEvaluate`, with one matching expected-loss numerator and asset denominator per agent member; the removed persistent member set can no longer partition the ratio by rival order or leak city identities into another agent-member evaluation.
 - F133 / KI#456 has been independently revalidated and fixed. Exclusive-radius land now has one explicit player-apportioned asset-category total shared by the flipped-tile numerator and `netLostAssetScore` denominator instead of comparing tile losses against city assets alone.
 - The repaired Debug-opt DLL completed a default Huge mixed-team autoplay normally through a turn-357 Space victory. With `OWN_EXCLUSIVE_RADIUS=1`, it also completed a Large mixed-team autoplay normally through a turn-469 Space victory; exact Revolts and asset-ratio inputs remain source-verified because UWAI reporting was not inspected.
+- F137-F138 / KI#460-KI#461 have been independently revalidated and fixed. `PreEmptiveWar` now consumes one shared rival-team threat forecast per agent member through any-member reachability; `TacticalSituation` charges one operational-readiness deficit per agent member and configured target team after aggregating the target's reachable-member era and reachability. The repaired Debug-opt DLL completed a Huge Normal Pangaea autoplay with 16 players across 11 teams, including five two-player teams, normally through a turn-372 Space victory.
 - F149-F157 / KI#472-KI#480 have all been independently reviewed and fixed. The accepted repairs cover amphibious mission success, Air Patrol participation, heterogeneous upgrade-action caching, reusable group-path invalidation, cross-transport cargo state, reentrant `groupMove`/combat-timer node lifetime and value-copy ownership for the two Firaxis Python queue getters. Runtime tests directly exercised KI#473 and KI#479; the remaining narrow transitions received compiled autoplay coverage and source verification as recorded in Known Issues.
 - KI#475's first implementation exposed and then fixed two additional independent crashes. KI#475.2 restored a destroyed-GroupPathFinder guard during save teardown after PDB-assisted diagnosis of the SAS follow-up regression. KI#475.3 initializes dead-at-load player UWAI before Base AdvCiv's revival update; the former reproduction save and WorldBuilder revival route then completed without crashing. These decimal continuation issues are implementation findings rather than replacements for an album root number.
 - KI#480's repaired Debug-opt DLL compiled and completed an autoplay normally. Current shipped SAS Python does not call either queue getter, so its corrected public-API ownership transition remains source-verified.

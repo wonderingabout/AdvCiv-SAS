@@ -304,8 +304,13 @@ class PreEmptiveWar : public WarUtilityBroaderAspect
 public:
 	PreEmptiveWar(WarEvalParameters const& kParams)
 	:	WarUtilityBroaderAspect(kParams) {}
+	// <!-- custom: Clear the evaluated-team set before the generic rival callbacks begin for each agent member. See KI#460. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::PREEMPTIVE_WAR; }
+private:
+	// <!-- custom: Track rival teams already evaluated for their shared long-term threat forecast. See KI#460. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamSet m_evaluatedThreatTeams;
 };
 
 
@@ -454,11 +459,16 @@ public:
 class TacticalSituation : public WarUtilityAspect
 {
 public:
+	// <!-- custom: Initialize the one-shot target-team readiness latch. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	TacticalSituation(WarEvalParameters const& kParams)
-	:	WarUtilityAspect(kParams) {}
+	:	WarUtilityAspect(kParams), m_bOperationalEvaluated(false) {}
+	// <!-- custom: Reset the latch before evaluating each agent member's distinct unit inventory. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::TACTICAL_SITUATION; }
 private:
+	// <!-- custom: One agent member has one operational-readiness state for the configured target team. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool m_bOperationalEvaluated;
 	void evalEngagement();
 	void evalOperational();
 	int evacPop(PlayerTypes eOwner, PlayerTypes eInvader) const;

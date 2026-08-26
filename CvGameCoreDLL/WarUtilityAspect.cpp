@@ -2186,6 +2186,14 @@ void SuckingUp::evaluate()
 }
 
 
+// <!-- custom: Reset team-forecast ownership for each agent member's military analysis. See KI#460. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int PreEmptiveWar::preEvaluate()
+{
+	m_evaluatedThreatTeams.clear();
+	return 0;
+}
+
+
 void PreEmptiveWar::evaluate()
 {
 	/*	If an unfavorable war with them seems likely in the long run,
@@ -2196,7 +2204,14 @@ void PreEmptiveWar::evaluate()
 	{
 		return;
 	}
-	scaled const rCurrThreat = ourCache().threatRating(eThey);
+	// <!-- custom: Threat ratings expose one team forecast through player-keyed reachability gates.
+	// Consume each rival team's forecast once, using any member able to reach this agent instead of whichever member the generic rival loop encounters. See KI#460. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (m_evaluatedThreatTeams.count(eTheirTeam) > 0)
+		return;
+	m_evaluatedThreatTeams.insert(eTheirTeam);
+	scaled rCurrThreat;
+	for (MemberIter itMember(eTheirTeam); itMember.hasNext(); ++itMember)
+		rCurrThreat.increaseTo(ourCache().threatRating(itMember->getID()));
 	/*	War evaluation should always assume minor threats;
 		not worth addressing here explicitly. */
 	if (rCurrThreat < fixp(0.15))
@@ -4477,19 +4492,40 @@ int TacticalSituation::evacPop(PlayerTypes eOwner, PlayerTypes eInvader) const
 }
 
 
+// <!-- custom: Reset the one-shot target-team readiness calculation for each agent member's distinct unit inventory. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int TacticalSituation::preEvaluate()
+{
+	m_bOperationalEvaluated = false;
+	return 0;
+}
+
+
+// <!-- custom: Canonicalize the configured target team's player callbacks into one readiness evaluation for the current agent member. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void TacticalSituation::evalOperational()
 {
-
 	/*	Evaluate our readiness only for the target that we want to invade
 		(not its vassals or allies from def. pact) */
-	if (m_kParams.getTarget() != eTheirTeam)
+	if (m_kParams.getTarget() != eTheirTeam || m_bOperationalEvaluated)
 		return;
+	m_bOperationalEvaluated = true;
 	/*	When taking the human pov, we mustn't assume to know their exact unit counts.
 		Whether they're ready for an attack is secret info. */
 	if (kWe.isHuman())
 		return;
-	if (ourCache().numReachableCities(eThey) <= 0 ||
-		(m_kParams.isNaval() &&
+	// <!-- custom: Aggregate the configured target team's player-keyed reachability and era inputs before charging this agent member's one operational-readiness deficit.
+	// This prevents the generic rival-player loop from repeating the same force and preparation state for every target teammate. See KI#461. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bTargetReachable = false;
+	scaled rTheyEra;
+	EraTypes eTheyEra = NO_ERA;
+	for (MemberIter itMember(eTheirTeam); itMember.hasNext(); ++itMember)
+	{
+		if (ourCache().numReachableCities(itMember->getID()) <= 0)
+			continue;
+		bTargetReachable = true;
+		rTheyEra.increaseTo(GET_PLAYER(itMember->getID()).AI_getCurrEraFactor());
+		eTheyEra = std::max(eTheyEra, itMember->getCurrentEra());
+	}
+	if (!bTargetReachable || (m_kParams.isNaval() &&
 		// Won't need invaders then
 		ourCache().getPowerValues()[LOGISTICS]->getTypicalUnit() == NO_UNIT))
 	{
@@ -4497,7 +4533,6 @@ void TacticalSituation::evalOperational()
 	}
 	// Similar to CvUnitAI::AI_stackOfDoomExtra
 	scaled rTargetAttackers = 4;
-	scaled rTheyEra = kThey.AI_getCurrEraFactor();
 	if (rTheyEra > 0)
 		rTargetAttackers += rTheyEra.pow(fixp(1.3));
 	if (m_kParams.isNaval())
@@ -4534,7 +4569,7 @@ void TacticalSituation::evalOperational()
 		/*	If we have 0 escorters, we probably can't build them; probably have
 			Galleys then but no Triremes. That's OK.
 			Also no need for escort if they're way behind in tech. */
-		if (iEscort > 0 && kThey.getCurrentEra() >= kWe.getCurrentEra())
+		if (iEscort > 0 && eTheyEra >= kWe.getCurrentEra())
 		{
 			/*	More escort units would be nice, but I'm checking only
 				bare necessities. */
