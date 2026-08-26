@@ -10534,3 +10534,35 @@ Base AdvCiv 1.14 contains the same player-partitioned accounting, making this an
 The repair evaluates Bellicosity once through the hostile team's leader, accepts the team as reachable when any living member is reachable, sums military-branch losses across all living members and only then applies the existing anti-third-party cap. Personality and current agent power remain player-specific. Base AdvCiv 1.14 contains the same per-rival calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F123/provisional KI#446 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The repaired DLL compiled successfully. A Huge Normal Pangaea full UWAI autoplay with five two-player teams, including the human player's team, exercised mixed-team warfare and vassal state before completing normally with a Space Race victory on turn 346. Exact Bellicosity inputs remain source-verified because UWAI reporting was not enabled.
+
+## 447 - (Pending inherited AdvCiv UWAI intervention defect) Collective military severity depends on one target player's army cache
+
+`ThirdPartyIntervention::evaluate` estimates the likelihood and severity of intervention by another team. Its probability deliberately retains player-specific relations, but the severity compares the intervening team's power with only the currently iterated rival player's cached army assets. The aspect then runs again for every member of that rival team, including the nonlinear `<= 0.5` rejection and later severity divisor. Reassigning the same military assets among teammates can therefore change whether intervention is considered and by how much.
+
+Base AdvCiv 1.14 contains the same mixed team/player calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must aggregate the target team's military severity once while preserving the genuinely player-specific intervention probability; a leader guard or final division would discard information or retain the nonlinear partition error. The issue remains pending for a dedicated implementation. Found as F124/provisional KI#447 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 448 - (Pending inherited AdvCiv UWAI Dramatic Arc defect) Team-war safety and loss gates depend on target ownership
+
+`DramaticArc::evaluate` scores one shared team-war transition separately for every target player. Its human-capital safety gate applies only when the current target member is human, so an AI teammate's pass can bypass the protection. Its minimum-action gate likewise compares losses belonging to only the current player, allowing identical team losses to cross or miss the threshold depending on ownership partition.
+
+Base AdvCiv 1.14 contains the same player-partitioned gates, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must apply team-level safety and aggregate action thresholds once while retaining the aspect's player-specific inputs and scaling. The issue remains pending for a dedicated implementation. Found as F125/provisional KI#448 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 449 - (Pending inherited AdvCiv UWAI Distraction defect) One alternative war is charged once per target teammate
+
+`Distraction::evaluate` measures the opportunity cost of a second war against the current target team, but the generic aspect loop repeats the calculation for every living member of that team. This repeats both the alternative-war opportunity cost and the fixed `+5.5` actual-war-plan nudge, while reachability and almost-finished-war details remain player-specific. The later utility normalization makes simple division unable to reproduce a single collective evaluation.
+
+Base AdvCiv 1.14 contains the same repeated team-war accounting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must aggregate the collective alternative-war cost once without erasing member-specific reachability and progress. The issue remains pending for a dedicated implementation. Found as F126/provisional KI#449 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 450 - (Pending inherited AdvCiv UWAI Military Victory defect) Global victory progress is capped once per rival player
+
+`MilitaryVictory::evaluate` derives Domination and diplomatic-victory progress from global scenario state, but executes and caps those values separately for every rival player. The same global remaining threshold can therefore contribute repeatedly according to the number of eligible rivals. Conquest and nuclear components, by contrast, contain genuine opponent-specific state and cannot simply be moved with the global terms behind one common leader guard.
+
+Base AdvCiv 1.14 contains the same mixed global/opponent calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must aggregate and cap the global victory terms once per scenario while retaining opponent-specific Conquest and nuclear evaluation. The issue remains pending for a dedicated implementation. Found as F127/provisional KI#450 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 451 - (Fixed inherited AdvCiv UWAI Hired Hand defect) Team-keyed obligations repeated for every target teammate
+
+`HiredHand::evaluate` runs once per rival player, but both the sponsor/bounty cache and the scenario-long war counter are keyed by the rival's team. A multi-member target team therefore repeated the same payment obligation and historical-role utility once per living member. The neighboring branch for an ally hired by the agent also contains player-specific diplomatic memory and is not equivalent to these proven team-owned terms.
+
+The repair charges sponsor/bounty and scenario-long-war obligations only through the target team's leader while deliberately retaining the separate player-memory hireling evaluation. Base AdvCiv 1.14 contains the same duplicated team-keyed terms, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F128/provisional KI#451 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully. A Huge Normal Pangaea full UWAI autoplay with four two-player teams plus solo teams and Aggressive AI enabled exercised mixed-team warfare before completing normally with a Space Race victory on turn 446. The exact sponsorship transition remains source-verified because it was not isolated in the run.

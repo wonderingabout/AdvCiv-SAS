@@ -4,9 +4,9 @@ Generated from local light-source snapshot only; no web/GitHub lookup used.
 CURRENT PROGRESS SUMMARY
 Files complete: 14 / 169
 Files open: 1 / 169
-Current file: 015 CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) - OPEN AT C015-WIP11
-Current file-015 roots: F143-F151 / provisional KI#466-KI#474
-Next root ID: F152 unused
+Current file: 015 CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) - OPEN AT C015-WIP18
+Current file-015 roots: F143-F157 / provisional KI#466-KI#480
+Next root ID: F158 unused
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -33,7 +33,7 @@ QUEUE (current .cpp files, longest -> shortest)
 012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 013   6190 CvGameCoreDLL/CvTeam.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 014   5024 CvGameCoreDLL/WarUtilityAspect.cpp [COMPLETE - SEE C015 DURABLE CHECKPOINT]
-015   4722 CvGameCoreDLL/CvSelectionGroup.cpp [OPEN AT C015-WIP11]
+015   4722 CvGameCoreDLL/CvSelectionGroup.cpp [OPEN AT C015-WIP18]
 016   4592 CvGameCoreDLL/CitySiteEvaluator.cpp [PENDING]
 017   3700 CvGameCoreDLL/UWAIAgent.cpp [PENDING]
 018   2965 CvGameCoreDLL/CvGameInterface.cpp [PENDING]
@@ -19972,3 +19972,792 @@ Resume with the remaining boarded/handleBoarded symmetry and inherited tail,
 then run the adversarial current-snapshot verification matrix across F143-F153.
 If those roots survive and no uncovered contract family remains, close file 015
 without manufacturing F154. No repository source files were modified.
+
+
+C015-WIP14 APPEND -- F154 BtS cross-transport cargo automation scope leak
+===============================================================================
+
+F154 / provisional KI#477 -- CONFIRMED -- INHERITED FIRAXIS BTS DEFECT
+STOPPING AUTOMATION ON ONE TRANSPORT GROUP CANCELS AUTOMATION FOR CARGO CARRIED
+BY ANOTHER TRANSPORT GROUP WHEN THEIR LAND CARGO SHARES A SELECTION GROUP
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT DEFECT ROOT.
+- Present already in supplied Civ4CE/BtS; absent from the supplied Civ4 and
+  Warlords CvSelectionGroup::setAutomateType implementations.
+- Base AdvCiv 1.14 and current SAS inherit the BtS cargo-cancellation block.
+- Distinct from F153 / KI#476: F153 is AdvCiv's later ACTIVITY_BOARDED/cycling
+  layer. F154 predates that feature and corrupts AutomateTypes state instead.
+
+Broken ownership/state contract:
+- CvSelectionGroup::setAutomateType(NO_AUTOMATE) contains the BtS convenience:
+      // If canceling automation, cancel on cargo as well.
+- It scans units on the transport group's plot and correctly identifies an
+  affected cargo MEMBER by checking:
+      pCargoUnit->getTransportUnit()->getGroup() == this
+- It then applies both NO_AUTOMATE and ACTIVITY_AWAKE to:
+      pCargoUnit->getGroup()
+  i.e. the member's entire LAND selection group.
+- CvUnit::canJoinGroup does not require cargo members to have the same carrier
+  or even carriers in the same sea selection group. Same owner, plot and domain
+  are sufficient (plus the force-separate guard).
+- Human grouping reaches CvUnit::joinGroup through the normal
+  GAMEMESSAGE_JOIN_GROUP path. Thus land cargo carried by separate transport
+  groups on the same plot can legitimately share one selection group.
+- The per-transport event "automation on sea group A was canceled" therefore
+  mutates automation state belonging to cargo on sea group B as well.
+
+Current-SAS deterministic human reproduction:
+1. Put two separate human transport selection groups, ship A and ship B, on the
+   same city/coastal plot. Load one land combat cargo unit on each.
+2. Group cargo A and cargo B through normal human selection/grouping. Their
+   different carriers do not prevent canJoinGroup.
+3. Set the shared cargo group to AUTOMATE_EXPLORE. Current CvUnit::canAutomate
+   explicitly permits DOMAIN_LAND combat units to Explore even while cargo; it
+   has no isCargo exclusion. Loading has already finishMoves()'d the units, so
+   assigning automation need not make them act immediately.
+4. Automate ship A (e.g. Explore) so its sea group has a non-NO automate type.
+   Ship B remains a separate transport group and need receive no matching order.
+5. Issue COMMAND_STOP_AUTOMATION (or another path that genuinely transitions
+   ship A from an automate type to NO_AUTOMATE) on ship A.
+6. ship A's setAutomateType(NO_AUTOMATE) finds cargo A by its actual carrier,
+   then calls setAutomateType(NO_AUTOMATE) on cargo A's SHARED land group.
+7. Cargo B, whose carrier ship B was untouched, has its AUTOMATE_EXPLORE state
+   silently canceled solely because it was grouped with cargo A.
+8. This is persistent gameplay state, not presentation only: unloading wakes a
+   cargo group through CvUnit::setTransportUnit(NULL) but does NOT clear or
+   restore its automate type. Without F154, cargo B could retain its automation
+   for later use after unloading; after ship A's cancellation it cannot.
+
+Why ordinary human reachability is supported:
+- CvGame::selectUnit / selectGroup and CvDLLWidgetData::doCreateGroup ultimately
+  issue GAMEMESSAGE_JOIN_GROUP; CvNetJoinGroup::Execute calls CvUnit::joinGroup.
+- canJoinGroup has no carrier-affinity test. The required mixed-carrier land
+  group therefore does not rely on a private or debug-only API state.
+- K-Mod additionally treats cross-transport cargo grouping as meaningful and
+  contains explicit separation logic when transport groups carrying different
+  members later move apart. That strengthens present-day reachability, although
+  the underlying F154 cancellation block already exists in Firaxis BtS.
+
+Ancestry/control comparison:
+- Supplied Civ4CE/BtS CvSelectionGroup::setAutomateType (around lines 3643-3674)
+  contains the same "if canceling automation, cancel on cargo as well" loop and
+  the same pCargoUnit->getGroup() state mutation.
+- Supplied Warlords and original Civ4 setAutomateType implementations merely set
+  the automate type, clear the mission queue and wake the group; they have no
+  cargo-propagation loop.
+- Base AdvCiv 1.14 carries the BtS loop essentially unchanged. Current SAS does
+  too. F154 therefore originates in Firaxis BtS, not K-Mod/AdvCiv/SAS.
+- BtS movement tended to split cargo groups more aggressively when transports
+  moved; K-Mod later preserves such grouping when possible. That can change how
+  often the mixed-carrier state survives movement, but does not remove the
+  stationary/manual-group reproduction or the original scope mismatch.
+
+Relation to F153 / KI#476:
+- Both defects expose the same underlying data-model fact: a land cargo
+  CvSelectionGroup is not owned by one carrier/sea group.
+- They remain separate roots because different code, state and ancestry are
+  involved. F153 applies AdvCiv ACTIVITY_BOARDED wake/cycle semantics from one
+  ship order/arrival; F154 applies Firaxis BtS automation cancellation from one
+  sea group's automate transition.
+- A common repair helper may be sensible, but fixing only resetBoarded /
+  handleBoarded would leave F154 untouched, and fixing only setAutomateType would
+  leave F153 untouched.
+
+Repair direction:
+- Propagate NO_AUTOMATE/AWAKE only to cargo actually carried by the sea selection
+  group whose automation is being canceled.
+- If such cargo shares a land selection group with members carried by other sea
+  groups, partition/split at the carrier/transport-group boundary before making
+  a group-wide state transition, or otherwise apply state at an appropriately
+  scoped representation.
+- Reuse the same carrier-partition invariant considered for F153 if practical;
+  pointer deduplication alone is again insufficient.
+- Preserve the intended BtS convenience that canceling a transport's automation
+  also cancels automation of ITS cargo; the defect is only the spillover to
+  another transport group's cargo.
+
+
+C015-WIP14 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP14
+CURRENT FILE-015 NEW ROOTS: F143-F154 / provisional KI#466-KI#477
+NEXT ROOT ID: F155 UNUSED
+
+Continue the remaining tail/caller sweep and the adversarial current-snapshot
+verification matrix. Do not close file 015 until all F143-F154 roots have been
+rechallenged and the remaining helper families have explicit dispositions. No
+repository source files were modified.
+
+
+===============================================================================
+C015-WIP15 APPEND -- F155 live groupMove traversal invalidated by move side effects
+===============================================================================
+
+F155 / provisional KI#478 -- CONFIRMED -- INHERITED WARLORDS/BTS DEFECT;
+EXPLICITLY FIXED BY K-MOD 1.46 BUT STILL PRESENT IN ADVCIV/SAS DIVERGENT GROUPMOVE
+POTENTIAL USE-AFTER-FREE / CTD WHEN GROUPMOVE PREFETCHES A FUTURE LIVE LIST NODE
+AND MOVING THE CURRENT UNIT INDIRECTLY REGROUPS THAT FUTURE UNIT
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT DEFECT ROOT, crash-class rather than merely tactical/UI behavior.
+- Current SAS and Base AdvCiv 1.14 traverse the live CvSelectionGroup unit list
+  inside groupMove while CvUnit::move can run reentrant game-state code that
+  changes membership of that same group.
+- The concrete conquest/culture-bump mechanism is already present in supplied
+  Warlords and BtS, so the reproduction is inherited Firaxis behavior at least
+  from Warlords onward.
+- K-Mod commit 1129c1e740 (2016-09-28), included in the K-Mod 1.46 history,
+  explicitly fixed this exact class by making groupMove use a copied list of
+  units rather than the live list. Current AdvCiv/SAS groupMove still uses live
+  traversal because this function has a deliberately divergent advc.001 path.
+
+Current-SAS vulnerable traversal:
+- CvSelectionGroup::groupMove performs two no-city-capture stages and traverses
+  the group through:
+      FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+- LinkedListTraversal.h implements the VAR macro by obtaining the CURRENT unit
+  and then prefetching the NEXT CLLNode before entering the loop body:
+      pUnit = ::getUnit(node->m_data)
+      node = CLinkList<IDInfo>::static_next(node)
+      // body may now call pUnit->move(...)
+- This safely permits deleting pUnit's CURRENT node in the body. It does NOT
+  protect the already-prefetched NEXT node from being deleted indirectly.
+- AdvCiv's own advc.003s manual documents exactly that limitation: after
+  nextUnitNode has been called, the saved next node and the unit represented by
+  that node must not be deleted. Otherwise the saved CLLNode pointer dangles.
+
+Concrete current-SAS reentrant invalidation chain:
+1. groupMove begins iterating selection group G and resolves current unit A.
+2. The traversal macro prefetches the linked-list node for next unit B before
+   executing A's loop body.
+3. A can move into and capture an enemy city through pUnit->move(*pPlot, true).
+4. CvUnit::move -> CvUnit::setXY processes the city conquest and calls
+   CvPlayer::acquireCity(...).
+5. The conquest branch of acquireCity calls:
+      GC.getMap().verifyUnitValidPlot();
+   after the culture/ownership transition.
+6. CvMap::verifyUnitValidPlot visits plots. CvPlot::verifyUnitValidPlot can bump
+   units that are no longer legal on their plots because borders/territory have
+   just changed. Current K-Mod-derived code records the affected selection
+   groups and then calls regroupSeparatedUnits() on them.
+7. If still-unmoved future member B of G is one of the units displaced by that
+   conquest/culture update, CvSelectionGroup::regroupSeparatedUnits removes B
+   from G with CvUnit::joinGroup(...), thereby deleting B's old linked-list node.
+8. But groupMove's traversal has already saved a pointer to exactly that node as
+   its NEXT node. When the for-loop condition resumes, it dereferences the
+   dangling CLLNode pointer to obtain node->m_data.
+9. Result is undefined behavior: depending on allocator/memory reuse this can
+   skip/corrupt traversal or produce a use-after-free crash-to-desktop.
+
+Why this is not merely a theoretical mutation warning:
+- K-Mod's retained commit history contains commit 1129c1e740 with subject:
+      Fixed potential pointer invalidation in CvSelectionGroup::groupMove
+  and explains the mechanism directly:
+      The selection group can be messed up when units move. eg. If a city is
+      captured, the change in culture could bump the remaining units.
+  Its stated repair is to use a copied list of units rather than the live list.
+- K-Mod 1.46 changelog separately records:
+      Fixed potential crash in CvSelectionGroup::groupMove
+- This independently identifies the same function, same state change and same
+  failure class that current static tracing reaches.
+- AdvCiv's own linked-list refactor documentation further says the mutable
+  prefetch idiom remains unsafe when a different, already-prefetched node is
+  deleted as a side effect. The current groupMove call chain supplies exactly
+  that prohibited mutation.
+
+Ancestry/control comparison:
+- Supplied original Civ4 groupMove already uses the same Firaxis idiom:
+      pLoopUnit = ::getUnit(pUnitNode->m_data);
+      pUnitNode = nextUnitNode(pUnitNode);
+      pLoopUnit->move(...);
+  However, supplied original Civ4 acquireCity does not show the conquest-time
+  global verifyUnitValidPlot call used by this deterministic reproduction.
+  F155 is therefore not backdated to Vanilla solely from loop shape.
+- Supplied Warlords keeps the same live traversal AND its conquest branch calls
+  GC.getMapINLINE().verifyUnitValidPlot(). CvPlot::verifyUnitValidPlot can move
+  invalid units with jumpToNearestValidPlot. Thus the relevant reentrant
+  membership-change family is present by Warlords.
+- Supplied BtS keeps the same live traversal and conquest-time map verification.
+- K-Mod later diagnosed the pointer invalidation explicitly and fixed groupMove
+  by traversing a copied list.
+- Base AdvCiv history says K-Mod 1.46 changes were broadly merged, including a
+  rare CTD fix, but Base AdvCiv 1.14/current SAS groupMove still contains the
+  older live traversal. The source itself explains why this function diverged:
+  its advc.001 Gunship/no-city-capture staging comment says K-Mod 1.45 rewrote
+  groupMove but merging that rewrite would also require reconciling the Gunship
+  city-capture fix. Whatever other k146 code was merged, the copied-list safety
+  property is absent from this current function.
+
+Current implementation makes the old hazard especially explicit:
+- Warlords/BtS used a hand-written while loop that prefetched nextUnitNode before
+  calling move. AdvCiv refactored that shape into FOR_EACH_UNIT_VAR_IN.
+- The macro improves readability and makes deletion of the CURRENT node safe,
+  but it intentionally retains the same next-node-prefetch contract; it cannot
+  make deletion of a FUTURE prefetched node safe.
+- Therefore the modern macro is not a repair for the K-Mod 1.46 bug.
+
+Repair direction:
+- Restore the K-Mod 1.46 safety invariant: do not iterate the live selection-
+  group CLinkList across calls to CvUnit::move that can reenter membership-
+  mutating code.
+- Snapshot the units/identities to be considered before movement and iterate
+  that snapshot. Because reentrant effects can move, regroup or potentially
+  destroy future members, an IDInfo-style snapshot with a fresh ::getUnit lookup
+  and current-group/current-validity check before acting is safer than assuming
+  raw pointers necessarily remain usable.
+- Preserve current AdvCiv/SAS two-stage no-city-capture ordering and advc.153
+  behind-group behavior while changing only the iteration ownership/lifetime
+  contract.
+- Do not rely on FOR_EACH_UNIT_VAR_IN as the fix: its documented guarantee covers
+  deletion of the current node, not deletion of the prefetched next node by a
+  nested side effect.
+
+Distinctness:
+- F155 is independent of F152 pathfinder invalidation. F152 concerns stale path
+  cache state after legitimate group membership changes; F155 concerns unsafe
+  linked-list traversal while the membership change occurs reentrantly.
+- It is also independent of mission/cargo group-state roots F143-F154. Fixing
+  any of those does not make groupMove traversal lifetime-safe.
+
+
+C015-WIP15 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP15
+CURRENT FILE-015 NEW ROOTS: F143-F155 / provisional KI#466-KI#478
+NEXT ROOT ID: F156 UNUSED
+
+Continue the remaining helper/tail disposition and the adversarial current-tree
+verification matrix across F143-F155. File 015 should close only after every
+root has survived that challenge and the remaining exported/helper families
+have been explicitly inspected. No repository source files were modified.
+
+
+===============================================================================
+C015-WIP16 APPEND -- F156 outer updateTimers traversal invalidated by combat regroup
+===============================================================================
+
+F156 / provisional KI#479 -- CONFIRMED -- INHERITED BASE ADVCIV INTERACTION DEFECT
+POTENTIAL USE-AFTER-FREE / CTD WHEN UPDATETIMERS PREFETCHES A FUTURE UNIT NODE,
+UPDATECOMBAT ADVANCES THE WINNER, AND ADVC.153 SPLITS THAT FUTURE UNIT FROM GROUP
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT DEFECT ROOT, crash-class linked-list lifetime failure.
+- Distinct from F155 / KI#478. F155 is the live traversal INSIDE groupMove while
+  CvUnit::move can reentrantly remove a future node. F156 is the caller one
+  level above: updateTimers keeps its own prefetched future node across
+  CvUnit::updateCombat, and a perfectly normal groupMove membership change can
+  delete that node before updateTimers resumes.
+- Supplied stock BtS has the same next-node prefetch in updateTimers but breaks
+  immediately after updating one fighting unit, so the prefetched node is never
+  consumed after updateCombat. K-Mod deliberately disabled that break so that
+  several queued combats in one selection group can be updated.
+- Current deterministic reproduction additionally uses Base AdvCiv change
+  advc.153: on a normal MANUAL HUMAN combat advance, non-attacking members are
+  deliberately split from the attacker's original group rather than advancing
+  with it. The proven current root is therefore classified conservatively as a
+  Base AdvCiv inherited interaction defect, rather than backdating the exact
+  failure to K-Mod from architecture alone.
+
+Vulnerable outer traversal:
+- Current CvSelectionGroup::updateTimers uses:
+      FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+      {
+          if (pUnit->isInCombat())
+          {
+              ...
+              pUnit->updateCombat();
+              bCombat = true;
+              //break; // disabled by K-Mod.
+          }
+      }
+- LinkedListTraversal.h's mutable traversal obtains the current unit and
+  PREFETCHES the next CLLNode before entering the body. As documented for F155,
+  this supports deletion of the CURRENT node but not deletion of the already-
+  saved NEXT node by a nested side effect.
+- Because K-Mod removed the old break, updateTimers will attempt to resume the
+  loop through that saved next-node pointer after updateCombat returns.
+
+Deterministic current-SAS reproduction:
+1. Create a manually controlled human land selection group G with at least two
+   ordinary city-capturing combat units. Arrange attacker A as the group/best
+   attacker and B immediately after it in G's unit list. A and B need not have
+   different unit types; choosing A clearly stronger avoids attacker-selection
+   ambiguity.
+2. With Quick Combat off, order G to attack an adjacent visible enemy unit on a
+   non-city plot that has no other visible enemy defender. Stack Attack can be
+   OFF; this is the simplest control because groupAttack starts A's visible
+   combat and then stops issuing further attacks.
+3. The visible fight remains active across timer ticks. On the finishing tick,
+   CvSelectionGroup::updateTimers resolves current unit A while its traversal
+   has already prefetched B's live group-list node.
+4. CvUnit::updateCombat clears A/defender combat state, kills the defeated final
+   defender and computes bAdvance. With no visible enemy defenders remaining it
+   executes:
+       getGroup()->groupMove(pPlot, true, bAdvance ? this : NULL, true);
+5. For a victorious ordinary attacker that can advance, groupMove first moves A
+   to the target. Choose an ordinary non-city target so no conquest/culture
+   invalidation from F155 is required for this reproduction.
+6. Current groupMove's advc.153 state is:
+       bool const bAIControl = isAIControlled();
+       bool const bGroupAdvance = (!bCombat || bAIControl);
+   For a manually controlled human group, isAIControlled() is false; with
+   bCombat=true, bGroupAdvance is therefore false.
+7. In stage 0, ordinary B is consequently taken through the left-behind branch
+   and pUnit->joinGroup(NULL, true) (or joins an already-created behind group).
+   CvUnit::joinGroup removes B from original G; CvSelectionGroup::removeUnit ->
+   deleteUnitNode -> CLinkList::deleteNode physically deletes B's OLD node.
+8. Control returns from groupMove and then updateCombat to the OUTER
+   updateTimers loop. Its traversal variable still points at exactly that freed
+   old B node. With the K-Mod break disabled, loop continuation dereferences the
+   dangling CLLNode to obtain its IDInfo.
+9. Result is undefined behavior / use-after-free: allocator state can turn it
+   into stale traversal, memory corruption or a crash-to-desktop.
+
+Why the normal combat path satisfies groupMove's safety assertions:
+- updateCombat reaches the advancement code only after the finishing combat
+  timer has elapsed and it has called setAttackPlot(NULL), setCombatUnit(NULL)
+  and pDefender->setCombatUnit(NULL).
+- Thus the simple two-unit reproduction no longer has an active combat object
+  keeping G busy when groupMove executes; its FAssert(!isBusy()) does not rule
+  out this path.
+- The dangerous removal is also not an exotic nested ownership event. It is the
+  intended advc.153 group-splitting branch itself.
+
+Ancestry/control comparison:
+- Supplied Civ4CE/BtS updateTimers manually performs the same structural
+  prefetch:
+      pLoopUnit = ::getUnit(pUnitNode->m_data);
+      pUnitNode = nextUnitNode(pUnitNode);
+      ... pLoopUnit->updateCombat();
+  but then immediately executes:
+      break;
+  Therefore stock BtS does not return to the prefetched node through this
+  sequence.
+- Current source retains a K-Mod comment explaining why that break was disabled:
+  groupAttack was changed so multiple units in one group can be queued for
+  combat, and updating only the first can otherwise cause an infinite loop.
+  Restoring the BtS break is therefore not a correctness repair.
+- Base AdvCiv history records commit 9ffb0d869861f50784f03f968fc8acd6a471460f
+  (2021-01-28), "Merge branch split-groups-after-missions," as change advc.153.
+  Current groupMove explicitly tags bGroupAdvance and the human left-behind
+  partition branches with advc.153.
+- I have not established from the supplied historical material that pre-advc.153
+  K-Mod itself had an equally deterministic future-node deletion during this
+  exact updateTimers call chain. The defensible provenance is therefore:
+  BtS prefetch + K-Mod no-break are prerequisites, while current proven
+  membership deletion is supplied by Base AdvCiv advc.153; SAS inherits it.
+
+Why F155's repair is insufficient:
+- F155 can be fixed perfectly by snapshotting the iteration INSIDE groupMove.
+  groupMove must still legitimately remove B from G to implement advc.153.
+- F156's dangling node was saved by updateTimers BEFORE entering updateCombat /
+  groupMove. No internal groupMove iterator repair can revoke that outer saved
+  pointer.
+- Both traversal boundaries therefore need their own lifetime-safe strategy.
+
+Repair direction:
+- Preserve K-Mod's ability to update multiple queued combats; do not simply
+  restore the stock-BtS break.
+- Do not hold live m_units CLLNode pointers across updateCombat or
+  updateAirCombat, because those calls can cause group membership changes.
+- Snapshot unit identities before the traversal, then fresh-lookup each unit
+  before updating it. Skip an identity if the unit no longer exists or no
+  longer belongs to this CvSelectionGroup. This makes ownership explicit and
+  also tolerates other nested combat-side membership/death effects.
+- A copied-ID traversal is preferable to raw unit pointers because combat can
+  destroy units as well as regroup them.
+- Re-test queued same-group combats after the repair so the original K-Mod
+  anti-infinite-loop purpose remains intact.
+
+Negative controls examined while establishing F156:
+- The MISSION_GOLDEN_AGE unit loop initially looked similar because
+  killGoldenAgeUnits can consume several Great People. Those calls use
+  CvUnit::kill(true), i.e. startDelayedDeath; the group-list nodes are not
+  physically removed until later doDelayedDeath -> kill(false). It therefore
+  does not reproduce this future-node invalidation during startMission.
+- MISSION_AIRLIFT physically removes the acting unit from its old selection
+  group because airlift -> setXY uses bGroup=false. That removes the CURRENT
+  node, which the mutable iterator permits. removeUnit also clears the old
+  mission queue, but current startMission checks
+      getNumUnits() == 0 || headMissionQueueNode() == NULL
+  after each action and breaks before a next iteration can dereference the
+  cleared queue. No separate current-tree crash root was promoted there.
+
+
+C015-WIP16 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP16
+CURRENT FILE-015 NEW ROOTS: F143-F156 / provisional KI#466-KI#479
+NEXT ROOT ID: F157 UNUSED
+
+Continue the remaining mutation-capable mission/action loops, exported/helper
+families and the adversarial current-snapshot closure matrix. Do not close file
+015 merely because F156 is now settled. No repository source files were
+modified.
+
+
+C015-WIP17 APPEND -- reconciled-authority merge + mutation/lifetime closure pass
+===============================================================================
+
+AUTHORITY / MERGE STATUS
+------------------------
+This checkpoint deliberately starts from the user-provided 2026-08-26 12:27:36
+light-source reconciled cpp_file_audit_album.txt as its exact byte prefix. That
+reconciled authority ends at C015-WIP13 / F153. The locally farther C015-WIP14,
+WIP15 and WIP16 append sections were then carried forward unchanged, preserving
+F154-F156 without replacing any reconciled earlier text.
+
+Current-source synchronization was checked rather than assumed. The latest
+light-source CvGameCoreDLL/CvSelectionGroup.cpp and the source snapshot used for
+C015-WIP16 have the same SHA-256:
+
+    089ef460132b4d6862a369dbe1297c48d5c48a5a0d22c5aebeff76667fc4cc4f
+
+A byte-for-byte diff is empty. Therefore no current implementation change has
+silently invalidated the F154-F156 proofs or their line-level contracts since
+WIP16. The latest reconciled Known Issues ledger also contains no collision for
+provisional KI#466 through KI#479.
+
+No repository source file was modified by this audit pass.
+
+
+POST-F156 MUTATION / LIFETIME CLOSURE CONTROLS
+----------------------------------------------
+The remaining mutable-selection-group traversals were challenged specifically
+for the lifetime pattern behind F155 and F156: the traversal macro prefetches a
+live next CLLNode before entering the body, so deletion of the CURRENT node is
+supported, while reentrant deletion of a FUTURE prefetched node is unsafe.
+Several superficially dangerous sites close as negative controls:
+
+1. CvSelectionGroup::doTurn
+   - CvUnit::doTurn does not perform immediate kill(false), joinGroup, setXY or
+     transport regrouping in the reviewed current implementation.
+   - Unit death arising from turn processing is delayed and physically removed
+     later through doDelayedDeath.
+   - The saved pHeadUnit used by the surrounding turn-boundary logic therefore
+     is not invalidated by a normal member's doTurn call in this path.
+   - No F157 established.
+
+2. CvSelectionGroup::doDelayedDeath
+   - CvUnit::doDelayedDeath -> kill(false) removes the CURRENT unit-list node;
+     that is the exact mutation the mutable traversal macro is designed to
+     tolerate.
+   - kill(false) recursively kills cargo before removing the carrier, so a
+     same-group future cargo node would have been dangerous in principle.
+     Current shipped SAS data closes that route concretely: every cargo-capable
+     unit is DOMAIN_SEA, carrying DOMAIN_LAND or DOMAIN_AIR cargo, while
+     CvUnit::canJoinGroup requires the selection group to have the same domain.
+     Thus a transport and its carried units cannot occupy the same selection
+     group whose future node is being traversed here.
+   - No F157 established.
+
+3. startMission action loop
+   - MISSION_FOUND, religion/corporation spread, Great Person consumption and
+     related consuming actions use delayed death during this loop; they do not
+     physically delete a future selection-group node before loop continuation.
+   - MISSION_GOLDEN_AGE was rechecked because killGoldenAgeUnits can consume
+     several Great People. The unit kills are likewise delayed, matching the
+     WIP16 negative control.
+   - MISSION_AIRLIFT can physically move/ungroup the acting unit through setXY,
+     but that is deletion of the CURRENT iteration node. Its old mission queue
+     can also be cleared; startMission rechecks group emptiness/head mission and
+     breaks before another action iteration can consume invalid queue state.
+   - MISSION_PARADROP chooses the acting unit afresh through the mission helper;
+     the earlier mutable pass only collects immobile units. No retained future
+     group-list node crosses the paradrop setXY call.
+   - No F157 established.
+
+4. continueMission post-action split
+   - The apCanMove vector is formed only under canAnyMove() && !canAllMove(), so
+     apCanMove[0] is not an empty-vector access.
+   - Members are subsequently regrouped from the saved unit pointers; no
+     reviewed operation in that small split sequence kills an unprocessed unit
+     as a side effect. This remains a valid raw-pointer use in the current
+     shipped path rather than another linked-list-prefetch root.
+   - No F157 established.
+
+5. CvSelectionGroup::groupBuild
+   - CvUnit::build may consume a build unit when the BuildInfo isKill flag is
+     set, but it calls kill(true): delayed death. The live traversal therefore
+     does not lose a future CLLNode during the build loop.
+   - The later "stop other workers" pass traverses the plot, not this group's
+     list, and deletes a MISSION QUEUE node from another group; it does not
+     remove the iterated plot unit from that plot list.
+   - No F157 established.
+
+6. CvSelectionGroup::setTransportUnit
+   - Loading explicitly expects setTransportUnit to ungroup the CURRENT unit;
+     the loop breaks immediately after each successful load and restarts from
+     the group's new head. This avoids consuming the prefetched next node.
+   - Unloading clears the transport relation but current CvUnit::setTransportUnit
+     does not ungroup the unloaded unit, so the unloading traversal remains
+     structurally stable.
+   - No F157 established.
+
+7. CvSelectionGroup::unloadAll
+   - Each transport's CvUnit::unloadAll first snapshots its cargo into a
+     std::vector<CvUnit*> and only then clears transport links. Cargo units are
+     cross-domain members of other selection groups; the outer selection-group
+     traversal over the sea carriers does not delete a future carrier node.
+   - No F157 established.
+
+8. mergeIntoGroup / splitGroup / regroupSeparatedUnits
+   - mergeIntoGroup removes the CURRENT member through joinGroup; if changing a
+     UnitAI can regroup that current unit, it breaks and restarts deliberately.
+   - splitGroup's mutable pass likewise joins only its CURRENT pLoopUnit to the
+     split group. Mutable traversal's current-node deletion contract covers it.
+   - regroupSeparatedUnits also moves only its CURRENT pLoopUnit. The retained
+     head unit is deliberately left at the head plot and is not one of the
+     members being removed in that loop.
+   - No future-prefetched-node deletion comparable to F155/F156 was established.
+
+9. setActivityType / NotifyEntity / airCircle / setBlockading
+   - The group-level mutable loops call graphics/entity notification or update
+     unit-local blockade accounting. Reviewed CvUnit implementations do not
+     regroup, move or synchronously destroy selection-group members.
+   - No F157 established.
+
+10. Mission-queue ownership helpers
+    - clearMissionQueue deactivates the current head mission before clearing the
+      queue. deactivateHeadMission changes activity/timer state but does not
+      recursively activate a replacement mission.
+    - deleteMissionQueueNode deliberately leaves next-head activation to its
+      caller; this avoids an immediate nested startMission while a caller still
+      owns a live queue-node pointer.
+    - continueMission copies MissionData before mutation-capable movement/combat
+      work and explicitly refreshes headMissionQueueNode after groupAttack and
+      after groupPathTo where the queue may have changed.
+    - No new queue-node UAF root was established in this closure pass.
+
+
+BOARDED / CARGO TAIL RECHECK
+----------------------------
+handleBoarded's duplicate cargo-group pointers remain a robustness/performance
+quirk rather than a separate root:
+- getLandCargoGroups can push the same selection-group pointer once per cargo
+  unit carried by this sea group;
+- after an earlier merge, the emptied old group object survives until delayed
+  group death, and mergeIntoGroup on the already-target group is harmless
+  because CvUnit::joinGroup immediately returns when the requested group is the
+  unit's existing group;
+- deduplicating these pointers would reduce redundant work but would NOT repair
+  F153, whose defect is the cross-carrier scope of ACTIVITY_BOARDED itself.
+
+The F154 automation sibling remains independently live for the same structural
+reason: setAutomateType(NO_AUTOMATE) selects cargo by THIS transport group, then
+writes automation/activity to the cargo UNIT'S WHOLE selection group. Fixing
+only handleBoarded cannot fix that inherited BtS scope leak.
+
+
+ADVERSARIAL CURRENT-SNAPSHOT ROOT RECHECK
+-----------------------------------------
+Because CvSelectionGroup.cpp is byte-identical to the WIP16-reviewed snapshot,
+F143-F156 were re-challenged primarily for hidden reconciliation collisions and
+for neighboring controls that could collapse two roots into one. None was
+retracted:
+
+- F143/KI#466 Sea Patrol mixed-group persistence: still distinct initial
+  admission/turn-cleanup contract.
+- F144/KI#467 Blockade group divergence: still distinct destructive wake after
+  a previously valid blockader loses legality.
+- F145/KI#468 group-load shared capacity: still a pre-execution aggregate
+  capacity defect, not a transport/cargo activity-state issue.
+- F146/KI#469 Spy sleep/wake UI lifecycle: still head-only participant logic.
+- F147/KI#470 sentry hostility-actor mismatch: no mutation/lifetime overlap.
+- F148/KI#471 recon cleanup group-actor defect: still unit-local recon state
+  cleaned through the wrong group actor.
+- F149/KI#472 amphibious attempted-vs-successful landing: remains execution
+  success/mission-consumption logic, not path-cache or cargo-state scope.
+- F150/KI#473 Air Patrol moveless participant regression: remains K-Mod split
+  eligibility behavior and is not subsumed by F146/F148.
+- F151/KI#474 upgrade action-cache representative defect: still per-unit upgrade
+  price collapsed by one UnitType representative.
+- F152/KI#475 reusable GroupPathFinder membership invalidation: still requires
+  membership-change invalidation even if F155/F156 live-iterator repairs are
+  implemented; those fixes do not invalidate cached path state.
+- F153/KI#476 ACTIVITY_BOARDED cross-transport scope leak: still AdvCiv-specific
+  and distinct from automation state.
+- F154/KI#477 automation cross-transport scope leak: still inherited from BtS
+  and distinct from F153.
+- F155/KI#478 groupMove live traversal invalidation: still the inner traversal
+  boundary and independently requires lifetime-safe iteration.
+- F156/KI#479 updateTimers combat-regroup invalidation: still the outer caller
+  traversal boundary; repairing groupMove alone leaves its saved next node
+  dangling when legitimate advc.153 regrouping occurs.
+
+No current-source contradiction, Known-Issues ID collision, or shared repair
+was found that would justify retracting or merging any of these roots.
+
+
+C015-WIP17 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP17
+CURRENT FILE-015 NEW ROOTS: F143-F156 / provisional KI#466-KI#479
+NEXT ROOT ID: F157 UNUSED
+
+The mutation/lifetime family is now substantially closed beyond F155/F156, and
+the current-snapshot root matrix has survived reconciliation. Continue with a
+final exported/caller/API contract sweep (especially externally exposed list /
+mission helpers and any semantics whose correctness depends on callers rather
+than local memory safety), then challenge top-of-file sentry/turn lifecycle and
+the remaining canDoMission/interface predicate families once more. If those
+surfaces close without a deterministic new root, file 015 is approaching a
+legitimate durable close; do not manufacture F157 merely to advance the ID.
+
+
+C015-WIP18 APPEND -- F157 Firaxis Python queue-data ownership contract
+======================================================================
+
+F157 / provisional KI#480 -- CONFIRMED -- INHERITED FIRAXIS VANILLA PYTHON API DEFECT
+--------------------------------------------------------------------------------------
+
+Summary:
+The Python-exposed selection-group API getMissionFromQueue advertises Boost.Python
+`manage_new_object` ownership even though CySelectionGroup forwards a pointer to
+MissionData stored inside CvSelectionGroup's live CLinkList mission node. A Python
+caller therefore receives an owning wrapper for memory that was not allocated as a
+standalone object. When the wrapper is released, Boost's owning-holder policy deletes
+that interior pointer, creating invalid-free / heap-corruption / crash risk. The same
+Firaxis pattern also exists in CyCity::getOrderFromQueue for OrderData, establishing a
+systemic queue-data binding root rather than an isolated SAS wrapper typo.
+
+Current selection-group chain:
+
+    // CvSelectionGroup.cpp
+    MissionData* CvSelectionGroup::getMissionFromQueue(int iIndex) const
+    {
+        CLLNode<MissionData>* pMissionNode = m_missionQueue.nodeNum(iIndex);
+        if (pMissionNode != NULL)
+            return &(pMissionNode->m_data);
+        return NULL;
+    }
+
+    // CySelectionGroup.cpp
+    MissionData* CySelectionGroup::getMissionFromQueue(int iIndex)
+    {
+        return m_pSelectionGroup ?
+            m_pSelectionGroup->getMissionFromQueue(iIndex) : NULL;
+    }
+
+    // CySelectionGroupInterface.cpp
+    .def("getMissionFromQueue", &CySelectionGroup::getMissionFromQueue,
+         python::return_value_policy<python::manage_new_object>(), ...)
+
+The pointer returned to Python is therefore `&pMissionNode->m_data`: storage owned by
+the CLinkList node, not by a `new MissionData` expression.
+
+Why `manage_new_object` is not a harmless annotation:
+- Boost.Python's manage_new_object policy routes pointer returns through an owning
+  holder (`make_owning_holder`). The holder constructs an owning smart pointer from
+  the returned raw pointer.
+- Destruction of that Python-owned holder consequently performs deletion of the
+  returned C++ pointer.
+- That policy is correct for nearby wrappers such as CySelectionGroup::getHeadUnit,
+  where the Cy wrapper actually executes `new CyUnit(...)` before returning.
+- It is false for getMissionFromQueue, which forwards internal queue storage without
+  allocating a new MissionData object.
+- Queue mutation creates a second lifetime problem even before Python destruction:
+  clearing/deleting that mission node invalidates the borrowed interior pointer while
+  Python may still retain its wrapper.
+
+Systemic Firaxis sibling:
+
+    // CvCity.cpp
+    OrderData* CvCity::getOrderFromQueue(int iIndex) const
+    {
+        CLLNode<OrderData>* pOrderNode = m_orderQueue.nodeNum(iIndex);
+        if (pOrderNode != NULL)
+            return &pOrderNode->m_data;
+        return NULL;
+    }
+
+    // CyCity.cpp
+    OrderData* CyCity::getOrderFromQueue(int iIndex)
+    {
+        return m_pCity ? m_pCity->getOrderFromQueue(iIndex) : NULL;
+    }
+
+    // CyCityInterface1.cpp
+    .def("getOrderFromQueue", &CyCity::getOrderFromQueue,
+         python::return_value_policy<python::manage_new_object>(), ...)
+
+Thus the MissionData defect is not best explained as a K-Mod/AdvCiv/SAS regression;
+Firaxis used the same ownership pattern for both exposed linked-list data structs.
+
+Reachability / severity qualification:
+- No current shipped SAS Assets/Python or PrivateMaps Python source calls
+  getMissionFromQueue or getOrderFromQueue. Current UI code instead uses scalar-safe
+  helpers such as getMissionType/getMissionData1/getMissionData2.
+- Therefore this is NOT being promoted as a normal current-gameplay CTD reproduction.
+  It is a dormant but real public-Python-API memory-ownership defect: a Python mod,
+  event script, console command or future SAS code using the advertised API can trigger
+  the invalid ownership contract directly.
+- The bundled Python API documentation exposes both methods as returning MissionData /
+  OrderData objects, so treating them as unsupported private internals would be wrong.
+
+Minimal deterministic API reproduction shape:
+1. Obtain a CySelectionGroup with at least one queued mission.
+2. In Python, call `m = group.getMissionFromQueue(0)` and retain or release the result.
+3. The binding constructs an owning Python holder around the address of the queue
+   node's embedded MissionData.
+4. When that owning wrapper is destroyed, its ownership policy attempts to delete the
+   non-standalone pointer. Alternatively, clear the mission queue while retaining `m`;
+   the Python object now refers to storage whose containing CLinkList node is gone.
+5. Either path violates C++ object ownership/lifetime and can manifest as heap
+   corruption or a crash; exact allocator timing need not be deterministic for the
+   ownership bug itself to be deterministic.
+
+Ancestry:
+- Supplied Civ4CE Vanilla, Warlords and BtS all contain the same
+  `return &(pMissionNode->m_data)` implementation and the same
+  `return_value_policy<manage_new_object>` Python binding.
+- Base AdvCiv 1.14 retains both unchanged, and current SAS retains them.
+- F157 therefore originates in Firaxis Vanilla Civ4, not K-Mod, AdvCiv or SAS.
+
+Repair direction:
+- Keep the public Python behavior value-like and make the ownership policy truthful.
+  In CySelectionGroup::getMissionFromQueue, obtain the internal MissionData pointer and
+  return `new MissionData(*pMissionData)` when non-null. Then the existing
+  manage_new_object policy correctly owns an independent heap object whose lifetime is
+  unrelated to later mission-queue mutation.
+- Apply the same repair to CyCity::getOrderFromQueue:
+  return `new OrderData(*pOrderData)` for a valid queue entry.
+- This is preferable to switching the binding to reference_existing_object: a borrowed
+  reference would remain vulnerable to queue-node deletion and would expose writable
+  Python fields directly onto live DLL queue state.
+- The existing scalar mission getters remain useful and require no ownership change.
+- Because this root spans CvSelectionGroup plus its Cy wrapper and has a proven CvCity
+  sibling, implementation/review should search for any other `manage_new_object`
+  bindings that forward pointers into container-owned POD storage before declaring the
+  pattern globally closed.
+
+Relation to earlier file-015 roots:
+- F157 is independent of F155/F156. Those are C++ live-CLLNode traversal UAFs during
+  nested group mutation; F157 is a cross-language ownership error at the Python ABI.
+- It is independent of F151's action cache and all mission semantic roots F143-F150.
+- A copied MissionData Python result also avoids stale queue-node lifetime by design;
+  it does not alter mission execution or queue semantics inside CvSelectionGroup.
+
+
+C015-WIP18 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP18
+CURRENT FILE-015 NEW ROOTS: F143-F157 / provisional KI#466-KI#480
+NEXT ROOT ID: F158 UNUSED
+
+Continue the final exported/caller sweep, including a bounded repository-wide check of
+other owning Python pointer-return bindings so F157's scope is neither understated nor
+needlessly generalized. Then finish the remaining sentry/turn and mission/interface
+predicate closure. File 015 remains open until those surfaces receive explicit
+adversarial dispositions; do not manufacture F158 if they close cleanly.

@@ -1909,32 +1909,28 @@ void HiredHand::evaluate()
 	{
 		return;
 	}
-	PlayerTypes const eSponsor = ourCache().sponsorAgainst(eTheirTeam);
-	int const iOriginalUtility = ourCache().bountyAgainst(eTheirTeam);
-	FAssert((eSponsor == NO_PLAYER) == (iOriginalUtility <= 0));
 	scaled rUtility;
-	if (eSponsor != NO_PLAYER && iOriginalUtility > 0 &&
-		GET_PLAYER(eSponsor).isAlive() &&
-		kOurTeam.AI_getAttitude(TEAMID(eSponsor)) >= kOurPersonality.
-		/*	Between Annoyed and Pleased; has to be strictly better to allow
-			sponsorship. If it becomes strictly worse, we bail. */
-		getDeclareWarRefuseAttitudeThreshold())
+	// <!-- custom: Sponsorship and the scenario-long war role are stored for the target team, but this aspect runs once per rival player. Charge those shared obligations only through the target team's leader; keep the separate player-memory hireling branch below player-specific. See KI#451. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bCanonicalTargetMember = (eThey == kTheirTeam.getLeaderID());
+	if (bCanonicalTargetMember)
 	{
-		log("We've been hired by %s; original utility of payment: %d",
-				m_kReport.leaderName(eSponsor), iOriginalUtility);
-		// Inclined to fight for 20 turns
-		rUtility += eval(eSponsor, iOriginalUtility, 20);
-		int iDeniedHelpDiplo = 0;
-		for (MemberIter itSponsorMember(TEAMID(eSponsor));
-			itSponsorMember.hasNext(); ++itSponsorMember)
+		PlayerTypes const eSponsor = ourCache().sponsorAgainst(eTheirTeam);
+		int const iOriginalUtility = ourCache().bountyAgainst(eTheirTeam);
+		FAssert((eSponsor == NO_PLAYER) == (iOriginalUtility <= 0));
+		// Between Annoyed and Pleased; has to be strictly better to allow sponsorship. If it becomes strictly worse, we bail.
+		if (eSponsor != NO_PLAYER && iOriginalUtility > 0 && GET_PLAYER(eSponsor).isAlive() && kOurTeam.AI_getAttitude(TEAMID(eSponsor)) >= kOurPersonality.getDeclareWarRefuseAttitudeThreshold())
 		{
-			iDeniedHelpDiplo -= kWe.AI_getMemoryAttitude(
-					itSponsorMember->getID(), MEMORY_DENIED_JOIN_WAR);
-		}
-		if (iDeniedHelpDiplo > 0) // (The above normally subtracts a negative value)
-		{
-			log("Utility reduced b/c of denied help");
-			rUtility /= scaled(iDeniedHelpDiplo).sqrt();
+			log("We've been hired by %s; original utility of payment: %d", m_kReport.leaderName(eSponsor), iOriginalUtility);
+			// Inclined to fight for 20 turns
+			rUtility += eval(eSponsor, iOriginalUtility, 20);
+			int iDeniedHelpDiplo = 0;
+			for (MemberIter itSponsorMember(TEAMID(eSponsor)); itSponsorMember.hasNext(); ++itSponsorMember)
+				iDeniedHelpDiplo -= kWe.AI_getMemoryAttitude(itSponsorMember->getID(), MEMORY_DENIED_JOIN_WAR);
+			if (iDeniedHelpDiplo > 0) // (The above normally subtracts a negative value)
+			{
+				log("Utility reduced b/c of denied help");
+				rUtility /= scaled(iDeniedHelpDiplo).sqrt();
+			}
 		}
 	}
 	// Have we hired someone to help us against eThey?
@@ -1969,7 +1965,7 @@ void HiredHand::evaluate()
 	/*	Have we been at war since the start of the game? Then it's a scenario
 		and we should try to play along for a while. Tbd.: Should be a
 		separate aspect "Historical Role". */
-	if (kOurTeam.AI_getAtWarCounter(eTheirTeam) >= m_kGame.getElapsedGameTurns())
+	if (bCanonicalTargetMember && kOurTeam.AI_getAtWarCounter(eTheirTeam) >= m_kGame.getElapsedGameTurns())
 		rUtility += eval(NO_PLAYER, 50, 12);
 	m_iU += rUtility.round();
 }
