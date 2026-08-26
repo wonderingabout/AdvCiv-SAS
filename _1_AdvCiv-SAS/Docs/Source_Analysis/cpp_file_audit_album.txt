@@ -20955,3 +20955,413 @@ analogy.
 
 No repository source files were modified by ChatGPT-5.6-Sol during this audit.
 ===============================================================================
+
+
+===============================================================================
+C016-WIP01 INTERIM CHECKPOINT -- FILE 016 CitySiteEvaluator.cpp OPEN
+===============================================================================
+
+SOURCE IDENTITY
+---------------
+Branch: main
+HEAD: a70aa8b82f3882778f796887303851ca860f89bc
+Practical commit count: 6274
+Current file: CvGameCoreDLL/CitySiteEvaluator.cpp -- 4,595 lines
+Current file SHA-256:
+
+    ed0688350c62cba526a5d5427c97364e5bdf29ea35c0d71fd41cae675f5da665
+
+Base comparison: local AdvCiv 1.14 source archive
+Additional ancestry: local Civ4CE Vanilla / Warlords / BtS source archive and
+reachable K-Mod / AdvCiv / SAS commit-history mirror.
+
+This checkpoint is append-only over durable C016. No repository source files were
+modified by this audit pass.
+
+
+F158 / provisional KI#481 -- inherited AdvCiv isRemovableFeature current-research regression
+---------------------------------------------------------------------------------------------
+ROOT
+AIFoundValue::isRemovableFeature incorrectly handles a feature-removing Build whose
+normal build prerequisite and feature-removal prerequisite are different technologies.
+After first testing whether the team already has both technologies, its fallback for
+"CurrentResearch should be good enough" requires one player's single current research
+to equal BOTH eTech1 and eTech2 simultaneously:
+
+    if (kMember.getCurrentResearch() == eTech1 &&
+        kMember.getCurrentResearch() == eTech2)
+        return true;
+
+For distinct prerequisites this can never succeed. The intended state -- one
+prerequisite already known and the other being researched -- is therefore classified
+as not removable even though the feature is about to become removable.
+
+SHIPPED REPRODUCTION
+Current BuildInfos supplies ordinary distinct-tech cases. For example, BUILD_FARM has
+TECH_AGRICULTURE as its normal build prerequisite while Forest removal requires
+TECH_MASONRY and Jungle removal requires TECH_METAL_CASTING. A team that already knows
+Agriculture and is currently researching Masonry therefore fails the fallback for a
+Forest Farm: currentResearch cannot simultaneously be Agriculture and Masonry.
+Mine and other feature-removing build paths provide the same shape.
+
+CONSEQUENCE
+isRemovableFeature feeds the central city-site plot evaluation and the longer-horizon
+evaluateWorkablePlot path. During the affected research turn(s), removable Forest /
+Jungle can be treated as persistent or unavailable for improvement, changing feature
+yield/health handling, improvement potential and found-value comparisons. This is a
+scoring correctness regression, not merely a diagnostic mismatch.
+
+ANCESTRY
+The pre-refactor AdvCiv AI_foundValue logic used the correct independent condition for
+each prerequisite: each tech could be either already known OR the player's current
+research. AdvCiv commit
+
+    078fc9bd7c7962bdd944073c372ffd2e5853b16e
+    2019-12-15 -- "Move AI_foundValue computation into a new class"
+
+split the logic into AIFoundValue::isRemovableFeature and introduced the impossible
+same-current-research conjunction. Base AdvCiv 1.14 retains it and current SAS inherits
+it unchanged.
+
+REPAIR DIRECTION
+Test the two prerequisites independently. Conceptually, each prerequisite should pass
+when NO_TECH, already held by the team, or currently researched by the relevant team
+member. Do not require one current-research slot to equal two distinct technologies.
+Keep team/member semantics consistent with the old known-good implementation.
+
+
+F159 / provisional KI#482 -- inherited AdvCiv regression makes K-Mod other-island starting badness branch unreachable
+-----------------------------------------------------------------------------------------------------------------------
+ROOT
+AIFoundValue::adjustToStartingSurroundings currently wraps the nearby-plot evaluation
+in:
+
+    if ((p.isWater() || p.isArea(kArea)) && it.currPlotDist() <= iRange)
+
+but later, inside that already-filtered block, retains K-Mod's intended distinction:
+
+    if (p.isWater() || p.isArea(kArea))
+        iR += iTempValue;
+    else if (iTempValue >= 13)
+        iGreaterBadTile++; // add at least 1 badness point for other islands.
+
+For a land plot on another area, the outer condition has already rejected the plot.
+The inner "other islands" else branch can therefore never execute.
+
+INTENDED K-MOD CONTRACT
+K-Mod commit
+
+    51e5ee601626cd188f6beb21a0c0ea65de0bd471
+    2015-01-24 -- "Land on other islands is now counted as \"bad\" for starting locations."
+
+explicitly commented out the old outer same-area gate. Its diff also moved the yield
+addition behind an inner area test: nearby other-island land should NOT contribute its
+yields to the capital, because the capital cannot work it, but sufficiently good land
+on that inaccessible island SHOULD increase the bad-tile count because it consumes
+nearby geographic space without helping the starting city.
+
+REGRESSION ANCESTRY
+AdvCiv's 2017 initial import continuation
+
+    f6ff6a182f5187541fff6e5bbbe12f9573b3778c
+    2017-04-16 -- "Initial commit (cont.)"
+
+restored the old outer same-area condition while retaining K-Mod's inner other-island
+branch and comment. Base AdvCiv 1.14 and current SAS still have this contradictory
+combination.
+
+CONSEQUENCE
+Starting-location surroundings can undercount inaccessible nearby land on a different
+island/area. Such plots neither add usable yields nor the K-Mod badness point they were
+specifically meant to add, so starts near tight coast/island boundaries can be rated
+better than the intended K-Mod heuristic.
+
+REPAIR DIRECTION
+Restore K-Mod's structure: let the distance-qualified nearby plot reach the scoring
+body regardless of land area, add iTempValue only for water or same-area land, and use
+the existing other-island branch to add badness for sufficiently valuable but
+unworkable land.
+
+
+F160 / provisional KI#483 -- inherited Warlords/BtS bonus-improvement scan ignores actual plot domain; water Oil can use land Well timing/yields
+-----------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+AIFoundValue::getBonusImprovement receives the actual CvPlot& p, but its Build /
+Improvement scan never verifies that a candidate improvement can exist on that plot.
+It checks bonus validity/trade, technology nearness, feature-removal technology and
+Fort exclusion, but not water/land domain (nor a stronger plot-validity predicate).
+
+CURRENT SAS DETERMINISTIC REPRODUCTION
+Oil has two connecting improvements in current XML:
+
+* IMPROVEMENT_WELL: bWater=0; Oil trade improvement; +2 production, +3 commerce;
+  BUILD_WELL requires TECH_COMBUSTION.
+* IMPROVEMENT_OFFSHORE_PLATFORM: bWater=1; Oil trade improvement; matching current
+  Oil improvement yield; its build requires the later TECH_MARINE_TECHNOLOGY.
+
+Well appears before Offshore Platform in the Build/Improvement iteration. Oil itself is
+revealed and city-trade enabled at Combustion. Therefore, for a WATER Oil plot after
+Combustion but before Marine Technology, getBonusImprovement can select the land-only
+Well, set bCanImprove/bCanImproveSoon from Well's tech path, and calculate Well as the
+chosen bonus improvement even though a Well cannot be built on that water tile.
+
+This is not caused by SAS's recent decision to continue scanning after an available
+improvement. In current data Well and Offshore Platform have tied Oil improvement
+yields, and Well is encountered first, so Base AdvCiv's old early-available shortcut
+also lands on Well. The deeper defect is the missing plot/domain validity check.
+
+CONSEQUENCE
+The timing flags are materially wrong even though current Well and Offshore Oil yield
+bonuses happen to tie. calculateSpecialYieldModifier sees the water Oil as currently
+or soon improvable and avoids the intended delayed-improvement discount. The
+longer-horizon evaluateWorkablePlot path likewise can skip its later-era devaluation
+because bCanSoonImproveBonus was derived from the illegal Well path. This can overrate
+water Oil before Offshore Platforms are technologically available.
+
+The file itself contains a useful negative control: evaluateWorkablePlot later asks
+
+    GC.getInfo(eBonus).getTechImprove(p.isWater())
+
+when it needs eventual bonus-improvement timing. CvBonusInfo::getTechImprove(bool
+bWater) is explicitly domain-aware, demonstrating that land and water Oil technology
+paths are expected to differ.
+
+ANCESTRY
+The same shape is present in supplied Firaxis Warlords CvPlayerAI::AI_foundValue:
+it loops all improvements and picks the first isImprovementBonusMakesValid(eBonus)
+without checking the resource plot's domain. BtS retains it. Supplied Vanilla Civ4
+does not contain this same eBonusImprovement found-value path, so the root is best
+classified as inherited Warlords/BtS rather than Vanilla.
+
+K-Mod strengthened the resource check (notably BonusTrade), and AdvCiv later refactored
+it. AdvCiv commit
+
+    891273d300ade2b2adc69bb9cc0a907c74e59267
+    2019-12-21 -- "AI city placement tweaks"
+
+added/used the actual plot parameter while fixing resource tech/yield details, but the
+scan still did not acquire a domain/plot-legality test. Base AdvCiv 1.14 and current SAS
+therefore retain the Firaxis root.
+
+REPAIR DIRECTION
+At minimum reject improvement candidates whose water/land domain disagrees with p.
+A stronger solution can use the existing SAS bonus-specific plot/domain helper or an
+appropriate plot-validity predicate, provided it does not accidentally require current
+technology when this routine intentionally predicts near-future improvements.
+
+RELATED NON-FINDING / LATENT SIBLING
+Current SAS calculateBonusConnectionEra performs a similar all-Build scan without plot
+domain filtering, so water Oil can nominally inherit Well's earlier Industrial-era
+connection path there too. However, the current connection-era adjustment only acts on
+positive explicit health/happiness/building-effect non-yield value. Current Oil has
+zero health and happiness and no positive counted building health/happiness effect, so
+this sibling has no demonstrated shipped scoring consequence at present. It is kept as
+a latent robustness concern rather than a separate root.
+
+
+F161 / provisional KI#484 -- current SAS contested-future-BFC helper filters rival cities by the candidate site's unrelated area
+--------------------------------------------------------------------------------------------------------------------------------
+ROOT
+SAS's isPlotInKnownRivalFutureBFC(CvPlot const& p) is asked whether the SPECIFIC bonus
+plot p is threatened by a known rival future BFC. Its rival-city loop nevertheless
+contains:
+
+    if (!pCity->isArea(kArea))
+        continue;
+
+AIFoundValue::kArea is not p's area. It is permanently bound in the constructor to the
+land area of the NEW candidate city site kPlot currently being evaluated. The helper is
+called while scanning bonus plots around all EXISTING own cities. Candidate site and
+existing bonus can therefore be on entirely different continents.
+
+DETERMINISTIC CROSS-AREA REPRODUCTION
+1. Existing own city A is on land area A. An unowned Maize lies in A's future BFC.
+2. Known rival city R, also on area A, has that same Maize within CITY_PLOTS_RADIUS;
+   the Maize is genuinely contested and ownership is not reliable.
+3. Evaluate a new city candidate B on a different land area B containing another
+   Maize (or otherwise causing the same bonus type to be scored).
+4. isBonusOwnedOrClaimedByFutureBFC(Maize) finds A's Maize and calls
+   isPlotInKnownRivalFutureBFC on that plot.
+5. Rival R is skipped solely because R is not on candidate B's kArea.
+6. The helper falsely reports the A-area Maize unopposed; the caller then treats Maize
+   as already reliably covered.
+
+CONSEQUENCE
+This is more than the flat diversity nudge. In current evaluate(), a falsely
+"already covered" bonus loses the configured
+SAS_EVALUATE_UNOWNED_BONUS_EXTRA_VALUE (currently 250). The same helper is also used by
+nonYieldBonusValue to initialize bSurplus; false surplus status zeroes the candidate
+copy's explicit health/happiness and counted building-effect value. Overseas/colony
+site comparisons can therefore be distorted based on a rival-city filter tied to an
+unrelated candidate continent.
+
+INTRODUCTION / INTENT
+The helper was introduced in SAS commit
+
+    6341d3d556a7f580e3664b8631d52446c2c7c4da
+    2026-07-11 -- "(Fixed/Improved) City-site bonus valuation used broad trade-style
+    AI_bonusVal instead of settlement-specific long-term value and other related AI
+    bonus settler valuation issues (KI#178)"
+
+whose commit message explicitly says to avoid over-counting reliable future-BFC
+coverage WHILE PRESERVING value for contested bonuses. The current area filter violates
+that exact contract.
+
+REPAIR DIRECTION
+Do not filter rival cities by AIFoundValue::kArea here. The radius-2 test already
+localizes the scan to cities that can actually threaten p. Replacing kArea with
+p.getArea() is also unsafe for coastal resources: a water bonus' area differs from the
+land area containing the coastal rival city that can claim it. Removing the unrelated
+area filter is the straightforward correctness-first repair.
+
+
+F162 / provisional KI#485 -- current SAS future-BFC coverage result is order-dependent because the first matching bonus returns immediately
+------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+isBonusOwnedOrClaimedByFutureBFC asks an empire-wide existential question: is this
+bonus type already owned or reliably covered by ANY existing city's future BFC?
+However, once it encounters the first matching unowned/self-owned bonus plot, it does:
+
+    return !isPlotInKnownRivalFutureBFC(*pLoopPlot);
+
+A contested first copy therefore returns false immediately and prevents the search
+from discovering a later safely claimable copy of the same bonus type.
+
+DETERMINISTIC REPRODUCTION
+1. The player does not yet have an actually available Maize.
+2. Existing city A has an unowned Maize in its future BFC, but that plot is also inside
+   a known rival city's future BFC and is therefore contested.
+3. Existing city B has another unowned Maize in its future BFC with no known rival
+   future-BFC contest; this second copy is reliable long-term coverage.
+4. If the A/contested occurrence is encountered first in city/BFC iteration,
+   isBonusOwnedOrClaimedByFutureBFC returns false immediately and never examines B.
+5. If the safe occurrence is encountered first, the same empire state returns true.
+
+CONSEQUENCE
+Found value depends on city/BFC iteration order rather than resource-coverage state.
+The false result can add the +250 unowned-resource diversity value to another Maize and
+can preserve long-term non-yield Maize value even though a separate safe existing-city
+copy already satisfies the helper's intended definition of reliable coverage.
+
+INTRODUCTION / INTENT
+This is independent of F161 but originates in the same KI#178 helper introduced by
+SAS commit 6341d3d556a7f580e3664b8631d52446c2c7c4da. F161 asks the wrong rivals because
+of unrelated area state; F162 stops searching after one contested occurrence even when
+that individual contest test itself is correct.
+
+REPAIR DIRECTION
+A contested matching plot should mean "this occurrence does not establish reliable
+coverage; keep searching", not "the whole empire has no reliable copy". Return true
+when any safe qualifying copy is found; after exhausting all copies, return false.
+
+
+F163 / provisional KI#486 -- current SAS future-BFC helper counts temporary trade imports as owned despite explicit opposite contract
+------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+The first line of isBonusOwnedOrClaimedByFutureBFC is:
+
+    if (kPlayer.getNumAvailableBonuses(eBonus) > 0)
+        return true;
+
+But CvPlayer::getNumAvailableBonuses reads the capital plot group's bonus count, and
+CvPlot::updatePlotGroupBonus explicitly ADDS getBonusImport at the capital. The DLL
+also defines:
+
+    getNumTradeableBonuses(eBonus) =
+        getNumAvailableBonuses(eBonus) - getBonusImport(eBonus)
+
+so imported bonuses are demonstrably included in getNumAvailableBonuses.
+
+This directly contradicts the active CitySiteEvaluator comment, XML define comment,
+Main Changes Guide and KI#147/KI#178 documentation, all of which say that trade imports
+DO NOT count as owned here because they are temporary/non-permanent.
+
+DETERMINISTIC REPRODUCTION
+1. The player owns no Wheat and has no existing-city future-BFC Wheat that would count
+   as reliable coverage.
+2. The player temporarily imports Wheat in a resource trade deal connected to its
+   capital network.
+3. getNumAvailableBonuses(Wheat) becomes positive because imports are included in the
+   capital plot-group bonus count.
+4. Evaluate a post-capital candidate containing Wheat.
+5. isBonusOwnedOrClaimedByFutureBFC returns true immediately because of the import.
+
+CONSEQUENCE
+The candidate Wheat can lose the configured +250 unowned-bonus diversity value, and
+nonYieldBonusValue can set bSurplus and suppress the new permanent copy's explicit
+health/happiness/building-effect settlement value. A cancellable trade deal is thus
+allowed to erase precisely the permanent-resource value the SAS feature was designed
+to preserve.
+
+INTRODUCTION / REGRESSION ANCESTRY
+KI#147's original SAS implementation (commit 24cf2b8853..., practical 5929) did NOT use
+getNumAvailableBonuses. It scanned the player's cities with AI_countNumBonuses, which
+did not convert temporary imports into owned map copies.
+
+KI#178 commit
+
+    6341d3d556a7f580e3664b8631d52446c2c7c4da
+
+replaced that local scan with isBonusOwnedOrClaimedByFutureBFC and introduced the
+getNumAvailableBonuses early return while retaining the explicit "Trade imports do not
+count" contract. F163 is therefore a current SAS regression introduced by KI#178, not
+an inherited AdvCiv defect.
+
+REPAIR DIRECTION
+Use an owned/permanent resource test that excludes getBonusImport. At minimum, do not
+use raw getNumAvailableBonuses as the ownership predicate when its imported component
+is explicitly outside this feature's semantics. Preserve the helper's later
+existing-city/future-BFC coverage logic for not-yet-connected owned/claimable copies.
+
+
+C016-WIP01 NEGATIVE CONTROLS / OPEN QUESTIONS
+---------------------------------------------
+* The earlier static Palace-type suspicion was rejected for current shipped data. The
+  SAS Barbarian Palace maps to the Palace class but is deliberately not a capital
+  building, and no deterministic wrong-capital valuation contract was established.
+* countBadTiles has a small inherited logging typo: its diagnostic uses member
+  iUnrevealedTiles before the caller copies the freshly computed local iUnrevealed into
+  that member. This can log 0 unrevealed tiles when there are some, but no gameplay
+  scoring consequence has been established; it remains secondary rather than F164.
+* estimateImprovementProduction retains a TODO about water improvements. Current water
+  improvements are resource-specific and resource improvement production is handled
+  elsewhere, so shipped XML does not currently establish a separate missing-water
+  production root there.
+* calculateBonusConnectionEra shares F160's missing domain filter, but current Oil --
+  the only shipped land/water multi-improvement bonus found -- has no positive explicit
+  non-yield health/happiness/building value for that timing path. Keep this as a latent
+  sibling unless a current consequential caller/data state is found.
+* SAS's removal of Base AdvCiv's early "prefer currently available build regardless of
+  yield" shortcut inside getBonusImprovement is NOT itself F160: current multi-path Oil
+  data still selects Well first because Well and Offshore Platform tie on the compared
+  improvement yields. The inherited domain omission is the proven root.
+
+
+C016-WIP01 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 15 / 169
+FILE 016: CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines) -- OPEN
+PHYSICAL CHECKPOINT: C016-WIP01
+CURRENT FILE-016 NEW ROOTS: F158-F163 / provisional KI#481-KI#486
+NEXT ROOT ID: F164 UNUSED
+
+Resume with the remaining KI#178/KI#187 bonus helpers and then the broader evaluate()
+custom scoring surface. In particular, challenge building-effect eligibility,
+connection timing, special-yield aggregation, sumUpPlotValues, deadlocked-bonus logic,
+first-city/custom low-food gates and all area/culture assumptions. Keep the three
+KI#178 helper roots separate unless implementation review later prefers one combined
+patch: F161 is wrong area scope, F162 is premature existential termination, and F163 is
+trade-import contamination.
+
+Do not close file 016 until the early evaluate() custom logic and final deadlock /
+starting-location tail have received the same adversarial pass. Do not manufacture
+F164 merely to extend the ledger.
+===============================================================================
+
+
+LOCAL RECONCILIATION AFTER KI#465-KI#467 REVIEW
+
+- F142 / KI#465 has been independently revalidated and fixed at team scope: one team-owned flipped-tile count now uses one fixed significance threshold, victim-team non-vassal land and living-member apportionment. The default `OWN_EXCLUSIVE_RADIUS=0` masks this supported configuration, so the repair remains source-verified.
+- F143 / KI#466 has been independently revalidated and fixed: an individually ineligible companion wakes a Sea Patrol group only when no group member remains able to patrol. A direct mixed Battleship/Transport attempt did not expose the Sea Patrol command, so the narrow repair remains source-verified.
+- F144 / KI#467 has been independently revalidated and fixed: clearing one invalid blockader preserves `ACTIVITY_PLUNDER` while another group member remains both blockading and legally able to plunder. The exact diplomatic transition remains source-verified.
+- The compiled DLL completed an autoplay normally. C016-WIP01 remains verbatim evidence, and F158-F163 / provisional KI#481-KI#486 remain unchanged and provisional while `CitySiteEvaluator.cpp` is open. (GPT-5.6-Sol)

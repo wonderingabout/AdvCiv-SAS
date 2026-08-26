@@ -689,12 +689,38 @@ void CvUnit::doTurn()
 		else
 		{
 			setBlockading(false);
-			getGroup()->setActivityType(ACTIVITY_AWAKE);
+			// <!-- custom: Blockade legality is unit-local. Keep the PLUNDER group active while another member is still legally blockading; waking it would clear every member's blockade through CvSelectionGroup::setActivityType.
+			// See KI#467. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			bool bValidBlockaderRemaining = false;
+			FOR_EACH_UNIT_IN(pLoopUnit, *getGroup())
+			{
+				if (pLoopUnit->isBlockading() && pLoopUnit->canPlunder(kPlot))
+				{
+					bValidBlockaderRemaining = true;
+					break;
+				}
+			}
+			if (!bValidBlockaderRemaining)
+				getGroup()->setActivityType(ACTIVITY_AWAKE);
 		} // </advc.033>
 	}
 	// <advc.004k>
 	if (isSeaPatrolling() && !canSeaPatrol())
-		getGroup()->setActivityType(ACTIVITY_AWAKE); // </advc.004k>
+	{
+		// <!-- custom: Sea Patrol admission permits mixed sea groups. An ineligible member no longer wakes a qualifying patrol member; wake only when the group has no remaining unit able to patrol.
+		// See KI#466. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bValidPatrollerRemaining = false;
+		FOR_EACH_UNIT_IN(pLoopUnit, *getGroup())
+		{
+			if (pLoopUnit->canSeaPatrol())
+			{
+				bValidPatrollerRemaining = true;
+				break;
+			}
+		}
+		if (!bValidPatrollerRemaining)
+			getGroup()->setActivityType(ACTIVITY_AWAKE);
+	} // </advc.004k>
 	if (isSpy() && isIntruding() && !isCargo())
 	{
 		TeamTypes eTeam = kPlot.getTeam();

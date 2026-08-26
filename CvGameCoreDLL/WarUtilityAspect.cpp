@@ -400,14 +400,16 @@ scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes
 		if (militAnalyst().isWar(aeTo[i], TEAMID(eVictim)))
 			iVictimLostTiles += kVictimCache.numPlotsLostAtWar(aeTo[i]);
 	}
-	// <!-- custom: Use the explicit victim's team when this helper evaluates a teammate or vassal instead of the aspect rival. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	int const iVictimTeamMembers = GET_TEAM(eVictim).getNumMembers();
-	if (std::abs(iVictimLostTiles) <= 4 * iVictimTeamMembers)
+	// <!-- custom: Use the explicit victim's team when this helper evaluates a teammate or vassal instead of the aspect rival. The lost-tile cache is team-owned, so compare its significance with one team threshold, normalize it by team land and apportion the result across living member callbacks.
+	// Player land and assigned-member count made the same physical loss depend on roster partition. See KI#432 and KI#465. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eVictimTeam = TEAMID(eVictim);
+	int const iVictimTeamMembers = MemberIter::count(eVictimTeam);
+	if (std::abs(iVictimLostTiles) <= 4)
 		return 0;
-	int iVictimLandTiles = GET_PLAYER(eVictim).getTotalLand();
+	int const iVictimLandTiles = GET_TEAM(eVictimTeam).getTotalLand(false);
 	int const iWeightFactor = 125;
 	r = scaled(iWeightFactor * iVictimLostTiles, std::max(5, iVictimLandTiles));
-	// Tiles are counted per team, but this function gets called once per rival player.
+	// Tiles are counted per team, but this function gets called once per living rival player.
 	r /= iVictimTeamMembers;
 	return r;
 }
