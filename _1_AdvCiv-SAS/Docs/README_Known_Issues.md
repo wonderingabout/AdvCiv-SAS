@@ -499,6 +499,7 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [430 - (Fixed inherited AdvCiv UWAI coalition defect) Our predicted side omitted existing vassals and teammate losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#430---fixed-inherited-advciv-uwai-coalition-defect-our-predicted-side-omitted-existing-vassals-and-teammate-losses)\
 [431 - (Fixed inherited AdvCiv UWAI reporting defect) A missing vararg produced undefined output](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#431---fixed-inherited-advciv-uwai-reporting-defect-a-missing-vararg-produced-undefined-output)\
 [432 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Teammates and vassals reused the rival's assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#432---fixed-inherited-advciv-uwai-kingmaking-defect-teammates-and-vassals-reused-the-rivals-assets)\
+[433 - (Fixed inherited AdvCiv UWAI Kingmaking team-victory defect) Shared victory state was modeled per player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#433---fixed-inherited-advciv-uwai-kingmaking-team-victory-defect-shared-victory-state-was-modeled-per-player)\
 [434 - (Fixed inherited AdvCiv UWAI AP defect) Conquests tested the conqueror instead of the old owner](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#434---fixed-inherited-advciv-uwai-ap-defect-conquests-tested-the-conqueror-instead-of-the-old-owner)\
 [435 - (Fixed inherited AdvCiv UWAI war-anger defect) Enemy contributions were divided by our team size](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#435---fixed-inherited-advciv-uwai-war-anger-defect-enemy-contributions-were-divided-by-our-team-size)\
 
@@ -10401,6 +10402,20 @@ The repair generalizes and renames the helper to `netLostAssetScore`, requires i
 Base AdvCiv 1.14 contains the same implicit-rival construction and future-vassal weighting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F109/provisional KI#432 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The repaired DLL compiled successfully. A Huge Pangaea autoplay with four two-player teams plus solo teams reached a Space Race victory on turn 329. At the final record, team 5 had team 0 as a vassal and team 3 had team 10 as a vassal, while extensive wars exercised the late-game teammate/vassal Kingmaking environment without an observed issue. The exact per-participant asset values remain source-verified because UWAI reporting was not enabled.
+
+## 433 - (Fixed inherited AdvCiv UWAI Kingmaking team-victory defect) Shared victory state was modeled per player
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1YdQB9xB2egRU74FD_wHEwcTqo0Yj6vTD?usp=sharing).
+
+Civ4 awards victories to teams, but `KingMaking` stored likely present and future winners as `set<PlayerTypes>`. A Permanent Alliance with two qualifying members could therefore occupy two winner entries, inflate the number of competing winners, reduce catch-up and competition utility, and prevent the "we'll be the only winners" shortcut from recognizing that both entries represented the same team. The generic aspect loop could then process the same team-owned Kingmaking state once for each rival member.
+
+Two underlying forecasts used the same wrong domain. Score/Time leadership ranked individual current or predicted player scores even though `CvGame` determines those victories through `getTeamScore`, the sum of all member scores. A two-member team whose combined score led the game could be omitted when neither member individually exceeded a strong solo rival. Predicted Domination setbacks began from a team-derived victory stage but subtracted one player's city-population losses from that player's population before comparing it with the team victory threshold. A Permanent Alliance could remain above the threshold in aggregate while Kingmaking incorrectly treated one member's projected losses as thwarting the shared trajectory.
+
+The repair stores each likely winner once in `TeamSet`. Player-local Culture, Space, Conquest and Diplomacy inputs still pass through `anyVictory`, but a successful member inserts its team. Score/Time ranking sums every member's current or predicted score after preserving the existing member-specific commerce and overseas peaceful-victory adjustments; a predicted capitulation's shared score is then added only once. Domination prediction aggregates city-population losses and gains across every team member and compares the remaining team population with the team threshold. Finally, the coalition-wide Kingmaking evaluation runs through the rival team leader once instead of repeating the same shared state for every teammate.
+
+Base AdvCiv 1.14 contains the same player winner sets, player Score/Time ranking and player-population Domination comparison, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F110/provisional KI#433 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully. A Huge Pangaea full UWAI autoplay with five two-player starting teams plus solo teams completed normally with a Space Race victory on turn 427. Frederick's solo team won while eight teams remained alive, including three surviving two-player teams and two master-vassal pairs. `Aggressive AI (legacy)` was unticked in setup; SASGameRecord still lists `GAMEOPTION_AGGRESSIVE_AI` because AdvCiv enables that internal flag after selecting UWAI.
 
 ## 434 - (Fixed inherited AdvCiv UWAI AP defect) Conquests tested the conqueror instead of the old owner
 

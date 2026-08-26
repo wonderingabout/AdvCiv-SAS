@@ -446,7 +446,7 @@ void MilitaryAnalyst::prepareResults()
 			rPopIncrease -= kOurCache.lookupCity(*it)->city().getPopulation();
 		}
 		rPopIncrease /= std::max(1, iCurrTotalPop);
-		// This is just a (poor) starting point for predictedGameScore
+		// This is just a (poor) starting point for predictedMemberGameScore
 		playerResult(ePlayer).setGameScore(kGame.getPlayerScore(ePlayer) *
 				scaled::max(0, 1 + rPopIncrease));
 	}
@@ -466,7 +466,8 @@ void MilitaryAnalyst::prepareResults()
 }
 
 
-scaled MilitaryAnalyst::predictedGameScore(PlayerTypes ePlayer) const
+// <!-- custom: Return only this member's predicted score; Kingmaking adds any team-shared accepted-vassal score once after aggregating all members. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled MilitaryAnalyst::predictedMemberGameScore(PlayerTypes ePlayer) const
 {
 	FAssertBounds(0, MAX_CIV_PLAYERS, ePlayer);
 	int const iCurrScore = GC.getGame().getPlayerScore(ePlayer);
@@ -479,11 +480,6 @@ scaled MilitaryAnalyst::predictedGameScore(PlayerTypes ePlayer) const
 	if (isEliminated(ePlayer))
 		return 0;
 	scaled rFromSim = pR->getGameScore();
-	TeamSet const& kCap = getCapitulationsAccepted(TEAMID(ePlayer));
-	for (TeamSetIter itVassal = kCap.begin(); itVassal != kCap.end(); ++itVassal)
-	{	// Use a fraction of the vassal's current score to keep it simple
-		rFromSim += fixp(0.4) * GC.getGame().getTeamScore(*itVassal);
-	}
 	if (rFromSim < iCurrScore)
 		r = (r + rFromSim) / 2;
 	else r.increaseTo(rFromSim);

@@ -2313,9 +2313,10 @@ int KingMaking::preEvaluate()
 	// Sealing the deal through war is a pretty aggressive move
 	int const iPeaceWeight = kWe.AI_getPeaceWeight();
 	int const iVeryHighPeaceWeight = 11;
+	// <!-- custom: Winner sets are keyed by TeamTypes, so recognize our shared candidacy directly instead of depending on which member is the current team leader. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (iPeaceWeight < iVeryHighPeaceWeight &&
 		rEraFactor > 0 &&
-		m_winningFuture.count(kOurTeam.getLeaderID()) > 0 &&
+		m_winningFuture.count(eOurTeam) > 0 &&
 		m_winningFuture.size() <= 1 &&
 		// We don't want to be the only winner if it means betraying our partners
 		(m_kParams.getTarget() == NO_TEAM ||
@@ -2330,13 +2331,14 @@ int KingMaking::preEvaluate()
 }
 
 
-void KingMaking::addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) const
+// <!-- custom: Preserve player-local victory-stage checks, but insert their team so one shared victory candidacy occupies one winner entry. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void KingMaking::addWinning(TeamSet& kWinning, bool bPredict) const
 {
 	/*	Three categories of civs; all in the best non-empty category are likely
 		winners in our book. Important to base this on the game state predicted
 		by the military analysis so that the AI can tell when its actions thwart
 		a rival victory or prevent a rival from getting way ahead in score.
-		anyVictory and addLeadingPlayers take care of this. */
+		anyVictory and addLeadingTeams take care of this. */
 	// Category III: Civs at victory stage 4
 	for (PlayerAIIter<FREE_MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 	{
@@ -2347,7 +2349,7 @@ void KingMaking::addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) cons
 			eFlags &= ~AI_VICTORY_CULTURE4;
 		}
 		if (anyVictory(itPlayer->getID(), eFlags, 4, bPredict))
-			kWinning.insert(itPlayer->getID());
+			kWinning.insert(itPlayer->getTeam());
 	}
 	int const iMaxTurns = m_kGame.getMaxTurns();
 	int const iTurnsRemaining = ((iMaxTurns - m_kGame.getElapsedGameTurns()) * 100) /
@@ -2367,12 +2369,12 @@ void KingMaking::addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) cons
 			if (anyVictory(itPlayer->getID(),
 				itPlayer->AI_getVictoryStageHash(), 3, bPredict))
 			{
-				kWinning.insert(itPlayer->getID());
+				kWinning.insert(itPlayer->getTeam());
 			}
 		}
 	}
 	// Category I: Civs with a competitive game score
-	addLeadingPlayers(kWinning, m_rScoreMargin, bPredict);
+	addLeadingTeams(kWinning, m_rScoreMargin, bPredict);
 }
 
 
@@ -2459,6 +2461,20 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 		CvCity const& kCity = *kMap.getPlotByIndex(*it).getPlotCity();
 		iLostPop -= kCity.getPopulation();
 	}
+	// <!-- custom: Domination progress and its population threshold belong to the whole team. Aggregate projected losses and gains from every member instead of comparing one player's population with the team victory target. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int iTeamLostPop = 0;
+	if (bDomValid)
+	{
+		for (MemberIter itMember(kPlayer.getTeam()); itMember.hasNext(); ++itMember)
+		{
+			CitySet const& kMemberLostCities = militAnalyst().lostCities(itMember->getID());
+			for (CitySetIter it = kMemberLostCities.begin(); it != kMemberLostCities.end(); ++it)
+				iTeamLostPop += kMap.getPlotByIndex(*it).getPlotCity()->getPopulation();
+			CitySet const& kMemberGainedCities = militAnalyst().conqueredCities(itMember->getID());
+			for (CitySetIter it = kMemberGainedCities.begin(); it != kMemberGainedCities.end(); ++it)
+				iTeamLostPop -= kMap.getPlotByIndex(*it).getPlotCity()->getPopulation();
+		}
+	}
 	if (iLostPop > 0)
 	{
 		scaled const rRemainingWorldPopPortion(
@@ -2466,10 +2482,16 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 				m_kGame.getTotalPopulation());
 		if (rRemainingWorldPopPortion < (iStage == 3 ? fixp(0.32) : fixp(0.375)))
 			bDiploValid = false;
+	}
+	if (iTeamLostPop > 0)
+	{
 		VictoryTypes const eDomination = getDominationVictory();
 		if (eDomination != NO_VICTORY)
 		{
-			if (rRemainingWorldPopPortion <
+			scaled const rRemainingTeamWorldPopPortion(
+					std::max(0, GET_TEAM(kPlayer.getTeam()).getTotalPopulation() - iTeamLostPop),
+					m_kGame.getTotalPopulation());
+			if (rRemainingTeamWorldPopPortion <
 				getDominationTargetPopPortion() * (iStage == 3 ? fixp(0.8) : 1))
 			{
 				bDomValid = false;
@@ -2480,42 +2502,51 @@ bool KingMaking::anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iSta
 }
 
 
-// <!-- custom: AdvCiv adjusted contender scores for commerce and overseas peaceful-victory threats only while finding the best score, then compared raw candidate scores against that adjusted denominator.
-// Centralizing the calculation keeps both Kingmaking passes consistent. See KI#429. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-scaled KingMaking::adjustedContenderScore(PlayerTypes ePlayer, bool bPredict) const
+// <!-- custom: Build the Score/Time contender quantity from every team member's current or predicted score, preserving player-local commerce and overseas-peaceful-victory adjustments before summing. Add a predicted capitulation's team-shared score only once.
+// Centralizing the adjusted team calculation also keeps both Kingmaking leader passes consistent. See KI#429 and KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled KingMaking::adjustedContenderScore(TeamTypes eTeam, bool bPredict) const
 {
-	scaled rScore = (bPredict ? militAnalyst().predictedGameScore(ePlayer) : m_kGame.getPlayerScore(ePlayer));
-	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	scaled rScore;
 	CvCity const* pOurCapital = kWe.getCapital();
-	// Count extra score for commerce so that players that are getting far ahead in tech are identified as a threat
-	scaled const rPlayerEraAIFactor = kPlayer.AI_getCurrEraFactor();
-	// The late game is covered by victory stages
-	if (rPlayerEraAIFactor > fixp(2.5) && rPlayerEraAIFactor < fixp(4.5) && m_rGameEraAIFactor < fixp(4.5))
+	for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
 	{
-		scaled rCommerceRate = kOurTeam.AI_estimateYieldRate(ePlayer, YIELD_COMMERCE);
-		rScore += rCommerceRate / 2;
-		// Beware of peaceful civs on other landmasses
-		CvCity const* pPlayerCapital = kPlayer.getCapital();
-		if (pOurCapital != NULL && pPlayerCapital != NULL && !pOurCapital->sameArea(*pPlayerCapital) && kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2 | AI_VICTORY_SPACE2) && pOurCapital->getArea().getNumStartingPlots() > pPlayerCapital->getArea().getNumStartingPlots())
+		PlayerTypes const ePlayer = itMember->getID();
+		CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+		scaled rMemberScore = (bPredict ? militAnalyst().predictedMemberGameScore(ePlayer) : m_kGame.getPlayerScore(ePlayer));
+		// Count extra score for commerce so that players that are getting far ahead in tech are identified as a threat
+		scaled const rPlayerEraAIFactor = kPlayer.AI_getCurrEraFactor();
+		// The late game is covered by victory stages
+		if (rPlayerEraAIFactor > fixp(2.5) && rPlayerEraAIFactor < fixp(4.5) && m_rGameEraAIFactor < fixp(4.5))
 		{
-			rScore *= fixp(4/3.);
+			scaled rCommerceRate = kOurTeam.AI_estimateYieldRate(ePlayer, YIELD_COMMERCE);
+			rMemberScore += rCommerceRate / 2;
+			// Beware of peaceful civs on other landmasses
+			CvCity const* pPlayerCapital = kPlayer.getCapital();
+			if (pOurCapital != NULL && pPlayerCapital != NULL && !pOurCapital->sameArea(*pPlayerCapital) && kPlayer.AI_atVictoryStage(AI_VICTORY_CULTURE2 | AI_VICTORY_SPACE2) && pOurCapital->getArea().getNumStartingPlots() > pPlayerCapital->getArea().getNumStartingPlots())
+				rMemberScore *= fixp(4/3.);
 		}
+		rScore += rMemberScore;
+	}
+	if (bPredict)
+	{
+		TeamSet const& kCapitulationsAccepted = militAnalyst().getCapitulationsAccepted(eTeam);
+		for (TeamSetIter itVassal = kCapitulationsAccepted.begin(); itVassal != kCapitulationsAccepted.end(); ++itVassal)
+			rScore += fixp(0.4) * m_kGame.getTeamScore(*itVassal);
 	}
 	return rScore;
 }
 
 
-void KingMaking::addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict) const
+// <!-- custom: Rank Score/Time contenders by team score and insert each leading team once. AdvCiv ranked and stored individual members although the victory test uses CvGame::getTeamScore. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void KingMaking::addLeadingTeams(TeamSet& kLeading, scaled rMargin, bool bPredict) const
 {
 	scaled rBestScore = 1;
-	for (PlayerIter<FREE_MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
-		rBestScore.increaseTo(adjustedContenderScore(itPlayer->getID(), bPredict));
-	for (PlayerIter<FREE_MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
+	for (TeamIter<FREE_MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
+		rBestScore.increaseTo(adjustedContenderScore(itTeam->getID(), bPredict));
+	for (TeamIter<FREE_MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
 	{
-		if (adjustedContenderScore(itPlayer->getID(), bPredict) / rBestScore >= (itPlayer->isHuman() ? fixp(0.7) : fixp(0.75)))
-		{
-			kLeading.insert(itPlayer->getID());
-		}
+		if (adjustedContenderScore(itTeam->getID(), bPredict) / rBestScore >= (itTeam->isHuman() ? fixp(0.7) : fixp(0.75)))
+			kLeading.insert(itTeam->getID());
 	}
 }
 
@@ -2526,11 +2557,14 @@ void KingMaking::evaluate()
 		(usually: too early in the game) in which no utility should be counted. */
 	if (m_winningPresent.empty())
 		return;
+	// <!-- custom: The winner sets, Score/Time race, Domination forecast and coalition asset change are team-owned. Evaluate them through the rival team leader once instead of repeating the same Kingmaking state for every teammate. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (eThey != kTheirTeam.getLeaderID())
+		return;
 	/*	If they're only in m_winningPresent, i.e. if we expect them to fall back,
 		then that'll be covered by comparing utility with a scenario in which they
 		don't fall back. (If they fall back in every scenario, then it's apparently
 		out of our hands, and no utility needs to be counted.) */
-	if (m_winningFuture.count(eThey) <= 0)
+	if (m_winningFuture.count(eTheirTeam) <= 0)
 		return;
 	if (kTheirTeam.isAVassal()) // Assumed to be out of contention
 		return;
@@ -2553,10 +2587,10 @@ void KingMaking::evaluate()
 	bool bCaughtUp = false;
 	// We're less inclined to interfere if several rivals are in competition
 	int iWinningRivals = m_winningFuture.size();
-	if (m_winningFuture.count(eWe) > 0)
+	if (m_winningFuture.count(eOurTeam) > 0)
 	{
 		iWinningRivals--;
-		if (m_winningPresent.count(eWe) <= 0)
+		if (m_winningPresent.count(eOurTeam) <= 0)
 		{
 			/*	We're not presently winning, but our predicted conquests bring us
 				back in competition. */
@@ -2574,7 +2608,7 @@ void KingMaking::evaluate()
 			rAttitudeMult += fixp(0.25);
 		}
 	}
-	else if (m_winningPresent.count(eWe) > 0)
+	else if (m_winningPresent.count(eOurTeam) > 0)
 	{
 		rCaughtUpPremium -= rCatchUpVal;
 		// Be more reckless when falling behind
@@ -2613,7 +2647,7 @@ void KingMaking::evaluate()
 		scaled rDiv = 1 + SQR(rProgressFactor * iWinningRivals);
 		rCompetitionMult = 1 / rDiv;
 	}
-	log("Winning civs: %d (%d rivals)", (int)m_winningFuture.size(), iWinningRivals);
+	log("Winning teams: %d (%d rivals)", (int)m_winningFuture.size(), iWinningRivals);
 	rUtility.clamp(-100, 100);
 	log("Attitude multiplier: %d percent, competition multiplier: %d percent",
 			rAttitudeMult.getPercent(), rCompetitionMult.getPercent());

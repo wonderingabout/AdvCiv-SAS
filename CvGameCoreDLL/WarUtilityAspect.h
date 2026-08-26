@@ -5,6 +5,7 @@
 
 #include "UWAI.h"
 #include "AIStrategies.h"
+#include "UWAISets.h" // <!-- custom: Kingmaking now stores team-owned victory candidates as TeamSet. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 class MilitaryAnalyst;
 class WarEvalParameters;
@@ -311,13 +312,14 @@ public:
 	UWAI::AspectTypes xmlID() const { return UWAI::KING_MAKING; }
 private:
 	static scaled const m_rScoreMargin;
-	std::set<PlayerTypes> m_winningFuture;
-	std::set<PlayerTypes> m_winningPresent;
-	void addWinning(std::set<PlayerTypes>& kWinning, bool bPredict) const;
+	// <!-- custom: Civ4 awards victories to teams. Store each likely winning team once while player-local victory inputs remain evaluated through anyVictory. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamSet m_winningFuture;
+	TeamSet m_winningPresent;
+	void addWinning(TeamSet& kWinning, bool bPredict) const;
 	bool anyVictory(PlayerTypes ePlayer, AIVictoryStage eFlags, int iStage, bool bPredict = true) const;
-	// <!-- custom: Use the same commerce/overseas-adjusted contender score to find and compare Kingmaking leaders. See KI#429. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	scaled adjustedContenderScore(PlayerTypes ePlayer, bool bPredict) const;
-	void addLeadingPlayers(std::set<PlayerTypes>& kLeading, scaled rMargin, bool bPredict = true) const;
+	// <!-- custom: Sum the same commerce/overseas-adjusted member scores into the actual team-owned Score/Time contender quantity. See KI#429 and KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled adjustedContenderScore(TeamTypes eTeam, bool bPredict) const;
+	void addLeadingTeams(TeamSet& kLeading, scaled rMargin, bool bPredict = true) const;
 	scaled theirRelativeLoss() const;
 };
 

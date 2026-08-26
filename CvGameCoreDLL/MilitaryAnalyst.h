@@ -159,8 +159,8 @@ public:
 		PlayerResult* pR = m_playerResults[ePlayer];
 		return (pR == NULL ? 0 : pR->getNukesFired());
 	}
-	// Based on conquered and lost cities
-	scaled predictedGameScore(PlayerTypes ePlayer) const;
+	// <!-- custom: Predict one member's score without the team-shared accepted-vassal addition; Kingmaking adds that contribution once after summing the team. See KI#433. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled predictedMemberGameScore(PlayerTypes ePlayer) const;
 private:
 	// True if we are preparing war against ePlayer or considering a war plan
 	bool doWePlanToDeclWar(PlayerTypes ePlayer) const;
