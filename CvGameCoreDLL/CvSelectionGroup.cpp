@@ -151,7 +151,18 @@ bool CvSelectionGroup::sentryAlert(/* advc.004l: */ bool bUpdateKnownEnemies)
 			pNode = kPlot.nextUnitNode(pNode))
 		{
 			CvUnit const* pLoopUnit = ::getUnit(pNode->m_data);
-			if(!kPlot.isVisibleEnemyUnit(pHeadUnit, pLoopUnit))
+			// <!-- custom: Retain the maximum-range member for group LOS geometry, but test hostility through every member that can personally see this plot.
+			// Always-hostile/hidden-nationality semantics are unit-local, so the range representative cannot classify enemies for the whole group. See KI#470. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			bool bVisibleEnemyForGroup = false;
+			FOR_EACH_UNIT_IN(pGroupUnit, *this)
+			{
+				if (pGroupUnit->getPlot().canSeePlot(&kPlot, pGroupUnit->getTeam(), pGroupUnit->visibilityRange()) && kPlot.isVisibleEnemyUnit(pGroupUnit, pLoopUnit))
+				{
+					bVisibleEnemyForGroup = true;
+					break;
+				}
+			}
+			if (!bVisibleEnemyForGroup)
 				continue;
 			if(bUpdateKnownEnemies)
 			{
@@ -209,16 +220,19 @@ void CvSelectionGroup::doTurn()
 			(pMissionPlot == NULL ? -1 : pMissionPlot->getX()), (pMissionPlot == NULL ? -1 : pMissionPlot->getY()), getLengthMissionQueue(), isForceUpdate(), canAnyMove(), pHeadUnit->movesLeft());
 	}
 	/*	K-Mod. Wake spies when they reach max fortify turns in foreign territory.
-		I'm only checking the head unit.
 		Note: We only want to wake once. So this needs to be done
 		before the fortify counter is increased. */
 	if (isHuman() && getActivityType() == ACTIVITY_SLEEP)
 	{
-		if (pHeadUnit->isSpy() && pHeadUnit->getPlot().getTeam() != getTeam())
+		// <!-- custom: K-Mod checked only the group head, although any grouped Spy can supply Sleep and accumulates its own stationary espionage discount.
+		// Wake when any member reaches the intended threshold in foreign territory. See KI#469. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iWakeFortifyTurns = GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1;
+		FOR_EACH_UNIT_IN(pUnit, *this)
 		{
-			if (pHeadUnit->getFortifyTurns() == GC.getDefineINT(CvGlobals::MAX_FORTIFY_TURNS) - 1)
+			if (pUnit->isSpy() && pUnit->getPlot().getTeam() != getTeam() && pUnit->getFortifyTurns() == iWakeFortifyTurns)
 			{
 				setActivityType(ACTIVITY_AWAKE); // time to wake up!
+				break;
 			}
 		}
 	} // K-Mod end
@@ -776,9 +790,7 @@ void CvSelectionGroup::startMission()
 	bool bAction = false;
 	bool bNuke = false;
 
-	if (!canStartMission(headMissionQueueNode()->m_data.eMissionType,
-		headMissionQueueNode()->m_data.iData1,
-		headMissionQueueNode()->m_data.iData2, plot()))
+	if (!canStartMission(headMissionQueueNode()->m_data.eMissionType, headMissionQueueNode()->m_data.iData1, headMissionQueueNode()->m_data.iData2, plot()))
 	{
 		bDelete = true;
 	}
@@ -794,12 +806,16 @@ void CvSelectionGroup::startMission()
 			{
 				MissionData data = headMissionQueueNode()->m_data;
 				CvPlot* pDest = GC.getMap().plot(data.iData1, data.iData2);
-				/*  Both air attack and rebase are MOVE_TO missions. Want to
-					clear the recon-plot only for rebase. */
-				if (data.eMissionType == MISSION_MOVE_TO && pDest != NULL &&
-					GET_TEAM(getTeam()).isRevealedAirBase(*pDest))
+				// Both air attack and rebase are MOVE_TO missions. Want to clear the recon-plot only for rebase.
+				if (data.eMissionType == MISSION_MOVE_TO && pDest != NULL && GET_TEAM(getTeam()).isRevealedAirBase(*pDest))
 				{
-					getHeadUnit()->setReconPlot(NULL);
+					// <!-- custom: Recon visibility is unit-local, and an air-group rebase moves only members that have moves and can enter the destination.
+					// Clear every participating aircraft's old recon plot instead of the possibly immobile head's alone. See KI#471. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+					{
+						if (pUnit->canMove() && pUnit->canMoveInto(*pDest))
+							pUnit->setReconPlot(NULL);
+					}
 				}
 			} // </advc.029>
 		}

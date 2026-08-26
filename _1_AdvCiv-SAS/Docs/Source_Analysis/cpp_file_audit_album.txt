@@ -21365,3 +21365,12 @@ LOCAL RECONCILIATION AFTER KI#465-KI#467 REVIEW
 - F143 / KI#466 has been independently revalidated and fixed: an individually ineligible companion wakes a Sea Patrol group only when no group member remains able to patrol. A direct mixed Battleship/Transport attempt did not expose the Sea Patrol command, so the narrow repair remains source-verified.
 - F144 / KI#467 has been independently revalidated and fixed: clearing one invalid blockader preserves `ACTIVITY_PLUNDER` while another group member remains both blockading and legally able to plunder. The exact diplomatic transition remains source-verified.
 - The compiled DLL completed an autoplay normally. C016-WIP01 remains verbatim evidence, and F158-F163 / provisional KI#481-KI#486 remain unchanged and provisional while `CitySiteEvaluator.cpp` is open. (GPT-5.6-Sol)
+
+
+LOCAL RECONCILIATION AFTER KI#468-KI#471 REVIEW
+
+- F145 / KI#468 has been independently revalidated and documented as pending. Its all-selected Load contract requires capacity-aware assignment across potentially heterogeneous transports; an apparently simple count or first-fit repair could still permit partial loading or reject a feasible assignment.
+- F146 / KI#469 has been independently revalidated and fixed by scanning every sleeping-group member for a foreign-territory Spy reaching K-Mod's pre-unit-turn preparation threshold.
+- F147 / KI#470 has been independently revalidated and fixed by retaining maximum-range LOS geometry while testing unit-local hostility through every group member that can personally see the candidate plot.
+- F148 / KI#471 has been independently revalidated and fixed by clearing old recon visibility for every movable aircraft that can participate in the accepted rebase, rather than the potentially immobile head alone.
+- The repaired DLL compiled successfully, and a Large Pangaea autoplay completed normally. The exact KI#469-KI#471 transitions remain source-verified because their manual setups were not exercised. C016-WIP01 and F158-F163 / provisional KI#481-KI#486 remain unchanged and provisional. (GPT-5.6-Sol)
