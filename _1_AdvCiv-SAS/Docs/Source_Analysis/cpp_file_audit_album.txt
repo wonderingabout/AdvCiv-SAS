@@ -20,15 +20,15 @@ METHOD
 - False positives are recorded when useful so they are not rediscovered later.
 
 QUEUE (current .cpp files, longest -> shortest)
-001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]
-002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]
+001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]<-(priority next wip)
+002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]<-(priority next wip)
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]
-005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]
-006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]
-007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]
-008  10841 CvGameCoreDLL/CvGame.cpp [COMPLETE - REVIEWED/TEN NEW FINDINGS]
-009   8705 CvGameCoreDLL/CvPlot.cpp [COMPLETE - REVIEWED/SEVEN NEW FINDINGS]
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
+005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
+006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
+007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
+008  10841 CvGameCoreDLL/CvGame.cpp [COMPLETE - REVIEWED/TEN NEW FINDINGS]<-(priority next wip)
+009   8705 CvGameCoreDLL/CvPlot.cpp [COMPLETE - REVIEWED/SEVEN NEW FINDINGS]<-(priority next wip)
 010   6854 CvGameCoreDLL/CvTeamAI.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 011   6343 CvGameCoreDLL/SASGameRecordLog.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
@@ -42,7 +42,7 @@ QUEUE (current .cpp files, longest -> shortest)
 020   2599 CvGameCoreDLL/CvInfo_Unit.cpp [PENDING]
 021   2503 CvGameCoreDLL/CyPlayer.cpp [PENDING]
 022   2448 CvGameCoreDLL/TrueStarts.cpp [PENDING]
-023   2430 CvGameCoreDLL/InvasionGraph.cpp [PENDING]
+023   2430 CvGameCoreDLL/InvasionGraph.cpp [PENDING]<-(priority next wip)
 024   2399 CvGameCoreDLL/CyCity.cpp [PENDING]
 025   2247 CvGameCoreDLL/StartingPositionIteration.cpp [PENDING]
 026   2132 CvGameCoreDLL/CvInitCore.cpp [PENDING]
@@ -50,7 +50,7 @@ QUEUE (current .cpp files, longest -> shortest)
 028   2095 CvGameCoreDLL/CvXMLLoadUtilitySet.cpp [PENDING]
 029   2052 CvGameCoreDLL/CyEnumsInterface.cpp [PENDING]
 030   1919 CvGameCoreDLL/CvInfo_Misc.cpp [PENDING]
-031   1812 CvGameCoreDLL/UWAICache.cpp [PENDING]
+031   1812 CvGameCoreDLL/UWAICache.cpp [PENDING]<-(priority next wip)
 032   1704 CvGameCoreDLL/CyUnit.cpp [PENDING]
 033   1672 CvGameCoreDLL/CvInfo_Terrain.cpp [PENDING]
 034   1637 CvGameCoreDLL/CvInfo_Civilization.cpp [PENDING]
@@ -58,13 +58,13 @@ QUEUE (current .cpp files, longest -> shortest)
 036   1596 CvGameCoreDLL/CvMap.cpp [PENDING]
 037   1576 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
-039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]
-040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]
-041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [PENDING]
-042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]
+039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]<-(priority next wip)
+040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]<-(priority next wip)
+041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [PENDING]<-(priority next wip)
+042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]<-(priority next wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
-045   1281 CvGameCoreDLL/CvMapGenerator.cpp [PENDING]
+045   1281 CvGameCoreDLL/CvMapGenerator.cpp [PENDING]<-(priority next wip)
 046   1268 CvGameCoreDLL/CyGame.cpp [PENDING]
 047   1214 CvGameCoreDLL/CvDllPythonEvents.cpp [PENDING]
 048   1128 CvGameCoreDLL/CvInfo_Building.cpp [PENDING]
@@ -111,7 +111,7 @@ QUEUE (current .cpp files, longest -> shortest)
 089    338 CvGameCoreDLL/CvGameAI.cpp [PENDING]
 090    330 CvGameCoreDLL/CyGameInterface.cpp [PENDING]
 091    328 CvGameCoreDLL/CySelectionGroup.cpp [PENDING]
-092    327 CvGameCoreDLL/BBAILog.cpp [PENDING]
+092    327 CvGameCoreDLL/BBAILog.cpp [PENDING]<-(priority next wip)
 093    323 CvGameCoreDLL/CvPopupReturn.cpp [PENDING]
 094    304 CvGameCoreDLL/CvPlotGroup.cpp [PENDING]
 095    291 CvGameCoreDLL/CyGameTextMgr.cpp [PENDING]
@@ -21374,3 +21374,3273 @@ LOCAL RECONCILIATION AFTER KI#468-KI#471 REVIEW
 - F147 / KI#470 has been independently revalidated and fixed by retaining maximum-range LOS geometry while testing unit-local hostility through every group member that can personally see the candidate plot.
 - F148 / KI#471 has been independently revalidated and fixed by clearing old recon visibility for every movable aircraft that can participate in the accepted rebase, rather than the potentially immobile head alone.
 - The repaired DLL compiled successfully, and a Large Pangaea autoplay completed normally. The exact KI#469-KI#471 transitions remain source-verified because their manual setups were not exercised. C016-WIP01 and F158-F163 / provisional KI#481-KI#486 remain unchanged and provisional. (GPT-5.6-Sol)
+===============================================================================
+
+
+===============================================================================
+C016-WIP02 APPEND -- 2026-08-26 -- CitySiteEvaluator.cpp continued
+===============================================================================
+
+Authority for this append: reconciled AdvCiv-SAS light source 20260826T150848.
+C016-WIP01 is preserved byte-for-byte as the prefix of this file.
+
+This pass continued through the custom first-city health/culture/BFC logic and the
+resource-duplicate valuation path. Five further roots crossed the proof bar. A tempting
+tiny-lake Lighthouse/Harbor candidate and an old special-food arithmetic regression
+were both rejected as current findings after deeper caller/helper checks.
+
+
+F164 / provisional KI#487 -- rival culture-pressure gate ignores real cross-area culture solely because the rival city tile is on another land area
+----------------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+The current SAS replacement for AdvCiv's adjustToCivSurroundings culture-pressure
+logic scans known foreign cities, but begins each city with:
+
+    if (!pCity->isArea(kArea)) continue;
+
+kArea is the land area of the candidate settlement tile. This assumes a foreign city
+on another land area cannot exert relevant culture pressure on the candidate.
+
+That assumption is false in the actual culture engine. CvCity::doPlotCultureTimes100
+explicitly permits culture to spread onto a plot in another area when the culture
+distance is at most:
+
+    eCultureLevel + 1
+
+(the broader same-area range is larger). Thus a coastal city on one island can exert
+real plot culture across a narrow channel onto another island.
+
+DETERMINISTIC REPRODUCTION
+1. Put a candidate land city site on island A.
+2. Put a revealed/known rival city on nearby island B, so the city tiles have different
+   CvArea IDs but are only two culture-distance steps apart.
+3. Give the rival city culture level 2 or greater.
+4. CvCity::doPlotCultureTimes100 can legally spread that city's culture onto the
+   candidate-side plots because the cross-area distance is <= cultureLevel + 1.
+5. CitySiteEvaluator nevertheless skips the rival city before even calculating its
+   pressure because !pCity->isArea(kArea).
+
+For the current simple pressure formula, a level-2 city at distance 2 has r=5 and would
+produce pressure 10 + 90*(5-2)/5 = 64. With ordinary SOFT/HARD settings this is enough
+to cause a substantial down-weight. The area filter instead forces its contribution to
+zero.
+
+CONSEQUENCE
+Narrow-channel / island-chain sites can be rated as culturally safe even while an
+existing known rival city can already project culture across the water toward them.
+Depending on distance and XML thresholds, a site that should receive a medium penalty
+or even rejection can receive none from this gate.
+
+ANCESTRY / INTENT
+The area restriction is inherited conceptually from K-Mod's 2012 foreign-proximity
+found-value work and Base AdvCiv's adjustToCivSurroundings, which likewise considered
+only same-area cities. SAS later disabled that complex routine and migrated a simpler
+culture-pressure subset inline, carrying the same-area restriction with it.
+
+The culture engine itself is the stronger authority for reachability and explicitly
+contains special cross-area handling. This is therefore a long-standing geographic
+assumption exposed by the simplified SAS gate, not merely a tuning disagreement.
+
+REPAIR DIRECTION
+Do not equate different land-area IDs with zero possible culture pressure. Preserve a
+cheap same-area fast path if desired, but for a different-area rival city allow the
+narrower range actually supported by CvCity::doPlotCultureTimes100 (culture level + 1)
+rather than applying the full same-area range blindly. The no-cheat
+AI_deduceCitySite/KNOWN_TO checks should remain intact.
+
+
+F165 / provisional KI#488 -- SAS cautious-health score drops all Forest/Jungle health whenever the plot contains a visible bonus
+-------------------------------------------------------------------------------------------------------------------------------
+ROOT
+The current cautious-health accumulator is located in the `else` of:
+
+    if (eBonus != NO_BONUS)
+        ... resource valuation ...
+    else
+        if (eFeature == Jungle/Forest)
+            iCautiousHealthPercent += feature health percent;
+
+So a Forest or Jungle contributes to the first/later-city bad-health dampener only when
+that plot has NO visible bonus. A bonus does not itself remove the feature and does not
+make its health effect disappear.
+
+CURRENT SHIPPED DATA
+SAS XML permits many bonuses on Forest and/or Jungle plots. Examples include current
+food, luxury and strategic resources such as Pig/Deer on Forest and Rice/Banana,
+Dye/Gems/Elephants/Spices on Jungle-related placements (exact map generation also
+depends on terrain/feature rules). The important property is shipped, ordinary
+feature+bonus coexistence: the feature health modifier remains real while the
+CitySiteEvaluator accumulator ignores it.
+
+DETERMINISTIC EFFECT
+With the current comments' own scale, Jungle contributes -50 and Forest +50 to the
+quick health estimate. Seven ordinary Jungle plots produce -350 and can cross a -300
+start threshold. If one of those Jungle plots contains a bonus, the current accumulator
+sees only -300. Conversely, a resource on Forest can erase +50 of mitigating health.
+The site can therefore cross a configured penalty threshold in either direction merely
+because a resource marker shares the feature.
+
+CONSEQUENCE
+The start/later bad-health dampener is not estimating BFC feature health as documented.
+Resource-rich jungle starts can be treated as healthier than the same actual feature
+layout without the resource, while resource-bearing Forest can fail to offset Jungle.
+Because the dampener is thresholded and multiplicative, the discrepancy can be much
+larger than 50 raw health-percent points once it changes whether the penalty runs.
+
+INTRODUCTION / INTENT
+This is SAS-specific custom logic. The active comments describe the accumulator simply
+in terms of Jungle and Forest health (e.g. 7 Jungle = -350; 8 Jungle + 2 Forest = -300)
+and do not document bonus plots as exempt. The exclusion comes from control-flow
+placement rather than from bRemovableFeature, improvement legality, or a rule that the
+feature will actually be removed.
+
+REPAIR DIRECTION
+Accumulate the relevant Forest/Jungle feature health independently of whether eBonus is
+NO_BONUS. If the intended model is instead "health after likely improvements," that
+needs an explicit feature-removal/improvement test; bonus presence alone is not such a
+test.
+
+
+F166 / provisional KI#489 -- SAS raw zero-city start-phase gates accidentally reintroduce a first-Barbarian-city distinction AdvCiv explicitly suppresses
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+AIFoundValue construction deliberately normalizes Barbarian city count:
+
+    // Barbarians shouldn't distinguish between earlier and later cities
+    iCities = (bBarbarian ? 5 : kPlayer.getNumCities());
+
+Current SAS evaluate() later introduces a separate raw state:
+
+    int const iNumCities = kPlayer.getNumCities();
+    bool const bStartPhase = (iNumCities == 0);
+
+and uses bStartPhase for custom capital/first-city rules, including the hard minimum
+`iGoodEnoughFirstCityBFCTiles` gate, the stricter starting very-bad-tile allowance and
+the harsher starting health dampener.
+
+REACHABILITY
+The Barbarian player can genuinely pass through this evaluator with zero cities.
+CvGame's Barbarian-city creation/site-selection path constructs/evaluates city sites for
+BARBARIAN_PLAYER before its first city exists. Thus this is not merely a theoretical
+state reachable only through WorldBuilder or API misuse.
+
+DETERMINISTIC BEHAVIOR DIFFERENCE
+Evaluate the same ordinary Barbarian candidate once when the Barbarian player has zero
+cities and again after it has one unrelated city, with the local map state otherwise
+unchanged. On the first call bStartPhase is true and the candidate can be hard-rejected
+for failing the capital-only good-enough BFC count or can receive the stricter start
+health/very-bad penalties. Once any Barbarian city exists, those exact SAS gates switch
+to the later-city settings.
+
+CONSEQUENCE
+The first Barbarian city is subject to a unique capital-like quality policy despite the
+inherited AdvCiv design explicitly preventing Barbarians from distinguishing early vs
+later cities. This can suppress or reshape initial Barbarian settlement in ways that
+disappear immediately after city #1 and can interact strongly with the hard first-city
+BFC return-0 gate.
+
+ANCESTRY / REGRESSION CLASS
+The `iCities = 5` Barbarian normalization is inherited AdvCiv behavior (advc.108).
+The conflicting bStartPhase gates are later SAS custom additions. This is therefore a
+SAS regression against an explicit inherited contract rather than a Base AdvCiv bug.
+
+REPAIR DIRECTION
+Derive these first-city-only SAS gates from the evaluator's already-normalized notion of
+early/late city state, or explicitly exclude bBarbarian from bStartPhase. Do not change
+ordinary player first-city behavior while fixing the Barbarian special case.
+
+
+F167 / provisional KI#490 -- first-city preliminary BFC hard gates count plots before the established usability/ownership filter rejects them
+-------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+SAS practical/commit 7a6be1b482c631ab46fe891e44fdedacd5e3871b
+(2026-06-28, "Replace Settler/Found AI hardcoded enough good enough first-city plots
+with a dynamic one") added XML-aware preliminary BFC counters. During the CityPlot
+loop it now evaluates revealed non-home plots and increments, among other state:
+
+    iGoodEnoughFirstCityBFCTiles
+    iVeryBadBFCTiles
+    iLowFoodLocationScore
+
+BEFORE calling:
+
+    isUsablePlot(...)
+
+The latter is the established filter that decides whether the candidate may actually
+count on the plot after existing-city radius ownership/sharing/steal/reservation rules.
+If isUsablePlot returns false, normal found-value processing immediately `continue`s --
+but the preliminary first-city counters have already been changed.
+
+WHY EXISTING CITY RADIUS STATE IS PRESENT
+When a city is founded, CvPlot::setPlotCity iterates its entire CityPlot radius and
+increments each plot's `cityRadiusCount` / player city-radius count immediately. This is
+not limited to plots already culturally owned or currently workable. Therefore a plot
+inside a revealed rival city's BFC can participate in the preliminary SAS classification
+while the later usability filter knows it belongs to an existing competing radius.
+
+DETERMINISTIC REPRODUCTION
+1. Evaluate a first-city candidate whose BFC overlaps the inner/radius claims of a
+   revealed rival city.
+2. Put a strong revealed Grass/resource or otherwise "good enough" tile in that rival
+   claimed portion at a CityPlot index reached during the preliminary pass.
+3. SAS_isGoodEnoughFirstCityBFCPlot counts it toward the configured hard minimum.
+4. isUsablePlot then rejects that same plot because the candidate must not count on
+   working/stealing it under the established overlap rules.
+5. The unusable plot can nevertheless be the tile that raises
+   `iGoodEnoughFirstCityBFCTiles + iUnrevealedTiles` to the minimum and prevents a hard
+   return 0.
+
+The reverse direction also exists: unusable rival/overlap plots can feed preliminary
+very-bad or low-food counters and penalize/reject a candidate even though the main plot
+evaluator intentionally discards those tiles.
+
+CONSEQUENCE
+The new gate is documented and named in terms of "usable" / "good enough" BFC slots,
+but its hard acceptance decision can depend on plots the evaluator itself later says
+are unusable. First-city acceptance can therefore depend on rival-overlap geometry in
+the wrong direction and disagree internally within one loop iteration.
+
+REPAIR DIRECTION
+Run the ownership/sharing/reservation usability decision before mutating the preliminary
+first-city counters, or factor the relevant non-yield usability predicate into the
+preliminary classification. Take care not to lose intentional accounting for fogged
+plots (`iUnrevealedTiles`) or the home plot.
+
+
+F168 / provisional KI#491 -- same-type resource empire value is assigned to the first CityPlot copy, making found value depend on arbitrary BFC enumeration order
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+nonYieldBonusValue receives the BFC's partial `aiBonusCount`. Current SAS does:
+
+    bool bSurplus = isBonusOwnedOrClaimedByFutureBFC(eBonus);
+    if (paiBonusCount != NULL)
+    {
+        if ((*paiBonusCount)[eBonus] > 0)
+            bSurplus = true;
+        (*paiBonusCount)[eBonus]++;
+    }
+    int const iEffectiveHappyHealthValue = (bSurplus ? 0 : iHappyHealthValue);
+
+Thus, when the empire does not already have reliable coverage, the FIRST BFC copy of a
+bonus type receives the once-per-type empire health/happiness/building value; every
+later copy receives zero for that component.
+
+But each copy's non-yield result is also adjusted by that individual plot's culture
+modifier. The first copy need not be the safest, most culturally reliable or otherwise
+best representative of the resource type. CityPlot iteration order, not resource-state
+semantics, chooses the representative.
+
+DETERMINISTIC ROTATION REPRODUCTION
+Take a candidate BFC with two otherwise ordinary Rice plots. Let one be a reliably
+claimable 100%-culture-modifier copy and the other a contested/less reliable 50% copy.
+Assume the empire has no existing reliable Rice. Under the current Granary-style
+health/building setup, Rice's explicit once-per-type value can be about 300 before
+culture adjustment.
+
+Layout A: the 50% copy occupies the earlier CityPlot index. It receives the once-per-type
+value and contributes about 150; the later 100% copy is surplus and contributes 0.
+
+Layout B: rotate/rearrange the equivalent BFC so the 100% copy occupies the earlier
+CityPlot index. It receives about 300; the later 50% copy gets 0.
+
+The two local resource tile yields are still evaluated independently. The difference in
+empire-wide resource value is created solely by enumeration order.
+
+ANCESTRY
+This is older than KI#178. Base AdvCiv's nonYieldBonusValue already documents
+`aiBonusCount` as "only a partial count" and gives the first duplicate more value while
+dividing later copies. The shape is present in the BBAI-derived/K-Mod found-value line
+rather than in the supplied Civ4CE/BtS reference implementation's simpler bonus value.
+
+SAS KI#178 (commit 6341d3d556a7f580e3664b8631d52446c2c7c4da) did not invent the
+ordering dependency, but amplified it: later duplicates' explicit health/happiness
+settlement value is now exactly zero rather than merely diminished.
+
+CONSEQUENCE
+Geometrically/resource-equivalent candidate sites can receive materially different
+found values depending on which same-type copy happens to occupy the earlier CityPlot
+index. The error is strongest when duplicate copies differ in culture reliability.
+
+REPAIR DIRECTION
+Compute the once-per-bonus-type empire value outside arbitrary per-plot first-hit
+assignment, or accumulate/select the best eligible representative (e.g. highest
+reliability) before applying the marginal value. Keep local tile yield values per plot.
+
+
+C016-WIP02 NEGATIVE CONTROLS / OPEN QUESTIONS
+---------------------------------------------
+* A suspected tiny-lake Lighthouse/Harbor yield-credit defect was RETRACTED. In AdvCiv,
+  CvPlot::isCoastalLand(-1) converts -1 to MIN_WATER_SIZE_FOR_OCEAN, so the relevant
+  `bCoastal` condition already excludes tiny lakes. The initially proposed reproduction
+  cannot occur in this codebase; KI#490 was therefore left unused until F167 above.
+* AdvCiv commit 891273d300's old special-food arithmetic can apply a culture/reliability
+  modifier twice to `iSpecialFoodPlus` (e.g. old `(4-2)*50% = 1` versus later
+  `(4*50%-2)*50% = 0`). This is a real historical arithmetic regression in isolation,
+  but SAS has disabled the principal special-yield/food-adjustment consumers. The
+  surviving sea-production cap saturates before this value changes its result in the
+  relevant range, and ordinary bonus sites already make iResourceValue positive for
+  the remaining "nothing special" gate. No current consequential F169 was established.
+* estimateImprovementProduction's retained warning about not checking water
+  improvements was challenged. Current shipped water improvements are resource-specific
+  Fishing/Whaling/Offshore types and resource improvement production is handled through
+  the resource path; no ordinary non-resource water-improvement production root was
+  established.
+* adjustToBonusCount explicitly receives only the partial aiBonusCount built by the
+  evaluator. Its mismatch with physical resource count remains suspicious, but the
+  function's purpose is heuristic anti-greed shaping rather than a clear exact-count
+  contract. Do not spend a finding without a deterministic wrong-state consequence.
+
+
+C016-WIP02 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 15 / 169
+FILE 016: CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines) -- OPEN
+PHYSICAL CHECKPOINT: C016-WIP02
+CURRENT FILE-016 NEW ROOTS: F158-F168 / provisional KI#481-KI#491
+NEXT ROOT ID: F169 UNUSED
+
+Resume with adjustToStartingChoices / adjustToCitiesPerArea / adjustToBonusCount and the
+remaining deadlocked-bonus / starting-location / logging / evaluateWorkablePlot tail.
+Challenge exact geographic/ownership assumptions and any stateful first-hit logic, but
+keep the old special-food double-modifier regression as dormant unless a live SAS
+consumer with a material result is demonstrated. Finish with an adversarial F158-Fxxx
+closure pass before closing file 016.
+===============================================================================
+
+
+F169 / provisional KI#492 -- StartingPositionIteration workable-plot precompute runs a discarded full city-site evaluation for every candidate plot
+-----------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+StartingPositionIteration precomputes a map-wide workable-plot value table through:
+
+    CitySiteEvaluator yieldEval(..., bNormalize=true);
+    ...
+    rYieldVal = yieldEval.evaluateWorkablePlot(kPlot);
+
+CitySiteEvaluator::evaluateWorkablePlot first chooses a hypothetical city center and
+then constructs:
+
+    AIFoundValue foundVal(*pBestCityPlot, *this);
+
+AIFoundValue's constructor unconditionally finishes with:
+
+    m_iResult = evaluate();
+
+Only after that complete city-site evaluation has run does the wrapper call the
+separate:
+
+    foundVal.evaluateWorkablePlot(kPlot)
+
+and return that result. The constructor's m_iResult is never read in this path.
+
+WHY THE FULL EVALUATION IS NOT INITIALIZATION FOR THE WORKABLE PATH
+The mutable intermediate state produced by evaluate() -- aiCitySiteRadius,
+abOwnCityRadius, abFlip, bFirstColony and iUnrevealedTiles -- is not consumed by
+AIFoundValue::evaluateWorkablePlot or the helpers it calls. The fields that path does
+need (player/team/era/candidate-area/coastal context, city count, etc.) are initialized
+before the constructor invokes evaluate(). Thus the expensive full evaluation is pure
+discarded work here rather than a hidden prerequisite.
+
+REACHABILITY / SCALE
+This is the normal StartingPositionIteration constructor path. SPI loops over essentially
+the whole map, skipping only plots that are not potential city work, and performs this
+wrapper call once per remaining plot to build yieldValues/yieldsPerArea. Each successful
+hypothetical city center therefore triggers a full found-value pass over a BFC and its
+associated overlap/resource/culture/health/modifier logic merely so that the object can
+then run the independent workable-plot calculation.
+
+ANCESTRY
+The redundant shape was introduced with AdvCiv's StartingPositionIteration work in
+practical 2280 / commit a70e4ce3a1 (2020-05-28). The initial implementation already
+constructed AIFoundValue in CitySiteEvaluator::evaluateWorkablePlot and then ignored
+get()/m_iResult. Base AdvCiv 1.14 and current SAS retain that contract.
+
+CONSEQUENCE
+Starting-position iteration pays thousands of avoidable full city-site evaluations on
+ordinary maps. This is a pure performance defect: removing the discarded evaluation
+should not change the returned workable-plot value.
+
+REPAIR DIRECTION
+Allow AIFoundValue construction without immediately running evaluate(), or factor the
+immutable helper context used by evaluateWorkablePlot into a lightweight path. Preserve
+normal CitySiteEvaluator::evaluate behavior while ensuring the SPI wrapper initializes
+only the state its workable-plot calculation actually consumes.
+
+
+F170 / provisional KI#493 -- first-colony landmass bonus reads unrevealed foreign city count despite AdvCiv's explicit no-cheat area-size adjustment
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+adjustToCitiesPerArea applies up to a x2 value modifier when:
+
+    if (kArea.getNumCivCities() <= 0)
+
+and describes this as the bonus for being the first civilization to colonize the
+landmass. CvArea::getNumCivCities() is simply total cities minus Barbarian cities; it has
+no team-visibility or city-deduction filter.
+
+The same block then sizes that bonus from:
+
+    kArea.getNumRevealedTiles(eTeam) // advc.031: Don't cheat
+
+So the amount of land considered is deliberately knowledge-limited, while the preceding
+question "does another civilization already have a city here?" still uses omniscient
+map state.
+
+REACHABILITY
+adjustToCitiesPerArea is called unconditionally near the end of ordinary AIFoundValue::
+evaluate. It is not restricted to all-seeing map generation. For a player with existing
+cities evaluating its first colony on another sufficiently revealed continent, a rival
+city can exist elsewhere in that same CvArea while remaining entirely unknown to the
+player/team.
+
+DETERMINISTIC INFORMATION-LEAK REPRODUCTION
+Take two game states with identical evaluated site, revealed tiles, known cities and all
+other information available to the evaluating team. In state A, no other civilization
+has a city anywhere on that landmass. In state B, an unknown rival city exists beyond
+fog on the same landmass.
+
+State A enters the first-colony modifier and can receive as much as x2 on a large,
+sufficiently revealed area. State B receives no such modifier solely because
+getNumCivCities sees the hidden city. The AI's found value therefore changes based on
+information it cannot know.
+
+ANCESTRY
+K-Mod practical/history commit 7cfc27cd59 changed the BtS pArea->getNumCities()==0
+bonus into a size-scaled "first on a new continent" bonus, still using omniscient city
+count. AdvCiv later changed the city test to civilian-only and, importantly, changed the
+area-size input to getNumRevealedTiles(eTeam) with the explicit "Don't cheat" comment,
+but did not knowledge-limit the city-existence half. Base AdvCiv 1.14 and SAS retain
+the mixed contract.
+
+CONSEQUENCE
+A hidden rival colony can remove a very large expansion bonus and alter site ranking.
+This is not merely imperfect forecasting; two states identical from the AI's point of
+view can produce different found values.
+
+REPAIR DIRECTION
+Determine whether the area contains a known/deducible non-Barbarian rival city (plus
+our/team cities as appropriate) using the same knowledge policy as the rest of
+CitySiteEvaluator, rather than raw CvArea city totals. Keep the revealed-area sizing and
+do not reveal a hidden city merely to decide whether the player is "first."
+
+
+F171 / provisional KI#494 -- advc.181 visibility-hardening defeats isDeadlockedBonus's explicit adjacent-revealed fog allowance, causing false deadlock penalties
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+isDeadlockedBonus deliberately allows a potential future city center around a visible
+resource to proceed when either the center itself is revealed OR it is merely adjacent
+to revealed terrain:
+
+    if (!isRevealed(kOtherSite) &&
+        !kOtherSite.isAdjacentRevealed(eTeam))
+        continue;
+
+The comment says this is because the evaluator needs enough information to know there is
+land. But the very next test is now:
+
+    kPlayer.canFound(kOtherSite, false, kSet.isAllSeeing())
+
+For an ordinary non-all-seeing evaluation, bIgnoreFoW is false. Since advc.181,
+CvPlot::canFound immediately returns false whenever the candidate center itself is not
+revealed to eTeam. Consequently the `isAdjacentRevealed` alternative above can never
+make an unrevealed center count as a viable site.
+
+DETERMINISTIC FALSE-DEADLOCK REPRODUCTION
+Let a visible bonus just outside the candidate city's BFC have two otherwise valid
+future city centers within its radius:
+
+1. one revealed center lies within MIN_CITY_RANGE of the candidate. canFound succeeds,
+   so bNeverFound becomes false, but this site would be blocked by founding the current
+   city;
+2. a second same-area center lies farther than MIN_CITY_RANGE and is actual valid land,
+   but its center tile is still fogged while adjacent terrain is revealed.
+
+The explicit precheck admits center #2, but advc.181 canFound rejects it solely because
+that center is unrevealed. The loop therefore ends with !bNeverFound && !bCanFound and
+classifies the resource as deadlocked. Revealing only center #2, with no geography or
+ownership change, makes canFound succeed and the deadlock disappear.
+
+CONSEQUENCE
+adjustToBonusCount applies:
+
+    iValue = (2 * iValue) / (2 + iDeadLockCount);
+
+so one false deadlock cuts the site to 2/3 value; multiple ones are even harsher. The
+result depends on a visibility detail the helper's own adjacent-revealed policy was
+written to tolerate.
+
+ANCESTRY / REGRESSION
+The adjacent-revealed allowance predates advc.181. AdvCiv practical 3597 / commit
+c12bd6b877 ("Fix map knowledge leaked by unit action recommendations") changed this
+call to the new fog-aware CvPlayer::canFound overload. The same commit added
+CvPlot::canFound's explicit `!isRevealed(eTeam) -> false` guard. It fixed information
+leaks elsewhere but unintentionally made the older adjacent-revealed branch in
+isDeadlockedBonus ineffective. Base AdvCiv 1.14 and current SAS inherit the mismatch.
+
+REPAIR DIRECTION
+Give isDeadlockedBonus a no-cheat prospective-site predicate that preserves its intended
+adjacent-revealed terrain allowance without consulting hidden ownership/cities. Simply
+switching back to omniscient canFound would reintroduce the information leak advc.181
+was designed to remove; the fix should explicitly separate known terrain/founding
+legality from hidden-state restrictions.
+
+
+C016-WIP03 NEGATIVE CONTROLS / OPEN QUESTIONS
+---------------------------------------------
+* The possible F170 about StartingPositionIteration using one representative player's
+  civilization for the shared workable-plot table was rejected. SPI explicitly says the
+  representative player is not irrelevant because starting tech state already affects
+  valuation, and Base AdvCiv's pre-KI#178 workable-resource path was already
+  player/civilization-sensitive through inherited bonus valuation. SAS KI#178 makes the
+  approximation more visible through civilization-specific building effects, but no
+  exact per-player SPI contract was established.
+* The normalization-only hardcoded sea-food building approximation was checked against
+  current BUILDINGCLASS_HARBOR data. The normal Harbor and Barbarian Harbor are the only
+  shipped implementations and share the relevant +1 sea-food / ocean-size behavior; no
+  current-data civ-specific mismatch was established.
+* calculateBonusConnectionEra shares F160's plot/domain-blind improvement scan and can
+  see the land Well/Combustion path for water Oil before the water Offshore Platform /
+  Marine Technology path. Current Oil has no direct happy/health value and no shipped
+  bonus-building happy/health effect that makes this timing result materially feed the
+  active KI#187 non-yield settlement value, so keep this as a dormant sibling rather
+  than spending another root unless current data makes the timing consequential.
+
+
+C016-WIP03 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 15 / 169
+FILE 016: CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines) -- OPEN
+PHYSICAL CHECKPOINT: C016-WIP03
+CURRENT FILE-016 NEW ROOTS: F158-F171 / provisional KI#481-KI#494
+NEXT ROOT ID: F172 UNUSED
+
+Resume after the deadlocked-bonus fog-contract trace. Continue the remaining logging /
+evaluateWorkablePlot and custom-vs-Base adversarial pass, then re-challenge the earlier
+isSiteValid/overlap/bad-tile ownership and no-cheat assumptions before deciding whether
+file 016 can close. Prefer rejecting acknowledged heuristic approximations unless a
+reachable wrong-state contract can be demonstrated.
+===============================================================================
+
+
+F172 / provisional KI#495 -- calculateCultureModifier leaks a completely unrevealed second rival city through area city totals
+--------------------------------------------------------------------------------------------------------------------------------
+ROOT
+calculateCultureModifier starts from a revealed foreign-owned plot, but one of its
+opposing-culture multipliers asks:
+
+    p.getArea().getCitiesPerPlayer(getRevealedOwner(p)) > 1
+
+when we have no cities in that area. CvArea::getCitiesPerPlayer is an omniscient total;
+it does not filter the rival's cities by reveal state or AI_deduceCitySite.
+
+DETERMINISTIC INFORMATION-LEAK REPRODUCTION
+Hold the evaluated plot, its revealed owner, all visible culture clues and the entire
+player-visible map state fixed. In state A the rival has exactly one city in that land
+area. In state B it has a second city elsewhere in the same area, completely unknown to
+the evaluating team. State B alone multiplies the foreign culture-rate estimate by 1.5.
+The same contested tile therefore receives a different culture modifier solely from a
+hidden city.
+
+ANCESTRY
+This particular `citiesPerPlayer > 1` clause was added during AdvCiv's 2019
+AIFoundValue/CitySiteEvaluator refactor. The older inline culture block had the rival
+capital special case but not this hidden second-city multiplier. Base AdvCiv 1.14 and
+current SAS retain it.
+
+CONSEQUENCE
+Culture reliability is applied to plot yield and bonus valuation. A hidden remote city
+can therefore alter settlement ranking for a known contested tile without providing any
+new information to the AI.
+
+REPAIR DIRECTION
+Base this multiplier on known/deducible rival cities in the relevant area, or remove the
+city-count proxy. Do not use raw CvArea city totals in a knowledge-limited evaluation.
+
+
+F173 / provisional KI#496 -- KI#178 future-BFC bonus ownership check reads live actual plot owner after requiring only team-revealed resource knowledge
+--------------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+SAS KI#178's isBonusOwnedOrClaimedByFutureBFC deliberately reasons about resources that
+are known to the player's team. It starts by requiring a team-revealed bonus, but then
+uses:
+
+    pLoopPlot->getOwner()
+
+rather than the team-visible/revealed owner. Plot ownership can change while a plot is
+fogged, whereas CvPlot maintains a separate revealed-owner value specifically for
+knowledge-limited consumers.
+
+DETERMINISTIC INFORMATION-LEAK REPRODUCTION
+Take a known resource in the future BFC of one of our existing cities, leave the plot
+under fog, and let rival culture gain or lose current ownership without the evaluating
+team seeing the plot again. The actual-owner branch inside the helper changes even
+though the team's remembered owner and resource knowledge do not.
+
+CONSEQUENCE
+The same hidden ownership transition can alter both the +250 unowned-resource diversity
+nudge and the long-term health/happiness/building value path that asks whether the
+empire already safely owns or claims that bonus.
+
+ANCESTRY
+This is SAS-specific to the KI#178 helper introduced in practical 6025 / commit
+6341d3d556. The helper's comments frame the test in terms of known/claimed resources,
+so omniscient ownership is not an intentional all-seeing contract.
+
+REPAIR DIRECTION
+Use the same revealed-owner helper/policy as the surrounding CitySiteEvaluator code.
+Current ownership may be used only when all-seeing or currently visible under an
+explicit knowledge rule.
+
+
+F174 / provisional KI#497 -- raw city-radius counters leak undeduced hidden city existence throughout ordinary site evaluation
+-----------------------------------------------------------------------------------------------------------------------------
+ROOT
+CvPlot::isCityRadius() and getCityRadiusCount() are global map-state counters. When a
+city is founded, setPlotCity updates the radius count for the full BFC immediately;
+there is no per-team visibility component. CitySiteEvaluator nevertheless reads those
+raw counters in several ordinary non-all-seeing paths, including overlap/flip setup,
+bad-tile rescue, isTooManyBadTiles, isUsablePlot and isDeadlockedBonus.
+
+This is independent of revealed plot ownership. A city can remain entirely undeduced
+while its BFC has already changed the raw city-radius counters consumed here.
+
+DETERMINISTIC INFORMATION-LEAK REPRODUCTION
+Hold all terrain, revealed ownership/culture and known city sites fixed. Add an enemy
+city wholly under fog such that one or more already-revealed candidate-BFC plots fall in
+its radius, but leave too few ownership clues for AI_deduceCitySite. The corresponding
+isCityRadius/getCityRadiusCount reads change immediately. Depending on the path, the
+plot can become taken/shared, stop rescuing a bad-site test, alter flip assumptions, or
+make a nearby resource cease to count as deadlockable. None of those changes require
+the AI to have learned that the city exists.
+
+ANCESTRY / WHY THIS LOOKS LIKE AN OMISSION
+AdvCiv practical/commit ca3e110fd5 is explicitly titled "AI city site eval respects fog
+of war wrt. tile ownership." It systematically replaced raw owner/team reads with
+revealed-state helpers and added/used AI_deduceCitySite, but raw city-radius counters in
+the same evaluator survived that cleanup. Base AdvCiv 1.14 and SAS therefore retain a
+second channel through which hidden city existence leaks back in.
+
+CONSEQUENCE
+Two states that are identical under the evaluator's intended map-knowledge contract can
+produce different found values, including hard site rejection, solely because an
+undeduced city exists in fog.
+
+REPAIR DIRECTION
+Introduce a knowledge-limited "known/deducible city radius" predicate for this evaluator
+(or derive radius membership only from own/team cities plus known/deducible foreign
+cities). Do not simply remove the radius checks; they serve valid overlap/sharing and
+deadlock purposes once the city that creates the radius is knowable.
+
+
+F175 / provisional KI#498 -- calculateCultureModifier reads exact hidden working-city identity, geometry and capital status even when that city is not deducible
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+Even if the raw city-radius leak in F174 is repaired, calculateCultureModifier has an
+independent hidden-city channel:
+
+    CvCity* pForeignCity = p.getWorkingCity();
+
+It then uses that actual city's exact area relationship / position and capital status to
+modify the assumed foreign culture pressure. The preceding site-usability logic can
+explicitly decline to deduce a foreign city, but this routine receives the hidden
+working-city pointer anyway.
+
+ISOLATED REPRODUCTION
+Use a revealed foreign-owned plot with too little surrounding ownership information for
+AI_deduceCitySite to identify the underlying rival city. Keep the player's revealed map
+state identical, but place the actual hidden working city adjacent to the plot in one
+state and two plots away in another. The geometry-dependent culture-rate multiplier can
+differ (including the x1.8 branch) despite the city location remaining unknowable.
+Changing whether that hidden city is the capital provides another independent hidden
+input.
+
+ANCESTRY
+AdvCiv's older culture-value work introduced a raw getWorkingCity()->isCapital() special
+case, and later geometry refinements made the hidden pointer matter still more. The
+subsequent fog-of-war cleanup that added revealed-owner and city-deduction safeguards
+did not knowledge-limit this working-city access. Base AdvCiv 1.14 and SAS retain it.
+
+CONSEQUENCE
+Known rival ownership on a tile can reveal information about the exact hidden city that
+works/claims it through settlement scoring, and can change plot/bonus value without a
+corresponding observation.
+
+REPAIR DIRECTION
+Only use a foreign-city pointer when that city is revealed/deducible to the evaluating
+team; otherwise use a conservative owner-only culture estimate that does not depend on
+hidden city coordinates or capital status.
+
+
+F176 / provisional KI#499 -- live plot-culture amounts and culture ranking are read through fog after ownership was made knowledge-limited
+----------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+calculateCultureModifier correctly obtains the foreign player from getRevealedOwner,
+but then reads current map state directly:
+
+    p.getCulture(ePlayer)
+    p.getCulture(getRevealedOwner(p))
+
+and related overlap logic uses culture-derived getSecondOwner / findHighestCulturePlayer
+on the live plot. isUsablePlot requires only that the plot has ever been revealed; it
+does not require active visibility.
+
+CvPlot stores remembered owner/improvement/route information per team, but not a
+per-team snapshot of exact plot culture. The UI likewise only exposes exact plot culture
+percentages while the plot is actively visible. Plot culture can continue changing
+while the tile is fogged.
+
+DETERMINISTIC INFORMATION-LEAK REPRODUCTION
+Reveal a contested rival-owned tile, move vision away, then let either side's culture
+accumulate while the plot remains fogged. The team's remembered ownership/map state can
+remain unchanged while the live getCulture values and possibly second/highest culture
+player change. Re-evaluating a settlement site therefore changes its culture modifier
+or flip inference solely from hidden culture growth.
+
+ANCESTRY
+The 2021 AdvCiv fog-of-war cleanup ca3e110fd5 explicitly replaced raw owner/team reads
+inside calculateCultureModifier with revealed-owner helpers, but left the raw culture
+amounts and culture-ranking queries untouched. This is therefore a close sibling of
+F174/F175 in the same incomplete knowledge-boundary cleanup, not a SAS invention.
+
+CONSEQUENCE
+Yield and resource reliability on already-seen but currently fogged plots can track
+exact hidden culture progress. Two player-indistinguishable states can receive different
+found values.
+
+REPAIR DIRECTION
+For non-visible plots, avoid exact live culture ratios/rankings unless a deliberate
+knowledge snapshot exists. Use revealed ownership plus a conservative/stale proxy; keep
+raw culture for all-seeing or actively visible evaluation.
+
+
+F177 / provisional KI#500 -- SAS runtime first-settler wrapper disables allSeeing but leaves starting-location-only omniscient helpers active
+----------------------------------------------------------------------------------------------------------------------------------------
+ROOT
+SAS practical 6008 introduced SAS_evaluateFirstCityFoundValue specifically to retain
+starting-capital weights while removing map-generation omniscience during live first
+settler movement:
+
+    CitySiteEvaluator kEvaluator(kOwner, -1, true);
+    kEvaluator.setAllSeeing(false);
+
+The commit message explicitly says runtime first-city evaluation should use only
+revealed BFC terrain, bonuses and improvement potential, with all-seeing evaluation kept
+for map generation. But `bStartingLoc=true` still activates older code that treats
+"starting location" itself as an omniscient map-generation mode rather than consulting
+isAllSeeing.
+
+LIVE MANIFESTATION 1 -- hidden land-area boundary/topology (default configuration)
+evaluate() unconditionally calls adjustToLandAreaBoundary whenever isStartingLoc().
+With the recommended/default PASSABLE_AREAS=1, that routine scans raw plots out to range
+4, tests hidden impassable peak chains / representative areas, and sums complete
+CvArea::getNumTiles sizes. No reveal or allSeeing guard exists. Two first-settler
+positions with identical revealed BFC information can therefore receive different
+scores because of unrevealed mountain/land-area topology outside what the settler knows.
+
+LIVE MANIFESTATION 2 -- hidden resources on Balanced/HIGH normalization games
+AIFoundValue::getBonus contains an older normalization rule:
+
+    if (kSet.isStartingLoc() || kSet.isNormalizing())
+        if (getStartingPlotNormalizationLevel() > NORMALIZE_LOW)
+            return p.getBonusType();
+
+Balanced maps explicitly set the game's normalization level to HIGH during map
+generation, and CvGame::initDiplomacy deliberately preserves HIGH rather than resetting
+it. Thus the new runtime wrapper's setAllSeeing(false) still returns raw hidden bonuses
+on Balanced games simply because isStartingLoc remains true.
+
+ADDITIONAL START-MODE OMNISCIENCE
+The first-city evaluateSeaAccess path also consults full-map starting-plot counts and
+findBiggestArea(true)/complete water-area topology. This is the same mode-boundary root:
+starting-capital weighting and map-generation knowledge are still coupled in inherited
+helpers.
+
+ANCESTRY / REGRESSION
+The omniscient helpers predate SAS and were valid when starting-location evaluation was
+an all-seeing map-generation operation. SAS practical 6008 / commit a5f183a489
+introduced a new runtime use and assumed setAllSeeing(false) was sufficient to make that
+mode knowledge-limited. It fixed the range-6 starting-surroundings adjustment explicitly,
+but did not audit every other `isStartingLoc()` path.
+
+CONSEQUENCE
+The first Settler's new supposedly no-cheat roaming/site ranking can still react to
+hidden map geometry in ordinary default games and hidden bonuses in HIGH/Balanced games.
+That can directly alter which capital site it walks toward or founds.
+
+REPAIR DIRECTION
+Separate "use starting-capital weights" from "map-generation/normalization omniscience."
+Gate genuinely omniscient start-only helpers on isAllSeeing (or an explicit map-generation
+mode), not merely isStartingLoc. Audit every isStartingLoc branch reached by the runtime
+wrapper rather than patching only the already-disabled starting-surroundings modifier.
+
+
+F178 / provisional KI#501 -- foreign-city culture pressure uses the live hidden culture level after a city is merely known/deduced
+----------------------------------------------------------------------------------------------------------------------------------
+ROOT
+The current SAS culture-pressure gate says "No-cheat preserved" and skips cities that
+cannot be known/deduced, but for every admitted city it computes:
+
+    int const r = pCity->getCultureLevel() + 3;
+
+A CvCity stores only per-team revealed and espionage-visibility booleans; there is no
+per-team remembered CultureLevel value. A city that was seen earlier can remain revealed
+while currently fogged, and its actual culture level can rise in the meantime.
+
+DETERMINISTIC REPRODUCTION
+Take a known/deduced rival city under fog and a candidate at distance 3. With culture
+level 1, r=4 and the current linear pressure is 32, below the configured SOFT=35 and thus
+ignored. If the hidden city grows to culture level 2, r=5 and pressure becomes 46,
+triggering a substantial soft multiplier (78% with current tuning). No new observation
+of the city is required for that ranking change.
+
+ANCESTRY
+This exact knowledge blind spot is inherited rather than created by the SAS replacement:
+Base AdvCiv's preceding foreign-proximity code also used
+`pLoopCity->getCultureLevel()+3` during ordinary runtime evaluation, and K-Mod's
+AI_deduceCitySite itself uses the city's current culture level while deciding whether
+its site can be inferred. SAS practical 4962 replaced the old proximity formula with the
+simpler pressure gate but retained the live exact level while explicitly describing the
+new gate as no-cheat.
+
+CONSEQUENCE
+A known but fogged rival city can silently expand the range/strength of settlement
+pressure and flip a candidate from unpenalized to strongly down-weighted (or eventually
+hard rejected) based on hidden current culture progress.
+
+REPAIR DIRECTION
+For a city that is not currently visible, use only a knowledge-limited/stale culture
+range estimate rather than live getCultureLevel. The same principle should be reviewed
+inside AI_deduceCitySite, but that cross-file helper issue should not be multiplied into
+another CitySiteEvaluator finding unless independently audited.
+
+
+C016-WIP04 NEGATIVE CONTROLS / OPEN QUESTIONS
+---------------------------------------------
+* F172-F178 are intentionally split by independent hidden-state channels and repair
+  surfaces: area city totals, actual owner, raw city-radius counters, hidden working-city
+  pointer, live plot culture, runtime starting-mode omniscience, and live city culture
+  level respectively. Symptoms that share one of those roots are grouped rather than
+  assigned extra IDs.
+* F177 absorbs the newly found first-city evaluateSeaAccess full-map starting-plot /
+  water-area queries because they arise from the same practical-6008 mode split; do not
+  spend another root merely for each `isStartingLoc()` helper that remained omniscient.
+* The shared StartingPositionIteration representative-player concern remains rejected
+  from WIP03: SPI was already player-sensitive before SAS KI#178 and does not promise an
+  exact per-civilization table.
+* The countBadTiles diagnostic still appears to print member iUnrevealedTiles before the
+  caller stores the freshly computed local iUnrevealed value. This is a real tiny
+  logging defect inherited from Base AdvCiv, but remains unnumbered while gameplay /
+  knowledge-boundary roots are still being audited.
+* NEXT OPEN SEAM: ordinary non-all-seeing evaluation still uses complete CvArea topology
+  and getNumTiles in a few non-starting paths (notably inaccessible-resource adjustment,
+  small-area bad-tile logic and canal/waterbody valuation). Determine whether these are
+  intended strategic approximations or additional hidden-map leaks before spending F179.
+
+
+C016-WIP04 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 15 / 169
+FILE 016: CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines) -- OPEN
+PHYSICAL CHECKPOINT: C016-WIP04
+CURRENT FILE-016 NEW ROOTS: F158-F178 / provisional KI#481-KI#501
+NEXT ROOT ID: F179 UNUSED
+
+Resume with the ordinary-runtime complete-area/topology audit (`bEasyAccess`,
+nonYieldBonusValue getNumTiles, isTooManyBadTiles and evaluateSeaAccess canal sizes).
+Then re-run the remaining custom-vs-Base tail and adversarial F158-Fxxx closure pass.
+Keep map-generation/all-seeing uses separate from ordinary AI knowledge, and prefer a
+single root for repeated manifestations of one missing knowledge boundary.
+===============================================================================
+
+
+===============================================================================
+C016-WIP05 APPEND -- 2026-08-26
+CitySiteEvaluator.cpp continued adversarial tail / data-contract pass
+===============================================================================
+
+F179 / provisional KI#502 -- ordinary runtime site evaluation reads complete hidden CvArea topology and size
+----------------------------------------------------------------------------------------------------------
+ROOT
+Several ordinary non-all-seeing found-value paths use the complete CvArea graph or
+getNumTiles rather than team-revealed geography. Unlike the map-generation-only
+starting-location omniscience grouped under F177, these branches also run while AI
+players evaluate later city sites with fog of war still active.
+
+The codebase itself establishes a contrary knowledge contract nearby: settlement-area
+logic sometimes substitutes getNumRevealedTiles(eTeam), explicitly with comments such
+as "Don't cheat." CvArea::getNumTiles and area connectivity have no per-team remembered
+or revealed-state equivalent behind them.
+
+CLEAN DETERMINISTIC REPRODUCTION -- CANAL VALUE
+Use an ordinary later-city candidate touching two revealed water tiles / water areas.
+Keep every plot currently revealed to the evaluating team unchanged, but extend one or
+both water bodies only through unrevealed terrain. evaluateSeaAccess tests the complete
+sizes of those CvArea objects against MIN_WATER_SIZE_FOR_OCEAN. Merely making the hidden
+continuations large enough can turn the canal branch on and add substantial found value
+(up to 270 with the current formula), although the player has learned nothing new.
+
+OTHER LIVE MANIFESTATIONS OF THE SAME ROOT
+* An inaccessible resource's long-term non-yield value uses the complete size of its
+  other land area and changes between the 45% and 60% cases around the <=2-tile test.
+* Water-resource bEasyAccess can become true because the globally connected water area
+  contains one of our cities, even if the channel establishing that connection is still
+  wholly under fog.
+* The inherited bad-tile rescue / small-area logic also branches on full candidate-area
+  size rather than known area extent.
+
+ANCESTRY
+An area-size dependency is already present in Firaxis BtS found-value logic; K-Mod and
+AdvCiv add further full-area / water-connectivity heuristics. Base AdvCiv 1.14 and SAS
+therefore inherit a family of ordinary-runtime hidden-topology inputs rather than one
+single recent SAS regression.
+
+CONSEQUENCE
+Two maps that are identical under the evaluating team's map knowledge can rank the same
+city site differently solely because unrevealed terrain completes, enlarges or connects
+an area behind fog.
+
+REPAIR DIRECTION
+For ordinary non-all-seeing evaluation, derive area-size / connectivity proxies from
+team-revealed plots where the heuristic is intended to model player knowledge. Preserve
+raw CvArea topology for map-generation/all-seeing evaluation. Treat the repeated size
+and connectivity symptoms as one knowledge-boundary root rather than patching only the
+canal formula.
+
+
+F180 / provisional KI#503 -- practical 5976 low-food bonus-improvement helper omits already-available irrigated Farm food
+-------------------------------------------------------------------------------------------------------------------------
+ROOT
+Practical 5976 introduced CvPlot::SAS_getBonusImprovementFoodChange so the new dynamic
+low-food-BFC score could include food from the resource's bonus-specific improvement.
+The helper manually sums:
+
+    base improvement food
+    + bonus-specific improvement food
+    + river-side improvement food
+    + hill improvement food
+    + feature-removal terrain/feature adjustments
+
+but it never adds CvImprovementInfo::getIrrigatedYieldChange.
+
+That differs from Civ4's normal CvPlot::calculateImprovementYieldChange, which adds the
+improvement's irrigated yield whenever isIrrigationAvailable() is true.
+
+CURRENT SHIPPED DATA / DETERMINISTIC REPRODUCTION
+IMPROVEMENT_FARM currently has:
+
+    IrrigatedYieldChange: +1 food
+    bRequiresIrrigation: 1
+
+and is the bonus-trade improvement for Maize (+2 improvement food), Rice (+1 food,
++1 production) and Wheat (+2 food). Put any of those visible resources on an already
+irrigable flat plot -- most simply a riverside / otherwise fresh-water plot. Civ4's
+actual Farm yield receives the +1 irrigated food immediately, but
+SAS_getBonusImprovementFoodChange omits it.
+
+For example, a fresh-water Maize Farm contributes one less potential food to
+SAS_getLowFoodEnvironmentScore than the same improvement contributes through
+calculateImprovementYieldChange. This does not depend on assuming a future irrigation
+chain or future Civil Service; irrigation is already available in the reproduction.
+
+INTERNAL INCONSISTENCY
+SAS_isVeryBadBFCPlot evaluates improvement potential through
+calculateImprovementYieldChange and therefore can count this same already-available +1
+irrigated Farm food. The newer low-food scorer evaluates the same plot through the
+manual helper and misses it. A single plot can therefore have two different notions of
+its current improvement food inside the same first-city preliminary pass.
+
+ANCESTRY / INTENT
+This begins in SAS practical 5976 / commit f3137a536b (2026-06-28), whose commit message
+says the hardcoded low-food heuristic is being replaced by a dynamic one based on actual
+yields so that XML changes and food bonuses are reflected automatically. The helper was
+introduced in that commit with the irrigated-yield omission already present.
+
+The maintained GlobalDefines comment likewise defines the low-food score in terms of
+natural food, visible bonus food and "food from its bonus-specific improvement." Farm's
+current +1 irrigated food is part of that improvement's actual yield when irrigation is
+available.
+
+CONSEQUENCE
+Already-irrigable Maize/Rice/Wheat plots are understated by exactly 1 potential food.
+Because each missing food increases iLowFoodLocationScore by 1 and the non-coastal gate
+penalizes totals above the configured threshold (currently 5, with -75 base value), the
+omission can move an otherwise equivalent candidate across the low-food penalty boundary
+or make that penalty stronger.
+
+REPAIR DIRECTION
+At minimum, include kImprovement.getIrrigatedYieldChange(YIELD_FOOD) when
+isIrrigationAvailable() is true. If the intended contract is later broadened from
+currently available yield to fully long-term potential, decide separately whether
+canHavePotentialIrrigation should also be credited; that broader design choice is not
+needed to fix the deterministic current-irrigation mismatch.
+
+
+C016-WIP05 NEGATIVE CONTROLS / TAIL CLOSURES SO FAR
+---------------------------------------------------
+* calculateBonusConnectionEra has the same plot/domain-blind Well vs Offshore Platform
+  sibling already recorded under F160. Do not spend another root ID for it.
+* The shared SPI representative-player/civilization concern remains rejected. Base
+  AdvCiv's workable-plot valuation was already player-sensitive, and SPI explicitly
+  accepts a representative player rather than promising a per-civilization exact table.
+* MinRivalRange's raw hidden-unit scan is not an ordinary live-settler leak in current
+  internal use. Its non-default use is Barbarian-city placement / matching logging,
+  where the spacing condition is a global generation rule; live AI site evaluation uses
+  the default -1.
+* The KI#178 building-effect tech-horizon filter currently covers the tech prerequisite
+  forms exposed by CvBuildingInfo / CvSpecialBuildingInfo; no shipped prerequisite path
+  was found that bypasses it.
+* BONUS_DRAMA and BONUS_MUSIC lack ordinary non-Fort plot trade improvements, but they
+  are manufactured/non-map resources in current data. They do not establish a runtime
+  violation of calculateBonusConnectionEra's effective plot-bonus input domain.
+* Generic no-bonus water plots do not become falsely improvable through resource water
+  improvements: canHaveImprovement rejects Fishing Boats / Whaling Boats / Offshore
+  Platform without their required bonus.
+* The strengthened SAS home-resource penalty and the later inherited starting-on-resource
+  multiplier are intentionally layered. Base AdvCiv already applied both kinds of
+  penalty, and KI#25 deliberately made SAS avoid settling directly on resources more
+  aggressively. No clean double-charge regression was established.
+* A normalization-only water-access concern remains too dependent on SPI's deliberately
+  approximate long-horizon contract to promote.
+* The inherited countBadTiles diagnostic still deterministically logs member
+  iUnrevealedTiles before the caller copies the freshly computed local iUnrevealed into
+  it. It remains a valid tiny logging defect held in reserve while the gameplay tail is
+  still being closed.
+
+
+C016-WIP05 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 15 / 169
+FILE 016: CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines) -- OPEN
+PHYSICAL CHECKPOINT: C016-WIP05
+CURRENT FILE-016 NEW ROOTS: F158-F180 / provisional KI#481-KI#503
+NEXT ROOT ID: F181 UNUSED
+
+Resume with the remaining author-warning / assertion / plot-quality / logging tail and
+then perform a full adversarial F158-F180 closure pass. Recheck any apparent mismatch
+against shipped XML and actual helper semantics before promoting it. If no additional
+gameplay/data-contract root survives, decide whether the deterministic countBadTiles
+logging bug merits F181 before closing file 016.
+===============================================================================
+
+
+===============================================================================
+C016-WIP06 APPEND -- 2026-08-26
+CitySiteEvaluator.cpp final inherited production-proxy / diagnostic pass
+===============================================================================
+
+F181 / provisional KI#504 -- inherited AdvCiv medium-term production estimate mistakes "already owns one" for "can build it"
+---------------------------------------------------------------------------------------------------------------------------
+ROOT
+AIFoundValue::estimateImprovementProduction is documented as estimating how much
+production an unimproved non-resource plot might gain in the medium term. Once the
+player has more than two cities, however, its first filter for every improvement is:
+
+    if (kPlayer.getImprovementCount(eLoopImprovement) <= 0)
+        continue;
+
+The introducing AdvCiv comment explicitly calls this a fast way to check whether the
+player can build the improvement. Existing empire improvement count is not a capability
+test: an improvement may be newly buildable before the first copy exists, and a retained
+or captured copy may exist when its build prerequisite is not currently available.
+
+CURRENT SHIPPED DATA / DETERMINISTIC REPRODUCTION
+Use an empire with at least three cities that has just acquired TECH_MINING and has not
+yet completed its first Mine. IMPROVEMENT_MINE has +2 production and ordinary valid
+hill plots can now legally receive it, but getImprovementCount(IMPROVEMENT_MINE) is 0,
+so estimateImprovementProduction skips Mine entirely. Completing the first unrelated
+Mine anywhere in the empire makes the same candidate plots suddenly gain the medium-term
+Mine production estimate despite no change to the candidate terrain or the player's
+technology.
+
+The opposite error is possible in scenarios/captured territory: possessing a retained
+improvement can make this first proxy pass even though ownership of that improvement does
+not establish that the player currently has its matching Build/tech capability. The later
+p.canHaveImprovement check tests plot legality, not build-tech availability, so it does
+not repair the capability mismatch.
+
+ANCESTRY
+This proxy was introduced by AdvCiv practical 1275 / commit 71fa4eef1a (v0.90rc found-
+value retuning). Its introducing comment already acknowledges that the check is "not a
+perfectly safe way" to determine buildability. The 2019 AIFoundValue extraction moved it
+into estimateImprovementProduction unchanged. Base AdvCiv 1.14 and current SAS retain it.
+
+CONSEQUENCE
+Future-site production value can depend on whether the empire happens already to own one
+copy of an improvement rather than on whether that improvement can actually be built.
+The first copy of a newly unlocked improvement can therefore produce a discontinuous,
+unrelated jump in settlement ranking; retained/captured improvements can cause the
+opposite false-positive capability assumption.
+
+REPAIR DIRECTION
+Replace the getImprovementCount capability proxy with a cheap test for at least one
+matching currently available Build/tech, then retain p.canHaveImprovement for the
+candidate plot's terrain/feature legality. Cache/build a per-player set of currently
+buildable improvement types if the old loop-cost concern still matters.
+
+
+F182 / provisional KI#505 -- inherited AdvCiv AIFoundValue refactor logs zero unrevealed tiles from countBadTiles
+---------------------------------------------------------------------------------------------------------------
+ROOT
+countBadTiles receives the current unrevealed count through its local reference parameter
+`iUnrevealed`, increments that value during the BFC scan, and then logs:
+
+    logBBAI("Bad tiles: %d known bad, %d unrevealed",
+            iBadTiles, iUnrevealedTiles)
+
+The second argument is the AIFoundValue member, not the freshly computed local/reference
+value. The member is initialized to 0 in the constructor. In evaluate(), the caller only
+copies the returned local value into the member after countBadTiles has already finished
+and emitted its log:
+
+    int iUnrevealed = 0;
+    iBadTiles = countBadTiles(..., iUnrevealed, ...);
+    iUnrevealedTiles = iUnrevealed;
+
+DETERMINISTIC REPRODUCTION
+Enable found-value logging and evaluate any candidate whose BFC contains at least one
+unrevealed plot. Inside countBadTiles, the `iUnrevealed > 0` condition correctly selects
+the two-number logging branch, but the printed unrevealed value is still the pre-call
+member value 0. Thus e.g. three truly unrevealed BFC tiles are logged as:
+
+    Bad tiles: <known> known bad, 0 unrevealed
+
+The gameplay count returned through the reference and later stored in iUnrevealedTiles is
+correct; this finding is diagnostic-only.
+
+ANCESTRY
+The bad argument is present in the extracted countBadTiles added by AdvCiv commit
+078fc9bd7c (2019-12-15, "Move AI_foundValue computation into a new class"). Base AdvCiv
+1.14 and current SAS retain the same line.
+
+CONSEQUENCE
+Found-value diagnostics systematically lie about unrevealed BFC count exactly in the
+cases where the special fog/first-colony logic is most important. This can mislead manual
+AI-site debugging even though settlement scoring itself receives the correct count.
+
+REPAIR DIRECTION
+Log the local/reference `iUnrevealed` value inside countBadTiles. The member should remain
+the post-call stored value used by later evaluation stages.
+
+
+C016-WIP06 NEGATIVE CONTROLS / FINAL CLOSURE PASS STATUS
+--------------------------------------------------------
+* F180 remains narrowly scoped to the missing already-active irrigated Farm food. The
+  rest of SAS_getBonusImprovementFoodChange's feature-removal arithmetic matches the
+  way its caller combines it with calculateNatureYield for current shipped data.
+* SAS_getBonusSpecificBuild's domain cache does not create another current same-domain
+  multi-improvement choice root; current resource-improvement data has no shipped
+  same-domain alternative requiring a separate selection fix. Water Oil remains covered
+  by F160's older plot/domain-blind AIFoundValue scan.
+* calculateBonusConnectionEra's omission of a single explicit route-tech prerequisite
+  is not promoted. Connection can legitimately come from a city, river/coastal network,
+  or a later route, so no deterministic one-tech repair follows from that observation.
+* The inherited calculateBuildingYields +1-water-food approximation still matches the
+  current civilization-specific Harbor-class implementations and their ocean-size gate;
+  the earlier tiny-lake hypothesis remains rejected.
+* estimateImprovementProduction's water TODO remains a non-finding for shipped data:
+  current water improvements are bonus-specific and bonus production/yields are handled
+  on the separate resource path.
+* isRemovableFeature's deferred feature-production estimate can intentionally value
+  eventual chopping even before current removal capability; do not merge that heuristic
+  with F158's distinct broken current-research eligibility test.
+
+
+C016-WIP06 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 15 / 169
+FILE 016: CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines) -- OPEN, FINAL CLOSURE PASS
+PHYSICAL CHECKPOINT: C016-WIP06
+CURRENT FILE-016 NEW ROOTS: F158-F182 / provisional KI#481-KI#505
+NEXT ROOT ID: F183 UNUSED
+
+Resume with one final adversarial F158-F182 closure pass: challenge duplicated roots,
+repair boundaries, remaining active asserts/TODOs, and current shipped XML semantics.
+If no additional independent gameplay/data-contract defect survives, close file 016 at
+the next durable checkpoint rather than manufacturing F183.
+===============================================================================
+
+
+===============================================================================
+DURABLE CHECKPOINT C017 -- FILE 016 CLOSED
+2026-08-26
+===============================================================================
+
+FILE CLOSED
+-----------
+016 CvGameCoreDLL/CitySiteEvaluator.cpp -- 4,595 lines
+
+FINAL FILE-016 FINDING RANGE
+----------------------------
+F158-F182 / provisional KI#481-KI#505
+F183 remains UNUSED.
+
+FINAL ROOT LEDGER
+-----------------
+F158 / KI#481
+    Inherited AdvCiv isRemovableFeature current-research regression: after the
+    AIFoundValue refactor, the same current research must equal both distinct
+    build and feature-removal tech prerequisites instead of testing each
+    prerequisite independently as known-or-currently-researched.
+
+F159 / KI#482
+    Inherited AdvCiv regression makes K-Mod's explicit other-island starting-
+    surroundings badness branch unreachable by restoring an outer same-area /
+    water filter that K-Mod had deliberately removed.
+
+F160 / KI#483
+    Inherited Warlords/BtS bonus-improvement selection is blind to the actual
+    plot domain/legality; water Oil can inherit land Well timing/yields and the
+    same root also contaminates related connection-era reasoning.
+
+F161 / KI#484
+    SAS future-BFC resource helper filters rival contesting cities against the
+    unrelated candidate site's land area, so cross-area evaluation can make an
+    existing contested resource look safely claimed.
+
+F162 / KI#485
+    The same SAS future-BFC helper returns on the first matching copy, making an
+    empire-wide existential resource-coverage question depend on city/BFC
+    iteration order.
+
+F163 / KI#486
+    The future-BFC ownership helper uses available-bonus state that includes
+    temporary imports despite the feature's explicit contract that imported
+    resources are not permanent owned coverage.
+
+F164 / KI#487
+    Rival culture-pressure gating discards real cross-water pressure solely
+    because the rival city tile is in another land area, despite Civ4 culture
+    being able to reach nearby plots across a narrow channel.
+
+F165 / KI#488
+    SAS cautious-health scoring drops Forest/Jungle health whenever a plot has
+    a visible bonus, even though many shipped resources legitimately coexist
+    with those features and the health effect remains real.
+
+F166 / KI#489
+    SAS raw zero-city start-phase gates accidentally reintroduce a special
+    first-Barbarian-city state that AdvCiv explicitly normalizes away.
+
+F167 / KI#490
+    Practical-5978 preliminary first-city BFC hard gates count good/bad/low-food
+    plots before the established usability/ownership filter can reject those
+    same plots, allowing unusable rival/reserved tiles to affect acceptance.
+
+F168 / KI#491
+    Same-type resource empire value is awarded to the first CityPlot copy and
+    suppressed for later copies, so different culture reliability on duplicate
+    resources makes found value depend on arbitrary BFC enumeration order.
+
+F169 / KI#492
+    StartingPositionIteration's workable-plot precompute constructs AIFoundValue
+    for every candidate plot; the constructor performs a complete city-site
+    evaluate whose result/state is then discarded before the independent
+    evaluateWorkablePlot path runs.
+
+F170 / KI#493
+    First-colony landmass value uses complete CvArea non-Barbarian city count,
+    so a wholly unrevealed rival colony can remove the "first civ here" bonus
+    despite the nearby area-size term explicitly using revealed tiles to avoid
+    cheating.
+
+F171 / KI#494
+    advc.181's later canFound fog hardening defeats isDeadlockedBonus's explicit
+    adjacent-revealed fog allowance, allowing a valid but still fogged alternate
+    city site to be rejected and a resource falsely classified as deadlocked.
+
+F172 / KI#495
+    calculateCultureModifier reads complete rival city totals for an area; an
+    unknown second rival city can apply the 1.5 opposing-culture multiplier in
+    an otherwise identical player-visible state.
+
+F173 / KI#496
+    SAS KI#178 first requires a team-revealed bonus, then reads the plot's live
+    actual owner rather than revealed owner; resource claim/contest value can
+    therefore change from ownership movement entirely under fog.
+
+F174 / KI#497
+    Raw isCityRadius/getCityRadiusCount state leaks undeduced hidden city
+    existence through multiple ordinary site-evaluation paths after AdvCiv's
+    ownership fog-of-war cleanup converted neighboring owner reads but left the
+    city-radius counters knowledge-blind.
+
+F175 / KI#498
+    calculateCultureModifier separately reads the exact hidden working-city
+    pointer, geometry, area and capital status even when that city is not
+    deducible; repairing F174 alone does not remove this channel.
+
+F176 / KI#499
+    Live CvPlot culture amounts / second-owner / highest-culture ranking are
+    consumed on merely revealed but currently fogged plots, so hidden culture
+    growth changes found value without updated player information.
+
+F177 / KI#500
+    SAS runtime first-settler evaluation disables allSeeing but keeps
+    isStartingLoc semantics; multiple starting-only helpers still use that mode
+    as permission for map-generation omniscience (normalization-level hidden
+    bonuses, full land-boundary topology, starting-plot/water-area queries).
+
+F178 / KI#501
+    Foreign-city pressure uses a known/deduced city's current hidden
+    getCultureLevel; culture growth under fog changes the pressure radius and
+    strength without a remembered/stale per-team culture-level state.
+
+F179 / KI#502
+    Ordinary later-city evaluation reads complete hidden CvArea topology/size
+    for canal value, access and small-area heuristics. Two identical revealed
+    maps can rank a site differently based only on unrevealed area continuation
+    or connectivity.
+
+F180 / KI#503
+    Practical-5976 SAS_getBonusImprovementFoodChange manually reconstructs
+    bonus-improvement food but omits Farm's already-active IrrigatedYieldChange;
+    currently irrigable Maize/Rice/Wheat can be understated by 1 food in the
+    first-city low-food environment score.
+
+F181 / KI#504
+    Inherited AdvCiv medium-term production estimation uses
+    getImprovementCount>0 as a proxy for whether an improvement can be built.
+    Newly unlocked improvements are ignored until the first copy exists, while
+    retained/captured copies can create the opposite false capability signal.
+
+F182 / KI#505
+    Inherited AdvCiv AIFoundValue refactor logs member iUnrevealedTiles from
+    inside countBadTiles before the caller stores the freshly computed local
+    unrevealed count, so positive unrevealed counts are deterministically logged
+    as zero. Gameplay data is correct; the defect is diagnostic-only.
+
+
+WHY FILE 016 IS CLOSED
+----------------------
+The closure pass covered the complete active CitySiteEvaluator/AIFoundValue surface,
+including the current SAS additions in CvPlot that directly feed the new first-city
+plot-quality helpers. The audit specifically challenged:
+
+* constructor/settings modes and normalizing/starting/runtime-first-settler boundaries;
+* site validity, overlap, city-radius ownership/sharing/stealing and planned-site state;
+* bad/unrevealed/inner-ring tile accounting and first-colony selection;
+* feature removal, chop production and current/future tech eligibility;
+* bonus discovery, improvement selection, connection timing and improvement yields;
+* nature/special/building/resource health/happiness valuation;
+* KI#178 future-BFC ownership, duplicate handling and civilization building effects;
+* culture claim/flip/foreign-city geometry and fog-of-war knowledge boundaries;
+* first-city low-food, very-bad, minimum-good-slot and cautious-health gates;
+* home-resource settlement penalties and current shipped bonus/improvement XML;
+* production potential, fresh water, sea access, canals and complete-area heuristics;
+* normalization workable-plot precomputation and StartingPositionIteration contract;
+* starting surroundings/choices/land-boundary normalization helpers;
+* city-per-area, resource-count and deadlocked-resource adjustments;
+* logging, assertions, TODO/warning comments and diagnostic-only code paths;
+* Base AdvCiv/K-Mod/Firaxis ancestry and current SAS commit-diff history where needed;
+* current shipped XML legality and negative controls for every promoted data-contract
+  claim rather than relying only on generic mod-mod possibilities.
+
+The final adversarial reread rejected or bounded several plausible but unsupported
+follow-ups:
+
+* the shared SPI representative-player table was already player-sensitive in Base
+  AdvCiv and does not promise exact per-civilization valuation;
+* the apparent tiny-lake Lighthouse/Harbor mismatch was false because AdvCiv's
+  isCoastalLand(-1) resolves to MIN_WATER_SIZE_FOR_OCEAN;
+* the historical double special-food culture modifier remains mostly dormant after SAS
+  disabled its meaningful consumers and therefore was not assigned an ID;
+* calculateBonusConnectionEra has no single universally required route-tech input because
+  city/river/coast/route connectivity are alternative mechanisms;
+* current water-improvement data does not make estimateImprovementProduction's water TODO
+  a live non-resource production omission;
+* the home-resource penalty's negative coefficients make its `iValue += r` sign correct,
+  while bonus-specific-only lost-yield weighting is an explicit tuning choice rather than
+  an accidental omission;
+* the remaining logPlot "soon" wording/assertion oddity under hidden starting bonuses is
+  downstream of F177's runtime-starting-mode leak rather than an independent gameplay
+  root;
+* no additional independent active assert/TODO/data-contract defect survived current XML
+  and helper-semantics checking.
+
+With those negative controls recorded, continuing to mine CitySiteEvaluator.cpp would now
+be more likely to split existing roots or elevate tuning disagreements than to discover a
+new independent correctness issue. F183 is therefore deliberately left unused.
+
+
+PROGRESS AFTER FILE-016 CLOSURE
+-------------------------------
+Files complete: 16 / 169
+Files open: 0 / 169
+Last completed file: 016 CvGameCoreDLL/CitySiteEvaluator.cpp -- 4,595 lines
+
+NEXT QUEUED FILE:
+
+    017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines
+
+Following files by the current line-count queue begin:
+
+    018 CvGameCoreDLL/CvGameInterface.cpp -- 2,965 lines
+    019 CvGameCoreDLL/CvDLLButtonPopup.cpp -- 2,814 lines
+    020 CvGameCoreDLL/CvInfo_Unit.cpp -- 2,599 lines
+
+C017 is a durable boundary checkpoint. Start UWAIAgent.cpp from the reconciled 15:08
+source on the next pass. Do not carry CitySiteEvaluator hypotheses forward by analogy;
+new findings require their own live caller/data proof.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C017-WIP01 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source: reconciled AdvCiv-SAS light source 2026-08-26 15:08
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior boundary: C017
+New finding range in this append: F183-F184 / provisional KI#506-KI#507
+Next finding number: F185 UNUSED
+
+F183 / provisional KI#506
+-------------------------
+TITLE
+    reviewWarPlans retains superseded cross-pass state when a plan change forces
+    the deliberate retry loop.
+
+STATUS
+    CONFIRMED. Inherited UWAI/AdvCiv defect; present before the 2021 UWAI style
+    rewrite and retained by Base AdvCiv 1.14 and current SAS.
+
+ROOT
+    reviewWarPlans intentionally repeats its complete review whenever reviewPlan
+    changes a target plan, because that change can alter evaluation of the other
+    plans. However, state intended to describe the final reviewed plan set is
+    initialized before the do/while retry loop and then only accumulated:
+
+        bool bScheme = true;
+        bool bAllNaval = true, bAnyNaval = false;
+        bool bAllLand = true, bAnyLand = false;
+        do
+        {
+            ...
+            if (iU < -100 && kAgent.isAtWar(eTarget))
+                bScheme = false;
+            ...
+            if (aPlans[i].bNaval)
+            {
+                bAnyNaval = true;
+                bAllLand = false;
+            }
+            else
+            {
+                bAnyLand = true;
+                bAllNaval = false;
+            }
+        } while (bPlanChanged);
+
+    abTargetDone deliberately removes a target after that target changes, but the
+    classifications and bad-war state learned from earlier, superseded passes are
+    never removed.
+
+REACHABLE MULTI-PASS SHAPE
+    Pass 1 can review target A successfully and classify it as land, then target B
+    changes and triggers a retry. The retry exists precisely because B's change can
+    alter the simulated context and therefore A's utility/plan character. On pass 2,
+    A can then itself be canceled/switched and become done. A is omitted thereafter,
+    but its pass-1 land bit remains latched. If the final surviving positive plans are
+    all naval, bAllNaval is still false and the final alignAreaAI(true) call is lost.
+
+    The same root is even more direct for bScheme: pass 1 can observe a current war
+    below -100 utility and set bScheme=false. If reviewPlan then succeeds in ending
+    that war and the review repeats, the final plan set can contain no disastrous
+    current war at all, yet bScheme remains false and doWar skips scheme() for the
+    whole turn.
+
+CONSEQUENCE
+    * AreaAI alignment can describe a superseded intermediate review pass rather
+      than the final surviving plan set, despite the trailing source comment saying
+      this review is the "last word on AreaAI".
+    * A war that is ended during review can leave stale bScheme=false behind and
+      suppress all new-war scheming until the next team turn.
+
+ANCESTRY
+    The pre-2021 UWAI implementation already initializes allNaval/anyNaval and
+    allLand/anyLand outside the retry loop. AdvCiv's 2021 commit 4ae382e5db
+    ("Revised all code in the UWAI component") mechanically retained that placement;
+    current Base AdvCiv 1.14 and SAS still do so. Current SAS also retains bScheme
+    outside the loop, exposing the same stale-pass contract on whether scheming is
+    allowed.
+
+REPAIR DIRECTION
+    Recompute all state that is meant to describe the current/final pass at the start
+    of each do/while iteration. The simplest correctness-first repair is to use
+    per-pass bScheme/bAllNaval/bAnyNaval/bAllLand/bAnyLand values and preserve only
+    the values from the final no-change pass. Do not merely clear the four AreaAI
+    flags while leaving bScheme monotonic across superseded passes.
+
+NEGATIVE CONTROLS
+    This is not based on a hypothetical retry: reviewWarPlans explicitly changes a
+    plan, marks that target done, logs "repeating review", and re-runs WarEvaluator
+    for the remaining plans. Nor does the bug require the changed target itself to be
+    classified; a plan classified before the changed target can become invalid on a
+    later pass, which is exactly the dependency the retry is meant to handle.
+
+
+F184 / provisional KI#507
+-------------------------
+TITLE
+    Brokered-peace low-score relaxation is dead because makePeaceTrade immediately
+    returns DENIAL_VICTORY after setting bNoDenial=true.
+
+STATUS
+    CONFIRMED. AdvCiv regression introduced by ca3cdbcdce (2020-05-17), retained by
+    Base AdvCiv 1.14 and current SAS.
+
+ROOT
+    makePeaceTrade contains an explicit low-score exception when the enemy already
+    wants peace but our own reluctance is moderately high:
+
+        if (iEnemyReluct <= 0)
+        {
+            if (iAgentReluct < 55)
+                bNoDenial = true;
+            else
+            {
+                ...
+                if (rGameEra > 0 && rScoreRatio < ...)
+                {
+                    // We're not doing well in score; the broker might be doing much better.
+                    if (iAgentReluct < 70)
+                        bNoDenial = true;
+                    else return DENIAL_TOO_MUCH;
+                }
+                return DENIAL_VICTORY;
+            }
+        }
+        ...
+        if (bNoDenial)
+            return NO_DENIAL;
+
+    For the intended low-score case with iAgentReluct in [55,69], the function sets
+    bNoDenial=true and then unconditionally returns DENIAL_VICTORY before the later
+    NO_DENIAL branch can run.
+
+INTRODUCING-COMMIT PROOF
+    AdvCiv commit ca3cdbcdce, dated 2020-05-17 and titled
+    "UWAI: Tweak brokered-peace denial reason", introduced this exact branch. Its
+    commit message says:
+
+        Civs that are clearly not winning the game shouldn't respond
+        "we'd rather win this game".
+
+    The diff added bNoDenial plus the low-score test, including the assignment
+    bNoDenial=true for reluctance below 70, but also added the unconditional
+    DENIAL_VICTORY return immediately after the test. The resulting control flow
+    therefore contradicts the stated purpose of the introducing commit.
+
+DETERMINISTIC REPRODUCTION STATE
+    During brokered peace:
+    * enemy reluctance <= 0;
+    * agent reluctance is 55 through 69;
+    * game era factor > 0;
+    * the agent's score ratio passes the explicit "not doing well" threshold;
+    * enemy willingness-to-talk and ordinary trade legality otherwise permit the
+      later NO_DENIAL path.
+
+    The low-score branch sets bNoDenial but returns DENIAL_VICTORY anyway. The broker
+    is refused specifically with the victory-denial reason that this commit intended
+    to suppress for a clearly trailing civ.
+
+CONSEQUENCE
+    Brokered peace is refused when the function's own score policy says it should be
+    allowed. At minimum, the denial reason is wrong; because bNoDenial is the actual
+    gate for NO_DENIAL, the misplaced return also blocks the peace trade itself in
+    the moderate-reluctance low-score window.
+
+REPAIR DIRECTION
+    After the low-score branch succeeds with iAgentReluct < 70, fall through to the
+    later bNoDenial handling. Preserve DENIAL_TOO_MUCH for the >=70 low-score case and
+    DENIAL_VICTORY for the cases that fail the low-score exception.
+
+NEGATIVE CONTROL
+    This is not inferred merely from indentation or naming: the tracked introducing
+    diff and its commit message establish that the low-score exception was intended
+    to change behavior, and the current unconditional return makes the successful
+    half of that new branch dead.
+
+
+CURRENT FILE-017 CURSOR
+-----------------------
+Completed surfaces so far:
+* Team lifecycle / doWar entry and vassal/human handling;
+* reviewWarPlans retry semantics and final AreaAI/scheming aggregates;
+* current emergency-peace / victory-denial review additions;
+* preparation conclude/abandon/switch state transitions;
+* current target-selection/local-preference/direct-war additions;
+* canSchemeAgainst and reachability/direct-war helper contracts;
+* joint-war and brokered-war trade entry paths;
+* makePeaceTrade through the newly confirmed low-score control-flow defect.
+
+Rejected / bounded candidates so far:
+* nearest-city -1 sentinel cannot pass the required live city/land-target contracts;
+* victory-denial non-preparing plan during forced peace has inherited imminent-plan
+  semantics and is not by itself a broken state machine;
+* locally self-contradictory empty-enemy assertions in acceptVassal/uEndAllWars have
+  caller contracts that make the empty branch an invariant trap rather than a normal
+  valid path;
+* current deterministic preparation-age/severity/switch defines match their XML
+  contracts and are not promoted merely because older UWAI used probabilities.
+
+NEXT
+    Resume at F185 UNUSED. Continue the peace/reparation/vote/vassal trade tail,
+    respondToRebuke and reachability/report helpers, then the UWAI::Player half of
+    the file. Revisit all F183-Fxxx roots during the final adversarial closure pass.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C017-WIP02 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source: reconciled AdvCiv-SAS light source 2026-08-26 15:08
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior checkpoint: C017-WIP01
+New finding range in this append: F185-F186 / provisional KI#508-KI#509
+Next finding number: F187 UNUSED
+
+F185 / provisional KI#508
+-------------------------
+TITLE
+    peaceThreshold reads the target team's war-success entry against itself instead
+    of the target's war success against the agent.
+
+STATUS
+    CONFIRMED. AdvCiv regression introduced by the 2021 UWAI rewrite
+    4ae382e5db (2021-03-20, "Revised all code in the UWAI component"), retained
+    by Base AdvCiv 1.14 and current SAS.
+
+ROOT
+    The current threshold contains:
+
+        (2 * kAgent.AI_getWarSuccess(eTarget) +
+         4 * kTarget.AI_getWarSuccess(eTarget)) /
+        GC.getWAR_SUCCESS_CITY_CAPTURING()
+
+    The first term is our success against the target and is correct. The second term
+    is supposed to represent the target's success against us, but eTarget is the
+    target team's own ID. CvTeamAI::AI_getWarSuccess is a direct per-opponent EnumMap
+    lookup, so kTarget.AI_getWarSuccess(eTarget) reads the target's self slot rather
+    than the war-success entry for kAgent.
+
+HISTORY PROOF
+    The pre-rewrite implementation used the correct IDs:
+
+        agent.AI_getWarSuccess(targetId) +
+        2 * target.AI_getWarSuccess(agentId)
+
+    divided by 0.5 * WAR_SUCCESS_CITY_CAPTURING. Algebraically, that is the same
+    intended weighting as the current (2 * ours + 4 * theirs) / city-capture form.
+
+    The tracked 4ae382e5db rewrite diff mechanically changes the correct
+    target.AI_getWarSuccess(agentId) call into
+    kTarget.AI_getWarSuccess(eTarget). A later ScaledNum conversion changes the
+    arithmetic representation but preserves the wrong argument. This therefore has
+    a precise regression point rather than being an ambiguous design choice.
+
+DETERMINISTIC CONSEQUENCE
+    During a human/AI or AI/AI war where the opponent has accumulated meaningful war
+    success, the target's self slot remains the ordinary zero value while the actual
+    target-vs-agent slot is positive. peaceThreshold therefore omits the weighted
+    enemy-success contribution. The agent can require a more negative war utility
+    before seeking peace than intended, especially when the opponent is winning
+    strongly through captures and combat.
+
+    Current SAS emergency-war diagnostics elsewhere in the same file correctly read
+    the reciprocal term as kTarget.AI_getWarSuccess(kAgent.getID()), providing an
+    additional live same-codebase control for the intended indexing.
+
+REPAIR DIRECTION
+    Replace the reciprocal term with:
+
+        kTarget.AI_getWarSuccess(kAgent.getID())
+
+    Preserve the current weighting and scaling; only the opponent index is wrong.
+
+NEGATIVE CONTROL
+    This is not a question of whether war success is symmetric. Each team's map is
+    explicitly indexed by the opponent team, and the old implementation proves that
+    the second term was meant to read the target's entry for the agent.
+
+
+F186 / provisional KI#509
+-------------------------
+TITLE
+    endWarVal's "no payment possible" shortcut ignores legal city reparations and
+    can collapse a non-square human peace settlement to free peace.
+
+STATUS
+    CONFIRMED. Inherited AdvCiv defect whose original simplification explicitly
+    acknowledged city payment but was never updated when AdvCiv's city-trade and
+    peace-negotiation machinery became capable of using cities as reparations.
+    Retained by Base AdvCiv 1.14 and current SAS.
+
+ROOT
+    When the AI already wants peace, endWarVal avoids computing the human side's war
+    utility if the human team cannot possibly trade gold or technologies:
+
+        if (iAIReluct <= 0)
+        {
+            bool bCanTrade = false;
+            ...
+            if (humanMember.canPossiblyTradeItem(aiMember, TRADE_GOLD) ||
+                humanMember.canPossiblyTradeItem(aiMember, TRADE_TECHNOLOGIES))
+                bCanTrade = true;
+            ...
+            if (!bCanTrade)
+                return 0;
+        }
+
+    City payment is omitted. But city trading is independent of the gold- and
+    technology-trading advances/options: canPossiblyTradeItem(TRADE_CITIES) only
+    requires that the recipient can receive a city and that Max City Elimination is
+    disabled. Actual city legality is then checked by canTradeItem/canTradeCityTo.
+
+    The same live peace implementation explicitly supports city reparations.
+    CvPlayerAI::AI_negotiatePeace asks the payer for TRADE_CITIES when gold and tech
+    do not close the valuation gap, searches for a legal city, values it, and inserts
+    TRADE_CITIES into the peace offer. During war AI_cityTrade returns NO_DENIAL for
+    an otherwise legal city; human city offers are likewise allowed through the
+    normal legality path.
+
+INTRODUCING-HISTORY PROOF
+    The original AdvCiv shortcut, introduced in the v0.82-era change
+    0c3f38b7c2 (2017-04-21), contains this explicit comment:
+
+        Should ideally also check if human could give the AI a city.
+
+    It then dismisses the omission on the assumption that a human probably would not
+    give up a city pre-Alphabet/pre-Currency. The associated release note describes
+    the intended simplification directly: in the early game, when tech and gold
+    trading are unavailable, the AI makes peace with a human for free even if it
+    believes the human is more eager to end the war.
+
+    Later refactors removed that caveat from the source comment without adding the
+    missing city capability check. AdvCiv's 2020 city-trade work (advc.ctr, including
+    fd5d755af0) also strengthened the AI's willingness/ability to use cities as
+    payment, and current AI_negotiatePeace actively selects cities, but the old
+    early-return condition still tests only gold and technologies.
+
+DETERMINISTIC REPRODUCTION SHAPE
+    Use a human/AI war at a stage or under options where neither side has gold or
+    technology trading, while at least one city can legally be included in a peace
+    settlement. A particularly direct legal city state is a wartime
+    return/liberation or another non-capital city satisfying canTradeCityTo; city
+    trading itself requires neither Alphabet-style tech trading nor Currency-style
+    gold trading.
+
+    Let iAIReluct <= 0 so the shortcut runs, and choose war utilities far enough apart
+    that the full endWarVal logic would assign reparations if payment is possible.
+    Because only gold/tech capability is tested, endWarVal returns 0 before reading
+    iHumanUtility. The reciprocal human/AI valuation reaches the same shortcut, so
+    the utility difference can collapse to a square/free peace even though
+    AI_negotiatePeace is capable of balancing that difference with a city.
+
+CONSEQUENCE
+    Human-AI peace valuation can ignore a real, legal asset class and waive
+    reparations merely because gold and technology trading are unavailable. This can
+    benefit either side depending on which side would otherwise owe value; most
+    importantly, it makes the result contradict the current deal constructor's own
+    ability to use cities as reparations.
+
+REPAIR DIRECTION
+    Include TRADE_CITIES in the capability test that decides whether payment can
+    exist. This should remain a cheap possibility test; actual city eligibility,
+    denial, and value should continue to be handled by the existing downstream
+    canTradeItem / AI_negotiatePeace / canTradeAssets logic.
+
+    Do not simply remove the shortcut unless desired for policy reasons: its purpose
+    is still valid when no compensating asset class is possible at all.
+
+NEGATIVE CONTROLS
+    * This is not based on hypothetical city trading: the current peace-negotiation
+      helper has an explicit TRADE_CITIES fallback and inserts the selected city into
+      the resulting peace deal.
+    * canPossiblyTradeItem(TRADE_CITIES) does not depend on gold/tech trading, so
+      there are ordinary rules states where the omitted asset class exists while both
+      tested classes are unavailable.
+    * The original source author explicitly identified city payment as the omitted
+      case; subsequent city-trade improvements make the old approximation less, not
+      more, defensible.
+
+
+CURRENT FILE-017 CURSOR
+-----------------------
+Completed / newly challenged since C017-WIP01:
+* peaceThreshold reciprocal war-success weighting and its 2021 refactor ancestry;
+* endWarVal human-AI reparations arithmetic and the early no-payment shortcut;
+* current AI_negotiatePeace gold/tech/city balancing path;
+* canPossiblyTradeItem/canTradeItem/canTradeCityTo city-payment legality;
+* AdvCiv city-trade history around the old early-game free-peace simplification;
+* UWAI::Player willTalk cache wrapper / explicit cache callers (no reachable nested
+  disable-after-enable defect established; rejected);
+* emergency-peace fresh-war prioritization and deterministic preparation scaling
+  (current behavior matches explicit policy/define contracts; rejected as defects).
+
+NEXT
+    Resume at F187 UNUSED. Continue the remaining peace/reparation/vote/vassal and
+    Player-tail audit, with a targeted pass for exact team/player argument mistakes
+    similar to F185. Then return through the larger plan/review/scheme machinery and
+    run an adversarial F183-Fxxx closure pass before closing UWAIAgent.cpp.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C017-WIP03 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source: reconciled AdvCiv-SAS light source 2026-08-26 15:08
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior checkpoint: C017-WIP02
+New finding range in this append: F187 / provisional KI#510
+Next finding number: F188 UNUSED
+
+F187 / provisional KI#510
+-------------------------
+TITLE
+    canTradeAssets tests only the first arbitrarily enumerated tradable cities under
+    its 1/6-city cap, so it can falsely conclude that a human cannot afford a deal
+    even when one later city within the same cap would suffice.
+
+STATUS
+    CONFIRMED. Inherited AdvCiv defect introduced with the 2018 willingness-to-talk
+    city-payment cap (bb7b6925d1, 2018-04-06), retained by Base AdvCiv 1.14 and
+    current SAS.
+
+ROOT
+    UWAI::Player::canTradeAssets caps city payment to:
+
+        iCityLimit = ceil(kHuman.getNumCities() / 6)
+
+    which implements the intended rule that the AI should not demand more than one
+    sixth of the human player's cities for peace. But it then walks the human's cities
+    in raw FOR_EACH_CITYAI iteration order, accepts the first legally tradable cities,
+    and stops as soon as iCities reaches iCityLimit:
+
+        if (iCities >= iCityLimit)
+            break;
+        ...
+        if (kHuman.canTradeItem(... TRADE_CITIES ...))
+        {
+            iCities++;
+            iTotalTradeVal += AI_cityTradeVal(*pCity);
+            if (iTotalTradeVal >= iTargetTradeVal)
+                return true;
+        }
+
+    The source itself leaves the warning:
+
+        Tbd.: Shouldn't check the cities in an arbitrary order
+
+    The limit is therefore applied to arbitrary city IDs, not to the best set of at
+    most ceil(numCities/6) legally tradable cities.
+
+HISTORY / INTENDED-CONTRACT PROOF
+    AdvCiv commit bb7b6925d1666957c0cc1239e8e8df7c63a5df09
+    (2018-04-06, "Small misc. changes; no DLL committed for now.") introduces the
+    city cap. Its UWAI release-note bullet states the intended behavior directly:
+
+        AI not willing to talk when it would demand more than 1/6 of the human
+        player's cities, rounded up, for peace.
+
+    That is a quantity cap, not an arbitrary-city-order cap. A deal that can be paid
+    with one sufficiently valuable city out of six satisfies the documented rule
+    regardless of that city's creation/iteration ID.
+
+DETERMINISTIC REPRODUCTION SHAPE
+    Give the human six cities, so iCityLimit is exactly 1. Suppose two non-capital
+    cities are legally tradable:
+
+        earlier city in iteration order: trade value 200
+        later city in iteration order:   trade value 500
+        remaining required asset value:  400
+
+    canTradeAssets examines the 200-value city first, increments iCities to 1, fails
+    to reach 400, and stops before seeing the 500-value city. It returns false as if
+    satisfying the deal would require more than the allowed one city.
+
+    The actual CvPlayerAI::AI_negotiatePeace city-reparation path does not share this
+    restriction: when city payment is useful it scans all of the payer's cities for a
+    legal city fitting the valuation gap. A later city can therefore be a legitimate
+    one-city settlement asset even though canTradeAssets has already refused to talk.
+
+CONSEQUENCE
+    Human-AI willingness to talk and other callers that use canTradeAssets can depend
+    on arbitrary city iteration/order rather than on whether the documented maximum
+    number of cities can actually cover the requested value. The false negative can
+    block a peace negotiation or affordability path that a legal one-city payment
+    would satisfy.
+
+    The issue also affects other canTradeAssets callers (including sponsored-war
+    affordability) whenever the permitted city count is smaller than the number of
+    legal cities and an early low-value city exhausts the count before a later useful
+    city is examined.
+
+REPAIR DIRECTION
+    Preserve the ceil(numCities/6) quantity cap, but evaluate the best/useful legally
+    tradable city values within that cap instead of taking the first city IDs. A
+    small collected-and-ranked list is adequate because the cap and city count are
+    tiny. The helper only needs an upper-bound/existence answer; actual deal
+    construction can continue to use AI_negotiatePeace's own city-selection policy.
+
+    Do not remove the 1/6 cap: that policy is intentional. The defect is the arbitrary
+    ordering used to decide what fits within it.
+
+NEGATIVE CONTROLS
+    * The result does not require speculative city trading; current peace negotiation
+      explicitly scans legal TRADE_CITIES candidates.
+    * The finding does not assume the most expensive city must be demanded. It only
+      requires existence of a later legal city whose value can satisfy the target
+      while the first legal city cannot.
+    * The introducing code's own Tbd comment acknowledges the arbitrary-order
+      weakness; the commit/release wording confirms that the intended restriction is
+      number of cities, not city ID order.
+
+
+CURRENT FILE-017 CURSOR
+-----------------------
+Completed / newly challenged since C017-WIP02:
+* UWAI::Player::canTradeAssets city-payment cap and all principal callers;
+* current AI_negotiatePeace city selection versus the estimator's arbitrary subset;
+* introducing AdvCiv bb7b6925d1 history and the explicit 1/6-city contract;
+* team/member affordability approximations remain under review rather than being
+  promoted merely because team games require simplification.
+
+NEXT
+    Resume at F188 UNUSED. Continue the sponsored-war / joint-war / team-member
+    affordability and remaining peace/vassal/Player helper surfaces, then return to
+    the larger reviewWarPlans/scheme machinery for the final adversarial closure
+    pass. Promote only caller-reachable contract failures; leave explicit strategic
+    approximations as non-findings unless a deterministic contradiction is proved.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C017-WIP04 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source: reconciled AdvCiv-SAS light source 2026-08-26 20:49
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- OPEN
+Physically durable prior checkpoint: C017-WIP03
+New finding range in this append: F188 / provisional KI#511
+Next finding number: F189 UNUSED
+
+F188 / provisional KI#511
+-------------------------
+TITLE
+    Imminent TOTAL-war target switching temporarily rewrites the plan to
+    WARPLAN_PREPARING_LIMITED, so the alternative is evaluated as a limited war and
+    a successful switch can permanently downgrade TOTAL to PREPARING_LIMITED.
+
+STATUS
+    CONFIRMED. Inherited AdvCiv defect introduced by commit
+    e04adaf0a58e53f474e9c6ca4e8eaa6ce7eb19cf (2018-07-31), "UWAI can switch to a
+    different target when war remains imminent". Retained by Base AdvCiv 1.14 and
+    current SAS. Current SAS KI#189 makes the comparison deterministic and therefore
+    makes the inherited state-loss path easier to encounter, but did not create it.
+
+ROOT
+    reviewPlan handles a non-war imminent plan (WARPLAN_LIMITED or WARPLAN_TOTAL) by
+    temporarily changing the target's plan before calling considerSwitchTarget:
+
+        kAgent.AI_setWarPlanNoUpdate(eTarget, WARPLAN_PREPARING_LIMITED);
+        bool const bSwitch = !considerSwitchTarget(eTarget, iU, 0);
+        ...
+
+    The temporary plan is hardcoded to PREPARING_LIMITED even when the saved eWP is
+    WARPLAN_TOTAL.
+
+    considerSwitchTarget is not merely a predicate. It reads the current target plan:
+
+        WarPlanTypes const eWP = kAgent.AI_getWarPlan(eTarget);
+
+    and uses that value both to evaluate every alternative target:
+
+        int iAltU = eval.evaluate(eWP, iTurnsRemaining);
+
+    and, after a successful switch, to install the new target plan:
+
+        kAgent.AI_setWarPlan(eBestAltTarget, eWP);
+
+    Therefore the temporary rewrite changes both the comparison semantics and the
+    persistent result of a successful switch.
+
+HISTORY / INTENDED-CONTRACT PROOF
+    The introducing 2018 commit added this exact mechanism and describes it as a
+    workaround because considerSwitchTarget had been written for preparation plans:
+
+        "considerSwitchTarget was written under the assumption that no war is
+        imminent. Could be difficult to rectify; instead, change the war plan
+        temporarily."
+
+    The implementation then always chose WARPLAN_PREPARING_LIMITED. There is no
+    corresponding reason to erase TOTAL vs LIMITED: considerSwitchTarget already
+    accepts the current preparation plan generically and WarEvaluator can evaluate
+    either PREPARING_LIMITED or PREPARING_TOTAL.
+
+DETERMINISTIC REPRODUCTION SHAPE
+    1. Agent has an imminent WARPLAN_TOTAL against target A and positive utility.
+    2. The imminent-plan branch reaches target switching.
+    3. reviewPlan temporarily changes A to WARPLAN_PREPARING_LIMITED.
+    4. Alternative target B is legal and sufficiently more attractive to satisfy the
+       switch threshold.
+    5. considerSwitchTarget reads PREPARING_LIMITED, evaluates B under that plan, then
+       clears A and assigns PREPARING_LIMITED to B.
+
+    The original TOTAL character is restored only when there is no switch (or while
+    running in the background). On a real successful switch it is lost.
+
+CONSEQUENCE
+    * A TOTAL-war plan can choose its replacement target using LIMITED-war utility,
+      which can change which target wins the comparison.
+    * If the switch succeeds, the new target receives WARPLAN_PREPARING_LIMITED rather
+      than WARPLAN_PREPARING_TOTAL. The AI has therefore changed both target and war
+      type even though this path is intended only to reconsider the target.
+    * SAS's deterministic KI#189 target comparison makes this inherited defect more
+      reproducible because the old preliminary random roll no longer suppresses many
+      switch attempts.
+
+REPAIR DIRECTION
+    Preserve the original plan character in the temporary preparation mapping:
+
+        WARPLAN_TOTAL   -> WARPLAN_PREPARING_TOTAL
+        WARPLAN_LIMITED -> WARPLAN_PREPARING_LIMITED
+
+    Then call considerSwitchTarget exactly as today. If no switch occurs, restore the
+    saved imminent plan as before. If a switch occurs, the helper naturally installs
+    the matching preparation type on the new target.
+
+NEGATIVE CONTROLS
+    * This is not an argument that an imminent plan must stay "imminent" after a
+      target change. Re-entering preparation for the new target is coherent; the bug
+      is loss of TOTAL vs LIMITED intent.
+    * Background simulation already restores eWP after the helper, so the persistent
+      downgrade concerns the real successful-switch path.
+    * The defect predates SAS; KI#189 changes reachability/frequency, not the faulty
+      mapping itself.
+
+F189 DISPOSITION -- AI_negotiatePeace success vs actual war end
+---------------------------------------------------------------
+STATUS
+    REJECTED AS A NEW FINDING after the current-source contract pass.
+
+WHY IT LOOKED SUSPICIOUS
+    considerPeace now logs both:
+
+        bPeace    = AI_negotiatePeace(...)
+        bWarEnded = !kAgent.isAtWar(eTarget)
+
+    but still returns !bPeace rather than !bWarEnded. A previous SAS victory-denial
+    safety guard in CvDeal could reject an AI-AI treaty after AI_negotiatePeace had
+    already returned true, producing exactly bPeace == true && bWarEnded == false.
+
+CURRENT-SOURCE CLOSURE
+    The 20:49 source has closed that concrete mismatch at both earlier layers:
+
+    * UWAI::Team::considerPeace skips ordinary peace when either team satisfies the
+      shared configured victory-threat predicate.
+    * CvPlayerAI::AI_negotiatePeace repeats the same shared pre-check for non-UWAI AI
+      callers before constructing or implementing the deal.
+    * CvDeal retains the final guard as defense in depth for human/unusual trade paths.
+
+    For the AI-AI AI_negotiatePeace path, the selected gold/tech/city items are checked
+    before implementation and CvDeal performs its full canTradeItem preflight before
+    mutating the deal. No other stable current path was established where the helper
+    returns true yet an AI-AI peace deal is silently rejected.
+
+    Human peace offers intentionally remain different: AI_negotiatePeace returns true
+    when the diplomacy offer is sent, before the human accepts it, so bWarEnded is
+    expected to remain false. Returning based on bWarEnded would therefore be wrong
+    for that branch. The separate diagnostic remains useful, but it is not itself a
+    correctness defect.
+
+CURRENT FILE-017 CURSOR
+-----------------------
+Completed / newly challenged since C017-WIP03:
+* F188 imminent TOTAL-war target-switch plan preservation -- CONFIRMED;
+* AI_negotiatePeace return-value vs actual-war-end contract -- current concrete
+  victory-denial mismatch CLOSED by shared pre-checks; no additional F189 promoted;
+* 2021 wrong reciprocal-ID refactor sweep -- no sibling to F185 established.
+
+NEXT
+    Resume at F189 UNUSED. Continue through UWAIAgent.cpp from the remaining
+    peace/capitulation/vassal and scheme/plan machinery, then run an adversarial
+    closure pass across the whole file before deciding whether file 017 can close.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+C017-WIP05 APPEND -- 2026-08-26 -- UWAIAgent.cpp continuing audit
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+Reconciled AdvCiv-SAS light source snapshot 2026-08-26 20:49.
+C017-WIP04 is preserved byte-for-byte before this append.
+
+F189 / provisional KI#512 -- scheme can start LIMITED war from TOTAL-only positive utility at the exact zero boundary
+---------------------------------------------------------------------------------------------------------------
+STATUS
+    CONFIRMED inherited AdvCiv defect.
+
+CURRENT CODE / ROOT
+    UWAI::Team::scheme evaluates both preparation types and then selects which plan
+    character to carry forward:
+
+        bool bTotal = false;
+        if (iLimitedU < 0 && iTotalU > 0)
+            bTotal = true;
+        if (iLimitedU < 0 && iTotalU < 0) // Only relevant for logging
+            bTotal = (iTotalU > iLimitedU);
+        if (iLimitedU > 0 && iTotalU > 0)
+        {
+            ... personality-weighted total-vs-limited choice ...
+        }
+        int iU = std::max(iLimitedU, iTotalU);
+
+    The three conditions leave one consequential sign combination uncovered:
+
+        iLimitedU == 0 && iTotalU > 0
+
+    bTotal therefore remains at its default false, while iU takes the positive total
+    utility. The target survives the `iU <= 0` rejection and can be selected, but the
+    resulting plan is WARPLAN_PREPARING_LIMITED (or the corresponding direct LIMITED
+    plan in the SAS victory-denial path).
+
+WHY ZERO IS A REAL INPUT
+    WarEvaluator utility is an ordinary integer sum/difference, initialized from zero
+    and returned directly. Zero is not a sentinel and requires no exceptional game
+    state. Thus an exact neutral limited-war evaluation with a positive total-war
+    evaluation is a legitimate boundary case.
+
+HISTORY / REGRESSION PROOF
+    Before AdvCiv commit 0fb74a859b720ab67c1148573fa5b9ab32770bf0
+    (2018-08-31, "Various minor changes"), scheme simply used:
+
+        bool total = (uTotal > uLimited);
+
+    so `uLimited == 0 && uTotal > 0` correctly selected total war.
+
+    That commit's log explicitly describes the UWAI change as:
+
+        "Increased the impact of AI leader preferences for limited vs. total war."
+
+    It replaced the simple comparison with the current sign-partitioned / weighted
+    selector, but used strict `< 0` and `> 0` tests and omitted the neutral-limited,
+    positive-total boundary. AdvCiv 1.14 retains the same conditions, so this is an
+    inherited upstream defect rather than a SAS regression.
+
+DETERMINISTIC REPRODUCTION SHAPE
+    1. A legal scheming target evaluates to exactly 0 utility for
+       WARPLAN_PREPARING_LIMITED.
+    2. The same target evaluates to positive utility for WARPLAN_PREPARING_TOTAL.
+    3. No other gate removes the candidate and its final drive wins its selection roll.
+    4. bTotal is still false even though the only positive evaluated plan was TOTAL.
+    5. scheme therefore installs a LIMITED plan whose own evaluated utility was 0.
+
+CONSEQUENCE
+    * The AI can start the wrong war type at an exact but ordinary utility boundary.
+    * Its positive drive is supplied entirely by the TOTAL evaluation while its stored
+      plan character is LIMITED.
+    * Follow-up preparation/review logic then evaluates and develops the LIMITED plan,
+      so this is not merely a misleading log label.
+
+NARROW REPAIR DIRECTION
+    Include the neutral limited case when total war is positive, e.g. conceptually:
+
+        if (iLimitedU <= 0 && iTotalU > 0)
+            bTotal = true;
+
+    Keep the personality-weighted branch for the genuinely competing case where both
+    utilities are positive. No broader change to the existing max-utility drive rule
+    is required to fix this finding.
+
+NEGATIVE CONTROL / SCOPE
+    The broader question whether `iU = max(iLimitedU, iTotalU)` should always be tied
+    to the personality-selected plan when both utilities are positive is intentionally
+    NOT folded into F189. That may be deliberate separation of overall war drive from
+    war-type preference. F189 needs no such interpretation: at the omitted zero
+    boundary the selected LIMITED type has no positive utility at all.
+
+CURRENT FILE-017 CURSOR
+-----------------------
+* C017-WIP05 physically durable.
+* F183-F189 / provisional KI#506-KI#512 durable.
+* F190 UNUSED.
+* scheme() sign/selection boundary pass completed through F189; broader personality
+  weighting semantics remain unnumbered unless a stronger contract proof appears.
+* Continue through declareWarTrade / makePeaceTrade / vote / vassal / Player helpers,
+  then perform a whole-file adversarial closure pass before closing UWAIAgent.cpp.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+C017-WIP06 APPEND -- 2026-08-26 -- UWAIAgent.cpp continuing audit
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+Reconciled AdvCiv-SAS light source snapshot 2026-08-26 20:49.
+C017-WIP05 is preserved byte-for-byte before this append.
+
+F190 / provisional KI#513 -- isLandTarget leaks one member's no-ocean-cargo distance exemption into later team members
+---------------------------------------------------------------------------------------------------------------------
+STATUS
+    CONFIRMED inherited AdvCiv team-game defect.
+
+CURRENT CODE / ROOT
+    UWAI::Team::isLandTarget keeps a single mutable distance limit outside its loop
+    over the agent team's player members:
+
+        int iDistLimit = getUWAI().maxLandDist();
+        for (MemberAIIter itMember(m_eAgent); itMember.hasNext(); ++itMember)
+        {
+            UWAICache const& kCache = itMember->uwai().getCache();
+            // Sea route then unlikely to be much slower
+            if (!kCache.canTrainDeepSeaCargo())
+                iDistLimit = MAX_INT;
+            ...
+            if (kCacheCity.canReachByLand())
+            {
+                ...
+                if (kCacheCity.getDistance() <= iDistLimit)
+                    return true;
+            }
+        }
+
+    Once an earlier member cannot train deep-sea cargo, iDistLimit becomes MAX_INT
+    for the remainder of the team-member loop. It is never restored for a later
+    member that *can* train deep-sea cargo.
+
+PER-PLAYER CONTRACT PROOF
+    `canTrainDeepSeaCargo()` is a UWAICache property. UWAICache::updateTransports
+    computes it from that cache owner's own civilization units and
+    `kOwner.canTrain(eUnit)`, so it is deliberately player-specific.
+
+    A sibling consumer, InvasionGraph::Node::canReachByLand, applies the same rule
+    locally to the cache being queried:
+
+        pCacheCity->getDistance() <= getUWAI().maxLandDist() ||
+        !m_kCache.canTrainDeepSeaCargo()
+
+    This is strong internal evidence for the intended semantics: the unlimited-land
+    exemption belongs to the particular player whose cache lacks ocean-capable cargo,
+    not to all later members of that player's team.
+
+DETERMINISTIC REPRODUCTION SHAPE
+    Consider a multi-player team with members A then B in MemberAIIter order:
+
+    1. A cannot train deep-sea cargo, so the shared iDistLimit becomes MAX_INT.
+    2. A has no target city that is reachable by land, so A does not itself establish
+       the target as a land target.
+    3. B can train deep-sea cargo.
+    4. B has a target city reachable by land, but its distance exceeds maxLandDist.
+       With B's own transport capability, that route should fail the land-distance
+       test so a sea approach can remain preferable.
+    5. Because A's MAX_INT leaked forward, B's distant route passes and the team is
+       classified as having a land target.
+
+    Reordering otherwise equivalent team members so B is visited before A removes
+    that classification. The result is therefore iteration-order dependent.
+
+CONSEQUENCE
+    AI_isLandTarget feeds UWAI and other team war decisions, including whether war
+    evaluation treats a target as naval/land. In team games the leak can classify a
+    distant target as land for the wrong member, changing preparation assumptions and
+    war valuation merely because another earlier teammate lacks deep-sea cargo.
+
+HISTORY
+    The shared mutable limit is already present in AdvCiv practical commit
+    f6ff6a182f5187541fff6e5bbbe12f9573b3778c (2017-04-16, "Initial commit
+    (cont.)"), which introduced the early WarAndPeaceAI/UWAI implementation. AdvCiv
+    1.14 still has the same loop and current SAS inherited it unchanged.
+
+NARROW REPAIR DIRECTION
+    Keep the base configured limit immutable and derive a member-local limit, e.g.:
+
+        int const iBaseDistLimit = getUWAI().maxLandDist();
+        for (... each member ...)
+        {
+            UWAICache const& kCache = ...;
+            int const iMemberDistLimit = (kCache.canTrainDeepSeaCargo() ?
+                    iBaseDistLimit : MAX_INT);
+            ... compare this member's cached city distance to iMemberDistLimit ...
+        }
+
+    Equivalently, inline the per-cache condition as InvasionGraph already does.
+
+NEGATIVE CONTROLS
+    * If the no-cargo member itself has a reachable-by-land target city, treating its
+      route as unlimited is intentional; F190 does not challenge that policy.
+    * Single-player teams are unaffected because there is no later teammate to inherit
+      the modified limit.
+    * This is not about team technology sharing. The relevant cache flag explicitly
+      depends on each player owner's `canTrain` result and is consumed per owner in
+      InvasionGraph.
+
+CURRENT FILE-017 CURSOR
+-----------------------
+* C017-WIP06 physically durable.
+* F183-F190 / provisional KI#506-KI#513 durable.
+* F191 UNUSED.
+* Vote joint-war duplicate-team candidate rejected: WarEvalParameters stores war
+  allies in std::set<TeamTypes>, so player iteration cannot multiply a team's effect.
+* Continue remaining vote/vassal/Player-helper tail and then whole-file adversarial
+  closure.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+C017-WIP07 APPEND -- 2026-08-26 -- UWAIAgent.cpp continuing audit
+===============================================================================
+
+AUTHORITATIVE SOURCE
+--------------------
+Reconciled AdvCiv-SAS light source snapshot 2026-08-26 20:49.
+C017-WIP06 is preserved byte-for-byte before this append.
+
+F191 / provisional KI#514 -- emergency-peace path calls ScaledNum::uround on a peace threshold that is explicitly allowed to be negative
+------------------------------------------------------------------------------------------------------------------------------------
+STATUS
+    CONFIRMED SAS regression; debug-assert / signed-rounding contract defect.
+
+CURRENT CODE / ROOT
+    UWAI::Team::considerPeace obtains the signed peace threshold and, for the
+    preferred emergency-peace target, forces iU below it so normal negotiation code
+    cannot early-out:
+
+        scaled rPeaceThresh = peaceThreshold(eTarget);
+        ...
+        if (bEmergencyPeace)
+        {
+            ...
+            iU = std::min(iU, rPeaceThresh.uround() - 100);
+        }
+
+    `ScaledNum::uround()` is not the signed rounding API. Its implementation says
+    explicitly:
+
+        BOOST_STATIC_ASSERT(bSIGNED); // Use round() instead
+        ...
+        FAssert(m_i >= 0 && ...);
+
+    Therefore calling uround() requires a nonnegative scaled value even though the
+    type itself is signed.
+
+NEGATIVE-THRESHOLD CONTRACT PROOF
+    peaceThreshold() is intentionally a signed threshold, not a nonnegative amount:
+
+        scaled r = fixp(-7.5); // To give it time
+
+    It can receive further negative adjustments for total war, having been attacked,
+    and leader pride. Most decisively, for an AI target it finishes with:
+
+        if (!kTarget.isHuman())
+            iR = std::min(0, iR);
+
+    Thus inter-AI peace thresholds are explicitly constrained to be nonpositive, not
+    nonnegative. Negative values are ordinary and expected. Emergency peace is not
+    human-only, so a negative rPeaceThresh can reach uround() directly.
+
+DETERMINISTIC FAILURE SHAPE
+    1. An AI team is in SAS emergency-peace mode and the reviewed AI opponent is the
+       preferred emergency-peace target.
+    2. peaceThreshold(eTarget) is negative -- for example its normal -7.5 starting
+       bias remains negative after the other terms.
+    3. considerPeace enters bEmergencyPeace and calls rPeaceThresh.uround().
+    4. A debug build violates `FAssert(m_i >= 0)` inside ScaledNum::uround().
+
+    No unusual corrupt state is needed; the caller feeds a value whose legal range
+    contradicts the rounding helper's documented/asserted precondition.
+
+RELEASE-BUILD NOTE
+    With assertions compiled out, the signed arithmetic still executes, but uround()
+    uses the positive-value rounding formula. Around negative fractional values this
+    can differ from round() (for example by one integer). Because SAS then subtracts
+    100 solely to force the utility clearly below the threshold, that one-point
+    rounding difference is unlikely to alter normal release gameplay here. The main
+    concrete consequence is therefore the invalid API use and debug assertion, not a
+    claim of a large release-balance effect.
+
+HISTORY
+    The line is absent from base AdvCiv and was introduced by SAS practical commit
+    bf56a70088f859b853c9e72df7fcb8350672d364 (2025-09-17,
+    "Seemingly tremendously improved multi-war threat management by adding sanity
+    \"emergency peace\" pre-checks in UWAI::Team::considerPeace..."). The introducing
+    diff contains the same call:
+
+        iU = std::min(iU, rPeaceThresh.uround() - 100);
+
+    The defect therefore originates in the SAS emergency-peace addition rather than
+    inherited UWAI.
+
+NARROW REPAIR DIRECTION
+    Use the signed rounding helper already used elsewhere for this exact threshold:
+
+        iU = std::min(iU, rPeaceThresh.round() - 100);
+
+    No emergency-peace policy or threshold tuning needs to change.
+
+RECONCILIATION NOTE -- F185 STILL LIVE IN THE 20:49 SOURCE
+    The current diagnostics correctly log reciprocal target war success as:
+
+        kTarget.AI_getWarSuccess(kAgent.getID())
+
+    but the actual inherited peaceThreshold() formula still contains the F185 typo:
+
+        kTarget.AI_getWarSuccess(eTarget)
+
+    This is the already-durable F185 / KI#508 root, not a new finding. Its presence in
+    the reconciled source simply means the documented fix has not yet reached this
+    snapshot (or is still awaiting the user's/Codex implementation pass).
+
+NEGATIVE CONTROL / SCOPE
+    Other uround() calls in this file are not automatically F191 siblings. Most
+    consume explicitly nonnegative prices, utilities clamped with max(0,...), or
+    positive weighting factors. They require individual sign proof before any finding
+    can be promoted.
+
+CURRENT FILE-017 CURSOR
+-----------------------
+* C017-WIP07 physically durable.
+* F183-F191 / provisional KI#506-KI#514 durable.
+* F192 UNUSED.
+* Whole-file adversarial closure remains OPEN.
+* Next: mechanically review the remaining uround()/uceil() signed-value call sites,
+  then resume cross-function state/sign/caller-contract closure before deciding
+  whether UWAIAgent.cpp can be closed.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C017-WIP08 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source for this continuation: AdvCiv-SAS light source 2026-08-26 20:49
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior boundary: C017-WIP07
+New finding in this append: F192 / provisional KI#515
+Existing roots materially clarified here: F183 / KI#506 and F189 / KI#512
+Next finding number: F193 UNUSED
+
+F183 / provisional KI#506 -- REPAIR-BOUNDARY CLARIFICATION
+----------------------------------------------------------
+The earlier root remains confirmed, but the closure pass found an important nuance in
+its proposed repair. Merely resetting bScheme and the four land/naval aggregate flags
+at the start of each do/while retry is not sufficient.
+
+reviewWarPlans uses abTargetDone to prevent a target whose plan already changed from
+being reviewed a second time. Some plan changes remove or redirect the target, where
+that omission is appropriate; however, other false-return paths leave the same target
+with a live changed plan. In particular, considerConcludePreparations can replace
+WARPLAN_PREPARING_LIMITED/TOTAL with WARPLAN_LIMITED/TOTAL and return false, and the
+SAS victory-denial review path can declare the war and return false. The target is then
+marked done and omitted from later retry evaluations even though its final live war
+plan should still contribute to the final AreaAI / bad-war summary.
+
+Therefore a per-retry reset alone can trade the original stale-bit defect for a new
+omission: the final no-change pass would describe only targets that were not marked
+done, rather than all surviving current plans.
+
+CORRECTNESS-FIRST REPAIR DIRECTION
+    Keep the retry/mutation machinery and abTargetDone semantics for reviewPlan, but
+    derive bScheme and the four AreaAI aggregate flags from a distinct final read-only
+    evaluation of all surviving current non-vassal plans after the mutation loop has
+    stabilized (or implement equivalent summary-only evaluation for done targets).
+    That final pass must not call reviewPlan again. This matches the trailing contract
+    that reviewWarPlans is the "last word on AreaAI" and also lets bScheme describe
+    the actual final current-war set rather than any superseded pass.
+
+This clarification strengthens F183; it is not a new root.
+
+
+F189 / provisional KI#512 -- ZERO-BOUNDARY CLARIFICATION
+---------------------------------------------------------
+The earlier confirmed scheme() zero-boundary root is broader once the current SAS
+victory-denial boost is considered.
+
+The inherited 2018 selector currently partitions only strict signs:
+
+    if (iLimitedU < 0 && iTotalU > 0)
+        bTotal = true;
+    if (iLimitedU < 0 && iTotalU < 0)
+        bTotal = (iTotalU > iLimitedU);
+    if (iLimitedU > 0 && iTotalU > 0)
+        ... leader-preference comparison ...
+
+The already-recorded case iLimitedU == 0 && iTotalU > 0 starts LIMITED even though
+TOTAL is the only positive evaluation. Current SAS exposes the opposite missed zero
+boundary too: when iTotalU == 0 and iLimitedU < 0, bTotal remains false; the later
+victory-denial utility boost can lift max(iLimitedU, iTotalU) above zero and make the
+candidate actionable, at which point the AI starts LIMITED even though TOTAL was the
+strictly better underlying plan. The wrong bTotal also selects the limited-plan naval
+flag for the direct-war eligibility gate.
+
+CORRECTNESS-FIRST REPAIR DIRECTION
+    Handle all cases with at least one nonpositive utility by selecting the plan with
+    the larger evaluated utility, e.g. conceptually:
+
+        if (iLimitedU <= 0 || iTotalU <= 0)
+            bTotal = (iTotalU > iLimitedU);
+        else
+            ... existing both-positive leader-preference comparison ...
+
+    Preserve the existing both-positive preference logic; history shows that policy
+    was the purpose of the 2018 change. This is a repair-boundary clarification of
+    F189, not a second finding.
+
+
+F192 / provisional KI#515
+-------------------------
+TITLE
+    SAS victory-denial target selection can install a direct WARPLAN_LIMITED/TOTAL
+    while a peace treaty still makes immediate declaration illegal.
+
+STATUS
+    CONFIRMED. AdvCiv-SAS regression introduced by commit 4210d5586a
+    (2026-07-14), KI#184 victory-denial direct-war work; absent from Base AdvCiv 1.14.
+
+ROOT
+    Ordinary UWAI deliberately allows planning during temporary force peace:
+    canSchemeAgainst calls canEventuallyDeclareWar, and CvTeam::canEventuallyDeclareWar
+    does not reject isForcePeace. The separate CvTeam::canDeclareWar check does reject
+    force peace. scheme() therefore attenuates target drive by treaty time remaining
+    rather than excluding the target entirely.
+
+    KI#184 computes:
+
+        bool const bVictoryDenialDirect =
+            (iVictoryDenialBoost > 0 &&
+             isSASVictoryDenialDirectWarAllowed(...));
+
+    isSASVictoryDenialDirectWarAllowed checks victory urgency, target power, distance
+    and naval/land access, but not kAgent.canDeclareWar(eTarget). A treaty-time target
+    can consequently enter TargetData with bDirect=true and a positive adjusted drive.
+
+    Once selected, scheme() builds eWP from bDirect, so that target receives
+    WARPLAN_LIMITED or WARPLAN_TOTAL. The execution branch is:
+
+        if (aTargets[i].bDirect &&
+            aTargets[i].iVictoryDenialBoost > 0 &&
+            kAgent.canDeclareWar(eTarget))
+        {
+            kAgent.declareWar(eTarget, false, eWP);
+        }
+        else kAgent.AI_setWarPlan(eTarget, eWP);
+
+    When force peace is the only blocker, canDeclareWar is false and the shared else
+    installs that direct plan instead of the preparation plan that treaty-time UWAI
+    normally uses.
+
+REACHABILITY
+    This does not require an impossible API combination. CvTeam::canChangeWarPeace
+    and canEventuallyDeclareWar permit a future war despite an ordinary temporary
+    treaty, while CvTeam::canDeclareWar separately rejects isForcePeace. scheme() even
+    computes rPeacePortionRemaining specifically to leave a reduced, nonzero chance
+    of beginning preparations during that period. A strong KI#184 utility boost can
+    therefore make such a victory threat win the target-selection roll before the
+    treaty expires.
+
+CONSEQUENCE
+    * A feature whose comments describe conversion to "immediate" war can create an
+      imminent direct war plan without declaring war at all.
+    * The same code then suppresses showWarPrepStartedMsg because bDirect is true; its
+      comment says direct victory-denial wars "are already declared", which is false
+      on this reachable branch.
+    * The target bypasses the normal PREPARING plan state while declaration is still
+      prohibited. CvTeamAI::AI_mayAttack prevents treaty violation, so this is not an
+      illegal attack, but it is still the wrong strategic state and can enter the
+      inherited imminent-plan timeout/review path rather than ordinary preparation.
+
+ANCESTRY / INTENT EVIDENCE
+    Commit 4210d5586a introduced both the direct-plan conversion and the guarded
+    declareWar call. Its source comments say qualifying targets are converted to
+    "immediate limited/total war" and that direct victory-denial wars "are already
+    declared". The fallback-to-AI_setWarPlan branch existed for ordinary preparations
+    and was reused without converting eWP back to PREPARING when declaration is
+    temporarily impossible.
+
+REPAIR DIRECTION
+    Keep the victory-denial utility pressure during force peace, but make bDirect true
+    only when an actual declaration is legal now (equivalently, fall back to the
+    corresponding PREPARING_LIMITED/PREPARING_TOTAL plan when canDeclareWar is false).
+    This preserves treaty-time preparation and the KI#184 urgency boost while making
+    the "direct" state mean what its declaration/message logic assumes it means.
+
+NEGATIVE CONTROLS
+    * This is distinct from the previously rejected general observation that direct
+      plans can coexist briefly with force peace: considerConcludePreparations
+      intentionally allows an existing preparation to become direct within a narrow
+      <=3-turn treaty window. F192 is about fresh KI#184 selection marking a target
+      direct for any treaty duration without first establishing that declaration is
+      legal now.
+    * CvTeamAI::AI_mayAttack does prevent units from violating the treaty. The finding
+      is therefore not "AI attacks through force peace"; it is the direct-vs-preparing
+      state mismatch and the resulting wrong review/message contract.
+
+
+NEGATIVE CONTROLS SINCE C017-WIP07
+-----------------------------------
+* acceptVassal's apparently contradictory empty-new-enemy assertion is protected by
+  CvTeamAI::AI_vassalTrade, which calls UWAI acceptance only after finding at least one
+  new major-civ war for the prospective master using the same enemy class;
+* warConfidenceLearned's sign-sensitive bIgnoreDefOnly equality is intentional: the
+  v0.86 history explicitly repaired ignored past-war success while retaining the rule
+  that defensive victories should not easily embolden future aggression;
+* amendTensions' late-era ask-for-help multiplier can become nonpositive, but this is
+  inherited original-UWAI policy and ScaledNum::randSuccess intentionally converts
+  nonpositive probabilities to no contact;
+* the local-target nearest-city sentinel -1 is guarded in gameplay paths by mutual
+  UWAI land-target tests (zero-city teams cannot satisfy UWAI::Team::isLandTarget),
+  while the victory-direct helper explicitly rejects negative distance;
+* no additional signed-rounding sibling of F191 survived: the other uround() sites in
+  this file have nonnegative inputs at their call sites.
+
+
+C017-WIP08 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 16 / 169
+FILE 017: CvGameCoreDLL/UWAIAgent.cpp -- OPEN, WHOLE-FILE CLOSURE PASS
+PHYSICAL CHECKPOINT: C017-WIP08
+CURRENT FILE-017 ROOTS: F183-F192 / provisional KI#506-KI#515
+NEXT ROOT ID: F193 UNUSED
+
+Resume by continuing the SAS-modified-region vs inherited-region closure pass, with
+special attention to KI#184/KI#189 state transitions, caller legality gates, sentinel
+contracts and final-plan aggregation. If no additional independent defect survives,
+perform one final adversarial cross-function pass before closing file 017 rather than
+manufacturing F193.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C017-WIP09 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source for this continuation: AdvCiv-SAS light source 2026-08-26 20:49
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior boundary: C017-WIP08
+New finding in this append: F193 / provisional KI#516
+Next finding number: F194 UNUSED
+
+F193 / provisional KI#516
+-------------------------
+TITLE
+    Inverted human-master test prevents AI vassals from timing out the very
+    human-instructed war preparations that UWAI says should expire after 20 turns.
+
+STATUS
+    CONFIRMED. Inherited AdvCiv defect present from the initial UWAI integration,
+    commit f6ff6a182f (2017-04-16, "Initial commit (cont.)"), and unchanged in
+    Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+ROOT
+    UWAI::Team::doWar contains the explicit contract:
+
+        /* Non-human vassals abandon human-instructed war prep. after 20 turns.
+           Humans can have war preparations from AI Auto Play that they should
+           also abandon ... */
+
+    but gates the timeout with:
+
+        (kAgent.isHuman() || !GET_TEAM(kAgent.getMasterTeam()).isHuman())
+
+    doWar enters this block only for a human team or a vassal. For the exact first
+    case named by the comment -- a non-human vassal whose master is human -- both
+    operands are false, so the timeout can never run. Conversely, a non-human
+    vassal of an AI master passes the negated second operand.
+
+REACHABILITY / CALLER CONTRACT
+    This is not a dead theoretical combination. CvDiplomacy.py retains K-Mod's UI:
+
+        "Allow masters to tell their vassals to prepare for war"
+
+    and exposes that option to a human master whose AI vassal is currently at peace.
+    USER_DIPLOCOMMENT_WARPLAN_TARGET sends DIPLOEVENT_SET_WARPLAN, and
+    CvPlayer::handleDiploEvent directly executes:
+
+        kOurTeam.AI_setWarPlan((TeamTypes)iData1, (WarPlanTypes)iData2, false);
+
+    Thus a human master can install PREPARING_LIMITED/PREPARING_TOTAL on an AI
+    vassal exactly as the UWAI timeout comment describes.
+
+INTERNAL CROSS-CHECK
+    The master synchronization immediately below reinforces the intended split:
+
+        else if (kMaster.AI_getWarPlan(eTarget) != NO_WARPLAN &&
+                 !kMaster.isHuman()) // Human master will have to instruct us
+            kAgent.AI_setWarPlan(eTarget, WARPLAN_PREPARING_LIMITED);
+
+    AI masters continuously propagate their own preparations to AI vassals; human
+    masters deliberately do not, because the human must issue the instruction.
+    Therefore the expiring/manual preparation is specifically the human-master case,
+    while the AI-master case is maintained automatically.
+
+CURRENT WRONG-SIDE CONSEQUENCE
+    For an AI-master vassal older than 20 turns, the current condition does enter:
+
+        considerAbandonPreparations(eTarget, -1, 0);
+
+    With iU=-1 and iTurnsRemaining=0, that helper deterministically clears the
+    preparation. If the AI master still has a war plan, the synchronization block
+    immediately afterward reinstalls WARPLAN_PREPARING_LIMITED. CvTeamAI::AI_setWarPlan
+    resets the target's war-plan state counter to 0 whenever the plan value changes.
+    The inverted gate can therefore periodically clear/reinstall/reset an AI-master
+    vassal's inherited preparation while leaving a stale human-instructed preparation
+    untouched indefinitely.
+
+ANCESTRY / INTENT EVIDENCE
+    The condition and the explanatory comment entered together in the initial UWAI
+    AdvCiv commit f6ff6a182f on 2017-04-16. Later refactors retained the same boolean
+    logic. The adjacent master-sync comment and the pre-existing diplomacy UI both
+    independently agree with the prose contract, not with the negated condition.
+
+REPAIR DIRECTION
+    The narrow repair is to remove the negation from the master-human test:
+
+        kAgent.isHuman() || GET_TEAM(kAgent.getMasterTeam()).isHuman()
+
+    This keeps the AI-AutoPlay human-team timeout, enables the advertised timeout for
+    AI vassals manually instructed by human masters, and avoids independently timing
+    out the preparations that AI masters continuously propagate to their vassals.
+
+NEGATIVE CONTROLS
+    * The condition is safe for an ordinary non-vassal human: short-circuiting on
+      kAgent.isHuman() means getMasterTeam() need not establish vassal semantics.
+    * This is not merely a stale comment. The K-Mod/AdvCiv diplomacy path still lets a
+      human master issue the preparation, and the adjacent synchronization code still
+      explicitly treats human-master instructions as manual rather than inherited.
+    * The finding does not require changing the 20-turn policy itself; only which
+      master type is eligible for that already-documented policy is inverted.
+
+
+NEGATIVE CONTROLS SINCE C017-WIP08
+-----------------------------------
+* respondToRebuke(false) does not become F193: UWAI has deliberately represented the
+  non-preparation rebuke response as a direct WARPLAN_LIMITED since its first AdvCiv
+  integration; the older generic CvPlayerAI comment saying "immediately declares war"
+  is not enough to prove that UWAI's distinct war-plan contract is defective;
+* isPeaceDealPossible's apparently reversed endWarVal direction is consistent with
+  endWarVal's human/AI normalization: the helper computes the human-side payment need
+  and then tests exactly the human assets that could satisfy it;
+* Civ4CE-main in the supplied snapshot contains no UWAI/UWAIAgent/WarEvaluator
+  implementation, so it cannot provide an independent later implementation or fix for
+  file 017; Base AdvCiv 1.14 plus the supplied AdvCiv/SAS history mirrors remain the
+  applicable ancestry controls here.
+
+
+C017-WIP09 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 16 / 169
+FILE 017: CvGameCoreDLL/UWAIAgent.cpp -- OPEN, FINAL WHOLE-FILE CLOSURE PASS
+PHYSICAL CHECKPOINT: C017-WIP09
+CURRENT FILE-017 ROOTS: F183-F193 / provisional KI#506-KI#516
+NEXT ROOT ID: F194 UNUSED
+
+Resume with a final mechanical/adversarial cross-function sweep: state variables whose
+lifetime spans loops/retries, signed/sentinel arithmetic, team-vs-player identity,
+war-plan transition legality, trade-estimator vs deal-construction contracts, and
+historical TODO/Hack/assert assumptions. Close file 017 only if that sweep produces no
+additional independent defect; do not manufacture F194 merely to extend the ledger.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C017-WIP10 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source for this continuation: AdvCiv-SAS light source 2026-08-26 20:49
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior boundary: C017-WIP09
+New finding in this append: F194 / provisional KI#517
+Next finding number: F195 UNUSED
+
+F194 / provisional KI#517
+-------------------------
+TITLE
+    doWarReport's background-mode toggle does not update UWAI::Team's cached
+    background state, so the supposedly diagnostic report run can mutate real war
+    plans, peace, capitulation and declarations.
+
+STATUS
+    CONFIRMED. Inherited AdvCiv developer/debug-path defect. The cached Team
+    background state dates to the initial UWAI integration; doWarReport was later
+    added by AdvCiv commit a8a7e75c6c ("Some bugfixes (in K-Mod, Kek-Mod, AdvCiv
+    code)") without synchronizing that cache. The same mismatch survives in Base
+    AdvCiv 1.14 and current AdvCiv-SAS.
+
+ROOT
+    UWAI::Team::reset stores background mode in a member cache:
+
+        m_bInBackground = getUWAI().isEnabled(true);
+
+    and every Team-side mutation guard reads only that cache:
+
+        bool isInBackground() const { return m_bInBackground; }
+
+    doWarReport is documented as:
+
+        "Runs 'scheme' as if UWAI was running in the background ... Intended for
+         debugging."
+
+    but implements the temporary mode only through the global UWAI object:
+
+        bool bInBackground = getUWAI().isEnabled(true);
+        getUWAI().setInBackground(true);
+        setForceReport(true);
+        doWar();
+        setForceReport(false);
+        getUWAI().setInBackground(bInBackground);
+
+    It never updates or resets this Team's m_bInBackground around doWar().
+
+REACHABILITY / STATE PROOF
+    doWarReport first requires getUWAI().isEnabled() with the default argument. By
+    UWAI::isEnabled's contract, that is true only when UWAI is fully enabled and the
+    global m_bInBackground is false. In that normal mode, Team::reset has cached
+    m_bInBackground=false. doWarReport then changes the global value to true but
+    leaves the Team cache false, and immediately invokes doWar().
+
+    This is precisely the mode in which the documented manual debugging recipe is
+    intended to be used: insert a doWarReport call, load the save to inspect, trigger
+    the call, read the report, then remove the instrumentation.
+
+CONSEQUENCE
+    doWar and its subroutines currently contain many side-effect gates of the form:
+
+        if (!isInBackground())
+
+    Because the stale Team cache remains false, those branches are active during the
+    report run. Reachable effects include, depending on the evaluated state:
+
+    * canceling or changing existing war plans;
+    * switching preparation targets;
+    * setting new preparation/direct plans;
+    * declaring an eligible direct victory-denial war;
+    * negotiating/implementing peace;
+    * capitulation and voluntary-vassal actions;
+    * spectator war-plan messages associated with those real state changes.
+
+    At the same time the global UWAI mode has been changed to background, so helpers
+    that consult the global state can be evaluating under background assumptions while
+    Team-side code still commits the result as though this were a real synchronized
+    doWar turn. A diagnostic call can therefore perturb the very save state it is
+    supposed to inspect.
+
+ANCESTRY / INTENT EVIDENCE
+    The original Team cache comment says the background value is cached during reset
+    rather than queried repeatedly. Later commit a8a7e75c6c added doWarReport and its
+    explicit "as if ... running in the background" contract, but toggled only the
+    global object. Subsequent renames/refactors preserved both pieces independently;
+    the 2021 UWAI rewrite still assigns m_bInBackground only in Team::reset.
+
+REPAIR DIRECTION
+    Keep global and Team-local background state synchronized for the whole report
+    scope. A narrow repair can save m_bInBackground, set it true alongside
+    getUWAI().setInBackground(true), then restore both after doWar(); alternatively,
+    call/reset the Team cache after each global mode change. Preserve setForceReport
+    independently, since forcing output and suppressing mutations are separate jobs.
+
+    Do not merely change the comment or remove the global toggle: WarEvaluator and
+    other UWAI code can consult the global background mode, while Team mutation gates
+    consult the cached member. Both views need to agree.
+
+SEVERITY / SCOPE
+    This is developer-facing rather than ordinary autonomous gameplay: doWarReport is
+    a manual diagnostic helper and has no normal production caller in the supplied
+    source. It is nevertheless a real correctness defect because its documented use
+    can alter the loaded save while investigating it, potentially invalidating the
+    report/reproduction being debugged.
+
+NEGATIVE CONTROLS
+    * This is not the disabled-UWAI case. doWarReport returns immediately unless
+      getUWAI().isEnabled() is true, which strengthens the proof: its reachable entry
+      mode starts with the global and Team cache both false, then only the global flag
+      is flipped.
+    * setForceReport only overrides report cadence; it does not alter
+      m_bInBackground and therefore cannot suppress state mutation.
+    * Merely restoring the global flag at function exit does not undo war-plan,
+      diplomacy or declaration mutations that already occurred during doWar().
+
+
+NEGATIVE CONTROLS SINCE C017-WIP09
+-----------------------------------
+* KI#184.2's shared SAS_UWAI_VICTORY_DENIAL_DIRECT_MAX_DISTANCE is intentionally
+  interpreted in two different distance representations: nearest-city plot distance
+  in target selection and cached path/travel turns in WarUtilityAspect's contact
+  guard. Commit 85b3818317 and the XML/source comments explicitly document this dual
+  use, so the unit difference is policy rather than an accidental mismatch;
+* the preferred-local-target and "roll only best eligible target" passes both use the
+  same aAdjustedDrives values after AI_isAvoidWar hesitation and repeat the same local
+  skip predicate; no preselection/eligibility drift survived that cross-check;
+* the 2019 human-peace iDelta==0 arithmetic guard remains present after the 2021 UWAI
+  rewrite, and the later capitulation skip-probability fixes inspected in ancestry are
+  likewise still represented in current code;
+* the remaining direct AI_setWarPlan / declareWar transition sweep found no new
+  independent gameplay root beyond F188, F192 and F193 already recorded.
+
+
+C017-WIP10 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 16 / 169
+FILE 017: CvGameCoreDLL/UWAIAgent.cpp -- OPEN, FINAL CLOSURE PASS
+PHYSICAL CHECKPOINT: C017-WIP10
+CURRENT FILE-017 ROOTS: F183-F194 / provisional KI#506-KI#517
+NEXT ROOT ID: F195 UNUSED
+
+Resume with one final closure pass over remaining helper return contracts, arithmetic
+boundaries, report/cache lifetime and current-vs-base differences. If that produces no
+additional independent defect, close file 017 with F195 unused and advance the album;
+do not manufacture a finding merely to avoid an unused ID.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C017-WIP11 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source for this continuation: AdvCiv-SAS light source 2026-08-26 20:49
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior boundary: C017-WIP10
+New finding in this append: F195 / provisional KI#518
+Next finding number: F196 UNUSED
+
+F195 / provisional KI#518
+-------------------------
+TITLE
+    AdvCiv's 2021 random-team-member diplomacy change left amendTensions with its
+    old leader-only assertion, so valid nonleader diplomats trip a debug assertion.
+
+STATUS
+    CONFIRMED. Inherited AdvCiv regression introduced by commit f016996eb6
+    (2021-03-27), "Let UWAI negotiate with a random team member"; present in Base
+    AdvCiv 1.14 and current AdvCiv-SAS.
+
+ROOT
+    UWAI::Player::amendTensions begins with:
+
+        FAssert(GET_PLAYER(eHuman).isHuman());
+        FAssert(GET_TEAM(m_eAgent).getLeaderID() == m_eAgent);
+
+    That second invariant was originally valid: initial UWAI scheme() contacted the
+    human through leaderUWAI().amendTensions(...).
+
+    AdvCiv commit f016996eb6 deliberately changed war-related diplomacy away from
+    team leaders. In scheme(), it replaced the leader call with:
+
+        PlayerTypes eTargetPlayer = GET_TEAM(eTarget).getRandomMemberAlive(true);
+        CvPlayerAI& kAgentPlayer = GET_PLAYER(kAgent.getRandomMemberAlive(false));
+        ...
+        kAgentPlayer.uwai().amendTensions(eTargetPlayer);
+
+    but did not remove or adapt amendTensions' leader-only assertion.
+
+REACHABILITY / INTENT PROOF
+    CvTeam::getRandomMemberAlive explicitly documents its purpose:
+
+        "pick members for conducting war-related diplomacy -- instead of using the
+         team leaders"
+
+    The introducing commit is titled "Let UWAI negotiate with a random team member"
+    and says "... instead of the team leader. Human members strictly preferred."
+    Thus selecting a nonleader is not an accidental caller state; it is the feature.
+
+    On any non-human team with more than one alive AI member, scheme() can select a
+    nonleader whenever a human target survives the target checks, the preparation
+    roll fails, utility is <=23 and contact is possible. Current SAS's KI#207 repair
+    to getRandomMemberAlive also makes the eligible-member selection genuinely
+    uniform instead of relying on the older broken iterator-index comparison, so the
+    nonleader path is straightforwardly reachable.
+
+CONSEQUENCE
+    In debug/assert-enabled builds, a legitimate multi-player-team diplomacy path can
+    stop on a false assertion even though the caller is behaving exactly as the 2021
+    feature intended. This can disrupt team-game/autoplay debugging and misleadingly
+    suggest state corruption.
+
+    In release builds the assertion is normally absent and the function proceeds.
+    The called CvPlayerAI diplomacy helpers (AI_demandTribute, AI_askHelp,
+    AI_contactReligion, AI_contactCivics) operate on the selected player and do not
+    impose a team-leader requirement, reinforcing that the stale assertion rather
+    than the random-member caller is the inconsistent piece.
+
+ANCESTRY
+    * 2017 initial UWAI: amendTensions asserts that its agent is the team leader;
+      scheme calls leaderUWAI(), so the invariant is valid.
+    * 2021-03-27 f016996eb6: scheme is intentionally changed to a random alive team
+      member and calls that member's uwai().amendTensions; the assertion is untouched.
+    * Base AdvCiv 1.14 and current SAS both retain the random-member caller plus the
+      obsolete leader-only assertion.
+
+REPAIR DIRECTION
+    Remove the leader-only assertion (or replace it with an invariant that actually
+    matches the random-member contract, such as ordinary alive/team membership if a
+    defensive assertion is still desired). Do not revert scheme() to the team leader:
+    the commit history and CvTeam helper comment explicitly establish random-member
+    diplomacy as intentional.
+
+NEGATIVE CONTROLS
+    * This is not a claim that every amendTensions call must use a nonleader; single-
+      member teams and random selection of the leader remain fine. The defect is that
+      a valid nonleader selection contradicts a leftover assertion.
+    * doWar returns early for human teams, so the agent-side scheme path here concerns
+      AI-only teams; getRandomMemberAlive(false) may select any alive AI member.
+    * The human target side is separately constrained by getRandomMemberAlive(true),
+      matching amendTensions' first assertion that eHuman is human.
+
+
+NEGATIVE CONTROLS / CLOSURE WORK SINCE C017-WIP10
+--------------------------------------------------
+* The final FAssert/Tbd/Hack sweep was reopened rather than closed when the
+  amendTensions caller/assertion mismatch appeared; F195 is therefore an additional
+  independent root rather than a split of F183-F194.
+* The remaining contact helpers called by amendTensions were inspected and do not
+  require the acting AI player to be its team's leader.
+
+
+C017-WIP11 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 16 / 169
+FILE 017: CvGameCoreDLL/UWAIAgent.cpp -- OPEN, FINAL WHOLE-FILE CLOSURE PASS
+PHYSICAL CHECKPOINT: C017-WIP11
+CURRENT FILE-017 ROOTS: F183-F195 / provisional KI#506-KI#518
+NEXT ROOT ID: F196 UNUSED
+
+Resume by continuing the whole-file assertion/caller and team-game contract sweep,
+particularly other places changed by the 2021 random-team-member diplomacy commit and
+any remaining player-vs-team assumptions. Then re-run the arithmetic/sentinel and
+background-state closure passes before closing file 017; do not manufacture F196.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C017-WIP12 -- FILE 017 OPEN
+=======================================
+
+AUDIT STATE
+-----------
+Authoritative source for this continuation: AdvCiv-SAS light source 2026-08-26 20:49
+Current file: 017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines -- OPEN
+Physically durable prior boundary: C017-WIP11
+New finding in this append: F196 / provisional KI#519
+Next finding number: F197 UNUSED
+
+F196 / provisional KI#519
+-------------------------
+TITLE
+    Human-capitulation readiness persists across peace, so a later war can inherit
+    an obsolete considerPeace authorization and bypass UWAI's AI-turn surrender gate.
+
+STATUS
+    CONFIRMED. Inherited AdvCiv lifecycle defect dating to the initial UWAI
+    integration; present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+ROOT
+    UWAI uses the leader cache's m_readyToCapitulateTo set as a temporal authorization
+    for surrender to a human master. considerCapitulation deliberately sets the bit
+    before AI_surrenderTrade and leaves it set when capitulation is genuinely accepted:
+
+        if (bHumanMaster)
+            leaderCache().setReadyToCapitulate(eMaster, true);
+        ...
+        if (eDenial != NO_DENIAL)
+        {
+            ...
+            if (bHumanMaster)
+                leaderCache().setReadyToCapitulate(eMaster, false);
+            return true;
+        }
+
+    The accompanying comment on the denial clear states the purpose explicitly:
+
+        "To ensure that the capitulation decision is made on an AI turn;
+         so that tryFindingMaster and AI_doSplit are called by considerPeace."
+
+    CvTeamAI::AI_surrenderTrade enforces that contract for a human prospective master:
+
+        /* Make sure that UWAI::Team::considerPeace has been called before surrendering. */
+        if (getUWAI().isEnabled() && kMasterTeam.isHuman() &&
+            !uwai().leaderUWAI().getCache().isReadyToCapitulate(eMasterTeam))
+        {
+            return DENIAL_RECENT_CANCEL;
+        }
+
+    The problem is lifecycle reset. reviewWarPlans clears the bit for a human target
+    only inside its target loop, after an earlier no-war-plan return:
+
+        if (!kAgent.AI_isAnyWarPlan())
+            return true;
+        ...
+        if (kTarget.isHuman())
+            leaderCache().setReadyToCapitulate(eTarget, false);
+
+    If an authorized war ends before a later review, neither Team::reportWarEnding,
+    UWAICache::reportWarEnding, CvTeamAI::AI_preMakePeace nor AI_postMakePeace clears
+    m_readyToCapitulateTo. AI_preDeclareWar / AI_postDeclareWar do not clear it either.
+    Consequently the old authorization can survive peace and enter a later war.
+
+REACHABILITY / CONSEQUENCE
+    A concrete lifecycle is:
+
+    1. During war A against human team H, considerCapitulation reaches NO_DENIAL and
+       leaves ReadyToCapitulate(H) true so a human capitulation deal can be offered.
+    2. H does not accept that capitulation; war A later ends by ordinary peace.
+    3. AI_postMakePeace resets war success and both war plans, but the readiness bit
+       survives. If there are no other plans, reviewWarPlans' early return also leaves
+       it untouched.
+    4. H later starts war B. Before the victim AI gets its next considerPeace pass,
+       the stale true bit can satisfy AI_surrenderTrade's explicit temporal gate once
+       the other surrender criteria become true.
+
+    This is not a claim that the AI necessarily capitulates immediately at zero war
+    success. AI_surrenderTrade still has the ordinary power, war-success, city and
+    diplomatic gates, and war success was reset at the old peace. The concrete defect
+    is that the old war's authorization is reused in the new war. For example, a human
+    can declare war and inflict enough losses/city captures during the same human turn
+    for the normal surrender criteria to become true before the victim's AI turn.
+
+    UWAI::Player::willTalk makes that stale authorization more consequential because
+    surrender is tested before the one-turn refusal-to-talk gate:
+
+        if (GET_TEAM(m_eAgent).AI_surrenderTrade(TEAMID(eToPlayer)) == NO_DENIAL)
+            return 1;
+        if (iAtWarCounter <= 1 || ...)
+            return -1;
+
+    Thus, once the normal surrender checks pass, the stale bit can make the AI willing
+    to talk/capitulate before considerPeace has run in the current war -- precisely
+    what the original AI-turn safeguard says it is intended to prevent.
+
+PERSISTENCE / RESET PROOF
+    Exhaustive setReadyToCapitulate call-site search in the current source found only:
+
+    * reviewWarPlans: clear per human target during a review;
+    * considerCapitulation: set before the human-master surrender check;
+    * considerCapitulation: clear again on denial;
+    * UWAICache implementation / leader migration plumbing.
+
+    There is no peace-end or war-start clear. UWAICache::reportWarEnding clears bounty
+    and sponsor state and records past-war success, but not readiness.
+
+    m_readyToCapitulateTo is also written to and restored from the savegame stream.
+    Therefore this is persistent cache state, not temporary stack/turn state; saving
+    during the stale interval does not repair it.
+
+ANCESTRY
+    The initial AdvCiv UWAI integration introduced the same combination of behaviors:
+
+    * the no-war-plan early return in reviewWarPlans;
+    * the per-human readiness clear inside the later target loop;
+    * set true before a human-master surrender check;
+    * clear on denial specifically to keep the decision on an AI turn;
+    * the AI_surrenderTrade readiness gate.
+
+    Later UWAI rewrites/refactors preserve the lifecycle. Searches of current Base
+    AdvCiv 1.14 and SAS show no later war-end/new-war clear.
+
+REPAIR DIRECTION
+    Clear this authorization when the corresponding war ends, rather than waiting for
+    a future review. A file-017-local repair fits naturally in UWAI::Team::reportWarEnding:
+
+        if (GET_TEAM(eEnemy).isHuman())
+            leaderCache().setReadyToCapitulate(eEnemy, false);
+
+    before or after forwarding reportWarEnding to member caches. That lifecycle point
+    is called from CvTeamAI::AI_preMakePeace while the old war context still exists and
+    is semantically exact: authorization produced for that war expires with that war.
+
+    Clearing during an actual capitulation is harmless: AI_surrenderTrade has already
+    approved the deal and the relationship is transitioning to vassalage. A clear on
+    new declaration can be useful defense-in-depth, but it is weaker as the primary
+    repair because the stale state should not survive the preceding peace at all.
+
+    Merely moving the reviewWarPlans clear ahead of the no-war-plan early return is
+    also insufficient: there can still be a peace-to-new-DoW window before that team's
+    next review.
+
+NEGATIVE CONTROLS
+    * The finding does not remove or weaken the normal capitulation criteria; it only
+      restores the intended current-war/AI-turn authorization lifetime.
+    * The persistent bit is intentionally kept true after NO_DENIAL while the current
+      war remains live so a human can receive/accept the capitulation; clearing it at
+      every function exit would break that feature.
+    * The correct boundary is therefore war lifetime, not function lifetime.
+
+
+NEGATIVE CONTROLS / CLOSURE WORK SINCE C017-WIP11
+--------------------------------------------------
+* The rest of AdvCiv's 2021 random-member diplomacy conversion was checked after F195.
+  Player-level peace and vassal deal routines intentionally operate on selected team
+  members; no second leader-only contract mismatch was proven.
+* A suspected random-member contact-timer bypass was rejected. Contact timers are
+  player-pair state in ordinary non-UWAI diplomacy too, so different team members are
+  intentionally able to have independent diplomatic cadence.
+* scheme()'s INT_MIN total-war sentinel was traced through later comparisons/boosts;
+  when total war is not evaluated, the sentinel does not enter the arithmetic path
+  used to boost or divide the selected limited-war utility.
+* Historical UWAI sign/epsilon/OOS bug-fix sites were rechecked. The known fixes are
+  retained; the reciprocal-ID sweep found no sibling to the already-recorded F185.
+* Tail confidence clamps, report allocation/close paths and force-report ownership
+  were rechecked; no independent root beyond F194 was found there.
+
+
+C017-WIP12 INTERIM CURSOR
+-------------------------
+COMPLETED FILES: 16 / 169
+FILE 017: CvGameCoreDLL/UWAIAgent.cpp -- OPEN, FINAL WHOLE-FILE CLOSURE PASS
+PHYSICAL CHECKPOINT: C017-WIP12
+CURRENT FILE-017 ROOTS: F183-F196 / provisional KI#506-KI#519
+NEXT ROOT ID: F197 UNUSED
+
+Resume with a focused lifecycle/cache sibling sweep: persistent current-war state in
+UWAICache and UWAIAgent that acts as an authorization or eligibility cache, especially
+state cleared by reportWarEnding / new-war hooks. Then do one final mechanical closure
+pass. If no independent root survives, close file 017 with F197 unused; do not invent
+one merely to avoid an unused ID.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+LOCAL RECONCILIATION AFTER KI#455-KI#456 AND KI#472-KI#480 REVIEW
+
+- F132 / KI#455 has been independently revalidated and fixed. `Revolts` now forms one scenario-wide union of threatened agent cities in `preEvaluate`, with one matching expected-loss numerator and asset denominator per agent member; the removed persistent member set can no longer partition the ratio by rival order or leak city identities into another agent-member evaluation.
+- F133 / KI#456 has been independently revalidated and fixed. Exclusive-radius land now has one explicit player-apportioned asset-category total shared by the flipped-tile numerator and `netLostAssetScore` denominator instead of comparing tile losses against city assets alone.
+- The repaired Debug-opt DLL completed a default Huge mixed-team autoplay normally through a turn-357 Space victory. With `OWN_EXCLUSIVE_RADIUS=1`, it also completed a Large mixed-team autoplay normally through a turn-469 Space victory; exact Revolts and asset-ratio inputs remain source-verified because UWAI reporting was not inspected.
+- F149-F157 / KI#472-KI#480 have all been independently reviewed and fixed. The accepted repairs cover amphibious mission success, Air Patrol participation, heterogeneous upgrade-action caching, reusable group-path invalidation, cross-transport cargo state, reentrant `groupMove`/combat-timer node lifetime and value-copy ownership for the two Firaxis Python queue getters. Runtime tests directly exercised KI#473 and KI#479; the remaining narrow transitions received compiled autoplay coverage and source verification as recorded in Known Issues.
+- KI#475's first implementation exposed and then fixed two additional independent crashes. KI#475.2 restored a destroyed-GroupPathFinder guard during save teardown after PDB-assisted diagnosis of the SAS follow-up regression. KI#475.3 initializes dead-at-load player UWAI before Base AdvCiv's revival update; the former reproduction save and WorldBuilder revival route then completed without crashing. These decimal continuation issues are implementation findings rather than replacements for an album root number.
+- KI#480's repaired Debug-opt DLL compiled and completed an autoplay normally. Current shipped SAS Python does not call either queue getter, so its corrected public-API ownership transition remains source-verified.
+- Current source and Known Issues are authoritative for these reviewed states; the preserved C014-C017 checkpoints remain verbatim investigation evidence. (GPT-5.6-Sol)

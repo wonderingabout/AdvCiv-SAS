@@ -77,6 +77,8 @@ protected:
 	 scaled netLostAssetScore(PlayerTypes eVictim, PlayerTypes eTo = NO_PLAYER, scaled* prTotalScore = NULL, TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
 	 scaled lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo) const;
 	 scaled lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSource) const;
+	 // <!-- custom: Return the victim player's apportioned total exclusive-radius land-asset category so flipped-tile losses and ratio denominators use the same measurement domain. See KI#456. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	 scaled flippedTileAssetScore(PlayerTypes eVictim) const;
 	 // <advc.035>
 	 scaled lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo = NO_PLAYER) const; // </advc.035>
 	 /* Score for assets conquered by the agent player from the rival player
@@ -409,10 +411,11 @@ class Revolts : public WarUtilityAspect
 public:
 	Revolts(WarEvalParameters const& kParams)
 	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Revolt exposure is a scenario-wide union of the agent's cities across every rival's relevant areas; preEvaluate supplies one matching numerator and denominator instead of per-rival ratios over persistent city identity.
+	// The union is local to each evaluation, so the old private m_countedCities member is no longer needed and cannot leak identities into another agent member's evaluation. See KI#455. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::REVOLTS; }
-private:
-	std::set<PlotNumTypes> m_countedCities;
 };
 
 // BroaderAspect: Need to cover the sponsor, which may not be a war party.

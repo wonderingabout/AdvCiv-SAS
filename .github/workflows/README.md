@@ -108,7 +108,9 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 
 ### `build/temp_files.py`
 
-Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder and otherwise contains only the optional locally ignored `Debug-opt` target. That target is retained because its exact matching PDB makes crash dumps actionable, but must be deleted before the next Debug-opt build. Other generated targets remain visible and fail the check; only the exact Debug-opt `.gitignore` rule and the matching `.gitattributes` release-export exclusions are allowed. This helps catch stale fast-compile intermediates and forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwithexact-same-source-files) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe)).
+Verifies `CvGameCoreDLL/Project/temp_files/` exists through its zero-byte tracked placeholder and otherwise contains only the optional locally ignored `Debug-opt` target. That target is retained because its exact matching PDB makes crash dumps actionable, but must be deleted before the next Debug-opt build. Other generated targets remain visible and fail the check; only the exact Debug-opt `.gitignore` rule and the matching `.gitattributes` release-export exclusions are allowed.
+
+This helps catch stale fast-compile intermediates and forgetting to replace the committed DLL after compiling (see also [KI#38](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#38---no-idea-why-sometimes-compile-mysteriouslystrangelyinconsistently-fails-and-recompiling-succeeds-underwithexact-same-source-files) and [KI#38.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#382---weird-dll-xml-errors-at-launch-solved-by-recompiling-the-exact-same-dll-cosmic-ray-2-or-something-else-maybe-or-whatever-maybe)).
 
 ### `build/line_endings.py`
 

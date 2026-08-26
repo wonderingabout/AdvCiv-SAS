@@ -274,6 +274,8 @@ scaled WarUtilityAspect::netLostAssetScore(PlayerTypes eVictim, PlayerTypes eTo,
 	scaled const rFromBlockade = fixp(0.1) * rBlockadeMultiplier * (rTotal - rNetLoss);
 	rNetLoss += rFromBlockade;
 	rNetLoss += lossesFromFlippedTiles(eVictim, eTo); // advc.035
+	// <!-- custom: Flipped-tile loss is an exclusive-radius land-asset category, so include that category's full value in the denominator rather than comparing its losses with city assets alone. See KI#456. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	rTotal += flippedTileAssetScore(eVictim);
 	if (prTotalScore != NULL)
 		*prTotalScore = rTotal;
 	return rNetLoss;
@@ -380,12 +382,25 @@ scaled WarUtilityAspect::lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSourc
 	return r;
 }
 
-// advc.035:
-scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo) const
+// <!-- custom: Use the same player-apportioned category total for the flipped-tile numerator and netLostAssetScore denominator. This keeps the loss ratio within one coherent asset domain under OWN_EXCLUSIVE_RADIUS=1. See KI#456. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled WarUtilityAspect::flippedTileAssetScore(PlayerTypes eVictim) const
 {
 	if (!GC.getDefineBOOL(CvGlobals::OWN_EXCLUSIVE_RADIUS))
 		return 0;
-	scaled r;
+	TeamTypes const eVictimTeam = TEAMID(eVictim);
+	if (GET_TEAM(eVictimTeam).getTotalLand(false) <= 0)
+		return 0;
+	return scaled(125, MemberIter::count(eVictimTeam));
+}
+
+
+// advc.035:
+scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes eTo) const
+{
+	// <!-- custom: Derive the loss from the same apportioned exclusive-radius category total added to the shared denominator. See KI#456. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled const rTileAssetScore = flippedTileAssetScore(eVictim);
+	if (rTileAssetScore <= 0)
+		return 0;
 	int iVictimLostTiles = 0;
 	vector<TeamTypes> aeTo;
 	if (eTo == NO_PLAYER)
@@ -403,15 +418,11 @@ scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes
 	// <!-- custom: Use the explicit victim's team when this helper evaluates a teammate or vassal instead of the aspect rival. The lost-tile cache is team-owned, so compare its significance with one team threshold, normalize it by team land and apportion the result across living member callbacks.
 	// Player land and assigned-member count made the same physical loss depend on roster partition. See KI#432 and KI#465. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	TeamTypes const eVictimTeam = TEAMID(eVictim);
-	int const iVictimTeamMembers = MemberIter::count(eVictimTeam);
 	if (std::abs(iVictimLostTiles) <= 4)
 		return 0;
 	int const iVictimLandTiles = GET_TEAM(eVictimTeam).getTotalLand(false);
-	int const iWeightFactor = 125;
-	r = scaled(iWeightFactor * iVictimLostTiles, std::max(5, iVictimLandTiles));
-	// Tiles are counted per team, but this function gets called once per living rival player.
-	r /= iVictimTeamMembers;
-	return r;
+	// <!-- custom: Apply the lost share of team land to that matching category total instead of manufacturing a numerator on a different scale. See KI#456. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return rTileAssetScore * iVictimLostTiles / std::max(5, iVictimLandTiles);
 }
 
 
@@ -3829,65 +3840,74 @@ void PublicOpposition::evaluate()
 }
 
 
-void Revolts::evaluate()
+// <!-- custom: The old rival loop preserved city identities across calls but reset the loss numerator and asset denominator for each rival, making the sum depend on which rival encountered a city first.
+// Build one scenario-wide city union and one matching ratio instead. See KI#455. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int Revolts::preEvaluate()
 {
-	/*	The war against eThey occupies our units while revolts break out
-		in the primary areas of eThey */
-	if (!militAnalyst().isWar(eWe, eThey) || kOurTeam.AI_isPushover(eTheirTeam))
-		return;
 	scaled rLossesFromRevolts;
 	int iTotalAssets = 0;
-	FOR_EACH_AREA(pArea)
+	std::set<PlotNumTypes> countedCities;
+	for (PlayerIter<MAJOR_CIV,KNOWN_POTENTIAL_ENEMY_OF> itRival(eOurTeam); itRival.hasNext(); ++itRival)
 	{
-		if (!kThey.AI_isPrimaryArea(*pArea))
+		CvPlayerAI const& kRival = GET_PLAYER(itRival->getID());
+		TeamTypes const eRivalTeam = kRival.getTeam();
+		// <!-- custom: Preserve the old per-rival admission rules while forming the scenario union: only analysis participants in a simulated non-pushover war can contribute primary areas. See KI#455. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!militAnalyst().isPartOfAnalysis(kRival.getID()) || !militAnalyst().isWar(eWe, kRival.getID()) || kOurTeam.AI_isPushover(eRivalTeam))
 			continue;
-		if (kOurTeam.isAtWar(eTheirTeam)) // Can't rely on AreaAIType otherwise
+		FOR_EACH_AREA(pArea)
 		{
-			AreaAITypes const eAreaAI = pArea->getAreaAIType(eOurTeam);
-			// Training defenders is the CityAI's best remedy for revolts
-			if (eAreaAI == AREAAI_DEFENSIVE || eAreaAI == AREAAI_NEUTRAL || eAreaAI == NO_AREAAI)
-			{
+			if (!kRival.AI_isPrimaryArea(*pArea))
 				continue;
+			if (kOurTeam.isAtWar(eRivalTeam)) // Can't rely on AreaAIType otherwise
+			{
+				AreaAITypes const eAreaAI = pArea->getAreaAIType(eOurTeam);
+				// Training defenders is the CityAI's best remedy for revolts
+				if (eAreaAI == AREAAI_DEFENSIVE || eAreaAI == AREAAI_NEUTRAL || eAreaAI == NO_AREAAI)
+					continue;
 			}
-		}
-		FOR_EACH_CITY(pCity, kWe)
-		{
-			if (!pCity->isArea(*pArea))
-				continue;
-			City const* pCacheCity = ourCache().lookupCity(pCity->plotNum());
-			// Count each city only once
-			if (pCacheCity == NULL || m_countedCities.count(pCity->plotNum()) > 0)
-				continue;
-			m_countedCities.insert(pCity->plotNum());
-			// <!-- custom: Per-city asset scores can be negative after maintenance, but possible revolt damage is a loss rather than a benefit. Use zero threatened value for such cities so they neither create positive war utility nor cancel another city's expected revolt losses. See KI#441. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-			int const iCityAssets = std::max(0, pCacheCity->getAssetScore());
-			iTotalAssets += iCityAssets;
-			scaled rRevoltProb = pCity->revoltProbability(false, false, true);
-			if (rRevoltProb <= 0)
-				continue;
-			/*	If we've been failing to suppress a city for a long time,
-				then it's probably not mainly a matter of distracted units. */
-			if (pCity->getNumRevolts() > GC.getDefineINT(CvGlobals::NUM_WARNING_REVOLTS))
+			FOR_EACH_CITY(pCity, kWe)
 			{
-				log("%s skipped as hopeless", m_kReport.cityName(*pCity));
-				continue;
-			}
-			scaled rLossMult = 5 * std::min(fixp(0.1), rRevoltProb);
-			if (rLossMult > 0)
-			{
-				log("%s in danger of revolt (%d percent; assets: %d)", m_kReport.cityName(*pCity), rRevoltProb.getPercent(), iCityAssets);
-				rLossesFromRevolts += iCityAssets * rLossMult;
+				// <!-- custom: Accept a city through any relevant rival area, but count it only once in this agent member's local scenario union; unlike the removed member set, this identity state cannot leak into a later agent evaluation. See KI#455. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (!pCity->isArea(*pArea) || countedCities.count(pCity->plotNum()) > 0)
+					continue;
+				City const* pCacheCity = ourCache().lookupCity(pCity->plotNum());
+				if (pCacheCity == NULL)
+					continue;
+				countedCities.insert(pCity->plotNum());
+				// <!-- custom: Per-city asset scores can be negative after maintenance, but possible revolt damage is a loss rather than a benefit. Use zero threatened value for such cities so they neither create positive war utility nor cancel another city's expected revolt losses. See KI#441. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int const iCityAssets = std::max(0, pCacheCity->getAssetScore());
+				iTotalAssets += iCityAssets;
+				scaled rRevoltProb = pCity->revoltProbability(false, false, true);
+				if (rRevoltProb <= 0)
+					continue;
+				/*	If we've been failing to suppress a city for a long time,
+					then it's probably not mainly a matter of distracted units. */
+				if (pCity->getNumRevolts() > GC.getDefineINT(CvGlobals::NUM_WARNING_REVOLTS))
+				{
+					log("%s skipped as hopeless", m_kReport.cityName(*pCity));
+					continue;
+				}
+				scaled rLossMult = 5 * std::min(fixp(0.1), rRevoltProb);
+				if (rLossMult > 0)
+				{
+					log("%s in danger of revolt (%d percent; assets: %d)", m_kReport.cityName(*pCity), rRevoltProb.getPercent(), iCityAssets);
+					rLossesFromRevolts += iCityAssets * rLossMult;
+				}
 			}
 		}
 	}
 	if (iTotalAssets <= 0)
-		return;
+		return 0;
 	/*	Dilute amortizationMultiplier because revolts make cities less useful
 		economically, but can also disrupt victory conditions. */
 	scaled rRevoltCost = (1 + kWeAI.amortizationMultiplier()) *
 			50 * rLossesFromRevolts / iTotalAssets;
-	m_iU -= rRevoltCost.round();
+	return -rRevoltCost.round();
 }
+
+
+// <!-- custom: Revolts now returns its scenario-wide result from preEvaluate; leave the mandatory per-rival hook empty so the same union is not charged again for every rival. See KI#455. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void Revolts::evaluate() {}
 
 
 void UlteriorMotives::evaluate()

@@ -10587,17 +10587,23 @@ Base AdvCiv 1.14 contains the same mixed ownership, making this an inherited Adv
 
 The repair preserves a plot-identity set across rival-member passes and counts each visible recommended plot once, while distinct sites and player-owned auto-raze city plots remain additive. Base AdvCiv 1.14 contains the same uncoordinated player-cache accounting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F131/provisional KI#454 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
-## 455 - (Pending inherited AdvCiv UWAI Revolts defect) Persistent city identity is combined with per-rival ratios
+## 455 - (Fixed inherited AdvCiv UWAI Revolts defect) Persistent city identity was combined with per-rival ratios
 
-`Revolts` keeps `m_countedCities` across rival passes so a threatened city is counted once, but resets its expected-loss numerator and asset denominator on every pass. It consequently sums ratios of arbitrary first-claim subsets: changing only player iteration order can double the result for the same cities and revolt probabilities.
+`Revolts` keeps `m_countedCities` across rival passes so a threatened city is counted once, but resets its expected-loss numerator and asset denominator on every pass. It consequently sums ratios of arbitrary first-claim subsets: changing only player iteration order can double the result for the same cities and revolt probabilities. Because one aspect object is also reused across the agent team's member evaluations, the persistent set can additionally make a later agent member skip city identities encountered for an earlier member.
 
-Base AdvCiv 1.14 contains the same mismatched state lifetimes, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. The union of threatened cities needs one corresponding numerator, denominator and normalization; removing the identity set or summing per-rival ratios would remain wrong. The issue remains pending. Found as F132/provisional KI#455 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+The repair evaluates Revolts once per agent member at scenario scope. It constructs the union of the agent's cities lying in any relevant rival primary area, then computes one expected-loss numerator and one asset denominator from that same union. Rival iteration order and arbitrary first ownership no longer partition the ratio, while each city remains counted once and the existing war, pushover, AreaAI, revolt-probability and hopeless-city rules remain intact.
 
-## 456 - (Pending inherited AdvCiv supported-configuration defect) Exclusive-radius tile loss is absent from its asset denominator
+Base AdvCiv 1.14 contains the same mismatched state lifetimes, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F132/provisional KI#455 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
-With the maintained non-default `OWN_EXCLUSIVE_RADIUS=1` configuration, `netLostRivalAssetScore` adds flipped-tile loss after freezing the total-asset denominator returned to callers. The numerator can therefore exceed the measurement domain and violate `Assistance`'s explicit loss-ratio-at-most-one assertion; other shared-helper consumers inherit the same mismatch.
+## 456 - (Fixed inherited AdvCiv supported-configuration defect) Exclusive-radius tile loss was absent from its asset denominator
 
-Base AdvCiv 1.14 contains the ordering introduced with advc.035, making this an inherited AdvCiv defect rather than an AdvCiv-SAS regression. A repair must extend the shared denominator consistently or model flipped tiles as a separate bounded dimension rather than merely clamping one consumer. The issue remains pending. Found as F133/provisional KI#456 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+With the maintained non-default `OWN_EXCLUSIVE_RADIUS=1` configuration, `netLostAssetScore` adds flipped-tile loss after freezing the total-asset denominator returned to callers. The numerator can therefore exceed the measurement domain and violate `Assistance`'s explicit loss-ratio-at-most-one assertion; other shared-helper consumers inherit the same mismatch.
+
+The repair models exclusive-radius land as the explicit asset category already implied by the numerator. Its full inherited category weight is apportioned across the victim team's living members and added to the shared total-asset denominator; flipped-tile loss uses that exact same category total multiplied by the lost share of team land. This keeps loss ratios within a coherent measurement domain rather than clamping an individual consumer. The default `OWN_EXCLUSIVE_RADIUS=0` still bypasses both values entirely.
+
+Base AdvCiv 1.14 contains the ordering introduced with advc.035, making this an inherited AdvCiv defect rather than an AdvCiv-SAS regression. Found as F133/provisional KI#456 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired Debug-opt DLL compiled successfully. A default `OWN_EXCLUSIVE_RADIUS=0` Huge Normal Pangaea autoplay with 16 players across 12 teams completed normally with a Space Race victory on turn 357. A direct supported-configuration run with `OWN_EXCLUSIVE_RADIUS=1`, 11 players across 8 teams and a Large Normal Pangaea map also completed normally with a Space Race victory on turn 469. This exercises the rebuilt Revolts lifecycle in both runs and the exclusive-radius asset category in the latter; the exact internal ratios remain source-verified because UWAI reporting was not inspected.
 
 ## 457 - (Pending inherited AdvCiv UWAI Ill Will defect) Team-war danger uses one player's army power
 
