@@ -3942,14 +3942,14 @@ void CvSelectionGroup::setAutomateType(AutomateTypes eNewValue)
 		return;
 
 	// If canceling automation, cancel on cargo as well.
-	FOR_EACH_UNIT_VAR_IN(pCargoUnit, *pPlot)
+	// <!-- custom: BtS applied this carrier-local transition to an entire land group after finding only one cargo member aboard this sea group. Preserve a cross-carrier cargo group's shared automation instead of canceling another carrier's cargo.
+	// Only groups exclusively carried by this sea group can receive the group-wide state change. See KI#477. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<CvSelectionGroup*> apLandCargoGroups;
+	getExclusiveLandCargoGroups(apLandCargoGroups);
+	for (size_t i = 0; i < apLandCargoGroups.size(); i++)
 	{
-		CvUnit* pTransportUnit = pCargoUnit->getTransportUnit();
-		if (pTransportUnit != NULL && pTransportUnit->getGroup() == this)
-		{
-			pCargoUnit->getGroup()->setAutomateType(NO_AUTOMATE);
-			pCargoUnit->getGroup()->setActivityType(ACTIVITY_AWAKE);
-		}
+		apLandCargoGroups[i]->setAutomateType(NO_AUTOMATE);
+		apLandCargoGroups[i]->setActivityType(ACTIVITY_AWAKE);
 	}
 }
 
@@ -4615,7 +4615,7 @@ void CvSelectionGroup::handleBoarded()
 		return;
 
 	std::vector<CvSelectionGroup*> apLandCargoGroups;
-	getLandCargoGroups(apLandCargoGroups);
+	getExclusiveLandCargoGroups(apLandCargoGroups);
 	std::vector<CvSelectionGroup*> aAwake;
 	for (size_t i = 0; i < apLandCargoGroups.size(); i++)
 	{
@@ -4654,7 +4654,7 @@ void CvSelectionGroup::resetBoarded()
 		return;
 	}
 	std::vector<CvSelectionGroup*> apLandCargoGroups;
-	getLandCargoGroups(apLandCargoGroups);
+	getExclusiveLandCargoGroups(apLandCargoGroups);
 	for (size_t i = 0; i < apLandCargoGroups.size(); i++)
 	{
 		if(apLandCargoGroups[i]->getActivityType() == ACTIVITY_AWAKE)
@@ -4663,16 +4663,33 @@ void CvSelectionGroup::resetBoarded()
 }
 
 
-void CvSelectionGroup::getLandCargoGroups(std::vector<CvSelectionGroup*>& kResult)
+// <!-- custom: Cargo aboard different sea groups can legitimately share one land selection group. Boarded, wake and automation states are group-wide, so return a cargo group only when every member is carried by this sea group; changing a mixed group would also change unrelated cargo, while splitting it here would destroy its shared automation and mission queue. See KI#476 and KI#477. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvSelectionGroup::getExclusiveLandCargoGroups(std::vector<CvSelectionGroup*>& kResult)
 {
 	// Akin to canCargoAllMove
 	FOR_EACH_UNIT_VAR_IN(pUnit, getPlot())
 	{
-		if (pUnit->isCargo() && pUnit->getDomainType() == DOMAIN_LAND &&
-			pUnit->getTransportUnit()->getGroup() == this)
+		CvUnit* pTransport = pUnit->getTransportUnit();
+		if (pTransport == NULL || pUnit->getDomainType() != DOMAIN_LAND ||
+			pTransport->getGroup() != this)
 		{
-			kResult.push_back(pUnit->getGroup());
+			continue;
 		}
+		CvSelectionGroup* pCargoGroup = pUnit->getGroup();
+		if (std::find(kResult.begin(), kResult.end(), pCargoGroup) != kResult.end())
+			continue;
+		bool bExclusive = true;
+		FOR_EACH_UNIT_IN(pCargoGroupUnit, *pCargoGroup)
+		{
+			CvUnit const* pCargoTransport = pCargoGroupUnit->getTransportUnit();
+			if (pCargoTransport == NULL || pCargoTransport->getGroup() != this)
+			{
+				bExclusive = false;
+				break;
+			}
+		}
+		if (bExclusive)
+			kResult.push_back(pCargoGroup);
 	}
 } // </advc.075>
 
