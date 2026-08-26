@@ -3865,8 +3865,7 @@ void Revolts::evaluate()
 		{
 			AreaAITypes const eAreaAI = pArea->getAreaAIType(eOurTeam);
 			// Training defenders is the CityAI's best remedy for revolts
-			if (eAreaAI == AREAAI_DEFENSIVE || eAreaAI == AREAAI_NEUTRAL ||
-				eAreaAI == NO_AREAAI)
+			if (eAreaAI == AREAAI_DEFENSIVE || eAreaAI == AREAAI_NEUTRAL || eAreaAI == NO_AREAAI)
 			{
 				continue;
 			}
@@ -3880,7 +3879,8 @@ void Revolts::evaluate()
 			if (pCacheCity == NULL || m_countedCities.count(pCity->plotNum()) > 0)
 				continue;
 			m_countedCities.insert(pCity->plotNum());
-			int const iCityAssets = pCacheCity->getAssetScore();
+			// <!-- custom: Per-city asset scores can be negative after maintenance, but possible revolt damage is a loss rather than a benefit. Use zero threatened value for such cities so they neither create positive war utility nor cancel another city's expected revolt losses. See KI#441. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int const iCityAssets = std::max(0, pCacheCity->getAssetScore());
 			iTotalAssets += iCityAssets;
 			scaled rRevoltProb = pCity->revoltProbability(false, false, true);
 			if (rRevoltProb <= 0)
@@ -3895,9 +3895,7 @@ void Revolts::evaluate()
 			scaled rLossMult = 5 * std::min(fixp(0.1), rRevoltProb);
 			if (rLossMult > 0)
 			{
-				log("%s in danger of revolt (%d percent; assets: %d)",
-						m_kReport.cityName(*pCity),
-						rRevoltProb.getPercent(), iCityAssets);
+				log("%s in danger of revolt (%d percent; assets: %d)", m_kReport.cityName(*pCity), rRevoltProb.getPercent(), iCityAssets);
 				rLossesFromRevolts += iCityAssets * rLossMult;
 			}
 		}

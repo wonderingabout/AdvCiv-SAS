@@ -420,7 +420,8 @@ void MilitaryAnalyst::prepareResults()
 			pNode->getConquests(playerResult(ePlayer).getConqueredCities());
 		if (pNode->anyCityLosses())
 			pNode->getCityLosses(playerResult(ePlayer).getLostCities());
-		pNode->getCapitulationsAccepted(m_capitulationsAcceptedPerTeam[ePlayer]);
+		// <!-- custom: This raw vector is indexed by TeamTypes; unlike overloaded GET_TEAM(PlayerTypes), operator[] cannot convert a player ID. Union every member node's team-level result into its actual team slot. See KI#442. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		pNode->getCapitulationsAccepted(m_capitulationsAcceptedPerTeam[TEAMID(ePlayer)]);
 	}
 	// Predict scores as current game score modified based on gained/ lost population
 	CvGame const& kGame = GC.getGame();

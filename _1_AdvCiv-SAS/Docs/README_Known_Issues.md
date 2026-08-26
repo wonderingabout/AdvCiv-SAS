@@ -10474,3 +10474,29 @@ Screenshots/files for this issue: same google drive folder link as KI#437.
 The repair follows the exact counter lifecycle: counted warfare resets TurnsAtPeace without resetting HasMet, so `HasMet > TurnsAtPeace` identifies actual war history and uses the exact current peace duration. Base AdvCiv 1.14 retains the same obsolete tolerance and rationale, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F116/provisional KI#439 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The same full autoplay recorded several short wars followed by peace, including four-turn wars ending on turn 245 and a five-turn war ending on turn 250. These transitions directly supplied the exact HasMet/TurnsAtPeace lifecycle that the old eight-turn tolerance misclassified, and the game completed without an observed issue.
+
+## 440 - (Pending inherited AdvCiv UWAI public-opposition defect) Hypothetical religion anger is capped by current anger
+
+`PublicOpposition::evaluate` estimates religion anger for the MilitaryAnalyst's simulated war state, including a rival that may become a new enemy, but caps that prospective contribution by the city's current `angryPopulation`. Current religion anger includes only actual enemies. A presently content city can therefore reduce a hypothetical new-war contribution to zero, while separate rival passes can conversely reuse the same currently angry population.
+
+Base AdvCiv 1.14 contains the same mixed-state calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must model scenario-level or marginal total anger without double-counting citizens across enemies; merely removing the cap would overstate overlapping anger sources. The issue remains pending for a dedicated implementation. Found as F117/provisional KI#440 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 441 - (Fixed inherited AdvCiv UWAI revolt defect) Negative city assets could become positive war utility
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1lNrYsROlgOE3lf-_ApZqFT8MI2DURukD?usp=sharing).
+
+`Revolts::evaluate` multiplies each threatened city's cached asset score by a positive expected revolt-loss factor and subtracts the result from war utility. Per-city asset score can be negative after maintenance. A threatened maintenance-heavy city could therefore contribute a negative expected loss, increase war utility when subtracted, or cancel genuine expected losses from other cities. Revolt damage, occupation and population loss are not the voluntary shedding of a maintenance liability.
+
+The repair clamps each city's threatened value to zero before it enters either the expected-loss numerator or total-asset denominator. Negative-value cities therefore neither reward war nor cancel another city's revolt exposure. This does not address KI#455's independent rival-order/denominator scope issue. Base AdvCiv 1.14 contains the same signed calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F118/provisional KI#441 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully. A Huge Quick Pangaea full UWAI autoplay with five two-player starting teams plus solo teams completed normally with a Time victory on turn 330. The exact revolt-asset inputs remain source-verified because UWAI reporting was not enabled.
+
+## 442 - (Fixed inherited AdvCiv UWAI capitulation defect) A team vector was written with player IDs
+
+Screenshots/files for this issue: same google drive folder link as KI#441.
+
+`MilitaryAnalyst::prepareResults` loops invasion-graph player nodes and gathers the capitulations accepted by each node into `m_capitulationsAcceptedPerTeam`, a raw vector sized and queried by `TeamTypes`. AdvCiv indexed that vector directly with `PlayerTypes`. Whenever a player's numeric ID differed from its team ID, accepted capitulations were stored in the wrong slot; multi-member master teams could also scatter their duplicate node results across unrelated team-numbered slots.
+
+The repair writes through `TEAMID(ePlayer)`. `getCapitulationsAccepted(TeamSet&)` merges into its destination, so all live member nodes naturally union their shared result into the actual master-team slot. Unlike the rejected KI#311, KI#387 and KI#436 `GET_TEAM(PlayerTypes)` findings, raw `std::vector::operator[]` has no type-aware overload and performs no player-to-team conversion. Base AdvCiv 1.14 contains the same raw index, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F119/provisional KI#442 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same autoplay directly exercised mismatched player/team IDs and accepted capitulations: multi-member teams 8, 5 and 1 became masters of teams 9, 10 and 4 respectively. The resulting vassal relationships persisted through later UWAI evaluations without an observed issue.
