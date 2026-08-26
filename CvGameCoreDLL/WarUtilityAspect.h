@@ -396,8 +396,13 @@ class Distraction : public WarUtilityAspect
 public:
 	Distraction(WarEvalParameters const& kParams)
 	:	WarUtilityAspect(kParams) {}
+	// <!-- custom: Clear team ownership before the generic rival callbacks begin for each agent member. See KI#449. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int preEvaluate();
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::DISTRACTION; }
+private:
+	// <!-- custom: Track hostile teams already charged for their shared alternative-war opportunity cost. See KI#449. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamSet m_evaluatedTeams;
 };
 
 

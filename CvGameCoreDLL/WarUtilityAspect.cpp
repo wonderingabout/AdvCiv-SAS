@@ -3635,17 +3635,37 @@ void Affection::evaluate()
 }
 
 
+// <!-- custom: Reset hostile-team ownership for each agent member's distinct military analysis. See KI#449. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int Distraction::preEvaluate()
+{
+	m_evaluatedTeams.clear();
+	return 0;
+}
+
+
 void Distraction::evaluate()
 {
 	if (kOurTeam.isAVassal() || kTheirTeam.isAVassal() ||
-		!militAnalyst().isWar(eWe, eThey))
+		!militAnalyst().isWar(eWe, eThey) ||
+		m_evaluatedTeams.count(eTheirTeam) > 0)
 	{
 		return;
 	}
-	if (!kWeAI.canReach(eThey) && !kThey.uwai().canReach(eWe))
+	// <!-- custom: One team war creates one alternative-war opportunity cost.
+	// Consume it once per agent member when either side can reach through any living target member, rather than once for every reachable teammate. See KI#449. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_evaluatedTeams.insert(eTheirTeam);
+	bool bCanReach = false;
+	for (MemberIter itMember(eTheirTeam); itMember.hasNext(); ++itMember)
 	{
-		log("No distraction from %s b/c neither side can reach the other",
-				m_kReport.leaderName(eThey));
+		if (kWeAI.canReach(itMember->getID()) || GET_PLAYER(itMember->getID()).uwai().canReach(eWe))
+		{
+			bCanReach = true;
+			break;
+		}
+	}
+	if (!bCanReach)
+	{
+		log("No distraction from %s b/c neither side can reach the other", m_kReport.teamName(eTheirTeam));
 		return;
 	}
 	FAssert(!m_kParams.isIgnoreDistraction());
@@ -3684,7 +3704,7 @@ void Distraction::evaluate()
 		{
 			rDistractionCost += fixp(5.5);
 			log("War plan against %s distracts us from (actual)"
-					" war plan against %s", m_kReport.leaderName(eThey),
+					" war plan against %s", m_kReport.teamName(eTheirTeam),
 					m_kReport.teamName(eAltTarget));
 			/*	The cached value is for limited war in 5 turns, which isn't
 				necessarily the best war plan against eAltTarget. */
@@ -3724,7 +3744,7 @@ void Distraction::evaluate()
 				rOpportunityCost.decreaseTo(15);
 				log("War against %s (%d turns) distracts us from potential war plan "
 						"against %s. Current utilities: %d/%d; Distraction cost: %d",
-						m_kReport.leaderName(eThey), iWarDuration,
+						m_kReport.teamName(eTheirTeam), iWarDuration,
 						m_kReport.teamName(eAltTarget), rWarUtilityVsThem.round(),
 						rWarUtilityVsAlt.round(), rOpportunityCost.uround());
 				rHighestOpportunityCost.increaseTo(rOpportunityCost);
@@ -3772,15 +3792,24 @@ void Distraction::evaluate()
 		(InvasionGraph could store elimination timestamps, but that seems too much
 		work to implement. Can guess the time well enough here by counting their
 		remaining cities.) */
-	if (rDistractionCost > 0 &&
-		(militAnalyst().isEliminated(eThey) ||
-		militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0))
+	// <!-- custom: The war is almost finished only when every living target member is eliminated in the simulation or the target team capitulates.
+	// Apply the reduction to the one team-war cost using the team's combined current cities. See KI#449. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bTheirTeamEliminated = true;
+	for (MemberIter itMember(eTheirTeam); itMember.hasNext(); ++itMember)
 	{
-		scaled rAlmostDoneMult(kThey.getNumCities(), 3);
+		if (!militAnalyst().isEliminated(itMember->getID()))
+		{
+			bTheirTeamEliminated = false;
+			break;
+		}
+	}
+	if (rDistractionCost > 0 && (bTheirTeamEliminated || militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTheirTeam) > 0))
+	{
+		scaled rAlmostDoneMult(kTheirTeam.getNumCities(), 3);
 		if (rAlmostDoneMult < 1)
 		{
 			log("Distraction cost reduced to %d percent b/c we're almost done with %s",
-					rAlmostDoneMult.getPercent(), m_kReport.leaderName(eThey));
+					rAlmostDoneMult.getPercent(), m_kReport.teamName(eTheirTeam));
 			rDistractionCost *= rAlmostDoneMult;
 		}
 	}

@@ -10549,11 +10549,15 @@ Base AdvCiv 1.14 contains the same mixed team/player calculation, making this an
 
 Base AdvCiv 1.14 contains the same player-partitioned gates, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must apply team-level safety and aggregate action thresholds once while retaining the aspect's player-specific inputs and scaling. The issue remains pending for a dedicated implementation. Found as F125/provisional KI#448 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
 
-## 449 - (Pending inherited AdvCiv UWAI Distraction defect) One alternative war is charged once per target teammate
+## 449 - (Fixed inherited AdvCiv UWAI Distraction defect) One alternative war was charged once per target teammate
 
 `Distraction::evaluate` measures the opportunity cost of a second war against the current target team, but the generic aspect loop repeats the calculation for every living member of that team. This repeats both the alternative-war opportunity cost and the fixed `+5.5` actual-war-plan nudge, while reachability and almost-finished-war details remain player-specific. The later utility normalization makes simple division unable to reproduce a single collective evaluation.
 
-Base AdvCiv 1.14 contains the same repeated team-war accounting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must aggregate the collective alternative-war cost once without erasing member-specific reachability and progress. The issue remains pending for a dedicated implementation. Found as F126/provisional KI#449 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+The repair evaluates each hostile team's shared opportunity cost once per agent member. It admits the calculation when either side can reach through any living target member, and applies the almost-finished reduction only when every living target member is eliminated in the simulation or the team capitulates; that reduction uses the target team's combined current cities. Thus player-keyed reachability and elimination no longer select or multiply a collective team-war cost.
+
+Base AdvCiv 1.14 contains the same repeated team-war accounting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F126/provisional KI#449 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired Debug-opt DLL compiled successfully. A Huge Normal Pangaea full autoplay with legacy Aggressive AI enabled and 16 players across 12 teams, including four two-player teams, exercised mixed-team wars before completing normally with a Domination victory on turn 465. Exact Distraction values remain source-verified because UWAI reporting was not enabled.
 
 ## 450 - (Pending inherited AdvCiv UWAI Military Victory defect) Global victory progress is capped once per rival player
 
