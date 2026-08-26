@@ -12,6 +12,7 @@
 #include "CvArea.h"
 #include "CvInfo_City.h"
 #include "CvInfo_Terrain.h"
+#include "CvInfo_GameOption.h" // <!-- custom: Needed for CvGameSpeedInfo::getTrainPercent in the bounded startup clock; CvGlobals only forward-declares the info type. See KI#444. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 
 UWAICache::UWAICache()
@@ -1146,17 +1147,18 @@ void UWAICache::updateTargetMissionCount(PlayerTypes ePlayer)
 
 scaled UWAICache::calculateThreatRating(PlayerTypes eRival) const
 {
-	// Can't reliably estimate yield rates in the early game
-	if (GC.getGame().getCurrentEra() <= GC.getGame().getStartEra())
+	// <!-- custom: Yield rates are unreliable off the bat, but waiting to leave the starting era never ends for a terminal-era start. Keep the era-advance shortcut and bound the grace period to 25 normalized turns, matching DramaticArc's startup clock. See KI#444. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvGame const& kGame = GC.getGame();
+	CvGameSpeedInfo const& kSpeed = GC.getInfo(kGame.getGameSpeedType());
+	scaled const rStartupSpeed = 2 / per100(kGame.getSpeedPercent() + kSpeed.getTrainPercent());
+	if (kGame.getCurrentEra() <= kGame.getStartEra() && kGame.getElapsedGameTurns() * rStartupSpeed < 25)
 		return 0;
-	/*	Check rival's cache to see if cache owner's capital is reachable
-		for rival (mild cheat) */
+	// Check rival's cache to see if cache owner's capital is reachable for rival (mild cheat)
 	CvCity const* pCapital = GET_PLAYER(m_eOwner).getCapital();
 	City const* pCacheCapital = NULL;
 	if (pCapital != NULL)
 	{
-		pCacheCapital = GET_PLAYER(eRival).uwai().getCache().lookupCity(
-				pCapital->plotNum());
+		pCacheCapital = GET_PLAYER(eRival).uwai().getCache().lookupCity(pCapital->plotNum());
 	}
 	if (pCacheCapital != NULL && !pCacheCapital->canReach())
 		return 0;

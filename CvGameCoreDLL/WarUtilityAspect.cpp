@@ -2299,10 +2299,9 @@ int KingMaking::preEvaluate()
 	PROFILE_FUNC();
 	m_winningFuture.clear();
 	m_winningPresent.clear();
-	/*	(Scoreboard ranks just aren't meaningful off the bat, even if the game
-		starts in the Modern era. Leaving m_winningPresent empty causes 0 utility
-		to be counted by evaluate.) */
-	if (m_eGameEra <= m_kGame.getStartEra())
+	// <!-- custom: Scoreboard ranks are unreliable off the bat, but waiting to leave the starting era never ends for a terminal-era start. Keep the era-advance shortcut and bound the grace period to 25 normalized turns, matching DramaticArc's startup clock. See KI#444. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled const rStartupSpeed = 2 / per100(m_kGame.getSpeedPercent() + m_kSpeed.getTrainPercent());
+	if (m_eGameEra <= m_kGame.getStartEra() && m_kGame.getElapsedGameTurns() * rStartupSpeed < 25)
 		return 0;
 	// Don't start or continue suicidal wars out of spite
 	if (militAnalyst().isEliminated(eWe))
@@ -4088,24 +4087,25 @@ void FairPlay::evaluate()
 	}
 	if (!bPowerTechFound)
 		return;*/
-	/*	Actually, never mind checking for starting tech. Don't want early rushes
-		on low difficulty either. */
+	// Actually, never mind checking for starting tech. Don't want early rushes on low difficulty either.
 	EraTypes const eStartEra = m_kGame.getStartEra();
-	scaled const rTrainMod = per100(m_kSpeed.getTrainPercent()) *
-			per100(GC.getInfo(eStartEra).getTrainPercent());
+	scaled const rTrainMod = per100(m_kSpeed.getTrainPercent()) * per100(GC.getInfo(eStartEra).getTrainPercent());
 	FAssert(rTrainMod > 0);
 
 	scaled rFairnessCost;
-	/*	All bets off by turn 100, but, already by turn 50, the cost may
-		no longer be prohibitive. */
-	int iTargetTurn = 100 + m_kGame.getStartTurn();
+	// All bets off by turn 100, but, already by turn 50, the cost may no longer be prohibitive.
+	// <!-- custom: AdvCiv's nonzero-start fix added the full start turn even though ordinary later-era starts already subtract StartPercent below, making protection outlast the remaining game. Reconstruct that normal baseline, preserve only genuinely extra start turns and normalize them to the same training-time scale as elapsed turns. See KI#443. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int iScheduledTurns = 0;
+	for (int i = 0; i < m_kSpeed.getNumTurnIncrements(); i++)
+		iScheduledTurns += m_kSpeed.getGameTurnInfo(i).iNumGameTurnsPerIncrement;
+	int const iStartPercent = GC.getInfo(eStartEra).getStartPercent();
+	int const iNormalEraStartTurn = (iScheduledTurns * iStartPercent) / 100;
+	int const iExtraStartTurns = std::max(0, m_kGame.getStartTurn() - iNormalEraStartTurn);
+	int iTargetTurn = 100 + (iExtraStartTurns / rTrainMod).uround();
 	// Allow earlier aggression on crowded maps
-	iTargetTurn = (iTargetTurn * ((1 + fixp(1.5) *
-			scaled(m_kGame.getRecommendedPlayers(), m_kGame.getCivPlayersEverAlive())) /
-			fixp(2.5))).uround();
+	iTargetTurn = (iTargetTurn * ((1 + fixp(1.5) * scaled(m_kGame.getRecommendedPlayers(), m_kGame.getCivPlayersEverAlive())) / fixp(2.5))).uround();
 	int const iElapsed = (m_kGame.getElapsedGameTurns() / rTrainMod).uround();
-	int iTurnsRemaining = iTargetTurn - iElapsed
-			- GC.getInfo(eStartEra).getStartPercent();
+	int iTurnsRemaining = iTargetTurn - iElapsed - iStartPercent;
 	if (iTurnsRemaining > 0)
 	{
 		log("Fair-play turns remaining: %d", iTurnsRemaining);

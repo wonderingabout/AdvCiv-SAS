@@ -19651,3 +19651,324 @@ LOCAL RECONCILIATION AFTER C015-WIP11 IMPORT
 - ChatGPT-5.6-Sol's C015-WIP07 through WIP11 append remains verbatim as evidence. Its practical-6270 source baseline predates the reviewed KI#432/KI#433 commits and the current KI#436-KI#439 worktree review, but those changes do not modify `CvSelectionGroup.cpp` or invalidate the appended file-015 analysis.
 - F113 / KI#436 is now documented in Known Issues as the same rejected overloaded-`GET_TEAM(PlayerTypes)` false positive already controlled by KI#311 and KI#387. F114-F116 / KI#437-KI#439 are independently reviewed and repaired in the current worktree. The DLL compiled successfully, and a full Huge Quick mixed-team UWAI autoplay recorded several four- and five-turn wars ending in peace before completing normally with a Space Race victory on turn 268; their C014 evidence remains authoritative and separate from this imported file-015 continuation.
 - F148-F151 / provisional KI#471-KI#474 are collision-free against the current reviewed Known Issues ledger. Together with F143-F147 / provisional KI#466-KI#470, they remain provisional while file 015 is open at C015-WIP11; no implementation is promoted from the imported append. (GPT-5.6-Sol)
+
+
+===============================================================================
+C015-WIP12 APPEND -- F152 same-group pathfinder membership invalidation defect
+===============================================================================
+
+F152 / provisional KI#475 -- CONFIRMED -- INHERITED ADVC/K-MOD PATH-CACHE DEFECT,
+CURRENT SAS SAME-TURN SETTLER-ESCORT TRIGGER
+GROUP MEMBERSHIP CAN CHANGE MOVEMENT LEGALITY WITHOUT INVALIDATING REUSABLE PATH DATA
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT DEFECT ROOT.
+- The reusable GroupPathFinder architecture and missing membership invalidation
+  are already present in Base AdvCiv 1.14's K-Mod-derived pathfinder line.
+- Current SAS supplies a deterministic same-turn trigger through its Settler
+  city-escort attachment and a shipped equal-move restrictive escort (Chariot).
+- Civ4CE/BtS uses the older executable FAStar pathfinder; this audit does not
+  establish the same node-cache defect there, so ancestry is pinned no earlier
+  than the AdvCiv/K-Mod-derived GroupPathFinder implementation.
+
+Broken cache contract:
+- CvSelectionGroup::generatePath uses the shared reusable GroupPathFinder and
+  binds it through GroupPathFinder::setGroup(*this, flags, maxPath).
+- setGroup resets when the CvSelectionGroup POINTER changes, or when relevant
+  movement flags change. It does not detect a changed member list inside the
+  same group object.
+- CvSelectionGroup::addUnit and removeUnit mutate m_units without calling
+  invalidateGroupPaths. CvUnit::joinGroup reaches exactly those operations.
+- invalidateGroupPaths is currently used when the emptied group is killed, not
+  whenever a surviving group's membership changes.
+- GroupStepMetric::canReuseInitialPathData itself warns that its reuse key does
+  not catch every significant change. In the current implementation it accepts
+  reuse when recalculated initialMoves equals the cached start-node moves.
+- Membership can change much more than that key: feature/terrain legality,
+  all-terrain movement, movement costs, combat/danger inputs and group strength,
+  while leaving the minimum current moves unchanged.
+
+Why stale nodes alter later results:
+- KmodPathFinder caches initialized nodes across generatePath calls with the same
+  start. resetNodes is deliberately skipped when the cached start data is judged
+  reusable.
+- processChild calls GroupStepMetric::canStepThrough ONLY for an UNINITIALIZED
+  child node. Already-initialized children are reused without rerunning current
+  group movement legality.
+- Conversely, a newly examined impossible intermediate tile is permanently set
+  PATHNODE_CLOSED, with the source comment explicitly assuming that it can never
+  become enterable on a later generatePath call (except as destination).
+- That assumption is valid only while the movement-relevant group state remains
+  equivalent. Changing members of the same group violates it.
+- The destination fast path is even clearer: if the destination node was already
+  initialized, generatePath immediately reuses it as m_pEndNode; an already-found
+  cached path is not reconstructed under the new member set before success is
+  reported.
+
+Deterministic current-SAS same-turn reproduction:
+1. Use an AI UNIT_SETTLER standing in one of its own cities, unescorted and with
+   its full 2 moves. Give the player at least one currently considered city site
+   reachable only by crossing a neutral/foreign Forest or Jungle intermediate
+   tile.
+2. Keep at least three healthy local defenders so the shipped default
+   SAS_AI_SETTLER_ATTACH_CITY_ESCORT_MIN_HEALTHY_CITY_DEFENDERS_LEFT = 2 permits
+   one defender to be reassigned. Make the best eligible local escort a healthy
+   UNIT_CHARIOT with its full moves.
+3. Current UNIT_SETTLER has iMoves=2 and no feature-impassability. During
+   AI_settleMove, before AI_found is called, the city-site scan invokes
+       generatePath(kSite, MOVE_NO_ENEMY_TERRITORY, true)
+   on the Settler-only group. The neutral Forest/Jungle route is legal and its
+   nodes/destination are cached in the shared finder.
+4. AI_settleMove then calls AI_found with the SAME movement flags.
+5. At the start of AI_found, current SAS calls SAS_tryAttachCityEscortToSettler
+   while the Settler is unescorted in its own city. The helper chooses a healthy
+   defender by base combat strength and joins it directly to pSettlerGroup.
+6. Current UNIT_CHARIOT is a valid canDefend escort candidate, has iMoves=2, and
+   is feature-impassable in Forest and Jungle outside its own team's territory.
+   UNITAI_SETTLE's group-first value remains above UNITAI_ATTACK, so the Settler
+   also remains group head after attachment.
+7. Because both fully ready units have 2 moves, the group's minimum moves after
+   attachment still equals the cached Settler-only start-node moves. Same group
+   pointer + same start + same relevant flags + same initialMoves therefore pass
+   the existing reuse checks despite the new movement restriction.
+8. AI_found immediately pathfinds the same city-site set again. The cached route
+   or destination reached while the group was Settler-only can be reported as
+   reachable even though the newly attached Chariot makes the required neutral
+   Forest/Jungle step illegal.
+
+Concrete gameplay consequence:
+- AI_found trusts the stale successful generatePath result when selecting
+  pBestFoundPlot / pBestPlot and then returns true after pushing its
+  MISSION_MOVE_TO for the cached end-turn plot.
+- AI mission commands execute immediately. CvSelectionGroup::groupPathTo uses
+  the separately cleared alternate finder, now with the actual Settler+Chariot
+  composition. If the stale selected step/target requires the impassable feature
+  and has no legal alternate route, this fresh execution path correctly fails.
+- continueMission_bulk marks the MOVE_TO done on that no-path result and removes
+  the mission. But AI_found has already returned true to AI_settleMove, whose
+  caller returns for the turn. Thus the cache mismatch can deterministically
+  produce a selected Settler target/move that immediately evaporates and wastes
+  that AI update/turn instead of evaluating the post-escort group coherently.
+- Even where a fresh alternate route exists, the main-finder result can still
+  supply stale path turns/end-turn choice and therefore distort site comparison
+  before the execution finder repairs the route. The root is incorrect reusable
+  path state, not merely the final mission failure shape.
+
+Reverse-direction risk:
+- The same cache hole also supports restrictive -> permissive membership changes:
+  an intermediate node closed under a departed restrictive member can remain
+  PATHNODE_CLOSED after the remaining group becomes able to traverse it.
+- A previous attempted Catapult/Swordsman AI_guardCity reproduction used this
+  direction, but it is deliberately NOT used as the current proof: current SAS
+  now forbids Catapults from UNITAI_COLLATERAL and their ATTACK_CITY ordering no
+  longer guarantees the restrictive non-head unit is the one ejected.
+- The shipped Settler+Chariot attachment above is simpler, current-tree exact and
+  immediate; no inter-group scheduling assumption is required.
+
+Ancestry/control comparison:
+- Base AdvCiv 1.14 has the same GroupStepMetric reuse warning, same setGroup
+  pointer/flag reset architecture, and no addUnit/removeUnit membership
+  invalidation. The structural defect is therefore inherited by SAS.
+- Current SAS's same-turn trigger is custom: AI_settleMove first pathfinds, then
+  AI_found may attach a defender directly to that still-live Settler group and
+  pathfind again.
+- Civ4CE/BtS instead routes CvSelectionGroup::generatePath through the executable
+  FAStar interface and an explicit bReuse parameter. Without visibility into an
+  equivalent cached-node contract, do not backdate F152 to Firaxis.
+
+Relation to other file-015 roots:
+- Distinct from F149 / KI#472 amphibious execution: F149 consumes a transport
+  landing mission after treating a pushed but individually illegal cargo move as
+  a successful landing attempt.
+- Distinct from F151 / KI#474 action cache: F151 collapses same-UnitType units
+  despite per-unit upgrade price; F152 is reusable map-path state surviving a
+  changed member set.
+- The current Settler escort hook belongs to KI#179, but KI#179's intended
+  behavior (attach a spare defender before exposed founding) is valid. It merely
+  exposes the inherited path-cache contract because attachment happens between
+  two reusable path searches.
+- No current reviewed Known-Issues collision for provisional KI#475 found.
+
+Repair direction:
+- Invalidate shared pathfinder state whenever membership of a surviving
+  CvSelectionGroup actually changes, rather than trying to enumerate every
+  movement/combat property in GroupStepMetric::canReuseInitialPathData.
+- addUnit/removeUnit (or the single lower ownership boundary reached by both)
+  are the natural correctness boundary. Invalidation should occur only when the
+  membership mutation really happens, and must cover both shared pathfinders if
+  either can still be bound to the group.
+- Review clearUnits/full teardown separately: kill already invalidates before the
+  group object is deleted, but normal surviving-group add/remove is the missing
+  case.
+- A narrower Settler-only reset would hide this reproduction but leave all other
+  regroup/split/merge callers vulnerable to the same stale-node assumption.
+
+
+C015-WIP12 CURRENT CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP12
+CURRENT FILE-015 NEW ROOTS: F143-F152 / provisional KI#466-KI#475
+NEXT ROOT ID: F153 UNUSED
+
+F152 is now promoted from the WIP11 closure challenge. Continue the remaining
+build/route/group predicates, group mutation/split/merge edge cases, action and
+interface surfaces, serialization/timers and inherited tail; then perform an
+adversarial F143-F152 closure pass before declaring file 015 complete. No
+repository source files were modified by this audit.
+
+
+===============================================================================
+C015-WIP13 APPEND -- F153 cross-transport cargo group wrongly boarded as a whole
+===============================================================================
+
+SOURCE RECONCILIATION AT THIS CONTINUATION
+-----------------------------------------
+- Current uploaded AdvCiv-SAS light source is practical 6272 / HEAD
+  202064cbf9db8a00ce0df4c0f36f8bc9027271cf. CvSelectionGroup.cpp remains
+  4,722 lines and is unchanged by the unrelated reviewed worktree edits.
+- Base AdvCiv 1.14 and Civ4CE are used locally for ancestry/control comparison.
+- C015-WIP12 remains an exact byte prefix of this checkpoint. No repository
+  source file is modified by the audit.
+
+
+F153 / provisional KI#476 -- CONFIRMED -- INHERITED ADVC.075 CARGO-CYCLING DEFECT
+SUPPORTED K-MOD CROSS-TRANSPORT CARGO GROUPS RECEIVE ONE TRANSPORT GROUP'S
+ACTIVITY_BOARDED STATE AS A WHOLE
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT DEFECT ROOT.
+- Introduced by Base AdvCiv's advc.075 boarded/cargo-cycling convenience layer,
+  interacting with a grouping state explicitly supported by K-Mod.
+- Current SAS inherits the same helper logic essentially unchanged.
+- Civ4CE/BtS has no ACTIVITY_BOARDED / resetBoarded / handleBoarded layer, so
+  this audit does not backdate the defect to Firaxis.
+
+Broken ownership/state contract:
+- CvSelectionGroup::startMission calls resetBoarded() for a HUMAN SEA group
+  before dispatching the mission switch. This is not limited to ship movement;
+  MISSION_SKIP and other accepted ship orders pass through the same call.
+- resetBoarded() calls getLandCargoGroups(), then changes every returned
+  selection group's activity from ACTIVITY_AWAKE to ACTIVITY_BOARDED.
+- getLandCargoGroups() correctly filters individual cargo units by carrier:
+      pUnit->getTransportUnit()->getGroup() == this
+  but then returns pUnit->getGroup(), i.e. the cargo unit's entire LAND
+  CvSelectionGroup.
+- That selection group is not required to consist solely of cargo carried by
+  this SEA selection group.
+- CvUnit::canJoinGroup only requires compatible owner, plot and domain (plus the
+  force-separate guard). It has no same-transport or same-transport-group rule.
+  Human GAMEMESSAGE_JOIN_GROUP reaches CvUnit::joinGroup directly, so land cargo
+  aboard different carriers on the same plot can legitimately share one group.
+- Activity is selection-group-wide. ACTIVITY_BOARDED is a waiting activity;
+  isCycleGroup excludes waiting groups from normal automatic unit cycling.
+  resetBoarded therefore applies ship A's "cargo should become inactive" state
+  to unrelated cargo on ship B whenever those cargo units share a group.
+
+Minimal deterministic human reproduction -- no ship movement required:
+1. Put two separate human sea transport selection groups, ship A and ship B, on
+   the same coastal water tile. Give each at least one land cargo unit.
+2. Manually select/group cargo A and cargo B. Same owner, same plot and both
+   DOMAIN_LAND satisfy canJoinGroup, so they form one AWAKE cargo group despite
+   being carried by different transport groups.
+3. Select only ship A and give it MISSION_SKIP (or any other legal order that
+   reaches startMission). Ship B receives no order and need not move.
+4. startMission on ship A calls resetBoarded before the mission switch.
+5. getLandCargoGroups sees cargo A because cargo A's carrier belongs to ship A's
+   group, but pushes cargo A's SHARED selection-group pointer.
+6. resetBoarded sets that whole shared group to ACTIVITY_BOARDED. Cargo B is now
+   BOARDED solely because ship A received an order, although cargo B's own
+   carrier ship B remained untouched.
+7. With normal unit cycling enabled, the shared cargo group is a waiting group
+   and is excluded from ordinary cycling. If ship B stays put, there is no
+   generic per-turn BOARDED wake that restores cargo B; advc.075 normally wakes
+   boarded cargo through the carrier-side movement/arrival handling. The player
+   can therefore silently lose the expected prompt for otherwise idle cargo on
+   an unrelated stationary transport. Manual selection still remains possible.
+
+Why this contradicts the feature's own intent:
+- Base AdvCiv history for advc.075 says: "When a ship is given an order, units
+  in cargo that are awaiting orders are treated as if they had just boarded the
+  ship" and become inactive until that ship reaches another destination.
+- The current implementation identifies an affected cargo MEMBER correctly by
+  its actual carrier, but stores the resulting inactivity on that member's whole
+  selection group. Cargo on a different ship is therefore swept into the state
+  transition even though that ship was not given the order.
+
+K-Mod cross-transport grouping is a supported state, not a fabricated API case:
+- K-Mod's changelog explicitly says cargo units stay grouped when their
+  transports move unless the transports carrying parts of the group are
+  separated, and its amphibious AI groups cargo before landing.
+- CvUnit::setXY contains corresponding live logic: after a transport moves its
+  cargo, it detects cargo groups that include units not transported by this
+  transport group and separates the left-behind members.
+- That separation deliberately preserves the cargo group's old activity when it
+  is not ACTIVITY_MISSION. Thus, if resetBoarded has already assigned the shared
+  group ACTIVITY_BOARDED, cargo on another carrier can be split off and retain
+  the wrongly inherited BOARDED state. This corroborates the ownership mismatch
+  but is not required by the simpler MISSION_SKIP reproduction above.
+
+Ancestry:
+- K-Mod commit/changelog 58faf9a7 (2011-12-16) explicitly supports cargo staying
+  grouped across transport movement until the relevant transports separate.
+- Base AdvCiv introduced ACTIVITY_BOARDED on 2019-02-18 to wake cargo when a ship
+  reaches land, then advc.075 on 2019-02-20 added reset-on-ship-order / ship-first
+  cycling behavior. A 2019-03-16 refinement groups awoken cargo for convenience.
+- Base AdvCiv 1.14 contains the same resetBoarded/getLandCargoGroups contract.
+- Civ4CE has no ACTIVITY_BOARDED or corresponding helpers. F153 is therefore an
+  AdvCiv-layer defect exposed by a legitimate K-Mod grouping invariant.
+
+Relation to earlier cargo observations:
+- During this audit getLandCargoGroups was already noted to append duplicate
+  CvSelectionGroup pointers when multiple cargo members belong to the same group.
+  That is at most redundant traversal here; it is NOT the F153 root.
+- Deduplicating those pointers would still set the same mixed-carrier cargo
+  group to ACTIVITY_BOARDED once, leaving cargo B wrongly affected.
+- The root is scope: a per-carrier/per-transport-group event is represented by a
+  state transition on a cargo selection group that may span other carriers.
+
+Repair direction:
+- Preserve advc.075's intended convenience, but apply "boarded because THIS sea
+  group got an order" only to cargo actually carried by that sea group.
+- When an affected cargo unit belongs to a selection group containing members
+  carried by other transport groups, partition/split the relevant cargo before
+  applying ACTIVITY_BOARDED, or otherwise represent the state at the correct
+  carrier/member scope.
+- Review handleBoarded symmetrically: it also consumes cargo-group pointers and
+  can wake/merge a whole mixed-carrier group based on one sea group's arrival.
+  A repair should avoid transferring wake/merge effects to unrelated carriers.
+- Do not treat pointer deduplication as the fix; it may be a small cleanup but
+  does not restore the ownership contract.
+
+
+NEIGHBOR CONTROL -- INITIAL MIXED PLUNDER ADMISSION IS NOT A NEW ROOT
+---------------------------------------------------------------------
+A mixed group such as a Destroyer that can plunder plus a Transport that cannot
+can pass group MISSION_PLUNDER because canDoMission is any-member, after which
+startMission puts the whole selection group in ACTIVITY_PLUNDER while only the
+eligible unit gets unit-local m_bBlockading state.
+
+This looks superficially similar to F143/F144, but current evidence does NOT
+justify a new F154 or a broadening of those roots:
+- the ineligible escort does not later cancel the eligible unit's blockade;
+- it has no stale unit-local blockading state to reconcile;
+- keeping a manually grouped escort waiting with the blockading group is a
+  plausible and internally consistent group-activity semantic.
+F143 remains specifically the Sea Patrol member that later wakes/cancels the
+valid patrol; F144 remains the destructive divergence after a formerly valid
+blockader loses legality and group wake clears still-valid blockaders.
+
+
+C015-WIP13 CURRENT CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP13
+CURRENT FILE-015 NEW ROOTS: F143-F153 / provisional KI#466-KI#476
+NEXT ROOT ID: F154 UNUSED
+
+Resume with the remaining boarded/handleBoarded symmetry and inherited tail,
+then run the adversarial current-snapshot verification matrix across F143-F153.
+If those roots survive and no uncovered contract family remains, close file 015
+without manufacturing F154. No repository source files were modified.
