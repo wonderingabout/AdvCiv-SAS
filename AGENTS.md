@@ -82,7 +82,7 @@ Compile errors (e.g., for a "Release" build) at:
 
 - By default, let the user compile the DLL; the local legacy Civ4 SDK toolchain is configured, and the user generally prefers to handle compilation to save agent time/tokens. Do not compile merely for routine verification when the user has said they will do it.
 - If compilation is needed or the user is fine with the agent doing it, follow the tested [AdvCiv-SAS DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md).
-- Core safety rule: before every full compile attempt, including every retry, `CvGameCoreDLL/Project/temp_files` must contain only its tracked zero-byte `.gitkeep`. After a successful build, verify the generated Release DLL and, when installing it, copy and verify it before cleaning; then return `temp_files` to `.gitkeep` only. Do not accept a DLL resumed from partial intermediates after a failed attempt.
+- Core safety rule: before every full compile attempt or retry, delete that configuration's exact `CvGameCoreDLL/Project/temp_files/<target>` folder so the accepted DLL never resumes from stale or partial intermediates. Target folders are isolated, so a retained Debug-opt folder does not affect a clean Release build. After a successful Debug-opt build, retain its ignored folder while its installed DLL is relevant so WinDbg can find the exact matching PDB path embedded in that DLL; delete it before the next Debug-opt build. Other generated temp targets remain unignored as a visible warning. Keep the parent folder's tracked zero-byte `.gitkeep` for fresh clones and CI.
 
 ## Comparison with Base AdvCiv 1.12's CvMainInterface.py processed to single-line
 

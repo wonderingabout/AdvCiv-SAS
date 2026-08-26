@@ -54,6 +54,8 @@ Note: the 18 civs DLL may often not be updated in this version as it is tedious 
 
 Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify AdvCiv-SAS (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-advciv-sas-its-development-version) for details.
 
+Update: now that i now seemingly know how to use .pdb files with WindDbg to inspect crashes or code issues precisely (it tells the line that crashed it seems), as was used to successfully resolve [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#4752---fixed-ki475-follow-up-regression-save-loading-dereferenced-the-already-destroyed-group-pathfinder) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#4753---fixed-independent-inherited-base-advciv-uwai-revival-crash-found-during-ki475-testing-a-dead-at-load-players-cache-retained-no_player), i may not update as often the Release DLL if it is too tedious, as i may have an already compiled locally Debug-Opt DLL, but that seems inconvenient to share for legal or sth reason (check if accurate as i don't know much about these) according to ChatGPT or Codex so i may not share it, meaning i may update not the Release DLL even for the 48 civs DLL as often as well.
+
 ### Any version
 
 With github you can actually download the mod at any version/commit if i'm not mistaken, but it is a bit less intuitive how to do it if you don't know how, todo write.

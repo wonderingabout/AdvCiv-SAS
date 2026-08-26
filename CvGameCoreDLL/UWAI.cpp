@@ -38,6 +38,14 @@ void UWAI::initNewPlayerInGame(PlayerTypes eNewPlayer)
 }
 
 
+// <!-- custom: Reviving a player that was dead when the save loaded needs the player UWAI initialization skipped by CvPlayerAI::read; restoring it fixed the reproducible WorldBuilder-exit crash. Do not reinitialize the whole team here: CvTeam::changeAliveCount already initializes a team returning from zero alive members, while a surviving teammate's UWAI state must remain intact. See KI#475.3. (GPT-5.6-Sol) -->
+void UWAI::initRevivedPlayerInGame(PlayerTypes eRevivedPlayer)
+{
+	WarEvaluator::clearCache();
+	GET_PLAYER(eRevivedPlayer).uwai().init(eRevivedPlayer);
+}
+
+
 void UWAI::processNewPlayerInGame(PlayerTypes eNewPlayer)
 {
 	GET_PLAYER(eNewPlayer).uwai().getCache().update(true);

@@ -34,7 +34,7 @@ This is a living release checklist for the user and LLM/AI helpers working on Ad
 
 ## 3. Build and technical validation
 
-- Follow the tested [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md). In particular, before every full compile attempt, `CvGameCoreDLL/Project/temp_files` must contain only its tracked zero-byte `.gitkeep`.
+- Follow the tested [DLL Compilation Guide](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README_DLL_Compilation.md). Before every full compile attempt, delete that configuration's exact `CvGameCoreDLL/Project/temp_files/<target>` folder. A retained ignored Debug-opt target is useful for its matching PDB and does not affect a clean Release build, but it must be deleted before rebuilding Debug-opt.
 - Build the Release DLL from the final candidate source. Do not accept a DLL resumed from partial intermediates after a failed compile.
 - Copy/verify the generated DLL as described by the compilation guide, then clean `temp_files` back to `.gitkeep`.
 - Rebuild or refresh alternate DLL variants that are part of the distributed release when their source changed, for example the default 48-civilization DLL and any maintained 18-civilization fallback.

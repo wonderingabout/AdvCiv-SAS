@@ -1024,6 +1024,8 @@ If not, it might be a bug to fix or something. I don't know too much about these
 
 As of now AdvCiv-SAS is rather stable so crashes should be rare now. Recently, the [KI#100 that fixed Base AdvCiv major CvSelectionGroup::plot crash](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#100---fixed-base-advciv-major-cvselectiongroupplot-crash) may also help address many such cases.
 
+Update: i now seemingly know how to use .pdb files with WindDbg as in [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#4752---fixed-ki475-follow-up-regression-save-loading-dereferenced-the-already-destroyed-group-pathfinder) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#4753---fixed-independent-inherited-base-advciv-uwai-revival-crash-found-during-ki475-testing-a-dead-at-load-players-cache-retained-no_player), still it is not guaranteed i'd be able to solve them or available or willing to do so, so the general guidance to seek more expert advice remains, especially if help i may (if i choose to) to offers would happen to fail.
+
 ## Not supported in AdvCiv-SAS
 
 - non-English translations: New or changed content in AdvCiv-SAS ships with English text only. This is because it is too tedious to translate them all, plus i'm fine with English being the only language in the game. If your game language isn’t English, those entries will still appear (in English).

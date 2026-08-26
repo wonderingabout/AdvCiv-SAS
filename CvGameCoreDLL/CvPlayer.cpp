@@ -9005,7 +9005,11 @@ void CvPlayer::setAlive(bool bNewValue)
 		GC.getAgents().playerRevived(getID());
 		// <advc.104r> (UWAI data gets deleted upon death)
 		if (getUWAI().isEnabled())
+		{
+			// <!-- custom: Dead-at-load players have no deserialized UWAI owner/cache. Initializing the revived player before updating that cache fixed the reproducible crash when exiting WorldBuilder after giving that player a unit. See KI#475.3. (GPT-5.6-Sol) -->
+			getUWAI().initRevivedPlayerInGame(getID());
 			getUWAI().processNewPlayerInGame(getID()); // </advc.104r>
+		}
 	}
 	// </advc.agent>
 	// Report event to Python

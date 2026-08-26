@@ -520,8 +520,15 @@ void CvSelectionGroup::updateTimers()
 		return;
 	} // </advc>
 	bool bCombat = false;
-	FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+	// <!-- custom: updateCombat can advance the winner and split a future member from this group through advc.153. Snapshot identities before any combat update, then fresh-lookup membership so the loop never resumes through a prefetched deleted list node while preserving K-Mod's multiple-queued-combat updates. See KI#479. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<IDInfo> aOriginalUnits;
+	FOR_EACH_UNIT_IN(pUnit, *this)
+		aOriginalUnits.push_back(pUnit->getIDInfo());
+	for (size_t i = 0; i < aOriginalUnits.size(); i++)
 	{
+		CvUnit* pUnit = ::getUnit(aOriginalUnits[i]);
+		if (pUnit == NULL || pUnit->getGroup() != this)
+			continue;
 		if (pUnit->isInCombat())
 		{
 			if (pUnit->isInAirCombat())
@@ -2883,6 +2890,10 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
 		passed along through a bunch of function calls. */
 	bool const bGroupAdvance = (!bCombat || bAIControl);
 	// </advc.153>
+	// <!-- custom: CvUnit::move can reenter conquest/culture handling and regroup a future member of this group. Snapshot identities before the first move, then fresh-lookup current membership instead of retaining live CLinkList nodes across movement side effects; this restores K-Mod practical 1230 / 1.46's lifetime invariant while preserving AdvCiv's two-stage movement. See KI#478. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<IDInfo> aOriginalUnits;
+	FOR_EACH_UNIT_IN(pUnit, *this)
+		aOriginalUnits.push_back(pUnit->getIDInfo());
 
 	/*	Move the combat unit first, so that no-capture units
 		don't get unnecessarily left behind. */
@@ -2903,8 +2914,11 @@ void CvSelectionGroup::groupMove(CvPlot* pPlot, bool bCombat, CvUnit* pCombatUni
 	{	// <advc.153>
 		if (!bGroupAdvance && iStage >= 1)
 			break; // </advc.153>
-		FOR_EACH_UNIT_VAR_IN(pUnit, *this)
+		for (size_t i = 0; i < aOriginalUnits.size(); i++)
 		{
+			CvUnit* pUnit = ::getUnit(aOriginalUnits[i]);
+			if (pUnit == NULL || pUnit->getGroup() != this)
+				continue;
 			//if ((pUnit->canMove() && ((bCombat && (!pUnit->isNoCapture() || !pPlot->isEnemyCity(*pUnit))) ? pUnit->canMoveOrAttackInto(pPlot) : pUnit->canMoveInto(pPlot))) || pUnit == pCombatUnit)
 			// K-Mod
 			if (pUnit == pCombatUnit)
@@ -4024,9 +4038,10 @@ void CvSelectionGroup::clearUnits()
 		m_eActivityType = ACTIVITY_AWAKE;
 	}
 	m_units.clear();
-	// <!-- custom: Full list clearing also changes every movement-relevant group property. Invalidate the reusable main finder; the alternate finder is reset before every execution use, and group deletion separately clears both stored group pointers.
-	// Do not reset the alternate finder during a live groupMove because its caller still consults that execution path afterward. See KI#475. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-	pathFinder().invalidateGroup(*this);
+	// <!-- custom: Full list clearing also changes every movement-relevant group property. Invalidate the reusable main finder while it exists; save loading destroys the map-owned static finder before the EXE clears selection groups, and the unconditional KI#475 call caused a reproducible null dereference.
+	// The alternate finder is reset before every execution use; do not reset it during a live groupMove because its caller still consults that execution path afterward. See KI#475 and KI#475.2. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (m_pPathFinder != NULL)
+		pathFinder().invalidateGroup(*this);
 	// <!-- custom: End -->
 }
 

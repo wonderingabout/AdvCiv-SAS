@@ -35,6 +35,8 @@ public:
 	void invalidateUICache();
 	// When a colonial vassal is created
 	void initNewPlayerInGame(PlayerTypes eNewPlayer);
+	// <!-- custom: A player already dead when a save is loaded has no deserialized UWAI owner/cache. Initializing that player before processing a later revival fixed the reproducible WorldBuilder-exit crash; CvTeam::changeAliveCount separately initializes a team returning from zero alive members. See KI#475.3. (GPT-5.6-Sol) -->
+	void initRevivedPlayerInGame(PlayerTypes eRevivedPlayer);
 	// When the colonial vassal has received a capital and tech
 	void processNewPlayerInGame(PlayerTypes eNewPlayer);
 	/*  true if UWAI fully enabled, making all decisions, otherwise false.

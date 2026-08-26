@@ -15,7 +15,8 @@
 /CvGameCoreDLL/Project/Profile-fast/
 /CvGameCoreDLL/Project/Release/
 /CvGameCoreDLL/Project/_Release-fast/
-# <!-- custom: do not ignore /CvGameCoreDLL/Project/temp_files/; keep only a tracked placeholder file inside it so workflow/local status checks can catch stale fast-compile temp files before commit; `.gitattributes` may export-ignore this marker from release archives. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5) -->
+# <!-- custom: Retain and ignore the current Debug-opt intermediates because its matching PDB makes crash dumps actionable. Other temp targets remain visible, and each target folder must be deleted before rebuilding that configuration. Keep the tracked parent placeholder for fresh clones and CI; `.gitattributes` export-ignores it. See KI#38 and KI#38.2. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
+/CvGameCoreDLL/Project/temp_files/Debug-opt/
 *.opensdf
 *.sdf
 *.suo
@@ -26,7 +27,9 @@ __pycache__
 /.agents/
 /.ruff_cache/
 /Logs/
+# <!-- custom: Ignore locally installed debug DLL variants; the compilation guide documents their matching retained Debug-opt symbols. (GPT-5.6-Sol) -->
 /Assets/CvGameCoreDLL_d.dll
+/Assets/CvGameCoreDLL_do.dll
 /LLM_Helpers/outputs/
 # <!-- custom: current commit's changelog/notes are temporary local scratch, useful for cumulative change writing or LLM assistance but not repository history. Reusable release changelog examples are tracked instead and can be export-ignored through .gitattributes. (ChatGPT-5.6-Sol) -->
 /changes.md

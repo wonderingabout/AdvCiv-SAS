@@ -157,9 +157,10 @@ SKIP_REL_DIRS = {"assets/res/cursors", TRACKED_COMMIT_DIFF_DIR.lower()}
 # FPK art packs and DLL binaries should be shared separately only when specifically needed.
 SKIP_SUFFIXES = {".pyc", ".pyo", ".dll", ".fpk", ".tga"}
 
-# Preserve this exact build-check/workflow folder in light-source archives, including any current contents.
-# It is intentionally exported even though release archives omit build temp files.
+# Preserve this build-check/workflow folder and its tracked marker in light-source archives.
+# Never include retained Debug-opt compiler intermediates or private symbols.
 PRESERVED_LIGHT_SOURCE_TEMP_DIR = "CvGameCoreDLL/Project/temp_files"
+PRESERVED_LIGHT_SOURCE_TEMP_MARKER = ".gitkeep"
 
 # Visual Studio database files can be very large and are regenerated locally.
 # Other small lone project files are useful enough to keep.
@@ -1782,9 +1783,11 @@ def iter_preserved_temp_files(repo_root: Path) -> Iterator[Path]:
     if not temp_dir.is_dir():
         print(f"Warning: missing folder skipped: {PRESERVED_LIGHT_SOURCE_TEMP_DIR}")
         return
-    for path in sorted(temp_dir.rglob("*"), key=lambda p: p.relative_to(repo_root).as_posix().lower()):
-        if path.is_file():
-            yield path
+    marker = temp_dir / PRESERVED_LIGHT_SOURCE_TEMP_MARKER
+    if marker.is_file():
+        yield marker
+    else:
+        print(f"Warning: missing temp-files marker skipped: {PRESERVED_LIGHT_SOURCE_TEMP_DIR}/{PRESERVED_LIGHT_SOURCE_TEMP_MARKER}")
 
 
 def iter_exact_file_exceptions(repo_root: Path) -> Iterator[Path]:
