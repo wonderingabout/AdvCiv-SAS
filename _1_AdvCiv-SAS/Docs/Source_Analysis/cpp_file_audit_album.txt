@@ -4,9 +4,9 @@ Generated from local light-source snapshot only; no web/GitHub lookup used.
 CURRENT PROGRESS SUMMARY
 Files complete: 14 / 169
 Files open: 1 / 169
-Current file: 015 CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) - OPEN AT C015-WIP06
-Current file-015 roots: F143-F147 / provisional KI#466-KI#470
-Next root ID: F148 unused
+Current file: 015 CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) - OPEN AT C015-WIP11
+Current file-015 roots: F143-F151 / provisional KI#466-KI#474
+Next root ID: F152 unused
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -33,7 +33,7 @@ QUEUE (current .cpp files, longest -> shortest)
 012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 013   6190 CvGameCoreDLL/CvTeam.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 014   5024 CvGameCoreDLL/WarUtilityAspect.cpp [COMPLETE - SEE C015 DURABLE CHECKPOINT]
-015   4722 CvGameCoreDLL/CvSelectionGroup.cpp [OPEN AT C015-WIP06]
+015   4722 CvGameCoreDLL/CvSelectionGroup.cpp [OPEN AT C015-WIP11]
 016   4592 CvGameCoreDLL/CitySiteEvaluator.cpp [PENDING]
 017   3700 CvGameCoreDLL/UWAIAgent.cpp [PENDING]
 018   2965 CvGameCoreDLL/CvGameInterface.cpp [PENDING]
@@ -18996,3 +18996,658 @@ LOCAL RECONCILIATION AFTER KI#433 REVIEW
 
 - F110 / KI#433 has now been independently revalidated against current source and AdvCiv 1.14. The reviewed worktree repair stores each winning team once, aggregates adjusted Score/Time contenders and predicted Domination population at team scope, adds team-shared predicted-vassal score once, and evaluates the coalition-wide rival state once through its team leader. Player-local Culture, Space, Conquest and Diplomacy inputs remain player-scoped before inserting their shared winning team. The DLL compiled successfully, and a full Huge UWAI autoplay with five two-player starting teams plus solo teams completed normally when Frederick's solo team won a Space Race victory on turn 427.
 - F109-F110 / KI#432-KI#433 are therefore both resolved in the reviewed worktree as separate commits. C015-WIP06 and provisional F145-F147 / KI#468-KI#470 remain otherwise unchanged. (GPT-5.6-Sol)
+
+===============================================================================
+C015-WIP07 CONTINUATION -- CURRENT PRACTICAL 6270 RECONCILIATION + F148
+===============================================================================
+
+RECONCILIATION AGAINST CURRENT SAS HEAD 5e2c3ee299 / PRACTICAL 6270
+-------------------------------------------------------------------
+- This continuation switches the active source base to the fresh
+  AdvCiv-SAS_light_source_20260826T082633 snapshot supplied after the user and
+  Codex reconciled C015-WIP06 into the repository album.
+- Current repository identity is main / HEAD
+  5e2c3ee29931b1fd800b495a6746b7787ea41c09 / practical commit count 6270.
+- The reviewed Known Issues ledger now contains independently repaired
+  KI#434-KI#435; those repairs do not alter CvSelectionGroup.cpp.
+- The imported album keeps F143-F147 / provisional KI#466-KI#470 as provisional
+  file-015 findings. Current CvSelectionGroup.cpp still contains the same relevant
+  mission/activity code as the WIP06 source surface.
+- The only tracked working-tree source/config change in this light snapshot is
+  diagnostic logging configuration in GlobalDefines_advciv_sas.xml; it does not
+  affect the findings below. Current source remains authoritative. (GPT-5.6-Sol)
+
+
+F148 / provisional KI#471 -- CONFIRMED -- INHERITED ADVCIV GROUP-ACTOR DEFECT
+AIR-GROUP REBASE CLEARS LIVE RECON VISIBILITY ONLY FOR THE HEAD AIRCRAFT
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT INHERITED DEFECT ROOT.
+- Static/lifecycle evidence strong; current-data reproduction is supported.
+- Introduced by the AdvCiv advc.029 rebase/recon cleanup itself, not by SAS.
+
+Intended behavior / history:
+- AdvCiv practical 1282 / commit 20703b98c917750d406f388e169309be3aa251b9
+  introduced the CvSelectionGroup::startMission hook.
+- Its v0.91 commit message explicitly says:
+    "Tiles made visible by recon are fogged when the recon unit is rebased."
+- The source comment likewise distinguishes an air attack from a rebase and says
+  that the recon plot should be cleared for rebase.
+
+Current implementation:
+- When an air selection group's MISSION_MOVE_TO destination is recognized as a
+  revealed air base, startMission executes:
+      getHeadUnit()->setReconPlot(NULL);
+- No loop clears the other air units in the group.
+
+Why the head-only assumption is invalid:
+1. Multiple same-owner air units can legally share one CvSelectionGroup.
+   CvUnit::canJoinGroup requires compatible owner/plot/domain but does not impose
+   a one-aircraft-per-group restriction.
+
+2. Recon state is per UNIT, not per selection group.
+   CvUnit::recon calls:
+      setReconPlot(pPlot);
+   and each CvUnit stores its own recon coordinates / m_iLastReconTurn.
+
+3. A live recon plot has gameplay state, not merely presentation state.
+   CvUnit::setReconPlot removes/adds:
+      changeReconCount(...)
+      changeAdjacentSight(getTeam(), RECON_VISIBILITY_RANGE, ..., this, true)
+   Thus a stale non-head recon plot continues to reveal map tiles.
+
+4. Recon deliberately survives into the next player turn.
+   CvUnit::doTurnPost clears only when:
+      GC.getGame().getGameTurn() > m_iLastReconTurn
+   CvPlayer::doTurn calls unit doTurnPost at the END of that player's turn.
+   Therefore a recon performed on turn T remains live throughout turn T+1 until
+   that next turn ends unless an earlier action such as rebase explicitly clears it.
+
+5. A grouped rebase moves every eligible air unit, not only the head.
+   CvSelectionGroup::groupPathTo treats DOMAIN_AIR as a direct destination move,
+   then groupMove loops the group's movable members and calls each unit's move().
+   CvUnit::move does NOT call setReconPlot(NULL).
+
+Concrete supported reproduction:
+- On turn T, aircraft A and aircraft B perform separate Recon missions (they may
+  target different plots). Both now have independent live recon plots.
+- Those recon effects survive through the beginning of turn T+1 by design.
+- On turn T+1, place/join A and B into the same air selection group. Same-owner,
+  same-plot, same-domain grouping is legal.
+- Give the group a MOVE_TO order to another revealed valid air base while both
+  aircraft can rebase.
+- startMission clears the recon plot of whichever aircraft happens to be the
+  group head.
+- groupPathTo/groupMove then rebases both aircraft.
+- The non-head aircraft's old recon plot is never cleared by the rebase path.
+  Its old remote tiles therefore remain visible until end-of-turn doTurnPost,
+  despite that aircraft having already relocated to another base.
+
+Why ordinary end-of-turn cleanup does not rescue the contract:
+- The advc.029 rebase hook exists precisely to remove recon visibility WHEN the
+  recon aircraft rebases, rather than letting the effect linger until the normal
+  lifetime expires.
+- Delayed cleanup at the end of T+1 therefore still violates the feature's stated
+  behavior and can leave stale remote military/map visibility during the rest of
+  the player's active turn after the aircraft has moved elsewhere.
+
+Ancestry:
+- The head-only cleanup was introduced with the advc.029 fix itself in practical
+  1282; the original patch already used getHeadUnit()->setReconPlot(NULL).
+- Later AdvCiv refactors changed the air-base predicate but retained the same
+  head-only actor.
+- Current SAS inherits that structure unchanged in this path.
+
+Relation to existing findings:
+- This is distinct from KI#398 / the Espionage actor repair: that issue selected
+  the wrong executor for a one-spy mission; F148 is per-unit persistent map
+  visibility that must be cleared for every aircraft participating in a group rebase.
+- It is also distinct from F146's head-only sleeping-Spy wake convenience: both
+  expose a head-only assumption, but one repairs group wake semantics and the
+  other repairs per-unit recon visibility ownership.
+- No collision with the current reviewed Known Issues ledger was found.
+
+Repair direction:
+- When an air MISSION_MOVE_TO is identified as a rebase, clear recon state for
+  every group member that will actually participate in that rebase, not merely
+  getHeadUnit().
+- A conservative implementation can iterate current group members and apply
+  setReconPlot(NULL) to each air unit that is movable / valid for the same
+  destination. Clearing all group's air recon plots at accepted rebase start is
+  also semantically close to the existing head-only behavior, but participation
+  matching is preferable if immobile/left-behind aircraft can coexist.
+- Preserve the distinction between rebase and air attack; ordinary MOVE_TO air
+  attacks should not prematurely clear recon through this hook.
+
+
+WIP07 CURRENT CURSOR
+--------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP07
+CURRENT FILE-015 NEW ROOTS: F143-F148 / provisional KI#466-KI#471
+NEXT ROOT ID: F149 UNUSED
+
+Continue mission timer/queue/path/build and the remaining inherited
+CvSelectionGroup surface, then adversarially re-challenge the file-015 ledger.
+No repository source files were modified by this audit.
+
+
+===============================================================================
+C015-WIP08 APPEND -- F148 participation broadening + head/mutation controls
+===============================================================================
+
+F148 / provisional KI#471 -- PARTICIPATION BROADENING
+------------------------------------------------------
+The head-only rebase cleanup has a second deterministic manifestation that
+strengthens the repair requirement.
+
+CvSelectionGroup::canDoMission(MISSION_MOVE_TO) deliberately treats DOMAIN_AIR
+differently from ordinary groups:
+
+    if (pUnit->getDomainType() != DOMAIN_AIR)
+        bValid = true; // air units don't have to move as a group
+    if (pUnit->canMove() != bValid)
+        return !bValid;
+
+For an air group, bValid remains false; encountering any movable aircraft can
+therefore make the mission available even if another aircraft in the same group
+(including the head) has no moves. groupPathTo/groupMove later moves only the
+members that can actually participate.
+
+Consequently the current accepted-rebase hook:
+
+    getHeadUnit()->setReconPlot(NULL);
+
+is wrong in both directions when the head is not a participant:
+
+- an immobile head aircraft can have its still-live recon plot cleared even
+  though it does NOT rebase and remains at the old air base;
+- a movable non-head aircraft that DOES rebase retains its own old recon plot
+  and stale remote sight until normal end-of-turn cleanup.
+
+This makes the preferred F148 repair more precise: clear recon state for the
+aircraft actually participating in the rebase (or otherwise reconcile cleanup
+with the same participation predicate used by group movement), rather than
+blindly clearing either only the head or every aircraft regardless of movement.
+
+
+HEAD-UNIT / GROUP-REPRESENTATIVE INVENTORY -- NO ADDITIONAL ROOT
+-----------------------------------------------------------------
+A full current CvSelectionGroup.cpp getHeadUnit() inventory was re-challenged
+after F146/F148.
+
+Clean / intentional representative uses:
+- doTurn Worker logging: diagnostic only.
+- showMoves: head-unit hostility can be presentation-ambiguous for mixed
+  always-hostile groups, but this controls move display/timing only; no hard
+  gameplay-hostility contract was established, so no F149.
+- playActionSound: one representative action sound for the selection group.
+- groupCycleDistance: explicitly compares group heads for UI cycling/order.
+- getX/getY/plot/area/getDomainType/getHeadOwner/getHeadTeam: grouping contracts
+  make these properties shared by all legal group members.
+- setTransportUnit: the earlier special-cargo/head-capacity concern remains
+  unreachable in shipped callers/data; current AI_load family uses ordinary
+  land cargo transports.
+- isAmphibPlot: head is used only to establish the sea-domain group contract;
+  same-domain grouping makes that safe.
+- split/merge/regroup bookkeeping: head identity is intentionally the group AI
+  representative and was already checked for ordering/lifetime safety.
+
+The K-Mod Spy wake (F146) and advc.029 recon cleanup (F148) remain the only
+current head-only shortcuts in this file for which the queried state is
+demonstrably UNIT-local while the code assumes the head represents all members.
+
+
+MUTATING-EXECUTOR LIFETIME CONTROL -- GOLDEN AGE
+-------------------------------------------------
+The startMission individual-unit loop was re-audited for actions that can delete
+OTHER members rather than merely the current unit.
+
+Golden Age is the strongest apparent case:
+- CvUnit::goldenAge calls CvPlayer::killGoldenAgeUnits(this).
+- killGoldenAgeUnits can select another Great Person, including another member
+  of the same selection group.
+- FOR_EACH_UNIT_VAR_IN would be unsafe if that action synchronously removed a
+  cached future linked-list node.
+
+However, killGoldenAgeUnits uses pBestUnit->kill(true), and CvUnit::kill with
+bDelay=true only calls startDelayedDeath() after finishMoves and RETURNS.
+It does not remove the unit from its group/list at that point. The initiating
+unit likewise uses kill(true). Actual list removal occurs later through
+doDelayedDeath()/kill(false), where VAR traversal safely removes the current
+node.
+
+Therefore the outer startMission traversal does not retain a pointer to a freed
+future node in this path. No new iterator-lifetime root was established.
+
+
+C015-WIP08 CURRENT CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP08
+CURRENT FILE-015 NEW ROOTS: F143-F148 / provisional KI#466-KI#471
+NEXT ROOT ID: F149 UNUSED
+
+Continue mission timer/queue/build and the middle group-predicate/path surface,
+then serialization and full file-015 adversarial closure. No repository source
+files were modified by this audit.
+
+
+===============================================================================
+C015-WIP09 APPEND -- F149 amphibious attempted-vs-successful cargo contract
+===============================================================================
+
+F149 / provisional KI#472 -- CONFIRMED -- CURRENT SAS AMPHIBIOUS GROUP DEFECT
+MOVABLE BUT ILLEGAL CARGO CAN CONSUME A DEFERRED LANDING WITHOUT ANY UNIT LANDING
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT DEFECT ROOT in inherited K-Mod/BtS group-amphib execution.
+- Current SAS data supplies a deterministic supported reproduction.
+- The structural executor behavior is inherited; SAS's deliberate land-unit
+  feature-impassability makes the false-positive "landing attempted" state easy
+  to reach in current gameplay.
+
+Relevant K-Mod intent:
+- K-Mod practical 461 / 7200489b5d added special handling so amphibious landings
+  can execute even if the TRANSPORT group itself has no moves. The commit's
+  example is a transport already on the coast: ordering it onto land should
+  unload cargo despite the ship having no movement left.
+- Practical 462 / a83a53016a moved that handling into startMission because the
+  first implementation did not work.
+- The resulting behavior intentionally preserves the transport MOVE_TO order
+  when no cargo group is currently ready to land: groupAmphibMove returns false,
+  so the transport mission is not consumed and can be retried on a later turn.
+- K-Mod practical 428 / 85a83db596 later deduplicated cargo groups, but retained
+  the same success accounting described below.
+
+Current executor:
+- groupAmphibMove gathers distinct land cargo groups.
+- For every cargo group with canAllMove()==true it executes:
+      kCargoGroup.pushMission(MISSION_MOVE_TO, target, ...);
+      bLanding = true;
+- It does NOT establish that the cargo group can legally enter/attack the target,
+  nor does pushMission return whether the pushed mission actually moved/landed.
+- Its return contract is documented as:
+      "Returns true if attempted an amphib landing..."
+- startMission interprets a true return by setting bDelete=true for the transport
+  group's MOVE_TO mission. continueMission/groupPathTo likewise treat the true
+  result as reason to stop the enclosing transport movement.
+
+Why canAllMove is insufficient:
+- It tests movement-point readiness only.
+- canStartMission(MISSION_MOVE_TO, ..., bCheckMoves=false) deliberately accepts a
+  different destination without checking path/terrain legality.
+- readyForMission/canDoMission for MOVE_TO likewise checks movement-point
+  uniformity, not destination entry legality.
+- The pushed cargo mission therefore can start synchronously and only later have
+  groupPathTo/pathfinding reject the destination.
+
+Concrete current SAS reproduction:
+1. Put at least two LAND cargo groups aboard one adjacent sea-transport group.
+2. Cargo group A is a current Chariot (or Catapult/Trebuchet) with movement
+   points remaining.
+3. Cargo group B is an ordinary infantry-type land unit that is legally able to
+   enter the target coastal Forest/Jungle, but has already spent its moves.
+4. Target a coastal Forest/Jungle outside our own cultural borders.
+5. Current SAS UNIT_CHARIOT (also Egyptian War Chariot, Catapult and Trebuchet)
+   has FEATURE_FOREST and FEATURE_JUNGLE marked impassable with no passable tech;
+   CvUnit::canMoveInto rejects those features outside own-team borders.
+6. The transport destination/path is nevertheless a legitimate amphibious
+   landing target because cargo B can legally enter it. This is exactly the kind
+   of heterogeneous cargo group for which the group path/landing machinery must
+   distinguish individual cargo groups.
+7. groupAmphibMove skips B because B.canAllMove()==false.
+8. A.canAllMove()==true, so it pushes MOVE_TO on A and immediately sets
+   bLanding=true.
+9. A's pushed mission starts immediately for a manual/non-appended command, but
+   its own groupPathTo cannot generate a legal path into the impassable feature;
+   its cargo mission is therefore canceled without landing.
+10. groupAmphibMove has already returned true. The enclosing transport mission
+    is consequently consumed/deleted even though NO cargo unit landed.
+11. On the following turn cargo B would again have movement and could legally
+    land, but the transport's deferred landing order has been lost.
+
+Partition/control:
+- If cargo A is absent, the same state with only immobile-but-legal cargo B makes
+  groupAmphibMove return false. The transport landing mission is retained and can
+  succeed when B regains moves.
+- Adding the independently ILLEGAL but currently movable cargo A therefore
+  changes "wait until a legal cargo group can land" into "consume the landing
+  order now although nobody lands." That is not a tuning choice; it is a
+  false-success signal in the executor contract.
+
+Current-data proof:
+- Base AdvCiv 1.14 has no land UnitInfo FeatureImpassable entries, while current
+  SAS deliberately defines Forest/Jungle impassability for Chariot, Egyptian War
+  Chariot, Catapult and Trebuchet. Thus the concrete feature reproduction is a
+  current SAS-supported state even though the groupAmphibMove machinery itself
+  is inherited.
+- The structural issue is more general than those XML additions: any movable
+  cargo group whose destination mission later fails can set the false landing
+  result before execution success is known.
+
+Relation to earlier findings:
+- Distinct from F145/KI#468. F145 is shared transport LOAD capacity being tested
+  independently before sequential loading. F149 concerns the later UNLOAD /
+  amphibious side, where a pushed-but-illegal cargo mission is counted as a
+  successful reason to consume the enclosing transport order.
+- Distinct from the earlier cargo-group deduplication negative control: K-Mod's
+  deduplication prevents the same group from being pushed multiple times, but
+  does not validate whether a unique group can actually execute the landing.
+
+Repair direction:
+- Do not set/return the group-amphib "landing happened / consume enclosing order"
+  signal merely because a cargo MOVE_TO mission was pushed.
+- Prevalidate that a candidate cargo group can legally enter/attack the landing
+  tile under the same movement/attack assumptions that its mission will use, or
+  otherwise obtain an execution-success result from the cargo action.
+- Preserve K-Mod's important deferred-order behavior: if no CURRENTLY READY and
+  LEGALLY LANDING cargo group exists, leave the transport MOVE_TO queued so a
+  temporarily immobile legal group can land on a later turn.
+- Be careful with mixed attack/nonattack cargo; the repair should use the actual
+  amphibious move/attack legality rather than simply checking movement points.
+
+
+C015-WIP09 CURRENT CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP09
+CURRENT FILE-015 NEW ROOTS: F143-F149 / provisional KI#466-KI#472
+NEXT ROOT ID: F150 UNUSED
+
+Continue path/cache reentrancy, mission/build queue ownership, timers,
+serialization, and remaining inherited helpers; then adversarially re-challenge
+the file-015 ledger. No repository source files were modified by this audit.
+
+
+===============================================================================
+C015-WIP10 APPEND -- F150 Air Patrol moveless-participant regression
+===============================================================================
+
+F150 / provisional KI#473 -- CONFIRMED -- INHERITED K-MOD REGRESSION
+IMMOBILE UNSUITABLE AIRCRAFT IS NOT SPLIT FROM A NEW AIR-PATROL GROUP
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT INHERITED DEFECT ROOT.
+- Introduced by K-Mod practical 1205 / 7027bf8ed2 during startMission
+  reorganization; current SAS and Base AdvCiv inherit it.
+- Current Fighter/Bomber data provides a deterministic human reproduction.
+
+Mission contract:
+- CvSelectionGroup::canDoMission(MISSION_AIRPATROL) returns true when a member
+  canAirPatrol and (when moves are checked) that eligible member can move.
+- The source comment explicitly says:
+      "this mission will automatically ungroup any unsuitable units."
+- startMission implements that concept through apUnitsLeftBehind and later splits
+  those units into a separate group.
+
+Historical control:
+- K-Mod practical 732 / 58beb5a942 (2012-05-09), which rewrote mission readiness,
+  explicitly had:
+      case MISSION_PARADROP:
+      case MISSION_AIRPATROL:
+          bAbandonMoveless = true;
+  Thus a unit with no moves was put into units_left_behind for BOTH missions.
+- The same implementation separately checked movable Air Patrol members with
+  canAirDefend and also put unsuitable ones into units_left_behind.
+- K-Mod practical 1205 / 7027bf8ed2 (2015-09-26), commit message
+  "Reorganised CvSelectionGroup::startMission for consistency", retained the
+  per-movable-unit Air Patrol canAirDefend split but changed the moveless
+  abandonment switch to:
+      case MISSION_PARADROP:
+          bAbandonMoveless = true;
+  Air Patrol silently disappeared from that first-stage split.
+- The commit itself says the reorganization was for consistency and that the
+  author suspected it fixed an older bug but no longer remembered which one;
+  there is no stated design decision to retain immobile non-interceptors in an
+  Intercept group.
+- AdvCiv's later advc.004c restructuring deleted the generic
+  bAbandonMoveless helper and explicitly replicated moveless handling in its
+  Paradrop block, while retaining the inherited Air Patrol per-movable check.
+  It therefore preserves rather than creates the K-Mod 1205 regression.
+
+Current executor:
+1. A valid Air Patrol command sets the WHOLE selection group to
+   ACTIVITY_INTERCEPT.
+2. The individual-unit loop begins with:
+       if (!pUnit->canMove())
+           continue;
+3. Only after that skip does MISSION_AIRPATROL run:
+       if (!pUnit->canAirDefend(plot()))
+           apUnitsLeftBehind.push_back(pUnit);
+4. Therefore an unsuitable aircraft with no moves is never considered for the
+   split.
+5. apUnitsLeftBehind is later detached, but the skipped immobile aircraft stays
+   in the original ACTIVITY_INTERCEPT group.
+
+Concrete current-data reproduction:
+- Current UNIT_FIGHTER:
+    Domain=DOMAIN_AIR
+    iInterceptionProbability=100
+- Current UNIT_BOMBER:
+    Domain=DOMAIN_AIR
+    iInterceptionProbability=0
+- Same-owner air units on the same plot may legally share one selection group.
+- Let the Bomber perform an action first so it cannot move; keep a Fighter in
+  the same group with movement remaining.
+- Air Patrol remains available because the Fighter canAirPatrol and can move.
+- Issue Air Patrol.
+- startMission sets ACTIVITY_INTERCEPT for the whole group.
+- The Fighter is a valid defender.
+- The Bomber hits the upfront !canMove() continue and never reaches the
+  !canAirDefend split.
+- No later turn-start code repairs the composition. On the next turn the Bomber
+  regains movement points, but ACTIVITY_INTERCEPT is a waiting activity and the
+  group remains on patrol; the Bomber has maxInterceptionProbability()==0 and
+  can never be selected as an interceptor.
+- The Bomber therefore remains hidden/parked inside the intercept group until
+  the player manually wakes or separates the group.
+
+Why ordinary intercept logic does not rescue this:
+- CvUnit::bestInterceptor requires canAirDefend and therefore simply ignores the
+  Bomber; it does not split or wake it.
+- CvSelectionGroup::doTurn has no "invalid Air Patrol member" reconciliation
+  equivalent to Sea Patrol's per-unit invalidity wake.
+- setActivityType(ACTIVITY_INTERCEPT) is group-wide and remains unchanged on
+  later turns.
+
+Relation to other file-015 roots:
+- Distinct from F143/KI#466. F143 Sea Patrol accepts a mixed group and then an
+  ineligible companion wakes/cancels the valid patrol on the next unit turn.
+  F150 Air Patrol was explicitly designed to split unsuitable members, but one
+  class of unsuitable member (no moves at command time) bypasses the split and
+  becomes trapped in the valid patrol group.
+- Distinct from F146/KI#469, which is a head-only Spy convenience wake.
+- No current reviewed Known-Issues collision found.
+
+Repair direction:
+- Restore the original K-Mod participation contract: for MISSION_AIRPATROL,
+  put nonparticipating/moveless members into apUnitsLeftBehind as well as movable
+  members that fail canAirDefend.
+- Prefer one explicit Air Patrol participation loop that classifies ALL group
+  members before/while setting Intercept, so future outer canMove shortcuts
+  cannot bypass the split.
+- Preserve the valid K-Mod behavior that one movable eligible Fighter may enter
+  patrol even when other selected aircraft cannot act; those others should be
+  left behind rather than block the command.
+
+
+POST-F149 MISSION / PATH / LIFETIME CONTROLS
+---------------------------------------------
+- Mission timer / mission queue ownership: no stale mission-node dereference
+  established. deleteMissionQueueNode deactivates the head before deletion;
+  K-Mod deliberately leaves next activation to callers. continueMission_bulk
+  refreshes pHeadMission after groupPathTo and before later queue use.
+- Build-completion cross-group mission deletion is plot-unit-list safe and
+  getMissionType/getMissionData1 are sentinel-safe on an empty queue.
+- CvSelectionGroup::doTurn caches pHeadUnit before calling each CvUnit::doTurn,
+  but CvUnit::doTurn only uses delayed death for turn-damage death and does not
+  synchronously unlink/regroup/upgrade the head. Actual removal occurs later in
+  doDelayedDeath; no dangling cached-head root established.
+- Shared GroupPathFinder composition caching remains a robustness candidate:
+  setGroup does not notice group membership changes and canReuseInitialPathData
+  intentionally admits that its movement-state key is incomplete; add/remove/
+  join do not invalidate the finder. However, a shipped same-group reuse sequence
+  producing a stale returned path has NOT yet been proven, so F151 is not spent
+  on that concern.
+- Serialization read/write remains paired for current uiFlag=3. Removed pre-v3
+  migration branches are old-save compatibility, which this project does not
+  promise; no current-format serialization defect established.
+
+
+C015-WIP10 CURRENT CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP10
+CURRENT FILE-015 NEW ROOTS: F143-F150 / provisional KI#466-KI#473
+NEXT ROOT ID: F151 UNUSED
+
+Continue remaining build/route/group predicates, path-cache reachability,
+commands/UI cache, timers/serialization, and inherited-tail surface; then
+adversarially re-challenge the file-015 ledger. No repository source files were
+modified by this audit.
+
+
+===============================================================================
+C015-WIP11 APPEND -- F151 upgrade action-cache representative defect
+===============================================================================
+
+F151 / provisional KI#474 -- CONFIRMED -- INHERITED BTS ACTION-CACHE DEFECT
+UPGRADE CACHE COLLAPSES SAME-TYPE UNITS DESPITE PER-UNIT UPGRADE PRICE/ELIGIBILITY
+-------------------------------------------------------------------------------
+Status:
+- NEW CURRENT INHERITED DEFECT ROOT.
+- Present already in BtS/Civ4CE; Base AdvCiv and current SAS inherit the same
+  one-representative-per-UnitType action-cache design.
+- Current SAS PROMOTION_LEADER gives a deterministic same-type eligibility
+  difference through its 100% upgrade discount.
+
+Cache contract:
+- CvGame::setupActionCache is DllExport and forwards to the currently selected
+  CvSelectionGroup. CvGame::canHandleAction is likewise DllExport and accepts the
+  bUseCache fast-path flag used by the executable/UI action-update path.
+- CvSelectionGroup::setupActionCache scans units that are isReadyForUpgrade(),
+  but stores only the FIRST unit encountered for each UnitTypes value:
+      if (eUnitType == m_aDifferentUnitCache[i]->getUnitType())
+          bFound = true;
+      ...
+      if (!bFound)
+          m_aDifferentUnitCache.push_back(pUnit);
+- CvSelectionGroup::canEverDoCommand(COMMAND_UPGRADE,...,bUseCache=true) then
+  tests only those cached representatives.
+- If none of the representatives can execute the requested target upgrade, it
+  returns false immediately. CvSelectionGroup::canDoCommand therefore never
+  reaches its later full FOR_EACH_UNIT_IN scan.
+
+Why UnitType is not a sufficient cache key:
+- CvUnit::canUpgrade first requires isReadyForUpgrade, but then, for a real
+  (bTestVisible=false) command, also compares the OWNER'S gold against this
+  individual unit's upgradePrice(eUnit).
+- upgradePrice subtracts:
+      (iPrice * getUpgradeDiscount()) / 100
+  where getUpgradeDiscount() is per-unit accumulated state from promotions.
+- Two units with identical UnitType, owner and plot can therefore have different
+  real upgrade affordability.
+
+Concrete current-data reproduction:
+1. Select/group two human units of the same upgradeable UnitType on the same
+   owned-team plot, both with movement available.
+2. Unit A is an ordinary copy.
+3. Unit B is otherwise the same type but carries PROMOTION_LEADER from a Great
+   General attachment.
+4. Current CIV4PromotionInfos.xml defines:
+      PROMOTION_LEADER
+      iUpgradeDiscount = 100
+5. Therefore, for the same target upgrade:
+      B.upgradePrice(target) = 0
+   while A retains the ordinary positive upgrade cost (absent another discount).
+6. Choose a treasury below A's ordinary price; zero gold itself is sufficient.
+   A cannot perform the real upgrade because canUpgrade fails the affordability
+   check, while B can.
+7. If setupActionCache encounters A first for this UnitType, it stores A and
+   suppresses B as a duplicate type.
+8. Cached canEverDoCommand(COMMAND_UPGRADE,target,...,true) tests A, gets false,
+   exhausts the one-element type representative set and returns false.
+9. canDoCommand returns false before its ordinary full-group scan can reach B.
+   The action fast path can therefore disable/hide a valid free upgrade present
+   in the selected group.
+10. If group ordering instead makes B the representative, the same selected set
+    returns true. Cache correctness consequently depends on which same-type unit
+    happens to be retained.
+
+Independent current-data control:
+- Reviewed SAS KI#220 already documents and fixes another UI/statistics defect
+  whose reproduction is precisely that a combat unit carrying PROMOTION_LEADER
+  can validly upgrade for ZERO gold. That independently confirms the free-upgrade
+  state is current and intentional rather than hypothetical XML.
+- isReadyForUpgrade does not erase the distinction; it checks movement and
+  own-team plot only, which A and B share.
+
+Ancestry:
+- Civ4CE BtS already contains the same setupActionCache:
+  one ready unit per UnitType.
+- BtS canEverDoCommand(COMMAND_UPGRADE,bUseCache) likewise tests only those
+  representatives and returns false when none can perform the target upgrade.
+- Base AdvCiv 1.14 retains the same design; current SAS changes are formatting,
+  constness and unrelated guards only.
+- This is therefore inherited from Firaxis BtS rather than introduced by K-Mod,
+  AdvCiv or SAS.
+
+Relation to existing issues:
+- Distinct from KI#220: that issue was Military Summary statistics dropping
+  zero-cost upgrades from a Python sample; F151 is the engine/UI action-cache
+  feasibility result for the selected group.
+- Distinct from AI upgrade-routing/ROI issues (KI#188.x / KI#217): this fast path
+  concerns action availability and collapses same-type HUMAN units before normal
+  unit-by-unit command testing.
+- No collision with the current reviewed Known-Issues ledger found.
+
+Repair direction:
+- Do not collapse real COMMAND_UPGRADE feasibility solely by UnitType.
+- Simplest correctness-first repair: cache every isReadyForUpgrade unit and let
+  canEverDoCommand test all cached ready candidates.
+- If retaining compression for UI performance, the key must include every
+  per-unit property that can change real upgrade legality/price; in practice that
+  is brittle (upgrade discount now, and potentially other per-unit state later),
+  so retaining all ready units is safer.
+- Preserve the purpose of the action cache (avoid repeated busy/readiness work)
+  without changing the result of the uncached full-group command test.
+
+
+PATHFINDER COMPOSITION-CACHE STATUS -- STILL NOT PROMOTED
+---------------------------------------------------------
+The shared GroupPathFinder concern remains a real robustness smell but still
+does not meet the current-root bar:
+- setGroup/cache reuse does not key on group membership;
+- add/remove/join do not reset the global pathfinder;
+- GroupStepMetric itself warns that its reuse condition misses significant
+  group changes.
+However, current human movement uses the explicitly cleared alternate finder,
+and no deterministic shipped AI sequence has yet been established where the same
+group pointer changes composition and then reuses a stale main-finder destination
+without an intervening reset/rebind. Keep this as a closure challenge rather than
+spending F152 from API possibility alone.
+
+
+C015-WIP11 CURRENT CURSOR
+-------------------------
+COMPLETED FILES: 14 / 169
+FILE 015: CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) -- OPEN
+PHYSICAL CHECKPOINT: C015-WIP11
+CURRENT FILE-015 NEW ROOTS: F143-F151 / provisional KI#466-KI#474
+NEXT ROOT ID: F152 UNUSED
+
+Continue build/route/group predicates, action/interface surfaces, remaining
+inherited tail and path-cache reachability; then adversarially re-challenge
+F143-F151 before file closure. No repository source files were modified.
+
+
+LOCAL RECONCILIATION AFTER C015-WIP11 IMPORT
+
+- ChatGPT-5.6-Sol's C015-WIP07 through WIP11 append remains verbatim as evidence. Its practical-6270 source baseline predates the reviewed KI#432/KI#433 commits and the current KI#436-KI#439 worktree review, but those changes do not modify `CvSelectionGroup.cpp` or invalidate the appended file-015 analysis.
+- F113 / KI#436 is now documented in Known Issues as the same rejected overloaded-`GET_TEAM(PlayerTypes)` false positive already controlled by KI#311 and KI#387. F114-F116 / KI#437-KI#439 are independently reviewed and repaired in the current worktree. The DLL compiled successfully, and a full Huge Quick mixed-team UWAI autoplay recorded several four- and five-turn wars ending in peace before completing normally with a Space Race victory on turn 268; their C014 evidence remains authoritative and separate from this imported file-015 continuation.
+- F148-F151 / provisional KI#471-KI#474 are collision-free against the current reviewed Known Issues ledger. Together with F143-F147 / provisional KI#466-KI#470, they remain provisional while file 015 is open at C015-WIP11; no implementation is promoted from the imported append. (GPT-5.6-Sol)

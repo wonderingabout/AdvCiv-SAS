@@ -3999,7 +3999,8 @@ void FairPlay::evaluate()
 		itOther.hasNext(); ++itOther)
 	{
 		CvPlayerAI const& kOther = *itOther;
-		if (kOther.getID() == eThey || !kTheirTeam.isHasMet(kOther.getTeam()))
+		// <!-- custom: A teammate of the target is not an independent third party. Counting one inflated the potential-enemy denominator and could even classify that teammate as the target's own ally. See KI#437. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kOther.getTeam() == eTheirTeam || !kTheirTeam.isHasMet(kOther.getTeam()))
 			continue;
 		iPotentialOtherEnemies++;
 		bool const bWar = (kTheirTeam.isAtWar(kOther.getTeam()) ||
@@ -4785,15 +4786,16 @@ void ThirdPartyIntervention::evaluate()
 	if (kWe.AI_getMemoryCount(eThey, MEMORY_DECLARED_WAR) +
 		kThey.AI_getMemoryCount(eWe, MEMORY_DECLARED_WAR) > 0)
 	{	// Avoid stalemates: don't be afraid of interventions forever
-		int iAtPeaceTurns = kOurTeam.AI_getAtPeaceCounter(eTheirTeam);
-		int iThresh = (5 * GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH)) / 3 - 1;
-		if (iAtPeaceTurns > iThresh)
+		int const iAtPeaceTurns = kOurTeam.AI_getAtPeaceCounter(eTheirTeam);
+		int const iThresh = (5 * GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH)) / 3 - 1;
+		// <!-- custom: AdvCiv computed a game-speed-normalized peace duration but discarded it, then gated and decayed intervention fear in raw turns. Use the prepared duration consistently for both operations. See KI#438. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled const rAtPeaceTurns = fixp(1.5) * iAtPeaceTurns /
+				(per100(m_kSpeed.getGoldenAgePercent()) + fixp(0.5));
+		if (rAtPeaceTurns > iThresh)
 		{
-			scaled rAtPeaceTurns = fixp(1.5) * iAtPeaceTurns /
-					(per100(m_kSpeed.getGoldenAgePercent()) + fixp(0.5));
-			scaled rMult = std::max(fixp(1/3.), 1 - scaled(iAtPeaceTurns - iThresh, 30));
+			scaled const rMult = std::max(fixp(1/3.), 1 - (rAtPeaceTurns - iThresh) / 30);
 			log("Taking intervention prob times %d percent b/c peace has lasted %d turns",
-					rMult.getPercent(), iAtPeaceTurns);
+					rMult.getPercent(), rAtPeaceTurns.round());
 			rInterventionProb *= rMult;
 		}
 	}
@@ -4950,11 +4952,11 @@ int DramaticArc::preEvaluate()
 			TeamTypes const eSecond = itSecond->getID();
 			if (itFirst->getID() != eSecond)
 			{
-				int iAtPeace = itFirst->getTurnsAtPeace(eSecond);
-				// With tolerance b/c the has-met counter isn't exact
-				if (abs(itFirst->AI_getHasMetCounter(eSecond) - iAtPeace) >= 8)
+				int const iAtPeace = itFirst->getTurnsAtPeace(eSecond);
+				// <!-- custom: HasMet and TurnsAtPeace are exact counters. Once counted warfare resets TurnsAtPeace, HasMet stays greater; AdvCiv's eight-turn "noise" tolerance instead misclassified short recent wars as eternal peace. See KI#439. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (itFirst->AI_getHasMetCounter(eSecond) > iAtPeace)
 					iLoopMinCounter = std::min(iLoopMinCounter, iAtPeace);
-				// (else assume that they've always been at peace)
+				// <!-- custom: Otherwise no counted war has occurred since contact. See KI#439. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			}
 		}
 		aiPeaceCounters.push_back(std::min(iMaxPeaceCounter, iLoopMinCounter));

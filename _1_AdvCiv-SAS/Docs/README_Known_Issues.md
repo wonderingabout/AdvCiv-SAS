@@ -10438,3 +10438,39 @@ Screenshots/files for this issue: [google drive folder link](https://drive.googl
 The repair divides each enemy-team contribution by that enemy team's `CIV_ALIVE` member count, exactly matching the living-enemy iterator that consumes the split and avoiding dilution by dead assigned members. `PublicOpposition` can then sum the per-player values back to the intended team contribution. Base AdvCiv 1.14 contains the wrong-side divisor, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F112/provisional KI#435 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The same compiled turn-500 autoplay exercised five two-player starting teams alongside solo teams, wars and a vassal relationship present from turn 100 through turn 400. This directly covered unequal team membership and live UWAI cache updates without an observed issue; the exact cached war-anger values remain source-verified rather than separately reported.
+
+## 436 - (Rejected false positive) GET_TEAM(PlayerTypes) deliberately converts through TEAMID
+
+The C014 audit provisionally flagged `GET_TEAM(ePlayer)` calls in `WarUtilityAspect.cpp` as raw player-to-team enum indexing. Complete include-context review showed that `CoreAI::getTeam(PlayerTypes)` and the parallel non-AI overload deliberately resolve the player's current team through `TEAMID`; the calls are type-correct and require no repair. This is the same overload contract documented by rejected KI#311 and KI#387. Retaining the rejection prevents the textual `GET_TEAM(PlayerTypes)` pattern from being reflagged without tracing its active overloads.
+
+Found as the former F113/provisional KI#436 during ChatGPT-5.6-Sol's C014 audit; independently rejected and documented with the help of GPT-5.6-Sol, thanks.
+
+## 437 - (Fixed inherited AdvCiv UWAI Fair Play defect) Target teammates counted as independent third parties
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1oXkp0VqCICLuJezZ46XVtYF9WaWELzUZ?usp=sharing).
+
+`FairPlay::evaluate` penalizes large dogpiles by estimating the target's other enemies and allies. Its player-local exclusion skipped only the currently evaluated target player, allowing another member of the same target team into the third-party loop. That teammate inflated the potential-enemy denominator and, while its team was at war, could even satisfy `AI_shareWar` against its own team and be subtracted as an ally of the target. Both paths reduced the intended dogpile penalty merely because the target had a teammate.
+
+The repair excludes the entire target team before counting or classifying third parties. Base AdvCiv 1.14 contains the same player-only exclusion, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F114/provisional KI#437 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully. A Huge Quick Pangaea full UWAI autoplay with five two-player starting teams plus solo teams completed normally with a Space Race victory on turn 268. Its mixed-team wars and late dogpiles exercised the repaired Fair Play environment without an observed issue; exact utility values remain source-verified because UWAI reporting was not enabled.
+
+## 438 - (Fixed inherited AdvCiv UWAI game-speed defect) Intervention fear discarded its normalized peace duration
+
+Screenshots/files for this issue: same google drive folder link as KI#437.
+
+`ThirdPartyIntervention::evaluate` prepares a game-speed-normalized duration for the policy that long peace should gradually reduce fear of intervention, but then discarded that value. Both the threshold and decay used raw turns instead. Normal speed concealed the error because the normalization factor is exactly one there; on slower speeds intervention fear decayed prematurely, while on faster speeds it decayed too slowly.
+
+The repair uses the prepared normalized duration consistently for both the long-peace threshold and subsequent decay. Base AdvCiv 1.14 and the original aspect introduction contain the same compute-and-discard sequence, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F115/provisional KI#438 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same compiled Quick-speed autoplay directly exercised a non-Normal game-speed context and extensive war/peace history, then completed normally on turn 268. The exact intervention-probability decay remains source-verified because UWAI reporting was not enabled.
+
+## 439 - (Fixed inherited AdvCiv UWAI Dramatic Arc defect) Short recent wars could be treated as perpetual peace
+
+Screenshots/files for this issue: same google drive folder link as KI#437.
+
+`DramaticArc::preEvaluate` compares exact HasMet and TurnsAtPeace counters to estimate global tension. It nevertheless retained an eight-turn tolerance based on an obsolete claim that HasMet was inexact. A real short war followed by one or two peace turns could therefore fall inside the tolerance and be classified as though the teams had always been at peace, undermining the aspect's purpose of reacting to recent warfare.
+
+The repair follows the exact counter lifecycle: counted warfare resets TurnsAtPeace without resetting HasMet, so `HasMet > TurnsAtPeace` identifies actual war history and uses the exact current peace duration. Base AdvCiv 1.14 retains the same obsolete tolerance and rationale, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F116/provisional KI#439 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same full autoplay recorded several short wars followed by peace, including four-turn wars ending on turn 245 and a five-turn war ending on turn 250. These transitions directly supplied the exact HasMet/TurnsAtPeace lifecycle that the old eight-turn tolerance misclassified, and the game completed without an observed issue.
