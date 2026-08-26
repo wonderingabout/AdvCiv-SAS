@@ -4168,11 +4168,20 @@ void FairPlay::evaluate()
 
 void Bellicosity::evaluate()
 {
-	if (kWe.isHuman() || !militAnalyst().isWar(eOurTeam, eTheirTeam) ||
-		!kWeAI.canReach(eThey))
-	{
+	// <!-- custom: Bellicosity compares losses for one hostile team war. Evaluate it through that team's leader once, but preserve reachability when any living member is reachable instead of depending on the representative player. See KI#446. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kWe.isHuman() || !militAnalyst().isWar(eOurTeam, eTheirTeam) || eThey != kTheirTeam.getLeaderID())
 		return;
+	bool bCanReach = false;
+	for (MemberIter itMember(eTheirTeam); itMember.hasNext(); ++itMember)
+	{
+		if (kWeAI.canReach(itMember->getID()))
+		{
+			bCanReach = true;
+			break;
+		}
 	}
+	if (!bCanReach)
+		return;
 	// One war is enough
 	if (kOurTeam.getNumWars() > 0 && !kOurTeam.isAtWar(eTheirTeam))
 		return;
@@ -4181,8 +4190,7 @@ void Bellicosity::evaluate()
 		Peter, Shaka and Sitting Bull. Just the suicidal types I need except
 		for Sitting Bull. Subtract peace-weight to exclude him - all the others
 		have a peace-weight near 0. */
-	int const iBellicosity = kOurPersonality.getBaseAttackOddsChange()
-			- kOurPersonality.getBasePeaceWeight();
+	int const iBellicosity = kOurPersonality.getBaseAttackOddsChange() - kOurPersonality.getBasePeaceWeight();
 	if (iBellicosity <= 0)
 		return;
 	scaled rOurMinusTheirLostPow;
@@ -4194,11 +4202,14 @@ void Bellicosity::evaluate()
 		if (eBranch == CAVALRY || eBranch == LOGISTICS || eBranch == NUCLEAR)
 			continue;
 		scaled const rOurLostPow = militAnalyst().lostPower(eWe, eBranch);
+		// <!-- custom: The same agent loss budget was reset for every rival member. Sum the hostile team's living-member losses first, then apply the anti-third-party cap once so ownership partition cannot change the result. See KI#446. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled rTheirLostPow;
+		for (MemberIter itMember(eTheirTeam); itMember.hasNext(); ++itMember)
+			rTheirLostPow += militAnalyst().lostPower(itMember->getID(), eBranch);
 		/*	If they lose much more than we do, chances are that a third party is
 			causing this. And don't want a warlike AI to attack a weak civ just
 			for sport. */
-		rOurMinusTheirLostPow += std::min(fixp(2.35) * rOurLostPow,
-				militAnalyst().lostPower(eThey, eBranch)) - fixp(0.75) * rOurLostPow;
+		rOurMinusTheirLostPow += std::min(fixp(2.35) * rOurLostPow, rTheirLostPow) - fixp(0.75) * rOurLostPow;
 		if (eBranch != HOME_GUARD) // Not tracked by cache, and not really relevant here.
 			rCurrentAggrPow += ourCache().getPowerValues()[eBranch]->power();
 	}
@@ -4207,8 +4218,7 @@ void Bellicosity::evaluate()
 	// A good war is one that we win, and that occupies many of our eager warriors.
 	scaled rGloryRate = rOurMinusTheirLostPow / rCurrentAggrPow;
 	rGloryRate.decreaseTo(1);
-	log("Difference in lost power: %d; present aggressive power: %d; bellicosity: %d",
-			rOurMinusTheirLostPow.uround(), rCurrentAggrPow.uround(), iBellicosity);
+	log("Difference in lost power: %d; present aggressive power: %d; bellicosity: %d", rOurMinusTheirLostPow.uround(), rCurrentAggrPow.uround(), iBellicosity);
 	m_iU += (2 * iBellicosity * rGloryRate).round();
 }
 
