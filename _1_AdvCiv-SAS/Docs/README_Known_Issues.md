@@ -498,6 +498,7 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [429 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Adjusted leaders were compared by raw score](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#429---fixed-inherited-advciv-uwai-kingmaking-defect-adjusted-leaders-were-compared-by-raw-score)\
 [430 - (Fixed inherited AdvCiv UWAI coalition defect) Our predicted side omitted existing vassals and teammate losses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#430---fixed-inherited-advciv-uwai-coalition-defect-our-predicted-side-omitted-existing-vassals-and-teammate-losses)\
 [431 - (Fixed inherited AdvCiv UWAI reporting defect) A missing vararg produced undefined output](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#431---fixed-inherited-advciv-uwai-reporting-defect-a-missing-vararg-produced-undefined-output)\
+[432 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Teammates and vassals reused the rival's assets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#432---fixed-inherited-advciv-uwai-kingmaking-defect-teammates-and-vassals-reused-the-rivals-assets)\
 [434 - (Fixed inherited AdvCiv UWAI AP defect) Conquests tested the conqueror instead of the old owner](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#434---fixed-inherited-advciv-uwai-ap-defect-conquests-tested-the-conqueror-instead-of-the-old-owner)\
 [435 - (Fixed inherited AdvCiv UWAI war-anger defect) Enemy contributions were divided by our team size](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#435---fixed-inherited-advciv-uwai-war-anger-defect-enemy-contributions-were-divided-by-our-team-size)\
 
@@ -10386,6 +10387,20 @@ When UWAI reporting is enabled and `UlteriorMotives` assigns a positive cost, it
 The repair passes the agent personality's `DeclareWarRefuseAttitudeThreshold`, which is the same value used immediately above to calculate the reported suspicion factor. A mechanical audit recorded in the C++ File Audit Album found no other format/argument-count mismatch in `WarUtilityAspect.cpp`. Base AdvCiv 1.14 contains the same incomplete call, making this an inherited AdvCiv UWAI reporting defect rather than an AdvCiv-SAS regression. Found as F108/provisional KI#431 during ChatGPT-5.6-Sol's open C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The same compiled multi-team autoplay completed normally. `REPORT_INTERVAL` remained disabled, so the corrected optional report row was not emitted during this test; its argument count and selected threshold remain source-verified.
+
+## 432 - (Fixed inherited AdvCiv UWAI Kingmaking defect) Teammates and vassals reused the rival's assets
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1BMHYBoEzP_LPYIh-L3wnwAoCweO_22pB?usp=sharing).
+
+`KingMaking::theirRelativeLoss` estimates how a possible war changes the leading rival coalition's relative assets. It loops over the rival, every teammate, existing vassals and teams predicted to capitulate to that rival. AdvCiv nevertheless called `netLostRivalAssetScore` for every entry; that helper implicitly evaluated only the current aspect rival `eThey`. A two-player rival team therefore counted the same member's assets and losses twice, while a vassal contributed a weighted copy of its master-side rival rather than its own economy. The mismatch affected cities, conquests, nukes, blockades and culture-flipped tiles derived through the helper.
+
+Predicted new vassals had a coupled weighting error: only teams that were already vassals received the intended half weight, so a future capitulation contributed at full weight. The result could substantially overvalue or undervalue helping or harming a likely winning coalition according to how different the rival, teammate and vassal economies were.
+
+The repair generalizes and renames the helper to `netLostAssetScore`, requires its evaluated `PlayerTypes` explicitly, and routes every asset and loss component through that victim. Ordinary callers explicitly pass the current rival; Kingmaking passes the actual loop player. The culture-flipped-tile normalization likewise uses the evaluated victim's team rather than the aspect rival's team, and both existing and predicted vassals now contribute at half weight. This explicit interface also prevents the same wrong-object reuse from recurring silently in another participant loop.
+
+Base AdvCiv 1.14 contains the same implicit-rival construction and future-vassal weighting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F109/provisional KI#432 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully. A Huge Pangaea autoplay with four two-player teams plus solo teams reached a Space Race victory on turn 329. At the final record, team 5 had team 0 as a vassal and team 3 had team 10 as a vassal, while extensive wars exercised the late-game teammate/vassal Kingmaking environment without an observed issue. The exact per-participant asset values remain source-verified because UWAI reporting was not enabled.
 
 ## 434 - (Fixed inherited AdvCiv UWAI AP defect) Conquests tested the conqueror instead of the old owner
 

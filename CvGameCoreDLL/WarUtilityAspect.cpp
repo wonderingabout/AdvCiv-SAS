@@ -210,20 +210,22 @@ scaled WarUtilityAspect::normalizeUtility(scaled rUtilityTeamOnTeam, TeamTypes e
 }
 
 
-scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo, scaled* prTotalScore, TeamTypes eIgnoreGains) const
+// <!-- custom: Evaluate the explicit victim rather than implicitly reusing eThey; Kingmaking also calls this for the rival's teammates and vassals. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled WarUtilityAspect::netLostAssetScore(PlayerTypes eVictim, PlayerTypes eTo, scaled* prTotalScore, TeamTypes eIgnoreGains) const
 {
 	PROFILE_FUNC();
+	CvPlayerAI const& kVictim = GET_PLAYER(eVictim);
 	scaled rNetLoss;
 	scaled rTotal;
 	// Cities that they lose
-	/*for (int i = 0; i < kThey.uwai().getCache().size(); i++) {
-		City* pCacheCity = kThey.uwai().getCache().getCity(i);*/
+	/*for (int i = 0; i < kVictim.uwai().getCache().size(); i++) {
+		City* pCacheCity = kVictim.uwai().getCache().getCity(i);*/
 	/*	In large games, looking up their cities is faster than a pass through their
 		whole cache. */
-	CitySet const& kTheyLose = militAnalyst().lostCities(eThey);
-	FOR_EACH_CITY(pCity, kThey)
+	CitySet const& kVictimLosses = militAnalyst().lostCities(eVictim);
+	FOR_EACH_CITY(pCity, kVictim)
 	{
-		City const* pCacheCity = kThey.uwai().getCache().lookupCity(pCity->plotNum());
+		City const* pCacheCity = kVictim.uwai().getCache().lookupCity(pCity->plotNum());
 		if (pCacheCity == NULL)
 			continue;
 		if (!kOurTeam.AI_deduceCitySite(*pCity))
@@ -231,11 +233,8 @@ scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo, scaled* prTotal
 		/*	Their cached value accounts for GP, but we're not supposed to see those.
 			(Their cache contains some other info we shouldn't see, but nothing
 			crucial I think.) */
-		scaled rAssetScore = pCacheCity->getAssetScore()
-				- 4 * pCity->getNumGreatPeople();
-		if (kTheyLose.count(pCacheCity->getID()) > 0 &&
-			(eTo == NO_PLAYER ||
-			militAnalyst().conqueredCities(eTo).count(pCacheCity->getID()) > 0))
+		scaled rAssetScore = pCacheCity->getAssetScore() - 4 * pCity->getNumGreatPeople();
+		if (kVictimLosses.count(pCacheCity->getID()) > 0 && (eTo == NO_PLAYER || militAnalyst().conqueredCities(eTo).count(pCacheCity->getID()) > 0))
 		{
 			rNetLoss += rAssetScore;
 			// Losing the capital is bad (but not all that bad b/c the Palace relocates)
@@ -248,15 +247,13 @@ scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo, scaled* prTotal
 		rTotal += rAssetScore;
 	}
 	// Cities that they gain
-	CitySet const& kTheyConqer = militAnalyst().conqueredCities(eThey);
-	for (CitySetIter it = kTheyConqer.begin(); it != kTheyConqer.end(); ++it)
+	CitySet const& kVictimConquests = militAnalyst().conqueredCities(eVictim);
+	for (CitySetIter it = kVictimConquests.begin(); it != kVictimConquests.end(); ++it)
 	{
-		City const* pCacheCity = kThey.uwai().getCache().lookupCity(*it);
+		City const* pCacheCity = kVictim.uwai().getCache().lookupCity(*it);
 		if (pCacheCity == NULL)
 			continue;
-		if ((eTo == NO_PLAYER ||
-			militAnalyst().lostCities(eTo).count(pCacheCity->getID()) > 0) &&
-			pCacheCity->city().getTeam() != eIgnoreGains)
+		if ((eTo == NO_PLAYER || militAnalyst().lostCities(eTo).count(pCacheCity->getID()) > 0) && pCacheCity->city().getTeam() != eIgnoreGains)
 		{
 			/*	Their cache doesn't account for GP settled in cities of a
 				third party (unless espionage visibility), so we
@@ -271,12 +268,12 @@ scaled WarUtilityAspect::netLostRivalAssetScore(PlayerTypes eTo, scaled* prTotal
 		}
 	}
 	// Non-city losses (nothing to be gained here) ...
-	rNetLoss += lossesFromNukes(eThey, eTo);
+	rNetLoss += lossesFromNukes(eVictim, eTo);
 	rTotal.increaseTo(rNetLoss);
-	scaled const rBlockadeMultiplier = lossesFromBlockade(eThey, eTo);
+	scaled const rBlockadeMultiplier = lossesFromBlockade(eVictim, eTo);
 	scaled const rFromBlockade = fixp(0.1) * rBlockadeMultiplier * (rTotal - rNetLoss);
 	rNetLoss += rFromBlockade;
-	rNetLoss += lossesFromFlippedTiles(eThey, eTo); // advc.035
+	rNetLoss += lossesFromFlippedTiles(eVictim, eTo); // advc.035
 	if (prTotalScore != NULL)
 		*prTotalScore = rTotal;
 	return rNetLoss;
@@ -403,14 +400,15 @@ scaled WarUtilityAspect::lossesFromFlippedTiles(PlayerTypes eVictim, PlayerTypes
 		if (militAnalyst().isWar(aeTo[i], TEAMID(eVictim)))
 			iVictimLostTiles += kVictimCache.numPlotsLostAtWar(aeTo[i]);
 	}
-	int const iRivalMembers = kTheirTeam.getNumMembers();
-	if (std::abs(iVictimLostTiles) <= 4 * iRivalMembers)
+	// <!-- custom: Use the explicit victim's team when this helper evaluates a teammate or vassal instead of the aspect rival. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iVictimTeamMembers = GET_TEAM(eVictim).getNumMembers();
+	if (std::abs(iVictimLostTiles) <= 4 * iVictimTeamMembers)
 		return 0;
 	int iVictimLandTiles = GET_PLAYER(eVictim).getTotalLand();
 	int const iWeightFactor = 125;
 	r = scaled(iWeightFactor * iVictimLostTiles, std::max(5, iVictimLandTiles));
 	// Tiles are counted per team, but this function gets called once per rival player.
-	r /= iRivalMembers;
+	r /= iVictimTeamMembers;
 	return r;
 }
 
@@ -1181,7 +1179,8 @@ scaled Loathing::lossRating() const
 		use their present status as a sanity check, so that we don't get excited
 		if we're doing badly and they suffer some minor losses. */
 	scaled rTheirAssets;
-	scaled rTheirLostAssets = netLostRivalAssetScore(NO_PLAYER, &rTheirAssets);
+	// <!-- custom: The generalized asset helper now requires its victim explicitly; Loathing still evaluates the current rival eThey. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled rTheirLostAssets = netLostAssetScore(eThey, NO_PLAYER, &rTheirAssets);
 	rTheirAssets.increaseTo(1);
 	CitySet const& kTheyLose = militAnalyst().lostCities(eThey);
 	for (CitySetIter it = kTheyLose.begin(); it != kTheyLose.end(); ++it)
@@ -1351,14 +1350,15 @@ scaled MilitaryVictory::progressRatingConquest() const
 	}
 	// If we don't take them out entirely - how much do they lose
 	scaled rTheirScore;
-	scaled rTheirLostAssets = netLostRivalAssetScore(eWe, &rTheirScore);
+	// <!-- custom: Conquest progress measures eThey's losses even when our vassals take some of the rival's cities, so keep eThey as the explicit victim for every recipient. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled rTheirLostAssets = netLostAssetScore(eThey, eWe, &rTheirScore);
 	if (rTheirScore < 25)
 		return 0;
 	/*	Utility of vassals is normally computed separately (linked wars),
 		but in this case, our vassals may do something that helps the master
 		specifically (namely bring down our last remaining rivals). */
 	for (PlayerIter<ALIVE,VASSAL_OF> it(eOurTeam); it.hasNext(); ++it)
-		rTheirLostAssets += netLostRivalAssetScore(it->getID());
+		rTheirLostAssets += netLostAssetScore(eThey, it->getID());
 	if (rTheirLostAssets < 5)
 		return 0;
 	scaled r = rTheirLostAssets / rTheirScore;
@@ -1743,7 +1743,8 @@ scaled Assistance::assistanceRatio() const
 	if (militAnalyst().isEliminated(eThey))
 		return 1;
 	scaled rTheirAssets;
-	scaled rTheirLostAssets = netLostRivalAssetScore(NO_PLAYER, &rTheirAssets);
+	// <!-- custom: The generalized asset helper now requires its victim explicitly; Assistance still evaluates the current rival eThey. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled rTheirLostAssets = netLostAssetScore(eThey, NO_PLAYER, &rTheirAssets);
 	if (rTheirAssets <= 0)
 		return 0;
 	scaled r(rTheirLostAssets / rTheirAssets);
@@ -1817,7 +1818,8 @@ void Rebuke::evaluate()
 		return;
 	}
 	scaled rTheirAssets;
-	scaled rTheirLostAssets = netLostRivalAssetScore(eWe, &rTheirAssets);
+	// <!-- custom: Rebuke compares what the agent takes against the current rival eThey's losses, now passed explicitly to the generalized helper. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled rTheirLostAssets = netLostAssetScore(eThey, eWe, &rTheirAssets);
 	if (rTheirAssets <= 0)
 		return;
 	/*	Give their loss and our gain equal weight. We want to demonstrate that we
@@ -2631,25 +2633,23 @@ scaled KingMaking::theirRelativeLoss() const
 	TeamTypes eIgnoreGains = m_kParams.getTarget();
 	if (eIgnoreGains != NO_TEAM && !GET_TEAM(eIgnoreGains).isHuman())
 		eIgnoreGains = NO_TEAM;
-	TeamSet const& kCapitulationsAccepted = militAnalyst().
-			getCapitulationsAccepted(eTheirTeam);
+	TeamSet const& kCapitulationsAccepted = militAnalyst().getCapitulationsAccepted(eTheirTeam);
 	scaled rTheirLostAssets;
 	scaled rTheirAssets;
 	for (PlayerIter<MAJOR_CIV> itTheirAlly; itTheirAlly.hasNext(); ++itTheirAlly)
 	{	// Them or a teammate or vassal of them
 		PlayerTypes const eTheirAlly = itTheirAlly->getID();
 		CvTeam const& kTheirAllyTeam = GET_TEAM(eTheirAlly);
-		scaled rVassalFactor = 1;
-		if (kTheirAllyTeam.isAVassal())
-			rVassalFactor /= 2;
+		bool const bNewVassal = (kCapitulationsAccepted.count(kTheirAllyTeam.getID()) > 0);
+		// <!-- custom: Measure every loop player's own assets and losses. Existing and predicted vassals both contribute at half weight; AdvCiv reused eThey and gave a future vassal full weight. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled const rVassalFactor = (kTheirAllyTeam.isAVassal() || bNewVassal ? fixp(0.5) : scaled(1));
 		if (kTheirAllyTeam.getMasterTeam() != eTheirTeam)
 		{
-			if (kCapitulationsAccepted.count(kTheirAllyTeam.getID()) > 0)
+			if (bNewVassal)
 			{
 				scaled rAssets;
-				netLostRivalAssetScore(NO_PLAYER, &rAssets);
-				scaled rTheirGain = rVassalFactor *
-						remainingCityRatio(eTheirAlly) * rAssets;
+				netLostAssetScore(eTheirAlly, NO_PLAYER, &rAssets);
+				scaled rTheirGain = rVassalFactor * remainingCityRatio(eTheirAlly) * rAssets;
 				log("Gained from new vassal: %d", rTheirGain.round());
 				rTheirLostAssets -= rTheirGain;
 			}
@@ -2657,7 +2657,7 @@ scaled KingMaking::theirRelativeLoss() const
 		}
 		scaled rAssets;
 		// can be negative
-		scaled rLostAssets = netLostRivalAssetScore(NO_PLAYER, &rAssets, eIgnoreGains);
+		scaled rLostAssets = netLostAssetScore(eTheirAlly, NO_PLAYER, &rAssets, eIgnoreGains);
 		rTheirAssets += rVassalFactor * rAssets;
 		rTheirLostAssets += rVassalFactor * rLostAssets;
 	}

@@ -18976,3 +18976,8 @@ LOCAL RECONCILIATION AFTER C015-WIP06 IMPORT
 - ChatGPT-5.6-Sol's C015-WIP04 through WIP06 append remains verbatim as evidence. It is compatible with current authority at HEAD df46c1a09 plus the reviewed KI#434/KI#435 worktree repairs, despite using the older practical-6267 / HEAD 52e0f9c06 source baseline.
 - F111-F112 / KI#434-KI#435 are fixed in the reviewed worktree, compiled and exercised by a full Huge multi-team autoplay through turn 500. The new `CvSelectionGroup.cpp` findings do not supersede those repairs; the prior WIP03 reconciliation and F113/provisional KI#436 retraction remain authoritative.
 - F145-F147 / provisional KI#468-KI#470 are collision-free against the current reviewed Known Issues ledger. They remain provisional while file 015 is open at C015-WIP06; no implementation is promoted from this imported append. (GPT-5.6-Sol)
+
+LOCAL RECONCILIATION AFTER KI#432 REVIEW
+
+- F109 / KI#432 has now been independently revalidated against current source and AdvCiv 1.14. The reviewed worktree repair makes the asset-loss helper's evaluated player explicit, uses each Kingmaking loop participant's own assets and losses, normalizes culture-flipped tiles by that victim's team and gives both existing and predicted vassals half weight. The DLL compiled successfully, and a Huge mixed-team autoplay with two live vassal relationships completed with a Space Race victory on turn 329.
+- F110 / provisional KI#433 remains live and intentionally separate: converting Kingmaking's player winner sets and genuinely team-owned Score/Time and Domination quantities requires a larger focused model refactor. C015-WIP06 and its provisional F145-F147 / KI#468-KI#470 queue remain otherwise unchanged. (GPT-5.6-Sol)

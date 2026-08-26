@@ -69,19 +69,9 @@ protected:
 	// Eval helpers - start
 	// Between the agent team and eOther - or m_kRivalTeam if eOther=NO_TEAM.
 	scaled normalizeUtility(scaled rUtilityTeamOnTeam, TeamTypes eOther = NO_TEAM) const;
-	/*	Score for assets of m_pRivalPlayer gained from and/or lost to eTo,
-		or to any player (eTo=NO_PLAYER). If eIgnoreGainsFrom is used, then assets
-		gained from that team are ignored.
-		Always computed based on the agent's knowledge.
-		The score total for all of the rival's present assets (lost or not)
-		can be obtained by passing a scaled pointer.
-		(Shouldn't call totalAssetScore() on the rival cache instead b/c that
-		includes data about cities that the agent may not know of.)
-		Update: Now also subtracts score for assets conquered by them from eTo
-		(or from any player); i.e. calculates a net loss (or gain) of assets.
-		Gains from team eIgnoreGains aren't counted. */
-	 // out-param <!-- custom: hoisted from multiline signature between `prTotalScore` and `eIgnoreGainsFrom` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
-	 scaled netLostRivalAssetScore(PlayerTypes eTo = NO_PLAYER, scaled* prTotalScore = NULL, TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
+	// <!-- custom: Compute eVictim's net asset loss to eTo, or to every player when eTo is NO_PLAYER, from the agent's knowledge. Ignore gains from eIgnoreGainsFrom when requested, and return eVictim's total present asset score through prTotalScore when requested; using the victim cache's totalAssetScore would expose cities the agent may not know.
+	// Requiring eVictim explicitly prevents loops over teammates and vassals from silently reusing the aspect rival's assets. See KI#432. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	 scaled netLostAssetScore(PlayerTypes eVictim, PlayerTypes eTo = NO_PLAYER, scaled* prTotalScore = NULL, TeamTypes eIgnoreGainsFrom = NO_TEAM) const;
 	 scaled lossesFromBlockade(PlayerTypes eVictim, PlayerTypes eTo) const;
 	 scaled lossesFromNukes(PlayerTypes eVictim, PlayerTypes eSource) const;
 	 // <advc.035>
