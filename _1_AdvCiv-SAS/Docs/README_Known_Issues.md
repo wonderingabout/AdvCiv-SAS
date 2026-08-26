@@ -10566,3 +10566,83 @@ Base AdvCiv 1.14 contains the same mixed global/opponent calculation, making thi
 The repair charges sponsor/bounty and scenario-long-war obligations only through the target team's leader while deliberately retaining the separate player-memory hireling evaluation. Base AdvCiv 1.14 contains the same duplicated team-keyed terms, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F128/provisional KI#451 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The repaired DLL compiled successfully. A Huge Normal Pangaea full UWAI autoplay with four two-player teams plus solo teams and Aggressive AI enabled exercised mixed-team warfare before completing normally with a Space Race victory on turn 446. The exact sponsorship transition remains source-verified because it was not isolated in the run.
+
+## 452 - (Pending inherited AdvCiv UWAI vassal-tech defect) One team technology inventory is cached and summed per member
+
+`UWAICache::vassalTechScore` stores the current tradable technology value under `PlayerTypes`, although technology ownership, trade legality and acquisition are team state. `UWAI::Team::acceptVassal` sums those identical caches over every prospective vassal member, while `GreedForVassals` can combine the same current inventory with genuinely player-local future research income on each member pass.
+
+Base AdvCiv 1.14 contains the same ownership mismatch, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must cache or deduplicate the existing technology inventory at team scope without collapsing member-specific research and resource contributions or applying nonlinear caps separately to arbitrary shares. The issue remains pending. Found as F129/provisional KI#452 during ChatGPT-5.6-Sol's C014 `WarUtilityAspect.cpp` audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 453 - (Pending inherited AdvCiv UWAI Risk defect) Team capitulation and vassal losses repeat across player pairs
+
+`Risk` combines ordinary player-owned losses with team-owned events. Its fixed 100-point capitulation cost can be charged for every agent/rival member pair, and its pre-evaluation of the master team's vassal losses repeats for every agent member. The break-away component additionally compares team relations through one agent player's power.
+
+Base AdvCiv 1.14 contains the same mixed ownership, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A proper repair must charge capitulation and shared vassal-state costs once while retaining player-owned city, blockade, nuclear and military losses. The issue remains pending. Found as F130/provisional KI#453 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 454 - (Fixed inherited AdvCiv UWAI Greed for Space defect) One physical settlement site could be counted for several teammates
+
+`GreedForSpace::evaluate` consumes each eliminated rival player's independently cached city-site recommendations. Two teammates can recommend the same plot, but that physical plot can host only one future city. The old per-player passes therefore converted one released settlement opportunity into several merely because the recommendation appeared in several player caches.
+
+The repair preserves a plot-identity set across rival-member passes and counts each visible recommended plot once, while distinct sites and player-owned auto-raze city plots remain additive. Base AdvCiv 1.14 contains the same uncoordinated player-cache accounting, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F131/provisional KI#454 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 455 - (Pending inherited AdvCiv UWAI Revolts defect) Persistent city identity is combined with per-rival ratios
+
+`Revolts` keeps `m_countedCities` across rival passes so a threatened city is counted once, but resets its expected-loss numerator and asset denominator on every pass. It consequently sums ratios of arbitrary first-claim subsets: changing only player iteration order can double the result for the same cities and revolt probabilities.
+
+Base AdvCiv 1.14 contains the same mismatched state lifetimes, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. The union of threatened cities needs one corresponding numerator, denominator and normalization; removing the identity set or summing per-rival ratios would remain wrong. The issue remains pending. Found as F132/provisional KI#455 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 456 - (Pending inherited AdvCiv supported-configuration defect) Exclusive-radius tile loss is absent from its asset denominator
+
+With the maintained non-default `OWN_EXCLUSIVE_RADIUS=1` configuration, `netLostRivalAssetScore` adds flipped-tile loss after freezing the total-asset denominator returned to callers. The numerator can therefore exceed the measurement domain and violate `Assistance`'s explicit loss-ratio-at-most-one assertion; other shared-helper consumers inherit the same mismatch.
+
+Base AdvCiv 1.14 contains the ordering introduced with advc.035, making this an inherited AdvCiv defect rather than an AdvCiv-SAS regression. A repair must extend the shared denominator consistently or model flipped tiles as a separate bounded dimension rather than merely clamping one consumer. The issue remains pending. Found as F133/provisional KI#456 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 457 - (Pending inherited AdvCiv UWAI Ill Will defect) Team-war danger uses one player's army power
+
+`IllWill::theirToOurPowerRatio` feeds player-local army power into nonlinear revenge and dogpile thresholds for a war that commits the whole team. Splitting the same enemy power between teammates can leave every member below the 0.70 or 1.45 gate although their combined team capability crosses it. Diplomatic motives remain legitimately player-specific.
+
+Base AdvCiv 1.14 contains the same mixed player/team calculation, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must aggregate ordinary-team military capability before the nonlinear gates while retaining player-specific attitudes and treating mixed human/AI confidence consistently. The issue remains pending. Found as F134/provisional KI#457 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 458 - (Fixed inherited AdvCiv UWAI intervention defect) Decisive-victory shortcut did not identify the evaluated target
+
+`ThirdPartyIntervention::evaluate` suppresses intervention fear when the evaluated target war is already won decisively. AdvCiv treated elimination of the target team's current real leader as elimination of the simulated team, although another teammate could survive. It also accepted any capitulation to the agent team, including an unrelated enemy's, rather than the evaluated target's capitulation.
+
+The repair requires every living member of the evaluated target team to be eliminated in the simulation or that exact target team to appear in the agent team's accepted-capitulation set. Base AdvCiv 1.14 contains both overly broad proxies, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. This is independent of pending KI#447's later intervention-severity calculation. Found as F135/provisional KI#458 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 459 - (Pending inherited AdvCiv UWAI partner-tech defect) Shared foreseeable technology trades repeat per teammate
+
+`partnerUtilFromTech` combines player-specific attitude and commerce approximations with team-owned known technologies and research progress. When several friendly teammates expose the same technology differences, the same near-future trade opportunities can be credited on every member pass even though one actual technology trade changes team ownership and consumes that difference.
+
+Base AdvCiv 1.14 contains the same reusable team inventory, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must allocate the shared technology opportunity once while preserving player-specific relationship, contact and economic inputs; dividing the entire partner value by team size would be lossy. The issue remains pending. Found as F136/provisional KI#459 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 460 - (Pending inherited AdvCiv UWAI Pre-emptive War defect) One team threat forecast repeats per reachable member
+
+`PreEmptiveWar` reads a player-keyed threat cache whose substantive value is `teamThreat(TEAMID(eRival))`, then reconstructs the same master-team/vassal city side for each rival teammate. When several members pass the player-local reachability gate, the same team threat change is consumed repeatedly.
+
+Base AdvCiv 1.14 contains the same player exposure of a team forecast, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must define reachability at team scope and consume the forecast once without hiding KI#430's independently repaired side-construction rules. The issue remains pending. Found as F137/provisional KI#460 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 461 - (Pending inherited AdvCiv UWAI Tactical Situation defect) One operational-readiness deficit repeats per target teammate
+
+`TacticalSituation::evalOperational` explicitly evaluates one agent player's readiness for the configured target team, yet the ordinary rival-player loop charges that same attacker, cargo, escort and preparation deficit once for every target member. Target era and reachability can differ by player, so choosing an arbitrary representative would introduce a separate distortion.
+
+Base AdvCiv 1.14 contains the same repeated target-team cost, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must evaluate operational readiness once per agent member and aggregate relevant target-side era/reachability at team scope. The issue remains pending and is separate from KI#445's ongoing-war physical-unit reuse. Found as F138/provisional KI#461 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 462 - (Fixed inherited AdvCiv UWAI Ill Will defect) One war-on-friend event repeated per victim-team member
+
+Military analysis represents one declaration against a team through a set containing all target players. `IllWill::evalAngeredPartners` iterated that player set and predicted `MEMORY_DECLARED_WAR_ON_FRIEND` once for every member, while the real `CvTeamAI::AI_preDeclareWar` path records one such event per distinct victim team and aggressor player.
+
+The repair deduplicates victim `TeamTypes` before testing observer disapproval and adding the relation penalty. Distinct defensive-pact victim teams remain separately chargeable, and separate aggressor members retain their real player-specific memories. Base AdvCiv 1.14 contains the player-set duplication, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. Found as F139/provisional KI#462 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 463 - (Pending inherited AdvCiv UWAI Greed for Vassals defect) One fixed vassal-team downside repeats per member
+
+`GreedForVassals` subtracts a fixed five utility for the diplomatic and forced-war downside of acquiring a capitulated vassal, but does so on every target-member pass. The surrounding technology, resource, commerce and military benefits contain genuinely player-local or independently nonlinear terms, so moving the subtraction to an arbitrary representative can also change how the per-pass zero floor absorbs it.
+
+Base AdvCiv 1.14 contains the same repeated fixed downside, making this an inherited AdvCiv UWAI defect rather than an AdvCiv-SAS regression. A repair must apply one vassal-team cost against the correctly aggregated team benefit rather than dividing or guarding the entire aspect. The issue remains pending. Found as F140/provisional KI#463 during ChatGPT-5.6-Sol's C014 audit; independently reviewed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 464 - (Fixed inherited AdvCiv C++ lifetime defect) Polymorphic war aspects lacked a virtual destructor
+
+`WarUtilityAspect` is a polymorphic base, and `WarEvaluator` allocates concrete derived aspects before deleting them through `WarUtilityAspect*`. The base declared no virtual destructor, making every such delete expression undefined behavior. Derived aspects including `KingMaking`, `Revolts` and now `GreedForSpace` own `std::set` members whose implicit destructors must run.
+
+The repair adds a public C++03-compatible virtual base destructor, ensuring derived containers are destroyed before the base subobject. The original AdvCiv UWAI hierarchy and Base AdvCiv 1.14 contain the same delete-through-nonvirtual-base contract, making this an inherited AdvCiv defect rather than an AdvCiv-SAS regression. Found as F141/provisional KI#464 during ChatGPT-5.6-Sol's C014 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired DLL compiled successfully. A Huge Normal Pangaea full UWAI autoplay with five two-player teams, including the human player's team, plus solo teams and Aggressive AI enabled exercised extensive mixed-team warfare and several player eliminations before completing normally with a Time victory on turn 500. This directly exercised repeated polymorphic aspect construction/destruction and the mixed-team evaluation environment; the exact KI#454, KI#458 and KI#462 utility transitions remain source-verified because UWAI reporting was not enabled.

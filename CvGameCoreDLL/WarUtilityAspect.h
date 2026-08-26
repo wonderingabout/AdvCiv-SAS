@@ -24,6 +24,8 @@ public:
 		afterwards). Sets some protected data members that derived classes should
 		find useful; concrete derived classes should override evaluate(void) instead. */
 	virtual int evaluate(MilitaryAnalyst const& kMilitaryAnalyst);
+	// <!-- custom: WarEvaluator deletes concrete aspects through WarUtilityAspect pointers. A virtual destructor makes those polymorphic deletions defined and releases derived containers. See KI#464. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	virtual ~WarUtilityAspect() {}
 	char const* aspectName() const;
 	int utility() const { return m_iU; }
 
@@ -175,6 +177,9 @@ public:
 	:	WarUtilityAspect(kParams) {}
 	void evaluate();
 	UWAI::AspectTypes xmlID() const { return UWAI::GREED_FOR_SPACE; }
+// <!-- custom: Rival teammates can cache the same physical settlement plot independently. Preserve plot identity across their aspect passes so one site creates one opportunity. See KI#454. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+private:
+	std::set<PlotNumTypes> m_countedSites;
 };
 
 

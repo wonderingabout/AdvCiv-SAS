@@ -1017,40 +1017,38 @@ void GreedForVassals::evaluate()
 
 void GreedForSpace::evaluate()
 {
-	/*	If they lose cities, but aren't eliminated, they'll try to settle sites
-		aggressively; doesn't help us. */
-	if (!militAnalyst().isEliminated(eThey) ||
-		ourCache().numAdjacentLandPlots(eThey) <= 0)
+	// If they lose cities, but aren't eliminated, they'll try to settle sites aggressively; doesn't help us.
+	if (!militAnalyst().isEliminated(eThey) || ourCache().numAdjacentLandPlots(eThey) <= 0)
 	{
 		return;
 	}
 	int const iOurCities = std::max(1, kWe.getNumCities());
 	int const iOurSites = std::min(iOurCities, kWe.AI_getNumCitySites());
 	int iTheirSites = 0;
-	/*	Would be too brazen a cheat to ignore visibility here.
-		(And might encourage very early wars.) */
+	// Would be too brazen a cheat to ignore visibility here. (And might encourage very early wars.)
 	for (int i = 0; i < kThey.AI_getNumCitySites(); i++)
 	{
 		CvPlot const& kSite = kThey.AI_getCitySite(i);
-		if (kSite.isRevealed(eOurTeam))
-			iTheirSites++;
-		else
+		// <!-- custom: Track visibility without incrementing immediately so the persistent plot-identity set can reject a duplicate teammate recommendation before it becomes another settlement opportunity. See KI#454. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bVisible = kSite.isRevealed(eOurTeam);
+		if (!bVisible)
 		{
 			FOR_EACH_ADJ_PLOT(kSite)
 			{
 				if (pAdj->isRevealed(eOurTeam))
 				{
-					iTheirSites++;
+					bVisible = true;
 					break;
 				}
 			}
 		}
+		if (bVisible && m_countedSites.insert(kSite.plotNum()).second)
+			iTheirSites++;
 	}
 	// Expect to raze only when we have to
 	for (size_t i = 0; i < ourConquestsFromThem().size(); i++)
 	{
-		if (ourCache().lookupCity(ourConquestsFromThem()[i])->city().
-			isAutoRaze(eWe))
+		if (ourCache().lookupCity(ourConquestsFromThem()[i])->city().isAutoRaze(eWe))
 		{
 			iTheirSites++;
 		}
@@ -1067,8 +1065,7 @@ void GreedForSpace::evaluate()
 	scaled rUtility = (40 * rIncr * kWeAI.amortizationMultiplier());
 	if (rUtility.abs() >= fixp(0.5))
 	{
-		log("Their orphaned sites: %d, our current sites: %d, our current cities: %d",
-				iTheirSites, iOurSites, iOurCities);
+		log("Their orphaned sites: %d, our current sites: %d, our current cities: %d", iTheirSites, iOurSites, iOurCities);
 		m_iU += rUtility.round();
 	}
 }
@@ -3413,68 +3410,54 @@ scaled IllWill::theirToOurPowerRatio() const
 
 void IllWill::evalAngeredPartners()
 {
-	if (kThey.isHuman() || militAnalyst().isWar(eWe, eThey) ||
-		// When nothing can alienate them ...
-		100 * diploTowardUs() > 120 * GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FRIENDLY) ||
-		eTheirTeam == eOurTeam)
+	// When nothing can alienate them ...
+	if (kThey.isHuman() || militAnalyst().isWar(eWe, eThey) || 100 * diploTowardUs() > 120 * GC.getDefineINT(CvGlobals::RELATIONS_THRESH_FRIENDLY) || eTheirTeam == eOurTeam)
 	{
 		return;
 	}
 	// 2 only for Gandhi; else 1.
-	scaled const rPenaltyPerDoW = (m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 1 :
-			-per100(GC.getInfo(kThey.getPersonalityType()).
-			getMemoryAttitudePercent(MEMORY_DECLARED_WAR_ON_FRIEND)));
+	scaled const rPenaltyPerDoW = (m_kGame.isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 1 : -per100(GC.getInfo(kThey.getPersonalityType()).getMemoryAttitudePercent(MEMORY_DECLARED_WAR_ON_FRIEND)));
 	scaled rPenalties;
 	PlyrSet const& kWeDecl = militAnalyst().getWarsDeclaredBy(eWe);
+	// <!-- custom: MilitaryAnalyst represents one declaration against a team through all of its player members, while the real war-on-friend memory is recorded once per victim team.
+	// Deduplicate only that victim side; distinct defensive-pact target teams remain separate. See KI#462. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamSet countedVictimTeams;
 	for (PlyrSetIter it = kWeDecl.begin(); it != kWeDecl.end(); ++it)
 	{
-		if (GET_TEAM(*it).isAVassal() || eTheirTeam == TEAMID(*it))
-			continue;
-		//if (kThey.AI_getAttitude(*it) >= ATTITUDE_PLEASED)
-		if (kThey.AI_disapprovesOfDoW(eOurTeam, TEAMID(*it))) // advc.130h
+		TeamTypes const eVictimTeam = TEAMID(*it);
+		if (GET_TEAM(*it).isAVassal() || eTheirTeam == eVictimTeam || countedVictimTeams.count(eVictimTeam) > 0)
 		{
-			log("-%d relations with %s for DoW on %s", rPenaltyPerDoW.floor(),
-					m_kReport.leaderName(eThey), m_kReport.leaderName(*it));
+			continue;
+		}
+		countedVictimTeams.insert(eVictimTeam);
+		//if (kThey.AI_getAttitude(*it) >= ATTITUDE_PLEASED)
+		if (kThey.AI_disapprovesOfDoW(eOurTeam, eVictimTeam)) // advc.130h
+		{
+			log("-%d relations with %s for DoW on %s", rPenaltyPerDoW.floor(), m_kReport.leaderName(eThey), m_kReport.leaderName(*it));
 			rPenalties += rPenaltyPerDoW;
 		}
 	}
 	if (rPenalties <= 0)
 		return;
-	bool const bWillDisplease = (kThey.AI_getAttitudeFromValue(
-			// -1 b/c barely Pleased could quickly tip to Cautious
-			diploTowardUs() - rPenalties.floor() - 1) <= ATTITUDE_CAUTIOUS);
+	// -1 b/c barely Pleased could quickly tip to Cautious
+	bool const bWillDisplease = (kThey.AI_getAttitudeFromValue(diploTowardUs() - rPenalties.floor() - 1) <= ATTITUDE_CAUTIOUS);
 	scaled rTheirToOurPow = theirToOurPowerRatio();
 	rTheirToOurPow.decreaseTo(1000); // avoid overflow
-	scaled rCostPerPenalty =
-			partnerUtilFromTrade() + partnerUtilFromTech() +
-			partnerUtilFromMilitary() +
-			(kOurTeam.isOpenBorders(eTheirTeam) ? iPartnerUtilFromOB : 0) +
-			(bWillDisplease ? std::min(fixp(14.5), 9 * SQR(rTheirToOurPow)) : 0);
-	rCostPerPenalty /=
-			((bWillDisplease && towardUs() >= ATTITUDE_CAUTIOUS) ?
-			fixp(3.75) : fixp(5.25)) *
-			/*	Don't worry quite as much about diplo in team games. AI DoW
-				aren't as dynamic, and it's sufficient for tech trading if some
-				team members get along. */
-			scaled(kOurTeam.getNumMembers()).sqrt();
+	scaled rCostPerPenalty = partnerUtilFromTrade() + partnerUtilFromTech() + partnerUtilFromMilitary() + (kOurTeam.isOpenBorders(eTheirTeam) ? iPartnerUtilFromOB : 0) + (bWillDisplease ? std::min(fixp(14.5), 9 * SQR(rTheirToOurPow)) : 0);
+	// Don't worry quite as much about diplo in team games. AI DoW aren't as dynamic, and it's sufficient for tech trading if some team members get along.
+	rCostPerPenalty /= ((bWillDisplease && towardUs() >= ATTITUDE_CAUTIOUS) ? fixp(3.75) : fixp(5.25)) * scaled(kOurTeam.getNumMembers()).sqrt();
 	log("Cost per -1 relations: %d", rCostPerPenalty.uround());
-	/*	costPerPenalty already adjusted to game progress, but want to dilute
-		the impact of leader personality in addition to that. diploWeight is
-		mostly about trading, and trading becomes less relevant in the latem_kGame. */
+	// costPerPenalty already adjusted to game progress, but want to dilute the impact of leader personality in addition to that. diploWeight is mostly about trading, and trading becomes less relevant in the latem_kGame.
 	scaled rDiploWeight = 1 + (kWeAI.diploWeight() - 1) * kWeAI.amortizationMultiplier();
 	// The bad diplo hurts us, but our anger at eThey is difficult to contain.
 	if (!kWe.isHuman() && towardThem() <= ATTITUDE_FURIOUS)
 		rDiploWeight /= 2;
-	/*	We've actually one partner less b/c we're considering alternatives to a
-		partner that (probably) isn't counted by preEvaluate as hostile. */
+	// We've actually one partner less b/c we're considering alternatives to a partner that (probably) isn't counted by preEvaluate as hostile.
 	m_rCost += rCostPerPenalty * rPenalties * rDiploWeight * m_rAltPartnerFactor;
-	log("Diplo weight: %d percent, alt.-partner factor: %d percent",
-			rDiploWeight.getPercent(), m_rAltPartnerFactor.getPercent());
-	if (towardUs() >= ATTITUDE_PLEASED &&
-		kWe.AI_atVictoryStage(AI_VICTORY_DIPLOMACY4 | AI_VICTORY_DIPLOMACY3))
+	log("Diplo weight: %d percent, alt.-partner factor: %d percent", rDiploWeight.getPercent(), m_rAltPartnerFactor.getPercent());
+	if (towardUs() >= ATTITUDE_PLEASED && kWe.AI_atVictoryStage(AI_VICTORY_DIPLOMACY4 | AI_VICTORY_DIPLOMACY3))
 	{
-		scaled rVictoryFactor(kThey.getTotalPopulation(),
-				std::max(1, m_kGame.getTotalPopulation()));
+		scaled rVictoryFactor(kThey.getTotalPopulation(), std::max(1, m_kGame.getTotalPopulation()));
 		scaled rVictoryCost = 25 * rVictoryFactor * rPenalties;
 		log("-%d for jeopardizing diplo victory", rVictoryCost.round());
 		m_rCost += rVictoryCost;
@@ -4677,6 +4660,25 @@ void ThirdPartyIntervention::evaluate()
 	scaled rOurPow = m_rDefPow;
 	scaled rOurLostPowRatio = m_rLostDefPowRatio;
 	TeamTypes const eTarget = m_kParams.getTarget();
+	// <!-- custom: The decisive-war shortcut concerns the evaluated target team. Require every living target member to be eliminated in the simulation or that exact team to capitulate.
+	// One real team leader's elimination or an unrelated capitulation did not establish this. See KI#458. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bTargetDefeated = false;
+	if (m_kParams.isConsideringPeace() && eTarget != NO_TEAM)
+	{
+		bTargetDefeated = (militAnalyst().getCapitulationsAccepted(eOurTeam).count(eTarget) > 0);
+		if (!bTargetDefeated)
+		{
+			bTargetDefeated = true;
+			for (MemberIter itTargetMember(eTarget); itTargetMember.hasNext(); ++itTargetMember)
+			{
+				if (!militAnalyst().isEliminated(itTargetMember->getID()))
+				{
+					bTargetDefeated = false;
+					break;
+				}
+			}
+		}
+	}
 	/*	Count this cost only when we're actually incurring losses from fighting
 		against a 2nd party. Otherwise, we'd veer into the lane of the
 		PreEmptiveWar aspect. If we're not incurring losses, then we're doing
@@ -4691,9 +4693,8 @@ void ThirdPartyIntervention::evaluate()
 		militAnalyst().lostPower(eThey, ARMY) >= 1 ||
 		/*	When already at war and winning decisively, try to wrap it up
 			before worrying about 3rd parties. */
-		(m_kParams.isConsideringPeace() && eTarget != NO_TEAM &&
-		(militAnalyst().isEliminated(GET_TEAM(eTarget).getLeaderID()) ||
-		!militAnalyst().getCapitulationsAccepted(eOurTeam).empty())) ||
+		// <!-- custom: Use the target-scoped result prepared above instead of the removed real-leader/any-capitulation proxies. See KI#458. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bTargetDefeated ||
 		// Vassals are covered when evaluating their master
 		!kTheirTeam.uwai().canSchemeAgainst(eOurTeam, true) ||
 		!kTheirTeam.uwai().isLandTarget(eOurTeam))

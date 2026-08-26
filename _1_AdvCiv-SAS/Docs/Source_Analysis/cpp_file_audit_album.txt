@@ -2,10 +2,11 @@ AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
-Files complete: 14 / 169
-Files open: 1 / 169
-Current file: 015 CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) - OPEN AT C015-WIP18
-Current file-015 roots: F143-F157 / provisional KI#466-KI#480
+Files complete: 15 / 169
+Files open: 0 / 169
+Last completed file: 015 CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) - CLOSED AT C016
+Next queued file: 016 CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines)
+File-015 roots: F143-F157 / provisional KI#466-KI#480
 Next root ID: F158 unused
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
@@ -33,8 +34,8 @@ QUEUE (current .cpp files, longest -> shortest)
 012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 013   6190 CvGameCoreDLL/CvTeam.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 014   5024 CvGameCoreDLL/WarUtilityAspect.cpp [COMPLETE - SEE C015 DURABLE CHECKPOINT]
-015   4722 CvGameCoreDLL/CvSelectionGroup.cpp [OPEN AT C015-WIP18]
-016   4592 CvGameCoreDLL/CitySiteEvaluator.cpp [PENDING]
+015   4722 CvGameCoreDLL/CvSelectionGroup.cpp [COMPLETE - SEE C016 DURABLE CHECKPOINT]
+016   4595 CvGameCoreDLL/CitySiteEvaluator.cpp [PENDING]
 017   3700 CvGameCoreDLL/UWAIAgent.cpp [PENDING]
 018   2965 CvGameCoreDLL/CvGameInterface.cpp [PENDING]
 019   2810 CvGameCoreDLL/CvDLLButtonPopup.cpp [PENDING]
@@ -20761,3 +20762,196 @@ other owning Python pointer-return bindings so F157's scope is neither understat
 needlessly generalized. Then finish the remaining sentry/turn and mission/interface
 predicate closure. File 015 remains open until those surfaces receive explicit
 adversarial dispositions; do not manufacture F158 if they close cleanly.
+
+
+===============================================================================
+C016 DURABLE CHECKPOINT -- FILE 015 CLOSED / FILE 016 QUEUED
+===============================================================================
+
+SOURCE IDENTITY AT CLOSURE
+--------------------------
+Branch: main
+HEAD: a70aa8b82f3882778f796887303851ca860f89bc
+Practical commit count: 6274
+Base comparison: local AdvCiv 1.14 source archive
+Additional ancestry: local Civ4CE Vanilla / Warlords / BtS source archive
+Current .cpp queue: 169 files, sorted by current line count longest -> shortest
+
+The current CvGameCoreDLL/CvSelectionGroup.cpp is 4,722 lines and has SHA-256:
+
+    089ef460132b4d6862a369dbe1297c48d5c48a5a0d22c5aebeff76667fc4cc4f
+
+It is byte-identical to the source snapshot used for the late WIP15-WIP18
+adversarial passes. The user-provided 2026-08-26T12:27:36 reconciled album is an
+exact byte prefix of C015-WIP17, and WIP17 is an exact byte prefix of WIP18;
+this durable C016 checkpoint appends closure only and preserves that merged
+history.
+
+No repository source files were modified by this audit pass.
+
+
+FILE 015 -- CvGameCoreDLL/CvSelectionGroup.cpp -- 4,722 lines -- REVIEWED / CLOSED
+---------------------------------------------------------------------------------
+The C015 investigation is now durably closed after WIP18's final exported/Python
+ownership sweep. The file was not closed merely because a time budget expired:
+the remaining surfaces have explicit positive or negative controls, and the
+adversarial root matrix was rerun against the exact current source snapshot.
+
+Stable file-015 root accounting:
+
+* 15 valid new roots were established: F143-F157.
+* Their provisional audit aliases are KI#466-KI#480.
+* None of KI#466-KI#480 collides with the latest independently reviewed
+  README_Known_Issues ledger in the supplied 6274 light source.
+* These aliases remain provisional investigative handoff identifiers. Me/Codex
+  review can accept, refine, merge or reject implementation proposals as runtime
+  evidence warrants; closure means the source surface has been audited, not that
+  every candidate must be implemented unchanged.
+* No F158 was allocated.
+
+
+FILE-015 ROOT LEDGER AT CLOSURE
+-------------------------------
+F143 / provisional KI#466
+    Inherited AdvCiv Sea Patrol mixed-group persistence defect.
+
+F144 / provisional KI#467
+    Inherited AdvCiv Blockade group divergence / destructive wake defect.
+
+F145 / provisional KI#468
+    Inherited AdvCiv group-load shared-capacity defect.
+
+F146 / provisional KI#469
+    Inherited K-Mod / AdvCiv Spy sleep-wake UI-lifecycle defect.
+
+F147 / provisional KI#470
+    Inherited BtS / AdvCiv sentry hostility-actor mismatch.
+
+F148 / provisional KI#471
+    Inherited AdvCiv recon cleanup group-actor defect.
+
+F149 / provisional KI#472
+    Current SAS amphibious attempted-vs-successful landing contract defect,
+    made concretely reachable by current SAS feature-impassable units.
+
+F150 / provisional KI#473
+    Inherited K-Mod Air Patrol moveless-participant regression.
+
+F151 / provisional KI#474
+    Inherited BtS upgrade action-cache representative defect.
+
+F152 / provisional KI#475
+    Inherited AdvCiv/K-Mod reusable GroupPathFinder membership-invalidation
+    defect.
+
+F153 / provisional KI#476
+    Inherited AdvCiv advc.075 ACTIVITY_BOARDED cross-transport cargo-group scope
+    defect.
+
+F154 / provisional KI#477
+    Inherited Firaxis BtS cross-transport cargo automation scope defect.
+
+F155 / provisional KI#478
+    Inherited Warlords/BtS live groupMove traversal invalidated by reentrant move
+    side effects; K-Mod 1.46 explicitly fixed the historical crash, but the
+    current divergent AdvCiv/SAS groupMove retains a proven reachable variant.
+
+F156 / provisional KI#479
+    Inherited Base AdvCiv interaction defect: outer updateTimers traversal can
+    retain a prefetched unit-list node while combat completion invokes advc.153
+    groupMove regrouping that deletes that future node.
+
+F157 / provisional KI#480
+    Inherited Firaxis Vanilla Python API ownership defect: getMissionFromQueue
+    returns container-owned MissionData interior storage while the Boost.Python
+    binding declares manage_new_object. CyCity::getOrderFromQueue has the same
+    systemic OrderData sibling. Current shipped SAS Python does not call either,
+    so this is a dormant public-API memory-lifetime defect rather than a normal
+    gameplay CTD path.
+
+
+WHY FILE 015 IS CLOSED
+----------------------
+The closure pass covered the full 134-current-member definition surface plus
+associated header/Cy-wrapper contracts, with special attention to the mutation,
+mission and group-state areas most likely to hide reentrant defects:
+
+* construction/reset/kill and pathfinder ownership;
+* sentry known-enemy bookkeeping and turn/post-turn lifecycle;
+* unit turn processing, combat timers and delayed death;
+* mission push/pop/start/continue/update and mission-timer ownership;
+* all current mission families, including movement, route, amphibious landing,
+  air patrol/recon/rebase/airlift/paradrop, blockade/sea patrol, build, Great
+  Person and espionage actions;
+* command/action cache and interface-mode availability/target predicates;
+* group movement, combat, route/build execution and live-list mutation;
+* cargo capacity, load/unload, carrier/cargo activity and automation semantics;
+* split/merge/regroup membership mutation;
+* activity/automation state transitions;
+* current GroupPathFinder reuse/invalidation assumptions;
+* selection-group/unit-list and mission-queue helper ownership;
+* serialization and current uiFlag state;
+* exported DLL node helpers and their stock ABI ancestry;
+* CySelectionGroup public Python wrappers and a bounded repository-wide
+  manage_new_object comparison;
+* Vanilla/Warlords/BtS, K-Mod changelog/history and Base AdvCiv ancestry where
+  they materially distinguish provenance;
+* current SAS XML/data reachability for cargo domains, feature impassability,
+  upgrade discounts and other reproductions;
+* latest reviewed Known-Issues collision checks;
+* adversarial reread of every live F143-F157 root and neighboring hypotheses.
+
+The final mutation/lifetime challenge explicitly rejected plausible false
+positives in doTurn, doDelayedDeath, startMission consumption, airlift/paradrop,
+groupBuild, setTransportUnit, unloadAll, merge/split/regroup,
+setActivityType/NotifyEntity/airCircle/setBlockading and mission-queue deletion.
+Those controls are important: F155/F156 are not a blanket claim that mutable
+traversal is unsafe; their distinguishing condition is deletion of a FUTURE
+prefetched CLLNode across a nested call.
+
+Likewise the final mission/interface pass did not promote every any-member group
+predicate into a defect. Mixed-group semantics were only promoted where a later
+executor/lifecycle supplied a deterministic contradictory contract (e.g.
+F143/F144/F148/F150), while benign mixed waiting/escort behavior remained a
+negative control.
+
+The raw external node helpers remain stock DLL ABI surfaces whose external EXE
+caller source is unavailable in the supplied material. Their mere exposure is
+not a finding. No local caller sequence established a lifetime violation beyond
+F155/F156, so no speculative F158 was spent there.
+
+F157's broader owning-binding check also remains bounded: the normal
+manage_new_object pattern returns separately allocated Cy* wrapper objects. The
+identified queue-data exceptions are MissionData and OrderData, both forwarding
+addresses into CLinkList node storage. That is one systemic Firaxis ownership
+root, not evidence that all owning Python bindings are broken.
+
+With those controls recorded, the remaining file-015 surface is better supported
+as intentional/covered than merely unchecked. CvSelectionGroup.cpp is therefore
+READY FOR DURABLE CLOSURE.
+
+
+PROGRESS AFTER FILE-015 CLOSURE
+-------------------------------
+Files complete: 15 / 169
+Files open: 0 / 169
+Last completed file: 015 CvGameCoreDLL/CvSelectionGroup.cpp -- 4,722 lines
+
+NEXT QUEUED FILE:
+
+    016 CvGameCoreDLL/CitySiteEvaluator.cpp -- 4,595 lines
+
+Following files by the current line-count queue begin:
+
+    017 CvGameCoreDLL/UWAIAgent.cpp -- 3,700 lines
+    018 CvGameCoreDLL/CvGameInterface.cpp -- 2,965 lines
+    019 CvGameCoreDLL/CvDLLButtonPopup.cpp -- 2,814 lines
+    020 CvGameCoreDLL/CvInfo_Unit.cpp -- 2,599 lines
+
+C016 is a durable boundary checkpoint. File 016 has NOT yet been audited in this
+continuation. Start CitySiteEvaluator.cpp from the current practical-6274 source
+on the next pass rather than carrying CvSelectionGroup hypotheses forward by
+analogy.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
