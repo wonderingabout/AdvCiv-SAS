@@ -10802,3 +10802,11 @@ The repair makes both Cy wrappers return independent heap-allocated value copies
 No shipped AdvCiv-SAS Python currently calls either getter; current UI code uses scalar mission helpers instead. KI#480 is consequently a dormant but real public-API memory-safety defect rather than a reproduced normal-gameplay crash. Found as F157/provisional KI#480 during ChatGPT-5.6-Sol's C015 final Python-ownership audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The repaired Debug-opt DLL compiled successfully, and an autoplay completed normally. Because shipped AdvCiv-SAS Python does not call these getters, the corrected ownership transition remains source-verified rather than directly exercised by that gameplay run.
+
+## 520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age
+
+`UWAI::Team::makePeaceTradeVal` can be called for third-party peace brokerage whenever the relevant teams are at war. A war declared after the counter update legitimately has `AI_getAtWarCounter == 0` until the next team turn, but AdvCiv asserted that the duration was strictly positive. The pricing formula itself uses `sqrt(iWarDuration + 1)` and is valid at zero, so assertion-enabled builds could stop on a supported declaration-turn valuation even though release arithmetic continued normally.
+
+The repair changes only the assertion to the real nonnegative counter contract and preserves the deliberately high early-war price. Base AdvCiv 1.14 contains the same assertion introduced with UWAI, while its legacy non-UWAI valuation also accepts a zero counter; this is therefore an inherited AdvCiv debug-path defect rather than an AdvCiv-SAS regression or release-build numerical error. Found as F197/provisional KI#520 during ChatGPT-5.6-Sol's C017-WIP13 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired Debug-opt DLL compiled successfully, and an end-to-end autoplay completed normally. The exact declaration-turn third-party peace-brokerage branch was not reproduced and remains source-verified.

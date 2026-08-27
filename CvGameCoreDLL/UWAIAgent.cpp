@@ -2454,15 +2454,13 @@ int UWAI::Team::makePeaceTradeVal(TeamTypes eEnemy, TeamTypes eBroker) const
 	/*  Between 400% and 77%. 100% when we're pleased with both.
 		We prefer to get even with our enemy, so letting the broker pay 1 for 1 is
 		already a concession. */
-	scaled rAttitudeModifier(10, 1 + 2 * eTowardBroker +
-			GET_TEAM(eEnemy).AI_getAttitude(eBroker));
+	scaled rAttitudeModifier(10, 1 + 2 * eTowardBroker + GET_TEAM(eEnemy).AI_getAttitude(eBroker));
 	rAttitudeModifier.decreaseTo(4);
-	int iWarDuration = kAgent.AI_getAtWarCounter(eEnemy);
-	FAssert(iWarDuration > 0);
-	/*  warDuration could be as small as 1 I think. Then the mark-up is
-		+175% in the Ancient era. None for a Renaissance war after 15 turns. */
-	scaled rTimeModifier = (fixp(5.5) - kAgent.AI_getCurrEraFactor() / 2) /
-			scaled(iWarDuration + 1).sqrt();
+	int const iWarDuration = kAgent.AI_getAtWarCounter(eEnemy);
+	// <!-- custom: AdvCiv assumed the at-war counter was at least 1, but third-party peace brokerage can be valued on the declaration turn while it is 0.
+	// The formula already supports that state through sqrt(iWarDuration + 1); assert the real nonnegative domain without changing its deliberately high early-war markup. See KI#520. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FAssert(iWarDuration >= 0);
+	scaled rTimeModifier = (fixp(5.5) - kAgent.AI_getCurrEraFactor() / 2) / scaled(iWarDuration + 1).sqrt();
 	rTimeModifier.increaseTo(fixp(0.75));
 	r *= rAttitudeModifier * rTimeModifier;
 	return kAgent.AI_roundTradeVal(r.round());
