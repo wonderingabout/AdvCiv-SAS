@@ -108,6 +108,8 @@ void UWAICache::clear(bool bBeforeUpdate)
 		m_aiBounty.reset();
 		m_aeSponsorPerTarget.reset();
 		m_abCanBeHiredAgainst.reset();
+		// <!-- custom: Full init/read/uninit resets previously left serialized human-capitulation authorization in the reused cache. Erase it here, while preserving it across the ordinary clear(true) turn refresh. See KI#536. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_readyToCapitulateTo.clear();
 	}
 }
 

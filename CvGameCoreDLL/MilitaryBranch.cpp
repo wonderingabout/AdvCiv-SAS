@@ -80,6 +80,9 @@ void MilitaryBranch::updateTypicalUnit()
 {
 	PROFILE_FUNC();
 
+	// <!-- custom: Recompute from an explicit no-candidate state. Otherwise losing every currently trainable candidate left the prior unit and power cached, so UWAI forecast military production the owner could no longer build. See KI#537. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_eTypicalUnit = NO_UNIT;
+	m_rTypicalPower = 0;
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	scaled rBestValue;
 	CvCivilization const& kCiv = kOwner.getCivilization();
@@ -147,6 +150,9 @@ void MilitaryBranch::updateTypicalUnit()
 
 void MilitaryBranch::NuclearArsenal::updateTypicalUnit()
 {
+	// <!-- custom: This override does not call the base refresh; invalidate its own cached candidate before the no-capital return and current trainability scan. See KI#537. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_eTypicalUnit = NO_UNIT;
+	m_rTypicalPower = 0;
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
 	if (!kOwner.hasCapital())
 		return;
@@ -510,8 +516,9 @@ void MilitaryBranch::Army::updateTypicalUnit()
 void MilitaryBranch::Fleet::updateTypicalUnit()
 {
 	MilitaryBranch::updateTypicalUnit();
-	if (getTypicalUnit() != NO_UNIT)
-		m_bCanBombard = (GC.getInfo(getTypicalUnit()).getBombardRate() > 0);
+	// <!-- custom: A Fleet with no newly valid typical unit must also forget the former ship's bombard capability. See KI#537. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_bCanBombard = (getTypicalUnit() != NO_UNIT &&
+		GC.getInfo(getTypicalUnit()).getBombardRate() > 0);
 }
 
 
