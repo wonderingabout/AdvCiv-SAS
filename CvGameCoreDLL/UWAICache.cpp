@@ -704,10 +704,12 @@ scaled UWAICache::goldPerProdVictory()
 {
 	CvTeamAI const& kOwnerTeam = GET_TEAM(m_eOwner);
 	int iOwnerVictoryStage = 0;
-	if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE3 | AI_VICTORY_SPACE3))
-		iOwnerVictoryStage = 3;
-	else if(kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE4))
+	// <!-- custom: Victory-stage bits are cumulative, so checking stage 3 first made the stage-4 branch unreachable and distorted UWAI production opportunity costs.
+	// Query from highest to lowest for both sides. See KI#542. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE4 | AI_VICTORY_SPACE4))
 		iOwnerVictoryStage = 4;
+	else if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE3 | AI_VICTORY_SPACE3))
+		iOwnerVictoryStage = 3;
 	if (iOwnerVictoryStage < 3)
 	{
 		if (kOwnerTeam.AI_anyMemberAtVictoryStage(AI_VICTORY_CULTURE2 | AI_VICTORY_SPACE2))
@@ -719,10 +721,10 @@ scaled UWAICache::goldPerProdVictory()
 		itRival.hasNext(); ++itRival)
 	{
 		int iRivalVictoryStage = 0;
-		if (itRival->AI_anyMemberAtVictoryStage3())
-			iRivalVictoryStage = 3;
-		else if (itRival->AI_anyMemberAtVictoryStage4())
+		if (itRival->AI_anyMemberAtVictoryStage4())
 			iRivalVictoryStage = 4;
+		else if (itRival->AI_anyMemberAtVictoryStage3())
+			iRivalVictoryStage = 3;
 		if (iRivalVictoryStage >= iOwnerVictoryStage)
 			r--;
 		if (iRivalVictoryStage > iOwnerVictoryStage)
@@ -819,18 +821,10 @@ void UWAICache::updateWarAnger()
 
 void UWAICache::updateCanScrub()
 {
-	static FeatureTypes eFallout = NO_FEATURE; // why not cache it
-	if (eFallout == NO_FEATURE)
-	{
-		FOR_EACH_ENUM(Feature)
-		{
-			if (GC.getInfo(eLoopFeature).getHealthPercent() <= -50)
-			{
-				eFallout = eLoopFeature;
-				break;
-			}
-		}
-	}
+	// <!-- custom: The inherited health-threshold search selected SAS Jungle, which now precedes Fallout and also has -50 health, so Metal Casting falsely enabled the UWAI Fallout-cleanup estimate.
+	// Identify the exact feature independently of balance values and XML order. See KI#540. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	static const FeatureTypes eFallout = (FeatureTypes)GC.getInfoTypeForString("FEATURE_FALLOUT");
+	FAssert(eFallout != NO_FEATURE);
 	FOR_EACH_ENUM(Build)
 	{
 		TechTypes eFeatureTech = GC.getInfo(eLoopBuild).getFeatureTech(eFallout);
@@ -852,11 +846,25 @@ void UWAICache::updateTransports()
 	{
 		UnitTypes const eUnit = kOwnerCiv.unitAt(i);
 		CvUnitInfo const& kUnit = GC.getInfo(eUnit);
-		if (kUnit.getUnitAIType(UNITAI_ASSAULT_SEA) && kOwner.canTrain(eUnit))
+		if (!kUnit.getUnitAIType(UNITAI_ASSAULT_SEA) || !kOwner.canTrain(eUnit))
+			continue;
+		// <!-- custom: CvPlayer::canTrain ignores city resources and placement. Require one real city that can train the transport so SAS's obsolete resource-free ships do not make an Oil-less post-Combustion empire appear to retain naval lift production. See KI#541. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bCityCanTrain = false;
+		FOR_EACH_CITY(pCity, kOwner)
 		{
-			m_bHaveAnyTransports = true;
-			if (!kOwner.AI_isAnyImpassable(eUnit))
-				m_bHaveDeepSeaTransports = true;
+			if (pCity->canTrain(eUnit))
+			{
+				bCityCanTrain = true;
+				break;
+			}
+		}
+		if (!bCityCanTrain)
+			continue;
+		m_bHaveAnyTransports = true;
+		if (!kOwner.AI_isAnyImpassable(eUnit))
+		{
+			m_bHaveDeepSeaTransports = true;
+			break;
 		}
 	}
 }
