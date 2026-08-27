@@ -13237,6 +13237,9 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 	PlayerTypes ePlayer = getLiberationPlayer(bConquest);
 	if(ePlayer == NO_PLAYER)
 		return; // advc
+	// <!-- custom: acquireCity destroys and replaces this CvCity later in the function. Preserve its original player/team identity before that lifetime boundary. See KI#486.2. (GPT-5.6-Sol) -->
+	PlayerTypes const eOldOwner = getOwner();
+	TeamTypes const eOldTeam = getTeam();
 	// kekm.23: No longer used
 	/*CvPlot* pPlot = plot();
 	int iOldOwnerCulture = getCultureTimes100(getOwner());
@@ -13245,9 +13248,9 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 	int iOldVassalLand = 0;
 	CvTeam& kLiberationTeam = GET_TEAM(ePlayer); // advc
 
-	if (kLiberationTeam.isVassal(getTeam()))
+	if (kLiberationTeam.isVassal(eOldTeam))
 	{
-		iOldMasterLand = GET_TEAM(getTeam()).getTotalLand();
+		iOldMasterLand = GET_TEAM(eOldTeam).getTotalLand();
 		iOldVassalLand = std::max(10, // advc.112: Lower bound added
 				kLiberationTeam.getTotalLand(false));
 	}
@@ -13256,7 +13259,7 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 	static const ColorTypes eColorHighlightText = (ColorTypes)GC.getColorType("HIGHLIGHT_TEXT");
 
 	CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_CITY_LIBERATED", getNameKey(),
-			GET_PLAYER(getOwner()).getNameKey(),
+			GET_PLAYER(eOldOwner).getNameKey(),
 			GET_PLAYER(ePlayer).getCivilizationAdjectiveKey());
 	for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 	{
@@ -13273,15 +13276,16 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 		}
 	}
 	GC.getGame().addReplayMessage(getPlot(), REPLAY_MESSAGE_MAJOR_EVENT,
-			getOwner(), szBuffer, eColorHighlightText);
+			eOldOwner, szBuffer, eColorHighlightText);
 	// <advc.ctr>
 	if (!bPeaceDeal)
 		GET_PLAYER(ePlayer).AI_rememberLiberation(*this, bConquest); // </advc.ctr>
 	GET_PLAYER(ePlayer).acquireCity(this, false, true, true);
 
-	if (kLiberationTeam.isVassal(getTeam()))
+	// <!-- custom: The old CvCity is invalid from here onward. Using its cached IDs fixes the reproduced liberation crash and the later stale attitude-update dereference. See KI#486.2. (GPT-5.6-Sol) -->
+	if (kLiberationTeam.isVassal(eOldTeam))
 	{
-		int iNewMasterLand = GET_TEAM(getTeam()).getTotalLand();
+		int iNewMasterLand = GET_TEAM(eOldTeam).getTotalLand();
 		int iNewVassalLand = std::max(10, // advc.112: Lower bound added
 				kLiberationTeam.getTotalLand(false));
 
@@ -13290,7 +13294,7 @@ void CvCity::liberate(bool bConquest, /* advc.ctr: */ bool bPeaceDeal)
 		kLiberationTeam.setVassalPower(kLiberationTeam.getVassalPower() +
 				iNewVassalLand - iOldVassalLand);
 	}
-	GET_PLAYER(ePlayer).AI_updateAttitude(getOwner()); // advc.ctr
+	GET_PLAYER(ePlayer).AI_updateAttitude(eOldOwner); // advc.ctr
 	// kekm.23: setCulture now done by advc.ctr in acquireCity
 	/*if (NULL != pPlot) {
 		CvCity* pCity = pPlot->getPlotCity();

@@ -2766,8 +2766,7 @@ bool AIFoundValue::isPlotInKnownRivalFutureBFC(CvPlot const& p) const
 
 		FOR_EACH_CITY(pCity, kLoop)
 		{
-			if (!pCity->isArea(kArea))
-				continue;
+			// <!-- custom: kArea belongs to the new candidate city, not to bonus plot p. Distance alone identifies rival cities whose future BFC can contest p, including a coastal city contesting a water bonus. See KI#484. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(*pCity))
 				continue;
 			if (plotDistance(p.getX(), p.getY(), pCity->getX(), pCity->getY()) <= CITY_PLOTS_RADIUS)
@@ -2780,7 +2779,9 @@ bool AIFoundValue::isPlotInKnownRivalFutureBFC(CvPlot const& p) const
 
 bool AIFoundValue::isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const
 {
-	if (kPlayer.getNumAvailableBonuses(eBonus) > 0)
+	// <!-- custom: Available bonuses are net of exports and include temporary imports. Reconstruct connected permanent supply so an import cannot erase the settlement value of acquiring the first owned copy, while an exported owned copy still counts. See KI#486. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iPermanentConnectedBonuses = kPlayer.getNumAvailableBonuses(eBonus) + kPlayer.getBonusExport(eBonus) - kPlayer.getBonusImport(eBonus);
+	if (iPermanentConnectedBonuses > 0)
 		return true;
 
 	// <!-- custom: For empire-wide bonus effects, treat a bonus type as already covered when an existing city can plausibly claim it in its full BFC, even before border expansion or connection.
@@ -2796,7 +2797,12 @@ bool AIFoundValue::isBonusOwnedOrClaimedByFutureBFC(BonusTypes eBonus) const
 
 			PlayerTypes const ePlotOwner = pLoopPlot->getOwner();
 			if (ePlotOwner == NO_PLAYER || ePlotOwner == ePlayer)
-				return !isPlotInKnownRivalFutureBFC(*pLoopPlot);
+			{
+				// <!-- custom: A contested occurrence establishes nothing about other copies. Keep searching until any matching future-BFC bonus is safely claimable, making this empire-wide result independent of city/plot iteration order. See KI#485. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (!isPlotInKnownRivalFutureBFC(*pLoopPlot))
+					return true;
+				continue;
+			}
 			if (GET_PLAYER(ePlotOwner).getTeam() == kPlayer.getTeam())
 				return true;
 		}
