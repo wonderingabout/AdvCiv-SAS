@@ -494,8 +494,8 @@ int AIFoundValue::evaluate()
 
 	// <!-- custom: add support for counting water tiles in starting locations -->
 	// int const iElapsedTurns = GC.getGame().getElapsedGameTurns();
-	int const iNumCities = kPlayer.getNumCities();
-	bool const bStartPhase = (iNumCities == 0);
+	// <!-- custom: AIFoundValue normalizes Barbarian city count so their first settlement is not treated like a capital. Reuse that established state for SAS first-city gates instead of raw player city count. See KI#489. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bStartPhase = (iCities == 0);
 
 	// <!-- custom: Count first-city BFC slots by XML-aware usability rather than the old no-peak-land + water-bonus approximation. "Good enough" is intentionally weaker than truly good: it means a slot is usable enough for the first-city minimum-tile sanity check. (ChatGPT-5.5) -->
 	int iGoodEnoughFirstCityBFCTiles = 0;
@@ -669,38 +669,8 @@ int AIFoundValue::evaluate()
 
 		CvPlot const* pLoopPlot = plotCity(iX, iY, eLoopCityPlot);
 
-		if (pLoopPlot != NULL)
-		{
-			if (pLoopPlot->isGoody() && eLoopCityPlot != CITY_HOME_PLOT) // advc.027)
-			{
-				iGoody++;
-			}
-
-			// <!-- custom: regardless of coastal status and if starting site, we want land tiles, not water tiles, as they we can work them and have better long term potential, this should help especially for high coast value but low land count tiles issue, see known issue as of now 44 for details-->
-			const bool bHomePlot = isHome(*pLoopPlot);
-
-			// <!-- custom: Do not inspect actual terrain, bonuses, or improvement potential in fogged BFC plots. Keep them neutral here; iUnrevealedTiles accounts for them in the first-city minimum-slot gate. (GPT-5.5) -->
-			if (!bHomePlot && isRevealed(*pLoopPlot))
-			{
-				const BonusTypes eBonusPlot = getBonus(*pLoopPlot);
-
-				bool const bCanAssumeWaterBonusImprovement = pLoopPlot->SAS_canAssumeWaterBonusImprovement(eBonusPlot, ePlayer, kPlot);
-				int iBestPotentialYieldScore = 0;
-				bool const bVeryBadBFCPlot = pLoopPlot->SAS_isVeryBadBFCPlot(eBonusPlot, ePlayer, iAssumedSeaPlotFoodChange, iMinAcceptableVeryBadPlotPotentialYieldScore, iBestPotentialYieldScore);
-				if (bVeryBadBFCPlot)
-				{
-					++iVeryBadBFCTiles;
-					IFLOG logBBAI("Very bad BFC plot (%d,%d): %s, potential yield score %d below %d", pLoopPlot->getX(), pLoopPlot->getY(), (pLoopPlot->isImpassable() ? "impassable" : "weak despite improvements"), iBestPotentialYieldScore, iMinAcceptableVeryBadPlotPotentialYieldScore);
-				}
-				else
-				{
-					iLowFoodLocationScore += pLoopPlot->SAS_getLowFoodEnvironmentScore(eBonusPlot, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
-				}
-				if (bStartPhase && pLoopPlot->SAS_isGoodEnoughFirstCityBFCPlot(eBonusPlot, ePlayer, kPlot, bVeryBadBFCPlot))
-					++iGoodEnoughFirstCityBFCTiles;
-
-			}
-		}
+		if (pLoopPlot != NULL && pLoopPlot->isGoody() && eLoopCityPlot != CITY_HOME_PLOT) // advc.027)
+			iGoody++;
 
 		bool bShare = false;
 		bool bSteal = false; // </advc.031>
@@ -713,6 +683,24 @@ int AIFoundValue::evaluate()
 		}
 		CvPlot const& p = *pLoopPlot;
 		bool const bHome = isHome(p);
+
+		// <!-- custom: Preliminary BFC quality counters previously ran before isUsablePlot and could affect first-city acceptance or later penalties through plots that the main evaluator then rejected as reserved or unavailable overlap.
+		// Classify only plots that passed the established usability contract; fog remains represented separately by iUnrevealedTiles. See KI#490. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!bHome)
+		{
+			BonusTypes const eBonusPlot = getBonus(p);
+			bool const bCanAssumeWaterBonusImprovement = p.SAS_canAssumeWaterBonusImprovement(eBonusPlot, ePlayer, kPlot);
+			int iBestPotentialYieldScore = 0;
+			bool const bVeryBadBFCPlot = p.SAS_isVeryBadBFCPlot(eBonusPlot, ePlayer, iAssumedSeaPlotFoodChange, iMinAcceptableVeryBadPlotPotentialYieldScore, iBestPotentialYieldScore);
+			if (bVeryBadBFCPlot)
+			{
+				++iVeryBadBFCTiles;
+				IFLOG logBBAI("Very bad BFC plot (%d,%d): %s, potential yield score %d below %d", p.getX(), p.getY(), (p.isImpassable() ? "impassable" : "weak despite improvements"), iBestPotentialYieldScore, iMinAcceptableVeryBadPlotPotentialYieldScore);
+			}
+			else iLowFoodLocationScore += p.SAS_getLowFoodEnvironmentScore(eBonusPlot, iAssumedSeaPlotFoodChange, bCanAssumeWaterBonusImprovement);
+			if (bStartPhase && p.SAS_isGoodEnoughFirstCityBFCPlot(eBonusPlot, ePlayer, kPlot, bVeryBadBFCPlot))
+				++iGoodEnoughFirstCityBFCTiles;
+		}
 
 		// <!-- custom: optimization as recommended by chatgpt 5 thanks -->
 		const bool pIsHills = p.isHills();
@@ -1123,18 +1111,10 @@ int AIFoundValue::evaluate()
 				IFLOG logBBAI("%d from water resource near non-coastal site", iValueHomeWaterBonusNoCoast);
 			} // </advc.031>
 		}
-		else
-		{
-			// <!-- custom: do not count flood plains as the good outweights the bad, it can be considered neutral in terms of health vs unhealthiness overall benefits for this calculation, but to be strictly fair we'd still grow even accounting for unhealthiness however simpler to just nullify it as it is about as good as bad to simplify -->
-			if (eFeature == eFeatureJungle)
-			{
-				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
-			}
-			else if (eFeature == eFeatureForest)
-			{
-				iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
-			}
-		}
+		// <!-- custom: A visible bonus does not remove its Forest/Jungle or its real health effect. Accumulate cautious feature health independently of resource valuation instead of exempting every feature+bonus plot through the old else branch.
+		// Do not count Flood Plains: their yield benefit intentionally offsets their unhealthiness in this heuristic. See KI#488. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (eFeature == eFeatureJungle || eFeature == eFeatureForest)
+			iCautiousHealthPercent += GC.getInfo(eFeature).getHealthPercent();
 
 		if (kSet.isStartingLoc() && !bHome && !bSteal && p.isRiver())
 		{
@@ -1517,14 +1497,16 @@ int AIFoundValue::evaluate()
 
 			FOR_EACH_CITY(pCity, kLoop)
 			{
-				if (!pCity->isArea(kArea)) continue;
-
 				// don't cheat: only count cities we could reasonably know about
 				if (!kSet.isAllSeeing() && !kTeam.AI_deduceCitySite(*pCity))
 					continue;
 
+				// <!-- custom: Culture can cross area boundaries through the narrower culture-level + 1 range. Use that real engine range for another-island cities instead of discarding their pressure, while retaining the inherited +3 same-area scale. See KI#487. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				const int d = plotDistance(iX, iY, pCity->getX(), pCity->getY());
-				const int r = pCity->getCultureLevel() + 3; // same scale as the old code
+				bool const bSameArea = pCity->isArea(kArea);
+				const int r = pCity->getCultureLevel() + (bSameArea ? CvCity::plotCultureExtraRange() : 1);
+				if (!bSameArea && d > r)
+					continue;
 
 				int iLocal = 0;
 				if (d <= r)

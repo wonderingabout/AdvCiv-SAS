@@ -556,6 +556,10 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [485 - (Fixed SAS KI#178 regression) Future-BFC bonus coverage depended on city and plot iteration order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#485---fixed-sas-ki178-regression-future-bfc-bonus-coverage-depended-on-city-and-plot-iteration-order)\
 [486 - (Fixed SAS KI#178 regression) Temporary resource imports counted as permanent owned copies in city-site valuation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#486---fixed-sas-ki178-regression-temporary-resource-imports-counted-as-permanent-owned-copies-in-city-site-valuation)\
 [486.2 - (Fixed inherited AdvCiv use-after-free crash) Liberating a conquered city dereferenced its destroyed old city object](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#4862---fixed-inherited-advciv-use-after-free-crash-liberating-a-conquered-city-dereferenced-its-destroyed-old-city-object)\
+[487 - (Fixed inherited K-Mod/AdvCiv geographic assumption retained by SAS) Cross-area rival culture pressure was discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#487---fixed-inherited-k-modadvciv-geographic-assumption-retained-by-sas-cross-area-rival-culture-pressure-was-discarded)\
+[488 - (Fixed AdvCiv-SAS cautious-health defect) Resource plots lost Forest/Jungle health](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#488---fixed-advciv-sas-cautious-health-defect-resource-plots-lost-forestjungle-health)\
+[489 - (Fixed AdvCiv-SAS regression against AdvCiv Barbarian normalization) First Barbarian city received capital-only gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#489---fixed-advciv-sas-regression-against-advciv-barbarian-normalization-first-barbarian-city-received-capital-only-gates)\
+[490 - (Fixed AdvCiv-SAS first-city gate defect) Unusable overlapping plots affected preliminary BFC quality](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#490---fixed-advciv-sas-first-city-gate-defect-unusable-overlapping-plots-affected-preliminary-bfc-quality)\
 [520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#520---fixed-inherited-advciv-uwai-debug-assertion-defect-declaration-turn-brokered-peace-rejected-a-valid-zero-war-age)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -10911,6 +10915,32 @@ The Debug-opt autoplay validating KI#484-KI#486 produced a real full-memory cras
 The repair caches the old owner and team IDs before transferring the city and uses only those stable IDs after `acquireCity`; fixed player/team arrays remain addressable even when losing the city eliminates the old player. This restores the function's pre-refactor contract rather than adding a null guard around invalid memory. AdvCiv commit `d6125a4c38c37aacda11dbd37d6752f90d21b0f8` (`Announce city trades to third parties`, 2019-09-22) removed the previously cached old-owner ID and replaced post-transfer uses with `getOwner()`/`getTeam()` during its `CvCity::liberate` refactor. Base AdvCiv 1.14 retains the resulting defect, so this is an inherited AdvCiv crash rather than an AdvCiv-SAS regression. Reproduced, diagnosed through the matching Debug-opt PDB, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 After rebuilding Debug-opt, loading the preserved `AutoSave_AD-2004.CivBeyondSwordSave` resumed immediately before the same Galway conquest/liberation sequence and the autoplay continued successfully. This directly validates the repaired lifetime boundary rather than relying only on a fresh run that might not repeat the rare AI liberation decision.
+
+## 487 - (Fixed inherited K-Mod/AdvCiv geographic assumption retained by SAS) Cross-area rival culture pressure was discarded
+
+The SAS replacement for `adjustToCivSurroundings` skipped every known rival city whose city tile was not in the candidate settlement's land area. The actual culture engine deliberately allows a city's culture to cross an area boundary at the narrower `culture level + 1` range. A nearby coastal city on another island could therefore project culture toward the candidate while the settlement evaluator rated the site as culturally uncontested.
+
+The repair retains the established same-area range of `culture level + CvCity::plotCultureExtraRange()`, but evaluates different-area cities through the engine's narrower `culture level + 1` range instead of discarding them. Existing no-cheat city-knowledge checks remain intact. The same-area assumption originated conceptually in K-Mod's foreign-proximity found value and Base AdvCiv's `adjustToCivSurroundings`; SAS later migrated a simpler culture-pressure subset inline and retained it. This is therefore a long-standing inherited geographic assumption exposed by the SAS replacement, not solely an AdvCiv-SAS regression. Found as F164/provisional KI#487 during ChatGPT-5.6-Sol's C016-WIP02 `CitySiteEvaluator.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 488 - (Fixed AdvCiv-SAS cautious-health defect) Resource plots lost Forest/Jungle health
+
+SAS's cautious BFC health accumulator was placed in the `else` branch of resource valuation. Forest or Jungle therefore contributed its real feature health only when the plot had no visible bonus. Shipped XML allows ordinary feature/resource combinations, so a resource marker could erase `+50` Forest health or `-50` Jungle health from this estimate and move the site across a thresholded health penalty despite leaving the feature itself present.
+
+The repair accumulates Forest/Jungle health independently of whether the plot contains a bonus; Flood Plains remain deliberately neutral in this heuristic because their yield benefit offsets their unhealthiness for this simplified calculation. This accumulator is SAS custom logic and its comments never defined resource plots as exempt, so this is an AdvCiv-SAS defect rather than inherited behavior. Found as F165/provisional KI#488 during ChatGPT-5.6-Sol's C016-WIP02 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 489 - (Fixed AdvCiv-SAS regression against AdvCiv Barbarian normalization) First Barbarian city received capital-only gates
+
+AdvCiv deliberately normalizes the Barbarian city count to 5 inside `AIFoundValue` so Barbarians do not distinguish early from later settlements. Later SAS logic independently derived `bStartPhase` from the raw player city count. Before the first Barbarian city existed, that conflicting state enabled SAS capital-only rules such as the minimum good-enough BFC tile gate and stricter starting health/very-bad-tile penalties; those rules immediately disappeared after city #1.
+
+The repair derives the SAS start phase from the evaluator's already-normalized `iCities`, preserving ordinary players' first-city behavior while excluding Barbarians as AdvCiv intended. The normalization is inherited AdvCiv behavior (`advc.108`), while the conflicting gate was added by SAS; this is therefore an AdvCiv-SAS regression against an explicit inherited contract. Found as F166/provisional KI#489 during ChatGPT-5.6-Sol's C016-WIP02 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 490 - (Fixed AdvCiv-SAS first-city gate defect) Unusable overlapping plots affected preliminary BFC quality
+
+SAS practical `7a6be1b482c631ab46fe891e44fdedacd5e3871b` added XML-aware preliminary BFC counters for good-enough first-city tiles, very bad tiles and low-food surroundings, but ran them before `isUsablePlot`. Reserved plots and unavailable overlap with existing cities could therefore make a first-city candidate pass or fail a hard gate, or alter later penalties, even though the main evaluator subsequently rejected those plots and assigned them no ordinary found value.
+
+The repair moves the preliminary classifications after the established usability/ownership filter. The home plot remains excluded and fog remains represented separately by `iUnrevealedTiles`, preserving those intended contracts. This ordering defect was introduced with the SAS first-city gate rather than inherited from AdvCiv. Found as F167/provisional KI#490 during ChatGPT-5.6-Sol's C016-WIP02 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired Debug-opt DLL compiled successfully, and the requested Large Archipelago, Ancient-era, Normal-speed autoplay completed normally. The exact KI#487-KI#490 culture-pressure, feature+bonus health, first-Barbarian-city and unusable-overlap transitions remain source-verified.
 
 ## 520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age
 

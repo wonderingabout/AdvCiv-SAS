@@ -2,12 +2,12 @@ AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
-Files complete: 15 / 169
-Files open: 0 / 169
-Last completed file: 015 CvGameCoreDLL/CvSelectionGroup.cpp (4,722 lines) - CLOSED AT C016
-Next queued file: 016 CvGameCoreDLL/CitySiteEvaluator.cpp (4,595 lines)
-File-015 roots: F143-F157 / provisional KI#466-KI#480
-Next root ID: F158 unused
+Files complete: 17 / 169
+Files open: 1 / 169
+Last completed file: 017 CvGameCoreDLL/UWAIAgent.cpp (3,700 lines) - CLOSED AT C018
+Current selected file: queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp (1,454 lines) - OPEN AT C018-WIP03
+Current queue-041 roots: F198-F200 / provisional KI#521-KI#523
+Next root ID: F201 unused
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -35,8 +35,8 @@ QUEUE (current .cpp files, longest -> shortest)
 013   6190 CvGameCoreDLL/CvTeam.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 014   5024 CvGameCoreDLL/WarUtilityAspect.cpp [COMPLETE - SEE C015 DURABLE CHECKPOINT]
 015   4722 CvGameCoreDLL/CvSelectionGroup.cpp [COMPLETE - SEE C016 DURABLE CHECKPOINT]
-016   4595 CvGameCoreDLL/CitySiteEvaluator.cpp [PENDING]
-017   3700 CvGameCoreDLL/UWAIAgent.cpp [PENDING]
+016   4595 CvGameCoreDLL/CitySiteEvaluator.cpp [COMPLETE - SEE C017 DURABLE CHECKPOINT]
+017   3700 CvGameCoreDLL/UWAIAgent.cpp [COMPLETE - SEE C018 DURABLE CHECKPOINT]
 018   2965 CvGameCoreDLL/CvGameInterface.cpp [PENDING]
 019   2810 CvGameCoreDLL/CvDLLButtonPopup.cpp [PENDING]
 020   2599 CvGameCoreDLL/CvInfo_Unit.cpp [PENDING]
@@ -60,7 +60,7 @@ QUEUE (current .cpp files, longest -> shortest)
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]<-(priority next wip)
 040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]<-(priority next wip)
-041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [PENDING]<-(priority next wip 1st)
+041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [OPEN - SEE C018-WIP03]<-(priority next wip 1st)
 042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]<-(priority next wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
@@ -24773,3 +24773,618 @@ LOCAL RECONCILIATION AFTER C017-WIP13 IMPORT
 - KI#475's first implementation exposed and then fixed two additional independent crashes. KI#475.2 restored a destroyed-GroupPathFinder guard during save teardown after PDB-assisted diagnosis of the SAS follow-up regression. KI#475.3 initializes dead-at-load player UWAI before Base AdvCiv's revival update; the former reproduction save and WorldBuilder revival route then completed without crashing. These decimal continuation issues are implementation findings rather than replacements for an album root number.
 - KI#480's repaired Debug-opt DLL compiled and completed an autoplay normally. Current shipped SAS Python does not call either queue getter, so its corrected public-API ownership transition remains source-verified.
 - Current source and Known Issues are authoritative for these reviewed states; the preserved C014-C017 checkpoints remain verbatim investigation evidence. (GPT-5.6-Sol)
+
+
+===============================================================================
+DURABLE CHECKPOINT C018 -- FILE 017 CLOSED / PRIORITY QUEUE OVERRIDE ACTIVE
+===============================================================================
+Date: 2026-08-27
+Model: GPT-5.6-Sol
+Authoritative source snapshot for closure:
+    AdvCiv-SAS_light_source_20260827T000854.zip
+Closed file:
+    queue 017  CvGameCoreDLL/UWAIAgent.cpp  (3,700 lines)
+Prior physical checkpoint:
+    C017-WIP13
+
+SOURCE RECONCILIATION
+---------------------
+The current UWAIAgent.cpp is byte-for-byte identical to the 2026-08-26 20:49 light
+snapshot used for the late C017 investigation:
+
+    SHA-256 c9ed9ac4c3a75595e21fa505a38a17517ea1a27bc6513bb45038a027ff23298c
+
+Therefore the final closure pass did not have to reconcile any intervening source edit
+inside file 017. The newer 00:08 bundle is nevertheless authoritative for repository-
+wide state, the queue, Known Issues, and implementation/test archaeology.
+
+FILE-017 FINAL FINDING RANGE
+----------------------------
+F183-F197 / provisional KI#506-KI#520.
+F198 remains UNUSED.
+
+No additional root survived the final closure pass. In particular, the pass rechecked:
+
+* every remaining FAssert/Tbd/Hack site against its caller invariant rather than
+  treating unusual comments or debug guards as defects by themselves;
+* all current SAS-vs-Base UWAIAgent.cpp modified regions, with special attention to
+  the KI#184/KI#189 victory-denial, deterministic preparation and target-selection
+  state transitions;
+* all public UWAIAgent.h Team/Player helper contracts against their external callers;
+* reciprocal player/team IDs, including war-success and at-war-counter lookups;
+* NO_TEAM / NO_PLAYER / NO_WARPLAN sentinels before getter and logging use;
+* vector indexing and first-element accesses after their population gates;
+* ScaledNum round/uround domains, logarithm/square-root inputs and division
+  denominators;
+* loop-carried state, retry-pass state and current-war/cache lifetimes;
+* state read after AI_setWarPlan, declareWar, AI_negotiatePeace, capitulation and
+  vassal-deal transitions;
+* report allocation/close paths, forced-report lifetime and background simulation;
+* the 2021 random-team-member diplomacy conversion and its remaining player-pair
+  contact timers;
+* historical AdvCiv UWAI fixes for war-trade sign, peace epsilon/zero-delta handling,
+  target-switch arithmetic, OOS-safe closeness and related historically fragile code.
+
+FINAL NEGATIVE CONTROLS / REJECTIONS
+------------------------------------
+The following late candidates were intentionally NOT assigned F198:
+
+1. Background review helpers can report a simulated plan change while suppressing the
+   real mutation. That is part of the normal background-evaluation design; the proven
+   defect remains F194, where doWarReport toggles only the global background flag while
+   Team::m_bInBackground stays stale and therefore fails to suppress those mutations.
+
+2. The 2021 random-member peace/vassal diplomacy conversion does not create a
+   team-global contact-timer bypass. The underlying diplomacy system intentionally
+   stores CONTACT_PEACE_TREATY timers per player pair, and ordinary non-UWAI diplomacy
+   can likewise contact another member of the same enemy team while one pair is on
+   cooldown. F195 remains the isolated stale leader-only amendTensions assertion.
+
+3. scheme's sorted TargetData/aAdjustedDrives metadata stays index-aligned through the
+   preferred-local-target prepass, best-eligible-target pass and final selection. The
+   best-target logging also initializes eBestEligibleTarget before any dereference in
+   the non-best-only mode.
+
+4. scheme's skipped-total INT_MIN value is never fed into the later victory boost,
+   divisor or ScaledNum arithmetic. It participates only in comparisons/logging until
+   iU takes max(iLimitedU, iTotalU). The real zero-partition plan-type defect remains
+   F189; no independent sentinel root survives.
+
+5. considerSwitchTarget's ratio denominator is positive whenever an alternative
+   target exists. Its padding lifts the smaller utility to 20 when necessary, while a
+   no-padding path requires the selected alternative to exceed a current utility of at
+   least 20.
+
+6. The apparently strict confidenceFromWarSuccess reciprocal at-war-counter assertion
+   is not promoted. War declaration/peace reset reciprocal counters together, ordinary
+   team-turn ordering explains the documented small skew, and permanent-alliance
+   merging explicitly re-synchronizes the counterpart counters. No reachable >2 skew
+   was established.
+
+7. tradeValJointWar's non-human-ally assertion is preserved. Both normal AI diplomacy
+   and Rise & Fall replacement valuation call it with an AI ally; no human-ally caller
+   was found.
+
+8. uEndAllWars/acceptVassal empty-vector assertions remain caller-protected rather than
+   hidden crashes. Vote validity and AI_vassalTrade respectively establish the
+   applicable enemy set before the UWAI entry points are used.
+
+9. getSASBBAINearestCityDistance returning -1 for no city pair does not create a
+   preferred-local phantom target because the mutual AI_isLandTarget eligibility gate
+   rejects the no-source-city case before the distance threshold is decisive.
+
+10. The diagnostic WAR_TARGET_PLAN_SET row can also be emitted after the direct
+    declaration branch. The label/comment is somewhat broader than the nearby wording,
+    but the declaration really does install that war plan; this is logging naming,
+    not a gameplay/state root.
+
+11. report ownership is balanced: every path after startReport in doWar reaches
+    closeReport, and the Team destructor remains a final safety delete. setForceReport
+    has no independent persistent-state leak beyond F194's background-cache mismatch.
+
+12. Civ4CE supplied with this audit contains no UWAI/UWAIAgent/WarEvaluator
+    implementation, so there is no independent CE-side implementation or later UWAI
+    fix to compare for file 017. Base AdvCiv 1.14 and the bundled AdvCiv history mirrors
+    remain the appropriate ancestry controls here.
+
+C018 CLOSURE JUDGMENT
+---------------------
+UWAIAgent.cpp is CLOSED for this first-pass album. This does not mean the file is
+proven bug-free; it means the present deep pass has exhausted the concrete roots that
+can be supported by current code, caller contracts, lifecycle analysis and available
+history without manufacturing tuning disagreements or speculative edge cases.
+
+The high number of roots in this file also supports the newer investigation method:
+repeated physical WIPs, narrow candidate proof, caller/lifecycle tracing and historical
+comparison exposed substantially more than a quick linear pass would have.
+
+PRIORITY-QUEUE POLICY FROM CURRENT ALBUM
+----------------------------------------
+The original line-count queue remains preserved for identity/reference, but next-file
+selection now follows the explicit "<-(priority next wip...)" markers in the current
+album rather than raw source size.
+
+The explicitly ordered first group is:
+
+    priority 1st: queue 041  CvGameCoreDLL/CvSelectionGroupAI.cpp  (1,454 lines)
+    priority 2nd: queue 031  CvGameCoreDLL/UWAICache.cpp           (1,812 lines)
+    priority 3rd: queue 045  CvGameCoreDLL/CvMapGenerator.cpp      (1,281 lines)
+
+After those, continue through the other files marked "priority next wip" in the current
+queue before returning to ordinary pending files. Once those never-passed priority
+files have received the stronger WIP method, perform a second deep sweep of the older
+important files that were marked priority despite already being COMPLETE, especially:
+
+    CvPlayerAI.cpp, CvUnitAI.cpp, CvPlayer.cpp, CvCityAI.cpp,
+    CvCity.cpp, CvUnit.cpp, CvGame.cpp and CvPlot.cpp.
+
+Those second sweeps are not predicated on finding more issues. Their value is that the
+old passes predate the stronger checkpoint/proof methodology, while these files are
+large and gameplay-critical enough that sparse historical findings are worth
+revalidating rather than assuming completeness.
+
+CURRENT DURABLE CURSOR
+----------------------
+COMPLETED FIRST-PASS FILES: 17 / 169
+FILE 017: CvGameCoreDLL/UWAIAgent.cpp -- CLOSED AT C018
+PHYSICAL CHECKPOINT: C018
+FILE-017 ROOTS: F183-F197 / provisional KI#506-KI#520
+NEXT ROOT ID: F198 UNUSED
+NEXT SELECTED FILE (PRIORITY OVERRIDE):
+    queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp (1,454 lines)
+
+Start the next WIP from F198 unused. Do not renumber the original queue; identify the
+file as queue 041 while the C018-WIPxx checkpoint series records investigation order.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C018-WIP01 -- PRIORITY FILE 041 CvSelectionGroupAI.cpp -- FIRST DURABLE HANDOFF
+===============================================================================
+
+SOURCE / CURSOR
+---------------
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260827T000854.zip
+
+Priority override is active. This is queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp,
+selected ahead of the old size-order queue because it is marked priority next WIP.
+Base AdvCiv 1.14 and Civ4CE are being used as local comparison controls where the
+implementation overlaps.
+
+F198 / provisional KI#521 -- CONFIRMED
+--------------------------------------
+Inherited AdvCiv debug assertion defect: a legal human BOMBARD mission against an
+undefended city can trip AI_bestUnitForMission's iDefenders > 0 assertion.
+
+Root:
+    CvSelectionGroupAI::AI_bestUnitForMission(MISSION_BOMBARD)
+
+The human-only branch computes the number of defending units on the bombard target
+and then asserts:
+
+    FAssertMsg(iDefenders > 0, "AI bombards undefended city");
+
+That invariant is false for a legal human command. The full caller/legality chain was
+checked rather than inferred from the local function:
+
+1. CvSelectionGroup::canDoMission(MISSION_BOMBARD) exposes the mission when any
+   movable group unit satisfies CvUnit::canBombard.
+2. CvUnit::canBombard requires positive bombard rate, attacks remaining, no cargo,
+   and a non-null bombardTarget. It does not require a defending unit.
+3. CvUnit::bombardTarget accepts an adjacent CvCity when CvCity::isBombardable does.
+4. CvCity::isBombardable also has no defender requirement. In particular, its
+   advc.004c human behavior deliberately permits legal bombardment of a city whose
+   defenses can still be reduced/kept at zero even when no unit defends it.
+5. CvSelectionGroup's MISSION_BOMBARD executor calls
+   AI_bestUnitForMission(MISSION_BOMBARD) for the human command too.
+6. Therefore a human can legally issue Bombard with iDefenders == 0 and reach this
+   human-only assertion.
+
+The assertion text itself is additional evidence of a stale invariant: it says
+"AI bombards undefended city" despite sitting in the else branch of if (!isHuman()).
+
+Release-build arithmetic is already safe. The later attacker/defender ratio uses
+std::max(iDefenders, 1), so zero defenders do not create a divide-by-zero. This root
+should therefore remain scoped as a debug/assertion correctness defect, not described
+as a release crash or as invalid Bombard gameplay.
+
+Ancestry/control:
+- The block comes from AdvCiv's advc.004c mission-selection rewrite and survives in
+  Base AdvCiv 1.14.
+- The local Civ4CE branch does not carry this AdvCiv selector/assertion rewrite.
+- No existing KI#521 collision was found in the reconciled album/Known Issues at the
+  time of promotion.
+
+Narrow repair boundary:
+- Remove or relax the iDefenders > 0 assertion for the human path.
+- Do NOT add a defender requirement to canBombard/isBombardable; undefended-city
+  bombardment is intentionally legal for humans.
+- Existing std::max(iDefenders, 1) arithmetic protection can remain.
+
+NEGATIVE CONTROLS COMPLETED BEFORE THIS HANDOFF
+-----------------------------------------------
+- KI#319 no-progress tripwire: challenged the omitted group-size/composition state.
+  AI_counterMove -> AI_separate looked promising, but AI_separate removes the head
+  first into a fresh group, so the old group's head ID changes/disappears and the
+  tripwire correctly detects progress. Other split/load cases either replace the
+  head similarly or queue a mission. No generic "snapshot group size too" root.
+- SAS low-power / obsolete-sacrifice attacker ordering: the low-power mode is used by
+  the real post-declaration attack loop, so its inherited canMoveInto(..., true)
+  legality does not accidentally need the potential-enemy mode. iUnitOdds == -1
+  after choosing a sacrifice is also not consumed incorrectly by the caller.
+- AI_getMissionAIUnit stale ID warning: normal FFreeList slot recycling does not
+  alias the stale ID because the full ID contains a generation component and getAt
+  verifies the complete ID. Exact aliasing would require an extreme generation wrap,
+  not ordinary unit replacement.
+- AI_getBombardTurns: a mixed ignore-building-defense / ordinary-siege estimate can
+  mathematically over-credit normal siege, but current SAS has no land/sea bombard
+  unit with ignore-building-defense; the live trigger is BBAI's explicitly synthetic
+  global air-bomber-support approximation. No correctness root promoted from that
+  deliberately approximate helper.
+- AI_isDeclareWar initial caller/legality pass found no concrete contract defect.
+- AI_ejectBestDefender still contains the later AdvCiv precision repair and no current
+  zero/selection defect has yet been proved.
+
+CURRENT WIP CURSOR
+------------------
+COMPLETED FIRST-PASS FILES: 17 / 169
+FILE 017 UWAIAgent.cpp: CLOSED AT C018
+CURRENT FILE: queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp -- OPEN
+PHYSICAL CHECKPOINT: C018-WIP01
+QUEUE-041 ROOTS SO FAR: F198 / provisional KI#521
+NEXT ROOT ID: F199 UNUSED
+
+Continue from AI_bestUnitForMission's remaining mission contracts, then AI_isFull,
+AI_ejectBestDefender, combat odds/strength helpers, serialization symmetry and the
+historical Base/CE fix checklist. Do not close queue 041 merely because one linear
+pass is clean.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C018-WIP02 -- PRIORITY FILE 041 CvSelectionGroupAI.cpp -- SECOND DURABLE HANDOFF
+===============================================================================
+
+SOURCE / CURSOR
+---------------
+Authoritative source snapshot remains:
+    AdvCiv-SAS_light_source_20260827T000854.zip
+
+C018-WIP01 is an exact byte prefix of this checkpoint. Investigation continued from
+F199 unused, with particular attention to the SAS AI_update no-progress tripwire,
+transport/cargo state transitions, combat/group-attack state, mission references and
+historical K-Mod/AdvCiv safeguards.
+
+F199 / provisional KI#522 -- CONFIRMED
+--------------------------------------
+AdvCiv-SAS regression in the KI#319/5093 no-progress safeguard: legitimate AI sea-
+transport unloads can be mistaken for "no progress" because the tripwire does not
+observe cargo-state changes, so the transport receives MISSION_SKIP instead of
+immediately reconsidering its next action.
+
+Root:
+    CvSelectionGroupAI::AI_update
+
+Current tripwire snapshots only:
+- head unit ID;
+- head UnitAI role;
+- head x/y;
+- head remaining moves;
+- selection-group mission-queue length.
+
+If all those values are unchanged after CvUnitAI::AI_update, the group is not busy and
+can still move, the safeguard pushes MISSION_SKIP and breaks the update loop.
+
+That predicate misses an inherited and explicitly intentional class of progress:
+unloading cargo at the destination without pushing a mission.
+
+The cleanest concrete path is CvUnitAI::AI_specialSeaTransportSpy:
+
+    if (atPlot(pTargetPlot))
+    {
+        getGroup()->unloadAll();
+        getGroup()->setActivityType(ACTIVITY_AWAKE);
+        // no actual mission pushed, but we need to rethink our next move.
+        return true;
+    }
+
+AI_spySeaMove calls AI_specialSeaTransportSpy while carrying UNITAI_SPY cargo and
+returns after this helper returns true. Control then returns through CvUnitAI::AI_update
+to CvSelectionGroupAI::AI_update.
+
+The unload is real state progress but does not alter any field currently observed by
+the SAS tripwire:
+
+1. CvSelectionGroup::unloadAll iterates the group's transports and calls
+   CvUnit::unloadAll.
+2. On a legal coastal-land destination, the Spy cargo can unload. Its
+   setTransportUnit(NULL) call decrements the old transport's cargo count through
+   changeCargo(-1).
+3. This does not move the sea transport, consume the transport's remaining moves,
+   change its UnitAI role or head identity, or push a mission on the transport group.
+4. The helper explicitly leaves the transport group ACTIVITY_AWAKE.
+5. Therefore, if the transport still has movement left, !isBusy() and
+   readyToMove(true) remain true while every currently snapshotted field compares
+   equal.
+6. The tripwire consequently pushes MISSION_SKIP and breaks, suppressing the immediate
+   same-turn reconsideration that the inherited helper explicitly requests.
+
+This is not limited to the Spy helper. Current CvUnitAI retains the same missionless
+unload + ACTIVITY_AWAKE + return-true pattern in multiple transport paths, including:
+- AI_transportGoTo;
+- the at-destination AI_settlerSeaTransport branches (now using SAS's
+  AI_unloadSettlerCargoForDestination helper);
+- AI_settlerSeaFerry;
+- AI_specialSeaTransportMissionary;
+- AI_specialSeaTransportSpy.
+
+Historical intent is unusually strong. K-Mod commit bc00e144af6b2cf937eee0a7dea246907c048652
+(practical 849), titled "Told the AI to explicitly wake their group in a few places.",
+added setActivityType(ACTIVITY_AWAKE) to six such at-destination unload branches. The
+Spy branch already carried the literal explanation that there is "no actual mission
+pushed" because the unit needs to rethink its next move. In inherited pre-SAS
+CvSelectionGroupAI::AI_update, the still-awake/movable group therefore naturally
+iterates again after the cargo transition.
+
+The conflicting SAS safeguard arrived much later in commit
+1798ac76f438e0c42602efb5e09819192efc06b2 (practical 5093), whose no-progress
+predicate initially observed only head geometry/moves and mission-queue length.
+KI#319, fixed in commit 47ddc58905f42ffb8724b436c976ccf33c6f572d (practical 6211),
+correctly expanded that predicate with head identity and UnitAI role after a different
+legitimate state transition exposed the same design weakness. Cargo progress remains
+unobserved, so F199 is a second concrete incomplete-predicate case in the same
+safeguard family rather than a new inherited transport bug.
+
+Reachability is concrete rather than theoretical. AI_specialSeaTransportSpy searches
+coastal land owned by known civs and explicitly values a target city when not at war;
+a sea transport can legally occupy an accessible coastal city, arrive with Spy cargo,
+unload there, and retain movement. The helper's own atPlot branch exists specifically
+for that reached-destination state.
+
+Narrow repair boundary:
+- Preserve the no-progress safeguard; it fixes a real inherited Scout/Explorer loop.
+- Count cargo-state change as progress. A direct low-risk repair is to snapshot the
+  selection group's total getCargo() value at loop entry and require it to be
+  unchanged before pushing MISSION_SKIP.
+- Prefer group cargo rather than only pHeadUnit->getCargo(), because a multi-transport
+  group can unload cargo from a non-head transport as well.
+- The post-action getCargo() comparison can remain late in the conjunction so the
+  extra group scan is only performed after the cheaper identity/role/geometry/move/
+  queue tests have already matched; the initial cargo snapshot still costs one small
+  group scan per loop iteration.
+- Do NOT "fix" the transport helpers by removing ACTIVITY_AWAKE or forcing them to
+  consume their turn; K-Mod deliberately added the wake-up behavior so they can
+  reconsider immediately after unloading.
+
+No existing KI#522 or F199 collision was found in the current reconciled snapshot at
+promotion time.
+
+NEGATIVE / CLOSURE WORK SINCE C018-WIP01
+----------------------------------------
+1. AI_isFull special-cargo logic survived caller/XML validation. Assault-sea groups
+   intentionally ignore special-cargo ships when ordinary assault transports are
+   available, while UNITAI_MISSILE_CARRIER_SEA groups correctly wait for their
+   SPECIALUNIT_MISSILE capacity. Zero-capacity matching escorts report full and do
+   not create a false capacity requirement.
+
+2. A broader KI#319 "group size must be snapshotted" theory was rejected. In
+   AI_counterMove -> AI_separate, the head is separated first so the old group gets a
+   different/no head and the current ID test notices progress. In the newer
+   AI_guardCity defender-ejection path, detaching only non-head defenders makes
+   AI_guardCity return false so the acting head continues inside the same
+   CvUnitAI::AI_update rather than prematurely returning to the group tripwire.
+
+3. AI_isGroupAttack was also tested as an omitted tripwire field. When groupAttack
+   requeues an attack because the destination is already fighting, CvUnit::attack
+   leaves an attackPlot; CvUnit::isInCombat and CvSelectionGroup::isBusy therefore
+   stay true. The tripwire is gated by !isBusy(), so K-Mod's requeued-attack state is
+   not converted to MISSION_SKIP.
+
+4. AI_getMissionAIUnit's stale IDInfo warning does not alias ordinary recycled unit
+   slots. FFreeList full IDs include a generation component and getAt validates the
+   complete ID. A practical replacement unit in the same slot therefore does not
+   resolve through the stale reference; only extreme generation wraparound remains
+   the acknowledged theoretical case.
+
+5. AI_getBombardTurns contains deliberately approximate mixed-defense/air-support
+   math, but current SAS has no live land/sea bombard unit with ignore-building-
+   defense set. Its relevant branch is BBAI's explicitly synthetic global air-bomber
+   support estimate; no correctness root was promoted from that heuristic.
+
+6. The exported AI_isDeclareWarExternal(CvPlot* pPlot = NULL) boundary is safe.
+   AdvCiv's pointer-to-reference refactor added an explicit pPlot == NULL return-false
+   guard in the external wrapper in the same historical change, so the legacy default
+   argument cannot dereference NULL there.
+
+7. SAS low-power/sacrifice attack ordering, AI_sumStrength legality filtering,
+   AI_getWeightedOdds normalization and serialization symmetry were challenged and no
+   independent current root has yet survived. The historical K-Mod group-attack,
+   already-fighting, amphibious and pre-declaration movement safeguards examined so
+   far also remain present.
+
+CURRENT WIP CURSOR
+------------------
+COMPLETED FIRST-PASS FILES: 17 / 169
+CURRENT FILE: queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp -- OPEN
+PHYSICAL CHECKPOINT: C018-WIP02
+QUEUE-041 ROOTS SO FAR:
+    F198 / provisional KI#521
+    F199 / provisional KI#522
+NEXT ROOT ID: F200 UNUSED
+
+Continue through the remaining path/mission helpers, combat/defender and mutable-state
+contracts, assertions, Base AdvCiv/K-Mod historical-fix checklist and CE comparison.
+Do not close queue 041 until the stronger whole-file closure sweep is complete.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C018-WIP03 -- PRIORITY FILE 041 CvSelectionGroupAI.cpp -- THIRD DURABLE HANDOFF
+===============================================================================
+
+SOURCE / CURSOR
+---------------
+Authoritative source snapshot remains:
+    AdvCiv-SAS_light_source_20260827T000854.zip
+
+C018-WIP02 is an exact byte prefix of this checkpoint. Investigation continued from
+F200 unused, finishing the previously open AI_sumStrength/pre-war legality challenge
+before returning to the inherited attack-odds weighting contract.
+
+F200 / provisional KI#523 -- CONFIRMED
+--------------------------------------
+Inherited AdvCiv arithmetic/contract defect in CvSelectionGroupAI::AI_getWeightedOdds:
+the function explicitly tries to remove the personality AttackOddsChange before
+applying nonlinear opportunity/value adjustments, but it subtracts that bonus from an
+attack-odds value that has ALREADY been clamped to the public 1..99 range. Once the
+upper clamp has fired, subtraction cannot reconstruct the pre-personality combat odds.
+
+Root:
+    CvSelectionGroupAI::AI_getWeightedOdds
+
+Cross-function source of the lossy value:
+    CvUnitAI::AI_attackOdds
+    CvUnitAI::LFBgetBetterAttacker
+
+The AdvCiv source states the intended contract directly:
+
+    "We shouldn't adjust the odds based on an optimistic estimate
+     (increased by AttackOddsChange) ...
+     I'm subtracting the AttackOddsChange temporarily;
+     adding them back in after the adjustments are done."
+
+Current code therefore does, conceptually:
+
+    adjustedAndClamped = clamp(rawOdds + attackOddsChange, 1, 99);
+    supposedRawOdds    = adjustedAndClamped - attackOddsChange;
+    weighted           = AI_opportuneOdds(supposedRawOdds, defender);
+    result             = clamp(weighted + attackOddsChange, 1, 99);
+
+Both producers of iUnitOdds perform the upper clamp before returning it:
+- CvUnitAI::AI_attackOdds adds AI_getAttackOddsChange(), then range(..., 1, 99);
+- with default LFB combat-odds selection, CvUnitAI::LFBgetBetterAttacker likewise adds
+  AI_getAttackOddsChange() and clamps to 1..99 before storing iAIAttackOdds.
+
+Thus the subtraction is invertible only when rawOdds + attackOddsChange <= 99. Once
+that sum exceeds 99, information has been destroyed. For example:
+
+    true raw odds          = 99
+    AttackOddsChange       = +16
+    producer returns       = clamp(115, 1, 99) = 99
+    AI_getWeightedOdds uses= 99 - 16 = 83   // not 99
+
++16 is reachable for ordinary current SAS leaders: e.g. Ragnar and Napoleon have
+BaseAttackOddsChange 6 and AttackOddsChangeRand 8; CvPlayerAI::AI_doTurn can therefore
+set 6 + 7 + floor(7/2) = 16. The Barbarian setting can reach an even larger +23.
+LFB_ENABLE and LFB_USECOMBATODDS both default enabled, so the lossy LFB producer is the
+normal current path rather than a disabled compatibility branch.
+
+This is behaviorally material because AI_opportuneOdds is intentionally nonlinear in
+its input. It applies production-value, LFB-value, defensive-plot, wound/heal and city-
+opportunity adjustments using iOdds and (100-iOdds). Adding the personality bonus back
+at the end therefore does NOT undo feeding the wrong 83 instead of the true 99 into
+those calculations.
+
+A deterministic arithmetic example shows that this can change an attack decision,
+not merely the displayed score. Take a land attacker with:
+- true raw odds 99;
+- AttackOddsChange +16;
+- production cost 200 against a 50-cost defender;
+- a defender plot with defenseModifier 200;
+- one defender in a city; and no other differing opportunity modifiers.
+
+The current reconstruction feeds 83 into AI_opportuneOdds:
+- production term: x = 83*17*2/(200+50+20) = 10, giving -15;
+- defensive-plot term: -(17*200/300) = -11;
+- one-city-defender opportunity bonus: +17/3 = +5;
+- 83 - 15 - 11 + 5 = 62;
+- add personality bonus back: 62 + 16 = 78.
+
+With the intended true raw 99:
+- the production x term truncates to 0;
+- the defensive-plot penalty truncates to 0;
+- the one-defender city bonus truncates to 0;
+- adding +16 afterward clamps back to 99.
+
+So the same genuinely near-certain combat can be weighted 78 instead of 99. That is
+large enough to fail live AI_anyAttack thresholds such as 90 despite the underlying
+combat odds being essentially certain. The exact numerical scenario is illustrative;
+the defect exists for every upper-clamped value because the lost excess cannot be
+recovered and the downstream transform is nonlinear.
+
+This is inherited unchanged from base AdvCiv 1.14; current SAS did not introduce the
+root. The nearby advc.114b comment itself is strong provenance evidence because the
+implementation violates the stated purpose of that change.
+
+Narrow repair boundary:
+- Do NOT try a different subtraction after the public/clamped value; the missing raw
+  odds are mathematically unrecoverable once the clamp has fired.
+- Give AI_getWeightedOdds access to the pre-AttackOddsChange odds BEFORE the final
+  1..99 clamp. A small helper or optional parameter in the underlying attack-odds
+  calculation that suppresses the personality adjustment until after
+  AI_opportuneOdds would preserve the intended advc.114b design.
+- Keep the final AttackOddsChange addition and final 1..99 clamp unless deliberately
+  redesigning the personality behavior; the bug is specifically the lossy attempted
+  inverse before the nonlinear opportunity adjustment.
+- The LFB and non-LFB producers need consistent treatment because both currently add
+  and clamp the personality bonus before returning iUnitOdds.
+
+No existing KI#523 or F200 collision was found in the reconciled album at promotion
+time.
+
+NEGATIVE / CLOSURE WORK SINCE C018-WIP02
+----------------------------------------
+1. The previously open AI_sumStrength(bCheckCanAttack=true) pre-war siege hypothesis
+   was rejected after completing the reachability proof. AI_stackAttackCity first
+   requires CvSelectionGroup::canMoveOrAttackInto(..., bDeclareWar=true). Against
+   ordinary rival defenders before the DoW, the final unit-level hasDefender enemy
+   check prevents that path from reaching AI_compareStacks in the proposed state.
+   Once war has actually begun, the defenders are visible enemies and AI_sumStrength
+   performs its target-specific canMoveInto filter. The initially proposed inflated
+   pre-war siege ratio therefore does not occur through that caller.
+
+2. That rejection exposed a separate inherited CvUnit::canMoveInto potential-war
+   semantic oddity around the K-Mod bDeclareWar path and its final bTestEnemy defender
+   query. It belongs to CvUnit.cpp and has not been promoted or assigned an F/KI ID in
+   this queue-041 audit. Preserve it as a candidate for the later deep CvUnit resweep
+   rather than scope-creeping file 041.
+
+3. Current SAS genuinely has combat-limited siege (Catapult/Trebuchet 75%,
+   Cannon/Hwacha/Houfnice 80%, Field Gun/Self-Propelled Artillery/Levitation Artillery
+   85%), so the rejected AI_sumStrength hypothesis was tested against live data rather
+   than dismissed because combat limits were absent.
+
+CURRENT WIP CURSOR
+------------------
+COMPLETED FIRST-PASS FILES: 17 / 169
+CURRENT FILE: queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp -- OPEN
+PHYSICAL CHECKPOINT: C018-WIP03
+QUEUE-041 ROOTS SO FAR:
+    F198 / provisional KI#521
+    F199 / provisional KI#522
+    F200 / provisional KI#523
+NEXT ROOT ID: F201 UNUSED
+
+Continue with the remaining inherited attack/mission/path helpers, assertions, mutable-
+state contracts, Base AdvCiv/K-Mod historical-fix checklist and CE/BtS comparison.
+Do not close queue 041 until a final whole-file adversarial sweep is complete.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+LOCAL RECONCILIATION AFTER C018-WIP03 IMPORT
+
+- C018 closes `UWAIAgent.cpp`, bringing the first-pass audit to 17 complete files. C018-WIP01 through WIP03 open priority queue file 041, `CvSelectionGroupAI.cpp`, with F198-F200 / provisional KI#521-KI#523 and F201 unused. The progress summary and queue statuses above now reflect this current cursor; the original numeric queue order remains unchanged.
+- F158-F167 / KI#481-KI#490 have been independently reviewed and fixed, with their ancestry and repair boundaries recorded in current Known Issues. F168 / provisional KI#491 remains pending because eliminating its duplicate-resource CityPlot enumeration-order dependency requires broader two-pass resource aggregation rather than a narrow first-hit patch.
+- The Debug-opt DLL containing the KI#487-KI#490 repairs compiled successfully, and the requested Large Archipelago, Ancient-era, Normal-speed autoplay completed normally. The narrow cross-area culture, feature+bonus health, first-Barbarian-city and unusable-overlap transitions remain source-verified.
+- F169-F196 / provisional KI#492-KI#519 remain pending independent review and implementation. Closing files 016 and 017 records completion of their audit passes, not completion of every resulting repair.
+- F197 / KI#520 was independently reviewed and fixed by accepting the valid zero declaration-turn war counter in its debug assertion while preserving the existing pricing arithmetic. Its repaired Debug-opt DLL completed an autoplay normally; the exact third-party peace-brokerage transition remains source-verified.
+- C018-WIP03 is retained as append-only investigation evidence. Its new F198-F200 findings remain provisional until independent source review and implementation; current source and Known Issues remain authoritative where the older light-source snapshot differs. (GPT-5.6-Sol)
