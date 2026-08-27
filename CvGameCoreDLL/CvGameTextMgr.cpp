@@ -2932,10 +2932,15 @@ bool CvGameTextMgr::setCombatPlotHelp(CvWStringBuffer& szString, CvPlot* pPlot)
 		bShift) // advc.007
 	{
 		CvWString szTempBuffer;
-		szTempBuffer.Format(L"\nStack Compare Value = %d",
-				kSelectionList.AI_compareStacks(pPlot,
-				false, true)); // advc.001n
-		szString.append(szTempBuffer);
+		// <!-- custom: AdvCiv removed DOMAIN_AIR support from AI_sumStrength, but the inherited debug Shift-hover still sent valid aircraft selections through that land/sea-only stack comparison, firing its assertion and displaying a meaningless value in release builds.
+		// Keep the air combat help above, but omit only this unsupported diagnostic row. See KI#527. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kSelectionList.getDomainType() != DOMAIN_AIR)
+		{
+			szTempBuffer.Format(L"\nStack Compare Value = %d",
+					kSelectionList.AI_compareStacks(pPlot,
+					false, true)); // advc.001n
+			szString.append(szTempBuffer);
+		}
 
 		if (pPlot->getPlotCity() != NULL)
 		{

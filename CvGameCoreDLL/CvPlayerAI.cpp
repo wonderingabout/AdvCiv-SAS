@@ -18046,7 +18046,9 @@ int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* 
 	int iCount = 0;
 	FOR_EACH_GROUPAI(pLoopSelectionGroup, *this)
 	{
-		if (pLoopSelectionGroup == pSkipSelectionGroup)
+		// <!-- custom: Group separation can leave an empty group registered until doDelayedDeath. Its retained MissionAI plot cannot represent any units or cargo, and consulting AI_isDeclareWar on it fired the inherited null-head assertion during pre-war plan maintenance; exclude it from this unit census. See KI#534. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (pLoopSelectionGroup == pSkipSelectionGroup ||
+			pLoopSelectionGroup->getNumUnits() <= 0)
 			continue;
 
 		CvPlot* pMissionPlot = pLoopSelectionGroup->AI_getMissionAIPlot();
