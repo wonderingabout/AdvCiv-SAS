@@ -2199,24 +2199,24 @@ bool AIFoundValue::isRemovableFeature(CvPlot const& p, bool& bPersistent, int& i
 			if (getRevealedTeam(p) == eTeam)
 				iFeatureProduction /= 3; // Can already chop it
 		}
-		// CurrentResearch should be good enough
-		TechTypes eTech1 = kLoopBuild.getTechPrereq();
-		TechTypes eTech2 = kLoopBuild.getFeatureTech(eFeature);
+		// <!-- custom: AdvCiv required one current-research slot to equal both prerequisites, which is impossible when the Build and feature-removal technologies differ.
+		// Test each prerequisite independently against team knowledge or any member's current research. See KI#481. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		TechTypes const eTech1 = kLoopBuild.getTechPrereq();
+		TechTypes const eTech2 = kLoopBuild.getFeatureTech(eFeature);
 		// </advc.031>
-		if (kTeam.isHasTech(eTech1) &&
-			kTeam.isHasTech(eTech2)) // advc.001: This check was missing
-		{
+		bool bTech1Available = kTeam.isHasTech(eTech1);
+		bool bTech2Available = kTeam.isHasTech(eTech2);
+		if (bTech1Available && bTech2Available)
 			return true;
-		}
 		// <advc.031>
 		for (MemberIter it(eTeam); it.hasNext(); ++it)
 		{
 			CvPlayer const& kMember = *it;
-			if (kMember.getCurrentResearch() == eTech1 &&
-				kMember.getCurrentResearch() == eTech2)
-			{
+			TechTypes const eCurrentResearch = kMember.getCurrentResearch();
+			bTech1Available = (bTech1Available || eCurrentResearch == eTech1);
+			bTech2Available = (bTech2Available || eCurrentResearch == eTech2);
+			if (bTech1Available && bTech2Available)
 				return true;
-			}
 		} // </advc.031>
 	}
 	return false;
@@ -2287,6 +2287,9 @@ ImprovementTypes AIFoundValue::getBonusImprovement(BonusTypes eBonus, CvPlot con
 		if (eImprovement == NO_IMPROVEMENT)
 			continue;
 		CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
+		// <!-- custom: The inherited scan could select a land Well for water Oil before the legal Offshore Platform technology. Reject improvements whose domain differs from the actual bonus plot while retaining intentional near-future technology evaluation. See KI#483. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kImprovement.isWater() != p.isWater())
+			continue;
 		// <!-- custom: trying to make extra extra sure we don't build forts as they are very inefficient (long time to build, yield less than improvements, and unlikely a human or other player would ideally attack units garrisoned there), they could have some uses (maybe prebuilding connection, allowing naval units to pass/cross land), but more often than not they should not benefit the AI, and currently the AI often spends a lot of time undoing existing improvements in base advciv as i have noticed many times. I don't know too much how to fix this, but with chatgpt's help i am adding a few bits of code that try to prevent that, here is one of them, see the Main Changes Guide or some similar or related or other docs in our mod for update status rather than here. -->
 		if (kImprovement.isActsAsCity()) // Usually means Fort
 		{
@@ -3552,7 +3555,8 @@ int AIFoundValue::adjustToStartingSurroundings(int iValue) const
 	for (SquareIter it(kPlot, iRange); it.hasNext(); ++it)
 	{
 		CvPlot const& p = *it;
-		if ((p.isWater() || p.isArea(kArea)) && it.currPlotDist() <= iRange)
+		// <!-- custom: AdvCiv restored an outer same-area gate that made K-Mod's retained other-island badness branch unreachable. Let every distance-qualified plot reach the branch; only water and same-area land contribute usable yields below. See KI#482. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (it.currPlotDist() <= iRange)
 		{
 			/*int iTempValue = (p->getYield(YIELD_FOOD) * 15);
 			iTempValue += (p->getYield(YIELD_PRODUCTION) * 11);
