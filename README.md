@@ -988,7 +988,7 @@ See:
 
 ### Light-source analysis
 
-The compact light-source ZIP lets external LLMs review the current source, supporting docs/data, repository state and selected historical context without the full installation or `.git` directory. Current AdvCiv-SAS source and Git remain authoritative; Base AdvCiv, tracked lineage, map references and Civ4CE answer different comparison questions.
+The compact light-source ZIP lets external LLMs review the current source, supporting docs/data, repository state and selected historical context without the full installation or `.git` directory. Current AdvCiv-SAS source and Git remain authoritative; Base AdvCiv, K-Mod 1.46, tracked lineage, map references and Civ4CE answer different comparison questions.
 
 ### Historical source archaeology
 

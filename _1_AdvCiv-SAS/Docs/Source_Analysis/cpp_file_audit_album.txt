@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 17 / 169
 Files open: 1 / 169
 Last completed file: 017 CvGameCoreDLL/UWAIAgent.cpp (3,700 lines) - CLOSED AT C018
-Current selected file: queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp (1,454 lines) - OPEN AT C018-WIP03
-Current queue-041 roots: F198-F200 / provisional KI#521-KI#523
-Next root ID: F201 unused
+Current selected file: queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp (1,454 lines) - OPEN AT C018-WIP04
+Current queue-041 roots: F198-F201 / provisional KI#521-KI#524
+Next root ID: F202 unused
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -60,7 +60,7 @@ QUEUE (current .cpp files, longest -> shortest)
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]<-(priority next wip)
 040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]<-(priority next wip)
-041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [OPEN - SEE C018-WIP03]<-(priority next wip 1st)
+041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [OPEN - SEE C018-WIP04]<-(priority next wip 1st)
 042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]<-(priority next wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
@@ -25388,3 +25388,281 @@ LOCAL RECONCILIATION AFTER C018-WIP03 IMPORT
 - F169-F196 / provisional KI#492-KI#519 remain pending independent review and implementation. Closing files 016 and 017 records completion of their audit passes, not completion of every resulting repair.
 - F197 / KI#520 was independently reviewed and fixed by accepting the valid zero declaration-turn war counter in its debug assertion while preserving the existing pricing arithmetic. Its repaired Debug-opt DLL completed an autoplay normally; the exact third-party peace-brokerage transition remains source-verified.
 - C018-WIP03 is retained as append-only investigation evidence. Its new F198-F200 findings remain provisional until independent source review and implementation; current source and Known Issues remain authoritative where the older light-source snapshot differs. (GPT-5.6-Sol)
+
+
+===============================================================================
+C018-WIP04 -- PRIORITY FILE 041 CvSelectionGroupAI.cpp -- FOURTH DURABLE HANDOFF
+===============================================================================
+
+SOURCE / CURSOR RECONCILIATION
+------------------------------
+Investigation has now been reconciled against the newer user-supplied snapshot:
+    AdvCiv-SAS_light_source_20260827T084943.zip
+
+Local comparison controls remain:
+    AdvCiv-1.14(2).zip
+    Civ4-K-Mod-master-1.46.zip
+    Civ4CE-main(7).zip
+
+C018-WIP03 remains a byte-for-byte prefix of this checkpoint. No prior F198-F200 root
+was invalidated by the newer SAS snapshot. Queue 041 remains OPEN while the final
+whole-file closure sweep continues.
+
+F200 / provisional KI#523 -- SAME ROOT, LOWER-CLAMP PROOF ADDED
+---------------------------------------------------------------
+The lossy AI_attackOdds round-trip documented in C018-WIP03 fails at the lower clamp
+as well as the upper clamp. This strengthens F200; it is not a new F201 root.
+
+AI_getWeightedOdds contains an explicit advc.114b safety rule that is intended to use
+the actual/unbiased combat odds:
+
+    if (iOdds == 0 && getNumUnits() < 3)
+        return 0;
+
+However, the quantity received from CvUnitAI::AI_attackOdds has already had
+AI_getAttackOddsChange applied and has already been clamped to the public 1..99 range.
+Therefore a genuinely rounded raw 0% result behaves inconsistently:
+
+    raw odds = 0, AttackOddsChange = 0
+    producer = clamp(0 + 0, 1, 99) = 1
+    subtraction in AI_getWeightedOdds = 1 - 0 = 1
+
+The explicit iOdds == 0 safeguard can never activate in that state. With a positive
+optimism bonus, the same raw 0 can sometimes survive the attempted inverse, e.g.
+0 + 6 -> 6, then 6 - 6 -> 0. The supposedly personality-independent small-stack
+safety rule can therefore itself depend on personality merely because the clamp is
+applied before the attempted subtraction.
+
+Repair implication is now stronger than in WIP03: AI_getWeightedOdds needs the
+pre-personality, pre-final-1..99-clamp odds. Repairing only upper saturation would
+leave the explicit sub-1%/rounded-0 safety contract broken.
+
+F201 / provisional KI#524 -- CONFIRMED
+--------------------------------------
+SAS KI#319 no-progress tripwire can misclassify AdvCiv's deliberate non-head bombard
+unit split as "no progress" and force MISSION_SKIP on the surviving assault stack.
+
+Primary root:
+    CvSelectionGroupAI::AI_update
+
+Cross-file trigger:
+    CvUnitAI::AI_bombardCity
+
+Immediate callers confirmed:
+    CvUnitAI::AI_attackCityMove
+    CvUnitAI::AI_attackCityLemmingMove
+
+The current SAS tripwire snapshots only the original group's:
+- head unit ID;
+- head UnitAI role;
+- head x/y;
+- head moves left;
+- mission queue length.
+
+If all remain unchanged after CvUnitAI::AI_update returns, while the group is still
+ready and not busy, SAS pushes MISSION_SKIP and breaks.
+
+AdvCiv advc.004c deliberately changed K-Mod's bombard behavior. K-Mod pushed
+MISSION_BOMBARD on the whole assault group. AdvCiv instead selects one unit:
+
+    CvUnit* pBombardUnit = AI_getGroup()->AI_bestUnitForMission(MISSION_BOMBARD);
+    ...
+    if (AI_getUnitAIType() == UNITAI_ATTACK_CITY)
+        pBombardUnit->joinGroup(NULL);
+    pBombardUnit->getGroup()->pushMission(MISSION_BOMBARD, ...);
+    return true;
+
+The selected bombard unit is therefore split into its own group before the bombard
+mission is issued. pushMission starts an AI mission immediately; the detached unit
+bombards and spends its own movement through CvUnit::bombard. The original group does
+not receive that mission.
+
+This becomes a KI#319 false positive when pBombardUnit is NOT the original group head:
+1. The non-head bombard unit leaves the original group.
+2. CvSelectionGroup::removeUnit/deleteUnitNode changes membership and clears/wakes the
+   old group, but the old head survives unchanged.
+3. The detached unit's new group executes MISSION_BOMBARD and spends that unit's moves.
+4. AI_bombardCity returns true; AI_attackCityMove / AI_attackCityLemmingMove return
+   immediately; CvUnitAI::AI_update then returns false to CvSelectionGroupAI::AI_update.
+5. The original group can still be awake, missionless, non-busy and ready to move.
+6. Its head ID/role/x/y/moves and mission queue length can all equal their snapshots.
+7. SAS therefore pushes MISSION_SKIP on the surviving original group solely because
+   the tripwire does not observe that getNumUnits() decreased.
+
+Base AdvCiv 1.14 has no SAS tripwire at this point. After exactly the same non-head
+split/bombard, its CvSelectionGroupAI::AI_update while-loop tests readyToMove again and
+can immediately reconsider the surviving stack. Thus the behavior suppressed by SAS
+is not speculative extra processing; it is the inherited control flow that
+advc.004c's split leaves available.
+
+NON-HEAD REACHABILITY IS ORDINARY, NOT A CONTRIVED POINTER STATE
+---------------------------------------------------------------
+Current group ordering and current SAS XML provide a concrete normal composition:
+
+CvUnitAI::AI_groupFirstVal:
+    UNITAI_ATTACK_CITY + bombardRate() > 0  -> 19
+CvUnitAI::AI_groupSecondVal:
+    base combat strength
+
+Current generic siege includes:
+    Catapult   -- DefaultUnitAI ATTACK_CITY, strength 5, bombard 8
+    Trebuchet  -- DefaultUnitAI ATTACK_CITY, strength 4, bombard 16
+
+For an ATTACK_CITY group containing both, the Catapult can be the group head because
+both have first-value 19 and the Catapult has higher second-value/base strength.
+AI_bestUnitForMission(MISSION_BOMBARD), however, does not simply choose the head. Its
+bombard priority increases with useful bombard damage and with (1 - attack odds),
+while both examples share the same basic collateral dimensions. A Trebuchet's doubled
+bombard rate and lower combat odds can therefore make it the selected bombard unit
+while the Catapult remains the head.
+
+The broader code explicitly anticipates mixed assault stacks as well: the
+ATTACK_CITY movement logic contains the inherited BBAI grouping path for a stack led
+by a bombard unit to join another stack "probably not lead by a bombard unit." More
+generally, multiple bombard-capable members with different promotions/strengths make
+selection of a non-head unit routine; AI_bestUnitForMission exists precisely to pick
+a mission unit independently of head identity.
+
+PROVEN STATE DETAILS
+--------------------
+- CvUnitAI::AI_update asserts that the acting unit is the group head, dispatches
+  UNITAI_ATTACK_CITY to AI_attackCityMove and UNITAI_ATTACK_CITY_LEMMING to the
+  corresponding lemming routine, then normally returns false.
+- Both attack-city routines return immediately when AI_bombardCity returns true.
+- CvUnit::joinGroup(NULL) creates/rejoins a separate group by default
+  (bRejoin = true).
+- Removing a non-head does not set AI_forceSeparate; joinGroup sets that flag only
+  when the removed unit was the old head and the replacement head has a different
+  UnitAI role.
+- The old group's head identity, role, location and moves therefore need not change.
+- pushMission on the detached AI group is started immediately; MISSION_BOMBARD calls
+  CvUnit::bombard, which sets made-attack and consumes one movement denominator from
+  the detached bombard unit only.
+- The original group's mission queue remains empty after the split and can still pass
+  readyToMove(true).
+
+BEHAVIORAL EFFECT
+-----------------
+At minimum, the SAS tripwire can consume the surviving attack-city stack's turn after
+one non-head siege piece was detached to bombard, instead of letting inherited AdvCiv
+re-enter the still-ready group. That can suppress additional same-turn bombard/
+reassessment/attack behavior by the rest of the stack and alter city-assault tempo.
+The exact next inherited action is intentionally recalculated after the first
+bombard; the bug is that SAS prevents that recalculation by mistaking membership
+change for zero progress.
+
+REPAIR BOUNDARY
+---------------
+F201 needs a group-composition progress dimension. The narrow repair is to snapshot:
+
+    const int iNumUnitsBefore = getNumUnits();
+
+and require getNumUnits() == iNumUnitsBefore before the no-progress MISSION_SKIP.
+
+This should be combined with, not substituted for, F199's group-total getCargo()
+snapshot:
+- F199: cargo can change while membership count stays constant;
+- F201: membership can change while cargo and every current head snapshot stay
+  constant.
+
+A more general state-signature redesign is possible, but the conservative repair is
+to add these two proven missing dimensions rather than guess at every mutable group
+field.
+
+No existing KI#524 collision was found in the current reconciled album or Known
+Issues snapshot at promotion time.
+
+NEGATIVE / CLOSURE WORK SINCE C018-WIP03
+----------------------------------------
+1. AI_getBestGroupSacrifice's bPotentialEnemy parameter looks stale because its
+   inherited canMoveInto legality test does not use the parameter. The actual
+   groupAttack sacrifice path invokes it after hostility is established, and SAS's
+   obsolete-sacrifice subscan is likewise live on that post-DoW path. This remains a
+   dead/legacy API awkwardness, not an F root.
+
+2. AI_isForceSeparate was challenged as another omitted KI#319 snapshot field.
+   Internal paths that set it true arise when join/split operations remove or change
+   the old head; the existing head-ID/role snapshots observe those transitions. The
+   arbitrary direct setter is an EXE-facing wrapper rather than a normal same-head
+   CvUnitAI action. No independent tripwire failure survived.
+
+3. A single Settler unloading itself from a transport can change transport linkage
+   without necessarily changing the transport group's total cargo snapshot, but
+   AI_settleMove does not return at that transition. It continues its decision tree;
+   exits issue a mission/move/group transition or reach its explicit final
+   MISSION_SKIP. No KI#319 sibling was found there.
+
+4. Delayed death is not an invisible tripwire transition. CvUnit::kill(true) calls
+   finishMoves before marking delayed death, and upgrades explicitly resolve the old
+   unit's delayed death. Movement/head readiness therefore changes before the
+   no-progress test can misclassify it.
+
+5. Worker ACTIVITY_AWAKE / mission-AI clearing recovery paths continue into normal
+   worker decisions rather than returning a missionless success. No independent
+   activity-only tripwire root survived.
+
+6. Python unit-AI override is not a reachable current-SAS explanation. The current
+   PythonCallbackDefines.xml has USE_AI_UNIT_UPDATE_CALLBACK = 0 and BUG's default
+   AI_unitUpdate result is false. A hypothetical enabled extension could mutate
+   arbitrary state, but widening a current repair around a disabled hook would be
+   speculative.
+
+7. Loading onto transports remains covered by existing snapshots: relevant paths
+   either split/change the old head/group identity or call finishMoves. The cargo
+   unloadAll family remains the distinctive count-stable cargo mutation behind F199.
+
+8. SAS low-power / obsolete-sacrifice attacker ordering was rechecked against its
+   current define values (60% health gate; 90/60/25/70 odds/deficit/value thresholds).
+   The previously suspected int-percent multiplication remains far below overflow in
+   reachable current unit values; no arithmetic root was promoted.
+
+9. The earlier pre-war AI_sumStrength combat-limit hypothesis remains rejected. It
+   was not revived during this pass.
+
+10. AI_follow, stored MissionAI IDInfo handling, AI_compareStacks internal callers,
+    AI_ejectBestDefender and the remaining separation helpers examined so far have
+    not yielded another independent queue-041 root.
+
+FUTURE-FILE NOTE -- NOT QUEUE 041 / NOT ASSIGNED
+-------------------------------------------------
+A suspicious precedence expression was noticed in CvUnitAI::AI_airStrike while doing
+cross-file state-transition greps:
+
+    int iBestValue = iThreshold + isSuicide() &&
+        getUnitInfo().getProductionCost() > 0 ?
+        getUnitInfo().getProductionCost() * 5 / 6 : 0;
+
+Normal C++ precedence appears capable of grouping this as a conditional based on
+(iThreshold + isSuicide()) rather than adding a conditional suicide-unit cost term.
+This has NOT been audited to the promotion bar and belongs to the future CvUnitAI.cpp
+resweep. Do not consume a queue-041 F/KI ID for it and do not treat this note as a
+confirmed bug.
+
+CURRENT WIP CURSOR
+------------------
+COMPLETED FIRST-PASS FILES: 17 / 169
+CURRENT FILE: queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp -- OPEN
+PHYSICAL CHECKPOINT: C018-WIP04
+QUEUE-041 ROOTS SO FAR:
+    F198 / provisional KI#521
+    F199 / provisional KI#522
+    F200 / provisional KI#523
+    F201 / provisional KI#524
+NEXT ROOT ID: F202 UNUSED
+
+Next: continue the final whole-file adversarial closure pass, with special attention
+to any other same-head missionless state transition, group-composition changes not
+covered by F201, and inherited K-Mod/AdvCiv/CE divergence. If no F202 survives, leave
+it unused and close queue 041 only after the remaining historical/diff checklist is
+exhausted.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+LOCAL RECONCILIATION AFTER C018-WIP04 IMPORT
+
+- C018-WIP04 has been imported without rewriting its append-only evidence. It strengthens F200 / provisional KI#523 with the lower-clamp proof and adds F201 / provisional KI#524; both remain pending independent review and implementation. The progress summary now records queue 041 open at WIP04 with F202 unused.
+- F180-F182 / KI#503-KI#505 have been independently reviewed and fixed. The accepted repairs add currently available irrigated Farm food to SAS low-food valuation, replace AdvCiv's existing-improvement-count capability proxy with current Build/feature technology and plot legality, and make `countBadTiles` log its freshly computed unrevealed count.
+- The repaired Debug-opt DLL compiled successfully, and a full Continents autoplay completed normally. KI#503-KI#504's exact transitions remain source-verified; KI#505 additionally remains directly observable when found-value logging evaluates a BFC with unrevealed plots.
+- Current source and Known Issues remain authoritative for reviewed implementation state. C018-WIP04 remains durable investigation evidence for the still-provisional queue-041 findings. (GPT-5.6-Sol)

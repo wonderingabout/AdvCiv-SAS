@@ -5405,6 +5405,9 @@ int CvPlot::SAS_getBonusImprovementFoodChange(BonusTypes eBonus) const
 	ImprovementTypes const eImprovement = GC.getInfo(eBuild).getImprovement();
 	CvImprovementInfo const& kImprovement = GC.getInfo(eImprovement);
 	int iFoodChange = kImprovement.getYieldChange(YIELD_FOOD) + kImprovement.getImprovementBonusYield(eBonus, YIELD_FOOD);
+	// <!-- custom: The low-food helper omitted Farm's already-active irrigated yield even though normal improvement-yield calculation includes it. Count only irrigation currently available on this plot; future irrigation-chain potential remains outside this narrow repair. See KI#503. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (isIrrigationAvailable())
+		iFoodChange += kImprovement.getIrrigatedYieldChange(YIELD_FOOD);
 	if (isRiverSide())
 		iFoodChange += kImprovement.getRiverSideYieldChange(YIELD_FOOD);
 	if (isHills())

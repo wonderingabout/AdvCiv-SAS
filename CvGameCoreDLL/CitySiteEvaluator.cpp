@@ -1922,7 +1922,8 @@ int AIFoundValue::countBadTiles(/* advc.031: */ int& iInnerRadius, int& iUnrevea
 	}
 	iInnerRadius /= 2; // </advc.031>
 	iBadTiles /= 2;
-	IFLOG (iUnrevealed > 0 ? logBBAI("Bad tiles: %d known bad, %d unrevealed", iBadTiles, iUnrevealedTiles) :
+	// <!-- custom: countBadTiles has already computed the fresh reference value, while member iUnrevealedTiles is assigned only after this function returns. Log the local result instead of always reporting the constructor-initialized zero. See KI#505. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	IFLOG (iUnrevealed > 0 ? logBBAI("Bad tiles: %d known bad, %d unrevealed", iBadTiles, iUnrevealed) :
 							 logBBAI("Bad tiles: %d", iBadTiles));
 	return iBadTiles;
 }
@@ -2552,10 +2553,23 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p, bool bPersis
 		return r;
 	}
 	scaled r;
-	FOR_EACH_ENUM(Improvement)
+	// <!-- custom: Owning one existing improvement is not evidence that the player can build it, and a newly unlocked improvement has no existing copy yet. Scan matching Builds for current technology and plot legality instead; this also handles feature-removal prerequisites without using empire state as a capability proxy. See KI#504. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FOR_EACH_ENUM(Build)
 	{
-		// Not a perfectly safe way to check if we can build the improvement - but fast.
-		if (kPlayer.getImprovementCount(eLoopImprovement) <= 0)
+		CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+		ImprovementTypes const eLoopImprovement = kLoopBuild.getImprovement();
+		if (eLoopImprovement == NO_IMPROVEMENT)
+			continue;
+		TechTypes const eBuildTech = kLoopBuild.getTechPrereq();
+		if (eBuildTech != NO_TECH && !kTeam.isHasTech(eBuildTech))
+			continue;
+		if (eFeature != NO_FEATURE && kLoopBuild.isFeatureRemove(eFeature))
+		{
+			TechTypes const eFeatureTech = kLoopBuild.getFeatureTech(eFeature);
+			if (eFeatureTech != NO_TECH && !kTeam.isHasTech(eFeatureTech))
+				continue;
+		}
+		if (!p.canHaveImprovement(eLoopImprovement, eTeam, false, eLoopBuild, false))
 			continue;
 		CvImprovementInfo const& kLoopImprovement = GC.getInfo(eLoopImprovement);
 		int iYieldChange = kLoopImprovement.getYieldChange(YIELD_PRODUCTION) +
@@ -2572,8 +2586,7 @@ scaled AIFoundValue::estimateImprovementProduction(CvPlot const& p, bool bPersis
 		/*  I'm not bothering with civics and routes here. It's OK to undercount
 			b/c more production is needed by the time railroads become available.
 			A Workshop may also remove a Forest; in that case, we're overcounting. */
-		// Not fast; loops through all builds.
-		if (iYieldChange <= 0 || !p.canHaveImprovement(eLoopImprovement, eTeam))
+		if (iYieldChange <= 0)
 			continue;
 		FAssertMsg(iYieldChange <= 3, "is this much production possible?");
 		r.increaseTo(iYieldChange);

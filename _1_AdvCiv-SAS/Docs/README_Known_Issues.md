@@ -560,6 +560,9 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [488 - (Fixed AdvCiv-SAS cautious-health defect) Resource plots lost Forest/Jungle health](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#488---fixed-advciv-sas-cautious-health-defect-resource-plots-lost-forestjungle-health)\
 [489 - (Fixed AdvCiv-SAS regression against AdvCiv Barbarian normalization) First Barbarian city received capital-only gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#489---fixed-advciv-sas-regression-against-advciv-barbarian-normalization-first-barbarian-city-received-capital-only-gates)\
 [490 - (Fixed AdvCiv-SAS first-city gate defect) Unusable overlapping plots affected preliminary BFC quality](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#490---fixed-advciv-sas-first-city-gate-defect-unusable-overlapping-plots-affected-preliminary-bfc-quality)\
+[503 - (Fixed AdvCiv-SAS low-food valuation defect) Already-irrigated Farm food was omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#503---fixed-advciv-sas-low-food-valuation-defect-already-irrigated-farm-food-was-omitted)\
+[504 - (Fixed inherited AdvCiv production-estimate defect) Existing improvement count was mistaken for build capability](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#504---fixed-inherited-advciv-production-estimate-defect-existing-improvement-count-was-mistaken-for-build-capability)\
+[505 - (Fixed inherited AdvCiv diagnostic defect) Found-value logging always reported zero unrevealed tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#505---fixed-inherited-advciv-diagnostic-defect-found-value-logging-always-reported-zero-unrevealed-tiles)\
 [520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#520---fixed-inherited-advciv-uwai-debug-assertion-defect-declaration-turn-brokered-peace-rejected-a-valid-zero-war-age)\
 
 ## 1 - Redundant attribute values for all AI Civs
@@ -10941,6 +10944,26 @@ SAS practical `7a6be1b482c631ab46fe891e44fdedacd5e3871b` added XML-aware prelimi
 The repair moves the preliminary classifications after the established usability/ownership filter. The home plot remains excluded and fog remains represented separately by `iUnrevealedTiles`, preserving those intended contracts. This ordering defect was introduced with the SAS first-city gate rather than inherited from AdvCiv. Found as F167/provisional KI#490 during ChatGPT-5.6-Sol's C016-WIP02 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 The repaired Debug-opt DLL compiled successfully, and the requested Large Archipelago, Ancient-era, Normal-speed autoplay completed normally. The exact KI#487-KI#490 culture-pressure, feature+bonus health, first-Barbarian-city and unusable-overlap transitions remain source-verified.
+
+## 503 - (Fixed AdvCiv-SAS low-food valuation defect) Already-irrigated Farm food was omitted
+
+SAS practical `f3137a536b` introduced `CvPlot::SAS_getBonusImprovementFoodChange` so preliminary BFC food quality would follow actual XML improvement yields, but its manual sum omitted `CvImprovementInfo::getIrrigatedYieldChange`. On an already-irrigable Maize, Rice or Wheat plot, the real Farm therefore gained `+1` food that the low-food scorer did not see; the separate very-bad-plot calculation already used the normal improvement-yield path and could value the same plot differently.
+
+The repair adds the improvement's irrigated food only when irrigation is currently available on that plot. It does not assume a future irrigation chain or broaden the helper into a long-term forecasting model. This omission was introduced with SAS's low-food helper rather than inherited from AdvCiv. Found as F180/provisional KI#503 during ChatGPT-5.6-Sol's C016-WIP05 `CitySiteEvaluator.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 504 - (Fixed inherited AdvCiv production-estimate defect) Existing improvement count was mistaken for build capability
+
+`AIFoundValue::estimateImprovementProduction` used `getImprovementCount() > 0` as a fast proxy for whether an empire could build an improvement. A newly unlocked Mine contributed no medium-term production until the empire happened to complete its first Mine elsewhere, while a retained or captured improvement could pass the proxy without proving that its Build and feature-removal technologies were available.
+
+The repair scans the actual Builds that produce each candidate improvement, requires their current Build and applicable feature-removal technologies, and retains the plot-specific `canHaveImprovement` legality check. Existing empire improvement count no longer changes settlement value independently of capability. AdvCiv practical `71fa4eef1a` introduced the acknowledged unsafe proxy, and Base AdvCiv 1.14 retained it; this is therefore an inherited AdvCiv defect rather than an AdvCiv-SAS regression. Found as F181/provisional KI#504 during ChatGPT-5.6-Sol's C016-WIP06 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+## 505 - (Fixed inherited AdvCiv diagnostic defect) Found-value logging always reported zero unrevealed tiles
+
+`countBadTiles` correctly accumulated unrevealed BFC plots through its reference parameter, but its diagnostic printed the `AIFoundValue` member that the caller assigns only after the function returns. Whenever unrevealed plots existed, the special two-value log branch consequently reported `0 unrevealed` even though gameplay received the correct count.
+
+The repair logs the freshly computed reference value and leaves the later member assignment unchanged. AdvCiv commit `078fc9bd7c` introduced the wrong argument during the 2019 `AIFoundValue` extraction, and Base AdvCiv 1.14 retained it; this is an inherited AdvCiv diagnostic-only defect rather than a settlement-scoring error or SAS regression. Found as F182/provisional KI#505 during ChatGPT-5.6-Sol's C016-WIP06 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The repaired Debug-opt DLL compiled successfully, and a full Continents autoplay completed normally. The exact already-irrigated Farm and newly unlocked first-improvement transitions remain source-verified; KI#505 can additionally be confirmed whenever found-value logging evaluates a BFC containing unrevealed plots.
 
 ## 520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age
 
