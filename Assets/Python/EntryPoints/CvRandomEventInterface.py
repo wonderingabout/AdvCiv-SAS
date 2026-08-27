@@ -2867,8 +2867,12 @@ def getHelpPartisans1(argsList):
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
 
 	if capital is not None and not capital.isNone():
+		iUnitType = capital.getConscriptUnit()
+		# <!-- custom: Do not ask UnitInfo for the invalid conscript type that disables this Partisans choice. See KI#524.6. (GPT-5.6-Sol) -->
+		if iUnitType == -1:
+			return u""
 		iNumUnits = getNumPartisanUnits(plot, kTriggeredData.ePlayer)
-		szUnit = gc.getUnitInfo(capital.getConscriptUnit()).getTextKey()
+		szUnit = gc.getUnitInfo(iUnitType).getTextKey()
 
 		szHelp = localText.getText("TXT_KEY_EVENT_PARTISANS_HELP_1", (iNumUnits, szUnit))	
 
@@ -2880,6 +2884,10 @@ def canApplyPartisans1(argsList):
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
 
+	# <!-- custom: A newly reassigned capital can have no valid conscript unit. The inherited event nevertheless offered Partisans and later called initUnit(-1), producing a Python-visible C++ exception and leaving an invalid unit-container entry; reject both Partisans choices in that state. See KI#524.6. (GPT-5.6-Sol) -->
+	capital = player.getCapitalCity()
+	if capital is None or capital.isNone() or capital.getConscriptUnit() == -1:
+		return false
 	if getNumPartisanUnits(plot, kTriggeredData.ePlayer) <= 0:
 		return false
 
@@ -2899,6 +2907,10 @@ def applyPartisans1(argsList):
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
 
 	if capital is not None and not capital.isNone():
+		iUnitType = capital.getConscriptUnit()
+		# <!-- custom: Revalidate when applying in case city state changed after the Partisans choice was made. See KI#524.6. (GPT-5.6-Sol) -->
+		if iUnitType == -1:
+			return
 		iNumUnits = getNumPartisanUnits(plot, kTriggeredData.ePlayer)
 
 		listPlots = []
@@ -2912,7 +2924,7 @@ def applyPartisans1(argsList):
 		if len(listPlots) > 0:
 			for i in range(iNumUnits):
 				iPlot = gc.getGame().getSorenRandNum(len(listPlots), "Partisan event placement")
-				player.initUnit(capital.getConscriptUnit(), listPlots[iPlot].getX(), listPlots[iPlot].getY(), UnitAITypes.UNITAI_ATTACK, DirectionTypes.DIRECTION_SOUTH)
+				player.initUnit(iUnitType, listPlots[iPlot].getX(), listPlots[iPlot].getY(), UnitAITypes.UNITAI_ATTACK, DirectionTypes.DIRECTION_SOUTH)
 
 def getHelpPartisans2(argsList):
 	iEvent = argsList[0]
@@ -2922,8 +2934,12 @@ def getHelpPartisans2(argsList):
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
 
 	if capital is not None and not capital.isNone():
+		iUnitType = capital.getConscriptUnit()
+		# <!-- custom: Keep the second choice's help safe under the same valid-conscript contract. See KI#524.6. (GPT-5.6-Sol) -->
+		if iUnitType == -1:
+			return u""
 		iNumUnits = max(1, getNumPartisanUnits(plot, kTriggeredData.ePlayer) / 2)
-		szUnit = gc.getUnitInfo(capital.getConscriptUnit()).getTextKey()
+		szUnit = gc.getUnitInfo(iUnitType).getTextKey()
 
 		szHelp = localText.getText("TXT_KEY_EVENT_PARTISANS_HELP_2", (iNumUnits, szUnit, capital.getNameKey()))	
 
@@ -2935,6 +2951,10 @@ def canApplyPartisans2(argsList):
 	player = gc.getPlayer(kTriggeredData.ePlayer)
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
 
+	# <!-- custom: Apply the same valid-conscript requirement to the capital-spawn Partisans choice. See KI#524.6. (GPT-5.6-Sol) -->
+	capital = player.getCapitalCity()
+	if capital is None or capital.isNone() or capital.getConscriptUnit() == -1:
+		return false
 	return (max(1, getNumPartisanUnits(plot, kTriggeredData.ePlayer) / 2) > 0)
 
 def applyPartisans2(argsList):
@@ -2945,9 +2965,13 @@ def applyPartisans2(argsList):
 	plot = gc.getMap().plot(kTriggeredData.iPlotX, kTriggeredData.iPlotY)
 
 	if capital is not None and not capital.isNone():
+		iUnitType = capital.getConscriptUnit()
+		# <!-- custom: Revalidate at application time just as for the adjacent-placement choice. See KI#524.6. (GPT-5.6-Sol) -->
+		if iUnitType == -1:
+			return
 		iNumUnits = max(1, getNumPartisanUnits(plot, kTriggeredData.ePlayer) / 2)
 		for i in range(iNumUnits):
-			player.initUnit(capital.getConscriptUnit(), capital.getX(), capital.getY(), UnitAITypes.UNITAI_ATTACK, DirectionTypes.DIRECTION_SOUTH)
+			player.initUnit(iUnitType, capital.getX(), capital.getY(), UnitAITypes.UNITAI_ATTACK, DirectionTypes.DIRECTION_SOUTH)
 
 ######## GREED ###########
 

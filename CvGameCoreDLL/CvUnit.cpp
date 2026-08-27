@@ -12633,13 +12633,14 @@ bool CvUnit::shouldShowEnemyGlow(TeamTypes eForTeam) const
 {
 	if (isDelayedDeath())
 		return false;
+	// <!-- custom: The EXE requested glow state for the reset/unplaced object left by a failed inherited Partisans initUnit(NO_UNIT) call.
+	// This inherited function intended to reject a null plot, but did so only after unit-info-backed getDomainType and canFight calls had already crashed; validate placement first. See KI#524.5 and KI#524.6. (GPT-5.6-Sol) -->
+	CvPlot* pPlot = plot();
+	if (pPlot == NULL)
+		return false;
 	if (getDomainType() == DOMAIN_AIR)
 		return false;
 	if (!canFight())
-		return false;
-
-	CvPlot* pPlot = plot();
-	if (pPlot == NULL)
 		return false;
 
 	TeamTypes ePlotTeam = pPlot->getTeam();

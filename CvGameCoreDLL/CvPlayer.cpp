@@ -2331,13 +2331,16 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 {
 	//PROFILE_FUNC(); // advc.003o
 
+	// <!-- custom: The inherited Partisans event passed NO_UNIT when the player's capital had no valid conscript. Reject invalid creation before allocating a unit-container entry; allocation first left a reset unit behind after the Python-visible C++ exception and caused multiple later crashes. See KI#524.6. (GPT-5.6-Sol) -->
+	FAssert(eUnit != NO_UNIT);
+	if (eUnit == NO_UNIT)
+		return NULL;
 	CvUnitAI* pUnit = m_units.AI_add(); // advc.003u: was = addUnit()
 	if (pUnit == NULL)
 	{
 		FAssertMsg(pUnit != NULL, "FLTA failed to allocate storage");
 		return NULL;
 	}
-	FAssert(eUnit != NO_UNIT);
 	pUnit->init(pUnit->getID(), eUnit, (UnitAITypes)
 			(eUnitAI == NO_UNITAI ? GC.getInfo(eUnit).getDefaultUnitAIType() : eUnitAI),
 			getID(), iX, iY, eFacingDirection);

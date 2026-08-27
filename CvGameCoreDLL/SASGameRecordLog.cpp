@@ -4227,7 +4227,9 @@ static void logSASGameRecordPlayerBonuses(PlayerTypes ePlayer, int iGameTurn, SA
 
 static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit)
 {
-	return kUnit.canDefend(kUnit.plot()) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0;
+	// <!-- custom: A failed NO_UNIT creation left an unplaced/reset object in the owner container, and the end-turn snapshot crashed while reading its combat state. Unplaced units are not part of military posture; short-circuit before unit-info-backed checks. See KI#524.6. (GPT-5.6-Sol) -->
+	CvPlot const* pPlot = kUnit.plot();
+	return pPlot != NULL && (kUnit.canDefend(pPlot) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0);
 }
 
 static bool isSASGameRecordWorkerUnit(CvUnit const& kUnit)

@@ -595,7 +595,13 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 	// <advc.131e>
 	std::vector<CvUnitAI*> apUnitsByExp;
 	FOR_EACH_UNITAI_VAR(pLoopUnit, *this)
+	{
+		// <!-- custom: A failed inherited Partisans initUnit(NO_UNIT) call left a reset/unplaced object in the owner container. AdvCiv's cached upgrade list retained it until the impassable pass called AI_unitImpassables(NO_UNIT) and crashed.
+		// Exclude it before sorting because every legitimate upgrade candidate must be placed. See KI#524.4 and KI#524.6. (GPT-5.6-Sol) -->
+		if (pLoopUnit->plot() == NULL)
+			continue;
 		apUnitsByExp.push_back(pLoopUnit);
+	}
 	std::sort(apUnitsByExp.begin(), apUnitsByExp.end(), DescByExperience());
 	for (int iPass = 0; iPass < 5; iPass++) // Case inserted for upgrade discounts
 	{

@@ -164,6 +164,9 @@ bool CvSelectionGroupAI::AI_update()
 		const int iHeadYBefore = (pHeadBefore == NULL ? -1 : pHeadBefore->getY());
 		const int iHeadMovesBefore = (pHeadBefore == NULL ? -1 : pHeadBefore->movesLeft());
 		const int iMissionQueueLengthBefore = getLengthMissionQueue();
+		// <!-- custom: Missionless transport unloading changes group cargo, and AdvCiv can detach a non-head bombard unit while leaving every existing head snapshot unchanged. Both are real progress that must re-enter inherited group evaluation instead of receiving MISSION_SKIP. See KI#522 and KI#524. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		const int iNumUnitsBefore = getNumUnits();
+		const int iCargoBefore = getCargo();
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
@@ -247,12 +250,13 @@ bool CvSelectionGroupAI::AI_update()
 			}
 		}
 
-		// <!-- custom: Consume the turn only when the same head unit, including its AI role, made no observable progress. Head replacement or role conversion must let the remaining group continue its normal update. See KI#319. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: Consume the turn only when the same head unit, including its AI role, group membership and cargo, made no observable progress. Head replacement, role conversion, non-head detachment or missionless unloading must let the remaining group continue its normal update. See KI#319, KI#522 and KI#524. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		CvUnitAI const* pHeadAfter = AI_getHeadUnit();
 		if (!isBusy() && readyToMove(true) && pHeadAfter != NULL &&
 			pHeadAfter->getID() == iHeadIDBefore && pHeadAfter->AI_getUnitAIType() == eHeadAIBefore &&
 			pHeadAfter->getX() == iHeadXBefore && pHeadAfter->getY() == iHeadYBefore &&
-			pHeadAfter->movesLeft() == iHeadMovesBefore && getLengthMissionQueue() == iMissionQueueLengthBefore)
+			pHeadAfter->movesLeft() == iHeadMovesBefore && getLengthMissionQueue() == iMissionQueueLengthBefore &&
+			getNumUnits() == iNumUnitsBefore && getCargo() == iCargoBefore)
 		{
 			pushMission(MISSION_SKIP); // finishes moves cleanly
 			break;
@@ -948,7 +952,7 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot 
 			}
 			else
 			{
-				FAssertMsg(iDefenders > 0, "AI bombards undefended city");
+				// <!-- custom: Human Bombard is legal against an undefended city; canBombard and isBombardable deliberately impose no defender requirement, and the later ratio already guards zero through std::max. Remove the stale human-path assertion rather than restricting valid gameplay. See KI#521. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				int iAttackers = 0;
 				FOR_EACH_UNIT_IN(pUnit, kAt)
 				{

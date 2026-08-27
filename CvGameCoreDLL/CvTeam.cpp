@@ -5301,10 +5301,14 @@ void CvTeam::verifySpyUnitsValidPlot()
 		CvPlayer const& kMember = *it;
 		FOR_EACH_UNIT_VAR(pUnit, kMember)
 		{
+			// <!-- custom: A failed inherited Partisans initUnit(NO_UNIT) call left a reset/unplaced object in the unit container. This inherited loop dereferenced its null plot before checking whether it was a Spy, then a first repair still crashed by reading isSpy() before placement.
+			// Check placement before all unit-info-backed state and ignore every unit outside this helper's placed-Spy scope. See KI#524.2 and KI#524.6. (GPT-5.6-Sol) -->
+			if (pUnit->plot() == NULL || !pUnit->isSpy())
+				continue;
 			PlayerTypes eOwner = pUnit->getPlot().getOwner();
 			if (eOwner != NO_PLAYER)
 			{
-				if (pUnit->isSpy() && !kMember.canSpiesEnterBorders(eOwner))
+				if (!kMember.canSpiesEnterBorders(eOwner))
 					aUnits.push_back(pUnit);
 			}
 		}

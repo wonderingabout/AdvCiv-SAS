@@ -173,11 +173,13 @@ namespace
 			for (CvUnit const* pLoopUnit = itMember->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = itMember->nextUnit(&iLoop))
 			{
 				CvPlot const* pPlot = pLoopUnit->plot();
+				// <!-- custom: A failed inherited Partisans initUnit(NO_UNIT) call left a reset/unplaced object in the owner container.
+				// It is not part of deployable military posture, and reading its unit-info-backed combat state crashed WAR level-2 diagnostics; reject it first. See KI#524.3 and KI#524.6. (GPT-5.6-Sol) -->
+				if (pPlot == NULL)
+					continue;
 				if (!pLoopUnit->canDefend(pPlot) && pLoopUnit->baseCombatStr() <= 0 && pLoopUnit->airBaseCombatStr() <= 0)
 					continue;
 				iMilitary++;
-				if (pPlot == NULL)
-					continue;
 				if (pPlot->isCity())
 					iInCities++;
 				if (pPlot->getTeam() == eTarget)
