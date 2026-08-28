@@ -1388,15 +1388,15 @@ bool CvPythonCaller::canPlaceItemAt(char const* szItemName, CvPlot const& kPlot,
 
 int CvPythonCaller::riverValue(CvPlot const& kPlot, bool& bOverride) const
 {
-	ARGSLIST(-1);
+	// <!-- custom: AdvCiv's callback refactor discarded numeric getRiverAltitude results whenever Python also requested the default implementation.
+	// Start from the original additive default of zero and preserve hybrid modifiers while retaining validation for a full override. See KI#570. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	ARGSLIST(0);
 	CyPlot* pyPlot = new CyPlot(kPlot);
 	argsList.add(m_python.makePythonObject(pyPlot));
 	call("getRiverAltitude", argsList, lResult, m_python.getMapScriptModule(), false);
 	delete pyPlot;
 	bOverride = isOverride();
-	if (!bOverride)
-		return 0;
-	if (lResult < 0)
+	if (bOverride && lResult < 0)
 	{
 		FAssert(lResult >= 0);
 		bOverride = false;

@@ -18,6 +18,7 @@ from urllib.parse import unquote, urlsplit
 
 ROOT = Path(__file__).resolve().parents[3]
 MANIFEST_PATH = ROOT / "_LLM_REPO_FILE_MANIFEST.txt"
+KNOWN_ISSUES_PATH = ROOT / "_1_AdvCiv-SAS" / "Docs" / "README_Known_Issues.md"
 
 HTML_LINK_RE = re.compile(
     r"<a\b[^>]*?\bhref\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))",
@@ -349,6 +350,31 @@ def line_number(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
+# <!-- custom: A valid heading anchor does not ensure that a Known Issues entry is discoverable from its manually maintained menu. Require every numbered KI heading to have a numbered menu link before the first KI body. (GPT-5.6-Sol) -->
+def known_issues_menu_errors() -> tuple[list[str], int]:
+    text = KNOWN_ISSUES_PATH.read_text(encoding="utf-8")
+    first_issue = re.search(r"^##\s+\d", text, re.MULTILINE)
+    if first_issue is None:
+        return [f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: no numbered KI headings found"], 0
+
+    menu_text = text[: first_issue.start()]
+    menu_numbers = set(re.findall(r"^\[(\d+(?:\.\d+)*)\b", menu_text, re.MULTILINE))
+    issue_matches = list(re.finditer(r"^##\s+(\d+(?:\.\d+)*)\b", text[first_issue.start() :], re.MULTILINE))
+    errors: list[str] = []
+    seen_missing: set[str] = set()
+    for match in issue_matches:
+        issue_number = match.group(1)
+        if issue_number in menu_numbers or issue_number in seen_missing:
+            continue
+        seen_missing.add(issue_number)
+        offset = first_issue.start() + match.start()
+        errors.append(
+            f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}:{line_number(text, offset)}: "
+            f"KI#{issue_number} heading is missing from the main menu"
+        )
+    return errors, len(set(match.group(1) for match in issue_matches))
+
+
 def main() -> int:
     errors: list[str] = []
     checked = 0
@@ -402,8 +428,11 @@ def main() -> int:
         if found_local:
             markdown_files += 1
 
+    menu_errors, known_issue_count = known_issues_menu_errors()
+    errors.extend(menu_errors)
+
     if errors:
-        print("Broken local Markdown links:")
+        print("Markdown validation errors:")
         for error in errors:
             print(f"  {error}")
         print(
@@ -416,6 +445,7 @@ def main() -> int:
         f"Markdown local links OK: {checked} reference(s), including {checked_fragments} Markdown "
         f"fragment(s), in {markdown_files} file(s)."
     )
+    print(f"Known Issues main menu complete: {known_issue_count} numbered KI identifier(s) indexed.")
     return 0
 
 

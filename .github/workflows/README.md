@@ -159,7 +159,11 @@ This prevents documentation image links from silently breaking when image folder
 
 ### `build/markdown_links.py`
 
-Verifies every repository-local file or directory referenced by a Markdown link resolves to an existing repository path, and verifies `#heading` fragments for Markdown targets against GitHub-style heading anchors and explicit HTML anchors. It checks normal and explicit reference-style Markdown links plus HTML `<a href="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples. Image references are handled separately by `markdown_images.py`. Repository-root paths and paths relative to each Markdown file are both supported.
+Verifies every repository-local file or directory referenced by a Markdown link resolves to an existing repository path, and verifies `#heading` fragments for Markdown targets against GitHub-style heading anchors and explicit HTML anchors.
+
+It checks normal and explicit reference-style Markdown links plus HTML `<a href="...">` tags, while ignoring external URLs and fenced-code, inline-code, or comment examples. Image references are handled separately by `markdown_images.py`. Repository-root paths and paths relative to each Markdown file are both supported.
+
+It also verifies that every numbered heading in `README_Known_Issues.md` has a numbered link in that document's main menu, preventing valid but undiscoverable KI entries such as the previously omitted KI#202.
 
 When `_LLM_REPO_FILE_MANIFEST.txt` is present in a light-source ZIP, tracked files and directories intentionally omitted from the bundle are still recognized as existing repository paths; Markdown fragments are checked whenever the target Markdown file itself is bundled. This prevents both moved/renamed repository targets and renamed Markdown headings from silently leaving stale local links.
 

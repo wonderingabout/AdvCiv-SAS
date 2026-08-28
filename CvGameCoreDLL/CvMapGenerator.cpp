@@ -243,11 +243,12 @@ void CvMapGenerator::addLakes()
 		}
 	} // </advc.129e>
 	// <advc.opt> Recalc only once
+	// <!-- custom: AdvCiv asked only the final lake conversion to recalculate, but CvPlot::setPlotType can update that plot locally without rebuilding the whole map.
+	// Earlier lakes then retained their former land CvArea while features, bonuses and starts were generated. Convert the batch first, then explicitly rebuild all areas once. See KI#572. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	for (size_t i = 0; i < apLakes.size(); i++)
-	{
-		bool bRecalc = (i + 1 == apLakes.size());
-		apLakes[i]->setPlotType(PLOT_OCEAN, bRecalc, bRecalc);
-	} // </advc.opt>
+		apLakes[i]->setPlotType(PLOT_OCEAN, false, false);
+	if (!apLakes.empty())
+		GC.getMap().recalculateAreas(); // </advc.opt>
 }
 
 void CvMapGenerator::addRivers()
@@ -255,8 +256,7 @@ void CvMapGenerator::addRivers()
 	PROFILE_FUNC();
 
 	// <!-- custom: Water.py temporarily changes the default river generator's defines. Snapshot them before the map-script callback, consume the active values after it, then restore the shared globals so Water remains effective and cannot contaminate later map generations.
-	// CvGlobals::getInstance() is intentional: AdvCiv's GC accessor is const, but restoring changed defines requires the established mutable singleton accessor.
-	// See KI#243. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// CvGlobals::getInstance() is intentional: AdvCiv's GC accessor is const, but restoring changed defines requires the established mutable singleton accessor. See KI#243. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	CvGlobals& kGlobals = CvGlobals::getInstance();
 	const int iOriginalRiverSourceRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_RIVER_RANGE");
 	const int iOriginalSeaWaterRange = kGlobals.getDefineINT("RIVER_SOURCE_MIN_SEAWATER_RANGE");
@@ -719,8 +719,11 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 				{
 					continue;
 				}
-				// number of unique bonuses starting on the area, plus this one
-				int iNumUniqueBonusesOnArea = 1 + kLoopArea.countNumUniqueBonusTypes();
+				// <!-- custom: KI#202 made first-pass areas containing eBonus revisitable, so AdvCiv's unconditional "plus this one" counted eBonus twice there. Add it only on fresh areas. See KI#569. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int iNumUniqueBonusesOnArea = kLoopArea.countNumUniqueBonusTypes();
+				if (kLoopArea.getNumBonuses(eBonus) <= 0)
+					iNumUniqueBonusesOnArea++;
+				FAssert(iNumUniqueBonusesOnArea > 0);
 				//int iValue = iNumTiles / iNumUniqueBonusesOnArea;
 				int iValue;
 				if (bSASAdvCivOneAreaBonusDistribution)
@@ -732,7 +735,9 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 				}
 				else iValue = iNumTiles / iNumUniqueBonusesOnArea; // BTS
 				// <advc.129>
-				if (bSASAdvCivOneAreaBonusDistribution && iValue <= iBestValue) // To save time
+				// <!-- custom: AdvCiv could round a legally placeable near-target area's preliminary rank to zero and mistake that for no candidate.
+				// Scan zero-ranked areas while no candidate exists, then keep every area with an eligible plot positively ranked. See KI#571. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (bSASAdvCivOneAreaBonusDistribution && iBestValue > 0 && iValue <= iBestValue) // To save time
 					continue;
 				if (bSASAdvCivOneAreaBonusDistribution)
 				{
@@ -749,9 +754,11 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 							iEligible++;
 						}
 					}
+					if (iEligible <= 0)
+						continue;
 					scaled rSuitability(iEligible, iNumTiles);
 					rSuitability = (rSuitability + 2) / 3; // dilute
-					iValue = (rSuitability * iValue).round();
+					iValue = std::max(1, (rSuitability * iValue).round());
 				}
 				// </advc.129>
 				if (iValue > iBestValue)
