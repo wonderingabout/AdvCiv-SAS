@@ -635,9 +635,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		computing the army portions. */
 	/*	Adjust the portion of the army that is assumed to be absent,
 		i.e. 1 minus portion */
-	rArmyPortionDefender *= scaled::max(0, 1 - (1 - rArmyPortionDefender) *
+	// <!-- custom: AdvCiv practical 2923 accidentally changed these assignments to multiplication, squaring every partial portion at neutral ally confidence. Restore the original absent-portion adjustment. See KI#579. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	rArmyPortionDefender = scaled::max(0, 1 - (1 - rArmyPortionDefender) *
 			rConfAlliesAtt);
-	rArmyPortionAttacker *= scaled::max(0, 1 - (1 - rArmyPortionAttacker) *
+	rArmyPortionAttacker = scaled::max(0, 1 - (1 - rArmyPortionAttacker) *
 			rConfAlliesDef);
 	// No clash w/o mutual reachability
 	FAssert(!bClashOnly || (targetCity() != NULL && kDefender.targetCity() != NULL));
@@ -1157,9 +1158,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			}
 			if (rAreaWeightAtt < 1)
 			{
-				m_kReport.log("Area weight attacker: %d percent",
-						rAreaWeightAtt.getPercent());
+				m_kReport.log("Area weight attacker: %d percent", rAreaWeightAtt.getPercent());
+				// <!-- custom: Cavalry is an overlapping Army sub-branch. AdvCiv weighted only the attacker's Army by battle area, breaking Cavalry <= Army even though its defender-side sibling was fixed. Scale both together. See KI#583. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				rArmyPow *= rAreaWeightAtt;
+				rCavPow *= rAreaWeightAtt;
 			}
 		}
 		if (iRemainingCitiesDef > 0)
@@ -1376,9 +1378,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	bool bNoGuardUnit = (kDefHomeGuard.getTypicalUnit() == NO_UNIT);
 	FAssert(!bNoGuardUnit || iDefCities <= 0);
 	// For all garrisons
-	scaled rCityDefenderMod = (bNoGuardUnit ? 0 :
-			per100(GC.getInfo(kDefHomeGuard.getTypicalUnit()).getCityDefenseModifier()));
-	if (GET_PLAYER(kDefender.m_eAgent).uwai().getCache().hasDefensiveTrait())
+	scaled rCityDefenderMod = (bNoGuardUnit ? 0 : per100(GC.getInfo(kDefHomeGuard.getTypicalUnit()).getCityDefenseModifier()));
+	// <!-- custom: Every graph node shares m_eAgent, so the inherited check gave all city defenders the evaluating player's trait. Query the actual defender owner. See KI#581. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (GET_PLAYER(kDefender.m_ePlayer).uwai().getCache().hasDefensiveTrait())
 		rCityDefenderMod += fixp(0.3);
 	bool const bIgnoreCityDef = (m_military[ARMY]->getTypicalUnit() != NO_UNIT &&
 			GC.getInfo(m_military[ARMY]->getTypicalUnit()).isIgnoreBuildingDefense());
@@ -1500,9 +1502,6 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		scaled const rDefLossRatio = scaled::min(1, fixp(0.65) * rThreat.pow(fixp(1.5)));
 		kStep.reducePower(kDefender.m_ePlayer, ARMY, rDefLossRatio * rDefArmyPow * rDefArmyPortion);
 		kStep.reducePower(kDefender.m_ePlayer, CAVALRY, rDefLossRatio * rDefCavPow * rDefArmyPortion);
-		/*	Assume that not all emergency defenders were able to reach this city
-			(i.e. their true power is actually 2 * emergencyDefPow) */
-		kDefender.m_rEmergencyDefPow /= 2;
 		kStep.reducePower(kDefender.m_ePlayer, HOME_GUARD,
 				rDefLossRatio * rGuardPowUnmodified);
 		/*	These losses are a bit exaggerated I think, at least when threat is
@@ -1658,6 +1657,9 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		{
 			UWAICache::City const& kStepCity = *kStep.getCity();
 			addCityLoss(kStepCity);
+			// <!-- custom: Node::step is also used for discarded priority, cycle and time-horizon probes, so halving emergency defense there mutated persistent state without an applied attack.
+			// Apply it only after an executed successful city conquest. See KI#576. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			m_rEmergencyDefPow /= 2;
 			int const iCurrentCities = GET_PLAYER(m_ePlayer).getNumCities();
 			if (m_cityLosses.size() == iCurrentCities)
 				setEliminated(true);
@@ -1673,16 +1675,15 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 				might also want to count failed attacks or clashes. */
 			kAttacker.m_iWarTurnsSimulated += kStep.getDuration();
 			kAttacker.addConquest(kStepCity);
-			// The conquerer leaves part of his army behind to protect the city
-			scaled rUnitsLeftBehind = 2 + GET_PLAYER(m_ePlayer).AI_getCurrEraFactor();
+			// <!-- custom: The conqueror leaves its own units behind, but inherited UWAI converted their count using the victim's era and representative Army power.
+			// Use the attacker for both inputs and for the shifted state. See KI#575. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			scaled rUnitsLeftBehind = 2 + GET_PLAYER(kAttacker.m_ePlayer).AI_getCurrEraFactor();
 			if (GET_PLAYER(kAttacker.m_ePlayer).isHuman())
 				rUnitsLeftBehind = (2 * rUnitsLeftBehind) / 3;
-			scaled rPowLeftBehind = rUnitsLeftBehind *
-					m_military[ARMY]->getTypicalPower(TEAMID(m_eAgent));
+			scaled rPowLeftBehind = rUnitsLeftBehind * kAttacker.m_military[ARMY]->getTypicalPower(TEAMID(m_eAgent));
 			rPowLeftBehind.decreaseTo(kAttacker.m_military[ARMY]->power()
 					- kAttacker.m_arLostPower[ARMY]);
-			m_kReport.log("%d army power assumed to be left behind for defense",
-					rPowLeftBehind.uround());
+			m_kReport.log("%d army power assumed to be left behind for defense", rPowLeftBehind.uround());
 			kAttacker.m_arLostPower[ARMY] += rPowLeftBehind;
 			/*	Don't want to add the power to guard b/c the newly conquered city
 				can't be attacked by third parties (nor reconquered) and doesn't
@@ -2023,15 +2024,17 @@ void InvasionGraph::Node::clash(scaled rArmyPortion, scaled rTargetArmyPortion)
 	SimulationStep& kClashStep = *kTarget.step(rArmyPortion, rTargetArmyPortion, true);
 	applyStep(kClashStep);
 	// Army surviving clash and going after cities won't be available for defense
+	// <!-- custom: Inherited UWAI assigned each winner the opponent's independently computed Army portion, transferring asymmetric outside pressure to the wrong civilization.
+	// Preserve each node's portion for both conquest and defense distraction. See KI#578. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (kClashStep.isAttackerSuccessful())
 	{
-		kTarget.m_rDistractionByConquest = rArmyPortion;
-		m_rDistractionByDefense = rTargetArmyPortion;
+		kTarget.m_rDistractionByConquest = rTargetArmyPortion;
+		m_rDistractionByDefense = rArmyPortion;
 	}
 	else
 	{
-		m_rDistractionByConquest = rTargetArmyPortion;
-		kTarget.m_rDistractionByDefense = rArmyPortion;
+		m_rDistractionByConquest = rArmyPortion;
+		kTarget.m_rDistractionByDefense = rTargetArmyPortion;
 	}
 	delete &kClashStep;
 }

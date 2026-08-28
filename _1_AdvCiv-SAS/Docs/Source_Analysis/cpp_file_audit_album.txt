@@ -43827,3 +43827,551 @@ Immediate next work:
 
 No repository source files were modified by GPT-5.6-Sol during this audit.
 ===============================================================================
+
+
+C021-WIP11 CONTINUATION -- queue 023 InvasionGraph.cpp
+=======================================================
+
+F264 / provisional KI#587 -- COASTAL DEFENDER FLEET LOSSES DO NOT REDUCE ITS OVERLAPPING LOGISTICS CAPACITY
+------------------------------------------------------------------------------------------------------------
+TITLE
+    A defender can lose transport ships in the coastal-bombardment sea battle, but that
+    step records only FLEET loss and deliberately records zero LOGISTICS loss. Because
+    LOGISTICS is persistent graph state and overlaps FLEET for proper transports, the same
+    defender can later launch a naval invasion with cargo capacity belonging to transports
+    that the preceding simulation step has already destroyed as Fleet power.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv overlapping-branch state omission.
+    Present from the initial tracked InvasionGraph import, practical 1253
+    (f6ff6a182f...), and still present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+    This is separate from the explicitly acknowledged cargo-capacity-vs-combat-power
+    approximation and from F261's confidence conversion error.
+
+BRANCH MODEL / HARD OVERLAP
+    MilitaryBranch.h defines FLEET as any sea ship with combat strength, including
+    transports, and LOGISTICS as ships transporting Army units. Therefore a proper
+    combat-capable transport belongs to BOTH branches:
+
+        FLEET       -> combat-power representation
+        LOGISTICS   -> cargo-capacity representation
+
+    MilitaryBranch::Fleet::unitPower uses the ship's military power, whereas
+    MilitaryBranch::Logistics::unitPower returns getCargoSpace(). The units differ, but
+    both branches describe the same physical transport hulls.
+
+PRODUCER -- COASTAL BATTLE
+    In Node::step, a land-reachable city attack can still trigger a coastal sea battle
+    when the attacker can bombard from sea. The source explicitly says:
+
+        "Only defender is assumed to bring cargo units into battle."
+
+    The attacker removes its Logistics component from the Fleet estimate (approximately),
+    whereas the defender uses its entire remaining FLEET power, therefore including
+    combat-capable transports.
+
+    The calculated sea-battle casualties are then recorded only as:
+
+        kStep.reducePower(attacker, FLEET, rLossesAtt);
+        kStep.reducePower(defender, FLEET, rLossesDef);
+
+    No LOGISTICS loss is recorded. The nearby rationale is:
+
+        "Losses in logistics don't matter b/c no naval landing is attempted,
+         and the cost (of having to rebuild units) is already included in the fleet losses."
+
+    That rationale is local to the present step and does not hold for the persistent
+    graph state consumed by later steps.
+
+CONCRETE HARD CASE
+    Let defender D's naval force consist entirely of proper combat-capable transports
+    (e.g. the model-equivalent of Galleons/Transports), so every ship contributes to both
+    FLEET and LOGISTICS.
+
+    A coastal battle can record positive FLEET loss for D. With no non-transport combat
+    ship available to absorb that loss, the model has necessarily destroyed some of the
+    physical transports represented by LOGISTICS as well. Yet D's m_arLostPower[LOGISTICS]
+    remains unchanged, so all original cargo capacity survives in simulation state.
+
+PRODUCER -> STATE -> CONSUMER PATH
+    A simple acyclic component is enough:
+
+        A -> D -> T
+
+    where A attacks a land-reachable coastal city of D and D's own primary target T
+    requires a naval landing.
+
+    resolveLossesRec is post-order over incoming edges:
+
+        T.resolveLossesRec()
+            -> D.resolveLossesRec()
+                -> A.resolveLossesRec()
+                -> D.resolveLosses()      [A attacks D first]
+            -> T.resolveLosses()          [D attacks T afterward]
+
+    Thus A's coastal attack on D is applied BEFORE D's later outgoing attack on T.
+    D's FLEET losses persist in m_arLostPower[FLEET], but the omitted Logistics losses do
+    not. When D later performs a naval step, its landing capacity is recomputed from:
+
+        D.m_military[LOGISTICS]->power() - D.m_arLostPower[LOGISTICS]
+
+    and therefore still includes the cargo capacity of transports already represented as
+    destroyed by the earlier FLEET loss.
+
+WHY THE EXISTING COMMENT DOES NOT MAKE THIS SAFE
+    It is reasonable not to care about cargo capacity for the *current* land attack, and
+    the FLEET loss does already charge rebuilding cost. But SimulationStep losses are also
+    availability state for later graph steps. Cost accounting cannot make a destroyed
+    transport available for a subsequent landing. This is the same reason overlapping
+    CAVALRY/ARMY branches are updated together elsewhere: overlapping branches must remain
+    mutually consistent when the same physical unit is lost.
+
+    The pre-existing FIXME about LOGISTICS using cargo slots while FLEET uses corrected
+    combat power makes the exact proportional conversion approximate; it does not justify
+    an exact zero LOGISTICS update in the all-transport hard case.
+
+HISTORY
+    Practical 1253 introduces the coastal battle with both comments above and with FLEET-
+    only losses. The behavior survives later cleanup/scaled rewrites (including 2920/2954)
+    and remains in Base AdvCiv 1.14 and SAS. No K-Mod/Civ4CE cognate exists because UWAI's
+    InvasionGraph is not present there.
+
+REPAIR DIRECTION
+    When the coastal defender's Fleet loss can include proper transports, propagate an
+    estimated overlapping loss into LOGISTICS as well. Reusing a defender-side cargo/Fleet
+    ratio analogous to the full naval-battle path is the smallest structural repair, while
+    retaining the existing documented dimensional approximation. Clamp the resulting
+    Logistics loss to remaining cargo capacity.
+
+    A more exact long-term repair would track transport combat power and cargo capacity
+    separately so the same physical transport casualties can update both branch measures
+    without dividing unlike units.
+
+INTERACTIONS / NON-DUPLICATION
+    * F261: confidence leaks into attacker Logistics casualty conversion in the full naval
+      battle. F264 exists even at confidence 1 and concerns the coastal-battle path where
+      defender Logistics casualties are omitted entirely.
+    * F262: repeat-trip capacity is applied before transport losses during an actual naval
+      landing. F264 concerns stale Logistics state created by an earlier coastal battle.
+    * The longstanding "cargo capacity vs Fleet power" FIXME is an approximation/control;
+      F264 is the independently provable persistence failure when destroyed overlapping
+      transports remain fully available in a later step.
+
+
+C021-WIP11 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F265 UNUSED
+    (KI#586 remains retired with retracted F263; next provisional KI is KI#588.)
+
+Resume from F265 unused.
+
+Best next work:
+    * continue overlapping-branch loss invariants after naval/coastal combat, especially
+      drowned Army/Cavalry and remaining Fleet/Logistics state;
+    * continue city-combat loss conversion and emergency-defender state beyond F253;
+    * inspect SimulationStep query-vs-apply ownership/mutation and cumulative branch caps;
+    * continue historical one-sided bugfix audit (especially 1335/1358/1387/1395/1726/
+      1879/2767 and post-2920 cleanup commits) for surviving sibling omissions;
+    * keep explicit modeling approximations separate from hard owner/state/arithmetic
+      contradictions.
+
+No repository source files modified. Audit album only.
+
+
+C021-WIP12 CONTINUATION -- queue 023 InvasionGraph.cpp
+=======================================================
+
+F265 / provisional KI#588 -- DEPLOYMENT FILTER SCALES ARMY BUT NOT ITS OVERLAPPING CAVALRY SUB-BRANCH
+-----------------------------------------------------------------------------------------------------
+TITLE
+    Deployment-distance attenuation reduces an attacker's enclosing ARMY power but leaves
+    its overlapping CAVALRY power unchanged. This can immediately violate Cavalry<=Army
+    and later make a city-combat step record more Cavalry casualty power than total Army
+    casualty power.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv overlapping-branch projection omission.
+    Present in the initial tracked InvasionGraph import (practical 1253, f6ff6a182f...)
+    and still present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Independent from F260, which concerns the later attacker battle-area filter.
+
+BRANCH INVARIANT / SOURCE MODEL
+    MilitaryBranch.h explicitly states:
+
+        "All Cavalry is also included in Army."
+
+    Node::step itself enforces the resulting subset invariant before deployment:
+
+        rCavPow.decreaseTo(rArmyPow);
+
+    Thus CAVALRY is not an independent pool that may exceed ARMY; it is an overlapping
+    description of the fast/mounted subset of that same Army force.
+
+PRODUCER -- DEPLOYMENT ATTENUATION
+    After naval handling and immediately before battle-area weighting, current code applies
+    deployment-distance availability as:
+
+        rDefArmyPow *= rDefDeploymentMod;
+        rArmyPow *= scaled::max(
+                100 - 1.55 * rDeploymentDistAttacker.pow(1.15), 50) / 100;
+
+    Neither rCavPow nor rDefCavPow is changed in this block.
+
+    The attenuation is not merely a combat-strength modifier. The source comment says the
+    attacking reduction models produced units becoming available with a delay and the AI
+    forming smaller stacks / units arriving in a trickle. In other words it is an
+    availability projection of the represented force. Leaving its overlapping Cavalry
+    subset at pre-projection scale breaks the branch representation.
+
+CONCRETE HARD CASE
+    Take an Army consisting entirely of units that qualify for CAVALRY:
+
+        before deployment filter: Army = 100, Cavalry = 100
+
+    A long deployment can hit the explicit 50% lower bound for Army availability:
+
+        after current filter: Army = 50, Cavalry = 100
+
+    The simulation now claims that the available subset contains twice as much Cavalry
+    power as total Army power even though every Cavalry unit is included in Army.
+
+DOWNSTREAM CONSUMER -- CITY LOSSES
+    The open-field clash path computes/clamps a Cavalry ratio, which masks some of the
+    damage there. City combat later does not clamp the ratio and records:
+
+        kStep.reducePower(attacker, ARMY, rLossesAttArmy);
+        kStep.reducePower(attacker, CAVALRY,
+                rLossesAttArmy * rCavPow / rArmyPow);
+
+    Under the pure-Cavalry example above, 10 Army power of losses becomes 20 Cavalry power
+    of losses. The same issue exists on both successful and failed city-assault branches.
+    applyStep eventually caps cumulative branches independently at their original totals,
+    but that does not restore per-step overlap consistency and can exhaust the Cavalry
+    branch too early for later simulated combat.
+
+WHY "CAVALRY DEPLOYS FASTER" DOES NOT SAVE THE CURRENT ARITHMETIC
+    The model does recognize a cavalry-focused attack separately: bCavalryAttack shortens
+    deployment duration and reduces attacker deployment distance. That can reasonably make
+    a cavalry-heavy force suffer a smaller availability penalty. But leaving CAVALRY wholly
+    unfiltered while reducing its enclosing ARMY uniformly cannot represent faster Cavalry
+    correctly: in the pure-Cavalry limit, reducing Army necessarily reduces the same
+    physical units represented by Cavalry. A different mobility factor would still have to
+    preserve Cavalry<=Army after projection.
+
+HISTORY
+    The first tracked UWAI InvasionGraph import already had:
+
+        targetArmyPow *= defDeploymentMod;
+        armyPow *= max(... deploymentDistAttacker ...);
+
+    while Cavalry was already an overlapping Army branch and city/clash losses were already
+    derived from cavPow / armyPow. No corresponding Cavalry deployment projection appears
+    in that initial implementation. Later cavalry-specific deployment tweaks (e.g.
+    practical 1341's shorter distance/duration for a cavalry attack) change the distance
+    input but do not repair the branch mismatch. The scaled rewrite and current AdvCiv/SAS
+    preserve the omission.
+
+REPAIR DIRECTION
+    The hard live consumer is the ATTACKER path: project rCavPow whenever the attacker's
+    enclosing rArmyPow receives the deployment-availability factor. For example:
+
+        scaled rAttDeploymentMod = ...;
+        rArmyPow *= rAttDeploymentMod;
+        rCavPow  *= rAttDeploymentMod;
+
+    and defensively re-establish `rCavPow.decreaseTo(rArmyPow)` before any unbounded city-
+    loss ratio is consumed.
+
+    Be more careful on the defender side. Current city-attack flow later deliberately
+    divides rDefArmyPow by rDefDeploymentMod when the defending army is treated as having
+    retreated to the city (deployment distance 0). Therefore blindly multiplying
+    rDefCavPow by rDefDeploymentMod here without undoing the same factor later would
+    CREATE a new mismatch. If defender Cavalry is also projected for clash consistency,
+    mirror every later defender-ARMY undo on CAVALRY as well.
+
+    If a deliberate mobility advantage for Cavalry is desired, model it with a distinct
+    bounded factor while preserving Cavalry<=Army in the represented force. Simply
+    clamping the final casualty ratio would hide one symptom while leaving attacker
+    availability inconsistent.
+
+INTERACTIONS / NON-DUPLICATION
+    * F260 is the later attacker battle-area omission. It has a strong one-sided historical
+      control: practical 1366 repaired the defender sibling but not attacker Cavalry.
+      F265 is an independent earlier deployment-distance transformation already wrong in
+      the initial UWAI import.
+    * F259 concerns a negative defender deployment distance caused by personality scaling.
+      F265 remains at entirely valid non-negative distances and even at the ordinary 50%
+      deployment lower bound.
+
+
+CONTROL / REJECTION -- ARMY PORTION NEED NOT SCALE LOGISTICS CAPACITY
+---------------------------------------------------------------------
+    A candidate F265 was initially considered because rArmyPortionAttacker/Defender is
+    applied to ARMY, CAVALRY and FLEET, while LOGISTICS cargo capacity is not multiplied by
+    that portion. Historical/source semantics do not establish this as a bug. The portion
+    represents combat forces committed to the current front; a smaller committed Army can
+    plausibly concentrate all available transports on carrying that selected subset.
+    The initial UWAI implementation already describes cargo capacity separately from the
+    Army/Fleet commitment fraction. Without a hard reuse/ownership contradiction, matching
+    the Fleet multiplier mechanically would be an unjustified symmetry assumption.
+    No F-number assigned for this candidate.
+
+
+C021-WIP12 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+    F265 / provisional KI#588
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F266 UNUSED
+    (KI#586 remains retired with retracted F263; next provisional KI is KI#589.)
+
+Resume from F266 unused.
+
+Best next work:
+    * continue drowned-Army/Cavalry and Fleet/Logistics overlap conversions after naval
+      combat, challenging exact unit dimensions and confidence/portion interactions;
+    * continue city-combat and emergency-defender state beyond F253, especially overlap
+      ratios after deployment/area filtering and cumulative branch caps;
+    * inspect SimulationStep ownership/query-vs-apply semantics and any player-ID fallback
+      that can silently charge a third player as defender;
+    * continue historical one-sided bugfix audit for surviving siblings rather than
+      assuming apparent asymmetry is erroneous;
+    * keep coarse UWAI modeling choices separate from hard owner/state/unit contradictions.
+
+No repository source files modified. Audit album only.
+
+
+C021-WIP13 CONTINUATION -- queue 023 InvasionGraph.cpp
+=======================================================
+
+F266 / provisional KI#589 -- HOME_GUARD CAP DISCARDS CASUALTIES INFLICTED ON VIRTUAL EMERGENCY DEFENDERS
+--------------------------------------------------------------------------------------------------------
+TITLE
+    City defense can include positive m_rEmergencyDefPow beyond the original HOME_GUARD
+    branch, and step() computes HOME_GUARD casualties from that emergency-augmented pool.
+    applyStep then caps cumulative HOME_GUARD loss to the ORIGINAL branch power only.
+    Once that base cap is reached, casualties inflicted on emergency defenders can vanish
+    from persistent availability state and the same virtual defenders can fight a later
+    invader again at full strength.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv state-accounting defect.
+    Present from the initial tracked InvasionGraph import (practical 1253,
+    f6ff6a182f...) and still present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+    This supersedes the earlier WIP09 CONTROL / NON-PROMOTION on emergency Home-Guard loss
+    attribution: the exact split between baseline and emergency casualties remains a
+    modeling choice, but the generic base-branch cap supplies a new hard loss-discard
+    path that the earlier control had not established.
+
+PRODUCER -- EMERGENCY DEFENDERS ARE REAL AVAILABILITY IN THE NEXT STEP
+    After a successful city loss, applyStep creates an auxiliary defender pool:
+
+        m_rEmergencyDefPow += typicalHomeGuardPower * duration / (2 or 3);
+
+    The stated rationale is that these are defenders trained while the invader heals and
+    approaches its next target and therefore not already covered by ordinary forecasting.
+
+    A later city-defense calculation explicitly includes them in available garrison power:
+
+        rPowerPerGarrison = 0.5 *
+            (HOME_GUARD.power() + m_rEmergencyDefPow
+             - m_arLostPower[HOME_GUARD]) / remainingCities;
+
+    Thus emergency power is not merely a reporting bonus; it supplies units/power that can
+    absorb casualties in the simulated defense.
+
+LOSS PRODUCER
+    Both successful and failed city assaults can store HOME_GUARD loss based on
+    rGuardPowUnmodified, which was computed from the emergency-augmented garrison pool.
+    For example the failed-assault path records:
+
+        reducePower(defender, HOME_GUARD,
+            rGuardPowUnmodified * 0.75 * rThreat);
+
+    No separate field in SimulationStep says which part of that casualty came from the
+    baseline guard versus the emergency defenders.
+
+STATE CONSUMER / HARD CAP
+    applyStep handles every branch generically:
+
+        m_arLostPower[eBranch] += rLostPowerDef;
+        m_arLostPower[eBranch].decreaseTo(m_military[eBranch]->power());
+
+    For HOME_GUARD, m_military[HOME_GUARD]->power() is the original/base branch and does
+    NOT include m_rEmergencyDefPow. The auxiliary emergency pool itself is not reduced on
+    an ordinary failed city attack.
+
+CONCRETE NO-AMBIGUITY CASE
+    Suppose D has:
+
+        base HOME_GUARD power = 10
+        already recorded HOME_GUARD loss = 10
+        emergency defender power = 20
+
+    D can still defend a city with positive garrison power because the availability
+    formula contains `10 + 20 - 10 = 20` before distribution.
+
+    A later failed assault computes, say, +8 HOME_GUARD casualties from those defenders.
+    applyStep performs:
+
+        lostHG = 10 + 8 = 18
+        lostHG.decreaseTo(baseHG = 10)  -> 10
+
+    Therefore the entire +8 loss disappears. m_rEmergencyDefPow remains 20, so the next
+    city-defense calculation again sees all 20 emergency power. With the base branch
+    already exhausted, there is no plausible baseline unit to which the discarded loss
+    can be reassigned; it necessarily came from power that the model nevertheless leaves
+    available.
+
+SAME-PHASE PRODUCER -> STATE -> LATER CONSUMER
+    Multiple invaders targeting one defender are resolved sequentially inside the same
+    Node::resolveLosses() loop, so no phase reset is needed:
+
+        A -> D
+        B -> D
+        C -> D
+
+    One valid sequence is:
+        1. A successfully takes a city from D; applyStep adds emergency defender power.
+        2. B later assaults D and inflicts HOME_GUARD casualties against the augmented
+           pool. If the base cap is reached, some/all of B's new casualty is discarded.
+        3. B's failed attack is unlinked, while C remains in D.m_targetedBy.
+        4. C's later step recomputes garrison power using the unchanged emergency pool and
+           therefore fights defenders that B's applied step had already modeled as lost.
+
+    This is a persistent same-phase availability error, distinct from the separate
+    question of whether emergency defenders should survive across prepareForSimulation.
+
+RELATION TO F253
+    F253 is the query-side mutation `m_rEmergencyDefPow /= 2` performed inside speculative
+    step() calls for predicted successful attacks. F266 exists independently on an
+    ordinary FAILED assault, where that halving does not execute. Fixing F253 by moving
+    success-only emergency mutation into applyStep therefore does not repair F266.
+
+HISTORY
+    Practical 1253 introduced both mechanisms together:
+        * emergencyDefPow is reset/accumulated separately and added to HOME_GUARD defense;
+        * applyStep caps every lostPower branch to `military[branch]->power()`.
+
+    The initial city-loss code already derives HOME_GUARD casualties from the augmented
+    garrison. The later revised-UWAI/scaled refactors preserve both the auxiliary pool and
+    the original-branch cap. Base AdvCiv 1.14 and SAS retain the same structural mismatch.
+
+REPAIR DIRECTION
+    Track consumption of emergency defender power explicitly when HOME_GUARD casualties
+    exceed the remaining baseline Home Guard represented by the branch. One conservative
+    approach is to split the applied casualty into:
+
+        remainingBaseHG = max(0, baseHG - lostHG);
+        lossFromBase    = min(stepHGLoss, remainingBaseHG);
+        lossFromEmergency = stepHGLoss - lossFromBase;
+
+    then add lossFromBase to m_arLostPower[HOME_GUARD] and subtract/clamp
+    lossFromEmergency from m_rEmergencyDefPow. The exact proportional split could be made
+    more sophisticated, but it must preserve total defender availability.
+
+    Avoid merely increasing the generic m_arLostPower[HOME_GUARD] cap to
+    `base + emergency` without reviewing MilitaryAnalyst::getLostPower / war-utility
+    reporting: emergency defenders are simulated extra production, so counting their
+    deaths as losses of the original baseline branch may distort cost accounting even if
+    it fixes availability.
+
+
+C021-WIP13 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+    F265 / provisional KI#588
+    F266 / provisional KI#589
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F267 UNUSED
+    (KI#586 remains retired with retracted F263; next provisional KI is KI#590.)
+
+Resume from F267 unused.
+
+Best next work:
+    * continue emergency-defender accounting after SUCCESSFUL assaults, keeping F253's
+      query mutation separate from F266's loss-cap discard;
+    * inspect remaining Army/Cavalry overlap ratios after temporary-loss and city-loss
+      conversions for hard subset violations not already covered by F260/F265;
+    * inspect SimulationStep's two-party storage contract and all caller ownership paths;
+    * continue historical one-sided bugfix audit and remaining naval/city arithmetic;
+    * reject coarse modeling choices unless a producer/state/consumer contradiction exists.
+
+No repository source files modified. Audit album only.

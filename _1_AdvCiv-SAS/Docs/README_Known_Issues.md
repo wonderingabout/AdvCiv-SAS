@@ -607,6 +607,12 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [572 - (Fixed inherited AdvCiv lake-area lifecycle regression) Batched lakes retained stale land CvAreas](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#572---fixed-inherited-advciv-lake-area-lifecycle-regression-batched-lakes-retained-stale-land-cvareas)\
 [573 - (Fixed inherited original UWAI victory-stage defect) Cumulative flags made every active Conquest and Domination strategy stage 1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#573---fixed-inherited-original-uwai-victory-stage-defect-cumulative-flags-made-every-active-conquest-and-domination-strategy-stage-1)\
 [574 - (Fixed inherited original UWAI graph-lifecycle defect) Simulated defeated players could continue attacking](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#574---fixed-inherited-original-uwai-graph-lifecycle-defect-simulated-defeated-players-could-continue-attacking)\
+[575 - (Fixed inherited original UWAI ownership defect) Conquest garrisons used the victim's era and representative unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#575---fixed-inherited-original-uwai-ownership-defect-conquest-garrisons-used-the-victims-era-and-representative-unit)\
+[576 - (Fixed inherited original UWAI query-mutation defect) Discarded attack probes consumed emergency defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#576---fixed-inherited-original-uwai-query-mutation-defect-discarded-attack-probes-consumed-emergency-defense)\
+[578 - (Fixed inherited original UWAI cycle-accounting defect) Clash winners inherited the loser's Army portion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#578---fixed-inherited-original-uwai-cycle-accounting-defect-clash-winners-inherited-the-losers-army-portion)\
+[579 - (Fixed inherited Base AdvCiv regression) Ally-confidence adjustment squared partial Army portions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#579---fixed-inherited-base-advciv-regression-ally-confidence-adjustment-squared-partial-army-portions)\
+[581 - (Fixed inherited original UWAI owner-identity defect) City defenders used the evaluating player's Defensive trait](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#581---fixed-inherited-original-uwai-owner-identity-defect-city-defenders-used-the-evaluating-players-defensive-trait)\
+[583 - (Fixed inherited AdvCiv/UWAI branch-accounting omission) Attacker area weighting excluded Cavalry](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#583---fixed-inherited-advcivuwai-branch-accounting-omission-attacker-area-weighting-excluded-cavalry)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -11347,3 +11353,51 @@ A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed succes
 InvasionGraph resolves incoming attackers recursively. In an ordinary chain `A -> B -> C`, A attacks B before B attacks C. If A's simulation conquers B's final city or causes B to capitulate while B still has Army power, B was marked eliminated but retained its outgoing edge to C and remained in C's reverse-adjacency set. When recursion returned to C, the graph could therefore let the already defeated B attack C, inflicting further predicted losses or conquests and corrupting the MilitaryAnalyst results consumed by war-utility evaluation. Later phase target reassignment cleaned the stale edge, but not before this same-phase zombie attack.
 
 `setEliminated(true)` now removes the node's primary-target edge through `changePrimaryTarget(NULL)`, updating both forward and reverse adjacency at the terminal state transition. Both complete simulated city elimination and `setCapitulated` use this common path; ordinary city losses remain free to continue an offensive. The defect originates in original UWAI and remains in Base AdvCiv 1.14. The same successful Huge Normal-speed mixed-team Debug-opt autoplay provides broad multi-party war-projection coverage; the exact terminal `A -> B -> C` simulation remains source-verified. Found as F251/provisional KI#574 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 575 - (Fixed inherited original UWAI ownership defect) Conquest garrisons used the victim's era and representative unit
+
+After a successful simulated conquest, InvasionGraph removes several units from the attacker's continuing offensive to represent the new garrison. `applyStep` runs on the defender node, and inherited UWAI used that receiver's era factor and typical Army-unit power to calculate how much attacker power was shifted. An advanced attacker conquering an obsolete victim could therefore leave too little power behind and snowball, while an obsolete attacker conquering an advanced victim could lose its entire remaining offensive to the victim's stronger representative unit.
+
+Both inputs now come from `kAttacker`, matching the Army branch whose lost and shifted power is updated. The existing unit-count model, human reduction and maximum of the attacker's remaining power are unchanged. This ownership defect originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch. Found as F252/provisional KI#575 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 576 - (Fixed inherited original UWAI query-mutation defect) Discarded attack probes consumed emergency defense
+
+The const `Node::step` function constructs temporary attack results and is also called for speculative invasion priority, cycle breaking and steps later rejected by the time horizon. A predicted successful city attack nevertheless halved the defender's persistent emergency-defense power inside this query. Every discarded successful probe could therefore weaken later real simulations, and evaluating several candidates could halve the same state repeatedly before any attack was applied.
+
+Emergency defense is now halved only in `applyStep` after an executed successful city conquest. Speculative and rejected steps leave graph state unchanged, while the intended post-conquest reduction remains. The defect originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch; the exact discarded-probe transition remains source-verified. Found as F253/provisional KI#576 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 578 - (Fixed inherited original UWAI cycle-accounting defect) Clash winners inherited the loser's Army portion
+
+When breaking a two-node invasion cycle, UWAI independently calculates how much of each player's Army can be committed after outside pressure. After resolving the clash, all four distraction assignments were crossed: the winner's conquest distraction and the loser's defensive distraction received the other player's Army portion. For an asymmetric 80% versus 35% commitment, a winner could therefore be recorded as only 35% committed, distorting how much Army later remained against third parties.
+
+Each node now retains its own independently calculated portion for both conquest and defense distraction, regardless of which side wins. The clash combat and winner selection are unchanged. The ownership defect originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch; the exact asymmetric cycle-clash assignment remains source-verified. Found as F255/provisional KI#578 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 579 - (Fixed inherited Base AdvCiv regression) Ally-confidence adjustment squared partial Army portions
+
+UWAI adjusts the assumed absent part of a partial Army allocation according to confidence in allies. AdvCiv practical 2923 accidentally changed the intended assignment into multiplication while retaining the original explanatory comment. With neutral confidence, a supplied portion `p` should remain `p`; the regression produced `p * p`, turning 50% into 25%, 70% into 49% and 90% into 81%. This most strongly understated participation in multi-front and cycle simulations.
+
+Both attacker and defender adjustments again assign the calculated portion, restoring original UWAI and practical-2920 semantics. This is a Base AdvCiv regression inherited by AdvCiv-SAS.
+
+A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch. Found as F256/provisional KI#579 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 581 - (Fixed inherited original UWAI owner-identity defect) City defenders used the evaluating player's Defensive trait
+
+Every InvasionGraph node stores the same graph-wide evaluating player as `m_eAgent`. The city-garrison calculation queried `kDefender.m_eAgent` for the Defensive trait instead of the defending node's player. If the evaluator had the trait, every simulated defender could receive its +30% adjustment; if only the actual defender had it, that defender received nothing. This could change predicted city survival, losses, threat and duration.
+
+The trait query now uses `kDefender.m_ePlayer`, while all other city-defense calculations remain unchanged. The owner-identity defect originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch; the precise evaluator/defender trait mismatch remains source-verified. Found as F258/provisional KI#581 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 583 - (Fixed inherited AdvCiv/UWAI branch-accounting omission) Attacker area weighting excluded Cavalry
+
+InvasionGraph models Cavalry as an overlapping subset of Army and clamps `Cavalry <= Army` before applying battle-area availability. AdvCiv then multiplied only attacker Army by the local-area weight while leaving its Cavalry at whole-force scale. For example, Army 100 and Cavalry 80 at 50% area availability became Army 50 and Cavalry 80, allowing Cavalry availability and recorded losses to exceed the enclosing local Army. Practical 1366 fixed the same omission for defenders but left the attacker path unchanged.
+
+Attacker Army and Cavalry now receive the same battle-area factor, preserving their branch invariant and matching the corrected defender path. The omission remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
+
+A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch. Found as F260/provisional KI#583 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
