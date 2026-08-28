@@ -1351,8 +1351,9 @@ void UWAICache::reportUnit(UnitTypes eUnit, int iChange)
 	for (size_t i = 1; i < m_militaryPower.size(); i++)
 		m_militaryPower[i]->reportUnit(eUnit, iChange);
 	CvUnitInfo const& kUnit = GC.getInfo(eUnit);
+	// <!-- custom: Nuclear power is removed before Home Guard partitions conventional Army power, so exclude nuclear weapons from that ratio's unit-count denominator too. See KI#561. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (kUnit.getDomainType() != DOMAIN_SEA && kUnit.isMilitaryProduction() &&
-		kUnit.getDefaultUnitAIType() != UNITAI_EXPLORE) // exclude Recon
+		kUnit.getDefaultUnitAIType() != UNITAI_EXPLORE && !kUnit.isNuke()) // exclude Recon and nukes
 	{
 		m_iNonNavalUnits += iChange;
 	}

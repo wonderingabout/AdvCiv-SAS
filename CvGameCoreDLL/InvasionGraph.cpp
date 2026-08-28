@@ -173,12 +173,17 @@ void InvasionGraph::Node::initMilitary()
 	vector<MilitaryBranch*> const& kCacheMilitary = m_kCache.getPowerValues();
 	MilitaryBranch::HomeGuard* pHomeGuard = new MilitaryBranch::HomeGuard(
 			*kCacheMilitary[HOME_GUARD]);
-	scaled rGuardRatio = pHomeGuard->initTotals(m_kCache.numNonNavalUnits(),
+	// <!-- custom: Use only conventional units for the same Home Guard ratio that partitions nuclear-free Army power.
+	// Apply it only to Army's conventional headcount, then retain every separately counted nuclear unit. See KI#561. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled const rGuardRatio = pHomeGuard->initTotals(m_kCache.numNonNavalUnits(),
 			kCacheMilitary[ARMY]->power() - kCacheMilitary[NUCLEAR]->power());
 	m_military.push_back(pHomeGuard);
 	MilitaryBranch::Army* pArmy = new MilitaryBranch::Army(*kCacheMilitary[ARMY]);
+	int const iNuclearUnits = kCacheMilitary[NUCLEAR]->numUnits();
+	int const iConventionalArmyUnits = kCacheMilitary[ARMY]->numUnits() - iNuclearUnits;
+	FAssert(iConventionalArmyUnits >= 0);
 	pArmy->setTotals(
-			(kCacheMilitary[ARMY]->numUnits() * (1 - rGuardRatio)).round(),
+			iNuclearUnits + (std::max(0, iConventionalArmyUnits) * (1 - rGuardRatio)).round(),
 			(1 - rGuardRatio) *
 			(kCacheMilitary[ARMY]->power() - kCacheMilitary[NUCLEAR]->power()) +
 			std::min(kCacheMilitary[NUCLEAR]->power(),

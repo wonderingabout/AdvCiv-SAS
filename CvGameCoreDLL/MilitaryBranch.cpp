@@ -291,7 +291,10 @@ bool MilitaryBranch::canEmploy(UnitTypes eUnit) const
 void MilitaryBranch::reportUnit(UnitTypes eUnit, int iChange)
 {
 	// (Calling canEmploy could cause unitPower to be called twice)
-	if ((GC.getInfo(eUnit).getCombat() > 0 || GC.getInfo(eUnit).isNuke()) &&
+	// <!-- custom: Army explicitly includes air power, but this actual-unit census admitted only ground combat and nukes.
+	// Include ordinary aircraft while each branch still filters domain and positive power. See KI#560. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if ((GC.getInfo(eUnit).getCombat() > 0 || GC.getInfo(eUnit).getAirCombat() > 0 ||
+		GC.getInfo(eUnit).isNuke()) &&
 		isValidDomain(eUnit))
 	{
 		scaled rPowChange = unitPower(eUnit, false);

@@ -128,7 +128,7 @@ public:
 	/*	Power values per military branch. The caller must not modify
 		the MilitaryBranch data; should work on copies instead. */
 	std::vector<MilitaryBranch*> const& getPowerValues() const { return m_militaryPower; }
-	// Counts only combatants
+	// <!-- custom: This Home Guard denominator counts conventional non-naval military units; nuclear weapons use their separate branch and must not change the conventional guard ratio. See KI#561. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	int numNonNavalUnits() const { return m_iNonNavalUnits; }
 	// Includes national wonders (which City::updateAssetScore does not count)
 	scaled totalAssetScore() const { return m_rTotalAssets; }
