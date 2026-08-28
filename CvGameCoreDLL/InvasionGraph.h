@@ -175,7 +175,8 @@ public:
 		void applyPowerLoss(MilitaryBranchTypes eBranch, scaled rLostPower);
 		// (Vassals that break free are not modeled)
 		void setCapitulated(TeamTypes eMaster);
-		scaled clashDistance(Node const& kOther) const;
+		// <!-- custom: Select the route-specific distance that matches an overland or fleet-only clash. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled clashDistance(Node const& kOther, bool bNaval) const;
 		bool isSneakAttack(Node const& kOther, bool bClash) const;
 		bool isContinuedWar(Node const& kOther) const;
 		bool canReachByLand(PlotNumTypes eCityPlot, bool bFromCapital) const;

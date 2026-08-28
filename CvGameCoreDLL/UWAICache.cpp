@@ -1666,7 +1666,9 @@ void UWAICache::City::write(FDataStreamBase* pStream) const
 	//iSaveVersion = 1; // canDeduce
 	//iSaveVersion = 2; // take out can canDeduce again
 	//iSaveVersion = 3; // reachBySea removed
-	iSaveVersion = 4; // capitalArea added
+	//iSaveVersion = 4; // capitalArea added
+	// <!-- custom: Version 5 adds distanceByLand for route-specific UWAI deployment estimates. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	iSaveVersion = 5;
 	pStream->Write(m_ePlot);
 	pStream->Write(m_iAssetScore);
 	/*	I hadn't thought of a version number in the initial release.
@@ -1676,6 +1678,8 @@ void UWAICache::City::write(FDataStreamBase* pStream) const
 	int iDistance = ::range(m_iDistance, -1, 9999);
 	// Add 1 b/c distance can be -1
 	pStream->Write(iDistance + 1 + 10000 * iSaveVersion);
+	// <!-- custom: Write the current-format land-only distance directly; AdvCiv-SAS does not support older saves. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pStream->Write(m_iDistanceByLand);
 	pStream->Write(m_iTargetValue);
 	pStream->Write(m_bReachByLand);
 	pStream->Write(m_bCapitalArea);
@@ -1693,6 +1697,8 @@ void UWAICache::City::read(FDataStreamBase* pStream)
 		iSaveVersion = iTmp / 10000;
 		m_iDistance = (iTmp % 10000) - 1;
 	}
+	// <!-- custom: Read the current-format land-only distance directly; no older-save migration is retained. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	pStream->Read(&m_iDistanceByLand);
 	pStream->Read(&m_iTargetValue);
 	pStream->Read(&m_bReachByLand);
 	if (iSaveVersion >= 4)
@@ -1728,11 +1734,14 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 {
 	PROFILE_FUNC();
 	CvCity const& kTargetCity = city();
+	// <!-- custom: Extend the inherited producer description to distinguish the existing fastest mixed metric from the new qualifying land-only metric. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	/*	For each city of the cache owner, compute a path to the target city
 		assuming that war is declared. Derive from that length an estimated travel
 		duration based on the typical speed of units and time for loading and
 		unloading (iSeaPenalty).
-		Set m_iDistance to a weighted average of the pairwise travel durations.
+		Set m_iDistance to a weighted average of the fastest pairwise travel
+		durations, and m_iDistanceByLand to the matching qualifying land-only
+		durations.
 		The average gives the cache owner's cities nearest to the target city
 		the greatest weight. Some cities of the cache owner are skipped, both
 		for performance reasons (the pathfinding is computationally expensive)
@@ -1753,10 +1762,14 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 		m_bReachByLand = kTargetPlayer.AI_isPrimaryArea(kTargetArea);
 		m_bCapitalArea = (kTargetPlayer.hasCapital() &&
 				kTargetPlayer.getCapital()->isArea(kTargetArea));
+		// <!-- custom: Own-team cities have zero land deployment distance only when their area qualifies as land-reachable. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		m_iDistanceByLand = (m_bReachByLand ? 0 : -1);
 		return;
 	}
 	CvPlayerAI const& kCacheOwner = GET_PLAYER(eCacheOwner);
+	// <!-- custom: Initialize the added land-only metric independently because a target may have only a mixed/sea route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	m_iDistance = -1;
+	m_iDistanceByLand = -1;
 	m_bReachByLand = false;
 	m_bCapitalArea = false;
 	bool bReachBySea = false;
@@ -1766,6 +1779,8 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 	bool const bAnyTransports = kCacheOwner.uwai().getCache().canTrainAnyCargo();
 	int const iSeaPenalty = (bHuman ? 2 : 4);
 	std::vector<int> aiPairwDurations;
+	// <!-- custom: Retain qualifying land durations before a faster sea route can replace the mixed pairwise value. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<int> aiPairwLandDurations;
 	/*	If we find no land path and no sea path from a city c to the target,
 		but at least one other city that does have a path to the target, then there
 		is most likely also some mixed path from c to the target. */
@@ -1797,8 +1812,14 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 			if (iPairwDuration == 0) // Make sure 0 is reserved for own cities
 				iPairwDuration = 1;
 			bQualifyingLandRoute = kCacheOwner.AI_isPrimaryArea(pCity->getArea());
+			// <!-- custom: Cache each qualifying land duration before a faster sea route can replace the mixed value, including the inherited extra capital weight. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (bQualifyingLandRoute)
+			{
 				m_bReachByLand = true;
+				aiPairwLandDurations.push_back(iPairwDuration);
+				if (pCity == pCapital)
+					aiPairwLandDurations.push_back(iPairwDuration);
+			}
 			if (pCity->isCapital())
 				m_bCapitalArea = true;
 		}
@@ -1899,6 +1920,23 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 			(rWeightedSum +
 			scaled(4 * iMixedPaths, iMixedPaths + (int)aiPairwDurations.size())
 			)).uround();
+	// <!-- custom: Mirror the mixed cache's weighting/cap policy without its sea substitutions or assumed mixed paths. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (!aiPairwLandDurations.empty())
+	{
+		std::sort(aiPairwLandDurations.begin(), aiPairwLandDurations.end());
+		scaled rLandWeightedSum;
+		scaled rLandSumOfWeights;
+		int iLandCap = aiPairwLandDurations[0];
+		for (size_t i = 0; i < aiPairwLandDurations.size(); i++)
+		{
+			scaled rWeight(2, 3 * ((int)i + 1) - 1);
+			rLandSumOfWeights += rWeight;
+			int iPairwDuration = std::min(aiPairwLandDurations[i], iLandCap);
+			iLandCap = iPairwDuration + 10;
+			rLandWeightedSum += iPairwDuration * rWeight;
+		}
+		m_iDistanceByLand = (rLandWeightedSum / rLandSumOfWeights).uround();
+	}
 }
 
 

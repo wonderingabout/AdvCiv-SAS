@@ -34,15 +34,21 @@ public:
 	/*	-1 if unreachable, 0 for cities of the cache owner's team
 		(and never for cities of other teams). */
 	int getDistance() const { return m_iDistance; }
+	// <!-- custom: Land-mode consumers need the qualifying land route's duration rather than the faster mixed land/sea duration. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int getDistanceByLand() const { return m_iDistanceByLand; }
 
 protected:
 	int m_iDistance;
+	// <!-- custom: Preserve a separate weighted land deployment distance because m_iDistance deliberately retains the fastest mixed route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int m_iDistanceByLand;
 	int m_iAssetScore;
 	bool m_bCapitalArea;
 	bool m_bReachByLand;
 
+	// <!-- custom: Initialize the added route-specific cache member as unavailable until updateDistance supplies it. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	UWAICity()
-	:	m_iDistance(-1), m_iAssetScore(-1), m_bReachByLand(false), m_bCapitalArea(false)
+	:	m_iDistance(-1), m_iDistanceByLand(-1), m_iAssetScore(-1),
+		m_bReachByLand(false), m_bCapitalArea(false)
 	{}
 };
 

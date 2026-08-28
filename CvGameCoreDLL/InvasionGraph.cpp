@@ -911,8 +911,9 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			within our maximal time horizon, we'd have to conclude that no conquest
 			will ever happen, which is probably incorrect. Better to assume a
 			shorter distance in this case. */
+		// <!-- custom: Once the graph selects a land invasion, use its cached land duration rather than a faster sea route that would require Fleet and Logistics. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		rDeploymentDistAttacker = std::min(getUWAI().maxSeaDist(),
-				pCacheCity->getDistance());
+				bNaval ? pCacheCity->getDistance() : pCacheCity->getDistanceByLand());
 		/*	If this makes leaders with a high MaxWarMinAdjLand value assume
 			that they can't reach a very distant target -- OK. */
 		rDeploymentDistAttacker *= rMaxWarMinAdjLandFactor;
@@ -936,7 +937,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	}
 	else
 	{
-		scaled const rClashDist = clashDistance(kDefender);
+		// <!-- custom: Pass the selected mode so overland clashes use land distance while fleet-only clashes retain the mixed route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled const rClashDist = clashDistance(kDefender, bNaval);
 		// UWAICache::City::updateDistance should guarantee this for rival cities
 		FAssert(rClashDist.isPositive());
 		rDeploymentDistAttacker = rClashDist;
@@ -1593,9 +1595,10 @@ bool InvasionGraph::Node::canReachByLand(PlotNumTypes eCityPlot, bool bFromCapit
 	UWAICache::City const* pCacheCity = m_kCache.lookupCity(eCityPlot);
 	if (pCacheCity == NULL) // Then even they don't know where it is
 		return false;
+	// <!-- custom: Match the land-reachability boolean and max-land-distance gate to the land-only duration, not the fastest mixed route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	return (bFromCapital ?
 			pCacheCity->canReachByLandFromCapital() : pCacheCity->canReachByLand()) &&
-			(pCacheCity->getDistance() <= getUWAI().maxLandDist() ||
+			(pCacheCity->getDistanceByLand() <= getUWAI().maxLandDist() ||
 			!m_kCache.canTrainDeepSeaCargo());
 }
 
@@ -2090,13 +2093,20 @@ void InvasionGraph::Node::clash(scaled rArmyPortion, scaled rTargetArmyPortion)
 }
 
 
-scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther) const
+// <!-- custom: Accept the selected invasion mode so overland clashes average land-only deployment distances, while fleet-only clashes retain the existing mixed metric. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+scaled InvasionGraph::Node::clashDistance(InvasionGraph::Node const& kOther,
+	bool bNaval) const
 {
 	UWAICache::City const* pTargetCity = targetCity();
 	UWAICache::City const* pOtherTargetCity = kOther.targetCity();
 	// Clash half-way in the middle
 	if (pTargetCity != NULL && pOtherTargetCity != NULL)
-		return scaled(pTargetCity->getDistance() + pOtherTargetCity->getDistance(), 2);
+	{
+		return scaled((bNaval ? pTargetCity->getDistance() :
+				pTargetCity->getDistanceByLand()) +
+				(bNaval ? pOtherTargetCity->getDistance() :
+				pOtherTargetCity->getDistanceByLand()), 2);
+	}
 	FErrorMsg("Shouldn't clash if not mutually reachable");
 	return -1;
 }

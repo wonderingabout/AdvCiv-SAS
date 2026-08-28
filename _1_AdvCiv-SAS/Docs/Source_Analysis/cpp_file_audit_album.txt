@@ -45114,3 +45114,119 @@ Best next work:
       manufacturing a new root.
 
 No repository source files modified. Audit album only.
+
+
+C021-WIP17 ADDITIONAL CONTROL -- PHASE-BOUNDARY EMERGENCY DEFENDERS
+===================================================================
+F270 remains UNUSED.  The following initially looked like a persistence bug but does
+not presently meet the audit bar after tracing the full ArmamentForecast timing model.
+
+CANDIDATE TESTED
+    Node::prepareForSimulation() resets:
+
+        m_rEmergencyDefPow = 0;
+
+    at the start of every InvasionGraph::simulate() call. MilitaryAnalyst can call
+    simulate twice (preparation phase, then main horizon), while simulated city losses
+    and normal MilitaryBranch power persist. At first sight this seems to make defenders
+    explicitly "trained" after a phase-I city loss disappear at the phase-II boundary.
+
+WHY THIS IS NOT PROMOTED
+    InvasionGraph::simulate intentionally splits ordinary armament production into:
+
+        1. initial build-up for the first half of the phase;
+        2. loss simulation over the full phase horizon;
+        3. concurrent build-up for the second half, committed to m_military only after
+           the loss simulation.
+
+    ArmamentForecast's class contract is explicit: it predicts how many units are
+    TRAINED, ignoring losses; its predicted branch power is written permanently into
+    m_military. Thus the second-half forecast can represent wartime-trained defenders in
+    the persistent branch total even though those units were unavailable to the generic
+    loss simulation while that simulation was running.
+
+    The emergency-defender comment is consistent with a TEMPORAL bridge for that
+    approximation rather than an independently additive permanent production pool:
+
+        "Defenders trained while the war is conducted are generally covered by
+         ArmamentForecast, including defenders hurried just prior to an attack, but not
+         emergency defenders trained while the invading army heals and approaches its
+         next target."
+
+    In other words, m_rEmergencyDefPow lets some wartime training influence a later city
+    assault INSIDE the same loss simulation even though the concurrent ArmamentForecast
+    is only applied afterward. Carrying the same auxiliary pool into the next simulate()
+    call, on top of the permanently added concurrent build-up, could double-count that
+    training.
+
+HISTORY / CONTROL
+    The first tracked UWAI import (practical 1253) already combines all three pieces:
+      * emergencyDefPow reset in prepareForSimulation;
+      * the same comment describing ordinary wartime defenders as principally covered
+        by ArmamentForecast and emergency defenders as a timing gap;
+      * the simulate ordering of initial build-up -> losses -> concurrent build-up.
+
+    The current 2920/scaled rewrite preserves this model. No later change found so far
+    establishes emergencyDefPow as a separately produced permanent branch that ought to
+    survive a phase boundary.
+
+BOUND / RELATION TO F266
+    This does NOT retract F266. F266 has a different hard same-phase path: emergency
+    defender power that is actively used during a loss simulation can suffer calculated
+    HOME_GUARD casualties that are then discarded by the base-branch cumulative loss cap
+    and immediately be reused by a later invader. That does not depend on whether the
+    auxiliary pool is intentionally phase-local.
+
+AUDIT RESULT
+    REJECT / CONTROL for now. Do not assign F270 merely because emergencyDefPow is reset
+    between simulation phases. Reopen only if a producer or result consumer demonstrates
+    that emergencyDefPow is intended to be additional permanent training beyond the
+    concurrent ArmamentForecast rather than a within-phase timing proxy.
+
+
+C021-WIP17 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+    F265 / provisional KI#588
+    F266 / provisional KI#589
+    F267 / provisional KI#590
+    F268 / provisional KI#591
+    F269 / provisional KI#592
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F270 UNUSED
+    (KI#586 remains retired with retracted F263; next provisional KI is KI#593.)
+
+Resume from F270 unused.
+
+Best next work:
+    * finish the practical-2920 old/new operator, condition, polarity and ownership
+      comparison, ignoring mechanical double->scaled/member-renaming noise;
+    * continue residual target/result and branch-subset invariants;
+    * prefer controls/retractions or saturation over forcing F270.
+
+No repository source files modified. Audit album only.

@@ -68,8 +68,9 @@ ArmamentForecast::ArmamentForecast(PlayerTypes ePlayer, MilitaryAnalyst const& k
 	bool bNavalArmament = false;
 	if (pTargetCity != NULL)
 	{
+		// <!-- custom: Classify buildup from the qualifying land route's duration; a faster sea route must not make a long land target look non-naval. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (!pTargetCity->canReachByLandFromCapital() ||
-			pTargetCity->getDistance() > getUWAI().maxLandDist())
+			pTargetCity->getDistanceByLand() > getUWAI().maxLandDist())
 		{
 			bNavalArmament = true;
 		}

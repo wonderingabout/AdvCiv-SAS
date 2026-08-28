@@ -862,7 +862,8 @@ scaled GreedForAssets::medianDistFromOurConquests(PlayerTypes ePlayer) const
 			continue;
 		/*	OK to use enormous distances for cities that shouldn't affect defensibility;
 			median value can handle outliers. */
-		int iDist = (pCacheCity->canReachByLand() ? pCacheCity->getDistance() : 100);
+		// <!-- custom: This defensibility comparison is explicitly overland, so a faster sea route must not shorten the rival's distance. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iDist = (pCacheCity->canReachByLand() ? pCacheCity->getDistanceByLand() : 100);
 		if (iDist < 0) // unreachable
 			iDist = 1000;
 		arDistances.push_back(iDist);
@@ -2948,7 +2949,7 @@ void Effort::evaluate() {}
 int Risk::preEvaluate()
 {
 	// <!-- custom: also handle risk of going to war too far away and leaving our cities defenseless and dying pathetically if i may say or stupidly shortly after, as is very problematic as of now in base advciv and advciv-sas as of now, see known issue as of now 61 for details, also code is provided thanks to chatgpt 5, check if accurate; result of this code change: we seem to live a bit longer but still attack the wrong target when a closer and weaker one was in reach, but since it seems harmless and we seem to live longer due to not attacking first target if not due to autoplay fluctuation, kept as such. -->
-	// if you want a fixed, super-simple “turns-to-contact" cap like 8–10 for land (and e.g. 12 for sea), just replace those calls with constants (or XML defines). the cached city distance we use (UWAICache::City::getDistance()) is the team pathfinder’s notion of turns, and it already factors roads/terrain/domain speed. so roads naturally make the path “shorter" in turns; you don’t need extra code for roads.
+	// <!-- custom: If a fixed, super-simple turns-to-contact cap is wanted, replace these calls with constants or XML defines. The cached city distances (`getDistanceByLand` for land and `getDistance` for mixed/cargo routes) are the team pathfinder's notion of turns and already factor roads, terrain and domain speed. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// --- SIMPLE HARD REJECT / RPE FILTER ---
 
 	// <!-- custom: we get very very good results with 2, now spain ai (our ai in autoplay) doesn't get baited by faraway ais and finishes off weak nearby one, as a result we don't get targeted by cyrus ai and keep our lead, now trying to extend the range a bit to see if still safe -->
@@ -2981,7 +2982,8 @@ int Risk::preEvaluate()
 					if (!kCity.canReach()) continue;
 					iMinAnyContact = std::min(iMinAnyContact, kCity.getDistance()); // Approximate turns including roads
 					if (bMemberCanTrainCargo) iMinCargoContact = std::min(iMinCargoContact, kCity.getDistance());
-					if (kCity.canReachByLand()) iMinLandContact = std::min(iMinLandContact, kCity.getDistance());
+					// <!-- custom: Keep the SAS land-contact gate on the qualifying land duration while its generic and cargo alternatives retain the fastest mixed route. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if (kCity.canReachByLand()) iMinLandContact = std::min(iMinLandContact, kCity.getDistanceByLand());
 				}
 			}
 			// <!-- custom: Save-file 450 logging showed the same land-reachable target passing this guard as a naval plan during selection, then receiving about -100000 utility under the land limit during its next review. Holy Rome consequently started 12 preparations and canceled 11 while up to 110 of 142 military units waited in one staging city.

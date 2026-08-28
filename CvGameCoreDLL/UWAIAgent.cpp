@@ -2893,7 +2893,8 @@ bool UWAI::Team::isLandTarget(TeamTypes eTeam) const
 			if (kCacheCity.canReachByLand())
 			{
 				bCanReachAnyByLand = true;
-				if (kCacheCity.getDistance() <= iDistLimit)
+				// <!-- custom: Compare the land-target limit with the qualifying land route, not a faster mixed/sea duration. See KI#591. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (kCacheCity.getDistanceByLand() <= iDistLimit)
 					return true;
 			}
 		}
