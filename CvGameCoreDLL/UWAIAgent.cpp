@@ -325,8 +325,10 @@ void UWAI::Team::doWar()
 			/*  Non-human vassals abandon human-instructed war prep. after 20 turns.
 				Humans can have war preparations from AI Auto Play that they should
 				also abandon (but not immediately b/c AI Auto Play could resume.) */
+			// <!-- custom: The inherited condition negated the human-master test, so it timed out AI-master preparations while leaving the human-instructed preparations named above indefinitely.
+			// Match the documented/manual-instruction case. See KI#516. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if ((eWP == WARPLAN_PREPARING_LIMITED || eWP == WARPLAN_PREPARING_TOTAL) &&
-				(kAgent.isHuman() || !GET_TEAM(kAgent.getMasterTeam()).isHuman()) &&
+				(kAgent.isHuman() || GET_TEAM(kAgent.getMasterTeam()).isHuman()) &&
 				kAgent.AI_getWarPlanStateCounter(eTarget) > 20)
 			{
 				considerAbandonPreparations(eTarget, -1, 0);
@@ -855,7 +857,9 @@ bool UWAI::Team::considerPeace(TeamTypes eTarget, int iU, int iMajorWars, int iE
 		m_pReport->log("Emergency peace mode: %d simultaneous wars vs majors — forcing negotiation.", iMajorWars);
 		// Make sure the code doesn't early-out on "utility above threshold":
 		// push iU clearly below the threshold so we go to the negotiation block.
-		iU = std::min(iU, rPeaceThresh.uround() - 100);
+		// <!-- custom: Emergency-peace thresholds are signed and normally nonpositive for inter-AI wars; uround asserts on negative input and rounds it with the wrong contract.
+		// Use signed round before forcing utility below the threshold. See KI#514. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		iU = std::min(iU, rPeaceThresh.round() - 100);
 	}
 	// keep the existing log (or adjust) after this
 	//
@@ -1682,9 +1686,11 @@ int UWAI::Team::peaceThreshold(TeamTypes eTarget) const
 		// (This puts the addend between -30 and 10)
 		r += (1 - rPrideRating) * 40 - 30;
 	}
+	// <!-- custom: The inherited 2021 UWAI rewrite indexed the target's WarSuccess map with its own team ID, normally reading zero instead of the target's success against the agent.
+	// Restore the reciprocal opponent index used before that regression. See KI#508. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	r += scaled::min(15, kAgent.AI_getAtWarCounter(eTarget) +
 				(2 * kAgent.AI_getWarSuccess(eTarget) +
-				4 * kTarget.AI_getWarSuccess(eTarget)) /
+				4 * kTarget.AI_getWarSuccess(kAgent.getID())) /
 				GC.getWAR_SUCCESS_CITY_CAPTURING());
 	int iR = r.round();
 	if (!kTarget.isHuman())
@@ -2417,6 +2423,8 @@ DenialTypes UWAI::Team::makePeaceTrade(TeamTypes eEnemy, TeamTypes eBroker) cons
 			scaled rScoreRatio(kGame.getTeamScore(m_eAgent),
 					kGame.getTeamScore(kGame.getRankTeam((TeamTypes)0)));
 			scaled const rGameEra = kGame.AI_getCurrEraFactor();
+			// <!-- custom: AdvCiv introduced this low-score relaxation but returned DENIAL_VICTORY immediately after setting bNoDenial, making the successful branch unreachable.
+			// Let success reach the existing NO_DENIAL gate; retain the denial when the score exception fails. See KI#507. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (rGameEra > 0 &&
 				rScoreRatio < ((rGameEra - 1) / rGameEra + fixp(2/3.)) / 2)
 			{
@@ -2425,7 +2433,7 @@ DenialTypes UWAI::Team::makePeaceTrade(TeamTypes eEnemy, TeamTypes eBroker) cons
 					bNoDenial = true;
 				else return DENIAL_TOO_MUCH;
 			}
-			return DENIAL_VICTORY;
+			else return DENIAL_VICTORY;
 		}
 	}
 	if (!bEnemyWillTalk)
@@ -3191,7 +3199,9 @@ bool UWAI::Player::considerPlea(PlayerTypes ePleaPlayer, int iTradeVal) const
 bool UWAI::Player::amendTensions(PlayerTypes eHuman)
 {
 	FAssert(GET_PLAYER(eHuman).isHuman());
-	FAssert(GET_TEAM(m_eAgent).getLeaderID() == m_eAgent);
+	// <!-- custom: AdvCiv deliberately changed war diplomacy to select a random alive team member but retained the old leader-only assertion here.
+	// Assert the surviving caller contract without rejecting valid nonleader diplomats. See KI#518. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FAssert(GET_PLAYER(m_eAgent).isAlive());
 	// Lower contact probabilities in later eras
 	scaled const rEra = GET_PLAYER(m_eAgent).AI_getCurrEraFactor();
 	CvLeaderHeadInfo const& kPersonality = GC.getInfo(GET_PLAYER(m_eAgent).

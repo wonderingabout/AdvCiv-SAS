@@ -8,7 +8,13 @@ Note 2: this doc may be outdated or not updated for some parts, but it is still 
 
 Note 3: some entries especially later ones are written with the help of LLMs; while they may be generally correct in describing the problem, for explanation/causes i did not always check or verify it, and i may be mistaken too.
 
-Note 4: integer KI numbers form a continuous ledger. Fixed issues and unresolved findings are listed alongside explicit Merged, Rejected or Retired dispositions so a missing number cannot hide work recorded in the source-analysis album. `Provisional Pending` means ChatGPT's C++ File Audit Album established and numbered the finding, but it still awaits independent implementation review against current source. Stable `#ki-number` anchors keep links valid when an entry title or status is refined.
+Note 4: integer KI numbers form a continuous ledger:
+
+- Fixed issues and unresolved findings are listed alongside explicit Merged, Rejected or Retired dispositions so a missing number cannot hide work recorded in the source-analysis album.
+- `Provisional Pending` means ChatGPT's C++ File Audit Album established and numbered the finding, but it still awaits independent implementation review against current source.
+- `Pending Architectural` means that review confirmed a real issue, but a durable repair requires shared-policy centralization, scenario-level aggregation or another broad refactor rather than a safe local patch.
+  
+Stable `#ki-number` anchors keep links valid when an entry title or status is refined.
 
 ## Menu
 
@@ -274,7 +280,7 @@ Note 4: integer KI numbers form a continuous ledger. Fixed issues and unresolved
 [KI#210 - (Fixed Base AdvCiv bug) Vote-selection iterator refactor could pair a voting team with itself, creating bogus self first-contact state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-210)\
 [KI#211 - (Fixed inherited K-Mod/Base AdvCiv bug) Terrain attack bonuses were reversed in AI attacker-strength estimates against unknown defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-211)\
 [KI#212 - (Fixed minor inherited K-Mod/Base AdvCiv bug) AI Barbarian attacker CombatDetails were written to the defender-barbarian field](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-212)\
-[KI#213 - (Pending) Split city/Worker best-build policies can hide valid custom land jobs from Worker demand](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-213)\
+[KI#213 - (Pending Architectural) Split city/Worker best-build policies can hide valid custom land jobs from Worker demand](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-213)\
 [KI#214 - (Fixed AdvCiv-SAS bug) Irrigation-chain constrained search could discard the only route that satisfied the plot limit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-214)\
 [KI#215 - (Fixed inherited K-Mod/Base AdvCiv bug) No-site Settler cleanup could unload unrelated transport cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-215)\
 [KI#216 - (Fixed inherited Better BTS AI/K-Mod bug) Work Boat demand could count the same accessible water area twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-216)\
@@ -458,7 +464,7 @@ Note 4: integer KI numbers form a continuous ledger. Fixed issues and unresolved
 [KI#382 - (Fixed AdvCiv-SAS diagnostic durability defect) Session rollover discarded buffered observations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-382)\
 [KI#383 - (Fixed AdvCiv-SAS UI regression) Leader Glance lost its War Trades hover explanation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-383)\
 [KI#384 - (Fixed inherited AdvCiv Pedia regression) Opening-menu right clicks formed a NULL civilization reference](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-384)\
-[KI#385 - (Pending inherited/SAS diagnostic drift) Scoreboard cheat war predictions duplicate stale AI_doWar logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-385)\
+[KI#385 - (Pending Architectural inherited/SAS diagnostic drift) Scoreboard cheat war predictions duplicate stale AI_doWar logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-385)\
 [KI#386 - (Fixed inherited BtS tooltip defect) Great Spy Infiltration omitted its espionage yield](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-386)\
 [KI#387 - (Rejected false positive) GET_TEAM(PlayerTypes) already converts the player to the correct team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-387)\
 [KI#388 - (Fixed AdvCiv-SAS UI state defect) Info Screen Score hovers triggered scoreboard expansion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-388)\
@@ -513,35 +519,35 @@ Note 4: integer KI numbers form a continuous ledger. Fixed issues and unresolved
 [KI#437 - (Fixed inherited AdvCiv UWAI Fair Play defect) Target teammates counted as independent third parties](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-437)\
 [KI#438 - (Fixed inherited AdvCiv UWAI game-speed defect) Intervention fear discarded its normalized peace duration](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-438)\
 [KI#439 - (Fixed inherited AdvCiv UWAI Dramatic Arc defect) Short recent wars could be treated as perpetual peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-439)\
-[KI#440 - (Pending inherited AdvCiv UWAI public-opposition defect) Hypothetical religion anger is capped by current anger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-440)\
+[KI#440 - (Pending Architectural inherited AdvCiv UWAI public-opposition defect) Hypothetical religion anger is capped by current anger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-440)\
 [KI#441 - (Fixed inherited AdvCiv UWAI revolt defect) Negative city assets could become positive war utility](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-441)\
 [KI#442 - (Fixed inherited AdvCiv UWAI capitulation defect) A team vector was written with player IDs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-442)\
 [KI#443 - (Fixed inherited AdvCiv UWAI later-era defect) Fair Play double-counted the starting-era position](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-443)\
 [KI#444 - (Fixed inherited AdvCiv UWAI terminal-era defect) Temporary startup guards could never expire](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-444)\
-[KI#445 - (Pending inherited AdvCiv UWAI tactical defect) Agent assets can be reused across enemy teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-445)\
+[KI#445 - (Pending Architectural inherited AdvCiv UWAI tactical defect) Agent assets can be reused across enemy teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-445)\
 [KI#446 - (Fixed inherited AdvCiv UWAI Bellicosity defect) The same loss budget was reset for every enemy teammate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-446)\
-[KI#447 - (Pending inherited AdvCiv UWAI intervention defect) Collective military severity depends on one target player's army cache](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-447)\
-[KI#448 - (Pending inherited AdvCiv UWAI Dramatic Arc defect) Team-war safety and loss gates depend on target ownership](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-448)\
+[KI#447 - (Pending Architectural inherited AdvCiv UWAI intervention defect) Collective military severity depends on one target player's army cache](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-447)\
+[KI#448 - (Pending Architectural inherited AdvCiv UWAI Dramatic Arc defect) Team-war safety and loss gates depend on target ownership](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-448)\
 [KI#449 - (Fixed inherited AdvCiv UWAI Distraction defect) One alternative war was charged once per target teammate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-449)\
-[KI#450 - (Pending inherited AdvCiv UWAI Military Victory defect) Global victory progress is capped once per rival player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-450)\
+[KI#450 - (Pending Architectural inherited AdvCiv UWAI Military Victory defect) Global victory progress is capped once per rival player](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-450)\
 [KI#451 - (Fixed inherited AdvCiv UWAI Hired Hand defect) Team-keyed obligations repeated for every target teammate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-451)\
-[KI#452 - (Pending inherited AdvCiv UWAI vassal-tech defect) One team technology inventory is cached and summed per member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-452)\
-[KI#453 - (Pending inherited AdvCiv UWAI Risk defect) Team capitulation and vassal losses repeat across player pairs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-453)\
+[KI#452 - (Pending Architectural inherited AdvCiv UWAI vassal-tech defect) One team technology inventory is cached and summed per member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-452)\
+[KI#453 - (Pending Architectural inherited AdvCiv UWAI Risk defect) Team capitulation and vassal losses repeat across player pairs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-453)\
 [KI#454 - (Fixed inherited AdvCiv UWAI Greed for Space defect) One physical settlement site could be counted for several teammates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-454)\
 [KI#455 - (Fixed inherited AdvCiv UWAI Revolts defect) Persistent city identity was combined with per-rival ratios](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-455)\
 [KI#456 - (Fixed inherited AdvCiv supported-configuration defect) Exclusive-radius tile loss was absent from its asset denominator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-456)\
-[KI#457 - (Pending inherited AdvCiv UWAI Ill Will defect) Team-war danger uses one player's army power](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-457)\
+[KI#457 - (Pending Architectural inherited AdvCiv UWAI Ill Will defect) Team-war danger uses one player's army power](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-457)\
 [KI#458 - (Fixed inherited AdvCiv UWAI intervention defect) Decisive-victory shortcut did not identify the evaluated target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-458)\
-[KI#459 - (Pending inherited AdvCiv UWAI partner-tech defect) Shared foreseeable technology trades repeat per teammate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-459)\
+[KI#459 - (Pending Architectural inherited AdvCiv UWAI partner-tech defect) Shared foreseeable technology trades repeat per teammate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-459)\
 [KI#460 - (Fixed inherited AdvCiv UWAI Pre-emptive War defect) One team threat forecast repeated per reachable member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-460)\
 [KI#461 - (Fixed inherited AdvCiv UWAI Tactical Situation defect) One operational-readiness deficit repeated per target teammate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-461)\
 [KI#462 - (Fixed inherited AdvCiv UWAI Ill Will defect) One war-on-friend event repeated per victim-team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-462)\
-[KI#463 - (Pending inherited AdvCiv UWAI Greed for Vassals defect) One fixed vassal-team downside repeats per member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-463)\
+[KI#463 - (Pending Architectural inherited AdvCiv UWAI Greed for Vassals defect) One fixed vassal-team downside repeats per member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-463)\
 [KI#464 - (Fixed inherited AdvCiv C++ lifetime defect) Polymorphic war aspects lacked a virtual destructor](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-464)\
 [KI#465 - (Fixed inherited AdvCiv supported-configuration defect) Team-owned exclusive-radius losses used player land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-465)\
 [KI#466 - (Fixed inherited AdvCiv Sea Patrol defect) An ineligible companion woke a valid patrol group](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-466)\
 [KI#467 - (Fixed inherited AdvCiv blockade defect) One invalid blockader canceled valid group members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-467)\
-[KI#468 - (Pending inherited AdvCiv group-load defect) Independent checks reuse finite cargo capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-468)\
+[KI#468 - (Pending Architectural inherited AdvCiv group-load defect) Independent checks reuse finite cargo capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-468)\
 [KI#469 - (Fixed inherited K-Mod/AdvCiv Spy wake defect) A non-head sleeping Spy never woke at maximum preparation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-469)\
 [KI#470 - (Fixed inherited BtS/AdvCiv Sentry defect) Maximum-range member supplied whole-group hostility](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-470)\
 [KI#471 - (Fixed inherited AdvCiv recon defect) Group rebase cleared only the head aircraft's visibility](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-471)\
@@ -583,18 +589,18 @@ Note 4: integer KI numbers form a continuous ledger. Fixed issues and unresolved
 [KI#504 - (Fixed inherited AdvCiv production-estimate defect) Existing improvement count was mistaken for build capability](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-504)\
 [KI#505 - (Fixed inherited AdvCiv diagnostic defect) Found-value logging always reported zero unrevealed tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505)\
 [KI#506 - (Provisional Pending inherited UWAI/AdvCiv retry-state defect) reviewWarPlans retains superseded cross-pass state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-506)\
-[KI#507 - (Provisional Pending inherited AdvCiv regression) Brokered-peace low-score relaxation is unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-507)\
-[KI#508 - (Provisional Pending inherited AdvCiv regression) peaceThreshold reads the target team's self war success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-508)\
+[KI#507 - (Fixed inherited AdvCiv brokered-peace regression) Low-score relaxation was unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-507)\
+[KI#508 - (Fixed inherited AdvCiv peace-threshold regression) Target team read its self war success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-508)\
 [KI#509 - (Provisional Pending inherited AdvCiv peace-valuation defect) No-payment shortcut ignores city reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-509)\
 [KI#510 - (Provisional Pending inherited AdvCiv trade-cap defect) canTradeAssets tests arbitrary first cities only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-510)\
 [KI#511 - (Provisional Pending inherited AdvCiv war-plan defect) TOTAL target switching can become LIMITED](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-511)\
 [KI#512 - (Provisional Pending inherited AdvCiv boundary defect) TOTAL-only positive utility can start LIMITED war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-512)\
 [KI#513 - (Provisional Pending inherited AdvCiv team-loop defect) Land-target distance exemption leaks between members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-513)\
-[KI#514 - (Provisional Pending AdvCiv-SAS signed-rounding defect) Emergency peace uses uround on a negative threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-514)\
+[KI#514 - (Fixed AdvCiv-SAS signed-rounding defect) Emergency peace used uround on a negative threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-514)\
 [KI#515 - (Provisional Pending AdvCiv-SAS victory-denial regression) Direct war plan can ignore force peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-515)\
-[KI#516 - (Provisional Pending inherited AdvCiv vassal-war defect) Inverted master test prevents preparation timeout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-516)\
+[KI#516 - (Fixed inherited AdvCiv vassal-war defect) Inverted master test prevented preparation timeout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-516)\
 [KI#517 - (Provisional Pending inherited AdvCiv debug-path defect) doWarReport can mutate real diplomacy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-517)\
-[KI#518 - (Provisional Pending inherited AdvCiv assertion regression) Random nonleader diplomat trips leader-only check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-518)\
+[KI#518 - (Fixed inherited AdvCiv assertion regression) Random nonleader diplomat tripped leader-only check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-518)\
 [KI#519 - (Provisional Pending inherited AdvCiv lifecycle defect) Capitulation readiness survives peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-519)\
 [KI#520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-520)\
 [KI#521 - (Fixed inherited AdvCiv debug-assertion defect) Legal human bombardment of an undefended city asserted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-521)\
@@ -678,6 +684,7 @@ Note 4: integer KI numbers form a continuous ledger. Fixed issues and unresolved
 [KI#593 - (Provisional Pending inherited K-Mod/AdvCiv combat-AI defect) Local collateral strength uses the wrong attacker team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-593)\
 [KI#594 - (Provisional Pending inherited BtS/K-Mod/AdvCiv calendar defect) Negative fractional BC years truncate toward AD](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-594)\
 [KI#595 - (Provisional Pending inherited AdvCiv replay-compatibility defect) Foreign replay colors can wrap into the skipped system-color prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-595)\
+[KI#596 - (Provisional Pending AdvCiv-SAS assertion-build regression) Rich diagnostics are disabled in optimized Assert builds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-596)\
 
 <a id="ki-1"></a>
 
@@ -5469,7 +5476,7 @@ File changed:
 
 ## KI#123 - (Fixed) BUG Domestic/Military advisor variant toggles required restarting Civ4
 
-Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1I6QRzBWnLw9u0kduHIBBsXiQ7DTxBxqR?usp=sharing).
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1WUooo99uQ9KuXa9mrXvt_74s-R4DL0br?usp=sharing).
 
 Observed issue:
 
@@ -8939,7 +8946,7 @@ Found through the systematic AdvCiv/K-Mod archaeology, fixed and documented with
 
 <a id="ki-213"></a>
 
-## KI#213 - (Pending) Split city/Worker best-build policies can hide valid custom land jobs from Worker demand
+## KI#213 - (Pending Architectural) Split city/Worker best-build policies can hide valid custom land jobs from Worker demand
 
 The systematic AdvCiv-SAS archaeology found that Worker demand and actual Worker job selection can disagree because they consult different build policies. SAS deliberately disables ordinary land results in the legacy city-side `CvCityAI::AI_getBestBuild` cache and instead lets the extensively customized `CvUnitAI::AI_bestCityBuild` choose land improvements. `CvCityAI::AI_updateWorkersHaveAndNeeded`, however, still uses the legacy cache when deciding whether some plots represent valid Worker demand.
 
@@ -10987,7 +10994,7 @@ This is an inherited AdvCiv Pedia regression, not an AdvCiv-SAS change. Found as
 
 <a id="ki-385"></a>
 
-## KI#385 - (Pending inherited AdvCiv/K-Mod diagnostic drift widened by SAS) Scoreboard cheat war predictions duplicate stale AI_doWar logic
+## KI#385 - (Pending Architectural inherited AdvCiv/K-Mod diagnostic drift widened by SAS) Scoreboard cheat war predictions duplicate stale AI_doWar logic
 
 The debug/cheat scoreboard reconstructs substantial parts of `CvTeamAI::AI_doWar` to display war percentages, passed gates and possible targets. That duplicated model has drifted from the real inherited AI through different knowledge, defensive-power, total-war and dogpile rules. SAS KI#356 further widened the disagreement by correcting the real AI's Dagger-member population formulas without updating the duplicate tooltip calculations.
 
@@ -11667,7 +11674,7 @@ The same full autoplay recorded several short wars followed by peace, including 
 
 <a id="ki-440"></a>
 
-## KI#440 - (Pending inherited AdvCiv UWAI public-opposition defect) Hypothetical religion anger is capped by current anger
+## KI#440 - (Pending Architectural inherited AdvCiv UWAI public-opposition defect) Hypothetical religion anger is capped by current anger
 
 `PublicOpposition::evaluate` estimates religion anger for the MilitaryAnalyst's simulated war state, including a rival that may become a new enemy, but caps that prospective contribution by the city's current `angryPopulation`. Current religion anger includes only actual enemies. A presently content city can therefore reduce a hypothetical new-war contribution to zero, while separate rival passes can conversely reuse the same currently angry population.
 
@@ -11723,7 +11730,7 @@ The same Future-era autoplay necessarily remained in the terminal starting era w
 
 <a id="ki-445"></a>
 
-## KI#445 - (Pending inherited AdvCiv UWAI tactical defect) Agent assets can be reused across enemy teammates
+## KI#445 - (Pending Architectural inherited AdvCiv UWAI tactical defect) Agent assets can be reused across enemy teammates
 
 `TacticalSituation::evalEngagement` explicitly caps entangled enemy units by the number of agent units that threaten their plot, enforcing at most one enemy unit per agent unit. The generic aspect loop nevertheless rebuilds that agent inventory separately for every rival player. One agent unit facing units owned by two members of the same hostile team can therefore supply one entanglement pair in each member pass, whereas the same hostile units under one owner are capped together. The same cross-pass ownership mismatch affects damaged agent units exposed to danger and city evacuation value.
 
@@ -11741,7 +11748,7 @@ The repaired DLL compiled successfully. A Huge Normal Pangaea full UWAI autoplay
 
 <a id="ki-447"></a>
 
-## KI#447 - (Pending inherited AdvCiv UWAI intervention defect) Collective military severity depends on one target player's army cache
+## KI#447 - (Pending Architectural inherited AdvCiv UWAI intervention defect) Collective military severity depends on one target player's army cache
 
 `ThirdPartyIntervention::evaluate` estimates the likelihood and severity of intervention by another team. Its probability deliberately retains player-specific relations, but the severity compares the intervening team's power with only the currently iterated rival player's cached army assets. The aspect then runs again for every member of that rival team, including the nonlinear `<= 0.5` rejection and later severity divisor. Reassigning the same military assets among teammates can therefore change whether intervention is considered and by how much.
 
@@ -11749,7 +11756,7 @@ Base AdvCiv 1.14 contains the same mixed team/player calculation, making this an
 
 <a id="ki-448"></a>
 
-## KI#448 - (Pending inherited AdvCiv UWAI Dramatic Arc defect) Team-war safety and loss gates depend on target ownership
+## KI#448 - (Pending Architectural inherited AdvCiv UWAI Dramatic Arc defect) Team-war safety and loss gates depend on target ownership
 
 `DramaticArc::evaluate` scores one shared team-war transition separately for every target player. Its human-capital safety gate applies only when the current target member is human, so an AI teammate's pass can bypass the protection. Its minimum-action gate likewise compares losses belonging to only the current player, allowing identical team losses to cross or miss the threshold depending on ownership partition.
 
@@ -11769,7 +11776,7 @@ The repaired Debug-opt DLL compiled successfully. A Huge Normal Pangaea full aut
 
 <a id="ki-450"></a>
 
-## KI#450 - (Pending inherited AdvCiv UWAI Military Victory defect) Global victory progress is capped once per rival player
+## KI#450 - (Pending Architectural inherited AdvCiv UWAI Military Victory defect) Global victory progress is capped once per rival player
 
 `MilitaryVictory::evaluate` derives Domination and diplomatic-victory progress from global scenario state, but executes and caps those values separately for every rival player. The same global remaining threshold can therefore contribute repeatedly according to the number of eligible rivals. Conquest and nuclear components, by contrast, contain genuine opponent-specific state and cannot simply be moved with the global terms behind one common leader guard.
 
@@ -11787,7 +11794,7 @@ The repaired DLL compiled successfully. A Huge Normal Pangaea full UWAI autoplay
 
 <a id="ki-452"></a>
 
-## KI#452 - (Pending inherited AdvCiv UWAI vassal-tech defect) One team technology inventory is cached and summed per member
+## KI#452 - (Pending Architectural inherited AdvCiv UWAI vassal-tech defect) One team technology inventory is cached and summed per member
 
 `UWAICache::vassalTechScore` stores the current tradable technology value under `PlayerTypes`, although technology ownership, trade legality and acquisition are team state. `UWAI::Team::acceptVassal` sums those identical caches over every prospective vassal member, while `GreedForVassals` can combine the same current inventory with genuinely player-local future research income on each member pass.
 
@@ -11795,7 +11802,7 @@ Base AdvCiv 1.14 contains the same ownership mismatch, making this an inherited 
 
 <a id="ki-453"></a>
 
-## KI#453 - (Pending inherited AdvCiv UWAI Risk defect) Team capitulation and vassal losses repeat across player pairs
+## KI#453 - (Pending Architectural inherited AdvCiv UWAI Risk defect) Team capitulation and vassal losses repeat across player pairs
 
 `Risk` combines ordinary player-owned losses with team-owned events. Its fixed 100-point capitulation cost can be charged for every agent/rival member pair, and its pre-evaluation of the master team's vassal losses repeats for every agent member. The break-away component additionally compares team relations through one agent player's power.
 
@@ -11833,7 +11840,7 @@ The repaired Debug-opt DLL compiled successfully. A default `OWN_EXCLUSIVE_RADIU
 
 <a id="ki-457"></a>
 
-## KI#457 - (Pending inherited AdvCiv UWAI Ill Will defect) Team-war danger uses one player's army power
+## KI#457 - (Pending Architectural inherited AdvCiv UWAI Ill Will defect) Team-war danger uses one player's army power
 
 `IllWill::theirToOurPowerRatio` feeds player-local army power into nonlinear revenge and dogpile thresholds for a war that commits the whole team. Splitting the same enemy power between teammates can leave every member below the 0.70 or 1.45 gate although their combined team capability crosses it. Diplomatic motives remain legitimately player-specific.
 
@@ -11849,7 +11856,7 @@ The repair requires every living member of the evaluated target team to be elimi
 
 <a id="ki-459"></a>
 
-## KI#459 - (Pending inherited AdvCiv UWAI partner-tech defect) Shared foreseeable technology trades repeat per teammate
+## KI#459 - (Pending Architectural inherited AdvCiv UWAI partner-tech defect) Shared foreseeable technology trades repeat per teammate
 
 `partnerUtilFromTech` combines player-specific attitude and commerce approximations with team-owned known technologies and research progress. When several friendly teammates expose the same technology differences, the same near-future trade opportunities can be credited on every member pass even though one actual technology trade changes team ownership and consumes that difference.
 
@@ -11887,7 +11894,7 @@ The repair deduplicates victim `TeamTypes` before testing observer disapproval a
 
 <a id="ki-463"></a>
 
-## KI#463 - (Pending inherited AdvCiv UWAI Greed for Vassals defect) One fixed vassal-team downside repeats per member
+## KI#463 - (Pending Architectural inherited AdvCiv UWAI Greed for Vassals defect) One fixed vassal-team downside repeats per member
 
 `GreedForVassals` subtracts a fixed five utility for the diplomatic and forced-war downside of acquiring a capitulated vassal, but does so on every target-member pass. The surrounding technology, resource, commerce and military benefits contain genuinely player-local or independently nonlinear terms, so moving the subtraction to an arbitrary representative can also change how the per-pass zero floor absorbs it.
 
@@ -11931,7 +11938,7 @@ The compiled DLL completed an autoplay normally. A direct KI#466 attempt grouped
 
 <a id="ki-468"></a>
 
-## KI#468 - (Pending inherited AdvCiv group-load defect) Independent checks reuse finite cargo capacity
+## KI#468 - (Pending Architectural inherited AdvCiv group-load defect) Independent checks reuse finite cargo capacity
 
 AdvCiv deliberately requires every selected unit to pass generic `COMMAND_LOAD`, avoiding a group command that loads only part of the selection. Each unit nevertheless checks the same current free transport slots independently, without reserving capacity for earlier selected units. Two land units can therefore both pass by observing one remaining slot; sequential execution loads the first and rejects the second. `COMMAND_LOAD_UNIT` similarly offers a particular transport when any selected unit can load onto it, even if it cannot hold the whole selection.
 
@@ -12311,19 +12318,23 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-507"></a>
 
-## KI#507 - (Provisional Pending inherited AdvCiv regression) Brokered-peace low-score relaxation is unreachable
+## KI#507 - (Fixed inherited AdvCiv brokered-peace regression) Low-score relaxation was unreachable
 
-Album F184 finds makePeaceTrade setting bNoDenial and then immediately returning DENIAL_VICTORY. Pending independent implementation review.
+AdvCiv practical 2249 deliberately added a brokered-peace exception so a trailing civilization with moderate reluctance would not answer that it would rather win the game. The successful low-score branch set `bNoDenial = true` but then immediately returned `DENIAL_VICTORY`, preventing the later `NO_DENIAL` gate from ever honoring that exception.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The victory denial now belongs only to the branch where the low-score exception fails. A successful exception falls through to the existing willingness-to-talk and `bNoDenial` handling, while high reluctance still returns `DENIAL_TOO_MUCH`. This regression was introduced by AdvCiv commit `ca3cdbcdce`, remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
+
+Found as F184/provisional KI#507 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-508"></a>
 
-## KI#508 - (Provisional Pending inherited AdvCiv regression) peaceThreshold reads the target team's self war success
+## KI#508 - (Fixed inherited AdvCiv peace-threshold regression) Target team read its self war success
 
-Album F185 finds the target contribution indexed against itself instead of against the agent. Pending independent implementation review.
+`UWAI::Team::peaceThreshold` combines the agent's war success against the target with the target's reciprocal war success. AdvCiv's 2021 UWAI rewrite changed the second lookup to `kTarget.AI_getWarSuccess(eTarget)`, reading the target team's self slot rather than its entry against the agent. That normally omitted the opponent's success and could make a losing agent require an excessively negative utility before seeking peace.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The reciprocal term once again reads `kTarget.AI_getWarSuccess(kAgent.getID())`, preserving the existing weighting and scaling. The older implementation used the correct opponent ID; the defect was introduced by AdvCiv commit `4ae382e5db`, remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
+
+A current-build huge autoplay completed successfully; the exact reciprocal-war-success contribution remains source-verified. Found as F185/provisional KI#508 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-509"></a>
 
@@ -12367,11 +12378,13 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-514"></a>
 
-## KI#514 - (Provisional Pending AdvCiv-SAS signed-rounding defect) Emergency peace uses uround on a negative threshold
+## KI#514 - (Fixed AdvCiv-SAS signed-rounding defect) Emergency peace used uround on a negative threshold
 
-Album F191 finds ScaledNum::uround called on a value explicitly permitted to be negative. Pending independent implementation review.
+AdvCiv-SAS emergency peace forces war utility below `peaceThreshold` so ordinary negotiation logic cannot reject the preferred emergency target merely for having utility above the threshold. That threshold is signed and is explicitly capped at nonpositive values for inter-AI peace, but the custom path called `ScaledNum::uround()`, whose contract asserts that its input is nonnegative and whose rounding formula is not the signed one.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The emergency path now uses `round()`, matching the signed threshold already used throughout the surrounding function and preventing the ordinary negative-threshold state from tripping a Debug-opt assertion. `peaceThreshold` returns an integer before conversion to `scaled`, so the prior release-build result was effectively unchanged; this is contract/debug hardening rather than a peace-policy adjustment. The defect was introduced by AdvCiv-SAS practical commit `bf56a70088f` and is not present in Base AdvCiv.
+
+A current-build huge autoplay completed successfully; no Debug-opt assertion was observed, while the exact emergency-peace branch remains source-verified. Found as F191/provisional KI#514 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-515"></a>
 
@@ -12383,11 +12396,13 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-516"></a>
 
-## KI#516 - (Provisional Pending inherited AdvCiv vassal-war defect) Inverted master test prevents preparation timeout
+## KI#516 - (Fixed inherited AdvCiv vassal-war defect) Inverted master test prevented preparation timeout
 
-Album F193 finds AI vassals failing to abandon human-instructed war preparation after the documented 20 turns. Pending independent implementation review.
+UWAI explicitly says that a nonhuman vassal should abandon a human master's manually instructed war preparation after 20 turns. Its condition instead required the master not to be human. The intended human-master case could therefore persist indefinitely, while an AI-master vassal could unnecessarily clear a preparation that the immediately following synchronization code would reinstall.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The timeout now tests for a human master, matching both the inherited comment and the diplomacy command that lets human masters instruct AI vassals. The separate human-team AI-AutoPlay case remains supported through the short-circuiting first condition. This inverted condition entered with AdvCiv's initial UWAI integration in commit `f6ff6a182f`, remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
+
+A current-build huge autoplay completed successfully; the exact human-master preparation timeout remains source-verified. Found as F193/provisional KI#516 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-517"></a>
 
@@ -12399,11 +12414,13 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-518"></a>
 
-## KI#518 - (Provisional Pending inherited AdvCiv assertion regression) Random nonleader diplomat trips leader-only check
+## KI#518 - (Fixed inherited AdvCiv assertion regression) Random nonleader diplomat tripped leader-only check
 
-Album F195 finds amendTensions retaining its old leader-only assertion after diplomacy began selecting random team members. Pending independent implementation review.
+`UWAI::Player::amendTensions` originally required the acting AI player to be its team leader. AdvCiv later deliberately changed war-related diplomacy to choose a random alive team member and call that member's UWAI agent, but retained the old leader-only assertion. A valid nonleader diplomat on a multiplayer team could consequently stop a debug build even though the underlying diplomacy helpers support the selected player.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The stale leader assertion is replaced by the surviving alive-player contract. Random-member diplomacy remains intact. This regression was introduced by AdvCiv commit `f016996eb6`, remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
+
+A current-build huge autoplay completed successfully; the exact nonleader random-diplomat selection remains source-verified. Found as F195/provisional KI#518 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-519"></a>
 
@@ -13175,5 +13192,13 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 ## KI#595 - (Provisional Pending inherited AdvCiv replay-compatibility defect) Foreign replay colors can wrap into the skipped system-color prefix
 
 Album F272 finds the optional foreign-replay color fallback accepting high color IDs and remapping them with `(eColor + 7) % getNumColorInfos()`. The final accepted IDs can therefore wrap into indices 0 through 5, despite the explicit intent to skip system colors 0 through 6; one result is `COLOR_CLEAR`, which can make a replay or Hall of Fame marker transparent. The feature and defect were introduced by AdvCiv's `advc.106i`, are not from K-Mod or AdvCiv-SAS, and are config-gated by `HOF_DISPLAY_OTHER_MOD_REPLAYS`. Pending independent implementation review of a remap constrained to the usable `[7, count)` suffix and defensive handling for a pathological color table with at most seven entries.
+
+Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-596"></a>
+
+## KI#596 - (Provisional Pending AdvCiv-SAS assertion-build regression) Rich diagnostics are disabled in optimized Assert builds
+
+Album F273 finds AdvCiv-SAS's richer missing-GlobalDefine diagnostics checking lookup success under `FASSERT_ENABLE` but guarding the actual diagnostic assertions with `_DEBUG`. AdvCiv's optimized `Assert` target deliberately defines `FASSERT_ENABLE` without `_DEBUG`, so the custom replacement silently removed inherited assertion coverage from that build for `CvGlobals::getDefineINT`, `getDefineFLOAT` and `getDefineSTRING`. The same root affects the richer stuck-group-loop assertion in `CvSelectionGroupAI::AI_update`; its diagnostic belongs under `FASSERT_ENABLE`, while its separate restoration of a Debug-only attempt-limit adjustment must remain under `_DEBUG`. Pending independent implementation review.
 
 Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.

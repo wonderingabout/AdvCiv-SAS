@@ -2,12 +2,12 @@ AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
-Files complete: 22 / 169
-Files open: 1 / 169
-Last completed file: investigation file 022 / queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp (1,461 queued lines) - CLOSED AT C023
-Current selected file: queue 040 CvGameCoreDLL/CvGlobals.cpp (1,454 queued lines) - OPEN AT C023-WIP03
-Current queue-040 roots: F272 / provisional KI#595
-Next root ID: F273 unused / provisional KI#596 next
+Files complete: 23 / 169
+Files open: 0 / 169
+Last completed file: investigation file 023 / queue 040 CvGameCoreDLL/CvGlobals.cpp (1,454 queued lines) - CLOSED AT C024
+Next selected file: priority queue 037 CvGameCoreDLL/CvPythonCaller.cpp (1,576 queued lines) - PENDING AFTER C024
+Latest queue-040 roots: F272-F273 / provisional KI#595-KI#596
+Next root ID: F274 unused / provisional KI#597 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -59,7 +59,7 @@ QUEUE (current .cpp files, longest -> shortest)
 037   1576 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]<-(priority next wip)
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [COMPLETE - SEE C023 DURABLE CHECKPOINT]
-040   1454 CvGameCoreDLL/CvGlobals.cpp [OPEN - SEE C023-WIP03]<-(priority next wip)
+040   1454 CvGameCoreDLL/CvGlobals.cpp [COMPLETE - SEE C024 DURABLE CHECKPOINT]
 041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [COMPLETE - SEE C019 DURABLE CHECKPOINT]
 042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]<-(priority next wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
@@ -47275,4 +47275,591 @@ Continue CvGlobals.cpp from F273 unused / KI#596 next:
     * remaining init/uninit ownership with a live-consumer requirement;
     * CE/K-Mod/AdvCiv targeted divergence scan;
     * revisit external reload leaks only if a supported re-entry path is established.
+===============================================================================
+
+
+===============================================================================
+C023-WIP04 — QUEUE 040 CvGameCoreDLL/CvGlobals.cpp
+F273 / provisional KI#596 CONFIRMED + QUEUE-041 CONTROL CORRECTION
+Date: 2026-08-28
+Model: GPT-5.6 Sol
+
+F273 / provisional KI#596 — SAS RICH GLOBALDEFINE DIAGNOSTICS ACCIDENTALLY
+DISABLE THE INHERITED ASSERTION IN THE OPTIMIZED ASSERT BUILD
+--------------------------------------------------------------------------------
+Status: CONFIRMED; SAS-specific diagnostic/build-configuration regression.
+Primary file: CvGameCoreDLL/CvGlobals.cpp
+Same-root sibling: CvGameCoreDLL/CvSelectionGroupAI.cpp
+Build contract: CvGameCoreDLL/Project/Makefile + CvGameCoreDLL/FAssert.h
+
+ROOT CONTRACT
+-------------
+AdvCiv's build system intentionally supports two assertion-capable configurations:
+
+    Debug  = _DEBUG (which in FAssert.h also defines FASSERT_ENABLE)
+    Assert = Release flags + /DFASSERT_ENABLE, without _DEBUG
+
+The Makefile is explicit:
+
+    Debug_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /D_DEBUG
+    Release_DEFINES=/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG
+    ...
+    !IF "$(TARGET)" == "Assert"
+    CFLAGS  = $(Release_CFLAGS) /DFASSERT_ENABLE
+
+and FAssert.h independently gates the assertion macros on FASSERT_ENABLE:
+
+    #ifdef _DEBUG
+        #define FASSERT_ENABLE
+    #endif
+    ...
+    #ifdef FASSERT_ENABLE
+        #define FAssert(...)
+        #define FAssertMsg(...)
+    #else
+        #define FAssert(...) (void)0
+        #define FAssertMsg(...) (void)0
+    #endif
+
+Therefore `_DEBUG` is a sufficient condition for assertions, but it is NOT the assertion
+feature flag. `FASSERT_ENABLE` is the actual contract and can intentionally be enabled in an
+optimized/non-debug DLL.
+
+PRIMARY FAILURE: CvGlobals GlobalDefine accessors
+-------------------------------------------------
+Base AdvCiv retains a cheap FAssert/FAssertMsg after the GlobalDefine lookup. Current SAS
+replaced those plain assertions with richer lazy diagnostics in all three accessors:
+
+    CvGlobals::getDefineINT
+    CvGlobals::getDefineFLOAT
+    CvGlobals::getDefineSTRING
+
+The lookup status itself is correctly compiled whenever FASSERT_ENABLE is active, e.g.:
+
+    #ifdef FASSERT_ENABLE
+    bool bSuccess =
+    #endif
+    getDefinesVarSystem()->GetValue(...);
+
+but the new diagnostic/assert block is guarded by `_DEBUG` instead:
+
+    #ifdef _DEBUG
+        if (!bSuccess) { ... FAssertMsg(...); }
+    #endif
+
+(or the FLOAT equivalent with CAMERA_MIN_DISTANCE exempted).
+
+That changes the inherited build behavior:
+
+    Build      Base AdvCiv                 current SAS
+    -----      -----------                 -----------
+    Debug      assertion active            richer assertion active
+    Assert     assertion active            assertion SILENTLY REMOVED
+    Release    assertion compiled out      assertion compiled out
+
+The Assert target exists specifically to preserve assertions while running release-like code.
+Missing/mistyped GlobalDefines therefore lose the inherited detection exactly in that useful
+configuration. The lookup still falls back to the normal default, so this is a diagnostic
+regression rather than a gameplay-state defect by itself; however it can materially hide XML
+or refactor mistakes from the Assert DLL (the richer INT diagnostic was added precisely after
+such a define typo was caught during SAS development).
+
+REPAIR DIRECTION — CvGlobals
+----------------------------
+Gate the rich failure-only diagnostic on `FASSERT_ENABLE`, not `_DEBUG`:
+
+    #ifdef FASSERT_ENABLE
+        if (!bSuccess) { ... FAssertMsg(...); }
+    #endif
+
+and analogously for FLOAT/STRING. This keeps:
+
+    * Debug: rich assertion, unchanged;
+    * Assert: rich assertion restored;
+    * Release: no assertion/formatting machinery;
+    * normal successful lookups: no expensive message formatting, because the existing
+      failure condition remains outside/around the formatting work.
+
+No need to revert to the old uninformative Base assertion merely to fix the build guard.
+
+SAME-ROOT SIBLING: CvSelectionGroupAI::AI_update
+-------------------------------------------------
+The same SAS optimization pattern was applied to AdvCiv's inherited stuck-loop assertion.
+Base AdvCiv executes:
+
+    FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
+
+outside `_DEBUG`, so it remains active in the Assert target. SAS moved the richer version
+inside:
+
+    #ifdef _DEBUG
+        const bool bAssertCondition = (iAttempts != iMaxAttempts);
+        if (!bAssertCondition) { ... FAssertMsg(...rich state...); }
+        iMaxAttempts += 4; // restore Debug-only early-trigger adjustment
+    #endif
+
+The result is the same root: the Assert DLL no longer has the inherited stuck-loop assertion.
+
+IMPORTANT REPAIR BOUNDARY FOR THE SIBLING
+-----------------------------------------
+Do NOT blindly replace that entire `_DEBUG` block with `FASSERT_ENABLE`: the
+`iMaxAttempts += 4` line repairs an earlier `_DEBUG`-only `iMaxAttempts -= 4` adjustment and
+must remain Debug-only. A safe conceptual split is:
+
+    #ifdef FASSERT_ENABLE
+        // lazy rich assertion block
+    #endif
+    #ifdef _DEBUG
+        iMaxAttempts += 4; // restore only the Debug-only subtraction
+    #endif
+
+This restores Assert-build detection without changing its normal iteration limit.
+
+CORRECTION TO THE ALREADY-CLOSED QUEUE 041 AUDIT
+-------------------------------------------------
+The queue-041 closure currently contains this rejected-control statement:
+
+    "This does not disable an assert-enabled non-debug configuration: FAssert.h defines
+     FASSERT_ENABLE only when _DEBUG itself is defined. Outside _DEBUG the old assert was
+     already a no-op."
+
+That statement is WRONG because it considered only FAssert.h's automatic `_DEBUG` enablement
+and missed the Makefile's separate Assert target (`Release_CFLAGS /DFASSERT_ENABLE`).
+
+Amend that old control as follows:
+
+    * the expensive-formatting concern was valid;
+    * moving message construction behind the failure condition was good;
+    * moving the assertion itself behind `_DEBUG` was not equivalent to the inherited
+      behavior and disabled it in the optimized Assert build;
+    * reopen that rejected diagnostic candidate only as SAME-ROOT evidence for F273, not as
+      a new independent numbered root and not as a retraction of queue-041's established
+      gameplay findings.
+
+ANCESTRY / INDEPENDENCE
+-----------------------
+Base AdvCiv has the plain assertions and the two-build assertion contract. The loss occurs in
+SAS's richer diagnostic replacements, so F273 is SAS-specific. It is independent of F272:
+F272 is an inherited Hall-of-Fame/replay color-remapping arithmetic bug; F273 is a build-guard
+diagnostic regression affecting assertion coverage.
+
+QUEUE STATUS AFTER F273
+-----------------------
+queue 040 remains OPEN while the final saturation pass finishes.
+F272 / provisional KI#595 confirmed in WIP03.
+F273 / provisional KI#596 confirmed here.
+Next unused root: F274.
+Next provisional KI: KI#597.
+
+NEXT CURSOR
+===========
+Continue queue 040 CvGlobals.cpp from F274 unused / KI#597 next:
+    * finish last init/uninit ownership and exported-reset/lazy-loader controls;
+    * finish getter/setter/cache invalidation coverage, including less-obvious runtime define
+      mutation paths;
+    * compare remaining CvGlobals divergences with Base AdvCiv, K-Mod and Civ4CE for explicit
+      fixes rather than stylistic differences;
+    * re-challenge array/count/info-map bounds and any compile-time feature branches;
+    * close queue 040 if no independent live root survives; do not allocate F274 merely for
+      finding-count symmetry.
+
+No repository source files were modified.
+===============================================================================
+
+
+===============================================================================
+C023-WIP05 — QUEUE 040 CvGameCoreDLL/CvGlobals.cpp SATURATION CONTINUATION
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+QUEUE STATUS
+------------
+queue 040
+CvGameCoreDLL/CvGlobals.cpp
+OPEN
+
+CONFIRMED ROOTS SO FAR:
+    F272 / provisional KI#595 — foreign-replay color remap can wrap into reserved colors 0..6
+    F273 / provisional KI#596 — SAS _DEBUG guard removes inherited assertions from Assert target
+
+NEXT ROOT:
+    F274 UNUSED
+    next provisional KI#597
+
+No repository source files modified. Audit album only.
+
+I. CURRENT RUNTIME GlobalDefine MUTATION / CACHE INVALIDATION — CLEAN CONTROL
+---------------------------------------------------------------------------
+Enumerated every literal setDefineINT/FLOAT/STRING call in the current SAS source/assets and
+matched it against CvGlobals' cached define machinery.
+
+Current integer mutations are:
+    * MINIMAP_RENDER_SIZE in CvReplayScreen.py;
+    * RIVER_SOURCE_MIN_RIVER_RANGE, RIVER_SOURCE_MIN_SEAWATER_RANGE and
+      PLOTS_PER_RIVER_EDGE in Water.py / CvMapGenerator.cpp.
+
+MINIMAP_RENDER_SIZE is in DO_FOR_EACH_GLOBAL_DEFINE and setDefineINT's pinpoint update writes
+the new value into m_aiGlobalDefinesCache. The three map-generator river controls are not in
+the enum cache and their consumers use string getDefineINT, so the changed FVariableSystem
+value is read directly. Their restore path is therefore coherent too.
+
+Current float mutations are FIELD_OF_VIEW, CAMERA_MIN_DISTANCE, CAMERA_START_DISTANCE and
+CAMERA_CITY_ZOOM_IN_DISTANCE. setDefineFLOAT refreshes cacheGlobalFloats, except the deliberate
+CAMERA_START_DISTANCE path that passes bUpdateCache=false and immediately calls
+cacheGlobalFloats(false) itself. No stale current cached value was found.
+
+No live setDefineSTRING caller was found.
+
+II. WAR_SUCCESS_CITY_CAPTURING LOWER-BOUND ASYMMETRY — LATENT ROBUSTNESS CONTROL
+-------------------------------------------------------------------------------
+Full cache initialization special-cases WAR_SUCCESS_CITY_CAPTURING with iLower = 1 because the
+source explicitly says 0 can crash AI code. A later runtime setDefineINT of that same name would
+use cacheGlobalInts(szChangedDefine, iNewValue), which stores iNewValue directly and therefore
+does not reapply the >=1 normalization.
+
+This is a real API robustness asymmetry, but current SAS contains no runtime setter for this
+define. XML startup goes through the normalized full-cache path. Do not allocate F274 without
+a supported/live mutation path; record the invariant for any future generic define editor.
+
+III. CvGlobals init/uninit / CvAgents — OWNERSHIP OMISSION STILL BELOW ROOT BAR
+------------------------------------------------------------------------------
+Rechecked the whole init/uninit pair and CvAgents implementation.
+
+CvGlobals::init allocates m_agents after CvPlayer/CvTeam statics and CvAgents stores vectors of
+raw player/team pointers plus installs itself into AgentIteratorBase's global cache pointer.
+CvGlobals::uninit frees CvPlayer/CvTeam statics but does not delete m_agents.
+
+So the ownership omission is genuine, and the leaked object contains stale pointers during
+teardown. init/uninit are DllExport, but the current DLL source contains no second local init
+call, no post-uninit AgentIterator consumer, and no proof that the Civ4 EXE performs a supported
+same-loaded-DLL reinit cycle rather than unloading the DLL/process. Keep as cleanup/lifecycle
+debt rather than inventing a live F274.
+
+IV. CvXMLLoadUtility RAW POINTER — HISTORICALLY ACKNOWLEDGED EXTERNAL-LIFETIME CONTROL
+-------------------------------------------------------------------------------------
+CvGlobals retains m_pXMLLoadUtility for lazy optional/throne-room XML. CvXMLLoadUtility's own
+destructor explicitly comments that the EXE appears to destroy it only when exiting from the
+opening menu and that deleting it from another path risks double deletion. Current source does
+not clear GC.m_pXMLLoadUtility in that destructor.
+
+The pointer can therefore look dangling in isolation, but its only lazy consumers are meaningful
+before that menu-exit teardown. No local post-destruction consumer is proved. Preserve as an
+external-lifetime seam, not F274.
+
+V. DISABLED XML BINARY INFO CACHE — CURRENTLY NON-LIVE
+------------------------------------------------------
+The readInfoArray/writeInfoArray branch in CvGlobals is guarded by ENABLE_XML_FILE_CACHE and
+current CvInfo_Base.h defines ENABLE_XML_FILE_CACHE 0. AdvCiv history also records that this
+cache was effectively unused for mods. Compilation-repair history for this branch does not make
+it a current runtime root.
+
+VI. CAMERA_START_DISTANCE STATIC BASELINE — INTENTIONAL, NOT A CACHE BUG
+------------------------------------------------------------------------
+The current source comment questions the function-local static
+m_fCAMERA_START_DISTANCE_Override. History resolves the intent: the automatic/default-camera
+feature deliberately captures the original XML CAMERA_START_DISTANCE before the function starts
+overwriting that same GlobalDefine. BUG's "Custom (XML)" option calls updateCameraStartDistance
+with bReset=true specifically to restore this captured XML baseline. Re-reading the already
+mutated define instead would lose the original custom XML value.
+
+The static is therefore the persistence mechanism for the baseline, not accidental stale caching.
+No F274.
+
+VII. HISTORY / SIBLING-FIX STREAM — NO NEW ROOT IN THIS SLICE
+-------------------------------------------------------------
+Revisited the targeted CvGlobals repair history rather than only current text:
+    * memory-corruption fixes around async-random ownership/type;
+    * startup-audio EVENT_MESSAGE_TIME early-cache fix;
+    * Cppcheck fixes around optional/throne-room assert-only temporaries;
+    * release-build/XML-cache compilation repairs;
+    * menu-background invalid-profile guard;
+    * camera-distance evolution;
+    * replay/color compatibility introduction.
+
+The optional/throne-room functions are particularly useful as a control for F273: they already
+gate assertion-only state with FASSERT_ENABLE, demonstrating the project's intended feature flag.
+No adjacent uncorrected live root was found in those repair families beyond already-confirmed
+F272/F273.
+
+NEXT CURSOR
+===========
+Continue queue 040 from F274 unused / KI#597 next:
+    * finish external accessor/bounds adapters (main-menu, landscape, direction/string arrays);
+    * finish info registration/reset/count symmetry with current XML and loader call order;
+    * finish independent CE/K-Mod divergence scan for explicit behavioral fixes;
+    * final function-family inventory and two-root independence/repair-boundary check;
+    * if those remain controls, close queue 040 with F272/F273 and leave F274 unused.
+===============================================================================
+
+
+================================================================================
+C023-WIP06 — QUEUE 040 CvGlobals.cpp — FIXED-GLOBAL-TYPE COUNT RECHECK
+================================================================================
+
+Status entering this slice:
+- Queue 040 CvGlobals.cpp: OPEN.
+- F272 / KI#595: confirmed (foreign-replay color remap can wrap into reserved 0..6 colors).
+- F273 / KI#596: confirmed (SAS rich GlobalDefine diagnostics are incorrectly gated by _DEBUG rather than FASSERT_ENABLE; same-root CvSelectionGroupAI correction recorded in WIP04).
+- F274 / KI#597: UNUSED.
+
+CONTROL / CORRECTION — FunctionTypes does NOT numerically match GlobalTypes.xml, but this is a stock dormant asymmetry rather than a current SAS defect
+
+The earlier broad fixed-string-array control was too strong when it said that every inherited fixed GlobalTypes count matched its C++ enum. Rechecking the current enum against an independent Civ4CE BtS GlobalTypes.xml exposed one exception:
+
+Current SAS CvEnums.h contains six FunctionTypes:
+
+    FUNC_NOINTERP,
+    FUNC_LINKEY,
+    FUNC_BEZKEY,
+    FUNC_TCBKEY,
+    FUNC_EULERKEY,
+    FUNC_STEPKEY,
+
+so NUM_FUNC_TYPES is 6 in the DLL build.
+
+CvXMLLoadUtility::SetGlobalTypes() deliberately calls:
+
+    int iEnumVal = NUM_FUNC_TYPES;
+    SetGlobalStringArray(&GC.getFunctionTypes(),
+            "Civ4Types/FunctionTypes/FunctionType",
+            &iEnumVal, true);
+
+With bUseEnum == true, SetGlobalStringArray does not replace iEnumVal with the number of XML nodes. It allocates exactly *iNumVals CvString objects, reads siblings until there are no more, and breaks. Therefore a five-entry FunctionTypes XML section leaves the sixth allocated CvString default/empty rather than overflowing memory.
+
+Independent Civ4CE comparison proves this is not a SAS or AdvCiv regression:
+- Civ4CE's stock/BtS CvEnums.h also has the same six FunctionTypes including FUNC_STEPKEY.
+- Civ4CE's loader uses the same NUM_FUNC_TYPES + bUseEnum=true loading pattern.
+- Civ4CE's BtS GlobalTypes.xml contains only five FunctionType entries: NOINTERP, LINKEY, BEZKEY, TCBKEY and EULERKEY.
+- A scan of Civ4CE BtS assets found no STEPKEY / FUNC_STEPKEY reference.
+
+Current SAS evidence is equally non-live:
+- The current light-source XML snapshot contains no STEPKEY / FUNC_STEPKEY reference.
+- Current C++ references to FUNC_STEPKEY are only the enum declaration itself.
+- getFunctionTypes is present in CvGlobals and the CyGlobalContext wrapper, but no current SAS Python caller of getFunctionTypes was found.
+- Thus the empty sixth string is not consumed by current repository code/assets, and no current type lookup requires a FUNC_STEPKEY string mapping.
+- Commit history shows FUNC_STEPKEY predates SAS and AdvCiv; it is already present in the imported K-Mod/BtS enum lineage.
+
+Disposition:
+- Correct the earlier blanket "all fixed counts match" wording: all checked fixed arrays match except this longstanding FunctionTypes 6-enum/5-XML asymmetry.
+- Do NOT allocate F274. The actual load is memory-safe, the asymmetry is inherited from stock BtS/Civ4CE, and no current consumer reaches the empty FUNC_STEPKEY slot.
+- Keep as latent API/data-contract debt only: a future Python/C++ caller asking GC.getFunctionTypes(FUNC_STEPKEY), or future XML relying on that token through this mapping, would get an empty/unregistered sixth string unless GlobalTypes.xml were extended.
+
+RELATED ASSERT-BUILD CONTROL — duplicate-info-type detection is deliberately/inheritedly _DEBUG-only, but current XML has no trigger
+
+CvGlobals::setInfoTypeFromString contains an additional duplicate-type assertion under #ifdef _DEBUG rather than FASSERT_ENABLE. This superficially resembles F273, but it is not the same SAS regression:
+- commit history shows the _DEBUG guard already existed in pre-SAS AdvCiv;
+- SAS did not replace an inherited FAssert-visible-in-Assert-build check here;
+- the current non-text XML Type scan found 3,869 Type tokens and zero duplicate tokens across files and zero duplicates within a file.
+Therefore there is no current duplicate-map overwrite trigger and no independent F274. It remains inherited diagnostic coverage debt if the project ever wants all assertion diagnostics available in the optimized Assert target.
+
+Current queue state after WIP06:
+- Queue 040 CvGlobals.cpp: OPEN, now at final closure/repair-boundary inventory.
+- F272 / KI#595: confirmed.
+- F273 / KI#596: confirmed.
+- F274 / KI#597: still UNUSED.
+- No repository source files modified.
+
+
+===============================================================================
+C024 DURABLE CLOSURE - QUEUE 040 CvGameCoreDLL/CvGlobals.cpp
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+===============================================================================
+
+FIRST-PASS STATUS
+-----------------
+queue 040 CvGameCoreDLL/CvGlobals.cpp: CLOSED.
+Files complete: 23 / 169.
+Closed roots:
+    F272 / provisional KI#595
+    F273 / provisional KI#596
+Next unused root:
+    F274 / provisional KI#597
+
+No F274 was allocated merely to make the finding count larger. The final passes continued to
+produce bounded lifecycle/API/data-contract controls rather than another independent live root.
+
+F272 FINAL REPAIR-BOUNDARY CHECK
+--------------------------------
+Current SAS has N = 128 ColorInfos and the foreign-replay compatibility path accepts foreign
+player-color IDs through 254 when HOF_DISPLAY_OTHER_MOD_REPLAYS is enabled. The current remap:
+
+    (eColor + 7) % N
+
+was intended to skip reserved/system colors 0..6 but maps foreign IDs 249..254 to 0..5.
+
+The narrow suffix-domain repair:
+
+    7 + ((eColor - 7) % (N - 7))
+
+for N > 7 was exhaustively compared across the current accepted foreign range 128..254:
+
+    * 121 already-good mappings, IDs 128..248, remain EXACTLY unchanged;
+    * only the six bad mappings change:
+          249: 0 -> 7
+          250: 1 -> 8
+          251: 2 -> 9
+          252: 3 -> 10
+          253: 4 -> 11
+          254: 5 -> 12
+    * the repaired result range is 7..127, so the promised reserved prefix is actually skipped.
+
+Thus the repair can preserve every current mapping that already satisfied the contract while
+correcting only the proven wrap-back cases. Keep a defensive N <= 7 fallback/assert so the
+modulo denominator can never become zero or negative in malformed/future data.
+
+F273 FINAL REPAIR-BOUNDARY / SIBLING CHECK
+------------------------------------------
+Re-proved the project build contract rather than relying on the prior album statement:
+
+    Debug  -> _DEBUG, which causes FAssert.h to enable FASSERT_ENABLE
+    Assert -> release-like flags + /DFASSERT_ENABLE, WITHOUT _DEBUG
+    Release-> neither assertion mode
+
+Therefore SAS's richer getDefineINT/FLOAT/STRING diagnostics must be guarded by
+FASSERT_ENABLE, not _DEBUG, if they are to preserve Base AdvCiv's optimized Assert-build
+coverage.
+
+The already-closed queue-041 CvSelectionGroupAI::AI_update has the same SAS regression root.
+Its rich stuck-loop diagnostic can also be guarded by FASSERT_ENABLE, but its
+`iMaxAttempts += 4` must remain under _DEBUG because it compensates an earlier _DEBUG-only
+`iMaxAttempts -= 4`.
+
+A useful independent in-tree model is CvGame::updateMoves:
+
+    int iMaxUnitUpdateAttempts = 18;
+    FAssertMsg(...);              // assertion remains available in Assert
+    #ifdef _DEBUG
+        iMaxUnitUpdateAttempts += 4; // Debug-only behavioral adjustment
+    #endif
+
+This is exactly the separation the CvSelectionGroupAI sibling needs.
+
+A targeted repository-wide scan of assertions near _DEBUG/custom SAS diagnostic blocks found
+no second SAS replacement of an inherited always-assert-capable check beyond the already-known
+CvGlobals and CvSelectionGroupAI cases. Other hits were inherited Debug-only invariant sweeps
+or deliberately SAS-added diagnostic probes that have no Base assertion contract to preserve.
+The inherited CvGlobals::setInfoTypeFromString duplicate-type assertion is also _DEBUG-only,
+but it predates SAS and current XML contains no duplicate Type trigger; it remains diagnostic
+coverage debt, not F273 ancestry and not F274.
+
+FINAL HIGH-FANOUT CONTROLS / REJECTIONS
+---------------------------------------
+1. GlobalDefine mutation and caches
+   Every current literal setDefineINT/FLOAT/STRING path was matched against CvGlobals caching.
+   MINIMAP_RENDER_SIZE receives the intended targeted integer-cache update; river generation
+   controls are uncached and read directly; current camera/FoV float mutations refresh the
+   float cache or deliberately defer and then refresh it. No current stale-cache path survived.
+
+   WAR_SUCCESS_CITY_CAPTURING is clamped to >=1 during full caching because 0 can crash AI,
+   while a hypothetical targeted runtime setter would bypass that clamp. Current repository
+   code has no such setter, so this is latent API robustness debt, not F274.
+
+2. Type/info maps and current XML
+   A current non-text XML scan found 3,869 <Type> tokens and zero duplicate tokens, both within
+   individual files and across files. The fixed GlobalTypes string categories likewise contain
+   no current cross-category duplicate token that would silently overwrite m_typesMap.
+
+3. FunctionTypes count correction
+   The earlier blanket statement that every fixed GlobalTypes count matches its C++ enum was
+   corrected. FunctionTypes has six C++ values including FUNC_STEPKEY but stock/current XML has
+   five strings. Civ4CE independently reproduces the same six-enum/five-XML contract and the
+   same NUM_FUNC_TYPES loader behavior. The sixth CvString remains default-empty safely, and
+   neither current SAS nor CE assets/code use FUNC_STEPKEY. Longstanding dormant stock contract
+   debt; no F274.
+
+4. Direction / animation string accessor shapes
+   getDirectionTypes takes AutomateTypes instead of DirectionTypes, a genuine copy/paste API
+   mismatch, but there is no current indexed DLL/Python caller exposing it. AnimationOperator
+   constants start at 1001 while the string accessor operationally expects a 0-based array index;
+   current CyGlobalContext passes ordinary indices and no C++ caller passes real 1001+ constants.
+   Both remain latent API defects rather than current roots.
+
+5. Footstep audio
+   getFootstepAudioTypeByTag is badly named but correct. Unit-art RunLoopSoundTag/RunEndSoundTag
+   values such as LOOPSTEP_TANK are FootstepAudioTypes tokens; the resulting index is then used
+   to fetch the parallel actual sound-script tag such as AS3D_LOOPSTEP_TANK.
+
+6. CvAgents ownership
+   CvGlobals::init allocates m_agents and uninit does not delete it. CvAgents retains player/team
+   pointers, so this is a real shutdown ownership leak/stale-pointer object. However, no local
+   same-loaded-DLL second init or post-uninit consumer could be established. Without the EXE
+   lifecycle proof needed to turn it into a live re-entry failure, it stays cleanup debt.
+
+7. cacheGlobals / CvPythonCaller / XML-loader lifetime
+   cacheGlobals allocates m_pPythonCaller without first deleting an existing one, and CvGlobals
+   retains a raw CvXMLLoadUtility pointer for lazy loading. Both are potentially dangerous under
+   an undocumented repeated EXE bootstrap/reload cycle, but current DLL source does not prove
+   that cycle. CvXMLLoadUtility's own destructor history explicitly discusses EXE ownership and
+   double-deletion risk. Do not infer a root from external lifecycle speculation.
+
+8. Lazy throne-room sequencing
+   AdvCiv advc.003v deliberately introduced the lazy-load call specifically in exported
+   getNumThroneRoomInfos(), with the comment "Load it as late as possible." LoadThroneRoomInfo
+   atomically loads camera, room and style arrays and guards repeat loading with bThroneRoomLoaded.
+   Other exported room/style accessors do not independently force the load, so this relies on the
+   known EXE enumeration order. No current DLL-side caller violates that order and this exact
+   sequencing is the original AdvCiv design; keep as an external-engine contract, not F274.
+
+9. Main-menu / landscape exported bounds
+   getMainMenus repairs a saved index >= current menu count because switching to a mod with fewer
+   menu backgrounds is the known producer. It does not repair a negative index, but current UI
+   producers emit valid nonnegative indices and the Python wrapper checks both bounds. Negative
+   handling would harden corrupted/external profile input; no current producer was found.
+
+   setActiveLandscapeID has no local bounds check and the derived plot-cell getters index by the
+   active ID. It is EXE-owned state with no DLL setter caller; no invalid current producer was
+   proved. Add an assertion if desired for robustness, but not as F274.
+
+10. Plot-group FAStar
+    getPlotGroupFinder contains an advc.test FError and lazily initializes geometry once, which
+    initially raised stale-map-size concerns. AdvCiv explicitly marks it unused inside the DLL
+    after CvPlotGroup::recalculatePlots stopped using it. No current internal consumer exists;
+    exported legacy contract only, so no live stale-geometry root.
+
+11. XML binary cache
+    The binary info-cache read/write machinery is behind ENABLE_XML_FILE_CACHE == 0 in current
+    SAS. Historical compile fixes for the branch do not make it a current runtime issue.
+
+12. Camera baseline
+    The function-static CAMERA_START_DISTANCE override is intentional: it preserves the original
+    XML baseline while runtime camera logic overwrites the GlobalDefine, enabling the BUG
+    "Custom (XML)" reset. Treating the static as stale and replacing it with repeated define reads
+    would destroy the very baseline it is meant to preserve.
+
+13. History / independent implementation scan
+    AdvCiv repair streams touching CvGlobals were challenged for adjacent misses: async-random
+    memory corruption/type ownership, startup audio EVENT_MESSAGE_TIME caching, optional/throne
+    assertion-variable compile fixes, XML-info refactors/cache compilation, invalid menu-profile
+    guard, camera evolution and replay compatibility. K-Mod/Civ4CE comparisons did not expose an
+    additional surviving current root. The normalized SAS-vs-Base semantic delta in CvGlobals is
+    tiny; beyond F273 it is predominantly comments/formatting rather than a broad SAS rewrite.
+
+FUNCTION-FAMILY SATURATION
+--------------------------
+The final inventory covered constructor/init/uninit ownership; external engine pointers;
+pathfinder globals; replay color access; lazy optional/throne loading; active landscape and
+playable-civ state; fixed global string arrays; footstep mappings; GlobalDefine integer/float
+caches and runtime setters; camera updates; hardcoded EXE define-pointer fallback; type/info
+maps and reset seams; XML binary cache helpers; enum/count adapters; profiler/graphics globals;
+and the remaining exported integer-index accessors.
+
+No unexamined CvGlobals.cpp function family remains that plausibly hides an independent current
+root under the audit standard. F272 and F273 are independent: replay-color arithmetic versus
+SAS assertion-build gating. Queue 040 therefore closes with those two roots and F274 unused.
+
+NEXT CURSOR - PRIORITY QUEUE 037
+================================
+Open queue 037 CvGameCoreDLL/CvPythonCaller.cpp (1,576 queued lines) from:
+
+    F274 UNUSED
+    provisional KI#597 next
+
+Priority rationale already exists in the reconciled album. Begin with callback lifetime/guard
+contracts, Python exception/error-return semantics, callback argument/return conversions,
+missing/optional function handling, recursion/reentrancy, interpreter/bootstrap assumptions,
+and SAS-vs-Base/K-Mod/Civ4CE divergence before promoting any root. Associated
+CvPythonCaller.h and Python bridge/call sites should be inspected as needed.
+
+No repository source files were modified.
 ===============================================================================
