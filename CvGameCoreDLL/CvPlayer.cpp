@@ -817,6 +817,10 @@ void CvPlayer::changeLeader(LeaderHeadTypes eNewLeader, bool bChangeName) // adv
 
 	// Set new personality
 	changePersonalityType();
+	// <!-- custom: True Starts replaces leaders after UWAI initialization.
+	// Refresh its derived trait flags once the new traits and personality are installed, without reinitializing persistent UWAI state. See KI#558. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (isAlive() && !isBarbarian() && !isMinorCiv())
+		AI().uwai().getCache().reportLeaderChanged();
 
 	if (isAlive() || isEverAlive())
 	{

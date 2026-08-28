@@ -2591,6 +2591,15 @@ void CvTeam::changeAliveCount(int iChange)
 			}
 			/*  <advc.003m> So that AtWarCounts are updated. Also seems prudent
 				in general not to keep dead teams at war. */
+			// <!-- custom: Raw elimination teardown bypassed UWAI's war-ending callback, allowing sponsorship and past-war history to survive or omit the ended war.
+			// Report it while war state is still intact; during the early scenario readiness window, clear only the transient obligation. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (isMajorCiv() && kLoopTeam.isMajorCiv() &&
+				kLoopTeam.isAtWar(getID()) && getUWAI().isEnabled())
+			{
+				if (getUWAI().isReady())
+					kLoopTeam.uwai().reportWarEnding(getID());
+				else kLoopTeam.uwai().clearWarSponsorship(getID());
+			}
 			kLoopTeam.setAtWar(getID(), false);
 			setAtWar(kLoopTeam.getID(), false);
 			// </advc.003m>  <advc.opt> Also keep WarPlanCounts updated

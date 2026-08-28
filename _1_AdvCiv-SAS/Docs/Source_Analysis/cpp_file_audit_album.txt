@@ -38973,3 +38973,3193 @@ LOCAL RECONCILIATION AFTER C020-WIP03 IMPORT AND KI#564-KI#565 REVIEW
 - Current source and Known Issues now implement F241/KI#564 by bounding grouped OneArea copies by the remaining global and active per-area allowances and restoring the same-landmass invariant in AdvCiv clustering. They implement F242/KI#565 by using the map script's latitude policy during both area ranking and placement.
 - Current-build Huge Hub, Wheel, BTG Grid and Archipelago maps generated successfully. BTG Grid saved/reloaded successfully, and Archipelago with Tiny Islands completed a turn-101 autoplay. The exact hidden counts, boundaries and rankings remain source-verified.
 - Current source, Known Issues and this reconciliation are authoritative for implementation state; the earlier checkpoint's pending label for F241-F242 records its state before local review. (GPT-5.6-Sol)
+
+
+===============================================================================
+CHECKPOINT C020-WIP04 -- FILE 020 OPEN / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    _1_AdvCiv-SAS/Docs/README_Known_Issues.md
+    current SAS XML/resource data
+
+Prior physical checkpoint:
+    C020-WIP03
+
+Current file:
+    priority 3rd / queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+New root:
+    F246 / provisional KI#569
+
+Next root:
+    F247 UNUSED
+
+
+F246 / provisional KI#569
+-------------------------
+TITLE
+    SAS KI#202 lets the uncapped OneArea pass revisit capped areas, but the inherited
+    area-score denominator still assumes the current resource is absent and adds
+    "plus this one"; on a revisited area the resource is already counted, so it is
+    double-counted and can make an otherwise viable recovery area score zero.
+
+STATUS
+    CONFIRMED AdvCiv-SAS follow-up regression exposed by the correct KI#202 repair.
+    Current Base AdvCiv 1.14 does not have this exact reachable revisit state because
+    its broken pass-two `areas_tried` lifetime prevents first-pass selected areas from
+    being revisited.
+
+    Introduced into reachable SAS behavior by:
+        SASBranch practical 6117 / 91454e007c
+        "(Fixed) Let AdvCiv's uncapped OneArea-resource pass revisit capped landmasses
+         (KI#202)"
+
+    KI#202 itself remains a valid fix for the inherited Base AdvCiv bug. F246 is a
+    second stale assumption that became observable once that intended second-pass
+    behavior was restored.
+
+CURRENT AREA SCORE
+    In addUniqueBonusType, each candidate area uses:
+
+        // number of unique bonuses starting on the area, plus this one
+        int iNumUniqueBonusesOnArea =
+            1 + kLoopArea.countNumUniqueBonusTypes();
+
+    and in the AdvCiv branch:
+
+        iValue = (
+            (iNumTiles * (iTarget - iAddedTotal)) / iTarget
+            + MapRandNum(3 * NUM_CITY_PLOTS)
+        ) / iNumUniqueBonusesOnArea;
+
+    Before the suitability scan, current code has:
+
+        if (iValue <= iBestValue) // iBestValue initially 0
+            continue;
+
+    Thus integer truncation to zero is not just a slight ranking penalty:
+    that area cannot become pBestArea at all in that selection round.
+
+WHY "+ THIS ONE" WAS ORIGINALLY VALID
+    countNumUniqueBonusTypes() loops all bonus types and counts a OneArea bonus whenever:
+
+        getNumBonuses(eBonus) > 0
+
+    Base AdvCiv's `areas_tried` set is declared outside the new two-pass loop and is
+    never cleared.
+
+    Therefore, once an area was selected during pass one and received at least one copy
+    of eBonus, Base AdvCiv could never examine that area again in pass two.
+
+    Any area that Base AdvCiv newly considered for eBonus could therefore normally be
+    treated as:
+        existing unique bonus types + the new eBonus being proposed
+
+    and the unconditional +1 matched that traversal contract.
+
+WHAT KI#202 CORRECTLY CHANGED
+    KI#202 observed that the documented uncapped second pass could not do its job:
+    first-pass areas capped by AdvCiv remained in `areas_tried` and could not be
+    revisited when valid plots remained.
+
+    SAS now correctly does:
+
+        if (iPass > 0)
+            areas_tried.clear();
+
+    This restores the documented second-pass purpose:
+        revisit an area capped during pass one and finish the target without the
+        first-pass per-area cap.
+
+    But that means a pass-two candidate can already contain eBonus.
+
+AREA COUNTER IS UPDATED IMMEDIATELY
+    CvPlot::setBonusType updates both map and area counters synchronously:
+
+        getArea().changeNumBonuses(getBonusType(), 1);
+        GC.getMap().changeNumBonuses(getBonusType(), 1);
+
+    CvArea::countNumUniqueBonusTypes then checks those live counters:
+
+        if (getNumBonuses(eLoopBonus) > 0 &&
+            GC.getInfo(eLoopBonus).isOneArea())
+        {
+            iCount++;
+        }
+
+    Therefore, when pass two revisits a first-pass area containing eBonus:
+
+        countNumUniqueBonusTypes()
+
+    ALREADY includes eBonus.
+
+    The inherited unconditional `1 +` counts it twice.
+
+DETERMINISTIC ZERO-SCORE REPRODUCTION
+    Consider an entirely legal pass-two state:
+
+        iTarget = 10
+        iAddedTotal = 9
+        candidate area size = 50 tiles
+        current area contains eBonus plus four other OneArea bonus types
+        so countNumUniqueBonusTypes() = 5
+        synchronized MapRandNum(3 * NUM_CITY_PLOTS) returns 0
+
+    The F245 small-island gate is already open:
+        9 * 3 = 27
+        2 * 10 = 20
+        therefore the `< 2 * target` condition is false.
+
+    The remaining-count size term is:
+
+        (50 * (10 - 9)) / 10
+        = 5
+
+    Correct denominator:
+        5 existing unique OneArea types, already including eBonus
+        => 5 / 5 = 1
+
+    Current SAS denominator:
+        1 + 5
+        => 5 / 6 = 0 by integer division
+
+    Since iBestValue starts at zero:
+
+        if (iValue <= iBestValue)
+            continue;
+
+    the current code rejects the area before its actual placement suitability is even
+    evaluated.
+
+    If other areas are exhausted, invalid, tried or also zero-scoring, pBestArea stays
+    NULL and the supposedly uncapped recovery pass terminates at 9/10 despite a valid
+    remaining placement on this revisited area.
+
+CURRENT DATA MAKES TARGET 10 PLAUSIBLE
+    Several current OneArea luxury resources use:
+
+        iPlayer = 35
+        iTilesPer = 0
+        iConstAppearance = 50
+        random appearance terms 25 + 25
+
+    including Dye, Incense, Silk, Spices and Sugar.
+
+    On a 48-player game, AdvCiv's sublinear player-count component is approximately:
+
+        (48 * 0.35)^0.85 * 4/3
+        ~= 14.67
+        -> rounded around 15 before the appearance multiplier.
+
+    The appearance multiplier can range through roughly 50..98 percent, yielding
+    ordinary target values in the high single digits / low teens. A target of 10 is
+    therefore a supported current-data state, not an invented XML value.
+
+    The zero-score mechanism is broader than exactly target 10; that example merely
+    provides compact integer arithmetic.
+
+WHY THIS IS SAS-ONLY IN CURRENT REACHABILITY
+    Base AdvCiv 1.14 has the same unconditional:
+
+        1 + countNumUniqueBonusTypes()
+
+    but its inherited `areas_tried` bug means a first-pass selected area is excluded
+    from pass two.
+
+    Thus the stale assumption and the pass-two inability accidentally mask each other.
+
+    SAS KI#202 correctly removed the masking bug. That exposed the denominator's
+    original assumption.
+
+    This is a classic follow-up compatibility issue:
+        repair A enables a code path that inherited expression B had implicitly assumed
+        was unreachable.
+
+RELATION TO KI#202
+    KI#202 should NOT be reverted.
+
+    Its documented purpose is sound:
+        "Let AdvCiv's uncapped OneArea-resource pass revisit capped landmasses."
+
+    Reverting the clear would restore the larger inherited underfill defect.
+
+    F246 instead updates the area-scoring expression to match the newly restored
+    lifecycle.
+
+REPAIR DIRECTION
+    Count eBonus exactly once.
+
+    Conceptually:
+
+        int iNumUniqueBonusesOnArea =
+            kLoopArea.countNumUniqueBonusTypes();
+
+        if (kLoopArea.getNumBonuses(eBonus) <= 0)
+            iNumUniqueBonusesOnArea++;
+
+    CvArea publicly exposes getNumBonuses(BonusTypes), so the condition is available
+    without rescanning plots.
+
+    This preserves the original intended "+ this one" behavior on fresh areas while
+    avoiding a phantom extra type on pass-two revisits.
+
+    A defensive lower bound may be reasonable if future data/script behavior makes the
+    divisor unexpectedly zero, although for eBonus under consideration the conditional
+    increment should guarantee at least one.
+
+    Implementation review should apply F242's corrected latitude policy and F241/F245
+    fixes independently; they affect different stages of the same area-selection/
+    placement pipeline.
+
+DISTINCTION FROM OTHER QUEUE-045 ROOTS
+    F241:
+        grouped copies violate selected-area/global/per-area placement bounds.
+
+    F242:
+        suitability scans use the wrong map-script latitude policy.
+
+    F245:
+        small areas can be hard-excluded before two-thirds of target exists, creating
+        a bootstrap deadlock.
+
+    F246:
+        an area that KI#202 deliberately made revisitable can be penalized by counting
+        eBonus twice in the unique-resource denominator and can truncate to zero.
+
+    All can coexist; one repair does not subsume the others.
+
+NEGATIVE CONTROLS / SCOPE
+    * On pass one, before an area has received eBonus, the original +1 remains correct.
+    * On a fresh pass-two area that never received eBonus in pass one, +1 remains
+      correct.
+    * If the current expression stays safely above zero, F246 may only alter relative
+      ranking rather than cause underfill; the zero-score reproduction proves a harder
+      behavioral consequence exists.
+    * `CvPlot::setBonusType` updates area counts immediately, so there is no delayed
+      counter update that would preserve the old assumption.
+    * The BTS-style SAS path uses only one pass and therefore does not reach the
+      KI#202 revisit state.
+    * No prior album root covered this double-count; it is a new follow-up of the
+      recent SAS KI#202 repair.
+
+
+ADDITIONAL NEGATIVE CONTROLS IN THIS PASS
+-----------------------------------------
+1. Water.py mutable river defines
+    Search across current shipped PrivateMaps confirms Water.py is the only shipped
+    script presently mutating the three default-river globals handled by KI#243:
+        PLOTS_PER_RIVER_EDGE
+        RIVER_SOURCE_MIN_RIVER_RANGE
+        RIVER_SOURCE_MIN_SEAWATER_RANGE
+
+    No second shipped mutator was found that the current snapshot/use/restore logic
+    fails to cover.
+
+2. mapDefaultOptionAvailability output initialization
+    The PythonCaller helper initializes/assigns both output booleans; the
+    generateRandomMap normalization path is not consuming uninitialized values.
+
+3. Python plot/terrain override result sizes
+    PythonCaller validates the returned list size against numPlots before treating the
+    override as successful. Malformed custom Python output is not silently accepted by
+    the C++ caller.
+
+4. getRiverValueAtPlot wrap handling
+    `plotValidXY` / map plot access accounts for wrapping. The neighbor loop does not
+    establish a simple map-edge omission on wrapped worlds.
+
+5. zero river randomness
+    CvRandom::get(0) returns zero in the target implementation. A zero configurable
+    river-direction randomness value does not itself create a divide/modulo failure.
+
+6. current goody-count storage
+    With present supported SAS48 map sizes and current Goody Hut spacing/count data,
+    the short-backed per-improvement count does not approach signed-short range.
+
+7. Planet Generator default delegation
+    The shipped Planet Generator's generateRandomMap/addBonuses hooks call
+    allowDefaultImpl rather than fully swallowing the C++ default path. It does not
+    establish a current shipped bypass of the corresponding default bookkeeping.
+
+8. `eraseBonuses` / balanced-resource bookkeeping
+    The stale-looking `m_aebBalancedBonuses` state remains under review, but no legal
+    same-map policy-changing regeneration transition has yet been proved. Do not
+    promote from storage appearance alone.
+
+9. repeated addLakes through regenerateGameElements
+    `regenerateGameElements` does not convert previously generated lake water back to
+    land before calling addLakes again. This is semantically suspicious given the
+    public "regenerate everything but terrain and height maps" description, but whether
+    generated lakes are considered retained height-map topology rather than erasable
+    game elements still needs historical/API contract proof. No root assigned yet.
+
+
+C020-WIP04 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    19 / 169
+
+CURRENT FILE:
+    queue 045 CvGameCoreDLL/CvMapGenerator.cpp -- OPEN
+
+QUEUE-045 ROOTS:
+    F241 / provisional KI#564
+    F242 / provisional KI#565
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+    F245 / provisional KI#568
+    F246 / provisional KI#569
+
+NEXT ROOT:
+    F247 UNUSED
+
+Resume from F247 unused.
+
+Best next work:
+    * finish whole-regeneration lifecycle: generated lakes, balanced-resource markers,
+      bonus/feature/goody state and map-script override contracts;
+    * challenge river recursion/source density and short river-ID bounds once more,
+      keeping theoretical overflow under F244 unless a supported independent state is
+      proved;
+    * continue historical pre/post-1674 resource-generation changes for assumptions
+      exposed by the two-pass rewrite;
+    * compare all SAS selectable BTS branches with actual K-Mod/Civ4CE semantics;
+    * perform a function-by-function RNG/state/producer-consumer closure matrix before
+      deciding whether queue 045 can close;
+    * cross-check the complete earlier album before assigning F247.
+
+Clean rejection remains preferable to inventing F247.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C020-WIP05 -- FILE 020 OPEN / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    current shipped PrivateMaps
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+
+Prior physical checkpoint:
+    C020-WIP04
+
+Current file:
+    priority 3rd / queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+New root:
+    F247 / provisional KI#570
+
+Next root:
+    F248 UNUSED
+
+
+F247 / provisional KI#570
+-------------------------
+TITLE
+    AdvCiv's CvPythonCaller refactor discards the numeric result of
+    getRiverAltitude when a map script calls allowDefaultImpl; shipped Inland Sea and
+    Great Plains deliberately use that hybrid callback to add directional altitude to
+    the DLL score, so their custom river guidance is silently ignored.
+
+STATUS
+    CONFIRMED inherited AdvCiv Python-callback semantics regression.
+    Present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Introduced by AdvCivPreSAS practical 1648 / 553b1a0f8d,
+        "Moved DLL-to-Python calls and logging into separate classes."
+
+    Directly affects shipped current SAS maps:
+        PrivateMaps/Inland_Sea.py
+        PrivateMaps/Great_Plains.py
+
+ORIGINAL BTS / K-MOD CALLBACK CONTRACT
+    Original getRiverValueAtPlot initializes:
+
+        long result = 0;
+
+    calls Python getRiverAltitude, and then distinguishes two cases.
+
+    Full Python override:
+        if Python did NOT call allowDefaultImpl:
+            return result directly.
+
+    Default/hybrid mode:
+        if Python called allowDefaultImpl (or did not override):
+            continue DLL scoring with:
+
+                iSum = result;
+
+            then add the terrain/adjacency/default-river terms.
+
+    Therefore a map script can intentionally do BOTH:
+
+        CyPythonMgr().allowDefaultImpl()
+        return someAltitudeModifier
+
+    and the numeric Python value becomes an additive modifier to the normal C++ river
+    score.
+
+    K-Mod 1.46 and Civ4CE/BtS retain this exact behavior.
+
+THE 1648 REFACTOR
+    Practical 1648 moved the callback into CvPythonCaller::riverValue.
+
+    getRiverValueAtPlot was rewritten to:
+
+        bool bOverride = false;
+        int pyValue = GC.getPythonCaller()->riverValue(..., bOverride);
+        if (bOverride)
+            return pyValue;
+        int iSum = pyValue; // Add to value from Python
+
+    The caller comment explicitly preserves the old additive contract.
+
+    But the new helper did:
+
+        bOverride = isOverride();
+        if (!bOverride)
+            return -1;
+
+    Therefore every allowDefaultImpl callback lost its actual numeric lResult before
+    control returned to the caller.
+
+    This was a refactoring regression: the pre-refactor call site retained `result`
+    even when Python requested the default implementation.
+
+2298 CHANGED THE SENTINEL, NOT THE LOST SEMANTICS
+    Practical 2298 / 893807eb97,
+        "River placement accounts for terrain on both banks equally"
+    changed the helper's non-override/failure return from -1 to 0:
+
+        if (!bOverride)
+            return 0;
+
+    This removed the uniform -1 offset from default river scores, but it still discards
+    a legitimate numeric hybrid result.
+
+    The same commit keeps:
+
+        int iSum = pyValue; // Add to value from Python
+
+    and its documented purpose concerns symmetrical terrain-bank weighting and stronger
+    attraction to water, not removing map-script altitude modifiers.
+
+    Current source retains this mismatch.
+
+SHIPPED INLAND SEA REPRODUCTION
+    Current PrivateMaps/Inland_Sea.py:
+
+        def getRiverAltitude(argsList):
+            pPlot = argsList[0]
+            map = CyMap()
+
+            CyPythonMgr().allowDefaultImpl()
+
+            return (
+                abs(pPlot.getX() - map.getGridWidth()/2) +
+                abs(pPlot.getY() - map.getGridHeight()/2)
+            ) * 20
+
+    This is exactly the old supported hybrid contract:
+        keep the DLL's generic terrain routing,
+        but add a strong map-specific radial altitude term.
+
+    Rivers choose the LOWEST candidate score.
+
+    The returned value is therefore intended to make positions nearer the Inland Sea
+    center more attractive and guide rivers toward the central sea.
+
+    Current AdvCiv/SAS:
+        allowDefaultImpl => bOverride=false
+        CvPythonCaller::riverValue returns 0
+        the radial term is completely lost
+
+    Result:
+        Inland Sea's custom river-altitude guidance is not used by the DLL.
+
+SHIPPED GREAT PLAINS REPRODUCTION
+    Current PrivateMaps/Great_Plains.py likewise does:
+
+        CyPythonMgr().allowDefaultImpl()
+
+    and then returns a coordinate-dependent score based on the generated Mississippi
+    path and the candidate's x/y position.
+
+    The function contains several nonzero branches, e.g. terms based on:
+        y * 0.5
+        (iW - x) * 0.38
+        plus/minus y-dependent components
+
+    Those values are intended to steer default tributary rivers relative to the
+    Mississippi.
+
+    Current AdvCiv/SAS again substitutes zero for the returned value, silently removing
+    that directional guidance.
+
+PLANET GENERATOR NEGATIVE CONTROL
+    Current Planet_Generator_0_68.py defines getRiverAltitude only as a default stub:
+
+        CyPythonMgr().allowDefaultImpl()
+
+    with no meaningful numeric return.
+
+    It does not supply the direct behavioral reproduction; Inland Sea and Great Plains
+    do.
+
+CURRENT SAS ROUTING TOGGLE DOES NOT MASK THE ROOT
+    F247 occurs before either routing profile's C++ scoring terms.
+
+    With SAS_MAP_ADVCIV_RIVER_ROUTING_ENABLE=1:
+        lost Python modifier + AdvCiv symmetrical score
+
+    With it disabled:
+        lost Python modifier + retained BTS-style default score
+
+    Thus selecting the BTS routing profile does not restore the original Python hybrid
+    callback behavior.
+
+BEHAVIORAL CONSEQUENCE
+    `doRiver` evaluates candidate directions through getRiverValueAtPlot and chooses the
+    minimum score.
+
+    Removing a coordinate-dependent additive term can change which cardinal direction
+    wins at many river corners, changing:
+        * river courses;
+        * freshwater coverage;
+        * floodplain eligibility;
+        * later feature/resource/start-normalization interactions;
+        * synchronized MapRand consumption downstream through the changed generated map.
+
+    This is deterministic within current AdvCiv/SAS; it is not an OOS claim.
+
+BASELINE
+    K-Mod:
+        preserves additive hybrid result.
+
+    Civ4CE/BtS:
+        preserves additive hybrid result.
+
+    Base AdvCiv:
+        inherits the CvPythonCaller regression.
+
+    SAS:
+        inherits it and ships affected copies of Inland Sea and Great Plains.
+
+REPAIR DIRECTION
+    Restore all three semantic states cleanly:
+
+        1. full Python override:
+               return Python value directly;
+
+        2. allowDefaultImpl + numeric Python result:
+               return that numeric value to be added to DLL score;
+
+        3. absent/default stub/no meaningful numeric modifier:
+               additive value 0.
+
+    Do not merely change current `return 0` to return a sentinel-initialized lResult:
+    Planet Generator and missing-function/default paths should not accidentally inject
+    -1 or a Python-None conversion.
+
+    The pre-refactor code used `long result = 0`, which is a useful semantic reference.
+    A robust CvPythonCaller helper can initialize the result to zero for this callback
+    and preserve a successfully returned numeric value even when `isOverride()` is
+    false.
+
+    Keep the existing negative-result validation for a true full override unless map
+    script compatibility review establishes a broader contract.
+
+    Compile/runtime validation should compare river layouts on:
+        Inland Sea
+        Great Plains
+    against current behavior and, ideally, K-Mod/BtS semantics with the same map seed.
+
+DISTINCTION FROM OTHER QUEUE-045 ROOTS
+    F244:
+        river-ID lifecycle across regenerateGameElements.
+
+    F247:
+        Python altitude modifier lost before the river scoring algorithm sees it.
+
+    F247 is independent of river IDs, source density, route randomness and the
+    AdvCiv/BTS routing toggle.
+
+NEGATIVE CONTROLS / SCOPE
+    * A getRiverAltitude that fully overrides the DLL without allowDefaultImpl still
+      returns its value correctly.
+    * A script with no custom altitude term is unaffected.
+    * The bug is not caused by SAS's recent river tunability work; provenance is the
+      older AdvCiv CvPythonCaller refactor.
+    * Current getRiverValueAtPlot's 4x4 AdvCiv neighborhood traversal was re-opened
+      during this pass and confirmed correct; iX/iY are recomputed from iDX/iDY before
+      plotValidXY. No duplicate F248 from that false alarm.
+
+
+ADDITIONAL NEGATIVE CONTROLS
+----------------------------
+1. Balanced-resource marker persistence through eraseBonuses
+    AdvCiv practical 3713 explicitly serializes m_aebBalancedBonuses because:
+        "Player might save on turn 0, then reload and regenerate the map.
+         Therefore this info needs to be saved."
+
+    This establishes that the marker is policy state intended to survive map-element
+    regeneration. eraseBonuses not clearing it is therefore not forgotten cleanup.
+
+2. Full addBonuses Python override marker
+    A generic third-party full-phase override would bypass per-type setBonusBalanced
+    marking and remains a compatibility seam.
+
+    Current shipped SAS search found only Planet Generator defining addBonuses, and it
+    calls CyPythonMgr().allowDefaultImpl(), so current default per-type processing still
+    runs. No shipped supported reproduction was established; not promoted.
+
+3. getRiverValueAtPlot neighborhood traversal false alarm
+    Full function inspection confirms:
+        iX = kPlot.x - 1 + iDX
+        iY = kPlot.y + 1 - iDY
+    on every nested-loop iteration before plotValidXY.
+
+    The function does score the intended 4x4-minus-corners neighborhood.
+
+
+C020-WIP05 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    19 / 169
+
+CURRENT FILE:
+    queue 045 CvGameCoreDLL/CvMapGenerator.cpp -- OPEN
+
+QUEUE-045 ROOTS:
+    F241 / provisional KI#564
+    F242 / provisional KI#565
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+    F245 / provisional KI#568
+    F246 / provisional KI#569
+    F247 / provisional KI#570
+
+NEXT ROOT:
+    F248 UNUSED
+
+Resume from F248 unused.
+
+Best next work:
+    * finish Python map callback semantic comparison for riverStartCardinalDirection,
+      canPlaceBonusAt, canPlaceGoodyAt and full-phase overrides to see whether 1648
+      introduced sibling regressions;
+    * finish regenerateGameElements generated-lake semantics before deciding whether the
+      monotonic lake behavior is a supported API defect or an inherited limitation;
+    * continue river recursion/source-density/ID bounds;
+    * finish older resource-generation refactor archaeology;
+    * build the function-by-function state/RNG/callback closure matrix before queue-045
+      completion;
+    * cross-check the whole album before assigning F248.
+
+Clean rejection remains preferable to inventing F248.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C020-WIP06 -- FILE 020 OPEN / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    current SAS XML/resource data
+    current shipped PrivateMaps
+
+Prior physical checkpoint:
+    C020-WIP05
+
+Current file:
+    priority 3rd / queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+New root:
+    F248 / provisional KI#571
+
+Next root:
+    F249 UNUSED
+
+
+F248 / provisional KI#571
+-------------------------
+TITLE
+    AdvCiv's OneArea area-value formula can truncate a fresh, legally placeable area's
+    score to zero when only a small part of the target remains; zero is treated as
+    "no candidate area", so the two-pass recovery can probabilistically terminate below
+    target even after the small-island gate has opened.
+
+STATUS
+    CONFIRMED inherited AdvCiv resource-placement arithmetic/termination defect.
+    Present in Base AdvCiv 1.14 and current AdvCiv-SAS when the AdvCiv OneArea
+    distribution path is enabled.
+
+    Introduced by practical 1674 / f25a2b91ab,
+        "Relax single-landmass restrictions for resource placement."
+
+    Distinct from:
+        F245 -- hard bootstrap exclusion of small areas before 2/3 of target exists;
+        F246 -- SAS-only pass-two revisit double-count of eBonus in the unique-type
+                denominator after KI#202.
+
+CURRENT FORMULA
+    For each candidate area, current AdvCiv scoring computes:
+
+        iAddedTotal = kMap.getNumBonuses(eBonus);
+
+        iValue = (
+            (iNumTiles * (iTarget - iAddedTotal)) / iTarget
+            + MapRandNum(3 * NUM_CITY_PLOTS)
+        ) / iNumUniqueBonusesOnArea;
+
+    and immediately does:
+
+        if (iValue <= iBestValue) // iBestValue initially 0
+            continue;
+
+    The expensive suitability/eligible-plot scan happens only AFTER this check.
+
+    Therefore iValue == 0 means:
+        * the area is not checked for actual legal placement at all;
+        * it cannot become pBestArea;
+        * if every remaining candidate has value 0 or is exhausted, pBestArea stays
+          NULL and the placement while-loop breaks.
+
+WHY THE NEW "REMAINING/TARGET" TERM CREATES ZERO FOR VALID FRESH AREAS
+    Before practical 1674, K-Mod's fresh-area score was essentially:
+
+        iNumTiles / iNumUniqueBonusesOnArea
+
+    plus a random size term only for large areas.
+
+    AdvCiv 1674 changed the deterministic size component to:
+
+        (iNumTiles * remainingCopies) / iTarget
+
+    specifically to:
+        "Decrease the impact of iNumTiles when approaching the target resource count"
+
+    Integer division can reduce this whole size component to zero even though the area
+    contains a perfectly valid free plot.
+
+    The subsequent random term can legally also be zero.
+
+SUPPORTED CLEAN REPRODUCTION
+    Consider a current supported state with:
+
+        iTarget      = 10
+        iAddedTotal  = 9
+        remaining    = 1
+
+        one untried 5-tile island is the only area with a legal remaining plot
+        for eBonus;
+
+        eBonus is not yet present on that island;
+        there are no other OneArea resource types on it, so:
+            countNumUniqueBonusTypes() = 0
+            "plus this one" denominator = 1
+
+    The F245 hard small-island gate is OPEN:
+
+        iAddedTotal * 3 = 27
+        2 * iTarget     = 20
+        27 < 20 is false
+
+    So this candidate is allowed to reach the score computation.
+
+    Deterministic size term:
+
+        (5 * (10 - 9)) / 10
+        = 5 / 10
+        = 0
+
+    `MapRandNum(3 * NUM_CITY_PLOTS)` has range 0..62 and can legally return 0.
+
+    On that synchronized result:
+
+        iValue = (0 + 0) / 1
+               = 0
+
+    The code executes:
+
+        if (iValue <= iBestValue) // 0 <= 0
+            continue;
+
+    It never asks whether the island actually has a valid placement.
+
+    If no other area can supply the final copy:
+        pBestArea remains NULL;
+        the current pass breaks at 9/10.
+
+THE SECOND PASS CAN FAIL THE SAME WAY
+    The two-pass comment says:
+
+        "Two passes - just to make sure that the new per-area limit doesn't
+         lead to fewer resources overall."
+
+    In Base AdvCiv:
+        the tiny island was not selected, so it was never inserted into areas_tried.
+        Pass two can therefore consider it again.
+
+    In SAS:
+        KI#202 clears areas_tried before pass two, so it can also be reconsidered after
+        exhausted first-pass areas have been processed.
+
+    The area-value RNG is rolled anew.
+
+    A second legal low roll of 0 reproduces exactly the same iValue==0 exclusion.
+
+    The second pass can therefore also end at 9/10 despite a legal remaining plot.
+
+    This is probabilistic with respect to the synchronized map seed, but fully
+    deterministic for any seed producing those legal rolls. A supported bug does not
+    require the bad random branch to be common.
+
+CURRENT TARGET 10 IS NOT INVENTED XML
+    As documented under F246, several current OneArea resources use approximately:
+
+        iPlayer = 35
+        iConstAppearance = 50
+        random appearance terms = 25 + 25
+
+    and current SAS supports 48-player maps.
+
+    AdvCiv's current player-scaling plus appearance multiplier naturally yields
+    high-single-digit / low-teen targets for such resources; target 10 is an ordinary
+    current-data possibility.
+
+    The arithmetic flaw is not tied to exactly 10. Any state with:
+
+        iNumTiles * remaining < iTarget
+
+    gives a zero deterministic size component, and a sufficiently low random term can
+    still make the final integer-divided score zero.
+
+WHY THE AREA CAN BE LEGALLY PLACEABLE
+    The zero precheck happens BEFORE the practical-2364 suitability scan.
+
+    Therefore nothing in the zero result proves:
+        iEligible == 0
+        or that canPlaceBonusAt would fail.
+
+    A tiny fresh island can contain one legal resource tile and still be discarded
+    solely by score truncation.
+
+    In fact, with 5 tiles and no existing OneArea types, K-Mod's corresponding fresh
+    area score is:
+
+        5 / 1 = 5
+
+    so the same legally usable island is not zeroed by the older algorithm.
+
+HISTORICAL INTENT
+    Practical 1674's explicit purpose was:
+        * cap copies per landmass;
+        * place excess resources elsewhere, including small islands.
+
+    Its second pass was added:
+        "just to make sure that the new per-area limit doesn't lead to fewer resources
+         overall."
+
+    Turning a legally usable final island into "no candidate" because the near-target
+    size weight rounded to zero conflicts with that recovery purpose.
+
+    The historical comment only says to DECREASE the influence of area size near the
+    target, not to make valid areas disappear from consideration.
+
+BASELINE
+    Base AdvCiv 1.14:
+        inherits F248.
+
+    SAS:
+        inherits it when
+        SAS_MAP_ADVCIV_ONE_AREA_BONUS_DISTRIBUTION_ENABLE=1.
+
+    K-Mod:
+        does not have the AdvCiv remaining/target size multiplier. A fresh area with at
+        least one free tile cannot reach the specific 5/1 -> 0 arithmetic above.
+
+    Civ4CE/BtS:
+        likewise do not contain AdvCiv's two-pass remaining-target weighting.
+
+REPAIR DIRECTION
+    Ranking weight zero should not be conflated with "no legal area exists."
+
+    Viable repairs include:
+
+        * clamp the pre-suitability candidate weight to at least 1 for areas that are
+          otherwise eligible for consideration;
+
+        * better: perform/retain an explicit iEligible > 0 test and ensure every area
+          with at least one legal placement receives a positive ranking value;
+
+        * use non-truncating/scaled arithmetic for the remaining-target size factor,
+          then round only after suitability/ranking has been combined;
+
+        * if no pBestArea is found while target is unmet, perform a final fallback over
+          areas with actual eligible plots rather than terminating solely on score 0.
+
+    Simply removing the:
+        `if (iValue <= iBestValue) continue`
+    optimization without changing the later `if (iValue > iBestValue)` selection does
+    not solve zero-valued areas.
+
+    Keep the intended near-target reduction in SIZE INFLUENCE; only remove the
+    unintended transition from "low ranking" to "not a candidate."
+
+RELATION TO F245 / F246
+    F245:
+        before 2/3 target, small areas are hard-skipped by an explicit `continue`.
+        F248 occurs AFTER that threshold has opened.
+
+    F246:
+        on a SAS pass-two revisit, eBonus is already counted by
+        countNumUniqueBonusTypes and the unconditional `+1` can turn a positive score
+        into zero.
+        F248 needs no revisit and no double-count. Its numerator is already zero on a
+        fresh legal area.
+
+    Fixing F246's denominator therefore does not repair F248.
+
+NEGATIVE CONTROLS / SCOPE
+    * Areas whose final score stays positive are not excluded by this specific root.
+    * A failed target due solely to there being no legal resource plot is not F248.
+    * The BTS-style SAS OneArea branch does not use the remaining/target AdvCiv formula.
+    * F248 does not claim the full target must always be reachable physically; it proves
+      a state where the only remaining legal placement is skipped solely because a
+      ranking calculation rounded to zero.
+
+
+REPEATED-LAKE REGENERATION CANDIDATE -- NOT PROMOTED
+-----------------------------------------------------
+The prior WIP05 cursor had a possible F248 candidate around:
+
+    CyMap::regenerateGameElements()
+        eraseRivers
+        eraseFeatures
+        eraseBonuses
+        eraseGoodies
+        addGameElements()
+            addRivers
+            addLakes
+            ...
+
+There is no eraseLakes, so random lake plot-type conversions accumulate across repeated
+calls.
+
+The Python API description says:
+    "used to regenerate everything but the terrain and height maps"
+
+This is semantically awkward because:
+    * lakes are explicitly re-added by addGameElements;
+    * but random lakes are represented by PLOT_OCEAN plot-type changes, which can also
+      be interpreted as part of the retained height/topology map.
+
+No shipped caller or historical statement was found that unambiguously promises repeated
+calls should remove/re-roll prior random lake plot types.
+
+Therefore:
+    * keep this as an inherited API/lifecycle ambiguity;
+    * do NOT assign a finding from monotonic lake accumulation without stronger contract
+      evidence.
+
+F248 is instead assigned to the independent confirmed OneArea zero-score defect above.
+
+
+ADDITIONAL CLOSURE WORK SINCE WIP05
+-----------------------------------
+1. CvPythonCaller 1648 sibling callback sweep
+    F247 remains unusually specific.
+
+    canPlaceBonusAt / canPlaceGoodyAt:
+        old contract uses Python result only for a full override; allowDefaultImpl
+        intentionally resumes C++ and does not add a numeric modifier.
+
+    riverStartCardinalDirection:
+        original BtS/K-Mod contract also ignores the returned direction when Python
+        chooses allowDefaultImpl. No F247-like additive hybrid semantics existed.
+
+    phase callbacks addRivers/addLakes/addFeatures/addBonuses/addBonusType/addGoodies:
+        control-flow override/default semantics broadly match the pre-refactor contract.
+
+    No additional 1648 sibling root promoted.
+
+2. SAS_Simple_Flat_Grass.py optional callback assertions
+    The intentionally minimal shipped script omits some optional generation callbacks.
+
+    CvPythonCaller::addFeatures is unusually reached with assert-success defaults and may
+    emit debug/assert diagnostics before falling back to C++.
+
+    Release gameplay still has a sensible fallback and the implementation belongs to
+    CvPythonCaller.cpp, not queue 045. Preserve as a future owning-file robustness seam,
+    not F249.
+
+3. Simple Flat Grass plot/terrain fallback
+    Missing Python generatePlotTypes makes C++ fill PLOT_LAND.
+    Changing reset ocean plots to land assigns LAND_TERRAIN through CvPlot::setPlotType.
+    This explains the script's flat-grass result; no map-corruption root.
+
+4. OneArea fresh-area zero score
+    Cross-album search found no earlier root covering the inherited numerator truncation.
+    F246 explicitly concerns the newly reachable SAS revisit double-count and does not
+    subsume F248.
+
+
+C020-WIP06 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    19 / 169
+
+CURRENT FILE:
+    queue 045 CvGameCoreDLL/CvMapGenerator.cpp -- OPEN
+
+QUEUE-045 ROOTS:
+    F241 / provisional KI#564
+    F242 / provisional KI#565
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+    F245 / provisional KI#568
+    F246 / provisional KI#569
+    F247 / provisional KI#570
+    F248 / provisional KI#571
+
+NEXT ROOT:
+    F249 UNUSED
+
+Resume from F249 unused.
+
+Best next work:
+    * finish addUniqueBonusType adversarial arithmetic after F245/F246/F248, especially
+      selection termination versus actual iEligible availability;
+    * finish river recursion/source-density and regenerated-state closure after F244/
+      F247;
+    * finish generateRandomMap/findStandardClimate/findStandardSeaLevel data assumptions;
+    * inspect remaining substantive historical CvMapGenerator commits not yet assigned
+      or cleanly rejected;
+    * compare SAS selectable BTS branches against K-Mod/Civ4CE line-by-line where their
+      comments claim equivalent behavior;
+    * build a complete function-by-function RNG/state/Python-callback closure matrix
+      before declaring queue 045 complete;
+    * cross-check the full album before assigning F249.
+
+Clean rejection remains preferable to inventing F249.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C020-WIP07 -- FILE 020 OPEN / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    current shipped PrivateMaps
+    current SAS XML / GlobalDefines
+
+Prior physical checkpoint:
+    C020-WIP06
+
+Current file:
+    priority 3rd / queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+New roots in this append:
+    NONE
+
+Next root:
+    F249 UNUSED
+
+PURPOSE
+-------
+Preserve the residual no-new-root work after F248 before the final whole-file
+closure/historical sweep.
+
+This pass deliberately challenged the remaining OneArea selection math, shipped Python
+resource delegation, SAS's selectable BTS river profile, river recursion/source passes,
+small helpers and configurable define lifetimes. The attractive seams inspected so far
+either reduce to F241-F248, require malformed/unsupported third-party script behavior,
+or survive as intentional/documented approximations.
+
+
+ONEAREA RESIDUAL MATRIX -- NO F249
+----------------------------------
+1. Pre-suitability score pruning is mathematically safe.
+
+    Current AdvCiv first computes a pre-suitability iValue, then skips the expensive
+    suitability scan when:
+
+        iValue <= iBestValue
+
+    The later suitability multiplier is:
+
+        ((iEligible / iNumTiles) + 2) / 3
+
+    and therefore lies in [2/3, 1].
+
+    It can only preserve or REDUCE the preliminary score; it cannot make an area whose
+    preliminary value is already <= the current post-suitability best become the new
+    best.
+
+    Therefore this optimization is not independently discarding a possible winner.
+
+2. An area with zero actually eligible plots can still receive a positive diluted
+   suitability score, be selected, then fail to place a center.
+
+    This wastes one selection attempt and inserts the area into areas_tried, but the
+    next loop iteration can continue to another area.
+
+    With the current OneArea resource set, no supported dynamic event inside
+    addUniqueBonusType was found that would turn such an area from invalid to valid
+    later in the same placement call.
+
+    RESULT:
+        inefficiency / noisy ranking, not a proved underfill root beyond the already
+        recorded F245/F248 termination cases.
+
+3. Shipped Python `addBonusType` hybrid paths were checked for a possible
+   "partially place this bonus, then allow default C++ placement" state.
+
+    Current scripts inspected include:
+        Arboria
+        Balanced
+        Boreal
+        Great_Plains
+        Oasis
+        Rainforest
+        Fantasy_Realm
+        Planet_Generator_0_68
+
+    In their shipped branches, custom placement and allowDefaultImpl/default placement
+    are mutually exclusive for a given resource/configuration.
+
+    No current shipped state was found in which C++ addUniqueBonusType begins with an
+    arbitrary partial set created by Python and therefore violates an additional
+    preexisting-count assumption.
+
+4. CyMapGenerator exposes addUniqueBonusType/addNonUniqueBonusType to Python, and a
+   third-party caller could invoke them against an already partially populated map.
+
+    No shipped current caller was found doing so.
+
+    CvWBDesc's Randomize Resources flow clears existing bonuses before calling the
+    whole addBonuses pipeline.
+
+    Do not promote generic externally-misused public API behavior without a supported
+    current caller.
+
+
+SAS SELECTABLE BTS RIVER PROFILE -- CLEAN SO FAR
+-------------------------------------------------
+The retained BTS/K-Mod source traversal was compared directly against the SAS branch
+used when:
+
+    SAS_MAP_ADVCIV_RIVER_ROUTING_ENABLE = 0
+
+The important source-generation structure matches:
+
+    * deterministic map-index traversal rather than AdvCiv's shuffled traversal;
+    * four source passes;
+    * source-river and seawater range thresholds;
+    * relaxed thresholds after the first pass;
+    * final sparse/random source pass;
+    * inherited river-start/addRiver handling.
+
+The current SAS documentation also intentionally separates:
+    routing algorithm/profile
+from:
+    direction-score randomness amplitude.
+
+It explicitly says to pair the BTS routing branch with:
+
+    SAS_MAP_RIVER_DIRECTION_RANDOMNESS = 10
+
+for the complete BTS-style routing profile.
+
+The normal SAS default uses 20 together with the AdvCiv routing branch.
+
+RESULT:
+    No misleading "one toggle claims to restore every BTS river characteristic"
+    contract and no SAS-only equivalence root.
+
+Historical practical 2534 fixed a bug where later source passes accidentally kept using
+the original full source/seawater ranges. Current code uses the pass-specific loop
+variables and retains that correction.
+
+
+RIVER RECURSION / SOURCE-DENSITY CHECKS -- NO NEW ROOT YET
+-----------------------------------------------------------
+1. Current doRiver remains structurally aligned with K-Mod/BtS after accounting for:
+       * AdvCiv short river IDs;
+       * CvPythonCaller wrapper;
+       * AdvCiv/SAS direction scoring;
+       * style/refactor changes.
+
+2. Python `getRiverStartCardinalDirection` values are checked only for non-negative
+   success before becoming a CardinalDirectionTypes value.
+
+   A malformed third-party map script returning an integer beyond the enum range could
+   therefore violate the recursion contract.
+
+   Current shipped implementations checked return valid cardinal enum values:
+       Team_Battleground
+       Inland_Sea
+       Great_Plains
+   while Planet Generator delegates to default.
+
+   No supported current root.
+
+3. A fresh river ID can be consumed before a start later aborts.
+
+   During a normal one-shot generation this creates only gaps in the ID sequence.
+
+   Across repeated regenerateGameElements calls it accelerates F244's never-reset short
+   counter; retain that as an F244 consequence rather than allocating F249.
+
+4. Single-pass signed-short river-ID exhaustion was challenged against supported SAS48
+   map dimensions.
+
+   A practical normal-generation path to >32767 distinct started river IDs was not
+   established. Repeated whole-element regeneration remains the supported amplification
+   under F244.
+
+5. Local coordinate/hash arithmetic used for deterministic river-direction noise can
+   overflow signed 32-bit arithmetic under abstract modern-C++ rules.
+
+   The target VC2003/32-bit runtime uses deterministic machine wrapping, and no
+   supported peer divergence, memory error or gameplay corruption was established.
+
+   Portability concern only for a future engine/toolchain port.
+
+
+COUNT / SMALL-HELPER NEGATIVE CONTROLS
+--------------------------------------
+1. addGoodies
+    Current SAS has one ordinary Goody Hut improvement with positive TilesPerGoody and
+    range. The short-backed per-improvement count remains safely below signed-short
+    bounds on supported SAS48 map dimensions.
+
+2. canPlaceGoodyAt
+    Current spacing and world-size checks trace to documented inherited behavior.
+    No current negative-range or divide-by-zero path.
+
+3. calculateNumBonusesToAdd
+    Current sublinear player-count scaling, appearance randomness, eligible-tile
+    component and minimum-one behavior were compared to the substantive historical
+    changes.
+
+    The minimum-one result is inherited from BtS/K-Mod and is not itself an AdvCiv
+    regression.
+
+4. canPlaceBonusAt
+    Practical 2366's per-bonus unique-range fix remains present.
+    MinLandPercent retains its denominator guard.
+    Existing bonus occupancy is rejected by canHaveBonus.
+    No independent range/count root after F241/F242.
+
+5. addFeatures
+    canHaveFeature prevents the ordinary XML-order loop from simply overwriting an
+    already placed feature with a later one. No current positive-probability feature
+    combination established a replacement bug.
+
+6. generateRandomMap climate/sea-level normalization
+    Practical 4242's early normalization of disabled options remains before Python
+    beforeGeneration/plot/terrain generation.
+
+    Shipped scripts traced that consult map climate/sea level therefore see a valid
+    standard option when the setting is disabled.
+
+7. findStandardClimate / findStandardSeaLevel
+    Current XML supplies usable standard entries satisfying the helpers' selection
+    criteria. No normal-data NO_* return path established.
+
+8. generatePlotTypes / generateTerrain Python result validation
+    CvPythonCaller validates the returned list length against map numPlots before the
+    C++ caller treats an override as successful. A malformed short/long returned list
+    is not silently indexed as valid C++ map data.
+
+9. setPlotTypes
+    Areas are recalculated after land/water plot-type assignment. Subsequent shallow/
+    deep-water TERRAIN assignment does not change land/water area connectivity, so no
+    missing second area rebuild was established.
+
+
+MAP-SCRIPT / GLOBAL-DEFINE LIFETIME CHECKS
+-------------------------------------------
+1. Current shipped PrivateMaps were searched for runtime mutations of the three river
+   globals involved in Water.py:
+       PLOTS_PER_RIVER_EDGE
+       RIVER_SOURCE_MIN_RIVER_RANGE
+       RIVER_SOURCE_MIN_SEAWATER_RANGE
+
+    Water.py is the shipped mutator found.
+
+    SAS KI#243 snapshots the originals, lets Python alter them, consumes the active
+    values for this generation, and restores them afterward.
+
+2. No second shipped mutator was found that makes the current restoration helper
+   incomplete.
+
+3. The other reviewed static local map-generation define caches are not currently
+   mutated by shipped map scripts.
+
+    The old AdvCiv "return to main menu -> OOS" map-generation history concerned
+    persistent starting-plot normalization/game state, not these immutable local
+    configuration reads.
+
+4. Planet Generator's default-generation hooks call allowDefaultImpl rather than
+   swallowing the C++ phase. No current shipped full-addBonuses override bypassing
+   balanced-resource bookkeeping was established.
+
+
+REPEATED-LAKE REGENERATION -- REMAINS AMBIGUOUS, NOT F249
+----------------------------------------------------------
+CyMap::regenerateGameElements erases:
+    rivers
+    features
+    bonuses
+    goodies
+
+and then addGameElements also calls addLakes.
+
+Previously generated random lakes are plot-type changes and are not erased, so
+subsequent calls can retain old lakes and add more.
+
+This remains internally awkward:
+    * if lakes are regenerated elements, old generated lakes should seemingly be
+      removed/re-rolled;
+    * if lake plot types belong to retained height/topology, addLakes seemingly should
+      not keep adding new ones.
+
+However, the public description says regeneration retains terrain and height maps, and
+random lake plot type can plausibly be classified as retained topology.
+
+No shipped repeated caller or historical statement was found that unambiguously
+promises replacement of prior random lakes.
+
+RESULT:
+    inherited API/lifecycle ambiguity only.
+    Keep unnumbered unless stronger contract evidence emerges.
+
+
+SUBSTANTIVE HISTORY RETAINED / CLASSIFIED SO FAR
+-------------------------------------------------
+Already classified or verified in current code:
+
+    1268 placeGroup extraction                  -> F241
+    1627/1629 bonus tie randomization           -> retained
+    1648 CvPythonCaller refactor                -> F247
+    1674 OneArea two-pass rewrite               -> F245 / F248
+    2172 river ID compaction/startup clear      -> F244 context
+    2298 both-bank river scoring                -> retained
+    2364 OneArea suitability weighting          -> F242
+    2366 unique bonus range                     -> retained
+    2368 bonus density                          -> retained
+    2375 goody spacing                          -> retained
+    2534 river pass-specific ranges             -> retained
+    2601/2682 normalization/OOS lifecycle       -> retained
+    2852 rounding refactor                      -> retained
+    2986 bonus-generation refactor              -> no new root
+    2996/3005 cluster revalidation              -> retained
+    3006 Elephant GroupRange=2                  -> strengthens F241
+    3208/3209 shuffle/RNG API changes           -> no range divergence established
+    3712/3713 Balanced-resource state           -> retained/intentionally persistent
+    3898 desert-lake candidate change           -> F243
+    3912 bonus RNG expression refactor          -> no semantic divergence established
+    3919 sublinear player scaling               -> retained
+    4030 super-Huge lake arithmetic             -> retained
+    4242 disabled climate/sea normalization     -> retained
+
+    SAS 6114 selectable map-generation profiles -> no SAS-only profile mismatch found
+                                                   so far
+    SAS 6117 KI#202 pass-two revisit            -> valid fix; exposes F246
+    SAS 6212 Water define restore               -> retained
+
+
+C020-WIP07 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    19 / 169
+
+CURRENT FILE:
+    queue 045 CvGameCoreDLL/CvMapGenerator.cpp -- OPEN
+
+QUEUE-045 ROOTS:
+    F241 / provisional KI#564
+    F242 / provisional KI#565
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+    F245 / provisional KI#568
+    F246 / provisional KI#569
+    F247 / provisional KI#570
+    F248 / provisional KI#571
+
+NEXT ROOT:
+    F249 UNUSED
+
+Resume from F249 unused.
+
+BEST NEXT WORK
+--------------
+    * finish direct line-by-line K-Mod/Civ4CE comparisons for the remaining functions
+      not already root-owned or explicitly challenged;
+    * complete the post-1253 historical path list, concentrating only on substantive
+      semantic commits rather than formatting;
+    * build a final function-by-function RNG/state/Python-callback closure matrix;
+    * re-open any apparent issue against the full earlier album before allocating F249;
+    * if the remaining matrix stays clean, decide whether queue 045 is ready for its
+      durable first-pass close as file 20 / 169.
+
+Clean rejection remains preferable to inventing F249.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C020-WIP08 -- FILE 020 OPEN / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    current SAS XML / GlobalDefines
+    CvPlot/CvMap/CvArea lifecycle consumers
+
+Prior physical checkpoint:
+    C020-WIP07
+
+Current file:
+    priority 3rd / queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+New root:
+    F249 / provisional KI#572
+
+Next root:
+    F250 UNUSED
+
+
+F249 / provisional KI#572
+-------------------------
+TITLE
+    AdvCiv's 4030 "recalc only once" lake batching sets every accepted lake except the
+    last to water with bRecalculate=false, but setting bRecalculate=true on the last
+    lake normally updates only THAT plot's area rather than rebuilding the map; earlier
+    lake plots can therefore remain water tiles still attached to their old land
+    CvArea during feature/resource generation and starting-plot normalization.
+
+STATUS
+    CONFIRMED inherited AdvCiv map-generation lifecycle regression.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+    Introduced by practical 4030 / 1b2adf4aea:
+        "Fix overflow in lake generation for super-Huge maps"
+
+    The commit's overflow correction is valid; the regression is in the additional
+    unrelated `advc.opt` batching optimization introduced by the same commit.
+
+CURRENT LAKE BATCH
+    Current addLakes first gathers all successful lake candidates in:
+
+        std::vector<CvPlot*> apLakes;
+
+    and then performs:
+
+        // <advc.opt> Recalc only once
+        for (size_t i = 0; i < apLakes.size(); i++)
+        {
+            bool bRecalc = (i + 1 == apLakes.size());
+            apLakes[i]->setPlotType(PLOT_OCEAN, bRecalc, bRecalc);
+        }
+
+    Therefore:
+        every accepted lake except the final vector element:
+            setPlotType(PLOT_OCEAN, false, false)
+
+        final accepted lake:
+            setPlotType(PLOT_OCEAN, true, true)
+
+THE COMMENT'S "RECALC ONLY ONCE" ASSUMPTION IS FALSE
+    CvPlot::setPlotType does NOT interpret bRecalculate=true as:
+        "perform a whole-map CvArea rebuild."
+
+    When land/water state changes and bRecalculate=true, it first attempts to determine
+    whether the changed plot can be moved between areas incrementally.
+
+    A whole:
+
+        GC.getMap().recalculateAreas();
+
+    occurs only when the local topology test determines that multiple preexisting areas
+    merge/split or another exceptional condition requires it.
+
+    Otherwise, setPlotType performs only a LOCAL transfer for the changed plot:
+
+        CvArea* pOldArea = area();
+        setArea(NULL);
+        ...
+        if (pNewArea == NULL)
+        {
+            pNewArea = GC.getMap().addArea();
+            pNewArea->init(isWater());
+        }
+        setArea(pNewArea);
+
+    Thus the final lake can be fully repaired while earlier batched lake plots are never
+    touched.
+
+WHAT bRecalculate=false LEAVES BEHIND
+    For an earlier accepted lake A:
+
+        A.setPlotType(PLOT_OCEAN, false, false)
+
+    does change important plot-level state:
+        * m_ePlotType becomes PLOT_OCEAN;
+        * water terrain is assigned if necessary;
+        * map land-plot count changes;
+        * yields/path groups/etc. are updated.
+
+    But the entire area-membership block is guarded by:
+
+        if (bRecalculate)
+
+    so A never calls setArea.
+
+    A therefore remains attached to the SAME CvArea object it belonged to as land.
+
+    `erase()` does not rescue this: although land->water setPlotType calls erase(),
+    CvPlot::erase clears city/unit/bonus/improvement/route/feature/river state but does
+    not clear or replace the plot's CvArea pointer.
+
+DETERMINISTIC TWO-LAKE REPRODUCTION
+    Let A and B be two nonadjacent inland lake candidates that both receive legal
+    successful synchronized lake rolls.
+
+    This reproduction does NOT depend on F243's adjacent-candidate eligibility issue.
+
+    apLakes order:
+        A first
+        B last
+
+    1. A:
+        setPlotType(PLOT_OCEAN, false, false)
+
+        A becomes a water plot but remains a member of its old land CvArea L.
+
+    2. B:
+        setPlotType(PLOT_OCEAN, true, true)
+
+    Choose the ordinary case in which B is an isolated inland conversion surrounded by
+    one connected land area and adjacent to no prior water area.
+
+    Inside setPlotType:
+        * no two different water areas are found to merge;
+        * the local direction-transition test does not require a whole-map rebuild;
+        * bRecalculateAreas remains false.
+
+    B is therefore detached from its old land area and assigned a new water CvArea
+    incrementally.
+
+    The promised whole-map "one recalc" NEVER occurs.
+
+    Result immediately after addLakes:
+        B: water plot in correct water area
+        A: water plot still in old land area
+
+BASELINE
+    K-Mod and Civ4CE/BtS place every successful lake immediately with:
+
+        pLoopPlot->setPlotType(PLOT_OCEAN);
+
+    using the default bRecalculate=true each time.
+
+    Every converted plot therefore receives normal area migration/recalculation.
+
+    The stale-earlier-lake state begins with AdvCiv's 4030 batching optimization.
+
+HISTORICAL PROOF OF INTRODUCTION
+    The practical-4030 diff explicitly changes:
+
+        p.setPlotType(PLOT_OCEAN);
+
+    into:
+
+        apLakes.push_back(&p);
+
+    followed by:
+
+        // <advc.opt> Recalc only once
+        ...
+        bool bRecalc = (i + 1 == apLakes.size());
+        apLakes[i]->setPlotType(PLOT_OCEAN, bRecalc, bRecalc);
+
+    The same commit changes CvPlot::processArea optimizations but does not redefine
+    setPlotType's bRecalculate contract into a guaranteed wholesale rebuild.
+
+    Therefore the optimization's assumption is visible directly in its introducing
+    diff.
+
+LIVE CONSUMERS RUN BEFORE ANY LATER STARTUP REPAIR
+    addGameElements order is:
+
+        addRivers();
+        addLakes();
+        addFeatures();
+        addBonuses();
+        addGoodies();
+        afterGeneration();
+
+    There is no CvMap::recalculateAreas call between addLakes and these later phases.
+
+    Full map generation then proceeds into starting-plot assignment and normalization
+    before CvGame::setInitialItems eventually performs the optional PASSABLE_AREAS
+    whole-area rebuild.
+
+    Therefore stale area state is consumed during:
+        * feature generation;
+        * resource target/placement logic;
+        * goody generation;
+        * map-script afterGeneration;
+        * starting-plot assignment;
+        * starting-plot normalization.
+
+DIRECT SEAFOOD CONSEQUENCE WITH CURRENT SAS XML
+    CvPlot::canHaveBonus uses the plot's current area for minimum-area eligibility:
+
+        if (kBonus.getMinAreaSize() != -1)
+        {
+            if (getArea().getNumTiles() < kBonus.getMinAreaSize())
+                return false;
+        }
+
+    Current SAS water resources include:
+
+        BONUS_MOLLUSCS
+            iMinAreaSize = 10
+            TERRAIN_COAST
+
+        BONUS_FISH
+            iMinAreaSize = 10
+            TERRAIN_COAST, TERRAIN_OCEAN
+
+        BONUS_WHALE
+            iMinAreaSize = 10
+            TERRAIN_COAST, TERRAIN_OCEAN
+
+    A newly created isolated random lake is physically a one-tile water body and should
+    fail this minimum-water-area requirement.
+
+    But stale lake A still returns its old LAND area's tile count.
+
+    If L has, for example, 40 tiles:
+
+        A.isWater() == true
+        A.getArea().isWater() == false
+        A.getArea().getNumTiles() ~= 40
+
+    `canHaveBonus` can therefore accept a coast-compatible seafood type on A even though
+    the true water area size is one.
+
+    addBonuses runs immediately after addLakes, so this is a live placement path.
+
+    If later startup code eventually rebuilds areas correctly, the seafood already
+    placed on A is not automatically removed merely because the repaired one-tile water
+    area would now fail iMinAreaSize=10.
+
+    The transient stale area can therefore leave a permanent illegal map-generation
+    result.
+
+isLake IS ALSO WRONG DURING THE WINDOW
+    CvPlot::isLake is:
+
+        return (area() == NULL ? false : getArea().isLake());
+
+    CvArea::updateLake immediately returns without setting lake=true for a land area.
+
+    Stale A therefore reports:
+        A.isWater() == true
+        A.isLake() == false
+
+    even though it is physically an isolated random lake tile.
+
+    Feature/map-script logic using isLake can consequently see contradictory topology.
+
+AREA COUNTERS ALSO REMAIN STALE
+    Because A never calls setArea:
+        * old land CvArea's tile count still includes A;
+        * its land/water classification remains land;
+        * any per-area resource, starting-plot, yield or topology accounting tied to
+          processArea remains associated with the wrong area.
+
+    The direct seafood reproduction is sufficient on its own; these are additional
+    consequences rather than separate roots.
+
+EVENTUAL setInitialItems RECALC DOES NOT NEGATE THE BUG
+    Current default AdvCiv/SAS has:
+
+        PASSABLE_AREAS = 1
+
+    and setInitialItems eventually does:
+
+        if (PASSABLE_AREAS)
+            GC.getMap().recalculateAreas(false);
+
+    This can repair raw area membership later.
+
+    However its ordering is:
+
+        assignStartingPlots();
+        normalizeStartingPlots();
+        ...
+        recalculateAreas(false);
+
+    Therefore:
+        * feature/bonus/goody generation has already completed;
+        * starting sites have already been selected and normalized.
+
+    Any decisions or illegal resource placements made from stale area state remain.
+
+    Moreover PASSABLE_AREAS=0 is a documented supported BtS-style configuration, in
+    which this later AdvCiv area rebuild is not guaranteed to occur at all.
+
+DISTINCTION FROM F243
+    F243:
+        AdvCiv snapshots lake eligibility before any lake conversion, so adjacent
+        candidates can both be selected when BtS would make the later one coastal.
+
+    F249:
+        given any batch containing at least two accepted lakes, earlier conversions
+        can retain their former LAND CvArea because the last conversion's
+        bRecalculate=true is only local.
+
+    F249 works with nonadjacent lakes and survives a hypothetical F243 selection fix
+    unless area rebuilding is independently repaired.
+
+RELATION TO F244
+    F244 concerns stale river-generation IDs across erase/regenerate lifecycle.
+
+    F249 concerns stale CvArea membership during ordinary initial lake generation.
+
+    They are independent state families.
+
+REPAIR DIRECTION
+    If the goal is genuinely:
+        "recalculate areas once after all accepted lakes are converted"
+
+    make that explicit rather than relying on bRecalculate=true for the last plot.
+
+    Conceptually:
+
+        for every accepted lake:
+            setPlotType(PLOT_OCEAN, false, false);
+
+        if (!apLakes.empty())
+            GC.getMap().recalculateAreas();
+
+    Then perform any required graphics/water-terrain refresh as appropriate for the map
+    generation lifecycle.
+
+    A full area rebuild is especially appropriate here because multiple arbitrary
+    land->water conversions can:
+        * split land areas;
+        * create multiple new water areas;
+        * merge into existing water areas.
+
+    A single local update for the final changed plot cannot reconstruct the earlier
+    topology.
+
+    If performance motivates avoiding a wholesale rebuild, then every changed plot's
+    area membership must instead be correctly updated incrementally; simply skipping
+    area processing on all but the last plot is not safe.
+
+    Implementation review should also consider F243 simultaneously:
+        * F243 needs sequential/dynamic lake eligibility or an equivalent selected-lake
+          adjacency constraint;
+        * F249 needs correct final CvArea topology for all accepted lakes.
+
+    One carefully designed batched-lake helper could repair both without restoring
+    repeated expensive per-lake whole-map recalculation.
+
+NEGATIVE CONTROLS / SCOPE
+    * If zero or one lake is accepted, F249 does not arise from this batching.
+    * If the final lake happens to force GC.getMap().recalculateAreas(), all earlier
+      stale area pointers are repaired and this specific execution avoids F249.
+    * The existence of such lucky final topologies does not make the optimization safe;
+      the ordinary isolated-final-lake case performs only local migration.
+    * K-Mod/BtS sequential placement is a direct negative control.
+    * Later PASSABLE_AREAS rebuilding can repair state but occurs after consumers and
+      does not roll back placements/normalization decisions already made.
+
+
+C020-WIP08 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    19 / 169
+
+CURRENT FILE:
+    queue 045 CvGameCoreDLL/CvMapGenerator.cpp -- OPEN
+
+QUEUE-045 ROOTS:
+    F241 / provisional KI#564
+    F242 / provisional KI#565
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+    F245 / provisional KI#568
+    F246 / provisional KI#569
+    F247 / provisional KI#570
+    F248 / provisional KI#571
+    F249 / provisional KI#572
+
+NEXT ROOT:
+    F250 UNUSED
+
+Resume from F250 unused.
+
+Best next work:
+    * finish the whole-file function-by-function RNG/state/Python-callback closure
+      matrix now that the late lake-area lifecycle root is accounted for;
+    * explicitly re-open every `setPlotType(..., false)` / delayed-recalc map-generation
+      optimization in current CvMapGenerator history to ensure F249 has no sibling;
+    * finish direct baseline comparisons for eraseFeatures/eraseBonuses/eraseGoodies and
+      afterGeneration interactions;
+    * cross-check any candidate against F241-F249 and the full earlier album before
+      assigning F250;
+    * if the residual matrix remains clean, consider a durable queue-045 close as
+      first-pass file 20 / 169 rather than manufacturing F250.
+
+Clean rejection remains preferable to inventing F250.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+DURABLE CHECKPOINT C021 -- FILE 020 COMPLETE / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot for this close:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material used across the queue-045 pass:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    current shipped PrivateMaps
+    current SAS XML / GlobalDefines
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+
+Prior physical checkpoint:
+    C020-WIP08
+
+DURABLE RESULT
+--------------
+    COMPLETED FIRST-PASS FILES: 20 / 169
+
+    queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+    STATUS: COMPLETE -- FIRST-PASS DURABLE CLOSE
+
+    Queue-045 roots:
+        F241 / provisional KI#564
+        through
+        F249 / provisional KI#572
+
+    NEXT GLOBAL ROOT ID:
+        F250 UNUSED
+
+This close follows the album's established meaning of COMPLETE:
+    * current SAS source was compared with Base AdvCiv, K-Mod and Civ4CE where cognate
+      code exists;
+    * historical semantic changes were inspected by introducing/refactoring commit,
+      not only by current line shape;
+    * RNG, map-script callback, resource-count, river, lake, regeneration and CvArea
+      lifecycle contracts were challenged;
+    * attractive but unsupported candidates were explicitly rejected;
+    * findings were cross-checked against earlier album roots before numbering;
+    * COMPLETE remains first-pass completeness, not a proof that later cross-file
+      archaeology can never add a refinement.
+
+
+RECOVERED WIP06-WIP08 VALIDATION
+--------------------------------
+During the final continuation, orphaned physical checkpoints C020-WIP06 through WIP08
+were found in /mnt/data from interrupted/retried execution attempts that had never
+surfaced to the user.
+
+They were NOT trusted blindly.
+
+F248 and F249 were independently reopened against the authoritative source and current
+CvPlot/CvArea semantics.
+
+Validation result:
+    F248 CONFIRMED:
+        near-target OneArea preliminary score can truncate to zero before actual
+        eligibility is checked, causing legal areas to become "no candidate."
+
+    WIP07 repeated-lake-regeneration candidate remains REJECTED/AMBIGUOUS:
+        regenerateGameElements retains previous lake topology while addLakes can add
+        more; awkward API semantics, but no sufficiently unambiguous current contract
+        requiring replacement of old random lakes was established.
+
+    F249 CONFIRMED:
+        lake batching's final bRecalculate=true call does not guarantee a whole-map area
+        rebuild; earlier setPlotType(...,false,false) lakes can retain land CvArea
+        membership through feature/bonus/goody/start normalization consumers.
+
+Therefore C020-WIP08 is accepted as the valid predecessor to this durable close.
+
+
+QUEUE-045 FINDING INDEX
+-----------------------
+
+F241 / provisional KI#564
+    AdvCiv placeGroup extraction dropped OneArea-specific global/area group bounds:
+    grouped copies can exceed the calculated target/per-area cap, and current range-2
+    Elephants can spill outside the selected CvArea.
+
+F242 / provisional KI#565
+    OneArea suitability scoring hardcodes latitude checking even when the active map
+    script explicitly requests bonus placement to ignore latitude.
+
+F243 / provisional KI#566
+    AdvCiv snapshots all lake candidates before any conversion, so adjacent candidates
+    can both become lakes even though sequential BtS/K-Mod would make the later plot
+    coastal and ineligible after the first lake.
+
+F244 / provisional KI#567
+    eraseRivers clears visible river edges but leaves per-plot river IDs and the map's
+    next river-ID counter; repeated regenerateGameElements can regenerate against hidden
+    old-river barriers and monotonically advance the short ID counter.
+
+F245 / provisional KI#568
+    OneArea small-island guard requires two-thirds of target to already exist before
+    any <4*NUM_CITY_PLOTS area may compete; all-small-island maps can therefore
+    bootstrap to zero and the second pass repeats the same deadlock.
+
+F246 / provisional KI#569
+    SAS KI#202 correctly allows pass-two OneArea revisits, but inherited
+    `1 + countNumUniqueBonusTypes()` double-counts the resource on a revisited area and
+    can truncate an otherwise viable recovery area's score to zero.
+
+F247 / provisional KI#570
+    CvPythonCaller refactor discards the numeric getRiverAltitude result when a script
+    calls allowDefaultImpl; shipped Inland Sea and Great Plains deliberately use this
+    hybrid additive callback, so their directional river guidance is lost.
+
+F248 / provisional KI#571
+    OneArea near-target area-value arithmetic can truncate a fresh legally placeable
+    area's preliminary score to zero before suitability/eligibility is checked; zero is
+    treated as "no candidate" and can terminate both recovery passes below target.
+
+F249 / provisional KI#572
+    AdvCiv 4030 batches accepted lakes with setPlotType(...,false,false) for every lake
+    except the last and assumes the last bRecalculate=true call performs a whole-map
+    recalculation. It normally performs only local area migration, leaving earlier lake
+    plots attached to land CvAreas through resource/start-generation consumers.
+
+
+FINAL FUNCTION / STATE CLOSURE MATRIX
+-------------------------------------
+
+A. Singleton / public placement helpers
+    GetInstance
+        clean singleton lifecycle for this file's scope.
+
+    canPlaceBonusAt
+        Root-owned:
+            F241 group-context constraints indirectly rely on this helper.
+            F242 caller latitude-policy mismatch.
+
+        Retained historical fixes:
+            practical 2366 per-bonus unique range;
+            bonus-class unique range;
+            MinLandPercent denominator guard;
+            occupied-plot rejection through canHaveBonus;
+            AdvCiv tightly packed cluster rule when its profile is enabled.
+
+        Clean:
+            Python allowDefaultImpl semantics are intentionally full-override-or-default
+            here; no F247-like additive numeric contract.
+
+    canPlaceGoodyAt
+        Current goody XML/ranges, world-size adjustment, Python override contract and
+        occupancy checks survive review.
+        No current supported count/range failure.
+
+B. addGameElements / lake pipeline
+    addGameElements
+        Order:
+            rivers -> lakes -> features -> bonuses -> goodies -> afterGeneration
+
+        This ordering provides live consumers for F249's stale CvArea state.
+
+    addLakes
+        Root-owned:
+            F243 frozen candidate eligibility.
+            F249 incorrect delayed area recalculation assumption.
+
+        Retained:
+            practical 4030 arithmetic order that avoids super-Huge overflow;
+            intended desert-lake probability adjustment;
+            SAS profile toggles for desert weighting / peak replacement.
+
+        Rejected:
+            repeated regenerateGameElements retaining previous lakes is an inherited
+            API/topology ambiguity, not numbered without stronger replacement contract.
+
+C. river generation
+    addRivers
+        Root-owned:
+            F244 regeneration river-ID lifecycle.
+            F247 Python additive altitude loss via downstream scoring.
+
+        Retained:
+            practical 2534 pass-specific source/seawater ranges;
+            practical 2298 both-bank terrain scoring;
+            Water.py KI#243 snapshot/use/restore of three mutable river globals;
+            selectable SAS AdvCiv/BTS traversal profile and documented separate
+            direction-randomness setting.
+
+        Clean:
+            no second shipped PrivateMaps mutator of the three river defines;
+            zero configured direction randomness is accepted by CvRandom::get(0);
+            normal one-shot river-ID range did not establish signed-short exhaustion.
+
+    doRiver
+        Root-owned:
+            F244 stale ID collision on regenerated river graph.
+
+        Clean:
+            ordinary recursion/cardinal transitions remain cognate with inherited code;
+            malformed out-of-range third-party Python enum returns are outside current
+            shipped supported data.
+
+    addRiver
+        Fallback freshness helper retains inherited two-pass cardinal search semantics.
+        No independent root established.
+
+    getRiverValueAtPlot
+        Root-owned:
+            F247 additive Python result loss.
+
+        Clean:
+            4x4-minus-corners AdvCiv traversal recomputes X/Y correctly;
+            wrap/map-edge access uses plotValidXY;
+            deterministic local river RNG does not establish a target-runtime OOS.
+
+D. feature generation
+    addFeatures
+        Existing-feature rejection in canHaveFeature prevents simple XML-order
+        overwrites.
+        No current positive-probability conflicting feature chain established.
+
+    eraseFeatures
+        Full feature removal is appropriate for regenerateGameElements.
+        No forgotten separate feature-generation state found in this file.
+
+E. resource generation dispatcher
+    addBonuses
+        AdvCiv randomized placement-order ties and SAS selectable BTS tie behavior were
+        compared against intended profiles.
+        Python per-type handling and balanced-resource marking retain current shipped
+        contracts.
+
+        No shipped full-phase addBonuses override that silently bypasses balancing state
+        was found; Planet Generator delegates through allowDefaultImpl.
+
+    addUniqueBonusType
+        Root-owned:
+            F241 target/area/group spill.
+            F242 latitude-policy ranking.
+            F245 small-island bootstrap deadlock.
+            F246 pass-two revisit denominator.
+            F248 zero-valued candidate termination.
+
+        Retained:
+            KI#202 areas_tried reset is a valid repair and should not be reverted;
+            two-pass/per-area cap design and suitability dilution otherwise match
+            documented AdvCiv intent.
+
+    addNonUniqueBonusType
+        Passes remaining global target into placeGroup and does not share F241's
+        OneArea caller-side global overshoot.
+        No independent count under/overflow root.
+
+    placeGroup
+        Root-owned:
+            F241 OneArea context lost by extraction.
+
+        Retained:
+            2996/3005 canPlaceBonusAt revalidation after shuffled candidates;
+            intended randomized circular AdvCiv grouping and exponentially declining
+            group probability;
+            SAS BTS branch same-area restriction for OneArea resources.
+
+F. goody generation
+    addGoodies
+        Current one normal goody type, area counts, spacing and TilesPerGoody arithmetic
+        remain within supported SAS48 bounds.
+        short goodiesPerArea storage is nowhere near signed-short range.
+
+    eraseGoodies
+        removeGoody internally checks whether an improvement is a goody.
+        No unrelated improvements are erased.
+
+G. regeneration erasers
+    eraseRivers
+        Root-owned:
+            F244 incomplete river graph state reset.
+
+    eraseFeatures
+    eraseBonuses
+    eraseGoodies
+        No additional independent stale state proved.
+
+        m_aebBalancedBonuses is intentionally policy state that historical AdvCiv
+        explicitly serialized so it survives save/reload/regeneration; not forgotten
+        eraseBonuses cleanup.
+
+H. top-level random map generation
+    generateRandomMap
+        practical 4242 disabled climate/sea-level normalization occurs before
+        beforeGeneration / plot / terrain generation.
+
+        Shipped Planet Generator's generateRandomMap calls allowDefaultImpl; no current
+        shipped full override exposed a missing post-override computeShelves contract.
+
+        Starting normalization profile assignment for the Balanced custom option remains
+        current intended behavior.
+
+    generatePlotTypes
+        Python result length validated by CvPythonCaller.
+        Missing override fallback to PLOT_LAND explains Simple Flat Grass behavior.
+
+    setPlotTypes
+        All plots use setPlotType(...,false,false) intentionally, followed by explicit
+        whole-map recalculateAreas(). This is a strong negative control for F249:
+        this batch correctly performs the wholesale rebuild that addLakes only assumes.
+
+    generateTerrain
+        Terrain vector size validated.
+        Water/land connectivity is already established by plot types; ordinary
+        shallow/deep terrain assignment does not require a second area rebuild.
+
+    afterGeneration
+        Python phase hook then map statistics.
+        No independent file-local state contract found.
+
+I. resource quantity helper
+    calculateNumBonusesToAdd
+        Current eligible-tile count, sublinear scaling, player-count scaling, appearance
+        randomness and min-one inherited contract reviewed.
+
+        Retained history:
+            2368 density changes;
+            3912 RNG expression refactor;
+            3919 player-count scaling.
+
+        No current divisor-zero/overflow or semantic refactor regression beyond
+        queue-045 roots.
+
+J. standard climate/sea helpers
+    findStandardClimate
+    findStandardSeaLevel
+        Current XML contains viable standard entries.
+        practical 4242 caller usage remains valid.
+        No normal-data NO_CLIMATE/NO_SEALEVEL route established.
+
+
+HISTORICAL CLOSURE
+------------------
+Substantive CvMapGenerator history was reviewed rather than treating all 90+ path
+touches equally.
+
+Classified/retained examples include:
+
+    1268  placeGroup extraction                  -> F241
+    1627/1629 placement-order randomization      -> retained
+    1648  CvPythonCaller refactor                -> F247
+    1674  OneArea two-pass rewrite               -> F245 / F248
+    2172  river ID compaction/startup clear      -> F244 context
+    2298  both-bank river scoring                -> retained
+    2361  placement/helper refactor               -> retained
+    2364  OneArea suitability weighting          -> F242
+    2366  bonus unique range                     -> retained
+    2368  resource density                       -> retained
+    2375  goody spacing                          -> retained
+    2534  river pass-specific source ranges      -> retained
+    2535  uninitialized addRivers bValid fix     -> retained
+    2601/2682 normalization/OOS lifecycle        -> retained
+    2852  rounding refactor                      -> retained
+    2986  style/refactor changes                 -> retained
+    2996/3005 cluster revalidation               -> retained
+    3006  Elephant GroupRange=2                  -> strengthens F241
+    3208/3209 RNG/shuffle API refactor           -> no range change established
+    3712/3713 balanced-resource persistence      -> retained/intended
+    3898  desert-lake candidate snapshot         -> F243
+    3912  bonus RNG expression refactor          -> retained
+    3919  sublinear player scaling               -> retained
+    4030  super-Huge lake arithmetic + batching  -> arithmetic retained; batching F249
+    4242  disabled climate/sea normalization     -> retained
+
+    SAS 5043/5083 static define optimizations     -> current river-mutator problem
+                                                   already repaired under KI#243
+    SAS 6114 selectable AdvCiv/BTS profiles       -> no independent profile mismatch
+    SAS 6117 KI#202 pass-two revisit              -> valid fix; exposes F246
+    SAS 6212 Water define restoration             -> retained
+
+
+PARKED OWNING-FILE SEAMS -- NOT QUEUE-045 ROOTS
+-----------------------------------------------
+CvPythonCaller.cpp:
+    Minimal SAS_Simple_Flat_Grass.py omits some optional map callbacks.
+    CvPythonCaller::addFeatures is unusually invoked with assert-success defaults and
+    may emit debug/assert diagnostics before valid C++ fallback.
+    Release gameplay has a fallback and no current corruption was proved.
+    Revisit in queue 037 CvPythonCaller.cpp.
+
+MilitaryBranch.cpp:
+    Previously parked from queue 031:
+        canKnowTypicalUnit prerequisite test appears inverted relative to its Warrior
+        comment/current XML.
+    Revisit in queue 064.
+
+
+DURABLE C021 CURSOR
+-------------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+JUST CLOSED:
+    queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+QUEUE-045 ROOTS:
+    F241 through F249
+    provisional KI#564 through KI#572
+
+NEXT ROOT:
+    F250 UNUSED
+
+
+NEXT FILE -- REMAINING PRIORITY MARKERS
+---------------------------------------
+The explicit first/second/third priority sequence is now complete:
+
+    priority 1st: queue 041 CvSelectionGroupAI.cpp  COMPLETE C019
+    priority 2nd: queue 031 UWAICache.cpp           COMPLETE C020
+    priority 3rd: queue 045 CvMapGenerator.cpp      COMPLETE C021
+
+Per the earlier durable album policy:
+    "After those, continue through the other files marked 'priority next wip' in the
+     current queue before returning to ordinary pending files."
+
+Remaining PENDING priority-marked files in queue order include:
+
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp
+    queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp
+    queue 040 CvGameCoreDLL/CvGlobals.cpp
+    queue 042 CvGameCoreDLL/CvDeal.cpp
+    queue 092 CvGameCoreDLL/BBAILog.cpp
+
+Therefore the next selected never-passed priority file is:
+
+    queue 023
+    CvGameCoreDLL/InvasionGraph.cpp
+    approximately 2,430 lines in the album snapshot
+
+Exact next cursor:
+    begin queue 023 InvasionGraph.cpp from F250 unused.
+
+Recommended opening method:
+    1. establish current SAS-vs-Base-AdvCiv semantic delta and historical path list;
+    2. inventory graph nodes/edges, ownership/lifetime and simulated-force state;
+    3. trace cached city/reachability dependencies, especially interactions with
+       queue-031 findings without duplicating them;
+    4. audit graph mutation, node indices, land/naval topology, path/deployment
+       arithmetic, recursive traversal and elimination/conquest simulations;
+    5. compare K-Mod/Civ4CE only where cognate code exists;
+    6. cross-check existing roots F190/F220/F231/F237/F238/F240 and other UWAI findings
+       before allocating F250.
+
+Clean rejection remains preferable to inventing F250.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C021-WIP01 -- FILE 021 OPEN / QUEUE 023 InvasionGraph.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    current SAS victory-stage helpers
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+
+Prior durable checkpoint:
+    C021 -- queue 045 CvMapGenerator.cpp COMPLETE
+
+Current file:
+    remaining priority-marked queue 023
+    CvGameCoreDLL/InvasionGraph.cpp
+    approximately 2,430 lines
+
+SAS VS BASE
+-----------
+Current SAS InvasionGraph.cpp has no material local behavioral delta from Base AdvCiv
+1.14. The visible SAS differences are signature-collapse/comment annotations and nearby
+cross-file behavior supplied through SAS-modified caches/helpers.
+
+Therefore queue-023 roots should normally be classified as inherited AdvCiv/UWAI unless
+a SAS cross-file dependency is specifically required.
+
+New root:
+    F250 / provisional KI#573
+
+Next root:
+    F251 UNUSED
+
+
+F250 / provisional KI#573
+-------------------------
+TITLE
+    InvasionGraph's getConquestStage/getDominationStage helper checks cumulative victory
+    bits from stage 1 upward, so every active stage 2-4 is reported as stage 1; the
+    simulated-capitulation gate can therefore allow surrender to an attacker whose
+    Conquest strategy is actually more advanced than its Domination strategy.
+
+STATUS
+    CONFIRMED inherited UWAI logic defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    The stage helper originates in the original UWAI lineage and survives the 2920
+    rewrite as a local InvasionGraph helper.
+
+CURRENT HELPER
+    InvasionGraph.cpp declares:
+
+        #define DECL_GET_VICTORY_STAGE(MixedCase, UPPER_CASE) \
+            int get##MixedCase##Stage(PlayerTypes ePlayer) \
+            { \
+                CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer); \
+                if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##1)) \
+                    return 1; \
+                if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##2)) \
+                    return 2; \
+                if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##3)) \
+                    return 3; \
+                if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##4)) \
+                    return 4; \
+                return 0; \
+            }
+
+    and instantiates it for:
+        Domination
+        Conquest
+
+VICTORY-STAGE HASH IS CUMULATIVE
+    CvPlayerAI::AI_updateVictoryStageHash constructs each strategy cumulatively.
+
+    For Conquest:
+        if stage >= 1:
+            set CONQUEST1
+            if stage > 1:
+                set CONQUEST2
+                if stage > 2:
+                    set CONQUEST3
+                    if stage > 3:
+                        set CONQUEST4
+
+    Domination is built the same way.
+
+    AI_atVictoryStage merely returns whether the requested bit intersects the player's
+    victory-stage hash.
+
+    Therefore:
+        Conquest2 implies Conquest1
+        Conquest3 implies Conquest2 and Conquest1
+        Conquest4 implies Conquest3/2/1
+
+    and likewise for Domination.
+
+    As a result, the first stage-1 test is true for EVERY active stage 1 through 4.
+    The stage-2/3/4 branches are unreachable whenever the strategy is active.
+
+CURRENT SAS INTERNAL CONTROL
+    SAS already has a general helper in CvGameCoreUtils.cpp for this exact bitfield:
+
+        getSASVictoryStageLevel(...)
+
+    It checks:
+        stage4
+        stage3
+        stage2
+        stage1
+
+    and current SAS uses:
+        getSASConquestVictoryStageLevel
+        getSASDominationVictoryStageLevel
+
+    in several diagnostics/AI paths.
+
+    This is strong internal confirmation that extracting a numeric level from the
+    cumulative bitfield requires highest-to-lowest testing.
+
+LIVE CONSUMER
+    The only current InvasionGraph use is a simulated capitulation gate in
+    Node::applyStep:
+
+        if (... &&
+            getConquestStage(kAttacker.m_ePlayer) <=
+            getDominationStage(kAttacker.m_ePlayer))
+        {
+            ...
+            possibly setCapitulated(...)
+        }
+
+    The policy is clearly comparative: do not expect a victim to capitulate when the
+    attacker's Conquest-victory pursuit is more advanced than its Domination pursuit.
+
+    This makes sense because a highly Conquest-driven attacker has stronger incentive
+    to eliminate rivals outright, whereas Domination benefits more naturally from
+    vassalized land/population contribution.
+
+DETERMINISTIC MISCLASSIFICATION
+    Consider an attacker currently at:
+
+        Conquest stage 3
+        Domination stage 2
+
+    Such simultaneous lower-stage strategy flags are supported; the calculations are
+    separate. The global "only one level-4 strategy" rule does not prevent stage-2/3
+    coexistence.
+
+    Intended numeric comparison:
+        3 <= 2
+        false
+
+    Current helper:
+        getConquestStage -> 1
+        getDominationStage -> 1
+
+    Current comparison:
+        1 <= 1
+        true
+
+    Therefore the current simulation may enter its capitulation model when the intended
+    relative-stage condition says not to.
+
+    Another supported shape is:
+        Conquest stage 4
+        Domination stage 2 or 3
+
+    Conquest4 includes Conquest1, so current again reports Conquest=1. Domination2/3
+    also reports 1. The relative strategic distinction is erased.
+
+    If only one of the two strategies is active, the zero-vs-one distinction usually
+    still preserves the broad ordering. F250 specifically matters when both are active
+    at different positive levels.
+
+BEHAVIORAL CONSEQUENCE
+    Once the erroneous gate opens, the remaining surrender conditions can cause
+    InvasionGraph to mark the simulated defender as capitulated:
+
+        * enough cities conquered by this attacker;
+        * defender not human;
+        * last living member of defender team;
+        * no defender nukes;
+        * no vassal blocker;
+        * threshold based on current cities/personality/war state.
+
+    Simulated capitulation then:
+        * treats the defender as eliminated for further losses;
+        * records capitulation acceptance on master-side nodes;
+        * feeds MilitaryAnalyst result sets;
+        * affects WarUtilityAspect consumers that value expected capitulation,
+          vassal gains/losses and target-war outcomes.
+
+    Thus F250 can make an aggressive conquest-focused war look as though it ends in
+    vassalization when the helper's own intended stage comparison would reject that
+    assumption.
+
+ANCESTRY
+    The original WarAndPeace/UWAI code already had getConquestStage and
+    getDominationStage helpers that tested stage 1 before higher stages.
+
+    Practical 2920 / 4ae382e5db,
+        "Revised all code in the UWAI component"
+    moved/recreated these as the local DECL_GET_VICTORY_STAGE helpers in
+    InvasionGraph.cpp and preserved the same ordering.
+
+    No later historical correction found reverses the tests.
+
+    Base AdvCiv 1.14 retains current behavior.
+
+RELATION TO F219 / KI#542
+    F219 proved the same underlying fact -- victory-stage bits are cumulative -- in
+    UWAICache::goldPerProdVictory, where stage 3 was checked before stage 4.
+
+    F250 is NOT merged into F219 because:
+        * separate file and repair locus;
+        * different helper;
+        * different strategy types (Conquest/Domination);
+        * different behavioral output (simulated capitulation versus production value).
+
+    F219 is useful as a cross-file semantic control, not the owner of this code.
+
+REPAIR DIRECTION
+    Base-compatible repair:
+        test 4 -> 3 -> 2 -> 1 in DECL_GET_VICTORY_STAGE.
+
+    Current SAS can avoid repeating the logic entirely by using:
+        getSASConquestVictoryStageLevel(kPlayer.AI_getVictoryStageHash())
+        getSASDominationVictoryStageLevel(kPlayer.AI_getVictoryStageHash())
+
+    if those helpers are appropriate at this dependency layer.
+
+    Preserve the existing comparative policy unless design review intentionally changes
+    when conquest-focused attackers should accept capitulation.
+
+NEGATIVE CONTROLS / SCOPE
+    * Stage construction itself is intentionally cumulative and widely consumed that
+      way. Do not change the hash construction.
+    * If Conquest and Domination are at the same actual positive level, collapsing both
+      to 1 does not change this particular <= comparison.
+    * If one strategy is zero and the other positive, current generally retains the
+      zero-vs-one ordering; the strongest failure is different positive levels.
+    * The capitulation simulation has additional gates, so F250 does not imply every
+      affected war will capitulate; it makes one prerequisite incorrectly permissive.
+
+
+DORMANT 2920 TEAM-CAPITULATION REGRESSION -- NOT F251
+------------------------------------------------------
+The same 2920 rewrite contains a striking reversed condition in
+Node::setCapitulated.
+
+Pre-2920 functional logic:
+    for another living member of the capitulating team:
+        if teammate HAS already capitulated:
+            continue  // avoid recursive loop
+        teammate.setCapitulated(master)
+
+2920/current logic:
+        bool bHasCapitulated = teammate.hasCapitulated();
+        if (!bHasCapitulated)
+        {
+            FAssert(!bHasCapitulated);
+            continue;
+        }
+        teammate.setCapitulated(master);
+
+The rewrite therefore skips exactly the teammate it says it intends to recursively
+mark, while the assertion became tautological.
+
+However the current ONLY live setCapitulated call in Node::applyStep requires:
+
+        kDefTeam.getAliveCount() <= 1
+
+before simulated capitulation can occur.
+
+PlayerIter<MAJOR_CIV> iterates living major players. Under that caller gate there is no
+second living defender-team member for the broken recursive branch to affect.
+
+Result:
+    real code defect / future-robustness regression,
+    but no current supported behavioral reproduction.
+    Do NOT allocate F251 unless another live caller or reachable multi-member
+    capitulation path is found later.
+
+This negative also clarifies F119/KI#442:
+    setCapitulated still inserts the capitulated TEAM into every living MASTER-team
+    member's m_capitulationsAccepted set, so F119's separate player-indexed result
+    storage defect remains valid. The broken defender-teammate recursion does not
+    invalidate F119.
+
+
+OPENING GRAPH / CYCLE CONTROLS
+------------------------------
+1. `scaled` default construction
+    ScaledNum() initializes m_i to 0. breakCycle's:
+        scaled rSumOfEnemyThreat;
+    is therefore zero-initialized, not undefined.
+
+2. breakCycle NULL preliminary step
+    step() returns NULL only when a non-clash node can no longer obtain targetCity().
+    Immediately after prepareForSimulation, findAndLinkTarget/findTarget select targets
+    through nearly the same reachable/known city predicates.
+
+    No independent normal-state route to "all targeting nodes have NULL steps" has yet
+    been proved. Existing UWAICache stale-order/geometry findings can create
+    inconsistencies, but those remain owned by F227/F231/F233/F236 rather than a new
+    InvasionGraph root.
+
+3. resolveLosses actual-step dereference
+    Preliminary and actual step calls occur without an intervening graph/city mutation
+    for the selected invader. step's NULL condition is targetCity absence, independent
+    of the changed army-portion arguments. No direct null-dereference root established.
+
+4. SAS-vs-Base semantic delta
+    Current InvasionGraph.cpp has no meaningful local SAS behavior change. Queue-023
+    opening findings should therefore be presumed inherited unless a SAS dependency is
+    specifically demonstrated.
+
+
+C021-WIP01 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+
+NEXT ROOT:
+    F251 UNUSED
+
+Resume from F251 unused.
+
+Best next work:
+    * continue the 2920 "Revised all UWAI" side-by-side semantic diff, especially
+      condition/sign/argument-order changes that were not covered by the immediate
+      2928 logical-mixup fix;
+    * audit findTarget/findBestTarget/targetCity/m_iCacheIndex consistency and graph
+      edge mutation independently of known UWAICache staleness roots;
+    * audit applyStep city-loss/conquest/capitulation bookkeeping, team membership and
+      result ownership while cross-checking F119/F130/F135/etc.;
+    * audit resolveLosses/simulateComponent/breakCycle time/threat arithmetic and graph
+      mutation invariants;
+    * inspect historical bugfix commits 2928, 2943, 3045, 3443/3451/3477, 3946 for
+      later regressions;
+    * preserve clean negatives rather than manufacturing F251.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C021-WIP02 -- FILE 021 OPEN / QUEUE 023 InvasionGraph.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    current AdvCiv/UWAI history and earlier album roots
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+
+Prior physical checkpoint:
+    C021-WIP01
+
+Current file:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+New root:
+    F251 / provisional KI#574
+
+Next root:
+    F252 UNUSED
+
+
+F251 / provisional KI#574
+-------------------------
+TITLE
+    A node simulated as eliminated or capitulated does not remove its outgoing invasion
+    edge; recursive loss resolution can therefore let a defeated civ attack its own
+    target later in the same graph component.
+
+STATUS
+    CONFIRMED inherited UWAI graph-lifecycle defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    The core lifetime mismatch is present from the initial InvasionGraph design.
+
+GRAPH ORDER THAT MAKES THE DEFECT LIVE
+    InvasionGraph edges point:
+        attacker -> primary target
+
+    resolveLossesRec resolves incoming attackers recursively BEFORE resolving the
+    current node itself:
+
+        for each player in m_targetedBy:
+            attacker.resolveLossesRec();
+
+        resolveLosses();
+
+    Consider an ordinary acyclic component:
+
+        A -> B -> C
+
+    C is the sink.
+    C.resolveLossesRec therefore calls:
+        B.resolveLossesRec
+            -> A.resolveLossesRec
+            -> B.resolveLosses()    // A attacks B
+        -> C.resolveLosses()        // B attacks C
+
+    This ordering is explicitly part of the graph simulation; it is not an unusual
+    re-entry or external callback.
+
+HOW B BECOMES SIMULATED-DEAD
+    During B.resolveLosses, an A attack can successfully conquer one of B's cached
+    cities.
+
+    applyStep then records:
+
+        addCityLoss(kStepCity);
+
+    and if the simulated city losses equal B's actual city count:
+
+        if (m_cityLosses.size() == iCurrentCities)
+            setEliminated(true);
+
+    Simulated capitulation likewise calls:
+
+        setCapitulated(...)
+            -> setEliminated(true);
+
+    `setEliminated` is only:
+
+        void setEliminated(bool b) { m_bEliminated = b; }
+
+    It does not remove B's outgoing primary-target edge.
+
+    `setCapitulated` likewise marks the node eliminated but does not call
+    changePrimaryTarget(NULL).
+
+OUTGOING EDGE THEREFORE SURVIVES
+    B's existing primary target is C.
+
+    B was inserted into:
+        C.m_targetedBy
+
+    when the edge B -> C was established.
+
+    Neither setEliminated nor setCapitulated removes B from C.m_targetedBy.
+
+    applyStep has two later edge-removal checks, but both are based on ARMY power being
+    fully exhausted:
+
+        if (our Army power <= our lost Army power)
+            changePrimaryTarget(NULL);
+
+    A civ can lose all simulated cities or capitulate while retaining substantial Army
+    power. In that common shape the B -> C link survives.
+
+DOWNSTREAM C THEN INVOKES THE DEAD B
+    After B.resolveLossesRec returns, C.resolveLossesRec continues and calls
+    C.resolveLosses().
+
+    C's m_targetedBy still contains B.
+
+    C.resolveLosses iterates those invaders and calls:
+
+        B.step(...)
+
+    The first thing Node::step checks is only whether a non-clash attack can find a
+    target city:
+
+        pCacheCity = targetCity();
+        if (pCacheCity == NULL && !bClashOnly)
+            return NULL;
+
+    It does NOT reject:
+        isEliminated()
+        hasCapitulated()
+
+    B's primary target is still C, real map cities remain physically present because
+    InvasionGraph is only a simulation, and B's cache still contains C's target cities.
+
+    Therefore B.step can construct a normal attack step despite B having already been
+    simulated as completely eliminated or capitulated.
+
+SUPPORTED REPRODUCTION
+    1. Three simulated war parties form A -> B -> C.
+    2. B has enough remaining Army power that its army is not completely destroyed.
+    3. A's attack in B.resolveLosses takes B's final simulated city, or causes B to
+       capitulate.
+    4. B is marked eliminated.
+    5. B -> C is not unlinked.
+    6. Control returns to C.resolveLosses.
+    7. C still regards B as an incoming attacker.
+    8. B.step uses B's surviving military and C's still-existing real/cache city data.
+    9. C can suffer predicted losses/conquests from a civ that the same simulation has
+       already declared defeated.
+
+    No stale external cache or another known finding is needed.
+
+CAPITULATION VARIANT
+    setCapitulated explicitly comments:
+
+        "Treat capitulated as eliminated, i.e. assume no further losses."
+
+    Yet the same outgoing-edge survival lets a capitulated node remain an attacker of a
+    third party later in the component.
+
+    This is especially contradictory because the comment immediately states that the
+    real rules would make the vassal join its master's wars but that such follow-up is
+    intentionally NOT modeled. The current graph nevertheless lets the node continue
+    its pre-capitulation offensive.
+
+BEHAVIORAL CONSEQUENCES
+    The defeated node can:
+        * inflict additional military losses;
+        * conquer cities;
+        * alter later simulated elimination/capitulation;
+        * affect graph distraction and clash state;
+        * change MilitaryAnalyst's final lost-power/city-loss/conquest results;
+        * feed downstream WarUtilityAspect utilities.
+
+    This can make third-party war projections materially too favorable or too damaging
+    depending on which side the zombie attacker belongs to.
+
+WHY ARMY-ELIMINATION CLEANUP DOES NOT FIX IT
+    Current applyStep correctly removes a primary target when a node's Army branch is
+    completely exhausted.
+
+    Simulation elimination and capitulation are different predicates:
+        city count / surrender state, not zero Army power.
+
+    Surviving mobile military is exactly what makes the stale edge behaviorally active.
+
+ANCESTRY / HISTORICAL CONTROL
+    The initial InvasionGraph implementation already represented elimination as a
+    boolean setter without automatic edge cleanup.
+
+    Later practical 1726 / 04eceb5fab,
+        "Bugfix in UWAI invasion graph"
+    corrected an edge-removal bug when the ATTACKER's Army was eliminated:
+
+        wrong:
+            changePrimaryTarget(NULL);          // on defender/this
+
+        fixed:
+            attacker.changePrimaryTarget(NULL);
+
+    This historical fix is useful evidence that outgoing-edge removal must occur on the
+    node whose offensive has ended and is an explicit graph-lifecycle operation.
+
+    No later commit found adds the corresponding cleanup when the node itself becomes
+    eliminated/capitulated through city-loss/surrender simulation.
+
+DISTINCTION FROM EARLIER ROOTS
+    F227/F231/F233/F236:
+        concern UWAICache ordering/geometry/knowledge state.
+        F251 reproduces with a perfectly current cache.
+
+    F250:
+        controls whether simulated capitulation is entered based on victory stages.
+        F251 occurs after either a legitimate capitulation OR complete simulated city
+        elimination and therefore survives an F250 fix.
+
+    F119:
+        concerns team-indexed storage of capitulation results in MilitaryAnalyst.
+        F251 concerns graph-edge lifetime before result extraction.
+
+REPAIR DIRECTION
+    When a node transitions to a terminal simulated state, remove its outgoing edge
+    immediately.
+
+    A natural invariant is:
+
+        eliminated/capitulated node => m_pPrimaryTarget == NULL
+
+    `setEliminated(true)` could enforce:
+        if (m_pPrimaryTarget != NULL)
+            changePrimaryTarget(NULL);
+
+    but implementation review should ensure that all existing callers can safely mutate
+    the reverse adjacency set at that point.
+
+    Alternatively, call changePrimaryTarget(NULL) explicitly in the city-elimination and
+    capitulation transitions.
+
+    Adding an `isEliminated() || hasCapitulated()` guard to step() is a useful defensive
+    backstop, but by itself leaves stale reverse adjacency and component/threat state.
+    Repairing the edge invariant is preferable; a guard can be added as robustness.
+
+NEGATIVE CONTROLS / SCOPE
+    * Losing a city without elimination/capitulation does not necessarily imply that the
+      attacker should permanently abandon all offense; F251 is scoped to terminal
+      simulated state.
+    * If Army power is also fully exhausted, the existing Army-elimination cleanup can
+      happen to remove the outgoing edge and mask F251.
+    * updateTargets between simulation phases can later clear/reassign terminal nodes,
+      but F251 occurs inside one resolveLossesRec component before such a phase boundary.
+    * The real game's CvPlayer/CvTeam elimination callbacks are irrelevant here; this is
+      wholly simulated InvasionGraph state.
+
+
+OTHER CHECKS SINCE WIP01
+-------------------------
+1. m_iCacheIndex cross-opponent cursor suspicion -- REJECTED
+    addConquest advances one node-global cache cursor past the conquered city, which at
+    first looks capable of skipping higher-ranked cities of another opponent.
+
+    During one simulation phase a node does not normally retarget from a defeated
+    primary target to a different opponent; target removal produces NULL and retargeting
+    occurs through updateTargets at the phase transition.
+
+    Each simulate() call invokes prepareForSimulation(), which resets m_iCacheIndex=0.
+    Existing simulated city losses are still filtered by targetCity/hasLost.
+
+    Therefore the cursor does not establish an independent cross-opponent permanent
+    skip under the current phase contract.
+
+2. phase-one -> phase-two conquest persistence
+    m_conquests/m_cityLosses intentionally survive across phases while m_iCacheIndex
+    resets. targetCity consults the target owner's hasLost set, so already simulated
+    lost cities are not attacked again. No duplicate conquest root.
+
+3. breakCycle ScaledNum initialization
+    Default ScaledNum is zero-initialized; no uninitialized rSumOfEnemyThreat.
+
+4. reversed teammate-capitulation recursion
+    Remains a real dormant 2920 regression, but current only caller requires defender
+    team aliveCount <= 1, so no living teammate exists to exercise the broken recursive
+    branch. Not numbered.
+
+
+C021-WIP02 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+
+NEXT ROOT:
+    F252 UNUSED
+
+Resume from F252 unused.
+
+Best next work:
+    * continue applyStep/resolveLosses terminal-state and reverse-adjacency invariants;
+    * inspect phase transition preservation/reset fields (`m_bHasClashed`,
+      m_arLostPower, m_rProductionInvested, conquests/losses, distractions);
+    * continue 2920 semantic-diff review and later 2928/3045/3477 fix history;
+    * audit cycle breaking when graph mutation removes edges during recursion;
+    * audit team/player ownership in accepted capitulations and city-loss/conquest
+      extraction without duplicating F119/F130-family roots;
+    * promote F252 only with an independent supported producer -> state -> consumer path.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C021-WIP03 -- FILE 021 OPEN / QUEUE 023 InvasionGraph.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Prior physical checkpoint:
+    C021-WIP02
+
+New roots:
+    NONE
+
+Next root:
+    F252 UNUSED
+
+PURPOSE
+-------
+Preserve the post-F251 phase-state / retargeting checks before continuing deeper into
+InvasionGraph.cpp.
+
+
+PHASE-STATE / RETARGETING CHECKS
+--------------------------------
+
+1. `isContinuedWar` cross-opponent m_conquests candidate -- NOT PROMOTED
+    Current:
+
+        bool Node::isContinuedWar(Node const& kOther) const
+        {
+            return (actual teams are at war && m_conquests.empty());
+        }
+
+    m_conquests is node-global rather than target-specific. Therefore if phase 1
+    produces a conquest against A and phase 2 updateTargets retargets the same node to
+    C, `isContinuedWar(C)` is false even when the node was already at war with C in the
+    real game.
+
+    This initially looked like a target-domain leak because the deployment-time shortcut:
+
+        if (isContinuedWar(kDefender))
+            iDeployTurns /= 2;
+
+    is described as accounting for units already deployed in an ongoing real war.
+
+    However the alternative interpretation is coherent:
+        * a conquest against A proves that the simulated force has already spent time/
+          position on another front;
+        * the one-time "already deployed" advantage may intentionally be considered
+          consumed once the simulated campaign has begun;
+        * switching to C can reasonably require fresh deployment even if war with C
+          already existed.
+
+    No historical comment or predecessor was found requiring the discount to be
+    per-opponent after simulated conquests.
+
+    RESULT:
+        coarse approximation, not a demonstrated correctness defect.
+        Keep F252 unused.
+
+2. m_iCacheIndex phase reset -- CLEAN
+    prepareForSimulation resets m_iCacheIndex=0 on every simulate() call.
+
+    m_cityLosses and m_conquests intentionally persist from phase 1 into phase 2, but
+    targetCity filters previously lost cities through the target owner's hasLost set.
+
+    Therefore:
+        * phase-two retargeting does not inherit the phase-one cache cursor;
+        * already simulated conquered cities are not simply attacked a second time.
+
+3. terminal node state across phase boundary
+    F251 is specifically a SAME-PHASE graph-edge lifetime bug.
+
+    MilitaryAnalyst calls updateTargets between the preparation phase and phase 2.
+    findAndLinkTarget sees isEliminated()/hasCapitulated() and clears terminal nodes'
+    primary targets there.
+
+    Thus phase transition happens to clean the stale edge; it does not repair the
+    A->B->C same-component attack that occurs before the boundary.
+
+4. m_arLostPower / m_conquests / m_cityLosses persistence -- INTENTIONAL
+    These represent cumulative simulated physical losses/results across phases and are
+    deliberately not reset by prepareForSimulation.
+
+    ArmamentForecast adds new production to the military branches between loss phases.
+
+5. m_rTempArmyLosses reset -- INTENTIONAL/PLAUSIBLE
+    Temporary clash damage is documented as sidelined until the end of a simulation
+    phase. Resetting it at prepareForSimulation matches that stated lifetime.
+
+6. distraction fields reset -- INTENTIONAL/PLAUSIBLE
+    m_rDistractionByConquest / m_rDistractionByDefense model current-front allocation
+    inside one graph-loss phase. Reassignment/updateTargets between phases supplies a
+    natural reset boundary.
+
+7. m_bHasClashed persists -- INTENTIONAL/PLAUSIBLE
+    A physical clash already simulated in phase 1 should not be assumed never to have
+    occurred merely because phase 2 begins. No contradictory consumer was found.
+
+8. m_rEmergencyDefPow phase reset -- OPEN APPROXIMATION, NOT A ROOT
+    Emergency defenders are accumulated after city losses because ordinary armament
+    forecasting does not perfectly model units trained while an invader heals/moves.
+
+    prepareForSimulation resets this auxiliary power at the next simulation phase.
+    Those defenders could conceptually survive into phase 2, but phase boundaries also
+    run additional ArmamentForecast production and represent a coarse time-model reset.
+
+    No clean no-double-count/no-loss contract was found that proves the reset wrong.
+    Preserve as an approximation question only.
+
+
+HISTORICAL CONTROLS
+-------------------
+* Practical 1726 ("Bugfix in UWAI invasion graph") fixed removal of the WRONG node's
+  primary target when the attacker's Army was eliminated. This reinforces F251's
+  graph-edge ownership invariant but does not supply another phase-state root.
+
+* Practical 3045 clamps negative simulated power/loss inputs and fixes defender fleet
+  power floor. Current source retains those corrections.
+
+* Practical 3477's uniform-garrison threat mode remains current and is specifically
+  used by breakCycle so lightly defended cities do not artificially inflate threat.
+  No regression established in this pass.
+
+
+C021-WIP03 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+
+NEXT ROOT:
+    F252 UNUSED
+
+Resume from F252 unused.
+
+Best next work:
+    * continue the 2920 side-by-side rewrite review, especially arithmetic/condition
+      changes not corrected by 2928;
+    * audit target/link mutation in cycles and after failed attacks;
+    * audit city-loss/conquest result ownership and node/team aggregation against
+      existing F119/F130/F135 family roots;
+    * audit `step` military-power transformations and branch accounting without
+      duplicating queue-031 F237/F238 or parked MilitaryBranch findings;
+    * inspect historical 2943/3045/3477/3946 changes as regression controls;
+    * clean rejection remains preferable to inventing F252.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================

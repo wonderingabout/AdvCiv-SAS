@@ -22,6 +22,8 @@ public:
 	void write(FDataStreamBase* pStream) const;
 	void read(FDataStreamBase* pStream);
 	void addTeam(PlayerTypes eOtherLeader); // When forming a Permanent Alliance
+	// <!-- custom: Clear member-level paid-war obligations independently from war-history evaluation when lifecycle paths cannot run the full report. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void clearWarSponsorship(TeamTypes eEnemy);
 	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void turnPre();
 	void doWar(); // replacement for CvTeamAI::doWar

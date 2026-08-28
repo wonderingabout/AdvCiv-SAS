@@ -1024,6 +1024,13 @@ void UWAICache::updateTraits()
 }
 
 
+// <!-- custom: True Starts can replace the leader after UWAI initialization; recomputing these two derived flags fixed the former leader's military personality persisting indefinitely. See KI#558. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::reportLeaderChanged()
+{
+	updateTraits();
+}
+
+
 void UWAICache::updateTargetMissionCounts()
 {
 	/*	Doesn't hurt to count missions to non-rival territory
@@ -1360,11 +1367,18 @@ void UWAICache::reportUnit(UnitTypes eUnit, int iChange)
 }
 
 
-void UWAICache::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
+// <!-- custom: Separate paid-war cleanup from war-history evaluation so every real war ending can discard its transient obligation even when UWAI is not ready. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::clearWarSponsorship(TeamTypes eEnemy)
 {
-	// Forget sponsorship once a war ends
 	m_aiBounty.set(eEnemy, 0);
 	m_aeSponsorPerTarget.set(eEnemy, NO_PLAYER);
+}
+
+
+void UWAICache::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
+{
+	// <!-- custom: Reuse the unconditional obligation cleanup shared with early-scenario and elimination war endings. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	clearWarSponsorship(eEnemy);
 	// Evaluate reparations
 	bool bForceSuccess = false;
 	bool bForceFailure = false;

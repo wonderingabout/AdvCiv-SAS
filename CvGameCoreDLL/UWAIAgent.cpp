@@ -270,6 +270,14 @@ void UWAI::Team::addTeam(PlayerTypes eOtherLeader)
 }
 
 
+// <!-- custom: Paid-war sponsorship is player-cache state, so clear it for every living member when a lifecycle path cannot perform full war-history evaluation. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAI::Team::clearWarSponsorship(TeamTypes eEnemy)
+{
+	for (MemberAIIter it(m_eAgent); it.hasNext(); ++it)
+		it->uwai().getCache().clearWarSponsorship(eEnemy);
+}
+
+
 void UWAI::Team::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
 {
 	/*  This isn't team-level data b/c each member can have its

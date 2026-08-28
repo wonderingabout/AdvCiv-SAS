@@ -141,6 +141,10 @@ public:
 	void reportUnitDestroyed(UnitTypes eUnit);
 	// <!-- custom: Revival initializes an empty incremental military inventory after the reviving unit already exists; replay all owned units before immediate UWAI consumers run. See KI#548. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void rebuildMilitaryUnitCounts();
+	// <!-- custom: Refresh only the leader-derived military personality flags after a supported leader replacement; reinitializing UWAI would destroy persistent state. See KI#558. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void reportLeaderChanged();
+	// <!-- custom: Paid-war obligations end with their war even when full war-history evaluation is unavailable. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void clearWarSponsorship(TeamTypes eEnemy);
 	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void reportCityCreated(CvCity& kCity);
 	// <!-- custom: City destruction now restores the stateful attack ordering and, for the cache owner's city, its derived asset total; keep that callback logic in the implementation file. See KI#547. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->

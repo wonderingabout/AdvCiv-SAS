@@ -1097,10 +1097,20 @@ void CvTeamAI::AI_preMakePeace(TeamTypes eTarget, CLinkList<TradeData> const* pR
 {
 	CvTeamAI& kTarget = GET_TEAM(eTarget);
 	// <advc.104> Report who won the war before war success is reset
-	if (getUWAI().isEnabled() && getUWAI().isReady())
+	// <!-- custom: Scenario-start peace can occur while UWAI is enabled but not ready.
+	// Always end the paid-war obligation; defer only the history calculation that needs ready caches. See KI#562. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (getUWAI().isEnabled())
 	{
-		uwai().reportWarEnding(eTarget, pReparations, NULL);
-		kTarget.uwai().reportWarEnding(getID(), NULL, pReparations);
+		if (getUWAI().isReady())
+		{
+			uwai().reportWarEnding(eTarget, pReparations, NULL);
+			kTarget.uwai().reportWarEnding(getID(), NULL, pReparations);
+		}
+		else
+		{
+			uwai().clearWarSponsorship(eTarget);
+			kTarget.uwai().clearWarSponsorship(getID());
+		}
 	} // </advc.104>
 	/*  <advc.130y> Don't know if they started the war, but, if we did and they had
 		started a war against us some time earlier, we may as well forgive them for
