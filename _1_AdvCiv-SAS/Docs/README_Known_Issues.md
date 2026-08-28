@@ -683,8 +683,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 
 [KI#593 - (Provisional Pending inherited K-Mod/AdvCiv combat-AI defect) Local collateral strength uses the wrong attacker team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-593)\
 [KI#594 - (Provisional Pending inherited BtS/K-Mod/AdvCiv calendar defect) Negative fractional BC years truncate toward AD](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-594)\
-[KI#595 - (Provisional Pending inherited AdvCiv replay-compatibility defect) Foreign replay colors can wrap into the skipped system-color prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-595)\
-[KI#596 - (Provisional Pending AdvCiv-SAS assertion-build regression) Rich diagnostics are disabled in optimized Assert builds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-596)\
+[KI#595 - (Fixed inherited AdvCiv replay-compatibility defect) Foreign replay colors wrapped into the skipped system-color prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-595)\
+[KI#596 - (Fixed AdvCiv-SAS assertion-build regression) Rich diagnostics were disabled in optimized Assert builds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-596)\
 
 <a id="ki-1"></a>
 
@@ -9366,7 +9366,7 @@ This is an AdvCiv-SAS bug introduced with `SAS_Spiky_Avenues` in practical 5456 
 
 ## KI#246 - (Fixed AdvCiv-SAS bug) Longworld fallback could reuse another player's starting plot
 
-SAS Longworld normally assigns evenly spaced positions across several strip rows. If a nominal position was removed by the script's wavy border, however, its fallback returned the first valid tile in the same or a later column without checking starts already returned for other players. Repeated X coordinates are intentional on dense games because different strip rows distinguish them, but a trimmed nominal tile could fall back onto another player's valid nominal position and give both players the same starting plot.
+SAS_Longworld normally assigns evenly spaced positions across several strip rows. If a nominal position was removed by the script's wavy border, however, its fallback returned the first valid tile in the same or a later column without checking starts already returned for other players. Repeated X coordinates are intentional on dense games because different strip rows distinguish them, but a trimmed nominal tile could fall back onto another player's valid nominal position and give both players the same starting plot.
 
 The fix resets a per-generation player-to-plot cache and used-plot set, returns each player's cached assignment on repeated callbacks, and skips every already-assigned tile while searching the strip. Even horizontal spacing and the existing nearest-column-first fallback order remain unchanged where the nominal plot is available. A default `36x16` Arena game generated with all 48 players and completed turn-11 autoplay; screenshot 0208 confirms the complete high-density strip layout and roster. This defect belongs to the SAS-created Longworld start allocator rather than inherited map code. Found and investigated through the systematic archaeology with the help of ChatGPT-5.6-Sol; fixed, validated and documented with the help of GPT-5.6-Sol, thanks.
 
@@ -13189,16 +13189,20 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-595"></a>
 
-## KI#595 - (Provisional Pending inherited AdvCiv replay-compatibility defect) Foreign replay colors can wrap into the skipped system-color prefix
+## KI#595 - (Fixed inherited AdvCiv replay-compatibility defect) Foreign replay colors wrapped into the skipped system-color prefix
 
-Album F272 finds the optional foreign-replay color fallback accepting high color IDs and remapping them with `(eColor + 7) % getNumColorInfos()`. The final accepted IDs can therefore wrap into indices 0 through 5, despite the explicit intent to skip system colors 0 through 6; one result is `COLOR_CLEAR`, which can make a replay or Hall of Fame marker transparent. The feature and defect were introduced by AdvCiv's `advc.106i`, are not from K-Mod or AdvCiv-SAS, and are config-gated by `HOF_DISPLAY_OTHER_MOD_REPLAYS`. Pending independent implementation review of a remap constrained to the usable `[7, count)` suffix and defensive handling for a pathological color table with at most seven entries.
+Album F272 found the optional foreign-replay color fallback accepting high color IDs and remapping them with `(eColor + 7) % getNumColorInfos()`. The final accepted IDs could therefore wrap into indices 0 through 5, despite the explicit intent to skip system colors 0 through 6; one result was `COLOR_CLEAR`, which could make a replay or Hall of Fame marker transparent. The feature and defect were introduced by AdvCiv's `advc.106i`, are not from K-Mod or AdvCiv-SAS, and are config-gated by `HOF_DISPLAY_OTHER_MOD_REPLAYS`.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The remap now wraps entirely within the usable `[7, count)` suffix. This preserves every previously valid mapping for the current 128-color table except the six accepted foreign IDs that incorrectly reached system colors, and it guards the arithmetic for a pathological future table with at most seven entries. A full SAS_LongWorld autoplay completed successfully after the shared DLL changes. The exact foreign-replay path is source verified; practical runtime testing would require enabling display of other mods' replays and supplying a compatible foreign replay with one of the affected high color IDs.
+
+Found as F272 and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-596"></a>
 
-## KI#596 - (Provisional Pending AdvCiv-SAS assertion-build regression) Rich diagnostics are disabled in optimized Assert builds
+## KI#596 - (Fixed AdvCiv-SAS assertion-build regression) Rich diagnostics were disabled in optimized Assert builds
 
-Album F273 finds AdvCiv-SAS's richer missing-GlobalDefine diagnostics checking lookup success under `FASSERT_ENABLE` but guarding the actual diagnostic assertions with `_DEBUG`. AdvCiv's optimized `Assert` target deliberately defines `FASSERT_ENABLE` without `_DEBUG`, so the custom replacement silently removed inherited assertion coverage from that build for `CvGlobals::getDefineINT`, `getDefineFLOAT` and `getDefineSTRING`. The same root affects the richer stuck-group-loop assertion in `CvSelectionGroupAI::AI_update`; its diagnostic belongs under `FASSERT_ENABLE`, while its separate restoration of a Debug-only attempt-limit adjustment must remain under `_DEBUG`. Pending independent implementation review.
+Album F273 found AdvCiv-SAS's richer missing-GlobalDefine diagnostics checking lookup success under `FASSERT_ENABLE` but guarding the actual diagnostic assertions with `_DEBUG`. AdvCiv's optimized `Assert` target deliberately defines `FASSERT_ENABLE` without `_DEBUG`, so the custom replacement silently removed inherited assertion coverage from that build for `CvGlobals::getDefineINT`, `getDefineFLOAT` and `getDefineSTRING`. The same SAS-only regression affected the richer stuck-group-loop assertion in `CvSelectionGroupAI::AI_update`.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+All four rich diagnostics are now guarded by `FASSERT_ENABLE`, restoring the inherited assertion coverage in both Debug and optimized Assert builds. Message construction remains lazy and occurs only after the corresponding condition fails. The stuck-group diagnostic's separate attempt-limit restoration remains under `_DEBUG`, matching the Debug-only reduction that it reverses. A full SAS_LongWorld autoplay completed successfully after compilation. The Makefile and assertion-header build contract were source verified; an exact runtime test would require an Assert build and deliberately triggering a missing define or stuck group.
+
+Found as F273 and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.

@@ -170,12 +170,9 @@ bool CvSelectionGroupAI::AI_update()
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
-		// <!-- custom: make assert more informative as it fires and we'd want info on what is causing it, done with the help of chatgpt 5, check if accurate -->
+		// <!-- custom: Keep the richer stuck-group diagnostic lazy, but preserve it in every assertion-enabled build rather than `_DEBUG` alone. The early trigger and restoration remain separate because only Debug lowers the attempt limit. See KI#596. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		// FAssertMsg(iAttempts != iMaxAttempts, "Unit stuck in a loop");
-		// <!-- custom: save computation and do not always compute this assert's content if 'm not mistaken in my thinking and as chatgpt 5 advised after i asked it i mean, check if accurate, so i moved the assert so it is inside the debug flag as it advised, check if accurate -->
-	#ifdef _DEBUG
-		// Do it lazily and safely like this (drop-in):
-		// <!-- custom: added an extra layer with this assert condition we check first to not do it for each and every unit or such (i don't know too much so check if accurate, but seems much more efficient as such even in debug). Note: i didn't test if the assert fires correctly again, but since our fix is unchanged by this extra condition i added by moving it out of the assert, hopefully fine as such to save computation, but check if accurate as i don't know too much about these -->
+	#ifdef FASSERT_ENABLE
 		const bool bAssertCondition = (iAttempts != iMaxAttempts);
 		if (!bAssertCondition)
 		{
@@ -211,6 +208,8 @@ bool CvSelectionGroupAI::AI_update()
 			// <!-- custom: note: happens many times after first one, with various owner's units, but udesc is seemingly always a scout unit in all of these. -->
 			//
 		}
+	#endif
+	#ifdef _DEBUG
 		iMaxAttempts += 4; // Restore extra iterations
 	#endif
 		if (iAttempts >= iMaxAttempts) // was > 100 </advc.001y>

@@ -433,8 +433,13 @@ CvColorInfo& CvGlobals::getColorInfo(ColorTypes eColor)
 	if(eColor >= getNumColorInfos())
 	{
 		FAssert(m_bHoFScreenUp || eColor < getNumColorInfos());
-		// +7: Skip colors from COLOR_CLEAR to COLOR_LIGHT_GREY
-		eColor = (ColorTypes)((eColor + 7) % getNumColorInfos());
+		// <!-- custom: AdvCiv intended to skip system colors 0 through 6, but adding 7 before modulo allowed the highest accepted foreign replay IDs to wrap back into that prefix.
+		// Wrap within the usable suffix instead; retain a guarded whole-table fallback for malformed future color tables too small to have that suffix. See KI#595. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iNumColors = getNumColorInfos();
+		FAssertMsg(iNumColors > 7, "Foreign replay color remapping requires at least eight colors");
+		if (iNumColors > 7)
+			eColor = (ColorTypes)(7 + ((eColor - 7) % (iNumColors - 7)));
+		else eColor = (ColorTypes)(eColor % std::max(1, iNumColors));
 	} // </advc.106i>
 	return getInfo(eColor); // advc.enum
 }
@@ -844,9 +849,9 @@ int CvGlobals::getDefineINT(char const* szName, int iDefault) const
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, iReturn);
-	// <!-- custom: this assert fired at map load when starting a new game, but the info in the assert is not helpful by itself in assert message to me i mean, add more info as chatgpt 5 advised/suggested, check if accurate -->
+	// <!-- custom: Preserve the richer missing-define diagnostic in every assertion-enabled build. `_DEBUG` omitted it from AdvCiv's optimized Assert target even though lookup success is captured under `FASSERT_ENABLE`. See KI#596. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// FAssert(bSuccess); // advc.003c
-	#ifdef _DEBUG
+	#ifdef FASSERT_ENABLE
 	if (!bSuccess)
 	{
         char buf[256];
@@ -878,8 +883,8 @@ float CvGlobals::getDefineFLOAT(char const* szName) const
 	bool bSuccess =
 	#endif // </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, fReturn);
-	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate -->
-	#ifdef _DEBUG
+	// <!-- custom: Preserve this richer missing-FLOAT diagnostic in optimized Assert builds too. See KI#596. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	#ifdef FASSERT_ENABLE
 	const bool bAssertCondition = (bSuccess || std::strcmp("CAMERA_MIN_DISTANCE", szName) == 0);
 	if (!bAssertCondition)
 	{
@@ -905,9 +910,9 @@ char const* CvGlobals::getDefineSTRING(char const* szName) const
 	bool bSuccess =
 	#endif// </advc.003c>
 	getDefinesVarSystem()->GetValue(szName, szReturn);
-	// <!-- custom: since the more detailed assert in CvGlobals::getDefineINT was very helpful, also adding these provided by chatgpt 5 (untested though), check if accurate -->
+	// <!-- custom: Preserve this richer missing-STRING diagnostic in optimized Assert builds too. See KI#596. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	// FAssert(bSuccess); // advc.003c
-	#ifdef _DEBUG
+	#ifdef FASSERT_ENABLE
 	if (!bSuccess)
 	{
         char buf[256];
