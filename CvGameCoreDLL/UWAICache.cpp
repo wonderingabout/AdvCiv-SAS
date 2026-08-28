@@ -1742,6 +1742,9 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 		}
 		CvPlot const& kStart = pCity->getPlot();
 		int iPairwDuration = MAX_INT; // pairwise travel duration
+		// <!-- custom: Track whether this source's land route establishes strategic reachability separately from its deployment duration.
+		// A secondary-area route remains useful for duration, but must not suppress the independent sea-route existence test. See KI#549. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bQualifyingLandRoute = false;
 		/*	Search from target to source. TeamStepMetric is symmetrical in that regard.
 			Doing it backwards allows intermediate results to be reused. */
 		if (pPathFinders->landFinder().generatePath(kTargetCity.getPlot(), kStart))
@@ -1750,16 +1753,17 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 					GC.getMOVE_DENOMINATOR());
 			if (iPairwDuration == 0) // Make sure 0 is reserved for own cities
 				iPairwDuration = 1;
-			if (kCacheOwner.AI_isPrimaryArea(pCity->getArea()))
+			bQualifyingLandRoute = kCacheOwner.AI_isPrimaryArea(pCity->getArea());
+			if (bQualifyingLandRoute)
 				m_bReachByLand = true;
 			if (pCity->isCapital())
 				m_bCapitalArea = true;
 		}
+		bool const bNeedSeaRouteCheck = (!bQualifyingLandRoute || iPairwDuration > iSeaPenalty + 2);
 		if (bAnyTransports &&
 			// This ignores cities that can access the ocean only through a canal
 			kStart.isCoastalLand(-1) &&
-			// Don't bother with a naval path if it's at best a couple turns faster
-			iPairwDuration > iSeaPenalty + 2)
+			bNeedSeaRouteCheck)
 		{
 			CvPlot const* pTransportDest = kTargetCity.plot();
 			if (!kTargetCity.isCoastal(-1))
@@ -1799,15 +1803,15 @@ void UWAICache::City::updateDistance(TeamPathFinders* pPathFinders, PlayerTypes 
 				}
 				if (iPathLength > 0)
 				{
+					// <!-- custom: A valid sea route establishes reachability independently of whether it beats the current pairwise duration.
+					// Retain the faster route only for the numeric estimate. See KI#549. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					bReachBySea = true;
 					int iPathTurns = iSeaPenalty +
 							intdiv::uceil(iPathLength,
 							GC.getMOVE_DENOMINATOR() *
 							kCacheOwner.uwai().getCache().shipSpeed());
 					if (iPathTurns < iPairwDuration)
-					{
 						iPairwDuration = iPathTurns;
-						bReachBySea = true;
-					}
 				}
 			}
 		}

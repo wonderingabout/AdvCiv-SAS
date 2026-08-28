@@ -254,6 +254,7 @@ public:
 		void read(FDataStreamBase* pStream);
 
 	private:
+		// <!-- custom: Keep strategic land/sea reachability distinct from selecting the fastest pairwise deployment duration. See KI#549. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		void updateDistance(TeamPathFinders* pPathFinders, PlayerTypes eCacheOwner);
 		void updateAssetScore(PlayerTypes eCacheOwner);
 
