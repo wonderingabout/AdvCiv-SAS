@@ -615,6 +615,7 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [583 - (Fixed inherited AdvCiv/UWAI branch-accounting omission) Attacker area weighting excluded Cavalry](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#583---fixed-inherited-advcivuwai-branch-accounting-omission-attacker-area-weighting-excluded-cavalry)\
 [587 - (Fixed inherited original UWAI branch-state omission) Coastal Fleet losses left destroyed transports available for later landings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#587---fixed-inherited-original-uwai-branch-state-omission-coastal-fleet-losses-left-destroyed-transports-available-for-later-landings)\
 [588 - (Fixed inherited original UWAI branch-projection omission) Deployment distance reduced Army but not its Cavalry subset](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#588---fixed-inherited-original-uwai-branch-projection-omission-deployment-distance-reduced-army-but-not-its-cavalry-subset)\
+[589 - (Fixed inherited original UWAI emergency-defense accounting defect) Home Guard caps discarded casualties inflicted on virtual defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#589---fixed-inherited-original-uwai-emergency-defense-accounting-defect-home-guard-caps-discarded-casualties-inflicted-on-virtual-defenders)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -11419,3 +11420,11 @@ UWAI models every Cavalry unit inside the enclosing Army branch and initially en
 The calculated attacker deployment factor now scales Army and Cavalry together. This preserves the overlapping-branch invariant while retaining the existing shorter deployment distance for cavalry-focused attacks and every other deployment rule. The omission originates in original UWAI and remains in Base AdvCiv 1.14; it is separate from KI#583's later battle-area weighting omission.
 
 A current-build Debug-opt autoplay completed successfully; the exact deployment-ratio invariant remains source-verified. Found as F265/provisional KI#588 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 589 - (Fixed inherited original UWAI emergency-defense accounting defect) Home Guard caps discarded casualties inflicted on virtual defenders
+
+After a simulated city loss, UWAI creates emergency-defender power representing units trained while the invader heals and approaches its next target. Later city battles include this auxiliary power in Home Guard availability and calculate casualties from the combined pool. `applyStep` nevertheless capped every recorded Home Guard loss at the original branch power without reducing emergency power. Once baseline Home Guard losses reached that cap, further casualties disappeared and the same virtual defenders could fight later invaders again at full strength.
+
+Applied Home Guard casualties now consume the remaining original branch first and explicitly reduce emergency-defender power for any excess. Only baseline casualties enter `m_arLostPower[HOME_GUARD]`, preserving war-cost reporting: virtual units created solely inside the simulation are removed from availability without being reported as losses of the civilization's original military. The common helper also handles either participant safely, while all ordinary military branches retain their previous capping behavior. The defect originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Debug-opt autoplay completed successfully; the precise sequence that exhausts baseline Home Guard and then damages emergency defenders remains source-verified. Found as F266/provisional KI#589 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.

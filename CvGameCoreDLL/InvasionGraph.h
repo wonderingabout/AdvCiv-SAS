@@ -169,6 +169,8 @@ public:
 		UWAICache::City const* targetCity(PlayerTypes eTargetOwner = NO_PLAYER) const;
 		void addConquest(UWAICache::City const& kConqCity);
 		void addCityLoss(UWAICache::City const& kLostCity) { m_cityLosses.insert(kLostCity.getID()); }
+		// <!-- custom: Keep losses of simulated emergency defenders out of original Home Guard loss reporting while still consuming their availability. See KI#589. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		void applyPowerLoss(MilitaryBranchTypes eBranch, scaled rLostPower);
 		// (Vassals that break free are not modeled)
 		void setCapitulated(TeamTypes eMaster);
 		scaled clashDistance(Node const& kOther) const;

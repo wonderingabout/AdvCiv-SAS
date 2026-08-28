@@ -1622,6 +1622,25 @@ CvArea const* InvasionGraph::Node::clashArea(PlayerTypes eEnemy) const
 	return pClashArea;
 }
 
+// <!-- custom: City combat includes simulated emergency defenders beyond the original Home Guard branch. Apply their casualties to availability without misreporting them as losses of the original military. See KI#589. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void InvasionGraph::Node::applyPowerLoss(MilitaryBranchTypes eBranch, scaled rLostPower)
+{
+	if (eBranch != HOME_GUARD)
+	{
+		m_arLostPower[eBranch] += rLostPower;
+		m_arLostPower[eBranch].decreaseTo(m_military[eBranch]->power());
+		return;
+	}
+	scaled const rRemainingHomeGuard = scaled::max(0,
+			m_military[HOME_GUARD]->power() - m_arLostPower[HOME_GUARD]);
+	scaled const rHomeGuardLoss = scaled::min(rLostPower, rRemainingHomeGuard);
+	m_arLostPower[HOME_GUARD] += rHomeGuardLoss;
+	scaled rEmergencyLoss = rLostPower - rHomeGuardLoss;
+	rEmergencyLoss.decreaseTo(m_rEmergencyDefPow);
+	m_rEmergencyDefPow -= rEmergencyLoss;
+}
+
+
 // <!-- custom: Removed the inherited local stage-1-first helpers: victory-stage bits are cumulative, so every active higher stage returned 1. The capitulation gate below now uses the shared highest-stage helpers. See KI#573. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 {
@@ -1640,12 +1659,8 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 					rLostPowerDef.uround(), m_kReport.leaderName(m_ePlayer));
 			bReportedLosses = true;
 		}
-		m_arLostPower[eBranch] += rLostPowerDef;
-		m_arLostPower[eBranch].decreaseTo(
-				m_military[eBranch]->power());
-		kAttacker.m_arLostPower[eBranch] += rLostPowerAtt;
-		kAttacker.m_arLostPower[eBranch].decreaseTo(
-				kAttacker.m_military[eBranch]->power());
+		applyPowerLoss(eBranch, rLostPowerDef);
+		kAttacker.applyPowerLoss(eBranch, rLostPowerAtt);
 	}
 	// Remembered until end of phase
 	scaled rTempLosses = kStep.getTempLosses();
