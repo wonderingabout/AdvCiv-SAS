@@ -611,8 +611,12 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [576 - (Fixed inherited original UWAI query-mutation defect) Discarded attack probes consumed emergency defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#576---fixed-inherited-original-uwai-query-mutation-defect-discarded-attack-probes-consumed-emergency-defense)\
 [578 - (Fixed inherited original UWAI cycle-accounting defect) Clash winners inherited the loser's Army portion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#578---fixed-inherited-original-uwai-cycle-accounting-defect-clash-winners-inherited-the-losers-army-portion)\
 [579 - (Fixed inherited Base AdvCiv regression) Ally-confidence adjustment squared partial Army portions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#579---fixed-inherited-base-advciv-regression-ally-confidence-adjustment-squared-partial-army-portions)\
+[580 - (Fixed inherited original UWAI dimensional-accounting defect) Army-clash casualties retained confidence scaling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#580---fixed-inherited-original-uwai-dimensional-accounting-defect-army-clash-casualties-retained-confidence-scaling)\
 [581 - (Fixed inherited original UWAI owner-identity defect) City defenders used the evaluating player's Defensive trait](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#581---fixed-inherited-original-uwai-owner-identity-defect-city-defenders-used-the-evaluating-players-defensive-trait)\
+[582 - (Fixed inherited Base AdvCiv clash-geometry regression) Personality scaling produced negative defender deployment distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#582---fixed-inherited-base-advciv-clash-geometry-regression-personality-scaling-produced-negative-defender-deployment-distance)\
 [583 - (Fixed inherited AdvCiv/UWAI branch-accounting omission) Attacker area weighting excluded Cavalry](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#583---fixed-inherited-advcivuwai-branch-accounting-omission-attacker-area-weighting-excluded-cavalry)\
+[584 - (Fixed inherited original UWAI dimensional asymmetry) Attacker Logistics casualties retained inverse confidence](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#584---fixed-inherited-original-uwai-dimensional-asymmetry-attacker-logistics-casualties-retained-inverse-confidence)\
+[585 - (Fixed inherited original UWAI ordering defect) Sunk transports retained repeat-trip landing capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#585---fixed-inherited-original-uwai-ordering-defect-sunk-transports-retained-repeat-trip-landing-capacity)\
 [587 - (Fixed inherited original UWAI branch-state omission) Coastal Fleet losses left destroyed transports available for later landings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#587---fixed-inherited-original-uwai-branch-state-omission-coastal-fleet-losses-left-destroyed-transports-available-for-later-landings)\
 [588 - (Fixed inherited original UWAI branch-projection omission) Deployment distance reduced Army but not its Cavalry subset](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#588---fixed-inherited-original-uwai-branch-projection-omission-deployment-distance-reduced-army-but-not-its-cavalry-subset)\
 [589 - (Fixed inherited original UWAI emergency-defense accounting defect) Home Guard caps discarded casualties inflicted on virtual defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#589---fixed-inherited-original-uwai-emergency-defense-accounting-defect-home-guard-caps-discarded-casualties-inflicted-on-virtual-defenders)\
@@ -11389,6 +11393,14 @@ Both attacker and defender adjustments again assign the calculated portion, rest
 
 A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch. Found as F256/provisional KI#579 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
+## 580 - (Fixed inherited original UWAI dimensional-accounting defect) Army-clash casualties retained confidence scaling
+
+UWAI's Army-clash path, currently exercised when breaking invasion cycles, calculates combat from Army power multiplied by both combat modifiers and the evaluating player's confidence. Its casualty results therefore use that modified/perceived unit. Inherited UWAI divided out only the combat modifier before storing persistent Army and Cavalry losses or temporary unavailability. Unlike its naval and city-siege paths, confidence remained embedded, so an otherwise identical physical casualty could grow or shrink solely with the evaluator's confidence and distort later Army availability or target removal.
+
+Both winner branches now divide persistent and temporary clash casualties by the applicable combat modifier and confidence before applying them to physical branch power. Cavalry remains derived proportionally from the corrected Army loss, without a second conversion. The defect originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Debug-opt autoplay completed successfully through a Cultural victory; exact confidence-conversion cases remain source-verified. Found as F257/provisional KI#580 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
 ## 581 - (Fixed inherited original UWAI owner-identity defect) City defenders used the evaluating player's Defensive trait
 
 Every InvasionGraph node stores the same graph-wide evaluating player as `m_eAgent`. The city-garrison calculation queried `kDefender.m_eAgent` for the Defensive trait instead of the defending node's player. If the evaluator had the trait, every simulated defender could receive its +30% adjustment; if only the actual defender had it, that defender received nothing. This could change predicted city survival, losses, threat and duration.
@@ -11397,6 +11409,14 @@ The trait query now uses `kDefender.m_ePlayer`, while all other city-defense cal
 
 A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch; the precise evaluator/defender trait mismatch remains source-verified. Found as F258/provisional KI#581 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
+## 582 - (Fixed inherited Base AdvCiv clash-geometry regression) Personality scaling produced negative defender deployment distance
+
+During a cycle clash, UWAI splits the fixed distance between both armies according to their relative power. AdvCiv practical 1341 multiplied the attacker's spatial share by its `MaxWarMinAdjacentLand` personality factor before subtracting that share from the defender's distance. For strong attackers and shipped personality values up to 4, the scaled share could exceed the entire distance. Debug builds could then assert while unsigned-rounding the negative defender distance, while Release arithmetic turned it into a defender Army bonus above 100%.
+
+The clash now divides the physical meeting distance first, guaranteeing a non-negative defender share, and applies the personality factor afterward only to the attacker's deployment effort and time. This retains the intended leader-specific caution without moving the meeting point beyond either origin. The regression was introduced in Base AdvCiv practical 1341 and inherited by AdvCiv-SAS.
+
+A current-build Debug-opt autoplay completed successfully through a Cultural victory without a deployment-distance assertion; the exact strongly asymmetric clash remains source-verified. Found as F259/provisional KI#582 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
 ## 583 - (Fixed inherited AdvCiv/UWAI branch-accounting omission) Attacker area weighting excluded Cavalry
 
 InvasionGraph models Cavalry as an overlapping subset of Army and clamps `Cavalry <= Army` before applying battle-area availability. AdvCiv then multiplied only attacker Army by the local-area weight while leaving its Cavalry at whole-force scale. For example, Army 100 and Cavalry 80 at 50% area availability became Army 50 and Cavalry 80, allowing Cavalry availability and recorded losses to exceed the enclosing local Army. Practical 1366 fixed the same omission for defenders but left the attacker path unchanged.
@@ -11404,6 +11424,24 @@ InvasionGraph models Cavalry as an overlapping subset of Army and clamps `Cavalr
 Attacker Army and Cavalry now receive the same battle-area factor, preserving their branch invariant and matching the corrected defender path. The omission remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
 
 A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch. Found as F260/provisional KI#583 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 584 - (Fixed inherited original UWAI dimensional asymmetry) Attacker Logistics casualties retained inverse confidence
+
+Naval battles use confidence-scaled Fleet combat power but store Logistics losses as physical cargo capacity. The defender's cargo-to-Fleet conversion cancels confidence in its numerator. The inherited attacker conversion omitted that cancellation, while later also dividing Fleet casualties by confidence; attacker transport losses therefore retained an extra inverse-confidence factor. Lower confidence could destroy more physical cargo capacity and higher confidence less for the same force composition and casualty fraction.
+
+The attacker Logistics ratio now includes attacker confidence just like the defender ratio, while `rCargoCap` itself remains physical landing capacity. This preserves UWAI's acknowledged approximate conversion between Fleet combat power and cargo slots but removes the unintended one-sided confidence unit. The asymmetry originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Debug-opt autoplay completed successfully through a Cultural victory; exact attacker-confidence conversion remains source-verified. Found as F261/provisional KI#584 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 585 - (Fixed inherited original UWAI ordering defect) Sunk transports retained repeat-trip landing capacity
+
+UWAI allows transports to make additional trips after winning a naval battle. Inherited code multiplied the entire pre-battle cargo pool by that repeat-trip factor and only then subtracted destroyed transport capacity, calculating `factor * cargo - losses`. Sunk transports consequently retained the extra-trip contribution; with the maximum 1.5 factor, half of their destroyed cargo capacity could reappear in the landing force.
+
+The repeat-trip factor is now retained separately, naval casualties are removed from one-trip cargo capacity first and the non-negative surviving capacity alone receives the multiplier. Logistics casualties remain in physical one-trip units and are not multiplied twice. The ordering defect originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Debug-opt autoplay completed successfully through a Cultural victory; the exact post-battle repeat-trip calculation remains source-verified. During the same run in the Future era, the city screen visibly opened and switched between cities several times, then briefly reopened after being closed with Esc. `PythonDbg.log` contains no Python error and its later post-victory sequence is the normal queued Replay, Info, Dan Quayle and Hall of Fame flow, but that does not explain the earlier city-screen behavior.
+
+The observation is retained without attributing it to these non-UI fixes; reproduce it separately before assigning a KI or changing code. Found as F262/provisional KI#585 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 ## 587 - (Fixed inherited original UWAI branch-state omission) Coastal Fleet losses left destroyed transports available for later landings
 

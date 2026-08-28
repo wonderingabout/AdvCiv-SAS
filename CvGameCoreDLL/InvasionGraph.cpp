@@ -931,8 +931,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		if (rArmyPow + rDefArmyPow > 1)
 		{
 			rDeploymentDistAttacker *= rArmyPow / (rArmyPow + rDefArmyPow);
-			rDeploymentDistAttacker *= rMaxWarMinAdjLandFactor;
+			// <!-- custom: Practical 1341 applied the attacker's personality factor before deriving the defender's remaining physical distance, which could push the meeting point beyond the defender and make its distance negative.
+			// Split the bounded geometry first, then retain the personality effect only as attacker deployment effort. See KI#582. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			rDeploymentDistDefender -= rDeploymentDistAttacker;
+			rDeploymentDistAttacker *= rMaxWarMinAdjLandFactor;
 		}
 	}
 	int iDeployTurns = rDeploymentDistAttacker.round();
@@ -1009,9 +1011,12 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			Means that Logistics losses aren't really counted. Will need to
 			track power and cargo separately for the Logistics branch to fix this. */
 		if (rFleetPow > 1)
-			rLogisticsPortion = rCargoCap / rFleetPow;
-		// Cargo units can go multiple times once the naval battle is won
-		rCargoCap *= 1 + 1 / scaled::max(2, rReinforcementDist);
+		{
+			// <!-- custom: Fleet battle losses are confidence-scaled, but Logistics records physical cargo capacity. Match the defender conversion by cancelling attacker confidence in this ratio. See KI#584. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			rLogisticsPortion = rCargoCap * rConfAtt / rFleetPow;
+		}
+		// <!-- custom: Repeat trips happen after the naval battle, so only surviving transports can make them. Retain the factor until Logistics losses have been removed. See KI#585. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled const rRepeatTripFactor = 1 + 1 / scaled::max(2, rReinforcementDist);
 		scaled rLogisticsPortionDef;
 		if (rDefFleetPow > 1)
 		{
@@ -1067,6 +1072,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			else
 			{
 				scaled rCargoSize = rCargoCap - rLogisticsLosses;
+				rCargoSize.increaseTo(0);
+				rCargoSize *= rRepeatTripFactor;
 				m_kReport.log("Naval landing succeeds with %d surviving cargo",
 						rCargoSize.round());
 				if (rArmySize > 0)
@@ -1252,14 +1259,16 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				rArmyPowModified, rDefArmyPowModified);
 		if (bAttWin)
 		{
+			// <!-- custom: Clash results are measured from confidence- and combat-modified power. Convert all persistent and temporary casualties back to physical branch power before applying them. See KI#580. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			rLossesWinner /= rArmyModAttCorr * rConfAtt;
+			rLossesLoser /= rArmyModDefCorr * rConfDef;
+			rTempLosses /= rArmyModAttCorr * rConfAtt;
 			// Have tempLosses take effect immediately (not necessary if bClashOnly)
 			scaled rUnavail = rLossesWinner + rTempLosses;
 			rArmyPow -= rUnavail;
 			rCavPow -= rCavRatio * rUnavail;
 			// Remember the tempLosses
-			kStep.setTempLosses(rTempLosses / rArmyModAttCorr);
-			rLossesLoser /= rArmyModDefCorr;
-			rLossesWinner /= rArmyModAttCorr;
+			kStep.setTempLosses(rTempLosses);
 			kStep.reducePower(m_ePlayer, ARMY, rLossesWinner);
 			kStep.reducePower(kDefender.m_ePlayer, ARMY, rLossesLoser);
 			kStep.reducePower(m_ePlayer, CAVALRY, rLossesWinner * rCavRatio);
@@ -1278,10 +1287,11 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		else
 		{
 			FAssert(rArmyModAttCorr > 0 && rArmyModDefCorr > 0);
+			// <!-- custom: As in the attacker-win branch, remove both confidence and combat modifiers before storing physical Army, Cavalry and temporary losses. See KI#580. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			rLossesLoser /= rArmyModAttCorr * rConfAtt;
+			rLossesWinner /= rArmyModDefCorr * rConfDef;
 			if (bClashOnly) // No rTempLosses for repelled city attack
-				kStep.setTempLosses(rTempLosses / rArmyModDefCorr);
-			rLossesLoser /= rArmyModAttCorr;
-			rLossesWinner /= rArmyModDefCorr;
+				kStep.setTempLosses(rTempLosses / (rArmyModDefCorr * rConfDef));
 			kStep.reducePower(m_ePlayer, ARMY, rLossesLoser);
 			kStep.reducePower(kDefender.m_ePlayer, ARMY, rLossesWinner);
 			kStep .reducePower(m_ePlayer, CAVALRY, rLossesLoser * rCavRatio);

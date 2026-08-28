@@ -44375,3 +44375,742 @@ Best next work:
     * reject coarse modeling choices unless a producer/state/consumer contradiction exists.
 
 No repository source files modified. Audit album only.
+
+
+C021-WIP14 CONTINUATION -- queue 023 InvasionGraph.cpp
+=======================================================
+
+F267 / provisional KI#590 -- PARTIAL CITY LOSS DOES NOT STOP THE DEFENDER'S THIRD-PARTY OFFENSIVE DESPITE EXPLICIT MODEL INVARIANT
+------------------------------------------------------------------------------------------------------------------------------
+TITLE
+    After a node loses a city to a third civilization, applyStep explicitly says that
+    its own offensive stops and its whole Army becomes available for defense. The code
+    only clears m_rDistractionByConquest; it does not remove the node's outgoing edge.
+    In ordinary A -> B -> C post-order resolution, a surviving B can therefore first
+    use its Army to defend against A and then still execute B -> C over a fresh local
+    invasion horizon in the same simulation phase.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv graph-state defect.
+    Present from the initial tracked InvasionGraph import (practical 1253,
+    f6ff6a182f...) and still present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+    This is independent of F251. F251 requires B to become terminal
+    (eliminated/capitulated) while retaining its outgoing edge. F267 needs only one
+    successful city loss: B can remain alive, non-capitulated and retain substantial
+    Army power.
+
+SOURCE-STATED INVARIANT
+    On a successful city attack, the defender executes:
+
+        addCityLoss(kStepCity);
+        ...
+        /* Assume that own offensive stops upon losing a city to a third civ,
+           and whole army becomes available for defense. ... */
+        m_rDistractionByConquest = 0;
+
+    The header defines m_rDistractionByConquest as temporary defensive distraction
+    while trying to conquer a third player. Setting it to zero therefore does implement
+    the second half of the comment: all surviving mobile Army may be assigned to
+    defense against the invader.
+
+    It does NOT implement the first half: m_pPrimaryTarget and the corresponding reverse
+    m_targetedBy entry are untouched.
+
+LIVE GRAPH ORDER
+    Use an ordinary acyclic component:
+
+        A -> B -> C
+
+    C is the sink. resolveLossesRec processes incoming nodes recursively before the
+    current node:
+
+        C.resolveLossesRec()
+            B.resolveLossesRec()
+                A.resolveLossesRec()
+                B.resolveLosses()      // A attacks B
+            C.resolveLosses()          // B attacks C
+
+    Suppose A conquers one B city successfully, but B still has other cities and
+    surviving Army power.
+
+    During B.resolveLosses(), B:
+        * records the city loss;
+        * remains non-eliminated/non-capitulated;
+        * sets m_rDistractionByConquest = 0, making its Army fully available for defense;
+        * does NOT call B.changePrimaryTarget(NULL).
+
+    The later Army-elimination cleanup does not fire unless B's Army branch has actually
+    been exhausted.
+
+OUTGOING OFFENSIVE THEREFORE REMAINS LIVE
+    B -> C is still represented by both:
+        B.m_pPrimaryTarget == &C
+        C.m_targetedBy contains B
+
+    Control returns to C.resolveLossesRec(), which invokes C.resolveLosses(). B remains
+    an incoming invader and B.step(...) constructs its ordinary attack against C.
+
+    No eliminated-node loophole, stale city cache or phase retarget is required.
+
+TIME / DOUBLE-COMMIT CONSEQUENCE
+    The implementation has a field intended to carry an attacker's already simulated
+    war time:
+
+        m_iWarTurnsSimulated
+
+    Successful city attacks add their duration to that field, but resolveLosses' time
+    test still has the corresponding use commented out:
+
+        // + m_iWarTurnsSimulated
+
+    and the header still says that the field is currently not used.
+
+    Each defender's resolveLosses() creates its own fresh aiTurnsSimulated vector.
+    Consequently, time B spent being attacked/defending in B.resolveLosses is not charged
+    against B when B is later treated as the invader in C.resolveLosses.
+
+    In the A -> B -> C sequence, B can therefore receive the full defensive availability
+    intended by the source comment against A and then still receive a fresh local horizon
+    for its surviving Army to attack C. This is not merely a stale label: it changes
+    subsequent losses, possible conquests and capitulations.
+
+WHY THIS IS STRONGER THAN A MODELING-PREFERENCE CLAIM
+    A model could reasonably decide that B survives A's attack and later resumes an
+    offensive against C. That, however, is not the policy encoded/documented here:
+
+        "own offensive stops upon losing a city to a third civ"
+
+    The code then explicitly performs the paired state transition that frees the whole
+    Army for defense. There is no state or delay condition that represents a later
+    resumption. Leaving B -> C live therefore contradicts the declared transition and
+    also grants the outgoing attack a separate unused horizon.
+
+ANCESTRY
+    Practical 1253, the initial tracked InvasionGraph import, already contains the exact
+    comment and only:
+
+        distractionByConquest = 0;
+
+    It does not unlink the defender's own primary target. The per-node time accounting is
+    already marked "currently not used" in that first implementation, and the optional
+    `warTimeSimulated` contribution to the time-limit expression is commented out there
+    as well.
+
+    The 2920 revised-UWAI rewrite and later formatting/refactor commits preserve the same
+    behavior. Base AdvCiv 1.14 and current SAS remain equivalent here.
+
+DISTINCTION FROM F251
+    F251:
+        terminal node (eliminated/capitulated) remains an attacker.
+
+    F267:
+        surviving node loses only part of its empire to a third-party invasion; the
+        source explicitly says its offense stops, but its outgoing edge remains active.
+
+    Repairing F251 by enforcing `terminal => no outgoing edge` does not repair F267.
+
+REPAIR DIRECTION
+    On a successful city loss to a THIRD PARTY, implement the stated offensive-stop
+    transition by removing the defender's outgoing edge when it points elsewhere:
+
+        if (m_pPrimaryTarget != NULL &&
+            m_pPrimaryTarget->m_ePlayer != kAttacker.m_ePlayer)
+        {
+            changePrimaryTarget(NULL);
+        }
+
+    The exact condition should be reviewed around mutual-target/cycle cases; the source
+    specifically says "third civ", so blindly cancelling a defender's edge against the
+    very attacker that just took its city may change intended two-party-war behavior.
+
+    Alternatively, if the intended modern model is actually "pause, defend, then resume",
+    the comment/state should be rewritten and elapsed-time accounting must prevent a
+    fresh full-horizon offensive. Merely leaving the current edge live while also claiming
+    the whole Army for defense produces the unsupported hybrid behavior.
+
+NEGATIVE CONTROLS / SCOPE
+    * A simple ordinary failed attack is already handled by the attacker's failure unlink
+      (the reason F263 was retracted); F267 is success-on-the-defensive-side state.
+    * Full city elimination/capitulation belongs to F251; F267 reproduces with B alive.
+    * If B's Army is also entirely destroyed, existing Army-elimination cleanup masks
+      F267 by removing B's outgoing edge.
+    * This does not assert that every real civilization historically stops all operations
+      after one city loss. It is a consistency defect against the simulation policy that
+      InvasionGraph itself states and partially applies.
+
+
+ADDITIONAL CONTROL / F257 ADDENDUM
+----------------------------------
+During the continued clash audit, the confidence-scaled clash loss is also subtracted from
+local Army/Cavalry availability before the permanent conversion documented by F257.
+That initially looked like a second downstream consequence. In current code, however,
+that local subtraction occurs on the clash-only path, and the clash path returns without
+using the modified local values for a subsequent city assault. The durable F257 effect
+therefore remains the stored permanent/temporary loss conversion; no separate root is
+created from the local subtraction.
+
+
+C021-WIP14 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+    F265 / provisional KI#588
+    F266 / provisional KI#589
+    F267 / provisional KI#590
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F268 UNUSED
+    (KI#586 remains retired with retracted F263; next provisional KI is KI#591.)
+
+Resume from F268 unused.
+
+Best next work:
+    * continue surviving-node edge/distraction semantics after successful defensive city
+      loss, especially m_rDistractionByDefense and m_bHasClashed interactions;
+    * continue Army/Cavalry/Home-Guard overlap invariants against practical 1335/1366
+      and later one-sided bugfixes;
+    * inspect remaining SimulationStep result ownership and branch-loss conversions;
+    * continue capitulation/result propagation and dormant teammate recursion only if a
+      live multi-member-team caller can be proved;
+    * keep historical/intentional horizon approximations distinct from hard state bugs.
+
+No repository source files modified. Audit album only.
+
+
+===============================================================================
+CHECKPOINT C021-WIP15 -- FILE 023 OPEN / InvasionGraph.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T134631.zip
+Prior physical checkpoint:
+    C021-WIP14
+New finding in this append:
+    F268 / provisional KI#591
+Next finding number:
+    F269 UNUSED
+
+F268 / provisional KI#591 -- LAND REACHABILITY BOOLEAN IS COMBINED WITH A MIXED LAND/SEA DISTANCE AND CAN TURN SEA TRAVEL TIME INTO LAND-INVASION TIME
+----------------------------------------------------------------------------------------------------------------------------------------
+TITLE
+    UWAICache::City deliberately records land-route existence separately from one
+    numeric deployment distance chosen from the fastest available land/sea route.
+    InvasionGraph::Node::canReachByLand combines the land-existence boolean with that
+    mixed numeric distance as though it were a land-only distance. A target with a
+    valid but long land route and a much shorter sea route can therefore be classified
+    as a land invasion while using the sea trip's duration and bypassing the Fleet /
+    Logistics battle model required to achieve that duration.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv representation/consumer mismatch.
+    Present from the initial tracked UWAI cache/InvasionGraph implementation and still
+    present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+    This is distinct from F226/KI#549 and F240/KI#563:
+      * F226 concerns whether a valid sea route establishes reachability at all when a
+        shorter NON-QUALIFYING local land route exists. SAS already carries KI#549.
+      * F240 concerns a valid fast land route being excluded by TeamPathFinder's raw
+        plot-count search horizon before its route-aware cost can be evaluated.
+      * F268 reproduces after BOTH routes have been found and the land route genuinely
+        qualifies. The defect is that the cache retains only the fastest mixed numeric
+        duration, while downstream code needs a land-only duration.
+
+CURRENT PRODUCER CONTRACT
+    UWAICache::City::updateDistance documents m_iDistance as a weighted estimate of
+    deployment duration. For each significant source city it first evaluates land:
+
+        if (landFinder.generatePath(...))
+        {
+            iPairwDuration = land path cost / MOVE_DENOMINATOR;
+            bQualifyingLandRoute = AI_isPrimaryArea(sourceArea);
+            if (bQualifyingLandRoute)
+                m_bReachByLand = true;
+            if (source is capital)
+                m_bCapitalArea = true;
+        }
+
+    Current SAS's KI#549 repair correctly keeps strategic land reachability separate
+    from route-duration selection.
+
+    A valid sea route then does:
+
+        bReachBySea = true;
+        iPathTurns = sea penalty + water-path turns;
+        if (iPathTurns < iPairwDuration)
+            iPairwDuration = iPathTurns;
+
+    Therefore, when BOTH a qualifying land route and a faster sea route exist:
+
+        m_bReachByLand / m_bCapitalArea  <- land route exists
+        m_iDistance                     <- faster sea duration
+
+    This producer behavior is coherent for a generic "best deployment duration" cache.
+    The mismatch arises when consumers ask for a LAND-specific duration that the cache
+    does not retain.
+
+CURRENT INVASIONGRAPH CONSUMER
+    Node::canReachByLand is:
+
+        return (bFromCapital ?
+                pCacheCity->canReachByLandFromCapital() :
+                pCacheCity->canReachByLand()) &&
+               (pCacheCity->getDistance() <= getUWAI().maxLandDist() ||
+                !m_kCache.canTrainDeepSeaCargo());
+
+    Node::step then determines the invasion mode from that helper:
+
+        bNaval = !canReachByLand(target, false);
+
+    and, for an ordinary city attack, computes attacker deployment distance from the
+    SAME mixed cache value:
+
+        rDeploymentDistAttacker = min(maxSeaDist, pCacheCity->getDistance());
+
+SUPPORTED CURRENT STATE
+    A simple coastal target is sufficient:
+
+        qualifying land route: 12 turns
+        valid sea route:        5 turns
+        maxLandDist:            >= 5 but < 12 (or simply >=12; the duration error
+                                still reproduces)
+
+    updateDistance records:
+
+        canReachByLand == true
+        getDistance()  ~= 5
+
+    InvasionGraph therefore gets:
+
+        canReachByLand(target) == true   // boolean supplied by the land route
+        bNaval == false                  // ordinary land invasion
+        deployment distance ~= 5         // number supplied by the sea route
+
+    The graph has thus consumed a SEA travel duration as LAND deployment time. Because
+    bNaval is false, the attack also bypasses the naval Fleet clash and Logistics/cargo
+    limitations that would be required to realize that five-turn route.
+
+MAX-LAND-DIST MISCLASSIFICATION
+    The same mixed metric is used inside canReachByLand's maxLandDist gate. If the
+    actual qualifying land route is outside the intended land-duration threshold but
+    the sea route is short, the SEA duration can make the LAND test pass.
+
+    This is stronger than the broad design criticism "UWAI should sometimes choose sea
+    even when land is possible": the implementation is pairing one route's boolean
+    with a different route's duration.
+
+CROSS-FILE SAME-ROOT CONSUMER: ArmamentForecast.cpp
+    ArmamentForecast classifies target-specific buildup as naval with:
+
+        if (!pTargetCity->canReachByLandFromCapital() ||
+            pTargetCity->getDistance() > getUWAI().maxLandDist())
+            bNavalArmament = true;
+
+    The same supported state therefore lets a capital-qualified but long land route be
+    classified as non-naval because the single getDistance() value was shortened by a
+    faster sea route. This can bias forecast production toward land rather than naval
+    preparation for the very route supplying the short duration.
+
+    Keep this under F268 rather than assigning a second root: both consumers fail for
+    the same missing land-specific cached metric.
+
+ANCESTRY / INTENT EVIDENCE
+    The initial tracked UWAI cache already separated a reachByLand boolean from one
+    numeric pairwise duration and replaced that duration with sea travel when sea was
+    faster. The original InvasionGraph helper simultaneously combined reachByLand with
+    getDistance <= maxLandDist. The representation mismatch is therefore inherited,
+    not SAS-specific.
+
+    Practical 2767 broadened land reachability from capital-only to primary areas and
+    introduced/retained canReachByLandFromCapital, but still used the same one numeric
+    distance. The 2920 revised-UWAI rewrite preserves the contract.
+
+    Base AdvCiv 1.14 retains both current consumers:
+      * InvasionGraph::Node::canReachByLand uses canReachByLand* + getDistance;
+      * ArmamentForecast uses canReachByLandFromCapital + getDistance.
+
+    Most diagnostic of all, the AdvCiv manual's own UWAI TODO states:
+
+        InvasionGraph::Node::step sets isNaval solely from land reachability;
+        UWAICache::City does not store separate distances via land and sea;
+        add a separate land-only distance (suggested name: distByLand).
+
+    That TODO identifies the exact missing representation needed by the current
+    consumers and strongly supports treating this as an unfinished known design defect,
+    not a speculative reinterpretation.
+
+REPAIR DIRECTION
+    Preserve at least one separate land-only deployment metric in UWAICache::City.
+    For example:
+
+        m_iDistance         = best/mixed deployment duration (existing semantics)
+        m_iDistanceByLand   = weighted qualifying land-only duration, -1 if unavailable
+
+    Then:
+      * InvasionGraph land reachability / maxLandDist tests use m_iDistanceByLand;
+      * a land invasion uses m_iDistanceByLand for its deployment duration;
+      * a naval invasion uses a sea-appropriate distance and executes Fleet/Logistics
+        modeling;
+      * ArmamentForecast's target-specific naval/land classification uses the land-only
+        metric rather than the mixed best-route value.
+
+    A narrow patch that merely removes getDistance <= maxLandDist from
+    canReachByLand() is NOT sufficient: step() would still feed the mixed sea duration
+    into a land attack.
+
+    Conversely, changing getDistance() globally to land-only would lose the generic
+    fastest-route information used elsewhere. The missing abstraction should be added
+    rather than silently changing the existing metric's meaning.
+
+NEGATIVE CONTROLS / SCOPE
+    * If land is actually the fastest route, getDistance agrees with the land route and
+      F268 does not reproduce.
+    * If no qualifying land route exists, bNaval normally remains true; that is outside
+      this root (subject to independent reachability issues such as F226).
+    * KI#549/F226 does not repair F268. Current SAS correctly lets a valid sea route set
+      bReachBySea independently while still replacing iPairwDuration only when faster;
+      F268 is precisely the later need to remember BOTH route metrics.
+    * F240 can make land reachability falsely absent before F268 is reached; F268 needs
+      the land path to have been found successfully.
+    * This does not claim that UWAI must always choose the objectively fastest travel
+      mode. It claims only that once a LAND mode is selected, the duration and
+      maxLandDist decision cannot safely come from an unidentified mixed/sea route.
+
+
+C021-WIP15 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+    F265 / provisional KI#588
+    F266 / provisional KI#589
+    F267 / provisional KI#590
+    F268 / provisional KI#591
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F269 UNUSED
+    (KI#586 remains retired with retracted F263; next provisional KI is KI#592.)
+
+Resume from F269 unused.
+
+Best next work:
+    * continue surviving-node edge/distraction semantics, especially successful defense
+      and multi-invader state transitions after F267;
+    * continue Army/Cavalry/Home-Guard overlap invariants against practical 1335/1366
+      and later one-sided fixes;
+    * inspect remaining SimulationStep result ownership / branch-loss conversions and
+      city-success/failure bookkeeping;
+    * keep F226/F240/F268 route/cache boundaries distinct while checking any remaining
+      InvasionGraph getDistance consumers;
+    * keep deliberate UWAI approximations and manual TODOs below the bug bar unless a
+      concrete producer -> state -> consumer contradiction can be shown.
+
+No repository source files modified. Audit album only.
+
+
+C021-WIP16 ADDENDUM / CONTINUATION
+=================================
+
+F268 SAME-ROOT ADDENDUM -- clashDistance ALSO CONSUMES THE MIXED ROUTE METRIC
+-----------------------------------------------------------------------------
+    The final F268 pass found one more current InvasionGraph consumer that should stay
+    under F268 rather than receive a separate root.
+
+    Node::clashDistance estimates where two mutually targeting armies meet by averaging
+    the cached target-city distances:
+
+        return scaled(pTargetCity->getDistance() +
+                      pOtherTargetCity->getDistance(), 2);
+
+    Those getDistance() values have the same mixed best-land/sea semantics established
+    in F268. A graph clash that is being modeled as an overland Army encounter can
+    therefore inherit a sea-shortened target-city duration when both land and sea routes
+    exist. That can shorten the nominal clash distance and feeds directly into the
+    deployment-distance arithmetic in step(..., bClashOnly=true).
+
+    This is not a new root. It is another consumer showing why the missing abstraction
+    is a route-specific land distance rather than a narrow fix in canReachByLand().
+
+
+F269 / PROVISIONAL KI#592 -- SIMULATED CITY LOSSES DO NOT REDUCE PER-AREA CITY COUNTS,
+SO LATER AREA WEIGHTS AND GARRISON RALLY SOURCES CAN INCLUDE ALREADY-CONQUERED CITIES
+----------------------------------------------------------------------------------------
+CLASSIFICATION:
+    Inherited UWAI simulation-state bug / stale spatial inventory.
+
+STATUS:
+    LIVE. Confirmed in current SAS and Base AdvCiv 1.14; introduced with the area-aware
+    availability/rally logic in practical 1289. The source has carried explicit Fixme
+    comments acknowledging both manifestations since their introduction.
+
+ROOT CAUSE
+    InvasionGraph maintains simulated conquest state separately from the real map:
+
+        iRemainingCitiesDef = iDefCities - kDefender.m_cityLosses.size();
+        iRemainingCitiesAtt = iAttCities - m_cityLosses.size();
+
+    but when it needs the number of those remaining cities in a particular CvArea it
+    reads:
+
+        pBattleArea->getCitiesPerPlayer(player)
+
+    CvArea::getCitiesPerPlayer returns m_aiCitiesPerPlayer, an ACTUAL game-state city
+    count. That map counter is changed by real CvCity/CvPlot ownership/lifecycle code;
+    InvasionGraph::addCityLoss/addConquest only update graph-local containers and do not
+    mutate CvArea or real city ownership.
+
+    Therefore a city that has already been conquered inside the military simulation is
+    removed from the graph-wide remaining-city denominator but remains present in every
+    per-area numerator/rally count.
+
+CURRENT CONSUMER 1 -- MOBILE ARMY AREA WEIGHT
+    Current step() computes, for a land battle/clash:
+
+        rAreaWeightAtt *= scaled(
+            pBattleArea->getCitiesPerPlayer(m_ePlayer),
+            iRemainingCitiesAtt);
+
+        rAreaWeightDef *= scaled(
+            pBattleArea->getCitiesPerPlayer(kDefender.m_ePlayer),
+            iRemainingCitiesDef);
+
+    The source itself says immediately above the attacker expression:
+
+        // Fixme(?): getCitiesPerPlayer should be reduced based on lost cities
+
+    The same stale numerator affects the defender even though the comment is written
+    only on the attacker block.
+
+SUPPORTED DEFENDER EXAMPLE
+    D begins the simulation with four actual cities:
+
+        battle/island area: D1, D2
+        another area:       D3, D4
+
+    A conquers D1 in the simulation. No real CvCity ownership changes, so:
+
+        kDefender.m_cityLosses.size()                  = 1
+        iRemainingCitiesDef                            = 3
+        pBattleArea->getCitiesPerPlayer(D)             = 2   [stale actual map count]
+        simulated remaining cities in pBattleArea      = 1   [only D2]
+
+    On A's subsequent attack on D2, current raw area share is therefore:
+
+        current: 2 / 3
+        simulated reality represented by graph state: 1 / 3
+
+    The defender clamp is [1/3, 1], so this example is not masked: current code assigns
+    roughly twice the local mobile-Army share that its own simulated city distribution
+    implies. rDefArmyPow and the overlapping rDefCavPow are then multiplied by that
+    overstated weight and flow into city-defense/clash outcomes.
+
+    The same producer mismatch exists on the attacker side when the attacker has
+    simulated city losses in pBattleArea.
+
+CURRENT CONSUMER 2 -- GARRISON RALLY CAP
+    Later in the same city-defense calculation, the number of garrisons allowed to
+    rally from nearby cities is capped by:
+
+        iRallyBound = min(
+            pBattleArea->getCitiesPerPlayer(kDefender.m_ePlayer) - 1,
+            iRallyBound);
+        iRallyBound = min(iRemainingCitiesDef - 1, iRallyBound);
+
+    and the source states:
+
+        /* -1: garrison of c already counted as local.
+           Fixme(?): Should subtract lost cities in pBattleArea. */
+
+    In the four-city example above, while D2 is attacked:
+
+        current local-other-city cap = 2 - 1 = 1
+        simulated local-other-city cap = 1 - 1 = 0
+
+    Thus the already-conquered D1 can still authorize one additional rallied garrison
+    into D2. The global iRemainingCitiesDef cap does not repair the spatial error because
+    D3 and D4 still exist elsewhere.
+
+LIVE SEQUENTIAL PATH
+    This does not require a contrived retarget or phase-reset state:
+
+      1. A -> D attacks D1 successfully.
+      2. applyStep records D1 in D.m_cityLosses and in A.m_conquests.
+      3. A's primary-target edge remains live after success (unless an independent
+         terminal condition removes it).
+      4. addConquest advances A's cache cursor; targetCity() skips cities already lost
+         by D and can return D2.
+      5. The next step against D2 computes iRemainingCitiesDef from m_cityLosses, while
+         pBattleArea->getCitiesPerPlayer(D) still counts D1 and D2.
+
+    Hence both stale consumers are reachable during ordinary repeated conquest of one
+    defender.
+
+ANCESTRY / INTENT EVIDENCE
+    Practical 1289 (ed1826faf1) introduced the area-availability logic and already wrote:
+
+        Fixme(?): getCitiesPerPlayer should be reduced based on lost cities
+
+    in the attacker area-weight block. The same commit introduced the local rally cap
+    with:
+
+        Fixme(?): Should subtract lost cities in battleArea.
+
+    The new code simultaneously introduced/used remainingCitiesAtt/Def, i.e. it already
+    understood that total city counts must be simulation-adjusted but lacked an
+    equivalent per-area simulated count.
+
+    Base AdvCiv 1.14 retains both Fixme comments and both stale CvArea consumers.
+    Current SAS retains them unchanged in substance.
+
+    CvArea::getCitiesPerPlayer itself returns m_aiCitiesPerPlayer. Its mutation API,
+    changeCitiesPerPlayer, is called by actual city/plot/map lifecycle code; there is no
+    InvasionGraph simulation hook that changes it. This confirms that the numerator is
+    not secretly updated when addCityLoss is called.
+
+WHY ONE ROOT, NOT TWO
+    The area-weight overstatement and phantom rally source have the same missing state:
+    there is no "remaining simulated cities of player P in area A" count. Treat them as
+    two consumers of F269 rather than assigning separate findings.
+
+DISTINCT FROM NEARBY ROOTS
+    * Not F260/F265: those concern overlapping CAVALRY failing to track reductions to
+      ARMY after area/deployment filtering. F269 says the AREA FILTER ITSELF receives a
+      stale city distribution before any Cavalry subset issue is considered.
+    * Not F266: F266 concerns HOME_GUARD losses against virtual emergency-defender power
+      being clipped/discarded. F269 can create a garrison rally source from a city that
+      the graph already regards as conquered even with emergency power = 0.
+    * Not F267: no A->B->C outgoing-offensive state is needed. One attacker repeatedly
+      conquering cities from one defender is sufficient.
+    * Not a real-map ownership bug: InvasionGraph intentionally does not mutate the
+      actual game map. The bug is that a real-map spatial aggregate is consumed without
+      subtracting the graph-local simulated losses that its own total denominator does
+      subtract.
+
+REPAIR DIRECTION
+    Compute a simulation-adjusted per-area city count for each node/player, e.g.:
+
+        remainingCitiesInArea(player, area) =
+            area.getCitiesPerPlayer(player)
+            - number of that node's m_cityLosses whose cached/real city lies in area
+
+    Use that adjusted count consistently for:
+      * attacker land/clash rAreaWeightAtt numerator;
+      * defender rAreaWeightDef numerator;
+      * defender local-other-city iRallyBound cap.
+
+    Clamp the adjusted count to a sane nonnegative range and preserve the existing
+    total-remaining-city denominator/clamps.
+
+    Do NOT mutate CvArea or CvCity ownership during the simulation merely to make these
+    reads work; the graph is intentionally hypothetical and other systems must continue
+    to see the real game state.
+
+NEGATIVE CONTROLS / BOUNDS
+    * Before any simulated loss for that player, the actual per-area count and simulated
+      per-area count coincide; F269 does not reproduce.
+    * If all lost cities are in OTHER areas, the battle area's numerator is still valid.
+    * Some map distributions/capital multipliers/clamps can hide the numerical
+      difference, but the 2-local + 2-remote example above survives the defender 1/3
+      floor and the rally cap independently.
+    * The existing iRemainingCitiesDef/Att values correctly adjust the GLOBAL totals;
+      replacing them is not the repair. The missing adjustment is spatial/per-area.
+
+
+C021-WIP16 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+    F265 / provisional KI#588
+    F266 / provisional KI#589
+    F267 / provisional KI#590
+    F268 / provisional KI#591
+    F269 / provisional KI#592
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F270 UNUSED
+    (KI#586 remains retired with retracted F263; next provisional KI is KI#593.)
+
+Resume from F270 unused.
+
+Best next work:
+    * continue successful-defense / multi-invader state and remaining city-combat
+      bookkeeping after F269;
+    * continue Army/Cavalry/Home-Guard overlap invariants against historical one-sided
+      fixes, without splitting same-root consequences from F260/F265/F266;
+    * inspect any remaining uses of actual map city/area state inside hypothetical
+      simulation state for a concrete downstream contradiction;
+    * keep F268's remaining mixed-distance consumers as same-root addenda unless they
+      expose an independent producer/state defect;
+    * preserve current conservative standard: controls/retractions are preferred over
+      manufacturing a new root.
+
+No repository source files modified. Audit album only.
