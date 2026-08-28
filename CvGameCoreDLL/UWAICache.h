@@ -141,8 +141,8 @@ public:
 	void reportUnitDestroyed(UnitTypes eUnit);
 	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void reportCityCreated(CvCity& kCity);
-	// No checks upfront; make sure we're not keeping any dangling pointer.
-	void reportCityDestroyed(CvCity const& kCity) { remove(kCity); }
+	// <!-- custom: City destruction now restores the stateful attack ordering and, for the cache owner's city, its derived asset total; keep that callback logic in the implementation file. See KI#547. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void reportCityDestroyed(CvCity const& kCity);
 	/*	Would prefer to pass a CvDeal instance, but no suitable one is available
 		at the call location */
 	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget);
@@ -162,7 +162,8 @@ private:
 	void updateCities(TeamTypes eTeam, TeamPathFinders* pPathFinders);
 	void add(CvCity& kCity);
 	void add(City& kCacheCity);
-	void remove(CvCity const& kCity);
+	// <!-- custom: Tell the destruction callback whether this cache contained and erased the city, avoiding needless re-sorts for uninformed observers. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool remove(CvCity const& kCity);
 	TeamPathFinders* createTeamPathFinders() const;
 	static void deleteTeamPathFinders(TeamPathFinders& kPathFinders);
 	void resetTeamPathFinders(TeamPathFinders& kPathFinders, TeamTypes eWarTarget) const;

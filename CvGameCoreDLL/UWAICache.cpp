@@ -483,27 +483,30 @@ void UWAICache::add(CvCity& kCity)
 }
 
 
-void UWAICache::remove(CvCity const& kCity)
+// <!-- custom: Return whether this cache actually erased the city so the destruction callback re-sorts only affected caches.
+// Validate both indexed containers before changing either one, avoiding a partial removal if their entries are unexpectedly inconsistent. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool UWAICache::remove(CvCity const& kCity)
 {
 	City* pCacheCity = NULL;
 	std::map<PlotNumTypes,City*>::iterator posMap = m_cityMap.find(kCity.plotNum());
 	if (posMap != m_cityMap.end())
 		pCacheCity = posMap->second;
 	if (pCacheCity == NULL) // OK, caller doesn't need to rule this out.
-		return;
-	PlayerTypes eOldCityOwner = pCacheCity->city().getOwner();
-	if (TEAMID(eOldCityOwner) != TEAMID(m_eOwner) && pCacheCity->canReach())
-		m_aiReachableCities.add(eOldCityOwner, -1);
-	m_cityMap.erase(posMap);
+		return false;
 	std::vector<City*>::iterator posVector = std::find(
 			m_cityList.begin(), m_cityList.end(), pCacheCity);
 	if (posVector == m_cityList.end())
 	{
 		FAssert(posVector != m_cityList.end());
-		return;
+		return false;
 	}
+	PlayerTypes eOldCityOwner = pCacheCity->city().getOwner();
+	if (TEAMID(eOldCityOwner) != TEAMID(m_eOwner) && pCacheCity->canReach())
+		m_aiReachableCities.add(eOldCityOwner, -1);
+	m_cityMap.erase(posMap);
 	delete *posVector;
 	m_cityList.erase(posVector);
+	return true;
 }
 
 
@@ -1434,7 +1437,23 @@ void UWAICache::reportCityCreated(CvCity& kCity)
 	{
 		add(kCity);
 		sortCitiesByAttackPriority();
+		// <!-- custom: Mid-turn creation updated the detailed city set but left the cache owner's derived total assets at its old value, mixing snapshots in immediate war/peace evaluation. Refresh only the affected owner's aggregate after restoring the required city order. See KI#547. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kCity.getOwner() == m_eOwner)
+			updateTotalAssetScore();
 	}
+}
+
+
+void UWAICache::reportCityDestroyed(CvCity const& kCity)
+{
+	bool const bOwnCity = (kCity.getOwner() == m_eOwner);
+	if (!remove(kCity))
+		return;
+	// <!-- custom: The greedy attack-priority order depends on the previously selected city's area, so erasing a city does not necessarily leave the surviving vector in the order a fresh cache would produce. Re-sort after each actual removal, including a raze with no later creation callback. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	sortCitiesByAttackPriority();
+	// <!-- custom: Keep the cache owner's total assets coherent with its mid-turn city removal; observers' own holdings did not change and need no aggregate refresh. See KI#547. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bOwnCity)
+		updateTotalAssetScore();
 }
 
 
