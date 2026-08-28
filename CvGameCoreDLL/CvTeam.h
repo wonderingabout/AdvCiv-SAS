@@ -51,6 +51,7 @@ public:
 	DllExport void reset(TeamTypes eID = NO_TEAM, bool bConstructorCall = false);
 
 	void resetPlotAndCityData(); // BETTER_BTS_AI_MOD, 12/30/08, jdog5000
+	// <!-- custom: Permanent Alliance absorption now also migrates outsiders' persistent UWAI state keyed to the absorbed target team. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void addTeam(TeamTypes eTeam);																								// Exposed to Python
 	void shareItems(TeamTypes eTeam);
 	void shareCounters(TeamTypes eTeam);

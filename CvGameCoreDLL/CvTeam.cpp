@@ -622,7 +622,15 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	AI().AI_updateWorstEnemy();
 	// <advc.104t>
 	if(getUWAI().isEnabled())
+	{
+		// <!-- custom: Survivor-member UWAI merging is only one direction. Before the absorbed target identity becomes unusable, migrate every outside major player's persistent target-keyed history, sponsored-war obligation and human-capitulation readiness to this surviving team. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+		{
+			if (it->getTeam() != getID())
+				it->uwai().getCache().onTargetTeamAbsorbed(getID(), eTeam);
+		}
 		AI().uwai().addTeam(eTeamLeader);
+	}
 	// </advc.104t>
 	AI().AI_updateAreaStrategies();
 

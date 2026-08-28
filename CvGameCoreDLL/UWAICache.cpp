@@ -1557,6 +1557,31 @@ void UWAICache::addTeam(PlayerTypes eOtherLeader)
 }
 
 
+// <!-- custom: The existing Permanent Alliance merge imports the absorbed leader's history into surviving-team members, but did not update persistent target-team keys in outside players' caches.
+// Preserve those histories and live obligations under the surviving identity, then clear the dead key; ordinary per-turn derived maps rebuild separately. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam)
+{
+	FAssert(eSurvivingTeam != NO_TEAM && eAbsorbedTeam != NO_TEAM && eSurvivingTeam != eAbsorbedTeam);
+	m_aiPastWarScore.add(eSurvivingTeam, m_aiPastWarScore.get(eAbsorbedTeam));
+	m_aiPastWarScore.set(eAbsorbedTeam, 0);
+
+	PlayerTypes const eAbsorbedSponsor = m_aeSponsorPerTarget.get(eAbsorbedTeam);
+	int const iAbsorbedBounty = m_aiBounty.get(eAbsorbedTeam);
+	if (eAbsorbedSponsor != NO_PLAYER && iAbsorbedBounty > 0 &&
+		(m_aeSponsorPerTarget.get(eSurvivingTeam) == NO_PLAYER ||
+		iAbsorbedBounty > m_aiBounty.get(eSurvivingTeam)))
+	{
+		m_aeSponsorPerTarget.set(eSurvivingTeam, eAbsorbedSponsor);
+		m_aiBounty.set(eSurvivingTeam, iAbsorbedBounty);
+	}
+	m_aeSponsorPerTarget.set(eAbsorbedTeam, NO_PLAYER);
+	m_aiBounty.set(eAbsorbedTeam, 0);
+
+	if (m_readyToCapitulateTo.erase(eAbsorbedTeam) > 0 && GET_TEAM(eSurvivingTeam).isHuman())
+		m_readyToCapitulateTo.insert(eSurvivingTeam);
+}
+
+
 void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 {
 	if (eFormerLeader == NO_PLAYER)

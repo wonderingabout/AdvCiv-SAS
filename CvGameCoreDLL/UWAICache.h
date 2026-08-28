@@ -152,6 +152,8 @@ public:
 	void setReadyToCapitulate(TeamTypes eMaster, bool b);
 	 // When forming a Permanent Alliance
 	void addTeam(PlayerTypes eOtherLeader);
+	// <!-- custom: When a Permanent Alliance absorbs a target team, migrate outsiders' persistent history and obligations to the surviving target identity. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam);
 	// Moves data that is stored only at the team leader
 	void onTeamLeaderChanged(PlayerTypes formerLeaderId);
 
