@@ -1612,28 +1612,7 @@ CvArea const* InvasionGraph::Node::clashArea(PlayerTypes eEnemy) const
 	return pClashArea;
 }
 
-// Ugh ...
-#define DECL_GET_VICTORY_STAGE(MixedCase, UPPER_CASE) \
-	int get##MixedCase##Stage(PlayerTypes ePlayer) \
-	{ \
-		CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer); \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##1)) \
-			return 1; \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##2)) \
-			return 2; \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##3)) \
-			return 3; \
-		if (kPlayer.AI_atVictoryStage(AI_VICTORY_##UPPER_CASE##4)) \
-			return 4; \
-		return 0; \
-	}
-namespace
-{
-	DECL_GET_VICTORY_STAGE(Domination, DOMINATION)
-	DECL_GET_VICTORY_STAGE(Conquest, CONQUEST)
-}
-
-
+// <!-- custom: Removed the inherited local stage-1-first helpers: victory-stage bits are cumulative, so every active higher stage returned 1. The capitulation gate below now uses the shared highest-stage helpers. See KI#573. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 {
 	Node& kAttacker = *m_kOuter.m_nodeMap[kStep.getAttacker()];
@@ -1712,13 +1691,14 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 			kAttacker.m_arShiftedPower[ARMY] += rPowLeftBehind;
 			CvTeamAI const& kAttTeam = GET_TEAM(kAttacker.m_ePlayer);
 			CvTeamAI const& kDefTeam = GET_TEAM(m_ePlayer);
+			AIVictoryStage const eAttackerVictoryStages = GET_PLAYER(kAttacker.m_ePlayer).AI_getVictoryStageHash();
 			if (!isEliminated() &&
 				GET_PLAYER(m_ePlayer).canPossiblyTradeItem(
 				kAttacker.m_ePlayer, TRADE_SURRENDER) &&
 				// Don't expect node to capitulate so long as it has vassals
 				kDefTeam.getVassalCount(TEAMID(m_eAgent)) <= 0 &&
-				getConquestStage(kAttacker.m_ePlayer) <=
-				getDominationStage(kAttacker.m_ePlayer))
+				getSASConquestVictoryStageLevel(eAttackerVictoryStages) <=
+				getSASDominationVictoryStageLevel(eAttackerVictoryStages))
 			{
 				int iConqueredByAtt = 0;
 				for (size_t i = 0; i < kAttacker.m_conquests.size(); i++)
@@ -1801,7 +1781,13 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 		very minor; could overstate the distractive effect of some small war party. */
 }
 
-#undef DECL_GET_VICTORY_STAGE
+// <!-- custom: City elimination or capitulation previously left this node in its target's reverse-adjacency set, allowing the defeated player to attack later in the same recursive simulation phase. Enforce the terminal-node edge invariant at the state transition. See KI#574. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void InvasionGraph::Node::setEliminated(bool b)
+{
+	m_bEliminated = b;
+	if (b && m_pPrimaryTarget != NULL)
+		changePrimaryTarget(NULL);
+}
 
 void InvasionGraph::Node::setCapitulated(TeamTypes eMaster)
 {

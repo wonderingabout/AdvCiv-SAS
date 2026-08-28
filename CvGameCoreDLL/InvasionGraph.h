@@ -82,7 +82,8 @@ public:
 			Last two parameters only for clash steps */
 		SimulationStep* step(scaled rArmyPortionDefender = 0, scaled rArmyPortionAttacker = 1, bool bClashOnly = false, bool bUniformGarrisons = false) const;
 		void applyStep(SimulationStep const& kStep); // To be called on the defender
-		void setEliminated(bool b) { m_bEliminated = b; }
+		// <!-- custom: A terminal simulated node must also remove its outgoing invasion edge from both adjacency lists. See KI#574. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		void setEliminated(bool b);
 		bool isEliminated() const { return m_bEliminated; }
 		void resolveLosses();
 		/*	Simulates a clash of armies of two Nodes targeting each other.

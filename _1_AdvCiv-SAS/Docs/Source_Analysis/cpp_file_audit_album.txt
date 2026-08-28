@@ -42163,3 +42163,1667 @@ Best next work:
 
 No repository source files were modified by GPT-5.6-Sol during this audit.
 ===============================================================================
+
+===============================================================================
+CHECKPOINT C021-WIP04 -- FILE 021 OPEN / QUEUE 023 InvasionGraph.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Source re-anchor:
+    AdvCiv-SAS_light_source_20260828T134631.zip
+    AdvCiv-1.14(5).zip
+    Civ4-K-Mod-master-1.46(3).zip
+    Civ4CE-main(10).zip
+
+Prior physical checkpoint:
+    C021-WIP03
+
+New roots:
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+
+Next root:
+    F255 UNUSED
+
+PURPOSE
+-------
+Continue queue 023 from F252 unused, concentrating on the post-2920 semantic migration,
+`step` branch accounting / query purity, resolveLosses scheduling, and result ownership.
+The current SAS file was normalized against Base AdvCiv 1.14 first: apart from already
+reconciled SAS changes (notably KI#561 in initMilitary and signature/comment cleanup),
+the relevant InvasionGraph behavior below is inherited. K-Mod 1.46 and Civ4CE do not
+contain the UWAI InvasionGraph class, so they provide no direct cognate control here.
+
+
+F252 / provisional KI#575
+-------------------------
+TITLE
+    Successful conquest makes the ATTACKER leave Army power behind, but converts the
+    unit count with the DEFENDER node's typical Army power; the attacker's remaining
+    simulated offensive force therefore depends on the victim's representative unit.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv ownership defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Present already in the first tracked AdvCiv/UWAI import (practical 1253).
+
+CURRENT PRODUCER -> STATE -> CONSUMER PATH
+    Node::applyStep is invoked on the DEFENDER node. It explicitly recovers the
+    attacker separately:
+
+        Node& kAttacker = *m_kOuter.m_nodeMap[kStep.getAttacker()];
+
+    On a successful city conquest the source then says:
+
+        // The conquerer leaves part of his army behind to protect the city
+        scaled rUnitsLeftBehind = 2 + GET_PLAYER(m_ePlayer).AI_getCurrEraFactor();
+        ...
+        scaled rPowLeftBehind = rUnitsLeftBehind *
+                m_military[ARMY]->getTypicalPower(TEAMID(m_eAgent));
+        rPowLeftBehind.decreaseTo(kAttacker.m_military[ARMY]->power()
+                - kAttacker.m_arLostPower[ARMY]);
+        kAttacker.m_arLostPower[ARMY] += rPowLeftBehind;
+        kAttacker.m_arShiftedPower[ARMY] += rPowLeftBehind;
+
+    `m_military` without a qualifier belongs to `this`, i.e. the DEFENDER.
+
+MILITARYBRANCH OWNERSHIP PROOF
+    MilitaryBranch stores:
+
+        PlayerTypes m_eOwner;
+        scaled m_rTypicalPower;
+
+    and its constructor is owner-specific. updateTypicalUnit scans the civilization and
+    trainability of m_eOwner, then caches that owner's representative unit/power.
+    getTypicalPower merely returns that receiver object's m_rTypicalPower (possibly
+    reduced for an observer that cannot know the typical unit).
+
+    Therefore:
+
+        m_military[ARMY]->getTypicalPower(...)
+
+    in defender::applyStep is unambiguously the DEFENDER's representative Army power,
+    while:
+
+        kAttacker.m_military[ARMY]->getTypicalPower(...)
+
+    is the attacker branch that matches the source comment and the state being reduced.
+
+LIVE EFFECT
+    rPowLeftBehind is not only logged. It is added to the attacker's m_arLostPower, so
+    that power becomes unavailable to subsequent SimulationStep calculations in the
+    same and later phases. It is simultaneously recorded in m_arShiftedPower so the
+    final public lostPower result does not misreport the garrison as combat casualties.
+
+    Thus the wrong receiver changes the simulated invasion trajectory:
+
+      * advanced/strong attacker vs weak victim:
+            weak defender typical power -> too little attacker Army shifted away ->
+            attacker can unrealistically snowball through more cities;
+
+      * weak/obsolete attacker vs advanced victim:
+            strong defender typical power -> too much attacker Army shifted away ->
+            attacker can be clipped to its entire remaining Army and stop early.
+
+    The error is especially artificial because the victim's unit technology -- not the
+    conqueror's actual/representative troops -- controls how much of the conqueror's
+    force disappears from its offensive pool.
+
+ADJACENT OWNERSHIP SMELL
+    The unit-count term also reads:
+
+        GET_PLAYER(m_ePlayer).AI_getCurrEraFactor()
+
+    i.e. the DEFENDER's era factor despite describing how many conqueror units are left
+    behind. This is very likely the same receiver-context slip, and practical 1253
+    already used the defender's `id` for both current era and typical Army power.
+
+    The typical-power receiver alone proves F252. Treat switching the era-factor owner
+    to kAttacker as part of implementation review rather than requiring that secondary
+    point in order for the root to stand.
+
+ANCESTRY
+    Initial tracked practical 1253 already contains:
+
+        int nUnitsLeftBehind = 2 + GET_PLAYER(id).getCurrentEra();
+        ...
+        double powLeftBehind = military[ARMY]->getTypicalUnitPower()
+                * nUnitsLeftBehind;
+        ...
+        attacker.lostPower[ARMY] += powLeftBehind;
+
+    where `id` / `military` are the defender Node and `attacker` is separate.
+
+    The 2920 ScaledNum rewrite preserves the same ownership. No later targeted
+    InvasionGraph repair changes it. Base AdvCiv 1.14 still has the same structure.
+
+REPAIR DIRECTION
+    At minimum, derive the representative power from the force being shifted:
+
+        kAttacker.m_military[ARMY]->getTypicalPower(TEAMID(m_eAgent))
+
+    Review the adjacent era-factor receiver at the same time. A more ambitious model
+    could use the attacker's surviving actual average Army-unit power, but that is a
+    design change; correcting the owner of the existing typical-unit model is surgical.
+
+
+F253 / provisional KI#576
+-------------------------
+TITLE
+    Node::step is used as a speculative/query calculation, but a predicted successful
+    city attack permanently halves the defender's emergency-defense state INSIDE step;
+    discarded priority/cycle probes therefore weaken later real simulations merely by
+    being evaluated.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv query-side mutation defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Present already in the first tracked AdvCiv/UWAI import (practical 1253).
+
+ROOT
+    Node::step(...) is declared const and conceptually builds/returns a SimulationStep.
+    Most of its outputs are correctly written only into that temporary object.
+
+    In the successful city-attack branch, however, it contains the persistent write:
+
+        /* Assume that not all emergency defenders were able to reach this city
+           (i.e. their true power is actually 2 * emergencyDefPow) */
+        kDefender.m_rEmergencyDefPow /= 2;
+
+    kDefender is reached through the graph's Node pointer, so the const qualifier on
+    the attacking Node does not prevent this mutation.
+
+SPECULATIVE CALL SITE A -- INVASION PRIORITY
+    resolveLosses first evaluates EVERY current invader with the defending Army ignored:
+
+        apSteps[*it] = ...->step(0, ...);
+
+    The resulting steps are only probes used to calculate duration/threat and pick the
+    next invader. They are then all deleted:
+
+        SAFE_DELETE(apSteps[it->getID()]);
+
+    If one of those provisional attacks predicts city success, merely computing its
+    priority halves m_rEmergencyDefPow even though no attack has been selected/applied.
+
+    This can happen once the defender has already lost a city in the phase, because
+    applyStep intentionally accumulates emergency power after a successful city loss:
+
+        m_rEmergencyDefPow += typicalHomeGuardPower * duration / (2 or 3);
+
+    On the next resolveLosses iteration the query-side halving is live.
+
+SPECULATIVE CALL SITE B -- CYCLE THREAT ESTIMATION
+    breakCycle likewise calls:
+
+        pStep = m_nodeMap[*it]->step(0, 1, false, true);
+
+    solely to measure a threat value, then deletes pStep. A successful probe can thus
+    alter the persistent defender state while the graph is only deciding which edge/
+    clash should break a cycle.
+
+NON-APPLIED ACTUAL STEP PATH
+    The selected step is computed again at resolveLosses::1962 before the time-horizon
+    check. Therefore even a step later deleted because:
+
+        Simulation step exceeds time limit; not executed
+
+    may already have halved m_rEmergencyDefPow. The world-state mutation can survive an
+    explicitly NON-EXECUTED attack.
+
+DETERMINISTIC MULTIPLICATIVE CONSEQUENCE
+    Let the defender have emergency power E after its first simulated city loss.
+
+    On the next city-resolution iteration with one invader whose provisional and actual
+    attacks both predict success:
+
+        priority probe: E -> E/2       (probe discarded)
+        actual step:    E/2 -> E/4     (before applyStep)
+
+    Only then is the actual conquest applied and new emergency power accumulated.
+
+    With multiple successful provisional invaders, the same state can be halved once
+    per discarded probe before the chosen actual attack is even evaluated. Outcome can
+    therefore depend on how many candidates were inspected and their iteration order,
+    not just on attacks that occurred.
+
+DISTINCTION FROM C021-WIP03'S EMERGENCY-POWER RESET QUESTION
+    WIP03 left `prepareForSimulation` resetting m_rEmergencyDefPow between phases as a
+    coarse-model approximation, not a root.
+
+    F253 is independent and much stronger: within ONE phase, a function used for
+    counterfactual measurement changes persistent combat state even when its result is
+    thrown away or rejected by the time limit.
+
+ANCESTRY
+    Practical 1253 already has `defender.emergencyDefPow /= 2` inside the step function,
+    while the same initial implementation also uses step objects as disposable
+    resolveLosses probes. The 2920 rewrite carries this forward as
+    `kDefender.m_rEmergencyDefPow /= 2`. Base AdvCiv 1.14 remains identical here.
+
+REPAIR DIRECTION
+    Keep Node::step side-effect-free with respect to persistent graph state.
+
+    If halving emergency defense is still desired after an ACTUALLY APPLIED successful
+    city conquest, move that state transition to applyStep (or encode it as an explicit
+    SimulationStep state delta and apply it only there). It must not execute during
+    threat/duration probes or during a step rejected by the time horizon.
+
+    A useful regression invariant is:
+        calling step(...) and deleting the result without applyStep must leave every
+        Node's persistent simulation state byte-for-byte/field-for-field unchanged.
+
+
+F254 / provisional KI#577
+-------------------------
+TITLE
+    resolveLosses treats zero-defense probe duration as an optimistic lower bound and
+    aborts the whole defender when that bound or one selected actual step misses the
+    horizon; naval probes can be LONGER than the real repelled landing, and one blocked
+    invader does not prove that other concurrent invaders are out of time.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv time-horizon scheduling defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Core logic and even the unresolved per-node-time-limit comment are present in the
+    first tracked practical 1253 implementation.
+
+MANIFESTATION A -- THE DOCUMENTED "LOWER BOUND" IS NOT A LOWER BOUND FOR NAVAL WAR
+    resolveLosses creates priority probes with:
+
+        step(0, attackerPortion)
+
+    where the first argument is the DEFENDER Army portion. step deliberately reuses that
+    same portion for the defending Fleet in a naval battle:
+
+        rDefFleetPow = (defender fleet - losses) * confidence *
+                rArmyPortionDefender;
+
+    Therefore every priority probe has rDefFleetPow == 0.
+
+    For a viable attacking fleet (rFleetPow > 1), the probe necessarily wins the naval
+    battle and proceeds to the landing/city-siege path. That path can include deployment,
+    healing and bombardment turns.
+
+    The REAL selected step has a nonzero defender share. Its defender fleet can instead
+    repel the landing. On that branch step terminates immediately with:
+
+        setDuration(iDeployTurns + (bSneakAttack ? 0 : 2));
+        return;
+
+    while still recording genuine Fleet/Logistics and potentially drowned-Army losses.
+
+    Hence a feasible shape is:
+
+        priority probe, defender fleet forced to zero:
+            landing succeeds -> city siege -> duration 13
+
+        real step, defender fleet participates:
+            landing repelled -> duration 7
+
+    Yet resolveLosses states:
+
+        "Shortest duration is an optimistic lower bound ...
+         If the shortest duration exceeds the time limit, all actual durations ..."
+
+    and executes:
+
+        if (iShortestDuration > iTimeLimit)
+            break;
+
+    With a 10-turn horizon the example above is therefore discarded before the actual
+    7-turn naval combat is ever computed. Real in-horizon fleet/logistics/army losses
+    and the failed invasion can disappear from the analysis.
+
+MANIFESTATION B -- ONE SELECTED ACTUAL OVERFLOW ABORTS OTHER INVADERS
+    Even when the shortest probe is inside the horizon, resolveLosses recomputes only
+    that selected invader with its assigned defender share. If its actual cumulative
+    duration exceeds the limit, current code does:
+
+        delete &kNextStep;
+        log("Simulation step exceeds time limit; not executed");
+        break;
+
+    The `break` abandons ALL remaining invaders targeting this defender.
+
+    That inference is not valid. Candidate ordering was based on each invader's
+    zero-defense probe, while the actual-duration increase depends on that invader's
+    defender share, route (land/naval), target city, bombardment/cavalry path and prior
+    simulated turns. A second invader can still have an actual step within the horizon.
+
+    The source itself flags this area as unresolved:
+
+        "Per-node time limit. Not sure if really needed. Would have to
+         toggle isTargeting and unset m_pPrimaryTarget as well in the
+         else branch (instead of breaking)."
+
+    The comment has survived since the first tracked implementation.
+
+WHY THIS IS NOT JUST A LONG-HORIZON APPROXIMATION
+    The first manifestation can suppress a combat that the same step model says occurs
+    BEFORE the horizon. This is not merely choosing not to model events after the
+    horizon; it is an invalid bound used to decide whether to evaluate the event at all.
+
+    The second manifestation is a scheduling/selection problem among independent
+    concurrent invaders: one candidate being too late does not make every other
+    candidate too late.
+
+F253 INTERACTION
+    Before F253 is repaired, even a provisional/actual step rejected by these horizon
+    branches may already mutate emergency-defense power. F253 and F254 therefore amplify
+    each other, but remain independent:
+
+        F253 = speculative calculation mutates persistent state;
+        F254 = invalid horizon bound / global abort can skip valid combat.
+
+REPAIR DIRECTION
+    Do not rely on the current zero-defender step duration as a universal lower bound.
+    A safe lower bound would have to remain <= every possible actual branch (e.g. a
+    carefully defined deployment-only bound), or the code can compute actual candidates
+    before concluding that no step fits.
+
+    When one selected actual step exceeds the per-node horizon, do not `break` the whole
+    defender's loop merely for that reason. Mark/exclude that invader locally for this
+    resolveLosses pass and continue considering the others, without necessarily changing
+    its persistent graph target. Exact scheduling policy deserves implementation review,
+    but the current global inference is unsound.
+
+ANCESTRY
+    The initial practical 1253 InvasionGraph already contains:
+        * priority `step(0, ...)` calls;
+        * the "optimistic lower bound" comment and global shortest-duration break;
+        * the later actual-step time check;
+        * the comment questioning the per-node limit;
+        * `break` when the selected actual step exceeds it.
+
+    The 2920 rewrite largely renames/types this logic rather than creating it. Later
+    2928/2943/3045/3477/3946 repairs do not remove the horizon assumptions.
+
+
+ADDITIONAL CONTROLS / NON-ROOTS THIS PASS
+----------------------------------------
+1. Capitulation result ownership after F119/KI#442 -- CURRENT SAS CLEAN AT PRODUCER
+    MilitaryAnalyst::prepareResults now unions each node's accepted-capitulation set into:
+
+        m_capitulationsAcceptedPerTeam[TEAMID(ePlayer)]
+
+    Current SAS therefore contains the already-reconciled F119 repair. No new queue-023
+    result-index root was found here.
+
+2. setCapitulated teammate recursion inversion -- STILL DORMANT UNDER LIVE CALLER
+    The post-2920 branch remains backwards (`if (!bHasCapitulated) continue;`), but the
+    only live caller requires the surrendering REAL team to have `getAliveCount() <= 1`.
+    No living teammate can reach that recursion under the current gate. Preserve as a
+    dormant regression, not F255.
+
+3. Existing later-history controls remain retained
+    * practical 2928 fixes the attacker-area `!bNaval || bClashOnly` condition;
+    * practical 3045 retains nonnegative simulated-loss/fleet clamps;
+    * practical 3477 retains uniform-garrison threat calculation for cycle breaking;
+    * practical 3946 retains the human rally multiplier.
+
+4. K-Mod / Civ4CE direct comparison
+    Neither source contains UWAI InvasionGraph.cpp/.h. No cognate implementation was
+    available there to confirm or refute F252-F254; ancestry classification therefore
+    rests on current Base AdvCiv and the local AdvCiv/UWAI history.
+
+
+C021-WIP04 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+
+NEXT ROOT:
+    F255 UNUSED
+
+Resume from F255 unused.
+
+Best next work:
+    * continue the 2920 old/new side-by-side arithmetic/condition audit, now with special
+      attention to hidden writes inside nominally computational helpers;
+    * challenge F252-F254 against exact call/lifetime assumptions before durable closure;
+    * continue cycle mutation and two-node/multi-node clash accounting after removing
+      F253's speculative-state contamination from the mental model;
+    * inspect SimulationStep power-loss bookkeeping and naval branch dimensional/portion
+      arithmetic, while treating the source's already-explicit Logistics FIXME as known
+      approximation rather than manufacturing a duplicate root;
+    * continue target-city/cache progression and failure/horizon retarget semantics;
+    * clean rejection remains preferable to inventing F255.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+C021-WIP05 CONTINUATION -- QUEUE 023 InvasionGraph.cpp
+GPT-5.6-Sol, 2026-08-28
+===============================================================================
+
+This continuation freezes the verbal C021-WIP04 -> WIP05 handoff and resumes the
+same queue-023 first pass. No source files were modified.
+
+
+F255 / provisional KI#578
+-------------------------
+TITLE
+    Two-node cycle clash stores the LOSER'S army portion as the WINNER'S
+    conquest-distraction portion; asymmetric outside pressure is transferred to the
+    wrong civilization after the clash.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv ownership/accounting defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Present from the first tracked UWAI/AdvCiv InvasionGraph implementation.
+
+CURRENT PRODUCER -> STATE -> CONSUMER PATH
+    breakCycle computes two independent portions for a two-node cycle:
+
+        rFirstArmyPortion  = portion of first node's own army available for clash
+        rSecondArmyPortion = portion of second node's own army available for clash
+
+    and invokes:
+
+        kFirst.clash(rFirstArmyPortion, rSecondArmyPortion)
+
+    Node::clash names those values correspondingly:
+
+        clash(scaled rArmyPortion, scaled rTargetArmyPortion)
+
+    It then executes the symmetric combat by asking the target node to construct the
+    clash step:
+
+        SimulationStep& kClashStep =
+                *kTarget.step(rArmyPortion, rTargetArmyPortion, true);
+        applyStep(kClashStep);
+
+    The arguments are therefore still:
+        rArmyPortion       = THIS node's own committed portion
+        rTargetArmyPortion = TARGET node's own committed portion
+
+    But the post-clash distraction bookkeeping swaps ownership:
+
+        if (kClashStep.isAttackerSuccessful())
+        {
+            // kTarget (the step attacker) won
+            kTarget.m_rDistractionByConquest = rArmyPortion;       // WRONG owner
+            m_rDistractionByDefense = rTargetArmyPortion;
+        }
+        else
+        {
+            // this node won
+            m_rDistractionByConquest = rTargetArmyPortion;         // WRONG owner
+            kTarget.m_rDistractionByDefense = rArmyPortion;
+        }
+
+    m_rDistractionByConquest is later consumed when computing how much of a node's Army
+    is available to defend against a third party. It is therefore not merely a log or
+    naming error.
+
+WHY THE PORTIONS ARE NOT INTERCHANGEABLE
+    They are only equal in a symmetric two-node cycle. breakCycle derives each from that
+    node's own outside threats and clamps each independently. For example:
+
+        A can devote 80% of its Army to B
+        B can devote 35% of its Army to A
+
+    If A wins, the surviving Army continuing the conquest of B is A's 80% commitment.
+    Current bookkeeping instead records 35% as A's conquest distraction. A third-party
+    attacker against A will therefore be allowed to use too much of A's Army for
+    defense. If the asymmetry is reversed, A can instead be made too distracted.
+
+ANCESTRY
+    The original tracked implementation documents the same parameter ownership directly
+    (armyPortion1 = this node, armyPortion2 = target node) yet performs the same swapped
+    winner assignment. The later 2920 type/renaming rewrite preserves it. Base AdvCiv
+    1.14 and SAS remain equivalent here.
+
+REPAIR DIRECTION
+    Preserve ownership when assigning the winner's conquest distraction:
+
+        if target wins:
+            kTarget.m_rDistractionByConquest = rTargetArmyPortion
+            this->m_rDistractionByDefense    = rArmyPortion
+
+        if this wins:
+            this->m_rDistractionByConquest   = rArmyPortion
+            kTarget.m_rDistractionByDefense  = rTargetArmyPortion
+
+    Recheck the exact intended meaning of m_rDistractionByDefense at implementation time,
+    but the currently documented ownership of both clash portions makes the conquest-side
+    swap itself unambiguous.
+
+
+F256 / provisional KI#579
+-------------------------
+TITLE
+    Practical 2923 changed the ally-confidence army-portion adjustment from assignment
+    to multiplication, accidentally squaring every partial portion at neutral confidence.
+
+STATUS
+    CONFIRMED Base AdvCiv regression, inherited by AdvCiv-SAS.
+    Regression boundary: practical 2923, commit 9ee1db509d
+    ("Minor adjustments to the revised UWAI code").
+
+CURRENT CODE
+    The comment says the absent portion -- 1 minus the supplied portion -- should be
+    adjusted for confidence in allies:
+
+        /* Adjust the portion of the army that is assumed to be absent,
+           i.e. 1 minus portion */
+
+        rArmyPortionDefender *= scaled::max(0,
+                1 - (1 - rArmyPortionDefender) * rConfAlliesAtt);
+        rArmyPortionAttacker *= scaled::max(0,
+                1 - (1 - rArmyPortionAttacker) * rConfAlliesDef);
+
+    Let p be the incoming army portion and c the relevant ally-confidence factor.
+    The intended expression described by the comment and used immediately before 2923 is:
+
+        p' = max(0, 1 - (1 - p) * c)
+
+    Current code instead computes:
+
+        p' = p * max(0, 1 - (1 - p) * c)
+
+NEUTRAL-CONFIDENCE INVARIANT
+    With c = 1, confidence is neutral and should leave p unchanged:
+
+        intended: p' = 1 - (1-p) = p
+        current:  p' = p * p = p^2
+
+    Examples:
+        p = 0.50 -> 0.25
+        p = 0.70 -> 0.49
+        p = 0.90 -> 0.81
+
+    Only the trivial endpoints 0 and 1 survive unchanged.
+
+HISTORY / REGRESSION BOUNDARY
+    * the pre-rewrite UWAI implementation used assignment;
+    * practical 2920's revised/scaled implementation still used assignment;
+    * practical 2923 changes ONLY these operators from `=` to `*=` while retaining the
+      same explanatory comment and the same right-hand expression;
+    * current Base AdvCiv 1.14 and SAS retain the 2923 multiplication.
+
+    The local tracked diff is explicit:
+
+        - rArmyPortionDefender = scaled::max(...)
+        + rArmyPortionDefender *= scaled::max(...)
+
+        - rArmyPortionAttacker = scaled::max(...)
+        + rArmyPortionAttacker *= scaled::max(...)
+
+EFFECT
+    The distortion is concentrated in partial allocations -- exactly the multi-front and
+    cycle cases where army portions carry the most information. It can substantially
+    understate Army/Fleet participation before the actual combat model is even entered,
+    and F255 can then mis-attribute the already-distorted portion after a cycle clash.
+
+REPAIR DIRECTION
+    Restore assignment (`=`) for both expressions, matching the original semantics,
+    practical 2920, and the still-present comment. Add a regression invariant that
+    neutral ally confidence maps every p in [0,1] to itself.
+
+
+F257 / provisional KI#580
+-------------------------
+TITLE
+    Open-field/cycle Army-clash casualties are stored in confidence-scaled units because
+    combat/trait modifiers are divided back out but rConfAtt/rConfDef are not; naval and
+    city-siege paths explicitly undo confidence and establish the intended unit convention.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv dimensional/accounting defect.
+    Present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Present in the initial tracked UWAI implementation.
+
+PRODUCER
+    The Army clash first constructs perceived/modified combat powers:
+
+        rArmyPowModified    = rArmyPow    * rArmyModAttCorr * rConfAtt;
+        rDefArmyPowModified = rDefArmyPow * rArmyModDefCorr * rConfDef;
+
+    clashLossesWinnerLoser and clashLossesTemporary operate on those modified powers, so
+    their returned quantities are in the same modified/confidence-scaled power space.
+
+CONVERSION BACK TO BRANCH POWER -- CURRENT CLASH PATH
+    After the clash, current code removes only the combat modifier:
+
+        rLossesLoser  /= rArmyModDefCorr; // or attacker corr depending on winner
+        rLossesWinner /= rArmyModAttCorr;
+        kStep.reducePower(..., ARMY, rLosses...);
+
+    Temporary losses likewise divide only by the corresponding Army modifier:
+
+        kStep.setTempLosses(rTempLosses / rArmyMod...Corr);
+
+    The confidence multiplier remains embedded.
+
+INTERNAL CONTROL -- OTHER PATHS IN THE SAME FUNCTION
+    Naval losses explicitly divide by confidence when converting perceived battle losses
+    back to stored branch power:
+
+        rLossesAtt = rrLosses... / rConfAtt;
+        rLossesDef = rrLosses... / rConfDef;
+
+    Later city-siege losses likewise divide by both the Army correction and confidence,
+    e.g. denominator `(rArmyModAttCorr * rConfAtt)`.
+
+    The source comment immediately above the Army clash also says:
+
+        "These bonuses are removed again (through division) when applying losses"
+
+    Confidence is part of the multiplication that created the modified power, but is not
+    removed in this one path.
+
+WHY THIS IS NOT JUST 'CONFIDENCE SHOULD AFFECT EXPECTED LOSSES'
+    Confidence already affects which side appears stronger and therefore the clash result
+    in the perceived-power space. Once a returned quantity is converted into the stored
+    `m_arLostPower` unit, leaving the epistemic multiplier in the measurement changes the
+    branch-power unit itself.
+
+    For the same physical force and same combat modifier, merely changing rConf from
+    1.0 to 1.5 can inflate the recorded branch-power loss; changing it to 0.7 can shrink
+    it. Naval and siege code deliberately undo exactly that scaling.
+
+CONSUMERS
+    SimulationStep losses are applied directly to m_arLostPower in applyStep. Those
+    cumulative losses reduce Army/Cavalry availability in later simulated attacks and
+    can trigger the "Army eliminated" target unlink. Temporary losses additionally reduce
+    within-phase Army availability. The error therefore propagates beyond reporting.
+
+REPAIR DIRECTION
+    Convert clash losses and temporary losses back with both factors, consistently with
+    the naval and city-siege branches:
+
+        / (rArmyMod...Corr * rConf...)
+
+    Review the cavalry proportional loss after this conversion, but do not apply a second
+    confidence correction there because Cavalry loss is derived from the corrected Army
+    loss.
+
+
+F258 / provisional KI#581
+-------------------------
+TITLE
+    City-defense trait bonus is read from the graph-wide evaluating agent instead of the
+    defending player, giving or denying +30% city-defense modifier based on the wrong civ.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv owner-identity defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Present in the first tracked UWAI implementation under the older Protective-trait name.
+
+CURRENT CODE
+    During city-garrison strength calculation:
+
+        MilitaryBranch const& kDefHomeGuard =
+                *kDefender.m_military[HOME_GUARD];
+        ...
+        scaled rCityDefenderMod = ...;
+        if (GET_PLAYER(kDefender.m_eAgent).uwai().getCache().hasDefensiveTrait())
+            rCityDefenderMod += 0.3;
+
+    But Node construction assigns:
+
+        m_eAgent(kOuter.m_eAgent)
+
+    i.e. every node receives the SAME analyst/evaluating player ID. `m_eAgent` is not the
+    node's owner. The defender's owner is `kDefender.m_ePlayer`.
+
+MANIFESTATIONS
+    * Agent has Defensive trait, actual defender does not:
+        every simulated defender can receive the +30% city-defense adjustment.
+    * Agent lacks Defensive trait, a third-party/target defender has it:
+        that defender receives no trait adjustment.
+    * Only when defender == agent (or both happen to have the same trait state) is the
+      result accidentally correct.
+
+    rCityDefenderMod subsequently enters the garrison/city-defense power calculation and
+    can alter whether the attacker succeeds, losses, threat and duration.
+
+ANCESTRY
+    The first tracked UWAI implementation used the same wrong identity via its graph-wide
+    `defender.weId` and checked `hasProtectiveTrait()`. The later rewrite renamed the
+    field to `m_eAgent`; the mod's later trait abstraction renamed the cached trait concept
+    to Defensive, but ownership remained unchanged. This is not introduced by SAS.
+
+REPAIR DIRECTION
+    Query the defender owner:
+
+        GET_PLAYER(kDefender.m_ePlayer).uwai().getCache().hasDefensiveTrait()
+
+    A regression test should evaluate A attacking B from the viewpoint of C and vary
+    Defensive trait independently on B and C; only B's trait may change city-defense power.
+
+
+ADDITIONAL CONTROLS / REJECTIONS BETWEEN WIP04 AND WIP05
+---------------------------------------------------------
+1. SimulationStep omitted scaled initializers -- SAFE
+    m_rThreat and m_rTempLosses are not named in the constructor initializer list, but
+    `scaled`/ScaledNum has a zeroing default constructor. Paths that do not call the
+    corresponding setter therefore observe zero rather than indeterminate memory.
+    No F-number assigned.
+
+2. GET_TEAM(PlayerTypes) suspicion -- SAFE IN ADVCIV/SAS
+    Calls such as GET_TEAM(m_ePlayer) are not raw indexing of a team array by PlayerTypes.
+    AdvCiv's CoreAI helper deliberately overloads GET_TEAM(PlayerTypes) and converts via
+    TEAMID. This is the already-known false-positive family behind the retracted
+    F113/KI#436 concern; do not recycle it in queue 023.
+
+3. Garrison-only priority probe allegedly zeroing garrison -- CURRENT CODE SAFE
+    A short-lived historical revision around practical 2943 capped too much, but the
+    subsequent revised-UWAI merge leaves full garrison power in place and caps only the
+    additional defender-advantage component. Current `step(0, ...)` still ignores the
+    mobile defender Army as intended while retaining garrisons. No F-number assigned.
+
+4. isContinuedWar uses global m_conquests.empty() rather than opponent-specific conquest
+    history -- NOT PROMOTED
+    Cross-front state flow is real, but UWAI uses one aggregate Army pool and the code can
+    plausibly intend the initial "already deployed" advantage to be consumed once the
+    aggregate Army has achieved any conquest. This is too model-policy-dependent for the
+    audit's bug threshold without stronger contradictory evidence.
+
+
+C021-WIP05 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+
+NEXT ROOT:
+    F259 UNUSED
+
+Resume from F259 unused.
+
+Best next work:
+    * continue SimulationStep naval/logistics and city-siege loss dimensional accounting;
+    * continue 2920/2923 migration arithmetic/condition audit beyond the already-proven
+      portion regression, especially branches whose comments encode an invariant;
+    * inspect cycle break/multi-node retarget state after F255 and speculative mutation
+      after F253 are mentally corrected;
+    * inspect target-city/cache progression and post-failure/horizon semantics;
+    * trace all SimulationStep result ownership and phase-lifetime consumers;
+    * retain the explicit Logistics power FIXME as a documented approximation unless an
+      independent arithmetic/owner-state defect is found;
+    * F259 stays unused until a new root survives challenge.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C021-WIP06 CONTINUATION -- QUEUE 023 InvasionGraph.cpp
+GPT-5.6-Sol -- 2026-08-28
+===============================================================================
+
+F259 / provisional KI#582
+-------------------------
+TITLE
+    MaxWarMinAdjacentLand personality scaling can push the clash meeting point past the
+    defender, producing a negative defender deployment distance; debug logging then
+    violates scaled::uround's non-negative contract and release arithmetic can boost
+    defender Army power above 100% instead of applying a deployment penalty.
+
+STATUS
+    CONFIRMED Base AdvCiv/UWAI regression introduced in practical 1341
+    (a5724ff58159f2c073fe9b3b55ddcc30210dbf13, "Some small AI changes").
+    Present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+PRODUCER / CURRENT CLASH GEOMETRY
+    For bClashOnly, current code begins with one fixed clash distance for each side:
+
+        rDeploymentDistAttacker = rClashDist;
+        rDeploymentDistDefender = rClashDist;
+
+    It then allocates the attacker's share by Army-power ratio, multiplies THAT spatial
+    share by the evaluating leader's MaxWarMinAdjacentLand personality factor, and
+    subtracts the inflated result from the defender's fixed distance:
+
+        rDeploymentDistAttacker *= rArmyPow / (rArmyPow + rDefArmyPow);
+        rDeploymentDistAttacker *= rMaxWarMinAdjLandFactor;
+        rDeploymentDistDefender -= rDeploymentDistAttacker;
+
+    `rMaxWarMinAdjLandFactor` is derived from an XML value documented as [0,4]. Current
+    SAS XML actually uses all values 0,1,2,3,4. The resulting factors are approximately:
+
+        XML 0 -> 4/6 = 0.667
+        XML 1 -> 1.000
+        XML 2 -> 7/6 = 1.167
+        XML 3 -> 8/6 = 1.333
+        XML 4 -> 9/6 = 1.500
+
+NEGATIVE-DISTANCE THRESHOLDS
+    Let s = attackerArmy / (attackerArmy + defenderArmy). The defender distance becomes
+    negative whenever s * factor > 1.
+
+        factor 1.50  -> s > 2/3 -> attacker Army > 2x defender Army
+        factor 4/3   -> s > 3/4 -> attacker Army > 3x defender Army
+        factor 7/6   -> s > 6/7 -> attacker Army > 6x defender Army
+
+    These are reachable power ratios, not mathematical edge cases. Multiple shipped
+    leader personalities use XML 3 and 4.
+
+CONSUMERS / TWO CONCRETE FAILURE MODES
+    1. Debug-domain violation
+       The result is logged through:
+
+           rDeploymentDistDefender.uround()
+
+       ScaledNum::uround explicitly documents that it works only on non-negative values
+       and asserts `m_i >= 0`. A sufficiently one-sided clash therefore trips the debug
+       invariant solely because the meeting-point arithmetic crossed below zero.
+
+    2. Release semantic inversion
+       The defender deployment modifier is then:
+
+           max(100 - 2 * rDeploymentDistDefender, 50) / 100
+
+       A negative distance makes `100 - 2*negative` GREATER than 100, so the defender's
+       Army power is multiplied above its original value. Moving the estimated meeting
+       point beyond the defender's origin therefore becomes a combat-power bonus.
+
+ANCESTRY
+    The first tracked UWAI code split the fixed clash distance by Army-power share without
+    this personality multiplier, keeping both sides' spatial portions within the original
+    distance. Practical 1341 introduced MaxWarMinAdjacentLand scaling and specifically
+    added the multiplier between the attacker's share calculation and subtraction from
+    the defender. The later scaled-number rewrite preserved the arithmetic. Practical
+    2923 changed relevant logging to uround, making the pre-existing negative-domain
+    state explicitly assertable. Current Base AdvCiv and SAS retain it.
+
+REPAIR DIRECTION
+    Keep physical meeting geometry bounded and non-negative. The cleanest interpretation
+    is to split rClashDist by Army-power share first:
+
+        meetingAtt = clashDist * attackerShare;
+        meetingDef = clashDist - meetingAtt;
+
+    and apply MaxWarMinAdjacentLand only to the attacker's deployment penalty/time if the
+    personality effect is still desired. If personality is intended to shift the meeting
+    point itself, cap the spatial attacker share at rClashDist before deriving the
+    defender share. Merely changing uround to round would hide the debug symptom while
+    retaining the >100% defender-power inversion and is not a sufficient repair.
+
+
+F260 / provisional KI#583
+-------------------------
+TITLE
+    Attacker battle-area weighting scales total Army power but not its overlapping
+    Cavalry sub-branch, breaking Cavalry<=Army and allowing inflated Cavalry availability
+    and losses; the corresponding defender omission was explicitly fixed in practical
+    1366 but the attacker sibling remains.
+
+STATUS
+    CONFIRMED inherited AdvCiv/UWAI branch-accounting omission.
+    Attacker area weighting introduced in practical 1289 (ed1826faf1...) with the omission.
+    Defender-side sibling fixed in practical 1366
+    (82ed992626a03f21b42345058cfdea526337641e).
+    Present in Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+BRANCH INVARIANT BEFORE AREA WEIGHTING
+    CAVALRY is an overlapping subset/sub-branch of ARMY. Current step() explicitly clamps
+    both sides before battle-area weighting:
+
+        rCavPow.decreaseTo(rArmyPow);
+        rDefCavPow.decreaseTo(rDefArmyPow);
+
+    This encodes the expected Cavalry<=Army invariant for the force represented by the
+    step.
+
+PRODUCER -- ASYMMETRIC AREA FILTER
+    `rAreaWeightAtt` and `rAreaWeightDef` estimate the fraction of each civ's military
+    actually available in the battle area. Current attacker path:
+
+        if (rAreaWeightAtt < 1)
+            rArmyPow *= rAreaWeightAtt;
+
+    Current defender path:
+
+        if (rAreaWeightDef != 1)
+        {
+            rDefArmyPow *= rAreaWeightDef;
+            rDefCavPow *= rAreaWeightDef;
+        }
+
+    The attacker Cavalry value is therefore left at whole-force scale while its enclosing
+    Army value is reduced to local-area scale.
+
+CONCRETE INVARIANT BREAK
+    Example before weighting:
+        Army = 100, Cavalry = 80, areaWeightAtt = 0.5
+
+    Current result:
+        Army = 50, Cavalry = 80
+
+    This is impossible under the model's own overlapping-branch interpretation and
+    directly undoes the earlier `rCavPow.decreaseTo(rArmyPow)` safety clamp.
+
+DOWNSTREAM CONSUMERS
+    * Open-field/cycle loss partition derives Cavalry ratios from this unweighted Cavalry
+      against weighted Army. A clamp to 1 prevents an unbounded ratio there, but can make
+      all local Army losses appear Cavalry-heavy.
+    * City combat uses:
+
+          rLossesAttArmy * rCavPow / rArmyPow
+
+      without a ratio clamp. Once rCavPow > rArmyPow, a 20 Army-power casualty estimate
+      can record more than 20 Cavalry power of casualties. Later cumulative branch clamps
+      do not restore the per-step dimensional consistency and can prematurely exhaust the
+      Cavalry branch for subsequent simulation.
+    * Naval landing first scales Army and Cavalry together by the landing ratio, but later
+      attacker area weighting can recreate the mismatch.
+
+HISTORY / STRONG INTERNAL CONTROL
+    Practical 1289 introduced area weighting and initially multiplied only Army power on
+    BOTH attacker and defender sides. Practical 1366 later added exactly:
+
+        targetCavPow *= areaWeightDef;
+
+    to the defender path. Its commit message explicitly says UWAI fixed a v0.93 bug where
+    military power was "grossly underestimated" for defenders with cities on several
+    landmasses and many Mounted/fast units. That establishes that overlapping Cavalry has
+    to follow the same area projection as Army. No corresponding `cavPow *= areaWeightAtt`
+    was added, and the attacker omission remains in Base AdvCiv 1.14 and SAS.
+
+REPAIR DIRECTION
+    Apply the same battle-area factor to the attacker Cavalry sub-branch whenever Army is
+    filtered:
+
+        rArmyPow *= rAreaWeightAtt;
+        rCavPow  *= rAreaWeightAtt;
+
+    Reapplying `rCavPow.decreaseTo(rArmyPow)` afterward is a cheap defensive invariant,
+    though mathematically it should become redundant once both values are scaled by the
+    same non-negative factor.
+
+
+ADDITIONAL CONTROL / REJECTION AFTER WIP05
+------------------------------------------
+Target-city cache cursor across phase-II retargeting -- REJECTED
+    `findBestTarget()` searches the cache independently while `targetCity()` advances a
+    monotonic `m_iCacheIndex`, which initially suggested that cities skipped while fighting
+    one opponent might become unreachable after phase-II retargeting. Lifecycle tracing
+    disproved that path: `prepareForSimulation()` resets m_iCacheIndex to 0 at the start of
+    every simulate() phase, and a node does not retarget across opponents inside a single
+    simulate() call after advancing the cursor. Phase-II therefore begins with a fresh
+    cursor and explicitly skips already-lost cities. The nearby assertion remains useful
+    diagnostics but does not establish the proposed cross-opponent failure. No F-number.
+
+
+C021-WIP06 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+
+NEXT ROOT:
+    F261 UNUSED
+
+Resume from F261 unused.
+
+Best next work:
+    * continue attacker/defender overlapping-branch invariants beyond the now-proven
+      area-weight omission, especially loss partition after cavalry-specialized attacks;
+    * inspect smaller historical InvasionGraph bugfix commits (1335/1358/1387/1395/1726/
+      1879/2767 and the post-2920 cleanups) for one-sided fixes whose sibling survives;
+    * continue SimulationStep naval/logistics, siege and clash dimensional accounting;
+    * continue cycle/retarget/result ownership and horizon-state consumers;
+    * keep documented approximations (notably Logistics cargo-vs-power) separate from
+      independently provable owner/arithmetic/state defects;
+    * F261 stays unused until another root survives challenge.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C021-WIP07 CONTINUATION -- QUEUE 023 InvasionGraph.cpp
+GPT-5.6-Sol -- 2026-08-28
+===============================================================================
+
+F261 / provisional KI#584
+-------------------------
+TITLE
+    Attacker Logistics losses in naval combat retain an inverse confidence factor while
+    defender Logistics losses are confidence-neutral; confidence therefore changes the
+    physical amount of transport capacity destroyed on the attacking side.
+
+STATUS
+    CONFIRMED inherited AdvCiv/UWAI dimensional-accounting asymmetry.
+    Present in the first tracked UWAI import (practical 1253), Base AdvCiv 1.14 and
+    current AdvCiv-SAS. Practical 1335 fixed a separate defender Logistics-owner error
+    but did not repair this confidence mismatch.
+
+MODEL / UNITS
+    MilitaryBranch::Logistics::power() is explicitly cargo capacity, not combat power.
+    Fleet power, by contrast, is a combat-power rating. The existing source FIXME already
+    acknowledges that taking a Logistics/Fleet ratio is a rough dimensional approximation;
+    that approximation is NOT this finding. F261 concerns an additional confidence factor
+    that appears on only one side of an otherwise symmetric conversion.
+
+PRODUCER -- ATTACKER
+    Current naval setup uses confidence-scaled Fleet power:
+
+        rFleetPow = physicalFleetPower * rConfAtt * rArmyPortionAttacker;
+
+    but attacker Logistics portion is computed as:
+
+        rLogisticsPortion = rCargoCap / rFleetPow;
+
+    with no compensating rConfAtt in the numerator. Fleet losses returned by
+    clashLossesWinnerLoser are in confidence-scaled Fleet-power units and are subsequently
+    converted back to physical Fleet power by division by rConfAtt. The attacker transport
+    loss paths then effectively apply confidence twice in opposite places:
+
+        win path:
+            rrLossesWL.first * rLogisticsPortion / rConfAtt
+
+        loss path:
+            rLossesAtt * rLogisticsPortion
+            where rLossesAtt = rrLossesWL.second / rConfAtt
+
+    Since rLogisticsPortion itself already contains 1/rConfAtt through rFleetPow, physical
+    Logistics losses retain an extra inverse-confidence factor.
+
+INTERNAL CONTROL -- DEFENDER
+    Defender setup explicitly includes confidence in the numerator:
+
+        rLogisticsPortionDef = physicalCargoCapacity * rConfDef / rDefFleetPow;
+
+    Because rDefFleetPow already contains rConfDef, this ratio is confidence-neutral.
+    Later division of confidence-scaled Fleet casualties by rConfDef therefore converts
+    defender cargo losses back to physical capacity without leaving a confidence factor.
+
+ALGEBRAIC CONSEQUENCE
+    Holding the physical Fleet/cargo composition and battle casualty fraction fixed:
+
+        defender physical Logistics loss  ~ actual cargo casualty fraction
+        attacker physical Logistics loss  ~ actual cargo casualty fraction / rConfAtt
+
+    Thus an otherwise identical attacking force can lose roughly twice as much physical
+    transport capacity at rConfAtt=0.5 as at rConfAtt=1, while rConfAtt=1.5 produces only
+    about two-thirds as much transport loss. Confidence is epistemic/perceptual in this
+    simulation and is explicitly divided back out of physical Fleet losses; it should not
+    silently change the measurement unit of the transport casualties on only one side.
+
+ANCESTRY
+    The first tracked UWAI import already computes attacker logisticsPortion as
+    cargoCap/fleetPow while fleetPow contains confAtt, and later divides the loss by
+    confAtt. Practical 1335 repairs a concrete neighboring defender bug:
+
+        military[LOGISTICS] -> defender.military[LOGISTICS]
+
+    in logisticsPortionTarget, but preserves the defender-side *confDef and leaves the
+    attacker omission unchanged. The 2920 scaled-number rewrite preserves the asymmetry.
+
+REPAIR DIRECTION
+    Preserve the existing cargo-vs-Fleet approximation if desired, but make the confidence
+    conversion symmetric. For example:
+
+        rLogisticsPortion = rCargoCap * rConfAtt / rFleetPow;
+
+    Do this in the ratio only; do not globally confidence-scale rCargoCap, because that
+    variable later represents actual landing capacity. Then both sides convert perceived
+    Fleet casualties to physical cargo losses under the same dimensional convention.
+
+
+C021-WIP07 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+
+NEXT ROOT:
+    F262 UNUSED
+
+Resume from F262 unused.
+
+Immediate next work:
+    * finish challenge of repeat-trip cargo multiplier ordering relative to naval transport
+      casualties; prove or reject before assigning F262;
+    * continue naval/logistics casualty and drowned-Army dimensional accounting;
+    * continue SimulationStep branch invariants, result ownership and return-path state;
+    * continue history-driven one-sided-fix search without assuming symmetry alone is a bug;
+    * F262 stays unused until another root survives challenge.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C021-WIP08 CONTINUATION -- queue 023 InvasionGraph.cpp
+===============================================================================
+
+F255 / provisional KI#578 -- ADDENDUM: BOTH CYCLE-DISTRACTION ASSIGNMENTS SWAP OWN ARMY PORTIONS
+-----------------------------------------------------------------------------------------------
+The earlier F255 wording emphasized the winner's conquest distraction. A deeper consumer trace
+shows that the same ownership swap affects the loser's defense distraction too, so the root is
+broader but remains one bug.
+
+MODEL / CONTRACT
+    InvasionGraph.h defines the fields as temporary distraction of a node's OWN military effort:
+
+        m_rDistractionByConquest  -- defense less effective while this node tries to conquer
+                                     cities of a third player
+        m_rDistractionByDefense   -- conquest less effective while this node fends off a
+                                     third player
+
+    breakCycle/clash parameters likewise represent the portions of the two nodes' respective
+    armies committed to the mutual clash:
+
+        rArmyPortion        = this node's own committed Army portion
+        rTargetArmyPortion  = target node's own committed Army portion
+
+CURRENT PRODUCER
+    clash calls the target as the SimulationStep attacker:
+
+        SimulationStep& kClashStep =
+            *kTarget.step(rArmyPortion, rTargetArmyPortion, true);
+
+    If kTarget wins, current code writes:
+
+        kTarget.m_rDistractionByConquest = rArmyPortion;
+        m_rDistractionByDefense = rTargetArmyPortion;
+
+    If this node wins, current code writes:
+
+        m_rDistractionByConquest = rTargetArmyPortion;
+        kTarget.m_rDistractionByDefense = rArmyPortion;
+
+    In both branches each surviving distraction field receives the OTHER node's committed
+    portion rather than its owner's portion.
+
+DOWNSTREAM CONSEQUENCE
+    The conquest-distraction field reduces the node's later defensive availability, while
+    m_rDistractionByDefense reduces that node's later attacking portion (e.g. the invader
+    portion in resolveLosses). Thus asymmetric outside pressure is transferred between the two
+    civs whichever side wins the clash; this is not limited to the winner bookkeeping described
+    in WIP05.
+
+REPAIR DIRECTION
+    Keep the clash result logic, but assign each node's own committed portion to its own
+    distraction field. This is an extension of F255/KI#578, not a new root/F-number.
+
+
+F262 / provisional KI#585 -- REPEAT-TRIP CARGO MULTIPLIER IS APPLIED BEFORE NAVAL TRANSPORT LOSSES
+--------------------------------------------------------------------------------------------------
+TITLE
+    Sunk transports can still contribute to post-battle repeat-trip landing capacity because
+    the cargo relay multiplier is applied to the pre-battle transport pool and losses are
+    subtracted only afterward.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv ordering/accounting bug.
+    Present in the first tracked UWAI import (practical 1253), Base AdvCiv 1.14 and current
+    AdvCiv-SAS.
+
+MODEL / UNITS
+    MilitaryBranch::Logistics::unitPower() returns getCargoSpace(); InvasionGraph.h explicitly
+    states that Logistics "power" is cargo capacity. Therefore both rCargoCap and
+    rLogisticsLosses below are expressed in the same one-trip cargo-capacity unit.
+
+CURRENT PRODUCER / ORDERING
+    Before the naval battle is resolved, current code computes base usable cargo capacity C:
+
+        rCargoCap = 0.73 * (LOGISTICS power - lost LOGISTICS power);
+
+    It then immediately applies the post-battle repeat-trip factor M:
+
+        // Cargo units can go multiple times once the naval battle is won
+        rCargoCap *= 1 + 1 / max(2, rReinforcementDist);
+
+    Only after battle casualties have been calculated is destroyed transport capacity L
+    subtracted:
+
+        rCargoSize = rCargoCap - rLogisticsLosses;
+
+    Hence the current effective landing capacity is:
+
+        M * C - L
+
+    But the source comment itself says the extra trips happen *once the naval battle is won*.
+    Transports destroyed in that battle cannot perform those later relay trips. Physical
+    surviving transport capacity should therefore be formed first, then allowed to repeat:
+
+        M * (C - L)
+
+ERROR MAGNITUDE
+    Current overstatement is exactly:
+
+        L * (M - 1)
+
+    M can reach 1.5, so as much as half of the cargo capacity destroyed in the naval battle can
+    effectively reappear in the subsequent landing calculation.
+
+    Example: C=10, M=1.5, L=4
+
+        current:       10 * 1.5 - 4 = 11
+        survivor-first:(10 - 4) * 1.5 = 9
+
+    Two units of effective landing capacity are supplied by transports that were already sunk.
+
+CONSUMER PATH
+    rCargoSize -> rLandingRatio = rCargoSize / rArmySize
+               -> attacker Army/Cavalry landing power
+               -> city invasion odds/result and subsequent losses/conquest state.
+
+    The distortion can therefore change whether the simulated naval invasion succeeds; it is
+    not only a reporting discrepancy in "surviving cargo".
+
+ANCESTRY / CONTROL
+    The first tracked UWAI implementation already has the same semantic sequence and the same
+    explanatory comment: multiply cargo capacity for repeat trips first, then later compute
+    cargoSize = cargoCap - logisticsLosses. The 2920 scaled-number rewrite preserves it.
+    Base AdvCiv 1.14 and SAS remain equivalent here.
+
+    This is separate from F261/KI#584. F261 concerns the confidence unit leaked into attacker
+    Logistics casualty magnitude; F262 remains present even if L itself is calculated perfectly.
+
+REPAIR DIRECTION
+    Keep physical one-trip cargo capacity separate until naval losses are known. For example,
+    retain a repeat-trip factor and calculate the landing capacity as conceptually:
+
+        rCargoSize = max(0, rCargoCap - rLogisticsLosses);
+        rCargoSize *= rRepeatTripFactor;
+
+    or equivalently defer the existing multiplication until after loss subtraction. Do not
+    multiply rLogisticsLosses a second time; it already denotes physical one-trip capacity
+    destroyed in the battle.
+
+
+C021-WIP08 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578  (scope extended in WIP08)
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+
+NEXT ROOT:
+    F263 UNUSED
+
+Resume from F263 unused.
+
+Immediate next work:
+    * continue naval/logistics casualty and drowned-Army dimensional accounting;
+    * challenge emergency-defender power/loss attribution against its intended virtual-unit
+      model before considering any new root;
+    * continue SimulationStep branch invariants/result ownership and return-path state;
+    * inspect one-sided historical bugfixes for omitted symmetric/adjacent cases, but promote
+      only where a live producer -> state -> consumer failure survives;
+    * F263 stays unused until another root survives challenge.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C021-WIP09 CONTINUATION -- queue 023 InvasionGraph.cpp
+===============================================================================
+
+F263 / provisional KI#586 -- FAILED INVADER IS NOT REMOVED AND CAN ATTACK AGAIN
+-------------------------------------------------------------------------------
+TITLE
+    resolveLosses says a failed attacker receives no further step, but leaves that invader
+    in the live targeting set; the same failed force can therefore attack again, while its
+    previous threat is simultaneously counted as `rPastThreat` and reduces the defending
+    Army assigned to the retry.
+
+STATUS
+    CONFIRMED inherited UWAI/AdvCiv control-flow/state defect.
+    Present in the first tracked UWAI import (practical 1253), Base AdvCiv 1.14 and current
+    AdvCiv-SAS. The relevant comment and loop structure have survived essentially unchanged.
+
+INTENDED CONTRACT -- SOURCE STATES IT EXPLICITLY
+    After applying an actual step, resolveLosses says:
+
+        /* If attack fails, the attacker doesn't get another step. However,
+           the defending army portion assigned to that attacker mustn't
+           be assumed to instantaneously redeploy to another front. */
+
+    It then stores the failed attacker's threat in `rPastThreat` so that the defender
+    remains partly tied down for the immediately following invasion resolution.
+
+LIVE CONTROL FLOW
+    At the top of every do/while iteration, resolveLosses walks ALL entries still in
+    `m_targetedBy` and constructs a new preliminary step for each:
+
+        for (... it = m_targetedBy.begin(); it != m_targetedBy.end(); ++it)
+            apSteps[*it] = node[*it]->step(...);
+
+    An ordinary failed city attack does not remove the invader from that set.
+
+    `applyStep` only unlinks the attacker here when its Army is completely eliminated:
+
+        if (attacker Army power <= attacker lost Army power)
+            kAttacker.changePrimaryTarget(NULL);
+
+    The generic failure path does not call changePrimaryTarget(NULL), does not clear a
+    local active flag and does not otherwise exclude `eNextInvader` from later iterations.
+    The target city also remains unconquered, so `targetCity()` can simply return it again.
+
+PRODUCER -> STATE -> CONSUMER FAILURE
+    Suppose attacker A assaults defender D and the actual step fails without eliminating A.
+
+    1. `applyStep(kNextStep)` records the casualties but leaves A -> D live.
+
+    2. Because the step failed:
+
+           rPastThreat = rNextInvaderThreat;
+
+       Let that prior threat be T_A.
+
+    3. The do/while loop repeats. A is still in D.m_targetedBy, so A receives another
+       preliminary step and contributes a fresh threat T'_A to `rSumOfThreats`.
+
+    4. A can be selected as `eNextInvader` again and the actual defender-Army portion is:
+
+           T'_A / (rSumOfThreats + rPastThreat + m_rDistractionByConquest)
+
+       For the simplest one-invader case this is approximately:
+
+           T'_A / (T'_A + T_A)
+
+       rather than 1. The same failed attacker is therefore not merely retried; its OLD
+       threat is treated as if it belonged to another front and diverts defending Army
+       away from its OWN retry.
+
+MULTI-INVADER CONSEQUENCE
+    The same double representation occurs with several attackers: after A fails, A remains
+    a live contributor to the new `rSumOfThreats` while T_A is also carried separately as
+    `rPastThreat`. This contradicts the comment's model, where A is supposed to receive no
+    second step and only its already-committed defensive distraction should carry over for
+    the next OTHER invasion.
+
+DOWNSTREAM EFFECT
+    A first failed assault can therefore be followed by another simulated assault by the
+    same force within the same horizon. Because the retry can receive a smaller defender
+    Army portion, a force that was repelled once can become more likely to conquer the same
+    city on its retry. Repeated failures also consume `aiTurnsSimulated[A]` until the time
+    horizon finally stops them; ordinary failure itself does not.
+
+ANCESTRY
+    Practical 1253 already contains all three necessary pieces together:
+        * the do/while reconstruction of steps from the unchanged `targetedBy` set;
+        * the explicit comment that a failed attacker "doesn't get another step";
+        * `pastThreat = nextInvaderThreat` with no removal/exclusion of that invader.
+
+    Later refactors, including the revised-UWAI/scaled-number work, preserve the behavior.
+    Base AdvCiv 1.14 and current SAS are equivalent in this block.
+
+DISTINCTION FROM OTHER QUEUE-023 ROOTS
+    * F251 concerns an ELIMINATED/CAPITULATED node retaining its outgoing edge and later
+      attacking a different downstream target during recursive graph resolution.
+    * F263 concerns a still-alive attacker whose ordinary FAILED city assault is explicitly
+      supposed to end its attacks for this loss-resolution pass but does not.
+    * F254 concerns time-horizon pruning. F263 remains live with a generous horizon.
+
+REPAIR DIRECTION
+    Enforce the existing stated contract by excluding the failed invader from subsequent
+    step generation in this resolveLosses pass while retaining its threat solely as the
+    carry-over distraction for the next other attacker. This can be done with explicit
+    local active/finished state; alternatively unlinking the failed attacker's target may
+    fit the intended graph semantics, but should be reviewed against phase-II retargeting.
+
+    Crucially, do not leave the same invader simultaneously represented both in the live
+    threat sum and in `rPastThreat`.
+
+
+CONTROL / NON-PROMOTION: EMERGENCY HOME-GUARD LOSS ATTRIBUTION
+--------------------------------------------------------------
+The city-defense formula combines baseline HOME_GUARD power, emergency defender power and
+recorded Home-Guard losses, and a successful city defense loss is then stored through the
+HOME_GUARD branch while emergency power is also reduced. This can look dimensionally odd,
+particularly once emergency power becomes large. However, the original UWAI implementation
+contains the same virtual-defender model and the adjacent comment indicates intentional
+coarse handling of emergency units that could/could not reach the city. No clean invariant
+was found that uniquely determines how casualties should be split between baseline and
+virtual emergency defenders. This remains a modeling question, not F264.
+
+
+C021-WIP09 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F263 / provisional KI#586
+
+NEXT ROOT:
+    F264 UNUSED
+
+Resume from F264 unused.
+
+Immediate next work:
+    * continue resolveLosses scheduling/failed-step state after F263, including threat
+      carry-over and multi-invader ordering without duplicating F254;
+    * continue naval drowned-Army / Logistics dimensional checks after F261/F262;
+    * continue history-driven checks around one-sided UWAI fixes and SimulationStep state;
+    * retain emergency-defender loss attribution as a non-promoted modeling question unless
+      a stronger invariant/consumer proves a concrete defect;
+    * F264 stays unused until another independent root survives challenge.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+C021-WIP10 CONTINUATION -- AUTHORITATIVE F263 RETRACTION + queue-023 controls
+===============================================================================
+
+IMPORTANT CORRECTION -- F263 / provisional KI#586 RETRACTED
+------------------------------------------------------------
+DO NOT IMPLEMENT KI#586 FROM C021-WIP09.
+
+The WIP09 diagnosis that an ordinary failed city attacker remains linked and can
+receive another step was a false positive caused by reading the Army-elimination
+cleanup at the end of Node::applyStep without carrying the immediately preceding
+success/failure branch through to its `else`.
+
+Current Node::applyStep is explicit:
+
+    if (kStep.isAttackerSuccessful())
+    {
+        ...
+    }
+    // Remove link from graph
+    else kAttacker.changePrimaryTarget(NULL);
+
+That `else` belongs to `if (kStep.isAttackerSuccessful())`, not to either of the
+later Army-elimination tests. Therefore EVERY applied unsuccessful step -- an
+ordinary failed city attack as well as an unsuccessful clash -- immediately
+unlinks the attacker from its current primary target. changePrimaryTarget(NULL)
+removes the attacker's player ID from the defender's `m_targetedBy` set.
+
+Consequently, the WIP09 producer -> state -> consumer chain does not exist:
+
+* after A's ordinary failed attack, A -> D is removed;
+* the next resolveLosses iteration does NOT construct another preliminary A step;
+* A does NOT contribute a fresh threat to `rSumOfThreats` while its old threat is
+  carried as `rPastThreat`;
+* the source comment "If attack fails, the attacker doesn't get another step" is
+  in fact implemented by applyStep.
+
+`rPastThreat` therefore has the intended role: for one following resolution it
+keeps part of D's Army tied to the just-failed attack even though that attacker
+has been removed from the live incoming-edge set.
+
+The first tracked UWAI implementation also contains this generic failure unlink;
+the supposed inherited defect was an audit-reading error, not a source defect.
+
+Preserve C021-WIP09's F263 section only as rejected-history evidence so that the
+same hypothesis is not rediscovered. F263 is no longer a live queue-023 root.
+The provisional KI#586 number remains historical/retracted; later KI numbering
+is NOT renumbered.
+
+ADVERSARIAL IMPACT CHECK
+------------------------
+F250-F262 do not depend on F263 and remain live. In particular:
+* F251 is about a successfully eliminated/capitulated defender retaining its OWN
+  outgoing edge; it does not rely on ordinary attack failure.
+* F254 is about horizon pruning before an actual step is applied.
+* F261/F262 are local naval Logistics arithmetic roots.
+
+
+CONTROL / NON-PROMOTION -- findBestTarget/targetCity INVALID-SUFFIX BREAK IS SAFE
+---------------------------------------------------------------------------------
+Both findBestTarget and targetCity stop when they encounter an unreachable or
+own-team city because the cache is sorted by attackPriority. UWAICache proves the
+required ordering invariant:
+
+    unreachable city -> attackPriority() == -1
+    own-team city     -> attackPriority() == -2
+    reachable rival   -> attackPriority() >= 0
+
+sortCitiesByAttackPriority is descending selection sort (with only a positive
+rival's cross-area priority diluted by 1/2, which remains nonnegative). Thus a
+negative-priority own/unreachable city cannot precede a reachable rival city.
+The `break` is valid; no F264 here.
+
+
+CONTROL / NON-PROMOTION -- NAVAL LOGISTICS LIMIT * AREA AVAILABILITY
+--------------------------------------------------------------------
+A tempting arithmetic objection is that a naval landing can first be reduced by
+cargo support and later again by `rAreaWeightAtt`, so the two factors multiply.
+History makes that insufficient for a bug finding. Practical 1289 deliberately
+introduced the battle-area projection AFTER the existing Logistics-supported
+landing calculation and explicitly described two separate constraints:
+
+* the naval attack can focus "as many as are supported by LOGISTICS";
+* independently, the AI "struggles badly with deploying units from different
+  areas."
+
+Practical 1371 retained that separation while changing the human/AI weighting.
+Multiplying two explicitly distinct availability approximations may be crude, but
+is compatible with the stated model. Without a stronger invariant or concrete
+state/unit mismatch, do not promote this as F264.
+
+
+C021-WIP10 CURRENT CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+
+RETRACTED QUEUE-023 ROOT:
+    F263 / provisional KI#586 -- audit false positive; ordinary failure DOES unlink attacker
+
+NEXT ROOT:
+    F264 UNUSED (next provisional KI would be KI#587; do not reuse KI#586)
+
+Resume from F264 unused.
+
+Immediate next work:
+    * continue naval drowned-Army / Logistics dimensional checks after F261/F262;
+    * continue SimulationStep/result ownership and branch-subset invariants;
+    * inspect one-sided historical fixes for omitted sibling paths;
+    * keep emergency-defender loss attribution and sequential naval/area weighting as
+      non-promoted modeling questions unless a harder invariant proves a defect;
+    * F264 stays unused until another independent live root survives challenge.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
