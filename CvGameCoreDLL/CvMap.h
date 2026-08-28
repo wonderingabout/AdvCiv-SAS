@@ -326,6 +326,9 @@ public: // advc: made several functions const
 	short getNextRiverID() const;																									// Exposed to Python
 	void incrementNextRiverID();																					// Exposed to Python
 
+	// <!-- custom: Whole-network regeneration needs the same clean plot-ID and counter state as initial map generation. See KI#567. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void resetRiverIDs();
+
 	bool isWrapXExternal(); // advc.inl: Exported through .def file							// Exposed to Python
 	bool isWrapX() const { return m_bWrapX; } // advc.inl: was "isWrapXINLINE"
 	bool isWrapYExternal(); // advc.inl: Exported through .def file							// Exposed to Python

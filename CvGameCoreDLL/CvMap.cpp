@@ -956,6 +956,16 @@ void CvMap::incrementNextRiverID()
 }
 
 
+// <!-- custom: Erasing a full river network must also remove its invisible path IDs and restart their short counter.
+// Otherwise repeated element regeneration reuses stale barriers and continually consumes IDs. See KI#567. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvMap::resetRiverIDs()
+{
+	m_iNextRiverID = 0;
+	FOR_EACH_ENUM(PlotNum)
+		getPlotByIndex(eLoopPlotNum).setRiverID(-1);
+}
+
+
 bool CvMap::isWrapXExternal() // advc.inl
 {
 	return isWrapX();

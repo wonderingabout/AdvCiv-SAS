@@ -223,6 +223,18 @@ void CvMapGenerator::addLakes()
 	for (int i = 0; i < iCandidates; i++)
 	{
 		CvPlot& p = *apbCandidates[i].first;
+		// <!-- custom: AdvCiv snapshots lake candidates before any become water. Preserve its batched area rebuild, but reject plots that an earlier selected lake has made coastal before consuming their roll, as BTS/K-Mod did sequentially. See KI#566. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool bAdjacentSelectedLake = false;
+		FOR_EACH_ADJ_PLOT(p)
+		{
+			if (std::find(apLakes.begin(), apLakes.end(), pAdj) != apLakes.end())
+			{
+				bAdjacentSelectedLake = true;
+				break;
+			}
+		}
+		if (bAdjacentSelectedLake)
+			continue;
 		if (MapRandOneChanceIn(iLakeRollSides) &&
 			(!apbCandidates[i].second ||
 			MapRandSuccess(rDesertProbMult)))
@@ -698,8 +710,11 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 					FAssert(iNumTiles > 0);
 					continue;
 				} // </advc>
-				int iAddedTotal = kMap.getNumBonuses(eBonus);
-				if (bSASAdvCivOneAreaBonusDistribution && iAddedTotal * 3 < 2 * iTarget &&
+				int const iAddedTotal = kMap.getNumBonuses(eBonus);
+				// <!-- custom: Keep AdvCiv's small-island preference during the capped distribution pass, but let its uncapped fallback use valid small areas
+				// when larger ones cannot reach the target. See KI#568. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (bSASAdvCivOneAreaBonusDistribution && !bIgnoreAreaLimit &&
+					iAddedTotal * 3 < 2 * iTarget &&
 					iNumTiles < 4 * NUM_CITY_PLOTS) // K-Mod
 				{
 					continue;
@@ -974,7 +989,9 @@ void CvMapGenerator::addGoodies()
 
 void CvMapGenerator::eraseRivers()
 {
-	CvMap const& kMap = GC.getMap();
+	// <!-- custom: Whole-network erasure also begins a fresh river-generation lifecycle; clear the invisible per-plot IDs and their next-ID counter together.
+	// See KI#567. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvMap& kMap = GC.getMap();
 	for (int i = 0; i < kMap.numPlots(); i++)
 	{
 		CvPlot& kPlot = kMap.getPlotByIndex(i);
@@ -983,6 +1000,7 @@ void CvMapGenerator::eraseRivers()
 		if (kPlot.isWOfRiver())
 			kPlot.setWOfRiver(false, NO_CARDINALDIRECTION);
 	}
+	kMap.resetRiverIDs();
 }
 
 void CvMapGenerator::eraseFeatures()

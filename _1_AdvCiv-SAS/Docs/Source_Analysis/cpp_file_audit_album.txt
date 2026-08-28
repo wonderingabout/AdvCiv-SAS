@@ -56,7 +56,7 @@ QUEUE (current .cpp files, longest -> shortest)
 034   1637 CvGameCoreDLL/CvInfo_Civilization.cpp [PENDING]
 035   1619 CvGameCoreDLL/CvInfo_GameOption.cpp [PENDING]
 036   1596 CvGameCoreDLL/CvMap.cpp [PENDING]
-037   1576 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]
+037   1576 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]<-(priority next wip)
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]<-(priority next wip)
 040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]<-(priority next wip)
@@ -66,14 +66,14 @@ QUEUE (current .cpp files, longest -> shortest)
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
 045   1281 CvGameCoreDLL/CvMapGenerator.cpp [PENDING]<-(priority next wip 3rd)
 046   1268 CvGameCoreDLL/CyGame.cpp [PENDING]
-047   1214 CvGameCoreDLL/CvDllPythonEvents.cpp [PENDING]
+047   1214 CvGameCoreDLL/CvDllPythonEvents.cpp [PENDING]<-(priority next wip)
 048   1128 CvGameCoreDLL/CvInfo_Building.cpp [PENDING]
 049   1081 CvGameCoreDLL/CvReplayInfo.cpp [PENDING]
 050   1067 CvGameCoreDLL/CyPlot.cpp [PENDING]
 051   1042 CvGameCoreDLL/CyTeam.cpp [PENDING]
 052    973 CvGameCoreDLL/CvXMLLoadUtilityGet.cpp [PENDING]
 053    970 CvGameCoreDLL/EnumMapTest.cpp [PENDING]
-054    844 CvGameCoreDLL/GroupPathFinder.cpp [PENDING]
+054    844 CvGameCoreDLL/GroupPathFinder.cpp [PENDING]<-(priority next wip)
 055    837 CvGameCoreDLL/CyInfoInterface3.cpp [PENDING]
 056    768 CvGameCoreDLL/CvInfo_Asset.cpp [PENDING]
 057    713 CvGameCoreDLL/CombatOdds.cpp [PENDING]
