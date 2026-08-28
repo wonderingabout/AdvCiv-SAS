@@ -8,6 +8,7 @@
 #include "CoreAI.h"
 #include "TeamPathFinder.h"
 #include "CvSelectionGroupAI.h"
+#include "CvUnit.h" // <!-- custom: Needed to distinguish loaded cargo from non-cargo group members in the physical target-mission census. See KI#544. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 #include "CityPlotIterator.h"
 #include "CvArea.h"
 #include "CvInfo_City.h"
@@ -1154,8 +1155,15 @@ void UWAICache::updateTargetMissionCount(PlayerTypes ePlayer)
 			pMissionPlot = pGroup->plot();
 		if (pMissionPlot->getOwner() == ePlayer)
 		{
-			iMissions += pGroup->getNumUnits();
-			iMissions += pGroup->getCargo();
+			// <!-- custom: K-Mod keeps loaded units in their own boarded groups while their transport group also reports them through getCargo.
+			// Count carried cargo through the transport and only non-cargo members through each group's own unit list, so every physical unit contributes once. See KI#544. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			int iGroupMissions = pGroup->getCargo();
+			FOR_EACH_UNIT_IN(pUnit, *pGroup)
+			{
+				if (!pUnit->isCargo())
+					iGroupMissions++;
+			}
+			iMissions += iGroupMissions;
 		}
 	}
 	m_aiTargetMissions.set(ePlayer, iMissions);
@@ -1197,7 +1205,9 @@ scaled UWAICache::teamThreat(TeamTypes eRival) const
 		return 0;
 	}
 	scaled rRivalPow = longTermPower(eRival);
-	scaled rOwnerPow = longTermPower(GET_TEAM(eOwnerTeam).getMasterTeam(), true);
+	// <!-- custom: Cache the owner's master team because both defensive power and nuclear deterrence must use this same war-side scope. See KI#543. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eOwnerMaster = GET_TEAM(eOwnerTeam).getMasterTeam();
+	scaled rOwnerPow = longTermPower(eOwnerMaster, true);
 	if (kRival.isHuman())
 		rOwnerPow *= GET_PLAYER(m_eOwner).uwai().confidenceAgainstHuman();
 	rOwnerPow.increaseTo(scaled::epsilon());
@@ -1213,8 +1223,8 @@ scaled UWAICache::teamThreat(TeamTypes eRival) const
 		rDiploFactor += fixp(0.15);
 	else if (kRival.AI_anyMemberAtVictoryStage(AI_VICTORY_DIPLOMACY2))
 		rDiploFactor += fixp(0.1);
-	// Nuclear deterrent
-	if (GET_PLAYER(m_eOwner).getNumNukeUnits() > 0)
+	// <!-- custom: The inherited deterrent checked only this cache-owning player and ignored teammate/master-side nukes. See KI#543. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (GET_TEAM(eOwnerMaster).getNumNukeUnits() > 0)
 		rDiploFactor -= fixp(0.2);
 	rDiploFactor.clamp(0, 1);
 	// Less likely to attack us if there are many targets to choose from

@@ -18061,8 +18061,15 @@ int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* 
 			if (::atWar(getTeam(), pMissionPlot->getTeam()) ||
 				pLoopSelectionGroup->AI_isDeclareWar(*pMissionPlot))
 			{
-				iCount += pLoopSelectionGroup->getNumUnits();
-				iCount += pLoopSelectionGroup->getCargo();
+				// <!-- custom: K-Mod keeps loaded units in their own boarded groups while their transport group also reports them through getCargo.
+				// Match UWAI's corrected physical-unit census by counting carried cargo through the transport and only non-cargo members through each group itself. See KI#544. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int iGroupMissions = pLoopSelectionGroup->getCargo();
+				FOR_EACH_UNIT_IN(pUnit, *pLoopSelectionGroup)
+				{
+					if (!pUnit->isCargo())
+						iGroupMissions++;
+				}
+				iCount += iGroupMissions;
 				// <advc.opt>
 				if (iCount >= iMaxCount)
 					return iMaxCount; // </advc.opt>
