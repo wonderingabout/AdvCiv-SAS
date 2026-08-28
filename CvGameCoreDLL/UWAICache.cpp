@@ -643,7 +643,9 @@ scaled UWAICache::goldPerProdSites()
 		/*	Once the settlers have been used, the found value of more remote sites
 			may increase a bit
 			(see rShapeWeight in AIFoundValue::adjustToCivSurroundings) */
-		rSiteScore += (aiFoundVals[i] * (arSiteWeights[i] + iSettlers) / 10) / 2500;
+		// <!-- custom: AdvCiv's ScaledNum rewrite divided the fixed site weight by 10 along with the Settler adjustment.
+		// Restore the original siteWeight + settlers / 10 algebra so good expansion sites retain their intended opportunity value. See KI#545. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		rSiteScore += aiFoundVals[i] * (arSiteWeights[i] + scaled(iSettlers, 10)) / 2500;
 	}
 	/*	Don't want to count faraway Barbarian cities. Reference value set after
 		looking at some sample targetCityValues; let's hope these generalize. */
@@ -933,7 +935,9 @@ void UWAICache::updateCanBeHiredAgainst(TeamTypes eTeam, int iWarUtility, int iU
 	scaled rProb = -1;
 	if (!m_abCanBeHiredAgainst.get(eTeam))
 		rProb = std::min(fixp(0.58), (iWarUtility - fixp(1.5) * iUtilityThresh) / 100);
-	else rProb = scaled(1 - (iUtilityThresh - iWarUtility), 100);
+	// <!-- custom: AdvCiv's ScaledNum rewrite changed 1 - delta / 100 into (1 - delta) / 100, collapsing the persistence probability intended to prevent war-trade availability flicker.
+	// Restore the original algebra without changing the threshold or FALSE-to-TRUE branch. See KI#546. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	else rProb = 1 - scaled(iUtilityThresh - iWarUtility, 100);
 	m_abCanBeHiredAgainst.set(eTeam, SyncRandSuccess(rProb));
 }
 

@@ -31763,3 +31763,1979 @@ LOCAL RECONCILIATION AFTER C019-WIP11 IMPORT
 - F200 / provisional KI#523 and F202-F212 / provisional KI#525-KI#535 remain pending independent review and implementation. F213-F223 / provisional KI#536-KI#546 from the open UWAICache audit likewise remain provisional.
 - A separate deterministic Debug-opt replay promoted KI#524.2-KI#524.6 after this checkpoint's queue-041 work. Its successive matching PDBs exposed four unsafe consumers before a Python exception identified the common producer: inherited `CvRandomEventInterface.applyPartisans1` passed `NO_UNIT` to `CvPlayer::initUnit`, which allocated a reset/unplaced unit-container entry before failing. Current source and Known Issues document the independently reviewed repairs and successful replay; these decimal KI entries are not new C019 F-roots.
 - Current source and Known Issues remain authoritative for reviewed implementation state; the imported checkpoints preserve ChatGPT-5.6-Sol's newer investigation and negative controls for the next batches. (GPT-5.6-Sol)
+
+
+===============================================================================
+CHECKPOINT C019-WIP12 -- FILE 019 OPEN / QUEUE 031 UWAICache.cpp
+===============================================================================
+Date: 2026-08-27
+Model: GPT-5.6-Sol
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260827T205116.zip
+Prior physical/reconciled checkpoint:
+    C019-WIP11 plus the local reconciliation already appended by the implementation side
+New finding in this append:
+    F224 / provisional KI#547
+Next finding number:
+    F225 UNUSED
+
+SOURCE RECONCILIATION
+---------------------
+The 20:51 source snapshot's CvGameCoreDLL/UWAICache.cpp is byte-for-byte unchanged
+from the earlier 13:41 snapshot used for C019-WIP01..WIP11. The later deterministic
+Debug-opt crash-chain repairs recorded as KI#524.2-KI#524.6 therefore do not silently
+alter any F213-F223 UWAICache root. Current source remains authoritative for reviewed
+implementation state; this checkpoint continues the investigation from F224 unused.
+
+F224 / provisional KI#547
+-------------------------
+TITLE
+    Mid-turn city conquest keeps the detailed UWAICache city set current but leaves
+    m_rTotalAssets at its pre-conquest value, so live human-turn war/peace evaluation
+    combines new city ownership with an old asset denominator.
+
+STATUS
+    CONFIRMED inherited AdvCiv/UWAI cache-coherency defect. Current in Base AdvCiv
+    1.14 and current AdvCiv-SAS. The mid-turn ownership callback was introduced in
+    practical AdvCiv commit 1289 (ed1826faf1); practical commit 2605 (f788c46a21,
+    "Various optimizations for UWAICache") refactored it into the modern destroy/create
+    callbacks. Neither form refreshes the cache owner's total-asset aggregate.
+
+CURRENT ROOT
+    UWAICache::update() performs the normal complete city rebuild and then computes:
+
+        updateCities(...);
+        sortCitiesByAttackPriority();
+        updateTotalAssetScore();
+
+    updateTotalAssetScore() derives m_rTotalAssets from the current cached cities owned
+    by m_eOwner (plus the Palace/national-wonder adjustment).
+
+    City ownership changes, however, are deliberately propagated during a turn. The
+    modern callbacks are:
+
+        UWAICache::reportCityDestroyed(CvCity const& kCity) { remove(kCity); }
+
+    and:
+
+        void UWAICache::reportCityCreated(CvCity& kCity)
+        {
+            ...
+            if (kCity.getTeam() == TEAMID(m_eOwner) ||
+                GET_TEAM(m_eOwner).AI_deduceCitySite(kCity))
+            {
+                add(kCity);
+                sortCitiesByAttackPriority();
+            }
+        }
+
+    remove/add keep m_cityList, m_cityMap and m_aiReachableCities coherent; creation
+    also restores the attack-priority ordering. But neither callback updates
+    m_rTotalAssets.
+
+    A mechanical current-source caller check finds updateTotalAssetScore() called only
+    by the ordinary per-turn UWAICache::update(). There is no second city-acquisition
+    hook that restores the aggregate later in the same human turn.
+
+SUPPORTED MID-TURN LIFECYCLE
+    CvCity::kill notifies every major AI cache through AI_cityKilled while the old
+    CvCity object is still alive. CvPlayer::acquireCity later constructs the replacement
+    city and notifies every major cache through AI_cityCreated. This deliberately gives
+    UWAICache a current ownership/city-set view without waiting for another team turn.
+
+    The source comment states the reason explicitly:
+
+        "It's important that the cache keep up with ownership changes
+         so that the AI is aware of conquests made throughout a human turn."
+
+    Full UWAI cache refresh, by contrast, occurs from UWAI::Team::turnPre /
+    UWAI::Player::turnPre at the relevant team's next turn. Thus a human can capture an
+    AI city and negotiate/evaluate peace before the victim's next cache refresh.
+
+MIXED-SNAPSHOT FAILURE
+    After such a conquest:
+
+      * the lost city has been removed from the victim's UWAICache city set;
+      * the newly acquired city has been inserted into the conqueror's city set;
+      * target ownership, reachability and attack ordering reflect the new position;
+      * the victim's m_rTotalAssets still includes its pre-conquest asset baseline;
+      * the conqueror's m_rTotalAssets still excludes the newly acquired city.
+
+    This is stronger than ordinary one-turn heuristic staleness: the same cache
+    intentionally updates one representation of city ownership immediately while
+    retaining a derived aggregate computed from the old representation.
+
+LIVE WAR-EVALUATION CONSUMERS
+    totalAssetScore() is read directly by several current WarUtilityAspect paths,
+    including Risk, GreedForAssets, Loathing/Rebuke-related ratios, nuclear-loss
+    valuation, vassal-loss normalization and blockade/loss normalization.
+
+    Human-AI peace valuation calls UWAI::Team::reluctanceToPeace / endWarVal, which
+    constructs a fresh WarEvaluator. Therefore an immediate post-conquest diplomacy
+    query can consume the already-updated city list together with stale total assets;
+    no later per-turn cache update is required to reach the consumer.
+
+NUMERIC CONSEQUENCE
+    Consider a victim whose pre-conquest cached total assets are 100 and whose captured
+    city contributes 30 to that position. After the city callbacks, the current cached
+    city set represents roughly 70 assets, but totalAssetScore() remains 100.
+
+    If a continuation scenario in WarUtilityAspect::Risk predicts another 20 asset
+    points lost, its principal normalization is approximately:
+
+        stale current:   400 * 20 / 100 = 80
+        coherent state:  400 * 20 /  70 = 114.3
+
+    The exact final war utility also includes blockade, nuclear and other terms, but the
+    denominator discrepancy itself is deterministic. Losing a valuable city can
+    therefore leave the AI materially under-normalizing subsequent danger until its
+    next turn. The reverse stale direction occurs for the conqueror, whose aggregate
+    does not yet include its newly acquired city.
+
+ANCESTRY / INTENT
+    Practical commit 1289 (ed1826faf1) introduced reportCityOwnerChanged during the
+    early WarAndPeaceCache implementation. Its source comment already says:
+
+        "I didn't think I'd need to update the city cache during turns, so this
+         is awkward to write ..."
+
+    That callback immediately replaced the cached city owner representation and
+    reachable-city counts, but did not update totalAssets.
+
+    Practical commit 2605 (f788c46a21, "Various optimizations for UWAICache") replaced
+    the in-place owner-change routine with the modern remove/add lifecycle and
+    strengthened the comment to the current human-turn-conquest wording. The same
+    commit retained updateTotalAssetScore as an ordinary update-only operation.
+
+    The omission therefore predates SAS and survives both the original callback and its
+    later pointer/lifecycle cleanup.
+
+REPAIR BOUNDARY
+    Keep m_rTotalAssets coherent only when the cache owner's own city set changes.
+
+    A narrow repair can recompute updateTotalAssetScore after the old-owner cache has
+    removed one of m_eOwner's cities, and after the new-owner cache has added/sorted a
+    city now owned by m_eOwner. The callbacks already run for every major cache, so do
+    not recompute the aggregate unnecessarily for observers whose own city holdings did
+    not change.
+
+    For reportCityCreated, perform the refresh after add() and
+    sortCitiesByAttackPriority(), because updateTotalAssetScore relies on own-team cities
+    sorting to the end. For destruction, removal preserves the existing order of the
+    remaining list, so recomputation after remove is sufficient.
+
+    Do not turn F224 into a full mid-turn UWAICache::update. Other per-turn heuristic
+    fields intentionally have their normal refresh cadence; the proven root is the
+    derived city-asset aggregate becoming inconsistent with the city set that these
+    special conquest callbacks explicitly maintain.
+
+NEGATIVE CONTROLS / SCOPE
+    * The detailed City object added for the conqueror computes a fresh per-city asset
+      score. The defect is not failure to construct the new City; it is failure to fold
+      the changed own-city set back into m_rTotalAssets.
+    * Reachable-city counts are independently adjusted by add/remove and are not part of
+      F224.
+    * The cache-owner extinction guard in reportCityCreated is unrelated; a player with
+      no cities has no useful continuing war evaluation to repair there.
+    * One-turn drift in values such as goldPerProduction is not automatically promoted
+      under F224. The stronger contract here comes from m_rTotalAssets being directly
+      derived from the exact city list that the conquest callbacks intentionally keep
+      current during a human turn.
+
+DEFERRED OLD-SAVE COMPATIBILITY NOTE -- NOT F225
+-------------------------------------------------
+The City distance serialization history contains a real but very old compatibility
+quirk, retained as a closure note rather than spending F225 at this point.
+
+Practical commit 1287 (ad5faf8aa2) introduced the first City save-version encoding.
+The pre-version format had written raw `distance`. The new decoder always performs:
+
+    iSaveVersion = iTmp / 10000;
+    m_iDistance = (iTmp % 10000) - 1;
+
+For an old version-0 raw distance d, this restores d-1. In particular, the old
+unreachable sentinel -1 becomes -2.
+
+Practical commit 1326 (5e6aa1c42d) explicitly acknowledged this supported state by
+changing the writer to:
+
+    FAssertMsg(distance >= -1 && distance < 10000,
+        "-2 is OK if loaded from an old savegame version");
+    distance = ::range(distance, -1, 9999);
+
+The release clamp lets -2 be re-saved as the canonical -1 value, but the assertion
+condition itself still rejects the value its message calls OK. Current read only
+rebuilds CvCity pointers after all players load; normal cache recomputation happens
+later at team turnPre, so the compatibility value can persist for a while after load.
+
+This is a genuine old-format off-by-one/debug-assert compatibility issue, but it affects
+only saves from the initial unversioned UWAI format and is far less relevant to current
+SAS gameplay than F224. Keep it available for later cleanup/closure review rather than
+promoting it as F225 without a reason to prioritize ancient-save compatibility.
+
+C019-WIP12 INTERIM CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES: 18 / 169
+CURRENT FILE: queue 031 CvGameCoreDLL/UWAICache.cpp -- OPEN
+PHYSICAL CHECKPOINT: C019-WIP12
+CURRENT QUEUE-031 ROOTS:
+    F213 / provisional KI#536
+    F214 / provisional KI#537 (cross-file MilitaryBranch refresh root)
+    F215 / provisional KI#538
+    F216 / provisional KI#539
+    F217 / provisional KI#540
+    F218 / provisional KI#541
+    F219 / provisional KI#542
+    F220 / provisional KI#543
+    F221 / provisional KI#544 (with CvPlayerAI::AI_enemyTargetMissions sibling)
+    F222 / provisional KI#545
+    F223 / provisional KI#546
+    F224 / provisional KI#547
+NEXT ROOT ID: F225 UNUSED
+
+Resume from F225 unused. Continue the finite low-mention UWAICache producer/consumer
+matrix, especially remaining City lifecycle/updateDistance invariants, sponsorship and
+war-history fields, pathfinder/reset ownership, and historical bugfix hunks not yet
+explicitly closed. Keep the pre-version City distance issue as a deferred compatibility
+note unless a stronger current consequence appears. Do not manufacture F225 merely to
+advance the checkpoint number.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C019-WIP13 -- FILE 019 OPEN / QUEUE 031 UWAICache.cpp
+===============================================================================
+Date: 2026-08-27
+Model: GPT-5.6-Sol
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260827T205116.zip
+Prior physical checkpoint:
+    C019-WIP12
+New finding in this append:
+    F225 / provisional KI#548
+    (Implementation-side reconciliation may reasonably place this as a KI#475.3
+     follow-up, e.g. KI#475.4, because the current crash repair exposes the remaining
+     military-cache reconstruction half of the same revival lifecycle.)
+Next finding number:
+    F226 UNUSED
+
+LOW-MENTION MILITARY-COUNT NOTE -- NOT A FINDING
+------------------------------------------------
+The remaining m_iNonNavalUnits population mismatch was challenged before promoting
+F225. reportUnit deliberately excludes units whose XML DefaultUnitAI is
+UNITAI_EXPLORE ("exclude Recon"), while the ARMY MilitaryBranch still includes
+combat-capable land/air recon power. HomeGuard::initTotals therefore derives its
+guard-unit fraction from a count population with Recon removed and applies that fraction
+to an Army-power pool that still includes Recon.
+
+Current SAS has several military-production, non-sea, default-Explore combat units
+(Scout, Explorer, Airship and Robotic Recon Drone), so the asymmetry is live. However,
+the exact split and the "exclude Recon" comment are already present in the initial UWAI
+implementation, and no concrete incorrect branch decision beyond a coarse HomeGuard
+allocation approximation has yet been proved. Keep this as a tuning/contract note rather
+than spending an F-root unless a deterministic wrong decision is later found.
+
+F225 / provisional KI#548
+-------------------------
+TITLE
+    Reviving a player after units already exist initializes an empty UWAI military
+    inventory and never reconstructs those units, so the revived civ is modeled with
+    zero military and later unit destruction can drive incremental cache counts/power
+    negative.
+
+STATUS
+    CONFIRMED inherited AdvCiv revival-cache reconstruction defect, still present after
+    the current SAS KI#475.3 crash repair. KI#475.3 correctly fixes the dead-at-load
+    owner/branch initialization crash; F225 is the remaining logical reconstruction
+    half of the same lifecycle rather than a reason to revert that repair.
+
+CURRENT SUPPORTED REPRODUCTION / ORDER
+    A dead player can be revived by receiving a unit (the exact KI#475.3 WorldBuilder
+    reproduction used a Robotic Tank).
+
+    CvPlayer::initUnit allocates and fully initializes the unit without setting the
+    player alive. CvUnitAI::finalizeInit calls CvUnit::finalizeInit, which reports the
+    newly created unit to UWAI:
+
+        kOwner.uwai().getCache().reportUnitCreated(getUnitType());
+
+    This occurs while the player is still dead.
+
+    Later CvGame::testAlive calls CvPlayer::verifyAlive. For a dead player:
+
+        if (getNumCities() > 0 || getNumUnits() > 0)
+            setAlive(true);
+
+    The already-created unit is therefore the reason revival occurs; the creation
+    callback necessarily precedes setAlive(true).
+
+DEATH / REVIVAL CACHE LIFECYCLE
+    On elimination AdvCiv deliberately calls:
+
+        AI().uwai().uninit();
+
+    UWAICache::uninit performs a full clear(). Full clear resets
+    m_iNonNavalUnits and deletes all MilitaryBranch objects. This is the historical
+    reason for the advc.104r comment "UWAI data gets deleted upon death."
+
+    A player dead when a save is loaded is even less initialized: CvPlayerAI::read
+    correctly skips player UWAI deserialization for a dead major, leaving the cache
+    constructor state (m_eOwner == NO_PLAYER, no branch vector). This was the immediate
+    KI#475.3 crash root.
+
+    Current SAS correctly repairs that crash by calling, on revival:
+
+        getUWAI().initRevivedPlayerInGame(getID());
+        getUWAI().processNewPlayerInGame(getID());
+
+    initRevivedPlayerInGame calls Player::init -> UWAICache::init. UWAICache::init:
+
+        m_eOwner = eOwner;
+        clear();
+        updateTraits();
+        createMilitaryBranches();
+
+    The full clear sets m_iNonNavalUnits = 0 and deletes any branch data; the subsequent
+    createMilitaryBranches creates brand-new branches with zero unit count and zero
+    total power.
+
+LOST CREATION CALLBACK
+    In the dead-at-load case the revival-causing unit's earlier reportUnitCreated cannot
+    be retained meaningfully because the cache was never deserialized/initialized.
+    In a dead-during-session case it can increment residual scalar state before revival,
+    but UWAICache::init then clears that state anyway.
+
+    In both cases, once current revival initialization completes, the physically
+    existing revival-causing unit is absent from the new military inventory.
+
+    This is not repaired by processNewPlayerInGame:
+
+        GET_PLAYER(eNewPlayer).uwai().getCache().update(true);
+        for (TeamAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+            it->uwai().turnPre();
+
+    UWAICache::update rebuilds cities, transports, typical trainable units, threat,
+    vassal/adjacency/asset/economic fields, etc. It does NOT enumerate owned units to
+    rebuild MilitaryBranch::m_iUnits / m_rTotalPower or m_iNonNavalUnits. Those fields
+    are intentionally maintained through reportUnitCreated/reportUnitDestroyed
+    callbacks.
+
+    Team::turnPre -> Player::turnPre -> m_cache.update() repeats the same kind of update
+    and likewise cannot reconstruct the missing unit inventory.
+
+CURRENT-SAS CONCRETE EXAMPLE
+    The exact KI#475.3 WorldBuilder reproduction used UNIT_ROBOTIC_TANK. Current XML
+    gives it:
+
+        Domain             DOMAIN_LAND
+        DefaultUnitAI      UNITAI_ATTACK
+        bMilitaryProduction 1
+        iCombat            56
+        iPower             56
+
+    It therefore should increment m_iNonNavalUnits and contributes nonzero ARMY power.
+
+    After current revival initialization, however:
+
+        actual units owned:        1 Robotic Tank
+        cached m_iNonNavalUnits:   0
+        cached ARMY units/power:   0 / 0  (apart from any subsequently created units)
+
+    processNewPlayerInGame immediately runs team turnPre for all major teams. A fresh
+    WarEvaluator/InvasionGraph can therefore consume this state in the same revival
+    processing sequence.
+
+LIVE CONSUMER
+    InvasionGraph::Node::initMilitary copies present military directly from the cache:
+
+        vector<MilitaryBranch*> const& kCacheMilitary = m_kCache.getPowerValues();
+        pHomeGuard->initTotals(m_kCache.numNonNavalUnits(),
+            kCacheMilitary[ARMY]->power() - kCacheMilitary[NUCLEAR]->power());
+
+    It then copies the ARMY/FLEET/LOGISTICS/CAVALRY/NUCLEAR branch totals. The revived
+    player can consequently be modeled as having no present army despite physically
+    owning the unit that caused its revival.
+
+DETERMINISTIC LATER UNDERFLOW
+    CvUnit::kill/destruction always reports:
+
+        kOwner.uwai().getCache().reportUnitDestroyed(getUnitType());
+
+    reportUnitDestroyed calls reportUnit(eUnit, -1). If the revived Tank was never
+    replayed into the freshly initialized cache, its later destruction has no matching
+    retained +1:
+
+        m_iNonNavalUnits: 0 -> -1
+
+    Every MilitaryBranch that can employ the unit similarly applies -1 to a branch that
+    started at zero, making its m_iUnits and m_rTotalPower negative. The ordinary
+    incremental contract therefore becomes permanently unbalanced, not merely stale
+    for one turn.
+
+ANCESTRY
+    Practical AdvCiv commit 2010 / 56af3a8dfa introduced explicit dead-player revival
+    support. Its CvPlayer::setAlive addition already states:
+
+        // advc.104r> (UWAI data gets deleted upon death)
+        if (getUWAI.isEnabled())
+            getUWAI.processNewCivInGame(getID());
+
+    Thus the inherited design already knew that elimination deletes UWAI state, but
+    revival only called the "process/update" stage. That stage did not recreate or scan
+    the deleted military inventory.
+
+    The later scaled/UWAI rewrite renamed this to processNewPlayerInGame without
+    changing that reconstruction contract.
+
+    Base AdvCiv 1.14 therefore contains the deeper omission. For a player dead during
+    the running session, m_eOwner can remain valid but the MilitaryBranch vector deleted
+    by uninit is not rebuilt by processNewPlayerInGame. For a player dead when a save
+    loads, the skipped deserialization additionally leaves m_eOwner == NO_PLAYER; that
+    second condition is what made the current WorldBuilder reproduction crash before
+    KI#475.3.
+
+    SAS practical commit 6283 / 5b2c6d1a63 (KI#475.3) correctly adds
+    initRevivedPlayerInGame before processNewPlayerInGame, restoring the owner and branch
+    objects. It converts the inherited crash/uninitialized-object failure into a safe
+    but still incomplete zero-inventory state. F225 therefore extends rather than
+    contradicts KI#475.3.
+
+REPAIR BOUNDARY
+    After revival-specific UWAICache::init has created a clean cache and MilitaryBranch
+    vector, rebuild the incremental military inventory from the player's units that
+    already exist.
+
+    A narrow repair can iterate the revived player's current units once and replay the
+    equivalent of reportUnitCreated(unit.getUnitType()) before
+    processNewPlayerInGame/its immediate war-evaluation refresh.
+
+    This restores:
+      * m_iNonNavalUnits;
+      * MilitaryBranch unit counts;
+      * MilitaryBranch present-power totals.
+
+    Do not make ordinary per-turn UWAICache::update scan every unit merely to repair
+    this exceptional lifecycle. Incremental creation/destruction reporting is otherwise
+    intentional and cheaper.
+
+    Do not move or duplicate team initialization into the player repair. KI#475.3's
+    distinction remains correct: CvTeam::changeAliveCount initializes a team returning
+    from zero alive members, while a surviving teammate's team UWAI must remain intact.
+
+    If a dedicated "rebuild unit-derived military cache" helper is introduced, it
+    should run only after full player-cache initialization and before consumers, and it
+    should start from known zero branch/count state to avoid double-reporting.
+
+NEGATIVE CONTROLS / SCOPE
+    * New colonial players are not the same lifecycle. They receive normal player UWAI
+      initialization before their later processNewPlayerInGame stage; units created
+      after initialization can be tracked incrementally.
+    * F225 does not reopen KI#475.3's owner/cache crash repair. The initialization call
+      is necessary.
+    * Typical-unit refresh is not a reconstruction of owned-unit power; it scans what
+      unit type is representative/trainable. F214 concerns stale typical-unit identity
+      and is independent.
+    * Generic CvPlayer power is updated correctly by CvUnit::finalizeInit; F225 is
+      specifically the differentiated UWAI MilitaryBranch/non-naval cache.
+    * The earlier conversion +1/-1 staging concern remains rejected: ordinary unit
+      conversion paths resolve delayed death and preserve a matching incremental pair.
+      Revival is different because a full cache clear occurs between the +1 creation
+      event and all later consumers/destruction.
+
+IMPLEMENTATION-SIDE NUMBERING NOTE
+    Album continuity uses F225 / provisional KI#548. Because this was found by extending
+    the exact KI#475.3 revival lifecycle and the practical repair likely belongs beside
+    that crash fix, the implementation/reconciled Known Issues side may prefer a decimal
+    follow-up such as KI#475.4. Preserve the root and proof; the public KI number can be
+    reconciled independently.
+
+C019-WIP13 INTERIM CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES: 18 / 169
+CURRENT FILE: queue 031 CvGameCoreDLL/UWAICache.cpp -- OPEN
+PHYSICAL CHECKPOINT: C019-WIP13
+CURRENT QUEUE-031 ROOTS:
+    F213 / provisional KI#536
+    F214 / provisional KI#537
+    F215 / provisional KI#538
+    F216 / provisional KI#539
+    F217 / provisional KI#540
+    F218 / provisional KI#541
+    F219 / provisional KI#542
+    F220 / provisional KI#543
+    F221 / provisional KI#544
+    F222 / provisional KI#545
+    F223 / provisional KI#546
+    F224 / provisional KI#547
+    F225 / provisional KI#548 (implementation-side likely KI#475.3 follow-up)
+NEXT ROOT ID: F226 UNUSED
+
+Resume from F226 unused. Continue the remaining low-mention UWAICache producer/consumer
+matrix: sponsorship/war-history fields, pathfinder/reset ownership, remaining City
+incremental/updateDistance contracts, serialization/version fallbacks and historical
+bugfix hunks. Keep the Recon/nonNaval denominator asymmetry as an intentional/coarse
+heuristic note unless a deterministic wrong decision is proved. Keep the ancient
+pre-version City-distance issue deferred unless a stronger current consequence appears.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C019-WIP14 -- FILE 019 OPEN / QUEUE 031 UWAICache.cpp
+===============================================================================
+Date: 2026-08-27
+Model: GPT-5.6-Sol
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260827T205116.zip
+Prior physical checkpoint:
+    C019-WIP13
+New finding in this append:
+    F226 / provisional KI#549
+Next finding number:
+    F227 UNUSED
+
+F226 / provisional KI#549
+-------------------------
+TITLE
+    City::updateDistance conflates "a sea route exists" with "sea is the fastest
+    pairwise route": a valid naval route from a secondary/non-primary colony can be
+    ignored because a shorter local land path is present even though that land path is
+    explicitly forbidden from establishing strategic reachability, causing the target
+    city to be cached as wholly unreachable.
+
+STATUS
+    CONFIRMED inherited UWAI reachability/route-selection invariant mismatch. Present
+    from the initial 2017 WarAndPeaceCache implementation and still present in current
+    AdvCiv 1.14 and AdvCiv-SAS. Later practical commit 2767 broadened qualifying land
+    reach from the capital to any primary area and therefore reduced the incidence, but
+    did not remove the underlying mismatch. Practical 2929 added a sea-search
+    optimization that gives the same mismatch an additional skip path when the
+    non-qualifying land route is already short.
+
+CURRENT ROOT
+    UWAICache::City::updateDistance tracks two logically distinct things:
+
+      1. iPairwDuration -- the best/shortest deployment duration found from a source
+         city to the target;
+      2. m_bReachByLand / bReachBySea -- whether at least one strategically acceptable
+         route exists so that the target is not globally classified unreachable.
+
+    A land path from any qualifying source city is allowed to populate
+    iPairwDuration. But only a source in an AI primary area establishes
+    m_bReachByLand:
+
+        if (landFinder.generatePath(...))
+        {
+            iPairwDuration = ...;
+            if (kCacheOwner.AI_isPrimaryArea(pCity->getArea()))
+                m_bReachByLand = true;
+            ...
+        }
+
+    This primary-area restriction is deliberate. AI_isPrimaryArea currently means a
+    non-water area with either more than two of the player's cities or the capital.
+    It prevents a small/peripheral colony near a rival from making that rival look like
+    a normal land target for the whole empire.
+
+    The sea branch, however, uses the existing iPairwDuration as both a performance
+    shortcut and the condition for setting the *existence* flag:
+
+        if (bAnyTransports &&
+            kStart.isCoastalLand(-1) &&
+            iPairwDuration > iSeaPenalty + 2)
+        {
+            ...
+            if (iPathLength > 0)
+            {
+                int iPathTurns = ...;
+                if (iPathTurns < iPairwDuration)
+                {
+                    iPairwDuration = iPathTurns;
+                    bReachBySea = true;
+                }
+            }
+        }
+
+    Thus a legal sea path sets bReachBySea only when it also beats the local land
+    duration. If the local land path came from a non-primary area, that land path can
+    suppress the only flag that would make the target strategically reachable even
+    though the same land path is explicitly not allowed to set m_bReachByLand.
+
+    The final gate then discards every collected duration:
+
+        if ((!m_bReachByLand && !bReachBySea) || aiPairwDurations.empty())
+            return; // m_iDistance remains -1
+
+SUPPORTED CURRENT MAP STATE
+    A straightforward current-data state is enough:
+
+      * the cache owner has an inland capital/main area, so no main-area naval launch
+        route establishes reach to the target;
+      * it also owns exactly two substantial cities on a secondary landmass. With only
+        two cities and no capital there, AI_isPrimaryArea is false for that area;
+      * at least one of those secondary cities is coastal and passes updateDistance's
+        population/production filters;
+      * an enemy coastal city is on that same secondary landmass;
+      * a normal land path from the colony to the enemy exists and is short;
+      * the player genuinely has cargo transports and a valid water path also exists
+        from that colony to the enemy, but the naval trip is slower than the local land
+        trip.
+
+    For example, a local land duration of 4 and a legal naval duration of 6 produces:
+
+        land path found:
+            iPairwDuration = 4
+            m_bReachByLand = false      // secondary area
+
+        naval path:
+            either not searched if the sea-penalty shortcut deems it unable to improve,
+            or searched but 6 < 4 is false
+            bReachBySea = false
+
+        final:
+            !m_bReachByLand && !bReachBySea
+            => return with m_iDistance == -1
+
+    Yet the target has a mechanically valid sea route from a city that the same
+    function accepts as a naval source.
+
+DESIGN NEGATIVE CONTROL
+    This is not merely disagreement with the deliberate primary-area policy.
+
+    The sea branch contains no AI_isPrimaryArea restriction. A secondary coastal city
+    *is allowed* to establish bReachBySea when its sea route happens to be faster than
+    its local land route. Therefore current policy already says that a peripheral port
+    may establish naval reachability.
+
+    The defect is that the exact same valid sea route stops counting as reachability
+    solely because a shorter land path is also present -- even though that shorter land
+    path has independently been declared insufficient to establish strategic land
+    reachability.
+
+    Route existence and route-speed selection are separate contracts; the implementation
+    accidentally couples them.
+
+LIVE CONSEQUENCES
+    City::canReach is simply:
+
+        return (m_iDistance >= 0);
+
+    UWAICache::add increments m_aiReachableCities for foreign owners only when
+    kCacheCity.canReach() is true. Therefore the false -1 propagates to the player/team
+    reachability API:
+
+        UWAI::Player::canReach(eTarget)
+            -> cache.numReachableCities(eTarget) > 0
+
+        UWAI::Team::canReach(eTarget)
+            -> any member cache has numReachableCities(targetMember) > 0
+
+    InvasionGraph::Node::targetCity stops at the first cached city that is not reachable
+    and never chooses such a city as a target. Reachability counts also feed current
+    WarUtilityAspect paths such as operational Readiness and elimination/hopeless-war
+    logic.
+
+    A valid target can therefore disappear from UWAI's target set because the legal sea
+    route was slower than a deliberately non-qualifying local land route.
+
+ANCESTRY
+    The invariant mismatch already exists in practical initial AdvCiv commit 1253 /
+    f6ff6a182f, in WarAndPeaceCache::City::updateDistance.
+
+    The original comments are particularly diagnostic:
+
+        "reachByLand refers to our (AI) capital. This is to ensure that the
+         AI can still detect the need for a naval assault when it has a
+         colony near the target civ."
+
+    and immediately afterward:
+
+        "// Reach by sea from c (whereas reachBySea refers to any city of agent)"
+
+    Yet the original sea code sets the global reachBySea flag only inside:
+
+        if (pwd < 0 || d < pwd)
+        {
+            pwd = d;
+            reachBySea = true;
+        }
+
+    Thus from the initial implementation a non-capital colony could have a valid land
+    path that does not establish reachByLand, while a valid but slower sea path also
+    fails to establish reachBySea.
+
+    Practical 2663 removed reachBySea from the serialized/external City interface and
+    kept it only as a local updateDistance reachability flag; this does not change the
+    root.
+
+    Practical 2767 ("UWAI: Relax conditions for enemy cities being land targets")
+    deliberately broadens qualifying land reach from only the capital to any
+    AI_isPrimaryArea and adds the separate capital-area flag. That reduces the number of
+    source cities exposed to the mismatch, but secondary areas still retain it.
+
+    Practical 2929 ("Fix some issues with the calc of UWAI deployment distances") adds:
+
+        iPairwDuration > iSeaPenalty + 2
+
+    to avoid naval pathfinding when sea cannot be much faster. That is a valid speed
+    optimization only when the existing land route already satisfies the reachability
+    contract. For a secondary-area land route it can now prevent the sea existence
+    check entirely.
+
+REPAIR BOUNDARY
+    Separate "valid sea route exists" from "sea is the duration chosen for this source."
+
+    In particular:
+
+      * when a coastal source's land route does NOT itself establish strategic land
+        reachability (e.g. source area is non-primary), do not let the
+        iPairwDuration/sea-penalty optimization skip the naval existence test solely
+        because that local land route is short;
+      * once a valid water path is found, let that fact establish bReachBySea
+        independently of whether iPathTurns is faster than the current
+        iPairwDuration;
+      * continue to replace iPairwDuration with iPathTurns only when the sea route is
+        actually faster. The shorter local land duration may still contribute to the
+        weighted deployment estimate once the target is known to be strategically
+        reachable; this is consistent with the existing design that allows secondary
+        city durations to influence the aggregate without making them land targets.
+
+    One narrow implementation shape is to track whether the current land route
+    qualifies for m_bReachByLand, force the sea-path existence test for a non-qualifying
+    coastal source, set bReachBySea whenever the water finder succeeds, and keep the
+    `iPathTurns < iPairwDuration` comparison only around the duration replacement.
+
+    Do not "repair" F226 by simply allowing every secondary-area land path to set
+    m_bReachByLand. Practical 2767 and its downstream InvasionGraph/ArmamentForecast
+    changes show that the primary-area distinction is deliberate.
+
+NEGATIVE CONTROLS / SCOPE
+    * If any qualifying primary-area source has a land path, m_bReachByLand is already
+      true and the target remains reachable; F226 concerns cases where only
+      non-qualifying land paths coexist with a legal naval route.
+    * If the sea route is already faster than the local land route, current code sets
+      bReachBySea and no false-unreachable result occurs.
+    * If no valid sea route exists, preserving distance=-1 under the primary-area policy
+      is intentional.
+    * F218 is independent: it concerns falsely claiming transport trainability. F226
+      assumes genuine cargo capability and a water path that the current water finder
+      can actually generate.
+    * The earlier primary-area-only land-reachability concern remains rejected as an
+      intentional strategic heuristic. F226 is the interaction between that deliberate
+      heuristic and the unrelated fastest-route test.
+
+C019-WIP14 INTERIM CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES: 18 / 169
+CURRENT FILE: queue 031 CvGameCoreDLL/UWAICache.cpp -- OPEN
+PHYSICAL CHECKPOINT: C019-WIP14
+CURRENT QUEUE-031 ROOTS:
+    F213 / provisional KI#536
+    F214 / provisional KI#537
+    F215 / provisional KI#538
+    F216 / provisional KI#539
+    F217 / provisional KI#540
+    F218 / provisional KI#541
+    F219 / provisional KI#542
+    F220 / provisional KI#543
+    F221 / provisional KI#544
+    F222 / provisional KI#545
+    F223 / provisional KI#546
+    F224 / provisional KI#547
+    F225 / provisional KI#548
+    F226 / provisional KI#549
+NEXT ROOT ID: F227 UNUSED
+
+Resume from F227 unused. Continue the finite low-mention UWAICache producer/consumer
+matrix and the remaining historical bugfix checklist, especially sponsorship/war-history
+state, City construction/updateAssetScore and target-value synchronization, remaining
+serialization fallbacks, and any incremental state whose producer can disappear between
+full updates. Preserve the intentional primary-area policy; F226 only separates route
+existence from fastest-route selection.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C019-WIP15 -- FILE 019 OPEN / QUEUE 031 UWAICache.cpp
+===============================================================================
+Date: 2026-08-27
+Model: GPT-5.6-Sol
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260827T205116.zip
+Prior physical checkpoint:
+    C019-WIP14
+New finding in this append:
+    F227 / provisional KI#550
+Next finding number:
+    F228 UNUSED
+
+F227 / provisional KI#550
+-------------------------
+TITLE
+    Mid-turn city destruction removes an entry from UWAICache's stateful
+    area-clustering attack order without re-sorting the survivors, so a raze can leave
+    the next invasion target in an order that a fresh cache build would never produce.
+
+STATUS
+    CONFIRMED inherited AdvCiv UWAICache lifecycle/refactor defect. Current in Base
+    AdvCiv 1.14 and AdvCiv-SAS. The modern destroy/create callback split was introduced
+    by practical AdvCiv commit 2605 / f788c46a21 ("Various optimizations for
+    UWAICache"). A capture that creates a replacement city eventually re-sorts on the
+    create half; a pure destruction/raze has no create half and therefore leaves the
+    greedily sorted vector stale until the next full cache update.
+
+CURRENT ROOT
+    sortCitiesByAttackPriority is not an ordinary fixed-key sort. It is a greedy
+    selection pass whose score for each candidate depends on the area of the city
+    selected immediately before it:
+
+        if (i > 0 && pPrevArea != NULL &&
+            !m_cityList[j]->city().isArea(*pPrevArea) &&
+            rPriority.isPositive())
+        {
+            rPriority /= 2;
+        }
+
+    This deliberately clusters consecutive invasion targets in the same area.
+
+    The modern destruction callback is:
+
+        void reportCityDestroyed(CvCity const& kCity) { remove(kCity); }
+
+    remove() erases the City object from m_cityMap and m_cityList but performs no
+    sortCitiesByAttackPriority() afterward.
+
+    The creation callback, by contrast, explicitly does:
+
+        add(kCity);
+        sortCitiesByAttackPriority();
+
+    Thus a normal ownership transfer that destroys the old CvCity and creates a new
+    CvCity is eventually re-sorted, but a razed/disbanded city is not.
+
+DELETION DOES NOT PRESERVE THIS SORT
+    Consider three currently reachable foreign cities with raw attack priorities:
+
+        A1 = 100   area A
+        A2 =  60   area A
+        B1 =  90   area B
+
+    A fresh greedy sort gives:
+
+        i=0: no area penalty -> choose A1 (100)
+        i=1: previous area A
+             A2 = 60
+             B1 = 90 / 2 = 45
+             -> choose A2
+        result: A1, A2, B1
+
+    If A1 is then destroyed, vector erasure produces:
+
+        A2, B1
+
+    But a fresh sort of the surviving set must begin with raw priorities because
+    position zero has no previous-area penalty:
+
+        B1 = 90 > A2 = 60
+        -> correct fresh order: B1, A2
+
+    Therefore simple erasure is not order-preserving under the algorithm's own
+    comparison semantics.
+
+SUPPORTED HUMAN-TURN REPRODUCTION
+    CvCity::kill notifies every major AI cache through AI_cityKilled before deleting the
+    CvCity object, so a raze reaches reportCityDestroyed/remove immediately.
+
+    A particularly ordinary path is:
+      1. human captures an enemy city;
+      2. acquisition creates the replacement CvCity and reportCityCreated re-sorts;
+      3. human chooses to raze that newly acquired city;
+      4. the new city is killed and reportCityDestroyed removes it;
+      5. no replacement city is created, so no later reportCityCreated re-sort occurs;
+      6. the rest of the human turn continues with a stale attack-order vector.
+
+    This is exactly within the special mid-turn cache contract documented beside these
+    callbacks:
+
+        "It's important that the cache keep up with ownership changes
+         so that the AI is aware of conquests made throughout a human turn."
+
+LIVE CONSUMER
+    InvasionGraph::Node::targetCity() iterates m_kCache.cityAt(i) in cached order and
+    returns the first reachable, target-owned city that has not already been lost in the
+    simulation.
+
+    Thus the stale A2,B1 order above can make military analysis select A2 as the next
+    target whereas a cache rebuilt from the same post-raze game state selects B1.
+
+    Human-AI peace and other immediate war evaluations construct fresh WarEvaluator /
+    InvasionGraph objects during the human turn, before the affected AI's next
+    UWAICache::update. The stale vector is therefore behaviorally observable rather
+    than merely an internal ordering discrepancy that is always repaired before use.
+
+ANCESTRY
+    The initial practical 1289 ownership-change callback updated/replaced one cached
+    city and called sortCitiesByAttackPriority() at the end.
+
+    Practical 2605 / f788c46a21 refactored the lifecycle to modern pointer-safe
+    reportCityDestroyed/reportCityCreated callbacks. The old replacement callback's
+    final unconditional sort was moved to reportCityCreated:
+
+        add(c);
+        sortCitiesByAttackPriority();
+
+    while reportCityDestroyed became remove-only.
+
+    This split is appropriate for captures because the creation callback follows the
+    destruction callback and performs the final sort. It accidentally drops the old
+    re-sort guarantee for destruction with no replacement. F227 is therefore best
+    classified as an inherited AdvCiv 2605 lifecycle/refactor edge, not SAS-specific.
+
+REPAIR BOUNDARY
+    Re-establish the ordering invariant after a successful mid-turn removal when no
+    later creation can be assumed.
+
+    The simplest safe repair is to call sortCitiesByAttackPriority() after remove()
+    actually erased a cached City, either from reportCityDestroyed or as part of a
+    removal helper whose callers require current ordering.
+
+    Do not rebuild City distances/asset scores merely for F227; the proven invariant is
+    only the ordering of the surviving already-cached entries.
+
+    Be aware that every major AI cache receives AI_cityKilled, so a blind re-sort after
+    every notification has some cost. A small refinement could make remove return
+    whether an entry was actually erased and sort only then. This remains far cheaper
+    than a pathfinding/cache rebuild and occurs only on city destruction.
+
+    F224 is independent: it concerns the cache owner's aggregate total assets not being
+    reconciled with the changed own-city set. A practical implementation can update the
+    aggregate and restore the sort in the same destruction callback, but the invariants
+    are separate.
+
+NEGATIVE CONTROLS / SCOPE
+    * A standard city ownership transfer that creates a replacement is eventually
+      sorted by reportCityCreated; F227's clearest live case is destruction/raze with no
+      creation half.
+    * Removing an element preserves the broad partition of reachable/own/unreachable
+      priorities well enough that targetCity's break-on-invalid assertion is not the
+      root. The defect is which valid target comes first.
+    * If the removed city was late enough that the survivor order coincidentally
+      remains equal to a fresh greedy sort, no behavioral difference occurs. The
+      A1/A2/B1 construction proves that preservation is not guaranteed.
+    * Capital relocation and other expensive city-derived changes after a conquest are
+      separate cache-cadence questions. F227 requires only the existing cached
+      priorities and the sort's own stateful area penalty.
+
+SPONSORED-WAR MIXED-BUNDLE REJECTION -- NOT F228
+-------------------------------------------------
+The previously open reportSponsoredWar mixed-bundle seam was not promoted.
+
+Human-AI trade-list filtering prevents the strongest reciprocal-overvaluation cases:
+TRADE_WAR is nonannual, while Open Borders, Defensive Pact and Permanent Alliance are
+annual dual items; at peacetime the trade UI hides annual/nonannual mixing once an item
+from the opposite class is on the offer.
+
+The remaining legal nonannual compensation items (gold, technology, city, maps, etc.)
+are all things the sponsor can genuinely transfer to the hireling as part of the same
+deal. If the hireling also gives an unrelated nonannual item back, whether its later
+sense of obligation should remember gross received payment or marginal/net surplus is
+a policy question, not a demonstrated contract violation. reportSponsoredWar's own
+comment describes remembering the utility/deal value of the payment and even explicitly
+allows overpayment to increase reluctance to end the war.
+
+More than one TRADE_WAR item in a normal UWAI-valued deal remains intentionally blocked
+by AI_dealVal's +1,000,000 second-war price. Do not spend an F-root on these bundle
+shapes without a stronger supported contract.
+
+INSPECTION CORRECTION -- NO SAVE-STREAM DEFECT
+----------------------------------------------
+During this pass an inspection command printed source ranges 1-220 and 220-360
+consecutively. Their one-line overlap made the line at 220,
+m_aiVassalTechScore.read(pStream), appear twice in terminal output.
+
+Direct inspection of the actual current file and normalized comparison with Base
+AdvCiv 1.14 prove that the version-9 sequence is correct:
+
+    m_aiVassalTechScore.read(pStream);
+    m_aiVassalResourceScore.read(pStream);
+    m_aiAdjLandPlots.read(pStream);
+
+There is no duplicate read, no enum-map stream shift and no finding. Preserve this
+negative control so the false terminal-artifact suspicion is not rediscovered later.
+
+HISTORICAL / LOW-MENTION CLOSURE PROGRESS
+-----------------------------------------
+* Practical 2751 ("UWAI: Fix crash in games that start with free cities") remains
+  intact. Current update still suppresses threat and war-utility evaluation when player
+  history/yield estimates are unavailable, now additionally honoring bNewPlayer.
+* update's major dependency order is coherent: transport capability precedes City
+  distance construction; typical-unit refresh precedes threat calculations consuming
+  typical power/cost; all ordinary cache inputs precede updateWarUtility.
+* create/delete/reset TeamPathFinders ownership remains balanced; no escaping reference
+  was found.
+* calculateFocusOnPeacefulVictory, updateTraits, updateAdjacentLand and the currently
+  unimplemented relative-navy cache did not expose a new correctness root in this pass.
+* The broader capital-relocation/full-distance refresh question remains a cache-cadence
+  limitation rather than F228 at this stage. Unlike F224/F227, repairing it would imply
+  substantial pathfinding/target-value recomputation and no explicit contract has yet
+  been proved that those expensive derived values must be transactionally refreshed
+  during the human turn.
+
+C019-WIP15 INTERIM CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES: 18 / 169
+CURRENT FILE: queue 031 CvGameCoreDLL/UWAICache.cpp -- OPEN
+PHYSICAL CHECKPOINT: C019-WIP15
+CURRENT QUEUE-031 ROOTS:
+    F213 / provisional KI#536
+    F214 / provisional KI#537
+    F215 / provisional KI#538
+    F216 / provisional KI#539
+    F217 / provisional KI#540
+    F218 / provisional KI#541
+    F219 / provisional KI#542
+    F220 / provisional KI#543
+    F221 / provisional KI#544
+    F222 / provisional KI#545
+    F223 / provisional KI#546
+    F224 / provisional KI#547
+    F225 / provisional KI#548
+    F226 / provisional KI#549
+    F227 / provisional KI#550
+NEXT ROOT ID: F228 UNUSED
+
+Resume from F228 unused. Continue the finite low-mention UWAICache producer/consumer
+matrix and remaining historical bugfix checklist, with special attention to
+war-history/sponsorship state, City target/asset synchronization, old-version read
+fallbacks and incremental fields whose producer disappears between full updates.
+Do not promote the capital-relocation cache-cadence question without a stronger
+transactional contract.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C019-WIP16 -- FILE 019 OPEN / QUEUE 031 UWAICache.cpp
+===============================================================================
+Date: 2026-08-27
+Model: GPT-5.6-Sol
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260827T205116.zip
+Prior physical checkpoint:
+    C019-WIP15
+New finding in this append:
+    F228 / provisional KI#551
+Next finding number:
+    F229 UNUSED
+
+AGGRESSIVE / LEADERSHIP TRAIT RECHECK -- NOT F228
+--------------------------------------------------
+The low-mention updateTraits helper initially looked stale under current SAS XML:
+Base AdvCiv Aggressive grants Combat I, while SAS practical 4856 changes its free
+promotion to Leadership. updateTraits recognizes an "offensive trait" only when one of
+the trait's free promotions has positive generic combat percent.
+
+Current Leadership has:
+    iCombatPercent = 0
+    iCityDefense   = 0
+    iExperiencePercent = 100
+
+so current Aggressive leaders correctly no longer trip m_bOffensiveTrait.
+
+This is not a correctness regression. The only live hasOffensiveTrait consumer in
+InvasionGraph explicitly models the old direct Combat-I effect by adding +10% to
+simulated army power. Leadership no longer grants that immediate +10% combat strength;
+continuing to classify it as the old offensive-trait bonus would overstate current SAS
+army strength. Leadership's faster experience gain may deserve separate long-term
+modeling, but that is an AI-enhancement/design question rather than a stale cache bug.
+
+The m_bDefensiveTrait flag is used elsewhere (e.g. distrustRating), and current
+Protective/City Garrison data still trips its intended city-defense test. No F-root.
+
+PERMANENT-ALLIANCE STALE CITY-OBJECT RECHECK -- NOT F228
+---------------------------------------------------------
+After a Permanent Alliance, existing UWAICache::City objects can temporarily retain
+their pre-merge `m_iDistance` classification, so a newly absorbed teammate's cities can
+still look "foreign" (`distance > 0`) to a survivor member's cache until its next normal
+refresh.
+
+This is real staging, but no current wrong target result was proved:
+InvasionGraph re-checks the cached city's live owner/team/war-opponent status before
+accepting it as a military target, and totalAssetScore only sums cities actually owned
+by m_eOwner. The stale teammate entries may be scanned past but do not become valid
+enemy targets under the tested consumers. Do not promote a full post-PA City-cache
+rebuild without a stronger behavioral contract.
+
+F228 / provisional KI#551
+-------------------------
+TITLE
+    Permanent Alliance migration is one-way for persistent team-keyed UWAI history:
+    members of the surviving team inherit the absorbed leader's history, but outsider
+    caches that store past-war or sponsored-war state *against the absorbed team* are
+    never remapped to the surviving team. A paid hireling can therefore forget its
+    live war obligation immediately when its target joins a Permanent Alliance, and
+    outsiders permanently forget war-experience history against the absorbed half.
+
+STATUS
+    CONFIRMED inherited AdvCiv/UWAI Permanent-Alliance state-migration defect.
+    The one-way merge is present from the initial WarAndPeace/UWAI integration.
+    Current AdvCiv 1.14 and AdvCiv-SAS retain it.
+
+PERSISTENT STATE
+    UWAICache::clear(true) deliberately preserves:
+        m_aiPastWarScore
+        m_aiBounty
+        m_aeSponsorPerTarget
+    because these are event-maintained historical/obligation fields rather than
+    ordinary per-turn derived cache values.
+
+    reportWarEnding updates m_aiPastWarScore and clears sponsorship for the specific
+    enemy TeamTypes key.
+
+    reportSponsoredWar stores:
+        m_aiBounty[eTarget]
+        m_aeSponsorPerTarget[eTarget]
+
+    HiredHand and confidenceFromPastWars later query these fields using the *current*
+    target TeamTypes.
+
+CURRENT PA MERGE
+    CvTeam::addTeam(eAbsorbedTeam) saves the absorbed team's leader id, transfers the
+    absorbed players onto the surviving team and merges the core team relations.
+
+    In particular it explicitly propagates differing wars in both directions through
+    queueWar/triggerWars. If the absorbed team B was at war with outsider C and the
+    surviving team A was not, C becomes at war with A as part of the alliance merge.
+
+    Near the end of CvTeam::addTeam current code calls only:
+
+        AI().uwai().addTeam(eTeamLeader);
+
+    UWAI::Team::addTeam then iterates the *members of the newly merged surviving team*:
+
+        for (MemberAIIter it(m_eAgent); it.hasNext(); ++it)
+            it->uwai().getCache().addTeam(eOtherLeader);
+
+    UWAICache::addTeam copies the absorbed leader's own persistent history into each
+    surviving-team member:
+
+        m_aiPastWarScore.add(eTeam, kOther.m_aiPastWarScore.get(eTeam));
+
+    and chooses/merges the absorbed leader's sponsorship/bounty for each target.
+
+    No corresponding loop visits major-civ players outside the alliance and remaps
+    values whose *key* is the absorbed TeamTypes to the surviving TeamTypes.
+
+SUPPORTED SPONSORED-WAR REPRODUCTION
+    Let:
+        A = team that will survive the Permanent Alliance
+        B = team that will be absorbed
+        C = AI hireling outside the alliance
+        D = sponsor
+
+    1. D pays C to declare war on B.
+
+       CvDeal reports the sponsorship to C's cache:
+           sponsorAgainst[B] = D
+           bountyAgainst[B]  > 0
+
+    2. Later A and B form a Permanent Alliance.
+
+       CvTeamAI::AI_permanentAllianceTrade does not require the two teams to have
+       identical current wars. CvTeam::addTeam explicitly contains the machinery for
+       transferring differing wars.
+
+    3. Because B was at war with C, the core team merge makes C at war with surviving
+       team A as well.
+
+    4. The UWAI addTeam call updates A/B's newly merged member caches only. C's cache
+       remains:
+           sponsorAgainst[B] = D
+           bountyAgainst[B]  > 0
+
+       while:
+           sponsorAgainst[A] = NO_PLAYER
+           bountyAgainst[A]  = 0
+       in the clean reproduction where C had no prior sponsorship against A.
+
+    5. C subsequently considers peace with the war opponent that now actually exists,
+       team A.
+
+       HiredHand::evaluate uses:
+           eTheirTeam = A
+           ourCache().sponsorAgainst(eTheirTeam)
+           ourCache().bountyAgainst(eTheirTeam)
+
+       and therefore sees no sponsorship.
+
+    The paid-war obligation can vanish immediately solely because the target team
+    changed identity through a Permanent Alliance. The payment, sponsor, hireling and
+    continuing physical war all still exist.
+
+LIVE CONSEQUENCE
+    HiredHand is specifically designed to make an AI "inclined to fight for 20 turns"
+    after being hired. It turns the remembered original payment utility into positive
+    utility for continuing the war.
+
+    Under F228 that utility disappears for the transferred war against A. C can become
+    willing to make peace substantially earlier than it would have if B had remained a
+    standalone team, despite D having paid for the same continuing conflict.
+
+PAST-WAR HISTORY SIBLING UNDER THE SAME ROOT
+    m_aiPastWarScore is likewise keyed by target TeamTypes and preserved across turns.
+
+    UWAI::Player::confidenceFromPastWars(eTarget) reads exactly:
+        m_cache.pastWarScore(eTarget)
+
+    and maps a negative history into reduced future war confidence (first lost-war scale
+    roughly -15%, bounded over repeated history).
+
+    If outsider C had a strongly negative past-war score against B but no history
+    against A, B's absorption makes all future evaluations target A. C then reads
+    pastWarScore[A] and the B history is orphaned under the dead TeamTypes key.
+
+    This is especially diagnostic because UWAICache::addTeam already treats
+    `m_aiPastWarScore` as persistent team-related data that *must* be merged for the
+    surviving alliance members. The omission is the reverse direction: outsiders'
+    histories about the absorbed target are never merged/remapped.
+
+ANCESTRY
+    The initial practical AdvCiv WarAndPeace implementation (1253 /
+    f6ff6a182f) already defines WarAndPeaceCache::addTeam as a one-way operation:
+    it obtains the absorbed team's leader cache and adds that leader's past-war and
+    sponsorship data to the surviving cache.
+
+    CvTeam::addTeam then invokes WarAndPeaceAI::Team::addTeam only for the surviving
+    team. There is no outsider reverse migration.
+
+    Practical 1268 changes the API from an absorbed TeamTypes to the saved absorbed
+    leader PlayerTypes so the source cache remains accessible after player reassignment;
+    it preserves the same one-way semantics.
+
+    At that time CvTeam::addTeam also called getWPAI.update() after the merge. That
+    function merely rebuilt the global lists of alive major teams/civs and team-member
+    vectors. It did not rewrite any UWAICache/WarAndPeaceCache history maps, so it did
+    not repair the outsider direction.
+
+    Practical 1818 replaces cached team-member vectors with live AgentIterators and
+    removes the old global registry refresh. F216 is a separate regression caused by
+    that live iterator including the absorbed leader itself. F228 predates 1818: the
+    missing outsider-key migration exists from the original design.
+
+    Current CvTeam::addTeam contains extensive reverse-direction migration for core
+    bilateral counters/relations (war counters, contact history, war success,
+    espionage, etc.), which further demonstrates the general team-identity contract.
+    UWAI's persistent outsider maps remain an exception.
+
+REPAIR BOUNDARY
+    During Permanent Alliance absorption, before the absorbed team identity becomes
+    unusable as a live target, migrate persistent outsider cache entries keyed by
+    eAbsorbedTeam to eSurvivingTeam.
+
+    At minimum cover the fields that UWAICache::addTeam itself classifies as persistent
+    team-related history:
+        * m_aiPastWarScore
+        * m_aiBounty
+        * m_aeSponsorPerTarget
+
+    For each major-civ player outside the merged team:
+      * combine pastWarScore[absorbed] into pastWarScore[survivor] using the same
+        additive policy already used when survivor-side member histories are merged;
+      * if sponsorship against the absorbed team exists, preserve it under the
+        surviving target. If both keys already contain sponsorships, use a coherent
+        conflict policy (the existing UWAICache::addTeam policy chooses the higher
+        bounty when both have sponsors);
+      * clear/reset the absorbed-team entries afterward if practical, to avoid retaining
+        dead-key duplicate history.
+
+    Keep the direction conceptually separate from survivor-member `addTeam` to avoid
+    reintroducing F216 self-addition. A dedicated "target team absorbed" helper on
+    outsider caches would make the two directions explicit.
+
+    Derived per-turn maps (threat, reachable cities, vassal scores, war utility, etc.)
+    need not all be folded into F228; they have normal refresh semantics or live-team
+    checks. The proven root concerns persistent event-maintained history/obligation
+    that otherwise never migrates itself.
+
+NEGATIVE CONTROLS / SCOPE
+    * If C already has a sponsorship against surviving A, the conflict needs a merge
+      policy; the clean reproduction intentionally starts with none.
+    * If C's war against B ends normally before the alliance, reportWarEnding can clear
+      the B sponsorship. F228 concerns a war transferred by the alliance itself.
+    * The second HiredHand branch ("we've hired someone") also uses current-team keys,
+      but the direct loss of C's own paid obligation is sufficient proof.
+    * F216 is different: it concerns self-add/doubling inside the surviving merged
+      team's member loop after the AgentIterator refactor. F228 is the missing outsider
+      target-key direction and exists even in the original vector-based implementation.
+    * The temporarily stale UWAICache::City team classification after a PA is not part
+      of F228; no concrete wrong target was proved from it.
+
+C019-WIP16 INTERIM CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES: 18 / 169
+CURRENT FILE: queue 031 CvGameCoreDLL/UWAICache.cpp -- OPEN
+PHYSICAL CHECKPOINT: C019-WIP16
+CURRENT QUEUE-031 ROOTS:
+    F213 / provisional KI#536
+    F214 / provisional KI#537
+    F215 / provisional KI#538
+    F216 / provisional KI#539
+    F217 / provisional KI#540
+    F218 / provisional KI#541
+    F219 / provisional KI#542
+    F220 / provisional KI#543
+    F221 / provisional KI#544
+    F222 / provisional KI#545
+    F223 / provisional KI#546
+    F224 / provisional KI#547
+    F225 / provisional KI#548
+    F226 / provisional KI#549
+    F227 / provisional KI#550
+    F228 / provisional KI#551
+NEXT ROOT ID: F229 UNUSED
+
+Resume from F229 unused. Continue the literal low-mention function/producer/consumer
+coverage matrix and remaining historical bugfix checklist. Persistent team-keyed PA
+migration is now owned by F228; do not broaden it automatically to all per-turn derived
+maps. Revisit only if another event-maintained field is proved to have the same orphaned
+target-team lifetime.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+
+===============================================================================
+CHECKPOINT C019-WIP17 -- FILE 019 OPEN / QUEUE 031 UWAICache.cpp
+===============================================================================
+Date: 2026-08-27
+Model: GPT-5.6-Sol
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260827T205116.zip
+Prior physical checkpoint:
+    C019-WIP16
+New material in this append:
+    F228 same-root refinement: ReadyToCapitulate target-team migration
+    F229 / provisional KI#552
+Next finding number:
+    F230 UNUSED
+
+F228 SAME-ROOT REFINEMENT -- READY-TO-CAPITULATE TARGET KEY
+-----------------------------------------------------------
+F228's persistent outsider target-team migration root also covers
+m_readyToCapitulateTo.
+
+This state is not an ordinary per-turn heuristic. It is an event-maintained team-level
+handshake used specifically for AI capitulation to a human master. Non-leader member
+queries redirect to the current team leader's cache, and AI_surrenderTrade refuses a
+human master with DENIAL_RECENT_CANCEL unless the current leader cache says the team is
+ready.
+
+Supported target-absorption reproduction:
+
+    A = surviving team in a Permanent Alliance
+    B = absorbed human team
+    C = outside AI team currently at war with B
+
+Before the alliance, C's UWAI has already decided to capitulate to the human side:
+
+    C.readyToCapitulateTo contains B
+
+The core Permanent-Alliance merge can transfer C's war with B onto surviving team A.
+Because B's human member is moved onto A, A is now a human team. The physical war and
+the already-made UWAI capitulation decision therefore concern the same human side, now
+under TeamTypes A.
+
+But C's persistent set is untouched by UWAI::Team::addTeam:
+
+    contains(B) == true
+    contains(A) == false
+
+A subsequent AI_surrenderTrade(A) asks isReadyToCapitulate(A), which returns false and
+can therefore produce DENIAL_RECENT_CANCEL solely because the prospective master was
+renumbered by the Permanent Alliance.
+
+This belongs under F228 rather than a new F-number. The same proven invariant applies:
+persistent event-maintained state whose key denotes a target team must survive
+absorption of that target team.
+
+F228's outsider migration repair boundary should therefore include, at minimum:
+
+    m_aiPastWarScore
+    m_aiBounty
+    m_aeSponsorPerTarget
+    m_readyToCapitulateTo
+
+For readiness, the natural merge policy is set-union under the surviving human target:
+if an outsider was ready to capitulate to either side and the merged surviving team is
+human, preserve readiness under the surviving TeamTypes. Remove the absorbed dead-key
+entry afterward when practical.
+
+Do not apply F228 mechanically to m_aiWarUtilityIgnoringDistraction or ordinary
+threat/reachability maps. Those are derived/reset by normal update cadence; F228 is
+about state that otherwise has no producer capable of recreating the lost historical
+meaning after the target TeamTypes disappears.
+
+COMPACT-MAP BOUNDS PASS -- NEGATIVE CONTROLS
+--------------------------------------------
+Several current UWAICache integer maps use compact short storage:
+
+    CivPlayerMap<int,short> m_aiReachableCities
+    CivPlayerMap<int,short> m_aiTargetMissions
+    CivTeamMap<int,short>   m_aiPlotsLostAtWar
+    CivTeamMap<int,short>   m_aiBounty
+
+EnumMap's normal compactValue path is a plain cast unless ENUM_MAP_EXTRA_ASSERTS is
+enabled; that macro is currently commented out. Therefore each such field needs its
+own producer-range argument rather than assuming the template protects it.
+
+No new root is promoted for the first three at this checkpoint:
+
+* Default SAS48 world dimensions are 99x70 terrain cells, and current AdvCiv map reset
+  uses two plots per cell for ordinary world-size dimensions: 198x140 = 27,720 plots.
+  Thus even an intentionally absurd "every plot lost against one rival" upper bound
+  stays below signed-short max on the default largest SAS world size.
+  Custom map scripts that override grid dimensions can use a different scale and remain
+  a future robustness concern, but no current F-root is assigned solely on that basis.
+
+* m_aiReachableCities is bounded more tightly than the total plot count under ordinary
+  city-placement rules, so the default SAS48 geometry is also a strong negative control.
+
+* m_aiTargetMissions counts units/cargo rather than plots and therefore lacks the same
+  mathematical map bound. A gigantic unit population could in principle exceed 32767,
+  but no supported current-SAS reproduction near that threshold has been established.
+  Keep this as robustness only unless concrete unit-count evidence appears.
+
+m_aiBounty is materially different and is F229 below.
+
+F229 / provisional KI#552
+-------------------------
+TITLE
+    Sponsored-war bounty is compacted from int utility to signed short without a range
+    check; a sufficiently large legal positive overpayment wraps negative and makes
+    reportSponsoredWar erase the sponsorship entirely.
+
+STATUS
+    CONFIRMED AdvCiv enum-map compression regression. The sponsored-war value was an int
+    in the original UWAI/WarAndPeace cache. Practical AdvCiv commit 3183 /
+    59a3e3190061 ("Rewrite of enum map classes") changed m_aiBounty from
+    CivTeamMap<int> to CivTeamMap<int,short> as part of a nominally non-functional
+    compact-storage rewrite. Current AdvCiv 1.14 and AdvCiv-SAS retain the short.
+
+CURRENT STORAGE / CAST CONTRACT
+    UWAICache.h:
+
+        CivTeamMap<int,short> m_aiBounty;
+
+    EnumMap's compact conversion is:
+
+        #ifdef ENUM_MAP_EXTRA_ASSERTS
+            return safeCast<ToType>(fValue);
+        #else
+            return (ToType)fValue;
+        #endif
+
+    ENUM_MAP_EXTRA_ASSERTS is currently disabled/commented out. Thus assigning an int
+    outside signed-short range performs the target compiler's narrowing conversion
+    without assertion or clamping. On the supported MSVC/Windows target, signed short
+    is 16 bit and the practical result is low-16-bit/two's-complement wrapping.
+
+SUPPORTED PAYMENT PATH
+    CvPlayer::canTradeItem(TRADE_GOLD) imposes no special diplomatic upper bound on a
+    specified human gold amount:
+
+        if (getGold() >= item.m_iData)
+            bValid = true;
+
+    The amount is an int. A human sponsor can therefore intentionally overpay for a war
+    declaration up to their actual treasury.
+
+    This is not contrary to UWAI's intended contract. reportSponsoredWar explicitly
+    comments:
+
+        "As it is now, paying more than the AI demands makes it a bit
+         more reluctant to end the war."
+
+    Large positive overpayment is therefore a supported semantic direction, not an
+    invalid-input case.
+
+VALUE PIPELINE
+    reportSponsoredWar stores:
+
+        m_aiBounty.set(eTarget,
+            tradeValToUtility(kOwner.AI_dealVal(eSponsor, kWeReceive)).round());
+
+    For received TRADE_GOLD, current CvPlayerAI::AI_dealVal applies
+    AI_goldTradeValuePercent(), which returns 200:
+
+        iValue += (iGold * 200) / 100;
+
+    UWAI::Player::tradeValToUtility then multiplies by:
+
+        3 * speedFactor /
+        (max(10, estimated commerce) + 2 * max(1, estimated production))
+
+    The rate is positive and can be as high as 0.25 when the denominator is at its
+    minimum 12. At that upper rate:
+
+        65,536 gold
+        -> AI_dealVal 131,072
+        -> utility 32,768
+
+    already exceeds SHRT_MAX by one. A slightly larger example such as utility 35,000
+    narrows to a negative signed-short value on the target platform.
+
+    Even for stronger economies with a lower conversion rate, there is no short-based
+    cap on the legal human payment; a sufficiently large positive treasury/payment can
+    reach the same storage boundary.
+
+IMMEDIATE BEHAVIORAL FAILURE
+    The wrapped value is consumed immediately by the same function:
+
+        if (m_aiBounty.get(eTarget) > 0)
+            m_aeSponsorPerTarget.set(eTarget, eSponsor);
+        else
+        {
+            m_aiBounty.set(eTarget, 0);
+            m_aeSponsorPerTarget.set(eTarget, NO_PLAYER);
+        }
+
+    Therefore a positive payment that crosses the compact boundary can become negative,
+    fail the >0 test and be normalized to:
+
+        bountyAgainst(target)  = 0
+        sponsorAgainst(target) = NO_PLAYER
+
+    A smaller overpayment below the boundary is remembered correctly, while a larger
+    overpayment can make the AI remember no sponsorship at all.
+
+LIVE CONSEQUENCE
+    WarUtilityAspect::HiredHand reads sponsorAgainst/current-target and bountyAgainst
+    to keep a paid AI inclined to continue the sponsored war for roughly 20 turns.
+    F229 therefore removes the intended obligation immediately at deal creation.
+
+    This is the opposite of the source comment's monotonic intent: overpaying should
+    increase reluctance to end the war, not erase the obligation.
+
+ANCESTRY
+    The original WarAndPeace/UWAI cache stored sponsorship value in a full int.
+
+    Practical 3183 / 59a3e3190061 ("Rewrite of enum map classes") changes, in
+    UWAICache.h:
+
+        CivTeamMap<int> m_aiBounty;
+        ->
+        CivTeamMap<int,short> m_aiBounty;
+
+    The commit message characterizes the broad XML/serialization changes as
+    non-functional and introduces compact enum-map storage generally. No saturation
+    policy was added around reportSponsoredWar.
+
+    Current save version 9 serializes the compact short representation, so the narrowed
+    value is also the persistent representation once it has survived the immediate
+    sign check (values that wrap nonpositive are cleared before that).
+
+REPAIR BOUNDARY
+    Keep sponsored-war obligation monotonic under large positive payment.
+
+    Lowest-risk repair while preserving current save width:
+      * compute the bounty utility in a full int/scaled temporary;
+      * clamp/saturate it explicitly to [0, SHRT_MAX] before assigning m_aiBounty.
+
+    Saturation is semantically reasonable here: HiredHand only needs a bounded positive
+    measure of the original obligation, and any payment above the cap can simply mean
+    "maximal remembered bounty." It preserves the current version-9 short save format
+    and prevents overpayment from becoming less obligation.
+
+    Alternative:
+      * restore m_aiBounty to full int;
+      * but then bump/adapt UWAICache save serialization so current version-9 short
+        saves remain readable and new saves have an unambiguous width.
+
+    Do not enable ENUM_MAP_EXTRA_ASSERTS globally as the sole repair. That would turn a
+    deterministic release logic bug into an assertion but would not define safe release
+    behavior.
+
+    Do not clamp only after m_aiBounty.set; by then narrowing has already lost the sign
+    and magnitude. Clamp the full-width temporary before compact assignment.
+
+NEGATIVE CONTROLS / SCOPE
+    * This is not the same as F228. F228 loses a correctly stored bounty when a target
+      team identity is absorbed; F229 can erase sponsorship at the moment the deal is
+      recorded, without any team merge.
+    * The earlier mixed-bundle sponsorship question remains rejected. F229 needs only a
+      single ordinary WAR declaration compensated by legal gold.
+    * Extremely huge gold can encounter unrelated int-arithmetic limits in other trade
+      formulas at much larger amounts. F229's signed-short boundary occurs far earlier
+      and is independently sufficient.
+    * Compact short storage is not automatically defective. Default-SAS48 plot/city
+      geometry gives useful bounds for other fields; each compact field must be judged
+      by its producer domain.
+
+C019-WIP17 INTERIM CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES: 18 / 169
+CURRENT FILE: queue 031 CvGameCoreDLL/UWAICache.cpp -- OPEN
+PHYSICAL CHECKPOINT: C019-WIP17
+CURRENT QUEUE-031 ROOTS:
+    F213 / provisional KI#536
+    F214 / provisional KI#537
+    F215 / provisional KI#538
+    F216 / provisional KI#539
+    F217 / provisional KI#540
+    F218 / provisional KI#541
+    F219 / provisional KI#542
+    F220 / provisional KI#543
+    F221 / provisional KI#544
+    F222 / provisional KI#545
+    F223 / provisional KI#546
+    F224 / provisional KI#547
+    F225 / provisional KI#548
+    F226 / provisional KI#549
+    F227 / provisional KI#550
+    F228 / provisional KI#551
+    F229 / provisional KI#552
+NEXT ROOT ID: F230 UNUSED
+
+Resume from F230 unused. Continue the remaining literal low-mention
+UWAICache producer/consumer matrix and historical fix checklist. In particular:
+    * finish totalAssetScore positivity/denominator assumptions using the 3038/3044
+      historical evidence before promoting anything;
+    * finish remaining old-version read defaults and compact-map producer bounds;
+    * continue City asset/target-value and report-state lifecycle checks.
+Clean rejections are the preferred outcome when a contract survives.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C019-WIP18 -- FILE 019 OPEN / QUEUE 031 UWAICache.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot for this continuation:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison material checked locally:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+
+Prior reconciled physical checkpoint:
+    C019-WIP17
+
+New root in this append:
+    F230 / provisional KI#553
+
+Next root:
+    F231 UNUSED
+
+PURPOSE OF THIS WIP
+-------------------
+Resume the C019-WIP17 cursor rather than reopening already-audited CvTeamAI.cpp.
+The reconciled album has already advanced to queue 031 UWAICache.cpp.
+
+This pass concentrated on:
+    * totalAssetScore positivity and denominator assumptions, especially the historical
+      3038 / 3044 fixes;
+    * remaining old-version UWAICache read defaults and migrations;
+    * compact EnumMap producer bounds after F229;
+    * City asset / target-value / report-state lifecycle seams.
+
+One new root is promoted below. Several tempting seams survive the audit and are
+recorded as clean rejections / non-promotions rather than manufactured findings.
+
+
+F230 / provisional KI#553
+-------------------------
+TITLE
+    Pre-v4 past-war save conversion scales only teams alive at load; legacy history
+    against a dead rival remains at the old granularity and becomes mis-scaled if that
+    rival is later revived.
+
+STATUS
+    CONFIRMED inherited AdvCiv backward-save / revival compatibility regression.
+    Present in current base AdvCiv 1.14 and current AdvCiv-SAS.
+
+CURRENT CODE
+    UWAICache::read restores the legacy pre-v9 past-war array first:
+
+        if (iSaveVersion >= 9)
+            m_aiPastWarScore.read(pStream);
+        else m_aiPastWarScore.readArray<int>(pStream);
+
+    It then performs the pre-v4 granularity migration only for teams that are alive at
+    load time:
+
+        if (iSaveVersion < 4)
+        {
+            for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
+                m_aiPastWarScore.multiply(it->getID(), 100);
+        }
+
+    The two operations have different domains. readArray<int> restores the serialized
+    CivTeamMap slots; the migration subsequently touches only the currently living
+    subset.
+
+ORIGINAL COMPATIBILITY CONTRACT
+    AdvCivPreSAS commit 1378, 2348464189, introduced save version 4 specifically for
+    the increased granularity of pastWarScore.
+
+    Its migration was deliberately slot-complete:
+
+        if(savegameVersion < 4)
+            for(int i = 0; i < MAX_CIV_TEAMS; i++)
+                pastWarScores[i] *= 100;
+
+    The same change made the live consumer interpret the stored value in hundredths
+    and changed new reportWarEnding contributions to roughly +/-100 instead of +/-1.
+
+    Therefore the migration contract was not "convert currently relevant teams."
+    It was "convert every serialized legacy team slot."
+
+REGRESSION POINT
+    AdvCivPreSAS commit 1818, 854cb8058c,
+        "Use AgentIterators in all UWAI classes"
+    replaced the all-slot loop with:
+
+        for (TeamIter<CIV_ALIVE> it; it.hasNext(); ++it)
+            pastWarScores.multiply(it->getID(), 100);
+
+    That iterator substitution is harmless for many live-game loops, but not for a
+    save-format migration whose input contains values for identities that can be dead
+    at load time.
+
+WHY THE SKIPPED VALUE IS REALLY STILL DESERIALIZED
+    Current EnumMap::readArray reads the full stored key range one value at a time and
+    calls setUnsafe for each key. It does not filter the data according to current
+    alive status.
+
+    Therefore a dead team's pre-v4 pastWarScore can be present in m_aiPastWarScore
+    immediately after deserialization and still escape the required x100 conversion.
+
+SUPPORTED OBSERVABLE STATE
+    1. Team A and team B fight and finish a war in a save-format version older than 4.
+       A therefore has a nonzero legacy pastWarScore entry for B.
+    2. B is later eliminated before that game is saved.
+    3. The old save is loaded by current AdvCiv / AdvCiv-SAS.
+    4. readArray restores B's serialized legacy score, but TeamIter<CIV_ALIVE> skips B,
+       so B's entry remains in old +/-1-scale granularity rather than the new
+       +/-100-scale granularity.
+    5. B is later revived. AdvCiv explicitly supports player revival; current
+       CvPlayer::setAlive(true) reports playerRevived and refreshes UWAI state.
+    6. Other players can again evaluate B, and confidenceFromPastWars(B) consumes A's
+       still-mis-scaled history.
+
+    Revival is not merely hypothetical dead data. AdvCivPreSAS commit 2010,
+    56af3a8dfa, "Fix issues with AI Auto Play ending upon player defeat", added the
+    explicit playerRevived lifecycle, and current SAS retains and extends that path.
+
+LIVE CONSEQUENCE
+    UWAI::Player::confidenceFromPastWars currently does:
+
+        scaled rPastWarScore = per100(m_cache.pastWarScore(eTarget));
+        int iSign = (rPastWarScore < 0 ? -1 : 1);
+        scaled r = 1 + iSign * rPastWarScore.abs().sqrt() * fixp(0.15);
+        r.clamp(fixp(0.5), fixp(1.5));
+
+    For the simplest old score of +1:
+        correct migration: +1 -> +100 -> per100 = 1
+        confidence term:   1 + sqrt(1) * 0.15 = 1.15
+
+        skipped migration: +1 remains +1 -> per100 = 0.01
+        confidence term:   1 + sqrt(0.01) * 0.15 = 1.015
+
+    Likewise for -1:
+        correct: 0.85
+        skipped: 0.985
+
+    The stored score is therefore 100x too small. Because confidence uses sqrt, the
+    displacement from neutral is 10x too small for the same legacy score before clamp.
+
+WHY THIS IS NOT JUST A DEAD-SLOT CLEANLINESS ISSUE
+    If the skipped team remained permanently dead, the stale scale would normally be
+    behaviorally irrelevant. The explicit revival lifecycle makes the old key live
+    again without rerunning the save-version migration. The defect therefore becomes
+    observable precisely in the compatibility state that the current reader claims to
+    support.
+
+REPAIR DIRECTION
+    For iSaveVersion < 4, multiply every valid CivTeam key represented by the legacy
+    serialized map, not TeamIter<CIV_ALIVE>.
+
+    Conceptually:
+
+        if (iSaveVersion < 4)
+        {
+            FOR_EACH_ENUM(CivTeam)
+                m_aiPastWarScore.multiply(eLoopCivTeam, 100);
+        }
+
+    Use the project's exact all-CivTeam enum iteration spelling after compile review.
+    An explicit 0 .. MAX_CIV_TEAMS-1 loop is also semantically faithful to the original
+    migration if that is safer for this old-format branch.
+
+    No save-version bump should be needed: this repairs the read conversion of an
+    already-supported old format.
+
+NEGATIVE CONTROLS / SCOPE
+    * Current-format saves are unaffected.
+    * Pre-v4 entries for teams alive at load are converted correctly.
+    * A skipped dead entry matters only if it contains legacy history and later becomes
+      behaviorally reachable again, e.g. through revival.
+    * This is separate from F228. F228 concerns one-way migration of persistent
+      team-keyed history during a Permanent Alliance team absorption. F230 concerns a
+      backward-save conversion whose domain was accidentally narrowed.
+    * This is also separate from F225 / KI#548, which concerns reconstruction of the
+      revived player's own military cache from already-existing units.
+
+
+REMAINING C019-WIP17 CURSOR -- RESULTS SO FAR
+---------------------------------------------
+
+1. totalAssetScore positivity / denominator seam -- NOT PROMOTED
+    updateTotalAssetScore starts from a +5 Palace baseline and then adds own-city asset
+    scores plus national-wonder contributions.
+
+    Individual per-city AI_assetVal(..., true) scores can indeed be negative because
+    maintenance is subtracted. Historical commit 3038, 23545fcd6e,
+        "Fix two minor issues with UWAI asset score values"
+    explicitly notes that a per-city score can be negative and defensively clamps a
+    vassal-loss calculation.
+
+    However, the historical totalAssetScore == 0 observation was subsequently traced
+    to an incomplete new-player refresh. Commit 3044, 8a2a75e1e0,
+        "Fix two minor inconsistencies in the UWAI cache"
+    changed UWAI::processNewPlayerInGame from a partial typical-unit refresh to a full
+    cache.update(true), and its comment says the bad total "Had not worked correctly
+    when called from UWAI::processNewPlayerInGame. Should be fixed now".
+
+    Risk::evaluate still divides by totalAssetScore + epsilon rather than max(1,...),
+    so a genuinely nonpositive aggregate would be dangerous. But this audit has not
+    established a supported normal full-refresh state that makes the aggregate
+    nonpositive. Mathematical possibility from a negative constituent is not enough.
+
+    RESULT:
+        Keep as a robustness seam / historical check, not a new root.
+
+2. remaining compact EnumMap producer bounds -- NO NEW ROOT AFTER F229
+    F229 remains the concrete compact-type defect because a legal full-width human
+    sponsored-war payment can cross signed-short range before assignment to m_aiBounty.
+
+    The other reviewed compact fields have substantially tighter domains in the
+    supported default geometry, or require only an extreme theoretical count with no
+    supported reproduction established here.
+
+    In particular, the prior WIP17 bound for the default SAS48 standard map remains
+    useful: 198 * 140 = 27,720 plots, below signed-short max 32,767. That gives a real
+    default-world upper bound for plot-loss counts and an even tighter practical bound
+    for reachable-city counts.
+
+    targetMissions could only overflow a signed short through an extreme number of
+    simultaneously counted units / missions; no supported practical state was proved.
+
+    RESULT:
+        No F230-style "short is suspicious, therefore bug" finding is manufactured.
+
+3. remaining old-version read defaults -- CLEAN EXCEPT F230
+    * pre-v3 m_abCanBeHiredAgainst omission inherits the map's intended true reset from
+      clear(), so old saves receive the correct default.
+    * pre-v5 m_bFocusOnPeacefulVictory omission inherits false from clear(), matching
+      the feature's introduction semantics.
+    * pre-v1 relative-navy reconstruction calls updateRelativeNavyPower(), but the
+      feature remains explicitly "Not implemented; work in progress" and has no live
+      consumer found in the current source.
+    * City pre-v4 capital-area fallback from reach-by-land is deliberate compatibility
+      behavior; no defect established.
+    * pre-v3 / pre-v1 discarded City fields are consumed only to preserve stream
+      alignment; no live state was found to depend on them.
+
+4. City construction / target-value initialization -- CLEAN
+    City construction computes distance/reachability and asset score before passing
+    the cache-city pointer into AI_targetCityValue. The fields needed by the current
+    target-value path are therefore initialized first.
+
+    No use-before-initialization root was found in this pass.
+
+5. reportCityCreated human-cache asymmetry -- OBSERVED, NOT PROMOTED YET
+    Full updateCities includes a foreign city for a human cache without requiring
+    AI_deduceCitySite, while reportCityCreated requires same-team or deducible city and
+    has no corresponding human override.
+
+    City transfer also reports destruction of the old city before creation of the
+    replacement, so a human cache can transiently lose a newly transferred foreign
+    city until a full refresh when it is not deducible.
+
+    However, the report callbacks are explicitly motivated by keeping AI caches aware
+    of changes during a human turn, and this pass has not yet proved a live
+    post-transfer-before-refresh consumer for the human cache whose behavior is wrong.
+
+    RESULT:
+        Preserve as an open cadence/contracts question for F231+, not a finding.
+
+6. F224 refinement -- NO NEW ROOT
+    Normal city founding also calls AI_cityCreated for major caches, so the same
+    reportCityCreated path that does not recompute m_rTotalAssets is reached outside
+    conquest as well.
+
+    This broadens the producer side of F224's stale-total-assets mechanism, but the
+    strongest already-proved behavioral reproduction remains the mid-turn
+    conquest/diplomacy path recorded under F224. Do not duplicate it as a new root.
+
+
+C019-WIP18 INTERIM CURSOR
+-------------------------
+COMPLETED FIRST-PASS FILES: 18 / 169
+CURRENT FILE: queue 031 CvGameCoreDLL/UWAICache.cpp -- OPEN
+PHYSICAL CHECKPOINT: C019-WIP18
+
+CURRENT QUEUE-031 ROOTS:
+    F213 / provisional KI#536
+    F214 / provisional KI#537
+    F215 / provisional KI#538
+    F216 / provisional KI#539
+    F217 / provisional KI#540
+    F218 / provisional KI#541
+    F219 / provisional KI#542
+    F220 / provisional KI#543
+    F221 / provisional KI#544
+    F222 / provisional KI#545
+    F223 / provisional KI#546
+    F224 / provisional KI#547
+    F225 / provisional KI#548
+    F226 / provisional KI#549
+    F227 / provisional KI#550
+    F228 / provisional KI#551
+    F229 / provisional KI#552
+    F230 / provisional KI#553
+
+NEXT ROOT ID: F231 UNUSED
+
+Resume from F231 unused.
+
+Best next seam:
+    * prove or reject the reportCityCreated human-cache asymmetry by tracing a concrete
+      live consumer and turn ordering after foreign city creation / transfer;
+    * continue remaining City asset / target-value refresh paths and persistent
+      report-state lifecycle;
+    * if those contracts survive, close the low-mention producer/consumer matrix and
+      decide whether UWAICache.cpp is ready for its first-pass durable checkpoint.
+
+Clean rejection remains preferable to inventing another issue.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+
+LOCAL RECONCILIATION AFTER C019-WIP18 IMPORT
+---------------------------------------------
+- C019-WIP12 through WIP18 have been imported without rewriting their append-only evidence. The open queue-031 `UWAICache.cpp` audit now reaches F230 / provisional KI#553, with F231 unused.
+- Current source and Known Issues implement independently reviewed F213/KI#536, F214/KI#537, F217/KI#540, F218/KI#541 and F219/KI#542. The current staged batch also implements F222/KI#545 and F223/KI#546, restoring their pre-practical-2920 arithmetic; a full Peirce SAS24 autoplay completed successfully.
+- F215-F216 / provisional KI#538-KI#539, F220-F221 / provisional KI#543-KI#544 and F224-F229 / provisional KI#547-KI#552 remain pending independent review. F225 may instead become a KI#475.3 decimal follow-up when implemented; preserve its revival-cache proof independently of final public numbering.
+- F230 / provisional KI#553 and C019-WIP12's ancient-save note concern backward compatibility only and are intentionally not promoted: AdvCiv-SAS supports only saves created by the current mod version. Current source and Known Issues remain authoritative for implementation state. (GPT-5.6-Sol)
