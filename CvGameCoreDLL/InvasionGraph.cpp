@@ -818,6 +818,14 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 				(kDefender.m_military[FLEET]->power() - kDefender.m_arLostPower[FLEET]) *
 				rConfDef * rArmyPortionDefender;
 		rDefFleetPow.increaseTo(0);
+		// <!-- custom: The coastal defender brings combat-capable transports into this Fleet battle. Preserve their overlapping cargo-capacity loss for later naval invasions instead of making destroyed transports available again.
+		// This retains UWAI's existing cargo/Fleet dimensional approximation. See KI#587. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		scaled rDefLogisticsPortion = 0;
+		if (rDefFleetPow > 1)
+		{
+			rDefLogisticsPortion = (kDefender.m_military[LOGISTICS]->power()
+					- kDefender.m_arLostPower[LOGISTICS]) * rConfDef / rDefFleetPow;
+		}
 		/*	Don't factor in distance; naval units tend to be fast;
 			would have to use a special metric b/c City::getDistance is
 			for land units only. */
@@ -825,9 +833,6 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		// bAtt=false: Defender has no mobility advantage at sea
 		std::pair<scaled,scaled> rrLossesWL = clashLossesWinnerLoser(rFleetPow,
 				rDefFleetPow, false, true);
-		/*	Losses in logistics don't matter b/c no naval landing
-			is attempted, and the cost (of having to rebuild units) is already
-			included in the fleet losses. */
 		scaled rLossesAtt, rLossesDef;
 		if (bAttWin)
 		{
@@ -843,6 +848,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		}
 		kStep.reducePower(m_ePlayer, FLEET, rLossesAtt);
 		kStep.reducePower(kDefender.m_ePlayer, FLEET, rLossesDef);
+		scaled rDefLogisticsLosses = rLossesDef * rDefLogisticsPortion;
+		rDefLogisticsLosses.decreaseTo(kDefender.m_military[LOGISTICS]->power()
+				- kDefender.m_arLostPower[LOGISTICS]);
+		kStep.reducePower(kDefender.m_ePlayer, LOGISTICS, rDefLogisticsLosses);
 		m_kReport.log("Losses from sea battle (A/D): %d/%d",
 				rLossesAtt.round(), rLossesDef.round());
 	}
@@ -1104,8 +1113,10 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 	scaled rDefDeploymentMod = scaled::max(
 			100 - 2 * rDeploymentDistDefender, 50) / 100;
 	rDefArmyPow *= rDefDeploymentMod;
-	rArmyPow *= scaled::max(
-			100 - fixp(1.55) * rDeploymentDistAttacker.pow(fixp(1.15)), 50) / 100;
+	// <!-- custom: Cavalry is an overlapping Army subset. Apply the attacker's deployment-availability factor to both branches so distance cannot leave more available Cavalry than total Army. See KI#588. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	scaled const rAttDeploymentMod = scaled::max(100 - fixp(1.55) * rDeploymentDistAttacker.pow(fixp(1.15)), 50) / 100;
+	rArmyPow *= rAttDeploymentMod;
+	rCavPow *= rAttDeploymentMod;
 	// Units available in battle area
 	CvArea const* pBattleArea = NULL;
 	if (pCity != NULL)

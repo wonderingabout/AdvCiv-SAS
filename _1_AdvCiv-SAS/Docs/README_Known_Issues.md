@@ -613,6 +613,8 @@ Note 3: some entries especially later ones are written with the help of LLMs; wh
 [579 - (Fixed inherited Base AdvCiv regression) Ally-confidence adjustment squared partial Army portions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#579---fixed-inherited-base-advciv-regression-ally-confidence-adjustment-squared-partial-army-portions)\
 [581 - (Fixed inherited original UWAI owner-identity defect) City defenders used the evaluating player's Defensive trait](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#581---fixed-inherited-original-uwai-owner-identity-defect-city-defenders-used-the-evaluating-players-defensive-trait)\
 [583 - (Fixed inherited AdvCiv/UWAI branch-accounting omission) Attacker area weighting excluded Cavalry](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#583---fixed-inherited-advcivuwai-branch-accounting-omission-attacker-area-weighting-excluded-cavalry)\
+[587 - (Fixed inherited original UWAI branch-state omission) Coastal Fleet losses left destroyed transports available for later landings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#587---fixed-inherited-original-uwai-branch-state-omission-coastal-fleet-losses-left-destroyed-transports-available-for-later-landings)\
+[588 - (Fixed inherited original UWAI branch-projection omission) Deployment distance reduced Army but not its Cavalry subset](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#588---fixed-inherited-original-uwai-branch-projection-omission-deployment-distance-reduced-army-but-not-its-cavalry-subset)\
 
 ## 1 - Redundant attribute values for all AI Civs
 
@@ -11401,3 +11403,19 @@ InvasionGraph models Cavalry as an overlapping subset of Army and clamps `Cavalr
 Attacker Army and Cavalry now receive the same battle-area factor, preserving their branch invariant and matching the corrected defender path. The omission remains in Base AdvCiv 1.14 and was not introduced by AdvCiv-SAS.
 
 A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed successfully after this `InvasionGraph` batch. Found as F260/provisional KI#583 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 587 - (Fixed inherited original UWAI branch-state omission) Coastal Fleet losses left destroyed transports available for later landings
+
+For a land-reachable coastal-city attack, InvasionGraph may first simulate a naval bombardment battle. The defender's entire remaining Fleet participates, including combat-capable transports represented simultaneously as Fleet combat power and Logistics cargo capacity. Inherited UWAI recorded only the defender's Fleet losses. In an `A -> D -> T` simulation chain, A could therefore destroy D's transports in the coastal battle, yet D's later naval invasion of T still reused their unchanged cargo capacity.
+
+The coastal battle now converts the defender's Fleet casualties into overlapping Logistics casualties through the same remaining-cargo-to-deployed-Fleet ratio used by UWAI's full naval-battle path, clamped to the remaining cargo capacity. This preserves persistent availability across later graph steps while retaining the existing approximate conversion between Fleet combat power and Logistics cargo slots. The omission originates in original UWAI and remains in Base AdvCiv 1.14.
+
+A current-build Debug-opt autoplay completed successfully; the exact `A -> D -> T` transport-reuse chain remains source-verified. Found as F264/provisional KI#587 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
+## 588 - (Fixed inherited original UWAI branch-projection omission) Deployment distance reduced Army but not its Cavalry subset
+
+UWAI models every Cavalry unit inside the enclosing Army branch and initially enforces `Cavalry <= Army`. Deployment-distance attenuation then reduced only the attacker's Army availability, leaving Cavalry at whole-force scale. A force represented as Army 100 and Cavalry 100 could become Army 50 and Cavalry 100; later city combat could consequently record more Cavalry casualty power than total Army casualty power.
+
+The calculated attacker deployment factor now scales Army and Cavalry together. This preserves the overlapping-branch invariant while retaining the existing shorter deployment distance for cavalry-focused attacks and every other deployment rule. The omission originates in original UWAI and remains in Base AdvCiv 1.14; it is separate from KI#583's later battle-area weighting omission.
+
+A current-build Debug-opt autoplay completed successfully; the exact deployment-ratio invariant remains source-verified. Found as F265/provisional KI#588 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
