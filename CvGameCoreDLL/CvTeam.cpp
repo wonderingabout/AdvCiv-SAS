@@ -433,6 +433,10 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	/*  advc.104t: Leader id needed later for merging data; unavailable after the
 		loop below. */
 	PlayerTypes eTeamLeader = GET_TEAM(eTeam).getLeaderID();
+	// <!-- custom: AdvCiv practical 1818 replaced the old pre-merge member cache with a live iterator, but kept this call after player reassignment.
+	// Merge into only the original surviving members before changing teams so the absorbed leader cannot add its history to itself. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (getUWAI().isEnabled())
+		AI().uwai().addTeam(eTeamLeader);
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (GET_PLAYER((PlayerTypes)i).getTeam() == eTeam)
@@ -629,7 +633,6 @@ void CvTeam::addTeam(TeamTypes eTeam)
 			if (it->getTeam() != getID())
 				it->uwai().getCache().onTargetTeamAbsorbed(getID(), eTeam);
 		}
-		AI().uwai().addTeam(eTeamLeader);
 	}
 	// </advc.104t>
 	AI().AI_updateAreaStrategies();

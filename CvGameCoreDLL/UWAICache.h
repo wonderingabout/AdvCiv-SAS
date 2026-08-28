@@ -150,11 +150,11 @@ public:
 	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget);
 	bool isReadyToCapitulate(TeamTypes eMaster) const;
 	void setReadyToCapitulate(TeamTypes eMaster, bool b);
-	 // When forming a Permanent Alliance
+	// <!-- custom: Merge persistent history from the absorbed leader across every civilization-team key when forming a Permanent Alliance. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void addTeam(PlayerTypes eOtherLeader);
 	// <!-- custom: When a Permanent Alliance absorbs a target team, migrate outsiders' persistent history and obligations to the surviving target identity. See KI#551. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void onTargetTeamAbsorbed(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam);
-	// Moves data that is stored only at the team leader
+	// <!-- custom: Move team-level leader-cache data and explicitly initialize planning-derived hireability when leadership changes. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void onTeamLeaderChanged(PlayerTypes formerLeaderId);
 
 private:

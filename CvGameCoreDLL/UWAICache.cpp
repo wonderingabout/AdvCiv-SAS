@@ -1539,10 +1539,10 @@ void UWAICache::addTeam(PlayerTypes eOtherLeader)
 {
 	// Get the team-related data from the other team's leader
 	UWAICache& kOther = GET_PLAYER(eOtherLeader).uwai().getCache();
-	// Fairly unimportant data ...
-	for (TeamIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
+	// <!-- custom: Persistent history can remain meaningful for a dead civilization team if it is later revived. Merge the full key domain rather than only currently alive major teams; the caller separately restores the original pre-merge recipient boundary. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FOR_EACH_ENUM(CivTeam)
 	{
-		TeamTypes const eTeam = itTeam->getID();
+		TeamTypes const eTeam = (TeamTypes)eLoopCivTeam;
 		m_aiPastWarScore.add(eTeam, kOther.m_aiPastWarScore.get(eTeam));
 		if (kOther.m_aeSponsorPerTarget.get(eTeam) != NO_PLAYER)
 		{
@@ -1589,6 +1589,10 @@ void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 	PlayerTypes const eLeader = GET_TEAM(m_eOwner).getLeaderID();
 	if (eLeader == NO_PLAYER || eFormerLeader == eLeader)
 		return;
+	// <!-- custom: CanBeHired is team-level state stored in the leader's player cache, whose private default is true while another player leads.
+	// AdvCiv's migration comment requires a promoted leader to start false until war planning recomputes it; initialize that state explicitly. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FOR_EACH_ENUM(CivTeam)
+		m_abCanBeHiredAgainst.set((TeamTypes)eLoopCivTeam, false);
 	for (TeamIter<MAJOR_CIV> itTeam; itTeam.hasNext(); ++itTeam)
 	{
 		TeamTypes const eTeam = itTeam->getID();
@@ -1602,8 +1606,7 @@ void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 				m_aiWarUtilityIgnoringDistraction.set(eTeam, GET_PLAYER(eFormerLeader).
 				uwai().getCache().m_aiWarUtilityIgnoringDistraction.get(eTeam));
 	}
-	/*	(CanBeHired and ReadyToCapitulate will get updated soon enough.
-		Start out as false for the new leader.) */
+	// <!-- custom: ReadyToCapitulate is copied above; only CanBeHired starts false until normal war planning updates it. This corrects the old comment that grouped both states together. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 }
 
 
