@@ -19,6 +19,7 @@ from urllib.parse import unquote, urlsplit
 ROOT = Path(__file__).resolve().parents[3]
 MANIFEST_PATH = ROOT / "_LLM_REPO_FILE_MANIFEST.txt"
 KNOWN_ISSUES_PATH = ROOT / "_1_AdvCiv-SAS" / "Docs" / "README_Known_Issues.md"
+CPP_AUDIT_ALBUM_PATH = ROOT / "_1_AdvCiv-SAS" / "Docs" / "Source_Analysis" / "cpp_file_audit_album.txt"
 
 HTML_LINK_RE = re.compile(
     r"<a\b[^>]*?\bhref\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))",
@@ -350,29 +351,60 @@ def line_number(text: str, offset: int) -> int:
     return text.count("\n", 0, offset) + 1
 
 
-# <!-- custom: A valid heading anchor does not ensure that a Known Issues entry is discoverable from its manually maintained menu. Require every numbered KI heading to have a numbered menu link before the first KI body. (GPT-5.6-Sol) -->
+# <!-- custom: A valid heading anchor does not ensure that a Known Issues entry is discoverable from its manually maintained menu.
+# Require the menu and body to use the same unique KI identifiers, and require every integer through the highest documented or album-assigned KI number to have an explicit Fixed/Pending/Merged/Rejected/Retired entry.
+# This prevents provisional findings such as KI#501 from disappearing between the audit album and the public implementation queue. (GPT-5.6-Sol) -->
 def known_issues_menu_errors() -> tuple[list[str], int]:
     text = KNOWN_ISSUES_PATH.read_text(encoding="utf-8")
-    first_issue = re.search(r"^##\s+\d", text, re.MULTILINE)
+    first_issue = re.search(r"^##\s+KI#\d", text, re.MULTILINE)
     if first_issue is None:
         return [f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: no numbered KI headings found"], 0
 
     menu_text = text[: first_issue.start()]
-    menu_numbers = set(re.findall(r"^\[(\d+(?:\.\d+)*)\b", menu_text, re.MULTILINE))
-    issue_matches = list(re.finditer(r"^##\s+(\d+(?:\.\d+)*)\b", text[first_issue.start() :], re.MULTILINE))
+    menu_ids = re.findall(r"^\[KI#(\d+(?:\.\d+)*)\b", menu_text, re.MULTILINE)
+    issue_matches = list(re.finditer(r"^##\s+KI#(\d+(?:\.\d+)*)\b", text[first_issue.start() :], re.MULTILINE))
+    issue_ids = [match.group(1) for match in issue_matches]
     errors: list[str] = []
-    seen_missing: set[str] = set()
-    for match in issue_matches:
-        issue_number = match.group(1)
-        if issue_number in menu_numbers or issue_number in seen_missing:
-            continue
-        seen_missing.add(issue_number)
-        offset = first_issue.start() + match.start()
+    for match in re.finditer(r"^(?:##\s+|\[)(\d+(?:\.\d+)*)\s+-", text, re.MULTILINE):
         errors.append(
-            f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}:{line_number(text, offset)}: "
-            f"KI#{issue_number} heading is missing from the main menu"
+            f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}:{line_number(text, match.start())}: "
+            f"legacy KI#{match.group(1)} label; use the greppable KI#number schema"
         )
-    return errors, len(set(match.group(1) for match in issue_matches))
+    for location, identifiers in (("main menu", menu_ids), ("body", issue_ids)):
+        duplicates = sorted(identifier for identifier in set(identifiers) if identifiers.count(identifier) > 1)
+        for identifier in duplicates:
+            errors.append(f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: duplicate KI#{identifier} in {location}")
+
+    menu_set = set(menu_ids)
+    issue_set = set(issue_ids)
+    for identifier in sorted(issue_set - menu_set, key=lambda value: [int(part) for part in value.split(".")]):
+        errors.append(f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: KI#{identifier} heading is missing from the main menu")
+    for identifier in sorted(menu_set - issue_set, key=lambda value: [int(part) for part in value.split(".")]):
+        errors.append(f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: KI#{identifier} main-menu entry has no body heading")
+
+    for identifier in issue_set:
+        expected = rf'^<a id="ki-{re.escape(identifier)}"></a>\n\n##\s+KI#{re.escape(identifier)}\b'
+        if re.search(expected, text, re.MULTILINE) is None:
+            errors.append(f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: KI#{identifier} lacks its stable #ki-{identifier} anchor")
+    for identifier, fragment in re.findall(
+        r"^\[KI#(\d+(?:\.\d+)*)\b.*?\]\([^\r\n#]+#([^\r\n)]+)\)", menu_text, re.MULTILINE
+    ):
+        if fragment != f"ki-{identifier}":
+            errors.append(
+                f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: KI#{identifier} main-menu link uses #{fragment}; "
+                f"expected stable #ki-{identifier}"
+            )
+
+    integer_ids = {int(identifier) for identifier in issue_set if "." not in identifier}
+    album_text = CPP_AUDIT_ALBUM_PATH.read_text(encoding="utf-8")
+    album_ids = {int(number) for number in re.findall(r"^F\d+\s+/\s+(?:PROVISIONAL|provisional)\s+KI#(\d+)\b", album_text, re.MULTILINE)}
+    highest = max(integer_ids | album_ids)
+    for number in sorted(set(range(1, highest + 1)) - integer_ids):
+        errors.append(
+            f"{KNOWN_ISSUES_PATH.relative_to(ROOT)}: KI#{number} is missing from the continuous "
+            f"integer ledger through KI#{highest}; add its Pending/Merged/Rejected/Retired disposition"
+        )
+    return errors, len(issue_set)
 
 
 def main() -> int:

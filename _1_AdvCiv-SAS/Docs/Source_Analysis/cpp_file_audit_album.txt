@@ -2,12 +2,12 @@ AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
-Files complete: 18 / 169
+Files complete: 22 / 169
 Files open: 1 / 169
-Last completed file: investigation file 018 / queue 041 CvGameCoreDLL/CvSelectionGroupAI.cpp (1,454 lines) - CLOSED AT C019
-Current selected file: queue 031 CvGameCoreDLL/UWAICache.cpp (1,812 queued lines) - OPEN AT C019-WIP11
-Current queue-031 roots: F213-F223 / provisional KI#536-KI#546
-Next root ID: F224 unused
+Last completed file: investigation file 022 / queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp (1,461 queued lines) - CLOSED AT C023
+Current selected file: queue 040 CvGameCoreDLL/CvGlobals.cpp (1,454 queued lines) - OPEN AT C023-WIP03
+Current queue-040 roots: F272 / provisional KI#595
+Next root ID: F273 unused / provisional KI#596 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -20,15 +20,15 @@ METHOD
 - False positives are recorded when useful so they are not rediscovered later.
 
 QUEUE (current .cpp files, longest -> shortest)
-001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]<-(priority next wip)
-002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]<-(priority next wip)
+001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]
+002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
-005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
-006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
-007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
-008  10841 CvGameCoreDLL/CvGame.cpp [COMPLETE - REVIEWED/TEN NEW FINDINGS]<-(priority next wip)
-009   8705 CvGameCoreDLL/CvPlot.cpp [COMPLETE - REVIEWED/SEVEN NEW FINDINGS]<-(priority next wip)
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]
+005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]
+006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]
+007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]
+008  10841 CvGameCoreDLL/CvGame.cpp [COMPLETE - REVIEWED/TEN NEW FINDINGS]
+009   8705 CvGameCoreDLL/CvPlot.cpp [COMPLETE - REVIEWED/SEVEN NEW FINDINGS]
 010   6854 CvGameCoreDLL/CvTeamAI.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 011   6343 CvGameCoreDLL/SASGameRecordLog.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
 012   6326 CvGameCoreDLL/CvDLLWidgetData.cpp [COMPLETE - SEE DURABLE CHECKPOINT]
@@ -42,7 +42,7 @@ QUEUE (current .cpp files, longest -> shortest)
 020   2599 CvGameCoreDLL/CvInfo_Unit.cpp [PENDING]
 021   2503 CvGameCoreDLL/CyPlayer.cpp [PENDING]
 022   2448 CvGameCoreDLL/TrueStarts.cpp [PENDING]
-023   2430 CvGameCoreDLL/InvasionGraph.cpp [PENDING]<-(priority next wip)
+023   2430 CvGameCoreDLL/InvasionGraph.cpp [COMPLETE - SEE C022 DURABLE CHECKPOINT]
 024   2399 CvGameCoreDLL/CyCity.cpp [PENDING]
 025   2247 CvGameCoreDLL/StartingPositionIteration.cpp [PENDING]
 026   2132 CvGameCoreDLL/CvInitCore.cpp [PENDING]
@@ -50,7 +50,7 @@ QUEUE (current .cpp files, longest -> shortest)
 028   2095 CvGameCoreDLL/CvXMLLoadUtilitySet.cpp [PENDING]
 029   2052 CvGameCoreDLL/CyEnumsInterface.cpp [PENDING]
 030   1919 CvGameCoreDLL/CvInfo_Misc.cpp [PENDING]
-031   1812 CvGameCoreDLL/UWAICache.cpp [OPEN - SEE C019-WIP11]<-(priority next wip 2nd)
+031   1812 CvGameCoreDLL/UWAICache.cpp [COMPLETE - SEE C020 DURABLE CHECKPOINT]
 032   1704 CvGameCoreDLL/CyUnit.cpp [PENDING]
 033   1672 CvGameCoreDLL/CvInfo_Terrain.cpp [PENDING]
 034   1637 CvGameCoreDLL/CvInfo_Civilization.cpp [PENDING]
@@ -58,13 +58,13 @@ QUEUE (current .cpp files, longest -> shortest)
 036   1596 CvGameCoreDLL/CvMap.cpp [PENDING]
 037   1576 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]<-(priority next wip)
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
-039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [PENDING]<-(priority next wip)
-040   1454 CvGameCoreDLL/CvGlobals.cpp [PENDING]<-(priority next wip)
-041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [COMPLETE - SEE C019 DURABLE CHECKPOINT]<-(priority next wip 1st)
+039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [COMPLETE - SEE C023 DURABLE CHECKPOINT]
+040   1454 CvGameCoreDLL/CvGlobals.cpp [OPEN - SEE C023-WIP03]<-(priority next wip)
+041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [COMPLETE - SEE C019 DURABLE CHECKPOINT]
 042   1419 CvGameCoreDLL/CvDeal.cpp [PENDING]<-(priority next wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
-045   1281 CvGameCoreDLL/CvMapGenerator.cpp [PENDING]<-(priority next wip 3rd)
+045   1281 CvGameCoreDLL/CvMapGenerator.cpp [COMPLETE - SEE C021 DURABLE CHECKPOINT]
 046   1268 CvGameCoreDLL/CyGame.cpp [PENDING]
 047   1214 CvGameCoreDLL/CvDllPythonEvents.cpp [PENDING]<-(priority next wip)
 048   1128 CvGameCoreDLL/CvInfo_Building.cpp [PENDING]
@@ -45230,3 +45230,2049 @@ Best next work:
     * prefer controls/retractions or saturation over forcing F270.
 
 No repository source files modified. Audit album only.
+
+
+===============================================================================
+CHECKPOINT C021-WIP18 -- FILE 023 OPEN / CONVERGENCE + SATURATION PASS
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Latest source snapshot re-anchored for this pass:
+    AdvCiv-SAS_light_source_20260828T134631.zip
+Comparison controls retained:
+    AdvCiv-1.14(5).zip
+    Civ4-K-Mod-master-1.46(3).zip
+    Civ4CE-main(10).zip
+    local AdvCiv pre-SAS commit-diff mirror, especially practical 1253 and 2920+
+
+F270 remains UNUSED. KI#593 remains the next provisional KI number.
+
+PURPOSE OF THIS PASS
+--------------------
+This pass was intentionally a convergence/saturation pass rather than a search for an
+issue count. The remaining current InvasionGraph.cpp state was inventoried by producer
+and consumer, and the large practical-2920 rewrite was re-read through operator/
+condition/ownership-focused comparisons rather than raw textual diff noise.
+
+No new independent hard producer -> state -> consumer contradiction crossed the audit bar.
+The absence of F270 is therefore meaningful evidence of convergence, not an unfinished
+search caused by staying only in previously reviewed regions.
+
+
+CONTROL -- PHASE-II TARGET REFRESH CALLER CONTRACT
+---------------------------------------------------
+A possible stale-target path was tested around addFutureWarParties' early return and the
+two-phase MilitaryAnalyst flow.
+
+The live caller contract closes the suspected gap:
+    * a prospective war with a preparation phase supplies the relevant declaring side;
+      addFutureWarParties then calls updateTargets();
+    * when the evaluated war is already active, WarEvaluator collapses preparation time
+      so that the problematic two-phase prospective-war state is not produced.
+
+No F270 assigned.
+
+
+CONTROL -- 75%-OF-AVERAGE POPULATION RALLY THRESHOLD USES ACTUAL CITY COUNT DELIBERATELY
+-----------------------------------------------------------------------------------------
+The city-rally heuristic uses actual getNumCities() rather than the simulation-adjusted
+remaining-city count. That initially resembled F269's stale real-map spatial inventory.
+History argues against treating this particular denominator as an omission:
+
+    * the first tracked UWAI implementation already maintained a separate simulated
+      remaining-city value while deliberately using actual getNumCities() for the
+      population-average threshold;
+    * practical 1289 made remainingCitiesDef explicit and still retained the actual
+      city-count denominator for this heuristic.
+
+This is best read as a stable pre-war/current-map city-importance heuristic. No F270.
+
+
+CONTROL -- PRACTICAL-2920 CLASH-AREA CAPITAL WEIGHT PRESERVES PREDECESSOR SEMANTICS
+-----------------------------------------------------------------------------------
+The pre-rewrite clashArea code had two owner tests under `if (capital)`, while the revised
+code combines them with `||` and comments "Count it double". This is equivalent: the
+iterated city has only one owner, so the two predecessor increments could never both
+fire. The capital contributes its ordinary city count plus one extra weight in both
+versions. No operator/polarity regression here.
+
+
+CONTROL -- PRACTICAL-2920 `healDuration = 2` -> `iHealTurns += 2` IS EQUIVALENT
+--------------------------------------------------------------------------------
+The operator-focused rewrite scan surfaced the apparent assignment-to-addition change in
+the prior-conquest deployment block. `iHealTurns` is initialized to zero inside each
+step and has no earlier producer before this block. Consequently `+= 2` and predecessor
+`= 2` are equivalent in the live flow. No F270.
+
+
+CONTROL -- CONQUEST OCCUPATION DETACHMENT DOES NOT REQUIRE A SEPARATE CAVALRY LOSS ROOT
+---------------------------------------------------------------------------------------
+After a successful conquest, applyStep adds `rPowLeftBehind` to ARMY lost/shifted power
+without adding a parallel CAVALRY value. This was tested as a possible independent
+subset violation.
+
+It does not presently justify F270:
+    * the detachment is explicitly SHIFTED/UNAVAILABLE Army power, not a casualty;
+    * every subsequent step reconstructs Army and Cavalry availability and enforces
+      `rCavPow.decreaseTo(rArmyPow)` before combat;
+    * getLostPower subtracts the Army shift so the occupation detachment is not exported
+      as a casualty;
+    * no independent current consumer was found that uses the unprojected Cavalry total
+      after the Army detachment while bypassing the step-level availability clamp.
+
+A future model could track which unit subtype remains as occupation troops, but current
+representation is not a hard independent bug. Do not split from F260/F265 merely because
+CAVALRY is an overlapping branch.
+
+
+CONTROL / EXISTING-ROOT BOUND -- DEFENDER CAVALRY AND DEPLOYMENT-UNDO PATH
+---------------------------------------------------------------------------
+The defender's deployment-distance modifier initially scales ARMY but not CAVALRY; later,
+when a city attack bypasses a second open-field clash, the code divides ARMY by that
+modifier again because the defending army is assumed to have retreated to the city.
+
+This was re-challenged as a possible F270. It should remain inside the already documented
+F265 repair bounds rather than become another root:
+    * F265's hard live consumer is the ATTACKER deployment projection, where Army is
+      attenuated and the unattenuated Cavalry subset can exceed it and enter unbounded
+      city-loss ratios;
+    * F265 already warns that a defender-side repair must mirror the later Army undo on
+      Cavalry too, or it would create a new mismatch;
+    * current defender city flow does not provide a cleaner independent root than the
+      attacker-side F265 contradiction.
+
+No F270 assigned.
+
+
+CONTROL -- `rPastThreat` IS INTENTIONALLY ONE-ITERATION CARRYOVER
+-----------------------------------------------------------------
+resolveLosses keeps only the immediately prior failed attack's threat rather than a sum
+of all past failed attackers. This can look like forgotten cumulative state. The source
+comment, however, explicitly describes threat "that carries over from one iteration to
+the next," and the timing model permits an older defensive allocation to redeploy while
+the next invasion is being resolved. Without a hard overlapping-time counterexample,
+accumulating every prior failure would be an unjustified model change. No F270.
+
+
+STATE/FUNCTION COVERAGE CHECK
+-----------------------------
+The convergence pass explicitly re-inventoried all persistent Node simulation state and
+its writes/reads in current SAS:
+
+    m_pPrimaryTarget / m_targetedBy
+        target discovery, retargeting, failure unlink, cycle break, terminal-state paths;
+        live hard defects already represented by F251/F267 and related controls.
+
+    m_iCacheIndex
+        reset, targetCity scan, addConquest advance; phase-lifecycle cross-target failure
+        hypothesis already rejected because each phase resets the cursor.
+
+    m_arLostPower / m_arShiftedPower
+        all step application, branch caps, left-behind detachment, exported lostPower;
+        live hard defects represented by F252/F257/F264/F266 where applicable.
+
+    m_rEmergencyDefPow
+        reset, city-defense contribution, successful-step mutation, production after loss;
+        F253 covers query-side mutation; F266 covers same-phase casualty discard/reuse;
+        phase-boundary persistence hypothesis remains rejected/control.
+
+    m_rTempArmyLosses
+        phase reset, clash producer, attacker availability consumer; no independent
+        uncovered owner/lifetime path found beyond F257 confidence conversion.
+
+    m_rDistractionByConquest / m_rDistractionByDefense
+        phase reset, cycle producer, multi-invader consumers, city-loss transition;
+        F255 and F267 cover the hard mismatches found; global continued-war behavior
+        remains below the bug bar as an aggregate-army approximation.
+
+    m_bHasClashed
+        producer after applied combat and city-rally consumer; persistent across phases
+        consistently with prior simulated combat. No new hard contradiction found.
+
+    m_conquests / m_cityLosses
+        target filtering, production portion, area/rally consumers, result export;
+        F269 covers the missing per-area simulated inventory; stable real-map population
+        heuristic was separately rejected above.
+
+    m_capitulationsAccepted / m_bCapitulated / m_bEliminated
+        capitulation/elimination production and MilitaryAnalyst result export; F251 covers
+        live stale-edge terminal behavior. The 2920 teammate recursion polarity remains a
+        dormant regression because the current capitulation caller requires a last living
+        team member; no separate live root promoted.
+
+    m_iWarTurnsSimulated
+        successful-city producer and currently commented-out consumer; its absence from
+        live timing contributes to F267's proven fresh-horizon path but is not split into
+        a generic "unused field" finding.
+
+    SimulationStep ownership/result fields
+        every current reducePower caller is one of the step attacker/defender pair;
+        omitted scaled members zero-initialize safely; no third-party storage path found.
+
+Major pure/plumbing functions (constructors, add/remove opponents, result getters,
+changePrimaryTarget, findCycle/findSink, simulateArmament/simulateLosses) were also
+rechecked for ownership/lifetime assumptions while tracing the states above.
+
+
+POST-2920 HISTORY SATURATION CONTROL
+------------------------------------
+The substantive later InvasionGraph changes were re-enumerated as intent controls:
+    practical 2923  -- contains the confirmed F256 compound-assignment regression;
+    practical 2928  -- repairs the `!isNaval && !clashOnly` area condition to `||`;
+    practical 2943/2954 -- temporary defender-advantage/garrison mistake resolved by
+                           the later merge into the current "cap bonus only" logic;
+    practical 3045  -- nonnegative defender-Fleet / reducePower protections;
+    practical 3477  -- intentional uniform-garrison cycle-threat probe;
+    practical 3662  -- scaled representation conversion for willingness arithmetic;
+    practical 3946  -- deliberate human rally multiplier.
+
+Current SAS differs materially from Base AdvCiv 1.14 in this file only through the
+already-known KI#561 Home-Guard/nuclear headcount repair plus formatting/comment changes.
+K-Mod/Civ4CE still provide no cognate UWAI InvasionGraph implementation to compare.
+
+
+SATURATION ASSESSMENT
+---------------------
+Queue 023 has now had:
+    * current SAS vs Base semantic comparison;
+    * initial-UWAI ancestry checks;
+    * focused practical-2920 semantic migration review;
+    * later repair-history reverse audit;
+    * graph topology / mutation / recursive-order review;
+    * target-cache / reachability / land-vs-sea review;
+    * Army/Cavalry/Home-Guard and Fleet/Logistics overlapping-branch review;
+    * phase/timing/horizon review;
+    * capitulation/elimination/result ownership review;
+    * persistent-state producer -> consumer inventory;
+    * multiple explicit false-positive challenges, including retraction of F263.
+
+The latest convergence slices have yielded controls rather than independent roots.
+This is strong evidence that InvasionGraph.cpp is close to saturation. Keep the file OPEN
+for one final root-overlap / repair-scope reconciliation pass before declaring it COMPLETE;
+do not invent F270 merely to close with a new number.
+
+
+C021-WIP18 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    20 / 169
+
+CURRENT FILE:
+    queue 023 CvGameCoreDLL/InvasionGraph.cpp -- OPEN, FINAL CONVERGENCE PASS
+
+LIVE QUEUE-023 ROOTS:
+    F250 / provisional KI#573
+    F251 / provisional KI#574
+    F252 / provisional KI#575
+    F253 / provisional KI#576
+    F254 / provisional KI#577
+    F255 / provisional KI#578
+    F256 / provisional KI#579
+    F257 / provisional KI#580
+    F258 / provisional KI#581
+    F259 / provisional KI#582
+    F260 / provisional KI#583
+    F261 / provisional KI#584
+    F262 / provisional KI#585
+    F264 / provisional KI#587
+    F265 / provisional KI#588
+    F266 / provisional KI#589
+    F267 / provisional KI#590
+    F268 / provisional KI#591
+    F269 / provisional KI#592
+
+RETRACTED:
+    F263 / provisional KI#586 -- audit false positive; ordinary failed city attack does
+    unlink the attacker through applyStep's failure `else`.
+
+NEXT ROOT:
+    F270 UNUSED
+    KI#586 remains retired; next provisional KI is KI#593.
+
+Exact next cursor:
+    * perform final overlap/root-boundary review of F250-F269, especially naval roots
+      F261/F262/F264 and overlapping-branch roots F260/F265/F266;
+    * verify repair scopes don't accidentally conflict with intentional abstractions;
+    * if no independent contradiction survives, promote queue 023 to COMPLETE without
+      allocating F270 and select the next remaining priority-marked file from the
+      reconciled queue.
+
+No repository source files modified. Audit album only.
+===============================================================================
+
+===============================================================================
+DURABLE CHECKPOINT C022 -- FILE 021 COMPLETE / QUEUE 023 InvasionGraph.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot for this close:
+    AdvCiv-SAS_light_source_20260828T134631.zip
+
+Comparison/history material used across the queue-023 pass:
+    AdvCiv-1.14(5).zip
+    Civ4-K-Mod-master-1.46(3).zip
+    Civ4CE-main(10).zip
+    current SAS source / XML / GlobalDefines
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+    Base AdvCiv manual / UWAI notes where they document route-distance intent
+
+Prior physical checkpoint:
+    C021-WIP18
+
+DURABLE RESULT
+--------------
+    COMPLETED FIRST-PASS FILES: 21 / 169
+
+    queue 023
+    CvGameCoreDLL/InvasionGraph.cpp
+    STATUS: COMPLETE -- FIRST-PASS DURABLE CLOSE
+
+    Live queue-023 roots:
+        F250 / provisional KI#573
+        F251 / provisional KI#574
+        F252 / provisional KI#575
+        F253 / provisional KI#576
+        F254 / provisional KI#577
+        F255 / provisional KI#578
+        F256 / provisional KI#579
+        F257 / provisional KI#580
+        F258 / provisional KI#581
+        F259 / provisional KI#582
+        F260 / provisional KI#583
+        F261 / provisional KI#584
+        F262 / provisional KI#585
+        F264 / provisional KI#587
+        F265 / provisional KI#588
+        F266 / provisional KI#589
+        F267 / provisional KI#590
+        F268 / provisional KI#591
+        F269 / provisional KI#592
+
+    Retracted / retired:
+        F263 / provisional KI#586 -- RETRACTED audit false positive.
+        Ordinary failed city attacks do unlink the attacker through applyStep's
+        failure `else kAttacker.changePrimaryTarget(NULL);`.
+        KI#586 remains retired and must not be implemented or reused.
+
+    NEXT GLOBAL ROOT ID:
+        F270 UNUSED
+        next provisional KI: KI#593
+
+FINAL ROOT-OVERLAP / INDEPENDENCE REVIEW
+----------------------------------------
+The final convergence pass challenged the live findings against one another by asking
+whether each root can reproduce while the nearest-looking sibling is neutralized. No
+root needed to be merged or retracted beyond the already-retired F263.
+
+Naval accounting cluster:
+
+    F261 versus F262:
+        DISTINCT.
+        F261 is produced by asymmetric confidence conversion of attacker LOGISTICS
+        casualties. It reproduces with repeat-trip amplification neutralized.
+
+        F262 is produced by operation ordering: pre-battle cargo capacity is multiplied
+        for repeat trips before destroyed transport capacity is subtracted. It reproduces
+        at confidence 1, where F261 disappears.
+
+    F264 versus F261/F262:
+        DISTINCT.
+        F264 lives on the coastal-bombardment / no-landing defender path. Transport hulls
+        may contribute to and be removed from FLEET while LOGISTICS is left unchanged,
+        allowing stale cargo capacity to survive into a later outgoing invasion.
+        It does not require the attacker LOGISTICS confidence conversion of F261 or the
+        repeat-trip ordering of F262.
+
+Overlapping-branch cluster:
+
+    F260 versus F265:
+        DISTINCT.
+        F260 is the later battle-area projection: attacker ARMY is area-weighted while
+        overlapping CAVALRY is not. It reproduces with deployment attenuation neutral.
+
+        F265 is the earlier deployment-distance attenuation: attacker ARMY is reduced
+        while overlapping CAVALRY is not. It reproduces with battle-area weight 1.
+        Its repair scope remains deliberately attacker-focused; changing defender
+        CAVALRY requires mirroring the later defender-ARMY retreat-to-city undo.
+
+    F266 versus F260/F265:
+        DISTINCT.
+        F266 concerns HOME_GUARD plus the separate virtual emergency-defense pool and
+        the cumulative base-branch loss cap. It needs neither CAVALRY nor the Army
+        availability transforms of F260/F265.
+
+Cycle / confidence cluster:
+
+    F255 versus F256:
+        DISTINCT.
+        F255 swaps ownership of already-computed `this`/target Army portions when writing
+        cycle distraction state. It reproduces even if those portions were calculated
+        correctly.
+
+        F256 changes the portion values themselves through the practical-2923 `*=`
+        regression. It reproduces before any F255 distraction assignment is consumed.
+
+    F257 versus F261:
+        DISTINCT.
+        Both expose confidence-space conversion errors, but in separate branch/state
+        systems: F257 converts open-field/cycle ARMY clash losses back to persistent
+        physical Army power without undoing confidence, whereas F261 converts attacker
+        transport/LOGISTICS casualties. Either can reproduce with the other branch absent.
+
+Deployment / route / horizon cluster:
+
+    F254 versus F268:
+        DISTINCT.
+        F254 is a resolveLosses time-horizon error after a genuinely naval step exists:
+        the defender-zero preliminary probe is not guaranteed to be a lower-duration
+        bound and `break` can erase an in-horizon real combat.
+
+        F268 occurs earlier, while classifying the route: a land-existence boolean is
+        combined with a best-route distance that may belong to sea travel, turning sea
+        duration into a nominal land invasion and bypassing naval modeling entirely.
+        F254 reproduces with route classification already correct; F268 reproduces before
+        the F254 probe/horizon logic matters.
+
+    F259 versus F265:
+        DISTINCT.
+        F259 is the clash-distance split itself going negative on the defender side when
+        attacker personality weighting expands one half beyond the fixed total; this can
+        violate `uround` assumptions and boost defender power above 100%.
+        F265 needs only an ordinary positive attacker deployment attenuation and the
+        missing CAVALRY sibling transform.
+
+Graph lifecycle / target cluster:
+
+    F251 versus F267:
+        DISTINCT.
+        F251 requires a terminal/eliminated/capitulated node that retains an outgoing
+        edge and can act as a zombie attacker.
+
+        F267 requires a still-surviving node after a partial third-party conquest. The
+        source says its offensive stops and its Army returns to defense, but its outgoing
+        edge remains live and can later receive a fresh local horizon. No terminal-node
+        condition is needed.
+
+Ownership / observer cluster:
+
+    F252 versus F258:
+        DISTINCT.
+        F252 calculates attacker's post-conquest occupation power from defender-owned
+        representative Army power / adjacent defender-era quantity.
+        F258 reads the evaluating graph agent's Defensive trait when modifying a different
+        defender's city defense. Separate producer sites, state and consumers.
+
+Spatial-state cluster:
+
+    F268 versus F269:
+        DISTINCT.
+        F268 is missing route-type-specific distance state (`distByLand`) and contaminates
+        route classification / clash distance / ArmamentForecast.
+        F269 is missing simulated per-area city inventory after hypothetical conquests and
+        contaminates area availability, rally caps and clash-area selection.
+
+Speculative-state / emergency cluster:
+
+    F253 versus F266:
+        DISTINCT.
+        F253 is a query-side mutation: speculative `step()` halves another node's
+        emergency-defense power even when the step is discarded.
+        F266 reproduces using actually-applied sequential assaults: casualties inflicted
+        on emergency defenders can be clipped away by the HOME_GUARD base-power cap.
+
+No additional independent producer -> state -> consumer contradiction survived the final
+pass. In particular, the following late candidates remained controls rather than roots:
+    * omitted `scaled` initializers are zero-safe by type construction;
+    * player-typed GET_TEAM calls are safe through the overload / TEAMID conversion;
+    * phase-boundary emergency-defense reset is consistent with ArmamentForecast timing;
+    * LOGISTICS need not mechanically receive the same front portion as ARMY/FLEET;
+    * conquest occupation shifts do not create a separate persistent CAVALRY consumer
+      because each later step reconstructs availability and clamps CAVALRY <= ARMY;
+    * defender CAVALRY deployment asymmetry is already a repair-boundary concern of F265,
+      not a second independent current root;
+    * stable real-map population average is historically intentional city-importance
+      modeling, unlike F269's concrete stale per-area inventory contradiction;
+    * the inverted teammate recursion in setCapitulated remains dormant under the live
+      `getAliveCount() <= 1` capitulation caller contract;
+    * post-2920 operator/condition archaeology found the known F256 regression and known
+      later upstream repairs, but no further live semantic migration bug.
+
+SATURATION / COMPLETE RATIONALE
+-------------------------------
+Queue 023 received substantially more than a simple current-file read:
+    * current SAS was compared against Base AdvCiv 1.14 and the tracked UWAI/AdvCiv
+      introducing/refactoring history;
+    * K-Mod/Civ4CE were checked for cognate controls (no cognate UWAI InvasionGraph exists);
+    * graph ownership, edge lifecycle, post-order resolution, target refresh, phase resets,
+      capitulation/elimination and two-node cycles were traced end to end;
+    * every persistent Node/SimulationStep state member had write sites and downstream
+      consumers inventoried;
+    * ARMY/HOME_GUARD/CAVALRY/FLEET/LOGISTICS overlap and conversion invariants were traced;
+    * naval landing, coastal battle, city siege, open-field clash, deployment and horizon
+      paths were challenged numerically and dimensionally;
+    * the large practical-2920 semantic migration and post-2920 repair commits were audited
+      separately from simple renaming/scaled-conversion noise;
+    * attractive candidates were repeatedly rejected, and F263 was publicly/durably
+      retracted when a missed control-flow `else` disproved it;
+    * final overlap review found all remaining live roots independently reproducible.
+
+Therefore queue 023 is sufficiently saturated for the album's established
+FIRST-PASS COMPLETE meaning. COMPLETE does not assert that later cross-file archaeology can
+never refine or broaden a root; it means there is no justification for keeping this file
+open merely in hope of manufacturing F270.
+
+NEXT FILE -- REMAINING PRIORITY MARKERS
+---------------------------------------
+The next remaining PENDING priority-marked file in the reconciled priority queue is:
+
+    queue 039
+    CvGameCoreDLL/CvGameCoreUtils.cpp
+    approximately 1,461 lines in the album snapshot
+
+Later remaining priority-marked files after that:
+    queue 040 CvGameCoreDLL/CvGlobals.cpp
+    queue 042 CvGameCoreDLL/CvDeal.cpp
+    queue 092 CvGameCoreDLL/BBAILog.cpp
+
+Exact next cursor:
+    begin queue 039 CvGameCoreUtils.cpp from F270 UNUSED / KI#593 next.
+
+Recommended opening method:
+    1. establish current SAS-vs-Base-AdvCiv semantic delta and path history;
+    2. inventory utility contracts and all high-fanout helpers before judging local code;
+    3. prioritize helpers whose return values affect combat odds, pathing, plot/city/unit
+       selection, hashing/indexing, serialization-facing IDs or deterministic sync;
+    4. compare K-Mod/Civ4CE cognate helpers where available;
+    5. treat generic utility cleanup/style/performance as controls unless a concrete
+       producer -> consumer behavior or safety failure is established.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C022-WIP01 -- FILE 022 OPEN / QUEUE 039 CvGameCoreUtils.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T134631.zip
+
+Comparison material opened:
+    AdvCiv-1.14(5).zip
+    Civ4-K-Mod-master-1.46(3).zip
+    Civ4CE-main(10).zip (BtS CvGameCoreUtils cognate)
+    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    SASBranch / AdvCivPreSAS path-history diffs for CvGameCoreUtils.cpp
+
+QUEUE TRANSITION
+----------------
+Queue 023 InvasionGraph.cpp was durably closed COMPLETE in C022 after the final
+root-independence/saturation pass. F270 remains unused; KI#593 is next.
+
+Selected next remaining priority-marked file:
+    queue 039
+    CvGameCoreDLL/CvGameCoreUtils.cpp
+    1,461 lines in current SAS
+
+STATUS:
+    OPEN -- INITIAL CONTRACT / DELTA INVENTORY
+
+CURRENT ROOT CURSOR:
+    F270 UNUSED
+    next provisional KI: KI#593
+
+OPENING SAS-vs-BASE DELTA
+-------------------------
+A whitespace-insensitive SAS-vs-AdvCiv-1.14 comparison reduces the apparent 375-line
+size growth to a fairly bounded semantic delta:
+
+    1. SAS-added `handicapFromDifficulty` helper.
+
+    2. A large SAS diagnostic / victory-denial helper block:
+         getSASDiploEventType
+         getSASMemoryType
+         getSASTradeItemType
+         getSASWarPlanType
+         getSASGameType
+         getSASGameMode
+         getSASCalendarType
+         getSASWarDeclarationCause
+         getSASTechAcquisitionCause
+         getSASAutoPlayEndCause
+         getSASVictoryStageLevel and per-victory wrappers
+         getSASTeamMaxVictoryStage
+         getSASTeamSpaceVictoryStage
+         getSASTeamSpaceshipPartsBuilt / Required / Percent
+         getSASVictoryDelayTurnsFromNormalGameSpeed
+         getSASLeadingSpaceshipPartsBuilt
+         isSASTeamStage3SpaceVictoryThreat
+         isSASUWAIVictoryDenialPeaceThreat
+         getSASTeamStage3SpaceLeaderPartGap
+
+    3. Minor formatting-only signature collapses.
+
+    4. `baseYieldToSymbol` caches MAX_YIELD_STACK in a local static const.
+       The function is documented unused in current BtS/AdvCiv; no live issue inferred.
+
+    5. `getTurnMonthForGame` hoists the current CvGameSpeedInfo and increment count;
+       behavior is equivalent for valid game-speed XML. CALENDAR_WEEKS caches the
+       WEEKS_PER_MONTHS define in a local static const.
+
+    6. SAS UnitAI enum renames in getUnitAIString.
+
+Everything else in the old high-fanout utility/PUF region is essentially Base AdvCiv
+rather than a broad SAS rewrite. Therefore the audit should treat the file as two layers:
+
+    A. SAS-added helper contracts and their cross-file consumers;
+    B. inherited AdvCiv/K-Mod/vanilla utility and PUF contracts, compared against K-Mod
+       and Civ4CE for missed fixes.
+
+CROSS-FILE DEDUP CONTROL -- F250 ALREADY OWNS THE BROKEN LOCAL INVASIONGRAPH EXTRACTOR
+---------------------------------------------------------------------------------------
+The current shared helper in this file:
+
+    getSASVictoryStageLevel(...)
+
+correctly checks cumulative victory-stage bits highest-to-lowest (stage4 -> stage1).
+
+Queue 023's F250 is NOT a defect in this shared helper. F250 owns a separate old local
+InvasionGraph macro that checks `AI_atVictoryStage(stage1)` first and therefore collapses
+all cumulative stages 1..4 to numeric 1.
+
+This file is useful internal control evidence for F250, but the helper itself must not be
+rediscovered/re-numbered as F270.
+
+SAS-ADDED HELPER FIRST CONTROLS
+-------------------------------
+`handicapFromDifficulty`:
+    * introduced because SAS handicap `iDifficulty` values are scores, no longer safely
+      reconstructible as enum-index * 10 after adding Rookie / Deity+ levels;
+    * current callers pass averaged/rounded difficulty scores from CvGame/CvTeam;
+    * nearest-score lookup is coherent for current ordered XML;
+    * exact midpoint ties choose the earlier XML enum because comparison uses `<`, but no
+      caller-visible contract requiring upward tie-breaking has been established.
+      CONTROL for now; do not promote.
+
+Spaceship helpers:
+    * current SAS XML has each spaceship project's `iMaxTeamInstances` equal to its Space
+      `VictoryThreshold`, so summing max-team instances currently matches full ship parts;
+    * a hypothetical mod where these diverge would make `getSASSpaceshipPartsRequired`
+      less generic, but current SAS does not reproduce such a mismatch;
+    * therefore no live F270 on this basis.
+
+`getSASVictoryDelayTurnsFromNormalGameSpeed`:
+    * deliberately does NOT static-cache game-speed output, avoiding stale speed if a new
+      game is started in the same Civ4 process;
+    * current victory-denial defines are 20 Normal-speed turns, and all shipped
+      VictoryDelayPercent values produce exact integer scaled windows for 20;
+    * helper rounds to nearest whereas CvGame::victoryDelay uses integer truncation, but
+      no current shipped threshold divergence results from the configured value.
+      Keep as a precision/design control unless a live boundary consumer is found.
+
+`getSASUWAIVictoryDenialPeaceThreat`:
+    * parameter is TeamTypes and current UWAIAgent calls pass `kAgent.getID()` where
+      kAgent is CvTeamAI; no player/team type confusion there;
+    * CvDeal/CvTeamAI callers likewise supply TeamTypes;
+    * no ownership mismatch found in opening pass.
+
+INHERITED HIGH-FANOUT OPENING CONTROL
+-------------------------------------
+PUF enemy/team predicates were compared structurally with K-Mod and Civ4CE cognates.
+AdvCiv deliberately rewrote several owner/team names and hidden-nationality visibility
+rules; the apparently reversed K-Mod variable names in `PUF_canDeclareWar` are not an
+AdvCiv polarity bug. Current AdvCiv/SAS semantics explicitly ask whether input `iPlayer`
+can declare on the unit's combat owner and call:
+
+    GET_TEAM(eOurTeam).canDeclareWar(eOtherTeam)
+
+which matches that contract.
+
+No F270 from the initial PUF comparison.
+
+HIGH-FANOUT / SAFETY INVENTORY STARTED
+--------------------------------------
+Priority groups for the next continuation:
+
+    1. contestedPlots
+       - dedup key, second-owner/team assumptions, exclusive-radius consumers.
+
+    2. estimateDirection / cardinal conversion
+       - wrap semantics, zero displacement, enum validity.
+
+    3. hotkey parsing
+       - boundary lengths / unknown-key fallback, mostly UI safety.
+
+    4. estimateCollateralWeight
+       - combat-owner/team filtering, collateral immunity/protection denominator and
+         caller assumptions in CvPlayerAI/CvSelectionGroupAI/CvUnitAI.
+
+    5. PUF_* predicates
+       - combat owner, hidden nationality, invisibility, coexistence and assume-peace
+         semantics; these are high fanout and need caller contracts, not local reading.
+
+    6. intHash / deterministic scaled RNG
+       - signed arithmetic / player-capital salt / determinism and possible high-player
+         or index assumptions; distinguish theoretical C++ overflow from actual supported
+         compiler/runtime behavior.
+
+    7. getTurnMonthForGame / getTurnYearForGame
+       - game-speed increment boundaries, BC negative-month division, nondefault calendars,
+         and current XML ranges; compare K-Mod/Civ4CE and actual text-manager consumers.
+
+OPENING RESULT
+--------------
+No new root allocated yet.
+
+    F270 remains UNUSED.
+
+The queue-039 first pass has nevertheless established a clean current delta and prevented
+an immediate cross-file duplicate of F250. Continue slowly through the high-fanout helper
+contracts before deciding whether any inherited or SAS-added behavior reaches the bug bar.
+
+C022-WIP01 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    21 / 169
+
+CURRENT FILE:
+    queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp -- OPEN
+
+NEXT ROOT:
+    F270 UNUSED
+    next provisional KI#593
+
+Exact next cursor:
+    * trace `contestedPlots` callers / coordinate dedup contract;
+    * trace `estimateCollateralWeight` producer-consumer dimensional assumptions;
+    * audit PUF caller semantics around combat-owner/hidden-nationality edge cases;
+    * inspect intHash history and ScaledNum deterministic RNG use;
+    * compare calendar behavior with K-Mod/Civ4CE and shipped game-speed XML;
+    * keep F250 as an already-owned cross-file control, not a queue-039 rediscovery.
+
+No repository source files modified. Audit album only.
+===============================================================================
+
+
+===============================================================================
+C022-WIP02 — QUEUE 039 CvGameCoreUtils.cpp / HIGH-FANOUT HELPER PASS
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+Status: UNFINISHED WIP; queue 039 remains OPEN.
+Repository source files modified: NONE.
+
+This checkpoint preserves the first confirmed queue-039 root plus controls from the
+contested-plot, direction, hash and calendar opening pass. It appends to C022-WIP01;
+all earlier findings remain unchanged.
+
+F270 / provisional KI#593
+K-MOD-INHERITED CROSS-FILE BUG — CvPlayerAI::AI_localAttackStrength passes the
+EVALUATING/DEFENDING team as estimateCollateralWeight's ATTACK team
+--------------------------------------------------------------------------------
+STATUS: CONFIRMED.
+OWNING FILE FOR SHARED HELPER: CvGameCoreDLL/CvGameCoreUtils.cpp.
+FAULTY LIVE CALLER: CvGameCoreDLL/CvPlayerAI.cpp::AI_localAttackStrength.
+LINEAGE: K-Mod inherited; wrong caller semantics originate when collateral weighting
+was introduced into AI_localAttackStrength (K-Mod practical 448) and become explicit
+under the current helper contract at K-Mod practical 1200.
+
+CURRENT PRODUCER CONTRACT
+-------------------------
+Current CvGameCoreUtils.cpp declares:
+
+    int estimateCollateralWeight(CvPlot const* pPlot,
+            TeamTypes eAttackTeam, TeamTypes eDefenseTeam)
+
+`eAttackTeam` is not merely a label. The helper uses it to:
+
+    * decide which plot team should receive defensive bonuses when eDefenseTeam is not
+      supplied;
+    * pass the attacking team into CvPlot::defenseModifier;
+    * exclude the attacking team's own units from the population sampled for collateral
+      immunity / Collateral Damage Protection.
+
+This is the same semantic contract introduced by K-Mod practical 1200 when the helper
+changed from a one-team `eDefenceTeam` API to explicit attacker + optional defender.
+
+FAULTY CALLER
+-------------
+Current CvPlayerAI::AI_localAttackStrength is documented as:
+
+    "Total attack strength of units (potentially) hostile to us ..."
+
+and accepts `eAttackTeam`, defaulting to NO_TEAM. Its unit loop then counts either:
+
+    kUnit.getTeam() == eAttackTeam
+
+or, for NO_TEAM, teams currently at war with `getTeam()`.
+
+Despite this, the collateral scale is initialized as:
+
+    estimateCollateralWeight(pTargetPlot, getTeam())
+
+(or the NULL-plot equivalent).
+
+Here `getTeam()` is the CvPlayerAI object whose local danger/offense is being queried.
+For the very common hostile/default mode it is therefore the DEFENDING/evaluating team,
+not the team(s) whose attacking units are being valued.
+
+END-TO-END WRONG-STATE PATH
+---------------------------
+A common concrete case is our city/stack being evaluated against hostile siege units:
+
+    pTargetPlot->getTeam() == getTeam()
+    eAttackTeam == NO_TEAM (or a known enemy team)
+    actual collateral dealers == hostile team(s)
+
+The helper receives our team as `eAttackTeam` and therefore:
+
+1. Plot defensive bonus is evaluated for the wrong sides.
+
+   With no explicit eDefenseTeam, current helper computes:
+
+       ePlotBonusTeam =
+           (pPlot->getTeam() == eAttackTeam ? NO_TEAM : pPlot->getTeam());
+
+   On our own plot, the wrong `eAttackTeam == getTeam()` makes ePlotBonusTeam NO_TEAM.
+   Current CvPlot::defenseModifier immediately returns after terrain/feature/hills when
+   eDefender == NO_TEAM, before improvement/city defense. Thus the collateral scale for
+   enemy attackers can omit the target city's defensive bonus entirely.
+
+2. Resistance is sampled from the wrong unit population.
+
+   The helper excludes:
+
+       if (eAttackTeam != NO_TEAM && pUnit->getTeam() == eAttackTeam)
+           continue;
+
+   With the erroneous `eAttackTeam == getTeam()`, that skips our own defenders — exactly
+   the units whose collateral immunity/protection should reduce the expected collateral
+   inflicted by the hostile siege force. Other co-located units can instead influence
+   the sample when eDefenseTeam is unspecified.
+
+3. The bad scale is consumed for every hostile collateral attacker.
+
+   AI_localAttackStrength passes `iBaseCollateral` into:
+
+       kUnit.AI_currEffectiveStr(..., true, iBaseCollateral, ...)
+
+   AI_currEffectiveStr adds an explicit collateral-strength term proportional to
+   `iBaseCollateral`, number of possible collateral targets and the attacker's
+   collateral factor. The wrong side assignment therefore changes the returned enemy
+   local-attack estimate rather than merely affecting a debug/display value.
+
+CALLER IMPACT
+-------------
+AI_localAttackStrength is high fanout. Current callers use it for, among other things:
+
+    * city safety / danger and evacuation-strength comparisons;
+    * unit/group danger and attack/retreat decisions;
+    * team surrender / power comparisons;
+    * local enemy-offense estimates;
+    * UI/debug strength displays.
+
+Many calls use the default `eAttackTeam = NO_TEAM`, i.e. specifically "hostile to us"
+mode. Other calls pass a known enemy team. Calls that explicitly ask a player object to
+estimate its own team's attack can happen to make `getTeam()` equal the actual attacker,
+but that does not rescue the general helper contract.
+
+The error is not monotonic. For example:
+
+    * omitting real city defense can undervalue the relative benefit of enemy collateral;
+    * excluding defenders with high collateral protection/immunity can overvalue it.
+
+So this can move tactical strength estimates in either direction depending on the plot
+and defending stack.
+
+HISTORY / REGRESSION BOUNDARY
+-----------------------------
+K-Mod practical 448 (`3db35153a5...`, "Increased the AI's estimate of collateral damage
+when calculating attack strength") first introduced estimateCollateralWeight and wired
+it into AI_localAttackStrength. At that point the helper took only an eDefenceTeam, but
+AI_localAttackStrength chose that team from the plot's relation to `getTeam()` rather
+than from the method's `eAttackTeam` mode. Thus the caller was already incapable of
+representing both hostile-vs-us and own-vs-target modes correctly.
+
+K-Mod practical 1200 (`8b46440a9c...`, "estimateCollateralWeight now takes collateral
+resistance into account") changed the helper to the current explicit contract:
+
+    estimateCollateralWeight(pPlot, eAttackTeam, eDefenceTeam = NO_TEAM)
+
+and changed AI_localAttackStrength to:
+
+    estimateCollateralWeight(pTargetPlot, getTeam())
+
+This makes the ownership mismatch unambiguous: the new first argument is explicitly the
+collateral DEALER, while the caller supplies the CvPlayerAI evaluator.
+
+K-Mod 1.46 still contains the same call. Base AdvCiv 1.14 still contains it. Current SAS
+still contains it. This is inherited K-Mod behavior, not a SAS regression.
+
+CROSS-FILE / DUPLICATE CHECK
+----------------------------
+The current CvSelectionGroupAI callers also pass `getTeam()`, but there `getTeam()` is
+the team of the group whose ATTACK strength is being evaluated, so those callers match
+the helper's K-Mod-1200 contract. CvUnitAI's NULL-plot caller likewise uses its actual
+team as attacker.
+
+This explains why the earlier queue-041 history note saying the current helper/caller
+lineage was coherent was valid for that file's attacking-group call sites yet did not
+close this CvPlayerAI cross-file mode. No prior album root owns the AI_localAttackStrength
+argument-role mismatch. F270 is therefore independent rather than a rediscovery.
+
+REPAIR DIRECTION
+----------------
+Do not blindly replace the second helper argument with a single hard-coded team. This
+method supports two materially different modes:
+
+    * default/hostile mode: attackers are enemy team(s), evaluator's team is defender;
+    * explicit own-offense mode: eAttackTeam can equal getTeam(), while the target plot's
+      opposing team is the defender.
+
+The repair should derive the helper's attacking and defending roles from `eAttackTeam`
+and the target context, e.g. conceptually:
+
+    attacker = eAttackTeam (NO_TEAM is acceptable for generic multiple-hostile mode)
+    defender = known target/evaluator defender when one can be identified
+
+and pass both explicitly. In the common NO_TEAM hostile-to-us mode, supplying
+`eDefenseTeam = getTeam()` is important so the resistance sample is restricted to the
+actual defending side even though no single enemy attack team is known. In a known
+attacker-vs-owned-target case, the plot/evaluator team is defender; in an own-attack
+against an enemy-owned target, the target plot team is defender.
+
+Any patch should re-test both categories rather than merely changing `getTeam()` to
+`eAttackTeam`, because the helper's optional defender parameter also controls city
+bonus and collateral-resistance sampling.
+
+SEVERITY / CONFIDENCE
+---------------------
+Confidence: HIGH.
+Severity: gameplay-relevant AI valuation bug; magnitude situational but high-fanout.
+The helper itself is approximately modeling collateral, but the attacker/defender role
+mismatch is an argument-contract error independent of approximation quality.
+
+
+OPENING CONTROLS / NON-FINDINGS SINCE WIP01
+===========================================
+
+A. contestedPlots coordinate dedup key — CONTROL
+------------------------------------------------
+`contestedPlots` uses `x * 1000 + y` as a local dedup key. This would collide if the
+supported Y dimension reached 1000, but current shipped/custom SAS map dimensions are
+far below that regime (current XML maxima inspected are ~99x70 before any normal map
+script scaling). No supported-map collision was established. Keep as a theoretical
+future-proofing concern, not F271.
+
+B. estimateDirection zero displacement — CONTROL
+-------------------------------------------------
+The helper returns NO_DIRECTION/-1 for zero displacement. For every nonzero displacement
+one of the eight direction dot products is positive, so no invalid "best direction"
+state was found. No root.
+
+C. intHash signed-overflow / capital salt — CONTROL FOR NOW
+-----------------------------------------------------------
+`intHash` intentionally folds inputs with multiplier 31 and optionally salts by the
+player capital plot. The capital term is documented as range diversification and its
+callers use the result as deterministic pseudo-random material. Although signed-overflow
+portability is theoretically undesirable under modern C++ rules, the target Civ4 MSVC
+runtime has stable wrap-style behavior and no supported current cross-build/OOS failure
+was proved. Do not promote merely on language-lawyer UB.
+
+D. BC fractional-year conversion — STRONG LOW-SEVERITY CANDIDATE, NOT YET NUMBERED
+-----------------------------------------------------------------------------------
+`getTurnYearForGame` currently returns:
+
+    getTurnMonthForGame(...) / max(1, GC.getNumMonthInfos())
+
+For negative month counts not divisible by 12, C++ integer division truncates toward
+zero instead of flooring. Example with 12 months:
+
+    -48000 months -> -4000
+    -47999 months -> -3999   // C++ truncation, but still February 4000 BC
+
+AdvCiv practical 4317 explicitly fixed the sibling negative-modulo problem in
+CvGameTextMgr::setDateStr using `intdiv::umodulo`, noting ordinary `%` fails for BC
+calendar dates; the year division was left unchanged. K-Mod and Civ4CE also retain
+ordinary division.
+
+Current shipped CALENDAR_DEFAULT game-speed BC increments were checked and are divisible
+by 12 up to AD, so normal default games do not reproduce this. However Civ4 supports
+CALENDAR_MONTHS/SEASONS/WEEKS, WorldBuilder Calendar/StartYear scenarios and custom
+increment XML, where fractional-year BC dates are supported. Preserve this for final
+queue-039 disposition; it may warrant a low-severity F271 if the supported scenario API
+is judged sufficient, but do not promote merely because the arithmetic is theoretically
+wrong outside current default speed data.
+
+
+C022-WIP02 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    21 / 169
+
+CURRENT FILE:
+    queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp -- OPEN
+
+QUEUE-039 ROOTS SO FAR:
+    F270 / provisional KI#593
+
+NEXT ROOT:
+    F271 UNUSED
+    next provisional KI#594
+
+Next exact cursor:
+    * finish estimateCollateralWeight caller/population audit, especially NO_TEAM and
+      neutral/hidden-nationality/coexistence cases without duplicating F270;
+    * finish PUF combat-owner/hidden-nationality caller semantics;
+    * decide final status of supported fractional-BC year conversion;
+    * continue intHash/scaled deterministic RNG and calendar boundaries;
+    * compare any surviving inherited helper candidate against K-Mod/Civ4CE and current
+      callers before allocating F271.
+
+No repository source files modified. Audit album only.
+===============================================================================
+
+
+===============================================================================
+C022-WIP03 — QUEUE 039 CvGameCoreUtils.cpp / CALENDAR + PUF PASS
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+Status: UNFINISHED WIP; queue 039 remains OPEN.
+Repository source files modified: NONE.
+
+F271 / provisional KI#594
+CIV4/K-MOD/ADVCIV-INHERITED BUG — getTurnYearForGame truncates negative fractional
+BC years toward zero instead of flooring them
+--------------------------------------------------------------------------------
+STATUS: CONFIRMED (LOW SEVERITY, SUPPORTED NONDEFAULT CALENDARS / SCENARIOS).
+OWNING FILE: CvGameCoreDLL/CvGameCoreUtils.cpp.
+
+CURRENT CODE
+------------
+Current SAS returns:
+
+    getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) /
+        max(1, GC.getNumMonthInfos())
+
+from getTurnYearForGame.
+
+For positive dates ordinary integer division gives the desired containing year. For a
+negative month count that is not exactly divisible by the number of months in a year,
+C++ integer division truncates toward zero rather than toward negative infinity.
+
+With 12 months, for example:
+
+    -48000 / 12 = -4000                     // January 4000 BC, fine
+    -47999 / 12 = -3999 in C++             // February is still in 4000 BC
+
+The most obvious era-boundary example is:
+
+    turn-month -1  -> C++ year 0
+
+CvGameTextMgr::setYearStr deliberately represents year 0 as 1 AD (there is no displayed
+year zero). Under CALENDAR_MONTHS this can therefore label the month immediately before
+the era boundary as "December, 1 AD", followed by "January, 1 AD" one turn later,
+instead of December 1 BC followed by January 1 AD.
+
+SUPPORTED INPUT / NOT MERELY HYPOTHETICAL XML
+----------------------------------------------
+This reproducer does not require an invented calendar enum:
+
+    CALENDAR_DEFAULT
+    CALENDAR_BI_YEARLY
+    CALENDAR_YEARS
+    CALENDAR_TURNS
+    CALENDAR_SEASONS
+    CALENDAR_MONTHS
+    CALENDAR_WEEKS
+
+are first-class CalendarTypes in CvEnums and exposed through CyEnumsInterface/Python.
+WorldBuilder scenario serialization explicitly writes and reads both:
+
+    Calendar=<calendar type>
+    StartYear=<integer>
+
+and CvGame/CvInitCore expose the selected calendar/start year. Thus a BC scenario using
+CALENDAR_MONTHS, CALENDAR_SEASONS or CALENDAR_WEEKS is a supported Civ4 configuration,
+not just malformed mod data.
+
+Current shipped SAS CALENDAR_DEFAULT game-speed increments were separately checked:
+the BC increments currently in the normal game-speed XML are multiples of 12 until AD,
+so ordinary default games avoid fractional BC years and do not normally display the bug.
+That bounds severity but does not invalidate the supported scenario/nondefault-calendar
+path.
+
+DOWNSTREAM EFFECTS
+------------------
+1. Date/year display and save-format text
+   CvGameTextMgr::setYearStr calls getTurnYearForGame. CALENDAR_MONTHS, SEASONS and
+   WEEKS then combine that wrong year with their month/season/week label.
+
+2. Public game/Python API
+   CvGame::getGameTurnYear -> getTurnYearForGame, and CyGame exposes getGameTurnYear.
+   Scenario scripts therefore receive the same off-by-one BC year for fractional years.
+
+3. Logs / diagnostics
+   SASGameRecordLog, BBAILog, CitySiteEvaluator and other reporting paths record
+   getGameTurnYear and therefore inherit the wrong BC year.
+
+4. Small real gameplay timing effect
+   CvCity::setNumRealBuilding stores GC.getGame().getGameTurnYear as the building's
+   original time. CvCity::getBuildingCommerceByBuilding later compares the current
+   getGameTurnYear against that stored year for CommerceChangeDoubleTime (1000 years in
+   current building XML for applicable culture commerce). A building constructed during
+   a fractional BC year can therefore have the year-based doubling threshold shifted by
+   one calendar year in such a scenario. This is small compared with the display/API
+   defect but proves that the helper is not presentation-only.
+
+HISTORY / CONTROL
+-----------------
+Civ4CE's BtS source and K-Mod 1.46 both retain the same ordinary `/ numMonths` year
+conversion. Base AdvCiv 1.14 likewise retains it (with only a divisor max guard).
+Current SAS inherits the same behavior.
+
+The diagnosis is strengthened by AdvCiv practical 4317, "Fix month display for BC game
+dates." That fix explicitly notes that ordinary C++ `%` "doesn't work for negative
+dates, i.e. BC" and replaces the month-index modulo in CvGameTextMgr with
+`intdiv::umodulo`. The mathematically paired year quotient was not changed, leaving the
+same negative-number issue in division form.
+
+REPAIR DIRECTION
+----------------
+Use floor division by the positive number of months rather than C++ truncation. The
+existing positive-remainder helper makes the relation explicit:
+
+    n = max(1, GC.getNumMonthInfos())
+    m = getTurnMonthForGame(...)
+    year = (m - intdiv::umodulo(m, n)) / n
+
+For nonnegative m this is equivalent to current division. For negative fractional years
+it returns the containing BC year. A dedicated signed floor-div helper would also be
+reasonable if useful elsewhere.
+
+Regression tests should include at least:
+
+    * CALENDAR_MONTHS, StartYear=-1: Jan through Dec 1 BC, then Jan 1 AD;
+    * a much earlier negative year such as -4000 with turn-month +1;
+    * positive/AD dates unchanged;
+    * CALENDAR_DEFAULT current shipped speeds unchanged.
+
+SEVERITY / CONFIDENCE
+---------------------
+Confidence: HIGH.
+Severity: LOW overall because shipped default game speeds avoid fractional BC years;
+real correctness bug for supported nondefault calendars/scenarios, public year API and
+small year-based building-commerce timing.
+
+
+POST-F270 COLLATERAL POPULATION CONTROL
+=======================================
+After separating F270's definite caller role mismatch, the helper's broader
+`eDefenseTeam = NO_TEAM` population behavior was challenged independently.
+
+When no defender team is supplied, estimateCollateralWeight counts canDefend units that
+are not on the supplied attack team. In a plot shared with a neutral third party this
+can sample a unit that actual CvUnit::collateralCombat would not necessarily hit, since
+actual victim selection uses unit-level isEnemy. However:
+
+    * the helper explicitly documents itself as a rough estimate;
+    * multiple allied enemy teams can legitimately contribute collateral victims;
+    * hidden-nationality / always-hostile combat can make simple diplomatic team filters
+      misleading;
+    * callers lacking an explicit eDefenseTeam intentionally use the generic mode.
+
+No independent hard contract comparable to F270's wrong attacker argument was proved.
+Do not split this into F272 merely because a neutral-coexistence edge can make the rough
+sample imperfect. A future improvement could pass explicit defender information where
+known and/or use attacker-relative combat-enemy semantics, but that is tuning unless a
+specific caller invariant is established.
+
+
+PUF REFACTOR PASS — CURRENT CONTROL STATE
+=========================================
+The high-fanout PUF enemy/combat-owner helpers were compared against K-Mod and the
+AdvCiv practical-2731 refactor. So far the apparently unusual cases are deliberate:
+
+    * PUF_isPotentialEnemy / PUF_isEnemy use the querying player's team as `eOurTeam`
+      and pUnit->getCombatOwner(eOurTeam), matching hidden-nationality/always-hostile
+      perspective semantics;
+    * PUF_canDeclareWar asks whether the querying player can declare on the unit's
+      combat owner; AdvCiv's swapped variable names corrected the readability of the
+      inherited K-Mod orientation rather than reversing behavior;
+    * canCoexistWithEnemyUnit exclusions are intentional for spies/coexisting units;
+    * PUF_isPlayer's viewer-aware hidden-nationality/invisibility branch is part of
+      advc.061 and has no current NO_PLAYER caller that violates its refactored enum
+      assertion contract.
+
+No PUF root has crossed F272 yet. Continue caller-specific checks rather than treating
+hidden-nationality complexity itself as a defect.
+
+
+C022-WIP03 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    21 / 169
+
+CURRENT FILE:
+    queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp -- OPEN
+
+QUEUE-039 ROOTS SO FAR:
+    F270 / provisional KI#593
+    F271 / provisional KI#594
+
+NEXT ROOT:
+    F272 UNUSED
+    next provisional KI#595
+
+Next exact cursor:
+    * continue PUF caller-specific hidden-nationality/coexistence checks;
+    * inspect PUF_isEnemyCityAttacker transport/cargo proxy against its city-safety and
+      city-trade consumers without confusing deliberate fog-of-war conservatism with a
+      hard bug;
+    * finish intHash / scaled hash caller and compiler-determinism history;
+    * finish remaining calendar boundary arithmetic beyond the now-owned F271 root;
+    * compare any candidate with K-Mod/Civ4CE and album duplicates before F272.
+
+No repository source files modified. Audit album only.
+===============================================================================
+
+
+C022-WIP04 CONTINUATION — QUEUE 039 CONTROL FREEZE
+====================================================
+Status: queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp remains OPEN.
+Next unused root: F272. Next provisional KI: KI#595.
+
+PUF / TRANSPORT / STRING-HELPER CONTROLS FROZEN
+-----------------------------------------------
+1. PUF callback argument-type audit:
+   Despite generic int callback slots and some legacy/misleading names, traced live callers
+   supply the semantic type expected by each predicate. In particular,
+   PUF_isOtherTeam expects a PlayerTypes value and callers pass players; PUF_isCombatTeam
+   expects TeamTypes and callers pass teams. No live player/team reinterpretation root was
+   established.
+
+2. PUF_isEnemyCityAttacker transport proxy:
+   Its treatment of generic cargo transports as potential city threats is longstanding and
+   intentional-looking, not a hard defect. The helper was introduced to classify units that
+   can endanger a city, and cargo vessels can carry city attackers even when the hull itself
+   cannot attack cities. Current consumers are conservative city-safety/trade gates. Do not
+   make F272 merely from empty transports satisfying this proxy without an independent
+   contract contradiction.
+
+3. eAssumePeaceTeam hidden-nationality edge:
+   The hypothetical-peace parameter could deserve care with always-hostile/hidden-nationality
+   combat ownership, but every live isVisibleEnemyCityAttacker caller currently passes
+   NO_TEAM. This is dormant in current SAS and is not F272.
+
+4. setListHelp(NULL, ...) concern:
+   The live NULL-start calls resolve to the CvWStringBuffer overload. CvWStringBuffer::append
+   explicitly ignores a NULL wchar pointer. No current NULL-start call into the less-tolerant
+   CvWString overload was found. This is safe by current caller/overload contract.
+
+5. Debug enum/string helpers:
+   Preliminary automated enum-vs-switch comparison suggests some MissionTypes/MissionAITypes
+   lack dedicated symbolic names, but these diagnostic helpers have numeric UNKNOWN fallbacks.
+   This remains under challenge; omission alone is not a gameplay/root finding.
+
+No repository source files modified. Audit album only.
+
+
+===============================================================================
+C022-WIP05 — QUEUE 039 CvGameCoreUtils.cpp / SATURATION CONTROLS
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+STATUS:
+    queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp -- OPEN
+    F270 / provisional KI#593 -- LIVE
+    F271 / provisional KI#594 -- LIVE
+    F272 UNUSED
+    next provisional KI: KI#595
+
+CONTROLS / NON-FINDINGS ADDED SINCE WIP04
+=========================================
+
+A. `handicapFromDifficulty` exact-midpoint tie -- CONTROL
+---------------------------------------------------------
+The SAS helper scans handicap XML in enum order and updates only on strictly smaller
+absolute distance. Therefore an exact midpoint between two current scores chooses the
+earlier/lower entry; e.g. Noble 50 + Prince 58 average to 54 and map to Noble.
+
+This differs from some pre-SAS averaging callers, but there is no single inherited tie
+contract to preserve:
+
+  * AdvCiv `CvGame::initGameHandicap` averaged enum-derived difficulty and used
+    `intdiv::round`, so an exact adjacent .5 generally rounded upward;
+  * AdvCiv `CvGame::updateAIHandicap` averaged enum IDs with `intdiv::uround`, likewise
+    generally choosing the upper adjacent enum on a .5;
+  * AdvCiv `CvTeam::getHandicapType`, however, deliberately used integer division and
+    therefore chose the lower entry for the comparable midpoint.
+
+SAS commit 5970 replaced these assumptions because Rookie/Deity+ and XML `iDifficulty`
+scores make enum-index arithmetic invalid. "Nearest XML score, earlier/lower on an exact
+tie" is internally coherent, and the old callers themselves disagreed about tie direction.
+Do not promote F272 merely from the changed tie-break outcome.
+
+B. live-unit selection-group assumptions in PUF helpers -- CONTROL
+-------------------------------------------------------------------
+`PUF_isAirIntercept`, `PUF_isMissionAIType`, `PUF_isGroupHead` and the group-head helper
+family dereference a unit selection group without local NULL guards. This initially looks
+fragile because `CvUnit::getGroup()` can technically return NULL for an invalid group ID.
+
+Lifecycle tracing does not establish a live bug:
+
+  * normal live units are attached/re-attached to selection groups;
+  * `CvUnit::isGroupHead()` itself unconditionally dereferences `getGroup()`, making group
+    existence a broad core live-unit invariant rather than a special PUF assumption;
+  * the deliberate `joinGroup(NULL, false, false)` no-rejoin path occurs during
+    `CvUnit::kill`, after the unit is removed from the map and immediately before
+    `unitLost`/deletion, so normal plot-count PUF callers cannot encounter that detached
+    dying unit as a live plot unit.
+
+No transient live caller violating the invariant was proved. Keep as contract control.
+
+C. `PUF_isFiniteRangeAndNotJustProduced` uses `> 1` -- CONTROL
+-------------------------------------------------------------
+Despite the helper name, it excludes units whose creation turn is either the current turn
+or the immediately preceding game turn. The sole current gameplay use is the inherited
+BBAI/K-Mod transport-pickup valuation, whose own comment says it wants units that "have
+had a chance to move since being built." The condition is inherited together with that
+caller. Without proving the intended turn-order window is only one global turn, the name
+alone is insufficient evidence of an off-by-one defect. Do not allocate F272 on this basis.
+
+D. `setListHelp` integer-list-ID sentinel -- CONTROL
+---------------------------------------------------
+The int-reference overload treats `iLastListID == iListID` as a continuation and otherwise
+emits `szStart`. Many callers initialize `iLast = 0`, which would be wrong if the first
+actual list ID could also be zero.
+
+All current caller families inspected either explicitly skip zero-valued modifiers before
+calling the helper or sit inside an outer nonzero-value condition. Negative nonzero values
+also correctly differ from the zero sentinel. Thus current first-item formatting is safe;
+no uninitialized/zero-key caller was found.
+
+E. hotkey description mapping -- CONTROL
+----------------------------------------
+The legacy mapping declares `iNumKeyBoardMappings = 108` and contains exactly 108 mapping
+initializers. The longest `KB_*` token is well below the fixed 25-TCHAR storage capacity.
+A scan of all current SAS XML found 49 distinct nonempty `<HotKey>` codes, and every one is
+present in the mapping. No current hotkey-description omission or array-count mismatch.
+
+F. `applyColorToString` self-format alias -- CONTROL
+----------------------------------------------------
+The helper calls `s.Format(..., s.GetCString())`. `CvWString::Format` first formats into a
+separate local `std::wstring result` and only assigns `*this = result` afterward, so the
+source pointer is not invalidated before formatting consumes it. No self-alias corruption.
+
+G. debug Mission string omission -- DIAGNOSTIC CLEANUP, NOT F272
+----------------------------------------------------------------
+Current `getMissionTypeString` lacks an explicit `MISSION_RANGE_ATTACK` case while that
+mission is live (`CvUnitAI::AI_rangeAttack` queues it). Debug plot help therefore falls
+back to `UNKOWN_MISSION(<numeric id>)` rather than the symbolic mission name. The numeric
+fallback remains unique and no gameplay state depends on the string. K-Mod, AdvCiv and
+Civ4CE carry the same omission. Useful cleanup for diagnostics, but below the current root
+bar unless an independent diagnostic failure is demonstrated.
+
+H. `intHash` / coordinate-key controls remain unchanged
+-------------------------------------------------------
+No supported deterministic OOS failure was established from signed 32-bit polynomial
+wrap on the fixed legacy MSVC/Win32 target, and `contestedPlots`' x*1000+y key remains far
+outside the collision regime for all shipped SAS world sizes. Both remain future-proofing
+notes rather than live roots.
+
+CURRENT ASSESSMENT
+==================
+The inherited utility/PUF body has now had argument types, hidden-nationality ownership,
+group lifecycle, list formatting, hotkey data, direction helpers, hash callers, calendar
+boundaries, and K-Mod/Civ4CE cognates challenged. The late pass is increasingly yielding
+controls rather than uncovered state/consumer contradictions.
+
+F272 remains deliberately UNUSED.
+
+Next cursor:
+    * finish SAS victory-helper evolution / caller-unit consistency;
+    * finish Civ4CE explicit-fix divergence scan for surviving utility helpers;
+    * re-check queue-039 live roots F270/F271 for overlap/repair bounds;
+    * if no independent hard root emerges, perform a closure/saturation pass rather than
+      manufacturing F272.
+
+No repository source files modified. Audit album only.
+===============================================================================
+
+
+===============================================================================
+C022-WIP06 — QUEUE 039 CvGameCoreUtils.cpp / FINAL SATURATION CONTROLS
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+STATUS:
+    queue 039 CvGameCoreDLL/CvGameCoreUtils.cpp -- OPEN, closure challenge underway
+    F270 / provisional KI#593 -- LIVE
+    F271 / provisional KI#594 -- LIVE
+    F272 UNUSED
+    next provisional KI: KI#595
+
+ADDITIONAL CONTROLS / CROSS-CHECKS
+==================================
+
+I. SAS victory-denial helper evolution and callers -- CONTROL
+--------------------------------------------------------------
+The post-6037 helper chain was traced through the current callers rather than assuming that
+later refactoring kept all thresholds aligned.
+
+`getSASVictoryStageLevel` itself correctly checks cumulative victory bits from stage 4 down
+to stage 1. This strengthens the earlier F250 boundary: F250 belongs to InvasionGraph's
+separate ancient local macro, not this shared helper.
+
+The team-level stage, spaceship-parts and stage-3-Space helpers are internally coherent for
+current SAS XML:
+    * the current Space component maxima total 16 parts;
+    * current VictoryThreshold values match the component maxima for the complete ship;
+    * lower VictoryMinThreshold values intentionally permit an incomplete launch, whereas
+      the stage-3 emergency heuristic explicitly measures progress toward the full ship
+      (the source comment itself reasons in terms of 8/16 parts).
+
+`getSASVictoryDelayTurnsFromNormalGameSpeed` intentionally does not cache the game-speed
+result. Current victory-denial Normal-speed countdown defines are 20 turns, and every
+shipped VictoryDelayPercent maps 20 to an exact integer, so its nearest-integer scaling and
+`CvGame::victoryDelay`'s truncating arithmetic do not currently diverge on those gates.
+
+`isSASUWAIVictoryDenialPeaceThreat` returns early before writing optional diagnostic output
+pointers when the feature is globally disabled. The current `CvDeal` caller is safe:
+    * disabled => both team calls return false and the deal helper returns before reading
+      any output variables;
+    * enabled => both calls populate their outputs before the logging path.
+No asymmetric enable exists because the define is global/static.
+
+The no-output callers in CvPlayerAI/UWAIAgent consistently ask whether either party is a
+configured victory threat. CvTeamAI's older brokered-peace denial block duplicates the same
+countdown/stage4/stage3-Space criteria with the same game-speed scaling. No one-sided
+threshold/unit drift was found.
+
+II. PUF refactor history / old targeted fixes -- CONTROL
+--------------------------------------------------------
+AdvCiv practical 2731's large PUF rewrite was re-read as an old->new semantic migration.
+The important enemy/potential-enemy/can-declare-war changes make the querying player's role
+explicit and add enum contracts; current live callers supply the expected PlayerTypes or
+TeamTypes roles. No new polarity/owner regression survived the caller audit.
+
+The AdvCiv practical-1624 change titled "Fixed a minor issue with the
+Own-Exclusive-Radius option" was also checked because `contestedPlots` belongs to that
+feature family. The behavioral fix is in CvPlot::calculateCulturalOwner (handling newly
+expanded zero-culture city radius), not an unexamined mutation of `contestedPlots`.
+Therefore it does not expose an adjacent unresolved utility-root here.
+
+III. `PUF_isEnemyCityAttacker` against current cargo XML -- CONTROL
+-------------------------------------------------------------------
+The historical design treats a generic cargo transport as a conservative city threat even
+when the hull itself is not a land attacker. Current SAS unit XML supports that intended
+proxy rather than exposing a cargo-domain counterexample:
+
+    generic (`SpecialCargo == NONE`) cargo units with positive cargo space:
+        Galley, Galleon, Transport, Privateer
+        -> all use DomainCargo = DOMAIN_LAND
+
+    Missile Cruiser, Attack Submarine and Carrier use a non-NONE SpecialCargo and are
+    therefore excluded from the helper's generic-transport shortcut.
+
+Thus the shortcut does not currently classify an air-only/missile-only special transport as
+an invasion transport. Its empty-transport conservatism remains intentional-looking city
+safety/trade policy, not F272.
+
+IV. Civ4CE / K-Mod independent comparison -- CONTROL
+----------------------------------------------------
+Civ4CE's BtS CvGameCoreUtils retains the legacy calendar quotient behavior later inherited
+through K-Mod/AdvCiv, so it corroborates F271 ancestry rather than supplying a missing fix.
+Its PUF family is substantially older/simpler than AdvCiv's viewer-aware refactor and does
+not expose a CE-only correction that current AdvCiv/SAS lacks.
+
+The K-Mod->AdvCiv history was separately reviewed around the high-value utility changes:
+    * K-Mod 448 introduces collateral weighting;
+    * K-Mod 1200 explicitly defines the helper's first team argument as the collateral
+      attacking team, strengthening F270's wrong-role caller proof;
+    * later AdvCiv PUF and list-help refactors preserve the currently audited semantics.
+No additional K-Mod correction was found stranded on the other side of an AdvCiv rewrite.
+
+V. remaining helper inventory -- SATURATION CONTROL
+----------------------------------------------------
+The current file has now been covered function-family by function-family:
+    * contestedPlots / Own-Exclusive-Radius consumers;
+    * color/string and direction helpers;
+    * handicap XML-score mapping;
+    * hotkey mapping against current XML;
+    * SAS diagnostic enum-name helpers;
+    * victory-stage / spaceship / countdown helpers and all behavior callers;
+    * estimateCollateralWeight and all important caller roles;
+    * setTradeItem / all setListHelp overload contracts;
+    * PUF ownership, combat-owner, hostility, visibility, group, mission and cargo helpers;
+    * baseYieldToSymbol (unused);
+    * intHash determinism/overflow context;
+    * calendar month/year conversion;
+    * debug Direction/Activity/Mission/MissionAI/UnitAI strings.
+
+Late candidates that remain below the root bar include:
+    * contestedPlots' `x * 1000 + y` future-proofing key: no collision on shipped SAS map
+      dimensions;
+    * signed `intHash` overflow: formally non-portable C++, but deterministic under the
+      fixed legacy MSVC/Win32 target and no current cross-compiler/OOS consumer proved;
+    * missing MISSION_RANGE_ATTACK symbolic debug name: numeric UNKNOWN fallback preserves
+      identity and no gameplay state depends on it;
+    * exact handicap-score midpoint chooses the lower XML entry: coherent tie policy, and
+      inherited pre-SAS callers themselves disagreed on tie direction;
+    * live-unit selection-group dereferences in PUFs: supported by a system-wide live-unit
+      group invariant; the no-rejoin NULL transition occurs only during unit destruction;
+    * `PUF_isFiniteRangeAndNotJustProduced`'s >1 age: inherited together with a caller that
+      explicitly wants units to have had a chance to move;
+    * setListHelp integer ID zero sentinel: every current caller suppresses zero-valued
+      entries before invoking it;
+    * applyColorToString self-formatting: CvWString::Format uses a separate temporary result;
+    * generic collateral population approximations beyond F270: rough-estimate policy with
+      no additional caller invariant violation established.
+
+F272 remains deliberately UNUSED. Next step is a final F270/F271 independence and repair-
+boundary review. If that passes and no omitted current function family remains, queue 039
+is a good candidate for FIRST-PASS COMPLETE without manufacturing a third root.
+
+No repository source files modified. Audit album only.
+===============================================================================
+
+
+===============================================================================
+C023 DURABLE CHECKPOINT — QUEUE 039 CvGameCoreUtils.cpp FIRST-PASS COMPLETE
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+DURABLE STATUS
+--------------
+Queue 039:
+    CvGameCoreDLL/CvGameCoreUtils.cpp
+    FIRST-PASS COMPLETE
+
+COMPLETED FIRST-PASS FILES:
+    22 / 169
+
+LIVE ROOTS OWNED / ESTABLISHED DURING QUEUE 039:
+    F270 / provisional KI#593
+    F271 / provisional KI#594
+
+NEXT ROOT NUMBER:
+    F272 UNUSED
+    next provisional KI#595
+
+No F272 was allocated merely to increase the finding count.
+
+FINAL ROOT INDEPENDENCE / REPAIR-BOUNDARY REVIEW
+=================================================
+
+F270 / KI#593 -- collateral attacker-team role in AI_localAttackStrength
+-----------------------------------------------------------------------
+Root:
+    `estimateCollateralWeight` defines its first team argument as the team dealing
+    collateral damage. `CvPlayerAI::AI_localAttackStrength`, however, hardwires the
+    evaluating player's `getTeam()` into that role while the actual candidate attackers
+    are selected by `eAttackTeam` (or by all teams currently at war when eAttackTeam is
+    NO_TEAM).
+
+Why this is independently live:
+    * the helper uses the supplied attack team in defender-bonus context and when
+      excluding the attacking side from the resistance sample;
+    * explicit enemy-team calls therefore evaluate hostile collateral using the defender's
+      team identity;
+    * explicit own-team offense calls and default all-hostiles calls demonstrate that this
+      cannot be repaired safely by blindly swapping one hardcoded team for another.
+
+History:
+    K-Mod 448 introduced collateral weighting into local attack-strength valuation.
+    K-Mod 1200 made the helper contract explicit as attacking team first, defender team
+    optional, while the local-attack-strength caller retained the evaluator-team argument.
+    The mismatch survives K-Mod -> AdvCiv -> SAS. Selection-group callers are not affected
+    by the same root because there `getTeam()` genuinely is the attacking group team.
+
+Repair boundary:
+    * when `eAttackTeam` is explicit, collateral attacker semantics must use that team;
+    * when AI_localAttackStrength is aggregating all hostile teams (`NO_TEAM`), there is no
+      single truthful attack-team identity, so use an explicitly generic/per-team policy
+      rather than silently treating the evaluator as the attacker;
+    * defender-team sampling must likewise follow whether the evaluator is defending the
+      target, attacking it, or merely estimating nearby hostile strength.
+Do not mechanically replace `getTeam()` with `eAttackTeam` in every mode without preserving
+these caller semantics.
+
+F271 / KI#594 -- negative fractional BC year division
+-----------------------------------------------------
+Root:
+    `getTurnMonthForGame` can produce negative month counts not divisible by the number of
+    months per year for supported fractional-year calendars. `getTurnYearForGame` converts
+    months to years with ordinary signed C++ integer division, which truncates toward zero
+    rather than flooring the calendar year.
+
+Concrete supported example:
+    With a monthly calendar around the BC/AD boundary, turn-month -1 represents the final
+    month of 1 BC. `-1 / 12` becomes 0 in C++, and the year formatter intentionally renders
+    year 0 as 1 AD. The chronology can therefore display a month of 1 AD before January
+    1 AD. CALENDAR_MONTHS, CALENDAR_SEASONS and CALENDAR_WEEKS are first-class Civ4
+    calendar modes and WorldBuilder scenarios serialize Calendar/StartYear, so this is not
+    merely an impossible custom-mod input.
+
+Non-display consumer:
+    `CvGame::getGameTurnYear()` feeds the building-age comparison used for the 1000-year
+    building commerce/culture doubling mechanic, so a fractional BC scenario can also shift
+    that threshold by a calendar year.
+
+History:
+    Civ4/K-Mod/AdvCiv and Civ4CE retain the truncating quotient. AdvCiv separately repaired
+    the sibling negative `%` problem in `CvGameTextMgr::setDateStr` by introducing
+    `intdiv::umodulo`, but the quotient half remained unchanged.
+
+Repair boundary:
+    Let `m = getTurnMonthForGame(...)` and `n = max(1, GC.getNumMonthInfos())`.
+    A clean integer floor quotient is:
+
+        (m - intdiv::umodulo(m, n)) / n
+
+    For nonnegative and exact-year dates this is identical to existing behavior. For a
+    negative fractional year it subtracts the positive calendar remainder before exact
+    division, giving the mathematically correct floor year.
+
+F270 vs F271:
+    DISTINCT / INDEPENDENT.
+    F270 is a combat-AI caller-role bug in collateral valuation. F271 is calendar arithmetic
+    used by date/API/gameplay year consumers. Either reproduces with the other subsystem
+    absent; their repairs share no state or contract.
+
+SATURATION / COMPLETE RATIONALE
+===============================
+Queue 039 received a full high-fanout utility audit rather than a local syntax scan:
+
+    * current SAS-vs-Base AdvCiv semantic delta was bounded;
+    * K-Mod introducing history and Civ4CE's independent BtS implementation were used as
+      controls where relevant;
+    * all current helper families were inventoried and caller-traced;
+    * collateral weighting was traced through both the helper and every meaningful caller
+      role, revealing F270 while preventing duplicate attribution from queue 041;
+    * calendar month/year arithmetic was tested numerically across the BC/AD boundary and
+      through non-display consumers, establishing F271;
+    * PUF player/team/combat-owner/hidden-nationality/visibility/group/mission contracts
+      were checked against actual caller argument types and live-unit lifecycle;
+    * generic transport threat semantics were checked both historically and against current
+      SAS cargo XML;
+    * setListHelp overloads were checked against NULL handling and integer-list sentinels;
+    * intHash/compiler determinism, map-coordinate dedup keys, direction helpers, hotkey
+      mapping, color formatting and diagnostic enum strings were challenged;
+    * SAS victory-stage/spaceship/countdown helpers were followed through their commit
+      evolution and behavior callers, including duplicated peace-denial logic;
+    * attractive edge cases were retained as explicit controls when they failed to establish
+      a current producer -> state -> consumer contradiction.
+
+Late convergence produced controls rather than unexplored code. No independent third root
+survived the final history/caller/invariant pass. Queue 039 therefore meets the album's
+FIRST-PASS COMPLETE standard without consuming F272.
+
+NEXT PRIORITY FILE
+==================
+The next remaining priority-marked file in the reconciled queue is:
+
+    queue 040
+    CvGameCoreDLL/CvGlobals.cpp
+    approximately 1,454 lines in the album snapshot
+
+Later priority-marked files include queue 042 CvDeal.cpp, queue 037 CvPythonCaller.cpp,
+queue 045 CvMapGenerator.cpp, queue 054 GroupPathFinder.cpp and queue 092 BBAILog.cpp;
+queue 031 UWAICache.cpp also remains separately OPEN from its earlier checkpoint.
+
+Exact next cursor:
+    begin queue 040 CvGameCoreDLL/CvGlobals.cpp
+    from F272 UNUSED / provisional KI#595 next.
+
+Recommended opening method:
+    1. bound SAS-vs-Base AdvCiv changes and path history;
+    2. classify global ownership/lifetime, XML-info registration, cached define/info-type
+       lookups and DLL init/reset contracts before judging individual getters;
+    3. prioritize stale static/cache state across game reloads, index/type mismatches,
+       allocation/reset symmetry and data-driven array bounds;
+    4. compare K-Mod/Civ4CE where their global-container lifecycle can falsify a candidate;
+    5. preserve performance/style cleanup as controls unless caller-visible state or safety
+       failure is proved.
+
+No repository source files modified. Audit album only.
+===============================================================================
+
+
+===============================================================================
+C023-WIP01 — QUEUE 040 CvGlobals.cpp OPENING LIFETIME / TYPE-CONTRACT PASS
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+QUEUE STATUS
+------------
+queue 040
+CvGameCoreDLL/CvGlobals.cpp
+OPEN
+
+NEXT ROOT:
+    F272 UNUSED
+    next provisional KI#595
+
+No repository source files modified. Audit album only.
+
+I. SAS-vs-Base AdvCiv semantic delta — BOUNDED / CONTROL
+--------------------------------------------------------
+Normalized current SAS vs Base AdvCiv 1.14 comparison is very small. Current SAS mainly:
+    * reformats several signatures/comments;
+    * replaces terse missing-GlobalDefine assertions with richer diagnostics;
+    * retains the Base AdvCiv global/cache/info-array implementation otherwise.
+
+This makes inherited CvGlobals lifetime, cache and XML registration contracts the primary
+queue-040 target rather than a broad SAS rewrite.
+
+II. SetGlobalDefines -> cacheGlobals -> m_pPythonCaller — OPEN LIFECYCLE CANDIDATE
+----------------------------------------------------------------------------------
+CvXMLLoadUtility::SetGlobalDefines() finishes with:
+
+    GC.cacheGlobals();
+
+CvGlobals::cacheGlobals() performs full integer/float cache initialization and then:
+
+    m_pPythonCaller = new CvPythonCaller();
+    CvEventReporter::getInstance().initPythonCallbackGuards();
+
+m_pPythonCaller is deleted in CvGlobals::uninit(), but cacheGlobals() itself does not first
+free an existing object.
+
+Important narrowing:
+    * K-Mod/Civ4CE also called cacheGlobals() from runtime define setters;
+    * AdvCiv intentionally replaced those full recaches with targeted cacheGlobalInts /
+      cacheGlobalFloats updates before introducing/retaining the Python-caller allocation;
+    * therefore current runtime setDefineINT/FLOAT does NOT itself repeat the allocation.
+
+The remaining question is whether the EXE can invoke SetGlobalDefines() multiple times in a
+single CvGlobals lifetime (e.g. supported XML reload). That call is external to the DLL-side
+source available here. Without proving repeat execution, this is not F272.
+
+III. info/type-map reset orchestration — CONTROL / EXTERNAL CONTRACT
+-------------------------------------------------------------------
+CleanUpGlobalVariables() calls deleteInfoArrays(), which deletes info objects/string arrays
+and clears m_typesMap through clearTypesMap(). m_infosMap is instead cleared by the separately
+exported CvGlobals::infoTypeFromStringReset().
+
+The latter contains the inherited diagnostic:
+
+    FErrorMsg("Just to see if and when CvGlobals::infoTypeFromStringReset is ever called");
+
+This looks awkward, but the function is DllExport and therefore can be part of the EXE's XML
+reload orchestration. A stale removed-info mapping would be real if arrays were reloaded
+without this callback, but the available DLL source cannot establish that omission. Keep as
+an external-lifecycle control; do not infer F272 from absence of an in-DLL caller.
+
+IV. CvAgents ownership — REAL CLEANUP OMISSION, CURRENT IMPACT NOT YET PROVED
+----------------------------------------------------------------------------
+CvGlobals::init() allocates:
+
+    m_agents = new CvAgents(MAX_PLAYERS, MAX_TEAMS);
+
+CvGlobals::uninit() frees CvPlayer/CvTeam statics but never deletes m_agents. The CvAgents
+object therefore remains allocated and retains vectors of pointers to player/team instances
+that have just been freed.
+
+This is a genuine ownership asymmetry, but no supported same-DLL init->uninit->init cycle has
+yet been established. If uninit occurs only at process/DLL shutdown, the OS reclaims the
+allocation and no later consumer dereferences the stale cache. Keep below gameplay-root bar
+unless a re-init path is proved.
+
+V. getDirectionTypes indexed overload — INHERITED TYPE-SIGNATURE MISMATCH / LATENT CONTROL
+-----------------------------------------------------------------------------------------
+Neighboring accessors are:
+
+    getAutomateTypes(AutomateTypes e)
+    getDirectionTypes(AutomateTypes e)
+
+The second clearly ought, by semantic type, to take DirectionTypes. This exact copy/paste
+signature exists in Civ4CE and K-Mod and survives Base AdvCiv/SAS.
+
+However:
+    * current DLL source uses only the pointer-returning getDirectionTypes() overload when
+      loading/deleting the array;
+    * no indexed current DLL caller was found;
+    * K-Mod/Civ4CE exported the indexed overload, whereas current AdvCiv/SAS no longer marks
+      it DllExport.
+
+So the signature is incorrect as an API contract but no current caller-visible failure has
+been proved. Keep as latent cleanup/control, not F272.
+
+VI. define-cache update preliminaries — CONTROL
+-----------------------------------------------
+ReadGlobalDefines writes directly into FVariableSystem during startup, then cacheGlobals()
+initializes the cached arrays. Runtime setDefineINT/FLOAT uses targeted update helpers in
+current AdvCiv/SAS, so the old K-Mod/CE full-cache recache behavior no longer causes repeated
+m_pPythonCaller allocation.
+
+cacheGlobalFloats' startup recursion through updateCityCamDist is bounded: the outer call
+stores the new FIELD_OF_VIEW before updateCityCamDist -> setDefineFLOAT triggers the inner
+cacheGlobalFloats call, so the inner pass observes unchanged FoV and does not recurse again.
+
+NEXT CURSOR
+===========
+Continue queue 040 from F272 unused / KI#595 next:
+    * full allocation/deallocation and info-string-array symmetry;
+    * cached define enum/update coverage and pre-cache setter assumptions;
+    * XML array counts/index invariants and info/type registration;
+    * infosReset/display-language lifecycle;
+    * independent K-Mod/Civ4CE divergence/fix scan;
+    * only return to SetGlobalDefines/m_agents lifecycle if a supported same-DLL reinit path
+      is established.
+===============================================================================
+
+
+===============================================================================
+C023-WIP02 — QUEUE 040 CvGameCoreDLL/CvGlobals.cpp CONTINUATION
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+QUEUE STATUS
+------------
+queue 040
+CvGameCoreDLL/CvGlobals.cpp
+OPEN
+
+NEXT ROOT:
+    F272 UNUSED
+    next provisional KI#595
+
+No repository source files modified. Audit album only.
+
+VII. FootstepAudio "ByTag" lookup — REJECTED / NAMING CONTROL
+-------------------------------------------------------------
+CvGlobals::getFootstepAudioTypeByTag(strTag) searches m_paszFootstepAudioTypes rather than
+m_paszFootstepAudioTags. The name initially suggests an array mix-up, but shipped XML proves
+the current semantics are correct:
+    * unit-art AudioRunTypeLoop / AudioRunTypeEnd fields contain tokens such as
+      LOOPSTEP_TANK / ENDSTEP_TANK;
+    * those tokens are entries in FootstepAudioTypes;
+    * the parallel FootstepAudioTags array maps the resulting index to the actual AS3D sound
+      script identifier.
+So this function is really "type-index from XML type token" despite its confusing name.
+No F272.
+
+VIII. AnimationOperator indexed accessor — LATENT TYPE/API MISMATCH, NO LIVE FAILURE PROVED
+------------------------------------------------------------------------------------------
+AnimationOperatorTypes enum constants start at ANIMOP_FIRST = 1001, while
+m_paszAnimationOperatorTypes is a normal 0..count-1 array. Yet
+CvGlobals::getAnimationOperatorTypes(AnimationOperatorTypes e) directly indexes that array.
+Passing a real ANIMOP_* enum constant would therefore assert/go out of bounds.
+
+However, the live CyGlobalContext wrapper accepts a plain Python integer index and casts that
+0..count-1 value to AnimationOperatorTypes before calling the accessor. No current C++/Python
+caller was found passing an actual 1001+ ANIMOP_* constant. This is an inherited/domain-type
+API defect, but presently latent; do not allocate F272 without a live caller-visible failure.
+
+IX. lazy plot-group FAStar geometry — DORMANT CONTROL
+-----------------------------------------------------
+CvGlobals::getPlotGroupFinder() lazily initializes an FAStar instance with current map width,
+height and wrap flags and does not locally reinitialize it for a later map geometry change.
+That would be dangerous if used across regenerated maps.
+
+Current AdvCiv/SAS CvPlotGroup::recalculatePlots, however, has the old plot-group-finder calls
+commented out and uses the replacement DFS implementation. No other live DLL caller was found;
+the getter itself carries an old diagnostic wondering whether it is called. Therefore the
+stale-geometry concern is dormant in current code, not F272.
+
+X. CvXMLLoadUtility raw global pointer — EXTERNAL LIFETIME CONTROL
+-----------------------------------------------------------------
+AdvCiv stores the current CvXMLLoadUtility* in CvGlobals so optional XML and throne-room XML
+can be loaded lazily. CvXMLLoadUtility's destructor contains an explicit comment about the
+EXE's unusual ownership/lifetime and warns against deleting the global pointer from the popup
+path because that could double-delete.
+
+Normal lazy consumers (CvGame reset optional load; throne-room late load) necessarily rely on
+this utility surviving the initial XML phase. Available DLL source does not prove an interval
+where the EXE deletes the utility while later retaining/using GC.m_pXMLLoadUtility. Treat this
+as an externally-owned raw-pointer seam, not a use-after-free finding without lifecycle proof.
+
+XI. playable-civilization counters and reload — SAME EXTERNAL-RELOAD FAMILY
+---------------------------------------------------------------------------
+LoadPreMenuGlobals increments m_iNumPlayableCivilizationInfos and
+m_iNumAIPlayableCivilizationInfos; constructor initializes them to zero and cleanup does not
+locally reset them before a hypothetical second full pre-menu load. That would double counts
+on an in-process XML reload. But, like repeated cacheGlobals/PythonCaller allocation, the
+available DLL source does not establish a supported second LoadPreMenuGlobals invocation in
+one CvGlobals lifetime. Keep under the same external-reload candidate family, not F272.
+
+XII. info-vector/string-array ownership inventory — CLEAN SO FAR
+----------------------------------------------------------------
+The advc.enum DO_FOR_EACH_INFO_TYPE list drives the ordinary info-vector deletion/reset paths.
+CvWorldInfo is intentionally handled separately and is not also present in the macro, so there
+is no double deletion there. Manual global string arrays (entity event, animation operator,
+function, flavor, art style, city size, contact, diplomacy power, automate, direction,
+FootstepAudio types/tags) are separately deleted by deleteInfoArrays(). No current loaded info
+family has yet been found omitted from the corresponding cleanup family; Quest remains an
+unused/commented legacy case rather than a live missing vector.
+
+XIII. NUM_* macro apparent self-recursion — REJECTED / BUILD-MODE CONTROL
+------------------------------------------------------------------------
+CvGlobals.h defines, under `#ifndef _USRDLL`, macros such as:
+
+    #define NUM_DIRECTION_TYPES (GC.getNumDirections())
+
+while CvGlobals.cpp defines:
+
+    int CvGlobals::getNumDirections() const { return NUM_DIRECTION_TYPES; }
+
+This looks recursively self-referential in a textual read. It is not recursive in the DLL
+build: `_USRDLL` is defined while compiling CvGameCoreDLL, so the compatibility macros are not
+defined there and the getter returns the underlying enum constant. The macros exist for the
+non-DLL/EXE side of the shared header. No F272.
+
+NEXT CURSOR
+===========
+Continue queue 040 from F272 unused / KI#595 next:
+    * cached GlobalDefines enum/tag coverage and update-before-cache contracts;
+    * m_infosMap/type registration collision/index invariants using current XML;
+    * array/count and getter bound invariants (including Color replay remapping);
+    * independent CE/K-Mod/AdvCiv targeted-fix divergence;
+    * remaining init/uninit member-ownership symmetry;
+    * only promote external reload/lifetime candidates if a supported re-entry path is proved.
+===============================================================================
+
+
+===============================================================================
+C023-WIP03 — QUEUE 040 CvGameCoreDLL/CvGlobals.cpp
+F272 / provisional KI#595 CONFIRMED
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+F272 / provisional KI#595 — FOREIGN-REPLAY COLOR REMAP WRAPS BACK INTO THE
+"SKIPPED" SYSTEM-COLOR PREFIX
+--------------------------------------------------------------------------------
+Status: CONFIRMED; inherited AdvCiv feature bug (advc.106i), optional/config-gated.
+Primary file: CvGameCoreDLL/CvGlobals.cpp
+Same-root consumer/input contract: CvGameCoreDLL/CvReplayInfo.cpp
+
+Current CvGlobals::getColorInfo(ColorTypes eColor) contains an out-of-range replay fallback:
+
+    if (eColor >= getNumColorInfos())
+    {
+        FAssert(m_bHoFScreenUp || eColor < getNumColorInfos());
+        // +7: Skip colors from COLOR_CLEAR to COLOR_LIGHT_GREY
+        eColor = (ColorTypes)((eColor + 7) % getNumColorInfos());
+    }
+
+The stated invariant is explicit: remapped foreign colors should skip indices 0..6
+(COLOR_CLEAR through COLOR_LIGHT_GREY). The arithmetic does not preserve that invariant after
+one wrap of the normal color table.
+
+CURRENT SAS COUNTEREXAMPLE
+--------------------------
+Current CIV4ColorVals.xml contains 128 ColorVal entries:
+    0 COLOR_CLEAR
+    1 COLOR_ALPHA_GREY
+    2 COLOR_WHITE
+    3 COLOR_BLACK
+    4 COLOR_DARK_GREY
+    5 COLOR_GREY
+    6 COLOR_LIGHT_GREY
+    7 COLOR_RED
+    ...
+
+CvReplayInfo::read accepts a foreign-mod player color through:
+
+    checkBounds(info.m_eColor, 0, GC.getNumColorInfos() - 1)
+
+and checkBounds deliberately doubles its upper bound when HOF_DISPLAY_OTHER_MOD_REPLAYS is
+enabled. With 128 local colors, foreign replay IDs 0..254 are therefore accepted.
+
+For the accepted high foreign IDs:
+    249 -> (249 + 7) % 128 = 0  -> COLOR_CLEAR
+    250 -> 1                    -> COLOR_ALPHA_GREY
+    251 -> 2                    -> COLOR_WHITE
+    252 -> 3                    -> COLOR_BLACK
+    253 -> 4                    -> COLOR_DARK_GREY
+    254 -> 5                    -> COLOR_GREY
+
+Thus six IDs that the parser intentionally accepts as valid foreign extra colors are mapped
+straight into the very prefix that getColorInfo says it is skipping. COLOR_CLEAR is especially
+bad for replay/Hall-of-Fame display because the mapped marker/color can become transparent.
+
+PRODUCER -> STATE -> CONSUMER
+-----------------------------
+1. HOF_DISPLAY_OTHER_MOD_REPLAYS enables permissive loading of replay data produced by another
+   mod.
+2. CvReplayInfo::checkBounds allows foreign player-color IDs up to twice the local normal upper
+   bound.
+3. CvReplayInfo stores the accepted foreign m_eColor unchanged.
+4. Hall-of-Fame/replay UI consumes those stored ColorTypes (e.g. color markers, graph/minimap
+   layers); m_bHoFScreenUp deliberately permits CvGlobals::getColorInfo to receive an ID beyond
+   the local array.
+5. getColorInfo remaps it with `(eColor + 7) % N`.
+6. For the final accepted IDs of the doubled range, the result is 0..5, violating the explicit
+   skip-system-colors contract.
+
+This is config-gated in current SAS because HOF_DISPLAY_OTHER_MOD_REPLAYS defaults to 0, but it
+is a real defect in the supported/configurable compatibility feature, not merely hypothetical
+bad input.
+
+ANCESTRY / BOUNDARY
+-------------------
+K-Mod does not contain this remapping feature; it simply asserts a normal in-range ColorTypes.
+AdvCiv practical 1430 (8377887745-family history around advc.106i introduction; exact tracked
+file AdvCivPreSAS_1430_efd11afbeb.diff) introduced the foreign-replay fallback already as:
+
+    // +7: Skip COLOR_CLEAR to COLOR_LIGHT_GREY
+    e = (ColorTypes)((e + 7) % getNumColorInfos());
+
+Later AdvCiv changes only refactored/renamed the accessor and comment. Base AdvCiv 1.14 and
+current SAS retain the same arithmetic, while CvReplayInfo retains the generous doubled bound.
+Therefore this is inherited from AdvCiv's advc.106i replay-compatibility feature, not SAS.
+
+REPAIR DIRECTION
+----------------
+Map out-of-range IDs into the intended usable suffix [7, N) rather than shifting then taking
+modulo N. For N > 7 and eColor >= N, a direct form is conceptually:
+
+    7 + ((eColor - 7) % (N - 7))
+
+(or equivalently offset relative to N). This guarantees every fallback result is >= 7 and < N.
+Keep a defensive fallback/assert for pathological N <= 7 even though current assets have 128.
+
+Do not merely lower CvReplayInfo's generous upper bound enough to hide the arithmetic problem;
+that would unnecessarily reject foreign colors that can safely be represented through a
+correct suffix remap.
+
+SEVERITY / SCOPE
+----------------
+Low-to-moderate UI/compatibility severity; optional because display of other mods' replays is
+disabled by default. No normal current-game ColorTypes are affected because the remap branch
+runs only for eColor >= local color count.
+
+DUPLICATE CHECK
+---------------
+No earlier album root was found for replay extra-color remapping/getColorInfo. This is separate
+from replay-format/range changes such as SAS KI#166 and from queue-039 calendar/HOF-adjacent
+utilities.
+
+QUEUE STATUS AFTER F272
+-----------------------
+queue 040 remains OPEN.
+F272 assigned / provisional KI#595.
+Next unused root: F273.
+Next provisional KI: KI#596.
+
+NEXT CURSOR
+===========
+Continue CvGlobals.cpp from F273 unused / KI#596 next:
+    * finish cached GlobalDefines current-XML type/coverage audit (initial type scan clean);
+    * info-type map uniqueness/current XML registration;
+    * manual/dynamic info-array count and bounds contracts;
+    * remaining init/uninit ownership with a live-consumer requirement;
+    * CE/K-Mod/AdvCiv targeted divergence scan;
+    * revisit external reload leaks only if a supported re-entry path is established.
+===============================================================================
