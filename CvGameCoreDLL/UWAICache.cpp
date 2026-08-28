@@ -1332,6 +1332,18 @@ void UWAICache::reportUnitDestroyed(UnitTypes eUnit)
 }
 
 
+// <!-- custom: A unit can revive its dead owner before the newly initialized UWAI cache has retained that unit's earlier creation callback.
+// Reconstruct the exceptional revival inventory once instead of burdening ordinary per-turn updates with a full unit scan. See KI#548. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::rebuildMilitaryUnitCounts()
+{
+	FAssert(m_iNonNavalUnits == 0);
+	for (size_t i = 0; i < m_militaryPower.size(); i++)
+		FAssert(m_militaryPower[i]->numUnits() == 0);
+	FOR_EACH_UNIT(pUnit, GET_PLAYER(m_eOwner))
+		reportUnitCreated(pUnit->getUnitType());
+}
+
+
 void UWAICache::reportUnit(UnitTypes eUnit, int iChange)
 {
 	/*	i=1: skip HOME_GUARD. Potential guard units are counted as Army and
@@ -1475,13 +1487,16 @@ void UWAICache::reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, Playe
 		return;
 	}
 	CvPlayerAI const& kOwner = GET_PLAYER(m_eOwner);
-	m_aiBounty.set(eTarget, (kOwner.uwai().
+	int const iBounty = (kOwner.uwai().
 			/*	Need to remember the utility. The deal value may not seem much
 				10 turns from now if our economy grows.
 				Should perhaps cap the deal val at AI_declareWarTradeVal.
 				As it is now, paying more than the AI demands makes it a bit
 				more reluctant to end the war. */
-			tradeValToUtility(kOwner.AI_dealVal(eSponsor, kWeReceive))).round());
+			tradeValToUtility(kOwner.AI_dealVal(eSponsor, kWeReceive))).round();
+	// <!-- custom: Practical 3183 compacted this formerly full-width value to signed short without bounding its legal int producer.
+	// Saturating before assignment preserves the intended monotonic obligation instead of letting a sufficiently large positive payment wrap negative and erase its sponsor. See KI#552. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_aiBounty.set(eTarget, ::range(iBounty, 0, MAX_SHORT));
 	if (m_aiBounty.get(eTarget) > 0)
 		m_aeSponsorPerTarget.set(eTarget, eSponsor);
 	else

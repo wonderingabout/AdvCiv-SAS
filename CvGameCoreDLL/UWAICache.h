@@ -139,6 +139,8 @@ public:
 	void cacheCitiesAfterRead();
 	void reportUnitCreated(UnitTypes eUnit);
 	void reportUnitDestroyed(UnitTypes eUnit);
+	// <!-- custom: Revival initializes an empty incremental military inventory after the reviving unit already exists; replay all owned units before immediate UWAI consumers run. See KI#548. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void rebuildMilitaryUnitCounts();
 	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void reportCityCreated(CvCity& kCity);
 	// <!-- custom: City destruction now restores the stateful attack ordering and, for the cache owner's city, its derived asset total; keep that callback logic in the implementation file. See KI#547. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -226,6 +228,7 @@ private:
 
 	CivTeamMap<int,short> m_aiPlotsLostAtWar; // advc.035
 	CivTeamMap<int> m_aiPastWarScore;
+	// <!-- custom: Sponsored-war utility remains compact, but its full-width producer is saturated before assignment so a legal overpayment cannot wrap negative. See KI#552. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	CivTeamMap<int,short> m_aiBounty; // Maps targets to sponsorship values
 	CivTeamMap<PlayerTypes> m_aeSponsorPerTarget; // Maps targets to sponsors
 	CivTeamMap<int,int,MIN_INT> m_aiWarUtilityIgnoringDistraction;
