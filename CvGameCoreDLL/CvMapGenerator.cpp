@@ -725,9 +725,11 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 					for (int j = 0; j < kMap.numPlots(); j++)
 					{
 						CvPlot const& kTestPlot = kMap.getPlotByIndex(j);
+						// <!-- custom: Use the map script's latitude policy both when ranking areas and when placing their resources.
+						// Otherwise ignore-latitude maps can reject valid polar plots only during selection. See KI#565. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 						if (kTestPlot.isArea(kLoopArea) &&
 							canPlaceBonusAt(eBonus, kTestPlot.getX(), kTestPlot.getY(),
-							false, false)) // Save some time by skipping range checks
+							bIgnoreLatitude, false)) // Save some time by skipping range checks
 						{
 							iEligible++;
 						}
@@ -805,7 +807,12 @@ void CvMapGenerator::addUniqueBonusType(BonusTypes eBonus)
 				kRandPlot.setBonusType(eBonus);
 				// <advc.129>
 				iAdded++;
-				iAdded += placeGroup(eBonus, kRandPlot, bIgnoreLatitude); // Replacing the code below
+				// <!-- custom: AdvCiv's extracted cluster helper defaulted to 100 additions here, bypassing both the total target and its first-pass per-area cap.
+				// Bound grouped copies by whichever allowance is active. See KI#564. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int const iTargetRemaining = iTarget - kMap.getNumBonuses(eBonus);
+				int const iGroupLimit = (bIgnoreAreaLimit ? iTargetRemaining :
+						std::min(iTargetRemaining, iAreaLimit - iAdded));
+				iAdded += placeGroup(eBonus, kRandPlot, bIgnoreLatitude, iGroupLimit); // Replacing the code below
 				/*for (int iDX = -(kBonus.getGroupRange()); iDX <= kBonus.getGroupRange(); iDX++) {
 					for (int iDY = -(kBonus.getGroupRange()); iDY <= kBonus.getGroupRange(); iDY++) {
 						if (GC.getMap().getNumBonuses(eBonus) < iBonusCount) {
@@ -897,6 +904,10 @@ int CvMapGenerator::placeGroup(BonusTypes eBonus, CvPlot const& kCenter, bool bI
 		iLimit > 0; j++)
 	{
 		CvPlot& kPlot = *apGroupRange[aiShuffled[j]];
+		// <!-- custom: AdvCiv's extracted clustering path dropped BTS/K-Mod's OneArea boundary, allowing GroupRange 2 resources such as Elephants
+		// to cross narrow water gaps. See KI#564. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kBonus.isOneArea() && !kPlot.sameArea(kCenter))
+			continue;
 		if (!canPlaceBonusAt(eBonus, kPlot.getX(), kPlot.getY(), bIgnoreLatitude))
 			continue;
 		scaled rAddBonusProb = per100(kBonus.getGroupRand());

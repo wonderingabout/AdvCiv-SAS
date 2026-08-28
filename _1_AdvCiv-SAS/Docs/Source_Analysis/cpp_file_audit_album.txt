@@ -38032,3 +38032,944 @@ LOCAL RECONCILIATION AFTER C019 DURABLE CLOSE AND C020-WIP01 IMPORT
 - Current source and Known Issues independently implement F213-F229 / KI#536-KI#552. F230/KI#553 concerns old-save conversion and remains intentionally unpromoted under AdvCiv-SAS's current-version-save-only policy. The current KI#538-KI#539 batch includes C019's later F216 refinement: Permanent Alliance history now uses both the original survivor-member recipient boundary and the full persistent civilization-team target-key domain.
 - F229/KI#552's live full-width-to-short saturation remains implemented. Its newly recorded pre-v9 read refinement is intentionally not added because old save formats are unsupported. F232/provisional KI#555 is rejected for the same policy reason; F231 and F233-F240 / provisional KI#554 and KI#556-KI#563 remain pending independent review.
 - C020-WIP01's F241-F242 / provisional KI#564-KI#565 are newly imported map-generator findings and remain pending independent review. Current source, Known Issues and this later reconciliation are authoritative for implementation state. (GPT-5.6-Sol)
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C020-WIP02 -- FILE 020 OPEN / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    _SNAPSHOT_CONTEXT/pending_upstream/*
+    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+
+Prior physical checkpoint:
+    C020-WIP01
+
+Current file:
+    priority 3rd / queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+New roots:
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+
+Next root:
+    F245 UNUSED
+
+
+F243 / provisional KI#566
+-------------------------
+TITLE
+    AdvCiv snapshots every lake-eligible plot before placing any lakes; unlike BtS,
+    eligibility is therefore not re-evaluated after earlier successful lakes turn into
+    water, so adjacent candidates can both become random lakes even though the later
+    one would have become coastal and ineligible in the original algorithm.
+
+STATUS
+    CONFIRMED inherited AdvCiv map-generation semantic regression.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS.
+    Introduced by the AdvCiv desert-lake rework merged at practical 3898 /
+        40bd5f76d9
+    (upstream change "Make desert lakes less likely (standard map generator)").
+
+BTS / K-MOD / CIV4CE CONTRACT
+    The original loop processes plots sequentially:
+
+        for every map plot:
+            if !water && !coastalLand && !river:
+                roll lake chance
+                if success:
+                    setPlotType(PLOT_OCEAN)
+
+    setPlotType defaults to immediate area recalculation in these implementations.
+
+    Therefore lake placement changes the eligibility of plots that have not yet been
+    visited.
+
+    CvPlot::isCoastalLand(0) returns true for ordinary land with any adjacent
+    non-impassable water plot. Consequently, if candidate B is adjacent to earlier
+    candidate A and A becomes a lake first, B is coastal by the time B is visited and
+    BtS/K-Mod do not roll/place a lake on B.
+
+ADVCIV CHANGE
+    The desert-lake change wanted to make desert candidates less likely while preserving
+    the overall expected number of lakes.
+
+    To know how many candidates are desert, it first scans the ENTIRE map and stores:
+
+        std::vector<std::pair<CvPlot*,bool> > apbCandidates;
+
+    using:
+
+        if (!p.isWater() && !p.isCoastalLand() && !p.isRiver())
+            apbCandidates.push_back(...);
+
+    Only after this complete snapshot does it perform the random rolls.
+
+    The introduction diff even comments:
+
+        "(Same condition as in BtS)"
+
+    but the timing of that condition is no longer the same. It is evaluated once
+    against the original water layout rather than immediately before each plot's roll.
+
+    The initial AdvCiv version still converted successful candidates immediately inside
+    the second loop. That does NOT restore BtS semantics because later candidates are
+    never rechecked for coastal status after the conversion.
+
+LATER BATCH-RECALC OPTIMIZATION
+    Practical 4030 later accumulated successful candidates in apLakes and called
+    setPlotType only afterward, recalculating areas on the last conversion.
+
+    That makes the batching more explicit, but it is NOT the origin of F243. The
+    eligibility loss already exists as soon as the candidate set is precomputed in the
+    earlier desert-lake change.
+
+CURRENT SAS
+    Current SAS retains the precomputed candidate vector and later apLakes batch.
+
+    SAS optionally restores BtS peak replacement through
+        SAS_MAP_LAKE_PEAK_REPLACEMENT_ENABLE,
+    but that toggle does not alter the frozen coastal-eligibility snapshot.
+
+SUPPORTED REPRODUCTION
+    Let A and B be adjacent inland land plots that initially satisfy:
+        !isWater
+        !isCoastalLand
+        !isRiver
+        and, under current default AdvCiv behavior, !isPeak.
+
+    Assume A precedes B in the candidate traversal and both legal synchronized lake
+    rolls succeed.
+
+    BtS/K-Mod/Civ4CE:
+        1. A is processed and becomes PLOT_OCEAN.
+        2. When B is reached, B.isCoastalLand() now sees adjacent water A.
+        3. B is skipped.
+        Result: one random lake tile.
+
+    Current AdvCiv/SAS:
+        1. A and B were both inserted into apbCandidates before any water conversion.
+        2. Their rolls are performed from that frozen eligibility set.
+        3. Both successful candidates are put in apLakes / converted.
+        Result: a two-tile random lake.
+
+    No invalid XML, custom map or runtime mutation is needed; only a legal map seed
+    whose synchronized rolls succeed for two adjacent candidates.
+
+    With BtS's standard LAKE_PLOT_RAND of 160 the event is uncommon for any given pair,
+    but a map contains many candidate pairs and reproducibility requires only one legal
+    RNG state, not a high probability.
+
+BROADER EFFECT
+    Chains of adjacent candidates can form multi-tile randomly generated inland lakes.
+    The specific original guard was intended to reject land that had become coastal
+    after a prior lake placement.
+
+    This also changes synchronized RNG consumption relative to the original:
+        BtS does not even perform B's lake roll once A has made B coastal;
+        AdvCiv still performs B's pre-scheduled roll.
+    That is not an OOS within one DLL version, but it is further proof that the
+    precomputation is not behaviorally equivalent to BtS.
+
+WHY THIS IS NOT MERELY "ADVANCED LAKE VARIETY"
+    The introducing change is documented as a probability adjustment for desert lakes
+    while preserving expected lake count; it explicitly labels its eligibility
+    predicate "Same condition as in BtS."
+
+    No historical rationale found says the change intentionally allowed adjacent random
+    lakes or intentionally froze coastal eligibility.
+
+    The semantic difference is therefore collateral to the candidate-counting
+    refactor, not the stated feature.
+
+REPAIR DIRECTION
+    Preserve the desert-candidate statistics without freezing dynamic coastal
+    eligibility.
+
+    A straightforward semantic repair can still precompute the initial candidate set
+    for probability normalization, but immediately before accepting each successful
+    candidate re-check the dynamic placement conditions that prior lake placements can
+    invalidate.
+
+    Because current code defers plot conversion until after all rolls, merely calling
+    p.isCoastalLand() during the roll loop is insufficient: earlier selected lakes are
+    not water yet.
+
+    Options include:
+        * convert each accepted lake immediately, restoring sequential semantics, then
+          optimize the expensive area recalculation separately;
+        * or retain batched conversion while maintaining the selected-lake set and
+          reject a candidate adjacent to any already selected lake, in addition to the
+          original preexisting-water/coastal eligibility.
+
+    If batching conversions without recalculating areas, take care with helpers that
+    consult CvArea state. An explicit selected-lake adjacency test is the least
+    ambiguous way to preserve the particular BtS `isCoastalLand(0)` invariant while
+    keeping one final area rebuild.
+
+    Preserve the intentionally adjusted desert probability and expected-count formula.
+
+BASELINE
+    Base AdvCiv 1.14:
+        inherits F243.
+
+    K-Mod 1.46:
+        retains sequential immediate eligibility/placement.
+
+    Civ4CE BtS:
+        retains sequential immediate eligibility/placement.
+
+SCOPE / NEGATIVE CONTROLS
+    * A lone lake candidate is unaffected.
+    * Candidate pairs that are not adjacent are unaffected by this particular dynamic
+      coastal-state issue.
+    * River status is already established before addLakes and does not change during
+      the lake loop, so the live invalidated predicate is specifically water/coastal
+      eligibility.
+    * The 4030 overflow fix for super-Huge expected-lake arithmetic remains correct and
+      is independent of F243.
+    * This finding does not assert that multi-tile lakes are inherently bad map design;
+      it identifies an unintended behavioral change relative to the algorithm whose
+      probability distribution the AdvCiv change says it is preserving.
+
+
+F244 / provisional KI#567
+-------------------------
+TITLE
+    eraseRivers removes river edges but leaves per-plot river IDs and the map's next
+    river ID intact; regenerateGameElements can therefore regenerate against invisible
+    old-river barriers, and AdvCiv's short river-ID counter can accumulate toward
+    overflow across repeated regenerations.
+
+STATUS
+    CONFIRMED inherited Civ4/BtS river-regeneration lifecycle defect.
+    Present in BtS/Civ4CE and K-Mod.
+    AdvCiv partially mitigates the first post-start call by clearing plot river IDs at
+    initial game setup, but repeated `regenerateGameElements` calls recreate the defect.
+    Current AdvCiv/SAS additionally store IDs in signed short.
+
+PUBLIC API CONTRACT
+    CyMap exposes:
+
+        regenerateGameElements()
+
+    with the Python-interface description:
+
+        "used to regenerate everything but the terrain and height maps"
+
+    Its implementation does:
+
+        eraseRivers();
+        eraseFeatures();
+        eraseBonuses();
+        eraseGoodies();
+        addGameElements();
+
+    This is therefore a real supported regeneration lifecycle, not a private dead
+    helper.
+
+WHAT eraseRivers ACTUALLY CLEARS
+    CvMapGenerator::eraseRivers iterates plots and clears only visible river-edge flags:
+
+        if (kPlot.isNOfRiver())
+            kPlot.setNOfRiver(false, NO_CARDINALDIRECTION);
+        if (kPlot.isWOfRiver())
+            kPlot.setWOfRiver(false, NO_CARDINALDIRECTION);
+
+    CvPlot::setNOfRiver(false, ...) and setWOfRiver(false, ...) update edge state,
+    river crossings, yields, area river-edge counts and graphics.
+
+    They do NOT call setRiverID(-1).
+
+    CvPlot::m_iRiverID therefore survives eraseRivers.
+
+    CvPlot::erase, by contrast, explicitly performs:
+        setNOfRiver(false, ...)
+        setWOfRiver(false, ...)
+        setRiverID(-1)
+
+    confirming that river ID is separate lifecycle state.
+
+WHY STALE IDS ALTER THE NEXT GENERATED NETWORK
+    doRiver assigns a fresh river ID for a newly started river and immediately does:
+
+        short iOtherRiverID = pStartPlot->getRiverID();
+        if (iOtherRiverID != -1 && iOtherRiverID != iThisRiverID)
+            return; // Another river already exists here
+
+    During normal river generation every traversed river corner receives iThisRiverID.
+
+    After eraseRivers:
+        * its river edges are gone;
+        * but those old corners still retain the old ID.
+
+    A replacement river uses a new ID. If its traversal reaches one of those invisible
+    old-ID corners, doRiver stops as though another river still occupies the corner.
+
+    The erased network therefore remains as hidden barriers constraining the supposedly
+    regenerated network.
+
+BTS / K-MOD
+    BtS/Civ4CE and K-Mod have the same basic eraseRivers implementation and doRiver
+    old-ID collision check.
+
+    Their initial river IDs persist after normal generation, so even the first
+    post-generation `regenerateGameElements` call can regenerate against stale IDs.
+
+ADVCIV PARTIAL MITIGATION AND REPEATED-CALL REPRODUCTION
+    Practical 2172,
+        10f79cd394
+        "Clear river ids at game start, store as short int."
+    added to CvGame::setInitialItems:
+
+        // River ids shouldn't be used after map generation
+        for every plot:
+            setRiverID(-1);
+
+    Thus, once an ordinary AdvCiv game has completed initial setup, the original
+    generation's plot IDs are cleared.
+
+    However, `regenerateGameElements` later:
+        1. builds a fresh river network through addRivers;
+        2. assigns new per-plot river IDs;
+        3. does NOT run CvGame::setInitialItems afterward.
+
+    Therefore:
+
+        first post-start regenerateGameElements:
+            starts from the initial -1 plot IDs and can generate normally;
+            leaves newly generated IDs behind.
+
+        second regenerateGameElements:
+            eraseRivers removes the first regenerated network's edges but not IDs;
+            the second regenerated network encounters those stale IDs and is blocked/
+            truncated wherever its fresh river ID meets them.
+
+    That is a deterministic lifecycle-state violation even though the exact visual
+    difference depends on the synchronized river routing outcome.
+
+NEXT-RIVER-ID COUNTER IS ALSO NOT RESET
+    CvMap::m_iNextRiverID is initialized to 0 by CvMap reset/rebuild.
+
+    eraseRivers/regenerateGameElements never reset it.
+
+    Every new doRiver start consumes:
+
+        getNextRiverID();
+        incrementNextRiverID();
+
+    even if that candidate then immediately returns because of a stale different ID.
+
+    In BtS/K-Mod this is an int and is mostly a cleanliness issue.
+
+    AdvCiv practical 2172 compacted both:
+        CvPlot::m_iRiverID
+        CvMap::m_iNextRiverID
+    to signed short, specifically because river IDs were considered map-generation-only
+    data.
+
+    Repeated element regeneration can therefore monotonically push the short counter
+    toward 32767 and eventual wrap/sentinel/collision behavior.
+
+    A single normal SAS map-generation pass was not shown to exceed short range on
+    supported world sizes, so do NOT split this into a separate overflow root.
+    It is a lifecycle-amplification consequence of failing to reset river generation
+    state when explicitly regenerating rivers.
+
+FULL MAP REGENERATION IS A NEGATIVE CONTROL
+    CvGame::regenerateMap performs:
+
+        kMap.erasePlots();
+
+    and CvPlot::erase explicitly clears setRiverID(-1).
+
+    It then rebuilds the map generation flow.
+
+    Therefore F244 is specifically about the lighter
+        CyMap::regenerateGameElements
+    lifecycle, not a claim that full WorldBuilder map regeneration always carries stale
+    per-plot IDs.
+
+REPAIR DIRECTION
+    `eraseRivers` / the regenerate-elements lifecycle should clear ALL state belonging
+    to the erased river-generation graph, not merely visible edge flags.
+
+    At minimum:
+        for every plot:
+            clear N/W river edges as today;
+            setRiverID(-1);
+
+    Because m_iNextRiverID has no semantic reason to preserve uniqueness across fully
+    erased river generations and is short in AdvCiv, also reset it to the generation
+    baseline (normally 0) before adding the replacement rivers.
+
+    This may be best represented by a small CvMap river-generation-state reset helper
+    rather than exposing raw counter mutation.
+
+    Do not clear river IDs during a live ordinary partial edge edit; this fix belongs to
+    the explicit whole-river-network erase/regenerate operation.
+
+HISTORICAL CONTEXT
+    AdvCiv 2172 explicitly says:
+
+        "River ids shouldn't be used after map generation"
+
+    and labels m_iRiverID:
+        "Only used during map gen."
+
+    `regenerateGameElements` starts a new map-generation phase for rivers, so it should
+    establish the same clean river-ID precondition as original generation.
+
+SCOPE / NEGATIVE CONTROLS
+    * Current setNOfRiver/setWOfRiver not clearing riverID is reasonable for ordinary
+      single-edge mutation; those setters alone are not the root.
+    * Full CvPlot::erase clears riverID correctly.
+    * First post-start AdvCiv regenerate is partially protected by setInitialItems'
+      initial ID clear; second and later regenerations are not.
+    * This is not an OOS claim. It is deterministic stale state inside one generated
+      game/map.
+    * No separate F245 is allocated for theoretical short overflow without a practical
+      one-pass reproduction; preserve it under F244's repeated-regeneration lifecycle.
+
+
+OTHER RIVER/LAKE CHECKS IN THIS PASS
+------------------------------------
+1. CvPlot::isCoastalLand semantics
+    Current default iMinWaterSize is 0; any adjacent non-impassable water plot therefore
+    makes ordinary land coastal. This confirms F243's adjacent-lake reproduction.
+
+2. `setPlotType(PLOT_OCEAN)` default behavior
+    BtS/K-Mod call it with default bRecalculate=true, so an earlier successful lake is
+    fully visible to the eligibility check of later sequential plots.
+
+3. Current lake batch area rebuild
+    Current AdvCiv/SAS uses false/false for every accepted lake except the last and
+    recalculates on the final conversion. No independent stale-area consumer was found
+    between those conversions; F243 arises earlier from the frozen candidate set.
+
+4. River ID clearing at ordinary startup
+    AdvCiv's explicit post-normalization setRiverID(-1) remains present and explains why
+    F244's strongest AdvCiv reproduction is repeated element regeneration rather than
+    necessarily the first call.
+
+5. `CvGame::regenerateMap`
+    Uses CvPlot::erase through map erase and therefore clears river IDs. Negative
+    control retained.
+
+
+C020-WIP02 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    19 / 169
+
+CURRENT FILE:
+    queue 045 CvGameCoreDLL/CvMapGenerator.cpp -- OPEN
+
+QUEUE-045 ROOTS:
+    F241 / provisional KI#564
+    F242 / provisional KI#565
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+
+NEXT ROOT:
+    F245 UNUSED
+
+Resume from F245 unused.
+
+Best next work:
+    * finish addRivers/doRiver/addRiver/getRiverValueAtPlot recursion, RNG and
+      source-density contracts;
+    * inspect substantive historical river changes, especially 2172, 2298 and later
+      RNG/refactor commits, for regressions not already covered by F244;
+    * finish addLakes arithmetic and map-recalc negatives;
+    * continue generateRandomMap climate/sea-level normalization and Python override
+      ordering;
+    * audit calculateNumBonusesToAdd, addGoodies and remaining count/range arithmetic;
+    * compare SAS's selectable BTS branches against actual K-Mod/Civ4CE semantics;
+    * cross-check the entire earlier album before assigning F245.
+
+Clean rejection remains preferable to inventing F245.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+===============================================================================
+CHECKPOINT C020-WIP03 -- FILE 020 OPEN / QUEUE 045 CvMapGenerator.cpp
+===============================================================================
+Date: 2026-08-28
+Model: GPT-5.6-Sol
+
+Authoritative source snapshot:
+    AdvCiv-SAS_light_source_20260828T000835.zip
+
+Comparison/history material checked:
+    AdvCiv-1.14(4).zip
+    Civ4-K-Mod-master-1.46(2).zip
+    Civ4CE-main(9).zip
+    _SNAPSHOT_CONTEXT/commit_diffs/*
+    _SNAPSHOT_CONTEXT/pending_upstream/*
+    _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
+
+Prior physical checkpoint:
+    C020-WIP02
+
+Current file:
+    priority 3rd / queue 045
+    CvGameCoreDLL/CvMapGenerator.cpp
+
+New root:
+    F245 / provisional KI#568
+
+Next root:
+    F246 UNUSED
+
+
+F245 / provisional KI#568
+-------------------------
+TITLE
+    AdvCiv's OneArea "small islands only after two-thirds of the target exists" guard
+    can deadlock resource placement at zero when every land area is below
+    4 * NUM_CITY_PLOTS; the nominally uncapped second pass repeats the same bootstrap
+    exclusion and cannot recover.
+
+STATUS
+    CONFIRMED inherited AdvCiv resource-distribution defect.
+    Present in current Base AdvCiv 1.14 and current AdvCiv-SAS when the AdvCiv OneArea
+    distribution path is enabled.
+
+    Introduced by practical commit 1674 / f25a2b91ab,
+        "Relax single-landmass restrictions for resource placement"
+        [advc.129]
+
+CURRENT CODE
+    addUniqueBonusType calculates:
+
+        int const iTarget = calculateNumBonusesToAdd(eBonus);
+
+    and later, while scoring candidate areas:
+
+        int iAddedTotal = kMap.getNumBonuses(eBonus);
+        if (bSASAdvCivOneAreaBonusDistribution &&
+            iAddedTotal * 3 < 2 * iTarget &&
+            iNumTiles < 4 * NUM_CITY_PLOTS)
+        {
+            continue;
+        }
+
+    NUM_CITY_PLOTS is 21 in the current DLL, so the hard small-area cutoff is:
+
+        4 * 21 = 84 tiles.
+
+    calculateNumBonusesToAdd ends with:
+
+        return std::max(1, iBonusCount);
+
+    Therefore every bonus type reaching this function has a positive target even if
+    the density calculation happened to round to zero.
+
+BOOTSTRAP FAILURE
+    At the start of placement for a normal absent bonus:
+
+        iAddedTotal = 0
+
+    For every positive target:
+
+        0 * 3 < 2 * iTarget
+
+    is true.
+
+    Therefore every area smaller than 84 tiles is unconditionally skipped until at
+    least two-thirds of the target has ALREADY been placed elsewhere.
+
+    If every land area on the map is smaller than 84 tiles:
+        * every candidate area is skipped;
+        * pBestArea remains NULL;
+        * the placement while-loop breaks;
+        * the target remains completely unmet.
+
+THE SECOND PASS DOES NOT FIX THIS
+    AdvCiv has two passes because its first pass imposes a per-area resource cap.
+
+    Current SAS correctly includes KI#202:
+
+        if (iPass > 0)
+            areas_tried.clear();
+
+    allowing the second pass to revisit first-pass areas.
+
+    The second pass also disables the per-area cap.
+
+    However, it executes the SAME area-selection small-island guard.
+
+    When the first pass placed zero copies:
+
+        iAddedTotal is still 0
+
+    so every <84-tile area is skipped again.
+
+    Thus:
+        capped first pass -> zero
+        uncapped second pass -> zero
+
+    Clearing areas_tried cannot break the bootstrap deadlock.
+
+HISTORICAL INTENT MAKES THE FAILURE ESPECIALLY CLEAR
+    The introducing commit message says:
+
+        "And I've added a limit for the number of resources of one type to be placed
+         on a landmass: Can only place up to
+         2 + ((number of tiles on the landmass) / 25).
+         Excess resources are placed elsewhere; that can include small islands.
+         (K-Mod had prevented single-landmass resources from getting placed on small
+         islands - so islands resembling the Spice Islands had not been possible.)"
+
+    The explicit design goal was therefore to ALLOW excess resources to reach small
+    islands.
+
+    Yet the new guard requires a large-enough area to bootstrap at least two-thirds of
+    the target before any small island can even compete.
+
+    In an all-small-island world, the prerequisite can never become true.
+
+    This is not an intentional "prefer large landmasses" result; it is a self-blocking
+    implementation of that preference.
+
+BROADER UNDERFILL CASE
+    The complete-zero case is the cleanest proof, but the defect is not limited to maps
+    with literally no large area.
+
+    Suppose one >=84-tile landmass exists, but it cannot supply two-thirds of iTarget
+    because:
+        * terrain/feature eligibility is sparse;
+        * latitude removes many otherwise valid plots;
+        * unique/range restrictions crowd out remaining copies;
+        * the first-pass area cap and later physical eligibility limit placement.
+
+    As long as:
+
+        iAddedTotal * 3 < 2 * iTarget
+
+    all otherwise-valid small islands remain excluded.
+
+    Once every viable large area has been tried, pBestArea can again become NULL and
+    the pass can terminate under target even though legal small-island plots exist.
+
+SHIPPED-MAP SUPPORT
+    This is not restricted to malformed custom maps.
+
+    Current SAS ships Archipelago.py, including a "Tiny Islands" mode whose map
+    generation uses high continent grain and delegates ordinary default bonus
+    placement back to the DLL.
+
+    Islands.py and other island-heavy scripts provide similar supported map shapes.
+
+    A legal generated map in which all landmasses are below 84 tiles is therefore
+    within the intended supported map space.
+
+CURRENT SAS CONTENT AFFECTED
+    Current SAS CIV4BonusInfos.xml has many bArea=1 resources, including:
+
+        BONUS_BANANA
+        BONUS_MAIZE
+        BONUS_CATTLE
+        BONUS_DEER
+        BONUS_PIG
+        BONUS_RICE
+        BONUS_SHEEP
+        BONUS_WHEAT
+        BONUS_DYE
+        BONUS_INCENSE
+        BONUS_ELEPHANTS
+        BONUS_SILK
+        BONUS_SPICES
+        BONUS_SUGAR
+        BONUS_GRAPES
+
+    So F245 is capable of suppressing broad food/luxury/resource variety on sufficiently
+    fragmented maps, not merely one obscure strategic resource.
+
+K-MOD / BTS BASELINE
+    K-Mod's older OneArea selection logic does NOT hard-exclude areas below
+    4 * NUM_CITY_PLOTS.
+
+    It computes a base value from:
+
+        iNumTiles / iNumUniqueBonusesOnArea
+
+    and only grants the additional random size bonus when the area is large enough.
+
+    Small areas therefore rank worse on average but remain eligible.
+
+    BtS/Civ4CE likewise do not contain AdvCiv's hard "must already have 2/3 target"
+    bootstrap exclusion.
+
+HISTORICAL CONTINUITY
+    Practical 1674 introduced the guard together with the two-pass/per-area-cap design.
+
+    Practical 2364 later substantially reworked OneArea suitability/ranking but retained
+    the same guard.
+
+    Current Base AdvCiv 1.14 retains it.
+
+    SAS KI#202 correctly repairs a separate inherited two-pass problem by clearing
+    areas_tried before pass two, but deliberately leaves this selection rule unchanged;
+    F245 therefore remains after KI#202.
+
+REPAIR DIRECTION
+    Preserve AdvCiv's preference against consuming tiny islands too early, but make it
+    a preference rather than a bootstrap dead end.
+
+    Viable directions include:
+
+        1. Skip small islands only while at least one not-yet-tried viable large area
+           remains.
+
+        2. Allow the uncapped second pass to consider small islands regardless of the
+           two-thirds threshold.
+
+        3. Rank small islands with a penalty rather than `continue`-excluding them.
+
+        4. If a pass finds no selectable large area while the target is unmet, retry the
+           area selection with the small-island exclusion relaxed.
+
+    Option 2 is particularly close to the original two-pass comment:
+        first pass controls distribution;
+        second pass exists specifically to avoid ending with too few resources.
+
+    Any repair should still respect:
+        * actual `canPlaceBonusAt` eligibility;
+        * F241's restored cluster global/area bounds;
+        * F242's map-script latitude policy;
+        * AdvCiv's intended distribution of formerly single-landmass resource types.
+
+DISTINCTION FROM EXISTING QUEUE-045 ROOTS
+    F241:
+        selected-area cluster can exceed target/cap or spill outside the selected area.
+
+    F242:
+        area suitability is scored with the wrong latitude policy.
+
+    F245:
+        potentially suitable small areas are never allowed to enter the competition
+        until an externally impossible bootstrap count is reached.
+
+    The fixes are therefore complementary rather than duplicates.
+
+NEGATIVE CONTROLS / SCOPE
+    * If a large-enough area can provide at least two-thirds of the target, the guard
+      eventually opens and small islands become eligible.
+    * If `SAS_MAP_ADVCIV_ONE_AREA_BONUS_DISTRIBUTION_ENABLE` is disabled, SAS takes its
+      BTS-style path and this specific AdvCiv bootstrap guard is disabled.
+    * The existence of `std::max(1, iBonusCount)` is not itself a bug; it simply makes
+      the zero-placement contradiction exact.
+    * This does not claim every tiny-island map should meet every XML target perfectly;
+      it proves that valid small-area placement opportunities are rejected solely
+      because the algorithm requires copies to exist before it permits the only areas
+      capable of creating those copies.
+
+
+ADDITIONAL C020-WIP02 -> WIP03 NEGATIVE CONTROLS
+------------------------------------------------
+
+1. addRivers / doRiver ID consumption
+    A fresh river ID is consumed before some starts are rejected. In normal one-shot
+    generation that is harmless uniqueness sparsity.
+
+    Under repeated regenerateGameElements it amplifies F244's never-reset short counter,
+    so preserve it under F244 rather than allocate a separate root.
+
+2. AdvCiv river-bank terrain scoring change
+    Historical practical 2298 changed river direction scoring to account for terrain on
+    both banks. Current code retains the intended form; no later sign/direction
+    regression was established.
+
+3. SAS river-routing randomness profile
+    SAS exposes the AdvCiv routing algorithm and direction-randomness knobs separately.
+    Documentation explicitly states that the BTS-style routing profile should pair the
+    BTS routing branch with the BTS randomness value. No hidden "one toggle claims to
+    reproduce all BTS river semantics" contract was found; not a root.
+
+4. Local river RNG seed arithmetic
+    Some coordinate/hash arithmetic can overflow 32-bit signed int under abstract C++
+    rules. Under the actual target VC2003/32-bit environment it yields deterministic
+    machine wrapping, and no supported cross-peer divergence or map corruption was
+    established. Portability smell only.
+
+5. addLakes expected-count arithmetic
+    Base AdvCiv practical 4030 fixed the super-Huge overflow/order issue by dividing the
+    scaled candidate ratio before multiplying by LAKE_PLOT_RAND. Current SAS retains
+    the corrected arithmetic.
+
+6. Batched lake area recalculation
+    Current AdvCiv/SAS delays area recalculation until the final accepted lake. No live
+    intermediate consumer was found between those conversions. The confirmed semantic
+    issue is F243's frozen dynamic eligibility, not an independent stale-CvArea use.
+
+7. calculateNumBonusesToAdd
+    The sublinear eligible-tile formula, per-player scaling and later player-count
+    historical adjustments were checked against their introducing commits and remain
+    consistent with documented intent.
+
+    No zero-divisor route was found in the normal XML/map contract.
+
+8. addGoodies
+    Current SAS has one normal goody improvement (Goody Hut), with positive
+    TilesPerGoody and range.
+
+    Existing spacing/world-size/rounding changes trace to documented historical tweaks.
+    No practical short/int range failure or pass-order defect was established.
+
+9. canPlaceBonusAt
+    Current unique-range repair from practical 2366 remains present.
+
+    Existing bonus occupancy is rejected by canHaveBonus, so the OneArea suitability
+    scan does not count already occupied plots as eligible.
+
+    MinLandPercent arithmetic retains its denominator guard.
+
+10. addFeatures
+    The default feature loop cannot simply overwrite a feature placed by an earlier
+    entry because current canHaveFeature checks the existing feature state.
+
+    Current positive default-appearance features do not establish a conflicting
+    replacement case.
+
+11. generateRandomMap disabled climate/sea-level options
+    Practical 4242 moved normalization of disabled map options before Python
+    beforeGeneration / plot / terrain generation.
+
+    CvMap::getClimate and getSeaLevel read InitCore, so shipped scripts such as Donut
+    that disable a climate option but later use map climate during terrain generation
+    receive the normalized standard value in time.
+
+    Tectonics explicitly normalizes/overrides its own relevant climate behavior.
+    No current early-hook consumer requiring the old value was established.
+
+12. findStandardClimate / findStandardSeaLevel
+    Current XML supplies a usable unique standard climate/sea-level entry under the
+    helper's criteria. No unsupported -1 result in normal data was established.
+
+13. generateTerrain Python result contract
+    The strict expectation that a Python override return one terrain result per plot is
+    consistent with the inherited map-script contract. Malformed custom-script output
+    is not promoted as a DLL bug.
+
+14. setPlotTypes area recalculation
+    Areas are recalculated after plot-type assignment. Subsequent shallow/deep water
+    terrain assignment does not change land/water CvArea connectivity, so no missing
+    second area rebuild was found.
+
+15. addBonuses randomized tie ordering
+    Current SAS uses CvRandom::shuffle(vector), whose vector overload initializes the
+    vector with iota before shuffling. The apparently default-zero vector contents are
+    therefore not shuffled duplicates; no bug.
+
+16. static local map-generation define caches
+    The known Water.py-mutated river defines are intentionally NOT left in immutable
+    statics; KI#243 snapshots/reads/restores them around the Python hook.
+
+    No shipped runtime mutator was found for the other reviewed cached map-generation
+    defines. The old "return to main menu -> OOS" map-generator history concerned
+    normalization/game state, not these local immutable options.
+
+17. selectable BTS OneArea distribution
+    Disabling SAS's AdvCiv OneArea distribution removes F245's bootstrap guard and
+    returns to a BTS/K-Mod-style area-value path.
+
+    F241's OneArea grouped-copy global-target issue remains separately relevant because
+    its caller-side group limit is independent of the area-selection toggle.
+
+18. eraseBonuses and `m_aebBalancedBonuses`
+    eraseBonuses clears map bonus instances but does not directly clear the game's
+    balanced-bonus bookkeeping set.
+
+    The set's current consumers/producers were traced into CvGame normalization and
+    TrueStarts. Under a normal regenerateGameElements call with unchanged map script /
+    options, the same resource-handling policy is reused, and no supported stale-policy
+    transition was established.
+
+    Preserve as a lifecycle seam to challenge if a legal same-map script-option change
+    can be shown; do not promote from stale-looking storage alone.
+
+
+SUBSTANTIVE HISTORY CHECKED SO FAR
+----------------------------------
+CvMapGenerator-affecting history reviewed includes:
+
+    1674  small-island / OneArea distribution       -> F245
+    2172  river-ID lifecycle/short storage          -> F244 context
+    2298  river terrain-bank scoring                -> retained
+    2364  OneArea suitability                       -> F242; retains F245
+    2366  unique bonus range                        -> retained
+    2368  resource density                          -> retained
+    2375  goody spacing                             -> retained
+    2534  pass-specific river source ranges         -> retained
+    2852  rounding-helper refactor                  -> retained
+    2986  bonus-generation refactor                 -> no new root yet
+    2996/3005 group placement revalidation          -> retained; F241 distinct
+    3006  Elephant group-range change               -> strengthens F241
+    3209  RNG simplification                        -> no new divergence yet
+    3712/3713 balanced resources                    -> under lifecycle review
+    3912  bonus RNG-term refactor                   -> no new divergence established
+    3919  player-count scaling                      -> retained
+    4030  lake expected-count overflow              -> retained
+    4242  disabled climate/sea-level normalization  -> retained
+    SAS 6114 XML-tunable AdvCiv/BTS alternatives    -> no new SAS-only root yet
+    SAS 6117 KI#202 areas_tried reset               -> retained
+    SAS 6212 Water.py river define restoration      -> retained
+
+
+C020-WIP03 CURSOR
+-----------------
+COMPLETED FIRST-PASS FILES:
+    19 / 169
+
+CURRENT FILE:
+    queue 045 CvGameCoreDLL/CvMapGenerator.cpp -- OPEN
+
+QUEUE-045 ROOTS:
+    F241 / provisional KI#564
+    F242 / provisional KI#565
+    F243 / provisional KI#566
+    F244 / provisional KI#567
+    F245 / provisional KI#568
+
+NEXT ROOT:
+    F246 UNUSED
+
+Resume from F246 unused.
+
+Best next work:
+    * finish regeneration lifecycle for bonuses/features/goodies and balanced-resource
+      bookkeeping, but require a supported policy-changing state before promoting;
+    * continue addRiver/doRiver/addRiver/getRiverValueAtPlot source-density, recursive
+      stopping and RNG contracts;
+    * finish SAS 6114 selectable-BTS comparison against actual K-Mod/Civ4CE behavior;
+    * inspect remaining substantive history rather than formatting-only path changes;
+    * perform a whole-file producer/RNG/state inventory before considering queue 045
+      complete;
+    * cross-check the full album before allocating F246.
+
+Clean rejection remains preferable to inventing F246.
+
+No repository source files were modified by GPT-5.6-Sol during this audit.
+===============================================================================
+
+LOCAL RECONCILIATION AFTER C020-WIP03 IMPORT AND KI#564-KI#565 REVIEW
+--------------------------------------------------------------------
+- C020-WIP02 and C020-WIP03 are preserved as ChatGPT-5.6-Sol's append-only investigation. They add F243-F245 / provisional KI#566-KI#568; all three remain pending independent review and implementation.
+- Current source and Known Issues now implement F241/KI#564 by bounding grouped OneArea copies by the remaining global and active per-area allowances and restoring the same-landmass invariant in AdvCiv clustering. They implement F242/KI#565 by using the map script's latitude policy during both area ranking and placement.
+- Current-build Huge Hub, Wheel, BTG Grid and Archipelago maps generated successfully. BTG Grid saved/reloaded successfully, and Archipelago with Tiny Islands completed a turn-101 autoplay. The exact hidden counts, boundaries and rankings remain source-verified.
+- Current source, Known Issues and this reconciliation are authoritative for implementation state; the earlier checkpoint's pending label for F241-F242 records its state before local review. (GPT-5.6-Sol)
