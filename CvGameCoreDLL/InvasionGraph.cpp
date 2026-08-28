@@ -614,6 +614,20 @@ scaled InvasionGraph::Node::productionPortion() const
 }
 
 
+// <!-- custom: Subtract graph-local city losses from real-map area counts so later simulated battles cannot draw mobile Army or rallied garrisons from already-conquered cities. See KI#592. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int InvasionGraph::Node::remainingCitiesInArea(CvArea const& kArea) const
+{
+	int iRemaining = kArea.getCitiesPerPlayer(m_ePlayer);
+	for (CitySetIter it = m_cityLosses.begin(); it != m_cityLosses.end(); ++it)
+	{
+		if (UWAICache::cvCityById(*it).isArea(kArea))
+			iRemaining--;
+	}
+	FAssert(iRemaining >= 0);
+	return std::max(0, iRemaining);
+}
+
+
 // For calculating threat values when breaking cycles. Attacks against lightly defended cities shouldn't result in larger threat values. <!-- custom: hoisted from multiline signature between `bClashOnly` and `bUniformGarrisons` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rArmyPortionAttacker, bool bClashOnly, bool bUniformGarrisons) const
 {
@@ -1148,9 +1162,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			CvCity const* pCapital = GET_PLAYER(m_ePlayer).getCapital();
 			if (!bNaval || bClashOnly)
 			{
-				// Fixme(?): getCitiesPerPlayer should be reduced based on lost cities
-				rAreaWeightAtt *= scaled(
-						pBattleArea->getCitiesPerPlayer(m_ePlayer),
+				// <!-- custom: Use the hypothetical remaining-city distribution rather than stale real-map CvArea ownership after simulated conquests. See KI#592. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				rAreaWeightAtt *= scaled(remainingCitiesInArea(*pBattleArea),
 						iRemainingCitiesAtt);
 				if (pCapital != NULL && pCapital->isArea(*pBattleArea))
 				{
@@ -1184,8 +1197,7 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 		}
 		if (iRemainingCitiesDef > 0)
 		{
-			rAreaWeightDef *= scaled(
-					pBattleArea->getCitiesPerPlayer(kDefender.m_ePlayer),
+			rAreaWeightDef *= scaled(kDefender.remainingCitiesInArea(*pBattleArea),
 					iRemainingCitiesDef);
 			CvCity const* pCapital = GET_PLAYER(kDefender.m_ePlayer).getCapital();
 			if (pCapital != NULL && pCapital->isArea(*pBattleArea))
@@ -1368,10 +1380,8 @@ SimulationStep* InvasionGraph::Node::step(scaled rArmyPortionDefender, scaled rA
 			iRallyBound = 2;
 		if (pBattleArea != NULL)
 		{
-			/*	-1: garrison of c already counted as local.
-				Fixme(?): Should subtract lost cities in pBattleArea. */
-			iRallyBound = std::min(pBattleArea->getCitiesPerPlayer(
-					kDefender.m_ePlayer) - 1, iRallyBound);
+			// <!-- custom: The attacked city's garrison is already local; cap additional rallies by other simulated remaining cities in this area, excluding cities already conquered in the graph. See KI#592. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iRallyBound = std::min(kDefender.remainingCitiesInArea(*pBattleArea) - 1, iRallyBound);
 			iRallyBound = std::min(iRemainingCitiesDef - 1, iRallyBound);
 			iRallyBound = std::max(0, iRallyBound);
 		}
@@ -1706,6 +1716,10 @@ void InvasionGraph::Node::applyStep(SimulationStep const& kStep)
 				already implies that losses on the offensive front are recuperated
 				with units from the defensive front over time. */
 			m_rDistractionByConquest = 0;
+			// <!-- custom: The inherited comment says a third-party city loss stops this defender's own offensive, but only its defensive distraction was cleared.
+			// Remove the still-live outgoing edge unless it targets the attacker that took the city. See KI#590. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (m_pPrimaryTarget != NULL && m_pPrimaryTarget != &kAttacker)
+				changePrimaryTarget(NULL);
 			/*	This value is currently not read. See comment in resolveLosses.
 				The code here only counts time spent on successful city attacks;
 				might also want to count failed attacks or clashes. */
