@@ -5699,8 +5699,10 @@ int CvPlayer::getProductionNeeded(UnitTypes eUnit, int iExtraInstances) const //
 	// advc.251 (comment): See getNewCityProductionValue
 	iProductionNeeded += getUnitExtraCost(eUnitClass);
 
-	int iPyMod = GC.getPythonCaller()->unitCostMod(getID(), eUnit);
-	if (iPyMod > 0)
+	int const iPyMod = GC.getPythonCaller()->unitCostMod(getID(), eUnit);
+	// <!-- custom: AdvCiv practical 1648 changed the inherited application threshold from > 1 to > 0, making the former non-override value 1 reduce many units to the one-hammer minimum.
+	// Match K-Mod and the current building-cost sibling. See KI#603. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iPyMod > 1)
 	{
 		iProductionNeeded *= iPyMod;
 		iProductionNeeded /= 100;

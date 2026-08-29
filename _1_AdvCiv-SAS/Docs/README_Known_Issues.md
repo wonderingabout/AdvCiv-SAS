@@ -688,10 +688,15 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#597 - (Fixed inherited AdvCiv callback regression) Nullable doGoody unit was dereferenced](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-597)\
 [KI#598 - (Fixed inherited AdvCiv callback regression) Positive override values were narrowed to exactly 1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-598)\
 [KI#599 - (Fixed inherited AdvCiv callback regression) Failed or negative pillage-gold results suppressed the C++ fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-599)\
-[KI#600 - (Provisional Pending inherited AdvCiv map-callback regression exposed by SAS) Valid native fallbacks assert as missing overrides](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-600)\
-[KI#601 - (Provisional Pending inherited AdvCiv callback regression) Colored-plot failure consumes an uninitialized result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-601)\
-[KI#602 - (Provisional Pending inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits names missing Python help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-602)\
-[KI#603 - (Provisional Pending inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-603)\
+[KI#600 - (Fixed inherited AdvCiv map-callback regression exposed by SAS) Valid native fallbacks asserted as missing overrides](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-600)\
+[KI#601 - (Fixed inherited AdvCiv callback regression) Colored-plot failure consumed an uninitialized result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-601)\
+[KI#602 - (Fixed inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits named missing Python help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-602)\
+[KI#603 - (Fixed inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-603)\
+[KI#604 - (Provisional Pending inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-604)\
+[KI#605 - (Provisional Pending inherited AdvCiv diplomacy-memory regression) Repeated vassal-break memories became non-additive](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-605)\
+[KI#606 - (Provisional Pending inherited AdvCiv deal-list regression) Renewing a second-list peace treaty creates an overlapping shorter peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-606)\
+[KI#607 - (Provisional Pending inherited team-deal ownership defect incompletely addressed by AdvCiv) One teammate's death tears down surviving team agreements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-607)\
+[KI#608 - (Provisional Pending inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-608)\
 
 <a id="ki-1"></a>
 
@@ -13255,32 +13260,84 @@ Found as F276 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independ
 
 <a id="ki-600"></a>
 
-## KI#600 - (Provisional Pending inherited AdvCiv map-callback regression exposed by SAS) Valid native fallbacks assert as missing overrides
+## KI#600 - (Fixed inherited AdvCiv map-callback regression exposed by SAS) Valid native fallbacks asserted as missing overrides
 
-Album F277 finds AdvCiv practical 1648 treating absent/default Python map generators as assertion failures even though their native C++ fallbacks remain valid. Current `SAS_Simple_Flat_Grass.py` deliberately relies on those fallbacks for features, plot types and terrain types, exposing the inherited diagnostic regression in assertion-enabled builds. The native fallback behavior remains coherent in Release. Pending independent implementation review that retains result-size diagnostics for actual malformed overrides without requiring dummy Python generators.
+Album F277 found AdvCiv practical 1648 treating absent/default Python map generators as assertion failures even though their native C++ fallbacks remain valid. Current `SAS_Simple_Flat_Grass.py` deliberately relies on those fallbacks for plot types, terrain types and features: native generation creates its all-land/default-land-terrain baseline and then performs ordinary C++ feature placement. This exposes the inherited diagnostic regression in assertion-enabled builds, while Release already follows the coherent native paths.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The wrappers now return false without asserting when plot or terrain generation has no Python override, and `addFeatures` tolerates a missing optional hook like its neighboring map phases. Actual overriding vectors must still contain one value per plot and retain their existing error diagnostics. `SASGameRecord_20260829T050416Z_new1.log` confirms that a current Debug-opt Huge `SAS_Simple_Flat_Grass` autoplay completed through turn 500 using its native plot, terrain and feature fallbacks without an observed assertion. Pre-refactor K-Mod/AdvCiv behavior, the C++ fallback callers and the deliberately minimal SAS map were also source verified.
+
+Found as F277 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-601"></a>
 
-## KI#601 - (Provisional Pending inherited AdvCiv callback regression) Colored-plot failure consumes an uninitialized result
+## KI#601 - (Fixed inherited AdvCiv callback regression) Colored-plot failure consumed an uninitialized result
 
-Album F278 finds AdvCiv practical 1648 removing the inherited zero initialization from `CvPythonCaller::updateColoredPlots`. If the Python call fails before writing its output, Release evaluates indeterminate storage and can randomly skip the native C++ colored-plot update; assertion-enabled builds still consume it if execution continues after the assertion. Healthy current Python normally returns a value, so this is an error-path robustness defect. Pending independent implementation review of the localized historical false default.
+Album F278 found AdvCiv practical 1648 removing the inherited zero initialization from `CvPythonCaller::updateColoredPlots`. If the Python call failed before writing its output, Release evaluated indeterminate storage and could randomly skip the native C++ colored-plot update; assertion-enabled builds still consumed it if execution continued after the assertion. Healthy current Python normally returns a value, so this was an error-path robustness defect rather than an ordinary gameplay failure.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The result is again initialized to false locally, restoring K-Mod's deterministic native fallback without changing the distinct defaults and sentinels used by other callbacks. A current Debug-opt `SAS_Simple_Flat_Grass` autoplay completed successfully without an observed issue. The historical initialization, call-failure contract and live C++ fallback were source verified; exact runtime testing would require deliberately making the colored-plot Python call fail.
+
+Found as F278 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-602"></a>
 
-## KI#602 - (Provisional Pending inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits names missing Python help
+## KI#602 - (Fixed inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits named missing Python help
 
-Album F279 finds active `EVENT_FARM_BANDITS_2` naming `getHelpFarmBandit2`, which does not exist in the random-event Python namespace. Its gameplay effects are already represented through ordinary XML fields. The dangling token is inherited from BtS/K-Mod, while AdvCiv practical 1648 amplified the old silent missing help into a repeatable assertion when choice help is built. Pending independent implementation review of the narrow data-side removal rather than globally suppressing missing-help diagnostics.
+Album F279 found active `EVENT_FARM_BANDITS_2` naming `getHelpFarmBandit2`, which does not exist in the random-event Python namespace. Its gameplay effects are already represented through ordinary XML fields. The dangling token is inherited from BtS/K-Mod, while AdvCiv practical 1648 amplified the old silent missing help into a repeatable assertion when choice help is built.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The event now leaves `PythonHelp` empty, so its ordinary XML-generated help remains while no nonexistent function is dispatched. Missing-help assertions remain strict for every real callback name instead of being weakened globally. `SASGameRecord_20260829T050416Z_new1.log` confirms that the current Debug-opt autoplay had Random Events enabled and completed through turn 500, but the exact Farm Bandits choice was not observed.
+
+Testing also clarified an unrelated setup detail useful when reproducing event issues: SAS still defines `No Random Events` as enabled by default, but Custom Game persists the last selected value across main-menu returns and full Civ4 restarts. The final August 28 SAS Longworld record still included `GAMEOPTION_NO_EVENTS`; the first August 29 record, `SASGameRecord_20260829T041655Z_new1.log` for Donut, was already the first without it, followed by Inland Sea and the validating Simple Flat Grass run. Reticking the option then persisted it again in `SASGameRecord_20260829T051827Z_new1.log`. The records narrow when the stored choice changed but cannot distinguish an earlier click from setup-state restoration.
+
+A comment-aware scan found this to be the only unresolved active `EventInfo` Python-help symbol; the current XML, Python namespace and inherited K-Mod/AdvCiv data were source verified.
+
+Found as F279 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-603"></a>
 
-## KI#603 - (Provisional Pending inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier
+## KI#603 - (Fixed inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier
 
-Album F280 finds AdvCiv practical 1648 changing the unit-cost callback's application threshold from `> 1` to `> 0`. A result of exactly 1, previously a non-override like the current building-cost sibling, therefore reduces many units to the one-hammer minimum. Current SAS disables this callback by default. Pending independent implementation review of restoring the inherited consumer threshold without globally reinterpreting numeric callbacks.
+Album F280 found AdvCiv practical 1648 changing the unit-cost callback's application threshold from `> 1` to `> 0`. A result of exactly 1, previously a non-override like the current building-cost sibling, therefore reduced many units to the one-hammer minimum. Current SAS disables this callback by default.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The consumer again applies only modifiers above 1, exactly matching pre-refactor AdvCiv, K-Mod 1.46 and the current building-cost path. Values of 1 or below retain native production cost, while percentage modifiers of 2 or greater remain unchanged. A current Debug-opt `SAS_Simple_Flat_Grass` autoplay completed successfully. The callback is disabled in the shipped configuration; exact runtime testing would require enabling it and returning 1.
+
+Found as F280 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-604"></a>
+
+## KI#604 - (Provisional Pending inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire
+
+Album F281 finds `CvDeal::isPeaceDeal` scanning only the first saved trade list even though ordinary AI reparations can store the sole peace-treaty item in the second list. Such a deal is not recognized for normal expiry, its teardown never clears the team force-peace state and peace can persist indefinitely. K-Mod and older AdvCiv scanned both lists; the regression was introduced by AdvCiv's later list-interface refactor. Pending independent implementation review of restoring both-list classification, consistent with the already-fixed KI#413 representation rule.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-605"></a>
+
+## KI#605 - (Provisional Pending inherited AdvCiv diplomacy-memory regression) Repeated vassal-break memories became non-additive
+
+Album F282 finds vassal-break handling deliberately calling `addEndTradeMemory` two or three times to represent longer memories, while a later AdvCiv refactor changed the helper from additive `AI_changeMemoryCount` behavior to idempotent `AI_setMemoryCount`. The intended two-event and three-event durations therefore collapse to the same one-event count. Pending independent implementation review that restores additive accumulation without reintroducing already-present memory from unrelated earlier events.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-606"></a>
+
+## KI#606 - (Provisional Pending inherited AdvCiv deal-list regression) Renewing a second-list peace treaty creates an overlapping shorter peace
+
+Album F283 finds `CvPlayer::resetDualDeal` scanning only the first trade list when a new peace treaty should renew an existing one. A valid second-list-only treaty is missed, so a second overlapping deal is created; expiration of the older deal can then clear the shared force-peace state before the renewed treaty's duration ends. Pending independent implementation review of team-scoped, both-list renewal that handles every deal between the two teams rather than only one player pair.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-607"></a>
+
+## KI#607 - (Provisional Pending inherited team-deal ownership defect incompletely addressed by AdvCiv) One teammate's death tears down surviving team agreements
+
+Album F284 finds Open Borders, Defensive Pact and Disengagement stored through player-pair proxy deals while their actual state belongs to teams. Eliminating one player from a still-alive multi-member team kills that player's proxy, clears the team-level agreement and recursively kills the surviving teammate proxies. The broad ownership mismatch is inherited from BtS/K-Mod; AdvCiv partly recognized player-death teardown for vassalage but left these agreements exposed. Pending independent implementation review that removes only dead-player proxy state while both participant teams remain alive; peace treaties require separate lifetime handling.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-608"></a>
+
+## KI#608 - (Provisional Pending inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations
+
+Album F285 finds `AI_stopTradingTrade` looking for both the peace marker and annual reparations only in the AI team's gives-list. A normal peace bundle can store the treaty on the opposite list while the AI pays Gold Per Turn or resources on its own list, so the AI may accept a stop-trading request that `stopTradingWithTeam` deliberately cannot fulfill because it preserves the reparations peace deal. Older AdvCiv scanned the complete deal; the regression was introduced by its list-interface refactor. Pending independent implementation review that detects peace across both lists while checking annual payments only on the AI's own gives-list.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.

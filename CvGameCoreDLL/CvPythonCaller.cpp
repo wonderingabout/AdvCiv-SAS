@@ -240,7 +240,9 @@ void CvPythonCaller::jumpToPediaDescription(int iEntryData1, int iEntryData2) co
 
 bool CvPythonCaller::updateColoredPlots() const
 {
-	long lResult;
+	// <!-- custom: AdvCiv practical 1648 removed the inherited zero initialization, so a failed Python call could make Release consume indeterminate storage and randomly skip native colored-plot generation.
+	// Restore the deterministic false fallback locally. See KI#601. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	long lResult = 0;
 	call("updateColoredPlots", lResult);
 	return toBool(lResult);
 }
@@ -1322,11 +1324,10 @@ bool CvPythonCaller::generatePlotTypes(int* aiPlotTypes, size_t uiSize) const
 	std::vector<int> result;
 	m_bLastCallSuccessful = m_python.callFunction(m_python.getMapScriptModule(),
 			"generatePlotTypes", NULL, &result);
+	// <!-- custom: A missing/default plot generator validly requests CvMapGenerator's native all-land fallback.
+	// AdvCiv practical 1648 made that inherited state assert; only malformed actual override sizes remain errors. See KI#600. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (!isOverride())
-	{
-		FErrorMsg("Map script has to override generatePlotTypes and mustn't call usingDefaultImpl");
 		return false;
-	}
 	if (result.size() != uiSize)
 	{
 		FErrorMsg("Need to set a plot type for every plot");
@@ -1342,9 +1343,10 @@ bool CvPythonCaller::generateTerrainTypes(std::vector<int>& r, size_t uiTargetSi
 	r.reserve(uiTargetSize);
 	m_bLastCallSuccessful = m_python.callFunction(m_python.getMapScriptModule(),
 			"generateTerrainTypes", NULL, &r);
+	// <!-- custom: A missing/default terrain generator validly keeps the terrain established by native plot generation.
+	// AdvCiv practical 1648 made that inherited state assert; only malformed actual override sizes remain errors. See KI#600. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (!isOverride())
 	{	// PlantGenerator seems to generate terrain in addFeatures, but that's highly irregular.
-		FErrorMsg("Map script has to override generateTerrainTypes and mustn't call usingDefaultImpl");
 		return false;
 	}
 	if (r.size() != uiTargetSize)
@@ -1430,7 +1432,9 @@ bool CvPythonCaller::addGoodies() const
 
 bool CvPythonCaller::addFeatures() const
 {
-	call("addFeatures", m_python.getMapScriptModule());
+	// <!-- custom: Feature generation is an optional map hook with a native C++ fallback, like the neighboring map phases.
+	// Do not assert when a supported minimal script omits it. See KI#600. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	call("addFeatures", m_python.getMapScriptModule(), false);
 	return isOverride();
 }
 
