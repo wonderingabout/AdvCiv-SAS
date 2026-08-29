@@ -27,6 +27,9 @@ public:
 	void doTurn();
 	void verify();
 
+	// <!-- custom: Query both saved trade lists so callers do not repeat the AdvCiv list-refactor assumption that a logical deal marker must belong to the first player.
+	// See KI#604. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool hasTradeItem(TradeableItems eItem) const;
 	bool isPeaceDeal() const;
 	// advc.130p: BtS function; now unused.
 	//bool isPeaceDealBetweenOthers(CLinkList<TradeData>* pFirstList, CLinkList<TradeData>* pSecondList) const;

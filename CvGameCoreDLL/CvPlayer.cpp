@@ -18632,22 +18632,20 @@ void CvPlayer::forcePeace(PlayerTypes ePlayer)
 // advc.032:
 bool CvPlayer::resetDualDeal(PlayerTypes ePlayer, TradeableItems eDealType)
 {
-	int iGameTurn = GC.getGame().getGameTurn();
+	int const iGameTurn = GC.getGame().getGameTurn();
+	// <!-- custom: Open Borders, Defensive Pacts and forced peace are team agreements, but AdvCiv renewed only one player pair and only its first saved list.
+	// Refresh every matching proxy between the teams; this also finds a one-sided peace treaty without creating a second lifetime owner. See KI#606. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eOtherTeam = TEAMID(ePlayer);
+	bool bFound = false;
 	FOR_EACH_DEAL_VAR(d)
 	{
-		if (d->isBetween(getID(), ePlayer))
+		if (d->isBetween(getTeam(), eOtherTeam) && d->hasTradeItem(eDealType))
 		{
-			FOR_EACH_TRADE_ITEM(d->getFirstList())
-			{
-				if(pItem->m_eItemType == eDealType)
-				{
-					d->setInitialGameTurn(iGameTurn);
-					return true; // Assume that there can be at most one deal of eDealType
-				}
-			}
+			d->setInitialGameTurn(iGameTurn);
+			bFound = true;
 		}
 	}
-	return false;
+	return bFound;
 }
 
 

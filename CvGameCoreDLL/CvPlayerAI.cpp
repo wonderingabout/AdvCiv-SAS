@@ -14308,18 +14308,16 @@ DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam, PlayerTypes eP
 		{
 			if(!d->isBetween(getTeam(), eTradeTeam))
 				continue;
-			bool bPeaceTreaty = false;
-			bool bAnnualPayment = false;
+			// <!-- custom: AdvCiv's list refactor made the reparations safeguard require the peace marker and payment on the AI's same gives-list.
+			// Classify peace across the whole deal, but retain directionality because only annual reparations owed by this AI prevent it from fulfilling an embargo. See KI#608. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (!d->isPeaceDeal())
+				continue;
 			FOR_EACH_TRADE_ITEM(d->getGivesList(getTeam()))
 			{
-				TradeableItems eType = pItem->m_eItemType;
-				if(eType == TRADE_PEACE_TREATY)
-					bPeaceTreaty = true;
-				if(eType == TRADE_RESOURCES || eType == TRADE_GOLD_PER_TURN)
-					bAnnualPayment = true;
+				TradeableItems const eType = pItem->m_eItemType;
+				if (eType == TRADE_RESOURCES || eType == TRADE_GOLD_PER_TURN)
+					return DENIAL_RECENT_CANCEL;
 			}
-			if(bPeaceTreaty && bAnnualPayment)
-				return DENIAL_RECENT_CANCEL;
 		}
 	} // </advc.130f>
 	return NO_DENIAL;

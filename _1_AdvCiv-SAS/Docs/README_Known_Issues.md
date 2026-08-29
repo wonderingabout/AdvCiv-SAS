@@ -692,11 +692,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#601 - (Fixed inherited AdvCiv callback regression) Colored-plot failure consumed an uninitialized result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-601)\
 [KI#602 - (Fixed inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits named missing Python help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-602)\
 [KI#603 - (Fixed inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-603)\
-[KI#604 - (Provisional Pending inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-604)\
+[KI#604 - (Fixed inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-604)\
 [KI#605 - (Provisional Pending inherited AdvCiv diplomacy-memory regression) Repeated vassal-break memories became non-additive](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-605)\
-[KI#606 - (Provisional Pending inherited AdvCiv deal-list regression) Renewing a second-list peace treaty creates an overlapping shorter peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-606)\
+[KI#606 - (Fixed inherited AdvCiv deal-renewal defect) Team agreements were renewed through only one player pair and one trade list](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-606)\
 [KI#607 - (Provisional Pending inherited team-deal ownership defect incompletely addressed by AdvCiv) One teammate's death tears down surviving team agreements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-607)\
-[KI#608 - (Provisional Pending inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-608)\
+[KI#608 - (Fixed inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-608)\
 
 <a id="ki-1"></a>
 
@@ -13304,11 +13304,13 @@ Found as F280 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independ
 
 <a id="ki-604"></a>
 
-## KI#604 - (Provisional Pending inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire
+## KI#604 - (Fixed inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire
 
-Album F281 finds `CvDeal::isPeaceDeal` scanning only the first saved trade list even though ordinary AI reparations can store the sole peace-treaty item in the second list. Such a deal is not recognized for normal expiry, its teardown never clears the team force-peace state and peace can persist indefinitely. K-Mod and older AdvCiv scanned both lists; the regression was introduced by AdvCiv's later list-interface refactor. Pending independent implementation review of restoring both-list classification, consistent with the already-fixed KI#413 representation rule.
+Album F281 found `CvDeal::isPeaceDeal` scanning only the first saved trade list even though ordinary AI reparations can store the sole peace-treaty item in the second list. Such a deal was not recognized for normal expiry, its teardown never cleared the team force-peace state and peace could persist indefinitely. K-Mod and older AdvCiv scanned both lists; the regression was introduced by AdvCiv's later list-interface refactor.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+`CvDeal::hasTradeItem` now provides an explicit whole-deal query across both saved lists, and `isPeaceDeal` uses it. Second-list-only treaties are therefore again classified for normal expiry and every existing `isPeaceDeal` consumer, consistent with the already-fixed KI#413 representation rule. Source comparison confirms that this restores the logical K-Mod and older-AdvCiv contract. Two Huge mixed-team autoplays completed successfully on SAS_Parallel_Lines and Ring; `SASGameRecord_20260829T060550Z_load3.log` directly recorded peace deal 8896595 beginning at turn 231 and expiring normally at turn 241 after the reload. The exact second-list-only expiry orientation remains source verified.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-605"></a>
 
@@ -13320,11 +13322,13 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 
 <a id="ki-606"></a>
 
-## KI#606 - (Provisional Pending inherited AdvCiv deal-list regression) Renewing a second-list peace treaty creates an overlapping shorter peace
+## KI#606 - (Fixed inherited AdvCiv deal-renewal defect) Team agreements were renewed through only one player pair and one trade list
 
-Album F283 finds `CvPlayer::resetDualDeal` scanning only the first trade list when a new peace treaty should renew an existing one. A valid second-list-only treaty is missed, so a second overlapping deal is created; expiration of the older deal can then clear the shared force-peace state before the renewed treaty's duration ends. Pending independent implementation review of team-scoped, both-list renewal that handles every deal between the two teams rather than only one player pair.
+Album F283 found `CvPlayer::resetDualDeal` scanning only the first trade list of one player pair when a new peace treaty should renew an existing team agreement. A valid treaty owned by another teammate pair or stored only in the second list was missed, so a second overlapping deal could be created; expiration of the older deal could then clear the shared force-peace state before the renewed treaty's duration ended. The same representation error meant diplomatic-vote prolongation reset only the leader-pair Open Borders or Defensive Pact proxy, leaving the other team-member proxies at their older cancelability age.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+Renewal now searches deals between the two teams, uses the whole-deal item query from KI#604 and resets every matching proxy to the same current turn. Peace therefore retains one coherent treaty lifetime, while Open Borders and Defensive Pact prolongation refresh every player-pair proxy representing the team agreement. The Huge Ring run was saved at turn 201, loaded in a new session and completed successfully at turn 481 in `SASGameRecord_20260829T060550Z_load3.log`, proportionally validating current-format deal persistence across the mixed teams; exact diplomatic-vote prolongation remains source verified.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-607"></a>
 
@@ -13336,8 +13340,10 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 
 <a id="ki-608"></a>
 
-## KI#608 - (Provisional Pending inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations
+## KI#608 - (Fixed inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations
 
-Album F285 finds `AI_stopTradingTrade` looking for both the peace marker and annual reparations only in the AI team's gives-list. A normal peace bundle can store the treaty on the opposite list while the AI pays Gold Per Turn or resources on its own list, so the AI may accept a stop-trading request that `stopTradingWithTeam` deliberately cannot fulfill because it preserves the reparations peace deal. Older AdvCiv scanned the complete deal; the regression was introduced by its list-interface refactor. Pending independent implementation review that detects peace across both lists while checking annual payments only on the AI's own gives-list.
+Album F285 found `AI_stopTradingTrade` looking for both the peace marker and annual reparations only in the AI team's gives-list. A normal peace bundle can store the treaty on the opposite list while the AI pays Gold Per Turn or resources on its own list, so the AI could accept a stop-trading request that `stopTradingWithTeam` deliberately could not fulfill because it preserves the reparations peace deal. Older AdvCiv scanned the complete deal; the regression was introduced by its list-interface refactor.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The denial now classifies peace through the KI#604 whole-deal query, then separately scans only the AI team's gives-list for Gold Per Turn or resources. This restores visibility of an opposite-list treaty without overcorrecting directionality: payments owed by the AI prevent an unfulfillable embargo promise, whereas annual payments received by the AI do not. Both mixed-team autoplays completed successfully; the exact opposite-list reparations and embargo-request arrangement remains source verified.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.

@@ -568,14 +568,28 @@ bool CvDeal::verify(PlayerTypes eRecipient, PlayerTypes eGiver)
 }
 
 
-bool CvDeal::isPeaceDeal() const  // advc: simplified
+// <!-- custom: AdvCiv's simplified traversal accidentally kept only the first saved list, although one-sided peace treaties can be stored in either list.
+// Restore whole-deal classification for expiry and every other consumer. See KI#604. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+bool CvDeal::hasTradeItem(TradeableItems eItem) const
 {
 	FOR_EACH_TRADE_ITEM(getFirstList())
 	{
-		if (pItem->m_eItemType == getPeaceItem())
+		if (pItem->m_eItemType == eItem)
+			return true;
+	}
+	FOR_EACH_TRADE_ITEM(getSecondList())
+	{
+		if (pItem->m_eItemType == eItem)
 			return true;
 	}
 	return false;
+}
+
+
+bool CvDeal::isPeaceDeal() const
+{
+	// <!-- custom: Preserve the familiar predicate as a wrapper so its existing callers inherit corrected whole-deal classification. See KI#604. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return hasTradeItem(getPeaceItem());
 }
 
 
