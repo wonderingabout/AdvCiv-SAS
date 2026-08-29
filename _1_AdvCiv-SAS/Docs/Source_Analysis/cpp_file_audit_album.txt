@@ -3,11 +3,11 @@ Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
 Files complete: 23 / 169
-Files open: 0 / 169
+Files open: 1 / 169
 Last completed file: investigation file 023 / queue 040 CvGameCoreDLL/CvGlobals.cpp (1,454 queued lines) - CLOSED AT C024
-Next selected file: priority queue 037 CvGameCoreDLL/CvPythonCaller.cpp (1,576 queued lines) - PENDING AFTER C024
-Latest queue-040 roots: F272-F273 / provisional KI#595-KI#596
-Next root ID: F274 unused / provisional KI#597 next
+Current file: investigation file 024 / priority queue 037 CvGameCoreDLL/CvPythonCaller.cpp (1,576 queued lines) - OPEN AT C024-WIP13 CLOSURE CHALLENGE
+Latest queue-037 roots: F274-F280 / provisional KI#597-KI#603
+Next root ID: F281 unused / provisional KI#604 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -56,7 +56,7 @@ QUEUE (current .cpp files, longest -> shortest)
 034   1637 CvGameCoreDLL/CvInfo_Civilization.cpp [PENDING]
 035   1619 CvGameCoreDLL/CvInfo_GameOption.cpp [PENDING]
 036   1596 CvGameCoreDLL/CvMap.cpp [PENDING]
-037   1576 CvGameCoreDLL/CvPythonCaller.cpp [PENDING]<-(priority next wip)
+037   1576 CvGameCoreDLL/CvPythonCaller.cpp [OPEN - C024-WIP13 CLOSURE CHALLENGE / F274-F280]<-(priority current wip)
 038   1555 CvGameCoreDLL/RiseFall.cpp [PENDING]
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [COMPLETE - SEE C023 DURABLE CHECKPOINT]
 040   1454 CvGameCoreDLL/CvGlobals.cpp [COMPLETE - SEE C024 DURABLE CHECKPOINT]
@@ -47862,4 +47862,2360 @@ and SAS-vs-Base/K-Mod/Civ4CE divergence before promoting any root. Associated
 CvPythonCaller.h and Python bridge/call sites should be inspected as needed.
 
 No repository source files were modified.
+===============================================================================
+
+===============================================================================
+C024-WIP01 CONTINUATION - QUEUE 037 CvPythonCaller.cpp
+===============================================================================
+Source basis: current local AdvCiv-SAS light-source snapshot 20260828T215559,
+plus local AdvCiv 1.14, K-Mod 1.46 and Civ4CE snapshots. No web lookup used.
+Repository source files were not modified.
+
+OPEN FILE STATE
+---------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp (1,576 queued lines) - OPEN
+F274 / provisional KI#597 - CONFIRMED PROVISIONAL ROOT
+F275 unused / provisional KI#598 next
+
+F274 / provisional KI#597
+-------------------------
+TITLE: USE_DO_GOODY_CALLBACK can null-dereference when a goody hut is removed by plot ownership
+
+CURRENT CODE ROOT
+-----------------
+CvPythonCaller::doGoody accepts a nullable unit pointer:
+
+    bool CvPythonCaller::doGoody(CvPlot const& kPlot, CvUnit const* pUnit,
+        PlayerTypes ePlayer) const
+
+and its own adjacent comment explicitly preserves the old contract:
+
+    // Note: pUnit can be NULL, but pyUnit can still be initialized (and is expected by Python).
+
+but current AdvCiv/SAS then does:
+
+    CyUnit* pyUnit = new CyUnit(*pUnit);
+
+Dereferencing pUnit is undefined/crashing when pUnit == NULL.
+
+LIVE NULL CALLER
+----------------
+This is not merely a misleading nullable signature. CvPlot::setOwner still contains a live call:
+
+    if (isOwned())
+    {
+        if (isGoody())
+            GET_PLAYER(getOwner()).doGoody(this, NULL);
+        ...
+    }
+
+CvPlayer::doGoody immediately calls the wrapper before ordinary hut handling:
+
+    if (GC.getPythonCaller()->doGoody(*pPlot, pUnit, getID()))
+        return;
+
+Therefore, when USE_DO_GOODY_CALLBACK is enabled, an owned goody plot that reaches this
+ownership path invokes CvPythonCaller::doGoody with NULL and crashes while constructing the
+CyUnit Python wrapper. Typical exposure is a goody hut being absorbed/removed through plot
+ownership or culture rather than being entered by a unit.
+
+CONFIGURATION / SEVERITY BOUNDARY
+---------------------------------
+Current Assets/XML/PythonCallbackDefines.xml sets:
+
+    USE_DO_GOODY_CALLBACK = 0
+
+so stock SAS defaults do not execute the bad dereference. This remains a real supported callback
+configuration defect rather than a default-game crash: the define exists specifically to enable
+this Python override, and enabling it exposes the live NULL caller immediately when the
+ownership-hut path occurs.
+
+ANCESTRY / INDEPENDENT CONTROL
+------------------------------
+K-Mod 1.46 uses the safe nullable-pointer form directly in CvPlayer::doGoody:
+
+    CyUnit kGoodyUnit(pUnit);
+
+CyUnit has a pointer constructor:
+
+    CyUnit::CyUnit(CvUnit* pUnit) : m_pUnit(pUnit) {}
+
+so NULL is a deliberate representable Python-wrapper state.
+
+AdvCiv practical 2066, commit ffe04c3efd, is titled "Avoid some const_casts". Its CvPythonCaller
+change is exactly:
+
+    - CyUnit* pyUnit = new CyUnit(const_cast<CvUnit*>(pUnit));
+    + CyUnit* pyUnit = new CyUnit(*pUnit);
+
+The surrounding comment saying pUnit can be NULL was left unchanged. Thus the root is narrowly
+identified: a const-cast cleanup replaced the nullable pointer constructor with the reference
+constructor and broke the preserved NULL contract. Current Base AdvCiv 1.14 still contains the
+same regression; SAS inherits it unchanged.
+
+REPAIR BOUNDARY
+---------------
+The repair must preserve both existing modes:
+
+1. non-NULL unit: Python receives a CyUnit wrapper for that unit;
+2. NULL unit: Python still receives a CyUnit Python object whose internal unit pointer is NULL,
+   matching BtS/K-Mod and the explicit comment/contract.
+
+The smallest historical repair is to restore the pointer constructor (requiring the old
+const_cast because the wrapper stores CvUnit*), e.g. the exact pre-2066 form. An alternative
+without dereferencing NULL is to explicitly choose default/null CyUnit construction for the NULL
+case and the reference constructor for non-NULL. Do not "fix" this by refusing the callback when
+pUnit is NULL; that would change the inherited Python callback contract on the ownership path.
+
+ROOT INDEPENDENCE
+-----------------
+F274 is independent of queue-040 F272/F273. It is a nullable Python-wrapper construction
+regression in AdvCiv's callback refactor/const cleanup, not replay-color arithmetic or assertion
+build gating.
+
+EARLY QUEUE-037 CONTROLS / COVERAGE
+-----------------------------------
+- Normalized SAS-vs-Base AdvCiv semantic delta in CvPythonCaller.cpp is very small. The current
+  substantive SAS changes are already-reviewed repairs such as the int AI_foundValue contract,
+  riverValue hybrid/default handling and minStartingDistanceMod lower-bound restoration.
+- The four central call(...) overloads initialize m_bLastCallSuccessful on both the module-missing
+  and actual-call paths; no stale-success carryover was found in those wrappers in this opening
+  pass.
+- The F274 trigger is not inferred from the signature alone: the live CvPlot::setOwner NULL caller,
+  current callback define, CyUnit constructors, K-Mod predecessor and precise AdvCiv regression
+  commit were all checked locally before promotion.
+
+NEXT CURSOR
+-----------
+Continue queue 037 from F275 unused / provisional KI#598 next. Audit all Python-object wrapper
+constructions for nullable/lifetime mismatches; then callback result/default semantics,
+isOverride/pythonUsingDefaultImpl state, exceptional or missing-function paths, random-event
+object mutation, map-script vector/enum bounds, and practical-history sibling regressions.
+===============================================================================
+
+===============================================================================
+C024-WIP02 CONTINUATION - QUEUE 037 CvPythonCaller.cpp
+===============================================================================
+OPEN FILE STATE
+---------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp - OPEN
+F274 / provisional KI#597 - confirmed in WIP01
+F275 / provisional KI#598 - CONFIRMED PROVISIONAL ROOT
+F276 unused / provisional KI#599 next
+
+F275 / provisional KI#598
+-------------------------
+TITLE: CvPythonCaller::canBuild rejects positive Python override values above 1 despite the
+       inherited callback contract
+
+CURRENT CODE
+------------
+CvPythonCaller::canBuild contains the preserved contract comment:
+
+    "Returning -1 means ignore; 0 means Build cannot be performed; 1 or greater means it can"
+
+but after handling -1 it does:
+
+    bOverride = true;
+    FAssertBounds(-1, 2, lResult);
+    return toBool(lResult);
+
+CvPythonCaller::toBool is:
+
+    static bool toBool(long l) { FAssert(l >= 0); return (l == TRUE); }
+
+Therefore a valid positive callback result such as 2 has two wrong consequences:
+
+- Assert DLL: FAssertBounds(-1, 2, 2) fires because the upper bound is exclusive;
+- Release DLL: the assertion disappears, but toBool(2) returns false because 2 != TRUE (1).
+
+The wrapper thus interprets 2+ as "cannot build" even though its own inherited contract says
+1 or greater means the build can be performed.
+
+PRE-REFACTOR / K-MOD CONTROL
+----------------------------
+The practical-1648 source immediately before extraction into CvPythonCaller used:
+
+    long lResult = 0;
+    callFunction(..., "canBuild", ..., &lResult);
+    if (lResult >= 1)
+        return true;
+    else if (lResult == 0)
+        return false;
+
+Current K-Mod 1.46 retains the same >= 1 interpretation. Civ4CE's stock BtS CvGameUtils.py also
+documents the same callback contract: -1 ignore, 0 deny, 1 or greater allow.
+
+ANCESTRY
+--------
+The mismatch was introduced directly by AdvCiv practical 1648 (commit 553b1a0f8d, "Moved
+DLL-to-Python calls and logging into separate classes"). The new wrapper copied the correct
+contract into a comment but immediately narrowed it to {-1,0,1} through FASSERT_BOUNDS and then
+used the exact-one helper. Base AdvCiv 1.14 still contains the regression; SAS inherits it.
+
+CONFIGURATION BOUNDARY
+----------------------
+USE_CAN_BUILD_CALLBACK is 0 in current SAS defaults, as are all 54 callback defines cached by
+CvPythonCaller. The defect becomes live when the supported canBuild callback is enabled and the
+Python override returns a positive value greater than 1. This is therefore configuration-gated,
+not a default-gameplay regression.
+
+REPAIR BOUNDARY
+---------------
+Preserve all three documented states:
+
+    -1      -> no Python override; continue C++ canBuild logic
+     0      -> Python override denies build
+    >= 1    -> Python override allows build
+
+A narrow repair should therefore return lResult >= 1 once lResult != -1 and remove/relax the
+incorrect exclusive upper-bound assertion. Do not change CvPythonCaller::toBool globally on the
+strength of this finding: several other inherited callbacks historically used exact == 1, and
+queue 037 is auditing those contracts individually rather than assuming one universal Python
+truthiness convention.
+
+ADDITIONAL CONTROLS
+-------------------
+- The callback-define table itself is internally complete: all 54 DO_FOR_EACH_CALLBACK_DEFINE
+  entries have exactly one matching USE_*_CALLBACK integer define in current
+  PythonCallbackDefines.xml. Eight additional USE_* event callbacks belong to the separate
+  CvDllPythonEvents path, so they are not omissions from this table. All 62 current callback
+  defines are 0 by default.
+- K-Mod controls show that many UI callbacks really did use exact == 1, so the existence of
+  CvPythonCaller::toBool is not itself enough to report a broad defect. F275 is promoted because
+  canBuild has a specific explicit >= 1 contract and direct pre-refactor comparison.
+- `updateColoredPlots` is the only wrapper-local `long lResult;` without initialization. Its
+  Python function is expected to exist and the pre-refactor K-Mod code also depended on a
+  successful call after setting the local result to 0. Current uninitialized-on-Python-error
+  behavior is being retained as an error-path robustness lead, not yet F276.
+
+NEXT CURSOR
+-----------
+Continue from F276 unused. Highest-value active checks:
+- doPillageGold's negative/error sentinel versus K-Mod's old `lPillageGold < 0` fallback;
+- callback call-failure defaults and uninitialized return storage;
+- random-event mutable EventTriggeredData and pointer-output refresh consistency;
+- map-script `isOverride()`/usingDefaultImpl and result validation;
+- history commits that fixed post-1648 callback regressions, looking for unfixed siblings.
+===============================================================================
+
+===============================================================================
+C024-WIP03 CONTINUATION - QUEUE 037 CvPythonCaller.cpp
+===============================================================================
+OPEN FILE STATE
+---------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp - OPEN
+F274 / provisional KI#597 - confirmed in WIP01
+F275 / provisional KI#598 - confirmed in WIP02; SAME-ROOT MAP-SCRIPT SIBLINGS ADDED BELOW
+F276 / provisional KI#599 - CONFIRMED PROVISIONAL ROOT
+F277 unused / provisional KI#600 next
+
+F275 SAME-ROOT SIBLING EVIDENCE
+-------------------------------
+The exact-one narrowing introduced by practical 1648 is not limited to canBuild. The two map
+placement callbacks were also moved behind CvPythonCaller::toBool by the same refactor:
+
+    CvPythonCaller::canPlaceBonusAt -> canPlaceItemAt
+    CvPythonCaller::canPlaceGoodyAt -> canPlaceItemAt
+
+Current canPlaceItemAt validates only negativity and then does:
+
+    if (lResult < 0)
+    {
+        ...
+        bOverride = false;
+        return false;
+    }
+    return toBool(lResult);
+
+Before practical 1648, both CvMapGenerator callbacks did this directly:
+
+    if (result >= 0)
+        return result;
+
+where the function return type is bool. C++ therefore treated every nonzero positive long as
+true. Practical 1648 replaced that implicit nonzero truth conversion with toBool(result), which
+returns true only for exactly 1. Hence a custom map callback that historically returned 2 (or
+another positive integer) changes from true to false after the refactor.
+
+This is recorded as SAME-ROOT SUPPORT for F275 rather than a new finding. The canBuild case is the
+strongest proof because its Python documentation explicitly says "1 or greater"; the canPlace*
+case has direct predecessor behavior but no equally explicit current Python contract. Current SAS
+ships only one script defining those hooks, Planet_Generator_0_68.py, and it delegates to the
+default implementation rather than returning a custom positive integer, so no shipped default
+trigger was found. The evidence nevertheless confirms that toBool cannot safely be assumed to
+preserve every pre-refactor callback contract.
+
+F276 / provisional KI#599
+-------------------------
+TITLE: Enabled doPillageGold callback suppresses the inherited C++ gold fallback on negative or
+       failed Python results
+
+CURRENT CODE ROOT
+-----------------
+CvPythonCaller::doPillageGold initializes a distinct error sentinel but returns true whenever the
+callback define is enabled:
+
+    int const iError = MIN_INT;
+    ARGSLIST(iError);
+    ...
+    call("doPillageGold", argsList, lResult);
+    ...
+    if (lResult != iError)
+        iPillageGold = toInt(lResult);
+    else FAssert(lResult != iError);
+    return true;
+
+Its caller in CvUnit treats the wrapper's bool as "Python supplied the pillage result":
+
+    int iPillageGold = 0;
+    if (!GC.getPythonCaller()->doPillageGold(*this, kPlot, iPillageGold))
+    {
+        // K-Mod C++ fallback calculation
+        ...
+    }
+
+Consequences when USE_DO_PILLAGE_GOLD_CALLBACK is enabled:
+
+1. Python returns -1 (or any other negative value except MIN_INT): the wrapper copies the negative
+   value to iPillageGold and returns true. The C++ fallback is skipped; the later `> 0` test then
+   awards no pillage gold.
+2. The Python call fails and leaves the MIN_INT initializer unchanged: the wrapper asserts in an
+   assertion build but still returns true. In Release, iPillageGold remains the caller's 0 and the
+   C++ fallback is again skipped, yielding no pillage gold.
+
+PRE-REFACTOR / K-MOD CONTRACT
+------------------------------
+The practical-1648 diff shows the exact displaced K-Mod logic:
+
+    long lPillageGold = -1;
+    int iPillageGold = -1;
+    if (GC.getUSE_DO_PILLAGE_GOLD_CALLBACK())
+    {
+        ... callFunction(..., &lPillageGold);
+        iPillageGold = (int)lPillageGold;
+    }
+    if (lPillageGold < 0)
+    {
+        // K-Mod. C version of the original python code
+        ... calculate pillage gold in C++ ...
+    }
+
+Thus negative values were explicitly the fallback state, not merely an accidental result of a
+particular Python implementation. Initialization to -1 also meant a failed/no-result Python call
+fell through to the C++ calculation.
+
+The stock BtS/Civ4CE CvGameUtils.doPillageGold implementation returns an ordinary nonnegative gold
+amount, so default Python does not intentionally exercise the negative sentinel. The regression is
+therefore a callback/error-path compatibility defect, not a default-config gameplay problem.
+Current SAS sets USE_DO_PILLAGE_GOLD_CALLBACK = 0 by default.
+
+SIBLING CONTROL: captureGold PRESERVES ITS ERROR FALLBACK
+---------------------------------------------------------
+The same practical-1648 refactor created CvPythonCaller::captureGold with an almost identical
+MIN_INT sentinel, but that wrapper correctly distinguishes failure:
+
+    if (lResult != iError)
+    {
+        iCaptureGold = toInt(lResult);
+        return true;
+    }
+    else FAssert(lResult != iError);
+    return false;
+
+Its caller performs the C++ capture-gold calculation when false is returned. This sibling design
+supports the interpretation that doPillageGold's unconditional `return true` is an accidental
+loss of fallback semantics rather than an intentional policy that callback enablement must suppress
+C++ fallback after Python failure.
+
+ANCESTRY
+--------
+The root is introduced directly by AdvCiv practical 1648 (commit 553b1a0f8d), which extracted the
+old CvUnit Python call into CvPythonCaller. Later AdvCiv history moves/reformats the pillage caller
+but does not repair CvPythonCaller::doPillageGold's result contract. Base AdvCiv 1.14 and current
+SAS retain it.
+
+REPAIR BOUNDARY
+---------------
+Preserve the inherited and current successful modes:
+
+- callback disabled -> return false so C++ computes pillage gold;
+- callback enabled and Python returns a valid nonnegative amount -> write it, return true;
+- callback enabled but Python returns a negative sentinel or the call fails -> return false and
+  leave iPillageGold untouched so the existing C++ fallback runs.
+
+A narrow repair can therefore treat `lResult < 0` as "no valid Python amount" and return false.
+That naturally includes the MIN_INT call-failure initializer and restores K-Mod's old any-negative
+fallback. Do not blindly clamp negative Python results to zero; zero is a valid explicit override
+meaning no pillage gold, while a negative result historically requested/defaulted to C++ logic.
+
+ROOT INDEPENDENCE
+-----------------
+F276 is independent of F274's nullable CyUnit construction and F275's positive-boolean narrowing.
+It is a lost fallback/sentinel contract in the output-valued pillage callback, though all three
+were exposed by auditing the practical-1648 extraction boundary.
+
+ADDITIONAL CONTROLS / COVERAGE
+-------------------------------
+- History grep found no later CvPythonCaller doPillageGold repair after practical 1648; later
+  commits touching the call site reorganize CvUnit pillaging but retain the wrapper contract.
+- `captureGold` provides an internal same-refactor control showing that an output callback can and
+  should return false when its Python result remains at an error sentinel.
+- `updateColoredPlots` still has an uninitialized `long lResult` unlike the pre-refactor `= 0`;
+  this remains a separate failure-path robustness lead, not folded into F276 without further
+  sibling/error-contract review.
+
+NEXT CURSOR
+-----------
+Continue from F277 unused / provisional KI#600 next. Highest-value active checks:
+- determine whether updateColoredPlots's uninitialized result is an isolated failure-path defect
+  or part of a wider practical-1648 default-initialization regression;
+- systematically compare all map-script callback result/default/override semantics against the
+  pre-1648/Civ4CE implementations, especially enum and pointer-return outputs;
+- audit random-event mutable EventTriggeredData copy-back and output-pointer refresh contracts;
+- inspect central call(...) exception/missing-module behavior and callback recursion guards;
+- use later AdvCiv callback-fix commits (1662, 1677, 1850, 1917, 1966, 2460, 2531, 2571) as
+  repair-boundary probes for unfixed siblings.
+===============================================================================
+
+===============================================================================
+C024-WIP04 CONTINUATION - QUEUE 037 CvPythonCaller.cpp
+===============================================================================
+OPEN FILE STATE
+---------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp - OPEN
+F274 / provisional KI#597 - confirmed
+F275 / provisional KI#598 - confirmed
+F276 / provisional KI#599 - confirmed
+F277 / provisional KI#600 - CONFIRMED PROVISIONAL ROOT
+F278 unused / provisional KI#601 next
+
+F277 / provisional KI#600
+-------------------------
+TITLE: CvPythonCaller::addFeatures falsely asserts when a valid map script omits the optional
+       Python hook and falls back to C++ feature generation
+
+CURRENT CODE ROOT
+-----------------
+Most optional map-generation phase wrappers explicitly suppress call-success assertions because
+absence of the Python override is a normal signal to run the inherited C++ implementation:
+
+    bool CvPythonCaller::addBonuses() const
+    {
+        call("addBonuses", m_python.getMapScriptModule(), false);
+        return isOverride();
+    }
+
+    bool CvPythonCaller::addGoodies() const
+    {
+        call("addGoodies", m_python.getMapScriptModule(), false);
+        return isOverride();
+    }
+
+    bool CvPythonCaller::addLakes() const
+    {
+        call("addLakes", m_python.getMapScriptModule(), false);
+        return isOverride();
+    }
+
+    bool CvPythonCaller::addRivers() const
+    {
+        call("addRivers", m_python.getMapScriptModule(), false);
+        return isOverride();
+    }
+
+But addFeatures uniquely leaves the default bAssertSuccess=true:
+
+    bool CvPythonCaller::addFeatures() const
+    {
+        call("addFeatures", m_python.getMapScriptModule());
+        return isOverride();
+    }
+
+The central no-result call wrapper does:
+
+    m_bLastCallSuccessful = m_python.callFunction(...);
+    FAssert(!bAssertSuccess || m_bLastCallSuccessful);
+
+Thus a selected map module that simply omits addFeatures produces an assertion in an
+assertion-enabled DLL even though `isOverride()` then correctly returns false and
+CvMapGenerator::addFeatures continues with the normal C++ fallback.
+
+LIVE CURRENT SAS TRIGGER
+------------------------
+Current SAS ships 50 PrivateMaps scripts. A direct current-data scan finds exactly one without a
+`def addFeatures(` callback:
+
+    PrivateMaps/SAS_Simple_Flat_Grass.py
+
+This is not an accidental empty/broken script. It is a deliberately minimal playable SAS map
+wrapper. Its only wildcard import is SAS_WorldSizeUtils, whose exported functions are world-size
+helpers and do not define addFeatures. Therefore selecting this current map script reaches the
+missing-hook path.
+
+The practical consequence is build-dependent:
+
+- Debug / Assert DLL: the missing optional hook makes m_bLastCallSuccessful false and triggers the
+  FAssert in CvPythonCaller::call;
+- Release DLL: the assertion is absent; isOverride() is safely false and CvMapGenerator performs
+  its inherited C++ feature placement as intended.
+
+This is therefore a false-positive diagnostic/assertion regression on a supported current SAS map,
+not a Release-gameplay failure.
+
+PRE-REFACTOR CONTRACT
+---------------------
+Immediately before practical 1648, CvMapGenerator::addFeatures used:
+
+    if (gDLL->getPythonIFace()->callFunction(mapModule, "addFeatures", NULL))
+    {
+        if (!gDLL->getPythonIFace()->pythonUsingDefaultImpl())
+            return;
+    }
+    // C++ feature generation follows
+
+A missing/failed Python function therefore did not assert; it simply left the function in the C++
+fallback path. Practical 1648 replaced that block with:
+
+    if (GC.getPythonCaller()->addFeatures())
+        return;
+
+and the newly extracted wrapper accidentally retained call()'s assertion-on-success default.
+
+INTERNAL / HISTORY CONTROL
+--------------------------
+The neighboring addBonuses/addGoodies/addLakes/addRivers wrappers created in the same extraction
+all pass `false`, matching their optional/fallback nature. This makes addFeatures the local outlier.
+
+AdvCiv practical 1662 provides an independent meaning-of-the-flag control: it explicitly changed
+applyEvent to pass `false` because “Many of the apply functions named in XML don't exist.” That
+history confirms callFunction failure for a missing Python function is exactly the condition the
+bAssertSuccess parameter is meant to tolerate when absence is valid.
+
+Base AdvCiv 1.14 currently bundles eight PrivateMaps scripts and all eight define addFeatures, so
+the inherited wrapper bug is latent under Base's shipped map set. SAS's new minimal map script
+makes the defect live without changing CvPythonCaller itself.
+
+REPAIR BOUNDARY
+---------------
+Make addFeatures consistent with the other optional map phase hooks:
+
+    call("addFeatures", m_python.getMapScriptModule(), false);
+
+Do not force SAS_Simple_Flat_Grass.py to define a dummy function merely to satisfy the wrapper;
+omitting the hook is an inherited valid way to request/default to C++ generation. Preserve
+isOverride()/pythonUsingDefaultImpl behavior for scripts that do implement addFeatures.
+
+ROOT INDEPENDENCE
+-----------------
+F277 is separate from F273. F273 accidentally removes legitimate assertions from the optimized
+Assert build by gating richer diagnostics with `_DEBUG`; F277 is the opposite kind of diagnostic
+contract error: it emits an assertion on a valid optional-callback fallback. The repairs and code
+roots are independent.
+
+ADDITIONAL RANDOM-EVENT CONTROL
+-------------------------------
+The doEventTrigger pointer-output refresh was rechecked against practical 1648 and later practical
+1966 (“Fix recently introduced bug in random event processing”). Practical 1966 added guards for
+invalid city/unit IDs. Its pOtherPlayerCity assignment can leave the pre-call pointer unchanged
+when Python changes the other-city ID to INVALID_INDEX, whereas pre-1648 getCity(-1) would normally
+clear it. Current shipped random-event Python was searched for mutations of the actual triggered
+data. Several callbacks mutate city/player/plot fields, but no current can-trigger callback was
+found that changes an initially valid other-player-city ID to -1. Keep this as a mutation/output
+consistency control, not F278 at present.
+
+NEXT CURSOR
+-----------
+Continue from F278 unused / provisional KI#601. Revisit updateColoredPlots's uninitialized
+failure result; audit all map enum/index return bounds and missing/default behavior; then move
+through event mutation, ordinary callback return sentinels and later practical-history repairs.
+===============================================================================
+
+===============================================================================
+C024-WIP05 CONTINUATION - QUEUE 037 CvPythonCaller.cpp
+===============================================================================
+OPEN FILE STATE
+---------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp - OPEN
+F274 / provisional KI#597 - confirmed
+F275 / provisional KI#598 - confirmed
+F276 / provisional KI#599 - confirmed
+F277 / provisional KI#600 - confirmed
+F278 / provisional KI#601 - CONFIRMED PROVISIONAL ROOT
+F279 unused / provisional KI#602 next
+
+F278 / provisional KI#601
+-------------------------
+TITLE: CvPythonCaller::updateColoredPlots consumes an uninitialized Python result when the
+       callback call fails, losing the inherited deterministic C++ fallback
+
+CURRENT CODE ROOT
+-----------------
+CvPythonCaller::updateColoredPlots is the only function in the current file that declares a bare
+uninitialized result variable:
+
+    bool CvPythonCaller::updateColoredPlots() const
+    {
+        long lResult;
+        call("updateColoredPlots", lResult);
+        return toBool(lResult);
+    }
+
+The central call wrapper records Python call success separately:
+
+    m_bLastCallSuccessful = m_python.callFunction(..., &lResult);
+    FAssert(!bAssertSuccess || m_bLastCallSuccessful);
+
+and CvDLLPythonIFaceBase exposes callFunction as a bool-returning interface with an output pointer;
+there is no DLL-side contract that the output is written when the call returns false. Therefore,
+if Python fails before producing a long result, updateColoredPlots still evaluates the untouched
+stack value through toBool().
+
+The behavior depends on build/error handling:
+
+- Debug / Assert: the central FAssert reports the failed call, but if execution continues/Ignore is
+  chosen then the indeterminate result is still consumed;
+- Release: the assertion vanishes and the uninitialized value is consumed immediately. It can
+  spuriously return true and skip all inherited C++ colored-plot generation, or false by accident.
+
+This is undefined behavior in C++, not merely an arbitrary fallback choice.
+
+PRE-REFACTOR / K-MOD CONTROL
+----------------------------
+Immediately before AdvCiv practical 1648 extracted this callback, CvGame::updateColoredPlots used:
+
+    long lResult = 0;
+    gDLL->getPythonIFace()->callFunction(PYGameModule,
+            "updateColoredPlots", NULL, &lResult);
+    if (lResult == 1)
+        return;
+
+Thus a failed/no-result Python call deterministically left zero in place and continued into the
+normal C++ colored-plot implementation. Current K-Mod 1.46 retains that same `lResult = 0`
+initialization, and BUG's current default for updateColoredPlots is false, matching the fallback.
+
+ANCESTRY
+--------
+The bug is introduced directly by AdvCiv practical 1648 (553b1a0f8d, "Moved DLL-to-Python calls
+and logging into separate classes"). The same commit removes `long lResult = 0` from
+CvGameInterface.cpp and creates CvPythonCaller::updateColoredPlots with `long lResult;`.
+Base AdvCiv 1.14 retains the regression; SAS inherits it unchanged.
+
+TRIGGER / SEVERITY BOUNDARY
+---------------------------
+The normal SAS PYGameModule and CvGameInterface.updateColoredPlots function exist, and BUG supplies
+an ordinary false default, so normal successful calls do not exercise the bad value. The live
+trigger is a Python call failure/exception/no-result path (for example while developing/reloading
+Python or after a script error). updateColoredPlots is invoked repeatedly by ordinary UI/game
+state changes, so once the Python side is broken the path is reachable without special XML callback
+enablement.
+
+This is therefore best classified as an error-path robustness/undefined-behavior regression rather
+than a default healthy-script gameplay defect. It is still stronger than a mere assertion issue:
+Release builds can make a control-flow decision from indeterminate storage.
+
+REPAIR BOUNDARY
+---------------
+Restore the inherited false/default state locally:
+
+    long lResult = false; // or = 0
+
+before the call. Do not attempt to solve this by globally changing call() to overwrite all output
+arguments on failure; other wrappers intentionally use distinct sentinels such as MIN_INT, -1,
+NO_TECH and caller-provided defaults. updateColoredPlots simply needs its own historical default
+restored.
+
+ROOT INDEPENDENCE
+-----------------
+F278 is independent of F274-F277. It is an uninitialized-output regression on Python call failure,
+not nullable wrapper construction (F274), numeric boolean-contract narrowing (F275), lost negative
+fallback sentinel (F276), or optional map-hook assertion policy (F277).
+
+ADDITIONAL CONTROL
+------------------
+A file-wide declaration scan found no second bare `long lResult;` in current CvPythonCaller.cpp.
+All other ordinary long-result wrappers initialize through ARGSLIST(default) or explicit sentinel/
+default variables. Therefore F278 is a localized extraction omission, not evidence that every
+callback return is uninitialized on failure.
+
+NEXT CURSOR
+-----------
+Continue from F279 unused / provisional KI#602. Audit map-script enum/index/vector return bounds and
+hybrid/default semantics; then random-event mutable output refresh, ordinary callback sentinel/
+truthiness contracts, and later practical-history fixes. Keep malformed-script-only bounds issues
+as controls unless current SAS assets or a supported fallback path make them live.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP06 — F279 / provisional KI#602 confirmed
+===============================================================================
+
+F279 / provisional KI#602
+-------------------------
+TITLE
+Active EVENT_FARM_BANDITS_2 names a nonexistent PythonHelp function, while
+CvPythonCaller::eventHelp treats Python-help dispatch as mandatory and asserts on failure.
+
+CURRENT DATA / CODE
+-------------------
+Current SAS CIV4EventInfos.xml contains this active (not commented-out) field:
+
+    <Type>EVENT_FARM_BANDITS_2</Type>
+    ...
+    <PythonHelp>getHelpFarmBandit2</PythonHelp>
+
+A comment-aware scan of the complete current random-event Python namespace finds no definition of
+`getHelpFarmBandit2` in Assets/Python/EntryPoints/CvRandomEventInterface.py.
+
+The wrapper is strict:
+
+    CvWString CvPythonCaller::eventHelp(EventTypes eEvent,
+            EventTriggeredData const* pTriggered) const
+    {
+        char const* szHelp = GC.getInfo(eEvent).getPythonHelp();
+        if (std::strlen(szHelp) <= 0)
+            return L"";
+        CvWString szResult;
+        CyArgsList argsList;
+        argsList.add(eEvent);
+        argsList.add(m_python.makePythonObject(pTriggered));
+        m_bLastCallSuccessful = m_python.callFunction(PYRandomEventModule, szHelp,
+                argsList.makeFunctionArgs(), &szResult);
+        FAssert(m_bLastCallSuccessful);
+        if (std::wcslen(szResult) == 0)
+            return L"";
+        szResult.insert(0, NEWLINE);
+        return szResult;
+    }
+
+CvGameTextMgr::setEventHelp unconditionally appends eventHelp(...) while constructing an event
+choice's displayed help, so this is a display-time callback contract rather than an apply-event-only
+path.
+
+REACHABILITY
+------------
+EVENT_FARM_BANDITS_2 is one of the three choices of the active
+EVENTTRIGGER_FARM_BANDITS trigger. Current XML gives that trigger:
+
+    <iPercentGamesActive>85</iPercentGamesActive>
+    <iWeight>200</iWeight>
+    ...
+    <Events>
+        <Event>EVENT_FARM_BANDITS_1</Event>
+        <Event>EVENT_FARM_BANDITS_2</Event>
+        <Event>EVENT_FARM_BANDITS_3</Event>
+    </Events>
+
+and the recurring EVENTTRIGGER_FARM_BANDITS_AGAIN also includes the same event choices. Thus the
+missing callback is not dead/commented XML.
+
+The choice's actual effects are already represented in ordinary EventInfo fields (not Python):
+among them iUnitImmobileTurns=2 and iFood=-5. There is no PythonCallback or PythonCanDo attached to
+the event. That makes the dangling PythonHelp look like stale data rather than evidence that a
+missing custom behavior needs to be reconstructed.
+
+OBSERVED CONTRACT CONSEQUENCE
+-----------------------------
+When help for EVENT_FARM_BANDITS_2 is built:
+
+- Assert/Debug builds: the failed call reaches `FAssert(m_bLastCallSuccessful)`, producing a false
+  assertion on a valid shipped random event.
+- Release builds: the failed call yields no custom Python help; eventHelp returns an empty string
+  after the failed dispatch. The generic C++ help for the XML-defined effects is still constructed.
+
+This is therefore primarily a shipped-data/diagnostic defect rather than a gameplay-state defect,
+but it is live under ordinary random-event play and stronger than a malformed-mod-only input.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14 contains the same active XML PythonHelp token and likewise has no corresponding
+Python definition. K-Mod also contains the same XML token and no definition. The mismatch is
+therefore inherited rather than SAS-created.
+
+A first raw-text namespace scan appeared to find additional missing hooks such as
+canTriggerIndependentFilms/getHelpIndependentFilms. That was a false positive because SAS preserves
+their removed values inside XML comments. Re-running the scan after stripping XML comments proves
+that all active trigger eligibility hooks resolve:
+
+- EventTrigger PythonCanDo: 72 unique, 0 missing.
+- EventTrigger PythonCanDoCity: 9 unique, 0 missing.
+- EventTrigger PythonCanDoUnit: 1 unique, 0 missing.
+- EventInfo PythonCanDo: 31 unique, 0 missing.
+- EventInfo PythonExpireCheck: 6 unique, 0 missing.
+
+The only active EventInfo PythonHelp name missing from current random-event Python is
+`getHelpFarmBandit2`.
+
+The EventInfo PythonCallback namespace has 11 missing apply* names. Those are a separate, known
+contract: AdvCiv practical 1662 explicitly changed applyEvent dispatch to `bAssertSuccess=false`
+because many XML-named apply functions legitimately do not exist. They do not strengthen F279.
+
+REPAIR BOUNDARY
+---------------
+The narrowest evidence-supported repair is data-side:
+
+    <PythonHelp/>
+
+for EVENT_FARM_BANDITS_2.
+
+Do not invent a new Python function merely to satisfy the stale name unless historical upstream
+material establishes an intended extra help string. All currently visible gameplay effects of the
+choice are already encoded in XML and therefore described through the ordinary event-help path.
+
+A broader wrapper change that suppresses all eventHelp failures would hide genuinely misspelled
+PythonHelp names elsewhere and is not justified by this single bad shipped entry.
+
+ROOT INDEPENDENCE
+-----------------
+F279 is independent of F274-F278. Its root is an active shipped XML -> Python symbol mismatch. It
+does not depend on nullable CyUnit construction, truth-value narrowing, sentinel fallback,
+optional-map-hook assertion policy, or uninitialized result storage.
+
+CURRENT QUEUE STATE
+-------------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp — OPEN
+F274 / KI#597 — confirmed provisional
+F275 / KI#598 — confirmed provisional
+F276 / KI#599 — confirmed provisional
+F277 / KI#600 — confirmed provisional
+F278 / KI#601 — confirmed provisional
+F279 / KI#602 — confirmed provisional
+F280 — UNUSED / provisional KI#603 next
+
+NEXT CURSOR
+-----------
+Continue with the ordinary callback return/default contracts and output-vector ownership:
+upgradePrice/experienceNeeded fallback sentinels, enum-return wrappers, generatePlotTypes /
+generateTerrainTypes vector assumptions, and central call/isOverride reentrancy semantics. Then
+cross-check the remaining practical history fixes and later SAS-only deltas before judging
+saturation. Do not manufacture F280 if those branches close as controls.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP07 — F279 ancestry refinement + F280 / provisional KI#603 confirmed
+===============================================================================
+
+F279 ANCESTRY REFINEMENT
+------------------------
+The WIP06 wording needs one important distinction.
+
+The dangling shipped XML token
+
+    <PythonHelp>getHelpFarmBandit2</PythonHelp>
+
+is inherited: Base AdvCiv and K-Mod contain the same active token and no matching random-event
+Python definition.
+
+However, K-Mod's pre-extraction event-help path did NOT assert that the Python dispatch succeeded.
+It simply called:
+
+    gDLL->getPythonIFace()->callFunction(
+        PYRandomEventModule, kEvent.getPythonHelp(), ..., &szHelp);
+
+and then appended the resulting help string.
+
+AdvCiv practical 1648 moved this into CvPythonCaller::eventHelp and added:
+
+    m_bLastCallSuccessful = m_python.callFunction(...);
+    FAssert(m_bLastCallSuccessful);
+
+Therefore F279 has two layers:
+
+1. inherited BtS/K-Mod shipped-data defect: one active PythonHelp symbol has no implementation;
+2. AdvCiv practical-1648 policy regression: the old silent missing-help mismatch becomes a repeatable
+   Assert/Debug failure when that shipped event choice's help is built.
+
+The repair recommendation remains data-side `<PythonHelp/>`, because the event's actual effects are
+already encoded generically in XML and suppressing all eventHelp dispatch failures would hide real
+future misspellings.
+
+
+F280 / provisional KI#603
+-------------------------
+TITLE
+Practical 1648 changed the getUnitCostMod application threshold from `> 1` to `> 0`, so callback
+result 1 now reduces unit production cost to 1% instead of preserving the inherited no-override
+behavior.
+
+CURRENT CODE
+------------
+CvPythonCaller::unitCostMod returns the callback integer:
+
+    int CvPythonCaller::unitCostMod(PlayerTypes ePlayer, UnitTypes eUnit) const
+    {
+        if (!isUse(GET_UNIT_COST_MOD))
+            return 0;
+        ARGSLIST(0);
+        argsList.add(ePlayer);
+        argsList.add(eUnit);
+        call("getUnitCostMod", argsList, lResult);
+        return toInt(lResult);
+    }
+
+CvPlayer::getProductionNeeded(UnitTypes) then does:
+
+    int iPyMod = GC.getPythonCaller()->unitCostMod(getID(), eUnit);
+    if (iPyMod > 0)
+    {
+        iProductionNeeded *= iPyMod;
+        iProductionNeeded /= 100;
+    }
+    return std::max(1, iProductionNeeded);
+
+So a result of exactly 1 applies a 1% multiplier. Integer division plus the final clamp means many
+ordinary units collapse to 1 hammer.
+
+INHERITED CONTRACT / REGRESSION PROOF
+-------------------------------------
+Immediately before practical 1648, the same CvPlayer code was:
+
+    long lResult = 0;
+    gDLL->getPythonIFace()->callFunction(
+        PYGameModule, "getUnitCostMod", ..., &lResult);
+
+    if (lResult > 1)
+    {
+        iProductionNeeded *= lResult;
+        iProductionNeeded /= 100;
+    }
+
+K-Mod 1.46 independently retains the same `if (lResult > 1)` contract.
+
+The building-cost sibling also used `> 1` before extraction and CURRENT SAS still preserves it:
+
+    int iPythonModifier = GC.getPythonCaller()->buildingCostMod(*this, eBuilding);
+    if (iPythonModifier > 1)
+    {
+        iProductionNeeded *= iPythonModifier;
+        iProductionNeeded /= 100;
+    }
+
+Thus the unit-side `> 0` is not a general redesign of the cost callbacks. It is an isolated
+extraction-time threshold drift.
+
+BUG/PYTHON DEFAULT CROSS-CHECK
+------------------------------
+BUG/BugGameUtils.py declares:
+
+    self._setDefault("getUnitCostMod", -1)
+    self._setDefault("getBuildingCostMod", -1)
+
+The C++ wrapper's local failure/disabled default of 0 is behaviorally harmless under the inherited
+`> 1` consumer contract: -1, 0 and 1 are all non-overrides. The strong bug is therefore not the
+wrapper's 0 versus BUG's -1 in isolation; it is that the CURRENT unit consumer accidentally made
+1 active.
+
+TRIGGER / SEVERITY
+------------------
+Current SAS ships:
+
+    USE_GET_UNIT_COST_MOD_CALLBACK = 0
+
+so ordinary default SAS gameplay does not trigger F280. This is a callback/modding-configuration
+compatibility regression.
+
+When the callback is enabled, however, result 1 is not malformed according to the inherited C++
+interface in the sense relevant here: old K-Mod/AdvCiv explicitly accepted it as a non-applying
+result. Any existing callback/mod that returns 1 therefore experiences a drastic behavior change
+after the extraction.
+
+REPAIR BOUNDARY
+---------------
+Restore the inherited consumer threshold only:
+
+    if (iPyMod > 1)
+
+This exactly matches:
+- pre-practical-1648 AdvCiv,
+- K-Mod 1.46,
+- the current building-cost sibling.
+
+Do not change the meaning of values >=2, and do not globally reinterpret all Python integer
+callbacks.
+
+Optionally, the wrapper's local default could later be documented against BUG's -1 default, but
+changing it is unnecessary for F280 because both values remain inert once the proper `> 1` guard is
+restored.
+
+ROOT INDEPENDENCE
+-----------------
+F280 is independent of F274-F279. It is a percentage-application threshold regression at the
+CvPythonCaller consumer boundary. It is not the canBuild truthiness narrowing of F275: here the
+callback's numeric value is itself a percentage modifier, and the regression is specifically the
+consumer changing an inherited threshold.
+
+ADDITIONAL CONTROLS FROM THIS PASS
+----------------------------------
+1. BUG game-callback default audit:
+   The canonical BUG defaults and CvPythonCaller local defaults line up semantically across the
+   ordinary boolean/sentinel callbacks inspected. `getUnitCostMod` / `getBuildingCostMod` are the
+   only conspicuous textual -1-vs-0 pair; under the proper >1 consumer contract that textual
+   difference does not itself change behavior.
+
+2. Ordinary fallback sentinels:
+   `upgradePrice` and `experienceNeeded` return -1 when disabled/failed, and both CvUnit consumers
+   explicitly treat `<0` as "use native C++ computation". No lost fallback there.
+
+3. Recommended UI enums:
+   recommended tech/unit/building wrappers initialize to NO_TECH/NO_UNIT/NO_BUILDING and the popup
+   consumers fall back to native AI recommendations. Out-of-range non-sentinel values remain a
+   malformed-Python robustness issue only; no current shipped callback produces them.
+
+4. PrivateMaps custom-option namespace:
+   46 shipped scripts define getNumCustomMapOptions; every one of those 46 also defines both
+   getCustomMapOptionDefault and getCustomMapOptionDescAt. The four scripts without the count
+   function are no-option/special cases handled by the tolerant count wrapper. No second F277-style
+   optional-hook assertion was found there.
+
+5. PYGameModule entry-point namespace:
+   All 67 literal current game-module callback names used by CvPythonCaller resolve in the current
+   CvGameInterface entry-point module. There is no second current shipped missing-symbol analogue
+   to the random-event PythonHelp mismatch.
+
+CURRENT QUEUE STATE
+-------------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp — OPEN
+F274 / KI#597 — confirmed provisional
+F275 / KI#598 — confirmed provisional
+F276 / KI#599 — confirmed provisional
+F277 / KI#600 — confirmed provisional
+F278 / KI#601 — confirmed provisional
+F279 / KI#602 — confirmed provisional
+F280 / KI#603 — confirmed provisional
+F281 — UNUSED / provisional KI#604 next
+
+NEXT CURSOR
+-----------
+Continue the practical-1648 old-vs-extracted semantic table, especially:
+- city/player/unit boolean callback truthiness where old code used !=0 or >0;
+- output/sentinel callbacks and call-failure behavior;
+- generatePlotTypes/generateTerrainTypes output ownership and required-hook policy;
+- central m_bLastCallSuccessful / pythonUsingDefaultImpl sequencing and reentrancy;
+- later practical fixes as sibling-invariant clues.
+
+Treat truthiness broadening/narrowing as a control unless the old contract is explicit or a current
+callback can exercise the differing value. Do not allocate F281 merely because the file has already
+yielded many extraction regressions.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP08 — F277 map-default siblings + F281 remains unused
+===============================================================================
+
+F277 SAME-ROOT EXPANSION — SAS_Simple_Flat_Grass intentionally relies on native/default plot and terrain generation too
+---------------------------------------------------------------------------------------------------------------
+The WIP04 F277 root originally covered the uniquely strict `addFeatures()` wrapper:
+
+    call("addFeatures", m_python.getMapScriptModule());
+
+which falsely asserts when the supported current SAS map `SAS_Simple_Flat_Grass.py` omits that
+optional hook and correctly falls back to the native C++ feature generator.
+
+A deeper current-map audit shows that the same supported map intentionally omits two earlier map
+generation callbacks as well:
+
+    generatePlotTypes
+    generateTerrainTypes
+
+The map file contains only:
+- a description callback;
+- compact almost-all-land `getGridSize`;
+- an import from callback-free `SAS_WorldSizeUtils`.
+
+This is deliberate architecture, not an accidentally truncated script. Current project comments
+and history describe it as a playable "simple flat-grass sandbox map" / "almost all land" wrapper.
+Before the helper split, the predecessor playable `SAS_WorldSizes.py` likewise exposed only the
+description/grid-size callbacks.
+
+WHY THE MINIMAL MAP STILL WORKS
+-------------------------------
+CvMapGenerator has a native fallback when Python does not provide an overriding plot list:
+
+    if (!GC.getPythonCaller()->generatePlotTypes(paiPlotTypes, iNumPlots))
+    {
+        for (...)
+            paiPlotTypes[i] = PLOT_LAND;
+    }
+
+`CvPlot::setPlotType(PLOT_LAND, ...)` then assigns the configured LAND_TERRAIN whenever the plot's
+terrain is still NO_TERRAIN:
+
+    if (getTerrainType() == NO_TERRAIN ||
+        GC.getInfo(getTerrainType()).isWater() != isWater())
+    {
+        setTerrainType(isWater() ? ... : eLAND_TERRAIN, ...);
+    }
+
+Thus the native plot fallback itself supplies the intended all-land/default-land-terrain baseline.
+The later no-override `generateTerrainTypes` path can legitimately leave that terrain in place.
+This locally explains the documented flat-grass sandbox behavior without inventing a missing
+Python generator.
+
+ADVCIV DIAGNOSTIC REGRESSION
+----------------------------
+Despite those inherited fallback semantics, practical 1648 introduced hard diagnostic assertions
+inside the extracted wrappers:
+
+    if (!isOverride())
+    {
+        FErrorMsg("Map script has to override generatePlotTypes and mustn't call usingDefaultImpl");
+        return false;
+    }
+
+and:
+
+    if (!isOverride())
+    {
+        FErrorMsg("Map script has to override generateTerrainTypes and mustn't call usingDefaultImpl");
+        return false;
+    }
+
+`FErrorMsg` is simply `FAssertMsg(false, msg)`, so an assertion-enabled build flags the map even
+though the C++ fallback path is coherent and, for this current supported SAS script, intentional.
+
+Pre-practical-1648 K-Mod/AdvCiv did not assert either condition. It simply tested:
+
+    callFunction(...) && !pythonUsingDefaultImpl()
+
+and otherwise:
+- generated all PLOT_LAND for plot types;
+- left terrain unchanged for terrain generation.
+
+Therefore practical 1648 converted normal inherited default-implementation/fallback states into
+false diagnostics, just as the strict `addFeatures` extraction did for a missing optional hook.
+
+ROOT CLASSIFICATION
+-------------------
+Do NOT allocate F281 for these two additional assertions.
+
+They are best recorded as same-root expansion of F277:
+"map-script fallback/default implementation is valid, but extracted CvPythonCaller diagnostics
+treat fallback as an error."
+
+The concrete code sites differ:
+- generatePlotTypes hard FError on !isOverride;
+- generateTerrainTypes hard FError on !isOverride;
+- addFeatures uses call()'s default bAssertSuccess=true;
+
+but all three are exercised by the same supported deliberately-minimal current SAS map and all
+three were non-asserting fallback paths before the extraction.
+
+REPAIR BOUNDARY
+---------------
+F277's original narrow repair remains valid for addFeatures:
+
+    call("addFeatures", mapModule, false);
+
+For generatePlotTypes / generateTerrainTypes, the evidence says that !isOverride itself cannot
+universally be diagnosed as an error, because current SAS intentionally supports a map relying on
+those fallbacks. Remove/downgrade those FErrorMsg calls (or otherwise exclude the legitimate
+default/fallback state) while retaining:
+- the result-size diagnostics when an actual overriding Python result has the wrong size;
+- the native all-land plot fallback;
+- the current terrain already established through setPlotType.
+
+Do not add dummy Python generators merely to silence the wrapper. That would duplicate native
+behavior and obscure the intended minimal-script contract.
+
+ADDITIONAL TRUTHINESS CONTROL
+-----------------------------
+A current shipped-Python scan was performed for literal integer returns from game callbacks whose
+practical-1648 extraction moved them through CvPythonCaller::toBool (exactly TRUE == 1).
+
+No current shipped callback implementation was found returning a literal positive integer >1 in
+those boolean roles. Therefore the historical nonzero/positive -> exact-one narrowing remains:
+- a confirmed F275 root where canBuild's own interface explicitly documents >=1 as yes;
+- same-root compatibility evidence for canPlaceBonusAt/canPlaceGoodyAt, whose old C++ bool return
+  accepted any nonzero positive result;
+- a control for generic boolean callbacks without a current differing-value trigger or explicit
+  broader contract.
+
+Do not create F281 merely from theoretical `return 2` behavior in ordinary boolean callbacks.
+
+CURRENT QUEUE STATE
+-------------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp — OPEN
+F274 / KI#597 — confirmed provisional
+F275 / KI#598 — confirmed provisional
+F276 / KI#599 — confirmed provisional
+F277 / KI#600 — confirmed provisional; same-root map fallback expansion above
+F278 / KI#601 — confirmed provisional
+F279 / KI#602 — confirmed provisional
+F280 / KI#603 — confirmed provisional
+F281 — UNUSED / provisional KI#604 next
+
+NEXT CURSOR
+-----------
+Continue practical-1648 semantic comparison and then central wrapper-state/lifetime review:
+- m_bLastCallSuccessful / pythonUsingDefaultImpl sequencing under nested/reentrant Python calls;
+- vector-return ownership/size behavior and map result enum bounds;
+- bCheckExists module-load behavior;
+- remaining later AdvCiv callback-fix commits as sibling clues;
+- constructor/destructor callback-cache lifetime and GlobalDefine recache/update interactions if any.
+
+Close differences as controls unless there is a locally provable call/data path. No need to force
+F281 despite the high finding count already produced by practical 1648.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP09 — central-state / mutability / fallback-policy controls
+===============================================================================
+
+F281 remains UNUSED / provisional KI#604 next.
+
+RANDOM-EVENT MUTABILITY — CONTROL, NOT A NEW ROOT
+-------------------------------------------------
+`CvPythonCaller::doEventTrigger` takes:
+
+    EventTriggeredData const& kTriggered
+
+yet passes `&kTriggered` to Python and then deliberately rereads fields with the comment:
+
+    // Python may have changed kTriggered
+
+At first glance this looks like mutation through a const C++ view. The live caller establishes the
+important ownership fact, however:
+
+    EventTriggeredData* pTriggerData = addEventTriggered();
+    ...
+    GC.getPythonCaller()->doEventTrigger(getID(), *pTriggerData, ...)
+
+The underlying object is genuinely mutable and owned by CvPlayer's event-trigger store. The const
+reference is merely the wrapper function's local C++ view; it is not an object originally declared
+const. Current random-event Python demonstrably uses this historical mutation channel, and the C++
+caller explicitly rereads the resulting IDs/types afterward.
+
+`CvDLLPythonIFaceBase::makePythonObject` is a templated non-owning Boost.Python wrapper creator.
+Passing `&kTriggered` deduces a const-qualified pointer at that call site, but this interface has
+longstanding binding machinery for EventTriggeredData and current shipped hooks successfully mutate
+fields exposed through the Python class. No locally demonstrated corruption or mutation of a truly
+const object was found.
+
+Classification:
+- const-correctness / API-shape debt;
+- historical mutable Python data contract;
+- not F281 absent a concrete call path with genuinely const storage.
+
+CENTRAL `m_bLastCallSuccessful` / `isOverride` REENTRANCY — CONTROL
+-------------------------------------------------------------------
+All current uses of `isOverride()` consume the state immediately after the specific wrapper call
+whose override status they query. There is no intervening CvPythonCaller invocation on the C++ path.
+
+A nested Python -> DLL -> Python call can temporarily modify the shared member while the outer
+`m_python.callFunction(...)` is executing, but the outer statement is:
+
+    m_bLastCallSuccessful = m_python.callFunction(...);
+
+so the outer call's success value is assigned only after the RHS returns, overwriting any temporary
+nested value before the outer caller reaches `isOverride()`.
+
+`pythonUsingDefaultImpl()` remains EXE-owned/opaque state, but K-Mod and pre-extraction code used
+the same immediate "callFunction, then pythonUsingDefaultImpl" protocol. No current local
+counterexample was found.
+
+No F281.
+
+NULLABLE CY-WRAPPER FAMILY — F274 IS LOCALIZED
+-----------------------------------------------
+A constructor/use scan found no second live F274-style dereference of a nullable raw gameplay
+pointer.
+
+Notably:
+- `doGoody` remains the exceptional bad case: it dereferences nullable `CvUnit const* pUnit` into a
+  reference-taking CyUnit constructor.
+- `cannotHandleActionOverride(CvPlot* pPlot, ...)` passes `pPlot` to the pointer-taking `CyPlot`
+  constructor and therefore preserves nullability rather than dereferencing it.
+- Other reference-taking Cy wrappers are reached through caller contracts that supply live objects.
+
+This strengthens F274's precision rather than broadening it.
+
+ENABLED-CALL FAILURE DEFAULTS FOR POSITIVE PERMISSION CALLBACKS — CONTROL
+--------------------------------------------------------------------------
+Practical 1648 changed several wrappers from old direct-call local result `0` to an initialized
+`true` result before dispatch, including:
+- `canPickPlot`
+- `citiesDestroyFeatures`
+- `canRazeCity`
+- `canDeclareWar`
+
+Therefore an enabled callback that *fails to execute* can now fall back permissively where the old
+direct code failed closed.
+
+However, BUG/BugGameUtils.py independently declares the canonical callback defaults as True for
+all four:
+- canPickPlot -> True
+- citiesDestroyFeatures -> True
+- canRazeCity -> True
+- canDeclareWar -> True
+
+The refactor therefore appears to align call-failure/default initialization with each callback's
+normal Python/native default, rather than accidentally choosing arbitrary true values. Healthy
+callback behavior is unchanged.
+
+This is materially different from:
+- F276, where a failed/negative pillage callback suppresses an explicit C++ native calculation;
+- F278, where a failed callback leaves an indeterminate stack value;
+- F280, where a valid inherited numeric return changes meaning.
+
+Without a healthy shipped trigger or explicit inherited requirement that exceptions must deny the
+action, this fail-open-on-error policy change is ambiguous/arguably deliberate graceful
+degradation. Keep it as a compatibility/error-policy control, not F281.
+
+PRACTICAL-1648 / LATER-FIX ORACLE PASS — CURRENT STATUS
+--------------------------------------------------------
+Later AdvCiv repairs were used as sibling-invariant clues. Important examples remain:
+- practical 1662: missing random-event apply functions are intentionally tolerated;
+- 1677: saved-game custom-map-option / wrap assertion handling;
+- 1917: explorer-placement inversion correction;
+- 1966: invalid random-event object IDs;
+- 2019: map scripts can perform terrain-related work in nonstandard phases;
+- 2460 / 2531: map-module existence and load-if-necessary handling;
+- later map-option availability fixes.
+
+Current neighboring paths were checked against these repaired invariants. No new independent root
+has emerged from them beyond F274-F280 and the F277 same-root fallback expansion.
+
+MAP/STARTING-LOCATION RETURN CONTROLS
+-------------------------------------
+- `riverStartCardinalDirection`: shipped map implementations either return valid cardinal values or
+  request the default implementation. No current out-of-range positive enum return.
+- `findStartingArea`: NULL is the established signal to run native area selection.
+- `findStartingPlot`: NULL is the established native fallback; Tectonics' special -10 case is
+  explicitly known/handled diagnostically.
+- `isBonusIgnoreLatitude`: preserves the old peculiar -1/default-implementation semantics.
+- `minStartingDistanceMod`: current SAS already contains the earlier KI#285 repair restoring the
+  inherited negative range down to -100.
+- human explorer placement: current SAS already contains the later inversion repair.
+
+No F281 from these paths.
+
+CURRENT QUEUE STATE
+-------------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp — OPEN
+F274 / KI#597 — confirmed provisional
+F275 / KI#598 — confirmed provisional
+F276 / KI#599 — confirmed provisional
+F277 / KI#600 — confirmed provisional; map-default siblings recorded
+F278 / KI#601 — confirmed provisional
+F279 / KI#602 — confirmed provisional
+F280 / KI#603 — confirmed provisional
+F281 — UNUSED / provisional KI#604 next
+
+NEXT CURSOR
+-----------
+Finish the remaining high-fanout branches rather than starting another broad reread:
+1. vector/list output ownership and size/value validation (`generatePlotTypes`,
+   `generateTerrainTypes`, `getGridSize`);
+2. module existence / bCheckExists / saved-game behavior and no-argument `call` overload parity;
+3. callback-cache/global-define lifetime versus any live runtime mutations;
+4. constructor/destructor and every remaining direct return family for missing initialization;
+5. independent CE/K-Mod divergence and final function-family coverage inventory.
+
+If these remain controls, proceed to repair-boundary checks for F274-F280 and close queue 037
+without allocating F281.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP10 — remaining map/module/cache controls; F281 remains unused
+===============================================================================
+
+F281 remains UNUSED / provisional KI#604 next.
+
+GETGRIDSIZE / WORLD-SIZE SENTINEL — CONTROL
+-------------------------------------------
+Every current shipped PrivateMaps `getGridSize` implementation was enumerated. The common
+NO_WORLDSIZE convention is `return []`; `Planet_Generator_0_68.py` is the conspicuous exception:
+
+    if (argsList[0] == -1): # (-1,) is passed to function on loads
+        return (-1,-1)
+
+At first glance this looks dangerous because CvPythonCaller::mapGridDimensions accepts any result
+with size >=2 and only *asserts* positivity before assigning the dimensions.
+
+The live DLL caller bounds the issue:
+
+    if (pInitInfo != NULL)
+        use pInitInfo dimensions;
+    else
+    {
+        WorldSizeTypes eWorldSize = GC.getInitCore().getWorldSize();
+        if (eWorldSize != NO_WORLDSIZE)
+            ... mapGridDimensions(eWorldSize, ...);
+    }
+
+Thus the local DLL path never calls `mapGridDimensions` with NO_WORLDSIZE/-1. Saved-map reset uses
+pInitInfo dimensions instead. Planet Generator's comment evidently describes an external
+EXE/Python callback circumstance, not this C++ wrapper call.
+
+Current shipped normal-world-size returns are positive tuples or helpers that resolve to positive
+dimensions. No live F281.
+
+The wrapper still has malformed-script robustness debt:
+- it accepts vectors with >2 values whereas the old/stock code required exactly 2;
+- positivity is Assert-only, so a malformed override can install <=0 dimensions in Release.
+Both are inherited/third-party malformed-input concerns with no shipped trigger found.
+
+FINDSTARTINGAREA -1 COLLAPSE — CONTROL
+--------------------------------------
+Pre-practical-1648 code explicitly accepted a Python override result of -1:
+
+    if (result == -1 || m.getArea(result) != NULL)
+    {
+        areas_by_value.push_back(std::make_pair(result,1));
+        return areas_by_value;
+    }
+
+Current CvPythonCaller maps -1 to GC.getMap().getArea(-1) == NULL, and the caller interprets NULL as
+"no Python area override", proceeding into native area selection.
+
+This is a semantic drift, but downstream inspection weakens rather than strengthens it as a live
+bug. Current AdvCiv's `findStartingAreas`/`findStartingPlot` multi-area algorithm filters plots by
+exact area id from `areasByValue`. An overriding singleton `(-1,1)` would match no real plot and can
+drive starting-plot search to "Could not find starting plot." It is therefore not credible evidence
+that current AdvCiv intentionally uses overriding -1 to mean "all areas."
+
+Current shipped scripts support that interpretation:
+- scripts that return -1 do so together with `CyPythonMgr().allowDefaultImpl()`;
+- ordinary overriding scripts return a real area id;
+- no shipped script was found intentionally overriding with -1.
+
+Keep the old explicit allowance as historical API oddity / third-party compatibility seam. Do not
+allocate F281 without evidence of a real map that depended on overriding -1.
+
+RUNTIME USE_*_CALLBACK FLAG REFRESH — CONTROL
+----------------------------------------------
+K-Mod's older generic `CvGlobals::setDefineINT` called full `cacheGlobals()`. This incidentally
+meant a runtime:
+
+    gc.setDefineINT("USE_..._CALLBACK", ...)
+
+would refresh the corresponding cached callback guard.
+
+However the loss of that dynamic behavior is NOT a practical-1648 CvPythonCaller regression.
+AdvCiv practical 1631 ("Performance optimizations for access to XML data") had already changed
+setDefineINT to pinpoint `cacheGlobalInts(szChangedDefine, iNewValue)`. Its changed-define branch
+explicitly returned before the callback-flag reload block, with the source comment:
+
+    return; // Don't bother checking the Python callback flags
+
+Practical 1648 later removed those old CvGlobals callback fields and had CvPythonCaller /
+CvDllPythonEvents snapshot the flags in arrays. That preserves practical 1631's already-static
+assumption rather than newly changing a supported runtime contract.
+
+Current repository scan finds no `setDefineINT`/Python write to any `USE_*_CALLBACK` define.
+Current live setDefine uses concern camera/minimap/river-generation values, not callback guards.
+
+Classification:
+- K-Mod-to-AdvCiv modding compatibility change;
+- explicitly assumed static by pre-CvPythonCaller AdvCiv;
+- no current SAS trigger;
+- not F281.
+
+MODULE EXISTENCE / SAVED-GAME PATH — CLEAN CONTROL
+---------------------------------------------------
+The four private `call` overloads all use the same bCheckExists protocol. When requested they call:
+
+    m_python.moduleExists(szModuleName, true)
+
+and set m_bLastCallSuccessful=false without dispatch if the module cannot be loaded.
+
+History establishes why this exists:
+- practical 2460 added module-existence checks to prevent a Python error when the Settings tab
+  examines a save whose original map script is no longer installed;
+- practical 2531 changed bLoadIfNecessary from false to true to recover cleanly after Python reload
+  errors when possible.
+
+Current consumers line up with that policy:
+- numCustomMapOptions tolerates absence and returns initialized 0;
+- customMapOptionDefault asserts success only for a non-saved game; saved games may return
+  NO_CUSTOM_MAPOPTION, and CvMap::getNonDefaultCustomMapOptionDesc explicitly treats negative
+  default as "couldn't be loaded (script may have been removed)";
+- customMapOptionDescription independently tolerates failure for saved games and returns an empty
+  string;
+- CvInitCore::refreshCustomMapOptions checks `gDLL->pythonMapExists` before querying a script.
+
+No stale `m_bLastCallSuccessful` use was found after the module-missing branch.
+
+MAP LATITUDE / WRAP PAIRING — CONTROL
+--------------------------------------
+Practical 1648 changed latitude handling from an inherited all-or-nothing pair to independent
+top/bottom application. That is a semantic difference if a third-party map overrides only one
+latitude function. Current shipped map scan finds:
+- 16 maps defining getTopLatitude;
+- exactly the same 16 defining getBottomLatitude;
+- no one-sided latitude implementation.
+
+Wrap behavior deliberately remains all-or-nothing. Current shipped scan likewise finds the same
+41 scripts on both getWrapX and getWrapY.
+
+No current trigger and no stronger inherited contract evidence: no F281.
+
+MAP PLOT-PERCENT / DEFAULT-OPTION OUTPUTS — CONTROL
+----------------------------------------------------
+All current getNumPlotsPercent implementations were inspected. Their normal world-size paths return
+positive percentage values; none returns zero/negative for a supported world size. The wrapper
+initializes to 100 and its caller consumes iModifier only when isOverride() is true.
+
+Current `isClimateMap` / `isSeaLevelMap` implementations return ordinary 0/1 / False/True values.
+The wrapper's default `1` corresponds to "option flexible" and is a safe permissive fallback if a
+hook is absent/fails.
+
+No F281.
+
+VECTOR OUTPUT OWNERSHIP — CURRENT CALLERS CLEAN
+-----------------------------------------------
+`generateTerrainTypes` receives a fresh empty local vector from CvMapGenerator::generateTerrain on
+every call. Its `reserve` therefore cannot preserve stale elements from an earlier generation.
+Wrong output size is diagnosed and rejected before the caller indexes the vector.
+
+`generatePlotTypes` similarly checks exact output size before copying into the caller-owned array.
+On failure the caller overwrites every plot entry with PLOT_LAND.
+
+Neither wrapper individually validates each returned enum value. A malformed third-party map could
+therefore supply an invalid PlotTypes/TerrainTypes integer. No current shipped trigger has been
+identified; this remains robustness debt, not F281.
+
+CALLBACK-GUARD STORAGE LIFETIME — CLEAN LOCALLY
+-----------------------------------------------
+CvPythonCaller owns exactly one `bool[NUM_CALLBACK_DEFINES]` allocation and deletes it in its
+destructor. Macro-generated string and enum counts are asserted equal. Current callback guard
+values are read after GlobalDefines have loaded, when CvGlobals::cacheGlobals constructs the
+CvPythonCaller.
+
+The broader question of whether CvGlobals::cacheGlobals can repeat in one global lifetime was
+already audited under queue 040 and not locally proven; do not duplicate that speculative lifecycle
+seam as a queue-037 root.
+
+CURRENT QUEUE STATE
+-------------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp — OPEN
+F274 / KI#597 — confirmed provisional
+F275 / KI#598 — confirmed provisional
+F276 / KI#599 — confirmed provisional
+F277 / KI#600 — confirmed provisional; same-root map fallback expansion
+F278 / KI#601 — confirmed provisional
+F279 / KI#602 — confirmed provisional
+F280 / KI#603 — confirmed provisional
+F281 — UNUSED / provisional KI#604 next
+
+NEXT CURSOR
+-----------
+Complete the last function-family/repair-boundary closure:
+- inspect early UI/popup wrappers for argument/module/lifetime drift;
+- finish city/player/unit callback consumer parity against practical 1648/K-Mod where not already
+  covered;
+- inspect every direct enum/int result for a current range/sentinel trigger;
+- independent CE/K-Mod divergence pass for the confirmed roots and any surviving candidates;
+- final coverage inventory + root-independence/repair-boundary table.
+
+If those remain clean, close queue 037 with F274-F280 and leave F281 unused.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP11 — F275 same-root expansion + UI/screen/callback-namespace controls
+===============================================================================
+
+F281 remains UNUSED / provisional KI#604 next.
+
+F275 SAME-ROOT EXPANSION — practical 1648 narrowed several inherited Python truth contracts to exact 1
+----------------------------------------------------------------------------------------------------
+F275 was promoted from the strongest explicit contract:
+
+    canBuild:
+        -1 = ignore / no Python override
+         0 = cannot build
+         1 or greater = can build
+
+Current CvPythonCaller::toBool instead returns true only for exactly TRUE/1:
+
+    static bool toBool(long l)
+    {
+        FAssert(l >= 0);
+        return (l == TRUE);
+    }
+
+A complete practical-1648 old-condition audit now proves that canBuild was not the only callback
+whose inherited consumer accepted a broader Python truth value.
+
+Pre-extraction callbacks whose healthy-result semantics were broader than exact 1 include:
+
+1. canBuild
+   old:
+       if (lResult >= 1)
+           return true;
+   current:
+       return toBool(lResult);
+   This remains F275's strongest contract because the accompanying Python interface comment
+   explicitly documents "1 or greater" as the affirmative result.
+
+2. isPlayerResearch
+   old:
+       if (lResult == 0)
+           return false;
+       // any nonzero result allowed research
+   current:
+       return toBool(lResult);
+
+3. canDeclareWar
+   old:
+       if (lResult == 0)
+           return false;
+       // any nonzero result allowed declaration
+   current:
+       return toBool(lResult);
+
+4. unitCannotMoveInto
+   old:
+       if (lResult != 0)
+           return true;
+   current:
+       return toBool(lResult);
+
+5. cannotSpreadReligion
+   old:
+       if (lResult > 0)
+           return true;
+   current:
+       return toBool(lResult);
+
+6. CvGame::isVictory
+   old:
+       if (lResult == 0)
+           return false;
+       // any nonzero result was true
+   current:
+       return toBool(lResult);
+
+7. CvGame::isVictoryTest
+   old:
+       if (lResult == 0)
+           return false;
+       // any nonzero result was true
+   current:
+       return toBool(lResult);
+
+8. canPickPlot / canPickRevealedPlot
+   old:
+       if (lResult == 0)
+           ...
+       // any nonzero result was affirmative
+   current:
+       return toBool(lResult);
+
+9. map canPlaceBonusAt / canPlaceGoodyAt
+   old:
+       if (result >= 0)
+           return result;
+   The C++ return type was bool, so every positive integer converted to true.
+   current:
+       validates the nonnegative override, then returns toBool(lResult);
+   Thus positive values >1 changed from true to false.
+
+10. canRazeCity has a particularly instructive split inherited contract.
+    The old acquireCity call site used:
+        if (lResult == 1)
+    whereas CvPlayer::canRaze used:
+        if (lResult == 0)
+            return false;
+    so positive values >1 were accepted by the ordinary canRaze query but not by the acquisition
+    branch. Practical 1648 unified both callers through one exact-1 CvPythonCaller::canRaze wrapper.
+    This preserves acquireCity's old condition but narrows CvPlayer::canRaze.
+
+These are best treated as SAME-ROOT F275 evidence rather than independent findings. The common
+refactor mechanism is that practical 1648 imposed one exact-1 boolean conversion onto callbacks
+whose inherited call sites did not all share exact-1 semantics.
+
+WHY THIS IS NOT A CLAIM THAT ALL PYTHON BOOLS MUST ACCEPT ANY NONZERO VALUE
+---------------------------------------------------------------------------
+The same practical-1648 audit also finds many inherited callbacks that already used `== 1`.
+Those are semantically preserved by toBool and should not be swept into F275 merely because Python
+itself normally treats nonzero integers as truthy.
+
+Examples whose old condition was already exact 1 include:
+- citiesDestroyFeatures;
+- canTrain / cannotTrain;
+- canConstruct / cannotConstruct;
+- canCreate / cannotCreate;
+- canMaintain / cannotMaintain;
+- doGrowth / doCulture / doPlotCulture / doProduction / doReligion / doGreatPeople / doMeltdown;
+- AI_chooseProduction;
+- skipProductionPopup / showExamineCityButton / skipResearchPopup / showTechChooserButton;
+- doReviveActivePlayer / doHolyCity;
+- createBarbarianCities / createBarbarianUnits;
+- cannotSelectionListMove / cannotSelectionListGameNetMessage;
+- cannotHandleAction;
+- cannotDoControl;
+- cannotFoundCity;
+- canFoundCitiesOnWater;
+- canResearch;
+- canDoCivic / cannotDoCivic;
+- doGold / doResearch;
+- AI_doDiplo / AI_doWar;
+- doCombat;
+- isActionRecommended;
+- AI_unitUpdate.
+
+This distinction matters: F275 is an inherited-contract-preservation issue, not a proposal to make
+every numeric Python callback use generic Python truthiness.
+
+RANDOM-EVENT WRAPPERS CONFIRM THAT EXACT 1 IS NOT A UNIVERSAL BRIDGE CONTRACT
+------------------------------------------------------------------------------
+Current CvPythonCaller itself deliberately preserves nonzero truth semantics for several
+random-event callbacks, e.g. by returning:
+
+    (lResult != 0)
+
+rather than toBool(lResult). Existing source comments even question whether the usual `== 1`
+conversion would be suitable there.
+
+This is useful internal evidence that the bridge does not have one universal "only integer 1 is
+true" convention. Each callback's inherited/native contract matters.
+
+CURRENT-DATA / SEVERITY BOUNDARY
+--------------------------------
+All 54 CvPythonCaller USE_*_CALLBACK GlobalDefines were checked against current SAS XML:
+- 54 expected;
+- all 54 exist exactly once;
+- all are integer 0/1 values;
+- all 54 are currently 0.
+
+Therefore F275 and several neighboring guarded-callback regressions are not active under SAS's
+default configuration. They remain real compatibility/configuration bugs because the callback API
+is intentionally retained and old K-Mod/AdvCiv semantics are externally observable once a flag is
+enabled.
+
+No current shipped healthy callback was found returning literal positive integer >1 in one of the
+broader-boolean roles. Do not exaggerate default-gameplay severity.
+
+REPAIR BOUNDARY FOR F275
+------------------------
+A global change to toBool is unsafe because numerous callbacks intentionally inherited exact-1
+semantics.
+
+Repair must therefore preserve the affected callback's own old contract, for example:
+- canBuild: explicit >=1 handling while keeping -1 as no override;
+- inherited nonzero callbacks: `lResult != 0` where compatibility is desired;
+- inherited positive callbacks: `lResult > 0`;
+- canPlaceBonusAt / canPlaceGoodyAt: nonnegative validation plus normal C++ bool conversion
+  semantics (or explicit `lResult != 0`);
+- canRaze needs deliberate consideration because its two old call sites were not themselves
+  semantically identical.
+
+The minimum F275 repair can target canBuild alone if scope is deliberately limited to the explicit
+documented regression, while the sibling list above should be reviewed as compatibility follow-up.
+Do not blindly broaden toBool globally.
+
+
+UI / SCREEN CALLBACK NAMESPACE — CLEAN CURRENT-DATA CONTROL
+-----------------------------------------------------------
+The remaining early CvPythonCaller UI/popup family was audited against current Python rather than
+assuming names were valid.
+
+Literal PYScreensModule callbacks used by CvPythonCaller:
+- WorldBuilderGetHighlightPlot
+- pediaMain
+- pediaShowHistorical
+- refreshMilitaryAdvisor
+- showForeignAdvisorScreen
+- showHallOfFame
+- showInfoScreen
+
+All seven exist in the current `Assets/Python/EntryPoints/CvScreensInterface.py`.
+
+The dynamic call sites were then resolved from all current C++ callers:
+- showPythonScreen("X") -> showX;
+- callScreenFunction("...");
+- jumpToPedia(..., "Type") -> pediaJumpToType;
+- pedia main/history/back/forward calls;
+- camera-start helper.
+
+32 resolved current screen function names were checked and all 32 exist. No current shipped
+missing-symbol sibling to F279 was found in the screen interface.
+
+POPUP MODULE DEFAULTING — APPARENT BUG REJECTED
+------------------------------------------------
+`Assets/Python/Contrib/TriggerEvent.py` appears at first to create a popup with:
+
+    setOnClickedPythonCallback("triggerRandomEvent")
+
+without setting a Python module. CvPythonCaller::onOKClicked defaults such popups to
+PYScreensModule, which would look wrong if TriggerEvent expected its own module.
+
+Current BUG configuration resolves the contract explicitly:
+
+    Assets/Config/Trigger Event.xml
+        <export function="triggerRandomEvent" to="CvScreensInterface"/>
+
+Thus the callback is intentionally exported into the default screen module. Random-event popups that
+need CvRandomEventInterface explicitly set their Python module. No bug.
+
+`onFocus` similarly uses the screen module, and current focus callback setters resolve to functions
+available there. K-Mod used the same module convention.
+
+POPUP CALLBACK STRING LIFETIME — CLEAN
+--------------------------------------
+`CvPopupInfo` callback getters return `const CvString&`. CvPythonCaller::onOKClicked obtains
+`.c_str()` and uses it while the owning popup object remains alive for the duration of the call.
+No temporary-string dangling pointer was found.
+
+WORLD-BUILDER HIGHLIGHT EXTRACTION — IMPROVEMENT, NOT REGRESSION
+-----------------------------------------------------------------
+Pre-extraction code tested only whether the returned coordinate vector was nonempty and then indexed
+both element 0 and element 1. A one-element Python result could therefore read out of bounds.
+
+Current CvPythonCaller requires at least two elements before constructing the plot. Practical 1648
+improved this malformed-result boundary.
+
+SEND-EMAIL RESULT INITIALIZATION — IMPROVEMENT
+-----------------------------------------------
+The old sendEmail path used an uninitialized local result. The extracted wrapper initializes the
+result before dispatch. This is the opposite of F278 and is useful evidence that the uninitialized
+updateColoredPlots result is an isolated extraction omission rather than a broad intentional policy.
+
+CURRENT QUEUE STATE
+-------------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp — OPEN
+F274 / KI#597 — confirmed provisional
+F275 / KI#598 — confirmed provisional; same-root truth-semantics expansion above
+F276 / KI#599 — confirmed provisional
+F277 / KI#600 — confirmed provisional; same-root map fallback expansion
+F278 / KI#601 — confirmed provisional
+F279 / KI#602 — confirmed provisional
+F280 / KI#603 — confirmed provisional
+F281 — UNUSED / provisional KI#604 next
+
+NEXT CURSOR
+-----------
+Finish the remaining practical-1648 parity table, with special attention to:
+- mixed/sentinel numeric callbacks;
+- direct enum return values and current range guarantees;
+- any old result comparison not reproduced by the extracted consumer.
+
+Then perform the independent K-Mod/Civ4CE comparison and final function-family inventory.
+If no independent root emerges, run repair-boundary/root-independence checks and close queue 037
+without allocating F281.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP12 — F274 ancestry correction; F275 bound detail; independent-history controls
+===============================================================================
+
+F281 remains UNUSED / provisional KI#604 next.
+
+F274 ANCESTRY CORRECTION — practical 2066, not practical 1648, introduced the NULL dereference
+------------------------------------------------------------------------------------------------
+Earlier queue-037 notes correctly identified the live defect but were too broad about its origin.
+
+Practical 1648's initial CvPythonCaller extraction preserved the nullable-pointer construction:
+
+    // Note: pUnit can be NULL, but pyUnit can still be initialized (and is expected by Python).
+    CyUnit* pyUnit = new CyUnit(const_cast<CvUnit*>(pUnit));
+
+That is behaviorally consistent with the older K-Mod/CvPlot path, which constructed a CyUnit from
+the nullable CvUnit pointer. The CyUnit pointer-taking constructor is capable of representing NULL.
+
+The actual regression was introduced later by AdvCiv practical 2066, commit ffe04c3efd,
+whose title is:
+
+    Avoid some const_casts
+
+Its diff is unusually self-documenting:
+
+    // Note: pUnit can be NULL, but pyUnit can still be initialized (and is expected by Python).
+-   CyUnit* pyUnit = new CyUnit(const_cast<CvUnit*>(pUnit));
++   CyUnit* pyUnit = new CyUnit(*pUnit);
+
+The comment explicitly preserves the nullable contract while the new reference-taking expression
+dereferences that nullable pointer before the CyUnit constructor is entered.
+
+Therefore F274's precise ancestry is:
+- K-Mod / pre-2066 AdvCiv: nullable pointer preserved;
+- practical 1648: extraction still preserved it;
+- practical 2066: const-correctness cleanup changed pointer construction to reference construction
+  and created the NULL dereference;
+- current SAS inherits the practical-2066 regression.
+
+This strengthens confidence in the root and narrows review of the repair. Restoring the
+pointer-taking construction (or adding an equivalent const-pointer CyUnit overload) preserves the
+old nullable Python-object contract without redesigning doGoody.
+
+A later AdvCiv fix is a useful sibling control: practical 2571 changed
+cannotHandleActionOverride's plot plumbing to a pointer precisely where a plot can be NULL and uses
+the pointer-taking CyPlot constructor. That neighboring repair reinforces that optional gameplay
+objects should stay pointer-shaped across the Python wrapper boundary.
+
+F275 EXTRA CONTRACT DETAIL — documented result 2 also trips FAssertBounds
+---------------------------------------------------------------------------
+Current canBuild contains:
+
+    FAssertBounds(-1, 2, lResult);
+    if (lResult == -1)
+        return false;
+    bOverride = true;
+    return toBool(lResult);
+
+`FAssertBounds(lower, upper, value)` uses a half-open upper bound. Thus this check accepts:
+    -1, 0, 1
+
+but rejects:
+    2
+
+That matters because the inherited/Python-facing canBuild contract explicitly says:
+    -1 = ignore/no override
+     0 = cannot build
+     1 or greater = can build
+
+So a perfectly valid affirmative callback result of 2 has two regressions:
+1. Assert/Debug: it trips the bounds assertion;
+2. all builds: exact-1 toBool converts it to false.
+
+This is still the same F275 root, not a separate diagnostic finding. A repair that restores >=1
+truth semantics must also widen/remove the incompatible half-open bounds assertion.
+
+INDEPENDENT K-MOD / CIV4CE CONFIRMATION OF THE SEVEN ROOTS
+-----------------------------------------------------------
+An independent pass through K-Mod 1.46 and current Civ4CE was used to challenge the proposed
+ancestry/semantics rather than relying only on AdvCiv history.
+
+F274:
+- K-Mod doGoody passes the nullable CvUnit pointer into CyUnit instead of dereferencing it.
+- practical-1648 AdvCiv initially did the same after extraction.
+- practical 2066 is therefore the pinpoint introduction.
+
+F275:
+- K-Mod and Civ4CE CvPlot::canBuild both retain:
+      if (lResult >= 1) return true;
+      else if (lResult == 0) return false;
+  independently confirming the broader documented affirmative range.
+
+F276:
+- K-Mod initializes pillage Python result to -1 and executes the native C++ calculation whenever
+  the callback remains negative.
+- Current extracted wrapper's "enabled means handled" behavior therefore loses a concrete inherited
+  fallback contract.
+
+F277:
+- K-Mod and Civ4CE CvMapGenerator test whether generatePlotTypes / generateTerrainTypes /
+  addFeatures are actually supplied/overridden and otherwise continue through native generation.
+- They do not treat ordinary native/default fallback itself as an assertion failure.
+- This independently supports the current minimal SAS map's use of fallback.
+
+F278:
+- K-Mod and Civ4CE initialize the updateColoredPlots Python result to 0 before dispatch.
+- Current CvPythonCaller is the divergent uninitialized form.
+
+F279:
+- K-Mod carries the same active EVENT_FARM_BANDITS_2 XML PythonHelp token with no matching Python
+  implementation, confirming the stale data is inherited.
+- K-Mod's old event-help call path did not assert dispatch success; the repeatable assertion layer
+  is therefore an AdvCiv extraction-policy change.
+
+F280:
+- K-Mod and Civ4CE both retain:
+      if (lResult > 1)
+  for getUnitCostMod.
+- Current SAS's building-cost sibling also retains >1.
+- The unit-side >0 condition is consequently isolated threshold drift, not a broad callback-policy
+  redesign.
+
+POST-1648 HISTORY ORACLE — LATER FIXES MOSTLY EXPLAIN EXISTING ROOTS / CONTROLS
+-------------------------------------------------------------------------------
+Every later AdvCiv commit materially touching CvPythonCaller found in the local commit-diff mirror
+was used as a "what did the author later discover?" oracle.
+
+Relevant repairs / changes include:
+- practical 1662: tolerate missing random-event apply functions instead of asserting them;
+- practical 1677: saved-game custom-map-option / wrap handling becomes tolerant where scripts may
+  be unavailable;
+- practical 1850: no-assert numCustomMapOptions because a legitimate map lacks the hook;
+- practical 1917: repair the human-explorer-placement truth inversion;
+- practical 1966: reject/handle invalid random-event object IDs and sentinels;
+- practical 2019: acknowledge that Planet Generator may do terrain work during addFeatures;
+- practical 2066: introduces F274 while removing const_casts;
+- practical 2460: add map-module existence protection;
+- practical 2503: changes map-generation assertions from one assert macro to FErrorMsg, but does not
+  resolve F277's underlying false-diagnostic fallback policy;
+- practical 2531: module-existence checking may load the module if necessary;
+- practical 2571: pointer-shaped cleanup of a separately nullable CvPlot path;
+- later mechanical/refactor commits do not expose an adjacent unrepaired root.
+
+SAS later independently repaired several old callback-semantics defects elsewhere:
+- KI#304: found-value callback integer/sentinel contract;
+- KI#285: negative minStartingDistanceMod range;
+- KI#570: river override/default hybrid semantics.
+
+Those later repairs are useful saturation evidence. They explain several suspicious historical
+differences that otherwise might look like new queue-037 findings, while leaving F274-F280 as
+independent surviving roots.
+
+DIRECT ENUM / SENTINEL RETURN FAMILY — NO F281 SO FAR
+------------------------------------------------------
+The remaining raw enum/int return wrappers were compared to their consumers and inherited behavior.
+
+- recommendedTech / recommendedUnit / recommendedBuilding:
+  initialize to NO_* sentinels; popup consumers fall back to native AI recommendations.
+- AI_chooseTech:
+  initializes to NO_TECH; caller has a native fallback.
+- conscriptUnitOverride:
+  uses NO_UNIT as no-override sentinel; raw malformed positive IDs were also raw-cast historically.
+- customMapOptionDefault:
+  uses NO_CUSTOM_MAPOPTION when the module/default cannot be loaded in the allowed saved-game path.
+- riverStartCardinalDirection:
+  starts from NO_CARDINALDIRECTION and supports default implementation; malformed positive enum
+  values remain third-party robustness debt, not a current regression.
+- findStartingPlot:
+  preserves the known special -10/default convention and native fallback.
+- findStartingArea:
+  old -1 acceptance remains a historical API seam, but current downstream multi-area logic and all
+  shipped scripts argue against treating an overriding -1 as a useful supported result.
+- upgradePrice / experienceNeeded:
+  negative means native computation; current consumers preserve it.
+- random-event eligibility/expiry:
+  current wrappers deliberately retain nonzero truth semantics rather than toBool.
+
+No current shipped invalid enum return was found. Missing range validation therefore remains
+malformed-Python robustness debt unless a concrete current callback is found.
+
+NULLABLE PYTHON-OBJECT CONSTRUCTION — F274 REMAINS LOCALIZED
+-------------------------------------------------------------
+The wrapper's Cy* construction family was rechecked after the practical-2066 discovery.
+
+The significant nullable sites are:
+- doGoody: BAD — pointer is explicitly nullable but current code dereferences it (F274).
+- cannotHandleActionOverride: SAFE — nullable CvPlot* is passed to a pointer-taking CyPlot
+  constructor after practical 2571.
+- eventHelp: live caller CvGameTextMgr checks pTriggeredData and returns before invoking eventHelp
+  when NULL.
+- random-event city/unit objects: validity checks and NO_* sentinel handling introduced by later
+  repairs prevent the formerly invalid-ID construction cases.
+- ordinary city/player/unit callbacks take references whose callers supply live objects.
+
+No second live F274-style optional-pointer dereference was established.
+
+CURRENT QUEUE STATE
+-------------------
+queue 037 CvGameCoreDLL/CvPythonCaller.cpp — OPEN
+F274 / KI#597 — confirmed provisional; ancestry corrected to practical 2066
+F275 / KI#598 — confirmed provisional; broader truth-semantics siblings; result 2 also asserts
+F276 / KI#599 — confirmed provisional
+F277 / KI#600 — confirmed provisional; same-root native-map-fallback expansion
+F278 / KI#601 — confirmed provisional
+F279 / KI#602 — confirmed provisional
+F280 / KI#603 — confirmed provisional
+F281 — UNUSED / provisional KI#604 next
+
+NEXT CURSOR
+-----------
+The substantive semantic/history audit is now close to saturation.
+
+Before closure:
+1. finish direct current-data checks for map cardinal/default-option enum returns;
+2. inspect doPlayerScore and any remaining initialized-output/error-sentinel wrappers against their
+   pre-extraction behavior;
+3. run a final direct-call / call-overload coverage inventory so no small callback family was
+   skipped;
+4. perform explicit root-independence and repair-boundary checks for F274-F280;
+5. determine the next reconciled priority queue from the album rather than guessing it.
+
+If no independent root survives those checks, close queue 037 with F274-F280 and leave F281 unused.
+===============================================================================
+
+
+===============================================================================
+QUEUE 037 CONTINUATION — CvPythonCaller.cpp
+C024-WIP13 — final current-data/output/inventory controls; closure challenge
+===============================================================================
+
+F281 remains UNUSED / provisional KI#604 next.
+
+SHIPPED RIVER-CARDINAL RETURN DOMAIN — CLEAN
+--------------------------------------------
+Exactly four current PrivateMaps define getRiverStartCardinalDirection:
+
+1. Great_Plains.py
+   Returns CARDINALDIRECTION_EAST or CARDINALDIRECTION_WEST.
+
+2. Inland_Sea.py
+   Returns NORTH/SOUTH/WEST/EAST on exhaustive ordinary branches.
+
+3. Team_Battleground.py
+   Returns EAST/WEST for the left-vs-right layouts, NORTH/SOUTH for the top-vs-bottom layout,
+   and calls CyPythonMgr().allowDefaultImpl() for the remaining layout.
+
+4. Planet_Generator_0_68.py
+   Calls CyPythonMgr().allowDefaultImpl() unconditionally.
+
+Thus the current wrapper's lack of an explicit upper-bound enum check has no shipped invalid-value
+trigger. Negative override results are rejected and default-implementation paths leave the native
+cardinal-direction selection untouched.
+
+CUSTOM-MAP DEFAULT DOMAIN — STOCK RANDOM -1 CONVENTION, NOT INVALID CURRENT DATA
+---------------------------------------------------------------------------------
+A static literal-table audit was possible for 38 current map scripts whose
+getNumCustomMapOptionValues / getCustomMapOptionDefault functions use directly recoverable option
+dictionaries.
+
+Every ordinary default lies within:
+    0 <= default < numValues
+
+except six defaults whose value is -1:
+- Tilted_Axis option 0;
+- Ring options 1 and 2;
+- Wheel option 1;
+- Hub options 1 and 2.
+
+Every one of those six options is independently marked:
+    isRandomCustomMapOption(...) == true
+
+This is the longstanding map-script convention for a random default, not evidence of a malformed
+positive CustomMapOptionTypes value. The current CvMap display helper also deliberately treats a
+negative default as a no-description/default-like state.
+
+No F281.
+
+doPlayerScore OUTPUT SENTINEL — CURRENT FAILURE BEHAVIOR IS A FALLBACK IMPROVEMENT
+----------------------------------------------------------------------------------
+Current wrapper:
+
+    int const iError = MIN_INT;
+    ARGSLIST(iError);
+    ...
+    call("calculateScore", argsList, lResult);
+    if (lResult != iError)
+        iScore = toInt(lResult);
+    else FAssert(...);
+
+At first glance this differs substantially from the pre-practical-1648 path, where the score result
+was initialized to 0 and the Python result was returned directly.
+
+The surrounding practical-1648 change is decisive: the same refactor moved the normal CvGameUtils
+score calculation into C++. CvPlayer::calculateScore now computes a complete native score first and
+passes it by reference to doPlayerScore only as an optional callback override.
+
+Therefore:
+- callback disabled -> preserve native C++ score;
+- callback succeeds -> replace it with Python result;
+- callback fails / does not write the MIN_INT sentinel -> assert diagnostically and preserve the
+  already-computed native score.
+
+This is coherent graceful fallback, not an output-sentinel regression. It differs from F276 because
+pillage's caller explicitly expects "not handled" to trigger a native calculation that current
+doPillageGold wrongly suppresses.
+
+OTHER OUTPUT/SENTINEL WRAPPERS — CLEAN
+--------------------------------------
+Final direct comparison reconfirmed:
+- captureGold:
+  MIN_INT means wrapper did not produce a valid override; caller can keep its fallback/current
+  value. Zero remains a valid explicit capture-gold result.
+- upgradePrice:
+  negative result means use native C++ price, preserving inherited behavior.
+- experienceNeeded:
+  negative result means native C++ XP calculation, preserving K-Mod behavior.
+- AI_chooseTech / recommendations / conscript:
+  NO_* sentinels preserve native-selection fallbacks.
+- mapGridDimensions:
+  output vector is checked for at least two elements before indexing; live DLL callers do not pass
+  NO_WORLDSIZE.
+- mapPlotsPercent:
+  starts at 100 and only installs the result when an override exists.
+- latitude/wrap/default-option outputs:
+  current shipped scripts use paired hooks where pairing matters; no one-sided current-data trigger.
+- riverValue / minStartingDistance / foundValue:
+  previously suspicious extraction semantics have already been repaired by later AdvCiv/SAS work
+  (including the current KI#570/KI#285/KI#304 lineage).
+- findStartingPlot:
+  preserves its special default/sentinel behavior.
+- random-event booleans:
+  deliberately retain nonzero truth semantics.
+
+No independent F281 emerged.
+
+ASSERT / HARD-DIAGNOSTIC INVENTORY — ALL CURRENT HITS CLASSIFIED
+-----------------------------------------------------------------
+Every FAssert/FError site in CvPythonCaller.cpp was rechecked:
+
+- callback-tag array size:
+  compile/static configuration invariant; clean.
+- WB highlight short vector:
+  current code is safer than old size>0/index-two behavior.
+- multiplayer popup OOS warning:
+  inherited/intentional.
+- central call bAssertSuccess:
+  expected strictness for mandatory callbacks; F277/F279 are the proved cases where the chosen
+  policy conflicts with supported/current optional data.
+- Pitboss email:
+  inherited K-Mod had both call-success and zero-result assertions; current initialized result is
+  safer, not weaker.
+- eventHelp:
+  F279.
+- doPlotCulture ePlayer:
+  caller contract; no NO_PLAYER producer found.
+- captureGold / doPillageGold / doPlayerScore error sentinels:
+  capture/score fallback clean; doPillageGold is F276.
+- canBuild bounds:
+  F275, including the documented valid value 2 assertion.
+- water-city plot assertion:
+  caller supplies water plot.
+- custom-map description saved-game exception:
+  deliberately repaired in later AdvCiv history.
+- grid positive dimensions:
+  malformed-script robustness only; current normal returns positive and the DLL excludes
+  NO_WORLDSIZE.
+- map-generation no-override FErrors:
+  F277.
+- wrong-size plot/terrain generation:
+  valid diagnostic when an actual overriding map returns the wrong list length.
+- canPlaceItem/river/cardinal negative checks:
+  compatible with current shipped return domains; no invalid current trigger.
+- findStartingArea / findStartingPlot:
+  current shipped sentinel/default patterns understood; no independent root.
+- callback output sentinels:
+  classified above.
+
+There is no remaining unclassified assertion/error site.
+
+ALLOCATED CY* OBJECT OWNERSHIP — BALANCED
+-----------------------------------------
+A mechanical scan finds 36 explicit `new Cy...` allocations in CvPythonCaller.cpp:
+- 22 pyCity;
+- 9 pyPlot;
+- 4 pyUnit;
+- 1 pyGroup.
+
+The corresponding delete counts match exactly for each variable family. Dispatch failure does not
+bypass those deletes in the current straight-line wrappers.
+
+This does not cure F274: its failure occurs while evaluating `*pUnit` before the CyUnit object can
+be constructed. But no second allocation/deletion imbalance or early-return leak was established.
+
+PYTHON CALL OVERLOAD / MAP OPTIONALITY INVENTORY
+-------------------------------------------------
+All four private `call` overloads were compared:
+- args + result;
+- result only;
+- args only;
+- no args/no result.
+
+They consistently:
+1. optionally check/load module existence;
+2. set m_bLastCallSuccessful=false when required module is absent;
+3. otherwise assign the actual callFunction success result;
+4. assert only according to bAssertSuccess.
+
+Every map-script wrapper that is known/allowed to be optional passes bAssertSuccess=false EXCEPT
+`addFeatures`, already captured by F277. The two direct vector-return map calls bypass `call`, but
+their false-diagnostic `!isOverride()` policy is also already included in F277.
+
+No second optional-map-hook assertion root remains.
+
+FUNCTION-FAMILY COVERAGE INVENTORY
+----------------------------------
+The current .cpp contains 125 CvPythonCaller method definitions including constructor, four private
+call overloads and isOverride. All substantive families have now received at least one direct
+contract/current-data/history pass:
+
+- construction / callback guard cache / lifetime;
+- screen/popup/Pedia/UI dispatch;
+- WorldBuilder / colored plots;
+- central call overloads and success/default state;
+- random-event trigger/help/apply/expiry/data mutation;
+- city train/construct/create/maintain/cost/turn hooks;
+- city capture/raze;
+- plot/build/goody/founding;
+- player research/civics/cost/expenses/found value/AI tech/diplo;
+- team war/organization-tech callbacks;
+- unit/group combat/action/movement/spread/pillage/upgrade/XP/AI update;
+- map module existence/custom options/grid/plot percentage/latitude/wrap/default availability;
+- map plot/terrain generation and bonus/goody/feature/lake/river hooks;
+- map river direction/value/start placement/distance/latitude;
+- game score/revive/holy-city/barbarian/victory callbacks.
+
+The direct `long lResult` inventory also reconfirms that updateColoredPlots is the sole bare
+uninitialized result local; every other result is initialized through ARGSLIST or an explicit
+assignment.
+
+CURRENT ROOT-INDEPENDENCE CHECK
+-------------------------------
+F274-F280 remain independent roots:
+
+F274 — nullable C++ pointer destroyed at Python-wrapper construction boundary.
+F275 — broader inherited numeric truth contract narrowed to exact integer 1.
+F276 — negative/error pillage result no longer signals native fallback.
+F277 — legitimate map-script native/default fallback diagnosed as failure.
+F278 — uninitialized Python result consumed on failed colored-plot dispatch.
+F279 — active shipped XML names nonexistent PythonHelp; AdvCiv asserts its failed help dispatch.
+F280 — unit-cost percentage application threshold changed from >1 to >0.
+
+None requires another finding's condition to reproduce, and no single repair below fixes two of
+them accidentally.
+
+REPAIR-BOUNDARY CHECK
+---------------------
+F274:
+- restore pointer-shaped CyUnit construction for nullable pUnit (or add a const-pointer constructor);
+- do not change non-null doGoody Python argument shape.
+
+F275:
+- restore each affected callback's inherited truth contract where chosen;
+- canBuild's minimum repair is >=1 affirmative plus a compatible range assertion;
+- do NOT globally redefine toBool because many inherited callbacks intentionally used ==1.
+
+F276:
+- if the enabled Python pillage callback fails or returns a negative result, return false so the
+  caller executes native C++ pillage-gold calculation;
+- preserve 0 and positive values as explicit Python overrides.
+
+F277:
+- missing/default map hooks should return "not overridden" without a false diagnostic;
+- keep diagnostics for an actual overriding plot/terrain list with the wrong length;
+- addFeatures should use non-asserting optional dispatch.
+
+F278:
+- initialize updateColoredPlots result to 0, restoring K-Mod/Civ4CE/pre-extraction deterministic
+  fallback behavior.
+
+F279:
+- narrow data repair: clear EVENT_FARM_BANDITS_2's stale PythonHelp token unless historical evidence
+  establishes intended custom help;
+- do not globally silence valid event-help misspelling diagnostics.
+
+F280:
+- restore `if (iPyMod > 1)` at the unit-cost consumer;
+- preserve all values >=2 exactly as before and keep <=1 as non-overrides.
+
+All seven boundaries preserve already-correct sibling behavior.
+
+CLOSURE CHALLENGE
+-----------------
+At this point:
+- every method family is covered;
+- every hard diagnostic is classified;
+- every explicit allocation is ownership-balanced;
+- current map/event callback namespaces were checked;
+- callback guard configuration was checked against current XML;
+- practical-1648 semantic extraction was compared against old call-site conditions;
+- later AdvCiv repairs were used as sibling-invariant clues;
+- independent K-Mod/Civ4CE behavior was used to challenge all seven roots;
+- current shipped enum/default/sentinel data were checked where the wrapper relies on them;
+- all seven repairs have narrow, independent boundaries.
+
+No credible independent F281 remains.
+
+The next step is therefore to promote queue 037 to FIRST-PASS COMPLETE with F274-F280, leave F281
+unused, and select the next still-PENDING `priority next wip` queue from the live queue table.
 ===============================================================================

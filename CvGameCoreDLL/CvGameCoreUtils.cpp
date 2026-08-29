@@ -1155,8 +1155,10 @@ int intHash(std::vector<int> const& kInputs, PlayerTypes ePlayer)
 
 int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, GameSpeedTypes eSpeed)
 {
-	return getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed) /
-			std::max(1, GC.getNumMonthInfos()); // advc: max
+	// <!-- custom: Signed C++ division truncated negative fractional BC years toward AD. Subtract AdvCiv's nonnegative calendar remainder first to obtain the mathematical floor year, matching its sibling BC-month correction. See KI#594. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iMonthsPerYear = std::max(1, GC.getNumMonthInfos()); // advc: max
+	int const iTurnMonth = getTurnMonthForGame(iGameTurn, iStartYear, eCalendar, eSpeed);
+	return (iTurnMonth - intdiv::umodulo(iTurnMonth, iMonthsPerYear)) / iMonthsPerYear;
 }
 
 

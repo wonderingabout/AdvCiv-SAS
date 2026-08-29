@@ -17548,9 +17548,21 @@ int CvPlayerAI::AI_localAttackStrength(const CvPlot* pTargetPlot, TeamTypes eAtt
 {
 	PROFILE_FUNC();
 
-	int const iBaseCollateral = (bUseTarget ?
-			estimateCollateralWeight(pTargetPlot, getTeam()) :
-			estimateCollateralWeight(0, getTeam()));
+	// <!-- custom: K-Mod passed the evaluating team as the collateral dealer even when this function was counting an explicit enemy team or all teams at war with us.
+	// Derive both combat roles: default/enemy-team queries defend with our team, while own-offense queries defend with the target plot's opposing team when known. See KI#593. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes eCollateralDefenseTeam = NO_TEAM;
+	if (bUseTarget)
+	{
+		if (eAttackTeam == getTeam())
+		{
+			eCollateralDefenseTeam = pTargetPlot->getTeam();
+			if (eCollateralDefenseTeam == eAttackTeam)
+				eCollateralDefenseTeam = NO_TEAM;
+		}
+		else eCollateralDefenseTeam = getTeam();
+	}
+	int const iBaseCollateral = estimateCollateralWeight(bUseTarget ? pTargetPlot : NULL,
+			eAttackTeam, eCollateralDefenseTeam);
 
 	int	iTotal = 0;
 	// <advc.139>

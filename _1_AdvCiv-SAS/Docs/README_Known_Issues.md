@@ -681,10 +681,17 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#591 - (Fixed inherited original UWAI route-representation defect) Faster sea travel was used as land-invasion distance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-591)\
 [KI#592 - (Fixed inherited AdvCiv/UWAI spatial-state defect) Conquered cities remained in simulated per-area Army and garrison counts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-592)\
 
-[KI#593 - (Provisional Pending inherited K-Mod/AdvCiv combat-AI defect) Local collateral strength uses the wrong attacker team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-593)\
-[KI#594 - (Provisional Pending inherited BtS/K-Mod/AdvCiv calendar defect) Negative fractional BC years truncate toward AD](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-594)\
+[KI#593 - (Fixed inherited K-Mod/AdvCiv combat-AI defect) Local collateral strength used the wrong attacker team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-593)\
+[KI#594 - (Fixed inherited BtS/K-Mod/AdvCiv calendar defect) Negative fractional BC years truncated toward AD](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-594)\
 [KI#595 - (Fixed inherited AdvCiv replay-compatibility defect) Foreign replay colors wrapped into the skipped system-color prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-595)\
 [KI#596 - (Fixed AdvCiv-SAS assertion-build regression) Rich diagnostics were disabled in optimized Assert builds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-596)\
+[KI#597 - (Provisional Pending inherited AdvCiv callback regression) Nullable doGoody unit is dereferenced](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-597)\
+[KI#598 - (Provisional Pending inherited AdvCiv callback regression) Positive override values are narrowed to exactly 1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-598)\
+[KI#599 - (Provisional Pending inherited AdvCiv callback regression) Failed or negative pillage-gold results suppress the C++ fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-599)\
+[KI#600 - (Provisional Pending inherited AdvCiv map-callback regression exposed by SAS) Valid native fallbacks assert as missing overrides](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-600)\
+[KI#601 - (Provisional Pending inherited AdvCiv callback regression) Colored-plot failure consumes an uninitialized result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-601)\
+[KI#602 - (Provisional Pending inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits names missing Python help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-602)\
+[KI#603 - (Provisional Pending inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-603)\
 
 <a id="ki-1"></a>
 
@@ -13171,21 +13178,30 @@ Each node now derives a simulation-adjusted per-area city count by subtracting i
 A current-build Debug-opt autoplay completed successfully; the exact sequential same-area conquest counts remain source-verified. The unexplained Future-era city-screen switching/reopening observed during the preceding batch did not recur in this run, so it remains an isolated side observation rather than a confirmed issue or a result attributed to these fixes.
 
 Found as F269/provisional KI#592 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
+
 <a id="ki-593"></a>
 
-## KI#593 - (Provisional Pending inherited K-Mod/AdvCiv combat-AI defect) Local collateral strength uses the wrong attacker team
+## KI#593 - (Fixed inherited K-Mod/AdvCiv combat-AI defect) Local collateral strength used the wrong attacker team
 
-Album F270 finds AI_localAttackStrength hardwiring the evaluator's team into a helper role defined as the collateral-dealing team, including modes with a different or non-unique attack team. Pending independent implementation review.
+Album F270 found `CvPlayerAI::AI_localAttackStrength` hardwiring the evaluating player's team into `estimateCollateralWeight`'s collateral-dealing-team argument. In the common default mode, however, the function totals every team at war with the evaluator; it also supports an explicit different attack team. The helper therefore omitted or applied target defenses for the wrong combat role and sampled the wrong units for collateral immunity and protection. The resulting collateral term feeds the high-fanout local attack-strength estimate used by city safety, retreat, surrender and other tactical decisions.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The caller now passes its actual explicit attack team, or `NO_TEAM` for the deliberate multi-enemy estimate, and derives the defender separately. Enemy-offense queries use the evaluating team as defender; own-offense queries use the target plot's opposing team when one is known. This preserves the generic estimate when no single truthful combat role exists. K-Mod practical 448 introduced collateral weighting into this caller, practical 1200 made the attacker-role contract explicit, and both K-Mod 1.46 and Base AdvCiv 1.14 retain the mismatch; it was not introduced by AdvCiv-SAS.
+
+A full Donut autoplay completed successfully after compilation. The precise collateral attacker/defender-role alternatives remain source-verified rather than deliberately forced.
+
+Found as F270 during ChatGPT-5.6-Sol's C022/C023 `CvGameCoreUtils.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-594"></a>
 
-## KI#594 - (Provisional Pending inherited BtS/K-Mod/AdvCiv calendar defect) Negative fractional BC years truncate toward AD
+## KI#594 - (Fixed inherited BtS/K-Mod/AdvCiv calendar defect) Negative fractional BC years truncated toward AD
 
-Album F271 finds signed division truncating negative fractional-year month counts toward zero, mislabeling late 1 BC and shifting a non-display building-age consumer. Pending independent implementation review.
+Album F271 found `getTurnYearForGame` converting signed month counts to years through ordinary C++ integer division. Negative fractional BC years therefore truncated toward zero rather than flooring: with 12 months per year, month `-1` became year `0`, which Civ4 renders as 1 AD instead of the final month of 1 BC. Besides date text and public Python APIs, the year value records building completion and controls delayed building-commerce increases, so the defect was not display-only.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The conversion now subtracts `intdiv::umodulo`'s nonnegative calendar remainder before dividing, producing the mathematical floor year. Nonnegative dates, exact-year BC dates and the shipped default game-speed calendars are unchanged; supported monthly, seasonal, weekly, scenario and custom fractional-year BC dates are corrected. BtS, K-Mod, Civ4CE and Base AdvCiv 1.14 all retain the truncating quotient, while AdvCiv had already corrected the sibling negative-month remainder in date formatting; this is inherited rather than an AdvCiv-SAS regression.
+
+The same full Donut autoplay completed successfully. Its ordinary default calendar is intentionally unchanged, while the exact fractional-BC correction remains source/arithmetic verified.
+
+Found as F271 during ChatGPT-5.6-Sol's C022/C023 `CvGameCoreUtils.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-595"></a>
 
@@ -13206,3 +13222,59 @@ Album F273 found AdvCiv-SAS's richer missing-GlobalDefine diagnostics checking l
 All four rich diagnostics are now guarded by `FASSERT_ENABLE`, restoring the inherited assertion coverage in both Debug and optimized Assert builds. Message construction remains lazy and occurs only after the corresponding condition fails. The stuck-group diagnostic's separate attempt-limit restoration remains under `_DEBUG`, matching the Debug-only reduction that it reverses. A full SAS_LongWorld autoplay completed successfully after compilation. The Makefile and assertion-header build contract were source verified; an exact runtime test would require an Assert build and deliberately triggering a missing define or stuck group.
 
 Found as F273 and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-597"></a>
+
+## KI#597 - (Provisional Pending inherited AdvCiv callback regression) Nullable doGoody unit is dereferenced
+
+Album F274 finds `CvPythonCaller::doGoody` accepting a nullable unit pointer, as required when plot ownership absorbs a goody hut, but dereferencing it to construct the Python wrapper. AdvCiv practical 2066 replaced K-Mod's nullable pointer construction while retaining the explicit NULL contract; Base AdvCiv 1.14 retains the regression. Current callback configuration disables this path by default. Pending independent implementation review that preserves a real `CyUnit` Python object with a NULL internal unit pointer.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-598"></a>
+
+## KI#598 - (Provisional Pending inherited AdvCiv callback regression) Positive override values are narrowed to exactly 1
+
+Album F275 finds AdvCiv practical 1648 routing `canBuild` through an exact-one Boolean conversion despite its preserved contract that every result of 1 or greater permits the Build. The same extraction also changed positive map placement callback results from ordinary nonzero truth to exact-one truth. Current SAS disables `canBuild` by default and its shipped map placement hook does not return a differing positive value. Pending independent implementation review bounded to callbacks whose inherited numeric contract is proven; the generic Boolean converter must not be changed blindly.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-599"></a>
+
+## KI#599 - (Provisional Pending inherited AdvCiv callback regression) Failed or negative pillage-gold results suppress the C++ fallback
+
+Album F276 finds AdvCiv practical 1648 making enabled `doPillageGold` report success even when Python returns the inherited negative fallback sentinel or fails without replacing its error initializer. The caller consequently skips the native C++ calculation and awards no gold. K-Mod treated every negative result as a request for the C++ fallback, while the current sibling capture-gold wrapper still preserves equivalent failure handling. Current SAS disables this callback by default. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-600"></a>
+
+## KI#600 - (Provisional Pending inherited AdvCiv map-callback regression exposed by SAS) Valid native fallbacks assert as missing overrides
+
+Album F277 finds AdvCiv practical 1648 treating absent/default Python map generators as assertion failures even though their native C++ fallbacks remain valid. Current `SAS_Simple_Flat_Grass.py` deliberately relies on those fallbacks for features, plot types and terrain types, exposing the inherited diagnostic regression in assertion-enabled builds. The native fallback behavior remains coherent in Release. Pending independent implementation review that retains result-size diagnostics for actual malformed overrides without requiring dummy Python generators.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-601"></a>
+
+## KI#601 - (Provisional Pending inherited AdvCiv callback regression) Colored-plot failure consumes an uninitialized result
+
+Album F278 finds AdvCiv practical 1648 removing the inherited zero initialization from `CvPythonCaller::updateColoredPlots`. If the Python call fails before writing its output, Release evaluates indeterminate storage and can randomly skip the native C++ colored-plot update; assertion-enabled builds still consume it if execution continues after the assertion. Healthy current Python normally returns a value, so this is an error-path robustness defect. Pending independent implementation review of the localized historical false default.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-602"></a>
+
+## KI#602 - (Provisional Pending inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits names missing Python help
+
+Album F279 finds active `EVENT_FARM_BANDITS_2` naming `getHelpFarmBandit2`, which does not exist in the random-event Python namespace. Its gameplay effects are already represented through ordinary XML fields. The dangling token is inherited from BtS/K-Mod, while AdvCiv practical 1648 amplified the old silent missing help into a repeatable assertion when choice help is built. Pending independent implementation review of the narrow data-side removal rather than globally suppressing missing-help diagnostics.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-603"></a>
+
+## KI#603 - (Provisional Pending inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier
+
+Album F280 finds AdvCiv practical 1648 changing the unit-cost callback's application threshold from `> 1` to `> 0`. A result of exactly 1, previously a non-override like the current building-cost sibling, therefore reduces many units to the one-hammer minimum. Current SAS disables this callback by default. Pending independent implementation review of restoring the inherited consumer threshold without globally reinterpreting numeric callbacks.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
