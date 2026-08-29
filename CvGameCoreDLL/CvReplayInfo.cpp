@@ -361,19 +361,12 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
 	}
 	if(iOptions > 0)
 		szSettings = szSettings.substr(0, szSettings.length() - 2) + L"\n";
-	//CvWString szModName(GC.getModName().getName) // I'd like the prefix to be configurable
-	CvWString const szKey = "TXT_KEY_REPLAY_PREFIX";
-	CvWString szModName = gDLL->getText(szKey);
-	// Don't list mod name if the tag isn't present
-	if(szKey.compare(szModName) == 0)
+	// <!-- custom: Replay settings use the same central branded mod identity as the rest of the UI; no separate replay-name knob is needed. (ChatGPT-5.6-Sol) -->
+	CvWString szModName(GC.getModName().getDisplayName());
+	if (szModName.empty())
 		szSettings = szSettings.substr(0, szSettings.length() - 1); // drop \n
 	else
-	{
-		// Remove brackets
-		if(szModName.at(0) == '[' && szModName.at(szModName.length() - 1) == ']')
-			szModName = szModName.substr(1, szModName.length() - 2);
 		szSettings += szModName + L" Mod";
-	}
 } // </advc.106h>
 
 

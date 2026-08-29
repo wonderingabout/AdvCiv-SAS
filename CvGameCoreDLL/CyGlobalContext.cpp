@@ -38,6 +38,22 @@ bool CyGlobalContext::isDebugBuild() const
 #endif
 }
 
+// <!-- custom: AdvCiv already owns the central display/folder/path identity through ModName; expose those values to Python instead of duplicating name or filesystem resolution there. (ChatGPT-5.6-Sol) -->
+const char* CyGlobalContext::getModDisplayName() const
+{
+	return GC.getModName().getDisplayName();
+}
+
+const char* CyGlobalContext::getModFolderName() const
+{
+	return GC.getModName().getName();
+}
+
+const char* CyGlobalContext::getModPathInRoot() const
+{
+	return GC.getModName().getPathInRoot();
+}
+
 CyGame* CyGlobalContext::getCyGame() const
 {
 	static CyGame cyGame(GC.getGame());

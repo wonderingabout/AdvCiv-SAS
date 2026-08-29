@@ -52,11 +52,10 @@ def _SAS_findAssetXmlPath(szFileName, szSubDir):
 
 	candidates = []
 	try:
-		# <!-- custom: fallback independent from __file__: derive mod Assets from current BTS cwd + CvModName.
-		# Some Civ4 Python load paths can expose __file__ as empty/relative, so this keeps Sevopedia Music on mod XML safely
-		# without calling BugPath during early startup. See KI#110. (GPT-5.3-Codex) -->
+		# <!-- custom: fallback independent from __file__: derive mod Assets from current BTS cwd + AdvCiv's actual EXE-detected mod folder, exposed through CvModName. Do not use the branded display name here: users may rename the installed folder.
+		# This still avoids calling BugPath during early startup. See KI#110. (GPT-5.3-Codex + ChatGPT-5.6-Sol) -->
 		import CvModName
-		szModName = CvModName.modName
+		szModName = CvModName.getFolderName()
 		szCwd = os.getcwd()
 		if szModName and szCwd:
 			_SAS_addCandidate(candidates, os.path.join(szCwd, "Mods", szModName, "Assets", szSubDir, szFileName))

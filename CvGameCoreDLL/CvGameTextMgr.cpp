@@ -20013,7 +20013,7 @@ void CvGameTextMgr::setTradeRouteHelp(CvWStringBuffer &szBuffer, int iRoute, CvC
 				szBuffer.append(gDLL->getText("TXT_KEY_MISC_HELP_FROM"));
 				szBuffer.append(L" ");
 				// Well, it's sth. a mod might change, for balance reasons or so.
-				CvWString szModName(GC.getModName().getName());
+				CvWString szModName(GC.getModName().getDisplayName());
 				szBuffer.append(szModName);
 			}
 		}

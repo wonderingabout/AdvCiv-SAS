@@ -89,7 +89,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [Known issues that may or may not be fixed, in base AdvCiv or Civ4](/README.md#known-issues-that-may-be-fixed-or-not-fixed-in-base-advciv-or-civ4)\
 ["Temporary" crashes](/README.md#temporary-crashes)\
 [Not supported in AdvCiv-SAS](/README.md#not-supported-in-advciv-sas)\
-[Version number](/README.md#version-number)\
+[Mod name and Version number](/README.md#mod-name-and-version-number)\
 [Copyright and Disclaimer](/README.md#copyright-and-disclaimer)\
 [Credits](/README.md#credits)\
 [Some Useful tools while doing this](/README.md#some-useful-tools-while-doing-this)\
@@ -1035,11 +1035,17 @@ Update: i now seemingly know how to use .pdb files with WindDbg as in [KI#475.2]
 - savegame compatibility. Anytime an asset is added or removed in the game (e.g. adding a tech, removing a unit or building or other), it should be expected that previous savegames are NOT compatible. Same with any DLL recompile. They may luckily or sometimes somehow work, but as a rule expect that generally they don't, and i will not support old save files, if you want to continue playing on them, use the previous version (see [/README.md#version-number](/README.md#version-number) for info about how we choose version number in advciv-sas) of this mod you were using. E.g. if AdvCiv-SAS version 4946 worked, and then version 4947 broke comptibility in one way or an other, play it with this version instead. I have decided to do so as it's beyond way too tedious and i'm really not sure it's worth preserving compatibility considering the code mess it creates xd. Also i don't know how so i'd rather not, but hopefully keep playing on the old version (same version that you used to create this save file) should be fine or not too bad. Note: XML changes such as increasing the cost of this unit or changing the bonus needed in the xml for this building or such should generally if not always be fine, at least seems so to me, but i don't know too much about these, check if accurate. See related info at [KI#46](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46) as well.
 - Base AdvCiv previous behaviour and now an issue in AdvCiv-SAS of trying to support reading mod (e.g., AdvCiv/AdvCiv-SAS) replay/Hall of Fame data in unmodded BTS, or unmodded BTS replay/Hall of Fame data in the mod (e.g., AdvCiv/AdvCiv-SAS): AdvCiv-SAS changes raw XML ids for game speeds, world sizes, handicaps, and other modded data; we also do not want AdvCiv-SAS data to tediously and needlessly be supported in unmodded BTS or vice-versa (launch from AdvCiv-SAS or unmodded BTS depending on data rather than make them tediously/needlessly vanilla BtS-compatible). This does not affect normal saves or gameplay. See also [KI#166](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-166).
 
-## Version number
+## Mod name and Version number
 
-I use the default github branch's commit count as version number.
+### Mod name
 
-For example, in our mod's github default branch's main page [our mod's github default branch's main page](https://github.com/wonderingabout/AdvCiv-SAS), as of now there are 5187 commits, so this is AdvCiv-SAS 5187.
+AdvCiv-SAS centralizes its runtime display/project name through `SAS_MOD_DISPLAY_NAME` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). This is separate from the actual installed mod-folder name detected by BtS/AdvCiv. For rebranding/fork details and the remaining paths that must still be changed manually, see [Main Changes Guide: Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion).
+
+### Version number
+
+I use the default github branch's commit count as version number. This remains separate from stable-release labels/tags, which can intentionally keep an older release number while receiving later fixes as explained below.
+
+For example, if the [AdvCiv-SAS GitHub default branch](https://github.com/wonderingabout/AdvCiv-SAS) shows 6300 commits, that source state is AdvCiv-SAS 6300. The example number is illustrative; use the current default-branch commit count for the current version.
 
 Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
 

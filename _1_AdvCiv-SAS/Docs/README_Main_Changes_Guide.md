@@ -15,6 +15,7 @@ Note: The main changes guide serves as an index that covers concisely most AdvCi
 [Main Changes](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#main-changes)\
 &emsp;[Not supported in AdvCiv-SAS](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#not-supported-in-advciv-sas)\
 &emsp;[Renaming](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#renaming)\
+&emsp;[Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion)\
 &emsp;[Code/Performance optimizations](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations)\
 &emsp;[Logging (BBAI and SASGameRecord)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-bbai-and-sasgamerecord)\
 &emsp;[48 Civs DLL](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#48-civs-dll)\
@@ -113,6 +114,10 @@ Some features are not supported in AdvCiv-SAS; e.g., non-English languages, pre-
 - "Demographics" → "Info Screen" (correct advisor name: does not only show the Demographics tab of the Info Screen) (Sevopedia Shortcuts)
 - "Victory Status" and "Victory Conditions" → "Victory Screen" (similar inconsistent naming in Sevopedia Shortcuts)
 - "Units" -> "Start Scroll at Units (Production Chooser Bar)" (City Screen) (clearer and so it is not confused with the new AdvCiv-SAS Building Filter buttons' behaviour (filter on click vs set default scroll position))
+
+### Mod Name/Version
+
+- (Requires AdvCiv-SAS 6326+) **Centralized AdvCiv-SAS mod identity:** The main runtime display/project name is now defined once through `SAS_MOD_DISPLAY_NAME` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml), and shared by runtime UI/logging/replay code through AdvCiv's existing `ModName` / `CvModName` infrastructure. This display name is intentionally separate from the actual installed mod-folder name, which BtS/AdvCiv detects dynamically. Known startup/theme paths that cannot use the runtime define are documented next to it as a manual rebranding checklist; a full rename should still search for remaining old-name/path references. This is structural groundwork for later automatic runtime version/commit reporting; the existing commit-count version-number scheme is unchanged. See [root README: Version number](/README.md#version-number) and [Quick Install Guide: Modify the mod (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-the-mod-its-development-version).
 
 ### Code/Performance optimizations
 

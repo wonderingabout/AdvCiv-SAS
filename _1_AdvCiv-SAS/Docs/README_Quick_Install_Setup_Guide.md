@@ -19,7 +19,7 @@ To install and play this mod AdvCiv-SAS, you can follow the steps in this docume
 [Mod Version](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#mod-version)\
 &emsp;[Upgrading/Downgrading version of the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#upgradingdowngrading-version-of-the-mod)\
 &emsp;[If you have trouble downloading/installing/using/upgrading/downgrading the mod](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#if-you-have-trouble-downloadinginstallingusingupgradingdowngrading-the-mod)\
-[Modify AdvCiv-SAS (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-advciv-sas-its-development-version)\
+[Modify the mod (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-the-mod-its-development-version)\
 [Where to download more/other mods](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#where-to-download-moreother-mods)\
 
 ## Install Civilization 4 Beyond the Sword (skip if already done)
@@ -52,7 +52,7 @@ To download the development version, go to the [mod's github main page](https://
 
 Note: the 18 civs DLL may often not be updated in this version as it is tedious to do so at every development version change, but the as of now default 48 civs DLL should be; see [README.md#48-civs-dll](/README.md#48-civs-dll) for details and to be sure.
 
-Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify AdvCiv-SAS (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-advciv-sas-its-development-version) for details.
+Note 2: if you want to modify AdvCiv-SAS, this player development version is missing some files, see [Modify the mod (its development version)](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#modify-the-mod-its-development-version) for details.
 
 Update: now that i now seemingly know how to use .pdb files with WindDbg to inspect crashes or code issues precisely (it tells the line that crashed it seems), as was used to successfully resolve [KI#475.2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.2) and [KI#475.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-475.3), i may not update as often the Release DLL if it is too tedious, as i may have an already compiled locally Debug-Opt DLL, but that seems inconvenient to share for legal or sth reason (check if accurate as i don't know much about these) according to ChatGPT or Codex so i may not share it, meaning i may update not the Release DLL even for the 48 civs DLL as often as well.
 
@@ -141,11 +141,13 @@ If you want to change the version of AdvCiv-SAS (be it an upgrade to a newer ver
 
 Consider asking the question in [the AdvCiv-SAS CFC forum's discussion thread here](https://forums.civfanatics.com/threads/advciv-sas-simple-advanced-strategy.699716/) rather than messaging me privately (although i don't mind, just it would be more useful if other people see the question (and does some publicity for me xd at the same time if i may say shamelessly xd, although it is a non-financial profit mod if i may say too) and reply in case they encounter same issue or such, but do as you prefer and hopefully i or others can provide some help).
 
-## Modify AdvCiv-SAS (its development version)
+## Modify the mod (its development version)
 
-If you want to modify AdvCiv-SAS, the player "download ZIP" options do not include all files (images, some texts, etc.) as they are not needed just to play yet take significant size needlessly.
+If you want to modify AdvCiv-SAS (or whatever this mod is named), the player "download ZIP" options do not include all files (images, some texts, etc.) as they are not needed just to play yet take significant size needlessly.
 
 You'd need to git clone this repo or some similar method so that the exclusion list at [`.gitattributes`](../../.gitattributes) is not applied.
+
+If you rebrand/fork AdvCiv-SAS, the runtime display/project name is centralized through `SAS_MOD_DISPLAY_NAME` in [`GlobalDefines_advciv_sas.xml`](/Assets/XML/GlobalDefines_advciv_sas.xml). Some startup/theme filesystem paths cannot use that runtime define and must still be changed manually; see the checklist next to the define and [Main Changes Guide: Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion).
 
 ## Where to download more/other mods
 

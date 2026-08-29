@@ -7,6 +7,21 @@ Created as part of AdvCiv-SAS improvements
 <!-- custom: Turn-valued SAS integer defines state game-speed semantics in the name: TURN(S)_NORMAL_GAMESPEED means the XML value is expressed at Normal speed and must be scaled in code; TURN(S)_UNSCALED_GAMESPEED means literal game/path turns intentionally stay unchanged across speeds. Enforced by the turn_define_gamespeed CI check. (GPT-5.6 Thinking) -->
 <!-- custom: Long_Comments_XML.txt #131, #195 -->
 <Civ4Defines xmlns="x-schema:CIV4GlobalDefinesSchema.xml">
+	<!-- custom: Main AdvCiv-SAS name shown by runtime UI/logging code. Change this value when rebranding the mod. This does not rename or locate the installed mod folder: BtS/AdvCiv detects the folder actually loaded at runtime, so e.g. an "AdvCiv-SAS Test" folder can still display as "AdvCiv-SAS".
+		Use this define for the branded/project name. Use GC.getModName()/CvModName.getFolderName() when code needs the actual installed folder or path.
+		Most runtime references now use this define or the detected folder, but some startup/filesystem locations cannot read this define and still need manual review when renaming/rebranding:
+		- the actual mod folder name;
+		- AdvCiv-SAS.ini (file name and Name setting);
+		- Assets/XML/Art/CIV4ArtDefines_Misc.xml: DEFAULT_THEME_NAME;
+		- Resource/Civ4.thm: resource_path and include path.
+		Known unavoidable locations are marked with "AdvCiv-SAS Mod rename" to make them easy to grep. The marker is a convenience, not a guarantee that every future or overlooked hardcoded reference carries it; for a full rename, also search for the old mod name/path. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_MOD_DISPLAY_NAME</DefineName>
+		<DefineTextVal>AdvCiv-SAS</DefineTextVal>
+	</Define>
+
+
+
 	<!-- custom: shuffle-bag randomization for opening menu music (1=enabled, 0=disabled). No repeats until all configured scripts are played once, then bag refills. (GPT-5.3-Codex) -->
 	<Define>
 		<DefineName>SAS_MAIN_MENU_OPENING_MUSIC_SHUFFLE_ENABLE</DefineName>

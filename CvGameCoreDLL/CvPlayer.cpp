@@ -2733,11 +2733,11 @@ const wchar* CvPlayer::getName(uint uiForm) const
 	// <advc.106i>
 	if (m_bSavingReplay)
 	{
-		CvWString const szKey = "TXT_KEY_REPLAY_PREFIX";
-		CvWString szPrefix = gDLL->getText(szKey);
-		// No prefix if the key isn't present
-		if(szKey.compare(szPrefix) == 0)
-			szPrefix = L"";
+		// <!-- custom: Replay filename prefix now follows the central branded mod identity instead of maintaining a second TXT_KEY_REPLAY_PREFIX name. The actual installed folder may differ. (ChatGPT-5.6-Sol) -->
+		CvWString szPrefix;
+		char const* szDisplayName = GC.getModName().getDisplayName();
+		if (szDisplayName != NULL && szDisplayName[0] != '\0')
+			szPrefix = CvWString::format(L"[%S]", szDisplayName);
 		static CvWString szName; // Important to put the assignment on a separate line
 		szName = szPrefix + GC.getInitCore().getLeaderName(getID(), uiForm);
 		return szName;

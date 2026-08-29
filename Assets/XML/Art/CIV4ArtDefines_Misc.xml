@@ -331,7 +331,7 @@
 			<KFM></KFM>
 		</MiscArtInfo>
 		<!-- advc.002b: Set modified theme as default -->
-		<!-- custom: rename "AdvCiv" to "AdvCiv-SAS" so our mod AdvCiv-SAS (for quick search: "AdvCiv-SAS Mod") -->
+		<!-- custom: AdvCiv-SAS Mod rename: DEFAULT_THEME_NAME is a startup filesystem path and cannot consume SAS_MOD_DISPLAY_NAME; update it manually if the installed mod folder is renamed. (ChatGPT-5.6-Sol) -->
 		<MiscArtInfo>
 			<Type>DEFAULT_THEME_NAME</Type>
 			<Path>Mods/AdvCiv-SAS/Resource/Civ4.thm</Path>

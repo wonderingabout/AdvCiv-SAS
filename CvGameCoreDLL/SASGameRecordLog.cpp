@@ -3315,7 +3315,8 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 static void logSASGameRecordInitialContext()
 {
 	// <!-- custom: Archived records can otherwise be mistaken for logs from another Civ4 mod. Record the active cached mod folder name and mod-relative path once, without relying on file timestamps or a manually maintained version string. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_MOD_CONTEXT modName=%s modPath=%s", getSASGameRecordQuoted(GC.getModName().getName()).GetCString(), getSASGameRecordQuoted(GC.getModName().getPathInRoot()).GetCString());
+	// <!-- custom: distinguish the central branded/project identity from the actual loaded folder; renamed test/install folders remain diagnosable without changing the product name. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_MOD_CONTEXT displayName=%s folderName=%s modPath=%s", getSASGameRecordQuoted(GC.getModName().getDisplayName()).GetCString(), getSASGameRecordQuoted(GC.getModName().getName()).GetCString(), getSASGameRecordQuoted(GC.getModName().getPathInRoot()).GetCString());
 	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
 	logSASGameRecordGeography();

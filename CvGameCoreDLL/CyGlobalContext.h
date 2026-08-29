@@ -30,6 +30,10 @@ public:
 	static CyGlobalContext& getInstance();		// singleton accessor
 
 	bool isDebugBuild() const;
+	// <!-- custom: Expose AdvCiv's centralized branded display name and dynamically detected actual folder/path to Python without conflating the two identities. (ChatGPT-5.6-Sol) -->
+	const char* getModDisplayName() const;
+	const char* getModFolderName() const;
+	const char* getModPathInRoot() const;
 	CyGame* getCyGame() const;
 	CyMap* getCyMap() const;
 	CyPlayer* getCyPlayer(int idx);

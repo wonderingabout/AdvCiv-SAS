@@ -6,16 +6,7 @@ Created as part of AdvCiv-SAS improvements
 -->
 <!-- custom: GPT-5.2-Codex: Long_Comments_XML.txt #30 -->
 <Civ4GameText>
-	<!-- custom: rename "AdvCiv mod" to "AdvCiv-SAS mod" in replay screen too, was [AdvCiv] -->
-	<!-- advc.106i: Mod name to be used as a prefix for replay file names and
-		 to be written into the first replay message (the DLL removes the
-		 square brackets in that context). If this text key is removed
-		 entirely, then no file prefix is used and no mod name is written in the
-		 first replay message. -->
-	<TEXT>
-		<Tag>TXT_KEY_REPLAY_PREFIX</Tag>
-		<English>[AdvCiv-SAS]</English>
-	</TEXT>
+	<!-- custom: Replay filenames and replay settings now derive the branded name from SAS_MOD_DISPLAY_NAME; the former TXT_KEY_REPLAY_PREFIX duplicate was removed. (ChatGPT-5.6-Sol) -->
 
 
 
