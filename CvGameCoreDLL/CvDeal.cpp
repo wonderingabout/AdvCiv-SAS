@@ -1133,7 +1133,9 @@ namespace
 					eMemory = MEMORY_CANCELLED_VASSAL_AGREEMENT;
 				/*	<advc.130j> Twice remembered (unless remembering it only half)
 					b/c now twice as fast forgotten. */
-				itRememberingMember->AI_setMemoryCount(itEndingMember->getID(),
+				// <!-- custom: AdvCiv practical 1497 changed this event operation into absolute assignment, so later cancellations could erase accumulated memory and repeated vassal-break events no longer lengthened it.
+				// Restore per-event addition; proxy teardown is gated at the callers below. See KI#605. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				itRememberingMember->AI_changeMemoryCount(itEndingMember->getID(),
 						eMemory, bHalve ? 1 : 2); // </advc.130j>
 			}
 		}
@@ -1192,14 +1194,19 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToP
 			else endTeamTrade(TRADE_VASSAL, TEAMID(eFromPlayer), TEAMID(eToPlayer));
 			bTeamTradeEnded = true; // advc.133
 		}
-		addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_VASSAL);
-		if(!bDeniedHelp) // Master remembers for 2x10 turns
-			addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_VASSAL);
-		else /* Vassal remembers for 3x10 turns (and master for 1x10 turns,
-				which could matter when a human becomes a vassal) */
+		// <!-- custom: A team agreement is stored through player-pair proxies. Record the cancellation only for the one logical bTeam teardown; endTeamTrade kills sibling proxies with bTeam=false, which must not add the same memory again.
+		// See KI#605. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (bTeam)
 		{
-			for(int i = 0; i < 3; i++)
-				addEndTradeMemory(eToPlayer, eFromPlayer, TRADE_VASSAL);
+			addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_VASSAL);
+			if(!bDeniedHelp) // Master remembers for 2x10 turns
+				addEndTradeMemory(eFromPlayer, eToPlayer, TRADE_VASSAL);
+			else /* Vassal remembers for 3x10 turns (and master for 1x10 turns,
+					which could matter when a human becomes a vassal) */
+			{
+				for(int i = 0; i < 3; i++)
+					addEndTradeMemory(eToPlayer, eFromPlayer, TRADE_VASSAL);
+			}
 		}
 		break;
 	} // </advc.143>

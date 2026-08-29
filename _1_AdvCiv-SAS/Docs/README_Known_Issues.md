@@ -693,10 +693,17 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#602 - (Fixed inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits named missing Python help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-602)\
 [KI#603 - (Fixed inherited AdvCiv callback regression) Unit-cost result 1 became a 1 percent cost modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-603)\
 [KI#604 - (Fixed inherited AdvCiv deal-list regression) Second-list-only peace treaties never expire](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-604)\
-[KI#605 - (Provisional Pending inherited AdvCiv diplomacy-memory regression) Repeated vassal-break memories became non-additive](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-605)\
+[KI#605 - (Fixed inherited AdvCiv diplomacy-memory regression) Deal cancellations overwrote rather than accumulated memory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-605)\
 [KI#606 - (Fixed inherited AdvCiv deal-renewal defect) Team agreements were renewed through only one player pair and one trade list](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-606)\
 [KI#607 - (Provisional Pending inherited team-deal ownership defect incompletely addressed by AdvCiv) One teammate's death tears down surviving team agreements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-607)\
 [KI#608 - (Fixed inherited AdvCiv deal-list regression) Embargo denial misses opposite-list peace reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-608)\
+[KI#609 - (Provisional Pending AdvCiv transaction-lifetime defect) Mixed alliance or vassal bundles can delete their active deal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-609)\
+[KI#610 - (Provisional Pending inherited deal-granularity defect amplified by AdvCiv) Annual-item failure can terminate a protected peace treaty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-610)\
+[KI#611 - (Provisional Pending AdvCiv team-state regression) A Permanent Alliance plus vassal bundle can create a self-vassal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-611)\
+[KI#612 - (Provisional Pending inherited brokered-war defect) A vassal can hire war against its own master coalition](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-612)\
+[KI#613 - (Provisional Pending inherited K-Mod/AdvCiv diagnostic defect) Permanent Alliance cleanup ends a Defensive Pact as a self-pact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-613)\
+[KI#614 - (Provisional Pending inherited civic-deal defect) One bundled civic change becomes several forced revolutions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-614)\
+[KI#615 - (Provisional Pending inherited deal-transaction defect) A city transfer can invalidate a sibling resource export](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-615)\
 
 <a id="ki-1"></a>
 
@@ -13314,11 +13321,15 @@ Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, 
 
 <a id="ki-605"></a>
 
-## KI#605 - (Provisional Pending inherited AdvCiv diplomacy-memory regression) Repeated vassal-break memories became non-additive
+## KI#605 - (Fixed inherited AdvCiv diplomacy-memory regression) Deal cancellations overwrote rather than accumulated memory
 
-Album F282 finds vassal-break handling deliberately calling `addEndTradeMemory` two or three times to represent longer memories, while a later AdvCiv refactor changed the helper from additive `AI_changeMemoryCount` behavior to idempotent `AI_setMemoryCount`. The intended two-event and three-event durations therefore collapse to the same one-event count. Pending independent implementation review that restores additive accumulation without reintroducing already-present memory from unrelated earlier events.
+Album F282 found vassal-break handling deliberately calling `addEndTradeMemory` two or three times to represent longer memories, while AdvCiv practical 1497 changed the helper from additive `AI_changeMemoryCount` behavior to absolute `AI_setMemoryCount`. The intended two-event and three-event durations therefore collapsed to the same one-event count. Because the helper is shared, any later Open Borders, Defensive Pact or vassal cancellation could also overwrite—and even reduce—memory accumulated from earlier independent cancellations.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The helper again adds each cancellation event: +2 on the current doubled-decay scale, or +1 when that particular event is deliberately halved. Vassal cancellation accounting is now gated by `bTeam`, so only the one logical team-agreement teardown adds memory; sibling player-pair proxies destroyed through `kill(false)` do not multiply it. The existing repeated calls consequently restore the documented +4 master duration and +6 denied-help vassal duration while preserving memory from earlier events.
+
+`SASGameRecord_20260829T065332Z_new1.log` confirms that a current Huge Custom Continents autoplay completed by Space victory at turn 446 and exercised 24 surrender/vassal trade rows without an observed issue. The practical 1497 ancestry, current decay scale, proxy teardown order and exact internal memory totals remain source verified because SASGameRecord does not expose AI memory counters.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-606"></a>
 
@@ -13347,3 +13358,59 @@ Album F285 found `AI_stopTradingTrade` looking for both the peace marker and ann
 The denial now classifies peace through the KI#604 whole-deal query, then separately scans only the AI team's gives-list for Gold Per Turn or resources. This restores visibility of an opposite-list treaty without overcorrecting directionality: payments owed by the AI prevent an unfulfillable embargo promise, whereas annual payments received by the AI do not. Both mixed-team autoplays completed successfully; the exact opposite-list reparations and embargo-request arrangement remains source verified.
 
 Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-609"></a>
+
+## KI#609 - (Provisional Pending AdvCiv transaction-lifetime defect) Mixed alliance or vassal bundles can delete their active deal
+
+Album F286 finds supported human mixed transactions whose nested team-state change can delete the currently executing `CvDeal` from inside `addTradeItems`; `CvGame::implementAndReturnDeal` then dereferences the freed pointer. The first proven trigger combines a Permanent Alliance, a city/implied-peace bundle and AdvCiv's explicit human-visible peace-treaty entries; later saturation also found vassal and brokered-war paths into the same reentrant lifetime root. Pending architectural review that makes deal execution survive or defer nested deletion rather than patching each trigger independently.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-610"></a>
+
+## KI#610 - (Provisional Pending inherited deal-granularity defect amplified by AdvCiv) Annual-item failure can terminate a protected peace treaty
+
+Album F287 finds `CvDeal::verify` killing an entire mixed deal when one annual item becomes invalid. If that deal also owns the temporary peace treaty, teardown clears force-peace before `PEACE_TREATY_LENGTH` expires. The whole-deal resource-invalidity architecture is inherited from BtS/K-Mod, while AdvCiv practical 2765 added the cleaner live trigger by force-canceling unaffordable Gold Per Turn reparations without preserving their bundled treaty. Pending transaction-lifetime review that ends the invalid obligation while retaining the exact remaining peace duration.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-611"></a>
+
+## KI#611 - (Provisional Pending AdvCiv team-state regression) A Permanent Alliance plus vassal bundle can create a self-vassal
+
+Album F288 finds that a supported human deal can contain both a Permanent Alliance and voluntary vassalage between the same teams. Vassalage is applied first; when the lower-ID team then absorbs its master or vassal, AdvCiv's single-`m_eMaster` migration can leave the survivor with `m_eMaster == getID()`. K-Mod allowed the mixed bundle but its older relation matrix excluded the merging team IDs during migration; Base AdvCiv 1.14 contains the regressed single-master logic inherited by SAS. Pending bundle-level validation or normalization before either state transition is committed.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-612"></a>
+
+## KI#612 - (Provisional Pending inherited brokered-war defect) A vassal can hire war against its own master coalition
+
+Album F289 finds brokered-war validation checking whether the target is the sponsor's vassal but not the reverse relation or their common master/vassal locus. A voluntary vassal can therefore hire an AI to declare war on its own master; normal vassal alignment immediately makes the hireling an enemy of its sponsor too. The asymmetric check exists in Base AdvCiv 1.14, K-Mod and Civ4CE; SAS's voluntary-vassal target support broadens reachability but did not create the missing coalition invariant. Pending structural rejection when sponsor and target resolve to the same master coalition while retaining valid foreign voluntary-vassal targets from KI#373.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-613"></a>
+
+## KI#613 - (Provisional Pending inherited K-Mod/AdvCiv diagnostic defect) Permanent Alliance cleanup ends a Defensive Pact as a self-pact
+
+Album F290 finds K-Mod deliberately moving Permanent Alliance deal cleanup after player-team reassignment to prevent Open Borders unit bumping. Generic teardown then loses the old team identities and interprets a valid pre-alliance Defensive Pact as a self-pact, triggering AdvCiv's later `setDefensivePact` self-team assertion and writing strategically inert same-team cancellation memory. No Release gameplay corruption from the stale absorbed-team bits is currently proven. Pending specialized cleanup that preserves old team identities without restoring the unit-bumping order.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-614"></a>
+
+## KI#614 - (Provisional Pending inherited civic-deal defect) One bundled civic change becomes several forced revolutions
+
+Album F291 finds every `TRADE_CIVIC` item immediately rebuilding the current CivicMap and calling `revolution` separately. A supported multi-column civic bundle therefore charges the fixed base/city anarchy overhead once per civic, while each call overwrites the revolution timer and can shorten or erase the intended post-anarchy cooldown. The per-item execution shape is inherited from BtS/Civ4CE/K-Mod and remains in Base AdvCiv 1.14; AdvCiv recognizes and values multiple civic items but did not aggregate their execution. Pending collection into one forced CivicMap revolution per giving player, without changing ordinary revolution semantics.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-615"></a>
+
+## KI#615 - (Provisional Pending inherited deal-transaction defect) A city transfer can invalidate a sibling resource export
+
+Album F292 finds a human mixed city-plus-resource deal validating both items against the pre-deal world, then transferring the city before starting the resource export. If the city supplied the giver's last connected copy, the irreversible transfer invalidates the sibling annual promise after prevalidation, yet the export counters are still applied. Base AdvCiv 1.14, K-Mod and Civ4CE/BtS share the per-item execution and human mixed-item exception; SAS did not introduce the root. Pending bundle consistency checking that proves the resource remains available after all same-giver city transfers before committing ownership changes.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.

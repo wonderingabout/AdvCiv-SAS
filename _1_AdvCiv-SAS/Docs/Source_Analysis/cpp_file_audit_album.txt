@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 24 / 169
 Files open: 1 / 169
 Last completed file: investigation file 024 / queue 037 CvGameCoreDLL/CvPythonCaller.cpp (1,576 queued lines) - CLOSED AT C025
-Current file: investigation file 025 / priority queue 042 CvGameCoreDLL/CvDeal.cpp (1,419 queued lines) - OPEN AT C025-WIP07
-Latest queue-042 roots: F281-F285 / provisional KI#604-KI#608
-Next root ID: F286 unused / provisional KI#609 next
+Current file: investigation file 025 / priority queue 042 CvGameCoreDLL/CvDeal.cpp (1,419 queued lines) - OPEN AT C025-WIP17
+Latest queue-042 roots: F281-F292 / provisional KI#604-KI#615
+Next root ID: F293 unused / provisional KI#616 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -61,7 +61,7 @@ QUEUE (current .cpp files, longest -> shortest)
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [COMPLETE - SEE C023 DURABLE CHECKPOINT]
 040   1454 CvGameCoreDLL/CvGlobals.cpp [COMPLETE - SEE C024 DURABLE CHECKPOINT]
 041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [COMPLETE - SEE C019 DURABLE CHECKPOINT]
-042   1419 CvGameCoreDLL/CvDeal.cpp [OPEN - C025-WIP07 / F281-F285]<-(priority current wip)
+042   1419 CvGameCoreDLL/CvDeal.cpp [OPEN - C025-WIP17 / F281-F292]<-(priority current wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
 045   1281 CvGameCoreDLL/CvMapGenerator.cpp [COMPLETE - SEE C021 DURABLE CHECKPOINT]
@@ -51708,3 +51708,2550 @@ Continue the saturation challenge:
 
 Do not allocate F286 merely for robustness or another manifestation of F281-F285.
 ===============================================================================
+
+
+===============================================================================
+QUEUE 042 CONTINUATION — CvDeal.cpp
+C025-WIP08 — F286 / provisional KI#609 confirmed
+===============================================================================
+
+F286 / provisional KI#609
+-------------------------
+TITLE
+A human mixed Permanent Alliance + city/implied-peace bundle can delete the CvDeal from inside
+CvDeal::addTradeItems and then CvGame::implementAndReturnDeal immediately dereferences the freed
+pointer.
+
+SUPPORTED TRIGGER
+-----------------
+Current CvPlayer::updateTradeList explicitly says:
+
+    if (!isHuman() || !GET_PLAYER(eOtherPlayer).isHuman())
+        ...
+        // mixed annual/nonannual items restricted
+    // everything allowed in human-human trades
+
+Permanent Alliance is a normal inventory item when:
+- GAMEOPTION_PERMANENT_ALLIANCES / PA trading is available;
+- both teams are non-vassals, at peace, distinct;
+- both teams currently have exactly one member.
+
+A non-liberation city offer at peacetime is one of the current items that implies temporary peace.
+Current updateTradeList therefore appends explicit TRADE_PEACE_TREATY entries to BOTH human offer
+lists for display/implementation:
+
+    TradeData item(TRADE_PEACE_TREATY);
+    ...
+    item.m_iData = eForcePeaceItemType;
+    apOffersVar[i]->insertAtEnd(item);
+
+Thus a supported human-human bundle can contain, for example:
+- first side: city + permanent alliance + appended peace treaty;
+- second side: appended peace treaty
+(or equivalent orientation/order supplied by the trade screen).
+
+No malformed direct-DLL call is needed.
+
+EXECUTION CHAIN
+---------------
+CvGame::implementAndReturnDeal:
+
+    CvDeal* pDeal = addDeal();
+    pDeal->init(...);
+    pDeal->addTradeItems(kOurList, kTheirList, !bForce);
+    if (pDeal->getLengthFirst() <= 0 && pDeal->getLengthSecond() <= 0)
+    {
+        pDeal->kill();
+        return NULL;
+    }
+    return pDeal;
+
+Inside addTradeItems:
+
+1. Trade items are processed before the Permanent Alliance merge.
+
+2. The first explicit TRADE_PEACE_TREATY encountered:
+       setForcePeace(..., true);
+       bSave = true;
+   and is inserted into the current CvDeal's saved list.
+
+3. When the opposite-side peace-treaty item is later processed, forcePeace is already true.
+   resetDualDeal can find the just-created current deal and the already-saved treaty, so the
+   duplicate treaty normally is not saved. The current deal nevertheless contains at least one
+   saved TRADE_PEACE_TREATY.
+
+4. TRADE_PERMANENT_ALLIANCE itself sets:
+       bAlliance = true
+   and is not saved.
+
+5. After both item loops:
+       if (bAlliance)
+           GET_TEAM(...).addTeam(...);
+
+CvTeam::addTeam reassigns the absorbed team's players into the surviving team and then iterates
+deals that are now internal to the merged team:
+
+    if (!pLoopDeal->isBetween(getID(), getID()))
+        continue;
+
+    FOR_EACH_TRADE_ITEM(pLoopDeal->getFirstList())
+    {
+        if (eType == TRADE_OPEN_BORDERS ||
+            eType == TRADE_DEFENSIVE_PACT ||
+            eType == TRADE_PEACE_TREATY ||
+            ...)
+        {
+            pLoopDeal->kill();
+            break;
+        }
+    }
+
+The currently executing CvDeal now has:
+- both players on the same merged team;
+- a saved first-list peace treaty.
+
+Therefore addTeam can call `kill()` on the very `this` whose addTradeItems stack frame is active.
+
+IMMEDIATE DELETION / UAF PROOF
+------------------------------
+CvDeal::kill -> killSilent -> GC.getGame().deleteDeal(getID()).
+
+CvGame::deleteDeal:
+    m_deals.removeAt(iID);
+
+FFreeListTrashArray::removeAt:
+    SAFE_DELETE(m_pArray[iIndex].pData);
+
+So the CvDeal object is actually destroyed before CvTeam::addTeam returns.
+
+CvDeal::addTradeItems then returns through a member function whose `this` is already freed.
+Even if its final bBumpUnits block happens not to dereference members in the concrete path, the
+caller unconditionally does:
+
+    pDeal->getLengthFirst()
+    pDeal->getLengthSecond()
+
+immediately after addTradeItems returns.
+
+That is an unambiguous use-after-free.
+
+ANCESTRY
+--------
+The dangerous interaction is AdvCiv-specific.
+
+Practical count 2691 / commit 195785f015f5e71cffa4b6c52e2307ad8cc08a94:
+    "Show implied peace treaties on the trade table"
+
+added explicit PEACE_TREATY entries to human-visible offers for city/war items that imply temporary
+peace. Its own comment says that, for deals involving humans, the game will attempt to implement
+the treaty twice and considers that harmless.
+
+Before that display change, the underlying city trade could merely set an internal
+`bPeaceTreatyImplied`/sign-treaty path; a PA bundle takes the `bAlliance` branch and does not
+materialize an explicit saved treaty that addTeam's internal-deal cleanup can recognize.
+
+Practical 3275 later deferred implied-treaty signing until all bundle items had been applied to
+avoid two unilateral treaties, but explicit treaty items added by the human trade table remain
+processed/saved before the PA merge. It does not close this self-deletion path.
+
+K-Mod/Civ4CE do not contain AdvCiv's same implied-peace-display mechanism in this form, so they do
+not independently reproduce this exact trigger.
+
+WHY CURRENT PREVALIDATION DOES NOT SAVE IT
+------------------------------------------
+addTradeItems validates each individual item through canTradeItem before applying the bundle.
+There is no bundle-level rule forbidding Permanent Alliance + city/explicit implied peace for
+human-human trades.
+
+updateTradeList deliberately skips the annual/nonannual combination restriction when both players
+are human ("everything allowed in human-human trades").
+
+TRADE_PERMANENT_ALLIANCE canPossiblyTradeItem checks the two teams are single-member BEFORE the
+merge; that condition is satisfied at validation time.
+
+So all items can pass individually while their combined execution causes reentrant deletion.
+
+SEVERITY
+--------
+High when triggered:
+- heap object is freed while its method remains active;
+- caller immediately dereferences the dangling CvDeal*;
+- outcome can be crash, assertion, allocator-dependent corruption or apparently surviving stale
+  memory depending on build/runtime.
+
+The trigger is specialized (human-human PA enabled + mixed implied-peace bundle) but uses supported
+trade-screen mechanics.
+
+REPAIR BOUNDARY
+---------------
+The core invariant should be:
+
+    CvTeam::addTeam must not delete the CvDeal that is currently implementing the Permanent Alliance
+    until addTradeItems / implementAndReturnDeal have completed using that object.
+
+Evidence-supported repair shapes include:
+
+1. Preferred transaction/order repair:
+   - do not persist an explicit implied peacetime PEACE_TREATY inside a deal that also executes a
+     Permanent Alliance, because after the teams merge the treaty is meaningless anyway;
+   - still display it to humans if needed, but suppress its saved lifetime when PA is in the same
+     bundle.
+
+2. Deferred cleanup:
+   - let addTeam identify internal deals for cleanup but defer deletion of the currently executing
+     deal until implementAndReturnDeal is done with it.
+
+3. Bundle pre-normalization:
+   - strip/ignore redundant PEACE_TREATY items from PA bundles before startTrade saves them.
+
+A weak patch such as "don't dereference pDeal after addTradeItems" is insufficient unless ownership
+and return semantics are redesigned, because `addTradeItems` itself may continue after deletion and
+the function still conceptually returns through a dead `this`.
+
+Do NOT remove all addTeam internal-deal cleanup: stale OB/DP/vassal/etc. agreements between newly
+same-team players still need normalization.
+
+ROOT INDEPENDENCE
+-----------------
+F286 is independent of F281-F285.
+
+It is a reentrant object-lifetime/use-after-free bug caused by:
+- explicit implied treaty materialization in a PA bundle;
+- addTeam's internal-deal cleanup;
+- immediate free-list deletion;
+- post-call use of the CvDeal pointer.
+
+It reproduces even if:
+- F281 both-list peace classification is fixed;
+- F282 memory accumulation is fixed;
+- F283 team-level renewal is fixed;
+- F284 player-death ownership is fixed;
+- F285 embargo reparations detection is fixed.
+
+CONTROLS / CAVEATS
+------------------
+- A pure PA offer does not save any item in the implementing CvDeal and is safely discarded as an
+  empty deal after the merge.
+- PA + ordinary one-shot items without an explicit saved internal team-state item do not
+  automatically trigger this exact self-delete path.
+- The strongest current trigger is PA + non-liberation city, because updateTradeList itself inserts
+  explicit peace treaty items for human-visible implied peace.
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional
+F286 / KI#609 — confirmed provisional
+F287 — UNUSED / provisional KI#610 next
+
+NEXT CURSOR
+-----------
+Continue from F287 unused:
+1. audit every addTeam/setVassal/declareWar/makePeace reentrant deal deletion path for another
+   active-CvDeal lifetime hazard;
+2. inspect mixed persistent bundles whose startTrade side effects can invalidate later items;
+3. finish verify/isCancelable cancellation semantics, especially shared team-state items;
+4. read/write/save-load deal IDs and enum/list invariants;
+5. SAS-specific victory-denial early return and game-record logging for any partial side effects;
+6. remaining first-list/list-orientation consumers in CvDeal/CvPlayerAI/CvTeam;
+7. full function/assert/history/K-Mod/CE saturation and repair-boundary challenge.
+
+Do not allocate F287 merely because F286 is high severity.
+===============================================================================
+
+
+===============================================================================
+QUEUE 042 CONTINUATION — CvDeal.cpp
+C025-WIP09 — F287 / provisional KI#610 confirmed
+===============================================================================
+
+F287 / provisional KI#610
+-------------------------
+TITLE
+Automatic invalidation of one annual item kills the entire mixed peace deal, so a broke GPT payer
+can terminate the mandatory peace treaty before PEACE_TREATY_LENGTH expires.
+
+CURRENT CODE
+------------
+CvDeal::verify:
+
+    if (!verify(getFirstPlayer(), getSecondPlayer()) ||
+        !verify(getSecondPlayer(), getFirstPlayer()) ||
+        (isCancelable(NO_PLAYER) && isPeaceDeal()))
+    {
+        kill();
+    }
+
+The directional helper checks persistent annual items regardless of deal age.
+
+For GPT:
+
+    if (pItem->m_eItemType == TRADE_GOLD_PER_TURN)
+    {
+        if (kGiver.getCommercePercent(COMMERCE_GOLD) >= 100 &&
+            kGiver.getGold() < pItem->m_iData && !kGiver.isAnarchy() &&
+            kGiver.calculateGoldRate() < 0)
+        {
+            return false;
+        }
+    }
+
+A false result kills the entire CvDeal immediately.
+
+If that same persistent deal also contains TRADE_PEACE_TREATY, kill -> endTrade processes the
+treaty and executes:
+
+    GET_TEAM(eFromPlayer).setForcePeace(TEAMID(eToPlayer), false);
+
+There is no independent remaining-turn field inside CvTeam::forcePeace; `isForcePeace` is simply
+the stored team boolean. The CvDeal is the timer/lifetime owner.
+
+SUPPORTED MIXED DEAL
+--------------------
+GPT is explicitly tradeable during war/peace negotiation:
+- TRADE_GOLD_PER_TURN canPossiblyTradeItem only requires gold trading;
+- canTradeItem itself accepts any nonnegative GPT amount;
+- it does not require an existing peacetime trade network.
+
+Human peace settlements can therefore legitimately contain:
+    TRADE_PEACE_TREATY + TRADE_GOLD_PER_TURN reparations
+
+in one persistent CvDeal.
+
+The first PEACE_TREATY entry is saved as the temporary-peace lifetime item. GPT is also persistent
+and saved in the same deal.
+
+FAILURE CHAIN
+-------------
+Example:
+- turn T0: peace signed with 10-turn treaty and 8 GPT reparations;
+- T1/T2/... before T0+PEACE_TREATY_LENGTH: payer reaches 100% gold slider, cannot cover the GPT
+  payment, is not in anarchy and still has a negative gold rate;
+- CvGame::verifyDeals -> CvDeal::verify;
+- GPT condition returns false;
+- CvDeal::kill executes immediately despite `turnsToCancel() > 0`;
+- GPT payment ends;
+- TRADE_PEACE_TREATY teardown clears team forcePeace;
+- the teams can resume war before the mandatory treaty duration has elapsed.
+
+The normal treaty age protection:
+
+    (isCancelable(NO_PLAYER) && isPeaceDeal())
+
+only governs scheduled treaty expiry. It does NOT protect a peace deal from the earlier
+resource/GPT invalidation branches.
+
+ANCESTRY
+--------
+The general "invalid resource item kills whole deal" architecture is inherited from BtS/K-Mod/
+Civ4CE.
+
+The particularly common GPT trigger is AdvCiv-specific.
+
+Practical count 2765 / commit c66c29025a3be4912b019a7b6128889ae07aacac:
+    "Force-cancel gold-per-turn deals when broke"
+
+added exactly the GPT false-return block to CvDeal::verify.
+
+The patch did not special-case mixed peace deals or preserve the remaining treaty duration.
+Therefore practical 2765 made ordinary GPT peace reparations capable of terminating temporary
+peace early.
+
+K-Mod/Civ4CE do not contain this GPT insolvency branch, though their inherited resource-invalid
+whole-deal behavior shows the broader structural hazard.
+
+RESOURCE SIBLING
+----------------
+Resource invalidation has the same whole-deal teardown behavior:
+- lost trade network;
+- oversubscribed resource;
+- obsolete resource.
+
+A resource + peacetime temporary treaty bundle could therefore exhibit the same lifetime problem.
+For wartime peace negotiations, resource trading is often unavailable because canTradeNetworkWith
+fails while enemies are at war, so GPT is the cleaner supported/default reproduction.
+
+Treat resource invalidation as same-root structural evidence; F287 does not depend on proving a
+wartime resource reparations case.
+
+WHY THIS IS NOT NORMAL CANCELLATION
+-----------------------------------
+Manual cancellation is intentionally blocked while:
+    turnsToCancel() > 0.
+
+The GPT verify branch bypasses isCancelable entirely. So this is not simply "the payer is allowed
+to cancel because insolvent." The engine itself tears down an uncancelable treaty as a side effect
+of an annual payment failure.
+
+REPAIR BOUNDARY
+---------------
+When an individual annual component of a deal becomes impossible during an uncancelable peace
+period, the temporary peace lifetime must survive.
+
+Possible evidence-supported designs:
+
+1. Remove/end only the invalid annual item from the deal while retaining TRADE_PEACE_TREATY and its
+   original initial turn.
+
+2. If deal-level killing is retained, immediately re-home/recreate the treaty with the exact
+   remaining duration before clearing forcePeace.
+
+3. Split peace treaty lifetime from annual-payment deal lifetime when the bundle is implemented.
+
+For the narrow GPT repair:
+- cancel the impossible GPT obligation;
+- do not clear temporary peace before its existing expiry.
+
+Do NOT merely skip GPT verification while peace is active if that would leave an impossible payment
+continuing indefinitely. The payment and the treaty have different failure/lifetime semantics.
+
+ROOT INDEPENDENCE
+-----------------
+F287 is independent of F281-F286.
+
+Even with:
+- correct both-list isPeaceDeal;
+- correct renewal;
+- correct team-member death ownership;
+- correct reparations embargo denial;
+- no PA self-deletion;
+
+an insolvent GPT component can still make `verify()` kill the whole still-young peace deal.
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional
+F286 / KI#609 — confirmed provisional
+F287 / KI#610 — confirmed provisional
+F288 — UNUSED / provisional KI#611 next
+
+NEXT CURSOR
+-----------
+Continue from F288 unused:
+1. inspect whether resource invalidation / deal verification can remove individual items safely or
+   exposes another independent list-iteration bug;
+2. finish reentrant deletion through setVassal / declareWar / makePeace / stopTrading;
+3. verify cancellation announcements and bForce first-list orientation assumptions;
+4. save/load / free-list deal ID and dead-player references;
+5. SAS victory-denial/logging modifications for transaction atomicity;
+6. remaining list-orientation consumers across CvDeal/CvPlayer/CvPlayerAI/CvTeam;
+7. full function-family, history and K-Mod/Civ4CE saturation.
+
+Do not force F288 if the remaining paths collapse into F281-F287 controls.
+===============================================================================
+
+
+===============================================================================
+QUEUE 042 CONTINUATION — CvDeal.cpp
+C025-WIP10 — F286 transaction-lifetime expansion + method-family controls
+===============================================================================
+
+F288 remains UNUSED / provisional KI#611 next.
+
+
+F286 SAME-ROOT EXPANSION — vassalization can self-delete the active transaction too
+------------------------------------------------------------------------------------
+WIP08 proved a high-confidence self-deletion path through Permanent Alliance.
+
+The same transaction-lifetime invariant is violated by `CvTeam::setVassal(true)` under a supported
+human peacetime mixed bundle.
+
+SUPPORTED BUNDLE
+----------------
+At peacetime:
+- human-human diplomacy permits mixed trade classes;
+- a non-liberation city offer causes updateTradeList to append explicit PEACE_TREATY entries to
+  both offer lists;
+- voluntary TRADE_VASSAL is tradeable when neither team is already a vassal and the two sides are
+  not at war.
+
+Thus a supported bundle can contain:
+    non-liberation city + voluntary vassal + displayed implied peace treaty.
+
+EXECUTION
+---------
+addTradeItems deliberately processes non-vassal items in pass 0 and vassal items in pass 1.
+
+Therefore before TRADE_VASSAL is executed:
+- city transfer has occurred;
+- the first explicit PEACE_TREATY has been saved in the current CvDeal.
+
+TRADE_VASSAL then calls:
+
+    startTeamTrade(...);
+    GET_TEAM(eFromPlayer).setVassal(eToTeam, true, false);
+
+Inside setVassal(true), current code iterates global deals involving the new vassal and kills
+Defensive Pact / Peace Treaty deals whose FIRST list contains such an item:
+
+    FOR_EACH_DEAL_VAR(pLoopDeal)
+    {
+        ...
+        FOR_EACH_TRADE_ITEM(pLoopDeal->getFirstList())
+        {
+            if (pItem->m_eItemType == TRADE_DEFENSIVE_PACT ||
+                pItem->m_eItemType == TRADE_PEACE_TREATY)
+            {
+                pLoopDeal->kill();
+                break;
+            }
+        }
+    }
+
+The currently executing deal is already in the global free-list container and can satisfy this
+test. Its first-list displayed implied treaty was saved before the vassal pass.
+
+`kill()` therefore immediately SAFE_DELETEs the active CvDeal through `deleteDeal/removeAt`, exactly
+as in the PA path.
+
+Control then returns to the active `startTrade` / `addTradeItems` stack and ultimately to
+implementAndReturnDeal, which dereferences the dangling pDeal pointer.
+
+ROOT CLASSIFICATION
+-------------------
+Do not allocate F288.
+
+The PA and vassal paths are the same root:
+    a state transition invoked while applying a bundle is allowed to synchronously delete the
+    CvDeal transaction object that is still executing that bundle.
+
+The exact cleanup walker differs (`CvTeam::addTeam` vs `CvTeam::setVassal`), but the object-lifetime
+contract and use-after-free consequence are identical.
+
+This broadens the F286 repair requirement:
+- transaction execution must survive all state-transition cleanup it invokes;
+- implied/internal treaty normalization cannot synchronously destroy the active transaction.
+
+WAR-BRIBE REENTRANCY CHALLENGE — CLEAN UNDER NORMAL DENIAL
+-----------------------------------------------------------
+TRADE_WAR calls `CvTeam::declareWar` synchronously, and defensive-pact cascades can themselves
+declare additional wars and kill deals. This initially suggested another possible active-transaction
+deletion.
+
+A concrete dangerous shape would be:
+- B brokers A into declaring war on C;
+- B has a Defensive Pact with C;
+- C's pact then causes B to declare war on A;
+- B-vs-A war cleanup could kill the active A<->B bribe deal.
+
+The trade denial closes the normal path.
+
+`CvTeamAI::AI_declareWarTrade(eTarget=C, eSponsor=B)` begins with:
+
+    if (GET_TEAM(eTarget).isVassal(eSponsor) ||
+        GET_TEAM(eTarget).isDefensivePact(eSponsor))
+        return DENIAL_JOKING;
+
+TRADE_WAR can only be given by a non-human team through normal trade legality, and addTradeItems
+prevalidates with denial checks unless the caller explicitly forces the deal.
+
+Therefore the DP-with-sponsor cascade cannot occur through an ordinary accepted war-bribe deal.
+A forced/malformed direct implementation could bypass this, but that is below the finding bar.
+
+No F288.
+
+
+`doTurn` ONE-ITEM DUAL FAST PATH — CLEAN
+----------------------------------------
+The condition:
+
+    getLengthSecond() == getLengthFirst() &&
+    getLengthSecond() <= 1 &&
+    isDual(getFirstList().head()->m_data.m_eItemType)
+
+looks as though it could skip peacetime-value processing based only on the first-side item even if
+the second-side item were non-dual.
+
+Current persistence semantics prevent the concerning normal shape:
+- initial OPEN_BORDERS / DEFENSIVE_PACT / DISENGAGE items with m_iData<=0 are not saved in the
+  initiating mixed deal; they create separate generated team-proxy deals;
+- those generated dual proxies contain the same dual item on both sides;
+- PEACE_TREATY is saved but `isPeaceDeal()` excludes the whole deal before this shortcut;
+- PERMANENT_ALLIANCE is not saved;
+- vassal items are not `isDual`.
+
+So the live one-item-each dual case is the intended pure proxy agreement. No hidden GPT/resource
+mixed deal is skipped by this shortcut.
+
+No F288.
+
+
+SMALL METHOD / ACCESSOR FAMILY — CONTROLS
+-----------------------------------------
+`isVassalTrade`
+    whole-list scan; orientation-independent.
+
+`isUncancelableVassalDeal`
+    current generated vassal proxy representation gives exactly one vassal/master team side;
+    getGivesList(team) contract is satisfied.
+
+`isVassalTributeDeal`
+    the static all-resources predicate is vacuously true for an empty list, but the persistent
+    instance form cannot become a meaningful empty deal because empty CvDeals are deleted by
+    implementAndReturnDeal. No live queue-042 root established.
+
+`isDisengage`
+    requires exactly one item on each side and generated disengagement proxies are dual, so the
+    first-list head is guaranteed.
+
+`getGivesList/getReceivesList(TeamTypes)`
+    assert that exactly one participant belongs to the queried team. Same-team ordinary deals can
+    exist after Permanent Alliance, but current team-overload callers first scope deals to two
+    distinct relevant teams; no live assertion trigger found.
+
+`isAllDual`
+    empty-list true is mathematically vacuous but persistent empty deals are removed immediately;
+    display/filter callers therefore see nonempty deals.
+
+`isAnnual/isDual/hasData/isEndWar`
+    current callers and trade categories line up with the persistence/valuation semantics examined;
+    no omitted current trade enum found.
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional
+F286 / KI#609 — confirmed provisional; transaction-lifetime root now includes PA + vassal paths
+F287 / KI#610 — confirmed provisional
+F288 — UNUSED / provisional KI#611 next
+
+NEXT CURSOR
+-----------
+Continue saturation from F288 unused:
+1. cancellation-message `bForce` and other first-list-only representation consumers;
+2. resource/GPT individual invalidation repair feasibility and iteration safety for F287;
+3. serialization/load/free-list identity and same-team post-PA deals;
+4. stopTrading / force-peace / cancellation age call graph after F281/F283 fixes;
+5. SAS victory-denial guard completeness and atomicity;
+6. remaining history commits touching CvDeal;
+7. independent final K-Mod/Civ4CE function-family comparison and root repair boundaries.
+
+Do not manufacture F288 if these resolve as controls/same-root consequences.
+===============================================================================
+
+
+===============================================================================
+QUEUE 042 CONTINUATION — CvDeal.cpp
+C025-WIP11 — F287 supported tribute/resource expansion + history-oracle controls
+===============================================================================
+
+F288 remains UNUSED / provisional KI#611 next.
+
+
+F287 SAME-ROOT EXPANSION — advc.104m deliberately creates peace+resource/GPT tribute deals
+-------------------------------------------------------------------------------------------
+WIP09 proved the common supported wartime peace-settlement case:
+    TRADE_PEACE_TREATY + TRADE_GOLD_PER_TURN
+
+and showed that practical 2765's broke-GPT verifier can kill the whole still-young deal and thereby
+clear temporary forcePeace before PEACE_TREATY_LENGTH.
+
+The history-guided advc.104m pass proves that resource invalidation is not merely a theoretical
+structural sibling. AdvCiv deliberately creates PEACETIME help/tribute deals in which an annual
+resource can share the same persistent CvDeal with a temporary peace treaty.
+
+HISTORY
+-------
+Practical count 2070 / commit 507332fd0f introduced:
+    "Peace treaty in tribute/help deals; no treaty for vassals."
+
+Its design is explicit:
+- at peacetime, CvPlayer::buildTradeTable inserts a hidden TRADE_PEACE_TREATY so the EXE doesn't
+  discard the treaty from tribute/help requests;
+- AI_askHelp and AI_demandTribute add peace-treaty items to both sides when tradeable;
+- the accepted help/tribute bundle is therefore meant to grant a minimum temporary peace period.
+
+Current source preserves this architecture.
+
+CURRENT RESOURCE TRIGGER
+------------------------
+Current CvPlayerAI::AI_demandTribute supports DEMAND_BONUS.
+
+That branch can insert one or several:
+    TradeData(TRADE_RESOURCES, eBonus)
+
+into `humanGives`.
+
+After the requested value is accepted, current code adds:
+    weGive      += TRADE_PEACE_TREATY
+    humanGives  += TRADE_PEACE_TREATY
+
+when both sides can trade the treaty.
+
+On implementation:
+- the first treaty entry is saved as the temporary-peace lifetime owner;
+- the demanded resources are persistent and saved in the same CvDeal;
+- the duplicate treaty entry is normally collapsed through the existing treaty-reset logic.
+
+The resulting live deal can therefore be:
+    peace treaty + one/multiple demanded resources.
+
+If, before the treaty's minimum duration expires, one demanded resource:
+- becomes unavailable/oversubscribed;
+- loses its trade network;
+- becomes obsolete for either side;
+
+CvDeal::verify(direction) returns false for that resource and the OUTER verify kills the ENTIRE
+deal.
+
+kill/endTrade then clears TRADE_PEACE_TREATY forcePeace immediately.
+
+Thus a resource promised under an AdvCiv tribute-protected temporary peace can disappear and
+prematurely end the very peace guarantee advc.104m added.
+
+CURRENT GPT TRIBUTE SIBLING
+---------------------------
+AI_demandTribute also supports DEMAND_GOLD_PER_TURN.
+
+That creates exactly the practical-2765 F287 trigger at peacetime:
+    demanded GPT + advc.104m temporary treaty.
+
+If the human payer later meets the "100% gold, can't cover payment, negative gold rate, not anarchy"
+condition, verify returns false and kills the whole protected tribute deal.
+
+This is independent support for the same root in addition to wartime reparations.
+
+REPAIR IMPLICATION
+------------------
+F287 should therefore be framed generally:
+
+    Failure of one persistent annual obligation is allowed to destroy a still-uncancelable
+    temporary-peace lifetime that shares the same CvDeal.
+
+The correct boundary must preserve the treaty while ending only the failed annual obligation, or
+otherwise re-home the exact remaining treaty duration.
+
+This is not a niche wartime-reparations-only problem.
+
+
+PRACTICAL 1690 PEACE-CANCELLATION ORACLE — CURRENTLY CLEAN
+-----------------------------------------------------------
+Practical 1690 ("Fix recently introduced bug with peace treaty cancellation") repaired
+CvDeal::isCancelable(NO_PLAYER).
+
+The buggy form performed:
+    involves(NO_PLAYER)
+    isUncancelableVassalDeal(NO_PLAYER)
+
+before calculating age. `verify()` legitimately calls isCancelable(NO_PLAYER) for global
+peace-treaty expiry, so that broke expiry.
+
+Current code preserves the fix:
+- player-involvement and uncancelable-vassal checks are inside:
+      if (eByPlayer != NO_PLAYER)
+- then turnsToCancel is evaluated.
+
+`isEverCancelable` is player-specific and all current callers pass a real player.
+No new F288 from this history stream.
+
+
+PRACTICAL 1882 PERMANENT-ALLIANCE ORACLE — CURRENT GUARD PRESERVED
+-------------------------------------------------------------------
+Practical 1882 ("Fix some recently introduced problems with Perm. Alliances") added an important
+same-team guard in `isUncancelableVassalDeal`:
+
+    if (TEAMID(getFirstPlayer()) == TEAMID(getSecondPlayer()))
+        return false;
+
+because the team-oriented gives-list helper cannot represent an internal same-team deal.
+
+Current CvDeal preserves that guard.
+
+This does not repair F286: F286 occurs earlier, while addTeam/setVassal synchronously deletes the
+active transaction object. But the historical guard confirms that same-team deals can temporarily
+survive team merging and that later deal code must be careful with team-oriented accessors.
+
+No independent F288.
+
+
+PRACTICAL 1997 OPEN-BORDERS ORACLE — CURRENT SENTINEL PRESERVED
+---------------------------------------------------------------
+Practical 1997 ("Open Borders deals had no effect") corrected team-trade startup tests from:
+
+    trade.m_iData == 0
+
+to:
+
+    trade.m_iData <= 0
+
+after the default TradeData value had changed to -1.
+
+The same correction was applied to:
+- TRADE_VASSAL / TRADE_SURRENDER;
+- TRADE_OPEN_BORDERS;
+- TRADE_DEFENSIVE_PACT;
+- TRADE_DISENGAGE.
+
+Current startTrade still uses the <=0 contract. Generated proxy items use positive m_iData=1 and
+therefore save rather than recursively spawn another team trade.
+
+No F288.
+
+
+PRACTICAL 1577/1578 AI-CANCELLATION ORACLE — CURRENT ORIENTATION API IS COHERENT
+---------------------------------------------------------------------------------
+Those consecutive fixes introduced/cleaned the orientation-aware AI cancellation pipeline:
+- ensure the deal is actually between the AI and the queried player before cancellation logic;
+- derive our/their gives lists using deal orientation;
+- treat resource denial specially;
+- preserve renegotiation versus outright cancellation.
+
+Current AI_checkCancel uses:
+    kDeal.getGivesList(ePlayer)
+    kDeal.getGivesList(getID())
+
+after its caller has ensured:
+    pLoopDeal->isBetween(getID(), eOther)
+
+and cancellation eligibility.
+
+The old flip/orientation duplication is gone without reintroducing a first-vs-second assumption.
+No current list-orientation regression emerged there.
+
+
+CANCELLATION `bForce` FIRST-LIST DUAL SCAN — REAL SAME-FAMILY DIAGNOSTIC DEBT, NOT F288
+----------------------------------------------------------------------------------------
+Current CvDeal::kill decides whether cancellation UI should be forced/play the cancellation sound.
+
+For dual items it scans ONLY getFirstList():
+
+    FOR_EACH_TRADE_ITEM(getFirstList())
+        if (isDual(...))
+            bForce = true;
+
+Resource-network failure is separately checked across both lists.
+
+History proves this was another practical-2998 list-refactor loss:
+- before practical 2998, kill used combined headTradesNode()/nextTradesNode(), scanning BOTH lists
+  for duals;
+- practical 2998 changed the dual test to firstList only, while explicitly preserving both-list
+  resource scans.
+
+Therefore a second-list-only peace treaty (normal representation already proved for F281) can be
+announced as a non-forced/silent cancellation even though TRADE_PEACE_TREATY is dual.
+
+This is a genuine UI/diagnostic consequence of the same representation/refactor family, but:
+- it does not control gameplay state;
+- current F281 can prevent the ordinary scheduled expiry of the same second-list treaty in the
+  first place;
+- when other teardown paths kill it, the main gameplay consequences are already captured by the
+  stronger lifetime findings.
+
+Record as repair-adjacent debt. When practical-2998 list-orientation bugs are corrected, restore
+dual visibility across both lists here too. Do not allocate F288 merely for notification priority.
+
+
+SERIALIZATION / FREE-LIST IDENTITY — CLEAN
+------------------------------------------
+CvDeal::write/read are symmetric:
+    ID
+    initial game turn
+    first player
+    second player
+    first list
+    second list
+
+CvGame serializes the entire `FFreeListTrashArray<CvDeal>` through
+Read/WriteStreamableFFreeListTrashArray.
+
+The free-list stream includes:
+- slot count;
+- last index;
+- free-list head/count;
+- current ID;
+- every next-free index;
+- live object count.
+
+Each CvDeal then reloads its serialized ID, and `FFreeListTrashArray::load` places the object back
+into the slot encoded by that ID after asserting it is within the serialized container state.
+
+No queue-042 save/load ID drift or "deal list reloads but ID does not" defect found.
+
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional
+F286 / KI#609 — confirmed provisional; transaction-lifetime root
+F287 / KI#610 — confirmed provisional; now includes supported advc.104m resource/GPT tribute paths
+F288 — UNUSED / provisional KI#611 next
+
+NEXT CURSOR
+-----------
+Continue final saturation:
+1. finish practical-history oracles touching CvDeal after 2070 and before/after the 2998 list
+   refactor, especially any cancel/tribute/peace fixes that imply adjacent assumptions;
+2. inspect SAS victory-denial early return against every normal wartime deal-construction path;
+3. finish stopTrading / cancellation age / same-team post-PA consumers;
+4. challenge static isVassalTributeDeal empty-list semantics in its AI callers;
+5. complete K-Mod/Civ4CE differential and full method/assert/comment inventory;
+6. root-independence + repair-boundary closure challenge.
+
+Do not manufacture F288 if the remaining branches resolve as controls or consequences of F281-F287.
+===============================================================================
+
+
+===============================================================================
+QUEUE 042 CONTINUATION — CvDeal.cpp
+C025-WIP12 — ancestry corrections/refinements for F281/F285; F288 remains unused
+===============================================================================
+
+F288 remains UNUSED / provisional KI#611 next.
+
+
+AUDIT CORRECTION — F281 was introduced by practical 2623, not practical 2998
+-------------------------------------------------------------------------------
+Earlier queue-042 WIPs correctly proved F281's current behavior and repair boundary but attributed
+the first-list-only regression too late.
+
+The local reachable-history mirror gives a precise introduction point.
+
+Before practical 2623, current-era AdvCiv's CvDeal::isPeaceDeal used the combined traversal:
+
+    for (CLLNode<TradeData> const* pNode = headTradesNode(); pNode != NULL;
+         pNode = nextTradesNode(pNode))
+    {
+        if (pNode->m_data.m_eItemType == getPeaceItem())
+            return true;
+    }
+
+`headTradesNode()/nextTradesNode()` were specifically the combined first-then-second deal traversal.
+
+Practical count 2623 / commit 72a2889d97a5962c893a97d778a45622a84b8829
+Title:
+    "Use CLinkList traversal macros throughout the DLL"
+
+mechanically changed this exact function to:
+
+    FOR_EACH_TRADE_ITEM(getFirstList())
+    {
+        if (pItem->m_eItemType == getPeaceItem())
+            return true;
+    }
+
+and thereby silently dropped the second list.
+
+Practical 2998 later carries/repeats the same modern-list form on a merged/divergent history path,
+but it is NOT the earliest introduction.
+
+Older ancestry is additionally reassuring:
+- before the combined helper simplification, CvDeal::isPeaceDeal explicitly scanned first list and
+  then second list;
+- practical 1626 simplified those two loops into the combined headTradesNode traversal while
+  preserving both-list semantics;
+- K-Mod likewise scans both sides.
+
+So the corrected F281 ancestry is:
+
+    BtS/K-Mod/older AdvCiv: both lists
+    practical 1626: still both lists, via combined traversal
+    practical 2623: traversal-macro conversion accidentally narrows to first list only
+    current Base AdvCiv/SAS: inherits that regression
+
+The F281 gameplay proof and repair remain unchanged.
+
+
+F285 HISTORY REFINEMENT — blind spot existed initially, was fixed, then reintroduced directionally
+-------------------------------------------------------------------------------------------------
+Earlier WIP wording over-credited practical 2998 as the source of the AI reparations-embargo
+visibility regression. The history is more informative.
+
+1. advc.130f introduction — practical 1383
+------------------------------------------
+The original "Avoid canceling reparations" safeguard iterated BOTH trade lists, but evaluated each
+list separately:
+
+    for each list:
+        bPeaceTreaty = false;
+        bAnnualPayment = false;
+        scan that list;
+        if (bPeaceTreaty && bAnnualPayment)
+            deny embargo;
+
+Therefore its initial design already missed a deal where:
+    peace treaty marker is on one list
+    annual payment is on the opposite list.
+
+So the representation hazard existed from the feature's introduction.
+
+2. practical 1618 — blind spot temporarily removed
+---------------------------------------------------
+Practical 1618 replaced the per-list logic with one combined traversal:
+
+    bPeaceTreaty = false;
+    bAnnualPayment = false;
+    for (pNode = d->headTradesNode(); pNode != NULL;
+         pNode = d->nextTradesNode(pNode))
+    {
+        ...
+    }
+
+Now treaty and annual payment could be detected anywhere in the same deal, including opposite
+lists. This temporarily fixed the cross-list correlation problem.
+
+However, that whole-deal test was directionally overbroad: it could also deny the AI merely because
+the OTHER side was making an annual payment under the treaty.
+
+3. practical 2574 / commit 3db68c8950b7f878f94ab2965b8c60878b84ea78
+----------------------------------------------------------------------------------
+Title:
+    "Fix a minor issue with AI refusal of trade embargo"
+
+This changed the combined traversal from:
+
+    d->headTradesNode() / nextTradesNode()
+
+to:
+
+    d->headGivesNode(getTeam()) / nextGivesNode(..., getTeam())
+
+i.e. only items GIVEN BY THE AI.
+
+That correctly made `bAnnualPayment` directional: the AI should refuse because IT owes reparations,
+not because the other party does.
+
+But it also made `bPeaceTreaty` directional, even though the peace marker is deal metadata whose
+saved side is representational. The opposite-list treaty-marker blind spot was therefore
+reintroduced.
+
+A corresponding `getGivesList(getTeam())` conversion appears on the later/divergent traversal-macro
+history path (practical 2620), and current Base AdvCiv/SAS retain the gives-side-only form.
+
+Practical 2998 is therefore not the semantic introduction of F285; it only preserves the already
+directional traversal in the newer list API.
+
+CORRECT MODERN REPAIR, NOW EXPLAINED BY HISTORY
+-----------------------------------------------
+The history itself separates the two concepts that current code incorrectly binds to one scan:
+
+- PEACE-TREATY EXISTENCE:
+    whole-deal property; inspect both lists / fixed `d->isPeaceDeal()`.
+
+- ANNUAL REPARATION OWED BY THIS AI:
+    directional property; inspect `d->getGivesList(getTeam())` for RESOURCES/GPT.
+
+That combines:
+- practical 1618's correct whole-deal treaty visibility;
+- practical 2574's correct payer-directionality.
+
+This is stronger than simply reverting to any one historical implementation.
+
+F285's current reproduction and independence from F281 remain unchanged:
+choose an orientation with treaty in first list and AI GPT in second list; current isPeaceDeal
+already sees the treaty, while AI_stopTradingTrade fails its own denial.
+
+
+RELATED CANCELLATION bForce LINEAGE — CONTROL ONLY
+---------------------------------------------------
+The cancellation-notification `bForce` dual-item scan has a similar traversal history but remains
+below the numbered-finding bar.
+
+- advc.106j originally used first-list-oriented logic.
+- practical 1626 broadened the dual/resource traversal to the combined headTradesNode sequence.
+- practical 2623 converted the dual detection back to first-list-only while separately preserving
+  resource-network checks across both lists.
+
+So a normal second-list-only peace treaty can again be missed by the "force cancellation
+notification/sound" classification.
+
+That is real diagnostic/UI debt and should be considered alongside F281's list repair, but it does
+not independently corrupt diplomatic state. Keep it unnumbered unless a stronger gameplay
+dependency is established.
+
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional; ancestry corrected to practical 2623
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional; history refined through 1383 -> 1618 -> 2574
+F286 / KI#609 — confirmed provisional
+F287 / KI#610 — confirmed provisional
+F288 — UNUSED / provisional KI#611 next
+
+NEXT CURSOR
+-----------
+Continue final saturation:
+1. close static isVassalTributeDeal empty-list semantics against all callers;
+2. prove or reject SAS victory-denial guard bypass through any normal wartime implementDeal path;
+3. inspect TRADE_PEACE / TRADE_EMBARGO reentrant state transitions for active-deal deletion;
+4. finish same-team post-PA accessor/cancellation consumers;
+5. complete current-source FAssert/FError/TODO/comment inventory;
+6. final K-Mod/Civ4CE differential + root-independence/repair-boundary challenge.
+
+If those remain controls, close queue 042 with F281-F287 and leave F288 unused.
+===============================================================================
+
+
+===============================================================================
+QUEUE 042 CONTINUATION — CvDeal.cpp
+C025-WIP13 — F288 / provisional KI#611 confirmed
+===============================================================================
+
+F288 / provisional KI#611
+-------------------------
+TITLE
+A supported human Permanent Alliance + voluntary-vassal mixed bundle can make the surviving team
+its OWN vassal (`m_eMaster == getID()`), leaving persistent team-state corruption.
+
+SUPPORTED BUNDLE / PREVALIDATION
+--------------------------------
+Current diplomacy deliberately allows arbitrary mixed item classes when BOTH players are human:
+
+    if (!isHuman() || !GET_PLAYER(eOtherPlayer).isHuman())
+    {
+        ... annual/nonannual hiding ...
+    }
+    // "everything allowed in human-human trades"
+
+The trade inventory independently exposes both:
+    TRADE_VASSAL
+    TRADE_PERMANENT_ALLIANCE
+
+when their ordinary individual conditions hold.
+
+At peacetime between two separate one-member free teams:
+- TRADE_VASSAL can pass because neither side is already a vassal and vassal-state trading is
+  available;
+- TRADE_PERMANENT_ALLIANCE can pass because neither side is a vassal, the teams are distinct and
+  at peace, PA trading is available, and each team has one member.
+
+`updateTradeList` has special mutual hiding for:
+- vassal vs the OTHER side's vassal item;
+- wartime vassal/surrender vs an end-war item;
+
+but there is no PA-vassal incompatibility rule.
+
+`CvDeal::addTradeItems` then validates every item while the two teams are still separate. Thus both
+items can pass the bundle's prevalidation.
+
+EXECUTION ORDER
+---------------
+The two-pass implementation intentionally postpones vassal/surrender items.
+
+TRADE_PERMANENT_ALLIANCE:
+- processed in pass 0;
+- startTrade itself does nothing;
+- `bAlliance = true`.
+
+TRADE_VASSAL:
+- processed in pass 1;
+- startTeamTrade creates the ordinary team-vassal proxy deal(s);
+- `GET_TEAM(eFromPlayer).setVassal(eToTeam, true, false)` establishes the vassal relation.
+
+Only AFTER both item passes does addTradeItems execute the alliance:
+
+    if (bAlliance)
+    {
+        if (eFirstTeam < eSecondTeam)
+            GET_TEAM(eFirstTeam).addTeam(eSecondTeam);
+        else if (eSecondTeam < eFirstTeam)
+            GET_TEAM(eSecondTeam).addTeam(eFirstTeam);
+    }
+
+The lower team ID survives the Permanent Alliance.
+
+CONCRETE CORRUPTION ORIENTATION
+-------------------------------
+Let:
+    Team M = lower-ID surviving team
+    Team V = higher-ID absorbed team
+
+and let V give TRADE_VASSAL to M in the same bundle that contains the PA.
+
+Immediately before addTeam:
+    V.m_eMaster == M
+    M.m_eMaster == NO_TEAM
+
+Then:
+    M.addTeam(V)
+
+reaches AdvCiv's optimized single-master PA migration:
+
+    if (GET_TEAM(eTeam).isAVassal())
+    {
+        bool bCapitulated = GET_TEAM(eTeam).isCapitulated();
+        setVassal(getMasterTeam(), false, bCapitulated);
+        setVassal(GET_TEAM(eTeam).getMasterTeam(), true, bCapitulated);
+    }
+
+Substitute the live values:
+
+1. Survivor M is free, so:
+       M.getMasterTeam() == M
+
+2. First call:
+       M.setVassal(M, false, ...)
+
+   `M.isVassal(M)` is false while m_eMaster==NO_TEAM, so the early equality check sees:
+       false == false
+   and returns immediately. This does NOT clear anything.
+
+3. Absorbed V's master is M:
+       V.getMasterTeam() == M
+
+4. Second call:
+       M.setVassal(M, true, ...)
+
+   This proceeds and writes:
+       M.m_eMaster = M
+
+The surviving team has become its own vassal.
+
+WHY THE SELF-VASSAL DOES NOT SELF-CORRECT
+-----------------------------------------
+`setVassal(M,true)` updates the Agent caches as a real vassal relation, including inserting Team M
+into the VASSAL_ALIVE cache for master M.
+
+Its later "all our vassals now become free" loop can encounter the self relation. However
+`freeVassal(M)` frees vassalage by finding and killing an actual TRADE_VASSAL/SURRENDER deal between
+master M and vassal M.
+
+At that point the real vassal proxy is still between distinct player teams M and V; there is no
+M<->M vassal deal. Therefore `freeVassal(M)` does not clear M.m_eMaster.
+
+The same loop subsequently frees the real V->M proxy relation, but that changes V's master state,
+not M's newly-created self-master state.
+
+Later, V's players are reassigned to M. V's alive count falls to zero.
+
+CvTeam::changeAliveCount(0) frees living teams whose:
+    kLoopTeam.isVassal(V)
+
+But M now has:
+    M.m_eMaster == M
+
+not V. Therefore absorbed-team death cleanup also does not clear the self-vassal.
+
+There is no later `m_eMaster = NO_TEAM` normalization in addTeam.
+
+The corrupted state survives the merge.
+
+MIRROR ORIENTATION — IMPORTANT BOUNDARY
+----------------------------------------
+If instead the LOWER-ID survivor was the vassal of the HIGHER-ID absorbed master immediately before
+the PA:
+    survivor.m_eMaster == absorbedTeam
+
+the `GET_TEAM(eTeam).isAVassal()` branch is skipped because the absorbed master is free.
+
+When absorbedTeam later reaches alive-count zero, CvTeam::changeAliveCount sees the survivor as a
+living vassal of the dead absorbed team and calls:
+    survivor.setVassal(absorbedTeam, false, ...)
+
+So that mirror orientation happens to clean up.
+
+F288 is therefore orientation-dependent on team IDs and which side gives voluntary vassalage, but
+the bad orientation is fully supported and deterministic.
+
+LIVE CONSEQUENCES
+-----------------
+Self-vassal is not cosmetic.
+
+`isAVassal()` is:
+    return (m_eMaster != NO_TEAM);
+
+so it becomes true.
+
+`getMasterTeam()` returns:
+    m_eMaster == NO_TEAM ? getID() : m_eMaster
+
+and therefore still returns M, hiding the corruption from some equality tests while the vassal flag
+remains set.
+
+Examples of broad consequences:
+- CvTeam::canChangeWarPeace immediately returns false when `isAVassal()`;
+- many diplomatic/trade gates reject vassals;
+- population/land functions with vassal-aware accounting take the `isAVassal()` branch and can
+  halve the team's own totals in those contexts;
+- AI/iterator predicates classify the team as a vassal;
+- CvAgents' VASSAL_ALIVE relation cache contains the team under itself;
+- the relation is ordinary CvTeam state and is serialized, so the corruption can survive saves.
+
+Additional downstream behavior may be worse, but these are already sufficient to establish a live
+state bug.
+
+ANCESTRY
+--------
+The human-human "everything allowed" mixed-trade behavior is inherited from K-Mod.
+
+K-Mod's older vassal representation used a per-team boolean relation matrix. Its PA merge logic
+iterated OTHER teams and explicitly excluded both merging team IDs while migrating vassal
+relations. A direct vassal relation between the two teams being merged therefore was not converted
+into a self-vassal relation.
+
+AdvCiv later replaced the relation matrix with a single `m_eMaster`.
+
+Practical count 1840 / commit 8cd5a498cfb33f035393333903c604d49410673c
+Title:
+    "Bugfixes: Vassals of Permanent Alliance; AgentIterator"
+
+introduced the current single-master PA migration block:
+
+    if (GET_TEAM(eTeam).isAVassal())
+    {
+        ...
+        setVassal(getMasterTeam(), false, bCapitulated);
+        setVassal(GET_TEAM(eTeam).getMasterTeam(), true, bCapitulated);
+    }
+
+This correctly handles an absorbed team that is vassal of some THIRD master, but it does not
+special-case the master being the very team that is absorbing it.
+
+Base AdvCiv 1.14 contains the same logic; SAS inherits it.
+
+ROOT INDEPENDENCE
+-----------------
+F288 is independent of F281-F287.
+
+It requires neither:
+- list-orientation peace classification;
+- cancellation-memory accumulation;
+- deal-renewal lifetime;
+- player-death proxy ownership;
+- embargo reparations detection;
+- active-deal self-deletion;
+- annual-item verification.
+
+Its root is bundle-level compatibility plus PA vassal-state migration:
+    individually valid PA + vassal items create a transient direct master/vassal relation between
+    the two teams immediately before those same teams merge.
+
+REPAIR BOUNDARY
+---------------
+The cleanest repair is to reject/normalize the contradictory bundle BEFORE either state transition:
+
+    A Permanent Alliance and a VASSAL/SURRENDER relation between the same two teams should not both
+    be implemented as independent items in one transaction.
+
+Possible approaches:
+1. bundle validation:
+   reject PA+VASSAL/SURRENDER combinations;
+2. normalization:
+   if PA is present, ignore/drop direct vassal/surrender items between the merging teams;
+3. defensive addTeam hardening:
+   when absorbed team's master is `getID()`, do NOT call `setVassal(getID(), true)`;
+   likewise explicitly clear any direct survivor<->absorbed vassal relation before merge.
+
+A robust repair should ideally do both:
+- prevent contradictory trade construction;
+- make addTeam resilient to an externally forced/directly constructed equivalent state.
+
+Do not merely add `FAssert(eMaster != getID())` to setVassal: Release would still corrupt state, and
+other legitimate callers should not have to absorb a malformed PA transaction after the fact.
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional
+F286 / KI#609 — confirmed provisional
+F287 / KI#610 — confirmed provisional
+F288 / KI#611 — confirmed provisional
+F289 — UNUSED / provisional KI#612 next
+
+CONTROLS CLOSED IN THIS SLICE
+-----------------------------
+- Static `isVassalTributeDeal(empty)` is vacuously true, but its AI_considerOffer call path requires
+  positive received value from the tested list; an empty list cannot satisfy that gate. Persistent
+  empty CvDeals are deleted immediately. No live empty-list trigger.
+- Normal TRADE_PEACE / TRADE_WAR / TRADE_EMBARGO trade-table target generation excludes the
+  negotiating partner's team and uses a third-team iterator. Ordinary brokered state changes
+  therefore do not target the active deal partner and synchronously delete the active broker deal.
+- Random-event BonusGift implementDeal calls currently come from Brothers In Need triggers whose
+  other-player-war requirement is false; those resource gifts therefore occur at peacetime and do
+  not bypass the SAS wartime victory-denial peace guard.
+- Normal AI wartime peace reaches AI_negotiatePeace with explicit PEACE_TREATY. Direct helper
+  signPeaceTreaty likewise supplies PEACE_TREATY; OB/DP/disengage and voluntary-vassal direct paths
+  are peacetime. No normal wartime implementDeal route without the guard's treaty marker was found.
+- PA + resource/GPT can leave a persistent deal between now-same-team players, but players retain
+  separate gold/resource economies; no independent corruption was established from that alone.
+
+NEXT CURSOR
+-----------
+Continue final saturation from F289 unused:
+1. challenge PA+SURRENDER and any other contradictory human mixed-bundle pairs; classify under F288
+   unless the root/consequence is genuinely independent;
+2. finish current-source FAssert/FError/TODO and all ~40 CvDeal method-family inventory;
+3. inspect post-PA same-team deal consumers and cancellation accessors one last time;
+4. final independent K-Mod/Civ4CE differential;
+5. explicit repair-boundary/root-independence table for F281-F288;
+6. if no F289 survives, close queue 042 and advance to priority queue 047 CvDllPythonEvents.cpp.
+
+Do not manufacture F289 merely because this file has been unusually productive.
+===============================================================================
+
+
+================================================================================
+WORKING CHECKPOINT C025-WIP14 - CvDeal.cpp STILL OPEN
+================================================================================
+
+STATUS
+------
+- Cumulative continuation of C025-WIP13.
+- Queue 042 `CvGameCoreDLL/CvDeal.cpp` remains OPEN.
+- F281-F288 remain confirmed provisional.
+- F289 / provisional KI#612 is now CONFIRMED.
+- F290 is UNUSED / provisional KI#613 next.
+- No repository source files modified.
+
+F289 / PROVISIONAL KI#612
+=========================
+VOLUNTARY VASSAL SPONSOR CAN HIRE AN AI TO DECLARE WAR ON THE SPONSOR'S OWN
+MASTER / SAME-MASTER COALITION, IMMEDIATELY MAKING THE SPONSOR AN ENEMY OF THE
+HIRED TEAM
+
+SUMMARY
+-------
+The brokered-war trade contract checks the relationship between the HIRELING and
+the proposed target, but incompletely checks the relationship between the
+SPONSOR and that target.
+
+`CvTeamAI::AI_declareWarTrade(eTarget,eSponsor,...)` rejects:
+
+    GET_TEAM(eTarget).isVassal(eSponsor)
+    GET_TEAM(eTarget).isDefensivePact(eSponsor)
+
+but does not reject the reverse master/vassal direction:
+
+    GET_TEAM(eSponsor).isVassal(eTarget)
+
+nor, more generally, a target in the sponsor's own master/vassal locus.
+
+That leaves a supported live configuration in which a voluntary vassal asks an
+AI civ to declare war on the vassal's own master. The requested declaration
+then invokes the normal vassal-alignment cascade, which causes the hired AI to
+declare war on the sponsor as well.
+
+The accepted diplomatic transaction therefore destroys the diplomatic
+relationship it was negotiated through and turns the sponsor into an enemy of
+the team it just hired.
+
+This is an independent diplomatic target-validity defect.
+
+It ALSO provides a new concrete trigger for F286: the nested war declaration
+kills the current sponsor/hireling CvDeal while `CvDeal::addTradeItems` is still
+executing, after which `CvGame::implementAndReturnDeal` can dereference the
+freed deal. That lifetime consequence remains under F286 rather than being
+double-counted here.
+
+LIVE CONSTRUCTION
+-----------------
+Let:
+
+    A = AI hireling team
+    B = voluntary-vassal sponsor team
+    C = B's master team
+
+Initial state:
+
+    B.isVassal(C) == true
+    B.isCapitulated() == false
+    A is at peace with B and C
+    A has met B and C
+    A can otherwise declare war on C
+    attitudes / power allow A to accept B's war request
+
+B opens diplomacy with A and asks:
+
+    A: declare war on C
+
+This is not an artificial direct-C++ construction. Current trade-table and
+trade-validity code can expose/accept it.
+
+TRADE-TABLE REACHABILITY
+------------------------
+For an AI player, `CvPlayer::buildTradeTable` handles TRADE_PEACE, TRADE_WAR and
+TRADE_EMBARGO by iterating every major third team except:
+
+    - the AI's own team, through NOT_SAME_TEAM_AS;
+    - the negotiating partner's exact team, through:
+
+          if (itThirdTeam->getID() == TEAMID(eOtherPlayer))
+              continue;
+
+If B is a voluntary vassal of C, C is a distinct third team.
+
+Therefore C is enumerated as a possible TRADE_WAR target while A negotiates
+with B.
+
+There is no corresponding exclusion for:
+
+    itThirdTeam->getMasterTeam() == GET_TEAM(B).getMasterTeam()
+
+so the sponsor's own master remains a candidate.
+
+STRUCTURAL TRADE VALIDITY
+-------------------------
+`CvPlayer::canPossiblyTradeItem(... TRADE_WAR ...)` rejects the sponsor only
+when the sponsor is CAPITULATED:
+
+    return (!kOurTeam.isHuman() && !kOurTeam.isAVassal() &&
+            !kToTeam.isCapitulated());
+
+Here:
+- kOurTeam = A, the AI hireling;
+- kToTeam = B, the sponsor.
+
+B is a voluntary vassal, not capitulated, so the broker role remains allowed.
+
+Current SAS `CvPlayer::canTradeItem(... TRADE_WAR ...)` then checks the TARGET:
+
+    bool const bValidTargetStatus =
+        (!kTargetTeam.isAVassal() ||
+         (getUWAI().isEnabled() && !kTargetTeam.isCapitulated()));
+
+    if (bValidTargetStatus &&
+        kOurTeam.isHasMet(eTargetTeam) &&
+        kToTeam.isHasMet(eTargetTeam) &&
+        kOurTeam.canDeclareWar(eTargetTeam))
+    {
+        bValid = true;
+    }
+
+For target C, the sponsor's FREE master:
+- C is not a vassal, so target status passes even without UWAI;
+- A and B naturally know C in the relevant configuration;
+- A canDeclareWar(C) can be true.
+
+Nothing here checks that B and C belong to the same master/vassal coalition.
+
+AI DENIAL IS ASYMMETRIC
+-----------------------
+`CvPlayer::getTradeDenial(TRADE_WAR)` routes to:
+
+    kOurTeam.AI_declareWarTrade(eTarget, TEAMID(eWhoTo))
+
+so A evaluates C as target and B as sponsor.
+
+The opening special relationship check is:
+
+    if (GET_TEAM(eTarget).isVassal(eSponsor) ||
+        GET_TEAM(eTarget).isDefensivePact(eSponsor))
+        return DENIAL_JOKING;
+
+For target C and sponsor B:
+- `C.isVassal(B)` is false;
+- master/vassal is not represented as a defensive pact;
+- the REVERSE fact `B.isVassal(C)` is never tested.
+
+The remainder of AI_declareWarTrade can therefore return NO_DENIAL when
+attitude, war-load and power conditions are favorable.
+
+This is not merely a trade-table cosmetic: the AI can genuinely accept.
+
+WHY `canDeclareWar(C)` DOES NOT SAVE THE CONTRACT
+-------------------------------------------------
+`CvTeam::canDeclareWar(C)` answers whether A itself can legally enter war
+against C.
+
+It checks:
+- team inequality / alive status;
+- existing war;
+- contact;
+- permanent-war/peace constraints;
+- force peace;
+- game options;
+- Python vetoes.
+
+It does not and should not know that B is the sponsor of the proposed trade.
+
+Thus A can perfectly legally declare war on C even though B, the broker asking
+for that declaration, is C's voluntary vassal.
+
+The missing invariant is specifically a WAR-TRADE sponsor/target relationship
+constraint.
+
+SYNCHRONOUS SELF-DEFEATING OUTCOME
+----------------------------------
+`CvDeal::startTrade(TRADE_WAR)` executes:
+
+    GET_TEAM(eFromPlayer).declareWar(eAttackedTeam, ... eToPlayer);
+
+For this example:
+
+    A.declareWar(C, ..., sponsor=B)
+
+`CvTeam::declareWar` sets A<->C at war, then iterates third teams.
+
+For B:
+
+    B.isVassal(C) == true
+
+so it queues:
+
+    queueWar(A, B, ..., WAR_DECLARATION_VASSAL_ALIGNMENT)
+
+The function then calls:
+
+    triggerWars(true);
+
+BEFORE returning to `CvDeal::startTrade`.
+
+`triggerWars` drains the queue synchronously and invokes:
+
+    A.declareWar(B, ...)
+
+That secondary declaration kills all active A<->B deals at the opening of
+`CvTeam::declareWar`.
+
+Therefore the sponsor who hired A to attack C immediately becomes an enemy of
+A because B is C's vassal.
+
+The diplomatic action defeats its own negotiating relationship in the same
+call stack.
+
+F286 SAME-ROOT LIFETIME EXPANSION
+---------------------------------
+The secondary A->B declaration also kills the CURRENT in-progress sponsor /
+hireling deal.
+
+That means:
+
+    CvDeal::addTradeItems
+      -> startTrade(TRADE_WAR)
+        -> A.declareWar(C)
+          -> triggerWars
+            -> A.declareWar(B)
+              -> kill all A<->B deals
+                 -> current CvDeal deleted
+      -> returns into methods still executing through `this`
+
+and finally:
+
+    CvGame::implementAndReturnDeal
+        pDeal->getLengthFirst()
+        pDeal->getLengthSecond()
+
+can dereference a freed `pDeal`.
+
+This is additional concrete evidence for F286's transaction-lifetime root.
+Do NOT create another lifetime finding for the same deletion mechanism.
+
+BROADER SAME-MASTER-LOCUS CASE
+------------------------------
+The clean invariant is broader than merely:
+
+    sponsor.isVassal(target)
+
+Current SAS, after KI#373 / F052 repair work, can also permit a VOLUNTARY
+VASSAL as a TRADE_WAR target under full UWAI.
+
+That means sibling voluntary vassals under the same master can also become
+named sponsor/target pairs in configurations where the item otherwise passes.
+
+War against one sibling aligns the common master and then the other sibling,
+again turning the sponsor into the hireling's enemy.
+
+The robust relation test is therefore the coalition identity:
+
+    GET_TEAM(eTarget).getMasterTeam() ==
+        GET_TEAM(eSponsor).getMasterTeam()
+
+`CvTeam::getMasterTeam()` returns the team's own ID for a free team, so this
+single comparison covers:
+- sponsor -> own master;
+- sponsor -> sibling vassal;
+- other teams inside the same master/vassal locus.
+
+Exact sponsor==target is already excluded by normal third-team generation and
+caller assertions, but a structural guard can remain explicit if desired.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14 contains the same asymmetric AI denial:
+
+    target.isVassal(sponsor) || target.isDefensivePact(sponsor)
+
+K-Mod and Civ4CE likewise carry the inherited target-is-vassal-of-sponsor
+check without the reverse/same-master-locus normalization.
+
+Therefore the master-target form of F289 is inherited rather than SAS-created.
+
+Current SAS's KI#373 / F052 voluntary-vassal target support can make the
+broader sibling-vassal form reachable under UWAI, but that is an expansion of
+the same underlying missing sponsor/target coalition check, not a separate
+root.
+
+RELATION TO F052 / KI#373
+-------------------------
+F052 was the opposite contract problem:
+
+    intended FOREIGN voluntary-vassal targets were universally blocked.
+
+Its repair deliberately made a voluntary vassal target legal under supported
+UWAI conditions.
+
+F289 does NOT argue that voluntary vassals should again be universally banned.
+
+Instead, it distinguishes:
+- FOREIGN voluntary vassal: valid supported war-trade target;
+- sponsor's own master/vassal coalition: invalid self-defeating target.
+
+Repairing F289 with a same-master-locus test preserves F052's intended foreign
+voluntary-vassal feature.
+
+ROOT INDEPENDENCE
+-----------------
+F289 is independent of F281-F288 as a gameplay/diplomacy defect.
+
+Even if F286 is repaired perfectly so current deals cannot self-delete:
+- B can still request war on its own master C;
+- A can still accept;
+- normal vassal alignment still makes A and B enemies immediately.
+
+So the semantic defect survives the lifetime repair.
+
+Conversely, rejecting malformed sponsor/target war trades would remove this
+particular F286 trigger but would NOT fix F286's other confirmed self-deletion
+paths (e.g. mixed Permanent Alliance state transitions).
+
+The roots are therefore separate:
+- F286 = transaction object lifetime under nested state changes;
+- F289 = missing coalition constraint on brokered-war target semantics.
+
+REPAIR BOUNDARY
+---------------
+A robust repair should enforce the sponsor/target coalition invariant at the
+structural trade layer, not only as AI preference.
+
+For TRADE_WAR, reject a target when:
+
+    GET_TEAM(eTarget).getMasterTeam() ==
+        kToTeam.getMasterTeam()
+
+where kToTeam is the sponsor / negotiating partner.
+
+This belongs naturally in `CvPlayer::canTradeItem(TRADE_WAR)` because
+`canTradeItem(..., bTestDenial=false)` is widely used as game-rule validity and
+trade-table construction.
+
+Then harden `CvTeamAI::AI_declareWarTrade` with the same relationship rule
+(or assert that structural callers already excluded it), so direct AI callers
+cannot reintroduce the contradiction.
+
+Do NOT repair by:
+- banning all voluntary-vassal targets again;
+- checking only `sponsor.isVassal(target)`, which misses sibling vassals;
+- relying only on `DENIAL_JOKING`, because structural / forced callers may use
+  `canTradeItem` without denial testing;
+- suppressing the vassal-alignment war cascade, which is correct war-state
+  behavior once a valid declaration occurs.
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional
+F286 / KI#609 — confirmed provisional
+F287 / KI#610 — confirmed provisional
+F288 / KI#611 — confirmed provisional
+F289 / KI#612 — confirmed provisional
+F290 — UNUSED / provisional KI#613 next
+
+NEXT CURSOR
+-----------
+Continue saturation rather than searching for a tenth root by count:
+1. finish CvDeal assertion/TODO/method-family inventory;
+2. recheck PA/post-merge same-team deal consumers;
+3. challenge brokered TRADE_PEACE / TRADE_EMBARGO relationship symmetry using
+   the same sponsor/master lens, but keep them controls unless a distinct live
+   failure survives;
+4. do final K-Mod/Civ4CE differential and historical repair-boundary pass;
+5. build an explicit F281-F289 root-independence/repair table;
+6. if F290 does not survive, close queue 042 and advance to priority queue 047
+   `CvDllPythonEvents.cpp`.
+
+Do not manufacture F290.
+===============================================================================
+
+
+================================================================================
+WORKING CHECKPOINT C025-WIP15 - CvDeal.cpp STILL OPEN
+================================================================================
+
+STATUS
+------
+- Cumulative continuation of C025-WIP14.
+- Queue 042 `CvGameCoreDLL/CvDeal.cpp` remains OPEN.
+- F281-F289 remain confirmed provisional.
+- F289 repair boundary is REFINED below: canonical master coalitions and their
+  Defensive Pacts matter, not only an exact shared master.
+- F290 / provisional KI#613 is now CONFIRMED as a low-severity
+  diagnostic/state-cleanup defect.
+- F291 is UNUSED / provisional KI#614 next.
+- No repository source files modified.
+
+F289 REPAIR-BOUNDARY REFINEMENT
+===============================
+THE SPONSOR/TARGET TEST MUST CANONICALIZE BOTH SIDES TO THEIR MASTER TEAMS
+BEFORE CHECKING DEFENSIVE-PACT RELATIONSHIPS
+
+WIP14 correctly established that a brokered war must not target the sponsor's
+own master/vassal locus. A further cascade check shows that an exact
+same-master comparison is necessary but not sufficient.
+
+Additional live construction:
+
+    A = AI hireling
+    B = voluntary-vassal sponsor
+    M = B's master
+    C = proposed foreign target
+
+with:
+
+    B.isVassal(M) == true
+    M.isDefensivePact(C) == true
+    B and C are not directly in a Defensive Pact
+    A is otherwise legally able/willing to declare war on C
+
+Current `AI_declareWarTrade(C,B,...)` checks:
+
+    C.isVassal(B)
+    C.isDefensivePact(B)
+
+Both can be false.
+
+But when A executes the bought declaration against C:
+1. C's Defensive Pact causes M to enter war against A;
+2. B is M's vassal;
+3. vassal alignment then brings B into war against A;
+4. the sponsor B has again become an enemy of the civilization it just hired;
+5. the current A<->B implementing deal can again be killed synchronously,
+   expanding F286's trigger set.
+
+The same issue generalizes when the named target is itself a voluntary vassal:
+the meaningful target coalition is its master team, not merely the nominal
+target team.
+
+Therefore the robust F289 relation is approximately:
+
+    TeamTypes const eSponsorMaster =
+        GET_TEAM(eSponsor).getMasterTeam();
+    TeamTypes const eTargetMaster =
+        GET_TEAM(eTarget).getMasterTeam();
+
+    if (eSponsorMaster == eTargetMaster ||
+        GET_TEAM(eSponsorMaster).isDefensivePact(eTargetMaster))
+    {
+        reject;
+    }
+
+The exact implementation should preserve the normal symmetric DP invariant and
+should be applied at the structural TRADE_WAR validity boundary as well as
+AI denial hardening.
+
+This refinement remains F289, not F290: it is the same missing
+"sponsor must not buy a war that necessarily places the sponsor's coalition at
+war with the hireling" contract.
+
+F290 / PROVISIONAL KI#613
+=========================
+PERMANENT-ALLIANCE DEAL CLEANUP LOSES THE OLD TEAM IDENTITIES AFTER PLAYER
+REASSIGNMENT; A VALID PRE-ALLIANCE DEFENSIVE PACT IS ENDED AS A SELF-PACT,
+TRIGGERING ADVCIV/SAS ASSERTIONS
+
+SEVERITY / SCOPE
+----------------
+Low severity, but confirmed.
+
+The strongest current consequence is diagnostic:
+- a normal Permanent Alliance formed while a Defensive Pact is active can hit
+  `FAssert(getID() != eIndex)` in `CvTeam::setDefensivePact`;
+- this assertion is active in both Debug and the project's separate optimized
+  Assert configuration.
+
+Release builds normally avoid a direct gameplay failure from the old DP bits
+because the absorbed team is dead and alive-team iterators exclude it.
+The cleanup also writes cancellation memory among the now-permanently allied
+players, but same-team attitude is forced to 100 and a Permanent Alliance does
+not later split, so that pollution is currently strategically inert.
+
+This finding should therefore be treated as a real teardown-identity /
+diagnostic defect, not overstated as a release gameplay corruption.
+
+LIVE / INTENDED REACHABILITY
+----------------------------
+A Defensive Pact can legitimately still be active when a Permanent Alliance is
+signed.
+
+`CvPlayer::canPossiblyTradeItem(TRADE_PERMANENT_ALLIANCE)` requires:
+- neither team is a vassal;
+- distinct teams;
+- no war;
+- PA trading enabled;
+- one member on each team.
+
+It does NOT require the teams to lack Open Borders or a Defensive Pact.
+
+More strongly, AI PA acceptance explicitly uses alliance history:
+
+    AI_getDefensivePactCounter(eWithTeam) +
+    AI_getShareWarCounter(eWithTeam) >= 40
+
+and the Defensive Pact counter is incremented while:
+
+    isDefensivePact(eOther)
+
+is true.
+
+Thus "active DP -> later PA" is not a synthetic malformed state; it is one of
+the ordinary relationship histories the PA AI is designed around.
+
+HOW THE OLD DP IS STORED
+------------------------
+Signing a DP calls:
+
+    startTeamTrade(TRADE_DEFENSIVE_PACT, fromTeam, toTeam, true)
+
+which creates persistent team-proxy `CvDeal`s for player pairs with a
+Defensive-Pact item in both sides of each proxy deal.
+
+The old pact therefore has live deals to clean up when the PA merges the teams.
+
+THE K-MOD ORDERING CHANGE
+-------------------------
+BtS / Civ4CE cancel the inter-team OB/DP/peace/vassal deals before the members
+of the absorbed team are reassigned.
+
+K-Mod practical history commit 386 deliberately moved the entire cancellation
+block *after* reassignment:
+
+    "When forming a permanent alliance, deals are now canceled /after/ the team
+     numbers have been reassigned. This is to prevent the new allies from being
+     bumped..."
+
+and its source comment says:
+
+    "I've done this so that when open-borders is canceled,
+     it doesn't bump our new allies out of our borders."
+
+After the move, K-Mod identifies the old inter-team deals by the fact that both
+participants are now on the surviving team.
+
+AdvCiv and SAS inherit this ordering.
+
+IDENTITY LOSS IN CURRENT ADDTEAM
+--------------------------------
+Current `CvTeam::addTeam(eTeam)` eventually does:
+
+    for (...) {
+        if (GET_PLAYER(i).getTeam() == eTeam)
+            GET_PLAYER(i).setTeam(getID());
+    }
+
+Only afterward does it scan:
+
+    if (!pLoopDeal->isBetween(getID(), getID()))
+        continue;
+
+and kill old OB / DP / peace / vassal / surrender / disengage deals.
+
+That is enough to recognize which deals became internal, but it destroys the
+old team identity needed by `CvDeal::endTrade`.
+
+`CvDeal` stores player IDs, not historical team IDs.
+
+When `kill()` later runs `endTrade`, every team lookup is based on the players'
+CURRENT teams.
+
+DEFENSIVE-PACT ASSERTION
+------------------------
+For an old M<->V DP proxy, after V's player has been reassigned to M:
+
+    TEAMID(eFromPlayer) == M
+    TEAMID(eToPlayer)   == M
+
+`CvDeal::endTrade(TRADE_DEFENSIVE_PACT)` executes:
+
+    GET_TEAM(eFromPlayer).setDefensivePact(
+        TEAMID(eToPlayer), false);
+
+which has become:
+
+    M.setDefensivePact(M, false);
+
+Current AdvCiv/SAS `CvTeam::setDefensivePact` begins:
+
+    FAssert(getID() != eIndex); // advc
+
+so the ordinary PA cleanup now calls a function under a condition that the
+function explicitly asserts must not happen.
+
+The subsequent equality early return does not save the diagnostic contract:
+the assertion occurs first.
+
+ASSERT BUILD IS REAL
+--------------------
+This is not Debug-only in the project.
+
+The existing project configuration has an optimized Assert target using
+`/DFASSERT_ENABLE` without `_DEBUG`, and `FAssert` is compiled whenever
+FASSERT_ENABLE is present.
+
+So a normal PA+DP teardown can fire in:
+- Debug;
+- optimized Assert.
+
+This complements the earlier F273 finding: F273 found valid assertions that SAS
+accidentally suppressed in the Assert configuration; F290 is the opposite
+diagnostic problem, a valid game transition reaching an assertion whose
+precondition was invalidated by teardown ordering.
+
+ANCESTRY / COMBINATION
+----------------------
+Civ4CE retains the older ordering: relevant deals are killed before player-team
+reassignment, so `endTrade` still sees the real old team pair.
+
+K-Mod commit 386 introduced the post-reassignment cancellation specifically to
+avoid Open-Borders unit bumping. K-Mod's `setDefensivePact` has only enum-range
+assertions and no `getID() != eIndex` assertion, so the self-target teardown is
+less visible there.
+
+AdvCiv practical commit 1842 later added:
+
+    FAssert(getID() != eIndex); // advc
+
+to `CvTeam::setDefensivePact` while retaining K-Mod's post-reassignment PA
+cleanup.
+
+The confirmed false assertion is therefore an AdvCiv/SAS interaction between:
+1. K-Mod's intentional PA cleanup ordering; and
+2. AdvCiv's later self-team DP invariant assertion.
+
+RELEASE-BUILD STATE EFFECT
+--------------------------
+With assertions disabled, `M.setDefensivePact(M,false)` ordinarily sees the
+self DP bit already false and returns without touching the original M<->V
+relation.
+
+So the old DP bits keyed to absorbed team V are not actually cleared through
+this path.
+
+At that point V's final live member has already been moved to M, and
+`CvPlayer::setTeam` has reduced V's alive count to zero.
+
+Current live consumers such as `getDefensivePactCount` iterate ALIVE major
+teams, which excludes V. A newly reused team is initialized/reset before normal
+use.
+
+Therefore no present release gameplay consequence from those stale DP bits has
+been proved, and this checkpoint deliberately does not claim one.
+
+SAME-TEAM CANCELLATION MEMORY
+-----------------------------
+AdvCiv's expanded `endTrade` also calls `addEndTradeMemory` when an OB or DP
+team trade ends and both players are alive.
+
+After PA reassignment, both the "ending" and "remembering" player team
+iterators refer to the same newly merged team. This can write
+MEMORY_CANCELLED_OPEN_BORDERS / MEMORY_CANCELLED_DEFENSIVE_PACT among the
+permanent allies (including self-pairs through the nested member loops).
+
+This is genuine teardown pollution, but currently inert for diplomacy:
+`CvPlayerAI::AI_getAttitudeVal` returns 100 immediately for another player on
+the same team, and a PA is irreversible.
+
+It is evidence that the old identity is broadly lost during deal teardown, not
+a separate finding.
+
+WHY THIS IS NOT JUST "REMOVE THE ASSERT"
+----------------------------------------
+The assert is exposing a real mismatch:
+- the deal being canceled semantically belonged to old teams M and V;
+- the generic endTrade routine is being asked to interpret it after both
+  participants have become M.
+
+Deleting the assert would merely hide that mismatch and preserve the stale
+old-team relation / same-team memory behavior.
+
+ROOT / REPAIR BOUNDARY
+----------------------
+The repair should preserve the old team identities while ending the old
+team-level agreement, or explicitly tear down the old M<->V team state rather
+than asking generic `CvDeal::endTrade` to rediscover the old teams from players
+whose team IDs have already changed.
+
+Do not simply restore the entire pre-K-Mod cancellation block wholesale:
+K-Mod moved it for a real reason -- canceling Open Borders before reassignment
+can bump the soon-to-be allies out of each other's territory.
+
+Safer repair families include:
+- keep the old team IDs in a specialized PA teardown path;
+- separate Open-Borders's unit-bump-sensitive ordering from DP/peace/etc.;
+- explicitly clear the old M<->V relation after reassignment while suppressing
+  generic same-team endTrade side effects, then delete the proxy deals.
+
+The important invariant is:
+    "tearing down an agreement keyed to old teams must not infer those old team
+     IDs from participants after their team ownership has been rewritten."
+
+ROOT INDEPENDENCE
+-----------------
+F290 is independent of F288.
+
+F288:
+- requires a mixed PA+vassal bundle;
+- corrupts the surviving team into a self-vassal;
+- is a release gameplay/state bug.
+
+F290:
+- needs only an ordinary pre-existing DP plus a later PA;
+- arises when old team-proxy deals are canceled after participant reassignment;
+- currently has its strongest consequence in Assert/Debug diagnostics.
+
+Repairing the mixed-bundle self-vassal issue does not change the old DP teardown
+path.
+
+F290 is also independent of F286: no self-deletion/UAF is required. The old DP
+proxy being canceled is intentionally being deleted; the problem is the team
+identity used while ending it.
+
+CURRENT QUEUE STATE
+-------------------
+queue 042 CvGameCoreDLL/CvDeal.cpp — OPEN
+F281 / KI#604 — confirmed provisional
+F282 / KI#605 — confirmed provisional
+F283 / KI#606 — confirmed provisional
+F284 / KI#607 — confirmed provisional
+F285 / KI#608 — confirmed provisional
+F286 / KI#609 — confirmed provisional
+F287 / KI#610 — confirmed provisional
+F288 / KI#611 — confirmed provisional
+F289 / KI#612 — confirmed provisional; repair boundary refined above
+F290 / KI#613 — confirmed provisional; low-severity diagnostic/state-cleanup
+F291 — UNUSED / provisional KI#614 next
+
+NEXT CURSOR
+-----------
+1. Continue final queue-042 saturation without trying to fill F291.
+2. Finish the assertion/TODO/method-family inventory in CvDeal itself.
+3. Challenge the remaining PA cleanup siblings (OB/peace/disengage) only for a
+   concrete independent live consequence; otherwise keep them under F290.
+4. Recheck second-list / list-orientation asymmetries against F281/F285/F287 so
+   siblings are not double-counted.
+5. Produce an explicit F281-F290 root-independence / repair-boundary table.
+6. If no independent F291 survives, close queue 042 and advance to priority
+   queue 047 `CvDllPythonEvents.cpp`.
+
+Do not manufacture F291.
+===============================================================================
+
+================================================================================
+C025-WIP16 ADDENDUM — queue 042 CvDeal.cpp
+F291 / provisional KI#614 confirmed; F292 unused
+================================================================================
+
+F291 / provisional KI#614
+Title:
+  Multiple civic changes in one diplomacy deal are executed as separate forced
+  revolutions, overcharging anarchy and shortening the post-anarchy revolution
+  cooldown.
+
+Root / why this is one defect:
+  A diplomacy bundle may contain one TRADE_CIVIC item for each different civic
+  option/column. CvDeal::startTrade nevertheless executes every TRADE_CIVIC
+  independently. Each item reconstructs the player's *current* CivicMap, changes
+  one option, and calls CvPlayer::revolution(aeNewCivics, true) immediately.
+  Thus one logical multi-civic diplomatic demand/exchange is fragmented into N
+  separate revolutions instead of one CivicMap revolution.
+
+Current execution path:
+  CvDeal::addTradeItems traverses each trade list item-by-item and calls
+  startTrade for every non-vassal item.
+
+  CvDeal::startTrade(TRADE_CIVIC):
+      CivicMap aeNewCivics;
+      kFromPlayer.getCivics(aeNewCivics);
+      eCivic = (CivicTypes)trade.m_iData;
+      aeNewCivics.set(option(eCivic), eCivic);
+      kFromPlayer.revolution(aeNewCivics, true);
+
+  CvPlayer::revolution:
+      iAnarchyLength = getCivicAnarchyLength(kNewCivics);
+      if (iAnarchyLength > 0)
+          changeAnarchyTurns(iAnarchyLength);  // additive
+      ...
+      setRevolutionTimer(iAnarchyLength + getMinTurnsBetweenRevolutions());
+                                              // absolute overwrite
+
+  CvPlayer::changeAnarchyTurns:
+      m_iAnarchyTurns += iChange;
+
+Why multiple civic items are a supported live state rather than a malformed list:
+  * CvPlayer::buildTradeTable exposes all individually tradeable civic items.
+  * CvPlayerAI::AI_checkCivicReligionConsistency explicitly rejects a second
+    TRADE_CIVIC only when its CivicOptionType duplicates a civic already present.
+    Civics from different columns are therefore deliberately permitted.
+  * Both AI_considerOffer and the AI counterproposal path call that consistency
+    check.
+  * CvPlayer::updateTradeList explicitly says "everything allowed in human-human
+    trades"; its AI-side filtering does not impose a one-TRADE_CIVIC total rule.
+  * AdvCiv's own AI_anarchyTradeVal comment explicitly discusses "multiple
+    TRADE_CIVIC and TRADE_RELIGION items ... on the table." So the codebase itself
+    recognizes multi-item ideology trades as a real state.
+
+Locally provable arithmetic:
+  CvPlayer::getCivicAnarchyLength sums the iAnarchyLength of all changed civic
+  columns and, if at least one changed, adds:
+    * BASE_CIVIC_ANARCHY_LENGTH once; and
+    * the city-count/world-size anarchy overhead once.
+  It then applies modifiers/speed/start-era scaling and caps that one revolution.
+
+  In the deal path, however, each TRADE_CIVIC sees only one changed column,
+  because the previous item has already committed its civic before the next item
+  reconstructs the CivicMap. The fixed base/city overhead is therefore charged
+  once per traded civic instead of once per logical multi-civic revolution.
+
+Current SAS data makes this live without exotic configuration:
+  * 25 civic entries; every current <iAnarchyLength> is 1.
+  * Five distinct civic options/columns:
+      GOVERNMENT, LEGAL, LABOR, ECONOMY, RELIGION.
+  * Standard world: iNumCitiesAnarchyPercent = 8.
+  * Normal speed: iAnarchyPercent = 100.
+  * Ancient start era: iAnarchyPercent = 100.
+  * SAS does not override the inherited stock values:
+      BASE_CIVIC_ANARCHY_LENGTH = 1
+      MAX_ANARCHY_TURNS         = 100
+      MIN_REVOLUTION_TURNS      = 5
+
+Concrete current-data examples (ordinary player, no no-anarchy trait/modifier):
+  Standard / Normal / Ancient, 5 cities:
+    city overhead = floor(5 * 8 / 100) = 0
+
+    One civic:
+      1 civic + 1 base = 2 turns.
+
+    Two civic columns as one CivicMap revolution:
+      1 + 1 civics + 1 base = 3 turns.
+
+    Current deal execution:
+      2 + 2 = 4 turns.
+    => 1 extra anarchy turn.
+
+  Standard / Normal / Ancient, 13 cities:
+    city overhead = floor(13 * 8 / 100) = 1
+
+    Two civics combined:
+      1 + 1 civics + 1 base + 1 city overhead = 4 turns.
+
+    Current deal execution:
+      (1 + 1 base + 1 city) + (1 + 1 base + 1 city) = 6 turns.
+    => 2 extra anarchy turns.
+
+  The current five-column data can magnify this further. At 13 cities, changing
+  all five columns in one normal CivicMap revolution costs:
+      5 civic + 1 base + 1 city = 7 turns.
+  The deal path instead applies five 3-turn revolutions:
+      5 * 3 = 15 turns.
+  => 8 extra anarchy turns from the same accepted bundle.
+
+Secondary timer consequence:
+  Each forced revolution also executes
+      setRevolutionTimer(iAnarchyLength + getMinTurnsBetweenRevolutions())
+  rather than adding/preserving the timer for the already accumulated anarchy.
+  Therefore the *last* civic item overwrites the timer while the anarchy turns
+  from all earlier civic items remain additive.
+
+  Example, 5 cities, two civics:
+    accumulated anarchy after the deal = 4
+    final revolution timer             = 2 + 5 = 7
+
+  Both counters are decremented each player turn. When the four inflated anarchy
+  turns have elapsed, only about three revolution-timer turns remain. A single
+  proper combined revolution would be:
+    anarchy = 3
+    revolution timer = 3 + 5 = 8
+  and would still leave the intended five-turn post-anarchy cooldown after the
+  three anarchy decrements.
+
+  With enough separately executed civic items, the overwritten timer can reach
+  zero while the accumulated anarchy is still running. canRevolution is still
+  blocked by isAnarchy, but once anarchy ends the normal post-anarchy cooldown
+  can be partly or wholly gone. Thus the defect both lengthens the immediate
+  forced anarchy and weakens the subsequent revolution lockout.
+
+Order sensitivity / future-proofing:
+  Current SAS gives all civics iAnarchyLength=1, so the final timer is currently
+  insensitive to which civic happens to be last. Mods with unequal civic
+  anarchy lengths make the final revolution timer depend on trade-list order,
+  another sign that item-by-item execution is the wrong state boundary.
+
+Ancestry:
+  The per-item TRADE_CIVIC -> revolution(...) behavior is inherited. K-Mod and
+  Civ4CE/BtS contain the same basic execution shape, and Base AdvCiv 1.14 still
+  does too. This is not a SAS-specific regression.
+  AdvCiv later added explicit multi-civic consistency/value code (advc.132) but
+  did not aggregate execution. Its AI valuation comment acknowledges multiple
+  TRADE_CIVIC items as a real trade-table state.
+
+Why religion is NOT needed to establish F291:
+  TRADE_RELIGION also has its own forced conversion/anarchy path, and a bundle
+  containing both religion and civics may raise a broader design question about
+  whether two distinct ideology systems should share one anarchy overhead.
+  F291 does not rely on that judgment. Multiple civic *columns* are represented
+  by one CivicMap and ordinary CvPlayer::revolution already defines the native
+  combined-operation semantics unambiguously.
+
+Repair boundary:
+  Keep normal/manual CvPlayer::revolution semantics unchanged.
+  In deal implementation, collect all TRADE_CIVIC items given by each player
+  into that player's one CivicMap and execute one forced revolution per player,
+  rather than one forced revolution per item.
+
+  Important boundaries:
+    * single-civic deals must behave exactly as before;
+    * the two players' civic sets must remain independent;
+    * retain the existing up-front whole-bundle canTradeItem validation;
+    * preserve per-item logging/AI trade-value bookkeeping if desired, but do not
+      let those force separate state transitions;
+    * set the AI civic timer once after the combined forced civic change;
+    * do not "fix" this by changing changeAnarchyTurns or revolution globally;
+    * do not automatically merge TRADE_RELIGION into the same state transition
+      unless that broader behavior is separately designed and reviewed.
+
+Root independence:
+  F291 is independent of the earlier queue-042 roots:
+    F281/F283/F285  = peace-treaty list/lifetime/orientation
+    F282            = end-trade memory accumulation
+    F284            = player-death vs team-agreement lifetime
+    F286            = active-deal reentrant self-deletion/UAF
+    F287            = mixed annual verification killing protected peace
+    F288            = PA + vassal self-vassal survivor
+    F289            = brokered-war master-locus relation
+    F290            = PA teardown after team identity reassignment
+  F291 is instead a transaction aggregation/state-transition granularity error
+  in forced civic execution.
+
+Queue state after this checkpoint:
+  queue 042 CvGameCoreDLL/CvDeal.cpp — still OPEN
+  F281 / provisional KI#604 — confirmed
+  F282 / provisional KI#605 — confirmed
+  F283 / provisional KI#606 — confirmed
+  F284 / provisional KI#607 — confirmed
+  F285 / provisional KI#608 — confirmed
+  F286 / provisional KI#609 — confirmed
+  F287 / provisional KI#610 — confirmed
+  F288 / provisional KI#611 — confirmed
+  F289 / provisional KI#612 — confirmed
+  F290 / provisional KI#613 — confirmed
+  F291 / provisional KI#614 — confirmed
+  F292 / provisional KI#615 — UNUSED / next
+
+Next saturation cursor:
+  Re-run the remaining CvDeal transaction families specifically for:
+    * other repeated one-shot item classes whose per-item state mutation has a
+      non-linear/fixed-cost contract;
+    * trade-list ordering dependence after one item mutates preconditions used
+      by a sibling item;
+    * endTrade/startTeamTrade identity changes not already absorbed by F286/F290;
+    * final history/K-Mod/Civ4CE divergence scan for fixes absent from AdvCiv-SAS.
+  If those close as controls, close queue 042 rather than allocating F292 merely
+  to fill a number.
+
+No repository source files modified.
+
+================================================================================
+C025-WIP17 ADDENDUM — queue 042 CvDeal.cpp
+F292 / provisional KI#615 confirmed; F293 unused
+================================================================================
+
+F292 / provisional KI#615
+Title:
+  A mixed city + resource deal can pass prevalidation and then invalidate its
+  own resource export when the city transfer removes the giver's last copy.
+
+Root:
+  CvDeal::addTradeItems validates every offered item independently against the
+  pre-deal world state, then mutates the world item-by-item. A TRADE_CITIES item
+  can immediately change plot ownership and rebuild plot groups, including the
+  giver's connected bonus counts. A sibling TRADE_RESOURCES item is nevertheless
+  accepted based only on the *old* resource count and startTrade does not
+  revalidate it after the city transfer.
+
+Clean source-proven live producer:
+  Human-human trade intentionally permits annual and nonannual items in one
+  bundle. CvPlayer::updateTradeList wraps the annual/nonannual compatibility
+  filter in:
+
+      if (!isHuman() || !GET_PLAYER(eOtherPlayer).isHuman())
+          ...
+
+  with the explicit comment:
+      "everything allowed in human-human trades"
+
+  Therefore a multiplayer/hotseat deal can contain both TRADE_CITIES
+  (nonannual) and TRADE_RESOURCES (annual). This finding does not need to assume
+  that the ordinary human-AI peacetime UI permits the same mixture.
+
+Concrete trigger:
+  Let player A and player B be human players on different teams with a valid
+  trade network.
+
+  A has a non-capital city C that passes the normal city-trade rules. C can be,
+  for example, a sufficiently eligible/contested city (current SAS requires at
+  least CITY_TRADE_CULTURE_THRESH = 10% recipient culture outside liberation
+  shortcuts).
+
+  A has exactly one connected copy of bonus X, and transferring C to B removes
+  that copy from A. The simplest deterministic geometry is that C itself is
+  founded on bonus X; the city tile connects that resource for A before the
+  transfer and belongs to B afterward.
+
+  A places both:
+      TRADE_CITIES(C)
+      TRADE_RESOURCES(X)
+  in the same accepted bundle.
+
+Why both pass the existing preflight:
+  CvDeal::addTradeItems first loops over all items and calls canTradeItem before
+  executing any of them.
+
+  At that time:
+    * canTradeItem(TRADE_CITIES) sees C still owned by A and accepts it if the
+      normal city-trade conditions pass.
+    * canTradeItem(TRADE_RESOURCES) sees X still non-obsolete on both teams and
+      A's getNumTradeableBonuses(X) > 0. AdvCiv's current bCanTradeAll=true path
+      allows the last available copy to be offered.
+
+  There is no bundle-level "what bonuses remain after the city gifts?" check.
+
+Execution:
+  CvDeal::addTradeItems later calls startTrade item-by-item.
+
+  TRADE_CITIES:
+      pCity->doTask(TASK_GIFT/TASK_CEDE, eToPlayer)
+
+  CvPlayer::acquireCity(..., bUpdatePlotGroups=true, ...)
+      ...
+      kGame.updatePlotGroups();
+
+  The old owner's bonus network is therefore recomputed immediately after the
+  city changes hands.
+
+  TRADE_RESOURCES:
+      kFromPlayer.changeBonusExport(X, +1);
+      kToPlayer.changeBonusImport(X, +1);
+      bSave = true;
+
+  startTrade does not repeat canTradeItem. Consequently, regardless of which of
+  the two sibling items happens to execute first, the final state can contain
+  one export backed by zero remaining copies:
+    * city first: local copy becomes 0, then export bookkeeping pushes available
+      trade state below zero;
+    * resource first: export consumes the one copy, then the city transfer and
+      plot-group rebuild remove that physical copy underneath the export.
+
+Why this is not merely theoretical bookkeeping:
+  CvDeal::verify explicitly treats a resource giver with
+      getNumTradeableBonuses(eBonus) < 0
+  as invalid and returns false; CvDeal::verify() then kills the deal.
+
+  Thus the engine itself recognizes the final state produced by this accepted
+  bundle as an impossible/oversubscribed resource trade.
+
+Irreversible transaction consequence:
+  The city transfer is one-shot and is not stored in the persistent deal, so it
+  cannot be rolled back when verify later kills the deal.
+
+  Any annual consideration saved in the same human-human deal can disappear
+  with the invalid resource item (resource/GPT and other persistent components),
+  while ownership of C remains changed. Even a deal whose only persistent item
+  is X visibly accepts a resource promise that is invalid essentially from its
+  creation and is removed at the next deal verification.
+
+  AI_dealVal also values TRADE_RESOURCES and TRADE_CITIES as separate trade
+  items. Where a producer permits such a bundle, the two pieces therefore enter
+  valuation independently even though the post-city resource promise can be
+  impossible. The guaranteed current producer established here is human-human;
+  no single-player human-AI exploit is required for F292.
+
+Relationship to F287:
+  F287 is a *teardown granularity* bug: later failure of one annual component
+  kills an entire mixed persistent deal, including a still-protected peace
+  treaty.
+
+  F292 is a *transaction precondition* bug: the deal is accepted even though
+  another item in that same transaction deterministically destroys the resource
+  condition needed by the annual item.
+
+  They are independent:
+    * repairing F287 to remove only the failed annual component would still leave
+      F292's resource consideration invalid immediately after the accepted city
+      transfer;
+    * rejecting/repairing F292 does not prevent ordinary later resource/GPT
+      failures from exercising F287.
+
+Ancestry:
+  The relevant shape is inherited:
+    * Base AdvCiv 1.14, K-Mod and Civ4CE/BtS all retain the per-item city/resource
+      execution model.
+    * Their updateTradeList implementations also retain the explicit
+      human-human "everything allowed" exception.
+  SAS did not introduce the root.
+
+Rejected sibling that helped bound this finding:
+  A superficially similar "trade a tech that obsoletes the resource received
+  from the other side" case is already blocked. Resource canTradeItem checks
+  bonus obsolescence for *both* giver and recipient; the tech giver already owns
+  the obsoleting tech before the bundle, so that resource cannot pass the
+  initial resource check. F292 therefore stays focused on state mutations whose
+  relevant postcondition is not represented by an already-existing predeal
+  state, with city ownership/resource supply being the proven case.
+
+Repair boundary:
+  The deal must not commit a one-shot city transfer while relying on an annual
+  resource promise that the same transaction will make unsustainable.
+
+  Conservative options for implementation review:
+    1. Add a bundle-consistency preflight for TRADE_CITIES + TRADE_RESOURCES from
+       the same giver, predicting the giver's post-transfer resource
+       availability before committing any item.
+    2. If exact post-city plot-group simulation is too invasive (city transfer
+       can change more than the city tile), prohibit same-giver city + resource
+       mixtures unless a safe conservative test proves the resource remains.
+    3. A broader transactional redesign could stage/validate state transitions,
+       but simply revalidating after the city has already moved is too late
+       because city ownership has no rollback here.
+
+  Do not "repair" this only in CvDeal::verify; that merely changes how the
+  already-broken accepted transaction is torn down.
+
+Queue state after this checkpoint:
+  queue 042 CvGameCoreDLL/CvDeal.cpp — still OPEN
+  F281-F292 / provisional KI#604-KI#615 — confirmed
+  F293 / provisional KI#616 — UNUSED / next
+
+Next saturation cursor:
+  Continue the repeated TRADE_WAR / TRADE_PEACE / TRADE_EMBARGO mutation-order
+  challenge, then inspect remaining one-shot + persistent cross-item pairs and
+  final Base/K-Mod/Civ4CE history divergence. Avoid allocating F293 unless an
+  independent producer + consequence survives those checks.
+
+No repository source files modified.
+
