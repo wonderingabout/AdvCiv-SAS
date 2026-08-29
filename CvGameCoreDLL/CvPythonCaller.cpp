@@ -870,8 +870,10 @@ bool CvPythonCaller::canBuild(CvPlot const& kPlot, BuildTypes eBuild, PlayerType
 	if (lResult == -1)
 		return false;
 	bOverride = true;
-	FAssertBounds(-1, 2, lResult);
-	return toBool(lResult);
+	// <!-- custom: Preserve the documented numeric callback contract: every positive result permits the Build, not only exactly 1.
+	// Keep this local rather than loosening the shared Boolean converter. See KI#598. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	FAssert(lResult >= 0);
+	return (lResult >= 1);
 }
 
 bool CvPythonCaller::doGoody(CvPlot const& kPlot, CvUnit const* pUnit, PlayerTypes ePlayer) const
@@ -883,7 +885,9 @@ bool CvPythonCaller::doGoody(CvPlot const& kPlot, CvUnit const* pUnit, PlayerTyp
 	CyPlot* pyPlot = new CyPlot(kPlot);
 	argsList.add(m_python.makePythonObject(pyPlot));
 	// Note: pUnit can be NULL, but pyUnit can still be initialized (and is expected by Python).
-	CyUnit* pyUnit = new CyUnit(*pUnit);
+	// <!-- custom: AdvCiv practical 2066 changed the nullable pointer construction into an unconditional dereference.
+	// Restore a real CyUnit Python object whose internal unit pointer can remain NULL when plot ownership absorbs a goody hut. See KI#597. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CyUnit* pyUnit = new CyUnit(const_cast<CvUnit*>(pUnit));
 	argsList.add(m_python.makePythonObject(pyUnit));
 	call("doGoody", argsList, lResult);
 	delete pyPlot;
@@ -1148,9 +1152,14 @@ bool CvPythonCaller::doPillageGold(CvUnit const& kUnit, CvPlot const& kPlot, int
 	call("doPillageGold", argsList, lResult);
 	delete pyPlot;
 	delete pyUnit;
-	if (lResult != iError)
-		iPillageGold = toInt(lResult);
-	else FAssert(lResult != iError);
+	// <!-- custom: K-Mod treats every negative callback result as a request for the native C++ calculation.
+	// AdvCiv's wrapper instead reported success even for that sentinel or a failed Python call, suppressing the fallback and awarding no gold. See KI#599. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (lResult < 0)
+	{
+		FAssert(lResult != iError);
+		return false;
+	}
+	iPillageGold = toInt(lResult);
 	return true;
 }
 
@@ -1383,7 +1392,9 @@ bool CvPythonCaller::canPlaceItemAt(char const* szItemName, CvPlot const& kPlot,
 		bOverride = false;
 		return false;
 	}
-	return toBool(lResult);
+	// <!-- custom: Preserve the inherited map-callback contract: after negative fallback results are removed above,
+	// every positive value permits placement rather than only exactly 1. See KI#598. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	return (lResult > 0);
 }
 
 int CvPythonCaller::riverValue(CvPlot const& kPlot, bool& bOverride) const

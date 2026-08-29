@@ -685,9 +685,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#594 - (Fixed inherited BtS/K-Mod/AdvCiv calendar defect) Negative fractional BC years truncated toward AD](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-594)\
 [KI#595 - (Fixed inherited AdvCiv replay-compatibility defect) Foreign replay colors wrapped into the skipped system-color prefix](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-595)\
 [KI#596 - (Fixed AdvCiv-SAS assertion-build regression) Rich diagnostics were disabled in optimized Assert builds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-596)\
-[KI#597 - (Provisional Pending inherited AdvCiv callback regression) Nullable doGoody unit is dereferenced](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-597)\
-[KI#598 - (Provisional Pending inherited AdvCiv callback regression) Positive override values are narrowed to exactly 1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-598)\
-[KI#599 - (Provisional Pending inherited AdvCiv callback regression) Failed or negative pillage-gold results suppress the C++ fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-599)\
+[KI#597 - (Fixed inherited AdvCiv callback regression) Nullable doGoody unit was dereferenced](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-597)\
+[KI#598 - (Fixed inherited AdvCiv callback regression) Positive override values were narrowed to exactly 1](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-598)\
+[KI#599 - (Fixed inherited AdvCiv callback regression) Failed or negative pillage-gold results suppressed the C++ fallback](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-599)\
 [KI#600 - (Provisional Pending inherited AdvCiv map-callback regression exposed by SAS) Valid native fallbacks assert as missing overrides](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-600)\
 [KI#601 - (Provisional Pending inherited AdvCiv callback regression) Colored-plot failure consumes an uninitialized result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-601)\
 [KI#602 - (Provisional Pending inherited BtS/K-Mod data defect amplified by AdvCiv) Farm Bandits names missing Python help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-602)\
@@ -13225,27 +13225,33 @@ Found as F273 and documented in the C++ File Audit Album with the help of ChatGP
 
 <a id="ki-597"></a>
 
-## KI#597 - (Provisional Pending inherited AdvCiv callback regression) Nullable doGoody unit is dereferenced
+## KI#597 - (Fixed inherited AdvCiv callback regression) Nullable doGoody unit was dereferenced
 
-Album F274 finds `CvPythonCaller::doGoody` accepting a nullable unit pointer, as required when plot ownership absorbs a goody hut, but dereferencing it to construct the Python wrapper. AdvCiv practical 2066 replaced K-Mod's nullable pointer construction while retaining the explicit NULL contract; Base AdvCiv 1.14 retains the regression. Current callback configuration disables this path by default. Pending independent implementation review that preserves a real `CyUnit` Python object with a NULL internal unit pointer.
+Album F274 found `CvPythonCaller::doGoody` accepting a nullable unit pointer, as required when plot ownership absorbs a goody hut, but dereferencing it to construct the Python wrapper. AdvCiv practical 2066 replaced K-Mod's nullable pointer construction while retaining the explicit NULL contract; Base AdvCiv 1.14 retains the regression. Current callback configuration disables this path by default.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix restores pointer-based `CyUnit` construction, preserving the Python callback's expected wrapper object while allowing that wrapper's internal unit pointer to be NULL. A current-build autoplay completed successfully. The live ownership-change caller and the `CyUnit` pointer constructor were source verified; exact runtime testing would require enabling `USE_DO_GOODY_CALLBACK` and absorbing a goody hut through plot ownership.
+
+Found as F274 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-598"></a>
 
-## KI#598 - (Provisional Pending inherited AdvCiv callback regression) Positive override values are narrowed to exactly 1
+## KI#598 - (Fixed inherited AdvCiv callback regression) Positive override values were narrowed to exactly 1
 
-Album F275 finds AdvCiv practical 1648 routing `canBuild` through an exact-one Boolean conversion despite its preserved contract that every result of 1 or greater permits the Build. The same extraction also changed positive map placement callback results from ordinary nonzero truth to exact-one truth. Current SAS disables `canBuild` by default and its shipped map placement hook does not return a differing positive value. Pending independent implementation review bounded to callbacks whose inherited numeric contract is proven; the generic Boolean converter must not be changed blindly.
+Album F275 found AdvCiv practical 1648 routing `canBuild` through an exact-one Boolean conversion despite its preserved contract that every result of 1 or greater permits the Build. The same extraction changed positive `canPlaceBonusAt` and `canPlaceGoodyAt` map-script results from ordinary nonzero truth to exact-one truth. Current SAS disables `canBuild` by default, and its shipped map-placement hooks do not return a differing positive value.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix restores positive-value truth only in these proven numeric callback contracts: `canBuild` now accepts every result of 1 or greater, while the shared map-placement helper accepts every positive result after its existing negative native-fallback handling. The generic Boolean converter remains exact-one so unrelated callback semantics do not change. A current-build autoplay completed successfully. K-Mod's original call sites, the preserved Python contract comment and current shipped scripts were source verified; exact runtime testing would require temporary callbacks returning a value above 1.
+
+Found as F275 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-599"></a>
 
-## KI#599 - (Provisional Pending inherited AdvCiv callback regression) Failed or negative pillage-gold results suppress the C++ fallback
+## KI#599 - (Fixed inherited AdvCiv callback regression) Failed or negative pillage-gold results suppressed the C++ fallback
 
-Album F276 finds AdvCiv practical 1648 making enabled `doPillageGold` report success even when Python returns the inherited negative fallback sentinel or fails without replacing its error initializer. The caller consequently skips the native C++ calculation and awards no gold. K-Mod treated every negative result as a request for the C++ fallback, while the current sibling capture-gold wrapper still preserves equivalent failure handling. Current SAS disables this callback by default. Pending independent implementation review.
+Album F276 found AdvCiv practical 1648 making enabled `doPillageGold` report success even when Python returns the inherited negative fallback sentinel or fails without replacing its error initializer. The caller consequently skipped the native C++ calculation and awarded no gold. K-Mod treated every negative result as a request for the C++ fallback, while the current sibling capture-gold wrapper still preserves equivalent failure handling. Current SAS disables this callback by default.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The wrapper now returns false for every negative callback result so `CvUnit::pillageImprovement` performs its native C++ calculation; a failed Python call retains its diagnostic assertion, while zero and positive results remain explicit callback overrides. A current-build autoplay completed successfully. K-Mod's original negative-sentinel behavior and the live native-fallback caller were source verified; exact runtime testing would require enabling `USE_DO_PILLAGE_GOLD_CALLBACK` and supplying a negative or failing callback.
+
+Found as F276 during ChatGPT-5.6-Sol's C024 `CvPythonCaller.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-600"></a>
 
