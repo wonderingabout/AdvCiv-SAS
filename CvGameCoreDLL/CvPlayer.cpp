@@ -4077,7 +4077,12 @@ bool CvPlayer::canTradeItem(PlayerTypes eWhoTo, TradeData item, bool bTestDenial
 		// <!-- custom: BtS's universal vassal-target gate made AdvCiv/UWAI's explicit voluntary-vassal joint-war selection unreachable even though UWAI prices and denies the master coalition correctly.
 		// Permit voluntary vassals only under full UWAI; keep capitulated targets and legacy/background modes blocked because legacy valuation still uses the raw vassal. See KI#373. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		bool const bValidTargetStatus = (!kTargetTeam.isAVassal() || (getUWAI().isEnabled() && !kTargetTeam.isCapitulated()));
-		if (bValidTargetStatus && kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) && kOurTeam.canDeclareWar(eTargetTeam))
+		// <!-- custom: The inherited check allowed a vassal sponsor to hire war against its own master coalition, or against a coalition defensively allied with that master; the declaration cascade then made the hireling attack its sponsor too.
+		// Compare canonical master teams so direct masters and sibling vassals are covered while KI#373's foreign voluntary-vassal targets remain valid. See KI#612. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		TeamTypes const eSponsorMaster = kToTeam.getMasterTeam();
+		TeamTypes const eTargetMaster = kTargetTeam.getMasterTeam();
+		bool const bValidSponsorRelation = (eSponsorMaster != eTargetMaster && !GET_TEAM(eSponsorMaster).isDefensivePact(eTargetMaster));
+		if (bValidTargetStatus && bValidSponsorRelation && kOurTeam.isHasMet(eTargetTeam) && kToTeam.isHasMet(eTargetTeam) && kOurTeam.canDeclareWar(eTargetTeam))
 		{
 			bValid = true;
 		}

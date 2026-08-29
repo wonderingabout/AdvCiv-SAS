@@ -4062,7 +4062,11 @@ DenialTypes CvTeamAI::AI_declareWarTrade(TeamTypes eTarget, TeamTypes eSponsor, 
 	FAssert(GET_TEAM(eTarget).isAlive());
 	FAssert(!isAtWar(eTarget));
 
-	if (GET_TEAM(eTarget).isVassal(eSponsor) || GET_TEAM(eTarget).isDefensivePact(eSponsor))
+	// <!-- custom: Mirror canTradeItem's structural master-coalition rule for direct AI callers. The inherited nominal-team test missed the sponsor's own master, sibling vassals and Defensive Pacts held by either canonical master.
+	// This preserves foreign voluntary-vassal war trades while refusing requests whose declaration cascade would make the hireling attack its sponsor. See KI#612. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TeamTypes const eSponsorMaster = GET_TEAM(eSponsor).getMasterTeam();
+	TeamTypes const eTargetMaster = GET_TEAM(eTarget).getMasterTeam();
+	if (eSponsorMaster == eTargetMaster || GET_TEAM(eSponsorMaster).isDefensivePact(eTargetMaster))
 		return DENIAL_JOKING;
 
 	if (isHuman())

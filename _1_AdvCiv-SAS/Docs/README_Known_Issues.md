@@ -700,7 +700,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#609 - (Provisional Pending AdvCiv transaction-lifetime defect) Mixed alliance or vassal bundles can delete their active deal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-609)\
 [KI#610 - (Provisional Pending inherited deal-granularity defect amplified by AdvCiv) Annual-item failure can terminate a protected peace treaty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-610)\
 [KI#611 - (Provisional Pending AdvCiv team-state regression) A Permanent Alliance plus vassal bundle can create a self-vassal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-611)\
-[KI#612 - (Provisional Pending inherited brokered-war defect) A vassal can hire war against its own master coalition](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-612)\
+[KI#612 - (Fixed inherited brokered-war defect exposed more broadly by SAS) A vassal could hire war against its own master coalition](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-612)\
 [KI#613 - (Provisional Pending inherited K-Mod/AdvCiv diagnostic defect) Permanent Alliance cleanup ends a Defensive Pact as a self-pact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-613)\
 [KI#614 - (Provisional Pending inherited civic-deal defect) One bundled civic change becomes several forced revolutions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-614)\
 [KI#615 - (Provisional Pending inherited deal-transaction defect) A city transfer can invalidate a sibling resource export](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-615)\
@@ -13385,11 +13385,13 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 
 <a id="ki-612"></a>
 
-## KI#612 - (Provisional Pending inherited brokered-war defect) A vassal can hire war against its own master coalition
+## KI#612 - (Fixed inherited brokered-war defect exposed more broadly by SAS) A vassal could hire war against its own master coalition
 
-Album F289 finds brokered-war validation checking whether the target is the sponsor's vassal but not the reverse relation or their common master/vassal locus. A voluntary vassal can therefore hire an AI to declare war on its own master; normal vassal alignment immediately makes the hireling an enemy of its sponsor too. The asymmetric check exists in Base AdvCiv 1.14, K-Mod and Civ4CE; SAS's voluntary-vassal target support broadens reachability but did not create the missing coalition invariant. Pending structural rejection when sponsor and target resolve to the same master coalition while retaining valid foreign voluntary-vassal targets from KI#373.
+Album F289 found brokered-war validation checking whether the target was the sponsor's vassal but not the reverse relation or their common master/vassal locus. A voluntary vassal could therefore hire an AI to declare war on its own master; normal vassal alignment immediately made the hireling an enemy of its sponsor too. The later audit refinement also found that checking only a shared master remained incomplete: a Defensive Pact between the sponsor's master and the target's master produces the same cascade. The asymmetric nominal-team check exists in Base AdvCiv 1.14, K-Mod and Civ4CE; SAS's voluntary-vassal target support broadened reachability but did not create the missing coalition invariant.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+`CvPlayer::canTradeItem` now rejects the request structurally when the sponsor and target resolve to the same canonical master coalition or those master teams have a Defensive Pact. `CvTeamAI::AI_declareWarTrade` mirrors the rule for direct AI callers. Foreign voluntary-vassal targets deliberately enabled by KI#373 remain valid, while capitulated and legacy-mode targets retain their existing restrictions. `SASGameRecord_20260829T072401Z_new1.log` confirms that a current Huge Pangaea autoplay completed through the turn-500 Time victory and exercised 70 surrender/vassal trade rows without an observed issue. The exact forbidden direct-master, sibling-vassal and master-level Defensive Pact requests remain source verified.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-613"></a>
 
