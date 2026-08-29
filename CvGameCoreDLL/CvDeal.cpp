@@ -1153,6 +1153,21 @@ void CvDeal::endTrade(TradeData trade, PlayerTypes eFromPlayer, PlayerTypes eToP
 	if (!bAlive)
 		bUpdateAttitude = false; // </advc>
 	if (gGameRecordLogLevel >= 3) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM_ENDED", getID(), trade, eFromPlayer, eToPlayer, bTeam, bAlive, eCancelPlayer);
+	// <!-- custom: Permanent Alliance cleanup runs after player reassignment to avoid unit bumping. Its team-level state was cleared through the preserved old team IDs in CvTeam::addTeam; do not reinterpret those saved items as self-team cancellations here.
+	// Player-level annual components in the same deal still continue through ordinary teardown below. See KI#613. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (TEAMID(eFromPlayer) == TEAMID(eToPlayer))
+	{
+		switch (trade.m_eItemType)
+		{
+		case TRADE_VASSAL:
+		case TRADE_SURRENDER:
+		case TRADE_OPEN_BORDERS:
+		case TRADE_DEFENSIVE_PACT:
+		case TRADE_PEACE_TREATY:
+		case TRADE_DISENGAGE:
+			return;
+		}
+	}
 	switch(trade.m_eItemType)
 	{
 	case TRADE_RESOURCES:

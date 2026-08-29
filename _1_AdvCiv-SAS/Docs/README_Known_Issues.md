@@ -701,9 +701,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#610 - (Provisional Pending inherited deal-granularity defect amplified by AdvCiv) Annual-item failure can terminate a protected peace treaty](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-610)\
 [KI#611 - (Provisional Pending AdvCiv team-state regression) A Permanent Alliance plus vassal bundle can create a self-vassal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-611)\
 [KI#612 - (Fixed inherited brokered-war defect exposed more broadly by SAS) A vassal could hire war against its own master coalition](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-612)\
-[KI#613 - (Provisional Pending inherited K-Mod/AdvCiv diagnostic defect) Permanent Alliance cleanup ends a Defensive Pact as a self-pact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-613)\
+[KI#613 - (Fixed inherited K-Mod/AdvCiv teardown-identity defect) Permanent Alliance cleanup ended a Defensive Pact as a self-pact](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-613)\
 [KI#614 - (Provisional Pending inherited civic-deal defect) One bundled civic change becomes several forced revolutions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-614)\
 [KI#615 - (Provisional Pending inherited deal-transaction defect) A city transfer can invalidate a sibling resource export](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-615)\
+[KI#616 - (Provisional Pending AdvCiv attitude-bookkeeping defect) Multi-target peace and war trades retain only the last political target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-616)\
+[KI#617 - (Provisional Pending inherited embargo-valuation defect worsened by AdvCiv) A player's embargo price includes teammate deals that survive it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-617)\
 
 <a id="ki-1"></a>
 
@@ -13395,11 +13397,15 @@ Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, 
 
 <a id="ki-613"></a>
 
-## KI#613 - (Provisional Pending inherited K-Mod/AdvCiv diagnostic defect) Permanent Alliance cleanup ends a Defensive Pact as a self-pact
+## KI#613 - (Fixed inherited K-Mod/AdvCiv teardown-identity defect) Permanent Alliance cleanup ended a Defensive Pact as a self-pact
 
-Album F290 finds K-Mod deliberately moving Permanent Alliance deal cleanup after player-team reassignment to prevent Open Borders unit bumping. Generic teardown then loses the old team identities and interprets a valid pre-alliance Defensive Pact as a self-pact, triggering AdvCiv's later `setDefensivePact` self-team assertion and writing strategically inert same-team cancellation memory. No Release gameplay corruption from the stale absorbed-team bits is currently proven. Pending specialized cleanup that preserves old team identities without restoring the unit-bumping order.
+Album F290 found K-Mod deliberately moving Permanent Alliance deal cleanup after player-team reassignment to prevent Open Borders unit bumping. Generic teardown then lost the old team identities and interpreted a valid pre-alliance Defensive Pact as a self-pact, triggering AdvCiv's later `setDefensivePact` self-team assertion and writing strategically inert same-team cancellation memory. No Release gameplay corruption from the stale absorbed-team bits was proven; the defect was nevertheless a real mismatch between saved deal identity and the reassigned players.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+Permanent Alliance cleanup retains K-Mod's post-reassignment timing, but directly clears the obsolete Open Borders, Defensive Pact, force-peace and Disengage bits between the surviving and absorbed team IDs. Generic deal teardown then skips only same-team team-agreement items whose state was handled through those preserved IDs; player-level annual components still unwind normally. This avoids ally unit bumping while removing the false self-pact assertion, stale old-team relation bits and same-team cancellation memory.
+
+`SASGameRecord_20260829T074950Z_new1.log` confirms that a current Huge Pangaea autoplay with Permanent Alliances enabled completed by Space victory at turn 493 and exercised Defensive Pact creation and teardown without an observed issue. No Permanent Alliance formed in that sample, so the exact Defensive Pact-to-alliance transition remains source verified through K-Mod practical 386, AdvCiv's later assertion and the current teardown order.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-614"></a>
 
@@ -13416,3 +13422,19 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 Album F292 finds a human mixed city-plus-resource deal validating both items against the pre-deal world, then transferring the city before starting the resource export. If the city supplied the giver's last connected copy, the irreversible transfer invalidates the sibling annual promise after prevalidation, yet the export counters are still applied. Base AdvCiv 1.14, K-Mod and Civ4CE/BtS share the per-item execution and human mixed-item exception; SAS did not introduce the root. Pending bundle consistency checking that proves the resource remains available after all same-giver city transfers before committing ownership changes.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-616"></a>
+
+## KI#616 - (Provisional Pending AdvCiv attitude-bookkeeping defect) Multi-target peace and war trades retain only the last political target
+
+Album F293 finds `CvDeal::addTradeItems` collecting brokered war and peace context in one scalar target per class. Every additional `TRADE_WAR` or `TRADE_PEACE` overwrites the previous target, then the same final pair is passed to both trade directions when computing target-sensitive rival-trade resentment. Supported multi-peace bundles can therefore produce different diplomatic memory from the same items in a different list order; only the last target receives the intended observer-specific treatment. AdvCiv practical 1361 introduced this target-aware but single-target representation, Base AdvCiv 1.14 retains it and SAS inherited it unchanged. Pending architectural review using complete multi-target context rather than selecting the first or last target.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-617"></a>
+
+## KI#617 - (Provisional Pending inherited embargo-valuation defect worsened by AdvCiv) A player's embargo price includes teammate deals that survive it
+
+Album F294 finds `AI_stopTradingTradeVal` scanning deals between the hired player's whole team and the embargo target even though `stopTradingWithTeam` cancels only deals owned by that specific player. On a multi-member team, teammate resource or Gold Per Turn deals can therefore inflate the requested embargo price despite surviving execution; member-by-member war-bribe valuation can count the same team inventory repeatedly. The team-versus-player mismatch is inherited from BtS/K-Mod/Civ4CE. AdvCiv practical 1618 then combined the broad filter with exact-player `CvDeal` accessors, adding Debug assertions and orientation-dependent Release fall-through when the hired player is absent from an admitted teammate deal. Pending replacement of only the ordinary persistent-deal scan with exact-player scope while retaining genuinely team-level Open Borders and Defensive Pact costs.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.

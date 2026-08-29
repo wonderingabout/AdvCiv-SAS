@@ -495,6 +495,16 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	/*	K-Mod: The following cancel deals code has been moved from higher up.
 		I've done this so that when open-borders is canceled,
 		it doesn't bump our new allies out of our borders. */
+	// <!-- custom: Keep K-Mod's post-reassignment timing, but clear the obsolete relation between the surviving and absorbed team IDs directly. Generic deal teardown now sees both players on the surviving team and otherwise misreads the old Defensive Pact as a self-pact.
+	// The absorbed team has no remaining players, so clearing only these stored old-team bits avoids unit bumping, false cancellation memory and AdvCiv's self-team assertion. See KI#613. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	m_abOpenBorders.set(eTeam, false);
+	GET_TEAM(eTeam).m_abOpenBorders.set(getID(), false);
+	m_abDefensivePact.set(eTeam, false);
+	GET_TEAM(eTeam).m_abDefensivePact.set(getID(), false);
+	m_abForcePeace.set(eTeam, false);
+	GET_TEAM(eTeam).m_abForcePeace.set(getID(), false);
+	m_abDisengage.set(eTeam, false);
+	GET_TEAM(eTeam).m_abDisengage.set(getID(), false);
 	FOR_EACH_DEAL_VAR(pLoopDeal)
 	{
 		/*if ((TEAMID(pLoopDeal->getFirstPlayer()) == getID() && TEAMID(pLoopDeal->getSecondPlayer()) == eTeam) ||

@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 24 / 169
 Files open: 1 / 169
 Last completed file: investigation file 024 / queue 037 CvGameCoreDLL/CvPythonCaller.cpp (1,576 queued lines) - CLOSED AT C025
-Current file: investigation file 025 / priority queue 042 CvGameCoreDLL/CvDeal.cpp (1,419 queued lines) - OPEN AT C025-WIP17
-Latest queue-042 roots: F281-F292 / provisional KI#604-KI#615
-Next root ID: F293 unused / provisional KI#616 next
+Current file: investigation file 025 / priority queue 042 CvGameCoreDLL/CvDeal.cpp (1,419 queued lines) - OPEN AT C025-WIP19
+Latest queue-042 roots: F281-F294 / provisional KI#604-KI#617
+Next root ID: F295 unused / provisional KI#618 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -61,7 +61,7 @@ QUEUE (current .cpp files, longest -> shortest)
 039   1461 CvGameCoreDLL/CvGameCoreUtils.cpp [COMPLETE - SEE C023 DURABLE CHECKPOINT]
 040   1454 CvGameCoreDLL/CvGlobals.cpp [COMPLETE - SEE C024 DURABLE CHECKPOINT]
 041   1454 CvGameCoreDLL/CvSelectionGroupAI.cpp [COMPLETE - SEE C019 DURABLE CHECKPOINT]
-042   1419 CvGameCoreDLL/CvDeal.cpp [OPEN - C025-WIP17 / F281-F292]<-(priority current wip)
+042   1419 CvGameCoreDLL/CvDeal.cpp [OPEN - C025-WIP19 / F281-F294]<-(priority current wip)
 043   1335 CvGameCoreDLL/ACOText.cpp [PENDING]
 044   1306 CvGameCoreDLL/CvMessageData.cpp [PENDING]
 045   1281 CvGameCoreDLL/CvMapGenerator.cpp [COMPLETE - SEE C021 DURABLE CHECKPOINT]
@@ -54252,6 +54252,432 @@ Next saturation cursor:
   challenge, then inspect remaining one-shot + persistent cross-item pairs and
   final Base/K-Mod/Civ4CE history divergence. Avoid allocating F293 unless an
   independent producer + consequence survives those checks.
+
+No repository source files modified.
+
+================================================================================
+C025-WIP18 ADDENDUM — queue 042 CvDeal.cpp
+F293 / provisional KI#616 confirmed; F294 unused
+================================================================================
+
+F293 / provisional KI#616
+Title:
+  Brokered peace/war attitude bookkeeping keeps only the last political target,
+  making otherwise identical multi-target deals semantically order-dependent.
+
+Root:
+  CvDeal::addTradeItems scans both offered lists before implementation and stores
+  political context in only two scalar TeamTypes:
+
+      TeamTypes eWarTradeTarget = NO_TEAM;
+      TeamTypes ePeaceTradeTarget = NO_TEAM;
+
+  Every TRADE_WAR simply overwrites eWarTradeTarget and every TRADE_PEACE simply
+  overwrites ePeaceTradeTarget. The resulting single last-seen target of each
+  class is then passed to AI_processTradeValue for BOTH trade directions.
+
+  AI_processTradeValue evaluates the value of the complete item list and forwards
+  that same scalar target context to CvPlayerAI::AI_processPeacetimeValue, which
+  in turn asks each third-party team for
+  CvTeamAI::AI_enemyTradeResentmentFactor(...).
+
+  The latter has target-specific branches:
+    * eWarTradeTarget == observer makes the observer count the source as sharing
+      its war;
+    * ePeaceTradeTarget == observer/master-locus suppresses rival-trade anger;
+    * a peace target liked by the observer can also suppress anger.
+
+  Therefore a list containing more than one brokered peace or war target cannot
+  be represented correctly by the scalar metadata. Which target happens to be
+  encountered last controls the attitude treatment of the entire deal value.
+
+Why multi-target political lists are a supported/reachable state:
+  * CvPlayer::buildTradeTable creates a distinct TRADE_PEACE / TRADE_WAR /
+    TRADE_EMBARGO inventory item for every eligible third team.
+  * CvPlayer::updateTradeList does not impose a one-item-per-political-heading
+    restriction.
+  * CvPlayerAI::AI_checkCivicReligionConsistency exists specifically to reject
+    duplicate/incompatible civic/religion items; there is no analogous
+    one-TRADE_PEACE check.
+  * CvPlayerAI::AI_dealVal simply sums every TRADE_PEACE item:
+        iValue += kOurTeam.AI_makePeaceTradeVal(target, eFromTeam);
+    with no count limit.
+  * The same function explicitly counts TRADE_WAR items and, under UWAI, adds an
+    unaffordable 1,000,000 value when iWars > 1, with the source comment
+        "Can't be hired for more than one war at a time"
+    This is particularly strong evidence that multiple political items can
+    coexist in an offered list; the code had to impose policy in valuation rather
+    than relying on the trade representation to make a second item impossible.
+    (Legacy/non-UWAI valuation does not even apply that multi-war policy.)
+  * Human trade-table proposals are the clean producer for multiple brokered
+    peace items; the DLL has no bundle-consistency rejection for that case.
+
+Concrete order-sensitive brokered-peace example:
+  Let:
+    H = sponsor / paying player
+    B = AI player being paid to make peace
+    E = independent third team currently at war with B
+    D = another third team currently at war with B
+
+  Suppose E regards B as its worst enemy and H is not itself at war with E.
+  H constructs one deal in which:
+    H gives economic consideration to B; and
+    B gives TRADE_PEACE(E) plus TRADE_PEACE(D).
+
+  Both peace items are independently valid and AI_dealVal values both.
+
+  When B receives H's consideration, B's AI_processTradeValue records rival-trade
+  consequences for third parties. For observer E:
+
+    CvTeamAI::AI_enemyTradeResentmentFactor(
+        eTo = B,
+        eFrom = H,
+        ePeaceTradeTarget = <last TRADE_PEACE seen>)
+
+  contains:
+      if (ePeaceTradeTarget == getMasterTeam())
+          return 0;
+
+  For an independent E, getMasterTeam() == E.
+
+  Hence:
+    list order [PEACE(D), PEACE(E)]
+      -> scalar ePeaceTradeTarget = E
+      -> E correctly sees that H paid its enemy B to make peace with E
+      -> target-specific rival-trade resentment is suppressed.
+
+    list order [PEACE(E), PEACE(D)]
+      -> scalar ePeaceTradeTarget = D
+      -> E's own peace settlement is invisible to the context calculation
+      -> provided D does not independently trigger the "liked peace target"
+         exemption, E can apply positive rival-trade resentment to H for the
+         value of the same economic/political bundle.
+
+  The set of players, teams, items and values is identical. Only list order /
+  last-target selection changes the diplomatic-memory result.
+
+  Even if a particular UI path happens to insert targets in a stable enum order,
+  the semantic defect remains: one valid peace target receives the intended
+  exemption while another valid target is discarded solely because the metadata
+  has room for one TeamTypes value. There is no normalization that defines the
+  last target as semantically privileged.
+
+War-side sibling:
+  eWarTradeTarget has the same scalar overwrite architecture. The observer-side
+  factor treats
+      isAtWar(eFrom) || eWarTradeTarget == observer
+  as "the source also shares our war." With several TRADE_WAR items, only the
+  last target can receive that target-specific treatment.
+
+  UWAI deliberately makes a second hired war economically impossible through
+  AI_dealVal's +1,000,000 guard, so current default/full-UWAI exposure is much
+  narrower on the war side. The inherited legacy/non-UWAI path does not have
+  that valuation block. This sibling therefore strengthens the root but is not
+  needed to establish F293; multiple TRADE_PEACE is sufficient.
+
+Additional asymmetry:
+  addTradeItems derives ePeaceTradeTarget/eWarTradeTarget from BOTH lists, then
+  passes the same final pair of targets to AI_processTradeValue for each side.
+  Thus the metadata is deal-global while the value being processed is
+  direction/list-specific. That was an intentional approximation for a single
+  brokered political item, but it becomes undefined once several distinct
+  targets exist.
+
+Ancestry / history:
+  This shape is AdvCiv-specific rather than a SAS regression.
+
+  AdvCiv practical 1361
+  "Rival-trade penalties, war trades on Glance tab, misc. changes"
+  (advc.130p) introduced the scalar warTradeTarget / peaceTradeTarget variables
+  in CvDeal::addTrades while refactoring fair-trade/rival-trade bookkeeping.
+
+  The introduction comment explicitly explains that brokered TRADE_PEACE cannot
+  simply be filtered out because other items may be traded alongside it, and the
+  target was added so rival-trade penalties could react to whom peace was being
+  brokered with. The design handled the one-target case, but the scan used simple
+  assignment and never acquired a multi-target representation.
+
+  Current Base AdvCiv 1.14 retains the same scalar target contract. SAS inherits
+  it unchanged apart from unrelated game-record/victory-denial instrumentation.
+  K-Mod/BtS do not contain this later AdvCiv target-sensitive rival-trade
+  machinery in the same form.
+
+Why this is independent of earlier queue-042 findings:
+  * F289 is relationship validation for a single brokered WAR target: a voluntary
+    vassal sponsor may hire war against its own master/master-locus.
+  * F293 assumes every individual TRADE_PEACE/WAR item is valid. Its problem is
+    lossy representation of multiple valid political targets during subsequent
+    attitude bookkeeping.
+  * F282 concerns additive vs absolute cancellation-memory updates.
+  * F291/F292 concern bundle execution/precondition aggregation, not third-party
+    rival-trade memory context.
+
+Repair boundary:
+  Do not merely choose first target instead of last; that preserves the same
+  lossy/order-dependent root.
+
+  The robust design needs multi-target context. Two increasingly exact options:
+
+  1. Minimal deterministic representation:
+     collect brokered peace/war targets in a set/small vector and teach
+     AI_enemyTradeResentmentFactor (or a wrapper) to reason over the whole set.
+     This removes arbitrary last-item privilege, though care is still needed
+     because an observer may be affected differently by different targets.
+
+  2. Semantically cleaner repair:
+     partition the recorded deal value into target-neutral consideration and
+     target-specific political-item value, then apply each peace/war target's
+     resentment adjustment to the appropriate component. This avoids letting one
+     target-specific exemption suppress or amplify the value attributable to
+     unrelated political items in the same bundle.
+
+  Whichever repair is chosen:
+    * one-TRADE_PEACE / one-TRADE_WAR behavior should remain unchanged;
+    * direct peace between the two negotiating teams (bPeace) is a separate
+      dimension and must remain separate;
+    * reparations/fair-trade suppression rules from advc.130p must be preserved;
+    * do not solve this by globally forbidding multiple TRADE_PEACE unless that
+      is an explicit gameplay-policy choice, because current valuation supports
+      and prices each brokered peace separately;
+    * UWAI's explicit one-hired-war policy can remain as policy even if the
+      underlying bookkeeping becomes capable of multiple war targets.
+
+Queue state after this checkpoint:
+  queue 042 CvGameCoreDLL/CvDeal.cpp — still OPEN
+  F281-F293 / provisional KI#604-KI#616 — confirmed
+  F294 / provisional KI#617 — UNUSED / next
+
+Final saturation cursor:
+  * finish the remaining trade-type classification/accessor/serialization
+    inventory;
+  * challenge any remaining cross-item coalition cascade that changes state,
+    rather than merely value;
+  * complete the targeted historical repair-stream ledger, explicitly marking
+    each old CvDeal fix as preserved, absorbed by F281-F293, or a control;
+  * if no independent F294 survives, close queue 042 cleanly and move to the
+    next reconciled priority queue.
+
+No repository source files modified.
+
+================================================================================
+C025-WIP19 ADDENDUM — queue 042 CvDeal.cpp / cross-file accessor consumer
+F294 / provisional KI#617 confirmed; F295 unused
+================================================================================
+
+F294 / provisional KI#617
+Title:
+  Embargo valuation scans the hired player's whole team instead of the hired
+  player's own deals, overpricing teammate trade that will survive the embargo
+  and violating CvDeal's player-accessor contract on multi-member teams.
+
+Root:
+  CvPlayerAI::AI_stopTradingTradeVal describes its contract directly:
+
+      "This player pays for the embargo and ePlayer stops trading
+       with eTradeTeam."
+
+  The actual embargo machinery has the same player-specific contract.
+
+  CvPlayer::isTradingWithTeam documents:
+      "- It checks if this player is trading with any member of eToTeam.
+         Likewise, an embargo will affect only the enacting player - but the
+         entire target team."
+
+  CvPlayer::stopTradingWithTeam therefore filters:
+      if (!pLoopDeal->isBetween(getID(), eTeam))
+          continue;
+
+  i.e. only deals involving the specific enacting player are candidates for
+  cancellation.
+
+  AI_stopTradingTradeVal instead scans:
+      if (!pLoopDeal->isBetween(TEAMID(ePlayer), eTradeTeam))
+          continue;
+
+  That is a team-vs-team filter. On a team with more than one player it admits
+  persistent deals owned by ePlayer's teammates even though those deals will not
+  be canceled when ePlayer executes the embargo.
+
+Concrete live topology:
+  Let A1 and A2 be two living players on Team A (e.g. after a Permanent Alliance
+  or in a preconfigured multi-player team), and let T be the embargo target team.
+
+  A1 is the player being asked to stop trading with T. A1 has some valid
+  outgoing trade to T, so:
+      A1.canStopTradingWithTeam(T) == true.
+
+  A2 independently has a valuable persistent resource/GPT deal with a member of
+  T. Such player-level deals remain normal after the players share Team A.
+
+  AI_stopTradingTradeVal(T, A1):
+    * pLoopDeal(A2,T) passes isBetween(Team A, T);
+    * its incoming consideration can therefore be added to A1's embargo price.
+
+  Actual execution:
+      A1.stopTradingWithTeam(T)
+
+  only visits deals satisfying isBetween(A1,T), so A2's deal survives.
+
+  Result: the sponsor can be charged for trade value that the hired player does
+  not give up and that the embargo does not cancel.
+
+CvDeal accessor-contract failure introduced on top of the semantic root:
+  Current AdvCiv/SAS refactored the duplicated orientation branches into:
+
+      pLoopDeal->getReceivesList(TEAMID(ePlayer))
+      pLoopDeal->getOtherPlayer(ePlayer)
+      pLoopDeal->getGivesList(ePlayer)
+
+  The first call is deliberately team-scoped, but the latter two require the
+  exact player to participate:
+
+      CvDeal::getOtherPlayer(PlayerTypes ePlayer):
+          FAssert(ePlayer == getFirstPlayer() ||
+                  ePlayer == getSecondPlayer());
+
+      CvDeal::getGivesList(PlayerTypes eGivingPlayer):
+          same exact-participant assertion.
+
+  Therefore, for an admitted A2<->T deal while ePlayer=A1:
+    * Debug/Assert DLLs trip getOtherPlayer(A1);
+    * if execution continues, getGivesList(A1) trips too.
+
+Release behavior is not merely "assert removed":
+  getOtherPlayer uses:
+      return (ePlayer == getFirstPlayer() ?
+              getSecondPlayer() : getFirstPlayer());
+
+  When A1 is absent, it always falls through to getFirstPlayer.
+
+  Thus result quality becomes deal-orientation dependent:
+    * if A2 is first, getOtherPlayer(A1) returns A2 itself and A1.AI_dealVal is
+      asked to value target-supplied items as though teammate A2 supplied them;
+    * if T's player is first, the returned "other" happens to be the target
+      participant by accident.
+
+  getGivesList(A1) has the analogous absent-player fall-through to the second
+  list, so the 5-vs-3 gift/trade multiplier can likewise inspect the wrong side
+  depending on orientation.
+
+  The underlying overcount exists even if those fall-through results happened
+  to be benign: the teammate deal should not have entered this loop at all.
+
+Direct normal embargo consequence:
+  CvPlayerAI::AI_dealVal prices each TRADE_EMBARGO by:
+      AI_stopTradingTradeVal(targetTeam, eFromPlayer)
+
+  so this inflated/misoriented result feeds ordinary trade valuation and can
+  alter whether/how much an AI sponsor is willing to pay for the embargo.
+
+War-bribe lower-bound sibling:
+  CvTeamAI::AI_declareWarTradeVal deliberately computes an embargo lower bound:
+
+      "an embargo ... would only compel one player to stop trading with the
+       (whole) target team, so we need to sum up the embargo trade values of
+       the members of this team."
+
+  It loops each hireling-team member that canStopTradingWithTeam(eTarget) and
+  calls:
+      sponsorLeader.AI_stopTradingTradeVal(eTarget, member, true);
+
+  That design confirms the unit of cancellation/value is one player at a time.
+
+  With a multi-member team, however, every one of those per-player calls scans
+  the whole team's T-deals. If A1 and A2 each have cancelable player-level trade
+  with T, A1's call can count A2's deal and A2's call can count A1's deal; the
+  sum can therefore count the same trade losses repeatedly. This can inflate
+  the lower bound used for a declaration-of-war bribe in addition to the direct
+  embargo-price error.
+
+Ancestry:
+  The semantic player-vs-team mismatch is inherited from BtS/K-Mod/Civ4CE.
+
+  Their AI_stopTradingTradeVal loops classify a deal as relevant whenever a
+  participant's TEAM equals ePlayer's team. That already counts teammate-owned
+  deals on multi-member teams, despite stopTradingWithTeam being player-scoped.
+
+  AdvCiv practical 1352
+  "Bugs fixed in AI war trade behavior; tech cost adjustments"
+  (advc.130f/advc.001q) improved the inherited scan by adding the missing
+  opposite-side target-team condition. Before that, BtS effectively checked only
+  whether one participant belonged to ePlayer's team; the AdvCiv source comment
+  records this explicitly:
+      "BtS had only checked for ePlayer's team"
+
+  That repair correctly stopped unrelated third-team deals from entering the
+  price, but retained TEAMID(ePlayer) rather than the exact ePlayer identity.
+
+  AdvCiv practical 1618
+  "FOR_EACH macros everywhere; changes to AI class design."
+  later rewrote the two orientation branches with the new CvDeal accessors.
+  The refactor preserved the team-level filter but then called exact-player
+  getOtherPlayer/getGivesList, turning the older semantic mismatch into a
+  deterministic assertion-contract violation as well.
+
+  Current Base AdvCiv 1.14 retains this shape. SAS inherits it; SAS's nearby
+  local change merely caches GET_PLAYER(ePlayer) as kPlayer.
+
+Why multi-member teams are not exotic malformed state:
+  Permanent Alliance is a shipped trade item and deliberately combines players
+  onto one team; scenario/team-game setups can also begin with multiple players
+  sharing a team. Player-level resource/GPT deals remain represented by their
+  individual player IDs. The embargo APIs themselves are explicitly documented
+  around this distinction, so the code cannot assume one player per team here.
+
+Independence from earlier findings:
+  * F285 is an embargo-DENIAL/list-orientation bug involving peace reparations.
+    F294 can reproduce with ordinary resource/GPT deals and no peace treaty.
+  * F290 concerns old team identities while tearing down agreements during a
+    Permanent Alliance merge. F294 applies after a multi-member team already
+    exists and concerns current player-owned trade valuation.
+  * F284 concerns a player death tearing down team-owned agreements. F294 is the
+    inverse scope error: team-wide scanning of player-owned persistent deals.
+  * F293 concerns lossy multi-target political attitude context, not deal owner
+    identity.
+
+Repair boundary:
+  For the persistent ordinary-deal loop in AI_stopTradingTradeVal, use the same
+  player scope as the operation being valued:
+
+      if (!pLoopDeal->isBetween(ePlayer, eTradeTeam))
+          continue;
+
+  Once that invariant is established, use player-scoped list accessors
+  consistently:
+      getReceivesList(ePlayer)
+      getOtherPlayer(ePlayer)
+      getGivesList(ePlayer)
+
+  This simultaneously:
+    * excludes teammate deals that survive ePlayer's embargo;
+    * satisfies getOtherPlayer/getGivesList's exact-participant contracts;
+    * removes orientation-dependent Release fall-through.
+
+  Important boundary:
+  Keep the separate Open Borders / Defensive Pact terms under review as
+  team-level relationship costs. Those relationships are genuinely stored and
+  torn down at team scope through their proxy/agreement machinery. Do not
+  mechanically convert every TEAMID(ePlayer) use in the function to player
+  scope; F294 is specifically the ordinary persistent-deal inventory whose
+  actual cancellation path is player-specific.
+
+  The war-bribe member-sum should then naturally aggregate disjoint per-player
+  trade losses instead of recounting the full team inventory for every member.
+  Its team-level OB/DP contribution may still deserve independent heuristic
+  review, but that is not required to repair the proven F294 root.
+
+Queue state after this checkpoint:
+  queue 042 CvGameCoreDLL/CvDeal.cpp — still OPEN
+  F281-F294 / provisional KI#604-KI#617 — confirmed
+  F295 / provisional KI#618 — UNUSED / next
+
+Remaining saturation cursor:
+  * challenge the team-level OB/DP contribution in the multi-member war-bribe
+    member sum without assuming it is a bug merely because it is repeated;
+  * finish the historical repair-stream ledger and remaining classification /
+    serialization / cancellation controls;
+  * if no independent F295 survives, close queue 042 cleanly rather than
+    manufacturing another root.
 
 No repository source files modified.
 
