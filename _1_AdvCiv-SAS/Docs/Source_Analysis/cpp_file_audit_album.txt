@@ -2,12 +2,12 @@ AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
-Files complete: 30 / 169
+Files complete: 31 / 169
 Files open: 1 / 169
-Last completed file: investigation file 030 / queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp (2,810 queued lines) - CLOSED AT C031 DURABLE
-Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP59
-Latest confirmed roots: F321-F369 / provisional KI#644-KI#692 from the queue-001 re-audit
-Next root ID: F370 unused / provisional KI#693 next
+Last completed file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - CLOSED AT C031-WIP65
+Current file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - OPEN AT C031-WIP66
+Latest confirmed roots: F321-F374 / provisional KI#644-KI#697 from the queue-001 re-audit
+Next root ID: F375 unused / provisional KI#698 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -21,8 +21,8 @@ METHOD
 - After priority queue entries 018 and 019, repeat queue entries 001 through 009 with the stronger checkpoint/WIP method used from queue 010 onward, then resume the ordinary pending queue at 020.
 
 QUEUE (current .cpp files, longest -> shortest)
-001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP53 / F321-F363]<-(priority current wip)
-002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]<-(priority next wip)
+001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
+002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP66 / F375 UNUSED]<-(priority current wip)
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]<-(priority next wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
@@ -75922,3 +75922,1224 @@ NEXT
 3. If no independent F372 survives, freeze the Queue 001 closure checkpoint,
    increment unique files complete to 31/169, and open protected Queue 002
    `CvUnitAI.cpp` for its deeper reloop.
+
+
+===============================================================================
+C031-WIP62 — QUEUE 001 CvPlayerAI.cpp DEEP RELOOP — F372 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvPlayerAI.cpp` remains OPEN during the final closure reconciliation.
+F372 / provisional KI#695 is CONFIRMED.
+F373 / provisional KI#696 is UNUSED.
+Unique files complete remains 30/169 until Queue 001 itself is closed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F372 / provisional KI#695 — AdvCiv made BtS's unused Advanced Start `bDone`
+flag terminate the entire unit-buying phase when one selected unit is
+unaffordable, even though the next role/pass can contain a cheaper affordable
+unit
+-------------------------------------------------------------------------------
+
+ROOT
+----
+The Advanced Start unit phase cycles through four roles:
+
+    CITY_DEFENSE
+    WORKER
+    RESERVE
+    COUNTER
+
+and, for each pass/city, asks `AI_bestAdvancedStartUnitAI` for the preferred
+unit of that role.
+
+BtS/Civ4CE and K-Mod contain this affordability branch:
+
+    bool bDone = false;
+    for (int iPass = 0; iPass < 10; ++iPass)
+    {
+        ...
+        if (getAdvancedStartUnitCost(eBestUnit, true, pUnitPlot) >
+            getAdvancedStartPoints())
+        {
+            bDone = true;
+            break;
+        }
+        ...
+    }
+
+`bDone` is written but never read. Therefore an unaffordable selected unit
+breaks the current city traversal, but the outer loop continues to the next
+`iPass` and thus to the next UnitAI role.
+
+AdvCiv changed the outer loop to:
+
+    for (int iPass = 0; iPass < 10 &&
+        !bDone; // advc.001: bDone was never read. This is probably its intended use.
+        iPass++)
+
+Current SAS inherits that change unchanged.
+
+This converts a dead/unused flag into a global phase-termination condition.
+The implicit assertion is now:
+
+    selected unit for current role is unaffordable
+        =>
+    no useful unit in any later role/pass is affordable
+
+That implication is false.
+
+CURRENT-SAS COUNTEREXAMPLE
+--------------------------
+The current unit data gives a simple one-city, generic-civilization example.
+
+`UNIT_WORKER`:
+* production cost 60
+* Advanced Start cost percent 100
+* no tech prerequisite
+* no obsolete tech
+* supports `UNITAI_WORKER`
+
+The generic city-defense chain includes:
+
+`UNIT_ARCHER`
+* production cost 25
+* obsolete at Construction
+
+`UNIT_LONGBOWMAN`
+* production cost 40
+* obsolete at Firearms
+
+`UNIT_MUSKETMAN`
+* production cost 100
+* prerequisite Firearms
+* obsolete at Military Tradition
+* explicitly supports `UNITAI_CITY_DEFENSE`
+
+`UNIT_RIFLEMAN`
+* production cost 120
+* prerequisite Military Tradition (+ Firearms)
+* obsolete at Fascism
+* explicitly supports `UNITAI_CITY_DEFENSE`
+
+`getAdvancedStartUnitCost` begins from `getProductionNeeded(eUnit)` multiplied
+by 3 * AdvancedStartCost / 200, i.e. a 1.5 multiplier for the ordinary
+100-percent units, then applies the same game-speed point normalization (plus
+any applicable production modifier).
+
+Consequently, in an otherwise ordinary Firearms / pre-Military-Tradition
+state without a special unit-production modifier:
+
+    Musketman nominal AS cost ~= 150 points
+    Worker nominal AS cost     ~=  90 points
+
+The exact absolute values scale with game/start speed, but the generic
+Musketman remains substantially more expensive than the Worker.
+
+The point pool reaches the unit phase only after many incremental Advanced
+Start purchases (cities, improvements/population, visibility, technology,
+explorers, routes, buildings), so a remainder in the interval where the Worker
+is affordable but the Musketman is not is entirely ordinary.
+
+At Firearms, the earlier Archer/Longbow city defenders are obsolete. Therefore
+for a generic civilization `AI_bestAdvancedStartUnitAI(...,
+UNITAI_CITY_DEFENSE)` can select the Musketman on pass 0.
+
+With, for example, enough points for a Worker but not for that Musketman:
+
+1. pass 0 selects the Musketman;
+2. the cost test sees `Musketman cost > remaining points`;
+3. `bDone = true`;
+4. the city loop breaks;
+5. AdvCiv's added `!bDone` prevents pass 1 from running;
+6. `UNITAI_WORKER` is never considered despite an affordable Worker.
+
+The same class of failure exists in later eras (e.g. Rifleman vs Worker), and
+city-local production modifiers can add further city-order cases because
+`getAdvancedStartUnitCost(..., &kCityPlot)` explicitly applies the city's unit
+production modifier.
+
+CONSEQUENCE
+-----------
+AdvCiv/SAS can prematurely stop the Advanced Start military/worker purchase
+phase and leave points that could still buy a useful unit.
+
+This is stronger than merely choosing the wrong military unit: the code's
+four-role round-robin is explicitly designed to move from CITY_DEFENSE to
+WORKER/RESERVE/COUNTER, but the AdvCiv outer-loop change can prevent those roles
+from being reached at all.
+
+ANCESTRY
+--------
+* BtS/Civ4CE: `bDone` is assigned but never used by the outer loop.
+* K-Mod 1.46: same as BtS.
+* Base AdvCiv 1.14: adds `&& !bDone` and the comment
+  `"bDone was never read. This is probably its intended use."`
+* Current AdvCiv-SAS: inherits the AdvCiv behavior.
+
+Classification: AdvCiv regression / speculative cleanup of dead BtS state that
+made behavior strictly less robust.
+
+This is related in pattern to F371 but is an independent code root and ancestry:
+F371 is the inherited building-pass flag being overwritten by one building's
+affordability. F372 is AdvCiv newly making BtS's formerly-unused unit flag
+terminate all later role passes.
+
+REPAIR DIRECTION
+----------------
+The safest minimal repair is to remove `!bDone` from the outer loop, restoring
+the BtS/K-Mod behavior, and preferably remove/rename the dead flag as part of
+the cleanup:
+
+    for (int iPass = 0; iPass < 10; iPass++)
+    {
+        ...
+        if (selectedCost > getAdvancedStartPoints())
+            break; // only stop this city's/current pass traversal
+    }
+
+An even better policy would skip only the unaffordable candidate/city and keep
+examining other cities on the same pass, because city-local production
+modifiers can make another city's candidate cheaper.
+
+If global early termination is desired for performance, it needs a real
+"nothing remaining can be afforded" proof, e.g. the minimum legal cost across
+the remaining roles/cities, not the cost of one selected candidate.
+
+-------------------------------------------------------------------------------
+CLOSURE-RECONCILIATION CONTROLS CHECKED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+The fresh current-SAS vs Base-AdvCiv function-body reconciliation was repeated.
+The remaining changed functions that had not been explicitly named in the
+physical C031 WIP chain were reopened rather than silently treated as covered.
+
+Clean/simple deltas established so far:
+
+* `AI_unitAIDomainType`
+  - SAS difference is the intentional Great-Person UnitAI enum rename only.
+
+* `AI_foundValue`
+  - SAS difference is `short` -> `int`, consistent with the known found-value
+    integer-width hardening.
+
+* `AI_techUnitValue`
+  - SAS deltas are cached `CvGame` access plus the Great-Person UnitAI enum
+    rename; no new behavior root established in this slice.
+
+* `AI_techProjectValue`
+  - cached `CvGame` access / signature formatting only.
+
+* `AI_techReligionValue`
+  - cached `CvGame` access / signature formatting only.
+
+* `AI_chooseFreeTech`
+  - the SAS delta is the explicit `TECH_ACQUISITION_FREE_CHOICE` metadata
+    argument. The earlier free-tech legality concern remains downstream of the
+    already-confirmed F330 Barbarian anti-innovation root rather than a new
+    F373.
+
+* `AI_getGreeting`, `AI_isWillingToTalk`, `AI_demandRebukedSneak`,
+  `AI_getAttitudeVal`
+  - the SAS-local differences are cached `GET_PLAYER` references. The separate
+    randomized brag state/display defect is already F369.
+
+* `AI_recalculateFoundValues`
+  - SAS difference is `short` -> `int`, matching `AI_foundValue` hardening.
+
+* `logFoundValue`
+  - disabled-log early return plus cached define lookup; no gameplay mutation.
+
+`AI_localAttackStrength` and the large SAS-local
+`AI_calculateCultureVictoryStage` changes remain deliberately open for the next
+closure slice rather than being waved through by this checkpoint.
+
+CURRENT AUDIT STATE
+-------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN (final closure reconciliation)
+Unique files complete — 30/169
+Confirmed deep-reloop findings — F321 through F372
+F373 / provisional KI#696 — UNUSED
+Latest physical checkpoint — C031-WIP62
+No repository source files modified.
+
+NEXT
+----
+1. Audit the current SAS-local `AI_localAttackStrength` collateral-role repair
+   against all callers and `estimateCollateralWeight` semantics.
+2. Deliberately re-review the large current-SAS
+   `AI_calculateCultureVictoryStage` additions for logging-dependent behavior,
+   sentinel/rank handling, countdown arithmetic and cross-victory recursion.
+3. Finish the remaining function-range/pattern reconciliation.
+4. If no independent F373 survives, close Queue 001 at the next durable WIP,
+   increment unique files complete to 31/169, and open protected Queue 002
+   `CvUnitAI.cpp`.
+===============================================================================
+C031-WIP63 — QUEUE 001 CvPlayerAI.cpp DEEP RELOOP — F373 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvPlayerAI.cpp` remains OPEN during the final closure reconciliation.
+F373 / provisional KI#696 is CONFIRMED.
+F374 / provisional KI#697 is UNUSED.
+Unique files complete remains 30/169 until Queue 001 itself is closed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F373 / provisional KI#696 — SAS Culture competing-victory gate can never see
+the CURRENT Diplomacy victory stage during the normal victory-hash update
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS added a Culture-stage behavior gate intended to postpone expensive
+Culture 2 investment when another victory route is already advanced:
+
+    static int const iMinCompetingVictoryStage =
+            range(GC.getDefineINT(
+                "SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE"),
+                0, 4);
+
+    if (!isHuman() && iMinCompetingVictoryStage > 0 &&
+        iHighCultureCount < iVictoryCities)
+    {
+        AIVictoryStage const eVictoryStageHash = AI_getVictoryStageHash();
+        int const iSpaceStage = ...
+        int const iConquestStage = ...
+        int const iDominationStage = ...
+        int const iDiplomacyStage =
+                getSASDiplomacyVictoryStageLevel(eVictoryStageHash);
+
+        int const iMostAdvancedCompetingStage =
+                max(space, conquest, domination, diplomacy);
+
+        if (iMostAdvancedCompetingStage >= iMinCompetingVictoryStage)
+            return 1;
+    }
+
+The XML contract explicitly describes the default stage-3 gate as preventing an
+unready Culture 2 hedge from diverting resources from an advanced:
+
+    "Space, Conquest, Domination, or Diplomatic pursuit"
+
+However, normal cached victory-stage construction is ordered as follows in
+`CvPlayerAI::AI_updateVictoryStageHash`:
+
+    m_eVictoryStageHash = AI_DEFAULT_VICTORY_STAGE;
+
+    AI_calculateSpaceVictoryStage();
+        -> add SPACE bits
+
+    AI_calculateConquestVictoryStage();
+        -> add CONQUEST bits
+
+    AI_calculateDominationVictoryStage();
+        -> add DOMINATION bits
+
+    AI_calculateCultureVictoryStage();
+        -> Culture reads AI_getVictoryStageHash()
+
+    AI_calculateDiplomacyVictoryStage();
+        -> only now add DIPLOMACY bits
+
+The source even retains K-Mod's order comment immediately before Culture:
+
+    "AI_calculateCultureVictoryStage now checks
+     some of the other victory strategies,
+     so it is important that they are set first."
+
+SAS expanded the set of strategies Culture checks to include Diplomacy without
+moving Diplomacy before Culture.
+
+WHY NO CACHE/LATE-EVALUATION ESCAPE EXISTS
+------------------------------------------
+`CvPlayerAI.h` defines:
+
+    AIVictoryStage AI_getVictoryStageHash() const
+    {
+        return m_eVictoryStageHash;
+    }
+
+It is not a lazy getter and performs no recomputation.
+
+`AI_updateVictoryStageHash` resets `m_eVictoryStageHash` to
+`AI_DEFAULT_VICTORY_STAGE` before rebuilding the individual strategy bits.
+Therefore the Culture call during this normal update cannot even see a previous
+turn's Diplomacy stage. The current Diplomacy bits simply do not exist yet.
+
+The call path is live and routine:
+
+    CvPlayerAI::AI_updateCacheData()
+        -> AI_updateVictoryStageHash()
+            -> reset hash
+            -> Space
+            -> Conquest
+            -> Domination
+            -> Culture
+            -> Diplomacy
+
+Thus, in the ordinary cached-strategy update, `iDiplomacyStage` inside the new
+Culture competing-victory gate is necessarily 0 regardless of what
+`AI_calculateDiplomacyVictoryStage()` will return a few statements later.
+
+CONCRETE CONSEQUENCE
+--------------------
+With the default XML value:
+
+    SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE = 3
+
+an AI that is genuinely at Diplomacy stage 3 or 4, while Space/Conquest/
+Domination are below stage 3, does NOT receive the intended competing-victory
+Culture downgrade.
+
+If the remaining Culture conditions permit Culture 2, the AI can therefore
+continue diverting production, specialists and commerce toward an unready
+cultural hedge even though the exact SAS policy says an advanced Diplomatic
+pursuit should suppress it.
+
+On the same turn, `AI_updateVictoryStageHash` subsequently calls
+`AI_calculateDiplomacyVictoryStage` and stores DIPLOMACY3/4 correctly. Other
+consumers later in the turn can see those bits; the Culture calculation that
+needed them has already finished.
+
+This is a deterministic state-order omission, not random disagreement between
+two strategy estimates.
+
+SECONDARY DIAGNOSTIC EFFECT
+---------------------------
+The level-2 Culture-4 diagnostic probe later in
+`AI_calculateCultureVictoryStage` also reads `AI_getVictoryStageHash()` and
+logs `diplomacyStage` / `competingVictoryPressure`. During normal victory-hash
+construction it has the same partial-hash limitation, so diagnostics can report
+Diplomacy stage 0 even though the immediately following Diplomacy calculation
+will establish stage 3/4.
+
+The numbered gameplay root is the competing-victory behavior gate; the
+diagnostic mismatch is a downstream symptom of the same ordering.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14 already uses the inherited K-Mod ordering:
+
+    Space -> Conquest -> Domination -> Culture -> Diplomacy
+
+That ordering was coherent with the pre-SAS Culture function because the
+existing Culture logic checks strategy bits that have already been established
+before it.
+
+SAS later added `SAS_AI_CULTURE_VICTORY_COMPETING_VICTORY_MIN_STAGE` and
+explicitly included Diplomacy in the competing-stage maximum, but retained the
+old update order.
+
+Classification: SAS-local state-order regression introduced by the new Culture
+competing-victory gate.
+
+REPAIR DIRECTION
+----------------
+Make Diplomacy's current stage available before Culture consumes competing
+victory stages.
+
+The cleanest structural repair is likely to compute/store Diplomacy before
+Culture in `AI_updateVictoryStageHash`, provided the diplomacy-stage calculator
+is kept independent of Culture-stage bits. The current
+`AI_calculateDiplomacyVictoryStage` does not call `AI_atVictoryStage`, so the
+direct dependency is one-way and this reorder is naturally compatible with the
+new SAS gate:
+
+    Space
+    Conquest
+    Domination
+    Diplomacy
+    Culture
+
+Then the existing Culture code can read one coherent current-turn hash.
+
+An alternative is to compute the Diplomacy stage explicitly before the Culture
+gate and pass/use that value, but that duplicates a nontrivial calculation and
+the later hash update unless the update function is refactored to preserve the
+result.
+
+Do not "fix" this by retaining a previous-turn Diplomacy hash during rebuild;
+that would merely replace a deterministic missing dependency with stale-state
+behavior.
+
+-------------------------------------------------------------------------------
+CLOSURE-RECONCILIATION CONTROL — AI_localAttackStrength / KI#593 REPAIR
+-------------------------------------------------------------------------------
+
+The current SAS-local KI#593 repair in `AI_localAttackStrength` was deliberately
+reopened against the original F270 finding and the current
+`estimateCollateralWeight` contract.
+
+No independent F374 has been established there.
+
+The repair now derives collateral roles as follows:
+
+* explicit/default hostile-strength queries:
+  - attacker = requested enemy team, or `NO_TEAM` for the intentionally generic
+    multiple-hostile mode;
+  - defender = evaluating player's team;
+
+* explicit own-offense queries:
+  - attacker = evaluating player's own team;
+  - defender = opposing target-plot team when known;
+  - if target plot is our own team, defender remains generic rather than
+    falsely treating our team as both sides.
+
+This matches F270's repair boundary: the original bug was hard-wiring
+`getTeam()` as the collateral ATTACKER even when `AI_localAttackStrength`
+was counting enemy units. The current code no longer does that, while preserving
+`NO_TEAM` when the query aggregates multiple hostile teams and therefore has no
+single truthful attacker identity.
+
+Representative caller classes were reopened:
+* city safety / enemy offense (`NO_TEAM`);
+* explicit enemy-team recapture/raze risk;
+* own local offense against a target plot;
+* spy/city-attack and stack-vs-stack tactical comparisons;
+* city-trade third-party danger.
+
+No supported caller was found in this slice that inverts the new role mapping.
+The remaining approximation for genuinely mixed hostile teams is inherent in a
+single aggregate collateral scalar and was explicitly anticipated by F270; it
+is not a new root.
+
+CURRENT AUDIT STATE
+-------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN (final closure reconciliation)
+Unique files complete — 30/169
+Confirmed deep-reloop findings — F321 through F373
+F374 / provisional KI#697 — UNUSED
+Latest physical checkpoint — C031-WIP63
+No repository source files modified.
+
+NEXT
+----
+1. Finish the remaining large `AI_calculateCultureVictoryStage` audit rather
+   than stopping at F373:
+   - rival visibility/eligibility semantics;
+   - foundation and projected-countdown rank sentinels;
+   - deadline arithmetic / no-time-limit behavior;
+   - logging-dependent paths;
+   - active victory-countdown comparison.
+2. Finish the residual current-SAS-vs-Base changed-function checklist and the
+   final state/sentinel/candidate-vs-execution pattern sweep.
+3. If no independent F374 survives, freeze the Queue 001 closure checkpoint,
+   increment unique files complete to 31/169, and open protected Queue 002
+   `CvUnitAI.cpp`.
+===============================================================================
+C031-WIP64 — QUEUE 001 CvPlayerAI.cpp DEEP RELOOP — F374 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvPlayerAI.cpp` remains OPEN during the final closure reconciliation.
+F374 / provisional KI#697 is CONFIRMED.
+F375 / provisional KI#698 is UNUSED.
+Unique files complete remains 30/169 until Queue 001 itself is closed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F374 / provisional KI#697 — Culture victory strategy is player-local even
+though the actual Cultural victory city requirement is TEAM-wide; SAS's new
+deadline gate can now force cooperating teammates back to Culture 1
+-------------------------------------------------------------------------------
+
+ROOT
+----
+The actual game victory test counts Legendary/high-enough culture cities across
+ALL members of the winning team.
+
+Current `CvGame::testVictory`:
+
+    int iCount = 0;
+    for (MemberIter itMember(eTeam); itMember.hasNext(); ++itMember)
+    {
+        FOR_EACH_CITY(pCity, *itMember)
+        {
+            if (pCity->getCultureLevel() >=
+                culturalVictoryCultureLevel())
+            {
+                iCount++;
+            }
+        }
+    }
+
+    if (iCount < kVictory.getNumCultureCities())
+        return false;
+
+K-Mod and BtS/Civ4CE use the same team-wide victory semantics (with older
+explicit player loops).
+
+By contrast, `CvPlayerAI::AI_calculateCultureVictoryStage` evaluates Cultural
+victory entirely from the current player's own cities:
+
+    FOR_EACH_CITY(pLoopCity, *this)
+    {
+        ...
+        countdownList.push_back(iCountdown);
+        if (iCountdown < iHighCultureMark)
+            iHighCultureCount++;
+        ...
+    }
+
+The required count remains the GAME/TEAM victory requirement:
+
+    int iVictoryCities = kGame.culturalVictoryNumCultureCities();
+
+but all of:
+
+    iHighCultureCount
+    iCloseToLegendaryCount
+    iLegendaryCount
+    countdownList
+    iWinningCountdown
+
+describe only `*this` player's cities.
+
+The decisive Stage-3 condition is therefore:
+
+    if (iHighCultureCount >= iVictoryCities)
+        bAt3 = true;
+
+rather than asking whether this player's TEAM has the required number of
+credible cultural candidates.
+
+SUPPORTED TEAM COUNTEREXAMPLE
+-----------------------------
+Assume the ordinary Cultural-victory requirement is three cities and a
+two-player permanent team has:
+
+    Player A: 2 strong near-Legendary/high-countdown culture cities
+    Player B: 1 strong near-Legendary/high-countdown culture city
+
+The actual victory engine sees three team cities. This is a complete collective
+set of candidates; once those three reach Legendary, the team wins.
+
+The AI strategy calculators see:
+
+    Player A:
+        iHighCultureCount <= 2
+        countdownList.size() <= 2
+        iWinningCountdown = MAX_INT
+
+    Player B:
+        iHighCultureCount <= 1
+        countdownList.size() <= 1
+        iWinningCountdown = MAX_INT
+
+Neither player can satisfy:
+
+    iHighCultureCount >= iVictoryCities /* 3 */
+
+so neither can enter the normal Stage-3/Stage-4 cultural sprint on the strength
+of the team's actual three-city path.
+
+This is not merely a display mismatch. Culture victory stages affect
+player-level commerce, specialists, buildings, production and other strategic
+choices, so failing to recognize teammates' candidate cities can stop the
+players from making the final coordinated push that their team victory
+condition requires.
+
+SAS DEADLINE GATE MAKES THE INHERITED GAP STRICTER
+--------------------------------------------------
+Current SAS adds:
+
+    bool const bLateCultureRace = ...;
+
+    if (!isHuman() && kGame.culturalVictoryValid() &&
+        (bLateCultureRace || iWinningCountdown < MAX_INT))
+    {
+        ...
+        bool const bWinningCountdownAvailable =
+                (iWinningCountdown < MAX_INT);
+
+        if (!bWinningCountdownAvailable || deadlineMiss)
+            return 1;
+    }
+
+In the 2+1 team example, neither player has three qualifying OWN cities, so
+neither can produce an Nth-city `iWinningCountdown`.
+
+Once the late-race condition becomes true, SAS therefore does not merely fail
+to promote the team path to Culture 3. It explicitly returns Culture 1 for both
+players because each individual's complete three-city projection is missing.
+
+Thus a team can collectively have exactly the required three credible culture
+cities while the current SAS strategy logic treats BOTH members as lacking a
+complete Cultural-victory projection.
+
+The same mismatch also affects the new foundation/race helpers:
+`getSASCultureVictoryNthCityCulture(*this, ...)` and rival countdowns are
+computed per player, whereas the victory being ranked is achieved by teams.
+
+ANCESTRY
+--------
+The actual Cultural-victory city test is team-wide in Civ4CE/BtS, K-Mod,
+Base AdvCiv and current SAS.
+
+K-Mod's `AI_calculateCultureVictoryStage` already loops only over the current
+player's cities and compares those counts against the full victory-city
+requirement. Base AdvCiv inherits that structure.
+
+Current SAS inherits the player-local foundation and adds additional
+player-local foundation/race/deadline gates; the new deadline gate makes the
+late-team failure deterministic whenever the team distributes the required
+candidates across members and no individual member owns a full required set.
+
+Classification:
+* root: inherited K-Mod/BBAI-style player-vs-team Cultural strategy mismatch;
+* aggravating current behavior: SAS-local deadline/foundation/race logic
+  preserves the same scope mismatch and can force Stage 1.
+
+This is independent of F373. F373 is a current-turn ordering defect that hides
+Diplomacy stage from the competing-victory gate. F374 is the object-scope
+mismatch between a player strategy calculator and a team-wide victory
+condition.
+
+REPAIR DIRECTION
+----------------
+A correct team-game implementation needs to separate two questions:
+
+1. What is the TEAM's Cultural-victory position?
+2. What should THIS PLAYER contribute to that team plan?
+
+The first must aggregate candidate culture/countdowns across `MemberIter`
+rather than requiring every player independently to own `iVictoryCities`
+candidates.
+
+For team-level feasibility/race/deadline checks, build one combined list from
+all team members' cities and take the team's Nth-best required candidate.
+
+The second can remain player-local for deciding which player's slider,
+specialists and production should contribute, but it should use the team's
+collective race state and then recognize whether this player owns one or more
+of the team's selected Cultural candidates.
+
+Do not simply make every teammate enter Culture 4 whenever the team has three
+candidates; that could waste the slider of a teammate who owns none of them.
+The minimal correctness boundary is:
+* team aggregation for victory feasibility/stage/race;
+* player ownership for contribution intensity.
+
+-------------------------------------------------------------------------------
+ADDITIONAL CULTURE-STAGE CONTROLS CLOSED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+* `SAS_AI_CULTURE_VICTORY_MAX_DEADLINE_PERCENT`
+  - the default is 125 and its XML contract describes an estimated-game-length
+    strategic deadline, not a 0-to-disable switch.
+  - `CvGame::gameTurnProgress` explicitly documents the inherited design
+    assumption that even with Time victory disabled the AI does not expect the
+    game to last beyond the estimated end. Therefore using
+    `getEstimateEndTurn()` as a strategic horizon is aggressive policy, not by
+    itself a new F375.
+
+* Culture logging levels:
+  - the diagnostic-only foundation/race calculations are guarded so disabled
+    behavior limits are checked explicitly before affecting strategy.
+  - the Culture-4 candidate probe is enclosed in logging conditions and only
+    computes/logs diagnostics.
+  - no independent "turn logging on, strategy changes" F375 was established.
+
+* `iOwnVictoryCountdown` comparison:
+  - a real active team victory countdown is intentionally preferred over the
+    projected Cultural finish when shorter. No independent sentinel inversion
+    was established.
+
+CURRENT AUDIT STATE
+-------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN (final closure reconciliation)
+Unique files complete — 30/169
+Confirmed deep-reloop findings — F321 through F374
+F375 / provisional KI#698 — UNUSED
+Latest physical checkpoint — C031-WIP64
+No repository source files modified.
+
+NEXT
+----
+1. Finish the remaining Culture-stage visibility/competitor-ranking policy
+   review, especially whether all-major-player ranking creates an independent
+   information/eligibility defect once team scope is repaired.
+2. Finish the residual changed-function checklist and final generic
+   state/sentinel/loop/candidate-execution sweep.
+3. If no independent F375 survives, freeze a Queue-001 closure checkpoint,
+   increment unique files complete to 31/169, and open protected Queue 002
+   `CvUnitAI.cpp`.
+===============================================================================
+C031-WIP65 — QUEUE 001 CvPlayerAI.cpp DEEP RELOOP — CLOSED
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvGameCoreDLL/CvPlayerAI.cpp` is CLOSED under the deeper WIP-era
+re-audit methodology.
+
+Unique files complete: 31/169.
+Deep-reloop findings established in Queue 001: F321 through F374.
+F375 / provisional KI#698 remains UNUSED.
+No repository source files were modified.
+
+The next protected target is Queue 002:
+    `CvGameCoreDLL/CvUnitAI.cpp`
+
+-------------------------------------------------------------------------------
+QUEUE 001 CLOSURE BASIS
+-------------------------------------------------------------------------------
+
+This closure is not based merely on reaching the physical end of the file.
+
+The reloop included:
+
+1. Current-SAS semantic-delta review against Base AdvCiv 1.14, with K-Mod
+   1.46 and Civ4CE/BtS ancestry where a root depended on inherited behavior.
+
+2. Reopening of large/high-fanout current changes rather than relying on the
+   original first pass:
+   * diplomacy and trade valuation;
+   * technology valuation / free-tech / research;
+   * civic, religion and commerce strategy;
+   * worker demand and composition helpers;
+   * local attack/defense strength;
+   * military/disband paths;
+   * Great-Person weights;
+   * victory-stage caches, especially the large SAS Culture additions;
+   * Advanced Start;
+   * attitude/rank, danger, city-site, resource, airbase and tail helpers.
+
+3. A whole-file function-range reconciliation after the linear pass reached the
+   physical tail. This reopened functions that had not appeared explicitly in
+   later WIP prose instead of assuming they were covered.
+
+4. A current-SAS-vs-Base function-body reconciliation to catch small SAS-local
+   mutations hidden among the large inherited file.
+
+5. Repeated targeted bug-pattern sweeps for:
+   * loop-carried mutation of function inputs/state;
+   * sentinel collisions / disabled-value semantics;
+   * candidate-selection result differing from executed candidate;
+   * attempted void action treated as successful;
+   * one candidate's result controlling a global phase;
+   * premature returns/breaks before later alternatives;
+   * state-cache construction order;
+   * player-vs-team scope mismatches;
+   * logging-dependent behavior;
+   * division/empty-set boundaries;
+   * information-scope and iterator assumptions.
+
+6. Current XML/unit/building/tech data was used to require supported
+   reproductions where source shape alone did not establish consequence.
+
+7. Suspicions were explicitly allowed to close without numbering when the
+   caller/data/contract proof did not survive.
+
+-------------------------------------------------------------------------------
+LATE CLOSURE FINDINGS
+-------------------------------------------------------------------------------
+
+The final reconciliation materially improved Queue 001 rather than merely
+rubber-stamping it. Its last confirmed roots were:
+
+F367
+    `AI_getHappinessWeight` / `AI_getHealthWeight` mutate the shared
+    `iExtraPop` argument inside the city loop, making later-city valuation
+    depend on city iteration order.
+
+F368
+    `AI_getPlotAirbaseValue` increments `iOtherCityCount` only when a newly
+    visited base/city sets a new minimum distance, so it counts traversal
+    record-minima rather than nearby bases.
+
+F369
+    AdvCiv's persistent unit-brag state stores one randomized
+    `AI_getBestAttackUnit()` result while diplomacy text independently rolls
+    the randomized selector again, allowing remembered unit A and displayed
+    unit B.
+
+F370
+    `AI_advancedStartPlaceCity` increments `iPlotsImproved` after a void
+    improvement purchase that can silently fail, producing phantom
+    improvements that can drive real population spending.
+
+F371
+    Advanced Start building selection stores one candidate building's
+    affordability result in the global `bDoneBuildings` outer-loop flag,
+    preventing later focus passes from exposing cheaper affordable buildings.
+
+F372
+    AdvCiv changed BtS/K-Mod's formerly unread Advanced Start unit `bDone`
+    flag into an outer-loop terminator. One unaffordable CITY_DEFENSE unit can
+    therefore prevent the next WORKER/RESERVE/COUNTER role pass even when a
+    cheaper unit is affordable.
+
+F373
+    SAS's new Culture competing-victory gate checks Diplomacy stage from
+    `m_eVictoryStageHash` while the normal hash rebuild computes Diplomacy only
+    AFTER Culture. The current Diplomacy arm of the gate is therefore absent
+    during the ordinary strategy update.
+
+F374
+    `AI_calculateCultureVictoryStage` evaluates only the current player's
+    culture cities even though the real Cultural-victory city test aggregates
+    every member of the team. Current SAS's late deadline gate further forces
+    Stage 1 when no individual teammate owns a full N-city projection, even
+    when the team collectively has the required candidate set.
+
+These late roots justify the function-range and pattern reconciliation: several
+would not have been found by merely stopping when the earlier linear walk
+reached the bottom of the file.
+
+-------------------------------------------------------------------------------
+FINAL F375 CONTROLS — NO NUMBER ALLOCATED
+-------------------------------------------------------------------------------
+
+No independent F375 survived the final closure slice.
+
+`AI_localAttackStrength` / KI#593 repair
+---------------------------------------
+The current SAS repair correctly stopped hard-wiring the evaluating team as the
+collateral attacker. Representative enemy/default, explicit-enemy, own-offense,
+city-safety, trade-danger and tactical callers were rechecked against
+`estimateCollateralWeight`. Remaining mixed-hostile approximation is inherent
+in a single aggregate scalar and was already part of F270's repair boundary.
+
+Culture rival visibility
+------------------------
+The new foundation/projected race scans use all alive major players and can
+therefore consult exact data for unmet rivals. That is genuine omniscient
+information use, but the current feature is explicitly a global race-ranking
+heuristic and the source/XML contract does not promise a known-rivals-only
+scope. Civ4 AI contains other deliberate information advantages. Without a
+stronger fairness/knowledge contract, this remains design debt / a possible
+policy improvement rather than F375. Same-team competition is NOT discarded:
+the materially incorrect player-vs-team victory scope is already captured by
+F374.
+
+Culture deadline horizon
+------------------------
+Using `getEstimateEndTurn()` even when Time victory is disabled can aggressively
+reject very late cultural plans, but AdvCiv's own `gameTurnProgress` contract
+explicitly states that the AI does not expect the game to last beyond the
+estimated end even with Time victory disabled. This is strategic policy, not a
+new arithmetic bug.
+
+Culture logging
+---------------
+The logging-only foundation/race/C4 probes were checked for feedback into
+strategy. Behavior gates explicitly test their XML enable values, and diagnostic
+vectors/counters do not alter decisions. No log-level-dependent strategy root
+was established.
+
+Great-Person weights
+--------------------
+The SAS Culture/corporation damping rewrite was reopened:
+* `AI_permanentSpecialistValue` initializes all optional diagnostic outputs;
+* logging-only maps/vectors do not feed the chosen weights back;
+* the Culture-stage dependency reads a refreshed per-turn victory hash before
+  the three-turn GP-weight update in the ordinary turn lifecycle;
+* corporation-founder and Join-City damping are intentional policy according
+  to the current XML/source comments.
+The inherited three-turn refresh cadence can make any GP input stale briefly,
+but it predates these changes and is an explicit performance tradeoff.
+
+`AI_updateStrategyHash`
+-----------------------
+The current-vs-Base behavioral delta in the reopened strategy hash is only the
+restart-cached `BBAI_TURTLE_ENEMY_POWER_RATIO` read. No runtime writer was
+established and behavior is unchanged.
+
+Advanced Start tech attempts
+----------------------------
+The early/interleaved void tech actions can fail after selection while local
+tech-allocation heuristics still advance. This is a weaker sibling of F370.
+The false state is confined to the current Advanced Start allocation heuristic
+rather than representing a purchased object or consuming a hard success quota,
+and the stronger independent building/unit termination defects are already
+F371/F372. It remains documented control/debt rather than manufacturing F375.
+
+Capital-first `AI_getBestAttackUnit`
+------------------------------------
+A Factory-less capital can miss a stronger Factory-gated attacker trainable in
+another city. The demonstrated impact remains mostly presentation/brag
+semantics and overlaps F369; no independent gameplay consequence strong enough
+for F375 was established.
+
+`AI_calculateStolenCityRadiusPlots`
+-----------------------------------
+AdvCiv's per-city-radius rewrite can count one physical foreign-owned plot more
+than once when it affects multiple cities, but the rewrite is explicitly a
+per-city capped border-grievance model and one plot can deny workable space to
+multiple cities. No unique-physical-plot contract was established.
+
+`AI_calculateUnitAIViability`
+-----------------------------
+Default UnitClass units can differ from civilization-specific UUs in UnitAI
+availability. Current gameplay callers requiring the relevant discrepancy are
+sea-role callers, and current SAS has no naval UU producing it. This remains a
+mod-mod hazard, not a current root.
+
+-------------------------------------------------------------------------------
+QUEUE 001 FINAL STONE
+-------------------------------------------------------------------------------
+
+Queue 001:
+    CvGameCoreDLL/CvPlayerAI.cpp
+    DEEP RELOOP COMPLETE / CLOSED
+
+Unique files complete:
+    31 / 169
+
+Confirmed deep-reloop finding range:
+    F321 - F374
+
+Next finding:
+    F375 UNUSED
+    provisional KI#698
+
+Latest physical checkpoint:
+    C031-WIP65
+
+Repository source modifications:
+    NONE
+
+PROTECTED ROUTE
+---------------
+Open Queue 002 `CvGameCoreDLL/CvUnitAI.cpp`.
+
+The original Queue-002 pass already strengthened old F002/KI#331 around
+`scrap()` caller assumptions and retained KI#213 as a known cross-file
+`AI_bestCityBuild`/empty-city-cache architecture issue. The deeper reloop must
+first reconcile those old roots against CURRENT source (several KI#331 caller
+repairs may now exist), then perform the same stronger methodology used here:
+current-SAS deltas first, high-fanout methods, inherited ancestry, current-data
+proofs, function-range reconciliation, and final bug-pattern sweep.
+
+Do not resume the normal pending queue 020 until protected Queues 002 through
+009 have all received this deeper reloop.
+
+END C031-WIP65
+===============================================================================
+C031-WIP66 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — OPEN
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvGameCoreDLL/CvPlayerAI.cpp` remains CLOSED.
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` is now OPEN under the deeper WIP-era
+methodology.
+
+Unique files complete: 31/169.
+Next new finding: F375 / provisional KI#698 — UNUSED.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+OPENING RECONCILIATION — OLD F002 / KI#331
+-------------------------------------------------------------------------------
+
+The old cross-file `scrap()` contract root is materially repaired in CURRENT
+source and should not be rediscovered as F375.
+
+Current `CvUnit::scrap()` now returns explicit success:
+
+    bool CvUnit::scrap()
+    {
+        if (!canScrap())
+            return false;
+        scrapInternal();
+        return true;
+    }
+
+The previously broadened Queue-002 callers now respect that contract:
+
+* Worker discretionary cleanup:
+      if (SyncRandSuccess(rScrapProb) && scrap())
+          return;
+  A restrictive SAS veto now falls through to ordinary Worker fallback.
+
+* Excess land Explorer:
+      if (scrap()) return;
+  Failed cleanup continues into stranded/patrol/safety handling.
+
+* Trapped Barbarian ship:
+      if (bScrap && scrap()) return;
+
+* Escort Sea cleanup:
+      if (scrap()) return;
+
+* obsolete/excess Explore Sea cleanup:
+      if (scrap()) return;
+  Both relevant inherited branches now continue if cargo-capacity protection
+  vetoes the removal.
+
+The two contexts that genuinely require removal after caller-specific safety
+checks use the explicit forced path:
+
+* retired inferior Settler transport after unloading:
+      if (scrapForced()) return;
+
+* doomed-city scorched-earth evacuation:
+      if (scrapForced()) return true;
+
+No remaining active `scrap(); return;` pattern from the original Queue-002
+KI#331 expansion was found in the opening current-source grep. The idle
+Barbarian Worker branch checks `canScrap()` before calling `scrap()`, and
+`AI_scrapSettlerWithNoValidSite` deliberately uses its own guarded
+`scrapInternal()` mandatory-cleanup operation.
+
+Conclusion:
+old F002 / KI#331 remains historical evidence and a cross-file contract lesson,
+but its Queue-002 caller set is currently repaired/saturated. Do not allocate a
+new finding merely for those old sites.
+
+-------------------------------------------------------------------------------
+OPENING RECONCILIATION — EXISTING KI#213 STILL SURVIVES
+-------------------------------------------------------------------------------
+
+The known city-cache / Worker-policy architecture split is still present and
+must be retained as an EXISTING cross-file root, not duplicated as F375.
+
+Current `CvCityAI::AI_getImprovementValue` explicitly disables the legacy
+evaluator for every land plot:
+
+    if (!kPlot.isWater())
+    {
+        if (peBestBuild)
+            *peBestBuild = NO_BUILD;
+        return 0;
+    }
+
+Current land Workers instead use the large custom
+`CvUnitAI::AI_bestCityBuild`, which explicitly understands ordinary no-bonus
+land terrain/features, including dedicated Flood Plains branches and the
+current XML-driven build picker.
+
+Several city/player consumers still ask the intentionally empty legacy cache.
+
+A) Advanced Start remains structurally disconnected
+----------------------------------------------------
+`CvPlayerAI::AI_advancedStartPlaceCity` calls:
+
+    pCity->AI_updateBestBuild();
+
+and then searches ordinary city plots solely through:
+
+    pCity->AI_getBestBuildValue(ePlot)
+    pCity->AI_getBestBuild(ePlot)
+
+before purchasing `ADVANCEDSTARTACTION_IMPROVEMENT`.
+
+Because the city evaluator returns 0 / NO_BUILD for ordinary land, the custom
+Worker policy that knows how to Farm/Mine/Cottage/etc. those plots is invisible
+to this land-improvement purchase loop.
+
+This is separate from F370's phantom-success bookkeeping: even after F370 is
+repaired, Advanced Start still lacks the land candidate source that ordinary
+Workers use.
+
+B) Worker-demand workaround still has a feature-land hole
+----------------------------------------------------------
+`CvCityAI::AI_updateWorkersHaveAndNeeded` contains a current SAS workaround:
+
+    bool const bSASWorkedLandDemand =
+        (!kPlot.isWater() && !kPlot.isFeature() &&
+         kPlot.getOwner() == getOwner());
+
+For a worked unimproved plot it counts Worker demand when either the legacy
+cache has a build or this featureless-land fallback is true.
+
+That deliberately excludes FEATURE land. Yet `AI_bestCityBuild` explicitly has
+valid custom no-bonus feature branches, including `FEATURE_FLOOD_PLAINS`, and
+ordinary Forest/Jungle removal/build-followup policy.
+
+Thus a currently worked improvable land plot can still be classified as
+`iWorkedUnimprovableCount` solely because it has a feature and the city-side
+cache is intentionally empty.
+
+For unworked land, the mismatch is broader: the future-work count still
+requires `AI_getBestBuild(ePlot) != NO_BUILD`, so ordinary custom land jobs are
+invisible to that cache-derived path.
+
+Existing classification:
+KI#213 — pending cross-file architecture root.
+Do not assign F375 for these rediscovered consequences.
+
+Repair boundary remains architectural:
+share the pure city/plot/build policy between city-side consumers and
+`AI_bestCityBuild`; keep unit-specific pathing, danger, reservations and
+mission execution in CvUnitAI.
+
+-------------------------------------------------------------------------------
+QUEUE-002 CURRENT DELTA INVENTORY
+-------------------------------------------------------------------------------
+
+The current file contains roughly 230 unique `CvUnitAI::` member definitions.
+A brace-aware current-SAS vs Base-AdvCiv comparison identifies the main
+behavioral/custom delta surface, headed by:
+
+* `AI_bestCityBuild` — ~1,076 current lines vs ~135 Base lines;
+* `AI_promotionValue` — large SAS hard-policy layer;
+* `AI_foundFirstCity` — extensive first-capital scouting/site rewrite;
+* `AI_attackCityMove`;
+* `AI_workerMove`;
+* `AI_nextCityToImprove`;
+* `AI_betterPlotBuild` / functionally disabled `AI_irrigateTerritory`;
+* Settler/founding helpers;
+* Great-Person / Great-General action helpers;
+* city guard / target-city;
+* naval assault/transport/exploration;
+* Worker improvement/transport/stranded helpers.
+
+The original Queue-002 pass covered these broadly. The deeper reloop will not
+simply repeat that prose. It will prioritize:
+1. current SAS-only state transitions and caller contracts;
+2. the large custom Worker/founding functions;
+3. current-data proofs for any suspicious candidate;
+4. inherited ancestry only where the root survives current SAS;
+5. a final function-range and bug-pattern reconciliation before closure.
+
+-------------------------------------------------------------------------------
+FIRST DEEP TRANCHE — AI_bestCityBuild (OPEN)
+-------------------------------------------------------------------------------
+
+The first ~1,076-line custom Worker selector is being reread as a pipeline:
+
+1. irrigation-chain candidate generation;
+2. per-BFC bonus-specific / no-bonus build selection;
+3. feature-removal overlay and optional follow-up;
+4. anti-oscillation / food / irrigation replacement guards;
+5. candidate sorting;
+6. pathability, enemy and one-worker reservation checks;
+7. output atomization.
+
+Controls already surviving:
+* output parameters are initialized and only committed after `bFound`;
+* `NO_BUILD` is rejected before BuildInfo indexing on the final candidate path;
+* the BuildTypes-indexed adjustment vector is sized to `GC.getNumBuildInfos()`;
+* the generic XML branch picker filters every candidate through `canBuild`;
+* the irrigation search uses the already-fixed KI#214 `(plot,steps)` state,
+  not the older one-cost-per-plot collapse;
+* F370-style "attempted action == successful state" does not occur inside the
+  selector itself; mission execution is in callers.
+
+No independent F375 has crossed the proof threshold in this opening slice.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F321-F374 confirmed from protected Queue 001.
+F375 / provisional KI#698 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Old F002/KI#331 Queue-002 caller set currently repaired.
+Latest physical checkpoint: C031-WIP66.
+No repository source files modified.
+
+NEXT
+----
+Continue the deep `AI_bestCityBuild` pipeline and its three live land-Worker
+callers (`AI_workerMove`, `AI_improveCity`, `AI_nextCityToImprove`), then widen
+to first-city founding and combat/transport deltas only after the Worker
+candidate/execution contracts are saturated.

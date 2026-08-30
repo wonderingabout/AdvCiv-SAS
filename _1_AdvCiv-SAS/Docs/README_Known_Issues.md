@@ -773,8 +773,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#682 - (Fixed inherited BtS event-value omission) UnitClassPromotions were ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-682)\
 [KI#683 - (Fixed inherited BtS event-value cap defect) TechPercent exceeded executable research](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-683)\
 [KI#684 - (Pending Architectural inherited BtS event-state defect) AdditionalEvents are valued before parent-state changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-684)\
-[KI#685 - (Provisional Pending inherited AdvCiv rounding-contract defect) Trade values can escape their bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-685)\
-[KI#686 - (Provisional Pending inherited AdvCiv precedence regression) Conquest-only games bypass stage-3 gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-686)\
+[KI#685 - (Fixed inherited AdvCiv rounding-contract defect) Trade values could escape their bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-685)\
+[KI#686 - (Fixed inherited AdvCiv precedence regression) Conquest-only games bypassed stage-3 gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-686)\
 [KI#687 - (Provisional Pending inherited BtS cooldown defect) A suppressed financial-trouble refresh is never retried](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
 [KI#688 - (Provisional Pending inherited BtS cache defect) Great-General upgrade discounts can inflate the AI gold reserve](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-688)\
 [KI#689 - (Provisional Pending AdvCiv unit-role regression) Advanced Start naval explorers receive the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
@@ -783,7 +783,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-692)\
 [KI#693 - (Provisional Pending inherited BtS Advanced Start state defect) Failed improvement purchases count as successful](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
 [KI#694 - (Provisional Pending inherited BtS Advanced Start control-flow defect) One unaffordable building can end the building phase](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-694)\
-[KI#695 - (Provisional Pending investigation) F372 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
+[KI#695 - (Provisional Pending AdvCiv Advanced Start regression) One unaffordable unit ends all later role passes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
+[KI#696 - (Provisional Pending SAS victory-state ordering regression) Culture cannot see the current Diplomacy stage](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-696)\
+[KI#697 - (Pending Architectural inherited and SAS-aggravated scope defect) Culture strategy is player-local for a team victory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-697)\
+[KI#698 - (Provisional Pending investigation) F375 remains unassigned during the CvUnitAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
 
 <a id="ki-1"></a>
 
@@ -14159,19 +14162,25 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP51 `CvPlayer
 
 <a id="ki-685"></a>
 
-## KI#685 - (Provisional Pending inherited AdvCiv rounding-contract defect) Trade values can escape their bounds
+## KI#685 - (Fixed inherited AdvCiv rounding-contract defect) Trade values could escape their bounds
 
-Album F362 finds `AI_roundTradeValBounds` falling back to a preferred rounded multiple without reapplying its requested lower and upper bounds when no such multiple exists inside the interval. A generous counterproposal whose lower bound is the original gold amount can consequently round downward below that original offer. Pending clamping the fallback or selecting a bound-consistent value after preferred-multiple search fails.
+Album F362 found `AI_roundTradeValBounds` mutating its caller's value to the lower rounded multiple before validating the preferred upper multiple. When neither multiple was inside the requested interval, a generous counterproposal whose lower bound was the original gold amount could consequently return below that lower bound.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP52 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix computes the lower and upper multiples without changing the caller's value, tries both in the requested preference order and leaves the original unchanged when neither candidate satisfies the bounds.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP52 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-686"></a>
 
-## KI#686 - (Provisional Pending inherited AdvCiv precedence regression) Conquest-only games bypass stage-3 gates
+## KI#686 - (Fixed inherited AdvCiv precedence regression) Conquest-only games bypassed stage-3 gates
 
-Album F363 finds AdvCiv's "do not spare friends when only military victory is possible" exception joined to the full Conquest-stage-3 condition without parentheses. A nonpositive weight for all other victories can therefore bypass knowledge, rank, geography, power and conquest-progress requirements instead of bypassing only the friendly-rival blocker. Pending grouping the exception solely with that final friendship condition while retaining all ordinary stage-3 readiness gates.
+Album F363 found AdvCiv's "do not spare friends when only military victory is possible" exception joined to the full Conquest-stage-3 condition without parentheses. A nonpositive weight for all other victories could therefore bypass knowledge, rank, geography, power and conquest-progress requirements instead of bypassing only the friendly-rival blocker.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP53 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix groups the Conquest-only exception solely with the friendship condition. Disabling every alternative victory can still permit fighting Friendly rivals as intended, but no longer erases the ordinary stage-3 readiness gates.
+
+Validation for the combined KI#685-KI#686 batch compiled successfully. A Small Pangaea autoplay with Conquest as its only attainable victory completed normally at turn 343 with a Conquest victory; KI#685's bounded-candidate behavior is additionally source-verified.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP53 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-687"></a>
 
@@ -14239,8 +14248,34 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP61 `CvPlayer
 
 <a id="ki-695"></a>
 
-## KI#695 - (Provisional Pending investigation) F372 remains unassigned during the CvPlayerAI deep re-audit
+## KI#695 - (Provisional Pending AdvCiv Advanced Start regression) One unaffordable unit ends all later role passes
 
-The continuous audit ledger reserves provisional KI#695 for F372. Through C031-WIP61, the queue-001 deep re-audit has confirmed F321-F371 and is continuing its final closure reconciliation. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F372 finds AdvCiv activating BtS's previously unread Advanced Start `bDone` flag as a termination condition for the entire unit-buying phase. If one selected City Defense unit is unaffordable, later Worker, Reserve and Counter passes are skipped even when they contain cheaper affordable units. Pending restoring the BtS/K-Mod pass-local behavior or otherwise continuing candidate search until no remaining role and city can be afforded.
 
-Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP62 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-696"></a>
+
+## KI#696 - (Provisional Pending SAS victory-state ordering regression) Culture cannot see the current Diplomacy stage
+
+Album F373 finds the SAS Culture competing-victory gate reading the partially rebuilt victory-stage hash before `AI_calculateDiplomacyVictoryStage` runs. Because the update first clears the hash and adds Diplomacy only after Culture, the Culture calculation always observes Diplomacy stage 0 during the normal current-turn rebuild and can divert resources into an unready Culture hedge despite an advanced Diplomatic pursuit. Pending calculating Diplomacy before Culture after confirming that dependency remains one-way.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP63 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-697"></a>
+
+## KI#697 - (Pending Architectural inherited and SAS-aggravated scope defect) Culture strategy is player-local for a team victory
+
+Album F374 finds the actual Cultural victory counting qualifying cities across every member of a team, while the inherited Culture strategy compares only the current player's cities against the full team requirement. A permanent team whose required candidates are distributed among members can therefore never recognize its collective Culture 3/4 position. SAS's player-local foundation, race and deadline gates preserve this mismatch and can force every teammate back to Culture 1 once the late-race deadline applies.
+
+A correct repair must aggregate team-level victory feasibility, candidate ranking and race state while retaining player-local contribution intensity so teammates without selected culture cities do not waste their commerce slider. Pending that broader separation rather than making every teammate enter the same Culture stage blindly.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP64 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-698"></a>
+
+## KI#698 - (Provisional Pending investigation) F375 remains unassigned during the CvUnitAI deep re-audit
+
+The C031-WIP65 closure froze Queue 001 `CvPlayerAI.cpp` with F321-F374 confirmed. C031-WIP66 opens the protected Queue 002 `CvUnitAI.cpp` deep re-audit with F375 reserved and reconfirms existing architectural KI#213 rather than duplicating it. Do not implement a change under KI#698 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP66 `CvUnitAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

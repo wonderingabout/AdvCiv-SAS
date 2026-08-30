@@ -26143,21 +26143,18 @@ void CvPlayerAI::AI_doCheckFinancialTrouble()
 	multiple first and then the nearest greater multiple. */
 void CvPlayerAI::AI_roundTradeValBounds(int& iTradeVal, bool bPreferRoundingUp, int iLower, int iUpper) const
 {
-	int iTmpVal = iTradeVal;
-	if (bPreferRoundingUp)
-	{
-		AI_roundTradeVal(iTradeVal);
-		if (iTradeVal != iTmpVal)
-			iTmpVal = iTradeVal + GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER);
-	}
-	else
-	{
-		AI_roundTradeValBounds(iTradeVal, true, iLower, iUpper);
-		if (iTradeVal != iTmpVal)
-			iTmpVal = iTradeVal - GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER);
-	}
-	if (iTmpVal >= iLower && iTmpVal <= iUpper)
-			iTradeVal = iTmpVal;
+	// <!-- custom: AdvCiv mutated iTradeVal to the lower multiple before validating the preferred upper multiple, so failure could return a value outside the documented bounds.
+	// Compute both candidates without touching the caller's value, try them in the requested order and retain the original when neither is valid. See KI#685. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iOriginal = iTradeVal;
+	int iRoundedDown = iOriginal;
+	AI_roundTradeVal(iRoundedDown);
+	int const iRoundedUp = (iRoundedDown == iOriginal ? iOriginal : iRoundedDown + GC.getDefineINT(CvGlobals::DIPLOMACY_VALUE_REMAINDER));
+	int const iPreferred = (bPreferRoundingUp ? iRoundedUp : iRoundedDown);
+	int const iFallback = (bPreferRoundingUp ? iRoundedDown : iRoundedUp);
+	if (iPreferred >= iLower && iPreferred <= iUpper)
+		iTradeVal = iPreferred;
+	else if (iFallback >= iLower && iFallback <= iUpper)
+		iTradeVal = iFallback;
 }
 
 // bool CvPlayerAI::AI_disbandUnit(int iExpThreshold, bool bObsolete)
@@ -27051,14 +27048,13 @@ int CvPlayerAI::AI_calculateConquestVictoryStage() const
 			4 * iKnownCivs >= 3 * iStartCivs && 3 * iConqueredCivs >= iKnownCivs)
 		{
 			// level 3
-			if (iKnownCivs >= iStartCivs && bTopRank &&
-				!bManyOffshoreRivals && // advc.115
-				(bVeryStrong ||
-				(bWarmonger && bHateful && 2 * iConqueredCivs >= iKnownCivs)) &&
-				/*  <advc.104c> The ==1 might be exploitable; by keeping some
-					insignificant civ in the game. Probably no problem. */
-				(iFriends == 0 || (iFriends == iRemaining && iFriends == 1)) ||
-				iOtherVictoryWeight <= 0) // </advc.104c>
+			// <!-- custom: AdvCiv appended its Conquest-only friendship exception outside this conjunction, allowing it to bypass every stage-3 readiness gate.
+			// Group it only with the friendship blocker it was designed to relax. See KI#686. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (iKnownCivs >= iStartCivs && bTopRank && !bManyOffshoreRivals && // advc.115
+				(bVeryStrong || (bWarmonger && bHateful && 2 * iConqueredCivs >= iKnownCivs)) &&
+				// <advc.104c> The ==1 might be exploitable; by keeping some insignificant civ in the game. Probably no problem.
+				((iFriends == 0 || (iFriends == iRemaining && iFriends == 1)) || iOtherVictoryWeight <= 0)
+				) // </advc.104c>
 			{
 				/*	finally, before confirming level 4, check that there is
 					at least one team that we can declare war on. */
