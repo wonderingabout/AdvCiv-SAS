@@ -750,10 +750,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#659 - (Fixed inherited AdvCiv balancing defect) Apply Rise and Fall leniency to non-surplus resources](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-659)\
 [KI#660 - (Fixed inherited AdvCiv balancing defect) Restore Rise and Fall leniency to early gold and GPT](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-660)\
 [KI#661 - (Provisional Pending inherited AdvCiv deal-state defect) Queued cancellations can force another healthy GPT cancellation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-661)\
-[KI#662 - (Provisional Pending inherited K-Mod valuation defect) Own interception can devalue outgoing nukes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-662)\
-[KI#663 - (Provisional Pending inherited AdvCiv unit-role regression) Special-cargo ships qualify for incompatible carrier roles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-663)\
-[KI#664 - (Provisional Pending inherited AdvCiv scope defect) Sea-explorer retirement mixes global and area counts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-664)\
-[KI#665 - (Provisional Pending inherited AdvCiv transform defect) Exploring Work Boats can convert for unreachable resources](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-665)\
+[KI#662 - (Fixed inherited K-Mod valuation defect) Own interception can devalue outgoing nukes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-662)\
+[KI#663 - (Fixed inherited AdvCiv unit-role regression) Special-cargo ships qualify for incompatible carrier roles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-663)\
+[KI#664 - (Fixed inherited AdvCiv scope defect) Sea-explorer retirement mixes global and area counts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-664)\
+[KI#665 - (Fixed inherited AdvCiv transform defect) Exploring Work Boats can convert for unreachable resources](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-665)\
 [KI#666 - (Provisional Pending inherited BtS count defect) Shared neutral resources are counted once per city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-666)\
 [KI#667 - (Provisional Pending inherited AdvCiv war-focus defect) The first pushover war is never recorded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-667)\
 [KI#668 - (Provisional Pending inherited BtS team-value defect) Area missionary value omits teammate cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-668)\
@@ -13920,35 +13920,45 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP26 `CvPlayer
 
 <a id="ki-662"></a>
 
-## KI#662 - (Provisional Pending inherited K-Mod valuation defect) Own interception can devalue outgoing nukes
+## KI#662 - (Fixed inherited K-Mod valuation defect) Own interception can devalue outgoing nukes
 
-Album F339 finds `AI_unitValue(UNITAI_ICBM)` including the owner's own nuclear-interception chance when estimating whether its outgoing nuclear weapons will be intercepted. Defensive interception can thus reduce the AI's valuation of building its own nukes. Pending excluding the owner and evaluating only relevant hostile interception.
+Album F339 found `AI_unitValue(UNITAI_ICBM)` including the owner's own nuclear-interception chance when estimating whether its outgoing nuclear weapons will be intercepted. Defensive interception could thus reduce the AI's valuation of building its own nukes.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP27 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix excludes the owner's team from the K-Mod `KNOWN_TO` iteration while preserving its intended foreign-team estimate. The owner's SDI can no longer devalue its own outgoing nuclear units.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP27 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-663"></a>
 
-## KI#663 - (Provisional Pending inherited AdvCiv unit-role regression) Special-cargo ships qualify for incompatible carrier roles
+## KI#663 - (Fixed inherited AdvCiv unit-role regression) Special-cargo ships qualify for incompatible carrier roles
 
-Album F340 finds AdvCiv's 2020 special-cargo repair looping over every UnitAI role instead of testing the requested role. A ship capable of carrying any special cargo can therefore qualify for incompatible missionary, spy, aircraft or missile carrier roles. Pending testing whether the unit's special cargo supports the requested `eUnitAI` role, as the pre-AdvCiv contract did.
+Album F340 found AdvCiv's 2020 special-cargo repair looping over every UnitAI role instead of testing the requested role. A ship capable of carrying any special cargo could therefore qualify for incompatible missionary, Spy, aircraft or missile carrier roles.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP28 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix restores the requested-`eUnitAI` test used by BtS/K-Mod. A special-cargo ship now qualifies only for the matching carrier role rather than every special-carrier sea role.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP28 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-664"></a>
 
-## KI#664 - (Provisional Pending inherited AdvCiv scope defect) Sea-explorer retirement mixes global and area counts
+## KI#664 - (Fixed inherited AdvCiv scope defect) Sea-explorer retirement mixes global and area counts
 
-Album F341 finds `AI_isExcessSeaExplorers` subtracting the player-global count of sea explorers in training from a water-area-local explorer count. Builds for unrelated oceans can consequently prevent an excess explorer from retiring in the current ocean. Pending subtracting only explorers being trained for the same water area.
+Album F341 found `AI_isExcessSeaExplorers` subtracting the player-global count of sea explorers in training from a water-area-local explorer count. Builds for unrelated oceans could consequently prevent an excess explorer from retiring in the current ocean.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP29 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix sums queued sea explorers only in the player's cities attached to the requested water area and subtracts that local count from `AI_totalWaterAreaUnitAIs`, which already includes those same orders. Disconnected oceans no longer interfere with one another's explorer-retirement decision.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP29 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-665"></a>
 
-## KI#665 - (Provisional Pending inherited AdvCiv transform defect) Exploring Work Boats can convert for unreachable resources
+## KI#665 - (Fixed inherited AdvCiv transform defect) Exploring Work Boats can convert for unreachable resources
 
-Album F342 finds `AI_exploreSeaMove` using a positive-look-ahead unimproved-resource query before converting an excess or outdated explorer into `UNITAI_WORKER_SEA`. Because that query deliberately tests visible future builds, an imminent-border but currently unreachable resource can trigger the conversion. Pending requiring a currently actionable sea-worker target for the final role change.
+Album F342 found `AI_exploreSeaMove` using a positive-look-ahead unimproved-resource query before converting an excess or outdated explorer into `UNITAI_WORKER_SEA`. Because that query deliberately tests visible future builds, an imminent-border but currently unreachable resource could trigger the conversion.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP30 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix changes the final role-transition check to zero look-ahead, matching the repaired Work Boat production contract. An exploring Work Boat now converts only for a sea-worker target that is owned, reachable and executable with current technology.
+
+Validation for KI#662-KI#665 compiled successfully and completed a Huge Archipelago/Tiny Islands autoplay through turn 397, ending in a Space Race victory with all 16 players alive and 166 cities. Visual review found nearly all islands populated, providing broad disconnected-water-area, naval-production and coastal-expansion coverage; the exact rare valuation and role-transition branches remain source-verified.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP30 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-666"></a>
 

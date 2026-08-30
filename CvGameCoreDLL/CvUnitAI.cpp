@@ -11300,11 +11300,13 @@ void CvUnitAI::AI_exploreSeaMove()
 					kOwner.AI_unitValue(getUnitType(), transformTypes[i], pWaterArea) > 0)
 				{
 					// Before transforming a Work Boat, check if there is sth. to improve.
+					// <!-- custom: Positive look-ahead accepts visible future builds whose prerequisite tech is still missing.
+					// An immediate worker-sea role change needs an owned, reachable and executable target now, matching the repaired city-production contract. See KI#665. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 					if(transformTypes[i] == UNITAI_WORKER_SEA &&
 						/*  Costly (checks all tiles on the map), but this is the
 							last check before changing the AI type. And exploring
 							Work Boats are an early-game thing. */
-						kOwner.AI_countUnimprovedBonuses(*pWaterArea, plot(), 5) <= 0)
+						kOwner.AI_countUnimprovedBonuses(*pWaterArea, plot(), 0) <= 0)
 					{
 						continue;
 					}

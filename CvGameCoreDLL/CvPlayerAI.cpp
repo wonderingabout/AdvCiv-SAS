@@ -14863,15 +14863,10 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
 		case UNITAI_MISSILE_CARRIER_SEA:
 			if (u.getCargoSpace() > 0 && u.getSpecialCargo() != NO_SPECIALUNIT)
 			{
-				FOR_EACH_ENUM(UnitAI)
-				{
-					// advc.001: was ...isCarrierUnitAIType(eUnitAI)
-					if (GC.getInfo(u.getSpecialCargo()).isCarrierUnitAIType(eLoopUnitAI))
-					{
-						bValid = true;
-						break;
-					}
-				}
+				// <!-- custom: AdvCiv's special-cargo repair tested every UnitAI and accepted a ship for all four carrier roles if its cargo supported any one of them.
+				// Restore the requested-role test so missionary, Spy, aircraft and missile carriers remain distinct. See KI#663. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (GC.getInfo(u.getSpecialCargo()).isCarrierUnitAIType(eUnitAI))
+					bValid = true;
 			}
 			break;
 
@@ -15370,9 +15365,13 @@ int CvPlayerAI::AI_unitValue(UnitTypes eUnit, UnitAITypes eUnitAI, CvArea const*
 						pArea->getAreaAIType(getTeam()) != AREAAI_NEUTRAL);
 				int iInterceptTally = 0;
 				int iPowerTally = 0;
+				// <!-- custom: K-Mod's KNOWN_TO iterator includes the owner, but its own SDI cannot intercept its outgoing nuclear strike.
+				// Exclude only the owner while preserving the intended estimate from known foreign teams. See KI#662. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 				for (TeamIter<CIV_ALIVE,KNOWN_TO> itTeam(getTeam());
 					itTeam.hasNext(); ++itTeam)
 				{
+					if (itTeam->getID() == getTeam())
+						continue;
 					if (!bWar ||
 						GET_TEAM(getTeam()).AI_getWarPlan(itTeam->getID()) != NO_WARPLAN)
 					{
@@ -15831,8 +15830,15 @@ int CvPlayerAI::AI_neededExplorers_bulk(CvArea const& kArea) const
 	(and to avoid inconsistencies between CvUnitAI and CvCityAI) */
 bool CvPlayerAI::AI_isExcessSeaExplorers(CvArea const& kWaterArea, int iChange) const
 {
-	int iHave = AI_totalWaterAreaUnitAIs(kWaterArea, UNITAI_EXPLORE_SEA) -
-			AI_getNumTrainAIUnits(UNITAI_EXPLORE_SEA);
+	// <!-- custom: AdvCiv subtracted the player-global sea-explorer training count from a water-area-local total, so builds for disconnected oceans could suppress retirement here.
+	// Count only orders from cities attached to this water area; AI_totalWaterAreaUnitAIs already includes those orders. See KI#664. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int iWaterAreaExplorersTraining = 0;
+	FOR_EACH_CITYAI(pLoopCity, *this)
+	{
+		if (pLoopCity->waterArea() == &kWaterArea)
+			iWaterAreaExplorersTraining += pLoopCity->getNumTrainUnitAI(UNITAI_EXPLORE_SEA);
+	}
+	int iHave = AI_totalWaterAreaUnitAIs(kWaterArea, UNITAI_EXPLORE_SEA) - iWaterAreaExplorersTraining;
 	return (AI_neededExplorers(kWaterArea) < iHave + iChange);
 }
 
