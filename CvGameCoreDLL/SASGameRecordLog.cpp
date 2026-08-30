@@ -27,6 +27,8 @@
 #include "CvArea.h" // <!-- custom: Needed for area-wide city happiness/health detail rows. (ChatGPT-5.5) -->
 #include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
+#include "CvGameAI.h" // <!-- custom: Complete CvGameAI is needed for getUWAI(). (ChatGPT-5.6-Sol) -->
+#include "CvPythonCaller.h" // <!-- custom: Resolve map-option defaults and descriptions. (ChatGPT-5.6-Sol) -->
 #include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-record benchmark rows. (GPT-5.5) -->
 #include "CvGameCoreUtils.h" // <!-- custom: Needed for the shared DLL-process UTC identity used by BBAI and SASGameRecord. See KI#629. (GPT-5.6-Sol) -->
 #include <time.h>
@@ -153,6 +155,10 @@ static CvString g_szSASGameRecordLogContext;
 static uint g_uiSASGameRecordSessionStartTime = 0;
 static uint g_uiSASGameRecordPreviousSnapshotTime = 0;
 static bool g_bSASGameRecordDisplayContextLogged = false;
+// <!-- custom: New-game setup can emit many real ACTION rows before the EXE reports gameStart.
+// Buffer only those actions so stable game/mod/map context stays at the top, then flush them in original order once initialization is complete. (ChatGPT-5.6-Sol) -->
+static bool g_bSASGameRecordBufferInitializingActions = false;
+static std::vector<std::pair<CvString, std::string> > g_aszSASGameRecordInitializingActions;
 static void flushSASGameRecordPendingCityBombard();
 static bool g_bSASGameRecordFlushingCityBombard = false;
 
@@ -307,7 +313,25 @@ static void logSASGameRecordFormattedLine(CvString const& szLogName, TCHAR* form
 	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
 	if (!bFormatted)
 		return;
+	if (g_bSASGameRecordBufferInitializingActions && szLine.find("GAME_RECORD_ACTION ") == 0)
+	{
+		g_aszSASGameRecordInitializingActions.push_back(std::make_pair(szLogName, szLine));
+		return;
+	}
 	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
+}
+
+static void flushSASGameRecordInitializingActions(bool bContextComplete)
+{
+	if (g_aszSASGameRecordInitializingActions.empty())
+		return;
+	logSASGameRecord("GAME_RECORD_INITIALIZATION_ACTIONS count=%d contextComplete=%d", (int)g_aszSASGameRecordInitializingActions.size(), bContextComplete);
+	for (size_t iI = 0; iI < g_aszSASGameRecordInitializingActions.size(); iI++)
+	{
+		std::pair<CvString, std::string> const& kBuffered = g_aszSASGameRecordInitializingActions[iI];
+		gDLL->logMsg(kBuffered.first.GetCString(), kBuffered.second.c_str(), false, false);
+	}
+	g_aszSASGameRecordInitializingActions.clear();
 }
 
 void logSASGameRecord(TCHAR* format, ... )
@@ -410,6 +434,57 @@ static void logSASGameRecordDisplayContext()
 	g_bSASGameRecordDisplayContextLogged = true;
 }
 
+// <!-- custom: Record every stored map-script option, including hidden values and current script defaults.
+// Keep numeric values durable; readable descriptions can remain unresolved when the script is unavailable. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
+{
+	const int iNumOptions = kInitCore.getNumCustomMapOptions();
+	const int iNumHiddenOptions = std::min(iNumOptions, std::max(0, kInitCore.getNumHiddenCustomMapOptions()));
+	CvString const szMapScriptName(kInitCore.getMapScriptName());
+	const bool bMapScriptAvailable = (!kInitCore.getWBMapScript() && gDLL->pythonMapExists(szMapScriptName.GetCString()));
+	logSASGameRecord("GAME_RECORD_MAP_OPTIONS count=%d hidden=%d scriptAvailable=%d", iNumOptions, iNumHiddenOptions, bMapScriptAvailable);
+	if (iNumOptions <= 0)
+		return;
+	CvPythonCaller const& kPython = *GC.getPythonCaller();
+	for (int iOption = 0; iOption < iNumOptions; iOption++)
+	{
+		CustomMapOptionTypes const eValue = kInitCore.getCustomMapOption(iOption);
+		CustomMapOptionTypes eDefault = NO_CUSTOM_MAPOPTION;
+		CvWString szDescription;
+		CvWString szDefaultDescription;
+		if (bMapScriptAvailable)
+		{
+			eDefault = kPython.customMapOptionDefault(szMapScriptName.GetCString(), iOption);
+			szDescription = kPython.customMapOptionDescription(szMapScriptName.GetCString(), iOption, eValue);
+			if (eDefault >= 0)
+				szDefaultDescription = kPython.customMapOptionDescription(szMapScriptName.GetCString(), iOption, eDefault);
+		}
+		CvWString const szQuotedDescription = (szDescription.empty() ? CvWString(L"-") : getSASGameRecordQuoted(szDescription.GetCString()));
+		CvWString const szQuotedDefaultDescription = (szDefaultDescription.empty() ? CvWString(L"-") : getSASGameRecordQuoted(szDefaultDescription.GetCString()));
+		const bool bHidden = (iOption >= iNumOptions - iNumHiddenOptions);
+		const int iIsScriptDefault = (eDefault < 0 ? -1 : (eValue == eDefault ? 1 : 0));
+		logSASGameRecord("GAME_RECORD_MAP_OPTION index=%d hidden=%d value=%d scriptDefault=%d isScriptDefault=%d description=%S scriptDefaultDescription=%S",
+				iOption, bHidden, eValue, eDefault, iIsScriptDefault, szQuotedDescription.GetCString(), szQuotedDefaultDescription.GetCString());
+	}
+}
+
+// <!-- custom: GAMEOPTION_AGGRESSIVE_AI is repurposed while AdvCiv selects UWAI versus legacy K-Mod logic.
+// Record the resolved mode plus only the three defines that can change that interpretation. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordWarAISettings(CvGame const& kGame)
+{
+	const bool bUWAI = getUWAI().isEnabled();
+	const bool bUWAIBackground = getUWAI().isEnabled(true);
+	const char* szUWAIMode = (bUWAI ? "FULL" : (bUWAIBackground ? "BACKGROUND" : "DISABLED"));
+
+	// <!-- custom: These are cold setup/load reads; caching would add static state for negligible benefit. (ChatGPT-5.6-Sol)
+	const int iUseKModAINonAggressive = GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE");
+	const int iDisableUWAI = GC.getDefineINT("DISABLE_UWAI");
+	const int iUWAIInBackground = GC.getDefineINT("UWAI_IN_BACKGROUND");
+	logSASGameRecord("GAME_RECORD_WAR_AI_SETTINGS warPeaceAI=%s uwaiMode=%s engineAggressiveAI=%d USE_KMOD_AI_NONAGGRESSIVE=%d DISABLE_UWAI=%d UWAI_IN_BACKGROUND=%d",
+			bUWAI ? "UWAI" : "KMOD_LEGACY", szUWAIMode, kGame.isOption(GAMEOPTION_AGGRESSIVE_AI),
+			iUseKModAINonAggressive, iDisableUWAI, iUWAIInBackground);
+}
+
 // <!-- custom: Use "row" wording for generic SASGameRecord row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
 static void logSASGameRecordGameState(const char* szRowType)
 {
@@ -468,10 +543,24 @@ static void logSASGameRecordGameState(const char* szRowType)
 			getSASGameType(kInitCore.getType()), getSASGameMode(kInitCore.getMode()), kInitCore.getNewGame(), kInitCore.getSavedGame(), kGame.isScenario(), kInitCore.getGameMultiplayer(), kGame.isNetworkMultiPlayer(), kGame.isHotSeat(), kGame.isPbem(), kGame.isPitboss(), kGame.isSimultaneousTeamTurns(), szMPOptions.GetCString());
 	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
 	// <!-- custom: Calendar, starting turn and starting year complete the time scale for scenarios and nonstandard calendars; ReplayInfo preserves the same context. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s calendar=%s startTurn=%d startYear=%d gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
+	// <!-- custom: Record configured Advanced Start points separately from the boolean option, plus the current XML default for comparison.
+	// Use -1 when ordinary Advanced Start is inactive or SPaH repurposes the setup value. (ChatGPT-5.6-Sol) -->
+	const bool bAdvancedStart = kGame.isOption(GAMEOPTION_ADVANCED_START);
+	const bool bStartPointsAsHandicap = kGame.isOption(GAMEOPTION_SPAH);
+	const int iAdvancedStartConfiguredPoints = (bAdvancedStart && !bStartPointsAsHandicap ? kGame.getNumAdvancedStartPoints() : -1);
+	int iAdvancedStartXmlDefaultPoints = -1;
+	if (bAdvancedStart && !bStartPointsAsHandicap && kGame.getStartEra() != NO_ERA && kInitCore.getWorldSize() != NO_WORLDSIZE)
+	{
+		iAdvancedStartXmlDefaultPoints = GC.getInfo(kGame.getStartEra()).getAdvancedStartPoints();
+		iAdvancedStartXmlDefaultPoints *= GC.getInfo(kInitCore.getWorldSize()).getAdvancedStartPointsMod();
+		iAdvancedStartXmlDefaultPoints /= 100;
+	}
+	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s calendar=%s startTurn=%d startYear=%d gameHandicap=%s maxTurns=%d targetScore=%d advancedStartConfiguredPoints=%d advancedStartXmlDefaultPoints=%d victories=%s options=%s",
 			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(),
 			GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(),
-			getSASCalendarType(kGame.getCalendar()), kGame.getStartTurn(), kGame.getStartYear(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
+			getSASCalendarType(kGame.getCalendar()), kGame.getStartTurn(), kGame.getStartYear(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), iAdvancedStartConfiguredPoints, iAdvancedStartXmlDefaultPoints, szVictories.GetCString(), szGameOptions.GetCString());
+	logSASGameRecordMapOptions(kInitCore);
+	logSASGameRecordWarAISettings(kGame);
 	// <!-- custom: Display settings can affect measured autoplay wall time. Record the compact Civ4 context once, after graphics initialization, rather than copying unrelated CivilizationIV.ini settings. (GPT-5.6-Sol) -->
 	logSASGameRecordDisplayContext();
 	// <!-- custom: A Civ4 custom DLL is a Win32 binary even when Wine or Proton runs it on another host OS.
@@ -515,12 +604,17 @@ void startSASGameRecordLogForNewGame()
 	resetSASGameRecordState();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(getSASGameRecordLogName().GetCString()).GetCString());
 	logSASGameRecordLogSettings();
+	// <!-- custom: Settings below are not final until map/player initialization finishes.
+	// Keep setup-generated actions, but place them after that authoritative context instead of before it. (ChatGPT-5.6-Sol) -->
+	g_bSASGameRecordBufferInitializingActions = true;
 }
 
 void logSASGameRecordNewGameStarted()
 {
 	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
 	logSASGameRecordInitialContext();
+	g_bSASGameRecordBufferInitializingActions = false;
+	flushSASGameRecordInitializingActions(true);
 }
 
 void startSASGameRecordLogForLoadedSave()
@@ -1342,6 +1436,12 @@ void flushSASGameRecordTurnChanges(int iGameTurn)
 // Flush while the old game/map still supply the matching turn and revelation totals, before CvGame::init or CvMap::read resets the corresponding state. See KI#382. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void finalizeSASGameRecordLogSession()
 {
+	// <!-- custom: If initialization aborts before gameStart, keep its setup actions even though authoritative context could not be completed. (ChatGPT-5.6-Sol) -->
+	if (g_bSASGameRecordBufferInitializingActions)
+	{
+		g_bSASGameRecordBufferInitializingActions = false;
+		flushSASGameRecordInitializingActions(false);
+	}
 	if (g_iSASGameRecordPendingPlotTurn >= 0)
 		flushSASGameRecordTurnChanges(g_iSASGameRecordPendingPlotTurn);
 	else flushSASGameRecordPendingCityBombard();

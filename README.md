@@ -941,7 +941,7 @@ Free-text values such as city, player, leader, civ, map-script, and log-file nam
 
 The record includes the active mod folder itself. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM needs for analysis.
 
-See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log) and [ChatGPT SASGameRecord review example](/_1_AdvCiv-SAS/SASGameRecord_log/chatgpt_sasgamerecord_review.md) for an example of an external LLM using the `SASGameRecord` log to review an autoplay run.
+See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log). It can be given to an external to the repo LLM (e.g. ChatGPT instead of Codex) to get an as of now token-cheap or free review of the `SASGameRecord` example sample.
 
 For example, `SASGameRecord_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
 
@@ -958,9 +958,6 @@ GAME_RECORD_ACTION turn=198 type=PLAYER_ELIMINATED player=9 team=9 civ=CIVILIZAT
 ```
 
 <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG" alt="SASGameRecord_example.PNG" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (1).PNG" alt="chatgpt_5_6_sol_sas_game_record (1)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (2).PNG" alt="chatgpt_5_6_sol_sas_game_record (2)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/LLM/chatgpt_5_6_sol_sas_game_record (3).PNG" alt="chatgpt_5_6_sol_sas_game_record (3)" width="250"></img>
 
 Maps are recorded as text art which should help LLM visualization and reasoning/review as well as provide a record viewable even outside Civ4.
 
