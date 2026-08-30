@@ -21184,6 +21184,11 @@ void CvPlayerAI::AI_doCounter()
 		AI_setPeacetimeTradeValue(ePlayer,
 				(AI_getPeacetimeTradeValue(ePlayer) * rDecayFactor).floor());
 		// </advc.130p>
+		// <!-- custom: AdvCiv's cash-trade-memory decay was nested inside the unrelated Bonus Trade counter's increase branch, so it stopped whenever resource-import value was too low or the personality disabled that attitude mechanism.
+		// Decay cash memory independently once per known rival before the Bonus Trade early exit. See KI#673. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iOldGoldTraded = AI_getGoldTradedTo(ePlayer);
+		int const iNewGoldTraded = (rDecayFactor * iOldGoldTraded).floor();
+		AI_changeGoldTradedTo(ePlayer, iNewGoldTraded - iOldGoldTraded);
 		// <advc.149>
 		int iAttitudeDiv = kPersonality.getBonusTradeAttitudeDivisor();
 		if(iAttitudeDiv <= 0)
@@ -21231,12 +21236,6 @@ void CvPlayerAI::AI_doCounter()
 			int const iMax = (fixp(1.25) * iAttitudeDiv * kPersonality.getBonusTradeAttitudeChangeLimit()).round();
 			int const iRemaining = std::max(0, iMax - AI_getBonusTradeCounter(ePlayer));
 			AI_changeBonusTradeCounter(ePlayer, kOurTeam.AI_randomCounterChange(iRemaining, rIncr / 2)); // Halved b/c it's a binomial distrib w/ 2 trials
-			// <advc.036>
-			{
-				int iOldGoldTraded = AI_getGoldTradedTo(ePlayer);
-				int iNewGoldTraded = (rDecayFactor * iOldGoldTraded).floor();
-				AI_changeGoldTradedTo(ePlayer, iNewGoldTraded - iOldGoldTraded);
-			} // </advc.036>
 		} // </advc.149> </advc.130k>
 	}
 
@@ -23911,9 +23910,13 @@ void CvPlayerAI::AI_proposeWarTrade(PlayerTypes eHireling)
 				weGive.insertAtEnd(TradeData(TRADE_CITIES, pBestCity->getID()));
 				CLinkList<TradeData> hirelingGives;
 				hirelingGives.insertAtEnd(TradeData(TRADE_WAR, eBestTarget));
-				AI_counterPropose(eHireling, hirelingGives, weGive, true, true);
-				kGame.implementDeal(getID(), eHireling, weGive, hirelingGives);
-				return;
+				// <!-- custom: AdvCiv implemented the original city-for-war lists even when AI_counterPropose rejected the package as unbalanced.
+				// Implement and stop only after successful balancing; otherwise continue to the ordinary tech/gold proposal path. See KI#674. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				if (AI_counterPropose(eHireling, hirelingGives, weGive, true, true))
+				{
+					kGame.implementDeal(getID(), eHireling, weGive, hirelingGives);
+					return;
+				}
 			}
 		}
 	} // </advc.ctr>

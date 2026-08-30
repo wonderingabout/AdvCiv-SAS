@@ -761,8 +761,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#670 - (Fixed inherited K-Mod overflow defect) A failed bounded path can count distant joiners as nearby](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-670)\
 [KI#671 - (Provisional Pending inherited espionage-value defect) Unitless affordability suppresses stationary-Spy missions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-671)\
 [KI#672 - (Provisional Pending inherited K-Mod accumulator defect) Tech-theft counts leak across rivals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-672)\
-[KI#673 - (Provisional Pending inherited AdvCiv decay defect) Gold-trade memory can become permanent](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-673)\
-[KI#674 - (Provisional Pending AdvCiv control-flow defect) A rejected city-for-war fallback can execute](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-674)\
+[KI#673 - (Fixed inherited AdvCiv decay defect) Gold-trade memory could become permanent](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-673)\
+[KI#674 - (Fixed inherited AdvCiv control-flow defect) A rejected city-for-war fallback could execute](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-674)\
 [KI#675 - (Provisional Pending AdvCiv selection defect) City-request liberation priority depends on iteration order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-675)\
 [KI#676 - (Provisional Pending inherited BtS event-value defect) BonusRevealed reads BonusType](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-676)\
 [KI#677 - (Provisional Pending inherited BtS event-value omission) Non-city building yield and commerce are ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-677)\
@@ -14035,19 +14035,25 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP39 `CvPlayer
 
 <a id="ki-673"></a>
 
-## KI#673 - (Provisional Pending inherited AdvCiv decay defect) Gold-trade memory can become permanent
+## KI#673 - (Fixed inherited AdvCiv decay defect) Gold-trade memory could become permanent
 
-Album F350 finds `AI_doCounter` decaying cash-trade memory only while a qualifying resource import is actively increasing Bonus-Trade attitude. Ordinary gold-trade memory can therefore remain indefinitely despite AdvCiv's explicit decay contract. Pending unconditional per-rival cash-memory decay independent of the resource-attitude branch.
+Album F350 found `AI_doCounter` decaying cash-trade memory only while a qualifying resource import was actively increasing Bonus-Trade attitude. Ordinary gold-trade memory could therefore remain indefinitely despite AdvCiv's explicit decay contract.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP40 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix performs AdvCiv's intended exponential cash-memory decay once per known rival, independently of resource-import value and before the Bonus-Trade personality early exit. Resource appreciation and old lump-sum cash memory no longer control each other's decay.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP40 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-674"></a>
 
-## KI#674 - (Provisional Pending AdvCiv control-flow defect) A rejected city-for-war fallback can execute
+## KI#674 - (Fixed inherited AdvCiv control-flow defect) A rejected city-for-war fallback could execute
 
-Album F351 finds AdvCiv's city-for-war fallback ignoring a failed `AI_counterPropose` result and unconditionally implementing the original offer. A separately legal but AI-rejected or unbalanced city-for-war trade can consequently execute. Pending implementing only a successful balanced counterproposal and preserving failure otherwise.
+Album F351 found AdvCiv's city-for-war fallback ignoring a failed `AI_counterPropose` result and unconditionally implementing the original offer. A separately legal but AI-rejected or unbalanced city-for-war trade could consequently execute.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP41 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix implements the city-for-war package and returns only when `AI_counterPropose` successfully balances it. A rejected package now falls through to the ordinary tech/gold proposal path instead of bypassing the AI-AI fairness decision.
+
+Validation compiled successfully and completed a Huge Global Highlands autoplay with 16 independent teams through turn 370, ending in a Space Race victory with 13 teams and 88 cities remaining. The repaired state-decay and rare city-for-war rejection branches are additionally source-verified.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP41 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-675"></a>
 
