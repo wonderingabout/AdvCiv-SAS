@@ -10465,7 +10465,23 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> cons
 			getID(), iTheyReceive, kWeGive) : -1); // </advc.705>
 	int iWeReceive = AI_dealVal(ePlayer, kTheyGive, false, iChange,
 			false, false, bCountLiberation); // advc.ctr
-	int iThreshold = -1; // advc.155: Declaration moved up
+	bool const bVassal = kOurTeam.isVassal(kPlayer.getTeam()); // advc.130o
+	// <!-- custom: AdvCiv moved iThreshold into the wider scope for its same-team cancellation exemption, but calculated it only inside the one-sided branch that always returns.
+	// Precompute the same bounded-help policy for teammates so bilateral cancellation does not compare against the -1 sentinel. See KI#657. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int iThreshold = (kOurTeam.AI_getHasMetCounter(kPlayer.getTeam()) + 50) * 2; // advc.155: Declaration moved up
+	if (bSameTeam)
+		iThreshold *= 5;
+	else if (!bVassal) // advc.130v
+	{	// BETTER_BTS_AI_MOD (06/12/10, jdog5000, Diplomacy AI): START
+		if (GET_TEAM(ePlayer).AI_isLandTarget(getTeam()))
+			iThreshold *= 3; // BETTER_BTS_AI_MOD: END
+		iThreshold *= (GET_TEAM(ePlayer).getPower(false) + 100);
+		iThreshold /= (kOurTeam.getPower(false) + 100);
+	}
+	// <advc.144>
+	int const iRandExtra = ((scaled::hash(kGame.getGameTurn(), getID()) - fixp(0.5)) * iThreshold * (bVassal ? fixp(0.1) : fixp(0.2))).round();
+	iThreshold += iRandExtra; // </advc.144>
+	iThreshold -= kPlayer.AI_getPeacetimeGrantValue(getID());
 	if (iTheyReceive > 0 && kTheyGive.getLength() == 0 && iWeReceive == 0)
 	{	// <advc.130v> Vassal mustn't force a peace treaty on its master
 		if(kOurTeam.isAVassal() && !kOurTeam.isVassal(TEAMID(ePlayer)))
@@ -10501,8 +10517,7 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> cons
 		} // </advc.133>
 		// <advc.130o>
 		bool bDemand = false;
-		bool bAccept = true;
-		bool bVassal = kOurTeam.isVassal(kPlayer.getTeam()); // </advc.130o>
+		bool bAccept = true; // </advc.130o>
 		if(bVassal && CvDeal::isVassalTributeDeal(&kWeGive))
 		{
 			if (AI_getAttitude(ePlayer, false) <= GC.getInfo(getPersonalityType()).
@@ -10553,22 +10568,6 @@ bool CvPlayerAI::AI_considerOffer(PlayerTypes ePlayer, CLinkList<TradeData> cons
 		// advc.130o: Do this only if UWAI hasn't already handled the offer
 		if (!bDemand || (!getUWAI().isEnabled() && bAccept))
 		{
-			iThreshold = kOurTeam.AI_getHasMetCounter(kPlayer.getTeam()) + 50;
-			iThreshold *= 2;
-			// <advc.155>
-			if (bSameTeam)
-				iThreshold *= 5; // </advc.155>
-			else if (!bVassal) // advc.130v
-			{	// BETTER_BTS_AI_MOD (06/12/10, jdog5000, Diplomacy AI): START
-				if (GET_TEAM(ePlayer).AI_isLandTarget(getTeam()))
-					iThreshold *= 3; // BETTER_BTS_AI_MOD: END
-				iThreshold *= (GET_TEAM(ePlayer).getPower(false) + 100);
-				iThreshold /= (kOurTeam.getPower(false) + 100);
-			} // <advc.144>
-			int iRandExtra = ((scaled::hash(kGame.getGameTurn(), getID()) - fixp(0.5)) *
-					iThreshold * (bVassal ? fixp(0.1) : fixp(0.2))).round();
-			iThreshold += iRandExtra; // </advc.144>
-			iThreshold -= kPlayer.AI_getPeacetimeGrantValue(getID());
 			bAccept = (iTheyReceive < iThreshold); // advc.130o: Don't return yet
 			// <advc.144>
 			if (bAccept && !bDemand && /* advc.130v: */ !bVassal && getUWAI().isEnabled())
@@ -11976,6 +11975,10 @@ void CvPlayerAI::AI_foldDeals(CvDeal& d1, CvDeal& d2) const
 	// Important to grab the player ids before deleting the deal objects
 	PlayerTypes const eFirstPlayer = d1.getFirstPlayer();
 	PlayerTypes const eSecondPlayer = d1.getSecondPlayer();
+	// <!-- custom: Both constituent deals are already cancelable.
+	// Preserve the younger initial turn so folding them for Foreign Advisor readability does not restart the mandatory no-cancel term or pretend the combined agreement is older than either input. See KI#655. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int const iFoldedInitialGameTurn = std::max(d1.getInitialGameTurn(),
+			d2.getInitialGameTurn());
 	d1.killSilent(false, false);
 	d2.killSilent(false, false);
 	// Got enough info for the new deal
@@ -11987,13 +11990,9 @@ void CvPlayerAI::AI_foldDeals(CvDeal& d1, CvDeal& d2) const
 		give1.insertAtEnd(TradeData(TRADE_GOLD_PER_TURN, iDelta));
 	else if (iDelta < 0)
 		give2.insertAtEnd(TradeData(TRADE_GOLD_PER_TURN, -iDelta));
-	// Call counterPropose?
-	//CvDeal* pNewDeal =...
-	GC.getGame().implementAndReturnDeal(eFirstPlayer, eSecondPlayer,
-			give1, give2, true);
-	// Allow new deal to be canceled right away?
-	/*if(pNewDeal != NULL)
-		pNewDeal->setInitialGameTurn(GC.getGame().getGameTurn() - GC.getPEACE_TREATY_LENGTH());*/
+	CvDeal* const pNewDeal = GC.getGame().implementAndReturnDeal(eFirstPlayer, eSecondPlayer, give1, give2, true);
+	if (pNewDeal != NULL)
+		pNewDeal->setInitialGameTurn(iFoldedInitialGameTurn);
 } // </advc.036>
 
 
@@ -13373,6 +13372,11 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 	CvCity const* pCapital = getCapital();
 	FOR_EACH_ENUM2(Unit, eUnit)
 	{
+		// <advc.001> Fuyu, Better AI: Strategic For Current Era, 22.07.2010
+		// <!-- custom: AdvCiv's Better-AI filter previously ran after the unit had already set bStrategic, making the intended obsolete-unit filter ineffective.
+		// Filter before inspecting resource requirements so only currently relevant military uses affect refusal. See KI#656. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (pCapital != NULL && pCapital->allUpgradesAvailable(eUnit) != NO_UNIT)
+			continue; // </advc.001>
 		if (GC.getInfo(eUnit).getPrereqAndBonus() == eBonus)
 		{
 			bStrategic = true;
@@ -13390,10 +13394,6 @@ DenialTypes CvPlayerAI::AI_bonusTrade(BonusTypes eBonus, PlayerTypes eToPlayer, 
 				bCrucialStrategic = true;
 			}
 		}
-		// <advc.001> Fuyu, Better AI: Strategic For Current Era, 22.07.2010
-		// disregard obsolete units
-		if (pCapital != NULL && pCapital->allUpgradesAvailable(eUnit) != NO_UNIT)
-			continue; // </advc.001>
 	}
 	if(!isHuman() && // advc.036: No longer guaranteed (b/c of the tradeValThresh clause)
 		!bVassal) // advc.037

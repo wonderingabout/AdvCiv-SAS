@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 30 / 169
 Files open: 1 / 169
 Last completed file: investigation file 030 / queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp (2,810 queued lines) - CLOSED AT C031 DURABLE
-Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP47
-Latest confirmed roots: F321-F357 / provisional KI#644-KI#680 from the queue-001 re-audit
-Next root ID: F358 unused / provisional KI#681 next
+Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP53
+Latest confirmed roots: F321-F363 / provisional KI#644-KI#686 from the queue-001 re-audit
+Next root ID: F364 unused / provisional KI#687 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -21,7 +21,7 @@ METHOD
 - After priority queue entries 018 and 019, repeat queue entries 001 through 009 with the stronger checkpoint/WIP method used from queue 010 onward, then resume the ordinary pending queue at 020.
 
 QUEUE (current .cpp files, longest -> shortest)
-001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP47 / F321-F357]<-(priority current wip)
+001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP53 / F321-F363]<-(priority current wip)
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]<-(priority next wip)
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]<-(priority next wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
@@ -73725,3 +73725,830 @@ NEXT CURSOR
    FreeUnitSupport / promotion scope / plot-extra-yield and other player-target state.
 2. Finish `AI_chooseEvent` itself and current recursive Additional/Clear producers.
 3. Then continue into `AI_doSplit` and post-event empire/victory helpers.
+
+
+===============================================================================
+C031-WIP48 — F358 CONFIRMED
+===============================================================================
+
+F358 / provisional KI#681 — AI_eventValue adds PlotExtraYield to aiYields only after
+all aiYields valuation has already run, so a permanent plot-yield event is valued at
+zero whenever the selected plot has a working city
+
+STATUS
+------
+CONFIRMED — inherited stock BtS event-valuation ordering bug retained by K-Mod,
+AdvCiv 1.14 and current SAS. Current Great Beast supplies a live multi-choice producer.
+
+ROOT
+----
+`AI_eventValue` first builds `aiYields` from BuildingExtraYields and then consumes that
+accumulator in the city/global event branches:
+
+    if (kEvent.isCityEffect())
+    {
+        ...
+        iCityTurnValue += aiYields.get(YIELD_FOOD) * 5;
+        iCityTurnValue += aiYields.get(YIELD_PRODUCTION) * 5;
+        iCityTurnValue += aiYields.get(YIELD_COMMERCE) * 3;
+        ...
+    }
+    else if (!kEvent.isOtherPlayerCityEffect())
+    {
+        ...
+    }
+
+Only *after those branches have finished*, the plot block processes permanent
+`PlotExtraYield`:
+
+    if (kEvent.getPlotExtraYield(eLoopYield) != 0)
+    {
+        if (pPlot->getWorkingCity() != NULL)
+            aiYields.add(eLoopYield, kEvent.getPlotExtraYield(eLoopYield));
+        else
+            iValue += ...;
+    }
+
+There is no later read of `aiYields`. Therefore the add performed for a worked plot is
+dead for this invocation. The exact permanent yield receives zero value.
+
+By contrast, when the same selected plot currently has no working city, the `else`
+branch immediately adds an explicit value. The evaluator therefore has the backwards
+state dependency that a permanent tile improvement can be worth something when the
+plot is unworked, yet worth nothing once a city actually works it.
+
+RUNTIME EFFECT CONTRACT
+-----------------------
+`CvPlot::applyEvent` does not share this valuation omission. It loops every yield and
+unconditionally applies the XML delta through:
+
+    GC.getMap().setPlotExtraYield(*this, eLoopYield, iChange);
+
+Thus the yield really is a persistent map effect regardless of whether the plot has a
+working city at event-choice time.
+
+CURRENT-DATA REPRODUCTION — GREAT BEAST
+---------------------------------------
+`EVENTTRIGGER_GREAT_BEAST` is active current XML (75% games, weight 100), requires a
+Camp plot and offers three current choices. `EVENT_GREAT_BEAST_1` has:
+
+    PlotExtraYields: +1 food
+    iGold: 0
+    iAIValue: 1000
+
+The competing `EVENT_GREAT_BEAST_2` costs 15 gold and grants +1 population to the
+selected city; `EVENT_GREAT_BEAST_3` runs its separate temporary-happiness Python
+effect. All three participate in `AI_chooseEvent` through `AI_eventValue`.
+
+If the selected Camp is already worked, option 1's +1 permanent food is added to
+`aiYields` too late and contributes zero. The AI therefore compares Great Beast 1
+without its main material benefit. If the same Camp is not worked, the fallback branch
+credits the +1 food immediately (160 value at 100% speed under the stock formula).
+
+Horticulture, Parrots, Jade, Black Pearls, Saltpeter, Truffles, Sea Turtles, Tin,
+Prairie Dogs, Appleseed, Forty Thieves and Waters of Life provide additional current
+`PlotExtraYield` producers. Great Beast is the cleanest current multi-choice proof.
+
+ANCESTRY
+--------
+Civ4CE/BtS already contains the same ordering: the city/global `aiYields` use precedes
+the plot-extra-yield block, and worked plots append to the already-consumed array.
+K-Mod preserved it; AdvCiv converted the container syntax but retained the ordering;
+current SAS still has the same control flow.
+
+This is therefore inherited BtS rather than SAS-local.
+
+CONSEQUENCE
+-----------
+The AI can under-value or reject permanent plot-yield event options precisely when the
+affected tile is already economically relevant enough to be worked. In current Great
+Beast, the +1-food option can be selected as though it had no +1-food effect at all,
+changing its ranking against the population and happiness alternatives.
+
+REPAIR DIRECTION
+----------------
+Do not append plot yield to a shared accumulator after that accumulator's consumers.
+Either:
+
+1. collect `PlotExtraYield` before the city/global yield valuation and route it through
+   an appropriate plot-specific valuation; or
+2. value the permanent plot yield directly inside the plot block for both worked and
+   unworked cases.
+
+If preserving the existing worked-vs-unworked distinction, a worked plot should use
+its actual working-city/tile value rather than mutating `aiYields` after the fact.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+F354 concerns non-city BuildingExtraYield/Commerce fields disappearing from the
+non-city branch. F358 is independent: the correct PlotExtraYield field is read and the
+runtime effect is applied, but its worked-plot value is written into an accumulator
+after its final read.
+
+CURRENT AUDIT STATE AFTER F358
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F358
+F359 / provisional KI#682 — UNUSED
+Latest physical checkpoint — C031-WIP48
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Finish remaining `AI_eventValue` promotion / FreeUnitSupport / support-scope terms.
+2. Audit `AI_chooseEvent`, especially recursive AdditionalEvents/ClearEvents valuation
+   versus actual application probabilities and legality.
+3. Then continue into `AI_doSplit` and post-event empire/victory helpers.
+
+
+===============================================================================
+C031-WIP49 — F359 CONFIRMED
+===============================================================================
+
+F359 / provisional KI#682 — AI_eventValue never values UnitClassPromotions even though
+applyEvent grants them to all matching existing units and as permanent free promotions
+for future units, so current multi-choice quest rewards can be ranked with an entire
+reward branch missing
+
+STATUS
+------
+CONFIRMED — inherited stock BtS event-valuation field omission retained by K-Mod,
+AdvCiv 1.14 and current SAS. Several current quest-completion reward sets expose it.
+
+ROOT
+----
+`AI_eventValue` has a dedicated promotion block, but it loops only UnitCombat:
+
+    FOR_EACH_ENUM(UnitCombat)
+    {
+        if (NO_PROMOTION != kEvent.getUnitCombatPromotion(eLoopUnitCombat))
+        {
+            ... value existing matching units ...
+            iPromotionValue += iNumCities * 50;
+        }
+    }
+
+There is no corresponding `getUnitClassPromotion` read anywhere in the function.
+
+The application layer explicitly supports both families. After applying UnitCombat
+promotions, `CvPlayer::applyEvent` separately loops UnitClass and:
+
+    - grants the event promotion to every existing unit of that UnitClass;
+    - calls `setFreePromotion(eLoopUnitClass, eEventPromo, true)`, making the
+      promotion available to future units of the class too.
+
+Thus the runtime reward can be broad and permanent while AI valuation is exactly zero
+for that field.
+
+CURRENT-DATA REPRODUCTIONS
+--------------------------
+Current SAS contains many UnitClassPromotion events, including multi-choice quest
+rewards where the omission can directly alter the selected reward.
+
+A particularly clean pair is `EVENT_ELITE_SWORDS_DONE`:
+
+    EVENT_ELITE_SWORDS_DONE_1
+        UnitClassPromotion:
+            UNITCLASS_SWORDSMAN -> PROMOTION_CITY_RAIDER1
+        iAIValue = 1000
+
+    EVENT_ELITE_SWORDS_DONE_2
+        UnitCombatPromotions:
+            UNITCOMBAT_MELEE_POLEARM -> PROMOTION_FIRST_STRIKE1
+            UNITCOMBAT_MELEE_SHOCK   -> PROMOTION_FIRST_STRIKE1
+        iAIValue = 1000
+
+The second reward enters the existing promotion valuation block; the first reward's
+promotion enters no valuation block at all. Yet the first reward is actually applied to
+all current Swordsman-class units (including the civilization replacement for that
+class) and becomes a permanent free class promotion for future Swordsman-class units.
+
+Other current multi-choice examples include:
+
+- `MASTER_BLACKSMITH_DONE_2`: Swordsman-class Counter Melee;
+- `WAR_CHARIOTS_DONE_1`: Chariot-class Combat I;
+- `WARSHIPS_DONE_1`: Trireme-class Combat I;
+- `GUNS_BUTTER_DONE_1`: Musketman-class Counter Gun;
+- `NOBLE_KNIGHTS_DONE_1`: Horse/Camel Knight class Retreat;
+- `OVERWHELM_DONE_1`: Combat I for Destroyer, Battleship, Carrier, Fighter and Jet
+  Fighter classes.
+
+`OVERWHELM_DONE` is especially broad: reward 1 grants five permanent class promotions,
+yet none of those promotion effects contributes to `AI_eventValue`.
+
+ANCESTRY
+--------
+Civ4CE/BtS already contains only a `getUnitCombatPromotion` valuation loop and no
+`getUnitClassPromotion` valuation. K-Mod retains the omission; AdvCiv retains it;
+current SAS retains it while continuing to use UnitClassPromotion XML extensively.
+
+This is therefore inherited BtS rather than a SAS-local regression.
+
+CONSEQUENCE
+-----------
+The AI can systematically under-value UnitClassPromotion reward options and prefer
+competing rewards whose fields happen to be represented in `AI_eventValue`. The bias
+is not a minor coefficient disagreement: the entire current-unit benefit and the
+permanent future free-promotion benefit are absent.
+
+REPAIR DIRECTION
+----------------
+Add a UnitClass promotion valuation parallel to the existing UnitCombat block:
+
+- value current owned units of the affected UnitClass that lack the promotion;
+- include a reasonable future-production/free-promotion term;
+- avoid double counting if an event grants the same promotion through both UnitCombat
+  and UnitClass paths to the same units.
+
+Ideally factor the common promotion-value logic so application and valuation continue
+to support the same two field families.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+F359 is independent of F358's late PlotExtraYield ordering. Here the event field is
+never read by the evaluator at all. It also differs from F354's non-city building
+Yield/Commerce omission because UnitClassPromotion has its own distinct runtime and
+multi-choice producers.
+
+CURRENT AUDIT STATE AFTER F359
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F359
+F360 / provisional KI#683 — UNUSED
+Latest physical checkpoint — C031-WIP49
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Finish `AI_eventValue` support/promotion-tail controls and recursive
+   AdditionalEvents/ClearEvents valuation.
+2. Finish `AI_chooseEvent`.
+3. Continue into `AI_doSplit`, `AI_launch`, and post-event empire/victory helpers.
+
+
+===============================================================================
+C031-WIP50 — F360 CONFIRMED
+===============================================================================
+
+F360 / provisional KI#683 — AI_eventValue values TechPercent as the full requested
+percentage of total tech cost instead of capping it to remaining research like the
+runtime, so near-complete tech rewards are overvalued
+
+STATUS
+------
+CONFIRMED — inherited stock BtS requested-progress-versus-executable-progress bug
+retained by K-Mod, AdvCiv 1.14 and current SAS. Current Airliner Crash supplies a clean
+multi-choice reproduction with no minimum-turn guard.
+
+ROOT
+----
+For a fixed event technology, `AI_eventValue` immediately adds:
+
+    iValue += (kTeam.getResearchCost(kEvent.getTech()) *
+            kEvent.getTechPercent()) / 100;
+
+For flavor/current-research event technologies, the later `eBestTech` path uses the
+same full-cost percentage formula.
+
+The application layer does not award that amount blindly. `CvPlayer::applyEvent`
+ultimately calls:
+
+    CvTeam::changeResearchProgressPercent(...)
+
+and that function explicitly caps a positive award:
+
+    iBeakers = std::min(getResearchLeft(eIndex),
+            getResearchCost(eIndex) * iPercent / 100);
+
+Thus the executable value is:
+
+    min(requested_percent_of_total_cost, research_left)
+
+whereas AI valuation assumes the requested percentage is always fully usable.
+
+CURRENT-DATA REPRODUCTION — AIRLINER CRASH
+------------------------------------------
+`EVENT_AIRLINER_CRASH_3` is one of three current choices and has:
+
+    Tech              = TECH_FLIGHT
+    iTechPercent      = 15
+    iTechMinTurnsLeft = 0
+    iGold              = 0
+    iAIValue           = 1000
+
+Its trigger selects another player who already knows Flight, so this option is a live
+catch-up research reward while the AI itself can still research Flight.
+
+Suppose the AI has already completed 90% of Flight. The option is legal: there is no
+minimum-turn requirement, and Flight is still researchable before the event.
+
+Runtime:
+
+    requested award = 15% of total Flight cost
+    research left   = 10%
+    actual award    = 10%
+
+Evaluator:
+
+    credits 15%
+
+The AI therefore overstates the immediate research benefit by 50% in this simple
+state. At 99% progress it can credit fifteen times the research that will actually be
+added.
+
+Other current TechPercent events (City Ruins, Patron of Knowledge, Ancient Texts,
+Secret Knowledge, Heresy and others) inherit the same cap mismatch whenever the
+selected event tech has less remaining research than the XML percentage.
+
+ANCESTRY
+--------
+Civ4CE/BtS already values `researchCost * TechPercent / 100` directly in
+`AI_eventValue`; its application path caps positive progress to research remaining.
+K-Mod and AdvCiv preserve that contract mismatch; current SAS does too.
+
+This is therefore inherited BtS rather than SAS-local.
+
+CONSEQUENCE
+-----------
+The AI can prefer or overpay for tech-progress event options near the end of a
+technology because it prices beakers that cannot be applied. This is decision-level in
+current multi-choice events such as Airliner Crash and Heresy.
+
+REPAIR DIRECTION
+----------------
+Resolve the same event technology used by the application path, then value positive
+TechPercent by the executable beaker amount:
+
+    min(researchLeft(eTech), researchCost(eTech) * TechPercent / 100)
+
+Negative TechPercent should likewise mirror `changeResearchProgressPercent`'s lower
+bound rather than assuming the raw requested percentage if that branch is retained.
+
+Prefer factoring/shared helper logic so legality, event cost, application and AI value
+agree on the selected event tech and executable progress.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+F357 is the analogous city-conversion requested-count cap, but the state and runtime
+contract here are independent: F360 concerns research progress and `researchLeft`.
+F360 also exists before considering any AdditionalEvent follow-up; that post-state
+problem remains a separate F361 candidate.
+
+CURRENT AUDIT STATE AFTER F360
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F360
+F361 / provisional KI#684 — UNUSED
+Latest physical checkpoint — C031-WIP50
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Finish AdditionalEvents valuation against the post-main-event legality state,
+   especially Airliner Crash 3 -> 4.
+2. Finish ClearEvents controls and `AI_chooseEvent`.
+3. Continue into `AI_doSplit`, `AI_launch` and post-event helpers.
+
+
+===============================================================================
+C031-WIP51 — F361 CONFIRMED
+===============================================================================
+
+F361 / provisional KI#684 — AI_eventValue recursively values AdditionalEvents against
+the pre-parent-event state, while runtime rechecks their legality after the parent
+has already changed state, so it can credit follow-up effects that cannot fire
+
+STATUS
+------
+CONFIRMED — inherited stock BtS recursive event-valuation state-transition bug retained
+by K-Mod, AdvCiv 1.14 and current SAS. Airliner Crash 3 -> 4 supplies a current,
+independent reproduction.
+
+ROOT
+----
+At the end of `AI_eventValue`, every non-self AdditionalEvent is valued directly from
+the original triggered data and the player's *current pre-choice state*:
+
+    iValue += chance * AI_eventValue(eAdditional, kTriggeredData) / 100;
+
+No parent-event effects are simulated before that recursive call, and no
+`canDoEvent(eAdditional, ...)` check is performed for the post-parent state.
+
+Runtime ordering is different and explicit:
+
+1. `CvPlayer::applyEvent(parent)` applies the parent's gold/research/city/etc. effects;
+2. only near the end does it process AdditionalEvents;
+3. for an immediate follow-up it requires:
+
+       canDoEvent(eAdditional, *pTriggeredData)
+
+   *after* the parent has already changed game state;
+4. only then can it call `applyEvent(eAdditional, ..., false)`.
+
+Therefore parent effects can invalidate or reduce a child event while the evaluator
+still prices the child from the old state.
+
+CURRENT-DATA REPRODUCTION — AIRLINER CRASH 3 -> 4
+-------------------------------------------------
+`EVENT_AIRLINER_CRASH_3` grants +15% Flight research and has:
+
+    AdditionalEvent EVENT_AIRLINER_CRASH_4, chance 50%
+
+`EVENT_AIRLINER_CRASH_4` grants +20% Flight research. Both require Flight to remain a
+valid event tech through the ordinary `canDoEvent` -> `getBestEventTech` ->
+`isValidEventTech` path; once the team has Flight, `canResearch(Flight)` is false and
+the follow-up cannot execute.
+
+Use a state with exactly 15% of Flight research remaining.
+
+Parent runtime:
+
+    Airliner Crash 3 applies +15%
+    Flight completes
+
+Follow-up runtime:
+
+    50% chance branch is reached
+    canDoEvent(EVENT_AIRLINER_CRASH_4) == false
+    event 4 does not apply
+    actual follow-up research value = 0
+
+AI valuation:
+
+    recursively calls AI_eventValue(EVENT_AIRLINER_CRASH_4)
+    while Flight is still incomplete in the evaluator's real game state
+    credits 50% of the follow-up's research value
+
+This reproduction is deliberately independent of F360. At exactly 15% remaining, the
+parent's requested +15% is itself fully executable, so fixing F360's research-left cap
+does not remove F361. Even with F360 fixed, the child would still be valued from the
+pre-parent state despite being illegal after the parent completes Flight.
+
+The mismatch also occurs without full invalidation. If a parent reduces the amount of
+research left, the child's executable reward can shrink before it fires; recursively
+valuing the child from the original state still overstates it.
+
+ANCESTRY
+--------
+Civ4CE/BtS already recursively calls `AI_eventValue` for AdditionalEvents without
+simulating the parent state. Its runtime applies the parent before checking/performing
+immediate additional events. K-Mod and AdvCiv retain that split; current SAS does too.
+
+This is therefore inherited BtS.
+
+CONSEQUENCE
+-----------
+The AI can choose an event partly for an expected follow-up that the parent event itself
+makes impossible. Airliner Crash 3 can receive phantom expected Flight research when
+its own research grant completes Flight first, biasing its ranking against the other
+current Airliner Crash choices.
+
+REPAIR DIRECTION
+----------------
+AdditionalEvent expected value must be based on the state in which the child would
+actually execute. Robust options include:
+
+- simulate/project the relevant parent state before child valuation;
+- create an event-value helper that accepts projected changes (research, bonus reveal,
+  religion/city state, etc.); or
+- for simple child contracts, explicitly compute post-parent legality/executable value.
+
+Merely calling `canDoEvent` before the recursive call is insufficient because that
+would still test the pre-parent state. The key requirement is post-parent state.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+F360 caps the parent's/child's requested TechPercent to research remaining in whatever
+state is being evaluated. F361 concerns *which state* is evaluated. Fixing F360 still
+leaves the exactly-15%-remaining Airliner reproduction above.
+
+CURRENT AUDIT STATE AFTER F361
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F361
+F362 / provisional KI#685 — UNUSED
+Latest physical checkpoint — C031-WIP51
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Finish ClearEvents valuation controls and `AI_chooseEvent`.
+2. Continue into `AI_doSplit`, `AI_launch`, `AI_doCheckFinancialTrouble` and adjacent
+   post-event empire/victory helpers.
+
+
+===============================================================================
+C031-WIP52 — F362 CONFIRMED
+===============================================================================
+
+F362 / provisional KI#685 — AI_roundTradeValBounds can leave a rounded value outside
+its requested bounds when the preferred multiple is unavailable, so a generous
+counterproposal whose lower bound is the original gold amount can be rounded *down*
+below that lower bound
+
+STATUS
+------
+CONFIRMED — inherited AdvCiv helper-contract bug introduced with `AI_roundTradeValBounds`
+and retained by current SAS. The two live `AI_balanceDeal` gold callers use exactly the
+bound shape that exposes it.
+
+ROOT
+----
+The helper's explicit contract says:
+
+    Set iTradeVal to the nearest multiple of DIPLOMACY_VALUE_REMAINDER
+    in [iLower,iUpper]. No change if no such multiple exists.
+
+For `bPreferRoundingUp`, however, implementation does:
+
+    int iTmpVal = iTradeVal;
+    AI_roundTradeVal(iTradeVal);      // mutates iTradeVal DOWN immediately
+    if (iTradeVal != iTmpVal)
+        iTmpVal = iTradeVal + remainder; // preferred UP candidate
+    if (iTmpVal within bounds)
+        iTradeVal = iTmpVal;
+
+If the upward candidate is outside the interval, nothing restores the original value
+or validates the already-mutated downward value. The function can therefore return a
+value outside `[iLower,iUpper]`, contradicting both its comment and its parameter
+contract.
+
+CURRENT CALLER REPRODUCTION
+---------------------------
+Current `AI_balanceDeal` has two equivalent gold-balancing sites. When
+`bTheyGenerous` and either party is human, they call:
+
+    AI_roundTradeValBounds(iGoldData, true, iGoldData, iMaxGold);
+
+The original required gold amount is deliberately passed as `iLower`; i.e. generous
+rounding may round UP but must not lower the balancing amount.
+
+Current SAS defines:
+
+    DIPLOMACY_VALUE_REMAINDER = 5
+
+Take a fully ordinary state:
+
+    computed iGoldData = 12
+    iMaxGold           = 14
+    bounds             = [12,14]
+
+There is no multiple of 5 in [12,14]. The documented result is therefore “no change”:
+12.
+
+Current implementation:
+
+    iTradeVal = 12
+    AI_roundTradeVal -> 10
+    preferred upward multiple -> 15
+    15 is outside [12,14]
+    assignment is skipped
+    returned iTradeVal -> 10
+
+The result is not merely the nonpreferred multiple; 10 is explicitly below the lower
+bound 12.
+
+CALLER CONSEQUENCE
+------------------
+`AI_balanceDeal` then sees `iMaxGold >= iGoldData` and can insert the accidental 10
+gold into the counterproposal. In the generous branch, the caller's design is that the
+side being balanced may overshoot / offer a larger treasury portion, not that the
+required balancing amount may be rounded down. The helper reverses that policy in the
+exact max-gold gap where the next display multiple is unaffordable.
+
+The same defect exists at both the initial-gold and final-gold balancing sites.
+
+INTRODUCTION HISTORY
+--------------------
+The AdvCiv commit that introduced/refactored the helper adds the exact comment quoted
+above and the same implementation. The same change updates the generous balance caller
+to pass:
+
+    lower = original iGoldData
+    upper = iMaxGold
+
+So intent and failure were introduced together: the lower bound exists specifically to
+protect the unrounded balancing requirement, but the helper can return below it.
+Base AdvCiv 1.14 retains the same body; current SAS only modernizes surrounding style.
+
+This root is AdvCiv-local rather than BtS/K-Mod: BtS/K-Mod did not have this bounded
+rounding helper in this form.
+
+REPAIR DIRECTION
+----------------
+Never mutate the caller's value until a valid candidate has been selected. For example:
+
+    original = iTradeVal
+    down = rounded-down multiple
+    up = (down == original ? original : down + remainder)
+
+Try candidates in requested preference order, assigning `iTradeVal` only if that
+candidate lies within `[iLower,iUpper]`. If neither candidate lies in bounds, leave the
+original unchanged exactly as documented.
+
+A minimal patch can also store/restore the original on failure, but computing both
+candidates independently is clearer and avoids the recursive false-path state mutation.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+F335 concerns invalid fallback selection of a non-surplus resource in `AI_balanceDeal`;
+F336/F337 concern leniency accounting. F362 is independent: the correct gold amount is
+computed and the correct bounds are supplied, but the rounding helper violates those
+bounds before the caller sees the result.
+
+CURRENT AUDIT STATE AFTER F362
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F362
+F363 / provisional KI#686 — UNUSED
+Latest physical checkpoint — C031-WIP52
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Continue through victory-stage functions beginning with Culture/Space.
+2. Keep `AI_doSplit` / `AI_launch` controls open if caller or state archaeology exposes
+   a stronger invariant violation.
+
+
+===============================================================================
+C031-WIP53 — F363 CONFIRMED
+===============================================================================
+
+F363 / provisional KI#686 — AI_calculateConquestVictoryStage mis-parenthesizes the
+"don't spare friends when only military victory is possible" exception, so a
+nonpositive other-victory weight bypasses every level-3 Conquest gate instead of only
+the friendly-rival gate
+
+STATUS
+------
+CONFIRMED — inherited AdvCiv precedence/regression bug introduced by advc.104c in the
+2025 commit "AI doesn't try sparing friends when only military victory possible" and
+retained by Base AdvCiv 1.14 and current SAS.
+
+ROOT
+----
+Current level-3 test ends with:
+
+    if (iKnownCivs >= iStartCivs && bTopRank &&
+        !bManyOffshoreRivals &&
+        (bVeryStrong ||
+         (bWarmonger && bHateful && 2 * iConqueredCivs >= iKnownCivs)) &&
+        (iFriends == 0 || (iFriends == iRemaining && iFriends == 1)) ||
+        iOtherVictoryWeight <= 0)
+
+C++ `&&` binds more tightly than `||`, so this is parsed as:
+
+    (all ordinary level-3 gates && friend gate) ||
+    (iOtherVictoryWeight <= 0)
+
+The introducing commit's stated purpose is much narrower. Its full commit message says:
+
+    "I.e. it won't shy away from stages 3 and 4 of a military victory on account of
+    friendly relations when all other victory conditions have been disabled."
+
+The diff itself changes only the tail of the old friend condition, making the intended
+logical grouping clear. The exception belongs *inside* the final friendship gate:
+
+    ... &&
+    (friend gate || iOtherVictoryWeight <= 0)
+
+It was instead appended outside the whole conjunction.
+
+REACHABILITY / CURRENT CONTRACT
+-------------------------------
+`AI_updateVictoryWeights` stores -1 for victory conditions that are invalid/disabled
+and ordinary nonnegative personality weight for valid ones. `AI_calculateConquest...`
+sums every non-Conquest victory into `iOtherVictoryWeight`.
+
+Therefore a supported custom-game setup with Conquest enabled and all alternative
+victory conditions disabled naturally makes `iOtherVictoryWeight <= 0`. This is exactly
+the unusual-victory-settings case named by the introducing commit, not a hypothetical
+personality state.
+
+The outer level-2 conditions still have to succeed; this does *not* create Conquest 3
+from an otherwise uninterested AI. The defect is the transition from stage 2 to stage 3.
+
+CLEAN REPRODUCTION
+------------------
+Use a Conquest-only victory setup and a warmongering AI whose current state satisfies
+the level-1/2 conditions, for example:
+
+    iStartCivs      = 4
+    iKnownCivs      = 3
+    iConqueredCivs  = 1
+    bWarmonger      = true
+
+Then the level-2 progress tests can pass:
+
+    4 * iKnownCivs >= 3 * iStartCivs
+    4 * 3 >= 3 * 4                       -> true
+
+    3 * iConqueredCivs >= iKnownCivs
+    3 * 1 >= 3                           -> true
+
+But the intended level-3 test should still fail immediately because:
+
+    iKnownCivs >= iStartCivs
+    3 >= 4                               -> false
+
+It may independently also fail `bTopRank`, `!bManyOffshoreRivals`, or the stronger
+power/warmonger+hateful threshold.
+
+In a Conquest-only game, however, `iOtherVictoryWeight <= 0` is true. Due to operator
+precedence the entire ordinary level-3 conjunction is bypassed, and the function enters
+the level-3 block and ultimately returns at least 3.
+
+This precisely exceeds the commit's intended exception: disabling other victories was
+supposed to permit fighting Friendly rivals, not to erase knowledge, rank, geography,
+power and conquest-progress requirements.
+
+CONSEQUENCE
+-----------
+Conquest stage 3 is a broadly consumed strategy flag, not merely UI state. Current
+consumers include, among others:
+
+- `AI_maxUnitCostPerMil`: military stage 3 adds +20 to recommended unit spending;
+- `AI_nukeBaseDestructionWeight`: Conquest 3 increases willingness to value civilian
+  nuclear destruction;
+- CvTeamAI war valuation: Conquest 3 reduces diplomacy cost in war calculations;
+- additional team/UWAI/city-production and victory-strategy consumers throughout the
+  DLL.
+
+Thus unusual Conquest-only settings can push a stage-2 AI into materially more extreme
+military behavior before the ordinary stage-3 readiness conditions are met.
+
+INTRODUCTION / ANCESTRY
+-----------------------
+Commit 4baba59a4380e956452d6baf05c8ca36aa3d2b6d (2025-01-10), title:
+
+    AI doesn't try sparing friends when only military victory possible
+
+changed:
+
+    ... && friend_condition)
+
+to:
+
+    ... && friend_condition ||
+    iOtherVictoryWeight <= 0)
+
+without adding parentheses around the intended final subcondition. The same precedence
+shape is present in Base AdvCiv 1.14 and current SAS.
+
+K-Mod predates this advc.104c exception; this root is therefore an AdvCiv regression,
+not a BtS/K-Mod inheritance.
+
+REPAIR DIRECTION
+----------------
+Group the exception with the friendship test only:
+
+    ... &&
+    (bVeryStrong || ...) &&
+    ((iFriends == 0 || (iFriends == iRemaining && iFriends == 1)) ||
+     iOtherVictoryWeight <= 0)
+
+Or factor the final friendship permission into a named boolean before the conjunction,
+which would make precedence mistakes much harder to reintroduce.
+
+The stage-4 inner checks should then remain unchanged; the purpose of advc.104c is still
+preserved because a Conquest-only AI no longer has to satisfy the friendship blocker.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+This is independent of prior victory-weight tuning and of F344 (`AI_isFocusWar`). F363
+is specifically an operator-precedence error in the stage-2 -> stage-3 Conquest
+transition introduced by the "don't spare friends" exception.
+
+CURRENT AUDIT STATE AFTER F363
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F363
+F364 / provisional KI#687 — UNUSED
+Latest physical checkpoint — C031-WIP53
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Continue through Domination and Diplomacy victory-stage calculations, using F363 as
+   a precedence/control boundary.
+2. Then inspect `AI_updateVictoryWeights` / stage-hash consumers for independent
+   validity, redistribution or state-transition bugs rather than retuning coefficients.

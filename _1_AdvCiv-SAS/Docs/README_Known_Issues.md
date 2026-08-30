@@ -743,9 +743,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#652 - (Provisional Pending SAS prospective-owner defect) World-Wonder protection uses the city's current team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-652)\
 [KI#653 - (Fixed inherited AdvCiv regression) Barbarian AI_bestTech obeys the no-innovation rule](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-653)\
 [KI#654 - (Fixed SAS KI#83 defect) Dead teams no longer trigger a widely-known-technology fire sale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-654)\
-[KI#655 - (Provisional Pending inherited AdvCiv deal-folding defect) Mature resource deals regain a no-cancel term](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-655)\
-[KI#656 - (Provisional Pending incomplete AdvCiv repair) Obsolete units still classify resources as strategic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-656)\
-[KI#657 - (Provisional Pending inherited AdvCiv cancellation defect) The same-team exemption is dead](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-657)\
+[KI#655 - (Fixed inherited AdvCiv deal-folding defect) Preserve mature resource-deal age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-655)\
+[KI#656 - (Fixed incomplete AdvCiv repair) Disregard obsolete units before strategic-resource classification](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-656)\
+[KI#657 - (Fixed inherited AdvCiv cancellation defect) Restore the same-team bounded-help exemption](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-657)\
 [KI#658 - (Provisional Pending inherited AdvCiv counterproposal defect) A rejected resource can be selected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-658)\
 [KI#659 - (Provisional Pending inherited AdvCiv balancing defect) Non-surplus resources omit Rise and Fall leniency](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-659)\
 [KI#660 - (Provisional Pending inherited AdvCiv balancing defect) Initial gold omits Rise and Fall leniency](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-660)\
@@ -769,7 +769,13 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#678 - (Provisional Pending inherited BtS event-value scope defect) Building happiness and health become empire-wide](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-678)\
 [KI#679 - (Provisional Pending inherited BtS event-value scaling defect) Diplomacy is scaled twice by game speed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-679)\
 [KI#680 - (Provisional Pending inherited BtS event-value count defect) Requested conversions exceed eligible cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-680)\
-[KI#681 - (Provisional Pending investigation) F358 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-681)\
+[KI#681 - (Provisional Pending inherited BtS event-value ordering defect) PlotExtraYield is collected too late](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-681)\
+[KI#682 - (Provisional Pending inherited BtS event-value omission) UnitClassPromotions are ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-682)\
+[KI#683 - (Provisional Pending inherited BtS event-value cap defect) TechPercent exceeds remaining research](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-683)\
+[KI#684 - (Pending Architectural inherited BtS event-state defect) AdditionalEvents are valued before parent-state changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-684)\
+[KI#685 - (Provisional Pending inherited AdvCiv rounding-contract defect) Trade values can escape their bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-685)\
+[KI#686 - (Provisional Pending inherited AdvCiv precedence regression) Conquest-only games bypass stage-3 gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-686)\
+[KI#687 - (Provisional Pending investigation) F364 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
 
 <a id="ki-1"></a>
 
@@ -13835,27 +13841,39 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP16 `CvPlayerAI.cpp` deep
 
 <a id="ki-655"></a>
 
-## KI#655 - (Provisional Pending inherited AdvCiv deal-folding defect) Mature resource deals regain a no-cancel term
+## KI#655 - (Fixed inherited AdvCiv deal-folding defect) Preserve mature resource-deal age
 
-Album F332 finds AdvCiv's `AI_foldDeals` replacing already-mature AI-AI annual-resource deals with a folded deal whose start turn restarts the mandatory no-cancel interval. The readability fold therefore changes gameplay state instead of only presentation. Pending retaining the replacement deal and making it immediately cancelable, or otherwise preserving the original maturity.
+Album F332 found AdvCiv's `AI_foldDeals` replacing already-mature AI-AI annual-resource deals with a folded deal whose start turn restarted the mandatory no-cancel interval. The readability fold therefore changed gameplay state instead of only presentation.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP16 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix saves the younger initial turn of the two already-cancelable constituent deals and assigns it to the replacement. This keeps the folded representation immediately cancelable while conservatively avoiding any claim that the combined agreement is older than either input.
+
+The logged mixed-team autoplay in `SASGameRecord_20260830T125251Z_new1.log` completed through turn 338 with a Space victory, broadly exercising mature AI-AI trade state without an observed issue. The exact opposite-direction resource/GPT fold remains source-verified because the current logs do not identify each internal fold operation.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP17 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-656"></a>
 
-## KI#656 - (Provisional Pending incomplete AdvCiv repair) Obsolete units still classify resources as strategic
+## KI#656 - (Fixed incomplete AdvCiv repair) Disregard obsolete units before strategic-resource classification
 
-Album F333 finds AdvCiv's Better-AI/Fuyu obsolete-unit filter running only after `AI_bonusTrade` has already set its strategic flags. An obsolete unit requirement can therefore permanently classify a resource as strategic and cause attitude-based refusal; current Copper data supplies a reproduction. Pending checking `allUpgradesAvailable` before mutating the strategic classification.
+Album F333 found AdvCiv's Better-AI/Fuyu obsolete-unit filter running only after `AI_bonusTrade` had already set its strategic flags. An obsolete unit requirement could therefore permanently classify a resource as strategic and cause attitude-based refusal; current Copper data supplies a reproduction.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP21 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix moves `allUpgradesAvailable` ahead of the unit's resource-requirement checks. Obsolete military uses can no longer mutate the strategic flags, while any surviving current unit or the existing building scan can still establish a genuine strategic use.
+
+The same logged autoplay reached late-game military and resource-trading states and completed without an observed issue. The exact late-game Copper refusal transition remains source-verified because its internal denial inputs are not exposed by the current broad logs.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP20 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-657"></a>
 
-## KI#657 - (Provisional Pending inherited AdvCiv cancellation defect) The same-team exemption is dead
+## KI#657 - (Fixed inherited AdvCiv cancellation defect) Restore the same-team bounded-help exemption
 
-Album F334 finds AdvCiv's same-team deal-cancellation exemption comparing against a policy threshold that the bilateral caller never initializes to the intended bounded-help value. The exemption is therefore permanently unreachable for the deals it was meant to protect. Pending passing or deriving the actual bounded-help threshold at the cancellation decision.
+Album F334 found AdvCiv's same-team deal-cancellation exemption comparing against a policy threshold that the bilateral caller never initialized to the intended bounded-help value. The exemption was therefore permanently unreachable for the deals it was meant to protect.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP21 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix precomputes the same contact-age, teammate multiplier, deterministic variation and grant-memory threshold for teammate offers before the one-sided branch. Both one-sided help and bilateral cancellation now reuse the intended bounded-help policy; non-team and vassal threshold behavior remains in its original branch.
+
+The same run started with 16 players on 13 teams and completed through turn 338 without an observed issue, providing mixed-team regression coverage. The exact mature human-AI teammate cancellation state remains source-verified.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP21 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-658"></a>
 
@@ -14043,8 +14061,56 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP47 `CvPlayer
 
 <a id="ki-681"></a>
 
-## KI#681 - (Provisional Pending investigation) F358 remains unassigned during the CvPlayerAI deep re-audit
+## KI#681 - (Provisional Pending inherited BtS event-value ordering defect) PlotExtraYield is collected too late
 
-The continuous audit ledger reserves provisional KI#681 for F358. Through C031-WIP47, the queue-001 deep re-audit has confirmed F321-F357 and is continuing through the remaining `AI_eventValue`, `AI_chooseEvent`, split and post-event empire/victory helpers. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F358 finds `AI_eventValue` adding an event's permanent `PlotExtraYield` to its yield accumulator only after every valuation of that accumulator has already run. Whenever the selected plot has a working city, the runtime applies the yield but the AI prices it at zero. Pending collecting the plot yield before the city/yield valuation block or valuing it directly under the same plot and working-city contract.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP48 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-682"></a>
+
+## KI#682 - (Provisional Pending inherited BtS event-value omission) UnitClassPromotions are ignored
+
+Album F359 finds `AI_eventValue` never pricing `UnitClassPromotions`, although `applyEvent` grants the promotion to every matching existing unit and as a permanent free promotion for future units. Current multi-choice quest rewards can therefore be ranked with an entire durable military reward branch missing. Pending valuing both the current matching force and the persistent future-unit benefit without confusing this field with one-unit promotions.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP49 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-683"></a>
+
+## KI#683 - (Provisional Pending inherited BtS event-value cap defect) TechPercent exceeds remaining research
+
+Album F360 finds `AI_eventValue` pricing `TechPercent` as the requested percentage of the technology's full cost, while runtime application caps the award at its remaining research. A nearly completed technology can consequently receive much more event value than the research that will actually be granted. Pending capping the valued beakers to the selected technology's remaining progress.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP50 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-684"></a>
+
+## KI#684 - (Pending Architectural inherited BtS event-state defect) AdditionalEvents are valued before parent-state changes
+
+Album F361 finds recursive `AdditionalEvents` valuation testing follow-up legality against the state before the parent event, whereas runtime applies the parent first and then rechecks each follow-up. The AI can therefore credit an additional effect that the parent's own state changes make illegal. Pending a shared prospective event-state model or equivalent staged evaluation; a narrow field patch would not reliably reproduce arbitrary parent effects.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP51 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-685"></a>
+
+## KI#685 - (Provisional Pending inherited AdvCiv rounding-contract defect) Trade values can escape their bounds
+
+Album F362 finds `AI_roundTradeValBounds` falling back to a preferred rounded multiple without reapplying its requested lower and upper bounds when no such multiple exists inside the interval. A generous counterproposal whose lower bound is the original gold amount can consequently round downward below that original offer. Pending clamping the fallback or selecting a bound-consistent value after preferred-multiple search fails.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP52 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-686"></a>
+
+## KI#686 - (Provisional Pending inherited AdvCiv precedence regression) Conquest-only games bypass stage-3 gates
+
+Album F363 finds AdvCiv's "do not spare friends when only military victory is possible" exception joined to the full Conquest-stage-3 condition without parentheses. A nonpositive weight for all other victories can therefore bypass knowledge, rank, geography, power and conquest-progress requirements instead of bypassing only the friendly-rival blocker. Pending grouping the exception solely with that final friendship condition while retaining all ordinary stage-3 readiness gates.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP53 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-687"></a>
+
+## KI#687 - (Provisional Pending investigation) F364 remains unassigned during the CvPlayerAI deep re-audit
+
+The continuous audit ledger reserves provisional KI#687 for F364. Through C031-WIP53, the queue-001 deep re-audit has confirmed F321-F363 and is continuing through Domination/Diplomacy victory-stage calculations and their state consumers. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
 
 Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
