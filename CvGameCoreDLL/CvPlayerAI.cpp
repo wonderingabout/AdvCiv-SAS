@@ -11103,7 +11103,9 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const& kThe
 		} // </advc.026>
 		if (iMaxGold >= iGoldData && iGoldData > 0)
 		{
-			iWeReceive += (iGoldData * iGoldValuePercent) / 100;
+			// <!-- custom: AdvCiv's 2019 trade-UI refactor dropped the established advc.705 leniency multiplier from this early-gold accumulator.
+			// Restore the same value units used by later items and monetary additions. See KI#660. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iWeReceive += (rLeniency * iGoldData * per100(iGoldValuePercent)).round();
 			kWeWant.insertAtEnd(TradeData(TRADE_GOLD, iGoldData));
 			bMayAddGold = false;
 		}
@@ -11121,7 +11123,9 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const& kThe
 		if (bEnoughGold && iGoldData > 0) // </advc>
 		{
 			int iGPTTradeVal = AI_goldPerTurnTradeVal(iGoldData);
-			iWeReceive += iGPTTradeVal;
+			// <!-- custom: The same refactor dropped advc.705 leniency from the sibling early-GPT accumulator.
+			// Keep every addition in the discounted side's units. See KI#660. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iWeReceive += (rLeniency * iGPTTradeVal).round();
 			kWeWant.insertAtEnd(TradeData(TRADE_GOLD_PER_TURN, iGoldData));
 			bMayAddGoldPerTurn = false;
 		}
@@ -11510,13 +11514,15 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const& kThe
 		while (iTheyReceive > iWeReceive && !aNonSurplusItems.empty())
 		{
 			int iValueGap = iTheyReceive - iWeReceive;
-			std::vector<std::pair<TradeData,int> >::iterator it, best_it;
-			for (best_it = it = aNonSurplusItems.begin();
-				it != aNonSurplusItems.end(); ++it)
+			// <!-- custom: AdvCiv initialized best_it before candidates passed the current no-overshoot filter, allowing a rejected first resource to be selected.
+			// Use end() as the explicit no-valid-candidate state. See KI#658. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			std::vector<std::pair<TradeData,int> >::iterator best_it = aNonSurplusItems.end();
+			for (std::vector<std::pair<TradeData,int> >::iterator it = aNonSurplusItems.begin(); it != aNonSurplusItems.end(); ++it)
 			{
 				if (!bTheyGenerous && iWeReceive + it->second > iTheyReceive)
 					continue;
-				if ((bTheyGenerous && it->second > iValueGap &&
+				if (best_it == aNonSurplusItems.end() ||
+					(bTheyGenerous && it->second > iValueGap &&
 					best_it->second < iValueGap) ||
 					std::abs(it->second - iValueGap) <
 					std::abs(best_it->second - iValueGap))
@@ -11524,10 +11530,14 @@ bool CvPlayerAI::AI_balanceDeal(bool bGoldDeal, CLinkList<TradeData> const& kThe
 					best_it = it;
 				}
 			}
+			if (best_it == aNonSurplusItems.end())
+				break;
 			if (best_it->second <= 2 * (iTheyReceive - iWeReceive) || bTheyGenerous)
 			{
 				kWeWant.insertAtEnd(best_it->first);
-				iWeReceive += best_it->second;
+				// <!-- custom: The later non-surplus path also omitted advc.705 leniency.
+				// This could stop Rise and Fall's documented 90% retry too early. See KI#659. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				iWeReceive += (rLeniency * best_it->second).round();
 			}
 			aNonSurplusItems.erase(best_it);
 		}

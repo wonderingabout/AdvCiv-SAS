@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 30 / 169
 Files open: 1 / 169
 Last completed file: investigation file 030 / queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp (2,810 queued lines) - CLOSED AT C031 DURABLE
-Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP53
-Latest confirmed roots: F321-F363 / provisional KI#644-KI#686 from the queue-001 re-audit
-Next root ID: F364 unused / provisional KI#687 next
+Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP56
+Latest confirmed roots: F321-F366 / provisional KI#644-KI#689 from the queue-001 re-audit
+Next root ID: F367 unused / provisional KI#690 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -74552,3 +74552,496 @@ NEXT CURSOR
    a precedence/control boundary.
 2. Then inspect `AI_updateVictoryWeights` / stage-hash consumers for independent
    validity, redistribution or state-transition bugs rather than retuning coefficients.
+
+
+===============================================================================
+C031-WIP54 — F364 CONFIRMED
+===============================================================================
+
+F364 / provisional KI#687 — AI_doCheckFinancialTrouble consumes the
+false->true financial-trouble transition even when the shared production-dirty cooldown
+suppresses the requested refresh, so the deferred refresh is never retried for the
+rest of that trouble episode
+
+STATUS
+------
+CONFIRMED — inherited BtS transition/cooldown bug present in Civ4CE/BtS, K-Mod,
+Base AdvCiv 1.14 and current SAS.
+
+ROOT
+----
+`AI_doCheckFinancialTrouble` is explicitly edge-triggered:
+
+    bool bFinancialTrouble = AI_isFinancialTrouble();
+    if (bFinancialTrouble != m_bWasFinancialTrouble)
+    {
+        if (bFinancialTrouble)
+        {
+            int iGameTurn = GC.getGame().getGameTurn();
+            // only reset at most every 10 turns
+            if (iGameTurn > m_iTurnLastProductionDirty + 10)
+            {
+                AI_makeProductionDirty();
+                m_iTurnLastProductionDirty = iGameTurn;
+            }
+        }
+        m_bWasFinancialTrouble = bFinancialTrouble;
+    }
+
+The cooldown timestamp is shared with other production-refresh producers, notably
+`AI_nowHasTech`. Therefore entering financial trouble can legitimately happen while
+`m_iTurnLastProductionDirty` is recent.
+
+The bug is that the transition state is committed regardless of whether the intended
+financial-trouble refresh was actually allowed. Once `m_bWasFinancialTrouble` becomes
+true, persistent financial trouble no longer satisfies the outer transition test, so
+expiration of the 10-turn cooldown cannot trigger the missed refresh later.
+
+CLEAN REPRODUCTION
+------------------
+For example:
+
+    turn 100: AI_nowHasTech dirties production
+              m_iTurnLastProductionDirty = 100
+              m_bWasFinancialTrouble = false
+
+    turn 105: empire first enters financial trouble
+              bFinancialTrouble = true
+              105 > 100 + 10 -> false
+              AI_makeProductionDirty is skipped
+              m_bWasFinancialTrouble = true anyway
+
+    turn 111+: cooldown is now old enough, but
+               bFinancialTrouble == m_bWasFinancialTrouble == true
+               outer transition branch never runs again
+
+The refresh can therefore be skipped for the entire continuous financial-trouble
+episode, not merely delayed to turn 111.
+
+LIVE CONSEQUENCE / CITY CONTRACT
+--------------------------------
+`AI_makeProductionDirty` sets `chooseProductionDirty` on every AI city. `CvCity::doProduction`
+checks that flag even when the city already has active production and calls
+`CvCityAI::AI_chooseProduction`; that function can clear/reconsider the current queue.
+
+Financial trouble materially changes that chooser. Current code, among other effects:
+
+- makes a near-trouble empire seek `BUILDINGFOCUS_GOLD`;
+- reduces ordinary unit-production pressure through `AI_buildUnitProb`;
+- changes Settler continuation/production behavior;
+- gates or suppresses multiple worker, naval and military production paths.
+
+Thus the dirty refresh is not redundant bookkeeping: it is the mechanism intended to
+make already-busy cities react promptly when the empire crosses into the financial-
+trouble state. Normal production completion can eventually cause individual cities to
+choose again, but that does not repair the missed empire-wide transition refresh and
+long builds can remain selected under stale healthy-economy assumptions.
+
+The source comment itself states the intended event:
+
+    // if we just ran into financial trouble this turn
+
+and, when the cooldown permits:
+
+    // redeterimine the best things to build in each city
+
+The implementation loses that event when the cooldown blocks the immediate action.
+
+ANCESTRY
+--------
+The same state machine appears in the Civ4CE/BtS source, in K-Mod 1.46, in Base AdvCiv
+1.14 and in current SAS. K-Mod inherited/retained the original structure and later
+changed many financial-trouble heuristics without repairing this edge/cooldown
+interaction.
+
+This is therefore an inherited BtS root rather than a SAS or AdvCiv regression.
+
+REPAIR DIRECTION
+----------------
+Preserve the cooldown, but do not consume the entering-trouble transition until its
+requested refresh has occurred, or represent the missed action explicitly as pending.
+
+A minimal state-oriented repair could keep `m_bWasFinancialTrouble == false` while
+`bFinancialTrouble` is true and the cooldown blocks the refresh; then a later turn will
+retry and finally set the remembered state once `AI_makeProductionDirty` succeeds.
+That needs care on a true->false exit so the remembered state remains semantically
+sound.
+
+A clearer repair is to track a separate pending financial-trouble production refresh:
+set it on the false->true transition, execute it once the shared cooldown permits, then
+clear the pending flag. This keeps `m_bWasFinancialTrouble` as a pure observed-state
+cache and makes deferred-work semantics explicit.
+
+Simply removing the 10-turn rate limit is not necessary to fix the root.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+This is independent of SAS financial-trouble production tuning and of earlier unit-
+spending findings. Those determine *what* cities choose once reevaluated. F364 concerns
+the state-transition scheduler failing to deliver the intended reevaluation at all
+when another recent producer has occupied the shared cooldown.
+
+CURRENT AUDIT STATE AFTER F364
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F364
+F365 / provisional KI#688 — UNUSED
+Latest physical checkpoint — C031-WIP54
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Continue below the victory/financial-trouble tranche into the remaining strategy,
+   launch, empire-management and utility helpers.
+2. Keep the shared production-dirty cooldown as a control boundary: do not create a
+   second root unless another producer has an independent state/consequence defect.
+
+
+===============================================================================
+C031-WIP55 — F365 CONFIRMED
+===============================================================================
+
+F365 / provisional KI#688 — AI_updateGoldToUpgradeAllUnits caches a per-unit
+upgradePrice by UnitType, so Great-General units with PROMOTION_LEADER's 100% upgrade
+discount can be charged the ordinary same-type upgrade cost in the aggregate AI gold
+reserve
+
+STATUS
+------
+CONFIRMED — inherited BtS bug present in Civ4CE/BtS, K-Mod 1.46, Base AdvCiv 1.14
+and current SAS.
+
+ROOT
+----
+`AI_updateGoldToUpgradeAllUnits` deliberately caches the estimated upgrade cost of each
+unit type:
+
+    // cache the value for each unit type
+    std::vector<int> aiUnitUpgradePrice(GC.getNumUnitInfos(), 0);
+
+For each owned unit it first checks:
+
+    UnitTypes eUnitType = pLoopUnit->getUnitType();
+    int iCachedUnitGold = aiUnitUpgradePrice[eUnitType];
+    if (iCachedUnitGold != 0)
+    {
+        if (iCachedUnitGold > 0)
+            iTotalGold += iCachedUnitGold;
+        continue;
+    }
+
+When there is no cached value, the function discovers desirable/available upgrade
+classes and accumulates the price by calling the *individual unit*:
+
+    iUnitGold += pLoopUnit->upgradePrice(eUpgradeUnitType);
+
+then stores the resulting average under only `eUnitType`:
+
+    aiUnitUpgradePrice[eUnitType] = iUnitGold;
+
+That cache key is invalid because `CvUnit::upgradePrice` is not type-invariant. It ends
+with a per-unit promotion-derived adjustment:
+
+    iPrice -= (iPrice * getUpgradeDiscount()) / 100;
+
+Current SAS retains the standard Great-General promotion:
+
+    PROMOTION_LEADER
+        iUpgradeDiscount = 100
+
+and attaching the Great General calls `promote(PROMOTION_LEADER, ...)`; promotion
+processing feeds that XML value into the unit's `m_iUpgradeDiscount` through
+`changeUpgradeDiscount`.
+
+Thus an ordinary unit and a Great-General-attached unit of the exact same UnitType can
+have different — in the leader case, radically different — `upgradePrice` values.
+Caching that value by UnitType alone loses real per-unit state.
+
+CLEAN CURRENT-DATA REPRODUCTION
+-------------------------------
+A Rifleman is a straightforward current example:
+
+- `UNIT_RIFLEMAN` is `UNITCOMBAT_GUN` and upgrades to `UNITCLASS_INFANTRY`;
+- `PROMOTION_LEADER` is valid for `UNITCOMBAT_GUN`;
+- the promotion has `iUpgradeDiscount = 100`;
+- therefore an attached Great-General Rifleman's real `upgradePrice(Infantry)` is 0,
+  while an otherwise ordinary Rifleman's price is positive whenever the upgrade has a
+  positive base cost.
+
+Suppose the player's unit iteration encounters an ordinary Rifleman first. The normal
+positive Infantry upgrade estimate is stored in:
+
+    aiUnitUpgradePrice[UNIT_RIFLEMAN]
+
+When a later Great-General Rifleman is reached, the cache branch adds that same positive
+amount directly to `iTotalGold` and never calls the leader unit's own
+`upgradePrice(Infantry) == 0`.
+
+The iteration order does not make the root disappear. If the free-upgrade leader unit
+happens to be encountered before any ordinary copy, its computed zero is also the
+vector's "not cached" sentinel, so a later ordinary copy is recomputed and establishes
+the positive type cache; any subsequent leader copy is again overcounted. The defect is
+therefore fundamentally the cache key, not one particular order.
+
+A second independent reason the UnitType key is too coarse is already present in the
+same function: the set of upgrades regarded as useful is tested with the individual
+unit's `UnitAI` and area:
+
+    AI_unitValue(eUpgradeUnitType, eUnitAIType, pUnitArea)
+
+so same-type units can also disagree about which upgrade candidates should contribute.
+The Great-General discount is the cleaner shipped-data proof because it requires no
+argument about AI-role valuation coefficients.
+
+LIVE CONSEQUENCE
+----------------
+The result is saved in `m_iUpgradeUnitsCachedGold` by `AI_updateCacheData` and is used as
+an important empire-level budget input rather than debug-only information.
+
+`AI_goldTarget` begins with:
+
+    int iUpgradeBudget = AI_getGoldToUpgradeAllUnits();
+
+and folds a war/financial-trouble-adjusted fraction of that estimate into the AI's gold
+reserve. `AI_doTurnUnitsPost` also derives its actual wartime/peacetime upgrade spending
+budget from `AI_goldTarget(true)`; other consumers include hurry/armament logic and the
+current SAS upgrade diagnostics.
+
+Therefore a Great-General unit whose next upgrade is actually free can nevertheless
+make the AI believe that another ordinary upgrade price must be reserved. Depending on
+war/economic state, that can make it hoard too much cash, alter commerce allocation and
+change other spending decisions. Actual per-unit upgrading still calls the real
+`upgradePrice`, so the execution layer can know the leader upgrade is free while the
+strategic reserve that enabled it remains inflated — exactly the estimator/executor
+state mismatch at the root.
+
+ANCESTRY
+--------
+The same UnitType cache and per-unit `upgradePrice` call are present in Civ4CE/BtS,
+K-Mod 1.46, Base AdvCiv 1.14 and current SAS.
+
+The XML producer is equally old: Civ4CE/BtS and Base AdvCiv both define
+`PROMOTION_LEADER` with `iUpgradeDiscount = 100`, including `UNITCOMBAT_GUN` among the
+eligible combat classes. Great-General attachment applies the leader promotion to the
+selected unit in the normal shipped gameplay path.
+
+This is therefore an inherited BtS cache-key defect, not a SAS/K-Mod tuning regression.
+
+REPAIR DIRECTION
+----------------
+Do not cache the final `upgradePrice` solely by UnitType.
+
+Safe options include:
+
+1. cache only type-invariant discovery data (e.g. reachable upgrade target classes),
+   then call each physical unit's `upgradePrice` when adding its contribution; or
+2. expand the cache key to include every state that affects the result — at minimum
+   upgrade discount, UnitAI and relevant area/can-train context — though that is more
+   complicated and less robust than option 1.
+
+Given that `upgradePrice` is explicitly a `CvUnit` method and promotion state can alter
+it, retaining the per-unit price call while caching only reusable candidate discovery
+looks like the clearest repair.
+
+Also avoid using literal 0 simultaneously as both "not cached" and a legitimate cached
+free-upgrade value if any redesigned cache continues to store prices.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+This is independent of F151/KI#474, which concerned the engine/UI upgrade action cache.
+F365 concerns the AI's aggregate strategic gold estimator in `CvPlayerAI` and its invalid
+assumption that an individual `CvUnit::upgradePrice` can be memoized by UnitType.
+
+It is also separate from SAS KI#160's actual upgrade-spending cap/diagnostics: those
+operate when choosing and paying for concrete upgrades, whereas F365 corrupts the
+cached amount the empire believes it should reserve before those per-unit decisions.
+
+CURRENT AUDIT STATE AFTER F365
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F365
+F366 / provisional KI#689 — UNUSED
+Latest physical checkpoint — C031-WIP55
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Continue through `AI_updateAvailableIncome`, `AI_calculateAverages` and the nearby
+   strategy/empire caches, treating the repaired break-even denominator as a control.
+2. Then continue into player closeness/paranoia/floating-defender and Advanced Start
+   helpers, looking for current scope/state/cache errors rather than retuning heuristic
+   coefficients.
+
+
+===============================================================================
+C031-WIP56 — F366 CONFIRMED
+===============================================================================
+
+F366 / provisional KI#689 — AI_advancedStartPlaceExploreUnits selects a sea
+explorer as UNITAI_EXPLORE_SEA but hard-codes UNITAI_EXPLORE when purchasing it, so
+Advanced Start naval explorers are initialized with the land-explorer AI role
+
+STATUS
+------
+CONFIRMED — AdvCiv regression introduced by advc.250c and present in Base AdvCiv 1.14
+and current SAS. BtS/Civ4CE and K-Mod predate the explicit UnitAI argument and do not
+contain this hard-coded-role regression.
+
+ROOT
+----
+`AI_advancedStartPlaceExploreUnits(bool bLand)` correctly derives the requested role:
+
+    UnitAITypes eUnitAI = NO_UNITAI;
+    if (bLand)
+        eUnitAI = UNITAI_EXPLORE;
+    else
+        eUnitAI = UNITAI_EXPLORE_SEA;
+
+That variable is used throughout selection:
+
+- nearby explorer counting asks for `eUnitAI`;
+- `AI_bestAdvancedStartUnitAI(kCityPlot, eUnitAI)` selects a unit that is valuable for
+  precisely that requested role.
+
+But the purchase call discards the variable and always supplies the land role:
+
+    doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT,
+            pBestExplorePlot->getX(), pBestExplorePlot->getY(), eBestUnitType, true,
+            UNITAI_EXPLORE); // advc.250c
+
+Thus `bLand == false` performs selection under `UNITAI_EXPLORE_SEA` and execution under
+`UNITAI_EXPLORE`.
+
+EXECUTION CONTRACT
+------------------
+The last `doAdvancedStartAction` argument is not decorative metadata. In current
+`CvPlayer::doAdvancedStartAction`, the unit case does:
+
+    UnitAITypes eUnitAI = (UnitAITypes)iData2;
+    ...
+    CvUnit* pUnit = initUnit(eUnit, iX, iY, eUnitAI);
+
+`CvPlayer::initUnit` then uses exactly that supplied role unless it is `NO_UNITAI`:
+
+    pUnit->init(...,
+        (eUnitAI == NO_UNITAI ? GC.getInfo(eUnit).getDefaultUnitAIType() : eUnitAI),
+        ...);
+
+There is no validation that a supplied `UNITAI_EXPLORE` is appropriate for a naval
+unit. Therefore the mismatch survives unit creation exactly as written.
+
+CURRENT-DATA PRODUCER
+---------------------
+The sea branch is live whenever Advanced Start reaches the Age of Exploration:
+
+    AI_advancedStartPlaceExploreUnits(false);
+
+Current SAS contains multiple units accepted for `UNITAI_EXPLORE_SEA`, including
+Galley, Galleon, Trireme, Frigate, Destroyer and Attack Submarine. Their normal/default
+naval roles are sea UnitAIs; none requires the land `UNITAI_EXPLORE` role selected by
+the buggy purchase call.
+
+A straightforward reproduction is therefore:
+
+1. start an AI with enough Advanced Start points in an era where sea exploration is
+   enabled and with a coastal city / useful unrevealed water area;
+2. `AI_bestAdvancedStartUnitAI(..., UNITAI_EXPLORE_SEA)` selects a legal naval explorer;
+3. the purchase call passes `UNITAI_EXPLORE`;
+4. `initUnit` stores that land-explorer role on the newly created naval unit.
+
+LIVE CONSEQUENCE
+----------------
+`CvUnitAI::AI_update` dispatches directly on the stored UnitAI:
+
+    case UNITAI_EXPLORE:
+        AI_exploreMove();
+        break;
+    ...
+    case UNITAI_EXPLORE_SEA:
+        AI_exploreSeaMove();
+        break;
+
+The wrongly initialized ship therefore executes the land-explorer routine instead of
+the dedicated naval routine.
+
+This affects more than naming:
+
+- `AI_exploreSeaMove` has dedicated naval threat/retreat handling;
+- it checks `AI_isExcessSeaExplorers`, sea-role obsolescence and the sea-specific
+  transformation chain (Worker/Pirate/Assault/Settler/Missionary/Reserve Sea);
+- sea explorer demand/counting uses `UNITAI_EXPLORE_SEA`, so the purchased ship is not
+  counted as fulfilling the role it was bought to fill;
+- the land `AI_exploreMove` instead uses `UNITAI_EXPLORE` counts and land-explorer
+  retirement/attack logic even though the physical unit is naval.
+
+The AI can consequently spend Advanced Start points specifically to fill sea-exploration
+demand and immediately create a unit that both follows the wrong behavior tree and
+remains invisible to that sea-role count, encouraging further incorrect demand.
+
+INTRODUCTION / ANCESTRY
+-----------------------
+BtS/Civ4CE and K-Mod call:
+
+    doAdvancedStartAction(..., eBestUnitType, true);
+
+with no explicit UnitAI override. The normal `initUnit` default-role mechanism therefore
+remains in control there.
+
+AdvCiv commit dde66d276082911b61d2b966fc0b6cb347270f82, practical commit 1472,
+title:
+
+    AI explore units in Adv. Start, bugfix unit layer colors
+
+introduced advc.250c's extra `iData2` argument and changed the unit action to initialize
+with that explicit UnitAI. In the very same diff, the explorer purchase call was changed
+to:
+
+    ..., true, UNITAI_EXPLORE);
+
+without using the already-computed `eUnitAI`. That introduced the sea-branch regression.
+Base AdvCiv 1.14 and current SAS retain the hard-coded value.
+
+REPAIR DIRECTION
+----------------
+The surgical repair is simply to preserve the role already used for selection:
+
+    doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT,
+            pBestExplorePlot->getX(), pBestExplorePlot->getY(), eBestUnitType, true,
+            eUnitAI);
+
+This keeps the intended advc.250c explicit-role feature for land explorers while making
+the sea branch initialize as `UNITAI_EXPLORE_SEA`.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+This is independent of F341/F342. Those concern normal-game sea-explorer retirement and
+explorer->worker transformation bookkeeping after a correctly typed
+`UNITAI_EXPLORE_SEA` exists. F366 occurs earlier during Advanced Start creation and
+assigns the wrong UnitAI in the first place.
+
+It is also independent of the retracted GET_TEAM(PlayerTypes) hypothesis immediately
+preceding this finding; the `CoreAI` overload control remains valid.
+
+CURRENT AUDIT STATE AFTER F366
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F366
+F367 / provisional KI#690 — UNUSED
+Latest physical checkpoint — C031-WIP56
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Continue through the remainder of Advanced Start construction/routing/unit placement,
+   using the explicit-UnitAI parameter as a newly established contract boundary.
+2. Then continue into found-value/city-site and area/city UnitAI helpers; prefer hard
+   legality/state/scope mismatches over subjective Advanced Start allocation tuning.

@@ -746,9 +746,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#655 - (Fixed inherited AdvCiv deal-folding defect) Preserve mature resource-deal age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-655)\
 [KI#656 - (Fixed incomplete AdvCiv repair) Disregard obsolete units before strategic-resource classification](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-656)\
 [KI#657 - (Fixed inherited AdvCiv cancellation defect) Restore the same-team bounded-help exemption](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-657)\
-[KI#658 - (Provisional Pending inherited AdvCiv counterproposal defect) A rejected resource can be selected](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-658)\
-[KI#659 - (Provisional Pending inherited AdvCiv balancing defect) Non-surplus resources omit Rise and Fall leniency](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-659)\
-[KI#660 - (Provisional Pending inherited AdvCiv balancing defect) Initial gold omits Rise and Fall leniency](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-660)\
+[KI#658 - (Fixed inherited AdvCiv counterproposal defect) Select only resources that pass the no-overshoot filter](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-658)\
+[KI#659 - (Fixed inherited AdvCiv balancing defect) Apply Rise and Fall leniency to non-surplus resources](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-659)\
+[KI#660 - (Fixed inherited AdvCiv balancing defect) Restore Rise and Fall leniency to early gold and GPT](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-660)\
 [KI#661 - (Provisional Pending inherited AdvCiv deal-state defect) Queued cancellations can force another healthy GPT cancellation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-661)\
 [KI#662 - (Provisional Pending inherited K-Mod valuation defect) Own interception can devalue outgoing nukes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-662)\
 [KI#663 - (Provisional Pending inherited AdvCiv unit-role regression) Special-cargo ships qualify for incompatible carrier roles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-663)\
@@ -775,7 +775,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#684 - (Pending Architectural inherited BtS event-state defect) AdditionalEvents are valued before parent-state changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-684)\
 [KI#685 - (Provisional Pending inherited AdvCiv rounding-contract defect) Trade values can escape their bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-685)\
 [KI#686 - (Provisional Pending inherited AdvCiv precedence regression) Conquest-only games bypass stage-3 gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-686)\
-[KI#687 - (Provisional Pending investigation) F364 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
+[KI#687 - (Provisional Pending inherited BtS cooldown defect) A suppressed financial-trouble refresh is never retried](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
+[KI#688 - (Provisional Pending inherited BtS cache defect) Great-General upgrade discounts can inflate the AI gold reserve](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-688)\
+[KI#689 - (Provisional Pending AdvCiv unit-role regression) Advanced Start naval explorers receive the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
+[KI#690 - (Provisional Pending investigation) F367 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
 
 <a id="ki-1"></a>
 
@@ -13877,27 +13880,35 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP21 `CvPlayerAI.cpp` deep
 
 <a id="ki-658"></a>
 
-## KI#658 - (Provisional Pending inherited AdvCiv counterproposal defect) A rejected resource can be selected
+## KI#658 - (Fixed inherited AdvCiv counterproposal defect) Select only resources that pass the no-overshoot filter
 
-Album F335 finds AdvCiv's non-surplus `AI_balanceDeal` fallback initializing its best iterator before any candidate passes the no-overshoot filter. When no resource qualifies, the fallback can nevertheless append the initial resource that its own filter rejected. Pending representing "no accepted candidate" explicitly and appending only after a candidate survives every selection condition.
+Album F335 found AdvCiv's non-surplus `AI_balanceDeal` fallback initializing its best iterator before any candidate passed the no-overshoot filter. When no resource qualified, the fallback could nevertheless append the initial resource that its own filter rejected.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP22 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix initializes the iterator to `end()`, assigns it only after a candidate passes the current-gap filter and stops the fallback when no valid candidate exists. The non-generous side can no longer request a player's last resource after ordinary items have reduced the remaining gap below that resource's value.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP22 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-659"></a>
 
-## KI#659 - (Provisional Pending inherited AdvCiv balancing defect) Non-surplus resources omit Rise and Fall leniency
+## KI#659 - (Fixed inherited AdvCiv balancing defect) Apply Rise and Fall leniency to non-surplus resources
 
-Album F336 finds the later AdvCiv non-surplus-resource fallback advancing `AI_balanceDeal`'s accumulator by the resource's full value even when Rise and Fall supplies an `rLeniency` multiplier. The fallback can consequently reject or overshoot a deal that the active leniency contract would accept. Pending applying the same multiplier to this accumulator path.
+Album F336 found the later AdvCiv non-surplus-resource fallback advancing `AI_balanceDeal`'s accumulator by the resource's full value even when Rise and Fall supplied an `rLeniency` multiplier. The fallback could consequently stop the documented 90% pre-Currency retry too early and omit a later legal sweetener.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP23/24 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix applies `rLeniency` when adding the selected non-surplus resource to the discounted-side accumulator, matching ordinary items, gold and GPT while leaving the resource's actual trade-list quantity unchanged.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP23/24 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-660"></a>
 
-## KI#660 - (Provisional Pending inherited AdvCiv balancing defect) Initial gold omits Rise and Fall leniency
+## KI#660 - (Fixed inherited AdvCiv balancing defect) Restore Rise and Fall leniency to early gold and GPT
 
-Album F337 finds AdvCiv's 2019 resource-trade/UI refactor dropping the `rLeniency` multiplier from `AI_balanceDeal`'s initial-gold assignment. Current Rise and Fall city-trade balancing can therefore demand more gold than the established lenient target. Pending restoring leniency to that independently affected value path.
+Album F337 found AdvCiv's 2019 resource-trade/UI refactor dropping the `rLeniency` multiplier from `AI_balanceDeal`'s initial-gold assignment and its sibling negative-income early-GPT assignment. Current Rise and Fall city-trade balancing could therefore count those sweeteners at full value, close the discounted gap too early and omit a later item.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP25 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix restores the multiplier to both early monetary accumulators. Their actual gold or GPT amounts remain unchanged; only the internal discounted-side value now uses the same units as every later addition under the advc.705 contract.
+
+Validation for KI#658-KI#660 compiled successfully. A Rise and Fall autoplay advanced 73 turns and changed the active player three times before its takeover/defeat handoff stopped automation with 428 requested turns remaining. `RiseFall.cpp` deliberately stops autoplay at chapter and game-end transitions, so that interruption is expected mode behavior rather than evidence of a trade-balancing regression; the exact counterproposal branches remain source-verified.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP25 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-661"></a>
 
@@ -14109,8 +14120,32 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP53 `CvPlayer
 
 <a id="ki-687"></a>
 
-## KI#687 - (Provisional Pending investigation) F364 remains unassigned during the CvPlayerAI deep re-audit
+## KI#687 - (Provisional Pending inherited BtS cooldown defect) A suppressed financial-trouble refresh is never retried
 
-The continuous audit ledger reserves provisional KI#687 for F364. Through C031-WIP53, the queue-001 deep re-audit has confirmed F321-F363 and is continuing through Domination/Diplomacy victory-stage calculations and their state consumers. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F364 finds `AI_doCheckFinancialTrouble` recording the false-to-true financial-trouble transition even when the shared 10-turn production-dirty cooldown suppresses its requested city-production refresh. Persistent trouble then no longer satisfies the transition check, so the missed empire-wide reevaluation is never retried after the cooldown expires. Pending preserving an explicit deferred refresh until it can execute without removing the cooldown.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP54 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-688"></a>
+
+## KI#688 - (Provisional Pending inherited BtS cache defect) Great-General upgrade discounts can inflate the AI gold reserve
+
+Album F365 finds `AI_updateGoldToUpgradeAllUnits` caching an individual unit's upgrade price by UnitType even though promotion state, UnitAI and area can change that price or the useful upgrade candidates. In shipped data, a `PROMOTION_LEADER` unit has a 100% upgrade discount but can reuse the positive cached price of an ordinary same-type unit, inflating the AI's strategic upgrade reserve. Pending retaining per-unit `upgradePrice` evaluation while caching only genuinely type-invariant discovery data.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP55 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-689"></a>
+
+## KI#689 - (Provisional Pending AdvCiv unit-role regression) Advanced Start naval explorers receive the land-explorer role
+
+Album F366 finds `AI_advancedStartPlaceExploreUnits(false)` selecting a naval unit for `UNITAI_EXPLORE_SEA` but passing hard-coded `UNITAI_EXPLORE` to AdvCiv's explicit-role Advanced Start purchase call. The created ship consequently follows the land-explorer routine and does not satisfy the sea-explorer count that caused its purchase. Pending passing the already-derived `eUnitAI` through to unit creation.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP56 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-690"></a>
+
+## KI#690 - (Provisional Pending investigation) F367 remains unassigned during the CvPlayerAI deep re-audit
+
+The continuous audit ledger reserves provisional KI#690 for F367. Through C031-WIP56, the queue-001 deep re-audit has confirmed F321-F366 and is continuing through Advanced Start construction, routing and unit placement. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
 
 Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
