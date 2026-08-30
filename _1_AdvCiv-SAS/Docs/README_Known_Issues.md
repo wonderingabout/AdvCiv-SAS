@@ -706,6 +706,33 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#615 - (Provisional Pending inherited deal-transaction defect) A city transfer can invalidate a sibling resource export](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-615)\
 [KI#616 - (Provisional Pending AdvCiv attitude-bookkeeping defect) Multi-target peace and war trades retain only the last political target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-616)\
 [KI#617 - (Provisional Pending inherited embargo-valuation defect worsened by AdvCiv) A player's embargo price includes teammate deals that survive it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-617)\
+[KI#618 - (Provisional Pending AdvCiv war-bribe valuation defect) Shared Open Borders and Defensive Pact losses are priced once per team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-618)\
+[KI#619 - (Provisional Pending AdvCiv attitude-cache timing regression) Annual deals defer cache refresh in only one direction](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-619)\
+[KI#620 - (Provisional Pending inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars can be purchased twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-620)\
+[KI#621 - (Provisional Pending inherited bundle incompatibility worsened by AdvCiv) Vassalage and a Defensive Pact can create an orphan relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-621)\
+[KI#622 - (Provisional Pending inherited BUG/K-Mod integration defect) Consumed keyboard and mouse events lose their return value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622)\
+[KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-623)\
+[KI#624 - (Provisional Pending inherited K-Mod pathfinder defect) An over-limit route can overwrite a valid bounded path](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-624)\
+[KI#625 - (Provisional Pending inherited K-Mod group-path cost defect) Maximum-cost unit overwrites minimum moves left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-625)\
+[KI#626 - (Pending Architectural inherited K-Mod group-path state defect) Shared minimum moves fabricate per-unit movement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-626)\
+[KI#627 - (Provisional Pending incomplete AdvCiv pathfinder repair) Pre-war route simulation checks only the destination endpoint](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-627)\
+[KI#628 - (Provisional Pending inherited K-Mod sea-path heuristic defect) Discounted fog steps can produce a suboptimal exploration route](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-628)\
+[KI#629 - (Provisional Pending minor SAS logging defect) Fixed-name BBAI sessions reuse stale UTC metadata](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-629)\
+[KI#630 - (Provisional Pending AdvCiv random-event popup regression) Revalidation creates and leaks a second randomized trigger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-630)\
+[KI#631 - (Provisional Pending inherited BtS lead-unit popup defect) Teammate units can alias an own unit by player-local ID](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-631)\
+[KI#632 - (Provisional Pending inherited BtS election-popup defect) None can leak its selection or propose an unrelated resolution](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-632)\
+[KI#633 - (Provisional Pending inherited team-vote defect) Stale ballots can elect an ineligible team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-633)\
+[KI#634 - (Provisional Pending inherited K-Mod popup defect) Stale vassal tribute refusal can declare war after vassalage ends](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-634)\
+[KI#635 - (Provisional Pending inherited transport-popup defect) A transport ordinal can retarget after the popup opens](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-635)\
+[KI#636 - (Provisional Pending inherited K-Mod free-tech popup defect) A stale teammate-acquired technology can consume the choice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-636)\
+[KI#637 - (Provisional Pending incomplete K-Mod vote validation) A stale proposal can bypass the minimum-voter rule](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-637)\
+[KI#638 - (Pending Architectural inherited popup identity defect exposed by K-Mod) Selection-bound modals can rebind after rapid cycling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-638)\
+[KI#639 - (Provisional Pending AdvCiv captured-city popup regression) Player 0 collides with a conquest boolean](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-639)\
+[KI#640 - (Pending Architectural inherited liberation-popup defect broadened by AdvCiv) The recipient can change after the popup opens](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-640)\
+[KI#641 - (Provisional Pending inherited BtS vote-lifetime defect incompletely addressed by AdvCiv) A former member can still defy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-641)\
+[KI#642 - (Provisional Pending inherited BtS multiplayer popup defect) A dead human can receive an inert One More Turn button](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-642)\
+[KI#643 - (Pending Architectural inherited BtS Pick Religion ownership defect) Founder death can strand a reserved religion slot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-643)\
+[KI#644 - (Provisional Pending investigation) F321 remains unassigned during the CvDLLButtonPopup audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-644)\
 
 <a id="ki-1"></a>
 
@@ -13438,3 +13465,219 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 Album F294 finds `AI_stopTradingTradeVal` scanning deals between the hired player's whole team and the embargo target even though `stopTradingWithTeam` cancels only deals owned by that specific player. On a multi-member team, teammate resource or Gold Per Turn deals can therefore inflate the requested embargo price despite surviving execution; member-by-member war-bribe valuation can count the same team inventory repeatedly. The team-versus-player mismatch is inherited from BtS/K-Mod/Civ4CE. AdvCiv practical 1618 then combined the broad filter with exact-player `CvDeal` accessors, adding Debug assertions and orientation-dependent Release fall-through when the hired player is absent from an admitted teammate deal. Pending replacement of only the ordinary persistent-deal scan with exact-player scope while retaining genuinely team-level Open Borders and Defensive Pact costs.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-618"></a>
+
+## KI#618 - (Provisional Pending AdvCiv war-bribe valuation defect) Shared Open Borders and Defensive Pact losses are priced once per team member
+
+Album F295 finds AdvCiv's war-bribe embargo lower bound summing one `AI_stopTradingTradeVal` result per member of the hired team. This is correct for distinct player-owned resource and Gold Per Turn deals, but every summand also prices the same team-level Open Borders and Defensive Pact state. The first real embargo tears down that shared agreement and every proxy, so a two-member team can price one relationship twice and the overcount grows with team size. AdvCiv practical 2930 introduced the member sum while K-Mod/Civ4CE lack this later design. Pending separation of additive player-owned losses from one team-level relationship cost without dividing or weakening the genuinely additive ordinary deals.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-619"></a>
+
+## KI#619 - (Provisional Pending AdvCiv attitude-cache timing regression) Annual deals defer cache refresh in only one direction
+
+Album F296 finds practical 3309 adding a switch to defer annual-deal attitude refresh until `CvGame::doDeals` finishes, but passing `false` only for the second saved trade direction. The first direction retains the default immediate update, so later deals in the same batch can observe newly refreshed third-party attitudes and compute different rival-trade resentment solely from `CvDeal` endpoint orientation or iteration order. Base AdvCiv 1.14 retains this partial fix and SAS inherited it unchanged; K-Mod predates the mechanism. Pending the narrow symmetric `false` argument on the first-direction trade and grant calls while retaining immediate updates for callers outside the recurring-deal batch.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-620"></a>
+
+## KI#620 - (Provisional Pending inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars can be purchased twice
+
+Album F297 finds supported legacy/K-Mod war AI evaluating several `TRADE_WAR` items independently against the unchanged pre-deal state. If two targets have a Defensive Pact, the first target's price already includes its ally and the first declaration pulls that ally into war; the second purchased declaration is nevertheless priced separately and later returns immediately because that war already exists, while sponsorship memory can still be written. BtS/K-Mod inherit the per-item valuation and prevalidation shape. AdvCiv's normal UWAI adds an explicit one-hired-war policy but gates it on UWAI, leaving its supported legacy mode exposed. Pending making that existing one-war bundle policy unconditional while preserving the selected single-war valuation model.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-621"></a>
+
+## KI#621 - (Provisional Pending inherited bundle incompatibility worsened by AdvCiv) Vassalage and a Defensive Pact can create an orphan relation
+
+Album F298 finds voluntary vassalage and a Defensive Pact individually valid between two free teams but mutually incompatible as one final state. AdvCiv's deterministic vassal-last execution first signs the pact, then vassalization cancels its proxies; processing the reciprocal pact item afterward can fail nested proxy creation under the new vassal state while outer `startTrade` still sets the team flag unconditionally, leaving a one-way master/vassal Defensive Pact bit with no backing deal. The underlying incompatible bundle is inherited from BtS/K-Mod, while current Base AdvCiv 1.14 supplies the deterministic orphan-state sequence inherited by SAS. Pending backend bundle rejection, matching UI hiding and defensive propagation of team-proxy creation failure.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-622"></a>
+
+## KI#622 - (Provisional Pending inherited BUG/K-Mod integration defect) Consumed keyboard and mouse events lose their return value
+
+Album F299 finds native `CvDllPythonEvents` correctly returning whether Python consumed keyboard or mouse input, and BUG's `_handleConsumableEvent` correctly computing the positive result, but `BugEventManager.handleEvent` discarding `_dispatchEvent`'s return one frame before `CvEventInterface.onEvent` returns to C++. Python shortcuts can therefore execute while the engine is never told that the input was consumed, permitting native/interface fall-through depending on the active key or screen. Base AdvCiv 1.14 and supplied K-Mod contain the same missing return; stock `CvEventManager` preserves it and Civ4CE/BtS do not supply this BUG override. Pending the local `return self._dispatchEvent(...)` repair without changing ordinary unconsumed notification semantics.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C026 `CvDllPythonEvents.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-623"></a>
+
+## KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality
+
+Album F300 finds `GroupPathFinder` changing a node's movement and path-turn state when it reparents or forward-propagates a cheaper path, without rerunning the path-dependent danger predicate. Descendants can inherit the changed state recursively, while closed nodes are not reopened for fresh expansion. A current noncombat-Worker case proves that the resulting route can violate the danger rule used to admit it. The root is inherited from K-Mod; AdvCiv practical 4196 fixed the first-arrival form but explicitly left residual path-data concerns. Pending an architectural repair that preserves the older valid parent when a prospective reparent is invalid and safely revalidates or rediscovers affected descendants and closed nodes.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinder.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-624"></a>
+
+## KI#624 - (Provisional Pending inherited K-Mod pathfinder defect) An over-limit route can overwrite a valid bounded path
+
+Album F301 finds `KmodPathFinder` able to initialize or reparent a destination through a path longer than `iMaxPath`. A cheaper over-limit route can overwrite a valid bounded parent and path; the final length check then returns false even though an admissible route had already existed. The shipped attack-city/mobile-artillery `AI_choke(1)` call supplies a current bounded producer. Pending review of path-state commitment so over-limit candidates cannot displace legal bounded state.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinder.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-625"></a>
+
+## KI#625 - (Provisional Pending inherited K-Mod group-path cost defect) Maximum-cost unit overwrites minimum moves left
+
+Album F302 finds `GroupStepMetric::cost` first computing `iWorstMovesLeft` as the group minimum, then overwriting it with one unit's `iMovesLeft` whenever that later unit establishes `iWorstCost`. Mixed-speed or mixed-cost stacks can consequently skip real end-turn territory, defense and danger weights. Current siege plus German Hussar route arithmetic reverses path choice and changes `AI_pickTargetCity` scoring. Pending the narrow repair of keeping minimum-moves accumulation independent from the maximum-cost branch.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinder.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-626"></a>
+
+## KI#626 - (Pending Architectural inherited K-Mod group-path state defect) Shared minimum moves fabricate per-unit movement
+
+Album F303 finds `GroupStepMetric::cost` feeding the same group-level `iCurrMoves` to every unit on a parent node even when nonuniform movement costs left those units with different true movement. K-Mod's own practical 1017 already performs per-unit replay in `updatePathData` to avoid this class of state error. A current siege plus three-move Hussar railroad case reverses a staging route and can add a turn to `AI_moveToStagingCity`. This root is independent of KI#625 and needs real per-unit turn-movement reconstruction or richer cached node state rather than another shared scalar.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinder.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-627"></a>
+
+## KI#627 - (Provisional Pending incomplete AdvCiv pathfinder repair) Pre-war route simulation checks only the destination endpoint
+
+Album F304 finds AdvCiv practical 4277 anticipating the loss of Open Borders after a declaration of war, but deriving route suppression only from the destination plot's team. A step from a future-enemy road onto a friendly or third-party road can therefore use the enemy route during planning even though it becomes unavailable after war begins. A normal one-move attack-city stack can be valued as a two-turn route that takes three turns in execution. Pending per-unit post-war route validation at both endpoints; blindly disabling every future-enemy route would conflict with SAS's AI-usable Logistics promotion.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinder.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-628"></a>
+
+## KI#628 - (Provisional Pending inherited K-Mod sea-path heuristic defect) Discounted fog steps can produce a suboptimal exploration route
+
+Album F305 finds sea groups using one full movement denominator as the A* heuristic weight although K-Mod practical 1188 later discounted unrevealed exploration steps to two thirds. For `UNITAI_EXPLORE_SEA` and `AUTOMATE_EXPLORE`, that heuristic can overestimate the remaining cost and terminate on a more expensive revealed route before expanding the genuinely cheaper partially fogged detour. The corrected reproduction uses a revealed destination and reaches the same suboptimal route through the current physical `groupPathTo` finder. K-Mod, Base AdvCiv and SAS all inherit the mismatch. Pending a heuristic bound consistent with the cheapest supported exploration step.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinder.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-629"></a>
+
+## KI#629 - (Provisional Pending minor SAS logging defect) Fixed-name BBAI sessions reuse stale UTC metadata
+
+Album F306 finds `rollSASBBAILog` refreshing `g_szSASBBAILogTimestamp` only when timestamped filenames are enabled. In supported fixed-name mode, later new games and loaded saves correctly keep appending to the fixed BBAI filename, but their `BBAI_NEW_GAME_INITIALIZING`, `BBAI_NEW_GAME_STARTED` and `BBAI_SAVE_LOADED` identity rows retain the first session's UTC instead of identifying the current session. This is SAS-specific lifecycle behavior introduced with practical 6011. Pending the SASGameRecord-style repair: refresh session UTC on every roll and gate only filename context and sequence on the timestamped-filename setting.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C029 `BBAILog.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-630"></a>
+
+## KI#630 - (Provisional Pending AdvCiv random-event popup regression) Revalidation creates and leaks a second randomized trigger
+
+Album F307 finds `launchEventPopup` calling side-effectful `initTriggeredData` to "double-check" an already-created human event. That function is a constructor and randomizer rather than a predicate: it can consume synchronized random numbers and inserts a second `EventTriggeredData`, whose returned pointer the popup immediately discards without deletion. The displayed popup remains tied to the original record while the ghost trigger persists. Pre-SAS AdvCiv practical 4304 introduced this revalidation; K-Mod and Civ4CE/BtS do not call `initTriggeredData` while rendering. Pending a pure current-validity check or a rollback-safe validation path that never creates a second live trigger.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-631"></a>
+
+## KI#631 - (Provisional Pending inherited BtS lead-unit popup defect) Teammate units can alias an own unit by player-local ID
+
+Album F308 finds the Great General popup enumerating every promotable unit on the plot although `CvUnit::canLead` permits only units owned by the leader's player. `canPromote` resolves the leader ID through each candidate's owner, and the reply repeats the owner-blind enumeration, so a teammate unit whose player-local ID aliases another own Great General can be listed and selected under the wrong ownership context. Firaxis BtS, Civ4CE, K-Mod, Base AdvCiv and SAS share the design. Pending matching the launch and reply enumeration to the same-owner invariant and carrying stable owner/unit identity.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-632"></a>
+
+## KI#632 - (Provisional Pending inherited BtS election-popup defect) None can leak its selection or propose an unrelated resolution
+
+Album F309 finds the human Secretary-General's None/Early Election button encoded with `GC.getNumVoteInfos()` rather than an explicit semantic choice. When the target-expanded proposal vector is no larger than that value, clicking None sends no synchronized message and the `VoteSelectionData` is never deleted. When the vector is larger, the same pseudo-sentinel aliases a real proposal ordinal and clicking None proposes that unrelated resolution instead. The design is inherited from BtS/Civ4CE through K-Mod and Base AdvCiv; SAS's 48-civilization capacity makes the collision especially reachable. Pending an explicit no-choice branch that synchronizes `-1`, performs normal cleanup and range-checks ordinary indices.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-633"></a>
+
+## KI#633 - (Provisional Pending inherited team-vote defect) Stale ballots can elect an ineligible team
+
+Album F310 finds team-vote buttons filtering candidates only when the popup is constructed. A delayed simultaneous-multiplayer reply sends the stored team ID without rechecking `isTeamVoteEligible`, `castVote` stores it, and `findHighestVoteTeam` can count it after capitulation or another intervening state change made that team ineligible. K-Mod already combines launch-time eligibility with result-time counting that lacks the same validation; Base AdvCiv and SAS inherit it, while AdvCiv's capitulation-specific candidate cleanup makes the contradiction particularly explicit. Pending reply-time and result-time eligibility enforcement.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-634"></a>
+
+## KI#634 - (Provisional Pending inherited K-Mod popup defect) Stale vassal tribute refusal can declare war after vassalage ends
+
+Album F311 finds the human vassal-tribute popup checking the master/vassal relationship only when it opens. If ordinary simultaneous-multiplayer diplomacy ends that relationship while the popup remains pending, the No reply still sends an unconditional declaration of war against the former master; the Yes path can similarly display immediate acceptance feedback for a deal the synchronized layer rejects. This delayed relationship contract is inherited from K-Mod/Base AdvCiv rather than introduced by SAS. Pending current relationship and target revalidation before either reply consequence.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-635"></a>
+
+## KI#635 - (Provisional Pending inherited transport-popup defect) A transport ordinal can retarget after the popup opens
+
+Album F312 finds the Load Unit popup storing only each currently eligible transport's ordinal. On reply it re-enumerates the current plot and loads into whichever transport now occupies that ordinal, so an intervening simultaneous-multiplayer move can silently retarget the order to a newly present teammate transport. K-Mod, Base AdvCiv and Civ4CE share the ordinal/re-enumeration design; later null checks and single-transport conveniences do not cure the identity loss. Pending stable transport owner/unit ID storage plus current legality validation.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-636"></a>
+
+## KI#636 - (Provisional Pending inherited K-Mod free-tech popup defect) A stale teammate-acquired technology can consume the choice
+
+Album F313 finds a free-technology popup retaining stable technology IDs but not revalidating their eligibility when clicked. If a teammate acquires a displayed technology while the popup is open, the local free-choice count is consumed before the research message reaches synchronized validation, so the stale click can spend the entitlement on an already-known technology. K-Mod's own `OnFocus` comment recognizes the stale-list concern; Base AdvCiv and SAS retain the contract. Pending rebuilding/canceling stale choices or validating first while preserving exactly one free-tech entitlement.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-637"></a>
+
+## KI#637 - (Provisional Pending incomplete K-Mod vote validation) A stale proposal can bypass the minimum-voter rule
+
+Album F314 finds K-Mod strengthening Secretary-General proposal construction with `isValidVoteSelection`, including the XML minimum-voter rule, while leaving the delayed human reply to create a ballot from the old snapshot without rerunning that stronger validity contract. Membership changes while the popup is open can therefore reduce eligible voting teams below the required minimum and still produce the resolution. Base AdvCiv and SAS inherit this incomplete K-Mod strengthening. Pending current `isValidVoteSelection` validation before converting the stored proposal into a live ballot.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-638"></a>
+
+## KI#638 - (Pending Architectural inherited popup identity defect exposed by K-Mod) Selection-bound modals can rebind after rapid cycling
+
+Album F315 generalizes several modal popups that describe the current selected unit/group but store only an action, mission or auxiliary choice. K-Mod's supported Rapid Unit Cycling can replace the selection while such a popup waits after the original selected unit dies; the reply then applies to the unrelated replacement selection because receiver legality cannot know which group the popup described. Current manifestations include confirmed deletion and selection-bound movement, loading, leading and espionage actions. BtS/Civ4CE supply the identity-free popup design, while K-Mod introduced the immediate rebinding producer inherited by Base AdvCiv and SAS. Pending shared stable selection/group identity across every affected modal rather than per-popup symptom guards.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-639"></a>
+
+## KI#639 - (Provisional Pending AdvCiv captured-city popup regression) Player 0 collides with a conquest boolean
+
+Album F316 finds AdvCiv storing a concrete liberation `PlayerTypes` in the captured-city popup, then passing that player ID as `TASK_LIBERATE`'s first integer even though `CvCity::doTask` interprets it only as a boolean `bConquest`. Every nonzero player happens to mean conquest liberation, but player 0 becomes false and can recompute a different recipient or no recipient at all. Pre-SAS AdvCiv practical 1719 introduced this mismatch while replacing K-Mod's explicit `TASK_GIFT` target. Pending preserving the intended conquest flag and explicit recipient identity without using an enum as a boolean.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-640"></a>
+
+## KI#640 - (Pending Architectural inherited liberation-popup defect broadened by AdvCiv) The recipient can change after the popup opens
+
+Album F317 finds Free Colony and captured-city liberation buttons naming a concrete recipient at construction but retaining only city identity plus a conquest/non-conquest flag. `CvCity::liberate` recomputes the best recipient from current state on reply, so the city can be given to a different civilization than the button promised. The Free Colony manifestation is inherited from BtS/Civ4CE through K-Mod; AdvCiv broadened the target-less reply to its captured-city path. Pending stable recipient identity with reply-time validation and an honest stale-popup outcome.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-641"></a>
+
+## KI#641 - (Provisional Pending inherited BtS vote-lifetime defect incompletely addressed by AdvCiv) A former member can still defy
+
+Album F318 finds a delayed diplomatic-vote popup allowing a player who ceased to be a voting member to submit the stored Defy choice. The reply and `castVote` do not require current voting membership, and result processing can let that stale Defy veto the resolution. BtS/Civ4CE and K-Mod inherit the delayed-voter contract; AdvCiv reruns `canDefyResolution` later but that does not replace the missing membership check for resolution branches that remain otherwise defiable. Pending current-member validation at reply and result processing.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-642"></a>
+
+## KI#642 - (Provisional Pending inherited BtS multiplayer popup defect) A dead human can receive an inert One More Turn button
+
+Album F319 finds game-over logic queuing the Extended Game popup to every ever-alive human, including eliminated players, while its launcher adds One More Turn whenever any human remains alive. The synchronized acceptance path permits only an alive human, so a dead multiplayer recipient can see an affirmative button that cannot work, contradicting AdvCiv's nearby note that dead humans should reach only the opening menu. BtS/Civ4CE, K-Mod, Base AdvCiv and SAS retain the three-part mismatch. Pending recipient-specific alive filtering of the affirmative choice.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-643"></a>
+
+## KI#643 - (Pending Architectural inherited BtS Pick Religion ownership defect) Founder death can strand a reserved religion slot
+
+Album F320 finds the Pick Religion path reserving the technology's religion slot before a human founder answers the popup. If that human is eliminated while the choice is pending, popup cleanup removes the only owner of the entitlement but no synchronized state represents, transfers or releases it, so the slot can remain permanently reserved without a founded religion. This reservation-before-choice architecture is inherited unchanged from BtS/Civ4CE through K-Mod and Base AdvCiv. Pending explicit serialized ownership of each pending entitlement so elimination can deterministically transfer, resolve or release it.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-644"></a>
+
+## KI#644 - (Provisional Pending investigation) F321 remains unassigned during the CvDLLButtonPopup audit
+
+The continuous audit ledger reserves provisional KI#644 for F321, but C030-WIP17 has not confirmed another independent defect. All 43 current `CvDLLButtonPopup` member definitions are classified under F307-F320, verified receiver/lifecycle controls or deliberately unnumbered dormant and bookkeeping edges. Queue 019 still requires final popup-sound/history, ancestry, numbering and routing reconciliation before durable closure. Do not implement a change under this number unless that final pass establishes a separate current producer, violated contract, concrete consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; provisional ledger disposition indexed with the help of GPT-5.6-Sol, thanks.
