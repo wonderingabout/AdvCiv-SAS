@@ -2,12 +2,12 @@ AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
-Files complete: 31 / 169
+Files complete: 32 / 169
 Files open: 1 / 169
-Last completed file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - CLOSED AT C031-WIP65
-Current file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - OPEN AT C031-WIP84
-Latest confirmed roots: F321-F386 / provisional KI#644-KI#709 across the protected re-audits
-Next root ID: F387 unused / provisional KI#710 next
+Last completed file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - CLOSED AT C031-WIP87
+Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP91
+Latest confirmed roots: F321-F390 / provisional KI#644-KI#713 across the protected re-audits
+Next root ID: F391 unused / provisional KI#714 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -22,8 +22,8 @@ METHOD
 
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
-002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP84 / F375-F386]<-(priority current wip)
-003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]<-(priority next wip)
+002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
+003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP91 / F388-F390]<-(priority current wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
@@ -81951,3 +81951,1951 @@ NEXT
 3. Run the final function-range and root-pattern reconciliation one more time.
 4. Only then decide whether Queue 002 closes with F387 unused or yields another
    supported root.
+
+===============================================================================
+C031-WIP85 — PROTECTED QUEUE 002 CvUnitAI.cpp — POST-F384 RECONCILIATION
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+31/169 unique files complete.
+F375-F386 CONFIRMED.
+F387 / provisional KI#710 UNUSED.
+Existing KI#213 retained/reconfirmed.
+No repository source files modified.
+
+POST-WIP84 CONTROLS PRESERVED
+-----------------------------
+The exact member-function reconciliation is now essentially saturated.
+Previously unnamed active members such as `AI_cityAutomated`,
+`AI_groupMergeRange`, `AI_spreadCorporation`, `AI_spreadReligionAirlift`,
+`AI_seaBombardRange` and `AI_pillage` were directly compared against their
+K-Mod/Base/current contracts and no independent F387 survived.
+
+The remaining apparent member-name holdouts such as `AI_canPillage`,
+`AI_foundRange`, `AI_seaRetreatFromCityDanger`, `AI_finalOddsThreshold` and
+`AI_hurry` are compiled-out/deleted legacy code in current AdvCiv/SAS rather
+than unreviewed live behavior.
+
+The SAS file-local helper layer was deliberately opened because it does not
+appear in a `CvUnitAI::` member inventory. Additional checks covered:
+* first-city food/fog scoring and raw-vs-path-adjusted candidate comparisons;
+* remote captured-city attack-stack trap helpers;
+* Barbarian expedition sizing and city-attack capability counts;
+* peaceful ATTACK_CITY excess-release state;
+* military-concentration diagnostics;
+* Worker no-bonus branch parsing and selection;
+* improvement-upgrade-chain / growth-value helpers;
+* irrigation-carrier and irrigation-chain bookkeeping.
+
+No independent F387 was established from those helpers in this slice.
+
+The earlier Worker concern where `SAS_pickWorkerNoBonusBranchBuild` could return
+its highest buildable candidate even after negative adjustments was tested
+against current default XML. The irrigation-blocking penalty activates only
+when an irrigation-carrying candidate is actually available; the feared
+Farm-impossible low-yield all-negative state was not established.
+
+`AI_guardYield` remains an explicitly UNPROMOTED design-debt candidate.
+When a unit is already guarding an outer-ring improvement, the function obtains
+`pCity = getPlot().getWorkingCity()` but scans `CityPlotIter(getPlot())`, i.e.
+centered on the guard unit rather than the recovered city. AI sleeping groups
+are force-updated and can reevaluate, so the shifted footprint is real and can
+retarget onto an improved owned tile outside the original city's BFC. However,
+the current source/history still does not establish a hard contract that the
+post-arrival guard search must remain confined to that city's BFC; a one-hop
+nearby-improvement policy remains plausible. Do not allocate F387 without a
+stronger ancestry/semantic control.
+
+Late inherited controls also closed cleanly:
+* AdvCiv's nuke-range merge retains real `canNukeAt` legality for finite-range
+  missile targets.
+* `AI_afterAttack`'s Blitz change intentionally delays post-attack regroup /
+  retreat until the Blitz unit has exhausted its attacks.
+* Great Work / Trade candidates remain selected from same-pass legality-tested
+  destinations; no supported illegal execution state was established.
+* `AI_routeCity` advc.121 does not perform the pointless backtrack initially
+  suspected: `MISSION_ROUTE_TO` first builds on the current tile and then
+  routes toward its endpoint, so the queued endpoint route is completing the
+  unfinished connection rather than merely walking back to the first city.
+* `AI_leaveAttack`'s group-head-vs-group-size comparison is conservative and
+  inherited from BtS; no hard individual-unit-count contract was established.
+
+F380 companion repair notes remain unchanged:
+* restore the missing `!isVassal(...)`;
+* test `getRevealedRouteType(...) != NO_ROUTE` explicitly;
+* reconcile the radius-1 `SquareIter` with the otherwise unreachable
+  `iDistance == 2` route-danger branch.
+The latter two remain masked/companion defects rather than separately numbered
+findings under the current F380 execution path.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F386 CONFIRMED.
+F387 / provisional KI#710 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP85.
+No repository source files modified.
+
+NEXT
+----
+Finish the remaining file-local helper classification and the final whole-file
+predicate/sentinel/source-target/path-state/candidate-execution reconciliation.
+Only then decide whether Queue 002 closes with F387 unused or yields another
+supported root.
+
+===============================================================================
+C031-WIP86 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F387 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F386 remain CONFIRMED.
+F387 / provisional KI#710 is CONFIRMED.
+F388 / provisional KI#711 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F387 / provisional KI#710 — AdvCiv `AI_guardYield` recovers the guarded tile's
+working city but centers its next "city plot" search on the GUARD UNIT instead,
+allowing a high-yield guard to drift outside that city's radius and breaking
+the function's own one-hop-to-city safety rationale
+-------------------------------------------------------------------------------
+
+ROOT
+----
+AdvCiv added `AI_guardYield` under advc.300 to:
+
+    // Protect high-yield tiles from Barbarians
+
+The helper starts by identifying the relevant owned city:
+
+    CvCity const* pCity = getPlot().getPlotCity();
+
+    // For now, only consider nearby city if already guarding bonus.
+    if (pCity == NULL &&
+        AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_BONUS)
+    {
+        pCity = getPlot().getWorkingCity();
+    }
+
+    if (pCity == NULL || pCity->getOwner() != getOwner())
+        return false;
+
+So after a guard has reached an improved tile in a city radius, the function
+explicitly recovers that tile's working city.
+
+However, `pCity` is then not used to define the candidate population.
+
+Current Base AdvCiv 1.14 and SAS execute:
+
+    for (CityPlotIter it(getPlot()); it.hasNext(); ++it)
+    {
+        CvPlot& kLoopPlot = *it;
+        ...
+    }
+
+This is not an iterator over `pCity`.
+
+`CityPlotIterator.h` explicitly defines the `CvPlot` constructor as:
+
+    "Iterator over the CvPlot instances in the city radius
+     around a plot in the center."
+
+and stores:
+
+    m_iCenterX(kCenter.getX()),
+    m_iCenterY(kCenter.getY())
+
+Therefore:
+
+    CityPlotIter(getPlot())
+
+means the 21-tile city-radius SHAPE centered on the unit's current guard plot.
+
+The function had already recovered `pCity`, but searches a different footprint.
+
+WHY THE FIRST CALL LOOKS CORRECT
+--------------------------------
+The defect is easy to miss because the normal first invocation occurs while a
+Reserve unit is in an owned city.
+
+At that moment:
+
+    getPlot() == pCity->plot()
+
+so:
+
+    CityPlotIter(getPlot())
+
+and:
+
+    CityPlotIter(*pCity)
+
+would describe the same center.
+
+The function can select a high-value improved tile and queues:
+
+    MISSIONAI_GUARD_BONUS
+
+for that tile.
+
+Only after the unit arrives does `getPlot()` cease to be the city plot.
+
+THE GUARD REALLY RE-EVALUATES AFTER ARRIVAL
+-------------------------------------------
+This is not a dormant second-call path.
+
+When the guard is on its yield tile it normally fortifies/skips with:
+
+    MISSIONAI_GUARD_BONUS
+
+AI-controlled groups that are not executing `ACTIVITY_MISSION` are force-
+updated at the turn boundary. `CvSelectionGroup::doTurn` sets:
+
+    setForceUpdate(true);
+    clearMissionQueue();
+
+for such AI groups.
+
+`clearMissionQueue()` removes mission queue entries but does NOT clear the
+selection group's `m_eMissionAIType` / mission-AI plot.
+
+`CvSelectionGroup::readyToMove()` explicitly treats:
+
+    isForceUpdate()
+
+as sufficient to re-enter AI updating even when the group had been sleeping.
+
+Consequently the fortified yield guard re-enters `AI_reserveMove` and reaches
+`AI_guardYield` on later turns while its `MISSIONAI_GUARD_BONUS` identity is
+still available.
+
+The branch:
+
+    pCity = getPlot().getWorkingCity();
+
+is therefore live exactly as its comment implies.
+
+LIVE GEOMETRY — SEARCH FOOTPRINT DRIFTS OUTWARD
+------------------------------------------------
+Take city C and an improved outer-ring plot A that C can work.
+
+The standard Civ4 city geometry includes radius-two positions such as:
+
+    C = (0,0)
+    A = (2,0)
+
+Once the unit is guarding A:
+
+    pCity == C
+
+but the current loop is equivalent to a new city radius centered at:
+
+    A = (2,0)
+
+That shifted footprint contains positions such as:
+
+    B = (3,0)
+
+which are outside C's real city radius.
+
+If B is:
+* owned by the same player;
+* improved;
+* land;
+* not a city;
+* currently empty;
+* high-yield enough;
+* sufficiently near invisible terrain;
+* reachable from A in one path turn;
+
+then B can outrank A and become `pBestPlot`.
+
+Nothing in `AI_guardYield` requires:
+
+    B.getWorkingCity() == pCity
+
+or even:
+
+    B.getWorkingCity() != NULL.
+
+The unit can therefore move from a genuine worked/working-city yield tile to an
+improved plot that the recovered city cannot work at all.
+
+On the following turn, if B lies outside every city assignment:
+
+    getPlot().getPlotCity() == NULL
+    getPlot().getWorkingCity() == NULL
+
+so the same `AI_guardYield` function immediately returns false and the
+high-yield guard assignment has effectively dissolved.
+
+BROKEN "HURRY BACK TO THE CITY" CONTRACT
+-----------------------------------------
+The function explains its one-turn path restriction explicitly:
+
+    /* Must be reachable in one hop, so that we can hurry back to the city
+       when it's in danger. */
+
+It checks:
+
+    generatePath(kLoopPlot, ..., &iPathTurns)
+    iPathTurns <= 1
+
+But `generatePath` starts from THIS UNIT'S CURRENT position.
+
+On the first call, while the unit is in C, that does mean:
+    candidate is one path turn from the city.
+
+On a later call from outer-ring A it only means:
+    new candidate B is one path turn from A.
+
+It provides no guarantee that B is one turn from C.
+
+A guard can therefore chain one legal one-turn step outward and end at a plot
+that takes more than one turn to return from, contradicting the exact safety
+rationale used to justify the path bound.
+
+This also interacts with `AI_reserveMove` ordering. The earlier general
+`AI_guardCity(false, true, 2)` search has a two-turn limit. Once a guard drifts
+far enough from its original city, the ordinary high-priority city-guard branch
+is no longer guaranteed to rediscover that city when it becomes endangered.
+
+UNUSED `pCity` IS AN INTERNAL CONTROL
+-------------------------------------
+After ownership validation, `pCity` is not used anywhere else in
+`AI_guardYield`.
+
+That is particularly revealing because the special post-arrival branch exists
+solely to recover a city from the current guarded tile:
+
+    pCity = getPlot().getWorkingCity();
+
+If the intended candidate population were simply "a 21-tile neighborhood
+around wherever the unit currently stands," there would be little reason to
+recover the exact working city rather than only test that the current tile is
+near/owned by a city.
+
+The recovered object is exactly what `CityPlotIter` can accept directly:
+
+    CityPlotIter(*pCity)
+
+but the implementation passes:
+
+    CityPlotIter(getPlot())
+
+instead.
+
+ANCESTRY
+--------
+K-Mod 1.46 does not contain `AI_guardYield`.
+
+Base AdvCiv adds it under advc.300, with:
+* the "Protect high-yield tiles from Barbarians" caller comment;
+* the explicit `pCity` / `getWorkingCity()` recovery;
+* the "hurry back to the city" one-hop rationale;
+* the current `CityPlotIter(getPlot())` center.
+
+Current AdvCiv-SAS inherits that structural behavior unchanged.
+
+Classification:
+    inherited AdvCiv advc.300 state/scope regression.
+
+WHY THIS IS STRONGER THAN THE WIP85 UNPROMOTED NOTE
+----------------------------------------------------
+C031-WIP85 deliberately left this unnumbered because a generic "protect nearby
+improvements one hop at a time" policy was still plausible.
+
+The final closure pass supplied the missing contracts:
+
+1. `CityPlotIterator.h` proves that the CvPlot overload is literally centered
+   on the current guard plot; it does not silently resolve the working city.
+
+2. the AI group lifecycle proves the `MISSIONAI_GUARD_BONUS` reevaluation path
+   executes after fortifying; it is not merely theoretical state.
+
+3. the function's own one-hop comment states that the path restriction is
+   supposed to preserve rapid return TO THE CITY. After the first move, current
+   code measures the hop from the guard tile instead.
+
+4. the shifted iterator admits candidates outside `pCity`'s radius, including
+   candidates with no working city, after which the helper can stop applying
+   entirely.
+
+Together those establish a concrete state transition that contradicts the
+function's stated safety invariant.
+
+REPAIR DIRECTION
+----------------
+At minimum, keep the candidate population tied to the recovered city:
+
+    for (CityPlotIter it(*pCity); it.hasNext(); ++it)
+
+rather than:
+
+    for (CityPlotIter it(getPlot()); it.hasNext(); ++it)
+
+If "high-yield tile" means an actually usable tile for that city, a stronger
+version can use / require the corresponding working-city contract as
+appropriate rather than counting arbitrary owned overlap plots.
+
+The one-hop safety rule should also be made relative to `pCity`, not merely
+relative to the guard's current location on subsequent reevaluations.
+
+A conservative design would:
+* validate that the current guarded tile is still a valid high-yield candidate
+  for `pCity`;
+* stay if so;
+* otherwise choose another candidate from `pCity`'s real radius;
+* ensure the chosen guard position remains within the intended rapid-return
+  distance to `pCity`.
+
+Do not allow repeated "one hop from where I am now" retargeting to substitute
+for "one hop from the city."
+
+-------------------------------------------------------------------------------
+FINAL-SWEEP CONTROLS CHECKED BEFORE F387
+-------------------------------------------------------------------------------
+
+SAS file-local Worker / attack helpers
+--------------------------------------
+The remaining behavior helpers were deliberately reopened.
+
+* `SAS_getImprovementUpgradeChainLevel`
+  - bounded by `GC.getNumImprovementInfos()`, so malformed/cyclic XML upgrade
+    chains cannot loop forever.
+
+* `SAS_getWorkerGrowthImprovementLevel`
+  - takes the maximum valid configured chain level; no cross-chain stale state.
+
+* `SAS_getWorkerRecoveredFoodCostImprovementValue`
+  - only rewards configured improvements once current plot/player modifiers
+    make their food effect nonnegative; no reversed "partial recovery" bonus.
+
+* `SAS_isWorkerBuildActivelyCommitted`
+  - empty mission queues are safe because `getMissionType(0)` returns the
+    mission sentinel when no node exists; stale build progress alone is not
+    treated as active commitment.
+
+* `SAS_findWorkerIrrigationChainStep`
+  - KI#214's `(plot,steps)` state remains intact;
+  - generation-stamped cost storage is reset on size change / unsigned
+    generation wrap;
+  - route outputs are initialized before search;
+  - returned source-side build candidates remain owned, same-area, flat,
+    potential-irrigation-valid and buildable.
+
+* targetless peaceful ATTACK_CITY release
+  - aggregate plot counts are recomputed after role conversion;
+  - `AI_setUnitAIType()` detaches converted units through `joinGroup(NULL)`,
+    so the release is not merely a label change inside the old stack.
+
+No independent F388 emerged from those helpers in this slice.
+
+`AI_canRouteThroughSafeTerritory`
+---------------------------------
+The helper ignores the bool return from its first ordinary `generatePath` and
+stores `iOriginalPathTurns` through an output parameter.
+
+That looks like a possible uninitialized read in isolation.
+
+Its live callers, however, reach it only for candidate destinations already
+path-tested by the corresponding Worker selection path (`AI_bestCityBuild`,
+`AI_improveBonus`, or the legacy local candidate path).
+
+Moreover, the second path is strictly more restrictive (`MOVE_SAFE_TERRITORY`);
+a successful safe path with no ordinary path is not a supported state under
+the current movement contract.
+
+No live uninitialized-path consequence was established; no F388.
+
+`AI_tradeMissionValue`
+----------------------
+The initial comparison contains:
+
+    iBestPathTurns = MAX_INT
+    4 + iBestPathTurns
+
+which overflows signed 32-bit arithmetic on the legacy compiler model.
+
+At that initial state the paired `iBestValue` numerator is zero, and the
+comparison still supplies the intended zero baseline on the actual Civ4
+toolchain. No current city ranking mis-selection was established.
+
+This remains worthwhile numeric cleanup / hardening, not F388.
+
+Raw enum / area predicate sweep
+-------------------------------
+The whole-file scan reconfirmed the known strong cases rather than finding a
+new sibling:
+
+* F376:
+    `kPlot.isArea(kPlot.getArea())` tautology in `AI_connectBonus`.
+
+* F380 companion:
+    raw `getRevealedRouteType(getTeam())` boolean in
+    `AI_airOffenseBaseValue`.
+
+Other current `getRevealedRouteType` uses in CvUnitAI explicitly compare with
+`NO_ROUTE`.
+
+No additional live raw-enum-as-bool or self-area predicate crossed the F388
+threshold in this slice.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F387 CONFIRMED in protected Queue 002.
+F388 / provisional KI#711 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP86.
+No repository source files modified.
+
+NEXT
+----
+Continue from F388 unused.
+
+Priority:
+1. finish the remaining whole-file source-vs-target / mission-target /
+   stale-path-state sweeps now that the static-helper inventory is saturated;
+2. run one final exact active member + file-local helper coverage reconciliation;
+3. recheck the late F380/F385/F387 neighborhoods for masked sibling defects;
+4. if no independent F388 survives, freeze a Queue-002 closure checkpoint,
+   increment unique files complete to 32/169, and open protected Queue 003
+   according to the album's protected route.
+
+===============================================================================
+C031-WIP87 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — CLOSED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` is CLOSED under the deeper WIP-era
+re-audit methodology.
+
+Unique files complete: 32/169.
+Confirmed Queue-002 deep-reloop findings: F375 through F387.
+F388 / provisional KI#711 remains UNUSED.
+Existing cross-file KI#213 remains retained/reconfirmed.
+Old F002/KI#331 Queue-002 `scrap()` caller family remains repaired/saturated in
+current source.
+No repository source files were modified.
+
+Next protected target:
+    Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp`
+
+-------------------------------------------------------------------------------
+QUEUE 002 CLOSURE BASIS
+-------------------------------------------------------------------------------
+
+This closure is not based on reaching the physical end of `CvUnitAI.cpp`.
+
+The protected deeper reloop ultimately included all of the following:
+
+1. CURRENT SAS vs Base AdvCiv behavioral-delta reconciliation
+-------------------------------------------------------------
+The full current-SAS member-function surface was compared against Base AdvCiv.
+Large/high-risk current rewrites were deliberately reopened rather than treated
+as already reviewed merely because they had appeared in the original pass.
+
+Major tranches included:
+* `AI_bestCityBuild` and its Worker execution callers;
+* first-capital / Settler scouting and founding;
+* attack-city / target-city / garrison state;
+* Great Person / Great General actions;
+* promotion policy;
+* naval assault, loading, pickup, ferrying and stranded rescue;
+* upgrade travel / retreat;
+* air/naval safety;
+* espionage;
+* city-site / bonus / fort guarding.
+
+Every genuinely current-SAS-changed `CvUnitAI::` member was accounted for in
+the physical WIP chain.
+
+2. Exact active-member reconciliation
+--------------------------------------
+A final definition inventory found 226 active `CvUnitAI::` member definitions
+in current source.
+
+All 226 active members now have explicit coverage in the physical audit chain.
+
+Apparent name holdouts after the semantic passes were checked individually.
+The remaining names were compiled-out/deleted legacy bodies rather than active
+runtime behavior.
+
+3. SAS file-local helper reconciliation
+----------------------------------------
+Member-function inventories do not see file-local/static helpers, so this layer
+was audited separately before closure.
+
+Behavioral helper families checked included:
+* first-city found-value / food-environment / fog-scouting helpers;
+* Settler escort and remote-captured-city trap helpers;
+* Barbarian city-expedition / attack-stack capability and cap helpers;
+* peaceful targetless ATTACK_CITY release machinery;
+* military-concentration helpers;
+* Worker no-bonus branch parsing/selection;
+* improvement-list / improvement-upgrade-chain helpers;
+* recovered-food and irrigation-carrier value helpers;
+* KI#214 irrigation-chain search/state;
+* active Worker-build commitment detection.
+
+Diagnostic/name/logging helpers were classified separately and checked not to
+feed diagnostic state back into gameplay decisions.
+
+This static-helper pass is important because F375 itself originated in the
+file-local `countImprovedTiles` layer.
+
+4. K-Mod -> Base AdvCiv inherited-change reconciliation
+-------------------------------------------------------
+Queue 002 was not closed after only comparing SAS with its immediate base.
+
+K-Mod -> Base AdvCiv changed functions were reopened, with Civ4CE/BtS ancestry
+where needed. AdvCiv-only helpers were separately enumerated because they have
+no K-Mod counterpart and therefore disappear from an ordinary common-function
+diff.
+
+This pass materially produced/reinforced inherited roots such as:
+* F376 (`AI_connectBonus`);
+* F380 (`AI_airOffenseBaseValue`);
+* F382 (`AI_pickup`);
+* F384 (`AI_carrierSeaMove`);
+* F385 (`AI_guardCitySite`);
+* F386 (`AI_pirateSeaMove`);
+* F387 (`AI_guardYield`).
+
+5. Mechanical predicate-refactor mining
+---------------------------------------
+The K-Mod -> AdvCiv diff was mined independently for condition transformations,
+especially:
+* lost/added negations;
+* nested-positive-block -> early-continue flattening;
+* enum-returning getters used as booleans;
+* candidate/source operand substitutions;
+* area/domain optimizations.
+
+The suspicious pairs were then checked in their full function/caller context.
+
+Most apparent polarity changes are valid logical flattenings.
+
+The strongest surviving semantic mistakes are already represented by the
+confirmed finding set, notably:
+* F382's safe/dangerous pickup inversion;
+* F384's Carrier `ProbabilityTypes` threshold inversion.
+
+No independent F388 survived this independent reverse-direction check.
+
+6. Pathfinder-state reconciliation
+-----------------------------------
+All uses of:
+* `getPathEndTurnPlot()`;
+* `getPathFinder().getPathTurns()`;
+* `getPathFinder().getFinalMoves()`;
+* `getPathLastNode()`
+
+were mechanically inventoried and the potentially nonlocal cases were
+inspected for stale shared-pathfinder state.
+
+The final pass specifically challenged cases where:
+* a candidate path is generated;
+* other AI/value/helper calls occur;
+* path metrics or end-turn state are consumed later.
+
+No independent F388 survived.
+
+Important controls:
+* stored `CvPlot*` / references returned from `getPathEndTurnPlot()` point to
+  stable map plots; later path searches do not invalidate those plot objects;
+* candidate scoring calls such as city value, local attack/defense value,
+  mission-count queries and weighted combat odds do not regenerate this
+  unit group's movement path before the saved path metrics are consumed;
+* `AI_solveBlockageProblem` looks vulnerable because `AI_goToTargetCity` can
+  regenerate paths, but that branch is returned immediately, so execution
+  cannot fall through and consume the old blockage path afterward;
+* the unchecked first `generatePath` in `AI_canRouteThroughSafeTerritory`
+  remains a robustness smell, but its live callers have already established
+  ordinary pathability and the second safe-territory path is more restrictive;
+  no supported successful-safe / failed-ordinary state was established.
+
+7. Source-vs-target spatial-context sweep
+-----------------------------------------
+The whole file was rechecked for the class that produced F378, F381 and F387:
+a loop/caller selects one destination but a helper accidentally evaluates the
+current/source plot.
+
+The final mechanical scan covered:
+* candidate-centered `SquareIter` / adjacency loops containing `getPlot()`;
+* current-plot operands inside destination scoring;
+* transport source vs enemy-coast contexts;
+* city/working-city center selection;
+* guard destination vs donor/source plot selection.
+
+The surviving roots are already numbered:
+* F378 — source plot used to choose defender sent to another city;
+* F381 — passenger coast used instead of enemy coast;
+* F387 — current guard tile used as the next city-radius center.
+
+Other current-plot uses were confirmed to describe true source state, e.g.
+launch position for nukes, current border ownership for pillage-DoW
+discounting, or current Worker assignment for worker-count adjustment.
+
+8. Mission-target / lifetime reconciliation
+-------------------------------------------
+Mission coordination was checked across:
+* FOUND;
+* GUARD_CITY;
+* GUARD_BONUS;
+* BUILD;
+* PICKUP;
+* ASSAULT;
+* BLOCKADE;
+* SPREAD;
+* espionage mission families.
+
+This produced/confirmed:
+* F379 — ordinary targeted safe-city guard mission intercepted by an
+  emergency-only continuation policy;
+* F385 — exact city-site guard target lost when AdvCiv changed to an
+  adjacent-only duplicate scan.
+
+A proposed F385 sibling in Settler safety was explicitly rejected: an adjacent
+fogbuster is not physically an escort on the founding tile, so the Settler's
+stricter exact-site guard requirement is coherent.
+
+9. Sentinel / raw-enum / arithmetic sweep
+------------------------------------------
+The final pass reconfirmed:
+* F376's tautological self-area predicate;
+* the F380 companion raw `RouteTypes` boolean problem.
+
+Other current `getRevealedRouteType` consumers explicitly compare to
+`NO_ROUTE`.
+
+The `AI_tradeMissionValue` initial `MAX_INT + 4` expression is numeric cleanup
+debt on the legacy compiler model, but its initial paired numerator is zero and
+no supported ranking failure was established.
+
+No independent F388 was allocated.
+
+-------------------------------------------------------------------------------
+QUEUE-002 CONFIRMED FINDINGS — FINAL RANGE
+-------------------------------------------------------------------------------
+
+F375 / KI#698
+    SAS `countImprovedTiles` counts physical improvements outside the city's
+    actual workable population, letting foreign/unowned/other-city improvements
+    inflate Worker readiness.
+
+F376 / KI#699
+    AdvCiv `AI_connectBonus` uses
+        kPlot.isArea(kPlot.getArea())
+    in the reject condition, a tautology that makes the helper always skip and
+    return false.
+
+F377 / KI#700
+    SAS `AI_betterPlotBuild` reversed `isFeatureRemove`, allowing a legal
+    Forest-preserving Camp to be replaced by a pure Forest chop.
+
+F378 / KI#701
+    `AI_guardCity` ranks the unit to detach against the SOURCE plot, then sends
+    it to a different destination city; current promotion data gives a direct
+    Combat-I vs City-Garrison-I rank reversal.
+
+F379 / KI#702
+    SAS's central emergency GUARD_CITY continuation intercepts older targeted
+    safe-city rebalance missions and reruns them with `bDangerOnly=true`, so a
+    still-valid safe target can be abandoned after one movement turn.
+
+F380 / KI#703
+    AdvCiv SquareIterator rewrite dropped `!` from the vassal predicate in
+    `AI_airOffenseBaseValue`; normal hostile borders are ignored while friendly
+    vassal borders contribute danger.
+
+    Mandatory companion repairs, intentionally not double-numbered while
+    masked by F380:
+    * compare `getRevealedRouteType(...) != NO_ROUTE` explicitly;
+    * reconcile the current radius-1 SquareIterator with the otherwise
+      unreachable inherited `iDistance == 2` route-danger branch.
+
+F381 / KI#704
+    K-Mod/AdvCiv `AI_load(... iMaxTransportPath)` scans an enemy coastal target
+    but path-tests water adjacent to the passenger's CURRENT plot rather than
+    adjacent to that enemy coast.
+
+F382 / KI#705
+    AdvCiv `AI_pickup` early-continue flattening inverted K-Mod's city-danger
+    gate; remote pickup travel rejects safe cities and admits dangerous ones.
+
+F383 / KI#706
+    SAS `AI_ferryWorkers` hard area-capacity gate counts still-loaded cargo
+    Workers as already delivered; the one-Worker case subtracts zero and can
+    reject the destination before `unloadAll()`.
+
+F384 / KI#707
+    AdvCiv `ProbabilityTypes` conversion changed Carrier land-threat handling
+    to:
+        AI_isThreatenedFromLand() != PROBABILITY_REAL
+    rather than the sibling/naval threshold `>= PROBABILITY_REAL`.
+
+F385 / KI#708
+    AdvCiv `AI_guardCitySite` replaced K-Mod's exact-site duplicate mission
+    check with an adjacent-only scan despite saying adjacent tiles should be
+    checked "too"; exact-site guard missions can be duplicated.
+
+F386 / KI#709
+    AdvCiv's land-threat helper extraction broadened Pirate early healing from
+    defended/unthreatened city/fort state to open water because
+    `AI_isThreatenedFromLand()` returns NO_PROBABILITY on water and the caller
+    accepts `<= PROBABILITY_LOW`.
+
+F387 / KI#710
+    AdvCiv `AI_guardYield` recovers the guarded tile's working city but centers
+    `CityPlotIter` on the current guard tile. A guard can chain outward beyond
+    that city's radius, contradicting the function's stated one-hop-to-city
+    safety rationale and potentially losing its working-city association.
+
+-------------------------------------------------------------------------------
+FINAL F388 CONTROLS — NO NUMBER ALLOCATED
+-------------------------------------------------------------------------------
+
+No independent F388 survived the final closure slice.
+
+`AI_guardYield` was the last late candidate to cross the finding threshold and
+became F387. The subsequent path-state, mission-target, source-target,
+predicate-refactor, raw-enum and exact-coverage sweeps did not establish
+another current root.
+
+Notable unpromoted controls retained for future review:
+* `AI_leaveAttack` group-head/unit-count arithmetic is conservative but already
+  inherited from BtS and lacks a hard contract proving individual-unit rather
+  than defender-group semantics.
+* `AI_connectBonusCost` contains dead Worker-busy multiplier logic after the
+  Fort weighting rewrite, but that multiplier would be constant across the
+  builds compared for one plot and no current ranking consequence was proven.
+* `AI_travelToUpgradeCity` can structurally stop on one economically rejected
+  upgrade candidate, but current branching upgrade graphs/UnitAI legality did
+  not provide a live first-fails/second-passes caller state.
+* `AI_ferryWorkers` has a softer city-cache/cargo-range inconsistency beyond
+  F383, but the hard area-capacity gate prevented an independent over-delivery
+  proof.
+* `AI_calculateUnitAIViability`/UU-style concerns belong to other files/contracts
+  and are not a new Queue-002 root.
+* `AI_tradeMissionValue` signed-overflow-looking initial arithmetic is hardening
+  debt, not a demonstrated gameplay defect on the actual legacy runtime.
+
+-------------------------------------------------------------------------------
+QUEUE 002 FINAL STONE
+-------------------------------------------------------------------------------
+
+Queue 002:
+    `CvGameCoreDLL/CvUnitAI.cpp`
+    DEEP RELOOP COMPLETE / CLOSED
+
+Unique files complete:
+    32 / 169
+
+Queue-002 confirmed finding range:
+    F375 - F387
+
+Next finding:
+    F388 UNUSED
+    provisional KI#711
+
+Existing root retained:
+    KI#213
+
+Latest physical checkpoint:
+    C031-WIP87
+
+Repository source modifications:
+    NONE
+
+PROTECTED ROUTE
+---------------
+Open Queue 003:
+    `CvGameCoreDLL/CvGameTextMgr.cpp`
+    22,412 queued lines
+
+The original Queue-003 pass was marked:
+    REVIEWED / NEW FINDING + EXISTING ROOT REOPENED
+
+The deeper reloop should first reconcile that original finding and reopened
+existing root against CURRENT source, then repeat the stronger methodology now
+used for Queues 001-002:
+* current SAS vs Base AdvCiv semantic deltas;
+* K-Mod/Civ4CE ancestry where relevant;
+* AdvCiv-only helper/member coverage;
+* file-local helper coverage;
+* formatting/index/sentinel/visibility/state contracts;
+* exact function-range reconciliation;
+* final mechanical pattern sweeps.
+
+Do not resume ordinary Queue 020 until protected Queues 003 through 009 have
+all received the deeper reloop.
+
+END C031-WIP87
+
+===============================================================================
+C031-WIP88 — PROTECTED QUEUE 003 CvGameTextMgr.cpp DEEP RELOOP — OPEN
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvGameCoreDLL/CvPlayerAI.cpp` remains CLOSED.
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains CLOSED.
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` is OPEN under the deeper WIP-era
+methodology.
+
+Unique files complete: 32/169.
+F388 / provisional KI#711 is UNUSED.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+OPENING RECONCILIATION — OLD F004 / provisional KI#332 IS FIXED
+-------------------------------------------------------------------------------
+
+The original Queue-003 pass established a wrong-civilization leader-hover root:
+multiple Python `WIDGET_PEDIA_JUMP_TO_LEADER` callers passed literal
+`data2 = 1`, while native `CvDLLWidgetData::parseLeaderHelp` interprets data2
+as a `CivilizationTypes` value and forwards it to
+`CvGameTextMgr::parseLeaderTraits`.
+
+That could resolve trait-dependent UnitClass / BuildingClass entries through
+Arabia (civilization enum 1) regardless of the displayed leader; Shaka's
+Aggressive Barracks-class line could therefore name ordinary Barracks instead
+of the Zulu Ikhanda.
+
+CURRENT SAS no longer has that active caller convention in the reconciled UI
+surface checked for this pass.
+
+The active Scoreboard, Hall of Fame, Info Screen, Military Advisor and Sevopedia
+leader-hover callers now supply the actual civilization or use the canonical
+leader-to-civilization resolution used by the current leader page.
+
+Conclusion:
+old F004 / provisional KI#332 remains historical evidence but is FIXED in
+current SAS. Do not allocate F388 for it.
+
+-------------------------------------------------------------------------------
+OPENING RECONCILIATION — EXISTING KI#21 DYNAMIC-STATE SUBCASE STILL SURVIVES
+-------------------------------------------------------------------------------
+
+The old Queue-003 reopening of KI#21 remains valid.
+
+The live-unit `setUnitHelp` map-view "Cannot Enter" path still tests the actual
+unit's raw XML restrictions:
+
+    pUnit->getTerrainImpassable(eTerrain)
+    pUnit->getFeatureImpassable(eFeature)
+
+and prints those terrain/feature names without applying the unit team's
+current passable-tech state.
+
+Elsewhere, the static/detailed unit help correctly understands:
+
+    getTerrainPassableTech(...)
+    getFeaturePassableTech(...)
+
+and the movement engine also allows raw impassable terrain/feature once the
+team has the configured passable technology.
+
+Current-data control:
+`UNIT_WORKBOAT` has Ocean marked impassable and Astronomy as its terrain
+passable tech. After the team researches Astronomy, movement can be legal while
+live map help can still print Ocean in "Cannot Enter."
+
+Classification:
+existing KI#21 dynamic-state display consequence, not a new F388.
+
+Repair boundary:
+live-unit restriction prose must describe effective current movement legality,
+or at minimum suppress a raw terrain/feature restriction when the current team
+has the configured passable tech, while preserving any cultural-border nuance.
+
+-------------------------------------------------------------------------------
+OPENING CONTROL — SELF-REFERENTIAL DEFAULT-SPECIALIST CACHE STILL DATA-MASKED
+-------------------------------------------------------------------------------
+
+Current source still contains:
+
+    static const SpecialistTypes eDefaultSpecialist =
+        (SpecialistTypes)eDefaultSpecialist;
+
+rather than obtaining the global default specialist.
+
+Static zero-initialization makes the self-read resolve to enum 0. Current data
+has enum 0 = `SPECIALIST_CITIZEN`, which is also the configured default
+specialist.
+
+The source typo is therefore real but its current runtime value is exactly the
+intended value.
+
+Retain as known masked archaeology / cleanup debt. Do not manufacture F388
+without a current data/configuration consequence.
+
+-------------------------------------------------------------------------------
+CURRENT QUEUE-003 DELTA SURFACE
+-------------------------------------------------------------------------------
+
+Current `CvGameTextMgr.cpp`:
+    ~22,407 physical lines
+    ~230 member definitions
+
+Opening current-SAS vs Base AdvCiv reconciliation identified a finite changed
+surface of roughly:
+    29 changed member bodies
+    + 2 current added helpers (`buildBTradeString`, `buildBRepeatString`)
+
+High-value current deltas include:
+* `setUnitHelp`;
+* `setBasicUnitHelp`;
+* trait parsing;
+* civic parsing;
+* building / project requirement prose;
+* Great-People help;
+* event help;
+* trade-route / espionage-cost help;
+* plot / air-strike / air-bomb / paradrop help.
+
+The deeper reloop will classify these first, then expand to inherited
+K-Mod/Civ4CE behavior, AdvCiv-only functions, file-local helpers if any, and an
+exact member-range / sentinel / index / visibility / formatting-state sweep.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388 / provisional KI#711 UNUSED.
+Old F004/KI#332 wrong-civilization hover root: fixed in current SAS.
+Existing KI#21 dynamic-state live-unit "Cannot Enter" subcase: reconfirmed.
+Default-specialist self-cache typo: still exactly data-masked.
+Latest physical checkpoint: C031-WIP88.
+No repository source files modified.
+
+NEXT
+----
+Continue from F388 unused.
+
+Priority:
+1. classify the current-SAS vs Base AdvCiv changed member bodies, beginning
+   with live/static unit help and trait/civic/building/project requirement
+   contracts;
+2. explicitly check all ID/enumeration/sentinel conversions used for text
+   lookups and widget-facing contexts;
+3. reconcile K-Mod/Civ4CE ancestry for any candidate root;
+4. only after current deltas are saturated widen to exact member coverage and
+   final formatting/index/visibility/state pattern sweeps.
+
+===============================================================================
+C031-WIP89 — PROTECTED QUEUE 003 CvGameTextMgr.cpp DEEP RELOOP — F388 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+
+Unique files complete: 32/169.
+F388 / provisional KI#711 is CONFIRMED.
+F389 / provisional KI#712 is UNUSED.
+Old F004/KI#332 remains fixed in current SAS.
+Existing KI#21 live-unit dynamic-state "Cannot Enter" subcase remains
+reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F388 / provisional KI#711 — SAS tech-tree obsolete-unit consolidation ignores
+civilization context and globally lists every civilization's UU
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS added an obsolete-unit consolidation block to
+`CvGameTextMgr::setTechTradeHelp`:
+
+    if (!bCivilopediaText)
+    {
+        ...
+        if (!bTreeInfo)
+        {
+            CvWString szObsoleteUnits;
+            bool bAnyObsoleteUnits = false;
+
+            FOR_EACH_ENUM(Unit)
+            {
+                CvUnitInfo const& kLoopUnitInfo =
+                        GC.getInfo(eLoopUnit);
+
+                if (kLoopUnitInfo.getObsoleteTech() == eTech)
+                {
+                    ...
+                    szObsoleteUnits +=
+                        kLoopUnitInfo.getDescription();
+                }
+            }
+
+            if (bAnyObsoleteUnits)
+                append TXT_KEY_TECH_OBSOLETES...
+        }
+    }
+
+The code iterates every `UnitInfo` in the game.
+
+It never asks:
+* which UnitClass the active civilization can train;
+* which UnitType that civilization maps the UnitClass to;
+* whether the listed UnitType belongs to the active civilization at all.
+
+This differs from the immediately preceding obsolete-BUILDING logic in the
+same function.
+
+That existing code iterates BuildingClasses and, in active-player context,
+resolves each class through:
+
+    kGame.getActiveCivilization()->getBuilding(eLoopBuildingClass)
+
+before asking whether the resolved building is obsoleted by `eTech`.
+
+The new Unit block therefore discarded the same civilization-resolution
+contract for units.
+
+LIVE CALLER — TECH TREE
+-----------------------
+This is not restricted to generic/no-player help.
+
+`CvDLLWidgetData::parseTechTreeHelp` calls:
+
+    GAMETEXT.setTechHelp(
+        szBuffer,
+        eTech,
+        false,  // bCivilopediaText
+        !GET_TEAM(getActiveTeam()).isHasTech(eTech),
+        false,
+        false); // bTreeInfo
+
+`setTechHelp` forwards those values to `setTechTradeHelp`.
+
+For an unresearched tech in the normal Tech Tree:
+    bCivilopediaText = false
+    bPlayerContext   = true
+    bTreeInfo        = false
+
+Therefore the new obsolete-unit block executes in an explicitly
+active-player-context hover.
+
+Despite that, it still lists all global UnitTypes.
+
+CURRENT-DATA PROOF — CIVIL SERVICE
+----------------------------------
+Current SAS Unit XML has nine UnitInfos with:
+
+    ObsoleteTech = TECH_CIVIL_SERVICE
+
+They are:
+
+Generic:
+    UNIT_AXEMAN
+    UNIT_SWORDSMAN
+
+Civilization-specific:
+    UNIT_SUMERIAN_VULTURE
+    UNIT_NATIVE_AMERICA_DOG_SOLDIER
+    UNIT_AZTEC_JAGUAR
+    UNIT_CELTIC_GALLIC_WARRIOR
+    UNIT_ROMAN_LEGIONARY
+    UNIT_PERSIA_IMMORTAL
+    UNIT_INCAN_QUECHUA
+
+Take an Arabian active player.
+
+Current `CIVILIZATION_ARABIA` has no Axeman- or Swordsman-class replacement;
+its current unique-unit mapping in this portion of the tree is unrelated
+(`UNITCLASS_CAMEL_KNIGHT -> UNIT_ARABIA_HAJJAN`).
+
+When that player hovers unresearched Civil Service in the Tech Tree, the new
+global Unit loop can therefore produce one comma-separated "Obsoletes" line
+containing:
+* Axeman;
+* Swordsman;
+* Vulture;
+* Dog Soldier;
+* Jaguar;
+* Gallic Warrior;
+* Legionary;
+* Immortal;
+* Quechua.
+
+Seven of those are UUs belonging to other civilizations and can never be the
+Arabian player's corresponding unit.
+
+The same class repeats at other current techs.
+
+For example current `TECH_FIREARMS` is the ObsoleteTech of sixteen UnitInfos:
+generic Mace/Pike/Longbow/Crossbow/Knight/Camel-Knight units plus Samurai,
+Viking, Skirmisher, Bowman, Cho-Ko-Nu, Benin Disciplined Crossbowman, Yeoman
+Archer, Cataphract, Khishigten and Arabia's Hajjan.
+
+A player-context hover therefore mixes:
+* the player's real UnitClass mapping;
+* generic defaults that may have been replaced;
+* other civilizations' replacements.
+
+WHY `bPlayerContext` DOES NOT SAVE IT
+-------------------------------------
+The outer function knows whether player context is active.
+
+The obsolete-building branch uses that context to resolve civilization-specific
+types.
+
+The new obsolete-unit block never references `bPlayerContext`,
+`eActivePlayer`, `getActiveCivilization()`, or UnitClass mappings.
+
+So this is not merely a generic encyclopedia-style listing accidentally viewed
+during play; the caller explicitly requested player-context help and the new
+block ignores that contract.
+
+WHY THE CIVILOPEDIA PANEL DOES NOT SAVE IT
+-------------------------------------------
+The new block is deliberately disabled when:
+
+    bCivilopediaText == true
+
+because current Sevopedia Tech has a dedicated Obsoletes panel.
+
+F388 occurs in the non-Civilopedia Tech Tree hover, where that dedicated panel
+does not replace the text being generated.
+
+The suppression therefore makes the player-context hover itself the primary
+surface for this new consolidated Unit line.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14 does not contain this global obsolete-Unit consolidation
+block.
+
+Its obsolete-building handling already performs civilization-class resolution,
+while bonus/special-building obsolescence is naturally global.
+
+Current SAS added the Unit block directly while consolidating obsolete prose.
+
+Classification:
+    SAS-local civilization-context UI regression.
+
+This is conceptually related to the old F004/KI#332 leader-hover context bug,
+but it is an independent current root:
+* old F004: caller supplied the wrong civilization ID to trait help;
+* F388: the current caller supplies active-player context correctly, but the
+  newly added Unit loop ignores civilization context internally.
+
+REPAIR DIRECTION
+----------------
+Mirror the existing BuildingClass pattern.
+
+For player-context help, iterate UnitClasses and resolve each class through the
+active civilization:
+
+    UnitTypes eLoopUnit;
+
+    if (eActivePlayer != NO_PLAYER)
+        eLoopUnit =
+            kGame.getActiveCivilization()->getUnit(eLoopUnitClass);
+    else
+        eLoopUnit =
+            GC.getInfo(eLoopUnitClass).getDefaultUnit();
+
+then test the resolved UnitType's `getObsoleteTech()`.
+
+A generic/no-player help mode can use default units, consistent with the
+building branch.
+
+Do not globally enumerate every UnitInfo for a player-context Tech Tree hover.
+
+If the intended UI instead wants an "all civilizations" encyclopedia list, it
+needs to be explicitly limited to a generic context and clearly labeled as
+such; it must not silently replace active-civilization semantics.
+
+-------------------------------------------------------------------------------
+CONTROLS COMPLETED BEFORE F388
+-------------------------------------------------------------------------------
+
+* Current leader-hover callers were rechecked first:
+  old F004/KI#332 is fixed; current callers no longer use the literal
+  civilization-1 convention established by the original Queue-003 audit.
+
+* Existing KI#21 still survives independently:
+  live-unit map help prints raw Terrain/Feature impassability without applying
+  current passable-tech state.
+
+* The self-referential static default-specialist cache remains source-wrong but
+  exactly data-masked because enum 0 and current DEFAULT_SPECIALIST are both
+  `SPECIALIST_CITIZEN`.
+
+* `parseCivicInfo`'s new CivicPercentAnger number is paired with the current
+  customized `TXT_KEY_CIVIC_FREEDOM_ANGER` format key; no stale parameter-type
+  mismatch was established.
+
+* `parseGreatPeopleHelp`'s obsolete-building GPP split correctly separates
+  obsolete and active building GPP for transparency and does not alter the
+  underlying city total.
+
+* null-selection guards in combat/air/paradrop/revolt help are defensive
+  hardening; the target-eligible aircraft/paratrooper selection changes repair
+  already-known UI mismatch classes rather than introduce a new root.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388 / provisional KI#711 CONFIRMED.
+F389 / provisional KI#712 UNUSED.
+Old F004/KI#332: fixed in current SAS.
+Existing KI#21 dynamic-state live-unit restriction subcase: retained.
+Latest physical checkpoint: C031-WIP89.
+No repository source files modified.
+
+NEXT
+----
+Continue from F389 unused.
+
+Priority:
+1. finish the remaining current-SAS vs Base changed functions, especially
+   `setBasicUnitHelp`, `setBuildingHelpActual`, trait resolution,
+   building/project requirements, espionage/trade/event and plot/air help;
+2. inspect all current added helpers and their call contexts;
+3. reconcile any candidate against K-Mod/Civ4CE and current XML/text-key
+   contracts;
+4. then widen to inherited/AdvCiv-only member coverage and final
+   enum/index/visibility/state formatting sweeps.
+
+===============================================================================
+C031-WIP90 — PROTECTED QUEUE 003 CvGameTextMgr.cpp DEEP RELOOP — F389 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+
+Unique files complete: 32/169.
+F388 remains CONFIRMED.
+F389 / provisional KI#712 is CONFIRMED.
+F390 / provisional KI#713 is UNUSED.
+Old F004/KI#332 remains fixed in current SAS.
+Existing KI#21 live-unit dynamic-state "Cannot Enter" subcase remains
+reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F389 / provisional KI#712 — AdvCiv founding-health hover prints feature
+unhealth instead of negative PLAYER extra health
+-------------------------------------------------------------------------------
+
+ROOT
+----
+AdvCiv's advc.004b `CvGameTextMgr::setFoundHealthHelp` computes surrounding
+feature health first:
+
+    int iGoodHealth = iGoodHealthPercent / 100;
+    int iBadHealth = iBadHealthPercent / 100;
+
+and later obtains the active player's global extra-health modifier:
+
+    int iExtraHealth =
+        GET_PLAYER(getActivePlayer()).getExtraHealth();
+
+For positive extra health it correctly prints `iExtraHealth`:
+
+    if (iExtraHealth > 0)
+    {
+        iIcon = gDLL->getSymbolID(HEALTHY_CHAR);
+        szBuffer.append(
+            CvWString::format(L"%d%c", iExtraHealth, iIcon));
+    }
+
+But the negative branch prints a different local variable:
+
+    else
+    {
+        iIcon = gDLL->getSymbolID(UNHEALTHY_CHAR);
+        szBuffer.append(
+            CvWString::format(L"%d%c", iBadHealth, iIcon));
+    }
+
+`iBadHealth` is the number of rounded unhealthy points contributed by FEATURES
+around the proposed city site.
+
+It has no relation to the player's negative `iExtraHealth`.
+
+The function therefore displays the local feature-unhealth value in the slot
+that is explicitly meant to describe global player extra health.
+
+LIVE CALLER
+-----------
+This is ordinary founding-mission UI, not dead Civilopedia code.
+
+`CvDLLWidgetData` handles `MISSION_FOUND`.
+
+When the selected Settler can found on the mission plot it calls:
+
+    GAMETEXT.setFoundCostHelp(...)
+    GAMETEXT.setHomePlotYieldHelp(...)
+    GAMETEXT.setFoundHealthHelp(...)
+
+before displaying the founding action help.
+
+Current `UNIT_SETTLER`:
+* has `bFound = 1`;
+* has no prerequisite technology;
+* has `ObsoleteTech = NONE`.
+
+So this hover remains live throughout the game, including the Future Era.
+
+NEGATIVE PLAYER EXTRA HEALTH IS LIVE IN CURRENT SAS
+---------------------------------------------------
+Current `CvPlayer::getExtraHealth()` is not constrained nonnegative.
+
+Player-level health is modified by, among other sources:
+* traits through `CvPlayer::processTraits`;
+* civics through `CvPlayer::processCivics`;
+* technologies through `CvTeam::processTech`;
+* events.
+
+In particular current SAS has:
+
+    TECH_DEPOPULATION
+        iHealth = -9
+
+and `CvTeam::processTech` applies every technology's health directly to each
+team member:
+
+    kMember.changeExtraHealth(
+        kTech.getHealth() * iChange);
+
+The prerequisite graph gives an especially clean current-data state.
+
+For `TECH_DEPOPULATION`:
+* OR prerequisite: `TECH_COMPOSITES`;
+* AND prerequisites:
+  - `TECH_SATELLITES`;
+  - `TECH_COMPUTERS`;
+  - `TECH_ENVIRONMENTALISM`.
+
+Among every technology reachable in the full prerequisite ancestry of
+Depopulation, the only other nonzero health modifier is:
+
+    TECH_ENVIRONMENTALISM
+        iHealth = +1
+
+The other current positive-health technologies
+(Bioengineering, Alien Life, Genetics, AI, Transhumanism) are not required
+ancestors of Depopulation; several are descendants/alternatives after it.
+
+Therefore a player with:
+* no health-changing trait;
+* no health-changing civic;
+* no health-changing event;
+* only the technologies necessary to reach Depopulation,
+
+has a technology-derived player extra-health total of:
+
+    Environmentalism +1
+    Depopulation     -9
+    ------------------
+    total            -8
+
+So the `iExtraHealth < 0` branch is directly reachable in current SAS.
+
+CONCRETE DISPLAY FAILURE
+------------------------
+Take that player after researching Depopulation and select a Settler over a
+valid founding tile whose revealed city radius has no unhealthy feature
+contribution.
+
+Then:
+
+    iExtraHealth = -8
+    iBadHealth   = 0
+
+`setFoundHealthHelp` executes:
+
+    szBuffer.append(L"+");
+
+then enters the negative extra-health branch and prints:
+
+    iBadHealth == 0
+
+with the unhealthy icon.
+
+The result is effectively:
+
+    +0 [unhealthy] "from trait"
+
+despite the player actually carrying 8 points of global extra unhealth.
+
+If the proposed site happens to have, for example, 2 unhealthy feature points,
+the same player-global line instead prints 2 — still unrelated to the actual
+-8 player modifier.
+
+Thus the displayed number changes with the proposed site's feature health even
+though the underlying `getExtraHealth()` value is global and unchanged.
+
+INTERNAL FORMAT CONTROL
+-----------------------
+The ordinary city-health breakdown elsewhere in the same file already shows
+the correct negative-player-health convention.
+
+For an existing city:
+
+    int iHealth =
+        GET_PLAYER(kCity.getOwner()).getExtraHealth();
+
+    if (iHealth < 0)
+    {
+        szBuffer.append(
+            CvWString::format(L"%d%c ",
+                -iHealth,
+                gDLL->getSymbolID(UNHEALTHY_CHAR)));
+        szBuffer.append(
+            gDLL->getText("TXT_KEY_FROM_TRAIT"));
+    }
+
+So the intended negative branch is explicit:
+* use `-iExtraHealth` as the positive magnitude;
+* pair it with the unhealthy icon.
+
+The founding helper's use of `iBadHealth` is not an alternative formatting
+policy; it is a wrong-variable typo.
+
+ANCESTRY
+--------
+K-Mod 1.46 and Civ4CE/BtS do not contain `setFoundHealthHelp`.
+
+Base AdvCiv 1.14 contains the same advc.004b helper and the same wrong-variable
+negative branch:
+
+    CvWString::format(L"%d%c", iBadHealth, iIcon)
+
+Current SAS inherits that line unchanged.
+
+Classification:
+    inherited AdvCiv advc.004b UI wrong-variable defect.
+
+REPAIR DIRECTION
+----------------
+Mirror the existing-city health formatting:
+
+    else
+    {
+        iIcon = gDLL->getSymbolID(UNHEALTHY_CHAR);
+        szBuffer.append(
+            CvWString::format(
+                L"%d%c",
+                -iExtraHealth,
+                iIcon));
+    }
+
+The surrounding function already prepends `"+"` because healthy/unhealthy
+icons encode the sign semantically in this compact founding preview.
+
+A separate wording cleanup may eventually be appropriate because
+`TXT_KEY_FROM_TRAIT` labels the aggregate player `getExtraHealth()` value even
+though that value can also contain civic, technology and event effects.
+That inherited wording imprecision is broader than F389 and is not required
+for the numeric correctness repair.
+
+-------------------------------------------------------------------------------
+CONTROLS COMPLETED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+* `setFoundHealthHelp` is a live `MISSION_FOUND` hover path; its Future-Era
+  reachability does not depend on keeping an obsolete Settler because current
+  Settlers have `ObsoleteTech = NONE`.
+
+* Current health-tech ancestry was checked rather than assuming Depopulation's
+  -9 could survive prerequisites. The mandatory prerequisite health total is
+  only Environmentalism's +1, yielding a direct -8 current-data state without
+  optional traits/civics/events.
+
+* Existing city-health help already uses `-iHealth` for negative player extra
+  health, providing an in-file formatting contract for the repair.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388-F389 CONFIRMED in protected Queue 003.
+F390 / provisional KI#713 UNUSED.
+Old F004/KI#332: fixed in current SAS.
+Existing KI#21 dynamic-state live-unit restriction subcase: retained.
+Latest physical checkpoint: C031-WIP90.
+No repository source files modified.
+
+NEXT
+----
+Continue from F390 unused.
+
+Priority:
+1. finish the remaining current-SAS vs Base changed member reconciliation:
+   building/project requirements, trait resolution, espionage/trade/event and
+   plot/air help;
+2. audit AdvCiv-only text helpers for wrong-variable / stale-context siblings;
+3. reconcile text-key parameter counts/types and enum/class resolution;
+4. then widen to exact active-member coverage and final
+   enum/index/visibility/state formatting sweeps.
+
+===============================================================================
+C031-WIP91 — PROTECTED QUEUE 003 CvGameTextMgr.cpp DEEP RELOOP — F390 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+
+Unique files complete: 32/169.
+F388-F389 remain CONFIRMED.
+F390 / provisional KI#713 is CONFIRMED.
+F391 / provisional KI#714 is UNUSED.
+Old F004/KI#332 remains fixed in current SAS.
+Existing KI#21 live-unit dynamic-state "Cannot Enter" subcase remains
+reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F390 / provisional KI#713 — AdvCiv relabeled aggregate PLAYER extra health as
+"from Traits" even though the accumulator also contains civics, technologies
+and events
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current city-health help uses the PLAYER-level aggregate:
+
+    GET_PLAYER(kCity.getOwner()).getExtraHealth()
+
+for both bad and good health.
+
+AdvCiv advc.004g replaced K-Mod's neutral civilization-source text with:
+
+    TXT_KEY_FROM_TRAIT
+
+Current XML defines that key as:
+
+    English: " from Traits"
+    German:  "durch Merkmale des Herrschers"
+             ("through leader traits")
+
+So the UI explicitly attributes the complete `getExtraHealth()` value to
+leader Traits.
+
+That attribution does not match the data represented by `getExtraHealth()`.
+
+CURRENT ACCUMULATOR SOURCES
+---------------------------
+`CvPlayer::m_iExtraHealth` is modified by several independent systems.
+
+Traits:
+    CvPlayer::processTraits
+        changeExtraHealth(iChange * kTrait.getHealth());
+
+Civics:
+    CvPlayer::processCivics
+        changeExtraHealth(
+            GC.getInfo(eCivic).getExtraHealth() * iChange);
+
+Technologies:
+    CvTeam::processTech
+        kMember.changeExtraHealth(
+            kTech.getHealth() * iChange);
+
+Events:
+    CvPlayer::applyEvent
+        changeExtraHealth(kEvent.getHealth());
+
+Therefore:
+
+    CvPlayer::getExtraHealth()
+
+is a global player modifier accumulator, not a Trait accumulator.
+
+CURRENT-DATA POSITIVE PROOF — ORGANIZED RELIGION
+------------------------------------------------
+Current SAS has:
+
+    CIVIC_ORGANIZED_RELIGION
+        iExtraHealth = +1
+
+and:
+
+    TRAIT_PROTECTIVE
+        iHealth = +1
+
+as the ordinary current health Trait.
+
+Take a leader without Protective and adopt Organized Religion, with no other
+player-level health modifier active.
+
+Then:
+
+    getExtraHealth() == +1
+
+entirely because of the CIVIC.
+
+Current city good-health help nevertheless executes:
+
+    int iHealth =
+        GET_PLAYER(kCity.getOwner()).getExtraHealth();
+
+    if (iHealth > 0)
+    {
+        append "+1 [healthy]"
+        append TXT_KEY_FROM_TRAIT;
+    }
+
+and displays the civic-derived health as:
+
+    +1 [healthy] from Traits
+
+despite no health Trait contributing anything.
+
+CURRENT-DATA NEGATIVE PROOF — DEPOPULATION
+------------------------------------------
+F389 already established a particularly clean current technology state.
+
+Current:
+
+    TECH_ENVIRONMENTALISM  iHealth = +1
+    TECH_DEPOPULATION      iHealth = -9
+
+and Environmentalism is the only nonzero-health mandatory prerequisite in the
+Depopulation ancestry.
+
+A non-Protective player with no health civic/event can therefore have:
+
+    getExtraHealth() == -8
+
+from technology alone.
+
+Existing-city bad-health help correctly prints the magnitude:
+
+    8 [unhealthy]
+
+but then appends:
+
+    TXT_KEY_FROM_TRAIT
+
+so the tech-derived penalty is presented as:
+
+    8 [unhealthy] from Traits
+
+This is independent of F389.
+
+F389 is the wrong-variable numeric bug in `setFoundHealthHelp`, where the
+negative founding preview prints local feature bad health instead of the
+negative player extra-health magnitude.
+
+F390 affects the SOURCE ATTRIBUTION of the aggregate value in:
+* existing-city good-health breakdown;
+* existing-city bad-health breakdown;
+* founding-health preview once the numeric branch is repaired.
+
+Even a correct F389 numeric repair would still display:
+    8 unhealthy from Traits
+for a technology-derived -8 state.
+
+EVENTS PROVIDE ANOTHER LIVE SOURCE
+----------------------------------
+Current event XML also contains player events with positive `iHealth`
+(e.g. +1, +2 and +3 values).
+
+`CvPlayer::applyEvent` applies those directly through `changeExtraHealth`.
+
+So the wrong attribution is not limited to one custom Civic or one Future Era
+technology; the accumulator has always had a broader source contract.
+
+ANCESTRY
+--------
+K-Mod's city health breakdown uses:
+
+    TXT_KEY_MISC_HEALTH_FROM_CIV
+    TXT_KEY_MISC_GOOD_HEALTH_FROM_CIV
+
+for negative/positive:
+
+    GET_PLAYER(city.getOwner()).getExtraHealth()
+
+That wording is broad enough for an aggregate civilization/player modifier.
+
+Base AdvCiv 1.14 comments those neutral keys out under advc.004g and instead
+formats the number/icon manually followed by:
+
+    TXT_KEY_FROM_TRAIT
+
+without changing `getExtraHealth()` or separating its contributing sources.
+
+Current SAS inherits the same advc.004g source attribution.
+
+Classification:
+    inherited AdvCiv advc.004g UI source-attribution regression.
+
+WHY THE SAME KEY IS NOT ALWAYS WRONG
+------------------------------------
+`TXT_KEY_FROM_TRAIT` also appears in current commerce/trade help.
+
+Those uses were checked separately.
+
+`CvPlayer::getFreeCityCommerce(eCommerce)` is changed in current C++ only by:
+
+    CvPlayer::processTraits
+        changeFreeCityCommerce(
+            eCommerce,
+            iChange * kTrait.getCommerceChange(eCommerce));
+
+So "from Traits" is correct for that use.
+
+The trade-yield modifier line explicitly iterates the player's actual Traits
+and sums `getTradeYieldModifier`, also making the label correct there.
+
+F390 is therefore not a complaint about the localization key itself. The bug is
+using a Trait-specific key for the multi-source `getExtraHealth()` accumulator.
+
+REPAIR DIRECTION
+----------------
+The minimal robust repair is to restore neutral aggregate wording for
+`getExtraHealth()`.
+
+For example, re-use/adapt the prior civilization/global-modifier text rather
+than `TXT_KEY_FROM_TRAIT`.
+
+A higher-fidelity UI could decompose the aggregate into known sources:
+* Traits;
+* current Civics;
+* researched Technologies;
+* persistent Events / other residual modifiers.
+
+However events and other persistent mutations mean reconstructing every source
+perfectly from current static configuration may require additional bookkeeping.
+
+Therefore a neutral label such as:
+    "from player modifiers"
+or the former:
+    "from civilization"
+is safer than falsely attributing the aggregate to Traits.
+
+The founding preview should use the same neutral aggregate label after F389's
+numeric repair.
+
+-------------------------------------------------------------------------------
+ADVCIV-ONLY HELPER CONTROL — SPEED BONUS RESOURCE MISMATCH IS DATA-DORMANT
+-------------------------------------------------------------------------------
+
+The AdvCiv-only `setBonusExtraHelp(eBonus, ...)` contains a genuine dormant
+source defect in its unit speed-bonus handling.
+
+It loops a unit's speed-bonus entries:
+
+    for (int j = 0; j < kUnit.getNumSpeedBonuses(); j++)
+        iSpeed = kUnit.getExtraMoves(j);
+
+but never checks:
+
+    kUnit.getSpeedBonuses(j) == eBonus
+
+before using `iSpeed` while generating help for the current bonus `eBonus`.
+
+Semantically, a unit with a nonzero speed bonus for resource A could therefore
+be listed as receiving that movement bonus in the help for unrelated resource
+B.
+
+`CvUnitInfo` stores these as explicit `(BonusType, ExtraMoves)` pairs, and the
+actual movement logic checks ownership of the corresponding bonus, so the help
+code's missing resource comparison is real.
+
+Current SAS Unit XML, however, contains ZERO `<SpeedBonuses>` entries.
+
+Therefore no current UnitType can trigger the erroneous help branch.
+
+Classification for this checkpoint:
+    dormant inherited AdvCiv helper defect / future XML hazard;
+    NOT F391 under the current-data proof threshold.
+
+-------------------------------------------------------------------------------
+OTHER CONTROLS COMPLETED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+`TXT_KEY_FROM_TRAIT` commerce uses
+----------------------------------
+Checked all live current uses.
+
+* free-city Commerce:
+  only `processTraits` calls `changeFreeCityCommerce`;
+  Trait attribution is correct.
+
+* trade-yield modifier:
+  help explicitly sums actual Trait `getTradeYieldModifier`;
+  Trait attribution is correct.
+
+Thus the health source is the exceptional wrong use rather than a globally bad
+key.
+
+`setBonusExtraHelp` team overload
+---------------------------------
+A superficially suspicious `GET_TEAM(eActivePlayer)`-style call is safe in the
+current CoreAI interface because `getTeam` is overloaded for `PlayerTypes` and
+converts through the player's team ID.
+
+No enum-domain F391.
+
+`setFoodHelp`
+-------------
+`healthRate()` is nonpositive by contract for unhealth-food loss, so:
+
+    iSpoiledFood = -healthRate();
+
+has the expected nonnegative magnitude.
+
+No sign inversion.
+
+`setFoundCostHelp`
+------------------
+The founding mission target is the selected Settler's current plot; using that
+plot's ownership for unit-supply cost is consistent with the MISSION_FOUND
+execution surface.
+
+No stale target context established.
+
+`setDiscoverPathHelp`
+---------------------
+The temporary-tech exploration uses the purpose-built
+`setHasTechTemporarily` mechanism and restores state. No persistent tech-side
+effect was established.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388-F390 CONFIRMED in protected Queue 003.
+F391 / provisional KI#714 UNUSED.
+Old F004/KI#332: fixed in current SAS.
+Existing KI#21 dynamic-state live-unit restriction subcase: retained.
+Latest physical checkpoint: C031-WIP91.
+No repository source files modified.
+
+NEXT
+----
+Continue from F391 unused.
+
+Priority:
+1. finish AdvCiv-only bonus/trade/research/production/founding/finance helpers;
+2. return to current changed building/project/trait requirement contexts;
+3. audit text-key argument arity/type and civilization/class resolution
+   mechanically;
+4. then build exact active-member/helper coverage and begin the final
+   index/sentinel/visibility/state formatting sweeps.

@@ -798,7 +798,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#707 - (Provisional Pending inherited AdvCiv ProbabilityTypes regression) Carriers retreat at every threat level except real](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-707)\
 [KI#708 - (Provisional Pending inherited AdvCiv mission-target regression) City-site guards ignore missions aimed at the site itself](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-708)\
 [KI#709 - (Provisional Pending inherited AdvCiv helper-extraction regression) Privateers can heal early in open sea](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-709)\
-[KI#710 - (Provisional Pending investigation) F387 remains unassigned during the CvUnitAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-710)\
+[KI#710 - (Provisional Pending inherited AdvCiv guard-scope regression) Yield guards can drift outside their city's radius](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-710)\
+[KI#711 - (Provisional Pending SAS civilization-context regression) Tech hover lists every civilization's obsolete unique units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-711)\
+[KI#712 - (Provisional Pending inherited AdvCiv UI wrong-variable defect) Founding health prints feature unhealth as player unhealth](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-712)\
+[KI#713 - (Provisional Pending inherited AdvCiv UI attribution regression) Aggregate player health is labeled as Traits](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-713)\
+[KI#714 - (Provisional Pending investigation) F391 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-714)\
 
 <a id="ki-1"></a>
 
@@ -14424,8 +14428,48 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP84 `CvUnitAI
 
 <a id="ki-710"></a>
 
-## KI#710 - (Provisional Pending investigation) F387 remains unassigned during the CvUnitAI deep re-audit
+## KI#710 - (Provisional Pending inherited AdvCiv guard-scope regression) Yield guards can drift outside their city's radius
 
-The protected Queue 002 `CvUnitAI.cpp` deep re-audit has confirmed F375-F386 through C031-WIP84 and reserves F387 next. Do not implement a change under KI#710 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F387 finds AdvCiv advc.300's `AI_guardYield` recovering the current guarded tile's working city but constructing `CityPlotIter` around the guard unit's plot instead. The first call from a city happens to use the intended center, but later reevaluation from an outer-ring guarded tile shifts the entire candidate footprint. The unit can consequently move to an improved plot outside the recovered city's real radius, then lose the assignment when no working city exists there; repeated one-hop moves also violate the function's stated ability to hurry back to the city.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP84 `CvUnitAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending centering candidates on the recovered city, validating that the guarded tile remains usable for it, and keeping the one-hop safety rule relative to that city rather than the unit's moving position.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP86 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-711"></a>
+
+## KI#711 - (Provisional Pending SAS civilization-context regression) Tech hover lists every civilization's obsolete unique units
+
+Album F388 finds SAS's consolidated obsolete-unit line in `setTechTradeHelp` iterating every global `UnitInfo` despite executing in an active-player Tech Tree hover. It can therefore list every civilization's unique replacement alongside the active civilization's actual units, unlike the neighboring building logic that resolves each class through the active civilization.
+
+Pending iterating UnitClasses and resolving each through the active civilization in player context, with default units used only for generic/no-player help.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP89 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-712"></a>
+
+## KI#712 - (Provisional Pending inherited AdvCiv UI wrong-variable defect) Founding health prints feature unhealth as player unhealth
+
+Album F389 finds AdvCiv advc.004b's `setFoundHealthHelp` correctly reading negative player `iExtraHealth` but formatting the unrelated local feature-unhealth variable `iBadHealth`. The displayed player-modifier line consequently changes with the proposed city's surrounding features and can show zero despite a substantial technology, civic, Trait or event penalty.
+
+Pending formatting `-iExtraHealth` with the unhealthy icon, matching the existing-city health breakdown. Current Depopulation technology ancestry supplies a direct live negative player-health state for validation.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP90 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-713"></a>
+
+## KI#713 - (Provisional Pending inherited AdvCiv UI attribution regression) Aggregate player health is labeled as Traits
+
+Album F390 finds AdvCiv advc.004g labeling the aggregate `CvPlayer::getExtraHealth()` value as `TXT_KEY_FROM_TRAIT`. That accumulator also contains Civic, Technology and Event effects, so Organized Religion health, Depopulation unhealth and persistent event health can all be falsely presented as coming from leader Traits in existing-city help and the founding preview.
+
+Pending restoring neutral aggregate wording such as player or civilization modifiers. This is independent of KI#712's wrong numeric variable; the founding preview needs both the correct magnitude and a truthful aggregate source label.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP91 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-714"></a>
+
+## KI#714 - (Provisional Pending investigation) F391 remains unassigned during the CvGameTextMgr deep re-audit
+
+The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F390 through C031-WIP91 and reserves F391 next. Do not implement a change under KI#714 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP91 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
