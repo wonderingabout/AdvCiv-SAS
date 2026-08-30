@@ -757,8 +757,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#666 - (Fixed inherited BtS count defect) Shared neutral resources are counted once per city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-666)\
 [KI#667 - (Fixed inherited AdvCiv war-focus defect) The first pushover war is never recorded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-667)\
 [KI#668 - (Fixed inherited BtS team-value defect) Area missionary value omits teammate cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-668)\
-[KI#669 - (Provisional Pending inherited AdvCiv era defect) Ancient targets can be mistaken for no targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-669)\
-[KI#670 - (Provisional Pending inherited K-Mod overflow defect) A failed bounded path can count distant joiners as nearby](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-670)\
+[KI#669 - (Fixed inherited AdvCiv era defect) Ancient targets can be mistaken for no targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-669)\
+[KI#670 - (Fixed inherited K-Mod overflow defect) A failed bounded path can count distant joiners as nearby](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-670)\
 [KI#671 - (Provisional Pending inherited espionage-value defect) Unitless affordability suppresses stationary-Spy missions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-671)\
 [KI#672 - (Provisional Pending inherited K-Mod accumulator defect) Tech-theft counts leak across rivals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-672)\
 [KI#673 - (Provisional Pending inherited AdvCiv decay defect) Gold-trade memory can become permanent](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-673)\
@@ -13997,19 +13997,25 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP33 `CvPlayerAI.cpp` deep
 
 <a id="ki-669"></a>
 
-## KI#669 - (Provisional Pending inherited AdvCiv era defect) Ancient targets can be mistaken for no targets
+## KI#669 - (Fixed inherited AdvCiv era defect) Ancient targets can be mistaken for no targets
 
-Album F346 finds `AI_neededCityAttackers` using the Ancient-era value as both a legitimate target era and a no-target sentinel, then mixing Barbarian era into the mean. Real Ancient-era enemies can consequently be treated as absent and distort the required attacker count. Pending a separate target-presence/count sentinel and a mean derived only from actual targets.
+Album F346 found `AI_neededCityAttackers` using the Ancient-era value as both a legitimate target era and a no-target sentinel, then mixing Barbarian era into the mean. Real Ancient-era enemies could consequently be treated as absent and distort the required attacker count.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP34 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix uses the already-maintained enemy count as the target-presence sentinel. One or more Ancient civilization targets now retain a mean era of zero, while the Barbarian-era fallback remains available only when no civilization target exists.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP34 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-670"></a>
 
-## KI#670 - (Provisional Pending inherited K-Mod overflow defect) A failed bounded path can count distant joiners as nearby
+## KI#670 - (Fixed inherited K-Mod overflow defect) A failed bounded path can count distant joiners as nearby
 
-Album F347 finds `AI_unitTargetMissionAIs` incrementing a failed bounded path result represented by `MAX_INT`. The overflow can become a negative distance and satisfy the nearby-turn bound, counting a far or unreachable joining unit as imminent. Pending rejecting path failure before adjusting or comparing the path-turn count.
+Album F347 found `AI_unitTargetMissionAIs` incrementing a failed bounded path result represented by `MAX_INT`. The overflow could become a negative distance and satisfy the nearby-turn bound, counting a far or unreachable joining unit as imminent.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP35 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix checks `generatePath`'s boolean result and skips the group on failure before applying the already-moved adjustment. Only successful paths can now enter the caller's bounded nearby-joiner count.
+
+Validation compiled successfully and completed a 357-turn Huge Great Plains autoplay, ending in a Domination victory with 74 cities. Expansion was unusually uneven at turn 100: three of the 16 AIs still had only one city and another five had only two, while the leaders had five or six. Call-site review found that the repaired helpers affect city-attacker demand and bounded combat/assault joiner counts, not Settler or city-site logic, so this remains a separate non-blocking AI-expansion observation rather than a regression attributed to KI#669 or KI#670.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP35 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-671"></a>
 

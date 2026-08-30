@@ -17841,10 +17841,12 @@ int CvPlayerAI::AI_neededCityAttackers(CvArea const& kArea, int iHash) const
 			iEnemies++;
 		}
 	}
-	if (rMeanTargetEra == 0)
+	// <!-- custom: AdvCiv used era value 0 as a no-target sentinel even though Ancient targets legitimately sum to 0, then mixed the Barbarian era into their mean.
+	// Use the actual enemy count and reserve the Barbarian fallback for no civilization target. See KI#669. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iEnemies == 0)
 	{
-		rMeanTargetEra += GET_PLAYER(BARBARIAN_PLAYER).getCurrentEra();
-		iEnemies++;
+		rMeanTargetEra = GET_PLAYER(BARBARIAN_PLAYER).getCurrentEra();
+		iEnemies = 1;
 	}
 	rMeanTargetEra /= iEnemies;
 	/*	K-Mod: 4 base. then rand between 0 and ...
@@ -18055,9 +18057,13 @@ int CvPlayerAI::AI_unitTargetMissionAIs(CvUnit const& kUnit, MissionAITypes* aeM
 		if (iMaxPathTurns >= 0 && kUnit.plot() != NULL &&
 			pLoopSelectionGroup->plot() != NULL)
 		{
-			pLoopSelectionGroup->generatePath(pLoopSelectionGroup->getPlot(),
-					kUnit.getPlot(), NO_MOVEMENT_FLAGS, false, &iPathTurns,
-					iMaxPathTurns); // advc.opt
+			// <!-- custom: K-Mod ignored bounded-path failure, then incremented its MAX_INT output for an already-moved group; signed overflow could make that far or unreachable group appear nearby.
+			// Reject failure before adjusting path turns. See KI#670. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (!pLoopSelectionGroup->generatePath(pLoopSelectionGroup->getPlot(),
+					kUnit.getPlot(), NO_MOVEMENT_FLAGS, false, &iPathTurns, iMaxPathTurns)) // advc.opt
+			{
+				continue;
+			}
 			if (!pLoopSelectionGroup->canAllMove())
 				iPathTurns++;
 		}
