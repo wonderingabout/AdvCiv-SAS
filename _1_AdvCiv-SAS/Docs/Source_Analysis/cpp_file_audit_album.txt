@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 31 / 169
 Files open: 1 / 169
 Last completed file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - CLOSED AT C031-WIP65
-Current file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - OPEN AT C031-WIP78
-Latest confirmed roots: F321-F384 / provisional KI#644-KI#707 across the protected re-audits
-Next root ID: F385 unused / provisional KI#708 next
+Current file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - OPEN AT C031-WIP84
+Latest confirmed roots: F321-F386 / provisional KI#644-KI#709 across the protected re-audits
+Next root ID: F387 unused / provisional KI#710 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -22,7 +22,7 @@ METHOD
 
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
-002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP78 / F375-F384]<-(priority current wip)
+002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP84 / F375-F386]<-(priority current wip)
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]<-(priority next wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
@@ -80796,3 +80796,1158 @@ Priority:
    deltas for state/sentinel/source-target errors;
 4. perform the Queue-002 function-range reconciliation and final whole-file
    pattern sweep before any closure decision.
+
+===============================================================================
+C031-WIP79 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F385 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+Unique files complete: 31/169.
+F375-F384 remain CONFIRMED.
+F385 / provisional KI#708 is CONFIRMED.
+F386 / provisional KI#709 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F385 / provisional KI#708 — AdvCiv `AI_guardCitySite` replaced K-Mod's exact
+mission-target check with an adjacent-only check, so a defender targeting the
+city-site tile itself does not prevent duplicate guards
+-------------------------------------------------------------------------------
+
+K-Mod rejects a planned city site when another group already has
+`MISSIONAI_GUARD_CITY` targeted at that exact site:
+
+    AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_CITY, getGroup()) == 0
+
+AdvCiv advc.300 comments out that exact check and says:
+
+    // Need to check the adjacent tiles too
+
+but implements only an adjacent-plot loop. `FOR_EACH_ADJ_PLOT(kLoopPlot)`
+enumerates the eight neighboring tiles, not `kLoopPlot` itself, and the mission
+query uses range zero by default. An existing mission targeted at the exact
+city-site tile is therefore invisible to the new duplicate check.
+
+The same rewritten function can still create precisely that omitted state.
+`pBetterGuardPlot` starts as the city-site tile and changes only if an adjacent
+plot receives a strictly positive guard value. On an ordinary revealed flat
+neighborhood with no defensive/visibility bonus, every adjacent candidate can
+remain at zero and the queued `MISSIONAI_GUARD_CITY` target stays the exact city
+site.
+
+A second eligible group then scans only the eight adjacent tiles, fails to see
+the first exact-site mission, and can be sent redundantly to the same planned
+city site. Current live callers include ordinary combat-unit movement such as
+`AI_collateralMove` and `AI_counterMove`, so multiple groups can reach the
+state.
+
+A second internal control reinforces the omission. Inside the adjacency-only
+loop the rewrite contains:
+
+    if (pAdj == pBestGuardPlot)
+        iGuardValue += 1; // tie-breaker
+
+At that point `pBestGuardPlot` is the center city-site tile and `pAdj` is
+necessarily adjacent, so the comparison is unreachable. The rewrite's logic
+thus treats the center as though it were in the candidate neighborhood while
+the iterator excludes it.
+
+ANCESTRY
+--------
+* K-Mod: exact planned city-site mission target checked.
+* Base AdvCiv 1.14: advc.300 replaces it with adjacent-only coordination.
+* Current AdvCiv-SAS: inherits the AdvCiv structure unchanged.
+
+Classification: inherited AdvCiv advc.300 mission-target scope regression.
+
+CONSEQUENCE
+-----------
+The AI can send multiple defenders to the same future city site instead of
+spreading them across separate sites, wasting fogbusting/anti-Barbarian
+coverage and diverting extra defenders. Duplicate suppression depends on
+whether the first guard happened to choose the exact site or an adjacent tile.
+
+REPAIR DIRECTION
+----------------
+Check the center and adjacent plots. The conservative repair is to restore the
+old exact-site mission check and then scan adjacent tiles. Alternatively, use
+the existing mission-target helper with range 1 around the planned site if that
+matches the intended area semantics. The unreachable center tie-breaker should
+also be removed or the center explicitly included in position scoring.
+
+-------------------------------------------------------------------------------
+CONTROLS / RECONCILIATION PROGRESS
+-------------------------------------------------------------------------------
+
+`AI_foundFirstCity` / `AI_settleMove` remained clean under the current deep
+state/path pass: candidate city site, temporary scout endpoint, return target
+and queued founding state remain distinct; no stale path endpoint or false
+success transition was established.
+
+The current SAS-vs-Base changed-member inventory is effectively saturated. The
+apparent `AI_getCityToImprove` holdout was a parser artifact caused by the
+following file-local `countImprovedTiles` helper.
+
+`AI_missileLoad`'s apparent remote-transport attachment hazard closes on
+mission execution: the DOMAIN_AIR move/rebase mission executes before
+`setTransportUnit`, so no supported non-colocated load state was established.
+
+The remaining closure blind spot is inherited K-Mod -> AdvCiv changed functions
+not explicitly named in the later WIP chain, with compact/high-risk helpers
+prioritized before the final function-range sweep.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F385 CONFIRMED.
+F386 / provisional KI#709 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP79.
+No repository source files modified.
+
+NEXT
+----
+Continue the inherited K-Mod -> AdvCiv reconciliation from F386 unused,
+starting with `AI_leaveAttack`, then airlift/protect/patrol/hide, sea bombard /
+carrier / route-city, spy, choke/poach and blockage helpers. Preserve clean
+controls and run the final Queue-002 function-range/pattern reconciliation only
+after those inherited deltas are saturated.
+
+===============================================================================
+C031-WIP80 — PROTECTED QUEUE 002 CvUnitAI.cpp — INHERITED RECONCILIATION
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+Unique files complete: 31/169.
+F375-F385 remain CONFIRMED.
+F386 / provisional KI#709 remains UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+This checkpoint deliberately records a substantial CLEAN/CONTROL tranche rather
+than allocating a finding merely because the file is still under review.
+
+-------------------------------------------------------------------------------
+RECONCILIATION EXPANSION
+-------------------------------------------------------------------------------
+
+The current-SAS-vs-Base-AdvCiv changed-member inventory is effectively
+saturated. The remaining closure blind spot was widened in two directions:
+
+1. K-Mod -> Base AdvCiv member functions that differ but had never been named
+   explicitly in the later C031 WIP chain;
+2. functions added by AdvCiv itself, which by definition have no K-Mod body and
+   therefore disappear from a common-function diff.
+
+The latter was an important methodology correction. AdvCiv-only helpers now
+explicitly inventoried include:
+
+    AI_airStrikeValue
+    AI_barbAmphibiousCapture
+    AI_canConnectBonus
+    AI_countEnemyDefenders
+    AI_exploreAirCities
+    AI_exploreAirRange
+    AI_guardYield
+    AI_isAnyEnemyDefender
+    AI_isAnyPiracyTarget
+    AI_isPotentialEnemyOf
+    AI_moveSettlerToCoast
+    AI_plotDefense
+    AI_singleUnitHeal
+    AI_upgradePriority
+    fromIDInfo
+
+The first batch of these has been deliberately read rather than silently
+assumed safe. No F386 crossed the caller/data threshold from them in this slice.
+
+-------------------------------------------------------------------------------
+CLEAN CONTROL — AI_leaveAttack GROUP-HEAD / UNIT-COUNT MIX
+-------------------------------------------------------------------------------
+
+`AI_leaveAttack` compares a defend-capable group-head count on the source plot
+against `getGroup()->getNumUnits()`. This initially looked like a possible
+repeat of the group-vs-unit accounting class explored around WIP72/WIP73.
+
+The deeper ancestry/caller pass does not support promoting it:
+* the shape already exists in BtS rather than being an AdvCiv/K-Mod rewrite;
+* it is gated behind explicit local attack/defense-strength checks;
+* the whole current selection group really is the object that would depart;
+* no explicit source contract establishes that one remaining defender group
+  must be treated as N individually available defenders for this decision.
+
+The branch is conservative, but no independent correctness defect was proved.
+F386 remains unused.
+
+-------------------------------------------------------------------------------
+CLEAN CONTROL — AI_assaultSeaReinforce MASTER-TEAM OPTIMIZATION
+-------------------------------------------------------------------------------
+
+K-Mod enters its final "assist master in attacking" block only when:
+
+    GET_TEAM(getTeam()).isAVassal()
+
+and finds the master through a loop over `isVassal`.
+
+AdvCiv replaces the loop with:
+
+    TeamTypes eMasterTeam = GET_TEAM(getTeam()).getMasterTeam();
+    if (eMasterTeam != NO_TEAM &&
+        GET_TEAM(getTeam()).isOpenBorders(eMasterTeam))
+    {
+        ...
+    }
+
+`getMasterTeam()` deliberately returns the team's own ID when it is free, so
+this initially looked as though the vassal-only policy had been broadened to
+all civs.
+
+The state contract closes the concern. `CvTeam::reset` clears every
+`m_abOpenBorders` entry, including self. `isOpenBorders(eTeam)` is a direct
+array lookup and no self-open-borders initialization was found. Therefore a
+free team gets:
+
+    eMasterTeam == getTeam()
+    isOpenBorders(getTeam()) == false
+
+and does not enter the assistance block. A real vassal returns its external
+master and can pass the ordinary vassal/master open-borders state.
+
+No F386.
+
+-------------------------------------------------------------------------------
+CLEAN CONTROL — F385 / SETTLER EXACT-SITE SAFETY INTERACTION
+-------------------------------------------------------------------------------
+
+F385 established that advc.300 city-site guards can stand on an adjacent
+fogbusting tile while the duplicate-guard check accidentally omits the exact
+center site.
+
+A neighboring Settler check looked inconsistent because an undefended Settler
+in `AI_found` recognizes `MISSIONAI_GUARD_CITY` only when the mission target is
+the exact founding tile, not merely adjacent.
+
+That stricter test is justified: an adjacent fogbuster does not physically
+defend the Settler after it steps onto the founding tile. Treating an adjacent
+mission as a valid on-tile escort would weaken Settler safety. This is therefore
+not an F385 sibling.
+
+-------------------------------------------------------------------------------
+CLEAN CONTROL — ROUTE / MISSILE / GUARD HELPERS
+-------------------------------------------------------------------------------
+
+`AI_routeCity`:
+The advc.121 midpoint/incomplete-route rewrite was traced through the queued
+`MISSION_ROUTE_TO` sequence. The current `bRouteTo` split is consistent with
+continuing an incomplete route rather than necessarily walking back to the
+first endpoint. No stale path-endpoint or queue-order defect was established.
+
+`AI_missileLoad`:
+The apparent sequence "queue movement toward remote carrier, then immediately
+`setTransportUnit`" does not prove a non-colocated load. DOMAIN_AIR move/rebase
+mission execution occurs when the mission is started before the following
+`setTransportUnit` call on the supported path. No F386.
+
+`AI_guardBonus`:
+A possible foreign/unowned guarded-bonus scope problem closes through
+`CvUnit::canReachBySeaPatrol`. The naval patrol destination must be water,
+revealed-improved and owned by our team; land guard range is zero at the
+candidate itself. No foreign-bonus leak established.
+
+`AI_guardYield`:
+The AdvCiv-only helper can derive a working city from one plot while centering
+its local protected-yield scan on the current guard-bonus plot. This is unusual,
+but its documented purpose is nearby high-yield/barbarian protection rather
+than an exact city-BFC accounting function. No harder target-scope contract was
+found.
+
+-------------------------------------------------------------------------------
+ADDITIONAL INHERITED FUNCTIONS DELIBERATELY OPENED
+-------------------------------------------------------------------------------
+
+The compact/high-risk K-Mod -> AdvCiv tranche opened in this slice includes:
+* `AI_protect`
+* `AI_goody`
+* `AI_poach`
+* `AI_solveBlockageProblem`
+* `AI_routeCity`
+* `AI_guardBonus`
+* `AI_guardFort`
+* `AI_guardSpy`
+* `AI_hide`
+* `AI_patrol`
+* airlift/paradrop/protect helpers
+* spy target/action helpers
+* sea bombard / pirate blockade / carrier transport
+* `AI_assaultSeaReinforce`
+
+Controls established so far:
+* current `AI_goody` already contains the historical iterator-condition repair;
+* `AI_poach` intentionally fixes the old diagonal-only offset condition;
+* `AI_solveBlockageProblem` preserves the old reverse path-node traversal while
+  modernizing war-plan checks;
+* `AI_protect` is essentially signature/format modernization;
+* `AI_hide`'s known-potential-enemy detector-team scope has no demonstrated
+  current concealment-contract violation;
+* `AI_patrol` is a deliberate advc.102/advc.309 policy rewrite; no state or
+  boolean inversion established;
+* `AI_heal`'s extracted single-unit helper and city-heal generalization preserve
+  the multi-unit healing state flow.
+
+The large naval functions remain part of the open reconciliation; this WIP does
+NOT claim they are all saturated.
+
+-------------------------------------------------------------------------------
+F380 COMPANION-REPAIR EXPANSION (NO NEW FINDING NUMBER)
+-------------------------------------------------------------------------------
+
+The deeper inheritance sweep found a second latent problem inside the same
+`AI_airOffenseBaseValue` branch already broken by F380.
+
+K-Mod/current code contains a distance-2 wartime route term, but the surrounding
+search radius is only 1. In current AdvCiv this is:
+
+    for (SquareIter it(kPlot, 1); ...)
+        ...
+        else if (iDistance == 2 && ...)
+
+so the distance-2 arm is unreachable.
+
+This is older than the SquareIterator conversion: K-Mod's coordinate loop also
+used `iRange = 1` while retaining the distance-2 arm.
+
+Combined with the already-recorded bare revealed-route enum bug:
+
+    p.getRevealedRouteType(getTeam())
+
+(where `NO_ROUTE=-1` is truthy and ROAD=0 is false), a complete F380 repair
+should review all three conditions together:
+1. restore `!isVassal(...)` for normal hostile territory;
+2. compare revealed route explicitly with `NO_ROUTE`;
+3. if the inherited distance-2 route-danger policy is intended, use a search
+   radius that can actually reach distance 2.
+
+No separate F386 is allocated because current F380 prevents the ordinary enemy
+state from reaching the nested wartime branch in the first place.
+
+-------------------------------------------------------------------------------
+CURRENT STONE
+-------------------------------------------------------------------------------
+
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F385 CONFIRMED.
+F386 / provisional KI#709 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP80.
+No repository source files modified.
+
+NEXT
+----
+Continue the inherited K-Mod -> AdvCiv and AdvCiv-only reconciliation from F386
+unused. Prioritize the remaining large naval/air/spy helpers, then inventory and
+review file-local non-member helpers before the final Queue-002 function-range,
+source-vs-target, boolean, sentinel and candidate/execution sweeps.
+
+===============================================================================
+C031-WIP81 — PROTECTED QUEUE 002 CvUnitAI.cpp — RECONCILIATION CHECKPOINT
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+Unique files complete: 31/169.
+F375-F385 remain CONFIRMED.
+F386 / provisional KI#709 remains UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+POST-WIP80 RECONCILIATION CONTROLS
+----------------------------------
+
+`AI_leaveAttack`
+----------------
+The inherited comparison between defend-capable group heads and the departing
+selection group's unit count is conservative and visually odd, but it already
+exists in BtS and sits behind real local offense/defense-strength gates. No
+explicit contract was established that the source city must retain a count of
+individual defenders rather than independent defender groups. No F386.
+
+`AI_missileLoad`
+----------------
+The apparent state hazard where the helper queues movement toward a remote
+carrier and then calls `setTransportUnit` closes on mission execution: the air
+`MISSION_MOVE_TO` is activated/executed before `setTransportUnit` in the normal
+supported AI path, so the missile reaches the carrier plot before attachment.
+No supported non-colocated load state was established.
+
+`AI_nextCityToImproveAirlift`
+-----------------------------
+This helper ranks candidate cities partly through `AI_totalBestBuildValue`,
+which in turn consumes the city-side `AI_getBestBuildValue` cache. Current SAS
+intentionally returns 0/NO_BUILD for ordinary land through that legacy city
+cache while land Workers use the custom `CvUnitAI::AI_bestCityBuild` policy.
+This is another live consequence of EXISTING KI#213, not a new F386.
+
+Great-Person execution helpers
+------------------------------
+AdvCiv removed some runtime legality checks from Great Work / Trade execution
+while retaining assertions. On the live `AI_greatPersonMove` path, however,
+Great Work and Trade destinations are selected from same-pass value functions
+that require `canGreatWork` / `canTrade`. No supported intervening state change
+or illegal-action execution was established.
+
+`AI_spreadCorporationAirlift`
+-----------------------------
+The airlift mission uses generic `MISSIONAI_SPREAD` while ordinary corporation
+movement coordinates through `MISSIONAI_SPREAD_CORPORATION`. That tag mismatch
+is real, but the airlift is immediate and the inherited Unofficial-Patch guard
+rejects a destination once the same executive unit type is physically there.
+No supported duplicate-airlift root was established.
+
+`AI_assaultSeaReinforce` master-team optimization
+-------------------------------------------------
+AdvCiv replaced K-Mod's explicit "team that we are a vassal of" search with
+`getMasterTeam()`. For a free team this returns self, but team initialization /
+reset leaves self open-borders false, so the subsequent
+`isOpenBorders(eMasterTeam)` test prevents ordinary non-vassals from entering
+the master-assistance branch. No F386.
+
+F380 companion repair expansion
+-------------------------------
+The deeper inherited reconciliation found two additional defects inside the
+nested wartime-border portion of `AI_airOffenseBaseValue`, both currently
+masked by F380's enclosing lost-vassal-negation defect and therefore not given
+independent finding numbers:
+
+1. `getRevealedRouteType(getTeam())` is used as a raw boolean. Dynamic route
+   enums use `NO_ROUTE=-1`, while ROAD is the first real route (0), so the
+   intended route-presence test must explicitly compare against `NO_ROUTE`.
+
+2. Current code iterates `SquareIter(kPlot, 1)` but still contains an
+   `iDistance == 2` route-danger branch inherited from the older radius-2
+   search. That branch is unreachable under the current iterator radius.
+
+Fixing F380 should therefore review all three pieces together:
+* restore `!isVassal(...)`;
+* use explicit revealed-route presence semantics;
+* restore/reconcile the distance-2 search radius if that term remains desired.
+
+F385/Settler adjacency cross-check
+----------------------------------
+The apparent sibling where a future-city guard may stand on an adjacent
+fogbusting tile while an undefended Settler's founding safety test accepts only
+an exact-site `MISSIONAI_GUARD_CITY` target is not a supported bug. An adjacent
+fogbuster does not physically defend the Settler once it steps onto the city
+site, so the stricter exact-site escort exception has a defensible safety
+contract. No F386.
+
+SAS file-local helper layer — opening controls
+----------------------------------------------
+The closure inventory was expanded beyond `CvUnitAI::` members because current
+SAS contains behaviorally important file-local helpers that do not appear in a
+member-function reconciliation. This layer already produced F375 and therefore
+must be saturated before Queue 002 closes.
+
+Controls established so far:
+
+* `SAS_releaseTargetlessPeacetimeAttackCityExcess`:
+  converting ATTACK_CITY -> ATTACK through `AI_setUnitAIType` is not merely a
+  label change. `AI_setUnitAIType` calls `joinGroup(NULL)`, so the converted
+  unit detaches from the original group. Explicit non-ATTACK_CITY releases
+  also detach. No trapped-role-conversion root.
+
+* `SAS_createMissingBarbarianCityExpeditionLeader`:
+  the ATTACK -> ATTACK_CITY conversion inherits the same automatic detachment
+  contract and does not leave the new leader role hidden inside its old group.
+
+* `SAS_pickPathableBarbCityForAttackStack`:
+  overall candidate identity and pathable candidate identity remain separate;
+  no stale overall target was shown to execute after a failed path test.
+
+* First-city food/fog helpers:
+  `SAS_canAssumeWaterBonusImprovement` intentionally returns true for land, so
+  the food-environment scorer is not accidentally restricting bonus credit to
+  water. Current default minimum-revealed-BFC gates also prevent the diagnostic
+  revealed-count divisor from reaching zero.
+
+* `SAS_findBestReachableSettlerSite`:
+  current use found in this pass is diagnostic/logging; no gameplay root was
+  assigned from its tie/path details.
+
+* `SAS_collectSettlerCityEscortPool`:
+  the initially suspicious cross-domain escort case closes because
+  `canDefend(cityPlot)` applies domain validity; ordinary naval units sitting
+  in a coastal city are not eligible land defenders for this pool.
+
+* Worker irrigation helpers:
+  the current `SAS_findWorkerIrrigationChainStep` retains the already-fixed
+  KI#214 `(plot, steps)` state rather than collapsing multiple path costs into
+  one visited-plot state. No new root established yet.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F385 CONFIRMED.
+F386 / provisional KI#709 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP81.
+No repository source files modified.
+
+NEXT
+----
+Continue from F386 unused through the remaining file-local attack-stack/Worker
+helpers and the inherited AdvCiv-only / K-Mod->AdvCiv spy, naval and air helper
+surface. Then run the final member + static-helper function-range reconciliation
+and whole-file boolean/sentinel/source-target/candidate-execution sweep before
+any Queue-002 closure decision.
+
+===============================================================================
+C031-WIP82 — PROTECTED QUEUE 002 CvUnitAI.cpp — LATE RECONCILIATION CHECKPOINT
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+Unique files complete: 31/169.
+F375-F385 remain CONFIRMED.
+F386 / provisional KI#709 remains UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+POST-WIP81 CONTROLS PRESERVED
+-----------------------------
+
+`AI_guardYield`
+---------------
+The AdvCiv-only helper has a real geometry/lifecycle oddity: after a unit is
+already guarding an outer-ring improvement, the function obtains that plot's
+`getWorkingCity()` but iterates `CityPlotIter(getPlot())`, i.e. a 21-tile
+footprint centered on the guard unit's current improvement rather than on the
+identified city. AI sleeping/fortified groups are force-updated on later turns,
+so this can genuinely retarget the guard rather than being dormant code.
+
+However the source can still be read as intentionally allowing an established
+yield guard to protect another nearby valuable improvement. The comments and
+unused `pCity` are suspicious but do not establish a hard BFC-only contract.
+Retained as design debt / review note, not F386.
+
+Late inherited air/naval/action batch
+-------------------------------------
+The following helpers were deliberately reopened against K-Mod / Base AdvCiv
+and their live current-SAS callers. No independent F386 survived:
+
+* `AI_offensiveAirlift`: same-area exclusion is the correct flattened form of
+  K-Mod's cross-area candidate condition.
+* `AI_paradrop`: iterator rewrite preserves enemy/range candidate semantics.
+* `AI_defensiveCollateral`: AdvCiv's city/team interpretation change is
+  intentional and the SquareIterator candidate/path state remains paired.
+* `AI_blockade`: restructured candidate target and path endpoint remain paired.
+* `AI_carrierSeaTransport`: repeated cargo-group processing preserves the K-Mod
+  lifecycle; no new source/target mismatch established.
+* `AI_airDefensiveCity`, `AI_airCarrier`, `AI_defendBaseAirStrike`,
+  `AI_airBombPlots`: no new polarity/target/interception root established.
+* Great Work / Trade execution remains protected by same-pass value functions
+  requiring `canGreatWork` / `canTrade`; no supported illegal action state.
+* `AI_pillageValue` explicitly compares route type with `NO_ROUTE`, providing
+  another useful control for the raw-enum route bug retained as an F380
+  companion repair.
+
+Worker no-bonus branch scorer
+-----------------------------
+`SAS_pickWorkerNoBonusBranchBuild` can return the highest buildable candidate
+without a generic `score > 0` requirement, but under current default XML the
+irrigation-blocking penalty does not produce the feared all-negative executable
+state. The penalty activates only where a real irrigation-carrying option is
+available; low-yield branches where Farm is impossible do not receive that
+penalty. No F386.
+
+Reconciliation scope
+--------------------
+Current SAS-vs-Base changed-member coverage is effectively saturated. The
+remaining blind spot is inherited AdvCiv-vs-K-Mod behavior plus file-local SAS
+helpers. Closure still requires an explicit function-range reconciliation over
+both member and static/helper layers and a final boolean/sentinel/source-target/
+candidate-execution pattern sweep.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F385 CONFIRMED.
+F386 / provisional KI#709 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP82.
+No repository source files modified.
+
+NEXT
+----
+Continue from F386 unused through the remaining inherited espionage/nuke/
+reserve/pirate/action helpers and the rest of the SAS file-local helper layer,
+then begin the final Queue-002 function-range and whole-file pattern
+reconciliation.
+
+===============================================================================
+C031-WIP83 — PROTECTED QUEUE 002 CvUnitAI.cpp — DEEP RECONCILIATION CONTINUES
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+Unique files complete: 31/169.
+F375-F385 remain CONFIRMED.
+F386 / provisional KI#709 remains UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+This checkpoint deliberately records additional negative/coverage evidence rather
+than allocating a finding merely because the protected reloop is deep.
+
+-------------------------------------------------------------------------------
+POST-WIP82 RECONCILIATION — ROUTE / MOVEMENT / LATE ACTION CONTROLS
+-------------------------------------------------------------------------------
+
+`AI_routeCity` / advc.121 midpoint behavior
+-------------------------------------------
+A potentially serious-looking queue shape was traced through the actual mission
+engine before being judged.
+
+When advc.121 decides a Worker may already be in the middle of an incomplete
+city-to-city route, its comment says:
+
+    Don't move to kLoopCity first then.
+
+The function can nevertheless queue:
+
+    MISSION_ROUTE_TO -> kLoopCity
+    MISSION_ROUTE_TO -> pRouteToCity
+
+This initially looked like an accidental backtrack to the first endpoint.
+`CvSelectionGroup::MISSION_ROUTE_TO`, however, executes `groupRoadTo`, and
+`groupRoadTo` first attempts the best route build on the Worker's CURRENT plot
+before pathing toward the mission endpoint.
+
+The advc.121 distinction is therefore between:
+* a plain MOVE_TO back to kLoopCity, which would waste travel without completing
+  the route; and
+* a ROUTE_TO back toward kLoopCity, which builds/completes the unfinished half
+  while moving.
+
+The queued shape is consistent with finishing an incomplete connection from a
+midpoint. No F386.
+
+Movement-family inherited controls
+----------------------------------
+The previously unnamed movement members were deliberately reopened against
+K-Mod/Base rather than assumed safe:
+
+* `AI_animalMove`
+  - advc.309's `bAttackAttempted` prevents a second random attack attempt while
+    still allowing a cornered animal to attack after patrol failure.
+  - the damage-scaled heal chance is explicit animal policy; no polarity bug.
+
+* `AI_barbAttackMove`
+  - advc.300 replaces coarse civilization-city thresholds with a deterministic
+    birthmark/aggression curve and area-city context. The major branch changes
+    are policy, not an execution-state or sentinel regression found here.
+
+* `AI_paratrooperMove`
+  - the hostile-state change from potential enemy to actual `atWar` matches the
+    accompanying contract that the unit should not already occupy undeclared
+    enemy territory. No live branch inversion established.
+
+* `AI_pillageMove`
+  - current plot-aware `isEnemy(getPlot())` preserves hidden-nationality / plot
+    combat-owner semantics.
+  - advc.017b role conversion detaches through `AI_setUnitAIType`; no group-state
+    trapping root.
+
+* `AI_reserveMove`, `AI_cityDefenseMove`, `AI_cityDefenseExtraMove`
+  - reopened danger, transport-loading, defensive and grouping deltas; no new
+    candidate survived caller/state review.
+
+`AI_afterAttack`
+----------------
+AdvCiv's Blitz handling was reopened. The K-Mod early return for Blitz units is
+replaced by the more precise `!isMadeAllAttacks()` gate so a Blitz unit can keep
+using its remaining attacks, while an exhausted Blitz unit enters the ordinary
+post-attack regroup/retreat behavior. Intentional exhaustion handling; no F386.
+
+`AI_leaveAttack`
+----------------
+The group-head/unit-count arithmetic is genuinely conservative but already
+exists in BtS lineage and sits behind live local attack/defense strength checks.
+No hard contract was established that the function is supposed to retain a
+specific number of INDIVIDUAL defenders rather than sufficient independent
+selection groups. Kept as inherited heuristic debt, not F386.
+
+-------------------------------------------------------------------------------
+NUKE / AIR / GREAT-PERSON / ESPIONAGE CONTROLS
+-------------------------------------------------------------------------------
+
+`AI_ICBMMove` / `AI_nuke`
+-------------------------
+The advc.650 merge of K-Mod's separate limited-range `AI_nukeRange` into
+`AI_nuke` was traced through candidate creation and execution.
+
+Current city and stack targets are still filtered by real:
+
+    canNukeAt(getPlot(), targetX, targetY, getTeam())
+
+before valuation, and the final selected target is asserted legal again before
+`MISSION_NUKE`. No loss of limited-range missile legality was established.
+
+`AI_exploreAirPlotValue`, `AI_exploreAirMove`, air retreat/damaged helpers
+-------------------------------------------------------------------------
+The current active exploration-air logic was reopened. Global `atWar` safely
+handles `NO_TEAM`. The older K-Mod `AI_airRetreatFromCityDanger` and
+`AI_airAttackDamagedSkip` bodies are retained only as deleted/commented legacy
+code in AdvCiv and are not active hidden paths.
+
+`AI_followBombard`
+------------------
+AdvCiv's active change from unit-level `canBombard(plot())` to the group-level
+`getGroup()->canBombard(getPlot())` matches the mission that is immediately
+pushed by the group. The large neighboring “wait for another bombard group”
+body remains disabled inherited code. No F386.
+
+Great Work / Trade mission execution
+------------------------------------
+The Great Work and Trade selection/execution paths were reopened because some
+runtime legality checks were reduced to assertions.
+
+On the live `AI_greatPersonMove` decision path, the chosen Great Work/Trade
+candidate is produced in the same decision pass by valuation helpers that
+require the corresponding legal action (`canGreatWork` / `canTrade`). No
+supported intervening state mutation was established between candidate choice
+and execution.
+
+`AI_tradeMissionValue` does contain a theoretical initial arithmetic expression
+using `MAX_INT` path-turn state (`4 + iBestPathTurns`). This is undesirable
+signed-overflow territory in strict C++ terms. The first comparison nevertheless
+has an initial best value of zero and no supported current toolchain/gameplay
+mis-selection was established from it. Retained as numeric cleanup debt rather
+than manufacturing F386.
+
+Espionage late helpers
+----------------------
+`AI_getEspionageTargetValue`, `AI_cityOffenseSpy`, `AI_bonusOffenseSpy`,
+`AI_reconSpy` and `AI_infiltrate` were deliberately checked.
+
+* `AI_cityOffenseSpy`'s chained assignment to average/unspent points is odd but
+  not behaviorally contradictory in the live computation.
+* `AI_reconSpy` keeps the remote recon target separate from the end-turn
+  movement plot and preserves both when pushing the mission.
+* the old destroy/sabotage/pickup-target Spy routines that appear in source
+  history are disabled/deleted legacy bodies rather than active uncovered AI.
+
+No F386 in this tranche.
+
+-------------------------------------------------------------------------------
+OTHER INHERITED MEMBER CONTROLS
+-------------------------------------------------------------------------------
+
+`AI_guardCityBestDefender` / `AI_guardCityOnlyDefender`
+-------------------------------------------------------
+The AdvCiv changes are const/API modernization and mission flag typing around
+the inherited exact city-best/only-defender checks. No source-vs-target or
+counting regression established.
+
+`AI_chokeDefend`
+----------------
+The flattened version preserves the K-Mod nested conditions:
+owned city, multiple needed defenders, sufficient non-city-AI defenders,
+limited danger, then a local attack. The optimized danger counter stops after
+its threshold but does not alter the branch result around the threshold. No
+F386.
+
+`AI_defend` / `AI_defendPlot`
+-----------------------------
+The SquareIterator rewrite preserves the one-turn reachable defender search.
+AdvCiv intentionally makes non-city protection domain-aware and value-sensitive
+for vulnerable nondefending units. No iterator-center, source-target or empty
+candidate error survived.
+
+`AI_calculatePlotWorkersNeeded`
+-------------------------------
+The change to owner-aware build time (`getBuildTime(eBuild, getOwner())`) is a
+straight correctness improvement; ceiling and bonus doubling remain protected
+by positive Worker work rate. No divide/sentinel issue.
+
+`AI_setBirthmark`, `AI_unitBirthmarkHash`, `AI_unitPlotHash`
+-----------------------------------------------------------
+These are unchanged in semantic substance from K-Mod/Base aside from API
+modernization. Circumnavigation direction bits and hash arithmetic are
+intentional unsigned behavior.
+
+-------------------------------------------------------------------------------
+SAS FILE-LOCAL HELPER RECONCILIATION
+-------------------------------------------------------------------------------
+
+The Queue-002 closure inventory was expanded beyond `CvUnitAI::` members to the
+file-local SAS helper layer, which member-function inventories cannot see.
+This is required because F375 itself originated in such a helper.
+
+Settler helpers checked further
+-------------------------------
+* first-city food/fog/reveal helpers retain their documented land/water and
+  minimum-reveal assumptions;
+* `SAS_findBestReachableSettlerSite` stores the end-turn plot at the moment a
+  new best candidate is found, so its diagnostic does not use the pathfinder's
+  later candidate state;
+* `SAS_shouldDelayFoundInPlaceForBetterReachableSite` stores the winning target,
+  raw value and path-turn count. Its caller's `getPathEndTurnPlot` usage in the
+  delay branch is diagnostic only, not mission execution;
+* `SAS_tryAttachCityEscortToSettler` intentionally uses the configurable
+  minimum healthy defenders left rather than hard-gating on
+  `AI_neededDefenders`; the XML/source rationale explicitly says the latter is
+  too conservative for this expansion choice;
+* `SAS_shouldBlockDangerousUnescortedFounding` was challenged for its own-
+  territory exclusion. The preceding Settler danger path already attempts to
+  retreat an undefended threatened Settler; if retreat is impossible, founding
+  can itself be safer than waiting exposed. No sufficiently hard contract was
+  established to classify the owner condition as F386.
+
+Attack-stack helpers checked further
+------------------------------------
+* `SAS_releaseTargetlessPeacetimeAttackCityExcess` and
+  `SAS_createMissingBarbarianCityExpeditionLeader` genuinely detach converted
+  units because `AI_setUnitAIType` calls `joinGroup(NULL)`;
+* pathable-vs-overall Barbarian city candidates remain separate through the
+  selection helpers; no stale “overall” city is executed after a different
+  pathable candidate wins;
+* `SAS_getBestUpgradeForLog` is diagnostic-only and now reads each iterated
+  unit's own UnitAI rather than the stack head's role.
+
+Worker helpers checked further
+------------------------------
+* improvement-list caches compare literal pointer first but fall back to string
+  equality, so equivalent define-name strings do not create semantic cache
+  aliases;
+* upgrade-chain traversal is bounded by `getNumImprovementInfos`, preventing an
+  XML cycle from running forever;
+* food-cost recovery only rewards a configured negative-base-food improvement
+  once current plot/player rules have made it food-neutral or positive;
+* the no-bonus branch picker can technically return the highest buildable
+  candidate even if scores are negative, but current default XML does not
+  produce the feared all-negative irrigation case: the irrigation-blocking
+  penalty is active only when a real irrigation carrier is available and
+  competes in the same branch. No current-data F386.
+* KI#214's `(plot, steps)` irrigation-search state remains present.
+
+-------------------------------------------------------------------------------
+FINAL-PATTERN SWEEP PROGRESS
+-------------------------------------------------------------------------------
+
+Another current-source sweep was run specifically for the root families that
+have produced high-value Queue-002 findings:
+
+* raw enum used as boolean;
+* same-object `isArea(object.getArea())` tautologies;
+* source plot substituted for target plot;
+* iterator center/radius mismatch;
+* multiple `generatePath` calls followed by stale path-end consumption;
+* candidate identity vs executed identity;
+* mission target coordination;
+* attempted action vs assumed success;
+* MAX/MIN sentinel arithmetic.
+
+The known F376 tautology remains the unique surviving same-object area instance
+found by the direct pattern search. The known F380 route enum remains the
+important raw-enum companion repair. The other current raw `*Type` conditions
+found are boolean metadata functions/arrays (`getUnitAIType` etc.), not enum
+sentinels.
+
+No independent F386 has crossed the current-source/caller/data threshold in
+this checkpoint.
+
+-------------------------------------------------------------------------------
+CURRENT STONE
+-------------------------------------------------------------------------------
+
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F385 CONFIRMED in protected Queue 002.
+F386 / provisional KI#709 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP83.
+No repository source files modified.
+
+NEXT
+----
+1. Finish the still-active larger holdouts explicitly: pirate/naval movement,
+   corporation spreading, hurry/defend/pillage, remaining city-defense and
+   reserve movement, and any active espionage names not yet reconciled.
+2. Reduce the exact-name “unmentioned” inventory by separating compiled-out /
+   deleted historical bodies from active functions.
+3. Finish the file-local static helper inventory, distinguishing diagnostics
+   from behavior.
+4. Repeat the final function-range + predicate/sentinel/source-target sweep.
+5. Only then either confirm a real F386 or freeze a Queue-002 closure checkpoint
+   with F386 unused and advance to protected Queue 003.
+
+===============================================================================
+C031-WIP84 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F386 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+Unique files complete: 31/169.
+F375-F385 remain CONFIRMED.
+F386 / provisional KI#709 is CONFIRMED.
+F387 / provisional KI#710 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F386 / provisional KI#709 — advc.139 replaced Pirate city/fort-only healing
+with a land-threat helper that returns NO threat on water, so lightly damaged
+Privateers can stop and heal in open sea
+-------------------------------------------------------------------------------
+
+ROOT
+----
+K-Mod `AI_pirateSeaMove` only offers the early heal action when the Pirate is in
+an actual city/fort-like naval base with friendly defense and no nearby danger:
+
+    if (plot()->isCity(true) &&
+        AI_localDefenceStrength(...) > 0 &&
+        !AI_getAnyPlotDanger(...))
+    {
+        if (AI_heal())
+            return;
+    }
+
+Base AdvCiv/current SAS retain the original explanatory comment:
+
+    // heal in defended, unthreatened forts and cities
+
+and show the immediately preceding city/base expression as commented code:
+
+    /*if ((kPlot.isCity() && kPlot.AI_getPlotCity()->AI_isSafe()) ||
+        (kPlot.isCity(true) && ...localDefence... && ...no danger...))*/
+    // advc.139: Probably better than the above
+    if (AI_isThreatenedFromLand() <= PROBABILITY_LOW)
+    {
+        if (AI_heal())
+            return;
+    }
+
+The extracted helper's first live condition is:
+
+    if (getPlot().isWater())
+        return NO_PROBABILITY;
+
+and the ProbabilityTypes ordering used by this file is:
+
+    NO_PROBABILITY   = -1
+    PROBABILITY_LOW  = 0
+    PROBABILITY_REAL = 1
+    PROBABILITY_HIGH = 2
+
+Therefore every ordinary water tile satisfies:
+
+    NO_PROBABILITY <= PROBABILITY_LOW
+
+and enters the early Pirate healing branch.
+
+This is a scope change, not merely a changed danger threshold. The old condition
+required a defended city/fort; the new condition explicitly includes open sea.
+
+RUNTIME PROOF — SINGLE PRIVATEER
+--------------------------------
+`AI_heal()` immediately delegates a one-unit group to:
+
+    AI_singleUnitHeal()
+
+whose default parameters are:
+
+    iMaxTurnsExposed = 1
+    iMaxTurnsOutsideCity = 3
+
+For a non-Barbarian single unit outside city-heal territory,
+`AI_singleUnitHeal` heals whenever:
+
+    iHealTurns <= iMaxTurnsExposed
+
+i.e. one exposed healing turn is sufficient.
+
+`CvUnit::healRate` gives a non-friendly, non-enemy tile the standard neutral
+heal rate:
+
+    NEUTRAL_HEAL_RATE + getExtraNeutralHeal()
+
+and the inherited BtS/Civ4CE GlobalDefines value is:
+
+    NEUTRAL_HEAL_RATE = 10
+
+Current SAS does not override that define in its supplied XML set.
+
+So a routine single Privateer on neutral/open water with, for example, 10 HP of
+damage has:
+
+    healTurns() == 1
+
+and the current call chain becomes:
+
+    AI_pirateSeaMove
+      -> AI_isThreatenedFromLand() == NO_PROBABILITY (because water)
+      -> NO <= LOW, enter early heal branch
+      -> AI_heal()
+      -> AI_singleUnitHeal()
+      -> push MISSION_HEAL
+      -> return from AI_pirateSeaMove
+
+K-Mod's old caller never reached `AI_heal()` on that open-water plot because
+`plot()->isCity(true)` was false.
+
+This exact one-turn exposed-heal behavior is not new to current SAS and does not
+save the refactor: K-Mod's own single-unit `AI_heal` logic also allowed a
+one-turn heal when called outside a city. The important protective contract was
+the Pirate CALLER's city/fort gate, and advc.139 removed that gate.
+
+INTERACTION WITH PIRATE-SPECIFIC DAMAGE LOGIC
+---------------------------------------------
+The broadening changes real action priority, not only which helper is queried.
+Later in `AI_pirateSeaMove`, current SAS calls `AI_pirateBlockade`, whose damaged
+open-sea logic says roughly:
+
+    if not in immediate stronger-enemy danger and damaged and
+       plot not owned and not adjacent owned:
+        try AI_retreatToCity(...)
+        otherwise skip
+
+That logic is reached only after the new early `AI_heal` branch.
+
+A lightly damaged single Pirate on remote neutral water can therefore now heal
+in place and return BEFORE the Pirate-specific retreat/blockade logic has a
+chance to route it toward a base or make the normal blockade decision.
+
+For damage requiring more than one neutral turn, `AI_singleUnitHeal()` normally
+returns false under its default exposed threshold and the later Pirate logic
+still runs. The regression therefore has a clean ordinary boundary rather than
+requiring an exotic state:
+
+    <= 10 damage at standard neutral heal rate -> can heal in open sea early
+    larger damage -> usually falls through to normal Pirate damage handling
+
+Extra neutral-heal bonuses can widen the affected damage range.
+
+ANCESTRY
+--------
+K-Mod:
+* Pirate early healing explicitly requires `plot()->isCity(true)` plus defense
+  and no nearby danger.
+
+AdvCiv advc.139:
+* extracts duplicated naval land-threat tests into `AI_isThreatenedFromLand`;
+* current source retains the old city/base expression immediately above the new
+  helper call and the comment "heal in defended, unthreatened forts and cities";
+* the helper deliberately returns `NO_PROBABILITY` for all water plots;
+* Pirate uses the unique low-threat predicate `<= PROBABILITY_LOW`.
+
+Base AdvCiv 1.14 and current SAS inherit that extracted condition.
+
+Classification:
+    inherited AdvCiv helper-extraction scope regression.
+
+RELATION TO F384
+----------------
+F384 is a different advc.139/ProbabilityTypes caller defect:
+`AI_carrierSeaMove` uses `!= PROBABILITY_REAL` instead of the sibling naval
+threshold `>= PROBABILITY_REAL`.
+
+F386 is not that threshold typo. The Pirate's `<= LOW` sense is reasonable for
+"heal only when land threat is low" once the location is appropriate. The bug
+is that extraction also removed the old city/fort location requirement, while
+the helper's water sentinel automatically satisfies the low-threat comparison.
+
+REPAIR DIRECTION
+----------------
+Restore the location scope while retaining the extracted danger policy.
+
+The closest translation of the retained comment/K-Mod contract is conceptually:
+
+    if (getPlot().isCity(true) &&
+        AI_isThreatenedFromLand() <= PROBABILITY_LOW)
+    {
+        if (AI_heal())
+            return;
+    }
+
+If current AdvCiv's `isCity(true)` API has been replaced/deprecated, use the
+modern team/base predicate that represents an actual naval city/fort heal base
+(e.g. the same `isCityHeal`/base semantics used by current healing code), but do
+not let ordinary water satisfy the early branch solely because
+`AI_isThreatenedFromLand` returns `NO_PROBABILITY` there.
+
+If intentionally allowing minor open-sea healing is desired as NEW Pirate
+policy, it should be stated and valued explicitly; it should not arise as an
+accidental consequence of a helper whose purpose is land-threat extraction and
+whose retained caller comment still says city/fort only.
+
+-------------------------------------------------------------------------------
+EXACT-NAME CLOSURE INVENTORY — ADDITIONAL CLASSIFICATION
+-------------------------------------------------------------------------------
+
+After WIP83 the exact-name gap had fallen to 22 source names. Several are not
+active functions and must not inflate the closure count:
+
+* `AI_potentialEnemy`
+  - old name appears only in comments; active AdvCiv replacement is
+    `AI_mayAttack`, which has already been audited through many live callers.
+
+* `AI_destroySpy`, `AI_sabotageSpy`, `AI_pickupTargetSpy`
+  - explicitly deleted/commented legacy BtS/BBAI bodies.
+
+* `AI_switchHurry`
+  - inside `#if 0`, obsolete by K-Mod Great-Person logic.
+
+* old `AI_greatWork`
+  - disabled/deleted legacy body; active K-Mod split is
+    `AI_greatWorkValue` + `AI_doGreatWork`.
+
+* old `AI_airBombDefenses`
+  - only commented/deleted BtS calls/body remain; K-Mod replacement paths are
+    active and were audited separately.
+
+Additional active controls:
+
+* `AI_discover` is semantically unchanged from K-Mod apart from refactoring;
+  `canDiscover` precedes discovery-tech/value arithmetic and protects the live
+  denominator/tech contract.
+* `AI_goldenAge` is unchanged from K-Mod.
+* `AI_revoltCitySpy` preserves K-Mod's war/disorder/remaining-defense and
+  `canDoEspionageMission` checks.
+* `AI_doTradeMission` performs a live `canTrade` recheck when actually at the
+  trade plot.
+* `AI_greatWorkValue` selects only `canGreatWork` cities; the active
+  Great-Person pass recomputes candidates each turn before `AI_doGreatWork`.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F386 CONFIRMED in protected Queue 002.
+F387 / provisional KI#710 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP84.
+No repository source files modified.
+
+NEXT
+----
+1. Finish the now-small active exact-name set: Pirate Sea/Blockade, corporation
+   spreading, religion airlift, sea bombard, pillage and remaining active
+   wrappers.
+2. Finish file-local static behavior helpers vs diagnostics.
+3. Run the final function-range and root-pattern reconciliation one more time.
+4. Only then decide whether Queue 002 closes with F387 unused or yields another
+   supported root.

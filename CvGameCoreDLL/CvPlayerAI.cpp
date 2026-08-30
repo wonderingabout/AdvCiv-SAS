@@ -29810,9 +29810,9 @@ bool CvPlayerAI::AI_advancedStartPlaceExploreUnits(bool bLand)
 
 	if (pBestExplorePlot != NULL)
 	{
-		doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT,
-				pBestExplorePlot->getX(), pBestExplorePlot->getY(), eBestUnitType, true,
-				UNITAI_EXPLORE); // advc.250c
+		// <!-- custom: AdvCiv added an explicit unit-role argument here but hard-coded the land-explorer role even after selecting a naval explorer for the sea-explorer role.
+		// Preserve the role used for selection so the purchased unit satisfies the count that requested it. See KI#689. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT, pBestExplorePlot->getX(), pBestExplorePlot->getY(), eBestUnitType, true, eUnitAI); // advc.250c
 		return true;
 	}
 	return false;
@@ -29894,6 +29894,12 @@ bool CvPlayerAI::AI_advancedStartPlaceCity(CvPlot* pPlot)
 			CvPlot* pLoopPlot = &(*it);
 			if (pLoopPlot != NULL && pLoopPlot->getImprovementType() != eImprovement)
 			{
+				// <!-- custom: BtS ranked improvements without checking whether Advanced Start could buy them.
+				// Include the exact replacement refund used by doAdvancedStartAction so an unaffordable candidate cannot be selected repeatedly and counted as a phantom improvement. See KI#693. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int const iCost = getAdvancedStartImprovementCost(eImprovement, true, pLoopPlot);
+				int const iOldCost = std::max(0, getAdvancedStartImprovementCost(pLoopPlot->getImprovementType(), false, pLoopPlot));
+				if (iCost < 0 || iCost - iOldCost > getAdvancedStartPoints())
+					continue;
 				eBestImprovement = eImprovement;
 				pBestPlot = pLoopPlot;
 				iBestValue = iValue;
@@ -29902,8 +29908,11 @@ bool CvPlayerAI::AI_advancedStartPlaceCity(CvPlot* pPlot)
 		if (iBestValue > 0)
 		{
 			FAssert(pBestPlot != NULL);
-			doAdvancedStartAction(ADVANCEDSTARTACTION_IMPROVEMENT,
-					pBestPlot->getX(), pBestPlot->getY(), eBestImprovement, true);
+			doAdvancedStartAction(ADVANCEDSTARTACTION_IMPROVEMENT, pBestPlot->getX(), pBestPlot->getY(), eBestImprovement, true);
+			// <!-- custom: The purchase API is void and can silently reject stale or otherwise invalid state.
+			// Count only the requested improvement that now exists; stopping avoids retrying the same failed candidate forever or buying unsupported population. See KI#693. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (pBestPlot->getImprovementType() != eBestImprovement)
+				break;
 			iPlotsImproved++;
 			if (pCity->getPopulation() < iPlotsImproved)
 			{
@@ -30364,27 +30373,19 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
 
 	AI_advancedStartRouteTerritory();
 
-	bool bDoneBuildings = (iLastPointsTotal - getAdvancedStartPoints() > iCityPoints);
-	for (int iPass = 0; iPass < 10 &&
-		!bDoneBuildings; ++iPass)
+	// <!-- custom: BtS reused one candidate's affordability as the whole building phase's termination flag.
+	// Keep the phase's original ten bounded focus passes, but skip each over-budget building locally so later cities and cheaper focus passes remain eligible. See KI#694. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (int iPass = 0; iPass < 10; ++iPass)
 	{
 		FOR_EACH_CITYAI(pLoopCity, *this)
 		{
 			BuildingTypes const eBuilding = pLoopCity->AI_bestAdvancedStartBuilding(iPass);
 			if (eBuilding != NO_BUILDING)
 			{
-				bDoneBuildings = (iCityPoints < iLastPointsTotal -
-						(getAdvancedStartPoints() -
-						getAdvancedStartBuildingCost(eBuilding, true, pLoopCity)));
-				if (!bDoneBuildings)
-				{
-					doAdvancedStartAction(ADVANCEDSTARTACTION_BUILDING,
-							pLoopCity->getX(), pLoopCity->getY(), eBuilding, true);
-				}
-				else
-				{
-					//continue. there might be cheaper buildings in other cities we can afford
-				}
+				int const iCost = getAdvancedStartBuildingCost(eBuilding, true, pLoopCity);
+				if (iCost < 0 || iCost > getAdvancedStartPoints() || iCityPoints < iLastPointsTotal - getAdvancedStartPoints() + iCost)
+					continue;
+				doAdvancedStartAction(ADVANCEDSTARTACTION_BUILDING, pLoopCity->getX(), pLoopCity->getY(), eBuilding, true);
 			}
 		}
 	}
@@ -30396,10 +30397,9 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
 	aeUnitAITypes.push_back(UNITAI_RESERVE);
 	aeUnitAITypes.push_back(UNITAI_COUNTER);
 
-	bool bDone = false;
-	for (int iPass = 0; iPass < 10 &&
-		!bDone; // advc.001: bDone was never read. This is probably its intended use.
-		iPass++)
+	// <!-- custom: AdvCiv made BtS's otherwise-unused bDone flag terminate every later role pass when one preferred unit was unaffordable.
+	// Preserve the bounded BtS/K-Mod passes and skip that city-role candidate locally so cheaper Workers, Reserve units or Counters can still be bought. See KI#695. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (int iPass = 0; iPass < 10; iPass++)
 	{
 		FOR_EACH_CITY(pLoopCity, *this)
 		{
@@ -30412,12 +30412,9 @@ void CvPlayerAI::AI_doAdvancedStart(bool bNoExit)
 					aeUnitAITypes[iPass % aeUnitAITypes.size()]);
 			if (eBestUnit != NO_UNIT)
 			{
-				if (getAdvancedStartUnitCost(eBestUnit, true, &kCityPlot) >
-					getAdvancedStartPoints())
-				{
-					bDone = true;
-					break;
-				}
+				int const iCost = getAdvancedStartUnitCost(eBestUnit, true, &kCityPlot);
+				if (iCost < 0 || iCost > getAdvancedStartPoints())
+					continue;
 				doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT,
 						kCityPlot.getX(), kCityPlot.getY(), eBestUnit, true);
 			}

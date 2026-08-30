@@ -777,13 +777,13 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#686 - (Fixed inherited AdvCiv precedence regression) Conquest-only games bypassed stage-3 gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-686)\
 [KI#687 - (Fixed inherited BtS cooldown defect) A suppressed financial-trouble refresh was never retried](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
 [KI#688 - (Pending Performance-Sensitive inherited BtS cache defect) Unit-local upgrade state is cached by UnitType](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-688)\
-[KI#689 - (Provisional Pending AdvCiv unit-role regression) Advanced Start naval explorers receive the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
+[KI#689 - (Fixed AdvCiv unit-role regression) Advanced Start naval explorers received the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
 [KI#690 - (Provisional Pending inherited AdvCiv state-mutation regression) One city's espionage effect leaks into later happiness/health valuations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
 [KI#691 - (Provisional Pending inherited BtS counting defect) Airbase value counts traversal-order distance records](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-691)\
 [KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-692)\
-[KI#693 - (Provisional Pending inherited BtS Advanced Start state defect) Failed improvement purchases count as successful](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
-[KI#694 - (Provisional Pending inherited BtS Advanced Start control-flow defect) One unaffordable building can end the building phase](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-694)\
-[KI#695 - (Provisional Pending AdvCiv Advanced Start regression) One unaffordable unit ends all later role passes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
+[KI#693 - (Fixed inherited BtS Advanced Start state defect) Failed improvement purchases counted as successful](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
+[KI#694 - (Fixed inherited BtS Advanced Start control-flow defect) One unaffordable building could end the building phase](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-694)\
+[KI#695 - (Fixed AdvCiv Advanced Start regression) One unaffordable unit ended all later role passes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
 [KI#696 - (Provisional Pending SAS victory-state ordering regression) Culture cannot see the current Diplomacy stage](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-696)\
 [KI#697 - (Pending Architectural inherited and SAS-aggravated scope defect) Culture strategy is player-local for a team victory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-697)\
 [KI#698 - (Provisional Pending SAS Worker-allocation scope regression) Foreign and unavailable improvements count as city capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
@@ -796,7 +796,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#705 - (Provisional Pending inherited AdvCiv pickup regression) Transports reject safe ports and permit dangerous ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-705)\
 [KI#706 - (Provisional Pending SAS Worker-ferry regression) Cargo Workers count as already delivered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-706)\
 [KI#707 - (Provisional Pending inherited AdvCiv ProbabilityTypes regression) Carriers retreat at every threat level except real](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-707)\
-[KI#708 - (Provisional Pending investigation) F385 remains unassigned during the CvUnitAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-708)\
+[KI#708 - (Provisional Pending inherited AdvCiv mission-target regression) City-site guards ignore missions aimed at the site itself](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-708)\
+[KI#709 - (Provisional Pending inherited AdvCiv helper-extraction regression) Privateers can heal early in open sea](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-709)\
+[KI#710 - (Provisional Pending investigation) F387 remains unassigned during the CvUnitAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-710)\
 
 <a id="ki-1"></a>
 
@@ -14222,11 +14224,13 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP55 `CvPlayerAI.cpp` deep
 
 <a id="ki-689"></a>
 
-## KI#689 - (Provisional Pending AdvCiv unit-role regression) Advanced Start naval explorers receive the land-explorer role
+## KI#689 - (Fixed AdvCiv unit-role regression) Advanced Start naval explorers received the land-explorer role
 
-Album F366 finds `AI_advancedStartPlaceExploreUnits(false)` selecting a naval unit for `UNITAI_EXPLORE_SEA` but passing hard-coded `UNITAI_EXPLORE` to AdvCiv's explicit-role Advanced Start purchase call. The created ship consequently follows the land-explorer routine and does not satisfy the sea-explorer count that caused its purchase. Pending passing the already-derived `eUnitAI` through to unit creation.
+Album F366 found `AI_advancedStartPlaceExploreUnits(false)` selecting a naval unit for `UNITAI_EXPLORE_SEA` but passing hard-coded `UNITAI_EXPLORE` to AdvCiv's explicit-role Advanced Start purchase call. The created ship consequently followed the land-explorer routine and did not satisfy the sea-explorer count that caused its purchase. The purchase now receives the already-derived land or sea role used to select and count the explorer.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP56 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Validated with a 3,000-point Renaissance Huge Archipelago/Tiny Islands Advanced Start and 16 independent civilizations. `SASGameRecord_20260830T184035Z_new2.log` records initial Galleons and fallback Work Boats with `UNITAI_EXPLORE_SEA` across the AI players, and the autoplay completed at turn 464 through a Space Race victory.
+
+Found during ChatGPT-5.6-Sol's C031-WIP56 `CvPlayerAI.cpp` deep re-audit; fixed and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-690"></a>
 
@@ -14254,27 +14258,35 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP59 `CvPlayer
 
 <a id="ki-693"></a>
 
-## KI#693 - (Provisional Pending inherited BtS Advanced Start state defect) Failed improvement purchases count as successful
+## KI#693 - (Fixed inherited BtS Advanced Start state defect) Failed improvement purchases counted as successful
 
-Album F370 finds `AI_advancedStartPlaceCity` incrementing `iPlotsImproved` after its void improvement-purchase action without checking affordability or resulting plot state. A silently failed purchase can therefore create phantom improved plots, repeatedly retry the same unaffordable improvement and permit later population purchases unsupported by real improvements. Pending excluding unaffordable candidates and incrementing only after the requested improvement actually exists.
+Album F370 found `AI_advancedStartPlaceCity` incrementing `iPlotsImproved` after its void improvement-purchase action without checking affordability or resulting plot state. A silently failed purchase could therefore create phantom improved plots, repeatedly retry the same unaffordable improvement and permit later population purchases unsupported by real improvements.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP60 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Improvement selection now applies the purchase action's exact cost and overwritten-improvement refund rule before choosing a candidate. After the void action returns, the city counts the plot only when the requested improvement actually exists; a stale or otherwise rejected purchase stops the loop rather than manufacturing state or retrying forever.
+
+The same 3,000-point Renaissance Huge Archipelago/Tiny Islands validation exercised Advanced Start improvement placement across 16 civilizations and completed successfully. The exact rejected-purchase fallback was source-verified rather than separately instrumented.
+
+Found during ChatGPT-5.6-Sol's C031-WIP60 `CvPlayerAI.cpp` deep re-audit; fixed and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-694"></a>
 
-## KI#694 - (Provisional Pending inherited BtS Advanced Start control-flow defect) One unaffordable building can end the building phase
+## KI#694 - (Fixed inherited BtS Advanced Start control-flow defect) One unaffordable building could end the building phase
 
-Album F371 finds `AI_doAdvancedStart` using one selected building's affordability result as the outer building-phase termination flag. An unaffordable candidate late in city iteration can consequently prevent later passes from considering cheaper buildings under their broader focus flags, making useful spending depend on candidate and city iteration order. Pending skipping each over-budget candidate locally while preserving the bounded later passes.
+Album F371 found `AI_doAdvancedStart` using one selected building's affordability result as the outer building-phase termination flag. An unaffordable candidate late in city iteration could consequently prevent later passes from considering cheaper buildings under their broader focus flags, making useful spending depend on candidate and city iteration order. Each invalid, unaffordable or city-budget-exceeding candidate is now skipped locally while the original ten bounded focus passes continue.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP61 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The same 3,000-point Renaissance Huge Archipelago/Tiny Islands validation exercised the bounded building passes across 16 civilizations and completed successfully; constrained spending produced varied initial city counts without aborting setup.
+
+Found during ChatGPT-5.6-Sol's C031-WIP61 `CvPlayerAI.cpp` deep re-audit; fixed and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-695"></a>
 
-## KI#695 - (Provisional Pending AdvCiv Advanced Start regression) One unaffordable unit ends all later role passes
+## KI#695 - (Fixed AdvCiv Advanced Start regression) One unaffordable unit ended all later role passes
 
-Album F372 finds AdvCiv activating BtS's previously unread Advanced Start `bDone` flag as a termination condition for the entire unit-buying phase. If one selected City Defense unit is unaffordable, later Worker, Reserve and Counter passes are skipped even when they contain cheaper affordable units. Pending restoring the BtS/K-Mod pass-local behavior or otherwise continuing candidate search until no remaining role and city can be afforded.
+Album F372 found AdvCiv activating BtS's previously unread Advanced Start `bDone` flag as a termination condition for the entire unit-buying phase. If one selected City Defense unit was unaffordable, later Worker, Reserve and Counter passes were skipped even when they contained cheaper affordable units. The repair restores the inherited ten bounded passes while skipping an invalid or unaffordable city-role candidate locally, so the remaining roles and cities are still considered.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP62 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The same 3,000-point Renaissance Huge Archipelago/Tiny Islands validation exercised the unit-role passes across 16 civilizations and completed successfully. Initial compositions included Workers, City Defense, Counter, Attack City, Reserve and sea-exploration roles, providing broad coverage of continued later-role purchasing.
+
+Found during ChatGPT-5.6-Sol's C031-WIP62 `CvPlayerAI.cpp` deep re-audit; fixed and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-696"></a>
 
@@ -14392,8 +14404,28 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP78 `CvUnitAI
 
 <a id="ki-708"></a>
 
-## KI#708 - (Provisional Pending investigation) F385 remains unassigned during the CvUnitAI deep re-audit
+## KI#708 - (Provisional Pending inherited AdvCiv mission-target regression) City-site guards ignore missions aimed at the site itself
 
-The protected Queue 002 `CvUnitAI.cpp` deep re-audit has confirmed F375-F384 through C031-WIP78 and reserves F385 next. Do not implement a change under KI#708 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F385 finds AdvCiv advc.300 replacing K-Mod's exact `MISSIONAI_GUARD_CITY` target check with a loop over only the eight adjacent plots. The rewritten function can still target the planned city-site tile itself when no adjacent tile receives a positive guard value, but a later eligible group cannot see that exact-center mission and can be sent redundantly to the same future city site. An intended center tie-break inside the adjacent-only loop is unreachable for the same reason.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP78 `CvUnitAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending checking both the city-site tile and its adjacent plots while retaining AdvCiv's broader coordination. The unreachable center comparison should then be removed or the center should be included explicitly in position scoring.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP79 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-709"></a>
+
+## KI#709 - (Provisional Pending inherited AdvCiv helper-extraction regression) Privateers can heal early in open sea
+
+Album F386 finds AdvCiv advc.139 replacing K-Mod's defended city/fort gate for early Pirate healing with `AI_isThreatenedFromLand() <= PROBABILITY_LOW`. That helper deliberately returns `NO_PROBABILITY` on every water tile, which satisfies the low-threat comparison and admits ordinary open sea. A lightly damaged single Privateer can consequently take an early one-turn neutral-water heal before its later Pirate-specific retreat and blockade logic, despite the retained caller comment still describing defended forts and cities.
+
+Pending restoring the city/fort or equivalent naval-base location requirement while retaining the extracted land-threat threshold. This is distinct from KI#707's Carrier `ProbabilityTypes` predicate defect: the Pirate threshold direction is sensible once its lost location scope is restored.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP84 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-710"></a>
+
+## KI#710 - (Provisional Pending investigation) F387 remains unassigned during the CvUnitAI deep re-audit
+
+The protected Queue 002 `CvUnitAI.cpp` deep re-audit has confirmed F375-F386 through C031-WIP84 and reserves F387 next. Do not implement a change under KI#710 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP84 `CvUnitAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
