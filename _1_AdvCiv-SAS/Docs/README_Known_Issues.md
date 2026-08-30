@@ -754,9 +754,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#663 - (Fixed inherited AdvCiv unit-role regression) Special-cargo ships qualify for incompatible carrier roles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-663)\
 [KI#664 - (Fixed inherited AdvCiv scope defect) Sea-explorer retirement mixes global and area counts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-664)\
 [KI#665 - (Fixed inherited AdvCiv transform defect) Exploring Work Boats can convert for unreachable resources](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-665)\
-[KI#666 - (Provisional Pending inherited BtS count defect) Shared neutral resources are counted once per city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-666)\
-[KI#667 - (Provisional Pending inherited AdvCiv war-focus defect) The first pushover war is never recorded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-667)\
-[KI#668 - (Provisional Pending inherited BtS team-value defect) Area missionary value omits teammate cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-668)\
+[KI#666 - (Fixed inherited BtS count defect) Shared neutral resources are counted once per city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-666)\
+[KI#667 - (Fixed inherited AdvCiv war-focus defect) The first pushover war is never recorded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-667)\
+[KI#668 - (Fixed inherited BtS team-value defect) Area missionary value omits teammate cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-668)\
 [KI#669 - (Provisional Pending inherited AdvCiv era defect) Ancient targets can be mistaken for no targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-669)\
 [KI#670 - (Provisional Pending inherited K-Mod overflow defect) A failed bounded path can count distant joiners as nearby](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-670)\
 [KI#671 - (Provisional Pending inherited espionage-value defect) Unitless affordability suppresses stationary-Spy missions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-671)\
@@ -778,7 +778,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#687 - (Provisional Pending inherited BtS cooldown defect) A suppressed financial-trouble refresh is never retried](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
 [KI#688 - (Provisional Pending inherited BtS cache defect) Great-General upgrade discounts can inflate the AI gold reserve](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-688)\
 [KI#689 - (Provisional Pending AdvCiv unit-role regression) Advanced Start naval explorers receive the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
-[KI#690 - (Provisional Pending investigation) F367 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
+[KI#690 - (Provisional Pending inherited AdvCiv state-mutation regression) One city's espionage effect leaks into later happiness/health valuations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
+[KI#691 - (Provisional Pending inherited BtS counting defect) Airbase value counts traversal-order distance records](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-691)\
+[KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-692)\
+[KI#693 - (Provisional Pending investigation) F370 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
 
 <a id="ki-1"></a>
 
@@ -13962,27 +13965,35 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP30 `CvPlayerAI.cpp` deep
 
 <a id="ki-666"></a>
 
-## KI#666 - (Provisional Pending inherited BtS count defect) Shared neutral resources are counted once per city
+## KI#666 - (Fixed inherited BtS count defect) Shared neutral resources are counted once per city
 
-Album F343 finds `AI_countOwnedBonuses` counting a neutral resource in overlapping city radii once for every city that can claim it. The physical resource multiplicity is therefore inflated before ownership. Pending deduplicating neutral plots while retaining the intended anticipation of easily claimed resources.
+Album F343 found `AI_countOwnedBonuses` counting a neutral resource in overlapping city radii once for every city that could claim it. The physical resource multiplicity was therefore inflated before ownership.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP31 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix retains the existing working-city ownership rule, but counts neutral candidates through a player-scope plot marker so each physical plot contributes at most once. A neutral resource still qualifies when at least one culturally active city includes it under the inherited land/water radius rules.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP31 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-667"></a>
 
-## KI#667 - (Provisional Pending inherited AdvCiv war-focus defect) The first pushover war is never recorded
+## KI#667 - (Fixed inherited AdvCiv war-focus defect) The first pushover war is never recorded
 
-Album F344 finds `AI_isFocusWar` failing to record the first qualifying pushover war before evaluating its explicit multiple-weak-wars exception. That exception can consequently never trigger from the intended state. Pending the narrow state update that records the first qualifying war for the later comparison.
+Album F344 found `AI_isFocusWar` assigning `true` to an already-true first-war flag after finding a qualifying pushover war. Its explicit multiple-weak-wars exception could consequently never trigger.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP32 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix gives the state positive naming, records the first relevant pushover war and returns focus-war status upon the second. One weak war can still be disregarded as intended, while multiple simultaneous weak wars now collectively qualify.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP32 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-668"></a>
 
-## KI#668 - (Provisional Pending inherited BtS team-value defect) Area missionary value omits teammate cities
+## KI#668 - (Fixed inherited BtS team-value defect) Area missionary value omits teammate cities
 
-Album F345 finds area-specific `AI_missionaryValue` excluding same-team cities even though the global branch values internal spread to teammates. Production decisions can therefore value a real teammate religion-spread mission at zero solely because an area was supplied. Pending making the area-specific internal-spread accounting consistent with the global team contract.
+Album F345 found area-specific `AI_missionaryValue` excluding same-team cities even though the global branch values internal spread to teammates. Production decisions could therefore value a real teammate religion-spread mission at zero solely because an area was supplied.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP33 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix sums area-local cities, existing religions and spread units in production across every living team member, matching the global branch's team contract. Reachable teammate cities supported by missionary movement no longer disappear from area-specific production valuation.
+
+Validation for KI#666-KI#668 compiled successfully and completed a Huge Archipelago autoplay through turn 396, ending in a Space Race victory. Its 16 players formed 12 teams, founded 122 cities and produced 17 post-setup war starts, including multiple simultaneous late-game wars; this provides broad shared-radius, team-religion and focus-war coverage while the exact edge conditions remain source-verified.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP33 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-669"></a>
 
@@ -14154,8 +14165,32 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP56 `CvPlayer
 
 <a id="ki-690"></a>
 
-## KI#690 - (Provisional Pending investigation) F367 remains unassigned during the CvPlayerAI deep re-audit
+## KI#690 - (Provisional Pending inherited AdvCiv state-mutation regression) One city's espionage effect leaks into later happiness/health valuations
 
-The continuous audit ledger reserves provisional KI#690 for F367. Through C031-WIP56, the queue-001 deep re-audit has confirmed F321-F366 and is continuing through Advanced Start construction, routing and unit placement. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F367 finds `AI_getHappinessWeight` and `AI_getHealthWeight` mutating their shared `iExtraPop` argument while iterating cities to account for a city's temporary espionage counter. One city's state consequently changes the extra-pop assumption used for every later city, making empire-level valuations depend on city iteration order. Pending deriving an independent city-local value while keeping the caller's input immutable.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP57 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-691"></a>
+
+## KI#691 - (Provisional Pending inherited BtS counting defect) Airbase value counts traversal-order distance records
+
+Album F368 finds `AI_getPlotAirbaseValue` incrementing `iOtherCityCount` only when a qualifying foreign city or airbase is closer than every previously visited one. Its value therefore counts traversal-order record minima rather than all nearby targets and can change with iteration order. Pending incrementing the count for every qualifying object independently of any nearest-distance bookkeeping.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP58 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-692"></a>
+
+## KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units
+
+Album F369 finds AdvCiv storing one randomized `AI_getBestAttackUnit` result in `m_aeLastBrag` while diplomacy text independently reruns the randomized selector for `[OUR_BEST_UNIT]`. The remembered unit and the unit shown to the player can consequently differ, causing repeated or suppressed brags without a real unit-set change. Pending carrying the selected unit atomically into the rendered greeting or otherwise unifying the stored and displayed identity.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP59 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-693"></a>
+
+## KI#693 - (Provisional Pending investigation) F370 remains unassigned during the CvPlayerAI deep re-audit
+
+The continuous audit ledger reserves provisional KI#693 for F370. Through C031-WIP59, the queue-001 deep re-audit has confirmed F321-F369 and is continuing through the remaining player-AI utility helpers. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
 
 Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

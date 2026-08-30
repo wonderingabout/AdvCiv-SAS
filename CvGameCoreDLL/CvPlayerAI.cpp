@@ -16120,14 +16120,35 @@ int CvPlayerAI::AI_countOwnedBonuses(BonusTypes eBonus, /* <advc.opt> */ int iMa
 		}
 		return iCount;
 	}
+	// <!-- custom: BtS summed neutral city-radius bonuses independently per city, so one physical resource in overlapping radii could be counted as multiple copies.
+	// Preserve owned working-city counts, but track neutral plots once at player scope while retaining the culturally active-city anticipation. See KI#666. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::vector<bool> abNeutralBonusCounted(kMap.numPlots(), false);
 	//count bonuses inside city radius or easily claimed
 	FOR_EACH_CITYAI(pCity, *this)
 	{
-		iCount += pCity->AI_countNumBonuses(eBonus, true,
-				pCity->getCommerceRate(COMMERCE_CULTURE) > 0, -1);
+		iCount += pCity->AI_countNumBonuses(eBonus, true, false, -1);
 		// <advc.opt>
 		if (iCount >= iMaxCount)
 			return iMaxCount; // </advc.opt>
+		if (pCity->getCommerceRate(COMMERCE_CULTURE) <= 0)
+			continue;
+		for (CityPlotIter itPlot(*pCity); itPlot.hasNext(); ++itPlot)
+		{
+			CvPlot const& kPlot = *itPlot;
+			PlotNumTypes const ePlot = kPlot.plotNum();
+			BonusTypes const ePlotBonus = kPlot.getBonusType(getTeam());
+			if (abNeutralBonusCounted[ePlot] || kPlot.isOwned() ||
+				!((pCity->isArea(kPlot.getArea())) || kPlot.isWater()) ||
+				ePlotBonus == NO_BONUS ||
+				(eBonus != NO_BONUS && eBonus != ePlotBonus))
+			{
+				continue;
+			}
+			abNeutralBonusCounted[ePlot] = true;
+			iCount++;
+			if (iCount >= iMaxCount)
+				return iMaxCount;
+		}
 	}
 	//count bonuses outside city radius
 	for (int i = 0; i < kMap.numPlots(); i++)
@@ -16940,7 +16961,9 @@ bool CvPlayerAI::AI_isFocusWar(CvArea const* pArea) const
 		return false;
 	}
 	// Much weaker targets aren't worth focusing on (except maybe when there are multiple)
-	bool bFirst = true;
+	// <!-- custom: AdvCiv never changed bFirst after finding the first relevant pushover war, so the explicit multiple-weak-wars exception could not trigger.
+	// Use positive state naming and record the first match for the next comparison. See KI#667. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bFoundPushoverWarInArea = false;
 	for (TeamIter<CIV_ALIVE,KNOWN_POTENTIAL_ENEMY_OF> itTeam(getTeam());
 		itTeam.hasNext(); ++itTeam)
 	{
@@ -16956,9 +16979,9 @@ bool CvPlayerAI::AI_isFocusWar(CvArea const* pArea) const
 			}
 			if (pEnemyCapital != NULL && pEnemyCapital->isArea(*pArea))
 			{
-				if (!bFirst) // Multiple wars
+				if (bFoundPushoverWarInArea) // Multiple wars
 					return true;
-				bFirst = true;
+				bFoundPushoverWarInArea = true;
 			}
 		}
 	}
@@ -17111,9 +17134,14 @@ int CvPlayerAI::AI_missionaryValue(ReligionTypes eReligion, CvArea const* pArea 
 	}
 	else
 	{
-		iOurCitiesHave = pArea->countHasReligion(eReligion, getID()) +
-				countReligionSpreadUnits(pArea, eReligion,true);
-		iOurCitiesCount = pArea->getCitiesPerPlayer(getID());
+		// <!-- custom: BtS's global branch counts the whole team, but its area branch counted only this player even though missionary movement supports teammate cities.
+		// Sum the same area-local city and in-production spread state for every living team member. See KI#668. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
+		{
+			iOurCitiesHave += pArea->countHasReligion(eReligion, itMember->getID()) +
+					itMember->countReligionSpreadUnits(pArea, eReligion, true);
+			iOurCitiesCount += pArea->getCitiesPerPlayer(itMember->getID());
+		}
 	}
 	if (iOurCitiesHave < iOurCitiesCount)
 	{

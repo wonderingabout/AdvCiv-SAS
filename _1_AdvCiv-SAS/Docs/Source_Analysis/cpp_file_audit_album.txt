@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 30 / 169
 Files open: 1 / 169
 Last completed file: investigation file 030 / queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp (2,810 queued lines) - CLOSED AT C031 DURABLE
-Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP56
-Latest confirmed roots: F321-F366 / provisional KI#644-KI#689 from the queue-001 re-audit
-Next root ID: F367 unused / provisional KI#690 next
+Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP59
+Latest confirmed roots: F321-F369 / provisional KI#644-KI#692 from the queue-001 re-audit
+Next root ID: F370 unused / provisional KI#693 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -75045,3 +75045,483 @@ NEXT CURSOR
    using the explicit-UnitAI parameter as a newly established contract boundary.
 2. Then continue into found-value/city-site and area/city UnitAI helpers; prefer hard
    legality/state/scope mismatches over subjective Advanced Start allocation tuning.
+
+
+===============================================================================
+C031-WIP57 — F367 CONFIRMED
+===============================================================================
+
+F367 / provisional KI#690 — advc.036 mutates the shared `iExtraPop` argument while
+iterating cities in AI_getHappinessWeight / AI_getHealthWeight, so an espionage effect
+in one city changes how all later cities are valued
+
+STATUS
+------
+CONFIRMED — AdvCiv regression introduced by advc.036 and present in Base AdvCiv 1.14
+and current SAS. BtS and K-Mod do not contain the espionage-counter adjustment that
+creates the cross-city state leak.
+
+ROOT
+----
+Both helpers take one empire-level input parameter:
+
+    int iExtraPop
+
+and then iterate every city. advc.036 added a city-specific adjustment for temporary
+espionage anger / sickness, but writes the result back into that shared parameter:
+
+    if (iExtraPop > 0)
+        iExtraPop = std::max(0, iExtraPop -
+                pLoopCity->getEspionageHappinessCounter() / 2);
+
+and analogously for `getEspionageHealthCounter()`.
+
+Once an earlier city reduces `iExtraPop`, every later city inherits the reduced value,
+regardless of its own espionage counter. The helper therefore ceases to be a sum of
+independent per-city valuations and becomes dependent on city iteration order.
+
+INTRODUCTION / INTENDED CONTRACT
+--------------------------------
+AdvCiv practical commit 1287, commit ad5faf8aa2740b991c49d8f35e14769d190a4c71,
+introduced this advc.036 adjustment. The source comment explains the intended local
+reasoning:
+
+    "By the time iExtraPop matters, the espionage effect will be gone."
+
+The same commit adds the adjustment inside the per-city loop for both happiness and
+health. Nothing in the change says that an espionage effect in city A should alter the
+future-population assumption for city B. The appropriate state is therefore a local
+per-city derivative, e.g.:
+
+    int iCityExtraPop = iExtraPop;
+    if (iCityExtraPop > 0)
+        iCityExtraPop = std::max(0, iCityExtraPop -
+                pLoopCity->getEspionageHappinessCounter() / 2);
+
+and then use `iCityExtraPop` for that city only.
+
+CURRENT PRODUCERS
+-----------------
+Nonzero `iExtraPop` is common in current strategic valuation. Examples include:
+
+- tech health valuation:
+
+      AI_getHealthWeight(kTech.getHealth(), 1)
+
+- tech happiness valuation:
+
+      AI_getHappinessWeight(kTech.getHappiness(), 1)
+
+- early-religion valuation:
+
+      AI_getHappinessWeight(1, 2)
+
+- multiple civic / war-weariness / trade valuation paths also pass 1 or larger values.
+
+A minimal current reproduction therefore needs only two ordinary cities and one
+city-specific espionage counter:
+
+1. evaluator calls `AI_getHappinessWeight(..., 1)`;
+2. city A is visited first and has `getEspionageHappinessCounter() >= 2`;
+3. A changes the shared `iExtraPop` from 1 to 0;
+4. city B has no espionage happiness counter at all;
+5. B is nevertheless evaluated with `iExtraPop == 0` rather than the caller's 1.
+
+If B is visited before A, B instead sees 1. Identical empire state can therefore produce
+a different result solely from city iteration order / city-list ordering.
+
+LIVE CONSEQUENCE
+----------------
+`iExtraPop` is used in several material terms of each city's score:
+
+- `unhappyLevel(iExtraPop)` / `badHealth(false, iExtraPop)`;
+- percent-happiness/health population scaling;
+- the advc.036 severe-unhappiness / severe-unhealth correction.
+
+So the leak is not merely an unused temporary. It changes the returned empire-average
+happiness/health weight and therefore downstream tech, civic, religion, war-weariness
+and other AI valuations.
+
+The direction can also vary with city order: a temporary espionage effect in one city
+can suppress the extra-pop assumption for all later unaffected cities, undervaluing or
+otherwise distorting happiness/health effects across the empire.
+
+ANCESTRY
+--------
+BtS/Civ4CE and K-Mod contain the underlying happiness/health helpers but do not perform
+this advc.036 espionage-counter rewrite of `iExtraPop`. AdvCiv introduced the mutation
+and Base AdvCiv 1.14/current SAS retain it unchanged. This is therefore an inherited
+AdvCiv root, not SAS-local.
+
+REPAIR DIRECTION
+----------------
+Keep the caller's `iExtraPop` immutable throughout the loop. Derive a local value for
+each city:
+
+    int iCityExtraPop = iExtraPop;
+    if (iCityExtraPop > 0)
+        iCityExtraPop = std::max(0, iCityExtraPop -
+                pLoopCity->getEspionageHappinessCounter() / 2);
+
+and use `iCityExtraPop` consistently for all formulas concerning that city. Apply the
+same pattern to the health helper.
+
+This preserves advc.036's intended temporary-espionage adjustment without leaking one
+city's state into the next.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+This is independent of F355's event building-happiness multiplicity bug. F355 concerns
+an event evaluator losing BuildingClass multiplicity; F367 is a general cross-city
+mutable-state bug in the reusable happiness/health helper itself.
+
+It is also independent of the preceding `AI_doEnemyUnitData` own-unit question, which
+remains unpromoted because the baseline friendly-unit contribution may be intentional
+smoothing/prior behavior and lacks a sufficiently explicit exclusion contract.
+
+CURRENT AUDIT STATE AFTER F367
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F367
+F368 / provisional KI#691 — UNUSED
+Latest physical checkpoint — C031-WIP57
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Continue through `AI_calculateUnitAIViability` / `AI_disbandValue` and nearby
+   post-weight utility helpers, using current SAS XML/callers to distinguish dormant
+   generic-code hazards from live defects.
+2. Then continue through plot airbase/canal, attitude/safety, and remaining helper
+   tranche toward the end of Queue 001, preserving F368 until a full current producer
+   and gameplay consequence survive.
+
+
+===============================================================================
+C031-WIP58 — F368 CONFIRMED
+===============================================================================
+
+F368 / provisional KI#691 — AI_getPlotAirbaseValue increments `iOtherCityCount` only
+when a newly visited foreign city/airbase is closer than every previous one, so the
+score counts traversal-order record minima rather than the number of nearby targets
+
+STATUS
+------
+CONFIRMED — inherited BtS root, present in Civ4CE/BtS, K-Mod, Base AdvCiv 1.14 and
+current SAS. AdvCiv later changed the traversal/API representation but retained the
+same misplaced count increment.
+
+ROOT
+----
+The helper tracks both nearest-distance state and a count:
+
+    int iMinOtherCityDistance = MAX_INT;
+    int iOtherCityCount = 0;
+
+For each revealed foreign/other airbase, current AdvCiv does:
+
+    int iDist = it.currPlotDist();
+    if (iDist < iMinOtherCityDistance)
+    {
+        iMinOtherCityDistance = iDist;
+        iOtherCityCount++;
+    }
+
+The final score then explicitly scales by that supposed count:
+
+    int iValue = iOtherCityCount * 50;
+
+Therefore `iOtherCityCount` is not actually a count of nearby foreign cities/airbases.
+It is the number of times traversal happens to encounter a new record-low distance.
+
+CURRENT ITERATION MAKES THE UNDERCOUNT ESPECIALLY CLEAR
+--------------------------------------------------------
+Current AdvCiv/SAS uses `SquareIter(kPlot, 4, false)`, whose documented traversal is a
+clockwise spiral away from the center. Once a nearby foreign city/base has been seen,
+subsequent targets at equal or greater distance cannot increment the count. Even within
+the first occupied spiral ring, only a later target that happens to have a smaller
+`plotDistance` than the first one can increment it.
+
+Thus two, three or many ordinary nearby foreign cities can all produce
+`iOtherCityCount == 1`. The result depends on traversal record minima, not physical
+multiplicity.
+
+BtS/Civ4CE and K-Mod use nested coordinate scanning rather than `SquareIter`, but contain
+the same root:
+
+    if (iDistance < iMinOtherCityDistance)
+    {
+        iMinOtherCityDistance = iDistance;
+        iMinOtherCityPlot = pLoopPlot;
+        iOtherCityCount++;
+    }
+
+so their result is likewise scan-order-dependent rather than a true count.
+
+LIVE CONSEQUENCES
+-----------------
+Current C++ has three gameplay consumers:
+
+1. `CvUnitAI::AI_getPlotDefendersNeeded`
+
+       iNeeded += AI_getPlotAirbaseValue(kPlot) / 50;
+
+   Each additional 50 points is treated as another defender requirement. Multiple
+   nearby cities/bases that collapse to one record minimum therefore fail to increase
+   Fort/airbase guard demand as intended by the score scale.
+
+2. `CvUnitAI::AI_fortTerritory`
+
+       iValue += (bAirbase ? kOwner.AI_getPlotAirbaseValue(kPlot) : 0);
+
+   This directly ranks worker Fort/airbase sites. SAS currently defaults
+   `SAS_AI_WORKER_FORT_AIRBASE_ENABLE` to 0, so this particular producer is disabled by
+   default, but the helper remains a supported optional path and is not the only
+   consumer.
+
+3. `CvUnitAI::AI_airOffenseBaseValue`
+
+   For an existing non-city airbase in peacetime:
+
+       iValue = GET_PLAYER(getOwner()).AI_getPlotAirbaseValue(kPlot);
+       iValue /= 6;
+
+   Existing/captured/preplaced Forts therefore receive too little offensive-air base
+   value when several foreign cities/bases are nearby.
+
+Current Forts remain normal game objects (`IMPROVEMENT_FORT`, `bActsAsCity=1`), can be
+built by humans, captured, pre-existing, or used when the SAS worker-Fort option is
+restored. The default-disabled worker-construction path therefore reduces frequency but
+does not make F368 dead.
+
+CONCRETE SHAPE
+--------------
+Take an owned Fort with no adjacent friendly city and two revealed foreign cities within
+radius 4. Suppose the outward traversal encounters a distance-2 city first and another
+foreign city at distance 2 or 3 later.
+
+Intended physical count:
+
+    iOtherCityCount = 2
+    base airbase value = 100
+
+Current code:
+
+    first city: 2 < MAX_INT  -> count = 1, min = 2
+    second:     2/3 < 2      -> false
+    final count = 1
+    base airbase value = 50
+
+The second city can consequently add no guard demand and no additional airbase-site/base
+value at all.
+
+CONTRACT / INTENT EVIDENCE
+--------------------------
+The naming and downstream arithmetic are unusually explicit:
+
+- variable: `iOtherCityCount`;
+- zero gate: `if (iOtherCityCount == 0) return 0;`;
+- magnitude: `iOtherCityCount * 50`.
+
+Nearest-distance state is tracked separately in `iMinOtherCityDistance` (and BtS also
+tracked `iMinOtherCityPlot`). There is therefore no coherent reason for the count itself
+to be updated only when the nearest-distance record changes.
+
+REPAIR DIRECTION
+----------------
+Separate the two operations:
+
+    iOtherCityCount++;
+    if (iDist < iMinOtherCityDistance)
+        iMinOtherCityDistance = iDist;
+
+If the nearest-distance variables are genuinely no longer consumed (as in current
+AdvCiv, where their old downstream code remains commented), the cleaner current repair
+may simply count every qualifying foreign/other revealed airbase and remove the dead
+minimum-distance state entirely.
+
+The exact qualifying-object semantics (`isRevealedAirBase`, including Fort-like bases)
+should be preserved; F368 concerns only the misplaced multiplicity increment.
+
+DUPLICATE / ROOT SEPARATION
+---------------------------
+This is independent of SAS's later policy of disabling routine AI Fort construction by
+default. That define controls one producer (`AI_fortTerritory`), whereas F368 is an
+inherited valuation/counting defect with additional existing-Fort consumers.
+
+It is also independent of F367's cross-city happiness/health state mutation.
+
+CURRENT AUDIT STATE AFTER F368
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F368
+F369 / provisional KI#692 — UNUSED
+Latest physical checkpoint — C031-WIP58
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Continue through the remaining tail helpers (`AI_isPlotThreatened`, first-tech /
+   resource-train / piracy / partner-war / submarine / safety/contact helpers), using
+   current callers and data rather than local oddity alone.
+2. Then reconcile whether Queue 001 has any unvisited deep-method tranche left before
+   considering the file complete and returning to the protected queue order.
+
+
+===============================================================================
+C031-WIP59 — F369 CONFIRMED
+===============================================================================
+
+F369 / provisional KI#692 — advc.079 stores one randomized "best attack unit" as the
+last unit bragged about, but the diplomacy text independently reruns the randomized
+selection when expanding [OUR_BEST_UNIT], so the remembered unit and the unit actually
+shown to the player can differ
+
+STATUS
+------
+CONFIRMED — AdvCiv regression introduced by practical commit 1439
+`65a1472094e89d913ccf565c76687027a530a30d` ("Changes to AI greetings"). The underlying
+`getBestAttackUnitKey` / asynchronous unit-selection randomness is inherited from BtS /
+K-Mod; advc.079 newly made the selected UnitType persistent state without carrying that
+same selection into text rendering.
+
+ROOT
+----
+The advc.079 greeting code now asks for a candidate and stores it:
+
+    UnitTypes eBragUnit = AI_getBestAttackUnit();
+    ...
+    if (eBragUnit != m_aeLastBrag[ePlayer])
+    {
+        m_aeLastBrag[ePlayer] = eBragUnit;
+        return GC.getAIDiploCommentType("UNIT_BRAG");
+    }
+
+But none of the returned diplomacy state carries `eBragUnit`. The selected XML text
+contains `[OUR_BEST_UNIT]`, e.g.:
+
+    Our numberless [OUR_BEST_UNIT] shall crush ...
+
+and `CvDllTranslator::replaceOur` resolves that token later by calling:
+
+    kPlayer.getBestAttackUnitName(iForm)
+      -> getBestAttackUnitKey()
+      -> AI().AI_getBestAttackUnit()
+
+This is a fresh, independent second evaluation.
+
+The evaluation is intentionally asynchronous/randomized. `AI_getBestAttackUnit` calls
+`CvCityAI::AI_bestUnitAI(UNITAI_ATTACK, true)`, and `AI_bestUnitAI` multiplies every
+surviving candidate by an independent asynchronous random factor:
+
+    if (bAsync)
+    {
+        iValue *= (GC.getASyncRand().get(50, "AI Best Unit ASYNC") + 100);
+        iValue /= 100;
+    }
+
+Thus there is no invariant that the second text-rendering call returns the UnitType
+stored by the first greeting-selection call.
+
+CURRENT-DATA REACHABILITY
+-------------------------
+Current SAS has many simultaneously trainable `UNITAI_ATTACK` alternatives. A simple
+early example is Axeman (strength 5) and Swordsman (strength 6) when the civ has both
+required resources/technologies. Before the async multiplier, candidates below 2/3 of
+the best are discarded, so these close alternatives both survive. A 100..149% random
+multiplier is then easily large enough to reverse their ordering between two calls.
+
+The same structural possibility occurs throughout the unit tree; this does not depend
+on a scenario-only unit.
+
+LIVE CONSEQUENCES
+-----------------
+1. The player can literally be shown a different unit from the one that advc.079 records
+   as having just been bragged about.
+
+   Example shape:
+
+       greeting-selection call -> Axeman
+       m_aeLastBrag[human] = Axeman
+       text-rendering call      -> Swordsman
+       visible line says        -> Swordsman
+
+2. On the next contact, another randomized selection can return Swordsman. The new
+   advc.079 test then sees:
+
+       Swordsman != m_aeLastBrag[human] (Axeman)
+
+   and treats this as a "new best unit", immediately producing another brag despite no
+   technology, resource or trainability change at all.
+
+3. Conversely, a real change in the best-unit set can be hidden or delayed if the
+   randomized identity happens to equal the stored previous candidate.
+
+This directly defeats the introducing commit's stated purpose: "When a braggart AI has
+a new best unit, it brags about that unit at the first opportunity" and the memory is
+supposed to reduce repeated greetings rather than create them from renderer randomness.
+
+ANCESTRY / ROOT SEPARATION
+--------------------------
+BtS/Civ4CE and K-Mod already use the capital-first `AI_bestUnitAI(UNITAI_ATTACK, true)`
+logic for the `[OUR_BEST_UNIT]` text. That can make the phrase "best" somewhat noisy,
+but there is no persistent `last brag` identity to contradict.
+
+advc.079 refactored that old computation into `AI_getBestAttackUnit`, added
+`m_aeLastBrag`, and calls the helper while deciding whether a unit is new. The existing
+text token remained dynamic and calls the same helper again. F369 is therefore the new
+state/display mismatch created when a randomized display helper was reused as stable
+memory identity.
+
+This finding does NOT currently promote the separate inherited question that
+`AI_getBestAttackUnit` returns the first capital-trainable attacker rather than searching
+for a global maximum. That may make the textual notion of "best" inaccurate in some
+city-local prerequisite states, but it is a separate contract and remains unnumbered.
+
+REPAIR DIRECTION
+----------------
+Do not rerun a randomized selector when expanding the brag that has just been chosen.
+Preserve the exact `eBragUnit` for the active greeting and feed that UnitType to the
+rendered line, or otherwise make the identity used by `m_aeLastBrag` and
+`[OUR_BEST_UNIT]` come from one evaluation.
+
+A second possible cleanup would make the selector deterministic when used as persistent
+identity, but that is broader: BtS deliberately used asynchronous selection for this
+UI-facing helper. The minimal advc.079 repair is simply to keep selection and display
+atomic.
+
+CONTROLS CLOSED BEFORE F369
+---------------------------
+- Sibling-vassal Privateer targeting is deliberate. AdvCiv's manual explicitly says
+  that the vassal/master Privateer restrictions do not apply to vassals of the same
+  master.
+- `AI_isUnitNeedingOpenBorders` may inspect the group's head unit for domain, but
+  `CvUnit::canJoinGroup` enforces a single domain for all units in a selection group;
+  there is no mixed-domain producer.
+
+CURRENT AUDIT STATE AFTER F369
+------------------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN
+Unique files complete — 30/169
+Confirmed deep-reloop roots — F321 through F369
+F370 / provisional KI#693 — UNUSED
+Latest physical checkpoint — C031-WIP59
+WIP36 F348 — RETRACTED / superseded by WIP37
+Current F348 — mission-valuation affordability/context mismatch from WIP38
+No repository source files modified.
+
+NEXT CURSOR
+-----------
+1. Finish the remaining tail (`AI_atWarWithPartner`, `AI_disapprovesOfDoW`, submarine
+   danger, safety/contact, first-tech/resource-train and related public/UI helper
+   contracts), keeping the separate capital-first "best attacker" question unnumbered
+   unless its global-best contract has a concrete consequential consumer.
+2. Reconcile the full Queue 001 coverage against the album / function ranges. If no
+   unsaturated deep tranche remains, close the CvPlayerAI.cpp reloop and resume the
+   protected queue order from the next file.
