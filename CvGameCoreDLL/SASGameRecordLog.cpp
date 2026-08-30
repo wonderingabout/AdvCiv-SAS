@@ -313,6 +313,11 @@ static void logSASGameRecordFormattedLine(CvString const& szLogName, TCHAR* form
 	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
 	if (!bFormatted)
 		return;
+	// <!-- custom: Stamp every emitted row at the central logging boundary so one monotonic session timeline covers actions, snapshots and setup/context rows without per-call-site timing plumbing.
+	// This runs only when SASGameRecord logging is enabled; the timer read is negligible beside formatting and log I/O. Buffered initialization actions keep their original event-time stamp even when flushed after stable context. (ChatGPT-5.6-Sol) -->
+	CvString szSessionWall;
+	szSessionWall.Format(" sessionWallMilliseconds=%u", timeGetTime() - g_uiSASGameRecordSessionStartTime);
+	szLine += szSessionWall.GetCString();
 	if (g_bSASGameRecordBufferInitializingActions && szLine.find("GAME_RECORD_ACTION ") == 0)
 	{
 		g_aszSASGameRecordInitializingActions.push_back(std::make_pair(szLogName, szLine));
@@ -652,6 +657,8 @@ static int g_iSASGameRecordAutoPlayRequestedTurns = 0;
 static int g_iSASGameRecordAutoPlayStartTurn = -1;
 static int g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
 static PlayerTypes g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+// <!-- custom: Track real per-request autoplay wall time with the same monotonic timer used by snapshot timing. (ChatGPT-5.6-Sol) -->
+static uint g_uiSASGameRecordAutoPlayStartTime = 0;
 static int g_iSASGameRecordAutoPlayPlayerChanges = 0;
 static int g_iSASGameRecordTotalActivePlayerChanges = 0;
 static int g_iSASGameRecordLastFullSnapshotTurn = -1;
@@ -1165,6 +1172,7 @@ static void resetSASGameRecordState()
 	g_iSASGameRecordAutoPlayStartTurn = -1;
 	g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
 	g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+	g_uiSASGameRecordAutoPlayStartTime = 0;
 	g_iSASGameRecordAutoPlayPlayerChanges = 0;
 	g_iSASGameRecordTotalActivePlayerChanges = 0;
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
@@ -5465,7 +5473,6 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 	// <!-- custom: The initial save-load row is written before graphics initialization; the first full snapshot supplies the deferred display context. (GPT-5.6-Sol) -->
 	logSASGameRecordDisplayContext();
 	uint const uiSnapshotTime = timeGetTime();
-	uint const uiSessionWallMilliseconds = uiSnapshotTime - g_uiSASGameRecordSessionStartTime;
 	uint const uiSnapshotIntervalWallMilliseconds = uiSnapshotTime - g_uiSASGameRecordPreviousSnapshotTime;
 	CvString const szSnapshotUtc = createSASGameRecordSnapshotUtcTimestamp();
 	// <!-- custom: Focus at this instant cannot prove how long Civ4 was foreground during the interval.
@@ -5476,9 +5483,9 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 	// <!-- custom: Team death and other state transitions can terminate a war without CvTeam::makePeace. Reconcile before snapshots so such wars still receive one final synthetic summary. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
 	// <!-- custom: This is primarily an autoplay/game-history row, so place its frequently scanned gameplay state first. Keep wall-time and optional operating-system measurements afterward as supporting performance context. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d utc=%s sessionWallMilliseconds=%u snapshotIntervalWallMilliseconds=%u performanceMetricsEnabled=%d processForegroundAtSnapshot=%d processWindowMinimizedAtSnapshot=%d processWorkingSetKB=%d processPeakWorkingSetKB=%d processPagefileUsageKB=%d systemMemoryLoadPercent=%d processAvailableVirtualMB=%d",
+	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d utc=%s snapshotIntervalWallMilliseconds=%u performanceMetricsEnabled=%d processForegroundAtSnapshot=%d processWindowMinimizedAtSnapshot=%d processWorkingSetKB=%d processPeakWorkingSetKB=%d processPagefileUsageKB=%d systemMemoryLoadPercent=%d processAvailableVirtualMB=%d",
 			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation(),
-			szSnapshotUtc.GetCString(), uiSessionWallMilliseconds, uiSnapshotIntervalWallMilliseconds, isSASGameRecordPerformanceMetricsEnabled(), kSystemSnapshot.iProcessForeground, kSystemSnapshot.iProcessWindowMinimized,
+			szSnapshotUtc.GetCString(), uiSnapshotIntervalWallMilliseconds, isSASGameRecordPerformanceMetricsEnabled(), kSystemSnapshot.iProcessForeground, kSystemSnapshot.iProcessWindowMinimized,
 			kSystemSnapshot.iProcessWorkingSetKB, kSystemSnapshot.iProcessPeakWorkingSetKB, kSystemSnapshot.iProcessPagefileUsageKB, kSystemSnapshot.iSystemMemoryLoadPercent, kSystemSnapshot.iProcessAvailableVirtualMB);
 	g_uiSASGameRecordPreviousSnapshotTime = uiSnapshotTime;
 	logSASGameRecordRunStatus(szReason);
@@ -6060,6 +6067,15 @@ void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived)
 	logSASGameRecordRunStatus(bRevived ? "playerRevived" : "playerAppeared");
 }
 
+// <!-- custom: Debug mode is game-level state; record only successful transitions, not rejected toggle attempts. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDebugModeChanged(bool bOldDebugMode, bool bNewDebugMode)
+{
+	if (bOldDebugMode == bNewDebugMode)
+		return;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DEBUG_MODE_CHANGED old=%d new=%d activePlayer=%d",
+		GC.getGame().getGameTurn(), bOldDebugMode, bNewDebugMode, GC.getGame().getActivePlayer());
+}
+
 void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause)
 {
 	if (iOldValue == iNewValue)
@@ -6069,6 +6085,7 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 	bool const bEnded = (iOldValue > 0 && iNewValue <= 0);
 	char const* szAction = (bStarted ? "AUTOPLAY_STARTED" : (bEnded ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
 	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
+	uint const uiAutoPlayTime = timeGetTime();
 	if (bStarted)
 	{
 		g_iSASGameRecordAutoPlayRequestId++;
@@ -6076,14 +6093,16 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 		g_iSASGameRecordAutoPlayStartTurn = kGame.getGameTurn();
 		g_iSASGameRecordAutoPlayStartElapsedTurn = kGame.getElapsedGameTurns();
 		g_eSASGameRecordAutoPlayStartPlayer = eActivePlayer;
+		g_uiSASGameRecordAutoPlayStartTime = uiAutoPlayTime;
 		g_iSASGameRecordAutoPlayPlayerChanges = 0;
 	}
 	if (bEnded && eEndCause == SAS_AUTOPLAY_END_UNSPECIFIED)
 		eEndCause = (kGame.getWinner() != NO_TEAM ? SAS_AUTOPLAY_END_VICTORY : (eActivePlayer != NO_PLAYER && !GET_PLAYER(eActivePlayer).isAlive() ? SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED : SAS_AUTOPLAY_END_OTHER));
 	int const iCompletedTurns = (!bEnded || g_iSASGameRecordAutoPlayRequestedTurns <= 0 ? 0 : (eEndCause == SAS_AUTOPLAY_END_SCHEDULED ? g_iSASGameRecordAutoPlayRequestedTurns : std::max(0, g_iSASGameRecordAutoPlayRequestedTurns - iOldValue)));
 	int const iElapsedGameTurns = (g_iSASGameRecordAutoPlayStartElapsedTurn < 0 ? 0 : std::max(0, kGame.getElapsedGameTurns() - g_iSASGameRecordAutoPlayStartElapsedTurn));
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
-			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns,
+	int const iAutoPlayWallMilliseconds = (g_iSASGameRecordAutoPlayStartTurn < 0 ? -1 : (int)(uiAutoPlayTime - g_uiSASGameRecordAutoPlayStartTime));
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d autoplayWallMilliseconds=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
+			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns, iAutoPlayWallMilliseconds,
 			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges,
 			getSASAutoPlayEndCause(eEndCause));
 	// <!-- custom: Manual or scheduled autoplay completion is also a useful record boundary even when the game and its wars continue. (GPT-5.6-Sol) -->
@@ -6099,6 +6118,7 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 		g_iSASGameRecordAutoPlayStartTurn = -1;
 		g_iSASGameRecordAutoPlayStartElapsedTurn = -1;
 		g_eSASGameRecordAutoPlayStartPlayer = NO_PLAYER;
+		g_uiSASGameRecordAutoPlayStartTime = 0;
 		g_iSASGameRecordAutoPlayPlayerChanges = 0;
 	}
 }

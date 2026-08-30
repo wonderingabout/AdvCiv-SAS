@@ -77,6 +77,8 @@ void logSASGameRecordVictory(TeamTypes eWinner, VictoryTypes eVictory);
 void logSASGameRecordRunStatus(char const* szReason);
 void logSASGameRecordPlayerEliminated(PlayerTypes ePlayer);
 void logSASGameRecordPlayerAliveChanged(PlayerTypes ePlayer, bool bRevived);
+// <!-- custom: Record successful game-level Debug-mode toggles at their authoritative DLL boundary. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDebugModeChanged(bool bOldDebugMode, bool bNewDebugMode);
 // <!-- custom: Added eEndCause for explicit completion attribution; active-player changes update per-request and per-log-session control-transfer counts. Callers remain logging-gated. See KI#203. (GPT-5.6-Sol) -->
 void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangePlayerStatus, SASAutoPlayEndCause eEndCause);
 void logSASGameRecordActivePlayerChanged(PlayerTypes eOldPlayer, PlayerTypes eNewPlayer);

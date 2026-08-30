@@ -5256,8 +5256,11 @@ void CvGame::toggleDebugMode()
 {	// <advc.135c>
 	if (!m_bDebugMode && !isDebugToolsAllowed(false))
 		return; // </advc.135c>
+	bool const bOldDebugMode = m_bDebugMode;
 	m_bDebugMode = (m_bDebugMode ? false : true);
 	updateDebugModeCache();
+	// <!-- custom: Log only successful Debug-mode transitions after AdvCiv's permission check. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordDebugModeChanged(bOldDebugMode, m_bDebugMode);
 
 	GC.getMap().updateVisibility();
 	GC.getMap().updateSymbols();
