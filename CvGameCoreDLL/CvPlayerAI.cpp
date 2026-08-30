@@ -4446,6 +4446,10 @@ TechTypes CvPlayerAI::AI_bestTech(int iMaxPathLength, bool bFreeTech, bool bAsyn
 				continue;
 			if (kTeam.isHasTech(eTech))
 				continue;
+			// <!-- custom: AdvCiv forbids Barbarians from innovating technologies that no civilization knows, but inherited AI_bestTech checked only canEverResearch and bypassed that player-level rule.
+			// Apply canResearch to immediately selectable Barbarian technologies while still allowing deeper known-tech catch-up paths to be evaluated. See KI#653. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (iDepth == 0 && isBarbarian() && !canResearch(eTech, false, bFreeTech))
+				continue;
 			// <advc.144>
 			if(eFromPlayer != NO_PLAYER)
 			{
@@ -7881,6 +7885,10 @@ void CvPlayerAI::AI_chooseResearch()
 
 	TechTypes eBestTech = GC.getPythonCaller()->AI_chooseTech(getID(), false);
 
+	// <!-- custom: Validate a Python-selected Barbarian target before accepting it; pushResearch checks only canEverResearch and would bypass AdvCiv's anti-innovation rule.
+	// Falling back to AI_bestTech still selects an eligible known technology when available. See KI#653. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (eBestTech != NO_TECH && isBarbarian() && !canResearch(eBestTech))
+		eBestTech = NO_TECH;
 	if (eBestTech == NO_TECH)
 	{	// <k146>
 		int iResearchDepth = ((isHuman() || isBarbarian() ||
@@ -10066,10 +10074,16 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& 
 				int iTechVal = kOurTeam.AI_techTradeVal(eTech, eFromTeam, bIgnoreDiscount);
 
 				// Logic: If the tech is not a monopoly (1 or more rivals have it), sell it aggressively cheap.
-				// We check if the tech is widely known. 'countKnownTechNumTeams' includes the owner.
-				// If we are selling it, we know it. If 1 rival knows it, count is 2, so we check for count >= 2.
+				// <!-- custom: The general countKnownTechNumTeams helper includes dead historical teams, which cannot compete for a sale.
+				// Count living civilization teams here so the KI#83 discount ends when the only rival holder is eliminated. See KI#654. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int iAliveKnownTechTeams = 0;
+				for (TeamIter<CIV_ALIVE> itTeam; itTeam.hasNext(); ++itTeam)
+				{
+					if (itTeam->isHasTech(eTech))
+						iAliveKnownTechTeams++;
+				}
 				static const bool bSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE = GC.getDefineBOOL("SAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE");
-				if (bSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE && kGame.countKnownTechNumTeams(eTech) >= 2) 
+				if (bSAS_AI_DEAL_VAL_TECH_TRADE_CHEAPLY_OPTIMIZE && iAliveKnownTechTeams >= 2)
 				{
 					// 1. Apply Aggressive Discount
                     // Reduces value to a percentage defined in XML (e.g., 25% of original).
