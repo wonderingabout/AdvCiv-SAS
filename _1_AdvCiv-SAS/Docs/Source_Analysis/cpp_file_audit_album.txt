@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 30 / 169
 Files open: 1 / 169
 Last completed file: investigation file 030 / queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp (2,810 queued lines) - CLOSED AT C031 DURABLE
-Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP10
-Latest confirmed roots: F321-F328 / provisional KI#644-KI#651 from the queue-001 re-audit
-Next root ID: F329 unused / provisional KI#652 next
+Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP14
+Latest confirmed roots: F321-F329 / provisional KI#644-KI#652 from the queue-001 re-audit
+Next root ID: F330 unused / provisional KI#653 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -21,7 +21,7 @@ METHOD
 - After priority queue entries 018 and 019, repeat queue entries 001 through 009 with the stronger checkpoint/WIP method used from queue 010 onward, then resume the ordinary pending queue at 020.
 
 QUEUE (current .cpp files, longest -> shortest)
-001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP10 / F321-F328]<-(priority current wip)
+001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP14 / F321-F329]<-(priority current wip)
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]<-(priority next wip)
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]<-(priority next wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
@@ -67155,3 +67155,455 @@ full inherited high-risk and whole-file reconciliation. Existing historical root
 remain under their old numbers when rediscovered.
 
 END C031-WIP10
+
+
+================================================================================
+C031-WIP11 - queue 001 continuation: disband/Worker/serialization + small delta controls
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 through F328 / provisional KI#651 remain CONFIRMED.
+F329 / provisional KI#652 remains UNUSED.
+No repository source file was modified.
+
+AI_disbandValue - SAS REWRITE PROVISIONALLY CLEAN
+-------------------------------------------------
+The SAS rewrite deliberately makes XML production cost dominant, removes SyncRand jitter,
+reduces XP/level influence, adds a light combat-strength factor, devalues units whose
+ObsoleteTech is already known, and adds land-heavy/naval-heavy map preferences. These are
+large heuristic changes, but no independent correctness root survived the current-data and
+caller-contract pass.
+
+Important controls:
+* Routine AI disband callers fixed under KI#331 now prefilter canScrap / count only actual
+  successful scraps, so AI_disbandValue no longer causes an ineligible-but-cheap obsolete
+  unit to consume quota merely because its ObsoleteTech devalues it before the configured
+  obsolete-era delay permits removal.
+* Current maximum XML unit cost is 500 (ICBM); ordinary shipped values do not by themselves
+  overflow the rewritten integer score. Extremely high accumulated XP could eventually
+  make intermediate int multiplication unsafe, but no ordinary/current producer near that
+  range was established; record as arithmetic hardening debt rather than F329.
+* UNIT_SETTLER currently has iCost=0, but recommended obsolete-only AI scrapping rejects it
+  (no qualifying ObsoleteTech), so cost dominance does not make routine AI scrapping delete
+  Settlers under the shipped policy.
+* Map-type and obsolete multipliers are monotonic ranking preferences and are documented as
+  tuning. No legality state is derived from them.
+
+AI_neededWorkers / SAS_minimumAreaWorkerFloor - CURRENT POLICY COHERENT
+-----------------------------------------------------------------------
+The KI#192/KI#198 repair chain was rechecked through the shared helper and main callers.
+
+Controls:
+* Secondary civilized areas may now reach zero standing demand only when their raw task
+  demand is zero; the pre-rounding bKeepAreaWorkerReserve preserves the inherited one-Worker
+  reserve whenever that secondary area still has actual raw work. Barbarians and the
+  primary area retain the reserve explicitly.
+* The primary-area standing floor and AI_neededWorkers are shared by production/usefulness
+  and Worker-scrap guards, preventing one subsystem from intentionally retaining fewer
+  Workers than another insists on rebuilding.
+* The one-city <=1 Worker cap is intentionally applied after the stronger primary floor and
+  therefore remains the final opening-growth protection. Current XML describes it as the
+  minimum highest-ever capital population before a "one-city empire" may need >1 Worker;
+  it does not promise original-capital/turn-0-only scope. A late empire reduced to a genuinely
+  young low-pop sole capital can therefore re-enter this protection without contradicting
+  the shipped setting. This is policy/tuning, not F329.
+* CvPlayer::acquireCity preserves CvCity::getHighestPopulation when ownership changes, so
+  ordinary conquest/trade does not silently reset a mature city's history and re-arm the
+  cap merely because the city object changed owner.
+
+SERIALIZATION read/write - KI#46 POLICY + CURRENT FORMAT PAIRED
+--------------------------------------------------------------
+CvPlayerAI::read has a visually large delta because SAS deleted historical uiFlag migration
+branches. This is deliberate KI#46 policy: AdvCiv-SAS supports same-version saves rather than
+cross-version migration.
+
+Current same-version format remains paired:
+* write emits uiFlag=22;
+* read consumes exactly the modern fields that Base AdvCiv consumes on its uiFlag>=22 path;
+* scalar caches, UnitAI arrays, diplomacy counters, expansionist-hate map, brag/warn arrays,
+  attitude/first-contact/contact/memory arrays, city-site vector, bonus/unit weights,
+  victory weights, Great Person weights, best-tech vector, close-border cache,
+  needed-explorer map and alive-major UWAI cache occur in matching order;
+* the read/write UWAI gate is the same alive+major-civ predicate.
+Unsupported pre-22 historical layouts are therefore not a current defect.
+
+Inherited note only: write uses `&m_aeBestTechs[0]` even when size can be zero. In old STL this
+is formally unsafe/implementation-dependent, but the count passed to Write is zero and this
+shape is inherited from Base AdvCiv. No present runtime failure was established; retain as
+hardening/portability debt for the later inherited sweep, not F329.
+
+AI_isVictoryValid / AI_chooseResearch / AI_diploVote / AI_doAdvancedStart CONTROLS
+-----------------------------------------------------------------------------------
+* AI_isVictoryValid differs only by restart-caching BBAI victory-strategy defines. The Space
+  branch declares a cached value but accidentally still performs the original direct define
+  lookup; that is merely a missed micro-optimization, not changed behavior. No shipped
+  runtime setDefine writer for these defines was found.
+* AI_chooseResearch adds RESEARCH_TARGET_CHOSEN diagnostics only; no decision state is fed
+  back from the logging locals.
+* AI_diploVote's substantive changes are the already-numbered/currently-fixed KI#371 repair:
+  Force-Peace war-success and unit normalization now aggregate the same master+vassal
+  coalition population as the power comparison, and coalition identity uses master team.
+  Do not allocate a new finding during the queue-001 re-loop.
+* AI_doAdvancedStart only hoists ADVANCED_START visibility/sight GlobalDefine reads into
+  static locals. No current runtime mutation of those defines was found.
+
+SAS UNIT-COMBAT / COMPOSITION HELPERS - CURRENT CALL-SITE DATA CONTROL
+-----------------------------------------------------------------------
+AI_countUnitsByCombat and the Trebuchet-like helpers classify each owned UnitClass through
+this civilization's active unit type rather than iterating every actual CvUnit. This could
+misclassify a gifted/captured foreign UU if that UU changes combat class or city-attack
+identity relative to the recipient's class mapping.
+
+Current call-site/data reconciliation prevents a present root:
+* AI_countUnitsByCombat is currently used only for UNITCOMBAT_SIEGE in the no-excess-siege
+  production gate.
+* Current civ-specific replacements that change UnitCombat exist (Arabia, Babylon,
+  Carthage, England, Khmer, Mali, Persia), but none changes a class to/from UNITCOMBAT_SIEGE.
+* Current siege-class replacements (Holy Roman Houfnice and Korean Hwacha, Cannon class)
+  remain UNITCOMBAT_SIEGE and have the same current city-attack threshold side for the
+  Trebuchet-like split.
+Thus actual-type iteration would be more robust for future modding/gifted foreign units, but
+no current siege-cap miscount is established. Keep as future-proofing debt, not F329.
+
+QUEUE-001 CONTINUATION
+----------------------
+F329 / provisional KI#652 remains UNUSED.
+Continue with the remaining meaningful SAS delta surfaces: AI_isSASCityLikelyToBenefitUsLongTerm
+and its conquest/trade/overseas callers, the military composition helpers' callers, then the
+smaller semantic deltas (AI_doAdvancedStart already controlled, AI_doCounter,
+AI_enemyTargetMissions, AI_stopTradingTrade, AI_targetCityValue, AI_cityTrade,
+AI_negotiatePeace, AI_updateStrategyHash, AI_doTurnPost, AI_doReligion, etc.). After the
+SAS-delta inventory is exhausted, resume the independent inherited high-risk whole-file pass.
+
+END C031-WIP11
+
+
+================================================================================
+C031-WIP12 ADDENDUM - QUEUE 001 DEEP RE-AUDIT CONTINUES
+================================================================================
+
+F329 / provisional KI#652 - CONFIRMED
+-------------------------------------
+AI_isSASCityLikelyToBenefitUsLongTerm checks active World Wonders using the city's CURRENT
+owner/team even when its callers are explicitly evaluating the city for a DIFFERENT
+prospective recipient.
+
+Current helper:
+    bool const bIntrinsicSiteProtectedByActiveWorldWonder =
+        (bDistanceOverrideActiveWorldWonder && kCity.hasActiveWorldWonder());
+
+CvCity::hasActiveWorldWonder() calls getNumActiveWorldWonders(1) with the default
+`eOwner=NO_PLAYER`, so obsolescence is tested against kCity.getTeam(). Yet AdvCiv already
+provides exactly the needed prospective-owner API:
+    int CvCity::getNumActiveWorldWonders(..., PlayerTypes eOwner) const;
+and labels eOwner "Hypothetical owner". The implementation selects the obsolescence team as
+TEAMID(eOwner) when one is supplied.
+
+This mismatch is harmless in AI_conquerCity after acquisition, because the captured city is
+already owned by `this`. It is live in the other behavioral callers:
+* AI_cityTrade asks the RECIPIENT player whether the still-seller-owned city is likely to
+  benefit that recipient long-term. A false result is an absolute DENIAL_UNKNOWN before
+  AI_cityTradeVal can value the developed city.
+* SAS_findNearbyOverseasConquestTarget evaluates still-foreign cities and skips a target
+  entirely when this helper returns false, before AI_targetCityValue.
+* SAS_isDistantDisposableBarbarianTarget likewise evaluates a still-Barbarian city for its
+  prospective conqueror and can reject a distant expedition on the result.
+The overseas logging caller inherits the same displayed misclassification, though its log is
+not itself a separate behavioral root.
+
+Current XML proves owner-team obsolescence can differ for real World Wonders. Seven shipped
+World Wonders have an ObsoleteTech:
+* Great Lighthouse -> Astronomy
+* Colossus -> Democracy
+* Oracle -> Broader Education
+* Temple of Kukulcan -> Chemistry
+* Temple of Artemis -> Broader Education
+* Great Wall -> Gunpowder
+* Apostolic Palace -> Mass Media
+
+Concrete current reproduction direction:
+1. Seller/foreign owner S owns a poor-intrinsic-site city containing the Great Lighthouse.
+2. S's team has Astronomy, so kCity.hasActiveWorldWonder() returns false.
+3. Prospective AI recipient/attacker B does NOT have Astronomy. On transfer/capture the World
+   Wonder building is preserved, and it is active for B.
+4. KI#186's helper nevertheless evaluates S's obsolescence state and can reject the city as
+   unlikely to benefit B long-term.
+5. The later AdvCiv target valuation would have handled this correctly: AI_targetCityValue
+   already uses `c.getNumActiveWorldWonders(MAX_INT, getID())`, explicitly evaluating active
+   Wonder count for the prospective attacker. The KI#186 filter can prevent reaching that
+   correct broader valuation.
+
+The reverse asymmetry is also wrong: if S lacks the obsoleting tech but B already has it, the
+helper can protect an intrinsically poor site because the Wonder is active for S even though
+it becomes obsolete for B immediately upon acquisition.
+
+This contradicts KI#186's documented question - whether ACQUIRING the city is likely to
+benefit the RECIPIENT long-term - and KI#186.2's rule that an ACTIVE World Wonder protects
+intrinsic site quality. The define is enabled by default. The error was introduced by SAS's
+KI#186/KI#186.2 helper; Base AdvCiv's hypothetical-owner World-Wonder API already exists.
+
+Narrow repair direction:
+* Inside AI_isSASCityLikelyToBenefitUsLongTerm, evaluate the protection as e.g.
+  `kCity.getNumActiveWorldWonders(1, getID()) > 0` rather than `kCity.hasActiveWorldWonder()`.
+  This automatically remains equivalent for the post-conquest self-owned caller while
+  becoming correct for trade and pre-conquest target callers.
+* Keep AI_conquerCity's separate outer `bActiveWorldWonder` check as current-owner state; at
+  that point acquisition has already happened and current owner == evaluator.
+* Add an autoplay/unit-style diagnostic case with different obsolescence tech state between
+  city owner and prospective recipient (Great Lighthouse/Astronomy is a simple fixture).
+
+Severity: MEDIUM AI acquisition/target-selection correctness. Can veto a city whose Wonder
+would be active for the recipient, or admit/protect a site based on a Wonder that will be
+obsolete for the recipient. Current city-trade and overseas-conquest filters make the
+consequence behavioral, not cosmetic.
+
+Duplicate check: no earlier album/Known-Issues root was found for hypothetical-owner World
+Wonder obsolescence in this helper. KI#186/KI#186.2 are the introducing/fixed-feature family,
+not an already-diagnosed instance of this recipient-state mismatch.
+
+STATUS AFTER F329
+-----------------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 through F329 / provisional KI#652 are CONFIRMED.
+F330 / provisional KI#653 is UNUSED.
+No repository source file was modified.
+
+CONTINUATION
+------------
+Continue AI_isSASCityLikelyToBenefitUsLongTerm across its remaining prospective-state inputs
+(bonus visibility/obsolescence, water-improvement assumptions, overlap/culture and distance),
+then proceed through AI_cityTrade / AI_targetCityValue and the remaining meaningful SAS delta
+surfaces. Keep inherited high-risk whole-file saturation for after the SAS-delta inventory.
+
+END C031-WIP12
+
+
+================================================================================
+C031-WIP13 ADDENDUM - QUEUE 001 DELTA/REPAIR RECONCILIATION
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 through F329 / provisional KI#652 remain CONFIRMED.
+F330 / provisional KI#653 remains UNUSED.
+No repository source file was modified.
+
+AI_isSASCityLikelyToBenefitUsLongTerm - REMAINING INPUT FRAME CONTROL
+---------------------------------------------------------------------
+F329 is localized to active-World-Wonder ownership state rather than evidence that the whole
+helper uses the wrong owner frame.
+
+The other behavioral inputs were traced:
+* BFC bonus visibility/obsolescence uses `kPlot.getBonusType(getTeam())`, i.e. the evaluator's
+  prospective team.
+* Improvement feasibility and improvement yields use the evaluator's PlayerTypes/TeamTypes.
+* Harbor-class sea-food assumption resolves the evaluator's civilization building.
+* Water-resource improvement access uses the candidate city's physical adjacency to the
+  water area and other ports owned by the evaluator. The city does not need to be currently
+  owned for its coastline to become usable after acquisition.
+* `iOverlapPlots`, third-party culture counters and feature-health totals still inspect some
+  current-ownership state but are BBAI diagnostics only; they do not enter the return value.
+* Same-area distance searches the evaluator's current own cities and is therefore correctly
+  prospective.
+No second owner-frame root survived after F329.
+
+AI_cityTrade / AI_targetCityValue - SAS DELTA CONTROL
+-----------------------------------------------------
+AI_cityTrade differs behaviorally from Base AdvCiv only by replacing AI_isAwfulSite with the
+KI#186 helper. F329 therefore owns the current SAS regression in that delta; no independent
+city-trade change survived.
+
+AI_targetCityValue differs behaviorally only by making Base AdvCiv's Space4 capital bonus
+XML-tunable. The current default remains 10, preserving Base behavior. Its inherited Wonder
+valuation already uses `c.getNumActiveWorldWonders(MAX_INT, getID())`, correctly applying
+prospective-attacker obsolescence. This is a useful positive control for F329.
+
+EXISTING REPAIR CLUSTER - DEEP RECHECK CLEAN
+--------------------------------------------
+KI#362 / AI_doCounter:
+* Bonus Trade now computes the accumulated ceiling, subtracts the existing counter and caps
+  the random increment by the nonnegative remaining room.
+* No second Bonus-Trade increment path inside AI_doCounter bypasses this repair.
+* Unsupported pre-fix saves could contain an already-over-cap value, but current code adds no
+  further excess and normal decay can reduce it; do not reopen KI#362.
+
+KI#534 + KI#544 / AI_enemyTargetMissions:
+* Transient zero-unit groups are skipped before MissionAI/declare-war inspection, eliminating
+  the null-head assertion without omitting any physical unit/cargo contribution.
+* Valid loaded units are counted once: transport groups contribute `getCargo`, while units
+  encountered in their own boarded groups contribute only when `!isCargo()`.
+* No partial repair or second count path survived.
+
+KI#608 / AI_stopTradingTrade:
+* `CvDeal::isPeaceDeal()` supplies whole-deal peace classification rather than requiring the
+  peace marker and annual payment on the same gives-list.
+* The annual-payment scan deliberately remains directional: only resources/GPT that THIS AI
+  owes prevent it from honoring an embargo request. This matches the documented reparations
+  safeguard.
+
+KI#372 / AI_proposeWarTrade:
+* UWAI target selection stores `iBestTeamPrice` when accepting its target.
+* The supported legacy target-selection branch now does the same.
+* No branch reaches common compensation balancing with a valid eBestTarget and the old -1
+  sentinel price.
+No new F330 belongs to this repair cluster.
+
+AI_doTurnPost / AI_logWorkerSeaAudit - DIAGNOSTIC CONTROL
+---------------------------------------------------------
+The level-3 Worker-Sea audit added to AI_doTurnPost is diagnostic-only in the current path.
+It maintains diagnostic first-seen maps, queries city/unit/path state and writes logs. It
+consumes no gameplay RNG and issues no missions/orders.
+
+It ForceResets GC.getBorderFinder before its reachability scan; the underlying
+AI_isUnimprovedBonus contract already requires every caller using this shared finder to reset
+it before its own query, so no persistent gameplay path/cache is invalidated by the log pass.
+New-game/load turn rollback clears the diagnostic first-seen maps. No behavioral root found.
+
+AI_updateCommerceWeights - NEW CULTURE STATE RECHECK CLEAN
+-----------------------------------------------------------
+The previously reviewed SAS culture-victory changes were revisited through their consumers.
+AI_setCultureVictoryRank / AI_setCultureVictoryInvestmentPercent are reset to zero when the
+player is not an AI Culture2 candidate (and explicitly for Barbarians). Behavioral CvCityAI
+consumers additionally require current culture-victory stage and positive stored rank /
+investment. No stale culture-victory state survived a strategy exit.
+
+The bottleneck-countdown indexing remains guarded by positive required-victory-city count and
+enough cities; Legendary cities have their AI victory investment zeroed while independent
+local culture pressure is added afterward. No new current defect found in this delta pass.
+
+QUEUE-001 CONTINUATION
+----------------------
+F330 / provisional KI#653 remains UNUSED.
+Resume the larger AI_techValue SAS delta, with special attention to the current KI#77/KI#312
+master-vassal supply modifiers and the military-danger percentage composition; then continue
+the remaining semantic delta inventory before the independent inherited whole-file pass.
+
+END C031-WIP13
+
+
+===============================================================================
+C031-WIP14 -- QUEUE 001 DEEP RE-LOOP: INHERITED TOP-OF-FILE / TURN-LIFECYCLE PASS
+CvGameCoreDLL/CvPlayerAI.cpp
+Continuation after C031-WIP13
+===============================================================================
+
+METHOD / SCOPE
+--------------
+The current SAS-vs-Base semantic delta inventory is provisionally saturated through
+C031-WIP13. This checkpoint begins the independent inherited-code pass that the original
+queue-001 review did much less deeply. The standard remains producer -> violated
+contract -> current consequence, and an inherited line is not treated as safe merely
+because Base AdvCiv or K-Mod contains it.
+
+No new F330 / KI#653 root is established in this checkpoint.
+
+INITIALIZATION / CACHE / TURN-PRE CONTROLS
+------------------------------------------
+- Constructor/destructor/reset ownership for the dynamic AI arrays is paired coherently:
+  constructor allocates the fixed-size player/contact/memory/commerce arrays, AI_uninit
+  owns the XML-sized value/weight caches, and AI_reset recreates those XML-sized caches
+  only outside constructor initialization.
+- AI_reset's reciprocal player-state clearing is intentional CHANGE_PLAYER/reset state;
+  the getID()!=NO_PLAYER guard prevents indexing another player's reciprocal arrays with
+  the constructor sentinel.
+- AI_doTurnPre deliberately runs player counters/cache updates before the human return.
+  Humans still need attitude/bonus/commerce/GP/enemy-unit cache state for diplomacy/UI
+  and automated subsystems. AI-only research/commerce/military/civic/religion decisions
+  correctly occur after the human return.
+- The K-Mod comment about attitude timing remains coherent: player counters update here,
+  while team-side attitude-affecting counters are still updated later by the team turn
+  machinery before the shared attitude cache refresh.
+
+PEACE-NEGOTIATION PASS
+----------------------
+- AI_doPeace / AI_willOfferPeace preserve the intended contact/team-leader restrictions
+  and contact timer gating. A human target team is contacted only through the proper
+  team leader path; abContacted prevents multiple human contacts for one target team.
+- AI_negotiatePeace builds reparations only from currently tradeable tech/gold/city
+  items. AI-AI execution goes through CvGame::implementDeal/CvDeal validation; human
+  proposals go through the diplomacy/trade UI and synchronized deal validation.
+- The recent SAS victory-threat pre-check at AI_negotiatePeace entry is the already
+  repaired false-success peace issue documented in Known Issues; it is not a new root.
+- The overloaded compensation helper starts with caller-initialized NO_TECH / NULL / 0
+  outputs and does not retain object pointers beyond the immediate negotiation build.
+  No delayed stale-city pointer path exists for the AI-AI case; the human UI stores
+  trade item identity and the final deal layer revalidates execution.
+
+FOUND-VALUE / AREA-TARGET CONTROLS
+----------------------------------
+- AI_updateFoundValues explicitly zeros unrevealed plot found values before invoking the
+  CitySiteEvaluator. This checkpoint does not duplicate the separately pending hidden
+  topology / CitySiteEvaluator information-leak root (e.g. KI#502 lineage) merely because
+  deeper evaluator code can infer map structure.
+- AI_updateAreaTargets' K-Mod timer logic is coherent: an existing/new target guarantees
+  the short timer refresh; an area deliberately/randomly cleared to NULL does not itself
+  force another reset unless another area or the old timer already requires it.
+- SyncRandOneChanceIn is synchronized gameplay RNG, not async/UI RNG, so area-target
+  random clearing remains deterministic in multiplayer.
+
+MOVEMENT / UNIT-SCHEDULER PASS
+------------------------------
+- AI_movementPriority's switch fall-through among ATTACK_CITY -> ATTACK -> COUNTER ->
+  PILLAGE/RESERVE is intentional cumulative priority shaping, not a missing-break bug.
+- Empty groups return MAX_INT after the explicit head-unit NULL check. Ordinary land,
+  sea, air, cargo, worker, explorer, bombard/collateral and stranded priority classes
+  remain internally ordered and bounded under current combat strengths.
+- AI_unitUpdate's force-separation handling encounters an ALREADY-NUMBERED cross-file
+  root: F212 / provisional KI#535 from the later CvSelectionGroupAI audit. That root
+  explicitly includes this pre-pass, where stale turn-start forceUpdate can override a
+  newer AI_isGroupAttack continuation. Do not allocate F330 from the same state contract.
+- Apart from F212, the scheduler rebuilds group IDs before each priority pass and
+  re-resolves each ID before AI_update; the post-sort loop tolerates groups destroyed by
+  earlier updates. The first force-separation pass relies on the engine-maintained
+  group-cycle invariant asserted at function entry; no current producer of a stale
+  group-cycle node independent of F212 has been established.
+- The repeat condition is deliberately restricted to selection-group count increases;
+  destroyed groups cannot create an infinite repeat, and newly created groups are
+  handled without waiting for another turn slice.
+
+WORK-ASSIGNMENT / INACTIVE CENTRALIZED PRODUCTION
+--------------------------------------------------
+- AI_makeAssignWorkDirty / AI_updateAssignWork are thin all-city dispatchers.
+- AI_assignWorkingPlots' anarchy early return is inherited advc.rom2 policy; there is no
+  pointer/cache ownership issue in this wrapper.
+- AI_doCentralizedProduction is under #if 0. Its unfinished BBAI/K-Mod body is excluded
+  from current executable audit findings.
+
+UNIT-ACCEPT / CAPTURE / BASIC WEIGHT CONTROLS
+---------------------------------------------
+- AI_acceptUnit's class-cap checks are performed before financial-trouble exceptions;
+  essential Worker/Worker-Sea/Missionary/Great-Person exceptions therefore cannot bypass
+  hard unit-class maxima.
+- AI_captureUnit makes a location/force-safety decision; the eUnit parameter is unused
+  by design in inherited advc.010 logic. No current type-specific capture legality is
+  promised by this helper, so the unused parameter alone is not a defect.
+- AI_yieldWeight and AI_commerceWeight are heuristic weights rather than legality/
+  accounting functions. The current food/production/gold/culture/espionage adjustments
+  remain bounded under shipped values; no independent producer/contract failure was
+  established in this first inherited pass.
+
+CURRENT STATE
+-------------
+Queue 001 CvPlayerAI.cpp remains OPEN (deep-method re-loop).
+Unique completed files: 30 / 169.
+Confirmed new re-loop roots: F321-F329 / KI#644-KI#652.
+Existing KI#312 remains incompletely repaired and is not renumbered.
+Existing cross-file F212/KI#535 was encountered in AI_unitUpdate and is not duplicated.
+NEXT ROOT ID: F330 / provisional KI#653 -- UNUSED.
+
+Exact continuation cursor:
+- continue independent inherited pass through financial state / gold targeting and
+  research-tech selection helpers, then attitude/diplomacy valuation;
+- prioritize state-inversion, prospective-vs-current, saturation/clamping, denominator,
+  and delayed-legality contracts rather than subjective heuristic weights;
+- revisit already saturated SAS-delta functions only if an inherited caller exposes a
+  new contract.
+
+No repository source files were modified by ChatGPT-5.6-Sol during this audit.
+===============================================================================

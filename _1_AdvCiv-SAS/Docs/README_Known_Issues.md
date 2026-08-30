@@ -732,15 +732,16 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#641 - (Provisional Pending inherited BtS vote-lifetime defect incompletely addressed by AdvCiv) A former member can still defy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-641)\
 [KI#642 - (Provisional Pending inherited BtS multiplayer popup defect) A dead human can receive an inert One More Turn button](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-642)\
 [KI#643 - (Pending Architectural inherited BtS Pick Religion ownership defect) Founder death can strand a reserved religion slot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-643)\
-[KI#644 - (Provisional Pending SAS marginal-valuation defect) Losing the last imported strategic resource is priced from pre-change holdings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-644)\
-[KI#645 - (Provisional Pending SAS technology-gate defect) Bonus synergy checks only a building's primary prerequisite](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-645)\
+[KI#644 - (Fixed SAS marginal-valuation defect) Price the last imported strategic resource from prospective holdings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-644)\
+[KI#645 - (Fixed SAS technology-gate defect) Require every building AND technology before pricing bonus synergy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-645)\
 [KI#646 - (Provisional Pending SAS civic-switch control regression) A final empty pass can bypass paid-anarchy safeguards](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-646)\
 [KI#647 - (Pending Architectural SAS civic-value defect) Unlimited specialist types reuse the same finite citizens](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-647)\
 [KI#648 - (Provisional Pending SAS civic-value sign defect) An active pressure civic is penalized for preventing anger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-648)\
 [KI#649 - (Provisional Pending SAS civic-value formula regression) Specialist tuning replaced ordinary commerce normalization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-649)\
 [KI#650 - (Provisional Pending inherited K-Mod civic-value regression) War-weariness uses the current modifier instead of the candidate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-650)\
 [KI#651 - (Pending Architectural inherited K-Mod/AdvCiv civic-value defect) A -100% modifier erases its active maintenance value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-651)\
-[KI#652 - (Provisional Pending investigation) F329 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-652)\
+[KI#652 - (Provisional Pending SAS prospective-owner defect) World-Wonder protection uses the city's current team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-652)\
+[KI#653 - (Provisional Pending investigation) F330 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-653)\
 
 <a id="ki-1"></a>
 
@@ -13694,19 +13695,23 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPop
 
 <a id="ki-644"></a>
 
-## KI#644 - (Provisional Pending SAS marginal-valuation defect) Losing the last imported strategic resource is priced from pre-change holdings
+## KI#644 - (Fixed SAS marginal-valuation defect) Price the last imported strategic resource from prospective holdings
 
-Album F321 finds SAS's strategic-substitute multiplier in `AI_bonusTradeVal` reading only current live holdings although AdvCiv's `iChange` contract asks for the prospective state. When an AI revalues cancellation of its last imported Iron, Horse, Camel or Elephant with `iChange=-1`, that import is still counted as owned; the configured no-resource premium can disappear precisely while deciding whether to lose the last copy. This SAS-local block can therefore oscillate between valuing a missing strategic resource highly enough to buy and valuing the same critical import cheaply enough to cancel. Pending prospective availability booleans that apply `iChange` to the evaluated resource before choosing the substitute multiplier.
+Album F321 found SAS's strategic-substitute multiplier in `AI_bonusTradeVal` reading only current live holdings although AdvCiv's `iChange` contract asks for the prospective state. When an AI revalued cancellation of its last imported Iron, Horse, Camel or Elephant with `iChange=-1`, that import was still counted as owned; the configured no-resource premium could disappear precisely while deciding whether to lose the last copy. This SAS-local block could therefore oscillate between valuing a missing strategic resource highly enough to buy and valuing the same critical import cheaply enough to cancel.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The fix applies `iChange` to the available count only when each availability boolean represents the evaluated resource. Acquisitions and cancellations now choose the strategic substitute multiplier from the prospective inventory, while the counts of all other strategic resources remain unchanged. The repair was source-verified against the existing marginal-value contract, compiled successfully and completed a full autoplay without an observed issue.
+
+Found and investigated during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-645"></a>
 
-## KI#645 - (Provisional Pending SAS technology-gate defect) Bonus synergy checks only a building's primary prerequisite
+## KI#645 - (Fixed SAS technology-gate defect) Require every building AND technology before pricing bonus synergy
 
-Album F322 finds the KI#66 multi-effect bonus valuation checking `getPrereqAndTech()` but omitting every additional `getPrereqAndTechs(i)` requirement before pricing a building's bonus-health or bonus-happiness synergy. Current Grocer variants can therefore raise Banana, Spices, Grapes or Sugar valuation after Mathematics even while missing mandatory Currency; Hammam and Muileann Uisce effects have the analogous Mathematics-without-Masonry path. `canConstruct` and the older `AI_baseBonusBuildingVal` both recognize the complete AND-tech contract. This is a SAS-local regression introduced by the KI#66 extra valuation pass. Pending reuse of a complete building technology-eligibility check while retaining the intended city-independent heuristic after all required technologies are known.
+Album F322 found the KI#66 multi-effect bonus valuation checking `getPrereqAndTech()` but omitting every additional `getPrereqAndTechs(i)` requirement before pricing a building's bonus-health or bonus-happiness synergy. Current Grocer variants could therefore raise Banana, Spices, Grapes or Sugar valuation after Mathematics even while missing mandatory Currency; Hammam and Muileann Uisce effects had the analogous Mathematics-without-Masonry path. `canConstruct` and the older `AI_baseBonusBuildingVal` both recognize the complete AND-tech contract. This is a SAS-local regression introduced by the KI#66 extra valuation pass.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The fix mirrors the complete AdvCiv check: a building contributes to this city-independent bonus synergy only after the buyer's team knows its primary technology and every additional AND technology. It deliberately does not broaden the pass into special-building technology rules because no independent current-data reproduction survived that review. The repair compiled successfully and completed a full autoplay without an observed issue.
+
+Found and investigated during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-646"></a>
 
@@ -13758,8 +13763,18 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp
 
 <a id="ki-652"></a>
 
-## KI#652 - (Provisional Pending investigation) F329 remains unassigned during the CvPlayerAI deep re-audit
+## KI#652 - (Provisional Pending SAS prospective-owner defect) World-Wonder protection uses the city's current team
 
-The continuous audit ledger reserves provisional KI#652 for F329. C031-WIP10 has provisionally saturated the local `AI_civicValue` pass with F324-F328 and controlled the reviewed `AI_doDiplo`, `AI_religionValue`, `AI_doMilitary` and `AI_doCommerce` surfaces without confirming another independent root. Queue 001 remains open for serialization/read state, worker-demand and disband helpers, victory/research/vote logic, inherited high-risk code and whole-file reconciliation. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F329 finds SAS's KI#186/KI#186.2 `AI_isSASCityLikelyToBenefitUsLongTerm` helper asking whether a still-foreign or seller-owned city has an active World Wonder through `hasActiveWorldWonder()`. That query tests obsolescence against the city's current team even though city-trade and overseas-conquest callers ask whether the city would benefit a different prospective recipient. A city containing the Great Lighthouse can therefore be rejected when its current owner knows Astronomy but the evaluating recipient does not, even though the Wonder would become active after transfer; the reverse technology state can protect a poor site through a Wonder that would immediately become obsolete for its recipient.
 
-Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition indexed with the help of GPT-5.6-Sol, thanks.
+This is a SAS-local prospective-state regression. AdvCiv already exposes the required hypothetical-owner contract through `getNumActiveWorldWonders(..., PlayerTypes eOwner)`, and `AI_targetCityValue` uses that API correctly for the prospective attacker. Pending the narrow repair of evaluating World-Wonder protection with the current AI player's identity while retaining the already-correct post-conquest caller behavior.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-653"></a>
+
+## KI#653 - (Provisional Pending investigation) F330 remains unassigned during the CvPlayerAI deep re-audit
+
+The continuous audit ledger reserves provisional KI#653 for F330. Through C031-WIP14, the queue-001 deep re-audit has confirmed F321-F329, controlled the remaining SAS delta around KI#652 and begun the independent inherited top-of-file and turn-lifecycle pass without establishing another root. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

@@ -12805,9 +12805,19 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 				continue; // don't let cathedrals buildings overprice incense, etc.
 			}
 
-			// Must have the building's enabling tech (if any)
+			// <!-- custom: This bonus-synergy pass checked only the primary technology and could price Grocer effects after Mathematics while mandatory Currency was still missing.
+			// Require the primary and every additional AND technology, matching AdvCiv's complete building-tech check. See KI#645. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			bool bHasRequiredTechs = true;
 			TechTypes const eReq = (TechTypes)kB.getPrereqAndTech();
 			if (eReq != NO_TECH && !kOurTeam.isHasTech(eReq))
+				bHasRequiredTechs = false;
+			for (int i = 0; bHasRequiredTechs && i < kB.getNumPrereqAndTechs(); i++)
+			{
+				TechTypes const eAdditionalReq = (TechTypes)kB.getPrereqAndTechs(i);
+				if (eAdditionalReq != NO_TECH && !kOurTeam.isHasTech(eAdditionalReq))
+					bHasRequiredTechs = false;
+			}
+			if (!bHasRequiredTechs)
 				continue;
 
 			// If the building is obsolete for us, ignore its extra effects
@@ -12927,11 +12937,13 @@ int CvPlayerAI::AI_bonusTradeVal(BonusTypes eBonus, PlayerTypes eFromPlayer, int
 		static const BonusTypes B_CAMEL  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_2"));
 		static const BonusTypes B_ELEPHANTS  = (BonusTypes)GC.getInfoTypeForString(GC.getDefineSTRING("SAS_MOUNTED_UNITS_BONUS_NAME_3"));
 
-		const bool bHaveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) > 0);
-		const bool bHaveIron   = (B_IRON   != NO_BONUS && getNumAvailableBonuses(B_IRON)   > 0);
-		const bool bHaveHorse  = (B_HORSE  != NO_BONUS && getNumAvailableBonuses(B_HORSE)  > 0);
-		const bool bHaveCamel  = (B_CAMEL  != NO_BONUS && getNumAvailableBonuses(B_CAMEL)  > 0);
-		const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) > 0);
+		// <!-- custom: Cancellation valuation previously counted the evaluated import in current holdings, so losing the last strategic copy could miss the configured no-resource premium.
+		// Apply iChange only to the resource being valued so every substitute check sees the prospective holdings. See KI#644. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		const bool bHaveCopper = (B_COPPER != NO_BONUS && getNumAvailableBonuses(B_COPPER) + (eBonus == B_COPPER ? iChange : 0) > 0);
+		const bool bHaveIron = (B_IRON != NO_BONUS && getNumAvailableBonuses(B_IRON) + (eBonus == B_IRON ? iChange : 0) > 0);
+		const bool bHaveHorse = (B_HORSE != NO_BONUS && getNumAvailableBonuses(B_HORSE) + (eBonus == B_HORSE ? iChange : 0) > 0);
+		const bool bHaveCamel = (B_CAMEL != NO_BONUS && getNumAvailableBonuses(B_CAMEL) + (eBonus == B_CAMEL ? iChange : 0) > 0);
+		const bool bHaveElephants = (B_ELEPHANTS != NO_BONUS && getNumAvailableBonuses(B_ELEPHANTS) + (eBonus == B_ELEPHANTS ? iChange : 0) > 0);
 
 		const bool bHaveAnyMetal  = (bHaveIron || bHaveCopper);
 		const bool bHaveAnyMount  = (bHaveHorse || bHaveCamel);
