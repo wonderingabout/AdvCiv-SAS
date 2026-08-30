@@ -26117,23 +26117,24 @@ void CvPlayerAI::AI_launch(VictoryTypes eVictory)
 
 void CvPlayerAI::AI_doCheckFinancialTrouble()
 {
-	// if we just ran into financial trouble this turn
-	bool bFinancialTrouble = AI_isFinancialTrouble();
-	if (bFinancialTrouble != m_bWasFinancialTrouble)
+	// <!-- custom: BtS consumed the false-to-true transition even when the shared production-dirty cooldown suppressed its refresh, so persistent trouble never retried the deferred work.
+	// Remember entry only after the refresh succeeds; leaving trouble still resets the observed state normally. See KI#687. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bFinancialTrouble = AI_isFinancialTrouble();
+	if (!bFinancialTrouble)
 	{
-		if (bFinancialTrouble)
-		{
-			int iGameTurn = GC.getGame().getGameTurn();
-			// only reset at most every 10 turns
-			if (iGameTurn > m_iTurnLastProductionDirty + 10)
-			{
-				// redeterimine the best things to build in each city
-				AI_makeProductionDirty();
-				m_iTurnLastProductionDirty = iGameTurn;
-			}
-		}
-		m_bWasFinancialTrouble = bFinancialTrouble;
+		m_bWasFinancialTrouble = false;
+		return;
 	}
+	if (m_bWasFinancialTrouble)
+		return;
+	int const iGameTurn = GC.getGame().getGameTurn();
+	// only reset at most every 10 turns
+	if (iGameTurn <= m_iTurnLastProductionDirty + 10)
+		return;
+	// redeterimine the best things to build in each city
+	AI_makeProductionDirty();
+	m_iTurnLastProductionDirty = iGameTurn;
+	m_bWasFinancialTrouble = true;
 }
 
 /*	advc: Set iTradeVal to the nearest multiple of DIPLOMACY_VALUE_REMAINDER

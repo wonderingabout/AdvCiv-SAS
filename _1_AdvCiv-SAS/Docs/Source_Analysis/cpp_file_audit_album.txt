@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 31 / 169
 Files open: 1 / 169
 Last completed file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - CLOSED AT C031-WIP65
-Current file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - OPEN AT C031-WIP66
-Latest confirmed roots: F321-F374 / provisional KI#644-KI#697 from the queue-001 re-audit
-Next root ID: F375 unused / provisional KI#698 next
+Current file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - OPEN AT C031-WIP78
+Latest confirmed roots: F321-F384 / provisional KI#644-KI#707 across the protected re-audits
+Next root ID: F385 unused / provisional KI#708 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -22,7 +22,7 @@ METHOD
 
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
-002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP66 / F375 UNUSED]<-(priority current wip)
+002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP78 / F375-F384]<-(priority current wip)
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]<-(priority next wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
@@ -77143,3 +77143,3656 @@ Continue the deep `AI_bestCityBuild` pipeline and its three live land-Worker
 callers (`AI_workerMove`, `AI_improveCity`, `AI_nextCityToImprove`), then widen
 to first-city founding and combat/transport deltas only after the Worker
 candidate/execution contracts are saturated.
+===============================================================================
+C031-WIP67 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F375 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvGameCoreDLL/CvPlayerAI.cpp` remains CLOSED.
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN under the deeper WIP-era
+methodology.
+
+Unique files complete: 31/169.
+F375 / provisional KI#698 is CONFIRMED.
+F376 / provisional KI#699 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F375 / provisional KI#698 — SAS `countImprovedTiles` counts improvements this
+city cannot work, so foreign/shared BFC improvements can make an
+underdeveloped city look worker-ready
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS added the file-local helper:
+
+    static int countImprovedTiles(CvCity const* pCity)
+    {
+        int iCount = 0;
+        for (int i = 0; i < NUM_CITY_PLOTS; ++i)
+        {
+            CvPlot* pPlot = plotCity(...);
+            if (pPlot == NULL)
+                continue;
+
+            const ImprovementTypes eImp = pPlot->getImprovementType();
+            if (eImp != NO_IMPROVEMENT)
+                ++iCount;
+        }
+        return iCount;
+    }
+
+The accompanying history comment is particularly useful: an earlier version
+filtered by
+
+    getWorkingCity() == pCity
+
+but SAS deliberately removed that filter in order to make the tile count
+"tolerant of overlap."
+
+That broadening crossed the actual worker/city contract.
+
+`WorkablePlotIter(kCity)`, used by current `AI_bestCityBuild`, explicitly skips
+a city-radius plot when:
+
+    m_pNext->getWorkingCity() != m_pCity
+
+and `CvCity::canWork` begins with the same condition:
+
+    if (kPlot.getWorkingCity() != this)
+        return false;
+
+`CvPlot::updateWorkingCity` also establishes why ownership matters. If a plot
+is not owned, it receives no default working city. For owned overlap, one
+specific same-owner city is selected as the working city (or an override is
+used).
+
+Therefore "has an improvement somewhere inside the geometric 21-tile BFC" is
+not equivalent to "is an improved plot available to this city."
+
+CURRENT BEHAVIORAL CONSUMERS
+----------------------------
+The incorrect count feeds two live SAS worker decisions.
+
+A) Small-city "improved enough" early departure
+------------------------------------------------
+`AI_workerMove` currently performs:
+
+    if (maxPopDefine > 0 &&
+        cityPopulation <= maxPopDefine &&
+        countImprovedTiles(pCity) >=
+            cityPopulation + buffer + smallCityExtra)
+    {
+        ...
+        if (AI_nextCityToImprove(pCity))
+            return;
+    }
+
+The current XML default is:
+
+    SAS_AI_WORKER_OVERIMPROVE_SKIP_MAX_CITY_POPULATION = 5
+
+and the C++ buffers are:
+
+    iBufferForAllCities = 2
+    iBufferExtraForSmallCities = 3 when population <= 4
+
+Thus a size-5 city is declared geometrically "improved enough" at 7 counted
+improvements.
+
+Those seven improvements need not be seven usable improvements for that city.
+They can include:
+* improvements on tiles now owned by a rival;
+* pre-existing improvements on currently unowned plots;
+* same-owner overlap plots whose `getWorkingCity()` is another city.
+
+The keep-current-plot safeguard does not repair the count. It only prevents
+departure when the Worker happens already to stand on this city's own
+currently-workable best local plot. In every other case the inflated count can
+send it to another city.
+
+B) Cross-city Worker readiness ranking
+---------------------------------------
+`AI_nextCityToImprove` computes:
+
+    iImprovedPlots = countImprovedTiles(pLoopCity);
+    iEffectiveImprovedPlots = iImprovedPlots + iAssignedWorkers;
+    iReadinessPercent =
+        max(100,
+            100 * (population + 1) /
+            (iEffectiveImprovedPlots + 1));
+
+    score = iBuildValue * iReadinessPercent / 100;
+
+This consumer is not limited to population <= 5.
+
+A city with few genuinely usable completed improvements is supposed to receive
+a multiplier above 100%. Every foreign/unassigned improvement counted by the
+helper enlarges the denominator and suppresses that boost.
+
+A simple shape demonstrates the magnitude. For a size-4 city with no completed
+usable improvements and no assigned Worker, the intended readiness term would
+be:
+
+    100 * (4 + 1) / (0 + 1) = 500%
+
+If four physically improved BFC plots belong to a rival or are assigned to
+another city, the current helper reports four and the same city receives:
+
+    100 * 5 / 5 = 100%
+
+Its genuine `AI_bestCityBuild` candidate is still selected only from
+`WorkablePlotIter(kCity)`, so those four counted plots are not part of the
+candidate set whose shortage the readiness multiplier is meant to describe.
+
+This can cause a genuinely underdeveloped border/overlap city to lose Worker
+priority to a better-looking city elsewhere.
+
+WHY THE OVERLAP CHANGE DOES NOT ESTABLISH SAFETY
+------------------------------------------------
+The historical rationale says to count overlapping improvements even when
+`getWorkingCity() != pCity`.
+
+That can be a reasonable *separate* measure of potential same-owner tile
+flexibility, but the current consumers treat the number as completed
+improvement capacity of this specific city.
+
+Most importantly, the helper does not distinguish same-owner overlap from
+foreign/unowned plots at all. A rival Mine inside the geometric BFC and a
+currently usable city Mine both add exactly 1.
+
+Even for friendly overlap, current `AI_bestCityBuild` itself cannot use the
+shared plot while its `getWorkingCity()` points at the other city. Counting it
+as completed capacity while excluding it from the job/candidate set makes the
+readiness numerator and denominator describe different plot populations.
+
+CONSEQUENCE
+-----------
+Current SAS can:
+* move a Worker out of a small city earlier than the city's own workable
+  improvements justify;
+* underweight that city in `AI_nextCityToImprove`;
+* preserve the exact type of edge-city underdevelopment the custom cross-city
+  Worker rewrite was intended to solve, especially around contested borders
+  and overlapping BFCs.
+
+This is independent of KI#213. KI#213 is the architectural split where city
+consumers read the intentionally-empty legacy land `AI_getBestBuild` cache
+instead of the custom `AI_bestCityBuild` policy.
+
+F375 is entirely inside the new SAS Worker policy: its completed-improvement
+counter and its actual custom candidate iterator disagree about which plots
+belong to the city.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14, K-Mod and BtS/Civ4CE do not contain this SAS
+`countImprovedTiles` helper or the current cross-city readiness formula.
+
+Classification: SAS-local worker-allocation scope regression.
+
+REPAIR DIRECTION
+----------------
+At minimum, never count foreign or unowned plots as completed capacity for the
+city.
+
+The most contract-consistent conservative repair is to count the same plot
+population that the actual city Worker selector can currently act for:
+
+    if (pPlot->getWorkingCity() != pCity)
+        continue;
+
+before counting the improvement.
+
+If SAS deliberately wants friendly overlap to count as *potentially
+reassignable* capacity, that should be modeled separately and must at least
+require same ownership. It should not be mixed one-for-one into the
+`iImprovedPlots` term unless the corresponding candidate/job logic can also
+treat those overlap plots as available to this city.
+
+A useful split would be:
+* `iUsableImprovedPlots`: `getWorkingCity() == pCity`;
+* optional `iFriendlyOverlapImprovedPlots`: same owner, another working city,
+  with a reduced/tunable contribution if desired.
+
+Foreign/unowned improvements should contribute zero.
+
+-------------------------------------------------------------------------------
+QUEUE-002 DEEP CONTROLS CHECKED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+Worker candidate/execution pairing
+----------------------------------
+The large `AI_bestCityBuild` pipeline was followed through its live custom
+callers. It initializes outputs, commits them only after the final candidate
+survives pathability/enemy/reservation checks, and the custom
+`AI_improveCity` / `AI_nextCityToImprove` callers preserve the selected build
+and follow-up rather than silently substituting another build.
+
+No F370-style "selected candidate != executed candidate" root was established
+there.
+
+`AI_improveLocalPlot` still reading the city-side land cache reduces to the
+already-existing KI#213 architecture mismatch rather than a new F376.
+
+Great General / Great Person tranche
+------------------------------------
+The current KI#204 safety repair in `AI_construct` is present. `AI_join`,
+`AI_construct`, `AI_lead` and the large `AI_greatPersonMove` changes were
+reopened.
+
+* The default Great-General instructor cap is 999, so the fact that `AI_join`
+  counts already-joined specialists only after city safety/path eligibility
+  has no demonstrated default-game cap consequence. It remains a low-define
+  customization hazard, not F376.
+* Current GP slow-action state preserves the actual chosen mission/city/path
+  variables; the known KI#168/KI#169/KI#170 repairs survive.
+* Added Great-Artist / GP diagnostics do not feed values back into choice.
+
+Promotion tranche
+-----------------
+`AI_promotionValue` indexes `GC.getInfo(ePromotion)` before its local
+NO_PROMOTION check, but its live `AI_promote` caller iterates valid Promotion
+enums and calls only legal promotions. No invalid enum producer was
+established.
+
+The large SAS forbidden-promotion policy can leave a unit unpromoted only if
+all legal alternatives score nonpositive/forbidden; the deeper current-data
+pass has still not established such a current all-options-blocked state.
+Policy remains policy rather than F376.
+
+First-city / Settler tranche
+----------------------------
+The large `AI_foundFirstCity`, `AI_found` and `AI_settleMove` rewrites were
+reopened. The bounded first-city scout, post-scout return target and current
+founding guards preserve distinct target/end-turn state.
+
+`SAS_chooseFirstCityReturnPlot` uses the first-city turn window as a pathfinder
+step bound, but the scout itself advances only one adjacent scouting step per
+turn and the remembered origin therefore remains within the same geometric
+bound. No concrete lost-origin failure was established.
+
+The K-Mod settler/escort rendezvous call still initializes `iPathTurns` to
+MAX_INT before its unchecked `generatePath`; a failed path therefore remains
+above the two-turn acceptance threshold on the live implementation. No new
+root was assigned.
+
+Combat / target selection opening
+---------------------------------
+An exact brace-aware comparison corrected an earlier parser artifact:
+`AI_attackOdds` is 85 lines in current SAS and 85 lines in Base AdvCiv 1.14,
+with no body diff. It is not a hidden large SAS hotspot.
+
+The genuinely large current deltas `AI_attackCityMove`,
+`AI_pickTargetCity`, `AI_guardCity`, `AI_attackMove` and
+`AI_assaultSeaMove` have been reopened.
+
+So far:
+* launched-Space-capital target identity remains paired through the separate
+  emergency target ranking and execution path;
+* `bTargetTooStrong` is computed only after the final normal/barbarian target
+  re-pick and no later target replacement using that stale strength state was
+  established;
+* emergency multi-defender `AI_guardCity` preserves at least one unit in a
+  multi-unit donor group and returns true exactly when the currently updating
+  unit/group has itself been committed;
+* the opportunistic assault-transport addition calls the existing
+  target-specific `AI_assaultSeaTransport` after ordinary safety/loading waits;
+  no independent threshold bypass defect was established in this slice.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F321-F374 confirmed from protected Queue 001.
+F375 / provisional KI#698 CONFIRMED.
+F376 / provisional KI#699 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Old F002/KI#331 Queue-002 caller set currently repaired.
+Latest physical checkpoint: C031-WIP67.
+No repository source files modified.
+
+NEXT
+----
+Continue from F376 unused.
+
+Priority:
+1. finish `AI_attackCityMove` / `AI_guardCity` / `AI_attackMove` target and
+   group-mutation contracts;
+2. deepen naval transport (`AI_assaultSeaTransport`,
+   settler/assault loading, pickup/stranded and cargo-state transitions);
+3. resume the residual current-SAS-vs-Base changed-function reconciliation;
+4. run the same final loop/state/sentinel/candidate-vs-execution sweep over
+   Queue 002 before any closure decision.
+===============================================================================
+C031-WIP68 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F376 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375 / provisional KI#698 remains CONFIRMED.
+F376 / provisional KI#699 is CONFIRMED.
+F377 / provisional KI#700 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F376 / provisional KI#699 — AdvCiv `AI_plotValid` optimization inverted the
+`AI_connectBonus` area test into a tautology, making the helper always return
+false
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS and Base AdvCiv 1.14 contain:
+
+    bool CvUnitAI::AI_connectBonus(bool bTestTrade)
+    {
+        ...
+        for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+        {
+            CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
+            if (kPlot.getOwner() != getOwner() || // XXX team???
+                /*!AI_plotValid(kPlot)*/kPlot.isArea(kPlot.getArea())) // advc.opt
+            {
+                continue;
+            }
+
+            ...
+        }
+        return false;
+    }
+
+The second rejection term is always true for a valid plot.
+
+`CvPlot.h` defines:
+
+    bool isArea(CvArea const& kArea) const
+    {
+        return (area() == &kArea);
+    }
+
+and `kPlot.getArea()` is, by definition, that same plot's area. Therefore:
+
+    kPlot.isArea(kPlot.getArea()) == true
+
+for every ordinary map plot.
+
+The `if` therefore reduces to:
+
+    if (anything || true)
+        continue;
+
+Every loop iteration is skipped. No bonus can reach the subsequent
+non-obsolete-bonus, capital-connection or `AI_connectPlot` logic, and the
+function deterministically falls through to:
+
+    return false;
+
+ANCESTRY / INTRODUCING CHANGE
+-----------------------------
+Civ4CE/BtS and K-Mod use the meaningful original gate:
+
+    if (AI_plotValid(pLoopPlot))
+    {
+        if (pLoopPlot->getOwner() == getOwner())
+        {
+            ...
+        }
+    }
+
+The reachable AdvCiv history pinpoints the regression to pre-SAS AdvCiv commit:
+
+    practical commit 1925
+    e4ff624d23ec90298119911fa182fa0e4c870d5a
+    "Remove or replace unnecessary AI_plotValid calls"
+
+Immediately before that commit, AdvCiv had:
+
+    if (!AI_plotValid(kPlot) || kPlot.getOwner() != getOwner())
+        continue;
+
+The commit changed it to:
+
+    if (kPlot.getOwner() != getOwner() ||
+        /*!AI_plotValid(kPlot)*/kPlot.isArea(kPlot.getArea()))
+    {
+        continue;
+    }
+
+The surrounding changes show the intended same-area replacement pattern
+elsewhere in the same commit. For example, `AI_improveBonus` changes:
+
+    !AI_plotValid(kPlot)
+
+to:
+
+    !isArea(kPlot.getArea())
+
+and nearby `AI_routeTerritory` likewise uses:
+
+    /*!AI_plotValid(kPlot)*/ !isArea(kPlot.getArea())
+
+The `AI_connectBonus` replacement alone lost the negation and, additionally,
+asks the plot whether it belongs to its own area instead of asking the unit
+whether the plot belongs to the unit's area.
+
+Classification: inherited AdvCiv optimization regression, introduced while
+replacing `AI_plotValid`.
+
+LIVE CONSEQUENCE
+----------------
+This is not dead source. Current SAS has three live calls.
+
+A) Normal land Worker fallback in `AI_workerMove`
+--------------------------------------------------
+After city/local improvement, next-city reassignment and
+`AI_routeTerritory(true)`, a route-capable Worker executes:
+
+    if (AI_connectBonus(false))
+        return;
+
+That pass is intended to connect an owned bonus even without requiring its
+current improvement to be the connecting improvement.
+
+Because F376 makes the helper always false, this dedicated fallback never
+pushes such a mission.
+
+B) `AI_networkAutomated` first bonus-connection pass
+----------------------------------------------------
+After `AI_improveBonus()`:
+
+    if (AI_connectBonus())
+        return;
+
+This is the stricter trade-ready form. It is dead at runtime because of F376.
+
+C) `AI_networkAutomated` second bonus-connection pass
+-----------------------------------------------------
+After `AI_connectCity()` and `AI_routeTerritory(true)`:
+
+    if (AI_connectBonus(false))
+        return;
+
+This broader connection pass is also dead.
+
+Other Worker/route functions can sometimes connect the same resources by
+different routes, so the consequence is NOT "the AI can never connect a
+bonus." The precise defect is stronger and cleaner: every caller of this
+dedicated helper is guaranteed to receive false, and all strategy encoded
+inside the helper is unreachable.
+
+This especially matters for fallback cases for which the ordinary local-city
+improvement pipeline has no currently selected route job, including resources
+outside ordinary city work assignments and network-automation behavior.
+
+WHY THIS IS NOT KI#213 OR F375
+------------------------------
+KI#213 concerns the intentionally empty city-side land best-build cache versus
+the custom SAS Worker selector.
+
+F375 concerns SAS `countImprovedTiles` using a broader physical BFC population
+than the actual workable candidate iterator.
+
+F376 is independent and much older: the entire inherited bonus-connection
+helper is disabled by a boolean typo before any cache, candidate valuation or
+SAS Worker policy is reached.
+
+REPAIR DIRECTION
+----------------
+At minimum restore the intended negative same-area test for the land-Worker
+optimization, consistent with the neighboring AdvCiv replacements:
+
+    if (kPlot.getOwner() != getOwner() ||
+        /*!AI_plotValid(kPlot)*/ !isArea(kPlot.getArea()))
+    {
+        continue;
+    }
+
+If preserving the full modern `AI_plotValid` semantics is desired for unusual
+can-move-impassable / all-terrain units, simply restore:
+
+    if (kPlot.getOwner() != getOwner() || !AI_plotValid(kPlot))
+        continue;
+
+The second form most directly restores the pre-regression contract; the first
+matches the performance-oriented intent of the introducing AdvCiv commit for
+ordinary land Workers.
+
+-------------------------------------------------------------------------------
+NAVAL / TRANSPORT CONTROL WORK COMPLETED BEFORE F376
+-------------------------------------------------------------------------------
+
+The new destination-aware Settler cargo helper was traced end to end.
+
+`AI_unloadSettlerCargoForDestination`
+-------------------------------------
+The helper's main accounting is internally coherent:
+
+* before the founding voyage, it computes the destination area's Worker
+  deficit and keeps that many cargo Workers aboard while unloading true excess
+  only when still in an owned origin city and before a `MISSIONAI_FOUND`
+  assignment exists;
+
+* at the destination, cargo Workers can already be included in
+  `AI_totalAreaUnitAIs(destination, UNITAI_WORKER)` because the transport is
+  physically on the destination land area; the helper explicitly subtracts
+  those cargo Workers before computing the shortage, preventing self-counting;
+
+* it unloads Settlers/defenders at the destination while allowing excess
+  Workers to remain aboard for reuse.
+
+No selected-vs-executed or false-success state root was established in the
+helper itself.
+
+`AI_findTransport` Worker reload gate
+-------------------------------------
+The new gate rejects a Worker from rejoining a Settler transport already on
+`MISSIONAI_FOUND` when the destination area's existing Worker count already
+meets demand.
+
+One subtle limitation was traced: while a transport is still outside the
+destination area, Workers already aboard are not represented in
+`AI_totalAreaUnitAIs(destination, UNITAI_WORKER)`. A capacity-four Settler
+transport can therefore temporarily accept a second Worker for a destination
+whose deficit is only one.
+
+However:
+* the existing Settler-transport cargo-space guard prevents the analogous
+  duplicate on the common tighter capacities once only two non-Worker slots
+  remain;
+* before the initial voyage, the destination-aware unload helper removes
+  excess Workers;
+* after departure, any excess that does remain is retained aboard at the
+  destination rather than dumped into a zero-demand colony.
+
+This can waste a cargo slot in a narrow timing/capacity case, but no sufficiently
+independent strategic consequence crossed the F377 threshold in this slice.
+
+`AI_pickupStranded`
+-------------------
+The new completed-area Worker coordination gate merely prevents two empty
+transports being dispatched to the same zero-demand Worker group. Ordinary
+stranded groups retain Base AdvCiv's capacity-based coordination. No root was
+established.
+
+`AI_assaultSeaMove`
+-------------------
+The new below-threshold opportunistic launch still calls the existing
+target-specific `AI_assaultSeaTransport` after the earlier safety, escort and
+imminent-loading waits. No independent target-strength bypass was established.
+
+-------------------------------------------------------------------------------
+CURRENT STONE
+-------------------------------------------------------------------------------
+
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F376 confirmed in protected Queue 002.
+F377 / provisional KI#700 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Old F002/KI#331 Queue-002 caller set remains repaired.
+Latest physical checkpoint: C031-WIP68.
+No repository source files modified.
+
+NEXT
+----
+Continue from F377 unused.
+
+Priority:
+1. use the same whole-file boolean/predicate sweep that exposed F376 to inspect
+   the remaining inherited `AI_plotValid` replacements and always-true/always-
+   false area/domain predicates;
+2. finish `AI_attackCityMove` / `AI_guardCity` group-splitting and target-state
+   review;
+3. finish naval cargo/loading transitions;
+4. reconcile the moderate current-SAS deltas (`AI_update`, `AI_evacuateCity`,
+   `AI_improvePlot`, `AI_connectBonusCost`, Worker Sea, upgrade travel, etc.)
+   before any Queue-002 closure decision.
+===============================================================================
+C031-WIP69 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F377 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F376 remain CONFIRMED.
+F377 / provisional KI#700 is CONFIRMED.
+F378 / provisional KI#701 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F377 / provisional KI#700 — SAS `AI_betterPlotBuild` reversed its feature-
+removal predicate, so a legal improvement that preserves Forest/Jungle can be
+replaced with a pure chop
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS `CvUnitAI::AI_betterPlotBuild` says:
+
+    // High-Priority Override 1: Clear Feature
+    // Check if the originally planned improvement requires a feature
+    // to be removed first
+
+but executes:
+
+    if (!kOriginalBuildInfo.isFeatureRemove(eFeature))
+    {
+        if (eFeature == eFeatureForest)
+        {
+            if (canBuild(kPlot, eBuildRemoveForest))
+                return eBuildRemoveForest;
+        }
+        else if (eFeature == eFeatureJungle)
+        {
+            if (canBuild(kPlot, eBuildRemoveJungle))
+                return eBuildRemoveJungle;
+        }
+        ...
+    }
+
+The condition has the opposite meaning from the comment and from the safe
+contract.
+
+`isFeatureRemove(eFeature) == false` means the original build does NOT remove
+that feature. The helper therefore substitutes a dedicated removal build
+precisely when the selected build preserves the feature.
+
+CURRENT-SAS CONCRETE CASE: FOREST CAMP
+--------------------------------------
+Current XML supplies an ordinary supported example.
+
+`BUILD_CAMP`:
+* prerequisite Hunting;
+* builds `IMPROVEMENT_CAMP`;
+* its `FeatureStructs` contain Fallout removal only;
+* it has NO `FEATURE_FOREST` removal entry.
+
+Therefore:
+
+    GC.getInfo(BUILD_CAMP).isFeatureRemove(FEATURE_FOREST) == false.
+
+`BONUS_DEER`:
+* can occur on `FEATURE_FOREST`;
+* is valid on Tundra / Forest configurations.
+
+`BONUS_FUR`:
+* can occur on `FEATURE_FOREST`;
+* is valid on Tundra/Snow Forest configurations.
+
+`IMPROVEMENT_CAMP`:
+* explicitly connects Deer and Fur;
+* those bonus entries make Camp valid on the resource.
+
+`BUILD_REMOVE_FOREST`:
+* becomes legal through its Forest `FeatureStruct` at Masonry;
+* removes `FEATURE_FOREST`.
+
+Thus after Masonry a Worker can legally be assigned `BUILD_CAMP` on a Forest
+Deer/Fur tile while `BUILD_REMOVE_FOREST` is also legal.
+
+LIVE CALLER PROOF
+-----------------
+The important live path is `CvUnitAI::AI_improveBonus`.
+
+For a land bonus in a working city, current SAS first obtains its
+bonus-specific build:
+
+    eBuild = kPlot.SAS_getBonusSpecificBuild(eNonObsoleteBonus);
+
+It then requires all of:
+
+    eBuild != NO_BUILD
+
+    kOwner.doesImprovementConnectBonus(
+        GC.getInfo(eBuild).getImprovement(),
+        eNonObsoleteBonus)
+
+    canBuild(kPlot, eBuild)
+
+before accepting it as `eBestTempBuild`.
+
+For Forest Deer/Fur this can establish `BUILD_CAMP` as the selected build.
+The caller later queues movement toward the exact target and only then runs:
+
+    eBestBuild = AI_betterPlotBuild(*pBestPlot, eBestBuild);
+
+At this point the caller has already proved:
+
+    canBuild(Forest Deer/Fur, BUILD_CAMP) == true.
+
+That fact is decisive. The Forest does not need to be cleared in order to
+execute the planned Camp.
+
+Nevertheless the current postprocessor evaluates:
+
+    !BUILD_CAMP.isFeatureRemove(FEATURE_FOREST) == true
+
+and, when Forest removal is legal, returns:
+
+    BUILD_REMOVE_FOREST
+
+instead of `BUILD_CAMP`.
+
+The Worker therefore performs a pure chop rather than the already-selected
+resource improvement.
+
+The custom `AI_bestCityBuild` execution paths now intentionally bypass
+`AI_betterPlotBuild`, so they do not reproduce this mismatch. That does not
+make F377 dormant because `AI_improveBonus` remains a live land-Worker fallback
+and executes the postprocessor exactly as above.
+
+CONSEQUENCE
+-----------
+The AI can:
+* spend an extra Worker action chopping a Forest before constructing a Camp
+  that was already legal without the chop;
+* destroy a feature that the resource improvement can coexist with;
+* delay connecting the Deer/Fur resource that `AI_improveBonus` explicitly
+  selected;
+* replace a caller-validated exact improvement choice with a different action
+  whose prerequisite rationale is false.
+
+The immediate chop production may sometimes be strategically useful, but that
+does not repair the contract. The helper is not evaluating chop value here;
+it claims to clear a feature only when required by the planned improvement,
+and the caller has already proved the improvement is legal on the feature.
+
+The same inverted class can affect any current/future Forest/Jungle-preserving
+build for which the dedicated removal build is legal.
+
+ANCESTRY / INTRODUCING CHANGE
+-----------------------------
+Base AdvCiv 1.14 and K-Mod retain the older `bClearFeature` logic. They only
+consider a feature-clearing override when the ORIGINAL build itself removes
+the feature:
+
+    if (kOriginalBuildInfo.isFeatureRemove(eFeature))
+        ...
+
+SAS practical commit 4921
+`cc59407b55267151ae1cad01472a3625b83fa9bb`
+rewrote/simplified `AI_betterPlotBuild` and still preserved the correct sense:
+
+    if (eFeature != NO_FEATURE &&
+        kOriginalBuildInfo.isFeatureRemove(eFeature))
+    {
+        // find a build that removes the feature
+    }
+
+The very next reachable practical commit 4922
+`7e7a475897...`
+changed that condition to:
+
+    if (!kOriginalBuildInfo.isFeatureRemove(eFeature))
+
+while adding hardcoded Forest/Jungle removal builds.
+
+The surrounding prose still says this is a safeguard for cases where a
+"specific build to remove feature" may have been missed, but the inversion
+means it now fires for builds that explicitly do NOT remove the feature.
+
+Classification: SAS-local regression introduced in practical commit 4922.
+
+REPAIR DIRECTION
+----------------
+The minimum correctness repair is to restore the positive predicate:
+
+    if (eFeature != NO_FEATURE &&
+        kOriginalBuildInfo.isFeatureRemove(eFeature))
+    {
+        ...
+    }
+
+However, given current SAS's stronger exact Worker/build selection, an even
+safer conservative policy is to avoid replacing a caller-validated improvement
+at all unless there is a demonstrated sequencing reason.
+
+In particular, `AI_improveBonus` has already checked `canBuild(kPlot, eBuild)`.
+If that succeeds, no prerequisite feature-clearing action is required.
+
+If SAS wants intentional chop-before-improvement behavior, that should be a
+separate value decision that explicitly weighs the feature/chop yield and
+preservation value; it should not masquerade as a prerequisite repair.
+
+-------------------------------------------------------------------------------
+CONTROLS CLOSED WHILE PROVING F377
+-------------------------------------------------------------------------------
+
+* The main current custom `AI_bestCityBuild` / `AI_improveCity` paths no longer
+  pass their exact chosen build through `AI_betterPlotBuild`, specifically to
+  avoid postprocessing replacing a scored/reserved Worker job. That prior
+  repair is effective.
+
+* `AI_improvePlot` still calls `AI_betterPlotBuild`, but the source itself
+  labels `AI_improvePlot` as not currently used after K-Mod changes. It was not
+  needed for the F377 live proof.
+
+* The Forest/Camp proof does not depend on the legacy city best-build cache and
+  is therefore independent of existing KI#213.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F377 confirmed in protected Queue 002.
+F378 / provisional KI#701 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Old F002/KI#331 Queue-002 caller set remains repaired.
+Latest physical checkpoint: C031-WIP69.
+No repository source files modified.
+
+NEXT
+----
+Continue from F378 unused.
+
+Priority:
+1. continue the whole-file predicate / boolean-inversion sweep, especially
+   feature/area/domain replacements and post-selection overrides;
+2. finish `AI_attackCityMove` / `AI_guardCity` / `AI_attackMove` group mutation
+   and target-state contracts;
+3. finish naval cargo/loading and upgrade/retreat transitions;
+4. resume the remaining current-SAS-vs-Base changed-function reconciliation
+   before any Queue-002 closure decision.
+===============================================================================
+C031-WIP70 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F378 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F377 remain CONFIRMED.
+F378 / provisional KI#701 is CONFIRMED.
+F379 / provisional KI#702 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F378 / provisional KI#701 — `AI_guardCity` selects the unit to detach using
+the SOURCE plot's defensive value instead of the DESTINATION city it is being
+sent to defend
+-------------------------------------------------------------------------------
+
+ROOT
+----
+After `AI_guardCity` searches for a city that needs reinforcement, it stores:
+
+    pBestGuardPlot = pLoopCity->plot();
+
+and the path/end-turn plot for movement toward that city.
+
+Current SAS then chooses which member of the donor group to detach with:
+
+    CvPlot* pSourcePlot = plot();
+    ...
+    CvUnit* pEjectedUnit =
+            pOldGroup->AI_ejectBestDefender(pSourcePlot);
+
+The detached unit is immediately assigned to `pBestGuardPlot`:
+
+    pEjectedUnit->pushGroupMoveTo(
+            *pEndTurnPlot, eFlags, false, false,
+            eMissionAI, pBestGuardPlot);
+
+Thus candidate selection asks "which unit defends the source plot best?" while
+execution asks that selected unit to defend a different target city.
+
+The selection helper is explicitly plot-sensitive.
+
+`CvSelectionGroupAI::AI_ejectBestDefender(CvPlot* pDefendPlot)` begins with:
+
+    int iValue = pUnit->AI_currEffectiveStr(pDefendPlot) * 20;
+
+and, if the supplied plot is a city-defense plot:
+
+    iValue *= 100 + pUnit->cityDefenseModifier();
+    iValue /= 100;
+
+`AI_currEffectiveStr(pDefendPlot)` itself reaches `CvUnit::maxCombatStr` and
+therefore applies the supplied plot's:
+* plot/city defense;
+* city-defense modifier;
+* hill defense;
+* feature/terrain defense;
+* other relevant defensive combat modifiers.
+
+The public/group interface names the same argument `pTargetPlot`.
+
+Therefore the plot argument is not an incidental non-null context; it controls
+the exact ranking of which group member is the "best defender."
+
+CURRENT-SAS RANK-REVERSAL PROOF
+-------------------------------
+Current XML provides a simple same-unit/same-level pair.
+
+`UNIT_ARCHER`:
+* `UNITCOMBAT_ARCHER_BOW_SHORT`;
+* base combat 2;
+* +50% city defense;
+* 1 first strike + 1 chance first strike;
+* accepts both Combat and City Garrison promotions.
+
+`PROMOTION_COMBAT1`:
+* +10% combat;
+* valid for short-bow Archers.
+
+`PROMOTION_CITY_GARRISON1`:
+* +25% city defense;
+* valid for short-bow Archers.
+
+Take two otherwise-identical, full-health, same-level Archers in one donor
+group:
+
+    Archer A: Combat I
+    Archer B: City Garrison I
+
+On an ordinary flat non-city source plot, City Garrison contributes nothing to
+`currEffectiveStr`, while Combat I contributes +10% general combat.
+
+The remaining `AI_ejectBestDefender` factors are identical for these two
+otherwise-identical units. Therefore the SOURCE-plot call prefers:
+
+    Archer A (Combat I).
+
+Now evaluate the same pair for the destination city.
+
+Ignoring common city/terrain defense terms for clarity:
+
+    Combat-I Archer:
+        +50% built-in city defense
+        +10% Combat
+
+    CG-I Archer:
+        +50% built-in city defense
+        +25% City Garrison
+
+So `AI_currEffectiveStr(destinationCity)` already favors City Garrison I.
+
+The helper then applies ANOTHER explicit city-defense weighting:
+
+    * (100 + cityDefenseModifier) / 100
+
+which is:
+
+    Combat-I Archer: * 150 / 100
+    CG-I Archer:     * 175 / 100
+
+The target-city ranking therefore favors:
+
+    Archer B (City Garrison I).
+
+This is a true rank reversal:
+* source open terrain -> Combat I selected;
+* target city -> City Garrison I selected.
+
+The current call detaches the former and sends it to the city while leaving the
+more city-specialized defender in the donor group.
+
+The proof does not depend on unusual unique units, damage, or different unit
+levels. Two copies of one ordinary current unit with one ordinary promotion
+each suffice.
+
+LIVE OFF-CITY PATH
+------------------
+`AI_guardCity` is not restricted to a group already standing in the target
+city.
+
+Its search explicitly requires a path to another city and stores a remote
+`pBestGuardPlot`. Current SAS calls the search form from many mobile UnitAI
+moves. In particular:
+
+* `AI_attackMove` calls `AI_guardCity(false, true, 1)` for nearby colony/city
+  defense;
+* the SAS threatened-city response calls
+  `AI_guardCity(false, true, 3, ..., bDangerOnly=true, bFillShortfall=true)`;
+* the central continuation of a targeted `MISSIONAI_GUARD_CITY` calls the same
+  search while the reinforcing group is between source and destination;
+* the early city-to-city garrison rebalance can detach a defender from a donor
+  group and send it several path turns away.
+
+Therefore source != destination is an ordinary supported state, not a
+hypothetical API misuse.
+
+The current SAS `bFillShortfall` extension can repeat
+`AI_ejectBestDefender(pSourcePlot)` several times, so a threatened-city rescue
+can detach multiple units according to the wrong terrain/city context.
+
+ANCESTRY
+--------
+The root predates SAS.
+
+Civ4CE/BtS search-mode `AI_guardCity`:
+* finds `pBestGuardPlot`;
+* calls `getGroup()->AI_ejectBestDefender(pPlot)`, where `pPlot` is the current
+  source plot;
+* sends the returned unit toward the remote guard city.
+
+K-Mod preserves the same source-plot call.
+
+Base AdvCiv 1.14 preserves it as:
+
+    AI_getGroup()->AI_ejectBestDefender(plot());
+
+Current SAS names the source explicitly but preserves the inherited semantics:
+
+    pOldGroup->AI_ejectBestDefender(pSourcePlot);
+
+The selection helper itself has always treated its argument as the plot being
+defended, and the interface calls it `pTargetPlot`.
+
+Classification: inherited BtS/BBAI guard-city target-context defect.
+
+WHY THIS IS NOT MERELY A HEURISTIC PREFERENCE
+---------------------------------------------
+The caller first makes a separate strategic decision about WHICH CITY needs a
+defender. It then invokes a helper specifically designed to identify the
+group's best defender for a supplied plot.
+
+Passing the source plot causes that helper to answer a different question from
+the mission that immediately follows.
+
+This can systematically send:
+* generic Combat-promoted units instead of City Garrison specialists from open
+  terrain;
+* hill/feature specialists favored by the source terrain instead of units best
+  suited to the city;
+* analogous source-specific defensive specialists whose bonuses disappear at
+  the destination.
+
+The distinction is particularly relevant to the SAS emergency shortfall mode,
+whose purpose is explicitly to detach "suitable defenders" for a threatened
+city.
+
+REPAIR DIRECTION
+----------------
+Use the selected guard destination when ranking the detached defender:
+
+    CvUnit* pEjectedUnit =
+            pOldGroup->AI_ejectBestDefender(
+                    const_cast<CvPlot*>(pBestGuardPlot));
+
+or, preferably, make the helper parameter const-correct and pass
+`pBestGuardPlot` directly.
+
+When the group is already standing in the city being defended,
+`pBestGuardPlot == source`, so this produces no behavioral change.
+
+When reinforcing a remote city, the selected unit is then ranked for the plot
+it is actually being sent to defend.
+
+If SAS intentionally wants to consider the cost of weakening the donor/source
+stack as well, that is a legitimate additional optimization, but it should be
+modeled explicitly as a source-retention term rather than substituting the
+source plot for the destination in a helper whose result is the unit sent away.
+
+-------------------------------------------------------------------------------
+CONTROL CLOSED — `AI_betterPlotBuild` "ROAD IMPROVED BONUSES"
+-------------------------------------------------------------------------------
+
+The separate post-F377 suspicion around this block was not promoted:
+
+    if (doesImprovementConnectBonus(...))
+        bNeedsRoad = false;
+
+The comment's interpretation is misleading. K-Mod's
+`doesImprovementConnectBonus` answers whether the improvement is a valid
+bonus-trading improvement / acts as a city under the relevant technology; it
+does not prove that the land plot has a route to the capital.
+
+However, the current live disconnected-bonus path in `AI_improveBonus`
+handles an already-correct resource improvement through its explicit route
+branch and `AI_connectPlot`, rather than relying on this postprocessor block.
+
+The other relevant land-cache path remains subsumed by existing KI#213, and
+`AI_improvePlot` is documented as not currently used.
+
+So the semantic/comment mismatch is retained as robustness/design debt, not
+manufactured into an independent F379.
+
+-------------------------------------------------------------------------------
+CURRENT STONE
+-------------------------------------------------------------------------------
+
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F378 confirmed in protected Queue 002.
+F379 / provisional KI#702 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Old F002/KI#331 Queue-002 caller set remains repaired.
+Latest physical checkpoint: C031-WIP70.
+No repository source files modified.
+
+NEXT
+----
+Continue from F379 unused.
+
+Priority:
+1. continue `AI_guardCity` / `AI_attackCityMove` / `AI_attackMove` group-split
+   and source-vs-target context checks;
+2. inspect other helper calls that pass current/source plots into
+   destination-scoring helpers;
+3. finish naval cargo/loading and retreat/upgrade state transitions;
+4. resume the residual current-SAS-vs-Base function reconciliation and final
+   boolean/state/sentinel sweep before any Queue-002 closure decision.
+===============================================================================
+C031-WIP71 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F379 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F378 remain CONFIRMED.
+F379 / provisional KI#702 is CONFIRMED.
+F380 / provisional KI#703 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F379 / provisional KI#702 — SAS central guard-mission continuation treats every
+targeted `MISSIONAI_GUARD_CITY` as an emergency/danger-only assignment, so the
+older six-turn SAFE-city garrison rebalance can lose its destination after one
+movement turn
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS contains two independent targeted guard-city systems.
+
+A) Early ordinary city-to-city garrison rebalance
+-------------------------------------------------
+Near the top of `CvUnitAI::AI_update`, during the early-game window, many land
+combat UnitAI types in an overstocked owned city may call:
+
+    AI_guardCity(
+        false, true,
+        /*iMaxPath*/ 6,
+        MOVE_SAFE_TERRITORY | MOVE_AVOID_ENEMY_WEIGHT_3,
+        /*iExtraDefenders*/ 2)
+
+This call has:
+
+    bDangerOnly = false
+    bFillShortfall = false
+
+by default.
+
+Its explicit purpose is to push surplus defenders toward weaker cities even
+when those cities are not currently endangered.
+
+When a remote city is selected, `AI_guardCity` queues movement with:
+
+    MISSIONAI_GUARD_CITY
+    missionAIPlot = pBestGuardPlot
+
+B) Later emergency/endangered-city continuation
+-----------------------------------------------
+Current SAS also added, before UnitAI-specific movement:
+
+    if (getDomainType() == DOMAIN_LAND &&
+        !isBarbarian() &&
+        AI_getGroup()->AI_getMissionAIType() == MISSIONAI_GUARD_CITY &&
+        AI_getGroup()->AI_getMissionAIPlot() != NULL &&
+        AI_guardCity(
+            false, true, 3,
+            MOVE_AVOID_ENEMY_WEIGHT_2,
+            0,
+            /*bDangerOnly*/ true,
+            /*bFillShortfall*/ true))
+    {
+        return false;
+    }
+
+The comment correctly describes its original purpose:
+
+    "Targeted emergency city reinforcements ..."
+
+but the outer condition does not identify an emergency assignment.
+
+It catches EVERY targeted `MISSIONAI_GUARD_CITY`, including the older safe-city
+rebalance mission.
+
+The continuation call then hardcodes:
+
+    bDangerOnly = true
+
+and `AI_guardCity` immediately excludes each safe city with:
+
+    if (bDangerOnly && !pLoopCity->AI_isDanger())
+        continue;
+
+Therefore a still-valid SAFE rebalance target cannot be continued by this
+central mission-preservation hook.
+
+CONCRETE CURRENT-SAS FAILURE
+----------------------------
+A straightforward current path uses `UNITAI_ATTACK`.
+
+Assume:
+* early-game rebalance window is active;
+* City A has more defend-capable units than its own minimum;
+* City B is safe but underdefended enough to win the rebalance score;
+* an ordinary one-move Archer/other `UNITAI_ATTACK` unit can reach B in six
+  path turns over safe unroaded territory.
+
+Turn N:
+1. Unit is in City A.
+2. early rebalance runs before `AI_attackMove`;
+3. `AI_guardCity(... iMaxPath=6, iExtraDefenders=2)` selects City B;
+4. the unit/group receives targeted `MISSIONAI_GUARD_CITY` for City B;
+5. movement goes only to that turn's path end.
+
+Turn N+1:
+1. the group still carries a targeted `MISSIONAI_GUARD_CITY`;
+2. City B is still safe and still underdefended;
+3. central continuation recognizes the mission type/target;
+4. it calls `AI_guardCity(... bDangerOnly=true ...)`;
+5. City B is rejected solely because `AI_isDanger()==false`;
+6. with no endangered replacement city, the continuation returns false;
+7. normal `AI_attackMove` now runs.
+
+The ordinary `UNITAI_ATTACK` guard searches do not preserve the original
+six-turn reach:
+* nearby guard search: 1 turn;
+* colony/search paths: 3 turns in relevant branches;
+* later general guard search: 3 turns.
+
+After one ordinary movement turn from an initial six-turn target, an unroaded
+one-move unit can still be five turns away.
+
+Therefore the exact still-valid City-B assignment cannot be rediscovered by
+those searches. The unit proceeds into offensive/grouping/other role logic and
+can overwrite/abandon the previous guard mission.
+
+The nominal six-turn rebalance radius consequently does not imply a six-turn
+commitment for `UNITAI_ATTACK` and several other donor roles.
+
+This is not limited to Attack units. The early exporter includes:
+
+    UNITAI_ATTACK
+    UNITAI_ATTACK_CITY
+    UNITAI_COLLATERAL
+    UNITAI_PILLAGE
+    UNITAI_RESERVE
+    UNITAI_COUNTER
+    UNITAI_CITY_DEFENSE
+    UNITAI_CITY_COUNTER
+    UNITAI_CITY_SPECIAL
+
+Their ordinary guard-search ranges differ. Some, such as City Defense, can
+eventually perform broad searches and may rediscover the target; others use
+shorter ranges and can lose a long-distance safe-city assignment.
+
+The defect is therefore role-dependent, which also makes the apparent
+six-turn rebalance behavior inconsistent across otherwise eligible donors.
+
+WHY MISSIONAI STATE DOES NOT SAVE IT
+------------------------------------
+The queued movement is to the current turn's `pEndTurnPlot`, not an indefinitely
+executing full multi-turn path. On the next AI update the role logic can choose
+again.
+
+The new practical-6049 central continuation exists precisely because targeted
+emergency defenders were observed to "immediately rejoin offensive groups and
+receive another assignment before reaching their city." That is direct history
+evidence that carrying `MISSIONAI_GUARD_CITY` alone does not force completion.
+
+The same lifecycle applies to the older targeted safe-city rebalance.
+
+ANCESTRY / INTERACTION HISTORY
+------------------------------
+This is SAS-local.
+
+Practical commit 4953
+    `0704fd52d2...`
+
+introduced the early city-to-city rebalance in `AI_update`, including the
+six-turn search and ordinary `AI_guardCity` semantics.
+
+Practical commit 6049
+    `c89861b618e8512ea2731d1cfd832b33ec060970`
+
+later fixed KI#188.2 emergency reinforcement persistence by adding the central
+targeted-guard continuation. Its commit title is:
+
+    "(Fixed/Improved) Base AdvCiv/K-Mod issue: offensive armies could ignore
+     nearby endangered cities instead of going back to try to help defending
+     them"
+
+and its new comment explicitly scopes the hook to "Targeted emergency city
+reinforcements."
+
+However, the code distinguishes targeted vs targetless guard missions, not
+emergency vs ordinary targeted guard missions. The older 4953 rebalance also
+uses a target plot, so it is intercepted by 6049's emergency-only continuation
+and then rejected when its city is safe.
+
+Classification: SAS-local interaction/state-lifetime regression between the
+ordinary garrison-rebalance feature and the later emergency continuation.
+
+CONSEQUENCE
+-----------
+The AI can:
+* export a surplus defender toward a safe weak city;
+* spend one turn moving it there;
+* discard the still-valid assignment on the following turn;
+* resume offensive/grouping work before reaching the city.
+
+This weakens the exact purpose of the early rebalance: spreading real existing
+defensive capacity from overstocked core cities toward weak secondary cities.
+
+It also wastes movement turns and can create role-dependent "starts to
+reinforce, then changes its mind" behavior.
+
+REPAIR DIRECTION
+----------------
+Preserve the semantic type of the targeted guard assignment.
+
+Several conservative designs are possible.
+
+1. Distinguish emergency targeted guard missions from ordinary guard-city
+   rebalance missions with an explicit mission/state marker, then:
+   * emergency -> continue with `bDangerOnly=true`, `bFillShortfall=true`,
+     3-turn emergency policy;
+   * ordinary rebalance -> continue toward its existing safe underdefended
+     target under the original rebalance policy/range.
+
+2. If adding a state bit is undesirable, inspect the existing mission target
+   first:
+   * if it is endangered, use the emergency continuation;
+   * otherwise validate that the same target still needs the ordinary garrison
+     reinforcement and continue toward that exact target rather than globally
+     rerunning danger-only search.
+
+3. Alternatively make all targeted guard-city movement directly persistent
+   until its target becomes invalid/satisfied, with the target's current
+   shortage/danger deciding when to release it.
+
+Do not simply change the central call to `bDangerOnly=false` while retaining
+`bFillShortfall=true`; that would merge two policies and could cause ordinary
+safe-city shortages to detach emergency-sized fractions of offensive groups.
+
+-------------------------------------------------------------------------------
+CONTROLS / RELATED BEHAVIOR
+-------------------------------------------------------------------------------
+
+* The existing central continuation correctly improves the practical-6049
+  emergency case. F379 does not argue that it should be removed.
+
+* City-Defense donors often have broader ordinary guard fallbacks and can
+  rediscover a safe destination; this does not repair the cross-role contract
+  because the early exporter intentionally includes many UnitAI types whose
+  normal ranges are much shorter than six turns.
+
+* A safe target becoming genuinely endangered naturally transitions into the
+  emergency continuation and is then preserved. The defect concerns the
+  ordinary, still-needed, still-safe garrison redistribution that practical
+  4953 explicitly introduced.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F379 confirmed in protected Queue 002.
+F380 / provisional KI#703 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Old F002/KI#331 Queue-002 caller set remains repaired.
+Latest physical checkpoint: C031-WIP71.
+No repository source files modified.
+
+NEXT
+----
+Continue from F380 unused.
+
+Priority:
+1. finish the rest of the current `AI_update` mission-preservation/state
+   interaction review;
+2. continue `AI_attackCityMove` / `AI_attackMove` target/group state;
+3. finish naval cargo/loading, retreat and upgrade transitions;
+4. run the residual current-SAS-vs-Base changed-function reconciliation and
+   predicate/sentinel sweep before considering Queue-002 closure.
+===============================================================================
+C031-WIP72 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F380 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F379 remain CONFIRMED.
+F380 / provisional KI#703 is CONFIRMED.
+F381 / provisional KI#704 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F380 / provisional KI#703 — SAS early garrison rebalance says it counts every
+defend-capable unit but actually counts only defend-capable GROUP HEADS, so a
+large stacked military concentration can fail the source-surplus gate
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS practical-4953 city-to-city garrison redistribution contains:
+
+    // Count any unit that can defend, not just GUARD_CITY mission
+    const int iHave =
+        pHere->getPlot().plotCount(
+            PUF_canDefendGroupHead,
+            -1, -1, getOwner());
+
+    const int iMinHere = pHere->AI_minDefenders();
+
+    if (iHave > iMinHere)
+    {
+        if (AI_guardCity(...))
+            ...
+    }
+
+The implementation does not match the stated population.
+
+`CvGameCoreUtils.cpp` defines:
+
+    bool PUF_canDefendGroupHead(CvUnit const* pUnit, ...)
+    {
+        return (PUF_canDefend(pUnit, ...) &&
+                PUF_isGroupHead(pUnit, ...));
+    }
+
+Therefore the source count is:
+
+    number of defend-capable SELECTION GROUP HEADS
+
+not:
+
+    number of defend-capable UNITS.
+
+A multi-unit selection group contributes exactly one to `iHave`.
+
+WHY GROUP-HEAD COUNTING IS WRONG FOR THIS SAS ACTION
+----------------------------------------------------
+The rebalance is not about moving an indivisible group.
+
+When it decides the city has surplus, it calls `AI_guardCity`. That function
+uses:
+
+    AI_ejectBestDefender(...)
+
+which can detach one selected unit from a multi-unit donor group and send only
+that unit toward the weak city.
+
+Current SAS's threat-shortfall extension can detach multiple selected
+defenders, but the ordinary early rebalance still deliberately supports
+splitting one defender away while leaving the rest of the donor group intact.
+
+Thus the source-surplus test treats a ten-unit stack as one indivisible
+defensive object, while the action it gates is explicitly capable of treating
+that stack as ten individual defender candidates and exporting only one.
+
+CONCRETE FAILURE SHAPE
+----------------------
+Suppose City A has:
+
+    one 8-unit defend-capable ATTACK stack
+    one separate CITY_DEFENSE garrison group
+
+and:
+
+    AI_minDefenders(City A) == 2.
+
+Actual defend-capable land units physically available in the city:
+
+    9
+
+Current practical-4953 `iHave`:
+
+    2 group heads
+
+so:
+
+    iHave > iMinHere
+    2 > 2
+    false
+
+The early redistribution does not even call `AI_guardCity`.
+
+Yet the intended action could safely detach one suitable defender from the
+8-unit stack and still leave seven members of that stack plus the dedicated
+garrison in City A.
+
+The mismatch becomes even sharper for one large stack plus one minimum
+garrison: adding more and more members to the same stack never increases
+`iHave` at all.
+
+This directly undercuts the feature's documented motivation: recognizing
+overstocked cities and exporting their excess military to weaker cities.
+Large ATTACK/ATTACK_CITY/RESERVE/COUNTER stacks are exactly the type of
+concentration most likely to be grouped.
+
+INTRODUCING HISTORY
+-------------------
+Practical commit 4953:
+
+    0704fd52d2...
+
+introduced both the comment and the predicate together:
+
+    // Count any unit that can defend, not just GUARD_CITY mission
+    plotCount(PUF_canDefendGroupHead, ...)
+
+So this is not an inherited BtS/K-Mod convention accidentally exposed later.
+The new SAS feature stated an individual-unit contract while selecting the
+older group-head predicate.
+
+Classification: SAS-local garrison-rebalance counting regression.
+
+RELATION TO F379
+----------------
+F379 is the later state-lifetime defect: a long-range safe-city rebalance
+mission can be abandoned after one movement turn because the practical-6049
+central continuation only preserves endangered-city assignments.
+
+F380 happens BEFORE an assignment is created. It can prevent the source city
+from being considered surplus at all when its excess military is stacked.
+
+The two therefore independently reduce the same feature:
+* F380: some valid donors never dispatch;
+* F379: some dispatched safe reinforcements do not persist.
+
+REPAIR DIRECTION
+----------------
+Count individual defenders that are actually available to detach.
+
+A naive:
+
+    plotCount(PUF_canDefend, ...)
+
+matches the unit-vs-group dimension, but the final repair should explicitly
+consider cargo and any other units physically represented on the plot but not
+available as city defenders/donors.
+
+The safest implementation is likely a small explicit unit loop with conditions
+such as:
+
+    owner == getOwner()
+    canDefend()
+    !isCargo()
+
+plus any intended immobility/special-unit exclusions.
+
+Alternatively add/use a precise predicate for "defend-capable, non-cargo
+individual unit."
+
+Do NOT change the general semantics of `PUF_canDefendGroupHead`; many inherited
+callers deliberately use group-head counting for mission/group accounting.
+The defect is the practical-4953 choice of that predicate for this new
+individual-unit surplus feature.
+
+-------------------------------------------------------------------------------
+ADDITIONAL CONTROL
+-------------------------------------------------------------------------------
+
+The broader inherited `AI_guardCity` logic also uses
+`PUF_canDefendGroupHead` in several places. That is older mission/group
+accounting and was not automatically folded into F380.
+
+F380 is deliberately scoped to the new SAS source-surplus gate because:
+* its own comment explicitly says "any unit";
+* its purpose is to detect military concentration;
+* its subsequent action can split one unit out of a group.
+
+No claim is made here that every historical group-head defender count should be
+converted to an individual-unit count.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F380 confirmed in protected Queue 002.
+F381 / provisional KI#704 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Old F002/KI#331 Queue-002 caller set remains repaired.
+Latest physical checkpoint: C031-WIP72.
+No repository source files modified.
+
+NEXT
+----
+Continue from F381 unused.
+
+Priority:
+1. continue `AI_update` and garrison/mission lifecycle reconciliation after
+   practical 4953/6049;
+2. return to `AI_attackCityMove` and group-target state after the guard-city
+   family is saturated;
+3. finish naval cargo/loading, retreat and upgrade-state transitions;
+4. continue residual current-vs-Base function coverage and final predicate /
+   sentinel / source-vs-target sweeps.
+===============================================================================
+C031-WIP73 — PROTECTED QUEUE 002 CvUnitAI.cpp — F380 RETRACTED AFTER
+DOWNSTREAM-CONSUMER PROOF
+===============================================================================
+
+STATUS CORRECTION
+-----------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+F375-F379 remain CONFIRMED.
+The provisional F380 / KI#703 claim in C031-WIP72 is RETRACTED.
+F380 / provisional KI#703 is UNUSED again.
+Unique files complete remains 31/169.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+WHY WIP72'S OUTER-GATE F380 DOES NOT SURVIVE AS AN INDEPENDENT ROOT
+-------------------------------------------------------------------------------
+
+WIP72 correctly established this local mismatch in practical-4953's early
+garrison rebalance:
+
+    // Count any unit that can defend, not just GUARD_CITY mission
+    const int iHave =
+        pHere->getPlot().plotCount(PUF_canDefendGroupHead, ...);
+
+and correctly established that `PUF_canDefendGroupHead` counts only
+defend-capable GROUP HEADS.
+
+However, the deeper downstream proof found that changing this OUTER gate alone
+does not make the clean stacked-donor example dispatch a unit.
+
+Immediately after the gate, the feature calls:
+
+    AI_guardCity(false, true, 6, ..., iExtraDefenders)
+
+and `AI_guardCity` performs its own source-city retention check:
+
+    int const iHave =
+        kPlot.plotCount(
+            PUF_canDefendGroupHead,
+            ...,
+            AI_isCityAIType() ? PUF_isCityAIType : NULL)
+        - 1;
+
+    int iNeed = pCity->AI_neededDefenders() + iExtra;
+
+    if (iHave < iNeed)
+    {
+        bSearch = false;
+        pBestGuardPlot = &kPlot;
+        ...
+    }
+
+For the WIP72 example:
+
+    one large ATTACK stack
+    + one dedicated garrison group
+    AI_minDefenders / needed defenders ~= 2
+
+the outer practical-4953 gate counts two group heads and rejects the call.
+
+If that outer gate were changed to count all nine individual defenders, the
+call would proceed -- but the inner inherited `AI_guardCity` check would count
+the two group heads, subtract the current group head, see only one remaining
+defender-group against a need of about two, and force the current group to stay
+in the source city.
+
+Therefore the WIP72 outer predicate is genuinely inconsistent with its comment,
+but the clean demonstrated behavior is already blocked by the downstream
+`AI_guardCity` contract.
+
+Under the audit's root standard, that means the outer-only issue is not an
+independent F380.
+
+-------------------------------------------------------------------------------
+BROADER INHERITED QUESTION — DELIBERATELY REOPENED, NOT YET NUMBERED
+-------------------------------------------------------------------------------
+
+The downstream result exposes a potentially more fundamental inherited
+question:
+
+`AI_guardCity` compares group-head counts against `AI_neededDefenders` and, for
+the current source group, effectively removes that entire group from the
+available-defender count even though successful remote guard assignment later
+calls:
+
+    AI_ejectBestDefender(...)
+
+and sends only ONE selected unit from the group.
+
+For a multi-unit donor group, this can be very conservative: the source check
+can behave as though all members of the current group leave even though
+N-1 members remain after one-unit ejection.
+
+K-Mod's rewritten `AI_guardCity` already contains the group-head accounting,
+and Base AdvCiv/current SAS inherit it. K-Mod's city-level
+`AI_isDefended`/AdvCiv `AI_countExcessDefenders` also use group-head counting,
+so this may reflect a broader deliberate "defensive groups, not units" model
+rather than a simple typo.
+
+That broader question therefore needs:
+* source-city multi-unit group proof;
+* comparison with intended city-defense/group semantics;
+* caller behavior when the ejected unit is or is not the group head;
+* confirmation that individual remaining group members really remain usable
+  city defenders after the split;
+* ancestry/design comments.
+
+Until that survives, do NOT relabel it F380 merely to preserve the number.
+
+-------------------------------------------------------------------------------
+AUDIT METHODOLOGY NOTE
+-------------------------------------------------------------------------------
+
+This retraction is intentional evidence that the deeper audit is not treating
+every local mismatch as a finding.
+
+The provisional claim passed:
+* local source inspection;
+* explicit predicate-definition proof;
+* feature-comment comparison;
+
+but failed the stronger:
+* "would repairing this root change supported runtime behavior?"
+downstream-consumer test.
+
+That is sufficient reason to remove it from the confirmed set.
+
+C031-WIP72 remains historical investigation context only; its F380 section is
+superseded by this correction.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F379 CONFIRMED in protected Queue 002.
+F380 / provisional KI#703 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP73.
+No repository source files modified.
+
+NEXT
+----
+1. Decide the broader inherited `AI_guardCity` group-head-vs-one-unit-ejection
+   question on its own merits; promote only if its group/city contract is hard.
+2. Continue `AI_attackCityMove` / target/group state.
+3. Continue naval cargo/loading, retreat/upgrade transitions.
+4. Resume current-vs-Base function reconciliation and generic predicate /
+   sentinel / source-target sweeps.
+===============================================================================
+C031-WIP74 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F380 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F379 remain CONFIRMED.
+F380 / provisional KI#703 is CONFIRMED.
+F381 / provisional KI#704 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+NOTE ON NUMBERING
+-----------------
+C031-WIP72 contained a provisional F380 about the practical-4953 garrison
+surplus predicate. C031-WIP73 explicitly RETRACTED that claim after the
+downstream `AI_guardCity` consumer proof. The F380 number was therefore unused
+again.
+
+This WIP allocates F380 to the independent air-base defect below. WIP73 remains
+the authoritative retraction of the older provisional claim.
+
+-------------------------------------------------------------------------------
+F380 / provisional KI#703 — AdvCiv SquareIterator rewrite dropped `!` from the
+enemy/vassal test in `AI_airOffenseBaseValue`, so enemy border danger is
+ignored while friendly vassal territory is treated as dangerous
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS / Base AdvCiv 1.14:
+
+    // Consider threat from nearby enemy territory
+    int iBorderDanger = 0;
+    for (SquareIter it(kPlot, 1); it.hasNext(); ++it)
+    {
+        CvPlot const& p = *it;
+        if (p.sameArea(kPlot) && p.isOwned())
+        {
+            if (!p.isRevealed(getTeam()))
+                continue;
+
+            if (p.getTeam() != getTeam() &&
+                GET_TEAM(p.getTeam()).isVassal(getTeam()))
+            {
+                int const iDistance = it.currStepDist();
+
+                if (iDistance == 1)
+                    iBorderDanger++;
+
+                if (::atWar(p.getTeam(), getTeam()))
+                {
+                    if (iDistance == 1)
+                        iBorderDanger += 2;
+                    ...
+                }
+            }
+        }
+    }
+
+    iDefenders -= std::min(2, (iBorderDanger + 1) / 3);
+
+The comment says this is "threat from nearby enemy territory."
+
+But the condition enters only when the neighboring team IS a vassal of our
+team:
+
+    GET_TEAM(p.getTeam()).isVassal(getTeam())
+
+That is the opposite of the inherited test.
+
+K-Mod:
+
+    if (pLoopPlot->getTeam() != getTeam() &&
+        !(GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam())))
+
+Pre-regression AdvCiv likewise had:
+
+    if (pLoopPlot->getTeam() != getTeam() &&
+        !GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam()))
+
+Thus the intended population is:
+    other-team territory that is NOT our vassal
+
+whereas current AdvCiv/SAS uses:
+    other-team territory that IS our vassal.
+
+Two semantic inversions follow immediately.
+
+A) Ordinary hostile/non-vassal borders contribute zero
+-------------------------------------------------------
+A normal enemy team at war with us is not our vassal.
+
+Therefore current code fails the vassal predicate before it can execute either:
+
+    iBorderDanger++;
+
+or the stronger wartime:
+
+    iBorderDanger += 2;
+
+So the dedicated nearby-enemy-territory risk term ignores the normal enemy
+border case it was written to measure.
+
+B) Friendly vassal borders contribute danger
+---------------------------------------------
+A vassal of our team satisfies the current predicate and therefore contributes
+the basic adjacency danger:
+
+    if (iDistance == 1)
+        iBorderDanger++;
+
+The nested:
+
+    atWar(vassalTeam, ourTeam)
+
+branch is normally contradictory to the vassal relationship itself and is a
+useful diagnostic sign of the lost negation. The meaningful current effect is
+the basic false-positive border penalty on friendly-vassal territory.
+
+LIVE CONSEQUENCE
+----------------
+`AI_airOffenseBaseValue` is a live magnitude selector for offensive air-unit
+basing.
+
+`AI_airOffensiveCity` scans revealed air bases, calls:
+
+    int iValue = AI_airOffenseBaseValue(kPlot);
+
+and moves to the highest-valued base.
+
+Inside `AI_airOffenseBaseValue`, `iBorderDanger` directly reduces the effective
+land-defender count:
+
+    iDefenders -= std::min(2, (iBorderDanger + 1) / 3);
+
+The function then rejects a base entirely when:
+
+    if (iAttackAirCount >= iDefenders || iDefenders <= 0)
+        return 0;
+
+and later scales its offensive value by local defense versus enemy offense.
+
+So the lost negation can affect both:
+* whether a candidate air base is considered usable at all;
+* its value relative to safer alternative bases.
+
+A wartime adjacent-enemy example is particularly direct.
+
+Under K-Mod / correct logic, one adjacent at-war enemy-owned plot contributes:
+
+    +1 basic foreign-border danger
+    +2 wartime adjacency danger
+    = 3
+
+and therefore:
+
+    (3 + 1) / 3 = 1
+
+effective defender is removed.
+
+Current AdvCiv/SAS sees the enemy as a non-vassal, fails the predicate, and
+removes zero defenders from this term.
+
+Conversely, enough adjacent friendly-vassal plots can lower the effective
+defender count even though they are not enemy territory.
+
+This is not merely a stale comment: the predicate reversal changes actual air
+relocation/base ranking.
+
+ANCESTRY / INTRODUCING CHANGE
+-----------------------------
+Civ4/K-Mod has the negated vassal test.
+
+Reachable AdvCiv history shows the negation still present immediately before
+practical commit:
+
+    practical commit 1916
+    085ab2c9b697b5690ba398ef31899cb27e2a8a77
+    Title: `"SquareIterator" for loops over tiles within movement range`
+
+That commit mechanically rewrote the old nested coordinate loops into
+`SquareIter`.
+
+The exact diff changes:
+
+    if (pLoopPlot->getTeam() != getTeam() &&
+        !GET_TEAM(pLoopPlot->getTeam()).isVassal(getTeam()))
+
+to:
+
+    if (p.getTeam() != getTeam() &&
+        GET_TEAM(p.getTeam()).isVassal(getTeam()))
+
+The only semantic change needed to create the defect is the missing `!`; it is
+not part of the iterator abstraction itself.
+
+Base AdvCiv 1.14 retains that regression, and current SAS inherits it
+unchanged.
+
+Classification:
+    inherited AdvCiv iterator-refactor regression.
+
+REPAIR DIRECTION
+----------------
+Restore the negation:
+
+    if (p.getTeam() != getTeam() &&
+        !GET_TEAM(p.getTeam()).isVassal(getTeam()))
+
+This matches:
+* the function's "enemy territory" comment;
+* K-Mod;
+* pre-1916 AdvCiv;
+* the nested wartime branch.
+
+A later cleanup could separately review whether current diplomacy/team
+relations warrant treating other friendly relationships similarly, but that is
+policy beyond the regression repair.
+
+-------------------------------------------------------------------------------
+CONTROL CLOSED — RETRACTED WIP72 GARRISON SURPLUS CLAIM
+-------------------------------------------------------------------------------
+
+The broader inherited `AI_guardCity` group-head accounting question was also
+finished after WIP73.
+
+Although `AI_guardCity` may eject only one defender toward a remote city, the
+N-1 members remaining in the donor group are not thereby committed to defend
+the source city. The remainder selection group continues its own UnitAI logic
+and can leave on the same/later update.
+
+BtS already uses the same lifecycle principle: when a city actually needs one
+unit to stay, `AI_guardCity` ejects a defender into a separate staying group
+while leaving the remainder group free to continue.
+
+Therefore source retention expressed in group-head / current-group terms is a
+conservative group-lifecycle model, not a demonstrated individual-unit-count
+bug.
+
+F380 remains correctly retracted for the WIP72 claim and is allocated only to
+the independent air-base regression above.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F380 CONFIRMED in protected Queue 002.
+F381 / provisional KI#704 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP74.
+No repository source files modified.
+
+NEXT
+----
+Continue from F381 unused.
+
+Priority:
+1. finish `AI_attackCityMove` / `AI_pickTargetCity` current target/deadline
+   contracts, including launched-Space-capital timing without assuming turn
+   order;
+2. finish air/naval/transport helper predicate reconciliation now that the
+   inherited air-base typo has surfaced;
+3. finish upgrade/retreat/cargo state transitions;
+4. continue residual current-vs-Base function coverage and final
+   source-vs-target / boolean / sentinel sweeps before Queue-002 closure.
+===============================================================================
+C031-WIP75 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F381 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F380 remain CONFIRMED.
+F381 / provisional KI#704 is CONFIRMED.
+F382 / provisional KI#705 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F381 / provisional KI#704 — K-Mod `AI_load` scans an enemy coastal target but
+tests transport pathing to water beside the PASSENGER instead of beside that
+enemy target, breaking the long-distance boat-shortcut test
+-------------------------------------------------------------------------------
+
+ROOT
+----
+`CvUnitAI::AI_load` has a special `iMaxTransportPath` check whose own comment
+states the contract:
+
+    // Can transport reach enemy in requested time
+
+The current code first selects a transport `pBestUnit`, initializes a transport
+pathfinder from that transport group, and scans plots around the TRANSPORT:
+
+    for (SquareIter it(*pBestUnit,
+        iMaxTransportPath * pBestUnit->baseMoves());
+        !bFoundEnemyPlotInRange && it.hasNext(); ++it)
+    {
+        CvPlot const& p = *it;
+
+        if (p.isCoastalLand() && p.isOwned() &&
+            kOurTeam.AI_mayAttack(p.getTeam()) &&
+            p.getArea().getCitiesPerPlayer(p.getOwner()) > 0)
+        {
+            ...
+        }
+    }
+
+So `p` is the candidate enemy coastal land plot whose reachability should be
+tested.
+
+But inside that exact branch current SAS does:
+
+    FOR_EACH_ADJ_PLOT(getPlot())
+    {
+        if (!pAdj->isWater())
+            continue;
+
+        if (tempFinder.generatePath(*pAdj))
+        {
+            ...
+            if (iPathTurns <= iMaxTransportPath)
+                bFoundEnemyPlotInRange = true;
+        }
+    }
+
+`getPlot()` here is the CURRENT PASSENGER UNIT'S plot (`this`), not the scanned
+enemy plot `p`.
+
+Therefore the algorithm asks:
+
+    "Does the selected transport have a short path to water beside the
+     passenger's current location?"
+
+while claiming to answer:
+
+    "Can the selected transport reach the scanned enemy coast in time?"
+
+The candidate enemy plot is used only as a boolean existence trigger. Its
+actual adjacent sea tiles are never path-tested.
+
+FALSE-NEGATIVE CLASS — INLAND ATTACK STACK
+------------------------------------------
+This produces a deterministic failure for the most useful boat-shortcut shape.
+
+If the attack stack currently stands on inland land with no adjacent water:
+
+    FOR_EACH_ADJ_PLOT(getPlot())
+
+contains no water tile.
+
+Therefore `bFoundEnemyPlotInRange` stays false regardless of:
+* which assault transport `AI_findTransport` selected;
+* whether the passenger can walk to that transport within `iMaxPath`;
+* whether that transport can reach the target enemy coast within
+  `iMaxTransportPath`.
+
+The function then executes:
+
+    if (!bFoundEnemyPlotInRange)
+        return false;
+
+and refuses the loading plan.
+
+This is not rescued by `AI_findTransport`.
+
+`AI_findTransport` independently verifies that the passenger can reach the
+transport within its allowed loading path:
+
+    generatePath(pTransport->getPlot(), eFlags, true,
+        &iPathTurns, iMaxPath)
+
+A land stack can therefore have a valid short walk to a coastal transport even
+when its CURRENT tile itself has no adjacent water. The later
+`iMaxTransportPath` branch throws that valid candidate away solely because it
+looks for water around the passenger's old location.
+
+LIVE CURRENT CALLER
+-------------------
+Current SAS has one genuine external call that supplies finite
+`iMaxTransportPath`: `AI_attackCityMove`.
+
+After selecting `pTargetCity`, it first estimates the ordinary land route:
+
+    generatePath(pTargetCity->getPlot(), eMoveFlags, true, &iPathTurns)
+
+When that route is longer than five turns, it tries to see whether a boat is
+faster:
+
+    int iLoadTurns =
+        std::max(3, iPathTurns / 3 - 1);
+
+    int iMaxTransportTurns =
+        iPathTurns - iLoadTurns - 2;
+
+    if (AI_load(
+        UNITAI_ASSAULT_SEA,
+        MISSIONAI_LOAD_ASSAULT,
+        NO_UNITAI,
+        -1, -1, -1, -1,
+        eMoveFlags,
+        iLoadTurns,
+        iMaxTransportTurns))
+    {
+        return;
+    }
+
+A simple supported geometry is:
+
+    land path to target city = 12 turns
+    allowed walk/load time   = 3 turns
+    allowed transport time   = 7 turns
+
+Suppose:
+* the attacking stack is currently one or two inland tiles from the coast;
+* a valid assault transport is reachable by the stack within those three
+  loading turns;
+* after pickup, that transport can reach water adjacent to the enemy target
+  coast within seven turns.
+
+That is precisely the type of route the caller is trying to discover.
+
+`AI_findTransport` can select the transport because the land group can reach it
+within `iLoadTurns`.
+
+F381 then rejects it deterministically if the attacker's CURRENT plot itself
+has no adjacent water. The actual enemy coast is never passed to the transport
+pathfinder.
+
+FALSE-POSITIVE CLASS — WRONG COAST / SEA ACCESS
+-----------------------------------------------
+The same source-vs-target error can also accept a route it did not prove.
+
+For a passenger already on coastal land:
+* the scan can encounter an enemy coastal plot `p` within the transport's
+  geometric SquareIterator radius;
+* instead of testing water adjacent to `p`, the code tests water adjacent to
+  the passenger;
+* the selected transport is usually already near/reachable from that passenger
+  coast, so this local path can succeed quickly.
+
+`bFoundEnemyPlotInRange` can therefore become true without any path to the
+scanned enemy coast having been established.
+
+This matters around:
+* separate seas;
+* peninsulas/isthmuses;
+* blocked water routes;
+* other geometries where geometric proximity does not imply transport-path
+  reachability.
+
+The temp pathfinder was added specifically to distinguish actual transport
+reachability from geometric range, but the final destination supplied to it is
+the wrong end of the trip.
+
+ANCESTRY
+--------
+BtS/Civ4CE does not have this `iMaxTransportPath` mechanism in `AI_load`.
+
+K-Mod adds the extra transport-range parameter and the long-distance
+`AI_attackCityMove` loading calculation.
+
+K-Mod correctly fixed one nearby BtS error by centering the enemy search on the
+selected transport:
+
+    // BtS had used plotXY(getX(), getY(), ...)
+    pLoopPlot = plotXY(
+        pBestUnit->getX(), pBestUnit->getY(), ...);
+
+However, once a candidate enemy coastal `pLoopPlot` is found, K-Mod still uses:
+
+    pAdjacentPlot =
+        plotDirection(getX(), getY(), ...);
+
+rather than coordinates from `pLoopPlot`.
+
+Base AdvCiv preserves that source/target mix-up while converting the outer scan
+to `SquareIter`.
+
+Current SAS inherits it unchanged.
+
+Classification:
+    inherited K-Mod/BBAI transport-target context bug.
+
+WHY THIS IS NOT A MERE HEURISTIC APPROXIMATION
+----------------------------------------------
+The code already:
+* identifies a specific candidate enemy coastal plot;
+* creates a real group pathfinder for the selected transport;
+* gives that pathfinder the exact requested maximum transport turns.
+
+There is no approximation requirement forcing it to use the passenger's
+location. Passing the passenger-adjacent water simply asks the pathfinder the
+wrong spatial question.
+
+The function's comment, caller arithmetic and temporary pathfinder all agree
+that the destination should represent the enemy coast.
+
+CONSEQUENCE
+-----------
+Current SAS can:
+* miss faster naval shortcuts for inland attack stacks;
+* force a long overland march despite a nearby assault transport and reachable
+  enemy coast;
+* accept geometrically-near enemy coast candidates whose actual water approach
+  was never path-checked;
+* make the K-Mod "boat faster than walking" branch strongly dependent on
+  whether the stack happens to be standing directly on the coast at the moment
+  of evaluation.
+
+This can also help explain route-selection inconsistency where otherwise
+similar attack stacks choose sea transport from coastal staging tiles but fail
+to do so from nearby inland tiles.
+
+REPAIR DIRECTION
+----------------
+Path-test water adjacent to the candidate enemy coastal plot `p`, not the
+passenger:
+
+    FOR_EACH_ADJ_PLOT(p)
+    {
+        if (!pAdj->isWater())
+            continue;
+
+        if (tempFinder.generatePath(*pAdj))
+        {
+            int iPathTurns = tempFinder.getPathTurns();
+            if (tempFinder.getFinalMoves() == 0)
+                iPathTurns++;
+
+            if (iPathTurns <= iMaxTransportPath)
+            {
+                bFoundEnemyPlotInRange = true;
+                break;
+            }
+        }
+    }
+
+The exact macro syntax may need the local const/non-const form supported by the
+codebase, but the semantic target must be `p`.
+
+That single change fixes both directions:
+* inland passengers no longer require water beside themselves;
+* coastal passengers no longer prove enemy reachability by pathing only back
+  toward their own coast.
+
+A stronger future cleanup could pass `pTargetCity` / an explicit intended
+transport destination from `AI_attackCityMove` rather than scanning for any
+attackable coastal city in range. That is a separate precision improvement;
+the minimum F381 repair is simply to path toward the candidate enemy coast the
+current helper already selected.
+
+-------------------------------------------------------------------------------
+CONTROL CLOSED — AI_travelToUpgradeCity ALTERNATIVE-UPGRADE CONCERN
+-------------------------------------------------------------------------------
+
+The current SAS KI#188.3.3 repair asks `getUpgradeCity(true, &eUpgradeUnit)` for
+one selected upgrade and then rejects travel if that exact upgrade fails the
+real economic `canUpgrade` checks.
+
+Because `getUpgradeCity` can return an early close candidate, it was reasonable
+to test whether:
+    first upgrade fails ROI
+    later upgrade passes ROI
+could make the new gate return false without trying the valid alternative.
+
+A tempting current-data branch is:
+
+    Grenadier
+        -> Bazooka
+        -> Machine Gun
+
+At 0 XP under current SAS prices/ROI gates, Bazooka can be expensive enough to
+fail while Machine Gun can be cheap/strong enough to pass.
+
+However the LIVE caller/UnitAI contract kills that example.
+
+Land movement roles that call `AI_travelToUpgradeCity` include:
+    UNITAI_ATTACK
+    UNITAI_PILLAGE
+    UNITAI_EXPLORE
+
+`UNIT_MACHINE_GUN` has:
+    bOnlyDefensive = 1
+
+and therefore is not a valid positive-value ATTACK/PILLAGE alternative in
+`AI_unitValue` for the relevant travel path.
+
+The defensive Grenadier roles for which Machine Gun is meaningful
+(CITY_DEFENSE/CITY_COUNTER etc.) do not use the same travel helper.
+
+Other current branching upgrade chains inspected so far either:
+* have equal/similar alternatives;
+* present the cheaper/better candidate first;
+* or fail to provide two live alternatives for one role that actually calls
+  `AI_travelToUpgradeCity`.
+
+So the structural completeness concern remains worth remembering if future XML
+adds another branching upgrade graph, but no supported current F382 was
+established.
+
+-------------------------------------------------------------------------------
+CONTROL CLOSED — LAUNCHED SPACE CAPITAL TARGET
+-------------------------------------------------------------------------------
+
+The unfinished C031-WIP74 launched-Space-capital concern was also closed.
+
+`CvCity::kill` records whether the destroyed city was the owner's current
+capital. After city removal / capital reassignment, if it was the capital it
+calls:
+
+    GET_TEAM(eOwner).resetVictoryProgress();
+
+`CvTeam::resetVictoryProgress` clears active victory countdowns and removes the
+team's victory projects.
+
+Thus capturing/destroying ANY team member's current capital resets that team's
+Space-victory progress at the game-engine boundary.
+
+`AI_pickTargetCity` scans enemy players' current capitals while consulting the
+target TEAM's active Space victory countdown, matching that team-wide reset
+contract.
+
+The `AI_attackCityMove` emergency check:
+
+    iPathTurns <= iSpaceVictoryCountdown
+
+and its "must attack now" boundary:
+
+    iPathTurns >= iSpaceVictoryCountdown
+
+were traced against the ordinary countdown decrement / victory resolution
+lifecycle. No supported off-by-one was established.
+
+No F382 allocated there.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F381 CONFIRMED in protected Queue 002.
+F382 / provisional KI#705 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP75.
+No repository source files modified.
+
+NEXT
+----
+Continue from F382 unused.
+
+Priority:
+1. continue naval/transport target-context review around `AI_load`,
+   `AI_assaultSeaTransport`, `AI_transportGoTo`, pickup and unloading;
+2. inspect the remaining upgrade/retreat/cargo transitions after closing the
+   alternative-upgrade candidate;
+3. resume the current-SAS-vs-Base changed-function reconciliation;
+4. run another source-vs-target, boolean-negation and
+   candidate-vs-execution sweep before Queue-002 closure.
+===============================================================================
+C031-WIP76 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F382 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F381 remain CONFIRMED.
+F382 / provisional KI#705 is CONFIRMED.
+F383 / provisional KI#706 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F382 / provisional KI#705 — AdvCiv `AI_pickup` restructuring inverted K-Mod's
+city-danger test, so transports reject SAFE remote pickup cities and travel
+only toward DANGEROUS ones
+-------------------------------------------------------------------------------
+
+ROOT
+----
+`CvUnitAI::AI_pickup` has two major cases:
+
+1. if the transport is already in a suitable pickup city, it can wait there
+   with `MISSIONAI_PICKUP`;
+2. otherwise, it scans the owner's cities and chooses a remote city to travel
+   toward for pickup.
+
+The current remote-city branch contains:
+
+    if (GET_PLAYER(getOwner()).AI_plotTargetMissionAIs(
+        pLoopCity->getPlot(), MISSIONAI_PICKUP, getGroup()) <
+        (iCount + cargoSpace() - 1) / cargoSpace())
+    {
+        if (!pLoopCity->AI_isDanger())
+            continue;
+
+        int iPathTurns;
+        if (atPlot(pLoopCity->plot()) ||
+            !generatePath(pLoopCity->getPlot(),
+                MOVE_AVOID_ENEMY_WEIGHT_3,
+                true, &iPathTurns))
+        {
+            continue;
+        }
+
+        ...
+        pBestPickupPlot = pLoopCity->plot();
+    }
+
+This explicitly discards a remote city when it is NOT in danger.
+
+Therefore the only remote cities allowed through this gate are cities for
+which:
+
+    pLoopCity->AI_isDanger() == true.
+
+That is the opposite of the inherited K-Mod behavior and the opposite of the
+obvious naval-pickup safety policy.
+
+K-MOD CONTROL
+-------------
+K-Mod's same branch is:
+
+    if (AI_plotTargetMissionAIs(...) < ...)
+    {
+        if (!(pLoopCity->AI_isDanger()))
+        {
+            if (!atPlot(pLoopCity->plot()) &&
+                generatePath(pLoopCity->plot(),
+                    MOVE_AVOID_ENEMY_WEIGHT_3,
+                    true, &iPathTurns))
+            {
+                ...
+                pBestPickupPlot = pLoopCity->plot();
+            }
+        }
+    }
+
+So K-Mod travels toward the pickup city only when:
+
+    !pLoopCity->AI_isDanger()
+
+Current AdvCiv/SAS does the precise complement.
+
+This is not a change in the meaning of `AI_isDanger`; the two code versions
+surround the same pathing/value logic and use the same city object.
+
+ASYMMETRY WITH THE CURRENT-CITY BRANCH
+--------------------------------------
+The error produces a particularly clean behavioral contradiction inside one
+function.
+
+At the beginning of `AI_pickup`, if the transport is ALREADY in an owned,
+suitable city, the code can execute:
+
+    getGroup()->pushMission(
+        MISSION_SKIP,
+        ...,
+        MISSIONAI_PICKUP,
+        pCity->plot());
+
+and wait for units there.
+
+That current-city branch does NOT require the city to be dangerous.
+
+Therefore:
+
+    safe City A + transport already at City A
+        -> transport may wait and pick units up there
+
+while:
+
+    same safe City A + transport one or more turns away
+        -> remote scan executes
+           if (!CityA.AI_isDanger()) continue;
+        -> transport refuses to travel there.
+
+The city is considered a valid pickup location only after the transport
+somehow reaches it by another mechanism.
+
+LIVE CALLERS
+------------
+Current SAS uses `AI_pickup` broadly.
+
+Assault transports:
+* `AI_pickup(UNITAI_ATTACK_CITY, true, 5)`
+* `AI_pickup(UNITAI_ATTACK, true, 5)`
+* later ATTACK_CITY / ATTACK / COUNTER pickup searches with ranges commonly
+  3 or 7 turns
+
+Settler transports:
+* `AI_pickup(UNITAI_CITY_DEFENSE)`
+* `AI_pickup(UNITAI_SETTLE, true)`
+* `AI_pickup(UNITAI_WORKER)`
+
+Special transports:
+* Missionary pickup
+* Spy pickup
+* Missile-air pickup
+
+Thus this is not a dormant helper or a single unusual role.
+
+A routine assault example is enough:
+
+1. a safe rear/coastal city has several available `UNITAI_ATTACK_CITY` units;
+2. an empty Assault transport is a few turns away;
+3. no other pickup group has already claimed enough capacity;
+4. `AI_considerPickup` accepts the city;
+5. `iCount > 0`;
+6. the city is safe, so current AdvCiv/SAS executes:
+
+       if (!pLoopCity->AI_isDanger())
+           continue;
+
+7. the transport never even pathfinds toward that staging city.
+
+If the same transport later happens to enter that city, the current-city branch
+can immediately wait for those same units.
+
+DANGEROUS-CITY FALSE POSITIVE
+-----------------------------
+The inversion is two-sided.
+
+After the earlier acquisition/enemy-power filter, a sufficiently established
+city that is currently dangerous can reach the pathfinding branch.
+
+For Assault transports, `AI_considerPickup` can still accept a dangerous city
+when it considers the city adequately defended.
+
+Current code then permits the transport to path toward that dangerous city,
+using `MOVE_AVOID_ENEMY_WEIGHT_3` but not rejecting the city itself.
+
+K-Mod did the opposite: danger prevented the remote pickup trip.
+
+So the regression both:
+* suppresses ordinary safe logistical pickup;
+* enables precisely the endangered destination K-Mod tried to avoid.
+
+The outer condition:
+
+    city age > 15 OR enemy power in area == 0
+
+does not repair the inversion. Any older city passes the first arm regardless
+of current area enemy power.
+
+ANCESTRY / INTRODUCING CHANGE
+-----------------------------
+BtS/BBAI/K-Mod history already contains the safe-city policy.
+
+The reachable AdvCiv history identifies the regression precisely:
+
+    practical commit 1583
+    715fa87579778a04e8da1adb5a6f1170f141aed5
+    "Several improvements to AI worker production and assignment"
+
+That commit substantially flattened/reformatted `AI_pickup`.
+
+Before the rewrite, the inherited logic was:
+
+    if (!(pLoopCity->AI_isDanger()))
+    {
+        if (... generatePath ...)
+        {
+            ...
+        }
+    }
+
+The rewrite transformed that into early-continue style:
+
+    if (!pLoopCity->AI_isDanger())
+        continue;
+
+    if (... !generatePath ...)
+        continue;
+
+The early-continue conversion failed to negate the old enclosing condition.
+To preserve:
+
+    if (SAFE) { body }
+
+the equivalent guard is:
+
+    if (DANGER) continue;
+
+but the commit emitted:
+
+    if (SAFE) continue.
+
+This behavioral inversion is unrelated to the commit's advertised Worker
+production/assignment changes.
+
+Base AdvCiv 1.14 retains the regression.
+Current AdvCiv-SAS inherits it unchanged.
+
+Classification:
+    inherited AdvCiv control-flow-flattening regression.
+
+CONSEQUENCE
+-----------
+The AI can:
+* leave Assault transports idle/elsewhere instead of collecting invasion
+  troops from safe coastal staging cities;
+* fail to collect Settlers, Workers or escorts from ordinary safe ports;
+* fail to route special transports to safe Missionary/Spy/Missile staging
+  cities;
+* create inconsistent logistics where a port is valid for pickup if the ship
+  is already there but invalid if the ship must travel there;
+* preferentially allow remote pickup travel toward dangerous cities rather
+  than safe ones.
+
+This can directly reduce naval invasion assembly and island logistics.
+
+The effect is particularly broad because `AI_pickup` is a shared transport
+primitive rather than one role-specific heuristic.
+
+REPAIR DIRECTION
+----------------
+Restore K-Mod's safe-city contract:
+
+    if (pLoopCity->AI_isDanger())
+        continue;
+
+then retain the current early-continue structure for the path test.
+
+Conceptually:
+
+    if (targetPickupGroups < requiredPickupGroups)
+    {
+        if (pLoopCity->AI_isDanger())
+            continue;
+
+        int iPathTurns;
+        if (atPlot(pLoopCity->plot()) ||
+            !generatePath(...))
+        {
+            continue;
+        }
+
+        ...
+    }
+
+This is the exact logical translation of K-Mod's older:
+
+    if (!AI_isDanger())
+    {
+        if (generatePath(...))
+        {
+            ...
+        }
+    }
+
+No broader redesign is required.
+
+-------------------------------------------------------------------------------
+CONTROLS / COVERAGE COMPLETED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+Current-SAS residual delta reconciliation
+-----------------------------------------
+A function-name reconciliation found a small set of current-vs-Base changed
+`CvUnitAI` methods that had not yet been named explicitly in the later WIP
+chain. The meaningful remaining deltas checked in this slice were mostly
+formatting, logging or already-known policy:
+
+* `AI_escortSeaMove`
+  - current change is the repaired KI#331 `if (scrap()) return` contract.
+
+* `AI_shadow`
+  - signature formatting only.
+
+* `AI_guardCityMinDefender`
+  - current behavior change deliberately uses `AI_neededDefenders(true)` and
+    gives empty/dangerous cities a ranking boost; no independent F383
+    established.
+
+* `AI_guardCityAirlift`
+  - logging only.
+
+* `AI_guardCoast`
+  - formatting only.
+
+* `AI_getGuardedPlots`
+  - formatting only.
+
+* `AI_safety`
+  - logging only.
+
+* `AI_pillageAroundCity`
+  - formatting only.
+
+* `AI_cityAttack`
+  - signature/comment collapse only.
+
+* `AI_defendTerritory`
+  - formatting only.
+
+* `AI_shouldRouteWhileImproving`
+  - signature formatting only.
+
+* `AI_canRouteThroughSafeTerritory`
+  - signature formatting only.
+
+* `AI_nukeValue`
+  - signature formatting only.
+
+* `AI_countPiracyTargets`
+  - signature formatting only.
+
+* `AI_moveIntoCity`
+  - evacuation diagnostics only.
+
+`AI_ferryWorkers`
+-----------------
+The current ferry's old fallback for a workable land tile still asks:
+
+    pWorkingCity->AI_getBestBuild(...)
+
+Current SAS intentionally returns `NO_BUILD` for ordinary land through the
+city-side legacy cache. That is another consequence of existing KI#213, not a
+new F383.
+
+The current destination-aware Settler cargo helper was rechecked through both
+origin and destination states; its cargo-Worker subtraction and exact deficit
+accounting remain internally coherent. No false-success state transition was
+established there.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F382 CONFIRMED in protected Queue 002.
+F383 / provisional KI#706 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP76.
+No repository source files modified.
+
+NEXT
+----
+Continue from F383 unused.
+
+Priority:
+1. keep the naval logistics reloop open around `AI_pickup`,
+   `AI_pickupStranded`, ferrying and special transports now that a second
+   inherited predicate bug has surfaced;
+2. finish `AI_attackCityMove` / combat-group residual state contracts;
+3. inspect residual inherited flattening/early-continue conversions for the
+   same lost-negation class as F382;
+4. continue function-range reconciliation and final predicate/sentinel/
+   source-vs-target sweeps before Queue-002 closure.
+===============================================================================
+C031-WIP77 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F383 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F382 remain CONFIRMED.
+F383 / provisional KI#706 is CONFIRMED.
+F384 / provisional KI#707 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F383 / provisional KI#706 — SAS `AI_ferryWorkers` hard area-capacity gate
+counts its own cargo Worker as already delivered at the destination, so the
+transport can reject the island immediately before the branch that unloads it
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS practical-6060 added a hard landmass-capacity guard to
+`CvUnitAI::AI_ferryWorkers`:
+
+    int iAreaHave =
+        kOwner.AI_totalAreaUnitAIs(
+            pLoopCity->getArea(), UNITAI_WORKER);
+
+    // advc.113: Don't count the workers in cargo as available
+    if (!getPlot().isWater() &&
+        pLoopCity->isArea(getArea()))
+    {
+        iAreaHave -= (2 * iWorkers) / 3;
+        FAssert(iAreaHave >= 0);
+    }
+
+    int const iAreaNeeded =
+        kOwner.AI_neededWorkers(pLoopCity->getArea());
+
+    if (iAreaHave >= iAreaNeeded)
+        continue;
+
+The newly added `continue` happens BEFORE pathfinding, scoring and the eventual
+arrival branch:
+
+    if (atPlot(pBestPlot))
+    {
+        unloadAll();
+        ...
+        return true;
+    }
+
+The inherited `(2 * iWorkers) / 3` adjustment is not an exact exclusion of
+cargo Workers.
+
+For one cargo Worker:
+
+    (2 * 1) / 3 == 0
+
+so the transport subtracts nothing.
+
+CARGO WORKERS REALLY ARE IN THE AREA COUNTER
+--------------------------------------------
+`CvPlayerAI::AI_totalAreaUnitAIs` is:
+
+    return kArea.getNumTrainAIUnits(...) +
+           kArea.getNumAIUnits(...);
+
+`CvUnit::setXY` moves cargo units together with their transport:
+
+    if (pLoopUnit->getTransportUnit() == this)
+        pLoopUnit->setXY(iX, iY, ...);
+
+and every moved UnitAI updates the new plot area's counter:
+
+    pNewPlot->getArea().changeNumAIUnits(
+        getOwner(), AI_getUnitAIType(), 1);
+
+Therefore, when a Settler transport enters a destination CITY on an island, a
+Worker still aboard that ship is counted by:
+
+    AI_totalAreaUnitAIs(destinationArea, UNITAI_WORKER)
+
+even though it has not unloaded and cannot work the island while remaining
+cargo.
+
+CURRENT ONE-WORKER FAILURE
+--------------------------
+Consider a destination island for which:
+
+    AI_neededWorkers(destinationArea) == 1
+
+and, before the ferry arrives:
+
+    actual land Workers in destinationArea == 0.
+
+A Settler transport carries one Worker to that city's port.
+
+Before arrival, while the ship is still on water / another area:
+* that cargo Worker is not counted as a Worker in the destination land area;
+* `iAreaHave == 0`;
+* `iAreaNeeded == 1`;
+* the destination passes the new hard-capacity gate;
+* `AI_ferryWorkers` can choose it and sail there.
+
+After the ship reaches the destination city, the cargo Worker has moved with
+the ship to that land plot and now contributes to the destination area's
+UnitAI count.
+
+On the next `AI_settlerSeaMove` update:
+
+    iWorkerCount > 0
+    iSettlerCount == 0
+
+is already sufficient to call `AI_ferryWorkers`.
+
+For the destination city:
+
+    iAreaHave = 1   // includes the still-loaded Worker
+
+The inherited correction does:
+
+    iAreaHave -= (2 * 1) / 3
+               = 0
+
+so:
+
+    iAreaHave == 1
+    iAreaNeeded == 1
+
+and the new practical-6060 test executes:
+
+    if (iAreaHave >= iAreaNeeded)
+        continue;
+
+The destination is discarded before:
+
+    if (atPlot(pLoopCity->plot()))
+        ...
+
+and therefore before the later:
+
+    if (atPlot(pBestPlot))
+        unloadAll();
+
+which is the helper's ordinary delivery mechanism.
+
+FALLBACK DOES NOT RE-DISCOVER LOCAL ISLAND WORK
+-----------------------------------------------
+If the city loop produces no other destination, the old advc.040 fallback may
+scan individual plots.
+
+But when the transport is in a city on the same destination landmass, the
+fallback deliberately rejects those local-area plots through:
+
+    if (kPlot.getArea().getCitiesPerPlayer(owner) > 0 ||
+        AI_neededWorkers(kPlot.getArea()) <= 0 ||
+        AI_totalAreaUnitAIs(kPlot.getArea(), UNITAI_WORKER) > 0)
+    {
+        bool bValid =
+            (pCurrentCity != NULL &&
+             !kPlot.isArea(getArea()));
+
+        ...
+        if (!bValid)
+            continue;
+    }
+
+For the current island:
+
+    kPlot.isArea(getArea()) == true
+
+so `bValid` is false and the scan skips its plots.
+
+Thus the second half of `AI_ferryWorkers` cannot compensate by noticing that
+the still-loaded Worker has work on the island.
+
+CALLER LIFECYCLE
+----------------
+`AI_settlerSeaMove` calls `AI_ferryWorkers` whenever:
+
+    iWorkerCount > 0 &&
+    no incoming LOAD_SETTLER mission &&
+    (isFull() || iSettlerCount == 0)
+
+A Worker-only Settler transport therefore re-enters this logic after reaching
+the delivery city.
+
+There is no generic automatic unload on arrival.
+
+If `AI_ferryWorkers` returns false:
+* the normal later pickup/role/retreat/safety logic runs;
+* none of those branches guarantees unloading the Worker merely because its
+  current landmass needs it;
+* with no alternative target, the transport can skip with the needed Worker
+  still aboard and reconsider again next turn.
+
+The new hard capacity can therefore convert:
+    "the Worker we just delivered fills the deficit"
+into:
+    "the area already has enough Workers, so do not deliver this Worker."
+
+HISTORY PROVIDES AN INTERNAL CONFIRMING CONTROL
+-----------------------------------------------
+The ancestry is unusually strong because SAS itself discovered the same
+counting problem in a neighboring new helper one practical commit later.
+
+Practical commit 6060:
+    71ff2a0ba7...
+introduced:
+* the hard `iAreaHave >= iAreaNeeded` rejection in `AI_ferryWorkers`;
+* `AI_unloadSettlerCargoForDestination`.
+
+The first version of the new destination helper likewise used:
+
+    iWorkersExisting =
+        AI_totalAreaUnitAIs(destinationArea, UNITAI_WORKER);
+
+without excluding cargo Workers already physically at the destination.
+
+Practical commit 6061:
+    08cb9d272e...
+
+explicitly fixed that neighboring bug:
+
+    // Cargo Workers may already be included in the
+    // destination-area count when the transport reaches its city.
+    // Count them separately so the exact shortage below can exclude them.
+
+It then counts ALL cargo Workers and, when at the destination, executes:
+
+    iWorkersExisting =
+        std::max(0,
+            iWorkersExisting - iCargoWorkers);
+
+That is exactly the missing semantic correction in `AI_ferryWorkers`.
+
+However practical 6061 left the inherited:
+
+    iAreaHave -= (2 * iWorkers) / 3;
+
+unchanged in the ferry hard-capacity path.
+
+So current source contains:
+* one destination Worker-demand helper that correctly removes all onboard
+  Workers from the "already existing" count;
+* one adjacent destination Worker-demand helper that can remove zero of one
+  onboard Worker before a hard rejection.
+
+Classification:
+    SAS-local practical-6060 worker-ferry regression, with a partial sibling
+    repair in practical 6061 that did not reach `AI_ferryWorkers`.
+
+CONSEQUENCE
+-----------
+Current SAS can:
+* transport the exact Worker an island needs;
+* reach the correct destination;
+* count that still-loaded Worker as evidence that the island no longer needs
+  the Worker;
+* refuse to execute its own arrival `unloadAll()` branch;
+* leave the needed Worker aboard or redirect the ship elsewhere.
+
+The one-Worker case is particularly important because secondary islands often
+have an exact demand of one, and integer `(2 * iWorkers) / 3` provides no
+correction at all there.
+
+The same under-subtraction can affect larger cargo:
+    2 cargo Workers -> subtract 1
+    3 cargo Workers -> subtract 2
+
+so one onboard Worker is systematically left in `iAreaHave` for every positive
+cargo count under this formula.
+
+REPAIR DIRECTION
+----------------
+For the new HARD area-capacity test, cargo Workers on this transport must not be
+counted as already delivered.
+
+Use the same exact semantic correction already implemented in
+`AI_unloadSettlerCargoForDestination`.
+
+When the transport is physically in the candidate destination land area:
+
+    iAreaHave = std::max(0, iAreaHave - iWorkers);
+
+rather than:
+
+    iAreaHave -= (2 * iWorkers) / 3;
+
+At minimum this exact exclusion should govern the hard:
+
+    iAreaHave >= iAreaNeeded
+
+decision.
+
+If the inherited two-thirds adjustment is still desired for the older SOFT
+scoring heuristic, keep a separately named weighted count for that purpose.
+Do not reuse a deliberately fractional availability estimate as an exact
+capacity count.
+
+A cleaner design would centralize "existing Workers excluding cargo on this
+transport" so both:
+* `AI_ferryWorkers`, and
+* `AI_unloadSettlerCargoForDestination`
+share the same definition.
+
+-------------------------------------------------------------------------------
+CONTROLS CLOSED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+AdvCiv nested-if / early-continue flattening sweep
+-------------------------------------------------
+After F382, reachable pre-SAS `CvUnitAI.cpp` commit diffs were scanned for the
+same structural family:
+    old enclosing condition
+    -> copied condition used as early `continue`.
+
+The other candidates inspected so far preserve the intended boolean direction
+or are ordinary exclusion guards:
+* path-generation flattening;
+* `AI_plotValid` flattening;
+* cargo checks;
+* build legality;
+* same-area / domain exclusions;
+* various candidate-value pruning.
+
+No second surviving F382-style lost-negation sibling was established.
+
+`AI_pickupStranded`
+-------------------
+The current destination handling uses adjacency of the actual stranded group's
+pickup plot, not the transport/passenger source-context mistake from F381.
+Its best adjacent pickup water tile is selected by real path turns, and its
+mission target preserves the stranded unit identity.
+
+The new completed-area-Worker duplicate-dispatch gate retains Base AdvCiv's
+capacity-based coordination for ordinary groups. No F384 established there.
+
+Residual current-vs-Base changed functions
+------------------------------------------
+Several moderate current deltas were reopened.
+
+* `AI_bestPlotEspionage`
+  - current changes are cached immutable define reads / formatting.
+
+* `AI_groupFirstVal`
+  - intentional Great-Person UnitAI enum renames.
+
+* `AI_fortTerritory`
+  - current top-level define gate intentionally disables canal/airbase Fort
+    worker paths when configured off.
+
+* `AI_workerSeaMove`
+  - primary functional change is the intentional removal of inherited
+    Work-Boat scrapping, plus diagnostics.
+
+* `AI_handleStranded`
+  - current completed-area Worker extension deliberately allows zero-demand
+    Workers to advertise for naval rescue; no contradictory state transition
+    established.
+
+* `AI_exploreSeaMove` / `AI_barbAttackSeaMove`
+  - current behavior changes are repaired KI#331 success-sensitive `scrap()`
+    callers plus the existing executable-target Work Boat lookahead repair.
+
+No independent F384 was assigned from these in this slice.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F383 CONFIRMED in protected Queue 002.
+F384 / provisional KI#707 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP77.
+No repository source files modified.
+
+NEXT
+----
+Continue from F384 unused.
+
+Priority:
+1. follow F383 through the remaining `AI_ferryWorkers` / Settler-transport
+   arrival, unload and reassignment states for any independent sibling rather
+   than assuming the whole family is covered;
+2. finish remaining current-SAS behavioral deltas (`AI_omniGroup`,
+   `AI_connectBonusCost`, `AI_generalMove`, `AI_lead`, etc.);
+3. return to combat/transport residual source-vs-target and candidate-vs-
+   execution checks;
+4. perform a function-range reconciliation and final pattern sweep before any
+   Queue-002 closure decision.
+===============================================================================
+C031-WIP78 — PROTECTED QUEUE 002 CvUnitAI.cpp DEEP RELOOP — F384 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` remains OPEN.
+
+Unique files complete: 31/169.
+F375-F383 remain CONFIRMED.
+F384 / provisional KI#707 is CONFIRMED.
+F385 / provisional KI#708 is UNUSED.
+Existing KI#213 remains retained/reconfirmed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F384 / provisional KI#707 — AdvCiv ProbabilityTypes refactor inverted the
+Carrier's land-threat retreat condition: `!= PROBABILITY_REAL` instead of
+`>= PROBABILITY_REAL`
+-------------------------------------------------------------------------------
+
+ROOT
+----
+Current SAS / Base AdvCiv 1.14:
+
+    void CvUnitAI::AI_carrierSeaMove()
+    {
+        ...
+        if (AI_isThreatenedFromLand() != PROBABILITY_REAL)
+        {
+            if (AI_retreatToCity(true))
+                return;
+            if (AI_retreatToCity())
+                return;
+            if (AI_safety())
+                return;
+        }
+        ...
+    }
+
+This is the only analogous naval role using `!= PROBABILITY_REAL`.
+
+Current nearby roles use the expected threshold:
+
+    AI_attackSeaMove
+    AI_reserveSeaMove
+    AI_escortSeaMove
+    AI_exploreSeaMove
+    AI_assaultSeaMove
+    AI_settlerSeaMove
+    AI_missionarySeaMove
+    AI_spySeaMove
+    AI_missileCarrierSeaMove
+        -> AI_isThreatenedFromLand() >= PROBABILITY_REAL
+
+The helper's enum is ordered:
+
+    NO_PROBABILITY      = -1
+    PROBABILITY_LOW     = 0
+    PROBABILITY_REAL    = 1
+    PROBABILITY_HIGH    = 2
+
+Therefore the Carrier test means:
+
+    NO   -> run emergency retreat block
+    LOW  -> run emergency retreat block
+    REAL -> SKIP emergency retreat block
+    HIGH -> run emergency retreat block
+
+That is not a sensible threat threshold and is the exact complement of the
+important ordinary-threat state.
+
+LIVE HELPER CONTRACT
+--------------------
+`AI_isThreatenedFromLand()` returns:
+
+    if water:
+        NO_PROBABILITY
+
+    if in city:
+        if city evacuating:
+            HIGH
+        if city safe:
+            NO
+        otherwise:
+            damaged ? LOW : REAL
+
+    outside city:
+        if enemyOffense * 2 > ourDefense:
+            REAL
+        else if enemyOffense * 4 > ourDefense:
+            LOW
+        else:
+            NO
+
+So an ordinary, full-health naval unit sitting in an owned city that
+`AI_isSafe()` does NOT consider safe receives:
+
+    PROBABILITY_REAL.
+
+That is exactly the state current `AI_carrierSeaMove` excludes from its urgent
+retreat/safety block.
+
+The Carrier then proceeds into:
+* healing;
+* grouping;
+* carrier transport movement;
+* blockade;
+* assault-transport shadowing;
+* upgrade travel;
+
+before the generic late retreat/safety fallbacks.
+
+Thus the dedicated "threat from land" priority is defeated at the threat level
+it was designed to catch.
+
+ANCESTRY / INTRODUCING REFACTOR
+--------------------------------
+K-Mod's Carrier code did not use ProbabilityTypes. It directly computed local
+land defense and enemy offense and entered the emergency retreat block when:
+
+    iEnemyOffense > iOurDefense / 2
+
+(with damaged units treated more cautiously by scaling defense).
+
+AdvCiv later extracted duplicate naval threat code into
+`AI_isThreatenedFromLand`.
+
+Immediately before the ProbabilityTypes conversion, the Carrier had the same
+boolean helper contract as the other naval roles:
+
+    if (getPlot().isCity(true))
+    {
+        if (AI_isThreatenedFromLand())
+        {
+            retreat/safety...
+        }
+    }
+
+Reachable pre-SAS AdvCiv practical commit 2612,
+SHA:
+
+    fc7640933b544f0f943f527e2edc08999da1dc00
+
+changed the helper return type from:
+
+    bool CvUnitAI::AI_isThreatenedFromLand() const
+
+to:
+
+    ProbabilityTypes CvUnitAI::AI_isThreatenedFromLand() const
+
+and converted the call sites.
+
+For Spy and the ordinary naval roles, the old boolean condition became:
+
+    AI_isThreatenedFromLand() >= PROBABILITY_REAL
+
+which preserves the helper's old strong-threat meaning while allowing
+LOW to represent a deliberately weaker state.
+
+The same patch converted the Carrier to:
+
+    AI_isThreatenedFromLand() != PROBABILITY_REAL
+
+instead.
+
+The diff therefore gives an unusually strong introducing-control:
+* same helper conversion;
+* same retreat body;
+* sibling callers converted to `>=`;
+* Carrier alone converted to `!=`.
+
+Base AdvCiv 1.14 retains the Carrier condition.
+Current AdvCiv-SAS inherits it unchanged.
+
+Classification:
+    inherited AdvCiv ProbabilityTypes/refactor regression.
+
+CURRENT-SAS CONSEQUENCE
+-----------------------
+Take an undamaged Carrier in an owned city that is currently unsafe because
+nearby enemy land offense is sufficiently threatening.
+
+The helper returns:
+
+    PROBABILITY_REAL.
+
+Expected/K-Mod behavior:
+    immediately prioritize retreat to a safer/primary city or safety plot.
+
+Current AdvCiv/SAS behavior:
+    `REAL != REAL` is false;
+    skip the emergency retreat block;
+    continue into ordinary Carrier logic.
+
+A loaded/escorted Carrier can therefore proceed toward:
+* a carrier-sea transport target;
+* blockade behavior;
+* shadowing an assault fleet;
+
+instead of first responding to the land threat that the inherited naval safety
+block was written to handle.
+
+The inverse states are also diagnostic:
+* `NO_PROBABILITY != REAL` is true, so a completely safe/no-threat state enters
+  the emergency retreat code unnecessarily;
+* `LOW != REAL` is true, so the weaker state that the ProbabilityTypes refactor
+  created specifically to distinguish from a real threat also enters it.
+
+Some of those false-positive calls can harmlessly fail and fall through, but
+they confirm that the predicate is not expressing a threshold. The
+false-negative `REAL` state is the direct gameplay defect.
+
+`PROBABILITY_HIGH`, used for an evacuating city, correctly enters the block
+under both `!= REAL` and the intended `>= REAL`; this does not rescue the
+ordinary REAL case.
+
+REPAIR DIRECTION
+----------------
+Make Carrier consistent with the extracted threat contract and the sibling
+naval roles:
+
+    if (AI_isThreatenedFromLand() >= PROBABILITY_REAL)
+
+This:
+* catches REAL ordinary threats;
+* catches HIGH evacuating-city threats;
+* ignores LOW/NO states;
+* matches the semantic conversion used by the other naval callers.
+
+No broader redesign is required.
+
+-------------------------------------------------------------------------------
+F380 COMPANION REPAIR NOTE — LATENT REVEALED-ROUTE ENUM BOOLEAN
+-------------------------------------------------------------------------------
+
+The final F384 sweep found another genuine historical defect adjacent to F380,
+but it is CURRENTLY MASKED BY F380 and therefore is deliberately NOT assigned
+a separate finding number.
+
+Inside the same `AI_airOffenseBaseValue` enemy-border branch:
+
+    else if (iDistance == 2 && p.
+        getRevealedRouteType(getTeam()))
+    {
+        iBorderDanger += 2;
+    }
+
+K-Mod used:
+
+    pLoopPlot->isRoute()
+
+AdvCiv practical commit 1396,
+SHA beginning:
+
+    662e020a...
+
+("Tentative changes to make naval invasions easier to intercept")
+
+replaced that with a revealed-route query but used the returned `RouteTypes`
+enum directly as a C++ boolean.
+
+Civ4 dynamic route enums use:
+
+    NO_ROUTE = -1
+
+and current route XML orders real routes as:
+
+    ROAD     = 0
+    RAILROAD = 1
+    ...
+
+So as a boolean:
+
+    NO_ROUTE (-1) -> true
+    ROAD      (0) -> false
+    RAILROAD  (1) -> true
+
+The intended test must be explicit, e.g.:
+
+    p.getRevealedRouteType(getTeam()) != NO_ROUTE
+
+or equivalent revealed-route semantics.
+
+WHY NO SEPARATE F385
+--------------------
+Current F380's lost vassal negation prevents ordinary enemy territory from
+entering the enclosing branch at all:
+
+    current:
+        other team && IS our vassal
+
+rather than:
+
+        other team && IS NOT our vassal.
+
+The nested route test then additionally requires:
+
+    atWar(p.getTeam(), getTeam())
+
+A normal vassal/master pair cannot supply the ordinary hostile state the
+border-danger code is meant to measure.
+
+Thus F380 currently masks the route-enum inversion for the meaningful enemy
+case. It has no independent current runtime consequence proven beyond F380.
+
+However, repairing F380 by restoring the missing `!isVassal(...)` would
+immediately expose this older route predicate:
+* an enemy tile with NO route would be treated as routed;
+* an enemy tile with a ROAD (route enum 0) would be treated as unrouted.
+
+Therefore the F380 implementation review should fix BOTH predicates together.
+
+This remains a mandatory companion repair / latent historical defect, not a
+manufactured F385.
+
+-------------------------------------------------------------------------------
+CONTROLS CLOSED IN THIS SLICE
+-------------------------------------------------------------------------------
+
+`AI_connectBonusCost`
+---------------------
+Current SAS computes an `iMultiplier` based on missing Workers in the area but
+no longer applies it after the Fort/defensive weighting rewrite.
+
+That is dead/confusing logic, but not a demonstrated ranking defect in the
+current function: once the removed Fort-specific terms are excluded,
+`iMissingWorkersInArea` is constant for all candidate builds being compared for
+the same plot. Multiplying every build cost by the same factor would not change
+which build wins.
+
+Cleanup is warranted; no F385.
+
+`AI_lead`
+---------
+The current Great-General leader threshold:
+
+    bBelowMinStrength =
+        minStrength > 0 && strengthScore < minStrength;
+
+    bBelowMinHealing =
+        minHealing <= 0 || healing < minHealing;
+
+    reject if bBelowMinStrength && bBelowMinHealing
+
+matches the current XML semantics:
+* strength threshold 0 disables the strength gate;
+* healing threshold 0 disables the healing bypass;
+* with both positive, meeting either configured objective can preserve a valid
+  lead target.
+
+No predicate inversion established.
+
+`AI_omniGroup`
+--------------
+The SAS peacetime ATTACK_CITY capacity gates and
+`SAS_countPlotAttackCityGroupUnits` / `bOurGroupAlreadyCounted` adjustment were
+reopened. No double-count/under-count root survived the live group-state proof
+in this slice.
+
+`AI_guardCity` source candidate arithmetic
+------------------------------------------
+A potentially suspicious inherited line subtracts:
+
+    getGroup()->getNumUnits()
+
+from a plot count based on `PUF_canDefendGroupHead` when evaluating the current
+city.
+
+That mixes unit count and group-head count locally.
+
+However the current/source city is then rejected by the movement/path
+candidate condition (`at(city)`), so the distorted candidate value does not
+become a remote guard destination. No independent runtime consequence was
+established.
+
+This is another example deliberately closed rather than numbered.
+
+Ferry city-demand adjustment
+-----------------------------
+`AI_ferryWorkers` can subtract its cargo Worker count from a city's
+`AI_getWorkersHave()` when its old mission plot is that city even if the ferry
+is farther away than the city cache's normal incoming-Worker radius.
+
+That can alter the soft city score, but current SAS's newer hard area-demand
+capacity gate prevents a clean independent over-delivery proof in the examined
+state.
+
+The exact hard cargo-as-delivered defect remains F383; this softer cache-range
+inconsistency is retained as a note, not F385.
+
+CURRENT STONE
+-------------
+Queue 002 `CvGameCoreDLL/CvUnitAI.cpp` — OPEN.
+31/169 unique files complete.
+F375-F384 CONFIRMED in protected Queue 002.
+F385 / provisional KI#708 UNUSED.
+Existing KI#213 retained/reconfirmed.
+Latest physical checkpoint: C031-WIP78.
+No repository source files modified.
+
+NEXT
+----
+Continue from F385 unused.
+
+Priority:
+1. keep the naval-role safety/predicate family open long enough to verify no
+   other `ProbabilityTypes` conversion sites have a surviving threshold error;
+2. finish the remaining Settler/transport group-cargo and arrival state review;
+3. return to the large `AI_settleMove` / `AI_foundFirstCity` and combat target
+   deltas for state/sentinel/source-target errors;
+4. perform the Queue-002 function-range reconciliation and final whole-file
+   pattern sweep before any closure decision.

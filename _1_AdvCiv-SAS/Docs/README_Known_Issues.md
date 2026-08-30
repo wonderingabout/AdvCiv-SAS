@@ -775,8 +775,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#684 - (Pending Architectural inherited BtS event-state defect) AdditionalEvents are valued before parent-state changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-684)\
 [KI#685 - (Fixed inherited AdvCiv rounding-contract defect) Trade values could escape their bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-685)\
 [KI#686 - (Fixed inherited AdvCiv precedence regression) Conquest-only games bypassed stage-3 gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-686)\
-[KI#687 - (Provisional Pending inherited BtS cooldown defect) A suppressed financial-trouble refresh is never retried](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
-[KI#688 - (Provisional Pending inherited BtS cache defect) Great-General upgrade discounts can inflate the AI gold reserve](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-688)\
+[KI#687 - (Fixed inherited BtS cooldown defect) A suppressed financial-trouble refresh was never retried](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
+[KI#688 - (Pending Performance-Sensitive inherited BtS cache defect) Unit-local upgrade state is cached by UnitType](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-688)\
 [KI#689 - (Provisional Pending AdvCiv unit-role regression) Advanced Start naval explorers receive the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
 [KI#690 - (Provisional Pending inherited AdvCiv state-mutation regression) One city's espionage effect leaks into later happiness/health valuations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
 [KI#691 - (Provisional Pending inherited BtS counting defect) Airbase value counts traversal-order distance records](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-691)\
@@ -786,7 +786,17 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#695 - (Provisional Pending AdvCiv Advanced Start regression) One unaffordable unit ends all later role passes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
 [KI#696 - (Provisional Pending SAS victory-state ordering regression) Culture cannot see the current Diplomacy stage](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-696)\
 [KI#697 - (Pending Architectural inherited and SAS-aggravated scope defect) Culture strategy is player-local for a team victory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-697)\
-[KI#698 - (Provisional Pending investigation) F375 remains unassigned during the CvUnitAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
+[KI#698 - (Provisional Pending SAS Worker-allocation scope regression) Foreign and unavailable improvements count as city capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
+[KI#699 - (Provisional Pending AdvCiv Worker predicate regression) AI_connectBonus always returns false](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-699)\
+[KI#700 - (Provisional Pending SAS Worker-build regression) Feature-preserving improvements can become pure chops](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-700)\
+[KI#701 - (Provisional Pending inherited BtS/BBAI target-context defect) Remote city guards are selected for their source plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-701)\
+[KI#702 - (Provisional Pending SAS guard-mission interaction regression) Safe-city redistribution can lose its destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-702)\
+[KI#703 - (Provisional Pending inherited AdvCiv iterator-refactor regression) Enemy airbase-border danger tests friendly vassals instead](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-703)\
+[KI#704 - (Provisional Pending inherited K-Mod/BBAI transport-target defect) Boat shortcuts path toward the passenger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-704)\
+[KI#705 - (Provisional Pending inherited AdvCiv pickup regression) Transports reject safe ports and permit dangerous ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-705)\
+[KI#706 - (Provisional Pending SAS Worker-ferry regression) Cargo Workers count as already delivered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-706)\
+[KI#707 - (Provisional Pending inherited AdvCiv ProbabilityTypes regression) Carriers retreat at every threat level except real](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-707)\
+[KI#708 - (Provisional Pending investigation) F385 remains unassigned during the CvUnitAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-708)\
 
 <a id="ki-1"></a>
 
@@ -14184,19 +14194,31 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP53 `CvPlayerAI.cpp` deep
 
 <a id="ki-687"></a>
 
-## KI#687 - (Provisional Pending inherited BtS cooldown defect) A suppressed financial-trouble refresh is never retried
+## KI#687 - (Fixed inherited BtS cooldown defect) A suppressed financial-trouble refresh was never retried
 
-Album F364 finds `AI_doCheckFinancialTrouble` recording the false-to-true financial-trouble transition even when the shared 10-turn production-dirty cooldown suppresses its requested city-production refresh. Persistent trouble then no longer satisfies the transition check, so the missed empire-wide reevaluation is never retried after the cooldown expires. Pending preserving an explicit deferred refresh until it can execute without removing the cooldown.
+Album F364 found `AI_doCheckFinancialTrouble` recording the false-to-true financial-trouble transition even when the shared 10-turn production-dirty cooldown suppressed its requested city-production refresh. Persistent trouble then no longer satisfied the transition check, so the missed empire-wide reevaluation was never retried after the cooldown expired.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP54 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix remembers entry into financial trouble only after the deferred production refresh executes. While the cooldown blocks it, the unchanged remembered state retries on later turns; leaving financial trouble still resets the observed state normally without adding serialized state.
+
+Validation compiled successfully and completed several Huge Pangaea replays from the same turn-0 save, including Cultural and Domination victories at turns 344 and 433 respectively.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP54 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-688"></a>
 
-## KI#688 - (Provisional Pending inherited BtS cache defect) Great-General upgrade discounts can inflate the AI gold reserve
+## KI#688 - (Pending Performance-Sensitive inherited BtS cache defect) Unit-local upgrade state is cached by UnitType
 
-Album F365 finds `AI_updateGoldToUpgradeAllUnits` caching an individual unit's upgrade price by UnitType even though promotion state, UnitAI and area can change that price or the useful upgrade candidates. In shipped data, a `PROMOTION_LEADER` unit has a 100% upgrade discount but can reuse the positive cached price of an ordinary same-type unit, inflating the AI's strategic upgrade reserve. Pending retaining per-unit `upgradePrice` evaluation while caching only genuinely type-invariant discovery data.
+Album F365 found `AI_updateGoldToUpgradeAllUnits` caching an individual unit's upgrade price by UnitType even though promotion state, UnitAI, area and nearby trainability can change that price or the useful upgrade candidates. In shipped data, a `PROMOTION_LEADER` unit has a 100% upgrade discount but could reuse the positive cached price of an ordinary same-type unit, inflating the AI's strategic upgrade reserve.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP55 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Two correctness-first repairs were tested. The first evaluated every physical unit independently; the second cached the type-invariant upgrade graph, UnitAI/area-qualified targets, nearest cities by physical plot and city trainability while still calling `upgradePrice` per unit. Both compiled and completed substantial Huge Pangaea replays successfully.
+
+Performance results remained mixed. At the common turn-340 snapshot, the old run recorded 487,078 ms since its new-game log roll, the per-unit repair recorded 523,586 ms and the optimized contextual cache recorded 512,125 ms. Excluding each run's first snapshot interval, the optimized attempt remained about 5.7% slower than the old run. This is not an isolated code-regression measurement because SASGameRecord includes pauses and user interaction, foreground/system load differed and the simulations diverged, but the repair complexity and remaining signal are disproportionate for this strategic estimate.
+
+Three replays of the same dense 94%-land Huge Mirror start further showed nearly identical cumulative time through turn 200, about 205-208 seconds, before divergent late-game states produced substantially different totals: 933,952 ms through a turn-464 Space Race victory, and 1,044,019 ms versus 1,159,454 ms through two turn-500 Time victories. The last run used the optimized experimental DLL with Q-Dir closed. Its slower late portion despite fewer surviving players and cities reinforces that ordinary system variance and divergent war/state evolution remain entangled with any possible cache cost; it neither vindicates nor isolates the attempted repair.
+
+The attempted code is therefore reverted and KI#688 remains pending. A future repair should use profiler-backed evidence and a substantially simpler cache contract, or explicitly isolate the shipped Great-General discount case without pretending that arbitrary Python overrides and other unit-local state are safely type-invariant.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP55 `CvPlayerAI.cpp` deep re-audit; repair experiments and deferral reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-689"></a>
 
@@ -14274,8 +14296,104 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP64 `CvPlayer
 
 <a id="ki-698"></a>
 
-## KI#698 - (Provisional Pending investigation) F375 remains unassigned during the CvUnitAI deep re-audit
+## KI#698 - (Provisional Pending SAS Worker-allocation scope regression) Foreign and unavailable improvements count as city capacity
 
-The C031-WIP65 closure froze Queue 001 `CvPlayerAI.cpp` with F321-F374 confirmed. C031-WIP66 opens the protected Queue 002 `CvUnitAI.cpp` deep re-audit with F375 reserved and reconfirms existing architectural KI#213 rather than duplicating it. Do not implement a change under KI#698 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F375 finds the SAS `countImprovedTiles` helper counting every physically improved plot in a city's geometric BFC, including foreign plots and overlaps assigned to another city. Its Worker-readiness consumers treat that number as completed capacity for the city, while their actual `WorkablePlotIter` candidates exclude those plots. Border and overlap cities can consequently appear better improved than they are and lose Worker priority. Pending counting the same city-usable plot population as the Worker selector, or modeling friendly reassignment separately without counting foreign capacity.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP66 `CvUnitAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP67 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-699"></a>
+
+## KI#699 - (Provisional Pending AdvCiv Worker predicate regression) AI_connectBonus always returns false
+
+Album F376 finds AdvCiv replacing `!AI_plotValid(kPlot)` with `kPlot.isArea(kPlot.getArea())` inside `AI_connectBonus`. A valid plot always belongs to its own area, so the rejection condition is always true and every iteration skips before reaching the bonus-connection logic. All three live Worker and network-automation callers therefore receive false from this dedicated fallback. Pending restoring the intended negative unit-to-plot area test or the full pre-regression `!AI_plotValid(kPlot)` contract.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP68 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-700"></a>
+
+## KI#700 - (Provisional Pending SAS Worker-build regression) Feature-preserving improvements can become pure chops
+
+Album F377 finds SAS's `AI_betterPlotBuild` testing the opposite of its stated feature-removal prerequisite. When a caller has already selected and validated a feature-preserving improvement, such as a Camp on Forest Deer or Fur, the helper can replace it with `BUILD_REMOVE_FOREST` precisely because the Camp does not remove the Forest. The Worker performs a pure chop before returning later for an improvement that was already legal.
+
+Pending restoring the positive prerequisite predicate or, more conservatively, leaving caller-validated exact improvements untouched unless an explicit chop-value policy independently chooses removal.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP69 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-701"></a>
+
+## KI#701 - (Provisional Pending inherited BtS/BBAI target-context defect) Remote city guards are selected for their source plot
+
+Album F378 finds `AI_guardCity` selecting the unit detached for remote reinforcement through `AI_ejectBestDefender` using the donor group's current plot, although the helper explicitly ranks defensive strength for the supplied plot and the selected unit is immediately sent to a different destination city. A Combat-promoted Archer can therefore be sent from open terrain while the otherwise-identical City Garrison specialist remains behind, even though their ranking reverses for the city being reinforced.
+
+Pending passing the selected guard destination to the defender-ranking helper, preferably after making its plot parameter const-correct. Any desired cost for weakening the source stack should be represented separately rather than substituting source terrain for the destination-defense context.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP70 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-702"></a>
+
+## KI#702 - (Provisional Pending SAS guard-mission interaction regression) Safe-city redistribution can lose its destination
+
+Album F379 finds the SAS central continuation for targeted emergency `MISSIONAI_GUARD_CITY` assignments intercepting every targeted guard mission, including an older six-turn redistribution toward a safe underdefended city. On the following turn it reruns an emergency-only search with `bDangerOnly=true`, rejects the still-safe destination and can let the unit resume unrelated role logic before arriving.
+
+Pending preserving whether a targeted guard assignment is emergency reinforcement or ordinary safe-city redistribution, then validating and continuing the original destination under the matching policy. Simply allowing safe cities through the emergency shortfall path would incorrectly merge two distinct policies.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP71 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-703"></a>
+
+## KI#703 - (Provisional Pending inherited AdvCiv iterator-refactor regression) Enemy airbase-border danger tests friendly vassals instead
+
+Album F380 finds AdvCiv's practical-1916 `SquareIterator` rewrite dropping the `!` from `AI_airOffenseBaseValue`'s non-vassal test. Current code consequently ignores ordinary hostile non-vassal borders while counting adjacent friendly-vassal territory as danger, changing effective defender counts and potentially rejecting or misranking offensive air bases.
+
+Pending restoring the negated vassal predicate retained by K-Mod and pre-regression AdvCiv. The same repair must also make the currently masked revealed-route test explicit: `getRevealedRouteType` returns `NO_ROUTE=-1`, Road `0` and later routes positive, so using that enum as a boolean reverses no-route and Road semantics once ordinary enemy borders can enter the branch. The earlier provisional KI#703 hypothesis about stacked garrison-surplus counting was retracted at C031-WIP73 after its downstream `AI_guardCity` consumer proved that local predicate change insufficient and consistent with a conservative group-lifecycle model; KI#703 now denotes only this independent confirmed airbase defect and its mandatory latent route companion.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP74 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-704"></a>
+
+## KI#704 - (Provisional Pending inherited K-Mod/BBAI transport-target defect) Boat shortcuts path toward the passenger
+
+Album F381 finds `AI_load` identifying a candidate enemy coastal plot for the K-Mod boat-shortcut test but pathing the selected transport toward water adjacent to the passenger's current plot instead. An inland attack stack therefore fails deterministically even when it can reach a transport that can reach the enemy coast, while a coastal stack can falsely accept an enemy coast whose actual water approach was never tested.
+
+Pending path-testing water adjacent to the candidate enemy coast. Passing the passenger's current location answers the opposite end of the route from the target contract established by the helper, pathfinder and `AI_attackCityMove` caller.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP75 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-705"></a>
+
+## KI#705 - (Provisional Pending inherited AdvCiv pickup regression) Transports reject safe ports and permit dangerous ones
+
+Album F382 finds AdvCiv practical 1583 flattening K-Mod's `if (!AI_isDanger())` remote-pickup body into the inverted early guard `if (!AI_isDanger()) continue`. Transports consequently reject ordinary safe remote pickup cities while permitting sufficiently established dangerous cities to reach pathfinding, even though the same safe city remains valid when the transport already occupies it.
+
+Pending restoring the correct early guard, `if (AI_isDanger()) continue`, while retaining the otherwise equivalent flattened control flow.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP76 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-706"></a>
+
+## KI#706 - (Provisional Pending SAS Worker-ferry regression) Cargo Workers count as already delivered
+
+Album F383 finds SAS practical 6060's hard Worker-capacity gate in `AI_ferryWorkers` subtracting only `(2 * iWorkers) / 3` from the destination area's count. A single Worker still aboard a transport is already present in that land area's UnitAI count when the ship reaches a city, but integer division subtracts zero; the destination can therefore appear fully staffed and be rejected immediately before the helper's own `unloadAll()` branch.
+
+Pending excluding all Workers aboard this transport from the hard existing-capacity count when it is physically in the candidate destination area, matching the exact sibling correction already implemented by practical 6061 in `AI_unloadSettlerCargoForDestination`. Any inherited fractional availability estimate retained for soft scoring should remain separate from the hard capacity test.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP77 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-707"></a>
+
+## KI#707 - (Provisional Pending inherited AdvCiv ProbabilityTypes regression) Carriers retreat at every threat level except real
+
+Album F384 finds AdvCiv's practical-2612 conversion of `AI_isThreatenedFromLand` from boolean to ordered `ProbabilityTypes` changing the Carrier caller to `!= PROBABILITY_REAL`, while every analogous naval role uses `>= PROBABILITY_REAL`. Carriers consequently enter their emergency retreat block for no, low and high threat but skip it for the ordinary real-threat state that the inherited logic was written to catch.
+
+Pending restoring the same `>= PROBABILITY_REAL` threshold used by sibling naval roles and by the old boolean helper's strong-threat contract.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP78 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-708"></a>
+
+## KI#708 - (Provisional Pending investigation) F385 remains unassigned during the CvUnitAI deep re-audit
+
+The protected Queue 002 `CvUnitAI.cpp` deep re-audit has confirmed F375-F384 through C031-WIP78 and reserves F385 next. Do not implement a change under KI#708 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP78 `CvUnitAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
