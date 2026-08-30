@@ -734,11 +734,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#643 - (Pending Architectural inherited BtS Pick Religion ownership defect) Founder death can strand a reserved religion slot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-643)\
 [KI#644 - (Fixed SAS marginal-valuation defect) Price the last imported strategic resource from prospective holdings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-644)\
 [KI#645 - (Fixed SAS technology-gate defect) Require every building AND technology before pricing bonus synergy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-645)\
-[KI#646 - (Provisional Pending SAS civic-switch control regression) A final empty pass can bypass paid-anarchy safeguards](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-646)\
+[KI#646 - (Fixed SAS civic-switch control regression) Preserve paid-anarchy safeguards after a final empty pass](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-646)\
 [KI#647 - (Pending Architectural SAS civic-value defect) Unlimited specialist types reuse the same finite citizens](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-647)\
-[KI#648 - (Provisional Pending SAS civic-value sign defect) An active pressure civic is penalized for preventing anger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-648)\
-[KI#649 - (Provisional Pending SAS civic-value formula regression) Specialist tuning replaced ordinary commerce normalization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-649)\
-[KI#650 - (Provisional Pending inherited K-Mod civic-value regression) War-weariness uses the current modifier instead of the candidate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-650)\
+[KI#648 - (Fixed SAS civic-value sign defect) Value anger prevented by an active pressure civic positively](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-648)\
+[KI#649 - (Fixed SAS civic-value formula regression) Restore ordinary commerce normalization without removing specialist tuning](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-649)\
+[KI#650 - (Fixed inherited K-Mod civic-value regression) Use the candidate's war-weariness modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-650)\
 [KI#651 - (Pending Architectural inherited K-Mod/AdvCiv civic-value defect) A -100% modifier erases its active maintenance value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-651)\
 [KI#652 - (Provisional Pending SAS prospective-owner defect) World-Wonder protection uses the city's current team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-652)\
 [KI#653 - (Provisional Pending investigation) F330 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-653)\
@@ -13715,11 +13715,15 @@ Found and investigated during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-au
 
 <a id="ki-646"></a>
 
-## KI#646 - (Provisional Pending SAS civic-switch control regression) A final empty pass can bypass paid-anarchy safeguards
+## KI#646 - (Fixed SAS civic-switch control regression) Preserve paid-anarchy safeguards after a final empty pass
 
-Album F323 finds `AI_doCivics` retaining accepted choices and anarchy length across passes while resetting `bWillSwitch` on every pass, then using only the final pass's flag to guard near-future-civic and low-treasury safeguards. SAS broadened `bWantSwitch` to any positive improvement while adding an independent absolute-slack rejection, so one pass can accept a paid-anarchy switch and request another pass that accepts nothing. The accumulated bundle can then execute through `canRevolution` while both safeguards are skipped. K-Mod's inherited loop had tighter coupled thresholds; the supported mismatch is SAS-local. Pending testing the accumulated bundle/anarchy state rather than the final-pass flag.
+Album F323 found `AI_doCivics` retaining accepted choices and anarchy length across passes while resetting `bWillSwitch` on every pass, then using only the final pass's flag to guard near-future-civic and low-treasury safeguards. SAS broadened `bWantSwitch` to any positive improvement while adding an independent absolute-slack rejection, so one pass could accept a paid-anarchy switch and request another pass that accepted nothing. The accumulated bundle could then execute through `canRevolution` while both safeguards were skipped. K-Mod's inherited loop had tighter coupled thresholds; the supported mismatch is SAS-local.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The fix keys the post-loop safeguards on positive accumulated `iAnarchyLength`, which is retained only after an accepted paid-anarchy change, rather than on the resettable final-pass flag. This preserves the existing hysteresis tuning while ensuring that treasury affordability and near-future civic checks describe the actual revolution bundle.
+
+The full logged autoplay in `BBAI_20260830T071926Z_new1.log` exercised the exact former mismatch at turn 64: Persia accepted Caste System with two turns of anarchy, requested another pass for Organized Religion, rejected that candidate on the final pass and retained the earlier bundle. The repaired accumulated-state guard therefore remained applicable despite the final pass accepting nothing. Across the run, 44 paid-anarchy revolutions, 6 second-pass acceptances and 84 second-pass rejected wishes completed without an observed issue; `SASGameRecord_20260830T071926Z_new1.log` records the turn-472 Space victory that ended the autoplay.
+
+Found and investigated during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-647"></a>
 
@@ -13731,27 +13735,33 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp
 
 <a id="ki-648"></a>
 
-## KI#648 - (Provisional Pending SAS civic-value sign defect) An active pressure civic is penalized for preventing anger
+## KI#648 - (Fixed SAS civic-value sign defect) Value anger prevented by an active pressure civic positively
 
-Album F325 finds the KI#75 city-level `CivicPercentAnger` replacement correctly modeling the welfare change from adopting or dropping a civic, but adding that directional change directly to the civic's absolute score. For an inactive Theocracy, removing two angry citizens adds value; once Theocracy is active, the same block models two citizens becoming angry if it is dropped and incorrectly records that harm as negative value for keeping it. KI#317 repaired which cities are counted but retained this SAS-local sign error. Pending conversion of the hypothetical welfare delta back to absolute candidate value through the existing `iS` direction.
+Album F325 found the KI#75 city-level `CivicPercentAnger` replacement correctly modeling the welfare change from adopting or dropping a civic, but adding that directional change directly to the civic's absolute score. For an inactive Theocracy, removing two angry citizens added value; once Theocracy was active, the same block modeled two citizens becoming angry if it were dropped and incorrectly recorded that harm as negative value for keeping it. KI#317 repaired which cities are counted but retained this SAS-local sign error.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The fix converts the hypothetical angry-citizen welfare change through the inherited `iS` direction. Relief from adopting a pressure civic remains positive, while the harm caused by dropping that active civic now becomes positive value for retaining it. The full logged autoplay compiled and completed through turn 472 without an observed issue while exercising repeated Theocracy and other religious-civic comparisons and changes.
+
+Found and investigated during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-649"></a>
 
-## KI#649 - (Provisional Pending SAS civic-value formula regression) Specialist tuning replaced ordinary commerce normalization
+## KI#649 - (Fixed SAS civic-value formula regression) Restore ordinary commerce normalization without removing specialist tuning
 
-Album F326 finds specialist-extra-commerce tuning also replacing K-Mod's structural `AI_averageCommerceMultiplier` divisor in the separate ordinary civic percentage-commerce branch. The custom preference weight then cancels algebraically against its own toned divisor, while actual existing empire commerce multipliers are no longer backed out. Current Free Speech and Free Religion reach this branch independently of the Representation-style specialist effect that motivated the SAS change. Pending restoration of structural average-commerce normalization for ordinary percentage modifiers while retaining the intended toned SAS multiplier only for specialist-extra-commerce valuation.
+Album F326 found specialist-extra-commerce tuning also replacing K-Mod's structural `AI_averageCommerceMultiplier` divisor in the separate ordinary civic percentage-commerce branch. The custom preference weight then canceled algebraically against its own toned divisor, while actual existing empire commerce multipliers were no longer backed out. Current Free Speech and Free Religion reach this branch independently of the Representation-style specialist effect that motivated the SAS change.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The fix separates ordinary and specialist commerce values. Ordinary percentage and capital commerce effects again use K-Mod's current-empire normalization and general commerce weight; specialist-extra-commerce retains the SAS toned multiplier and specialist preference weight that were introduced for Representation-style output. The full logged autoplay compiled and completed through turn 472 without an observed issue while exercising Representation, Free Speech, Free Religion and other affected civic comparisons and changes.
+
+Found and investigated during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-650"></a>
 
-## KI#650 - (Provisional Pending inherited K-Mod civic-value regression) War-weariness uses the current modifier instead of the candidate
+## KI#650 - (Fixed inherited K-Mod civic-value regression) Use the candidate's war-weariness modifier
 
-Album F327 finds the K-Mod war-weariness happiness block guarding on the candidate civic's modifier but calculating the effect from the player's current aggregate modifier. An inactive Universal Suffrage penalty can consequently inherit the positive sign of current Hereditary Rule, while both Police State and Universal Suffrage can collapse to the same phantom value when the current modifier is zero. Stock BtS used the candidate correctly; K-Mod introduced the wrong getter and Base AdvCiv/SAS inherit it. Pending use of `kCivic.getWarWearinessModifier()` with the existing adopt/drop direction.
+Album F327 found the K-Mod war-weariness happiness block guarding on the candidate civic's modifier but calculating the effect from the player's current aggregate modifier. An inactive Universal Suffrage penalty could consequently inherit the positive sign of current Hereditary Rule, while both Police State and Universal Suffrage could collapse to the same phantom value when the current modifier was zero. Stock BtS used the candidate correctly; K-Mod introduced the wrong getter and Base AdvCiv/SAS inherited it.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The fix computes the prospective happiness change from the candidate civic's own modifier and the inherited adopt/drop direction. It also restores stock BtS's nonzero-delta guard so a rounded zero is not passed to `AI_getHappinessWeight`, which intentionally coerces zero to one. The full logged autoplay compiled and completed through turn 472 without an observed issue while exercising broad civic comparisons and changes during peace and war.
+
+Found and investigated during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-651"></a>
 

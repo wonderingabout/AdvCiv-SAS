@@ -19008,7 +19008,9 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 				if (iAngryCitizenChange == 0)
 					continue;
 				const int iPressureScale = (iChangedAngry > 0 ? iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY : iSAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY);
-				const int iCityVal = -12 * iAngryCitizenChange;
+				// <!-- custom: iAngryCitizenChange is the welfare result of hypothetically adopting or dropping this civic.
+				// Convert that directional change through iS so anger prevented by an already-active civic remains positive value for keeping it. See KI#648. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				const int iCityVal = -12 * iAngryCitizenChange * iS;
 				iTotal += iCityVal * iPressureScale / 100;
 			}
 			iValue += iTotal;
@@ -19049,10 +19051,11 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	}
 	if (kCivic.getWarWearinessModifier() != 0) // K-Mod. (original code deleted)
 	{
-		iValue += (12 * iCities * iS * AI_getHappinessWeight(
-				iS * intdiv::round(
-				getWarWearinessPercentAnger() * -getWarWearinessModifier(),
-				GC.getPERCENT_ANGER_DIVISOR()), 1, true)) / 100;
+		// <!-- custom: K-Mod guarded on the candidate civic but valued the player's current aggregate modifier, so inactive alternatives inherited the active civic's magnitude or sign.
+		// Use the candidate modifier and preserve stock BtS's zero-delta guard. See KI#650. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iHappy = iS * intdiv::round(getWarWearinessPercentAnger() * -kCivic.getWarWearinessModifier(), GC.getPERCENT_ANGER_DIVISOR());
+		if (iHappy != 0)
+			iValue += (12 * iCities * iS * AI_getHappinessWeight(iHappy, 1, true)) / 100;
 	}
 	//iValue += kCivic.getNonStateReligionHappiness() * (iTotalReligonCount - iHighestReligionCount) * 5;
 	// K-Mod
@@ -19329,47 +19332,43 @@ int CvPlayerAI::AI_civicValue(CivicTypes eCivic) const
 	static const int iSASCommerceToningDownPercent = GC.getDefineINT("SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT");
 	FOR_EACH_ENUM2(Commerce, eCommerce)
 	{
-		int iTempValue = 0;
-
-		const int iSASCommerceWeight = SAS_SpecCommerceBaseWeight(*this, eCommerce, /*bAnyCityNeedsBFC=*/false);
-		// <!-- custom: use a toned down version for the multiplier, as advised and explained to em thanks by chatgpt 5. In autoplay, the above as of now iSASCommerceWeight fixes to overpick of civic_heridetary_rule in favour of civic_representation, but representation is now overpicked. So toning down the weight with a percentage of this value customizable in defines as well -->
-		const int iSASCommerceTonedDownMult = (iSASCommerceWeight * iSASCommerceToningDownPercent) / 100;
-
 		// K-Mod
-		iTempValue += (kCivic.getCommerceModifier(eCommerce) *
+		// <!-- custom: Specialist tuning had replaced K-Mod's structural normalization for ordinary percentage-commerce effects, making the preference weight cancel and ignoring existing empire multipliers.
+		// Keep ordinary and specialist commerce separate so each retains its own intended formula. See KI#649. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iOrdinaryValue = (kCivic.getCommerceModifier(eCommerce) *
 				100 * getCommerceRate(eCommerce)) /
-				// AI_averageCommerceMultiplier(eCommerce);
-				// iSASCommerceWeight;
-				iSASCommerceTonedDownMult;
+				AI_averageCommerceMultiplier(eCommerce);
 		if (pCapital != NULL)
 		{
-			iTempValue += kCivic.getCapitalCommerceModifier(eCommerce) *
+			iOrdinaryValue += kCivic.getCapitalCommerceModifier(eCommerce) *
 					pCapital->getBaseCommerceRate(eCommerce);
+		}
+		iOrdinaryValue /= 100;
+		if (iOrdinaryValue > 0)
+		{
+			iOrdinaryValue *= AI_commerceWeight(eCommerce);
+			iValue += iOrdinaryValue / 100;
 		}
 
 		// Representation
 		//iTempValue += (kCivic.getSpecialistExtraCommerce(eCommerce) * getTotalPopulation()) / 15;
-		// K-Mod
 		if (bSpecialistCommerce)
 		{
-			// iTempValue += AI_averageCommerceMultiplier(eCommerce)*
-			// iTempValue += iSASCommerceWeight*
-			iTempValue += iSASCommerceTonedDownMult*	
+			const int iSASCommerceWeight = SAS_SpecCommerceBaseWeight(*this, eCommerce, /*bAnyCityNeedsBFC=*/false);
+			// <!-- custom: use a toned down version for the multiplier, as advised and explained to em thanks by chatgpt 5. In autoplay, the above as of now iSASCommerceWeight fixes to overpick of civic_heridetary_rule in favour of civic_representation, but representation is now overpicked. So toning down the weight with a percentage of this value customizable in defines as well -->
+			const int iSASCommerceTonedDownMult = (iSASCommerceWeight * iSASCommerceToningDownPercent) / 100;
+			int iSpecialistValue = iSASCommerceTonedDownMult *
 					(kCivic.getSpecialistExtraCommerce(eCommerce) *
 					std::max((getTotalPopulation()+10*iTotalBonusSpecialists) / 10,
 					iTotalCurrentSpecialists));
-		} // K-Mod end
-
-		iTempValue /= 100; // (for the 3 things above)
-
-		if (iTempValue > 0)
-		{
-			// iTempValue *= AI_commerceWeight(eCommerce);
-			iTempValue *= iSASCommerceWeight;
-			iTempValue /= 100;
-
-			iValue += iTempValue;
+			iSpecialistValue /= 100;
+			if (iSpecialistValue > 0)
+			{
+				iSpecialistValue *= iSASCommerceWeight;
+				iValue += iSpecialistValue / 100;
+			}
 		}
+		// K-Mod end
 	}
 	if (kCivic.isAnyBuildingHappinessChanges())
 	{
@@ -22164,7 +22163,9 @@ void CvPlayerAI::AI_doCivics()
 
 	/*	finally, if our current research would give us a new civic,
 		consider waiting for that. */
-	if (iAnarchyLength > 0 && bWillSwitch)
+	// <!-- custom: bWillSwitch describes only the final recheck pass, while iAnarchyLength describes the accumulated accepted bundle.
+	// A final empty SAS hysteresis pass could therefore bypass both paid-anarchy safeguards; key them on the accumulated state. See KI#646. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iAnarchyLength > 0)
 	{
 		TechTypes const eResearch = getCurrentResearch();
 		if (eResearch != NO_TECH)
