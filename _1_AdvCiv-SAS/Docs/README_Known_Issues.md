@@ -769,9 +769,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#678 - (Fixed inherited BtS event-value scope defect) Building happiness and health became empire-wide](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-678)\
 [KI#679 - (Fixed inherited BtS event-value scaling defect) Diplomacy was scaled twice by game speed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-679)\
 [KI#680 - (Fixed inherited BtS event-value count defect) Requested conversions exceeded eligible cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-680)\
-[KI#681 - (Provisional Pending inherited BtS event-value ordering defect) PlotExtraYield is collected too late](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-681)\
-[KI#682 - (Provisional Pending inherited BtS event-value omission) UnitClassPromotions are ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-682)\
-[KI#683 - (Provisional Pending inherited BtS event-value cap defect) TechPercent exceeds remaining research](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-683)\
+[KI#681 - (Fixed inherited BtS event-value ordering defect) PlotExtraYield was collected too late](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-681)\
+[KI#682 - (Fixed inherited BtS event-value omission) UnitClassPromotions were ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-682)\
+[KI#683 - (Fixed inherited BtS event-value cap defect) TechPercent exceeded executable research](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-683)\
 [KI#684 - (Pending Architectural inherited BtS event-state defect) AdditionalEvents are valued before parent-state changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-684)\
 [KI#685 - (Provisional Pending inherited AdvCiv rounding-contract defect) Trade values can escape their bounds](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-685)\
 [KI#686 - (Provisional Pending inherited AdvCiv precedence regression) Conquest-only games bypass stage-3 gates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-686)\
@@ -14119,27 +14119,35 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP47 `CvPlayerAI.cpp` deep
 
 <a id="ki-681"></a>
 
-## KI#681 - (Provisional Pending inherited BtS event-value ordering defect) PlotExtraYield is collected too late
+## KI#681 - (Fixed inherited BtS event-value ordering defect) PlotExtraYield was collected too late
 
-Album F358 finds `AI_eventValue` adding an event's permanent `PlotExtraYield` to its yield accumulator only after every valuation of that accumulator has already run. Whenever the selected plot has a working city, the runtime applies the yield but the AI prices it at zero. Pending collecting the plot yield before the city/yield valuation block or valuing it directly under the same plot and working-city contract.
+Album F358 found `AI_eventValue` adding an event's permanent `PlotExtraYield` to its yield accumulator only after every valuation of that accumulator had already run. Whenever the selected plot had a working city, the runtime applied the yield but the AI priced it at zero.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP48 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix collects plot extra yield before the city and global yield consumers. Worked plots now flow through the existing city-aware valuation, while plots without a working city retain the existing direct estimate.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP48 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-682"></a>
 
-## KI#682 - (Provisional Pending inherited BtS event-value omission) UnitClassPromotions are ignored
+## KI#682 - (Fixed inherited BtS event-value omission) UnitClassPromotions were ignored
 
-Album F359 finds `AI_eventValue` never pricing `UnitClassPromotions`, although `applyEvent` grants the promotion to every matching existing unit and as a permanent free promotion for future units. Current multi-choice quest rewards can therefore be ranked with an entire durable military reward branch missing. Pending valuing both the current matching force and the persistent future-unit benefit without confusing this field with one-unit promotions.
+Album F359 found `AI_eventValue` never pricing `UnitClassPromotions`, although `applyEvent` grants the promotion to every matching existing unit and as a permanent free promotion for future units. Current multi-choice quest rewards could therefore be ranked with an entire durable military reward branch missing.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP49 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix values the current matching force and the persistent future-unit benefit in parallel with `UnitCombatPromotions`. When both fields grant the same promotion to one unit type, the shared runtime reward is counted only once.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP49 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-683"></a>
 
-## KI#683 - (Provisional Pending inherited BtS event-value cap defect) TechPercent exceeds remaining research
+## KI#683 - (Fixed inherited BtS event-value cap defect) TechPercent exceeded executable research
 
-Album F360 finds `AI_eventValue` pricing `TechPercent` as the requested percentage of the technology's full cost, while runtime application caps the award at its remaining research. A nearly completed technology can consequently receive much more event value than the research that will actually be granted. Pending capping the valued beakers to the selected technology's remaining progress.
+Album F360 found `AI_eventValue` pricing `TechPercent` as the requested percentage of the technology's full cost, while runtime application caps the award at its remaining research. A nearly completed technology could consequently receive much more event value than the research actually granted.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP50 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix uses `getBestEventTech`, the same technology-selection contract as event application, and values only the positive or negative research progress that can actually be applied under the runtime caps.
+
+Validation for the combined KI#681-KI#683 batch compiled successfully and completed a Huge Hemispheres autoplay with random events enabled through a turn-353 Space Race victory. The individual repaired event-value fields are additionally source-verified against `applyEvent`.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP50 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-684"></a>
 

@@ -25337,11 +25337,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 	//iValue += kEvent.getEspionagePoints();
 	iValue += kEvent.getEspionagePoints() * AI_commerceWeight(COMMERCE_ESPIONAGE) / 100; // K-Mod
 
-	if (kEvent.getTech() != NO_TECH)
-	{
-		iValue += (kTeam.getResearchCost((TechTypes)kEvent.getTech()) *
-				kEvent.getTechPercent()) / 100;
-	}
+	// <!-- custom: Removed BtS's separate fixed-technology valuation here; fixed and selected technologies now share getBestEventTech and the executable-progress cap below. See KI#683. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	{
 		UnitClassTypes eUnitClass = (UnitClassTypes)kEvent.getUnitClass();
 		if (eUnitClass != NO_UNITCLASS)
@@ -25398,36 +25394,37 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 		}
 	}
 
-	TechTypes eBestTech = NO_TECH;
-	int iBestValue = 0;
-	FOR_EACH_ENUM(Tech)
-	{
-		if (canResearch(eLoopTech))
-		{
-			if (kTriggeredData.m_eOtherPlayer == NO_PLAYER ||
-				GET_TEAM((kTriggeredData.m_eOtherPlayer)).isHasTech(eLoopTech))
-			{
-				int iTechValue = 0;
-				FOR_EACH_ENUM(Flavor)
-				{
-					iTechValue += kEvent.getTechFlavorValue(eLoopFlavor) *
-							GC.getInfo(eLoopTech).getFlavorValue(eLoopFlavor);
-				}
-
-				if (iTechValue > iBestValue)
-				{
-					eBestTech = eLoopTech;
-					iBestValue = iTechValue;
-				}
-			}
-		}
-	}
-
+	// <!-- custom: BtS valued the requested TechPercent against full technology cost even when only the remaining research can be applied, and duplicated getBestEventTech's selection contract locally.
+	// Use the application path's selected technology and executable positive or negative progress. See KI#683. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	TechTypes const eBestTech = getBestEventTech(eEvent, kTriggeredData.m_eOtherPlayer);
 	if (eBestTech != NO_TECH)
-		iValue += (kTeam.getResearchCost(eBestTech) * kEvent.getTechPercent()) / 100;
+	{
+		int const iRequestedBeakers = (kTeam.getResearchCost(eBestTech) * kEvent.getTechPercent()) / 100;
+		int const iExecutableBeakers = (kEvent.getTechPercent() > 0 ?
+				std::min(kTeam.getResearchLeft(eBestTech), iRequestedBeakers) :
+				std::max(kTeam.getResearchLeft(eBestTech) - kTeam.getResearchCost(eBestTech), iRequestedBeakers));
+		iValue += iExecutableBeakers;
+	}
 
 	if (kEvent.isGoldenAge())
 		iValue += AI_calculateGoldenAgeValue();
+
+	// <!-- custom: BtS appended worked PlotExtraYield to aiYields only after its final consumer, valuing the permanent output at zero.
+	// Collect it before city/global yield valuation; retain the existing direct estimate for plots without a working city. See KI#681. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (pPlot != NULL)
+	{
+		FOR_EACH_ENUM(Yield)
+		{
+			if (kEvent.getPlotExtraYield(eLoopYield) == 0)
+				continue;
+			if (pPlot->getWorkingCity() != NULL)
+			{
+				FAssertMsg(pPlot->getWorkingCity()->getOwner() == getID(), "Event creates a boni for another player?");
+				aiYields.add(eLoopYield, kEvent.getPlotExtraYield(eLoopYield));
+			}
+			else iValue += (20 * 8 * kEvent.getPlotExtraYield(eLoopYield) * iGameSpeedPercent) / 100;
+		}
+	}
 
 	FOR_EACH_NON_DEFAULT_PAIR(kEvent.
 		getBuildingYieldChange(), BuildingClass, YieldChangeMap)
@@ -25640,22 +25637,6 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 		else if (kEvent.getBonusChange() < 0)
 			iValue -= (iBonusValue * 15 * iGameSpeedPercent) / 100;
 
-		FOR_EACH_ENUM(Yield)
-		{
-			if (kEvent.getPlotExtraYield(eLoopYield) != 0)
-			{
-				if (pPlot->getWorkingCity() != NULL)
-				{
-					FAssertMsg(pPlot->getWorkingCity()->getOwner() == getID(), "Event creates a boni for another player?");
-					aiYields.add(eLoopYield, kEvent.getPlotExtraYield(eLoopYield));
-				}
-				else
-				{
-					iValue += (20 * 8 * kEvent.getPlotExtraYield(eLoopYield) *
-							iGameSpeedPercent) / 100;
-				}
-			}
-		}
 	}
 
 	if (kEvent.getBonusRevealed() != NO_BONUS)
@@ -25692,6 +25673,35 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 				}
 
 				iPromotionValue += iNumCities * 50;
+			}
+		}
+		// <!-- custom: BtS applied UnitClassPromotions to matching existing units and future units but omitted their entire value here. Mirror the UnitCombat estimate, excluding the same promotion when the event already grants it through the unit's combat class so one runtime reward is not counted twice. See KI#682. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		FOR_EACH_ENUM(UnitClass)
+		{
+			PromotionTypes const eEventPromotion = (PromotionTypes)
+					kEvent.getUnitClassPromotion(eLoopUnitClass);
+			if (eEventPromotion == NO_PROMOTION)
+				continue;
+			FOR_EACH_UNIT(pLoopUnit, *this)
+			{
+				UnitCombatTypes const eUnitCombat = pLoopUnit->getUnitCombatType();
+				bool const bDuplicateCombatPromotion = (eUnitCombat != NO_UNITCOMBAT &&
+						kEvent.getUnitCombatPromotion(eUnitCombat) == eEventPromotion);
+				if (pLoopUnit->getUnitClassType() == eLoopUnitClass &&
+						!pLoopUnit->isHasPromotion(eEventPromotion) && !bDuplicateCombatPromotion)
+				{
+					iPromotionValue += 5 * pLoopUnit->baseCombatStr();
+				}
+			}
+			UnitTypes const eUnit = getCivilization().getUnit(eLoopUnitClass);
+			if (eUnit != NO_UNIT)
+			{
+				UnitCombatTypes const eUnitCombat = GC.getInfo(eUnit).getUnitCombatType();
+				if (eUnitCombat == NO_UNITCOMBAT ||
+						kEvent.getUnitCombatPromotion(eUnitCombat) != eEventPromotion)
+				{
+					iPromotionValue += iNumCities * 50;
+				}
 			}
 		}
 		iValue += (iPromotionValue * iGameSpeedPercent) / 100;
