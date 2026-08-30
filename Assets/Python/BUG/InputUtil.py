@@ -220,10 +220,11 @@ def toggleShowFriendlyMoves(argsList=None):
 	# So the toggling isn't going to be visible on the Options screen and will be lost upon exiting the game.
 # </advc.102>
 # advc.135c:
-def toggleDebugMode(argsList=None): 
-	# The built-in shortcut (also Ctrl+Z) works iff ChtLvl>0. Let CvGame::toggleDebugMode decide whether ChtLvl should matter.
-	if getChtLvl() <= 0:
-		gc.getGame().toggleDebugMode()
+def toggleDebugMode(argsList=None):
+	# <!-- custom: The live BUG wrapper now returns consumed keyboard input, so native Ctrl+Z no longer runs afterward when ChtLvl>0.
+	# Let the registered Python shortcut own the toggle in every cheat-level configuration; consuming it then prevents a double toggle.
+	# CvGame::toggleDebugMode retains AdvCiv's permission checks, including its multiplayer support, while ordinary single-player Ctrl+Z was empirically restored; multiplayer was source-verified but not tested. See KI#622. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	gc.getGame().toggleDebugMode()
 # advc.004m: Called by BugOptions when dirty. Defining this handler directly in CvScreensInterface.py leads to problems when reloading scripts, specifically in ChangeHandler.handle (BugOptions.py).
 def updateDefaultCamDistance(option, value):
 	import CvScreensInterface

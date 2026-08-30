@@ -28,6 +28,7 @@
 #include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-record advisor rows. (ChatGPT-5.5) -->
 #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
 #include "CvStatistics.h" // <!-- custom: Needed for persistent player-record statistics in game-record benchmark rows. (GPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Needed for the shared DLL-process UTC identity used by BBAI and SASGameRecord. See KI#629. (GPT-5.6-Sol) -->
 #include <time.h>
 #include <psapi.h> // <!-- custom: Reuse AdvCiv's existing Windows process-memory API for compact game-record performance context. (GPT-5.6-Sol) -->
 #include <algorithm> // <!-- custom: Needed to deduplicate buffered plot-change/map-revelation coordinates within each turn. (GPT-5.6-Sol) -->
@@ -131,30 +132,6 @@ static bool isSASGameRecordMapAsciiPoliticalEnabled()
 {
 	static const bool bEnabled = (GC.getDefineINT("SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE") > 0);
 	return bEnabled;
-}
-
-// <!-- custom: Accept the sampled time so snapshot UTC and elapsed durations use exactly the same clock reading. (GPT-5.6-Sol) -->
-static CvString createSASGameRecordLogTimestamp(time_t kNow)
-{
-	CvString szTimestamp;
-	char szBuffer[32];
-	struct tm* pUtcTime = gmtime(&kNow);
-	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
-	{
-		szTimestamp = szBuffer;
-	}
-	else
-	{
-		szTimestamp = "unknown_time";
-	}
-	return szTimestamp;
-}
-
-static CvString createSASGameRecordLogTimestamp()
-{
-	time_t kNow;
-	time(&kNow);
-	return createSASGameRecordLogTimestamp(kNow);
 }
 
 // <!-- custom: Snapshot chronology benefits from the same real millisecond precision as the direct duration fields.
@@ -269,7 +246,7 @@ static SASGameRecordSystemSnapshot getSASGameRecordSystemSnapshot()
 static CvString getSASGameRecordLogTimestamp()
 {
 	if (g_szSASGameRecordLogTimestamp.empty())
-		g_szSASGameRecordLogTimestamp = createSASGameRecordLogTimestamp();
+		g_szSASGameRecordLogTimestamp = createSASUtcTimestamp();
 	return g_szSASGameRecordLogTimestamp;
 }
 
@@ -313,7 +290,7 @@ static void rollSASGameRecordLog(const char* szContext)
 	g_uiSASGameRecordSessionStartTime = timeGetTime();
 	g_uiSASGameRecordPreviousSnapshotTime = g_uiSASGameRecordSessionStartTime;
 	g_bSASGameRecordDisplayContextLogged = false;
-	g_szSASGameRecordLogTimestamp = createSASGameRecordLogTimestamp(kSessionStartTime);
+	g_szSASGameRecordLogTimestamp = createSASUtcTimestamp(kSessionStartTime);
 	if (isSASGameRecordTimestampedFilenameEnabled())
 	{
 		g_iSASGameRecordLogSequence++;
@@ -483,8 +460,8 @@ static void logSASGameRecordGameState(const char* szRowType)
 	if (szMPOptions.empty())
 		szMPOptions = "-";
 	const CvString szLogName = getSASGameRecordLogName();
-	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	logSASGameRecord("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
+			szRowType, getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Record the engine's durable launch/load and multiplayer identities so standalone logs distinguish ordinary games, scenarios, saves, replays, and supported network/turn modes. The explicit booleans avoid requiring consumers to reproduce Civ4's non-obvious GameType groupings.
 	// Simple Game versus Custom Game is not retained reliably after launch, so do not infer it from mutable player slots or options. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SESSION_CONTEXT gameType=%s gameMode=%s newGame=%d savedGame=%d scenario=%d gameMultiplayer=%d networkMultiplayer=%d hotseat=%d pbem=%d pitboss=%d simultaneousTeamTurns=%d mpOptions=%s",
@@ -536,7 +513,7 @@ void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
 	resetSASGameRecordState();
-	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(getSASGameRecordLogName().GetCString()).GetCString());
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(getSASGameRecordLogName().GetCString()).GetCString());
 	logSASGameRecordLogSettings();
 }
 

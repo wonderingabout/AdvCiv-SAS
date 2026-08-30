@@ -710,14 +710,14 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#619 - (Provisional Pending AdvCiv attitude-cache timing regression) Annual deals defer cache refresh in only one direction](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-619)\
 [KI#620 - (Provisional Pending inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars can be purchased twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-620)\
 [KI#621 - (Provisional Pending inherited bundle incompatibility worsened by AdvCiv) Vassalage and a Defensive Pact can create an orphan relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-621)\
-[KI#622 - (Provisional Pending inherited BUG/K-Mod integration defect) Consumed keyboard and mouse events lose their return value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622)\
+[KI#622 - (Prepared complete fix for inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622)\
 [KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-623)\
 [KI#624 - (Provisional Pending inherited K-Mod pathfinder defect) An over-limit route can overwrite a valid bounded path](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-624)\
 [KI#625 - (Provisional Pending inherited K-Mod group-path cost defect) Maximum-cost unit overwrites minimum moves left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-625)\
 [KI#626 - (Pending Architectural inherited K-Mod group-path state defect) Shared minimum moves fabricate per-unit movement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-626)\
 [KI#627 - (Provisional Pending incomplete AdvCiv pathfinder repair) Pre-war route simulation checks only the destination endpoint](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-627)\
 [KI#628 - (Provisional Pending inherited K-Mod sea-path heuristic defect) Discounted fog steps can produce a suboptimal exploration route](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-628)\
-[KI#629 - (Provisional Pending minor SAS logging defect) Fixed-name BBAI sessions reuse stale UTC metadata](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-629)\
+[KI#629 - (Prepared expanded fix for minor SAS BBAI logging defect) Distinguish process and game/load UTC identities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-629)\
 [KI#630 - (Provisional Pending AdvCiv random-event popup regression) Revalidation creates and leaks a second randomized trigger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-630)\
 [KI#631 - (Provisional Pending inherited BtS lead-unit popup defect) Teammate units can alias an own unit by player-local ID](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-631)\
 [KI#632 - (Provisional Pending inherited BtS election-popup defect) None can leak its selection or propose an unrelated resolution](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-632)\
@@ -732,7 +732,15 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#641 - (Provisional Pending inherited BtS vote-lifetime defect incompletely addressed by AdvCiv) A former member can still defy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-641)\
 [KI#642 - (Provisional Pending inherited BtS multiplayer popup defect) A dead human can receive an inert One More Turn button](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-642)\
 [KI#643 - (Pending Architectural inherited BtS Pick Religion ownership defect) Founder death can strand a reserved religion slot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-643)\
-[KI#644 - (Provisional Pending investigation) F321 remains unassigned during the CvDLLButtonPopup audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-644)\
+[KI#644 - (Provisional Pending SAS marginal-valuation defect) Losing the last imported strategic resource is priced from pre-change holdings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-644)\
+[KI#645 - (Provisional Pending SAS technology-gate defect) Bonus synergy checks only a building's primary prerequisite](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-645)\
+[KI#646 - (Provisional Pending SAS civic-switch control regression) A final empty pass can bypass paid-anarchy safeguards](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-646)\
+[KI#647 - (Pending Architectural SAS civic-value defect) Unlimited specialist types reuse the same finite citizens](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-647)\
+[KI#648 - (Provisional Pending SAS civic-value sign defect) An active pressure civic is penalized for preventing anger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-648)\
+[KI#649 - (Provisional Pending SAS civic-value formula regression) Specialist tuning replaced ordinary commerce normalization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-649)\
+[KI#650 - (Provisional Pending inherited K-Mod civic-value regression) War-weariness uses the current modifier instead of the candidate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-650)\
+[KI#651 - (Pending Architectural inherited K-Mod/AdvCiv civic-value defect) A -100% modifier erases its active maintenance value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-651)\
+[KI#652 - (Provisional Pending investigation) F329 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-652)\
 
 <a id="ki-1"></a>
 
@@ -13500,9 +13508,13 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 
 <a id="ki-622"></a>
 
-## KI#622 - (Provisional Pending inherited BUG/K-Mod integration defect) Consumed keyboard and mouse events lose their return value
+## KI#622 - (Prepared complete fix for inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle
 
-Album F299 finds native `CvDllPythonEvents` correctly returning whether Python consumed keyboard or mouse input, and BUG's `_handleConsumableEvent` correctly computing the positive result, but `BugEventManager.handleEvent` discarding `_dispatchEvent`'s return one frame before `CvEventInterface.onEvent` returns to C++. Python shortcuts can therefore execute while the engine is never told that the input was consumed, permitting native/interface fall-through depending on the active key or screen. Base AdvCiv 1.14 and supplied K-Mod contain the same missing return; stock `CvEventManager` preserves it and Civ4CE/BtS do not supply this BUG override. Pending the local `return self._dispatchEvent(...)` repair without changing ordinary unconsumed notification semantics.
+Album F299 found native `CvDllPythonEvents` correctly returning whether Python consumed keyboard or mouse input, and BUG's `_handleConsumableEvent` correctly computing the positive result, but `BugEventManager.handleEvent` discarding `_dispatchEvent`'s return one frame before `CvEventInterface.onEvent` returns to C++. Python shortcuts could therefore execute while the engine was never told that the input was consumed, permitting native/interface fall-through depending on the active key or screen. Base AdvCiv 1.14 and supplied K-Mod contain the same missing return; stock `CvEventManager` preserves it and Civ4CE/BtS do not supply this BUG override.
+
+The initial prepared repair returned `_dispatchEvent(...)` from the live BUG wrapper. Consumable keyboard and mouse handlers could then propagate integer `1` through the existing Python and native boundary, while ordinary notification handlers continued returning `None` and retained their unconsumed semantics. Testing on an AZERTY keyboard exposed a real companion contract: Ctrl+Z stopped toggling Debug mode, while an unrelated Ctrl+Shift+X shortcut still worked. AdvCiv's registered Python Ctrl+Z handler had deliberately toggled only when `ChtLvl <= 0`, relying on the native Ctrl+Z fallback when `ChtLvl > 0`; correct consumed-event propagation now prevented that fallback.
+
+The completed repair also makes the registered Python Ctrl+Z handler call `CvGame::toggleDebugMode` in every cheat-level configuration. Python therefore owns and consumes the shortcut consistently, preserving ordinary single-player Debug-mode toggling without allowing the native path to toggle it a second time. This also retains AdvCiv's intended multiplayer support because the DLL function still applies `isDebugToolsAllowed` and its multiplayer permission rules; that path was source-verified but not tested in multiplayer. An AZERTY single-player retest confirmed that Ctrl+Z toggles Debug mode again.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C026 `CvDllPythonEvents.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
 
@@ -13556,9 +13568,15 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinde
 
 <a id="ki-629"></a>
 
-## KI#629 - (Provisional Pending minor SAS logging defect) Fixed-name BBAI sessions reuse stale UTC metadata
+## KI#629 - (Prepared expanded fix for minor SAS BBAI logging defect) Distinguish process and game/load UTC identities
 
-Album F306 finds `rollSASBBAILog` refreshing `g_szSASBBAILogTimestamp` only when timestamped filenames are enabled. In supported fixed-name mode, later new games and loaded saves correctly keep appending to the fixed BBAI filename, but their `BBAI_NEW_GAME_INITIALIZING`, `BBAI_NEW_GAME_STARTED` and `BBAI_SAVE_LOADED` identity rows retain the first session's UTC instead of identifying the current session. This is SAS-specific lifecycle behavior introduced with practical 6011. Pending the SASGameRecord-style repair: refresh session UTC on every roll and gate only filename context and sequence on the timestamped-filename setting.
+Album F306 found `rollSASBBAILog` refreshing `g_szSASBBAILogTimestamp` only when timestamped filenames are enabled. In supported fixed-name mode, later new games and loaded saves correctly keep appending to the fixed BBAI filename, but their `BBAI_NEW_GAME_INITIALIZING`, `BBAI_NEW_GAME_STARTED` and `BBAI_SAVE_LOADED` identity rows retained the first session's UTC instead of identifying the current session. This is SAS-specific lifecycle behavior introduced with practical 6011.
+
+The prepared repair follows the existing SASGameRecord rollover separation: every BBAI new/load roll refreshes its `utc`, while only timestamped-filename mode advances the filename context and sequence. The default `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1` behavior is unchanged: every new game and loaded save still creates its own timestamped BBAI file, matching SASGameRecord's convenient lifecycle. Optional fixed mode continues appending to `BBAI.log` or `BBAI<activePlayer>.log`, but each identity header records the current game's new/load time. The scope is expanded coherently across both diagnostic systems: BBAI and SASGameRecord identity rows place a stable `processUtc` first, followed by plain `utc`, whose exact new-game, save-load or snapshot meaning is already supplied by the row type. One DLL-load `CvGameCoreUtils` value supplies `processUtc` to both systems, preventing a one-second drift if their former independent initializers crossed a UTC-second boundary. This preserves both every log produced during the same Civ4 launch and the individual lifecycle event without inventing an ambiguous second session/game noun. SASGameRecord already refreshed its per-roll timestamp; its change is the matching process identity and ordering rather than a second stale-timestamp defect.
+
+A same-process fixed-name test empirically confirmed the repair in `BBAI.log`: a loaded save recorded `processUtc=20260830T055326Z utc=20260830T055335Z`, then a new game retained the same `processUtc` and recorded `utc=20260830T055452Z`. The file remained the intended shared `BBAI.log`; timestamped `BBAI_*.log` files were not expected while `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=0`.
+
+After centralization, a default timestamped-mode load/new retest confirmed matching identities across both systems: each BBAI/SASGameRecord pair recorded `processUtc=20260830T061842Z` and the same lifecycle `utc` (`20260830T061859Z` for the load, `20260830T061933Z` for the new game), while all four remained independent timestamped files as intended.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C029 `BBAILog.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
@@ -13676,8 +13694,72 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C030 `CvDLLButtonPop
 
 <a id="ki-644"></a>
 
-## KI#644 - (Provisional Pending investigation) F321 remains unassigned during the CvDLLButtonPopup audit
+## KI#644 - (Provisional Pending SAS marginal-valuation defect) Losing the last imported strategic resource is priced from pre-change holdings
 
-The continuous audit ledger reserves provisional KI#644 for F321, but C030-WIP17 has not confirmed another independent defect. All 43 current `CvDLLButtonPopup` member definitions are classified under F307-F320, verified receiver/lifecycle controls or deliberately unnumbered dormant and bookkeeping edges. Queue 019 still requires final popup-sound/history, ancestry, numbering and routing reconciliation before durable closure. Do not implement a change under this number unless that final pass establishes a separate current producer, violated contract, concrete consequence, ancestry and repair boundary.
+Album F321 finds SAS's strategic-substitute multiplier in `AI_bonusTradeVal` reading only current live holdings although AdvCiv's `iChange` contract asks for the prospective state. When an AI revalues cancellation of its last imported Iron, Horse, Camel or Elephant with `iChange=-1`, that import is still counted as owned; the configured no-resource premium can disappear precisely while deciding whether to lose the last copy. This SAS-local block can therefore oscillate between valuing a missing strategic resource highly enough to buy and valuing the same critical import cheaply enough to cancel. Pending prospective availability booleans that apply `iChange` to the evaluated resource before choosing the substitute multiplier.
 
-Reserved during ChatGPT-5.6-Sol's C030 `CvDLLButtonPopup.cpp` audit; provisional ledger disposition indexed with the help of GPT-5.6-Sol, thanks.
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-645"></a>
+
+## KI#645 - (Provisional Pending SAS technology-gate defect) Bonus synergy checks only a building's primary prerequisite
+
+Album F322 finds the KI#66 multi-effect bonus valuation checking `getPrereqAndTech()` but omitting every additional `getPrereqAndTechs(i)` requirement before pricing a building's bonus-health or bonus-happiness synergy. Current Grocer variants can therefore raise Banana, Spices, Grapes or Sugar valuation after Mathematics even while missing mandatory Currency; Hammam and Muileann Uisce effects have the analogous Mathematics-without-Masonry path. `canConstruct` and the older `AI_baseBonusBuildingVal` both recognize the complete AND-tech contract. This is a SAS-local regression introduced by the KI#66 extra valuation pass. Pending reuse of a complete building technology-eligibility check while retaining the intended city-independent heuristic after all required technologies are known.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-646"></a>
+
+## KI#646 - (Provisional Pending SAS civic-switch control regression) A final empty pass can bypass paid-anarchy safeguards
+
+Album F323 finds `AI_doCivics` retaining accepted choices and anarchy length across passes while resetting `bWillSwitch` on every pass, then using only the final pass's flag to guard near-future-civic and low-treasury safeguards. SAS broadened `bWantSwitch` to any positive improvement while adding an independent absolute-slack rejection, so one pass can accept a paid-anarchy switch and request another pass that accepts nothing. The accumulated bundle can then execute through `canRevolution` while both safeguards are skipped. K-Mod's inherited loop had tighter coupled thresholds; the supported mismatch is SAS-local. Pending testing the accumulated bundle/anarchy state rather than the final-pass flag.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-647"></a>
+
+## KI#647 - (Pending Architectural SAS civic-value defect) Unlimited specialist types reuse the same finite citizens
+
+Album F324 finds SAS's generalized unlimited-specialist estimator recomputing the same citywide specialist-capable population independently for every specialist type unlocked by a civic. Current Caste System can therefore value one plausible extra citizen as an Artist, Scientist and Merchant simultaneously, or value three existing specialist citizens as many as nine assignments. The per-type slot subtraction does not make the shared population pools independent. This SAS-local KI#76 block needs one finite per-city capacity allocated across unlocked specialist types, potentially with a separate bounded flexibility premium, rather than a full duplicate capacity for each type.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-648"></a>
+
+## KI#648 - (Provisional Pending SAS civic-value sign defect) An active pressure civic is penalized for preventing anger
+
+Album F325 finds the KI#75 city-level `CivicPercentAnger` replacement correctly modeling the welfare change from adopting or dropping a civic, but adding that directional change directly to the civic's absolute score. For an inactive Theocracy, removing two angry citizens adds value; once Theocracy is active, the same block models two citizens becoming angry if it is dropped and incorrectly records that harm as negative value for keeping it. KI#317 repaired which cities are counted but retained this SAS-local sign error. Pending conversion of the hypothetical welfare delta back to absolute candidate value through the existing `iS` direction.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-649"></a>
+
+## KI#649 - (Provisional Pending SAS civic-value formula regression) Specialist tuning replaced ordinary commerce normalization
+
+Album F326 finds specialist-extra-commerce tuning also replacing K-Mod's structural `AI_averageCommerceMultiplier` divisor in the separate ordinary civic percentage-commerce branch. The custom preference weight then cancels algebraically against its own toned divisor, while actual existing empire commerce multipliers are no longer backed out. Current Free Speech and Free Religion reach this branch independently of the Representation-style specialist effect that motivated the SAS change. Pending restoration of structural average-commerce normalization for ordinary percentage modifiers while retaining the intended toned SAS multiplier only for specialist-extra-commerce valuation.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-650"></a>
+
+## KI#650 - (Provisional Pending inherited K-Mod civic-value regression) War-weariness uses the current modifier instead of the candidate
+
+Album F327 finds the K-Mod war-weariness happiness block guarding on the candidate civic's modifier but calculating the effect from the player's current aggregate modifier. An inactive Universal Suffrage penalty can consequently inherit the positive sign of current Hereditary Rule, while both Police State and Universal Suffrage can collapse to the same phantom value when the current modifier is zero. Stock BtS used the candidate correctly; K-Mod introduced the wrong getter and Base AdvCiv/SAS inherit it. Pending use of `kCivic.getWarWearinessModifier()` with the existing adopt/drop direction.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-651"></a>
+
+## KI#651 - (Pending Architectural inherited K-Mod/AdvCiv civic-value defect) A -100% modifier erases its active maintenance value
+
+Album F328 finds `AI_civicValue` reconstructing pre-civic maintenance by dividing current maintenance by `100 + current modifier`. At the valid -100% boundary, current maintenance has already saturated to zero, so replacing the zero denominator with one cannot recover the lost base: active State Property loses its distance-maintenance value, and AdvCiv's analogous colony extension makes current SAS Vassalage lose its colony-maintenance value. K-Mod introduced the distance inversion and AdvCiv extended the same assumption to colonies. Pending valuation from a pre-player-modifier base or equivalent candidate-state simulation rather than algebraically inverting an already saturated zero.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-652"></a>
+
+## KI#652 - (Provisional Pending investigation) F329 remains unassigned during the CvPlayerAI deep re-audit
+
+The continuous audit ledger reserves provisional KI#652 for F329. C031-WIP10 has provisionally saturated the local `AI_civicValue` pass with F324-F328 and controlled the reviewed `AI_doDiplo`, `AI_religionValue`, `AI_doMilitary` and `AI_doCommerce` surfaces without confirming another independent root. Queue 001 remains open for serialization/read state, worker-demand and disband helpers, victory/research/vote logic, inherited high-risk code and whole-file reconciliation. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition indexed with the help of GPT-5.6-Sol, thanks.

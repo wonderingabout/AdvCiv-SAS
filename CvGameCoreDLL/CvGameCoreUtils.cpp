@@ -8,6 +8,33 @@
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Building.h" // <!-- custom: getSASTeamSpaceshipPartsBuilt needs CvProjectInfo::isSpaceship for Space-victory denial checks. (GPT-5.5) -->
 
+// <!-- custom: Centralize second-precision UTC formatting for diagnostic identities and filenames. The explicit-time overload lets a caller reuse one sampled clock reading; the no-argument overload samples it here. See KI#629. (GPT-5.6-Sol) -->
+CvString createSASUtcTimestamp(const time_t kTime)
+{
+	CvString szTimestamp;
+	char szBuffer[32];
+	struct tm* pUtcTime = gmtime(&kTime);
+	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
+		szTimestamp = szBuffer;
+	else szTimestamp = "unknown_time";
+	return szTimestamp;
+}
+
+CvString createSASUtcTimestamp()
+{
+	time_t kNow;
+	time(&kNow);
+	return createSASUtcTimestamp(kNow);
+}
+
+// <!-- custom: One DLL-load value ensures BBAI and SASGameRecord share the same process identity instead of drifting across a UTC-second boundary. See KI#629. (GPT-5.6-Sol) -->
+static const CvString g_szSASProcessUtcTimestamp = createSASUtcTimestamp();
+
+CvString const& getSASProcessUtcTimestamp()
+{
+	return g_szSASProcessUtcTimestamp;
+}
+
 // advc.035:
 void contestedPlots(std::vector<CvPlot*>& r, TeamTypes t1, TeamTypes t2)
 {

@@ -4,6 +4,7 @@
 #define CIV4_GAMECORE_UTILS_H
 
 #include "AIStrategies.h" // <!-- custom: getSAS*VictoryStageLevel helpers use AIVictoryStage bitfields. (GPT-5.5) -->
+#include <time.h> // <!-- custom: createSASUtcTimestamp accepts an already sampled time_t so a lifecycle identity and its filename can share one wall-clock reading. See KI#629. (GPT-5.6-Sol) -->
 
 class CvPlot;
 class CvCity;
@@ -72,6 +73,12 @@ template<typename T> void removeDuplicates(std::vector<T>& v)
 
 // advc.004w:
 void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
+
+// <!-- custom: Shared second-precision UTC formatter for diagnostic log filenames and identities, including an overload that samples the current time. See KI#629. (GPT-5.6-Sol) -->
+CvString createSASUtcTimestamp(const time_t kTime);
+CvString createSASUtcTimestamp();
+// <!-- custom: Shared stable UTC identity for all diagnostic logs produced by one DLL process. See KI#629. (GPT-5.6-Sol) -->
+CvString const& getSASProcessUtcTimestamp();
 
 float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
 HandicapTypes handicapFromDifficulty(int iDifficulty); // <!-- custom: map iDifficulty scores back to XML handicap entries after adding non-BtS handicap levels. (ChatGPT-5.5) -->

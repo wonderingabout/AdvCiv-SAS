@@ -5,7 +5,7 @@
 #include "CvGamePlay.h" // </advc.133>
 #include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
 #include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
-#include <time.h> // <!-- custom: Added for UTC session timestamps in timestamped BBAI log filenames. (ChatGPT-5.5) -->
+#include "CvGameCoreUtils.h" // <!-- custom: Needed for the shared DLL-process UTC identity used by BBAI and SASGameRecord. See KI#629. (GPT-5.6-Sol) -->
 
 // AI decision making logging
 
@@ -154,24 +154,6 @@ int getSASBBAIScoreLogInterval()
 	return iInterval;
 }
 
-static CvString createSASBBAILogTimestamp()
-{
-	CvString szTimestamp;
-	char szBuffer[32];
-	time_t kNow;
-	time(&kNow);
-	struct tm* pUtcTime = gmtime(&kNow);
-	if (pUtcTime != NULL && strftime(szBuffer, sizeof(szBuffer), "%Y%m%dT%H%M%SZ", pUtcTime) > 0)
-	{
-		szTimestamp = szBuffer;
-	}
-	else
-	{
-		szTimestamp = "unknown_time";
-	}
-	return szTimestamp;
-}
-
 static CvString g_szSASBBAILogTimestamp;
 static int g_iSASBBAILogSequence = 0;
 static CvString g_szSASBBAILogContext;
@@ -179,7 +161,7 @@ static CvString g_szSASBBAILogContext;
 static CvString getSASBBAILogTimestamp()
 {
 	if (g_szSASBBAILogTimestamp.empty())
-		g_szSASBBAILogTimestamp = createSASBBAILogTimestamp();
+		g_szSASBBAILogTimestamp = createSASUtcTimestamp();
 	return g_szSASBBAILogTimestamp;
 }
 
@@ -221,9 +203,10 @@ static CvString getSASBBAILogName()
 
 static void rollSASBBAILog(const char* szContext)
 {
+	// <!-- custom: Refresh session identity for both filename modes; fixed-name logs intentionally share a file, but each new/load header still needs its own current UTC. See KI#629. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	g_szSASBBAILogTimestamp = createSASUtcTimestamp();
 	if (isSASBBAILogTimestampedFilenameEnabled())
 	{
-		g_szSASBBAILogTimestamp = createSASBBAILogTimestamp();
 		g_iSASBBAILogSequence++;
 		g_szSASBBAILogContext.Format("%s%d", szContext, g_iSASBBAILogSequence);
 	}
@@ -256,8 +239,8 @@ static void logSASBBAIGameState(const char* szRowType)
 	if (szGameOptions.empty())
 		szGameOptions = "-";
 	const CvString szLogName = getSASBBAILogName();
-	logBBAI("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	logBBAI("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
+			szRowType, getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Log the actual cached DLL map classification rather than requiring tests to infer it from the map-script name. (GPT-5.5) -->
 	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
 			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
@@ -281,7 +264,7 @@ static void logSASBBAILogSettings()
 void startSASBBAILogForNewGame()
 {
 	rollSASBBAILog("new");
-	logBBAI("BBAI_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASBBAILogTimestamp().GetCString(), getSASBBAILogName().GetCString());
+	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), getSASBBAILogName().GetCString());
 	logSASBBAIModContext();
 	logSASBBAILogSettings();
 }

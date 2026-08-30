@@ -343,7 +343,8 @@ class BugEventManager(CvEventManager.CvEventManager):
 	def handleEvent(self, argsList):
 		# Handles events by calling all installed handlers.
 		self.bDbg, self.bMultiPlayer, self.bAlt, self.bCtrl, self.bShift, self.bAllowCheats = argsList[-6:]
-		self._dispatchEvent(argsList[0], argsList[1:-6])
+		# <!-- custom: Preserve the consumable keyboard/mouse handler result across the live BUG wrapper so CvDllPythonEvents receives the documented consumed-input state. See KI#622. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		return self._dispatchEvent(argsList[0], argsList[1:-6])
 
 	def _dispatchEvent(self, eventType, argsList):
 		if self.logging:

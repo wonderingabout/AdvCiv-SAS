@@ -925,11 +925,13 @@ BBAI logs are detailed AI-decision diagnostics no longer need editing/recompilin
 For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
 
 ```log
-BBAI_SAVE_LOADED utc=20260712T143627Z logFile=BBAI_20260712T143627Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+BBAI_SAVE_LOADED processUtc=20260712T143500Z utc=20260712T143627Z logFile=BBAI_20260712T143627Z_load1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
 BBAI_GAME_SETTINGS mapScript=Pangaea map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
 BBAI_GAME_RNG mapRandState=1043290197 syncRandState=3442762126
 BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=0 SAS_BBAI_TEAM_LOG_LEVEL=0 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=3 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100
 ```
+
+Identity rows place the stable `processUtc` for one Civ4 launch before plain `utc`; the row type identifies that second timestamp as a new-game, save-load or individual snapshot observation. Timestamped filename counters such as `new1` and `load2` preserve game order within the process.
 
 ### SASGameRecord log
 
@@ -944,7 +946,7 @@ See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_l
 For example, `SASGameRecord_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
 
 ```log
-GAME_RECORD_SAVE_LOADED utc=20260710T064839Z logFile="SASGameRecord_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
+GAME_RECORD_SAVE_LOADED processUtc=20260710T064700Z utc=20260710T064839Z logFile="SASGameRecord_20260710T064839Z_load1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ARABIA activeHandicap=HANDICAP_DEITY_PLUS playersDefined=11 playersAlive=11 playersEverAlive=11 humans=1
 GAME_RECORD_GAME_SETTINGS mapScript="Pangaea" map=78x56 landHeavy=1 navalHeavy=0 world=WORLDSIZE_LARGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT calendar=CALENDAR_DEFAULT startTurn=0 startYear=-50000 gameHandicap=HANDICAP_DEITY_PLUS options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
 GAME_RECORD_MOD_CONTEXT modName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
 GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=48 MAX_PLAYERS=49 BARBARIAN_PLAYER=48 MAX_CIV_TEAMS=48 MAX_TEAMS=49 BARBARIAN_TEAM=48 NO_PLAYER=-1 NO_TEAM=-1

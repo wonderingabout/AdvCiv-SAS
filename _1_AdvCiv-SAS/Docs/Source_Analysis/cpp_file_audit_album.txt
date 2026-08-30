@@ -2,12 +2,12 @@ AdvCiv-SAS C++ File Audit Album
 Generated from local light-source snapshot only; no web/GitHub lookup used.
 
 CURRENT PROGRESS SUMMARY
-Files complete: 29 / 169
+Files complete: 30 / 169
 Files open: 1 / 169
-Last completed file: investigation file 029 / queue 018 CvGameCoreDLL/CvGameInterface.cpp (2,965 queued lines) - CLOSED AT C030 DURABLE
-Current file: investigation file 030 / priority queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp (2,810 queued lines) - OPEN AT C030-WIP17
-Latest confirmed roots: F307-F320 / provisional KI#630-KI#643 from queue 019
-Next root ID: F321 unused / provisional KI#644 next
+Last completed file: investigation file 030 / queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp (2,810 queued lines) - CLOSED AT C031 DURABLE
+Current file: priority deep-method re-audit queue 001 CvGameCoreDLL/CvPlayerAI.cpp (32,205 queued lines) - OPEN AT C031-WIP10
+Latest confirmed roots: F321-F328 / provisional KI#644-KI#651 from the queue-001 re-audit
+Next root ID: F329 unused / provisional KI#652 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -21,7 +21,7 @@ METHOD
 - After priority queue entries 018 and 019, repeat queue entries 001 through 009 with the stronger checkpoint/WIP method used from queue 010 onward, then resume the ordinary pending queue at 020.
 
 QUEUE (current .cpp files, longest -> shortest)
-001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE - REVIEWED/NEW FINDINGS]<-(priority next wip)
+001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP10 / F321-F328]<-(priority current wip)
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE - REVIEWED/EXISTING ROOT STRENGTHENED]<-(priority next wip)
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOT REOPENED]<-(priority next wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
@@ -39,7 +39,7 @@ QUEUE (current .cpp files, longest -> shortest)
 016   4595 CvGameCoreDLL/CitySiteEvaluator.cpp [COMPLETE - SEE C017 DURABLE CHECKPOINT]
 017   3700 CvGameCoreDLL/UWAIAgent.cpp [COMPLETE - SEE C018 DURABLE CHECKPOINT]
 018   2965 CvGameCoreDLL/CvGameInterface.cpp [COMPLETE - SEE C030 DURABLE CHECKPOINT]
-019   2810 CvGameCoreDLL/CvDLLButtonPopup.cpp [OPEN - C030-WIP17 / F307-F320]<-(priority current wip)
+019   2810 CvGameCoreDLL/CvDLLButtonPopup.cpp [COMPLETE - SEE C031 DURABLE CHECKPOINT]
 020   2599 CvGameCoreDLL/CvInfo_Unit.cpp [PENDING]
 021   2503 CvGameCoreDLL/CyPlayer.cpp [PENDING]
 022   2448 CvGameCoreDLL/TrueStarts.cpp [PENDING]
@@ -65533,3 +65533,1625 @@ If those close without an independent producer, queue 019 can move to the next d
 checkpoint with F321 unused.
 
 END C030-WIP17
+
+
+C031 DURABLE -- QUEUE 019 CvDLLButtonPopup.cpp CLOSED / FINAL RELAUNCH + ANCESTRY SATURATION
+================================================================================================
+Durable closure synthesized from C030-WIP01 through C030-WIP17 against the current
+AdvCiv-SAS light-source snapshot. No repository source file was modified.
+
+STATUS
+------
+Queue 019 CvGameCoreDLL/CvDLLButtonPopup.cpp is CLOSED.
+Files complete advance from 29 / 169 to 30 / 169.
+F307-F320 remain CONFIRMED.
+F321 / provisional KI#644 remains UNUSED.
+
+FINAL RELAUNCH / POPUP-SOUND RECONCILIATION
+--------------------------------------------
+The remaining C030-WIP17 question was whether an early return from
+CvDLLButtonPopup::launchButtonPopup can strand CvPlayer::m_iButtonPopupsRelaunching,
+causing later popup sounds to be suppressed.
+
+The shape is real: normal launchButtonPopup attempts reach
+CvPlayer::reportButtonPopupLaunched() at the common footer, whereas these branches
+return earlier:
+
+* SAS optional BUTTONPOPUP_TEXT suppression during AI Auto Play;
+* Rise & Fall RF_CHOOSECIV / RF_DEFEAT / RF_RETIRE dispatch;
+* Rise & Fall CvPlot::isAllFog() suppression;
+* Rise & Fall chapter-start CHOOSEPRODUCTION / CHOOSETECH suppression through
+  RiseFall::isBlockPopups().
+
+However, no supported current producer was established that combines one of those
+returns with a live relaunch counter:
+
+1. AI Auto Play cannot normally arm CvPlayer::killAll's counter.
+   Starting Auto Play calls CvGame::setAIAutoPlay(..., bChangePlayerStatus=true),
+   which calls CvPlayer::setHumanDisabled(true). updateHuman then makes isHuman()
+   false. CvPlayer::killAll immediately returns unless the active player is human.
+   Countdown calls use bChangePlayerStatus=false only after that status transition.
+   Therefore SAS's Auto-Play BUTTONPOPUP_TEXT early return does not intersect a
+   newly armed killAll relaunch batch under the supported path.
+
+2. Rise & Fall all-fog/interlude state likewise cannot normally arm the counter.
+   RiseFall::setPlayerControl(..., false) clears the EXE popup queue and changes the
+   former human civilization back to AI control before/while the map is hidden.
+   Once isHuman()==false, killAll returns. On resuming human control, the popup queue
+   is cleared before the AI civilization is handed to the human, and all-fog is then
+   removed.
+
+3. RiseFall::isBlockPopups is true only on the first turn of a later chapter
+   (getCurrentChapter() >= 1). The selected civilization is still AI-controlled when
+   setPlayerControl(..., true) begins, so the EXE popup queue is cleared before the
+   human takeover. Any Choose Production / Choose Tech popup newly attempted during
+   that blocked turn returns false before it can become a displayed popup. It cannot
+   therefore later be one of killAll's relaunchDisplayed entries. The first chapter
+   has isBlockPopups()==false.
+
+4. RF_CHOOSECIV, RF_DEFEAT and RF_RETIRE are modal control-transition popups. No
+   source-visible path was found that arms killAll and then relaunches one of these
+   special popups as a preserved displayed entry before the counter drains.
+
+A theoretical asynchronous edge remains possible in principle if a relaunch counter
+survived an abrupt control/lifecycle transition before the EXE had consumed the
+relaunch queue. The local source does not establish such a producer, and the only
+established consequence is transient missing popup audio. Under the album standard
+this remains defensive bookkeeping debt, not F321.
+
+FINAL ANCESTRY / DUPLICATE SWEEP
+---------------------------------
+The queue-019 findings were rechecked against stock/Civ4CE, K-Mod, Base AdvCiv and
+current SAS source/history where locally available. No later upstream repair was found
+that current SAS failed to inherit, and no pre-queue-019 album root duplicates the
+same root contracts.
+
+The resulting ancestry picture remains coherent:
+
+* F307 is AdvCiv-local: the launchEventPopup "double-check" calls initTriggeredData
+  again, creating/randomizing a second EventTriggeredData instead of validating the
+  original record.
+* F308 is an inherited Great-General popup identity bug: the launcher can expose
+  teammate units while reply resolution uses the active player's player-local unit id.
+* F309 is inherited election-option encoding: a dynamic option ordinal vector shares
+  its integer namespace with the GC.getNumVoteInfos() pseudo-sentinel. The root now
+  covers both the leaked VoteSelectionData path when that value is out of range and
+  the current 48-civ collision path when ordinal 22 is real.
+* F310 is inherited delayed team-ballot eligibility, made especially visible by
+  AdvCiv's stronger capitulated-team candidate rule.
+* F311 is inherited delayed human vassal-tribute relationship state; synchronized
+  resource-trade legality revalidation narrows Grant-resource staleness, but the stale
+  relationship / Refuse-war consequence remains.
+* F312 is inherited LOADUNIT ordinal identity; current SAS's larger multiplayer/team
+  configurations do not change the root contract.
+* F313 is inherited stale CHOOSETECH state. The free-tech manifestation consumes the
+  entitlement before the synchronized grant discovers that the team already owns the
+  tech; ordinary research shares the stale list but has the lower-severity queue
+  consequence recorded in WIP13.
+* F314 originates in K-Mod's strengthened isValidVoteSelection proposal rule without
+  equivalent delayed human-choice/result revalidation.
+* F315 originates in the interaction between selection-bound stock popup contracts and
+  K-Mod's immediate Rapid Unit Cycling path; current SAS inherits both.
+* F316 is AdvCiv-local: practical city-liberation refactoring passes a PlayerTypes
+  value into TASK_LIBERATE's boolean argument, making PLAYER_0 alias false.
+* F317 combines the older Free Colony "display recipient, recompute later" contract
+  with AdvCiv's conquest-city TASK_LIBERATE extension. Stable city identity does not
+  bind the displayed recipient.
+* F318 is inherited delayed diplomatic-vote state combined with AdvCiv's Defy/result
+  implementation: a former AP voting member can retain PLAYER_VOTE_NEVER and veto a
+  shipped Force No Trade resolution despite current vote weight zero.
+* F319 is inherited Extended Game UI logic: the button is gated by a global count of
+  alive humans while testExtendedGame ignores eliminated humans; AdvCiv's adjacent
+  comment explicitly states dead humans should only be offered the menu-exit path.
+* F320 is inherited Pick Religion reservation ownership: the religion slot is marked
+  taken before the human chooses, elimination destroys the popup, and no runtime path
+  releases the orphaned slot.
+
+NUMBER / CROSS-REFERENCE CONSISTENCY
+-------------------------------------
+The final queue-019 map is contiguous and has no accidental duplicate allocation:
+
+F307 -> provisional KI#630
+F308 -> provisional KI#631
+F309 -> provisional KI#632
+F310 -> provisional KI#633
+F311 -> provisional KI#634
+F312 -> provisional KI#635
+F313 -> provisional KI#636
+F314 -> provisional KI#637
+F315 -> provisional KI#638
+F316 -> provisional KI#639
+F317 -> provisional KI#640
+F318 -> provisional KI#641
+F319 -> provisional KI#642
+F320 -> provisional KI#643
+F321 -> provisional KI#644 remains UNUSED
+
+The historical WIP append sections intentionally preserve the status that was true at
+those checkpoints; this C031 durable status and the top-of-file CURRENT PROGRESS
+SUMMARY are authoritative going forward.
+
+QUEUE-019 CLOSURE DECISION
+---------------------------
+The file has now received:
+
+* current-source linear review;
+* six-family SAS-vs-Base executable-delta classification;
+* delayed-state popup construction -> reply -> synchronized receiver tracing;
+* explicit 43 / 43 member-definition coverage;
+* stock/Civ4CE / K-Mod / Base AdvCiv ancestry checks for the numbered roots;
+* final relaunch/audio lifecycle challenge;
+* duplicate and finding/KI-number consistency passes.
+
+No independent F321 survived. Queue 019 is therefore saturated enough to close under
+our current methodology.
+
+PROTECTED NEXT ROUTE
+--------------------
+Do NOT resume at queue 020 yet.
+
+The next audit target is the planned deeper-method re-loop:
+
+001 CvGameCoreDLL/CvPlayerAI.cpp
+002 CvGameCoreDLL/CvUnitAI.cpp
+003 CvGameCoreDLL/CvGameTextMgr.cpp
+004 CvGameCoreDLL/CvPlayer.cpp
+005 CvGameCoreDLL/CvCityAI.cpp
+006 CvGameCoreDLL/CvCity.cpp
+007 CvGameCoreDLL/CvUnit.cpp
+008 CvGameCoreDLL/CvGame.cpp
+009 CvGameCoreDLL/CvPlot.cpp
+
+Only after queue 009's re-audit should the normal pending cursor resume at queue 020.
+
+END C031 DURABLE
+
+
+================================================================================
+C031-WIP01 - QUEUE 001 DEEP-METHOD RE-AUDIT OPENED
+================================================================================
+
+SOURCE / ROUTING
+----------------
+Current authority remains the 2026-08-29 light-source snapshot used by C031 durable.
+The protected post-019 route is now active: queue 001 CvPlayerAI.cpp is reopened for
+its stronger iterative-WIP re-audit. This is a methodological re-loop of a file that
+was already counted complete by the original pass, so the unique completed-file count
+remains 30/169 while one re-audit file is open.
+
+Current source examined locally:
+  CvGameCoreDLL/CvPlayerAI.cpp (~32.2k current physical lines)
+Comparators available locally:
+  Base AdvCiv 1.14 CvPlayerAI.cpp
+  K-Mod 1.46 CvPlayerAI.cpp
+  Civ4CE material where relevant
+No repository source file was modified.
+
+FINDING CURSOR
+--------------
+F321 / provisional KI#644 remains UNUSED.
+Do not renumber old queue-001 roots merely because the deeper pass rediscovers them.
+
+OLD QUEUE-001 ROOT RECONCILIATION
+----------------------------------
+F001 / KI#330 - REPAIRED IN CURRENT SOURCE.
+The master/vassal-locus relation is now computed independently of
+SAS_AI_DO_DIPLO_TECH_TRADE_MASTER_FROM_TO_VASSAL_CONTACT_PERCENT_OPTIMIZE and is
+reused by the separate power-bias path. The old supported-toggle dependency no longer
+survives.
+
+F002 / KI#331 - REPAIRED AT THE CURRENT CONTRACT/CALLER LEVEL CHECKED SO FAR.
+* CvUnit::scrap() now returns bool and reports canScrap vetoes rather than silently
+  presenting success to callers.
+* AI_doTurnUnitsPost marks bKilled and skips the later upgrade path only after
+  scrap() succeeds.
+* AI_doMilitary prefilters canScrap(), advances candidate traversal independently of
+  the successful-disband quota, and increments that quota only after scrap() succeeds.
+* CvTeam::setVassal capitulation nuclear disarm now uses scrapForced(true), correctly
+  separating the mandatory AdvCiv rule from optional SAS AI preservation policy.
+The later queue-002 re-loop will still recheck the CvUnitAI caller expansion before
+KI#331 is considered fully saturated cross-file.
+
+F003 / existing KI#312 - STILL SURVIVES AS AN INCOMPLETE REPAIR / EXISTING ROOT.
+The current KI#312 work materially improves the tech-locus predicate:
+* AI_techValue discounts self-research only when AI_canTradeTechFrom says an internal
+  master/vassal/sibling source could legally transfer the tech.
+* AI_doDiplo suppresses the randomly chosen outsider eBestReceiveTech only when
+  AI_hasLocusTechTradeSource finds an immediate legal/non-denied internal source and
+  the current partner is outside AI_isLocusMember.
+However, AI_doDiplo still computes the independent AdvCiv eBestProgressTech from the
+same outsider. After the cluster-first block potentially sets eBestReceiveTech to
+NO_TECH, the later advc.550f branch still tests only:
+    eBestProgressTech != NO_TECH && eBestProgressTech != eBestReceiveTech
+and can buy that outsider tech directly for gold. eBestProgressTech is never passed
+through the cluster-first/internal-source predicate. In fact, clearing
+ eBestReceiveTech can make the fallback inequality trivially true.
+Therefore the old F003 broadening remains current under KI#312; do not allocate F321.
+The narrow repair direction remains to apply the shared internal-supply/acquisition
+policy consistently to every outsider acquisition route that the cluster-first option
+intends to suppress, including the progress-for-gold fallback.
+
+CURRENT FUNCTION / DELTA TRIAGE
+-------------------------------
+A current-vs-Base function inventory was regenerated before new hunting. The rough
+parser sees ~383 current CvPlayerAI definitions vs ~374 in Base; current-only/helper
+surface includes the newer SAS military-unit-count helpers, Worker Sea diagnostics,
+city-benefit/minimum-worker helpers and related support code.
+
+Largest normalized semantic-delta regions are being prioritized first while retaining
+an eventual whole-file inherited-code pass. The leading current regions are:
+  AI_updateCommerceWeights
+  AI_bonusTradeVal
+  AI_updateGreatPersonWeights
+  AI_doTurnUnitsPost
+  AI_doCivics / AI_civicValue
+  AI_doDiplo
+  AI_barbarianTargetCityScore / AI_religionValue
+  AI_doMilitary / AI_doCommerce
+  serialization/read and worker-demand helpers
+  AI_disbandValue / AI_isVictoryValid / AI_chooseResearch / AI_diploVote / etc.
+Existing KI-tagged repairs and later cross-file findings involving CvPlayerAI will be
+reconciled before any new F321 allocation.
+
+AI_updateCommerceWeights - FIRST DEEP PASS
+-------------------------------------------
+This is the largest current normalized SAS-vs-Base function delta (~369 current lines
+vs ~169 Base), but much of the added surface is explicit culture-victory specialization
+and level-gated diagnostics rather than hidden control flow.
+
+Controls established so far:
+* AI culture-victory targeting is now explicitly separated from human culture-slider
+  inference. bAICultureVictory requires !isHuman(), Culture2 stage and a valid culture
+  victory; human slider thresholds remain available for automation.
+* city_countdown_list is populated once per current city and sorted before rank use;
+  the required-city bottleneck index is read only when iVictoryCities > 0 and the
+  empire has at least that many cities.
+* The per-required-city weight division by iVictoryCities sits behind rank <=
+  iVictoryCities; iVictoryCities==0 therefore cannot enter that divide.
+* Legendary AI culture-victory cities intentionally receive zero victory investment
+  while separately calculated local culture pressure remains available; this matches
+  the stated goal of stopping further victory production in an already-finished city.
+* Newly introduced AI_setCultureVictoryRank / AI_setCultureVictoryInvestmentPercent
+  state is assigned for every city during the normal pass and explicitly cleared for
+  Barbarians. No obvious stale per-city state leak has survived this first pass.
+* The large CULTURE_* logging additions are gated by gCultureLogLevel and have not yet
+  produced a gameplay-state mutation or independent defect.
+
+No F321 has emerged from this function yet. It remains open to a second caller/data
+pass when the consuming city-production/specialist code is reconciled later in the
+queue-001/queue-005 re-loop.
+
+NEXT EXACT WORK
+---------------
+1. Deep-audit AI_bonusTradeVal, currently one of the largest SAS semantic additions:
+   building bonus synergy, buyer-civilization building substitution, religious
+   coverage heuristics, strategic-resource relative multipliers, master/vassal-locus
+   exemption and market-value interaction.
+2. Reconcile any suspicious shape against current defines/data and later KI#311/
+   KI#387 tech/team-overload history before numbering it.
+3. Continue to AI_updateGreatPersonWeights and the remaining largest semantic deltas.
+4. Build an explicit current KI/known-root map for CvPlayerAI (including later
+   cross-file F050/F051-era roots) so the deep re-loop cannot duplicate them.
+5. Eventually perform the inherited high-risk whole-file pass; this WIP is not a
+   closure claim.
+
+END C031-WIP01
+
+
+================================================================================
+C031-WIP02 - F321 / KI#644: AI_bonusTradeVal uses pre-change strategic holdings
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 is now CONFIRMED.
+F322 / provisional KI#645 is UNUSED.
+No repository source file was modified.
+
+F321 / provisional KI#644 - CONFIRMED CURRENT SAS MARGINAL-VALUATION DEFECT
+----------------------------------------------------------------------------
+Title:
+AI_bonusTradeVal strategic substitute multipliers ignore iChange and can undervalue
+cancellation of the buyer's last imported key resource.
+
+Birth / scope:
+SAS-local. The relative strategic-resource valuation block was introduced by the
+2025-09-30 AdvCiv-SAS work that added era/substitute-aware Iron/Copper/Horse/Camel/
+Elephant pricing. Base AdvCiv does not contain this block.
+
+Current supported configuration:
+SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_IRON_COPPER_HORSE_CAMEL_RELATIVELY = 1 in the
+current GlobalDefines_advciv_sas.xml. The individual percentages are active current
+balance values, e.g. Renaissance Iron with mounts and no Iron = 200%.
+
+Root contract:
+AI_bonusTradeVal(eBonus, eFromPlayer, iChange, ...) is not acquisition-only. AdvCiv's
+advc.036 contract uses iChange prospectively; AI_considerOffer passes iChange=-1 while
+checking whether an existing deal should be canceled/renegotiated. The inherited
+AI_bonusVal call therefore evaluates the marginal state after loss.
+
+The SAS strategic block instead builds its substitute state solely from the current
+live inventory:
+  bHaveCopper    = getNumAvailableBonuses(Copper) > 0
+  bHaveIron      = getNumAvailableBonuses(Iron) > 0
+  bHaveHorse     = getNumAvailableBonuses(Horse) > 0
+  bHaveCamel     = getNumAvailableBonuses(Camel) > 0
+  bHaveElephants = getNumAvailableBonuses(Elephants) > 0
+It never adjusts the bonus being evaluated by iChange.
+
+Supported reproduction:
+1. Renaissance AI P has Horse/Camel but no Iron.
+2. P considers buying its first/only Iron from outsider Q.
+3. Before the deal, bHaveIron=false, so current configured logic applies
+   SAS_AI_BONUS_TRADE_VAL_RELATIVE_BONUSES_REN_NO_IRON_WITH_MOUNT_IRON_PCT = 200.
+   That high marginal value can help justify the purchase.
+4. The deal starts; the imported Iron is now included in P's current
+   getNumAvailableBonuses(Iron), so bHaveIron=true.
+5. Once the deal is cancelable, AI_checkCancel calls
+   AI_considerOffer(..., iChange=-1). The resource received from Q reaches
+   P.AI_bonusTradeVal(Iron, Q, -1, ...).
+6. Base/marginal valuation correctly treats this as losing a copy, but the SAS
+   substitute block sees the pre-change live import and therefore concludes P already
+   has Iron. The intended "no Iron, but mounts" 200% branch is skipped and the relative
+   multiplier remains 100%.
+7. AI_considerOffer can therefore value the same still-critical import at roughly
+   half of the relative strategic value that caused it to be bought and can return
+   false, making AI_checkCancel return RENEGOTIATE. AI-AI handling then kills the deal
+   and may repropose; AI-human handling can cancel/renegotiate through its existing
+   path. Once the import is gone, a fresh acquisition valuation again sees no Iron and
+   restores the high multiplier, permitting oscillatory "valuable to buy, cheap to
+   lose" behavior.
+
+The same root affects other substitute-state rules whenever the evaluated -1 change
+removes the last currently available configured resource: Horse/Camel/Elephants in
+relevant eras and pre-Medieval metal/mount group tests. Losing one of multiple copies
+correctly leaves the boolean true; the defect is specifically that the prospective
+availability is not computed at all.
+
+Why this is not KI#239 / KI#240:
+* KI#239 concerned a hard AI-buy DENIAL leaking onto human recipients.
+* KI#240 concerned the hard dominated-Copper denial overriding live strategic and
+  corporation usefulness.
+* F321 is in the price/marginal-value path after legality. It exists even with those
+  denial fixes and is driven by current-vs-post-change inventory state.
+
+Why this is not merely tuning:
+The XML percentages themselves are balance choices. The defect is applying those
+choices to a state different from the state that the function's iChange argument is
+explicitly evaluating. Acquisition and cancellation of the same last imported copy
+therefore use inconsistent substitute predicates.
+
+Narrow repair direction:
+Compute prospective availability for each configured resource, applying iChange only
+to the resource currently being valued, e.g. conceptually:
+  availableAfter(B) = getNumAvailableBonuses(B) + (eBonus == B ? iChange : 0) > 0
+Then derive bHaveIron/bHaveHorse/etc. and grouped predicates from that prospective
+state. Preserve all current era percentages, master/vassal-locus exemption and
+ordinary AI_bonusVal behavior.
+
+AI_bonusTradeVal - OTHER SURFACE CHECKED SO FAR
+------------------------------------------------
+The multi-effect building-synergy pass is intentionally heuristic. Current XML was
+pulled directly from the supplied light-source ZIP to distinguish data reality from
+source speculation:
+* the feature is enabled by default;
+* current SPECIALBUILDING_TEMPLE and SPECIALBUILDING_MONASTERY have their own
+  SpecialBuildingInfo technology gates, but no current Temple/Monastery building in
+  CIV4BuildingInfos carries a nonzero BonusHealthChange/BonusHappinessChange, so the
+  function's omission of SpecialBuildingInfo tech-gate checks does not currently
+  create a bonus-price error through those two budget branches;
+* ordinary nonreligious bonus-effect buildings remain deliberate approximate
+  coverage valuation rather than a canConstruct simulation. Missing city-specific
+  prerequisites/location coverage alone is therefore not promoted without a current
+  contradiction/consequence.
+
+The overloaded GET_TEAM(eFromPlayer) shape was also rechecked against rejected KI#311
+/ KI#387: AdvCiv deliberately overloads GET_TEAM(PlayerTypes) through TEAMID, so there
+is no player-ID-as-team-ID defect here.
+
+NEXT
+----
+Continue AI_bonusTradeVal through:
+* human-information/fairness substitution (bUseOurBonusVal) vs new buyer-specific
+  multipliers;
+* master/vassal-locus exemption vs generic AIObjective multiplier;
+* market-value cap and vassal-price tail;
+* current XML building/resource data for any rule that appears source-suspicious.
+Then move to AI_updateGreatPersonWeights and the next largest current semantic deltas.
+F322 remains unused until an independent root survives producer/contract/consequence
+and duplicate checks.
+
+END C031-WIP02
+
+
+================================================================================
+C031-WIP03 - F322 / KI#645: KI#66 building-synergy gate ignores additional AND techs
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 is now CONFIRMED.
+F323 / provisional KI#646 is UNUSED.
+No repository source file was modified.
+
+F322 / provisional KI#645 - CONFIRMED CURRENT SAS TECH-GATE DEFECT
+-----------------------------------------------------------------
+Title:
+AI_bonusTradeVal's KI#66 multi-effect building-synergy pre-check tests only the
+building's primary prerequisite tech, so bonuses can receive building-effect price
+markup before all of that building's required AND technologies are actually known.
+
+Birth / lineage:
+SAS-local. The KI#66 multi-effect bonus valuation block was introduced at practical
+commit 4997, fce68b70e9161e7428339b593c29c3817ec79fe7, titled:
+"(Fixed and greatly enhanced) AI valuing for example pig (+1 health) at the same value
+than maize ..."
+Base AdvCiv does not contain this extra rBoost pass. The original implementation and
+current source both use only kB.getPrereqAndTech() for the building-tech gate.
+
+Current supported configuration:
+SAS_AI_BONUS_TRADE_VAL_VALUE_MORE_MULTI_EFFECT_BONUSES = 1 in current
+GlobalDefines_advciv_sas.xml. KI#66 and the source comments explicitly describe the
+rule as applying the extra bonus valuation once the buyer has the tech required to
+build the relevant building.
+
+Engine construction contract:
+CvPlayer::canConstruct does not treat CvBuildingInfo::getPrereqAndTech() as the whole
+technology requirement. Unless bIgnoreTech is requested, it requires:
+  1. kBuilding.getPrereqAndTech(), AND
+  2. every entry in kBuilding.getPrereqAndTechs(i).
+CvBuildingInfo::isTechRequired likewise recognizes both the primary prerequisite and
+every additional getPrereqAndTechs entry (and also a SpecialBuilding tech gate).
+These are genuine AND requirements, not merely Pedia annotations.
+
+Current KI#66 pricing code instead does only:
+  TechTypes const eReq = (TechTypes)kB.getPrereqAndTech();
+  if (eReq != NO_TECH && !kOurTeam.isHasTech(eReq))
+      continue;
+It never tests kB.getNumPrereqAndTechs()/getPrereqAndTechs(i) before adding that
+building's BonusHealthChanges/BonusHappinessChanges to rBoost.
+
+Concrete current-data reproduction - ordinary Grocer:
+Current CIV4BuildingInfos.xml has:
+  BUILDING_GROCER
+    primary PrereqTech = TECH_MATHEMATICS
+    additional AND tech = TECH_CURRENCY
+    bonus effects include +1 for Spices/Banana/Grapes/Sugar.
+Current CIV4TechInfos.xml does not make Currency a prerequisite of Mathematics:
+  Mathematics requires Writing plus one of its own OR prerequisites;
+  Currency instead requires Code of Laws plus its own OR prerequisite.
+Therefore a perfectly normal current game state can have Mathematics while Currency
+is still unknown.
+
+In that state:
+1. Buyer P has Mathematics but not Currency.
+2. P cannot construct a Grocer; CvPlayer::canConstruct rejects it on the missing
+   additional TECH_CURRENCY prerequisite.
+3. AI_bonusTradeVal nevertheless passes its sole primary-tech test because P has
+   Mathematics.
+4. For Banana/Spices/Grapes/Sugar, the Grocer's positive bonus effect is added to
+   rBoost as though the building were already technology-enabled.
+5. For an ordinary non-water +1 effect, rBoost changes from 1 to 2 before the block's
+   final 0.75 damping, i.e. this building alone materially raises the KI#66 multiplier
+   while the building remains unavailable for a missing required technology.
+6. The AI can consequently offer/pay a higher bonus price during a real Classical-era
+   interval than the KI#66 rule says it should.
+
+Additional current examples:
+* BUILDING_PERSIAN_APOTHECARY, BUILDING_CARTHAGE_PUNIC_AGORA and
+  BUILDING_PORTUGAL_PEIXARIA have the same Mathematics + Currency requirement and
+  positive bonus effects, so their buyer-civilization substitutions inherit the same
+  premature valuation.
+* BUILDING_OTTOMAN_HAMMAM and BUILDING_IRELAND_MUILEANN_UISCE require Mathematics plus
+  the additional AND tech Masonry. Their Marble/Wheat effects are likewise counted
+  after Mathematics alone even when Masonry is still unknown.
+
+Why this is a contract defect rather than a tuning disagreement:
+KI#66's simplifying heuristic is intentionally generous: once the building is
+technology-enabled, treat it approximately as broadly available without simulating
+city-by-city construction. That approximation is not the defect. The defect occurs
+one stage earlier: the code says a building is technology-enabled after checking only
+one member of a multi-tech AND requirement. Current construction code and XML both
+make the omitted prerequisites mandatory, and KI#66's own documentation says "if we
+have their required tech" / "as soon as the buyer has the tech required to build these
+buildings." The pricing code therefore violates its stated gate in current data.
+
+Why this is independent from F321:
+F321 concerns prospective iChange state in the later strategic-substitute multiplier,
+especially cancellation of the last imported strategic resource. F322 concerns the
+earlier building-synergy rBoost and exists on ordinary acquisition pricing even with
+no cancellation and no Iron/Horse/Camel substitute logic.
+
+Why existing AdvCiv AI_baseBonusBuildingVal does not rescue it:
+AI_baseBonusBuildingVal elsewhere in this same file explicitly constructs
+bHasTechForBuilding by checking both getPrereqAndTech() and every
+getPrereqAndTechs(i). That demonstrates that the codebase already knows the complete
+building-tech contract, but the newer KI#66 pass independently reimplemented only the
+primary check.
+
+Current-data SpecialBuilding note:
+CvPlayer::canConstruct also checks a SpecialBuildingInfo technology prerequisite.
+The KI#66 pass does not. Current bonus-effect cathedrals are deliberately skipped, and
+current Temple/Monastery buildings have no nonzero bonus health/happiness effects, so
+that omission does not supply an additional current F322 reproduction. It is sensible
+defense-in-depth to use the complete technology gate, but this finding does not rely
+on speculative future XML.
+
+Narrow repair direction:
+Before counting kB's bonus effect, require every building technology prerequisite,
+not only getPrereqAndTech(). The smallest behavior-preserving repair is conceptually:
+  if (eReq != NO_TECH && !kOurTeam.isHasTech(eReq))
+      continue;
+  bool bMissingAndTech = false;
+  for (int i = 0; i < kB.getNumPrereqAndTechs(); i++)
+      if (!kOurTeam.isHasTech(kB.getPrereqAndTechs(i))) ...
+  if (bMissingAndTech)
+      continue;
+Optionally include the SpecialBuilding tech prerequisite for future XML robustness.
+Do not replace the KI#66 heuristic with full canConstruct: city/religion/resource/
+location requirements were intentionally abstracted away and doing so would change
+its design rather than fix this specific gate.
+
+DUPLICATE / HISTORY CHECK
+-------------------------
+The current reconciled album has no existing root for missing secondary
+CvBuildingInfo technology prerequisites in AI_bonusTradeVal/KI#66. Existing KI#66 is
+the enhancement being audited, not a prior report of this defect. F321 is a separate
+prospective-resource-state root. The initial commit diff confirms the incomplete
+single-tech check was present when the KI#66 feature was introduced rather than being
+a later accidental formatting/refactor regression.
+
+AI_bonusTradeVal - CURRENT CONTINUATION
+---------------------------------------
+F321 and F322 show two independent defects in the large SAS-local valuation extension,
+but the function is not saturated yet. Continue through:
+* human-information/fairness substitution (bUseOurBonusVal) versus buyer-specific
+  building and strategic multipliers;
+* whether the generic AIObjective multiplier is intentionally outside the
+  master/vassal-cluster exemption or contradicts current docs/defines;
+* seller/vassal and market-value tail behavior;
+* remaining current XML/data assumptions in the building-synergy block, separating
+  deliberate approximation from actual prerequisite/data-contract errors.
+Then continue to AI_updateGreatPersonWeights and the remaining largest semantic
+CvPlayerAI deltas. F323 remains unused until another independent root survives the
+same producer/contract/consequence and duplicate standard.
+
+END C031-WIP03
+
+
+================================================================================
+C031-WIP04 - F323 / KI#646: AI_doCivics last-pass flag can bypass paid-anarchy safeguards
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 remains CONFIRMED.
+F323 / provisional KI#646 is now CONFIRMED.
+F324 / provisional KI#647 is UNUSED.
+Existing KI#312 remains an incompletely repaired older root; it was not renumbered.
+No repository source file was modified.
+
+F323 / provisional KI#646 - CONFIRMED CURRENT SAS CONTROL-STATE DEFECT
+---------------------------------------------------------------------
+Title:
+AI_doCivics uses the final recheck pass's bWillSwitch flag as though it described the
+accumulated revolution bundle, so the SAS anti-flip-flop recheck can bypass the
+near-future-civic and low-treasury safeguards for an already accepted paid-anarchy
+switch.
+
+Birth / lineage:
+The multi-pass bWillSwitch/bWantSwitch loop is inherited from K-Mod and Base AdvCiv,
+but its original thresholds preserve an important coupling: a rejected candidate sets
+bWantSwitch only when its value is roughly >20% better, while the recheck lowers the
+extra-anarchy threshold to 20%. Thus a candidate strong enough to request the recheck
+is normally strong enough to be accepted on that recheck, keeping the final
+bWillSwitch state aligned with the nonempty proposed bundle.
+
+AdvCiv-SAS's anti-flip-flop work changed that contract. Current source says:
+  bWouldLikeSwitch = (iBestValue > iCurrent);
+  if (bWouldLikeSwitch)
+      bWantSwitch = true;
+but acceptance additionally requires BOTH the inherited percent test and the SAS
+absolute-slack test. Current XML enables a 20% absolute slack of |current value|
+(SAS_AI_DO_CIVICS_SWITCH_SLACK_PERCENT=20, minimum 5), with still larger slack for a
+candidate that adds paid anarchy. Therefore a candidate can now request another pass
+while being intentionally unable to pass that next pass.
+
+Root state mismatch:
+* aeBestCivic and iAnarchyLength accumulate accepted switches across passes.
+* bWillSwitch and bWantSwitch are reset to false at the start of EVERY pass.
+* The loop continues while the PREVIOUS pass ended with both true.
+* After the loop, the near-future-civic and treasury safeguards are guarded by:
+    if (iAnarchyLength > 0 && bWillSwitch)
+  Here bWillSwitch describes only whether the FINAL pass accepted something, not
+  whether aeBestCivic still contains a switch accepted in an earlier pass.
+* canRevolution(aeBestCivic) later tests the actual accumulated bundle and can return
+  true even when final-pass bWillSwitch is false. CvPlayer::revolution likewise only
+  re-runs canRevolution; neither function repeats the AI wait/treasury safeguards.
+
+Concrete current-configuration control-flow reproduction:
+Assume two civic options A and B are encountered in that order, with the empire not
+currently in anarchy and eligible to revolution.
+
+1. Pass 1 accepts A. Let A require paid anarchy; iAnarchyLength becomes 2,
+   aeBestCivic[A] becomes A-new, and bWillSwitch=true.
+2. Later in pass 1, B's current AI value is 100 and its best alternative is 110. If B
+   adds no more anarchy to A's existing bundle, the percent threshold is only 5%, so
+   110 passes the inherited percent test.
+3. Current SAS absolute slack is max(5, 20% of 100)=20. The +10 improvement fails
+   bPassSlack because 10 is not >20. B is rejected, but because 110>100 the SAS branch
+   still sets bWantSwitch=true.
+4. Pass 1 therefore ends with bWillSwitch=true && bWantSwitch=true, entering pass 2.
+5. At the start of pass 2 both booleans are reset. Option A is skipped because the
+   accumulated aeBestCivic already contains the same best civic A-new.
+6. B is evaluated again against the live civic state: AI_bestCivic calls
+   AI_civicValue directly and does not install aeBestCivic's local A change into the
+   player. B still has 110 vs 100 and still fails the same 20-point absolute slack.
+   It sets bWantSwitch=true but never sets bWillSwitch=true.
+7. The loop exits because final-pass bWillSwitch=false. aeBestCivic still contains A
+   and iAnarchyLength is still 2.
+8. The block guarded by `iAnarchyLength > 0 && bWillSwitch` is skipped entirely.
+9. `canRevolution(aeBestCivic)` sees that A differs from the live civic and returns
+   true; the revolution executes and pays the 2 turns of anarchy.
+
+Concrete skipped consequences:
+A) AdvCiv low-treasury protection (advc.131):
+The skipped block contains the explicit test intended to avoid paid anarchy when the
+AI lacks enough treasury for its negative gold rate. For example, with 2-turn anarchy,
+0 strike turns, gold=20 and gold-per-turn=-30, the normal test can return before the
+revolution. Under the state mismatch above it is never reached, so the AI can enter
+anarchy despite failing AdvCiv's own affordability rule.
+
+B) Near-future civic wait:
+The same skipped block checks whether current research will shortly unlock another
+valuable civic that can be bundled without increasing the current anarchy length.
+When the state mismatch occurs, this intended delay is bypassed too; the AI can pay
+anarchy now and then reconsider after the newly researched civic arrives.
+
+Why this is distinct from existing KI#159:
+KI#159 diagnosed/tuned excessive paid-anarchy civic churn and direct reversals. Its
+implemented fixes deliberately add larger acceptance slack for anarchy-increasing
+candidates and a longer post-anarchy civic timer. F323 is a control-flow defect in that
+new hysteresis interaction: the broadened `bWantSwitch = any positive improvement`
+can make a recheck pass accept nothing, which causes an older last-pass flag to hide an
+already accepted bundle from the safeguards below. Fixing F323 does not change the
+KI#159 tuning values; it makes those values coexist correctly with the existing
+AdvCiv safeguards.
+
+Why this is not simply an inherited K-Mod bug:
+The potentially fragile use of final-pass bWillSwitch is inherited, but K-Mod's own
+recheck trigger is tied to a >20% rejected improvement and its recheck acceptance
+threshold is 20%. SAS explicitly replaced that trigger with any `iBestValue > iCurrent`
+while adding an independent absolute-slack requirement that remains active on the
+recheck. This breaks the threshold coupling on which the inherited control structure
+relied and provides the current supported reproduction above. Base AdvCiv 1.14 retains
+the K-Mod-style 20% bWantSwitch trigger and does not contain the SAS absolute slack.
+
+Narrow repair direction:
+Do not use final-pass bWillSwitch as a proxy for "the accumulated bundle contains a
+paid-anarchy switch." The smallest repair for the two safeguards is to key them on the
+accumulated state, e.g. `if (iAnarchyLength > 0)` (or an explicit persistent
+`bAnySwitch`/bundle-diff flag), rather than on bWillSwitch from the last pass.
+Separately, bWantSwitch could be restored to a predicate that guarantees the recheck
+has some chance to pass, but that is a tuning/efficiency choice; the correctness fix is
+to make the post-loop safeguards describe the accumulated bundle.
+
+DUPLICATE / HISTORY CHECK
+-------------------------
+The reconciled album has no earlier numbered root for AI_doCivics's final-pass
+bWillSwitch masking an accumulated civic bundle. KI#159 is a tuning/improvement entry
+for churn and paid-anarchy damping, not this safeguard-bypass diagnosis. Current
+CvPlayer::canRevolution / revolution confirm there is no downstream affordability or
+near-future-civic revalidation that would neutralize the bug.
+
+QUEUE-001 CONTINUATION
+----------------------
+AI_doCivics remains open beyond F323. Continue through:
+* the remainder of the current SAS logging/timer changes and any interaction between
+  iFinalAnarchyLength, getMaxAnarchyTurns and no-anarchy civic switches;
+* AI_civicValue's large SAS specialist/valuation changes, reconciling current XML and
+  civic data rather than treating heuristic disagreements as bugs;
+* then continue the current semantic-delta priority list (AI_doDiplo,
+  AI_barbarianTargetCityScore / AI_religionValue, AI_doMilitary, AI_doCommerce, etc.)
+  before the inherited whole-file saturation pass.
+F324 remains unused until an independent producer/contract/consequence chain survives
+current-data and duplicate checks.
+
+END C031-WIP04
+
+
+================================================================================
+C031-WIP05 - F324 / KI#647: unlimited-specialist civic value double-counts shared citizens
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 remains CONFIRMED.
+F323 / provisional KI#646 remains CONFIRMED.
+F324 / provisional KI#647 is now CONFIRMED.
+F325 / provisional KI#648 is UNUSED.
+No repository source file was modified.
+
+F324 / provisional KI#647 - CONFIRMED CURRENT SAS CAPACITY DOUBLE COUNT
+-----------------------------------------------------------------------
+Title:
+AI_civicValue's generalized unlimited-specialist estimator reuses the same finite
+citywide specialist-capable population independently for every specialist type a civic
+unlocks, so Caste System can value one citizen as several simultaneous specialists.
+
+Birth / lineage:
+SAS-local, in the generalized unlimited-specialist civic valuation introduced for
+existing KI#76. Base AdvCiv/K-Mod do not contain this per-specialist capacity/output
+estimator. Later KI#315 and KI#316 repaired the sign and baseline-GPP treatment of the
+same block but intentionally left its capacity estimate unchanged.
+
+Current code contract:
+For every specialist type where `kCivic.isSpecialistValid(eLoopSpecialist)`, current
+AI_civicValue loops every city and computes:
+
+  iSpecialistNow = max(0,
+      population - workingPopulation - angryPopulation)
+  iFoodSlackSpecs = (foodDifference() >= 2 ? 1 : 0)
+  iSurplus = iSpecialistNow + iFoodSlackSpecs
+  iOpen = max(0, maxSlotsForThisType - assignedCountForThisType)
+  iNeed = max(0, iSurplus - iOpen)
+  iPotential += min(iNeed, softCap)
+
+It then multiplies that iPotential by the output value of THIS specialist and adds the
+result to iTotal before repeating the entire city-capacity calculation for the next
+unlimited specialist type.
+
+The population term is explicitly a shared finite pool, not a per-specialist-type
+resource. CvCity::visiblePopulation() is defined by the same expression:
+  getPopulation() - angryPopulation() - getWorkingPopulation().
+Assigned specialist counts change the city's specialist population; one population
+point cannot be an Artist and a Scientist and a Merchant at the same time.
+
+Concrete current-data reproduction:
+Current CIV4CivicInfos.xml has exactly one multi-type unlimited-specialist civic:
+  CIVIC_CASTE_SYSTEM -> SPECIALIST_ARTIST,
+                        SPECIALIST_SCIENTIST,
+                        SPECIALIST_MERCHANT.
+The other current unlimited-specialist civics unlock only one type each (Police State
+Spy, Wage Labor Engineer, Trade Bloc Merchant, Organized Religion Priest), so the
+shared-capacity duplication specifically biases Caste in current data.
+
+Minimal one-city case:
+1. P is evaluating Caste System while not currently running it.
+2. City C has zero currently assigned specialists, no open Artist/Scientist/Merchant
+   slots, no angry population, and `foodDifference() >= 2`.
+3. For Artist, iSpecialistNow=0 and iFoodSlackSpecs=1, so iNeed/iPotential gain 1.
+4. The entire same city calculation is repeated for Scientist: the SAME one-person
+   food-slack capacity is again counted as iPotential=1.
+5. It repeats again for Merchant.
+6. iTotal therefore prices one plausible extra citizen as one Artist PLUS one Scientist
+   PLUS one Merchant. All three current specialist types have positive commerce and/or
+   GPP output, so all three impossible simultaneous assignments add positive civic
+   value.
+
+Existing-specialist case is stronger:
+If a city has, for example, three non-angry specialist citizens and no open slots for
+Caste's three types, the shared iSpecialistNow pool can contribute up to three Artists,
+three Scientists and three Merchants before the soft caps - nine valued specialist
+assignments from three people. The per-type current-slot subtraction does not make the
+pools independent; it only changes how much of the SAME population each type appears
+to need.
+
+Consequence / why this is a defect rather than ordinary heuristic tuning:
+The block's own comment says it estimates "How many extra of this specialist could we
+plausibly run empire-wide?" and "the marginal need this civic actually unlocks." Its
+soft cap and food-slack approximation are tuning choices. Reusing the same people as
+productive specialists several times is a capacity-accounting contradiction: the
+outputs summed into iTotal cannot coexist. Because Caste is the only current civic
+unlocking three types, this systematically inflates Caste relative to the one-type
+unlimited-specialist civics the KI#76 rewrite was intended to compare more fairly.
+It can also make active Caste unusually sticky: existing specialist population is
+reused for each of its three valid specialist types when its absolute civic score is
+recomputed.
+
+Why this is distinct from KI#76 / KI#315 / KI#316:
+* KI#76 broadly rewrote and tuned unlimited-specialist valuation because inherited
+  logic overfavored Caste and failed to value Engineer-like alternatives well.
+* KI#315 fixed an active-civic sign error in this block.
+* KI#316 restored baseline GPP value.
+* F324 is independent shared-capacity arithmetic: even with those repairs, one finite
+  population pool is still multiplied across every unlocked type.
+
+Narrow repair direction:
+Compute each city's marginal unrestricted-specialist capacity once, then allocate that
+finite capacity across the specialist types the civic unlocks. A conservative heuristic
+could value each marginal citizen at the best currently useful unlocked specialist (or
+allocate by the same specialist-value ranking used by citizen assignment) rather than
+summing a full copy of the capacity for every type. If specialist-type flexibility is
+intended to carry extra value, add a bounded diversity/flexibility premium separately;
+do not represent flexibility as simultaneous duplicate citizens.
+
+DUPLICATE CHECK
+---------------
+No existing reconciled album root or current Known Issues entry diagnoses reuse of the
+same citywide specialist-capacity pool across multiple `SpecialistValid` types. KI#76
+is the feature/tuning history and KI#315/#316 are different arithmetic defects within
+the block. Current XML provides a direct three-type Caste reproduction, so this is not
+future moddability-only debt.
+
+AI_doCivics FINAL TAIL CONTROL
+------------------------------
+After F323, the rest of AI_doCivics was rechecked before moving into AI_civicValue:
+* iFinalAnarchyLength is recomputed from the actual accumulated aeBestCivic bundle,
+  so the KI#159 extra civic timer uses the final bundle rather than stale iAnarchyLength.
+* no-anarchy switches receive no per-anarchy extra timer; the inherited base timer
+  choice still distinguishes players whose maximum anarchy is zero.
+* the structured logging caches are diagnostic-only and do not alter civic choice.
+No independent F324 arose from the timer/log tail.
+
+QUEUE-001 CONTINUATION
+----------------------
+Continue AI_civicValue through the other SAS semantic additions:
+* current civic-percent-anger replacement (reconcile against repaired KI#317);
+* specialist-commerce weighting / toned multiplier and its define contracts;
+* unlimited-specialist per-output/anarchy scaling beyond the shared-capacity root;
+* current civic XML cases and any state-dependent iS behavior.
+Then continue to AI_doDiplo and the next high-delta functions before inherited whole-
+file saturation. F325 remains unused until an independent current root survives.
+
+END C031-WIP05
+
+
+================================================================================
+C031-WIP06 - F325 / KI#648: active civic-pressure benefit is sign-inverted
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 remains CONFIRMED.
+F323 / provisional KI#646 remains CONFIRMED.
+F324 / provisional KI#647 remains CONFIRMED.
+F325 / provisional KI#648 is now CONFIRMED.
+F326 / provisional KI#649 is UNUSED.
+No repository source file was modified.
+
+F325 / provisional KI#648 - CONFIRMED CURRENT SAS DIRECTION/SIGN DEFECT
+-----------------------------------------------------------------------
+Title:
+AI_civicValue's city-level CivicPercentAnger replacement adds the hypothetical welfare
+change directly to the civic's absolute score; when the pressure civic is already
+active, the modeled harm of dropping it therefore becomes negative value for KEEPING
+the civic.
+
+Birth / lineage:
+SAS-local in the KI#75 replacement of K-Mod's broad civic-pressure estimate with a
+city-level actual-angry-citizen model. Current KI#317 later fixed the city-selection
+logic so happy cities that would become unhappy are no longer skipped, but retained
+the direction/sign calculation examined here.
+
+Relevant AI_civicValue contract:
+`iS` is the inherited K-Mod sign identifying the direction of the hypothetical change:
+  iS = +1 if eCivic is not currently active (evaluate gaining/adopting its effects)
+  iS = -1 if eCivic is currently active (evaluate losing/dropping its effects).
+Surrounding state-dependent civic components use that sign so the marginal welfare
+change is converted into positive absolute value for a beneficial civic in either
+state.
+
+Current pressure block instead computes:
+  iPermilDelta = -iS * iPermilIfWeDont
+  iAngryCitizenChange = changedAngry - currentAngry
+  iCityVal = -12 * iAngryCitizenChange
+  iValue += scaled iCityVal
+The first two lines correctly model the hypothetical direction. The final value is
+then the welfare change of MAKING that hypothetical switch, not yet the absolute value
+of eCivic. For iS=-1 the code fails to reverse the drop result back to the value of
+keeping the active civic.
+
+Current-data reachability:
+Current CIV4CivicInfos.xml gives CIVIC_THEOCRACY `iCivicPercentAnger=200`; it is the
+current nonzero CivicPercentAnger civic. Current XML also enables both city-level
+pressure scales:
+  SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_UNHAPPY = 150
+  SAS_AI_CIVIC_VALUE_ANGER_PRESSURE_SCALE_PERCENT_IF_A_CITY_IS_HAPPY = 100.
+Therefore this is live current gameplay logic whenever known rivals running Theocracy
+create enough pressure to change actual angry-citizen counts.
+
+Concrete direction reproduction:
+Assume P is not running Theocracy, rivals create enough Theocracy pressure that city C
+has two angry citizens attributable to that pressure, and adopting Theocracy removes
+those two angry citizens.
+
+Before adoption:
+1. iS=+1.
+2. iPermilDelta is negative, modeling removal of pressure.
+3. changedAngry-currentAngry = -2.
+4. iCityVal = -12 * -2 = +24 before the configured scale.
+5. The pressure relief correctly makes Theocracy more attractive to adopt.
+
+After adoption, with the same rivals still running Theocracy:
+1. AI_civicValue evaluates active Theocracy with iS=-1.
+2. `getCivicPercentAnger(eCivic,true)` still reports the rival pressure that would
+   return if P stopped running the civic.
+3. iPermilDelta is now positive, correctly modeling the hypothetical DROP.
+4. If dropping would restore two angry citizens, iAngryCitizenChange=+2.
+5. iCityVal becomes -24 and is added directly to THE ACTIVE THEOCRACY'S score.
+Thus the very anger that Theocracy is currently preventing LOWERS its active civic
+value instead of raising it.
+
+The same logic can produce a pick-then-drop discontinuity: the component is positive
+while considering adoption and negative after adoption, even though the underlying
+rival pressure has not changed. Safely happy cities that would remain happy contribute
+zero as intended; the defect concerns cities where the civic actually changes angry
+population.
+
+Why this is a sign/contract bug rather than civic tuning:
+The KI#75 design explicitly says to value the pressure civic when it actually benefits
+our cities. If keeping an active civic prevents angry citizens, that is the same
+benefit as adopting it to remove those citizens. Current code instead treats the harm
+of a hypothetical drop as evidence against the active civic. This is a direction
+conversion error independent of the chosen 12-point base or 100/150% scales.
+
+Why this is distinct from KI#315 and KI#317:
+* KI#315 fixed a sign bug in the separate unlimited-specialist intrinsic-value block,
+  where active civics subtracted their own specialist benefit.
+* KI#317 fixed the pressure block's pre/post-happiness filtering so cities crossing the
+  happiness cap are counted.
+* F325 is the remaining directional normalization of the pressure welfare delta. The
+  KI#317 city set can now be exactly correct while the resulting active-civic value is
+  still sign-inverted.
+
+Narrow repair direction:
+Convert the hypothetical welfare change back into the absolute value of eCivic using
+`iS`, conceptually e.g.:
+  iCityVal = -12 * iAngryCitizenChange * iS;
+This leaves the current pressure calculation, current/post-change angry counts and XML
+scales intact:
+* inactive/adopt: -angry change * +1 stays positive for relief;
+* active/drop: harm is negative marginal welfare, then * -1 becomes positive value for
+  retaining the civic.
+Recheck the intended post-change pressure-scale asymmetry separately as tuning; it is
+not necessary to change it to fix this sign defect.
+
+DUPLICATE / CURRENT-HISTORY CHECK
+---------------------------------
+No reconciled album entry diagnoses this CivicPercentAnger active-state sign. KI#75 is
+the feature/tuning history; KI#317 owns the city-crossing/filter repair; KI#315 is a
+different sign regression in the specialist component. Current Theocracy and current
+pressure defines provide a shipped reproduction rather than future-mod data only.
+
+AI_civicValue CONTINUATION
+--------------------------
+Continue through:
+* specialist-commerce weighting and toned denominator (including define-boundary and
+  which current civics receive the generalized commerce treatment);
+* remaining unlimited-specialist anarchy/output scaling after F324;
+* any other SAS-only state-dependent additions in the function;
+then move to AI_doDiplo and the next high-delta functions before inherited whole-file
+saturation. F326 remains unused until another independent current root survives.
+
+END C031-WIP06
+
+
+================================================================================
+C031-WIP07 - F326 / KI#649: specialist-commerce tuning replaced structural modifier normalization
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 remains CONFIRMED.
+F323 / provisional KI#646 remains CONFIRMED.
+F324 / provisional KI#647 remains CONFIRMED.
+F325 / provisional KI#648 remains CONFIRMED.
+F326 / provisional KI#649 is now CONFIRMED.
+F327 / provisional KI#650 is UNUSED.
+No repository source file was modified.
+
+F326 / provisional KI#649 - CONFIRMED CURRENT SAS FORMULA/CONTRACT REGRESSION
+-----------------------------------------------------------------------------
+Title:
+AI_civicValue's specialist-extra-commerce tuning also replaced K-Mod's structural
+AI_averageCommerceMultiplier divisor for ordinary civic percentage-commerce modifiers;
+the custom preference weight then cancels against its own toned divisor and existing
+empire commerce multipliers are no longer backed out.
+
+Birth / lineage:
+SAS-local. Commit 59d8c92c41f71d9698bfd1cf8b909eb1706f203b is titled:
+  "Fix the issue of civics that give specialist extra commerce ... by valuing commerce
+   per specialist more"
+and names CIVIC_REPRESENTATION's specialist beaker/gold/culture output as the target.
+The patch generalized custom SAS commerce weights across the shared commerce loop,
+including the ordinary `kCivic.getCommerceModifier` branch which is a structurally
+different effect and was not the stated specialist-extra-commerce problem.
+
+Inherited K-Mod / Base AdvCiv contract:
+For ordinary civic percentage-commerce modifiers Base AdvCiv retains K-Mod's:
+  iTempValue += (kCivic.getCommerceModifier(eCommerce) *
+      100 * getCommerceRate(eCommerce)) /
+      AI_averageCommerceMultiplier(eCommerce);
+...
+  iTempValue /= 100;
+  iTempValue *= AI_commerceWeight(eCommerce);
+  iTempValue /= 100;
+
+`CvPlayer::getCommerceRate` is the cached sum of actual city commerce rates.
+`CvCity::updateCommerce` computes those actual rates by multiplying each city's
+`getBaseCommerceRateTimes100` by `getTotalCommerceRateModifier(eCommerce)`.
+`AI_averageCommerceMultiplier` is independently cached as the population-weighted
+average of those same city total-commerce-rate modifiers.
+
+Therefore the inherited division is not merely a taste/priority coefficient. It backs
+out the empire's already-applied current commerce multiplier before estimating the
+incremental output of an additional civic percentage modifier. Only after that
+structural normalization does K-Mod apply `AI_commerceWeight` as the AI preference for
+the resulting commerce type.
+
+Current SAS formula:
+Current SAS replaces the divisor with:
+  iSASCommerceWeight = SAS_SpecCommerceBaseWeight(...)
+  iSASCommerceTonedDownMult =
+      iSASCommerceWeight * SAS_AI_CIVIC_VALUE_SPEC_COMMERCE_WEIGHT_TO_MULT_TONING_DOWN_PERCENT / 100
+and then still multiplies the final iTempValue by iSASCommerceWeight.
+The shipped toning percentage is 45.
+
+Ignoring only integer truncation, the ordinary modifier term becomes:
+  M * 100 * Rate / (W * 45/100)
+  then /100
+  then *W/100
+  = M * Rate / 45.
+Thus the very custom commerce weight W that is supposed to encode the hierarchy
+cancels from this ordinary-modifier term. With current base weights:
+  research 300 -> toned divisor 135 -> effective post-weight divisor 45
+  gold     300 -> toned divisor 135 -> effective post-weight divisor 45
+  culture  100 -> toned divisor  45 -> effective post-weight divisor 45
+  espionage200 -> toned divisor  90 -> effective post-weight divisor 45.
+At the same time the actual `AI_averageCommerceMultiplier` no longer participates, so
+an empire with 100%, 150% or 250% existing city commerce multipliers is normalized as
+though those were the same.
+
+Current-data reachability:
+This branch is live in shipped CIV4CivicInfos.xml independently of Representation:
+* CIVIC_FREE_SPEECH has CommerceModifiers [0, 0, 50] (+50% culture).
+* CIVIC_FREE_RELIGION has CommerceModifiers [0, 10, 0] (+10% research).
+Current specialist-extra-commerce civics are different effects:
+* CIVIC_REPRESENTATION has SpecialistExtraCommerces [1,1,1,0].
+* CIVIC_FREE_MARKET has SpecialistExtraCommerces [1,0,0,0].
+So the specialist-targeted formula change currently changes the valuation of two
+ordinary percentage-modifier civics as well.
+
+Intent / documentation evidence:
+Long Comment #168 describes the new value explicitly as a toned-down commerce
+"multiplier" derived from the SAS specialist commerce weights, with the example
+300 * 50% = 150, and explains that the purpose is to stop Representation from moving
+from underpicked to overpicked after strengthening its specialist commerce.
+The introducing commit likewise says the issue is civics "that give specialist extra
+commerce" and that the formula is being strengthened so specialist extra commerce is
+valued more. Neither describes replacing the inherited normalization for already-
+modified ordinary player commerce.
+
+Why this is a formula bug rather than merely different AI tuning:
+A tuning change may intentionally make research or culture more/less important. Here:
+1. the configured commerce preference weight algebraically cancels for the ordinary
+   `% commerce` effect despite that weight being deliberately different by commerce;
+2. an actual state variable needed to avoid double-applying existing city multipliers
+   (`AI_averageCommerceMultiplier`) is replaced with that preference value; and
+3. the change was introduced for the separate specialist-extra-commerce component.
+The resulting formula therefore violates both the inherited marginal-output structure
+and the stated scope/meaning of the new knob.
+
+Narrow repair direction:
+Keep K-Mod's structural divisor for `kCivic.getCommerceModifier`:
+  ... / AI_averageCommerceMultiplier(eCommerce)
+Then decide independently which final preference weight SAS wants for that ordinary
+commerce output (`AI_commerceWeight` or the deliberate SAS replacement).
+Keep the toned SAS multiplier on `kCivic.getSpecialistExtraCommerce`, where the
+introducing commit and Long Comment #168 actually intend stronger specialist-commerce
+valuation. Do not reuse a preference weight as a substitute for the empire's current
+commerce-rate multiplier.
+
+DUPLICATE CHECK
+---------------
+No reconciled album or current Known Issues entry diagnoses this ordinary-commerce
+modifier denominator/weight cancellation. KI#76 concerns unlimited specialist slots;
+KI#315/#316 are later specialist sign/GPP repairs. F326 concerns the older shared
+commerce loop and is independently reachable through Free Speech and Free Religion.
+
+AI_civicValue CONTINUATION
+--------------------------
+Continue with F327 unused through:
+* define-boundary / integer-zero behavior around the toned specialist multiplier,
+  distinguishing current shipped configuration from optional hardening;
+* the remaining unlimited-specialist anarchy/output scaling after F324;
+* inherited high-risk civic valuation components beyond the SAS delta slice.
+Then continue queue-001 high-delta functions and ultimately whole-file saturation.
+
+END C031-WIP07
+
+
+================================================================================
+C031-WIP08 - F327 / KI#650: civic war-weariness happiness uses current modifier, not candidate
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 remains CONFIRMED.
+F323 / provisional KI#646 remains CONFIRMED.
+F324 / provisional KI#647 remains CONFIRMED.
+F325 / provisional KI#648 remains CONFIRMED.
+F326 / provisional KI#649 remains CONFIRMED.
+F327 / provisional KI#650 is now CONFIRMED.
+F328 / provisional KI#651 is UNUSED.
+No repository source file was modified.
+
+F327 / provisional KI#650 - CONFIRMED INHERITED K-MOD WRONG-VARIABLE REGRESSION
+-------------------------------------------------------------------------------
+Title:
+AI_civicValue's K-Mod war-weariness happiness component guards on the candidate civic's
+WarWearinessModifier but computes the happiness change from the PLAYER'S CURRENT
+aggregate war-weariness modifier; inactive candidates can therefore receive the
+magnitude or even the sign of the civic currently being run instead of their own
+prospective effect.
+
+Current SAS code:
+  if (kCivic.getWarWearinessModifier() != 0) // K-Mod. (original code deleted)
+  {
+      iValue += (12 * iCities * iS * AI_getHappinessWeight(
+          iS * intdiv::round(
+          getWarWearinessPercentAnger() * -getWarWearinessModifier(),
+          GC.getPERCENT_ANGER_DIVISOR()), 1, true)) / 100;
+  }
+
+The outer guard is explicitly about `kCivic`, but the magnitude inside the hypothetical
+happiness delta is `getWarWearinessModifier()` on CvPlayerAI. That getter is the current
+aggregate player state, not the candidate civic being evaluated.
+
+Mechanics / contract proof:
+`CvPlayer::updateWarWearinessPercentAnger` computes and caches the player's BASE war-
+weariness anger from team war-weariness plus game/world/handicap modifiers. It does not
+apply the player's civic WarWearinessModifier there.
+
+The civic/player modifier is applied later at the city level. `CvCity` takes the
+player's base `getWarWearinessPercentAnger()` and multiplies it by roughly:
+  100 + cityWarWearinessModifier + playerWarWearinessModifier.
+`CvPlayer::processCivics` changes the player aggregate by exactly
+`kCivic.getWarWearinessModifier() * iChange`.
+
+Therefore the prospective happiness effect of THIS civic is structurally based on
+`kCivic.getWarWearinessModifier()` (with `iS` converting adopt/drop direction), not on
+whatever modifier the player happens to have before the hypothetical change.
+
+Stock / K-Mod / AdvCiv lineage:
+Civ4CE / stock BtS uses the candidate civic correctly. Its corresponding block is:
+  if (kCivic.getWarWearinessModifier() != 0)
+  {
+      int iAngerPercent = getWarWearinessPercentAnger();
+      int iPopulation = 3 + getTotalPopulation()/max(1,getNumCities());
+      int iTempValue = (-kCivic.getWarWearinessModifier() *
+          iAngerPercent * iPopulation) /
+          (GC.getPERCENT_ANGER_DIVISOR() * 100);
+      if (iTempValue != 0)
+          iValue += ... AI_getHappinessWeight(
+              isCivic(eCivic) ? -iTempValue : iTempValue, 1) ...;
+  }
+
+K-Mod replaced this with its newer city-happiness estimator and introduced the wrong
+getter:
+  getWarWearinessPercentAnger() * -getWarWearinessModifier()
+while still guarding on `kCivic.getWarWearinessModifier() != 0`.
+Base AdvCiv and current SAS retain the exact K-Mod variable choice unchanged.
+Thus this is an inherited K-Mod regression, not a SAS-local tuning change.
+
+Current-data reachability:
+Current SAS has several live nonzero civic modifiers, including:
+* Hereditary Rule: -25
+* Universal Suffrage: +25
+* Police State: -50
+* Theocracy: -25
+* Free Religion: +25.
+Government therefore supplies especially clean same-option reproductions.
+
+Concrete wrong-direction reproduction:
+Assume P currently runs Hereditary Rule (-25), has nonzero war-weariness anger, and is
+evaluating inactive Universal Suffrage (+25).
+
+Actual prospective effect:
+* Universal Suffrage increases the player's WW multiplier by +25 compared with its own
+  absolute civic effect; this civic's WW happiness component should be harmful / have
+  a negative sign.
+
+Current K-Mod/SAS happiness block:
+1. Guard passes because candidate Universal Suffrage has +25.
+2. iS=+1 because Universal Suffrage is inactive.
+3. Inner expression ignores +25 and reads P's CURRENT aggregate -25.
+4. Negating current -25 produces +25.
+5. `AI_getHappinessWeight(...,+change, bPercent=true)` is therefore asked to value a
+   happiness IMPROVEMENT.
+The candidate's +25 war-weariness penalty can consequently receive a positive
+happiness contribution solely because the currently active civic has -25.
+
+Magnitude loss / zero-current reproduction:
+Assume instead P currently runs Representation (0) with no other global player WW
+modifier. Evaluating inactive Police State (-50) and Universal Suffrage (+25):
+* both candidate guards pass;
+* current `getWarWearinessModifier()` is 0 for BOTH;
+* the candidate -50 versus +25 magnitude and sign disappear entirely from this block.
+Moreover `AI_getHappinessWeight` explicitly coerces an input of 0 to +1, so this caller
+can give both candidates the same small positive phantom happiness contribution rather
+than zero. This is especially perverse for Universal Suffrage, whose +25 actually
+worsens war weariness.
+
+The earlier cdtw.4 urgency block DOES use `kCivic.getWarWearinessModifier()` and can
+partly offset these errors, but that block explicitly says the city-happiness effect is
+also valued below and intentionally double-counts high urgency. A correct first block
+does not make a wrong-variable second block harmless; the latter is intended to value
+the actual city happiness consequences and currently does not.
+
+Active-civic nuance:
+When the current aggregate happens to equal the active candidate civic's modifier and
+there are no other player-level sources, the erroneous getter can accidentally produce
+a plausible drop-direction delta for the active civic. This does not rescue inactive
+candidate comparison: every alternative is still evaluated through the active/current
+modifier rather than its own. Additional aggregate WW sources also break that accidental
+identity.
+
+Zero-delta caller issue:
+Even after replacing the wrong getter, the rounded candidate happiness delta can be 0
+at sufficiently low war weariness. `AI_getHappinessWeight` intentionally maps iHappy=0
+to 1. Stock's old block explicitly skipped the helper when `iTempValue == 0`; the K-Mod
+replacement lost that guard. This is best fixed in the same block while repairing the
+wrong-variable contract: calculate the prospective `iHappy` first and call
+AI_getHappinessWeight only when it is nonzero. It is a closely coupled consequence of
+the same replacement rather than a separate F328 at this checkpoint.
+
+Narrow repair direction:
+Compute the hypothetical percentage-happiness delta from the candidate civic, e.g.
+conceptually:
+  int iHappy = iS * intdiv::round(
+      getWarWearinessPercentAnger() * -kCivic.getWarWearinessModifier(),
+      GC.getPERCENT_ANGER_DIVISOR());
+  if (iHappy != 0)
+      iValue += 12 * iCities * iS *
+          AI_getHappinessWeight(iHappy, 1, true) / 100;
+Preserve the surrounding K-Mod scaling unless empirical tuning says otherwise. The
+important contract repair is candidate modifier + adopt/drop direction, not current
+aggregate state; the nonzero guard preserves the stock behavior that a rounded zero
+change has zero value.
+
+DUPLICATE CHECK
+---------------
+No reconciled album or current Known Issues entry owns this civic-value wrong-variable
+root. Existing war-weariness findings are in different systems:
+* F036 / KI#357: AI_warCommitmentCost passed accumulated AI cost instead of raw war
+  weariness to a team-war valuation helper.
+* KI#415: dead-team war-weariness decay became unreachable after an AdvCiv iterator
+  refactor.
+* later UWAI war-anger findings concern enemy/team attribution and caching.
+F327 is specifically `AI_civicValue` using current player WarWearinessModifier where
+the candidate civic's modifier is required.
+
+AI_civicValue CONTINUATION
+--------------------------
+Continue with F328 unused through the inherited happiness/religion/yield/trade/hurry
+and state-dependent blocks, challenging other candidate-vs-current variable uses rather
+than assuming inherited K-Mod logic is safe. Then continue queue-001 high-delta
+functions and ultimately the full CvPlayerAI.cpp saturation pass.
+
+END C031-WIP08
+
+
+================================================================================
+C031-WIP09 - F328 / KI#651: -100% maintenance civics erase their own active valuation base
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 remains CONFIRMED.
+F323 / provisional KI#646 remains CONFIRMED.
+F324 / provisional KI#647 remains CONFIRMED.
+F325 / provisional KI#648 remains CONFIRMED.
+F326 / provisional KI#649 remains CONFIRMED.
+F327 / provisional KI#650 remains CONFIRMED.
+F328 / provisional KI#651 is now CONFIRMED.
+F329 / provisional KI#652 is UNUSED.
+No repository source file was modified.
+
+F328 / provisional KI#651 - CONFIRMED INHERITED SATURATION / NON-INVERTIBLE-STATE DEFECT
+----------------------------------------------------------------------------------------
+Title:
+AI_civicValue reconstructs pre-civic maintenance by dividing CURRENT maintenance by
+`100 + current player modifier`; at the legitimate -100% boundary current maintenance
+has already saturated to zero, so the lost base cannot be reconstructed and a civic
+that abolishes that maintenance category loses its own active valuation.
+
+Relevant AI_civicValue pattern (distance; colony is analogous):
+  if (kCivic.getDistanceMaintenanceModifier() != 0)
+  {
+      int iTemp = 0;
+      FOR_EACH_CITY(pLoopCity, *this)
+      {
+          iTemp += pLoopCity->calculateDistanceMaintenanceTimes100() *
+              (pLoopCity->getMaintenanceModifier() + 100) / 100;
+      }
+      iTemp *= 100;
+      iTemp /= std::max(1, getDistanceMaintenanceModifier() + 100);
+      ...
+      iValue -= iTemp * kCivic.getDistanceMaintenanceModifier() / 10000;
+  }
+
+This is intended to back the player's CURRENT modifier out of measured current city
+maintenance and then apply the candidate civic's modifier to that recovered base.
+That inversion works only while the current multiplier is nonzero.
+
+Actual distance-maintenance mechanics:
+`CvCity::calculateDistanceMaintenanceTimes100(..., bNoPlayerModifiers=false)` computes
+its base and then applies:
+  iTempMaintenance *= std::max(0,
+      GET_PLAYER(eOwner).getDistanceMaintenanceModifier() + 100);
+  iTempMaintenance /= 100;
+Thus a current player distance modifier of -100 makes the returned distance-maintenance
+component exactly zero before AI_civicValue sees it.
+
+Current-data State Property reproduction:
+Current CIV4CivicInfos.xml has:
+  CIVIC_STATE_PROPERTY
+  iDistanceMaintenanceModifier = -100.
+`CvPlayer::processCivics` applies that value directly through
+`changeDistanceMaintenanceModifier(... * iChange)`, and this modifier has no other
+current source in CvPlayer.cpp; State Property therefore sets the relevant aggregate to
+exactly -100 in the normal case.
+
+Before adoption:
+1. current distance modifier is normally 0;
+2. city distance maintenance is positive where distance costs exist;
+3. AI_civicValue divides by 100 and applies candidate -100;
+4. State Property correctly receives a positive value for abolishing distance cost.
+
+After adoption:
+1. current distance modifier is -100;
+2. each `calculateDistanceMaintenanceTimes100()` already returns 0 because of
+   `max(0,100-100)`;
+3. the evaluator multiplies that 0 by the city maintenance modifier and sums 0;
+4. it attempts to divide the state back out by
+   `max(1, getDistanceMaintenanceModifier()+100) = max(1,0) = 1`;
+5. zero remains zero;
+6. applying State Property's candidate -100 to that recovered value still gives 0.
+The exact economic benefit that made State Property attractive before adoption therefore
+disappears from its own active civic score merely because the civic successfully reduced
+the measured cost to zero.
+
+Current-data colony manifestation:
+Current SAS Vassalage has:
+  iNumCitiesMaintenanceModifier = -25
+  iColonyMaintenanceModifier = -100.
+AdvCiv's `calculateColonyMaintenanceTimes100` applies the player colony modifier to the
+maintenance cap:
+  iMaintenanceCap *= max(0, getColonyMaintenanceModifier()+100) / 100;
+so active Vassalage's -100 makes the colony-maintenance cap and resulting colony
+maintenance zero.
+
+AdvCiv's later `AI_civicValue` colony block copied the same inverse-current-state pattern:
+  current colony maintenance -> divide by max(1,current modifier+100) -> apply candidate.
+At current -100 it has the same information-loss failure: Vassalage's abolition of
+colony maintenance is valued before adoption but not recoverable once active. Its -25%
+num-cities-maintenance effect remains separately valued; F328 concerns the saturated
+-100 component.
+
+Why `std::max(1, ...)` is not a valid repair:
+The guard avoids division by zero, but zero current output contains no information about
+the suppressed pre-modifier base. Replacing denominator 0 with 1 merely converts an
+undefined inverse into a defined but wrong zero estimate. This is a mathematical
+non-invertibility at a valid gameplay boundary, not optional XML misconfiguration.
+
+Stock / K-Mod / AdvCiv lineage:
+* Civ4CE / stock BtS used a rough direct candidate formula for distance and num-cities
+  maintenance, e.g. `-kCivic.getDistanceMaintenanceModifier() * cityCount / ...`; it
+  did not derive candidate value by inverting current maintenance and therefore did not
+  lose the benefit simply because the candidate was active.
+* K-Mod introduced the more accurate current-maintenance reconstruction for distance
+  and num-cities maintenance. Stock State Property already has the -100 distance effect,
+  so the saturation boundary exists in K-Mod's improved formula.
+* Base AdvCiv inherits that distance pattern and `advc.912g` extends the same pattern to
+  ColonyMaintenanceModifier.
+* Current SAS retains both and additionally has a live -100 colony modifier on
+  Vassalage.
+Thus the distance root is inherited from K-Mod; the colony manifestation is the same
+formula assumption extended by AdvCiv and reached by current SAS data.
+
+Gameplay consequence:
+`AI_civicValue` compares absolute civic scores. An intrinsic economic saving should not
+vanish from the score merely because the evaluated civic is currently active. The
+current discontinuity can therefore cause pick-then-drop pressure: State Property can
+score highly while inactive because it abolishes substantial distance maintenance, then
+lose that entire component immediately after adoption while competing Economy civics
+retain their intrinsic benefits. Vassalage can similarly lose its colony-maintenance
+component after adoption.
+
+Narrow repair direction:
+Do not infer the pre-modifier maintenance base by dividing an already-saturated current
+value at -100. Available robust directions include:
+* use the maintenance calculation's existing ability to skip player modifiers / expose
+  a base component where available (distance already has `bNoPlayerModifiers=true` in
+  its static helper), then apply the candidate modifier explicitly;
+* add/use an analogous base calculation for colony maintenance; or
+* simulate the candidate state from an unsaturated base rather than algebraically
+  inverting current state.
+Preserve city/handicap/world/local maintenance modifiers as appropriate. The key is that
+-100 must be valued from a pre-player-modifier base, not from current zero output.
+
+DUPLICATE CHECK
+---------------
+No reconciled album or current Known Issues entry diagnoses this active-civic -100%
+maintenance inversion. Existing maintenance findings concern different domains. F328
+is specifically the `AI_civicValue` current-state reconstruction becoming non-invertible
+at a valid -100% civic modifier.
+
+AI_civicValue CONTINUATION
+--------------------------
+Continue with F329 unused through the remaining top-half unit upkeep/conscript and
+inherited civic-value components. The unit-cost algebra and direct intrinsic-effect
+blocks should be closed explicitly, then AI_civicValue can be provisionally saturated
+before moving to AI_doDiplo and later whole-file rechecks.
+
+END C031-WIP09
+
+
+================================================================================
+C031-WIP10 - queue 001 continuation: AI_civicValue saturation + diplo/religion/military/commerce controls
+================================================================================
+
+STATUS
+------
+Queue 001 CvPlayerAI.cpp remains OPEN under the deep-method re-audit.
+Files complete remains 30/169; one re-audit file is open.
+F321 / provisional KI#644 remains CONFIRMED.
+F322 / provisional KI#645 remains CONFIRMED.
+F323 / provisional KI#646 remains CONFIRMED.
+F324 / provisional KI#647 remains CONFIRMED.
+F325 / provisional KI#648 remains CONFIRMED.
+F326 / provisional KI#649 remains CONFIRMED.
+F327 / provisional KI#650 remains CONFIRMED.
+F328 / provisional KI#651 remains CONFIRMED.
+F329 / provisional KI#652 remains UNUSED.
+No repository source file was modified.
+
+AI_civicValue - PROVISIONAL LOCAL SATURATION
+--------------------------------------------
+The deep SAS-delta + inherited high-risk pass over AI_civicValue is provisionally
+saturated with F324-F328. This is not yet a whole-file/caller final closure; a later
+CvPlayerAI.cpp reconciliation can reopen a component if another caller exposes a new
+contract. Locally, however, no remaining independent candidate is open.
+
+Controls closed after F328:
+* Unit-upkeep value uses current unit-cost state deliberately to price candidate free-
+  unit and per-military-unit cost deltas. Current SAS civics keep the especially tricky
+  fields separated enough that no candidate/current-state alias comparable to F327
+  survived.
+* Conscript value uses the candidate civic's own getMaxConscript.
+* Direct intrinsic effects (feature happiness, hurry access, improvement yields etc.)
+  legitimately do not all multiply by iS: AI_civicValue compares absolute civic scores.
+  iS is required where a block begins from CURRENT state and estimates a hypothetical
+  marginal transition; F325/F327 were defects precisely because that direction contract
+  was violated.
+* The inherited corporation block's apparently odd use of HeadquarterCommerce in a
+  quantity named maintenance is mechanically correct: CvCity's actual corporation
+  maintenance base includes those HeadquarterCommerce values too.
+* Unlimited-specialist anarchy scaling remains a rough heuristic but not a new current
+  contract failure. All current civics that unlock unlimited specialists have base
+  anarchy length 1; after KI#315 the block no longer has the earlier active/inactive sign
+  discontinuity. AI_doCivics separately handles actual bundle anarchy.
+* F326 also owns the optional zero-divisor consequence: a 0 toned specialist-commerce
+  tuning value becomes dangerous only because that specialist tuning value was wrongly
+  substituted as the ordinary commerce-rate divisor. Restoring
+  AI_averageCommerceMultiplier for ordinary percentage-commerce effects removes the
+  divide-by-zero shape too, so no separate finding is warranted.
+
+AI_doDiplo - SAS-LOCAL DELTA CONTROL + EXISTING KI#312 STILL PARTIAL
+--------------------------------------------------------------------
+The current SAS semantic delta in AI_doDiplo is concentrated in the tech-contact block.
+The F001/KI#330 repair is sound: master/vassal/sibling-locus classification is computed
+independently of the preferential-contact option, so the power-bias exemption no longer
+inherits the unrelated toggle.
+
+The new contact multiplier is passed through AI_contactRoll coherently and acts only as
+an intended contact-probability heuristic. The master/vassal/sibling classification
+matches its documented scope. No new F329 emerged from those changes.
+
+The old F003 / existing KI#312 repair remains INCOMPLETE, as already recorded in WIP01:
+cluster-first eligibility is applied when choosing/suppressing eBestReceiveTech, but the
+independent outsider high-progress fallback eBestProgressTech can still be purchased for
+gold without passing through the cluster-first sourcing check. This remains the existing
+KI#312 root and must not receive a new F number during the re-loop.
+
+AI_religionValue - INTENTIONAL LARGE POWER-BLOC AMPLIFICATION
+--------------------------------------------------------------
+The repaired KI#309 player-by-player power accumulation is coherent: it now weights the
+actual individual player's power whose state religion is being examined, so mixed-
+religion teammates/vassals no longer inherit or duplicate whole-bloc power.
+
+The resulting diplomatic religion multiplier can be extremely large (including values
+above 10,000% for a strong known power bloc and low ReligionFlavor), but this is NOT a
+missing /100 bug. Long Comment #107 explicitly documents the percentage-scale formula:
+  Modifier = [MULT * Base * PowerBlocPercent + ADD] /
+             [DIVIDER_MULT * ReligionFlavor + ADD]
+and works through an example Base 75, power bloc 70%, ReligionFlavor 5 -> 10,500%,
+explicitly describing the resulting boost as huge and intentionally left for autoplay /
+tuning. Therefore this is deliberate design, not F329.
+
+AI_doMilitary - KI#331 REPAIR VERIFIED
+--------------------------------------
+The current SAS repair to routine financial scrapping survives the deeper pass.
+
+Candidate construction:
+* AI_disbandValue still supplies the ordered desirability metric.
+* candidates now enter the quota-indexed vector only if canScrap() currently permits
+  routine removal;
+* an independent iDisbandCandidateIndex traverses candidates;
+* iDisbandCount increments only after scrap() returns success.
+This repairs the old KI#331 contract where a restrictive SAS canScrap veto could consume
+quota / be reported as though removal succeeded.
+
+Lifetime/index check:
+* unit_values stores stable player-unit IDs, not dense positional indices;
+* removing one unit does not renumber later unit IDs;
+* scrap() calls scrapInternal -> kill(true), starting delayed death for that same unit;
+* the caller immediately calls doDelayedDeath() after a successful scrap and never uses
+  that unit pointer afterward;
+* killing that candidate does not normally delete the unrelated units whose stable IDs
+  are still present later in unit_values.
+Thus the separated candidate index does not introduce an index-shift/use-after-free loop.
+
+Budget/quota check:
+* iCost is recalculated after each successful scrap;
+* the loop stops as soon as the actual budget condition clears;
+* the inherited per-turn disband quota still applies outside strike;
+* strike deliberately retains the inherited ability to continue beyond that quota while
+  financial pressure persists.
+The SAS extra-unit tolerance derives a rough average per-unit cost from
+max(1, iCost / getNumUnits()) and raises iMaxCost by an era-scaled number of units. This
+is approximate tuning, not a legality/accounting contract: the real cost/gold condition
+is still recomputed after every removal. No F329 here.
+
+AI_doCommerce - SAS DELTA CONTROL
+---------------------------------
+The SAS-vs-Base executable delta is logging/performance-only in current behavior:
+* culture-slider intermediate values are captured for CULTURE_SLIDER_DECISION logging;
+* AI_averageCulturePressure() is called once, stored, and reused for the two inherited
+  calculations instead of being called twice;
+* ESPIONAGE_EACH_TURN_UNIT_COST_DECREASE is restart-cached in a static const;
+* final slider state is logged after verifyGoldCommercePercent().
+
+The potentially semantic-looking culture-pressure cache is exactly equivalent:
+AI_averageCulturePressure() is a const accessor that simply returns the turn-cached
+m_iAverageCulturePressure member; it performs no calculation, random draw, cache refresh
+or mutation. Reusing one local value therefore cannot change the inherited decision.
+The new diagnostic locals are written/read only for logging and do not feed any slider
+calculation. No F329 here.
+
+QUEUE-001 CONTINUATION
+----------------------
+F329 / provisional KI#652 remains UNUSED.
+Continue the deep re-loop through the next high-value/delta functions rather than
+reopening the now-provisionally-saturated local AI_civicValue block without a caller-
+level reason. Priority next surfaces include serialization/read state, worker-demand and
+disband helpers, AI_isVictoryValid / AI_chooseResearch / AI_diploVote, followed by the
+full inherited high-risk and whole-file reconciliation. Existing historical roots must
+remain under their old numbers when rediscovered.
+
+END C031-WIP10

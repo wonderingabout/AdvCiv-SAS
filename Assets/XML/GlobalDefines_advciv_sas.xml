@@ -1669,7 +1669,7 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED</DefineName>
 		<iDefineIntVal>100</iDefineIntVal>
 	</Define>
-	<!-- custom: If BBAI diagnostics are enabled, write each new game and loaded save to a new UTC-timestamped BBAI_*.log file instead of repeatedly appending to BBAI.log. The file begins with the currently active BBAI settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each diagnostic run easier to identify or upload. Set to 0 to preserve fixed-name log behavior. (ChatGPT-5.5 + GPT-5.5) -->
+	<!-- custom: If BBAI diagnostics are enabled, write each new game and loaded save to a new UTC-timestamped BBAI_*.log file instead of repeatedly appending to BBAI.log. This is enabled by default because independent files avoid tedious manual separation and cleanup between diagnostic runs. The file begins with the currently active BBAI settings, turn/year, map/game settings, player counts, and RNG-state identification because Civ4 does not expose the source save filename. This avoids restarting Civ4 between save tests and makes each diagnostic run easier to identify or upload. Set to 0 to preserve fixed-name log behavior. (ChatGPT-5.5 + GPT-5.5 + GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME</DefineName>
 		<iDefineIntVal>1</iDefineIntVal>
