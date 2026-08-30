@@ -764,11 +764,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#673 - (Fixed inherited AdvCiv decay defect) Gold-trade memory could become permanent](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-673)\
 [KI#674 - (Fixed inherited AdvCiv control-flow defect) A rejected city-for-war fallback could execute](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-674)\
 [KI#675 - (Provisional Pending AdvCiv selection defect) City-request liberation priority depends on iteration order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-675)\
-[KI#676 - (Provisional Pending inherited BtS event-value defect) BonusRevealed reads BonusType](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-676)\
-[KI#677 - (Provisional Pending inherited BtS event-value omission) Non-city building yield and commerce are ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-677)\
-[KI#678 - (Provisional Pending inherited BtS event-value scope defect) Building happiness and health become empire-wide](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-678)\
-[KI#679 - (Provisional Pending inherited BtS event-value scaling defect) Diplomacy is scaled twice by game speed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-679)\
-[KI#680 - (Provisional Pending inherited BtS event-value count defect) Requested conversions exceed eligible cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-680)\
+[KI#676 - (Fixed inherited BtS event-value defect) BonusRevealed read BonusType](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-676)\
+[KI#677 - (Fixed inherited BtS event-value omission) Non-city building yield and commerce were ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-677)\
+[KI#678 - (Fixed inherited BtS event-value scope defect) Building happiness and health became empire-wide](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-678)\
+[KI#679 - (Fixed inherited BtS event-value scaling defect) Diplomacy was scaled twice by game speed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-679)\
+[KI#680 - (Fixed inherited BtS event-value count defect) Requested conversions exceeded eligible cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-680)\
 [KI#681 - (Provisional Pending inherited BtS event-value ordering defect) PlotExtraYield is collected too late](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-681)\
 [KI#682 - (Provisional Pending inherited BtS event-value omission) UnitClassPromotions are ignored](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-682)\
 [KI#683 - (Provisional Pending inherited BtS event-value cap defect) TechPercent exceeds remaining research](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-683)\
@@ -781,7 +781,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#690 - (Provisional Pending inherited AdvCiv state-mutation regression) One city's espionage effect leaks into later happiness/health valuations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
 [KI#691 - (Provisional Pending inherited BtS counting defect) Airbase value counts traversal-order distance records](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-691)\
 [KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-692)\
-[KI#693 - (Provisional Pending investigation) F370 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
+[KI#693 - (Provisional Pending inherited BtS Advanced Start state defect) Failed improvement purchases count as successful](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
+[KI#694 - (Provisional Pending inherited BtS Advanced Start control-flow defect) One unaffordable building can end the building phase](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-694)\
+[KI#695 - (Provisional Pending investigation) F372 remains unassigned during the CvPlayerAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
 
 <a id="ki-1"></a>
 
@@ -14065,43 +14067,55 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP42 `CvPlayer
 
 <a id="ki-676"></a>
 
-## KI#676 - (Provisional Pending inherited BtS event-value defect) BonusRevealed reads BonusType
+## KI#676 - (Fixed inherited BtS event-value defect) BonusRevealed read BonusType
 
-Album F353 finds `AI_eventValue` valuing an event's `BonusRevealed` effect through the unrelated `BonusType` field. The shipped A Man Named Jed Oil-reveal option consequently receives no resource-reveal value, so AI choice can ignore the benefit the event actually applies. Pending valuing the reveal field independently.
+Album F353 found `AI_eventValue` valuing an event's `BonusRevealed` effect through the unrelated `BonusType` field. The shipped A Man Named Jed Oil-reveal option consequently received no resource-reveal value, so AI choice could ignore the benefit the event actually applies.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP43 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix values `BonusRevealed` through that resource's own `AI_bonusVal`, independently of the event's separate plot `BonusType` and `BonusChange` effect.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP43 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-677"></a>
 
-## KI#677 - (Provisional Pending inherited BtS event-value omission) Non-city building yield and commerce are ignored
+## KI#677 - (Fixed inherited BtS event-value omission) Non-city building yield and commerce were ignored
 
-Album F354 finds non-city EventInfo building yield and commerce changes collected by `AI_eventValue` but never consumed. Shipped choices can therefore grant permanent building output while the AI chooses as though that output did not exist. Pending valuing those collected effects in the non-city branch.
+Album F354 found non-city EventInfo building yield and commerce changes collected by `AI_eventValue` but never consumed. Shipped choices could therefore grant permanent building output while the AI chose as though that output did not exist.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP44 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix preserves each affected `BuildingClass`, counts its active instances and includes their permanent yield or commerce change in non-city event value. City events now use the same instance-aware collection instead of assuming one affected building.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP44 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-678"></a>
 
-## KI#678 - (Provisional Pending inherited BtS event-value scope defect) Building happiness and health become empire-wide
+## KI#678 - (Fixed inherited BtS event-value scope defect) Building happiness and health became empire-wide
 
-Album F355 finds `AI_eventValue` discarding BuildingClass identity for building-specific happiness and health, then multiplying the modifier by every city. A one-building event effect can consequently be valued as empire-wide happiness or health. Pending preserving BuildingClass identity and multiplying only by affected building instances.
+Album F355 found `AI_eventValue` discarding BuildingClass identity for building-specific happiness and health, then multiplying the modifier by every city. A one-building event effect could consequently be valued as empire-wide happiness or health.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP45 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix preserves the affected class and values happiness or health only for its active instances, including the correct local instance count for city events.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP45 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-679"></a>
 
-## KI#679 - (Provisional Pending inherited BtS event-value scaling defect) Diplomacy is scaled twice by game speed
+## KI#679 - (Fixed inherited BtS event-value scaling defect) Diplomacy was scaled twice by game speed
 
-Album F356 finds `AI_eventValue` applying game-speed scaling twice to attitude and worst-enemy diplomacy value. Relationship effects therefore scale roughly with the square of game speed and can distort shipped multi-choice event decisions. Pending applying speed scaling exactly once to each diplomacy term.
+Album F356 found `AI_eventValue` applying game-speed scaling twice to attitude and worst-enemy diplomacy value. Relationship effects therefore scaled roughly with the square of game speed and could distort shipped multi-choice event decisions.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP46 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix removes the early scaling and retains the common final game-speed factor, so all accumulated diplomacy terms are scaled exactly once.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP46 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-680"></a>
 
-## KI#680 - (Provisional Pending inherited BtS event-value count defect) Requested conversions exceed eligible cities
+## KI#680 - (Fixed inherited BtS event-value count defect) Requested conversions exceeded eligible cities
 
-Album F357 finds `AI_eventValue` pricing requested religion-conversion counts rather than the eligible cities that `applyEvent` can actually convert. Inspired Mission can consequently value four foreign conversions when only one will occur, and analogous own-city overvaluation exists. Pending counting eligible own and other-player cities under the runtime conditions and capping each value at that executable count.
+Album F357 found `AI_eventValue` pricing requested religion-conversion counts rather than the eligible cities that `applyEvent` could actually convert. Inspired Mission could consequently value four foreign conversions when only one would occur, and analogous own-city overvaluation existed.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP47 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The fix counts cities without the religion that satisfy the event's `MaxNumReligions` condition, separately for the acting and other player, then caps each valuation at the corresponding executable count.
+
+Validation compiled successfully and completed a Huge Hemispheres map with Islands through turn 440, ending in a Cultural victory with 13 teams and 112 cities remaining. Random events were enabled, and SASGameRecord captured three random-event diplomatic consequences, including a war declaration; the individual repaired event-value fields are additionally source-verified.
+
+Found and investigated during ChatGPT-5.6-Sol's C031-WIP47 `CvPlayerAI.cpp` deep re-audit; implemented and reviewed with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-681"></a>
 
@@ -14201,8 +14215,24 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP59 `CvPlayer
 
 <a id="ki-693"></a>
 
-## KI#693 - (Provisional Pending investigation) F370 remains unassigned during the CvPlayerAI deep re-audit
+## KI#693 - (Provisional Pending inherited BtS Advanced Start state defect) Failed improvement purchases count as successful
 
-The continuous audit ledger reserves provisional KI#693 for F370. Through C031-WIP59, the queue-001 deep re-audit has confirmed F321-F369 and is continuing through the remaining player-AI utility helpers. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F370 finds `AI_advancedStartPlaceCity` incrementing `iPlotsImproved` after its void improvement-purchase action without checking affordability or resulting plot state. A silently failed purchase can therefore create phantom improved plots, repeatedly retry the same unaffordable improvement and permit later population purchases unsupported by real improvements. Pending excluding unaffordable candidates and incrementing only after the requested improvement actually exists.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP60 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-694"></a>
+
+## KI#694 - (Provisional Pending inherited BtS Advanced Start control-flow defect) One unaffordable building can end the building phase
+
+Album F371 finds `AI_doAdvancedStart` using one selected building's affordability result as the outer building-phase termination flag. An unaffordable candidate late in city iteration can consequently prevent later passes from considering cheaper buildings under their broader focus flags, making useful spending depend on candidate and city iteration order. Pending skipping each over-budget candidate locally while preserving the bounded later passes.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP61 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-695"></a>
+
+## KI#695 - (Provisional Pending investigation) F372 remains unassigned during the CvPlayerAI deep re-audit
+
+The continuous audit ledger reserves provisional KI#695 for F372. Through C031-WIP61, the queue-001 deep re-audit has confirmed F321-F371 and is continuing its final closure reconciliation. Do not implement a change under this number until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
 
 Reserved during ChatGPT-5.6-Sol's C031 `CvPlayerAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

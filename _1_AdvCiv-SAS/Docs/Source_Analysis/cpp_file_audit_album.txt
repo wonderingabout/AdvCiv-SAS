@@ -75525,3 +75525,400 @@ NEXT CURSOR
 2. Reconcile the full Queue 001 coverage against the album / function ranges. If no
    unsaturated deep tranche remains, close the CvPlayerAI.cpp reloop and resume the
    protected queue order from the next file.
+
+===============================================================================
+C031-WIP60 — QUEUE 001 CvPlayerAI.cpp DEEP RELOOP — F370 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvPlayerAI.cpp` remains OPEN during final closure reconciliation.
+F370 / provisional KI#693 is CONFIRMED.
+F371 / provisional KI#694 is UNUSED.
+Unique files complete remains 30/169 until Queue 001 itself is closed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F370 / provisional KI#693 — Advanced Start city setup counts a failed
+improvement purchase as successful, then can buy population against phantom
+improved plots
+-------------------------------------------------------------------------------
+
+ROOT
+----
+`CvPlayerAI::AI_advancedStartPlaceCity` chooses the plot with the highest
+`AI_getBestBuildValue`, calls the void Advanced Start action, and then increments
+`iPlotsImproved` unconditionally:
+
+    doAdvancedStartAction(ADVANCEDSTARTACTION_IMPROVEMENT,
+            pBestPlot->getX(), pBestPlot->getY(), eBestImprovement, true);
+    iPlotsImproved++;
+
+There is no Advanced Start affordability check in the candidate loop and no
+post-action verification that `pBestPlot` actually received `eBestImprovement`.
+
+`CvPlayer::doAdvancedStartAction`, however, explicitly permits the action to fail
+silently. For `ADVANCEDSTARTACTION_IMPROVEMENT` it computes
+`getAdvancedStartImprovementCost`; if the action is legal but the player lacks
+that many points, the function simply leaves the plot unchanged and returns to
+the caller. Its return type is `void`, so success is not communicated.
+
+The local counter therefore changes even when the game state does not.
+
+SUPPORTED PRODUCER
+------------------
+This is reachable through ordinary AI Advanced Start. `AI_doAdvancedStart`
+checks whether it can afford the city itself before calling
+`AI_advancedStartPlaceCity`, but it does not reserve enough points for that
+helper's preferred culture/improvements/population package. Later cities in the
+city-budget loop can therefore enter the helper with only a small remainder.
+
+Current SAS data makes an affordability split easy to construct. For example:
+
+* `IMPROVEMENT_FARM` has `iAdvancedStartCost = 30`;
+* SAS `ADVANCED_START_WORKER_BUILD_MODIFIER = 67`, so the base Farm portion is
+  about 20 points at Normal build speed;
+* removing `FEATURE_JUNGLE` adds its current Advanced Start removal cost of 40,
+  making that Farm roughly 60 points before other speed adjustment;
+* population is bought through the independent Advanced Start population-cost
+  formula (BtS default `ADVANCED_START_POPULATION_COST = 150`). On ordinary
+  Normal-speed/100%-growth settings, population 1 has a growth threshold of
+  `20 + 2 = 22`, hence the next population point costs about 33.
+
+A late Advanced Start city with, for example, a remainder between those costs
+can therefore afford population but not the AI's highest-valued Jungle Farm.
+The exact numeric remainder is not an exotic API state: `AI_doAdvancedStart`
+spends the common point pool incrementally on cities, techs, visibility and the
+city helper's own actions.
+
+CONSEQUENCE
+-----------
+Suppose the city has no improved plots and the Jungle Farm is its current
+highest `AI_getBestBuildValue` target, but the remaining points are below that
+Farm's Advanced Start cost.
+
+1. The improvement action is attempted and silently fails.
+2. `iPlotsImproved` nevertheless rises from 0 to 1.
+3. On the next pass the same still-unimproved high-value plot remains the best
+   target. The action can fail again and `iPlotsImproved` rises again.
+4. Once the phantom count exceeds city population, the helper's final loop uses
+   the real city plot and can spend any still-affordable points on population:
+
+       while (iPlotsImproved > pCity->getPopulation())
+       {
+           int iPopCost = getAdvancedStartPopCost(true, pCity);
+           ...
+           doAdvancedStartAction(ADVANCEDSTARTACTION_POP,
+                   pPlot->getX(), pPlot->getY(), -1, true);
+       }
+
+The AI can therefore grow a city because of improvements that do not exist.
+Because candidate selection is based on build value rather than purchasability,
+it can also keep retrying the same unaffordable high-value improvement while a
+cheaper lower-valued improvement could actually have been bought with the
+remaining points.
+
+This is a genuine execution-state mismatch, not merely a subjective Advanced
+Start allocation heuristic: the loop variable is explicitly named/counting
+`iPlotsImproved`, and the runtime plot remains unimproved.
+
+ANCESTRY
+--------
+The same unconditional post-action `iPlotsImproved++` structure is present in
+BtS/Civ4CE, K-Mod, Base AdvCiv 1.14 and current SAS. AdvCiv modernized iterators
+and Advanced Start costs but preserved this state assumption. Classification:
+inherited BtS Advanced Start execution-vs-assumed-success defect.
+
+No existing current KI/F321-F369 root found for this behavior. Earlier Advanced
+Start album items concern tech-refund reachability/cache effects, first-city
+callbacks, or F366's forced land `UNITAI_EXPLORE` assignment; none owns failed
+improvement purchases being counted as successful.
+
+REPAIR DIRECTION
+----------------
+The stronger repair is to make the candidate/action state coherent rather than
+merely patch the later population loop:
+
+* before selecting/attempting an improvement, require
+  `getAdvancedStartImprovementCost(eImprovement, true, pLoopPlot)` to be
+  nonnegative and no greater than the current Advanced Start points; and/or
+* after the action, increment `iPlotsImproved` only if the plot now actually has
+  `eBestImprovement`.
+
+Skipping unaffordable candidates is preferable because it lets the AI consider
+a cheaper second-best improvement instead of repeatedly retrying an action that
+cannot execute. A post-action verification remains useful defensive hardening
+because `doAdvancedStartAction` is void and can reject actions for other
+legality/state reasons.
+
+CONTROL NOTE
+------------
+The immediate population action inside the improvement loop uses the improved
+plot coordinates rather than the city plot, so it is normally a no-op when that
+plot is not itself a city. The later `while (iPlotsImproved > population)` loop
+uses the city plot correctly. That oddity does not rescue F370; it makes the
+phantom count survive until the later real population-purchase loop.
+
+CURRENT AUDIT STATE
+-------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN (final closure reconciliation)
+Unique files complete — 30/169
+Confirmed deep-reloop findings — F321 through F370
+F371 / provisional KI#694 — UNUSED
+Latest physical checkpoint — C031-WIP60
+No repository source files modified.
+
+NEXT
+----
+1. Continue the final Queue 001 function-range / bug-pattern reconciliation with
+   F371 unused.
+2. Recheck the remaining unmentioned large helpers and SAS-vs-Base deltas, now
+   including Advanced Start purchase-success assumptions as a control pattern.
+3. If no independent root survives, freeze a closure checkpoint for
+   `CvPlayerAI.cpp`, increment the unique-file completion count, and move to the
+   protected Queue 002 `CvUnitAI.cpp` deep reloop.
+===============================================================================
+C031-WIP61 — QUEUE 001 CvPlayerAI.cpp DEEP RELOOP — F371 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 001 `CvPlayerAI.cpp` remains OPEN during the final closure reconciliation.
+F371 / provisional KI#694 is CONFIRMED.
+F372 / provisional KI#695 is UNUSED.
+Unique files complete remains 30/169 until Queue 001 itself is closed.
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+F371 / provisional KI#694 — Advanced Start building phase treats one
+unaffordable selected building as a global "done" state, so it can terminate
+before later passes expose cheaper affordable buildings
+-------------------------------------------------------------------------------
+
+ROOT
+----
+`CvPlayerAI::AI_doAdvancedStart` uses `bDoneBuildings` both as the outer-loop
+termination condition and as a per-city affordability result:
+
+    bool bDoneBuildings =
+            (iLastPointsTotal - getAdvancedStartPoints() > iCityPoints);
+
+    for (int iPass = 0; iPass < 10 && !bDoneBuildings; ++iPass)
+    {
+        FOR_EACH_CITYAI(pLoopCity, *this)
+        {
+            BuildingTypes const eBuilding =
+                    pLoopCity->AI_bestAdvancedStartBuilding(iPass);
+            if (eBuilding != NO_BUILDING)
+            {
+                bDoneBuildings = (iCityPoints < iLastPointsTotal -
+                        (getAdvancedStartPoints() -
+                        getAdvancedStartBuildingCost(
+                                eBuilding, true, pLoopCity)));
+
+                if (!bDoneBuildings)
+                {
+                    doAdvancedStartAction(
+                            ADVANCEDSTARTACTION_BUILDING,
+                            pLoopCity->getX(), pLoopCity->getY(),
+                            eBuilding, true);
+                }
+                else
+                {
+                    //continue. there might be cheaper buildings
+                    //in other cities we can afford
+                }
+            }
+        }
+    }
+
+The condition itself is a valid projected-budget test for that particular
+building. The defect is storing the result in the global phase-termination
+flag.
+
+`CvCityAI::AI_bestAdvancedStartBuilding(iPass)` deliberately changes what it is
+willing to select across passes:
+
+    pass 0: FOOD
+    pass 1: + PRODUCTION
+    pass 2: + EXPERIENCE
+    pass 3: + HAPPY | HEALTHY
+    pass 4+: + GOLD | RESEARCH | MAINTENANCE | (normally) ESPIONAGE
+
+The threshold also falls from 20 to 0 across passes.
+
+Therefore, "the selected building for this city on this pass exceeds the
+remaining city budget" does not imply "no later-pass building is affordable."
+Yet if that unaffordable candidate leaves `bDoneBuildings == true` at the end
+of the city traversal, the outer loop terminates and those later selector
+passes are never run.
+
+The source comment already acknowledges the missing implication -- "there
+might be cheaper buildings ... we can afford" -- but only continues the
+current city traversal. It does not protect the next `iPass`.
+
+SUPPORTED CURRENT-DATA SHAPE
+----------------------------
+Current SAS has an ordinary generic cost/focus split that demonstrates the
+problem without relying on a mod-mod edge case:
+
+* `BUILDING_COLOSSEUM`
+  - production cost 90
+  - Advanced Start cost percent 100
+  - +1 happiness
+  - prerequisite `TECH_CONSTRUCTION`
+
+* `BUILDING_LIBRARY`
+  - production cost 80
+  - Advanced Start cost percent 100
+  - +25% research
+  - prerequisite `TECH_WRITING`
+  - not a free start-era building until the Renaissance
+
+`CvPlayer::getAdvancedStartBuildingCost` starts from production cost times the
+building's Advanced Start percent and then applies AdvCiv's 1.5 multiplier.
+On Normal speed, absent a city-specific production modifier, these are about:
+
+    Colosseum: 90 * 1.5 = 135 points
+    Library:   80 * 1.5 = 120 points
+
+A pre-Renaissance Advanced Start city that knows both prerequisite techs and
+currently values happiness can therefore reach the building phase with a
+remaining city-budget allowance between 120 and 134 points.
+
+On pass 3, the happiness/health focus can select the Colosseum. Its projected
+135-point purchase exceeds the remaining city budget, so the code assigns
+`bDoneBuildings = true` and does not buy it.
+
+Pass 4 is exactly where RESEARCH is added to the selector. A 120-point Library
+could be legal and affordable there, but pass 4 never executes because the
+outer loop sees the `true` value left by the unaffordable pass-3 candidate.
+
+The exact remainder does not require a special API state. `AI_doAdvancedStart`
+uses one shared point pool and reaches the building phase only after incremental
+spending on cities, improvements/population, visibility, technology, explorers
+and routes. The city-budget remainder is not constrained to building-cost
+multiples.
+
+MULTI-CITY ORDER DEPENDENCE
+---------------------------
+The same variable is overwritten for every city that returns a building
+candidate:
+
+    bDoneBuildings = projectedPurchaseExceedsBudget;
+
+Consequently, in a multi-city empire the decision to run the next building
+pass can depend on which candidate-bearing city happens to be visited last.
+
+For example, on the same pass:
+
+* City A's selected building is affordable -> `bDoneBuildings = false`;
+* City B's selected building is unaffordable -> `bDoneBuildings = true`.
+
+If B is the last relevant city, the whole building phase stops after the pass.
+If a later city instead has an affordable candidate, that later assignment can
+reset the flag to false and the next pass runs.
+
+Thus the flag is neither a monotonic "budget exhausted" state nor an
+all-cities affordability result. It is effectively the affordability result of
+the last candidate that happened to overwrite it.
+
+CONSEQUENCE
+-----------
+The AI can leave Advanced Start points unspent on useful buildings even though
+a later focus pass would identify an affordable legal building.
+
+This is not merely a disagreement with building valuation. The ten-pass design
+explicitly broadens the candidate set over time; F371 can prevent those
+designed passes from executing at all based on the cost of one earlier selected
+candidate.
+
+The effect is strongest near the end of the city/economic budget, where an
+expensive happiness/health building can block a cheaper research, maintenance
+or espionage building that only becomes eligible on the next pass.
+
+ANCESTRY
+--------
+The same `bDoneBuildings` structure and the same explanatory comment are present
+in BtS/Civ4CE, K-Mod, Base AdvCiv 1.14 and current SAS. AdvCiv reformatted the
+condition but preserved the control flow.
+
+Classification: inherited BtS Advanced Start budget/control-flow defect.
+
+This is independent of F370. F370 is an execution-state mismatch inside
+`AI_advancedStartPlaceCity` where a failed improvement purchase increments
+`iPlotsImproved`. F371 is a separate building-phase termination error even when
+every attempted building action succeeds exactly as requested.
+
+REPAIR DIRECTION
+----------------
+Do not use one candidate's affordability as the global outer-loop done flag.
+
+A conservative repair is:
+
+1. Keep the initial "city budget already exhausted" test if desired.
+2. For each selected building, compute the projected city-budget spending.
+3. If that particular building would exceed the budget, `continue` to the next
+   city/candidate instead of setting a persistent phase-done state.
+4. Allow the bounded later passes to run so that their broader focus flags can
+   expose cheaper alternatives.
+
+For example, conceptually:
+
+    if (projectedCitySpending > iCityPoints)
+        continue;
+
+    doAdvancedStartAction(...);
+
+Because the loop already has a hard ten-pass bound, no global "one selected
+building was too expensive" flag is needed to prevent an infinite loop.
+
+A stronger cleanup could track whether any building was purchased in a pass,
+but "nothing was bought on pass N" still should not automatically terminate
+before pass N+1 while the selector is intentionally gaining new focus flags.
+Any early-exit optimization therefore needs a real proof that no later pass can
+introduce a new affordable candidate.
+
+CONTROLS CLOSED DURING THIS SLICE
+---------------------------------
+* The other void Advanced Start actions do not all share F370's false-state
+  consequence. In particular, the final tech loop and the building action's
+  projected-budget inequality imply affordability before execution; the
+  earlier/interleaved tech attempts can fail when the common point pool is
+  depleted, but the local variables changed afterward are allocation
+  heuristics rather than a false representation of purchased game state. No
+  independent F372 was assigned there in this slice.
+
+* `AI_bestAreaUnitAIValue` does select only one representative city for a
+  non-null area and can therefore miss a unit with a city-local prerequisite
+  that is trainable elsewhere in the same area. Current SAS has Factory-gated
+  Tanks that make the general hazard real, but the area-scoped sea/air cleanup
+  consumers do not currently intersect such a local prerequisite. The only
+  current-data intersection established here is K-Mod's gifted combat-unit
+  valuation. That remains an inherited approximation / mod-mod hazard, not a
+  numbered root at this checkpoint.
+
+* `AI_getRankDifferenceAttitude`'s `iMajorCivsAlive - 1` denominator is protected
+  on its live cached-attitude path: `AI_updateAttitude` asserts both participants
+  are major civs and requires both to be alive before the rank helper is
+  reached. No zero-divisor producer was established.
+
+CURRENT AUDIT STATE
+-------------------
+Queue 001 `CvPlayerAI.cpp` — OPEN (final closure reconciliation)
+Unique files complete — 30/169
+Confirmed deep-reloop findings — F321 through F371
+F372 / provisional KI#695 — UNUSED
+Latest physical checkpoint — C031-WIP61
+No repository source files modified.
+
+NEXT
+----
+1. Continue the final Queue 001 bug-pattern / function-range reconciliation from
+   F372 unused; do not close the file merely because F371 was found late.
+2. Finish the remaining unmentioned state/cache/value helpers and recheck the
+   rest of Advanced Start for independent "candidate result controls global
+   phase" or "attempted action assumed successful" patterns.
+3. If no independent F372 survives, freeze the Queue 001 closure checkpoint,
+   increment unique files complete to 31/169, and open protected Queue 002
+   `CvUnitAI.cpp` for its deeper reloop.

@@ -25306,6 +25306,8 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 	int iHealth = 0;
 	YieldChangeMap aiYields;
 	CommerceChangeMap aiCommerces;
+	// <!-- custom: retain the permanent per-turn value from active building instances for non-city event choices. See KI#677 and KI#678. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int iGlobalBuildingTurnValue = 0;
 
 	/*if (NO_PLAYER != kTriggeredData.m_eOtherPlayer) {
 		if (kEvent.isDeclareWar()) {
@@ -25430,30 +25432,101 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 	FOR_EACH_NON_DEFAULT_PAIR(kEvent.
 		getBuildingYieldChange(), BuildingClass, YieldChangeMap)
 	{
-		/*	advc (note): Apparently, we're not checking whether we have
-			such buildings or could ever construct them. */
+		// <!-- custom: BtS discarded BuildingClass identity while collecting event output changes, then never consumed yield or commerce for non-city events.
+		// Count active instances so both city and empire effects value only buildings that currently receive the permanent change. See KI#677. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		BuildingTypes const eBuilding = getCivilization().getBuilding(perBuildingClassVal.first);
+		int iAffectedBuildings = 0;
+		if (eBuilding != NO_BUILDING)
+		{
+			if (kEvent.isCityEffect() && pCity != NULL)
+				iAffectedBuildings = pCity->getNumActiveBuilding(eBuilding);
+			else if (!kEvent.isOtherPlayerCityEffect())
+			{
+				FOR_EACH_CITY(pLoopCity, *this)
+					iAffectedBuildings += pLoopCity->getNumActiveBuilding(eBuilding);
+			}
+		}
 		FOR_EACH_NON_DEFAULT_PAIR(perBuildingClassVal.second, Yield, int)
 		{
-			aiYields.add(perYieldVal.first, perYieldVal.second);
+			int const iChange = iAffectedBuildings * perYieldVal.second;
+			if (kEvent.isCityEffect())
+				aiYields.add(perYieldVal.first, iChange);
+			else
+			{
+				if (perYieldVal.first == YIELD_FOOD || perYieldVal.first == YIELD_PRODUCTION)
+					iGlobalBuildingTurnValue += 5 * iChange;
+				else if (perYieldVal.first == YIELD_COMMERCE)
+					iGlobalBuildingTurnValue += 3 * iChange;
+			}
 		}
 	}
 	FOR_EACH_NON_DEFAULT_PAIR(kEvent.
 		getBuildingCommerceChange(), BuildingClass, CommerceChangeMap)
 	{
+		// <!-- custom: apply the same KI#677 instance-aware valuation to permanent building-commerce changes. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		BuildingTypes const eBuilding = getCivilization().getBuilding(perBuildingClassVal.first);
+		int iAffectedBuildings = 0;
+		if (eBuilding != NO_BUILDING)
+		{
+			if (kEvent.isCityEffect() && pCity != NULL)
+				iAffectedBuildings = pCity->getNumActiveBuilding(eBuilding);
+			else if (!kEvent.isOtherPlayerCityEffect())
+			{
+				FOR_EACH_CITY(pLoopCity, *this)
+					iAffectedBuildings += pLoopCity->getNumActiveBuilding(eBuilding);
+			}
+		}
 		FOR_EACH_NON_DEFAULT_PAIR(perBuildingClassVal.second, Commerce, int)
 		{
-			aiCommerces.add(perCommerceVal.first, perCommerceVal.second);
+			int const iChange = iAffectedBuildings * perCommerceVal.second;
+			if (kEvent.isCityEffect())
+				aiCommerces.add(perCommerceVal.first, iChange);
+			else if (perCommerceVal.first == COMMERCE_RESEARCH || perCommerceVal.first == COMMERCE_GOLD)
+				iGlobalBuildingTurnValue += 3 * iChange;
+			else if (perCommerceVal.first == COMMERCE_CULTURE || perCommerceVal.first == COMMERCE_ESPIONAGE)
+				iGlobalBuildingTurnValue += 2 * iChange;
 		}
 	}
 	FOR_EACH_NON_DEFAULT_PAIR(kEvent.
 		getBuildingHappyChange(), BuildingClass, int)
 	{
-		iHappy += perBuildingClassVal.second;
+		// <!-- custom: BtS discarded BuildingClass identity and treated a modifier for one building class as though it affected every city.
+		// Value the actual active instances instead. See KI#678. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		BuildingTypes const eBuilding = getCivilization().getBuilding(perBuildingClassVal.first);
+		int iAffectedBuildings = 0;
+		if (eBuilding != NO_BUILDING)
+		{
+			if (kEvent.isCityEffect() && pCity != NULL)
+				iAffectedBuildings = pCity->getNumActiveBuilding(eBuilding);
+			else if (!kEvent.isOtherPlayerCityEffect())
+			{
+				FOR_EACH_CITY(pLoopCity, *this)
+					iAffectedBuildings += pLoopCity->getNumActiveBuilding(eBuilding);
+			}
+		}
+		if (kEvent.isCityEffect())
+			iHappy += iAffectedBuildings * perBuildingClassVal.second;
+		else iGlobalBuildingTurnValue += 4 * iAffectedBuildings * perBuildingClassVal.second;
 	}
 	FOR_EACH_NON_DEFAULT_PAIR(kEvent.
 		getBuildingHealthChange(), BuildingClass, int)
 	{
-		iHealth += perBuildingClassVal.second;
+		// <!-- custom: apply the same KI#678 instance-aware valuation to building-specific health. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		BuildingTypes const eBuilding = getCivilization().getBuilding(perBuildingClassVal.first);
+		int iAffectedBuildings = 0;
+		if (eBuilding != NO_BUILDING)
+		{
+			if (kEvent.isCityEffect() && pCity != NULL)
+				iAffectedBuildings = pCity->getNumActiveBuilding(eBuilding);
+			else if (!kEvent.isOtherPlayerCityEffect())
+			{
+				FOR_EACH_CITY(pLoopCity, *this)
+					iAffectedBuildings += pLoopCity->getNumActiveBuilding(eBuilding);
+			}
+		}
+		if (kEvent.isCityEffect())
+			iHealth += iAffectedBuildings * perBuildingClassVal.second;
+		else iGlobalBuildingTurnValue += 3 * iAffectedBuildings * perBuildingClassVal.second;
 	}
 
 	if (kEvent.isCityEffect())
@@ -25508,7 +25581,7 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 	}
 	else if (!kEvent.isOtherPlayerCityEffect())
 	{
-		int iPerTurnValue = 0;
+		int iPerTurnValue = iGlobalBuildingTurnValue;
 		iPerTurnValue += iNumCities * ((iHappy * 4) + (kEvent.getHappy() * 8));
 		iPerTurnValue += iNumCities * ((iHealth * 3) + (kEvent.getHealth() * 6));
 
@@ -25586,7 +25659,12 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 	}
 
 	if (kEvent.getBonusRevealed() != NO_BONUS)
-		iValue += (iBonusValue * 10 * iGameSpeedPercent) / 100;
+	{
+		// <!-- custom: BtS tested BonusRevealed but reused the unrelated BonusType value, so resource-reveal choices could receive zero or another resource's value.
+		// Value the revealed resource independently. See KI#676. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iRevealedBonusValue = AI_bonusVal((BonusTypes)kEvent.getBonusRevealed(), 0, true);
+		iValue += (iRevealedBonusValue * 10 * iGameSpeedPercent) / 100;
+	}
 
 	if (pUnit != NULL)
 	{
@@ -25651,12 +25729,36 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 			iReligionValue += 15;
 		if (hasHolyCity(eReligion))
 			iReligionValue += 15;
-		iValue += (kEvent.getConvertOwnCities() * iReligionValue * iGameSpeedPercent) / 100;
+		// <!-- custom: BtS valued requested religion conversions even when fewer cities met applyEvent's religion and MaxNumReligions conditions.
+		// Cap both own and foreign value at the matching eligible-city count. See KI#680. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iEligibleOwnCities = 0;
+		FOR_EACH_CITY(pLoopCity, *this)
+		{
+			if (!pLoopCity->isHasReligion(eReligion) && (kEvent.getMaxNumReligions() == -1 ||
+				pLoopCity->getReligionCount() <= kEvent.getMaxNumReligions()))
+			{
+				iEligibleOwnCities++;
+			}
+		}
+		int const iOwnConversions = std::min(kEvent.getConvertOwnCities(), iEligibleOwnCities);
+		iValue += (iOwnConversions * iReligionValue * iGameSpeedPercent) / 100;
 		if (kEvent.getConvertOtherCities() > 0)
 		{
+			int iEligibleOtherCities = 0;
+			if (kTriggeredData.m_eOtherPlayer != NO_PLAYER)
+			{
+				FOR_EACH_CITY(pLoopCity, GET_PLAYER(kTriggeredData.m_eOtherPlayer))
+				{
+					if (!pLoopCity->isHasReligion(eReligion) && (kEvent.getMaxNumReligions() == -1 ||
+						pLoopCity->getReligionCount() <= kEvent.getMaxNumReligions()))
+					{
+						iEligibleOtherCities++;
+					}
+				}
+			}
+			int const iOtherConversions = std::min(kEvent.getConvertOtherCities(), iEligibleOtherCities);
 			//Don't like them much = fairly indifferent, hate them = negative.
-			iValue += (kEvent.getConvertOtherCities() * (iOtherPlayerAttitudeWeight + 50) *
-					iReligionValue * iGameSpeedPercent) / 15000;
+			iValue += (iOtherConversions * (iOtherPlayerAttitudeWeight + 50) * iReligionValue * iGameSpeedPercent) / 15000;
 		}
 	}
 
@@ -25715,9 +25817,6 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 				iDiploValue += iThirdPartyDiploValue;
 			}
 		}
-
-		iDiploValue *= iGameSpeedPercent;
-		iDiploValue /= 100;
 
 		if (kEvent.getBonusGift() != NO_BONUS)
 		{
@@ -25795,6 +25894,8 @@ int CvPlayerAI::AI_eventValue(EventTypes eEvent, EventTriggeredData const& kTrig
 			iValue += iPillageValue; // K-Mod!
 		}
 
+		// <!-- custom: BtS scaled the early attitude terms here and then scaled the shared diplomacy total again, making those effects grow approximately with game speed squared.
+		// Apply the common speed factor exactly once. See KI#679. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		iValue += (iDiploValue * iGameSpeedPercent) / 100;
 	}
 
