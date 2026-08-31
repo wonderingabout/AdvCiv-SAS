@@ -1439,14 +1439,12 @@ void CvPlayerAI::AI_unitUpdate()
 			CvSelectionGroupAI* pLoopSelectionGroup = AI_getSelectionGroup(pCurrUnitNode->m_data);
 			pCurrUnitNode = nextGroupCycleNode(pCurrUnitNode);
 
-			if (pLoopSelectionGroup->AI_isForceSeparate())
+			// <!-- custom: K-Mod 846's turn-start force-update marker predates any queued group attack because its sole producer already cancels old attacks.
+			// Preserve K-Mod's protection for a newer amphibious continuation instead of letting that stale marker force separation. See KI#535. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (pLoopSelectionGroup->AI_isForceSeparate() &&
+				!pLoopSelectionGroup->AI_isGroupAttack())
 			{
-				if (pLoopSelectionGroup->isForceUpdate() ||
-					// do not split groups that are in the midst of attacking
-					!pLoopSelectionGroup->AI_isGroupAttack())
-				{
-					pLoopSelectionGroup->AI_separate();	// pointers could become invalid...
-				}
+				pLoopSelectionGroup->AI_separate();	// pointers could become invalid...
 			}
 		}
 

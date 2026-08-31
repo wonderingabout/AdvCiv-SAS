@@ -622,7 +622,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#532 - (Fixed AdvCiv-SAS air-strike regression) Low-power ordering called land/sea strength logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-532)\
 [KI#533 - (Fixed inherited BBAI/K-Mod air-selection defect) LFB treated aircraft as zero-strength combatants](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-533)\
 [KI#534 - (Fixed inherited K-Mod/AdvCiv debug-assertion defect) Planned-war census inspected transient empty groups](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-534)\
-[KI#535 - (Provisional Pending inherited K-Mod regression) Force update can cancel a newer amphibious group attack](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-535)\
+[KI#535 - (Fixed inherited K-Mod regression) Force update could cancel a newer amphibious group attack](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-535)\
 [KI#536 - (Fixed inherited AdvCiv UWAI cache-reset defect) New games and loaded saves could retain stale human-capitulation authorization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-536)\
 [KI#537 - (Fixed inherited AdvCiv UWAI military-cache defect) Losing every trainable branch candidate retained obsolete production capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-537)\
 [KI#538 - (Fixed inherited AdvCiv UWAI leader-migration defect) A promoted leader inherited stale or default-true war hireability](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-538)\
@@ -12945,11 +12945,15 @@ The repair skips zero-unit groups before reading their mission target or war int
 
 <a id="ki-535"></a>
 
-## KI#535 - (Provisional Pending inherited K-Mod regression) Force update can cancel a newer amphibious group attack
+## KI#535 - (Fixed inherited K-Mod regression) Force update could cancel a newer amphibious group attack
 
-Album F212 finds stale K-Mod 846 force-update semantics able to cancel a newly queued amphibious attack. Pending independent implementation review.
+K-Mod practical 428 protected deferred amphibious group attacks because a loaded sea transport can order its lower-priority land cargo to attack before the cargo group's own turn. Practical 846 later changed force update into a turn-start request that every AI group receive at least one update, but left two consumers where that old marker overruled a group attack queued later in the same movement phase. The player update's separation pre-pass could split the group, or `CvSelectionGroupAI::AI_update` could cancel its continuation before executing it. An AI naval invasion could consequently stop after its first cargo-unit attack instead of following through with the remaining attackers.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair relies on the exact state provenance rather than a broad scheduler change. `CvSelectionGroup::doTurn` is the sole live producer of `setForceUpdate(true)`, and it already clears the mission queue and cancels every pre-existing group attack. Therefore, when force update and a queued group attack coexist, the attack is newer state and must take precedence. The separation pre-pass now retains K-Mod's protection for a group in the midst of attacking, regardless of the stale marker, and `AI_update` lets its existing loop consume the queued continuation while clearing force update normally. The update-at-least-once purpose of K-Mod 846 remains intact, as does ordinary force separation when no group attack is queued.
+
+After a clean Debug-opt compilation, a Huge Archipelago game using Tiny Islands, Normal speed, 16 independent teams, standard Aggressive AI/full UWAI and No Events completed normally through Space Race victory on turn 404. `SASGameRecord_20260831T173535Z_new1.log` confirms the Debug-opt DLL fingerprint, naval-heavy map classification and completed autoplay, and records multiple surviving `UNITAI_ASSAULT_SEA` groups and transport fleets. This provides broad runtime coverage of the relevant naval-AI environment; the exact force-update plus newly queued multi-unit amphibious continuation remains source/lifecycle verified because that transient internal state is not logged directly.
+
+This is an inherited K-Mod regression: practical 428 introduced the intended amphibious continuation protection, practical 846 partially undermined it, and final K-Mod 1.46, Base AdvCiv 1.14 and AdvCiv-SAS retained that interaction. The exact transport-before-cargo ordering and both stale-marker consumers were source-verified. Found as F212 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-536"></a>
 

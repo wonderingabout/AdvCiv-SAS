@@ -125,12 +125,9 @@ bool CvSelectionGroupAI::AI_update()
 	if (getNumUnits() == 0)
 		return false;
 
-	// K-Mod. (replacing the original "isForceUpdate" stuff.)
-	if (isForceUpdate())
-	{
-		// note: we haven't toggled the update flag, nor woken the group from sleep.
-		AI_cancelGroupAttack();
-	} // K-Mod end
+	// <!-- custom: K-Mod 846's sole force-update producer already cancels every old queued attack at turn start.
+	// If a group attack now coexists with that marker, an amphibious command queued it later and must take precedence.
+	// Remove K-Mod 846's redundant entry cancellation so the loop below clears the stale marker while preserving the continuation. See KI#535. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 
 	//FAssert(!(GET_PLAYER(getOwner()).isAutoMoves())); // (no longer true in K-Mod)
 
