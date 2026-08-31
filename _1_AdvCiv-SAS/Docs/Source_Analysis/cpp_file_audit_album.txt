@@ -4,10 +4,10 @@ Generated from local light-source snapshot only; no web/GitHub lookup used.
 CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
-Last completed file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - CLOSED AT C031-WIP87
-Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP142
-Latest confirmed roots: F321-F418 and F420-F437 / provisional KI#644-KI#760 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712
-Next root ID: F438 unused / provisional KI#761 next
+Last completed file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - CLOSED AT C031-WIP150
+Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP154
+Latest confirmed roots: F321-F418 and F420-F446 / provisional KI#644-KI#769 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712
+Next root ID: F447 unused / provisional KI#770 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -23,8 +23,8 @@ METHOD
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
-003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP140 / F388-F418, F420-F436; F419 DUPLICATE]<-(priority current wip)
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
+003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP150 / F388-F418, F420-F443; F419 DUPLICATE]
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP154 / F444-F446]<-(priority current wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
@@ -93019,3 +93019,2295 @@ defensible closure rather than manufacturing late findings from static documenta
 completeness.
 
 END C031-WIP142
+
+
+===============================================================================
+C031-WIP143 APPEND - F438 / KI#761 confirmed; Finance Specialist-extra-Gold
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F438 / provisional KI#761 CONFIRMED.
+F439 / provisional KI#762 UNUSED.
+No repository source files modified.
+
+F438 / provisional KI#761 — FINANCE ADVISOR SPECIALIST-GOLD ROW USES BASE-ONLY
+CITY SPECIALIST COMMERCE WHILE ITS OWN BULL HOVER AND RUNTIME INCLUDE PLAYER-
+WIDE SPECIALIST-EXTRA GOLD
+-------------------------------------------------------------------------------
+
+ROOT
+----
+The current SAS Finance screen (`Assets/Python/Screens/CvDomesticAdvisor.py`)
+computes the visible Specialists income row by summing, for every non-disorder
+city:
+
+    fCitySpecialists = city.getSpecialistCommerce(COMMERCE_GOLD)
+    fSpecialists += fCitySpecialists
+
+`CvCity::getSpecialistCommerce` is the city's stored specialist-info commerce.
+`CvCity::processSpecialist` updates that store only from:
+
+    CvSpecialistInfo::getCommerceChange
+
+It does not contain the player-wide `getSpecialistExtraCommerce` contribution.
+
+The exact widget attached to that same row is `WIDGET_HELP_FINANCE_SPECIALISTS`.
+Its C++ path reaches `CvGameTextMgr::buildFinanceSpecialistGoldString`, which
+counts assigned + free specialists in every non-disorder city and computes each
+specialist's Gold through:
+
+    kPlayer.specialistCommerce(eSpecialist, COMMERCE_GOLD)
+
+`CvPlayer::specialistCommerce` is explicitly:
+
+    SpecialistInfo base commerce + getSpecialistExtraCommerce(eCommerce)
+
+Therefore the displayed row and its own tooltip use different definitions of
+"specialist Gold".
+
+RUNTIME CONTROL
+---------------
+The actual city commerce formula agrees with the tooltip, not with the Python
+row. `CvCity::getBaseCommerceRateTimes100` adds:
+
+    (getSpecialistPopulation() + getNumGreatPeople()) *
+        owner.getSpecialistExtraCommerce(eCommerce)
+
+separately from `getSpecialistCommerce(eCommerce)`.
+
+The ordinary city commerce hover (`CvGameTextMgr::setCommerceHelp`) already uses
+this same complete formula for its Specialists line:
+
+    city.getSpecialistCommerce(eCommerce) +
+    (city.getSpecialistPopulation() + city.getNumGreatPeople()) *
+        owner.getSpecialistExtraCommerce(eCommerce)
+
+This is an especially strong internal control: the authoritative runtime and an
+existing TextMgr breakdown both include the component which the Finance row
+omits.
+
+CURRENT-DATA REACHABILITY
+-------------------------
+This latent split is live in current SAS because current data supplies
+specialist-extra GOLD.
+
+Current `CIV4CivicInfos.xml`:
+
+    CIVIC_REPRESENTATION  SpecialistExtraCommerces = [1, 1, 1, 0]
+    CIVIC_FREE_MARKET     SpecialistExtraCommerces = [1, 0, 0, 0]
+
+Both feed `CvPlayer::changeSpecialistExtraCommerce` through `processCivics`.
+The two civics belong to different civic-option categories and can therefore
+stack, but either one is independently sufficient.
+
+Current Specialist XML gives the simple controls:
+
+    Scientist intrinsic Gold = 0
+    Merchant  intrinsic Gold = 3
+
+Ordinary one-Merchant reproduction under Representation:
+
+    Finance visible Specialists row = 3
+        because city.getSpecialistCommerce(GOLD) sees only intrinsic 3
+
+    Hover on that exact row          = 4
+        because player.specialistCommerce(Merchant, GOLD) sees 3 + 1
+
+    Runtime base specialist Gold     = 4
+        because CvCity adds the player-wide +1 per specialist
+
+A more severe one-Scientist shape is possible. The Scientist has zero intrinsic
+Gold, so the Finance loop leaves `fSpecialists == 0` and suppresses the
+Specialists row entirely. Under Representation the same Scientist nevertheless
+contributes +1 Gold to real city commerce. With Representation + Free Market,
+it contributes +2 while the row still remains absent if no intrinsic-Gold
+specialist is present.
+
+FINANCE BREAKDOWN CONSEQUENCE
+-----------------------------
+The omission is broader than only the row label/hover number.
+
+The Finance screen also computes each Gold-multiplier building's contribution
+from:
+
+    fCityTotel = fCityTaxes + fCityBuildings + fCityHeadquarters +
+        fCityCorporations + fCitySpecialists
+
+Because `fCitySpecialists` is base-only, any Gold multiplier contribution caused
+by specialist-extra Gold is omitted from those multiplier rows too. The final
+Income line is still based on the authoritative `player.getCommerceRate(GOLD)`,
+so the total contains the missing specialist-extra output while the detailed
+component rows fail to reconstruct it.
+
+Replacing the base-only specialist quantity with the complete runtime quantity
+would repair both the Specialist row and the multiplier base in the same place.
+
+ANCESTRY
+--------
+K-Mod's `Assets/Python/Screens/EconomicsAdvisor.py` already contains the
+base-only row calculation:
+
+    fCitySpecialists = city.getSpecialistCommerce(COMMERCE_GOLD)
+
+and attaches a BUG/BULL specialist-help widget through `BugDll.widget`.
+However the supplied K-Mod DLL source does not itself contain
+`buildFinanceSpecialistGoldString` or the corresponding BULL widget enum/parser.
+
+AdvCiv practical commit 1481,
+4a65bf5c0fb187fd25d4908346abb462354a9172,
+"Option for expanding scoreboard; BULL hover text", imports/enables the BULL
+Finance hover subsystem in the DLL. The introducing diff adds
+`CvGameTextMgr::buildFinanceSpecialistGoldString` using
+`kPlayer.specialistCommerce(...)` and converts the existing Finance Specialist
+row from optional `BugDll.widget(...)` plumbing to the concrete
+`WIDGET_HELP_FINANCE_SPECIALISTS` enum. It does not change the inherited
+base-only Python row calculation.
+
+Base AdvCiv 1.14 retains that split, but its shipped data masks the GOLD case:
+its nonzero specialist-extra-commerce sources are Research/Culture only
+(Representation [0,3,0], Scientific Method [0,1,0], Sistine Chapel [0,0,2]).
+The supplied K-Mod and stock BtS/Civ4CE data likewise have no nonzero first
+(Gold) SpecialistExtraCommerce entry.
+
+Current SAS data removes that masking condition. Representation is already
+shown with +Gold specialist commerce in SAS history by practical commit 5109
+(the commit removes only its former fourth/espionage +1, leaving [1,1,1,0]),
+and current Free Market supplies another +1 Gold per specialist.
+
+Classification:
+    latent inherited K-Mod/BULL/AdvCiv Finance-definition split, data-masked in
+    base AdvCiv's Gold channel but made directly live by current SAS civic data.
+
+DUPLICATE RECONCILIATION
+------------------------
+The earlier Queue-003 control for `buildFinanceSpecialistGoldString` checked only
+its exclusion of disorder cities and found that state handling correct. It did
+not compare the helper's `player.specialistCommerce` quantity against the
+Python row's `city.getSpecialistCommerce` quantity.
+
+Existing Finance roots are distinct:
+
+- F400/KI#723: separately rounded/truncated Finance cost decomposition.
+- F401/KI#724: exactly-one profitable trade route can have a blank Finance hover.
+- later Finance anarchy controls concern unit-cost/supply state.
+- F326/KI#649 mentions current Representation/Free Market
+  SpecialistExtraCommerces only in AI civic valuation; it does not cover the
+  Finance Advisor display/hover contract.
+
+No existing root in the reconciled album owns this row-vs-tooltip/runtime split.
+
+REPAIR DIRECTION
+----------------
+Use the same complete specialist-commerce quantity that runtime and
+`setCommerceHelp` already use when computing `fCitySpecialists`.
+
+A narrow Python repair is conceptually:
+
+    fCitySpecialists = city.getSpecialistCommerce(COMMERCE_GOLD)
+    fCitySpecialists += (city.getSpecialistPopulation() +
+            city.getNumGreatPeople()) * player.getSpecialistExtraCommerce(
+                    COMMERCE_GOLD)
+
+All three Python APIs are exposed in current SAS. This preserves the existing
+assigned/free-specialist count contract, excludes disorder exactly where the
+Finance screen already does, makes the row agree with its BULL hover/runtime,
+and automatically lets the later multiplier computation include the extra
+specialist Gold as part of its base.
+
+An alternative per-specialist loop using `player.specialistCommerce` would also
+match the BULL helper, but the compact formula above is already the formula used
+by `CvCity::getBaseCommerceRateTimes100` and `CvGameTextMgr::setCommerceHelp`.
+
+Do not "fix" the C++ hover by switching it down to `city.getSpecialistCommerce`:
+that would make the tooltip agree with the buggy row by hiding real current
+Gold output that the runtime actually grants.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F438 / provisional KI#761 CONFIRMED.
+F439 / provisional KI#762 UNUSED.
+Latest physical checkpoint: C031-WIP143.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 003 from F439 unused through the remaining live-unit/deal/UI-state
+residue, then perform another mechanical member-definition/coverage
+reconciliation. Prefer exact duplicated-runtime contracts and current-data
+contradictions over static completeness wishes; Queue 003 is late and saturated,
+so a clean closure tranche is a valid result.
+
+END C031-WIP143
+
+
+===============================================================================
+C031-WIP144 APPEND - F439 / KI#762 confirmed; Nuke target help uses group head
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F439 / provisional KI#762 CONFIRMED.
+F440 / provisional KI#763 UNUSED.
+No repository source files modified.
+
+F439 / provisional KI#762 — NUKE TARGETING IS GROUP-WIDE, BUT NUKE PLOT HELP
+AND THE AOE RADIUS RENDERER USE ONLY THE HEAD-SELECTED UNIT; A FIGHTER-HEADED
+TACTICAL-NUKE GROUP CAN LEGALLY LAUNCH WHILE ITS TARGET HELP/RADIUS USE THE
+NON-NUKE FIGHTER
+-------------------------------------------------------------------------------
+
+ROOT
+----
+`CvGameTextMgr::getPlotHelp` dispatches `INTERFACEMODE_NUKE` through:
+
+    CvUnit* pHeadSelectedUnit = gDLL->UI().getHeadSelectedUnit();
+    ...
+    getNukePlotHelp(*pMouseOverPlot, *pHeadSelectedUnit, szTempBuffer);
+
+`getNukePlotHelp` then treats that unit as `kNuke` for every nuke-specific
+quantity:
+
+- `canNukeAt`;
+- `nukeInterceptionChance`;
+- `nukeRange` for explored-tile checks;
+- `isNukeVictim` and all detailed invalid-target explanations.
+
+That actor choice does not match the interface-mode or mission contract.
+
+`CvSelectionGroup::canDoInterfaceMode(INTERFACEMODE_NUKE)` iterates every group
+member and returns true as soon as ANY unit can `canNuke`.
+
+`CvSelectionGroup::canDoInterfaceModeAt(INTERFACEMODE_NUKE, pPlot)` likewise
+iterates every member and returns true as soon as ANY unit can `canNukeAt` the
+hovered plot.
+
+`CvSelectionGroup::canDoMission(MISSION_NUKE, ...)` is also any-member logic,
+and `CvSelectionGroup::startMission` iterates the group's units; each member is
+asked to `nuke(iData1, iData2)`, so an ineligible earlier member simply returns
+false and a later eligible nuke can execute the order.
+
+The visible hover therefore reconstructs a group-wide action from the wrong,
+head-only actor.
+
+CURRENT DETERMINISTIC PRODUCER
+------------------------------
+Current SAS supplies an ordinary mixed group that makes the mismatch live:
+
+    UNIT_TACTICAL_NUKE  Domain = DOMAIN_AIR
+                         DefaultUnitAI = UNITAI_ICBM
+                         iNukeRange = 1
+                         iAirRange = 4
+
+    UNIT_FIGHTER / UNIT_JET_FIGHTER
+                         Domain = DOMAIN_AIR
+                         non-nuclear, positive air combat
+
+`CvUnit::canJoinGroup` permits the grouping: once the group is nonempty it
+requires the same owner/plot and the same domain; it does not require the same
+unit type or mission abilities. Thus a Tactical Nuke and Fighter on one plot can
+be one human selection group.
+
+The group ordering makes the non-nuke-head case stronger than mere user-order
+speculation. `CvSelectionGroup::addUnit` orders members by
+`AI_groupFirstVal`, then `AI_groupSecondVal`. Current `UNITAI_ICBM` and the air
+combat roles all have first value 0, while `AI_groupSecondVal` for air units is
+`airBaseCombatStr()`. A Fighter therefore sorts ahead of the zero-combat
+Tactical Nuke and becomes group head.
+
+The Nuke interface XML does not repair this by narrowing the selection:
+
+    INTERFACEMODE_NUKE
+        bSelectType = 0
+        bSelectAll  = 0
+
+So entering Nuke mode leaves the mixed group intact.
+
+Concrete current reproduction:
+
+1. Put a Fighter and Tactical Nuke of the same player on the same air-base plot.
+2. Group them. The Fighter is the group head because of the air-combat group
+   ordering above.
+3. Enter Nuke mode. The action is available because the group-wide
+   `canDoInterfaceMode` finds the Tactical Nuke.
+4. Hover a target legal for the Tactical Nuke. The normal target-validity test
+   is positive because `canDoInterfaceModeAt` finds that Tactical Nuke.
+5. `getNukePlotHelp` nevertheless receives the Fighter and calls the Fighter's
+   `canNukeAt`, `nukeRange`, victim checks and interception logic.
+6. Clicking the legal target sends `MISSION_NUKE` to the selected group. The
+   Fighter cannot nuke and does nothing; the Tactical Nuke reaches `CvUnit::nuke`
+   and executes the strike.
+
+Thus the UI can present a target which is genuinely legal and executable while
+its Nuke-specific hover is based on a unit that cannot perform the action.
+
+VISIBLE CONSEQUENCES
+--------------------
+On an otherwise legal target, the head Fighter fails `canNukeAt`, so the helper
+never enters the valid-nuke branch that displays the real
+`nukeInterceptionChance`. Its subsequent explanation scan also uses the
+Fighter's `iNukeRange=-1` rather than the Tactical Nuke's radius 1; it therefore
+cannot be relied upon to explain the same affected area or legality that the
+actual mission uses.
+
+There is a deterministic sibling manifestation in `CvGame::updateNukeAreaOfEffect`.
+That renderer also starts with:
+
+    CvUnit const* pNuke = gDLL->UI().getHeadSelectedUnit();
+    if (pNuke == NULL || !pNuke->isNuke())
+        return false;
+
+For the Fighter-headed Tactical-Nuke group, `canDoInterfaceModeAt` can mark the
+hovered target legal, but the yellow nuclear AOE radius is never painted because
+the renderer rejects the Fighter head before resolving the group's actual nuke.
+
+This is separate from the earlier Queue-018 UNNUMBERED control about possible
+STALE AOE-layer cleanup ordering after selection changes. F439 needs no unknown
+EXE transition ordering: the mixed Fighter/Tactical-Nuke group is a fully
+source-proven current producer, and its no-radius/help mismatch occurs while the
+selection is stable.
+
+ANCESTRY
+--------
+The head-selected-unit assumption is inherited.
+
+Stock BtS/Civ4CE `CvGameTextMgr::getNukePlotHelp` fetches
+`getHeadSelectedUnit()` internally and calls `isNukeVictim` on that unit. K-Mod
+retains the same structure. Their selection-group nuke target test is already
+an any-member loop, so the basic actor mismatch predates AdvCiv.
+
+AdvCiv practical 2784,
+160fa499a896cf595f74bcbde68b7ce41bedc466,
+"Show best visible enemy interceptor in tile hover", refactors plot-mode help and
+passes the previously fetched `pHeadSelectedUnit` explicitly into
+`getNukePlotHelp`; it preserves rather than fixes the inherited assumption.
+
+Later AdvCiv changes make the wrong actor more consequential:
+
+- practical 3096, f28226d0dd6a779876d9737699f8d2334fe4ddbc,
+  "AI considers nuke interception chance, UI displays it", adds the valid-target
+  interception percentage using the passed `kNuke`;
+- practical 3770, b6fce2cedca0f66e226c10bad755f8ff248e88e5,
+  "Can't nuke cities with >=10% friendly nationality", expands the detailed
+  invalid-target explanations;
+- practical 3776, eed5e3b09739596c7aec19f0965443dbc804aaab,
+  "Can't nuke cities culturally owned by a neutral party", further aligns
+  runtime target legality and its explanations with observer/fog-of-war state.
+
+All of those still receive the arbitrary selection head rather than the
+selected unit which can execute Nuke at the target.
+
+DUPLICATE RECONCILIATION
+------------------------
+The album contains nuclear AI/valuation/report findings, but no existing
+`getNukePlotHelp` or mixed-air-selection root.
+
+The closest prior control is Queue 018's unnumbered Nuke AOE-layer cleanup
+ordering question. That control asked whether a radius already painted by a
+selected nuke can become STALE after the EXE changes selection before clearing
+the border layer; it remained unnumbered because callback ordering could not be
+proved locally. F439 is different: a stable mixed group has a non-nuke head from
+the outset, while group-wide mode legality comes from its Tactical Nuke. The
+same renderer consequently paints NO radius for an actually executable target.
+No EXE teardown/callback ordering is needed.
+
+No reconciled KI/F root owns the TextMgr head-vs-executor mismatch or this
+stable mixed-group AOE symptom.
+
+REPAIR DIRECTION
+----------------
+Do not make Nuke targeting head-only. The game deliberately defines the
+interface mode and mission for any eligible selected/group member.
+
+Resolve a target-eligible selected nuke first, then use that SAME unit for all
+Nuke hover calculations. Conceptually, before calling `getNukePlotHelp`, scan
+the current selection/group for a unit satisfying the execution gates, most
+importantly:
+
+    pUnit->canMove() &&
+    pUnit->canNukeAt(pUnit->getPlot(), kPlot.getX(), kPlot.getY(),
+            pUnit->getTeam())
+
+and pass that unit into `getNukePlotHelp`.
+
+For an invalid target, where no selected nuke passes `canNukeAt`, explanation
+text still needs a real selected nuclear unit rather than an arbitrary Fighter;
+resolve a selected `isNuke()` unit (preferably using the same selection/group
+ordering that mission execution uses) and let that nuke explain why the target
+is invalid.
+
+The same resolver principle should be applied to
+`CvGame::updateNukeAreaOfEffect`: obtain the selected target-eligible nuke (or a
+real selected nuke as appropriate) rather than requiring the head-selected unit
+to be nuclear.
+
+The neighboring current Air Bomb / Paradrop help already demonstrates the
+right architectural direction: it asks the current selection for a
+mission-eligible unit instead of assuming that the selection head is the actor.
+A small shared Nuke-selection helper would avoid letting TextMgr and the AOE
+renderer drift independently.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F439 / provisional KI#762 CONFIRMED.
+F440 / provisional KI#763 UNUSED.
+Latest physical checkpoint: C031-WIP144.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 003 from F440 unused. First check the sibling Rebase head-unit
+assumption under mixed air groups, but keep it unnumbered unless the head affects
+a target-specific quantity that disagrees with group execution. Then finish the
+remaining live-unit/deal/UI-state residue and rerun the member-definition vs
+explicit-control/finding reconciliation. Queue 003 remains late/saturated, so
+clean closure is preferable to forcing a final finding.
+
+===============================================================================
+C031-WIP145 APPEND - F440 / KI#763 confirmed; Advanced Start advertised
+per-city military-unit cap is actually enforced only as an empire-wide average
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F440 / provisional KI#763 CONFIRMED.
+F441 / provisional KI#764 UNUSED.
+No repository source files modified.
+
+F440 / provisional KI#763 — ADVANCED START UNIT HELP SAYS "MAXIMUM N UNITS PER
+CITY", BUT THE PURCHASE GATE ONLY CAPS TOTAL MILITARY UNITS AT N * CITY COUNT;
+MULTIPLE CITIES LET THE PLAYER CONCENTRATE MORE THAN N UNITS IN ONE CITY
+-------------------------------------------------------------------------------
+
+ROOT
+----
+`CvGameTextMgr::getUnitDataForAS` appends the inherited Advanced Start warning
+for every purchasable military-support unit:
+
+    int iMaxUnitsPerCity = GC.getDefineINT("ADVANCED_START_MAX_UNITS_PER_CITY");
+    if (iMaxUnitsPerCity >= 0 && GC.getInfo(eUnit).isMilitarySupport())
+    {
+        ...
+        gDLL->getText("TXT_KEY_WB_AS_MAX_UNITS_PER_CITY", iMaxUnitsPerCity)
+    }
+
+The stock BtS text behind that key is explicit:
+
+    "Maximum %d units per city"
+
+The runtime gate in `CvPlayer::getAdvancedStartUnitCost`, however, does NOT
+count units on the target city's plot. For an added military-support unit it
+checks only:
+
+    if (getNumMilitaryUnits() >= iMaxUnitsPerCity * getNumCities())
+        return -1;
+
+`getNumMilitaryUnits()` is player-wide. `getNumCities()` is player-wide. The
+candidate `pPlot` / `pCity` is not used by this cap at all.
+
+After this aggregate check, the city branch verifies only `pCity->canTrain(eUnit)`;
+it does not impose any local unit-count limit. `CvPlayer::doAdvancedStartAction`
+then calls this same cost function and, when the cost is nonnegative and points
+are sufficient, directly creates the unit with `initUnit(eUnit, iX, iY, ...)`.
+There is no later per-city cap.
+
+CURRENT DETERMINISTIC PRODUCER
+------------------------------
+The base `ADVANCED_START_MAX_UNITS_PER_CITY` define is 2. Current SAS does not
+override that define in its supplied XML, so the inherited value remains the
+current configuration.
+
+With two cities and zero military units, choose any military-support unit that
+the target city can train and has enough Advanced Start points to buy.
+
+The advertised rule says that the target city may contain at most 2 such units.
+The actual checks for four consecutive purchases on the SAME city are:
+
+    before purchase 1: 0 >= 2 * 2  -> false, allowed
+    before purchase 2: 1 >= 2 * 2  -> false, allowed
+    before purchase 3: 2 >= 2 * 2  -> false, allowed
+    before purchase 4: 3 >= 2 * 2  -> false, allowed
+    before purchase 5: 4 >= 2 * 2  -> true, denied
+
+Thus one city can hold four purchased military units while every one of those
+unit entries advertises "Maximum 2 units per city". With three cities, all six
+may likewise be concentrated in a single city, and so on.
+
+The runtime rule is therefore an empire-wide allowance equal to N times city
+count — effectively N military units PER CITY ON AVERAGE — not a local maximum
+of N units in each city.
+
+CURRENT CONSEQUENCE
+-------------------
+This is player-visible and mechanically exploitable during Advanced Start.
+The help claims a local placement restriction that the action does not enforce.
+A player can therefore legally do exactly what the warning says is forbidden,
+concentrating the whole empire allowance in one city.
+
+The discrepancy is not a transient UI/cache issue. `doAdvancedStartAction`
+revalidates through `getAdvancedStartUnitCost(..., pPlot)` immediately before
+creating the unit, and that authoritative action-time check uses the same
+aggregate formula.
+
+ANCESTRY
+--------
+This mismatch is inherited from stock BtS rather than introduced by AdvCiv-SAS.
+
+Civ4CE's reconstructed BtS source contains both halves unchanged:
+
+* `CvPlayer::getAdvancedStartUnitCost` tests
+  `getNumMilitaryUnits() >= iMaxUnitsPerCity * getNumCities()`;
+* `CvGameTextMgr::getUnitDataForAS` displays
+  `TXT_KEY_WB_AS_MAX_UNITS_PER_CITY`;
+* stock BtS `CIV4GameText_BTS.xml` defines the English text as
+  `Maximum %d units per city`;
+* stock `GlobalDefines.xml` sets `ADVANCED_START_MAX_UNITS_PER_CITY` to 2.
+
+K-Mod 1.46 retains the same aggregate runtime gate and the same TextMgr warning.
+Base AdvCiv 1.14 also retains both pieces unchanged. Current SAS inherits the
+same semantics; its recent change in this helper only caches/hoists the define
+lookup and does not alter behavior.
+
+Classification: inherited BtS Advanced Start rule/help mismatch, still live in
+K-Mod, AdvCiv and current AdvCiv-SAS.
+
+DUPLICATE RECONCILIATION
+------------------------
+The album contains several Advanced Start findings, especially the deep
+`CvPlayerAI` automation roots F370-F372 and the later generic-cost/visibility
+checks, but none owns this player-facing local-vs-global military-unit cap.
+
+F372 concerns AI automation terminating later unit-role passes after one
+unaffordable candidate. F440 concerns the authoritative human/AI purchase-cost
+gate itself disagreeing with the static Advanced Start unit warning about the
+spatial scope of the cap. They are independent code roots and consequences.
+
+No existing reconciled KI/F entry describes `ADVANCED_START_MAX_UNITS_PER_CITY`,
+`TXT_KEY_WB_AS_MAX_UNITS_PER_CITY`, or a per-city-vs-empire-wide military-unit
+cap.
+
+REPAIR DIRECTION
+----------------
+The correct repair depends on intended design; the current name and stock text
+both strongly suggest that a true local per-city limit was intended, whereas
+the implementation behaves like an empire-wide average allowance.
+
+If the intended rule really is LOCAL "maximum N per city", enforce it on the
+candidate plot/city in `getAdvancedStartUnitCost` by counting relevant existing
+military units there and rejecting once that local count reaches N. The action
+already has `pPlot`/`pCity`, so this can be authoritative at purchase time.
+
+If the aggregate allowance is deliberate and should be preserved, then the
+warning and define naming need to stop claiming a local cap. A conservative UI
+repair would describe the actual rule as an empire maximum derived from city
+count (e.g. "Maximum N military units per city on average" or, better, show the
+current total allowance explicitly).
+
+Do not merely change the TextMgr number from N to N * city count while retaining
+"per city"; that would still misstate the spatial rule.
+
+POST-F440 CONTROLS ALREADY CLOSED BEFORE THIS CHECKPOINT
+--------------------------------------------------------
+The post-WIP144 residue also established the following clean controls without
+allocating another root:
+
+* `getDealString`: city trades are one-shot and are not stored in active deals,
+  so `TRADE_CITIES` cannot later dereference a traded-away/razed city through
+  this active-deal renderer. Its cancellation countdown is deal-wide by design.
+* `buildFinanceForeignIncomeString`: the visible Finance row and its hover use
+  the same net `getGoldPerTurn()` quantity; per-player positive/negative entries
+  are a breakdown, not an F438-style source mismatch.
+* `setCycleUnitHelp`: the unit comes from `getCycleButtonUnit`, which resolves
+  the exact prospective cycle group; worker cycling requires a group with a
+  worker with moves and the button resolver preferentially returns a worker.
+* `getRebasePlotHelp`: the inherited head-unit seam no longer controls a
+  meaningful target-specific quantity because the old capacity warning was
+  moved into generic plot help.
+* `eventTechHelp`: its beaker arithmetic and caps match the authoritative event
+  research-progress mutation.
+* `setHealthChangeBuildActionHelp`: integer and fractional good/bad-health
+  deltas come from monotone same-sign buckets; the explicit bad-health sign flip
+  cannot create an opposing-sign display.
+* `appendFirstStrikes` and `setHurtUnitStrength`: their execution/display guards
+  and endpoint formatting were reconciled without a current contradiction.
+* trade-screen civic icons: the apparent `NO_CIVIC` indexing concern is masked
+  by the living-player initialization invariant that every civic option has an
+  initial civic before this surface is reachable.
+* the current-SAS-vs-base-AdvCiv TextMgr delta inventory contains no unreviewed
+  zero-mention semantic SAS rewrite; remaining unmatched deltas are lookup/
+  define caching, signature/layout refactors or debug-only helpers.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F440 / provisional KI#763 CONFIRMED.
+F441 / provisional KI#764 UNUSED.
+Latest physical checkpoint: C031-WIP145.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 003 from F441 unused. Finish the remaining inherited live-state
+residue (especially the small Advanced Start/WB helpers now that the unit helper
+was reopened, deal/trade/UI-state helpers and any uncompared sorting contracts),
+then rerun the member-definition versus explicit-control/finding reconciliation.
+Queue 003 is late and saturated; if no independent F441 survives, freeze a
+clean closure checkpoint rather than forcing another root.
+
+END C031-WIP145
+
+
+===============================================================================
+C031-WIP146 APPEND - F441 / KI#764 confirmed; Advanced Start unit palette keeps
+military entries after every placement target has become illegal at the cap
+===============================================================================
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F441 / provisional KI#764 CONFIRMED.
+F442 / provisional KI#765 UNUSED.
+No repository source files modified.
+
+-------------------------------------------------------------------------------
+F441 / provisional KI#764 — ADVANCED START UNIT PALETTE USES A GENERIC COST
+QUERY THAT SKIPS THE MILITARY CAP, SO THE REFRESHED PALETTE CAN ADVERTISE AN
+ITEM THAT IS ILLEGAL ON EVERY ACTUAL TARGET
+-------------------------------------------------------------------------------
+
+ROOT
+----
+`CvGameTextMgr::getUnitDataForAS`, the exported builder for the Advanced Start
+unit palette, decides whether to include a civilization unit by asking:
+
+    int iCost = kActivePlayer.getAdvancedStartUnitCost(eUnit, true);
+    if (iCost > 0)
+        mapUnitList.push_back(...);
+
+The omitted plot argument means `pPlot == NULL`.
+
+`CvPlayer::getAdvancedStartUnitCost` deliberately has separate generic and
+plot-specific branches. In the generic (`pPlot == NULL`) add branch it only asks
+whether at least one city can train the unit:
+
+    bool bValid = false;
+    FOR_EACH_CITY(pLoopCity, *this)
+    {
+        if (pLoopCity->canTrain(eUnit))
+        {
+            bValid = true;
+            break;
+        }
+    }
+    if (!bValid)
+        return -1;
+
+The Advanced Start military-unit cap is NOT checked there. It exists only in
+the `pPlot != NULL` branch:
+
+    if (bAdd)
+    {
+        int iMaxUnitsPerCity = ADVANCED_START_MAX_UNITS_PER_CITY;
+        if (iMaxUnitsPerCity >= 0 &&
+            GC.getInfo(eUnit).isMilitarySupport() &&
+            getNumMilitaryUnits() >= iMaxUnitsPerCity * getNumCities())
+        {
+            return -1;
+        }
+        ...
+    }
+
+Thus the same cost API has the following reachable state:
+
+    getAdvancedStartUnitCost(militaryUnit, true, NULL)  > 0
+    getAdvancedStartUnitCost(militaryUnit, true, cityA) == -1
+    getAdvancedStartUnitCost(militaryUnit, true, cityB) == -1
+    ... for every legal city/plot target
+
+CURRENT-SAS REPRODUCTION
+------------------------
+Current SAS inherits `ADVANCED_START_MAX_UNITS_PER_CITY = 2` from the stock
+BtS global define (the SAS tree contains no XML override of that define).
+
+Use an ordinary one-city Advanced Start position with a trainable military unit
+and enough points. Buy two military units. At that point:
+
+    getNumMilitaryUnits() == 2
+    getNumCities() == 1
+    cap threshold == 2 * 1 == 2
+
+For any actual placement plot, the plot-specific cost reaches the cap test and
+returns -1.
+
+But the no-plot generic cost used by `getUnitDataForAS` does not execute that
+check. The city can still `canTrain(eUnit)`, so the generic call returns its
+normal positive cost and TextMgr re-adds the unit to `mapUnitList`.
+
+With two cities the same shape occurs at four total military units, etc. This
+finding does not depend on F440's separate question of whether that aggregate
+formula should really be local per-city: under the CURRENT aggregate runtime
+rule itself, reaching the threshold makes all new military placements illegal,
+yet the generic palette query still reports them available.
+
+UI / REFRESH PROOF FROM THE SUPPLIED BtS/Civ4CE MATERIAL
+---------------------------------------------------------
+The supplied Civ4CE/BtS `CvWorldBuilderScreen.py` confirms the two roles of the
+cost API rather than leaving them as an EXE guess:
+
+* `refreshASItemCost` asks `getAdvancedStartUnitCost(activeUnit, true,
+  currentPlot)` for the selected map target;
+* left-click handling again requires that same plot-specific call to be != -1
+  before sending `ADVANCEDSTARTACTION_UNIT`;
+* after a successful unit action, `CvPlayer::doAdvancedStartAction` sets
+  `Advanced_Start_DIRTY_BIT` for the active player;
+* `CvWorldBuilderScreen.updateScreen` responds to that dirty bit by calling
+  `refreshAdvancedStartTabCtrl(true)`;
+* `refreshAdvancedStartTabCtrl` reinitializes the Advanced Start control, whose
+  exported unit data are supplied by `CvGameTextMgr::getUnitDataForAS`.
+
+Therefore the cap is not merely reached while an old stale list remains on
+screen. The purchase explicitly dirties and rebuilds the interface; the
+rebuilt unit list still includes the capped military unit because its generic
+cost remains positive. Moving/hovering over a real city then gives no purchase
+cost, and clicking is rejected because the plot-specific cost is -1.
+
+This is a concrete dead-palette state: an entry advertised by the refreshed
+Advanced Start palette has no legal target anywhere.
+
+RUNTIME ACTION CONTROL
+----------------------
+`CvPlayer::doAdvancedStartAction(ADVANCEDSTARTACTION_UNIT)` rechecks:
+
+    int iCost = getAdvancedStartUnitCost(eUnit, bAdd, pPlot);
+    if (bAdd && iCost < 0)
+        return;
+
+so the stale availability cannot accidentally bypass the cap. The defect is
+UI/API availability disagreement, not an extra-unit purchase exploit.
+
+ANCESTRY
+--------
+The split is inherited:
+
+* BtS/Civ4CE: generic null-plot unit cost checks `canTrain`, while the max-unit
+  check is inside the non-null plot branch; `getUnitDataForAS` uses the generic
+  call.
+* K-Mod 1.46: same structure.
+* Base AdvCiv 1.14: same structure (with AdvCiv cost normalization changes,
+  but not a repair of this availability split).
+* Current AdvCiv-SAS: same semantic structure; recent SAS edits here only cache
+  relevant defines / clean implementation details.
+
+Classification: inherited BtS Advanced Start generic-vs-target availability
+mismatch, retained by K-Mod, AdvCiv and SAS.
+
+DUPLICATE RECONCILIATION
+------------------------
+No existing album root owns this contract.
+
+* F417 is the opposite UI-filter shape: a legally zero-cost Visibility action is
+  omitted because TextMgr tests `iCost > 0` instead of the API's -1 sentinel.
+* F440 concerns the text "Maximum N units per city" contradicting the current
+  aggregate runtime formula.
+* Queue-001 F372 concerns AI Advanced Start stopping later unit-role passes after
+  one selected unit is unaffordable.
+
+F441 instead concerns `getUnitDataForAS` accepting the generic no-plot unit cost
+as proof that SOME placement remains legal when the military cap is only tested
+by plot-specific calls. Its reproduction persists even if the F440 wording is
+changed to describe the aggregate cap accurately.
+
+REPAIR DIRECTION
+----------------
+Under the current aggregate-cap policy, the minimal semantic fix is to make the
+cap independent of `pPlot`: for an add of a military-support unit, reject the
+cost once
+
+    getNumMilitaryUnits() >= maxUnits * getNumCities()
+
+before the generic/non-generic branch split (or perform the same check in the
+null branch). Then `getUnitDataForAS` naturally stops exporting military entries
+when no purchase can succeed anywhere.
+
+If F440 is instead repaired by implementing a true local per-city cap, the
+generic query cannot simply use the empire total. It should answer "available"
+only when at least one eligible city both can train the unit AND has remaining
+local military capacity. The important invariant is:
+
+    generic add cost >= 0
+        =>
+    at least one current target can return a legal plot-specific add cost
+
+for constraints that make the action globally impossible.
+
+-------------------------------------------------------------------------------
+POST-F440 / PRE-F441 CONTROLS CLOSED IN THIS TRANCHE
+-------------------------------------------------------------------------------
+
+* `getDealString`: city trades are one-shot in `CvDeal::startTrade` and are not
+  retained as saved deal items, so the active-deal renderer cannot later hold a
+  stale traded-city pointer. Its cancellation countdown is deal-wide by design.
+
+* `buildFinanceForeignIncomeString`: the visible Finance foreign-GPT row and its
+  hover both use the player's net `getGoldPerTurn()` quantity; per-player lines
+  are a decomposition, not a second definition.
+
+* `setCycleUnitHelp`: receives the exact prospective cycle unit/group returned
+  by the cycle-selection machinery. The worker shortcut is only entered for a
+  group proven to contain a movable worker, and the group button resolver
+  deliberately prefers a worker there.
+
+* Plot-list comparator hidden-nationality caveat retained as robustness debt:
+  visual-owner grouping can combine same-team hidden-nationality units from
+  different actual players, so the comment that unit IDs are unique because
+  they have the same owner is stronger than the actual visual grouping
+  invariant. Equal same-type/player-local IDs merely become equivalent sort
+  keys in the current reachable data; no release-visible ordering failure was
+  proven and no root was assigned.
+
+CURRENT STONE AFTER F441
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F441 / provisional KI#764 latest confirmed.
+F442 / provisional KI#765 UNUSED.
+Latest physical checkpoint: C031-WIP146.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 003 from F442 unused. Finish the remaining inherited live-state
+residue, then repeat the member-definition / subsystem-control reconciliation.
+Do not manufacture a late finding: if the residue closes cleanly, freeze the
+next WIP with F442 unused and use that saturation evidence toward a defensible
+Queue-003 closure decision.
+
+END C031-WIP146
+
+
+===============================================================================
+C031-WIP147 — LATE WHOLE-FILE COVERAGE TRANCHE; F442 REMAINS UNUSED
+===============================================================================
+
+CONTINUATION ANCHOR
+-------------------
+Resumed from C031-WIP146 with F441/KI#764 confirmed and F442/KI#765 unused.
+This checkpoint deliberately preserves a clean saturation tranche rather than
+manufacturing a late root.
+
+TECHINFO RUNTIME-EFFECT / HELP-SURFACE RECONCILIATION
+-----------------------------------------------------
+A field-level audit compared current `CvTechInfo` gameplay effects actually
+processed by `CvTeam::processTech` / `CvTeam::setHasTech` with the current
+`CvGameTextMgr::setTechHelp` builders.
+
+The following live effects all have corresponding tech-help coverage:
+
+* route movement changes -> `buildMoveString`;
+* domain extra moves -> `buildDomainExtraMovesString`;
+* feature-production modifier -> `buildFeatureProductionString`;
+* worker-speed modifier -> `buildWorkerRateString`;
+* per-city trade routes -> `buildTradeRouteString`;
+* health / happiness -> `buildHealthRateString` / `buildHappinessRateString`;
+* first free unit / first free techs -> `buildFreeUnitString` /
+  `buildFreeTechString`;
+* extra water line of sight -> `buildLOSString`;
+* map centering / map reveal -> `buildMapCenterString` / `buildMapRevealString`;
+* map, tech, gold, open-borders, defensive-pact, permanent-alliance and vassal
+  trading unlocks -> the corresponding trading builders;
+* bridge building, irrigation spread, ignore-irrigation and water work -> the
+  corresponding builders;
+* commerce-rate modifiers and specialist-extra commerce -> the K-Mod
+  `setCommerceChangeHelp` calls;
+* commerce flexibility -> `buildAdjustString`;
+* terrain / river trade -> `buildTerrainTradeString` /
+  `buildRiverTradeString`;
+* improvement tech-yield changes -> `buildYieldChangeString`;
+* special-building availability -> `buildSpecialBuildingString`;
+* bonus reveal, civic/process/build/unit/building unlock surfaces -> the
+  corresponding reveal/unlock builders;
+* religion/corporation first-discovery effects -> the found-organization
+  builders;
+* `CvTechInfo::NoFearForSafety` -> `buildNoFearForSafetyString`;
+* obsolete buildings, bonuses, special buildings and units -> the consolidated
+  obsolete blocks near the start of `setTechTradeHelp`.
+
+`CvTeam::setHasTech` also performs consequences that are not independent
+missing stat bullets: advancing member era to the tech's Era is the normal era
+classification itself; reveal/update/rebuild work applies the already-described
+map/bonus/build effects; research-queue/AI notifications and replay/event hooks
+are state propagation; and first-discovery religion/free-unit/free-tech effects
+are covered above.
+
+The remaining `CvTechInfo` fields are metadata / AI / economy inputs rather
+than hidden tech-granted player rules (`Advisor`, AIWeight, AITradeModifier,
+research/Advanced-Start cost, AssetValue, PowerValue, flavors, grid position,
+sounds/quote, GoodyTech/Disable). `bTrade` and `bRepeat` are explicitly surfaced
+by current SAS's custom builders. Tech prerequisites are rendered by the tech
+tree/prerequisite family already audited.
+
+No F442 emerged from the TechInfo field audit.
+
+ROUTE TECH-MOVEMENT CONTROL
+---------------------------
+`buildMoveString` was rechecked against the authoritative route movement
+arithmetic rather than accepted from field-name symmetry alone. Current Road is
+30/30 movement/flat movement and Engineering contributes TechMovementChange
+-10. Under the game's route-cost formula this changes the common 2-plots-per-
+move Road rate to 3, matching the helper's displayed +1 movement result.
+Current Railroad has no separate tech-movement change. No current flat-cost
+case was found that makes the helper advertise a false whole-move increment.
+
+FIRST-TO-TECH FREE-UNIT CONTROL
+-------------------------------
+`buildFreeUnitString` resolves the active player's civilization-specific unit
+through the same `CvPlayer::getTechFreeUnit` path used by `CvTeam::setHasTech`.
+That runtime helper also handles the No-Espionage suppression. Current first-
+free-unit classes are Great-Person classes; no current civilization override of
+those classes was found that creates a help/runtime disagreement. This closes
+the late zero-literal-mention helper rather than creating F442.
+
+VASSAL-REVOLT / WAR-WEARINESS CONTROLS
+--------------------------------------
+The earlier war-weariness decomposition remains consistent with the live
+formula. `setVassalRevoltHelp` was also reconciled directly with
+`CvTeam::canVassalRevolt` / `isLossesAllowRevolt` for current active branches.
+One apparent master-land denominator difference is structurally present
+(runtime master total-land defaults to including vassals while the help uses
+`getTotalLand(false)`), but the controlling current stock/AdvCiv
+`VASSAL_REVOLT_MASTER_LOSSES_FACTOR` is 0, so that branch is data-dormant and
+cannot support a current F442.
+
+ADVANCED-START SIBLING CONTROL AFTER F441
+-----------------------------------------
+The generic-vs-target sweep was extended to city / population / culture /
+building / route / improvement palette builders.
+
+Routes, improvements and city tools intentionally use generic "unlocked tool"
+palette semantics and defer geometry/ownership to the target-specific query.
+This differs from unit/building generic queries, which explicitly try to prove
+an existentially valid train/construct location. F441 is therefore not being
+mechanically generalized into every generic Advanced-Start tool.
+
+Current Build XML also maps each purchasable route/improvement through a single
+build definition, so the shared tech-prerequisite loops do not create a live
+multi-build/all-tech ambiguity in current SAS.
+
+LATE ZERO-MENTION MEMBER CLASSIFICATION
+---------------------------------------
+A fresh definition-to-album literal inventory found 226 unique TextMgr member
+names. Literal zero mention is not treated as proof of no review: the album
+usually records a subsystem/root rather than every formatting helper.
+
+The largest zero-mention definitions are now classified as follows:
+
+* `setPlotListHelpDebug` and the large `setPlotHelpDebug_*` family are explicit
+  debug-mode / modifier-key diagnostics, not normal gameplay-rule help;
+* `buildTechTreeString` belongs to the compact tech-tree family already audited
+  against current prerequisite/research-modifier assumptions;
+* `getGlobeLayerName`, font-symbol assignment helpers and WB data enumerators
+  are enum/resource plumbing rather than reconstructed live gameplay values;
+* `setCommerce*ChangeHelp`, `setYield*ChangeHelp`, `setValue*ChangeHelp` are
+  shared formatting primitives whose authoritative callers were covered in the
+  Building Actual Effects / civic / tech / specialist audits;
+* `setBuildingAdditionalHealth/Yield/Commerce/GreatPeopleHelp` delegate to the
+  city's authoritative projected-building helpers. Their parent Actual Effects
+  framework and its known disorder defects are already owned by F409/F410;
+* `appendUniqueDesc`, `parsePlayerTraits`, short-trait formatters and similar
+  helpers are direct description/list formatters;
+* `buildFoundReligionString`, `buildFreeUnitString`, `buildFreeTechString`,
+  bonus/yield/promotion tech builders are covered by the completed TechInfo
+  audit;
+* city billboard production/color helpers read direct production state or
+  return fixed UI colors; the only proved signed billboard defect remains F436;
+* the Advanced-Start improvement builder is covered by the sibling control
+  above; visibility and units retain F417/F441 respectively.
+
+This substantially reduces the remaining unclassified live-state residue.
+
+CURRENT STONE AFTER C031-WIP147
+-------------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F441 / provisional KI#764 latest confirmed.
+F442 / provisional KI#765 UNUSED.
+Latest physical checkpoint: C031-WIP147.
+No repository source files modified.
+
+NEXT
+----
+Continue the final definition/member-to-control reconciliation. Concentrate on
+any still-unclassified normal-game live-state helpers rather than debug/WB or
+pure formatting utilities. If that reconciliation remains clean, decide whether
+Queue 003 has reached defensible closure; do not allocate F442 merely to avoid
+closing with an unused root.
+
+END C031-WIP147
+
+
+===============================================================================
+C031-WIP148 — FINAL RESIDUE CONTINUATION; F442 / KI#765 CONFIRMED
+===============================================================================
+
+CONTINUATION ANCHOR
+-------------------
+Resumed from C031-WIP147 with F441/KI#764 confirmed and F442/KI#765 unused.
+The intended next pass was the final assertion/reconstructed-quantity and
+unclassified normal-game live-state reconciliation before deciding whether
+Queue 003 had reached defensible closure.
+
+ASSERTION / RECONSTRUCTED-QUANTITY PASS — CONTROLS
+--------------------------------------------------
+The explicit `FAssert` inventory in current `CvGameTextMgr.cpp` was mapped back
+to its containing helpers. The large duplicated-runtime decompositions are
+already either exact controls or owned findings:
+
+* production / commerce / yield / Great-Person decompositions carry direct
+  equality assertions against the authoritative city results; their known
+  disorder/Actual-Effects exceptions are already F409/F410 and neighbours;
+* trade-route profit/modifier reconstruction asserts against
+  `totalTradeModifier` and `calculateTradeProfit` and was independently closed;
+* espionage modifier/final-cost reconstruction asserts against
+  `getEspionageMissionCostModifier` / `getEspionageMissionCost`; the proved
+  remaining espionage defects are effect-description branches rather than the
+  arithmetic product;
+* anger/happiness totals assert against the city totals and the earlier health
+  analogue did not generalize to happiness;
+* compact tech-tree research assumptions and Great-General/score controls were
+  already separately reconciled.
+
+One adjacent inherited typo was also isolated but remains current-data dormant:
+`eventGoldHelp`'s ordinary-player negative random-Gold range passes
+`-iGold1, iGold2` to `TXT_KEY_EVENT_GOLD_RANGE_LOST`, unlike the player-to-player
+branch which correctly passes both endpoints negated. BtS, K-Mod, AdvCiv and SAS
+all retain this. However every current SAS event with `iRandomGold != 0` has
+positive base `iGold` and `iTechCostPercent = 0`, so `CvPlayer::getEventCost`
+cannot reach that bad negative-range branch in the shipped ruleset. Retain as
+latent robustness debt, not F442.
+
+-------------------------------------------------------------------------------
+F442 / KI#765 — QUEUED BUILDING HOVER APPLIES THE "START ANOTHER" BUILDING-
+CLASS PREREQUISITE FORMULA TO THE BUILDING THAT IS ALREADY CONTINUING
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+Primary file family: `CvGameCoreDLL/CvGameTextMgr.cpp` +
+`CvGameCoreDLL/CvDLLWidgetData.cpp` + `CvGameCoreDLL/CvPlayer.cpp` + city-screen
+queue caller
+Classification: K-Mod v1.39 UI integration regression retained by Base AdvCiv
+1.14 and current SAS; ordinary current gameplay.
+
+ROOT
+----
+K-Mod extended `CvPlayer::getBuildingClassPrereqBuilding` with an `iExtra`
+argument so the requirement for a repeatable building class (most visibly a
+Cathedral) can account for other buildings of that target class already under
+construction.
+
+Runtime deliberately distinguishes STARTING a new building from CONTINUING an
+already accepted queue order. In `CvPlayer::canConstruct`:
+
+    int iMaking = getBuildingClassMaking(eBuildingClass);
+    ...
+    getBuildingClassPrereqBuilding(
+        eBuilding, ePrereqClass, bContinue ? 0 : iMaking)
+
+Thus:
+
+* starting a new Cathedral counts all Cathedrals currently making, because the
+  new order must satisfy the requirement for one additional Cathedral;
+* continuing a Cathedral already in the queue passes `iExtra = 0`, because that
+  order has already passed its start gate and must not be reclassified as yet
+  another Cathedral being started.
+
+`buildBuildingRequiresString` has no corresponding continuation context. For
+ordinary city help it always does:
+
+    getBuildingClassPrereqBuilding(
+        eBuilding, ePrereqClass,
+        kPlayer.getBuildingClassMaking(targetBuildingClass))
+
+(the Civilopedia path is a separate special case).
+
+That is correct for a production-choice button representing a NEW order, but
+wrong for an existing queue item.
+
+CALLER PROOF
+------------
+The current city production queue is a direct ordinary caller:
+
+* `CvMainInterface.py` renders every queued order row with
+  `WIDGET_HELP_SELECTED` and passes its queue index;
+* `CvDLLWidgetData::parseSelectedHelp` retrieves that exact order via
+  `getOrderFromQueue`;
+* for `ORDER_CONSTRUCT`, it calls
+  `setBuildingHelpActual(..., pHeadSelectedCity)`;
+* `setBuildingHelpActual` calls `buildBuildingRequiresString` without any flag
+  saying that the hovered item is an already-accepted/continuing order.
+
+Therefore the bad formula is not limited to Civilopedia/API use and does not
+require an EXE-ordering assumption.
+
+CURRENT SAS REPRODUCTION
+------------------------
+Current SAS Cathedrals are non-limited building classes with a raw requirement
+of 2 Temples. On `WORLDSIZE_STANDARD`,
+`iBuildingClassPrereqModifier = 38`, so the authoritative scaled prerequisite is:
+
+    ceil(2 * 138 / 100) = 3 Temples per Cathedral step.
+
+With zero completed Cathedrals and exactly 3 Temples:
+
+1. Starting the first Cathedral is legal:
+
+       getBuildingClassMaking(Cathedral) = 0
+       required = 3 * (0 built + 0 making + 1) = 3
+
+2. Once the order is pushed, `changeBuildingClassMaking(..., +1)` makes:
+
+       getBuildingClassMaking(Cathedral) = 1
+
+3. Runtime continuation still checks with `bContinue = true`, hence
+   `iExtra = 0`, and continues to require only 3 Temples.
+
+4. Hovering that queued Cathedral instead calls the TextMgr formula with
+   `iExtra = getBuildingClassMaking(...) = 1`, producing:
+
+       required = 3 * (0 built + 1 making + 1) = 6
+
+The Unofficial Patch localization used by the helper is warning-coloured and
+explicitly says:
+
+    Requires Temple (3/6 Total)
+
+although the same queued Cathedral is legal to continue with the 3 Temples the
+player already has.
+
+The discrepancy grows with simultaneous accepted orders. Runtime continuation
+passes zero `iExtra` for each existing order, while the shared hover counts all
+currently-making target buildings as though the hovered order were a fresh
+additional start.
+
+ANCESTRY / INTENT PROOF
+-----------------------
+Stock BtS did not have this exact regression: its TextMgr used the older
+prerequisite calculation without K-Mod's under-construction `iExtra` extension.
+
+K-Mod v1.39 explicitly introduced the relevant UI behaviour. Its changelog says:
+
+    "The mouseover text for cathedrals will now include the number of cathedrals
+     currently under construction when calculating the required number of
+     temples. (ie. it will report how many temples are required to start the
+     construction of another cathedral.)"
+
+That stated intent is correct for a NEW production choice. The implementation
+placed the calculation in the shared building-help path, which is also used for
+an EXISTING queue entry, and did not carry the runtime `bContinue` distinction
+through the UI call chain.
+
+Base AdvCiv 1.14 retains the K-Mod formula; current SAS retains it as well.
+
+DUPLICATE RECONCILIATION
+------------------------
+The earlier Queue-003 Building Requirement reconciliation checked missing
+`canConstruct` predicates, current production-button visibility, and the
+Civilopedia world-size prerequisite range. It did not cover the separate
+NEW-ORDER-vs-CONTINUING-ORDER arithmetic distinction.
+
+No existing album root was found for Cathedral/building-class `iMaking` leaking
+into an already-queued building's hover. This is therefore independent of the
+previous building-help controls and the Actual Effects findings.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+Carry an explicit continuation/queue-order context to the prerequisite helper.
+The important arithmetic contract is:
+
+* NEW production choice: pass current `getBuildingClassMaking(targetClass)`,
+  matching `canConstruct(..., bContinue=false)`;
+* EXISTING queue order: pass `0`, matching
+  `canConstruct(..., bContinue=true)`;
+* Civilopedia: preserve its existing context-free/base-requirement behaviour.
+
+Do not merely subtract one from `getBuildingClassMaking`. Runtime continuation
+ignores all currently-making siblings for the already accepted order; its exact
+contract is `iExtra = 0`.
+
+A narrow implementation would let `parseSelectedHelp` mark the
+`ORDER_CONSTRUCT` help as continuing (it knows the row is an existing queue
+order), thread that boolean through `setBuildingHelpActual` /
+`buildBuildingRequiresString`, and select the same `iExtra` as runtime.
+
+CURRENT STONE AFTER F442
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F442 / KI#765 latest confirmed.
+F443 / provisional KI#766 UNUSED.
+Latest physical checkpoint: C031-WIP148.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 003 from F443 unused. Finish the remaining assertion/member
+reconciliation and specifically challenge the neighbouring production-queue
+unit/project help for any analogous START-vs-CONTINUE state leak; do not assume
+one exists. If those siblings and the residual normal-game member inventory
+close cleanly, perform the final duplicate/coverage reconciliation and decide
+whether Queue 003 can be closed defensibly before advancing to Queue 004.
+
+END C031-WIP148
+
+
+===============================================================================
+C031-WIP149 — QUEUED PRODUCTION-TURNS HOVER INDEX LOSS; F443 / KI#766 CONFIRMED
+===============================================================================
+
+CONTINUATION ANCHOR
+-------------------
+Resumed from C031-WIP148 with F442/KI#765 confirmed and F443/KI#766 unused.
+The first sibling check showed that Unit/Project requirement text does not
+mechanically inherit F442's building-class START-vs-CONTINUE prerequisite bug.
+The adjacent production-turns display, however, exposed a separate queue-index
+contract mismatch shared by Units, Buildings and Projects.
+
+-------------------------------------------------------------------------------
+F443 / KI#766 — PRODUCTION-QUEUE ROW HOVER DISCARDS THE ROW'S ACTUAL QUEUE
+INDEX AND RECOMPUTES TURNS AS A HYPOTHETICAL FRONT/END INSERTION
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+Primary file family: `CvGameCoreDLL/CvDLLWidgetData.cpp` +
+`CvGameCoreDLL/CvGameTextMgr.cpp` + `CvGameCoreDLL/CvCity.cpp` + city-screen
+queue caller
+Classification: inherited BtS UI integration defect retained by K-Mod, Base
+AdvCiv 1.14 and current SAS; ordinary current gameplay. AdvCiv's advc.064b
+queued-overflow predictor increases the importance of the lost queue index but
+did not introduce the root.
+
+ROOT
+----
+The city production queue already knows the exact queue index of every row.
+Current `CvMainInterface.py` uses that exact `i` when rendering its visible
+turn count:
+
+    getUnitProductionTurnsLeft(eUnit, i)
+    getBuildingProductionTurnsLeft(eBuilding, i)
+    getProjectProductionTurnsLeft(eProject, i)
+
+The same row is assigned `WIDGET_HELP_SELECTED` with `iData1 = i`.
+`CvDLLWidgetData::parseSelectedHelp` therefore receives the exact row index and
+uses it to retrieve the exact `OrderData` through `getOrderFromQueue(i)`.
+
+But after identifying the order, `parseSelectedHelp` discards the index and
+calls the ordinary generic help functions:
+
+    setUnitHelp(..., pHeadSelectedCity)
+    setBuildingHelpActual(..., pHeadSelectedCity)
+    setProjectHelp(..., pHeadSelectedCity)
+
+Those generic functions were designed primarily for prospective production
+choices. Their turns-left call chooses a simulated insertion position from the
+keyboard state:
+
+    pCity->getProductionTurnsLeft(eThing,
+        (GC.ctrlKey() || !GC.shiftKey()) ? 0 :
+        pCity->getOrderQueueLength())
+
+Thus an ordinary no-modifier hover over an EXISTING queue row recomputes the
+turns as though the item were a hypothetical order at queue position 0. Holding
+Shift instead simulates an append at `getOrderQueueLength()`. Neither path uses
+the actual existing row index which `WIDGET_HELP_SELECTED` already supplied.
+
+WHY THE INDEX IS SEMANTIC
+-------------------------
+`CvCity::getProductionTurnsLeft(Unit/Building/Project, iNum)` does not treat
+`iNum` as decorative UI data.
+
+For each production kind it finds the first queued order of the same type and
+only credits the city's stored production when either no such queued order
+exists or that first occurrence is exactly `iNum`:
+
+    if (iFirstBuildingOrder == -1 || iFirstBuildingOrder == iNum)
+        iProduction += getBuildingProduction(eBuilding);
+
+(and equivalently for Units and Projects).
+
+This is correct: stored production belongs to the already-existing first queued
+occurrence, not to a hypothetical duplicate inserted before it.
+
+AdvCiv's advc.064b additionally makes queue position affect first-turn overflow
+prediction:
+
+* `iNum == 0` uses current-production overflow/feature-production semantics;
+* `iNum == 1` can predict overflow from the head order when it is about to
+  complete;
+* later queued positions deliberately do not attempt that overflow prediction.
+
+So the exact queue index is authoritative input to the displayed estimate.
+
+ORDINARY CURRENT REPRODUCTION
+-----------------------------
+A particularly simple reproduction needs no unusual modifiers and no EXE
+assumption:
+
+1. Start a production item B and accumulate some production into it.
+2. Switch the city to another item A. Civ4 retains B's invested production.
+3. Queue B behind A.
+4. The visible B queue row calls `get*ProductionTurnsLeft(B, 1)` and therefore
+   recognises that B's first queued occurrence is index 1 and credits B's stored
+   production.
+5. Hover that same B row with no modifier keys. `parseSelectedHelp` identifies
+   row 1, but the generic TextMgr helper calls
+   `getProductionTurnsLeft(B, 0)`. Because B's first queued occurrence is 1,
+   the index-0 hypothetical order receives none of B's stored production.
+
+Illustrative current arithmetic with a 100-production item, 50 production
+already stored and a steady 10 production/turn:
+
+    queue row, real index 1:  5 turns
+    row hover, simulated 0:  10 turns
+
+Current SAS has ordinary 100-production buildings (e.g. Forge), so this shape
+does not depend on a hypothetical XML cost. The exact numeric difference in a
+real city follows that city's production modifiers/rate, but the source
+mismatch is deterministic whenever enough stored production changes the
+rounded estimate.
+
+A second AdvCiv-specific manifestation can occur for the row immediately after
+a head order that is about to finish: the exact `iNum == 1` row prediction can
+include predicted head-order overflow, while the queue-row hover's generic
+`iNum == 0` path instead treats the hovered item as current production.
+
+CALLER / UI CONTRADICTION
+-------------------------
+This is unusually direct because the same visual queue row can expose both
+values simultaneously:
+
+* its right-side `(N)` is computed in Python using the exact queue index;
+* hovering that row calls TextMgr through `WIDGET_HELP_SELECTED` and can show a
+  different `N Turns` computed from index 0 / queue end.
+
+The hover is therefore not merely less precise than runtime. It can contradict
+the number printed next to the exact item being hovered.
+
+ANCESTRY
+--------
+Stock BtS already has both halves of the root:
+
+* `CvMainInterface.py` renders queue Unit/Building/Project turns using the exact
+  row index `i`;
+* `parseSelectedHelp` retrieves that row but calls the generic help functions;
+* those generic TextMgr functions choose 0 or queue length from Ctrl/Shift
+  state instead of the selected row index.
+
+Stock BtS `CvCity::getProductionTurnsLeft(eThing, iNum)` already uses `iNum` to
+decide which occurrence receives stored production, so the bug is live in the
+original contract.
+
+K-Mod retains that flow. Base AdvCiv 1.14 and current SAS retain it as well.
+AdvCiv advc.064b improves queued-order prediction and adds special `iNum == 1`
+overflow handling, but the `parseSelectedHelp` caller was never updated to pass
+the row index into the generic help functions.
+
+DUPLICATE RECONCILIATION
+------------------------
+The album contains prior production-turn and production-decay work, including
+sentinel handling and the separate game-speed production-decay amount defect.
+None covers an existing production queue row discarding its own queue index.
+
+F442 is adjacent but independent:
+
+* F442 concerns Building-class prerequisite arithmetic for an already accepted
+  Building order (START another vs CONTINUE this one);
+* F443 concerns the turns-left projection for Unit, Building and Project queue
+  rows and the lost `iNum` argument.
+
+No existing root was found for `parseSelectedHelp` / `WIDGET_HELP_SELECTED`
+recomputing an existing queued item's turns at position 0 or queue end.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+Preserve the generic production-button semantics, but let existing queue-row
+help carry its actual queue index.
+
+A narrow design is to add an optional queue-position argument (defaulting to a
+sentinel meaning "prospective production choice") to the Unit / Building /
+Project city-help path:
+
+* production-choice buttons with no queue position continue using the existing
+  Ctrl/Shift 0-vs-end insertion simulation;
+* `parseSelectedHelp`, which already owns `widgetDataStruct.m_iData1`, passes
+  that exact index for `ORDER_TRAIN`, `ORDER_CONSTRUCT` and `ORDER_CREATE`;
+* the turns-left line then calls `getProductionTurnsLeft(eThing, iQueuePos)`
+  for an existing order.
+
+This should be coordinated with F442's queue/continuation context so that one
+explicit "existing queue order" path can carry both the correct prerequisite
+semantics and the correct turns position rather than adding unrelated ad-hoc
+special cases.
+
+CURRENT STONE AFTER F443
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F443 / KI#766 latest confirmed.
+F444 / provisional KI#767 UNUSED.
+Latest physical checkpoint: C031-WIP149.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 003 from F444 unused. Finish the residual assertion/member
+reconciliation after the production-queue family, then run the final duplicate
+and definition/control coverage pass. If the remaining normal-game TextMgr
+surface closes cleanly, close Queue 003 defensibly rather than manufacturing a
+late issue and advance to the next protected queue target.
+
+END C031-WIP149
+
+
+===============================================================================
+C031-WIP150 — QUEUE 003 FINAL COVERAGE RECONCILIATION / DEFENSIBLE CLOSURE
+===============================================================================
+
+CONTINUATION ANCHOR
+-------------------
+Resumed from C031-WIP149 with F443/KI#766 confirmed and F444/KI#767 unused.
+The remaining work was deliberately closure-oriented: finish the assertion /
+explicit-caveat sweep, classify the zero/one-literal-mention member residue,
+reconcile duplicates and confirm that no normal-game live-state TextMgr helper
+remained materially unreviewed.
+
+FINAL ASSERTION / CAVEAT PASS
+-----------------------------
+The remaining explicit `FAssert`, `FError`, `advc.test`, TODO/caveat and
+"Can this happen?" sites were revisited after the production-queue findings.
+No additional current release defect survived.
+
+Useful closure notes:
+
+* `setTradeRouteHelp` contains a debug-assertion typo in the `pOtherCity == NULL`
+  branch: it asserts `pCity != NULL` a second time instead of asserting
+  `pOtherCity != NULL`. The function immediately returns safely, so release
+  behaviour is unaffected. Keep as debug-diagnostic cleanup only, not F444.
+* `eventGoldHelp` retains the inherited negative-random-Gold endpoint typo
+  recorded in WIP148 (`-iGold1, iGold2`), but current SAS event data cannot
+  reach that negative random-loss branch. Keep as dormant robustness debt.
+* compact tech-tree `advc.test` / model assumptions remain satisfied by current
+  prerequisite defines/data, as established in the earlier full TechInfo pass.
+* Improvement NO_IMPROVEMENT assertions are defensive entry contracts rather
+  than evidence of a current bad caller.
+* Score-help's explicit "must match calculateScore" caveat remains protected by
+  its final equality guard and current SCORE_FREE_PERCENT configuration.
+
+ZERO / ONE-LITERAL-MENTION RESIDUE
+----------------------------------
+A fresh member-definition inventory found no remaining material normal-game
+stateful hole. The low-literal-mention tail is now explicitly classified:
+
+* `setPlotHelpDebug_*`, `setPlotListHelpDebug`, `setCityPlotYieldValueString`
+  are debug/AI diagnostics;
+* WB data enumerators, GameFont assignment, language/time/net-stat helpers and
+  interface theme helpers are resource/UI plumbing;
+* billboard production/name/bar-colour helpers read authoritative city state
+  directly; billboard icon and signed growth/starvation logic were separately
+  audited, with F436 owning the real defect;
+* `getTradeScreenTitleIcon`, `getTradeScreenIcons`, `getTradeScreenHeader` are
+  direct current religion/civic/name/attitude renderers; the civic enum
+  invariant was independently checked through player initialization;
+* `buildBridgeString`, irrigation/water-work/trade-unlock builders and the other
+  small Tech builders are covered by the complete TechInfo runtime-vs-help
+  reconciliation;
+* Promotion/UnitCombat wrappers are covered by the full PromotionInfo effect and
+  eligibility reconciliation;
+* Additional Yield/Commerce/Health/GreatPeople formatters delegate into the
+  already-audited Building Actual Effects projection family;
+* `buildBuildingReligionYieldString` directly renders the VoteSource religion
+  yield field; the city runtime consumes the same VoteSource field through
+  `processVoteSource`, while contextual membership/religion activation is a
+  runtime-state condition rather than a contradictory static Building rule;
+* Advanced Start data builders are covered by F417/F440/F441 plus the completed
+  sibling generic-vs-target sweep;
+* `getEspionageString` is compiled out / dead in the current build family;
+* `setUnselectUnitHelp`, trait short-formatters, hints and simple list/value
+  helpers contain no reconstructed gameplay calculation.
+
+FINAL CROSS-FAMILY RECONCILIATION
+---------------------------------
+The large normal-game families now all have explicit coverage in this deep
+re-loop:
+
+* live unit / promotion / plot action help;
+* combat, intercept, air, paradrop, rebase and Nuke action help;
+* city bar, billboard, health/happiness/revolt and production state;
+* Unit / Building / Project production, requirements and queue help;
+* civics, traits, religions, corporations, projects and improvements;
+* TechInfo effects and compact tech-tree reconstruction;
+* trade/deal/diplomacy/vassal/war-weariness help;
+* Finance Advisor component hovers;
+* events and espionage costs/effects;
+* Advanced Start generic and target-specific data/help;
+* score, Great People / Great General and commerce/yield/production
+  decompositions;
+* debug/WB/resource-only tail separated from release gameplay coverage.
+
+The current-SAS-vs-Base-AdvCiv semantic-delta inventory was also previously
+reconciled: the remaining zero-literal-mention current SAS body differences are
+lookup/define caching, signature/comment hoists or diagnostics rather than an
+unreviewed SAS gameplay rewrite.
+
+DUPLICATE / NUMBERING RECONCILIATION
+------------------------------------
+No final candidate was promoted merely because F444 was available.
+F419 remains duplicate-reconciled into F389. The late Queue-003 roots F436-F443
+remain distinct after sibling reconciliation, including:
+
+* F442: continuing queued Building prerequisite uses NEW-order iMaking formula;
+* F443: Unit/Building/Project queued row hover discards exact queue index for
+  turns-left prediction.
+
+The latter two share a natural implementation context but have independent
+runtime contracts and symptoms.
+
+QUEUE 003 CLOSURE
+-----------------
+`CvGameCoreDLL/CvGameTextMgr.cpp` is now defensibly CLOSED under the protected
+deep-method re-audit method.
+
+This does not claim mathematical impossibility of another defect in a 22k-line
+file. It means the planned systematic surfaces, duplicated-runtime contracts,
+state/actor/sentinel/sign pairs, current XML reachability, inherited ancestry,
+low-mention members and final coverage ledger have all been worked through
+without leaving a known unclassified normal-game residue.
+
+CURRENT STONE AFTER C031-WIP150
+-------------------------------
+Protected deep-method re-audit Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` —
+CLOSED.
+32/169 unique files complete in the overall album accounting; Queue 003 was a
+protected re-loop of a previously completed file and therefore does not change
+that unique-file count.
+F443 / KI#766 latest confirmed root.
+F444 / provisional KI#767 remains UNUSED for the next independent root.
+Latest physical checkpoint: C031-WIP150.
+No repository source files modified.
+
+NEXT
+----
+Advance to protected deep-method re-audit Queue 004:
+`CvGameCoreDLL/CvPlayer.cpp` (original pass recorded REVIEWED/CLEAN CURRENT).
+Reopen it with the stronger WIP method rather than assuming the clean original
+pass was exhaustive. Start from F444 unused and prioritize state-mutating
+player-level contracts, arithmetic/cache invalidation, caller/target identity,
+serialization/current-format invariants and current-data reachability.
+
+END C031-WIP150
+
+
+================================================================================
+C031-WIP151 - Queue 004 CvPlayer.cpp - F444 / KI#767 commerce rounding correction reselects the same remainder
+================================================================================
+
+STATUS
+------
+Protected deep-method re-audit Queue 004 `CvGameCoreDLL/CvPlayer.cpp` is OPEN.
+32/169 unique files complete in overall album accounting; this protected re-loop does
+not change that unique-file count.
+F443 / KI#766 remains the latest Queue-003 confirmed root.
+F444 / provisional KI#767 is now CONFIRMED.
+F445 / provisional KI#768 is UNUSED.
+No repository source file was modified.
+
+QUEUE-004 METHOD / EARLY CONTROLS
+---------------------------------
+This is the protected second pass over CvPlayer.cpp. The original pass recorded the
+file clean, so this re-loop deliberately starts from inherited state-mutating and
+arithmetic/cache contracts rather than merely redoing the SAS-vs-Base-AdvCiv diff.
+
+Early controls before F444:
+
+* `canReceiveGoody` / `receiveGoody` technology selection is safe because
+  `isGoodyTech()` itself ends in `canResearch(...)`; execution cannot randomly select
+  an unresearchable technology merely because the outer reward loop does not repeat
+  the check.
+* A bad-Goody divide-by-zero shape exists if XML combines a BarbarianUnitClass with
+  `iMinBarbarians == 0`, but both current hostile SAS goodies have positive minimums.
+  Keep as future-data robustness debt, not F444.
+* `updateExtraYieldThresholds` contains a real inherited typo in the parallel natural-
+  threshold minimum selection: the replacement condition compares the current best
+  natural threshold against the unrelated ordinary `iBestThresh` rather than comparing
+  the new natural threshold against `iBestNaturalThresh`. Current SAS data masks it:
+  only Financial supplies a nonzero `ExtraYieldNaturalThreshold` (Commerce 3), so
+  there are no competing active natural-threshold trait values whose iteration order
+  could currently change the result. Keep as strong latent cleanup, not F444.
+
+F444 / provisional KI#767 - CONFIRMED CURRENT BASE ADVCIV ARITHMETIC/CACHE DEFECT
+---------------------------------------------------------------------------------
+Title:
+`CvPlayer::updateCommerceRates` repeatedly awards every whole rounding correction to
+the same commerce type because its advertised implicit selection sort never removes
+or updates the selected fractional remainder.
+
+Birth / lineage:
+Base AdvCiv, change id `advc.157`, introduced by exact locally preserved commit:
+
+    4e6fe9df58dfbce36a575aa24224e44030bd76fa
+    2021-09-08
+    "Redistribute rounding errors from non-binary research"
+
+The introducing diff adds `updateCommerceRates` and already contains the defective loop
+in exactly the relevant form. K-Mod / BtS do not have this redistribution/cache
+algorithm; current Base AdvCiv 1.14 and current AdvCiv-SAS retain it unchanged in the
+relevant logic.
+
+Intended/documented contract:
+The source immediately calls the loop:
+
+    // Implicit selection sort (b/c the error is going to be small)
+
+The AdvCiv manual for change 157 says that when accumulated rounding errors reach at
+least 1 commerce, the integer correction is added to the commerce rate(s) that
+contribute(s) the most to the total error. The purpose is to remove the systematic
+penalty from non-binary commerce-slider positions.
+
+Implemented contract:
+For each CommerceTypes value, `updateCommerceRates` stores the signed fractional
+remainder:
+
+    iError = sign(iRate) * (abs(iRate) % 100)
+
+and accumulates all remainders in `iTotalError`. It truncates every Times100 rate to an
+integer, then performs `abs(iTotalError) / 100` correction iterations. Each iteration
+searches `aiError` for the largest signed remainder and adds +/-1 to that commerce
+rate.
+
+However, after selecting `eArgMax`, the implementation only does:
+
+    m_aiCommerceRate.add(eArgMax, iSign * 1);
+
+It never reduces, clears, or otherwise updates `aiError[eArgMax]`.
+
+Therefore, when at least two whole correction points are required, the next iteration
+sees exactly the same maximum and selects exactly the same commerce type again. All
+corrections go to the first maximum. The advertised selection sort never advances.
+
+This is mathematically inconsistent with the residual after the first correction: if
+an exact rate has remainder +90 and receives +1, its new residual is -10, not still
++90. It therefore cannot legitimately remain ahead of an uncorrected +80 remainder.
+
+CURRENT SAS REACHABILITY - NO FUTURE/MODDED DATA REQUIRED
+---------------------------------------------------------
+The multi-correction branch is ordinary current-data gameplay, not a theoretical
+edge case.
+
+Current SAS Palace (`BUILDING_PALACE`) has:
+
+    YieldChanges:          [0, 0, 8]  => +8 raw YIELD_COMMERCE
+    CommerceChanges:       [0, 0, 0, 4] => +4 flat Espionage
+    CommerceModifiers:     empty
+
+Current `YIELD_COMMERCE` has `iMinCity = 1`; `CvPlot::calculateCityPlotYieldChange`
+raises the city plot to that minimum. Thus a capital can have exactly 9 raw commerce
+from the Palace's +8 plus the city plot's minimum +1 while avoiding extra worked-tile
+commerce (e.g. use a specialist / zero-commerce worked configuration).
+
+Current Tech XML makes the relevant slider state legal:
+
+* `TECH_MONARCHY` has `CommerceFlexible [0,0,0,1]` -> Espionage slider flexible.
+* `TECH_DRAMA` has `CommerceFlexible [0,0,1,0]` -> Culture slider flexible.
+
+Gold/Research are the ordinary slider pair. Once Monarchy + Drama are known, a
+30% Gold / 10% Research / 20% Culture / 40% Espionage split is legal.
+
+For 9 raw commerce, before optional percentage-commerce modifiers:
+
+    Gold:       9 * 30% = 2.70 -> 270
+    Research:   9 * 10% = 0.90 ->  90
+    Culture:    9 * 20% = 1.80 -> 180
+    Espionage:  9 * 40% = 3.60 -> 360, plus Palace +4 = 760
+
+The fractional remainders are therefore:
+
+    Gold       70
+    Research   90
+    Culture    80
+    Espionage  60
+    ----------------
+    total     300
+
+`abs(iTotalError) / 100 == 3`, so the correction loop runs THREE times.
+
+After initial truncation, special-commerce integer rates are:
+
+    Gold 2, Research 0, Culture 1, Espionage 7
+
+BROKEN RESULT:
+The first scan selects Research (90). Because its stored 90 remainder never changes,
+the second and third scans select Research again:
+
+    Gold 2, Research 3, Culture 1, Espionage 7
+
+(before AdvCiv's separate BASE_RESEARCH_RATE addition).
+
+INTENDED SELECTION / LARGEST-REMAINDER RESULT:
+After Research receives +1, its effective remainder is -10. The next largest
+uncorrected remainder is Culture 80, then Gold 70:
+
+    Gold 3, Research 1, Culture 2, Espionage 7
+
+(before BASE_RESEARCH_RATE).
+
+The bug therefore does not merely choose a different cosmetic tie-break. It can move
+multiple whole commerce points between different commerce categories.
+
+AUTHORITATIVE GAMEPLAY CONSUMERS
+--------------------------------
+The corrected `m_aiCommerceRate` cache is authoritative for normal player-level rates:
+
+* `calculateGoldRate()` starts from `getCommerceRate(COMMERCE_GOLD)` and applies GPT /
+  expenses; this feeds actual treasury changes.
+* `calculateResearchRate()` starts from `getCommerceRate(COMMERCE_RESEARCH)` and applies
+  the research modifier; `doResearch()` sends that rate into team research progress.
+* `doEspionagePoints()` uses `getCommerceRate(COMMERCE_ESPIONAGE)` for actual EP-ever
+  gain and `getEspionageSpending()` distributes the same integer budget against teams.
+
+Thus an erroneous redistribution among these categories changes real Gold, Research,
+and/or Espionage output. It is not confined to UI display.
+
+Culture is a useful additional warning: player-wide Culture rate is much less
+important because city culture is applied per city (the AdvCiv manual itself says
+"total culture isn't really relevant"). A malformed correction can therefore also be
+dumped into or withheld from a civ-wide Culture aggregate that does not symmetrically
+substitute for lost Gold/Research/Espionage gameplay output.
+
+WHY THIS IS A DEFECT, NOT AN ALTERNATIVE ROUNDING POLICY
+--------------------------------------------------------
+Several independent pieces agree:
+
+1. the code names the algorithm an "Implicit selection sort";
+2. the manual says correction goes to the rate(s) contributing most to the total
+   error, not repeatedly to the first rate that happened to have the initial maximum;
+3. after +1 is awarded to a +90 remainder, that rate's actual residual becomes -10,
+   so treating it as +90 on the next pass is arithmetically stale;
+4. the introducing commit's stated purpose is to redistribute accumulated rounding
+   error from non-binary research, and the malformed repeated maximum can transfer
+   multiple whole units to the wrong commerce category instead.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+The reconciled album contains no prior `updateCommerceRates`, advc.157, non-binary-
+research redistribution, or player-commerce-rounding root. F326 references
+`getCommerceRate` only as an input to AI civic valuation and concerns removal of
+`AI_averageCommerceMultiplier` normalization; it is unrelated. Queue-003 Finance /
+commerce findings concern display decomposition and rounding of other components, not
+this authoritative player cache.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+After awarding the +/-1 correction, update the selected stored residual before the
+next scan. The mathematically direct form is conceptually:
+
+    m_aiCommerceRate.add(eArgMax, iSign);
+    aiError.add(eArgMax, -iSign * 100);
+
+because giving +1 to a +90 hundredths residual changes the residual to -10, and giving
+-1 to a -90 residual changes it to +10.
+
+For currently nonnegative special-commerce rates, simply excluding each selected
+candidate from subsequent passes would also produce the intended largest-remainder
+selection because each original remainder has magnitude <100 and at most three whole
+corrections can exist across four commerce types. Updating by +/-100 is preferable as
+it directly preserves the residual arithmetic and the function's stated negative-rate
+future-proofing intent.
+
+A regression test should cover at least one `abs(iTotalError) / 100 >= 2` state, not
+only the typical one-correction case; a 9-commerce four-slider state above is a compact
+current-SAS fixture.
+
+CURRENT STONE AFTER C031-WIP151
+-------------------------------
+Protected deep-method re-audit Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete in overall album accounting.
+F444 / provisional KI#767 latest confirmed root.
+F445 / provisional KI#768 UNUSED.
+Latest physical checkpoint: C031-WIP151.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F445 unused. Resume the inherited cache/state-mutator pass
+around `updateExtraYieldThresholds`, commerce/flexible-count caches, financial turn
+processing and disband/ownership contracts; then expand into serialization and
+player/team/city cache invalidation. Do not promote the data-masked natural-threshold
+typo unless current reachability changes or a separate current consequence is proven.
+
+END C031-WIP151
+
+
+======================================================================
+C031-WIP152 — QUEUE 004 CVPLAYER DEEP RE-AUDIT: F445 STILL UNUSED
+======================================================================
+
+STATUS
+------
+Protected deep-method re-audit Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete in overall album accounting.
+F444 / provisional KI#767 remains latest confirmed root.
+F445 / provisional KI#768 remains UNUSED.
+Latest physical checkpoint: C031-WIP152.
+No repository source files modified.
+
+POST-F444 CONTROL TRANCHE
+-------------------------
+Several inherited state/cache candidates were chased through full transitions rather
+than promoted on suspicious syntax alone.
+
+1. CHANGELEADER / TRUE STARTS FREE-PROMOTION CONTROL — CLEAN FOR ORDINARY TRUE STARTS
+
+`CvPlayer::changeLeader` removes old-trait processing and applies the new leader's
+traits, while trait-granted unit free promotions themselves are normally installed by
+`CvUnit::init`. That initially suggested that a True Starts leader swap could leave
+already-created starting units with the old leader's promotions. The actual game-init
+order closes the ordinary case: `TrueStarts::changeCivs()` runs before
+`CvGame::initFreeUnits()` in `CvGame::setInitialItems`, so normal starting units are
+created only after the final leader is installed. Scenario-authored pre-existing units
+remain a scenario/robustness caveat rather than a proven generic current root.
+
+2. PERMANENT-ALLIANCE TECHNOLOGY PROCESSING CONTROL — CLEAN
+
+`CvTeam::addTeam` calls `shareItems(eTeam)` before moving absorbed players to the
+surviving team. A partial trace suggested that survivor-only technologies might be
+processed before absorbed players became members and therefore fail to install their
+player-level effects. Full `shareItems` tracing rejects that: K-Mod/AdvCiv makes the
+technology sharing bidirectional before reassignment. Each team receives the other's
+missing technologies through `setHasTech` while its own players still belong to it;
+therefore persistent player-level technology effects are processed for both sets of
+players before `CvPlayer::setTeam` performs the merge.
+
+3. `updateExtraYieldThresholds` NATURAL-THRESHOLD TYPO — REAL BUT CURRENTLY DATA-MASKED
+
+The natural-yield branch contains an apparent inherited typo:
+
+    if (iBestNaturalThresh == 0 || iBestNaturalThresh < iBestThresh)
+        iBestNaturalThresh = iNaturalThresh;
+
+The ordinary threshold branch correctly compares the candidate against the current
+best ordinary threshold. The natural branch instead compares the existing natural
+threshold against the unrelated ordinary `iBestThresh`, making multiple natural
+threshold sources potentially trait-order dependent. Current SAS data masks the
+fault: only Financial currently supplies a nonzero `ExtraYieldNaturalThreshold`
+(Commerce 3), so no competing current natural thresholds exist. Preserve as
+robustness/future-data debt; do not number as F445 without a current consequence.
+
+4. `canStealTech` / `canSpyDestroyProject` APPARENT PLAYER->TEAM ENUM MISMATCH — REJECTED
+
+Current source contains lines such as:
+
+    GET_TEAM(eTarget).isHasTech(eTech)
+    GET_TEAM(eTarget).getProjectCount(eProject)
+
+where `eTarget` is declared `PlayerTypes`. Read without include context, these appear
+to index the team table by player ID and would imply severe team-game espionage bugs.
+That diagnosis is false.
+
+`CvPlayer.cpp` includes `CoreAI.h`. `CoreAI.h` deliberately replaces the ordinary
+`GET_TEAM` macro with an overloaded accessor:
+
+    #define GET_TEAM(x) CoreAI::getTeam(x)
+
+    getTeam(TeamTypes eTeam)     -> AI_getTeam(eTeam)
+    getTeam(PlayerTypes ePlayer) -> AI_getTeam(TEAMID(ePlayer))
+
+Therefore `GET_TEAM(eTarget)` resolves the target player's ACTUAL team even when
+PlayerTypes and TeamTypes numeric IDs differ.
+
+Lineage confirms intent. BtS and K-Mod spell the conversion explicitly as
+`GET_TEAM(GET_PLAYER(eTarget).getTeam())`. An AdvCiv style/refactor stage first used
+the player-aware `TEAMREF(eTarget)` helper; commit
+`1c56cc6ac149d97c3a28eae56440f4f0ab0183bd`, titled
+"GET_PLAYER, GET_TEAM macros outside of AI headers", then deliberately changed that
+spelling to overloaded `GET_TEAM(eTarget)`. The active CoreAI overload preserves the
+same semantics.
+
+This independently revalidates the album's earlier KI#311 rejected-false-positive
+methodology: apparent PlayerTypes/TeamTypes mismatches through `GET_TEAM` must be
+resolved through the active include-context macro/overloads before diagnosis.
+
+`canStealTech` does appear in the album under F349, but only as an input to the
+separate `CvPlayerAI::AI_doCommerce` accumulator defect. There is no missing
+`canStealTech` root here; F445 remains unused.
+
+5. OTHER EARLY QUEUE-004 CONTROLS
+
+* `canReceiveGoody` / `receiveGoody`: technology rewards are still protected by
+  `isGoodyTech()->canResearch`; no current mismatch found. A bad goody with a
+  BarbarianUnitClass plus `iMinBarbarians==0` would expose a latent division-by-zero
+  shape, but current hostile goodies have positive minima.
+* `disbandUnit`: preliminary forced-financial-disband scoring/eligibility review has
+  not established a defect. Its behavior is intentionally distinct from voluntary
+  scrapping and should not inherit the earlier SAS scrapping findings automatically.
+* `changeCommerceFlexibleCount`, trade-route/anarchy transitions and the current
+  stacked availability counters checked so far preserve their zero/nonzero transition
+  invariants under current callers/data.
+
+CURRENT STONE AFTER C031-WIP152
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F444 / provisional KI#767 latest confirmed.
+F445 / provisional KI#768 UNUSED.
+Latest physical checkpoint: C031-WIP152.
+No repository source files modified.
+
+NEXT
+----
+Continue the inherited state-mutator/cache pass from F445 unused. Prioritize player
+cached totals and old/new-state transitions, forced-disband/strike/economic turn
+processing, religion/corporation/bonus processing, Advanced Start player costs,
+serialization and ownership/team-change invalidation. Continue the mechanical
+zero/low-album-mention inventory rather than forcing a new root.
+
+END C031-WIP152
+
+
+======================================================================
+C031-WIP153 — QUEUE 004 CVPLAYER DEEP RE-AUDIT: F445 / KI#768 CAPITAL MOVE LEAVES YIELD-RANK CACHE STALE
+======================================================================
+
+STATUS
+------
+Protected deep-method re-audit Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete in overall album accounting.
+F445 / provisional KI#768 CONFIRMED.
+F446 / provisional KI#769 UNUSED.
+Latest physical checkpoint: C031-WIP153.
+No repository source files modified.
+
+F445 / KI#768 — `CvPlayer::setCapital` changes capital-only yield modifiers without invalidating cached city yield ranks
+---------------------------------------------------------------------------------------------------------------
+
+ROOT
+----
+`CvCity::getBaseYieldRateModifier(YieldTypes)` dynamically includes the owning
+player's `getCapitalYieldRateModifier(eYield)` whenever `isCapital()` is true.
+`CvCity::isCapital()` is itself dynamic and simply compares the city to
+`GET_PLAYER(getOwner()).getCapital()`.
+
+K-Mod's `CvCity::findYieldRateRank` caches yield-rate rankings. When one city asks for
+a rank, it calculates the ordering for ALL of the player's cities and marks every
+city's rank valid for that yield.
+
+The source next to `getBaseYieldRateModifier` explicitly states the cache contract:
+
+    // note: player->invalidateYieldRankCache() must be called for anything that is checked here
+
+Capital status is one of the conditions checked there.
+
+However, `CvPlayer::setCapital(CvCity* pNewCapital)` changes `m_iCapitalCityID` and
+updates maintenance, trade routes and commerce for the old/new capitals, but never
+calls `invalidateYieldRankCache`.
+
+Therefore changing capital identity can change an old/new capital's actual Food /
+Production / Commerce yield-rate modifier while a previously computed city-yield
+ranking remains valid according to the cache flags.
+
+CURRENT LIVE DATA / REPRODUCTION
+--------------------------------
+This is live in ordinary current SAS data. `CIVIC_BUREAUCRACY` has:
+
+    CapitalYieldModifiers = [0, +50, +50]
+
+so the capital receives +50% Production and +50% Commerce.
+
+A simple deterministic shape is:
+
+1. Player runs Bureaucracy and owns at least two cities A and B.
+2. Before the capital move, actual production rates are such that A (the capital)
+   ranks above B only because of Bureaucracy's +50% capital Production modifier; e.g.
+   A base 10 -> 15, B base 11 -> 11.
+3. Something calls `findYieldRateRank(YIELD_PRODUCTION)`. K-Mod computes and caches the
+   complete ordering, e.g. A rank 1, B rank 2.
+4. Complete a Palace in B, causing `CvPlayer::setCapital(B)`.
+5. Actual rates immediately change dynamically: A loses the +50% and becomes 10;
+   B gains it and becomes 16 (integer arithmetic), so the correct order is B rank 1,
+   A rank 2.
+6. `setCapital` does not invalidate `YIELD_PRODUCTION`, therefore the cached ordering
+   can remain A rank 1 / B rank 2 until some unrelated Production-yield change later
+   invalidates it.
+
+PALACE SIDE-EFFECT CONTROL
+--------------------------
+The capital relocation path does not accidentally repair the missing Production-rank
+invalidation. Current `BUILDING_PALACE` has base YieldChanges `[0, 0, +8]` — only
+Commerce yield. `CvCity::processBuilding` therefore invalidates the Commerce-yield
+rank through the Palace's base-commerce-yield change, but it performs no
+Production-yield mutation that would invalidate `YIELD_PRODUCTION`.
+
+The relevant capital-only Production modifier comes from the player's civic and changes
+solely because `isCapital()` now points at a different city.
+
+RUNTIME CONSEQUENCE
+-------------------
+The underlying Production yield itself is NOT stale; `getYieldRate()` consults
+`isCapital()` dynamically, so actual production changes immediately. The stale object
+is specifically the cached rank returned by `findYieldRateRank(YIELD_PRODUCTION)`.
+
+That rank is gameplay-significant. Current SAS has multiple AI consumers in
+`CvCityAI.cpp` / `CvPlayerAI.cpp` (plus additional logging/UI consumers) that use
+Production rank when evaluating city roles, production choices and related decisions.
+A capital move can therefore temporarily feed those AI decisions an ordering that no
+longer corresponds to the actual Production yields.
+
+ANCESTRY
+--------
+This omission is inherited. BtS `CvPlayer::setCapitalCity`, K-Mod
+`CvPlayer::setCapitalCity`, Base AdvCiv 1.14 `CvPlayer::setCapital`, and current SAS all
+perform the same capital-ID transition plus maintenance/trade/commerce refresh without
+yield-rank invalidation.
+
+BtS data already makes the state live: Bureaucracy carries the same +50% Production /
++50% Commerce `CapitalYieldModifiers`. K-Mod's later all-city rank-cache implementation
+makes the stale state especially broad because one rank lookup marks all city ranks for
+that yield valid together.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+The reconciled album contains no prior `setCapital`, Bureaucracy capital-yield,
+`findYieldRateRank`, capital-modifier or yield-rank-cache root. Existing capital,
+Palace, commerce and rank mentions belong to unrelated systems.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+`CvPlayer::setCapital` should invalidate player city yield-rate ranks after changing
+capital identity, at least for every yield whose `getCapitalYieldRateModifier` can be
+nonzero. The simplest and safest repair is conceptually:
+
+    invalidateYieldRankCache();
+
+once the capital ID has changed (before or alongside the old/new UI/commerce refreshes).
+This directly satisfies the maintenance contract documented beside
+`CvCity::getBaseYieldRateModifier` and remains correct for XML/mod data that adds
+capital-only Food or other yield modifiers later.
+
+A regression test should first populate Production ranks under Bureaucracy, move the
+Palace/capital to another city without otherwise changing Production yields, and verify
+that a subsequent `findYieldRateRank(YIELD_PRODUCTION)` recomputes the new ordering.
+
+POST-F445 CLEAN CONTROLS
+------------------------
+* `CvPlayer::setCommercePercent`: the apparently negative adjustment when total
+  commerce is below 100 is intentional; subtracting a negative increases another
+  flexible category. Player-level flexibility loss resets the newly inflexible
+  category to its XML initial percent. No current broken 100%-sum transition proven.
+* `changeHurryCount`: derived pop-/gold-rush counts add `iChange` on a zero/nonzero
+  transition, but its gameplay caller `processCivics` supplies only -1/0/+1 per civic,
+  so current data cannot create a multi-point transition mismatch.
+* `changeFreeBuildingCount`: correctly applies/removes free buildings only on the
+  zero-to-positive / positive-to-zero source-count boundaries.
+
+CURRENT STONE AFTER C031-WIP153
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / provisional KI#768 latest confirmed.
+F446 / provisional KI#769 UNUSED.
+Latest physical checkpoint: C031-WIP153.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F446 unused. Resume the mechanical high-value low-coverage
+state-mutator inventory: `setLastStateReligion`, `setCivics`, civilization/player
+change/reset paths, free-building/availability counters, Advanced Start player costs,
+serialization/ownership/team-change invalidation and other cached totals. Preserve the
+same caller + current-data + ancestry + duplicate threshold and do not manufacture a
+sibling merely because F445 is a cache invalidation bug.
+
+END C031-WIP153
+
+
+======================================================================
+C031-WIP154 — QUEUE 004 CVPLAYER DEEP RE-AUDIT: F446 / KI#769 CIVILIAN UNIT PROJECTION ALSO CHANGES MILITARY UPKEEP
+======================================================================
+
+STATUS
+------
+Protected deep-method re-audit Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete in overall album accounting.
+F446 / provisional KI#769 CONFIRMED.
+F447 / provisional KI#770 UNUSED.
+Latest physical checkpoint: C031-WIP154.
+No repository source files modified.
+
+F446 / KI#769 — `calculateUnitCost(..., iExtraUnits)` applies generic unit delta to military-unit count too
+----------------------------------------------------------------------------------------------------------
+
+ROOT
+----
+AdvCiv extends `CvPlayer::calculateUnitCost` with prospective-state parameters:
+
+    int iExtraPop, int iExtraUnits
+
+The implementation applies `iExtraUnits` to BOTH support populations:
+
+    iPaidUnits = max(0, getNumUnits() - iFreeUnits + iExtraUnits);
+    iPaidMilitaryUnits = max(0,
+            getNumMilitaryUnits() - iFreeMilitaryUnits + iExtraUnits);
+
+That silently assumes every prospective extra/removed unit is also a military-support
+unit. The parameter itself is generic and live callers use it for explicitly civilian
+units.
+
+CURRENT LIVE CALLER 1 — CITY-FOUND COST HELP
+---------------------------------------------
+`CvGameTextMgr::setFoundCostHelp` projects expenses after founding a city. It correctly
+accounts for the Settler disappearing by calling:
+
+    kPlayer.calculateUnitCost(CvCity::initialPopulation(), -1)
+
+Current `UNIT_SETTLER` has:
+
+    bMilitarySupport = 0
+
+and therefore does NOT contribute to `CvPlayer::getNumMilitaryUnits()` at runtime.
+Founding a city removes one total unit but zero military units.
+
+The projection nevertheless subtracts one from both populations through the shared
+`iExtraUnits=-1` argument.
+
+CURRENT DATA MAKES THE MILITARY-COST ERROR LIVE
+-----------------------------------------------
+Current `CIVIC_PACIFISM` has:
+
+    iGoldPerMilitaryUnit = 100
+
+(1 gold per paid military-support unit), and current civic data has no nonzero
+`iBaseFreeMilitaryUnits` or `iFreeMilitaryUnitsPopulationPercent` source.
+
+A compact ordinary reproduction is:
+
+1. Human player runs Pacifism.
+2. Player owns at least one military-support unit and a Settler.
+3. Hover a legal city-found action.
+4. Actual post-found state consumes the Settler but keeps the military-support unit;
+   military upkeep therefore remains charged for that military unit.
+5. `setFoundCostHelp` passes `iExtraUnits=-1`; the projection also decrements
+   `iPaidMilitaryUnits`, reducing projected military cost by 1 gold/turn before
+   inflation whenever the paid military count is positive.
+
+The projected founding-cost delta is therefore understated. Inflation can scale the
+visible error further.
+
+CURRENT LIVE CALLER 2 — DELETE / SCRAP COMMAND HELP
+----------------------------------------------------
+`CvDLLWidgetData`'s `COMMAND_DELETE` help builds `iUnits` by subtracting every selected
+unit and every carried cargo unit, without distinguishing military-support units. It
+then calls:
+
+    calculateUnitCost(0, iUnits)
+
+for the projected expenses and again with further generic negative unit deltas when
+estimating how many additional units would need deletion before expenses decrease.
+
+Selecting/deleting a Worker, Settler or other `bMilitarySupport=0` unit therefore also
+pretends to reduce the military-support population. Under Pacifism this can overstate
+the gold savings from deleting civilian units and can distort the helper's "one more /
+N more units" guidance.
+
+RUNTIME CONTROL
+---------------
+Actual military-unit accounting is type-aware. `CvUnit::init` increments
+`changeNumMilitaryUnits(1)` only when `m_pUnitInfo->isMilitarySupport()`; `CvUnit::kill`
+symmetrically decrements only those units. Settlers are explicitly non-military-support.
+The projection is therefore not mirroring runtime unit accounting.
+
+ANCESTRY / INTRODUCING COMMIT
+-----------------------------
+This is an AdvCiv regression, not stock BtS/K-Mod unit-cost arithmetic.
+
+K-Mod's ordinary `calculateUnitCost` has no prospective `iExtraUnits` parameter.
+Before the relevant AdvCiv change, the founding-cost projection handled the Settler
+specifically:
+
+    iPaidUnits = max(0, getNumUnits() - iFreeUnits
+            - (iExtraPop > 0 ? 1 : 0)); // The Settler is gone after founding
+    iPaidMilitaryUnits = max(0, getNumMilitaryUnits() - iFreeMilitaryUnits);
+
+That correctly removed the Settler from total-unit upkeep while leaving military-unit
+upkeep untouched.
+
+AdvCiv practical commit 1412, SHA `ef40cbb8b47a2b11e4b213076d0f1cad62ad13b1`,
+titled "Misc. tweaks (mostly UI)", generalized the projection API to add
+`iExtraUnits`. In the same introducing diff it replaced the Settler-specific total-unit
+adjustment and added `+ iExtraUnits` to BOTH `iPaidUnits` and `iPaidMilitaryUnits`.
+The same commit also introduced the Delete-command unit-cost projection that counts
+selected units generically. Thus the wrong military delta is present in the
+introducing change itself.
+
+Base AdvCiv 1.14 and current SAS retain the generalized implementation.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+The album already audits `setFoundCostHelp`, but its confirmed F392/KI#715 root is the
+separate WLTKD maintenance projection mismatch. F412/KI#735 concerns Finance Advisor
+unit-cost/supply hovers bypassing anarchy-aware wrappers. Neither covers prospective
+civilian-unit deltas being applied to military-unit upkeep.
+
+The album contains no prior root for `iExtraUnits`, prospective paid-military count, or
+civilian Delete-command military-upkeep savings. F446 is independent.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+The prospective API needs distinct total-unit and military-unit deltas, e.g.
+conceptually:
+
+    calculateUnitCost(iExtraPop, iExtraUnits, iExtraMilitaryUnits)
+
+with the detailed overload using:
+
+    iPaidUnits         ... + iExtraUnits
+    iPaidMilitaryUnits ... + iExtraMilitaryUnits
+
+`setFoundCostHelp` should pass `-1` total units and `0` military units for the Settler.
+
+The Delete-command helper should count both selected/cargo total units and selected /
+cargo `isMilitarySupport()` units separately, then pass both deltas. Its iterative
+"how many more deletions" prediction cannot know the military status of hypothetical
+future deletions; that fallback should either state its assumption explicitly, use a
+conservative model, or be refactored around actual candidate unit types rather than a
+single generic unit count.
+
+Regression tests should include Pacifism with one paid military unit plus a Settler /
+Worker and verify that removing the civilian changes total-unit support only, not
+military support.
+
+CURRENT STONE AFTER C031-WIP154
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F446 / provisional KI#769 latest confirmed.
+F447 / provisional KI#770 UNUSED.
+Latest physical checkpoint: C031-WIP154.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F447 unused. Resume the mechanical high-value arithmetic /
+state-mutator inventory after the unit-cost projection family: Advanced Start player
+costs, `setLastStateReligion` / `setCivics` closure, civ/player reset/change paths,
+serialization, ownership/team-change invalidation and remaining cached counters. Keep
+prospective APIs especially high priority because F446 shows that added hypothetical
+state parameters can collapse distinct runtime populations.
+
+END C031-WIP154

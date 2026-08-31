@@ -594,7 +594,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#509 - (Provisional Pending inherited AdvCiv peace-valuation defect) No-payment shortcut ignores city reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-509)\
 [KI#510 - (Provisional Pending inherited AdvCiv trade-cap defect) canTradeAssets tests arbitrary first cities only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-510)\
 [KI#511 - (Provisional Pending inherited AdvCiv war-plan defect) TOTAL target switching can become LIMITED](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-511)\
-[KI#512 - (Provisional Pending inherited AdvCiv boundary defect) TOTAL-only positive utility can start LIMITED war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-512)\
+[KI#512 - (Fixed inherited AdvCiv boundary defect) TOTAL-only positive utility could start LIMITED war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-512)\
 [KI#513 - (Fixed inherited AdvCiv team-loop defect) Land-target distance exemption leaked between members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-513)\
 [KI#514 - (Fixed AdvCiv-SAS signed-rounding defect) Emergency peace used uround on a negative threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-514)\
 [KI#515 - (Provisional Pending AdvCiv-SAS victory-denial regression) Direct war plan can ignore force peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-515)\
@@ -849,7 +849,16 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#758 - (Provisional Pending inherited BtS resource-hover defect) Prospective improvements omit live yield modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-758)\
 [KI#759 - (Provisional Pending inherited AdvCiv city-billboard regression) Avoid Growth hides imminent starvation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-759)\
 [KI#760 - (Provisional Pending inherited AdvCiv feature-help omission) Forest/Jungle pages hide conditional rival defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-760)\
-[KI#761 - (Provisional Pending investigation) F438 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-761)\
+[KI#761 - (Provisional Pending inherited K-Mod/BULL/AdvCiv definition split made live by SAS data) Finance Specialists Gold omits player-wide commerce](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-761)\
+[KI#762 - (Provisional Pending inherited BtS actor-selection defect) Nuke target help uses the group head instead of its nuke](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-762)\
+[KI#763 - (Provisional Pending inherited BtS Advanced Start help mismatch) Aggregate military cap is described as per city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-763)\
+[KI#764 - (Provisional Pending inherited BtS Advanced Start context defect) Generic unit availability ignores the selected plot's cap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-764)\
+[KI#765 - (Provisional Pending inherited K-Mod queue-help regression) Continuing Buildings are priced as another new copy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-765)\
+[KI#766 - (Provisional Pending inherited BtS queue-help defect) Production hover discards the actual queue index](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-766)\
+[KI#767 - (Provisional Pending inherited AdvCiv commerce-rounding defect) Every correction reselects the same remainder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-767)\
+[KI#768 - (Provisional Pending inherited BtS/K-Mod cache-invalidation defect) Moving the capital leaves yield ranks stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-768)\
+[KI#769 - (Provisional Pending AdvCiv projection regression) Civilian unit changes also alter projected military upkeep](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-769)\
+[KI#770 - (Provisional Pending investigation) F447 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-770)\
 
 <a id="ki-1"></a>
 
@@ -12527,11 +12536,13 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-512"></a>
 
-## KI#512 - (Provisional Pending inherited AdvCiv boundary defect) TOTAL-only positive utility can start LIMITED war
+## KI#512 - (Fixed inherited AdvCiv boundary defect) TOTAL-only positive utility could start LIMITED war
 
-Album F189 finds scheme selecting LIMITED at the exact zero boundary when only TOTAL utility is positive. Pending independent implementation review.
+`UWAI::Team::scheme` evaluates limited and total war separately before choosing the plan type. Its sign partition selected total war when limited utility was negative and total utility was positive, and used personality weighting when both were positive, but omitted the valid boundary where limited utility was exactly zero and total utility was positive. The final drive used the maximum of both evaluations, so that target remained eligible using its positive total-war value while the default plan type stayed limited. UWAI could consequently begin a limited war whose own evaluation was not positive.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair includes zero in the nonpositive limited-war branch. Total war is now selected whenever it is the only positively evaluated choice; the existing personality weighting remains unchanged when both war types are genuinely positive, and broader drive-selection policy is outside this fix's scope.
+
+Before AdvCiv commit `0fb74a859b`, the simpler comparison selected whichever utility was greater and handled this boundary correctly. That commit introduced personality weighting with strict sign checks and omitted the zero/positive combination; Base AdvCiv 1.14 retains the defect, while AdvCiv-SAS inherited it unchanged. A clean Debug-opt Huge Pangaea/full-UWAI autoplay completed normally through Space Race victory on turn 411; the exact neutral-limited/positive-total evaluation pair remains source-verified. Found as F189/provisional KI#512 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-513"></a>
 
@@ -15223,8 +15234,80 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP141-C031-WIP
 
 <a id="ki-761"></a>
 
-## KI#761 - (Provisional Pending investigation) F438 remains unassigned during the CvGameTextMgr deep re-audit
+## KI#761 - (Provisional Pending inherited K-Mod/BULL/AdvCiv definition split made live by SAS data) Finance Specialists Gold omits player-wide commerce
 
-The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F420-F437 through C031-WIP142 and reserves F438 next. Do not implement a change under KI#761 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F438 finds the Finance Advisor's visible Specialists Gold row summing city-stored base specialist commerce while its own BULL hover and runtime use player-wide specialist-extra commerce too. The latent inherited definition split is made visible by current SAS civic data. Pending independent implementation review.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP142 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP143 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-762"></a>
+
+## KI#762 - (Provisional Pending inherited BtS actor-selection defect) Nuke target help uses the group head instead of its nuke
+
+Album F439 finds group-wide nuke targeting legally selecting a later nuclear unit while target help and the area-of-effect renderer inspect only the group's head unit. A fighter-headed Tactical Nuke group can therefore launch while displaying help and radius data for the fighter. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP144 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-763"></a>
+
+## KI#763 - (Provisional Pending inherited BtS Advanced Start help mismatch) Aggregate military cap is described as per city
+
+Album F440 finds Advanced Start help stating "Maximum N units per city" while runtime caps only the player's total military units at N times its city count. Multiple cities can legally concentrate more than N units in one city. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP145 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-764"></a>
+
+## KI#764 - (Provisional Pending inherited BtS Advanced Start context defect) Generic unit availability ignores the selected plot's cap
+
+Album F441 finds the Advanced Start unit palette using a null-plot generic cost to decide whether a unit is available, while the selected-plot purchase cost enforces the military-unit cap. The palette can remain enabled when every placement is rejected. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP146 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-765"></a>
+
+## KI#765 - (Provisional Pending inherited K-Mod queue-help regression) Continuing Buildings are priced as another new copy
+
+Album F442 finds a queued Building hover applying the Building-class prerequisite formula for starting another copy instead of continuing the already accepted queue order. Pending preserving the runtime distinction between a new order and the exact continuing queue row.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP148 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-766"></a>
+
+## KI#766 - (Provisional Pending inherited BtS queue-help defect) Production hover discards the actual queue index
+
+Album F443 finds city production rows carrying their exact queue index into `parseSelectedHelp`, which then discards it and recomputes turns as a hypothetical front/end insertion. Unit, Building and Project row hovers can therefore disagree with their visible queue turns. Pending threading the actual queue index into the help calculation.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP149 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-767"></a>
+
+## KI#767 - (Provisional Pending inherited AdvCiv commerce-rounding defect) Every correction reselects the same remainder
+
+Album F444 finds `CvPlayer::updateCommerceRates` describing an implicit selection sort but never removing or updating the selected fractional remainder. When more than one whole correction is distributed, every correction can be awarded to the same commerce type. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP151 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-768"></a>
+
+## KI#768 - (Provisional Pending inherited BtS/K-Mod cache-invalidation defect) Moving the capital leaves yield ranks stale
+
+Album F445 finds capital identity dynamically changing capital-only yield modifiers while `CvPlayer::setCapital` does not invalidate K-Mod's cached all-city yield rankings. Under Bureaucracy, moving the capital can consequently leave gameplay-significant city yield ranks based on the former capital. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP153 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-769"></a>
+
+## KI#769 - (Provisional Pending AdvCiv projection regression) Civilian unit changes also alter projected military upkeep
+
+Album F446 finds AdvCiv's prospective `iExtraUnits` parameter changing both total-unit and military-unit populations. Founding with a non-military Settler or previewing deletion of a civilian can therefore incorrectly reduce projected military upkeep, directly visible under Pacifism. Pending separating prospective total-unit and military-support-unit deltas throughout the callers.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP154 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-770"></a>
+
+## KI#770 - (Provisional Pending investigation) F447 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444-F446 through C031-WIP154 and reserves F447 next. Do not implement a change under KI#770 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP154 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

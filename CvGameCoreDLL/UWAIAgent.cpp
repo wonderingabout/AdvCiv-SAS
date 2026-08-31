@@ -1979,7 +1979,9 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 		bool const bLimitedNaval = params.isNaval();
 		int const iLimitedPrepTime = params.getPreparationTime();
 		bool bTotal = false;
-		if (iLimitedU < 0 && iTotalU > 0)
+		// <!-- custom: A neutral limited-war evaluation must not borrow a positive total-war utility and then install a limited plan.
+		// Include the zero boundary while preserving personality weighting when both choices are positive. See KI#512. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (iLimitedU <= 0 && iTotalU > 0)
 			bTotal = true;
 		if (iLimitedU < 0 && iTotalU < 0) // Only relevant for logging
 			bTotal = (iTotalU > iLimitedU);
