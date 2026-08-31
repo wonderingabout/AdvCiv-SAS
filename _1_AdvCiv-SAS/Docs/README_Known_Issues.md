@@ -792,10 +792,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#701 - (Fixed inherited BtS/BBAI target-context defect) Remote city guards were selected for their source plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-701)\
 [KI#702 - (Pending Architectural SAS guard-mission interaction regression) Safe-city redistribution can lose its destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-702)\
 [KI#703 - (Fixed inherited AdvCiv/BBAI airbase-border predicate regressions) Enemy danger tested friendly vassals instead](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-703)\
-[KI#704 - (Provisional Pending inherited K-Mod/BBAI transport-target defect) Boat shortcuts path toward the passenger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-704)\
-[KI#705 - (Provisional Pending inherited AdvCiv pickup regression) Transports reject safe ports and permit dangerous ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-705)\
-[KI#706 - (Provisional Pending SAS Worker-ferry regression) Cargo Workers count as already delivered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-706)\
-[KI#707 - (Provisional Pending inherited AdvCiv ProbabilityTypes regression) Carriers retreat at every threat level except real](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-707)\
+[KI#704 - (Fixed inherited K-Mod/BBAI transport-target defect) Boat shortcuts pathed toward the passenger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-704)\
+[KI#705 - (Fixed inherited AdvCiv pickup regression) Transports rejected safe ports and permitted dangerous ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-705)\
+[KI#706 - (Fixed SAS Worker-ferry regression) Cargo Workers counted as already delivered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-706)\
+[KI#707 - (Fixed inherited AdvCiv ProbabilityTypes regression) Carriers retreated at every threat level except real](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-707)\
 [KI#708 - (Provisional Pending inherited AdvCiv mission-target regression) City-site guards ignore missions aimed at the site itself](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-708)\
 [KI#709 - (Provisional Pending inherited AdvCiv helper-extraction regression) Privateers can heal early in open sea](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-709)\
 [KI#710 - (Provisional Pending inherited AdvCiv guard-scope regression) Yield guards can drift outside their city's radius](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-710)\
@@ -830,8 +830,14 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#739 - (Provisional Pending inherited AdvCiv trade-help omission) Foreign anarchy blocks trade without explanation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-739)\
 [KI#740 - (Provisional Pending inherited AdvCiv Advanced Start regression) Free Visibility control is hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-740)\
 [KI#741 - (Provisional Pending inherited BtS religion-help omission) Conversion blockers can go unexplained](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-741)\
-[KI#742 - (Provisional Pending inherited AdvCiv founding-preview defect activated by SAS) Negative extra health prints the wrong value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-742)\
-[KI#743 - (Provisional Pending investigation) F420 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-743)\
+[KI#742 - (Merged duplicate of KI#712) Negative founding-preview extra health prints the wrong value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-742)\
+[KI#743 - (Provisional Pending K-Mod integration mismatch activated by SAS) City health separates values that runtime nets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-743)\
+[KI#744 - (Provisional Pending inherited BtS cache defect) Corporation maintenance retains an obsolete inflation rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-744)\
+[KI#745 - (Provisional Pending inherited AdvCiv French localization typo) City anger prints its population twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-745)\
+[KI#746 - (Provisional Pending inherited Civ4 French localization typo) Pacifism prints F2_Religion literally](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-746)\
+[KI#747 - (Provisional Pending inherited AdvCiv localization contract defect) Espionage warnings request argument 2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-747)\
+[KI#748 - (Provisional Pending inherited AdvCiv Spanish localization typo) Zero attitude requests argument 3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-748)\
+[KI#749 - (Provisional Pending investigation) F426 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-749)\
 
 <a id="ki-1"></a>
 
@@ -14431,41 +14437,57 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP74 `CvUnitAI
 
 <a id="ki-704"></a>
 
-## KI#704 - (Provisional Pending inherited K-Mod/BBAI transport-target defect) Boat shortcuts path toward the passenger
+## KI#704 - (Fixed inherited K-Mod/BBAI transport-target defect) Boat shortcuts pathed toward the passenger
 
 Album F381 finds `AI_load` identifying a candidate enemy coastal plot for the K-Mod boat-shortcut test but pathing the selected transport toward water adjacent to the passenger's current plot instead. An inland attack stack therefore fails deterministically even when it can reach a transport that can reach the enemy coast, while a coastal stack can falsely accept an enemy coast whose actual water approach was never tested.
 
-Pending path-testing water adjacent to the candidate enemy coast. Passing the passenger's current location answers the opposite end of the route from the target contract established by the helper, pathfinder and `AI_attackCityMove` caller.
+Fixed by path-testing water adjacent to the candidate enemy coast. Passing the passenger's current location answered the opposite end of the route from the target contract established by the helper, pathfinder and `AI_attackCityMove` caller.
+
+A Huge 120x84 Islands Debug-opt autoplay completed normally with a Space Race victory on turn 385 after all 385 autoplay turns (Ancient start, Normal speed, 16 independent teams, untouched default full UWAI and No Events). `SASGameRecord` confirms extensive `UNITAI_ASSAULT_SEA` activity throughout this naval-heavy game; the exact inland passenger shortcut remains source-verified because that particular route decision was not isolated.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP75 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-705"></a>
 
-## KI#705 - (Provisional Pending inherited AdvCiv pickup regression) Transports reject safe ports and permit dangerous ones
+## KI#705 - (Fixed inherited AdvCiv pickup regression) Transports rejected safe ports and permitted dangerous ones
 
 Album F382 finds AdvCiv practical 1583 flattening K-Mod's `if (!AI_isDanger())` remote-pickup body into the inverted early guard `if (!AI_isDanger()) continue`. Transports consequently reject ordinary safe remote pickup cities while permitting sufficiently established dangerous cities to reach pathfinding, even though the same safe city remains valid when the transport already occupies it.
 
-Pending restoring the correct early guard, `if (AI_isDanger()) continue`, while retaining the otherwise equivalent flattened control flow.
+Fixed by restoring the correct early guard, `if (AI_isDanger()) continue`, while retaining the otherwise equivalent flattened control flow and its separate recently-acquired-city enemy-power exception.
+
+The same Huge Islands Debug-opt autoplay completed normally on turn 385 and recorded extensive Assault Sea and Settler Sea activity. This broadly exercised transport pickup behavior on a naval-heavy map; the exact safe-versus-dangerous remote-port branch remains source-verified rather than directly observed.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP76 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-706"></a>
 
-## KI#706 - (Provisional Pending SAS Worker-ferry regression) Cargo Workers count as already delivered
+## KI#706 - (Fixed SAS Worker-ferry regression) Cargo Workers counted as already delivered
 
 Album F383 finds SAS practical 6060's hard Worker-capacity gate in `AI_ferryWorkers` subtracting only `(2 * iWorkers) / 3` from the destination area's count. A single Worker still aboard a transport is already present in that land area's UnitAI count when the ship reaches a city, but integer division subtracts zero; the destination can therefore appear fully staffed and be rejected immediately before the helper's own `unloadAll()` branch.
 
-Pending excluding all Workers aboard this transport from the hard existing-capacity count when it is physically in the candidate destination area, matching the exact sibling correction already implemented by practical 6061 in `AI_unloadSettlerCargoForDestination`. Any inherited fractional availability estimate retained for soft scoring should remain separate from the hard capacity test.
+Fixed by excluding all Workers aboard this transport from the hard existing-capacity count when it is physically in the candidate destination area, matching the exact sibling correction already implemented by practical 6061 in `AI_unloadSettlerCargoForDestination`. The inherited fractional availability estimate used earlier for soft city scoring remains separate from this hard land-area capacity test.
+
+The same completed Huge Islands run recorded sustained `UNITAI_SETTLER_SEA` activity and thousands of Worker-state rows through turn 385 without an observed issue. This gives broad ferry and Worker coverage; the exact one-Worker full-destination rejection remains source-verified because its aboard-versus-land-area count was not separately forced.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP77 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-707"></a>
 
-## KI#707 - (Provisional Pending inherited AdvCiv ProbabilityTypes regression) Carriers retreat at every threat level except real
+## KI#707 - (Fixed inherited AdvCiv ProbabilityTypes regression) Carriers retreated at every threat level except real
 
 Album F384 finds AdvCiv's practical-2612 conversion of `AI_isThreatenedFromLand` from boolean to ordered `ProbabilityTypes` changing the Carrier caller to `!= PROBABILITY_REAL`, while every analogous naval role uses `>= PROBABILITY_REAL`. Carriers consequently enter their emergency retreat block for no, low and high threat but skip it for the ordinary real-threat state that the inherited logic was written to catch.
 
-Pending restoring the same `>= PROBABILITY_REAL` threshold used by sibling naval roles and by the old boolean helper's strong-threat contract.
+Fixed by restoring the same `>= PROBABILITY_REAL` threshold used by sibling naval roles and by the old boolean helper's strong-threat contract. This includes both the ordinary real-threat state and any stronger ordered probability state.
+
+The same naval-heavy Huge Islands Debug-opt autoplay completed normally through turn 385. `SASGameRecord` did not record a Carrier in that sample, so the corrected Carrier threat threshold remains source-verified rather than claiming direct runtime coverage.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP78 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
@@ -14811,18 +14833,78 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP120 `CvGameT
 
 <a id="ki-742"></a>
 
-## KI#742 - (Provisional Pending inherited AdvCiv founding-preview defect activated by SAS) Negative extra health prints the wrong value
+## KI#742 - (Merged duplicate of KI#712) Negative founding-preview extra health prints the wrong value
 
-Album F419 finds `setFoundHealthHelp` printing nearby-feature `iBadHealth` in the negative player-wide `iExtraHealth` branch. A real -9 health contribution after current SAS's Depopulation technology can consequently appear as 0 or an unrelated feature-unhealth value in a Settler's founding preview. AdvCiv introduced the wrong-variable branch; SAS's reachable negative technology health made it ordinarily visible.
+The C031-WIP122R reconciliation found F419 to be the same `setFoundHealthHelp` wrong-variable root already recorded as F389/KI#712. Both identify nearby-feature `iBadHealth` being printed in the negative player-wide `iExtraHealth` branch; the secondary trait-only attribution concern is likewise already F390/KI#713.
 
-Pending printing the absolute magnitude of the actual negative `iExtraHealth`. The trailing trait-only source label is separately incomplete because player-wide extra health can also come from technologies and civics.
+Do not implement KI#742 separately. Its correction and validation belong to KI#712, while KI#713 owns the independent attribution wording.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP121 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found provisionally during ChatGPT-5.6-Sol's C031-WIP121 and duplicate-reconciled during C031-WIP122R; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-743"></a>
 
-## KI#743 - (Provisional Pending investigation) F420 remains unassigned during the CvGameTextMgr deep re-audit
+## KI#743 - (Provisional Pending K-Mod integration mismatch activated by SAS) City health separates values that runtime nets
 
-The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F419 through C031-WIP121 and reserves F420 next. Do not implement a change under KI#743 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F420 finds `CvCity::goodHealth` and `badHealth` adding player-wide and city-local ExtraHealth before clamping the combined sign, while the ordinary city health hover sign-filters and prints the two operands independently. Opposite-signed sources can therefore display positive and negative components that runtime has already netted away. K-Mod introduced the integration mismatch; SAS's -9 Depopulation player health and inherited positive city-local event health make it ordinarily reachable.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP121 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending combining both ExtraHealth operands before selecting the good or bad hover section, matching runtime without conflating KI#712's founding-preview typo or KI#713's source label.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP123 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-744"></a>
+
+## KI#744 - (Provisional Pending inherited BtS cache defect) Corporation maintenance retains an obsolete inflation rate
+
+Album F421 finds corporation maintenance dividing out the current inflation rate before entering cached city maintenance, but inflation changes do not invalidate that cache. Stable corporation cities can therefore retain an older, larger inverse-inflation term while fresh hover calculation uses the current rate, systematically overcharging actual expenses and understating them in the corporation breakdown. Stock BtS contains the defect, K-Mod explicitly noted it as a bug, and AdvCiv/SAS retain it.
+
+Pending preserving inflation-neutral corporation maintenance while rebuilding affected cached maintenance whenever the effective inflation rate changes. Simply deleting the inverse-inflation division would change the intended gameplay rule rather than repair its cache lifecycle.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP124 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-745"></a>
+
+## KI#745 - (Provisional Pending inherited AdvCiv French localization typo) City anger prints its population twice
+
+Album F422 finds the French `TXT_KEY_CITY_BAR_ANGER_TIMER` introduced by AdvCiv's city-bar hover integration using `%d1` twice although C++ supplies angry population as argument 1 and turns as argument 2. The ordinary enabled city-bar anger counter can consequently render an extra population number before its turn-count grammar token.
+
+Pending removing the duplicate French `%d1` while preserving `%d2` for the localized turn count. This localization defect is independent of KI#730's anger-source arithmetic.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP125 localization-contract sweep; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-746"></a>
+
+## KI#746 - (Provisional Pending inherited Civ4 French localization typo) Pacifism prints F2_Religion literally
+
+Album F423 finds stock Civ4's French `TXT_KEY_CIVIC_GREAT_PEOPLE_MOD_STATE_RELIGION` omitting the `%` from `%F2_Religion`. Opening Pacifism in the French Sevopedia can therefore display `F2_Religion` literally instead of the religion icon supplied as argument 2.
+
+Pending changing French `F2_Religion` to `%F2_Religion`; no C++ change is required.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP125 localization-contract sweep; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-747"></a>
+
+## KI#747 - (Provisional Pending inherited AdvCiv localization contract defect) Espionage warnings request argument 2
+
+Album F424 finds AdvCiv's espionage civic/religion warning supplying exactly one civic-or-religion argument while French, German, Italian and Spanish localizations request `%s2`; only English correctly requests `%s1`. The live warning can therefore lose or corrupt its identifying name in every supported non-English localization.
+
+Pending changing `%s2_ReligionOrCivic` to `%s1_ReligionOrCivic` in those four localizations, preserving the intended one-argument C++ contract.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP125 localization-contract sweep; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-748"></a>
+
+## KI#748 - (Provisional Pending inherited AdvCiv Spanish localization typo) Zero attitude requests argument 3
+
+Album F425 finds Spanish `TXT_KEY_ZERO_ATTITUDE_TOWARDS` requesting `%s3_leader` although the exact-zero branch supplies only attitude and leader name as arguments 1 and 2. Other languages use `%s2`, and only nonzero attitude keys legitimately receive a third argument.
+
+Pending changing this Spanish zero-case placeholder to `%s2_leader` without altering the nonzero three-argument keys.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP125 localization-contract sweep; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-749"></a>
+
+## KI#749 - (Provisional Pending investigation) F426 remains unassigned during the CvGameTextMgr deep re-audit
+
+The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F420-F425 through C031-WIP126 and reserves F426 next. Do not implement a change under KI#749 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP126 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

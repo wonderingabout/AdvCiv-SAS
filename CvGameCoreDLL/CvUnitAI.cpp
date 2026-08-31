@@ -12549,7 +12549,9 @@ void CvUnitAI::AI_carrierSeaMove()
 	PROFILE_FUNC();
 	CvPlayerAI const& kOwner = GET_PLAYER(getOwner()); // K-Mod
 	// BETTER_BTS_AI_MOD, Naval AI, 10/21/08, Solver & jdog5000: START
-	if (AI_isThreatenedFromLand() != PROBABILITY_REAL) // advc.139: Moved into subroutine
+	// <!-- custom: AdvCiv's ProbabilityTypes conversion made Carriers retreat for every state except the ordinary real threat inherited logic intended to catch.
+	// Use the same strong-threat threshold as the sibling naval roles, including higher probability levels. See KI#707. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (AI_isThreatenedFromLand() >= PROBABILITY_REAL) // advc.139: Moved into subroutine
 	{
 		if (AI_retreatToCity(true))
 		{
@@ -14865,7 +14867,9 @@ bool CvUnitAI::AI_load(UnitAITypes eUnitAI, MissionAITypes eMissionAI, UnitAITyp
 			{
 				/*  Transport cannot enter land plot without cargo, so
 					generatePath only works properly if land units are already loaded */
-				FOR_EACH_ADJ_PLOT(getPlot())
+				// <!-- custom: The boat shortcut selected enemy coastal land in `p` but tested water beside the passenger's current plot, accepting or rejecting the opposite end of the route.
+				// Test water beside the candidate enemy coast so this verifies that the selected transport can approach its target. See KI#704. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				FOR_EACH_ADJ_PLOT(p)
 				{
 					if (!pAdj->isWater())
 						continue;
@@ -21793,7 +21797,9 @@ bool CvUnitAI::AI_ferryWorkers()
 		// <advc.113> Don't count the workers in cargo as available
 		if (!getPlot().isWater() && pLoopCity->isArea(getArea()))
 		{
-			iAreaHave -= (2 * iWorkers) / 3;
+			// <!-- custom: Workers aboard this transport are already included in the destination land area's UnitAI count once the ship reaches its city.
+			// Exclude all of them from this hard capacity gate; the former two-thirds estimate left one cargo Worker fully counted and could reject the destination immediately before unloading it. See KI#706. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iAreaHave = std::max(0, iAreaHave - iWorkers);
 			FAssert(iAreaHave >= 0);
 		} // </advc.113>
 		// <!-- custom: Base AdvCiv's city demand could keep selecting the same small island after its landmass already had enough Workers.
@@ -24578,7 +24584,9 @@ bool CvUnitAI::AI_pickup(UnitAITypes eUnitAI, bool bCountProduction, int iMaxPat
 			pLoopCity->getPlot(), MISSIONAI_PICKUP, getGroup()) <
 			(iCount + cargoSpace() - 1) / cargoSpace())
 		{
-			if (!pLoopCity->AI_isDanger())
+			// <!-- custom: AdvCiv's flattened early guard inverted BBAI's safe-city scope, rejecting ordinary safe remote pickup ports while permitting dangerous ones.
+			// Skip dangerous cities and retain the existing acquisition-age/enemy-power exception above. See KI#705. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (pLoopCity->AI_isDanger())
 				continue;
 
 			int iPathTurns;

@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - CLOSED AT C031-WIP87
-Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP121
-Latest confirmed roots: F321-F419 / provisional KI#644-KI#742 across the protected re-audits
-Next root ID: F420 unused / provisional KI#743 next
+Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP126
+Latest confirmed roots: F321-F418 and F420-F425 / provisional KI#644-KI#748 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712
+Next root ID: F426 unused / provisional KI#749 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -23,7 +23,7 @@ METHOD
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
-003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP121 / F388-F419]<-(priority current wip)
+003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP126 / F388-F418, F420-F425; F419 DUPLICATE]<-(priority current wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
@@ -88944,3 +88944,1187 @@ runtime/display closure reconciliation. Only promote F420 with a supported
 current caller/data consequence distinct from F419.
 
 END C031-WIP121
+
+===============================================================================
+C031-WIP122R — RECONCILIATION CHECKPOINT BEFORE NEW ROOT NUMBERING
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+Distinct confirmed roots from this Queue remain F388-F418.
+F419 / provisional KI#742 is RECONCILED AS A DUPLICATE OF F389 / KI#712.
+F420 / provisional KI#743 remains UNUSED.
+No repository source files modified.
+
+WHY THIS RECONCILIATION WAS NECESSARY
+-------------------------------------
+The continuation handoff after C031-WIP121 proposed a new F420 candidate for the
+SAS tech-tree obsolete-unit block. Re-reading the authoritative reconciled album
+before numbering it showed that the exact same root was already confirmed much
+earlier as F388 / KI#711.
+
+That prompted a deliberate duplicate check of the immediately preceding late
+finding too. It showed that F419 / KI#742 is likewise not independent: it is the
+same setFoundHealthHelp wrong-variable root already confirmed as F389 / KI#712.
+
+This checkpoint therefore corrects the continuation ledger before any further
+new number is assigned. The earlier generated C031-WIP122 that temporarily
+called the obsolete-unit root F420 is superseded by this WIP122R and must not be
+used as an authoritative ledger state.
+
+-------------------------------------------------------------------------------
+DUPLICATE 1 — PROPOSED F420 == EXISTING F388 / KI#711
+-------------------------------------------------------------------------------
+Existing F388 already proves all of the material facts re-derived at the new
+thread boundary:
+
+- current SAS `setTechTradeHelp` globally scans every UnitInfo whose
+  `getObsoleteTech() == eTech`;
+- it ignores active-civilization UnitClass -> UnitType resolution;
+- normal Tech Advisor `WIDGET_TECH_TREE` -> `parseTechTreeHelp` calls
+  `setTechHelp` with `bPlayerContext=true` and `bTreeInfo=false` for an
+  unresearched technology;
+- current `TECH_CIVIL_SERVICE` therefore lists generic units plus foreign UUs;
+- adjacent obsolete-building handling and the ordinary `Can Train` block both
+  use civilization-aware class resolution;
+- repair is to resolve UnitClass through the active civilization instead of
+  globally enumerating UnitInfo.
+
+The new-thread archaeology adds one useful refinement to F388 but does not form
+another root:
+
+    a134450486e0104df9473d46017ebc6e4d7bc553 (practical 5317)
+
+is the semantic introduction of unit ObsoleteTech help and already contained
+the global UnitInfo loop. Later practical 5332 / `8340dcb4...` only consolidated
+those pre-existing per-unit bullets into a comma-separated line. Therefore any
+future repair note for F388 should attribute the semantic context omission to
+practical 5317, not practical 5332.
+
+F420 is consequently still UNUSED.
+
+-------------------------------------------------------------------------------
+DUPLICATE 2 — F419 / KI#742 == EXISTING F389 / KI#712
+-------------------------------------------------------------------------------
+F419 states that `CvGameTextMgr::setFoundHealthHelp` prints nearby-feature
+`iBadHealth` in the negative player-wide `iExtraHealth` branch, with current
+TECH_DEPOPULATION making the negative branch ordinarily live.
+
+That is already exactly F389 / KI#712. F389 contains the same wrong-variable
+branch, the same player-wide health runtime contract, and the same repair
+boundary. F419 therefore adds no independent producer or violated contract.
+
+The secondary wording concern recorded beside F419 (the aggregate being labeled
+"from trait") is also not new: it was already separately confirmed as F390 /
+KI#713. Thus F419 cannot be salvaged as a different wording root either.
+
+Disposition:
+
+    F419 / KI#742 = DUPLICATE OF F389 / KI#712
+    secondary wording = already F390 / KI#713
+
+Do not implement or count KI#742 independently. Repository docs can be reconciled
+later by the user/Codex; this investigation does not modify them.
+
+-------------------------------------------------------------------------------
+CURRENT AUTHORITATIVE STONE
+-------------------------------------------------------------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` OPEN.
+32/169 unique files complete.
+F388-F418 are the distinct confirmed roots in this protected Queue-003 run.
+F419/KI#742 is duplicate-reconciled into F389/KI#712.
+F420/KI#743 is UNUSED and available for the next genuinely independent root.
+Latest physical checkpoint: C031-WIP122R.
+No repository source files modified.
+
+Next continuation must use this reconciled state, not the superseded temporary
+WIP122. Continue the remaining low-mention/current-delta/mechanical closure
+sweeps and only promote F420 with a root not already present anywhere in the
+album.
+
+END C031-WIP122R
+
+
+===============================================================================
+C031-WIP123 — F420 CONFIRMED: HEALTH BREAKDOWN SPLITS A RUNTIME-NETTED VALUE
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F388-F418 remain the distinct earlier Queue-003 roots.
+F419 / provisional KI#742 remains duplicate-reconciled into F389 / KI#712.
+F420 / KI#743 is now CONFIRMED.
+F421 / provisional KI#744 is UNUSED.
+No repository source files modified.
+
+-------------------------------------------------------------------------------
+F420 / KI#743 — CONFIRMED
+-------------------------------------------------------------------------------
+TITLE:
+CITY HEALTH HOVER SPLITS PLAYER-WIDE AND CITY-LOCAL EXTRA HEALTH EVEN THOUGH
+RUNTIME NETS THEM FIRST, SO OPPOSITE-SIGNED CURRENT SOURCES MISSTATE THE
+COMPONENT TOTALS
+
+CLASSIFICATION:
+K-Mod-origin health-help integration mismatch retained by Base AdvCiv and current
+SAS; latent under K-Mod/Base-AdvCiv normal data, made ordinarily live by SAS's
+negative-health Depopulation technology together with an inherited positive
+city-health random event.
+
+WHY THIS IS DISTINCT FROM F389/F390:
+F389/KI#712 concerns `setFoundHealthHelp` and a direct wrong-variable typo in a
+future-city founding preview. F390/KI#713 concerns the aggregate player-health
+source being mislabeled "from trait". F420 is instead in the ordinary selected-
+city health breakdown (`setBadHealthHelp` / `setGoodHealthHelp`) and is caused by
+splitting two operands that runtime deliberately combines before sign clamping.
+It therefore has a separate caller, producer shape and repair contract.
+
+PREVIOUS DORMANT CONTROL REACTIVATED:
+An earlier whole-file sweep had already noticed the semantic seam and correctly
+kept it unnumbered at that time:
+
+    CvCity::goodHealth()/badHealth() combine
+        GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth()
+    before clamping, while TextMgr prints the two values independently.
+
+That control was dismissed because the then-audited current data was believed to
+provide no ordinary opposite-signed pair. The later F389 investigation proved
+that assumption stale: current enabled `TECH_DEPOPULATION` has `iHealth = -9`
+and feeds that value into `CvPlayer::changeExtraHealth` on acquisition.
+
+RUNTIME CONTRACT:
+Current `CvCity::goodHealth()` uses:
+
+    iHealth += std::max(0,
+            GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth());
+
+Current `CvCity::badHealth()` analogously uses:
+
+    iHealth += std::min(0,
+            GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth());
+
+Thus these are not two independent health buckets. They are one net ExtraHealth
+contribution whose sign is determined only after player-wide and city-local
+values have been added.
+
+CURRENT TEXTMGR CONTRACT VIOLATION:
+`setBadHealthHelp` independently checks and prints:
+
+    GET_PLAYER(kCity.getOwner()).getExtraHealth()
+
+when it is negative, then independently checks `kCity.getExtraHealth()` only
+when that second value is negative.
+
+`setGoodHealthHelp` does the mirror image, printing the player value if positive
+and the city value if positive.
+
+Therefore opposite signs are never allowed to cancel in the source lines even
+though runtime cancels them before assigning anything to healthy/unhealthy.
+Both helpers then print footers from the correct runtime totals (`goodHealth()` /
+`badHealth()`), so the displayed components can visibly fail to add up to their
+own footer.
+
+LIVE CURRENT-SAS PLAYER-WIDE NEGATIVE SOURCE:
+Current enabled Future-era `TECH_DEPOPULATION` has:
+
+    <iHealth>-9</iHealth>
+    <bDisable>0</bDisable>
+
+and ordinary team-tech acquisition executes:
+
+    kMember.changeExtraHealth(kTech.getHealth() * iChange);
+
+Its current prerequisites are enabled (OR Composites; AND Satellites, Computers
+and Environmentalism), so this is normal reachable tree content, not a hidden
+option or debug-only state.
+
+LIVE CURRENT-SAS CITY-LOCAL POSITIVE SOURCE:
+Current inherited `EVENT_HORTICULTURE_3` has:
+
+    <bPickCity>1</bPickCity>
+    <iHealth>3</iHealth>
+
+`CvEventInfo::isCityEffect()` is loaded directly from the XML `bPickCity` field,
+and `CvCity::applyEvent` applies such event health through:
+
+    changeExtraHealth(kEvent.getHealth());
+
+The Horticulture trigger is ordinary current content:
+- 80% games active;
+- weight 200;
+- Calendar prerequisite;
+- normal owned Forest/Jungle plot requirement;
+- `bPickCity=1`;
+- no obsolete tech.
+
+Its selectable `EVENT_HORTICULTURE_2` outcome has a 67% AdditionalEventChance for
+`EVENT_HORTICULTURE_3`. The +3 city value is persistent state: `m_iExtraHealth`
+is incremented by `changeExtraHealth`, serialized in city saves, and Horticulture
+3 has no EventTimes/ClearEvents entry that later removes it.
+
+Thus an ordinary Calendar-era city can permanently acquire +3 city-local health
+and later survive into the Future era when its owner researches Depopulation.
+No WorldBuilder, Python injection, custom scenario or mod-mod XML is needed.
+
+CONCRETE CURRENT-SAS FAILURE:
+Take such a Horticulture city after Depopulation, with no other player-wide
+ExtraHealth offset for the simple example:
+
+    CvPlayer::getExtraHealth() = -9
+    CvCity::getExtraHealth()   = +3
+
+Runtime nets them first:
+
+    -9 + 3 = -6
+
+so this pair contributes exactly 6 unhealth and 0 health.
+
+But `setBadHealthHelp` prints the full player-wide 9 unhealth source because it
+checks -9 independently. It does not print the +3 city value in the bad section
+because +3 is positive. The helper's final `TOTAL_UNHEALTHY` footer, however,
+uses `kCity.badHealth()` and therefore incorporates only the correct net -6.
+Its listed components consequently overstate unhealth by 3.
+
+The good-health side has the mirror semantic problem: when the city has any
+other positive source causing `goodHealth()>0`, `setGoodHealthHelp` can list the
++3 city ExtraHealth line even though this +3 contributes zero to runtime good
+health because it is consumed by the -9 player-wide value before clamping.
+
+LIVE UI CALLER:
+Current `CvMainInterface.py` attaches `WIDGET_HELP_HEALTH` to the ordinary city
+screen `HealthText`. `CvDLLWidgetData::parseHealthHelp` then calls:
+
+    GAMETEXT.setBadHealthHelp(szBuffer, *pHeadSelectedCity);
+    ...
+    GAMETEXT.setGoodHealthHelp(szBuffer, *pHeadSelectedCity);
+
+This is the standard selected-city health hover, so the mismatch is directly
+player-facing.
+
+ANCESTRY:
+The supplied stock-BtS/Civ4CE source has only player-wide ExtraHealth in both
+runtime good/bad health and the matching TextMgr breakdown; it does not have the
+city-local operand in this contract.
+
+The supplied K-Mod source is the first point in the local lineage where runtime
+uses:
+
+    GET_PLAYER(...).getExtraHealth() + getExtraHealth()
+
+while its TextMgr simultaneously displays player ExtraHealth and
+`city.getExtraHealth()` as separate sign-filtered lines. Base AdvCiv retains the
+same semantic split, as does current SAS (with AdvCiv wording/refactoring around
+the individual lines).
+
+K-Mod already has positive city-local event health such as Horticulture 3, but
+its supplied stock data has no negative direct tech/event health source that
+creates the opposing-sign player-wide side. Base AdvCiv likewise has no ordinary
+negative player-wide direct health source in the checked event/tech/civic/trait
+XML. Hence the mismatch remained data-masked there.
+
+SAS's Future-era Depopulation health penalty removes that masking condition.
+This makes F420 best classified as a latent K-Mod integration mismatch retained
+through AdvCiv and activated by current SAS data.
+
+REPAIR DIRECTION:
+Make the ordinary health breakdown honor the same net ExtraHealth bucket as
+runtime. The player-wide and city-local values should be combined before deciding
+whether this source contributes to the good or bad section, e.g. conceptually:
+
+    iExtraHealth = GET_PLAYER(kCity.getOwner()).getExtraHealth()
+                 + kCity.getExtraHealth();
+
+and then print only the positive net in `setGoodHealthHelp` and only the negative
+net magnitude in `setBadHealthHelp`.
+
+If source attribution is preserved, it must still reconcile to that net rather
+than presenting the two operands as independent health buckets. F390 separately
+covers the existing inaccurate "from trait" attribution of the aggregate player
+value and should not be conflated with this arithmetic repair.
+
+-------------------------------------------------------------------------------
+POST-F420 CONTROLS / CONTINUATION STONE
+-------------------------------------------------------------------------------
+The small technology-effect builder tranche checked immediately before F420 did
+not yield another root: additive worker/feature-production/trade-route/health/
+happiness/domain-move fields track runtime acquisition; free-unit help delegates
+to `CvPlayer::getTechFreeUnit`; boolean capability helpers checked so far honor
+the relevant team state. Existing option mismatches remain the already-numbered
+F394-F396 family.
+
+The specialist-link singular/plural polarity concern remains the already-recorded
+latent grammar/link hazard: visible source text is unchanged and the only
+potential effect lies in the EXE-side localized link resolver unavailable to
+local proof. Do not promote it without new evidence.
+
+CURRENT AUTHORITATIVE STONE:
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` OPEN.
+32/169 unique files complete.
+F388-F418 distinct earlier roots.
+F419/KI#742 duplicate of F389/KI#712.
+F420/KI#743 CONFIRMED.
+F421/KI#744 UNUSED.
+Latest physical checkpoint: C031-WIP123.
+No repository source files modified.
+
+Next continuation: use the reconciled-album-before-promotion discipline and move
+into the remaining SAS/K-Mod-added low-mention helpers plus whole-file source-
+vs-target, sentinel, caller-context and arithmetic closure sweeps. Give priority
+to current-data activations of previously documented dormant hazards, because
+F420 showed that later SAS content can invalidate an older "data-masked" control.
+
+END C031-WIP123
+
+
+===============================================================================
+C031-WIP124 — PROTECTED QUEUE 003 CvGameTextMgr.cpp — F421 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F388-F418 distinct earlier roots.
+F419/KI#742 remains RETRACTED as a duplicate of F389/KI#712.
+F420/KI#743 CONFIRMED.
+F421/KI#744 CONFIRMED.
+F422 / provisional KI#745 UNUSED.
+No repository source files modified.
+
+-------------------------------------------------------------------------------
+F421 / KI#744 — CONFIRMED
+-------------------------------------------------------------------------------
+TITLE:
+CORPORATION MAINTENANCE CACHE EMBEDS THE INVERSE OF THE INFLATION RATE BUT IS
+NOT REFRESHED WHEN INFLATION CHANGES, SO STABLE CORPORATION CITIES CAN BE
+SYSTEMATICALLY OVERCHARGED AS THE GAME ADVANCES
+
+CLASSIFICATION:
+Inherited stock-BtS runtime cache defect. Present in stock BtS/Civ4CE, later
+explicitly recognized in K-Mod source as "obviously a bug", and retained by
+Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+HOW THIS SURFACED FROM THE TEXTMGR AUDIT:
+The post-F420 pass reopened `setCorporationHelpCity` because that helper
+recalculates corporation maintenance and then restores inflation for its displayed
+corporation cost. A first lead concerned per-component versus aggregate rounding.
+That weaker lead does not justify a new finding by itself: with a freshly updated
+maintenance cache, the corporation icon has no independent aggregate total against
+which its per-corporation allocation must sum exactly.
+
+Tracing the helper back to the actual city-maintenance producer exposed a much
+harder defect: the corporation-maintenance term stored in `m_iMaintenance` depends
+on the current inflation rate, but inflation changing with game time does not
+invalidate that cache.
+
+RUNTIME CONTRACT:
+Current `CvCity::calculateCorporationMaintenanceTimes100(eCorporation)` computes
+normal corporation maintenance and then deliberately divides by inflation:
+
+    int iInflation = GET_PLAYER(getOwner()).calculateInflationRate() + 100;
+    if (iInflation > 0)
+    {
+        iMaintenance *= 100;
+        iMaintenance /= iInflation;
+    }
+
+The reason for that inverse factor is that ordinary expenses later pass through
+`CvPlayer::calculateInflatedCosts`:
+
+    int iCosts = calculatePreInflatedCosts();
+    iCosts *= std::max(0, calculateInflationRate() + 100);
+    iCosts /= 100;
+
+Thus, when recomputed at the same inflation rate, corporation maintenance is
+intended to be approximately inflation-neutral: the inverse factor inside the
+corporation component cancels the later general expense inflation.
+
+CACHE CONTRACT:
+`CvCity::updateMaintenance()` calculates:
+
+    iNewMaintenance = calculateBaseMaintenanceTimes100() *
+            max(0, getMaintenanceModifier() + 100) / 100;
+
+and stores it in `m_iMaintenance`. `calculateBaseMaintenanceTimes100` includes
+`calculateCorporationMaintenanceTimes100()`.
+
+Therefore the inverse-inflation divisor used at the moment of a maintenance
+refresh becomes embedded in the persistent city-maintenance cache.
+
+But current `calculateInflationRate()` is a live calculation from game turn /
+elapsed turns, game speed, handicap and modifiers. It increases as the game
+advances without modifying any of the inputs that normally call
+`updateMaintenance()`.
+
+INVALIDATION FAILURE:
+A complete source grep of current SAS maintenance refreshes finds updates for
+specific state mutations such as:
+- city creation/removal;
+- population changes;
+- government-center / maintenance-modifier changes;
+- corporation/resource updates;
+- relevant player modifiers, anarchy-state changes, religion/capital changes;
+- a few Rise & Fall / vassal-state transitions.
+
+There is no ordinary per-turn `CvPlayer::updateMaintenance()` and no hook that
+refreshes city maintenance merely because `calculateInflationRate()` has advanced.
+`CvCity::doTurn()` likewise does not refresh maintenance unconditionally.
+
+Consequently a stagnant corporation city whose population, corporation/resource
+network, maintenance modifiers and other invalidating state remain unchanged can
+retain an inverse-inflation divisor from many turns earlier.
+
+DIRECTION OF THE ERROR:
+Suppose the cache was last refreshed at inflation I_old and the current inflation
+has risen to I_new. Ignoring integer truncation for clarity, the corporation
+portion stored in city maintenance is proportional to:
+
+    nominal corporation maintenance * 100 / (100 + I_old)
+
+but current general expenses multiply it by:
+
+    (100 + I_new) / 100
+
+so the final corporation burden becomes proportional to:
+
+    nominal * (100 + I_new) / (100 + I_old)
+
+rather than nominal.
+
+Since ordinary inflation rises over time, a stale cache normally OVERCHARGES the
+corporation. The longer the cache survives without an unrelated maintenance
+refresh, the larger the drift can become.
+
+CONCRETE CURRENT-SAS NUMERIC CONSTRUCTION:
+Use current Normal speed, Standard world size and Noble handicap. Relevant XML:
+
+    Normal iInflationPercent              = 30
+    Normal iInflationOffset               = -90
+    Standard CorporationMaintenancePercent = 100
+    Noble CorporationMaintenancePercent    = 100
+
+Use current Cereal Mills (`CORPORATION_1`), which has:
+
+    iMaintenance = 100
+    total HeadquarterCommerce = 4
+
+Take a population-20 corporation city with ten qualifying connected grain
+resources, no city maintenance modifier and no player corporation-maintenance
+modifier.
+
+Before the inverse-inflation step its corporation maintenance is:
+
+    HQ term                 = 4 * 100 = 400 hundredths
+    resource term           = 10 * 100 = 1000 hundredths
+    subtotal                = 1400
+    population factor       = (20 + 17) / 18
+    floor(1400 * 37 / 18)   = 2877 hundredths
+
+On an ordinary Normal-speed timeline with game turn == elapsed turns, current
+SAS inflation is 48% at turn 224 and 59% at turn 250.
+
+If the city's maintenance is refreshed at turn 224, the cached corporation term
+becomes:
+
+    floor(2877 * 100 / 148) = 1943 hundredths
+
+A normal whole-player refresh can happen, for example, when anarchy ends;
+`changeAnarchyTurns` calls `updateMaintenance()` when the anarchy state changes.
+
+Now let the city remain stable through turn 250: no population change, resource
+network change, corporation change, maintenance-modifier change or other refresh
+producer. `CvCity::doTurn` does not itself refresh maintenance each turn.
+
+At turn 250 the CORRECT freshly calculated inverse-inflation term would be:
+
+    floor(2877 * 100 / 159) = 1809 hundredths
+
+but the stored city cache still contains 1943. It is therefore already 134
+hundredths (1.34 pre-inflated gold) too high for this one corporation city.
+
+Applying the current 59% general inflation illustrates the intended cancellation
+versus the stale result at component precision:
+
+    fresh: floor(1809 * 159 / 100) = 2876 hundredths ~= 28.76 gold
+    stale: floor(1943 * 159 / 100) = 3089 hundredths ~= 30.89 gold
+
+The stale component is about 2.13 gold/turn above the inflation-neutral target
+before the engine's later whole-expense aggregation/truncation.
+
+This is not restricted to sub-gold noise. If ten otherwise stable corporation
+cities have the same 134-hundredth stale excess, `m_iTotalMaintenance` is 1340
+hundredths too high. Regardless of the unrelated maintenance fractional residue,
+`getTotalMaintenance()` is then 13 or 14 whole pre-inflation gold too high; at
+59% inflation that necessarily changes the final charged expenses by roughly
+20+ gold/turn.
+
+LIVE TEXTMGR CONSEQUENCE:
+Current `setCorporationHelpCity` does NOT read the cached corporation portion.
+It calls `calculateCorporationMaintenanceTimes100(eCorporation)` afresh using the
+CURRENT inflation rate and then multiplies by the current inflation factor for
+display (a K-Mod UI change).
+
+Thus after the cache has gone stale the corporation icon can continue to show the
+roughly inflation-neutral/current corporation maintenance while the player's
+actual cached city maintenance is based on an older, larger inverse-inflation
+term. The UI can therefore understate the maintenance actually feeding the
+player's expenses. This is a symptom of the runtime cache root, not a separate
+TextMgr finding.
+
+ANCESTRY:
+Stock BtS/Civ4CE already has all essential pieces:
+- corporation maintenance divides by `calculateInflationRate() + 100`;
+- city maintenance is cached through `m_iMaintenance` / `updateMaintenance()`;
+- inflation is time-dependent;
+- there is no per-turn maintenance refresh tied to inflation.
+
+So the runtime root is stock BtS, not a K-Mod invention.
+
+K-Mod later made inflation itself cached/updated per turn. In practical commit
+1195, SHA `8c6e324ab4e02e1276b0f565d8746696d4f2ee51`, source commentary explicitly
+states that because city maintenance is cached, the inverse inflation correction
+can remain unchanged while inflation grows, making corporation maintenance too
+high, and concludes:
+
+    "This is obviously a bug; but I'm not going to worry about it right now."
+
+That K-Mod commit documents rather than introduces the root.
+
+K-Mod practical 1197 (`efe8a852fa0d6c56a7c3dd57af2eeced1a99b72c`) then changed
+`setCorporationHelpCity` to include inflation when displaying costs, but did not
+repair maintenance-cache invalidation.
+
+AdvCiv's early import/refactor (`f6ff6a182f5187541fff6e5bbbe12f9573b3778c`)
+removed K-Mod's stored `m_iInflationRate` / `updateInflationRate()` and returned
+inflation to an on-demand `calculateInflationRate()` result. It retained the
+inverse-inflation corporation-maintenance formula and still did not add a
+maintenance refresh when time changes. Base AdvCiv 1.14 and current SAS therefore
+retain the stock defect.
+
+REPAIR DIRECTION:
+The conservative repair is to keep the intended inflation-neutral corporation
+rule but ensure that any cached maintenance containing the inverse inflation term
+is rebuilt whenever the effective inflation rate changes, before that maintenance
+is used for economic charging / UI totals.
+
+Possible implementations include:
+- track the inflation rate used for the maintenance cache and call
+  `CvPlayer::updateMaintenance()` when the effective rate changes;
+- refresh maintenance at a turn transition point that is guaranteed to precede
+  all expense calculations for that inflation rate (ideally only when the rate
+  actually changes, and potentially only for players with active corporations);
+- architecturally remove the time-varying inverse-inflation term from persistent
+  cached city maintenance and handle corporation inflation cancellation outside
+  that cache.
+
+Simply deleting the inverse-inflation division would make corporation maintenance
+inflate normally and would therefore be a gameplay-rule change rather than the
+minimal bug fix.
+
+ROUNDING / DECOMPOSITION CONTROL THAT LED HERE:
+With a freshly updated cache, `setCorporationHelpCity` applies city maintenance
+modifier and inflation to one corporation separately, whereas actual city/player
+expenses aggregate components and perform integer truncation at later stages.
+This can create one-gold allocation differences. However the corporation hover
+has no independently displayed aggregate total that its one-corporation number
+must sum to, unlike F400's internally contradictory Finance Advisor breakdown.
+Without a stronger semantic contract, keep that as presentation/decomposition
+debt rather than creating a second finding. F421 is the independently provable
+runtime cache defect.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER F421
+-------------------------------------------------------------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` OPEN.
+32/169 unique files complete.
+F388-F418 distinct earlier roots.
+F419/KI#742 duplicate/retracted.
+F420/KI#743 CONFIRMED.
+F421/KI#744 CONFIRMED.
+F422 / provisional KI#745 UNUSED.
+Latest physical checkpoint: C031-WIP124.
+No repository source files modified.
+
+Next continuation: preserve the reconciled-album-before-promotion discipline.
+Resume the data-masked-control activation sweep and the remaining low-mention
+SAS/K-Mod TextMgr deltas. In particular, inspect other helpers that recalculate
+values from current dynamic state while the actual runtime consumes a cached
+quantity, because F421 shows that such fresh-help/cached-runtime splits can hide
+old invalidation defects. Then continue whole-file source-vs-target, sentinel,
+localization and arithmetic closure sweeps.
+
+END C031-WIP124
+
+
+===============================================================================
+C031-WIP125 — FULL LITERAL LOCALIZATION-CONTRACT SWEEP + F422-F425 CONFIRMED
+===============================================================================
+
+Continuation state on entry:
+- Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` OPEN.
+- F421/KI#744 confirmed in C031-WIP124.
+- F422/provisional KI#745 unused.
+- No repository source files modified.
+
+This tranche completed the mechanical cross-language contract pass that had been
+started after WIP124. An initial parser was deliberately discarded before any
+finding was frozen because it did not robustly handle comments/nested C++ calls.
+The corrected pass strips C/C++ comments, balances calls syntactically and parses
+ordinary percent placeholders plus indexed grammar references before comparing
+those references with the arguments actually supplied by each literal
+`gDLL->getText("TXT_KEY_...")` call.
+
+AUTHORITATIVE SCAN SIZE
+-----------------------
+Current `CvGameTextMgr.cpp` contains, after comment removal:
+
+    1252 active literal getText calls
+     980 distinct literal localization keys
+
+The corrected scan found:
+
+* two effective keys absent from the loaded Civ4/Warlords/BtS/SAS text set;
+* ten out-of-range language/call combinations, representing only three source
+  roots (four languages for one root, five languages for the already-known
+  dormant negative-event-health root, and one Spanish root);
+* eight percent-placeholder signature differences across languages, collapsing
+  to five semantic candidates after identical multi-language roots are grouped;
+* two `%d` versus `%D` language differences that do not by themselves prove a
+  behavioral defect;
+* one literal placeholder-looking token without `%`, the French Pacifism root
+  promoted below as F423.
+
+The scan was then reconciled against the album and current XML/caller reachability
+before assigning any number. In particular, it mechanically rediscovered the
+already-recorded dormant negative-event-health city/global key mismatch and did
+not duplicate it.
+
+-------------------------------------------------------------------------------
+F422 / provisional KI#745 — FRENCH CITY-BAR ANGER LOCALIZATION PRINTS THE ANGRY
+POPULATION ARGUMENT TWICE, INSERTING AN EXTRA NUMBER BEFORE THE TURN COUNT NOUN
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File family: CvGameCoreDLL/CvGameTextMgr.cpp + Assets/XML/Text/CIV4GameText_advc.xml
+Primary function: CvGameTextMgr::setCityBarHelp
+Classification: AdvCiv French localization typo introduced with advc.186 city-bar
+hover integration; retained by Base AdvCiv 1.14 and current SAS.
+
+ROOT
+----
+The C++ contract is unambiguous:
+
+    szString.append(gDLL->getText("TXT_KEY_CITY_BAR_ANGER_TIMER",
+            iAngryPop, iAngerTimer));
+
+There are exactly two arguments:
+
+    %d1 = displayed angry population
+    %d2 = displayed anger timer
+
+The current English/German/Italian/Spanish strings use those two arguments once.
+French instead contains:
+
+    -%d1[ICON_UNHAPPY] pour %d2 %d1 [NUM2:tour:tours]
+
+The second `%d1` has no grammatical role. It repeats the angry-population number
+between the timer and the noun selected from argument 2.
+
+For example, if the helper supplies `(3, 10)`, the French text structurally
+contains:
+
+    -3 unhappy pour 10 3 tours
+
+rather than the intended equivalent of `-3 unhappy for 10 turns`.
+
+CURRENT REACHABILITY
+--------------------
+This is an ordinary current-SAS path:
+
+* `setCityBarHelp` executes this block for the active player's city when the BUG
+  option `CityScreen__Anger_Counter` is enabled.
+* Current `Assets/Config/BUG City Screen.xml` sets that option to `default="True"`.
+* Any positive hurry, conscription or defy-resolution anger timer reaches the
+  formatter.
+* F407 already provides a fully current-data construction with simultaneous
+  hurry/draft anger; no special scenario or custom XML is needed merely to
+  reach the localization key.
+
+DISTINCT FROM F407
+------------------
+F407 is the C++ arithmetic root in the same display: AdvCiv takes the maximum of
+multiple temporary-anger sources where runtime adds them. F422 remains wrong even
+if F407 is repaired perfectly, because it is an independent French XML format
+string typo. Conversely, changing this French string does not repair F407.
+
+ANCESTRY
+--------
+Reachable-history practical commit 3010:
+
+    92202f546295e43857d6172e1b9c6665446e68a5
+    "Overhaul city bar hover text (based on BULL)"
+
+introduced both the C++ call and `TXT_KEY_CITY_BAR_ANGER_TIMER`. Its introducing
+diff already contains the duplicate French `%d1`. Base AdvCiv 1.14 and current
+SAS retain it. This therefore belongs to AdvCiv's advc.186 integration rather
+than stock BtS/K-Mod.
+
+REPAIR DIRECTION
+----------------
+Remove the second `%d1` from the French localization, preserving argument 2 for
+the `[NUM2:tour:tours]` grammar token, e.g. structurally:
+
+    -%d1[ICON_UNHAPPY] pour %d2 [NUM2:tour:tours]
+
+This is a localization-only repair; it should be made independently of F407's
+C++ anger aggregation repair.
+
+-------------------------------------------------------------------------------
+F423 / provisional KI#746 — STOCK CIV4 FRENCH STATE-RELIGION GREAT-PEOPLE CIVIC
+HELP OMITS THE `%` BEFORE ARGUMENT 2 AND DISPLAYS `F2_Religion` AS LITERAL TEXT
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File family: CvGameCoreDLL/CvGameTextMgr.cpp + inherited Civ4 text XML
+Primary function: CvGameTextMgr::parseCivicInfo
+Classification: stock Civ4 French localization typo retained through BtS/K-Mod,
+AdvCiv and current SAS.
+
+ROOT
+----
+For a civic with a nonzero state-religion Great Person modifier, the generic /
+non-player-context branch supplies two arguments:
+
+    gDLL->getText("TXT_KEY_CIVIC_GREAT_PEOPLE_MOD_STATE_RELIGION",
+            kCivic.getStateReligionGreatPeopleRateModifier(),
+            gDLL->getSymbolID(RELIGION_CHAR));
+
+The inherited key is:
+
+English:
+    ... State %F2_Religion
+German/Italian/Spanish:
+    ... %F2_Religion ...
+French:
+    ... religion d'etat : F2_Religion
+
+French alone lacks the leading `%`. Therefore its second argument is never
+interpreted as the religion glyph/formatter token; the user instead receives the
+literal text `F2_Religion` at the end of the help line.
+
+CURRENT REACHABILITY
+--------------------
+Current `CIVIC_PACIFISM` has:
+
+    iStateReligionGreatPeopleRateModifier = 100
+
+and is normal current content (currently unlocked at Medicine).
+
+There are two ordinary current callers:
+
+1. Policy Advisor:
+
+       CyGameTextMgr().parseCivicInfo(iCivic, False, True, True)
+
+   If the active player currently has no state religion, `parseCivicInfo` takes
+   the `_STATE_RELIGION` branch.
+
+2. Current SAS Sevopedia civic page:
+
+       CyGameTextMgr().parseCivicInfo(self.iCivic, True, False, True)
+
+   Here `bPlayerContext == false`, so Pacifism's pedia effects always use the
+   `_STATE_RELIGION` key regardless of the active player's religion.
+
+Thus merely opening Pacifism in the current Sevopedia while the game language is
+French is sufficient to expose the malformed line.
+
+ANCESTRY
+--------
+`TXT_KEY_CIVIC_GREAT_PEOPLE_MOD_STATE_RELIGION` is present in the stock Civ4 text
+set represented by Civ4CE. Its English/German/Italian/Spanish entries contain
+`%F2_Religion`; its French entry already contains bare `F2_Religion`.
+No Warlords/BtS/SAS override repairs it. This is therefore a stock-Civ4 French
+text defect inherited intact through the lineage rather than an AdvCiv/SAS
+regression.
+
+REPAIR DIRECTION
+----------------
+Change French `F2_Religion` to `%F2_Religion`. No C++ change is required.
+
+-------------------------------------------------------------------------------
+F424 / provisional KI#747 — ADVCIV ESPIONAGE CIVIC/RELIGION COST WARNING PASSES
+ONE ARGUMENT BUT FOUR NON-ENGLISH LOCALIZATIONS REQUEST `%s2`
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File family: CvGameCoreDLL/CvGameTextMgr.cpp + Assets/XML/Text/CIV4GameText_advc.xml
+Primary function: CvGameTextMgr::setEspionageCostHelp
+Classification: AdvCiv advc.132 localization argument-index defect; introduced
+with the warning feature and retained by Base AdvCiv 1.14 and current SAS.
+Affected current languages: French, German, Italian, Spanish.
+
+ROOT
+----
+AdvCiv deliberately added a warning when a force-civic/force-religion espionage
+mission remains legal even though the spying player does not itself practice the
+chosen civic/religion. The formatter is called with exactly ONE argument:
+
+    gDLL->getText("TXT_KEY_ESPIONAGE_CIVIC_RELIGION_MOD",
+            kMission.getSwitchCivicCostFactor() > 0 ?
+            GC.getInfo((CivicTypes)iExtraData).getTextKeyWide() :
+            GC.getInfo((ReligionTypes)iExtraData).getTextKeyWide())
+
+English correctly references:
+
+    %s1_ReligionOrCivic
+
+but French, German, Italian and Spanish all reference:
+
+    %s2_ReligionOrCivic
+
+There is no argument 2. This is a hard localization/C++ contract mismatch, not a
+translation-style difference. Those four languages request an out-of-range
+placeholder whenever this warning branch is used.
+
+CURRENT REACHABILITY
+--------------------
+Current espionage XML retains both ordinary missions:
+
+    ESPIONAGEMISSION_SWITCH_CIVIC
+        iSwitchCivicCostFactor = 1000
+
+    ESPIONAGEMISSION_SWITCH_RELIGION
+        iSwitchReligionCostFactor = 1000
+
+Both are active city-targeting missions with no tech prerequisite in current XML.
+
+Current `CvPlayer::getEspionageMissionBaseCost` intentionally supports the exact
+mismatch state that the warning describes. For force-civic cost it adds 100 to
+the speed/anarchy modifier when the spying player is not using the candidate
+civic; for force-religion it analogously adds 100 when the spying player's state
+religion differs. In other words, mismatch does not invalidate the mission; it
+increases its cost.
+
+`CvDLLWidgetData::parseEspionageCostHelp` is the ordinary
+`WIDGET_HELP_ESPIONAGE_COST` path. It obtains the selected eligible Spy and calls
+`setEspionageCostHelp` with the mission, target plot/player and mission extra data.
+Thus an ordinary spy mission button hover can enter this warning path.
+
+ANCESTRY
+--------
+Reachable-history practical commit 4221:
+
+    cd4282f9fb8bf792a353e416fdfc5abf4fae0f3d
+    "Espionage cost breakdown warns when civic/religion not practised"
+
+introduced the C++ warning and its new localization key together. The introducing
+diff already has English `%s1` and FR/DE/IT/ES `%s2`. Base AdvCiv 1.14 and current
+SAS retain the mismatch.
+
+REPAIR DIRECTION
+----------------
+Change `%s2_ReligionOrCivic` to `%s1_ReligionOrCivic` in French, German, Italian
+and Spanish. The current C++ one-argument call is the intended contract and the
+English entry already demonstrates it.
+
+-------------------------------------------------------------------------------
+F425 / provisional KI#748 — SPANISH ZERO-ATTITUDE SUMMARY REQUESTS NONEXISTENT
+ARGUMENT 3 EVEN THOUGH THE ZERO CASE PASSES ONLY ATTITUDE AND LEADER NAME
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File family: CvGameCoreDLL/CvGameTextMgr.cpp + Assets/XML/Text/CIV4GameText_advc.xml
+Primary function: CvGameTextMgr::getAttitudeString
+Classification: early AdvCiv/advc.004q Spanish localization argument-index typo,
+present in the earliest tracked AdvCiv import and retained by current SAS.
+
+ROOT
+----
+The exact-zero Cautious branch calls:
+
+    gDLL->getText("TXT_KEY_ZERO_ATTITUDE_TOWARDS",
+            szAttitude, szTargetName)
+
+so the contract is:
+
+    %s1 = attitude description
+    %s2 = target leader name
+
+English/French/German/Italian all obey that contract. Spanish instead says:
+
+    Actitud hacia %s3_leader: %s1_attitude (+/- 0)
+
+There is no third argument in the zero branch.
+
+The copy/paste origin is especially clear in the neighboring positive/negative
+neutral-attitude keys. Those nonzero variants genuinely pass THREE arguments:
+attitude, numeric total, leader name, and therefore correctly use `%s3_leader`.
+The Spanish zero variant retained that third-argument index even though the zero
+formatter omits the numeric middle argument.
+
+CURRENT REACHABILITY
+--------------------
+This is an ordinary diplomacy/scoreboard state, not a rare XML branch:
+
+* current `AI_getAttitudeFromValue` returns Cautious for totals not reaching the
+  configured Friendly/Pleased/Annoyed/Furious thresholds;
+* current thresholds are Friendly >= 9, Pleased >= 4, Annoyed <= -2,
+  Furious <= -9, so an exact total of 0 is unambiguously Cautious;
+* `getAttitudeString` therefore selects `TXT_KEY_ZERO_ATTITUDE_TOWARDS` whenever
+  the visible summed attitude is exactly 0;
+* current `CvDLLWidgetData` invokes `getAttitudeString` in normal player /
+  scoreboard hover paths, and BUG `AttitudeUtil.py` also consumes the same DLL
+  string.
+
+Thus a Spanish game merely needs an AI relationship whose current visible total
+is exactly zero, a normal early/intermediate diplomacy state.
+
+ANCESTRY
+--------
+The key appears in reachable-history practical commit 1253:
+
+    f6ff6a182f5187541fff6e5bbbe12f9573b3778c
+    "Initial commit (cont.)"
+
+inside the advc.004q attitude-summary text family. That earliest tracked entry
+already has `%s3_leader` in Spanish while the other four languages use `%s2`.
+A later attitude refactor retained the two-argument C++ call and did not repair
+the Spanish key. K-Mod/Civ4CE do not contain this AdvCiv key family.
+
+Because practical 1253 is an early history/import boundary, classify this as an
+early-AdvCiv/advc.004q defect present in the earliest tracked AdvCiv form rather
+than claiming that the import commit necessarily originated the typo historically.
+
+REPAIR DIRECTION
+----------------
+Change the Spanish zero-case leader placeholder from `%s3_leader` to
+`%s2_leader`. Leave the nonzero three-argument Spanish attitude keys at `%s3`.
+
+-------------------------------------------------------------------------------
+FULL-SWEEP CONTROLS / NON-FINDINGS PRESERVED AFTER F422-F425
+-------------------------------------------------------------------------------
+
+1. Already-known dormant negative-event-health key mismatch
+------------------------------------------------------------
+The corrected scanner flags `TXT_KEY_EVENT_UNHEALTH_CITY` because one current C++
+negative-health branch supplies only the numeric health argument although the key
+also expects `%s2_city`. This is the same already-recorded dormant event-health
+city/global-key mismatch, not a new root. Current Event XML still supplies no
+negative `iHealth`, so it remains data-dormant and consumes no number here.
+
+2. `TXT_KEY_BUILDING_RELIGION_YIELD` German omits `%s1`
+--------------------------------------------------------
+Other languages name the building/religion argument. German instead uses a
+self-contained description equivalent to "all religious buildings whose religion
+matches this building." It does not require the argument to preserve the effect's
+meaning. Treat as translation phrasing, not a contract bug.
+
+3. `%d` vs `%D` language differences
+------------------------------------
+The scanner finds Spanish `TXT_KEY_EVENT_HURRY_ANGER` and French
+`TXT_KEY_MISC_TOTAL_HEALTHY` differing in signed/unsigned-style placeholder code
+from English. No current source/runtime contradiction was proven from that alone.
+Do not promote without a concrete formatting failure.
+
+4. Missing `TXT_KEY_CIVIC_COLONY_MAINT_MOD`
+-------------------------------------------
+Current C++ asks for `TXT_KEY_CIVIC_COLONY_MAINT_MOD`, while AdvCiv text defines
+`TXT_KEY_CIVIC_COLONYE_MAINT_MOD` (extra E). This is a genuine AdvCiv key-name
+typo, but current SAS's only nonzero `iColonyMaintenanceModifier` is Vassalage at
+-100, which takes the separate "No Colonial Expenses" branch. The broken general
+modifier branch remains current-data dormant.
+
+5. Missing `TXT_KEY_CIV_UNKNOWN`
+--------------------------------
+`parseCivInfos(NO_CIVILIZATION, ...)` asks for `TXT_KEY_CIV_UNKNOWN`, and the
+combined stock+SAS text search finds no effective key. The branch is inherited
+from stock code. Known current Python callers pass concrete civilizations; an
+EXE-side SimpleCivPicker/random-civilization path may call the sentinel branch,
+but local source does not prove that. Preserve as an EXE-facing suspicion, not a
+finding.
+
+6. WorldBuilder Holy City / Headquarters extra arguments
+---------------------------------------------------------
+The stock WorldBuilder data helpers pass religion/corporation names into generic
+keys whose shipped strings contain no placeholders. This may discard identifying
+text, but the functions are EXE-facing `DllExport` palette records and local
+source does not establish how the EXE displays those descriptions beside IDs /
+icons. Keep below threshold.
+
+7. Earlier partial scanner is superseded
+-----------------------------------------
+Do not reuse the earlier 529-key / 717-ish-call intermediate result. The
+comment-aware corrected scan above (1252 active literal calls / 980 unique keys)
+is authoritative for this tranche.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER F425
+-------------------------------------------------------------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` OPEN.
+32/169 unique files complete.
+F388-F418 distinct earlier roots.
+F419/KI#742 duplicate/retracted.
+F420/KI#743 CONFIRMED.
+F421/KI#744 CONFIRMED.
+F422/KI#745 CONFIRMED.
+F423/KI#746 CONFIRMED.
+F424/KI#747 CONFIRMED.
+F425/KI#748 CONFIRMED.
+F426 / provisional KI#749 UNUSED.
+Latest physical checkpoint: C031-WIP125.
+No repository source files modified.
+
+NEXT
+----
+Continue from F426 unused rather than stopping at the localization finds.
+First finish the localization closure beyond strict argument indices: inspect
+literal calls whose C++ supplies arguments that every effective localization
+ignores, missing-language/fallback behavior where locally provable, and suspicious
+same-language sibling/copy-paste key contracts. Keep `TXT_KEY_CIV_UNKNOWN` below
+threshold unless an ordinary current caller is proven. Then return to the
+remaining source-vs-target, cache-vs-live, sentinel/index and SAS/AdvCiv delta
+closure sweeps for `CvGameTextMgr.cpp`.
+
+END C031-WIP125
+
+===============================================================================
+C031-WIP126 — POST-LOCALIZATION CLOSURE / GET_TEAM OVERLOAD RECONCILIATION
+===============================================================================
+
+STATUS
+------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` remains OPEN.
+32/169 unique files complete.
+F388-F418 distinct earlier roots.
+F419/KI#742 duplicate/retracted.
+F420/KI#743 through F425/KI#748 confirmed.
+F426 / provisional KI#749 remains UNUSED.
+No repository source files modified.
+
+WORK SINCE WIP125
+-----------------
+The post-localization sweep first rechecked several old dormant controls against
+current 6351-era SAS data. The Groundbreaking/research-modifier overlap remains
+masked: TECH_DIFFUSION_ENABLE, AI_GROUNDBREAKING_PENALTY_ENABLE and
+HUMAN_GROUNDBREAKING_PENALTY_ENABLE are all still 0. The source contradiction in
+setResearchModifierHelp therefore remains future/mod-mod debt rather than a
+current finding.
+
+A function-level SAS-vs-Base-AdvCiv delta map was also rebuilt. The executable /
+textual current deltas had already received prior finding-or-control
+classification. In particular, the self-referential debug cache
+
+    static const SpecialistTypes eDefaultSpecialist =
+            (SpecialistTypes)eDefaultSpecialist;
+
+in setPlotHelpDebug_ShiftAltOnly is still a genuine source typo but remains data
+masked because current enum 0 and DEFAULT_SPECIALIST are both SPECIALIST_CITIZEN.
+It does not consume F426.
+
+FALSE-POSITIVE FAMILY CLOSED — GET_TEAM(PlayerTypes) IS TYPE-AWARE
+------------------------------------------------------------------
+A mechanical player/team-domain scan made three current expressions look highly
+suspicious:
+
+    setResearchStr:
+        GET_TEAM(ePlayer).getTechCount(...)
+
+    getVassalInfoString:
+        CvTeam const& kTeam = GET_TEAM(ePlayer);
+
+    parseWarTradesHelp:
+        GET_TEAM(eThisPlayer).isAtWar(...)
+        GET_TEAM(eOtherPlayer).isHuman()
+        GET_TEAM(eThisPlayer).AI_declareWarTrade(...)
+
+The history makes the syntax especially deceptive: old AdvCiv often used the
+TEAMREF(player) macro and practical 1679 mechanically changed many such calls to
+GET_TEAM(player); K-Mod's getVassalInfoString explicitly used
+GET_TEAM(GET_PLAYER(ePlayer).getTeam()), while AdvCiv practical 3062 later
+simplified it to GET_TEAM(ePlayer).
+
+These are nevertheless NOT player-ID-as-team-ID bugs. Current AdvCiv/SAS defines
+GET_TEAM through an overloaded helper. In the gameplay layer:
+
+    #define GET_TEAM(x) CvGamePlay::getTeam(x)
+
+    __forceinline CvTeam& getTeam(TeamTypes eTeam)
+    {
+        return CvTeam::getTeam(eTeam);
+    }
+
+    __forceinline CvTeam& getTeam(PlayerTypes ePlayer)
+    {
+        return CvTeam::getTeam(TEAMID(ePlayer));
+    }
+
+and the CoreAI layer analogously defines:
+
+    getTeam(PlayerTypes ePlayer)
+    {
+        return CvTeamAI::AI_getTeam(TEAMID(ePlayer));
+    }
+
+Therefore overload resolution preserves the PlayerTypes static type and converts
+the player through that player's actual team. This is safe when player and team
+numeric IDs differ, including team games / team reassignment.
+
+This exact semantic trap was already preserved in Queue-003 WIP97 and elsewhere
+in the album. The current recheck broadens that positive control explicitly to:
+
+* setResearchStr;
+* getVassalInfoString;
+* parseWarTradesHelp.
+
+Do not promote any of these merely because the source argument is named ePlayer.
+The old F113/KI#436 player/team-ID hypothesis was likewise retracted after this
+overload was traced. parseLeaderLineHelp has similar-looking calls but is already
+explicit dead code; it remains a dead-path control.
+
+The history remains useful for archaeology but does not change the runtime
+contract:
+
+* practical 1679 (`1c56cc6ac1...`, "GET_PLAYER, GET_TEAM macros outside of AI
+  headers") converts TEAMREF(player) spellings to GET_TEAM(player) precisely as
+  part of introducing the typed overload infrastructure;
+* practical 3062 (`457122d485...`, "Misc. refactoring") simplifies K-Mod's
+  explicit player->team chain in getVassalInfoString to that overloaded form.
+
+No F426 is consumed.
+
+OTHER CONTROLS CLOSED IN THIS TRANCHE
+-------------------------------------
+* The Finance foreign-income helper enumerates the same per-player gold-per-turn
+  state maintained by changeGoldPerTurnByPlayer; no independent hidden component
+  was established.
+* Civic upkeep help follows the same anarchy-aware upkeep path as the migrated
+  Domestic Advisor/runtime; no sibling to the already-numbered unit/supply
+  anarchy mismatch appeared.
+* The plot-list `appendUnitOwnerHeading` comma suspicion is false: when Other is
+  the only category, iOther == iTotal triggers the generic `(N Units)` fast path.
+  The comma branch is reachable only after Army or Navy has already set bFirst
+  false.
+* vassal-revolt ratios and trade-route calculation assertions were already
+  explicitly reconciled in WIP111 and were not re-promoted from low literal
+  mention counts.
+
+CURRENT STONE
+-------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` OPEN.
+32/169 unique files complete.
+F420-F425 are the latest confirmed distinct Queue-003 roots.
+F426 / provisional KI#749 UNUSED.
+Latest physical checkpoint: C031-WIP126.
+No repository source files modified.
+
+NEXT
+----
+Continue from F426 unused. With current SAS-vs-AdvCiv executable deltas already
+classified and the localization argument-contract family provisionally saturated,
+focus on inherited paired-branch/wrong-sibling-variable patterns, cache-vs-live
+state, aggregate-vs-component arithmetic, sentinel/index asymmetries, and old
+data-masked controls whose masking assumptions may have changed in current SAS.
+For any new candidate, search the reconciled album before promotion.
+
+END C031-WIP126
