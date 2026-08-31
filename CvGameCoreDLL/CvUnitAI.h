@@ -28,7 +28,8 @@ public:
 	int AI_groupFirstVal() const;
 	int AI_groupSecondVal() const;
 
-	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const;
+	// <!-- custom: Weighted group odds need the selected unit's combat odds before personality adjustment and the public 1..99 clamp; ordinary callers retain both by default. See KI#523. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy, bool bUnadjusted = false) const;
 	int AI_opportuneOdds(int iActualOdds, CvUnit const& kDefender) const; // advc
 
 	bool AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot = NULL, BuildTypes* peBestBuild = NULL, CvPlot* pIgnorePlot = NULL, CvUnit* pUnit = NULL, int* piBestValue = NULL, BuildTypes* peFollowupBuild = NULL) const;

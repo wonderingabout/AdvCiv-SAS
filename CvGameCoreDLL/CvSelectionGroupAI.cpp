@@ -407,7 +407,11 @@ int CvSelectionGroupAI::AI_getWeightedOdds(CvPlot const* pPlot, bool bPotentialE
 		adding them back in after the adjustments are done.
 		(A more elaborate fix would avoid adding them in the first place.) */
 	int const iAttackOddsChange = GET_PLAYER(getOwner()).AI_getAttackOddsChange();
-	iOdds -= iAttackOddsChange;
+	// <!-- custom: Subtraction remains exact away from the public clamp boundaries. At 1 or 99, recompute the selected attacker's unadjusted odds because the clamp may have discarded a true 0% or 100% endpoint.
+	// This implements AdvCiv's suggested elaborate fix without repeating combat-odds work for ordinary values. See KI#523. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (iOdds <= 1 || iOdds >= 99)
+		iOdds = pAttacker->AI_attackOdds(pPlot, bPotentialEnemy, true);
+	else iOdds -= iAttackOddsChange;
 	/*	Require a stack of at least 3 if actual odds are below 1%. Should
 		matter mostly for Barbarians, hence only this primitive condition
 		(not checking if the other units could actually attack etc.). */

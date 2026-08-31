@@ -605,7 +605,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-520)\
 [KI#521 - (Fixed inherited AdvCiv debug-assertion defect) Legal human bombardment of an undefended city asserted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-521)\
 [KI#522 - (Fixed AdvCiv-SAS KI#319 regression) Missionless transport unloading was mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-522)\
-[KI#523 - (Provisional Pending inherited AdvCiv arithmetic defect) Weighted odds cannot undo personality after clamping](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-523)\
+[KI#523 - (Fixed inherited AdvCiv arithmetic defect) Weighted odds could not undo personality after clamping](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-523)\
 [KI#524 - (Fixed AdvCiv-SAS KI#319 regression) Non-head bombard detachment was mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524)\
 [KI#524.2 - (Fixed inherited BtS/K-Mod/AdvCiv crash) Spy-border verification dereferenced an unplaced unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.2)\
 [KI#524.3 - (Fixed AdvCiv-SAS WAR diagnostic crash) Military-posture logging inspected an unplaced unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.3)\
@@ -12623,11 +12623,145 @@ The repair snapshots the selection group's total cargo and requires it to remain
 
 <a id="ki-523"></a>
 
-## KI#523 - (Provisional Pending inherited AdvCiv arithmetic defect) Weighted odds cannot undo personality after clamping
+## KI#523 - (Fixed inherited AdvCiv arithmetic defect) Weighted odds could not undo personality after clamping
 
-Album F200 finds AI_getWeightedOdds subtracting AttackOddsChange after public odds were already clamped to 1..99. Pending independent implementation review.
+AdvCiv's `AI_getWeightedOdds` intends to remove the leader's optimistic `AttackOddsChange`, apply nonlinear opportunity/value adjustments to the actual combat odds, and then restore the personality modifier. Both inherited odds producers had already added that modifier and clamped their public result to 1..99, however, so subtraction could not recover information lost at either endpoint. A true 99% chance with +16 personality became 83% before weighting, while a true rounded 0% chance with no bonus arrived as 1% and bypassed the explicit small-stack zero-odds safeguard. The nonlinear production, terrain, healing and city-opportunity adjustments made this materially different from merely adding the same bonus later.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix lets `CvUnitAI::AI_attackOdds` optionally return pre-personality odds over the full 0..100 range. Weighted group odds request that exact value for the already selected attacker whenever the public result is at a lossy 1/99 boundary; ordinary unclamped values retain the exact and cheaper subtraction. The inherited nonlinear policy then runs before restoring `AttackOddsChange` and the public 1..99 clamp. Other odds callers retain their existing adjusted/clamped contract by default, including both LFB and legacy/air-aware calculations.
+
+An initial combat-heavy Huge Pangaea, Normal-speed autoplay with 16 independent teams, standard Aggressive AI/full UWAI and No Events completed 418 turns and ended normally by Space Race victory. Its deliberately warlike cast was Alexander, Boudica, Cyrus, Ewuare, Genghis Khan, Gilgamesh, Grace O'Malley, Hannibal, Julius Caesar, Mao Zedong, Moctezuma, Napoleon, Ragnar, Saladin, Shaka and Stalin. Napoleon and Ragnar are the current personalities used by the audit's concrete reachable +16 `AttackOddsChange` proof.
+
+`SASGameRecord_20260831T164003Z_new2.log` subsequently exposed that the initial run had inadvertently retained a Release DLL. After a clean Debug-opt compilation, the same turn-0 save and roster were replayed to provide a controlled comparison. `SASGameRecord_20260831T170856Z_load1.log` identifies the new DLL as Debug-opt and records all 500 turns completing normally by Time victory, with 2,967 player combat wins, 2,860 player combat losses and 4,898 units produced across its intervals. These totals come directly from its `GAME_RECORD_MILITARY_FLOW` and `GAME_RECORD_PRODUCTION_FLOW` rows rather than visual estimation; its final `GAME_RECORD_RUN_STATUS` likewise supplies the eliminations, winner, score and military-power result below. Its context fields also say `fassertEnabled=0`, so this is optimized symbol-bearing coverage rather than assertion coverage. Recording DLL build type, fingerprint and source/save context made the validation-provenance mistake visible and allowed it to be corrected instead of inferred from memory. Exact 0/99 clamp transitions remain source/arithmetic verified.
+
+One unrelated, non-blocking AI observation from the replay is retained for future investigation: a Ragnar War Elephant visibly remained roughly 50 turns two tiles west and one tile south of a Numidian city, then departed shortly before Gilgamesh conquered that city. This behavior is not attributed to KI#523.
+
+This arithmetic defect was introduced by AdvCiv practical 114b and remains in Base AdvCiv 1.14; AdvCiv-SAS inherited it unchanged. Found as F200 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+### Side notes about this run (based on the SASGameRecord log)
+
+- The replay was unusually violent even for this deliberately aggressive roster: its almost six recorded player combat wins per turn are about 16% above the initial run's rate, eight of the 16 civilizations were eliminated, and Genghis Khan finished with the winning score and strongest military. In less formal terms, SASGameRecord shows that it became a useful "den of tigers" stress sample as well as controlled KI#523 validation. Its long timeline, heavy combat, eliminations, production history and explicit build/source/save metadata also make it a richer replacement for the maintained SASGameRecord example.
+- The raw replacement example deliberately retains the source commit hash captured when the game ran. This documentation and example replacement were then added by amending that commit, so the recorded hash names its pre-amend object; the commit count/version remains correct because an amend replaces one commit with one commit. Rewriting generated evidence to contain the later hash would falsely imply that the amended documentation existed in the DLL's runtime source context.
+
+Oh yes. Violent. Very violent. 😄
+
+Not merely “Aggressive AI produced a few more wars.” This run eventually turned into something resembling a 500-turn continental meat grinder followed by a nuclear late game.
+
+A few headline numbers from the record:
+
+16 civilizations started; only 8 survived.
+2,752 lethal civ-vs-civ battles, plus 709 nonlethal combat-limit engagements.
+Another 323 lethal battles involved Barbarians, mostly early-game.
+147 cities were conquered directly from one civilization by another.
+23 cities were deliberately razed by civilizations, destroying 235 population at the moment of razing. Barbarians razed another 3 tiny cities.
+The logger reconstructs 99 war-pair episodes. Of those, 54 were direct declarations; much of the remainder came from vassal alignment.
+There was at least one active war during roughly 375 of the 501 turns, and at peak there were 9 simultaneous war pairs.
+The game actually ended with 9 wars still active. 😄
+
+And then there's the nuclear part.
+
+The civs produced 60 nuclear weapons: 47 ICBMs + 13 tactical nukes. At turn 500, only 26 nukes remained in surviving inventories. I wouldn't equate the missing 34 mechanically with 34 successful nuclear strikes—some could have been intercepted/destroyed/otherwise consumed—but the log contains actual nuclear-fallout events beginning on turn 301 and continuing as late as turn 495, plus large MEMORY_NUKED_US counts between surviving powers.
+
+So yes, there was an actual nuclear exchange, not merely deterrence. 😆
+
+The diplomacy memories are particularly amusing/grim. By the end they include things like approximately:
+
+Genghis → Boudica: 14 “nuked us” memories
+Boudica → Ewuare: 7
+Saladin → Moctezuma: 6
+Ewuare → Boudica: 5
+Genghis → Ewuare: 4
+
+Those memory counts aren't necessarily one-to-one with individual warheads because a nuclear blast can implicate more than one party, but they're enough to establish that this was not a one-off Hiroshima moment.
+
+The casualty leaders are fun too
+
+For lethal civ-vs-civ combat:
+
+| Leader           |   Kills | Losses |      Net |
+| ---------------- | ------: | -----: | -------: |
+| **Ewuare**       | **530** |    343 | **+187** |
+| **Genghis Khan** | **484** |    475 |       +9 |
+| **Ragnar**       | **309** |    198 | **+111** |
+| **Cyrus**        |     259 |    322 |      -63 |
+| **Saladin**      |     257 |    207 |      +50 |
+| Julius Caesar    |     228 |    236 |       -8 |
+| Boudica          |     205 |    224 |      -19 |
+
+So interestingly, Genghis won the game but wasn't remotely the most efficient battlefield killer. Ewuare had the spectacular combat record: 530 kills against 343 losses.
+
+Genghis's distinguishing characteristic was territorial appetite.
+
+He directly conquered 40 civ-owned cities, by far the most of anyone. Ragnar took 19; Ewuare and Julius took 17 each; Saladin 15.
+
+And Genghis directly declared war 10 times, also the highest total, followed by Julius with 9 and Saladin with 7.
+
+So Genghis winning a Time Victory with the highest score (4947) and highest power (8699) feels appropriate: he didn't quite conquer the world, but he spent much of history trying. 😄
+
+There were actually two major killing seasons
+
+Breaking civ-vs-civ lethal battles into 50-turn blocks gives the texture:
+
+| Turns       | Lethal battles | City conquests |
+| ----------- | -------------: | -------------: |
+| 100–149     |             93 |              9 |
+| 150–199     |            245 |             17 |
+| **200–249** |        **586** |         **28** |
+| **250–299** |        **547** |         **25** |
+| 300–349     |            309 |             17 |
+| 350–399     |            138 |              7 |
+| **400–449** |        **548** |         **25** |
+| 450–499     |            271 |             17 |
+
+So there was an enormous turn 200–300 world-war period, relative cooling around 350–400, and then another gigantic explosion after 400.
+
+That second phase is especially nasty because it's occurring in the robotic-infantry / levitation-artillery / tactical-nuke era.
+
+By turns 491–500 alone, Boudica lost 39 units in ten turns while winning only 10 battles. Genghis won 37 and lost 17. And despite the clock literally about to end the game, the major powers were still building robotic infantry, levitation artillery, tactical nukes and ICBMs.
+
+Nobody got the memo that it was turn 500. 😂
+
+And cities changed hands constantly
+
+There were 164 city ownership changes overall. Six were peaceful trades; 158 were conquests, including some Barbarian interactions.
+
+Some cities became genuine footballs. Bulawayo, for example, appears changing hands repeatedly among Zulu/Persia/Ragnar/Rome/Genghis-era ownership chains. Ergili flips from Genghis to Gilgamesh on turn 472 and straight back to Genghis on turn 473.
+
+The late game is particularly savage. Between turn 478 and 499 you have cities such as Urhonigbe, Durnovaria, Gwato, Ugo, Texcoco, Camulodunum, Bibracte, Vienne, Gergovia and Verlamion being captured, and several are immediately or subsequently razed.
+
+And these aren't little size-2 ancient settlements anymore. Late razes include:
+
+Gergovia population 16
+Verlamion population 17
+Gwato population 13
+Durnovaria population 13
+
+So the late game wasn't symbolic warfare. Whole mature industrial/future-era cities were disappearing.
+
+My violence rating
+
+For a Huge Pangaea, 16 civ, Aggressive AI, UWAI FULL, 500-turn game:
+
+9/10 violence.
+
+I reserve 10/10 for something like nearly universal extermination/conquest victory plus sustained nuclear apocalypse.
+
+This one weirdly retained enough geopolitical balance that eight civilizations were still alive and the game reached a Time Victory. That's actually what makes it more interesting: it wasn't one unstoppable conqueror rolling the map.
+
+It was a multipolar, self-renewing war system.
+
+Civilizations got powerful enough to fight huge wars, weaken one another, recover, realign through vassalage, and then do it again—until they eventually started throwing nuclear weapons around.
+
+So perhaps:
+
+Not “everyone died.”
+
+More:
+
+“Half the world died, the surviving half fought thousands of battles over 147 captured cities, then invented ICBMs and continued fighting until the calendar forcibly ended the game.”
+
+Yeah. Violent run. xD
+
+Recounted with the help of ChatGPT-5.6-Sol (temporary chat), with some earlier bits from GPT-5.6-Sol (i.e. on Codex) thanks.
 
 <a id="ki-524"></a>
 

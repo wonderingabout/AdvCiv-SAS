@@ -2215,7 +2215,8 @@ int CvUnitAI::AI_groupSecondVal() /* advc: */ const
 	advc (note): Mostly supplanted by LFBgetBetterAttacker and AI_getWeightedOdds -
 	though the latter calls AI_attackOdds indirectly. I think only AI_paradrop
 	still uses CvUnitAI::AI_attackOdds directly. */
-int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
+// <!-- custom: bUnadjusted returns pre-personality odds in the full 0..100 range so callers applying nonlinear weighting do not try to reverse an already lossy 1..99 clamp. See KI#523. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy, bool bUnadjusted) const
 {
 	PROFILE_FUNC();
 
@@ -2235,8 +2236,10 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 	{
 		// Combat odds are out of 1000 - we need odds out of 100
 		int iOdds = (calculateCombatOdds(*this, *pDefender) + 5) / 10;
+		if (bUnadjusted)
+			return range(iOdds, 0, 100);
 		iOdds += GET_PLAYER(getOwner()).AI_getAttackOddsChange();
-		return std::max(1, std::min(iOdds, 99));
+		return range(iOdds, 1, 99);
 	}
 
 	int iOurStrength = (getDomainType() == DOMAIN_AIR ?
@@ -2245,7 +2248,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 			iOurStrength : currFirepower());
 
 	if (iOurStrength == 0)
-		return 1;
+		return (bUnadjusted ? 0 : 1);
 
 	int iTheirStrength = pDefender->currCombatStr(pPlot, this);
 	int iTheirFirepower = pDefender->currFirepower(pPlot, this);
@@ -2256,7 +2259,7 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 
 	int iBaseOdds = (100 * iOurStrength) / (iOurStrength + iTheirStrength);
 	if (iBaseOdds == 0)
-		return 1;
+		return (bUnadjusted ? 0 : 1);
 
 	int iStrengthFactor = (iOurFirepower + iTheirFirepower + 1) / 2;
 	int iDamageToUs = std::max(1, (GC.getCOMBAT_DAMAGE() *
@@ -2297,10 +2300,11 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 
 	int iOdds = (iOurStrength * 100) / (iOurStrength + iTheirStrength);
 	iOdds += ((100 - iOdds) * withdrawalProbability()) / 100;
-	iOdds += GET_PLAYER(getOwner()).AI_getAttackOddsChange();
+	if (!bUnadjusted)
+		iOdds += GET_PLAYER(getOwner()).AI_getAttackOddsChange();
 	/*  BETTER_BTS_AI_MOD, Unit AI, 10/30/09, Mongoose & jdog5000
 		(from Mongoose SDK): */
-	return range(iOdds, 1, 99);
+	return range(iOdds, (bUnadjusted ? 0 : 1), (bUnadjusted ? 100 : 99));
 }
 
 // Define the Candidate<!-- custom: Plot--> struct outside the function so it can be used as a template argument.
