@@ -615,10 +615,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#525 - (Provisional Pending AdvCiv-SAS KI#319 regression) Consumed queued group attack is mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-525)\
 [KI#526 - (Provisional Pending AdvCiv-SAS KI#319 regression) Non-head immediate movement is mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-526)\
 [KI#527 - (Fixed inherited AdvCiv debug diagnostic defect) Air combat Shift-hover called a land/sea-only stack comparison](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-527)\
-[KI#528 - (Provisional Pending inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapse to zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-528)\
+[KI#528 - (Fixed inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapsed to zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-528)\
 [KI#529 - (Provisional Pending AdvCiv-SAS/inherited-contract defect) Assault declare-war intent treats any cargo as invasion cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529)\
-[KI#530 - (Provisional Pending inherited AdvCiv Bombard defect) Peaceful foreign units count as attackers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-530)\
-[KI#531 - (Provisional Pending inherited AdvCiv Bombard defect) Loaded cargo counts as city defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-531)\
+[KI#530 - (Fixed inherited AdvCiv Bombard defect) Peaceful foreign units counted as attackers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-530)\
+[KI#531 - (Fixed inherited AdvCiv Bombard defect) Loaded cargo counted as city defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-531)\
 [KI#532 - (Provisional Pending AdvCiv-SAS air-strike defect) Low-power ordering calls land/sea strength logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-532)\
 [KI#533 - (Provisional Pending inherited BBAI/K-Mod air-selection defect) LFB treats aircraft as zero-strength combatants](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-533)\
 [KI#534 - (Fixed inherited K-Mod/AdvCiv debug-assertion defect) Planned-war census inspected transient empty groups](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-534)\
@@ -12715,11 +12715,15 @@ The repair keeps ordinary and debug air combat help intact but omits only the un
 
 <a id="ki-528"></a>
 
-## KI#528 - (Provisional Pending inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapse to zero
+## KI#528 - (Fixed inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapsed to zero
 
-Album F205 was re-scoped after its duplicate assertion diagnosis was retired: the remaining release-build root is the human Bombard ordering collapse for a legal undefended city. Pending independent implementation review.
+AdvCiv's smart ordering for a human group Bombard derives a distinct priority for each eligible siege unit, then attenuates that priority by the unit's attack odds against the city. A legal undefended-city Bombard reports conventional 100% attack odds, so multiplying by `1 - odds` reduced every otherwise distinct priority to zero. The first eligible unit in group-list order therefore spent its action even when the promotion, bombard-damage and waste calculations preferred another unit.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix applies defender-odds attenuation only when the target has a real defender. Undefended targets retain all other smart-order factors, including current hit points when the city is considered easy to capture, intended promotion use, bombard damage, wasted damage, movement and collateral value. This remains distinct from KI#521's already-fixed false Debug assertion for the same legal target state.
+
+After compilation, a fresh Balanced Huge game with 16 independent teams completed a full autoplay and ended through Space Race victory on turn 492 without an observed issue. The precise human group-Bombard ordering state remains source-verified rather than manually constructed.
+
+This is an inherited AdvCiv practical-2809 ordering defect, not an AdvCiv-SAS change. Found as F205 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-529"></a>
 
@@ -12731,19 +12735,27 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-530"></a>
 
-## KI#530 - (Provisional Pending inherited AdvCiv Bombard defect) Peaceful foreign units count as attackers
+## KI#530 - (Fixed inherited AdvCiv Bombard defect) Peaceful foreign units counted as attackers
 
-Album F207 finds human smart-Bombard using legal entry rather than actual attacking ownership/hostility in its attacker census. Pending independent implementation review.
+AdvCiv's smart human Bombard ordering estimates whether the city is easy to capture by scanning every unit on the bombarder's plot and accepting any non-bombarder that can move or attack into the target. That generic entry predicate admitted peaceful foreign units through Open Borders and admitted same-owner noncombat infiltrators such as Spies through ordinary movement. Neither can perform the immediate assault whose strength this census is intended to estimate, so unrelated units could change which siege unit spent its action.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix counts only units owned by the human group owner that can move now and can enter the target specifically as an attack. It therefore follows immediate assault capability rather than generic destination entry, while leaving the separate stack-strength and Bombard-priority calculations unchanged.
+
+The same fresh Balanced Huge 16-player autoplay completed successfully after compilation. Peaceful foreign units and same-owner Spies were not manually arranged beside a human Bombard group, so the exact census contrast remains source-verified.
+
+This is an inherited AdvCiv practical-2809 attacker-census defect, not an AdvCiv-SAS change. Found as F207 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-531"></a>
 
-## KI#531 - (Provisional Pending inherited AdvCiv Bombard defect) Loaded cargo counts as city defenders
+## KI#531 - (Fixed inherited AdvCiv Bombard defect) Loaded cargo counted as city defenders
 
-Album F208 finds human smart-Bombard counting loaded combat cargo that defender selection cannot choose. Pending independent implementation review.
+The same smart human Bombard path counted all enemy units that can defend, including combat-capable units loaded as cargo. Actual primary-defender selection explicitly excludes loaded cargo. A loaded unit that could not prevent immediate city capture could therefore inflate the defender count, change the easy-capture classification and cause the wrong siege unit to spend its action.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix retains the inherited enemy/can-defend predicate but excludes loaded cargo from this city-defender census, matching the relevant primary-defender contract. This deliberately does not remove cargo from collateral-damage estimation: loaded combat cargo can be selected as a collateral victim, which is a different runtime population.
+
+The same fresh Balanced Huge 16-player autoplay completed successfully after compilation. Loaded enemy combat cargo was not deliberately placed in a human Bombard target city, so the exact defender-count contrast remains source-verified.
+
+This is an inherited AdvCiv practical-2809 defender-census defect, not an AdvCiv-SAS change. Found as F208 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-532"></a>
 

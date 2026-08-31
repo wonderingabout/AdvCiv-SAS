@@ -943,8 +943,16 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot 
 		if (pTargetCity != NULL)
 		{
 			pMissionPlot = pTargetCity->plot();
-			iDefenders = pMissionPlot->plotCount(
-					PUF_canDefendEnemy, getOwner(), false);
+			// <!-- custom: Count units that can actually defend the city. The inherited raw predicate also counted loaded combat cargo, although primary-defender selection excludes cargo. See KI#531. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iDefenders = 0;
+			FOR_EACH_UNIT_IN(pLoopUnit, *pMissionPlot)
+			{
+				if (!pLoopUnit->isCargo() &&
+					PUF_canDefendEnemy(pLoopUnit, getOwner(), false))
+				{
+					iDefenders++;
+				}
+			}
 			if (!isHuman())
 			{	// Visibility cheat, but saves time.
 				bEasyCityCapture = pTargetCity->AI().AI_isEvacuating();
@@ -955,8 +963,10 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot 
 				int iAttackers = 0;
 				FOR_EACH_UNIT_IN(pUnit, kAt)
 				{
-					if (!pUnit->canBombard(kAt) &&
-						pUnit->canMoveOrAttackInto(*pMissionPlot))
+					// <!-- custom: Count only the human owner's units that can attack now.
+					// The inherited entry test admitted peaceful foreign units and noncombat units such as Spies, distorting the smart-Bombard decision. See KI#530. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					if (pUnit->getOwner() == getOwner() && pUnit->canMove() &&
+						!pUnit->canBombard(kAt) && pUnit->canMoveInto(*pMissionPlot, true))
 					{
 						iAttackers++;
 						if (iAttackers >= 2 * iDefenders)
@@ -1034,8 +1044,13 @@ CvUnit* CvSelectionGroupAI::AI_bestUnitForMission(MissionTypes eMission, CvPlot 
 				rPriority *= 1 + scaled::clamp(5 * rDeltaBombard, -90, 100) / 100;
 			}
 			rPriority *= std::max(1, 15 + iBombard - iWaste);
-			scaled rOdds = per100(pUnit->AI_attackOdds(pMissionPlot, false));
-			rPriority *= (1 - rOdds);
+			// <!-- custom: Undefended cities are legal Bombard targets, but their conventional 100% attack odds erased every intended Bombard priority.
+			// Apply defender odds only when a defender exists. See KI#528. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if (iDefenders > 0)
+			{
+				scaled const rOdds = per100(pUnit->AI_attackOdds(pMissionPlot, false));
+				rPriority *= (1 - rOdds);
+			}
 			rPriority /= 1 + per100(pUnit->AI_collateralDmgFactor());
 			rPriority /= 15 + std::min(iDefenders, pUnit->collateralDamageMaxUnits());
 			/*	(CollateralDamageLimit gets ignored by all AI code so far,
