@@ -284,25 +284,39 @@ static void logSASGameRecordFormattedLine(CvString const& szLogName, TCHAR* form
 	FAssertMsg(bFormatted, "SASGameRecord row formatting failed");
 	if (!bFormatted)
 		return;
-	// <!-- custom: Stamp every emitted row at the central logging boundary so one monotonic session timeline covers actions, snapshots and setup/context rows without per-call-site timing plumbing.
-	// This runs only when SASGameRecord logging is enabled; the timer read is negligible beside formatting and log I/O.
-	// Buffered initialization actions keep their original event-time stamp if an aborted initialization needs the raw diagnostic fallback. (ChatGPT-5.6-Sol) -->
-	CvString szSessionWall;
-	szSessionWall.Format(" sessionWallMilliseconds=%u", getSASElapsedMilliseconds(g_uiSASGameRecordSessionStartTime, getSASMonotonicMilliseconds()));
-	szLine += szSessionWall.GetCString();
 	if (g_bSASGameRecordBufferInitializingActions && szLine.find("GAME_RECORD_ACTION ") == 0)
 	{
+		// <!-- custom: Successful initialization replaces this procedural transcript with compact finalized state. If initialization aborts, preserve event timing only on the raw fallback actions instead of adding a redundant timestamp to every normal row. (GPT-5.6-Sol) -->
+		CvString szSessionWall;
+		szSessionWall.Format(" sessionWallMilliseconds=%u", getSASElapsedMilliseconds(g_uiSASGameRecordSessionStartTime, getSASMonotonicMilliseconds()));
+		szLine += szSessionWall.GetCString();
 		g_aszSASGameRecordInitializingActions.push_back(std::make_pair(szLogName, szLine));
 		return;
 	}
 	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), false, false);
 }
 
+static uint getSASGameRecordSessionWallMilliseconds(uint uiNow)
+{
+	return getSASElapsedMilliseconds(g_uiSASGameRecordSessionStartTime, uiNow);
+}
+
+static uint getSASGameRecordSessionWallMilliseconds()
+{
+	return getSASGameRecordSessionWallMilliseconds(getSASMonotonicMilliseconds());
+}
+
+static void appendSASGameRecordType(CvString& szTypes, char const* szType)
+{
+	if (!szTypes.empty()) szTypes += ",";
+	szTypes += szType;
+}
+
 static void flushSASGameRecordInitializingActions(bool bContextComplete)
 {
 	if (g_aszSASGameRecordInitializingActions.empty())
 		return;
-	logSASGameRecord("GAME_RECORD_INITIALIZATION_ACTIONS count=%d contextComplete=%d", (int)g_aszSASGameRecordInitializingActions.size(), bContextComplete);
+	logSASGameRecord("GAME_RECORD_INITIALIZATION_ACTIONS count=%d contextComplete=%d sessionWallMilliseconds=%u", (int)g_aszSASGameRecordInitializingActions.size(), bContextComplete, getSASGameRecordSessionWallMilliseconds());
 	for (size_t iI = 0; iI < g_aszSASGameRecordInitializingActions.size(); iI++)
 	{
 		std::pair<CvString, std::string> const& kBuffered = g_aszSASGameRecordInitializingActions[iI];
@@ -464,8 +478,9 @@ static void logSASGameRecordGameState(const char* szRowType)
 	if (szMPOptions.empty())
 		szMPOptions = "-";
 	const CvString szLogName = getSASGameRecordLogName();
-	logSASGameRecord("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	// <!-- custom: This session boundary is a useful timing anchor: on a new game it measures initialization, and on load it measures recorder setup before the finalized save context is available. (GPT-5.6-Sol) -->
+	logSASGameRecord("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d sessionWallMilliseconds=%u",
+			szRowType, getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers(), getSASGameRecordSessionWallMilliseconds());
 	// <!-- custom: Record the engine's durable launch/load and multiplayer identities so standalone logs distinguish ordinary games, scenarios, saves, replays, and supported network/turn modes. The explicit booleans avoid requiring consumers to reproduce Civ4's non-obvious GameType groupings.
 	// Simple Game versus Custom Game is not retained reliably after launch, so do not infer it from mutable player slots or options. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SESSION_CONTEXT gameType=%s gameMode=%s newGame=%d savedGame=%d scenario=%d gameMultiplayer=%d networkMultiplayer=%d hotseat=%d pbem=%d pitboss=%d simultaneousTeamTurns=%d mpOptions=%s",
@@ -523,8 +538,29 @@ static void logSASGameRecordLogSettings()
 			isSASGameRecordMapAsciiGeographyEnabled(), isSASGameRecordMapAsciiTerrainEnabled(), isSASGameRecordMapAsciiRiversEnabled(), isSASGameRecordMapAsciiBonusesEnabled(), isSASGameRecordMapAsciiFeaturesEnabled(), isSASGameRecordMapAsciiPoliticalEnabled(), isSASGameRecordPerformanceMetricsEnabled(), getSASGameRecordSystemContextLevel());
 }
 
+// <!-- custom: Compact finalized team rows preserve which technologies each team owns and which diplomacy capabilities are active, but replacing setup-time TECH_ACQUIRED spam otherwise loses which technology grants each capability.
+// Record the loaded XML mapping once for the whole session instead of repeating the same effect fields for every initial team-tech pair. (GPT-5.6-Sol) -->
+static void logSASGameRecordTechCapabilitySources()
+{
+	CvString szMapTrading, szTechTrading, szGoldTrading, szOpenBordersTrading, szDefensivePactTrading, szPermanentAllianceTrading, szVassalStateTrading;
+	FOR_EACH_ENUM(Tech)
+	{
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		if (kTech.isMapTrading()) appendSASGameRecordType(szMapTrading, kTech.getType());
+		if (kTech.isTechTrading()) appendSASGameRecordType(szTechTrading, kTech.getType());
+		if (kTech.isGoldTrading()) appendSASGameRecordType(szGoldTrading, kTech.getType());
+		if (kTech.isOpenBordersTrading()) appendSASGameRecordType(szOpenBordersTrading, kTech.getType());
+		if (kTech.isDefensivePactTrading()) appendSASGameRecordType(szDefensivePactTrading, kTech.getType());
+		if (kTech.isPermanentAllianceTrading()) appendSASGameRecordType(szPermanentAllianceTrading, kTech.getType());
+		if (kTech.isVassalStateTrading()) appendSASGameRecordType(szVassalStateTrading, kTech.getType());
+	}
+	logSASGameRecord("GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=%s techTrading=%s goldTrading=%s openBordersTrading=%s defensivePactTrading=%s permanentAllianceTrading=%s vassalStateTrading=%s source=LOADED_XML",
+			getSASDiagnosticOrDash(szMapTrading).GetCString(), getSASDiagnosticOrDash(szTechTrading).GetCString(), getSASDiagnosticOrDash(szGoldTrading).GetCString(), getSASDiagnosticOrDash(szOpenBordersTrading).GetCString(), getSASDiagnosticOrDash(szDefensivePactTrading).GetCString(), getSASDiagnosticOrDash(szPermanentAllianceTrading).GetCString(), getSASDiagnosticOrDash(szVassalStateTrading).GetCString());
+}
+
 static void resetSASGameRecordState();
 static void logSASGameRecordInitialContext(bool bNewGame);
+static void logSASGameRecordInitialPlayerIdentities();
 static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals);
 static void initializeSASGameRecordWarsFromLoadedSave();
 
@@ -541,10 +577,11 @@ void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
 	resetSASGameRecordState();
-	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(getSASGameRecordLogName().GetCString()).GetCString());
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s sessionWallMilliseconds=0", getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(getSASGameRecordLogName().GetCString()).GetCString());
 	// <!-- custom: Static mod/binary provenance is already final once this DLL is running, so keep it at the top of each log instead of burying it behind generated game context. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordProvenanceContext();
 	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
 	// <!-- custom: Settings below are not final until map/player initialization finishes.
 	// Buffer setup-generated actions only as a failure diagnostic: successful gameStart replaces the procedural transcript with authoritative finalized initial state, while an aborted initialization flushes the raw actions with contextComplete=0. (ChatGPT-5.6-Sol) -->
 	g_bSASGameRecordBufferInitializingActions = true;
@@ -553,6 +590,7 @@ void startSASGameRecordLogForNewGame()
 void logSASGameRecordNewGameStarted()
 {
 	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
+	logSASGameRecordInitialPlayerIdentities();
 	int iTeamStateRows = 0;
 	int iTechRows = 0;
 	int iDeals = 0;
@@ -564,7 +602,7 @@ void logSASGameRecordNewGameStarted()
 	g_bSASGameRecordBufferInitializingActions = false;
 	g_aszSASGameRecordInitializingActions.clear();
 	if (gGameRecordLogLevel >= 2 || iBufferedActionsNotReplayed > 0)
-		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techRows=%d %s bufferedActionsNotReplayed=%d source=FINALIZED_STATE", iTeamStateRows, iTechRows, getSASInitialDealSummaryFields(gGameRecordLogLevel >= 2, iDeals).GetCString(), iBufferedActionsNotReplayed);
+		logSASGameRecord("GAME_RECORD_INITIAL_STATE_SUMMARY teamStateRows=%d techGroupRows=%d techTeamsCovered=%d %s bufferedActionsNotReplayed=%d source=FINALIZED_STATE sessionWallMilliseconds=%u", iTeamStateRows, iTechRows, iTeamStateRows, getSASInitialDealSummaryFields(gGameRecordLogLevel >= 2, iDeals).GetCString(), iBufferedActionsNotReplayed, getSASGameRecordSessionWallMilliseconds());
 }
 
 void startSASGameRecordLogForLoadedSave()
@@ -577,6 +615,8 @@ void startSASGameRecordLogForLoadedSave()
 	// <!-- custom: Keep static mod/binary identity immediately after the load-session marker; it does not depend on the loaded save's generated/game state. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordProvenanceContext();
 	logSASGameRecordLogSettings();
+	logSASGameRecordTechCapabilitySources();
+	logSASGameRecordInitialPlayerIdentities();
 	logSASGameRecordInitialContext(false);
 }
 
@@ -3201,6 +3241,7 @@ static void logSASGameRecordRiverEdgeCoordinates()
 // Geography, terrain, directional river edges, and bonuses are normally stable enough to record once at setup/load; structured map-change rows preserve later exceptions. Record features initially because jungle, forest, flood plains, oases, and ice affect settling, movement, health, and yields; repeat features and political borders at level-3 snapshots to show Forest/Jungle clearing and regrowth, fallout, expansion, conquest, and collapse. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szReason)
 {
+	uint const uiMapAsciiStartTime = getSASMonotonicMilliseconds();
 	bool const abLayerEnabled[6] =
 	{
 		bIncludeStaticLayers && isSASGameRecordMapAsciiGeographyEnabled(),
@@ -3281,8 +3322,9 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 		}
 	}
 	CvString const szPlayerSymbolsQuoted = getSASDiagnosticQuoted(getSASDiagnosticOrDash(szPlayerSymbols).GetCString());
-	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE informationScope=omniscient_actual_map",
-			GC.getGame().getGameTurn(), szReason, iLayerCount, iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth, iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight, kMap.isWrapX(), kMap.isWrapY());
+	// <!-- custom: Keep one timing anchor at each text-map boundary. Appending the same session time to every fixed-width drawing row obscured the frame, repeated no useful chronology and materially enlarged the log. (GPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_BEGIN turn=%d reason=%s layers=%d source=%dx%d previewCells=%dx%d outputCharacters=%dx%d maxCharacters=%dx%d horizontalCharactersPerCell=%d aspectRatioPreserved=1 resampled=%d wrapX=%d wrapY=%d topRowFirst=1 rowFrame=PIPE informationScope=omniscient_actual_map sessionWallMilliseconds=%u",
+			GC.getGame().getGameTurn(), szReason, iLayerCount, iSourceWidth, iSourceHeight, iPreviewWidth, iPreviewHeight, iOutputWidth, iPreviewHeight, iMaxWidth, iMaxHeight, iHorizontalCharsPerCell, iPreviewWidth != iSourceWidth || iPreviewHeight != iSourceHeight, kMap.isWrapX(), kMap.isWrapY(), getSASGameRecordSessionWallMilliseconds(uiMapAsciiStartTime));
 	if (abLayerEnabled[0])
 		logSASGameRecord("GAME_RECORD_MAP_ASCII_LEGEND layer=GEOGRAPHY symbolTypeCount=%d symbolTypes=%s sourcePlotTypeCount=%d sourcePlotTypes=\"%d:PLOT_PEAK;%d:PLOT_HILLS;%d:PLOT_LAND;%d:PLOT_OCEAN\" resampledCell=derived_plot_mix",
 				SAS_MAP_ASCII_GEOGRAPHY_SYMBOL_COUNT, getSASDiagnosticQuoted(getSASGameRecordMapAsciiGeographyLegend(kPalette).GetCString()).GetCString(), NUM_PLOT_TYPES, PLOT_PEAK, PLOT_HILLS, PLOT_LAND, PLOT_OCEAN);
@@ -3341,7 +3383,8 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 					iSourceSouthBoundaryRiverEdges, iSourceEastBoundaryRiverEdges, iSourceSouthBoundaryRiverEdges + iSourceEastBoundaryRiverEdges);
 		else logSASGameRecord("GAME_RECORD_MAP_ASCII_LAYER_END layer=%s previewCells=%d drawingCharacters=%d previewCellCounts=%s", szLayer, iPreviewCells, iDrawingCharacters, getSASDiagnosticQuoted(getSASGameRecordMapAsciiSymbolCounts(aiSymbolCounts).GetCString()).GetCString());
 	}
-	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d reason=%s layers=%d rowsPerLayer=%d", GC.getGame().getGameTurn(), szReason, iLayerCount, iPreviewHeight);
+	uint const uiMapAsciiEndTime = getSASMonotonicMilliseconds();
+	logSASGameRecord("GAME_RECORD_MAP_ASCII_END turn=%d reason=%s layers=%d rowsPerLayer=%d sessionWallMilliseconds=%u mapBlockWallMilliseconds=%u", GC.getGame().getGameTurn(), szReason, iLayerCount, iPreviewHeight, getSASGameRecordSessionWallMilliseconds(uiMapAsciiEndTime), getSASElapsedMilliseconds(uiMapAsciiStartTime, uiMapAsciiEndTime));
 }
 
 static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
@@ -3361,8 +3404,16 @@ static void seedSASGameRecordTeamPreviousFromCurrentState(TeamTypes eTeam)
 	kPrevious.iMetTeams = getSASGameRecordMetTeamCount(eTeam);
 }
 
+struct SASGameRecordInitialTechGroup
+{
+	CvString szTechFields;
+	CvString szTeams;
+	int iTeams;
+};
+
 // <!-- custom: Successful new-game initialization is best described by its authoritative result, not by the order in which Civ4 happened to call meet/declareWar/setHasTech/startTrade while constructing that result.
-// Share the field semantics with BBAI and seed recorder deltas from the same finalized baseline. (ChatGPT-5.6-Sol) -->
+// Share the field semantics with BBAI and seed recorder deltas from the same finalized baseline.
+// Group identical technology sets so a late-era start does not repeat the same long payload for every team; the explicit team lists keep arbitrary scenarios and mixed/modded setups exact. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals)
 {
 	iTeamStateRows = 0;
@@ -3370,15 +3421,40 @@ static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTec
 	iDeals = 0;
 	if (gGameRecordLogLevel < 2)
 		return;
+	std::vector<SASGameRecordInitialTechGroup> aTechGroups;
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		TeamTypes const eTeam = (TeamTypes)iI;
 		if (!GET_TEAM(eTeam).isEverAlive())
 			continue;
 		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_STATE %s", getSASInitialTeamStateFields(eTeam).GetCString());
-		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_TECHS %s", getSASInitialTeamTechFields(eTeam).GetCString());
+		CvString const szTechFields = getSASInitialTeamTechLevelFields(eTeam);
+		SASGameRecordInitialTechGroup* pGroup = NULL;
+		for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
+		{
+			if (aTechGroups[iGroup].szTechFields == szTechFields)
+			{
+				pGroup = &aTechGroups[iGroup];
+				break;
+			}
+		}
+		if (pGroup == NULL)
+		{
+			SASGameRecordInitialTechGroup kGroup;
+			kGroup.szTechFields = szTechFields;
+			kGroup.iTeams = 0;
+			aTechGroups.push_back(kGroup);
+			pGroup = &aTechGroups.back();
+		}
+		appendSASDiagnosticIntListValue(pGroup->szTeams, eTeam);
+		pGroup->iTeams++;
 		seedSASGameRecordTeamPreviousFromCurrentState(eTeam);
 		iTeamStateRows++;
+	}
+	for (size_t iGroup = 0; iGroup < aTechGroups.size(); iGroup++)
+	{
+		SASGameRecordInitialTechGroup const& kGroup = aTechGroups[iGroup];
+		logSASGameRecord("GAME_RECORD_INITIAL_TEAM_TECHS teams=%s teamCount=%d %s", kGroup.szTeams.GetCString(), kGroup.iTeams, kGroup.szTechFields.GetCString());
 		iTechRows++;
 	}
 	int iLoop = 0;
@@ -3391,11 +3467,22 @@ static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTec
 	}
 }
 
+// <!-- custom: Team-state rows identify numeric members exactly, but placing readable player/civilization identities only after hundreds of geography and text-map rows made the initial team and technology records needlessly hard to interpret.
+// Emit fixed slot bounds and player identities before team relations; later map legends can still reference the same PLAYER_SETUP rows without repeating them. (GPT-5.6-Sol) -->
+static void logSASGameRecordInitialPlayerIdentities()
+{
+	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eLoopPlayer = (PlayerTypes)iI;
+		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isBarbarian())
+			logSASGameRecordPlayerSetup(eLoopPlayer);
+	}
+}
+
 static void logSASGameRecordInitialContext(bool bNewGame)
 {
-	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin.
-	// Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
 	logSASGameRecordGeography();
 	if (gGameRecordLogLevel >= 3)
 	{
@@ -3403,13 +3490,6 @@ static void logSASGameRecordInitialContext(bool bNewGame)
 		logSASGameRecordRiverEdgeCoordinates();
 	}
 	if (gGameRecordLogLevel >= 2) logSASGameRecordAttitudeLegend();
-	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
-	{
-		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
-		CvPlayer const& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-		if (kLoopPlayer.isEverAlive() && !kLoopPlayer.isBarbarian())
-			logSASGameRecordPlayerSetup(eLoopPlayer);
-	}
 	if (gGameRecordLogLevel < 2)
 		return;
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -5515,9 +5595,9 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 	// <!-- custom: Team death and other state transitions can terminate a war without CvTeam::makePeace. Reconcile before snapshots so such wars still receive one final synthetic summary. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) reconcileSASGameRecordWars();
 	// <!-- custom: This is primarily an autoplay/game-history row, so place its frequently scanned gameplay state first. Keep wall-time and optional operating-system measurements afterward as supporting performance context. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d utc=%s snapshotIntervalWallMilliseconds=%u performanceMetricsEnabled=%d processForegroundAtSnapshot=%d processWindowMinimizedAtSnapshot=%d processWorkingSetKB=%d processPeakWorkingSetKB=%d processPagefileUsageKB=%d systemMemoryLoadPercent=%d processAvailableVirtualMB=%d",
+	logSASGameRecord("GAME_RECORD_TURN_BEGIN turn=%d reason=%s elapsed=%d year=%d playersAlive=%d teamsAlive=%d totalCities=%d totalPopulation=%d utc=%s sessionWallMilliseconds=%u snapshotIntervalWallMilliseconds=%u performanceMetricsEnabled=%d processForegroundAtSnapshot=%d processWindowMinimizedAtSnapshot=%d processWorkingSetKB=%d processPeakWorkingSetKB=%d processPagefileUsageKB=%d systemMemoryLoadPercent=%d processAvailableVirtualMB=%d",
 			iGameTurn, szReason, kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.countCivPlayersAlive(), kGame.countCivTeamsAlive(), kGame.getNumCities(), kGame.getTotalPopulation(),
-			szSnapshotUtc.GetCString(), uiSnapshotIntervalWallMilliseconds, isSASGameRecordPerformanceMetricsEnabled(), kSystemSnapshot.iProcessForeground, kSystemSnapshot.iProcessWindowMinimized,
+			szSnapshotUtc.GetCString(), getSASGameRecordSessionWallMilliseconds(uiSnapshotTime), uiSnapshotIntervalWallMilliseconds, isSASGameRecordPerformanceMetricsEnabled(), kSystemSnapshot.iProcessForeground, kSystemSnapshot.iProcessWindowMinimized,
 			kSystemSnapshot.iProcessWorkingSetKB, kSystemSnapshot.iProcessPeakWorkingSetKB, kSystemSnapshot.iProcessPagefileUsageKB, kSystemSnapshot.iSystemMemoryLoadPercent, kSystemSnapshot.iProcessAvailableVirtualMB);
 	g_uiSASGameRecordPreviousSnapshotTime = uiSnapshotTime;
 	logSASGameRecordRunStatus(szReason);
@@ -5546,7 +5626,8 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 		logSASGameRecordBattleBuckets(iGameTurn);
 		logSASGameRecordFlowBuckets(iGameTurn);
 	}
-	logSASGameRecord("GAME_RECORD_TURN_END turn=%d reason=%s", iGameTurn, szReason);
+	uint const uiSnapshotEndTime = getSASMonotonicMilliseconds();
+	logSASGameRecord("GAME_RECORD_TURN_END turn=%d reason=%s sessionWallMilliseconds=%u snapshotWallMilliseconds=%u", iGameTurn, szReason, getSASGameRecordSessionWallMilliseconds(uiSnapshotEndTime), getSASElapsedMilliseconds(uiSnapshotTime, uiSnapshotEndTime));
 	g_iSASGameRecordLastFullSnapshotTurn = iGameTurn;
 }
 
@@ -6141,9 +6222,9 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 	int const iCompletedTurns = (!bEnded || g_iSASGameRecordAutoPlayRequestedTurns <= 0 ? 0 : (eEndCause == SAS_AUTOPLAY_END_SCHEDULED ? g_iSASGameRecordAutoPlayRequestedTurns : std::max(0, g_iSASGameRecordAutoPlayRequestedTurns - iOldValue)));
 	int const iElapsedGameTurns = (g_iSASGameRecordAutoPlayStartElapsedTurn < 0 ? 0 : std::max(0, kGame.getElapsedGameTurns() - g_iSASGameRecordAutoPlayStartElapsedTurn));
 	int const iAutoPlayWallMilliseconds = (g_iSASGameRecordAutoPlayStartTurn < 0 ? -1 : (int)getSASElapsedMilliseconds(g_uiSASGameRecordAutoPlayStartTime, uiAutoPlayTime));
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d autoplayWallMilliseconds=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
-			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns, iAutoPlayWallMilliseconds,
-			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges,
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d sessionWallMilliseconds=%u autoplayWallMilliseconds=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
+			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns, getSASGameRecordSessionWallMilliseconds(uiAutoPlayTime),
+			iAutoPlayWallMilliseconds, g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges,
 			getSASAutoPlayEndCause(eEndCause));
 	// <!-- custom: Manual or scheduled autoplay completion is also a useful record boundary even when the game and its wars continue. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2 && bEnded)

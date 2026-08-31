@@ -110,6 +110,8 @@ CvString getSASDiagnosticLogName(char const* szBaseName, CvString const& szTimes
 CvString getSASInitialTeamStateFields(TeamTypes eTeam);
 // <!-- custom: Serialize exact finalized initial tech ownership/levels, handling ordinary and repeat technologies through their distinct Civ4 storage. (ChatGPT-5.6-Sol) -->
 CvString getSASInitialTeamTechFields(TeamTypes eTeam);
+// <!-- custom: Return the same exact technology payload without a team identifier so diagnostic callers can group teams with identical finalized technology sets. (GPT-5.6-Sol) -->
+CvString getSASInitialTeamTechLevelFields(TeamTypes eTeam);
 // <!-- custom: Serialize a team ID as TEAM_n, or "-" for NO_TEAM, for shared diagnostic payloads. (ChatGPT-5.6-Sol) -->
 CvString getSASTeamDiagnosticText(TeamTypes eTeam);
 // <!-- custom: Serialize the data payload of one diplomacy trade item using stable type/team/city identifiers where available. (ChatGPT-5.6-Sol) -->

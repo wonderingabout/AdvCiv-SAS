@@ -346,7 +346,7 @@ CvString getSASInitialTeamStateFields(TeamTypes eTeam)
 	return szFields;
 }
 
-CvString getSASInitialTeamTechFields(TeamTypes eTeam)
+CvString getSASInitialTeamTechLevelFields(TeamTypes eTeam)
 {
 	CvTeam const& kTeam = GET_TEAM(eTeam);
 	CvString szTechs;
@@ -367,7 +367,14 @@ CvString getSASInitialTeamTechFields(TeamTypes eTeam)
 		iTechLevels += iCount;
 	}
 	CvString szFields;
-	szFields.Format("team=%d techTypeCount=%d totalTechLevels=%d techLevels=%s", eTeam, iTechTypes, iTechLevels, getSASDiagnosticOrDash(szTechs).GetCString());
+	szFields.Format("techTypeCount=%d totalTechLevels=%d techLevels=%s", iTechTypes, iTechLevels, getSASDiagnosticOrDash(szTechs).GetCString());
+	return szFields;
+}
+
+CvString getSASInitialTeamTechFields(TeamTypes eTeam)
+{
+	CvString szFields;
+	szFields.Format("team=%d %s", eTeam, getSASInitialTeamTechLevelFields(eTeam).GetCString());
 	return szFields;
 }
 
