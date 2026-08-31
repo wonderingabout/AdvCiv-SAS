@@ -206,6 +206,8 @@ void CvPlayerAI::AI_reset(bool bConstructor)
 	m_iReligionTimer = 0;
 	m_iExtraGoldTarget = 0;
 	m_iCityTargetTimer = 0; // K-Mod
+	// <!-- custom: Reset the transient UNIT_BRAG text handoff with the player, but do not serialize this render-only state. See KI#692. (GPT-5.6-Sol) -->
+	m_eGreetingBragUnit = NO_UNIT;
 
 	// CHANGE_PLAYER, 06/08/09, jdog5000: START
 	if (bConstructor || getNumUnits() == 0)
@@ -7908,6 +7910,8 @@ void CvPlayerAI::AI_chooseResearch()
 
 DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 {
+	// <!-- custom: Clear any unconsumed old handoff before selecting this greeting. If UNIT_BRAG is chosen below, retain the exact randomized unit for its [OUR_BEST_UNIT] replacement. See KI#692. (GPT-5.6-Sol) -->
+	m_eGreetingBragUnit = NO_UNIT;
 	DiploCommentTypes eDefaultGreeting = GC.getAIDiploCommentType("GREETINGS");
 	if (TEAMID(ePlayer) == getTeam())
 		return eDefaultGreeting; // advc
@@ -7919,6 +7923,7 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 	// Checks moved up
 	bool bBrag = (kPlayer.getPower() < getPower() &&
 			AI_getAttitude(ePlayer) < ATTITUDE_PLEASED);
+	UnitTypes eBragUnit = NO_UNIT;
 	if (bBrag)
 	{
 		int iDemandRand = GC.getInfo(getPersonalityType()).
@@ -7929,7 +7934,7 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 			if (!kPlayer.canSeeTech(getID()) ||
 				!kPlayer.canTradeNetworkWith(getID()))
 			{
-				UnitTypes eBragUnit = AI_getBestAttackUnit();
+				eBragUnit = AI_getBestAttackUnit();
 				if (eBragUnit != NO_UNIT)
 				{
 					/*scaled rBragProb = 0;
@@ -7944,6 +7949,7 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 						if (eBragUnit != m_aeLastBrag[ePlayer])
 						{
 							m_aeLastBrag[ePlayer] = eBragUnit;
+							m_eGreetingBragUnit = eBragUnit;
 							return GC.getAIDiploCommentType("UNIT_BRAG");
 						} // else: Use BtS code below
 					} // Never brag about this unit to ePlayer
@@ -7972,8 +7978,20 @@ DiploCommentTypes CvPlayerAI::AI_getGreeting(PlayerTypes ePlayer) const
 	if (getNumNukeUnits() > 0 && GC.getASyncRand().get(4) == 0)
 		return GC.getAIDiploCommentType("NUKES");
 	if (/* <advc.079> */ bBrag && /* </advc.079> */ GC.getASyncRand().get(4) == 0)
+	{
+		// <!-- custom: When the AdvCiv fallback repeats the already remembered unit, preserve that same selection for the rendered brag too. See KI#692. (GPT-5.6-Sol) -->
+		m_eGreetingBragUnit = eBragUnit;
 		return GC.getAIDiploCommentType("UNIT_BRAG");
+	}
 	return eDefaultGreeting;
+}
+
+// <!-- custom: Consume the one-shot greeting-to-translator handoff so later declarations of war or attitude greetings containing [OUR_BEST_UNIT] still select their own current unit. See KI#692. (GPT-5.6-Sol) -->
+UnitTypes CvPlayerAI::AI_consumeGreetingBragUnit() const
+{
+	UnitTypes const eBragUnit = m_eGreetingBragUnit;
+	m_eGreetingBragUnit = NO_UNIT;
+	return eBragUnit;
 }
 
 // return true if we are willing to talk to ePlayer

@@ -1,7 +1,7 @@
 #include "CvGameCoreDLL.h"
 #include "CvDllTranslator.h"
 #include "CvGame.h"
-#include "CvPlayer.h"
+#include "CvPlayerAI.h" // <!-- custom: Replaces the inherited CvPlayer.h include: this derived header still includes the base declaration while exposing the transient CvPlayerAI UNIT_BRAG selection consumed below. See KI#692. (GPT-5.6-Sol) -->
 
 void CvDllTranslator::initializeTags(CvWString& szTagStartIcon, CvWString& szTagStartOur, CvWString& szTagStartCT, CvWString& szTagStartColor, CvWString& szTagStartLink, CvWString& szTagEndLink, CvWString& szEndLinkReplacement, std::map<std::wstring, CvWString>& aIconMap, std::map<std::wstring, CvWString>& aColorMap)
 {
@@ -91,7 +91,9 @@ bool CvDllTranslator::replaceOur(const CvWString& szKey, int iForm, CvWString& s
 	}
 	else if(szKey == L"[OUR_BEST_UNIT")
 	{
-		szReplacement = kPlayer.getBestAttackUnitName(iForm);
+		// <!-- custom: UNIT_BRAG must display the exact randomized unit that its greeting selector remembered. The one-shot handoff leaves all other [OUR_BEST_UNIT] contexts on their ordinary current selector. See KI#692. (GPT-5.6-Sol) -->
+		UnitTypes const eBragUnit = GET_PLAYER(kPlayer.getID()).AI_consumeGreetingBragUnit();
+		szReplacement = (eBragUnit == NO_UNIT ? kPlayer.getBestAttackUnitName(iForm) : gDLL->getObjectText((CvString)GC.getInfo(eBragUnit).getTextKeyWide(), iForm, true));
 	}
 	else if(szKey == L"[OUR_WORST_ENEMY")
 	{

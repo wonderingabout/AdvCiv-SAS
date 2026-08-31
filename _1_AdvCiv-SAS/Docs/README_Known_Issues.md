@@ -780,7 +780,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#689 - (Fixed AdvCiv unit-role regression) Advanced Start naval explorers received the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
 [KI#690 - (Fixed inherited AdvCiv state-mutation regression) One city's espionage effect leaked into later happiness/health valuations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
 [KI#691 - (Fixed inherited BtS counting defect) Airbase value counted traversal-order distance records](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-691)\
-[KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-692)\
+[KI#692 - (Fixed inherited AdvCiv state/display regression) A brag could remember and display different units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-692)\
 [KI#693 - (Fixed inherited BtS Advanced Start state defect) Failed improvement purchases counted as successful](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
 [KI#694 - (Fixed inherited BtS Advanced Start control-flow defect) One unaffordable building could end the building phase](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-694)\
 [KI#695 - (Fixed AdvCiv Advanced Start regression) One unaffordable unit ended all later role passes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
@@ -814,7 +814,13 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#723 - (Provisional Pending inherited K-Mod finance-rounding defect) Maintenance components can exceed their displayed total](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-723)\
 [KI#724 - (Provisional Pending AdvCiv Finance Advisor integration defect) One profitable foreign route has a blank hover](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-724)\
 [KI#725 - (Provisional Pending AdvCiv BULL/K-Mod integration defect) Pair-specific relation hovers list third parties](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-725)\
-[KI#726 - (Provisional Pending investigation) F403 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-726)\
+[KI#726 - (Provisional Pending AdvCiv BULL integration omission) Third-party peace and pact relations are discarded](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-726)\
+[KI#727 - (Provisional Pending inherited AdvCiv founding-preview omission) Golden Age yield is omitted from the projected home tile](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-727)\
+[KI#728 - (Provisional Pending inherited AdvCiv debug-cache regression) Enemy-city path results leak between same-team plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-728)\
+[KI#729 - (Provisional Pending inherited AdvCiv debug-cache regression) Team-path results survive a selected unit moving](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-729)\
+[KI#730 - (Provisional Pending AdvCiv BULL integration defect) City-bar temporary anger takes one maximum instead of the cumulative amount](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-730)\
+[KI#731 - (Provisional Pending inherited AdvCiv/BULL display defect) Food hover ignores city disorder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-731)\
+[KI#732 - (Provisional Pending investigation) F409 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-732)\
 
 <a id="ki-1"></a>
 
@@ -14268,9 +14274,13 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP58 `CvPlayer
 
 <a id="ki-692"></a>
 
-## KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units
+## KI#692 - (Fixed inherited AdvCiv state/display regression) A brag could remember and display different units
 
-Album F369 finds AdvCiv storing one randomized `AI_getBestAttackUnit` result in `m_aeLastBrag` while diplomacy text independently reruns the randomized selector for `[OUR_BEST_UNIT]`. The remembered unit and the unit shown to the player can consequently differ, causing repeated or suppressed brags without a real unit-set change. Pending carrying the selected unit atomically into the rendered greeting or otherwise unifying the stored and displayed identity.
+Album F369 found AdvCiv storing one randomized `AI_getBestAttackUnit` result in `m_aeLastBrag` while diplomacy text independently reran the randomized selector for `[OUR_BEST_UNIT]`. The remembered unit and the unit shown to the player could consequently differ, causing repeated or suppressed brags without a real unit-set change.
+
+Fixed by handing the exact selected `UNIT_BRAG` unit to the diplomacy translator for one `[OUR_BEST_UNIT]` replacement. The handoff is then cleared so declarations of war and unrelated attitude greetings continue selecting their current best unit; it is transient rendering context and does not alter the save format.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks. A Debug-opt Fantasy Realm Large autoplay then completed normally at turn 350 through a Space Race victory; `SASGameRecord_20260831T060104Z_new1.log` records all 350 requested-progress turns in 308,123 autoplay milliseconds without a crash.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP59 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
@@ -14602,8 +14612,68 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP103 `CvGameT
 
 <a id="ki-726"></a>
 
-## KI#726 - (Provisional Pending investigation) F403 remains unassigned during the CvGameTextMgr deep re-audit
+## KI#726 - (Provisional Pending AdvCiv BULL integration omission) Third-party peace and pact relations are discarded
 
-The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F402 through C031-WIP103 and reserves F403 next. Do not implement a change under KI#726 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F403 finds the broad leader-relations helper collecting known third-party force-peace and Defensive Pact relations into `szPeace` and `szPact`, then never appending either list. Pair-specific active-deal help cannot replace them because it examines only the hovered leader's deals with the active player.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP103 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending rendering the two collected relation families in broad mode while retaining the existing duplicate suppression for relations directly involving the active player.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP104 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-727"></a>
+
+## KI#727 - (Provisional Pending inherited AdvCiv founding-preview omission) Golden Age yield is omitted from the projected home tile
+
+Album F404 finds the Found mission hover reconstructing the future city-center yield from nature yield and `iMinCity`, but omitting the player-level Golden Age yield applied by `CvPlot::calculateYield`. During a Golden Age, an ordinary projected 2-food, 1-hammer, 1-commerce center can therefore immediately become 2/2/2 after founding while the hover promised 2/1/1.
+
+Pending sharing or faithfully mirroring the evaluable post-founding city-plot and player-yield stages rather than maintaining the current partial formula.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP105 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-728"></a>
+
+## KI#728 - (Provisional Pending inherited AdvCiv debug-cache regression) Enemy-city path results leak between same-team plots
+
+Album F405 finds Ctrl+Alt plot debug help caching enemy-city reachability only by the plot owner's team even though the queried source plot is a semantic pathfinder input. Hovering two owned plots with different reachability can therefore show the first plot's result on the second.
+
+Pending including the source plot in the cache key, or recomputing this infrequent diagnostic when correctness cannot be represented by a stable key.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP106 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-729"></a>
+
+## KI#729 - (Provisional Pending inherited AdvCiv debug-cache regression) Team-path results survive a selected unit moving
+
+Album F406 finds Ctrl+Shift TeamPath debug help keying cached path cost and length by destination-plot and unit pointers, but not by the selected unit's mutable source plot. Moving the same selected unit and inspecting the same destination can consequently retain its old path result.
+
+Pending including the current source plot and an appropriate path-state invalidator in the cache key, or recomputing the diagnostic.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP107 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-730"></a>
+
+## KI#730 - (Provisional Pending AdvCiv BULL integration defect) City-bar temporary anger takes one maximum instead of the cumulative amount
+
+Album F407 finds the consolidated city-bar anger line taking the maximum hurry, conscription or defied-resolution anger percentage. Runtime `CvCity::unhappyLevel` instead sums all three percentages before its single population conversion, so simultaneous anger sources can display fewer unhappy citizens than they actually create; the independently maximized duration can also describe no individual source.
+
+Pending matching runtime's cumulative current amount and labeling the maximum remaining duration precisely, or restoring separate source lines.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP108 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-731"></a>
+
+## KI#731 - (Provisional Pending inherited AdvCiv/BULL display defect) Food hover ignores city disorder
+
+Album F408 finds `setFoodHelp` reconstructing ordinary yield minus consumption without the `isDisorder()` early return used by runtime `CvCity::foodDifference`. An occupied city whose stored food is frozen can therefore show a zero food rate in the city screen while its hover claims growth or starvation.
+
+Pending returning an explicit zero/disorder explanation instead of running the ordinary food arithmetic while the city is in disorder.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP109 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-732"></a>
+
+## KI#732 - (Provisional Pending investigation) F409 remains unassigned during the CvGameTextMgr deep re-audit
+
+The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F408 through C031-WIP109 and reserves F409 next. Do not implement a change under KI#732 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP109 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

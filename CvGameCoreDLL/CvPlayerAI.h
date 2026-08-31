@@ -154,6 +154,8 @@ public:
 	void AI_chooseResearch();
 
 	DllExport DiploCommentTypes AI_getGreeting(PlayerTypes ePlayer) const;
+	// <!-- custom: Carry the exact randomized unit selected for UNIT_BRAG into its text replacement, then clear the transient handoff so unrelated [OUR_BEST_UNIT] text keeps using the current selector. See KI#692. (GPT-5.6-Sol) -->
+	UnitTypes AI_consumeGreetingBragUnit() const;
 	bool AI_isWillingToTalk(PlayerTypes ePlayer, bool bAsync = false) const; // advc.104l
 	int AI_refuseToTalkTurns(PlayerTypes ePlayer) const; // advc.104i
 	bool AI_demandRebukedSneak(PlayerTypes ePlayer) const;
@@ -677,6 +679,8 @@ protected:
 	// <advc.079>
 	mutable UnitTypes m_aeLastBrag[MAX_CIV_PLAYERS];
 	mutable TeamTypes m_aeLastWarn[MAX_CIV_PLAYERS]; // </advc.079>
+	// <!-- custom: This render-only handoff is deliberately not serialized; a greeting and its text substitution belong to one live UI operation. See KI#692. (GPT-5.6-Sol) -->
+	mutable UnitTypes m_eGreetingBragUnit;
 	int* m_aiBonusValue;
 	int* m_aiBonusValueTrade; // advc.036
 	int* m_aiUnitClassWeights;

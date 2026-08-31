@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - CLOSED AT C031-WIP87
-Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP103
-Latest confirmed roots: F321-F402 / provisional KI#644-KI#725 across the protected re-audits
-Next root ID: F403 unused / provisional KI#726 next
+Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP109
+Latest confirmed roots: F321-F408 / provisional KI#644-KI#731 across the protected re-audits
+Next root ID: F409 unused / provisional KI#732 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -23,7 +23,7 @@ METHOD
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
-003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP103 / F388-F402]<-(priority current wip)
+003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP109 / F388-F408]<-(priority current wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
@@ -86297,3 +86297,1050 @@ active-context and calculation/runtime reconciliation before deciding whether
 Queue 003 can close.
 
 END C031-WIP103
+
+
+===============================================================================
+C031-WIP104 — QUEUE 003 CvGameTextMgr.cpp CONTINUATION
+F403 / provisional KI#726 CONFIRMED
+===============================================================================
+
+Continuation basis
+------------------
+Resumed from C031-WIP103 with Queue 003 still open and F403 unused. The first
+unfinished control was the relation helper's szPeace / szPact accumulation.
+This pass finished the live-caller proof rather than promoting the unused local
+variables merely because they looked suspicious.
+
+-------------------------------------------------------------------------------
+F403 / provisional KI#726 — THIRD-PARTY FORCE-PEACE AND DEFENSIVE-PACT STATES
+ARE COMPUTED BUT NEVER RENDERED IN LEADER-RELATIONS HELP
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File: CvGameCoreDLL/CvGameTextMgr.cpp
+Primary functions:
+    CvGameTextMgr::getAllRelationsString
+    CvGameTextMgr::getActiveTeamRelationsString
+    CvGameTextMgr::getOtherRelationsString(TeamTypes, TeamTypes, TeamTypes)
+Live broad consumer:
+    CvGameTextMgr::parseLeaderHeadHelp
+    ordinary leader / scoreboard-style help through CvDLLWidgetData
+Classification:
+    AdvCiv BULL leader-relations integration omission; retained by SAS.
+
+ROOT
+----
+The TeamTypes relation helper explicitly advertises four relation families:
+
+    "peace/war/enemy/pact status"
+
+and allocates / fills four corresponding strings:
+
+    CvWString szWar, szPeace, szEnemy, szPact;
+
+    if (itThird->isAtWar(eThisTeam))
+        setListHelp(szWar, ...);
+    else if (itThird->isForcePeace(eThisTeam))
+        setListHelp(szPeace, ...);
+    ...
+    if (itThird->isDefensivePact(eThisTeam))
+        setListHelp(szPact, ...);
+
+But the function's output section renders only szWar and szEnemy. szPeace and
+szPact are never appended to szString at all.
+
+This is not harmless dead computation in the broad leader-hover path.
+parseLeaderHeadHelp(eThisPlayer, eOtherPlayer) does:
+
+    getActiveDealsString(szBuffer, eThisPlayer, eOtherPlayer);
+    ...
+    getOtherRelationsString(szBuffer, eThisPlayer, eOtherPlayer);
+
+The active-deal call is strictly pair-specific: getActiveDealsString iterates
+only deals for which pDeal->isBetween(eThisPlayer, eOtherPlayer). In the usual
+leader hover eOtherPlayer is the active human. It therefore cannot render a
+peace treaty or defensive pact between the hovered AI and some third AI.
+
+CONCRETE LIVE STATE
+-------------------
+Let the active human H have met AI teams A and B, and let A and B have a
+Defensive Pact.
+
+Hover A through a normal leader-help consumer with H as the comparison player.
+The pair-specific active-deal scan can display A<->H deals only. The subsequent
+relation scan reaches B, verifies that the active team knows B, sees:
+
+    B.isDefensivePact(A) == true
+
+and appends B's name to szPact. But there is no later output block for szPact,
+so the broader leader-relations help omits that known A<->B pact entirely.
+
+The same omission applies to a known force-peace relation between A and B:
+szPeace is populated but never rendered.
+
+WHY THIS IS DISTINCT FROM F402
+------------------------------
+F402 is a filtering defect: pair-specific A/B hovers accidentally include
+unrelated C/D war and worst-enemy information because eOtherTeam is ignored.
+
+F403 is an output defect: even in the broad relation mode where third-party
+relations are wanted, two relation families that the helper deliberately
+collects are silently discarded.
+
+Restoring the eOtherTeam filter for F402 does not repair F403, and rendering
+szPeace/szPact does not repair F402. They therefore have independent roots and
+repairs.
+
+ACTIVE-PLAYER PAIR CONTROL
+--------------------------
+getActiveTeamRelationsString intentionally comments out force-peace and
+Defensive Pact lines for relations directly involving the active player:
+
+    // advc: Covered by active deals
+
+That is a valid duplicate-suppression argument because getActiveDealsString can
+show the direct A<->H treaty/pact. It does not apply to A<->B third-party
+relations in parseLeaderHeadHelp, because that active-deal scan never examines
+A<->B.
+
+ANCESTRY
+--------
+Civ4CE/BtS and K-Mod contain only the older PlayerTypes relation helper and do
+not contain this four-list BULL TeamTypes implementation.
+
+AdvCiv commit:
+
+    4a65bf5c0fb187fd25d4908346abb462354a9172
+    "Option for expanding scoreboard; BULL hover text"
+
+introduced the BULL relation subsystem. The introducing diff already creates,
+populates, and then drops szPeace and szPact while rendering only szWar and
+szEnemy. The same introducing code comments out the active-player peace/pact
+lines specifically because active deals cover them, which strengthens the
+contrast: no equivalent third-party deal consumer exists for the discarded
+lists.
+
+Base AdvCiv 1.14 and current SAS retain the omission unchanged.
+
+REPAIR DIRECTION
+----------------
+After the existing szWar output, render non-empty szPeace with the existing
+TXT_KEY_PEACE_TREATY_WITH key; after the relevant relation output, render
+non-empty szPact with TXT_KEY_DEFENSIVE_PACT_WITH. Preserve the direct
+active-player duplicate suppression in getActiveTeamRelationsString.
+
+When combined with F402's repair, pair-specific mode should honor eOtherTeam,
+while broad mode should continue scanning all known third parties and actually
+render all relation families it collects.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER F403
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388-F403 CONFIRMED in protected Queue 003.
+F404 / provisional KI#727 UNUSED.
+No repository source files modified.
+
+NEXT
+----
+Continue immediately with setCannotAttackHelp / combat-action execution-vs-help
+contracts, then setInterceptPlotHelp, setPillageHelp/buildDisengageString and
+the remaining low-mention AdvCiv additions before returning to whole-file
+sentinel/context/calculation closure sweeps.
+
+END C031-WIP104
+
+
+===============================================================================
+C031-WIP105 — QUEUE 003 CvGameTextMgr.cpp CONTINUATION
+F404 / provisional KI#727 CONFIRMED
+===============================================================================
+
+Continuation basis
+------------------
+Resumed from C031-WIP104 with F404 unused. The first action-help family
+(setCannotAttackHelp, setInterceptPlotHelp, setPillageHelp/buildDisengageString)
+did not justify a finding: setCannotAttackHelp explicitly documents that it
+only explains the damage-limit condition so far; the interception helper's
+visible-interceptor restriction is an information-leak safeguard; pillage and
+disengage text matched their execution contracts. The low-mention AdvCiv
+helper reconciliation then reopened the founding-yield projection.
+
+-------------------------------------------------------------------------------
+F404 / provisional KI#727 — ADVCIV FOUNDING HOVER OMITS GOLDEN-AGE YIELD FROM
+THE PROJECTED CITY HOME TILE
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File: CvGameCoreDLL/CvGameTextMgr.cpp
+Primary function: CvGameTextMgr::setHomePlotYieldHelp
+Runtime comparator: CvPlot::calculateYield / CvPlot::calculateCityPlotYieldChange
+Live consumer: CvDLLWidgetData MISSION_FOUND action help
+Classification: inherited AdvCiv founding-help projection omission; retained by
+Base AdvCiv 1.14 and current SAS.
+
+ROOT
+----
+The Found mission hover labels a line as the projected home-tile yield, but
+setHomePlotYieldHelp reconstructs only nature yield and the minimum city yield:
+
+    int iYieldRate = kCityPlot.calculateNatureYield(
+            eLoopYield, getActiveTeam(), true);
+    CvYieldInfo const& kLoopYield = GC.getInfo(eLoopYield);
+    iYieldRate = std::max(iYieldRate, kLoopYield.getMinCity());
+
+Actual city-center yield does not stop there. CvPlot::calculateYield performs
+its ordinary plot calculation and, once the plot has a city, applies
+calculateCityPlotYieldChange. It then still applies player-level yield
+thresholds and Golden Age yield:
+
+    if (GET_PLAYER(ePlayer).isGoldenAge())
+    {
+        if (iYield >= GC.getInfo(eYield).getGoldenAgeYieldThreshold())
+            iYield += GC.getInfo(eYield).getGoldenAgeYield();
+    }
+
+The founding helper never applies that Golden Age stage.
+
+CONCRETE CURRENT-SAS STATE
+--------------------------
+Current Yield XML has:
+
+    YIELD_FOOD:
+        iMinCity = 2
+        iGoldenAgeYield = 0
+
+    YIELD_PRODUCTION:
+        iMinCity = 1
+        iGoldenAgeYieldThreshold = 1
+        iGoldenAgeYield = 1
+
+    YIELD_COMMERCE:
+        iMinCity = 1
+        iGoldenAgeYieldThreshold = 1
+        iGoldenAgeYield = 1
+
+Take an ordinary legal city site whose post-city minimum home-tile values are
+2 food, 1 hammer and 1 commerce, and let the active player be in a Golden Age.
+The founding hover reconstructs and displays:
+
+    Home Tile Yield: 2 food, 1 hammer, 1 commerce
+
+After founding, CvCity::init assigns the owner and calls kPlot.setPlotCity(this).
+CvPlot::setPlotCity calls updateYield, so the new city plot immediately runs
+CvPlot::calculateYield as a city tile while its owner is still in the same
+Golden Age. The 1 hammer and 1 commerce both meet their threshold, producing:
+
+    actual home tile: 2 food, 2 hammers, 2 commerce
+
+Nothing about founding a city ends the player's Golden Age, and Settlers remain
+ordinary live founding units in current SAS. This is therefore reachable
+normal gameplay, not a hypothetical XML configuration.
+
+BROADER CONTRACT
+----------------
+The root is slightly broader than Golden Ages: setHomePlotYieldHelp is a manual
+partial reconstruction of CvPlot::calculateYield. Player-level extra-yield
+thresholds are also evaluated after the city-plot stage at runtime and are not
+reproduced by this helper. Golden Age yield is the clean current-data proof and
+sufficient live consequence; no speculative extra case is needed for F404.
+
+WHY THE PREVIEW REALLY MEANS POST-FOUNDING YIELD
+------------------------------------------------
+The helper is called only in the successful MISSION_FOUND action-help path,
+alongside setFoundCostHelp and setFoundHealthHelp, and its localization label
+is TXT_KEY_HOME_TILE_YIELD. It is explicitly a projection of the city that will
+exist after the action, not merely a description of the terrain before the
+city exists.
+
+ANCESTRY
+--------
+This helper is not a BtS/K-Mod member. The founding preview was introduced by
+AdvCiv's advc.004b work. Reachable-history commit:
+
+    f6ff6a182f5187541fff6e5bbbe12f9573b3778c
+    "Initial commit (cont.)"
+
+already contains the original CvDLLWidgetData::getHomePlotYieldText with the
+same nature-yield + MinCity reconstruction. AdvCiv commit:
+
+    6f8d41a1ac548879d04f56ff9210e9a5e10aa975
+    "Help text for feature health made more flexible, refactored."
+
+later moved that logic into CvGameTextMgr::setHomePlotYieldHelp without changing
+the calculation. Base AdvCiv 1.14 and current SAS retain it.
+
+REPAIR DIRECTION
+----------------
+Avoid stopping at NatureYield + MinCity. The projection should mirror the
+post-founding CvPlot::calculateYield stages that can be evaluated without
+actually creating a city:
+
+1. calculate nature yield for the active team;
+2. apply the city-plot yield change/minimum for CvCity::initialPopulation();
+3. apply the active player's normal and natural extra-yield thresholds;
+4. apply Golden Age threshold/yield;
+5. clamp as runtime does.
+
+Prefer sharing/factoring the runtime city-plot/player-yield logic where
+practical rather than maintaining a second partial formula that can drift
+again. Current RouteInfos have no direct route yields, so the newly created
+city route does not add another current-data discrepancy here.
+
+CONTROL — TECH "CAN TRAIN/CREATE" UNDER GLOBAL BLOCKERS
+--------------------------------------------------------
+A neighboring candidate was deliberately rejected. Player-context tech help
+can still list a unit/project whose tech prerequisite is eTech even when an
+external condition such as No Nukes currently blocks construction. That
+section already represents prerequisite relationships rather than immediate
+eligibility: it likewise lists targets whose other AND-techs, resources,
+projects, etc. are still missing. Therefore treating every external blocker as
+a false "Can Train/Create" promise would overstate that UI contract. No F404
+was spent on that path.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER F404
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388-F404 CONFIRMED in protected Queue 003.
+F405 / provisional KI#728 UNUSED.
+Latest physical checkpoint: C031-WIP105.
+No repository source files modified.
+
+NEXT
+----
+Continue the remaining low-mention AdvCiv member reconciliation from F405
+unused: building-vote-source religion yield, unit aggregation/combat modifier
+helpers, specialist/corporation links and debug/action helpers. Then resume the
+whole-file sentinel, player/team context, class/civilization resolution and
+runtime-calculation closure sweeps before deciding whether Queue 003 can close.
+
+END C031-WIP105
+
+
+===============================================================================
+C031-WIP106 — QUEUE 003 CvGameTextMgr.cpp CONTINUATION
+F405 / provisional KI#728 CONFIRMED
+===============================================================================
+
+Continuation basis
+------------------
+Continued from C031-WIP105 / F405 unused into the low-mention AdvCiv debug-help
+helpers. The Ctrl+Alt path-reachability display contains a persistent cache
+whose key does not include the source plot even though every cached query does.
+
+-------------------------------------------------------------------------------
+F405 / provisional KI#728 — CTRL+ALT PLOT DEBUG HELP REUSES ENEMY-CITY PATH
+RESULTS FROM A DIFFERENT PLOT OWNED BY THE SAME TEAM
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File: CvGameCoreDLL/CvGameTextMgr.cpp
+Primary function: CvGameTextMgr::setPlotHelpDebug_Ctrl
+Runtime comparator: CvTeamAI::AI_isHasPathToEnemyCity overloads
+Classification: inherited AdvCiv debug-UI stale-cache defect; retained by Base
+AdvCiv 1.14 and current SAS.
+
+ROOT
+----
+For an owned non-city land plot under Ctrl+Alt debug help, the function caches
+whether the plot owner's team has a path to enemy cities:
+
+    static TeamTypes eCacheTeam = NO_TEAM;
+    static bool bHasPath = false;
+    static ArrayEnumMap<TeamTypes,bool> abHasPath;
+    bool const bUpdCache = (kPlotTeam.getID() != eCacheTeam);
+    eCacheTeam = kPlotTeam.getID();
+
+    if (bUpdCache)
+        bHasPath = kPlotTeam.AI_isHasPathToEnemyCity(kPlot);
+
+and, for every target team:
+
+    if (bUpdCache)
+        abHasPath.set(itTarget->getID(),
+            &kPlotTeam == &*itTarget ||
+            kPlotTeam.AI_isHasPathToEnemyCity(kPlot, *itTarget));
+
+The cache invalidation condition contains only TeamTypes. The queried source
+`kPlot` is absent from the cache key.
+
+The first hovered plot for a team therefore determines the displayed results
+for every subsequently hovered eligible plot owned by that same team until a
+plot owned by a different team happens to be inspected.
+
+SOURCE PLOT IS SEMANTIC INPUT, NOT COSMETIC
+-------------------------------------------
+`CvTeamAI::AI_isHasPathToEnemyCity(CvPlot const& kFrom, CvTeam const& kEnemy)`
+constructs a TeamPathFinder and, for each enemy city in the same area, calls:
+
+    pathFinder.generatePath(kFrom, pCity->getPlot())
+
+The aggregate overload likewise passes the supplied `kFrom` into the
+per-enemy-team overload.
+
+Thus two plots of the same owner can legitimately have different answers due
+to geography, impassable boundaries, hostile borders and reachable city
+locations. Team identity cannot substitute for the source plot.
+
+CONCRETE REPRODUCTION SHAPE
+---------------------------
+Run with debug mode enabled and inspect owned, non-city, non-water tiles using
+Ctrl+Alt.
+
+Let A and B be two land plots owned by the same team where:
+
+    AI_isHasPathToEnemyCity(A, enemy) == true
+    AI_isHasPathToEnemyCity(B, enemy) == false
+
+Hover A first. `eCacheTeam` changes to the owner's team and the cache stores
+A's result. Hover B next. The team ID is unchanged, so `bUpdCache == false` and
+neither `bHasPath` nor any entry in `abHasPath` is recomputed.
+
+B's debug tooltip therefore reports A's reachability, including both:
+
+    "Can reach an enemy city" / "No reachable enemy cities"
+
+and each per-target-team "Can reach ... city" line.
+
+The reverse hover order produces the reverse stale result, proving display
+output depends on the previously inspected plot rather than only current game
+state.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14 contains the same team-only cache.
+
+Reachable-history commit:
+
+    a936404e1b97a691e39e57a3dcb41f652796b0a0
+    "Fix BBAI bug in PathToEnemyCity check"
+
+introduced the static TeamTypes/bool/per-team cache while replacing the older
+BBAI player-city path display. Its intent comment says not to recompute this
+"over and over as the user inspects" the text.
+
+The initial cache patch did not update `eCacheTeam`, which accidentally caused
+the expensive path result to be recomputed every time and therefore avoided
+this particular stale-plot behavior.
+
+A later amendment:
+
+    e7c8b9592e0dd30273950bde6c3746d85a97f0ed
+    "Amend a minor bug in CvGameTextMgr"
+
+added:
+
+    eCacheTeam = kPlotTeam.getID();
+
+making the cache persistent as intended, but still without adding the source
+plot to the key. Current Base AdvCiv and SAS retain that state.
+
+This is therefore an AdvCiv optimization/cache regression in debug help rather
+than a raw BtS/K-Mod root.
+
+REPAIR DIRECTION
+----------------
+At minimum, key the cache by both team and source plot, e.g. team plus plot
+index/coordinates (or the plot pointer while map storage is stable):
+
+    bUpdCache = (eTeam != eCacheTeam || iPlot != iCachePlot);
+
+A more robust debug cache should also consider invalidation when relevant game
+state changes; a simple per-call computation is acceptable if this diagnostic
+path is infrequent enough. The essential correctness requirement is that a
+result computed from `kPlot A` must never be reused for `kPlot B` solely
+because both share an owner team.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER F405
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388-F405 CONFIRMED in protected Queue 003.
+F406 / provisional KI#729 UNUSED.
+Latest physical checkpoint: C031-WIP106.
+No repository source files modified.
+
+NEXT
+----
+Continue the remaining low-mention AdvCiv helpers from F406 unused, especially
+building-vote-source religion yield, unit aggregation/combat modifier helpers,
+link/value helpers and the rest of debug/action help. Then run the planned
+whole-file sentinel, active-context, civilization/class-resolution and
+calculation-vs-runtime closure sweeps before deciding whether Queue 003 can
+close.
+
+END C031-WIP106
+
+
+===============================================================================
+C031-WIP107 — QUEUE 003 CvGameTextMgr.cpp CONTINUATION
+F406 / provisional KI#729 CONFIRMED
+===============================================================================
+
+Continuation basis
+------------------
+Continued from C031-WIP106 / F406 unused by extending F405's static-cache
+pattern sweep through the neighboring TeamPath diagnostic cache.
+
+-------------------------------------------------------------------------------
+F406 / provisional KI#729 — CTRL+SHIFT TEAM-PATH DEBUG HELP CAN REUSE PATH
+COST/LENGTH AFTER THE SAME SELECTED UNIT'S SOURCE PLOT HAS CHANGED
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File: CvGameCoreDLL/CvGameTextMgr.cpp
+Primary function: CvGameTextMgr::setPlotHelpDebug_Ctrl
+Classification: inherited AdvCiv debug-UI stale-cache defect; retained by Base
+AdvCiv 1.14 and current SAS; absent from K-Mod/Civ4CE because this TeamPath
+ diagnostic was added by AdvCiv.
+
+ROOT
+----
+The Ctrl+Shift TeamPath diagnostic avoids recomputation with:
+
+    static CvPlot const* pOldPlot = NULL;
+    static CvUnit const* pOldUnit = NULL;
+    static int iCost = MAX_INT;
+    static int iLength = MAX_INT;
+
+    if (pPlot != pOldPlot || pUnit != pOldUnit)
+    {
+        pOldPlot = pPlot;
+        pOldUnit = pUnit;
+        ...
+        CvPlot const& kStart = pUnit->getPlot();
+        CvPlot const& kDest = *pPlot;
+        ... generatePath(kStart, kDest) ...
+    }
+
+The cache key therefore contains the destination-plot pointer and selected-unit
+pointer, but not the selected unit's current source plot. The cached value is a
+function of that omitted source plot.
+
+LIVE STALE-STATE SHAPE
+----------------------
+Keep one unit selected and inspect a destination plot D under the diagnostic.
+The cache stores the TeamPath cost/length from the unit's current source A to D.
+If that same unit subsequently moves to B while remaining the same CvUnit
+object, then the semantic query becomes B -> D. If D remains/rebecomes the same
+mouse-over CvPlot object, both cache keys still compare equal:
+
+    pPlot == pOldPlot
+    pUnit == pOldUnit
+
+so no pathfinder is run and the text still prints A -> D's old cost/length.
+
+This is not a mere formatting cache: the omitted input is read explicitly as
+`pUnit->getPlot()` immediately before `generatePath`. Different source plots
+can have different path lengths, route costs or even reachability.
+
+The same underspecified key can also retain stale results when path-relevant
+map/diplomatic state changes while both object pointers remain unchanged (for
+example routes or war-access state). The moving-source case alone is sufficient
+for the root.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14 contains the same cache. K-Mod and Civ4CE/BtS do not contain
+this TeamPath debug display.
+
+Reachable-history commit:
+
+    147c51de866e5decea37cebabce251b5061bf574
+    "TeamPathFinder with test code (CvGameTextMgr)"
+
+introduced the diagnostic and initially cached only `pOldPlot`.
+
+The follow-up:
+
+    9294e00681e1f5307a4a3f81a35e53959a3c9aff
+    "Test code ensuring symmetrical team path distances"
+
+noticed another omitted input and added `pOldUnit`, changing the invalidation
+condition to the current:
+
+    pPlot != pOldPlot || pUnit != pOldUnit
+
+but still did not include the unit's current source plot or other mutable path
+state. Current Base AdvCiv and SAS retain that partial key.
+
+DISTINCT FROM F405
+------------------
+F405 caches enemy-city reachability by owner TeamTypes while omitting the
+queried source plot `kPlot`. F406 is a separate static cache in the TeamPath
+cost/length diagnostic: it does include the destination plot and unit identity,
+but omits mutable state of that same unit, most directly `pUnit->getPlot()`.
+The caches have different producers, keys, values and visible stale-state
+transitions.
+
+REPAIR DIRECTION
+----------------
+At minimum, include the source plot in cache invalidation, e.g. remember
+`pUnit->plot()` / plot index alongside `pOldPlot` and `pOldUnit`.
+
+For a diagnostic path whose correctness depends on routes, diplomacy and other
+mutable traversal state, a turn/state stamp or simply recomputing on tooltip
+refresh may be safer. The essential fix is not to treat object identity as a
+complete representation of the path query's state.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER F406
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388-F406 CONFIRMED in protected Queue 003.
+F407 / provisional KI#730 UNUSED.
+Latest physical checkpoint: C031-WIP107.
+No repository source files modified.
+
+NEXT
+----
+Continue the remaining low-mention non-debug helpers from F407 unused,
+especially building-vote-source religion yield, unit aggregation/combat helper
+contracts, specialist/corporation links and value-format helpers. Then resume
+the whole-file sentinel, active-context, civilization/class-resolution and
+runtime-calculation closure sweeps before deciding whether Queue 003 can close.
+
+END C031-WIP107
+
+
+===============================================================================
+C031-WIP108 — QUEUE 003 CvGameTextMgr.cpp CONTINUATION
+POST-WIP107 CLOSURE CONTROLS + F407 / provisional KI#730 CONFIRMED
+===============================================================================
+
+Continuation basis
+------------------
+Continued from C031-WIP107 / F407 unused by finishing the outstanding
+UnitClass/BuildingClass -> civilization-resolution sweep, reopening the small
+AdvCiv-added helper inventory, and continuing sentinel/active-context/runtime
+calculation checks.
+
+-------------------------------------------------------------------------------
+POST-WIP107 CONTROLS — NO NEW NUMBER
+-------------------------------------------------------------------------------
+
+1. UnitClass / BuildingClass civilization resolution
+----------------------------------------------------
+The current player-context help paths inspected generally resolve an actual
+player/civilization's unit or building before falling back to the class default.
+The remaining default-class uses do not produce a current-SAS UU/UB mismatch:
+
+* The Great Artist/Scientist/Merchant/Engineer/Spy UnitClasses used by the
+  building Great-Person/free-unit helpers only differ for the Barbarian
+  civilization, where the mapping is NONE. The normal player-facing building
+  callers do not reach that combination.
+* Religion free-unit classes in current XML are missionary-specific and have
+  no civilization replacement that can make the default disagree with a
+  player's actual unit.
+* No current live FreeBuildingClass case established an analogous UB mismatch.
+
+So the class-resolution family is provisionally closed without F407.
+
+2. appendCombatModifiers Barbarian-city-attack omission
+-------------------------------------------------------
+Runtime combat strength contains the attack-side Handicap
+BarbarianCityAttackBonus when a Barbarian attacks a city, while
+appendCombatModifiers does not print that term. This is a real helper-
+completeness asymmetry, but the ordinary combat-odds callers obtain the
+attacker from the active player's selected group. They therefore do not supply
+a Barbarian attacker in normal player UI. Kept as an unreachable-orientation
+control rather than F407.
+
+3. setSpecialistLink singular/plural polarity
+---------------------------------------------
+One building-slot caller computes `bSingular` and passes it directly to the
+helper parameter named `bPlural`, which is source-level opposite polarity.
+The parameter mainly changes grammatical link-target syntax for Italian/
+Spanish while the visible description is passed separately. Without a proven
+broken visible link/text state in the current EXE/localization resolver, this
+remains an unresolved low-level grammar/link hazard rather than a numbered
+finding.
+
+4. Sentinel / dead-path controls retained from the closure sweep
+----------------------------------------------------------------
+The sweep reconfirmed several genuine defensive/source oddities without a live
+current-SAS consequence strong enough for a finding:
+
+* a plot-resource branch compares ImprovementTypes against NULL rather than
+  NO_IMPROVEMENT; current path/data short-circuits mask the sentinel collision;
+* old setGoldStr negative-color formatting uses SETCOLR where ENDCOLR is
+  required, but current BUG Main Interface no longer calls that inherited path;
+* setResearchStr can reuse the repeat-tech ordinal buffer if research turns are
+  negative, but current SAS has no repeatable technologies;
+* parseSpecialistHelp retrieves GC.getInfo(eSpecialist) before its own
+  NO_SPECIALIST guard, but all current UI callers traced supply a valid
+  specialist or reject the sentinel first;
+* eventGoldHelp has asymmetric sign handling for a randomized negative-gold
+  range, but current event XML has no reachable negative randomized range.
+
+These are worth preserving as future mod-mod/cleanup controls, but none consumes
+F407 under the current audit threshold.
+
+-------------------------------------------------------------------------------
+F407 / provisional KI#730 — CITY-BAR TEMPORARY-ANGER SUMMARY TAKES THE MAXIMUM
+SOURCE INSTEAD OF ADDING SIMULTANEOUS HURRY, DRAFT AND DEFY ANGER
+-------------------------------------------------------------------------------
+Status: CONFIRMED
+File: CvGameCoreDLL/CvGameTextMgr.cpp
+Primary function: CvGameTextMgr::setCityBarHelp
+Runtime comparison: CvCity::unhappyLevel, getHurryPercentAnger,
+getConscriptPercentAnger, getDefyResolutionPercentAnger
+Classification: AdvCiv BULL-integration aggregation/display defect; introduced
+by AdvCiv city-bar hover integration and retained by Base AdvCiv 1.14 and
+current SAS.
+
+ROOT
+----
+The city-bar temporary-anger helper first takes the longest timer:
+
+    int iAngerTimer = std::max(kCity.getHurryAngerTimer(),
+            kCity.getConscriptAngerTimer());
+    iAngerTimer = std::max(iAngerTimer,
+            kCity.getDefyResolutionAngerTimer());
+
+It then also takes only the greatest anger percentage:
+
+    int iPercentAnger = std::max(kCity.getHurryPercentAnger(),
+            kCity.getConscriptPercentAnger());
+    iPercentAnger = std::max(iPercentAnger,
+            kCity.getDefyResolutionPercentAnger());
+    int iAngryPop = (iPercentAnger * kCity.getPopulation()) /
+            GC.getPERCENT_ANGER_DIVISOR();
+
+and formats:
+
+    TXT_KEY_CITY_BAR_ANGER_TIMER
+    "-%d1[ICON_UNHAPPY] in %d2 Turns"
+
+Runtime city unhappiness does not choose one temporary-anger source. In
+CvCity::unhappyLevel it ADDS all three before the one final population/divisor
+conversion:
+
+    iAngerPercent += getHurryPercentAnger(iExtra);
+    iAngerPercent += getConscriptPercentAnger(iExtra);
+    iAngerPercent += getDefyResolutionPercentAnger(iExtra);
+    ...
+    iUnhappiness = (iAngerPercent * (getPopulation() + iExtra)) /
+            GC.getPERCENT_ANGER_DIVISOR();
+
+Therefore simultaneous temporary anger is cumulative at runtime but mutually
+exclusive in this city-bar display.
+
+CURRENT-DATA REACHABILITY
+-------------------------
+This is ordinary current SAS gameplay, not an XML combination requiring a
+custom scenario:
+
+* CIVIC_SLAVERY is a Labor civic and enables HURRY_POPULATION.
+* CIVIC_NATIONHOOD is a Legal civic and allows up to 3 conscriptions.
+  The two civics can therefore be active simultaneously.
+* Normal speed has iHurryConscriptAngerPercent = 100.
+* BtS inherited defines used by current SAS are:
+
+      HURRY_ANGER_DIVISOR = 10
+      CONSCRIPT_ANGER_DIVISOR = 10
+      HURRY_POP_ANGER = 1
+      CONSCRIPT_POP_ANGER = 3
+      PERCENT_ANGER_DIVISOR = 1000
+      CONSCRIPT_POPULATION_PER_COST = 60
+
+* Current UNIT_RIFLEMAN costs 120 production, so when it is the conscription
+  unit getConscriptPopulation() returns max(1, 120 / 60) = 2.
+* Current HURRY_POPULATION gives 27 production per population, so an ordinary
+  already-started build with sufficiently little adjusted production remaining
+  can be a one-pop whip.
+* The CityScreen Anger Counter option controlling this city-bar line is enabled
+  by default.
+
+CONCRETE NUMERIC STATE
+----------------------
+On Normal speed, take an ordinary population-11 city running Slavery and
+Nationhood in a state where Rifleman is its conscription unit.
+
+1. Hurry an eligible build for 1 population.
+   Population becomes 10 and hurry anger timer becomes 10.
+2. Conscript the 120-production Rifleman for 2 population.
+   Population becomes 8 and conscription anger timer becomes 10.
+
+At final population 8 with one layer of each anger:
+
+    hurry percent = 1 + (1 * 1 * 1000 / 8) = 126
+    draft percent = 1 + (1 * 3 * 1000 / 8) = 376
+
+Runtime temporary-anger contribution:
+
+    (126 + 376) * 8 / 1000
+    = 4016 / 1000
+    = 4 unhappy citizens
+
+City-bar helper:
+
+    max(126, 376) * 8 / 1000
+    = 3008 / 1000
+    = 3 unhappy citizens
+
+Thus the city-bar tooltip can print:
+
+    -3 unhappy in 10 turns
+
+while the same city's actual current unhappiness calculation contains 4 unhappy
+citizens from those two temporary sources alone.
+
+The issue is not limited to equal timers. With different source timers or
+multiple stacked anger layers, the helper independently takes the maximum
+percentage and maximum duration. Those maxima can come from different anger
+sources, producing a displayed `(angry citizens, turns)` pair that corresponds
+to no single underlying temporary-anger state.
+
+ANCESTRY
+--------
+Base AdvCiv 1.14 contains the same max-based block. K-Mod/Civ4CE do not contain
+AdvCiv's integrated C++ city-bar helper in this form.
+
+Reachable-history commit:
+
+    92202f546295e43857d6172e1b9c6665446e68a5
+    "Overhaul city bar hover text (based on BULL)"
+
+introduced this exact block into CvGameTextMgr::setCityBarHelp as advc.186.
+The same patch notes that BULL had separate CityBar__HurryAnger and
+CityBar__DraftAnger options, while AdvCiv ties the consolidated city-bar line to
+CityScreen__Anger_Counter. The introduced consolidation uses max for both the
+timer and anger amount. Later/current source also includes defy-resolution
+anger in the same max aggregation.
+
+This is therefore best classified as an AdvCiv BULL-integration aggregation
+regression, retained by SAS, rather than a raw BtS/K-Mod runtime bug.
+
+REPAIR DIRECTION
+----------------
+The minimum correction for the displayed CURRENT temporary-unhappiness amount
+is to mirror CvCity::unhappyLevel's aggregation and convert only after summing:
+
+    int iPercentAnger =
+            kCity.getHurryPercentAnger() +
+            kCity.getConscriptPercentAnger() +
+            kCity.getDefyResolutionPercentAnger();
+
+    int iAngryPop = (iPercentAnger * kCity.getPopulation()) /
+            GC.getPERCENT_ANGER_DIVISOR();
+
+Do not convert each source to citizens separately and add afterward; runtime
+sums the percentages first, so one final conversion is required to preserve
+its integer-rounding behavior.
+
+Keeping `max(timer)` can still serve as an upper-bound "temporary anger fully
+cleared by" duration, but it should not imply that the entire current summed
+amount persists until that exact turn when sources have different timers. A
+more precise UI would either label the amount as current temporary
+unhappiness plus a maximum remaining duration, or report hurry/draft/defy
+sources separately as BULL's original option structure suggests.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER F407
+------------------------
+Queue 003 `CvGameCoreDLL/CvGameTextMgr.cpp` — OPEN.
+32/169 unique files complete.
+F388-F407 CONFIRMED in protected Queue 003.
+F408 / provisional KI#731 UNUSED.
+Latest physical checkpoint: C031-WIP108.
+No repository source files modified.
+
+NEXT
+----
+Continue from F408 unused through the rest of setCityBarHelp and the remaining
+small AdvCiv-added helpers, then resume the whole-file sentinel/active-context,
+class-resolution, localization/index and runtime-vs-display closure sweeps.
+Keep the same live-caller/current-data threshold before numbering anything.
+
+END C031-WIP108
+
+
+===============================================================================
+POST-WIP108 CONTINUATION — QUEUE 003 CvGameTextMgr.cpp
+===============================================================================
+
+Starting stone:
+- Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp OPEN.
+- 32/169 unique files complete.
+- F388-F407 confirmed.
+- F408 / provisional KI#731 UNUSED.
+- C031-WIP108 latest physical checkpoint.
+- No repository source files modified.
+
+This continuation first finished the remainder of the setCityBarHelp tranche after
+F407, then reconciled setRevoltHelp, the ordinary health/happiness breakdowns and
+the food-rate hover against their exact CvCity runtime calculations.
+
+POST-WIP108 CONTROLS / CLEAN RESULTS
+------------------------------------
+
+1. Remainder of setCityBarHelp after F407 is provisionally clean.
+
+- Production/process conversion uses the same yield/modifier units as runtime.
+- CvCity::calculateTradeTotals explicitly returns in disorder, so the city-bar
+  trade detail does not resurrect trade-route yield during disorder.
+- CvCity::getGreatPeopleRate() explicitly returns 0 in disorder, matching the
+  city-bar GP line.
+- On city acquisition, non-Wonder foreign UBs are converted to the new owner's
+  civilization-equivalent BuildingClass entry before the city-bar building list
+  sees them; iterating the current civilization's buildings therefore does not
+  silently lose retained captured UBs.
+- Free buildings are intentionally omitted, and the controlling BUG option help
+  explicitly documents that free buildings (e.g. Stonehenge Monuments) are never
+  listed. This is not an accidental omission.
+
+2. setRevoltHelp state ordering matches runtime.
+
+Runtime CvCity::doRevolt first rolls probabilityOccupationDecrement(); on success
+it decrements occupation and returns. Only if that fails does it roll
+revoltProbability(). setRevoltHelp displays the effective revolt probability as:
+
+    revoltProbability() * (1 - probabilityOccupationDecrement())
+
+which matches that ordered runtime transition. CvDLLWidgetData's nationality help
+uses the same effective probability. No F408 here.
+
+3. Ordinary happiness breakdown remains internally reconciled after F407.
+
+setHappyHelp accumulates the same positive source getters used by
+CvCity::happyLevel(), and retains its final assertion against happyLevel(). The
+F407 temporary-anger bug is in setCityBarHelp's separate consolidated anger
+summary, not in setHappyHelp.
+
+4. Ordinary health breakdown has a semantic split mismatch, but current SAS data
+masks it.
+
+CvCity::goodHealth()/badHealth() combine:
+
+    GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth()
+
+before clamping that sum to its positive or negative part. setGoodHealthHelp and
+setBadHealthHelp instead print player-wide ExtraHealth and city-local ExtraHealth
+as independent contributions. Opposite-signed sources could therefore make the
+listed source lines disagree with runtime's combined clamp.
+
+Current SAS does not provide the needed opposing signs in normal data paths:
+player-wide ExtraHealth sources found are nonnegative (e.g. Protective and the
+custom civic), while current event-driven CvCity ExtraHealth values are likewise
+positive. No current-data F408 is promoted; retain as a mod-mod/defensive display
+hazard.
+
+5. Additional-building projection defects remain the already-numbered F397-F399
+family; the ordinary health/happy breakdown pass did not establish a distinct new
+root.
+
+
+F408 / provisional KI#731 — CONFIRMED
+--------------------------------------
+TITLE:
+FOOD-RATE HOVER IGNORES CITY DISORDER AND CAN DISPLAY GROWTH/STARVATION THAT
+RUNTIME EXPLICITLY FREEZES AT ZERO
+
+CLASSIFICATION:
+Inherited BULL food-hover integration defect retained by AdvCiv and current SAS.
+The runtime city-food rule itself is correct; the defect is in the displayed
+breakdown.
+
+CURRENT SAS DISPLAY PATH:
+CvDLLWidgetData::parseFoodModHelp obtains the currently selected city and calls:
+
+    GAMETEXT.setFoodHelp(szBuffer, *pCity);
+
+CvMainInterface.py attaches WIDGET_FOOD_MOD_HELP to PopulationInputText even in
+the disorder branch. In that branch the visible city-screen number itself uses
+pHeadSelectedCity.getFoodDifference(), so it correctly displays 0 during
+occupation/anarchy disorder, but hovering that same label still enters
+setFoodHelp.
+
+CURRENT SAS TOOLTIP CALCULATION:
+CvGameTextMgr::setFoodHelp has no isDisorder() guard. It reconstructs production
+from currently worked plots (the city center is always worked), trade,
+specialists, corporations and buildings; subtracts ordinary population food
+consumption plus spoiled food; then reports growing/shrinking/stagnant based on
+that reconstructed net result.
+
+RUNTIME CONTRACT:
+CvCity::foodDifference begins with:
+
+    if (isDisorder())
+        return 0;
+
+Thus stored city food does not grow or shrink while the city is in disorder.
+CvCity::getYieldRate itself does not contain that disorder suppression; the
+suppression belongs specifically to foodDifference(). Therefore rebuilding the
+normal yield-minus-consumption arithmetic in the tooltip bypasses the rule.
+
+LIVE CURRENT-SAS EXAMPLE:
+Take an occupied captured city at population 3. WorkingPlotIter includes the city
+center because the home plot is always worked. On an ordinary 2-food city-center
+state, even if no other workable plots contribute and health is neutral,
+setFoodHelp can reconstruct approximately:
+
+    2 food produced
+  - 6 food eaten (3 population * 2)
+  = -4 food / shrinking
+
+while CvCity::foodDifference() returns exactly 0 for the same city and stored food
+is frozen. The city screen's primary food label therefore correctly shows 0, but
+its hover can claim a negative food rate / shrinking state that cannot occur.
+Other occupied-city yields merely change the wrong nonzero number; they do not
+remove the root mismatch.
+
+REACHABILITY:
+This is not hidden behind an optional Alt-only projection. CvMainInterface.py
+still attaches WIDGET_FOOD_MOD_HELP when the city is in disorder; its explicit
+`else` branch for disorder/food-production sets PopulationInputText and gives it
+that widget. Captured occupied cities are ordinary gameplay states.
+
+ANCESTRY:
+Reachable-history diff:
+
+    _SNAPSHOT_CONTEXT/commit_diffs/AdvCivPreSAS_1481_4a65bf5c0f.diff
+
+Commit:
+    4a65bf5c0fb187fd25d4908346abb462354a9172
+Title:
+    "Option for expanding scoreboard; BULL hover text"
+
+That AdvCiv integration imports the BULL Food Rate Hover path, including
+parseFoodModHelp and setFoodHelp. Base AdvCiv 1.14 and current SAS retain the
+no-disorder tooltip arithmetic. This is therefore best classified as an inherited
+BULL/AdvCiv UI integration defect, not a SAS runtime-rule regression.
+
+CONSERVATIVE REPAIR:
+Mirror the runtime state contract at the top of setFoodHelp. For example, if the
+city is in disorder, either return after showing an explicit "0 / no food change
+in disorder" explanation, or build a dedicated disorder line. Do not run the
+ordinary yield-minus-consumption breakdown and then label it as net growth/shrink.
+At minimum:
+
+    if (kCity.isDisorder())
+    {
+        // append a suitable zero/disorder explanation if desired
+        return;
+    }
+
+A dedicated explanation is preferable to a blank tooltip because the widget is
+visible and the main label is already showing the frozen 0-food state.
+
+WHY THIS IS DISTINCT FROM F407:
+F407 is a max-vs-sum aggregation error in temporary unhappiness. F408 is a
+state-rule omission in the food hover: it applies normal food arithmetic in a
+state where runtime bypasses that arithmetic entirely.
+
+
+CURRENT STONE AFTER F408
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F408 CONFIRMED.
+F409 / provisional KI#732 UNUSED.
+Latest physical checkpoint: C031-WIP109.
+No repository source files modified.
+
+Next continuation: continue the ordinary city-resource/help reconciliation from
+production and commerce into the remaining active-context/sentinel/default-class
+closure patterns; specifically challenge disorder/process/overflow special states
+in setProductionHelp and its neighboring helpers before widening again.
