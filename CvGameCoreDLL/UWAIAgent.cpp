@@ -280,6 +280,10 @@ void UWAI::Team::clearWarSponsorship(TeamTypes eEnemy)
 
 void UWAI::Team::reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive, CLinkList<TradeData> const* pWeGive)
 {
+	// <!-- custom: Human-capitulation readiness authorizes surrender only for the war in which considerPeace set it.
+	// Expire that authorization at peace so a later war cannot reuse the old AI-turn decision. See KI#519. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (GET_TEAM(eEnemy).isHuman())
+		leaderCache().setReadyToCapitulate(eEnemy, false);
 	/*  This isn't team-level data b/c each member can have its
 		own interpretation of whether the war was successful. */
 	for (MemberAIIter it(m_eAgent); it.hasNext(); ++it)

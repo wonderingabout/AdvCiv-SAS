@@ -601,7 +601,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#516 - (Fixed inherited AdvCiv vassal-war defect) Inverted master test prevented preparation timeout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-516)\
 [KI#517 - (Provisional Pending inherited AdvCiv debug-path defect) doWarReport can mutate real diplomacy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-517)\
 [KI#518 - (Fixed inherited AdvCiv assertion regression) Random nonleader diplomat tripped leader-only check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-518)\
-[KI#519 - (Provisional Pending inherited AdvCiv lifecycle defect) Capitulation readiness survives peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-519)\
+[KI#519 - (Fixed inherited AdvCiv lifecycle defect) Capitulation readiness survived peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-519)\
 [KI#520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-520)\
 [KI#521 - (Fixed inherited AdvCiv debug-assertion defect) Legal human bombardment of an undefended city asserted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-521)\
 [KI#522 - (Fixed AdvCiv-SAS KI#319 regression) Missionless transport unloading was mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-522)\
@@ -12589,11 +12589,17 @@ A current-build huge autoplay completed successfully; the exact nonleader random
 
 <a id="ki-519"></a>
 
-## KI#519 - (Provisional Pending inherited AdvCiv lifecycle defect) Capitulation readiness survives peace
+## KI#519 - (Fixed inherited AdvCiv lifecycle defect) Capitulation readiness survived peace
 
-Album F196 finds obsolete human-capitulation authorization persisting into a later unrelated war. Pending independent implementation review.
+UWAI uses the leader cache's `m_readyToCapitulateTo` set as a temporal authorization for surrender to a human team. `considerCapitulation` deliberately sets the authorization before asking `AI_surrenderTrade`, and leaves it set after approval so the human can receive and accept the capitulation offer. This ensures that surrender to a human was approved by `considerPeace` on the AI turn rather than first triggered through another diplomacy path.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The authorization had no matching war-lifetime cleanup. `reviewWarPlans` cleared it while reviewing a human target, but returned before that loop when the AI had no remaining war plan. Ordinary peace therefore allowed the old authorization to survive into a later war against the same human. If the human inflicted enough losses before the victim's next AI turn, the stale bit could satisfy `AI_surrenderTrade`'s intended current-war decision gate. The ordinary power, war-success, city and diplomacy requirements still applied; the defect was reuse of approval from an unrelated earlier war.
+
+The repair clears readiness for a human enemy in `UWAI::Team::reportWarEnding`, the exact lifecycle boundary where the corresponding war ends. It preserves authorization throughout the live war and does not weaken any other capitulation criterion. Clearing it during an accepted capitulation is harmless because the surrender decision has already been approved and the relationship is transitioning to vassalage. Moving the existing review-loop clear would not be sufficient because a peace-to-new-war window can occur before the next review.
+
+After a clean Debug-opt compilation, a Huge Custom Continents game with 16 independent teams, Normal speed, standard Aggressive AI/full UWAI and No Events completed normally through Space Race victory on turn 397. `SASGameRecord_20260831T181625Z_new1.log` confirms the matching Debug-opt DLL fingerprint and completed autoplay. The exact peace-to-later-war reuse sequence was not deliberately forced and remains source/lifecycle verified.
+
+The initial AdvCiv UWAI integration introduced the authorization, the no-war-plan early return and the incomplete per-target reset together; Base AdvCiv 1.14 retains the same lifecycle, while AdvCiv-SAS inherited it unchanged. Found as F196/provisional KI#519 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-520"></a>
 
