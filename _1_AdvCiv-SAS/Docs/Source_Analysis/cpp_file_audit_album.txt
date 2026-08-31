@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - CLOSED AT C031-WIP87
-Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP109
-Latest confirmed roots: F321-F408 / provisional KI#644-KI#731 across the protected re-audits
-Next root ID: F409 unused / provisional KI#732 next
+Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP115
+Latest confirmed roots: F321-F413 / provisional KI#644-KI#736 across the protected re-audits
+Next root ID: F414 unused / provisional KI#737 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -23,7 +23,7 @@ METHOD
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
-003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP109 / F388-F408]<-(priority current wip)
+003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP115 / F388-F413]<-(priority current wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
@@ -87344,3 +87344,825 @@ Next continuation: continue the ordinary city-resource/help reconciliation from
 production and commerce into the remaining active-context/sentinel/default-class
 closure patterns; specifically challenge disorder/process/overflow special states
 in setProductionHelp and its neighboring helpers before widening again.
+
+
+===============================================================================
+POST-WIP109 CONTINUATION — QUEUE 003 CvGameTextMgr.cpp
+===============================================================================
+
+Starting stone:
+- Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp OPEN.
+- 32/169 unique files complete.
+- F388-F408 confirmed.
+- F409 / provisional KI#732 UNUSED.
+- C031-WIP109 latest physical checkpoint.
+- No repository source files modified.
+
+This continuation resumed exactly at the unfinished disorder-production question in
+setProductionHelp and reconciled the Alt/"Actual Building Effects" bypass against
+the runtime CvCity::getProductionDifference contract, the city-screen widget and
+the K-Mod -> AdvCiv ancestry.
+
+
+F409 / provisional KI#732 — CONFIRMED
+--------------------------------------
+TITLE:
+ALT / "BUILDING ADDITIONAL PRODUCTION" BYPASSES THE DISORDER ZERO-PRODUCTION
+GUARD AND RECONSTRUCTS NONZERO PRODUCTION / OVERFLOW THAT RUNTIME CANNOT EARN
+
+CLASSIFICATION:
+Inherited K-Mod BUG "Actual Building Effects" integration defect retained by
+AdvCiv and current SAS; AdvCiv additionally made the broken path directly
+reachable through the Alt key even with the option disabled.
+
+RUNTIME CONTRACT:
+CvCity::getProductionDifference begins with:
+
+    if (isDisorder() && !bForceFeatureProd)
+        return 0;
+
+and CvCity::isDisorder() is true for either occupation or owner anarchy:
+
+    return (isOccupation() || GET_PLAYER(getOwner()).isAnarchy());
+
+Thus ordinary current production is exactly zero throughout disorder. The city
+screen follows that contract: CvMainInterface.py gets
+getCurrentProductionDifference(True, True) and displays that value in
+ProductionInputText, which is still attached to WIDGET_PRODUCTION_MOD_HELP.
+
+BROKEN TOOLTIP PATH:
+CvGameTextMgr::setProductionHelp normally uses the same zero result to return:
+
+    bool bBuildingAdditionalYield =
+        (BUGOption::isEnabled("MiscHover__BuildingAdditionalProduction", false) ||
+         GC.altKey());
+
+    if (kCity.getCurrentProductionDifference(false, true) == 0 &&
+        !bBuildingAdditionalYield)
+        return;
+
+Holding Alt, or enabling the BUG option, therefore bypasses the return even when
+the only reason production is zero is disorder.
+
+After bypassing it, setProductionHelp does not switch to a dedicated hypothetical
+"after disorder" mode. It runs the ordinary live-production reconstruction:
+
+- setYieldHelp prints the city's normal base production and yield modifiers;
+- iBaseProduction is rebuilt from getBaseYieldRate(YIELD_PRODUCTION);
+- unit/building/project production modifiers are added;
+- iModProduction is computed from those normal values;
+- the tooltip appends TXT_KEY_MISC_HELP_PROD_FINAL_YIELD with iModProduction;
+- if an order is queued, it can also compute/display iNewOverflow from that
+  reconstructed production.
+
+But runtime remains at exactly zero for the turn.
+
+INTERNAL SELF-CHECK CONFIRMS THE MISMATCH:
+The helper contains:
+
+    FAssertMsg(iModProduction ==
+        kCity.getCurrentProductionDifference(false, !bProcess) + ...,
+        "Modified Production does not match actual value");
+
+In an anarchy/occupation city with ordinary positive base production and a queued
+order, the left side is positive while getCurrentProductionDifference is 0.
+Therefore the Alt/option path can trip the helper's own assertion in a debug DLL;
+in a release DLL it proceeds to show the wrong nonzero final production instead.
+
+LIVE CURRENT-SAS EXAMPLE:
+Use an ordinary city with a queued unit/building and 5 base hammers, then enter
+civic or religious anarchy. The queue remains present but isDisorder() makes the
+actual production difference 0, which the main city-screen production input
+correctly displays.
+
+Hover that same ProductionInputText while holding Alt:
+
+    runtime/current-production display: 0 hammers
+    setProductionHelp reconstruction:   5 hammers (before any order modifiers)
+
+and the hover can label that reconstructed value as final production and even
+project overflow that cannot be generated during the disorder turn. Any normal
+positive production city supplies the mismatch; 5 hammers is only a simple
+illustration.
+
+REACHABILITY:
+This is live even though the BUG menu option defaults to False in current SAS.
+AdvCiv's advc.063 integration explicitly ORs the option with GC.altKey(), and Alt
+is the documented shortcut for showing all "Actual Effects" information. The
+production input label remains attached to WIDGET_PRODUCTION_MOD_HELP in disorder.
+
+ANCESTRY:
+K-Mod commit:
+    8478443165fcaeca861fc9d2dbb725de7e94ca59
+Title:
+    "Implemented \"actual building effect\" mouse-over hover options from BUG."
+
+Its diff changes the original unconditional zero-production return into:
+
+    if (city.getCurrentProductionDifference(false, true) == 0 &&
+        !bBuildingAdditionalYield)
+        return;
+
+so the defective bypass originates with the BUG/K-Mod integration.
+
+AdvCiv commit:
+    aa7146bdeef00ac4ce12198f795dc3ac0cb46770
+Title:
+    "Improved the integration of some UI conveniences; smarter Sentry mission"
+
+advc.063 changes bBuildingAdditionalYield to include:
+
+    || GC.altKey()
+
+and its log explicitly says Alt now shows all Actual Effects info. Thus AdvCiv
+makes the already-broken zero-production bypass directly reachable on demand,
+even with the menu option disabled. Base AdvCiv 1.14 and current SAS retain it.
+
+CONSERVATIVE REPAIR:
+Disorder must win over the Actual Effects toggle for the live-production portion.
+For example, return (or show an explicit zero/disorder line) before the optional
+building projections:
+
+    if (kCity.isDisorder())
+    {
+        // optionally show "0 production during disorder"
+        // optional building-effect projections may be shown separately,
+        // but must not be labelled as current/final production.
+        return;
+    }
+
+If keeping Alt building projections during disorder is desirable, separate them
+from the current-production reconstruction rather than using the option to bypass
+the runtime-zero guard.
+
+WHY THIS IS DISTINCT FROM F408:
+F408 is an unconditional state omission in setFoodHelp: ordinary food arithmetic
+is used throughout disorder. F409 is a separate control-flow regression in
+setProductionHelp: the helper does have a zero-production guard, but the BUG
+Actual Effects option / Alt shortcut deliberately bypasses it and then continues
+through live-production and overflow arithmetic. They have different introducing
+changes and different repairs.
+
+
+CURRENT STONE AFTER F409
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F409 CONFIRMED.
+F410 / provisional KI#733 UNUSED.
+Latest physical checkpoint: C031-WIP110.
+No repository source files modified.
+
+Next continuation: stay in the adjacent setProductionHelp/setCommerceHelp state
+reconciliation long enough to challenge process conversion, overflow and
+zero-commerce Alt paths; then resume the whole-file active-context/sentinel/
+default-class/runtime-vs-display closure sweeps. Keep the same live-caller and
+current-data threshold before numbering F410.
+
+END C031-WIP110
+
+
+===============================================================================
+C031-WIP111 CONTINUATION — QUEUE 003 CvGameTextMgr.cpp
+F410 / provisional KI#733 CONFIRMED
+===============================================================================
+
+POST-WIP110 RECONCILIATION CONTROLS
+-----------------------------------
+The current-SAS-vs-Base-AdvCiv delta pass continued before promoting F410.
+Several high-risk-looking current deltas stayed clean:
+
+* setTradeRouteHelp still reconstructs the same base profit, partner modifiers,
+  total trade modifier and final trade profit as runtime, with exact assertions
+  against CvCity::totalTradeModifier and calculateTradeProfit. Current SAS's
+  changes there are static-define/cache/display-name cleanup, not a new root.
+
+* setEspionageCostHelp still carries exact assertions against
+  CvPlayer::getEspionageMissionCostModifier and getEspionageMissionCost. Current
+  SAS's spy-selection path also already uses the mission-capable selection-group
+  spy (the earlier KI#398 repair), so no new stale-head-unit mismatch survived.
+
+* setVassalRevoltHelp's displayed population/land/loss ratios line up with the
+  corresponding CvTeam revolt predicates/defines.
+
+* setScoreHelp's component reconstruction is protected by its equality check
+  against calculateScore in the ordinary current configuration; no current
+  Python-score callback mismatch was established.
+
+* The SAS air-bomb/air-strike/paradrop deltas inspected here are repairs rather
+  than regressions: they null-check the selection list and select a unit that can
+  actually execute the mission at the target instead of trusting the arbitrary
+  selection head / highest-evasion unit.
+
+* The SAS parseGreatPeopleHelp delta that separates obsolete-building GPP is
+  consistent with runtime: obsolete wonders can keep their Great-Person-point
+  rate, so exposing that contribution fixes rather than creates a decomposition
+  mismatch.
+
+KNOWN-TECH ROUTE-MOVEMENT DOUBLE-APPLICATION CANDIDATE — NOT PROMOTED:
+`buildMoveString` uses the active team's current route change as a baseline when
+bPlayerContext is true, then adds the hovered technology's movement change to
+show its marginal effect. If called with bPlayerContext=true for an already-known
+Engineering, the current route change would already contain Engineering and the
+helper would indeed apply it a second time.
+
+The live widget contract prevents that state:
+
+* CvDLLWidgetData::parseTechTreeHelp passes
+      bPlayerContext = !GET_TEAM(getActiveTeam()).isHasTech(eTech)
+  so known technologies deliberately switch to context-free help.
+* WIDGET_RESEARCH supplies the current/research-choice technology, i.e. an
+  unacquired technology; the current-research widget cannot represent a tech the
+  team already owns.
+
+Current XML does make the arithmetic relevant (Road has Engineering
+TechMovementChange = -10), but the bad context is not supplied by the current UI.
+This remains a latent helper contract, not F410.
+
+LARGE BUILDING-HELP SAS DELTA CONTROL:
+The custom clean/dirty/area-clean power wording was compared with
+CvCity::updatePowerHealth / isDirtyPower. Its arithmetic matches runtime:
+POWER_HEALTH_CHANGE applies whenever a city has power; DIRTY_POWER_HEALTH_CHANGE
+is added only while `isDirtyPower()` is true; area clean power makes
+isDirtyPower() false. The old K-Mod <= -100% population-unhealth wording caveat
+also stays current-data-masked because SAS has no positive civic population-
+unhealth modifier that can offset the -100% building case.
+
+
+F410 / provisional KI#733 — CONFIRMED
+-------------------------------------
+TITLE:
+Alt / "Building Additional Great People" bypasses disorder's zero-GPP contract,
+so the Great Person hover can display a nonzero final rate (and trip its own
+assertion) while occupation/anarchy actually generates 0 GPP.
+
+CLASSIFICATION:
+Inherited BUG/K-Mod UI-calculation defect; AdvCiv makes it directly reachable
+through the Alt "Actual Effects" shortcut. Current SAS retains it.
+
+RUNTIME CONTRACT:
+CvCity::getGreatPeopleRate() explicitly returns zero in disorder:
+
+    int CvCity::getGreatPeopleRate() const
+    {
+        if (isDisorder())
+            return 0;
+        return (getBaseGreatPeopleRate() * getTotalGreatPeopleRateModifier()) / 100;
+    }
+
+CvCity::doGreatPeople() independently enforces the same state transition:
+
+    if (isDisorder())
+        return;
+
+    changeGreatPeopleProgress(getGreatPeopleRate());
+
+So occupation or owner anarchy produces exactly 0 Great Person points for that
+turn. This is not merely a display convention.
+
+BROKEN TOOLTIP CONTROL FLOW:
+CvGameTextMgr::parseGreatPeopleHelp first obtains the correct live value:
+
+    int const iGPRate = kCity.getGreatPeopleRate();
+
+but the BUG "Building Additional Great People" integration changes the normal
+zero-rate return into:
+
+    bool bBuildingAdditionalGreatPeople =
+        (BUGOption::isEnabled("MiscHover__BuildingAdditionalGreatPeople", false) ||
+         GC.altKey());
+
+    if (iGPRate == 0 && !bBuildingAdditionalGreatPeople)
+        return;
+
+Thus Alt (or the option) bypasses the return even when iGPRate is zero solely
+because the city is in disorder.
+
+After bypassing it, the helper does not keep the live zero rate. It reconstructs
+normal, non-disorder GPP from:
+
+* specialists and free specialists;
+* building GPP (including the SAS explicit obsolete-building line);
+* base Great People rate;
+* building/global GPP modifiers;
+* civic/state-religion modifiers;
+* trait modifiers;
+* Golden Age modifier.
+
+It then computes:
+
+    int iModGreatPeople =
+        (iModifier * kCity.getBaseGreatPeopleRate()) / 100;
+
+and appends TXT_KEY_MISC_HELP_GREATPEOPLE_FINAL with that value.
+
+INTERNAL SELF-CHECK PROVES THE STATE MISMATCH:
+Immediately before displaying the final value, the helper has:
+
+    FAssertMsg(iModGreatPeople == kCity.getGreatPeopleRate(),
+        "Great person rate does not match actual value");
+
+During disorder, getGreatPeopleRate() is 0. If the city has any normal positive
+base GPP, Alt causes iModGreatPeople > 0, so a debug DLL can fire this assertion.
+A release DLL proceeds and displays the wrong nonzero final rate.
+
+LIVE CURRENT-SAS REACHABILITY:
+The city-screen GreatPeopleBar is created with WIDGET_HELP_GREAT_PEOPLE and
+CvDLLWidgetData::parseGreatPeopleHelp forwards that hover to this function.
+
+CvMainInterface.py keeps the Great People bar visible when either:
+
+    pHeadSelectedCity.getGreatPeopleProgress() > 0
+    or pHeadSelectedCity.getGreatPeopleRate() > 0
+
+Therefore disorder does NOT necessarily hide the widget: an established GP city
+with any stored progress remains hoverable even though its current rate has
+fallen to 0.
+
+A simple supported state:
+
+1. Have an ordinary city with stored Great Person progress and 3 base GPP/turn
+   (e.g. from a specialist/building).
+2. Enter civic or religious anarchy, or put the city in occupation.
+3. Runtime `getGreatPeopleRate()` becomes 0 and doGreatPeople adds nothing.
+4. The stored progress keeps GreatPeopleBar visible.
+5. Hover normally: the zero-rate guard stops the detailed rate breakdown.
+6. Hold Alt: the guard is bypassed; the helper reconstructs and labels the
+   ordinary positive rate (e.g. 3 GPP/turn, before any modifiers) as Final.
+
+So the same current city state is simultaneously:
+
+    runtime/current GPP rate: 0
+    Alt detailed-hover final: >0
+
+and the debug assertion can fail for exactly that reason.
+
+ANCESTRY:
+K-Mod commit:
+    8478443165fcaeca861fc9d2dbb725de7e94ca59
+Title:
+    "Implemented \"actual building effect\" mouse-over hover options from BUG."
+
+That integration introduced BuildingAdditionalGreatPeople and replaced the old
+zero-GPP return with the option-gated return, creating the state bypass.
+
+AdvCiv commit:
+    aa7146bdeef00ac4ce12198f795dc3ac0cb46770
+Title:
+    "Improved the integration of some UI conveniences; smarter Sentry mission"
+
+advc.063 changes the option test to:
+
+    BUG option || GC.altKey()
+
+making the bad path directly reachable through the documented Alt "Actual
+Effects" shortcut even though the menu option defaults to false. Base AdvCiv
+1.14 and current SAS retain it.
+
+CONSERVATIVE REPAIR:
+Disorder must remain authoritative for the live/final GPP-rate portion. E.g.:
+
+    if (kCity.isDisorder())
+    {
+        // Optionally allow a separately-labelled hypothetical building-effect
+        // section, but do not reconstruct or label a nonzero current/final rate.
+        return;
+    }
+
+or preserve the building projections in a separate path while leaving
+`iGPRate == 0` as an unconditional stop for the ordinary live-rate breakdown.
+
+WHY F410 IS DISTINCT FROM F408/F409:
+F408 is setFoodHelp's unconditional failure to mirror disorder.
+F409 is setProductionHelp's Building Additional Production/Alt bypass of its
+otherwise-correct zero-production guard.
+F410 is a separate BUG feature/helper (`parseGreatPeopleHelp` and
+BuildingAdditionalGreatPeople), separate runtime quantity and separate display
+widget. It happens to repeat the same integration pattern as F409, which is
+useful evidence that the BUG "Actual Effects" zero-rate bypass family should be
+checked systematically.
+
+
+CURRENT STONE AFTER F410
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F410 CONFIRMED.
+F411 / provisional KI#734 UNUSED.
+Latest physical checkpoint: C031-WIP111.
+No repository source files modified.
+
+Next continuation: use F409/F410 as a targeted pattern sweep over the remaining
+BUG "Actual Effects" helpers (specialist, commerce, health/happiness) for zero-
+runtime-state guards bypassed by option/Alt; then return to the current-SAS delta
+inventory and whole-file active-context/sentinel/runtime-vs-display closure.
+
+END C031-WIP111
+
+
+POST-WIP111 CLOSURE CONTROLS — PHYSICALLY PRESERVED IN WIP112
+--------------------------------------------------------------
+F411 / provisional KI#734 remains UNUSED at this checkpoint.
+
+1. setSpecialistLink singular/plural polarity — latent, not promoted.
+A building specialist-slot caller passes a local `bSingular` value directly to
+setSpecialistLink's third parameter, whose contract/name is `bPlural`. This is
+source-level opposite polarity. However, the flag changes only the grammatical
+form embedded in the generated specialist link for Italian/Spanish; the visible
+specialist description is unchanged. The EXE-side grammatical link resolver is
+not locally available, so a broken/misrouted live hyperlink cannot be proved.
+
+2. setEventHelp global negative-health localization branch — genuine dormant
+wrong-key/argument contract, not promoted under current SAS data.
+The non-city negative-health branch calls the city-specific
+TXT_KEY_EVENT_UNHEALTH_CITY while supplying only the health amount and no city
+name. The corresponding positive branch uses the global TXT_KEY_EVENT_HEALTH,
+and a global negative key exists. Current EventInfos contain no negative iHealth
+values, so the malformed branch is unreachable with current SAS XML.
+
+3. SAS cached default-specialist initializer — real source typo, data-masked.
+The self-referential initializer resolves through static zero initialization to
+enum 0; current DEFAULT_SPECIALIST is also SPECIALIST_CITIZEN / enum 0, so the
+current result is accidentally correct. No F411.
+
+4. City-bar commerce during disorder — candidate killed by runtime cache update.
+Occupation/anarchy transitions trigger updateCommerce(); CvCity::updateCommerce
+sets the cached commerce rates to zero while isDisorder() is true. Although the
+city-bar loop itself has no separate guard on every commerce line, it therefore
+reads zeros rather than stale pre-disorder rates.
+
+5. War-weariness visibility self-query — control.
+The active-player canSeeDemographics(self) concern closes because canSeeIntel's
+same-team case guarantees visibility to self.
+
+6. Billboard/disorder controls.
+Food/production/GP/top-city billboard calculations inspected after WIP111 use
+runtime-updated values or collapse their estimates when the corresponding rate
+is zero; no independent F411 established.
+
+7. Global-option integration sweep — IN PROGRESS at the WIP112 freeze point.
+F394-F396 showed that player-facing "enables/allows" text can drift from global
+option runtime state. The next exact continuation is the organization /
+corporation first-discovery/founding help versus CvTeam::setHasTech and the No
+Corporations option, followed by the remaining option-gated unlock helpers.
+
+CURRENT STONE AT WIP112 FREEZE
+------------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp OPEN.
+32/169 unique files complete.
+F388-F410 CONFIRMED.
+F411 / provisional KI#734 UNUSED.
+No repository source files modified.
+Latest physical checkpoint: C031-WIP112.
+
+END C031-WIP112 FREEZE
+
+
+POST-WIP112 OPTION-SWEEP CONTROL
+--------------------------------
+The unfinished corporation/organization first-discovery question closes without
+F411. Current SAS has no GAMEOPTION_NO_CORPORATIONS; No Corporations is a civic
+state. That civic does not prevent a first-discovery corporation from being
+founded: CvTeam::setHasTech still calls CvPlayer::foundCorporation, while the
+civic subsequently makes corporations inactive / blocks applicable construction
+and spread. Thus "First to discover incorporates ..." remains literally true.
+Moreover current corporation XML uses TechPrereq=NONE, so the technology-first-
+discovery corporation branch is not a current-data producer anyway.
+
+
+F411 / provisional KI#734 — CONFIRMED
+-------------------------------------
+TITLE:
+City corporation hover ignores disorder: it can display normal corporation
+output and maintenance while occupation/anarchy suppresses those live effects.
+
+CLASSIFICATION:
+Inherited BtS city-hover/runtime-state defect; retained unchanged in K-Mod,
+Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+BROKEN DISPLAY CONTRACT:
+CvGameTextMgr::setCorporationHelpCity determines:
+
+    bool const bActive = (pCity->isActiveCorporation(eCorporation) ||
+        (bForceCorporation && iNumResources > 0));
+
+and, whenever bActive is true, reconstructs corporation yield/commerce from the
+resource count and CorporationInfo values. It also reconstructs corporation
+maintenance and inflation. There is no `pCity->isDisorder()` /
+`pCity->isNoMaintenance()` check in this display path.
+
+RUNTIME CONTRACT — CORPORATION OUTPUT:
+CvCity::getCorporationYieldByCorporation and
+CvCity::getCorporationCommerceByCorporation both require:
+
+    if (isActiveCorporation(eCorporation) && !isDisorder())
+
+before adding any output. In disorder they return 0.
+
+`CvCity::isActiveCorporation` itself deliberately does NOT include disorder; it
+checks possession, owner corporation policy and prerequisite resources. Thus the
+TextMgr's bActive can remain true while the runtime-output functions explicitly
+return zero.
+
+RUNTIME CONTRACT — MAINTENANCE:
+CvCity::isNoMaintenance() is:
+
+    return (isDisorder() || isWeLoveTheKingDay() || getPopulation() <= 0);
+
+and updateMaintenance sets current city maintenance to zero whenever
+isNoMaintenance() is true. The corporation hover nevertheless computes its own
+corporation-maintenance number when bActive is true, without that state guard.
+
+LIVE CURRENT-SAS UI REACHABILITY:
+CvMainInterface.py keeps corporation icons for corporations that the selected
+city has, independent of disorder, and attaches
+WIDGET_HELP_CORPORATION_CITY. CvDLLWidgetData::parseCorporationHelpCity passes the
+selected city to setCorporationHelpCity(..., bCityScreen=true).
+
+Therefore both player anarchy and captured-city occupation leave a normal live
+hover path to the broken calculation.
+
+CONCRETE CURRENT-DATA EXAMPLE:
+Cereal Mills (CORPORATION_1) produces 100 food-hundredths per qualifying resource
+and Standard world size has CorporationMaintenancePercent=100. A city with
+Cereal Mills and one Wheat therefore ordinarily receives +1 food from that
+corporation.
+
+If the owner enters anarchy (or the city is occupied):
+
+    runtime getCorporationYieldByCorporation(FOOD, Cereal Mills) = 0
+
+but the corporation icon hover still reconstructs and prints +1 food because
+`bActive` remains true. Any displayed corporation-maintenance amount is likewise
+not the currently charged city maintenance, which is zero in disorder.
+
+ANCESTRY:
+The same missing disorder/no-maintenance guard is present in Civ4CE/BtS's
+setCorporationHelpCity, K-Mod, Base AdvCiv 1.14 and current SAS. K-Mod adds
+inflation to the displayed maintenance but does not repair the state mismatch.
+
+CONSERVATIVE REPAIR:
+For live city help, derive displayed corporation yield/commerce through the
+runtime getters (getCorporationYieldByCorporation /
+getCorporationCommerceByCorporation) or at minimum require `!pCity->isDisorder()`
+for those values. Do not show a currently-paid corporation maintenance value when
+`pCity->isNoMaintenance()` is true. Keep bForceCorporation hypothetical-preview
+semantics separate if those callers intentionally want counterfactual output.
+
+WHY DISTINCT FROM F408-F410:
+F408 is the food-rate hover's missing disorder guard; F409 is production Actual
+Effects/Alt bypass; F410 is Great-People Actual Effects/Alt bypass. F411 is a
+separate corporation-icon helper with its own corporation output and maintenance
+runtime contracts, and it is wrong without any modifier key or BUG option.
+
+
+CURRENT STONE AFTER F411
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F411 CONFIRMED.
+F412 / provisional KI#735 UNUSED.
+Latest physical checkpoint: C031-WIP113.
+No repository source files modified.
+
+Next continuation: check the neighboring religion-city hover for the same
+live-state family; then finish global-option integration and proceed through the
+remaining sentinel/localization/source-vs-target/runtime-decomposition closure
+sweeps.
+
+END C031-WIP113
+
+
+POST-WIP113 RELIGION/CORPORATION CONTROL
+----------------------------------------
+The neighboring religion-city hover does not reproduce F411 merely because it
+can show religion commerce during disorder. CvCity::getReligionCommerceByReligion
+is itself an underlying religion-contribution getter and does not have a disorder
+state gate; the old Python religion-icon code also used that getter directly.
+By contrast, the corporation runtime getters explicitly require !isDisorder(),
+and the old commented Python corporation display used those disorder-sensitive
+getCorporationYieldByCorporation / getCorporationCommerceByCorporation getters.
+This strengthens F411 as a corporation-specific live-value regression rather
+than supporting a generic icon-hover-in-disorder finding.
+
+
+F412 / provisional KI#735 — CONFIRMED
+-------------------------------------
+TITLE:
+Finance Advisor unit-cost / unit-supply hovers ignore player anarchy and can
+itemize positive expenses while the visible/runtime expense rows are exactly 0.
+
+CLASSIFICATION:
+Inherited BUG/K-Mod Finance Advisor state mismatch; present in K-Mod and retained
+by Base AdvCiv 1.14/current AdvCiv-SAS. Stock BtS/Civ4CE does not contain these
+finance-breakdown TextMgr helpers.
+
+RUNTIME OVERLOAD CONTRACT:
+CvPlayer exposes ordinary unit-cost / supply functions and detailed breakdown
+overloads.
+
+The ordinary unit-cost path explicitly does:
+
+    int CvPlayer::calculateUnitCost(int iExtraPop, int iExtraUnits) const
+    {
+        if (isAnarchy())
+            return 0;
+        ... detailed overload ...
+    }
+
+and ordinary unit supply similarly does:
+
+    int CvPlayer::calculateUnitSupply(int iExtraOutsideUnits) const
+    {
+        if (isAnarchy())
+            return 0;
+        ... detailed overload ...
+    }
+
+The detailed overloads
+`calculateUnitCost(iFreeUnits, ..., iExtraCost, ...)` and
+`calculateUnitSupply(iPaidUnits, iBaseSupplyCost, ...)` do not perform the
+anarchy test; they calculate the normal pre-anarchy support burden.
+
+BROKEN TEXTMGR CONTRACT:
+CvGameTextMgr::buildFinanceUnitCostString calls the detailed unit-cost overload
+directly and then inflates / prints its components and total.
+CvGameTextMgr::buildFinanceAwaySupplyString likewise calls the detailed supply
+overload directly. Neither helper checks `kPlayer.isAnarchy()`.
+
+LIVE CURRENT-SAS UI PROOF:
+The Economics/Finance tab in CvDomesticAdvisor.py computes its displayed rows
+through the ordinary Python-exposed runtime calls:
+
+    totalUnitCost = player.calculateUnitCost() * inflation...
+    totalUnitSupply = player.calculateUnitSupply() * inflation...
+
+Thus both visible values are exactly 0 during anarchy.
+
+The Unit Cost and Unit Supply labels are nevertheless always created and always
+carry WIDGET_HELP_FINANCE_UNIT_COST / WIDGET_HELP_FINANCE_AWAY_SUPPLY with
+m_iData2=1. CvDLLWidgetData consequently invokes buildFinanceUnitCostString and
+buildFinanceAwaySupplyString for those zero-valued rows.
+
+SUPPORTED STATE:
+Take any ordinary empire with enough units to owe positive regular unit cost and
+at least one paid outside unit for supply. Before a civic/religion switch its
+Finance rows and hovers show positive costs. During the resulting player anarchy:
+
+    visible Unit Cost row = 0
+    visible Unit Supply row = 0
+    runtime calculateUnitCost() = 0
+    runtime calculateUnitSupply() = 0
+
+but the hover helpers bypass those anarchy-aware wrappers and reconstruct the
+normal positive support costs. A zero row can therefore have a tooltip whose own
+itemized total says that the player is paying positive gold per turn.
+
+ANCESTRY:
+The detailed finance helpers and the same direct detailed-overload calls are
+present in K-Mod and Base AdvCiv. They are absent from stock BtS/Civ4CE's
+CvGameTextMgr, making this part of the inherited BUG/K-Mod Finance Advisor
+integration rather than a stock-BtS root. Current SAS retains the behavior.
+
+REPAIR DIRECTION:
+Mirror the runtime state before constructing the breakdown. At minimum, when
+`kPlayer.isAnarchy()` the unit-cost and away-supply helpers should report zero /
+anarchy-suppressed cost rather than invoke the detailed overload as though the
+state were normal. An alternative is to make the detailed breakdown API accept
+or expose the same runtime suppression explicitly so the row and tooltip share
+one source of truth.
+
+NEIGHBORING EXTRA-COST CONTROL:
+The unit-cost helper inflates iCost, iUnitCost and iMilitaryCost but does not
+inflate `iExtraCost` before printing that component. That is structurally
+suspicious, but current SAS UnitInfo XML has no nonzero iExtraCost values, so it
+is data-dormant and is not promoted as F413 here.
+
+
+CURRENT STONE AFTER F412
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F412 CONFIRMED.
+F413 / provisional KI#736 UNUSED.
+Latest physical checkpoint: C031-WIP114.
+No repository source files modified.
+
+Next continuation: continue the Finance Advisor breakdown family briefly for
+state/rounding controls, then return to the independent whole-file closure
+passes: global-option integration, NO_* / info-access sentinels, localization
+key/type contracts, source-vs-target context, and runtime-vs-displayed state.
+
+END C031-WIP114
+
+
+POST-WIP114 CLOSURE CONTROLS
+----------------------------
+The remaining project-count display was reconciled against CvPlayer::canCreate.
+For world/team projects, both runtime legality and setProjectHelp reserve copies
+that the team is already making. The current city's in-progress copy is removed
+from the runtime "continue this order" legality test through bContinue=-1, but
+`N left` in the hover is naturally the number of *additional* slots still free.
+Thus a city can correctly be allowed to finish its current copy while the hover
+says 0 left. No F413 is spent on that wording.
+
+The random-event pass also retained earlier dormant controls: the global
+negative-health branch uses the wrong city-specific localization key but current
+EventInfo data has no negative iHealth; eventGoldHelp has a negative random-range
+sign asymmetry but current EventInfo data does not produce that state; and its
+use of getActivePlayer() when filtering additional outcomes is a perspective/API
+hazard whose current normal callers all describe the active event owner.
+
+
+F413 / provisional KI#736 — CONFIRMED
+-------------------------------------
+TITLE:
+Random-event pillage ranges advertise an inclusive XML maximum that runtime can
+never roll when MinPillage and MaxPillage differ.
+
+CLASSIFICATION:
+Inherited stock-BtS random-event off-by-one; present in Civ4CE/BtS, K-Mod,
+Base AdvCiv 1.14 and current AdvCiv-SAS. The defect is in the event execution
+range calculation; CvGameTextMgr faithfully exposes the XML's stated min/max.
+
+TEXT / DATA CONTRACT:
+CvGameTextMgr::setEventHelp displays the two XML endpoints directly:
+
+    TXT_KEY_EVENT_PILLAGE_RANGE_CITY(
+        kEvent.getMinPillage(), kEvent.getMaxPillage(), city)
+
+(or the non-city range key for empire-wide events).
+
+The fields are named iMinPillage and iMaxPillage, and current SAS's Sevopedia
+random-event page independently describes them as the "possible count range"
+and formats unequal values as `min-max`. The stock BtS localization likewise
+presents the two values as a range. There is no indication that iMaxPillage is
+intended as an exclusive bound.
+
+BROKEN RUNTIME CONTRACT:
+Both CvCity::applyEvent (city / other-player-city events) and
+CvPlayer::applyEvent (empire-wide events) choose the count with:
+
+    iMinPillage + SyncRandNum(iMaxPillage - iMinPillage)
+
+CvRandom::getInt(N) returns an integer in [0, N-1]. Therefore, when max > min,
+the actual event range is:
+
+    MinPillage ... MaxPillage-1
+
+and the XML / tooltip maximum can never happen. When min==max, the current call
+uses SyncRandNum(0), which happens to return 0 and therefore masks the same
+missing-inclusive-endpoint issue.
+
+LIVE CURRENT-SAS EXAMPLES:
+Current CIV4EventInfos.xml contains ordinary reachable Looters outcomes:
+
+    EVENT_LOOTERS_2: iMinPillage=2, iMaxPillage=4,
+                     bPickOtherPlayerCity=1
+    EVENT_LOOTERS_3: iMinPillage=3, iMaxPillage=5,
+                     bPickOtherPlayerCity=1
+
+CvEventInfo deliberately loads bPickOtherPlayerCity into
+m_bOtherPlayerCityEffect, so these outcomes run through CvCity::applyEvent on
+the selected other-player city and through the city-specific help text.
+
+For Looters 2 the hover says 2-4 improvements may be destroyed, while runtime
+computes `2 + Rand(2)` and can destroy only 2 or 3.
+For Looters 3 the hover says 3-5, while runtime computes `3 + Rand(2)` and can
+choose only 3 or 4.
+
+This is therefore reachable with unmodified current SAS EventInfo data and does
+not depend on a hypothetical mod-mod field.
+
+ANCESTRY:
+The same range display and the same `Rand(max-min)` execution formula are
+present in stock BtS/Civ4CE. K-Mod and Base AdvCiv retain both, and current SAS
+retains them as well. This is a stock-BtS inherited root rather than a SAS-local
+regression.
+
+REPAIR DIRECTION:
+Make the execution range inclusive to match the XML field names and all player-
+facing descriptions:
+
+    MinPillage + SyncRandNum(MaxPillage - MinPillage + 1)
+
+in both CvCity::applyEvent and CvPlayer::applyEvent. That also replaces the
+min==max zero-outcome RNG call with the natural Rand(1) form.
+
+
+CURRENT STONE AFTER F413
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F413 CONFIRMED.
+F414 / provisional KI#737 UNUSED.
+Latest physical checkpoint: C031-WIP115.
+No repository source files modified.
+
+Next continuation: continue the event/runtime field reconciliation for other
+random-range effects, then resume the whole-file closure passes over source-vs-
+target state, localization/key contracts, enum sentinels, option integration and
+still-unvisited member definitions. Only promote F414 if current callers/data
+support a distinct live consequence.
+
+END C031-WIP115

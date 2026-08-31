@@ -786,9 +786,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#695 - (Fixed AdvCiv Advanced Start regression) One unaffordable unit ended all later role passes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
 [KI#696 - (Fixed SAS victory-state ordering regression) Culture could not see the current Diplomacy stage](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-696)\
 [KI#697 - (Pending Architectural inherited and SAS-aggravated scope defect) Culture strategy is player-local for a team victory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-697)\
-[KI#698 - (Provisional Pending SAS Worker-allocation scope regression) Foreign and unavailable improvements count as city capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
-[KI#699 - (Provisional Pending AdvCiv Worker predicate regression) AI_connectBonus always returns false](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-699)\
-[KI#700 - (Provisional Pending SAS Worker-build regression) Feature-preserving improvements can become pure chops](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-700)\
+[KI#698 - (Fixed SAS Worker-allocation scope regression) Foreign and unavailable improvements counted as city capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
+[KI#699 - (Fixed inherited AdvCiv Worker predicate regression) AI_connectBonus always returned false](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-699)\
+[KI#700 - (Fixed SAS Worker-build regression) Feature-preserving improvements could become pure chops](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-700)\
 [KI#701 - (Provisional Pending inherited BtS/BBAI target-context defect) Remote city guards are selected for their source plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-701)\
 [KI#702 - (Provisional Pending SAS guard-mission interaction regression) Safe-city redistribution can lose its destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-702)\
 [KI#703 - (Provisional Pending inherited AdvCiv iterator-refactor regression) Enemy airbase-border danger tests friendly vassals instead](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-703)\
@@ -820,7 +820,12 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#729 - (Provisional Pending inherited AdvCiv debug-cache regression) Team-path results survive a selected unit moving](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-729)\
 [KI#730 - (Provisional Pending AdvCiv BULL integration defect) City-bar temporary anger takes one maximum instead of the cumulative amount](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-730)\
 [KI#731 - (Provisional Pending inherited AdvCiv/BULL display defect) Food hover ignores city disorder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-731)\
-[KI#732 - (Provisional Pending investigation) F409 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-732)\
+[KI#732 - (Provisional Pending inherited K-Mod/AdvCiv Actual Effects defect) Production hover can bypass disorder's zero production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-732)\
+[KI#733 - (Provisional Pending inherited K-Mod/AdvCiv Actual Effects defect) Great Person hover can bypass disorder's zero rate](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-733)\
+[KI#734 - (Provisional Pending inherited BtS city-hover defect) Corporation hover ignores disorder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-734)\
+[KI#735 - (Provisional Pending inherited K-Mod/BUG Finance Advisor defect) Unit-cost and supply hovers ignore anarchy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-735)\
+[KI#736 - (Provisional Pending inherited BtS random-event off-by-one) Pillage maximum is unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-736)\
+[KI#737 - (Provisional Pending investigation) F414 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-737)\
 
 <a id="ki-1"></a>
 
@@ -14340,27 +14345,43 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP64 `CvPlayer
 
 <a id="ki-698"></a>
 
-## KI#698 - (Provisional Pending SAS Worker-allocation scope regression) Foreign and unavailable improvements count as city capacity
+## KI#698 - (Fixed SAS Worker-allocation scope regression) Foreign and unavailable improvements counted as city capacity
 
-Album F375 finds the SAS `countImprovedTiles` helper counting every physically improved plot in a city's geometric BFC, including foreign plots and overlaps assigned to another city. Its Worker-readiness consumers treat that number as completed capacity for the city, while their actual `WorkablePlotIter` candidates exclude those plots. Border and overlap cities can consequently appear better improved than they are and lose Worker priority. Pending counting the same city-usable plot population as the Worker selector, or modeling friendly reassignment separately without counting foreign capacity.
+Album F375 found the SAS `countImprovedTiles` helper counting every physically improved plot in a city's geometric BFC, including foreign plots and overlaps assigned to another city. Its Worker-readiness consumers treated that number as completed capacity for the city, while their actual candidates excluded those plots. Border and overlap cities could consequently appear better improved than they were and lose Worker priority.
+
+Fixed by counting an improvement only when the plot's current working city is the city whose completed capacity is being measured. This matches the city-usable plot population consumed by its Worker selector without treating foreign or currently unavailable overlap capacity as complete.
+
+A clean Debug-opt compile and Huge Arboria autoplay completed successfully through turn 500 without an observed issue (Normal speed, Ancient start, 16 players, Aggressive AI and No Events). The exact foreign/overlap Worker-priority transition remains source-verified because the broad run does not guarantee that narrow city geometry.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP67 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-699"></a>
 
-## KI#699 - (Provisional Pending AdvCiv Worker predicate regression) AI_connectBonus always returns false
+## KI#699 - (Fixed inherited AdvCiv Worker predicate regression) AI_connectBonus always returned false
 
-Album F376 finds AdvCiv replacing `!AI_plotValid(kPlot)` with `kPlot.isArea(kPlot.getArea())` inside `AI_connectBonus`. A valid plot always belongs to its own area, so the rejection condition is always true and every iteration skips before reaching the bonus-connection logic. All three live Worker and network-automation callers therefore receive false from this dedicated fallback. Pending restoring the intended negative unit-to-plot area test or the full pre-regression `!AI_plotValid(kPlot)` contract.
+Album F376 found AdvCiv replacing `!AI_plotValid(kPlot)` with `kPlot.isArea(kPlot.getArea())` inside `AI_connectBonus`. A valid plot always belongs to its own area, so the rejection condition was always true and every iteration skipped before reaching the bonus-connection logic. All three live Worker and network-automation callers therefore received false from this dedicated fallback.
+
+Fixed by restoring the intended negative unit-to-plot area test, matching the neighboring replacements in the same AdvCiv optimization while avoiding the removed general predicate's cost.
+
+The same Huge Arboria Debug-opt autoplay completed successfully through turn 500 without an observed issue. The restored dedicated bonus-connection fallback remains source-verified because its execution is not exposed directly in ordinary UI testing.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP68 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-700"></a>
 
-## KI#700 - (Provisional Pending SAS Worker-build regression) Feature-preserving improvements can become pure chops
+## KI#700 - (Fixed SAS Worker-build regression) Feature-preserving improvements could become pure chops
 
-Album F377 finds SAS's `AI_betterPlotBuild` testing the opposite of its stated feature-removal prerequisite. When a caller has already selected and validated a feature-preserving improvement, such as a Camp on Forest Deer or Fur, the helper can replace it with `BUILD_REMOVE_FOREST` precisely because the Camp does not remove the Forest. The Worker performs a pure chop before returning later for an improvement that was already legal.
+Album F377 found SAS's `AI_betterPlotBuild` testing the opposite of its stated feature-removal prerequisite. When a caller had already selected and validated a feature-preserving improvement, such as a Camp on Forest Deer or Fur, the helper could replace it with `BUILD_REMOVE_FOREST` precisely because the Camp did not remove the Forest. The Worker performed a pure chop before returning later for an improvement that was already legal.
 
-Pending restoring the positive prerequisite predicate or, more conservatively, leaving caller-validated exact improvements untouched unless an explicit chop-value policy independently chooses removal.
+Fixed by restoring the positive feature-removal predicate and requiring an actual feature. Caller-validated feature-preserving improvements now remain intact; the existing prerequisite-clearing safeguard remains available only when the original build itself removes that feature.
+
+The same Huge Arboria Debug-opt autoplay completed successfully through turn 500 without an observed issue. A direct Forest Deer/Fur Camp sequence was not separately forced, so the exact feature-preserving transition remains source-verified.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP69 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
@@ -14676,8 +14697,58 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP109 `CvGameT
 
 <a id="ki-732"></a>
 
-## KI#732 - (Provisional Pending investigation) F409 remains unassigned during the CvGameTextMgr deep re-audit
+## KI#732 - (Provisional Pending inherited K-Mod/AdvCiv Actual Effects defect) Production hover can bypass disorder's zero production
 
-The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F408 through C031-WIP109 and reserves F409 next. Do not implement a change under KI#732 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F409 finds the BUG/K-Mod "Building Additional Production" option bypassing `setProductionHelp`'s zero-production return while a city is occupied or its owner is in anarchy. AdvCiv additionally made the path directly reachable with Alt. The helper then reconstructs and can label positive final production and overflow even though runtime `getProductionDifference` and the city screen correctly report 0; its own debug assertion can fail from the same mismatch.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP109 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending making disorder authoritative for the live/final production portion while keeping any desired hypothetical building projection separately labeled.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP110 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-733"></a>
+
+## KI#733 - (Provisional Pending inherited K-Mod/AdvCiv Actual Effects defect) Great Person hover can bypass disorder's zero rate
+
+Album F410 finds the BUG/K-Mod "Building Additional Great People" option bypassing `parseGreatPeopleHelp`'s zero-rate return while a city is occupied or its owner is in anarchy. AdvCiv likewise made this path directly reachable with Alt. The hover reconstructs a positive final Great Person rate even though runtime `getGreatPeopleRate` and `doGreatPeople` enforce 0; stored Great Person progress keeps the affected city-screen bar hoverable and the helper's debug assertion can expose the mismatch.
+
+Pending making disorder authoritative for the live/final Great Person rate while keeping any hypothetical building contribution separately labeled.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP111 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-734"></a>
+
+## KI#734 - (Provisional Pending inherited BtS city-hover defect) Corporation hover ignores disorder
+
+Album F411 finds `setCorporationHelpCity` reconstructing normal corporation yield, commerce and maintenance without checking disorder or the city's no-maintenance state. During occupation or owner anarchy, the live corporation getters suppress output and city maintenance is 0, but a retained corporation icon can still claim normal output and a currently paid maintenance amount. The missing state guards originate in BtS and survive K-Mod, AdvCiv and SAS.
+
+Pending using the disorder-aware runtime corporation getters for live city help and suppressing currently paid maintenance while the city has no maintenance, without conflating forced hypothetical previews.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP113 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-735"></a>
+
+## KI#735 - (Provisional Pending inherited K-Mod/BUG Finance Advisor defect) Unit-cost and supply hovers ignore anarchy
+
+Album F412 finds the BUG/K-Mod Finance Advisor tooltip helpers calling detailed unit-cost and unit-supply overloads that omit the ordinary wrappers' anarchy guard. The visible Economics rows and runtime costs are 0 during player anarchy, while their always-available hovers can itemize and total the normal positive expenses. This helper family is absent from stock BtS, originates in the inherited BUG/K-Mod integration and survives AdvCiv and SAS.
+
+Pending mirroring the runtime anarchy state before constructing either detailed expense breakdown so each tooltip agrees with its visible row.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP114 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-736"></a>
+
+## KI#736 - (Provisional Pending inherited BtS random-event off-by-one) Pillage maximum is unreachable
+
+Album F413 finds both city and empire random-event execution choosing `MinPillage + Rand(MaxPillage - MinPillage)`, although the XML fields and help text describe an inclusive minimum-to-maximum range. Consequently an unequal maximum can never occur: for example, the current Looters 2 tooltip advertises 2-4 destroyed improvements while runtime can choose only 2 or 3. The off-by-one originates in stock BtS and survives K-Mod, AdvCiv and SAS.
+
+Pending adding 1 to the random range in both `CvCity::applyEvent` and `CvPlayer::applyEvent`, making runtime honor the advertised inclusive maximum and naturally using `Rand(1)` when both endpoints match.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP115 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-737"></a>
+
+## KI#737 - (Provisional Pending investigation) F414 remains unassigned during the CvGameTextMgr deep re-audit
+
+The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F413 through C031-WIP115 and reserves F414 next. Do not implement a change under KI#737 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP115 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

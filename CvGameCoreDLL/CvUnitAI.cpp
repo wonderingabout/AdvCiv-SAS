@@ -5201,36 +5201,18 @@ CvCityAI* CvUnitAI::AI_getCityToImprove() const
 }
 
 
-// <!-- custom: helper provided by chatgpt o3 to count tiles as part of fine tuning next city to improve based on the number of tiles already improved in a city (see below in CvUnitAI::AI_workerMove for details) -->
-// <!-- custom: update: according to claude sonnet 4.5 and then according to chatgpt 5 as well after feeding it its explanation, there was an issue with our approach, so fixed as below with chatgpt 5's rationale in comments, check if accurate -->
-// B) Make the tile-count tolerant of overlap
-// Change countImprovedTiles to count any improved tile in the BFC (not only those assigned to the city):
-// (Your current version filters by getWorkingCity()==pCity; remove that.)
+// <!-- custom: The small-city Worker-allocation threshold needs completed capacity the city can actually use.
+// Counting every physical BFC improvement made foreign plots and overlaps assigned to another city suppress local Worker priority even though AI_bestCityBuild cannot select those plots for this city. See KI#698. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static int countImprovedTiles(CvCity const* pCity)
 {
-    int iCount = 0;
-    for (int i = 0; i < NUM_CITY_PLOTS; ++i)
-    {
-		CvPlot* pPlot = plotCity(pCity->getX(), pCity->getY(),
-								static_cast<CityPlotTypes>(i));  // ← cast added <!-- custom: to fix compile error, added by chatgpt 3-o as well thanks to my prompt too(error: "
-								// 1>..\CvUnitAI.cpp(2582): error C2664: 'plotCity' : cannot convert parameter 3 from 'int' to 'CityPlotTypes'
-								// 1>          Conversion to enumeration type requires an explicit cast (static_cast, C-style cast or function-style cast)
-								// 1>NMAKE : fatal error U1077: '"C:\Program Files (x86)\Civ4SDK\Microsoft Visual C++ Toolkit 2003\bin\cl.exe"' : return code '0x2'
-								// 1>  Stop.
-								// ") -->
-        if (pPlot == NULL)
-		{
-            continue;
-		}
-
-        // Count any improvement in the city radius.
-        const ImprovementTypes eImp = pPlot->getImprovementType();
-        if (eImp != NO_IMPROVEMENT)
-		{
-            ++iCount;
-        }
-    }
-    return iCount;
+	int iCount = 0;
+	for (int i = 0; i < NUM_CITY_PLOTS; i++)
+	{
+		CvPlot const* pPlot = plotCity(pCity->getX(), pCity->getY(), static_cast<CityPlotTypes>(i));
+		if (pPlot != NULL && pPlot->getWorkingCity() == pCity && pPlot->getImprovementType() != NO_IMPROVEMENT)
+			iCount++;
+	}
+	return iCount;
 }
 
 void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
@@ -23695,8 +23677,9 @@ BuildTypes CvUnitAI::AI_betterPlotBuild(CvPlot const& kPlot, BuildTypes eBuild) 
 	}
 
 	// --- High-Priority Override 1: Clear Feature ---
-	// Check if the originally planned improvement requires a feature to be removed first
-	if (!kOriginalBuildInfo.isFeatureRemove(eFeature))
+	// <!-- custom: Restore the positive prerequisite test lost by SAS practical commit 4922.
+	// A caller-validated feature-preserving improvement such as Camp on Forest Deer/Fur must not become a pure chop merely because the dedicated removal build is also legal. See KI#700. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (eFeature != NO_FEATURE && kOriginalBuildInfo.isFeatureRemove(eFeature))
 	{
 		if (eFeature == eFeatureForest)
 		{
@@ -23787,8 +23770,10 @@ bool CvUnitAI::AI_connectBonus(bool bTestTrade)
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot const& kPlot = GC.getMap().getPlotByIndex(iI);
+		// <!-- custom: AdvCiv's AI_plotValid optimization lost both the unit context and negation, making every plot reject itself as belonging to its own area.
+		// Restore the intended negative same-area gate so this bonus-connection fallback can execute. See KI#699. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (kPlot.getOwner() != getOwner() || // XXX team???
-			/*!AI_plotValid(kPlot)*/kPlot.isArea(kPlot.getArea())) // advc.opt
+			/*!AI_plotValid(kPlot)*/ !isArea(kPlot.getArea())) // advc.opt
 		{
 			continue;
 		}
