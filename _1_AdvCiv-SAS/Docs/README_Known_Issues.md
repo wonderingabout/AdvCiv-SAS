@@ -66,6 +66,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#37 - (Workaround/rebalanced) AI building 2 settlers inefficiently, now settler is a national unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-37)\
 [KI#38 - (No idea why) Compile sometimes fails then succeeds with same source](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38)\
 [KI#38.2 - (Weird DLL XML errors at launch, solved by recompiling) The exact same DLL (cosmic ray 2? Or something else maybe or whatever)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.2)\
+[KI#38.3 - (Improved) Parallel Debug-opt compilation used excessive CPU for a small time saving](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.3)\
 [KI#39 - (Seemingly fixed/enhanced) AI workers move sooner between cities that need improvements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-39)\
 [KI#40 - (Seemingly fixed/addressed) Plot allocation improvement 2: high happiness → favour food tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-40)\
 [KI#41 - (Seemingly fixed) Tremendously improved AI worker mobility/flexibility/reliability](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-41)\
@@ -2054,9 +2055,7 @@ At this point, or in general, i'd say my best guess would be a cosmic ray fell o
 
 But in all cases, and more seriously really, even though my previous guess was quite serious too, i'd recommend if all seems good otherwise, to make sure you remove all content in temp_files folder (as i have found fast compile seems to cause issues and i strictly avoid it unless doing quick testing never for final dll as of now at least, as mentioned in [README_Known_Issues.md#ki-5)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-5) too; and note too: i think i also made extra sure here that i did delete it as well just before launching the faulty compile, hence my guess that it would be something else like a cosmic ray or something else maybe like a quantic ray xd maybe?? Added this extra clarification as part of reading claude ai's answer or the beginning of it, which gave me the idea to add this, hopefully clearer with this although maybe uneeded or maybe needed in this case i mean but in all cases), and compile again, which in this case, again strangely but all goood maybe xd if i may say although i would have liked to know how maybe too indeed. So adding this info for reference if helps.
 
-Update: added a GitHub workflow sanity check for `CvGameCoreDLL/Project/temp_files/` (see [`build/temp_files.py`](/.github/workflows/README.md#buildtemp_filespy)). Git cannot track an empty folder directly, so the folder is kept visible with a zero-byte tracked placeholder file inside it. `.gitignore` no longer hides the folder, `.gitattributes` keeps it out of GitHub Download ZIP / git archive release archives, and the workflow fails if any other temp file or subfolder appears there. This does not prove a compiled DLL is good, but it makes stale fast-compile leftovers harder to miss. We check this because we suspect fast compiles can be unreliable, and it also helps catch forgetting to replace the committed DLL after compiling.
-
-2026-08-26 workflow update: PDB-assisted diagnosis of KI#475.2 and KI#475.3 made retaining the exact successful Debug-opt target materially useful. `temp_files/Debug-opt` is now the sole ignored/retained target; it must be deleted before rebuilding Debug-opt, while other configurations remain visible and each exact `temp_files/<target>` folder must be deleted before rebuilding that configuration. Target folders are isolated, so retained Debug-opt symbols cannot contaminate a clean Release build. The parent `.gitkeep` remains because Git cannot preserve an empty workflow directory and CI still uses it as the hygiene anchor; light-source ZIPs include only this marker, not compiler intermediates or private symbols.
+Update: added a GitHub workflow sanity check for `CvGameCoreDLL/Project/temp_files/` (see [`build/temp_files.py`](/.github/workflows/README.md#buildtemp_filespy)). Git cannot track an empty folder directly, so the folder is kept visible with a zero-byte tracked placeholder file inside it. `.gitignore` no longer hides the folder, `.gitattributes` keeps it out of GitHub Download ZIP / git archive release archives, and the workflow fails if unexpected temp files or subfolders appear there. This does not prove a compiled DLL is good, but it makes stale fast-compile leftovers harder to miss. We check this because we suspect fast compiles can be unreliable, and it also helps catch forgetting to replace the committed DLL after compiling.
 
 <a id="ki-38.2"></a>
 
@@ -2075,6 +2074,30 @@ I believe this may have been one of these comsic ray issues or whatever, the err
 So continuing to fix my issues now that this recompile solved this very weird and behaviour i never had before.
 
 Note: i made sure as usual it's not a fast compile (i delete all the temp_files's content always if not then almost always before recompiling as i don't trust fast compile issues due to issues (no pun) i had with it, unless for fast testing or such), but still issue happened, so if i didn't make a huge mistake or something very unexpected there most likely seems to be something very wrong here, but as long as i can compile whatever xd maybe.
+
+<a id="ki-38.3"></a>
+
+## KI#38.3 - (Improved) Parallel Debug-opt compilation used excessive CPU for a small time saving
+
+Debug-opt previously used parallel `bin\jom build`, which made full builds very fast but likely sustained high CPU usage (didn't hear but based on fan noise that i suspect comes from the CPU fan, to very high, likely full speed burst or close enough to it).
+
+The 2026-08-31 Visual Studio logs measured the parallel Debug-opt build at `24.83` seconds and the sequential Release build at `1` minute `46.22` seconds, a difference of `81.39` seconds. That saving is marginal in a development iteration where an autoplay usually takes `10+` minutes, while the unnecessary sustained CPU load, heat and power use become burdensome and add up when compiling many or dozens of DLLs during a development day.
+
+Debug-opt now uses the same sequential `nmake dll` path as Release to avoid needlessly stressing the hardware for that small overall workflow-time gain. The explicitly named `*-fast` configurations still use parallel `jom` when the shortest compile time is preferred. See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations).
+
+Post-change verification on 2026-08-31: the next full Debug-opt build used the intended sequential path and completed successfully in `1` minute `52.51` seconds:
+
+```text
+nmake dll /NOLOGO
+...
+Linking DLL
+Creating library temp_files\Debug-opt\CvGameCoreDLL.lib and object temp_files\Debug-opt\CvGameCoreDLL.exp
+...
+Build succeeded.
+Time Elapsed 00:01:52.51
+```
+
+CPU utilization was not separately measured as well, but unlike the old parallel Debug-opt build, no full-speed CPU-fan noise was heard; only minor fan noise occurred around the library-creation/linking stage, comparable to Release. Civ4 ran normally with the resulting DLL and autoplay started successfully.
 
 <a id="ki-39"></a>
 

@@ -1112,6 +1112,8 @@ Note 2: some issues are not listed in this known_issues_in_base_advciv, for such
 
 Note 3: some features added such fields that were previously missing in Sevopedia are technically also considered fixes i would say and sometimes mentioned in the documentation as such, for example in [README_Sevopedia_Reworks.md](/_1_AdvCiv-SAS/Docs/README_Sevopedia_Reworks.md) or other documentation about "Cannot be traded" fields that are now also in tech advisor, or these other related docs for fields we added in the DLL such as the missing BBAI getters (victory weights) in the DLL (to access them in Sevopedia leader py file), or getCityRefuseAttitudeThreshold newly added in advciv but not exposed in python.
 
+Note 4: not all issues are bugs per se, sometimes simply issues with how things are set up or such. For example, recent logs measured parallel Debug-opt compilation at about `25` seconds versus about `1` minute `46` seconds for sequential Release. Saving about `81` seconds is marginal beside the usual `10+` minute autoplay, while the sustained CPU load audibly drove the fan to full speed and became burdensome when compiling many or dozens of DLLs per day. To fix this, Debug-opt now uses the same lower-CPU sequential `nmake` build path as Release to avoid needlessly stressing the hardware. See the [Main Changes Guide](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#codeperformance-optimizations) and [KI#38.3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-38.3).
+
 ## "Temporary" crashes
 
 Sometimes, rarely, the game crashes, generally mid-late game.

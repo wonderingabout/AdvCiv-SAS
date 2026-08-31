@@ -489,14 +489,12 @@ nmake clean /NOLOGO</NMakeCleanCommandLine>
     <NMakeBuildCommandLine>set TARGET=Debug-opt
 nmake source_list /NOLOGO
 nmake fastdep /NOLOGO
-nmake precompile /NOLOGO
-bin\jom build /NOLOGO</NMakeBuildCommandLine>
+nmake dll /NOLOGO</NMakeBuildCommandLine>
     <NMakeReBuildCommandLine>set TARGET=Debug-opt
 nmake clean /NOLOGO
 nmake source_list /NOLOGO
 nmake fastdep /NOLOGO
-nmake precompile /NOLOGO
-bin\jom build /NOLOGO</NMakeReBuildCommandLine>
+nmake dll /NOLOGO</NMakeReBuildCommandLine>
     <NMakeCleanCommandLine>set TARGET=Debug-opt
 nmake clean /NOLOGO</NMakeCleanCommandLine>
     <AdditionalOptions>/DWIN32 /D_WINDOWS /D_USRDLL /DNDEBUG /DFINAL_RELEASE /DUSE_DATA_DIR /DFASSERT_ENABLE /D_CODE_EDITOR</AdditionalOptions>
