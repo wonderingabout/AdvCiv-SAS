@@ -210,6 +210,15 @@ public:
 	int getGameTurnYear() const { return getTurnYear(getGameTurn()); } // Exposed to Python
 	int getElapsedGameTurns() const { return m_iElapsedGameTurns; } // Exposed to Python
 	void incrementElapsedGameTurns();
+
+	// <!-- custom: Persist the source revision history of this game independently of the current runtime resolver, so later UI/logs can distinguish the creation source from subsequent loads under newer builds. (ChatGPT-5.6-Sol) -->
+	int getNumSASVersionHistoryEntries() const { return (int)m_aSASVersionHistory.size(); }
+	int getSASVersionHistoryTurn(int iIndex) const;
+	char const* getSASVersionHistoryVersion(int iIndex) const;
+	char const* getSASVersionHistoryCommitHash(int iIndex) const;
+	int getSASVersionHistoryDirtyState(int iIndex) const;
+	void initializeSASVersionHistoryForNewGame();
+
 	int AIHandicapAdjustment() const; // advc.251
 
 	int getMaxTurns() const { return GC.getInitCore().getMaxTurns(); } // Exposed to Python
@@ -763,6 +772,17 @@ protected:
 	unsigned int m_uiInitialTime;
 	unsigned int m_uiSaveFlag; // advc
 
+	// <!-- custom: One compact persisted entry per distinct runtime source encountered by this game. Entry 0 is always the creation source; unavailable source metadata stays honestly empty with dirty=-1 rather than inventing provenance. (ChatGPT-5.6-Sol) -->
+	struct SASVersionHistoryEntry
+	{
+		SASVersionHistoryEntry() : iTurn(-1), iDirtyState(-1) {}
+		int iTurn;
+		int iDirtyState;
+		CvString szVersion;
+		CvString szCommitHash;
+	};
+	std::vector<SASVersionHistoryEntry> m_aSASVersionHistory;
+
 	bool m_bScoreDirty;
 	bool m_bCircumnavigated;
 	bool m_bDebugMode;
@@ -880,6 +900,9 @@ protected:
 
 	void uninit();
 	void setStartTurnYear(int iTurn = 0); // advc.250c
+	// <!-- custom: Append current cached ModName version/SHA only when that revision differs from the last persisted entry; older save layouts are intentionally unsupported rather than migrated. (ChatGPT-5.6-Sol) -->
+	void updateSASVersionHistoryAfterLoad();
+	void appendCurrentSASVersionHistoryIfChanged();
 	void initScenario(); // advc.051
 
 	// <!-- custom: compute mapname once per map load (new game, load save file) so we don't have to do it everytime (e.g. for each unit order and at each turn). I don't know too much about these although it was my idea to do so, code provided with the help of chatgpt 5 thanks. -->

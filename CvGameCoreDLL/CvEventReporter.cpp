@@ -163,6 +163,8 @@ void CvEventReporter::unInit()
 
 void CvEventReporter::gameStart()
 {
+	// <!-- custom: Capture source provenance only once final new-game/scenario initialization has established the real starting turn, before diagnostic/UI consumers read the persistent history. (ChatGPT-5.6-Sol) -->
+	GC.getGame().initializeSASVersionHistoryForNewGame();
 	// <!-- custom: Complete the new-game BBAI identity header after map generation and player initialization. Caller-gated to avoid entering logging helpers when BBAI is disabled. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) logSASBBAINewGameStarted();
 	if (isSASGameRecordLogEnabled()) logSASGameRecordNewGameStarted();

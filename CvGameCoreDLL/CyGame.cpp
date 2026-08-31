@@ -283,6 +283,32 @@ int CyGame::getElapsedGameTurns()
 	return m_kGame.getElapsedGameTurns();
 }
 
+// <!-- custom: Thin Python-facing accessors keep save-version history read-only; presentation policy belongs to later UI code. (ChatGPT-5.6-Sol) -->
+int CyGame::getNumSASVersionHistoryEntries() const
+{
+	return m_kGame.getNumSASVersionHistoryEntries();
+}
+
+int CyGame::getSASVersionHistoryTurn(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryTurn(iIndex);
+}
+
+std::string CyGame::getSASVersionHistoryVersion(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryVersion(iIndex);
+}
+
+std::string CyGame::getSASVersionHistoryCommitHash(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryCommitHash(iIndex);
+}
+
+int CyGame::getSASVersionHistoryDirtyState(int iIndex) const
+{
+	return m_kGame.getSASVersionHistoryDirtyState(iIndex);
+}
+
 int CyGame::getMaxTurns() const
 {
 	return m_kGame.getMaxTurns();

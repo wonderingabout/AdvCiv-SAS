@@ -574,6 +574,21 @@ static void logSASGameRecordProvenanceContext()
 	logSASGameRecord("GAME_RECORD_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
 }
 
+// <!-- custom: Persisted game-source history is separate from the current SOURCE_CONTEXT: it records where this save lineage began and each later runtime-source transition without storing noisy dirty-file lists in the save itself. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordVersionHistory()
+{
+	CvGame const& kGame = GC.getGame();
+	int const iEntries = kGame.getNumSASVersionHistoryEntries();
+	logSASGameRecord("GAME_RECORD_SAVE_VERSION_HISTORY entries=%d", iEntries);
+	for (int i = 0; i < iEntries; i++)
+	{
+		char const* szRole = (i == 0 ? "CREATION" : "TRANSITION");
+		logSASGameRecord("GAME_RECORD_SAVE_VERSION_HISTORY_ENTRY index=%d role=%s turn=%d version=%s commit=%s dirty=%d",
+			i, szRole, kGame.getSASVersionHistoryTurn(i), getSASDiagnosticQuoted(kGame.getSASVersionHistoryVersion(i)).GetCString(),
+			getSASDiagnosticQuoted(kGame.getSASVersionHistoryCommitHash(i)).GetCString(), kGame.getSASVersionHistoryDirtyState(i));
+	}
+}
+
 void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
@@ -591,6 +606,8 @@ void startSASGameRecordLogForNewGame()
 void logSASGameRecordNewGameStarted()
 {
 	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
+	// <!-- custom: gameStart has now established the persisted creation entry, so expose it immediately in the successful new-game record. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordVersionHistory();
 	logSASGameRecordInitialPlayerIdentities();
 	int iTeamStateRows = 0;
 	int iTechRows = 0;
@@ -615,6 +632,8 @@ void startSASGameRecordLogForLoadedSave()
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	// <!-- custom: Keep static mod/source/binary identity immediately after the load-session marker; it does not depend on the loaded save's generated/game state. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordProvenanceContext();
+	// <!-- custom: onAllGameDataRead reconciles the persisted lineage before starting this log, so a load records any newly encountered source transition here. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordVersionHistory();
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
 	logSASGameRecordInitialPlayerIdentities();

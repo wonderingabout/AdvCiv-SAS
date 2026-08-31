@@ -91,6 +91,12 @@ public:
 	int getGameTurnYear();
 
 	int getElapsedGameTurns();
+	// <!-- custom: Expose persisted game-source history separately from current runtime source details so later Victory/Sevopedia UI can show creation and transition revisions. (ChatGPT-5.6-Sol) -->
+	int getNumSASVersionHistoryEntries() const;
+	int getSASVersionHistoryTurn(int iIndex) const;
+	std::string getSASVersionHistoryVersion(int iIndex) const;
+	std::string getSASVersionHistoryCommitHash(int iIndex) const;
+	int getSASVersionHistoryDirtyState(int iIndex) const;
 	int getMaxTurns() const;
 	void setMaxTurns(int iNewValue);
 	void changeMaxTurns(int iChange);

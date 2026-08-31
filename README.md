@@ -1000,11 +1000,11 @@ distance       = 18
 6356 + 18 = 6374
 ```
 
-So we solved the missing-history problem without putting the whole history in the ZIP.
+So we solved the missing-history problem without putting the whole history in the ZIP (note: the archive is commit-specific; the tag is only the fixed numeric reference used to reconstruct that commit's practical version).
 
-The archive is commit-specific; the tag is only the fixed numeric reference used to reconstruct that commit's practical version.
+Savegames also persist a compact **game source/version history**. A newly created game stores its creation turn, practical version, full commit SHA and coarse dirty state; loading it later under a different version or SHA appends one transition entry.
 
-The tag is necessary for our chosen solution, not because GitHub requires a tag to download a commit. We could have built some other hash→count database, manually maintained a VERSION file, queried GitHub online, etc. The one immutable anchor is just much simpler.
+Dirty state is retained as context but does not by itself manufacture a new revision. If source metadata itself is unavailable, the creation entry keeps honest unknown values rather than inventing provenance. Full dirty-file lists remain session-log data rather than being serialized into the save. As with other AdvCiv-SAS save-layout changes, older save formats are intentionally unsupported rather than migrated.
 
 ### BBAI logging and head example
 
@@ -1038,22 +1038,28 @@ See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_l
 For example, `SASGameRecord_*.log` starts with the lifecycle marker, shared provenance rows and comparable run setup lines before adding compact turn snapshots:
 
 ```log
-GAME_RECORD_NEW_GAME_INITIALIZING processUtc=20260831T052433Z utc=20260831T052450Z logFile="SASGameRecord_20260831T052450Z_new1.log" sessionWallMilliseconds=0
+GAME_RECORD_NEW_GAME_INITIALIZING processUtc=20260831T142646Z utc=20260831T142703Z logFile="SASGameRecord_20260831T142703Z_new1.log" sessionWallMilliseconds=0
 GAME_RECORD_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
-GAME_RECORD_SOURCE_CONTEXT version="6356" commit="f829a71d7a06f9a3d3d9e1fa0aa0d3b8b775b440" shortCommit="f829a71d7a" branch="main" commitDate="2026-08-31T13:54:54+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=1 dirtyFiles="[ M] Assets/XML/GlobalDefines_advciv_sas.xml"
-GAME_RECORD_DLL_CONTEXT build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=13004800 dllFingerprint=FNV1A64:EBDFF2A3D2968D25 dllLastWriteUtc=20260831T052417.443Z peTimestampRaw=1788153848 peTimestampUtc=20260831T052408Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
+GAME_RECORD_SOURCE_CONTEXT version="6357" commit="f565ff750581003e2baf3888d4f1ed50150a814d" shortCommit="f565ff7505" branch="main" commitDate="2026-08-31T15:37:01+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=12 dirtyFiles="[ M] Assets/CvGameCoreDLL.dll; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [M ] CvGameCoreDLL/CvEventReporter.cpp; [M ] CvGameCoreDLL/CvGame.cpp; [M ] CvGameCoreDLL/CvGame.h; [M ] CvGameCoreDLL/CyGame.cpp; [M ] CvGameCoreDLL/CyGame.h; [M ] CvGameCoreDLL/CyGameInterface.cpp; [M ] CvGameCoreDLL/SASGameRecordLog.cpp; [M ] README.md; [M ] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md; [ M] _1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt"
+GAME_RECORD_DLL_CONTEXT build=Release moduleFound=1 fileReadable=1 fileSizeBytes=7426048 dllFingerprint=FNV1A64:FEC2083182573080 dllLastWriteUtc=20260831T142545.517Z peTimestampRaw=1788186345 peTimestampUtc=20260831T142545Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
 GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=3 SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10 SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=160 SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=120 SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=2 SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=1 SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=1 SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=2
 GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=TECH_PAPER techTrading=TECH_WRITING goldTrading=TECH_CURRENCY openBordersTrading=TECH_WRITING defensivePactTrading=TECH_MILITARY_TRADITION permanentAllianceTrading=TECH_GAME_THEORY vassalStateTrading=TECH_PHILOSOPHY source=LOADED_XML
-GAME_RECORD_NEW_GAME_STARTED processUtc=20260831T052433Z utc=20260831T052450Z logFile="SASGameRecord_20260831T052450Z_new1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ETHIOPIA activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1 sessionWallMilliseconds=3028
-GAME_RECORD_GAME_SETTINGS mapScript="Hemispheres" map=102x72 landHeavy=1 navalHeavy=0 world=WORLDSIZE_HUGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT calendar=CALENDAR_DEFAULT startTurn=0 startYear=-50000 gameHandicap=HANDICAP_MONARCH maxTurns=500 targetScore=0 advancedStartConfiguredPoints=-1 advancedStartXmlDefaultPoints=-1 victories=VICTORY_SCORE,VICTORY_TIME,VICTORY_CONQUEST,VICTORY_DOMINATION,VICTORY_CULTURAL,VICTORY_SPACE_RACE,VICTORY_DIPLOMATIC options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
-GAME_RECORD_MAP_OPTIONS count=3 hidden=0 scriptAvailable=1
-GAME_RECORD_MAP_OPTION index=0 hidden=0 value=1 scriptDefault=1 isScriptDefault=1 description="Normal Continents" scriptDefaultDescription="Normal Continents"
+GAME_RECORD_NEW_GAME_STARTED processUtc=20260831T142646Z utc=20260831T142703Z logFile="SASGameRecord_20260831T142703Z_new1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_MALI activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1 sessionWallMilliseconds=3706
+GAME_RECORD_SESSION_CONTEXT gameType=GAME_SP_NEW gameMode=GAMEMODE_NORMAL newGame=1 savedGame=0 scenario=0 gameMultiplayer=0 networkMultiplayer=0 hotseat=0 pbem=0 pitboss=0 simultaneousTeamTurns=0 mpOptions=-
+GAME_RECORD_GAME_SETTINGS mapScript="Pangaea" map=94x64 landHeavy=1 navalHeavy=0 world=WORLDSIZE_HUGE climate=CLIMATE_TEMPERATE seaLevel=SEALEVEL_MEDIUM gameSpeed=GAMESPEED_NORMAL startEra=ERA_ANCIENT calendar=CALENDAR_DEFAULT startTurn=0 startYear=-50000 gameHandicap=HANDICAP_MONARCH maxTurns=500 targetScore=0 advancedStartConfiguredPoints=-1 advancedStartXmlDefaultPoints=-1 victories=VICTORY_SCORE,VICTORY_TIME,VICTORY_CONQUEST,VICTORY_DOMINATION,VICTORY_CULTURAL,VICTORY_SPACE_RACE,VICTORY_DIPLOMATIC options=GAMEOPTION_AGGRESSIVE_AI,GAMEOPTION_NO_EVENTS
+GAME_RECORD_MAP_OPTIONS count=3 hidden=2 scriptAvailable=1
+GAME_RECORD_MAP_OPTION index=0 hidden=0 value=0 scriptDefault=0 isScriptDefault=1 description="Random" scriptDefaultDescription="Random"
+GAME_RECORD_MAP_OPTION index=1 hidden=1 value=1 scriptDefault=1 isScriptDefault=1 description="Cylindrical" scriptDefaultDescription="Cylindrical"
+GAME_RECORD_MAP_OPTION index=2 hidden=1 value=0 scriptDefault=0 isScriptDefault=1 description="Standard" scriptDefaultDescription="Standard"
 GAME_RECORD_WAR_AI_SETTINGS warPeaceAI=UWAI uwaiMode=FULL engineAggressiveAI=1 USE_KMOD_AI_NONAGGRESSIVE=0 DISABLE_UWAI=0 UWAI_IN_BACKGROUND=0
-GAME_RECORD_ACTION turn=0 type=DEBUG_MODE_CHANGED old=0 new=1 activePlayer=0
-GAME_RECORD_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=11 activePlayer=0 changePlayerStatus=1 requestId=1 requestedTurns=11 completedTurns=0 elapsedGameTurns=0 sessionWallMilliseconds=11485 autoplayWallMilliseconds=0 startTurn=0 startElapsed=0 startPlayer=0 activePlayerChanges=0 totalActivePlayerChanges=0 endCause=-
-GAME_RECORD_ACTION turn=10 type=AUTOPLAY_ENDED oldTurnsLeft=1 newTurnsLeft=0 activePlayer=0 changePlayerStatus=1 requestId=1 requestedTurns=11 completedTurns=11 elapsedGameTurns=10 sessionWallMilliseconds=14992 autoplayWallMilliseconds=3507 startTurn=0 startElapsed=0 startPlayer=0 activePlayerChanges=0 totalActivePlayerChanges=0 endCause=SCHEDULED
-GAME_RECORD_TURN_BEGIN turn=10 reason=interval elapsed=10 year=-18000 playersAlive=16 teamsAlive=16 totalCities=16 totalPopulation=18 utc=20260831T052505.600Z sessionWallMilliseconds=15183 snapshotIntervalWallMilliseconds=15183 performanceMetricsEnabled=1 processForegroundAtSnapshot=1 processWindowMinimizedAtSnapshot=0 processWorkingSetKB=593820 processPeakWorkingSetKB=593828 processPagefileUsageKB=530768 systemMemoryLoadPercent=39 processAvailableVirtualMB=2375
-GAME_RECORD_TURN_END turn=10 reason=interval sessionWallMilliseconds=15191 snapshotWallMilliseconds=8
+GAME_RECORD_DISPLAY_CONTEXT systemContextLevel=2 resolution=1920x1080 graphicsInitialized=1 fullscreen=0 graphicOptions=GRAPHICOPTION_SINGLE_UNIT_GRAPHICS,GRAPHICOPTION_CITY_DETAIL,GRAPHICOPTION_NO_COMBAT_ZOOM,GRAPHICOPTION_HIRES_TERRAIN
+GAME_RECORD_RUNTIME_CONTEXT systemContextLevel=2 win32Runtime=NATIVE_WINDOWS pointerBits=32 logicalProcessors=-1 totalPhysicalMemoryMB=-1
+GAME_RECORD_GAME_RNG mapRandState=2577982547 syncRandState=1731845674
+GAME_RECORD_SAVE_VERSION_HISTORY entries=1
+GAME_RECORD_SAVE_VERSION_HISTORY_ENTRY index=0 role=CREATION turn=0 version="6357" commit="f565ff750581003e2baf3888d4f1ed50150a814d" dirty=1
+GAME_RECORD_ACTION turn=0 type=AUTOPLAY_STARTED oldTurnsLeft=0 newTurnsLeft=101 activePlayer=0 changePlayerStatus=1 requestId=1 requestedTurns=101 completedTurns=0 elapsedGameTurns=0 sessionWallMilliseconds=12819 autoplayWallMilliseconds=0 startTurn=0 startElapsed=0 startPlayer=0 activePlayerChanges=0 totalActivePlayerChanges=0 endCause=-
+GAME_RECORD_TURN_BEGIN turn=10 reason=interval elapsed=10 year=-18000 playersAlive=16 teamsAlive=16 totalCities=16 totalPopulation=16 utc=20260831T142720.628Z sessionWallMilliseconds=17094 snapshotIntervalWallMilliseconds=17094 performanceMetricsEnabled=1 processForegroundAtSnapshot=0 processWindowMinimizedAtSnapshot=0 processWorkingSetKB=554280 processPeakWorkingSetKB=557092 processPagefileUsageKB=495704 systemMemoryLoadPercent=50 processAvailableVirtualMB=2478
+GAME_RECORD_TURN_END turn=10 reason=interval sessionWallMilliseconds=17102 snapshotWallMilliseconds=8
 ```
 
 <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG" alt="SASGameRecord_example.PNG" width="250"></img>

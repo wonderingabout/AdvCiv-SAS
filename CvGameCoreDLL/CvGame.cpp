@@ -28,6 +28,7 @@
 #include "CvHallOfFameInfo.h" // advc.106i
 #include "BBAILog.h" // BBAI
 #include "SASGameRecordLog.h" // <!-- custom: Structured run-summary files are initialized separately from BBAI diagnostics. (GPT-5.5) -->
+#include "ModName.h" // <!-- custom: Persist the cached runtime version/SHA identity into each game's source-transition history. (ChatGPT-5.6-Sol) -->
 #include "CvBugOptions.h" // K-Mod
 
 /*	<advc.007c> Use this CvGame instance instead of GC.getGame() for RNG calls.
@@ -640,6 +641,9 @@ void CvGame::reset(HandicapTypes eHandicap, bool bConstructorCall)
 	// </advc.opt>
 	m_uiInitialTime = 0;
 	m_uiSaveFlag = 0; // advc
+	// <!-- custom: Reset persisted source history with the rest of CvGame serialized state.
+	// New games establish creation provenance at gameStart, while loads refill the current-format history from the stream. (ChatGPT-5.6-Sol) -->
+	m_aSASVersionHistory.clear();
 
 	m_bScoreDirty = false;
 	m_bCircumnavigated = false;
@@ -9384,6 +9388,19 @@ void CvGame::read(FDataStreamBase* pStream)
 
 	pStream->Read(&m_bScenario); // </advc.052>
 
+	// <!-- custom: Read persistent source/version history as part of the current AdvCiv-SAS save layout. (ChatGPT-5.6-Sol) -->
+	unsigned int uiHistorySize = 0;
+	pStream->Read(&uiHistorySize);
+	m_aSASVersionHistory.resize(uiHistorySize);
+	for (unsigned int i = 0; i < uiHistorySize; i++)
+	{
+		SASVersionHistoryEntry& kEntry = m_aSASVersionHistory[i];
+		pStream->Read(&kEntry.iTurn);
+		pStream->Read(&kEntry.iDirtyState);
+		pStream->ReadString(kEntry.szVersion);
+		pStream->ReadString(kEntry.szCommitHash);
+	}
+
 	m_iTurnLoadedFromSave = m_iElapsedGameTurns; // advc.044
 	GAMETEXT.setAlwaysShowPlotCulture(true); // advc.099f
 	applyOptionEffects(); // advc.310
@@ -9548,7 +9565,84 @@ void CvGame::write(FDataStreamBase* pStream)
 	pStream->Write(m_iNumCultureVictoryCities);
 	pStream->Write(m_eCultureVictoryCultureLevel);
 	pStream->Write(m_bScenario); // advc.052
+	// <!-- custom: Save compact game-source history after the existing CvGame payload. Full dirty file lists stay runtime/log-only; the save keeps only coarse dirty state beside turn/version/SHA. (ChatGPT-5.6-Sol) -->
+	unsigned int const uiHistorySize = (unsigned int)m_aSASVersionHistory.size();
+	pStream->Write(uiHistorySize);
+	for (unsigned int i = 0; i < uiHistorySize; i++)
+	{
+		SASVersionHistoryEntry const& kEntry = m_aSASVersionHistory[i];
+		pStream->Write(kEntry.iTurn);
+		pStream->Write(kEntry.iDirtyState);
+		pStream->WriteString(kEntry.szVersion);
+		pStream->WriteString(kEntry.szCommitHash);
+	}
 	REPRO_TEST_END_WRITE();
+}
+
+// <!-- custom: Save-source history accessors deliberately return neutral unknown values for invalid indexes, which also keeps later Python/UI callers robust while a game has no tracked entries yet. (ChatGPT-5.6-Sol) -->
+int CvGame::getSASVersionHistoryTurn(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return -1;
+	return m_aSASVersionHistory[iIndex].iTurn;
+}
+
+char const* CvGame::getSASVersionHistoryVersion(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return "";
+	return m_aSASVersionHistory[iIndex].szVersion.c_str();
+}
+
+char const* CvGame::getSASVersionHistoryCommitHash(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return "";
+	return m_aSASVersionHistory[iIndex].szCommitHash.c_str();
+}
+
+int CvGame::getSASVersionHistoryDirtyState(int iIndex) const
+{
+	if (iIndex < 0 || iIndex >= (int)m_aSASVersionHistory.size())
+		return -1;
+	return m_aSASVersionHistory[iIndex].iDirtyState;
+}
+
+// <!-- custom: New games record their first entry as creation provenance; later loads append only when practical version or canonical SHA changes.
+// Unknown resolver fields remain honestly empty/-1. Dirty state is stored as context, not as a revision key. (ChatGPT-5.6-Sol) -->
+void CvGame::initializeSASVersionHistoryForNewGame()
+{
+	m_aSASVersionHistory.clear();
+	appendCurrentSASVersionHistoryIfChanged();
+}
+
+void CvGame::updateSASVersionHistoryAfterLoad()
+{
+	appendCurrentSASVersionHistoryIfChanged();
+}
+
+void CvGame::appendCurrentSASVersionHistoryIfChanged()
+{
+	ModName const& kMod = GC.getModName();
+	CvString const szVersion = kMod.getVersion();
+	CvString const szCommitHash = kMod.getCommitHash();
+	int const iDirtyState = kMod.getSourceDirtyState();
+	if (!m_aSASVersionHistory.empty())
+	{
+		SASVersionHistoryEntry const& kLast = m_aSASVersionHistory.back();
+		// <!-- custom: Version transitions are keyed by practical version + canonical SHA.
+		// Dirty is retained as entry context but does not manufacture a new revision when the same commit moves between a Git checkout and an archive. (ChatGPT-5.6-Sol) -->
+		if (kLast.szVersion == szVersion && kLast.szCommitHash == szCommitHash)
+		{
+			return;
+		}
+	}
+	SASVersionHistoryEntry kEntry;
+	kEntry.iTurn = getGameTurn();
+	kEntry.iDirtyState = iDirtyState;
+	kEntry.szVersion = szVersion;
+	kEntry.szCommitHash = szCommitHash;
+	m_aSASVersionHistory.push_back(kEntry);
 }
 
 void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
@@ -9571,6 +9665,9 @@ void CvGame::writeReplay(FDataStreamBase& stream, PlayerTypes ePlayer)
 	read functions have been called. */
 void CvGame::onAllGameDataRead()
 {
+	// <!-- custom: Reconcile persisted game-source history with the currently running source before any loaded-save log header reads it.
+	// Older saves deliberately enter as creation-untracked and begin history at this load. (ChatGPT-5.6-Sol) -->
+	updateSASVersionHistoryAfterLoad();
 	// <!-- custom: Start distinct timestamped diagnostic/report logs now that the complete loaded game state is available, before load-finalization code can emit AI diagnostics or summary rows. Caller-gated to avoid entering disabled logging helpers. (GPT-5.5) -->
 	if (isSASBBAILogEnabled()) startSASBBAILogForLoadedSave();
 	if (isSASGameRecordLogEnabled()) startSASGameRecordLogForLoadedSave();
