@@ -239,31 +239,32 @@ GLOBAL_LIBS=/LIBPATH:"$(TOOLKIT)/lib" /LIBPATH:"$(PSDK)/Lib" winmm.lib user32.li
 LIBS = $(PROJECT_LIBS) $(GLOBAL_LIBS)
 
 
+# <!-- custom: Stamp the actual nmake target into the DLL so shared runtime diagnostics can distinguish Debug/Debug-opt/Release/Assert/Profile/Final_Release even when the usual _DEBUG/NDEBUG flags overlap. Keep this numeric and map it to readable text in CvGameCoreUtils.cpp for MSVC 7.1-friendly quoting. (ChatGPT-5.6-Sol) -->
 !IF "$(TARGET)" == "Debug"
-CFLAGS  = $(Debug_CFLAGS)
+CFLAGS  = $(Debug_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=1
 LDFLAGS = $(Debug_LDFLAGS)
 LIBS    = $(LIBS) msvcprt.lib
 !ENDIF
 !IF "$(TARGET)" == "Debug-opt"
-CFLAGS  = $(Debug_Opt_CFLAGS)
+CFLAGS  = $(Debug_Opt_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=2
 LDFLAGS = $(Debug_LDFLAGS)
 # Leaving out msvcprt might help with debugging memory (but I doubt it)
 LIBS    = $(LIBS) msvcprt.lib
 !ENDIF
 !IF "$(TARGET)" == "Release"
-CFLAGS  = $(Release_CFLAGS)
+CFLAGS  = $(Release_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=3
 LDFLAGS = $(Release_LDFLAGS)
 !ENDIF
 !IF "$(TARGET)" == "Assert"
-CFLAGS  = $(Release_CFLAGS) /DFASSERT_ENABLE
+CFLAGS  = $(Release_CFLAGS) /DFASSERT_ENABLE /DSAS_DLL_BUILD_CONFIGURATION=4
 LDFLAGS = $(Release_LDFLAGS)
 !ENDIF
 !IF "$(TARGET)" == "Profile"
-CFLAGS  = $(Release_CFLAGS) $(PROJECT_Profile_CFLAGS) /Z7
+CFLAGS  = $(Release_CFLAGS) $(PROJECT_Profile_CFLAGS) /Z7 /DSAS_DLL_BUILD_CONFIGURATION=5
 LDFLAGS = $(Debug_LDFLAGS)
 !ENDIF
 !IF "$(TARGET)" == "Final_Release"
-CFLAGS  = $(Final_Release_CFLAGS)
+CFLAGS  = $(Final_Release_CFLAGS) /DSAS_DLL_BUILD_CONFIGURATION=6
 LDFLAGS = $(Final_Release_LDFLAGS)
 !ENDIF
 

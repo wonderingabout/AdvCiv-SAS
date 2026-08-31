@@ -136,17 +136,6 @@ static bool isSASGameRecordMapAsciiPoliticalEnabled()
 	return bEnabled;
 }
 
-// <!-- custom: Snapshot chronology benefits from the same real millisecond precision as the direct duration fields.
-// Keep the established log-filename timestamp format separate. (GPT-5.6-Sol) -->
-static CvString createSASGameRecordSnapshotUtcTimestamp()
-{
-	SYSTEMTIME kUtcTime;
-	GetSystemTime(&kUtcTime);
-	CvString szTimestamp;
-	szTimestamp.Format("%04d%02d%02dT%02d%02d%02d.%03dZ", (int)kUtcTime.wYear, (int)kUtcTime.wMonth, (int)kUtcTime.wDay, (int)kUtcTime.wHour, (int)kUtcTime.wMinute, (int)kUtcTime.wSecond, (int)kUtcTime.wMilliseconds);
-	return szTimestamp;
-}
-
 static CvString g_szSASGameRecordLogTimestamp;
 static int g_iSASGameRecordLogSequence = 0;
 static CvString g_szSASGameRecordLogContext;
@@ -293,7 +282,7 @@ static void rollSASGameRecordLog(const char* szContext)
 {
 	time_t kSessionStartTime;
 	time(&kSessionStartTime);
-	g_uiSASGameRecordSessionStartTime = timeGetTime();
+	g_uiSASGameRecordSessionStartTime = getSASMonotonicMilliseconds();
 	g_uiSASGameRecordPreviousSnapshotTime = g_uiSASGameRecordSessionStartTime;
 	g_bSASGameRecordDisplayContextLogged = false;
 	g_szSASGameRecordLogTimestamp = createSASUtcTimestamp(kSessionStartTime);
@@ -316,7 +305,7 @@ static void logSASGameRecordFormattedLine(CvString const& szLogName, TCHAR* form
 	// <!-- custom: Stamp every emitted row at the central logging boundary so one monotonic session timeline covers actions, snapshots and setup/context rows without per-call-site timing plumbing.
 	// This runs only when SASGameRecord logging is enabled; the timer read is negligible beside formatting and log I/O. Buffered initialization actions keep their original event-time stamp even when flushed after stable context. (ChatGPT-5.6-Sol) -->
 	CvString szSessionWall;
-	szSessionWall.Format(" sessionWallMilliseconds=%u", timeGetTime() - g_uiSASGameRecordSessionStartTime);
+	szSessionWall.Format(" sessionWallMilliseconds=%u", getSASElapsedMilliseconds(g_uiSASGameRecordSessionStartTime, getSASMonotonicMilliseconds()));
 	szLine += szSessionWall.GetCString();
 	if (g_bSASGameRecordBufferInitializingActions && szLine.find("GAME_RECORD_ACTION ") == 0)
 	{
@@ -481,7 +470,7 @@ static void logSASGameRecordWarAISettings(CvGame const& kGame)
 	const bool bUWAIBackground = getUWAI().isEnabled(true);
 	const char* szUWAIMode = (bUWAI ? "FULL" : (bUWAIBackground ? "BACKGROUND" : "DISABLED"));
 
-	// <!-- custom: These are cold setup/load reads; caching would add static state for negligible benefit. (ChatGPT-5.6-Sol)
+	// <!-- custom: These are cold setup/load reads; caching would add static state for negligible benefit. (ChatGPT-5.6-Sol) -->
 	const int iUseKModAINonAggressive = GC.getDefineINT("USE_KMOD_AI_NONAGGRESSIVE");
 	const int iDisableUWAI = GC.getDefineINT("DISABLE_UWAI");
 	const int iUWAIInBackground = GC.getDefineINT("UWAI_IN_BACKGROUND");
@@ -603,11 +592,22 @@ static void resetSASGameRecordState();
 static void logSASGameRecordInitialContext();
 static void initializeSASGameRecordWarsFromLoadedSave();
 
+// <!-- custom: Keep shared provenance behind the recorder's runtime gate so hashing the DLL never happens merely because an otherwise-disabled lifecycle hook was reached. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordProvenanceContext()
+{
+	if (!isSASGameRecordLogEnabled())
+		return;
+	logSASGameRecord("GAME_RECORD_MOD_CONTEXT %s", getSASModContextFields().GetCString());
+	logSASGameRecord("GAME_RECORD_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
+}
+
 void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
 	resetSASGameRecordState();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(getSASGameRecordLogName().GetCString()).GetCString());
+	// <!-- custom: Static mod/binary provenance is already final once this DLL is running, so keep it at the top of each log instead of burying it behind generated game context. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordProvenanceContext();
 	logSASGameRecordLogSettings();
 	// <!-- custom: Settings below are not final until map/player initialization finishes.
 	// Keep setup-generated actions, but place them after that authoritative context instead of before it. (ChatGPT-5.6-Sol) -->
@@ -629,6 +629,8 @@ void startSASGameRecordLogForLoadedSave()
 	// <!-- custom: The save contains no recorder-local war history. Begin partial observations for wars already in progress, with the loaded turn and current war success recorded explicitly as their observable baseline. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) initializeSASGameRecordWarsFromLoadedSave();
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
+	// <!-- custom: Keep static mod/binary identity immediately after the load-session marker; it does not depend on the loaded save's generated/game state. (ChatGPT-5.6-Sol) -->
+	logSASGameRecordProvenanceContext();
 	logSASGameRecordLogSettings();
 	logSASGameRecordInitialContext();
 }
@@ -3399,9 +3401,6 @@ static void logSASGameRecordMapAscii(bool bIncludeStaticLayers, char const* szRe
 
 static void logSASGameRecordInitialContext()
 {
-	// <!-- custom: Archived records can otherwise be mistaken for logs from another Civ4 mod. Record the active cached mod folder name and mod-relative path once, without relying on file timestamps or a manually maintained version string. (GPT-5.6-Sol) -->
-	// <!-- custom: distinguish the central branded/project identity from the actual loaded folder; renamed test/install folders remain diagnosable without changing the product name. (ChatGPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_MOD_CONTEXT displayName=%s folderName=%s modPath=%s", getSASGameRecordQuoted(GC.getModName().getDisplayName()).GetCString(), getSASGameRecordQuoted(GC.getModName().getName()).GetCString(), getSASGameRecordQuoted(GC.getModName().getPathInRoot()).GetCString());
 	// <!-- custom: Player/team IDs appear throughout the record, but live-player counts do not reveal where ordinary civilization slots end and the special Barbarian slots begin. Record the fixed DLL boundaries once at setup so external analysis can interpret every later ID correctly. (GPT-5.6-Sol) -->
 	logSASGameRecord("GAME_RECORD_SLOT_CONSTANTS MAX_CIV_PLAYERS=%d MAX_PLAYERS=%d BARBARIAN_PLAYER=%d MAX_CIV_TEAMS=%d MAX_TEAMS=%d BARBARIAN_TEAM=%d NO_PLAYER=%d NO_TEAM=%d", MAX_CIV_PLAYERS, MAX_PLAYERS, BARBARIAN_PLAYER, MAX_CIV_TEAMS, MAX_TEAMS, BARBARIAN_TEAM, NO_PLAYER, NO_TEAM);
 	logSASGameRecordGeography();
@@ -5472,9 +5471,9 @@ static void logSASGameRecordSnapshot(int iGameTurn, char const* szReason)
 	CvGame const& kGame = GC.getGame();
 	// <!-- custom: The initial save-load row is written before graphics initialization; the first full snapshot supplies the deferred display context. (GPT-5.6-Sol) -->
 	logSASGameRecordDisplayContext();
-	uint const uiSnapshotTime = timeGetTime();
-	uint const uiSnapshotIntervalWallMilliseconds = uiSnapshotTime - g_uiSASGameRecordPreviousSnapshotTime;
-	CvString const szSnapshotUtc = createSASGameRecordSnapshotUtcTimestamp();
+	uint const uiSnapshotTime = getSASMonotonicMilliseconds();
+	uint const uiSnapshotIntervalWallMilliseconds = getSASElapsedMilliseconds(g_uiSASGameRecordPreviousSnapshotTime, uiSnapshotTime);
+	CvString const szSnapshotUtc = createSASUtcTimestampMilliseconds();
 	// <!-- custom: Focus at this instant cannot prove how long Civ4 was foreground during the interval.
 	// Repeated exact samples still help qualify wall-time comparisons without continuous monitoring. (GPT-5.6-Sol) -->
 	// <!-- custom: Working set is Civ4's resident RAM, while page-file usage and available 32-bit virtual space help expose memory growth or address-space pressure.
@@ -6085,7 +6084,7 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 	bool const bEnded = (iOldValue > 0 && iNewValue <= 0);
 	char const* szAction = (bStarted ? "AUTOPLAY_STARTED" : (bEnded ? "AUTOPLAY_ENDED" : "AUTOPLAY_CHANGED"));
 	PlayerTypes const eActivePlayer = kGame.getActivePlayer();
-	uint const uiAutoPlayTime = timeGetTime();
+	uint const uiAutoPlayTime = getSASMonotonicMilliseconds();
 	if (bStarted)
 	{
 		g_iSASGameRecordAutoPlayRequestId++;
@@ -6100,7 +6099,7 @@ void logSASGameRecordAutoPlayChanged(int iOldValue, int iNewValue, bool bChangeP
 		eEndCause = (kGame.getWinner() != NO_TEAM ? SAS_AUTOPLAY_END_VICTORY : (eActivePlayer != NO_PLAYER && !GET_PLAYER(eActivePlayer).isAlive() ? SAS_AUTOPLAY_END_ACTIVE_PLAYER_DEFEATED : SAS_AUTOPLAY_END_OTHER));
 	int const iCompletedTurns = (!bEnded || g_iSASGameRecordAutoPlayRequestedTurns <= 0 ? 0 : (eEndCause == SAS_AUTOPLAY_END_SCHEDULED ? g_iSASGameRecordAutoPlayRequestedTurns : std::max(0, g_iSASGameRecordAutoPlayRequestedTurns - iOldValue)));
 	int const iElapsedGameTurns = (g_iSASGameRecordAutoPlayStartElapsedTurn < 0 ? 0 : std::max(0, kGame.getElapsedGameTurns() - g_iSASGameRecordAutoPlayStartElapsedTurn));
-	int const iAutoPlayWallMilliseconds = (g_iSASGameRecordAutoPlayStartTurn < 0 ? -1 : (int)(uiAutoPlayTime - g_uiSASGameRecordAutoPlayStartTime));
+	int const iAutoPlayWallMilliseconds = (g_iSASGameRecordAutoPlayStartTurn < 0 ? -1 : (int)getSASElapsedMilliseconds(g_uiSASGameRecordAutoPlayStartTime, uiAutoPlayTime));
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=%s oldTurnsLeft=%d newTurnsLeft=%d activePlayer=%d changePlayerStatus=%d requestId=%d requestedTurns=%d completedTurns=%d elapsedGameTurns=%d autoplayWallMilliseconds=%d startTurn=%d startElapsed=%d startPlayer=%d activePlayerChanges=%d totalActivePlayerChanges=%d endCause=%s",
 			kGame.getGameTurn(), szAction, iOldValue, iNewValue, eActivePlayer, bChangePlayerStatus, g_iSASGameRecordAutoPlayRequestId, g_iSASGameRecordAutoPlayRequestedTurns, iCompletedTurns, iElapsedGameTurns, iAutoPlayWallMilliseconds,
 			g_iSASGameRecordAutoPlayStartTurn, g_iSASGameRecordAutoPlayStartElapsedTurn, g_eSASGameRecordAutoPlayStartPlayer, g_iSASGameRecordAutoPlayPlayerChanges, g_iSASGameRecordTotalActivePlayerChanges,

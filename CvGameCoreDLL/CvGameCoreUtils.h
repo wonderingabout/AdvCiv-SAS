@@ -77,8 +77,16 @@ void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
 // <!-- custom: Shared second-precision UTC formatter for diagnostic log filenames and identities, including an overload that samples the current time. See KI#629. (GPT-5.6-Sol) -->
 CvString createSASUtcTimestamp(const time_t kTime);
 CvString createSASUtcTimestamp();
+// <!-- custom: Keep millisecond UTC sampling and monotonic elapsed-time sampling in the same shared diagnostic clock layer rather than open-coding Win32 clocks in individual logs.
+// Absolute UTC can follow system-clock adjustments; monotonic milliseconds are for durations and deliberately do not. (ChatGPT-5.6-Sol) -->
+CvString createSASUtcTimestampMilliseconds();
+uint getSASMonotonicMilliseconds();
+uint getSASElapsedMilliseconds(uint uiStartMilliseconds, uint uiEndMilliseconds);
 // <!-- custom: Shared stable UTC identity for all diagnostic logs produced by one DLL process. See KI#629. (GPT-5.6-Sol) -->
 CvString const& getSASProcessUtcTimestamp();
+// <!-- custom: Shared machine-readable provenance payloads for diagnostic log headers. Keep collection/escaping here so BBAI and SASGameRecord identify the same loaded mod and exact DLL binary without duplicating Win32/file logic. (ChatGPT-5.6-Sol) -->
+CvString getSASModContextFields();
+CvString getSASDllContextFields();
 
 float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
 HandicapTypes handicapFromDifficulty(int iDifficulty); // <!-- custom: map iDifficulty scores back to XML handicap entries after adding non-BtS handicap levels. (ChatGPT-5.5) -->

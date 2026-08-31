@@ -27,12 +27,217 @@ CvString createSASUtcTimestamp()
 	return createSASUtcTimestamp(kNow);
 }
 
+// <!-- custom: SYSTEMTIME is the common millisecond-precision UTC representation used both for a live UTC sample and for Win32 FILETIME conversion. Keep formatting centralized here. (ChatGPT-5.6-Sol) -->
+static CvString formatSASUtcSystemTime(SYSTEMTIME const& kUtcTime)
+{
+	CvString szTimestamp;
+	szTimestamp.Format("%04d%02d%02dT%02d%02d%02d.%03dZ", (int)kUtcTime.wYear, (int)kUtcTime.wMonth, (int)kUtcTime.wDay, (int)kUtcTime.wHour, (int)kUtcTime.wMinute, (int)kUtcTime.wSecond, (int)kUtcTime.wMilliseconds);
+	return szTimestamp;
+}
+
+CvString createSASUtcTimestampMilliseconds()
+{
+	SYSTEMTIME kUtcTime;
+	GetSystemTime(&kUtcTime);
+	return formatSASUtcSystemTime(kUtcTime);
+}
+
+// <!-- custom: SAS diagnostic wall-duration fields use timeGetTime rather than calendar time so OS clock corrections cannot change elapsed durations.
+// Centralize sampling and unsigned subtraction; modulo subtraction also preserves the established single-rollover behavior of the Win32 32-bit millisecond counter. (ChatGPT-5.6-Sol) -->
+uint getSASMonotonicMilliseconds()
+{
+	return timeGetTime();
+}
+
+uint getSASElapsedMilliseconds(uint uiStartMilliseconds, uint uiEndMilliseconds)
+{
+	return uiEndMilliseconds - uiStartMilliseconds;
+}
+
 // <!-- custom: One DLL-load value ensures BBAI and SASGameRecord share the same process identity instead of drifting across a UTC-second boundary. See KI#629. (GPT-5.6-Sol) -->
 static const CvString g_szSASProcessUtcTimestamp = createSASUtcTimestamp();
 
 CvString const& getSASProcessUtcTimestamp()
 {
 	return g_szSASProcessUtcTimestamp;
+}
+
+// <!-- custom: The Makefile stamps the real nmake target through /DSAS_DLL_BUILD_CONFIGURATION; keep 0 only as an UNKNOWN fallback for alternate or legacy build paths that do not inject it. This lives in shared diagnostics code because BBAI and SASGameRecord both report the same compiled binary. (ChatGPT-5.6-Sol) -->
+#ifndef SAS_DLL_BUILD_CONFIGURATION
+#define SAS_DLL_BUILD_CONFIGURATION 0
+#endif
+
+// <!-- custom: Quote shared diagnostic-header values once so BBAI and SASGameRecord use the same machine-readable escaping. (ChatGPT-5.6-Sol) -->
+static CvString getSASDiagnosticQuoted(char const* szValue)
+{
+	CvString szQuoted = "\"";
+	if (szValue != NULL)
+	{
+		for (char const* p = szValue; *p != '\0'; p++)
+		{
+			switch (*p)
+			{
+			case '\\': szQuoted += "\\\\"; break;
+			case '"': szQuoted += "\\\""; break;
+			case '\r': szQuoted += "\\r"; break;
+			case '\n': szQuoted += "\\n"; break;
+			case '\t': szQuoted += "\\t"; break;
+			default: szQuoted += *p; break;
+			}
+		}
+	}
+	szQuoted += "\"";
+	return szQuoted;
+}
+
+CvString getSASModContextFields()
+{
+	CvString const szDisplayName = getSASDiagnosticQuoted(GC.getModName().getDisplayName());
+	CvString const szFolderName = getSASDiagnosticQuoted(GC.getModName().getName());
+	CvString const szModPath = getSASDiagnosticQuoted(GC.getModName().getPathInRoot());
+	CvString szContext;
+	szContext.Format("displayName=%s folderName=%s modPath=%s", szDisplayName.GetCString(), szFolderName.GetCString(), szModPath.GetCString());
+	return szContext;
+}
+
+// <!-- custom: Distinguish the exact loaded DLL candidate from source/version identity. The nmake target is embedded at compile time; size, linker timestamp, last-write time and FNV-1a fingerprint come from the loaded module's file.
+// FNV-1a is a compact diagnostic fingerprint rather than a security hash, but it is strong enough to tell same-commit local candidate DLLs apart without adding a CryptoAPI/library dependency. Cache once because the loaded DLL cannot change within this process. (ChatGPT-5.6-Sol) -->
+struct SASDllDiagnosticContext
+{
+	SASDllDiagnosticContext() : bModuleFound(false), bFileReadable(false), iFileSize(-1), uiPETimestamp(0), uiFingerprint(0), szLastWriteUtc("-") {}
+	bool bModuleFound;
+	bool bFileReadable;
+	__int64 iFileSize;
+	DWORD uiPETimestamp;
+	unsigned __int64 uiFingerprint;
+	CvString szLastWriteUtc;
+};
+
+static char const* getSASDllBuildConfiguration()
+{
+	switch (SAS_DLL_BUILD_CONFIGURATION)
+	{
+	case 1: return "Debug";
+	case 2: return "Debug-opt";
+	case 3: return "Release";
+	case 4: return "Assert";
+	case 5: return "Profile";
+	case 6: return "Final_Release";
+	default: return "UNKNOWN";
+	}
+}
+
+// <!-- custom: FILETIME uses the Win32 epoch, so keep only the type conversion local; once converted, reuse the shared millisecond UTC formatter. (ChatGPT-5.6-Sol) -->
+static CvString getSASFileTimeUtc(FILETIME const& kFileTime)
+{
+	SYSTEMTIME kUtcTime;
+	if (!FileTimeToSystemTime(&kFileTime, &kUtcTime))
+		return CvString("-");
+	return formatSASUtcSystemTime(kUtcTime);
+}
+
+static SASDllDiagnosticContext const& getSASDllDiagnosticContext()
+{
+	static SASDllDiagnosticContext kContext;
+	static bool bInitialized = false;
+	if (bInitialized)
+		return kContext;
+	bInitialized = true;
+
+	HMODULE const hModule = GetModuleHandleA("CvGameCoreDLL.dll");
+	if (hModule == NULL)
+		return kContext;
+	kContext.bModuleFound = true;
+
+	IMAGE_DOS_HEADER const* pDosHeader = (IMAGE_DOS_HEADER const*)hModule;
+	if (pDosHeader->e_magic == IMAGE_DOS_SIGNATURE)
+	{
+		IMAGE_NT_HEADERS const* pNtHeaders = (IMAGE_NT_HEADERS const*)((BYTE const*)hModule + pDosHeader->e_lfanew);
+		if (pNtHeaders->Signature == IMAGE_NT_SIGNATURE)
+			kContext.uiPETimestamp = pNtHeaders->FileHeader.TimeDateStamp;
+	}
+
+	char szPath[MAX_PATH];
+	DWORD const uiPathLength = GetModuleFileNameA(hModule, szPath, MAX_PATH);
+	if (uiPathLength == 0 || uiPathLength >= MAX_PATH)
+		return kContext;
+
+	HANDLE const hFile = CreateFileA(szPath, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+		return kContext;
+
+	DWORD uiSizeHigh = 0;
+	SetLastError(NO_ERROR);
+	DWORD const uiSizeLow = GetFileSize(hFile, &uiSizeHigh);
+	if (uiSizeLow != INVALID_FILE_SIZE || GetLastError() == NO_ERROR)
+		kContext.iFileSize = (__int64)(((unsigned __int64)uiSizeHigh << 32) | uiSizeLow);
+
+	FILETIME kLastWriteTime;
+	if (GetFileTime(hFile, NULL, NULL, &kLastWriteTime))
+		kContext.szLastWriteUtc = getSASFileTimeUtc(kLastWriteTime);
+
+	unsigned __int64 uiHash = ((unsigned __int64)0xCBF29CE4 << 32) | 0x84222325;
+	unsigned __int64 const uiPrime = ((unsigned __int64)0x00000100 << 32) | 0x000001B3;
+	BYTE aucBuffer[64 * 1024];
+	DWORD uiRead = 0;
+	bool bReadOk = true;
+	for (;;)
+	{
+		if (!ReadFile(hFile, aucBuffer, sizeof(aucBuffer), &uiRead, NULL))
+		{
+			bReadOk = false;
+			break;
+		}
+		if (uiRead == 0)
+			break;
+		for (DWORD iI = 0; iI < uiRead; iI++)
+		{
+			uiHash ^= aucBuffer[iI];
+			uiHash *= uiPrime;
+		}
+	}
+	CloseHandle(hFile);
+	if (bReadOk)
+	{
+		kContext.bFileReadable = true;
+		kContext.uiFingerprint = uiHash;
+	}
+	return kContext;
+}
+
+static CvString getSASPETimestampUtc(DWORD uiTimestamp)
+{
+	if (uiTimestamp == 0)
+		return CvString("-");
+	CvString const szTimestamp = createSASUtcTimestamp((time_t)uiTimestamp);
+	return (szTimestamp == "unknown_time" ? CvString("-") : szTimestamp);
+}
+
+CvString getSASDllContextFields()
+{
+	SASDllDiagnosticContext const& kContext = getSASDllDiagnosticContext();
+	CvString szFingerprint = "-";
+	if (kContext.bFileReadable)
+		szFingerprint.Format("FNV1A64:%016I64X", kContext.uiFingerprint);
+#ifdef FASSERT_ENABLE
+	int const iFAssertEnabled = 1;
+#else
+	int const iFAssertEnabled = 0;
+#endif
+#ifdef _DEBUG
+	int const iDebugDefine = 1;
+#else
+	int const iDebugDefine = 0;
+#endif
+#ifdef NDEBUG
+	int const iNDebugDefine = 1;
+#else
+	int const iNDebugDefine = 0;
+#endif
+	CvString szContext;
+	szContext.Format("build=%s moduleFound=%d fileReadable=%d fileSizeBytes=%I64d dllFingerprint=%s dllLastWriteUtc=%s peTimestampRaw=%u peTimestampUtc=%s fassertEnabled=%d debugDefine=%d ndebugDefine=%d",
+			getSASDllBuildConfiguration(), kContext.bModuleFound, kContext.bFileReadable, kContext.iFileSize, szFingerprint.GetCString(), kContext.szLastWriteUtc.GetCString(), kContext.uiPETimestamp, getSASPETimestampUtc(kContext.uiPETimestamp).GetCString(), iFAssertEnabled, iDebugDefine, iNDebugDefine);
+	return szContext;
 }
 
 // advc.035:

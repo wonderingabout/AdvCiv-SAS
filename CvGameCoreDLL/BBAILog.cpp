@@ -247,10 +247,13 @@ static void logSASBBAIGameState(const char* szRowType)
 	logBBAI("BBAI_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
-// <!-- custom: Record central branded identity separately from the actual loaded mod folder/path. This is also the natural home for automatic source-version fields in the follow-up versioning change. (ChatGPT-5.6-Sol) -->
-static void logSASBBAIModContext()
+// <!-- custom: Static mod/binary provenance is shared with SASGameRecord so AI-decision logs can be tied to the exact candidate DLL that produced them. The common helpers also keep quoting and field semantics identical between logs. (ChatGPT-5.6-Sol) -->
+static void logSASBBAIProvenanceContext()
 {
-	logBBAI("BBAI_MOD_CONTEXT displayName=\"%s\" folderName=\"%s\" modPath=\"%s\"", GC.getModName().getDisplayName(), GC.getModName().getName(), GC.getModName().getPathInRoot());
+	if (!isSASBBAILogEnabled())
+		return;
+	logBBAI("BBAI_MOD_CONTEXT %s", getSASModContextFields().GetCString());
+	logBBAI("BBAI_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
 }
 
 // <!-- custom: Record the effective BBAI diagnostic profile in each new/load file so test runs with different category levels are not compared as if they contained the same diagnostics. (GPT-5.5) -->
@@ -265,7 +268,7 @@ void startSASBBAILogForNewGame()
 {
 	rollSASBBAILog("new");
 	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), getSASBBAILogName().GetCString());
-	logSASBBAIModContext();
+	logSASBBAIProvenanceContext();
 	logSASBBAILogSettings();
 }
 
@@ -279,7 +282,7 @@ void startSASBBAILogForLoadedSave()
 {
 	rollSASBBAILog("load");
 	logSASBBAIGameState("BBAI_SAVE_LOADED");
-	logSASBBAIModContext();
+	logSASBBAIProvenanceContext();
 	logSASBBAILogSettings();
 }
 
