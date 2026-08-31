@@ -167,6 +167,12 @@ bool CvSelectionGroupAI::AI_update()
 		// <!-- custom: Missionless transport unloading changes group cargo, and AdvCiv can detach a non-head bombard unit while leaving every existing head snapshot unchanged. Both are real progress that must re-enter inherited group evaluation instead of receiving MISSION_SKIP. See KI#522 and KI#524. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		const int iNumUnitsBefore = getNumUnits();
 		const int iCargoBefore = getCargo();
+		// <!-- custom: Consuming a queued group attack and spending a non-head member's movement are also legitimate progress while every head-centric field can remain unchanged.
+		// Snapshot both so the KI#319 fallback does not suppress inherited same-turn reassessment. See KI#525 and KI#526. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		const bool bGroupAttackBefore = AI_isGroupAttack();
+		int iGroupMovesBefore = 0;
+		FOR_EACH_UNIT_IN(pLoopUnit, *this)
+			iGroupMovesBefore += pLoopUnit->movesLeft();
 	#ifdef _DEBUG
 		iMaxAttempts -= 4; // Trigger assert early
 	#endif
@@ -249,13 +255,18 @@ bool CvSelectionGroupAI::AI_update()
 			}
 		}
 
-		// <!-- custom: Consume the turn only when the same head unit, including its AI role, group membership and cargo, made no observable progress. Head replacement, role conversion, non-head detachment or missionless unloading must let the remaining group continue its normal update. See KI#319, KI#522 and KI#524. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		// <!-- custom: Consume the turn only when the same head unit and group made no observable progress.
+		// Head replacement, role conversion, membership/cargo change, queued-attack consumption or any member spending movement must let the remaining group continue its normal update. See KI#319, KI#522, KI#524, KI#525 and KI#526. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		CvUnitAI const* pHeadAfter = AI_getHeadUnit();
+		int iGroupMovesAfter = 0;
+		FOR_EACH_UNIT_IN(pLoopUnit, *this)
+			iGroupMovesAfter += pLoopUnit->movesLeft();
 		if (!isBusy() && readyToMove(true) && pHeadAfter != NULL &&
 			pHeadAfter->getID() == iHeadIDBefore && pHeadAfter->AI_getUnitAIType() == eHeadAIBefore &&
 			pHeadAfter->getX() == iHeadXBefore && pHeadAfter->getY() == iHeadYBefore &&
 			pHeadAfter->movesLeft() == iHeadMovesBefore && getLengthMissionQueue() == iMissionQueueLengthBefore &&
-			getNumUnits() == iNumUnitsBefore && getCargo() == iCargoBefore)
+			getNumUnits() == iNumUnitsBefore && getCargo() == iCargoBefore &&
+			AI_isGroupAttack() == bGroupAttackBefore && iGroupMovesAfter == iGroupMovesBefore)
 		{
 			pushMission(MISSION_SKIP); // finishes moves cleanly
 			break;

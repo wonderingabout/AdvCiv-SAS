@@ -30,6 +30,7 @@ __pycache__
 # <!-- custom: Ignore locally installed debug DLL variants; the compilation guide documents their matching retained Debug-opt symbols. (GPT-5.6-Sol) -->
 /Assets/CvGameCoreDLL_d.dll
 /Assets/CvGameCoreDLL_do.dll
+/Assets/CvGameCoreDLL_r.dll
 /LLM_Helpers/outputs/
 # <!-- custom: current commit's changelog/notes are temporary local scratch, useful for cumulative change writing or LLM assistance but not repository history. Reusable release changelog examples are tracked instead and can be export-ignored through .gitattributes. (ChatGPT-5.6-Sol) -->
 /changes.md

@@ -612,8 +612,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#524.4 - (Fixed inherited AdvCiv AI-upgrade crash) Post-turn upgrade candidates included an unplaced unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.4)\
 [KI#524.5 - (Fixed inherited BtS/K-Mod/AdvCiv crash) Enemy-glow rendering inspected an unplaced unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.5)\
 [KI#524.6 - (Fixed inherited BtS/K-Mod/AdvCiv Partisans crash chain and AdvCiv-SAS SASGameRecord crash) applyPartisans1 initUnit(NO_UNIT) poisoned the unit container](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-524.6)\
-[KI#525 - (Provisional Pending AdvCiv-SAS KI#319 regression) Consumed queued group attack is mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-525)\
-[KI#526 - (Provisional Pending AdvCiv-SAS KI#319 regression) Non-head immediate movement is mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-526)\
+[KI#525 - (Fixed AdvCiv-SAS KI#319 regression) Consumed queued group attack was mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-525)\
+[KI#526 - (Fixed AdvCiv-SAS KI#319 regression) Non-head immediate movement was mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-526)\
 [KI#527 - (Fixed inherited AdvCiv debug diagnostic defect) Air combat Shift-hover called a land/sea-only stack comparison](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-527)\
 [KI#528 - (Fixed inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapsed to zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-528)\
 [KI#529 - (Provisional Pending AdvCiv-SAS/inherited-contract defect) Assault declare-war intent treats any cargo as invasion cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529)\
@@ -837,7 +837,19 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#746 - (Provisional Pending inherited Civ4 French localization typo) Pacifism prints F2_Religion literally](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-746)\
 [KI#747 - (Provisional Pending inherited AdvCiv localization contract defect) Espionage warnings request argument 2](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-747)\
 [KI#748 - (Provisional Pending inherited AdvCiv Spanish localization typo) Zero attitude requests argument 3](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-748)\
-[KI#749 - (Provisional Pending investigation) F426 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-749)\
+[KI#749 - (Provisional Pending inherited BtS espionage-help localization defect) Force Religion reuses Force Civic wording](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-749)\
+[KI#750 - (Provisional Pending inherited BtS espionage-help omission) Route-only sabotage does not name its target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-750)\
+[KI#751 - (Provisional Pending inherited BtS city-help omission) Collapsed free specialists omit Great Person points](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-751)\
+[KI#752 - (Provisional Pending inherited BtS/K-Mod corporation-preview defect) Forced spread counts a corporation it removes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-752)\
+[KI#753 - (Provisional Pending inherited BtS build-help omission) Route-only builds omit improvement yield changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-753)\
+[KI#754 - (Provisional Pending inherited BtS/AdvCiv timer regression) Advanced Start announces zero expired peace turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-754)\
+[KI#755 - (Provisional Pending inherited BtS religion-help omission) Non-state-religion happiness is hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-755)\
+[KI#756 - (Provisional Pending inherited AdvCiv cache-invalidation defect) World Wonders dirty the foreign builder's resource help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-756)\
+[KI#757 - (Provisional Pending inherited AdvCiv cache-lifetime defect) Resource help survives ordinary state changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-757)\
+[KI#758 - (Provisional Pending inherited BtS resource-hover defect) Prospective improvements omit live yield modifiers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-758)\
+[KI#759 - (Provisional Pending inherited AdvCiv city-billboard regression) Avoid Growth hides imminent starvation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-759)\
+[KI#760 - (Provisional Pending inherited AdvCiv feature-help omission) Forest/Jungle pages hide conditional rival defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-760)\
+[KI#761 - (Provisional Pending investigation) F438 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-761)\
 
 <a id="ki-1"></a>
 
@@ -12691,19 +12703,25 @@ It's also thanks to OpenAI token reset that i (wonderingabout) could or actually
 
 <a id="ki-525"></a>
 
-## KI#525 - (Provisional Pending AdvCiv-SAS KI#319 regression) Consumed queued group attack is mistaken for no progress
+## KI#525 - (Fixed AdvCiv-SAS KI#319 regression) Consumed queued group attack was mistaken for no progress
 
-Album F202 finds a legitimate queued-combat state transition leaving the current progress signature unchanged and receiving MISSION_SKIP. Pending independent implementation review.
+K-Mod can retain a queued group-attack retry while another combat occupies the source or destination plot. If that combat removes the final defender, the waiting unit automatically advances and can retain movement, while the queued retry flag survives. On the group's next update, SAS's KI#319 no-progress guard snapshots the ordinary head/group fields, consumes the now-stale queued attack, and sees the retry fail because the group already occupies its old target. Clearing the queued-attack state is legitimate progress, but the incomplete signature treated it as a stuck iteration and issued `MISSION_SKIP` instead of letting the still-movable group reassess.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix snapshots `AI_isGroupAttack()` with the other progress dimensions and permits the fallback only when that state is unchanged too. The inherited queued-combat retry and automatic movement remain unchanged; only SAS's later false no-progress classification is corrected.
+
+This is an AdvCiv-SAS KI#319 progress-signature regression exposed by inherited K-Mod queued-combat lifecycle, not an original BtS, K-Mod or AdvCiv defect. Found as F202 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-526"></a>
 
-## KI#526 - (Provisional Pending AdvCiv-SAS KI#319 regression) Non-head immediate movement is mistaken for no progress
+## KI#526 - (Fixed AdvCiv-SAS KI#319 regression) Non-head immediate movement was mistaken for no progress
 
-Album F203 finds a synchronous mission spending a non-head member's movement while the head snapshot remains unchanged. Pending independent implementation review.
+K-Mod deliberately lets an AI group reconsider after a synchronous Pillage when all members can still move. A mixed group can select a faster non-head unit to pillage, spend only that unit's movement and return with its temporary mission already removed. The route or improvement and non-head movement changed, but SAS's KI#319 signature observed only the head's movement; with membership, cargo, queue and head state otherwise unchanged, it incorrectly issued `MISSION_SKIP` and suppressed K-Mod's intended same-turn reassessment.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The fix snapshots the sum of every current group member's remaining movement and requires that aggregate to remain unchanged before applying the fallback. The existing membership check keeps this aggregate comparison unambiguous when units join or leave, while any member spending movement now counts as real progress.
+
+Runtime validation for KI#525-KI#526 completed a 16-player Huge Continents, Normal-speed autoplay from turn 0 through a Space victory on turn 408, with independent teams, standard Aggressive AI/UWAI and No Events. `SASGameRecord_20260831T145405Z_new1.log` records all 408 requested game turns ending normally with `endCause=VICTORY`.
+
+This is an AdvCiv-SAS KI#319 progress-signature regression exposed by inherited K-Mod immediate-mission behavior, not an original BtS, K-Mod or AdvCiv defect. Found as F203 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-527"></a>
 
@@ -14927,8 +14945,128 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP125 localiza
 
 <a id="ki-749"></a>
 
-## KI#749 - (Provisional Pending investigation) F426 remains unassigned during the CvGameTextMgr deep re-audit
+## KI#749 - (Provisional Pending inherited BtS espionage-help localization defect) Force Religion reuses Force Civic wording
 
-The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F420-F425 through C031-WIP126 and reserves F426 next. Do not implement a change under KI#749 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F426 finds `setEspionageCostHelp` using `TXT_KEY_ESPIONAGE_HELP_SWITCH_CIVIC` for both the Force Civic and Force Religion missions. English happens to use neutral "switch to" wording, but the inherited German text explicitly calls its second argument a government form; an ordinary Force Religion choice can therefore describe Buddhism, for example, as a civic. Stock BtS contains the shared-key contract and K-Mod, AdvCiv and SAS retain it.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP126 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending adding a dedicated Force Religion help key and using it for the religion branch, keeping each mission's argument type and localized semantics explicit.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP127 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-750"></a>
+
+## KI#750 - (Provisional Pending inherited BtS espionage-help omission) Route-only sabotage does not name its target
+
+Album F427 finds the Sabotage Improvement mission accepting and destroying either an improvement or, when no improvement exists, a route. Its ordinary cost hover names only an existing improvement, so a legal route-only Road or Railroad target receives no target-effect line even though selecting the mission removes that route. The mismatch originates in stock BtS and survives K-Mod, AdvCiv and SAS.
+
+Pending mirroring runtime's improvement-else-route target selection in the help, using the existing generic sabotage wording or a dedicated route key if localization grammar requires it.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP128 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-751"></a>
+
+## KI#751 - (Provisional Pending inherited BtS city-help omission) Collapsed free specialists omit Great Person points
+
+Album F428 finds `parseFreeSpecialistHelp` multiplying each collapsed free-specialist count into yield, commerce and experience effects but omitting the specialists' Great Person points. Current buildings can create enough identical free specialists for the city interface to use this collapsed helper, so its summary understates a live effect. The omission originates in stock BtS and remains in K-Mod, AdvCiv and SAS.
+
+Pending multiplying each specialist's Great People rate by its collapsed count and displaying it alongside the other aggregate effects without duplicating the expanded specialist widgets.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP130 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-752"></a>
+
+## KI#752 - (Provisional Pending inherited BtS/K-Mod corporation-preview defect) Forced spread counts a corporation it removes
+
+Album F429 finds forced corporation-spread help calculating the incoming corporation while a competing corporation is still present. Successful spread removes that competitor before the new corporation's resource-derived effects are calculated; K-Mod's corporation-produced resources make the inherited BtS preview order materially wrong in current AdvCiv/SAS data.
+
+Pending evaluating the hypothetical post-spread corporation set, excluding every competing corporation and its produced resources before calculating the incoming corporation's preview.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP131 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-753"></a>
+
+## KI#753 - (Provisional Pending inherited BtS build-help omission) Route-only builds omit improvement yield changes
+
+Album F430 finds `CvDLLWidgetData::parseActionHelp_Mission` projecting improvement-yield changes only when the build itself places an improvement. A route-only Railroad build can alter an existing Mine or Lumbermill through `RouteYieldChanges`, but its action hover omits that gain. Runtime uses the completed plot state, so this is an inherited stock-BtS help omission retained by K-Mod, AdvCiv and SAS.
+
+Pending comparing the existing improvement's authoritative yield before and after the prospective route instead of restricting the calculation to improvement-placing builds.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP132 cross-file Queue-003/Queue-012 review; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-754"></a>
+
+## KI#754 - (Provisional Pending inherited BtS/AdvCiv timer regression) Advanced Start announces zero expired peace turns
+
+Album F431 finds the inherited Advanced Start peace countdown displayed through elapsed turn `<= PEACE_TREATY_LENGTH`, while AdvCiv expires the setup peace deals sooner. The turn timer can consequently announce zero turns of universal peace after the actual protection has already ended. BtS supplied the countdown boundary; AdvCiv's faster peace-deal lifecycle made it wrong, and SAS retains the interaction.
+
+Pending deriving the countdown from the same live setup-peace state and expiry boundary as the deals rather than retaining the obsolete inclusive turn condition.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP133 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-755"></a>
+
+## KI#755 - (Provisional Pending inherited BtS religion-help omission) Non-state-religion happiness is hidden
+
+Album F432 finds religion-specific city help omitting the happiness contribution that `CvCity::getReligionHappiness` applies to every present religion. Free Religion supplies a direct current case: each non-state religion contributes happiness at runtime, but its city religion hover does not show that effect. The omission originates in stock BtS and survives K-Mod, AdvCiv and SAS.
+
+Pending adding the selected religion's current city happiness contribution independently of the separate state-religion building and civic effects.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP134 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-756"></a>
+
+## KI#756 - (Provisional Pending inherited AdvCiv cache-invalidation defect) World Wonders dirty the foreign builder's resource help
+
+Album F433 finds AdvCiv caching active-player resource-layer help but invalidating the wonder builder's cache when a World Wonder completes. When a foreign civilization builds the wonder, the active player's cached bonus help remains stale even though wonder availability in that help changed. The cache architecture and wrong-target invalidation originate in AdvCiv and remain in SAS.
+
+Pending dirtying every observer cache whose resource help depends on the changed global Wonder availability, rather than only the builder's cache.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP136 cross-file resource-help review; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-757"></a>
+
+## KI#757 - (Provisional Pending inherited AdvCiv cache-lifetime defect) Resource help survives ordinary state changes
+
+Album F434 broadens the resource-layer cache audit beyond KI#756: the cached help embeds volatile available-resource counts, corporation-use glyphs and technology/obsolescence state, but ordinary changes to those dependencies do not consistently dirty it. The resulting strings can remain stale until some unrelated invalidation. Stock BtS/K-Mod recompute this help; the underspecified cache is inherited from AdvCiv.
+
+Pending centralizing invalidation for every state dependency of the cached resource-help string, or removing the persistent cache if its complete lifecycle cannot be represented safely.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP137 cross-file resource-help review; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-758"></a>
+
+## KI#758 - (Provisional Pending inherited BtS resource-hover defect) Prospective improvements omit live yield modifiers
+
+Album F435 finds resource hover evaluating a proposed connecting improvement from only its base and bonus-specific XML yields, while subtracting any old improvement through the authoritative plot calculation. The proposed side therefore omits live river, hill, irrigation, route, civic/player and technology/team modifiers. A current Maize Farm after Biology, for example, is advertised as +4 food although building it produces +5. The partial formula originates in stock BtS and remains in K-Mod, AdvCiv and SAS.
+
+Pending using `calculateImprovementYieldChange` for both the proposed and existing improvement so the preview follows the same live plot/player/team contract as runtime.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP138 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-759"></a>
+
+## KI#759 - (Provisional Pending inherited AdvCiv city-billboard regression) Avoid Growth hides imminent starvation
+
+Album F436 finds AdvCiv's starvation extension applying Avoid Growth's one-turn suppression to `abs(iTurns)`. Avoid Growth prevents positive population growth but does not prevent starvation; a city one turn from losing population can therefore lose its billboard countdown solely because Avoid Growth is enabled. AdvCiv practical 3000 introduced the signed starvation display without making the older growth-only exception sign-sensitive, and SAS retains it.
+
+Pending suppressing only the exact positive `+1` growth estimate under Avoid Growth while always displaying a negative one-turn starvation estimate.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP139 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-760"></a>
+
+## KI#760 - (Provisional Pending inherited AdvCiv feature-help omission) Forest/Jungle pages hide conditional rival defense
+
+Album F437 finds AdvCiv practical 012 splitting Forest/Jungle defense into an ordinary modifier and `iRivalDefense`, which applies unless the attacker owns the tile. Live plot help explains that conditional component, but inherited `CvGameTextMgr::setFeatureHelp` still displays only the old ordinary field. Forest therefore shows no feature-defense stat despite usually granting +25%, while SAS Jungle shows only its -25% ordinary half even though the conditional +25% normally offsets it.
+
+Stock BtS and K-Mod use one unconditional 50% field, so their matching single-field help is complete. Base AdvCiv 1.14 introduced the split gameplay rule without extending the static Feature-page helper; AdvCiv-SAS inherits the omission. Pending localized, context-free wording that states the ownership condition without incorrectly folding both fields into one unconditional number.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP141-C031-WIP142 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-761"></a>
+
+## KI#761 - (Provisional Pending investigation) F438 remains unassigned during the CvGameTextMgr deep re-audit
+
+The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F420-F437 through C031-WIP142 and reserves F438 next. Do not implement a change under KI#761 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP142 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
