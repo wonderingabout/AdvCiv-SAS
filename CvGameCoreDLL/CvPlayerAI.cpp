@@ -27561,6 +27561,34 @@ void CvPlayerAI::AI_updateVictoryStageHash()
 		}
 	}
 
+	// <!-- custom: Base AdvCiv calculated Diplomacy after Culture, but SAS Culture now checks Diplomacy as a competing victory.
+	// Diplomacy has no reciprocal Culture-stage dependency, so establish its current-turn bits first instead of exposing a freshly reset stage 0. See KI#696. (GPT-5.6-Sol) -->
+	// Diplomacy victory
+	iVictoryStage = AI_calculateDiplomacyVictoryStage();
+	if (iVictoryStage >= 1)
+	{
+		m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY1;
+		if (iVictoryStage > 1)
+		{
+			m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY2;
+			if (iVictoryStage > 2)
+				/*&& !bStartedOtherLevel3) advc.115b: I really don't see
+				 how pursuing diplo would get in the way of other victories,
+				 and UN is often easier than a military victory. */
+			{
+				//bStartedOtherLevel3 = true;
+				m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY3;
+
+				if (iVictoryStage > 3)
+					//&& !bStartedOtherLevel4) // advc.115b (commented out)
+				{
+					//bStartedOtherLevel4 = true;
+					m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY4;
+				}
+			}
+		}
+	}
+
 	// Cultural victory
 	/*	K-Mod Note: AI_calculateCultureVictoryStage now checks
 		some of the other victory strategies,
@@ -27584,32 +27612,6 @@ void CvPlayerAI::AI_updateVictoryStageHash()
 				{
 					//bStartedOtherLevel4 = true; // advc.115b (no longer used below)
 					m_eVictoryStageHash |= AI_VICTORY_CULTURE4;
-				}
-			}
-		}
-	}
-
-	// Diplomacy victory
-	iVictoryStage = AI_calculateDiplomacyVictoryStage();
-	if (iVictoryStage >= 1)
-	{
-		m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY1;
-		if (iVictoryStage > 1)
-		{
-			m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY2;
-			if (iVictoryStage > 2)
-				/*&& !bStartedOtherLevel3) advc.115b: I really don't see
-				 how pursuing diplo would get in the way of other victories,
-				 and UN is often easier than a military victory. */
-			{
-				//bStartedOtherLevel3 = true;
-				m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY3;
-
-				if (iVictoryStage > 3)
-					//&& !bStartedOtherLevel4) // advc.115b (commented out)
-				{
-					//bStartedOtherLevel4 = true;
-					m_eVictoryStageHash |= AI_VICTORY_DIPLOMACY4;
 				}
 			}
 		}

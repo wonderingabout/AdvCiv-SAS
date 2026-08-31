@@ -784,7 +784,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#693 - (Fixed inherited BtS Advanced Start state defect) Failed improvement purchases counted as successful](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
 [KI#694 - (Fixed inherited BtS Advanced Start control-flow defect) One unaffordable building could end the building phase](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-694)\
 [KI#695 - (Fixed AdvCiv Advanced Start regression) One unaffordable unit ended all later role passes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-695)\
-[KI#696 - (Provisional Pending SAS victory-state ordering regression) Culture cannot see the current Diplomacy stage](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-696)\
+[KI#696 - (Fixed SAS victory-state ordering regression) Culture could not see the current Diplomacy stage](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-696)\
 [KI#697 - (Pending Architectural inherited and SAS-aggravated scope defect) Culture strategy is player-local for a team victory](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-697)\
 [KI#698 - (Provisional Pending SAS Worker-allocation scope regression) Foreign and unavailable improvements count as city capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
 [KI#699 - (Provisional Pending AdvCiv Worker predicate regression) AI_connectBonus always returns false](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-699)\
@@ -14318,9 +14318,13 @@ Found during ChatGPT-5.6-Sol's C031-WIP62 `CvPlayerAI.cpp` deep re-audit; fixed 
 
 <a id="ki-696"></a>
 
-## KI#696 - (Provisional Pending SAS victory-state ordering regression) Culture cannot see the current Diplomacy stage
+## KI#696 - (Fixed SAS victory-state ordering regression) Culture could not see the current Diplomacy stage
 
-Album F373 finds the SAS Culture competing-victory gate reading the partially rebuilt victory-stage hash before `AI_calculateDiplomacyVictoryStage` runs. Because the update first clears the hash and adds Diplomacy only after Culture, the Culture calculation always observes Diplomacy stage 0 during the normal current-turn rebuild and can divert resources into an unready Culture hedge despite an advanced Diplomatic pursuit. Pending calculating Diplomacy before Culture after confirming that dependency remains one-way.
+Album F373 found the SAS Culture competing-victory gate reading the partially rebuilt victory-stage hash before `AI_calculateDiplomacyVictoryStage` ran. Because the update first cleared the hash and added Diplomacy only after Culture, the Culture calculation always observed Diplomacy stage 0 during the normal current-turn rebuild and could divert resources into an unready Culture hedge despite an advanced Diplomatic pursuit.
+
+Fixed by calculating and storing Diplomacy before Culture. The dependency is one-way: the Diplomacy calculator does not read Culture stages, while SAS Culture explicitly reads Diplomacy alongside Space, Conquest and Domination. This preserves one calculation per strategy and gives Culture one coherent current-turn competing-victory hash.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks. A targeted Debug-opt Large Pangaea autoplay started in the Renaissance with Cultural and Diplomatic victories enabled and completed normally through a Cultural victory after 424 elapsed turns (`SASGameRecord_20260831T062041Z_new1.log`).
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP63 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
