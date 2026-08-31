@@ -3,10 +3,16 @@
 #include "CoreAI.h"
 #include "CvUnitAI.h"
 #include "CvSelectionGroupAI.h"
+#include "CvDeal.h" // <!-- custom: Shared finalized-initial-state diagnostics include surviving starting deals. (ChatGPT-5.6-Sol) -->
+#include "CvCity.h" // <!-- custom: Resolve city trade items in shared diagnostic trade-list text. (ChatGPT-5.6-Sol) -->
 #include "CityPlotIterator.h"
 #include "BBAILog.h" // advc.007
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Building.h" // <!-- custom: getSASTeamSpaceshipPartsBuilt needs CvProjectInfo::isSpaceship for Space-victory denial checks. (GPT-5.5) -->
+#include "CvInfo_Tech.h" // <!-- custom: Shared initial-team/deal diagnostics use stable technology type names. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Terrain.h" // <!-- custom: Shared trade serialization resolves CvBonusInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Civics.h" // <!-- custom: Shared trade serialization resolves CvCivicInfo type names; CvGlobals only forward-declares the info class. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_Organization.h" // <!-- custom: Shared diagnostic trade-list text resolves religion trade items. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Centralize second-precision UTC formatting for diagnostic identities and filenames. The explicit-time overload lets a caller reuse one sampled clock reading; the no-argument overload samples it here. See KI#629. (GPT-5.6-Sol) -->
 CvString createSASUtcTimestamp(const time_t kTime)
@@ -67,26 +73,48 @@ CvString const& getSASProcessUtcTimestamp()
 #define SAS_DLL_BUILD_CONFIGURATION 0
 #endif
 
-// <!-- custom: Quote shared diagnostic-header values once so BBAI and SASGameRecord use the same machine-readable escaping. (ChatGPT-5.6-Sol) -->
-static CvString getSASDiagnosticQuoted(char const* szValue)
+// <!-- custom: Shared machine-readable quoting for diagnostic free-text values.
+// Keep narrow/wide escaping identical so BBAI, SASGameRecord and future shared diagnostic rows cannot drift.
+// NULL is represented as the unquoted missing-value token "-" rather than as an empty string. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticQuoted(char const* szValue)
 {
+	if (szValue == NULL)
+		return CvString("-");
 	CvString szQuoted = "\"";
-	if (szValue != NULL)
+	for (char const* p = szValue; *p != '\0'; p++)
 	{
-		for (char const* p = szValue; *p != '\0'; p++)
+		switch (*p)
 		{
-			switch (*p)
-			{
-			case '\\': szQuoted += "\\\\"; break;
-			case '"': szQuoted += "\\\""; break;
-			case '\r': szQuoted += "\\r"; break;
-			case '\n': szQuoted += "\\n"; break;
-			case '\t': szQuoted += "\\t"; break;
-			default: szQuoted += *p; break;
-			}
+		case '\\': szQuoted += "\\\\"; break;
+		case '"': szQuoted += "\\\""; break;
+		case '\r': szQuoted += "\\r"; break;
+		case '\n': szQuoted += "\\n"; break;
+		case '\t': szQuoted += "\\t"; break;
+		default: szQuoted += *p; break;
 		}
 	}
 	szQuoted += "\"";
+	return szQuoted;
+}
+
+CvWString getSASDiagnosticQuoted(wchar const* szValue)
+{
+	if (szValue == NULL)
+		return CvWString(L"-");
+	CvWString szQuoted = L"\"";
+	for (wchar const* p = szValue; *p != L'\0'; p++)
+	{
+		switch (*p)
+		{
+		case L'\\': szQuoted += L"\\\\"; break;
+		case L'"': szQuoted += L"\\\""; break;
+		case L'\r': szQuoted += L"\\r"; break;
+		case L'\n': szQuoted += L"\\n"; break;
+		case L'\t': szQuoted += L"\\t"; break;
+		default: szQuoted += *p; break;
+		}
+	}
+	szQuoted += L"\"";
 	return szQuoted;
 }
 
@@ -238,6 +266,247 @@ CvString getSASDllContextFields()
 	szContext.Format("build=%s moduleFound=%d fileReadable=%d fileSizeBytes=%I64d dllFingerprint=%s dllLastWriteUtc=%s peTimestampRaw=%u peTimestampUtc=%s fassertEnabled=%d debugDefine=%d ndebugDefine=%d",
 			getSASDllBuildConfiguration(), kContext.bModuleFound, kContext.bFileReadable, kContext.iFileSize, szFingerprint.GetCString(), kContext.szLastWriteUtc.GetCString(), kContext.uiPETimestamp, getSASPETimestampUtc(kContext.uiPETimestamp).GetCString(), iFAssertEnabled, iDebugDefine, iNDebugDefine);
 	return szContext;
+}
+
+
+// <!-- custom: Build comma-separated integer relation/member lists once for shared BBAI/SASGameRecord finalized-initial-state rows. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticIntListValue(CvString& szList, int iValue)
+{
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%d" : ",%d", iValue);
+	szList += szItem;
+}
+
+CvString getSASDiagnosticOrDash(CvString const& szValue)
+{
+	return szValue.empty() ? CvString("-") : szValue;
+}
+
+// <!-- custom: BBAI and SASGameRecord use the same timestamp/context/active-player filename rules.
+// Centralize the filename construction while each log keeps its own session state and rollover timing. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticLogName(char const* szBaseName, CvString const& szTimestamp, CvString const& szContext, bool bTimestamped)
+{
+	CvString szLogName;
+	if (GC.getGame().isNetworkMultiPlayer())
+	{
+		if (bTimestamped)
+		{
+			if (!szContext.empty())
+				szLogName.Format("%s%d_%s_%s.log", szBaseName, (int)GC.getGame().getActivePlayer(), szTimestamp.GetCString(), szContext.GetCString());
+			else szLogName.Format("%s%d_%s.log", szBaseName, (int)GC.getGame().getActivePlayer(), szTimestamp.GetCString());
+		}
+		else szLogName.Format("%s%d.log", szBaseName, (int)GC.getGame().getActivePlayer());
+	}
+	else
+	{
+		if (bTimestamped)
+		{
+			if (!szContext.empty())
+				szLogName.Format("%s_%s_%s.log", szBaseName, szTimestamp.GetCString(), szContext.GetCString());
+			else szLogName.Format("%s_%s.log", szBaseName, szTimestamp.GetCString());
+		}
+		else szLogName.Format("%s.log", szBaseName);
+	}
+	return szLogName;
+}
+
+CvString getSASInitialTeamStateFields(TeamTypes eTeam)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	CvString szMembers, szAliveMembers, szMet, szWars, szOpenBorders, szDefensivePacts, szForcePeace, szPermanentWarPeace, szVassals;
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		if (!kPlayer.isEverAlive() || kPlayer.getTeam() != eTeam)
+			continue;
+		appendSASDiagnosticIntListValue(szMembers, ePlayer);
+		if (kPlayer.isAlive())
+			appendSASDiagnosticIntListValue(szAliveMembers, ePlayer);
+	}
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		TeamTypes const eOther = (TeamTypes)iI;
+		if (eOther == eTeam || !GET_TEAM(eOther).isEverAlive())
+			continue;
+		if (kTeam.isHasMet(eOther)) appendSASDiagnosticIntListValue(szMet, eOther);
+		if (kTeam.isAtWar(eOther)) appendSASDiagnosticIntListValue(szWars, eOther);
+		if (kTeam.isOpenBorders(eOther)) appendSASDiagnosticIntListValue(szOpenBorders, eOther);
+		if (kTeam.isDefensivePact(eOther)) appendSASDiagnosticIntListValue(szDefensivePacts, eOther);
+		if (kTeam.isForcePeace(eOther)) appendSASDiagnosticIntListValue(szForcePeace, eOther);
+		if (kTeam.isPermanentWarPeace(eOther)) appendSASDiagnosticIntListValue(szPermanentWarPeace, eOther);
+		if (GET_TEAM(eOther).isVassal(eTeam)) appendSASDiagnosticIntListValue(szVassals, eOther);
+	}
+	TeamTypes const eMaster = (kTeam.isAVassal() ? kTeam.getMasterTeam() : NO_TEAM);
+	CvString szFields;
+	szFields.Format("team=%d members=%s aliveMembers=%s alive=%d major=%d minor=%d barbarian=%d cities=%d population=%d land=%d metTeams=%s wars=%s openBorders=%s defensivePacts=%s forcePeace=%s permanentWarPeace=%s vassals=%s master=%d capitulated=%d mapTrading=%d techTrading=%d goldTrading=%d openBordersTrading=%d defensivePactTrading=%d permanentAllianceTrading=%d vassalStateTrading=%d",
+			eTeam, getSASDiagnosticOrDash(szMembers).GetCString(), getSASDiagnosticOrDash(szAliveMembers).GetCString(), kTeam.isAlive(), kTeam.isMajorCiv(), kTeam.isMinorCiv(), kTeam.isBarbarian(), kTeam.getNumCities(), kTeam.getTotalPopulation(), kTeam.getTotalLand(),
+			getSASDiagnosticOrDash(szMet).GetCString(), getSASDiagnosticOrDash(szWars).GetCString(), getSASDiagnosticOrDash(szOpenBorders).GetCString(), getSASDiagnosticOrDash(szDefensivePacts).GetCString(), getSASDiagnosticOrDash(szForcePeace).GetCString(), getSASDiagnosticOrDash(szPermanentWarPeace).GetCString(), getSASDiagnosticOrDash(szVassals).GetCString(), eMaster, kTeam.isCapitulated(),
+			kTeam.isMapTrading(), kTeam.isTechTrading(), kTeam.isGoldTrading(), kTeam.isOpenBordersTrading(), kTeam.isDefensivePactTrading(), kTeam.isPermanentAllianceTrading(), kTeam.isVassalStateTrading());
+	return szFields;
+}
+
+CvString getSASInitialTeamTechFields(TeamTypes eTeam)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	CvString szTechs;
+	int iTechTypes = 0;
+	int iTechLevels = 0;
+	FOR_EACH_ENUM(Tech)
+	{
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		// <!-- custom: Ordinary technologies live in m_abHasTech, whereas repeat technologies increment m_aiTechCount without setting that bit.
+		// Normalize both storage forms into one exact TYPE:level list. (ChatGPT-5.6-Sol) -->
+		int const iCount = (kTech.isRepeat() ? kTeam.getTechCount(eLoopTech) : (kTeam.isHasTech(eLoopTech) ? 1 : 0));
+		if (iCount <= 0)
+			continue;
+		CvString szItem;
+		szItem.Format(szTechs.empty() ? "%s:%d" : ",%s:%d", kTech.getType(), iCount);
+		szTechs += szItem;
+		iTechTypes++;
+		iTechLevels += iCount;
+	}
+	CvString szFields;
+	szFields.Format("team=%d techTypeCount=%d totalTechLevels=%d techLevels=%s", eTeam, iTechTypes, iTechLevels, getSASDiagnosticOrDash(szTechs).GetCString());
+	return szFields;
+}
+
+CvString getSASDiagnosticIntText(int iValue)
+{
+	CvString szValue;
+	szValue.Format("%d", iValue);
+	return szValue;
+}
+
+CvString getSASTeamDiagnosticText(TeamTypes eTeam)
+{
+	if (eTeam == NO_TEAM)
+		return CvString("-");
+	CvString szValue;
+	szValue.Format("TEAM_%d", eTeam);
+	return szValue;
+}
+
+CvString getSASTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer)
+{
+	switch (kItem.m_eItemType)
+	{
+	case TRADE_GOLD:
+	case TRADE_GOLD_PER_TURN:
+		return getSASDiagnosticIntText(kItem.m_iData);
+	case TRADE_TECHNOLOGIES:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumTechInfos())
+			return CvString(GC.getInfo((TechTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_RESOURCES:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumBonusInfos())
+			return CvString(GC.getInfo((BonusTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_CITIES:
+	{
+		CvString szValue;
+		CvCity* pCity = GET_PLAYER(eFromPlayer).getCity(kItem.m_iData);
+		szValue.Format("cityId=%d", pCity == NULL ? kItem.m_iData : pCity->getID());
+		return szValue;
+	}
+	case TRADE_PEACE:
+	case TRADE_WAR:
+	case TRADE_EMBARGO:
+		return getSASTeamDiagnosticText((TeamTypes)kItem.m_iData);
+	case TRADE_CIVIC:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumCivicInfos())
+			return CvString(GC.getInfo((CivicTypes)kItem.m_iData).getType());
+		break;
+	case TRADE_RELIGION:
+		if (kItem.m_iData >= 0 && kItem.m_iData < GC.getNumReligionInfos())
+			return CvString(GC.getInfo((ReligionTypes)kItem.m_iData).getType());
+		break;
+	default:
+		return CvString("-");
+	}
+	return getSASDiagnosticIntText(kItem.m_iData);
+}
+
+CvString getSASTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer)
+{
+	CvString szList;
+	FOR_EACH_TRADE_ITEM(kList)
+	{
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", getSASTradeItemType(pItem->m_eItemType), getSASTradeDataText(*pItem, eFromPlayer).GetCString());
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+// <!-- custom: Ordinary non-scenario Advanced Start creates one reciprocal peace-treaty deal for every eligible player pair.
+// Their effective team relation is already exact in INITIAL_TEAM_STATE forcePeace; recognize this deterministic Advanced-Start-shaped form so callers can collapse it instead of emitting O(players^2) deal rows.
+// The final CvDeal object cannot prove which code path created an otherwise identical deal, so the diagnostic names describe the collapse rather than claiming exact origin; arbitrary scenario/WB deals are never collapsed. (ChatGPT-5.6-Sol) -->
+bool isSASCollapsibleAdvancedStartPeaceDeal(CvDeal const& kDeal)
+{
+	CvGame const& kGame = GC.getGame();
+	if (kGame.isScenario() || !kGame.isOption(GAMEOPTION_ADVANCED_START) || kGame.isOption(GAMEOPTION_SPAH))
+		return false;
+	if (kDeal.getLengthFirst() != 1 || kDeal.getLengthSecond() != 1)
+		return false;
+	bool bFirstPeaceTreaty = false;
+	{
+		CLinkList<TradeData> const& kList = kDeal.getFirstList();
+		FOR_EACH_TRADE_ITEM(kList)
+			bFirstPeaceTreaty = (pItem->m_eItemType == TRADE_PEACE_TREATY);
+	}
+	bool bSecondPeaceTreaty = false;
+	{
+		CLinkList<TradeData> const& kList = kDeal.getSecondList();
+		FOR_EACH_TRADE_ITEM(kList)
+			bSecondPeaceTreaty = (pItem->m_eItemType == TRADE_PEACE_TREATY);
+	}
+	if (!bFirstPeaceTreaty || !bSecondPeaceTreaty)
+		return false;
+	PlayerTypes const eFirst = kDeal.getFirstPlayer();
+	PlayerTypes const eSecond = kDeal.getSecondPlayer();
+	return (eFirst != NO_PLAYER && eSecond != NO_PLAYER && GET_PLAYER(eFirst).isMajorCiv() && GET_PLAYER(eSecond).isMajorCiv());
+}
+
+CvString getSASInitialDealSummaryFields(bool bDealDetailEnabled, int iLoggedDealRows)
+{
+	if (!bDealDetailEnabled)
+		return CvString("dealDetailEnabled=0 initialDeals=-1 loggedDealRows=0 collapsedAdvancedStartPeaceDeals=-1 collapsedAdvancedStartPeaceCancelTurnsMin=-1 collapsedAdvancedStartPeaceCancelTurnsMax=-1");
+	int iInitialDeals = 0;
+	int iCollapsedAdvancedStartPeaceDeals = 0;
+	int iCollapsedAdvancedStartPeaceCancelTurnsMin = -1;
+	int iCollapsedAdvancedStartPeaceCancelTurnsMax = -1;
+	int iLoop = 0;
+	for (CvDeal const* pDeal = GC.getGame().firstDeal(&iLoop); pDeal != NULL; pDeal = GC.getGame().nextDeal(&iLoop))
+	{
+		iInitialDeals++;
+		if (!isSASCollapsibleAdvancedStartPeaceDeal(*pDeal))
+			continue;
+		iCollapsedAdvancedStartPeaceDeals++;
+		int const iFirstTurns = pDeal->turnsToCancel(pDeal->getFirstPlayer());
+		int const iSecondTurns = pDeal->turnsToCancel(pDeal->getSecondPlayer());
+		int const iDealMin = std::min(iFirstTurns, iSecondTurns);
+		int const iDealMax = std::max(iFirstTurns, iSecondTurns);
+		if (iCollapsedAdvancedStartPeaceCancelTurnsMin < 0 || iDealMin < iCollapsedAdvancedStartPeaceCancelTurnsMin) iCollapsedAdvancedStartPeaceCancelTurnsMin = iDealMin;
+		if (iDealMax > iCollapsedAdvancedStartPeaceCancelTurnsMax) iCollapsedAdvancedStartPeaceCancelTurnsMax = iDealMax;
+	}
+	FAssertMsg(iLoggedDealRows == iInitialDeals - iCollapsedAdvancedStartPeaceDeals, "Initial-deal normalization row count mismatch");
+	CvString szFields;
+	szFields.Format("dealDetailEnabled=1 initialDeals=%d loggedDealRows=%d collapsedAdvancedStartPeaceDeals=%d collapsedAdvancedStartPeaceCancelTurnsMin=%d collapsedAdvancedStartPeaceCancelTurnsMax=%d", iInitialDeals, iLoggedDealRows, iCollapsedAdvancedStartPeaceDeals, iCollapsedAdvancedStartPeaceCancelTurnsMin, iCollapsedAdvancedStartPeaceCancelTurnsMax);
+	return szFields;
+}
+
+CvString getSASInitialDealStateFields(CvDeal const& kDeal)
+{
+	PlayerTypes const eFirst = kDeal.getFirstPlayer();
+	PlayerTypes const eSecond = kDeal.getSecondPlayer();
+	TeamTypes const eFirstTeam = (eFirst == NO_PLAYER ? NO_TEAM : GET_PLAYER(eFirst).getTeam());
+	TeamTypes const eSecondTeam = (eSecond == NO_PLAYER ? NO_TEAM : GET_PLAYER(eSecond).getTeam());
+	CvString szFields;
+	szFields.Format("dealId=%d initialTurn=%d age=%d firstPlayer=%d firstTeam=%d secondPlayer=%d secondTeam=%d peaceDeal=%d vassalDeal=%d disengage=%d firstTurnsToCancel=%d secondTurnsToCancel=%d firstGives=%s secondGives=%s",
+			kDeal.getID(), kDeal.getInitialGameTurn(), kDeal.getAge(), eFirst, eFirstTeam, eSecond, eSecondTeam, kDeal.isPeaceDeal(), kDeal.isVassalDeal(), kDeal.isDisengage(), kDeal.turnsToCancel(eFirst), kDeal.turnsToCancel(eSecond),
+			getSASTradeListText(kDeal.getFirstList(), eFirst).GetCString(), getSASTradeListText(kDeal.getSecondList(), eSecond).GetCString());
+	return szFields;
 }
 
 // advc.035:

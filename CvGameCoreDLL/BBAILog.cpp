@@ -171,34 +171,11 @@ static bool isSASBBAILogTimestampedFilenameEnabled()
 	return bUseTimestampedFilename;
 }
 
+// <!-- custom: When timestamped filenames are enabled, use a new file for every new game and loaded save.
+// The new/load context and shared chronological sequence keep files distinct and show their order even when multiple new/load actions occur within the same UTC second. (GPT-5.5) -->
 static CvString getSASBBAILogName()
 {
-	// <!-- custom: When timestamped filenames are enabled, use a new file for every new game and loaded save. The new/load context and shared chronological sequence keep files distinct and show their order even when multiple new/load actions occur within the same UTC second. (GPT-5.5) -->
-	const bool bUseTimestampedFilename = isSASBBAILogTimestampedFilenameEnabled();
-	CvString szLogName;
-	// <advc.007>
-	if (GC.getGame().isNetworkMultiPlayer())
-	{
-		// For OOS debugging on one PC
-		if (bUseTimestampedFilename)
-		{
-			if (!g_szSASBBAILogContext.empty())
-				szLogName.Format("BBAI%d_%s_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
-			else szLogName.Format("BBAI%d_%s.log", (int)GC.getGame().getActivePlayer(), getSASBBAILogTimestamp().GetCString());
-		}
-		else szLogName.Format("BBAI%d.log", (int)GC.getGame().getActivePlayer());
-	}
-	else
-	{
-		if (bUseTimestampedFilename)
-		{
-			if (!g_szSASBBAILogContext.empty())
-				szLogName.Format("BBAI_%s_%s.log", getSASBBAILogTimestamp().GetCString(), g_szSASBBAILogContext.GetCString());
-			else szLogName.Format("BBAI_%s.log", getSASBBAILogTimestamp().GetCString());
-		}
-		else szLogName = "BBAI.log";
-	} // </advc.007>
-	return szLogName;
+	return getSASDiagnosticLogName("BBAI", getSASBBAILogTimestamp(), g_szSASBBAILogContext, isSASBBAILogTimestampedFilenameEnabled());
 }
 
 static void rollSASBBAILog(const char* szContext)
@@ -240,7 +217,7 @@ static void logSASBBAIGameState(const char* szRowType)
 		szGameOptions = "-";
 	const CvString szLogName = getSASBBAILogName();
 	logBBAI("%s processUtc=%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+			szRowType, getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), getSASDiagnosticQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
 	// <!-- custom: Log the actual cached DLL map classification rather than requiring tests to infer it from the map-script name. (GPT-5.5) -->
 	logBBAI("BBAI_GAME_SETTINGS mapScript=%S map=%dx%d landHeavy=%d navalHeavy=%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s options=%s",
 			kInitCore.getMapScriptName().GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), kGame.isLandHeavyMapnameCached(), kGame.isNavalHeavyMapnameCached(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), szGameOptions.GetCString());
@@ -263,11 +240,51 @@ static void logSASBBAILogSettings()
 			isSASBBAILogMasterEnabled(), isSASBBAILogTimestampedFilenameEnabled(), getSASBBAIPlayerLogLevel(), getSASBBAITeamLogLevel(), getSASBBAIWarLogLevel(), getSASBBAICityLogLevel(), getSASBBAIMilitaryProductionLogLevel(), getSASBBAICitizenLogLevel(), getSASBBAIUnitLogLevel(), getSASBBAIOverseasTransportLogLevel(), getSASBBAIGreatGeneralLogLevel(), getSASBBAISettlerLogLevel(), getSASBBAIFoundLogLevel(), getSASBBAIEvacuationLogLevel(), getSASBBAIWorkerLogLevel(), getSASBBAIWorkerSeaLogLevel(), getSASBBAIMapLogLevel(), getSASBBAIDealCancelLogLevel(), getSASBBAICultureLogLevel(), getSASBBAIScoreLogInterval());
 }
 
-// <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics. The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
+// <!-- custom: Replace setup-time tech/diplomacy construction chatter with one authoritative finalized state shared with SASGameRecord.
+// Preserve the inherited TEAM/WAR detail boundaries while making the successful-start representation compact and deterministic. (ChatGPT-5.6-Sol) -->
+static void logSASBBAIInitialState()
+{
+	int const iTeamLogLevel = getSASBBAITeamLogLevel();
+	int const iWarLogLevel = getSASBBAIWarLogLevel();
+	if (iTeamLogLevel < 1 && iWarLogLevel < 1)
+		return;
+	bool const bDealDetailEnabled = (iTeamLogLevel >= 2 || iWarLogLevel >= 2);
+	int iTeamStateRows = 0;
+	int iTechRows = 0;
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
+	{
+		TeamTypes const eTeam = (TeamTypes)iI;
+		if (!GET_TEAM(eTeam).isEverAlive())
+			continue;
+		logBBAI("BBAI_INITIAL_TEAM_STATE %s", getSASInitialTeamStateFields(eTeam).GetCString());
+		iTeamStateRows++;
+		if (iTeamLogLevel >= 2)
+		{
+			logBBAI("BBAI_INITIAL_TEAM_TECHS %s", getSASInitialTeamTechFields(eTeam).GetCString());
+			iTechRows++;
+		}
+	}
+	int iLoggedDealRows = 0;
+	if (bDealDetailEnabled)
+	{
+		int iLoop = 0;
+		for (CvDeal const* pDeal = GC.getGame().firstDeal(&iLoop); pDeal != NULL; pDeal = GC.getGame().nextDeal(&iLoop))
+		{
+			if (isSASCollapsibleAdvancedStartPeaceDeal(*pDeal))
+				continue;
+			logBBAI("BBAI_INITIAL_DEAL %s", getSASInitialDealStateFields(*pDeal).GetCString());
+			iLoggedDealRows++;
+		}
+	}
+	logBBAI("BBAI_INITIAL_STATE_SUMMARY teamStateRows=%d techRows=%d %s source=FINALIZED_STATE", iTeamStateRows, iTechRows, getSASInitialDealSummaryFields(bDealDetailEnabled, iLoggedDealRows).GetCString());
+}
+
+// <!-- custom: Roll over before new-game initialization can emit map-generation or starting-position diagnostics.
+// The complete metadata is logged later from CvEventReporter::gameStart, once the generated game state exists. (GPT-5.5) -->
 void startSASBBAILogForNewGame()
 {
 	rollSASBBAILog("new");
-	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), getSASBBAILogName().GetCString());
+	logBBAI("BBAI_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s", getSASProcessUtcTimestamp().GetCString(), getSASBBAILogTimestamp().GetCString(), getSASDiagnosticQuoted(getSASBBAILogName().GetCString()).GetCString());
 	logSASBBAIProvenanceContext();
 	logSASBBAILogSettings();
 }
@@ -275,9 +292,11 @@ void startSASBBAILogForNewGame()
 void logSASBBAINewGameStarted()
 {
 	logSASBBAIGameState("BBAI_NEW_GAME_STARTED");
+	logSASBBAIInitialState();
 }
 
-// <!-- custom: Civ4 does not expose the source save filename to the DLL or Python OnLoad event. Start a distinct BBAI file after all save data is read and identify the loaded state through UTC, turn/year, map/game settings, player counts, and read-only RNG states instead. This removes the need to restart Civ4 between repeated save-file tests. (GPT-5.5) -->
+// <!-- custom: Civ4 does not expose the source save filename to the DLL or Python OnLoad event.
+// Start a distinct BBAI file after all save data is read and identify the loaded state through UTC, turn/year, map/game settings, player counts, and read-only RNG states instead. This removes the need to restart Civ4 between repeated save-file tests. (GPT-5.5) -->
 void startSASBBAILogForLoadedSave()
 {
 	rollSASBBAILog("load");
@@ -292,17 +311,18 @@ void logBBAI(TCHAR* format, ... )
 	if (!bEnabled)
 		return;
 
-	static char buf[2048];
+	std::string szLine;
 	va_list args;
 	va_start(args, format);
-	// <!-- custom: Replace the old fixed 2048-4 limit with the real buffer size, while reserving one byte for the forced terminator below. See KI#161.2. (ChatGPT-5.5) -->
-	// _vsnprintf(buf, 2048-4, format, args);
-	_vsnprintf(buf, sizeof(buf) - 1, format, args);
-	va_end(args); // kmodx
-	// <!-- custom: MSVC 7.1 _vsnprintf may leave truncated output unterminated, so guard logMsg against rare logging/heap crash signatures. See KI#161.2. (ChatGPT-5.5) -->
-	buf[sizeof(buf) - 1] = '\0';
-	CvString szLogName = getSASBBAILogName();
-	gDLL->logMsg(szLogName.GetCString(), buf, /* advc.007: No time stamps */ false, false);
+	// <!-- custom: Structured BBAI diagnostics can now contain long finalized-state/deal rows.
+	// Reuse CvString's grow-and-retry formatter instead of silently truncating at the inherited 2048-byte buffer; this supersedes KI#161.2's fixed-buffer size/forced-terminator workaround. (ChatGPT-5.5; ChatGPT-5.6-Sol) -->
+	bool const bFormatted = CvString::formatv(szLine, format, args);
+	va_end(args);
+	FAssertMsg(bFormatted, "BBAI row formatting failed");
+	if (!bFormatted)
+		return;
+	CvString const szLogName = getSASBBAILogName();
+	gDLL->logMsg(szLogName.GetCString(), szLine.c_str(), /* advc.007: No time stamps */ false, false);
 }
 
 // advc.133:

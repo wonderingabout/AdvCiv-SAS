@@ -27,21 +27,7 @@
 
 namespace
 {
-	CvString getSASGameRecordDiploIntText(int iValue)
-	{
-		CvString szValue;
-		szValue.Format("%d", iValue);
-		return szValue;
-	}
 
-	CvString getSASGameRecordDiploTeamText(TeamTypes eTeam)
-	{
-		if (eTeam == NO_TEAM)
-			return CvString("-");
-		CvString szValue;
-		szValue.Format("TEAM_%d", eTeam);
-		return szValue;
-	}
 
 	CvString getSASGameRecordDiploCityText(PlayerTypes ePlayer, int iCityId)
 	{
@@ -64,7 +50,7 @@ namespace
 		case DIPLOEVENT_STOP_TRADING:
 		case DIPLOEVENT_NO_STOP_TRADING:
 		case DIPLOEVENT_SET_WARPLAN:
-			return getSASGameRecordDiploTeamText((TeamTypes)iData1);
+			return getSASTeamDiagnosticText((TeamTypes)iData1);
 		case DIPLOEVENT_RESEARCH_TECH:
 			if (iData1 >= 0 && iData1 < GC.getNumTechInfos())
 				return CvString(GC.getInfo((TechTypes)iData1).getType());
@@ -83,7 +69,7 @@ namespace
 		default:
 			return CvString("-");
 		}
-		return getSASGameRecordDiploIntText(iData1);
+		return getSASDiagnosticIntText(iData1);
 	}
 
 	CvString getSASGameRecordDiploData2Text(DiploEventTypes eDiploEvent, int iData2)
@@ -9394,6 +9380,10 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn)
 	(Based on BETTER_BTS_AI_MOD, 10/26/09, jdog5000 - AI logging.) */
 void CvPlayer::onTurnLogging() const
 {
+	// <!-- custom: During new-game construction, the first active-player callback can precede starting technologies/cities and therefore describes a half-built state.
+	// Finalized INITIAL_* rows now cover setup provenance; keep inherited turn logging for actual gameplay and loaded saves. (ChatGPT-5.6-Sol) -->
+	if (!GC.getGame().isFinalInitialized())
+		return;
 	if (gPlayerLogLevel > 0)
 	{
 		// <!-- custom: performance optimization: cache repetitive calls -->

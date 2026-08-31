@@ -1130,7 +1130,7 @@ void CvTeam::declareWar(TeamTypes eTarget, bool bNewDiplo, WarPlanTypes eWarPlan
 			TEAMID(eSponsor) != eTarget)); // </advc.100>
 	if (isAtWar(eTarget))
 		return;
-	if (gWarLogLevel >= 1) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
+	if (gWarLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("  Team %d (%S) declares war on team %d", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget); // BETTER_BTS_AI_MOD (10/02/09, jdog5000): AI logging
 	CvTeam& kTarget = GET_TEAM(eTarget);
 	std::vector<CvPlayer*> kMembers; // advc: of either team
 	for (MemberIter it(getID()); it.hasNext(); ++it)
@@ -1343,7 +1343,7 @@ void CvTeam::makePeace(TeamTypes eTarget, bool bBumpUnits, TeamTypes eBroker, bo
 
 	AI().AI_preMakePeace(eTarget, pReparations); // advc: AI code moved into new function
 
-	if (gTeamLogLevel >= 1) logBBAI("    Team %d (%S) and team %d (%S) make peace", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget, GET_PLAYER(kTarget.getLeaderID()).getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 05/21/10, jdog5000
+	if (gTeamLogLevel >= 1 && GC.getGame().isFinalInitialized()) logBBAI("    Team %d (%S) and team %d (%S) make peace", getID(), GET_PLAYER(getLeaderID()).getCivilizationDescription(0), eTarget, GET_PLAYER(kTarget.getLeaderID()).getCivilizationDescription(0)); // BETTER_BTS_AI_MOD, AI logging, 05/21/10, jdog5000
 
 	for (size_t i = 0; i < kMembers.size(); i++)
 		kMembers[i]->updatePlunder(-1, false);
@@ -4647,7 +4647,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 
 	if (isHasTech(eTech))
 	{
-		if (gTeamLogLevel >= 2) logBBAI("    Team %d (%S) acquires tech %S", getID(), getName().GetCString(), kTech.getDescription()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+		if (gTeamLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("    Team %d (%S) acquires tech %S", getID(), getName().GetCString(), kTech.getDescription()); // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
 
 		// <!-- custom: AdvCiv practical 1837 made this inherited all-member era propagation alive-only.
 		// Include dead assigned teammates so a later revival does not retain an era older than the team's acquired technologies. See KI#416. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
@@ -4770,7 +4770,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 			if (bWasResearchingAcquiredTech)
 				kMember.popResearch(eTech);
 			// <!-- custom: A completed final queue target normally leaves currentResearch=- until the AI chooses again before its next research phase. Record that harmless cause so an end-of-round SASGameRecord snapshot is not mistaken for lost science. (GPT-5.6-Sol) -->
-			if (bWasResearchingAcquiredTech && !kMember.isHuman() && gPlayerLogLevel >= 2) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d", kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(), (kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()), kMember.getLengthResearchQueue());
+			if (bWasResearchingAcquiredTech && !kMember.isHuman() && gPlayerLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_AFTER_ACQUIRE turn=%d player=%d %S acquired=%S next=%S queueLength=%d", kGame.getGameTurn(), kMember.getID(), kMember.getCivilizationDescription(0), kTech.getDescription(), (kMember.getCurrentResearch() == NO_TECH ? L"-" : GC.getInfo(kMember.getCurrentResearch()).getDescription()), kMember.getLengthResearchQueue());
 			/*	notify the player they now have the tech,
 				if they want to make immediate changes */
 			kMember.AI_nowHasTech(eTech);
@@ -4858,7 +4858,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 						/*	K-Mod note: we just want to flag it for re-evaluation.
 							Clearing the queue is currently the only way to do that. */
 						// <!-- custom: This may leave currentResearch=- in the end-of-round summary, but the affected AI has already applied this round's science and chooses again before applying the next round's. Log the cause to verify that timing and expose any true missed research separately. (GPT-5.6-Sol) -->
-						if (gPlayerLogLevel >= 2) logBBAI("    RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d %S competingTech=%S claimedByTeam=%d", kGame.getGameTurn(), itOther->getID(), itOther->getCivilizationDescription(0), kTech.getDescription(), getID());
+						if (gPlayerLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d %S competingTech=%S claimedByTeam=%d", kGame.getGameTurn(), itOther->getID(), itOther->getCivilizationDescription(0), kTech.getDescription(), getID());
 						itOther->clearResearchQueue();
 					}
 				}

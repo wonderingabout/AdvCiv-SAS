@@ -12,7 +12,11 @@ class CvCityAI; // advc.003u
 class CvUnit;
 class CvUnitAI; // advc.003u
 class CvSelectionGroup;
+class CvDeal;
+struct TradeData;
+template <class tVARTYPE> class CLinkList;
 class CvString;
+class CvWString;
 class CvRandom;
 class FAStarNode;
 class FAStar;
@@ -74,19 +78,50 @@ template<typename T> void removeDuplicates(std::vector<T>& v)
 // advc.004w:
 void applyColorToString(CvWString& s, char const* szColor, bool bLink = false);
 
-// <!-- custom: Shared second-precision UTC formatter for diagnostic log filenames and identities, including an overload that samples the current time. See KI#629. (GPT-5.6-Sol) -->
+// <!-- custom: Format one supplied time_t as second-precision UTC for stable diagnostic identities/filenames. See KI#629. (GPT-5.6-Sol) -->
 CvString createSASUtcTimestamp(const time_t kTime);
+// <!-- custom: Sample and format the current UTC time at second precision. See KI#629. (GPT-5.6-Sol) -->
 CvString createSASUtcTimestamp();
-// <!-- custom: Keep millisecond UTC sampling and monotonic elapsed-time sampling in the same shared diagnostic clock layer rather than open-coding Win32 clocks in individual logs.
-// Absolute UTC can follow system-clock adjustments; monotonic milliseconds are for durations and deliberately do not. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Sample current UTC with milliseconds for event/snapshot timestamps that benefit from sub-second ordering. (ChatGPT-5.6-Sol) -->
 CvString createSASUtcTimestampMilliseconds();
+// <!-- custom: Sample the shared Win32 monotonic millisecond clock for diagnostic durations; unlike UTC, OS clock corrections do not affect it. (ChatGPT-5.6-Sol) -->
 uint getSASMonotonicMilliseconds();
+// <!-- custom: Compute elapsed diagnostic milliseconds with unsigned subtraction so the established single timeGetTime rollover remains safe. (ChatGPT-5.6-Sol) -->
 uint getSASElapsedMilliseconds(uint uiStartMilliseconds, uint uiEndMilliseconds);
-// <!-- custom: Shared stable UTC identity for all diagnostic logs produced by one DLL process. See KI#629. (GPT-5.6-Sol) -->
+// <!-- custom: Return the one DLL-process UTC identity shared by BBAI and SASGameRecord. See KI#629. (GPT-5.6-Sol) -->
 CvString const& getSASProcessUtcTimestamp();
-// <!-- custom: Shared machine-readable provenance payloads for diagnostic log headers. Keep collection/escaping here so BBAI and SASGameRecord identify the same loaded mod and exact DLL binary without duplicating Win32/file logic. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Serialize the canonical active-mod display/folder/path fields shared by diagnostic log headers. (ChatGPT-5.6-Sol) -->
 CvString getSASModContextFields();
+// <!-- custom: Serialize exact loaded-DLL build/binary provenance shared by diagnostic log headers. (ChatGPT-5.6-Sol) -->
 CvString getSASDllContextFields();
+// <!-- custom: Quote/escape narrow diagnostic free text; NULL becomes the unquoted missing token "-". (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticQuoted(char const* szValue);
+// <!-- custom: Wide-string counterpart of getSASDiagnosticQuoted with identical escaping and missing-value semantics. (ChatGPT-5.6-Sol) -->
+CvWString getSASDiagnosticQuoted(wchar const* szValue);
+// <!-- custom: Serialize an empty diagnostic list/value as "-" while preserving nonempty text unchanged. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticOrDash(CvString const& szValue);
+// <!-- custom: Serialize one integer for shared diagnostic fields without recorder-specific wrappers. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticIntText(int iValue);
+// <!-- custom: Append one integer to a comma-separated diagnostic list without duplicating list plumbing across logs. (ChatGPT-5.6-Sol) -->
+void appendSASDiagnosticIntListValue(CvString& szList, int iValue);
+// <!-- custom: Construct the common timestamp/context/active-player diagnostic filename while each log retains its own rollover/session state. (ChatGPT-5.6-Sol) -->
+CvString getSASDiagnosticLogName(char const* szBaseName, CvString const& szTimestamp, CvString const& szContext, bool bTimestamped);
+// <!-- custom: Serialize authoritative finalized membership, identity, relations and trading capabilities for one initial team. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialTeamStateFields(TeamTypes eTeam);
+// <!-- custom: Serialize exact finalized initial tech ownership/levels, handling ordinary and repeat technologies through their distinct Civ4 storage. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialTeamTechFields(TeamTypes eTeam);
+// <!-- custom: Serialize a team ID as TEAM_n, or "-" for NO_TEAM, for shared diagnostic payloads. (ChatGPT-5.6-Sol) -->
+CvString getSASTeamDiagnosticText(TeamTypes eTeam);
+// <!-- custom: Serialize the data payload of one diplomacy trade item using stable type/team/city identifiers where available. (ChatGPT-5.6-Sol) -->
+CvString getSASTradeDataText(TradeData const& kItem, PlayerTypes eFromPlayer);
+// <!-- custom: Serialize a complete diplomacy trade list as comma-separated TYPE:data entries, or "-" when empty. (ChatGPT-5.6-Sol) -->
+CvString getSASTradeListText(CLinkList<TradeData> const& kList, PlayerTypes eFromPlayer);
+// <!-- custom: Serialize one surviving finalized initial deal, including players/teams, age/cancel timing and both exact trade lists. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialDealStateFields(CvDeal const& kDeal);
+// <!-- custom: Recognize only the simple reciprocal peace-deal shape that is safe to collapse in ordinary non-scenario Advanced Start. (ChatGPT-5.6-Sol) -->
+bool isSASCollapsibleAdvancedStartPeaceDeal(CvDeal const& kDeal);
+// <!-- custom: Summarize finalized starting deals, including collapsed Advanced Start peace counts/cancel windows and exact detail-row count. (ChatGPT-5.6-Sol) -->
+CvString getSASInitialDealSummaryFields(bool bDealDetailEnabled, int iLoggedDealRows);
 
 float colorDifference(NiColorA const& c1, NiColorA const& c2); // advc.002i
 HandicapTypes handicapFromDifficulty(int iDifficulty); // <!-- custom: map iDifficulty scores back to XML handicap entries after adding non-BtS handicap levels. (ChatGPT-5.5) -->
