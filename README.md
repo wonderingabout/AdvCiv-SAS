@@ -16,7 +16,9 @@ New mechanics as well, including but not only new Game Speeds (`Nitro`, `Turbo`,
 
 Content overall addition is minimal, as of now mostly in the future era (like the new camel bonus, or the new playable civ Kingdom of Benin (Ewuare), Irish Empire (Grace O'Malley, Michael Collins)); else it is mostly done via this heavy reworking of the game rather with the aforementioned goals (accuracy, good/strong civ/leader/building/unit/etc blend, balance, AI strength, etc).
 
-Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed). Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins with the new/load lifecycle marker, shared mod and exact DLL-binary identity, currently active BBAI log levels, and then game settings to help doing that.
+Many practical changes are made, notably moving BBAI logging to SAS defines so they are now easily tunable and accessible without requiring DLL modification and recompiling anymore (restart Civ4 to apply changes). This is deemed valuable not only for modders, but also for users who can now view or generate. Since BBAI log files are usually very long, we generally give them to external LLMs like ChatGPT which as of now gives us an agentic-token-free analysis (e.g., Codex, Claude Code) (also good to give us a different point of view/review if needed).
+
+Note: they are now optionally written to a new timestamped file for each new game or loaded save (e.g., `BBAI_20260705T071718Z_new1.log` or `BBAI_20260705T071718Z_load2.log`) instead of expanding the existing `BBAI.log`, which was very tedious to clean up or identify/store/read/review/upload, and so repeated save-file tests no longer require restarting Civ4. Each log begins with the new/load lifecycle marker, shared mod/source commit/version and exact DLL-binary identity, currently active BBAI log levels, and then game settings to help doing that.
 
 A separate `SASGameRecord_*.log` can also be enabled notably for compact autoplay / AI-benchmark review, recording what happened across the run (economy, expansion, city and battle history, worked plots, diplomacy, initial map/landmass geography, etc.) or to give more gameplay context to complement BBAI's detailed decision traces. This is an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
@@ -82,6 +84,7 @@ For License and Reuse, see [License and reuse](/README.md#license-and-reuse).
 [External file access in Civ4 ingame (on Windows)](/README.md#external-file-access-in-civ4-ingame-on-windows)\
 [Python scripts](/README.md#python-scripts)\
 [DLL Logging](/README.md#dll-logging)\
+&emsp;[Versioning](/README.md#versioning)\
 &emsp;[BBAI logging and head example](/README.md#bbai-logging-and-head-example)\
 &emsp;[SASGameRecord log](/README.md#sasgamerecord-log)\
 [CuCuGS](/README.md#external-file-access-in-civ4-ingame-on-windows)\
@@ -918,7 +921,90 @@ The separate GitHub Actions [`python24-compile.yml`](/.github/workflows/python24
 
 AdvCiv-SAS has two complementary log families, that are as of now both tunable via SAS defines (i.e. XML) without needing DLL modifications.
 
-Both log families place canonical mod context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker. The shared DLL row records the build target, file size, a diagnostic FNV-1a 64-bit fingerprint, DLL last-write and PE/linker timestamps, and relevant compile flags; this is useful for distinguishing locally rebuilt candidate DLLs independently of later source-version/Git provenance. The fingerprint is a diagnostic identity, not a cryptographic security hash.
+Both log families place canonical mod/source context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker. The source row records the practical commit-count version when available, exact Git commit, branch/date metadata when known, and tracked dirty state/files for a live Git checkout. The shared DLL row separately records the build target, file size, a diagnostic FNV-1a 64-bit fingerprint, DLL last-write and PE/linker timestamps, and relevant compile flags, so locally rebuilt candidate DLLs can still be distinguished from one another at the same source revision. The fingerprint is a diagnostic identity, not a cryptographic security hash.
+
+### Versioning
+
+AdvCiv-SAS supports showing the current version/commit of the downloaded ZIP from GitHub, as well as in local dev folders cloned from GitHub.
+
+### If .git does exist (dev)
+
+Civ4 launches hidden commands of roughly this form:
+
+```bash
+git.exe -C "...\Mods\AdvCiv-SAS" rev-parse --show-toplevel
+git.exe -C "...\Mods\AdvCiv-SAS" show -s --format=%H%n%cI HEAD
+git.exe -C "...\Mods\AdvCiv-SAS" rev-parse --abbrev-ref HEAD
+git.exe -C "...\Mods\AdvCiv-SAS" rev-parse --is-shallow-repository
+git.exe -C "...\Mods\AdvCiv-SAS" rev-list --count HEAD
+git.exe -C "...\Mods\AdvCiv-SAS" status --short --untracked-files=no
+```
+
+So the answers map almost directly to:
+
+```bash
+show ... %H       -> f829a71d7a06...
+show ... %cI      -> 2026-08-31T13:54:54+02:00
+abbrev-ref        -> main
+rev-list --count  -> 6356
+status --short    -> your 19 modified/staged files
+```
+
+How Civ4 starts Git: That's the slightly funny part xd. We're using the normal Windows API:
+
+```cpp
+CreateProcessA(...)
+```
+
+and the command literally contains:
+
+```cmd
+git.exe
+```
+
+### If .git does not exist (regular users or download ZIP from GitHub)
+
+Civ4 does not launch git.exe. The resolver first checks the exported Assets/SASModVersion.txt marker. In a GitHub/git-archive download, Git has already substituted the archive's exact commit/date and version-describe metadata into that file during ZIP creation. If neither valid exported metadata nor a local .git worktree is available, source resolution stops.
+
+This is important because an ordinary player's extracted mod isn't going to randomly launch Git.
+
+The difficult case was a normal user's downloaded ZIP. GitHub source ZIPs are snapshots and do not include repository history, so inside one there is nothing on disk from which Civ4 could run `rev-list --count HEAD`. GitHub explicitly says these archives are generated via `git archive` and omit the repository history ([GitHub Docs](https://docs.github.com/en/repositories/working-with-files/using-files/downloading-source-code-archives)).
+
+What solved that was the anchor-tag trick.
+
+We create one permanent tag on a commit whose practical version we already know, for example:
+
+```txt
+SAS_VERSION_ANCHOR_6356
+    -> f829a71d7a...
+```
+
+Then [SASModVersion.txt](/Assets/SASModVersion.txt) contains an archive placeholder using Git's `%(describe:...)` formatter. Git supports that formatter, including restricting the matching tag pattern to our `SAS_VERSION_ANCHOR_*` tags ([Git](https://git-scm.com/docs/pretty-formats)).
+
+Suppose an ordinary user downloads commit 6374. During GitHub's archive generation, the placeholder could become conceptually:
+
+```txt
+versionDescribe=SAS_VERSION_ANCHOR_6356-18-gabcdef123
+commit=abcdef123...
+commitDate=...
+```
+
+Git defines that 18 as the number of commits between the anchor and the target commit.
+
+Our resolver parses:
+
+```txt
+anchor version = 6356
+distance       = 18
+
+6356 + 18 = 6374
+```
+
+So we solved the missing-history problem without putting the whole history in the ZIP.
+
+The archive is commit-specific; the tag is only the fixed numeric reference used to reconstruct that commit's practical version.
+
+The tag is necessary for our chosen solution, not because GitHub requires a tag to download a commit. We could have built some other hash→count database, manually maintained a VERSION file, queried GitHub online, etc. The one immutable anchor is just much simpler.
 
 ### BBAI logging and head example
 
@@ -929,6 +1015,7 @@ For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
 ```log
 BBAI_NEW_GAME_INITIALIZING processUtc=20260831T052433Z utc=20260831T052450Z logFile=BBAI_20260831T052450Z_new1.log
 BBAI_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
+BBAI_SOURCE_CONTEXT version="6356" commit="f829a71d7a06f9a3d3d9e1fa0aa0d3b8b775b440" shortCommit="f829a71d7a" branch="main" commitDate="2026-08-31T13:54:54+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=19 dirtyFiles="[ M] .gitattributes; [ M] .github/workflows/README.md; [ M] .github/workflows/build.yml; [ M] Assets/CvGameCoreDLL.dll; [ M] Assets/Python/Contrib/CvModName.py; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [ M] CvGameCoreDLL/BBAILog.cpp; [ M] CvGameCoreDLL/CvGameCoreUtils.cpp; [ M] CvGameCoreDLL/CvGameCoreUtils.h; [ M] CvGameCoreDLL/CyGlobalContext.cpp; [ M] CvGameCoreDLL/CyGlobalContext.h; [ M] CvGameCoreDLL/CyGlobalContextInterface2.cpp; [ M] CvGameCoreDLL/ModName.cpp; [ M] CvGameCoreDLL/ModName.h; [ M] CvGameCoreDLL/SASGameRecordLog.cpp; [ M] README.md; [ M] _1_AdvCiv-SAS/Docs/Modding_Ressources/README_Release_Process.md; [ M] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md; [M ] _1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt"
 BBAI_DLL_CONTEXT build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=13004800 dllFingerprint=FNV1A64:EBDFF2A3D2968D25 dllLastWriteUtc=20260831T052417.443Z peTimestampRaw=1788153848 peTimestampUtc=20260831T052408Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
 BBAI_LOG_SETTINGS SAS_BBAI_LOG_ENABLE=1 SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_BBAI_PLAYER_LOG_LEVEL=3 SAS_BBAI_TEAM_LOG_LEVEL=3 SAS_BBAI_WAR_LOG_LEVEL=0 SAS_BBAI_CITY_LOG_LEVEL=0 SAS_BBAI_MILITARY_PRODUCTION_LOG_LEVEL=0 SAS_BBAI_CITIZEN_LOG_LEVEL=0 SAS_BBAI_UNIT_LOG_LEVEL=0 SAS_BBAI_OVERSEAS_TRANSPORT_LOG_LEVEL=0 SAS_BBAI_GREAT_GENERAL_LOG_LEVEL=0 SAS_BBAI_SETTLER_LOG_LEVEL=0 SAS_BBAI_FOUND_LOG_LEVEL=0 SAS_BBAI_EVACUATION_LOG_LEVEL=0 SAS_BBAI_WORKER_LOG_LEVEL=0 SAS_BBAI_WORKER_SEA_LOG_LEVEL=0 SAS_BBAI_MAP_LOG_LEVEL=0 SAS_BBAI_DEAL_CANCEL_LOG_LEVEL=0 SAS_BBAI_CULTURE_LOG_LEVEL=0 SAS_BBAI_SCORE_LOG_INTERVAL_TURNS_UNSCALED_GAMESPEED=100
 BBAI_NEW_GAME_STARTED processUtc=20260831T052433Z utc=20260831T052450Z logFile=BBAI_20260831T052450Z_new1.log turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_ETHIOPIA activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1
@@ -936,7 +1023,7 @@ BBAI_GAME_SETTINGS mapScript=Hemispheres map=102x72 landHeavy=1 navalHeavy=0 wor
 BBAI_GAME_RNG mapRandState=3666828707 syncRandState=256979939
 ```
 
-Identity rows place the stable `processUtc` for one Civ4 launch before plain `utc`; the row type identifies that second timestamp as a new-game, save-load or individual snapshot observation. Timestamped filename counters such as `new1` and `load2` preserve game order within the process.
+Identity rows place the stable `processUtc` for one Civ4 launch before plain `utc`; the row type identifies that second timestamp as a new-game, save-load or individual snapshot observation. Timestamped filename counters such as `new1` and `load2` preserve game order within the process. `dirty` is tri-state: `-1` means unavailable because there is no inspectable Git worktree (for example an extracted GitHub ZIP), `0` means Git verified the tracked tree clean, and `1` means tracked local edits were found.
 
 ### SASGameRecord log
 
@@ -944,15 +1031,16 @@ Identity rows place the stable `processUtc` for one Civ4 launch before plain `ut
 
 Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export. See [README_Main_Changes_Guide.md (Logging (BBAI and SASGameRecord))](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-bbai-and-sasgamerecord).
 
-The record includes the same canonical mod and exact loaded-DLL identity as BBAI, including the build target and diagnostic binary fingerprint. For stronger LLM analysis, also provide source context when possible; for example, the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) is compact so it is easier to upload or share, and contains the useful source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM needs for analysis.
+The record includes the same canonical mod/source and exact loaded-DLL identity as BBAI, including the practical version/commit when resolvable and the build target/binary fingerprint. For stronger LLM analysis, also provide the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) when possible: the log identifies the source state, while the compact ZIP supplies the corresponding source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM can actually inspect.
 
 See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log). It can be given to an external to the repo LLM (e.g. ChatGPT instead of Codex) to get an as of now token-cheap or free review of the `SASGameRecord` example sample.
 
-For example, `SASGameRecord_*.log` starts with comparable run setup lines and then adds compact turn snapshots:
+For example, `SASGameRecord_*.log` starts with the lifecycle marker, shared provenance rows and comparable run setup lines before adding compact turn snapshots:
 
 ```log
 GAME_RECORD_NEW_GAME_INITIALIZING processUtc=20260831T052433Z utc=20260831T052450Z logFile="SASGameRecord_20260831T052450Z_new1.log" sessionWallMilliseconds=0
 GAME_RECORD_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
+GAME_RECORD_SOURCE_CONTEXT version="6356" commit="f829a71d7a06f9a3d3d9e1fa0aa0d3b8b775b440" shortCommit="f829a71d7a" branch="main" commitDate="2026-08-31T13:54:54+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=1 dirtyFiles="[ M] Assets/XML/GlobalDefines_advciv_sas.xml"
 GAME_RECORD_DLL_CONTEXT build=Debug-opt moduleFound=1 fileReadable=1 fileSizeBytes=13004800 dllFingerprint=FNV1A64:EBDFF2A3D2968D25 dllLastWriteUtc=20260831T052417.443Z peTimestampRaw=1788153848 peTimestampUtc=20260831T052408Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
 GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=3 SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10 SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=160 SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=120 SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=2 SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=1 SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=1 SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=2
 GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=TECH_PAPER techTrading=TECH_WRITING goldTrading=TECH_CURRENCY openBordersTrading=TECH_WRITING defensivePactTrading=TECH_MILITARY_TRADITION permanentAllianceTrading=TECH_GAME_THEORY vassalStateTrading=TECH_PHILOSOPHY source=LOADED_XML
@@ -1056,6 +1144,8 @@ AdvCiv-SAS centralizes its runtime display/project name through `SAS_MOD_DISPLAY
 I use the default github branch's commit count as version number. This remains separate from stable-release labels/tags, which can intentionally keep an older release number while receiving later fixes as explained below.
 
 For example, if the [AdvCiv-SAS GitHub default branch](https://github.com/wonderingabout/AdvCiv-SAS) shows 6300 commits, that source state is AdvCiv-SAS 6300. The example number is illustrative; use the current default-branch commit count for the current version.
+
+AdvCiv-SAS also resolves this source identity at runtime: full Git checkouts report the commit-count version, SHA, branch/date and tracked dirty state, while normal GitHub/git-archive ZIPs can reconstruct the same numeric version and exact commit/date from one immutable technical version-anchor tag plus Git archive metadata, without a manually updated VERSION file. Extracted archives use `dirty=-1` because post-download edits cannot be verified without a Git worktree; see [Main Changes Guide: Mod Name/Version](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#mod-nameversion) for details.
 
 Using git you can choose any version with git reset --hard or checkout or whatever. On github, you can also download a zip of any commit/version; but i understand it may not be too easy or may be tedious to do so. Although i may release some versions myself (see [README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas](/_1_AdvCiv-SAS/Docs/README_Quick_Install_Setup_Guide.md#download-this-mod-advciv-sas)), it is not guaranteed i would do it too often, and especially not at each commit. I hope it is not too hard to do so.
 

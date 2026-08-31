@@ -564,12 +564,13 @@ static void logSASGameRecordInitialPlayerIdentities();
 static void logSASGameRecordFinalizedInitialState(int& iTeamStateRows, int& iTechRows, int& iDeals);
 static void initializeSASGameRecordWarsFromLoadedSave();
 
-// <!-- custom: Keep shared provenance behind the recorder's runtime gate so hashing the DLL never happens merely because an otherwise-disabled lifecycle hook was reached. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Keep shared provenance behind the recorder's runtime gate so source resolution/DLL hashing never happens merely because an otherwise-disabled lifecycle hook was reached. (ChatGPT-5.6-Sol) -->
 static void logSASGameRecordProvenanceContext()
 {
 	if (!isSASGameRecordLogEnabled())
 		return;
 	logSASGameRecord("GAME_RECORD_MOD_CONTEXT %s", getSASModContextFields().GetCString());
+	logSASGameRecord("GAME_RECORD_SOURCE_CONTEXT %s", getSASSourceContextFields().GetCString());
 	logSASGameRecord("GAME_RECORD_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
 }
 
@@ -578,7 +579,7 @@ void startSASGameRecordLogForNewGame()
 	rollSASGameRecordLog("new");
 	resetSASGameRecordState();
 	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING processUtc=%s utc=%s logFile=%s sessionWallMilliseconds=0", getSASProcessUtcTimestamp().GetCString(), getSASGameRecordLogTimestamp().GetCString(), getSASDiagnosticQuoted(getSASGameRecordLogName().GetCString()).GetCString());
-	// <!-- custom: Static mod/binary provenance is already final once this DLL is running, so keep it at the top of each log instead of burying it behind generated game context. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Static mod/source/binary provenance is already final once this DLL is running, so keep it immediately after the lifecycle marker instead of burying it behind generated game context. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordProvenanceContext();
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();
@@ -612,7 +613,7 @@ void startSASGameRecordLogForLoadedSave()
 	// <!-- custom: The save contains no recorder-local war history. Begin partial observations for wars already in progress, with the loaded turn and current war success recorded explicitly as their observable baseline. (GPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) initializeSASGameRecordWarsFromLoadedSave();
 	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
-	// <!-- custom: Keep static mod/binary identity immediately after the load-session marker; it does not depend on the loaded save's generated/game state. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Keep static mod/source/binary identity immediately after the load-session marker; it does not depend on the loaded save's generated/game state. (ChatGPT-5.6-Sol) -->
 	logSASGameRecordProvenanceContext();
 	logSASGameRecordLogSettings();
 	logSASGameRecordTechCapabilitySources();

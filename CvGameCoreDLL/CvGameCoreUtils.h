@@ -92,6 +92,8 @@ uint getSASElapsedMilliseconds(uint uiStartMilliseconds, uint uiEndMilliseconds)
 CvString const& getSASProcessUtcTimestamp();
 // <!-- custom: Serialize the canonical active-mod display/folder/path fields shared by diagnostic log headers. (ChatGPT-5.6-Sol) -->
 CvString getSASModContextFields();
+// <!-- custom: Serialize runtime source/version provenance shared by BBAI and SASGameRecord; dirty is tri-state (-1 unavailable, 0 verified clean, 1 tracked changes). (ChatGPT-5.6-Sol) -->
+CvString getSASSourceContextFields();
 // <!-- custom: Serialize exact loaded-DLL build/binary provenance shared by diagnostic log headers. (ChatGPT-5.6-Sol) -->
 CvString getSASDllContextFields();
 // <!-- custom: Quote/escape narrow diagnostic free text; NULL becomes the unquoted missing token "-". (ChatGPT-5.6-Sol) -->

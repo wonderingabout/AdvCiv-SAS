@@ -73,6 +73,7 @@ This is intentionally a syntax/compile compatibility check only: it does not lau
 - [`build/markdown_links.py`](#buildmarkdown_linkspy)
 - [`build/sas_text_references.py`](#buildsas_text_referencespy)
 - [`build/global_defines_nonempty.py`](#buildglobal_defines_nonemptypy)
+- [`build/version_metadata.py`](#buildversion_metadatapy)
 - [`build/launch_guard.py`](#buildlaunch_guardpy)
 - [`build/define_int_bounds.py`](#builddefine_int_boundspy)
 - [`build/turn_define_gamespeed.py`](#buildturn_define_gamespeedpy)
@@ -174,6 +175,10 @@ Verifies every `TXT_KEY` defined across all SAS-owned GameText files (`Assets/XM
 ### `build/global_defines_nonempty.py`
 
 Verifies GlobalDefines XML files under `Assets/XML` have `<Define>` entries with non-empty `<DefineName>` values, unique define names within each file, and exactly one non-empty value field (normally `iDefineIntVal`, `fDefineFloatVal`, or `DefineTextVal`). This preventively catches accidental blank define values. We check this because we suspect they may possibly cause unclear errors; for intentional "empty" string-like behavior, explicit values such as `NONE` are clearer and more reliable.
+
+### `build/version_metadata.py`
+
+Verifies the tracked `Assets/SASModVersion.txt` archive marker retains its Git `export-subst` version-anchor describe, commit, and commit-date placeholders, and that `.gitattributes` still marks the file `export-subst`. The version placeholder uses one immutable `SAS_VERSION_ANCHOR_<exact-commit-count>` tag: Git's describe distance is the count of commits in `anchor..target`, so AdvCiv-SAS can reconstruct the same practical commit-count version in ordinary GitHub/git-archive downloads without a per-commit VERSION file. The anchor is one-time repository infrastructure and must not be moved or renamed after creation.
 
 ### `build/launch_guard.py`
 

@@ -24,6 +24,7 @@ jobs:
       - run: python .github/workflows/build/markdown_images.py
       - run: python .github/workflows/build/markdown_links.py
       - run: python .github/workflows/build/global_defines_nonempty.py
+      - run: python .github/workflows/build/version_metadata.py
       - run: python .github/workflows/build/launch_guard.py
       - run: python .github/workflows/build/define_int_bounds.py
       - run: python .github/workflows/build/turn_define_gamespeed.py

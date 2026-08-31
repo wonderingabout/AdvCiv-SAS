@@ -34,6 +34,16 @@ public:
 	const char* getModDisplayName() const;
 	const char* getModFolderName() const;
 	const char* getModPathInRoot() const;
+	// <!-- custom: Expose the same lazy ModName source/version resolver to Python so BUG/UI code never implements its own Git/archive detection. (ChatGPT-5.6-Sol) -->
+	const char* getModVersion() const;
+	const char* getModCommitHash() const;
+	const char* getModShortCommitHash() const;
+	const char* getModBranch() const;
+	const char* getModCommitDate() const;
+	const char* getModSourceMetadataType() const;
+	int getModSourceDirtyState() const;
+	int getModSourceDirtyFileCount() const;
+	const char* getModSourceDirtyFiles() const;
 	CyGame* getCyGame() const;
 	CyMap* getCyMap() const;
 	CyPlayer* getCyPlayer(int idx);

@@ -113,6 +113,7 @@ This is a living release checklist for the user and LLM/AI helpers working on Ad
 ## 9. Tagging and publication
 
 - Let the user handle Git tags by default. See the preferred [advanced tag example](/_1_AdvCiv-SAS/Docs/Modding_Ressources/README.md#example-with-more-advanced-version-totally-not-shameless-or-yes-xd-but-it-might-also-help-as-well).
+- The special `SAS_VERSION_ANCHOR_<version>` tag used by runtime archive-version reconstruction is **not a release tag**. It is a one-time immutable technical anchor whose numeric suffix must equal `git rev-list --count <anchor>`; do not move, rename, delete, or reuse it when updating stable release tags. For this infrastructure, anchor the known AdvCiv-SAS 6356 commit once with `git tag SAS_VERSION_ANCHOR_6356 f829a71d7a06f9a3d3d9e1fa0aa0d3b8b775b440` and `git push origin SAS_VERSION_ANCHOR_6356`. Normal future commits/releases require no version-anchor maintenance.
 - When asked to prepare a tag command, use the actual final release SHA/version and previous stable release boundary rather than stale examples from the documentation.
 - Prepare the plain-text changelog for CivFanatics/ModDB and any concise download-page summary, but leave website-specific formatting/publication to the user unless explicitly requested.
 - Keep the chosen primary download link stable when that is the current release policy, while updating the hosted archive behind it as appropriate.

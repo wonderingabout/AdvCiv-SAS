@@ -224,12 +224,13 @@ static void logSASBBAIGameState(const char* szRowType)
 	logBBAI("BBAI_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
-// <!-- custom: Static mod/binary provenance is shared with SASGameRecord so AI-decision logs can be tied to the exact candidate DLL that produced them. The common helpers also keep quoting and field semantics identical between logs. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Static mod/source/binary provenance is shared with SASGameRecord so AI-decision logs can be tied to the exact source and candidate DLL that produced them. The common helpers also keep quoting and field semantics identical between logs. (ChatGPT-5.6-Sol) -->
 static void logSASBBAIProvenanceContext()
 {
 	if (!isSASBBAILogEnabled())
 		return;
 	logBBAI("BBAI_MOD_CONTEXT %s", getSASModContextFields().GetCString());
+	logBBAI("BBAI_SOURCE_CONTEXT %s", getSASSourceContextFields().GetCString());
 	logBBAI("BBAI_DLL_CONTEXT %s", getSASDllContextFields().GetCString());
 }
 

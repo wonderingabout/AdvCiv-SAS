@@ -64,6 +64,9 @@
 /LLM_Helpers/map_refs/**/*.txt        -diff linguist-vendored
 /LLM_Helpers/map_refs/**/*.properties -diff linguist-vendored
 
+# <!-- custom: Expand the immutable SAS version-anchor describe string plus exact commit/date into the runtime archive marker for GitHub/git-archive downloads. The anchor version + Git describe distance reproduces the practical commit count without a manually maintained VERSION file. Branch and dirty state still require a live Git worktree. (ChatGPT-5.6-Sol) -->
+/Assets/SASModVersion.txt export-subst
+
 # <!-- custom: GitHub Actions checks and repo metadata are development infrastructure, not player release content. (ChatGPT-5.5 + GPT-5.5) -->
 /.github/             export-ignore
 /.gitattributes       export-ignore

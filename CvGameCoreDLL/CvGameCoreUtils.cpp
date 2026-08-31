@@ -128,6 +128,24 @@ CvString getSASModContextFields()
 	return szContext;
 }
 
+// <!-- custom: Keep source/version fields centralized beside mod/DLL provenance so BBAI and SASGameRecord use identical names, quoting, and unavailable/dirty semantics.
+// ModName resolves lazily and caches the expensive filesystem/Git work once per loaded mod path. (ChatGPT-5.6-Sol) -->
+CvString getSASSourceContextFields()
+{
+	ModName const& kMod = GC.getModName();
+	CvString const szVersion = getSASDiagnosticQuoted(kMod.getVersion());
+	CvString const szCommit = getSASDiagnosticQuoted(kMod.getCommitHash());
+	CvString const szShortCommit = getSASDiagnosticQuoted(kMod.getShortCommitHash());
+	CvString const szBranch = getSASDiagnosticQuoted(kMod.getBranch());
+	CvString const szCommitDate = getSASDiagnosticQuoted(kMod.getCommitDate());
+	CvString const szMetadataSource = getSASDiagnosticQuoted(kMod.getSourceMetadataType());
+	CvString const szDirtyFiles = getSASDiagnosticQuoted(kMod.getSourceDirtyFiles());
+	CvString szContext;
+	szContext.Format("version=%s commit=%s shortCommit=%s branch=%s commitDate=%s metadataSource=%s dirty=%d dirtyTrackedCount=%d dirtyFiles=%s",
+			szVersion.GetCString(), szCommit.GetCString(), szShortCommit.GetCString(), szBranch.GetCString(), szCommitDate.GetCString(), szMetadataSource.GetCString(), kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), szDirtyFiles.GetCString());
+	return szContext;
+}
+
 // <!-- custom: Distinguish the exact loaded DLL candidate from source/version identity. The nmake target is embedded at compile time; size, linker timestamp, last-write time and FNV-1a fingerprint come from the loaded module's file.
 // FNV-1a is a compact diagnostic fingerprint rather than a security hash, but it is strong enough to tell same-commit local candidate DLLs apart without adding a CryptoAPI/library dependency. Cache once because the loaded DLL cannot change within this process. (ChatGPT-5.6-Sol) -->
 struct SASDllDiagnosticContext
