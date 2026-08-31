@@ -2228,7 +2228,9 @@ int CvUnitAI::AI_attackOdds(const CvPlot* pPlot, bool bPotentialEnemy) const
 		return 100;
 
 	// BETTER_BTS_AI_MOD, Efficiency, Lead From Behind (UncutDragon), jdog5000: START
-	if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
+	// <!-- custom: LFB's generic Combatant path reads ordinary iCombat, which is zero for aircraft.
+	// Preserve LFB for land/sea combat, but let aircraft reach the inherited iAirCombat-based odds calculation below. See KI#533. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (getDomainType() != DOMAIN_AIR && GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
 		GC.getDefineBOOL(CvGlobals::LFB_USECOMBATODDS))
 	{
 		// Combat odds are out of 1000 - we need odds out of 100

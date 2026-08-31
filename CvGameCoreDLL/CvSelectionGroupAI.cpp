@@ -448,8 +448,9 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 	bool const bHuman = (pUnitNode == NULL ? true :
 			GET_PLAYER(::getUnit(pUnitNode->m_data)->getOwner()).isHuman());
 	static const bool bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE = GC.getDefineBOOL("SAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE");
-	bool const bUseLowPower = (bPreferLowPower && !bHuman &&
-			bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE);
+	// <!-- custom: SAS's low-power rank uses ordinary land/sea effective strength, while aircraft store their real strength in iAirCombat.
+	// Keep aircraft on the air-aware selection path below instead of asserting in Debug or collapsing their rank to 1 in Release. See KI#532. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bUseLowPower = (bPreferLowPower && !bHuman && getDomainType() != DOMAIN_AIR && bSAS_AI_GETBESTGROUPATTACKER_LOW_POWER_ATTACK_ORDER_OPTIMIZE);
 	if (bUseLowPower)
 	{
 		iBestValue = 1 << 30;
@@ -519,7 +520,10 @@ CvUnitAI* CvSelectionGroupAI::AI_getBestGroupAttacker(const CvPlot* pPlot, bool 
 		}
 
 		// BETTER_BTS_AI_MOD, Lead From Behind (UncutDragon), 02/21/10, jdog5000: START
-		if (GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
+		// <!-- custom: Inherited LFB constructs ordinary-combat ranks and therefore treats iAirCombat aircraft as zero-strength attackers.
+		// Route aircraft through the existing air-aware AI_attackOdds branch while preserving LFB for land and sea units. See KI#533. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (kLoopUnit.getDomainType() != DOMAIN_AIR &&
+			GC.getDefineBOOL(CvGlobals::LFB_ENABLE) &&
 			GC.getDefineBOOL(CvGlobals::LFB_USECOMBATODDS) &&
 			!bMaxSurvival) // advc.048
 		{

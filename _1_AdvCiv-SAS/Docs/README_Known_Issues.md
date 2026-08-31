@@ -619,8 +619,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#529 - (Provisional Pending AdvCiv-SAS/inherited-contract defect) Assault declare-war intent treats any cargo as invasion cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529)\
 [KI#530 - (Fixed inherited AdvCiv Bombard defect) Peaceful foreign units counted as attackers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-530)\
 [KI#531 - (Fixed inherited AdvCiv Bombard defect) Loaded cargo counted as city defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-531)\
-[KI#532 - (Provisional Pending AdvCiv-SAS air-strike defect) Low-power ordering calls land/sea strength logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-532)\
-[KI#533 - (Provisional Pending inherited BBAI/K-Mod air-selection defect) LFB treats aircraft as zero-strength combatants](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-533)\
+[KI#532 - (Fixed AdvCiv-SAS air-strike regression) Low-power ordering called land/sea strength logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-532)\
+[KI#533 - (Fixed inherited BBAI/K-Mod air-selection defect) LFB treated aircraft as zero-strength combatants](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-533)\
 [KI#534 - (Fixed inherited K-Mod/AdvCiv debug-assertion defect) Planned-war census inspected transient empty groups](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-534)\
 [KI#535 - (Provisional Pending inherited K-Mod regression) Force update can cancel a newer amphibious group attack](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-535)\
 [KI#536 - (Fixed inherited AdvCiv UWAI cache-reset defect) New games and loaded saves could retain stale human-capitulation authorization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-536)\
@@ -12777,19 +12777,29 @@ This is an inherited AdvCiv practical-2809 defender-census defect, not an AdvCiv
 
 <a id="ki-532"></a>
 
-## KI#532 - (Provisional Pending AdvCiv-SAS air-strike defect) Low-power ordering calls land/sea strength logic
+## KI#532 - (Fixed AdvCiv-SAS air-strike regression) Low-power ordering called land/sea strength logic
 
-Album F209 finds normal AI air strikes reaching a land/sea-only effective-strength helper, asserting in debug and degrading the release rank. Pending independent implementation review.
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1jLAYClth2BPaEcNIhZu-KYp_3vFRVDLj?usp=sharing).
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+SAS practical 5286 made the real AI attack loop prefer low-power attackers, whose rank calls the ordinary land/sea `AI_currEffectiveStr`. Current aircraft instead store their strength in `iAirCombat` and have zero ordinary `iCombat`, so even a normal singleton AI air strike reached the helper's noncombat assertion in Debug builds and collapsed to its minimum rank of 1 in Release builds. Singleton AI air groups bounded the current ordering consequence but did not make the invalid call dormant.
+
+The fix disables SAS's low-power ordering only for air groups, preserving it for ordinary land/sea stack attacks and routing aircraft to the air-aware selection path. The assertion remains intact because its ordinary-combat contract is valid; the bad SAS caller is removed instead.
+
+This is an AdvCiv-SAS practical-5286 regression, not an inherited BtS, K-Mod or AdvCiv defect. Found as F209 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-533"></a>
 
-## KI#533 - (Provisional Pending inherited BBAI/K-Mod air-selection defect) LFB treats aircraft as zero-strength combatants
+## KI#533 - (Fixed inherited BBAI/K-Mod air-selection defect) LFB treated aircraft as zero-strength combatants
 
-Album F210 finds grouped-air attacker selection and sacrifice odds ignoring iAirCombat. Pending independent implementation review.
+Screenshots/files for this issue: same google drive folder link as KI#532.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+Inherited Lead From Behind attacker selection and its generic combat-odds shortcut both construct ordinary land/sea combatants. Aircraft have zero ordinary `iCombat`, so LFB omitted their real `iAirCombat` strength, collapsed their odds toward the minimum and could choose the wrong member of a supported human multi-air group. Those false low odds also triggered AdvCiv's below-68% sacrifice policy regardless of actual air strength, affecting real attack ordering and the selected-group air-strike help.
+
+The fix retains LFB for land/sea candidates but routes aircraft through `CvUnitAI::AI_attackOdds` and prevents that function's LFB shortcut from intercepting air calls. Aircraft therefore reach the existing domain-aware `airCurrCombatStr` calculation; the later human/sacrifice policy remains unchanged and now receives meaningful air odds.
+
+Validation used a Debug-opt Huge BTG Cross game starting in the Future era with 16 independent teams, standard Aggressive AI/full UWAI and No Events; its 100-turn autoplay completed normally through Time victory on turn 500. A direct human test then grouped a Fighter and Jet Fighter against the same nearby defender: Air Strike help selected the Jet Fighter and displayed its real strength of 24, executing the strike spent only that aircraft, and the Fighter retained its available action (`Civ4ScreenShot0418.JPG` and `Civ4ScreenShot0420.JPG`). This directly confirms the grouped-air selector while the Debug-opt run provides broader assertion/regression coverage for KI#532-KI#533.
+
+This defect was introduced by Better BTS AI's Lead From Behind integration, retained by K-Mod and Base AdvCiv 1.14, and inherited unchanged by AdvCiv-SAS. Found as F210 during ChatGPT-5.6-Sol's C++ File Audit Album review; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-534"></a>
 
