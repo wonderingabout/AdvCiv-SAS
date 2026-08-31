@@ -10529,8 +10529,11 @@ void CvUnitAI::AI_pirateSeaMove()
 		(kPlot.isCity(true) && GET_PLAYER(getOwner()).
 		AI_localDefenceStrength(&kPlot, getTeam()) > 0 &&
 		!GET_PLAYER(getOwner()).AI_isAnyPlotDanger(kPlot, 2, false)))*/
-	// advc.139: Probably better than the above (which I had already tweaked)
-	if (AI_isThreatenedFromLand() <= PROBABILITY_LOW)
+	// <!-- custom: AdvCiv's extracted land-threat test admitted every water tile because AI_isThreatenedFromLand deliberately returns NO_PROBABILITY there.
+	// Retain that threshold but restore BBAI's defended safe-city or city-like fort scope before taking this early heal. See KI#709. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bSafeCity = (kPlot.isCity() && kPlot.AI_getPlotCity()->AI_isSafe());
+	bool const bDefendedCityOrFort = (GET_TEAM(getTeam()).isCityDefense(kPlot) && GET_PLAYER(getOwner()).AI_localDefenceStrength(&kPlot, getTeam()) > 0);
+	if ((bSafeCity || bDefendedCityOrFort) && AI_isThreatenedFromLand() <= PROBABILITY_LOW)
 	{
 		if (AI_heal())
 		{
@@ -15648,7 +15651,9 @@ bool CvUnitAI::AI_guardYield()
 	if(!GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS))
 		iBestValue = 8;
 	CvPlot* pBestPlot = NULL;
-	for (CityPlotIter it(getPlot()); it.hasNext(); ++it)
+	// <!-- custom: AdvCiv recovered the guarded plot's working city but centered the candidate radius on the moving guard, allowing repeated one-hop drift outside that city's plots.
+	// Keep candidates and the promised one-turn city-return constraint anchored to the recovered city. See KI#710. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (CityPlotIter it(*pCity); it.hasNext(); ++it)
 	{
 		CvPlot& kLoopPlot = *it;
 		if(kLoopPlot.getOwner() != getOwner() ||
@@ -15658,10 +15663,10 @@ bool CvUnitAI::AI_guardYield()
 			continue;
 		}
 		int iPathTurns;
-		/*  Must be reachable in one hop, so that we can hurry back to the city
-			when it's in danger. */
-		if(!generatePath(kLoopPlot, NO_MOVEMENT_FLAGS, true, &iPathTurns) ||
-			iPathTurns > 1)
+		// Must be reachable in one hop, so that we can hurry back to the city when it's in danger.
+		int iCityPathTurns;
+		if (!getGroup()->generatePath(pCity->getPlot(), kLoopPlot, NO_MOVEMENT_FLAGS, false, &iCityPathTurns, 1, true) || iCityPathTurns > 1 ||
+			!generatePath(kLoopPlot, NO_MOVEMENT_FLAGS, true, &iPathTurns) || iPathTurns > 1)
 		{
 			continue;
 		}
@@ -15911,11 +15916,14 @@ bool CvUnitAI::AI_guardCitySite()
 		CvPlot& kLoopPlot = kOwner.AI_getCitySite(i);
 		//if (owner.AI_plotTargetMissionAIs(pLoopPlot, MISSIONAI_GUARD_CITY, getGroup()) == 0)
 		// <advc.300> Need to check the adjacent tiles too
+		// <!-- custom: AdvCiv broadened coordination to adjacent guard tiles but stopped checking the planned city tile itself, even though this function can assign that exact center.
+		// Check the center and its adjacent positions together so another group cannot duplicate either assignment. See KI#708. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		bool bValid = true;
-		FOR_EACH_ADJ_PLOT(kLoopPlot)
+		for (SquareIter itGuardPlot(kLoopPlot, 1); itGuardPlot.hasNext(); ++itGuardPlot)
 		{
-			if (AI_canEnterByLand(pAdj->getArea()) &&
-				kOwner.AI_isAnyPlotTargetMissionAI(*pAdj, MISSIONAI_GUARD_CITY, getGroup()))
+			CvPlot const& kGuardPlot = *itGuardPlot;
+			if (AI_canEnterByLand(kGuardPlot.getArea()) &&
+				kOwner.AI_isAnyPlotTargetMissionAI(kGuardPlot, MISSIONAI_GUARD_CITY, getGroup()))
 			{
 				bValid = false;
 				break;
@@ -15941,25 +15949,28 @@ bool CvUnitAI::AI_guardCitySite()
 	{
 		int iBestGuardVal = 0;
 		CvPlot* pBetterGuardPlot = pBestGuardPlot;
-		FOR_EACH_ADJ_PLOT_VAR(*pBestGuardPlot)
+		// <!-- custom: Score the planned city tile along with its adjacent alternatives.
+		// The former adjacent-only loop made its center tie-break unreachable and let any positive adjacent score displace the unscored center. See KI#708. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		for (SquareIter itGuardPlot(*pBestGuardPlot, 1); itGuardPlot.hasNext(); ++itGuardPlot)
 		{
-			if(!pAdj->isRevealed(getTeam()))
+			CvPlot* pGuardPlot = &*itGuardPlot;
+			if(!pGuardPlot->isRevealed(getTeam()))
 				continue;
-			int iGuardValue = pAdj->defenseModifier(getTeam(), true);
+			int iGuardValue = pGuardPlot->defenseModifier(getTeam(), true);
 			if (noDefensiveBonus())
 			{	// Still useful to deny approaching enemies a defensive bonus
 				iGuardValue *= 3;
 				iGuardValue /= 5;
 			}
-			iGuardValue += pAdj->seeFromLevel(getTeam()) * 30;
-			if(at(*pAdj))
+			iGuardValue += pGuardPlot->seeFromLevel(getTeam()) * 30;
+			if(at(*pGuardPlot))
 				iGuardValue += 3; // inertia
-			if(pAdj == pBestGuardPlot)
+			if(pGuardPlot == pBestGuardPlot)
 				iGuardValue += 1; // tie-breaker
-			if(iGuardValue > iBestGuardVal && (at(*pAdj) || canMoveInto(*pAdj)))
+			if(iGuardValue > iBestGuardVal && (at(*pGuardPlot) || canMoveInto(*pGuardPlot)))
 			{
 				iBestGuardVal = iGuardValue;
-				pBetterGuardPlot = pAdj;
+				pBetterGuardPlot = pGuardPlot;
 			}
 		}
 		if(pBetterGuardPlot != pBestGuardPlot &&

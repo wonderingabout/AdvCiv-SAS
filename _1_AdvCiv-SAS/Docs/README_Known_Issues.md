@@ -796,9 +796,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#705 - (Fixed inherited AdvCiv pickup regression) Transports rejected safe ports and permitted dangerous ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-705)\
 [KI#706 - (Fixed SAS Worker-ferry regression) Cargo Workers counted as already delivered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-706)\
 [KI#707 - (Fixed inherited AdvCiv ProbabilityTypes regression) Carriers retreated at every threat level except real](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-707)\
-[KI#708 - (Provisional Pending inherited AdvCiv mission-target regression) City-site guards ignore missions aimed at the site itself](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-708)\
-[KI#709 - (Provisional Pending inherited AdvCiv helper-extraction regression) Privateers can heal early in open sea](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-709)\
-[KI#710 - (Provisional Pending inherited AdvCiv guard-scope regression) Yield guards can drift outside their city's radius](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-710)\
+[KI#708 - (Fixed inherited AdvCiv mission-target regression) City-site guards ignored missions aimed at the site itself](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-708)\
+[KI#709 - (Fixed inherited AdvCiv helper-extraction regression) Privateers could heal early in open sea](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-709)\
+[KI#710 - (Fixed inherited AdvCiv guard-scope regression) Yield guards could drift outside their city's radius](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-710)\
 [KI#711 - (Provisional Pending SAS civilization-context regression) Tech hover lists every civilization's obsolete unique units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-711)\
 [KI#712 - (Provisional Pending inherited AdvCiv UI wrong-variable defect) Founding health prints feature unhealth as player unhealth](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-712)\
 [KI#713 - (Provisional Pending inherited AdvCiv UI attribution regression) Aggregate player health is labeled as Traits](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-713)\
@@ -14493,31 +14493,43 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP78 `CvUnitAI
 
 <a id="ki-708"></a>
 
-## KI#708 - (Provisional Pending inherited AdvCiv mission-target regression) City-site guards ignore missions aimed at the site itself
+## KI#708 - (Fixed inherited AdvCiv mission-target regression) City-site guards ignored missions aimed at the site itself
 
 Album F385 finds AdvCiv advc.300 replacing K-Mod's exact `MISSIONAI_GUARD_CITY` target check with a loop over only the eight adjacent plots. The rewritten function can still target the planned city-site tile itself when no adjacent tile receives a positive guard value, but a later eligible group cannot see that exact-center mission and can be sent redundantly to the same future city site. An intended center tie-break inside the adjacent-only loop is unreachable for the same reason.
 
-Pending checking both the city-site tile and its adjacent plots while retaining AdvCiv's broader coordination. The unreachable center comparison should then be removed or the center should be included explicitly in position scoring.
+Fixed by checking the city-site tile and all adjacent guard positions together while retaining AdvCiv's broader coordination. Position scoring now includes that center too, making its retained tie-break reachable instead of allowing any positive adjacent score to displace an unscored center.
+
+A Huge 134x74 Continents Debug-opt autoplay completed normally with a Space Race victory on turn 406 after all 406 autoplay turns (Ancient start, Normal speed, 16 independent teams, untouched default full UWAI and No Events). This broadly exercised expansion and city-site coordination; the exact duplicate center-guard assignment remains source-verified because mission targets are not exposed in `SASGameRecord`.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP79 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-709"></a>
 
-## KI#709 - (Provisional Pending inherited AdvCiv helper-extraction regression) Privateers can heal early in open sea
+## KI#709 - (Fixed inherited AdvCiv helper-extraction regression) Privateers could heal early in open sea
 
 Album F386 finds AdvCiv advc.139 replacing K-Mod's defended city/fort gate for early Pirate healing with `AI_isThreatenedFromLand() <= PROBABILITY_LOW`. That helper deliberately returns `NO_PROBABILITY` on every water tile, which satisfies the low-threat comparison and admits ordinary open sea. A lightly damaged single Privateer can consequently take an early one-turn neutral-water heal before its later Pirate-specific retreat and blockade logic, despite the retained caller comment still describing defended forts and cities.
 
-Pending restoring the city/fort or equivalent naval-base location requirement while retaining the extracted land-threat threshold. This is distinct from KI#707's Carrier `ProbabilityTypes` predicate defect: the Pirate threshold direction is sensible once its lost location scope is restored.
+Fixed by restoring the defended safe-city or city-like fort requirement while retaining the extracted land-threat threshold. This remains distinct from KI#707's Carrier `ProbabilityTypes` predicate defect: the Pirate threshold direction is sensible once its lost location scope is restored.
+
+The same completed Huge Continents run recorded 51 Privateer references, including a turn-401 Privateer battle, without an observed issue. This confirms that the affected unit role was live; the exact damaged-Privateer early-heal decision remains source-verified rather than directly observed.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP84 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-710"></a>
 
-## KI#710 - (Provisional Pending inherited AdvCiv guard-scope regression) Yield guards can drift outside their city's radius
+## KI#710 - (Fixed inherited AdvCiv guard-scope regression) Yield guards could drift outside their city's radius
 
 Album F387 finds AdvCiv advc.300's `AI_guardYield` recovering the current guarded tile's working city but constructing `CityPlotIter` around the guard unit's plot instead. The first call from a city happens to use the intended center, but later reevaluation from an outer-ring guarded tile shifts the entire candidate footprint. The unit can consequently move to an improved plot outside the recovered city's real radius, then lose the assignment when no working city exists there; repeated one-hop moves also violate the function's stated ability to hurry back to the city.
 
-Pending centering candidates on the recovered city, validating that the guarded tile remains usable for it, and keeping the one-hop safety rule relative to that city rather than the unit's moving position.
+Fixed by centering candidates on the recovered working city and evaluating the promised one-turn return constraint from that city as well as current reachability from the unit. Later reevaluation can therefore choose only a plot belonging to the original city's radius without shifting the search footprint outward one hop at a time.
+
+The same Huge Continents Debug-opt autoplay completed normally through turn 406 with 114 cities and 13 surviving independent teams. This gives broad improved-plot and defensive-unit coverage; `SASGameRecord` does not expose `MISSIONAI_GUARD_BONUS`, so the exact yield-guard reevaluation remains source-verified.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP86 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
