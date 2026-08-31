@@ -2888,13 +2888,13 @@ bool UWAI::Team::isLandTarget(TeamTypes eTeam) const
 	PROFILE_FUNC();
 	bool bHasCoastalCity = false;
 	bool bCanReachAnyByLand = false;
-	int iDistLimit = getUWAI().maxLandDist();
 	for (MemberAIIter itMember(m_eAgent); itMember.hasNext(); ++itMember)
 	{
 		UWAICache const& kCache = itMember->uwai().getCache();
-		// Sea route then unlikely to be much slower
-		if (!kCache.canTrainDeepSeaCargo())
-			iDistLimit = MAX_INT;
+		// <!-- custom: Deep-sea cargo capability belongs to this player's cache.
+		// Derive its land-distance exemption per member so an earlier teammate without cargo cannot widen every later member's limit. See KI#513. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int const iDistLimit = (kCache.canTrainDeepSeaCargo() ?
+			getUWAI().maxLandDist() : MAX_INT);
 		for (int j = 0; j < kCache.numCities(); j++)
 		{
 			UWAICache::City& kCacheCity = kCache.cityAt(j);

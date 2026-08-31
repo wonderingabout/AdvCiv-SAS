@@ -595,7 +595,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#510 - (Provisional Pending inherited AdvCiv trade-cap defect) canTradeAssets tests arbitrary first cities only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-510)\
 [KI#511 - (Provisional Pending inherited AdvCiv war-plan defect) TOTAL target switching can become LIMITED](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-511)\
 [KI#512 - (Provisional Pending inherited AdvCiv boundary defect) TOTAL-only positive utility can start LIMITED war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-512)\
-[KI#513 - (Provisional Pending inherited AdvCiv team-loop defect) Land-target distance exemption leaks between members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-513)\
+[KI#513 - (Fixed inherited AdvCiv team-loop defect) Land-target distance exemption leaked between members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-513)\
 [KI#514 - (Fixed AdvCiv-SAS signed-rounding defect) Emergency peace used uround on a negative threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-514)\
 [KI#515 - (Provisional Pending AdvCiv-SAS victory-denial regression) Direct war plan can ignore force peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-515)\
 [KI#516 - (Fixed inherited AdvCiv vassal-war defect) Inverted master test prevented preparation timeout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-516)\
@@ -12535,11 +12535,15 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-513"></a>
 
-## KI#513 - (Provisional Pending inherited AdvCiv team-loop defect) Land-target distance exemption leaks between members
+## KI#513 - (Fixed inherited AdvCiv team-loop defect) Land-target distance exemption leaked between members
 
-Album F190 finds one teammate without ocean cargo changing the shared distance limit used for later members. Pending independent implementation review.
+`UWAI::Team::isLandTarget` evaluates each member player's cached routes to the target team's cities. A player that cannot train deep-sea cargo intentionally receives an unlimited land-distance threshold because a sea route is not a practical alternative. The function kept one mutable threshold outside its member loop, however, so once an earlier member received that exemption, every later teammate inherited it—including players that could train ocean-capable cargo. A distant land route could consequently change the team's war from naval to land merely because of member iteration order.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair derives the threshold separately from each member's `UWAICache::canTrainDeepSeaCargo` value. A member without suitable cargo retains the intended unlimited threshold, while a later cargo-capable member again uses UWAI's configured maximum land distance. This matches `InvasionGraph::Node::canReachByLand`, which already applies the same exemption to the particular cache being queried. Single-player teams are unaffected.
+
+After a clean Debug-opt compilation, a Huge Custom Continents game with four two-player teams plus independent teams, Normal speed, standard Aggressive AI/full UWAI and No Events completed normally through Space Race victory on turn 392. `SASGameRecord_20260831T183602Z_new1.log` confirms the matching DLL fingerprint, team composition and completed autoplay. The exact teammate-order case with different current cargo eligibility and a route beyond the configured threshold remains source-verified.
+
+The shared mutable threshold dates to AdvCiv's initial 2017 WarAndPeace/UWAI integration, remains in Base AdvCiv 1.14 and was inherited unchanged by AdvCiv-SAS. Found as F190/provisional KI#513 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-514"></a>
 
