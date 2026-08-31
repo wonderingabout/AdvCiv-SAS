@@ -736,7 +736,9 @@ bool UWAI::Team::reviewPlan(TeamTypes eTarget, int iU, int iPrepTurns, bool bNav
 			else
 			{
 				// <!-- custom: Once target switching itself requires a clear deterministic advantage, a separate random roll only makes the AI overlook the best target unpredictably. Always perform the comparison; the temporary plan change remains necessary because the inherited helper expects a preparation plan. See KI#189. (GPT-5.6-Sol) -->
-				kAgent.AI_setWarPlanNoUpdate(eTarget, WARPLAN_PREPARING_LIMITED);
+				// <!-- custom: Preserve TOTAL vs LIMITED intent when temporarily converting an imminent plan for target comparison. Otherwise the helper evaluates every alternative as LIMITED and permanently assigns that type after a successful switch. See KI#511. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				WarPlanTypes const ePreparingWP = (eWP == WARPLAN_TOTAL ? WARPLAN_PREPARING_TOTAL : WARPLAN_PREPARING_LIMITED);
+				kAgent.AI_setWarPlanNoUpdate(eTarget, ePreparingWP);
 				bool const bSwitch = !considerSwitchTarget(eTarget, iU, 0);
 				/*  If we do switch, then considerSwitchTarget has
 					already reset the war plan against targetId --

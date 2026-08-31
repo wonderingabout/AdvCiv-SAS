@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - CLOSED AT C031-WIP150
-Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP154
-Latest confirmed roots: F321-F418 and F420-F446 / provisional KI#644-KI#769 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712
-Next root ID: F447 unused / provisional KI#770 next
+Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP160
+Latest confirmed roots: F321-F418, F420-F444 and F446-F450 / provisional KI#644-KI#767 and KI#769-KI#773 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted
+Next root ID: F451 unused / provisional KI#774 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -24,7 +24,7 @@ QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP150 / F388-F418, F420-F443; F419 DUPLICATE]
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP154 / F444-F446]<-(priority current wip)
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP160 / F444, F446-F450; F445 RETRACTED]<-(priority current wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
@@ -95311,3 +95311,1291 @@ prospective APIs especially high priority because F446 shows that added hypothet
 state parameters can collapse distinct runtime populations.
 
 END C031-WIP154
+
+
+======================================================================
+C031-WIP155 -- QUEUE 004 F447 RECYCLED COLONY PLAYER / LIVE-TEAM STATE SPLIT
+======================================================================
+
+STATUS AT THIS CHECKPOINT
+-------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete.
+F447 / provisional KI#770 is CONFIRMED below.
+F448 / provisional KI#771 is now UNUSED.
+Latest physical checkpoint: C031-WIP155.
+No repository source files modified.
+
+
+F447 / KI#770 -- RECYCLING A DEFEATED PLAYER WHOSE OLD TEAM IS STILL ALIVE SKIPS COLONY INITIALIZATION, THEN REVIVES THE OLD PLAYER FROM THE TRANSFERRED CITIES
+------------------------------------------------------------------------------------------------------------------------------------------
+
+ROOT
+----
+`CvPlayer::getSplitEmpirePlayer` chooses a recycled slot according to PLAYER state:
+
+    if (!itPlayer->isAlive())
+        eNewPlayer = itPlayer->getID();
+
+when no never-used player slot remains (AdvCiv restricts this fallback to human
+splitters through `<kekm.24>`).
+
+But `CvPlayer::splitEmpire` immediately decides whether that selected slot already
+"exists" according to TEAM state instead:
+
+    bool bPlayerExists = GET_TEAM(eNewPlayer).isAlive();
+    FAssert(!bPlayerExists);
+
+and performs all new-colony initialization only when that TEAM is dead:
+
+    if (!bPlayerExists)
+    {
+        ... choose eBestLeader / eBestCiv ...
+        kGame.addPlayer(eNewPlayer, eBestLeader, eBestCiv);
+        GET_PLAYER(eNewPlayer).setParent(getID());
+        ... inherit technologies ...
+        GET_TEAM(getTeam()).assignVassal(TEAMID(eNewPlayer), false);
+        ...
+    }
+
+A player can be dead while their team remains alive whenever another teammate
+survives. In that supported state, `getSplitEmpirePlayer` selects the slot precisely
+because the PLAYER is dead, but `splitEmpire` sees `bPlayerExists == true` precisely
+because the TEAM is alive. The debug assertion fails and, in release builds, the
+entire colony-initialization block is skipped.
+
+The function does NOT abort after that mismatch. It proceeds to transfer cities,
+culture and free defenders to the selected dead player.
+
+DETERMINISTIC STATE / REPRODUCTION SHAPE
+----------------------------------------
+Use a team game or scenario with the following state:
+
+1. All player slots have been ever-alive, so `getSplitEmpirePlayer` cannot find a
+   `!isEverAlive()` slot.
+2. Human player P can create a colony from an overseas area containing at least two
+   P cities (the ordinary `canSplitArea` requirement for a dead recipient).
+3. Player X was eliminated, but X had teammate Y and Y is still alive. Therefore:
+
+       X.isAlive() == false
+       GET_TEAM(X).isAlive() == true
+
+4. X is the first dead ever-alive player found by the player iterator.
+5. At least one valid civilization/leader combination has never been used, so
+   `getSplitEmpireLeaders` allows colony creation.
+6. P chooses "Create Colony" for the eligible area.
+
+`getSplitEmpirePlayer` returns X. `splitEmpire` sets `bPlayerExists=true` from X's
+still-alive team and skips `CvGame::addPlayer` and every new-colony setup step.
+Nevertheless the later city loop executes:
+
+    GET_PLAYER(eNewPlayer).acquireCity(...);
+
+and the free-defender loop creates units in those transferred cities for X.
+
+REVIVAL TIMING IS SOURCE-PROVEN
+-------------------------------
+Neither `CvPlayer::acquireCity` / `initCity` nor the free-defender creation in this
+path makes the recipient player alive immediately. The split therefore finishes with
+X still dead but now owning cities (and normally units).
+
+The ordinary game-update path then executes:
+
+    CvGame::updateUnprofiled()
+        -> testAlive()
+            -> GET_PLAYER(eLoopPlayer).verifyAlive()
+
+`CvPlayer::verifyAlive` explicitly revives any dead player who now owns a city or unit:
+
+    if (!isAlive())
+    {
+        if (getNumCities() > 0 || getNumUnits() > 0)
+            setAlive(true);
+        return;
+    }
+
+Thus the recycled old player is deterministically resurrected on the next normal
+update from the possessions that `splitEmpire` just gave them.
+
+WHAT IS SKIPPED / MALFORMED
+---------------------------
+Because `bPlayerExists` was true, the revived player never went through the intended
+new-colony initialization:
+
+* no `CvGame::addPlayer(eNewPlayer, eBestLeader, eBestCiv)`;
+* no `CvPlayer::initInGame` reset/reinitialization performed by `addPlayer`;
+* no new colony civilization/leader selection;
+* no `setParent(getID())` for the splitting civilization;
+* no inheritance of the parent's technologies / no-trade-tech flags;
+* no `assignVassal(..., false)` establishing the intended colonial-vassal team;
+* no new-player replay/message setup guarded by `!bPlayerExists`.
+
+Instead X retains the old defeated player's persistent identity/state and remains a
+member of X's old still-alive team. Once `verifyAlive` resurrects X, the supposed
+"colony" is therefore an old civilization/player revived on its former team rather
+than a freshly initialized colonial vassal of P.
+
+Any old `parent` value also remains whatever the defeated player had; the intended
+new parent is not installed.
+
+CURRENT SAS REACHABILITY
+------------------------
+Current SAS has:
+
+    MAX_CIV_PLAYERS = 48
+    36 CivilizationInfos with bPlayable=1 and bAIPlayable=1
+    55 unique leaders mapped to those playable civilizations
+
+With an ordinary fully-random 48-player setup, AdvCiv's random assignment tends to
+spread players across all available civilizations before duplicating them, which can
+consume every civilization and leave no valid unused colony civ. That masks this
+specific fallback in that common setup.
+
+It does NOT establish an engine invariant. Scenario/custom initialization can reuse
+civilizations; `CvInitCore::setCiv` simply installs the requested CivilizationTypes
+and has no uniqueness check. Current WorldBuilder/scenario player data can therefore
+use all 48 player slots while repeating some civilizations and leaving another
+playable civilization plus at least one of its leaders unused.
+
+Because SAS has 55 mapped playable leaders, it is straightforward to reserve a valid
+leader for the unused civilization while populating the other 48 ever-alive slots.
+After one member of a multi-player team is eliminated, the exact dead-player /
+live-team state above is reachable and the colony command remains source-legal.
+
+So this is not merely a hypothetical future-data condition; it is a supported
+scenario/team-game lifecycle defect. It is rarer in ordinary random games under the
+48-slot SAS configuration than it was under stock BtS's smaller player cap.
+
+ANCESTRY
+--------
+The root predates AdvCiv.
+
+Stock BtS/Civ4CE already does both halves:
+
+* `getSplitEmpirePlayer` first searches never-alive players and then recycles any
+  `!GET_PLAYER(i).isAlive()` slot;
+* `splitEmpire` then computes:
+
+      bool bPlayerExists =
+          GET_TEAM(GET_PLAYER(eNewPlayer).getTeam()).isAlive();
+      FAssert(!bPlayerExists);
+
+  and only calls `addPlayer` / parent-tech-vassal setup when that TEAM is dead.
+
+K-Mod 1.46 retains the same mismatch.
+
+Base AdvCiv 1.14 retains the same split logic. Its `<kekm.24>` change does NOT
+introduce the player/team mismatch; it merely recognizes that "Reusing a defeated
+player might not work correctly" and restricts the fallback to human players so AI
+players cannot trigger the risky recycling path automatically.
+
+Current SAS retains that AdvCiv behavior.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+The album's existing Free Colony finding F317/KI#640 is a different root: its popup
+names a liberation recipient at launch but sends only a city/area action and later
+recomputes the recipient, allowing stale UI approval to retarget to another civ.
+That finding explicitly established that the `splitEmpire` receiver rechecks the area
+and general split legality; it does not audit the lifecycle semantics of the recycled
+player slot selected by `getSplitEmpirePlayer`.
+
+No existing album root covers:
+
+* dead PlayerTypes whose TeamTypes remains alive;
+* `getSplitEmpirePlayer` player-state selection versus `splitEmpire` team-state
+  `bPlayerExists`;
+* skipped `addPlayer/initInGame` for a recycled colony slot;
+* revival by `verifyAlive` after transferred cities are assigned to the dead slot.
+
+F447 is therefore independent.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+The "new colony needs initialization" decision must be based on the PLAYER SLOT that
+was selected for recycling, not merely on whether that slot's old team still happens
+to have another living member.
+
+The safest repair is probably to treat every selected `!isAlive()` recycled player as
+requiring full recycled-player initialization, while also handling its old live-team
+membership explicitly before `addPlayer/initInGame` rather than assuming a recycled
+slot's team is dead.
+
+At minimum, do NOT allow this sequence:
+
+    dead player selected -> old team alive -> skip initialization -> transfer cities
+
+Possible conservative policies include:
+
+1. Reject dead-player recycling when `GET_TEAM(eNewPlayer).isAlive()` and return
+   `NO_PLAYER` / disable the colony choice. This is narrow and avoids having to detach
+   a recycled player from a still-active team.
+2. If supporting such recycling is desirable, explicitly move/reset the slot onto a
+   proper new colony team and run the same `addPlayer/initInGame`, parent, technology
+   and vassal initialization as other recycled slots before any city transfer.
+
+The existing `FAssert(!bPlayerExists)` is useful evidence of the intended invariant
+but is not a release guard. Turn it into enforced runtime handling rather than
+continuing with malformed state when the assertion condition fails.
+
+Regression coverage should include a dead member of a still-alive team selected as
+the first recyclable slot, followed by a human colony split. The result should either
+be rejected cleanly or produce a fully initialized new colonial vassal; it must never
+revive the old player/team identity from the transferred cities.
+
+NUMBERING
+---------
+F447 is CONFIRMED and consumes KI#770.
+F448 / provisional KI#771 is the next unused root slot.
+
+
+CURRENT STONE AFTER C031-WIP155
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F447 / KI#770 latest confirmed.
+F448 / provisional KI#771 UNUSED.
+Latest physical checkpoint: C031-WIP155.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F448 unused. Return to the mechanical low-coverage state
+mutator/arithmetic inventory after the split-empire lifecycle family. Prioritize
+player/team/city ownership transitions, cached derived-state invalidation, and
+prospective-state helpers; preserve the same full producer + current-data + ancestry
++ duplicate threshold before numbering anything.
+
+END C031-WIP155
+
+
+===============================================================================
+C031-WIP156 — QUEUE 004 CVPLAYER.CPP CONTINUATION — F448 / KI#771 CONFIRMED
+===============================================================================
+
+POST-WIP155 CONTROL: `CvPlayer::setStartingPlot`
+-------------------------------------------------
+The second-pass low-coverage inventory first exposed a genuine mutation-order flaw in
+`setStartingPlot` when `bUpdateStartDist` is true:
+
+* while removing an old start, the function decrements the old area's start count;
+* it then calls `GC.getMap().updateMinOriginalStartDist(oldArea)` BEFORE assigning
+  `m_pStartingPlot = pNewValue`;
+* the recalculation iterates current player `getStartingPlot()` values and therefore
+  still sees/re-adds this player's old starting plot;
+* after `m_pStartingPlot` changes, only the NEW area is recalculated.
+
+Thus a cross-area start move can leave the old area's `MinOriginalStartDist` cache
+stale.
+
+This was NOT numbered. Current normal-game consumers are the Boreal, Highlands and
+Rainforest map scripts, and their start-assignment loops assign each player's first
+start from NULL. Current C++ start-moving callers use the default
+`bUpdateStartDist=false`. No ordinary supported current gameplay consumer was found
+that performs the problematic old-start -> different-area transition while asking for
+this cache update. Keep as API/WorldBuilder robustness debt, not F448.
+
+
+F448 / KI#771 — RISE & FALL HUMAN/AI CONTROL SWITCH LEAVES CACHED SETTLER
+"NEW CITY" PRODUCTION COST PRICED FOR THE PREVIOUS CONTROLLER
+-------------------------------------------------------------------------------
+
+STATUS
+------
+CONFIRMED. Current normal Rise & Fall chapter transitions reach the stale cache with
+current SAS data. This is an inherited AdvCiv integration regression introduced when
+advc.251 made the cached Settler surcharge depend on human/AI handicap modifiers.
+
+ROOT
+----
+Founding units do not obtain their city-equivalent production surcharge dynamically.
+`CvPlayer::resetCivTypeEffects` and `CvPlayer::processTraits` precompute it and store it
+per unit class:
+
+    if (GC.getInfo(eUnit).isFound())
+        setUnitExtraCost(kCiv.unitClass(eUnit), getNewCityProductionValue());
+
+`CvPlayer::getProductionNeeded(UnitTypes)` later adds that cached value directly:
+
+    iProductionNeeded += getUnitExtraCost(eUnitClass);
+
+Current SAS `UNIT_SETTLER` has XML `iCost = 0`, so in an Ancient normal start the
+Settler's production cost is effectively this cached "new city" surcharge (subject to
+any later Python modifier), rather than a nonzero XML base cost.
+
+`getNewCityProductionValue()` is controller/handicap-sensitive. It includes:
+
+* free-start-era building production costs through `getProductionNeeded(Building)`;
+* Advanced Start city cost;
+* population costs through `getGrowthThreshold`, whose AI branch applies the game
+  handicap's `iAIGrowthPercent` when `!isHuman()`;
+* finally half of `trainingModifierFromHandicap(false)`, which also applies game
+  handicap AI production modifiers when `!isHuman()`.
+
+Therefore `isHuman()` and the player's handicap are inputs of the cached value.
+
+RISE & FALL CHANGES BOTH INPUTS WITHOUT REFRESHING THE CACHE
+-------------------------------------------------------------
+`RiseFall::setPlayerControl(civId, b)` does, in order:
+
+    setPlayerHandicap(civId, b, b);
+    if (b)
+        g.changeHumanPlayer(civId);
+    else
+        civ.setIsHuman(false, true);
+
+`setPlayerHandicap` writes the player's handicap and updates maintenance/AI work
+assignment only. `CvPlayer::setIsHuman` changes slot/human/AI state and alert/leader
+state only. Neither recomputes founding-unit extra cost.
+
+A complete current-tree search finds the actual recomputation only in:
+
+1. `CvPlayer::processTraits`, and
+2. `CvPlayer::resetCivTypeEffects`.
+
+Normal Rise & Fall chapter transitions call `setPlayerControl` directly when the old
+chapter ends and when the next civilization becomes active. `RFChapter::start`, the
+welcome path and the surrounding chapter-control code do not call either refresh
+function. Hence the stale value persists into ordinary production calculations.
+
+CURRENT SAS REPRODUCTION — ANCIENT / NORMAL / MONARCH
+------------------------------------------------------
+Current SAS makes the difference deterministic without traits or later-era free
+buildings.
+
+Relevant current/inherited values:
+
+    UNIT_SETTLER iCost                         = 0
+    Ancient FreePopulation                    = 0
+    Normal research/speed percent             = 100
+    BASE_CITY_GROWTH_THRESHOLD                = 20
+    CITY_GROWTH_MULTIPLIER                    = 2
+    ADVANCED_START_CITY_COST                  = 67
+    ADVANCED_START_POPULATION_COST            = 150
+    INITIAL_CITY_POPULATION                   = 1
+    current RF_PLAYER_HANDICAP_ADJUSTMENT     = 0
+    Monarch iAIGrowthPercent                  = 90
+    Monarch iAITrainPercent                   = 90
+    Monarch iAIConstructPercent               = 90
+    human BaseGrowth/Train/Construct percents = 100
+
+There are no Ancient `FreeStartEra` buildings in current SAS, so the simple Ancient
+case begins with the city + population terms only.
+
+Fresh HUMAN calculation on Monarch:
+
+    growth threshold at pop 1 = 20 + 1*2 = 22
+    population value          = 22 * 150% = 33
+    city value                = 67
+    subtotal                  = 100
+    half-training adjustment  = 100%
+    getNewCityProductionValue = 100
+
+Fresh AI calculation on Monarch (AI player handicap Noble, game-handicap AI factors
+90%):
+
+    growth threshold at pop 1 = round(22 * 90%) = 20
+    population value          = 20 * 150% = 30
+    city value                = 67
+    subtotal                  = 97
+    training modifier         = 90%
+    half-training factor      = 95%
+    round(97 * 95%)           = 92
+    getNewCityProductionValue = 92
+
+Thus a normal Rise & Fall handoff can produce both directions:
+
+AI -> HUMAN chapter start
+~~~~~~~~~~~~~~~~~~~~~~~~~
+The civilization had its founding-unit surcharge cached as 92 while AI-controlled.
+`setPlayerControl(..., true)` changes handicap/human status, but no refresh follows.
+The now-human player can therefore continue to have:
+
+    getProductionNeeded(UNIT_SETTLER) = 92
+
+when the same current player state freshly evaluated should price the Settler at 100.
+
+HUMAN -> AI chapter end
+~~~~~~~~~~~~~~~~~~~~~~~
+The old chapter civilization can retain the human-priced 100 surcharge after becoming
+AI-controlled, even though a fresh AI calculation is 92. Its AI Settlers can therefore
+remain 8 production too expensive in this clean current example.
+
+The exact numeric gap varies with handicap, game speed/start era and free-start-era
+buildings, but the cache invariant is broken whenever the controller-sensitive inputs
+change enough to alter `getNewCityProductionValue`.
+
+The current SAS removal of the old human-only "round to multiples of 5" production
+rounding does not mask the root; the current `.round()` path still yields the 100 vs
+92 example above.
+
+CALLER / GAMEPLAY SIGNIFICANCE
+------------------------------
+This is not a stale tooltip-only number. `CvPlayer::getProductionNeeded(UnitTypes)` is
+the authoritative unit production-cost calculation used by cities/AI and directly
+adds `getUnitExtraCost(eUnitClass)`.
+
+Because the current Settler XML base production cost is zero, this cache is especially
+important: the cached city-equivalent surcharge supplies the Settler's actual base
+production requirement.
+
+Normal Rise & Fall chapter progression repeatedly performs the relevant transitions:
+
+* at a chapter end, `setPlayerControl(currentChapterCiv, false)`;
+* when the chosen next civ becomes active, `setPlayerControl(nextCiv, true)`.
+
+No debug/Civ-Changer path is needed for reproduction.
+
+ANCESTRY / INTRODUCING CHANGE
+-----------------------------
+K-Mod 1.46 already caches `getNewCityProductionValue()` in `m_aUnitExtraCosts`, but
+its `getNewCityProductionValue()` does NOT apply the later advc.251 human/AI training
+adjustment. The cached value therefore did not acquire this controller-switch
+invariant from K-Mod.
+
+AdvCiv practical 1268 / commit:
+
+    e11525d3039c7b1baf017b3f5a25a963a8abef50
+    "v0.89rc ... New game option 'Rise & Fall' added ..."
+
+introduced Rise & Fall and its civilization-control switching. At that point the
+K-Mod-style new-city value was still not controller-sensitive in the later advc.251
+way, so this specific root was not yet present.
+
+AdvCiv practical 1407 / commit:
+
+    bf48af8b3529f23c93ddbf21fde05e6b4ad8539a
+    2019-01-21 — "Many misc. tweaks"
+
+introduced the regression. Its commit message explicitly says:
+
+    "Production modifiers from difficulty only apply half to Settler units."
+
+and the introducing diff changes `getNewCityProductionValue()` by adding:
+
+    iValue = roundToMultiple(iValue *
+        (1 + 0.5 * (trainingModifierFromHandicap(false) - 1)),
+        isHuman() ? 5 : 1);
+
+while also moving the cached unit extra cost after the ordinary unit handicap
+multiplier so this city-equivalent portion gets the special half modifier.
+
+That commit touched `RiseFall.cpp` only for unrelated capital-coordinate visibility
+text and added no cache refresh to `setPlayerControl`. Thus practical 1407 made an
+existing cached value depend on exactly the human/AI state that Rise & Fall changes,
+without adding the required invalidation/recompute step.
+
+Base AdvCiv 1.14 retains the controller-sensitive calculation and the missing Rise &
+Fall refresh. Current SAS retains the same semantic structure (with later arithmetic
+refactors/current handicap XML).
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+The album contains no prior Rise & Fall / Settler unit-extra-cost cache root.
+
+The earlier literal "Finance unit extra cost" control in Queue 003 concerns
+`UnitInfo::iExtraCost` XML scaling in Finance help and is explicitly data-dormant; it
+is unrelated to the per-unit-class `m_aUnitExtraCosts` city-equivalent founding-unit
+surcharge audited here.
+
+No existing R&F finding covers production-cost cache refresh after human/AI chapter
+control changes.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+Centralize the founding-unit surcharge refresh rather than duplicating the current
+loops. For example, a small `updateNewCityProductionValue()`/`updateFoundingUnitExtraCosts()`
+helper can iterate the civilization's founding units and execute:
+
+    setUnitExtraCost(unitClass, getNewCityProductionValue());
+
+Then call it whenever an input of `getNewCityProductionValue()` changes outside the
+existing trait/civilization reset paths.
+
+For this root, the most important transition is AFTER the final human/AI state is
+installed in `CvPlayer::setIsHuman`, because Rise & Fall deliberately changes the
+handicap first and human status second. Recomputing after `setIsHuman` therefore sees
+both final inputs.
+
+For robustness, player-handicap changes that do not also change human status can alter
+the same cached value. `RiseFall::setPlayerHandicap` currently even comments
+"Further updates might be warranted." A dedicated refresh callable from both
+handicap-change and human-state-change paths would make that dependency explicit and
+also support nonzero `RF_PLAYER_HANDICAP_ADJUSTMENT` cleanly. Avoid unnecessary double
+refresh in the paired Rise & Fall transition if desired by choosing one final
+controller-switch hook or by structuring the helper/caller sequence accordingly.
+
+Regression tests should cover both chapter directions at a difficulty where AI
+production/growth modifiers differ from 100:
+
+1. record a civ's `getUnitExtraCost(UNITCLASS_SETTLER)` while AI-controlled;
+2. hand control to the human through normal R&F `setPlayerControl`;
+3. assert cached extra cost equals a fresh `getNewCityProductionValue()`;
+4. relinquish control and assert equality again under AI state.
+
+On current Ancient/Normal/Monarch data, the clean expected fresh values are 92 for AI
+and 100 for human.
+
+NUMBERING
+---------
+F448 is CONFIRMED and consumes KI#771.
+F449 / provisional KI#772 is the next unused root slot.
+
+
+CURRENT STONE AFTER C031-WIP156
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F448 / KI#771 latest confirmed.
+F449 / provisional KI#772 UNUSED.
+Latest physical checkpoint: C031-WIP156.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F449 unused using the mechanical low-coverage
+state-mutator/arithmetic inventory. Prioritize `getNewCityProductionValue` siblings /
+other cached prospective costs only if they have an independent current invariant;
+then move through Great Person/General counters, diplomacy/state validation and
+player/team/city ownership transitions. Preserve the full current-data + caller +
+ancestry + duplicate threshold before numbering.
+
+END C031-WIP156
+
+
+===============================================================================
+POST-C031-WIP156 CONTINUATION — QUEUE 004 CvPlayer.cpp
+===============================================================================
+
+Continuation anchor:
+
+    Queue 004 CvGameCoreDLL/CvPlayer.cpp OPEN
+    32/169 unique files complete
+    F448 / KI#771 latest confirmed
+    F449 / provisional KI#772 UNUSED
+    C031-WIP156 latest prior physical checkpoint
+    no repository source files modified
+
+The protected re-audit continued with the mechanical low-coverage inventory rather
+than forcing siblings of F448.
+
+POST-WIP156 CLEAN CONTROLS
+--------------------------
+
+1. Great General / Great Person threshold counters
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`CvPlayer::setCombatExperience` safely handles threshold overshoot: after spawning a
+Great General it recursively calls itself with the remaining combat XP, so an input
+large enough to cross more than one threshold can continue through successive
+thresholds. Current combat awards are normally much smaller in any case.
+
+The player+team Great Person / Great General threshold-modifier increments in
+`createGreatPeople` also match the inherited BtS/K-Mod scheme. No independent
+counter/double-count root was established there.
+
+2. `CvPlayer::validateDiplomacy`
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The Defensive Pact stale-offer check initially looked suspicious because it checks
+the first offered trade item. The actual AI Defensive Pact contact producer constructs
+a one-item Defensive Pact offer on each side, so there is no supported producer with
+a later-list Defensive Pact silently surviving the cleanup. No F449 there.
+
+
+F449 / KI#772 — GP BIRTH MESSAGE IS MUTATED BY ONE HIDDEN OBSERVER AND LEAKS THAT
+FALLBACK INTO LATER VISIBLE OBSERVERS
+===============================================================================
+
+STATUS
+------
+CONFIRMED current inherited AdvCiv player-facing message-state defect.
+
+Current SAS and Base AdvCiv 1.14 retain it. BtS/K-Mod do not have the defect in this
+form. The regression is introduced by AdvCiv's advc.106 Great-Person birth-message
+privacy integration and is already present in the reachable practical-1253 initial
+AdvCiv history snapshot.
+
+ROOT
+----
+`CvPlayer::createGreatPeople` constructs one detailed non-replay GP birth message
+before iterating observers:
+
+    CvWString szMessage;
+    ...
+    if (pCity != NULL)
+        szMessage = TXT_KEY_MISC_GP_BORN(... city ...);
+    else
+        szMessage = TXT_KEY_MISC_GP_BORN_FIELD(...);
+
+It then reuses that SAME mutable string for every observer:
+
+    for (PlayerIter<MAJOR_CIV,KNOWN_TO> it(kGPOwner.getTeam()); it.hasNext(); ++it)
+    {
+        CvPlayer const& kObs = *it;
+        bool const bRev = (... observer can see birth location ...);
+        if (!bRev)
+        {
+            szMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN_CIV", ...);
+        }
+        ...
+        gDLL->UI().addMessage(kObs.getID(), ..., szMessage, ...,
+                bRev ? kAt.getX() : -1, bRev ? kAt.getY() : -1, bRev, bRev);
+    }
+
+The hidden-observer branch permanently overwrites `szMessage` with the less-specific
+"GP born in [civilization]" text. There is no corresponding branch that restores the
+detailed city/field message when a LATER observer can reveal the location.
+
+Consequently observer A's visibility state changes observer B's message text.
+
+CURRENT CLEAN REPRODUCTION
+--------------------------
+No unusual XML, scenario scripting or EXE callback ordering is required.
+
+Example:
+
+* Player 2 owns the city in which the Great Person is born.
+* Player 0 has met Player 2's team, so Player 0 belongs to the `KNOWN_TO` iterator,
+  but Player 0 has not revealed the GP city / plot.
+* Player 2 of course can reveal its own city and birth plot.
+
+The cached major-alive player sequences are kept in ascending PlayerTypes order.
+`PlayerIter<MAJOR_CIV,KNOWN_TO>` therefore visits the lower-ID Player 0 before the
+higher-ID owner Player 2.
+
+For Player 0:
+
+    bRev == false
+
+so the shared message is overwritten with `TXT_KEY_MISC_GP_BORN_CIV`.
+
+Later, for Player 2:
+
+    bRev == true
+
+but the code does not reconstruct the detailed message. Player 2 therefore receives
+the civ-only fallback text that was created for Player 0.
+
+The inconsistency is especially visible because the SAME `addMessage` call still
+passes the real birth coordinates and reveal/link booleans for Player 2:
+
+    bRev ? kAt.getX() : -1
+    bRev ? kAt.getY() : -1
+    bRev
+    bRev
+
+Thus the owner can receive a location-enabled announcement whose text nevertheless
+claims only the civilization-level location because an earlier observer could not see
+the city.
+
+The owner need not be the affected visible observer. Any later observer with location
+visibility can inherit the fallback after an earlier hidden observer. Using the owner
+simply gives the strongest deterministic visibility invariant.
+
+ITERATOR / OWN-VISIBILITY PROOF
+-------------------------------
+`AgentPredicates.h` explicitly documents `KNOWN_TO` as:
+
+    "Incl. the first agent's team (agents know themselves)"
+
+so the GP owner's own team is part of this observer sequence.
+
+`CvAgents` stores these player sequences ordered by player ID. `insertIntoVector`
+walks until it encounters a greater ID and inserts before it, preserving ascending
+`getID()` order. Normal `MAJOR_ALIVE` construction follows player-ID order as well.
+
+A city also establishes sight for its owning team as part of ordinary city/plot
+visibility processing. The detailed observer condition requires both the plot and,
+when present, the city to be revealed; the owner satisfies that condition for its own
+ordinary GP city. No speculative UI ordering is therefore involved in the repro.
+
+ANCESTRY / INTRODUCING CHANGE
+-----------------------------
+BtS/K-Mod keep the detailed message immutable across observers. K-Mod's inherited
+shape is:
+
+    if (pPlot->isRevealed(observerTeam, false))
+        addHumanMessage(... szReplayMessage ...);
+    else
+    {
+        CvWString szMessage = TXT_KEY_MISC_GP_BORN_SOMEWHERE(...);
+        addHumanMessage(... szMessage ...);
+    }
+
+The hidden fallback is a LOCAL string in the hidden branch. It cannot contaminate a
+later visible observer.
+
+AdvCiv practical 1253 / reachable initial-history commit:
+
+    f6ff6a182f...
+
+contains the advc.106 integration that introduces `TXT_KEY_MISC_GP_BORN_CIV` and,
+critically, changes the observer loop to write that fallback directly into the shared
+`szReplayMessage`:
+
+    if (!isRev)
+    {
+        if (isMet)
+            szReplayMessage = gDLL->getText("TXT_KEY_MISC_GP_BORN_CIV", ...);
+        else continue;
+    }
+    ... addHumanMessage(... szReplayMessage ...);
+
+That is the regression point visible in the reachable AdvCiv history: privacy was
+improved from "somewhere" to civilization-level information for met observers, but
+the fallback was no longer kept observer-local.
+
+AdvCiv practical 1268 later renames/reuses the shared variable as `szMessage`; the
+same mutation remains.
+
+Most notably, practical 2188 / commit:
+
+    66a705a7830c6df13301724d874f69ba792d054e
+    "Fix minor info leak in GP birth messages"
+
+changes the observer loop to `PlayerIter<MAJOR_CIV,KNOWN_TO>` and strengthens `bRev`
+so a city birth requires the city itself to be revealed too. That privacy fix is
+correct in isolation, but it retains:
+
+    if (!bRev)
+        szMessage = TXT_KEY_MISC_GP_BORN_CIV(...);
+
+followed by unconditional reuse of `szMessage`. It therefore does not fix the
+cross-observer state contamination; by creating more legitimate `bRev == false`
+cases for partially revealed cities, it makes the importance of keeping the fallback
+observer-local even clearer.
+
+Base AdvCiv 1.14 and current SAS retain this exact shared-mutation structure.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+No prior album finding covers Great-Person birth-message cross-observer state.
+
+The nearest literal observer-message material is an unrelated nuke hidden-nationality
+information leak. That concerns identifying real unit civilizations in nuke messages,
+not mutation/reuse of a GP observer-specific message string.
+
+No prior `createGreatPeople`, GP-birth, or `TXT_KEY_MISC_GP_BORN*` root owns this
+behavior.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+Keep the detailed message immutable and choose an observer-specific message without
+mutating shared state.
+
+For example:
+
+    CvWString const szDetailedMessage = ... city/field message ...;
+    CvWString const szCivMessage = gDLL->getText(
+            "TXT_KEY_MISC_GP_BORN_CIV", ...);
+
+    for (... observers ...)
+    {
+        bool const bRev = ...;
+        CvWString const& szObsMessage = (bRev ? szDetailedMessage : szCivMessage);
+        gDLL->UI().addMessage(..., szObsMessage, ...);
+    }
+
+The exact implementation can avoid constructing the fallback until first needed if
+that matters, but the important invariant is that one observer must never mutate the
+message subsequently used for another observer.
+
+Regression test:
+
+1. lower-ID observer has met the GP owner but cannot reveal the GP birth city;
+2. higher-ID GP owner can reveal its own city;
+3. generate a city-born GP;
+4. assert lower observer receives the civilization-only fallback and no coordinates;
+5. assert owner receives the detailed city message and real coordinates.
+
+Also test the inverse player-ID ordering to ensure each observer's text depends only
+on that observer's own `bRev`, never on whoever happened to be visited earlier.
+
+NUMBERING
+---------
+F449 is CONFIRMED and consumes KI#772.
+F450 / provisional KI#773 is the next unused root slot.
+
+
+CURRENT STONE AFTER C031-WIP157
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F449 / KI#772 latest confirmed.
+F450 / provisional KI#773 UNUSED.
+Latest physical checkpoint: C031-WIP157.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F450 unused using the mechanical low-coverage inherited
+state/arithmetic inventory. Resume after `createGreatPeople` / `validateDiplomacy`,
+prioritizing large zero/one-mention functions that mutate persistent player state or
+reconstruct runtime quantities. Preserve the current-data + caller/runtime + ancestry
++ duplicate threshold before numbering anything; a clean saturation tranche is
+preferable to manufacturing F450.
+
+END C031-WIP157
+
+===============================================================================
+C031-WIP158 — QUEUE 004 CVPLAYER DEEP RE-AUDIT: F450 STILL UNUSED / EVENT + MESSAGE + GA CONTROLS
+===============================================================================
+
+CONTINUATION ANCHOR
+-------------------
+Resumed from C031-WIP157 with Queue 004 `CvGameCoreDLL/CvPlayer.cpp` OPEN,
+F449/KI#772 latest confirmed and F450/provisional KI#773 unused.
+No repository source files were modified.
+
+POST-WIP157 MECHANICAL LOW-COVERAGE PASS
+----------------------------------------
+The next inherited-state pass ranked large zero/one-album-mention CvPlayer member
+functions by body size/statefulness instead of hunting by intuition. Three suspicious
+contracts were fully or substantially classified without manufacturing F450.
+
+CONTROL — GOLDEN-AGE READINESS UNITCLASS VS CONSUMPTION UNITTYPE IS CURRENT-DATA MASKED
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+K-Mod intentionally changed `unitsGoldenAgeReady()` to require distinct Great Person
+`UnitClassTypes`, but `killGoldenAgeUnits()` still records already-consumed kinds by
+`UnitTypes`. In a mod with multiple Golden-Age-capable unit types mapped to the same
+Great Person class, readiness and consumption could therefore disagree.
+
+Current SAS data masks the mismatch: the Golden-Age-capable Great People are exactly
+one unit type per Great Person class (Prophet, Artist, Scientist, Merchant, Engineer,
+Spy), and current CivilizationInfos provides no alternate same-class Golden-Age unit
+mapping. No current execution state was established in which the two definitions
+diverge. Keep as latent robustness/data-extension debt; not F450.
+
+CONTROL — TEAM EVENT PROPAGATION BRANCH IS A REAL ADVCIV REFACTOR REGRESSION, BUT DORMANT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`CvPlayer::setEventOccured` currently contains:
+
+    else if (GC.getInfo(eEvent).isTeam())
+    {
+        for (MemberIter itOtherMember(getTeam()); itOtherMember.hasNext(); ++itOtherMember)
+        {
+            if (itOtherMember->getID() != getID())
+                continue;
+            itOtherMember->setEventOccured(..., false);
+        }
+    }
+
+The predicate is inverted for propagation: it discards every teammate except self.
+K-Mod's corresponding loop is correct (`i != getID()` -> propagate to other team
+members). Reachable-history commit practical 2416, SHA
+`b9b15b001b7f47a1bef8f264332988026f87dedb`, title "Use EnumMap in CvPlayer; and
+other refactoring changes", introduced the MemberIter rewrite and the inverted
+predicate directly.
+
+However, current SAS EventInfo and EventTriggerInfo XML contains no `<bTeam>1</bTeam>`
+entry at all. The broken EventInfo::isTeam branch therefore has no current data
+producer. Preserve as a genuine dormant AdvCiv regression, but do not spend F450.
+
+CONTROL — AI PLAYER-LEVEL WORK-RATE PREDICTOR CONTAINS DUPLICATE +100, NORMAL CALLERS MASK IT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Current/Base AdvCiv `CvPlayer::getWorkRate(BuildTypes)` has an AI branch equivalent to
+
+    iRate *= max(0, 100 + AIWorkRateModifier + 100);
+
+whereas actual `CvUnit::workRate` and K-Mod use the normal single
+`100 + AIWorkRateModifier`. Current handicap AIWorkRateModifier values are 0, so the
+player-level helper would predict double ordinary AI worker rate if its AI branch were
+used. Normal runtime worker progress uses unit workRate; the player helper's internal
+uses are human-facing build prediction / a human selection-group finish check. No
+ordinary shipped gameplay mismatch was established. AI-Auto-Play active-player UI is
+a possible robustness edge still worth remembering, but not presently a numbered root.
+
+LIVE LOW-SEVERITY CANDIDATE — POSTPROCESSMESSAGES DISCOUNTS ONE REAL MESSAGE WHEN NO TECH IS PERSISTENT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`CvPlayer::postProcessMessages` contains the advc.106b heuristic:
+
+    // Finishing a tech should generate a message ... don't count it ...
+    if (getCurrentResearch() == NO_TECH)
+        m_iNewMessages--;
+
+This was introduced in the initial advc.106b implementation (reachable history already
+contains the line in practical 1253 / `f6ff6a182f...`). The condition is only a proxy
+for "a technology just finished". A human can persistently have `NO_TECH` without a
+new completion message — the cleanest current case is after all researchable
+technologies are already known. `doResearch` then fails to choose a target and retains
+NO_TECH, while unrelated INFO/MINOR/MAJOR interturn messages still increment
+m_iNewMessages normally.
+
+At the next active turn, postProcessMessages subtracts one anyway. Therefore exactly
+`MessageLimit + 1` genuine qualifying messages are treated as only `MessageLimit` and
+can fail the `m_iNewMessages > iLimit` auto-open test. The underlying Turn Log entries
+are not lost; only the auto-open heuristic is wrong. This is current and deterministic
+but low-severity/UI-only, so F450 is intentionally still unused while higher-value
+state/arithmetic functions are audited.
+
+EVENT/STATE FOLLOW-UP
+---------------------
+`CvPlayer::canTrigger` was reconciled with its caller in `initTriggeredData`: it is
+invoked on each candidate OTHER player, with the originating player passed as ePlayer.
+Thus its `OtherPlayerHasTech` test against `this->getTeam()` correctly refers to the
+candidate other player's team; no actor/target inversion was established.
+
+NUMBERING
+---------
+F449/KI#772 remains the latest confirmed root.
+F450/provisional KI#773 remains UNUSED.
+
+CURRENT STONE AFTER C031-WIP158
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F449 / KI#772 latest confirmed.
+F450 / provisional KI#773 UNUSED.
+Latest physical checkpoint: C031-WIP158.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F450 unused using the mechanical low-coverage inherited
+state/arithmetic inventory. Prefer gameplay-significant persistent-state, projection,
+event, empire-transition and cache-contract functions before promoting the live but
+low-severity postProcessMessages auto-open edge. Freeze immediately if a current root
+survives caller/runtime + current-data + ancestry + duplicate proof; otherwise keep
+closing controls and save another saturation checkpoint rather than manufacturing F450.
+
+===============================================================================
+C031-WIP159 — AUTHORITATIVE CORRECTION: F445/KI#768 RETRACTED
+===============================================================================
+
+STATUS CORRECTION
+-----------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete.
+
+F445 / KI#768 is RETRACTED.
+F446 / KI#769, F447 / KI#770, F448 / KI#771 and F449 / KI#772 remain CONFIRMED.
+F450 / provisional KI#773 remains UNUSED.
+
+C031-WIP153's F445 section is historical investigation context only and is
+superseded by this correction. Later WIPs that inherited "F445 confirmed" in their
+status lines are likewise superseded on that one ledger point; their independent
+F446-F449 proofs are not affected.
+
+No repository source files were modified.
+
+-------------------------------------------------------------------------------
+WHY F445 DOES NOT SURVIVE THE CROSS-FILE INVALIDATION PROOF
+-------------------------------------------------------------------------------
+WIP153 correctly observed that capital status participates directly in
+`CvCity::getBaseYieldRateModifier`:
+
+    if (isCapital())
+        iModifier += GET_PLAYER(getOwner()).getCapitalYieldRateModifier(eYield);
+
+and correctly noted that Bureaucracy makes a capital relocation change current
+Production yield in ordinary current data.
+
+The earlier proof then incorrectly concluded that `CvPlayer::setCapital` refreshed
+only commerce and therefore failed to invalidate cached Production-yield ranks.
+
+The missing downstream step is the exact implementation of the refresh that
+`setCapital` calls.
+
+Current `CvPlayer::setCapital` does:
+
+    if (pOldCapital != NULL)
+        pOldCapital->updateCommerce();
+    if (pNewCapital != NULL)
+        pNewCapital->updateCommerce();
+
+The no-argument `CvCity::updateCommerce()` begins with:
+
+    GET_PLAYER(getOwner()).invalidateYieldRankCache();
+
+before looping over commerce types.
+
+That player-level invalidation reaches every city and invalidates both base-yield and
+yield-rate rank caches for every YieldTypes value. Thus the capital transition itself
+already satisfies the cache-maintenance contract that WIP153 thought was missing.
+
+A Bureaucracy Palace relocation therefore behaves as follows:
+
+1. capital identity changes;
+2. old/new actual Production modifiers change dynamically through `isCapital()`;
+3. `setCapital` calls `updateCommerce()` on the old capital;
+4. that call invalidates the player's complete yield-rank cache;
+5. the next `findYieldRateRank(YIELD_PRODUCTION)` recomputes the city ordering from
+   the post-relocation rates.
+
+There is no stale Production-rank window under this source path.
+
+-------------------------------------------------------------------------------
+HOW THE CORRECTION SURFACED
+-------------------------------------------------------------------------------
+The F450 low-coverage pass reopened Golden-Age/base-yield updates and followed
+`CvPlot::updateYield -> CvCity::changeBaseYieldRate -> setBaseYieldRate ->
+updateCommerce()`. That exposed the otherwise easy-to-miss fact that the no-argument
+commerce refresh is deliberately also a global yield-rank invalidation point.
+Rechecking `setCapital` against that exact callee invalidated WIP153's root.
+
+This is a useful cross-file methodology control: a setter's call-site name is not
+sufficient evidence about what caches it refreshes; the complete callee body must be
+traced before declaring a missing invalidation.
+
+-------------------------------------------------------------------------------
+NUMBERING / LEDGER RULE
+-------------------------------------------------------------------------------
+Because later independent roots F446-F449 have already been assigned and physically
+preserved, do NOT renumber them. Follow the album's established duplicate/retraction
+convention (e.g. the reconciled F419 gap):
+
+    F445 / KI#768 — RETRACTED / not an implementable root
+    F446 / KI#769 — confirmed
+    F447 / KI#770 — confirmed
+    F448 / KI#771 — confirmed
+    F449 / KI#772 — confirmed
+    F450 / provisional KI#773 — next UNUSED root
+
+F445/KI#768 should not be implemented or counted as a distinct bug.
+
+-------------------------------------------------------------------------------
+POST-WIP158 F450 CONTROL
+-------------------------------------------------------------------------------
+A possible broader F448 sibling was also closed during the same cross-file pass.
+`getNewCityProductionValue()` prices free start-era buildings through the PLAYER-level
+`getProductionModifier(BuildingTypes)`, not `CvCity::getProductionModifier`.
+The player-level function consists of trait production modifiers plus trait-derived
+world/team/national-wonder production modifiers. It does not include ordinary
+civic/state-religion city production bonuses. `processTraits()` explicitly rebuilds
+founding-unit extra costs after trait/leader changes. Thus no ordinary civic-change
+cache invalidation root was established; F448 remains specifically the later
+human/handicap dependency that Rise & Fall fails to refresh.
+
+CURRENT STONE AFTER C031-WIP159
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F449 / KI#772 CONFIRMED.
+F450 / provisional KI#773 UNUSED.
+Latest physical checkpoint: C031-WIP159.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F450 unused. Preserve the WIP158 live-but-low-severity
+`postProcessMessages` edge and dormant event/work-rate controls, but prioritize a more
+gameplay-significant state/arithmetic root if one survives. Keep the strengthened
+cross-file invalidation discipline that retracted F445: trace every apparent missing
+refresh through the full callee chain before promotion.
+
+===============================================================================
+C031-WIP160 — QUEUE 004 CVPLAYER DEEP RE-AUDIT CONTINUATION
+F450 / KI#773 CONFIRMED — ADV. CIV PRACTICAL 2416 GLOBE MILITARY-STRENGTH
+ARITHMETIC REGRESSION INVERTS LAND-UNIT WEIGHT AND DIVIDES BY ZERO FOR AIR UNITS
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+F445/KI#768 remains RETRACTED.
+F446/KI#769 through F450/KI#773 are CONFIRMED.
+F451 / provisional KI#774 is the next UNUSED root.
+No repository source files modified.
+
+-------------------------------------------------------------------------------
+F450 / KI#773 — `CvPlayer::getUnitLayerColors` computes military Globe-layer
+strength as HP / (maxHP * baseCombatStr) instead of (HP / maxHP) * baseCombatStr
+-------------------------------------------------------------------------------
+
+CURRENT SAS CODE
+----------------
+In all three Globe unit-layer modes that accumulate a numeric military strength —
+`SHOW_ALL_MILITARY`, `SHOW_TEAM_MILITARY`, and `SHOW_ENEMIES` — current SAS does:
+
+    fPlotStrength += pUnit->currHitPoints() /
+            (float)(pUnit->maxHitPoints() *
+            pUnit->baseCombatStr());
+
+The same code is present in Base AdvCiv 1.14.
+
+K-Mod instead uses the expected expression:
+
+    fPlotStrength += ((float)pUnit->currHitPoints() /
+            (float)pUnit->maxHitPoints() *
+            (float)pUnit->baseCombatStr());
+
+The important difference is not cosmetic parenthesization. Current AdvCiv/SAS divide
+by combat strength where the inherited calculation multiplies by it.
+
+-------------------------------------------------------------------------------
+DETERMINISTIC CURRENT LAND-UNIT REPRODUCTION
+-------------------------------------------------------------------------------
+Current SAS XML gives ordinary live examples:
+
+    UNIT_WARRIOR   iCombat = 3
+    UNIT_TANK      iCombat = 30
+
+At full health, the intended/K-Mod contribution is therefore:
+
+    Warrior: (100 / 100) * 3  = 3
+    Tank:    (100 / 100) * 30 = 30
+
+Current AdvCiv/SAS instead computes:
+
+    Warrior: 100 / (100 * 3)  = 1/3
+    Tank:    100 / (100 * 30) = 1/30
+
+So, for equal-health single-unit plots, the Globe layer considers the Warrior's
+numeric plot strength ten times the Tank's. The ordering is exactly backwards.
+
+The function then normalizes each visible plot against the global maximum:
+
+    fAlpha = (fPlotStrength / fMaxPlotStrength * 0.75f + 0.25f) * 0.8f;
+
+With one visible full-health Warrior plot and one full-health Tank plot:
+
+    current bad formula:
+        Warrior alpha = 0.80
+        Tank alpha    = (0.1 * 0.75 + 0.25) * 0.8 = 0.26
+
+    intended/K-Mod formula:
+        Tank alpha    = 0.80
+        Warrior alpha = (0.1 * 0.75 + 0.25) * 0.8 = 0.26
+
+Thus the map visualization does not merely have an imprecise scale. It visually ranks
+weaker land units/plots as stronger than stronger ones. Stacks likewise sum reciprocal
+base strengths rather than actual damaged base strength.
+
+-------------------------------------------------------------------------------
+AIR-UNIT CONSEQUENCE / SECONDARY STRENGTHENING
+-------------------------------------------------------------------------------
+AdvCiv's surrounding code deliberately classifies military units through:
+
+    pUnit->canCombat();
+
+and `CvUnit::canCombat()` is:
+
+    return (baseCombatStr() > 0 || airBaseCombatStr() > 0 || isNuke());
+
+Current SAS aircraft use the separate air-strength field and have zero ordinary
+`baseCombatStr`. Verified current examples include:
+
+    Fighter         iCombat = 0, iAirCombat = 12
+    Jet Fighter     iCombat = 0, iAirCombat = 24
+    Bomber          iCombat = 0, iAirCombat = 16
+    Stealth Bomber  iCombat = 0, iAirCombat = 20
+
+Those units therefore pass the `bMilitary` test but reach a denominator containing
+`baseCombatStr() == 0` in the bad formula.
+
+The land-unit inversion above is already sufficient to confirm F450 and does not rely
+on platform floating-point divide-by-zero behavior. On the normal masked x86 floating
+point environment, a positive float divided by zero may become infinity, which can
+also poison `fMaxPlotStrength`/normalization; however that stronger platform-specific
+manifestation is not needed for the root.
+
+There is also an older independent design limitation in the pre-regression expression:
+using only `baseCombatStr()` means aircraft contribute zero rather than their actual
+air strength. The practical-2416 regression makes that old limitation worse by moving
+zero into the denominator. Do not conflate fixing the introduced land arithmetic
+regression with deciding whether the Globe layer should additionally use
+`airBaseCombatStr()` for aircraft.
+
+-------------------------------------------------------------------------------
+CALLER / PLAYER-VISIBLE REACHABILITY
+-------------------------------------------------------------------------------
+This is the normal active-player Globe View path, not debug-only code:
+
+    CvPlayer::getGlobeLayerColors(...)
+        case GLOBE_LAYER_UNIT:
+            getUnitLayerColors((GlobeLayerUnitOptionTypes)iOption, ...);
+
+`getUnitLayerColors` fills the Globe-layer per-plot colors and unit indicators. The
+wrong `fPlotStrength` directly determines the color alpha in the ordinary Unit Globe
+layer for the affected modes.
+
+No special scenario, AI-only path, future XML, assertion build, or uncommon team setup
+is required. A visible Warrior and Tank are enough to produce the reversed intensity.
+
+-------------------------------------------------------------------------------
+INTRODUCTION / ANCESTRY
+-------------------------------------------------------------------------------
+The exact regression is visible in the supplied AdvCiv practical-2416 diff:
+
+    practical 2416
+    SHA b9b15b001b7f47a1bef8f264332988026f87dedb
+    "Use EnumMap in CvPlayer; and other refactoring changes."
+
+Before that refactor, the expression was:
+
+    fPlotStrength += ((float)pUnit->currHitPoints() /
+            (float)pUnit->maxHitPoints() *
+            (float)pUnit->baseCombatStr());
+
+Practical 2416 rewrote it to:
+
+    fPlotStrength += pUnit->currHitPoints() /
+            (float)(pUnit->maxHitPoints() *
+            pUnit->baseCombatStr());
+
+The same edit was made in the `SHOW_ALL_MILITARY`, `SHOW_TEAM_MILITARY`, and
+`SHOW_ENEMIES` branches. There is no corresponding gameplay-rule change that could
+justify taking the reciprocal of combat strength; this sits inside a broad refactor
+commit and is a straightforward parenthesization/arithmetic regression.
+
+K-Mod retains the correct multiply-by-strength expression. Base AdvCiv 1.14 and
+current SAS retain the practical-2416 bad denominator unchanged.
+
+The same practical-2416 audit also found the separate inverted `setEventOccured`
+Team-event member predicate preserved in WIP158, but current SAS has no Team EventInfo
+or Team EventTriggerInfo producer. F450 is different: the Globe-layer arithmetic is
+live under current ordinary data and UI.
+
+-------------------------------------------------------------------------------
+DUPLICATE / ALBUM RECONCILIATION
+-------------------------------------------------------------------------------
+A literal and semantic album search found no existing root for:
+
+    getUnitLayerColors
+    fPlotStrength
+    Globe military/unit-layer strength normalization
+    SHOW_ALL_MILITARY / SHOW_TEAM_MILITARY / SHOW_ENEMIES
+
+Earlier album material involving aircraft/baseCombatStr belongs to different roots or
+controls (AI effective-strength/debug/attack-order contracts and the mixed-group Nuke
+help finding). None covers this Globe View reciprocal-strength arithmetic.
+
+Therefore F450/KI#773 is independent.
+
+-------------------------------------------------------------------------------
+REPAIR DIRECTION
+-------------------------------------------------------------------------------
+The conservative regression repair is to restore the inherited/K-Mod multiplication:
+
+    fPlotStrength += (float)pUnit->currHitPoints() /
+            (float)pUnit->maxHitPoints() *
+            (float)pUnit->baseCombatStr();
+
+in all three strength-accumulating branches.
+
+That repairs the confirmed land-unit inversion and removes the newly introduced
+zero-denominator problem while preserving the pre-practical-2416 behavior exactly.
+
+A separate optional follow-up can make the AdvCiv air-inclusive `canCombat()` change
+internally consistent by selecting an appropriate air strength when
+`baseCombatStr()==0` (for example using `airBaseCombatStr()` for true aircraft). That
+would be a broader correctness improvement, not required to prove or minimally fix the
+practical-2416 regression itself.
+
+CURRENT STONE AFTER C031-WIP160
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F450 / KI#773 CONFIRMED.
+F451 / provisional KI#774 UNUSED.
+Latest physical checkpoint: C031-WIP160.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F451 unused. First finish the practical-2416 self/other/member
+predicate refactor sweep that produced both the dormant Team-event inversion and F450,
+then resume the mechanically ranked low-coverage `CvPlayer` state/arithmetic helpers.
+Keep full-callee-chain cache/invalidation proof before promoting any apparent missing
+refresh, per the WIP159/F445 retraction control.

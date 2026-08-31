@@ -594,7 +594,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#508 - (Fixed inherited AdvCiv peace-threshold regression) Target team read its self war success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-508)\
 [KI#509 - (Provisional Pending inherited AdvCiv peace-valuation defect) No-payment shortcut ignores city reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-509)\
 [KI#510 - (Provisional Pending inherited AdvCiv trade-cap defect) canTradeAssets tests arbitrary first cities only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-510)\
-[KI#511 - (Provisional Pending inherited AdvCiv war-plan defect) TOTAL target switching can become LIMITED](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-511)\
+[KI#511 - (Fixed inherited AdvCiv war-plan defect) TOTAL target switching could become LIMITED](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-511)\
 [KI#512 - (Fixed inherited AdvCiv boundary defect) TOTAL-only positive utility could start LIMITED war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-512)\
 [KI#513 - (Fixed inherited AdvCiv team-loop defect) Land-target distance exemption leaked between members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-513)\
 [KI#514 - (Fixed AdvCiv-SAS signed-rounding defect) Emergency peace used uround on a negative threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-514)\
@@ -857,9 +857,13 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#765 - (Provisional Pending inherited K-Mod queue-help regression) Continuing Buildings are priced as another new copy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-765)\
 [KI#766 - (Provisional Pending inherited BtS queue-help defect) Production hover discards the actual queue index](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-766)\
 [KI#767 - (Provisional Pending inherited AdvCiv commerce-rounding defect) Every correction reselects the same remainder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-767)\
-[KI#768 - (Provisional Pending inherited BtS/K-Mod cache-invalidation defect) Moving the capital leaves yield ranks stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-768)\
+[KI#768 - (Rejected audit false positive) Capital updates already invalidate yield ranks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-768)\
 [KI#769 - (Provisional Pending AdvCiv projection regression) Civilian unit changes also alter projected military upkeep](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-769)\
-[KI#770 - (Provisional Pending investigation) F447 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-770)\
+[KI#770 - (Provisional Pending inherited BtS colony-lifecycle defect) A dead player on a live team can be revived as a malformed colony](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-770)\
+[KI#771 - (Provisional Pending AdvCiv Rise & Fall cache regression) Controller changes retain the former Settler production cost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-771)\
+[KI#772 - (Provisional Pending inherited AdvCiv message-state defect) Hidden observers downgrade later visible Great Person announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-772)\
+[KI#773 - (Provisional Pending inherited AdvCiv Globe arithmetic regression) Military strength is divided by combat strength](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-773)\
+[KI#774 - (Provisional Pending investigation) F451 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-774)\
 
 <a id="ki-1"></a>
 
@@ -12551,11 +12555,15 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-511"></a>
 
-## KI#511 - (Provisional Pending inherited AdvCiv war-plan defect) TOTAL target switching can become LIMITED
+## KI#511 - (Fixed inherited AdvCiv war-plan defect) TOTAL target switching could become LIMITED
 
-Album F188 finds imminent TOTAL-war target switching temporarily and potentially permanently using PREPARING_LIMITED. Pending independent implementation review.
+When an imminent `WARPLAN_LIMITED` or `WARPLAN_TOTAL` remains worthwhile, UWAI can compare a better target before declaration. The inherited workaround temporarily converts the imminent plan back into a preparation plan because `considerSwitchTarget` expects that state. It always converted to `WARPLAN_PREPARING_LIMITED`, however, even when the saved plan was TOTAL. The helper then read that temporary type both to evaluate every alternative and to assign the selected replacement. A TOTAL war could therefore choose its new target using LIMITED-war utility and permanently become PREPARING_LIMITED after a successful switch.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair maps each imminent type to its corresponding preparation type: TOTAL becomes PREPARING_TOTAL and LIMITED remains PREPARING_LIMITED. Re-entering preparation after changing targets remains intentional, but target comparison no longer silently changes the war's character. The existing no-switch/background path still restores the original imminent plan.
+
+After a clean Debug-opt compilation, a Huge Mirror full-UWAI autoplay with standard Aggressive AI completed normally through a Space Race victory on turn 468. `SASGameRecord_20260831T205705Z_new1.log` confirms the matching Debug-opt DLL fingerprint, settings and successful ending. The rare exact transition in which an imminent TOTAL plan successfully switches targets remains source-verified rather than directly identified in the run log.
+
+AdvCiv commit `e04adaf0a5` introduced the target-switch workaround in 2018 with the hardcoded LIMITED conversion; Base AdvCiv 1.14 retains it, while AdvCiv-SAS inherited the defect unchanged. SAS KI#189 makes target comparison deterministic and can make the inherited path easier to reach, but did not create the lost plan type. Found as F188/provisional KI#511 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-512"></a>
 
@@ -15313,11 +15321,11 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP151 `CvPlaye
 
 <a id="ki-768"></a>
 
-## KI#768 - (Provisional Pending inherited BtS/K-Mod cache-invalidation defect) Moving the capital leaves yield ranks stale
+## KI#768 - (Rejected audit false positive) Capital updates already invalidate yield ranks
 
-Album F445 finds capital identity dynamically changing capital-only yield modifiers while `CvPlayer::setCapital` does not invalidate K-Mod's cached all-city yield rankings. Under Bureaucracy, moving the capital can consequently leave gameplay-significant city yield ranks based on the former capital. Pending independent implementation review.
+Album F445 initially flagged `CvPlayer::setCapital` for changing capital-only yield modifiers without an explicit yield-rank invalidation. The complete callee chain disproves the finding: `setCapital` calls `CvCity::updateCommerce()` on the old and new capitals, and that no-argument function begins by calling the owner's `invalidateYieldRankCache()` for every yield. Bureaucracy capital moves therefore invalidate and recompute Production and other yield rankings correctly.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP153 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+F445/KI#768 was retracted during ChatGPT-5.6-Sol's C031-WIP159 cross-file review; the false-positive disposition was reconciled with the help of GPT-5.6-Sol so the same incomplete call-chain analysis is not reported again, thanks.
 
 <a id="ki-769"></a>
 
@@ -15329,8 +15337,40 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP154 `CvPlaye
 
 <a id="ki-770"></a>
 
-## KI#770 - (Provisional Pending investigation) F447 remains unassigned during the CvPlayer deep re-audit
+## KI#770 - (Provisional Pending inherited BtS colony-lifecycle defect) A dead player on a live team can be revived as a malformed colony
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444-F446 through C031-WIP154 and reserves F447 next. Do not implement a change under KI#770 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F447 finds `getSplitEmpirePlayer` recycling a dead player slot while `splitEmpire` tests whether that player's team remains alive. If another teammate survived, the colony path skips `addPlayer`, new identity, parent, technology and vassal initialization but still transfers cities and units; normal alive verification then revives the defeated player on its former team. The mismatch originates in BtS and remains in K-Mod, AdvCiv and SAS. Pending independent implementation review.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP154 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP155 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-771"></a>
+
+## KI#771 - (Provisional Pending AdvCiv Rise & Fall cache regression) Controller changes retain the former Settler production cost
+
+Album F448 finds Rise & Fall switching a civilization between human and AI control without rebuilding the cached founding-unit surcharge. That surcharge depends on human/AI handicap modifiers and supplies the current zero-XML-cost Settler's effective production cost, so chapter transitions can retain the previous controller's price. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP156 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-772"></a>
+
+## KI#772 - (Provisional Pending inherited AdvCiv message-state defect) Hidden observers downgrade later visible Great Person announcements
+
+Album F449 finds `createGreatPeople` reusing one mutable birth-message string across observers. An earlier observer who cannot reveal the birth location overwrites it with the civilization-only fallback, and a later visible observer—including the owner—can receive that degraded text despite receiving the real coordinates. AdvCiv's privacy integration introduced the shared mutation. Pending independent implementation review.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP157 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-773"></a>
+
+## KI#773 - (Provisional Pending inherited AdvCiv Globe arithmetic regression) Military strength is divided by combat strength
+
+Album F450 finds AdvCiv practical 2416 changing Globe-layer military strength from `(HP / maxHP) * baseCombatStr` to `HP / (maxHP * baseCombatStr)` in all three strength modes. Equal-health weaker land units are therefore rendered stronger than stronger units, while aircraft with zero ordinary base strength reach a zero denominator. K-Mod retains the correct multiplication. Pending independent implementation review, including whether aircraft should additionally use their air strength as a separate follow-up.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP160 `CvPlayer.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-774"></a>
+
+## KI#774 - (Provisional Pending investigation) F451 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F450 through C031-WIP160, retracts F445/KI#768, and reserves F451 next. Do not implement a change under KI#774 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP160 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
