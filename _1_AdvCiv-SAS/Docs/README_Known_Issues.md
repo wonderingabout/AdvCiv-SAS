@@ -778,8 +778,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#687 - (Fixed inherited BtS cooldown defect) A suppressed financial-trouble refresh was never retried](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-687)\
 [KI#688 - (Pending Performance-Sensitive inherited BtS cache defect) Unit-local upgrade state is cached by UnitType](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-688)\
 [KI#689 - (Fixed AdvCiv unit-role regression) Advanced Start naval explorers received the land-explorer role](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-689)\
-[KI#690 - (Provisional Pending inherited AdvCiv state-mutation regression) One city's espionage effect leaks into later happiness/health valuations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
-[KI#691 - (Provisional Pending inherited BtS counting defect) Airbase value counts traversal-order distance records](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-691)\
+[KI#690 - (Fixed inherited AdvCiv state-mutation regression) One city's espionage effect leaked into later happiness/health valuations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-690)\
+[KI#691 - (Fixed inherited BtS counting defect) Airbase value counted traversal-order distance records](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-691)\
 [KI#692 - (Provisional Pending inherited AdvCiv state/display regression) A brag can remember and display different units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-692)\
 [KI#693 - (Fixed inherited BtS Advanced Start state defect) Failed improvement purchases counted as successful](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-693)\
 [KI#694 - (Fixed inherited BtS Advanced Start control-flow defect) One unaffordable building could end the building phase](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-694)\
@@ -802,7 +802,19 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#711 - (Provisional Pending SAS civilization-context regression) Tech hover lists every civilization's obsolete unique units](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-711)\
 [KI#712 - (Provisional Pending inherited AdvCiv UI wrong-variable defect) Founding health prints feature unhealth as player unhealth](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-712)\
 [KI#713 - (Provisional Pending inherited AdvCiv UI attribution regression) Aggregate player health is labeled as Traits](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-713)\
-[KI#714 - (Provisional Pending investigation) F391 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-714)\
+[KI#714 - (Provisional Pending inherited AdvCiv/BULL UI regression) Production-decay hover ignores game-speed scaling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-714)\
+[KI#715 - (Provisional Pending inherited AdvCiv UI projection defect, made live by SAS data) Settler hover charges maintenance for WLTKD cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-715)\
+[KI#716 - (Provisional Pending SAS UI context-leak regression) Sevopedia-only unit-stat suppression leaks into PLE upgrade hovers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-716)\
+[KI#717 - (Provisional Pending inherited BtS UI/help bug) Vassal-enabling tech help tests No Vassal States backward](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-717)\
+[KI#718 - (Provisional Pending inherited BtS UI/help omission) No Tech Trading still advertises technology trading](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-718)\
+[KI#719 - (Provisional Pending inherited AdvCiv UI/help integration bug) No Slavery still advertises Slavery through tech help](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-719)\
+[KI#720 - (Provisional Pending inherited AdvCiv/BUG integration defect) Luxury modifiers are omitted from additional-building happiness](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-720)\
+[KI#721 - (Provisional Pending inherited BUG/K-Mod calculation defect) Conditional production modifiers become ordinary yield](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-721)\
+[KI#722 - (Provisional Pending inherited BUG/K-Mod calculation omission) Government centers report no saved maintenance](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-722)\
+[KI#723 - (Provisional Pending inherited K-Mod finance-rounding defect) Maintenance components can exceed their displayed total](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-723)\
+[KI#724 - (Provisional Pending AdvCiv Finance Advisor integration defect) One profitable foreign route has a blank hover](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-724)\
+[KI#725 - (Provisional Pending AdvCiv BULL/K-Mod integration defect) Pair-specific relation hovers list third parties](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-725)\
+[KI#726 - (Provisional Pending investigation) F403 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-726)\
 
 <a id="ki-1"></a>
 
@@ -14238,17 +14250,19 @@ Found during ChatGPT-5.6-Sol's C031-WIP56 `CvPlayerAI.cpp` deep re-audit; fixed 
 
 <a id="ki-690"></a>
 
-## KI#690 - (Provisional Pending inherited AdvCiv state-mutation regression) One city's espionage effect leaks into later happiness/health valuations
+## KI#690 - (Fixed inherited AdvCiv state-mutation regression) One city's espionage effect leaked into later happiness/health valuations
 
-Album F367 finds `AI_getHappinessWeight` and `AI_getHealthWeight` mutating their shared `iExtraPop` argument while iterating cities to account for a city's temporary espionage counter. One city's state consequently changes the extra-pop assumption used for every later city, making empire-level valuations depend on city iteration order. Pending deriving an independent city-local value while keeping the caller's input immutable.
+Album F367 found `AI_getHappinessWeight` and `AI_getHealthWeight` mutating their shared `iExtraPop` argument while iterating cities to account for a city's temporary espionage counter. One city's state consequently changed the extra-pop assumption used for every later city, making empire-level valuations depend on city iteration order. The fix derives an independent city-local value while keeping the caller's input immutable.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP57 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-691"></a>
 
-## KI#691 - (Provisional Pending inherited BtS counting defect) Airbase value counts traversal-order distance records
+## KI#691 - (Fixed inherited BtS counting defect) Airbase value counted traversal-order distance records
 
-Album F368 finds `AI_getPlotAirbaseValue` incrementing `iOtherCityCount` only when a qualifying foreign city or airbase is closer than every previously visited one. Its value therefore counts traversal-order record minima rather than all nearby targets and can change with iteration order. Pending incrementing the count for every qualifying object independently of any nearest-distance bookkeeping.
+Album F368 found `AI_getPlotAirbaseValue` incrementing `iOtherCityCount` only when a qualifying foreign city or airbase was closer than every previously visited one. Its value therefore counted traversal-order record minima rather than all nearby targets and could change with iteration order. The fix increments the count for every qualifying object independently of nearest-distance bookkeeping.
+
+The combined KI#690-KI#691 DLL compiled successfully and an autoplay completed without an observed issue. The exact corrected city-local espionage assumptions and airbase counts remain source-verified because they are internal AI valuation inputs rather than ordinary player-facing values.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP58 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
@@ -14468,8 +14482,128 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP91 `CvGameTe
 
 <a id="ki-714"></a>
 
-## KI#714 - (Provisional Pending investigation) F391 remains unassigned during the CvGameTextMgr deep re-audit
+## KI#714 - (Provisional Pending inherited AdvCiv/BULL UI regression) Production-decay hover ignores game-speed scaling
 
-The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F390 through C031-WIP91 and reserves F391 next. Do not implement a change under KI#714 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F391 finds the BULL production-decay warning imported into AdvCiv calculating the amount lost as though Train/Construct speed were always 100%. The inherited BtS runtime instead divides decay by the relevant game-speed percentage, so non-Normal hovers can overstate or understate the actual loss; for example, 300 stored building production on Slow reports 3 lost while runtime removes 1.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP91 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending making the unit/building preview mirror the Train/Construct-scaled runtime formula, ideally through a shared helper so display and execution cannot drift again.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP92 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-715"></a>
+
+## KI#715 - (Provisional Pending inherited AdvCiv UI projection defect, made live by SAS data) Settler hover charges maintenance for WLTKD cities
+
+Album F392 finds the Settler founding-cost hover projecting full normal maintenance for every existing non-disorder city, although `CvCity::updateMaintenance` continues charging zero to a city celebrating We Love the King Day after another city is founded. The preview can therefore overstate the incremental founding cost by approximately the full projected maintenance of every celebrating city.
+
+Pending replacing the narrower `isDisorder()` exclusion with the runtime-aligned `isNoMaintenance()` contract. AdvCiv inherited the projection defect but effectively disabled WLTKD through XML; SAS intentionally re-enabled celebrations, making the defect live again.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP93 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-716"></a>
+
+## KI#716 - (Provisional Pending SAS UI context-leak regression) Sevopedia-only unit-stat suppression leaks into PLE upgrade hovers
+
+Album F393 finds SAS using generic `bCivilopediaText` as a proxy for the Sevopedia Unit screen when suppressing city, hill, terrain, feature, matchup and free-promotion rows that Sevopedia replaces with dedicated panels. PLE's shipped Upgrade grouping also requests Civilopedia-formatted unit help but has no replacement panels, so an Archer-to-Longbowman preview, for example, omits the Longbowman's inherent city and hill defense.
+
+Pending separating the actual Sevopedia-only suppression context from generic Civilopedia formatting. A PLE-local non-Civilopedia call is less robust because that flag also controls unrelated help content.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP94 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-717"></a>
+
+## KI#717 - (Provisional Pending inherited BtS UI/help bug) Vassal-enabling tech help tests No Vassal States backward
+
+Album F394 finds player-context technology help requiring `GAMEOPTION_NO_VASSAL_STATES` to be enabled before advertising a technology's vassal-state effect. Runtime requires the opposite: with the option off, Philosophy can enable vassal trading but its decision-time help hides the effect; with the option on, the help advertises an effect that runtime forcibly disables.
+
+Pending reversing the option predicate to match runtime availability while preserving static non-player-context help.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP95 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-718"></a>
+
+## KI#718 - (Provisional Pending inherited BtS UI/help omission) No Tech Trading still advertises technology trading
+
+Album F395 finds player-context technology help never checking `GAMEOPTION_NO_TECH_TRADING`. In a supported No Tech Trading game, Writing therefore says "Enables Technology Trading" even though the actual trade-item legality path rejects every technology trade under that option.
+
+Pending suppressing the advertised not-yet-active effect in player context when No Tech Trading makes it unusable, while retaining the static non-player-context description.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP96 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-719"></a>
+
+## KI#719 - (Provisional Pending inherited AdvCiv UI/help integration bug) No Slavery still advertises Slavery through tech help
+
+Album F396 finds AdvCiv's No Slavery option correctly blocking human adoption and explaining that block in civic help, but leaving the technology-to-civic "Enables" list context-blind. Masonry can consequently say "Enables Slavery" in a No Slavery game even though acquiring Masonry cannot make Slavery adoptable.
+
+Pending omitting independently option-blocked civics from player-context technology help without blindly using `canDoCivics`, which would also reject a civic merely because the hovered prerequisite technology is not known yet.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP97 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-720"></a>
+
+## KI#720 - (Provisional Pending inherited AdvCiv/BUG integration defect) Luxury modifiers are omitted from additional-building happiness
+
+Album F397 finds BUG's additional-building happiness projection adding raw positive `BonusHappinessChanges`, although AdvCiv's LuxuryModifier scales the whole positive bonus-happiness pool at runtime. Under Hereditary Rule, for example, a Forge connected to Gemstones, Gold and Silver can actually add 4 happiness while the optional/Alt hover reports 3; its derived angry-population change can also be wrong.
+
+Pending comparing the effective before/after positive bonus-happiness pool so runtime's aggregate rounding is preserved, while leaving negative bonus happiness outside LuxuryModifier scaling.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP98 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-721"></a>
+
+## KI#721 - (Provisional Pending inherited BUG/K-Mod calculation defect) Conditional production modifiers become ordinary yield
+
+Album F398 finds the additional-building production hover adding military, domain and spaceship production modifiers to ordinary city production yield. Heroic Epic can consequently appear to add generic hammers even though its modifier applies only to qualifying military-unit orders; Drydock similarly becomes generic production instead of a sea-unit-only modifier.
+
+Pending keeping ordinary yield projection limited to modifiers that actually affect `getBaseYieldRateModifier`, or creating a distinct current-order projection that applies each conditional modifier only to its matching order.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP99 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-722"></a>
+
+## KI#722 - (Provisional Pending inherited BUG/K-Mod calculation omission) Government centers report no saved maintenance
+
+Album F399 finds the optional/Alt saved-maintenance hover considering only a building's scalar maintenance modifier. Forbidden Palace has no such modifier, so the helper reports zero even though making the candidate city a government center removes its distance maintenance and can reduce maintenance in other nearby cities too.
+
+Pending projecting the candidate government center through the runtime distance-maintenance calculation. An owner-wide before/after comparison best matches the helper's total-saved-gold contract; a city-only projection would still understate empire-wide savings.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP100 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-723"></a>
+
+## KI#723 - (Provisional Pending inherited K-Mod finance-rounding defect) Maintenance components can exceed their displayed total
+
+Album F400 finds the Finance Advisor deriving its number-of-cities residual from a rounded inflated-maintenance total while displaying the actual truncating total. A current-data state can therefore show Number of Cities as 17 gold, every other component as zero, and Total as 16 gold.
+
+Pending deriving the residual and final displayed value from one shared truncating total, matching the rules calculation and guaranteeing that the displayed components sum to the displayed total.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP101 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-724"></a>
+
+## KI#724 - (Provisional Pending AdvCiv Finance Advisor integration defect) One profitable foreign route has a blank hover
+
+Album F401 finds the Finance Advisor showing its Foreign Trade row for any positive yield while the AdvCiv C++ hover builder emits text only for more than one foreign route. A one-city player with one profitable foreign route can therefore see a normal interactive row with an empty tooltip; the domestic companion uses the same count threshold.
+
+Pending matching the hover threshold to a positive route count, with singular localization added if needed instead of suppressing the only explanatory hover.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP102 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-725"></a>
+
+## KI#725 - (Provisional Pending AdvCiv BULL/K-Mod integration defect) Pair-specific relation hovers list third parties
+
+Album F402 finds AdvCiv merging K-Mod's broad leader-relations behavior into BULL's explicitly pair-specific helper by disabling its `eOtherTeam` filter. A Glance cell for leaders A and B can consequently list A's war with C or an unrelated worst-enemy relation, with the noise growing as more civilizations become known.
+
+Pending honoring `eOtherTeam` for pair-specific relation widgets while preserving the ordinary leader hover's intentionally broader third-party summary through an explicit broad mode or `NO_TEAM` argument.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP103 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-726"></a>
+
+## KI#726 - (Provisional Pending investigation) F403 remains unassigned during the CvGameTextMgr deep re-audit
+
+The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F402 through C031-WIP103 and reserves F403 next. Do not implement a change under KI#726 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP103 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

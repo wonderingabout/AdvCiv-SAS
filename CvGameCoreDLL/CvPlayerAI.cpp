@@ -31610,11 +31610,13 @@ int CvPlayerAI::AI_getPlotAirbaseValue(CvPlot const& kPlot) const // advc: param
 		else
 		{
 			int iDist = it.currPlotDist();
+			// <!-- custom: Count every qualifying foreign city/airbase independently of nearest-distance bookkeeping.
+			// The inherited placement inside the minimum update counted traversal-order distance records instead of nearby targets. See KI#691. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			iOtherCityCount++;
 			if (iDist < iMinOtherCityDistance)
 			{
 				iMinOtherCityDistance = iDist;
 				//pMinOtherCityPlot = &p;
-				iOtherCityCount++;
 			}
 		}
 	}
@@ -31736,22 +31738,18 @@ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent) 
 			So lets try it my way. */
 		if (pLoopCity->isNoUnhappiness())
 			continue;
+		// <!-- custom: AdvCiv's espionage adjustment mutated iExtraPop across the city loop, so one city's counter changed every later city's valuation.
+		// Derive the temporary assumption independently for each city. See KI#690. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		// <advc.036> By the time iExtraPop matters, the espionage effect will be gone.
-		if(iExtraPop > 0)
-		{
-			iExtraPop = std::max(0, iExtraPop -
-					pLoopCity->getEspionageHappinessCounter() / 2);
-		} // </advc.036>
+		int const iCityExtraPop = (iExtraPop <= 0 ? iExtraPop : std::max(0, iExtraPop - pLoopCity->getEspionageHappinessCounter() / 2)); // </advc.036>
 		int iCurrentHappy = 100 * (pLoopCity->happyLevel()
-				- pLoopCity->unhappyLevel(iExtraPop) +
+				- pLoopCity->unhappyLevel(iCityExtraPop) +
 				// advc.036: Subtract half the anger from espionage b/c it is fleeting
 				pLoopCity->getEspionageHappinessCounter() / 2);
 		/*	I'm only going to subtract half of the commerce happiness,
 			because we might not be using that commerce for only happiness. */
 		iCurrentHappy -= 50*std::max(0, pLoopCity->getCommerceHappiness());
-		int iTestHappy = iCurrentHappy +
-				(bPercent ? ((pLoopCity->getPopulation() + iExtraPop) * iHappy) :
-				100 * iHappy);
+		int iTestHappy = iCurrentHappy + (bPercent ? ((pLoopCity->getPopulation() + iCityExtraPop) * iHappy) : 100 * iHappy);
 		// change in the number of angry citizens
 		iValue += std::max(0, -iCurrentHappy) - std::max(0, -iTestHappy);
 		// a small bonus for happiness beyond what we need
@@ -31763,7 +31761,7 @@ int CvPlayerAI::AI_getHappinessWeight(int iHappy, int iExtraPop, bool bPercent) 
 		if (!bPercent) // Not sure how bPercent works; better exclude that.
 		{
 			scaled rBase = per100(-iCurrentHappy);
-			rBase -= 1 + iExtraPop; // Take the extra pop out of unhappyLevel
+			rBase -= 1 + iCityExtraPop; // Take the extra pop out of unhappyLevel
 			if (rBase.isPositive())
 				iValue += rBase.pow(fixp(1.5)).round();
 		} // </advc.036>
@@ -31790,18 +31788,15 @@ int CvPlayerAI::AI_getHealthWeight(int iHealth, int iExtraPop, bool bPercent) co
 	FOR_EACH_CITY(pLoopCity, *this)
 	{
 		// original bts code: [...] deleted (advc)
+		// <!-- custom: As in HappinessWeight, keep the caller's extra-pop assumption immutable and adjust it independently for this city's temporary espionage health. See KI#690. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		// <advc.036> See HappinessWeight
-		if(iExtraPop > 0)
-			iExtraPop = std::max(0, iExtraPop - pLoopCity->getEspionageHealthCounter() / 2);
-		// </advc.036>
+		int const iCityExtraPop = (iExtraPop <= 0 ? iExtraPop : std::max(0, iExtraPop - pLoopCity->getEspionageHealthCounter() / 2)); // </advc.036>
 		// K-Mod. Changed to match the happiness function.
 		int iCurrentHealth = 100*(pLoopCity->goodHealth()
-				- pLoopCity->badHealth(false, iExtraPop)
+				- pLoopCity->badHealth(false, iCityExtraPop)
 				// advc.036: Subtract half the bad health from espionage b/c it is fleeting
 				+ pLoopCity->getEspionageHealthCounter() / 2);
-		int iTestHealth = iCurrentHealth +
-			(bPercent ? ((pLoopCity->getPopulation() + iExtraPop) * iHealth) :
-				100 * iHealth);
+		int iTestHealth = iCurrentHealth + (bPercent ? ((pLoopCity->getPopulation() + iCityExtraPop) * iHealth) : 100 * iHealth);
 		// change in the number of unhealthy citizens
 		iValue += std::max(0, -iCurrentHealth) - std::max(0, -iTestHealth);
 		// a small bonus for health beyond what we need
@@ -31813,7 +31808,7 @@ int CvPlayerAI::AI_getHealthWeight(int iHealth, int iExtraPop, bool bPercent) co
 		if (!bPercent) // Not sure how bPercent works; better exclude that.
 		{
 			scaled rBase = per100(-iCurrentHealth);
-			rBase -= 1 + iExtraPop;
+			rBase -= 1 + iCityExtraPop;
 			if (rBase.isPositive())
 				iValue += rBase.pow(fixp(1.5)).round();
 		} // </advc.036>
