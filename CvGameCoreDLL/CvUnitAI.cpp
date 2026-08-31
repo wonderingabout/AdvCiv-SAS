@@ -15323,7 +15323,8 @@ bool CvUnitAI::AI_guardCity(bool bLeave, bool bSearch, int iMaxPath, MovementFla
 	bool bCurrentUnitCommitted = false;
 	for (int i = 0; i < iDefendersToSend; i++)
 	{
-		CvUnit* pEjectedUnit = pOldGroup->AI_ejectBestDefender(pSourcePlot);
+		// <!-- custom: Rank the detached remote guard for the destination city it will defend, not the donor group's source terrain; Combat and City Garrison promotions can reverse that choice. See KI#701. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		CvUnit* pEjectedUnit = pOldGroup->AI_ejectBestDefender(pBestGuardPlot);
 		if (pEjectedUnit == NULL)
 		{
 			FErrorMsg("AI_ejectBestDefender failed to choose a candidate for AI_guardCity.");
@@ -24856,7 +24857,8 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot const& kPlot) // advc: param was CvP
 
 	// Consider threat from nearby enemy territory
 	int iBorderDanger = 0;
-	for (SquareIter it(kPlot, 1); it.hasNext(); ++it)
+	// <!-- custom: AdvCiv's SquareIterator rewrite lost the non-vassal negation, so ordinary hostile borders were ignored while friendly vassals counted as danger. Restore the intended two-tile scan retained by the routed-enemy branch and compare revealed routes explicitly because NO_ROUTE=-1 and Road=0. See KI#703. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	for (SquareIter it(kPlot, 2); it.hasNext(); ++it)
 	{
 		CvPlot const& p = *it;
 		if (p.sameArea(kPlot) && p.isOwned())
@@ -24864,7 +24866,7 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot const& kPlot) // advc: param was CvP
 			if(!p.isRevealed(getTeam()))
 				continue; // </advc.001i>
 			if(p.getTeam() != getTeam() &&
-				GET_TEAM(p.getTeam()).isVassal(getTeam()))
+				!GET_TEAM(p.getTeam()).isVassal(getTeam()))
 			{
 				int const iDistance = it.currStepDist();
 				if (iDistance == 1)
@@ -24874,7 +24876,7 @@ int CvUnitAI::AI_airOffenseBaseValue(CvPlot const& kPlot) // advc: param was CvP
 					if (iDistance == 1)
 						iBorderDanger += 2;
 					else if (iDistance == 2 && p.//isRoute()
-						getRevealedRouteType(getTeam())) // advc.001i
+						getRevealedRouteType(getTeam()) != NO_ROUTE) // advc.001i
 					{
 						iBorderDanger += 2;
 					}

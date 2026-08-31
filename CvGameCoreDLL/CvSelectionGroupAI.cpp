@@ -1360,7 +1360,8 @@ bool CvSelectionGroupAI::AI_isFull()
 }
 
 
-CvUnitAI* CvSelectionGroupAI::AI_ejectBestDefender(CvPlot* pDefendPlot)
+// <!-- custom: Keep the defender-ranking plot const-correct because it supplies combat context but is never modified. See KI#701. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+CvUnitAI* CvSelectionGroupAI::AI_ejectBestDefender(CvPlot const* pDefendPlot)
 {
 	CvUnitAI* pBestUnit = NULL;
 	int iBestUnitValue = 0;

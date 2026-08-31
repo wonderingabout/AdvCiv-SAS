@@ -789,9 +789,9 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#698 - (Fixed SAS Worker-allocation scope regression) Foreign and unavailable improvements counted as city capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-698)\
 [KI#699 - (Fixed inherited AdvCiv Worker predicate regression) AI_connectBonus always returned false](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-699)\
 [KI#700 - (Fixed SAS Worker-build regression) Feature-preserving improvements could become pure chops](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-700)\
-[KI#701 - (Provisional Pending inherited BtS/BBAI target-context defect) Remote city guards are selected for their source plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-701)\
-[KI#702 - (Provisional Pending SAS guard-mission interaction regression) Safe-city redistribution can lose its destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-702)\
-[KI#703 - (Provisional Pending inherited AdvCiv iterator-refactor regression) Enemy airbase-border danger tests friendly vassals instead](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-703)\
+[KI#701 - (Fixed inherited BtS/BBAI target-context defect) Remote city guards were selected for their source plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-701)\
+[KI#702 - (Pending Architectural SAS guard-mission interaction regression) Safe-city redistribution can lose its destination](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-702)\
+[KI#703 - (Fixed inherited AdvCiv/BBAI airbase-border predicate regressions) Enemy danger tested friendly vassals instead](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-703)\
 [KI#704 - (Provisional Pending inherited K-Mod/BBAI transport-target defect) Boat shortcuts path toward the passenger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-704)\
 [KI#705 - (Provisional Pending inherited AdvCiv pickup regression) Transports reject safe ports and permit dangerous ones](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-705)\
 [KI#706 - (Provisional Pending SAS Worker-ferry regression) Cargo Workers count as already delivered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-706)\
@@ -825,7 +825,13 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#734 - (Provisional Pending inherited BtS city-hover defect) Corporation hover ignores disorder](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-734)\
 [KI#735 - (Provisional Pending inherited K-Mod/BUG Finance Advisor defect) Unit-cost and supply hovers ignore anarchy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-735)\
 [KI#736 - (Provisional Pending inherited BtS random-event off-by-one) Pillage maximum is unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-736)\
-[KI#737 - (Provisional Pending investigation) F414 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-737)\
+[KI#737 - (Provisional Pending inherited BtS event-help omission) Unit-experience events hide their full heal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-737)\
+[KI#738 - (Provisional Pending inherited BtS event-help mismatch) Empire population loss silently exempts small cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-738)\
+[KI#739 - (Provisional Pending inherited AdvCiv trade-help omission) Foreign anarchy blocks trade without explanation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-739)\
+[KI#740 - (Provisional Pending inherited AdvCiv Advanced Start regression) Free Visibility control is hidden](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-740)\
+[KI#741 - (Provisional Pending inherited BtS religion-help omission) Conversion blockers can go unexplained](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-741)\
+[KI#742 - (Provisional Pending inherited AdvCiv founding-preview defect activated by SAS) Negative extra health prints the wrong value](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-742)\
+[KI#743 - (Provisional Pending investigation) F420 remains unassigned during the CvGameTextMgr deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-743)\
 
 <a id="ki-1"></a>
 
@@ -14387,31 +14393,39 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP69 `CvUnitAI
 
 <a id="ki-701"></a>
 
-## KI#701 - (Provisional Pending inherited BtS/BBAI target-context defect) Remote city guards are selected for their source plot
+## KI#701 - (Fixed inherited BtS/BBAI target-context defect) Remote city guards were selected for their source plot
 
-Album F378 finds `AI_guardCity` selecting the unit detached for remote reinforcement through `AI_ejectBestDefender` using the donor group's current plot, although the helper explicitly ranks defensive strength for the supplied plot and the selected unit is immediately sent to a different destination city. A Combat-promoted Archer can therefore be sent from open terrain while the otherwise-identical City Garrison specialist remains behind, even though their ranking reverses for the city being reinforced.
+Album F378 found `AI_guardCity` selecting the unit detached for remote reinforcement through `AI_ejectBestDefender` using the donor group's current plot, although the helper explicitly ranks defensive strength for the supplied plot and the selected unit is immediately sent to a different destination city. A Combat-promoted Archer could therefore be sent from open terrain while the otherwise-identical City Garrison specialist remained behind, even though their ranking reverses for the city being reinforced.
 
-Pending passing the selected guard destination to the defender-ranking helper, preferably after making its plot parameter const-correct. Any desired cost for weakening the source stack should be represented separately rather than substituting source terrain for the destination-defense context.
+Fixed by making the read-only defender-ranking plot const-correct and passing the selected destination city plot. Any desired cost for weakening the source stack remains separate rather than substituting source terrain for destination-defense context.
+
+A Huge Pangaea Debug-opt autoplay from the Future era completed normally at turn 500 by Time victory after 100 autoplay turns. It used Normal speed, 16 independent teams, the untouched default full-UWAI setup and No Events. `SASGameRecord`'s authoritative war-AI row confirms `warPeaceAI=UWAI` and `uwaiMode=FULL`; its raw game-options row also lists `GAMEOPTION_AGGRESSIVE_AI` only because AdvCiv repurposes and internally enables that flag after UWAI is selected, not because Legacy Aggressive AI was enabled in setup. The exact remote-defender rank reversal remains source-verified because that promotion-sensitive reinforcement choice was not separately forced.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP70 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-702"></a>
 
-## KI#702 - (Provisional Pending SAS guard-mission interaction regression) Safe-city redistribution can lose its destination
+## KI#702 - (Pending Architectural SAS guard-mission interaction regression) Safe-city redistribution can lose its destination
 
 Album F379 finds the SAS central continuation for targeted emergency `MISSIONAI_GUARD_CITY` assignments intercepting every targeted guard mission, including an older six-turn redistribution toward a safe underdefended city. On the following turn it reruns an emergency-only search with `bDangerOnly=true`, rejects the still-safe destination and can let the unit resume unrelated role logic before arriving.
 
-Pending preserving whether a targeted guard assignment is emergency reinforcement or ordinary safe-city redistribution, then validating and continuing the original destination under the matching policy. Simply allowing safe cities through the emergency shortfall path would incorrectly merge two distinct policies.
+Pending an architectural distinction that preserves whether a targeted guard assignment is emergency reinforcement or ordinary safe-city redistribution, then validates and continues the original destination under the matching policy. The shared `MISSIONAI_GUARD_CITY` type currently carries no such subtype; simply allowing safe cities through the emergency shortfall path would incorrectly merge two distinct policies.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP71 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-703"></a>
 
-## KI#703 - (Provisional Pending inherited AdvCiv iterator-refactor regression) Enemy airbase-border danger tests friendly vassals instead
+## KI#703 - (Fixed inherited AdvCiv/BBAI airbase-border predicate regressions) Enemy danger tested friendly vassals instead
 
-Album F380 finds AdvCiv's practical-1916 `SquareIterator` rewrite dropping the `!` from `AI_airOffenseBaseValue`'s non-vassal test. Current code consequently ignores ordinary hostile non-vassal borders while counting adjacent friendly-vassal territory as danger, changing effective defender counts and potentially rejecting or misranking offensive air bases.
+Album F380 found AdvCiv's practical-1916 `SquareIterator` rewrite dropping the `!` from `AI_airOffenseBaseValue`'s non-vassal test. Current code consequently ignored ordinary hostile non-vassal borders while counting adjacent friendly-vassal territory as danger, changing effective defender counts and potentially rejecting or misranking offensive air bases.
 
-Pending restoring the negated vassal predicate retained by K-Mod and pre-regression AdvCiv. The same repair must also make the currently masked revealed-route test explicit: `getRevealedRouteType` returns `NO_ROUTE=-1`, Road `0` and later routes positive, so using that enum as a boolean reverses no-route and Road semantics once ordinary enemy borders can enter the branch. The earlier provisional KI#703 hypothesis about stacked garrison-surplus counting was retracted at C031-WIP73 after its downstream `AI_guardCity` consumer proved that local predicate change insufficient and consistent with a conservative group-lifecycle model; KI#703 now denotes only this independent confirmed airbase defect and its mandatory latent route companion.
+Fixed by restoring the negated vassal predicate retained by K-Mod and pre-regression AdvCiv. The complete repair also restores the two-tile scan required by the retained distance-2 routed-enemy policy and compares `getRevealedRouteType` explicitly with `NO_ROUTE`; the enum uses `NO_ROUTE=-1`, Road `0` and later routes positive, so its former raw Boolean test reversed no-route and Road semantics. The earlier provisional KI#703 hypothesis about stacked garrison-surplus counting was retracted at C031-WIP73 after its downstream `AI_guardCity` consumer proved that local predicate change insufficient and consistent with a conservative group-lifecycle model; KI#703 denotes only this independent airbase defect and its mandatory companion repairs.
+
+The same Huge Pangaea Future-era Debug-opt autoplay completed normally at turn 500 by Time victory after 100 autoplay turns, with 16 independent teams, the untouched default full-UWAI setup and No Events. `SASGameRecord` confirms `warPeaceAI=UWAI` and `uwaiMode=FULL`; the separately listed internal `GAMEOPTION_AGGRESSIVE_AI` flag is AdvCiv's post-selection implementation detail rather than the Legacy Aggressive AI setup option. This gives broad late-game air-AI coverage; the exact hostile distance-2 routed-border base choice remains source-verified rather than directly forced.
+
+Implemented and source-verified with the help of GPT-5.6-Sol, thanks.
 
 Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP74 `CvUnitAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
 
@@ -14747,8 +14761,68 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP115 `CvGameT
 
 <a id="ki-737"></a>
 
-## KI#737 - (Provisional Pending investigation) F414 remains unassigned during the CvGameTextMgr deep re-audit
+## KI#737 - (Provisional Pending inherited BtS event-help omission) Unit-experience events hide their full heal
 
-The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F413 through C031-WIP115 and reserves F414 next. Do not implement a change under KI#737 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Album F414 finds every random event with `iUnitExperience` fully healing its necessarily damaged target through `setDamage(0)` before granting the advertised experience, while event-choice help mentions only the XP gain. Current At the Sword and Friendly Locals outcomes make the inherited BtS omission directly reachable.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP115 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Pending exposing the existing full heal in event help. Removing the hidden heal instead would alter longstanding gameplay and requires a separate design decision.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP116 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-738"></a>
+
+## KI#738 - (Provisional Pending inherited BtS event-help mismatch) Empire population loss silently exempts small cities
+
+Album F415 finds empire-wide negative-population event help promising the loss in every city, while runtime skips each city that would fall to population 0 or below. The current Healing Plant chain can therefore advertise `-1 population in all cities` while leaving population-1 cities unchanged. Both sides of this mismatch originate in stock BtS.
+
+Pending preserving the no-city-death runtime rule while qualifying the help so it no longer promises a loss in exempt cities.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP117 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-739"></a>
+
+## KI#739 - (Provisional Pending inherited AdvCiv trade-help omission) Foreign anarchy blocks trade without explanation
+
+Album F416 finds AdvCiv adding foreign-player anarchy as a directional trade-route blocker without adding that reason to the inherited BUG trade hover. When it is the sole blocker, current Foreign and Info Advisor widgets can show that no trade exists with a civilization yet provide no explanatory bullet. K-Mod/BtS lack the underlying prohibition; this is an AdvCiv integration omission retained by SAS.
+
+Pending mirroring the runtime direction explicitly and adding a localized reason when the other player is in anarchy.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP118 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-740"></a>
+
+## KI#740 - (Provisional Pending inherited AdvCiv Advanced Start regression) Free Visibility control is hidden
+
+Album F417 finds the Advanced Start Visibility list retaining BtS's positive-cost-only UI filter after AdvCiv began scaling its cost by game speed. On Epic and slower speeds, the configured cost of 1 can round down to 0; runtime accepts that legal free reveal, but the `iCost > 0` list filter removes the only control that can request it. This interaction originates in AdvCiv and remains in SAS.
+
+Pending honoring the API's -1 unavailable sentinel and exposing Visibility whenever its cost is 0 or greater.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP119 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-741"></a>
+
+## KI#741 - (Provisional Pending inherited BtS religion-help omission) Conversion blockers can go unexplained
+
+Album F418 finds `setConvertHelp` omitting two executable `canConvert` blockers: the current civics permit no state religion, or the requested religion is absent from every player city. The current Policy Advisor can therefore display only the generic inability heading under Free Religion or for an unavailable religion. The omission originates in stock BtS and survives K-Mod, AdvCiv and SAS.
+
+Pending adding dedicated localized explanations for both blockers, including the `NO_RELIGION` case when the civic setup already prohibits state religions.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP120 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-742"></a>
+
+## KI#742 - (Provisional Pending inherited AdvCiv founding-preview defect activated by SAS) Negative extra health prints the wrong value
+
+Album F419 finds `setFoundHealthHelp` printing nearby-feature `iBadHealth` in the negative player-wide `iExtraHealth` branch. A real -9 health contribution after current SAS's Depopulation technology can consequently appear as 0 or an unrelated feature-unhealth value in a Settler's founding preview. AdvCiv introduced the wrong-variable branch; SAS's reachable negative technology health made it ordinarily visible.
+
+Pending printing the absolute magnitude of the actual negative `iExtraHealth`. The trailing trait-only source label is separately incomplete because player-wide extra health can also come from technologies and civics.
+
+Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP121 `CvGameTextMgr.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-743"></a>
+
+## KI#743 - (Provisional Pending investigation) F420 remains unassigned during the CvGameTextMgr deep re-audit
+
+The protected Queue 003 `CvGameTextMgr.cpp` deep re-audit has confirmed F388-F419 through C031-WIP121 and reserves F420 next. Do not implement a change under KI#743 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP121 `CvGameTextMgr.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

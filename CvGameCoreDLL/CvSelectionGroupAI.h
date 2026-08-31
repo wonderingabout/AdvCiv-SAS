@@ -65,7 +65,8 @@ public:
 	MissionAITypes AI_getMissionAIType() /* K-Mod: */ const { return m_eMissionAIType; }
 	void AI_setMissionAI(MissionAITypes eNewMissionAI, CvPlot const* pNewPlot, CvUnit const* pNewUnit);
 	// advc.003u: These two had returned CvUnit*
-	CvUnitAI* AI_ejectBestDefender(CvPlot* pTargetPlot);
+	// <!-- custom: Defender ranking only reads its target context; accept a const plot so remote guard callers can rank against their actual destination. See KI#701. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	CvUnitAI* AI_ejectBestDefender(CvPlot const* pTargetPlot);
 	CvUnitAI* AI_getMissionAIUnit() const;
 	// <advc.003u> Counterparts to CvSelectionGroup::getHeadUnit
 	CvUnitAI const* AI_getHeadUnit() const;

@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 002 CvGameCoreDLL/CvUnitAI.cpp (28,024 queued lines) - CLOSED AT C031-WIP87
-Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP115
-Latest confirmed roots: F321-F413 / provisional KI#644-KI#736 across the protected re-audits
-Next root ID: F414 unused / provisional KI#737 next
+Current file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - OPEN AT C031-WIP121
+Latest confirmed roots: F321-F419 / provisional KI#644-KI#742 across the protected re-audits
+Next root ID: F420 unused / provisional KI#743 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -23,7 +23,7 @@ METHOD
 QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
-003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP115 / F388-F413]<-(priority current wip)
+003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP121 / F388-F419]<-(priority current wip)
 004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE - REVIEWED/CLEAN CURRENT]<-(priority next wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
@@ -88166,3 +88166,781 @@ still-unvisited member definitions. Only promote F414 if current callers/data
 support a distinct live consequence.
 
 END C031-WIP115
+
+
+POST-WIP115 EVENT-RUNTIME RECONCILIATION
+----------------------------------------
+The conversion-count branches were reconciled before spending F414. For
+ConvertOwnCities / ConvertOtherCities, runtime first builds the eligible-city
+set and then randomly erases entries until its size is at most the requested
+count. Thus the event converts exactly min(requested, eligible) cities; there is
+no F413-style exclusive-upper-bound error in those count fields.
+
+The event experience branch exposed a separate live stock-BtS help/runtime
+mismatch. This one is not a hypothetical unit-state edge case: current event
+trigger data deliberately requires the affected unit to be damaged.
+
+
+F414 / provisional KI#737 — CONFIRMED
+-------------------------------------
+TITLE:
+Unit-experience random events fully heal their necessarily damaged target, but
+the event-choice help advertises only the XP gain.
+
+CLASSIFICATION:
+Inherited stock-BtS random-event help omission; present in Civ4CE/BtS, K-Mod,
+Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+BROKEN TEXT / RUNTIME CONTRACT:
+CvGameTextMgr::setEventHelp handles iUnitExperience with only:
+
+    TXT_KEY_EVENT_UNIT_EXPERIENCE(
+        kEvent.getUnitExperience(), szUnit)
+
+whose stock English text is:
+
+    "The [unit] receives N XP"
+
+No healing effect is shown.
+
+CvUnit::applyEvent, however, executes:
+
+    if (kEvent.getUnitExperience() != 0)
+    {
+        setDamage(0);
+        changeExperience(kEvent.getUnitExperience());
+    }
+
+Thus every XP event also restores the target to full health before granting the
+advertised experience.
+
+LIVE CURRENT-SAS DATA / REACHABILITY:
+Current CIV4EventInfos.xml contains two nonzero iUnitExperience outcomes:
+
+    EVENT_AT_THE_SWORD_1       iUnitExperience=3
+    EVENT_FRIENDLY_LOCALS_1    iUnitExperience=1
+
+Their corresponding trigger data both use:
+
+    iUnitDamagedWeight=1
+
+CvUnit::getTriggerValue has the explicit contract:
+
+    if (getDamage() == 0 && kTrigger.getUnitDamagedWeight() > 0)
+        return MIN_INT;
+
+and then weights candidates by `getDamage() * iUnitDamagedWeight`.
+Consequently, an undamaged unit is not merely unlikely for these triggers; it
+is ineligible. Every reachable At the Sword / Friendly Locals XP event targets
+a damaged unit, so the undisclosed `setDamage(0)` has a real effect on every
+legal application.
+
+SUPPORTED EXAMPLE:
+A damaged Swordsman selected by At the Sword can be at any positive damage
+amount permitted by the trigger. The event-choice help states only that the
+unit receives +3 XP. Selecting the outcome also sets damage to 0 immediately,
+fully healing the Swordsman. Friendly Locals behaves the same way for +1 XP.
+
+ANCESTRY:
+Stock BtS/Civ4CE CvUnit::applyEvent already performs `setDamage(0)` for any
+nonzero UnitExperience event. Stock CvGameTextMgr::setEventHelp already prints
+only TXT_KEY_EVENT_UNIT_EXPERIENCE. K-Mod, Base AdvCiv and current SAS retain
+both sides unchanged in substance. This is therefore an inherited stock-BtS
+help omission rather than a SAS-local regression.
+
+REPAIR DIRECTION:
+The conservative UI-side repair is to expose the healing that runtime already
+performs, e.g. append a "fully heals [unit]" line when a UnitExperience event
+has a damaged concrete target. A gameplay-side alternative would be to remove
+the unconditional `setDamage(0)` if that hidden healing was never intended,
+but that would deliberately alter longstanding event mechanics and therefore
+requires a design decision rather than being the surgical compatibility fix.
+
+
+CURRENT STONE AFTER F414
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F414 CONFIRMED.
+F415 / provisional KI#738 UNUSED.
+Latest physical checkpoint: C031-WIP116.
+No repository source files modified.
+
+Next continuation: finish the remaining event execution/help field comparison
+(unit/building/plot/additional-event and global per-city clamps), then resume
+whole-file closure sweeps over localization/sentinel, source-vs-target context,
+global-option integration and still-unvisited member definitions. Only promote
+F415 if current callers/data support a distinct live consequence.
+
+END C031-WIP116
+
+
+POST-WIP116 EVENT-RUNTIME RECONCILIATION
+----------------------------------------
+The empire-wide population branch was compared directly against its recursive
+AdditionalEvent help path and current EventInfo/TriggerInfo data.
+
+
+F415 / provisional KI#738 — CONFIRMED
+-------------------------------------
+TITLE:
+Empire-wide negative-population event help says every city loses population,
+but runtime silently spares cities that would fall to population 0.
+
+CLASSIFICATION:
+Inherited stock-BtS random-event help/runtime mismatch; present in Civ4CE/BtS,
+K-Mod, Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+BROKEN TEXT CONTRACT:
+For a non-city event with nonzero PopulationChange, setEventHelp uses:
+
+    TXT_KEY_EVENT_POPULATION_CHANGE(kEvent.getPopulationChange())
+
+whose stock English text is:
+
+    "N population in all cities"
+
+There is no minimum-population qualification.
+
+BROKEN RUNTIME MATCH:
+CvPlayer::applyEvent handles empire-wide PopulationChange by iterating every
+city but applies the change only when:
+
+    pLoopCity->getPopulation() + kEvent.getPopulationChange() > 0
+
+Cities that would be reduced to population 0 or below are skipped entirely.
+Thus the runtime effect is conditional per city while the help states that it
+applies to all cities.
+
+LIVE CURRENT-SAS DATA / REACHABILITY:
+Current EVENT_HEALING_PLANT_4 is a non-city event with:
+
+    iPopulationChange=-1
+
+It is an immediate additional outcome of both EVENT_HEALING_PLANT_2 and
+EVENT_HEALING_PLANT_3, with 20% / 50% AdditionalEventChance respectively.
+CvGameTextMgr::setEventHelp recursively expands immediate additional events and
+therefore shows Healing Plant 4's `-1 population in all cities` consequence in
+the parent choice help.
+
+EVENTTRIGGER_HEALING_PLANT has no minimum-city-population restriction and no
+picked city. An ordinary empire can therefore have, for example, one population-
+1 city and one larger city when the event fires. If Healing Plant 4 occurs:
+
+    larger city: population decreases by 1
+    population-1 city: unchanged
+
+although the displayed nested effect said the loss applied in all cities.
+
+ANCESTRY:
+Stock BtS/Civ4CE already uses the unconditional "population in all cities" help
+key and the per-city `population + change > 0` runtime guard. K-Mod, Base AdvCiv
+and current SAS retain both. This is an inherited stock-BtS display/runtime
+mismatch rather than a SAS-local regression.
+
+REPAIR DIRECTION:
+Preserve the no-city-death runtime rule and make the player-facing text match it,
+e.g. explain that the population loss applies to every city where the reduction
+would leave at least population 1. A dynamic concrete count could be even more
+precise when a triggered player is available, but the minimum requirement is to
+stop promising a loss in cities that runtime explicitly exempts.
+
+
+CURRENT STONE AFTER F415
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F415 CONFIRMED.
+F416 / provisional KI#739 UNUSED.
+Latest physical checkpoint: C031-WIP117.
+No repository source files modified.
+
+Next continuation: finish the remaining event field / additional-event / plot
+execution comparison, then return to the independent whole-file closure sweeps.
+Only promote F416 if current callers/data support a distinct live consequence.
+
+END C031-WIP117
+
+
+POST-WIP117 CLOSURE / TRADE-HOVER RECONCILIATION
+-------------------------------------------------
+The remaining random-event execution fields were provisionally closed after
+F414/F415: conversion help uses "up to" wording and matches the runtime clamp,
+unit/building/plot changes and delayed/additional events matched their execution
+contracts, and no further current-data event root crossed the finding threshold.
+
+The global-option pass was also resumed. The corporation first-discovery wording
+remains correct under no-corporation civics because those civics suppress active
+corporation effects/spread rather than preventing CvTeam::setHasTech from
+founding the corporation. Other option-dependent tech entries were kept separate
+from generic prerequisite descriptions rather than overclaiming immediate
+trainability/constructability.
+
+A mechanical low-mention member pass reopened process/project/mission,
+Advanced-Start/WorldBuilder and BUG trade-hover helpers. The most important new
+root came from comparing the BUG trade explanation against AdvCiv's altered
+runtime trade-route eligibility.
+
+
+F416 / provisional KI#739 — CONFIRMED
+-------------------------------------
+TITLE:
+Trade-route hover says there is no trade with a civilization in anarchy but
+omits anarchy from its explanatory reasons.
+
+CLASSIFICATION:
+Inherited AdvCiv integration omission: AdvCiv advc.124 added the foreign-player
+anarchy prohibition to trade-route eligibility after the BUG trade hover had
+been integrated, but the hover's reason decomposition was not updated to cover
+the new runtime blocker. Present in Base AdvCiv 1.14 and current AdvCiv-SAS;
+the underlying anarchy blocker is absent from K-Mod/BtS.
+
+RUNTIME CONTRACT:
+CvPlayer::canHaveTradeRoutesWith(PlayerTypes ePlayer) now contains:
+
+    if (getID() != ePlayer && kOtherPlayer.isAnarchy())
+        return false;
+
+before its normal same-team / free-trade / civic checks. Thus, from player A's
+perspective, ordinary foreign trade with B is unavailable while B is in anarchy.
+
+BROKEN HELP DECOMPOSITION:
+CvGameTextMgr::buildTradeString first uses that exact runtime predicate to choose
+its heading and to enter the "cannot trade" explanation branch:
+
+    if (bForeign && !kPlayer.canHaveTradeRoutesWith(eWithPlayer))
+
+It then diagnoses only:
+
+    - defeated player
+    - no trade-network connection
+    - no free-trade / Open Borders relationship
+    - our no-foreign-trade civic state
+    - their no-foreign-trade civic state
+    - none of their cities known to us
+
+There is no test for `kWithPlayer.isAnarchy()` and no anarchy explanation key.
+If anarchy is the sole blocker, `bCanTrade` remains true, no explanatory bullet
+is appended, and the function continues to a zero-route summary after already
+printing the "No Trade with <player>" heading.
+
+LIVE UI REACHABILITY:
+This is not a dormant helper. CvDLLWidgetData::parseTradeRoutes routes
+WIDGET_TRADE_ROUTES directly to buildTradeString(activePlayer, otherPlayer).
+Current CvForeignAdvisor.py attaches that widget to both trade-route count and
+trade-yield text for every shown civilization pair. Current SAS CvInfoScreen.py
+also attaches WIDGET_TRADE_ROUTES to its trade column using the active/other
+player IDs.
+
+The Foreign Advisor's own pre-display test is additionally asymmetric here:
+for a row about B it asks `B.canHaveTradeRoutesWith(activePlayer)`. If B is in
+anarchy and the active player is not, that direction does not trip AdvCiv's
+"other player is in anarchy" rule, so the row/widget remains naturally present
+while the C++ hover, evaluated from the active player's direction, correctly
+enters the no-trade branch and then fails to explain why.
+
+SUPPORTED CURRENT STATE:
+Take two living civilizations A (active) and B that:
+
+    - have met and know at least one of B's cities,
+    - have a valid trade-network connection,
+    - satisfy free-trade/Open-Borders requirements,
+    - neither has a no-foreign-trade civic restriction,
+    - B is temporarily in civic/religious anarchy.
+
+A.canHaveTradeRoutesWith(B) is false solely because B is in anarchy. Hovering
+B's Trade field can therefore show:
+
+    No Trade with B
+    0 commerce from 0 Trade Routes
+
+without any bullet that identifies the actual blocker.
+
+ANCESTRY:
+K-Mod's canHaveTradeRoutesWith has no foreign-player-anarchy rejection. Base
+AdvCiv adds that check under advc.124. Base AdvCiv's integrated buildTradeString
+already contains an advc.124 diagnostic addition for unknown foreign cities,
+but it has no corresponding anarchy diagnostic. Current SAS retains both the
+runtime prohibition and the incomplete decomposition. This is therefore best
+classified as an AdvCiv integration omission rather than a stock-BtS root.
+
+REPAIR DIRECTION:
+Mirror the runtime predicate inside the explanation block, before the remaining
+reasons, e.g. append a dedicated localized bullet when
+`kWithPlayer.isAnarchy()`. Keep the direction explicit: the runtime restriction
+is specifically on the *other* player being in anarchy from kPlayer's
+`canHaveTradeRoutesWith(eWithPlayer)` perspective.
+
+
+CONTROLS CLOSED AROUND F416
+---------------------------
+- setProcessHelp matches current Wealth/Research/Culture process conversion
+  modifiers; current SAS has no Espionage process to create a No-Espionage
+  mismatch there.
+- No-Nukes/No-Espionage external blockers were not promoted from generic tech
+  "Can Train/Construct" prerequisite listings, which already intentionally list
+  entries that can have additional resource/project/AND-tech blockers.
+- Advanced Start / WorldBuilder CvWBData IDs inspected so far follow their
+  consuming list/enum contracts; no supported index-vs-enum action error was
+  established.
+- parseWarTradesHelp still performs TEAMID on its player arguments before its
+  NO_PLAYER tests, but every current WIDGET_LH_GLANCE caller supplies valid
+  player IDs; retained as a defensive/API hazard, not a live finding.
+- The earlier event negative-health wrong-key branch, specialist-link polarity,
+  specialist sentinel-order access, SpeedBonus resource-loop issue, and old
+  setGoldStr formatter remain latent/data-masked/dead controls rather than
+  numbered current-SAS roots.
+
+
+CURRENT STONE AFTER F416
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F416 CONFIRMED.
+F417 / provisional KI#740 UNUSED.
+Latest physical checkpoint: C031-WIP118.
+No repository source files modified.
+
+Next continuation: continue the still-low-mention helper/member reconciliation,
+with special attention to trade/deal perspective, WorldBuilder/Advanced Start,
+plot mission/action help, localization/sentinel contracts and duplicated runtime
+arithmetic. Only promote F417 when a current caller/data path proves a distinct
+live consequence.
+
+END C031-WIP118
+
+
+POST-WIP118 ADVANCED-START RECONCILIATION
+-----------------------------------------
+The Advanced Start exported data builders were compared against the actual
+CvPlayer purchase-cost functions and doAdvancedStartAction acceptance rules.
+This exposed a live zero-cost visibility mismatch created by AdvCiv's later
+speed normalization while retaining BtS's older positive-only UI filter.
+
+
+F417 / provisional KI#740 — CONFIRMED
+-------------------------------------
+TITLE:
+Advanced Start hides the Visibility purchase control on slower game speeds when
+the legal visibility cost rounds down to zero.
+
+CLASSIFICATION:
+AdvCiv regression/integration defect created by advc.250c cost normalization
+interacting with an inherited BtS UI filter. Present in Base AdvCiv 1.14 and
+current AdvCiv-SAS; stock BtS's unscaled/higher visibility cost normally masked
+the old `> 0` assumption.
+
+BROKEN UI CONTRACT:
+CvGameTextMgr::getVisibilityDataForAS obtains:
+
+    int iCost = GET_PLAYER(getActivePlayer()).
+            getAdvancedStartVisibilityCost(true);
+
+Its own comment states that cost -1 means the action may not be purchased, but
+it only exposes the Visibility entry when:
+
+    if (iCost > 0)
+
+Thus a valid zero-cost action is treated exactly like an unavailable action and
+removed from the Advanced Start palette.
+
+RUNTIME CONTRACT:
+CvPlayer::doAdvancedStartAction(ADVANCEDSTARTACTION_VISIBILITY) obtains the
+plot-specific cost and rejects only:
+
+    if (iCost < 0)
+        return;
+
+For an add action it then performs the reveal whenever:
+
+    getAdvancedStartPoints() >= iCost
+
+A cost of 0 is therefore explicitly legal: the plot is revealed and zero start
+points are deducted.
+
+WHY CURRENT DATA REACHES ZERO:
+Current AdvCiv/SAS GlobalDefines_advc.xml sets:
+
+    ADVANCED_START_VISIBILITY_COST = 1
+
+CvPlayer::getAdvancedStartVisibilityCost eventually returns:
+
+    adjustAdvStartPtsToSpeed(iCost)
+
+and advc.250c's helper performs:
+
+    iPoints *= 100;
+    return max(0, iPoints / GC.getGame().getSpeedPercent());
+
+CvGame::getSpeedPercent() is the game speed's ResearchPercent. Current SAS has:
+
+    Normal       100% -> 1 * 100 / 100 = 1
+    Epic         150% -> 1 * 100 / 150 = 0
+    Marathon     200% -> 0
+    Slow         300% -> 0
+    Very Slow    400% -> 0
+
+Immediately after an Advanced Start city supplies the ordinary initial revealed
+city area, the base visibility cost can therefore be exactly 0 on these slower
+speeds. The runtime permits the free reveal, but the exported UI list contains
+no Visibility tool with which the human can request it.
+
+REACHABILITY / UI ROLE:
+getVisibilityDataForAS is a DllExport whose sole purpose is to populate the
+Advanced Start Visibility data list (CvWBData entry using the
+INTERFACE_TECH_LOS button). Advanced Start actions dirty/rebuild the Advanced
+Start interface when purchases change state. Once the player has a city, the
+cost function is no longer blocked by its `getNumCities() <= 0` guard; the
+positive-only list filter is then the remaining reason a legal zero-cost entry
+is omitted.
+
+ANCESTRY:
+Stock BtS/Civ4CE already uses `if (iCost > 0)` in getVisibilityDataForAS, but
+stock getAdvancedStartVisibilityCost simply returns its positive define-derived
+cost without AdvCiv's game-speed division. AdvCiv advc.250c introduces
+`adjustAdvStartPtsToSpeed` for this cost and also recommends/redefines
+ADVANCED_START_VISIBILITY_COST to 1. Base AdvCiv retains the old `> 0` UI test,
+and current SAS retains the same interaction while also adding very slow speed
+settings that make the zero truncation common. Hence the live defect is best
+classified as an AdvCiv integration regression, not an originally reachable
+stock-BtS bug.
+
+REPAIR DIRECTION:
+Honor the cost API's documented sentinel and expose the control whenever
+`iCost >= 0`, not only when positive. A zero-cost item should remain selectable;
+its text can simply show the normal visibility action without a positive cost.
+The same `> 0` vs `>= 0` assumption should be reviewed in the neighboring
+Advanced Start list builders, but no additional current zero-cost category is
+numbered without its own data/formula proof.
+
+
+CURRENT STONE AFTER F417
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F417 CONFIRMED.
+F418 / provisional KI#741 UNUSED.
+Latest physical checkpoint: C031-WIP119.
+No repository source files modified.
+
+Next continuation: finish the neighboring Advanced Start zero-cost/list-builder
+checks, then continue low-mention WorldBuilder, mission/action, trade/deal and
+whole-file runtime/display/sentinel/context reconciliation. Only promote F418
+if current callers/data prove a distinct live consequence.
+
+END C031-WIP119
+
+
+POST-WIP119 CONVERSION-HELP RECONCILIATION
+------------------------------------------
+The unfinished religion-conversion diagnostic was completed against current SAS
+runtime, current Policy Advisor callers, and the full BtS -> K-Mod -> AdvCiv ->
+SAS ancestry. The omission is live in ordinary current games and is inherited
+all the way from stock BtS.
+
+
+F418 / provisional KI#741 — CONFIRMED
+-------------------------------------
+TITLE:
+Religion conversion help can say only "Cannot convert to <religion>" while
+omitting the actual blocker: no-state-religion civics or absence of the target
+religion from the player's cities.
+
+CLASSIFICATION:
+Inherited stock-BtS diagnostic/help omission. Present unchanged in BtS/Civ4CE,
+K-Mod, Base AdvCiv 1.14 and current AdvCiv-SAS.
+
+RUNTIME CONTRACT:
+Current CvPlayer::canConvert(ReligionTypes eReligion) rejects conversion when:
+
+    if (isBarbarian())
+        return false;
+    if (isAnarchy())
+        return false;
+    if (getConversionTimer() > 0)
+        return false;
+    if (!isStateReligion())
+        return false;
+    if (getLastStateReligion() == eReligion)
+        return false;
+    if (eReligion != NO_RELIGION && !canDoReligion(eReligion))
+        return false;
+
+and current canDoReligion is simply:
+
+    getHasReligionCount(eReligion) > 0
+
+Thus two ordinary non-Barbarian blockers are part of the executable contract:
+
+    1. the current civic setup does not permit a state religion;
+    2. the requested religion is absent from all of the player's cities.
+
+BROKEN HELP DECOMPOSITION:
+CvGameTextMgr::setConvertHelp always begins with:
+
+    "Cannot convert to <religion>"
+
+but only explains:
+
+    - player is in anarchy;
+    - requested religion is already the state religion;
+    - conversion timer / recent revolution is still active.
+
+It contains no branch corresponding to `!isStateReligion()` and no branch for
+`!canDoReligion(eReligion)`. When either omitted condition is the sole blocker,
+the help ends after the generic heading and gives the user no reason.
+
+LIVE CURRENT-SAS CALLER:
+Current Assets/Python/Screens/CvPolicyAdvisorScreen.py uses the DLL predicate
+and the C++ help together. For the selected religion it tests its canConvert
+wrapper, which calls:
+
+    gc.getPlayer(self.iActivePlayer).canConvert(iConvertReligion)
+
+and whenever conversion is unavailable it displays:
+
+    CyGameTextMgr().setConvertHelp(self.iActivePlayer, iLinkReligion)
+
+on the Policy Advisor Religion tab. Therefore the missing diagnostic is directly
+player-facing and does not depend on a debug or unused API path.
+
+SUPPORTED CURRENT STATE A — FREE RELIGION:
+Current SAS CIV4CivicInfos.xml gives CIVIC_FREE_RELIGION:
+
+    <CivicOptionType>CIVICOPTION_RELIGION</CivicOptionType>
+    ...
+    <bStateReligion>0</bStateReligion>
+
+CvPlayer::isStateReligion() is `getStateReligionCount() > 0`, so under Free
+Religion the runtime rejects conversion at `!isStateReligion()`. The player can
+still have founded religions in their cities and select/hover them on the
+Religion tab. Assuming no anarchy and no conversion timer, setConvertHelp then
+has no matching branch and displays only the generic inability to convert.
+
+SUPPORTED CURRENT STATE B — RELIGION ABSENT FROM OUR CITIES:
+While using an ordinary state-religion civic, select a founded religion that
+exists in the world but is present in none of our cities. canDoReligion returns
+false because getHasReligionCount(eReligion) is zero, so canConvert rejects it.
+setConvertHelp again has no branch for that reason and stops at the generic
+"Cannot convert to <religion>" heading.
+
+ANCESTRY:
+The BtS/Civ4CE implementation of setConvertHelp is materially the same: it
+handles anarchy, already-current religion and conversion timer only. BtS's own
+canConvert already includes both `!isStateReligion()` and `!canDoReligion`.
+K-Mod retains the same mismatch, and Base AdvCiv/current SAS retain it as well.
+This is therefore a stock-BtS help omission, not an AdvCiv/SAS integration
+regression.
+
+REPAIR DIRECTION:
+Mirror the remaining executable reasons in setConvertHelp. After the existing
+anarchy/current-religion/timer handling (or in runtime-order if preferred), add
+localized diagnostics for:
+
+    - state religions are not permitted by the player's current civics;
+    - the target religion is not present in any of the player's cities.
+
+A dedicated localized key is preferable to reusing unrelated "requires state
+religion" / spread text because this is a conversion-action explanation. Also
+consider the NO_RELIGION case explicitly: when the current civic setup already
+prohibits state religions, `canConvert(NO_RELIGION)` is false through the same
+`!isStateReligion()` gate and should not fall back to an unexplained generic
+heading.
+
+
+CONTROLS CLOSED AROUND F418
+---------------------------
+- The earlier Monarchy / Espionage-slider contradiction under
+  GAMEOPTION_NO_ESPIONAGE is real compatibility debt, but current SAS hides the
+  option, defaults it off and ships no scenario/map enabling it; it was not
+  promoted under the ordinary-current-game threshold.
+- The corporation first-discovery help remains literally correct under
+  no-corporation civics: the technology still founds the corporation; such
+  civics suppress its active effects/spread rather than the founding action.
+- No existing current SAS localization key was found that cleanly expresses
+  either missing conversion reason; a new dedicated key is the conservative
+  repair rather than overloading unrelated religion text.
+
+
+CURRENT STONE AFTER F418
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F418 CONFIRMED.
+F419 / provisional KI#742 UNUSED.
+Latest physical checkpoint: C031-WIP120.
+No repository source files modified.
+
+Next continuation: inspect setRevolutionHelp against canDoAnyRevolution / forced
+civic states, then continue event-tech, mission/action and whole-file
+runtime/display/sentinel/context closure sweeps. Only promote F419 with a
+current ordinary caller/data consequence distinct from F418.
+
+END C031-WIP120
+
+
+POST-WIP120 CONTINUATION — QUEUE 003 CvGameTextMgr.cpp
+=====================================================
+
+CONTROLS / COVERAGE CLOSED BEFORE F419
+--------------------------------------
+- Rechecked the low-mention mission/action helpers. Current SAS's air/paradrop
+  help consistently chooses a target-eligible mission unit; no new root was
+  established. getInterfaceCenterText has no local NO_PLAYER guard around the
+  active player, but it is an EXE-facing in-game interface callback and no
+  supported pre-active-player invocation was established.
+- Reconciled the WorldBuilder / Advanced Start data builders around F417. IDs
+  match their palette contracts, the Barbarian-inclusive territory loop stays
+  inside the valid player range, and no current non-visibility category was
+  found with a legitimately purchasable zero-cost generic palette entry.
+- Rechecked obsolete-resource help against corporation inputs. Current bonuses
+  that obsolete (Fur, Elephants, Whale, Drama, Music) are not corporation
+  prerequisite bonuses, so the active-player obsolete-bonus suppression does
+  not currently hide a live corporation use.
+- Rechecked the Finance unit-cost iExtraCost inflation caveat. Every current SAS
+  unit has iExtraCost=0, so the omission remains dormant under current data.
+- Reconciled several small trade/espionage/tech helpers against their runtime
+  formulas. No independent F419 emerged from those paths.
+
+
+F419 / provisional KI#742 — CONFIRMED
+-------------------------------------
+TITLE:
+Found-city health preview prints nearby-feature unhealth instead of the
+player-wide negative extra-health value.
+
+CLASSIFICATION:
+Inherited AdvCiv advc.004b TextMgr wrong-variable bug, present unchanged in
+Base AdvCiv 1.14 and current AdvCiv-SAS. The negative branch was latent under
+older mostly/nonnegative data but is ordinarily live in current SAS because
+TECH_DEPOPULATION applies negative player-wide health.
+
+BROKEN SOURCE:
+Current CvGameTextMgr::setFoundHealthHelp computes feature health first:
+
+    int iGoodHealth = iGoodHealthPercent / 100;
+    int iBadHealth = iBadHealthPercent / 100;
+
+and later obtains the independent player-wide value:
+
+    int iExtraHealth = GET_PLAYER(getActivePlayer()).getExtraHealth();
+
+The positive branch prints the correct variable:
+
+    if (iExtraHealth > 0)
+        ... format("%d", iExtraHealth) ...
+
+but the negative branch instead prints the unrelated earlier accumulator:
+
+    else
+    {
+        iIcon = UNHEALTHY_CHAR;
+        ... format("%d", iBadHealth) ...
+    }
+
+Thus the displayed magnitude is determined by nearby feature unhealth, not by
+negative player-wide extra health.
+
+LIVE CURRENT-SAS DATA:
+Current TECH_DEPOPULATION is enabled Future-era content and has:
+
+    <iHealth>-9</iHealth>
+    <iHappiness>-9</iHappiness>
+    <bDisable>0</bDisable>
+
+Its prerequisites are current enabled technologies (OR Composites; AND
+Satellites, Computers and Environmentalism), so the technology is an ordinary
+reachable part of the current tree.
+
+Current CvTeam::setHasTech applies technology health directly to every team
+member's persistent player value:
+
+    kMember.changeExtraHealth(kTech.getHealth() * iChange);
+
+Therefore acquiring Depopulation can make CvPlayer::getExtraHealth() negative
+(e.g. -9 for a player without offsetting positive extra-health sources).
+
+RUNTIME CITY CONTRACT:
+CvCity::goodHealth and CvCity::badHealth both combine the player-wide and
+city-local values before taking positive/negative parts:
+
+    GET_PLAYER(getOwner()).getExtraHealth() + getExtraHealth()
+
+so the negative player value is a real health contribution inherited by a
+newly founded city. It is not a cosmetic or unused technology statistic.
+
+LIVE CALLER:
+CvDLLWidgetData::parseActionHelp_Mission handles MISSION_FOUND. Whenever the
+selected unit may legally found on the mission plot, it calls in sequence:
+
+    GAMETEXT.setFoundCostHelp(...)
+    GAMETEXT.setHomePlotYieldHelp(...)
+    GAMETEXT.setFoundHealthHelp(...)
+
+Thus an existing Settler after Depopulation can reach the defective preview on
+any legal founding plot; no debug or dormant API path is required.
+
+CONCRETE CURRENT STATE:
+Take a player whose net player-wide extra health is -9 after Depopulation and a
+legal feature-neutral founding plot with iBadHealth=0.
+
+Runtime consequence for the future city:
+    player-wide extra health contribution = -9
+
+Founding hover consequence:
+    negative branch enters because iExtraHealth != 0 and iExtraHealth < 0;
+    it prints iBadHealth = 0 with the unhealthy icon.
+
+So a real -9 unhealthy contribution can literally be previewed as +0 unhealthy.
+On a site with e.g. two whole points of nearby feature unhealth, the same -9
+player effect is instead mislabeled as 2, proving this is wrong-source variable
+contamination rather than a mere sign/rounding issue.
+
+ANCESTRY:
+AdvCiv commit:
+
+    6f8d41a1ac548879d04f56ff9210e9a5e10aa975
+    "Help text for feature health made more flexible, refactored."
+
+introduced setFoundHealthHelp as part of advc.004b and the introducing diff
+already contains the erroneous `iBadHealth` reference in the negative
+`iExtraHealth` branch. Base AdvCiv 1.14 retains the line unchanged, as does
+current SAS. Stock BtS/K-Mod do not have this AdvCiv helper in this form.
+
+SAS ACTIVATION HISTORY:
+SAS introduced negative health on Depopulation early in the Future-era work.
+Commit 2a7f9e05e8 (practical 4895, "add initial future era techs ...") changed
+Depopulation from iHealth=0 to iHealth=-5; later balance changes increased that
+to -6, -8 and the current -9. Thus SAS content made an old AdvCiv negative-
+branch typo an ordinary reachable player-facing defect.
+
+REPAIR DIRECTION:
+Use the actual negative player-wide value in the negative branch, e.g.:
+
+    szBuffer.append(CvWString::format(L"%d%c", -iExtraHealth, iIcon));
+
+(or an equivalent absolute-magnitude expression consistent with the helper's
+existing `+<magnitude><healthy/unhealthy icon>` display convention).
+
+The trailing TXT_KEY_FROM_TRAIT wording is also semantically incomplete because
+CvPlayer::getExtraHealth can come from technologies, civics and other sources;
+that is a secondary labeling concern, not the F419 root. The correctness repair
+is first to stop substituting `iBadHealth` for `iExtraHealth`.
+
+
+CURRENT STONE AFTER F419
+------------------------
+Queue 003 CvGameCoreDLL/CvGameTextMgr.cpp remains OPEN.
+32/169 unique files complete.
+F388-F419 CONFIRMED.
+F420 / provisional KI#743 UNUSED.
+Latest physical checkpoint: C031-WIP121.
+No repository source files modified.
+
+Next continuation: continue the remaining low-mention AdvCiv/K-Mod helpers and
+search for analogous wrong-variable branches near founding/health/happiness
+help, then resume whole-file source-vs-target, sentinel/localization and
+runtime/display closure reconciliation. Only promote F420 with a supported
+current caller/data consequence distinct from F419.
+
+END C031-WIP121
