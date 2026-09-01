@@ -2005,7 +2005,9 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 		int const iTargetMaxVictoryStage = getSASTeamMaxVictoryStage(eTarget);
 		int const iVictoryDenialBoost = getSASBBAIVictoryDenialUtilityBoost(eTarget, iTargetMaxVictoryStage);
 		int const iNearestCityDistance = (iVictoryDenialBoost > 0 ? getSASBBAINearestCityDistance(kAgent.getID(), eTarget) : -1);
-		bool const bVictoryDenialDirect = (iVictoryDenialBoost > 0 && isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bTotal ? bTotalNaval : bLimitedNaval, iNearestCityDistance));
+		// <!-- custom: KI#184 marked qualifying victory-denial targets as direct even during force peace, then installed a LIMITED/TOTAL plan when its guarded declaration failed.
+		// Keep the urgency boost and treaty-time target selection, but use a direct plan only when war can actually be declared now; otherwise the target correctly enters preparation. See KI#515. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		bool const bVictoryDenialDirect = (iVictoryDenialBoost > 0 && kAgent.canDeclareWar(eTarget) && isSASVictoryDenialDirectWarAllowed(eTarget, iTargetMaxVictoryStage, bTotal ? bTotalNaval : bLimitedNaval, iNearestCityDistance));
 		if (iVictoryDenialBoost > 0)
 		{
 			iU += iVictoryDenialBoost;
@@ -2165,7 +2167,8 @@ void UWAI::Team::scheme(set<TeamTypes> const& aeChangedTargets)
 			eBestEligibleTarget = eTarget;
 			rBestEligibleDrive = rDrive;
 		}
-		// <!-- custom: Victory-denial direct-war candidates have already passed narrow power/distance/naval gates; convert only those from preparation to immediate limited/total war so ordinary UWAI preparation behavior stays intact. See KI#184. (GPT-5.5) -->
+		// <!-- custom: Victory-denial direct-war candidates have already passed declaration, power, distance and naval gates.
+		// Convert only those from preparation to immediate limited/total war so ordinary UWAI preparation behavior stays intact. See KI#184 and KI#515. (GPT-5.5 + ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		WarPlanTypes const eWP = (aTargets[i].bTotal ? (aTargets[i].bDirect ? WARPLAN_TOTAL : WARPLAN_PREPARING_TOTAL) : (aTargets[i].bDirect ? WARPLAN_LIMITED : WARPLAN_PREPARING_LIMITED));
 		m_pReport->log("Drive for %s against %s: %d percent", aTargets[i].bDirect ? "direct war" : "war preparations", m_pReport->teamName(eTarget), rDrive.getPercent());
 		if (gWarLogLevel >= 2)

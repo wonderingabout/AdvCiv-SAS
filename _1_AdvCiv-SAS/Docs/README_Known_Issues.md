@@ -589,7 +589,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#503 - (Fixed AdvCiv-SAS low-food valuation defect) Already-irrigated Farm food was omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-503)\
 [KI#504 - (Fixed inherited AdvCiv production-estimate defect) Existing improvement count was mistaken for build capability](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-504)\
 [KI#505 - (Fixed inherited AdvCiv diagnostic defect) Found-value logging always reported zero unrevealed tiles](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-505)\
-[KI#506 - (Provisional Pending inherited UWAI/AdvCiv retry-state defect) reviewWarPlans retains superseded cross-pass state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-506)\
+[KI#506 - (Pending Architectural inherited UWAI/AdvCiv retry-state defect) reviewWarPlans retains superseded cross-pass state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-506)\
 [KI#507 - (Fixed inherited AdvCiv brokered-peace regression) Low-score relaxation was unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-507)\
 [KI#508 - (Fixed inherited AdvCiv peace-threshold regression) Target team read its self war success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-508)\
 [KI#509 - (Fixed inherited AdvCiv peace-valuation defect) No-payment shortcut ignored city reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-509)\
@@ -598,7 +598,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#512 - (Fixed inherited AdvCiv boundary defect) TOTAL-only positive utility could start LIMITED war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-512)\
 [KI#513 - (Fixed inherited AdvCiv team-loop defect) Land-target distance exemption leaked between members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-513)\
 [KI#514 - (Fixed AdvCiv-SAS signed-rounding defect) Emergency peace used uround on a negative threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-514)\
-[KI#515 - (Provisional Pending AdvCiv-SAS victory-denial regression) Direct war plan can ignore force peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-515)\
+[KI#515 - (Fixed AdvCiv-SAS victory-denial regression) Direct war plan could ignore force peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-515)\
 [KI#516 - (Fixed inherited AdvCiv vassal-war defect) Inverted master test prevented preparation timeout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-516)\
 [KI#517 - (Fixed inherited AdvCiv debug-path defect) doWarReport could mutate real diplomacy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-517)\
 [KI#518 - (Fixed inherited AdvCiv assertion regression) Random nonleader diplomat tripped leader-only check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-518)\
@@ -12518,9 +12518,9 @@ The repaired Debug-opt DLL compiled successfully, and a full Continents autoplay
 
 <a id="ki-506"></a>
 
-## KI#506 - (Provisional Pending inherited UWAI/AdvCiv retry-state defect) reviewWarPlans retains superseded cross-pass state
+## KI#506 - (Pending Architectural inherited UWAI/AdvCiv retry-state defect) reviewWarPlans retains superseded cross-pass state
 
-Album F183 finds final-plan summary state initialized outside the deliberate retry loop and accumulated across superseded passes. Pending independent implementation review.
+Album F183 finds final-plan summary state initialized outside the deliberate retry loop and accumulated across superseded passes. A local per-retry reset is insufficient because targets whose plans mutate are deliberately marked done and can then be absent from the stabilized pass. The correctness-first repair requires separating mutation/retry processing from a final read-only traversal of every surviving current plan, so this remains deferred as an architectural change rather than receiving a narrow patch.
 
 Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
@@ -12608,11 +12608,13 @@ A current-build huge autoplay completed successfully; no Debug-opt assertion was
 
 <a id="ki-515"></a>
 
-## KI#515 - (Provisional Pending AdvCiv-SAS victory-denial regression) Direct war plan can ignore force peace
+## KI#515 - (Fixed AdvCiv-SAS victory-denial regression) Direct war plan could ignore force peace
 
-Album F192 finds KI#184 target selection installing WARPLAN_LIMITED/TOTAL while a peace treaty still forbids declaration. Pending independent implementation review.
+Ordinary UWAI deliberately permits reduced-probability war preparation during temporary force peace. SAS KI#184 added urgent victory-denial target selection and marked a qualifying target as direct based on victory stage, power, distance and land/naval access, but did not require declaration to be legal immediately. When force peace blocked the guarded `declareWar` call, the shared fallback still installed `WARPLAN_LIMITED` or `WARPLAN_TOTAL` rather than the corresponding preparation plan. Units could not violate the treaty, but strategy state and preparation messaging incorrectly treated the undeclared war as direct.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The direct-war flag now also requires `canDeclareWar`. Victory-denial urgency and treaty-time target selection remain active, but a target blocked only by force peace enters `WARPLAN_PREPARING_LIMITED` or `WARPLAN_PREPARING_TOTAL` until declaration becomes legal. This regression was introduced by AdvCiv-SAS KI#184 commit `4210d5586a` and is absent from Base AdvCiv 1.14. Found as F192/provisional KI#515 during ChatGPT-5.6-Sol's C017-WIP08 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+After a clean Debug-opt compilation, a Huge BTG Lagoon, Normal-speed, full-UWAI autoplay with standard Aggressive AI and 16 independent starting teams completed successfully by Space Race on turn 391. `SASGameRecord_20260901T064652Z_new1.log` confirms the matching DLL and completed run. The exact temporary-force-peace plus urgent-victory-threat transition remains source-verified.
 
 <a id="ki-516"></a>
 
