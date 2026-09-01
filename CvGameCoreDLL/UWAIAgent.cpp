@@ -3076,12 +3076,18 @@ void UWAI::Team::doWarReport()
 {
 	if (!getUWAI().isEnabled())
 		return;
-	bool bInBackground = getUWAI().isEnabled(true); // To be restored in the end
+	// <!-- custom: The diagnostic report previously switched only UWAI's global background state.
+	// Team-side mutation guards use this cached state instead, so `doWar` could change real war plans and diplomacy while producing the report.
+	// Keep both views synchronized for the whole diagnostic run, then restore both independently. See KI#517. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool const bGlobalInBackground = getUWAI().isEnabled(true);
+	bool const bTeamInBackground = m_bInBackground;
 	getUWAI().setInBackground(true);
+	m_bInBackground = true;
 	setForceReport(true);
 	doWar();
 	setForceReport(false);
-	getUWAI().setInBackground(bInBackground);
+	m_bInBackground = bTeamInBackground;
+	getUWAI().setInBackground(bGlobalInBackground);
 }
 
 

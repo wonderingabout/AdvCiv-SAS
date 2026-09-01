@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - CLOSED AT C031-WIP150
-Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP160
-Latest confirmed roots: F321-F418, F420-F444 and F446-F450 / provisional KI#644-KI#767 and KI#769-KI#773 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted
-Next root ID: F451 unused / provisional KI#774 next
+Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP167
+Latest confirmed roots: F321-F418, F420-F444 and F446-F454 / provisional KI#644-KI#767 and KI#769-KI#777 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted
+Next root ID: F455 unused / provisional KI#778 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -24,7 +24,7 @@ QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP150 / F388-F418, F420-F443; F419 DUPLICATE]
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP160 / F444, F446-F450; F445 RETRACTED]<-(priority current wip)
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP167 / F444, F446-F454; F445 RETRACTED]<-(priority current wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
@@ -96599,3 +96599,1062 @@ predicate refactor sweep that produced both the dormant Team-event inversion and
 then resume the mechanically ranked low-coverage `CvPlayer` state/arithmetic helpers.
 Keep full-callee-chain cache/invalidation proof before promoting any apparent missing
 refresh, per the WIP159/F445 retraction control.
+
+===============================================================================
+C031-WIP161 — QUEUE 004 CvPlayer.cpp — POST-F450 PRACTICAL-2416 / EVENT CLEAN TRANCHE
+===============================================================================
+Date: 2026-08-31
+Status: Queue 004 OPEN. F451 / provisional KI#774 remains UNUSED.
+No repository source files modified.
+
+This checkpoint preserves the first post-F450 closure tranche. Its purpose is not to
+manufacture a finding after the strong practical-2416 Globe regression; it records
+which nearby refactor-looking candidates were traced through full current semantics
+and rejected, so they do not get rediscovered later.
+
+-------------------------------------------------------------------------------
+PRACTICAL-2416 ACCESSOR RELOCATION CONTROL — BARBARIAN UNIT UPKEEP
+-------------------------------------------------------------------------------
+The practical-2416 refactor appears at first glance to have removed meaningful logic
+when `CvPlayer::getGoldPerUnit()` and `getGoldPerMilitaryUnit()` were moved to raw
+one-line member getters. Older code returned 0 directly for Barbarians.
+
+The whole introducing hunk shows that this was intentional relocation, not semantic
+loss. `CvPlayer::initOtherData()` now initializes the ordinary per-unit rate with:
+
+    changeGoldPerUnit(isBarbarian() ? 0 : iINITIAL_GOLD_PER_UNIT);
+
+The current source retains an explicit AdvCiv comment explaining that the former
+Barbarian special case had been implemented in the getters and was moved here; it
+also records that the analogous military getter guard was considered unnecessary.
+Current Barbarian initialization leaves the stored rates at the intended zero values.
+
+Therefore the raw current getters do not establish F451.
+
+-------------------------------------------------------------------------------
+PRACTICAL-2416 HISTORICAL GLOBAL-BUILDING ITERATOR REGRESSION — ALREADY REPAIRED
+-------------------------------------------------------------------------------
+The same large refactor historically contained a genuine iterator conversion defect
+in global-building trigger counting: an initially converted expression used an
+unqualified/current-player building count where the loop player's count was intended.
+Current SAS no longer contains that form. Its trigger scan correctly calls the loop
+player (`itPlayer->getBuildingClassCount(...)`).
+
+This is useful refactor-lineage evidence but repaired history, not a present root.
+
+-------------------------------------------------------------------------------
+EVENT-EXPIRATION SUBJECT/HOLDER ASYMMETRY — CURRENT DATA MASKS IT
+-------------------------------------------------------------------------------
+`CvPlayer::checkExpireEvent` is internally asymmetric for quests copied between
+players. Most quest-expiration predicates deliberately inspect the originating player
+stored in `kTriggeredData.m_ePlayer` (`kPlayer`) — state religion, civic, city, unit,
+other player/city. The obsolete-tech branch instead tests:
+
+    GET_TEAM(getTeam()).isHasTech(...)
+
+where `getTeam()` is the player object that currently holds the copied event record.
+If a Quest EventInfo were also Global, two holders of the same originating event could
+therefore expire it according to different teams' technology states.
+
+Current XML masks the path cleanly: a mechanical EventInfo parse finds ZERO entries
+with both:
+
+    <bQuest>1</bQuest>
+    <bGlobal>1</bGlobal>
+
+Global EventInfos are non-quests and return from `checkExpireEvent` through the
+short-lived non-quest branch before obsolete-tech processing. Current Quest EventInfos
+are local, so holder and originator are the same player for the relevant state.
+
+This remains an API/robustness asymmetry, not current F451.
+
+-------------------------------------------------------------------------------
+TEAM EVENT PROPAGATION REGRESSION REMAINS DATA-DORMANT
+-------------------------------------------------------------------------------
+The previously preserved practical-2416 inversion in `setEventOccured` remains real:
+its MemberIter loop currently `continue`s when the member is NOT self, retaining only
+the originating player instead of the teammates. K-Mod/pre-refactor behavior is the
+opposite and correct.
+
+Current SAS still has no EventInfo/TriggerInfo producer with `bTeam=1`, so this branch
+is not a shipped gameplay path. Keep as latent refactor debt rather than F451.
+
+-------------------------------------------------------------------------------
+OTHER LOW-COVERAGE CONTROLS STARTED
+-------------------------------------------------------------------------------
+* `changeGoldenAgeTurns` still follows the inherited transition contract. On entering
+  or leaving a Golden Age it calls player `updateYield`; changed worked-plot yields go
+  through `CvCity::changeBaseYieldRate`, which performs the normal yield-rank/cache and
+  dependent-commerce updates. No F445-style missing invalidation survives that callee
+  chain.
+* `calculatePollution` keeps K-Mod's explicit sign convention: bad-health components
+  are negative except population, and the outer subtraction converts them into
+  positive pollution weights. No arithmetic sign root found.
+* `isValidTriggerCorporation` retains the K-Mod correction requiring actual
+  corporation presence and then independently checks Headquarters ownership when
+  requested.
+* `getTradeLayerColors` and the early `getCultureLayerColors` pass are visual-state
+  builders using revealed/visible ownership and plot-group/culture state directly;
+  no current gameplay-state contradiction established in this tranche.
+
+-------------------------------------------------------------------------------
+CURRENT STONE AFTER C031-WIP161
+-------------------------------------------------------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F450 / KI#773 CONFIRMED.
+F451 / provisional KI#774 UNUSED.
+Latest physical checkpoint: C031-WIP161.
+No repository source files modified.
+
+NEXT
+----
+Continue the mechanically ranked low-coverage `CvPlayer` functions. Highest-value
+remaining live/stateful targets include `promoteFreeUnit`, `addFreeUnit`,
+`updateGroupCycle`, `doWarnings`, event trigger bookkeeping beyond the now-closed
+Global-Quest case, espionage third-party announcement state, and larger player
+state/arithmetic mutators not yet represented in the album. Preserve the current
+standard: full callee-chain/invalidation and current-data reachability before assigning
+F451.
+
+
+===============================================================================
+F451 / provisional KI#774 — countReligionSpreadUnits counts missionaries being
+trained on other land areas, so area-specific AI missionary valuation can suppress
+needed local missionary production
+===============================================================================
+
+STATUS
+------
+CONFIRMED — Better BTS AI 0.83 area-filter omission inherited through K-Mod and
+AdvCiv, still live in current SAS. The recent KI#668 same-team missionary valuation
+repair does not create this root; it exposes the same helper more broadly and makes
+its intended area-local contract especially explicit.
+
+ROOT
+----
+`CvPlayer::countReligionSpreadUnits(pArea, eReligion, bIncludeTraining)` correctly
+filters already-existing spread units to `pArea`:
+
+    FOR_EACH_UNIT(pLoopUnit, *this)
+    {
+        if (pLoopUnit->isArea(*pArea))
+        {
+            if (pLoopUnit->getUnitInfo().getReligionSpreads(eReligion) > 0)
+                iCount++;
+        }
+    }
+
+But the BBAI `bIncludeTraining` extension then counts every city currently training a
+matching missionary, with no corresponding area condition:
+
+    if (bIncludeTraining)
+    {
+        FOR_EACH_CITY(pLoopCity, *this)
+        {
+            UnitTypes eUnit = pLoopCity->getProductionUnit();
+            if (eUnit != NO_UNIT)
+            {
+                if (GC.getInfo(eUnit).getReligionSpreads(eReligion) > 0)
+                    iCount++;
+            }
+        }
+    }
+
+Thus the function's two halves use incompatible geography: completed missionaries are
+area-local, while queued missionaries are empire-global.
+
+The parallel corporation helper makes the intended contract unusually clear. Its
+training loop explicitly uses:
+
+    if (pArea == NULL || pLoopCity->isArea(*pArea))
+
+before counting an executive in production. Religion has no analogous check.
+
+CURRENT LIVE CONSUMER
+---------------------
+Current `CvPlayerAI::AI_missionaryValue(eReligion, pArea)` uses the helper with
+`bIncludeTraining=true` in the area-specific internal-spread calculation. After the
+KI#668 repair it sums the same area-local state for every living team member:
+
+    for (MemberIter itMember(getTeam()); itMember.hasNext(); ++itMember)
+    {
+        iOurCitiesHave += pArea->countHasReligion(eReligion, itMember->getID()) +
+                itMember->countReligionSpreadUnits(pArea, eReligion, true);
+        iOurCitiesCount += pArea->getCitiesPerPlayer(itMember->getID());
+    }
+
+Then:
+
+    if (iOurCitiesHave < iOurCitiesCount)
+        ... positive internal spread value ...
+    else
+        iSpreadInternalValue = 0;
+
+`CvCityAI::AI_bestSpreadUnit` calls this area-specific value for each religion the city
+can spread. If the returned value is <= 0, that religion is skipped before the city
+considers a missionary unit type.
+
+DETERMINISTIC SINGLE-PLAYER REPRODUCTION
+-----------------------------------------
+No team-game interaction is needed.
+
+Let one AI player have:
+
+* Area A with two cities, P and T;
+* P already has religion R and can train R's missionary;
+* T lacks R;
+* Area B with another city B that is currently training an R missionary.
+
+For Area A, the real area-local accounting is:
+
+    cities in Area A:                2
+    cities already having R:        1
+    R missionaries in Area A:       0
+    R missionaries training in A:   0
+
+So Area A still has one uncovered internal spread target.
+
+Current code instead evaluates:
+
+    pAreaA->countHasReligion(R, player)          = 1
+    countReligionSpreadUnits(AreaA, R, true)     = 1
+        (the +1 incorrectly comes from city B in Area B)
+    iOurCitiesHave                               = 2
+    iOurCitiesCount                              = 2
+
+Therefore `AI_missionaryValue(R, AreaA)` sets `iSpreadInternalValue = 0`.
+`AI_bestSpreadUnit` in producer P then skips religion R entirely, even though T in the
+same land area still lacks R and the only missionary being trained is on another land
+area.
+
+Existing completed missionaries in Area B do NOT cause this suppression because the
+first half of `countReligionSpreadUnits` filters them by `pArea`. The defect is specific
+to the queued-unit extension.
+
+CURRENT-DATA REACHABILITY
+-------------------------
+Current SAS has the ordinary seven religion-spreading missionary unit types:
+
+    UNIT_PAGAN_MISSIONARY
+    UNIT_HINDU_MISSIONARY
+    UNIT_JEWISH_MISSIONARY
+    UNIT_DAOIST_MISSIONARY
+    UNIT_BUDDHIST_MISSIONARY
+    UNIT_CHRISTIAN_MISSIONARY
+    UNIT_ISLAMIC_MISSIONARY
+
+Each has a live `ReligionSpreads` entry. Multi-land-area empires and simultaneous city
+production are ordinary supported game states, so no special option, scenario-only
+caller or future XML is required.
+
+ANCESTRY
+--------
+Stock BtS/Civ4CE `countReligionSpreadUnits` contains only the completed-unit area-local
+loop; it has no `bIncludeTraining` parameter.
+
+Better BTS AI 0.83 introduced the extension. Its bundled changelog states both:
+
+    "Cities now consider how many missionaries they already have plus those being
+     trained when deciding whether to train another"
+
+and:
+
+    "Added option to CvPlayer::countReligionSpreadUnits and
+     CvPlayer::countCorporationSpreadUnits to include units being trained"
+
+K-Mod contains that BBAI religion extension unchanged: completed missionaries are
+area-filtered, but its city-training loop has no `pArea` test. K-Mod's corporation
+sibling, however, explicitly filters training cities with
+`pArea == NULL || pLoopCity->area() == pArea`.
+
+Base AdvCiv 1.14 and current SAS retain the same religion omission and corporation
+area check. Thus the root is an inherited BBAI 0.83 implementation oversight, not a
+SAS regression.
+
+RELATION TO KI#668 / F345
+-------------------------
+F345/KI#668 diagnosed a different omission in `AI_missionaryValue`: before the SAS
+repair, the area branch counted only the current player's cities and therefore dropped
+reachable same-team cities entirely. Its repair direction explicitly called for
+summing each team member's AREA-LOCAL cities and relevant missionaries so that
+teammates do not independently train for the same missing target.
+
+F451 is the lower-level geographic counting bug inside that helper. It already affected
+single-player K-Mod/AdvCiv before KI#668: a missionary queued by the same player on
+Area B could suppress production on Area A. The KI#668 team loop merely causes each
+member's malformed training count to be included as well.
+
+Therefore F451 is not a duplicate or consequence of F345. Fixing F345 does not fix
+F451; fixing F451 remains necessary for the repaired F345 logic to actually be
+area-local.
+
+It is also separate from F340's missionary-sea carrier validation bug, which concerns
+whether a naval transport can carry missionaries at all.
+
+REPAIR DIRECTION
+----------------
+Make the religion training half obey the same `pArea` scope as the completed-unit half
+and the corporation sibling. Conservatively:
+
+    FOR_EACH_CITY(pLoopCity, *this)
+    {
+        if (!pLoopCity->isArea(*pArea))
+            continue;
+        UnitTypes eUnit = pLoopCity->getProductionUnit();
+        ...
+    }
+
+Because the religion helper currently dereferences `pArea` unconditionally for its
+existing-unit scan, preserving its current non-NULL contract is the narrowest change.
+A broader NULL-compatible refactor analogous to the corporation helper is optional and
+not required to repair F451.
+
+The corrected function then consistently answers one question: how many matching
+religion-spread units already exist OR are being trained in THIS requested area.
+
+CURRENT STONE AFTER F451
+------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F451 / KI#774 CONFIRMED.
+F452 / provisional KI#775 UNUSED.
+Latest physical checkpoint: C031-WIP162.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F452 unused. First check the immediate spread-count siblings
+and other low-coverage player helpers, but do not manufacture a corporation sibling:
+`countCorporationSpreadUnits` already contains the missing area filter. Then return to
+the mechanically ranked live `CvPlayer` arithmetic/state-mutating functions and
+shipped callers. Keep the WIP159 lesson in force: trace full callees/invalidation and
+current-data reachability before promotion.
+
+===============================================================================
+C031-WIP163 — Queue 004 continuation — F452 / provisional KI#775 CONFIRMED
+===============================================================================
+
+POST-WIP162 CONTROLS
+--------------------
+`CvPlayer::isSpeedBonusAvailable(BonusTypes, CvPlot const&)` was reopened because its
+fallback accepts a bonus from the capital even when the unit's local plot group does
+not contain that bonus. That would deserve a network-semantics review if the feature
+were live. Current SAS Unit XML, however, contains zero `SpeedBonus` entries. This is
+already independently established elsewhere in the album for the related TextMgr
+speed-bonus helper. No current unit can therefore execute this movement-bonus path.
+Classification: dormant future-data/API behavior; NOT F452.
+
+The current Global + PickPlayer World News path can reveal the picked civilization's
+adjective to an observer who knows the event owner but has not met the picked player.
+The behavior is inherited from BtS/K-Mod and the strings are explicitly World News;
+without a stronger game-information contract, that is not promoted from a visibility
+caveat.
+
+A field-level `CvCivicInfo` -> `CvPlayer::processCivics` reconciliation also closed.
+Every current persistent player modifier in CivicInfo is processed; the remaining
+fields are eligibility/upkeep/anger or runtime/city-dependent quantities queried
+through their authoritative paths rather than cached here.
+
+F452 / provisional KI#775 — Culture Globe layer can write a fifth culture color into
+another plot's four-color storage (and one-past-end on the final plot)
+-------------------------------------------------------------------------------
+
+CURRENT CODE CONTRACT
+---------------------
+`CvPlayer::getCultureLayerColors` hardcodes:
+
+    const int iColorsPerPlot = 4;
+    aColors.resize(kMap.numPlots() * iColorsPerPlot, ...);
+
+So the returned vector reserves exactly four `NiColorA` entries for every plot.
+
+The same function builds `aieOwners` for each revealed owned plot. The territorial
+owner is inserted unconditionally, then (when the plot is visible) every other
+EVER_ALIVE player with at least 20% of total plot culture is appended.
+
+The source itself explicitly acknowledges that this list can exceed the storage width:
+
+    /* Ideally ==iColorsPerPlot, but my algorithm above can't guarantee that.
+       Can be 1 greater than iColorsPerPlot because the territorial owner is
+       always included. */
+    FAssert(aieOwners.size() <= iColorsPerPlot + 1);
+
+Thus size 5 is considered a supported outcome by the function itself.
+
+The write loop nevertheless uses:
+
+    for (int i = 0;
+         i < std::max(iColorsPerPlot, (int)aieOwners.size()); i++)
+    {
+        ...
+        aColors[iPlot * iColorsPerPlot + i] = kCurColor;
+        ...
+    }
+
+When `aieOwners.size() == 5`, `i == 4` writes:
+
+    aColors[iPlot * 4 + 4]
+
+but the four slots belonging to plot `iPlot` are only offsets 0..3.
+
+For any non-final plot this is the FIRST culture-color slot of plot `iPlot + 1`, so the
+current plot can contaminate the next plot's Globe culture coloring. If the next plot
+is skipped by the later loop (for example because its revealed owner is NO_PLAYER or
+its total culture is zero), the foreign color can remain visible there.
+
+If the five-owner state occurs on the map's final plot, the same write is exactly one
+past `aColors.end()`. `operator[]` performs no bounds check, so this is an actual
+out-of-bounds write / undefined behavior path. The gameplay/display corruption on
+non-final plots establishes the defect without relying on any particular crash or heap
+behavior from the final-plot case.
+
+CURRENT REACHABILITY
+--------------------
+The five-entry case is reachable under current culture semantics; it does not require
+future XML.
+
+`CvPlot::calculateCulturalOwner` considers only ALIVE players for ordinary ownership.
+`getCultureLayerColors`, deliberately under advc.099, includes EVER_ALIVE players so
+culture from defeated civilizations remains represented.
+
+`CvPlayer::setAlive(false)` kills units/cities/deals but does not clear the defeated
+player's plot culture. This is consistent with the explicit culture-layer comment
+"include defeated."
+
+Therefore a visible tile can legitimately have, for example:
+
+    current living territorial owner: 20 culture
+    defeated civ A:                   20 culture
+    defeated civ B:                   20 culture
+    defeated civ C:                   20 culture
+    defeated civ D:                   20 culture
+
+The four defeated players are ignored as ownership candidates because they are dead;
+the living player can remain the territorial owner. But the Globe layer inserts that
+owner and then all four defeated EVER_ALIVE players, since each has at least 20% of
+total culture. `aieOwners.size()` is therefore 5 and the bad fifth write executes.
+
+The exact numbers need not be equal; defeated-player culture allows the territorial
+owner to be below several historical culture contributors because only living players
+compete for current ownership.
+
+SHIPPED CALLER
+--------------
+`CvPlayer::getGlobeLayerColors(GLOBE_LAYER_CULTURE, ...)` directly calls
+`getCultureLayerColors`. This is the normal active-player Culture Globe layer exposed
+by `CvGameInterface`. There is no later DLL-side resizing or remapping that grants a
+fifth slot per plot.
+
+ANCESTRY
+--------
+K-Mod's culture layer allocates four colors per plot and always writes exactly four:
+
+    aColors.resize(numPlots * 4, ...);
+    for (int i = 0; i < iColorsPerPlot; ++i)
+        aColors[iPlot * iColorsPerPlot + i] = ...;
+
+AdvCiv practical 2086 / commit
+`1c5f39d8bebad59307fd420de2cba052a666760e`, titled:
+
+    "Fix a minor (AdvCiv) issue with culture layer coloring"
+
+explicitly changed the prior fixed four-write loop to the current
+`std::max(iColorsPerPlot, plot_owners.size())` loop after documenting that the owner
+list can contain five entries. The vector allocation remained four entries per plot.
+
+Practical 2416 later only performed iterator/name refactoring in this block; Base
+AdvCiv 1.14 and current SAS retain the practical-2086 storage/write mismatch.
+
+DUPLICATE LEDGER
+----------------
+Album and current WIP searches found no prior root for `getCultureLayerColors`,
+`iColorsPerPlot`, the five-owner list, or this cross-plot/out-of-bounds write.
+F450 concerns the neighboring UNIT Globe layer's inverted strength arithmetic and is
+independent.
+
+REPAIR DIRECTION
+----------------
+Never write more than the four slots allocated for a plot.
+
+The narrow safety repair is to restore the write bound to:
+
+    i < iColorsPerPlot
+
+If preserving the most relevant four identities when five contributors qualify is
+desired, select/truncate the owner list BEFORE writing (e.g. always keep the
+territorial owner and choose the three largest remaining culture contributors). That
+is a presentation improvement; the correctness requirement is simply that no plot
+writes outside its four-slot segment.
+
+CURRENT STONE AFTER F452
+------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F452 / KI#775 CONFIRMED.
+F453 / provisional KI#776 UNUSED.
+Latest physical checkpoint: C031-WIP163.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F453 unused. Finish the neighboring Culture/Religion/Trade
+Globe-layer controls, then resume the mechanically ranked compiled player-state and
+arithmetic functions. Keep current-data reachability and full-callee tracing mandatory;
+no need to manufacture a sibling of F450/F452 if the remaining layers are clean.
+
+================================================================================
+C031-WIP164 — QUEUE 004 CONTINUATION — F453 / KI#776 CONFIRMED
+================================================================================
+
+CONTINUATION ANCHOR
+-------------------
+Resumed Queue 004 `CvGameCoreDLL/CvPlayer.cpp` from C031-WIP163 with F453 unused.
+The first post-WIP163 tranche explicitly closed the Religion and Trade Globe-layer
+siblings of F452, `updateTradeRoutes`, current CivicInfo processing, and a number of
+low-coverage prospective/state helpers before widening to high-signal author caveats
+and inherited differential controls.
+
+POST-F452 CLEAN CONTROLS
+------------------------
+* `getReligionLayerColors` allocates and writes exactly one color per map plot; visible
+  overlapping religion radii only update the alpha of that same slot. It does not share
+  F452's four-slots-vs-five-writes contract failure.
+* `getTradeLayerColors` likewise allocates one color per plot and indexes it only by valid
+  map plot indices.
+* `updateTradeRoutes` clears this player's prior reservations, sorts the player's cities,
+  lets each city claim currently available partners, and recomputes city trade yields after
+  assignment. No stale-reservation or missing-yield-refresh root survived.
+* `getBestEventTech`, `getDiscoveryTech`, `getEspionageSpending`, `foundCorporation`,
+  `isProductionMaxedProject`, capital commerce/yield modifier mutators, corporation-disable
+  counters and war-weariness modifier handling all reconciled with their authoritative
+  consumers/current data.
+* `checkAlert` has a real robustness typo (`iAlertID > size` rather than `>= size`), but all
+  shipped alert IDs are 0..3 for a four-element vector and internal iteration is `< size`.
+  No current caller reaches the bad `== size` case; do not number it.
+* `isSpeedBonusAvailable` remains dormant because current SAS Unit XML has zero SpeedBonus
+  entries.
+* The Global + PickPlayer World-News observer-visibility edge remains semantically ambiguous:
+  some current WorldNews strings can name a picked civilization unknown to an observer, but
+  BtS/K-Mod deliberately frame these as world news. No firm hidden-information contract was
+  established; keep unnumbered.
+* `startingPlotWithinRange` always returning false is intentional inherited BtS/K-Mod
+  behavior, not a missing body. Starting-distance pressure was moved into `AI_foundValue` /
+  `startingPlotDistanceFactor`; generic AdvCiv explicitly comments out the obsolete Python
+  hard-exclusion loop. Some old/custom map scripts still call the wrapper, but that makes
+  those calls redundant rather than restoring a DLL contract that the engine intended to use.
+
+F453 / KI#776 — `findPathLength` DOUBLE-COUNTS SHARED PREREQUISITES AND CAN MAKE
+`pushResearch` CHOOSE A MORE EXPENSIVE OR-PREQUISITE PATH
+--------------------------------------------------------------------------------
+
+ROOT
+~~~~
+`CvPlayer::findPathLength` recursively sums every AND-prerequisite branch independently and
+then adds the shortest OR-prerequisite branch:
+
+    for each AND prereq:
+        iPathLength += findPathLength(prereq)
+
+    for each OR prereq:
+        iNumSteps = findPathLength(prereq)
+        keep the smallest
+
+The source itself contains the inherited K-Mod warning:
+
+    // k146 (note): This will double-count any shared AND-prepreqs.
+
+That caveat is behaviorally significant because `CvPlayer::pushResearch` uses
+`findPathLength` to decide WHICH OR prerequisite to queue when a future technology is
+selected.
+
+`pushResearch` itself does not double-add a shared prerequisite: after one prerequisite
+branch has been pushed, `isResearchingTech` makes the later recursive branch return early.
+Therefore the estimator and the queue builder can rank alternatives differently.
+
+CURRENT SAS REPRODUCTION
+~~~~~~~~~~~~~~~~~~~~~~~~
+The current SAS technology tree contains a concrete reachable reversal.
+
+One simple reproducible state is Carthage (starting Fishing + Pottery), with these additional
+technologies legitimately acquired and no existing research queue:
+
+    Mysticism
+    Calendar
+    Masonry
+    Seafaring
+    Sailing
+    The Wheel
+    Writing
+    Code of Laws
+    Construction
+    Mathematics
+    Monarchy
+    Navigation
+    Engineering
+    Water Wheel
+    Machinery
+
+Together with Fishing + Pottery, that is 17 known technologies. This set is reachable through
+ordinary prerequisite-legal research; it does not require an impossible WorldBuilder-only
+knowledge combination.
+
+Now select `TECH_LIBERALISM` directly as the future research target.
+
+Liberalism has:
+
+    AND prerequisite: Banking
+    OR prerequisites: Naturalism, Democracy
+
+`pushResearch` first recursively queues Banking's missing prerequisite path. At the moment it
+then compares Liberalism's two OR alternatives, the relevant queued/researching Banking-side
+technologies are already recognized by `findPathLength` and do not affect the comparison.
+
+For the Naturalism alternative, the ACTUAL additional queue is:
+
+    Polytheism          80
+    Monotheism         425
+    Drama              260
+    Sacred Architecture 650
+    Aesthetics          850
+    Medicine           1100
+    Naturalism         1700
+                       ----
+                       5065
+
+For Democracy, the actual additional queue is:
+
+    Polytheism          80
+    Meditation         425
+    Civil Service      650
+    Feudalism          850
+    Printing Press    1400
+    Democracy         1700
+                      ----
+                      5105
+
+So Naturalism is the genuinely cheaper remaining route by 40 beakers.
+
+But `findPathLength(Naturalism)` returns 5145, not 5065. The extra 80 is Polytheism counted
+TWICE inside the Sacred Architecture subtree:
+
+* Sacred Architecture has Monotheism as an AND prerequisite and Drama as an OR route;
+* Monotheism's path requires Polytheism;
+* Drama's path also requires Polytheism;
+* `findPathLength` evaluates those branches independently, so each recursion charges the same
+  unknown Polytheism;
+* real `pushResearch` pushes the Monotheism branch first, making Polytheism `isResearchingTech`,
+  so the Drama branch correctly does not queue/pay for Polytheism a second time.
+
+The resulting comparison seen by current code is therefore:
+
+    estimated Naturalism = 5145   (wrong: +80 duplicate Polytheism)
+    estimated Democracy  = 5105   (correct for this state)
+
+and `pushResearch` chooses Democracy.
+
+The real unique queue costs are:
+
+    Naturalism = 5065
+    Democracy  = 5105
+
+so the automatic future-tech queue selects the MORE EXPENSIVE OR route.
+
+DEFAULT-COST STABILITY
+~~~~~~~~~~~~~~~~~~~~~~
+This reproduction does not rely on a hidden unusual cost option. Under the ordinary current
+SAS Ancient-start / Normal-speed / Standard-world / Medium-sea setup, the relevant global
+research-cost multipliers are 100%, current Era `iTechCostModifier` values are 0, and
+TECH_COST_MODIFIER plus groundbreaking normalization are disabled/0. Thus the current XML
+technology costs above are the corresponding team research costs for the ordinary one-member
+human team (apart from any deliberately enabled special game-option modifiers).
+
+SHIPPED CALLER / GAMEPLAY CONSEQUENCE
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+This is the normal future-tech selection path, not a diagnostic helper.
+
+`CvNetResearch::Execute` handles an ordinary technology click and calls:
+
+    kPlayer.pushResearch(m_eTech, !m_bShift);
+
+`pushResearch` recursively queues mandatory prerequisites and calls `findPathLength` to choose
+the shortest OR branch. Therefore clicking a future technology in the normal Tech Chooser can
+silently construct a higher-cost research queue than another legal OR path.
+
+The effect is not that the player becomes unable to choose the cheaper technologies manually;
+it is that Civ4's automatic prerequisite-queue construction fails its own "shortest path"
+contract.
+
+ANCESTRY
+~~~~~~~~
+This recursive algorithm is inherited from BtS. Civ4CE's reconstructed BtS source contains the
+same independent AND-recursion / minimum-OR structure. K-Mod retains it and explicitly added
+(or preserved in its source lineage) the warning that shared AND-preprequisites will be
+counted twice. Base AdvCiv and current SAS retain the same algorithm.
+
+The current SAS technology graph provides the concrete Liberalism reversal above, turning the
+long-standing caveat into a shipped deterministic queue-selection defect.
+
+DUPLICATE LEDGER
+~~~~~~~~~~~~~~~~
+Album searches for `findPathLength`, shared/double-counted prerequisites, shortest OR paths and
+`pushResearch` found no prior numbered root covering cost-estimator double counting or
+selection of a non-minimal prerequisite queue.
+
+Earlier `pushResearch` findings concern different contracts (e.g. stale choose-tech snapshots
+or Barbarian `canResearch` legality) and do not own this path-cost error.
+
+REPAIR DIRECTION
+~~~~~~~~~~~~~~~~
+The path estimator must count each prospective technology at most once within one candidate
+queue calculation, just as real `pushResearch` does through `isResearchingTech` after a tech is
+queued.
+
+A robust direction is an internal path-cost helper that carries a prospective "already
+counted / already queued" tech set through AND branches. OR alternatives must be evaluated
+with independent copies of that prospective set, and the chosen alternative's resulting set
+must then be merged into the caller's path state. This avoids both shared-AND double counting
+and accidental cross-contamination between alternatives.
+
+Alternatively, factor the queue-building prerequisite traversal into a non-mutating simulator
+and use the resulting unique queued technology set/cost for OR comparisons. The important
+requirement is that `findPathLength` and `pushResearch` model the SAME deduplication semantics;
+merely adjusting the Liberalism XML would only mask the generic defect.
+
+CURRENT STONE AFTER F453
+------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F453 / KI#776 CONFIRMED.
+F454 / provisional KI#777 UNUSED.
+Latest physical checkpoint: C031-WIP164.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F454 unused. Use Civ4CE/Base/K-Mod differential fixes as candidate
+generators (never as authority), then resume the mechanically ranked compiled `CvPlayer`
+state/arithmetic functions. Preserve the current-data + shipped-caller + duplicate-proof
+threshold; clean saturation is preferable to manufacturing another root.
+
+===============================================================================
+C031-WIP165 — QUEUE 004 CONTINUATION — F454 / KI#777 CONFIRMED
+===============================================================================
+
+CONTINUATION ANCHOR
+-------------------
+Resumed Queue 004 `CvGameCoreDLL/CvPlayer.cpp` from C031-WIP164 with F454 unused.
+The first continuation control reopened `CvPlayer::isSpeedBonusAvailable`; current SAS
+Unit XML contains no actual SpeedBonus mapping (`<SpeedBonuses/>` is empty), so the
+capital-network fallback is dormant and was not promoted. The ranked compiled-state pass
+then reached `announceEspionageToThirdParties`, where a current observer-visibility defect
+survives.
+
+F454 / KI#777 — THIRD-PARTY CIVIC/RELIGION ESPIONAGE ANNOUNCEMENTS LEAK AN
+UNREVEALED TARGET CAPITAL THROUGH RAW MESSAGE COORDINATES
+--------------------------------------------------------------------------
+
+ROOT
+~~~~
+`CvPlayer::announceEspionageToThirdParties(EspionageMissionTypes eMission,
+PlayerTypes eTarget)` builds the AdvCiv 120f announcement sent to third-party major civs
+that know the espionage target.
+
+It obtains the target capital once:
+
+    int iX = -1, iY = -1;
+    CvCity* pCapital = GET_PLAYER(eTarget).getCapital();
+    if (pCapital != NULL)
+    {
+        iX = pCapital->getX();
+        iY = pCapital->getY();
+    }
+
+and then sends those SAME raw coordinates to every eligible observer:
+
+    for (PlayerIter<MAJOR_CIV,OTHER_KNOWN_TO> it(TEAMID(eTarget)); ...)
+    {
+        CvPlayer const& kObs = *it;
+        if (kObs.getID() != getID())
+            gDLL->UI().addMessage(kObs.getID(), ..., iX, iY);
+    }
+
+There is no `isRevealed(kObs.getTeam())` test and no observer-aware capital-coordinate
+lookup. Merely knowing the target civilization is enough to receive the target capital's
+exact current map coordinates.
+
+CURRENT SHIPPED REACHABILITY
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+Both affected mission families are enabled in current SAS
+`CIV4EspionageMissionInfo.xml`:
+
+    ESPIONAGEMISSION_SWITCH_CIVIC:
+        iCost = 0
+        iSwitchCivicCostFactor = 1000
+
+    ESPIONAGEMISSION_SWITCH_RELIGION:
+        iCost = 0
+        iSwitchReligionCostFactor = 1000
+
+`iCost == 0` is enabled; only `-1` disables a mission in
+`getEspionageMissionBaseCost`.
+
+Current `GlobalDefines_advc.xml` also enables the feature by default:
+
+    ANNOUNCE_ESPIONAGE_REVOLUTION = 1
+
+with the defining comment stating that third parties that know the target are notified.
+
+A normal reproduction therefore needs only three major civilizations:
+
+    A = spy owner
+    B = espionage target
+    C = third-party observer
+
+C has met B but has never revealed B's capital. A successfully performs Switch Civic or
+Switch Religion against B. `doEspionageMission` calls
+`announceEspionageToThirdParties(eMission, B)` directly in both successful mission
+branches. C is in `OTHER_KNOWN_TO(TEAMID(B))`, and unless C is A, C receives the message
+with B's raw capital `(x,y)`.
+
+The spy's mission target city need not be B's capital, so the mission itself does not
+supply a reason for C to know those capital coordinates.
+
+WHY THE COORDINATES ARE PLAYER-FACING INFORMATION
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`CvDLLInterfaceIFaceBase::addMessage` forwards `iFlashX/iFlashY` into the EXE message
+payload. Its AdvCiv comment explicitly notes that flash information is used for:
+
+    "the text color and coordinates stored in the Turn Log -- not just
+     for the (disabled) icon."
+
+Thus the coordinates are not an unused implementation detail. They become message/Turn
+Log location data, with the normal Civ4 message-location navigation behavior.
+
+LOCAL CONTROL PROVES THE INTENDED VISIBILITY CONTRACT
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+The neighboring ordinary religion-change announcement in
+`CvPlayer::setLastStateReligion` already handles this exact problem correctly. It sends:
+
+    getCapitalX(kObs.getTeam(), true),
+    getCapitalY(kObs.getTeam(), true)
+
+for each observer separately.
+
+`CvPlayer::getCapitalX/Y(TeamTypes eObserver, bool bDebug)` return `-1` when the capital
+has not been revealed to that observer. Therefore ordinary conversion news deliberately
+avoids revealing a hidden capital, while the AdvCiv espionage-third-party helper bypasses
+that observer-aware API and sends raw coordinates.
+
+Other current announcement code likewise tests capital/city reveal state before attaching
+coordinates. This makes the 120f behavior an integration omission rather than a necessary
+property of Civ4 messages.
+
+EXECUTION PATH
+~~~~~~~~~~~~~~
+For Switch Civic:
+
+    doEspionageMission
+      -> announceEspionageToThirdParties(eMission, eTargetPlayer)
+      -> target.setCivics(...)
+
+For Switch Religion:
+
+    doEspionageMission
+      -> announceEspionageToThirdParties(eMission, eTargetPlayer)
+      -> target.setLastStateReligion(...)
+
+There is no subsequent observer-specific revalidation or coordinate replacement.
+
+ANCESTRY
+~~~~~~~~
+The third-party announcement helper is an AdvCiv feature marked `advc.120f`. It is absent
+from the supplied BtS reconstruction and K-Mod source; Base AdvCiv 1.14 and current SAS
+contain the same raw-capital-coordinate implementation. `GlobalDefines_advc.xml` identifies
+120f as the feature that announces forced civic/religion espionage to third parties.
+
+The exact local control (`setLastStateReligion` using observer-aware `getCapitalX/Y`) is
+also present in current AdvCiv/SAS, so the omission survives in the feature that introduced
+the extra announcement rather than being inherited from the stock message path.
+
+DUPLICATE LEDGER
+~~~~~~~~~~~~~~~~
+Album searches for `announceEspionageToThirdParties`,
+`ANNOUNCE_ESPIONAGE_REVOLUTION`, third-party espionage-capital coordinates, and hidden
+capital/message-coordinate exposure found no prior numbered root.
+
+The previously parked Global + PickPlayer World News visibility question is different:
+it concerns whether a world-news TEXT string may identify an unmet picked civilization.
+F454 is an unambiguous MAP-LOCATION leak against a local observer-aware coordinate API.
+
+REPAIR DIRECTION
+~~~~~~~~~~~~~~~~
+Resolve message coordinates per observer, exactly like `setLastStateReligion`.
+Conservatively, inside the observer loop use:
+
+    int iX = GET_PLAYER(eTarget).getCapitalX(kObs.getTeam(), true);
+    int iY = GET_PLAYER(eTarget).getCapitalY(kObs.getTeam(), true);
+
+(or equivalently test `pCapital->isRevealed(kObs.getTeam(), true)` and pass `-1,-1` when
+hidden).
+
+Keep the third-party text itself unchanged; F454 concerns only attaching information the
+observer has not revealed.
+
+CURRENT STONE AFTER F454
+------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F454 / KI#777 CONFIRMED.
+F455 / provisional KI#778 UNUSED.
+Latest physical checkpoint: C031-WIP165.
+No repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F455 unused. Resume the mechanically ranked compiled
+`CvPlayer` arithmetic/state-mutating functions and shipped callers. Keep the dormant
+`isSpeedBonusAvailable`, Team-event inversion, AI-work-rate branch and World-News text
+visibility question as controls rather than manufacturing siblings. Prefer clean
+closure over a weak final root.
+
+===============================================================================
+C031-WIP166 — QUEUE 004 CONTINUATION — F455 STILL UNUSED
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F454 / KI#777 CONFIRMED.
+F455 / provisional KI#778 UNUSED.
+Latest physical checkpoint: C031-WIP166.
+No repository source files modified.
+
+POST-F454 CLEAN CLOSURE TRANCHE
+--------------------------------
+This checkpoint preserves the post-WIP165 investigation before continuing deeper. No
+additional root is numbered merely to show progress.
+
+1. `CvPlayer::isSpeedBonusAvailable` remains dormant in current SAS data. The current
+   UnitInfos contain no actual non-empty SpeedBonus mapping, so the capital-network fallback
+   cannot affect a shipped unit's movement.
+
+2. `calculateTotalExports` / `calculateTotalImports` were reconciled with their Python/API
+   semantics and current Info Screen use. They intentionally measure the commerce generated
+   on the relevant trade-route side, rather than forming a player's ordinary trade-yield
+   total. No swapped-import/export or subject mismatch survived.
+
+3. `canTradeNetworkWith` was reconciled against the trade-network relation. Its two symmetric
+   city loops intentionally permit a connection through any qualifying city attached to the
+   respective capital networks; it is not required to test only capital-to-capital directly.
+
+4. The AdvCiv 2212 negative-research-turn fix remains intact. The only nearby teammate
+   overflow concern is the already documented robustness caveat in
+   `getResearchTurnsLeftTimes100`: teammate overflow is converted with the subject player's
+   research modifier. Current SAS has both human and AI groundbreaking penalties disabled,
+   leaving the shipped teammate modifier symmetric for the relevant normal callers.
+
+5. The AdvCiv 2328 team-game trade-route ordering remains intentional: another player's
+   anarchy blocks routes before same-team acceptance, while the self case is exempted.
+
+6. Random-event `canDoEvent` versus `applyEvent` was reconciled field by field for the main
+   other-player / gold / tech / city-conversion / religion / bonus / war / attitude effects.
+   The apparent `iMaxNumReligions` off-by-one is not a bug: both `CvPlayer` and
+   `CvCity::canApplyEvent` treat the value as a PRE-EVENT eligibility cap. Thus current
+   Inspired Mission's `iMaxNumReligions=1` deliberately permits selecting a city that already
+   has one religion and then adding the event religion.
+
+7. Vote/resolution helpers (`getVotes`, `canDoResolution`, `canDefyResolution`, full/voting
+   membership) were checked for player/team/master/vassal role confusion. PlayerTypes forms
+   passed to overloaded `GET_TEAM` remain type-safe through CoreAI's player overload, and the
+   current master-team restrictions are explicit. No new team-game root survived.
+
+8. Civ4CE was added only as an independent candidate generator. Its BtS reconstruction did
+   not immediately expose a current SAS `CvPlayer` defect not already covered by the local
+   BtS/K-Mod/AdvCiv comparisons. It is not treated as authority.
+
+PARKED, NOT NUMBERED
+--------------------
+- Global + PickPlayer World News can name a picked civilization to observers who have not met
+  that civilization; because these strings are explicitly World News, the intended
+  information-visibility contract remains ambiguous. F454 is different and unambiguous
+  because it leaks raw hidden capital coordinates against a local observer-aware API.
+- The practical-2416 Team-event propagation inversion is real source debt but current SAS has
+  no bTeam event/trigger data that enters the branch.
+- The inherited/AdvCiv AI `getWorkRate` duplicate `+100` branch can become reachable in AI
+  Auto Play but does not affect ordinary worker progress; still below numbered-root threshold.
+- Golden-Age UnitClass-vs-UnitType distinctness remains data-masked by current one-GP-type-per-
+  class mappings.
+- `postProcessMessages` can undercount Turn-Log auto-open messages while permanently at
+  NO_TECH, but the messages themselves remain intact; retained as a low-severity UI edge.
+
+NEXT
+----
+Continue Queue 004 from F455 unused. Prioritize compiled mutator/eligibility families with
+real shipped callers: `processBuilding` and its availability/cache counters, production
+eligibility, then espionage/research state. Preserve full callee-chain invalidation proof to
+avoid repeating the retracted F445 mistake. Clean closure is preferable to a weak finding.
+
+===============================================================================
+C031-WIP167 — Queue 004 CvPlayer.cpp — post-WIP166 clean shipped-caller/lifecycle tranche
+===============================================================================
+
+Status at this checkpoint:
+- Queue 003 CvGameTextMgr.cpp CLOSED.
+- Queue 004 CvPlayer.cpp OPEN.
+- 32/169 unique files complete.
+- F445/KI#768 RETRACTED; do not implement.
+- F446 through F454 confirmed.
+- F455/KI#778 remains UNUSED.
+- No repository source files modified.
+
+Post-WIP166 closure work:
+
+1. Espionage city target-vs-player invariant: current shipped callers mask the generic DLL hole.
+   - Generic canDoEspionageMission / mission-cost paths accept eTargetPlayer separately from pPlot/pCity and do not impose one universal pCity->getOwner()==eTargetPlayer check.
+   - However CvUnit::espionage derives eTargetPlayer directly from getPlot().getOwner().
+   - Both relevant popup phases likewise derive the target player from the spy plot owner.
+   - Therefore the normal shipped spy action cannot supply an arbitrary target player paired with another player's city. Keep as robustness/API debt, not F455.
+
+2. Destroy/Buy Unit espionage popup contains a real dormant ID-vs-type mismatch.
+   - The target-popup eligibility call passes pTargetUnit->getUnitType() as iExtraData.
+   - Espionage mission base-cost code interprets iExtraData for this family as the target player's unit ID via getUnit(iExtraData).
+   - The eventual popup button/execution data does use pTargetUnit->getID().
+   - Current SAS has iDestroyUnitCostFactor=0 and iBuyUnitCostFactor=0 for all espionage missions, so these mission families are disabled. Do not number under current data.
+
+3. Destroy Building/Project base-cost subject question remains deliberately unnumbered.
+   - Mission base cost calls the spy owner's getProductionNeeded(Building/Project), whose AdvCiv implementation includes acting-player handicap/AI production modifiers.
+   - This is inherited from BtS/K-Mod and may intentionally be part of espionage/difficulty scaling; no explicit victim-replacement-cost contract was found. Insufficient basis for a finding.
+
+4. Global unit-instance concurrency candidate is current-data dormant.
+   - CvPlayer::canTrain's game-wide max check adds only this team's UnitClassMaking to the game-created count, so simultaneous other-team production could in principle be undercounted.
+   - Current SAS UnitClassInfos has no finite iMaxGlobalInstances at all. Team-level finite caps were likewise absent in the checked current data. No shipped root.
+
+5. CvPlayer::processBuilding / derived availability-counter pass closes.
+   - Free-building count transitions update cities at the zero<->positive boundary.
+   - Yield/commerce/specialist-extra-commerces reach their expected city/cache refreshers.
+   - Commerce-flexibility loss resets a slider only once all player/team flexibility sources are absent.
+   - No missing authoritative cache/state update established.
+
+6. Player alive/turn-active lifecycle controls close in current source.
+   - setAlive performs unit cleanup before lowering team AliveCount, preserving the intended blockade/war-state ordering.
+   - verifyAlive's AI Auto Play active-player defeat path changes control to another living AI before the old player is finally eliminated; the historical autosave fix remains represented.
+   - revival reaches the current UWAI revived-player initialization repair.
+   - No new F447-style player-dead/team-alive transition found in this pass.
+
+Current stone:
+Queue 004 CvGameCoreDLL/CvPlayer.cpp OPEN · 32/169 unique files complete ·
+F445/KI#768 RETRACTED · F446–F454 CONFIRMED · F455/KI#778 UNUSED ·
+C031-WIP167 latest physical checkpoint · no repository source files modified.
+
+Next exact continuation:
+Continue F455 unused through historical CvPlayer bug-fix seams and paired state counters,
+prioritizing compiled normal-game paths. Preserve current-data reachability, caller,
+ancestry and duplicate proof before assigning any finding number.

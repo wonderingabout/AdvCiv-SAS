@@ -600,7 +600,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#514 - (Fixed AdvCiv-SAS signed-rounding defect) Emergency peace used uround on a negative threshold](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-514)\
 [KI#515 - (Provisional Pending AdvCiv-SAS victory-denial regression) Direct war plan can ignore force peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-515)\
 [KI#516 - (Fixed inherited AdvCiv vassal-war defect) Inverted master test prevented preparation timeout](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-516)\
-[KI#517 - (Provisional Pending inherited AdvCiv debug-path defect) doWarReport can mutate real diplomacy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-517)\
+[KI#517 - (Fixed inherited AdvCiv debug-path defect) doWarReport could mutate real diplomacy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-517)\
 [KI#518 - (Fixed inherited AdvCiv assertion regression) Random nonleader diplomat tripped leader-only check](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-518)\
 [KI#519 - (Fixed inherited AdvCiv lifecycle defect) Capitulation readiness survived peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-519)\
 [KI#520 - (Fixed inherited AdvCiv UWAI debug-assertion defect) Declaration-turn brokered peace rejected a valid zero war age](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-520)\
@@ -863,7 +863,11 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#771 - (Provisional Pending AdvCiv Rise & Fall cache regression) Controller changes retain the former Settler production cost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-771)\
 [KI#772 - (Provisional Pending inherited AdvCiv message-state defect) Hidden observers downgrade later visible Great Person announcements](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-772)\
 [KI#773 - (Provisional Pending inherited AdvCiv Globe arithmetic regression) Military strength is divided by combat strength](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-773)\
-[KI#774 - (Provisional Pending investigation) F451 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-774)\
+[KI#774 - (Provisional Pending inherited BBAI/K-Mod area-filter omission) Missionaries being trained on other land areas suppress local production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-774)\
+[KI#775 - (Provisional Pending AdvCiv Culture Globe buffer defect) A fifth culture color overwrites the next plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-775)\
+[KI#776 - (Pending Architectural inherited BtS research-path defect) Shared prerequisites can make the automatic queue choose a costlier route](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-776)\
+[KI#777 - (Provisional Pending AdvCiv espionage-announcement leak) Third parties receive an unrevealed capital's coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-777)\
+[KI#778 - (Provisional Pending investigation) F455 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-778)\
 
 <a id="ki-1"></a>
 
@@ -12617,11 +12621,15 @@ A current-build huge autoplay completed successfully; the exact human-master pre
 
 <a id="ki-517"></a>
 
-## KI#517 - (Provisional Pending inherited AdvCiv debug-path defect) doWarReport can mutate real diplomacy
+## KI#517 - (Fixed inherited AdvCiv debug-path defect) doWarReport could mutate real diplomacy
 
-Album F194 finds the report's global background toggle leaving UWAI::Team's cached background state stale. Pending independent implementation review.
+`UWAI::Team::doWarReport` is a manual diagnostic helper that runs normal war planning while background mode is meant to suppress state changes and force a report. AdvCiv's implementation toggled the global `UWAI` background state, but Team-side guards use a separate value cached by `UWAI::Team::reset`. That cached value remained false during the report, so reachable branches could cancel or replace war plans, declare war, make peace, capitulate or form voluntary vassal relationships in the real game state that the report was intended only to inspect.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair saves both background states, sets both global and Team-local views for the whole diagnostic `doWar` call, and restores each afterward. Forced report output remains separate from mutation suppression. This path has no production caller and is normally exercised only by temporarily inserting a debugging call, so ordinary full-UWAI autoplay provides regression coverage while the state synchronization is source-verified.
+
+After a clean Debug-opt compilation, a Huge Ice Age game with standard Aggressive AI/full UWAI and No Events completed all 500 turns normally through Time victory. `SASGameRecord_20260901T052133Z_new1.log` confirms the matching Debug-opt DLL fingerprint, settings and completed autoplay. The manual diagnostic-only `doWarReport` entry point was not temporarily instrumented; its synchronized state transition remains source-verified.
+
+AdvCiv commit `a8a7e75c6c` added `doWarReport` after the Team-local background cache already existed and did not synchronize it; Base AdvCiv 1.14 retains the mismatch, while AdvCiv-SAS inherited it unchanged. Found as F194/provisional KI#517 during ChatGPT-5.6-Sol's C017 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-518"></a>
 
@@ -15369,8 +15377,44 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP160 `CvPlaye
 
 <a id="ki-774"></a>
 
-## KI#774 - (Provisional Pending investigation) F451 remains unassigned during the CvPlayer deep re-audit
+## KI#774 - (Provisional Pending inherited BBAI/K-Mod area-filter omission) Missionaries being trained on other land areas suppress local production
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F450 through C031-WIP160, retracts F445/KI#768, and reserves F451 next. Do not implement a change under KI#774 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+`CvPlayer::countReligionSpreadUnits` correctly filters existing missionaries to its requested land area, but the Better BTS AI extension that optionally includes units being trained counts matching production in every city of the empire. The parallel corporation helper applies the missing area condition to both existing and queued executives, confirming the intended local contract.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP160 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The live area-specific `AI_missionaryValue` caller compares local cities already following a religion plus this malformed missionary count against all team cities in that area. A missionary queued on another landmass can consequently make the requested area appear fully covered and suppress production even though one of its cities still lacks the religion. Current SAS missionaries and ordinary multi-land-area empires make the path live. KI#668's team-scope repair uses the helper more broadly but did not create this pre-existing single-player defect.
+
+Better BTS AI 0.83 introduced the training-count extension without the area check; K-Mod, Base AdvCiv 1.14 and AdvCiv-SAS retain it. Found as F451/provisional KI#774 during ChatGPT-5.6-Sol's C031-WIP162 `CvPlayer.cpp` deep re-audit; disposition independently reviewed and reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-775"></a>
+
+## KI#775 - (Provisional Pending AdvCiv Culture Globe buffer defect) A fifth culture color overwrites the next plot
+
+The Culture Globe layer allocates exactly four color entries per map plot. Its AdvCiv owner-selection algorithm can deliberately retain five qualifying civilizations because the territorial owner is always included alongside every visible culture contributor holding at least 20%. The write loop uses the maximum of four and the owner count, so the fifth color is written into the next plot's first slot—or one past the vector when this occurs on the final plot.
+
+Defeated civilizations retain plot culture and the layer intentionally includes them, making five contributors reachable in current games. AdvCiv practical 2086 changed K-Mod's fixed four-write loop to the malformed variable bound without enlarging the four-slot storage; Base AdvCiv 1.14 and AdvCiv-SAS retain it. Found as F452/provisional KI#775 during ChatGPT-5.6-Sol's C031-WIP163 `CvPlayer.cpp` deep re-audit; disposition independently reviewed and reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-776"></a>
+
+## KI#776 - (Pending Architectural inherited BtS research-path defect) Shared prerequisites can make the automatic queue choose a costlier route
+
+`CvPlayer::findPathLength` independently sums recursive AND branches and explicitly warns that it double-counts shared prerequisites. `pushResearch` uses that estimate to select the shortest OR prerequisite, but its real queue deduplicates a technology after the first branch inserts it. The estimator and queue builder can therefore rank routes differently.
+
+Current SAS has a deterministic Liberalism example: with the documented reachable technology set in album F453, Naturalism's unique remaining queue costs 5065 while Democracy costs 5105. The estimator charges Polytheism twice within Naturalism's Sacred Architecture subtree, reports 5145 and automatically chooses the genuinely more expensive Democracy route. Repair requires prospective unique-technology state shared across AND branches and isolated/merged correctly across competing OR alternatives, rather than a local arithmetic patch.
+
+The recursive estimator is inherited from BtS, survives K-Mod and Base AdvCiv 1.14, and is live in AdvCiv-SAS's ordinary future-technology selection. Found as F453/provisional KI#776 during ChatGPT-5.6-Sol's C031-WIP164 `CvPlayer.cpp` deep re-audit; disposition independently reviewed and reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-777"></a>
+
+## KI#777 - (Provisional Pending AdvCiv espionage-announcement leak) Third parties receive an unrevealed capital's coordinates
+
+AdvCiv's third-party announcement for successful Switch Civic and Switch Religion espionage missions obtains the target's raw capital coordinates once and sends them to every observer that knows the target civilization. It does not check whether each observer has revealed that capital. Message coordinates are retained in the Turn Log and support map-location navigation, so they expose player-facing location information rather than serving only a disabled flash effect.
+
+The neighboring ordinary religion-change announcement already uses observer-aware `getCapitalX/Y`, which returns invalid coordinates for an unrevealed capital and establishes the intended contract. Current espionage XML enables both affected mission families and `ANNOUNCE_ESPIONAGE_REVOLUTION` enables the announcement by default. The helper is an AdvCiv feature absent from BtS/K-Mod; Base AdvCiv 1.14 and AdvCiv-SAS retain the leak. Found as F454/provisional KI#777 during ChatGPT-5.6-Sol's C031-WIP165 `CvPlayer.cpp` deep re-audit; disposition independently reviewed and reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-778"></a>
+
+## KI#778 - (Provisional Pending investigation) F455 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F454 through C031-WIP167, retracts F445/KI#768, and reserves F455 next. C031-WIP166 and WIP167 closed further current-data/caller candidates without manufacturing another finding. Do not implement a change under KI#778 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP167 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
