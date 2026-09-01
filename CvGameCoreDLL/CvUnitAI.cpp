@@ -11883,7 +11883,8 @@ void CvUnitAI::AI_assaultSeaMove()
 		// <!-- custom: Save-file 450 transport diagnostics showed reinforcement/invasion thresholds of 13/26 blocking a Galley whose full capacity was only 3, even when nearby Barbarian cities reached zero defenders.
 		// Keep the broad thresholds for assembling normal invasions, but let the existing target-specific strength evaluation launch any smaller military cargo that can already take a real target. Existing safety, escort, and imminent-loading waits above still run first. See KI#193. (GPT-5.6-Sol) -->
 		static bool const bOpportunisticTargetEnable = GC.getDefineBOOL("SAS_AI_ASSAULT_SEA_OPPORTUNISTIC_TARGET_ENABLE");
-		if (bOpportunisticTargetEnable && iCargo > 0 && iCargo < iTargetReinforcementSize)
+		// <!-- custom: Generic stranded rescue can load civilians onto this assault group; require attack-capable cargo before KI#193 bypasses broad assembly thresholds. See KI#529. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (bOpportunisticTargetEnable && getGroup()->getCargoThatCanAttack() > 0 && iCargo < iTargetReinforcementSize)
 		{
 			FAssert(getGroup()->hasCargo());
 			if (AI_assaultSeaTransport(bNoWarPlans))

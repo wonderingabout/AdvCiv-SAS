@@ -89,6 +89,8 @@ public:
 	bool isFull() const;																																											// Exposed to Python
 	bool hasCargo() const;																																										// Exposed to Python
 	int getCargo() const;
+	// <!-- custom: Distinguish invasion-capable cargo from rescued civilians when assault groups decide whether they can support war intent. See KI#529. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int getCargoThatCanAttack() const;
 	int getCargoSpace() const; // advc.102b
 	int cargoSpaceAvailable(SpecialUnitTypes eSpecialCargo = NO_SPECIALUNIT, DomainTypes eDomainCargo = NO_DOMAIN) const; // K-Mod
 	DllExport bool canAllMove()																																				// Exposed to Python

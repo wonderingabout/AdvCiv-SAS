@@ -18165,7 +18165,8 @@ int CvPlayerAI::AI_enemyTargetMissions(TeamTypes eTargetTeam, CvSelectionGroup* 
 			{
 				// <!-- custom: K-Mod keeps loaded units in their own boarded groups while their transport group also reports them through getCargo.
 				// Match UWAI's corrected physical-unit census by counting carried cargo through the transport and only non-cargo members through each group itself. See KI#544. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-				int iGroupMissions = pLoopSelectionGroup->getCargo();
+				// <!-- custom: An assault transport can rescue civilian cargo that contributes no invasion pressure; count only its attack-capable cargo while preserving ordinary cargo accounting for other mission groups. See KI#529. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int iGroupMissions = (pLoopSelectionGroup->getHeadUnitAIType() == UNITAI_ASSAULT_SEA ? pLoopSelectionGroup->getCargoThatCanAttack() : pLoopSelectionGroup->getCargo());
 				FOR_EACH_UNIT_IN(pUnit, *pLoopSelectionGroup)
 				{
 					if (!pUnit->isCargo())

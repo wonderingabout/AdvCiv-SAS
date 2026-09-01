@@ -617,7 +617,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#526 - (Fixed AdvCiv-SAS KI#319 regression) Non-head immediate movement was mistaken for no progress](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-526)\
 [KI#527 - (Fixed inherited AdvCiv debug diagnostic defect) Air combat Shift-hover called a land/sea-only stack comparison](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-527)\
 [KI#528 - (Fixed inherited AdvCiv ordering defect) Undefended-city Bombard priorities collapsed to zero](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-528)\
-[KI#529 - (Provisional Pending AdvCiv-SAS/inherited-contract defect) Assault declare-war intent treats any cargo as invasion cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529)\
+[KI#529 - (Fixed inherited K-Mod/AdvCiv contract defect amplified by SAS) Assault war intent treated any cargo as invasion cargo](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-529)\
 [KI#530 - (Fixed inherited AdvCiv Bombard defect) Peaceful foreign units counted as attackers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-530)\
 [KI#531 - (Fixed inherited AdvCiv Bombard defect) Loaded cargo counted as city defenders](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-531)\
 [KI#532 - (Fixed AdvCiv-SAS air-strike regression) Low-power ordering called land/sea strength logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-532)\
@@ -12946,11 +12946,13 @@ This is an inherited AdvCiv practical-2809 ordering defect, not an AdvCiv-SAS ch
 
 <a id="ki-529"></a>
 
-## KI#529 - (Provisional Pending AdvCiv-SAS/inherited-contract defect) Assault declare-war intent treats any cargo as invasion cargo
+## KI#529 - (Fixed inherited K-Mod/AdvCiv contract defect amplified by SAS) Assault war intent treated any cargo as invasion cargo
 
-Album F206 finds rescued noncombat cargo satisfying assault-war intent, broadened by SAS's opportunistic launch path. Pending independent implementation review.
+K-Mod and AdvCiv allow `UNITAI_ASSAULT_SEA` transports to rescue any stranded land-unit role, including Missionaries and Great People, but inherited declaration intent treated `hasCargo()` as proof of invasion cargo. SAS KI#193 amplified that loose contract by allowing any below-threshold nonempty load into opportunistic target evaluation despite documenting the exception for small military cargo. A rescued civilian could therefore make an assault transport evaluate an undefended foreign coastal city with zero landed attack strength, declare war through the pre-war Open Borders path, and then lose that path when war removed Open Borders because its cargo could not execute the landing.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+A shared selection-group helper now counts only loaded units that can attack. Inherited assault declaration intent and SAS's opportunistic launch both require that capability, while `AI_enemyTargetMissions` counts only attack-capable cargo as strategic pressure for assault groups. Generic stranded civilian rescue remains available. K-Mod/AdvCiv introduced the loose total-cargo declaration assumption; AdvCiv-SAS KI#193 made the civilian-only path much more reachable. Found as F206/provisional KI#529 during ChatGPT-5.6-Sol's C018-WIP08-WIP10 `CvSelectionGroupAI.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+After a clean Debug-opt compilation, a Huge Archipelago, Normal-speed, full-UWAI autoplay with standard Aggressive AI and 16 independent starting teams completed successfully by Space Race on turn 438. `SASGameRecord_20260901T070918Z_new2.log` confirms the matching DLL and provides broad naval/transport regression coverage. The exact rescued-civilian/Open-Borders declaration chain remains source-verified.
 
 <a id="ki-530"></a>
 

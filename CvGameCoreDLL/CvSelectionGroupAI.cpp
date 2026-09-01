@@ -1199,7 +1199,9 @@ bool CvSelectionGroupAI::AI_isDeclareWar(CvPlot const& kPlot) const // advc: par
 	case UNITAI_EXPLORE_SEA:
 		return false;
 	case UNITAI_ASSAULT_SEA:
-		return hasCargo();
+		// <!-- custom: K-Mod's total-cargo proxy could authorize war for an assault transport carrying only a rescued Missionary or Great Person.
+		// Require actual attack-capable cargo so declaration intent matches the invasion the group can execute. See KI#529. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		return (getCargoThatCanAttack() > 0);
 	case UNITAI_SETTLER_SEA:
 	case UNITAI_MISSIONARY_SEA:
 	case UNITAI_SPY_SEA:

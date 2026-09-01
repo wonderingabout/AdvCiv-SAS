@@ -2343,6 +2343,23 @@ int CvSelectionGroup::getCargo() const
 	return iCargoCount;
 }
 
+// <!-- custom: K-Mod/AdvCiv assault transports can rescue any stranded land role, so total cargo does not prove that a fleet carries units able to execute an invasion.
+// Count only loaded units that can attack while preserving useful civilian rescue. See KI#529. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvSelectionGroup::getCargoThatCanAttack() const
+{
+	int iCargoCount = 0;
+	FOR_EACH_UNIT_IN(pCargoUnit, getPlot())
+	{
+		if (pCargoUnit->isCargo() &&
+			pCargoUnit->getTransportUnit()->getGroup() == this &&
+			pCargoUnit->canAttack())
+		{
+			iCargoCount++;
+		}
+	}
+	return iCargoCount;
+}
+
 // advc.102b: Cargo capacity, whether used or not.
 int CvSelectionGroup::getCargoSpace() const
 {
