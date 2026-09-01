@@ -15,6 +15,7 @@ from CvPythonExtensions import *
 import CvUtil
 import ScreenInput
 import SevoScreenEnums
+import CvModName # <!-- custom: Build the dynamic AdvCiv-SAS Version / Source Mods Info page from the centralized runtime resolver and saved game lineage. (ChatGPT-5.6-Sol) -->
 from SASFontUtils import *
 import SASTextScale
 
@@ -50,7 +51,72 @@ class SevoPediaHistory:
 			info = gc.getConceptInfo(iEntry)
 		else:
 			info = gc.getNewConceptInfo(iEntry)
-		return info.getCivilopedia()
+		szText = info.getCivilopedia()
+		# <!-- custom: This Mods Info entry is intentionally dynamic: static XML explains the semantics, while current runtime provenance and this game's persisted revision history are appended when the page is opened. (ChatGPT-5.6-Sol) -->
+		if info.getType() == "CONCEPT_SAS_VERSION_SOURCE_INFO":
+			szText += self.getSASVersionSourceText()
+		return szText
+
+	def getSASVersionSourceText(self):
+		szUnknown = localText.getText("TXT_KEY_SAS_VERSION_UNKNOWN", ())
+		szNone = localText.getText("TXT_KEY_SAS_VERSION_NONE", ())
+
+		def knownText(szValue):
+			if szValue:
+				return szValue
+			return szUnknown
+
+		def dirtyText(iDirty):
+			if iDirty < 0:
+				return localText.getText("TXT_KEY_SAS_VERSION_DIRTY_UNAVAILABLE", ())
+			if iDirty == 0:
+				return localText.getText("TXT_KEY_SAS_VERSION_DIRTY_CLEAN", ())
+			return localText.getText("TXT_KEY_SAS_VERSION_DIRTY_DIRTY", ())
+
+		iDirty = CvModName.getSourceDirtyState()
+		iDirtyFiles = CvModName.getSourceDirtyFileCount()
+		szDirtyFiles = CvModName.getSourceDirtyFiles()
+		if iDirty < 0:
+			szDirtyFiles = szUnknown
+		elif iDirty == 0:
+			szDirtyFiles = szNone
+		elif not szDirtyFiles:
+			szDirtyFiles = szUnknown
+		szDirtyFileCount = szUnknown
+		if iDirtyFiles >= 0:
+			szDirtyFileCount = str(iDirtyFiles)
+
+		szText = localText.getText("TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_DETAILS", (
+			CvModName.getDisplayNameAndVersion(),
+			knownText(CvModName.getVersion()),
+			knownText(CvModName.getCommitHash()),
+			knownText(CvModName.getBranch()),
+			knownText(CvModName.getCommitDate()),
+			knownText(CvModName.getSourceMetadataType()),
+			dirtyText(iDirty),
+			szDirtyFileCount))
+		szText += localText.getText("TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_PATH_DETAILS", (
+			knownText(CvModName.getFolderName()),
+			knownText(CvModName.getPathInRoot()),
+			szDirtyFiles))
+
+		g = gc.getGame()
+		iEntries = g.getNumSASVersionHistoryEntries()
+		if iEntries <= 0:
+			return szText + localText.getText("TXT_KEY_SAS_VERSION_PEDIA_NO_GAME_HISTORY", ())
+
+		szText += localText.getText("TXT_KEY_SAS_VERSION_PEDIA_GAME_HISTORY_HEADER", ())
+		for iEntry in range(iEntries):
+			szRole = localText.getText("TXT_KEY_SAS_VERSION_ROLE_CREATION", ())
+			if iEntry > 0:
+				szRole = localText.getText("TXT_KEY_SAS_VERSION_ROLE_TRANSITION", ())
+			szText += localText.getText("TXT_KEY_SAS_VERSION_PEDIA_GAME_HISTORY_ENTRY", (
+				szRole,
+				g.getSASVersionHistoryTurn(iEntry),
+				knownText(g.getSASVersionHistoryVersion(iEntry)),
+				knownText(g.getSASVersionHistoryCommitHash(iEntry)),
+				dirtyText(g.getSASVersionHistoryDirtyState(iEntry))))
+		return szText
 
 	def handleInput (self, inputClass):
 		return 0

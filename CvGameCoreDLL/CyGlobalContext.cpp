@@ -57,7 +57,6 @@ const char* CyGlobalContext::getModPathInRoot() const
 // <!-- custom: Python-facing source/version accessors stay as thin wrappers over ModName's single resolver. (ChatGPT-5.6-Sol) -->
 const char* CyGlobalContext::getModVersion() const { return GC.getModName().getVersion(); }
 const char* CyGlobalContext::getModCommitHash() const { return GC.getModName().getCommitHash(); }
-const char* CyGlobalContext::getModShortCommitHash() const { return GC.getModName().getShortCommitHash(); }
 const char* CyGlobalContext::getModBranch() const { return GC.getModName().getBranch(); }
 const char* CyGlobalContext::getModCommitDate() const { return GC.getModName().getCommitDate(); }
 const char* CyGlobalContext::getModSourceMetadataType() const { return GC.getModName().getSourceMetadataType(); }

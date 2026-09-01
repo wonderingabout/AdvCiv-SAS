@@ -15,6 +15,7 @@ import time
 import AttitudeUtil
 import BugCore
 import BugPath
+import CvModName # <!-- custom: Show centralized runtime/source identity and persisted save-version history in the Settings tab. (ChatGPT-5.6-Sol) -->
 import BugUtil
 import ColorUtil
 import GameUtil
@@ -1278,8 +1279,29 @@ class CvVictoryScreen:
 			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_START_TURN", (iStartTurn, szTurnDate)), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
 		# </advc.251>
 		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SETTINGS_GAME_SPEED", (gc.getGameSpeedInfo(g.getGameSpeedType()).getTextKey(), )), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
-		# advc.190a:
-		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, BugPath.getModName() + " Mod", WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY )
+		# <!-- custom: Replace the old plain mod-name row with current runtime source identity plus the revision lineage persisted by this save.
+		# The runtime row links to the detailed Sevopedia Mods Info page; save-history rows stay compact enough for this already-scrollable Settings list. (ChatGPT-5.6-Sol) -->
+		iSourceConcept = getNewConceptID("CONCEPT_SAS_VERSION_SOURCE_INFO")
+		eSourceWidget = WidgetTypes.WIDGET_GENERAL
+		iSourceData1 = -1
+		iSourceData2 = -1
+		if iSourceConcept >= 0:
+			eSourceWidget = WidgetTypes.WIDGET_PEDIA_DESCRIPTION
+			iSourceData1 = CivilopediaPageTypes.CIVILOPEDIA_PAGE_CONCEPT_NEW
+			iSourceData2 = iSourceConcept
+		SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SAS_VERSION_UI_RUNTIME_SOURCE", (CvModName.getDisplayNameAndVersion(),)), eSourceWidget, iSourceData1, iSourceData2, CvUtil.FONT_LEFT_JUSTIFY)
+
+		iHistoryEntries = g.getNumSASVersionHistoryEntries()
+		if iHistoryEntries > 0:
+			SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText("TXT_KEY_SAS_VERSION_UI_SAVE_HISTORY", ()), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
+			for iHistory in range(iHistoryEntries):
+				szHistoryDetails = CvModName.formatVersionDetails(g.getSASVersionHistoryVersion(iHistory), g.getSASVersionHistoryCommitHash(iHistory), g.getSASVersionHistoryDirtyState(iHistory))
+				if not szHistoryDetails:
+					szHistoryDetails = localText.getText("TXT_KEY_SAS_VERSION_UNKNOWN", ())
+				szHistoryKey = "TXT_KEY_SAS_VERSION_UI_CREATED"
+				if iHistory > 0:
+					szHistoryKey = "TXT_KEY_SAS_VERSION_UI_TRANSITION"
+				SASTextScale.appendListBoxStringNoUpdateLabel(screen, szSettingsTable, localText.getText(szHistoryKey, (szHistoryDetails, g.getSASVersionHistoryTurn(iHistory))), WidgetTypes.WIDGET_GENERAL, -1, -1, CvUtil.FONT_LEFT_JUSTIFY)
 
 		screen.updateListBox(szSettingsTable)
 

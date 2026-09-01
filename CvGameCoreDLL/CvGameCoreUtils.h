@@ -94,6 +94,10 @@ CvString const& getSASProcessUtcTimestamp();
 CvString getSASModContextFields();
 // <!-- custom: Serialize runtime source/version provenance shared by BBAI and SASGameRecord; dirty is tri-state (-1 unavailable, 0 verified clean, 1 tracked changes). (ChatGPT-5.6-Sol) -->
 CvString getSASSourceContextFields();
+// <!-- custom: Compact player-facing source identity formatter shared by replay settings and future C++ UI surfaces; accepts either live ModName data or persisted save-history fields. (ChatGPT-5.6-Sol) -->
+CvWString getSASCompactSourceVersion(char const* szVersion, char const* szCommitHash, int iDirtyState);
+// <!-- custom: Combine the configured mod display name with the current cached runtime source identity for replay/UI surfaces. (ChatGPT-5.6-Sol) -->
+CvWString getSASRuntimeDisplayNameAndVersion();
 // <!-- custom: Serialize exact loaded-DLL build/binary provenance shared by diagnostic log headers. (ChatGPT-5.6-Sol) -->
 CvString getSASDllContextFields();
 // <!-- custom: Quote/escape narrow diagnostic free text; NULL becomes the unquoted missing token "-". (ChatGPT-5.6-Sol) -->

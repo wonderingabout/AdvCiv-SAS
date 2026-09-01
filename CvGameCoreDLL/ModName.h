@@ -35,7 +35,6 @@ public:
 	// A shallow Git checkout keeps the exact SHA but intentionally omits the misleading incomplete commit-count version. (ChatGPT-5.6-Sol) -->
 	char const* getVersion() const;
 	char const* getCommitHash() const;
-	char const* getShortCommitHash() const;
 	char const* getBranch() const;
 	char const* getCommitDate() const;
 	char const* getSourceMetadataType() const;
@@ -53,13 +52,13 @@ private:
 	CvString m_sFullPath;
 	CvString m_sPathInRoot;
 	CvString m_sName;
-	// <!-- custom: Cached source/version provenance. mutable allows const UI/log getters to populate the cache once without making source resolution part of ModName's logical identity mutation. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Cache only authoritative source/version facts. Derived presentation values such as a short SHA are intentionally computed by callers from these primary fields.
+	// mutable allows const UI/log getters to populate the cache once without making source resolution part of ModName's logical identity mutation. (ChatGPT-5.6-Sol) -->
 	mutable bool m_bSourceDetailsResolved;
 	mutable int m_iSourceDirtyState;
 	mutable int m_iSourceDirtyFileCount;
 	mutable CvString m_sVersion;
 	mutable CvString m_sCommitHash;
-	mutable CvString m_sShortCommitHash;
 	mutable CvString m_sBranch;
 	mutable CvString m_sCommitDate;
 	mutable CvString m_sSourceMetadataType;

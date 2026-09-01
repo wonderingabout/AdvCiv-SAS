@@ -122,6 +122,80 @@ Created as part of AdvCiv-SAS improvements
 	</TEXT>
 
 
+	<!-- custom: Shared visible runtime/save-version text for Victory Settings, replay metadata and the dynamic Sevopedia Mods Info source page. (ChatGPT-5.6-Sol) -->
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_VERSION_SOURCE_INFO</Tag>
+		<English>Mod Version / Source</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_CONCEPT_SAS_VERSION_SOURCE_INFO_PEDIA</Tag>
+		<English>[H1]Mod Version / Source[\H1][PARAGRAPH:2]This page shows the source identity of the currently running mod and, when a game is loaded, the source-revision history persisted by that save. The practical AdvCiv-SAS version is the Git commit-count version. A full Git checkout can also verify branch and tracked dirty state; exported GitHub/git-archive copies retain source commit/version metadata but use unavailable dirty state because post-extraction edits cannot be verified without a Git worktree.[PARAGRAPH:2]Saved history records creation and later transitions when practical version or full commit SHA changes. Dirty state is preserved as context but does not by itself create a transition.[PARAGRAPH:2]Here, dirty refers specifically to tracked Git files in a full checkout. Clean (0) means no tracked files differ from the recorded commit; dirty (1) means at least one tracked file differs, so the displayed commit identifies the checkout HEAD/baseline but does not necessarily describe every current file; unavailable (-1) means the state cannot be verified (normally because the mod came from an extracted archive without a Git worktree), not that it is clean or dirty. Untracked files are intentionally ignored. The dirty-file summary preserves Git's two status columns: the first is the index/staged state and the second is the working-tree/unstaged state. The summary may be shortened for readability while Dirty tracked files keeps the full tracked-file count.</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_UI_RUNTIME_SOURCE</Tag>
+		<English>Runtime source: %s1</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_UI_SAVE_HISTORY</Tag>
+		<English>Save source history:</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_UI_CREATED</Tag>
+		<English>Created: %s1 - T%d2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_UI_TRANSITION</Tag>
+		<English>Transition: %s1 - T%d2</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_UNKNOWN</Tag>
+		<English>unknown</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_NONE</Tag>
+		<English>none</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_DIRTY_UNAVAILABLE</Tag>
+		<English>unavailable (-1)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_DIRTY_CLEAN</Tag>
+		<English>clean (0)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_DIRTY_DIRTY</Tag>
+		<English>dirty (1)</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_ROLE_CREATION</Tag>
+		<English>Creation</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_ROLE_TRANSITION</Tag>
+		<English>Transition</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_DETAILS</Tag>
+		<English>[PARAGRAPH:2][H2]Current Runtime Source[\H2][NEWLINE]Compact identity: %s1[NEWLINE]Version: %s2[NEWLINE]Commit: %s3[NEWLINE]Branch: %s4[NEWLINE]Commit date: %s5[NEWLINE]Metadata source: %s6[NEWLINE]Dirty state: %s7[NEWLINE]Dirty tracked files: %s8</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_PEDIA_RUNTIME_PATH_DETAILS</Tag>
+		<English>[NEWLINE]Actual mod folder: %s1[NEWLINE]Mod path: %s2[NEWLINE]Dirty file summary: %s3</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_PEDIA_GAME_HISTORY_HEADER</Tag>
+		<English>[PARAGRAPH:2][H2]Current Game Save Source History[\H2]</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_PEDIA_GAME_HISTORY_ENTRY</Tag>
+		<English>[NEWLINE][ICON_BULLET]%s1: turn %d2; version %s3; commit %s4; dirty state %s5</English>
+	</TEXT>
+	<TEXT>
+		<Tag>TXT_KEY_SAS_VERSION_PEDIA_NO_GAME_HISTORY</Tag>
+		<English>[PARAGRAPH:2][H2]Current Game Save Source History[\H2][NEWLINE]No persisted source history is available for the current game.</English>
+	</TEXT>
+
 	<!-- custom: Victory Screen Settings legend explains the compact AI map-heaviness flags shown next to map information. (GPT-5.5) -->
 	<TEXT>
 		<Tag>TXT_KEY_CONCEPT_SAS_VICTORY_SCREEN_SETTINGS_LEGEND</Tag>

@@ -29,7 +29,6 @@ void CyGlobalContextPythonInterface2(python::class_<CyGlobalContext>& x)
 		// <!-- custom: source version/provenance resolved centrally by ModName; Python only consumes it. (ChatGPT-5.6-Sol) -->
 		.def("getModVersion", &CyGlobalContext::getModVersion, "string ()" )
 		.def("getModCommitHash", &CyGlobalContext::getModCommitHash, "string ()" )
-		.def("getModShortCommitHash", &CyGlobalContext::getModShortCommitHash, "string ()" )
 		.def("getModBranch", &CyGlobalContext::getModBranch, "string ()" )
 		.def("getModCommitDate", &CyGlobalContext::getModCommitDate, "string ()" )
 		.def("getModSourceMetadataType", &CyGlobalContext::getModSourceMetadataType, "string ()" )

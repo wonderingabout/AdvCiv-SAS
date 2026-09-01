@@ -2719,11 +2719,23 @@ const wchar* CvPlayer::getName(uint uiForm) const
 	// <advc.106i>
 	if (m_bSavingReplay)
 	{
-		// <!-- custom: Replay filename prefix now follows the central branded mod identity instead of maintaining a second TXT_KEY_REPLAY_PREFIX name. The actual installed folder may differ. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: Replay filenames keep the central branded mod identity and now add the compact practical version when known, making replay/Hall-of-Fame files source-identifiable without noisy SHA/dirty details in the filename. (ChatGPT-5.6-Sol) -->
 		CvWString szPrefix;
-		char const* szDisplayName = GC.getModName().getDisplayName();
-		if (szDisplayName != NULL && szDisplayName[0] != '\0')
-			szPrefix = CvWString::format(L"[%S]", szDisplayName);
+		ModName const& kMod = GC.getModName();
+		CvWString szModAndVersion(kMod.getDisplayName());
+		char const* szVersion = kMod.getVersion();
+		if (szVersion != NULL && szVersion[0] != '\0')
+		{
+			if (!szModAndVersion.empty())
+				szModAndVersion += L" ";
+			szModAndVersion += CvWString(szVersion);
+		}
+		if (!szModAndVersion.empty())
+		{
+			szPrefix = L"[";
+			szPrefix += szModAndVersion;
+			szPrefix += L"]";
+		}
 		static CvWString szName; // Important to put the assignment on a separate line
 		szName = szPrefix + GC.getInitCore().getLeaderName(getID(), uiForm);
 		return szName;

@@ -134,8 +134,12 @@ CvString getSASSourceContextFields()
 {
 	ModName const& kMod = GC.getModName();
 	CvString const szVersion = getSASDiagnosticQuoted(kMod.getVersion());
-	CvString const szCommit = getSASDiagnosticQuoted(kMod.getCommitHash());
-	CvString const szShortCommit = getSASDiagnosticQuoted(kMod.getShortCommitHash());
+	CvString const szCommitHash = kMod.getCommitHash();
+	CvString szShortCommitHash = szCommitHash;
+	if (szShortCommitHash.length() > 10)
+		szShortCommitHash = szShortCommitHash.substr(0, 10);
+	CvString const szCommit = getSASDiagnosticQuoted(szCommitHash.GetCString());
+	CvString const szShortCommit = getSASDiagnosticQuoted(szShortCommitHash.GetCString());
 	CvString const szBranch = getSASDiagnosticQuoted(kMod.getBranch());
 	CvString const szCommitDate = getSASDiagnosticQuoted(kMod.getCommitDate());
 	CvString const szMetadataSource = getSASDiagnosticQuoted(kMod.getSourceMetadataType());
@@ -144,6 +148,51 @@ CvString getSASSourceContextFields()
 	szContext.Format("version=%s commit=%s shortCommit=%s branch=%s commitDate=%s metadataSource=%s dirty=%d dirtyTrackedCount=%d dirtyFiles=%s",
 			szVersion.GetCString(), szCommit.GetCString(), szShortCommit.GetCString(), szBranch.GetCString(), szCommitDate.GetCString(), szMetadataSource.GetCString(), kMod.getSourceDirtyState(), kMod.getSourceDirtyFileCount(), szDirtyFiles.GetCString());
 	return szContext;
+}
+
+// <!-- custom: Keep compact C++ UI/replay-settings formatting identical to CvModName.py: practical version first, 10-char SHA in parentheses when known, and only a verified dirty worktree gets the "dirty" marker. (ChatGPT-5.6-Sol) -->
+CvWString getSASCompactSourceVersion(char const* szVersion, char const* szCommitHash, int iDirtyState)
+{
+	CvString szShortCommit;
+	if (szCommitHash != NULL)
+	{
+		szShortCommit = szCommitHash;
+		if (szShortCommit.length() > 10)
+			szShortCommit = szShortCommit.substr(0, 10);
+	}
+	CvWString szDetails;
+	bool const bHasVersion = (szVersion != NULL && szVersion[0] != '\0');
+	bool const bHasCommit = !szShortCommit.empty();
+	if (bHasVersion)
+		szDetails = CvWString(szVersion);
+	if (bHasCommit)
+	{
+		if (!szDetails.empty())
+			szDetails += L" ";
+		szDetails += L"(";
+		szDetails += CvWString(szShortCommit.GetCString());
+		if (iDirtyState == 1)
+			szDetails += L", dirty";
+		szDetails += L")";
+	}
+	else if (bHasVersion && iDirtyState == 1)
+		szDetails += L" (dirty)";
+	return szDetails;
+}
+
+// <!-- custom: Combine the configured display name with the same compact runtime source details used elsewhere, so replay metadata does not duplicate ModName formatting. (ChatGPT-5.6-Sol) -->
+CvWString getSASRuntimeDisplayNameAndVersion()
+{
+	ModName const& kMod = GC.getModName();
+	CvWString szName(kMod.getDisplayName());
+	CvWString const szDetails = getSASCompactSourceVersion(kMod.getVersion(), kMod.getCommitHash(), kMod.getSourceDirtyState());
+	if (!szDetails.empty())
+	{
+		if (!szName.empty())
+			szName += L" ";
+		szName += szDetails;
+	}
+	return szName;
 }
 
 // <!-- custom: Distinguish the exact loaded DLL candidate from source/version identity. The nmake target is embedded at compile time; size, linker timestamp, last-write time and FNV-1a fingerprint come from the loaded module's file.

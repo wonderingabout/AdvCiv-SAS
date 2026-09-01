@@ -6,6 +6,7 @@
 #include "CvMap.h"
 #include "CvReplayMessage.h"
 #include "CvGameTextMgr.h"
+#include "CvGameCoreUtils.h" // <!-- custom: Reuse centralized compact source/version formatting when replay settings persist runtime and save-lineage provenance. (ChatGPT-5.6-Sol) -->
 #include "StartPointsAsHandicap.h" // advc.250b
 #include "CvBugOptions.h" // advc.106i
 
@@ -361,12 +362,28 @@ void CvReplayInfo::appendSettingsMsg(CvWString& szSettings, PlayerTypes ePlayer)
 	}
 	if(iOptions > 0)
 		szSettings = szSettings.substr(0, szSettings.length() - 2) + L"\n";
-	// <!-- custom: Replay settings use the same central branded mod identity as the rest of the UI; no separate replay-name knob is needed. (ChatGPT-5.6-Sol) -->
-	CvWString szModName(GC.getModName().getDisplayName());
-	if (szModName.empty())
+	// <!-- custom: Persist compact runtime source identity and the save's complete revision lineage into the replay Settings message. Unlike live replay-screen labels, these rows remain truthful when the replay is viewed years later under another runtime build. (ChatGPT-5.6-Sol) -->
+	CvWString const szRuntimeSource = getSASRuntimeDisplayNameAndVersion();
+	if (szRuntimeSource.empty())
 		szSettings = szSettings.substr(0, szSettings.length() - 1); // drop \n
 	else
-		szSettings += szModName + L" Mod";
+	{
+		szSettings += gDLL->getText("TXT_KEY_SAS_VERSION_UI_RUNTIME_SOURCE", szRuntimeSource.GetCString());
+		int const iHistoryEntries = kGame.getNumSASVersionHistoryEntries();
+		if (iHistoryEntries > 0)
+		{
+			szSettings += L"\n";
+			szSettings += gDLL->getText("TXT_KEY_SAS_VERSION_UI_SAVE_HISTORY");
+			for (int i = 0; i < iHistoryEntries; i++)
+			{
+				CvWString szHistoryDetails = getSASCompactSourceVersion(kGame.getSASVersionHistoryVersion(i), kGame.getSASVersionHistoryCommitHash(i), kGame.getSASVersionHistoryDirtyState(i));
+				if (szHistoryDetails.empty())
+					szHistoryDetails = gDLL->getText("TXT_KEY_SAS_VERSION_UNKNOWN");
+				szSettings += L"\n";
+				szSettings += gDLL->getText(i == 0 ? "TXT_KEY_SAS_VERSION_UI_CREATED" : "TXT_KEY_SAS_VERSION_UI_TRANSITION", szHistoryDetails.GetCString(), kGame.getSASVersionHistoryTurn(i));
+			}
+		}
+	}
 } // </advc.106h>
 
 

@@ -18,6 +18,12 @@
 			<Description>TXT_KEY_BASE_ADVCIV_SOME_CHANGES</Description>
 			<Civilopedia>TXT_KEY_BASE_ADVCIV_SOME_CHANGES_PEDIA_SR</Civilopedia>
 		</NewConceptInfo>
+		<!-- custom: Dynamic Mods Info page for current runtime source identity and the loaded save's persisted version/SHA lineage. (ChatGPT-5.6-Sol) -->
+		<NewConceptInfo>
+			<Type>CONCEPT_SAS_VERSION_SOURCE_INFO</Type>
+			<Description>TXT_KEY_CONCEPT_SAS_VERSION_SOURCE_INFO</Description>
+			<Civilopedia>TXT_KEY_CONCEPT_SAS_VERSION_SOURCE_INFO_PEDIA</Civilopedia>
+		</NewConceptInfo>
 		<NewConceptInfo>
 			<Type>CONCEPT_SAS_SCORE_TAB_COLUMNS</Type>
 			<Description>TXT_KEY_CONCEPT_SAS_SCORE_TAB_COLUMNS</Description>

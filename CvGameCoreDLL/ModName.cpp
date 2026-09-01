@@ -292,7 +292,6 @@ void ModName::resetSourceDetails()
 	m_iSourceDirtyFileCount = -1;
 	m_sVersion.clear();
 	m_sCommitHash.clear();
-	m_sShortCommitHash.clear();
 	m_sBranch.clear();
 	m_sCommitDate.clear();
 	m_sSourceMetadataType = "unknown";
@@ -359,7 +358,6 @@ void ModName::resolveSourceDetails() const
 	m_iSourceDirtyFileCount = -1;
 	m_sVersion.clear();
 	m_sCommitHash.clear();
-	m_sShortCommitHash.clear();
 	m_sBranch.clear();
 	m_sCommitDate.clear();
 	m_sSourceMetadataType = "unknown";
@@ -373,7 +371,6 @@ void ModName::resolveSourceDetails() const
 	// No per-commit VERSION update is needed. Archives still cannot inspect post-extraction local edits, so dirty remains -1. (ChatGPT-5.6-Sol) -->
 	if (readExportedSourceMetadata(modPath, m_sVersion, m_sCommitHash, m_sCommitDate))
 	{
-		m_sShortCommitHash = m_sCommitHash.substr(0, 10);
 		m_sSourceMetadataType = (m_sVersion.empty() ? "gitArchive" : "gitArchiveVersioned");
 		return;
 	}
@@ -402,7 +399,6 @@ void ModName::resolveSourceDetails() const
 		m_sCommitDate.clear();
 		return;
 	}
-	m_sShortCommitHash = m_sCommitHash.substr(0, 10);
 
 	runHiddenSourceCommand(sourceGitCommand(modPath, "rev-parse --abbrev-ref HEAD"), m_sBranch);
 	CvString shallow;
@@ -437,12 +433,6 @@ char const* ModName::getCommitHash() const
 {
 	resolveSourceDetails();
 	return m_sCommitHash.c_str();
-}
-
-char const* ModName::getShortCommitHash() const
-{
-	resolveSourceDetails();
-	return m_sShortCommitHash.c_str();
 }
 
 char const* ModName::getBranch() const
