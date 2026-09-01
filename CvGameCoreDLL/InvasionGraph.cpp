@@ -1922,6 +1922,8 @@ void InvasionGraph::Node::resolveLosses()
 	vector<SimulationStep*> apSteps(MAX_PLAYERS, NULL);
 	vector<int> aiTurnsSimulated(MAX_PLAYERS, 0);
 	vector<bool> abTargetingThis(MAX_PLAYERS, false);
+	// <!-- custom: An actual step outside this defender's horizon must not be selected repeatedly or abort unrelated concurrent invaders that can still act in time. See KI#577. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	vector<bool> abHorizonExcluded(MAX_PLAYERS, false);
 	/*	Reduces m_rDistractionByDefense to 70%. Otherwise it would be implied that
 		losses incurred from an attack by a third power lead to potential attackers
 		closing the gap at that front.
@@ -1935,6 +1937,8 @@ void InvasionGraph::Node::resolveLosses()
 	do {
 		for (PlyrSetIter it = m_targetedBy.begin(); it != m_targetedBy.end(); ++it)
 		{
+			if (abHorizonExcluded[*it])
+				continue;
 			InvasionGraph::Node& kInvader = *m_kOuter.m_nodeMap[*it];
 			m_kReport.log("Assessing invasion priority (att. duration) of %s",
 					m_kReport.leaderName(kInvader.m_ePlayer));
@@ -1943,7 +1947,7 @@ void InvasionGraph::Node::resolveLosses()
 					1 - (rInvaderDistractionMult * kInvader.m_rDistractionByDefense));
 			m_kReport.setMute(false);
 			if (apSteps[*it] != NULL)
-				m_kReport.log("Duration at least %d", apSteps[*it]->getDuration());
+				m_kReport.log("Priority duration %d", apSteps[*it]->getDuration());
 			else m_kReport.log("Can't reach any city");
 			abTargetingThis[*it] = true;
 		}
@@ -1954,6 +1958,8 @@ void InvasionGraph::Node::resolveLosses()
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it)
 		{
 			PlayerTypes const eLoopPlayer = it->getID();
+			if (abHorizonExcluded[eLoopPlayer])
+				continue;
 			if (apSteps[eLoopPlayer] == NULL)
 			{
 				/*	Could remove the NULL entries during the iteration above
@@ -1988,16 +1994,10 @@ void InvasionGraph::Node::resolveLosses()
 			resolved next. */
 		for (PlayerIter<> it; it.hasNext(); ++it)
 			SAFE_DELETE(apSteps[it->getID()]);
-		/*	Shortest duration is an optimistic lower bound (ignoring defending
-			army). If the shortest duration exceeds the time limit, all actual
-			durations are going to exceed the time limit as well. */
+		// <!-- custom: Zero-defense probes determine priority and the defender split only.
+		// A naval probe can conquer and continue into a siege while the actual defended landing is repelled sooner, so its duration is not a valid lower bound for horizon pruning. See KI#577. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 		if (eNextInvader == NO_PLAYER || rSumOfThreats <= 0)
 			break;
-		if (iTimeLimit >= 0 && iShortestDuration > iTimeLimit)
-		{
-			m_kReport.log("All steps exceed the time limit; none executed");
-			break;
-		}
 		InvasionGraph::Node& kInvader = *m_kOuter.m_nodeMap[eNextInvader];
 		SimulationStep& kNextStep = *kInvader.step(rNextInvaderThreat /
 				(rSumOfThreats + rPastThreat +
@@ -2029,8 +2029,9 @@ void InvasionGraph::Node::resolveLosses()
 		else
 		{
 			delete &kNextStep;
-			m_kReport.log("Simulation step exceeds time limit; not executed");
-			break;
+			// <!-- custom: Exclude only this over-horizon step for the current defender; continue scheduling other invaders whose actual steps may still fit. See KI#577. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			abHorizonExcluded[eNextInvader] = true;
+			m_kReport.log("Simulation step exceeds time limit; invader excluded");
 		}
 	} while (!isEliminated());
 }

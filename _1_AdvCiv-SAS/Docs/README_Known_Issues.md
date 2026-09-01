@@ -651,7 +651,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#560 - (Fixed inherited original UWAI/Base AdvCiv military-cache defect) Ordinary aircraft contributed zero actual Army power](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-560)\
 [KI#561 - (Fixed inherited original UWAI/Base AdvCiv military-population mismatch) Nuclear weapons distorted the conventional Home Guard split](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-561)\
 [KI#562 - (Fixed inherited AdvCiv/UWAI war-lifecycle defect) Elimination and early-scenario peace bypassed paid-war cleanup](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-562)\
-[KI#563 - (Provisional Pending inherited AdvCiv UWAI path-horizon regression) Fast land routes are bounded by plot count](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-563)\
+[KI#563 - (Pending Pathfinding-Cluster inherited AdvCiv UWAI path-horizon regression) Fast land routes are bounded by plot count](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-563)\
 [KI#564 - (Fixed inherited AdvCiv OneArea-resource clustering regression) Grouped copies bypassed placement caps and crossed landmasses](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-564)\
 [KI#565 - (Fixed inherited AdvCiv OneArea-resource selection regression) Area ranking ignored map-script latitude policy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-565)\
 [KI#566 - (Fixed inherited AdvCiv lake-generation regression) Frozen candidates allowed adjacent random lake plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-566)\
@@ -665,7 +665,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#574 - (Fixed inherited original UWAI graph-lifecycle defect) Simulated defeated players could continue attacking](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-574)\
 [KI#575 - (Fixed inherited original UWAI ownership defect) Conquest garrisons used the victim's era and representative unit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-575)\
 [KI#576 - (Fixed inherited original UWAI query-mutation defect) Discarded attack probes consumed emergency defense](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-576)\
-[KI#577 - (Provisional Pending inherited UWAI/AdvCiv scheduling defect) Invalid horizon bounds can skip in-time invasions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-577)\
+[KI#577 - (Fixed inherited original UWAI scheduling defect) Invalid horizon bounds skipped in-time invasions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-577)\
 [KI#578 - (Fixed inherited original UWAI cycle-accounting defect) Clash winners inherited the loser's Army portion](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-578)\
 [KI#579 - (Fixed inherited Base AdvCiv regression) Ally-confidence adjustment squared partial Army portions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-579)\
 [KI#580 - (Fixed inherited original UWAI dimensional-accounting defect) Army-clash casualties retained confidence scaling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-580)\
@@ -870,7 +870,19 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#778 - (Pending inherited AdvCiv cache-invalidation issue) Permanent Alliances do not recount military-happiness garrisons](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-778)\
 [KI#779 - (Pending inherited AdvCiv Random Personalities issue) Missionary strategy reads the hidden personality's favorite civic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-779)\
 [KI#780 - (Pending inherited BtS/K-Mod event-information leak) Global PickPlayer trigger news reveals an unmet civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-780)\
-[KI#781 - (Provisional Pending investigation) F458 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-781)\
+[KI#781 - (Provisional Pending inherited BtS Permanent-Alliance cache defect) Former allied-border units retain unit-supply costs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-781)\
+[KI#782 - (Provisional Pending inherited BtS civic-lifecycle defect broadened by SAS) Losing the final building CivicOption leaves an unavailable civic active](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-782)\
+[KI#783 - (Provisional Pending AdvCiv city-trade ordering defect) Outer-ring culture conversion consults a deleted city](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-783)\
+[KI#784 - (Provisional Pending AdvCiv espionage-latch defect) Full demographics can become visible without being remembered](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-784)\
+[KI#785 - (Provisional Pending AdvCiv espionage wrong-owner regression) Force Civic uses the spy owner's cooldown modifier](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-785)\
+[KI#786 - (Provisional Pending inherited K-Mod espionage wrong-owner defect) Post-sabotage production checks the spy owner](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-786)\
+[KI#787 - (Provisional Pending AdvCiv spaceship-message regression) One observer's revealed capital coordinates leak to later observers](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-787)\
+[KI#788 - (Provisional Pending inherited BtS Permanent-Alliance cache defect) Team absorption leaves vassal-city maintenance stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-788)\
+[KI#789 - (Provisional Pending inherited BtS vassal-maintenance cache defect) Vassal city-count changes do not refresh the master](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-789)\
+[KI#790 - (Provisional Pending inherited K-Mod timer regression exposed by SAS data) -100% anarchy modifiers create negative or 101-turn cooldowns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-790)\
+[KI#791 - (Provisional Pending AdvCiv worker-build decay defect) Neutral partial Roads and Forts retain invested work forever](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-791)\
+[KI#792 - (Provisional Pending AdvCiv maintenance-cache regression) Eliminating a master-team member leaves surviving members' maintenance stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-792)\
+[KI#793 - (Provisional Pending investigation) F470 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-793)\
 
 <a id="ki-1"></a>
 
@@ -13290,9 +13302,9 @@ The same full autoplay eliminated eight teams between turns 184 and 439, repeate
 
 <a id="ki-563"></a>
 
-## KI#563 - (Provisional Pending inherited AdvCiv UWAI path-horizon regression) Fast land routes are bounded by plot count
+## KI#563 - (Pending Pathfinding-Cluster inherited AdvCiv UWAI path-horizon regression) Fast land routes are bounded by plot count
 
-Album F240 finds route-aware travel cost interpreted as turns only after a raw maxLandDist plot-count cutoff, excluding long fast road/rail routes. Pending independent implementation review.
+Album F240 finds route-aware travel cost interpreted as turns only after a raw maxLandDist plot-count cutoff, excluding long fast road/rail routes. A narrow speed multiplier risks either retaining false negatives or making the computational bound unnecessarily broad, so implementation is deferred to a joint pathfinding review with pending KI#623-KI#628 and the related fixed KI#549 behavior.
 
 Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 
@@ -13416,11 +13428,15 @@ A current-build Huge Normal-speed mixed-team Debug-opt autoplay completed succes
 
 <a id="ki-577"></a>
 
-## KI#577 - (Provisional Pending inherited UWAI/AdvCiv scheduling defect) Invalid horizon bounds can skip in-time invasions
+## KI#577 - (Fixed inherited original UWAI scheduling defect) Invalid horizon bounds skipped in-time invasions
 
-Album F254 finds zero-defense naval probes exceeding real repelled-landing duration and one over-horizon candidate aborting other concurrent invaders. Pending independent implementation review.
+`InvasionGraph::resolveLosses` uses temporary zero-defense steps to prioritize concurrent invaders and split the defender's Army among them. It treated the shortest probe duration as an optimistic lower bound and stopped the whole simulation when that probe exceeded the horizon. For naval invasions, however, the undefended probe can conquer and continue into a siege while the real defended landing is repelled earlier; the supposedly lower bound can therefore exceed an actual in-horizon combat. Separately, if the chosen actual step exceeded the horizon, another global `break` discarded every other concurrent invader even when one could still act in time.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The zero-defense results now remain priority and threat-allocation estimates only. Each chosen actual step is checked against the horizon; an over-horizon invader is excluded locally for this defender and scheduling continues with the remaining candidates. This preserves the existing ordering and defender split while admitting real shorter naval repulses and independent in-time attacks. The defect originates in original UWAI and remains in Base AdvCiv 1.14; AdvCiv-SAS inherited it unchanged.
+
+A current-build Huge Continents, Normal-speed Debug-opt autoplay with 16 independent teams, full UWAI and the standard Aggressive AI option completed successfully at turn 456 with a Space Race victory. This exercises broad land/naval war-planning traffic without directly proving the rare exact horizon ordering. The new SASFastSave workflow also successfully wrote matching named turn-0 and terminal turn-456 saves for the run.
+
+Found as F254/provisional KI#577 during ChatGPT-5.6-Sol's C021 `InvasionGraph.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-578"></a>
 
@@ -15458,8 +15474,104 @@ BtS/Civ4CE and K-Mod contain the flawed condition. AdvCiv practical 1648 hoisted
 
 <a id="ki-781"></a>
 
-## KI#781 - (Provisional Pending investigation) F458 remains unassigned during the CvPlayer deep re-audit
+## KI#781 - (Provisional Pending inherited BtS Permanent-Alliance cache defect) Former allied-border units retain unit-supply costs
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F457 through C031-WIP170, retracts F445/KI#768, and reserves F458 next. Do not implement a change under KI#781 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Permanent Alliance absorption changes stationary units in the former ally's territory from outside-border to same-team units, but does not recount the owning player's cached `m_iNumOutsideUnits`. The stale count is serialized and continues charging authoritative unit supply; later movement from and back to merged-team territory returns to the same stale baseline. BtS already performs the necessary relational adjustment for vassal transitions but omits it for Permanent Alliances; Civ4CE, K-Mod, Base AdvCiv 1.14 and AdvCiv-SAS retain the omission.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP170 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found as F458/provisional KI#781 during ChatGPT-5.6-Sol's C031-WIP171 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-782"></a>
+
+## KI#782 - (Provisional Pending inherited BtS civic-lifecycle defect broadened by SAS) Losing the final building CivicOption leaves an unavailable civic active
+
+Building-granted CivicOptions legitimately allow adoption before the civic's own technology, but losing the final source does not revalidate the selected civic until `verifyCivics` late in the following turn. Its processed economic and city effects therefore remain active through that turn's gold, research, espionage and city processing. BtS, K-Mod and Base AdvCiv retain the lifecycle gap; SAS broadens ordinary exposure through the Colossus, Mausoleum and Shwedagon Paya assignments.
+
+Found as F459/provisional KI#782 during ChatGPT-5.6-Sol's C031-WIP176 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-783"></a>
+
+## KI#783 - (Provisional Pending AdvCiv city-trade ordering defect) Outer-ring culture conversion consults a deleted city
+
+AdvCiv expanded city-trade culture conversion to the full city radius and made contested outer-ring conversion depend on whether the traded city has working priority. `acquireCity` deletes that city before invoking the helper, so it can no longer be returned by `defaultWorkingCity` and valid outer-ring conversion is silently skipped. BtS/K-Mod use only the old inner ring and lack this dependency; Base AdvCiv 1.14 and SAS retain the AdvCiv integration defect.
+
+Found as F460/provisional KI#783 during ChatGPT-5.6-Sol's C031-WIP177 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-784"></a>
+
+## KI#784 - (Provisional Pending AdvCiv espionage-latch defect) Full demographics can become visible without being remembered
+
+AdvCiv's persistent `m_abEverSeenDemographics` flag is updated only when espionage points change. Demographics visibility can also cross its threshold when Counterespionage expires or target population changes, allowing the full score history to become visible without ever latching that it was seen. The Info Screen can later hide that already-disclosed history again. This persistent-state contract was introduced by AdvCiv practical 2468 and remains incomplete in Base AdvCiv 1.14 and SAS.
+
+Found as F461/provisional KI#784 during ChatGPT-5.6-Sol's C031-WIP178 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-785"></a>
+
+## KI#785 - (Provisional Pending AdvCiv espionage wrong-owner regression) Force Civic uses the spy owner's cooldown modifier
+
+After a successful Force Civic mission, AdvCiv sets the target's revolution timer from an unqualified `getMinTurnsBetweenRevolutions()` call on the spying player. Different anarchy modifiers can therefore shorten or lengthen the victim's cooldown contrary to the victim's own rules. BtS/Civ4CE, K-Mod and the neighboring Force Religion branch explicitly use the target player; the helper refactor introduced the wrong receiver retained by Base AdvCiv 1.14 and SAS.
+
+Found as F462/provisional KI#785 during ChatGPT-5.6-Sol's C031-WIP182 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-786"></a>
+
+## KI#786 - (Provisional Pending inherited K-Mod espionage wrong-owner defect) Post-sabotage production checks the spy owner
+
+K-Mod added production-reconsideration hooks after building and production sabotage, but their unqualified `isHuman()` tests the spy owner rather than the sabotaged city's owner. A human spy can therefore suppress an AI target city's explicit production re-evaluation, while an AI spy triggers it against the same target. Base AdvCiv 1.14 and SAS retain the inherited K-Mod wrong-subject logic.
+
+Found as F463/provisional KI#786 during ChatGPT-5.6-Sol's C031-WIP183 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-787"></a>
+
+## KI#787 - (Provisional Pending AdvCiv spaceship-message regression) One observer's revealed capital coordinates leak to later observers
+
+AdvCiv hoisted spaceship-launch message coordinates outside the observer loop for replay reuse. Once an earlier observer has revealed the launching capital, later observers without that knowledge inherit its coordinates in their message and Turn Log payload. BtS/Civ4CE and K-Mod reset the coordinates per observer; Base AdvCiv 1.14 and SAS retain the AdvCiv refactor leak.
+
+Found as F464/provisional KI#787 during ChatGPT-5.6-Sol's C031-WIP184 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-788"></a>
+
+## KI#788 - (Provisional Pending inherited BtS Permanent-Alliance cache defect) Team absorption leaves vassal-city maintenance stale
+
+Number-of-cities maintenance divides a master team's vassal-city burden among its current members. Permanent Alliance absorption changes that member count without refreshing either ally's cached city maintenance, so authoritative expenses can remain at the pre-alliance value. The dependency and missing invalidation originate in BtS and remain in Civ4CE, K-Mod, Base AdvCiv 1.14 and SAS.
+
+Found as F465/provisional KI#788 during ChatGPT-5.6-Sol's C031-WIP186 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-789"></a>
+
+## KI#789 - (Provisional Pending inherited BtS vassal-maintenance cache defect) Vassal city-count changes do not refresh the master
+
+The same cached maintenance formula depends on the total cities owned by living vassals. Founding, conquering or losing a vassal city refreshes only that vassal player's maintenance, leaving each master player's authoritative maintenance stale until an unrelated invalidator happens to run. BtS introduced the dependency and omission; K-Mod reduced the burden to half without adding invalidation, and Base AdvCiv 1.14 and SAS retain it.
+
+Found as F466/provisional KI#789 during ChatGPT-5.6-Sol's C031-WIP187 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-790"></a>
+
+## KI#790 - (Provisional Pending inherited K-Mod timer regression exposed by SAS data) -100% anarchy modifiers create negative or 101-turn cooldowns
+
+K-Mod proportionally rescales active revolution, conversion and anarchy timers through `100 + oldModifier`. Its clamp substitutes 1 when the old modifier is -100% or lower, turning an ordinary one-turn cooldown into -99 when acquiring another -100% source or 101 when moving from -200% back to -100%. SAS makes both directions directly reachable through its retained Pyramids and Versailles modifiers. The singular formula is a K-Mod regression inherited by Base AdvCiv and SAS; BtS uses a different nonsingular adjustment.
+
+Found as F467/provisional KI#790 during ChatGPT-5.6-Sol's C031-WIP188 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-791"></a>
+
+## KI#791 - (Provisional Pending AdvCiv worker-build decay defect) Neutral partial Roads and Forts retain invested work forever
+
+AdvCiv's build-progress decay runs from each player's turn but visits only that player's owned land plots. Partial Roads and outside-borders Forts are valid on neutral land, yet no player ever advances those plots' interruption timer; their invested work therefore never begins decaying after the documented eight idle turns. The omission dates to AdvCiv's original `advc.011` dispatcher and remains in Base AdvCiv 1.14 and SAS; BtS/Civ4CE and K-Mod do not contain this decay system. A repair must update eligible plot-global progress exactly once per global turn rather than merely removing the ownership test and multiplying decay by the number of players.
+
+Found as F468/provisional KI#791 during ChatGPT-5.6-Sol's C031-WIP189 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-792"></a>
+
+## KI#792 - (Provisional Pending AdvCiv maintenance-cache regression) Eliminating a master-team member leaves surviving members' maintenance stale
+
+AdvCiv changed the vassal-city maintenance divisor from BtS/K-Mod's persistent team-member count to the number of living team members. When one member of a multi-player master team is eliminated while a teammate and their vassal relationship survive, that divisor changes immediately but the surviving members' cached city and total maintenance are not refreshed; their next economy processing can therefore undercharge maintenance until an unrelated invalidation occurs. This mismatch was introduced by AdvCiv's 2020 AgentIterator refactor and remains in Base AdvCiv 1.14 and SAS. A repair should either invalidate maintenance whenever alive team membership changes, including symmetric revival, or deliberately restore the persistent-member divisor.
+
+Found as F469/provisional KI#792 during ChatGPT-5.6-Sol's C031-WIP190 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-793"></a>
+
+## KI#793 - (Provisional Pending investigation) F470 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444, F446-F469 through C031-WIP190, retracts F445/KI#768, and reserves F470 next. Do not implement a change under KI#793 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP190 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
