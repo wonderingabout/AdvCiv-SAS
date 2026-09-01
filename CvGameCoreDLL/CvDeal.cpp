@@ -416,15 +416,17 @@ void CvDeal::doTurn()
 			int iValue = (GET_PLAYER(getFirstPlayer()).AI_dealVal(
 					getSecondPlayer(), getSecondList()) /
 					GC.getDefineINT(CvGlobals::PEACE_TREATY_LENGTH));
+			// <!-- custom: AdvCiv intended recurring deal attitudes to refresh together after `CvGame::doDeals`, but only the opposite trade direction suppressed its immediate refresh.
+			// Defer both first-direction paths too so later deals cannot depend on deal orientation or iteration order. See KI#619. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (getLengthFirst() > 0)
 			{
 				GET_PLAYER(getFirstPlayer()).AI_processPeacetimeTradeValue(
-						getSecondPlayer(), iValue);
+						getSecondPlayer(), iValue, false);
 			}
 			else
 			{
 				GET_PLAYER(getFirstPlayer()).AI_processPeacetimeGrantValue(
-						getSecondPlayer(), iValue);
+						getSecondPlayer(), iValue, false);
 			}
 		}
 

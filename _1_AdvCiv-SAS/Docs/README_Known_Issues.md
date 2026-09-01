@@ -708,8 +708,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#616 - (Provisional Pending AdvCiv attitude-bookkeeping defect) Multi-target peace and war trades retain only the last political target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-616)\
 [KI#617 - (Provisional Pending inherited embargo-valuation defect worsened by AdvCiv) A player's embargo price includes teammate deals that survive it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-617)\
 [KI#618 - (Provisional Pending AdvCiv war-bribe valuation defect) Shared Open Borders and Defensive Pact losses are priced once per team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-618)\
-[KI#619 - (Provisional Pending AdvCiv attitude-cache timing regression) Annual deals defer cache refresh in only one direction](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-619)\
-[KI#620 - (Provisional Pending inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars can be purchased twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-620)\
+[KI#619 - (Fixed AdvCiv attitude-cache timing regression) Annual deals deferred cache refresh in only one direction](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-619)\
+[KI#620 - (Fixed inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars could be purchased twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-620)\
 [KI#621 - (Provisional Pending inherited bundle incompatibility worsened by AdvCiv) Vassalage and a Defensive Pact can create an orphan relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-621)\
 [KI#622 - (Prepared complete fix for inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622)\
 [KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-623)\
@@ -13848,19 +13848,27 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 
 <a id="ki-619"></a>
 
-## KI#619 - (Provisional Pending AdvCiv attitude-cache timing regression) Annual deals defer cache refresh in only one direction
+## KI#619 - (Fixed AdvCiv attitude-cache timing regression) Annual deals deferred cache refresh in only one direction
 
-Album F296 finds practical 3309 adding a switch to defer annual-deal attitude refresh until `CvGame::doDeals` finishes, but passing `false` only for the second saved trade direction. The first direction retains the default immediate update, so later deals in the same batch can observe newly refreshed third-party attitudes and compute different rival-trade resentment solely from `CvDeal` endpoint orientation or iteration order. Base AdvCiv 1.14 retains this partial fix and SAS inherited it unchanged; K-Mod predates the mechanism. Pending the narrow symmetric `false` argument on the first-direction trade and grant calls while retaining immediate updates for callers outside the recurring-deal batch.
+Album F296 finds practical 3309 adding a switch to defer annual-deal attitude refresh until `CvGame::doDeals` finishes, but passing `false` only for the second saved trade direction. The first direction retains the default immediate update, so later deals in the same batch can observe newly refreshed third-party attitudes and compute different rival-trade resentment solely from `CvDeal` endpoint orientation or iteration order. Base AdvCiv 1.14 retains this partial fix and SAS inherited it unchanged; K-Mod predates the mechanism. The narrow repair is to pass `false` symmetrically from the first-direction trade and grant calls while retaining immediate updates for callers outside the recurring-deal batch.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The first-direction trade and grant calls now also suppress their immediate attitude refresh. Both stored deal orientations accumulate recurring value under the same snapshot, and the existing global refresh after `CvGame::doDeals` remains the single synchronization point; unrelated immediate-event callers retain the default behavior.
+
+After compilation, `SASGameRecord_20260901T135152Z_new1.log` confirms that a Debug-opt Huge Normal Continents autoplay with 16 players across 12 starting teams and Legacy Aggressive AI completed normally at turn 403 by Space victory. Its `warPeaceAI=KMOD_LEGACY` and `uwaiMode=DISABLED` fields confirm the intended AI mode; the long mixed-team game broadly exercised recurring deal processing without an observed issue.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-620"></a>
 
-## KI#620 - (Provisional Pending inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars can be purchased twice
+## KI#620 - (Fixed inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars could be purchased twice
 
-Album F297 finds supported legacy/K-Mod war AI evaluating several `TRADE_WAR` items independently against the unchanged pre-deal state. If two targets have a Defensive Pact, the first target's price already includes its ally and the first declaration pulls that ally into war; the second purchased declaration is nevertheless priced separately and later returns immediately because that war already exists, while sponsorship memory can still be written. BtS/K-Mod inherit the per-item valuation and prevalidation shape. AdvCiv's normal UWAI adds an explicit one-hired-war policy but gates it on UWAI, leaving its supported legacy mode exposed. Pending making that existing one-war bundle policy unconditional while preserving the selected single-war valuation model.
+Album F297 finds supported legacy/K-Mod war AI evaluating several `TRADE_WAR` items independently against the unchanged pre-deal state. If two targets have a Defensive Pact, the first target's price already includes its ally and the first declaration pulls that ally into war; the second purchased declaration is nevertheless priced separately and later returns immediately because that war already exists, while sponsorship memory can still be written. BtS/K-Mod inherit the per-item valuation and prevalidation shape. AdvCiv's normal UWAI adds an explicit one-hired-war policy but gates it on UWAI, leaving its supported legacy mode exposed. The narrow repair is to make that existing one-war bundle policy unconditional while preserving the selected single-war valuation model.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+AdvCiv's existing one-hired-war-per-bundle valuation guard now applies regardless of whether UWAI or legacy/K-Mod war AI supplies the single-war price. A second `TRADE_WAR` item is therefore made unaffordable before execution in both modes, preventing duplicate Defensive-Pact cascade pricing and false sponsorship bookkeeping without changing either mode's valuation of the one retained war.
+
+The same Debug-opt Huge Normal Continents run in `SASGameRecord_20260901T135152Z_new1.log` completed normally at turn 403 with Legacy Aggressive AI and mixed teams. This directly exercises the repaired legacy valuation path broadly; the exact human-proposed two-target war bundle against Defensive Pact allies remains source-verified rather than separately forced.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-621"></a>
 

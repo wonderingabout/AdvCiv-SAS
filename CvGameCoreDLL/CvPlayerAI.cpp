@@ -10200,12 +10200,12 @@ int CvPlayerAI::AI_dealVal(PlayerTypes eFromPlayer, CLinkList<TradeData> const& 
 				break;
 			case TRADE_WAR:
 				// <advc.104o>
-				if(getUWAI().isEnabled())
-				{
-					iWars++;
-					if(iWars > 1)
-						iValue += 1000000; // More than they can pay
-				} // </advc.104o>
+				// <!-- custom: AdvCiv rejected multiple hired wars in one bundle only under UWAI.
+				// Apply its one-war policy to legacy/K-Mod war AI too, where separate pre-deal valuation can charge twice for the same Defensive-Pact cascade and the second declaration is already redundant. See KI#620. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				iWars++;
+				if(iWars > 1)
+					iValue += 1000000; // More than they can pay
+				// </advc.104o>
 				iValue += kOurTeam.AI_declareWarTradeVal((TeamTypes)pItem->m_iData, eFromTeam);
 				break;
 			case TRADE_EMBARGO:
