@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - CLOSED AT C031-WIP150
-Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP190
-Latest confirmed roots: F321-F418, F420-F444 and F446-F469 / provisional KI#644-KI#767 and KI#769-KI#792 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted
-Next root ID: F470 unused / provisional KI#793 next
+Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP193
+Latest confirmed roots: F321-F418, F420-F444 and F446-F472 / provisional KI#644-KI#767 and KI#769-KI#795 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted
+Next root ID: F473 unused / provisional KI#796 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -24,7 +24,7 @@ QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP150 / F388-F418, F420-F443; F419 DUPLICATE]
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP190 / F444, F446-F469; F445 RETRACTED]<-(priority current wip)
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP193 / F444, F446-F472; F445 RETRACTED]<-(priority current wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
@@ -102848,3 +102848,1239 @@ Require current SAS reachability, concrete stored-state consequence, full caller
 chain, ancestry and duplicate proof before promotion.
 
 END C031-WIP190
+
+
+===============================================================================
+C031-WIP191 — QUEUE 004 CVPLAYER.CPP — F470 / KI#793 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+F470 / KI#793 is CONFIRMED.
+F471 / provisional KI#794 is UNUSED.
+No repository source files modified.
+
+
+POST-F469 CONTROL — REVIVAL IS THE SAME ALIVE-MEMBER MAINTENANCE INVARIANT,
+BUT NO SEPARATE ORDINARY PRODUCER EARNED F470
+-------------------------------------------------------------------------------
+F469's alive-only `MemberIter::count(masterTeam)` divisor changes symmetrically when
+a dead team member is revived.
+
+`CvAgents::playerRevived` reinserts the revived player into `MEMBER_ALIVE`, so the
+formula's divisor increases and the surviving teammates' correct vassal-city
+maintenance decreases.
+
+However, current normal compiled gameplay has no clean independent ordinary revival
+producer beyond special/recycled-player lifecycle territory already owned elsewhere:
+* initial setup is not a midgame transition;
+* `verifyAlive()` can revive a dead player that has externally regained a city/unit;
+* ordinary city liberation enumerates living recipients;
+* the malformed recycled-colony revival route is already part of F447/KI#770.
+
+Preserve revival as the symmetric invalidation requirement of F469, but do not spend
+a separate numbered root on WorldBuilder/debug/API-only revival.
+
+
+CONTROL — `MemberIter::count` CACHED-ECONOMY DEPENDENCY IS OTHERWISE NARROW
+----------------------------------------------------------------------------
+A whole-source search for `MemberIter::count` found only the vassal-city maintenance
+formula in `CvCity` plus dynamic AI/war utility consumers. No second cached economic
+formula depending on alive team-member count was established.
+
+This keeps F469 narrowly owned rather than suggesting a generic family of hidden
+alive-member economic caches.
+
+
+F470 / KI#793 — HUMAN-INVOLVED PERMANENT ALLIANCES NEVER REFRESH ADVC'S
+AGENTITERATOR TEAM/MEMBER CACHES; LATER TEAM TECHS SKIP THE ABSORBED PLAYER'S
+PERSISTENT PLAYER-LEVEL EFFECTS
+-------------------------------------------------------------------------------
+
+STATUS
+------
+CONFIRMED. Ordinary current human-AI or human-human Permanent Alliance diplomacy
+reaches the defect.
+
+The root was introduced by AdvCiv's `advc.agent` AgentIterator cache system. AdvCiv
+later added an explicit `allianceFormed()` full-cache rebuild to fix Permanent
+Alliances, but wired that repair only into the AI-AI diplomacy branch after its direct
+`implementDeal()` call. The generic `CvDeal` Permanent Alliance path and exported
+`CvGame::implementDeal` path do not invoke the repair.
+
+Base AdvCiv 1.14 and current AdvCiv-SAS retain the omission.
+
+CACHE CONTRACT
+--------------
+`CvAgents::updateAllCachedSequences()` constructs persistent cached sequences including:
+
+    memberSeqCache(MEMBER, eTeam)
+    memberSeqCache(MEMBER_ALIVE, eTeam)
+    teamSeqCache(CIV_ALIVE)
+    teamSeqCache(MAJOR_ALIVE)
+    ...
+
+The per-team member caches are populated from each player's CURRENT `getTeam()`.
+
+AgentIterator exact/superset forms then use those vectors as their source. In
+particular:
+* `MemberIter` / `MemberAIIter` use the per-team MEMBER/MEMBER_ALIVE cache;
+* `PlayerIter<EVER_ALIVE,MEMBER_OF>` uses MEMBER as its superset and cannot discover
+  a player absent from that team's cached vector;
+* `TeamIter<CIV_ALIVE>` and `TeamIter<MAJOR_CIV>` rely on the corresponding cached
+  alive-team sequences.
+
+The caches therefore must be rebuilt or incrementally migrated whenever players move
+between teams and an old team dies during a Permanent Alliance.
+
+PERMANENT ALLIANCE REASSIGNS PLAYERS WITHOUT UPDATING `CvAgents`
+-----------------------------------------------------------------
+Current `CvTeam::addTeam` saves the absorbed team leader and eventually performs:
+
+    for (int i = 0; i < MAX_PLAYERS; i++)
+    {
+        if (GET_PLAYER((PlayerTypes)i).getTeam() == eTeam)
+            GET_PLAYER((PlayerTypes)i).setTeam(getID());
+    }
+
+`CvPlayer::setTeam` updates:
+* old/new `CvTeam::m_iNumMembers`;
+* old/new alive / ever-alive counts;
+* team city/population/land totals;
+* InitCore team identity;
+* leader / attitude state.
+
+It does NOT notify `CvAgents`.
+
+`CvTeam::changeAliveCount`, which can drive the absorbed team's alive count to zero
+during those `setTeam` calls, likewise does not update `CvAgents`' global team sequence
+caches.
+
+The incremental `CvAgents` API has handlers for:
+* player defeat/revival;
+* colony creation;
+* vassal creation/removal.
+
+There is no player-team reassignment handler.
+
+The intended Permanent Alliance repair is instead:
+
+    CvAgents::allianceFormed()
+        -> updateAllCachedSequences();
+
+But that hook is not part of `CvTeam::addTeam`, `CvDeal::addTradeItems`,
+`CvGame::implementDeal`, or `CvGame::implementAndReturnDeal`.
+
+THE HOOK IS CALLED ONLY FOR AI-AI DIPLOMACY
+--------------------------------------------
+The sole current call site is in `CvPlayerAI::AI_doDiplo`.
+
+When the target player is NOT human, the AI directly implements the PA:
+
+    kGame.implementDeal(getID(), ePlayer, weGive, theyGive);
+    GC.getAgents().allianceFormed();
+    break;
+
+When the target player IS human, the same branch instead opens normal diplomacy:
+
+    gDLL->beginDiplomacy(...);
+
+and does NOT call `allianceFormed`.
+
+If the human accepts, the actual transaction later reaches the DLL's generic/exported
+deal implementation. `CvGame.h` exposes:
+
+    DllExport void implementDeal(...);
+
+and its implementation simply creates the `CvDeal`, calls `addTradeItems`, and lets
+that deal call `CvTeam::addTeam`. There is no post-alliance AgentIterator rebuild.
+
+The same applies to a human-initiated accepted deal: the generic deal path contains no
+hook.
+
+A whole-source search finds exactly one call to `allianceFormed()`: the AI-AI branch
+above.
+
+STATE IMMEDIATELY AFTER A HUMAN-INVOLVED PA
+-------------------------------------------
+Take singleton lower-ID Team A / Player A and singleton higher-ID Team B / Player B,
+with both alive when the AgentIterator caches were last valid.
+
+Before the PA:
+
+    MEMBER[A]       = { A }
+    MEMBER_ALIVE[A] = { A }
+    MEMBER[B]       = { B }
+    MEMBER_ALIVE[B] = { B }
+
+After generic `CvTeam::addTeam(B)`:
+
+    A.getTeam() == A
+    B.getTeam() == A
+
+and Team B's actual alive/member counts have fallen to zero.
+
+But without `allianceFormed()`:
+
+    MEMBER[A]       is still { A }
+    MEMBER_ALIVE[A] is still { A }
+
+    MEMBER[B]       is still { B }
+    MEMBER_ALIVE[B] is still { B }
+
+while the global CIV_ALIVE / MAJOR_ALIVE team caches can still contain the now-dead
+absorbed Team B as well.
+
+This is not merely a stale count returned once. Those vectors remain the source for
+future AgentIterators until a full rebuild, normally game start/load, occurs.
+
+DETERMINISTIC CURRENT-SAS GAMEPLAY CONSEQUENCE — LATER TECHNOLOGY SKIPS THE
+ABSORBED PLAYER
+-------------------------------------------------------------------------------
+The cleanest narrow consequence is `CvTeam::processTech`.
+
+When the merged Team A later acquires a technology, current SAS processes persistent
+per-player technology effects through:
+
+    for (PlayerIter<EVER_ALIVE,MEMBER_OF> it(getID()); it.hasNext(); ++it)
+    {
+        CvPlayer& kMember = *it;
+        kMember.changeFeatureProductionModifier(...);
+        kMember.changeWorkerSpeedModifier(...);
+        kMember.changeTradeRoutes(...);
+        kMember.changeExtraHealth(...);
+        kMember.changeExtraHappiness(...);
+        kMember.changeAssets(...);
+        kMember.changePower(...);
+        kMember.changeTechScore(...);
+        ...
+    }
+
+Base AdvCiv 1.14 uses `MemberIter` for the same player-level processing. Both rely on
+the stale per-team cache after a human PA.
+
+Current SAS enables Permanent Alliances at:
+
+    TECH_GAME_THEORY
+        Era = ERA_MODERN
+        bPermanentAllianceTrading = 1
+
+Current `TECH_BIOENGINEERING` is a later Future-era technology with:
+
+    iHealth = 3
+
+and normal `CvTeam::processTech` applies that as:
+
+    kMember.changeExtraHealth(3);
+
+Ordinary reproduction:
+
+1. Human Player B forms/accepts a Permanent Alliance with lower-ID singleton Player A
+   after Permanent Alliance trading has been unlocked.
+2. Team A survives; B is reassigned to Team A.
+3. Because the deal was human-involved, no `CvAgents::allianceFormed()` call occurs.
+4. Leave `TECH_BIOENGINEERING` unresearched until after the alliance.
+5. The merged team later acquires Bioengineering normally.
+6. Team A correctly gains the team technology.
+7. `processTech` iterates the stale surviving-team member cache `{A}`.
+8. Player A receives `+3` player ExtraHealth.
+9. Player B is absent from the iterator and receives NO `+3` ExtraHealth despite being
+   a living member of exactly the same team that owns the technology.
+
+`CvCity::goodHealth` / bad-health calculations read the owner's current
+`CvPlayer::getExtraHealth()` dynamically. B's cities therefore have three fewer health
+points than A's cities solely because B was the absorbed side of a human-involved
+Permanent Alliance.
+
+The same skipped loop can omit other current/future technology player effects:
+worker-speed modifier, trade routes, happiness, Assets, Power, TechScore and K-Mod
+commerce/specialist-commerce modifiers when their XML values are nonzero.
+
+Additional later member-iterator consumers are also exposed, but they are intentionally
+not split into separate root numbers here. The missing PA cache rebuild is the shared
+root.
+
+PERSISTENCE / SAVE-LOAD DIAGNOSTIC
+----------------------------------
+A save/load AFTER the missed technology does not retroactively repair the player
+effect.
+
+`CvAgents::gameStart(bFromSaveGame)` does call `updateAllCachedSequences()`, so the
+member iterator vectors become correct after loading.
+
+But `CvPlayer` serializes the already-processed player fields directly, including:
+
+    m_iWorkerSpeedModifier
+    m_iExtraHealth
+    m_iAssets
+    m_iPower
+    m_iTechScore
+    ...
+
+The load path reads those values; it does not replay `CvTeam::processTech` for every
+already-known technology.
+
+Therefore:
+* the AgentIterator membership error itself self-repairs on reload;
+* player-level tech effects that were skipped BEFORE the reload remain missing and can
+  persist in the save.
+
+This provides a useful diagnostic distinction: forming the PA and immediately
+save/reloading before any affected later transition can mask the iterator bug; once an
+authoritative per-player transition has already been skipped, the downstream state need
+not self-heal.
+
+ANCESTRY / INTENT
+-----------------
+The local reachable history makes the missed generic call unusually clear.
+
+Practical AdvCiv commit 1816:
+    6029d4205ce0e3c6206d816ee2d8b9a6c46442d5
+    2019-11-15
+    "AgentIterator class for looping over players and teams"
+    [advc.agent]
+
+introduced `CvAgents`, the cached member/team sequences and:
+
+    void allianceFormed() // Tbd.: Not currently called
+    {
+        updateAllCachedSequences();
+    }
+
+So the original AgentIterator integration already recognized that a Permanent Alliance
+would need a full cache rebuild, but initially had no call site.
+
+Practical AdvCiv commit 1882:
+    4d4b92d0c0c65fdbdf550d8b27f16112d07757b4
+    2019-12-29
+    "Fix some recently introduced problems with Perm. Alliances"
+
+removes the "Not currently called" comment and adds the first/current call:
+
+    g.implementDeal(...);
+    GC.getAgents().allianceFormed();
+
+However, the diff places it only in `CvPlayerAI::AI_doDiplo`'s AI-AI direct-deal branch.
+It does not put the rebuild in the generic `CvDeal` or `CvTeam::addTeam` transition.
+
+Base AdvCiv 1.14 still has exactly that architecture and exactly one call site.
+Current SAS retains it.
+
+This is therefore a partial integration repair: the history explicitly identifies
+`allianceFormed()` as the cache rebuild needed after PAs, but only one transaction
+producer was wired to it.
+
+CURRENT SAS F216 INTERACTION
+----------------------------
+Current SAS has already repaired F216/KI#539 by moving the UWAI history merge BEFORE
+the absorbed players' `setTeam` reassignment, so that UWAI merge uses the original
+survivor-member boundary.
+
+That fix does not repair F470. The AgentIterator caches still need to be rebuilt AFTER
+the team reassignment for all subsequent game logic.
+
+F465 RECONCILIATION — REMAINS CONFIRMED
+----------------------------------------
+F470 changes the immediate behavior of a HUMAN-involved PA enough that the earlier F465
+write-up needs a scope refinement, not a retraction.
+
+F465 says PA team-member changes alter the vassal-city maintenance divisor without
+refreshing city/player maintenance caches.
+
+AI-AI PAs execute:
+
+    implementDeal(...)
+    allianceFormed()
+
+so their AgentIterator member count immediately becomes the correct merged value 2.
+No maintenance refresh follows. The F465 stale-maintenance reproduction therefore
+remains independently valid and ordinary on the AI-AI path.
+
+Human-involved PAs additionally suffer F470, meaning the maintenance formula's
+AgentIterator denominator can itself remain stale until a full cache rebuild. The two
+roots can layer; neither fix subsumes the other.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+The reconciled album contains many PA roots, including:
+* F216/KI#539 — UWAI merge recipient boundary after AgentIterator conversion;
+* F455/KI#778 — military-happiness cache after PA;
+* F458/KI#781 — outside-unit/supply cache after PA;
+* F465/KI#788 — maintenance cache after PA member-count change.
+
+No existing root covers the generic `CvAgents` team/member sequence cache remaining
+pre-alliance specifically because `allianceFormed()` is called only for AI-AI deals.
+
+The old F216 history is particularly useful as a negative control: it concerns WHEN
+UWAI consumes membership during `addTeam`; F470 concerns the missing full AgentIterator
+cache rebuild for all later consumers on human PA transactions.
+
+CONSERVATIVE REPAIR
+-------------------
+The rebuild belongs to the generic Permanent Alliance transaction, not to one AI
+producer.
+
+A narrow repair is to call:
+
+    GC.getAgents().allianceFormed();
+
+immediately after the generic `CvTeam::addTeam` call in `CvDeal::addTradeItems`'s
+`bAlliance` branch, and remove the AI-AI-only duplicate call from
+`CvPlayerAI::AI_doDiplo`.
+
+That guarantees identical cache repair for:
+* AI-AI PAs;
+* AI-human PAs accepted through diplomacy;
+* human-initiated PAs;
+* any other transaction reaching the normal deal implementation.
+
+Alternatively, a carefully placed call inside `CvTeam::addTeam` after all absorbed
+players have been reassigned can centralize the invariant even more strongly. Because
+AgentIterator cache rebuilding can invalidate active iterator backing vectors, placement
+should be reviewed against callers that may themselves be iterating agents; the current
+AI path already rebuilds and immediately `break`s its diplomacy iteration.
+
+Whichever location is chosen, the invariant is:
+
+    once `CvTeam::addTeam` has returned to ordinary post-transaction gameplay,
+    CvAgents MEMBER/MEMBER_ALIVE and alive-team caches must match current
+    CvPlayer::getTeam / CvTeam::isAlive state.
+
+REGRESSION TEST
+---------------
+1. Start with singleton Team A / Player A and singleton Team B / human Player B.
+2. Ensure the AgentIterator caches are initialized normally.
+3. Form a Permanent Alliance through the human diplomacy path.
+4. Immediately assert:
+       MemberIter::count(A) == 2
+       MemberIter::count(B) == 0
+       absorbed Team B is absent from CIV_ALIVE / MAJOR_ALIVE iteration.
+5. Acquire `TECH_BIOENGINEERING` afterward.
+6. Assert BOTH A and B receive the technology's `+3` player ExtraHealth.
+7. Repeat with AI-AI PA to ensure behavior is identical and no double-cache rebuild
+   side effect appears.
+8. Save/load before and after the post-PA tech acquisition as diagnostic variants.
+
+NUMBERING
+---------
+F470 / KI#793 is CONFIRMED.
+F471 / provisional KI#794 is the next unused root.
+
+CURRENT STONE AFTER C031-WIP191
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F470 / KI#793 CONFIRMED.
+F471 / provisional KI#794 UNUSED.
+Latest physical checkpoint: C031-WIP191.
+No repository source files modified.
+
+NEXT
+----
+Continue from F471 unused.
+
+First finish the immediate F470 aftermath without multiplying the same cache omission
+into artificial roots:
+* identify any post-human-PA transition that can crash/assert because a stale member
+  cache is later incrementally edited;
+* distinguish those consequences from independent invalidation roots;
+* verify whether cache rebuild on load plus serialized downstream state creates any
+  additional one-way corruption not already covered by F470.
+
+Then resume the mechanically ranked low-coverage authoritative CvPlayer lifecycle and
+economic mutators, plus historical-fix sibling seams.
+
+Require ordinary current SAS reachability, concrete authoritative consequence, full
+caller/callee proof, ancestry and duplicate check before promotion.
+
+END C031-WIP191
+
+
+===============================================================================
+C031-WIP192 — QUEUE 004 CVPLAYER.CPP — F471 / KI#794 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+F471 / KI#794 is CONFIRMED.
+F472 / provisional KI#795 is UNUSED.
+No repository source files modified.
+
+
+POST-F470 CONTROL — STALE AGENTITERATOR ASSERTS ARE CONSEQUENCES OF F470,
+NOT NEW ROOTS
+-------------------------------------------------------------------------------
+The immediate F470 aftermath was checked without multiplying one missing cache rebuild
+into artificial findings.
+
+For example, after a human-involved Permanent Alliance the absorbed player can still be
+absent from the surviving team's stale `MEMBER_ALIVE` vector. If that absorbed player
+later dies before a full cache rebuild, `CvAgents::playerDefeated` tries to erase that
+player from the CURRENT surviving-team member cache. In a debug DLL, the failed erase
+can assert because the player was never inserted there after the PA.
+
+That is a downstream consequence of F470's missing `allianceFormed()` rebuild, not an
+independent invalidation root. Likewise, save/load repairs the AgentIterator vectors but
+does not retroactively replay already-skipped serialized player-level effects; that
+one-way persistence is already part of F470.
+
+
+LOW-COVERAGE MUTATOR CONTROLS
+-----------------------------
+The first post-WIP191 low-coverage pass also closed several thin modifier families.
+
+* `changeLevelExperienceModifier` could generically affect the XP threshold of existing
+  units without revisiting their levels, but every current shipped trait has
+  `iLevelExperienceModifier = 0`; no ordinary current producer was established.
+* Great Person/General threshold/rate, hurry, worker speed, improvement-upgrade speed,
+  military production, space production and city-defense player modifiers are consumed
+  dynamically by their authoritative calculations rather than copied into a separate
+  player->city/unit cache requiring bulk invalidation.
+* `changeFreeBuildingCount` updates cities on the intended 0<->positive availability
+  transition; multiple sources do not represent multiple free copies.
+* the positive `ExtraPlayerInstances` acquisition algebra remains the Palace-only
+  replacement-capital special case already closed in the prior tranche.
+
+No F471 from these state holders.
+
+
+F471 / KI#794 — ELIMINATING THE LAST PLAYER OF AN ENEMY TEAM LEAVES THE
+SURVIVING ENEMIES' CACHED WAR-WEARINESS ANGER ACTIVE THROUGH ONE MORE FULL
+CITY/ECONOMIC TURN
+-------------------------------------------------------------------------------
+
+STATUS
+------
+CONFIRMED. Ordinary current conquest reaches the defect.
+
+The underlying stale-until-end-of-turn behavior is inherited from stock BtS/K-Mod.
+AdvCiv explicitly attempted to repair war-weariness anger on player elimination, but
+the repair runs after AdvCiv's dead-team war teardown and guards on `isAtWar`; the guard
+is therefore false exactly when the final team member has been eliminated and the war
+has actually ended.
+
+Base AdvCiv 1.14 and current SAS retain this ineffective repair.
+
+AUTHORITATIVE STATE
+-------------------
+`CvPlayer::updateWarWearinessPercentAnger()` computes and stores:
+
+    m_iWarWearinessPercentAnger
+
+from the player's CURRENT living enemy teams:
+
+    for (TeamIter<MAJOR_CIV,ENEMY_OF> itEnemy(getTeam()); itEnemy.hasNext(); ++itEnemy)
+    {
+        iNewWarWearinessPercentAnger +=
+            GET_TEAM(getTeam()).getWarWeariness(itEnemy->getID(), true) / 100;
+    }
+
+It then writes the new cached value.
+
+Cities do not independently rederive the team war list. Their live anger reads this
+stored player value:
+
+    int CvCity::getWarWearinessPercentAnger() const
+    {
+        int iAnger = GET_PLAYER(getOwner()).getWarWearinessPercentAnger();
+        ...
+        return iAnger;
+    }
+
+So when a war ends, the player's cached base anger has to be refreshed before city
+assignment/output if the end of that war should take effect immediately.
+
+ADVC PLAYER-ELIMINATION REPAIR
+------------------------------
+Current `CvPlayer::setAlive(false)` contains an explicit attempted fix:
+
+    // advc.001: CvTeam::makePeace does this, but here they've missed it.
+    FOR_EACH_ENUM(CivPlayer)
+    {
+        CvPlayer& kWarEnemy = GET_PLAYER((PlayerTypes)eLoopCivPlayer);
+        if (kWarEnemy.isAlive() && kWarEnemy.getID() != getID() &&
+            !kWarEnemy.isMinorCiv() &&
+            GET_TEAM(kWarEnemy.getTeam()).isAtWar(getTeam()))
+        {
+            kWarEnemy.updateWarWearinessPercentAnger();
+        }
+    }
+
+The comment correctly identifies the contract: normal `CvTeam::makePeace` explicitly
+refreshes the members of both former enemy teams after `setAtWar(false)`.
+
+But the elimination repair is ordered too late.
+
+DEAD-TEAM WAR TEARDOWN HAPPENS BEFORE THAT LOOP
+-----------------------------------------------
+Earlier in the SAME `CvPlayer::setAlive` function:
+
+    m_bAlive = bNewValue;
+    ...
+    GET_TEAM(getTeam()).changeAliveCount(isAlive() ? 1 : -1);
+
+When this is the LAST living player of the team,
+`CvTeam::changeAliveCount(-1)` reaches `m_iAliveCount == 0` and AdvCiv explicitly tears
+down every war:
+
+    if (m_iAliveCount == 0)
+    {
+        for (...)
+        {
+            ...
+            kLoopTeam.setAtWar(getID(), false);
+            setAtWar(kLoopTeam.getID(), false);
+            ...
+        }
+    }
+
+So by the time control returns to `CvPlayer::setAlive(false)` and reaches the attempted
+war-weariness loop:
+
+    GET_TEAM(kWarEnemy.getTeam()).isAtWar(getTeam())
+
+is already FALSE for every former enemy.
+
+Therefore the only transition that actually requires the immediate refresh -- the
+death of the final team member, which ends the war -- skips the refresh.
+
+If a player dies while teammates remain alive, `isAtWar` can still be true and the
+loop can run, but the team war itself has NOT ended, so recomputing the enemy's war
+weariness does not solve the intended elimination case.
+
+The AdvCiv repair is consequently ineffective for its stated purpose.
+
+ORDINARY CONQUEST REACHES `setAlive(false)` IMMEDIATELY
+--------------------------------------------------------
+This does not depend on the later global `CvGame::verifyAlive` sweep.
+
+At the end of `CvPlayer::acquireCity`, AdvCiv explicitly calls:
+
+    GET_PLAYER(eOldOwner).verifyAlive();
+
+with the comment that otherwise a dead AI can receive one more turn and even arrange a
+vassal agreement.
+
+When the old owner has just lost its last city, `verifyAlive()` normally sets
+`bKill = true` once the civilization has founded its first city, and calls:
+
+    setAlive(false);
+
+So final-city conquest can execute the entire team-death/failed-refresh chain
+synchronously in the CONQUEROR's active turn.
+
+DETERMINISTIC CURRENT GAMEPLAY REPRO
+------------------------------------
+Use a normal sequential-turn game:
+
+1. Player A is at war with singleton Team B / Player B.
+2. A has accumulated enough war weariness against B that
+   `A.getWarWearinessPercentAnger() > 0`; for the cleanest case B is A's only current
+   major-civilization enemy.
+3. During A's active turn, A captures B's final city.
+4. `CvPlayer::acquireCity` immediately calls `B.verifyAlive()`.
+5. B is eliminated:
+       B.setAlive(false)
+         -> Team B changeAliveCount(-1)
+         -> Team B alive count becomes 0
+         -> A<->B `isAtWar` is cleared.
+6. B's `setAlive(false)` then reaches the AdvCiv war-enemy refresh loop.
+7. The loop tests:
+       Team A.isAtWar(Team B)
+   which is now false.
+8. A's cached `m_iWarWearinessPercentAnger` therefore remains at its PRE-ELIMINATION
+   value even though A has no remaining enemy in this simple reproduction.
+
+A forced:
+
+    A.updateWarWearinessPercentAnger();
+
+at this point would recompute from `TeamIter<MAJOR_CIV,ENEMY_OF>` and set the value to
+zero.
+
+ONE FULL CITY/ECONOMIC TURN USES THE STALE ANGER
+-------------------------------------------------
+The defect is stronger than a transient UI display.
+
+When A ends that same active turn, current `CvPlayer::doTurn()` executes in this order:
+
+    AI().AI_assignWorkingPlots();
+
+    verifyGoldCommercePercent();
+    doGold();
+    doResearch();
+    doEspionagePoints();
+
+    for each city:
+        city->doTurn();
+
+    ...
+    updateTradeRoutes();
+    updateWarWearinessPercentAnger();
+
+The routine refresh occurs only AFTER:
+* citizen/specialist reassignment;
+* gold/research processing;
+* every owned city's `doTurn`.
+
+Thus the city/economic phase immediately following the enemy's elimination still sees
+the cached anger from a war that has already ended.
+
+For a city where the stale percentage crosses an unhappy-citizen threshold, this can:
+* leave citizens unnecessarily angry/unassigned;
+* reduce yields and commerce for that city turn;
+* alter starvation/growth and specialist/GPP processing;
+* propagate into the player's same-turn gold/research results.
+
+Only near the end of `CvPlayer::doTurn` is the cache finally recomputed under the now-
+correct no-enemy state.
+
+The same ordering exists in stock BtS and K-Mod: their routine war-weariness refresh
+also comes after AI assignment, economy, and city turns.
+
+OTHER-WAR NUANCE
+----------------
+If A remains at war with other teams, the correct post-elimination cache need not be
+zero. The root still applies: it should immediately DROP the eliminated Team B's
+contribution, but retains the old aggregate through the city/economic phase.
+
+The single-enemy reproduction is simply the clearest observable case.
+
+ANCESTRY
+--------
+Stock BtS/Civ4CE:
+* `CvPlayer::setAlive(false)` does not perform an immediate enemy-player
+  `updateWarWearinessPercentAnger()` refresh at all;
+* its normal `CvPlayer::doTurn` refresh occurs after AI assignment, economy and city
+  turns;
+* stock `CvTeam::changeAliveCount` frees vassals when the team dies but does not carry
+  AdvCiv's explicit war cleanup.
+
+K-Mod retains that player-elimination behavior and the same late normal-turn refresh.
+
+AdvCiv changes team elimination under `advc.003m` so a dead team explicitly stops
+being at war:
+
+    kLoopTeam.setAtWar(getID(), false);
+    setAtWar(kLoopTeam.getID(), false);
+
+AdvCiv also adds the `advc.001` player-elimination loop saying that `CvTeam::makePeace`
+refreshes war-weariness anger and player death had missed it.
+
+However, the refresh loop is placed AFTER `changeAliveCount`, and tests the already-
+cleared `isAtWar` relationship. The attempted repair therefore cannot see the former
+enemy when the final team member dies.
+
+Base AdvCiv 1.14 and current SAS preserve this ordering.
+
+This is best described as a stock/K-Mod stale-elimination problem with an ineffective
+AdvCiv immediate-repair integration.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+No reconciled numbered root owns this player-cache transition.
+
+F093 / KI#415 is related only by topic:
+* F093 concerns `CvTeam::doWarWeariness` no longer visiting DEAD teams after an
+  AdvCiv iterator refactor, so the raw team-vs-team war-weariness history can freeze and
+  matter if the dead team later revives.
+* F471 concerns a LIVING former enemy player's cached
+  `m_iWarWearinessPercentAnger` not being refreshed when team elimination ends the war,
+  causing immediate ordinary city/economic effects.
+
+No revival is required for F471.
+
+F327 / KI#650 is an AI civic-valuation wrong-variable bug involving the current
+war-weariness modifier; it does not own this cache invalidation.
+
+CONSERVATIVE REPAIR
+-------------------
+Do not discover former enemies by asking `isAtWar` AFTER the dead team's war state has
+already been cleared.
+
+Two narrow approaches:
+
+A. Snapshot former enemy teams/players before the final `changeAliveCount(-1)`, then
+   refresh those surviving players after war teardown.
+
+B. Centralize the invariant in the team-death branch:
+   when `CvTeam::changeAliveCount` transitions to zero, collect the teams that were at
+   war before `setAtWar(false)` and, after clearing the relationships, call
+   `updateWarWearinessPercentAnger()` for their living members.
+
+Option B tracks the actual relationship transition and is analogous to
+`CvTeam::makePeace`, but placement must avoid AgentIterator/cache mutation hazards
+during player death.
+
+A broader but simpler player-side repair after final-team death is to refresh all
+living major players; that is correct but more work than necessary.
+
+The important invariant is:
+
+    once team elimination has ended a war, every surviving former enemy's cached
+    war-weariness anger must reflect the post-war enemy set BEFORE its next city/
+    economy processing.
+
+REGRESSION TEST
+---------------
+1. A and singleton B are at war; B is A's only enemy.
+2. Accumulate positive A-vs-B war weariness and force/update A's cached anger so it is
+   positive.
+3. During A's active turn, capture B's final city.
+4. Assert immediately after B's elimination:
+       !TeamA.isAtWar(TeamB)
+       A.getWarWearinessPercentAnger() ==
+           value produced by A.updateWarWearinessPercentAnger()
+   and, in the single-enemy case, the value is 0.
+5. End A's turn and verify no city processes an extra turn with the old war anger.
+6. Repeat with A still at war with Team C; the cache should retain C's contribution but
+   drop B's immediately.
+7. Repeat with a multi-player B team where only one member dies; because the war does
+   not end, the B contribution should remain.
+
+NUMBERING
+---------
+F471 / KI#794 is CONFIRMED.
+F472 / provisional KI#795 is the next unused root.
+
+CURRENT STONE AFTER C031-WIP192
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F471 / KI#794 CONFIRMED.
+F472 / provisional KI#795 UNUSED.
+Latest physical checkpoint: C031-WIP192.
+No repository source files modified.
+
+NEXT
+----
+Continue from F472 unused.
+
+First finish the historical player-death / war-state sibling seam while F471 is hot:
+* other cached player values that normal `makePeace` refreshes but team elimination
+  bypasses;
+* unit/plot/trade validity updates that rely on a normal peace/war transition;
+* player-death cleanup ordering around `changeAliveCount`, `killCities`,
+  `killAllDeals`, AgentIterator and attitude caches.
+
+Then resume the historical-fix x low-coverage function ranking and remaining
+authoritative lifecycle/economic mutators.
+
+Require ordinary current SAS reachability, concrete gameplay consequence, full
+caller/callee proof, ancestry and duplicate check before promotion.
+
+END C031-WIP192
+
+
+===============================================================================
+C031-WIP193 — QUEUE 004 CVPLAYER.CPP — F472 / KI#795 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+F472 / KI#795 is CONFIRMED.
+F473 / provisional KI#796 is UNUSED.
+No repository source files modified.
+
+
+POST-F471 PLAYER-DEATH / LIFECYCLE CONTROLS
+-------------------------------------------
+The immediate player-death seam was continued before moving back to the historical
+low-coverage ranking.
+
+1. NORMAL-PEACE SIDE EFFECTS BESIDES WAR-WEARINESS ANGER DID NOT PRODUCE A NEW
+   INDEPENDENT ROOT.
+
+`CvTeam::makePeace` performs several network/unit/trade refreshes that are not invoked
+through exactly the same path when a team disappears. In the final-team-death case,
+however:
+* AdvCiv deliberately kills the defeated player's units before clearing team war state
+  so active blockades/plunder are lifted while the former at-war relation still exists;
+* final-city conquest / city cleanup supplies the relevant ownership/plot updates;
+* the dead team has no continuing city/trade network that makes a missing post-peace
+  route/plot refresh independently consequential.
+
+War-weariness anger remains distinctive because it is cached state owned by a LIVING
+former enemy and AdvCiv's own `advc.001` comment explicitly identifies the missing
+`makePeace` side effect. No F472 from the other peace siblings.
+
+2. DEATH-SIDE GLOBAL ATTITUDE UPDATE ASYMMETRY CLOSES UNDER THE GAME UPDATE CADENCE.
+
+`setAlive(true)` explicitly calls global `CvPlayerAI::AI_updateAttitudes()` because
+rank-difference attitude between players other than the revived player can change.
+`setAlive(false)` has no matching direct call.
+
+Player elimination nevertheless ends with `CvGame::setScoreDirty(true)`.
+`CvGame::update()` calls `updateScore()` on normal update slices; when score is dirty,
+`updateScore()` rebuilds player ranks/scores and then calls the global
+`CvPlayerAI::AI_updateAttitudes()`.
+
+Thus survivor-vs-survivor rank-attitude caches are rebuilt through the existing score
+update after elimination. No durable independent F472 was established.
+
+3. `CvTeam::updateLeaderID()` DOES NOT CONSUME THE TEMPORARILY STALE ALIVE-MEMBER
+   AGENTITERATOR CACHE.
+
+`CvPlayer::setAlive(false)` changes `m_bAlive`, then calls
+`GET_TEAM(getTeam()).updateLeaderID()` before `CvAgents::playerDefeated()` removes the
+player from `MEMBER_ALIVE`. This ordering initially looked vulnerable.
+
+`CvTeam::updateLeaderID()` performs a raw `MAX_PLAYERS` scan, filters each player by
+the current team, and explicitly weights only `kPlayer.isAlive()`. It therefore sees
+the just-updated false alive flag directly and does not rely on the stale
+AgentIterator membership vector. Close.
+
+4. FINAL-TEAM VASSAL CLEANUP DOES USE THE PRE-`playerDefeated()` MEMBER CACHE, BUT NO
+   BAD INDEPENDENT CONSEQUENCE WAS ESTABLISHED.
+
+`CvTeam::changeAliveCount` can free the dead team's vassals before
+`CvAgents::playerDefeated()` removes the just-dead player from alive-member caches.
+`CvTeam::setVassal` consequently still sees that member in its MemberIter operations.
+
+That ordering is at least partly useful: relationship sight/unit/city cleanup can still
+touch the dying participant before later `killCities` / `killAllDeals` cleanup. No
+separate authoritative corruption was proven from this temporary window.
+
+
+DUPLICATE CONTROL — GOLDEN-AGE READINESS UNITCLASS VS CONSUMPTION UNITTYPE
+--------------------------------------------------------------------------
+The K-Mod mismatch was reconciled against the earlier album before re-investigation.
+
+`unitsGoldenAgeReady()` intentionally counts distinct `UnitClassTypes`, while
+`killGoldenAgeUnits()` marks already-consumed kinds by `UnitTypes`.
+
+This is already preserved in WIP158/WIP174/WIP179 as a latent data-extension defect.
+Current SAS has exactly one Golden-Age-capable unit type for each relevant Great Person
+class and no civilization mapping that creates two Golden-Age-capable UnitTypes in the
+same UnitClass. Current shipped state therefore cannot make readiness and consumption
+disagree.
+
+Do not duplicate this as F472.
+
+
+F472 / KI#795 — ADVANCED START ROUTE PURCHASE IGNORES ROUTE BONUS/RESOURCE
+PREREQUISITES, ALLOWING RAILROAD WITHOUT COAL OR OIL
+-------------------------------------------------------------------------------
+
+STATUS
+------
+CONFIRMED. Ordinary current shipped Advanced Start gameplay reaches the defect.
+
+The root is inherited from stock BtS/Firaxis through K-Mod and Base AdvCiv. AdvCiv
+changed Advanced Start pricing and fixed a separate route-counting issue but retained
+the route legality omission. Current AdvCiv-SAS retains it.
+
+CURRENT NORMAL ROUTE LEGALITY
+-----------------------------
+Current `CvPlayer::canBuild` delegates to `CvPlot::canBuild` for plot/build legality.
+
+For a route Build, `CvPlot::canBuild` validates both mandatory and OR bonus
+prerequisites when `bTestVisible == false`:
+
+    if (GC.getInfo(eRoute).getPrereqBonus() != NO_BONUS)
+    {
+        if (!isAdjacentPlotGroupConnectedBonus(ePlayer,
+            GC.getInfo(eRoute).getPrereqBonus()))
+        {
+            return false;
+        }
+    }
+
+    bool bFoundValid = true;
+    for (int i = 0; i < GC.getInfo(eRoute).getNumPrereqOrBonuses(); i++)
+    {
+        bFoundValid = false;
+        if (isAdjacentPlotGroupConnectedBonus(ePlayer,
+            GC.getInfo(eRoute).getPrereqOrBonus(i)))
+        {
+            bFoundValid = true;
+            break;
+        }
+    }
+    if (!bFoundValid)
+        return false;
+
+Current `ROUTE_RAILROAD` has:
+
+    iAdvancedStartCost = 18
+
+    PrereqOrBonuses:
+        BONUS_COAL
+        BONUS_OIL
+
+and current `BUILD_RAILROAD` requires:
+
+    TECH_STEAM_POWER
+
+Therefore an ordinary Worker may build Railroad only when:
+* the player has Steam Power; AND
+* the plot's adjacent plot-group/network can provide Coal OR Oil.
+
+This is a real strategic-resource prerequisite, not merely help/UI metadata.
+
+ADVANCED START VALIDATOR CHECKS ONLY THE BUILD TECHNOLOGY
+---------------------------------------------------------
+Current `CvPlayer::getAdvancedStartRouteCost` performs plot ownership/basic-terrain
+checks and then:
+
+    FOR_EACH_ENUM(Build)
+    {
+        if (GC.getInfo(eLoopBuild).getRoute() == eRoute)
+        {
+            if (!GET_TEAM(getTeam()).isHasTech(
+                GC.getInfo(eLoopBuild).getTechPrereq()))
+            {
+                return -1;
+            }
+        }
+    }
+
+It never checks:
+* `CvRouteInfo::getPrereqBonus()`;
+* `CvRouteInfo::getPrereqOrBonus(...)`;
+* `CvPlot::isAdjacentPlotGroupConnectedBonus(...)`;
+* or `CvPlot::canBuild` through the matching route Build.
+
+Thus Steam Power alone makes Railroad return a nonnegative Advanced Start price even
+when the player has neither Coal nor Oil available to the plot/network.
+
+EXECUTION DOES NOT REVALIDATE
+-----------------------------
+`CvPlayer::doAdvancedStartAction` handles a route purchase as:
+
+    int iCost = getAdvancedStartRouteCost(eRoute, bAdd, pPlot);
+    if (bAdd && iCost < 0)
+        return;
+
+    if (bAdd)
+    {
+        if (getAdvancedStartPoints() >= iCost)
+        {
+            pPlot->setRouteType(eRoute);
+            changeAdvancedStartPoints(-iCost);
+        }
+    }
+
+There is no subsequent `canBuild` or route-resource check.
+
+Once the incomplete cost helper approves the purchase, `setRouteType` installs the
+Railroad directly.
+
+CURRENT SHIPPED REACHABILITY
+----------------------------
+Advanced Start is a normal visible option:
+
+    GAMEOPTION_ADVANCED_START
+        bDefault = 0
+        bVisible = 1
+
+Current start-era data supplies ordinary points, including:
+
+    ERA_MODERN
+        iAdvancedStartPoints = 7500
+
+The normal game-setup tech initialization grants every technology from an era EARLIER
+than the selected start era.
+
+Current Steam Power is:
+
+    TECH_STEAM_POWER
+        Era = ERA_INDUSTRIAL
+        iAdvancedStartCost = 100
+
+Therefore a Modern-era Advanced Start begins with Steam Power already known.
+
+Current AdvCiv's worker-build price modifier is:
+
+    ADVANCED_START_WORKER_BUILD_MODIFIER = 67
+
+and Normal-speed BuildPercent is 100. Railroad's base Advanced Start price 18 is
+therefore cheap and normally purchasable once a city/owned plot exists.
+
+DETERMINISTIC CURRENT-SAS REPRO
+-------------------------------
+1. Start a normal Custom Game with:
+       GAMEOPTION_ADVANCED_START enabled
+       Start Era = Modern
+       a normal land map.
+2. The player receives 7500 Advanced Start points and automatically knows Industrial-
+   era Steam Power.
+3. Establish the required first city / owned plot through the ordinary Advanced Start
+   interface.
+4. Use a position whose player/network has NO connected Coal and NO connected Oil.
+5. On that owned non-city land plot compare:
+       normal BUILD_RAILROAD legality
+   against:
+       getAdvancedStartRouteCost(ROUTE_RAILROAD, true, pPlot).
+
+Normal Worker construction:
+* fails `CvPlot::canBuild`, because neither Railroad OR-bonus prerequisite is connected.
+
+Advanced Start:
+* sees Steam Power;
+* returns a nonnegative Railroad price;
+* the UI/action accepts the purchase;
+* `doAdvancedStartAction` directly executes
+      pPlot->setRouteType(ROUTE_RAILROAD).
+
+The player therefore owns a functional Railroad on a plot where its normal workers are
+not legally allowed to build Railroad at all.
+
+The same reproduction can be done in an earlier Advanced Start by purchasing Steam
+Power first if sufficient points/prerequisites are available; Modern start simply
+removes that extra setup variable.
+
+PLAYER-FACING CONSEQUENCE
+-------------------------
+This bypasses a normal strategic-resource gate during game setup.
+
+A player without Coal or Oil can spend Advanced Start points to construct Railroad
+segments anyway, receiving the route's current movement/network behavior despite
+failing the ordinary route requirement.
+
+Because the action directly writes the route type, the illegally purchased Railroad
+does not disappear when Advanced Start ends. It becomes normal map state for the game.
+
+The AI Advanced Start code also calls the same route-cost helper and dispatches the
+same `ADVANCEDSTARTACTION_ROUTE`, so the legality omission is not limited to direct
+human Python/UI invocation. A human reproduction is sufficient for reachability.
+
+ANCESTRY
+--------
+This is inherited from stock BtS.
+
+Stock BtS/Civ4CE:
+* `ROUTE_RAILROAD` already has Coal/Oil `PrereqOrBonuses`;
+* normal `CvPlot::canBuild` checks route bonus prerequisites;
+* `CvPlayer::getAdvancedStartRouteCost` checks the matching Build tech but does not
+  check route bonus prerequisites;
+* `doAdvancedStartAction` directly installs the route after the cost helper succeeds.
+
+K-Mod 1.46 retains the same Advanced Start route validator/execution structure.
+
+Base AdvCiv 1.14 retains the missing resource validation. Its changes include:
+* Advanced Start route/improvement price tuning under `advc.250c`;
+* the `advc.001` fix so `AdvancedStartCostIncrease` counts only the current player's
+  routes instead of every route on the map.
+
+Neither change adds the missing route bonus legality test.
+
+Current SAS inherits the same omission while moving Railroad's Build prerequisite to
+Steam Power; current Railroad still requires Coal OR Oil in `CIV4RouteInfos.xml`.
+
+Thus F472 is best classified as a Firaxis/BtS Advanced Start legality bug inherited
+through the lineage.
+
+DUPLICATE / ALBUM CHECK
+-----------------------
+The reconciled C031 album and current Known Issues were searched for:
+* Advanced Start Railroad;
+* Advanced Start route bonus/resource;
+* `getAdvancedStartRouteCost`;
+* Railroad + Coal/Oil Advanced Start.
+
+No existing numbered root owns this legality bypass.
+
+The earlier Queue-004 `getBestRoute(NULL)` control is distinct:
+* that helper deliberately supplies technologically unlocked automatic CITY routes and
+  its resource omission was classified as inherited/intended city-route semantics;
+* F472 is an explicit player purchase of a route on a normal plot through Advanced
+  Start, where a normal Worker's route legality rejects the exact same state.
+
+AdvCiv manual/history also records a different Advanced Start route bug:
+`AdvancedStartCostIncrease` had counted routes/improvements owned by other players.
+That was fixed by AdvCiv's owner filter and is not F472.
+
+CONSERVATIVE REPAIR
+-------------------
+For an ADD operation on a concrete plot, validate through the matching route Build
+rather than separately reproducing only part of normal Build legality.
+
+Conceptually:
+
+    bool bFoundBuild = false;
+    FOR_EACH_ENUM(Build)
+    {
+        CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+        if (kBuild.getRoute() != eRoute)
+            continue;
+
+        if (GET_TEAM(getTeam()).isHasTech(kBuild.getTechPrereq()) &&
+            (pPlot == NULL || canBuild(*pPlot, eLoopBuild, false, false, true)))
+        {
+            bFoundBuild = true;
+            break;
+        }
+    }
+    if (!bFoundBuild)
+        return -1;
+
+Exact flags should preserve Advanced Start's intended visibility/setup semantics, but
+the route's bonus prerequisites must be applied.
+
+If multiple BuildInfos can produce one Route, the correct contract is that at least
+one currently legal matching Build suffices. Do not reject a route merely because a
+different alternate Build for the same route lacks its tech.
+
+Removal/refund does not need to retroactively demand the resource; removing an already
+present route should remain possible.
+
+REGRESSION TEST
+---------------
+1. Modern Advanced Start, Steam Power known.
+2. Own a city and adjacent owned land plot.
+3. No connected Coal and no connected Oil.
+4. Assert:
+       normal canBuild(BUILD_RAILROAD) == false
+       getAdvancedStartRouteCost(ROUTE_RAILROAD, true, plot) < 0.
+5. Connect Coal or Oil to the appropriate plot group/network.
+6. Assert:
+       normal canBuild(BUILD_RAILROAD) == true
+       Advanced Start Railroad cost is now nonnegative.
+7. Purchase Railroad; verify points are charged and route is placed.
+8. Test route removal/refund independently.
+9. If alternate BuildInfos for one route are ever added, verify any one legal Build is
+   sufficient.
+
+NUMBERING
+---------
+F472 / KI#795 is CONFIRMED.
+F473 / provisional KI#796 is the next unused root.
+
+CURRENT STONE AFTER C031-WIP193
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` — OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F472 / KI#795 CONFIRMED.
+F473 / provisional KI#796 UNUSED.
+Latest physical checkpoint: C031-WIP193.
+No repository source files modified.
+
+NEXT
+----
+Continue from F473 unused.
+
+First finish the Advanced Start sibling legality pass while F472 is hot:
+* improvement purchase vs Build tech/feature-removal/bonus constraints;
+* unit purchase resource/building prerequisites;
+* building purchase prerequisite semantics;
+* route removal/refund edge cases.
+
+Do not multiply one shared incomplete-validator pattern into separate roots unless the
+sibling has an independently enabled current-data consequence and requires a distinct
+repair.
+
+Then return to the historical-fix x low-coverage lifecycle/state ranking:
+`initFreeState`, `initPlotGroup`, discovery/Great Person actions, production
+verification and remaining stored-state/economic mutators.
+
+Require current SAS reachability, concrete gameplay consequence, full caller/callee
+chain, ancestry and duplicate proof before promotion.
+
+END C031-WIP193

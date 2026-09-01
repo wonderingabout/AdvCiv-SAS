@@ -241,7 +241,9 @@ public:
 	int AI_cityTradeVal(CvCityAI const& kCity, PlayerTypes eToPlayer = NO_PLAYER, LiberationWeightTypes eLibWeight = LIBERATION_WEIGHT_ZERO, bool bConquest = false, bool bAIRequest = false, bool bDiploVal = false) const; // </advc.ctr>
 	DenialTypes AI_cityTrade(CvCityAI const& kCity, PlayerTypes ePlayer) const;
 
-	int AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer, bool bWarTrade = false) const; // advc.104o
+	// <!-- custom: War-bribe aggregation needs each member's player-owned losses, but only one copy of shared team-level Open Borders and Defensive Pact costs.
+	// Let its caller suppress the shared terms in later member valuations. See KI#618. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer, bool bWarTrade = false, bool bIncludeTeamRelations = true) const; // advc.104o
 	DenialTypes AI_stopTradingTrade(TeamTypes eTradeTeam, PlayerTypes ePlayer) const;
 
 	int AI_civicTradeVal(CivicTypes eCivic, PlayerTypes ePlayer) const;

@@ -706,8 +706,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#614 - (Provisional Pending inherited civic-deal defect) One bundled civic change becomes several forced revolutions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-614)\
 [KI#615 - (Provisional Pending inherited deal-transaction defect) A city transfer can invalidate a sibling resource export](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-615)\
 [KI#616 - (Provisional Pending AdvCiv attitude-bookkeeping defect) Multi-target peace and war trades retain only the last political target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-616)\
-[KI#617 - (Provisional Pending inherited embargo-valuation defect worsened by AdvCiv) A player's embargo price includes teammate deals that survive it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-617)\
-[KI#618 - (Provisional Pending AdvCiv war-bribe valuation defect) Shared Open Borders and Defensive Pact losses are priced once per team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-618)\
+[KI#617 - (Fixed inherited BtS embargo-scope defect worsened by AdvCiv) A player's embargo included teammate deals that survive it](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-617)\
+[KI#618 - (Fixed AdvCiv war-bribe valuation defect) Shared Open Borders and Defensive Pact losses were priced once per team member](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-618)\
 [KI#619 - (Fixed AdvCiv attitude-cache timing regression) Annual deals deferred cache refresh in only one direction](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-619)\
 [KI#620 - (Fixed inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars could be purchased twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-620)\
 [KI#621 - (Provisional Pending inherited bundle incompatibility worsened by AdvCiv) Vassalage and a Defensive Pact can create an orphan relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-621)\
@@ -882,7 +882,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#790 - (Provisional Pending inherited K-Mod timer regression exposed by SAS data) -100% anarchy modifiers create negative or 101-turn cooldowns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-790)\
 [KI#791 - (Provisional Pending AdvCiv worker-build decay defect) Neutral partial Roads and Forts retain invested work forever](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-791)\
 [KI#792 - (Provisional Pending AdvCiv maintenance-cache regression) Eliminating a master-team member leaves surviving members' maintenance stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-792)\
-[KI#793 - (Provisional Pending investigation) F470 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-793)\
+[KI#793 - (Provisional Pending AdvCiv Permanent-Alliance cache defect) Human-involved alliances leave AgentIterator member caches stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-793)\
+[KI#794 - (Provisional Pending inherited war-weariness cache defect with ineffective AdvCiv repair) Team elimination leaves former enemies angry for another turn](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-794)\
+[KI#795 - (Provisional Pending inherited BtS Advanced Start legality defect) Railroad can be purchased without Coal or Oil](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-795)\
+[KI#796 - (Provisional Pending investigation) F473 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-796)\
 
 <a id="ki-1"></a>
 
@@ -13832,19 +13835,29 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 
 <a id="ki-617"></a>
 
-## KI#617 - (Provisional Pending inherited embargo-valuation defect worsened by AdvCiv) A player's embargo price includes teammate deals that survive it
+## KI#617 - (Fixed inherited BtS embargo-scope defect worsened by AdvCiv) A player's embargo included teammate deals that survive it
 
-Album F294 finds `AI_stopTradingTradeVal` scanning deals between the hired player's whole team and the embargo target even though `stopTradingWithTeam` cancels only deals owned by that specific player. On a multi-member team, teammate resource or Gold Per Turn deals can therefore inflate the requested embargo price despite surviving execution; member-by-member war-bribe valuation can count the same team inventory repeatedly. The team-versus-player mismatch is inherited from BtS/K-Mod/Civ4CE. AdvCiv practical 1618 then combined the broad filter with exact-player `CvDeal` accessors, adding Debug assertions and orientation-dependent Release fall-through when the hired player is absent from an admitted teammate deal. Pending replacement of only the ordinary persistent-deal scan with exact-player scope while retaining genuinely team-level Open Borders and Defensive Pact costs.
+Album F294 finds `AI_stopTradingTradeVal` scanning deals between the hired player's whole team and the embargo target even though `stopTradingWithTeam` cancels only deals owned by that specific player. On a multi-member team, teammate resource or Gold Per Turn deals can therefore inflate the requested embargo price despite surviving execution; member-by-member war-bribe valuation can count the same team inventory repeatedly. The team-versus-player mismatch is inherited from BtS/K-Mod/Civ4CE. AdvCiv practical 1618 then combined the broad filter with exact-player `CvDeal` accessors, adding Debug assertions and orientation-dependent Release fall-through when the hired player is absent from an admitted teammate deal. The repair must restrict only the ordinary persistent-deal scan to exact-player scope while retaining genuinely team-level Open Borders and Defensive Pact costs.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+The ordinary-deal valuation scan and reparations-denial safeguard now use the exact enacting player, matching `stopTradingWithTeam`. Teammate-owned deals that survive the embargo no longer inflate its price or block it, and every `CvDeal` player accessor is now called only for an actual endpoint; direct embargo valuation retains its separate team-level Open Borders and Defensive Pact costs.
+
+This is distinct from rejected KI#311 and KI#387. Those findings mistook the valid overloaded `GET_TEAM(PlayerTypes)` conversion for raw team indexing. Here the old explicit `TEAMID(ePlayer)` selected `CvDeal::isBetween(TeamTypes, TeamTypes)` and admitted any teammate, while passing `ePlayer` selects the separate `isBetween(PlayerTypes, TeamTypes)` overload and deliberately restricts the inventory to the one player whose deals the embargo can cancel. The corresponding player overloads of `getReceivesList` and `getGivesList` then operate on a guaranteed endpoint.
+
+After compilation, `SASGameRecord_20260901T141707Z_new1.log` confirms that a Debug-opt Huge Normal Continents autoplay with 16 players across 13 starting teams and full UWAI completed normally at turn 426 by Domination victory. The run exercised extensive mixed-team deal traffic without an observed issue; the exact teammate-owned embargo inventory remains source-verified because no embargo item occurred in the sample.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-618"></a>
 
-## KI#618 - (Provisional Pending AdvCiv war-bribe valuation defect) Shared Open Borders and Defensive Pact losses are priced once per team member
+## KI#618 - (Fixed AdvCiv war-bribe valuation defect) Shared Open Borders and Defensive Pact losses were priced once per team member
 
-Album F295 finds AdvCiv's war-bribe embargo lower bound summing one `AI_stopTradingTradeVal` result per member of the hired team. This is correct for distinct player-owned resource and Gold Per Turn deals, but every summand also prices the same team-level Open Borders and Defensive Pact state. The first real embargo tears down that shared agreement and every proxy, so a two-member team can price one relationship twice and the overcount grows with team size. AdvCiv practical 2930 introduced the member sum while K-Mod/Civ4CE lack this later design. Pending separation of additive player-owned losses from one team-level relationship cost without dividing or weakening the genuinely additive ordinary deals.
+Album F295 finds AdvCiv's war-bribe embargo lower bound summing one `AI_stopTradingTradeVal` result per member of the hired team. This is correct for distinct player-owned resource and Gold Per Turn deals, but every summand also prices the same team-level Open Borders and Defensive Pact state. The first real embargo tears down that shared agreement and every proxy, so a two-member team can price one relationship twice and the overcount grows with team size. AdvCiv practical 2930 introduced the member sum while K-Mod/Civ4CE lack this later design. The repair must separate additive player-owned losses from one team-level relationship cost without dividing or weakening the genuinely additive ordinary deals.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+War-bribe valuation still sums the exact player-owned losses of every qualifying hireling-team member, but only the first qualifying member includes the shared team-level Open Borders and Defensive Pact terms. This matches sequential embargo execution, where the first cancellation removes those agreements and all sibling proxies, while preserving direct embargo prices and one-player-team behavior.
+
+The same Debug-opt Huge Normal Continents run completed normally at turn 426 with full UWAI and mixed teams. `SASGameRecord` logged extensive Open Borders activity and one brokered-war item without an observed issue; the exact multi-member Defensive Pact lower-bound arrangement remains source-verified because no Defensive Pact item occurred in the sample.
+
+Found during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-619"></a>
 
@@ -15578,8 +15591,32 @@ Found as F469/provisional KI#792 during ChatGPT-5.6-Sol's C031-WIP190 `CvPlayer.
 
 <a id="ki-793"></a>
 
-## KI#793 - (Provisional Pending investigation) F470 remains unassigned during the CvPlayer deep re-audit
+## KI#793 - (Provisional Pending AdvCiv Permanent-Alliance cache defect) Human-involved alliances leave AgentIterator member caches stale
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444, F446-F469 through C031-WIP190, retracts F445/KI#768, and reserves F470 next. Do not implement a change under KI#793 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+AdvCiv introduced cached `AgentIterator` team/member sequences and later added the necessary full-cache rebuild after a Permanent Alliance, but called it only after the AI-AI diplomacy branch's direct deal implementation. Human-AI and human-human alliances instead use the generic deal path, which reassigns the absorbed players without rebuilding those caches; later `MemberIter` consumers can omit the absorbed player, including player-level technology effects. Base AdvCiv 1.14 and SAS retain this partial AdvCiv integration. The repair belongs after the generic Permanent Alliance transaction, with the AI-only duplicate removed, so every producer restores the same cache invariant.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP190 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found as F470/provisional KI#793 during ChatGPT-5.6-Sol's C031-WIP191 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-794"></a>
+
+## KI#794 - (Provisional Pending inherited war-weariness cache defect with ineffective AdvCiv repair) Team elimination leaves former enemies angry for another turn
+
+BtS/K-Mod leave surviving enemies' cached war-weariness anger stale until their next normal turn after the final player of an enemy team is eliminated. AdvCiv attempted an immediate repair, but first clears the dead team's wars and only afterward searches for still-at-war enemies; the guard is therefore false precisely when elimination ended the war. Base AdvCiv 1.14 and SAS retain this ineffective ordering, allowing one more city/economic turn to use obsolete anger. A repair should remember former enemies before war teardown and refresh their living players afterward, analogously to normal `makePeace` processing.
+
+Found as F471/provisional KI#794 during ChatGPT-5.6-Sol's C031-WIP192 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-795"></a>
+
+## KI#795 - (Provisional Pending inherited BtS Advanced Start legality defect) Railroad can be purchased without Coal or Oil
+
+BtS Advanced Start validates a route purchase's matching Build technology but omits the route's mandatory and alternative resource prerequisites, then installs the route directly without revalidation. A Modern Advanced Start can therefore purchase Railroad with Steam Power but neither connected Coal nor Oil, although an ordinary Worker correctly rejects the same Build. Civ4CE, K-Mod, Base AdvCiv 1.14 and SAS retain the inherited Firaxis omission. Route additions should accept any matching Build that passes normal plot/build legality; removal and refunds should remain possible without retroactively requiring the resource.
+
+Found as F472/provisional KI#795 during ChatGPT-5.6-Sol's C031-WIP193 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-796"></a>
+
+## KI#796 - (Provisional Pending investigation) F473 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F472 through C031-WIP193, retracts F445/KI#768, and reserves F473 next. Do not implement a change under KI#796 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP193 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

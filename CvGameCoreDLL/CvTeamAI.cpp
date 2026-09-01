@@ -4037,6 +4037,9 @@ int CvTeamAI::AI_declareWarTradeVal(TeamTypes eTarget, TeamTypes eSponsor) const
 		would only compel one player to stop trading with the (whole) target team,
 		so we need to sum up the embargo trade values of the members of this team. */
 	int iEmbargoTradeVal = 0;
+	// <!-- custom: Player-owned annual losses remain additive across members, but the first actual embargo also removes the team's shared Open Borders or Defensive Pact and all sibling proxies.
+	// Include those team costs in only the first qualifying member's valuation. See KI#618. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	bool bIncludeTeamRelations = true;
 	for (MemberIter itMember(getID()); itMember.hasNext(); ++itMember)
 	{
 		if (itMember->canStopTradingWithTeam(eTarget))
@@ -4044,7 +4047,8 @@ int CvTeamAI::AI_declareWarTradeVal(TeamTypes eTarget, TeamTypes eSponsor) const
 			/*	AI_declareWarTradeVal gets called on the hireling, whereas
 				AI_stopTradingTradeVal gets called on the sponsor. */
 			iEmbargoTradeVal += GET_PLAYER(GET_TEAM(eSponsor).getLeaderID()).
-					AI_stopTradingTradeVal(eTarget, itMember->getID(), true);
+					AI_stopTradingTradeVal(eTarget, itMember->getID(), true, bIncludeTeamRelations);
+			bIncludeTeamRelations = false;
 		}
 	}
 	iTradeVal = std::max(iTradeVal, (fixp(0.83) * iEmbargoTradeVal).round());

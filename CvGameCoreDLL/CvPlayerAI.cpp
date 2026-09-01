@@ -14159,7 +14159,8 @@ AttitudeTypes CvPlayerAI::AI_cityTradeAttitudeThresh(CvCity const& kCity, Player
 
 /*  advc (comment): This player pays for the embargo and ePlayer stops trading
 	with eTradeTeam. */
-int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer, bool bWarTrade) const // advc.104o
+// <!-- custom: `bIncludeTeamRelations` lets multi-member war-bribe valuation include each player's own losses while pricing shared team agreements once. See KI#618. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer, bool bWarTrade, bool bIncludeTeamRelations) const // advc.104o
 {
 	FAssert(ePlayer != getID());
 	FAssert(TEAMID(ePlayer) != getTeam());
@@ -14225,7 +14226,7 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 	if(eTowardUs >= ATTITUDE_FRIENDLY)
 		iModifier -= 25;
 	CvTeam const& kTeam = GET_TEAM(ePlayer); // The team that'll have to cancel OB
-	if(kTeam.isOpenBorders(eTradeTeam))
+	if(bIncludeTeamRelations && kTeam.isOpenBorders(eTradeTeam))
 	{
 		iModifier += 50;
 		if(kTeam.getNumWars() > 0 && kPlayer.AI_isFocusWar() &&
@@ -14245,12 +14246,14 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 	/*if (GET_TEAM(kPlayer.getTeam()).isOpenBorders(eTradeTeam))
 		iValue *= 2;*/
 
-	if (GET_TEAM(ePlayer).isDefensivePact(eTradeTeam))
+	if (bIncludeTeamRelations && kTeam.isDefensivePact(eTradeTeam))
 		iValue *= 3;
 	FOR_EACH_DEAL(pLoopDeal)
 	{
 		// <advc.001> BtS had only checked for ePlayer's team
-		if (!pLoopDeal->isBetween(TEAMID(ePlayer), eTradeTeam))
+		// <!-- custom: The embargo operation cancels only `ePlayer`'s deals, but the inherited team filter admitted teammate deals that survive and then passed an absent player into exact-player accessors.
+		// Unlike the rejected KI#311/KI#387 `GET_TEAM(PlayerTypes)` findings, `TEAMID(ePlayer)` here explicitly selected the team/team overload; passing `ePlayer` selects the distinct player/team overload and matches the operation. See KI#617. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (!pLoopDeal->isBetween(ePlayer, eTradeTeam))
 			continue;
 		/*  Should be pLoopDeal->isCancelable(ePlayer), but the param
 			doesn't really have an effect, and I'm disabling this check anyway. */
@@ -14265,11 +14268,11 @@ int CvPlayerAI::AI_stopTradingTradeVal(TeamTypes eTradeTeam, PlayerTypes ePlayer
 			continue;
 		} // </advc.130f>
 		// advc: Rewrote this block to get rid of duplicate code
-		if (pLoopDeal->getReceivesList(TEAMID(ePlayer)).getLength() > 0)
+		if (pLoopDeal->getReceivesList(ePlayer).getLength() > 0)
 		{
 			iValue += (kPlayer.AI_dealVal(
 					pLoopDeal->getOtherPlayer(ePlayer),
-					pLoopDeal->getReceivesList(TEAMID(ePlayer))) *
+					pLoopDeal->getReceivesList(ePlayer)) *
 					/*  advc.130f: Was ... 2 : 1.
 						AI_dealVal is based on the peace treaty duration,
 						but we're likely to lose the trade permanently.
@@ -14358,13 +14361,15 @@ DenialTypes CvPlayerAI::AI_stopTradingTrade(TeamTypes eTradeTeam, PlayerTypes eP
 	{
 		FOR_EACH_DEAL(d)
 		{
-			if(!d->isBetween(getTeam(), eTradeTeam))
+			// <!-- custom: One player's embargo cannot cancel a teammate's reparations deal, so that teammate deal must not block the enacting player's promise.
+			// See KI#617. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+			if(!d->isBetween(getID(), eTradeTeam))
 				continue;
 			// <!-- custom: AdvCiv's list refactor made the reparations safeguard require the peace marker and payment on the AI's same gives-list.
 			// Classify peace across the whole deal, but retain directionality because only annual reparations owed by this AI prevent it from fulfilling an embargo. See KI#608. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			if (!d->isPeaceDeal())
 				continue;
-			FOR_EACH_TRADE_ITEM(d->getGivesList(getTeam()))
+			FOR_EACH_TRADE_ITEM(d->getGivesList(getID()))
 			{
 				TradeableItems const eType = pItem->m_eItemType;
 				if (eType == TRADE_RESOURCES || eType == TRADE_GOLD_PER_TURN)
