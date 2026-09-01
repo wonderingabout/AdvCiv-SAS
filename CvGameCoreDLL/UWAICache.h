@@ -153,8 +153,10 @@ public:
 	void clearWarSponsorship(TeamTypes eEnemy);
 	void reportWarEnding(TeamTypes eEnemy, CLinkList<TradeData> const* pWeReceive = NULL, CLinkList<TradeData> const* pWeGive = NULL);
 	void reportCityCreated(CvCity& kCity);
-	// <!-- custom: City destruction now restores the stateful attack ordering and, for the cache owner's city, its derived asset total; keep that callback logic in the implementation file. See KI#547. See KI#550. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	// <!-- custom: Remove the destroyed city's wrapper before its CvCity storage is freed, then rebuild city-derived cache state only through reportCitySetChanged after deletion and any capital replacement are complete. See KI#547. See KI#550. See KI#554. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	void reportCityDestroyed(CvCity const& kCity);
+	// <!-- custom: Rebuild all city-derived state after a city destruction has fully changed the world state. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void reportCitySetChanged(PlayerTypes eChangedOwner, bool bCapitalChanged);
 	/*	Would prefer to pass a CvDeal instance, but no suitable one is available
 		at the call location */
 	void reportSponsoredWar(CLinkList<TradeData> const& kWeReceive, PlayerTypes eSponsor, TeamTypes eTarget);
@@ -173,6 +175,8 @@ private:
 	void createMilitaryBranches();
 	void deleteMilitaryBranches();
 	void deleteUWAICities();
+	// <!-- custom: Reconstruct the uniquely indexed city wrappers, reachability, target geometry/value, ordering and own asset aggregate as one coherent snapshot. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void rebuildCities();
 	void updateCities(TeamTypes eTeam, TeamPathFinders* pPathFinders);
 	void add(CvCity& kCity);
 	void add(City& kCacheCity);

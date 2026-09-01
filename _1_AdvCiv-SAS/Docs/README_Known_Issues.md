@@ -642,12 +642,12 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#551 - (Fixed inherited AdvCiv UWAI Permanent Alliance migration defect) Outsiders lost persistent history and obligations against the absorbed team](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-551)\
 [KI#552 - (Fixed inherited AdvCiv enum-map compression regression) Large sponsored-war payments could erase their own obligation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-552)\
 [KI#553 - (Retired old-save-only finding) Pre-v4 past-war-score migration omits dead teams](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-553)\
-[KI#554 - (Provisional Pending inherited AdvCiv UWAI cache defect) City-set changes leave surviving target geometry stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-554)\
+[KI#554 - (Fixed inherited AdvCiv UWAI cache defect) City-set changes left surviving target geometry stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-554)\
 [KI#555 - (Rejected old-save-only finding) Version-0 city distance receives a newer unpack transform](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-555)\
-[KI#556 - (Provisional Pending inherited AdvCiv UWAI cache defect) Incremental human city creation omits known-city handling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-556)\
-[KI#557 - (Provisional Pending inherited AdvCiv UWAI lifetime defect) First-city callback can insert a duplicate cache entry](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-557)\
+[KI#556 - (Fixed inherited AdvCiv UWAI cache defect) Incremental human city creation omitted known-city handling](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-556)\
+[KI#557 - (Fixed inherited AdvCiv UWAI lifetime defect) First-city callbacks could insert a duplicate cache entry](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-557)\
 [KI#558 - (Fixed inherited AdvCiv True Starts/UWAI lifecycle defect) Leader replacement left the former leader's military trait flags cached](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-558)\
-[KI#559 - (Provisional Pending inherited AdvCiv UWAI cache defect) New contact does not add newly knowable cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-559)\
+[KI#559 - (Pending Architectural inherited AdvCiv UWAI cache defect) New contact does not add newly knowable cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-559)\
 [KI#560 - (Fixed inherited original UWAI/Base AdvCiv military-cache defect) Ordinary aircraft contributed zero actual Army power](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-560)\
 [KI#561 - (Fixed inherited original UWAI/Base AdvCiv military-population mismatch) Nuclear weapons distorted the conventional Home Guard split](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-561)\
 [KI#562 - (Fixed inherited AdvCiv/UWAI war-lifecycle defect) Elimination and early-scenario peace bypassed paid-war cleanup](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-562)\
@@ -13202,11 +13202,13 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-554"></a>
 
-## KI#554 - (Provisional Pending inherited AdvCiv UWAI cache defect) City-set changes leave surviving target geometry stale
+## KI#554 - (Fixed inherited AdvCiv UWAI cache defect) City-set changes left surviving target geometry stale
 
-Album F231 finds incremental own-city changes updating only the changed entry while other target reachability, deployment and value remain stale. Pending independent implementation review.
+AdvCiv's incremental city-created/destroyed callbacks updated only the changed cached city. However, every foreign target's cached deployment distance, land reachability and capital-area flag derive from the cache owner's complete city set. Founding, acquiring or losing an own city could therefore leave all surviving foreign targets modeled from the old source cities. The aggregate reachable-city counts remained based on those stale target records as well. Capital loss was especially clear: the destruction callback ran before deletion and before `findNewCapital`, while target value also depends on capital status, yet no later refresh followed the replacement.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The repair introduces one targeted city-cache reconstruction that rebuilds uniquely indexed city wrappers, reachability counts, deployment geometry, target values, attack ordering and the owner's total asset score without disturbing unrelated persistent UWAI history. Creation invokes it only for the cache whose own city set changed; other observers retain the cheaper incremental update. Destruction still removes the old wrapper before its `CvCity` storage is freed, then a new post-mutation callback rebuilds the former owner's cache only after deletion and any capital replacement are complete. Capital replacement additionally rebuilds observer caches because their surviving target values can change; routine non-capital loss avoids that broader cost. This closes the unsafe timing gap without paying for a whole `UWAICache::update` on every city event.
+
+KI#554 is an inherited AdvCiv practical-2605 incremental-cache regression retained in Base AdvCiv 1.14, not an AdvCiv-SAS regression. A rebuilt Debug-opt DLL completed a Huge Pangaea Normal-speed autoplay through a turn-391 Domination victory. `SASGameRecord_20260901T075637Z_new1.log` records 116 city acquisitions, 166 `CITY_REMOVED` plot-change rows and nine eliminated players, providing substantial coverage of the repaired creation/destruction lifecycle; exact post-capital cache values remain source/lifecycle verified. Found as F231/provisional KI#554 during ChatGPT-5.6-Sol's C019 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-555"></a>
 
@@ -13218,19 +13220,21 @@ Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-So
 
 <a id="ki-556"></a>
 
-## KI#556 - (Provisional Pending inherited AdvCiv UWAI cache defect) Incremental human city creation omits known-city handling
+## KI#556 - (Fixed inherited AdvCiv UWAI cache defect) Incremental human city creation omitted known-city handling
 
-Album F233 finds reportCityCreated diverging from the full-refresh human known-city rule. Pending independent implementation review.
+Full `updateCities` includes every city of a foreign civilization already known to a human cache owner, while an AI cache owner must still deduce the city site. AdvCiv practical 2606 added that human rule only to the full refresh; practical 2605's earlier incremental `reportCityCreated` retained the old same-team-or-deducible test. A newly founded city of a known foreign civilization could consequently remain absent from a human cache until its next full update, even though later AI military analysis deliberately uses that human cache when modeling the human's likely targets.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The incremental callback now mirrors both parts of the full-refresh membership contract: a foreign team must be met, then either the cache owner is human or the city site is deducible. Same-team cities remain eligible independently. The defect and split contract remain in Base AdvCiv 1.14, so KI#556 is an inherited AdvCiv regression rather than an AdvCiv-SAS change. The same Huge Pangaea autoplay completed successfully with the corrected membership logic and extensive city creation/acquisition activity; the exact known-but-not-deducible human-cache timing remains source/lifecycle verified. Found as F233/provisional KI#556 during ChatGPT-5.6-Sol's C019 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-557"></a>
 
-## KI#557 - (Provisional Pending inherited AdvCiv UWAI lifetime defect) First-city callback can insert a duplicate cache entry
+## KI#557 - (Fixed inherited AdvCiv UWAI lifetime defect) First-city callbacks could insert a duplicate cache entry
 
-Album F234 finds first-city full refresh followed by ordinary creation inserting the same city twice and permitting a dangling cached City after same-round destruction. Pending independent implementation review.
+On ordinary first-city founding, `setFoundedFirstCity(true)` performs a full UWAI cache refresh after city initialization. The later normal `AI_cityCreated` broadcast then inserted a second separately allocated wrapper for the same plot. The vector accepted both wrappers while `std::map::insert` silently retained only the first. If that first city was captured after the founder obtained another city in the same round, destruction removed only the map-owned wrapper; the duplicate could retain a pointer to freed `CvCity` storage and be dereferenced by the next attack-priority sort. Saving and loading preserved the corrupt vector/map relationship rather than healing it.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The central add helper now establishes unique map ownership first, asserts duplicate keys in debug builds and safely discards an unexpected duplicate rather than exposing it through the vector. The ordinary creation callback explicitly replaces any existing observer wrapper with the final city snapshot, while creation by the cache owner uses KI#554's coherent city reconstruction. Destruction retains its pre-free removal and now receives KI#554's post-mutation reconstruction as a second safety boundary. This preserves the useful first-city early refresh instead of merely suppressing the later callback.
+
+The regression arose from the composition of AdvCiv practical 1494's first-city refresh and practical 2605's generalized creation callback, and remains in Base AdvCiv 1.14. It was not introduced by AdvCiv-SAS. The same new-game autoplay exercised ordinary first-city initialization for all 16 starting players, extensive later city turnover and nine eliminations without a crash, then completed successfully. Found as F234/provisional KI#557 during ChatGPT-5.6-Sol's C019 audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-558"></a>
 
@@ -13246,9 +13250,9 @@ A Huge Pangaea Normal-speed autoplay with True Starts completed successfully fro
 
 <a id="ki-559"></a>
 
-## KI#559 - (Provisional Pending inherited AdvCiv UWAI cache defect) New contact does not add newly knowable cities
+## KI#559 - (Pending Architectural inherited AdvCiv UWAI cache defect) New contact does not add newly knowable cities
 
-Album F236 finds contact, revelation and master/vassal propagation making existing cities knowable without inserting them into the cache. Pending independent implementation review.
+Album F236 finds contact, map revelation and master/vassal propagation making existing cities knowable without inserting them into the cache. A correct repair needs team/contact propagation coverage plus batched invalidation for bulk map revelation rather than a per-plot rebuild, so this remains pending as a separate architectural task; the city-object lifecycle repair in KI#554/KI#556/KI#557 does not pretend to cure knowledge-only transitions.
 
 Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
 

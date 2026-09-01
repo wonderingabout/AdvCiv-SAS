@@ -532,6 +532,13 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 		} // </advc.106>
 		GET_TEAM(eOwner).resetVictoryProgress();
 	}
+	// <!-- custom: The earlier AI_cityKilled callback removed the wrapper while this CvCity was still valid. Now that deletion and any replacement-capital selection are complete, rebuild city-derived UWAI geometry/value from the stable city set.
+	// Barbarian cities are outside this cache. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kOwner.isMajorCiv())
+	{
+		for (PlayerAIIter<MAJOR_CIV> it; it.hasNext(); ++it)
+			it->AI_citySetChanged(eOwner, bCapital);
+	}
 
 	if (bUpdatePlotGroups)
 		GC.getGame().updatePlotGroups();

@@ -460,8 +460,17 @@ void UWAICache::updateCities(TeamTypes eTeam, TeamPathFinders* pPathFinders)
 
 void UWAICache::add(City& kCacheCity)
 {
+	// <!-- custom: Establish map ownership before exposing the wrapper through the vector.
+	// Duplicate plot keys must fail loudly instead of creating an unreachable second owner that can later dangle. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	std::pair<std::map<PlotNumTypes,City*>::iterator,bool> const kInserted =
+			m_cityMap.insert(std::make_pair(kCacheCity.getID(), &kCacheCity));
+	FAssertMsg(kInserted.second, "Duplicate city in UWAICache");
+	if (!kInserted.second)
+	{
+		delete &kCacheCity;
+		return;
+	}
 	m_cityList.push_back(&kCacheCity);
-	m_cityMap.insert(std::make_pair(kCacheCity.getID(), &kCacheCity));
 	PlayerTypes eCityOwner = kCacheCity.city().getOwner();
 	if (TEAMID(eCityOwner) != TEAMID(m_eOwner) && kCacheCity.canReach())
 		m_aiReachableCities.add(eCityOwner, 1);
@@ -1024,6 +1033,31 @@ void UWAICache::updateTraits()
 }
 
 
+// <!-- custom: City creation/destruction changes the source set used to derive every surviving target's deployment geometry, reachability and value.
+// Rebuild those fields together rather than mixing incremental and full-refresh snapshots. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::rebuildCities()
+{
+	deleteUWAICities();
+	m_cityMap.clear();
+	m_aiReachableCities.reset();
+	m_aiReachableCities.set(m_eOwner, GET_PLAYER(m_eOwner).getNumCities());
+	if (GET_PLAYER(m_eOwner).getNumCities() <= 0)
+	{
+		m_rTotalAssets = 0;
+		return;
+	}
+	TeamPathFinders* pPathFinders = NULL;
+	if (TeamIter<MAJOR_CIV,OTHER_KNOWN_TO>::count(TEAMID(m_eOwner)) > 0)
+		pPathFinders = createTeamPathFinders();
+	for (TeamIter<MAJOR_CIV,KNOWN_TO> it(TEAMID(m_eOwner)); it.hasNext(); ++it)
+		updateCities(it->getID(), pPathFinders);
+	if (pPathFinders != NULL)
+		deleteTeamPathFinders(*pPathFinders);
+	sortCitiesByAttackPriority();
+	updateTotalAssetScore();
+}
+
+
 // <!-- custom: True Starts can replace the leader after UWAI initialization; recomputing these two derived flags fixed the former leader's military personality persisting indefinitely. See KI#558. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void UWAICache::reportLeaderChanged()
 {
@@ -1469,14 +1503,24 @@ void UWAICache::reportCityCreated(CvCity& kCity)
 		then trying to add the city to the cache will lead to problems. */
 	if (GET_PLAYER(m_eOwner).getNumCities() <= 0)
 		return;
-	if (kCity.getTeam() == TEAMID(m_eOwner) ||
-		GET_TEAM(m_eOwner).AI_deduceCitySite(kCity))
+	// <!-- custom: A new city owned by the cache owner changes the source set for every surviving foreign target, so refresh the complete city-derived snapshot after founding/acquisition is stable.
+	// This also replaces the owner's first-city wrapper instead of inserting it twice. See KI#554. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (kCity.getOwner() == m_eOwner)
 	{
+		rebuildCities();
+		return;
+	}
+	CvTeamAI const& kCacheTeam = GET_TEAM(TEAMID(m_eOwner));
+	bool const bOwnTeamCity = (kCity.getTeam() == kCacheTeam.getID());
+	// <!-- custom: Match full updateCities membership exactly: a foreign team must already be known, then a human cache may include all of its cities while an AI still needs to deduce the site. See KI#556. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	if (bOwnTeamCity || (kCacheTeam.isHasMet(kCity.getTeam()) &&
+		(GET_PLAYER(m_eOwner).isHuman() || kCacheTeam.AI_deduceCitySite(kCity))))
+	{
+		// <!-- custom: The first-city full refresh can already have inserted this plot.
+		// Replace any existing wrapper before adding its now-final city snapshot, preserving one vector/map owner per plot. See KI#557. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		remove(kCity);
 		add(kCity);
 		sortCitiesByAttackPriority();
-		// <!-- custom: Mid-turn creation updated the detailed city set but left the cache owner's derived total assets at its old value, mixing snapshots in immediate war/peace evaluation. Refresh only the affected owner's aggregate after restoring the required city order. See KI#547. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		if (kCity.getOwner() == m_eOwner)
-			updateTotalAssetScore();
 	}
 }
 
@@ -1622,6 +1666,15 @@ void UWAICache::onTeamLeaderChanged(PlayerTypes eFormerLeader)
 				uwai().getCache().m_aiWarUtilityIgnoringDistraction.get(eTeam));
 	}
 	// <!-- custom: ReadyToCapitulate is copied above; only CanBeHired starts false until normal war planning updates it. This corrects the old comment that grouped both states together. See KI#538. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+}
+
+
+// <!-- custom: Ordinary destruction invalidates the former owner's source-city geometry; a capital replacement can additionally change every observer's target values.
+// Avoid rebuilding unaffected observer caches for routine non-capital loss. See KI#554. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void UWAICache::reportCitySetChanged(PlayerTypes eChangedOwner, bool bCapitalChanged)
+{
+	if (m_eOwner == eChangedOwner || bCapitalChanged)
+		rebuildCities();
 }
 
 

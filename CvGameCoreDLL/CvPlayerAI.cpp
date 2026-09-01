@@ -30866,6 +30866,14 @@ void CvPlayerAI::AI_cityCreated(CvCity& kCity)
 		uwai().getCache().reportCityCreated(kCity);
 }
 
+
+// <!-- custom: Use a separate post-mutation callback because AI_cityKilled must remove the old wrapper before CvCity storage is freed, while a correct geometry refresh needs deletion and capital replacement to be complete. See KI#554. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+void CvPlayerAI::AI_citySetChanged(PlayerTypes eChangedOwner, bool bCapitalChanged)
+{
+	if (getUWAI().isEnabled() || getUWAI().isEnabled(true))
+		uwai().getCache().reportCitySetChanged(eChangedOwner, bCapitalChanged);
+}
+
 // K-Mod
 bool CvPlayerAI::AI_deduceCitySite(CvCity const& kCity) const
 {

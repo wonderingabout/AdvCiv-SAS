@@ -548,6 +548,8 @@ public:
 	bool AI_deduceCitySite(CvCity const& pCity) const; // K-Mod
 	void AI_cityKilled(CvCity const& kCity); // advc.104
 	void AI_cityCreated(CvCity& kCity); // advc.104
+	// <!-- custom: Complete city destruction before refreshing UWAI geometry derived from the surviving city set. See KI#554. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	void AI_citySetChanged(PlayerTypes eChangedOwner, bool bCapitalChanged);
 	// K-Mod:
 	int AI_countPotentialForeignTradeCities(bool bCheckConnected = true, bool bCheckForeignTradePolicy = true, CvArea const* pIgnoreArea = 0) const;
 
