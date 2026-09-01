@@ -2503,7 +2503,6 @@ int UWAI::Team::endWarVal(TeamTypes eEnemy) const
 	int iAIReluct = kAI.uwai().reluctanceToPeace(kHuman.getID(), false);
 	if (iAIReluct <= 0)
 	{
-		// If no payment is possible, human utility shouldn't matter.
 		bool bCanTrade = false;
 		for (MemberIter itHumanMember(kHuman.getID());
 			itHumanMember.hasNext(); ++itHumanMember)
@@ -2514,7 +2513,11 @@ int UWAI::Team::endWarVal(TeamTypes eEnemy) const
 				if (itHumanMember->canPossiblyTradeItem(
 					itAIMember->getID(), TRADE_GOLD) ||
 					itHumanMember->canPossiblyTradeItem(
-					itAIMember->getID(), TRADE_TECHNOLOGIES))
+					itAIMember->getID(), TRADE_TECHNOLOGIES) ||
+					// <!-- custom: AdvCiv's early no-payment shortcut checked only Gold and Technologies even though its live peace constructor can use a legal city independently of those trade options.
+					// Include Cities in this cheap capability test; downstream legality, valuation and selection remain unchanged. See KI#509. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					itHumanMember->canPossiblyTradeItem(
+					itAIMember->getID(), TRADE_CITIES))
 				{
 					bCanTrade = true;
 					break;
@@ -3354,20 +3357,21 @@ bool UWAI::Player::canTradeAssets(int iTargetTradeVal, PlayerTypes eHuman, int* 
 	if (!bIgnoreCities)
 	{
 		int const iCityLimit = intdiv::uceil(kHuman.getNumCities(), 6);
-		int iCities = 0;
+		// <!-- custom: AdvCiv applied its intended one-sixth city-reparation cap to arbitrary city iteration order and could miss a later valuable city that satisfies the deal alone.
+		// Collect every legal city value, then sum only the best values permitted by the unchanged quantity cap. See KI#510. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		vector<int> aiCityTradeValues;
 		FOR_EACH_CITYAI(pCity, kHuman)
 		{
-			if (iCities >= iCityLimit)
-				break;
-			// Tbd.: Shouldn't check the cities in an arbitrary order
 			if(kHuman.canTradeItem(
 				m_eAgent, TradeData(TRADE_CITIES, pCity->getID()), true))
-			{
-				iCities++;
-				iTotalTradeVal += GET_PLAYER(m_eAgent).AI_cityTradeVal(*pCity);
-				if (iTotalTradeVal >= iTargetTradeVal)
-					return true;
-			}
+				aiCityTradeValues.push_back(GET_PLAYER(m_eAgent).AI_cityTradeVal(*pCity));
+		}
+		std::sort(aiCityTradeValues.begin(), aiCityTradeValues.end());
+		for (int i = 0; i < iCityLimit && i < (int)aiCityTradeValues.size(); i++)
+		{
+			iTotalTradeVal += aiCityTradeValues[aiCityTradeValues.size() - i - 1];
+			if (iTotalTradeVal >= iTargetTradeVal)
+				return true;
 		}
 	}
 	FAssert(iTotalTradeVal < iTargetTradeVal);

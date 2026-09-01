@@ -592,8 +592,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#506 - (Provisional Pending inherited UWAI/AdvCiv retry-state defect) reviewWarPlans retains superseded cross-pass state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-506)\
 [KI#507 - (Fixed inherited AdvCiv brokered-peace regression) Low-score relaxation was unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-507)\
 [KI#508 - (Fixed inherited AdvCiv peace-threshold regression) Target team read its self war success](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-508)\
-[KI#509 - (Provisional Pending inherited AdvCiv peace-valuation defect) No-payment shortcut ignores city reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-509)\
-[KI#510 - (Provisional Pending inherited AdvCiv trade-cap defect) canTradeAssets tests arbitrary first cities only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-510)\
+[KI#509 - (Fixed inherited AdvCiv peace-valuation defect) No-payment shortcut ignored city reparations](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-509)\
+[KI#510 - (Fixed inherited AdvCiv trade-cap defect) canTradeAssets tested arbitrary first cities only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-510)\
 [KI#511 - (Fixed inherited AdvCiv war-plan defect) TOTAL target switching could become LIMITED](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-511)\
 [KI#512 - (Fixed inherited AdvCiv boundary defect) TOTAL-only positive utility could start LIMITED war](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-512)\
 [KI#513 - (Fixed inherited AdvCiv team-loop defect) Land-target distance exemption leaked between members](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-513)\
@@ -12546,19 +12546,21 @@ A current-build huge autoplay completed successfully; the exact reciprocal-war-s
 
 <a id="ki-509"></a>
 
-## KI#509 - (Provisional Pending inherited AdvCiv peace-valuation defect) No-payment shortcut ignores city reparations
+## KI#509 - (Fixed inherited AdvCiv peace-valuation defect) No-payment shortcut ignored city reparations
 
-Album F186 finds endWarVal collapsing some human peace settlements to free peace when gold/technology payment is unavailable even though cities remain legally tradable. Pending independent implementation review.
+When the AI already wanted peace, `UWAI::Team::endWarVal` returned zero without evaluating the human side whenever Gold and Technologies were unavailable as payment. Cities were omitted even though city trading is independent of those options and the live `AI_negotiatePeace` path explicitly searches for and inserts legal city reparations. The shortcut could therefore collapse a non-square human peace settlement to free peace despite a valid compensating asset class.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The cheap capability test now includes `TRADE_CITIES`; actual city legality, denial, valuation and selection remain with the existing downstream code. AdvCiv introduced the shortcut in 2017 while explicitly acknowledging but dismissing city payment, then later strengthened city-based peace trading without updating it. Base AdvCiv 1.14 and AdvCiv-SAS inherited the resulting mismatch. Found as F186/provisional KI#509 during ChatGPT-5.6-Sol's C017-WIP02 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
 
 <a id="ki-510"></a>
 
-## KI#510 - (Provisional Pending inherited AdvCiv trade-cap defect) canTradeAssets tests arbitrary first cities only
+## KI#510 - (Fixed inherited AdvCiv trade-cap defect) canTradeAssets tested arbitrary first cities only
 
-Album F187 finds the 1/6-city cap applied as an enumeration prefix, allowing a later affordable city within the same quantity cap to be ignored. Pending independent implementation review.
+`UWAI::Player::canTradeAssets` intentionally limits peace payment to one sixth of the human player's cities, rounded up. It previously applied that quantity cap directly to raw city iteration order: with a one-city limit, an early legal city worth 200 exhausted the limit and hid a later legal city worth 500 even when 400 was required. Willingness to talk and other affordability callers could therefore reject a deal that one permitted city could fund.
 
-Found and documented in the C++ File Audit Album with the help of ChatGPT-5.6-Sol; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+The helper now collects every legal city value, sorts them and sums only the best values permitted by the unchanged one-sixth cap. AdvCiv introduced both the cap and the acknowledged arbitrary-order weakness in 2018; Base AdvCiv 1.14 and AdvCiv-SAS inherited it. Found as F187/provisional KI#510 during ChatGPT-5.6-Sol's C017-WIP03 `UWAIAgent.cpp` audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+After a clean Debug-opt compilation, a Huge SAS Large Facing Islands, Normal-speed, full-UWAI autoplay with standard Aggressive AI and 16 independent starting teams completed successfully by Space Race on turn 376. `SASGameRecord_20260901T062930Z_new1.log` confirms the matching DLL and recorded 385,968 ms of autoplay time. As a non-blocking performance observation, it reached turn 350 in about 360 seconds, versus roughly 495-634 seconds for several recent Huge Archipelago, Pangaea, Maze and Mirror samples. The island grid was also somewhat smaller than most comparisons, so reduced connected-land/pathing work is only a plausible contributor rather than an established cause; the contrast does not indicate that KI#509-KI#510 slowed the game.
 
 <a id="ki-511"></a>
 

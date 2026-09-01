@@ -998,17 +998,18 @@ python ./LLM_Helpers/make_light_source_zip.py --fetch-upstream --output-dir "C:\
 Example of output (Git Bash):
 
 ```text
-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond th
+e Sword\Mods\AdvCiv-SAS
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260823T201136.zip
-Files:     1323 selected + 6297 generated snapshot-context files
-Size:      394,377,419 bytes before ZIP container overhead
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260901T082302.zip
+Files:     1323 selected + 6441 generated snapshot-context files
+Size:      403,166,346 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
-History:   commit diffs: 6225 included (SASBranch:1882,AdvCivPreSAS:3094,KMod:1249), 6225 private-cache hit(s), 0 tracked-mirror hit(s), 0 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_1e731b350907; pending upstream: 59 commit(s) union from 16 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=48
-Wrote:     7620 file(s)
-ZIP size:  129,217,736 bytes
-Duration:  14,716 ms total (6,522 ms snapshot context; 7,938 ms ZIP write)
+History:   commit diffs: 6369 included (SASBranch:2026,AdvCivPreSAS:3094,KMod:1249), 6359 private-cache hit(s), 0 tracked-mirror hit(s), 10 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_1e731b350907; pending upstream: 59 commit(s) union from 16 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=48
+Wrote:     7764 file(s)
+ZIP size:  132,154,902 bytes
+Duration:  20,177 ms total (11,538 ms snapshot context; 8,355 ms ZIP write)
 ```
 
 Note: Light-source ZIP creation is usually quick because historical commit patches are cached. A first run with a missing cache, or the first run after a cache-format or history-selection policy change, can instead remain quiet for several minutes while thousands of patches are regenerated; subsequent runs reuse the rebuilt cache and become fast again.
