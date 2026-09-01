@@ -255,6 +255,12 @@ public:
 	void deleteDeal(int iID);
 	CvRandom& getMapRand();
 	int getMapRandNum(int iNum, TCHAR* pszLog);
+	// <!-- custom: Read the serialized initial active player so SAS Fast Save can keep a stable XML leader identity even if unattended autoplay later hands control to another player. (ChatGPT-5.6-Sol) -->
+	int /*PlayerTypes*/ getInitialActivePlayer() const;
+	// <!-- custom: Read the serialized initial map RNG seed for the stable map component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+	unsigned int getInitialMapRandSeed() const;
+	// <!-- custom: Read the serialized initial sync RNG seed for the stable gameplay-lineage component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+	unsigned int getInitialSyncRandSeed() const;
 	CvRandom& getSorenRand();
 	int getSorenRandNum(int iNum, TCHAR* pszLog);
 	int calculateSyncChecksum();

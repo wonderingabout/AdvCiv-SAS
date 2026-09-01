@@ -16,6 +16,7 @@ import CvUtil
 import PyHelpers
 import Popup as PyPopup
 from SASUtils import findInfoTypeNumOrFail
+import SASFastSave
 
 import ChangePlayer
 import time # Erik (BM1)
@@ -26,6 +27,22 @@ PyPlayer = PyHelpers.PyPlayer
 PyInfo = PyHelpers.PyInfo
 game = CyGame()
 localText = CyTranslator()
+
+# <!-- custom: Lazy-cache the autoplay popup SAS GlobalDefines so they are resolved only after XML define loading is safely complete. (ChatGPT-5.6-Sol) -->
+_SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE = None
+_SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED = None
+
+def _isDefaultTurnsScaledByGameSpeed():
+	global _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE
+	if _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE is None:
+		_SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE = (gc.getDefineINT("SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE") > 0)
+	return _SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE
+
+def _getDefaultTurnsUnscaled():
+	global _SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED
+	if _SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED is None:
+		_SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED = max(1, gc.getDefineINT("SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED"))
+	return _SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED
 
 class AIAutoPlay :
 
@@ -38,7 +55,8 @@ class AIAutoPlay :
 		self.refortify = False
 		self.bSaveAllDeaths = True
 
-		self.DefaultTurnsToAuto = 1
+		# <!-- custom: Cache the manual popup fallback through the lazy GlobalDefine helper; game-speed scaling, when enabled, supersedes this value. (ChatGPT-5.6-Sol) -->
+		self.DefaultTurnsToAuto = _getDefaultTurnsUnscaled()
 		# Erik <BM1>
 		self.benchmarkStartTime = 0
 		self.numTurns = 0
@@ -243,6 +261,11 @@ class AIAutoPlay :
 		# <!-- custom: Use the AdvCiv-SAS Python API rather than the ambiguous one-argument reset so the end cause reaches CvGame and SASGameRecord. See KI#203. (GPT-5.6-Sol) -->
 		game.endAIAutoPlay(iEndCause)
 
+		# <!-- custom: Create one ordinary fast save when a requested autoplay interval completes or the user manually interrupts it.
+		# Victory is excluded because the BUG victory-event handler creates the richer <victory>_<leader> Fast Save instead. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if iEndCause == SASAutoPlayEndCause.SAS_AUTOPLAY_END_SCHEDULED or iEndCause == SASAutoPlayEndCause.SAS_AUTOPLAY_END_USER_INTERRUPTED:
+			SASFastSave.saveAutoPlayStop()
+
 		if( not pPlayer.isHuman() ) :
 			CvUtil.pyPrint('Returning human player to control of %s'%(pPlayer.getCivilizationDescription(0)))
 			game.setActivePlayer( pPlayer.getID(), False )
@@ -325,7 +348,15 @@ class AIAutoPlay :
 		popup.setHeaderString( localText.getText("TXT_KEY_AIAUTOPLAY_TURN_ON", ()) )
 		popup.setBodyString( localText.getText("TXT_KEY_AIAUTOPLAY_TURNS", ()) )
 		popup.addSeparator()
-		popup.createPythonEditBox( '%d'%(self.DefaultTurnsToAuto), 'Number of turns to turn over to AI', 0)
+		# <!-- custom: AI Auto Play QoL: when enabled, use the selected game speed's actual configured total turn count + 1 (Normal 500 -> 501, Marathon 1000 -> 1001).
+		# If disabled, retain the manual unscaled value. Reading the timeline itself stays correct if a speed is retuned later. (ChatGPT-5.6-Sol) -->
+		iDefaultTurnsToAuto = self.DefaultTurnsToAuto
+		if _isDefaultTurnsScaledByGameSpeed():
+			speedInfo = gc.getGameSpeedInfo(game.getGameSpeedType())
+			iDefaultTurnsToAuto = 1
+			for i in range(speedInfo.getNumTurnIncrements()):
+				iDefaultTurnsToAuto += speedInfo.getGameTurnInfo(i).iNumGameTurnsPerIncrement
+		popup.createPythonEditBox( '%d'%(max(1, iDefaultTurnsToAuto)), 'Number of turns to turn over to AI', 0)
 		popup.setEditBoxMaxCharCount( 4, 2, 0 )
 		if self.bBenchmark: # advc
 			# Erik <BM1>

@@ -250,6 +250,12 @@ void CyGamePythonInterface()
 		.def("addDeal", &CyGame::addDeal, python::return_value_policy<python::manage_new_object>())
 		.def("getMapRand", &CyGame::getMapRand, python::return_value_policy<python::reference_existing_object>())
 		.def("getMapRandNum", &CyGame::getMapRandNum)
+		// <!-- custom: Expose the serialized initial active player read-only so Fast Save filenames keep the original XML leader identity across autoplay handoffs. (ChatGPT-5.6-Sol) -->
+		.def("getInitialActivePlayer", &CyGame::getInitialActivePlayer)
+		// <!-- custom: Expose the serialized initial map RNG seed read-only for the stable map component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+		.def("getInitialMapRandSeed", &CyGame::getInitialMapRandSeed)
+		// <!-- custom: Expose the serialized initial sync RNG seed read-only for the stable gameplay-lineage component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+		.def("getInitialSyncRandSeed", &CyGame::getInitialSyncRandSeed)
 		.def("getSorenRand", &CyGame::getSorenRand, python::return_value_policy<python::reference_existing_object>())
 		.def("getSorenRandNum", &CyGame::getSorenRandNum)
 		.def("calculateSyncChecksum", &CyGame::calculateSyncChecksum)

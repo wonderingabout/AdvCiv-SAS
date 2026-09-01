@@ -1009,6 +1009,24 @@ int CyGame::getMapRandNum(int iNum, TCHAR* pszLog)
 	return m_kGame.getMapRandNum(iNum, pszLog);
 }
 
+// <!-- custom: Return AdvCiv's serialized initial active player rather than the current active player; this remains stable across autoplay defeat/handoff and lets Fast Save use the original player's XML leader identity. (ChatGPT-5.6-Sol) -->
+int /*PlayerTypes*/ CyGame::getInitialActivePlayer() const
+{
+	return m_kGame.getInitialActivePlayer();
+}
+
+// <!-- custom: Return the serialized initial map RNG seed without touching current RNG state; Python uses it as the stable map component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+unsigned int CyGame::getInitialMapRandSeed() const
+{
+	return m_kGame.getInitialRandSeed().first;
+}
+
+// <!-- custom: Return the serialized initial sync RNG seed without touching current RNG state; Python uses it as the stable gameplay-lineage component of SAS fast-save filenames. (ChatGPT-5.6-Sol) -->
+unsigned int CyGame::getInitialSyncRandSeed() const
+{
+	return m_kGame.getInitialRandSeed().second;
+}
+
 CvRandom& CyGame::getSorenRand()
 {
 	return m_kGame.getSorenRand();

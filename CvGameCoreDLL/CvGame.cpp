@@ -3297,6 +3297,9 @@ void CvGame::autoSave(bool bInitial)
 	if (bInitial && BUGOption::isEnabled("AutoSave__CreateStartSave", false))
 		GC.getPythonCaller()->call("gameStartSave", PYCivModule);
 	// BULL - AutoSave - end
+	// <!-- custom: Note: do not add the SASFastSave START hook here; the inherited BULL start-save block above otherwise makes this the obvious location.
+	// The first SAS implementation did so, but autoSave(true) can run on turn slice 0 before BUG's PreGameStart initialization, and runtime testing produced no START file.
+	// The working hook is BUG GameStart in BugEventManager.py; it runs later and runtime testing confirmed a turn-0 START save. (ChatGPT-5.6-Sol) -->
 }
 
 
@@ -5595,6 +5598,13 @@ void CvGame::setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory)
 	{	// AI_AUTO_PLAY_MOD, 07/09/08, jdog5000:
 		CvEventReporter::getInstance().victory(eNewWinner, eNewVictory);
 	}
+	// <!-- custom: Rise & Fall suppresses the normal victory event above. Create its optional victory Fast Save here after winner/victory assignment and before the later end-game transition; other game modes use the BUG victory-event handler. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	else
+	{
+		static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ENABLE");
+		if (bSASFastSaveGameEnd)
+			GC.getPythonCaller()->call("saveGameEnd", "SASFastSave", true, true);
+	}
 	if (getVictory() != NO_VICTORY)
 	{
 		if (getWinner() != NO_TEAM)
@@ -5634,6 +5644,13 @@ void CvGame::setGameState(GameStateTypes eNewValue)
 		if (BUGOption::isEnabled("AutoSave__CreateEndSave", false))
 			GC.getPythonCaller()->call("gameEndSave", PYCivModule);
 		// BULL - AutoSave - end
+		// <!-- custom: Victory Fast Saves use the earlier BUG victory event after winner/victory assignment and before the OVER/EXTENDED transition. Keep this direct call only for GAMESTATE_OVER without a winner/victory, preserving genuine non-victory END saves without duplicating victories. (ChatGPT-5.6-Sol) -->
+		if (getWinner() == NO_TEAM || getVictory() == NO_VICTORY)
+		{
+			static const bool bSASFastSaveGameEnd = GC.getDefineBOOL("SAS_FAST_SAVE_GAME_END_ENABLE");
+			if (bSASFastSaveGameEnd)
+				GC.getPythonCaller()->call("saveGameEnd", "SASFastSave", true, true);
+		}
 		// <advc.707>
 		if (isOption(GAMEOPTION_RISE_FALL))
 			m_pRiseFall->prepareForExtendedGame(); // </advc.707>

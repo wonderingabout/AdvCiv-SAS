@@ -1784,6 +1784,33 @@ Created as part of AdvCiv-SAS improvements
 
 
 
+	<!-- custom: Optional fast-save convenience: create ordinary SAVEGAME_NORMAL files in My Games/Beyond the Sword/Saves/single. These are deliberately separate from Civ4's rotating Autosaves folder and BUG AutoSave UI/options.
+	Each switch is independent. Game-start and game-end fast saves also apply to ordinary single-player games; the autoplay-stop fast save only matters when AI Auto Play is used. Set any switch to 0 when that fast save is not wanted. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_FAST_SAVE_GAME_START_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_FAST_SAVE_GAME_END_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_FAST_SAVE_AUTOPLAY_STOP_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Scale the AI Auto Play popup default to the selected game speed's configured total number of turns, plus 1 for the existing SASGameRecord interval convention. E.g. Normal 500 -> 501, Marathon 1000 -> 1001. 1 enables this dynamic default; 0 uses SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED below. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Manual unscaled number shown in the AI Auto Play popup when SAS_AIAUTOPLAY_DEFAULT_SCALE_BY_GAME_SPEED_ENABLE is 0. It is intentionally literal rather than adjusted for game speed. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AIAUTOPLAY_DEFAULT_TURNS_UNSCALED_GAMESPEED</DefineName>
+		<iDefineIntVal>501</iDefineIntVal>
+	</Define>
+
+
+
 	<!-- custom: During AI Auto Play, omit no-decision informational dialogs: BUTTONPOPUP_TEXT notices and active-player handoff/password prompts. This deliberately does not accept or suppress gameplay choices such as diplomacy, events, civics, war, launch, production, or technology. 1 enables; 0 preserves every informational popup. See KI#203. (GPT-5.6-Sol) -->
 	<Define>
 		<DefineName>SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE</DefineName>

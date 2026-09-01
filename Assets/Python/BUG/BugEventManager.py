@@ -114,6 +114,7 @@ import types
 import SASDefineGuard
 import SASBillboardScale
 import SASBattleHistory
+import SASFastSave
 # <advc.007b>
 import CvUtil
 import CvScreensInterface
@@ -639,6 +640,8 @@ def configure(logging=None, noLogEvents=None):
 		return
 	# K-Mod end
 
+	# <!-- custom: Register the optional victory Fast Save before AI Auto Play's victory handler ends autoplay. CvGame::setWinner has already assigned the winner and victory for the filename at this point, but has not yet entered the later OVER/EXTENDED end-game transition; the previous C++ hooks during or after that transition produced no victory file in autoplay testing. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	g_eventManager.addEventHandler("victory", SASFastSave.saveGameEnd)
 	# --------- Better BTS AI (2/2) (moved by K-Mod) -------------
 	AIAutoPlay.AIAutoPlay(g_eventManager)
 	ChangePlayer.ChangePlayer(g_eventManager)
@@ -648,6 +651,10 @@ def configure(logging=None, noLogEvents=None):
 	g_eventManager.addEventHandler("kbdEvent", g_eventManager.onKbdEvent)
 	g_eventManager.addEventHandler("OnLoad", g_eventManager.resetActiveTurnAfterLoad)
 	g_eventManager.addEventHandler("GameStart", g_eventManager.resetActiveTurn)
+	# <!-- custom: Create the optional START fast save from GameStart, after BUG's earlier PreGameStart initialization.
+	# The first implementation used CvGame::autoSave(true), but that can run on turn slice 0; runtime testing produced no START file there.
+	# This later hook was runtime-tested successfully. CvGame::autoSave keeps a matching warning so the tempting old location is not reused. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	g_eventManager.addEventHandler("GameStart", SASFastSave.saveGameStart)
 	g_eventManager.addEventHandler("gameUpdate", g_eventManager.onGameUpdate)
 	# --
 
