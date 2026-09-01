@@ -19977,11 +19977,14 @@ int CvPlayerAI::AI_religionValue(ReligionTypes eReligion) const
 /*  K-Mod note: A rough rule of thumb for this evaluation is that
 	depriving the enemy of 1 commerce is worth 1 point;
 	gaining 1 commerce for ourself is worth 2 points. */
-int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes eMission, CvPlot const& kPlot, int iData) const
+// <!-- custom: The sole caller deliberately values both immediately affordable missions and missions worth saving points for.
+// Preserve actual-Spy legality, including its stationary discount, but do not reject a structurally legal mission merely because current espionage points are short. See KI#671. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+int CvPlayerAI::AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes eMission, CvPlot const& kPlot, int iData, CvUnit const* pSpyUnit) const
 {
+	if (eTargetPlayer == NO_PLAYER)
+		return 0;
 	TeamTypes eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
-	if(eTargetPlayer == NO_PLAYER ||
-		!canDoEspionageMission(eMission, eTargetPlayer, &kPlot, iData, NULL))
+	if (!canDoEspionageMission(eMission, eTargetPlayer, &kPlot, iData, pSpyUnit, false))
 	{
 		return 0;
 	}
@@ -21688,7 +21691,9 @@ void CvPlayerAI::AI_doCommerce()
 		std::vector<int> aiTarget(MAX_CIV_TEAMS, 0);
 		std::vector<int> aiWeight(MAX_CIV_TEAMS, 0);
 		int iMinModifier = MAX_INT;
-		int iApproxTechCost = 0;
+		// <!-- custom: Keep the approximate cost paired with the rival team that supplied the winning modifier.
+		// The inherited function reused one accumulator across unrelated rivals. See KI#672. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		int iMinModApproxTechCost = 0;
 		TeamTypes eMinModTeam = NO_TEAM;
 		std::set<TeamTypes> potentialTechTargets; // advc.120b
 		bool const bFocusEspionage = (AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE) &&
@@ -21804,58 +21809,60 @@ void CvPlayerAI::AI_doCommerce()
 				// advc.120: Capitulated vassals should wait for gifts from the master
 				(!kOurTeam.isCapitulated() || getMasterTeam() != kRival.getMasterTeam()))
 			{
-				for (MemberIter itMember(eRival); itMember.hasNext(); ++itMember)
+				// <!-- custom: `canStealTech` is team-based. Count two distinct technologies once for this rival team instead of breaking after one and leaking the prior rival's accumulator into the validity test and cost estimate. See KI#672. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+				int iStealableTechCount = 0;
+				int iRivalApproxTechCost = 0;
+				FOR_EACH_ENUM(Tech)
 				{
-					CvPlayer& kRivalMember = *itMember;
-					std::vector<int> cityModifiers;
-					FOR_EACH_CITY(pLoopCity, kRivalMember)
-					{
-						if (pLoopCity->isRevealed(getTeam()) &&
-							AI_isPrimaryArea(pLoopCity->getArea()))
-						{
-							cityModifiers.push_back(getEspionageMissionCostModifier(
-									NO_ESPIONAGEMISSION,
-									kRivalMember.getID(), pLoopCity->plot()));
-						}
-					}
-					if (cityModifiers.empty())
+					if (!canStealTech(kRival.getLeaderID(), eLoopTech))
 						continue;
-					// Get the average of the lowest 3 cities.
-					int iSampleSize = std::min(3, (int)cityModifiers.size());
-					std::partial_sort(
-							cityModifiers.begin(),
-							cityModifiers.begin() + iSampleSize,
-							cityModifiers.end());
-					int iModifier = 0;
-					for (std::vector<int>::iterator it = cityModifiers.begin();
-						it != cityModifiers.begin()+iSampleSize; ++it)
+					iRivalApproxTechCost += kOurTeam.getResearchCost(eLoopTech);
+					iStealableTechCount++;
+					if (iStealableTechCount >= 2)
+						break;
+				}
+				if (iStealableTechCount >= 2)
+				{
+					iRivalApproxTechCost /= iStealableTechCount;
+					for (MemberIter itMember(eRival); itMember.hasNext(); ++itMember)
 					{
-						iModifier += *it;
-					}
-					iModifier /= iSampleSize;
-
-					// do they have any techs we can steal?
-					bool bValid = false;
-					FOR_EACH_ENUM(Tech)
-					{
-						if (canStealTech(kRivalMember.getID(), eLoopTech))
+						CvPlayer& kRivalMember = *itMember;
+						std::vector<int> cityModifiers;
+						FOR_EACH_CITY(pLoopCity, kRivalMember)
 						{
-							// don't set it true unless there are at least 2 stealable techs.
-							bValid = iApproxTechCost > 0;
-							/*	get a (very rough) approximation of
-								how much it will cost to steal a tech. */
-							iApproxTechCost = (kOurTeam.getResearchCost(eLoopTech) +
-									iApproxTechCost) / (iApproxTechCost != 0 ? 2 : 1);
-							break;
+							if (pLoopCity->isRevealed(getTeam()) &&
+								AI_isPrimaryArea(pLoopCity->getArea()))
+							{
+								cityModifiers.push_back(getEspionageMissionCostModifier(
+										NO_ESPIONAGEMISSION,
+										kRivalMember.getID(), pLoopCity->plot()));
+							}
 						}
-					}
-					if (bValid)
-					{	// advc.120b: This used to be checked before bValid
+						if (cityModifiers.empty())
+							continue;
+						// Get the average of the lowest 3 cities.
+						int iSampleSize = std::min(3, (int)cityModifiers.size());
+						std::partial_sort(
+								cityModifiers.begin(),
+								cityModifiers.begin() + iSampleSize,
+								cityModifiers.end());
+						int iModifier = 0;
+						for (std::vector<int>::iterator it = cityModifiers.begin();
+							it != cityModifiers.begin()+iSampleSize; ++it)
+						{
+							iModifier += *it;
+						}
+						iModifier /= iSampleSize;
+
+						// <!-- custom: The rival team has at least two stealable technologies; compare each member's eligible city sample without recounting the same team technologies.
+						// When a team wins, carry its own approximate technology cost with the selected modifier.
+						// This makes the old advc.120b note about checking after the leaked `bValid` state obsolete. See KI#672. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 						if (iModifier < iMinModifier || (iModifier == iMinModifier &&
 							iAttitude < kOurTeam.AI_getAttitudeVal(eMinModTeam)))
 						{
 							iMinModifier = iModifier;
 							eMinModTeam = eRival;
+							iMinModApproxTechCost = iRivalApproxTechCost;
 						}
 						potentialTechTargets.insert(eRival); // advc.120b
 					}
@@ -21912,9 +21919,9 @@ void CvPlayerAI::AI_doCommerce()
 						calculateResearchModifier(getCurrentResearch()));
 				if (bCheapTechSteal)
 				{
-					aiTarget[eMinModTeam] += iApproxTechCost / 10;
-					iEspionageTargetRate += iApproxTechCost / 10;
-					// I'm just using iApproxTechCost to get a rough sense of scale.
+					// <!-- custom: Preserve the inherited rough-scale target-rate boost, but base it on the selected rival team's own estimate instead of the former cross-rival accumulator. See KI#672. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+					aiTarget[eMinModTeam] += iMinModApproxTechCost / 10;
+					iEspionageTargetRate += iMinModApproxTechCost / 10;
 					// cf. (iDesiredEspPoints - iOurEspPoints)/std::max(6,iRateDivisor);
 				}
 			}

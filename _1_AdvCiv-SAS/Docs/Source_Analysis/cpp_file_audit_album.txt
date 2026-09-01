@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - CLOSED AT C031-WIP150
-Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP167
-Latest confirmed roots: F321-F418, F420-F444 and F446-F454 / provisional KI#644-KI#767 and KI#769-KI#777 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted
-Next root ID: F455 unused / provisional KI#778 next
+Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP170
+Latest confirmed roots: F321-F418, F420-F444 and F446-F457 / provisional KI#644-KI#767 and KI#769-KI#780 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted
+Next root ID: F458 unused / provisional KI#781 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -24,7 +24,7 @@ QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP150 / F388-F418, F420-F443; F419 DUPLICATE]
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP167 / F444, F446-F454; F445 RETRACTED]<-(priority current wip)
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP170 / F444, F446-F457; F445 RETRACTED]<-(priority current wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
@@ -97658,3 +97658,512 @@ Next exact continuation:
 Continue F455 unused through historical CvPlayer bug-fix seams and paired state counters,
 prioritizing compiled normal-game paths. Preserve current-data reachability, caller,
 ancestry and duplicate proof before assigning any finding number.
+
+===============================================================================
+C031-WIP168 — QUEUE 004 CVPLAYER.CPP CONTINUATION — F455 / KI#778 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED; do not implement.
+F446 / KI#769 through F455 / KI#778 CONFIRMED.
+F456 / provisional KI#779 UNUSED.
+Latest physical checkpoint: C031-WIP168.
+No repository source files modified.
+
+F455 / KI#778 — PERMANENT ALLIANCE TEAM REASSIGNMENT DOES NOT RECOUNT
+CACHED MILITARY-HAPPINESS GARRISONS
+-------------------------------------------------------------------------------
+
+STATUS
+------
+CONFIRMED. Current shipped Permanent Alliances can change a stationary unit's
+`CvUnit::isGarrisonInTeamCity()` / `isMilitaryHappiness()` result without updating the
+city's cached `m_iMilitaryHappinessUnits`. A later move can even decrement a cache that
+never received the corresponding increment, producing a negative count in release builds
+(and tripping the debug assertion).
+
+ROOT
+----
+Current AdvCiv/SAS military-happiness eligibility is relational rather than simply an XML
+unit flag:
+
+    bool CvUnit::isMilitaryHappiness() const
+    {
+        return (m_pUnitInfo->isMilitaryHappiness() &&
+                isGarrisonInTeamCity());
+    }
+
+    bool CvUnit::isGarrisonInTeamCity() const
+    {
+        if (!getPlot().isCity())
+            return false;
+        CvTeam const& kCityTeam = GET_TEAM(getPlot().getTeam());
+        if (isInvisible(kCityTeam.getID(), false))
+            return false;
+        return (kCityTeam.getID() == getTeam() ||
+                kCityTeam.getMasterTeam() == getTeam() ||
+                kCityTeam.getID() == GET_TEAM(getTeam()).getMasterTeam());
+    }
+
+`CvCity` does not derive its military-happiness unit count on demand. It stores
+`m_iMilitaryHappinessUnits`, initialized/rebuilt by:
+
+    CvCity::updateMilitaryHappinessUnits()
+      -> plotCount(PUF_isMilitaryHappiness) - cached count
+
+Ordinary unit movement maintains that cache incrementally in `CvUnit::setXY`:
+
+    leaving city:  if (isMilitaryHappiness()) changeMilitaryHappinessUnits(-1);
+    entering city: if (isMilitaryHappiness()) changeMilitaryHappinessUnits(+1);
+
+This is only correct if every state transition that can change `isMilitaryHappiness()` for a
+stationary unit performs a full recount.
+
+PERMANENT ALLIANCE VIOLATES THAT CACHE CONTRACT
+------------------------------------------------
+`CvTeam::addTeam(eTeam)` absorbs every player on `eTeam` by calling:
+
+    GET_PLAYER(...).setTeam(getID());
+
+`CvPlayer::setTeam` updates team membership/alive/city/population/land counters and attitude
+state, but never calls `updateMilitaryHappinessUnits`.
+
+For stationary units and cities, changing the player's team can immediately change
+`isGarrisonInTeamCity()`:
+
+* an absorbed player's unit standing in a survivor-team city was not a same-team garrison
+  before the alliance, but becomes one as soon as its owner is reassigned;
+* a survivor-team unit standing in an absorbed player's city becomes a same-team garrison
+  once the city owner is reassigned and the plot's cached team is refreshed.
+
+`CvTeam::addTeam` later loops across all map plots and calls `kPlot.updateTeam()`, but that
+function only assigns the cached plot team from its owner. It does not recount city military
+happiness.
+
+A complete current-tree caller search finds full military-happiness recounts only in:
+
+* `CvCity::init` (city initialization), and
+* `CvTeam::setVassal`, through `CvTeam::updateMilitaryHappinessUnits` for both sides.
+
+There is no corresponding recount in `CvPlayer::setTeam` or the ordinary independent-team
+Permanent Alliance path in `CvTeam::addTeam`.
+
+DETERMINISTIC CURRENT REPRODUCTION
+----------------------------------
+Current SAS supports the full state without custom data:
+
+* `GAMEOPTION_PERMANENT_ALLIANCES` is visible and supported (default off, user-selectable);
+* current `TECH_GAME_THEORY` has `bPermanentAllianceTrading=1`;
+* `CIVIC_HEREDITARY_RULE` has `iHappyPerMilitaryUnit=1`;
+* ordinary military units such as Warrior, Archer and Rifleman have
+  `bMilitaryHappiness=1`.
+
+Example:
+
+1. Player A / Team A owns City A and has no military-happiness unit counted there.
+2. Player B / Team B has a Warrior stationed in City A under the pre-alliance diplomatic
+   access. Because the teams are independent, `isGarrisonInTeamCity()` is false and City A's
+   cached `m_iMilitaryHappinessUnits` correctly remains 0.
+3. A and B form a Permanent Alliance; assume Team A survives the merge.
+4. `CvTeam::addTeam` calls B's `setTeam(Team A)`. The stationary Warrior's
+   `isGarrisonInTeamCity()` now becomes true immediately, but City A's cached count remains 0.
+5. Under Hereditary Rule, City A therefore misses the +1 happiness that the now-same-team
+   Warrior should provide.
+6. If that Warrior subsequently moves out, `CvUnit::setXY` evaluates the CURRENT predicate,
+   sees `isMilitaryHappiness()==true`, and executes `changeMilitaryHappinessUnits(-1)`.
+   The stale cache goes 0 -> -1. `CvCity::changeMilitaryHappinessUnits` asserts that the count
+   is nonnegative, so debug builds expose the invariant violation directly; release builds
+   retain the invalid negative count.
+
+The negative count is not merely cosmetic. `CvCity::getMilitaryHappiness()` multiplies the
+cached count by the player's `getHappyPerMilitaryUnit`, and several happiness/anger/AI and
+occupation checks consume either that result or `getMilitaryHappinessUnits()` directly.
+
+ANCESTRY
+--------
+K-Mod's `CvUnit::isMilitaryHappiness()` simply returned the XML military-happiness flag; its
+city movement bookkeeping therefore did not have this same team-relation cache dependency.
+
+AdvCiv commit `177701cd0a0f4a295a59b4c7bf2d1c8143853763` (2023-09-06,
+"Allow vassal/ master to help suppress 3rd-party revolts", change `advc.184`) introduced
+`isGarrisonInTeamCity()` and made military-happiness eligibility depend on team/master-vassal
+relations.
+
+AdvCiv commit `6c12950422223708a8ec4c1fe0a90834fc10b0cf` (2024-07-19,
+"Fix a rare issue with counting of military happiness units") subsequently recognized the
+cache-invalidation consequence. It introduced `CvCity::updateMilitaryHappinessUnits`, player
+and team wrappers, and explicitly recounts BOTH teams whenever `CvTeam::setVassal` changes a
+master/vassal relation.
+
+That fix demonstrates the intended invariant: relational changes that alter
+`isGarrisonInTeamCity()` require a full recount. The Permanent Alliance path changes the even
+more fundamental same-team relation through `setTeam`, but no analogous recount was added.
+Base AdvCiv 1.14 and current SAS retain that omission.
+
+DUPLICATE LEDGER
+----------------
+Album searches for `advc.184`, `updateMilitaryHappinessUnits`,
+`isGarrisonInTeamCity`, military-happiness + Permanent Alliance, and garrison + alliance found
+no prior numbered root. Earlier Permanent Alliance findings concern diplomacy/history,
+espionage, research/project migration, visibility and other team-keyed state, not the city
+military-happiness cache.
+
+REPAIR DIRECTION
+----------------
+Perform a full military-happiness recount after the Permanent Alliance team reassignment and
+after plot team caches have been refreshed.
+
+The safest local placement is in `CvTeam::addTeam`, after the map loop that calls
+`kPlot.updateTeam()`, because units in cities formerly owned by the absorbed team need those
+plot-team caches to reflect the surviving team before `isGarrisonInTeamCity()` is reevaluated.
+At that point the surviving team's `updateMilitaryHappinessUnits()` covers all cities now
+owned by both sets of merged players.
+
+Do not merely add an incremental adjustment in `CvPlayer::setTeam`: a team reassignment can
+change eligibility for many stationary units in many cities at once, and for absorbed-team
+cities the plot's cached team is not yet updated at the moment `setTeam` is called.
+
+POST-F455 CONTROL — ADVANCED-START / advc.181 FoW DEFAULTS
+----------------------------------------------------------
+The historical `advc.181` Fog-of-War fix remains intact in its primary shipped human action
+recommendation/help callers. Some low-level/default APIs (including Advanced Start city-cost
+validation) still invoke `canFound` with all-seeing/default semantics, but no sufficiently
+clean supported information-leak reproduction was established in this tranche. Keep that as
+a caller/API audit lead, not F456.
+
+CURRENT STONE AFTER F455
+------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` OPEN · 32/169 unique files complete ·
+F445/KI#768 RETRACTED · F446–F455 CONFIRMED · F456/KI#779 UNUSED ·
+C031-WIP168 latest physical checkpoint · no repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F456 unused. Resume the historical bug-fix seam sweep, especially
+special-commerce cache, Random Personalities, military/state transition siblings and
+compiled normal-game player mutators. Keep complete callee-chain invalidation proof before
+numbering anything.
+
+===============================================================================
+C031-WIP169 -- QUEUE 004 DEEP RE-AUDIT: RANDOM-PERSONALITIES FAVORITE-CIVIC STRATEGY LEAK
+Date: 2026-09-01
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvPlayer.cpp / cross-file CvPlayerAI state audit remains OPEN
+===============================================================================
+
+PHYSICAL CONTINUATION
+---------------------
+- Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN under the deeper inherited/stateful re-audit.
+- Unique completed files remain 32/169.
+- F445 / KI#768 remains RETRACTED and must not be implemented.
+- F446-F455 remain confirmed.
+- New confirmed root in this checkpoint: F456 / KI#779.
+- Next root number: F457 / KI#780 remains UNUSED.
+- No repository source files were modified.
+
+F456 / KI#779 -- Random Personalities: Missionary strategy still uses the hidden personality's favorite civic after advc.130n moved favorite ideology to the displayed leader
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ROOT / CONTRACT
+---------------
+AdvCiv `advc.130n` deliberately centralized favorite-ideology semantics in `CvPlayer`:
+
+    CivicTypes CvPlayer::getFavoriteCivic() const
+    {
+        return GC.getInfo(getLeaderType()).getFavoriteCivic();
+    }
+
+The accompanying source comment is explicit: the distinction matters for Random Personalities;
+favorite ideologies are tied to the displayed leader type, while personality-specific numeric
+attitude changes remain tied to the randomized hidden personality.
+
+The 2022 commit converted many AI call sites from direct
+`GC.getInfo(getPersonalityType()).getFavoriteCivic()` lookups to `getFavoriteCivic()`.
+One live runtime lookup was missed in `CvPlayerAI::AI_updateStrategyHash`:
+
+    CivicTypes eCivic = GC.getInfo(getPersonalityType()).getFavoriteCivic();
+    if (eCivic != NO_CIVIC && GC.getInfo(eCivic).isNoNonStateReligionSpread())
+        iMissionary += 20;
+
+This is the only remaining current DLL runtime direct favorite-civic lookup through
+`getPersonalityType()` found by the full-tree search. Therefore the Missionary-strategy score
+still lets the SECRET randomized personality's favorite civic leak into a field that AdvCiv
+explicitly moved back to the DISPLAYED leader.
+
+CURRENT DATA / SUPPORTED PRODUCER
+---------------------------------
+`GAMEOPTION_RANDOM_PERSONALITIES` is visible and supported (default off). `changePersonalityType`
+can assign any non-Barbarian leader personality, merely reducing the random weight of personalities
+already in use; it does not require personality == displayed leader.
+
+Current SAS gives:
+
+- displayed Asoka: FavoriteCivic = `CIVIC_PACIFISM`;
+- Isabella personality: FavoriteCivic = `CIVIC_THEOCRACY`;
+- Isabella personality: FLAVOR_RELIGION = 10, no Gold/Culture flavor;
+- current Theocracy: `bNoNonStateReligionSpread = 1`.
+
+The surrounding flavor terms are correctly personality-driven by design:
+`AI_getFlavorValue` reads `GC.getInfo(getPersonalityType()).getFlavorValue(...)`.
+The favorite-civic term is the exceptional field whose semantics advc.130n deliberately changed.
+
+DETERMINISTIC REPRODUCTION
+--------------------------
+Use Random Personalities and a displayed Asoka whose hidden personality is Isabella. Construct an
+ordinary AI state with:
+
+1. current state religion present;
+2. the AI owns that state religion's Holy City plus one additional Holy City (`iHolyCityCount=2`);
+3. exactly one met civilization in a two-civ game (so AdvCiv's lonely-flavor adjustment is false);
+4. that known civilization can be peacefully entered and has the same state religion;
+5. the AI is not close to a religious victory.
+
+The fixed non-random score terms are then:
+
+    Isabella Religion flavor: 10 * 6 = 60
+    one extra Holy City:      (2 - 1) * 5 = 5
+    one met civ:              1 * 7 = 7
+    same-religion target:     10
+    -----------------------------------
+    intended displayed-favorite score = 82
+
+Asoka's displayed favorite is Pacifism, which does NOT forbid non-state religion spread, so under
+the intended `getFavoriteCivic()` semantics no +20 applies.
+
+Current code instead reads hidden Isabella's favorite Theocracy and adds +20:
+
+    current broken score = 102
+
+The strategy random term is only `(AI_getStrategyRand(9) % 7) * 3`, i.e. 0..18. The activation
+threshold is strictly `iMissionary > 100`.
+
+Therefore:
+
+    intended score: 82..100  -> Missionary strategy NEVER activates
+    current score:  102..120 -> Missionary strategy ALWAYS activates
+
+This proves a deterministic strategy-bit flip without depending on a lucky strategy RNG result.
+
+GAMEPLAY CONSEQUENCE
+--------------------
+`AI_STRATEGY_MISSIONARY` is not decorative. Current live consumers include:
+
+- `AI_missionaryValue`: external-spread multiplier 60 when strategy active vs 25 otherwise;
+- `CvCityAI::AI_bestSpreadUnit`: state-religion missionary chance is multiplied by 170% while
+  other-religion spread is reduced to 65%;
+- `AI_bestReligion`: Missionary strategy changes the acceptance path for the selected religion;
+- strategy interactions elsewhere also avoid/alter competing strategy choices.
+
+Thus Random Personalities can make the AI's religious expansion strategy depend on the hidden
+personality's favorite civic even though favorite ideology is intentionally a displayed-leader
+property throughout the rest of current AdvCiv/SAS.
+
+ANCESTRY
+--------
+K-Mod inherited the Missionary-strategy code with a direct personality favorite-civic lookup.
+
+AdvCiv commit `cbb9fe7ef68b7e8ea9ee5dd3ab5eb9883a83273d` (2022-10-29,
+"Fave civics based on displayed leader type", practical commit 3974 / `advc.130n`) introduced
+`CvPlayer::getFavoriteCivic()` and systematically converted many AI/UI favorite-civic call sites
+from personality/leader-info lookups to that central accessor. The commit's source comment states
+the intended displayed-leader semantics explicitly.
+
+The Missionary-strategy line was not converted by that commit. Base AdvCiv 1.14 and current SAS
+still contain the inherited K-Mod direct `getPersonalityType()` lookup. A full current DLL search
+finds no other live direct favorite-civic lookup through `getPersonalityType()`.
+
+DUPLICATE LEDGER
+----------------
+Album searches for Random Personalities, favorite/favourite civic, `advc.130n`, Missionary strategy,
+`AI_STRATEGY_MISSIONARY`, displayed leader and hidden personality found no prior numbered root for
+this lookup. An earlier Queue-001 control notes an odd post-advc.130n incremental ideology-attitude
+helper, but that concerns attitude-cache refresh and is explicitly not a finding. It does not own
+this live strategy-scoring mismatch.
+
+REPAIR DIRECTION
+----------------
+Replace the one stale Missionary-strategy lookup with the centralized accessor:
+
+    CivicTypes eCivic = getFavoriteCivic();
+
+Do NOT replace the surrounding `AI_getFlavorValue` calls: those are intentionally based on the
+randomized personality and are part of what Random Personalities is supposed to randomize.
+The repair should change only the favorite-ideology term, matching every other advc.130n-converted
+AI use.
+
+CURRENT STONE AFTER F456
+------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` OPEN · 32/169 unique files complete ·
+F445/KI#768 RETRACTED · F446-F456 CONFIRMED · F457/KI#780 UNUSED ·
+C031-WIP169 latest physical checkpoint · no repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F457 unused. First close the immediate Random-Personalities sibling sweep
+(favorite religion and any remaining direct leader/personality semantic fields), then resume the
+historical special-commerce/cache and ranked compiled player-state/arithmetic inventory. Preserve
+full caller/current-data/ancestry/duplicate proof before numbering anything.
+
+===============================================================================
+C031-WIP170 -- QUEUE 004 DEEP RE-AUDIT: TWO-CIV RANDOM-TRIGGER WORLD-NEWS VISIBILITY
+Date: 2026-09-01
+STATUS: INCOMPLETE SAFETY CHECKPOINT -- CvPlayer.cpp remains OPEN
+===============================================================================
+
+PHYSICAL CONTINUATION
+---------------------
+- Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+- Unique completed files remain 32/169.
+- F445 / KI#768 remains RETRACTED and must not be implemented.
+- F446-F456 remain confirmed.
+- New confirmed root in this checkpoint: F457 / KI#780.
+- Next root number: F458 / KI#781 remains UNUSED.
+- No repository source files were modified.
+
+POST-F456 RANDOM-PERSONALITIES SIBLING CLOSURE
+----------------------------------------------
+The immediate advc.130n sibling sweep is clean after F456. Current favorite-religion AI uses go
+through `CvPlayer::getFavoriteReligion()`, and a full DLL search finds no surviving direct
+`getPersonalityType()->FavoriteReligion` lookup. F456's Missionary-strategy favorite-civic line is
+the sole current runtime direct favorite-civic lookup through `getPersonalityType()`.
+
+The special-commerce-cache historical seam also remains internally consistent under the current
+city->player update chain. No live transition was found that changes city special commerce while
+bypassing the player's `m_aiCommerceRateTimes100` delta maintenance.
+
+F457 / KI#780 -- Global PickPlayer trigger World News reveals an unmet picked civilization to observers; sibling event-news path was explicitly fixed in AdvCiv 2422
+-----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+ROOT / CONTRACT
+---------------
+`CvPlayer::setTriggerFired` announces a trigger's pre-expanded `m_szGlobalText` to third-party
+observers. For a trigger involving `m_eOtherPlayer`, current code hoists this test OUTSIDE the
+observer loop:
+
+    bool bMetOtherPlayer = (kTriggeredData.m_eOtherPlayer == NO_PLAYER ||
+            GET_TEAM(kTriggeredData.m_eOtherPlayer).isHasMet(getTeam()));
+
+and then sends the World News text to each living observer when:
+
+    bMetOtherPlayer && observerTeam.isHasMet(getTeam())
+
+The first predicate asks whether the PICKED OTHER PLAYER has met the EVENT OWNER. It does NOT ask
+whether the current OBSERVER has met that picked player.
+
+`initTriggeredData` has already expanded the World News string once, including:
+
+    eOtherPlayer != NO_PLAYER ? GET_PLAYER(eOtherPlayer).getCivilizationAdjectiveKey() : L""
+
+Therefore every accepted observer receives the picked civilization's actual adjective even when
+that observer has never met the picked civilization.
+
+CURRENT SHIPPED PRODUCER / DETERMINISTIC REPRO
+----------------------------------------------
+Current `EVENTTRIGGER_FUGITIVE` is:
+
+    bGlobal     = 1
+    bPickPlayer = 1
+    WorldNews   = TXT_KEY_EVENTTRIGGER_FUGITIVE
+
+The stock BtS text inherited by current SAS is:
+
+    "%s1_civ_adjective authorities are rumored to have captured a fugitive fleeing from
+     %s4_civ_adjective justice. No confirmation is available."
+
+So both the event owner's civilization and the picked civilization are explicitly named.
+
+Construct three living major civilizations:
+
+1. A is the player whose Fugitive trigger fires.
+2. B is the picked `m_eOtherPlayer`; A and B have met.
+3. C has met A but has never met B.
+
+This is a valid trigger state because `CvPlayer::canTrigger` requires the candidate picked player
+B to have met the triggering player A:
+
+    if (!GET_TEAM(B).isHasMet(A.team)) return false;
+
+When `setTriggerFired` announces the trigger:
+
+    bMetOtherPlayer = B.hasMet(A) = true
+    C.hasMet(A)                    = true
+
+so C receives the already-expanded Fugitive World News text and learns B's civilization adjective,
+despite C never having met B.
+
+Other current Global + PickPlayer trigger texts such as `EVENTTRIGGER_FAUX_PAS` and
+`EVENTTRIGGER_TEA` also explicitly contain the picked civilization adjective. Fugitive alone is
+sufficient for the root.
+
+AUTHORITATIVE CURRENT SIBLING CONTROL
+-------------------------------------
+This is no longer an ambiguous question about whether "World News" is intentionally omniscient.
+AdvCiv itself explicitly established the opposite information contract.
+
+Commit `71a7af8cd9ddd50f5fbbbafd17bec46698339993` (practical 2422), titled:
+
+    "Report random events involving two civs only if both known"
+
+fixed the later `CvPlayer::applyEvent` World News observer loop. The old code checked the other
+player against the event owner's team. The fix changed that check to the CURRENT OBSERVER'S team:
+
+    if (pTriggeredData->m_eOtherPlayer != NO_PLAYER &&
+        !GET_TEAM(pTriggeredData->m_eOtherPlayer).isHasMet(kObs.getTeam()))
+    {
+        continue;
+    }
+
+Current SAS retains that observer-specific check in `applyEvent`. Thus event-choice World News is
+suppressed for C in the reproduction above, while the trigger-level World News emitted earlier by
+`setTriggerFired` leaks B's identity.
+
+ANCESTRY
+--------
+BtS/Civ4CE and K-Mod already contain the flawed trigger-announcement condition: the observer must
+know the event owner, but the picked-other-player test is against the event owner rather than the
+observer.
+
+An early AdvCiv refactor (practical 1648) hoisted the picked-player test out of the loop as
+`bMetOtherPlayer`; practical 2416 corrected an unrelated `||`/`&&` mistake in the refactored
+condition but retained the same wrong subject.
+
+Practical 2422 later fixed the parallel event-choice World News path specifically so two-civ event
+reports are shown only when BOTH civilizations are known to each observer. It did not apply the
+same observer-specific correction to `setTriggerFired`'s trigger World News. Base AdvCiv 1.14 and
+current SAS retain this unfixed sibling.
+
+DUPLICATE LEDGER
+----------------
+The Queue-004 audit had previously parked this exact Global + PickPlayer visibility behavior as an
+ambiguous World-News policy question. No prior numbered root owns it. The newly traced practical
+2422 history resolves that ambiguity by explicitly stating and implementing the observer-specific
+"both known" contract in the sibling event-news path.
+
+F454 is separate: it leaks a hidden target CAPITAL LOCATION through espionage third-party message
+coordinates. F457 leaks the IDENTITY/adjective of an unmet picked civilization through random-event
+trigger World News.
+
+REPAIR DIRECTION
+----------------
+Do not hoist the picked-player contact check globally. Resolve it per observer, mirroring the
+already-correct `applyEvent` path. Conceptually:
+
+    observer knows event owner
+    && (no picked player || observer knows picked player's team)
+
+The existing `applyEvent` observer loop is the direct local repair model.
+
+CURRENT STONE AFTER F457
+------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` OPEN · 32/169 unique files complete ·
+F445/KI#768 RETRACTED · F446-F457 CONFIRMED · F458/KI#781 UNUSED ·
+C031-WIP170 latest physical checkpoint · no repository source files modified.
+
+NEXT
+----
+Continue Queue 004 from F458 unused. Resume the historical bug-fix seam / ranked compiled player
+state-arithmetic inventory after closing Random Personalities and special-commerce-cache siblings.
+Favor shipped current producers and complete callee-chain proof; preserve dormant/API-only defects
+as controls rather than numbering them.

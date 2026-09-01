@@ -760,8 +760,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#668 - (Fixed inherited BtS team-value defect) Area missionary value omits teammate cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-668)\
 [KI#669 - (Fixed inherited AdvCiv era defect) Ancient targets can be mistaken for no targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-669)\
 [KI#670 - (Fixed inherited K-Mod overflow defect) A failed bounded path can count distant joiners as nearby](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-670)\
-[KI#671 - (Provisional Pending inherited espionage-value defect) Unitless affordability suppresses stationary-Spy missions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-671)\
-[KI#672 - (Provisional Pending inherited K-Mod accumulator defect) Tech-theft counts leak across rivals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-672)\
+[KI#671 - (Fixed inherited BtS/K-Mod espionage-value defect) Unitless affordability suppressed stationary-Spy missions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-671)\
+[KI#672 - (Fixed inherited K-Mod accumulator defect) Tech-theft counts leaked across rivals](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-672)\
 [KI#673 - (Fixed inherited AdvCiv decay defect) Gold-trade memory could become permanent](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-673)\
 [KI#674 - (Fixed inherited AdvCiv control-flow defect) A rejected city-for-war fallback could execute](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-674)\
 [KI#675 - (Provisional Pending AdvCiv selection defect) City-request liberation priority depends on iteration order](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-675)\
@@ -867,7 +867,10 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#775 - (Provisional Pending AdvCiv Culture Globe buffer defect) A fifth culture color overwrites the next plot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-775)\
 [KI#776 - (Pending Architectural inherited BtS research-path defect) Shared prerequisites can make the automatic queue choose a costlier route](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-776)\
 [KI#777 - (Provisional Pending AdvCiv espionage-announcement leak) Third parties receive an unrevealed capital's coordinates](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-777)\
-[KI#778 - (Provisional Pending investigation) F455 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-778)\
+[KI#778 - (Pending inherited AdvCiv cache-invalidation issue) Permanent Alliances do not recount military-happiness garrisons](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-778)\
+[KI#779 - (Pending inherited AdvCiv Random Personalities issue) Missionary strategy reads the hidden personality's favorite civic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-779)\
+[KI#780 - (Pending inherited BtS/K-Mod event-information leak) Global PickPlayer trigger news reveals an unmet civilization](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-780)\
+[KI#781 - (Provisional Pending investigation) F458 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-781)\
 
 <a id="ki-1"></a>
 
@@ -2087,7 +2090,7 @@ Note: i made sure as usual it's not a fast compile (i delete all the temp_files'
 
 ## KI#38.3 - (Improved) Parallel Debug-opt compilation used excessive CPU for a small time saving
 
-Debug-opt previously used parallel `bin\jom build`, which made full builds very fast but likely sustained high CPU usage (didn't hear but based on fan noise that i suspect comes from the CPU fan, to very high, likely full speed burst or close enough to it).
+Debug-opt previously used parallel `bin\jom build`, which made full builds very fast but likely sustained high CPU usage (didn't check but based on fan noise i heard that i suspect comes from the CPU fan, to very high, likely full speed burst or close enough to it).
 
 The 2026-08-31 Visual Studio logs measured the parallel Debug-opt build at `24.83` seconds and the sequential Release build at `1` minute `46.22` seconds, a difference of `81.39` seconds. That saving is marginal in a development iteration where an autoplay usually takes `10+` minutes, while the unnecessary sustained CPU load, heat and power use become burdensome and add up when compiling many or dozens of DLLs during a development day.
 
@@ -14313,19 +14316,27 @@ Found and investigated during ChatGPT-5.6-Sol's C031-WIP35 `CvPlayerAI.cpp` deep
 
 <a id="ki-671"></a>
 
-## KI#671 - (Provisional Pending inherited espionage-value defect) Unitless affordability suppresses stationary-Spy missions
+## KI#671 - (Fixed inherited BtS/K-Mod espionage-value defect) Unitless affordability suppressed stationary-Spy missions
 
-Album F348 finds `AI_espionageVal` gating mission valuation on current espionage points without the acting Spy's stationary discount, defeating K-Mod's intended save-for-later valuation. A mission affordable through the actual Spy discount can therefore be suppressed before its value is calculated. Pending applying the acting-unit context to affordability or deferring the gate until mission cost is evaluated correctly.
+`AI_bestPlotEspionage` deliberately evaluates missions that are not yet affordable so the AI can save espionage points for worthwhile targets. It also computes costs and legality with the actual Spy, including the stationary discount. The inherited `AI_espionageVal` helper nevertheless rechecked immediate affordability with no unit context, returning zero for every save-for-later candidate and for missions affordable only through the acting Spy's stationary discount.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP38 `CvPlayerAI.cpp` deep re-audit after the unrelated WIP36 F348 false positive was retracted; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The value helper now receives the sole caller's actual Spy and checks structural/unit-sensitive mission legality without requiring current espionage points. The caller retains its existing immediate-affordability check, wait-time discount and final execution validation, so missions remain legal and unit-aware while K-Mod's intended save-for-later policy can operate.
+
+BtS already valued espionage without an acting-unit stationary discount. K-Mod made selection unit-aware and added save-for-later handling but retained the incompatible old current-points gate; AdvCiv and AdvCiv-SAS inherited that integration defect. Found as F348/provisional KI#671 during ChatGPT-5.6-Sol's C031-WIP38 `CvPlayerAI.cpp` deep re-audit after WIP36's unrelated false positive was retracted; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+After a clean Debug-opt compilation, a Huge Maze, Normal-speed autoplay with standard Aggressive AI/full UWAI and espionage enabled completed successfully at turn 417 by Space Race. Its 16 players formed four two-player teams plus eight independent teams, giving the repaired valuation broad mixed-team regression coverage; exact stationary-Spy affordability transitions remain source-verified. Recorded in `SASGameRecord_20260901T055319Z_new1.log`.
 
 <a id="ki-672"></a>
 
-## KI#672 - (Provisional Pending inherited K-Mod accumulator defect) Tech-theft counts leak across rivals
+## KI#672 - (Fixed inherited K-Mod accumulator defect) Tech-theft counts leaked across rivals
 
-Album F349 finds `AI_doCommerce` reusing one technology-theft accumulator across rival players. The at-least-two-stealable-technologies gate can both miss a real target and combine separate one-tech targets into a false strategy. Pending per-rival discovery state and cost estimates before any aggregate decision.
+K-Mod's cheap technology-theft strategy intended to require at least two stealable technologies from a candidate rival. It stored the approximate technology cost outside the rival loop, treated that same accumulator as the "already found one" flag, and broke after the first stealable technology. The first real multi-tech rival was therefore rejected, while one technology from each of two unrelated rivals could combine into a false valid target and a mixed cost estimate.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C031-WIP39 `CvPlayerAI.cpp` deep re-audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The repair counts two distinct stealable technologies once per rival team, computes that team's own approximate cost, and compares eligible city modifiers across its members without recounting shared team technologies. When a target wins the modifier comparison, its cost estimate travels with it into the later target-rate calculation. This preserves the intended two-tech threshold and prevents both cross-rival state leakage and team-member duplication.
+
+BtS does not contain this cheap-tech-steal targeting block. K-Mod introduced the malformed accumulator structure, and Base AdvCiv 1.14 plus AdvCiv-SAS retain it. Found as F349/provisional KI#672 during ChatGPT-5.6-Sol's C031-WIP39 `CvPlayerAI.cpp` deep re-audit; independently reviewed, fixed and documented with the help of GPT-5.6-Sol, thanks.
+
+The same clean Debug-opt Huge Maze run completed successfully at turn 417 by Space Race with standard Aggressive AI/full UWAI, espionage enabled, and 16 players across four two-player teams plus eight independent teams. This exercises sustained multi-rival espionage valuation without a regression; exact cheap-tech candidate isolation remains source-verified. Recorded in `SASGameRecord_20260901T055319Z_new1.log`.
 
 <a id="ki-673"></a>
 
@@ -15413,8 +15424,32 @@ The neighboring ordinary religion-change announcement already uses observer-awar
 
 <a id="ki-778"></a>
 
-## KI#778 - (Provisional Pending investigation) F455 remains unassigned during the CvPlayer deep re-audit
+## KI#778 - (Pending inherited AdvCiv cache-invalidation issue) Permanent Alliances do not recount military-happiness garrisons
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F454 through C031-WIP167, retracts F445/KI#768, and reserves F455 next. C031-WIP166 and WIP167 closed further current-data/caller candidates without manufacturing another finding. Do not implement a change under KI#778 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+AdvCiv made `CvUnit::isMilitaryHappiness` depend on whether a unit is a garrison in the same, master or vassal team's city. It consequently added full cached military-happiness recounts when vassal relations change, but a Permanent Alliance can make stationary units newly eligible by reassigning a player to the surviving team without performing the same recount. The city can therefore miss valid Hereditary Rule happiness; when such a unit later leaves, movement bookkeeping can decrement the stale zero cache to -1 and trip its debug assertion.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP167 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+K-Mod's predicate only read the unit XML flag and did not have this relational cache dependency. AdvCiv practical `advc.184` introduced it, and a later AdvCiv repair covered master/vassal transitions but omitted the ordinary independent-team Permanent Alliance path; Base AdvCiv 1.14 and AdvCiv-SAS retain the omission. Found as F455/provisional KI#778 during ChatGPT-5.6-Sol's C031-WIP168 `CvPlayer.cpp` deep re-audit; disposition independently reviewed and reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-779"></a>
+
+## KI#779 - (Pending inherited AdvCiv Random Personalities issue) Missionary strategy reads the hidden personality's favorite civic
+
+AdvCiv `advc.130n` deliberately moved favorite-ideology semantics to `CvPlayer::getFavoriteCivic`, which reads the displayed leader while Random Personalities continues to supply personality-specific numeric AI preferences. One live lookup was missed: `CvPlayerAI::AI_updateStrategyHash` still reads the hidden personality's favorite civic when adding Missionary-strategy weight for civics that prohibit non-state religion spread. With displayed Asoka and hidden Isabella, for example, hidden Theocracy can add 20 and cross the Missionary threshold although displayed Asoka's favorite Pacifism should not.
+
+This is an AdvCiv partial-conversion issue absent from the original BtS/K-Mod distinction; Base AdvCiv 1.14 and AdvCiv-SAS retain the missed call site. The neighboring flavor terms correctly remain personality-driven, so the repair should replace only this favorite-civic lookup with `getFavoriteCivic()`. Found as F456/provisional KI#779 during ChatGPT-5.6-Sol's C031-WIP169 `CvPlayer.cpp`/`CvPlayerAI.cpp` deep re-audit; disposition independently reviewed and reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-780"></a>
+
+## KI#780 - (Pending inherited BtS/K-Mod event-information leak) Global PickPlayer trigger news reveals an unmet civilization
+
+`CvPlayer::setTriggerFired` expands Global PickPlayer World News with the picked civilization's adjective, but its contact test asks whether that civilization has met the event owner and hoists the answer outside the observer loop. An observer who knows the event owner but has never met the picked civilization can therefore receive text that identifies it. Current Fugitive, Faux Pas and Tea triggers provide shipped producers; a three-civilization Fugitive setup where A knows B and C knows only A deterministically leaks B's identity to C.
+
+BtS/Civ4CE and K-Mod contain the flawed condition. AdvCiv practical 1648 hoisted it and practical 2416 repaired a separate Boolean error, while practical 2422 explicitly fixed the sibling event-result news path to require each observer to know both civilizations; the trigger-level path was left behind in Base AdvCiv 1.14 and AdvCiv-SAS. Repair should mirror that observer-specific sibling check. Found as F457/provisional KI#780 during ChatGPT-5.6-Sol's C031-WIP170 `CvPlayer.cpp` deep re-audit; disposition independently reviewed and reconciled with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-781"></a>
+
+## KI#781 - (Provisional Pending investigation) F458 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F457 through C031-WIP170, retracts F445/KI#768, and reserves F458 next. Do not implement a change under KI#781 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved during ChatGPT-5.6-Sol's C031-WIP170 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

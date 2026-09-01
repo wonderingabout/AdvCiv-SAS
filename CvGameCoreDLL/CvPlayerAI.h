@@ -358,7 +358,8 @@ public:
 	int AI_religionValue(ReligionTypes eReligion) const;
 	// K-Mod: moved to CvUnitAI
 	//EspionageMissionTypes AI_bestPlotEspionage(CvPlot* pSpyPlot, PlayerTypes& eTargetPlayer, CvPlot*& pPlot, int& iData) const;
-	int AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes eMission, CvPlot const& kPlot, int iData) const;
+	// <!-- custom: Pass the acting Spy so valuation uses its unit-sensitive mission legality while leaving current-point affordability to the caller's immediate-vs-save-for-later policy. See KI#671. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+	int AI_espionageVal(PlayerTypes eTargetPlayer, EspionageMissionTypes eMission, CvPlot const& kPlot, int iData, CvUnit const* pSpyUnit) const;
 	bool AI_isMaliciousEspionageTarget(PlayerTypes eTarget) const; // K-Mod
 
 	int AI_getPeaceWeight() const;

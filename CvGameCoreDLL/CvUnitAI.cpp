@@ -26809,8 +26809,9 @@ EspionageMissionTypes CvUnitAI::AI_bestPlotEspionage(int& iData) const
 			{
 				continue; // we can't do the mission, and cost is not the limiting factor.
 			}
+			// <!-- custom: Supply the acting Spy so mission valuation shares the selector's unit-sensitive legality and stationary discount without preempting its save-for-later handling. See KI#671. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			int iValue = kOwner.AI_espionageVal(
-					eTargetPlayer, eMission, kSpyPlot, iTestData);
+					eTargetPlayer, eMission, kSpyPlot, iTestData, this);
 			iValue *= 80 + syncRand().get(60,
 					// <advc.007> Don't pollute the MPLog
 					bFirst ? "AI best espionage mission" : NULL);
