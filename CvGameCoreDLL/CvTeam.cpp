@@ -4232,7 +4232,8 @@ int CvTeam::getResearchProgress(TechTypes eIndex) const
 // <!-- custom: Added eCause and pass it through research-progress helpers to setHasTech when this change completes the technology, preserving the action that actually crossed the threshold. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
 void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes ePlayer, TechAcquisitionCause eCause)
 {
-	if(getResearchProgress(eIndex) == iNewValue)
+	int const iOldProgress = getResearchProgress(eIndex);
+	if (iOldProgress == iNewValue)
 		return;
 
 	m_aiResearchProgress.set(eIndex, iNewValue);
@@ -4251,14 +4252,23 @@ void CvTeam::setResearchProgress(TechTypes eIndex, int iNewValue, PlayerTypes eP
 		} // </advc.004x>
 	}
 
-	if (getResearchProgress(eIndex) >= getResearchCost(eIndex))
+	int const iResearchCost = getResearchCost(eIndex);
+	if (getResearchProgress(eIndex) >= iResearchCost)
 	{
-		int iOverflow = (100 * (getResearchProgress(eIndex) - getResearchCost(eIndex))) / std::max(1, GET_PLAYER(ePlayer).calculateResearchModifier(eIndex));
-		GET_PLAYER(ePlayer).changeOverflowResearch(iOverflow);
+		CvPlayer& kResearcher = GET_PLAYER(ePlayer);
+		int const iResearchModifier = std::max(1, kResearcher.calculateResearchModifier(eIndex));
+		int const iProgressBeforeClamp = getResearchProgress(eIndex);
+		int const iOverflow = (100 * (iProgressBeforeClamp - iResearchCost)) / iResearchModifier;
+		kResearcher.changeOverflowResearch(iOverflow);
 		// <advc> Cleaner to subtract the overflow. Cf. comment in getResearchProgress.
 		// <!-- custom: AdvCiv added the raw overflow to the already overflowing progress, doubling that portion instead of subtracting it.
 		// Preserve exactly the completed technology cost in stored progress. See KI#404. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
-		m_aiResearchProgress.add(eIndex, getResearchCost(eIndex) - getResearchProgress(eIndex)); // </advc>
+		m_aiResearchProgress.add(eIndex, iResearchCost - getResearchProgress(eIndex)); // </advc>
+		// <!-- custom: Only a genuine CvPlayer::doResearch threshold crossing has meaningful research-overflow accounting.
+		// Log after the overflow grant and KI#404 clamp, but before setHasTech emits the generic TECH_ACQUIRED row, so the two factual actions remain in chronological order.
+		// Other acquisition causes stay on TECH_ACQUIRED alone. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2 && eCause == TECH_ACQUISITION_RESEARCH)
+			logSASGameRecordResearchCompleted(eIndex, getID(), ePlayer, iOldProgress, iProgressBeforeClamp, iResearchModifier, iOverflow);
 		setHasTech(eIndex, true, ePlayer, true, true, /* advc.121: */ true, eCause);
 		/*if (!GC.getGame().isMPOption(MPOPTION_SIMULTANEOUS_TURNS) && !GC.getGame().isOption(GAMEOPTION_NO_TECH_BROKERING))
 			setNoTradeTech(eIndex, true);*/ // BtS
@@ -4862,6 +4872,7 @@ void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bo
 							Clearing the queue is currently the only way to do that. */
 						// <!-- custom: This may leave currentResearch=- in the end-of-round summary, but the affected AI has already applied this round's science and chooses again before applying the next round's. Log the cause to verify that timing and expose any true missed research separately. (GPT-5.6-Sol) -->
 						if (gPlayerLogLevel >= 2 && kGame.isFinalInitialized()) logBBAI("    RESEARCH_QUEUE_INVALIDATED_FIRST_PERK turn=%d player=%d %S competingTech=%S claimedByTeam=%d", kGame.getGameTurn(), itOther->getID(), itOther->getCivilizationDescription(0), kTech.getDescription(), getID());
+						if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(itOther->getID(), RESEARCH_TARGET_CHANGE_FIRST_DISCOVERY_PERK_INVALIDATION);
 						itOther->clearResearchQueue();
 					}
 				}

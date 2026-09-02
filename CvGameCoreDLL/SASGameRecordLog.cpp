@@ -26,6 +26,7 @@
 #include "CvPlotGroup.h" // <!-- custom: Needed to identify connected city networks in game-record city rows. (ChatGPT-5.5) -->
 #include "CvArea.h" // <!-- custom: Needed for area-wide city happiness/health detail rows. (ChatGPT-5.5) -->
 #include "CvPlayerAI.h" // <!-- custom: Needed for attitude/glance values in game-record advisor rows. (ChatGPT-5.5) -->
+#include "AgentIterator.h" // <!-- custom: Needed directly for MemberIter in compact team-aware research-redirection context; do not rely on unrelated gameplay headers to provide the iterator transitively. (ChatGPT-5.6-Sol) -->
 #include "CvTeamAI.h" // <!-- custom: Needed for team-level worst-enemy state in game-record diplomacy-status rows. (ChatGPT-5.5) -->
 #include "CvGameAI.h" // <!-- custom: Complete CvGameAI is needed for getUWAI(). (ChatGPT-5.6-Sol) -->
 #include "CvPythonCaller.h" // <!-- custom: Resolve map-option defaults and descriptions. (ChatGPT-5.6-Sol) -->
@@ -652,6 +653,29 @@ static int g_aiSASGameRecordTotalCityBattleLosses[MAX_PLAYERS];
 // <!-- custom: These counters reset whenever a new GameRecord log session begins, including after loading a save. Name them as logged observations rather than misleading lifetime totals. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 static int g_aiSASGameRecordLoggedGoldenAgeTurns[MAX_PLAYERS];
 static int g_aiSASGameRecordLoggedAnarchyTurns[MAX_PLAYERS];
+// <!-- custom: Observe each player's finalized research target once per player turn. This recorder-local state detects real incomplete-tech redirections without instrumenting every queue-mutating gameplay path or inventing a cause that the observation cannot prove.
+// Repeat-tech counts distinguish a completed repeat from a true redirect. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordResearchPrevious
+{
+	bool bValid;
+	TeamTypes eTeam;
+	TechTypes eTech;
+	int iTechCount;
+	ResearchTargetChangeCause ePendingCause;
+};
+static SASGameRecordResearchPrevious g_akSASGameRecordResearchPrevious[MAX_PLAYERS];
+// <!-- custom: CvPlayer::doResearch knows the exact split between this turn's modified research and previously stored unmodified overflow before both are combined into team progress.
+// Retain that tiny level-2-only application context until an actual same-turn completion consumes it; this keeps RESEARCH_COMPLETED exact without widening generic gameplay research APIs for logging. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordResearchApplication
+{
+	bool bValid;
+	int iGameTurn;
+	TechTypes eTech;
+	int iModifiedResearchRate;
+	int iIncomingOverflowUnmodified;
+	int iIncomingOverflowModified;
+};
+static SASGameRecordResearchApplication g_akSASGameRecordResearchApplication[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesAcquired[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesLost[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
@@ -1149,6 +1173,17 @@ static void resetSASGameRecordState()
 		g_aiSASGameRecordTotalCityBattleLosses[iI] = 0;
 		g_aiSASGameRecordLoggedGoldenAgeTurns[iI] = 0;
 		g_aiSASGameRecordLoggedAnarchyTurns[iI] = 0;
+		g_akSASGameRecordResearchPrevious[iI].bValid = false;
+		g_akSASGameRecordResearchPrevious[iI].eTeam = NO_TEAM;
+		g_akSASGameRecordResearchPrevious[iI].eTech = NO_TECH;
+		g_akSASGameRecordResearchPrevious[iI].iTechCount = 0;
+		g_akSASGameRecordResearchPrevious[iI].ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
+		g_akSASGameRecordResearchApplication[iI].bValid = false;
+		g_akSASGameRecordResearchApplication[iI].iGameTurn = -1;
+		g_akSASGameRecordResearchApplication[iI].eTech = NO_TECH;
+		g_akSASGameRecordResearchApplication[iI].iModifiedResearchRate = 0;
+		g_akSASGameRecordResearchApplication[iI].iIncomingOverflowUnmodified = 0;
+		g_akSASGameRecordResearchApplication[iI].iIncomingOverflowModified = 0;
 		g_aiSASGameRecordCitiesAcquired[iI] = 0;
 		g_aiSASGameRecordCitiesLost[iI] = 0;
 		g_aiSASGameRecordCitiesConquered[iI] = 0;
@@ -5679,7 +5714,32 @@ void logSASGameRecordTurn(int iGameTurn)
 	logSASGameRecordSnapshot(iGameTurn, "interval");
 }
 
-// <!-- custom: Accumulate Golden Age and anarchy turns observed in this GameRecord session only; loaded saves deliberately begin new logs rather than pretending these are persisted lifetime totals. See KI#379. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+// <!-- custom: High-level queue-mutating paths call this only at SASGameRecord level 2+. Keep the latest authoritative cause until the player's next finalized research-target observation.
+// If it produces no invested-tech redirection, the observer discards it rather than emitting a standalone/noisy action. (ChatGPT-5.6-Sol) -->
+void noteSASGameRecordResearchTargetChangeCause(PlayerTypes ePlayer, ResearchTargetChangeCause eCause)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	g_akSASGameRecordResearchPrevious[ePlayer].ePendingCause = eCause;
+}
+
+// <!-- custom: Called only from the level-2-gated ordinary research-application path, using values gameplay already computes.
+// Store the same-turn split so a completion row can distinguish fresh research from carried overflow without logging every non-completing research turn. (ChatGPT-5.6-Sol) -->
+void noteSASGameRecordResearchApplication(PlayerTypes ePlayer, TechTypes eTech, int iModifiedResearchRate, int iIncomingOverflowUnmodified, int iIncomingOverflowModified)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	SASGameRecordResearchApplication& kApplication = g_akSASGameRecordResearchApplication[ePlayer];
+	kApplication.bValid = true;
+	kApplication.iGameTurn = GC.getGame().getGameTurn();
+	kApplication.eTech = eTech;
+	kApplication.iModifiedResearchRate = iModifiedResearchRate;
+	kApplication.iIncomingOverflowUnmodified = iIncomingOverflowUnmodified;
+	kApplication.iIncomingOverflowModified = iIncomingOverflowModified;
+}
+
+// <!-- custom: Accumulate Golden Age and anarchy turns observed in this GameRecord session only; loaded saves deliberately begin new logs rather than pretending these are persisted lifetime totals. See KI#379.
+// This helper intentionally remains callable at every enabled log level because these duration counters feed lower-detail rows; the research branch below separately self-gates at level 2+. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS)
@@ -5689,6 +5749,50 @@ void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer)
 		g_aiSASGameRecordLoggedGoldenAgeTurns[ePlayer]++;
 	if (kPlayer.getAnarchyTurns() > 0)
 		g_aiSASGameRecordLoggedAnarchyTurns[ePlayer]++;
+
+	// <!-- custom: AI_doResearch has already finalized this turn's target before this hook, while CvPlayer::doResearch has not yet applied this turn's science.
+	// Compare that stable boundary with the previous player turn and record only switches away from a still-incomplete technology; routine completed-tech queue progression is deliberately suppressed.
+	// Cause comes only from explicit high-level queue-mutating hooks; unknown/uninstrumented paths stay UNKNOWN rather than being inferred from nearby events. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2 && kPlayer.isAlive() && !kPlayer.isBarbarian())
+	{
+		SASGameRecordResearchPrevious& kPrevious = g_akSASGameRecordResearchPrevious[ePlayer];
+		TeamTypes const eTeam = kPlayer.getTeam();
+		CvTeam const& kTeam = GET_TEAM(eTeam);
+		TechTypes const eResearch = kPlayer.getCurrentResearch();
+		if (kPrevious.bValid && kPrevious.eTeam == eTeam && kPrevious.eTech != NO_TECH && kPrevious.eTech != eResearch)
+		{
+			TechTypes const eOldResearch = kPrevious.eTech;
+			bool const bOldResearchCompleted = (GC.getInfo(eOldResearch).isRepeat() ?
+				kTeam.getTechCount(eOldResearch) > kPrevious.iTechCount : kTeam.isHasTech(eOldResearch));
+			if (!bOldResearchCompleted)
+			{
+				int const iOldProgress = kTeam.getResearchProgress(eOldResearch);
+				// <!-- custom: A zero-progress target change wastes/parks no research and is common enough to be low-value noise.
+				// Once progress exists, retain team-game context too: another teammate may still be researching the old technology, so this row must not imply that the team's investment was abandoned. (ChatGPT-5.6-Sol) -->
+				if (iOldProgress > 0)
+				{
+					int iOldTeamResearchersAfter = 0;
+					for (MemberIter it(eTeam); it.hasNext(); ++it)
+					{
+						if (it->getCurrentResearch() == eOldResearch)
+							iOldTeamResearchersAfter++;
+					}
+					int const iOldCost = kTeam.getResearchCost(eOldResearch);
+					int const iNewProgress = (eResearch == NO_TECH ? 0 : kTeam.getResearchProgress(eResearch));
+					int const iNewCost = (eResearch == NO_TECH ? -1 : kTeam.getResearchCost(eResearch));
+					logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_TARGET_CHANGED player=%d team=%d reason=%s oldTech=%s oldTeamProgress=%d oldCost=%d oldTeamResearchersAfter=%d newTech=%s newTeamProgress=%d newCost=%d",
+						GC.getGame().getGameTurn(), ePlayer, eTeam, getSASResearchTargetChangeCause(kPrevious.ePendingCause), getSASGameRecordTechType(eOldResearch), iOldProgress, iOldCost, iOldTeamResearchersAfter, getSASGameRecordTechType(eResearch), iNewProgress, iNewCost);
+				}
+			}
+		}
+		kPrevious.bValid = true;
+		kPrevious.eTeam = eTeam;
+		kPrevious.eTech = eResearch;
+		kPrevious.iTechCount = (eResearch == NO_TECH ? 0 : kTeam.getTechCount(eResearch));
+		// Any tagged cause belongs only to mutations observed since the previous player-turn boundary.
+		// If no invested-tech redirection resulted, discard it here so it cannot be misattributed to a later unrelated switch.
+		kPrevious.ePendingCause = RESEARCH_TARGET_CHANGE_UNKNOWN;
+	}
 }
 
 
@@ -5848,6 +5952,26 @@ void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, boo
 			GC.getGame().getGameTurn(), ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()), bConscripted ? "CONSCRIPT" : "PRODUCTION", iProductionNeeded,
 			iRawModifiedOverflow, iUnmodifiedOverflow, iKeptOverflow, iLostProduction, iUnusedOverflowCapacity, iOverflowGold);
 	}
+}
+
+// <!-- custom: Keep exact research-overflow arithmetic separate from TECH_ACQUIRED because only ordinary research completion has meaningful progress/overflow conversion.
+// The threshold caller supplies its exact arithmetic while recorder-local same-turn application context supplies the fresh-research/carried-overflow split without widening generic research APIs. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerTypes ePlayer, int iProgressBefore, int iProgressBeforeClamp, int iResearchModifier, int iUnmodifiedOverflow)
+{
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	int const iResearchCost = kTeam.getResearchCost(eTech);
+	int const iProgressAdded = iProgressBeforeClamp - iProgressBefore;
+	int const iRawModifiedOverflow = std::max(0, iProgressBeforeClamp - iResearchCost);
+	SASGameRecordResearchApplication& kApplication = g_akSASGameRecordResearchApplication[ePlayer];
+	bool const bApplicationKnown = (kApplication.bValid && kApplication.iGameTurn == GC.getGame().getGameTurn() && kApplication.eTech == eTech);
+	int const iModifiedResearchRate = (bApplicationKnown ? kApplication.iModifiedResearchRate : -1);
+	int const iIncomingOverflowUnmodified = (bApplicationKnown ? kApplication.iIncomingOverflowUnmodified : -1);
+	int const iIncomingOverflowModified = (bApplicationKnown ? kApplication.iIncomingOverflowModified : -1);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RESEARCH_COMPLETED player=%d team=%d tech=%s researchCost=%d teamProgressBefore=%d applicationBreakdownKnown=%d modifiedResearchRateApplied=%d incomingOverflowUnmodified=%d incomingOverflowModifiedApplied=%d modifiedProgressAdded=%d teamProgressBeforeClamp=%d researchModifier=%d rawModifiedOverflow=%d outgoingOverflowUnmodified=%d playerOverflowAfter=%d teamStoredProgressAfter=%d",
+			GC.getGame().getGameTurn(), ePlayer, eTeam, getSASGameRecordTechType(eTech), iResearchCost, iProgressBefore, bApplicationKnown ? 1 : 0,
+			iModifiedResearchRate, iIncomingOverflowUnmodified, iIncomingOverflowModified, iProgressAdded, iProgressBeforeClamp, iResearchModifier, iRawModifiedOverflow, iUnmodifiedOverflow,
+			GET_PLAYER(ePlayer).getOverflowResearch(), kTeam.getResearchProgress(eTech));
+	kApplication.bValid = false;
 }
 
 // <!-- custom: Added eCause to write the acquisition source supplied by gameplay code instead of inferring it from ambiguous announcement/first-discovery flags. (GPT-5.6-Sol + GPT-5.6 Thinking) -->

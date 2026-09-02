@@ -33,4 +33,6 @@ __pycache__
 /Assets/CvGameCoreDLL_r.dll
 /LLM_Helpers/outputs/
 # <!-- custom: current commit's changelog/notes are temporary local scratch, useful for cumulative change writing or LLM assistance but not repository history. Reusable release changelog examples are tracked instead and can be export-ignored through .gitattributes. (ChatGPT-5.6-Sol) -->
-/changes.md
+# <!-- custom: keep _old and _new versions rather than only one, this way a chatgpt handoff can compare (e.g. with vs code) changes without overwriting them, because the files are untracked and thus have no protection. -->
+/changes_old.md
+/changes_new.md

@@ -6437,7 +6437,10 @@ bool CvUnit::discover()
 	// K-Mod. If the AI bulbs something, let them reconsider their current research.
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	if (!kOwner.isHuman() && kOwner.getCurrentResearch() != eDiscoveryTech)
+	{
+		if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(getOwner(), RESEARCH_TARGET_CHANGE_GREAT_PERSON_REEVALUATION);
 		kOwner.clearResearchQueue();
+	}
 	// K-Mod end
 
 	if (getPlot().isActiveVisible(false))

@@ -748,7 +748,7 @@ def build_incremental_git_log(repo_root: Path) -> str:
         "# Unlike the tracked AdvCiv-SAS Git log (newest -> oldest), this generated gap is",
         "# chronological (oldest -> newest), so snapshot HEAD is the final commit below.",
         "# It lists every intervening commit message without duplicating potentially huge source/XML patches.",
-        "# Detailed commit messages can preserve implemented notes removed later from the temporary untracked changes.md.",
+        "# Detailed commit messages can preserve implemented notes removed later from the temporary untracked changes_old.md and changes_new.md.",
         "# Author email addresses are intentionally hidden.",
         "",
     ]
