@@ -1636,7 +1636,7 @@ Repair direction:
 RENEWED PRACTICAL-1842 AUDIT - IMPORTANT CORRECTION
 - WIP2's "practical 1842 focused iterator audit - closed/exhausted" statement is no longer valid.
 - Renewed review mechanically re-opened all 166 `CvTeamAI.cpp` hunks from:
-  `_SNAPSHOT_CONTEXT/commit_diffs/AdvCivPreSAS_1842_99e98d3130.diff`
+  `LLM_Helpers/context/commit_diffs/AdvCivPreSAS_1842_99e98d3130.diff`
 - Current surviving regressions attributable to practical 1842 now include at least:
   - F033 - AI_haveSeenCities own-team substitution
   - F036 - warCommitmentCost wrong war-weariness argument
@@ -6352,7 +6352,7 @@ ADDITIONAL REJECTED / CLEARED ITEMS SINCE WIP02
 
 ANCESTRY DETAIL FOR F066
 Tracked commit-diff evidence is local in:
-  _SNAPSHOT_CONTEXT/commit_diffs/AdvCivPreSAS_1679_1c56cc6ac1.diff
+  LLM_Helpers/context/commit_diffs/AdvCivPreSAS_1679_1c56cc6ac1.diff
 The same diff explicitly removes:
   #define TEAMREF(ePlayer) GET_TEAM(TEAMID(ePlayer))
 and replaces the three
@@ -35800,7 +35800,7 @@ Comparison/history material checked locally:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
 
 Prior reconciled physical checkpoint:
     C019-WIP21
@@ -36505,7 +36505,7 @@ Comparison/history material checked locally:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     _0_Common_Docs/AdvCiv_Base_Doc/manual.txt
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
@@ -36944,7 +36944,7 @@ Comparison/history material used across the queue-031 pass:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     _0_Common_Docs/AdvCiv_Base_Doc/manual.txt
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
@@ -37500,8 +37500,8 @@ Comparison material:
     Civ4CE-main(9).zip
 
 Historical material:
-    _SNAPSHOT_CONTEXT/commit_diffs/*
-    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    LLM_Helpers/context/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior durable checkpoint:
@@ -38050,7 +38050,7 @@ Comparison/history material checked:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     _SNAPSHOT_CONTEXT/pending_upstream/*
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
@@ -38519,7 +38519,7 @@ Comparison/history material checked:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     _SNAPSHOT_CONTEXT/pending_upstream/*
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
@@ -38989,7 +38989,7 @@ Comparison/history material checked:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     _1_AdvCiv-SAS/Docs/README_Known_Issues.md
     current SAS XML/resource data
 
@@ -39359,7 +39359,7 @@ Comparison/history material checked:
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
     current shipped PrivateMaps
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
 
 Prior physical checkpoint:
     C020-WIP04
@@ -39695,7 +39695,7 @@ Comparison/history material checked:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     current SAS XML/resource data
     current shipped PrivateMaps
 
@@ -40092,7 +40092,7 @@ Comparison/history material checked:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     current shipped PrivateMaps
     current SAS XML / GlobalDefines
 
@@ -40467,7 +40467,7 @@ Comparison/history material checked:
     AdvCiv-1.14(4).zip
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     current SAS XML / GlobalDefines
     CvPlot/CvMap/CvArea lifecycle consumers
 
@@ -40893,8 +40893,8 @@ Comparison/history material used across the queue-045 pass:
     Civ4CE-main(9).zip
     current shipped PrivateMaps
     current SAS XML / GlobalDefines
-    _SNAPSHOT_CONTEXT/commit_diffs/*
-    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    LLM_Helpers/context/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
@@ -41350,8 +41350,8 @@ Comparison/history material checked:
     Civ4-K-Mod-master-1.46(2).zip
     Civ4CE-main(9).zip
     current SAS victory-stage helpers
-    _SNAPSHOT_CONTEXT/commit_diffs/*
-    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    LLM_Helpers/context/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior durable checkpoint:
@@ -41706,7 +41706,7 @@ Authoritative source snapshot:
 Comparison/history material checked:
     AdvCiv-1.14(4).zip
     current AdvCiv/UWAI history and earlier album roots
-    _SNAPSHOT_CONTEXT/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/*
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
 
 Prior physical checkpoint:
@@ -45516,8 +45516,8 @@ Comparison/history material used across the queue-023 pass:
     Civ4-K-Mod-master-1.46(3).zip
     Civ4CE-main(10).zip
     current SAS source / XML / GlobalDefines
-    _SNAPSHOT_CONTEXT/commit_diffs/*
-    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    LLM_Helpers/context/commit_diffs/*
+    LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
     _0_Common_Docs/git_logs/git_log_anonymized_email_002_Base_AdvCiv.txt
     Base AdvCiv manual / UWAI notes where they document route-distance intent
 
@@ -45767,7 +45767,7 @@ Comparison material opened:
     AdvCiv-1.14(5).zip
     Civ4-K-Mod-master-1.46(3).zip
     Civ4CE-main(10).zip (BtS CvGameCoreUtils cognate)
-    _SNAPSHOT_CONTEXT/commit_diffs/PATH_HISTORY_INDEX.txt
+    LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
     SASBranch / AdvCivPreSAS path-history diffs for CvGameCoreUtils.cpp
 
 QUEUE TRANSITION
@@ -87297,7 +87297,7 @@ that widget. Captured occupied cities are ordinary gameplay states.
 ANCESTRY:
 Reachable-history diff:
 
-    _SNAPSHOT_CONTEXT/commit_diffs/AdvCivPreSAS_1481_4a65bf5c0f.diff
+    LLM_Helpers/context/commit_diffs/AdvCivPreSAS_1481_4a65bf5c0f.diff
 
 Commit:
     4a65bf5c0fb187fd25d4908346abb462354a9172

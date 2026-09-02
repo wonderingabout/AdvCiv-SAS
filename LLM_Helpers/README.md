@@ -49,14 +49,14 @@ Always review diffs before committing generated source changes.
   - [`convert_advciv_manual_to_txt.py`](#convert_advciv_manual_to_txtpy)
 - [Source packaging and tracked-history helpers](#source-packaging-and-tracked-history-helpers)
   - [`make_light_source_zip.py`](#make_light_source_zippy)
-  - [`sync_tracked_commit_diffs.py`](#sync_tracked_commit_diffspy)
+  - [`refresh_commit_diffs.py`](#refresh_commit_diffspy)
 - [Inherited map-script reference sources](#inherited-map-script-reference-sources)
 - [Workflow rule for timeline tuning](#workflow-rule-for-timeline-tuning)
 - [General notes for future LLM helpers](#general-notes-for-future-llm-helpers)
 
 ## Inherited map-script reference sources
 
-[`map_refs/`](/LLM_Helpers/map_refs/) contains downloaded, greppable, non-runtime originals used to distinguish inherited third-party map-script bugs from AdvCiv-SAS regressions. Its own README records the original package names and SHA-256 hashes, portable directory-name mappings, the source-only selection policy, and comparison guidance.
+[`context/mapscript_refs/`](/LLM_Helpers/context/mapscript_refs/) contains downloaded, greppable, non-runtime originals used to distinguish inherited third-party map-script bugs from AdvCiv-SAS regressions. Its own README records the original package names and SHA-256 hashes, portable directory-name mappings, the source-only selection policy, and comparison guidance.
 
 - Compare references with current `PrivateMaps` and tracked commit history; current source/Git remains authoritative.
 - Do not run formatting, lint autofixes or line-ending normalization over the corpus.
@@ -284,7 +284,7 @@ External cleanup helper for line-ending hygiene.
 
 - Reports or fixes mixed CRLF/LF line endings and missing final newlines.
 - Does not run automatically in GitHub Actions; the workflow check only reports/fails.
-- Defaults to active repo text-like files and excludes generated/reference helper folders such as `LLM_Helpers/outputs`, `LLM_Helpers/examples` and the verbatim `LLM_Helpers/map_refs` corpus.
+- Defaults to active repo text-like files and excludes generated/reference helper folders such as `LLM_Helpers/outputs`, `LLM_Helpers/examples` and the verbatim `LLM_Helpers/context/mapscript_refs` corpus.
 - Preserves each file's dominant existing line-ending style by default, so it does not force the whole repo to LF or CRLF.
 - Adds a final newline to non-empty text files by default; use `--no-final-newline` only when deliberately preserving a missing final newline.
 - Use `--eol lf` or `--eol crlf` only for deliberate normalization passes.
@@ -949,7 +949,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
   - `staged_changes_no_eol.diff`: raw staged tracked changes (`HEAD -> index`) using Git's end-of-line whitespace/CR ignore options so line-ending-only noise does not dominate review. An empty file means there are no staged tracked changes.
   - `unstaged_changes_no_eol.diff`: raw unstaged tracked changes (`index -> working tree`) with the same end-of-line-noise filtering. An empty file means there are no unstaged tracked changes.
   - `git_log_since_tracked_advciv_sas_log.txt`: anonymized commit messages after the newest commit already present in [`git_log_anonymized_email_003_AdvCiv-SAS.txt`](/_1_AdvCiv-SAS/git_logs/git_log_anonymized_email_003_AdvCiv-SAS.txt) through the snapshot's `HEAD`; the already-recorded boundary commit is excluded to avoid duplication. Unlike the repository's tracked AdvCiv-SAS Git log, which is newest-to-oldest, this generated gap is deliberately chronological (oldest-to-newest), so snapshot `HEAD` is at the bottom. Keeping the full commit-message gap preserves detailed implemented notes that may later be removed from the temporary untracked `changes_old.md` and `changes_new.md`, without needlessly embedding every potentially huge source/XML patch in the light archive.
-  - `commit_diffs/INDEX.txt` plus `<segment>_<practical-count>_<short-sha>.diff`: filtered textual patch history for every selected commit reachable from the snapshot's current `HEAD` by default, spanning the inherited K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history. Unrelated/unmerged branch refs are not included; commits from side branches that were actually merged remain because they genuinely contribute to current `HEAD`. Each commit is compared with its first parent.
+- Adds freshly generated canonical shared history under [`LLM_Helpers/context/commit_diffs/`](/LLM_Helpers/context/commit_diffs/), including `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and `<segment>_<practical-count>_<short-sha>.diff` files for every selected commit reachable from the snapshot's current `HEAD` by default. This spans the inherited K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history. Unrelated/unmerged branch refs are not included; commits from side branches that were actually merged remain because they genuinely contribute to current `HEAD`. Each commit is compared with its first parent.
     - History segments: `KMod` is the K-Mod history; `AdvCivPreSAS` is the base AdvCiv history before the AdvCiv-SAS branch began; `SASBranch` is the later current-branch history.
     - Post-fork meaning: `SASBranch` is deliberately a history/log segment rather than an authorship label. Upstream AdvCiv development continued after SAS began, so genuine later AdvCiv commits merged/imported into the SAS branch appear there alongside SAS commits. This keeps the existing three anonymized logs intact while clearly distinguishing inherited pre-SAS AdvCiv from the post-fork branch history.
     - Contents/messages: each commit diff keeps a short title preview, compact change summary, patch coverage marker, and useful textual patches. Full commit messages/metadata are intentionally not duplicated there: use the included anonymized K-Mod, base AdvCiv, and AdvCiv-SAS Git logs, with `_SNAPSHOT_CONTEXT/git_log_since_tracked_advciv_sas_log.txt` supplying recent branch messages not yet recorded in the tracked AdvCiv-SAS log.
@@ -960,14 +960,14 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
     - Cache migration/cleanup: existing SAS cache entries from the older message-heavy diff layout are upgraded in place to the title-only header instead of forcing Git to re-render them. The cache needs no `.gitignore` entry and is never included as a repository file. After a successful writable history build, superseded helper-owned cache-policy directories are pruned automatically; dry-runs never prune.
     - Privacy: consistent with the existing anonymized K-Mod/AdvCiv/AdvCiv-SAS Git-log exports, generated commit-history context does not expose Git author/committer email addresses. Email-shaped strings are also redacted from index title previews and embedded historical patches, preventing old copied Git logs or other committed text from re-exposing addresses; repository source files themselves are not rewritten. Older cache entries are sanitized while being upgraded in place instead of forcing Git to re-render the whole history.
     - Controls: `--commit-diff-count 0` disables current-HEAD commit-diff history, while a positive `N` limits output to the newest `N` commits reachable from current `HEAD` for an unusually small handoff; the default `-1` keeps the full reachable ancestry.
-    - Tracked mirror/self-recursion guard: the same history is also made available to normal clones and code agents under [`LLM_Helpers/commit_diffs/`](/LLM_Helpers/commit_diffs/). That tracked generated directory is deliberately excluded from every historical patch, from ordinary light-ZIP tree selection, and from the archive's raw staged/unstaged review diffs; `git_repository_state.txt` still reports its tracked status. The light ZIP regenerates its own fresh `_SNAPSHOT_CONTEXT/commit_diffs/` copy instead. This prevents archive-refresh commits from embedding copies of old archived diffs inside new archived diffs or dominating a handoff's working-tree patch.
+    - Canonical context/self-recursion guard: the same [`LLM_Helpers/context/commit_diffs/`](/LLM_Helpers/context/commit_diffs/) path is used by GitHub/clones/Codex and inside the light ZIP. The tracked directory is deliberately excluded from historical patches, ordinary light-ZIP tree selection, and raw staged/unstaged review diffs; the ZIP injects the freshly generated result once at the canonical path, then normal full-history generation refreshes the local tracked copy after the archive succeeds. This prevents context-refresh commits from embedding copies of old patches inside new patches or dominating a handoff's working-tree diff. Use `--no-sync-context` when a full-history ZIP should deliberately leave the tracked context untouched; dry-runs and disabled/truncated history never refresh it.
     - Current map references and source-analysis records remain in the light ZIP, but their own histories are likewise omitted from generated patches so large reference/progress revisions do not obscure runtime-source history.
   - `pending_upstream/INDEX.txt`, `GIT_LOG.txt`, `PATH_HISTORY_INDEX.txt`, `UPSTREAM_REFS.txt`, plus `<sequence>_<short-sha>.diff`: separate fetched-but-unmerged base AdvCiv release history. During an active merge, exact `MERGE_HEAD` wins so the ZIP describes the commit actually being merged even if `upstream/*` moves afterward. Outside a merge, automatic discovery considers all locally fetched release-like refs (`upstream/X.Y[.Z]`, `upstream/vX.Y[.Z]`, `upstream/release-X.Y[.Z]`, or `upstream/release/X.Y[.Z]`), exports the deduplicated union of commits reachable from those refs but not from `HEAD`, and uses the highest detected version only as the presentation target. In the normal linear case, older releases add no duplicate commits; if release lines diverge, otherwise-missed commits remain visible.
   - `UPSTREAM_REFS.txt` records what was detected/selected and lists topic or experimental refs only as awareness context rather than silently treating whichever branch was updated most recently as a release. If upstream naming changes or a special maintenance line matters, repeat `--upstream-ref REF` to select explicit revisions; outside a merge these override auto selection, while an active `MERGE_HEAD` remains authoritative. This folder is deliberately separate from `commit_diffs/` because pending upstream commits are review/merge context, not current-HEAD ancestry. Pending diffs use the same compact filtering/privacy policy but are not written into the canonical HEAD-history SHA cache because their archive metadata is range/target-specific and the pending set is normally small.
   - `README.txt`: short explanation of the generated files for ZIP-only reviewers.
   If Git metadata or one of the tracked lineage logs is unavailable, the generated context keeps working where possible and reports the missing classification/message source instead of making archive creation fail.
 - Uses Git's canonical `Assets/Res` casing even if Windows locally displays or accepts `Assets/res`; repository paths are case-sensitive on GitHub/Linux CI, and the generated manifest deliberately preserves the Git spelling.
-- Prints final ZIP size plus total, snapshot-context/history, and ZIP-write durations by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
+- Prints final ZIP size plus total, generated-context, ZIP-write, and tracked-context-refresh durations by default. Use `--no-duration` if stable/deterministic-looking command output is preferred.
 - Default output directory is the mod root. Use `--output-dir` for Downloads or another handoff folder.
 - Output filename defaults to `<detected-mod-folder-name>_light_source_<timestamp>.zip`, with `UnspecifiedModName` as a fallback. Use `--mod-name` or `--prefix` only for unusual/manual labels.
 - Includes small source/data/docs folders useful for review: root lone files, selected [Assets](/Assets/) folders, root helper/doc/config folders including [LLM_Helpers](/LLM_Helpers/) itself, top-level [CvGameCoreDLL](/CvGameCoreDLL/) files, top-level [CvGameCoreDLL/Project](/CvGameCoreDLL/Project/) files under 1 MB, and the tracked `CvGameCoreDLL/Project/temp_files/.gitkeep` workflow marker while excluding retained Debug-opt compiler intermediates/private symbols. It also includes [_1_AdvCiv-SAS/Docs](/_1_AdvCiv-SAS/Docs/), [_1_AdvCiv-SAS/git_logs](/_1_AdvCiv-SAS/git_logs/), [_1_AdvCiv-SAS/SASGameRecord_log](/_1_AdvCiv-SAS/SASGameRecord_log/) full `SASGameRecord` examples, and selected screenshot folders useful for LLM/UI/rendered-map-text review: [_1_AdvCiv-SAS/Images/advisors](/_1_AdvCiv-SAS/Images/advisors/), [_1_AdvCiv-SAS/Images/main_menu](/_1_AdvCiv-SAS/Images/main_menu/), [_1_AdvCiv-SAS/Images/SASGameRecord_map_text](/_1_AdvCiv-SAS/Images/SASGameRecord_map_text/), [_1_AdvCiv-SAS/Images/sevopedia](/_1_AdvCiv-SAS/Images/sevopedia/), and [_1_AdvCiv-SAS/Images/ui_other](/_1_AdvCiv-SAS/Images/ui_other/).
@@ -979,7 +979,7 @@ git diff -- "_0_Common_Docs/AdvCiv_Base_Doc/manual.txt"
 - Use one or more `--upstream-ref REF` options when upstream release naming changes or when a nonstandard maintenance line should intentionally be included in pending context; topic/experimental branches are otherwise only listed in `pending_upstream/UPSTREAM_REFS.txt`.
 - Use `--dry-run` first to review file count, size, target archive path, and included repo-relative paths without writing the ZIP. Dry-run can reuse existing commit-diff cache entries but deliberately does not persist newly rendered cache entries.
 - Created/refined with help of ChatGPT-5.5, ChatGPT-5.6-Sol, and Codex.
-- Commit-diff reuse/performance: the private SHA cache inside `.git` is checked first, then the tracked `LLM_Helpers/commit_diffs/` mirror is used as a read-only secondary cache, and Git renders a commit only when neither contains a valid entry for the current filtering policy. This keeps normal local reruns fast while also preventing a fresh clone from rerendering thousands of already-tracked historical patches merely because its private cache starts empty. Newly created/rewritten commits that have not reached the tracked mirror are still rendered once into the private cache. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require fresh rendering for entries that no longer validate.
+- Commit-diff reuse/performance: the private SHA cache inside `.git` is checked first, then the tracked `LLM_Helpers/context/commit_diffs/` context is used as a read-only secondary cache, and Git renders a commit only when neither contains a valid entry for the current filtering policy. This keeps normal local reruns fast while also preventing a fresh clone from rerendering thousands of already-tracked historical patches merely because its private cache starts empty. Newly created/rewritten commits that have not reached the tracked context are still rendered once into the private cache. Exact timings depend on the machine/repository, and a cache-format/history-policy change can intentionally require fresh rendering for entries that no longer validate.
 
 Tools like here WizTree helped find which folders/files are heavy to exclude.
 
@@ -998,37 +998,37 @@ python ./LLM_Helpers/make_light_source_zip.py --fetch-upstream --output-dir "C:\
 Example of output (Git Bash):
 
 ```text
-Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond th
-e Sword\Mods\AdvCiv-SAS
+Repo root: C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS
 Mod name:  AdvCiv-SAS
 Prefix:    AdvCiv-SAS_light_source
-Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260901T082302.zip
-Files:     1323 selected + 6441 generated snapshot-context files
-Size:      403,166,346 bytes before ZIP container overhead
+Archive:   C:\Users\PC\Downloads\AdvCiv-SAS_light_source_20260902T225239.zip
+Files:     1327 selected + 6458 generated context files
+Size:      404,940,754 bytes before ZIP container overhead
 Mode:      ZIP_DEFLATED / compression level 6
-History:   commit diffs: 6369 included (SASBranch:2026,AdvCivPreSAS:3094,KMod:1249), 6359 private-cache hit(s), 0 tracked-mirror hit(s), 10 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_1e731b350907; pending upstream: 59 commit(s) union from 16 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=48
-Wrote:     7764 file(s)
-ZIP size:  132,154,902 bytes
-Duration:  20,177 ms total (11,538 ms snapshot context; 8,355 ms ZIP write)
+History:   commit diffs: 6386 included (SASBranch:2043,AdvCivPreSAS:3094,KMod:1249), 6385 private-cache hit(s), 0 tracked-mirror hit(s), 1 rendered, 0 not cached; versions=dag-from-one-log; cache=C:\Program Files (x86)\Steam\steamapps\common\Sid Meier's Civilization IV Beyond the Sword\Beyond the Sword\Mods\AdvCiv-SAS\.git\advciv_sas_light_source_commit_diffs\v2_1e731b350907; pending upstream: 59 commit(s) union from 16 selected ref(s); presentation=upstream/1.14; extra-vs-presentation=48
+Context:   refreshed LLM_Helpers/context/commit_diffs (added=1, updated=2, removed=0, unchanged=6385)
+Wrote:     7785 file(s)
+ZIP size:  132,807,311 bytes
+Duration:  16,586 ms total (6,765 ms generated context; 8,328 ms ZIP write; 1,228 ms tracked-context refresh)
 ```
 
 Note: Light-source ZIP creation is usually quick because historical commit patches are cached. A first run with a missing cache, or the first run after a cache-format or history-selection policy change, can instead remain quiet for several minutes while thousands of patches are regenerated; subsequent runs reuse the rebuilt cache and become fast again.
 
-### `sync_tracked_commit_diffs.py`
+### `refresh_commit_diffs.py`
 
-- Synchronizes the greppable repository mirror under `LLM_Helpers/commit_diffs/` from the current committed Git ancestry.
-- Reuses `make_light_source_zip.py` directly rather than maintaining a second history parser/filter: segmentation, practical counts, privacy redaction, patch-size limits, `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and commit reuse policy therefore stay identical. The renderer checks the private `.git` SHA cache first and this tracked mirror second before asking Git to render a missing commit.
+- Refreshes the canonical greppable shared context under `LLM_Helpers/context/commit_diffs/` from current committed Git ancestry without creating a light-source ZIP, so people, Codex and other agents can invoke it independently.
+- Reuses `make_light_source_zip.py` directly rather than maintaining a second history parser/filter: segmentation, practical counts, privacy redaction, patch-size limits, `INDEX.txt`, `PATH_HISTORY_INDEX.txt`, and commit reuse policy therefore stay identical. The renderer checks the private `.git` SHA cache first and the tracked context second before asking Git to render a missing commit.
 - Removes stale generated commit files after rewritten/amended history while preserving the directory's explanatory `README.txt`.
-- `--dry-run` reports additions/updates/removals without writing either the tracked mirror or history cache.
-- The mirror is intentionally `export-ignore`; it exists for clones, IDE grep, Codex, and LLM archaeology rather than player archives.
-- The mirror can naturally lag by the commit that records a synchronization because a commit cannot contain a diff of its own future SHA. This is expected; current Git is authoritative, and the light-source ZIP always generates its own fresh history directly from the current HEAD.
-- Historical rendering excludes `LLM_Helpers/commit_diffs/**`, which is essential: otherwise refreshing the mirror would recursively make future commit diffs contain older diff files.
+- `--dry-run` reports additions/updates/removals without writing either the tracked context or history cache.
+- The context is intentionally `export-ignore`; it exists for GitHub, clones, IDE grep, Codex, light-source ZIPs and LLM archaeology rather than player archives.
+- The tracked copy can naturally lag by the commit that records a refresh because a commit cannot contain a diff of its own future SHA. This is expected; current Git is authoritative.
+- Historical rendering excludes both the canonical context path and its former paths, which is essential: otherwise refreshing or relocating the corpus would recursively make future commit diffs contain older diff files.
 
 From the repository root:
 
 ```bash
-python LLM_Helpers/sync_tracked_commit_diffs.py
-python LLM_Helpers/sync_tracked_commit_diffs.py --dry-run
+python LLM_Helpers/refresh_commit_diffs.py
+python LLM_Helpers/refresh_commit_diffs.py --dry-run
 ```
 
 

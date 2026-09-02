@@ -139,6 +139,8 @@ Additionally, some extra files can be found on this google drive: [full AdvCiv-S
 
 For offline source/history review (notably with external LLMs), [`LLM_Helpers/make_light_source_zip.py`](/LLM_Helpers/make_light_source_zip.py) can create a compact light-source archive containing the current review-relevant source/docs plus generated Git/repository snapshot context and useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history (including later upstream AdvCiv commits merged into that branch), without copying `.git` or complete historical source trees.
 
+The same canonical [`LLM_Helpers/context/commit_diffs/`](/LLM_Helpers/context/commit_diffs/) corpus is available to GitHub/clones/Codex and refreshed locally after successful normal full-history ZIP creation.
+
 The tracked-file manifest also records exact current byte sizes, including for tracked binaries intentionally omitted from the light ZIP. A separate `pending_upstream/` snapshot section exposes fetched but not-yet-merged base AdvCiv release history: exact `MERGE_HEAD` while merging, otherwise a SHA-deduplicated union of locally fetched release-like refs, with topic/experimental refs kept separate and explicit-ref overrides available if upstream naming changes. Use `--fetch-upstream` when ZIP generation should first run `git fetch upstream --prune`; normal generation remains network-free. This makes upstream-change and merge-conflict review possible from the ZIP alone without misrepresenting pending commits as current source ancestry.
 
 Very large/generated/binary/redundant historical payloads are summarized instead of embedded; see [`LLM_Helpers/README.md`](/LLM_Helpers/README.md) for details.

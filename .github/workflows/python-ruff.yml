@@ -32,7 +32,7 @@ jobs:
         run: |
           # <!-- custom: Show the full latest Ruff report in GitHub Actions logs so all findings are visible/downloadable when needed, but do not fail here because broad style/design rules are too noisy for legacy Civ4/Python 2.4 code. Separate artifacts were considered, which according to ChatGPT-5.5 are as of now limited to 500MB for free users, but GitHub Actions already lets us view on the web browser/URL and download workflow logs as ZIP (as of now right click "Download Log Archive"), so we do not need and so do not use artifact storage for now. (ChatGPT-5.5 + GPT-5.5) -->
           # <!-- custom: Some legacy Civ4 Python 2 names are built-ins at runtime but undefined to modern Ruff; list reviewed cases through Ruff config, not a nonexistent --builtins CLI flag. (GPT-5.5) -->
-          ruff check . --isolated --exclude "LLM_Helpers/map_refs" --config "builtins = ['unicode']" --select ALL --output-format=grouped --exit-zero
+          ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs" --config "builtins = ['unicode']" --select ALL --output-format=grouped --exit-zero
       - name: Ruff critical gate
         shell: bash
         run: |
@@ -43,4 +43,4 @@ jobs:
           # <!-- custom: Note: extra caution about F841, sometimes declared variables run instructions, for example disabling an unused variable to fix a ruff warning caused Sevopedia Promotions to miss many promotions (see Sevopedia Promotions). So fix them with caution. -->
           # Assets/Python/EntryPoints/CvScreensInterface.py:1091:2: F841 Local variable `bOption1` is assigned to but never used
           # <!-- custom: See full-report command above for why reviewed legacy Python 2 built-ins are passed through Ruff config here. (GPT-5.5) -->
-          ruff check . --isolated --exclude "LLM_Helpers/map_refs" --config "builtins = ['unicode']" --select E9,F --ignore F401,F403,F405,F841 --output-format=github
+          ruff check . --isolated --exclude "LLM_Helpers/context/mapscript_refs" --config "builtins = ['unicode']" --select E9,F --ignore F401,F403,F405,F841 --output-format=github

@@ -34,7 +34,7 @@ IGNORED_RELATIVE_DIRS = {
 	Path(".git"),
 	Path("LLM_Helpers/examples"),
 	Path("LLM_Helpers/outputs"),
-	Path("LLM_Helpers/map_refs"),
+	Path("LLM_Helpers/context/mapscript_refs"),
 	Path("_0_Common_Docs"),
 	Path("Assets/Python/Contrib/Sevopedia/Debug"),
 	Path("CvGameCoreDLL/Project/temp_files"),

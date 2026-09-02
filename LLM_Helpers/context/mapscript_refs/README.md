@@ -28,8 +28,8 @@ This directory is excluded from ordinary player/GitHub Download ZIP archives thr
 Start with an exact filename or distinctive expression, then compare the reference, current runtime script and tracked history:
 
 ```powershell
-rg -n "tinySouthY|iContinentsGrainEast" LLM_Helpers\map_refs PrivateMaps
-rg -n "isFreshWater|generatePlotsParallelContinent" LLM_Helpers\map_refs PrivateMaps
+rg -n "tinySouthY|iContinentsGrainEast" LLM_Helpers\context\mapscript_refs PrivateMaps
+rg -n "isFreshWater|generatePlotsParallelContinent" LLM_Helpers\context\mapscript_refs PrivateMaps
 ```
 
 When the same defect exists here and in the SAS import/birth commit, classify it as inherited third-party/pre-SAS rather than SAS-specific. Record which package/file established provenance in `_1_AdvCiv-SAS/Docs/Source_Analysis/historical_source_archaeology.txt` and the corresponding Known Issues entry.

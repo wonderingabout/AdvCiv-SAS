@@ -9,13 +9,13 @@ Systematically review the historical AdvCiv and then K-Mod commit diffs for inhe
 Primary sources
 ---------------
 For an ordinary clone/Codex/IDE session, use the tracked greppable mirror:
-  LLM_Helpers/commit_diffs/INDEX.txt
-  LLM_Helpers/commit_diffs/PATH_HISTORY_INDEX.txt
-  LLM_Helpers/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
+  LLM_Helpers/context/commit_diffs/INDEX.txt
+  LLM_Helpers/context/commit_diffs/PATH_HISTORY_INDEX.txt
+  LLM_Helpers/context/commit_diffs/<segment>_<practical-count>_<short-sha>.diff
 
-For a light-source handoff, `_SNAPSHOT_CONTEXT/commit_diffs/` is generated fresh from that snapshot's current Git ancestry with the same renderer/filtering policy. Current source and Git remain authoritative; the tracked mirror can lag HEAD until `python LLM_Helpers/sync_tracked_commit_diffs.py` is run.
+For a light-source handoff, `LLM_Helpers/context/commit_diffs/` is generated fresh from that snapshot's current Git ancestry at the same canonical path used by GitHub/clones/Codex. Current source and Git remain authoritative; normal full-history ZIP creation refreshes the tracked local copy after a successful archive, and `python LLM_Helpers/refresh_commit_diffs.py` refreshes it independently.
 
-Both this progress file and the tracked commit-diff mirror are kept in Git for future clone/LLM archaeology but export-ignored from player/release archives. The tracked mirror is excluded from its own generated historical patches to prevent recursive history-of-history growth.
+Both this progress file and the canonical tracked commit-diff context are kept in Git for future clone/LLM archaeology but export-ignored from player/release archives. The context is excluded from its own generated historical patches to prevent recursive history-of-history growth.
 
 Post-sweep supporting-source note (2026-08-22): the local `Civ4CE-main` checkout from https://github.com/f1rpo/Civ4CE was identified only after the systematic AdvCiv/K-Mod/AdvCiv-SAS sweeps were complete, so it was not used as evidence for or to certify the findings already recorded here. Its readme describes a chronological reconstruction from installer archives, and its `BtS/CvGameCoreDLL` tree provides a useful additional vanilla-lineage source comparison. The downloaded checkout has no `.git` metadata, however, and its tip retains historical material such as an otherwise unreferenced `UnofficialPatch.h`; use relevant files as supporting comparison evidence rather than assuming that the local tree alone proves exact patch ancestry. Civ4CE supplements rather than replaces the locally installed latest base AdvCiv source (currently 1.14), which remains the direct comparison for current base-AdvCiv behavior; current AdvCiv-SAS source/Git and the recorded AdvCiv/K-Mod lineage remain authoritative.
 
