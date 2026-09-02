@@ -903,7 +903,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#811 - (Provisional Pending AdvCiv technology-brokering integration regression) Significant non-trade discoveries bypass restrictions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-811)\
 [KI#812 - (Rejected duplicate of KI#811) Post-acquisition significant-discovery checks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-812)\
 [KI#813 - (Provisional Pending AdvCiv HotSeat message-ownership defect) A major event can be deleted twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-813)\
-[KI#814 - (Provisional Pending investigation) F491 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-814)\
+[KI#814 - (Provisional Pending inherited BtS corporation-cache invalidation defect) Headquarters ownership changes leave branch output stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-814)\
+[KI#815 - (Provisional Pending investigation) F492 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-815)\
 
 <a id="ki-1"></a>
 
@@ -15779,8 +15780,18 @@ Found as F490/provisional KI#813 during ChatGPT-5.6-Sol's C031-WIP223 `CvPlayer.
 
 <a id="ki-814"></a>
 
-## KI#814 - (Provisional Pending investigation) F491 remains unassigned during the CvPlayer deep re-audit
+## KI#814 - (Provisional Pending inherited BtS corporation-cache invalidation defect) Headquarters ownership changes leave branch output stale
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444, F446-F488 and F490 through C031-WIP225, retracts F445/KI#768, duplicate-reconciles F489/KI#812 into F488/KI#811, and keeps F491 unused after checking retained-message siblings, acquisition/disband lifecycle, callbacks, Advanced Start substitutions and other authoritative stored state. Do not implement a change under KI#814 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+Under a NoForeignCorporations civic such as current SAS Protectionism, corporation activity depends on whether the player owns its headquarters. Capturing, trading or otherwise transferring the headquarters therefore changes corporation activity for both its old and new owner, but inherited `CvGame::setHeadquarters` rebuilds only the old and new headquarters cities. Other branch cities keep stale corporation-produced resources, yield, commerce, building commerce and maintenance until an unrelated invalidator runs. A Cereal Mills branch with one Wheat gives the deterministic two-way result: after headquarters capture, an old-owner branch can retain an invalid +1 Food while a new-owner branch continues missing its valid +1 Food. These stored yields feed normal growth rather than affecting presentation alone.
 
-Reserved through ChatGPT-5.6-Sol's C031-WIP225 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+The defect originates in BtS/Civ4CE, whose `isActiveCorporation` headquarters dependency and old/new-headquarters-only invalidation remain in K-Mod, Base AdvCiv and SAS; SAS exposes it through Protectionism. Repair must refresh surviving branch cities for both affected owners after headquarters ownership reaches its stable new state, while avoiding re-entry into a headquarters city already partway through `CvCity::kill`. A same-owner headquarters relocation is a negative control because it does not change corporation activity through ownership.
+
+Found as F491/provisional KI#814 during ChatGPT-5.6-Sol's C031-WIP227-WIP228 `CvPlayer.cpp` deep re-audit; WIP227 deliberately kept the candidate open until current data, authoritative consumption, self-healing, ancestry and duplicate controls were complete, and its disposition was reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-815"></a>
+
+## KI#815 - (Provisional Pending investigation) F492 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444, F446-F488 and F490-F491 through C031-WIP228, retracts F445/KI#768, duplicate-reconciles F489/KI#812 into F488/KI#811, and keeps F492 unused after controlling the immediate headquarters-transfer siblings. Do not implement a change under KI#815 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved through ChatGPT-5.6-Sol's C031-WIP228 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.

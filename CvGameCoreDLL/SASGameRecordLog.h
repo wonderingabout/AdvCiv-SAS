@@ -3,6 +3,8 @@
 #ifndef SAS_GAME_RECORD_LOG_H
 #define SAS_GAME_RECORD_LOG_H
 
+#include <vector> // <!-- custom: Rare goody-result logging passes the actual created unit pointers to the recorder for compact canonical type/id/position formatting. (ChatGPT-5.6-Sol) -->
+
 // <!-- custom: Structured game-record rows for autoplay comparison, game analysis, user-assistance summaries, and external LLM review. This is not a classic BBAI diagnostic category: it has its own XML defines, its own SASGameRecord_*.log files, and its own lightweight public header. Call sites should still gate before invoking helpers so disabled logging does not compute logging-only arguments. Pointer-only hooks use forward declarations here to avoid pulling city/unit headers into ordinary game files. (ChatGPT-5.5 + GPT-5.5) -->
 bool isSASGameRecordLogEnabled();
 int getSASGameRecordLogLevel();
@@ -16,6 +18,29 @@ void startSASGameRecordLogForLoadedSave();
 class CvCity;
 class CvPlot;
 class CvUnit;
+// <!-- custom: Goody huts are rare but can have compound randomized effects (gold, map reveal, partial/full tech, free/promoted units, hostile units and AdvCiv follow-up outcomes).
+// Collect only realized effects at the authoritative gameplay boundary, then let SASGameRecord own the stable row formatting. Callers must gate level 2+ before doing logging-only measurements. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordGoodyResult
+{
+	SASGameRecordGoodyResult();
+	bool bFollowupOutcome;
+	bool bUpgradeRoll;
+	bool bUpgradeApplied;
+	bool bAdditionalOutcomeAttempted;
+	int iGold;
+	int iNewlyRevealedPlots;
+	int iExperienceGained;
+	int iDamageHealed;
+	TechTypes eTech;
+	int iTechRewardValue;
+	int iTechProgressBefore;
+	int iTechProgressAfter;
+	int iTechCost;
+	bool bTechCompleted;
+	int iFreePromotionsGranted;
+	std::vector<CvUnit const*> apFreeUnits;
+	std::vector<CvUnit const*> apBarbarianUnits;
+};
 // <!-- custom: Diplomacy logging declarations below use TradeData and CLinkList only by reference. Forward declarations avoid pulling trade-list implementation headers into every SASGameRecordLog.h includer. (ChatGPT-5.6-Sol) -->
 struct TradeData;
 template <class tVARTYPE> class CLinkList;
@@ -52,6 +77,9 @@ void noteSASGameRecordResearchApplication(PlayerTypes ePlayer, TechTypes eTech, 
 void updateSASGameRecordPlayerTurnState(PlayerTypes ePlayer);
 // <!-- custom: Fog-spawn call sites pass the explicit Barbarian-unit source; ordinary city production continues through logSASGameRecordUnitCompleted. (GPT-5.6-Sol) -->
 void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause);
+// <!-- custom: Level-2 goody rows preserve each realized hut outcome; level 3 keeps the existing exact Barbarian-spawn rows as complementary tactical detail. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordGoodyReceived(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eGoody, SASGameRecordGoodyResult const& kResult);
+void logSASGameRecordGoodyNoOutcome(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eTaboo, int iAttempts);
 void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow = 0, int iUnmodifiedOverflow = 0, int iKeptOverflow = 0, int iLostProduction = 0, int iUnusedOverflowCapacity = 0, int iOverflowGold = 0);
 // <!-- custom: Research completion has its own accounting row because generic TECH_ACQUIRED also covers trades, free technologies, espionage and other sources where research overflow fields would be meaningless.
 // Call only for actual TECH_ACQUISITION_RESEARCH threshold crossings at level 2+. (ChatGPT-5.6-Sol) -->

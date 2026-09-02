@@ -5,9 +5,9 @@ CURRENT PROGRESS SUMMARY
 Files complete: 32 / 169
 Files open: 1 / 169
 Last completed file: protected deep-method re-audit queue 003 CvGameCoreDLL/CvGameTextMgr.cpp (22,412 queued lines) - CLOSED AT C031-WIP150
-Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP225
-Latest confirmed roots: F321-F418, F420-F444, F446-F488 and F490 / provisional KI#644-KI#767, KI#769-KI#811 and KI#813 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted; F489/KI#812 duplicate-reconciled into F488/KI#811
-Next root ID: F491 unused / provisional KI#814 next
+Current file: protected deep-method re-audit queue 004 CvGameCoreDLL/CvPlayer.cpp (20,675 queued lines) - OPEN AT C031-WIP228
+Latest confirmed roots: F321-F418, F420-F444, F446-F488 and F490-F491 / provisional KI#644-KI#767, KI#769-KI#811 and KI#813-KI#814 across the protected re-audits; F419/KI#742 duplicate-reconciled into F389/KI#712; F445/KI#768 retracted; F489/KI#812 duplicate-reconciled into F488/KI#811
+Next root ID: F492 unused / provisional KI#815 next
 
 The durable checkpoints and current cursor below are authoritative for finding status; the initial C010 snapshot and later WIP appends preserve their own historical source identities.
 
@@ -24,7 +24,7 @@ QUEUE (current .cpp files, longest -> shortest)
 001  32205 CvGameCoreDLL/CvPlayerAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP65 / F321-F374]
 002  28024 CvGameCoreDLL/CvUnitAI.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP87 / F375-F387]
 003  22412 CvGameCoreDLL/CvGameTextMgr.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT CLOSED - C031-WIP150 / F388-F418, F420-F443; F419 DUPLICATE]
-004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP225 / F444, F446-F488, F490; F445 RETRACTED; F489 DUPLICATE]<-(priority current wip)
+004  20675 CvGameCoreDLL/CvPlayer.cpp [COMPLETE ORIGINAL PASS / DEEP-METHOD RE-AUDIT OPEN - C031-WIP228 / F444, F446-F488, F490-F491; F445 RETRACTED; F489 DUPLICATE]<-(priority current wip)
 005  19615 CvGameCoreDLL/CvCityAI.cpp [COMPLETE - REVIEWED/EXISTING ROOTS BROADENED/REOPENED]<-(priority next wip)
 006  13828 CvGameCoreDLL/CvCity.cpp [COMPLETE - REVIEWED/NEW FINDING + EXISTING ROOTS CONFIRMED]<-(priority next wip)
 007  12945 CvGameCoreDLL/CvUnit.cpp [COMPLETE - REVIEWED/TWO NEW FINDINGS + KI#331 CONFIRMED]<-(priority next wip)
@@ -112423,3 +112423,878 @@ Require ordinary current reachability, concrete authoritative consequence, ances
 full-album duplicate proof. A clean F491-unused continuation remains a valid result.
 
 END C031-WIP225
+
+
+===============================================================================
+CHECKPOINT C031-WIP226 -- QUEUE 004 CVPLAYER.CPP -- F491 STILL UNUSED
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F490 / KI#813 CONFIRMED.
+F491 / provisional KI#814 remains UNUSED.
+Fresh audit source switched to user-supplied Sep-2 light source:
+`AdvCiv-SAS_light_source_20260902T161104.zip`.
+No repository source files modified.
+
+POST-WIP225 COUNTER / ONE-SHOT / CALLBACK PASS
+----------------------------------------------
+This tranche followed WIP225's requested stored-state families against the fresh Sep-2
+source. It produced useful closures and one strong rediscovery that was rejected by the
+mandatory full-album duplicate filter. F491 is deliberately not spent.
+
+1. RELIGION-SLOT CITYLESS-FOUNDER LEAD IS EXACTLY F480 / KI#803 -- DO NOT DUPLICATE.
+
+The fresh current source still contains the striking contract mismatch:
+
+`CvTeam::setHasTech` chooses the first-discovery religion recipient from every ALIVE
+member of the team, with no `getNumCities() > 0` filter, then reserves the slot:
+
+    for (MemberIter it(getID()); it.hasNext(); ++it)
+    {
+        CvPlayer const& kMember = *it;
+        ...
+        if (iValue < iBestValue)
+            eBestPlayer = kMember.getID();
+    }
+    ...
+    kGame.setReligionSlotTaken(eLoopReligion, true);
+    ...
+    GET_PLAYER(eBestPlayer).foundReligion(...);
+
+`CvPlayer::foundReligion` again marks the slot taken, searches only that player's own
+cities, and returns when none exists:
+
+    kGame.setReligionSlotTaken(eSlotReligion, true);
+    ...
+    if (pBestCity == NULL)
+        return;
+
+`CvGame::doHolyCity` later begins each religion candidate with:
+
+    if (isReligionSlotTaken(eReligion))
+        continue;
+
+so the generic shape is a permanent lost religion if the selected team member is alive
+but cityless.
+
+Before promotion, the reconciled WIP209 album was checked for `setReligionSlotTaken`,
+`foundReligion`, cityless founding and Holy City wording. It already contains the full
+confirmed F480/KI#803 proof, including the deterministic current Calendar/GOODY_TECH
+producer, persistent serialized consequence, ancestry and repair direction.
+
+Fresh ancestry recheck confirms the same city-agnostic member scoring and no-city
+`foundReligion` behavior in Civ4CE/BtS, K-Mod 1.46 and Base AdvCiv 1.14. This is therefore
+only a current-source reconfirmation of F480, not F491.
+
+2. UNIT / BUILDING CLASS `Making` COUNTERS REMAIN SYMMETRIC UNDER CURRENT ORDER QUEUE
+   PRODUCERS.
+
+`CvCity::pushOrder` increments player class-making state only after `canTrain` /
+`canConstruct` succeeds (or explicit `bForce`):
+
+    changeUnitClassMaking(unitClass, +1)
+    changeBuildingClassMaking(buildingClass, +1)
+
+`CvCity::popOrder` locates a concrete existing queue node and decrements the class encoded
+in that exact node before deleting it. `clearOrderQueue` repeatedly reaches the same
+paired pop path.
+
+Saved-repeat orders deserve special attention because `popOrder(..., bFinish=true)`
+first calls `pushOrder` to append the saved replacement and only afterward decrements the
+old node. That creates a temporary +1 then -1, preserving the correct net count of one
+queued copy. No missing decrement or duplicate persistent increment was established.
+
+`CvCity::upgradeProduction` also transfers class-making state explicitly around queue
+mutation:
+
+    old class -1
+    order.iData1 = upgrade unit
+    new class +1
+
+and updates UnitAI training counters if the old AI role is invalid for the replacement.
+No independent class-making desynchronization survived this pass.
+
+3. `changeHurryCount` MAGNITUDE TRANSITION REMAINS GENERIC API ROBUSTNESS ONLY.
+
+WIP225 noted that the transition-side aggregates use the full `iChange`:
+
+    if ((old > 0) != (new > 0))
+        m_iPopRushHurryCount += iChange;
+
+A hypothetical 0->2 call would therefore add 2 even though only one HurryTypes entry
+became enabled. The fresh whole compiled caller check still finds the gameplay producer
+only in `processCivics`, which supplies exactly +/-1 for a civic source:
+
+    changeHurryCount(eHurry,
+        civic.isHurry(eHurry) ? iChange : 0);
+
+Civic processing itself applies one civic source with `iChange` +/-1. No ordinary current
+magnitude>1 producer exists. Preserve as API hardening only; no F491.
+
+4. SPECIAL-BUILDING / SPECIALIST / CIVIC-OPTION ENABLE COUNTS HAVE PAIRED CURRENT
+   PRODUCERS; CURRENT XML FURTHER MASKS THE BUILDING CIVIC-OPTION PATH.
+
+`changeSpecialBuildingNotRequiredCount` and `changeSpecialistValidCount` are fed by
+`processCivics` with +/-1 per active civic source. The specialist path dirties assignment;
+the special-building prerequisite path was already traced in the earlier Queue-004 pass
+and production continuation revalidates it.
+
+`changeNoCivicUpkeepCount` is fed by trait processing with +/-1 per trait source.
+
+`changeHasCivicOptionCount` is fed by `processBuilding`, so the count tracks concrete
+building effects through building add/remove processing. A fresh current
+`CIV4BuildingInfos.xml` scan finds no shipped BuildingInfo with a non-NONE `CivicOption`.
+Thus even hypothetical TeamShare/count-composition wrinkles in this field are presently
+data-masked and do not earn F491.
+
+5. RELIGION / CORPORATION CITY COUNTS ARE UPDATED THROUGH THE CONCRETE CITY STATE
+   TRANSITION, NOT THROUGH AN INDEPENDENT ESTIMATE.
+
+Current city setters call:
+
+    kOwner.changeHasReligionCount(eReligion,
+        isHasReligion(eReligion) ? +1 : -1);
+
+and analogously for corporations after the city's actual boolean state transition.
+The player mutators update building commerce and assignment state after the count change.
+No different identity is substituted between validation and decrement, and no current
+asymmetric add/remove producer was established.
+
+6. `foundCorporation` CITYLESS FAILURE DOES NOT HAVE F480'S PERMANENT SLOT-CONSUMPTION
+   CONSEQUENCE.
+
+The adjacent corporation first-tech selector also lacks a city filter and can call
+`foundCorporation` on a cityless team member. But `foundCorporation` simply fails to set a
+Headquarters when `pBestCity == NULL`; it does not set a persistent equivalent of
+`m_abReligionSlotTaken` first.
+
+The current code itself labels this setHasTech corporation block unused/not properly
+tested and points to the normal `CvGame::doHeadquarters` mechanism. With no consumed
+founding-slot state analogous to F480, this sibling did not establish a current permanent
+loss root in this tranche. Keep the city-capability mismatch as robustness/context, not
+F491 without a stronger current consequence.
+
+7. `pushOrder` FIRES `cityBuildingUnit` / `cityBuildingBuilding` TWICE, BUT CURRENT
+   SHIPPED HANDLERS MAKE THIS A LOGGING/UI QUALITY WRINKLE, NOT A QUEUE-004 GAMEPLAY ROOT.
+
+Fresh cross-file inspection noticed that `CvCity::pushOrder` calls the reporter once
+inside the validated ORDER_TRAIN / ORDER_CONSTRUCT branch and then again after inserting
+the order. The second call is accompanied by the old Warlords-era comment:
+
+    // Why does this cause a crash???
+    // <advc.test> Uncommented. Was added and commented out by the Warlords expansion.
+
+Current shipped `CvEventManager.onCityBuildingUnit/Building` only optionally prints a
+log line. BUG Autolog registers the same events and, when Build Started logging is
+enabled, writes the corresponding production-start record. Therefore current SAS can
+emit duplicate build-start logging for one pushed order.
+
+No shipped handler found in this pass mutates the city/order queue, kills the city, or
+changes authoritative gameplay state. The earlier callback-lifetime concern therefore
+does not turn into a current UAF/queue corruption through these handlers. This is worth a
+future UI/logging cleanup note, but below the current gameplay/state threshold for F491.
+
+CURRENT STONE AFTER C031-WIP226
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` -- OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F490 / KI#813 CONFIRMED.
+F491 / provisional KI#814 UNUSED.
+Latest physical checkpoint: C031-WIP226.
+No repository source files modified.
+
+NEXT
+----
+Continue from F491 unused against the Sep-2 source.
+
+Next priorities:
+* persistent scalar counts whose correctness depends on city/unit destruction order,
+  especially nuke/military/outside-unit/health/happiness aggregates not already owned by
+  PA or elimination findings;
+* one-shot/historical state beyond F480/F481 and recycled-ID roots, especially values
+  that are serialized but are not reconstructed from live cities/units;
+* caller-visible state changed by `processBuilding` / `processCivics` where a TeamShare,
+  obsolescence, capture or civic switch can remove through a different source boundary;
+* pointer lifetime after current shipped reporter/Python callbacks only where a handler
+  has authority to mutate the target;
+* continue validate-one-object -> mutate-another-object substitutions outside the
+  already-saturated Advanced Start family.
+
+Require ordinary current SAS reachability, authoritative consequence, ancestry and
+full-album duplicate proof. A further clean F491-unused checkpoint remains valuable.
+
+END C031-WIP226
+
+
+===============================================================================
+CHECKPOINT C031-WIP227 -- TEMPORARY THREAD-SAFETY HANDOFF -- F491 CANDIDATE OPEN
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F490 / KI#813 CONFIRMED.
+F491 / provisional KI#814 remains UNUSED at this checkpoint.
+Current audit source: user-supplied Sep-2 light source
+`AdvCiv-SAS_light_source_20260902T161104.zip`.
+No repository source files modified.
+
+This is intentionally a TEMPORARY physical handoff because the conversation may fill.
+The strongest current lead is preserved below as a candidate, not yet promoted. The
+checkpoint also corrects one factual sentence in WIP226.
+
+WIP226 CORRECTION -- CURRENT BUILDING-GRANTED CIVICOPTION XML IS LIVE
+---------------------------------------------------------------------
+WIP226 section 4 said a fresh `CIV4BuildingInfos.xml` scan found no current BuildingInfo
+with a non-NONE `CivicOption`. That sentence is WRONG and must not be carried forward.
+
+Current Sep-2 SAS still has the three live building CivicOption sources already proved in
+the older reconciled album:
+* Colossus -> Government;
+* Mausoleum of Maussollos -> Economy;
+* Shwedagon Paya -> Legal.
+
+The associated last-source-loss problem is not new: it is exactly F459 / KI#782. The
+reconciled album already proves that losing the final building-granted CivicOption can
+leave a now-unavailable civic active through the player's next full turn and its economy /
+city processing. Therefore this correction changes no numbering and does NOT make F491.
+
+POST-WIP226 CLEAN COUNTER / TRANSITION CONTROLS SO FAR
+------------------------------------------------------
+The resumed Sep-2 pass continued through low-coverage source-count families instead of
+assuming that a missing literal album mention implied a defect.
+
+* Concrete unit military/nuke/extra-cost counters continue to pair initialization with
+  unit destruction; no independent stale player aggregate was established.
+* Plot improvement ownership bookkeeping removes the old player's improvement count
+  before owner identity changes and adds the new player's count afterward.
+* Outside-unit accounting similarly has explicit old/new side adjustments at plot/team
+  ownership transitions; existing Permanent-Alliance outside-unit roots remain the
+  relevant exceptional family rather than a new generic asymmetry.
+* `changeNoCorporationsCount` and `changeNoForeignCorporationsCount` both call the
+  player's full `updateCorporation()` immediately when the CIVIC source count changes.
+  Ordinary civic entry/exit therefore rebuilds every owned city's corporation state.
+* Draft-count / historical AnyGPPEver / nearby scalar state sampled here did not expose
+  another authoritative source-boundary failure.
+* TeamShare building replay can still create the already-recorded noncanonical raw area
+  counter shape after Permanent Alliance membership changes. Current concrete sources
+  remain masked by the same lifecycle/data controls already recorded (notably Great Wall
+  obsolescence timing and one-way wonder lifecycle). No new independent consequence was
+  promoted.
+
+F491 / KI#814 CANDIDATE -- HQ OWNER TRANSFER CAN CHANGE PROTECTIONISM CORPORATION
+ACTIVITY WITHOUT REBUILDING THE OWNERS' OTHER CORPORATION CITIES
+-------------------------------------------------------------------------------
+STATUS: STRONG CURRENT CANDIDATE; NOT YET CONFIRMED / NUMBERED.
+
+ROOT SHAPE
+----------
+Current player corporation policy is dynamic:
+
+    bool CvPlayer::isActiveCorporation(CorporationTypes eCorp) const
+    {
+        if (isNoCorporations())
+            return false;
+        if (isNoForeignCorporations() && !hasHeadquarters(eCorp))
+            return false;
+        return true;
+    }
+
+Current `CIVIC_PROTECTIONISM` has:
+
+    bNoCorporations         = 0
+    bNoForeignCorporations  = 1
+
+so under Protectionism a corporation is active for a player exactly when that player owns
+its HQ (subject to the city having the corporation/resource prerequisites).
+
+Changing the civic itself is handled correctly: `changeNoForeignCorporationsCount` calls
+`CvPlayer::updateCorporation()`, rebuilding every city. The candidate is a DIFFERENT input
+to the same predicate: HQ OWNER IDENTITY.
+
+`CvPlayer::hasHeadquarters` is not cached player state. It resolves the current global HQ
+city and compares its CURRENT owner:
+
+    CvCity const* pHeadquarters = GC.getGame().getHeadquarters(eCorporation);
+    return (pHeadquarters != NULL && pHeadquarters->getOwner() == getID());
+
+Thus transferring the HQ between players changes `isActiveCorporation` immediately even
+if neither player's civic changes.
+
+`CvGame::setHeadquarters`, however, only updates the OLD HQ CITY and the NEW HQ CITY:
+
+    m_aeHeadquarters.set(...);
+    if (pOldCity != NULL)
+        pOldCity->updateCorporation();
+    ...
+    pHeadquarters->setHasCorporation(...);
+    pHeadquarters->updateCorporation();
+
+It does NOT call `oldOwner.updateCorporation()` or `newOwner.updateCorporation()` for all
+of either player's other cities.
+
+WHY OTHER CITIES MATTER
+-----------------------
+`CvCity::updateCorporation` rebuilds authoritative stored state:
+* corporation-produced bonuses (`m_aiNumCorpProducedBonuses`);
+* building commerce affected by those bonuses;
+* corporation yields (`m_aiCorporationYield`), applied through base-yield changes;
+* corporation commerce (`m_aiCorporationCommerce`);
+* maintenance.
+
+The per-corporation yield/commerce calculations call `isActiveCorporation`, so a changed
+HQ owner is a direct input to those caches. A branch city that is not itself the old/new
+HQ therefore needs a rebuild when its owner's HQ status flips under Protectionism.
+
+ORDINARY ACQUIRECITY TRANSFER SEQUENCE -- PROVED TO THE CURRENT CHECKPOINT
+-------------------------------------------------------------------------
+`CvPlayer::acquireCity` snapshots both corporation presence and HQ identity from the old
+city:
+
+    abHasCorporation[eCorp] = pOldCity->isHasCorporation(eCorp);
+    abHeadquarters[eCorp]   = pOldCity->isHeadquarters(eCorp);
+
+It then kills the old city. `CvCity::kill` removes the corporation and, if this is the HQ,
+calls:
+
+    GC.getGame().setHeadquarters(eCorp, NULL, false);
+
+This clears the global HQ pointer. If old owner O is running Protectionism, O's player-
+level `isActiveCorporation(eCorp)` therefore flips TRUE -> FALSE immediately. The setter
+updates the dying old HQ city only; O's surviving branch cities are not globally rebuilt.
+
+The replacement city is then created for new owner N. `acquireCity` restores:
+
+    kNewCity.setHasCorporation(eCorp, true, false);
+    kGame.setHeadquarters(eCorp, &kNewCity, false);
+
+Before the second call, N does not yet own the HQ, so under Protectionism the restored
+corporation in the new city is initially evaluated as foreign/inactive. Restoring the HQ
+then makes N's player-level predicate flip FALSE -> TRUE and refreshes the NEW HQ city.
+N's pre-existing branch cities are again not globally rebuilt.
+
+Consequently the same ordinary HQ capture/trade can create BOTH directions of stale
+branch state:
+* OLD owner O can retain cached active corporation yields/commerce/produced bonuses /
+  maintenance in surviving branches after losing the HQ;
+* NEW owner N can retain cached INACTIVE/zero corporation state in pre-existing branches
+  after gaining the HQ.
+
+PLOT-GROUP REBUILD DOES NOT GENERALLY CLOSE THE ROOT
+----------------------------------------------------
+`acquireCity` later calls `CvGame::updatePlotGroups()` when requested. This does not imply
+a full corporation rebuild. `CvPlayer::updatePlotGroups` asks each existing plot group to
+`recalculatePlots`; `CvPlotGroup::recalculatePlots` returns immediately when all plots in
+that group remain connected. A pre-existing branch city can be placed in an unrelated /
+separate stable plot group from the captured HQ city. Its bonus counts therefore need not
+change and no incidental `changeNumBonuses -> updateCorporation` is guaranteed.
+
+Even when a plot group is rebuilt, corporation updates arise from actual bonus-count
+changes, not from an explicit HQ-owner dependency invalidation. The missing old/new-owner
+rebuild therefore remains a live architectural concern rather than being automatically
+repaired by `updatePlotGroups`.
+
+CURRENT DATA SUPPORT -- PARTIALLY SETTLED
+-----------------------------------------
+Protectionism is a current normal Economy civic (Banking prerequisite) with
+`bNoForeignCorporations=1`.
+
+Current corporations have ordinary nonzero branch outputs. For example `CORPORATION_1`
+(Cereal Mills in the existing album terminology) consumes grain bonuses and has
+`iYieldProduced=100`, giving a simple positive branch-yield state when prerequisites are
+connected. Other current corporations produce commerce and/or corporation-created bonus
+resources, so the stale-state family is not XML-dormant.
+
+A deterministic reproduction can therefore be shaped without debug/Python state:
+1. Corporation C has HQ owner O and at least one non-HQ branch city O1 with a qualifying
+   resource.
+2. O runs Protectionism. Because O owns the HQ, C is active and O1's corporation cache is
+   positive/current.
+3. Player N also runs Protectionism and has a pre-existing C branch N1. Because N does NOT
+   own the HQ, its civic-change rebuild has made C inactive there (zero corporation
+   output/cache).
+4. N captures or otherwise acquires O's HQ city through ordinary city transfer.
+5. `acquireCity` performs the HQ NULL -> new-HQ transition described above.
+6. Correct post-transfer state:
+      O1 should become inactive;
+      N1 should become active.
+7. Candidate current code leaves those remote branch caches unchanged until some unrelated
+   corporation/bonus/occupation/civic/anarchy refresh happens.
+
+OPEN PROOF ITEMS BEFORE F491 MAY BE PROMOTED
+--------------------------------------------
+Do NOT call this confirmed yet. Still finish:
+* verify no later acquire/keep-city/global turn hook unconditionally rebuilds corporation
+  state for every city of BOTH old and new owners after the HQ pointer transition;
+* pin the simplest current corporation/resource numeric fixture for an undeniable stored
+  yield/commerce difference;
+* trace exactly which same-turn/next-turn authoritative consumer books the stale value and
+  characterize eventual self-heal timing;
+* compare BtS/Civ4CE, K-Mod and Base AdvCiv `setHeadquarters` + no-foreign-corporation
+  semantics to classify ancestry precisely;
+* complete semantic duplicate search against the full reconciled album (not merely exact
+  `Protectionism`/`setHeadquarters` spelling), especially corporation cache, HQ ownership,
+  capture, civic and maintenance findings;
+* confirm city trade as well as conquest only if useful; one ordinary producer is enough.
+
+CURRENT STONE AT TEMPORARY C031-WIP227
+--------------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` -- OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F490 / KI#813 CONFIRMED.
+F491 / provisional KI#814 remains UNUSED pending the proof items above.
+Latest physical checkpoint: C031-WIP227 TEMPORARY.
+No repository source files modified.
+
+NEXT
+----
+Resume directly inside the HQ-transfer candidate proof. If it fails any authoritative
+consumer/self-heal/duplicate/current-data requirement, retain it as a control and keep
+F491 unused. If it survives, promote only after ancestry and full duplicate proof are
+finished. Then return to the remaining signed health/happiness and processBuilding /
+processCivics source-boundary counts.
+
+END C031-WIP227 TEMPORARY
+
+
+===============================================================================
+CHECKPOINT C031-WIP228 -- QUEUE 004 CVPLAYER.CPP -- F491 / KI#814 CONFIRMED
+===============================================================================
+
+STATUS
+------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` remains OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F491 / KI#814 CONFIRMED.
+F492 / provisional KI#815 is now UNUSED.
+Current audit source: Sep-2 user light source
+`AdvCiv-SAS_light_source_20260902T161104.zip`.
+No repository source files modified.
+
+C031-WIP227 was deliberately frozen while the HQ-transfer lead was still provisional.
+The remaining current-data, authoritative-consumer, self-heal, ancestry and semantic
+full-album checks are now complete. The candidate survives and is promoted as F491.
+
+F491 / KI#814 -- PROTECTIONISM HQ TRANSFER CHANGES CORPORATION ACTIVITY FOR BOTH
+PLAYERS BUT REFRESHES ONLY THE HQ CITIES, LEAVING OTHER BRANCH CACHES WRONG
+-------------------------------------------------------------------------------
+
+STATUS / CLASSIFICATION
+-----------------------
+CONFIRMED current gameplay defect.
+
+The core bug is inherited from stock BtS/Civ4CE through K-Mod and Base AdvCiv. Current
+AdvCiv-SAS keeps the same DLL contract and has a directly live current civic/data
+reproduction through Protectionism and ordinary corporation branch output.
+
+ROOT -- HQ OWNERSHIP IS A LIVE INPUT TO PLAYER CORPORATION ACTIVITY
+------------------------------------------------------------------
+Current `CvPlayer::isActiveCorporation` is:
+
+    bool CvPlayer::isActiveCorporation(CorporationTypes eCorp) const
+    {
+        if (isNoCorporations())
+            return false;
+        if (isNoForeignCorporations() && !hasHeadquarters(eCorp))
+            return false;
+        return true;
+    }
+
+Current `CIVIC_PROTECTIONISM` has:
+
+    TechPrereq               = TECH_BANKING
+    bNoCorporations          = 0
+    bNoForeignCorporations   = 1
+
+Therefore, while a player runs Protectionism:
+* a corporation whose HQ that player OWNS is active;
+* the same corporation is foreign/inactive for a player who does NOT own its HQ.
+
+`hasHeadquarters` is dynamic, not a separately maintained player flag:
+
+    CvCity const* pHeadquarters = GC.getGame().getHeadquarters(eCorporation);
+    return (pHeadquarters != NULL && pHeadquarters->getOwner() == getID());
+
+So changing the global HQ city owner immediately changes the correct active-corporation
+state for the OLD owner and NEW owner even though neither player's civic changed.
+
+CONTRAST CONTROL -- CIVIC POLICY CHANGE DOES INVALIDATE THE WHOLE PLAYER
+-----------------------------------------------------------------------
+The existing civic-source transition is correctly wired:
+
+    CvPlayer::changeNoForeignCorporationsCount
+        -> updateCorporation()
+        -> every owned city -> CvCity::updateCorporation()
+
+Thus entering/leaving Protectionism rebuilds every city. This proves that corporation
+activity is treated as derived city state requiring explicit invalidation.
+
+The missed dependency is the OTHER input to the same predicate: `hasHeadquarters`.
+
+BROKEN INVALIDATION -- `CvGame::setHeadquarters` UPDATES ONLY TWO CITIES
+-----------------------------------------------------------------------
+Current setter:
+
+    CvCity* pOldCity = getHeadquarters(eCorp);
+    ...
+    m_aeHeadquarters.set(...);
+    if (pOldCity != NULL)
+        pOldCity->updateCorporation();
+    ...
+    CvCity* pHeadquarters = getHeadquarters(eCorp);
+    if (pHeadquarters == NULL)
+        return;
+    pHeadquarters->setHasCorporation(eCorp, true, bAnnounce);
+    pHeadquarters->updateCorporation();
+
+The OLD HQ city is rebuilt and the NEW HQ city is rebuilt. There is no:
+
+    GET_PLAYER(eOldOwner).updateCorporation();
+    GET_PLAYER(eNewOwner).updateCorporation();
+
+and no equivalent scan over their other branch cities.
+
+That is insufficient whenever HQ owner identity changes under a NoForeignCorporations
+policy, because the correct corporation activity changes simultaneously in EVERY city of
+both affected players that contains that corporation and its required resources.
+
+WHAT `CvCity::updateCorporation` STORES
+---------------------------------------
+This is not merely a dynamic-query/UI mismatch. The routine reconstructs authoritative
+stored state:
+
+    updateCorporationBonus();
+    updateBuildingCommerce();
+    for each Yield:
+        updateCorporationYield();
+    for each Commerce:
+        updateCorporationCommerce();
+    updateMaintenance();
+
+Those fields include:
+* corporation-produced resource counts (`m_aiNumCorpProducedBonuses`);
+* corporation yield (`m_aiCorporationYield`);
+* corporation commerce (`m_aiCorporationCommerce`);
+* dependent building commerce;
+* cached city maintenance.
+
+`updateCorporationYield` ultimately changes `m_aiBaseYieldRate` through
+`changeBaseYieldRate`. Once stale, normal `getYieldRate` reads the wrong base yield until
+some later corporation invalidator happens.
+
+ORDINARY CITY ACQUISITION PROVES BOTH DIRECTIONS
+------------------------------------------------
+`CvPlayer::acquireCity` explicitly preserves headquarters identity across ownership
+transfer. Before deleting the old city it snapshots:
+
+    abHasCorporation[eCorp] = pOldCity->isHasCorporation(eCorp);
+    abHeadquarters[eCorp]   = pOldCity->isHeadquarters(eCorp);
+
+It then executes:
+
+    pOldCity->kill(false, false);
+
+`CvCity::kill` removes corporation presence and, for an HQ, calls:
+
+    GC.getGame().setHeadquarters(eCorp, NULL, false);
+
+At that moment the global HQ pointer becomes null. If old owner O runs Protectionism,
+O's correct player-level corporation activity flips:
+
+    TRUE -> FALSE
+
+because O no longer satisfies `hasHeadquarters(eCorp)`. `setHeadquarters` refreshes the
+old/dying HQ city, but does not refresh O's other surviving branch cities.
+
+`acquireCity` then recreates the city for new owner N and restores:
+
+    kNewCity.setHasCorporation(eCorp, true, false);
+    kGame.setHeadquarters(eCorp, &kNewCity, false);
+
+Before the second line N does not own the HQ, so under Protectionism the restored city
+initially treats the corporation as foreign/inactive. After the second line N DOES own
+the HQ and N's correct player-level corporation activity flips:
+
+    FALSE -> TRUE
+
+The new HQ city is explicitly rebuilt. N's pre-existing branch cities are not.
+
+Thus one ordinary HQ capture/trade can create both stale directions at once:
+
+OLD owner O, other branches:
+    correct after transfer = inactive / zero corporation output
+    cached current result  = still active / old positive corporation output
+
+NEW owner N, other branches:
+    correct after transfer = active / corporation output present
+    cached current result  = still inactive / zero corporation output
+
+CURRENT-SAS DETERMINISTIC NUMERIC REPRO -- CEREAL MILLS
+-------------------------------------------------------
+Current `CORPORATION_1` (Cereal Mills in the existing album terminology) has grain
+prerequisites and:
+
+    iYieldProduced[FOOD] = 100
+
+Current Standard world size has:
+
+    iCorporationMaintenancePercent = 100
+
+Therefore a normal non-disordered Cereal Mills branch with exactly one qualifying Wheat
+and no other grain contributes exactly:
+
+    100 * 1 * 100 / 100 = 100 hundredths
+    intdiv::uceil(100, 100) = +1 FOOD
+
+Supported reproduction:
+
+1. Player O owns the Cereal Mills HQ and a separate non-HQ branch city O1.
+2. Player N owns a separate Cereal Mills branch city N1 but not the HQ.
+3. Give O1 and N1 exactly one connected Wheat relevant to the corporation.
+4. Place O1/N1 in stable plot groups unrelated to the HQ city's plot group.
+5. Both players adopt Protectionism and finish any anarchy so all corporation caches are
+   freshly rebuilt under stable pre-transfer state.
+6. Pre-transfer authoritative cache state is therefore:
+
+       O owns HQ -> O1 corporation FOOD = +1
+       N no HQ   -> N1 corporation FOOD = 0
+
+7. During N's ordinary active turn, N captures O's Cereal Mills HQ city.
+8. Acquisition clears the old HQ pointer and later restores it on N's replacement city.
+9. Dynamic player policy now correctly says:
+
+       O.isActiveCorporation(Cereal Mills) = false
+       N.isActiveCorporation(Cereal Mills) = true
+
+10. But only old/new HQ city corporation caches were rebuilt, leaving:
+
+       O1 cached corporation FOOD = +1   // should now be 0
+       N1 cached corporation FOOD = 0    // should now be +1
+
+A forced:
+
+    O.updateCorporation();
+    N.updateCorporation();
+
+immediately produces the correct opposite values, demonstrating that the live cache and
+its own current formula disagree solely because the ownership transition missed the
+invalidator.
+
+AUTHORITATIVE GAMEPLAY CONSEQUENCE -- STALE FOOD IS BOOKED
+----------------------------------------------------------
+`CvCity::setCorporationYield` / `updateCorporationYield` apply corporation yield to the
+stored base yield through `changeBaseYieldRate`.
+
+Normal `CvCity::doTurn` does NOT call `updateCorporation`. Its ordinary sequence includes:
+
+    doGrowth();
+    doCulture();
+    doProduction(...);
+
+`doGrowth` calls:
+
+    int iDiff = foodDifference();
+    changeFood(iDiff);
+
+and `foodDifference` reads current `getYieldRate(YIELD_FOOD)`, which includes the stored
+base-yield cache.
+
+Therefore the stale state is consumed, not merely displayed:
+* N1 can miss the +1 food it should receive on the SAME turn N captured the HQ;
+* O1 can keep receiving +1 food after O has lost the HQ, including on O's next turn.
+
+Choose branch food totals exactly at consumption if a maximally visible test is desired:
+correct HQ ownership then changes foodDifference by exactly one. Over enough turns the
+same error can change growth/starvation timing. Current corporations with production or
+commerce output provide parallel authoritative consequences.
+
+NO UNCONDITIONAL TURN SELF-HEAL
+-------------------------------
+A complete current `updateCorporation` caller scan finds no unconditional city-turn or
+player-turn rebuild.
+
+Whole-player refreshes occur only on specific unrelated inputs/events, e.g.:
+* entering/leaving anarchy;
+* NoCorporations / NoForeignCorporations civic count changes;
+* relevant technology processing.
+
+City-local refreshes occur on specific corporation/bonus/occupation changes.
+
+Consequently an unaffected branch can remain wrong until some unrelated invalidator
+fires. Advancing the turn alone does not restore the HQ-dependent cache.
+
+WHY `acquireCity -> updatePlotGroups` DOES NOT RESCUE THE BRANCHES
+-----------------------------------------------------------------
+The acquisition path can later call global `updatePlotGroups`, but this is not a full
+corporation rebuild.
+
+`CvPlayer::updatePlotGroups` asks each existing group to `recalculatePlots`.
+`CvPlotGroup::recalculatePlots` explicitly returns immediately when its existing plots
+remain connected:
+
+    if (iCount == iOldCount)
+        return;
+
+So O1 and N1 can be placed in separate stable plot groups unrelated to the transferred
+HQ. Their bonus counts do not need to change and no incidental
+`changeNumBonuses -> updateCorporation` occurs.
+
+Even a group recalculation updates corporation state only through actual resource-count
+transitions. There is no explicit dependency from HQ owner identity to all branch caches.
+The plot-group step therefore cannot serve as the required invalidation contract.
+
+ANCESTRY
+--------
+This is inherited from stock BtS.
+
+Civ4CE/BtS has the same player predicate:
+
+    if (isNoForeignCorporations() && !hasHeadquarters(eIndex))
+        return false;
+
+and stock `CvGame::setHeadquarters` likewise updates only:
+* `pOldValue->updateCorporation()`;
+* `pHeadquarters->updateCorporation()`.
+
+Stock current data already makes the dependency live through `CIVIC_MERCANTILISM`, which
+has both:
+
+    bNoCorporations        = 0
+    bNoForeignCorporations = 1
+
+K-Mod 1.46 retains the same predicate and the same old/new-HQ-only setter.
+Base AdvCiv 1.14 retains both unchanged in substance.
+Current SAS retains the DLL architecture while its current Economy civic
+`CIVIC_PROTECTIONISM` carries the same NoForeignCorporations mechanism.
+
+Thus F491 is a Firaxis/BtS corporation-cache invalidation bug inherited through the full
+lineage, with current SAS exposure through Protectionism.
+
+DUPLICATE / RECONCILIATION CHECK
+--------------------------------
+The full WIP209 album was searched semantically and literally for:
+* HQ/headquarters owner or ownership transfer;
+* NoForeignCorporations / Mercantilism / Protectionism;
+* corporation activity and branch-city state;
+* corporation yield/commerce/cache and HQ capture.
+
+The current WIP210-WIP226 physical chain was also searched locally for the same family.
+No existing numbered root owns HQ-owner identity as a missed input to branch corporation
+cache invalidation.
+
+Important neighboring roots/controls are distinct:
+
+* F411 / KI#734 -- corporation city HOVER reconstructs output/maintenance while disorder
+  suppresses live runtime effects. F491 is authoritative stored city state after HQ owner
+  transfer in normal non-disordered branch cities.
+* F421 / KI#744 -- corporation maintenance cache embeds stale inverse inflation over time.
+  F491 changes whether the corporation should be active at all and affects yield,
+  commerce, produced resources and maintenance immediately.
+* F429 / KI#752 -- prospective spread help evaluates prerequisite resources before a
+  competing corporation is removed. F491 is post-execution runtime state, not preview.
+* WIP179/WIP195 corporation-count closure -- correctly notes that CHANGING the
+  NoForeignCorporations civic count calls `updateCorporation`. F491 identifies a second
+  independent input to the same active predicate (`hasHeadquarters`) that the HQ setter
+  does not invalidate. This checkpoint supersedes only the breadth of the old generic
+  closure; the civic-count statement itself remains correct.
+
+CONSERVATIVE REPAIR DIRECTION
+-----------------------------
+Whenever `CvGame::setHeadquarters` changes the HQ OWNER for a corporation, rebuild
+corporation state for the affected old/new owners' other cities after the global HQ
+pointer has reached the new state.
+
+The invariant is:
+
+    if HQ ownership changes and a player's corporation activity can depend on HQ
+    ownership, every affected branch city's corporation cache must match
+    CvPlayer::isActiveCorporation before normal city/economy processing resumes.
+
+Implementation should respect the city-kill path. `setHeadquarters(eCorp, NULL)` can be
+called while the old HQ city is partway through `CvCity::kill`; blindly calling a full
+old-owner `updateCorporation()` that includes the dying city may introduce reentrancy
+risk. Safe approaches include:
+
+* in `setHeadquarters`, snapshot old/new PlayerTypes and refresh the affected owners'
+  OTHER cities while skipping the explicitly handled old/new HQ objects; or
+* defer a narrowly tracked affected-player corporation rebuild to a stable point after
+  city deletion/acquisition, while also covering generic non-capture HQ changes.
+
+Do not fix only the new owner: losing the HQ under Protectionism is equally a TRUE->FALSE
+transition for the old owner's surviving branches.
+
+REGRESSION TESTS
+----------------
+A. Two-direction Cereal Mills capture test
+1. Standard map; O and N both Protectionism.
+2. Cereal Mills HQ belongs to O.
+3. O1 and N1 are ordinary non-HQ branch cities with one qualifying Wheat each and stable
+   plot groups away from the HQ city.
+4. Force corporation caches current.
+5. Assert before capture:
+       O1 corporation FOOD == 1
+       N1 corporation FOOD == 0
+6. N captures HQ city.
+7. Immediately assert dynamic policy:
+       !O.isActiveCorporation(Cereal Mills)
+        N.isActiveCorporation(Cereal Mills)
+8. Without an explicit repair call, assert branch caches already match:
+       O1 corporation FOOD == 0
+       N1 corporation FOOD == 1
+   Current code fails both.
+
+B. Gameplay booking test
+1. Configure O1/N1 with non-corporation food exactly equal to consumption.
+2. Perform the HQ capture before N's end-of-turn city processing.
+3. Repaired N1 gains exactly +1 food from Cereal Mills; current N1 gains 0.
+4. On O's next city turn, repaired O1 gains 0 corporation food; current O1 still gains
+   the stale +1 until an unrelated corporation refresh occurs.
+
+C. Control without NoForeignCorporations
+Repeat while both players use a civic where `isNoForeignCorporations()==false`.
+HQ owner transfer should not change branch active status merely from owner identity.
+This protects against gratuitous behavior changes outside the relevant dependency.
+
+NUMBERING
+---------
+F491 / KI#814 is CONFIRMED.
+F492 / provisional KI#815 is the next UNUSED root.
+
+CURRENT STONE AFTER C031-WIP228
+-------------------------------
+Queue 004 `CvGameCoreDLL/CvPlayer.cpp` -- OPEN.
+32/169 unique files complete.
+F445 / KI#768 RETRACTED.
+F446 / KI#769 through F491 / KI#814 CONFIRMED.
+F492 / provisional KI#815 UNUSED.
+Latest physical checkpoint: C031-WIP228.
+No repository source files modified.
+
+NEXT
+----
+Continue from F492 unused.
+
+First finish immediate F491 siblings without multiplying one invalidation omission into
+artificial roots:
+* HQ relocation with the SAME owner (should not change active-corporation policy);
+* corporation-produced resource dependency cascades after HQ owner flip (same F491 root);
+* old/new owner maintenance and building-commerce symptoms (same root unless a separate
+  invalidation exists);
+* HQ destruction / corporation replacement paths beyond ordinary capture, classifying
+  them as same-root manifestations or clean controls.
+
+Then resume the low-coverage signed health/happiness and `processBuilding` /
+`processCivics` source-boundary counter sweep with F492 unused. Continue requiring
+current data, ordinary producer, authoritative consequence, ancestry and semantic
+full-album duplicate proof before promotion.
+
+END C031-WIP228

@@ -1317,6 +1317,11 @@ static const char* getSASGameRecordTechType(TechTypes eTech)
 	return (eTech == NO_TECH ? "-" : GC.getInfo(eTech).getType());
 }
 
+static const char* getSASGameRecordGoodyType(GoodyTypes eGoody)
+{
+	return (eGoody == NO_GOODY ? "-" : GC.getInfo(eGoody).getType());
+}
+
 static const char* getSASGameRecordReligionType(ReligionTypes eReligion)
 {
 	return (eReligion == NO_RELIGION ? "-" : GC.getInfo(eReligion).getType());
@@ -1366,6 +1371,12 @@ static const char* getSASGameRecordRouteType(RouteTypes eRoute)
 {
 	return (eRoute == NO_ROUTE ? "-" : GC.getInfo(eRoute).getType());
 }
+
+SASGameRecordGoodyResult::SASGameRecordGoodyResult() :
+	bFollowupOutcome(false), bUpgradeRoll(false), bUpgradeApplied(false), bAdditionalOutcomeAttempted(false),
+	iGold(0), iNewlyRevealedPlots(0), iExperienceGained(0), iDamageHealed(0), eTech(NO_TECH), iTechRewardValue(0),
+	iTechProgressBefore(-1), iTechProgressAfter(-1), iTechCost(-1), bTechCompleted(false), iFreePromotionsGranted(0)
+{}
 
 SASGameRecordPlotState::SASGameRecordPlotState() : eTerrain(NO_TERRAIN), eFeature(NO_FEATURE), eBonus(NO_BONUS), eImprovement(NO_IMPROVEMENT), eRoute(NO_ROUTE)
 {
@@ -4103,10 +4114,14 @@ static CvString getSASGameRecordCommerceFlexible(CvPlayer const& kPlayer)
 static void logSASGameRecordEconomy(PlayerTypes ePlayer, int iGameTurn)
 {
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
 	TechTypes eResearch = kPlayer.getCurrentResearch();
-	// <!-- custom: currentResearch=- does not mean that science is lost: CvPlayer::doResearch stores the nominal research rate as overflow until another technology can be selected. Report that rate, accumulated overflow, and whether any technology remains available instead of misleadingly forcing researchRate=0. (GPT-5.6-Sol) -->
-	logSASGameRecord("GAME_RECORD_ECONOMY turn=%d player=%d gold=%d goldRate=%d totalCommerce=%d sliders=%s commerceTypeRates=%s flexible=%s currentResearch=%s researchRate=%d researchOverflow=%d noResearchAvailable=%d researchTurns=%d",
-			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameRecordCommercePercents(kPlayer).GetCString(), getSASGameRecordCommerceRates(kPlayer).GetCString(), getSASGameRecordCommerceFlexible(kPlayer).GetCString(), getSASGameRecordTechType(eResearch), kPlayer.calculateResearchRate(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
+	int const iResearchProgress = (eResearch == NO_TECH ? -1 : kTeam.getResearchProgress(eResearch));
+	int const iResearchCost = (eResearch == NO_TECH ? -1 : kTeam.getResearchCost(eResearch));
+	// <!-- custom: currentResearch=- does not mean that science is lost: CvPlayer::doResearch stores the nominal research rate as overflow until another technology can be selected.
+	// Exact shared progress/cost makes partially researched technologies visible at ordinary snapshots instead of only when completion or redirection happens. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ECONOMY turn=%d player=%d gold=%d goldRate=%d totalCommerce=%d sliders=%s commerceTypeRates=%s flexible=%s currentResearch=%s currentResearchTeamProgress=%d currentResearchCost=%d researchRate=%d researchOverflow=%d noResearchAvailable=%d researchTurns=%d",
+			iGameTurn, ePlayer, kPlayer.getGold(), kPlayer.calculateGoldRate(), kPlayer.calculateTotalYield(YIELD_COMMERCE), getSASGameRecordCommercePercents(kPlayer).GetCString(), getSASGameRecordCommerceRates(kPlayer).GetCString(), getSASGameRecordCommerceFlexible(kPlayer).GetCString(), getSASGameRecordTechType(eResearch), iResearchProgress, iResearchCost, kPlayer.calculateResearchRate(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), eResearch == NO_TECH ? -1 : kPlayer.getResearchTurnsLeft(eResearch, true));
 }
 
 static void logSASGameRecordStatistics(PlayerTypes ePlayer, int iGameTurn)
@@ -5512,9 +5527,28 @@ static void logSASGameRecordBarbarians(int iGameTurn)
 	CvString szUnitAI;
 	for (int iI = 0; iI < GC.getNumUnitInfos(); iI++) appendSASGameRecordTypeCount(szUnitTypes, getSASGameRecordUnitType((UnitTypes)iI), aiUnitTypes[iI]);
 	for (int iI = 0; iI < NUM_UNITAI_TYPES; iI++) appendSASGameRecordTypeCount(szUnitAI, getSASGameRecordUnitAIType((UnitAITypes)iI), aiUnitAI[iI]);
-	logSASGameRecord("GAME_RECORD_BARBARIAN_SUMMARY turn=%d cities=%d population=%d units=%d animals=%d nonAnimals=%d landUnits=%d seaUnits=%d cargoUnits=%d unitsInCities=%d unitsInBarbarianTerritory=%d unitsInUnownedTerritory=%d unitsInCivilizationTerritory=%d woundedUnits=%d unitTypes=%s unitAI=%s",
+	// <!-- custom: Barbarian research advances many technologies concurrently instead of selecting one current target.
+	// Preserve only incomplete technologies with nonzero stored progress in the existing periodic row.
+	// Completed technologies remain exact TECH_ACQUIRED source=BARBARIAN_RESEARCH actions. (ChatGPT-5.6-Sol) -->
+	CvTeam const& kBarbarianTeam = GET_TEAM(kBarbarians.getTeam());
+	CvString szPartialResearch;
+	int iPartialResearchTechs = 0;
+	FOR_EACH_ENUM(Tech)
+	{
+		if (kBarbarianTeam.isHasTech(eLoopTech))
+			continue;
+		int const iProgress = kBarbarianTeam.getResearchProgress(eLoopTech);
+		if (iProgress <= 0)
+			continue;
+		CvString szItem;
+		szItem.Format("%s%s:%d/%d", szPartialResearch.empty() ? "" : ",", getSASGameRecordTechType(eLoopTech), iProgress, kBarbarianTeam.getResearchCost(eLoopTech));
+		szPartialResearch += szItem;
+		iPartialResearchTechs++;
+	}
+	logSASGameRecord("GAME_RECORD_BARBARIAN_SUMMARY turn=%d cities=%d population=%d units=%d animals=%d nonAnimals=%d landUnits=%d seaUnits=%d cargoUnits=%d unitsInCities=%d unitsInBarbarianTerritory=%d unitsInUnownedTerritory=%d unitsInCivilizationTerritory=%d woundedUnits=%d unitTypes=%s unitAI=%s partialResearchTechs=%d partialResearch=%s",
 			iGameTurn, kBarbarians.getNumCities(), kBarbarians.getTotalPopulation(), iUnits, iAnimals, iUnits - iAnimals, iLandUnits, iSeaUnits, iCargoUnits,
-			iUnitsInCities, iUnitsInBarbarianTerritory, iUnitsInUnownedTerritory, iUnitsInCivilizationTerritory, iWoundedUnits, getSASDiagnosticOrDash(szUnitTypes).GetCString(), getSASDiagnosticOrDash(szUnitAI).GetCString());
+			iUnitsInCities, iUnitsInBarbarianTerritory, iUnitsInUnownedTerritory, iUnitsInCivilizationTerritory, iWoundedUnits,
+			getSASDiagnosticOrDash(szUnitTypes).GetCString(), getSASDiagnosticOrDash(szUnitAI).GetCString(), iPartialResearchTechs, getSASDiagnosticOrDash(szPartialResearch).GetCString());
 	int iCityLoop = 0;
 	for (CvCity const* pLoopCity = kBarbarians.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kBarbarians.nextCity(&iCityLoop))
 	{
@@ -5923,6 +5957,61 @@ void logSASGameRecordBarbarianSpawn(CvUnit const* pUnit, char const* szCause)
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=BARBARIAN_UNIT_SPAWNED cause=%s unitId=%d unit=%s unitAI=%s x=%d y=%d area=%d cargo=%d transportId=%d",
 			GC.getGame().getGameTurn(), szCause, pUnit->getID(), getSASGameRecordUnitType(pUnit->getUnitType()), getSASGameRecordUnitAIType(pUnit->AI_getUnitAIType()),
 			pUnit->getX(), pUnit->getY(), pPlot == NULL ? -1 : pPlot->getArea().getID(), pUnit->isCargo(), pUnit->getTransportUnit() == NULL ? -1 : pUnit->getTransportUnit()->getID());
+}
+
+static CvString getSASGameRecordGoodyUnits(std::vector<CvUnit const*> const& apUnits, bool bIncludePromotions)
+{
+	CvString szUnits;
+	for (size_t iI = 0; iI < apUnits.size(); iI++)
+	{
+		CvUnit const* pUnit = apUnits[iI];
+		if (pUnit == NULL)
+			continue;
+		CvString szPromotions;
+		if (bIncludePromotions)
+		{
+			FOR_EACH_ENUM(Promotion)
+			{
+				if (!pUnit->isHasPromotion(eLoopPromotion))
+					continue;
+				if (!szPromotions.empty())
+					szPromotions += "+";
+				szPromotions += getSASGameRecordPromotionType(eLoopPromotion);
+			}
+		}
+		CvString szItem;
+		if (szPromotions.empty())
+			szItem.Format("%s%s:%d@(%d,%d)", szUnits.empty() ? "" : ",", getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getID(), pUnit->getX(), pUnit->getY());
+		else szItem.Format("%s%s:%d@(%d,%d)[%s]", szUnits.empty() ? "" : ",", getSASGameRecordUnitType(pUnit->getUnitType()), pUnit->getID(), pUnit->getX(), pUnit->getY(), szPromotions.GetCString());
+		szUnits += szItem;
+	}
+	return getSASDiagnosticOrDash(szUnits);
+}
+
+// <!-- custom: Log the resolved goody result rather than only the XML label. AdvCiv goodies can randomize gold/research, reveal a variable map area, upgrade free units, spawn variable hostile units, or roll a same-sign follow-up outcome.
+// Generic TECH_ACQUIRED and map-revelation rows remain complementary chronology; this rare level-2 row ties those downstream effects back to the hut that caused them. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordGoodyReceived(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eGoody, SASGameRecordGoodyResult const& kResult)
+{
+	if (pPlot == NULL || ePlayer < 0 || ePlayer >= MAX_PLAYERS || eGoody == NO_GOODY)
+		return;
+	int const iTechProgressAdded = (kResult.iTechProgressBefore < 0 || kResult.iTechProgressAfter < 0 ? -1 : kResult.iTechProgressAfter - kResult.iTechProgressBefore);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOODY_RECEIVED player=%d team=%d x=%d y=%d area=%d triggerUnitId=%d triggerUnit=%s goody=%s bad=%d followup=%d upgradeRoll=%d upgradeApplied=%d additionalOutcomeAttempted=%d gold=%d newlyRevealedPlots=%d experienceGained=%d damageHealed=%d tech=%s techRewardValue=%d techStoredProgressBefore=%d techStoredProgressAdded=%d techStoredProgressAfter=%d techCost=%d techCompleted=%d freeUnitCount=%d freePromotionsGranted=%d freeUnits=%s barbarianUnitCount=%d barbarianUnits=%s",
+			GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getTeam(), pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(),
+			pTriggerUnit == NULL ? -1 : pTriggerUnit->getID(), pTriggerUnit == NULL ? "-" : getSASGameRecordUnitType(pTriggerUnit->getUnitType()), getSASGameRecordGoodyType(eGoody), GC.getInfo(eGoody).isBad(),
+			kResult.bFollowupOutcome, kResult.bUpgradeRoll, kResult.bUpgradeApplied, kResult.bAdditionalOutcomeAttempted, kResult.iGold, kResult.iNewlyRevealedPlots, kResult.iExperienceGained, kResult.iDamageHealed,
+			getSASGameRecordTechType(kResult.eTech), kResult.iTechRewardValue, kResult.iTechProgressBefore, iTechProgressAdded, kResult.iTechProgressAfter, kResult.iTechCost, kResult.bTechCompleted,
+			(int)kResult.apFreeUnits.size(), kResult.iFreePromotionsGranted, getSASGameRecordGoodyUnits(kResult.apFreeUnits, true).GetCString(), (int)kResult.apBarbarianUnits.size(), getSASGameRecordGoodyUnits(kResult.apBarbarianUnits, false).GetCString());
+}
+
+// <!-- custom: A hut can exhaust NUM_DO_GOODY_ATTEMPTS without finding an eligible result.
+// Preserve that rare factual no-outcome boundary so native DLL-resolved hut removals remain explainable, including failed AdvCiv follow-up rolls. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordGoodyNoOutcome(PlayerTypes ePlayer, CvPlot const* pPlot, CvUnit const* pTriggerUnit, GoodyTypes eTaboo, int iAttempts)
+{
+	if (pPlot == NULL || ePlayer < 0 || ePlayer >= MAX_PLAYERS)
+		return;
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOODY_NO_OUTCOME player=%d team=%d x=%d y=%d area=%d triggerUnitId=%d triggerUnit=%s followup=%d taboo=%s attempts=%d",
+			GC.getGame().getGameTurn(), ePlayer, GET_PLAYER(ePlayer).getTeam(), pPlot->getX(), pPlot->getY(), pPlot->getArea().getID(),
+			pTriggerUnit == NULL ? -1 : pTriggerUnit->getID(), pTriggerUnit == NULL ? "-" : getSASGameRecordUnitType(pTriggerUnit->getUnitType()), eTaboo != NO_GOODY, getSASGameRecordGoodyType(eTaboo), iAttempts);
 }
 
 void logSASGameRecordUnitCompleted(CvCity const* pCity, CvUnit const* pUnit, bool bConscripted, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedOverflowCapacity, int iOverflowGold)
