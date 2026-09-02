@@ -41,6 +41,16 @@ MAX_TRADE_DATA = 50  # avoid an infinite loop
 gc = CyGlobalContext()
 diplo = CyDiplomacy()
 
+# <!-- custom: Lazy-cache the SASGameRecord level because BUG diplomacy can be imported during Python startup before XML GlobalDefines are safely loaded; an eager module-level getDefineINT can cache an incorrect startup value.
+# Resolve only on first use and then reuse the integer so level 0/1 users avoid repeated Python->DLL define lookups as well as all rejected-offer bridge work. (ChatGPT-5.6-Sol) -->
+_SAS_GAME_RECORD_LOG_LEVEL = None
+
+def _getSASGameRecordLogLevel():
+	global _SAS_GAME_RECORD_LOG_LEVEL
+	if _SAS_GAME_RECORD_LOG_LEVEL is None:
+		_SAS_GAME_RECORD_LOG_LEVEL = gc.getDefineINT("SAS_GAME_RECORD_LOG_LEVEL")
+	return _SAS_GAME_RECORD_LOG_LEVEL
+
 # comment-type -> ( event-type , trade-type )
 g_eventsByCommentType = {}
 g_eventManager = None
@@ -272,7 +282,11 @@ def onDealAccepted(argsList):
 def onDealRejected(argsList):
 	#BugUtil.debug("DiplomacyUtil::onDealRejected %s" %(str(argsList)))
 	eTargetPlayer, eOfferPlayer, pTrade = argsList
-	BugUtil.debug("DiplomacyUtil - %s accepts trade offered by %s: %r", PlayerUtil.getPlayer(eTargetPlayer).getName(), PlayerUtil.getPlayer(eOfferPlayer).getName(), pTrade)
+	BugUtil.debug("DiplomacyUtil - %s rejects trade offered by %s: %r", PlayerUtil.getPlayer(eTargetPlayer).getName(), PlayerUtil.getPlayer(eOfferPlayer).getName(), pTrade)
+	# <!-- custom: This resolved BUG event is the clean source for an AI->human rejected ordinary offer. Check the lazy-cached recorder level first so level 0/1 users short-circuit before bridge validation, trade iteration/list construction, or the Python->C++ call.
+	# The C++ bridge deliberately trusts this pre-gated caller contract and only validates its payload. (ChatGPT-5.6-Sol) -->
+	if _getSASGameRecordLogLevel() >= 2 and eTargetPlayer != -1 and eOfferPlayer != -1 and pTrade is not None:
+		CyGame().logSASGameRecordRejectedAIOffer(eOfferPlayer, eTargetPlayer, _getSASGameRecordRawTradeItems(pTrade.otherTrades()), _getSASGameRecordRawTradeItems(pTrade.trades()))
 
 def onHelpDemanded(argsList):
 	#BugUtil.debug("DiplomacyUtil::onHelpDemanded %s" %(str(argsList)))
@@ -381,6 +395,14 @@ def onEmbargoRejected(argsList):
 	#BugUtil.debug("DiplomacyUtil::onEmbargoRejected %s" %(str(argsList)))
 	eTargetPlayer, eDemandPlayer, eVictim = argsList
 	BugUtil.debug("DiplomacyUtil - %s rejects demand from %s to stop trading with %s", PlayerUtil.getPlayer(eTargetPlayer).getName(), PlayerUtil.getPlayer(eDemandPlayer).getName(), PlayerUtil.getPlayer(eVictim).getName())
+
+def _getSASGameRecordRawTradeItems(trades):
+	# <!-- custom: Flatten only the raw TradeData identity needed by the DLL bridge; do not reuse localized BUG formatting as machine-readable SASGameRecord data. (ChatGPT-5.6-Sol) -->
+	items = []
+	for trade in trades:
+		items.append(int(trade.ItemType))
+		items.append(trade.iData)
+	return items
 
 ## Proposed Trade Functions
 

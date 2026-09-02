@@ -6185,6 +6185,16 @@ void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eRe
 			GC.getGame().getGameTurn(), eProposer, eResponder, bProposed ? "PROPOSED" : "NONE", getSASTradeListText(kOriginalProposerGives, eProposer).GetCString(), getSASTradeListText(kOriginalResponderGives, eResponder).GetCString(), getSASTradeListText(kProposerAdds, eProposer).GetCString(), getSASTradeListText(kResponderAdds, eResponder).GetCString());
 }
 
+// <!-- custom: The unmoddable EXE does not expose a clean DLL rejection callback carrying AI->human ordinary trade items. BUG's resolved DealRejected UI event does, so log that exact package here without importing Python/localized formatting into the schema. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives)
+{
+	CvPlayerAI const& kProposer = GET_PLAYER(eProposer);
+	CvPlayerAI const& kResponder = GET_PLAYER(eResponder);
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_OFFER_REJECTED proposer=%d responder=%d proposerGives=%s responderGives=%s proposerAttitudeValue=%d responderAttitudeValue=%d atWar=%d",
+			GC.getGame().getGameTurn(), eProposer, eResponder, getSASTradeListText(kProposerGives, eProposer).GetCString(), getSASTradeListText(kResponderGives, eResponder).GetCString(),
+			kProposer.AI_getAttitudeVal(eResponder), kResponder.AI_getAttitudeVal(eProposer), GET_TEAM(kProposer.getTeam()).isAtWar(kResponder.getTeam()) ? 1 : 0);
+}
+
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer)
 {
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RELIGION_FOUNDED player=%d religion=%s", GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eReligion));

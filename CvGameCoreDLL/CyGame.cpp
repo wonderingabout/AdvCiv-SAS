@@ -9,6 +9,41 @@
 #include "CyDeal.h"
 #include "CyReplayInfo.h"
 #include "CvMap.h" // advc.enum
+#include "CvDLLPythonIFaceBase.h" // <!-- custom: Needed for the concrete Python-interface method used by the rejected-offer bridge; CvDLLUtilityIFaceBase only forward-declares this type. (ChatGPT-5.6-Sol) -->
+#include "SASGameRecordLog.h" // <!-- custom: Bridge only resolved Python diplomacy-UI events into the factual game record; AI valuation remains elsewhere. (ChatGPT-5.6-Sol) -->
+
+namespace
+{
+	// <!-- custom: Python diplomacy already owns the rejected offer as TradeData objects. Pass only raw item/data integer pairs across the wrapper, then rebuild canonical TradeData here so SASGameRecord keeps one C++ trade serializer. The caller is already a rare resolved UI event. (ChatGPT-5.6-Sol) -->
+	bool getSASGameRecordTradeListFromPython(boost::python::list const& kFlatItems, CLinkList<TradeData>& kOut)
+	{
+		int const iLength = (int)PySequence_Size(kFlatItems.ptr());
+		if (iLength < 0 || iLength % 2 != 0)
+			return false;
+		if (iLength == 0)
+			return true;
+
+		int* piValues = NULL;
+		gDLL->getPythonIFace()->putSeqInArray(kFlatItems.ptr(), &piValues);
+		if (piValues == NULL)
+			return false;
+		bool bValid = true;
+		for (int i = 0; i < iLength; i += 2)
+		{
+			int const iItemType = piValues[i];
+			if (iItemType < 0 || iItemType >= NUM_TRADEABLE_ITEMS)
+			{
+				bValid = false;
+				break;
+			}
+			TradeData kItem;
+			setTradeItem(&kItem, (TradeableItems)iItemType, piValues[i + 1]);
+			kOut.insertAtEnd(kItem);
+		}
+		delete[] piValues;
+		return bValid;
+	}
+}
 
 void CyGame::updateScore(bool bForce)
 {
@@ -281,6 +316,21 @@ int CyGame::getGameTurnYear()
 int CyGame::getElapsedGameTurns()
 {
 	return m_kGame.getElapsedGameTurns();
+}
+
+// <!-- custom: BUG DiplomacyUtil can see the exact package when a human rejects an AI ordinary trade offer, while the EXE does not expose that rejected package through a clean DLL callback.
+// The Python caller lazy-caches and pre-gates SASGameRecord level 2+ before constructing the raw lists; deliberately do not duplicate that check here after the logging-only argument work has already happened.
+// The bridge still validates its Python payload, then lets SASGameRecord own canonical formatting. (ChatGPT-5.6-Sol) -->
+void CyGame::logSASGameRecordRejectedAIOffer(int iProposer, int iResponder, boost::python::list& kProposerGives, boost::python::list& kResponderGives)
+{
+	if (iProposer < 0 || iProposer >= MAX_PLAYERS || iResponder < 0 || iResponder >= MAX_PLAYERS)
+		return;
+
+	CLinkList<TradeData> kProposerList;
+	CLinkList<TradeData> kResponderList;
+	if (!getSASGameRecordTradeListFromPython(kProposerGives, kProposerList) || !getSASGameRecordTradeListFromPython(kResponderGives, kResponderList))
+		return;
+	logSASGameRecordAIToHumanOfferRejected((PlayerTypes)iProposer, (PlayerTypes)iResponder, kProposerList, kResponderList);
 }
 
 // <!-- custom: Thin Python-facing accessors keep save-version history read-only; presentation policy belongs to later UI code. (ChatGPT-5.6-Sol) -->
