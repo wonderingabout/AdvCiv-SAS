@@ -880,6 +880,11 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	std::vector<NukeUnitEffect> aUnitKilled;
 	std::vector<NukeEffect> aBuildingDestroyed;
 	std::vector<NukeEffect> aCitizensKilled;
+	// <!-- custom: Reuse this existing single explosion pass for compact SASGameRecord effect totals; no diagnostic-only second scan is needed.
+	// Keep the extra counters inert unless a unit-launched detonation is actually being recorded. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASNukeEffects = (bBomb && pNukeUnit != NULL && gGameRecordLogLevel >= 2);
+	int iSASFalloutPlots = 0;
+	int iSASPopulationKilled = 0;
 	// </advc.650>
 
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
@@ -919,6 +924,8 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 									GC.getInfo(p.getFeatureType()).getDescription()));
 						} // </advc.650>
 						p.setImprovementType(NO_IMPROVEMENT);
+						if (bLogSASNukeEffects && p.getFeatureType() != eNUKE_FEATURE)
+							iSASFalloutPlots++;
 						p.setFeatureType(eNUKE_FEATURE);
 						if (bLogPlotChange) recordSASGameRecordPlotChange(p, kOldPlotState, "nuclearDamage", "NUCLEAR_FALLOUT", true);
 					}
@@ -1023,11 +1030,18 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 		int iPopChange = -std::min(pCity->getPopulation() - 1, iNukedPopulation);
 		// advc.650:
 		aCitizensKilled.push_back(NukeEffect(&p, CvWString::format(L"%d", -iPopChange)));
+		if (bLogSASNukeEffects) iSASPopulationKilled += -iPopChange;
 		pCity->changePopulation(iPopChange);
 	}
 	if (bBomb) // K-Mod
 	{
 		GC.getGame().changeNukesExploded(1);
+		// <!-- custom: The effect vectors above already contain the authoritative realized results after all nuke RNG.
+		// Emit one compact consequence row only for an actual unit-launched detonation. (ChatGPT-5.6-Sol) -->
+		if (bLogSASNukeEffects)
+		{
+			logSASGameRecordNukeEffects(pNukeUnit, this, iSASFalloutPlots, (int)aImprovementDestroyed.size(), (int)aFeatureDestroyed.size(), (int)aUnitDamaged.size(), (int)aUnitKilled.size(), (int)aBuildingDestroyed.size(), (int)aCitizensKilled.size(), iSASPopulationKilled);
+		}
 		CvEventReporter::getInstance().nukeExplosion(this, pNukeUnit);
 	}
 	// <advc.650>

@@ -437,6 +437,9 @@ void CvTeam::addTeam(TeamTypes eTeam)
 	// Merge into only the original surviving members before changing teams so the absorbed leader cannot add its history to itself. See KI#539. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 	if (getUWAI().isEnabled())
 		AI().uwai().addTeam(eTeamLeader);
+	// <!-- custom: Capture the exact team-merge boundary while both pre-merge member lists still exist.
+	// The logger call is cold and fully gated before it gathers diagnostic-only strings. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordTeamMerged(getID(), eTeam);
 	for (int i = 0; i < MAX_PLAYERS; i++)
 	{
 		if (GET_PLAYER((PlayerTypes)i).getTeam() == eTeam)

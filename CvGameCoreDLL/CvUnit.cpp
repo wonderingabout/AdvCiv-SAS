@@ -4532,7 +4532,17 @@ bool CvUnit::nuke(int iX, int iY)
 	// <!-- custom: code/performance optimization: hoist -->
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
-	if (SyncRandSuccess100(iBestInterception))
+	bool const bIntercepted = SyncRandSuccess100(iBestInterception);
+	// <!-- custom: The interception roll is the authoritative launch boundary. Reuse CvUnit::nuke's already-computed affected-team flags instead of rescanning nuke victims.
+	// Record before interception can kill the unit or a successful suicide launch can defer its explosion through delayed death. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2)
+	{
+		bool abSASAffectedTeams[MAX_TEAMS];
+		for (int iTeam = 0; iTeam < MAX_TEAMS; iTeam++)
+			abSASAffectedTeams[iTeam] = abTeamsAffected.get((TeamTypes)iTeam);
+		logSASGameRecordNukeLaunched(this, &kPlot, abSASAffectedTeams, bIntercepted, eBestTeam, iBestInterception);
+	}
+	if (bIntercepted)
 	{
 		for (PlayerIter<MAJOR_CIV> it; it.hasNext(); ++it) // advc.003n: Only major civs
 		{
