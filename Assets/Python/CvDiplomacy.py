@@ -686,7 +686,8 @@ class CvDiplomacy:
 
 		# If we refuse to join their war
 		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_NO_JOIN_WAR")):
-			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_NO_JOIN_WAR, -1, -1)
+			# <!-- custom: Preserve the refused war target in the DLL diplomacy event so SASGameRecord can describe the resolved request without guessing from earlier UI state. Gameplay handling still ignores the data for the refusal. (ChatGPT-5.6-Sol) -->
+			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_NO_JOIN_WAR, diploScreen.getData(), -1)
 			self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_JOIN_DENIED"))
 
 		# If we stop the trading
@@ -696,7 +697,8 @@ class CvDiplomacy:
 
 		# If we refuse to stop the trading
 		elif (self.isComment(eComment, "USER_DIPLOCOMMENT_NO_STOP_TRADING")):
-			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_NO_STOP_TRADING, -1, -1)
+			# <!-- custom: Preserve the refused embargo target for factual resolved-interaction logging; the existing refusal gameplay path does not otherwise use iData1. (ChatGPT-5.6-Sol) -->
+			diploScreen.diploEvent(DiploEventTypes.DIPLOEVENT_NO_STOP_TRADING, diploScreen.getData(), -1)
 			self.setAIComment(self.getCommentID("AI_DIPLOCOMMENT_STOP_DENIED"))
 
 		# If we want to go back to first screen

@@ -90,7 +90,7 @@ namespace
 
 	void logSASGameRecordDiploEventAction(PlayerTypes ePlayer, DiploEventTypes eDiploEvent, PlayerTypes eOtherPlayer, int iData1, int iData2)
 	{
-		// <!-- custom: CvPlayer::handleDiploEvent is the common hook for accepted/refused demands, help requests, civic/religion pressure, stop-trading requests, war joins, and some contact bookkeeping. Callers gate this helper so logging-only text is not built when game-record logging is disabled or the event is level-filtered. (ChatGPT-5.5) -->
+		// <!-- custom: Preserve lower-value/raw EXE diplomacy events at level 3, and uncommon non-semantic events at level 2. Resolved help/demand/civic/religion/war-join/embargo interactions use the richer post-event row instead. (ChatGPT-5.6-Sol) -->
 		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_EVENT player=%d other=%d event=%s data1=%d data1Text=%s data2=%d data2Text=%s",
 				GC.getGame().getGameTurn(), ePlayer, eOtherPlayer, getSASDiploEventType(eDiploEvent), iData1, getSASGameRecordDiploData1Text(ePlayer, eDiploEvent, iData1, iData2).GetCString(), iData2, getSASGameRecordDiploData2Text(eDiploEvent, iData2).GetCString());
 	}
@@ -3763,8 +3763,10 @@ void CvPlayer::contact(PlayerTypes ePlayer)
 void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2)
 {
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
-	if (gGameRecordLogLevel >= 2 && (gGameRecordLogLevel >= 3 || !isSASGameRecordLowValueDiploEvent(eDiploEvent)))
-		logSASGameRecordDiploEventAction(getID(), eDiploEvent, ePlayer, iData1, iData2);
+	// <!-- custom: Capture relationship state only for real resolved diplomacy interactions at SASGameRecord level 2+. This is a cold human-diplomacy boundary; speculative AI offer evaluation stays elsewhere. (ChatGPT-5.6-Sol) -->
+	bool const bLogResolvedSASDiplo = (gGameRecordLogLevel >= 2 && isSASGameRecordResolvedDiploInteraction(eDiploEvent));
+	SASGameRecordDiploRelationState kSASDiploBefore;
+	if (bLogResolvedSASDiplo) captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASDiploBefore);
 
 	switch (eDiploEvent)
 	{
@@ -3957,6 +3959,15 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		FAssert(false);
 		break;
 	}
+
+	if (bLogResolvedSASDiplo)
+	{
+		SASGameRecordDiploRelationState kSASDiploAfter;
+		captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASDiploAfter);
+		logSASGameRecordResolvedDiploInteraction(getID(), eDiploEvent, ePlayer, iData1, kSASDiploBefore, kSASDiploAfter);
+	}
+	else if (gGameRecordLogLevel >= 2 && (gGameRecordLogLevel >= 3 || !isSASGameRecordLowValueDiploEvent(eDiploEvent)))
+		logSASGameRecordDiploEventAction(getID(), eDiploEvent, ePlayer, iData1, iData2);
 }
 
 

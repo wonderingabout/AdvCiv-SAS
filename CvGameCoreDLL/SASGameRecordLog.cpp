@@ -6010,6 +6010,181 @@ void logSASGameRecordPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPla
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=GOLD_TRADE from=%d to=%d amount=%d", GC.getGame().getGameTurn(), eFromPlayer, eToPlayer, iAmount);
 }
 
+// <!-- custom: Recorder policy, not diplomacy AI: identify the DiploEvent values whose generic pre-event row is replaced by a richer post-resolution state-delta row. Keep the taxonomy with the recorder schema instead of teaching CvPlayer gameplay code how SASGameRecord groups events. (ChatGPT-5.6-Sol) -->
+bool isSASGameRecordResolvedDiploInteraction(DiploEventTypes eDiploEvent)
+{
+	switch (eDiploEvent)
+	{
+	case DIPLOEVENT_GIVE_HELP:
+	case DIPLOEVENT_REFUSED_HELP:
+	case DIPLOEVENT_ACCEPT_DEMAND:
+	case DIPLOEVENT_REJECTED_DEMAND:
+	case DIPLOEVENT_CONVERT:
+	case DIPLOEVENT_NO_CONVERT:
+	case DIPLOEVENT_REVOLUTION:
+	case DIPLOEVENT_NO_REVOLUTION:
+	case DIPLOEVENT_JOIN_WAR:
+	case DIPLOEVENT_NO_JOIN_WAR:
+	case DIPLOEVENT_STOP_TRADING:
+	case DIPLOEVENT_NO_STOP_TRADING:
+	case DIPLOEVENT_ASK_HELP:
+	case DIPLOEVENT_MADE_DEMAND:
+		return true;
+	default:
+		return false;
+	}
+}
+
+void captureSASGameRecordDiploRelationState(PlayerTypes eActor, PlayerTypes eOther, SASGameRecordDiploRelationState& kState)
+{
+	CvPlayerAI const& kActor = GET_PLAYER(eActor);
+	CvPlayerAI const& kOther = GET_PLAYER(eOther);
+	kState.iActorAttitude = kActor.AI_getAttitudeVal(eOther);
+	kState.iOtherAttitude = kOther.AI_getAttitudeVal(eActor);
+	for (int iMemory = 0; iMemory < NUM_MEMORY_TYPES; iMemory++)
+	{
+		MemoryTypes const eMemory = (MemoryTypes)iMemory;
+		kState.aiActorMemory[iMemory] = kActor.AI_getMemoryCount(eOther, eMemory);
+		kState.aiOtherMemory[iMemory] = kOther.AI_getMemoryCount(eActor, eMemory);
+	}
+	kState.eActorWarPlan = GET_TEAM(kActor.getTeam()).AI_getWarPlan(kOther.getTeam());
+	kState.eOtherWarPlan = GET_TEAM(kOther.getTeam()).AI_getWarPlan(kActor.getTeam());
+	kState.bAtWar = GET_TEAM(kActor.getTeam()).isAtWar(kOther.getTeam());
+}
+
+// <!-- custom: These semantic labels are SASGameRecord schema, not reusable gameplay enums. Keep the private mapping beside the row formatter; CvGameCoreUtils retains only generic raw enum-token helpers such as getSASDiploEventType. (ChatGPT-5.6-Sol) -->
+static char const* getSASGameRecordDiploInteractionType(DiploEventTypes eDiploEvent)
+{
+	switch (eDiploEvent)
+	{
+	case DIPLOEVENT_GIVE_HELP:
+	case DIPLOEVENT_REFUSED_HELP:
+	case DIPLOEVENT_ASK_HELP:
+		return "HELP";
+	case DIPLOEVENT_ACCEPT_DEMAND:
+	case DIPLOEVENT_REJECTED_DEMAND:
+	case DIPLOEVENT_MADE_DEMAND:
+		return "DEMAND";
+	case DIPLOEVENT_CONVERT:
+	case DIPLOEVENT_NO_CONVERT:
+		return "RELIGION";
+	case DIPLOEVENT_REVOLUTION:
+	case DIPLOEVENT_NO_REVOLUTION:
+		return "CIVIC";
+	case DIPLOEVENT_JOIN_WAR:
+	case DIPLOEVENT_NO_JOIN_WAR:
+		return "JOIN_WAR";
+	case DIPLOEVENT_STOP_TRADING:
+	case DIPLOEVENT_NO_STOP_TRADING:
+		return "STOP_TRADING";
+	default:
+		return "-";
+	}
+}
+
+static char const* getSASGameRecordDiploInteractionOutcome(DiploEventTypes eDiploEvent, int iData1)
+{
+	switch (eDiploEvent)
+	{
+	case DIPLOEVENT_GIVE_HELP:
+	case DIPLOEVENT_ACCEPT_DEMAND:
+	case DIPLOEVENT_CONVERT:
+	case DIPLOEVENT_REVOLUTION:
+	case DIPLOEVENT_JOIN_WAR:
+	case DIPLOEVENT_STOP_TRADING:
+		return "ACCEPTED";
+	case DIPLOEVENT_REFUSED_HELP:
+	case DIPLOEVENT_REJECTED_DEMAND:
+	case DIPLOEVENT_NO_CONVERT:
+	case DIPLOEVENT_NO_REVOLUTION:
+	case DIPLOEVENT_NO_JOIN_WAR:
+	case DIPLOEVENT_NO_STOP_TRADING:
+		return "REFUSED";
+	case DIPLOEVENT_ASK_HELP:
+	case DIPLOEVENT_MADE_DEMAND:
+		return (iData1 > 0 ? "ACCEPTED" : "REFUSED");
+	default:
+		return "-";
+	}
+}
+
+static CvString getSASGameRecordDiploInteractionSubject(PlayerTypes eActor, DiploEventTypes eDiploEvent, int iData1)
+{
+	switch (eDiploEvent)
+	{
+	case DIPLOEVENT_CONVERT:
+	case DIPLOEVENT_NO_CONVERT:
+		return GET_PLAYER(eActor).getStateReligion() == NO_RELIGION ? CvString("-") : CvString(GC.getInfo(GET_PLAYER(eActor).getStateReligion()).getType());
+	case DIPLOEVENT_REVOLUTION:
+	case DIPLOEVENT_NO_REVOLUTION:
+		return GET_PLAYER(eActor).getFavoriteCivic() == NO_CIVIC ? CvString("-") : CvString(GC.getInfo(GET_PLAYER(eActor).getFavoriteCivic()).getType());
+	case DIPLOEVENT_JOIN_WAR:
+	case DIPLOEVENT_NO_JOIN_WAR:
+	case DIPLOEVENT_STOP_TRADING:
+	case DIPLOEVENT_NO_STOP_TRADING:
+		return getSASTeamDiagnosticText((TeamTypes)iData1);
+	default:
+		return CvString("-");
+	}
+}
+
+static CvString getSASGameRecordDiploMemoryChanges(PlayerTypes eActor, PlayerTypes eOther, SASGameRecordDiploRelationState const& kBefore, SASGameRecordDiploRelationState const& kAfter)
+{
+	CvString szChanges;
+	for (int iMemory = 0; iMemory < NUM_MEMORY_TYPES; iMemory++)
+	{
+		MemoryTypes const eMemory = (MemoryTypes)iMemory;
+		if (kBefore.aiActorMemory[iMemory] != kAfter.aiActorMemory[iMemory])
+		{
+			CvString szItem;
+			szItem.Format(szChanges.empty() ? "P%d:%s:%d>%d" : ",P%d:%s:%d>%d", eActor, getSASMemoryType(eMemory), kBefore.aiActorMemory[iMemory], kAfter.aiActorMemory[iMemory]);
+			szChanges += szItem;
+		}
+		if (kBefore.aiOtherMemory[iMemory] != kAfter.aiOtherMemory[iMemory])
+		{
+			CvString szItem;
+			szItem.Format(szChanges.empty() ? "P%d:%s:%d>%d" : ",P%d:%s:%d>%d", eOther, getSASMemoryType(eMemory), kBefore.aiOtherMemory[iMemory], kAfter.aiOtherMemory[iMemory]);
+			szChanges += szItem;
+		}
+	}
+	return getSASDiagnosticOrDash(szChanges);
+}
+
+void logSASGameRecordResolvedDiploInteraction(PlayerTypes eActor, DiploEventTypes eDiploEvent, PlayerTypes eOther, int iData1, SASGameRecordDiploRelationState const& kBefore, SASGameRecordDiploRelationState const& kAfter)
+{
+	bool const bOtherRequested = (eDiploEvent == DIPLOEVENT_ASK_HELP || eDiploEvent == DIPLOEVENT_MADE_DEMAND);
+	PlayerTypes const eRequester = (bOtherRequested ? eOther : eActor);
+	PlayerTypes const eResponder = (bOtherRequested ? eActor : eOther);
+	int const iRequesterAttitudeBefore = (bOtherRequested ? kBefore.iOtherAttitude : kBefore.iActorAttitude);
+	int const iRequesterAttitudeAfter = (bOtherRequested ? kAfter.iOtherAttitude : kAfter.iActorAttitude);
+	int const iResponderAttitudeBefore = (bOtherRequested ? kBefore.iActorAttitude : kBefore.iOtherAttitude);
+	int const iResponderAttitudeAfter = (bOtherRequested ? kAfter.iActorAttitude : kAfter.iOtherAttitude);
+	WarPlanTypes const eRequesterWarPlanBefore = (bOtherRequested ? kBefore.eOtherWarPlan : kBefore.eActorWarPlan);
+	WarPlanTypes const eRequesterWarPlanAfter = (bOtherRequested ? kAfter.eOtherWarPlan : kAfter.eActorWarPlan);
+	WarPlanTypes const eResponderWarPlanBefore = (bOtherRequested ? kBefore.eActorWarPlan : kBefore.eOtherWarPlan);
+	WarPlanTypes const eResponderWarPlanAfter = (bOtherRequested ? kAfter.eActorWarPlan : kAfter.eOtherWarPlan);
+
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_INTERACTION requester=%d responder=%d interaction=%s outcome=%s subject=%s event=%s requesterAttitudeValue=%d>%d responderAttitudeValue=%d>%d memoryChanges=%s requesterWarPlan=%s>%s responderWarPlan=%s>%s atWar=%d>%d",
+			GC.getGame().getGameTurn(), eRequester, eResponder, getSASGameRecordDiploInteractionType(eDiploEvent), getSASGameRecordDiploInteractionOutcome(eDiploEvent, iData1), getSASGameRecordDiploInteractionSubject(eActor, eDiploEvent, iData1).GetCString(), getSASDiploEventType(eDiploEvent),
+			iRequesterAttitudeBefore, iRequesterAttitudeAfter, iResponderAttitudeBefore, iResponderAttitudeAfter, getSASGameRecordDiploMemoryChanges(eActor, eOther, kBefore, kAfter).GetCString(),
+			getSASWarPlanType(eRequesterWarPlanBefore), getSASWarPlanType(eRequesterWarPlanAfter), getSASWarPlanType(eResponderWarPlanBefore), getSASWarPlanType(eResponderWarPlanAfter), kBefore.bAtWar ? 1 : 0, kAfter.bAtWar ? 1 : 0);
+}
+
+// <!-- custom: CvPlayer::AI_considerOfferExternal is the EXE's submitted human->AI offer boundary rather than a speculative internal valuation call. Preserve rejected packages too; accepted packages will additionally produce the existing DIPLO_DEAL row. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDiploOfferEvaluated(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives, int iChange, bool bAccepted, SASGameRecordDiploRelationState const& kBefore, SASGameRecordDiploRelationState const& kAfter)
+{
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_OFFER_EVALUATED proposer=%d responder=%d outcome=%s change=%d proposerGives=%s responderGives=%s proposerAttitudeValue=%d>%d responderAttitudeValue=%d>%d memoryChanges=%s atWar=%d",
+			GC.getGame().getGameTurn(), eProposer, eResponder, bAccepted ? "ACCEPTED" : "REJECTED", iChange, getSASTradeListText(kProposerGives, eProposer).GetCString(), getSASTradeListText(kResponderGives, eResponder).GetCString(),
+			kBefore.iOtherAttitude, kAfter.iOtherAttitude, kBefore.iActorAttitude, kAfter.iActorAttitude, getSASGameRecordDiploMemoryChanges(eResponder, eProposer, kBefore, kAfter).GetCString(), kBefore.bAtWar ? 1 : 0);
+}
+
+// <!-- custom: The EXE counterproposal wrapper exposes the exact submitted package plus the additions selected by the AI. Log only this resolved boundary, not the many internal candidate/value calculations used to construct it. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kOriginalProposerGives, CLinkList<TradeData> const& kOriginalResponderGives, CLinkList<TradeData> const& kProposerAdds, CLinkList<TradeData> const& kResponderAdds, bool bProposed)
+{
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=DIPLO_COUNTERPROPOSAL proposer=%d responder=%d outcome=%s originalProposerGives=%s originalResponderGives=%s proposerAdds=%s responderAdds=%s",
+			GC.getGame().getGameTurn(), eProposer, eResponder, bProposed ? "PROPOSED" : "NONE", getSASTradeListText(kOriginalProposerGives, eProposer).GetCString(), getSASTradeListText(kOriginalResponderGives, eResponder).GetCString(), getSASTradeListText(kProposerAdds, eProposer).GetCString(), getSASTradeListText(kResponderAdds, eResponder).GetCString());
+}
+
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer)
 {
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=RELIGION_FOUNDED player=%d religion=%s", GC.getGame().getGameTurn(), ePlayer, getSASGameRecordReligionType(eReligion));

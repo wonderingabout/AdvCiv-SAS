@@ -16,6 +16,9 @@ void startSASGameRecordLogForLoadedSave();
 class CvCity;
 class CvPlot;
 class CvUnit;
+// <!-- custom: Diplomacy logging declarations below use TradeData and CLinkList only by reference. Forward declarations avoid pulling trade-list implementation headers into every SASGameRecordLog.h includer. (ChatGPT-5.6-Sol) -->
+struct TradeData;
+template <class tVARTYPE> class CLinkList;
 // <!-- custom: Capture a plot before a logical action so one combined record can describe terrain, feature, resource, improvement, route and permanent event-yield changes.
 // The default constructor initializes safe NO_* enum and zero yield values without map lookups, letting caller-gated hooks avoid capture work when game-record logging is disabled. (GPT-5.6-Sol) -->
 struct SASGameRecordPlotState
@@ -56,6 +59,23 @@ void logSASGameRecordWarEnded(TeamTypes eTeam, TeamTypes eOtherTeam, int iTeamAW
 void logSASGameRecordTeamMerged(TeamTypes eSurvivingTeam, TeamTypes eAbsorbedTeam);
 void logSASGameRecordTeamMet(TeamTypes eTeam, TeamTypes eOtherTeam, bool bNewDiplo, int iX1, int iY1, int iX2, int iY2, CvPlot const* pTeamContactPlot, CvPlot const* pOtherContactPlot);
 void logSASGameRecordPlayerGoldTrade(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, int iAmount);
+// <!-- custom: Capture only the compact relationship state needed to describe a resolved human diplomacy interaction before/after CvPlayer::handleDiploEvent. Callers gate at SASGameRecord level 2+ before capture. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordDiploRelationState
+{
+	int iActorAttitude;
+	int iOtherAttitude;
+	int aiActorMemory[NUM_MEMORY_TYPES];
+	int aiOtherMemory[NUM_MEMORY_TYPES];
+	WarPlanTypes eActorWarPlan;
+	WarPlanTypes eOtherWarPlan;
+	bool bAtWar;
+};
+bool isSASGameRecordResolvedDiploInteraction(DiploEventTypes eDiploEvent);
+void captureSASGameRecordDiploRelationState(PlayerTypes eActor, PlayerTypes eOther, SASGameRecordDiploRelationState& kState);
+void logSASGameRecordResolvedDiploInteraction(PlayerTypes eActor, DiploEventTypes eDiploEvent, PlayerTypes eOther, int iData1, SASGameRecordDiploRelationState const& kBefore, SASGameRecordDiploRelationState const& kAfter);
+// <!-- custom: EXE trade-table wrappers expose authoritative submitted human->AI offer/counterproposal boundaries. Call only at level 2+ so exact trade-list serialization stays out of disabled/low-detail logging. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordDiploOfferEvaluated(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives, int iChange, bool bAccepted, SASGameRecordDiploRelationState const& kBefore, SASGameRecordDiploRelationState const& kAfter);
+void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kOriginalProposerGives, CLinkList<TradeData> const& kOriginalResponderGives, CLinkList<TradeData> const& kProposerAdds, CLinkList<TradeData> const& kResponderAdds, bool bProposed);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer);
 void logSASGameRecordGoldenAge(PlayerTypes ePlayer, bool bStart);
