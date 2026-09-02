@@ -69,10 +69,6 @@
 /LLM_Helpers/context/mapscript_refs/**/*.py         -diff linguist-vendored
 /LLM_Helpers/context/mapscript_refs/**/*.txt        -diff linguist-vendored
 /LLM_Helpers/context/mapscript_refs/**/*.properties -diff linguist-vendored
-# <!-- custom: Retain former-path diff rules for the one-time imported-reference relocation; current files use the canonical context path above. (GPT-5.6-Sol) -->
-/LLM_Helpers/map_refs/**/*.py         -diff
-/LLM_Helpers/map_refs/**/*.txt        -diff
-/LLM_Helpers/map_refs/**/*.properties -diff
 
 # <!-- custom: Expand the immutable SAS version-anchor describe string plus exact commit/date into the runtime archive marker for GitHub/git-archive downloads.
 # The anchor version + Git describe distance reproduces the practical commit count without a manually maintained VERSION file.
