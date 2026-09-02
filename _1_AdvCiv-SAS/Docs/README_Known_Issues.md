@@ -711,14 +711,14 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#619 - (Fixed AdvCiv attitude-cache timing regression) Annual deals deferred cache refresh in only one direction](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-619)\
 [KI#620 - (Fixed inherited legacy-war-AI bundle defect exposed by AdvCiv) Defensive Pact cascade wars could be purchased twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-620)\
 [KI#621 - (Provisional Pending inherited bundle incompatibility worsened by AdvCiv) Vassalage and a Defensive Pact can create an orphan relation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-621)\
-[KI#622 - (Prepared complete fix for inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622)\
+[KI#622 - (Fixed inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-622)\
 [KI#623 - (Pending Architectural inherited K-Mod pathfinder defect incompletely addressed by AdvCiv) Reparented paths retain stale danger legality](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-623)\
 [KI#624 - (Provisional Pending inherited K-Mod pathfinder defect) An over-limit route can overwrite a valid bounded path](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-624)\
 [KI#625 - (Provisional Pending inherited K-Mod group-path cost defect) Maximum-cost unit overwrites minimum moves left](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-625)\
 [KI#626 - (Pending Architectural inherited K-Mod group-path state defect) Shared minimum moves fabricate per-unit movement](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-626)\
 [KI#627 - (Provisional Pending incomplete AdvCiv pathfinder repair) Pre-war route simulation checks only the destination endpoint](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-627)\
 [KI#628 - (Provisional Pending inherited K-Mod sea-path heuristic defect) Discounted fog steps can produce a suboptimal exploration route](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-628)\
-[KI#629 - (Prepared expanded fix for minor SAS BBAI logging defect) Distinguish process and game/load UTC identities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-629)\
+[KI#629 - (Fixed minor SAS BBAI logging defect; repair expanded across BBAI and SASGameRecord) Distinguish process and game/load UTC identities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-629)\
 [KI#630 - (Provisional Pending AdvCiv random-event popup regression) Revalidation creates and leaks a second randomized trigger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-630)\
 [KI#631 - (Provisional Pending inherited BtS lead-unit popup defect) Teammate units can alias an own unit by player-local ID](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-631)\
 [KI#632 - (Provisional Pending inherited BtS election-popup defect) None can leak its selection or propose an unrelated resolution](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-632)\
@@ -885,7 +885,25 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#793 - (Provisional Pending AdvCiv Permanent-Alliance cache defect) Human-involved alliances leave AgentIterator member caches stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-793)\
 [KI#794 - (Provisional Pending inherited war-weariness cache defect with ineffective AdvCiv repair) Team elimination leaves former enemies angry for another turn](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-794)\
 [KI#795 - (Provisional Pending inherited BtS Advanced Start legality defect) Railroad can be purchased without Coal or Oil](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-795)\
-[KI#796 - (Provisional Pending investigation) F473 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-796)\
+[KI#796 - (Provisional Pending inherited BBAI/K-Mod colony lifecycle regression) A recycled colony can revive a dead team's stale technology state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-796)\
+[KI#797 - (Provisional Pending AdvCiv AgentIterator cache defect) Recycled colonies duplicate ever-alive entries](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-797)\
+[KI#798 - (Provisional Pending inherited midgame event-state defect with incomplete BBAI repair) A new colony can repeat an expired global event](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-798)\
+[KI#799 - (Provisional Pending inherited BtS building-commerce cache defect) State-religion changes leave religious-building commerce stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-799)\
+[KI#800 - (Provisional Pending inherited recycled-player identity defect) Historical owner references alias a new colony](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-800)\
+[KI#801 - (Provisional Pending inherited recycled-player plot-group lifetime defect) Old IDs can create a false trade network](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-801)\
+[KI#802 - (Provisional Pending inherited BBAI/K-Mod recycled-team cleanup defect) A colony can inherit an extinct civilization's blockade](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-802)\
+[KI#803 - (Provisional Pending inherited BtS first-discovery defect exposed by SAS data) A cityless teammate can consume a religion slot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-803)\
+[KI#804 - (Provisional Pending inherited BtS first-free-unit defect exposed by SAS data) A cityless discoverer silently loses its reward](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-804)\
+[KI#805 - (Provisional Pending inherited BtS mixed-team first-free-tech defect exposed by SAS data) An AI recipient receives a human-only popup](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-805)\
+[KI#806 - (Provisional Pending inherited Warlords/BtS vassal-score defect) A surviving master team loses score when one teammate dies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-806)\
+[KI#807 - (Provisional Pending AdvCiv espionage-cost integration regression) Generic Steal Technology can hide an affordable target](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-807)\
+[KI#808 - (Provisional Pending inherited BtS Advanced Start destructive-fallback defect with incomplete AdvCiv hardening) Foreign units and routes can be removed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-808)\
+[KI#809 - (Provisional Pending inherited BtS event target-validation defect) A vanished required unit is treated as legal](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-809)\
+[KI#810 - (Provisional Pending inherited BtS event transaction-ordering defect) A rejected stale choice can consume a global trigger](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-810)\
+[KI#811 - (Provisional Pending AdvCiv technology-brokering integration regression) Significant non-trade discoveries bypass restrictions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-811)\
+[KI#812 - (Rejected duplicate of KI#811) Post-acquisition significant-discovery checks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-812)\
+[KI#813 - (Provisional Pending AdvCiv HotSeat message-ownership defect) A major event can be deleted twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-813)\
+[KI#814 - (Provisional Pending investigation) F491 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-814)\
 
 <a id="ki-1"></a>
 
@@ -13893,15 +13911,15 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C025 `CvDeal.cpp` au
 
 <a id="ki-622"></a>
 
-## KI#622 - (Prepared complete fix for inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle
+## KI#622 - (Fixed inherited BUG/K-Mod integration and AdvCiv shortcut handoff) Consumed input and Ctrl+Z debug toggle
 
 Album F299 found native `CvDllPythonEvents` correctly returning whether Python consumed keyboard or mouse input, and BUG's `_handleConsumableEvent` correctly computing the positive result, but `BugEventManager.handleEvent` discarding `_dispatchEvent`'s return one frame before `CvEventInterface.onEvent` returns to C++. Python shortcuts could therefore execute while the engine was never told that the input was consumed, permitting native/interface fall-through depending on the active key or screen. Base AdvCiv 1.14 and supplied K-Mod contain the same missing return; stock `CvEventManager` preserves it and Civ4CE/BtS do not supply this BUG override.
 
-The initial prepared repair returned `_dispatchEvent(...)` from the live BUG wrapper. Consumable keyboard and mouse handlers could then propagate integer `1` through the existing Python and native boundary, while ordinary notification handlers continued returning `None` and retained their unconsumed semantics. Testing on an AZERTY keyboard exposed a real companion contract: Ctrl+Z stopped toggling Debug mode, while an unrelated Ctrl+Shift+X shortcut still worked. AdvCiv's registered Python Ctrl+Z handler had deliberately toggled only when `ChtLvl <= 0`, relying on the native Ctrl+Z fallback when `ChtLvl > 0`; correct consumed-event propagation now prevented that fallback.
+The initial repair returned `_dispatchEvent(...)` from the live BUG wrapper. Consumable keyboard and mouse handlers could then propagate integer `1` through the existing Python and native boundary, while ordinary notification handlers continued returning `None` and retained their unconsumed semantics. Testing on an AZERTY keyboard exposed a real companion contract: Ctrl+Z stopped toggling Debug mode, while an unrelated Ctrl+Shift+X shortcut still worked. AdvCiv's registered Python Ctrl+Z handler had deliberately toggled only when `ChtLvl <= 0`, relying on the native Ctrl+Z fallback when `ChtLvl > 0`; correct consumed-event propagation now prevented that fallback.
 
 The completed repair also makes the registered Python Ctrl+Z handler call `CvGame::toggleDebugMode` in every cheat-level configuration. Python therefore owns and consumes the shortcut consistently, preserving ordinary single-player Debug-mode toggling without allowing the native path to toggle it a second time. This also retains AdvCiv's intended multiplayer support because the DLL function still applies `isDebugToolsAllowed` and its multiplayer permission rules; that path was source-verified but not tested in multiplayer. An AZERTY single-player retest confirmed that Ctrl+Z toggles Debug mode again.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C026 `CvDllPythonEvents.cpp` audit; disposition indexed with the help of GPT-5.6-Sol, thanks.
+Found during ChatGPT-5.6-Sol's C026 `CvDllPythonEvents.cpp` audit; implemented, reviewed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-623"></a>
 
@@ -13953,17 +13971,17 @@ Found and documented provisionally during ChatGPT-5.6-Sol's C028 `GroupPathFinde
 
 <a id="ki-629"></a>
 
-## KI#629 - (Prepared expanded fix for minor SAS BBAI logging defect) Distinguish process and game/load UTC identities
+## KI#629 - (Fixed minor SAS BBAI logging defect; repair expanded across BBAI and SASGameRecord) Distinguish process and game/load UTC identities
 
 Album F306 found `rollSASBBAILog` refreshing `g_szSASBBAILogTimestamp` only when timestamped filenames are enabled. In supported fixed-name mode, later new games and loaded saves correctly keep appending to the fixed BBAI filename, but their `BBAI_NEW_GAME_INITIALIZING`, `BBAI_NEW_GAME_STARTED` and `BBAI_SAVE_LOADED` identity rows retained the first session's UTC instead of identifying the current session. This is SAS-specific lifecycle behavior introduced with practical 6011.
 
-The prepared repair follows the existing SASGameRecord rollover separation: every BBAI new/load roll refreshes its `utc`, while only timestamped-filename mode advances the filename context and sequence. The default `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1` behavior is unchanged: every new game and loaded save still creates its own timestamped BBAI file, matching SASGameRecord's convenient lifecycle. Optional fixed mode continues appending to `BBAI.log` or `BBAI<activePlayer>.log`, but each identity header records the current game's new/load time. The scope is expanded coherently across both diagnostic systems: BBAI and SASGameRecord identity rows place a stable `processUtc` first, followed by plain `utc`, whose exact new-game, save-load or snapshot meaning is already supplied by the row type. One DLL-load `CvGameCoreUtils` value supplies `processUtc` to both systems, preventing a one-second drift if their former independent initializers crossed a UTC-second boundary. This preserves both every log produced during the same Civ4 launch and the individual lifecycle event without inventing an ambiguous second session/game noun. SASGameRecord already refreshed its per-roll timestamp; its change is the matching process identity and ordering rather than a second stale-timestamp defect.
+The implemented repair follows the existing SASGameRecord rollover separation: every BBAI new/load roll refreshes its `utc`, while only timestamped-filename mode advances the filename context and sequence. The default `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=1` behavior is unchanged: every new game and loaded save still creates its own timestamped BBAI file, matching SASGameRecord's convenient lifecycle. Optional fixed mode continues appending to `BBAI.log` or `BBAI<activePlayer>.log`, but each identity header records the current game's new/load time. The scope is expanded coherently across both diagnostic systems: BBAI and SASGameRecord identity rows place a stable `processUtc` first, followed by plain `utc`, whose exact new-game, save-load or snapshot meaning is already supplied by the row type. One DLL-load `CvGameCoreUtils` value supplies `processUtc` to both systems, preventing a one-second drift if their former independent initializers crossed a UTC-second boundary. This preserves both every log produced during the same Civ4 launch and the individual lifecycle event without inventing an ambiguous second session/game noun. SASGameRecord already refreshed its per-roll timestamp; its change is the matching process identity and ordering rather than a second stale-timestamp defect.
 
 A same-process fixed-name test empirically confirmed the repair in `BBAI.log`: a loaded save recorded `processUtc=20260830T055326Z utc=20260830T055335Z`, then a new game retained the same `processUtc` and recorded `utc=20260830T055452Z`. The file remained the intended shared `BBAI.log`; timestamped `BBAI_*.log` files were not expected while `SAS_BBAI_LOG_USE_TIMESTAMPED_FILENAME=0`.
 
 After centralization, a default timestamped-mode load/new retest confirmed matching identities across both systems: each BBAI/SASGameRecord pair recorded `processUtc=20260830T061842Z` and the same lifecycle `utc` (`20260830T061859Z` for the load, `20260830T061933Z` for the new game), while all four remained independent timestamped files as intended.
 
-Found and documented provisionally during ChatGPT-5.6-Sol's C029 `BBAILog.cpp` audit; disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found during ChatGPT-5.6-Sol's C029 `BBAILog.cpp` audit; implemented, reviewed and documented with the help of GPT-5.6-Sol, and tested with the help of wonderingabout, thanks.
 
 <a id="ki-630"></a>
 
@@ -15615,8 +15633,154 @@ Found as F472/provisional KI#795 during ChatGPT-5.6-Sol's C031-WIP193 `CvPlayer.
 
 <a id="ki-796"></a>
 
-## KI#796 - (Provisional Pending investigation) F473 remains unassigned during the CvPlayer deep re-audit
+## KI#796 - (Provisional Pending inherited BBAI/K-Mod colony lifecycle regression) A recycled colony can revive a dead team's stale technology state
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444 and F446-F472 through C031-WIP193, retracts F445/KI#768, and reserves F473 next. Do not implement a change under KI#796 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+BBAI replaced BtS's unconditional recycled-team reset with a test that treats every assigned teammate as evidence that the old team still exists, even when all those players and the team are dead. Recycling one member of a fully defeated multi-member team therefore resets the player but preserves stale team technologies; persistent player-level technology effects can then disagree with the revived team state. K-Mod, Base AdvCiv 1.14 and SAS inherit the regression. The conservative repair is to recycle only dead singleton-team slots, unless full team detachment, reset and dependent-cache reconstruction are implemented.
 
-Reserved during ChatGPT-5.6-Sol's C031-WIP193 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found as F473/provisional KI#796 during ChatGPT-5.6-Sol's C031-WIP196 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-797"></a>
+
+## KI#797 - (Provisional Pending AdvCiv AgentIterator cache defect) Recycled colonies duplicate ever-alive entries
+
+AdvCiv's colony-created cache hook unconditionally inserts the new player and team into `CIV_EVER_ALIVE`. A defeated slot was deliberately retained there as historical state, so recycling even a clean singleton-team slot inserts the same pointers twice. Consumers such as known-technology team counts can then overcount that team and suppress first-discovery rewards. BtS and K-Mod lack this `AgentIterator` cache layer; Base AdvCiv 1.14 and SAS retain the integration defect. Ever-alive insertion must be uniqueness-preserving rather than merely suppressing its duplicate assertion.
+
+Found as F474/provisional KI#797 during ChatGPT-5.6-Sol's C031-WIP197 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-798"></a>
+
+## KI#798 - (Provisional Pending inherited midgame event-state defect with incomplete BBAI repair) A new colony can repeat an expired global event
+
+Midgame player initialization clears durable trigger-fired state and attempts to reconstruct it from short-lived EventInfo occurrence records. Ordinary non-quest occurrences expire after two turns while their non-recurring trigger identity must remain permanent, so a colony created later—even in a never-alive slot—can forget an old global trigger and become eligible to fire it again. BtS has the broader late-player problem; BBAI/K-Mod attempted an incomplete reconstruction retained by Base AdvCiv and SAS. Initialization should inherit global/team trigger identity from other players' durable fired-trigger state, without inheriting local history from a recycled identity.
+
+Found as F475/provisional KI#798 during ChatGPT-5.6-Sol's C031-WIP198 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-799"></a>
+
+## KI#799 - (Provisional Pending inherited BtS building-commerce cache defect) State-religion changes leave religious-building commerce stale
+
+City building-commerce caches include player-level state-religion identity and empire-wide state-religion building-commerce bonuses, but changing religion, crossing the state-religion civic boundary, or changing that bonus does not rebuild the cache. Religious buildings can therefore retain or miss Spiral Minaret, University of Sankore and similar commerce until the later turn-boundary safety rebuild. The invalidation omission exists in BtS/Civ4CE and K-Mod and remains in Base AdvCiv 1.14 and SAS. Every transition of either external input should immediately recompute the affected cities' building commerce.
+
+Found as F476/provisional KI#799 during ChatGPT-5.6-Sol's C031-WIP199 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-800"></a>
+
+## KI#800 - (Provisional Pending inherited recycled-player identity defect) Historical owner references alias a new colony
+
+When no never-alive slot remains, inherited colony logic can reuse a defeated `PlayerTypes` value for a new civilization. BBAI's recycled-player cleanup clears per-player-indexed data but not persistent values naming the old identity, including city original/previous owners, building original owners and revealed plot owners. Those records then silently name the unrelated colony, affecting current SAS mechanics such as original-owner-only Great Library Culture and Max City Elimination counters. BtS already permits slot reuse; BBAI/K-Mod, Base AdvCiv and SAS retain the incomplete cleanup. The safest architectural repair is to stop recycling `EVER_ALIVE` identities rather than maintain an open-ended scrub list.
+
+Found as F477/provisional KI#800 during ChatGPT-5.6-Sol's C031-WIP200 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-801"></a>
+
+## KI#801 - (Provisional Pending inherited recycled-player plot-group lifetime defect) Old IDs can create a false trade network
+
+Recycled-player cleanup destroys the old player's plot-group free-list without invalidating that player's group IDs stored on every plot. The new colony's fresh free-list can reuse the same numeric IDs, rebinding geographically unrelated old plots into real new groups; normal rebuilding can preserve the alias and incorrectly permit resource trade across a nonexistent network. K-Mod/BBAI contain the same omitted cleanup and reusable IDs, and Base AdvCiv 1.14 and SAS inherit them. Refusing `EVER_ALIVE` slot reuse also cures this root; otherwise every raw per-plot ID must be invalidated before new groups are allocated.
+
+Found as F478/provisional KI#801 during ChatGPT-5.6-Sol's C031-WIP201 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-802"></a>
+
+## KI#802 - (Provisional Pending inherited BBAI/K-Mod recycled-team cleanup defect) A colony can inherit an extinct civilization's blockade
+
+When an enemy blockader survives the last player of its target team, war teardown makes the target dead before the unit later removes its blockade; the alive-team removal iterator then omits that target, permanently stranding serialized per-plot blockade counts. BBAI/K-Mod recycled-team cleanup does not clear them, so a new colony reusing the team ID can be unable to work valid coastal tiles and can acquire a false blockaded trade network. Base AdvCiv and SAS inherit this cleanup/lifetime defect. Team reinitialization should clear its map-side blockade counts through an invalidating mutator; refusing `EVER_ALIVE` identity reuse also prevents the recycled manifestation.
+
+Found as F479/provisional KI#802 during ChatGPT-5.6-Sol's C031-WIP203 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-803"></a>
+
+## KI#803 - (Provisional Pending inherited BtS first-discovery defect exposed by SAS data) A cityless teammate can consume a religion slot
+
+The inherited team first-discovery selector can choose any alive member to found a religion, but `foundReligion` requires that selected player to own a city. The religion slot is reserved before placement and remains permanently taken when a cityless teammate is chosen. AdvCiv's goody safeguard checks only the hut owner; current SAS makes the gap reachable because Calendar, Paper and Navigation are both religion prerequisites and GoodyTechs. Candidate founders must own a usable city, and the slot must remain available or be explicitly deferred when none does.
+
+Found as F480/provisional KI#803 during ChatGPT-5.6-Sol's C031-WIP204 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-804"></a>
+
+## KI#804 - (Provisional Pending inherited BtS first-free-unit defect exposed by SAS data) A cityless discoverer silently loses its reward
+
+The inherited first-discovery free-unit path marks the one-time reward but creates it only in the credited player's capital. An alive never-settled player can fully discover a technology from a goody hut while owning units but no city, making the null-capital branch silently discard the reward with no deferred entitlement. Current SAS exposes this through Romanticism, which is both a GoodyTech and awards a Great Artist. A valid first discovery must create the unit at a deliberately selected valid site or persist an owed reward until placement becomes possible.
+
+Found as F481/provisional KI#804 during ChatGPT-5.6-Sol's C031-WIP205 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-805"></a>
+
+## KI#805 - (Provisional Pending inherited BtS mixed-team first-free-tech defect exposed by SAS data) An AI recipient receives a human-only popup
+
+The inherited first-free-technology branch chooses AI versus popup handling from the whole team's humanity, then invokes that path on the specific credited player. When an AI teammate supplies the final research for Theory of Evolution on a mixed human/AI team, team humanity routes the AI's reward into `chooseTech`: Debug asserts, while Release queues an unusable human-only popup and leaves a serialized free-tech token on the AI. The branch must test the recipient player's control type, or explicitly transfer both reward and ownership to a human recipient.
+
+Found as F482/provisional KI#805 during ChatGPT-5.6-Sol's C031-WIP206 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-806"></a>
+
+## KI#806 - (Provisional Pending inherited Warlords/BtS vassal-score defect) A surviving master team loses score when one teammate dies
+
+Each master player receives an equal fraction of the team's half-share of living vassals' population and land score, divided by persistent team membership. A dead master teammate contributes zero player score but remains counted in that divisor, so its fraction disappears instead of moving to surviving teammates; with two original members, the master team retains only one quarter rather than one half of the vassal's raw contribution. The Warlords/BtS arithmetic remains in Civ4CE, K-Mod, Base AdvCiv and SAS and can affect Time-victory ranking. The divisor should use the number of currently alive master members.
+
+Found as F483/provisional KI#806 during ChatGPT-5.6-Sol's C031-WIP208 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-807"></a>
+
+## KI#807 - (Provisional Pending AdvCiv espionage-cost integration regression) Generic Steal Technology can hide an affordable target
+
+AdvCiv changed actual Steal Technology pricing from full research cost to the acting team's remaining research, but its extracted generic target helper still selects the technology with the lowest full cost. A more expensive technology that is almost researched can therefore be affordable while the mismatched generic candidate is not, causing the human espionage popup's first-phase affordability gate to hide the entire mission before specific targets are listed. BtS and K-Mod consistently use full cost for both operations; SAS inherits the AdvCiv integration regression. The helper should minimize remaining research so generic selection, specific prices and Foreign Advisor representation agree.
+
+Found as F484/provisional KI#807 during ChatGPT-5.6-Sol's C031-WIP211 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-808"></a>
+
+## KI#808 - (Provisional Pending inherited BtS Advanced Start destructive-fallback defect with incomplete AdvCiv hardening) Foreign units and routes can be removed
+
+The stock Advanced Start screen can send unit and route removals for revealed foreign plots and relies on DLL validation. Initial plot-aware cost checks correctly reject those targets, but the fallback substitutes the first actual unit or route and destroys it without requiring the replacement query to succeed. BtS/K-Mod can delete and refund foreign assets; AdvCiv preserved plot context for the unit query but still treats its `-1` plus assertion as authorization, charging one point while deleting the foreign unit, and left the route fallback unchanged. SAS inherits both. Every substituted asset must pass the same plot-aware runtime validation before mutation; assertions remain diagnostic only.
+
+Found as F485/provisional KI#808 during ChatGPT-5.6-Sol's C031-WIP212 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-809"></a>
+
+## KI#809 - (Provisional Pending inherited BtS event target-validation defect) A vanished required unit is treated as legal
+
+Reply-time random-event validation rejects an existing unit that cannot receive an event, but treats a missing stored unit as valid. Event bookkeeping and non-unit effects can consequently proceed while the required unit-local payload silently does nothing. Current At the Sword data gives a direct simultaneous-multiplayer example: its damaged Swordsman can vanish while the human popup waits, yet the global non-recurring event is recorded and consumed without healing, experience or renaming. BtS, K-Mod, Base AdvCiv and SAS share the defect. Events with concrete unit-local effects must require the stored unit to exist and remain eligible at the synchronized validation boundary.
+
+Found as F486/provisional KI#809 during ChatGPT-5.6-Sol's C031-WIP213 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-810"></a>
+
+## KI#810 - (Provisional Pending inherited BtS event transaction-ordering defect) A rejected stale choice can consume a global trigger
+
+`applyEvent` durably marks and globally propagates a trigger as fired before its authoritative reply-time `canDoEvent` check. If a human event popup becomes stale in simultaneous multiplayer—for example, another player captures the selected Horticulture city—the validation correctly rejects the choice and applies no event, but the global non-recurring trigger remains permanently consumed. This ordering is inherited unchanged from BtS through K-Mod and Base AdvCiv; AdvCiv's launcher already states that unavailable events must not count as triggered. The synchronized transaction must validate first and commit trigger-fired state only for a legal event.
+
+Found as F487/provisional KI#810 during ChatGPT-5.6-Sol's C031-WIP214 `CvPlayer.cpp` deep re-audit; disposition reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-811"></a>
+
+## KI#811 - (Provisional Pending AdvCiv technology-brokering integration regression) Significant non-trade discoveries bypass restrictions
+
+AdvCiv intentionally exempts insignificant received technologies from normal brokering restrictions, judging significance from the recipient's pre-acquisition research progress. Ordinary technology trade correctly snapshots that predicate before granting the technology, but Steal Technology, full Goody discovery and The Internet check only afterward—when known non-repeat technologies always have zero research left—while colonial inheritance asks the already-knowing parent instead of the receiving colony. Significant technologies from all four paths can therefore remain immediately brokerable, including while No Tech Brokering is enabled. BtS/K-Mod use older consistently restrictive handling; Base AdvCiv 1.14 and SAS inherit this AdvCiv integration/order regression. Each receiving path must evaluate the intended recipient before acquisition and apply the saved no-trade result afterward.
+
+C031-WIP222 established the exact historical contract break. AdvCiv practical 1481 introduced the significant-discovery exception while `getResearchLeft` still exposed stored pre-acquisition progress for known technologies; practical 2082 later made every already-known non-repeat technology report zero research left without moving the affected callers before `setHasTech`. The ordinary trade path already demonstrates the conservative repair by snapshotting significance before acquisition. This deeper evidence confirms KI#811 rather than constituting another defect.
+
+Found as F488/provisional KI#811 during ChatGPT-5.6-Sol's C031-WIP217 `CvPlayer.cpp` deep re-audit; C031-WIP222 independently deepened its ancestry as F489 before duplicate reconciliation, and its disposition was reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-812"></a>
+
+## KI#812 - (Rejected duplicate of KI#811) Post-acquisition significant-discovery checks
+
+C031-WIP222 assigned F489 after tracing AdvCiv practical 2082's changed `getResearchLeft` contract through Steal Technology, full Goody discovery, The Internet and colonial inheritance. Those are the same producer, violated pre-acquisition-progress contract and No Tech Brokering consequence already recorded by F488/KI#811 in C031-WIP217. The later pass provides stronger ancestry and repair evidence for KI#811, but not an independent root cause; keep KI#812 as a greppable rejected duplicate rather than implementing it separately.
+
+Rejected during reconciliation of ChatGPT-5.6-Sol's C031-WIP222 `CvPlayer.cpp` deep re-audit with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-813"></a>
+
+## KI#813 - (Provisional Pending AdvCiv HotSeat message-ownership defect) A major event can be deleted twice
+
+AdvCiv's missed-message support allocates one `CvTalkingHeadMessage` and, for a major event delivered to the still-active human while an intervening AI takes its sequential HotSeat turn, stores the same raw pointer in both `m_aMajorMsgs` and `m_aHotSeatMsgs`. Both vectors independently own and delete their entries, so common message cleanup deletes the allocation twice and can corrupt the heap. Religion founding and other ordinary global major events provide current producers. Base AdvCiv 1.14 and SAS share the defect; K-Mod 1.46 and Civ4CE/BtS lack these added retained-message vectors. Allocate an independent message copy for each owning vector, or otherwise establish one unambiguous owner, rather than deduplicating only at a cleanup sink.
+
+Found as F490/provisional KI#813 during ChatGPT-5.6-Sol's C031-WIP223 `CvPlayer.cpp` deep re-audit; WIP224-WIP225 controlled nearby display, cleanup and lifecycle paths without establishing another root, and its disposition was reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-814"></a>
+
+## KI#814 - (Provisional Pending investigation) F491 remains unassigned during the CvPlayer deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444, F446-F488 and F490 through C031-WIP225, retracts F445/KI#768, duplicate-reconciles F489/KI#812 into F488/KI#811, and keeps F491 unused after checking retained-message siblings, acquisition/disband lifecycle, callbacks, Advanced Start substitutions and other authoritative stored state. Do not implement a change under KI#814 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved through ChatGPT-5.6-Sol's C031-WIP225 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
