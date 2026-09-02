@@ -87,7 +87,10 @@ void logSASGameRecordResearchCompleted(TechTypes eTech, TeamTypes eTeam, PlayerT
 // <!-- custom: Added eCause so the existing TECH_ACQUIRED action can name its explicit source. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
 void logSASGameRecordTechAcquired(TechTypes eType, TeamTypes eTeam, PlayerTypes ePlayer, TechAcquisitionCause eCause);
 void logSASGameRecordCityBuilt(CvCity const* pCity);
-void logSASGameRecordCityRazed(CvCity const* pCity, PlayerTypes ePlayer);
+// <!-- custom: City razing is rare but strategically consequential. Capture level-2 context immediately before destruction, then finalize after disband so exact land/population/victory deltas reflect what the raze actually changed.
+// The recorder owns the context stack and formatting; callers only pre-gate and bracket the existing raze. (ChatGPT-5.6-Sol) -->
+void beginSASGameRecordCityRaze(CvCity const* pCity, PlayerTypes ePlayer);
+void endSASGameRecordCityRaze(PlayerTypes ePlayer);
 void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade);
 void logSASGameRecordWarStarted(TeamTypes eDeclarer, TeamTypes eTarget, WarPlanTypes eWarPlan, bool bPrimaryDoW, bool bNewDiplo, PlayerTypes eSponsor, bool bRandomEvent, WarDeclarationCause eCause);
 // <!-- custom: Added the pre-reset war-success and peace-context parameters so synthetic war summaries retain the final result before Base AdvCiv's AI_postMakePeace clears it. (GPT-5.6-Sol) -->

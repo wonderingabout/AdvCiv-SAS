@@ -676,6 +676,65 @@ struct SASGameRecordResearchApplication
 	int iIncomingOverflowModified;
 };
 static SASGameRecordResearchApplication g_akSASGameRecordResearchApplication[MAX_PLAYERS];
+// <!-- custom: Raze diagnostics use a tiny LIFO context stack rather than exposing recorder-specific state to CvPlayer.
+// Python cityRazed callbacks can theoretically trigger nested gameplay, so a stack remains correct where one global pending slot would not. (ChatGPT-5.6-Sol) -->
+struct SASGameRecordCityRazeContext
+{
+	PlayerTypes eRazer;
+	TeamTypes eRazerTeam;
+	PlayerTypes ePreviousOwner;
+	TeamTypes ePreviousTeam;
+	PlayerTypes eOriginalOwner;
+	TeamTypes eOriginalTeam;
+	int iGameTurn;
+	int iCityId;
+	CvWString szCityName;
+	int iX;
+	int iY;
+	int iArea;
+	CvString szRazeMode;
+	int iPopulation;
+	int iHighestPopulation;
+	int iFoundedTurn;
+	int iAcquiredTurn;
+	int iOccupationTurns;
+	int iRazerCulturePercent;
+	int iPreviousCulturePercent;
+	PlayerTypes eHighestCulturePlayer;
+	int iHighestCulturePercent;
+	int iMaintenanceTimes100;
+	int iConnectedToCapital;
+	int iCapitalDistance;
+	int iCapitalSameArea;
+	int iNearestRazerCityDistance;
+	int iSameAreaRazerCitiesOther;
+	int iNearestPreviousOwnerCityDistance;
+	int iSameAreaPreviousOwnerCities;
+	int iBuildings;
+	int iRegularBuildings;
+	int iNationalWonders;
+	int iTeamWonders;
+	int iWorldWonders;
+	CvString szBuildings;
+	CvString szReligions;
+	CvString szHolyReligions;
+	CvString szCorporations;
+	CvString szHeadquarters;
+	int iPlayerCitiesBefore;
+	int iPlayerLandBefore;
+	int iPlayerPopulationBefore;
+	int iTeamCitiesBefore;
+	int iTeamLandBefore;
+	int iTeamPopulationBefore;
+	int iWorldPopulationBefore;
+	int iLandPctX100Before;
+	int iPopPctX100Before;
+	int iAIMaxVictoryStage;
+	int iAIConquestStage;
+	int iAIDominationStage;
+	CvString szLandPopVictoryProgressBefore;
+};
+static std::vector<SASGameRecordCityRazeContext> g_aSASGameRecordCityRazeContexts;
 static int g_aiSASGameRecordCitiesAcquired[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesLost[MAX_PLAYERS];
 static int g_aiSASGameRecordCitiesConquered[MAX_PLAYERS];
@@ -793,6 +852,8 @@ struct SASGameRecordPlotChangeGroup
 
 static int g_iSASGameRecordPendingPlotTurn = -1;
 
+// <!-- custom: Keep the city-bombard member named szMode. During the 6385 city-raze logging work it was accidentally renamed to szRazeMode while the existing bombard code still referenced szMode, causing MSVC C2039 compile errors.
+// The separate city-raze context intentionally owns szRazeMode instead. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordCityBombardPending
 {
 	bool bValid;
@@ -1200,6 +1261,7 @@ static void resetSASGameRecordState()
 	}
 	g_kSASGameRecordGlobalPrevious.bValid = false;
 	g_aSASGameRecordWars.clear();
+	g_aSASGameRecordCityRazeContexts.clear();
 	g_iSASGameRecordLastFullSnapshotTurn = -1;
 	g_iSASGameRecordBattleStartTurn = GC.getGame().getGameTurn();
 	g_iSASGameRecordFlowStartTurn = GC.getGame().getGameTurn();
@@ -6084,12 +6146,198 @@ void logSASGameRecordCityBuilt(CvCity const* pCity)
 	}
 }
 
-void logSASGameRecordCityRazed(CvCity const* pCity, PlayerTypes ePlayer)
+// <!-- custom: Land/population victory thresholds can change with world state, so serialize every enabled victory that actually uses either criterion rather than assuming one XML name such as VICTORY_DOMINATION.
+// L/P values are current/required percentages multiplied by 100; M is whether all applicable land/population criteria are met at this exact boundary. (ChatGPT-5.6-Sol) -->
+static CvString getSASGameRecordLandPopulationVictoryProgress(TeamTypes eTeam)
 {
-	if (pCity == NULL)
+	CvGame const& kGame = GC.getGame();
+	CvTeam const& kTeam = GET_TEAM(eTeam);
+	int const iLandPlots = std::max(1, GC.getMap().getLandPlots());
+	int const iWorldPopulation = std::max(1, kGame.getTotalPopulation());
+	int const iLandPctX100 = (10000 * kTeam.getTotalLand()) / iLandPlots;
+	int const iPopPctX100 = (10000 * kTeam.getTotalPopulation()) / iWorldPopulation;
+	CvString szResult;
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		int const iLandNeed = kGame.getAdjustedLandPercent(eLoopVictory);
+		int const iPopNeed = kGame.getAdjustedPopulationPercent(eLoopVictory);
+		if (iLandNeed <= 0 && iPopNeed <= 0)
+			continue;
+		bool const bLandMet = (iLandNeed <= 0 || 100 * kTeam.getTotalLand() >= GC.getMap().getLandPlots() * iLandNeed);
+		bool const bPopMet = (iPopNeed <= 0 || 100 * kTeam.getTotalPopulation() >= kGame.getTotalPopulation() * iPopNeed);
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s:L%d/%d:P%d/%d:M%d" : ";%s:L%d/%d:P%d/%d:M%d",
+				GC.getInfo(eLoopVictory).getType(), iLandNeed <= 0 ? -1 : iLandPctX100, iLandNeed <= 0 ? -1 : 100 * iLandNeed,
+				iPopNeed <= 0 ? -1 : iPopPctX100, iPopNeed <= 0 ? -1 : 100 * iPopNeed, bLandMet && bPopMet);
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+static CvString getSASGameRecordCityReligionList(CvCity const& kCity, bool bHolyOnly)
+{
+	CvString szResult;
+	FOR_EACH_ENUM(Religion)
+	{
+		if ((bHolyOnly && !kCity.isHolyCity(eLoopReligion)) || (!bHolyOnly && !kCity.isHasReligion(eLoopReligion)))
+			continue;
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordReligionType(eLoopReligion));
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+static CvString getSASGameRecordCityCorporationList(CvCity const& kCity, bool bHeadquartersOnly)
+{
+	CvString szResult;
+	FOR_EACH_ENUM(Corporation)
+	{
+		if ((bHeadquartersOnly && !kCity.isHeadquarters(eLoopCorporation)) || (!bHeadquartersOnly && !kCity.isHasCorporation(eLoopCorporation)))
+			continue;
+		CvString szItem;
+		szItem.Format(szResult.empty() ? "%s" : ",%s", getSASGameRecordCorporationType(eLoopCorporation));
+		szResult += szItem;
+	}
+	return getSASDiagnosticOrDash(szResult);
+}
+
+static void getSASGameRecordRazeCityDistances(CvCity const& kCity, PlayerTypes eRazer, PlayerTypes ePreviousOwner, int& iCapitalDistance, int& iCapitalSameArea, int& iNearestRazerCityDistance, int& iSameAreaRazerCitiesOther, int& iNearestPreviousOwnerCityDistance, int& iSameAreaPreviousOwnerCities)
+{
+	CvPlayer const& kRazer = GET_PLAYER(eRazer);
+	CvCity const* pCapital = kRazer.getCapitalCity();
+	iCapitalDistance = (pCapital == NULL ? -1 : plotDistance(kCity.getX(), kCity.getY(), pCapital->getX(), pCapital->getY()));
+	iCapitalSameArea = (pCapital == NULL ? -1 : pCapital->getArea().getID() == kCity.getArea().getID());
+	iNearestRazerCityDistance = -1;
+	iSameAreaRazerCitiesOther = 0;
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kRazer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kRazer.nextCity(&iLoop))
+	{
+		if (pLoopCity->getID() == kCity.getID())
+			continue;
+		int const iDistance = plotDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
+		if (iNearestRazerCityDistance < 0 || iDistance < iNearestRazerCityDistance)
+			iNearestRazerCityDistance = iDistance;
+		if (pLoopCity->getArea().getID() == kCity.getArea().getID())
+			iSameAreaRazerCitiesOther++;
+	}
+	iNearestPreviousOwnerCityDistance = -1;
+	iSameAreaPreviousOwnerCities = 0;
+	if (ePreviousOwner >= 0 && ePreviousOwner < MAX_PLAYERS)
+	{
+		CvPlayer const& kPreviousOwner = GET_PLAYER(ePreviousOwner);
+		iLoop = 0;
+		for (CvCity const* pLoopCity = kPreviousOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPreviousOwner.nextCity(&iLoop))
+		{
+			int const iDistance = plotDistance(kCity.getX(), kCity.getY(), pLoopCity->getX(), pLoopCity->getY());
+			if (iNearestPreviousOwnerCityDistance < 0 || iDistance < iNearestPreviousOwnerCityDistance)
+				iNearestPreviousOwnerCityDistance = iDistance;
+			if (pLoopCity->getArea().getID() == kCity.getArea().getID())
+				iSameAreaPreviousOwnerCities++;
+		}
+	}
+}
+
+void beginSASGameRecordCityRaze(CvCity const* pCity, PlayerTypes ePlayer)
+{
+	if (pCity == NULL || ePlayer < 0 || ePlayer >= MAX_PLAYERS)
 		return;
-	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_RAZED player=%d oldOwner=%d cityId=%d city=%S x=%d y=%d pop=%d",
-			GC.getGame().getGameTurn(), ePlayer, pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(), pCity->getPopulation());
+	CvPlayerAI const& kRazer = GET_PLAYER(ePlayer);
+	SASGameRecordCityRazeContext kContext;
+	kContext.eRazer = ePlayer;
+	kContext.eRazerTeam = kRazer.getTeam();
+	kContext.ePreviousOwner = pCity->getPreviousOwner();
+	kContext.ePreviousTeam = (kContext.ePreviousOwner >= 0 && kContext.ePreviousOwner < MAX_PLAYERS ? GET_PLAYER(kContext.ePreviousOwner).getTeam() : NO_TEAM);
+	kContext.eOriginalOwner = pCity->getOriginalOwner();
+	kContext.eOriginalTeam = (kContext.eOriginalOwner >= 0 && kContext.eOriginalOwner < MAX_PLAYERS ? GET_PLAYER(kContext.eOriginalOwner).getTeam() : NO_TEAM);
+	kContext.iGameTurn = GC.getGame().getGameTurn();
+	kContext.iCityId = pCity->getID();
+	kContext.szCityName = getSASGameRecordQuotedCityName(pCity);
+	kContext.iX = pCity->getX();
+	kContext.iY = pCity->getY();
+	kContext.iArea = pCity->getArea().getID();
+	kContext.szRazeMode = (pCity->isAutoRaze() ? "AUTO_RAZE" : (kRazer.isHuman() ? "HUMAN" : "AI"));
+	kContext.iPopulation = pCity->getPopulation();
+	kContext.iHighestPopulation = pCity->getHighestPopulation();
+	kContext.iFoundedTurn = pCity->getGameTurnFounded();
+	kContext.iAcquiredTurn = pCity->getGameTurnAcquired();
+	kContext.iOccupationTurns = pCity->getOccupationTimer();
+	kContext.iRazerCulturePercent = pCity->calculateTeamCulturePercent(kContext.eRazerTeam);
+	kContext.iPreviousCulturePercent = (kContext.ePreviousTeam == NO_TEAM ? -1 : pCity->calculateTeamCulturePercent(kContext.ePreviousTeam));
+	kContext.eHighestCulturePlayer = pCity->findHighestCulture();
+	kContext.iHighestCulturePercent = (kContext.eHighestCulturePlayer == NO_PLAYER ? -1 : pCity->calculateCulturePercent(kContext.eHighestCulturePlayer));
+	kContext.iMaintenanceTimes100 = pCity->getMaintenanceTimes100();
+	kContext.iConnectedToCapital = pCity->isConnectedToCapital();
+	getSASGameRecordRazeCityDistances(*pCity, ePlayer, kContext.ePreviousOwner, kContext.iCapitalDistance, kContext.iCapitalSameArea, kContext.iNearestRazerCityDistance, kContext.iSameAreaRazerCitiesOther, kContext.iNearestPreviousOwnerCityDistance, kContext.iSameAreaPreviousOwnerCities);
+	kContext.szBuildings = getSASGameRecordCityBuildings(*pCity, kContext.iBuildings, kContext.iRegularBuildings, kContext.iNationalWonders, kContext.iTeamWonders, kContext.iWorldWonders);
+	kContext.szReligions = getSASGameRecordCityReligionList(*pCity, false);
+	kContext.szHolyReligions = getSASGameRecordCityReligionList(*pCity, true);
+	kContext.szCorporations = getSASGameRecordCityCorporationList(*pCity, false);
+	kContext.szHeadquarters = getSASGameRecordCityCorporationList(*pCity, true);
+	kContext.iPlayerCitiesBefore = kRazer.getNumCities();
+	kContext.iPlayerLandBefore = kRazer.getTotalLand();
+	kContext.iPlayerPopulationBefore = kRazer.getTotalPopulation();
+	kContext.iTeamCitiesBefore = GET_TEAM(kContext.eRazerTeam).getNumCities();
+	kContext.iTeamLandBefore = GET_TEAM(kContext.eRazerTeam).getTotalLand();
+	kContext.iTeamPopulationBefore = GET_TEAM(kContext.eRazerTeam).getTotalPopulation();
+	kContext.iWorldPopulationBefore = GC.getGame().getTotalPopulation();
+	kContext.iLandPctX100Before = (10000 * kContext.iTeamLandBefore) / std::max(1, GC.getMap().getLandPlots());
+	kContext.iPopPctX100Before = (10000 * kContext.iTeamPopulationBefore) / std::max(1, GC.getGame().getTotalPopulation());
+	if (kRazer.isHuman() && !kRazer.isHumanDisabled())
+	{
+		kContext.iAIMaxVictoryStage = -1;
+		kContext.iAIConquestStage = -1;
+		kContext.iAIDominationStage = -1;
+	}
+	else
+	{
+		AIVictoryStage const eStages = kRazer.AI_getVictoryStageHash();
+		kContext.iAIConquestStage = getSASConquestVictoryStageLevel(eStages);
+		kContext.iAIDominationStage = getSASDominationVictoryStageLevel(eStages);
+		kContext.iAIMaxVictoryStage = std::max(getSASCultureVictoryStageLevel(eStages), std::max(getSASSpaceVictoryStageLevel(eStages), std::max(kContext.iAIConquestStage, std::max(kContext.iAIDominationStage, getSASDiplomacyVictoryStageLevel(eStages)))));
+	}
+	kContext.szLandPopVictoryProgressBefore = getSASGameRecordLandPopulationVictoryProgress(kContext.eRazerTeam);
+	g_aSASGameRecordCityRazeContexts.push_back(kContext);
+}
+
+void endSASGameRecordCityRaze(PlayerTypes ePlayer)
+{
+	if (g_aSASGameRecordCityRazeContexts.empty())
+		return;
+	// <!-- custom: LIFO matches nested razes triggered synchronously from Python callbacks; only consume a matching context. (ChatGPT-5.6-Sol) -->
+	int iContext = (int)g_aSASGameRecordCityRazeContexts.size() - 1;
+	if (g_aSASGameRecordCityRazeContexts[iContext].eRazer != ePlayer)
+		return;
+	SASGameRecordCityRazeContext const kContext = g_aSASGameRecordCityRazeContexts[iContext];
+	g_aSASGameRecordCityRazeContexts.pop_back();
+	CvPlayer const& kRazer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kContext.eRazerTeam);
+	int const iPlayerCitiesAfter = kRazer.getNumCities();
+	int const iPlayerLandAfter = kRazer.getTotalLand();
+	int const iPlayerPopulationAfter = kRazer.getTotalPopulation();
+	int const iTeamCitiesAfter = kTeam.getNumCities();
+	int const iTeamLandAfter = kTeam.getTotalLand();
+	int const iTeamPopulationAfter = kTeam.getTotalPopulation();
+	int const iWorldPopulationAfter = GC.getGame().getTotalPopulation();
+	int const iLandPctX100After = (10000 * iTeamLandAfter) / std::max(1, GC.getMap().getLandPlots());
+	int const iPopPctX100After = (10000 * iTeamPopulationAfter) / std::max(1, iWorldPopulationAfter);
+	CvString const szVictoryProgressAfter = getSASGameRecordLandPopulationVictoryProgress(kContext.eRazerTeam);
+	CvPlot const& kRazedPlot = GC.getMap().getPlot(kContext.iX, kContext.iY);
+	PlayerTypes const eCityPlotOwnerAfter = kRazedPlot.getOwner();
+	TeamTypes const eCityPlotTeamAfter = kRazedPlot.getTeam();
+	// <!-- custom: One rare level-2 action now preserves both the destroyed city's intrinsic/contextual value and the exact empire/victory effect of deleting it.
+	// CITY_ACQUIRED + CITY_BFC/CITY_UNITS already preserve capture/BFC/tactical state, so do not duplicate those large rows here. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_RAZED razer=%d razerTeam=%d razeMode=%s previousOwner=%d previousTeam=%d originalOwner=%d originalTeam=%d cityId=%d city=%S x=%d y=%d area=%d pop=%d highestPop=%d foundedTurn=%d cityAge=%d acquiredTurn=%d turnsHeld=%d occupationTurns=%d razerCulturePercent=%d previousCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d connectedToCapital=%d capitalDistance=%d capitalSameArea=%d nearestRazerCityDistance=%d sameAreaRazerCitiesOther=%d nearestPreviousOwnerCityDistance=%d sameAreaPreviousOwnerCities=%d maintenanceTimes100=%d buildings=%d regularBuildings=%d nationalWonders=%d teamWonders=%d worldWonders=%d buildingTypes=%s religions=%s holyReligions=%s corporations=%s headquarters=%s cityPlotOwnerAfter=%d cityPlotTeamAfter=%d playerCitiesBefore=%d playerCitiesAfter=%d playerLandBefore=%d playerLandAfter=%d playerLandDelta=%+d playerPopBefore=%d playerPopAfter=%d playerPopDelta=%+d teamCitiesBefore=%d teamCitiesAfter=%d teamLandBefore=%d teamLandAfter=%d teamLandDelta=%+d landPctX100Before=%d landPctX100After=%d landPctX100Delta=%+d teamPopBefore=%d teamPopAfter=%d teamPopDelta=%+d worldPopBefore=%d worldPopAfter=%d popPctX100Before=%d popPctX100After=%d popPctX100Delta=%+d aiMaxVictoryStage=%d aiConquestStage=%d aiDominationStage=%d landPopVictoryProgressBefore=%s landPopVictoryProgressAfter=%s",
+			kContext.iGameTurn, kContext.eRazer, kContext.eRazerTeam, kContext.szRazeMode.GetCString(), kContext.ePreviousOwner, kContext.ePreviousTeam, kContext.eOriginalOwner, kContext.eOriginalTeam,
+			kContext.iCityId, kContext.szCityName.GetCString(), kContext.iX, kContext.iY, kContext.iArea, kContext.iPopulation, kContext.iHighestPopulation, kContext.iFoundedTurn, kContext.iFoundedTurn < 0 ? -1 : kContext.iGameTurn - kContext.iFoundedTurn,
+			kContext.iAcquiredTurn, kContext.iAcquiredTurn < 0 ? -1 : kContext.iGameTurn - kContext.iAcquiredTurn, kContext.iOccupationTurns, kContext.iRazerCulturePercent, kContext.iPreviousCulturePercent, kContext.eHighestCulturePlayer, kContext.iHighestCulturePercent,
+			kContext.iConnectedToCapital, kContext.iCapitalDistance, kContext.iCapitalSameArea, kContext.iNearestRazerCityDistance, kContext.iSameAreaRazerCitiesOther, kContext.iNearestPreviousOwnerCityDistance, kContext.iSameAreaPreviousOwnerCities,
+			kContext.iMaintenanceTimes100, kContext.iBuildings, kContext.iRegularBuildings, kContext.iNationalWonders, kContext.iTeamWonders, kContext.iWorldWonders, kContext.szBuildings.GetCString(), kContext.szReligions.GetCString(), kContext.szHolyReligions.GetCString(), kContext.szCorporations.GetCString(), kContext.szHeadquarters.GetCString(), eCityPlotOwnerAfter, eCityPlotTeamAfter,
+			kContext.iPlayerCitiesBefore, iPlayerCitiesAfter, kContext.iPlayerLandBefore, iPlayerLandAfter, iPlayerLandAfter - kContext.iPlayerLandBefore, kContext.iPlayerPopulationBefore, iPlayerPopulationAfter, iPlayerPopulationAfter - kContext.iPlayerPopulationBefore, kContext.iTeamCitiesBefore, iTeamCitiesAfter, kContext.iTeamLandBefore, iTeamLandAfter, iTeamLandAfter - kContext.iTeamLandBefore, kContext.iLandPctX100Before, iLandPctX100After, iLandPctX100After - kContext.iLandPctX100Before,
+			kContext.iTeamPopulationBefore, iTeamPopulationAfter, iTeamPopulationAfter - kContext.iTeamPopulationBefore, kContext.iWorldPopulationBefore, iWorldPopulationAfter, kContext.iPopPctX100Before, iPopPctX100After, iPopPctX100After - kContext.iPopPctX100Before,
+			kContext.iAIMaxVictoryStage, kContext.iAIConquestStage, kContext.iAIDominationStage, kContext.szLandPopVictoryProgressBefore.GetCString(), szVictoryProgressAfter.GetCString());
 }
 
 void logSASGameRecordCityAcquired(PlayerTypes eOldOwner, PlayerTypes eNewOwner, CvCity const* pCity, bool bConquest, bool bTrade)

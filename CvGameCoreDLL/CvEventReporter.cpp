@@ -273,7 +273,8 @@ void CvEventReporter::cityBuilt(CvCity *pCity)
 
 void CvEventReporter::cityRazed(CvCity *pCity, PlayerTypes ePlayer)
 {
-	if (gGameRecordLogLevel >= 2) logSASGameRecordCityRazed(pCity, ePlayer);
+	// <!-- custom: SASGameRecord now brackets CvPlayer::raze directly so its single CITY_RAZED row can include exact post-disband land/population/victory deltas.
+	// Keep this reporter focused on Python/statistics while the city is still alive. (ChatGPT-5.6-Sol) -->
 	m_kPythonEventMgr.reportCityRazed(pCity, ePlayer);
 	m_kStatistics.cityRazed(pCity, ePlayer);
 }
