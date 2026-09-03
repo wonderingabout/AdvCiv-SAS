@@ -2549,6 +2549,92 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT</DefineName>
 		<iDefineIntVal>40</iDefineIntVal>
 	</Define>
+	<!-- custom: Enable the alternate military-production profile once the AI's primary landmass is locally secured: no independent rival master-team city, Barbarian city, land war or defensive war remains there. This applies on any map, not only naval-heavy maps. On e.g. Continents, securing the continent lowers the forced land-attacker floor so normal economy/building/other production can take over; on naval-heavy maps, part of the released floor is redirected to invasion transports, escorts and warships. 1 enables; 0 always uses the normal full land floor. See KI#197.11. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_PRIMARY_AREA_PROFILE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum share of empire base production that the secured profile still forces into UNITAI_ATTACK / UNITAI_ATTACK_CITY by era. Higher values keep a stronger land buildup even after the local landmass is safe; lower values free more production for the AI's normal economy, buildings, wonders, naval choices, etc. E.g. 20 means the floor tries to keep at least 20% of current base-production capacity on those land-offense roles. Ordinary AI logic can always build more. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_ANCIENT_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_CLASSICAL_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MEDIEVAL_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_RENAISSANCE_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MODERN_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_FUTURE_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: Minimum secured-profile naval production share by era. On naval-heavy maps these values apply in full; on other maps they are scaled by the multiplier below. Higher values force more invasion/naval buildup after the local landmass is safe; lower values return more production to ordinary AI choices. Defaults complement the secured land values so the total Medieval+ floor remains 20 / 30 / 35 / 40 / 40 on naval-heavy maps, but shifts part of it from land attackers to usable overseas logistics. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_ANCIENT_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_CLASSICAL_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MEDIEVAL_PERCENT</DefineName>
+		<iDefineIntVal>10</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_RENAISSANCE_PERCENT</DefineName>
+		<iDefineIntVal>15</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MODERN_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_FUTURE_PERCENT</DefineName>
+		<iDefineIntVal>20</iDefineIntVal>
+	</Define>
+	<!-- custom: Scale the secured naval floor on maps not classified naval-heavy, e.g. Continents. 0 (default) means a civ that secures its continent gets the lower land floor but no extra forced navy, leaving the released production to normal economy/strategy; 50 uses half the naval-heavy curve; 100 uses the full curve. Raise this if you want more AI overseas/naval buildup on Continents-like maps. Existing non-naval-heavy ship caps still apply. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_NON_NAVAL_HEAVY_TARGET_MULTIPLIER_PERCENT</DefineName>
+		<iDefineIntVal>0</iDefineIntVal>
+	</Define>
+	<!-- custom: Peaceful stock guard for the secured naval floor. When the AI is not preparing/focusing on war or an assault, stop only this extra forced naval floor once the relevant water area already has this many UNITAI_ASSAULT_SEA + UNITAI_ESCORT_SEA + UNITAI_ATTACK_SEA units per connected port city. Lower values stop the forced peacetime buildup sooner; higher values allow a larger reserve fleet; 0 disables the guard. Ordinary AI logic can still build ships, and active war/assault projection lifts the guard. Default 5 was confirmed to stop excessive peaceful accumulation in KI#197.11. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_PEACEFUL_MAX_TRACKED_UNITS_PER_PORT_CITY</DefineName>
+		<iDefineIntVal>5</iDefineIntVal>
+	</Define>
+	<!-- custom: Relative role weights when the secured naval floor asks for a ship; these are selection weights, not production percentages. ASSAULT_SEA is Civ4's invasion-transport role, ESCORT_SEA protects fleets and ATTACK_SEA supplies warships. Higher weight makes that role more preferred relative to the others; 0 disables that role from this floor. Defaults 100 / 75 / 50 prioritize lift first, then protection, then extra attack ships. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ASSAULT_SEA_WEIGHT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ESCORT_SEA_WEIGHT</DefineName>
+		<iDefineIntVal>75</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ATTACK_SEA_WEIGHT</DefineName>
+		<iDefineIntVal>50</iDefineIntVal>
+	</Define>
 
 
 

@@ -86,8 +86,63 @@ static void logSASNeededSeaWorkerTargets(CvCityAI const& kCity, CvArea const* pW
 }
 
 
-// <!-- custom: Measure currently committed offensive production by base hammers rather than city count, unit count, era, or the inherited upkeep recommendation. A 40-hammer military city therefore matters far more than a 2-hammer new settlement, and the signal scales automatically with empire size and production development. (GPT-5.6 Thinking) -->
+// <!-- custom: Measure military production by current base hammers. Land offense uses ATTACK/ATTACK_CITY; the secured naval profile uses assault transports, escorts and attack ships. (GPT-5.6 Thinking + ChatGPT-5.6-Sol) -->
 static bool SAS_isOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ATTACK || eUnitAI == UNITAI_ATTACK_CITY); }
+static bool SAS_isNavalOffensiveProductionAI(UnitAITypes eUnitAI) { return (eUnitAI == UNITAI_ASSAULT_SEA || eUnitAI == UNITAI_ESCORT_SEA || eUnitAI == UNITAI_ATTACK_SEA); }
+
+// <!-- custom: Count independent local master-team blocs; teammates and master/vassal partners do not justify a forced land-offense floor against each other. Barbarians are handled by the caller. (ChatGPT-5.6-Sol) -->
+static int SAS_countIndependentRivalTeamsInArea(CvPlayerAI const& kPlayer, CvArea const& kArea, int& iIndependentRivalCities)
+{
+	iIndependentRivalCities = 0;
+	bool abCountedMasterTeams[MAX_TEAMS] = { false };
+	TeamTypes const eOurMasterTeam = kPlayer.getMasterTeam();
+	int iIndependentRivalTeams = 0;
+	for (PlayerIter<MAJOR_CIV> itOther; itOther.hasNext(); ++itOther)
+	{
+		TeamTypes const eOtherMasterTeam = itOther->getMasterTeam();
+		if (eOtherMasterTeam == eOurMasterTeam) continue;
+		int const iCities = kArea.getCitiesPerPlayer(itOther->getID());
+		if (iCities <= 0) continue;
+		iIndependentRivalCities += iCities;
+		int const iMasterIndex = (int)eOtherMasterTeam;
+		if (iMasterIndex < 0 || iMasterIndex >= MAX_TEAMS || abCountedMasterTeams[iMasterIndex]) continue;
+		abCountedMasterTeams[iMasterIndex] = true;
+		iIndependentRivalTeams++;
+	}
+	return iIndependentRivalTeams;
+}
+
+// <!-- custom: Rank naval-floor roles for the relevant water area; the CvCityAI member caller performs the protected AI_chooseUnit call. AI_totalWaterAreaUnitAIs includes ships at sea, in ports and queued there. (ChatGPT-5.6-Sol) -->
+static void SAS_rankNavalProductionUnitAIs(CvPlayerAI const& kPlayer, CvArea const& kWaterArea, int iAssaultWeight, int iEscortWeight, int iAttackWeight, std::vector<UnitAITypes>& aeUnitAIs)
+{
+	UnitAIWeightMap weights;
+	if (iAssaultWeight > 0) weights.set(UNITAI_ASSAULT_SEA, iAssaultWeight);
+	if (iEscortWeight > 0) weights.set(UNITAI_ESCORT_SEA, iEscortWeight);
+	if (iAttackWeight > 0) weights.set(UNITAI_ATTACK_SEA, iAttackWeight);
+	std::vector<std::pair<int, UnitAITypes> > bestTypes;
+	FOR_EACH_NON_DEFAULT_PAIR(weights, UnitAI, int)
+	{
+		UnitAITypes const eUnitAI = perUnitAIVal.first;
+		int const iExistingAndTraining = kPlayer.AI_totalWaterAreaUnitAIs(kWaterArea, eUnitAI);
+		int const iValue = (perUnitAIVal.second * 1000) / (1 + iExistingAndTraining);
+		bestTypes.push_back(std::make_pair(iValue, eUnitAI));
+	}
+	std::sort(bestTypes.begin(), bestTypes.end(), std::greater<std::pair<int, UnitAITypes> >());
+	for (std::vector<std::pair<int, UnitAITypes> >::const_iterator it = bestTypes.begin(); it != bestTypes.end(); ++it)
+		aeUnitAIs.push_back(it->second);
+}
+
+// <!-- custom: Count this player's ports attached to one water area for the secured-profile naval stock guard. (ChatGPT-5.6-Sol) -->
+static int SAS_countPortCitiesForWaterArea(CvPlayerAI const& kPlayer, CvArea const& kWaterArea)
+{
+	int iPortCities = 0;
+	FOR_EACH_CITY(pLoopCity, kPlayer)
+	{
+		if (pLoopCity->waterArea(true) == &kWaterArea)
+			iPortCities++;
+	}
+	return iPortCities;
+}
 
 // <!-- custom: Food-production civilian units halt growth while trained, so slow cities should normally leave them to stronger food/hammer pumps. Keep combat-capable and nuclear units outside this allocator so a future modmod may still let side cities urgently train food-production fighters. (GPT-5.6 Thinking) -->
 static bool SAS_isNonCombatFoodProductionUnit(UnitTypes eUnit)
@@ -144,11 +199,11 @@ static CvCityAI const* SAS_getPreferredNonCombatFoodProductionCity(CvCityAI cons
 	return pBestCity;
 }
 
-static int SAS_getOffensiveProductionCapacityPercent(CvPlayerAI const& kPlayer, int& iOffensiveBaseProduction, int& iTotalBaseProduction, int& iOffensiveCities, int& iProductiveCities)
+static int SAS_getMilitaryProductionCapacityPercent(CvPlayerAI const& kPlayer, CvArea const* pNavalWaterArea, int& iRoleBaseProduction, int& iTotalBaseProduction, int& iRoleProductionCities, int& iProductiveCities)
 {
-	iOffensiveBaseProduction = 0;
+	iRoleBaseProduction = 0;
 	iTotalBaseProduction = 0;
-	iOffensiveCities = 0;
+	iRoleProductionCities = 0;
 	iProductiveCities = 0;
 	int iLoop = 0;
 	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
@@ -157,13 +212,14 @@ static int SAS_getOffensiveProductionCapacityPercent(CvPlayerAI const& kPlayer, 
 		if (iBaseProduction <= 0) continue;
 		iProductiveCities++;
 		iTotalBaseProduction += iBaseProduction;
-		if (pLoopCity->getProductionUnit() != NO_UNIT && SAS_isOffensiveProductionAI(pLoopCity->getProductionUnitAI()))
-		{
-			iOffensiveCities++;
-			iOffensiveBaseProduction += iBaseProduction;
-		}
+		if (pLoopCity->getProductionUnit() == NO_UNIT) continue;
+		UnitAITypes const eProductionAI = pLoopCity->getProductionUnitAI();
+		bool const bMatchesRole = (pNavalWaterArea == NULL ? SAS_isOffensiveProductionAI(eProductionAI) : (pLoopCity->waterArea(true) == pNavalWaterArea && SAS_isNavalOffensiveProductionAI(eProductionAI)));
+		if (!bMatchesRole) continue;
+		iRoleProductionCities++;
+		iRoleBaseProduction += iBaseProduction;
 	}
-	return (iTotalBaseProduction <= 0 ? 0 : (iOffensiveBaseProduction * 100) / iTotalBaseProduction);
+	return (iTotalBaseProduction <= 0 ? 0 : (iRoleBaseProduction * 100) / iTotalBaseProduction);
 }
 
 static int SAS_getDangerAdjustedMinFoundValue(CvPlayerAI const& kPlayer, bool bDanger)
@@ -2971,7 +3027,8 @@ void CvCityAI::AI_chooseProduction()
 		return;
 	}*/ // BtS
 
-	// <!-- custom: Keep an independently configurable minimum share of healthy empire production committed to offensive units in each era, measured by base-production capacity rather than unit count or the inherited military-upkeep recommendation. Lower early defaults leave more production for growth and infrastructure; the 40% floor reached in the Industrial era preserves the empirically effective later military pressure. This fires only after the existing Worker/Settler/explorer/panic and other earlier essential/foundational production branches, but before opportunistic wonders and the broad later building shortcuts. Setting every era to 0 disables through XML. See KI#197.9 and KI#197.10. (GPT-5.6 Thinking + GPT-5.6-Sol) -->
+	// <!-- custom: Adapt the tested era military floor after the primary landmass is secured. Local rivals/Barbarians/land war keep the full land floor; otherwise lower it and normally redirect the released share to naval logistics on naval-heavy maps. See KI#197.11. (GPT-5.6 Thinking + ChatGPT-5.6-Sol) -->
+	static bool const bSASSecuredPrimaryAreaProfile = GC.getDefineBOOL("SAS_AI_CHOOSE_PRODUCTION_SECURED_PRIMARY_AREA_PROFILE_ENABLE");
 	static const int aiSASMinOffensiveProductionCapacityPercent[] = {
 		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_ANCIENT_PERCENT"))),
 		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_CLASSICAL_PERCENT"))),
@@ -2981,34 +3038,118 @@ void CvCityAI::AI_chooseProduction()
 		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_MODERN_PERCENT"))),
 		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_MIN_OFFENSIVE_PRODUCTION_CAPACITY_FUTURE_PERCENT")))
 	};
+	static const int aiSASSecuredLandOffensiveProductionCapacityPercent[] = {
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_ANCIENT_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_CLASSICAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MEDIEVAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_RENAISSANCE_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_MODERN_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_LAND_OFFENSE_CAPACITY_FUTURE_PERCENT")))
+	};
+	static const int aiSASSecuredNavalOffensiveProductionCapacityPercent[] = {
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_ANCIENT_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_CLASSICAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MEDIEVAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_RENAISSANCE_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_INDUSTRIAL_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_MODERN_PERCENT"))),
+		std::min(100, std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_OFFENSE_CAPACITY_FUTURE_PERCENT")))
+	};
+	static int const iSASSecuredNavalAssaultWeight = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ASSAULT_SEA_WEIGHT"));
+	static int const iSASSecuredNavalEscortWeight = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ESCORT_SEA_WEIGHT"));
+	static int const iSASSecuredNavalAttackWeight = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_ATTACK_SEA_WEIGHT"));
+	static int const iSASSecuredNavalNonNavalHeavyTargetMultiplierPercent = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_NON_NAVAL_HEAVY_TARGET_MULTIPLIER_PERCENT"));
+	static int const iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity = std::max(0, GC.getDefineINT("SAS_AI_CHOOSE_PRODUCTION_SECURED_NAVAL_PEACEFUL_MAX_TRACKED_UNITS_PER_PORT_CITY"));
 	int const iLastConfiguredEra = (int)(sizeof(aiSASMinOffensiveProductionCapacityPercent) / sizeof(aiSASMinOffensiveProductionCapacityPercent[0])) - 1;
 	int const iCurrentEra = std::min(iLastConfiguredEra, std::max(0, (int)kPlayer.getCurrentEra()));
-	int const iSASMinOffensiveProductionCapacityPercent = aiSASMinOffensiveProductionCapacityPercent[iCurrentEra];
-	int iOffensiveBaseProduction = 0;
-	int iTotalBaseProduction = 0;
-	int iOffensiveProductionCities = 0;
-	int iProductiveCities = 0;
-	int iOffensiveProductionCapacityPercent = 0;
-	bool const bOffensiveProductionCapacityContextEligible = (iSASMinOffensiveProductionCapacityPercent > 0 && bPrimaryArea && !bFinancialTrouble && !bDanger && !bAlwaysPeace && !bGetBetterUnits && !bCultureCity && !bUnitExempt);
-	if (bOffensiveProductionCapacityContextEligible || bLogDetailedMilitaryProduction) iOffensiveProductionCapacityPercent = SAS_getOffensiveProductionCapacityPercent(kPlayer, iOffensiveBaseProduction, iTotalBaseProduction, iOffensiveProductionCities, iProductiveCities);
-	bool const bOffensiveProductionCapacityEligible = (bOffensiveProductionCapacityContextEligible && iOffensiveProductionCapacityPercent < iSASMinOffensiveProductionCapacityPercent);
-	bool bOffensiveProductionCapacityChosen = false;
-	if (bOffensiveProductionCapacityEligible)
+	bool const bProductionCapacityBaseContextEligible = (bPrimaryArea && !bFinancialTrouble && !bDanger && !bAlwaysPeace && !bGetBetterUnits && !bCultureCity && !bUnitExempt);
+	int iIndependentRivalCities = 0;
+	int iIndependentRivalTeams = 0;
+	int iLocalBarbarianCities = 0;
+	bool bLocalLandContest = true;
+	if ((bSASSecuredPrimaryAreaProfile && bProductionCapacityBaseContextEligible) || bLogDetailedMilitaryProduction)
 	{
-		UnitAIWeightMap offensiveProductionWeight;
-		offensiveProductionWeight.set(UNITAI_ATTACK, 100);
-		offensiveProductionWeight.set(UNITAI_ATTACK_CITY, 100);
-		bOffensiveProductionCapacityChosen = AI_chooseLeastRepresentedUnit(offensiveProductionWeight);
+		iIndependentRivalTeams = SAS_countIndependentRivalTeamsInArea(kPlayer, kArea, iIndependentRivalCities);
+		iLocalBarbarianCities = kArea.getCitiesPerPlayer(BARBARIAN_PLAYER);
+		bLocalLandContest = (bLandWar || bDefenseWar || iIndependentRivalTeams > 0 || iLocalBarbarianCities > 0);
+	}
+	bool const bUseSecuredPrimaryAreaProfile = (bSASSecuredPrimaryAreaProfile && !bLocalLandContest);
+	int const iSecuredNavalTargetMultiplierPercent = (kGame.isNavalHeavyMapnameCached() ? 100 : iSASSecuredNavalNonNavalHeavyTargetMultiplierPercent);
+	bool const bUseSecuredNavalProfile = (bUseSecuredPrimaryAreaProfile && iSecuredNavalTargetMultiplierPercent > 0 && pWaterArea != NULL);
+	int const iLandTargetPercent = (bUseSecuredPrimaryAreaProfile ? aiSASSecuredLandOffensiveProductionCapacityPercent[iCurrentEra] : aiSASMinOffensiveProductionCapacityPercent[iCurrentEra]);
+	int const iNavalTargetPercent = (bUseSecuredNavalProfile ? std::min(100, (aiSASSecuredNavalOffensiveProductionCapacityPercent[iCurrentEra] * iSecuredNavalTargetMultiplierPercent) / 100) : 0);
+	int iLandBaseProduction = 0;
+	int iLandTotalBaseProduction = 0;
+	int iLandProductionCities = 0;
+	int iLandProductiveCities = 0;
+	int iLandCapacityPercent = 0;
+	int iNavalBaseProduction = 0;
+	int iNavalTotalBaseProduction = 0;
+	int iNavalProductionCities = 0;
+	int iNavalProductiveCities = 0;
+	int iNavalCapacityPercent = 0;
+	if ((bProductionCapacityBaseContextEligible && iLandTargetPercent > 0) || bLogDetailedMilitaryProduction) iLandCapacityPercent = SAS_getMilitaryProductionCapacityPercent(kPlayer, NULL, iLandBaseProduction, iLandTotalBaseProduction, iLandProductionCities, iLandProductiveCities);
+	if ((bProductionCapacityBaseContextEligible && iNavalTargetPercent > 0) || bLogDetailedMilitaryProduction) iNavalCapacityPercent = SAS_getMilitaryProductionCapacityPercent(kPlayer, pWaterArea, iNavalBaseProduction, iNavalTotalBaseProduction, iNavalProductionCities, iNavalProductiveCities);
+	// <!-- custom: The naval floor is a production-share minimum, not a reason for a peaceful secured empire to accumulate ships forever. Cap only this forced floor when no war/assault preparation is active; ordinary AI logic can still build beyond the stock guard. See KI#197.11. (ChatGPT-5.6-Sol) -->
+	bool const bNavalProjectionActive = (bWarPrep || bAssault || bTotalWar || kPlayer.AI_isFocusWar());
+	int iNavalPortCities = 0;
+	int iNavalTrackedStock = 0;
+	if (pWaterArea != NULL && (bUseSecuredNavalProfile || bLogDetailedMilitaryProduction))
+	{
+		iNavalPortCities = SAS_countPortCitiesForWaterArea(kPlayer, *pWaterArea);
+		iNavalTrackedStock = kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_ASSAULT_SEA) +
+			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_ESCORT_SEA) +
+			kPlayer.AI_totalWaterAreaUnitAIs(*pWaterArea, UNITAI_ATTACK_SEA);
+	}
+	bool const bNavalStockCapActive = (bUseSecuredNavalProfile && !bNavalProjectionActive && iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity > 0 && iNavalPortCities > 0);
+	int const iNavalStockLimit = (bNavalStockCapActive ? iNavalPortCities * iSASSecuredNavalPeacefulMaxTrackedUnitsPerPortCity : -1);
+	bool const bNavalStockBelowLimit = (!bNavalStockCapActive || iNavalTrackedStock < iNavalStockLimit);
+	bool const bLandCapacityEligible = (bProductionCapacityBaseContextEligible && iLandTargetPercent > 0 && iLandCapacityPercent < iLandTargetPercent);
+	bool const bNavalCapacityEligible = (bProductionCapacityBaseContextEligible && iNavalTargetPercent > 0 && pWaterArea != NULL && iNavalCapacityPercent < iNavalTargetPercent && bNavalStockBelowLimit);
+	int const iLandDeficit = (bLandCapacityEligible ? iLandTargetPercent - iLandCapacityPercent : 0);
+	int const iNavalDeficit = (bNavalCapacityEligible ? iNavalTargetPercent - iNavalCapacityPercent : 0);
+	bool bLandCapacityChosen = false;
+	bool bNavalCapacityChosen = false;
+	for (int iPass = 0; iPass < 2 && !bLandCapacityChosen && !bNavalCapacityChosen; iPass++)
+	{
+		bool const bTryNaval = (bNavalCapacityEligible && (!bLandCapacityEligible || (iPass == 0 ? iNavalDeficit > iLandDeficit : iNavalDeficit <= iLandDeficit)));
+		if (bTryNaval)
+		{
+			std::vector<UnitAITypes> aeNavalUnitAIs;
+			SAS_rankNavalProductionUnitAIs(kPlayer, *pWaterArea, iSASSecuredNavalAssaultWeight, iSASSecuredNavalEscortWeight, iSASSecuredNavalAttackWeight, aeNavalUnitAIs);
+			for (std::vector<UnitAITypes>::const_iterator it = aeNavalUnitAIs.begin(); it != aeNavalUnitAIs.end(); ++it)
+			{
+				if (AI_chooseUnit(*it))
+				{
+					bNavalCapacityChosen = true;
+					break;
+				}
+			}
+		}
+		else if (bLandCapacityEligible)
+		{
+			UnitAIWeightMap offensiveProductionWeight;
+			offensiveProductionWeight.set(UNITAI_ATTACK, 100);
+			offensiveProductionWeight.set(UNITAI_ATTACK_CITY, 100);
+			bLandCapacityChosen = AI_chooseLeastRepresentedUnit(offensiveProductionWeight);
+		}
+		if (!bLandCapacityEligible || !bNavalCapacityEligible) break;
 	}
 	if (bLogDetailedMilitaryProduction)
 	{
-		logBBAI("MILITARY_PRODUCTION_CAPACITY_FLOOR turn=%d player=%d %S city=%S cityId=%d era=%d targetPercent=%d currentPercent=%d offensiveBaseProduction=%d totalBaseProduction=%d offensiveCities=%d productiveCities=%d primaryArea=%d financialTrouble=%d danger=%d alwaysPeace=%d getBetterUnits=%d cultureCity=%d unitExempt=%d eligible=%d chosen=%d",
-			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iCurrentEra, iSASMinOffensiveProductionCapacityPercent, iOffensiveProductionCapacityPercent,
-			iOffensiveBaseProduction, iTotalBaseProduction, iOffensiveProductionCities, iProductiveCities, bPrimaryArea, bFinancialTrouble, bDanger, bAlwaysPeace, bGetBetterUnits, bCultureCity, bUnitExempt, bOffensiveProductionCapacityEligible, bOffensiveProductionCapacityChosen);
+		logBBAI("MILITARY_PRODUCTION_CAPACITY_FLOOR turn=%d player=%d %S city=%S cityId=%d era=%d securedProfileEnable=%d securedProfile=%d navalProfile=%d navalHeavyMap=%d navalTargetMultiplierPercent=%d independentRivalTeams=%d independentRivalCities=%d barbarianCities=%d landWar=%d defenseWar=%d landTargetPercent=%d landCurrentPercent=%d landBaseProduction=%d landTotalBaseProduction=%d landCities=%d landProductiveCities=%d navalTargetPercent=%d navalCurrentPercent=%d navalBaseProduction=%d navalTotalBaseProduction=%d navalCities=%d navalProductiveCities=%d navalProjectionActive=%d navalPortCities=%d navalTrackedStock=%d navalStockCapActive=%d navalStockLimit=%d primaryArea=%d financialTrouble=%d danger=%d alwaysPeace=%d getBetterUnits=%d cultureCity=%d unitExempt=%d landEligible=%d navalEligible=%d landChosen=%d navalChosen=%d",
+			kGame.getGameTurn(), getOwner(), kPlayer.getCivilizationDescription(0), sCityName, getID(), iCurrentEra, bSASSecuredPrimaryAreaProfile, bUseSecuredPrimaryAreaProfile, bUseSecuredNavalProfile, kGame.isNavalHeavyMapnameCached(), iSecuredNavalTargetMultiplierPercent, iIndependentRivalTeams, iIndependentRivalCities, iLocalBarbarianCities, bLandWar, bDefenseWar,
+			iLandTargetPercent, iLandCapacityPercent, iLandBaseProduction, iLandTotalBaseProduction, iLandProductionCities, iLandProductiveCities, iNavalTargetPercent, iNavalCapacityPercent, iNavalBaseProduction, iNavalTotalBaseProduction, iNavalProductionCities, iNavalProductiveCities,
+			bNavalProjectionActive, iNavalPortCities, iNavalTrackedStock, bNavalStockCapActive, iNavalStockLimit, bPrimaryArea, bFinancialTrouble, bDanger, bAlwaysPeace, bGetBetterUnits, bCultureCity, bUnitExempt, bLandCapacityEligible, bNavalCapacityEligible, bLandCapacityChosen, bNavalCapacityChosen);
 	}
-	if (bOffensiveProductionCapacityChosen)
+	if (bLandCapacityChosen || bNavalCapacityChosen)
 	{
-		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2)) logBBAI("      City %S fills offensive production-capacity floor (%d%% < %d%%)", sCityName, iOffensiveProductionCapacityPercent, iSASMinOffensiveProductionCapacityPercent);
+		if ((gCityLogLevel >= 2 || gMilitaryProductionLogLevel >= 2))
+		{
+			if (bNavalCapacityChosen) logBBAI("      City %S fills secured naval production-capacity floor (%d%% < %d%%)", sCityName, iNavalCapacityPercent, iNavalTargetPercent);
+			else logBBAI("      City %S fills land offensive production-capacity floor (%d%% < %d%%)", sCityName, iLandCapacityPercent, iLandTargetPercent);
+		}
 		return;
 	}
 
