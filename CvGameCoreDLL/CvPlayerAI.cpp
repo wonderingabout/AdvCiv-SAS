@@ -1870,7 +1870,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 
 	// <!-- custom: new logic later, see below for details -->
 	// --- 1) Cultural victory emergency (existing logic, unchanged) ---
-	bool bCultureVictory = false; // advc.116
+	bool bCultureVictoryEmergency = false; // advc.116: preserve the inherited exception to normal no-raze reasons
 	bool bRaze = false;
 	// Reasons to always raze
 	if (2 * kCity.getCulture(kPreviousOwner.getID()) >
@@ -1890,7 +1890,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		// Razing won't help if they have many high-culture cities
 		if (iHighCultureCount == iVictTarget || iHighCultureCount == iVictTarget + 1)
 		{
-			bCultureVictory = true;
+			bCultureVictoryEmergency = true;
 			// BETTER_BTS_AI_MOD, 07/05/10, jdog5000 (not in K-Mod):
 			int const iEnemyPowerPercent = GET_TEAM(getTeam()).AI_getEnemyPowerPercent(false);
 			bRaze = (bRaze || (iEnemyPowerPercent > 75));
@@ -1909,6 +1909,16 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 	}  // <advc.ctr>
 	// <!-- custom: store it once to avoid reuse -->
 	const bool bBarbarian = isBarbarian();
+	// <!-- custom: Hoist Base AdvCiv's explicit Domination3+ primary-area no-raze reason before SAS force-raze safeguards, which could otherwise pre-empt it. Preserve AdvCiv's !bCultureVictory exception. See KI#186.3. (ChatGPT-5.6-Sol) -->
+	bool const bKeepForDomination = (!bCultureVictoryEmergency && AI_atVictoryStage(AI_VICTORY_DOMINATION3) && GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()));
+	if (!bRaze && bKeepForDomination)
+	{
+		// Do not raze, going for domination
+		if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=KEEP reason=DOMINATION3_PRIMARY_AREA_KEEP", kGame.getGameTurn(), getID(), kCity.getName().GetCString());
+		keepCity(kCity);
+		return;
+	}
+	//else // </advc>
 	// <!-- custom: Base AdvCiv's AI_isAwfulSite conquest override duplicated Settler-site evaluation with a cruder absolute veto. Replace it with the positive SAS long-term-benefit evaluation: force-raze cities unlikely to benefit us, while the broader normal raze valuation below still decides among the remaining cities.
 	// Base AdvCiv's active-World-Wonder exemption protected the city from this force-raze gate. Keep that intrinsic-site protection, but let the default-enabled XML option make excessive same-area distance override it. England otherwise kept remote Elephantine for its Eiffel Tower, committed 15 defenders, lost at least 7 there, and lost the city after 6 turns. See KI#186.2. (GPT-5.6-Sol) -->
 	static bool const bDistanceOverrideActiveWorldWonder = GC.getDefineBOOL("SAS_AI_CITY_LONG_TERM_DISTANCE_OVERRIDE_ACTIVE_WORLD_WONDER_ENABLE");
@@ -1953,9 +1963,9 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 
 	if (!bRaze)
 	{
+		// <!-- custom: Base AdvCiv's old !bCultureVictory branch kept every conquest here. SAS removed that blanket return so normal raze valuation can assess awkward cities; its explicit Domination3+ primary-area no-raze reason is now hoisted above the SAS force-raze safeguards with the same culture-victory exception. The old few-city blanket keep remains intentionally commented-out for reference. See KI#186.3. (ChatGPT-5.6-Sol) -->
 		// Reasons to not raze
-		// <!-- custom: As for this part of the code, refactor this as the intent logged vs condition we check seem unclear and harder to tweak; while doing so, also remove the old !bCultureVictory since we check it before anyway to always raze if true, and removing it here makes us avoid being unable to raze later due to it being here as well as recommended by chatgpt 5, check if accurate -->
-		// By removing the old if (!bCultureVictory) { keepCity(); return; }, you’ve opened the door for the later iRazeValue logic to run even when there’s no culture-victory emergency. That’s exactly what you want if your goal is “sometimes raze far/awkward cities," but expect more razing than before (distance, maintenance, barb-origin, etc. can all push iRazeValue > 0).
+		// <!-- custom: note: actually even if we have too few cities, it's not a reason to make a bad deal (i.e. capturing and not razing a too far away city); our weak economy would make it even worse due to city distance in fact, so this looks like a bad reason not to raze, so removed -->
 		//
 		// if (!bCultureVictory) // advc.116
 		// {
@@ -1963,28 +1973,7 @@ void CvPlayerAI::AI_conquerCity(CvCityAI& kCity, bool bEverOwned) // advc.ctr: W
 		// 	{
 		// 		if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they have few cities", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
 		// 	}
-		// 	else if (AI_atVictoryStage(AI_VICTORY_DOMINATION3) &&
-		// 			GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()))
-		// 	{
-		// 		// Do not raze, going for domination
-		// 		if (gPlayerLogLevel >= 1) logBBAI("    Player %d (%S) decides not to raze %S because they're going for domination", getID(), getCivilizationDescription(0), kCity.getName().GetCString());
-		// 	}  // <advc>
-		// 	keepCity(kCity);
-		// 	return;
-		// }
 		//
-		// <!-- custom: note: actually even if we have too few cities, it's not a reason to make a bad deal (i.e. capturing and not razing a too far away city); our weak economy would make it even worse due to city distance in fact, so this looks like a bad reason not to raze, so removed -->
-		const bool bGoingForDomination = (AI_atVictoryStage(AI_VICTORY_DOMINATION3) && GET_TEAM(getTeam()).AI_isPrimaryArea(kCity.getArea()));
-		if (bGoingForDomination)
-		{
-			// Do not raze, going for domination
-			if (bLogRazeDecision) logBBAI("RAZE_DECISION turn=%d player=%d city=%S action=KEEP reason=DOMINATION_PRIMARY_AREA", kGame.getGameTurn(), getID(), kCity.getName().GetCString());
-			keepCity(kCity);
-			return;
-		}
-		// }
-
-		//else // </advc>
 		int iRazeValue = 0;
 		if (bBarbarian)
 		{

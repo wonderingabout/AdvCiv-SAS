@@ -237,6 +237,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#185 - (Fixed/Improved) Base AdvCiv issue: post-capital AI Settlers could ignore promising fogged nearby city-site alternatives and then follow stale cached targets after scouting](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-185)\
 [KI#186 - (Fixed/Improved) Base AdvCiv `AI_isAwfulSite` could cause economically wasteful captured-city raze/resettle cycles and destroy valuable population and buildings](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-186)\
 [KI#186.2 - (Fixed/Improved) Base AdvCiv active-World-Wonder exemption could make the AI retain remote captured cities, exhaust defenders, and return the preserved Wonder to a nearer rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-186.2)\
+[KI#186.3 - (Fixed) AdvCiv-SAS regression: captured-city force-raze safeguards could pre-empt Base AdvCiv's Domination keep rule](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-186.3)\
 [KI#187 - (Fixed/Improved) Base AdvCiv excessively devalued soon-connectable bonuses in AI city-site scoring](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-187)\
 [KI#188 - (Fixed/Improved) Major Base AdvCiv/K-Mod bug in organizing armies against Barbarian cities could park 65-82% of an AI's military or prevent capable attackers from forming city-assault expeditions](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-188)\
 [KI#188.2 - (Fixed/Improved) Base AdvCiv/K-Mod issue: offensive armies could ignore nearby endangered cities instead of going back to try to help defending them](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-188.2)\
@@ -8165,6 +8166,37 @@ The same save also tested whether the distance limit should be increased from 8 
 The default distance limit therefore remains 8. It should not be raised merely because a distance-9 city looks valuable or could theoretically anchor further conquest: the slightly larger allowance was enough to split a powerful army around an exposed capture and give the developed city back to a nearer rival. The limit remains XML-tunable for other maps and rulesets, but the tested default favors durable military concentration over speculative bridgeheads.
 
 Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
+
+<a id="ki-186.3"></a>
+
+## KI#186.3 - (Fixed) AdvCiv-SAS regression: captured-city force-raze safeguards could pre-empt Base AdvCiv's Domination keep rule
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1WzJN7ZnrUzO1wtKtZ_VGvDp70Oem2lmR?usp=sharing).
+
+This is a follow-up to KI#186 and KI#186.2, but the Domination behavior itself is not a new SAS strategy. Base AdvCiv already had a specific `AI_atVictoryStage(AI_VICTORY_DOMINATION3) && AI_isPrimaryArea(...)` conquest rule telling the AI not to raze such a city. During later AdvCiv-SAS razing work, the old broad `!bCultureVictory` keep-return was removed so awkward conquests could reach normal raze valuation, while the specific Domination keep was retained farther down. KI#186/KI#186.2 then added stronger long-term and distance force-raze safeguards before that inherited block. If one of those earlier gates set `bRaze`, control never reached the later Domination keep. This was therefore an AdvCiv-SAS ordering regression: new safeguards could pre-empt an inherited no-raze priority that was still meant to survive.
+
+The clearest baseline was `BBAI_20260903T055042Z_load3.log` / `SASGameRecord_20260903T055042Z_load3.log`. Isabella kept every conquest through turn 366, then first razed Giza on turn 368 because its same-area distance was 9 against the tested default limit of 8. From turns 389 through 421 she razed 10 consecutive captures: Smolensk, Vladivostok, Dur-Kurigalzu, Yakutsk, Moscow, Rostov, Vilcabamba, Yaroslavl', St. Petersburg, and Coventry. Several were substantial developed cities, including population-14 Dur-Kurigalzu, population-12 Moscow, and population-13 Coventry. Across Isabella's 12 late-game AI razes in this phase, every `RAZE_LONG_TERM_CITY_EVAL` had `rawIntrinsicSiteLikelyToBenefit=1`; they failed only the same-area distance gate. The first distance miss could also make later captures remain farther from the nearest owned city because the razed city never became a new territorial anchor.
+
+| Turn | City | Pop. | Same-area distance | Result |
+| ---: | --- | ---: | ---: | --- |
+| 366 | Nottingham | 10 | 4 | KEEP - Domination |
+| **368** | **Giza** | **4** | **9 > 8** | **RAZE** |
+| 374 | London | 15 | 4 | KEEP - Domination |
+| **389** | **Smolensk** | **1** | **9 > 8** | **RAZE** |
+| **400** | **Dur-Kurigalzu** | **14** | **9 > 8** | **RAZE** |
+| **405** | **Moscow** | **12** | **16 > 8** | **RAZE** |
+| **421** | **Coventry** | **13** | **12 > 8** | **RAZE** |
+| 430 | Byblos | 9 | 8 | KEEP - Domination |
+
+The fix is deliberately simpler than the temporary test implementation. Base AdvCiv's explicit Domination3+ primary-area no-raze reason is now hoisted before the SAS long-term, early-remote, and normal raze paths. The now-redundant later copy is removed, as is the temporary XML switch that had been useful for A/B testing. The retained BBAI reason is `DOMINATION3_PRIMARY_AREA_KEEP`. The hoisted condition also preserves AdvCiv's surrounding `!bCultureVictory` exception: if the captured city is part of the inherited near-Cultural-victory danger context, Domination does not auto-keep it merely because the immediate power/local-strength test has not already forced a raze. This restores the inherited priority and exception rather than adding a separate competing Domination rule.
+
+The primary-area restriction is also intentionally retained for now. It comes from Base AdvCiv, and `AI_VICTORY_DOMINATION3` is not synonymous with being one city or one island away from victory: `AI_calculateDominationVictoryStage` can enter stage 3 once the weaker of current land/population progress exceeds `62 - civPlayersEverAlive` percent of the Domination requirement. Removing `AI_isPrimaryArea` at stage 3 would therefore make remote island captures unconditionally untouchable much earlier than a true near-win state, risking the same exposed-bridgehead problem that KI#186.2's distance-8 test fixed. If an any-area endgame rule is later desirable, it should be based on actual closeness to the current Domination land/population thresholds rather than broadening Domination3 blindly.
+
+A full-game A/B retest from the same Pangaea setup and recorded initial RNG state (`mapRandState=814994169`, `syncRandState=1943600988`) strongly supported restoring the inherited priority. In the fixed `BBAI_20260903T064449Z_load2.log` / `SASGameRecord_20260903T064449Z_load2.log`, Ramesses II became the largest practical beneficiary: after the keep path became active he retained 16 primary-area conquests from turn 347 through turn 454 and won Domination on turn 457 at 47.03% land / 53.72% population against 47% / 48% requirements. In the baseline history from the same initial state, Ramesses instead eventually won by Space on turn 464. The diverged histories do not prove that each individual kept city caused the different winner, but they confirm that allowing the inherited Domination keep to run before SAS force-raze gates can convert late military success into the victory the AI is already pursuing.
+
+The design distinction remains important: globally raising the normal distance tolerance is naive. Save-file 453 already showed that increasing 8 to 9 made Inca keep population-17 Cordoba, lose 10 advanced units defending/recapturing the exposed bridgehead, and lose the city anyway. The fix therefore leaves the tested distance/food safeguards unchanged during ordinary conquest and only restores the inherited Domination3+ primary-area veto ahead of them.
+
+Fixed/investigated with the help of ChatGPT-5.6-Sol thanks.
 
 <a id="ki-187"></a>
 
