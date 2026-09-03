@@ -1148,6 +1148,9 @@ void CvUnit::updateAirCombat(bool bQuick)
 	be changed if the combat resolution rules are changed. */
 void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 {
+	// <!-- custom: SASGameRecord level 2+ captures pre-combat attacker identity and exact odds only at real combat resolution, never in AI candidate-odds loops.
+	// This is pre-gated because calculateCombatOdds is diagnostic work. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) noteSASGameRecordCombatStarted(this, pDefender, pPlot);
 	// <advc.048c> Preserve info for interface message (based on K-Mod code)
 	m_iAttackOdds = -1;
 #ifndef LOG_COMBAT_OUTCOMES
@@ -1371,12 +1374,12 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 	// <!-- custom: record non-lethal combat as a retreat in the Military Advisor Battles tab; combatResult only fires on kills, so withdrawal/combat-limit fights otherwise disappear despite having useful start/end strength data. (GPT-5.5) -->
 	if (!isDead() && !pDefender->isDead())
 	{
-		// <!-- custom: GameRecord level 3 also keeps exact unit IDs for non-lethal combat so WAR_ATTACK_ORDER decisions can be joined to withdrawals and combat-limit attacks, not only lethal combatResult events. (GPT-5.6 Thinking) -->
-		if (gGameRecordLogLevel >= 3)
+		// <!-- custom: Level 2 aggregates withdrawals/combat-limit outcomes; level 3 additionally retains exact IDs, odds and post-fight quality in the recorder.
+		// Keep all schema/state handling out of this hot combat function. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2)
 		{
 			bool const bCombatLimitReached = (combatLimit() < GC.getMAX_HIT_POINTS() && pDefender->getDamage() >= combatLimit());
-			logSASGameRecord("GAME_RECORD_BATTLE_NONLETHAL turn=%d attacker=%d defender=%d attackerUnit=%s attackerUnitId=%d defenderUnit=%s defenderUnitId=%d reason=%s x=%d y=%d cityPlot=%d attackerBaseStr=%d defenderBaseStr=%d attackerDamage=%d defenderDamage=%d attackerCombatLimit=%d attackerWithdrawal=%d",
-				GC.getGame().getGameTurn(), getOwner(), pDefender->getOwner(), GC.getInfo(getUnitType()).getType(), getID(), GC.getInfo(pDefender->getUnitType()).getType(), pDefender->getID(), (bCombatLimitReached ? "COMBAT_LIMIT" : "WITHDRAWAL"), pPlot->getX(), pPlot->getY(), pPlot->isCity(), baseCombatStr(), pDefender->baseCombatStr(), getDamage(), pDefender->getDamage(), combatLimit(), withdrawalProbability());
+			logSASGameRecordNonlethalCombat(this, pDefender, pPlot, bCombatLimitReached);
 		}
 		CyArgsList pyArgsSASBattleRetreat;
 		pyArgsSASBattleRetreat.add(getOwner());
@@ -10050,6 +10053,9 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 
 void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, int iGlobalPercent) // advc.312: was bUpdateGlobal
 {
+	// <!-- custom: Current UNIT_POSTURE XP falls when veterans die and therefore cannot measure how much unit experience a civilization actually generated.
+	// Preserve the real before/after delta only at SASGameRecord level 2+, after all combat modifiers and caps below are applied. (ChatGPT-5.6-Sol) -->
+	int const iSASGameRecordExperienceBefore = (gGameRecordLogLevel >= 2 ? getExperience() : 0);
 	int iUnitExperience = iChange;
 	if (bFromCombat)
 	{
@@ -10074,6 +10080,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		}
 	}
 	setExperience((getExperience() + iUnitExperience), iMax);
+	if (gGameRecordLogLevel >= 2) logSASGameRecordExperienceChange(this, iUnitExperience, getExperience() - iSASGameRecordExperienceBefore, bFromCombat);
 }
 
 // advc.312:

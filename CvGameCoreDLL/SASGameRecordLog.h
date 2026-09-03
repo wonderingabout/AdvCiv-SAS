@@ -164,6 +164,13 @@ void logSASGameRecordGreatGeneralAttached(CvUnit const* pGreatGeneral, CvUnit co
 void logSASGameRecordUnitScrapped(CvUnit const* pUnit);
 void logSASGameRecordUnitUpgraded(CvUnit const* pOldUnit, CvUnit const* pNewUnit, int iCost);
 void logSASGameRecordUnitCaptured(PlayerTypes eOldOwner, UnitTypes eOldUnitType, CvUnit const* pNewUnit);
+// <!-- custom: Military-quality history records actual promotion selections and realized XP changes as compact interval/cumulative facts instead of inferring them from surviving units. Callers pre-gate level 2+ so disabled/low-detail logging pays no recorder cost. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordUnitPromoted(CvUnit const* pUnit, PromotionTypes ePromotion);
+void logSASGameRecordExperienceChange(CvUnit const* pUnit, int iAdjustedChange, int iActualChange, bool bFromCombat);
+// <!-- custom: Bracket real combats only when SASGameRecord level 2+ needs outcome-quality history.
+// The recorder keeps tiny transient attacker/defender context so delayed visible-combat callbacks retain the true attacker and pre-combat odds without adding gameplay/save state. (ChatGPT-5.6-Sol) -->
+void noteSASGameRecordCombatStarted(CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pBattlePlot);
+void logSASGameRecordNonlethalCombat(CvUnit const* pAttacker, CvUnit const* pDefender, CvPlot const* pBattlePlot, bool bCombatLimitReached);
 void logSASGameRecordWarPlanChanged(TeamTypes eTeam, TeamTypes eTarget, WarPlanTypes eOldWarPlan, WarPlanTypes eNewWarPlan, bool bWar, int iOldStateCounter);
 // <!-- custom: Level-3 tactical rows complement periodic city defense and unit-composition snapshots: synthesize consecutive siege/naval/air city bombardment into compact sequences while recording actual air strikes, interception combat, and air bombing of plot structures, so external analysis can distinguish merely owning those units from using them effectively. (GPT-5.6 Thinking) -->
 void logSASGameRecordCityBombard(CvUnit const* pUnit, CvCity const* pCity, char const* szMode, int iBombardRate, bool bIgnoreBuildingDefense, int iDefenseModifierBefore, int iDefenseDamageBefore);

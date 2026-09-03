@@ -923,7 +923,7 @@ The separate GitHub Actions [`python24-compile.yml`](/.github/workflows/python24
 
 ## DLL Logging
 
-AdvCiv-SAS has two complementary log families, that are as of now both tunable via SAS defines (i.e. XML) without needing DLL modifications.
+AdvCiv-SAS has two complementary log families, that are as of now both tunable via SAS defines (i.e. XML) without needing DLL modifications: the BBAI log, and the SASGameRecord log. See [README_Main_Changes_Guide.md (Logging)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging).
 
 Both log families place canonical mod/source context and exact loaded-DLL build/binary provenance immediately after the session lifecycle marker. The source row records the practical commit-count version when available, exact Git commit, branch/date metadata when known, and tracked dirty state/files for a live Git checkout. The shared DLL row separately records the build target, file size, a diagnostic FNV-1a 64-bit fingerprint, DLL last-write and PE/linker timestamps, and relevant compile flags, so locally rebuilt candidate DLLs can still be distinguished from one another at the same source revision. The fingerprint is a diagnostic identity, not a cryptographic security hash.
 
@@ -1033,7 +1033,7 @@ Identity rows place the stable `processUtc` for one Civ4 launch before plain `ut
 
 `SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
 
-Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export. See [README_Main_Changes_Guide.md (Logging (BBAI and SASGameRecord))](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#logging-bbai-and-sasgamerecord).
+Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
 The record includes the same canonical mod/source and exact loaded-DLL identity as BBAI, including the practical version/commit when resolvable and the build target/binary fingerprint. For stronger LLM analysis, also provide the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) when possible: the log identifies the source state, while the compact ZIP supplies the corresponding source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM can actually inspect.
 
