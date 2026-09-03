@@ -11264,7 +11264,12 @@ bool CvCity::doCheckProduction()
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED", getNameKey(), GC.getInfo(eUnit).getTextKeyWide(), iProductionGold);
 					gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, getPlot(), "AS2D_WONDERGOLD", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(COMMERCE_GOLD).getButton(), GC.getColorType("RED"));
 				}*/
+				int const iStoredLost = getUnitProduction(eUnit);
+				bool const bActiveTarget = (getProductionUnit() == eUnit);
+				bool const bQueued = (getFirstUnitOrder(eUnit) >= 0);
 				setUnitProduction(eUnit, 0);
+				// <!-- custom: Preserve actual maxed-class production loss before the stored bank disappears; queued competing wonder/project fail-gold has its own separate recorder boundary. (ChatGPT-5.6-Sol) -->
+				if (gGameRecordLogLevel >= 2 && iStoredLost > 0) logSASGameRecordProductionInvalidated(this, ORDER_TRAIN, eUnit, iStoredLost, bActiveTarget, bQueued);
 			}
 		}
 	}
@@ -11283,7 +11288,12 @@ bool CvCity::doCheckProduction()
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED", getNameKey(), GC.getInfo(eBuilding).getTextKeyWide(), iProductionGold);
 					gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, getPlot(), "AS2D_WONDERGOLD", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(COMMERCE_GOLD).getButton(), GC.getColorType("RED"));
 				}*/
+				int const iStoredLost = getBuildingProduction(eBuilding);
+				bool const bActiveTarget = (getProductionBuilding() == eBuilding);
+				bool const bQueued = (getFirstBuildingOrder(eBuilding) >= 0);
 				setBuildingProduction(eBuilding, 0);
+				// <!-- custom: As above, record the real maxed-class loss itself rather than infer it later from a missing parked bank. (ChatGPT-5.6-Sol) -->
+				if (gGameRecordLogLevel >= 2 && iStoredLost > 0) logSASGameRecordProductionInvalidated(this, ORDER_CONSTRUCT, eBuilding, iStoredLost, bActiveTarget, bQueued);
 			}
 		}
 	}
@@ -11301,7 +11311,12 @@ bool CvCity::doCheckProduction()
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED", getNameKey(), GC.getInfo(eLoopProject).getTextKeyWide(), iProductionGold);
 					gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, getPlot(), "AS2D_WONDERGOLD", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(COMMERCE_GOLD).getButton(), GC.getColorType("RED"));
 				}*/
+				int const iStoredLost = getProjectProduction(eLoopProject);
+				bool const bActiveTarget = (getProductionProject() == eLoopProject);
+				bool const bQueued = (getFirstProjectOrder(eLoopProject) >= 0);
 				setProjectProduction(eLoopProject, 0);
+				// <!-- custom: As above, preserve actual project production erased by maxed-project cleanup. (ChatGPT-5.6-Sol) -->
+				if (gGameRecordLogLevel >= 2 && iStoredLost > 0) logSASGameRecordProductionInvalidated(this, ORDER_CREATE, eLoopProject, iStoredLost, bActiveTarget, bQueued);
 			}
 		}
 	}
@@ -11332,8 +11347,12 @@ void CvCity::upgradeProduction()
 		FAssert(eUpgradeUnit != eUnit);
 
 		int iUpgradeProduction = getUnitProduction(eUnit);
+		int const iUpgradeProductionBefore = getUnitProduction(eUpgradeUnit);
 		setUnitProduction(eUnit, 0);
 		setUnitProduction(eUpgradeUnit, iUpgradeProduction);
+		// <!-- custom: Stored obsolete-unit production is transferred to the available upgrade.
+		// The inherited assignment can also overwrite pre-existing production on that destination type, so preserve both values before the queue data is rewritten. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2 && (iUpgradeProduction > 0 || iUpgradeProductionBefore > 0)) logSASGameRecordProductionUpgraded(this, eUnit, eUpgradeUnit, iUpgradeProduction, iUpgradeProductionBefore);
 
 		CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
 		while (pOrderNode != NULL)
@@ -11458,9 +11477,11 @@ void CvCity::doDecay()
 				{
 					int iProduction = getBuildingProduction(eLoopBuilding);
 					int const iDecayPercent = GC.getDefineINT(CvGlobals::BUILDING_PRODUCTION_DECAY_PERCENT);
-					setBuildingProduction(eLoopBuilding, iProduction -
-							(iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) /
-							iGameSpeedPercent);
+					int const iNewProduction = iProduction - (iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) / iGameSpeedPercent;
+					setBuildingProduction(eLoopBuilding, iNewProduction);
+					// <!-- custom: In inherited K-Mod/AdvCiv, parked unit/building production decays only for human cities; AI parking itself is exempt.
+					// Preserve that baseline behavior here and aggregate only real mechanical loss separately from strategic target switching. (ChatGPT-5.6-Sol) -->
+					if (gGameRecordLogLevel >= 2 && iNewProduction < iProduction) logSASGameRecordProductionDecay(this, ORDER_CONSTRUCT, eLoopBuilding, iProduction, iNewProduction, getBuildingProductionTime(eLoopBuilding));
 				}
 			}
 		}
@@ -11482,9 +11503,10 @@ void CvCity::doDecay()
 				{
 					int iProduction = getUnitProduction(eLoopUnit);
 					int const iDecayPercent = GC.getDefineINT(CvGlobals::UNIT_PRODUCTION_DECAY_PERCENT);
-					setUnitProduction(eLoopUnit, iProduction -
-							(iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) /
-							iGameSpeedPercent);
+					int const iNewProduction = iProduction - (iProduction * (100 - iDecayPercent) + iGameSpeedPercent - 1) / iGameSpeedPercent;
+					setUnitProduction(eLoopUnit, iNewProduction);
+					// <!-- custom: As above, inherited K-Mod/AdvCiv applies this production decay only to humans; AI target switching therefore remains preserved stored production and is logged separately. (ChatGPT-5.6-Sol) -->
+					if (gGameRecordLogLevel >= 2 && iNewProduction < iProduction) logSASGameRecordProductionDecay(this, ORDER_TRAIN, eLoopUnit, iProduction, iNewProduction, getUnitProductionTime(eLoopUnit));
 				}
 			}
 		}

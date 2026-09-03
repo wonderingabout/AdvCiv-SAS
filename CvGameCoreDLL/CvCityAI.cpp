@@ -13,6 +13,7 @@
 #include "CvInfo_GameOption.h"
 #include "CvInfo_Civics.h"
 #include "BBAILog.h" // BETTER_BTS_AI_MOD, AI logging, 10/02/09, jdog5000
+#include "SASGameRecordLog.h" // <!-- custom: Level-2+ AI production-churn history brackets AI_chooseProduction without adding recorder schema to its decision branches. (ChatGPT-5.6-Sol) -->
 
 // <!-- custom: Compact structured rejection logging for the concrete AI_chooseUnit SAS gates. Keep each gate itself to one short helper call plus return false, while names/formatting are computed only when detailed military-production logging is enabled. No behavior change. (ChatGPT-5.6) -->
 static void logSASMilitaryProductionConcreteReject(CvCityAI const& kCity, UnitTypes eUnit, UnitAITypes eUnitAI, char const* szReason, char const* szMetricA = "-", int iValueA = -1, char const* szMetricB = "-", int iValueB = -1)
@@ -1159,6 +1160,9 @@ void CvCityAI::AI_chooseProduction()
 {
 	PROFILE_FUNC();
 
+	// <!-- custom: One scope observes the authoritative entry/final head target across every early return.
+	// Only civilization AI cities at SASGameRecord level 2+ capture state; ordinary completion -> fresh next selection is suppressed as non-churn. (ChatGPT-5.6-Sol) -->
+	SASGameRecordAIProductionChoiceScope kSASGameRecordProductionChoiceScope(*this, gGameRecordLogLevel >= 2 && !isHuman() && !isBarbarian());
 	bool bWasFoodProduction = isFoodProduction();
 	bool bDanger = AI_isDanger();
 

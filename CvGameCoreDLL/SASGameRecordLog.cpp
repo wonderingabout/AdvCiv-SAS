@@ -840,6 +840,18 @@ static int g_iSASGameRecordLastFullSnapshotTurn = -1;
 static int g_iSASGameRecordBattleStartTurn = 0;
 static int g_iSASGameRecordFlowStartTurn = 0;
 
+// <!-- custom: Recorder-only production categories are shared by the interval transition matrix and exact target-change formatting.
+// Keep the enum beside the flow state so its size is available before any serializer uses it. (ChatGPT-5.6-Sol) -->
+enum SASGameRecordProductionKindIndex
+{
+	SAS_PRODUCTION_UNIT = 0,
+	SAS_PRODUCTION_BUILDING,
+	SAS_PRODUCTION_WONDER,
+	SAS_PRODUCTION_PROJECT,
+	SAS_PRODUCTION_PROCESS,
+	NUM_SAS_PRODUCTION_KINDS
+};
+
 // <!-- custom: Level 3 preserves exact production, overflow and unit-lifecycle evidence, but thousands of routine rows can distract broad analysis. Accumulate the same strategic totals into one production and one military row per active player and snapshot interval for level 2+. Dynamic type buckets use the loaded mod's XML rather than fixed BTS categories.
 // `productionNeeded` is the loaded ruleset's production threshold at the action time, providing a consistent material-cost comparison; it is not a claim about raw hammers historically invested after production modifiers. (GPT-5.6-Sol) -->
 struct SASGameRecordPlayerFlow
@@ -861,6 +873,24 @@ struct SASGameRecordPlayerFlow
 	int iOverflowGold;
 	int iFailedInvestedProduction;
 	int iFailGold;
+	// <!-- custom: AI production-target flow distinguishes ordinary completion->next selection from real active-target switching.
+	// Stored production is parked rather than assumed wasted; separate decay/fail/overflow counters own actual mechanical loss. (ChatGPT-5.6-Sol) -->
+	int iAIProductionTargetSwitches;
+	int iAIProductionTargetClears;
+	int iAIProductionInvestedTargetChanges;
+	int iAIProductionParked;
+	int iAIProductionTargetResumes;
+	int iAIProductionResumed;
+	int iProductionDecayActions;
+	int iProductionDecayLost;
+	int iProductionInvalidatedActions;
+	int iProductionInvalidatedLost;
+	int iProductionUpgradeTransfers;
+	int iProductionUpgradeTransferred;
+	int iProductionUpgradeOverwriteActions;
+	int iProductionUpgradeOverwritten;
+	int aiAIProductionTransitions[NUM_SAS_PRODUCTION_KINDS * NUM_SAS_PRODUCTION_KINDS];
+	std::vector<std::pair<int,int> > aAIProductionTargetChangesByCity;
 	int iUpgrades;
 	int iUpgradeGold;
 	int iScrapped;
@@ -907,6 +937,22 @@ struct SASGameRecordPlayerFlow
 		iOverflowGold = 0;
 		iFailedInvestedProduction = 0;
 		iFailGold = 0;
+		iAIProductionTargetSwitches = 0;
+		iAIProductionTargetClears = 0;
+		iAIProductionInvestedTargetChanges = 0;
+		iAIProductionParked = 0;
+		iAIProductionTargetResumes = 0;
+		iAIProductionResumed = 0;
+		iProductionDecayActions = 0;
+		iProductionDecayLost = 0;
+		iProductionInvalidatedActions = 0;
+		iProductionInvalidatedLost = 0;
+		iProductionUpgradeTransfers = 0;
+		iProductionUpgradeTransferred = 0;
+		iProductionUpgradeOverwriteActions = 0;
+		iProductionUpgradeOverwritten = 0;
+		for (int iI = 0; iI < NUM_SAS_PRODUCTION_KINDS * NUM_SAS_PRODUCTION_KINDS; iI++) aiAIProductionTransitions[iI] = 0;
+		aAIProductionTargetChangesByCity.clear();
 		iUpgrades = 0;
 		iUpgradeGold = 0;
 		iScrapped = 0;
@@ -937,7 +983,8 @@ struct SASGameRecordPlayerFlow
 
 	bool hasProduction() const
 	{
-		return (iUnitsCompleted > 0 || iUnitsConscripted > 0 || iBuildingsCompleted > 0 || iProjectsCompleted > 0 || iOverflowActions > 0 || iFailedInvestedProduction > 0 || iFailGold > 0);
+		return (iUnitsCompleted > 0 || iUnitsConscripted > 0 || iBuildingsCompleted > 0 || iProjectsCompleted > 0 || iOverflowActions > 0 || iFailedInvestedProduction > 0 || iFailGold > 0 ||
+			iAIProductionTargetSwitches > 0 || iAIProductionTargetClears > 0 || iAIProductionTargetResumes > 0 || iProductionDecayActions > 0 || iProductionInvalidatedActions > 0 || iProductionUpgradeTransfers > 0 || iProductionUpgradeOverwritten > 0);
 	}
 
 	bool hasMilitary() const
@@ -3808,6 +3855,33 @@ static void logSASGameRecordBattleBuckets(int iGameTurn)
 	g_iSASGameRecordBattleStartTurn = iGameTurn + 1;
 }
 
+static CvString getSASGameRecordAIProductionTransitions(SASGameRecordPlayerFlow const& kFlow)
+{
+	CvString szTransitions;
+	static char const* const aszKinds[NUM_SAS_PRODUCTION_KINDS] = {"UNIT", "BUILDING", "WONDER", "PROJECT", "PROCESS"};
+	for (int iOld = 0; iOld < NUM_SAS_PRODUCTION_KINDS; iOld++)
+	{
+		for (int iNew = 0; iNew < NUM_SAS_PRODUCTION_KINDS; iNew++)
+		{
+			int const iCount = kFlow.aiAIProductionTransitions[iOld * NUM_SAS_PRODUCTION_KINDS + iNew];
+			if (iCount <= 0)
+				continue;
+			CvString szItem;
+			szItem.Format(szTransitions.empty() ? "%s>%s:%d" : ",%s>%s:%d", aszKinds[iOld], aszKinds[iNew], iCount);
+			szTransitions += szItem;
+		}
+	}
+	return getSASDiagnosticOrDash(szTransitions);
+}
+
+static int getSASGameRecordMaxAIProductionTargetChangesOneCity(SASGameRecordPlayerFlow const& kFlow)
+{
+	int iMax = 0;
+	for (size_t iI = 0; iI < kFlow.aAIProductionTargetChangesByCity.size(); iI++)
+		iMax = std::max(iMax, kFlow.aAIProductionTargetChangesByCity[iI].second);
+	return iMax;
+}
+
 static void logSASGameRecordFlowBuckets(int iGameTurn)
 {
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
@@ -3829,10 +3903,12 @@ static void logSASGameRecordFlowBuckets(int iGameTurn)
 				appendSASGameRecordTypeCount(szBuildingTypes, getSASGameRecordBuildingType(eLoopBuilding), kFlow.aiBuildingTypes[eLoopBuilding]);
 			FOR_EACH_ENUM(Project)
 				appendSASGameRecordTypeCount(szProjectTypes, getSASGameRecordProjectType(eLoopProject), kFlow.aiProjectTypes[eLoopProject]);
-			logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d",
+			logSASGameRecord("GAME_RECORD_PRODUCTION_FLOW turn=%d range=%d-%d player=%d unitsProduced=%d unitProductionNeeded=%d unitTypes=%s unitsConscripted=%d conscriptProductionNeeded=%d conscriptedUnitTypes=%s buildingsCompleted=%d buildingProductionNeeded=%d buildingTypes=%s projectsCompleted=%d projectProductionNeeded=%d projectTypes=%s overflowActions=%d rawModifiedOverflow=%d unmodifiedOverflow=%d keptOverflow=%d lostProduction=%d unusedOverflowCapacity=%d overflowGold=%d failedInvestedProduction=%d failGold=%d aiTargetSwitches=%d aiTargetClears=%d aiInvestedTargetChanges=%d aiProductionParked=%d aiTargetResumes=%d aiProductionResumed=%d aiTargetChangedCities=%d aiMaxTargetChangesOneCity=%d aiTargetTransitions=%s productionDecayActions=%d productionDecayLost=%d productionInvalidatedActions=%d productionInvalidatedLost=%d productionUpgradeTransfers=%d productionUpgradeTransferred=%d productionUpgradeOverwriteActions=%d productionUpgradeOverwritten=%d",
 				iGameTurn, g_iSASGameRecordFlowStartTurn, iGameTurn, ePlayer, kFlow.iUnitsCompleted, kFlow.iUnitProductionNeeded, getSASDiagnosticOrDash(szUnitTypes).GetCString(), kFlow.iUnitsConscripted, kFlow.iConscriptProductionNeeded, getSASDiagnosticOrDash(szConscriptedUnitTypes).GetCString(),
 				kFlow.iBuildingsCompleted, kFlow.iBuildingProductionNeeded, getSASDiagnosticOrDash(szBuildingTypes).GetCString(), kFlow.iProjectsCompleted, kFlow.iProjectProductionNeeded, getSASDiagnosticOrDash(szProjectTypes).GetCString(),
-				kFlow.iOverflowActions, kFlow.iRawModifiedOverflow, kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold, kFlow.iFailedInvestedProduction, kFlow.iFailGold);
+				kFlow.iOverflowActions, kFlow.iRawModifiedOverflow, kFlow.iUnmodifiedOverflow, kFlow.iKeptOverflow, kFlow.iLostProduction, kFlow.iUnusedOverflowCapacity, kFlow.iOverflowGold, kFlow.iFailedInvestedProduction, kFlow.iFailGold,
+				kFlow.iAIProductionTargetSwitches, kFlow.iAIProductionTargetClears, kFlow.iAIProductionInvestedTargetChanges, kFlow.iAIProductionParked, kFlow.iAIProductionTargetResumes, kFlow.iAIProductionResumed, (int)kFlow.aAIProductionTargetChangesByCity.size(), getSASGameRecordMaxAIProductionTargetChangesOneCity(kFlow), getSASGameRecordAIProductionTransitions(kFlow).GetCString(),
+				kFlow.iProductionDecayActions, kFlow.iProductionDecayLost, kFlow.iProductionInvalidatedActions, kFlow.iProductionInvalidatedLost, kFlow.iProductionUpgradeTransfers, kFlow.iProductionUpgradeTransferred, kFlow.iProductionUpgradeOverwriteActions, kFlow.iProductionUpgradeOverwritten);
 		}
 		if (kFlow.hasMilitary())
 		{
@@ -5316,6 +5392,307 @@ static const char* getSASGameRecordCityProductionType(CvCity const& kCity)
 	return "-";
 }
 
+// <!-- custom: Production churn is about the active head target, not every queued order mutation.
+// Keep a compact recorder-only representation that survives AI_chooseProduction clearing/rebuilding its queue and distinguishes Wonders from ordinary buildings. (ChatGPT-5.6-Sol) -->
+static int getSASGameRecordProductionKindIndex(OrderTypes eOrder, int iData1)
+{
+	switch (eOrder)
+	{
+	case ORDER_TRAIN: return SAS_PRODUCTION_UNIT;
+	case ORDER_CONSTRUCT:
+		return (iData1 >= 0 && iData1 < GC.getNumBuildingInfos() && GC.getInfo((BuildingTypes)iData1).isLimited() ? SAS_PRODUCTION_WONDER : SAS_PRODUCTION_BUILDING);
+	case ORDER_CREATE: return SAS_PRODUCTION_PROJECT;
+	case ORDER_MAINTAIN: return SAS_PRODUCTION_PROCESS;
+	default: return -1;
+	}
+}
+
+static const char* getSASGameRecordProductionKind(OrderTypes eOrder, int iData1)
+{
+	static char const* const aszKinds[NUM_SAS_PRODUCTION_KINDS] = {"UNIT", "BUILDING", "WONDER", "PROJECT", "PROCESS"};
+	int const iKind = getSASGameRecordProductionKindIndex(eOrder, iData1);
+	return (iKind < 0 ? "-" : aszKinds[iKind]);
+}
+
+static const char* getSASGameRecordProductionType(OrderTypes eOrder, int iData1)
+{
+	switch (eOrder)
+	{
+	case ORDER_TRAIN: return (iData1 >= 0 && iData1 < GC.getNumUnitInfos() ? getSASGameRecordUnitType((UnitTypes)iData1) : "-");
+	case ORDER_CONSTRUCT: return (iData1 >= 0 && iData1 < GC.getNumBuildingInfos() ? getSASGameRecordBuildingType((BuildingTypes)iData1) : "-");
+	case ORDER_CREATE: return (iData1 >= 0 && iData1 < GC.getNumProjectInfos() ? getSASGameRecordProjectType((ProjectTypes)iData1) : "-");
+	case ORDER_MAINTAIN: return (iData1 >= 0 && iData1 < GC.getNumProcessInfos() ? getSASGameRecordProcessType((ProcessTypes)iData1) : "-");
+	default: return "-";
+	}
+}
+
+static void captureSASGameRecordProductionTarget(CvCity const& kCity, OrderTypes& eOrder, int& iData1, int& iStored, int& iNeeded, int& iTurnsLeft, int& iAccumulatedInactiveTurns)
+{
+	OrderData const kOrder = kCity.getOrderData(0);
+	eOrder = kOrder.eOrderType;
+	iData1 = kOrder.iData1;
+	iStored = 0;
+	iNeeded = 0;
+	iTurnsLeft = -1;
+	iAccumulatedInactiveTurns = -1;
+	switch (eOrder)
+	{
+	case ORDER_TRAIN:
+		iStored = kCity.getUnitProduction((UnitTypes)iData1);
+		iNeeded = kCity.getProductionNeeded((UnitTypes)iData1);
+		iTurnsLeft = kCity.getProductionTurnsLeft();
+		if (iTurnsLeft == MAX_INT)
+			iTurnsLeft = -1;
+		iAccumulatedInactiveTurns = kCity.getUnitProductionTime((UnitTypes)iData1);
+		break;
+	case ORDER_CONSTRUCT:
+		iStored = kCity.getBuildingProduction((BuildingTypes)iData1);
+		iNeeded = kCity.getProductionNeeded((BuildingTypes)iData1);
+		iTurnsLeft = kCity.getProductionTurnsLeft();
+		if (iTurnsLeft == MAX_INT)
+			iTurnsLeft = -1;
+		iAccumulatedInactiveTurns = kCity.getBuildingProductionTime((BuildingTypes)iData1);
+		break;
+	case ORDER_CREATE:
+		iStored = kCity.getProjectProduction((ProjectTypes)iData1);
+		iNeeded = kCity.getProductionNeeded((ProjectTypes)iData1);
+		iTurnsLeft = kCity.getProductionTurnsLeft();
+		if (iTurnsLeft == MAX_INT)
+			iTurnsLeft = -1;
+		break;
+	case ORDER_MAINTAIN:
+		break;
+	default:
+		eOrder = NO_ORDER;
+		iData1 = -1;
+		break;
+	}
+}
+
+static void noteSASGameRecordAIProductionTargetChangedCity(SASGameRecordPlayerFlow& kFlow, int iCityId)
+{
+	for (size_t iI = 0; iI < kFlow.aAIProductionTargetChangesByCity.size(); iI++)
+	{
+		if (kFlow.aAIProductionTargetChangesByCity[iI].first == iCityId)
+		{
+			kFlow.aAIProductionTargetChangesByCity[iI].second++;
+			return;
+		}
+	}
+	kFlow.aAIProductionTargetChangesByCity.push_back(std::make_pair(iCityId, 1));
+}
+
+SASGameRecordAIProductionChoiceScope::SASGameRecordAIProductionChoiceScope(CvCity const& kCity, bool bEnabled)
+: m_pCity(bEnabled ? &kCity : NULL)
+{
+	// <!-- custom: Keep the disabled hot path minimal: a null pointer is both the gate and the only initialized state. The remaining members are written only when level-2+ logging is actually enabled. (ChatGPT-5.6-Sol) -->
+	if (m_pCity != NULL)
+		captureSASGameRecordProductionTarget(kCity, m_eOldOrder, m_iOldData1, m_iOldStored, m_iOldNeeded, m_iOldTurnsLeft, m_iOldAccumulatedInactiveTurns);
+}
+
+SASGameRecordAIProductionChoiceScope::~SASGameRecordAIProductionChoiceScope()
+{
+	if (m_pCity == NULL)
+		return;
+	OrderTypes eNewOrder = NO_ORDER;
+	int iNewData1 = -1;
+	int iNewStored = 0;
+	int iNewNeeded = 0;
+	int iNewTurnsLeft = -1;
+	int iNewAccumulatedInactiveTurns = -1;
+	captureSASGameRecordProductionTarget(*m_pCity, eNewOrder, iNewData1, iNewStored, iNewNeeded, iNewTurnsLeft, iNewAccumulatedInactiveTurns);
+	bool const bSameTarget = (m_eOldOrder == eNewOrder && m_iOldData1 == iNewData1);
+	if (bSameTarget)
+		return;
+	bool const bOldTarget = (m_eOldOrder != NO_ORDER);
+	bool const bNewTarget = (eNewOrder != NO_ORDER);
+	bool const bResume = (bNewTarget && iNewStored > 0);
+	// <!-- custom: Normal completion -> fresh next target is not churn. Preserve only a real active-target change or selection that resumes previously stored production. (ChatGPT-5.6-Sol) -->
+	if (!bOldTarget && !bResume)
+		return;
+	PlayerTypes const ePlayer = m_pCity->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	if (bOldTarget)
+	{
+		if (bNewTarget)
+			kFlow.iAIProductionTargetSwitches++;
+		else kFlow.iAIProductionTargetClears++;
+		if (m_iOldStored > 0)
+		{
+			kFlow.iAIProductionInvestedTargetChanges++;
+			kFlow.iAIProductionParked += m_iOldStored;
+		}
+		noteSASGameRecordAIProductionTargetChangedCity(kFlow, m_pCity->getID());
+		int const iOldKind = getSASGameRecordProductionKindIndex(m_eOldOrder, m_iOldData1);
+		int const iNewKind = getSASGameRecordProductionKindIndex(eNewOrder, iNewData1);
+		if (iOldKind >= 0 && iNewKind >= 0)
+			kFlow.aiAIProductionTransitions[iOldKind * NUM_SAS_PRODUCTION_KINDS + iNewKind]++;
+	}
+	if (bResume)
+	{
+		kFlow.iAIProductionTargetResumes++;
+		kFlow.iAIProductionResumed += iNewStored;
+	}
+	if (gGameRecordLogLevel >= 3)
+	{
+		char const* szChange = (bOldTarget ? (bNewTarget ? "SWITCH" : "CLEAR") : "RESUME");
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=AI_PRODUCTION_TARGET_CHANGED player=%d cityId=%d city=%S change=%s oldKind=%s oldTarget=%s oldStored=%d oldNeeded=%d oldTurnsLeft=%d oldAccumulatedInactiveTurns=%d newKind=%s newTarget=%s newStored=%d newNeeded=%d newTurnsLeft=%d newAccumulatedInactiveTurns=%d oldStoredParked=%d newStoredResumed=%d",
+			GC.getGame().getGameTurn(), ePlayer, m_pCity->getID(), getSASGameRecordQuotedCityName(m_pCity).GetCString(), szChange,
+			getSASGameRecordProductionKind(m_eOldOrder, m_iOldData1), getSASGameRecordProductionType(m_eOldOrder, m_iOldData1), m_iOldStored, m_iOldNeeded, m_iOldTurnsLeft, m_iOldAccumulatedInactiveTurns,
+			getSASGameRecordProductionKind(eNewOrder, iNewData1), getSASGameRecordProductionType(eNewOrder, iNewData1), iNewStored, iNewNeeded, iNewTurnsLeft, iNewAccumulatedInactiveTurns, m_iOldStored > 0 ? m_iOldStored : 0, bResume ? iNewStored : 0);
+	}
+}
+
+// <!-- custom: Production-pipeline aggregation is declared here because the helper that normalizes unavailable current-production cost is defined a little later with the other city-output helpers. (ChatGPT-5.6-Sol) -->
+static int getSASGameRecordCityProductionNeeded(CvCity const& kCity);
+
+// <!-- custom: Current city rows show only the active target, so repeated AI switches can leave a strategically important bank of partial production invisible.
+// At periodic level-2 snapshots, enumerate stored non-current unit/building/project production once per city and summarize fragmentation; level 3 adds the exact parked inventory, where each unit/building @ value is the engine's accumulated inactive-turn counter (it pauses rather than resets when production resumes).
+// Cheap isAnyProductionProgress guards skip each loaded-XML scan when that city has no stored production of the corresponding kind.
+// Food-produced units such as Settlers/Workers use the same per-unit production bank, so split them as a useful subset rather than invent a separate parked-food quantity.
+// AI unit/building production is not labeled "lost" because inherited K-Mod/AdvCiv CvCity::doDecay only reduces it for human cities. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordProductionPipeline(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	int iActiveFiniteItems = 0;
+	int iActiveStored = 0;
+	int iActiveNeeded = 0;
+	int iActiveProcesses = 0;
+	int iActiveFoodProductionUnits = 0;
+	int iActiveFoodProductionUnitStored = 0;
+	int iParkedItems = 0;
+	int iParkedStored = 0;
+	int iParkedNeeded = 0;
+	int iParkedUnitItems = 0;
+	int iParkedUnitStored = 0;
+	int iParkedFoodProductionUnitItems = 0;
+	int iParkedFoodProductionUnitStored = 0;
+	int iParkedBuildingItems = 0;
+	int iParkedBuildingStored = 0;
+	int iParkedWonderItems = 0;
+	int iParkedWonderStored = 0;
+	int iParkedProjectItems = 0;
+	int iParkedProjectStored = 0;
+	int iCitiesWithParked = 0;
+	int iMaxParkedItemsOneCity = 0;
+	int iMaxParkedStoredOneCity = 0;
+	int iParkedHalfComplete = 0;
+	int iParkedThreeQuarterComplete = 0;
+	int iInactivityCounterItems = 0;
+	int iAccumulatedInactiveTurnsTotal = 0;
+	int iMaxAccumulatedInactiveTurns = 0;
+	CvString szParked;
+	int iCityLoop = 0;
+	for (CvCity const* pCity = kPlayer.firstCity(&iCityLoop); pCity != NULL; pCity = kPlayer.nextCity(&iCityLoop))
+	{
+		UnitTypes const eCurrentUnit = pCity->getProductionUnit();
+		BuildingTypes const eCurrentBuilding = pCity->getProductionBuilding();
+		ProjectTypes const eCurrentProject = pCity->getProductionProject();
+		ProcessTypes const eCurrentProcess = pCity->getProductionProcess();
+		if (eCurrentUnit != NO_UNIT || eCurrentBuilding != NO_BUILDING || eCurrentProject != NO_PROJECT)
+		{
+			iActiveFiniteItems++;
+			iActiveStored += pCity->getProduction();
+			iActiveNeeded += getSASGameRecordCityProductionNeeded(*pCity);
+			if (eCurrentUnit != NO_UNIT && pCity->isFoodProduction(eCurrentUnit))
+			{
+				iActiveFoodProductionUnits++;
+				iActiveFoodProductionUnitStored += pCity->getUnitProduction(eCurrentUnit);
+			}
+		}
+		else if (eCurrentProcess != NO_PROCESS) iActiveProcesses++;
+		int iCityParkedItems = 0;
+		int iCityParkedStored = 0;
+		if (pCity->isAnyProductionProgress(ORDER_TRAIN))
+		{
+			FOR_EACH_ENUM(Unit)
+			{
+				int const iStored = pCity->getUnitProduction(eLoopUnit);
+				if (iStored <= 0 || eLoopUnit == eCurrentUnit)
+					continue;
+				int const iNeeded = pCity->getProductionNeeded(eLoopUnit);
+				int const iInactiveTurns = pCity->getUnitProductionTime(eLoopUnit);
+				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
+				iParkedUnitItems++; iParkedUnitStored += iStored;
+				if (pCity->isFoodProduction(eLoopUnit))
+				{
+					iParkedFoodProductionUnitItems++;
+					iParkedFoodProductionUnitStored += iStored;
+				}
+				iCityParkedItems++; iCityParkedStored += iStored;
+				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
+				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
+				iInactivityCounterItems++; iAccumulatedInactiveTurnsTotal += iInactiveTurns; iMaxAccumulatedInactiveTurns = std::max(iMaxAccumulatedInactiveTurns, iInactiveTurns);
+				if (gGameRecordLogLevel >= 3)
+				{
+					CvString szItem;
+					szItem.Format(szParked.empty() ? "%d:UNIT:%s:%d/%d@%d" : ",%d:UNIT:%s:%d/%d@%d", pCity->getID(), getSASGameRecordUnitType(eLoopUnit), iStored, iNeeded, iInactiveTurns);
+					szParked += szItem;
+				}
+			}
+		}
+		if (pCity->isAnyProductionProgress(ORDER_CONSTRUCT))
+		{
+			FOR_EACH_ENUM(Building)
+			{
+				int const iStored = pCity->getBuildingProduction(eLoopBuilding);
+				if (iStored <= 0 || eLoopBuilding == eCurrentBuilding)
+					continue;
+				int const iNeeded = pCity->getProductionNeeded(eLoopBuilding);
+				int const iInactiveTurns = pCity->getBuildingProductionTime(eLoopBuilding);
+				bool const bWonder = GC.getInfo(eLoopBuilding).isLimited();
+				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
+				if (bWonder) { iParkedWonderItems++; iParkedWonderStored += iStored; }
+				else { iParkedBuildingItems++; iParkedBuildingStored += iStored; }
+				iCityParkedItems++; iCityParkedStored += iStored;
+				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
+				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
+				iInactivityCounterItems++; iAccumulatedInactiveTurnsTotal += iInactiveTurns; iMaxAccumulatedInactiveTurns = std::max(iMaxAccumulatedInactiveTurns, iInactiveTurns);
+				if (gGameRecordLogLevel >= 3)
+				{
+					CvString szItem;
+					szItem.Format(szParked.empty() ? "%d:%s:%s:%d/%d@%d" : ",%d:%s:%s:%d/%d@%d", pCity->getID(), bWonder ? "WONDER" : "BUILDING", getSASGameRecordBuildingType(eLoopBuilding), iStored, iNeeded, iInactiveTurns);
+					szParked += szItem;
+				}
+			}
+		}
+		if (pCity->isAnyProductionProgress(ORDER_CREATE))
+		{
+			FOR_EACH_ENUM(Project)
+			{
+				int const iStored = pCity->getProjectProduction(eLoopProject);
+				if (iStored <= 0 || eLoopProject == eCurrentProject)
+					continue;
+				int const iNeeded = pCity->getProductionNeeded(eLoopProject);
+				iParkedItems++; iParkedStored += iStored; iParkedNeeded += iNeeded;
+				iParkedProjectItems++; iParkedProjectStored += iStored;
+				iCityParkedItems++; iCityParkedStored += iStored;
+				if (iNeeded > 0 && 2 * iStored >= iNeeded) iParkedHalfComplete++;
+				if (iNeeded > 0 && 4 * iStored >= 3 * iNeeded) iParkedThreeQuarterComplete++;
+				if (gGameRecordLogLevel >= 3)
+				{
+					CvString szItem;
+					szItem.Format(szParked.empty() ? "%d:PROJECT:%s:%d/%d@-" : ",%d:PROJECT:%s:%d/%d@-", pCity->getID(), getSASGameRecordProjectType(eLoopProject), iStored, iNeeded);
+					szParked += szItem;
+				}
+			}
+		}
+		if (iCityParkedItems > 0)
+		{
+			iCitiesWithParked++;
+			iMaxParkedItemsOneCity = std::max(iMaxParkedItemsOneCity, iCityParkedItems);
+			iMaxParkedStoredOneCity = std::max(iMaxParkedStoredOneCity, iCityParkedStored);
+		}
+	}
+	logSASGameRecord("GAME_RECORD_PRODUCTION_PIPELINE turn=%d player=%d activeFiniteItems=%d activeStored=%d activeNeeded=%d activeProcesses=%d activeFoodProductionUnits=%d activeFoodProductionUnitStored=%d parkedItems=%d parkedStored=%d parkedNeeded=%d citiesWithParked=%d maxParkedItemsOneCity=%d maxParkedStoredOneCity=%d parkedHalfComplete=%d parkedThreeQuarterComplete=%d parkedUnitItems=%d parkedUnitStored=%d parkedFoodProductionUnitItems=%d parkedFoodProductionUnitStored=%d parkedBuildingItems=%d parkedBuildingStored=%d parkedWonderItems=%d parkedWonderStored=%d parkedProjectItems=%d parkedProjectStored=%d inactivityCounterItems=%d accumulatedInactiveTurnsTotal=%d maxAccumulatedInactiveTurns=%d",
+		iGameTurn, ePlayer, iActiveFiniteItems, iActiveStored, iActiveNeeded, iActiveProcesses, iActiveFoodProductionUnits, iActiveFoodProductionUnitStored, iParkedItems, iParkedStored, iParkedNeeded, iCitiesWithParked, iMaxParkedItemsOneCity, iMaxParkedStoredOneCity, iParkedHalfComplete, iParkedThreeQuarterComplete,
+		iParkedUnitItems, iParkedUnitStored, iParkedFoodProductionUnitItems, iParkedFoodProductionUnitStored, iParkedBuildingItems, iParkedBuildingStored, iParkedWonderItems, iParkedWonderStored, iParkedProjectItems, iParkedProjectStored, iInactivityCounterItems, iAccumulatedInactiveTurnsTotal, iMaxAccumulatedInactiveTurns);
+	if (gGameRecordLogLevel >= 3 && !szParked.empty())
+		logSASGameRecord("GAME_RECORD_PRODUCTION_PARKED turn=%d player=%d items=%s", iGameTurn, ePlayer, szParked.GetCString());
+}
+
 // <!-- custom: Building-completion actions alone cannot reconstruct buildings inherited through conquest, granted for free, or already present when a log begins. At detail level, snapshot the exact owned buildings and compact regular/national/team/world-wonder totals for each city. (GPT-5.6-Sol) -->
 static CvString getSASGameRecordCityBuildings(CvCity const& kCity, int& iTotal, int& iRegular, int& iNationalWonders, int& iTeamWonders, int& iWorldWonders)
 {
@@ -5484,7 +5861,7 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
 	// <!-- custom: City-level espionage output and modifiers make Jail/Intelligence Agency-style effects measurable without adding another row; the defense modifier is kept separate from the city's espionage-commerce modifier. (ChatGPT-5.6-Sol) -->
 	// <!-- custom: Air-unit occupancy/capacity on the existing city row makes poor basing or saturated airbases visible without adding a separate late-game row. Cargo aircraft are intentionally excluded by CvPlot::countNumAirUnits, matching actual base-capacity use. (GPT-5.6) -->
 	// <!-- custom: City defense snapshots expose both the current post-bombard defense modifier and its undamaged ceiling. DefenseDamage/MAX_CITY_DEFENSE_DAMAGE preserves the underlying bombardment state, while bombarded shows whether the city has already been hit this turn. This lets broad game records be paired with the level-3 tactical bombardment actions below. (GPT-5.6) -->
-	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d espionageRate=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d espionageRate=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionUsesFood=%d productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
 			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(),
 			kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(),
 			kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE),
@@ -5493,7 +5870,8 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
 			kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
 			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
 			kCity.isConnectedToCapital(), pPlotGroup == NULL ? -1 : pPlotGroup->getID(), kCity.getTradeRoutes(), iDomesticTradeRoutes, iForeignTradeRoutes, kCity.getTradeYield(YIELD_FOOD), kCity.getTradeYield(YIELD_PRODUCTION), kCity.getTradeYield(YIELD_COMMERCE),
-			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), getSASGameRecordCityProductionTurns(kCity), kCity.getProduction(), getSASGameRecordCityProductionNeeded(kCity), kCity.getOverflowProduction(), kCity.getFeatureProduction(), getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
+			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), kCity.isFoodProduction() ? 1 : 0, getSASGameRecordCityProductionTurns(kCity), kCity.getProduction(), getSASGameRecordCityProductionNeeded(kCity), kCity.getOverflowProduction(), kCity.getFeatureProduction(),
+			getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
 			kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameRecordCityGPOdds(kCity).GetCString());
 	logSASGameRecord("GAME_RECORD_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
 			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(),
@@ -5879,6 +6257,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 		logSASGameRecordAIMilitaryProduction(ePlayer, iGameTurn);
 		logSASGameRecordPolicies(ePlayer, iGameTurn);
 		logSASGameRecordEconomy(ePlayer, iGameTurn);
+		logSASGameRecordProductionPipeline(ePlayer, iGameTurn);
 		logSASGameRecordStatistics(ePlayer, iGameTurn);
 		logSASGameRecordEspionage(ePlayer, iGameTurn);
 		logSASGameRecordDemographics(ePlayer, iGameTurn);
@@ -6964,6 +7343,57 @@ void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool 
 	kFlow.iFailGold += iGold;
 	char const* szProduction = (bProject ? GC.getInfo((ProjectTypes)iOrderData).getType() : getSASGameRecordBuildingType((BuildingTypes)iOrderData));
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_FAILED_TO_GOLD player=%d cityId=%d city=%S productionKind=%s production=%s investedProduction=%d gold=%d", GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), bProject ? "PROJECT" : "BUILDING", szProduction, iInvestedProduction, iGold);
+}
+
+void logSASGameRecordProductionDecay(CvCity const* pCity, OrderTypes eOrder, int iData1, int iBefore, int iAfter, int iInactiveTurns)
+{
+	if (pCity == NULL || iAfter >= iBefore)
+		return;
+	int const iLost = iBefore - iAfter;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	kFlow.iProductionDecayActions++;
+	kFlow.iProductionDecayLost += iLost;
+	if (gGameRecordLogLevel >= 3)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_DECAY player=%d cityId=%d city=%S productionKind=%s production=%s storedBefore=%d storedAfter=%d lost=%d accumulatedInactiveTurns=%d",
+			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), iBefore, iAfter, iLost, iInactiveTurns);
+	}
+}
+
+void logSASGameRecordProductionInvalidated(CvCity const* pCity, OrderTypes eOrder, int iData1, int iStoredLost, bool bActiveTarget, bool bQueued)
+{
+	if (pCity == NULL || iStoredLost <= 0)
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	kFlow.iProductionInvalidatedActions++;
+	kFlow.iProductionInvalidatedLost += iStoredLost;
+	char const* szReason = (eOrder == ORDER_TRAIN ? "MAXED_UNIT_CLASS" : (eOrder == ORDER_CONSTRUCT ? "MAXED_BUILDING_CLASS" : (eOrder == ORDER_CREATE ? "MAXED_PROJECT" : "UNKNOWN")));
+	// <!-- custom: This is actual stored production erased by inherited maxed-class/project cleanup, not strategic target switching.
+	// Emit the rare loss at level 2 so parked production cannot disappear between snapshots without provenance. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_INVALIDATED player=%d cityId=%d city=%S productionKind=%s production=%s reason=%s storedLost=%d activeTarget=%d queued=%d",
+		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordProductionKind(eOrder, iData1), getSASGameRecordProductionType(eOrder, iData1), szReason, iStoredLost, bActiveTarget ? 1 : 0, bQueued ? 1 : 0);
+}
+
+void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit, UnitTypes eNewUnit, int iProductionTransferred, int iDestinationProductionBefore)
+{
+	if (pCity == NULL || (iProductionTransferred <= 0 && iDestinationProductionBefore <= 0))
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[pCity->getOwner()];
+	if (iProductionTransferred > 0)
+	{
+		kFlow.iProductionUpgradeTransfers++;
+		kFlow.iProductionUpgradeTransferred += iProductionTransferred;
+	}
+	// <!-- custom: CvCity::upgradeProduction assigns rather than adds at the destination.
+	// Any pre-existing destination production is therefore overwritten; preserve that separately as a possible mechanical loss instead of misclassifying it as target churn. (ChatGPT-5.6-Sol) -->
+	if (iDestinationProductionBefore > 0)
+		kFlow.iProductionUpgradeOverwriteActions++;
+	kFlow.iProductionUpgradeOverwritten += std::max(0, iDestinationProductionBefore);
+	if (gGameRecordLogLevel >= 3 || iDestinationProductionBefore > 0)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=PRODUCTION_UPGRADED player=%d cityId=%d city=%S oldUnit=%s newUnit=%s productionTransferred=%d newProductionBefore=%d newProductionAfter=%d overwrittenDestinationProduction=%d",
+			GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), getSASGameRecordUnitType(eOldUnit), getSASGameRecordUnitType(eNewUnit), iProductionTransferred, iDestinationProductionBefore, iProductionTransferred, std::max(0, iDestinationProductionBefore));
+	}
 }
 
 void logSASGameRecordVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory)

@@ -18,6 +18,22 @@ void startSASGameRecordLogForLoadedSave();
 class CvCity;
 class CvPlot;
 class CvUnit;
+// <!-- custom: Observe one AI_chooseProduction call as a scope so every early return is handled without teaching the AI decision tree about recorder schema.
+// When level 2+ is pre-enabled by the caller, the destructor compares the final head order with the entry state and records only meaningful switches, clears, or resumptions of stored production. (ChatGPT-5.6-Sol) -->
+class SASGameRecordAIProductionChoiceScope
+{
+public:
+	SASGameRecordAIProductionChoiceScope(CvCity const& kCity, bool bEnabled);
+	~SASGameRecordAIProductionChoiceScope();
+private:
+	CvCity const* m_pCity;
+	OrderTypes m_eOldOrder;
+	int m_iOldData1;
+	int m_iOldStored;
+	int m_iOldNeeded;
+	int m_iOldTurnsLeft;
+	int m_iOldAccumulatedInactiveTurns;
+};
 // <!-- custom: Goody huts are rare but can have compound randomized effects (gold, map reveal, partial/full tech, free/promoted units, hostile units and AdvCiv follow-up outcomes).
 // Collect only realized effects at the authoritative gameplay boundary, then let SASGameRecord own the stable row formatting. Callers must gate level 2+ before doing logging-only measurements. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordGoodyResult
@@ -131,6 +147,10 @@ void logSASGameRecordProjectBuilt(CvCity const* pCity, ProjectTypes eProject, in
 // <!-- custom: City snapshots expose stored overflow and interval production-flow rows summarize it. Level-3 production-completion rows additionally preserve the exact overflow result of each completed unit/building/project; the standalone hook remains for aggregation plus lower-level exceptional/Barbarian rows. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordProductionOverflow(CvCity const* pCity, int iRawModifiedOverflow, int iUnmodifiedOverflow, int iKeptOverflow, int iLostProduction, int iUnusedCapacity, int iGold);
 void logSASGameRecordProductionFailed(CvCity const* pCity, int iOrderData, bool bProject, int iInvestedProduction, int iGold);
+// <!-- custom: Production lifecycle diagnostics distinguish strategic target switching from actual mechanical loss. Decay is a real loss path; obsolete-unit production transfer preserves stored production under a new unit type. Call only at level 2+. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordProductionDecay(CvCity const* pCity, OrderTypes eOrder, int iData1, int iBefore, int iAfter, int iInactiveTurns);
+void logSASGameRecordProductionInvalidated(CvCity const* pCity, OrderTypes eOrder, int iData1, int iStoredLost, bool bActiveTarget, bool bQueued);
+void logSASGameRecordProductionUpgraded(CvCity const* pCity, UnitTypes eOldUnit, UnitTypes eNewUnit, int iProductionTransferred, int iDestinationProductionBefore);
 // <!-- custom: Added the victory type so SASGameRecord can distinguish an actual spaceship launch from ordinary project completion and record its countdown. (GPT-5.6-Sol) -->
 void logSASGameRecordVictoryLaunched(PlayerTypes ePlayer, VictoryTypes eVictory);
 // <!-- custom: Capital loss and a failed arrival roll both call resetVictoryProgress, which otherwise silently erases the active countdown and spaceship projects. These hooks preserve the distinct cause and exact pre-reset state. (GPT-5.6-Sol) -->
