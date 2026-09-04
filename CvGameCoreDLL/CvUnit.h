@@ -228,7 +228,9 @@ public:
 
 	bool canEspionage(const CvPlot* pPlot, bool bTestVisible = false) const;
 	bool espionage(EspionageMissionTypes eMission, int iData);
-	bool testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier, char const* szSummaryPhase); // (K-Mod added bMission)
+	// <!-- custom: Mission-phase interception carries the intended espionage mission and pre-mission target context so caught Spies remain attributable.
+	// Ordinary travel interception leaves these optional fields empty. (ChatGPT-5.6-Sol) -->
+	bool testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier, char const* szSummaryPhase, EspionageMissionTypes eMission = NO_ESPIONAGEMISSION, int iData = -1, ImprovementTypes eTargetImprovement = NO_IMPROVEMENT, RouteTypes eTargetRoute = NO_ROUTE, UnitTypes eTargetUnit = NO_UNIT); // (K-Mod added bMission)
 	int getSpyInterceptPercent(TeamTypes eTargetTeam, bool bMission) const; // (K-Mod added bMission)
 	bool isIntruding() const;
 

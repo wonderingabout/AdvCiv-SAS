@@ -6136,13 +6136,14 @@ bool CvUnit::spread(ReligionTypes eReligion)
 				+ iMissingReligions * 100;//std::max(100, 100 - 10 * iPresentReligions)
 		iSpreadProb /= GC.getNumReligionInfos();
 
-		bool bSuccess;
+		// <!-- custom: Default to failure because the outcome is now decided completely before its effects are applied/logged below.
+		// The original K-Mod direct-success or displacement paths still flip this to true; no spread RNG or result changes. (ChatGPT-5.6-Sol) -->
+		bool bSuccess = false;
+		ReligionTypes eDisplacedReligion = NO_RELIGION;
 		// K-Mod end
 
 		if (SyncRandSuccess100(iSpreadProb))
 		{
-			pCity->setHasReligion(eReligion, true, true, false,
-					getOwner()); // advc.106e
 			bSuccess = true;
 		}
 		else
@@ -6175,28 +6176,38 @@ bool CvUnit::spread(ReligionTypes eReligion)
 			}
 			std::partial_sort(aieRankedReligions.begin(), aieRankedReligions.begin() + 1,
 					aieRankedReligions.end());
-			ReligionTypes eFailedReligion = aieRankedReligions[0].second;
-			if (eFailedReligion == eReligion)
+			ReligionTypes const eFailedReligion = aieRankedReligions[0].second;
+			if (eFailedReligion != eReligion)
 			{
-				// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
-				static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
-
-				CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD",
-						getNameKey(), GC.getInfo(eReligion).getChar(), pCity->getNameKey()));
-				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_NOSPREAD",
-						MESSAGE_TYPE_INFO, getButton(), eColorRed,
-						pCity->getX(), pCity->getY());
-				bSuccess = false;
-			}
-			else
-			{
-				pCity->setHasReligion(eReligion, true, true, false,
-						getOwner()); // advc.106e
-				pCity->setHasReligion(eFailedReligion, false, true, false,
-						getOwner()); // advc.106e
 				bSuccess = true;
-			} // K-Mod end
+				eDisplacedReligion = eFailedReligion;
+			}
 		}
+
+		// <!-- custom: Refactor only the timing of the original K-Mod effects, not its decision: the same direct spread roll and failed-roll religion ranking determine the same success/failure/displacement, then the same add-before-remove membership changes or failure message are applied below.
+		// Separating outcome from effect lets SASGameRecord describe the pre-change attempt without adding/reordering gameplay RNG. (ChatGPT-5.6-Sol) -->
+		// <!-- custom: A Missionary is consumed regardless of outcome, and K-Mod can turn a failed direct spread into replacement of another religion.
+		// Record the exact attempt before applying membership changes, so the following canonical RELIGION_SPREAD/REMOVED rows read as its consequences. (ChatGPT-5.6-Sol) -->
+		if (gGameRecordLogLevel >= 2) logSASGameRecordReligionSpreadAttempt(this, eReligion, pCity, iSpreadProb, bSuccess, eDisplacedReligion);
+		if (bSuccess)
+		{
+			pCity->setHasReligion(eReligion, true, true, false, getOwner()); // advc.106e
+			if (eDisplacedReligion != NO_RELIGION)
+			{
+				pCity->setHasReligion(eDisplacedReligion, false, true, false, getOwner()); // advc.106e
+			}
+		}
+		else
+		{
+			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
+			static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
+
+			CvWString szBuffer(gDLL->getText("TXT_KEY_MISC_RELIGION_FAILED_TO_SPREAD",
+					getNameKey(), GC.getInfo(eReligion).getChar(), pCity->getNameKey()));
+			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer, "AS2D_NOSPREAD",
+					MESSAGE_TYPE_INFO, getButton(), eColorRed,
+					pCity->getX(), pCity->getY());
+		} // K-Mod end
 
 		// Python Event
 		CvEventReporter::getInstance().unitSpreadReligionAttempt(this, eReligion, bSuccess);
@@ -6293,14 +6304,22 @@ bool CvUnit::spreadCorporation(CorporationTypes eCorporation)
 	CvCity* pCity = getPlot().getPlotCity();
 	if (pCity != NULL)
 	{
-		GET_PLAYER(getOwner()).changeGold(-spreadCorporationCost(eCorporation, pCity));
+		int const iSpreadCost = spreadCorporationCost(eCorporation, pCity);
+		bool const bLogGameRecordSpread = (gGameRecordLogLevel >= 2);
+		int const iGoldBefore = bLogGameRecordSpread ? GET_PLAYER(getOwner()).getGold() : 0;
+		GET_PLAYER(getOwner()).changeGold(-iSpreadCost);
 		int iSpreadProb = m_pUnitInfo->getCorporationSpreads(eCorporation);
 		if (pCity->getTeam() != getTeam())
 			iSpreadProb /= 2;
 
 		iSpreadProb += (((GC.getNumCorporationInfos() - pCity->getCorporationCount()) *
 				(100 - iSpreadProb)) / GC.getNumCorporationInfos());
-		if (SyncRandSuccess100(iSpreadProb))
+		// <!-- custom: Store the original single success roll once so factual logging can reuse its result without any extra/reordered RNG. (ChatGPT-5.6-Sol) -->
+		bool const bSuccess = SyncRandSuccess100(iSpreadProb);
+		// <!-- custom: Executives are consumed and their spread gold is paid even on failure.
+		// Preserve that otherwise invisible attempt after the treasury change and before any canonical CORPORATION_SPREAD consequence. (ChatGPT-5.6-Sol) -->
+		if (bLogGameRecordSpread) logSASGameRecordCorporationSpreadAttempt(this, eCorporation, pCity, iSpreadProb, iSpreadCost, iGoldBefore, bSuccess);
+		if (bSuccess)
 			pCity->setHasCorporation(eCorporation, true, true, false);
 		else
 		{
@@ -6739,20 +6758,40 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 	else
 	{
 		CvEspionageMissionInfo const& kMission = GC.getInfo(eMission);
-		if (testSpyIntercepted(eTargetPlayer, true, kMission.getDifficultyMod(), "BEFORE_MISSION"))
+		bool const bLogEspionageMission = (gGameRecordLogLevel >= 2);
+		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
+		RouteTypes eTargetRoute = NO_ROUTE;
+		UnitTypes eTargetUnit = NO_UNIT;
+		if (bLogEspionageMission)
+		{
+			// <!-- custom: Capture only destructible target identity before interception or execution.
+			// The same facts then describe a caught-before Spy, the completed mission and a caught-after Spy without trying to inspect a target that may already be gone.
+			// Keep this target lookup level-2 gated; the ordinary mission plot remains resolved at its original post-interception point below. (ChatGPT-5.6-Sol) -->
+			if (kMission.isDestroyImprovement())
+			{
+				CvPlot const& kMissionPlot = getPlot();
+				eTargetImprovement = kMissionPlot.getImprovementType();
+				eTargetRoute = kMissionPlot.getRouteType();
+			}
+			else if ((kMission.getDestroyUnitCostFactor() > 0 || kMission.getBuyUnitCostFactor() > 0) && iData >= 0)
+			{
+				CvUnit const* pTargetUnit = GET_PLAYER(eTargetPlayer).getUnit(iData);
+				if (pTargetUnit != NULL)
+					eTargetUnit = pTargetUnit->getUnitType();
+			}
+		}
+		// <!-- custom: The extra mission/target arguments are provenance only: testSpyIntercepted does not use them for interception mechanics and forwards them only inside its existing level-2 logging block.
+		// Chance/RNG/order stay unchanged; lower log levels do no target lookup or recorder work. (ChatGPT-5.6-Sol) -->
+		if (testSpyIntercepted(eTargetPlayer, true, kMission.getDifficultyMod(), "BEFORE_MISSION", eMission, iData, eTargetImprovement, eTargetRoute, eTargetUnit))
 		{
 			return false;
 		}
 
 		CvPlot* const pMissionPlot = plot();
-		bool const bLogEspionageMission = (gGameRecordLogLevel >= 2);
 		SASGameRecordPlotState kOldPlotState;
 		if (bLogEspionageMission) kOldPlotState = SASGameRecordPlotState(*pMissionPlot);
 		int iMissionCost = -1;
 		int iEPBefore = -1;
-		ImprovementTypes eTargetImprovement = NO_IMPROVEMENT;
-		RouteTypes eTargetRoute = NO_ROUTE;
-		UnitTypes eTargetUnit = NO_UNIT;
 		int iEffectValue = -1;
 		char const* szEffectKind = "-";
 		if (bLogEspionageMission)
@@ -6761,14 +6800,6 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 			TeamTypes const eTargetTeam = TEAMID(eTargetPlayer);
 			iMissionCost = GET_PLAYER(getOwner()).getEspionageMissionCost(eMission, eTargetPlayer, pMissionPlot, iData, this);
 			iEPBefore = GET_TEAM(getTeam()).getEspionagePointsAgainstTeam(eTargetTeam);
-			eTargetImprovement = pMissionPlot->getImprovementType();
-			eTargetRoute = pMissionPlot->getRouteType();
-			if ((kMission.getDestroyUnitCostFactor() > 0 || kMission.getBuyUnitCostFactor() > 0) && iData >= 0)
-			{
-				CvUnit const* pTargetUnit = GET_PLAYER(eTargetPlayer).getUnit(iData);
-				if (pTargetUnit != NULL)
-					eTargetUnit = pTargetUnit->getUnitType();
-			}
 			if (kMission.getDestroyProductionCostFactor() > 0 && pTargetCity != NULL)
 			{
 				iEffectValue = pTargetCity->getProduction();
@@ -6824,7 +6855,9 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 			// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 			static const int iESPIONAGE_SPY_MISSION_ESCAPE_MOD = GC.getDefineINT("ESPIONAGE_SPY_MISSION_ESCAPE_MOD");
 
-			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD, "AFTER_MISSION"))
+			// <!-- custom: Reuse the same pre-mission provenance after success because the target may now be destroyed/transferred.
+			// As above, these extra arguments are logging-only and do not participate in the escape interception roll. (ChatGPT-5.6-Sol) -->
+			if (!testSpyIntercepted(eTargetPlayer, true, iESPIONAGE_SPY_MISSION_ESCAPE_MOD, "AFTER_MISSION", eMission, iData, eTargetImprovement, eTargetRoute, eTargetUnit))
 			{
 				setFortifyTurns(0);
 				setMadeAttack(true);
@@ -6857,7 +6890,8 @@ bool CvUnit::espionage(EspionageMissionTypes eMission, int iData)
 	return false;
 }
 
-bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier, char const* szSummaryPhase)
+// <!-- custom: eMission/iData and captured target types are optional SASGameRecord provenance only; interception chance, RNG, messages, diplomatic memory and kill behavior below remain unchanged. Header defaults keep ordinary TRAVEL callers unchanged. (ChatGPT-5.6-Sol) -->
+bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iModifier, char const* szSummaryPhase, EspionageMissionTypes eMission, int iData, ImprovementTypes eTargetImprovement, RouteTypes eTargetRoute, UnitTypes eTargetUnit)
 {
 	CvPlayer& kTargetPlayer = GET_PLAYER(eTargetPlayer);
 	if (kTargetPlayer.isBarbarian())
@@ -6926,7 +6960,7 @@ bool CvUnit::testSpyIntercepted(PlayerTypes eTargetPlayer, bool bMission, int iM
 
 	if (gGameRecordLogLevel >= 2)
 	{
-		logSASGameRecordSpyIntercepted(this, eTargetPlayer, szSummaryPhase, iModifier, iInterceptChanceX100);
+		logSASGameRecordSpyIntercepted(this, eTargetPlayer, szSummaryPhase, iModifier, iInterceptChanceX100, eMission, iData, eTargetImprovement, eTargetRoute, eTargetUnit);
 		logSASGameRecordGreatPersonDied(this, eTargetPlayer, "SPY_INTERCEPTED");
 	}
 	kill(true);
