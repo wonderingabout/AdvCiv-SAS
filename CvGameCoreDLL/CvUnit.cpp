@@ -5403,6 +5403,8 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 	RouteTypes const eOldRoute = kPlot.getRouteType();
 	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
 	SASGameRecordPlotState kOldPlotState;
+	PlayerTypes const ePillageVictim = bLogPlotChange ? kPlot.getOwner() : NO_PLAYER;
+	int const iPillagerGoldBefore = bLogPlotChange ? GET_PLAYER(getOwner()).getGold() : 0;
 	if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kPlot);
 	// <advc.111>
 	bool bPillaged = false;
@@ -5425,7 +5427,13 @@ bool CvUnit::pillage(/* advc.111: */ bool bForceImprovement)
 		improvements that replace themselves upon being pillaged.) */
 	if (bPillaged)
 	{
-		if (bLogPlotChange) recordSASGameRecordPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
+		if (bLogPlotChange)
+		{
+			recordSASGameRecordPlotChange(kPlot, kOldPlotState, "pillaging", "PILLAGE", true);
+			// <!-- custom: The existing plot-change row says what structure changed.
+			// Add the acting unit, actual victim and realized pillage gold so war/economy history can attribute the same event without guessing from nearby units. (ChatGPT-5.6-Sol) -->
+			logSASGameRecordPillage(this, kOldPlotState, ePillageVictim, GET_PLAYER(getOwner()).getGold() - iPillagerGoldBefore);
+		}
 		CvEventReporter::getInstance().unitPillage(this, eOldImprovement, eOldRoute, getOwner());
 	}
 	return true;
@@ -10695,8 +10703,12 @@ void CvUnit::setBlockading(bool bNewValue)
 {
 	if (bNewValue != isBlockading())
 	{
+		// <!-- custom: A blockade is persistent strategic state rather than merely the later trade-route gold event.
+		// Record the old state before clearing and the new state after applying so the recorder can match one unit's start/end, range, affected teams/cities and observed duration without per-turn spam. (ChatGPT-5.6-Sol) -->
+		if (!bNewValue && gGameRecordLogLevel >= 2) logSASGameRecordBlockadeChanged(this, false);
 		m_bBlockading = bNewValue;
 		updatePlunder(isBlockading() ? 1 : -1, true);
+		if (bNewValue && gGameRecordLogLevel >= 2) logSASGameRecordBlockadeChanged(this, true);
 	}
 }
 
@@ -10726,12 +10738,17 @@ void CvUnit::collectBlockadeGold()
 			if(!pCity->isPlundered() && isEnemy(pCity->getTeam()) &&
 				!::atWar(pCity->getTeam(), getTeam()))
 			{
-				int iGold = pCity->calculateTradeProfit(pCity) * pCity->getTradeRoutes();
+				int const iTradeRoutes = pCity->getTradeRoutes();
+				int const iProfitPerRoute = pCity->calculateTradeProfit(pCity);
+				int iGold = iProfitPerRoute * iTradeRoutes;
 				if(iGold <= 0)
 					continue;
 				pCity->setPlundered(true);
 				GET_PLAYER(getOwner()).changeGold(iGold);
 				GET_PLAYER(pCity->getOwner()).changeGold(-iGold);
+				// <!-- custom: Preserve the exact realized blockade transfer after gold changes.
+				// This is distinct from blockade state itself and lets economic history identify which city actually paid whom and how much. (ChatGPT-5.6-Sol) -->
+				if (gGameRecordLogLevel >= 2) logSASGameRecordBlockadePlunder(this, pCity, iGold, iTradeRoutes, iProfitPerRoute);
 
 				CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_TRADE_ROUTE_PLUNDERED",
 						getNameKey(), pCity->getNameKey(), iGold);

@@ -18,7 +18,8 @@ void startSASGameRecordLogForLoadedSave();
 class CvCity;
 class CvPlot;
 class CvUnit;
-// <!-- custom: Forward-declare the vote payload because SASGameRecord only passes it by pointer; this keeps the lightweight recorder header from needing CvStructs.h solely for AP/UN history hooks. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Forward-declare the vote payload because SASGameRecord only passes it by pointer.
+// This keeps the lightweight recorder header from needing CvStructs.h solely for diplomatic vote-source history hooks. (ChatGPT-5.6-Sol) -->
 struct VoteTriggeredData;
 // <!-- custom: Observe one AI_chooseProduction call as a scope so every early return is handled without teaching the AI decision tree about recorder schema.
 // When level 2+ is pre-enabled by the caller, the destructor compares the final head order with the entry state and records only meaningful switches, clears, or resumptions of stored production. (ChatGPT-5.6-Sol) -->
@@ -136,11 +137,22 @@ void logSASGameRecordDiploOfferEvaluated(PlayerTypes eProposer, PlayerTypes eRes
 void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kOriginalProposerGives, CLinkList<TradeData> const& kOriginalResponderGives, CLinkList<TradeData> const& kProposerAdds, CLinkList<TradeData> const& kResponderAdds, bool bProposed);
 // <!-- custom: AI->human rejected ordinary offers are visible only at the Python diplomacy UI boundary; the CyGame bridge rebuilds these lists and calls this canonical recorder formatter. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives);
-// <!-- custom: AP/UN elections and resolutions are rare, high-impact factual boundaries. Record the real triggered proposal and one compact final weighted ballot/result rather than speculative AI vote reasoning or one row per cast ballot. Caller-gate at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Diplomatic vote-source elections and resolutions (the Apostolic Palace and United Nations in standard BtS) are rare, high-impact factual boundaries.
+// Record the real triggered proposal and one compact final weighted ballot/result rather than speculative AI vote reasoning or one row per cast ballot. Caller-gate at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered);
 void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bThresholdPassed, bool bPassed, bool bCancelled, qword uiDefaultedAbstain, qword uiDefiers, qword uiEndorsers);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer);
+// <!-- custom: Preserve consequential factual city/unit actions that otherwise disappear between periodic snapshots: hurrying, pillage attribution/economic gain, naval blockade lifecycle/plunder, unit gifting, religion/corporation membership changes, and circumnavigation.
+// These hooks record only realized gameplay outcomes at level 2+; AI choice reasoning remains in BBAI diagnostics. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordCityHurry(CvCity const* pCity, HurryTypes eHurry, int iProductionBefore, int iProductionAdded, int iGoldCost, int iPopulationCost, int iHurryAngerAdded, int iGoldBefore, int iPopulationBefore, int iHurryAngerBefore);
+void logSASGameRecordPillage(CvUnit const* pUnit, SASGameRecordPlotState const& kOldPlotState, PlayerTypes eVictimPlayer, int iGoldGained);
+void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting);
+void logSASGameRecordBlockadePlunder(CvUnit const* pUnit, CvCity const* pCity, int iGold, int iTradeRoutes, int iProfitPerRoute);
+void logSASGameRecordUnitGifted(CvUnit const* pUnit, PlayerTypes eGiftingPlayer, CvPlot const* pPlotLocation);
+void logSASGameRecordReligionChanged(ReligionTypes eReligion, PlayerTypes ePlayer, CvCity const* pCity, bool bAdded);
+void logSASGameRecordCorporationChanged(CorporationTypes eCorporation, PlayerTypes ePlayer, CvCity const* pCity, bool bAdded);
+void logSASGameRecordCircumnavigated(TeamTypes eTeam, int iFreeSeaMoves, bool bBonusApplied, int iSeaExtraMovesBefore, int iSeaExtraMovesAfter);
 void logSASGameRecordGoldenAge(PlayerTypes ePlayer, bool bStart);
 void logSASGameRecordGoldenAgeTurnsChanged(PlayerTypes ePlayer, int iChange, int iOldGoldenAgeTurns, int iNewGoldenAgeTurns);
 void logSASGameRecordAnarchy(PlayerTypes ePlayer, bool bStart);

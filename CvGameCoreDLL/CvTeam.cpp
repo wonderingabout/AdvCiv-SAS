@@ -5723,10 +5723,12 @@ void CvTeam::testCircumnavigated()
 	// <!-- custom: make these static const for performance optimization as advised by chatgpt 5 too. -->
 	// <!-- custom: code/performance optimization: hoist -->
 	static const int iCIRCUMNAVIGATE_FREE_MOVES = GC.getDefineINT("CIRCUMNAVIGATE_FREE_MOVES");
+	bool const bLogGameRecordCircumnavigation = (gGameRecordLogLevel >= 2);
+	int const iSeaExtraMovesBefore = bLogGameRecordCircumnavigation ? getExtraMoves(DOMAIN_SEA) : 0;
+	bool const bCircumnavigationBonusApplied = (GC.getGame().getElapsedGameTurns() > 1 && iCIRCUMNAVIGATE_FREE_MOVES != 0);
 
 	//if (GC.getGame().getElapsedGameTurns() > 0)
-	if (GC.getGame().getElapsedGameTurns() > 1 && // K-Mod (due to changes in when CvTeam::doTurn is called)
-		iCIRCUMNAVIGATE_FREE_MOVES != 0)
+	if (bCircumnavigationBonusApplied) // K-Mod (due to changes in when CvTeam::doTurn is called)
 	{
 		changeExtraMoves(DOMAIN_SEA, iCIRCUMNAVIGATE_FREE_MOVES);
 
@@ -5760,6 +5762,9 @@ void CvTeam::testCircumnavigated()
 		GC.getGame().addReplayMessage(REPLAY_MESSAGE_MAJOR_EVENT,
 				getLeaderID(), szBuffer, eColorHighlightText);
 	}
+	// <!-- custom: Circumnavigation is a one-time global history boundary with a permanent naval-movement effect.
+	// Record the winning team and actual before/after movement modifier without rescanning the map that testCircumnavigated already validated. (ChatGPT-5.6-Sol) -->
+	if (bLogGameRecordCircumnavigation) logSASGameRecordCircumnavigated(getID(), iCIRCUMNAVIGATE_FREE_MOVES, bCircumnavigationBonusApplied, iSeaExtraMovesBefore, getExtraMoves(DOMAIN_SEA));
 }
 
 // <advc.127b>

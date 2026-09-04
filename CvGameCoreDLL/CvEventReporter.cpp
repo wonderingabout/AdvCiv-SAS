@@ -404,6 +404,9 @@ void CvEventReporter::unitSpreadReligionAttempt(CvUnit* pUnit, ReligionTypes eRe
 
 void CvEventReporter::unitGifted(CvUnit* pUnit, PlayerTypes eGiftingPlayer, CvPlot* pPlotLocation)
 {
+	// <!-- custom: A gifted unit is recreated for its recipient before this authoritative reporter boundary.
+	// Preserve the realized giver->recipient transfer at level 2+; AI gift valuation remains outside factual SASGameRecord history. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordUnitGifted(pUnit, eGiftingPlayer, pPlotLocation);
 	m_kPythonEventMgr.reportUnitGifted(pUnit, eGiftingPlayer, pPlotLocation);
 }
 
@@ -458,11 +461,15 @@ void CvEventReporter::religionFounded(ReligionTypes eType, PlayerTypes ePlayer)
 
 void CvEventReporter::religionSpread(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
 {
+	// <!-- custom: Successful city religion membership changes are strategically relevant to diplomacy, happiness and vote-source membership.
+	// Preserve only the realized change, not missionary/AI candidate reasoning. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordReligionChanged(eType, ePlayer, pSpreadCity, true);
 	m_kPythonEventMgr.reportReligionSpread(eType, ePlayer, pSpreadCity);
 }
 
 void CvEventReporter::religionRemove(ReligionTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
 {
+	if (gGameRecordLogLevel >= 2) logSASGameRecordReligionChanged(eType, ePlayer, pSpreadCity, false);
 	m_kPythonEventMgr.reportReligionRemove(eType, ePlayer, pSpreadCity);
 }
 
@@ -474,11 +481,15 @@ void CvEventReporter::corporationFounded(CorporationTypes eType, PlayerTypes ePl
 
 void CvEventReporter::corporationSpread(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
 {
+	// <!-- custom: Corporation membership can materially change city yields, maintenance and resource consumption.
+	// Keep the authoritative successful spread/removal in factual history while leaving executive AI reasoning elsewhere. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCorporationChanged(eType, ePlayer, pSpreadCity, true);
 	m_kPythonEventMgr.reportCorporationSpread(eType, ePlayer, pSpreadCity);
 }
 
 void CvEventReporter::corporationRemove(CorporationTypes eType, PlayerTypes ePlayer, CvCity* pSpreadCity)
 {
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCorporationChanged(eType, ePlayer, pSpreadCity, false);
 	m_kPythonEventMgr.reportCorporationRemove(eType, ePlayer, pSpreadCity);
 }
 
