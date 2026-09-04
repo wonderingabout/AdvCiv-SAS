@@ -18,6 +18,8 @@ void startSASGameRecordLogForLoadedSave();
 class CvCity;
 class CvPlot;
 class CvUnit;
+// <!-- custom: Forward-declare the vote payload because SASGameRecord only passes it by pointer; this keeps the lightweight recorder header from needing CvStructs.h solely for AP/UN history hooks. (ChatGPT-5.6-Sol) -->
+struct VoteTriggeredData;
 // <!-- custom: Observe one AI_chooseProduction call as a scope so every early return is handled without teaching the AI decision tree about recorder schema.
 // When level 2+ is pre-enabled by the caller, the destructor compares the final head order with the entry state and records only meaningful switches, clears, or resumptions of stored production. (ChatGPT-5.6-Sol) -->
 class SASGameRecordAIProductionChoiceScope
@@ -134,6 +136,9 @@ void logSASGameRecordDiploOfferEvaluated(PlayerTypes eProposer, PlayerTypes eRes
 void logSASGameRecordDiploCounterProposal(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kOriginalProposerGives, CLinkList<TradeData> const& kOriginalResponderGives, CLinkList<TradeData> const& kProposerAdds, CLinkList<TradeData> const& kResponderAdds, bool bProposed);
 // <!-- custom: AI->human rejected ordinary offers are visible only at the Python diplomacy UI boundary; the CyGame bridge rebuilds these lists and calls this canonical recorder formatter. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordAIToHumanOfferRejected(PlayerTypes eProposer, PlayerTypes eResponder, CLinkList<TradeData> const& kProposerGives, CLinkList<TradeData> const& kResponderGives);
+// <!-- custom: AP/UN elections and resolutions are rare, high-impact factual boundaries. Record the real triggered proposal and one compact final weighted ballot/result rather than speculative AI vote reasoning or one row per cast ballot. Caller-gate at SASGameRecord level 2+. (ChatGPT-5.6-Sol) -->
+void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered);
+void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bThresholdPassed, bool bPassed, bool bCancelled, qword uiDefaultedAbstain, qword uiDefiers, qword uiEndorsers);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer);
 void logSASGameRecordGoldenAge(PlayerTypes ePlayer, bool bStart);
