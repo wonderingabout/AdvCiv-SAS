@@ -2,6 +2,7 @@
 #include "SASGameRecordLog.h"
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvCity.h" // <!-- custom: Needed by game-record city action/BFC rows; SASGameRecordLog.h only forward-declares CvCity. (GPT-5.5) -->
+#include "CvCityAI.h" // <!-- custom: Needed only to read the existing Avoid Growth AI emphasis flag in city snapshots/aggregates; CvCity.h only forward-declares CvCityAI. This is a compile-time type dependency and does not alter AI state or gameplay. (ChatGPT-5.6-Sol) -->
 #include "CvUnit.h" // <!-- custom: Needed by game-record battle rows; SASGameRecordLog.h only forward-declares CvUnit. (GPT-5.5) -->
 #include "CombatOdds.h" // <!-- custom: Needed only for exact pre-combat odds on real level-2+ battle outcomes; AI candidate valuation remains untouched. (ChatGPT-5.6-Sol) -->
 #include "CvUnitAI.h" // <!-- custom: Needed to inspect the head unit of large city groups and its UnitAI role; the base unit header only forward-declares CvUnitAI. (GPT-5.6-Sol) -->
@@ -894,8 +895,8 @@ enum SASGameRecordProductionKindIndex
 	NUM_SAS_PRODUCTION_KINDS
 };
 
-// <!-- custom: Level 3 preserves exact production, overflow and unit-lifecycle evidence, but thousands of routine rows can distract broad analysis. Accumulate the same strategic totals into one production and one military row per active player and snapshot interval for level 2+. Dynamic type buckets use the loaded mod's XML rather than fixed BTS categories.
-// `productionNeeded` is the loaded ruleset's production threshold at the action time, providing a consistent material-cost comparison; it is not a claim about raw hammers historically invested after production modifiers. (GPT-5.6-Sol) -->
+// <!-- custom: Level 3 preserves exact production, military and natural city-population evidence, but thousands of routine rows can distract broad analysis. Accumulate the same strategic totals into compact per-player interval rows for level 2+; dynamic type buckets use the loaded mod's XML rather than fixed BTS categories.
+// `productionNeeded` is the loaded ruleset's production threshold at the action time, providing a consistent material-cost comparison; it is not a claim about raw hammers historically invested after production modifiers. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
 struct SASGameRecordPlayerFlow
 {
 	int iUnitsCompleted;
@@ -915,6 +916,14 @@ struct SASGameRecordPlayerFlow
 	int iOverflowGold;
 	int iFailedInvestedProduction;
 	int iFailGold;
+	// <!-- custom: Natural city population flow is compacted into interval totals at level 2; level 3 additionally keeps exact city transitions.
+	// Hurries, conscription, events, conquest/razing and other non-growth population changes retain their own existing/provenance-specific boundaries rather than being mixed into these natural-growth counters. (ChatGPT-5.6-Sol) -->
+	int iCityGrowthEvents;
+	int iPopulationGainedFromGrowth;
+	int iCityGrowthPreventedEvents;
+	int iFoodDiscardedByAvoidGrowth;
+	int iCityStarvationEvents;
+	int iPopulationLostToStarvation;
 	// <!-- custom: AI production-target flow distinguishes ordinary completion->next selection from real active-target switching.
 	// Stored production is parked rather than assumed wasted; separate decay/fail/overflow counters own actual mechanical loss. (ChatGPT-5.6-Sol) -->
 	int iAIProductionTargetSwitches;
@@ -979,6 +988,12 @@ struct SASGameRecordPlayerFlow
 		iOverflowGold = 0;
 		iFailedInvestedProduction = 0;
 		iFailGold = 0;
+		iCityGrowthEvents = 0;
+		iPopulationGainedFromGrowth = 0;
+		iCityGrowthPreventedEvents = 0;
+		iFoodDiscardedByAvoidGrowth = 0;
+		iCityStarvationEvents = 0;
+		iPopulationLostToStarvation = 0;
 		iAIProductionTargetSwitches = 0;
 		iAIProductionTargetClears = 0;
 		iAIProductionInvestedTargetChanges = 0;
@@ -1032,6 +1047,11 @@ struct SASGameRecordPlayerFlow
 	bool hasMilitary() const
 	{
 		return (iUpgrades > 0 || iScrapped > 0 || iCaptured > 0 || iCombatWins > 0 || iCombatLosses > 0 || iExperienceGained > 0 || iExperiencePreventedByCap > 0 || iExperienceLostAdjustments > 0 || iPromotionsChosen > 0 || iLeaderPromotionApplications > 0 || iEnemyExperienceDestroyed > 0 || iOwnExperienceLost > 0);
+	}
+
+	bool hasCityPopulationFlow() const
+	{
+		return (iCityGrowthEvents > 0 || iCityGrowthPreventedEvents > 0 || iCityStarvationEvents > 0);
 	}
 };
 
@@ -4111,6 +4131,12 @@ static void logSASGameRecordFlowBuckets(int iGameTurn)
 				kFlow.iExperienceGained, kFlow.iCombatExperienceGained, kFlow.iNonCombatExperienceGained, kFlow.iExperiencePreventedByCap, kFlow.iExperienceLostAdjustments, kFlow.iPromotionsChosen, kFlow.iLeaderPromotionApplications, getSASDiagnosticOrDash(szPromotionChoices).GetCString(),
 				kFlow.iUpgrades, kFlow.iUpgradeGold, kFlow.iScrapped, kFlow.iScrappedProductionNeeded, kFlow.iCaptured, kFlow.iCapturedProductionNeeded);
 		}
+		if (kFlow.hasCityPopulationFlow())
+		{
+			logSASGameRecord("GAME_RECORD_CITY_POPULATION_FLOW turn=%d range=%d-%d player=%d growthEvents=%d populationGained=%d growthPreventedEvents=%d foodDiscardedByAvoidGrowth=%d starvationEvents=%d populationLost=%d netNaturalPopulationChange=%+d",
+				iGameTurn, g_iSASGameRecordFlowStartTurn, iGameTurn, ePlayer, kFlow.iCityGrowthEvents, kFlow.iPopulationGainedFromGrowth, kFlow.iCityGrowthPreventedEvents, kFlow.iFoodDiscardedByAvoidGrowth,
+				kFlow.iCityStarvationEvents, kFlow.iPopulationLostToStarvation, kFlow.iPopulationGainedFromGrowth - kFlow.iPopulationLostToStarvation);
+		}
 		kFlow.reset();
 	}
 	for (int iI = MAX_CIV_PLAYERS; iI < MAX_PLAYERS; iI++)
@@ -6373,6 +6399,11 @@ static void logSASGameRecordWorkedPlots(PlayerTypes ePlayer, int iGameTurn)
 			getSASDiagnosticOrDash(szTerrains).GetCString(), getSASDiagnosticOrDash(szFeatures).GetCString(), getSASDiagnosticOrDash(szBonuses).GetCString(), getSASDiagnosticOrDash(szImprovements).GetCString(), getSASDiagnosticOrDash(szRoutes).GetCString());
 }
 
+// <!-- custom: City snapshots use the same compact religion/corporation token builders later shared by city-removal provenance.
+// Forward declarations keep the builders in their existing lifecycle section without duplicating list logic. (ChatGPT-5.6-Sol) -->
+static CvString getSASGameRecordCityReligionList(CvCity const& kCity, bool bHolyOnly);
+static CvString getSASGameRecordCityCorporationList(CvCity const& kCity, bool bHeadquartersOnly);
+
 static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
 {
 	CvPlotGroup const* pPlotGroup = kCity.plotGroup(kCity.getOwner());
@@ -6391,14 +6422,24 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
 	const SASGameRecordPlotComposition kWorkedPlots = getSASGameRecordWorkedPlotComposition(kCity);
 	SASGameRecordPlotUnitCounts kCityUnits;
 	collectSASGameRecordPlotUnitCounts(kCity.getPlot(), kCity.getOwner(), kCityUnits);
-	// <!-- custom: City-level espionage output and modifiers make Jail/Intelligence Agency-style effects measurable without adding another row; the defense modifier is kept separate from the city's espionage-commerce modifier. (ChatGPT-5.6-Sol) -->
+	// <!-- custom: Keep the periodic city row self-contained enough to explain growth/starvation and current economic/cultural status without creating more per-turn rows.
+	// Stored food/granary state, occupation/culture/maintenance and commerce-type output are cheap current-state getters; religion/corporation lists are small loaded-XML scans already used by city-removal provenance. (ChatGPT-5.6-Sol) -->
+	CultureLevelTypes const eCultureLevel = kCity.getCultureLevel();
+	PlayerTypes const eHighestCulturePlayer = kCity.findHighestCulture();
+	// <!-- custom: City-level commerce output/modifiers make each city's contribution to player-level gold/research/culture/espionage measurable; espionage defense remains a separate defensive modifier. (ChatGPT-5.6-Sol) -->
 	// <!-- custom: Air-unit occupancy/capacity on the existing city row makes poor basing or saturated airbases visible without adding a separate late-game row. Cargo aircraft are intentionally excluded by CvPlot::countNumAirUnits, matching actual base-capacity use. (GPT-5.6) -->
 	// <!-- custom: City defense snapshots expose both the current post-bombard defense modifier and its undamaged ceiling. DefenseDamage/MAX_CITY_DEFENSE_DAMAGE preserves the underlying bombardment state, while bombarded shows whether the city has already been hit this turn. This lets broad game records be paired with the level-3 tactical bombardment actions below. (GPT-5.6) -->
-	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d pop=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d espionageRate=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionUsesFood=%d productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
-			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(), kCity.getPopulation(),
+	logSASGameRecord("GAME_RECORD_CITY turn=%d player=%d cityId=%d city=%S x=%d y=%d originalOwner=%d capital=%d foundedTurn=%d acquiredTurn=%d pop=%d highestPop=%d foodStored=%d foodKept=%d growthThreshold=%d maxFoodKeptPercent=%d avoidGrowth=%d foodSurplus=%d happySurplus=%d healthSurplus=%d food=%d prod=%d commerce=%d maintenanceTimes100=%d maintenanceModifier=%d occupationTurns=%d disorder=%d ownerCultureTimes100=%d cultureLevel=%s cultureLevelId=%d nextCultureThreshold=%d cultureUpdateTurns=%d ownerCulturePercent=%d highestCulturePlayer=%d highestCulturePercent=%d religions=%s holyReligions=%s corporations=%s headquarters=%s goldRate=%d researchRate=%d cultureRate=%d espionageRate=%d goldRateModifier=%d researchRateModifier=%d cultureRateModifier=%d espionageRateModifier=%d espionageDefenseModifier=%d defenseModifier=%d totalDefense=%d defenseDamage=%d defenseDamageMax=%d bombarded=%d airUnits=%d airCapacity=%d airSpaceAvailable=%d worked=%d workedImproved=%d workedUnimproved=%d workedFood=%d workedProd=%d workedCommerce=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d healthyDefenders=%d woundedDefenders=%d settlers=%d workers=%d attackers=%d connectedToCapital=%d plotGroupId=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d productionKind=%s production=%s productionUsesFood=%d productionTurns=%d productionStored=%d productionNeeded=%d overflowProduction=%d featureProduction=%d productionConversionX100=%s specialists=%s freeSpecialists=%s gpProgress=%d gpThreshold=%d gpRate=%d gpTurnsLeft=%d gpOdds=%s",
+			iGameTurn, kCity.getOwner(), kCity.getID(), getSASGameRecordQuotedCityName(&kCity).GetCString(), kCity.getX(), kCity.getY(),
+			kCity.getOriginalOwner(), kCity.isCapital(), kCity.getGameTurnFounded(), kCity.getGameTurnAcquired(), kCity.getPopulation(), kCity.getHighestPopulation(),
+			kCity.getFood(), kCity.getFoodKept(), kCity.growthThreshold(), kCity.getMaxFoodKeptPercent(), kCity.AI().AI_isEmphasizeAvoidGrowth() ? 1 : 0,
 			kCity.foodDifference(), kCity.happyLevel() - kCity.unhappyLevel(), kCity.goodHealth() - kCity.badHealth(),
-			kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE),
-			kCity.getCommerceRate(COMMERCE_ESPIONAGE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(),
+			kCity.getYieldRate(YIELD_FOOD), kCity.getYieldRate(YIELD_PRODUCTION), kCity.getYieldRate(YIELD_COMMERCE), kCity.getMaintenanceTimes100(), kCity.getMaintenanceModifier(),
+			kCity.getOccupationTimer(), kCity.isDisorder() ? 1 : 0, kCity.getCultureTimes100(kCity.getOwner()), eCultureLevel == NO_CULTURELEVEL ? "-" : GC.getInfo(eCultureLevel).getType(), eCultureLevel,
+			kCity.getCultureThreshold(), kCity.getCultureUpdateTimer(), kCity.calculateCulturePercent(kCity.getOwner()), eHighestCulturePlayer, eHighestCulturePlayer == NO_PLAYER ? 0 : kCity.calculateCulturePercent(eHighestCulturePlayer),
+			getSASGameRecordCityReligionList(kCity, false).GetCString(), getSASGameRecordCityReligionList(kCity, true).GetCString(), getSASGameRecordCityCorporationList(kCity, false).GetCString(), getSASGameRecordCityCorporationList(kCity, true).GetCString(),
+			kCity.getCommerceRate(COMMERCE_GOLD), kCity.getCommerceRate(COMMERCE_RESEARCH), kCity.getCommerceRate(COMMERCE_CULTURE), kCity.getCommerceRate(COMMERCE_ESPIONAGE),
+			kCity.getTotalCommerceRateModifier(COMMERCE_GOLD), kCity.getTotalCommerceRateModifier(COMMERCE_RESEARCH), kCity.getTotalCommerceRateModifier(COMMERCE_CULTURE), kCity.getTotalCommerceRateModifier(COMMERCE_ESPIONAGE), kCity.getEspionageDefenseModifier(),
 			kCity.getDefenseModifier(false), kCity.getTotalDefense(false), kCity.getDefenseDamage(), GC.getMAX_CITY_DEFENSE_DAMAGE(), kCity.isBombarded(),
 			kCity.getPlot().countNumAirUnits(kCity.getTeam()), kCity.getAirUnitCapacity(kCity.getTeam()), kCity.getPlot().airUnitSpaceAvailable(kCity.getTeam()),
 			kWorkedPlots.iWorked, kWorkedPlots.iWorkedImproved, kWorkedPlots.iWorkedUnimproved, kWorkedPlots.iCurrentFood, kWorkedPlots.iCurrentProduction, kWorkedPlots.iCurrentCommerce, kCity.plot()->getNumDefenders(kCity.getOwner()), kCityUnits.iUnits, kCityUnits.iMilitaryUnits, kCityUnits.iCivilianUnits, kCityUnits.iDefenders, kCityUnits.iHealthyDefenders, kCityUnits.iWoundedDefenders, kCityUnits.iSettlers, kCityUnits.iWorkers, kCityUnits.iAttackers,
@@ -6406,12 +6447,17 @@ static void logSASGameRecordCityDetail(CvCity const& kCity, int iGameTurn)
 			getSASGameRecordCityProductionKind(kCity), getSASGameRecordCityProductionType(kCity), kCity.isFoodProduction() ? 1 : 0, getSASGameRecordCityProductionTurns(kCity), kCity.getProduction(), getSASGameRecordCityProductionNeeded(kCity), kCity.getOverflowProduction(), kCity.getFeatureProduction(),
 			getSASGameRecordCityProductionConversion(kCity).GetCString(), getSASGameRecordCitySpecialists(kCity, false).GetCString(), getSASGameRecordCitySpecialists(kCity, true).GetCString(),
 			kCity.getGreatPeopleProgress(), kOwner.greatPeopleThreshold(false), kCity.getGreatPeopleRate(), kCity.GPTurnsLeft(), getSASGameRecordCityGPOdds(kCity).GetCString());
-	logSASGameRecord("GAME_RECORD_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
+	// <!-- custom: Source lists show the magnitude/origin of temporary happiness effects.
+	// Retain their existing turn counters too so snapshots say how long whipping, drafting, defiance, temporary happiness and espionage unhappiness remain without logging per-turn timer decrements. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CITY_HAPPINESS turn=%d player=%d cityId=%d happy=%d unhappy=%d surplus=%d hurryAngerTurns=%d conscriptAngerTurns=%d defyResolutionAngerTurns=%d temporaryHappinessTurns=%d espionageUnhappinessTurns=%d happySources=%s flatUnhappySources=%s angerPercentSources=%s",
 			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.happyLevel(), kCity.unhappyLevel(), kCity.happyLevel() - kCity.unhappyLevel(),
+			kCity.getHurryAngerTimer(), kCity.getConscriptAngerTimer(), kCity.getDefyResolutionAngerTimer(), kCity.getHappinessTimer(), kCity.getEspionageHappinessCounter(),
 			getSASGameRecordCityHappySources(kCity).GetCString(), getSASGameRecordCityFlatUnhappySources(kCity).GetCString(), getSASGameRecordCityAngerPercentSources(kCity).GetCString());
-	logSASGameRecord("GAME_RECORD_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d powered=%d dirtyPower=%d areaCleanPower=%d powerGoodHealth=%d powerBadHealth=%d healthySources=%s unhealthySources=%s",
+	// <!-- custom: Espionage unhealth is itself a decrementing duration counter, so preserve its remaining turns next to the existing unhealthy-source magnitude rather than emitting a row whenever the counter ticks down. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_CITY_HEALTH turn=%d player=%d cityId=%d goodHealth=%d badHealth=%d surplus=%d powered=%d dirtyPower=%d areaCleanPower=%d powerGoodHealth=%d powerBadHealth=%d espionageUnhealthTurns=%d healthySources=%s unhealthySources=%s",
 			iGameTurn, kCity.getOwner(), kCity.getID(), kCity.goodHealth(), kCity.badHealth(), kCity.goodHealth() - kCity.badHealth(),
-			kCity.isPower(), kCity.isDirtyPower(), kCity.isAreaCleanPower(), kCity.getPowerGoodHealth(), kCity.getPowerBadHealth(), getSASGameRecordCityHealthySources(kCity).GetCString(), getSASGameRecordCityUnhealthySources(kCity).GetCString());
+			kCity.isPower(), kCity.isDirtyPower(), kCity.isAreaCleanPower(), kCity.getPowerGoodHealth(), kCity.getPowerBadHealth(), kCity.getEspionageHealthCounter(),
+			getSASGameRecordCityHealthySources(kCity).GetCString(), getSASGameRecordCityUnhealthySources(kCity).GetCString());
 	int iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders;
 	CvString const szBuildings = getSASGameRecordCityBuildings(kCity, iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders);
 	logSASGameRecord("GAME_RECORD_CITY_BUILDINGS turn=%d player=%d cityId=%d total=%d regular=%d nationalWonders=%d teamWonders=%d worldWonders=%d buildings=%s", iGameTurn, kCity.getOwner(), kCity.getID(), iBuildings, iRegularBuildings, iNationalWonders, iTeamWonders, iWorldWonders, szBuildings.GetCString());
@@ -6492,6 +6538,9 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 	int iTotalFoodYield = 0;
 	int iTotalProductionYield = 0;
 	int iTotalCommerceYield = 0;
+	int iTotalFoodStored = 0;
+	int iTotalFoodKept = 0;
+	int iTotalMaintenanceTimes100 = 0;
 	int iTotalTradeRoutes = 0;
 	int iDomesticTradeRoutes = 0;
 	int iForeignTradeRoutes = 0;
@@ -6502,6 +6551,8 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 	int iUnhappyCities = 0;
 	int iUnhealthyCities = 0;
 	int iStarvingCities = 0;
+	int iOccupiedCities = 0;
+	int iAvoidGrowthCities = 0;
 	int iCitiesProducingUnits = 0;
 	int iCitiesProducingMilitary = 0;
 	int iCitiesProducingWorkers = 0;
@@ -6535,6 +6586,9 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 		iTotalFoodYield += pLoopCity->getYieldRate(YIELD_FOOD);
 		iTotalProductionYield += pLoopCity->getYieldRate(YIELD_PRODUCTION);
 		iTotalCommerceYield += pLoopCity->getYieldRate(YIELD_COMMERCE);
+		iTotalFoodStored += pLoopCity->getFood();
+		iTotalFoodKept += pLoopCity->getFoodKept();
+		iTotalMaintenanceTimes100 += pLoopCity->getMaintenanceTimes100();
 		iTotalTradeRoutes += pLoopCity->getTradeRoutes();
 		iTradeFood += pLoopCity->getTradeYield(YIELD_FOOD);
 		iTradeProduction += pLoopCity->getTradeYield(YIELD_PRODUCTION);
@@ -6556,6 +6610,10 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 			iUnhealthyCities++;
 		if (iFoodSurplus < 0)
 			iStarvingCities++;
+		if (pLoopCity->isOccupation())
+			iOccupiedCities++;
+		if (pLoopCity->AI().AI_isEmphasizeAvoidGrowth())
+			iAvoidGrowthCities++;
 		iSpecialists += pLoopCity->getSpecialistPopulation();
 		iFreeSpecialists += pLoopCity->totalFreeSpecialists();
 		iGarrison += pLoopCity->plot()->getNumDefenders(ePlayer);
@@ -6598,11 +6656,11 @@ static void logSASGameRecordCities(PlayerTypes ePlayer, int iGameTurn)
 			iCitiesProducingProcesses++;
 		if (gGameRecordLogLevel >= 3) logSASGameRecordCityDetail(*pLoopCity, iGameTurn);
 	}
-	logSASGameRecord("GAME_RECORD_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
+	logSASGameRecord("GAME_RECORD_CITIES turn=%d player=%d cities=%d capitalId=%d capital=%S connectedToCapital=%d totalFoodSurplus=%d totalHappySurplus=%d totalHealthSurplus=%d totalFood=%d totalProd=%d totalCommerce=%d totalFoodStored=%d totalFoodKept=%d totalMaintenanceTimes100=%d tradeRoutes=%d domesticTradeRoutes=%d foreignTradeRoutes=%d tradeFood=%d tradeProd=%d tradeCommerce=%d unhappyCities=%d unhealthyCities=%d starvingCities=%d occupiedCities=%d avoidGrowthCities=%d specialists=%d freeSpecialists=%d garrison=%d cityUnits=%d militaryUnits=%d civilianUnits=%d defenders=%d settlers=%d workers=%d nextGPCityId=%d nextGPCity=%S nextGPTurns=%d nextGPRate=%d nextGPProgress=%d citiesProducingUnits=%d citiesProducingMilitary=%d citiesProducingWorkers=%d citiesProducingSettlers=%d citiesProducingBuildings=%d citiesProducingWonders=%d citiesProducingProjects=%d citiesProducingProcesses=%d",
 			iGameTurn, ePlayer, iCities, pCapital == NULL ? -1 : pCapital->getID(), getSASGameRecordQuotedCityName(pCapital).GetCString(),
-			iConnectedToCapital, iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield,
+			iConnectedToCapital, iTotalFoodSurplus, iTotalHappySurplus, iTotalHealthSurplus, iTotalFoodYield, iTotalProductionYield, iTotalCommerceYield, iTotalFoodStored, iTotalFoodKept, iTotalMaintenanceTimes100,
 			iTotalTradeRoutes, iDomesticTradeRoutes, iForeignTradeRoutes, iTradeFood, iTradeProduction, iTradeCommerce,
-			iUnhappyCities, iUnhealthyCities, iStarvingCities, iSpecialists, iFreeSpecialists,
+			iUnhappyCities, iUnhealthyCities, iStarvingCities, iOccupiedCities, iAvoidGrowthCities, iSpecialists, iFreeSpecialists,
 			iGarrison, iCityUnits, iMilitaryUnitsInCities, iCivilianUnitsInCities, iDefendersInCities, iSettlersInCities, iWorkersInCities,
 			pNextGPCity == NULL ? -1 : pNextGPCity->getID(), getSASGameRecordQuotedCityName(pNextGPCity).GetCString(), pNextGPCity == NULL ? -1 : iBestGPTurns, pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleRate(), pNextGPCity == NULL ? 0 : pNextGPCity->getGreatPeopleProgress(),
 			iCitiesProducingUnits, iCitiesProducingMilitary, iCitiesProducingWorkers, iCitiesProducingSettlers, iCitiesProducingBuildings,
@@ -7979,6 +8037,63 @@ void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlaye
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer)
 {
 	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CORPORATION_FOUNDED player=%d corporation=%s", GC.getGame().getGameTurn(), ePlayer, getSASGameRecordCorporationType(eCorporation));
+}
+
+void logSASGameRecordCityGrowthPrevented(CvCity const* pCity, int iFoodDiscarded)
+{
+	if (pCity == NULL)
+		return;
+	PlayerTypes const ePlayer = pCity->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return;
+	// <!-- custom: Avoid Growth can repeatedly cap a city at its threshold and discard excess food.
+	// Keep only interval totals so AI growth suppression is measurable without one action row per capped city turn. (ChatGPT-5.6-Sol) -->
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	kFlow.iCityGrowthPreventedEvents++;
+	kFlow.iFoodDiscardedByAvoidGrowth += std::max(0, iFoodDiscarded);
+}
+
+void logSASGameRecordCityPopulationChanged(CvCity const* pCity, bool bGrowth, int iPopulationBefore, int iFoodDifference, int iFoodBefore, int iFoodAfterDifference, int iFoodKeptBefore, int iFoodKeptBeforePopulationChange, int iGrowthThresholdBefore)
+{
+	if (pCity == NULL)
+		return;
+	PlayerTypes const ePlayer = pCity->getOwner();
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS)
+		return;
+	int const iPopulationAfter = pCity->getPopulation();
+	int const iPopulationDelta = iPopulationAfter - iPopulationBefore;
+	if ((bGrowth && iPopulationDelta <= 0) || (!bGrowth && iPopulationDelta >= 0))
+		return;
+	SASGameRecordPlayerFlow& kFlow = g_akSASGameRecordPlayerFlow[ePlayer];
+	if (bGrowth)
+	{
+		kFlow.iCityGrowthEvents++;
+		kFlow.iPopulationGainedFromGrowth += iPopulationDelta;
+	}
+	else
+	{
+		kFlow.iCityStarvationEvents++;
+		kFlow.iPopulationLostToStarvation += -iPopulationDelta;
+	}
+	// <!-- custom: Level 2 keeps only interval natural-population totals; level 3 preserves the exact city transition and the food/granary states immediately before and after CvCity::doGrowth resolves it.
+	// This hook is observation-only and is called after the existing population/food mutations, before Python's successful-growth event can add unrelated side effects. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 3)
+	{
+		logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_POPULATION_CHANGED cause=%s player=%d cityId=%d city=%S x=%d y=%d populationBefore=%d populationAfter=%d populationDelta=%+d foodDifference=%+d foodBefore=%d foodAfterDifference=%d foodAfter=%d foodKeptBefore=%d foodKeptBeforePopulationChange=%d foodKeptAfter=%d growthThresholdBefore=%d growthThresholdAfter=%d maxFoodKeptPercent=%d",
+			GC.getGame().getGameTurn(), bGrowth ? "GROWTH" : "STARVATION", ePlayer, pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
+			iPopulationBefore, iPopulationAfter, iPopulationDelta, iFoodDifference, iFoodBefore, iFoodAfterDifference, pCity->getFood(), iFoodKeptBefore, iFoodKeptBeforePopulationChange, pCity->getFoodKept(),
+			iGrowthThresholdBefore, pCity->growthThreshold(), pCity->getMaxFoodKeptPercent());
+	}
+}
+
+void logSASGameRecordCityCultureExpanded(CvCity const* pCity)
+{
+	if (pCity == NULL || pCity->getCultureLevel() == NO_CULTURELEVEL)
+		return;
+	CultureLevelTypes const eCultureLevel = pCity->getCultureLevel();
+	logSASGameRecord("GAME_RECORD_ACTION turn=%d type=CITY_CULTURE_EXPANDED player=%d cityId=%d city=%S x=%d y=%d cultureLevel=%s cultureLevelId=%d ownerCultureTimes100=%d nextCultureThreshold=%d defenseModifier=%d totalDefense=%d",
+		GC.getGame().getGameTurn(), pCity->getOwner(), pCity->getID(), getSASGameRecordQuotedCityName(pCity).GetCString(), pCity->getX(), pCity->getY(),
+		GC.getInfo(eCultureLevel).getType(), eCultureLevel, pCity->getCultureTimes100(pCity->getOwner()), pCity->getCultureThreshold(), pCity->getDefenseModifier(false), pCity->getTotalDefense(false));
 }
 
 void logSASGameRecordCityHurry(CvCity const* pCity, HurryTypes eHurry, int iProductionBefore, int iProductionAdded, int iGoldCost, int iPopulationCost, int iHurryAngerAdded, int iGoldBefore, int iPopulationBefore, int iHurryAngerBefore)

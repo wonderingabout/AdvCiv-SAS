@@ -297,6 +297,9 @@ void CvEventReporter::cityLost( CvCity *pCity)
 
 void CvEventReporter::cultureExpansion(CvCity *pCity, PlayerTypes ePlayer)
 {
+	// <!-- custom: Border expansion is a rare consequential city-state transition (workable radius/defense) that can occur between periodic snapshots.
+	// Preserve the realized new culture level at level 2+; no additional gameplay calculation or RNG is introduced. (ChatGPT-5.6-Sol) -->
+	if (gGameRecordLogLevel >= 2) logSASGameRecordCityCultureExpanded(pCity);
 	m_kPythonEventMgr.reportCultureExpansion(pCity, ePlayer);
 }
 

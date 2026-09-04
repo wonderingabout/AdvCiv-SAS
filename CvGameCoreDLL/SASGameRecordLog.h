@@ -143,9 +143,12 @@ void logSASGameRecordVoteTriggered(VoteTriggeredData const* pVoteTriggered);
 void logSASGameRecordVoteResult(VoteTriggeredData const* pVoteTriggered, bool bThresholdPassed, bool bPassed, bool bCancelled, qword uiDefaultedAbstain, qword uiDefiers, qword uiEndorsers);
 void logSASGameRecordReligionFounded(ReligionTypes eReligion, PlayerTypes ePlayer);
 void logSASGameRecordCorporationFounded(CorporationTypes eCorporation, PlayerTypes ePlayer);
-// <!-- custom: Preserve consequential factual city/unit actions that otherwise disappear between periodic snapshots: hurrying, pillage attribution/economic gain, naval blockade lifecycle/plunder, unit gifting, religion/corporation membership changes, and circumnavigation.
-// These hooks record only realized gameplay outcomes at level 2+; AI choice reasoning remains in BBAI diagnostics. (ChatGPT-5.6-Sol) -->
+// <!-- custom: Preserve consequential factual city/unit actions that otherwise disappear between periodic snapshots: hurrying, natural growth/starvation, culture expansion, pillage attribution/economic gain, naval blockade lifecycle/plunder, unit gifting, religion/corporation membership changes, and circumnavigation.
+// These hooks record only realized gameplay outcomes at level 2+; routine natural population changes are interval-compacted unless level 3 requests exact city transitions, and AI choice reasoning remains in BBAI diagnostics. (ChatGPT-5.6-Sol) -->
 void logSASGameRecordCityHurry(CvCity const* pCity, HurryTypes eHurry, int iProductionBefore, int iProductionAdded, int iGoldCost, int iPopulationCost, int iHurryAngerAdded, int iGoldBefore, int iPopulationBefore, int iHurryAngerBefore);
+void logSASGameRecordCityGrowthPrevented(CvCity const* pCity, int iFoodDiscarded);
+void logSASGameRecordCityPopulationChanged(CvCity const* pCity, bool bGrowth, int iPopulationBefore, int iFoodDifference, int iFoodBefore, int iFoodAfterDifference, int iFoodKeptBefore, int iFoodKeptBeforePopulationChange, int iGrowthThresholdBefore);
+void logSASGameRecordCityCultureExpanded(CvCity const* pCity);
 void logSASGameRecordPillage(CvUnit const* pUnit, SASGameRecordPlotState const& kOldPlotState, PlayerTypes eVictimPlayer, int iGoldGained);
 void logSASGameRecordBlockadeChanged(CvUnit const* pUnit, bool bStarting);
 void logSASGameRecordBlockadePlunder(CvUnit const* pUnit, CvCity const* pCity, int iGold, int iTradeRoutes, int iProfitPerRoute);

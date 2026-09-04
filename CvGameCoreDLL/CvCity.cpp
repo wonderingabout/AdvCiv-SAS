@@ -11060,20 +11060,36 @@ void CvCity::doGrowth()
 		return;
 
 	int iDiff = foodDifference();
+	// <!-- custom: Natural growth/starvation can otherwise occur entirely between periodic city snapshots.
+	// Capture only the cheap pre-change food/granary state when level-2+ SASGameRecord is active; lower-detail/disabled runs keep the original growth path untouched apart from this false gate. (ChatGPT-5.6-Sol) -->
+	bool const bLogPopulationFlow = (gGameRecordLogLevel >= 2);
+	int const iPopulationBefore = bLogPopulationFlow ? getPopulation() : 0;
+	int const iFoodBefore = bLogPopulationFlow ? getFood() : 0;
+	int const iFoodKeptBefore = bLogPopulationFlow ? getFoodKept() : 0;
+	int const iGrowthThresholdBefore = bLogPopulationFlow ? growthThreshold() : 0;
+
 	changeFood(iDiff);
 	if(iDiff > 0) // advc.160: Don't empty the Granary when insufficient food
 		changeFoodKept(iDiff);
 
 	setFoodKept(range(getFoodKept(), 0, (growthThreshold() * getMaxFoodKeptPercent()) / 100));
+	int const iFoodAfterDifference = bLogPopulationFlow ? getFood() : 0;
+	int const iFoodKeptBeforePopulationChange = bLogPopulationFlow ? getFoodKept() : 0;
 
 	if (getFood() >= growthThreshold())
 	{
 		if (AI().AI_isEmphasizeAvoidGrowth())
+		{
+			// <!-- custom: Avoid Growth itself is factual population-flow context; compact repeated prevention into interval totals and count only food actually discarded above the threshold. The original setFood call/order remains unchanged. (ChatGPT-5.6-Sol) -->
+			int const iFoodDiscardedByAvoidGrowth = bLogPopulationFlow ? std::max(0, getFood() - growthThreshold()) : 0;
 			setFood(growthThreshold());
+			if (bLogPopulationFlow) logSASGameRecordCityGrowthPrevented(this, iFoodDiscardedByAvoidGrowth);
+		}
 		else
 		{
 			changeFood(-std::max(0, growthThreshold() - getFoodKept()));
 			changePopulation(1);
+			if (bLogPopulationFlow) logSASGameRecordCityPopulationChanged(this, true, iPopulationBefore, iDiff, iFoodBefore, iFoodAfterDifference, iFoodKeptBefore, iFoodKeptBeforePopulationChange, iGrowthThresholdBefore);
 			CvEventReporter::getInstance().cityGrowth(this, getOwner());
 		}
 	}
@@ -11086,6 +11102,7 @@ void CvCity::doGrowth()
 			// <advc.160>
 			changeFood(getFoodKept());
 			setFoodKept(0); // </advc.160>
+			if (bLogPopulationFlow) logSASGameRecordCityPopulationChanged(this, false, iPopulationBefore, iDiff, iFoodBefore, iFoodAfterDifference, iFoodKeptBefore, iFoodKeptBeforePopulationChange, iGrowthThresholdBefore);
 		}
 	}
 }
