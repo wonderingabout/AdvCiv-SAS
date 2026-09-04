@@ -2933,6 +2933,7 @@ static void logSASGameRecordGeography()
 		if (bBordersLake) pLandmass->iLakeBorderPlots++;
 		if (bBordersIce) pLandmass->iIceBorderPlots++;
 	}
+	int iStartingPlayers = 0;
 	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iI;
@@ -2943,6 +2944,7 @@ static void logSASGameRecordGeography()
 		SASGameRecordLandmassGeography* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, pStart->getArea().getID());
 		if (pLandmass == NULL)
 			continue;
+		iStartingPlayers++;
 		pLandmass->iStartingPlayers++;
 		CvString szItem;
 		szItem.Format(pLandmass->szStartingPlayers.empty() ? "%d@%d,%d" : ";%d@%d,%d", eLoopPlayer, pStart->getX(), pStart->getY());
@@ -2970,6 +2972,152 @@ static void logSASGameRecordGeography()
 	if (pLargestLandmass != NULL)
 		szLargestLandmass = getSASGameRecordLandmassName(*pLargestLandmass);
 	int const iMapPlots = iLandPlots + iWaterPlots;
+
+	// <!-- custom: Standardize the initial crowding context that otherwise has to be reconstructed from each landmass/start list for every map comparison.
+	// Start spacing uses wrap-aware plotDistance and intentionally treats every starting civilization as map occupancy; current foreign/rival context is recorded separately in periodic expansion rows so later team merges cannot rewrite the meaning of these static start metrics. (ChatGPT-5.6-Sol) -->
+	int iHabitableLandPlots = 0;
+	int iInhabitedLandmasses = 0;
+	int iInhabitedLandPlots = 0;
+	int iInhabitedHabitablePlots = 0;
+	int iUninhabitedLandmasses = 0;
+	int iUninhabitedLandPlots = 0;
+	int iUninhabitedHabitablePlots = 0;
+	int iIsolatedLandmassStarts = 0;
+	for (size_t iI = 0; iI < aLandmasses.size(); iI++)
+	{
+		SASGameRecordLandmassGeography const& kLandmass = aLandmasses[iI];
+		iHabitableLandPlots += kLandmass.iHabitablePlots;
+		if (kLandmass.iStartingPlayers > 0)
+		{
+			iInhabitedLandmasses++;
+			iInhabitedLandPlots += kLandmass.iPlots;
+			iInhabitedHabitablePlots += kLandmass.iHabitablePlots;
+			if (kLandmass.iStartingPlayers == 1)
+				iIsolatedLandmassStarts++;
+		}
+		else
+		{
+			iUninhabitedLandmasses++;
+			iUninhabitedLandPlots += kLandmass.iPlots;
+			iUninhabitedHabitablePlots += kLandmass.iHabitablePlots;
+		}
+	}
+	int iStartPairs = 0;
+	int iStartPairDistance = 0;
+	int iSameLandmassPairs = 0;
+	int iSameLandmassPairDistance = 0;
+	int iNearestStartDistance = -1;
+	int iNearestStartDistanceTotal = 0;
+	int iNearestStartDistancePlayers = 0;
+	int iMaxNearestStartDistance = -1;
+	int iNearestSameLandmassStartDistance = -1;
+	int iNearestSameLandmassStartDistanceTotal = 0;
+	int iNearestSameLandmassStartDistancePlayers = 0;
+	int iMaxNearestSameLandmassStartDistance = -1;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		CvPlot const* pStart = kPlayer.getStartingPlot();
+		if (!kPlayer.isEverAlive() || kPlayer.isBarbarian() || pStart == NULL || pStart->isWater())
+			continue;
+		int iPlayerNearest = -1;
+		int iPlayerNearestSameLandmass = -1;
+		for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+		{
+			if (iJ == iI)
+				continue;
+			PlayerTypes const eOtherPlayer = (PlayerTypes)iJ;
+			CvPlayer const& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+			CvPlot const* pOtherStart = kOtherPlayer.getStartingPlot();
+			if (!kOtherPlayer.isEverAlive() || kOtherPlayer.isBarbarian() || pOtherStart == NULL || pOtherStart->isWater())
+				continue;
+			int const iDistance = plotDistance(pStart->getX(), pStart->getY(), pOtherStart->getX(), pOtherStart->getY());
+			iPlayerNearest = (iPlayerNearest < 0 ? iDistance : std::min(iPlayerNearest, iDistance));
+			bool const bSameLandmass = (pOtherStart->getArea().getID() == pStart->getArea().getID());
+			if (bSameLandmass)
+				iPlayerNearestSameLandmass = (iPlayerNearestSameLandmass < 0 ? iDistance : std::min(iPlayerNearestSameLandmass, iDistance));
+			if (iJ <= iI)
+				continue;
+			iStartPairs++;
+			iStartPairDistance += iDistance;
+			if (bSameLandmass)
+			{
+				iSameLandmassPairs++;
+				iSameLandmassPairDistance += iDistance;
+			}
+		}
+		if (iPlayerNearest >= 0)
+		{
+			iNearestStartDistance = (iNearestStartDistance < 0 ? iPlayerNearest : std::min(iNearestStartDistance, iPlayerNearest));
+			iNearestStartDistanceTotal += iPlayerNearest;
+			iNearestStartDistancePlayers++;
+			iMaxNearestStartDistance = std::max(iMaxNearestStartDistance, iPlayerNearest);
+		}
+		if (iPlayerNearestSameLandmass >= 0)
+		{
+			iNearestSameLandmassStartDistance = (iNearestSameLandmassStartDistance < 0 ? iPlayerNearestSameLandmass : std::min(iNearestSameLandmassStartDistance, iPlayerNearestSameLandmass));
+			iNearestSameLandmassStartDistanceTotal += iPlayerNearestSameLandmass;
+			iNearestSameLandmassStartDistancePlayers++;
+			iMaxNearestSameLandmassStartDistance = std::max(iMaxNearestSameLandmassStartDistance, iPlayerNearestSameLandmass);
+		}
+	}
+	logSASGameRecord("GAME_RECORD_START_DENSITY_SUMMARY turn=%d startingPlayers=%d inhabitedLandmasses=%d isolatedLandmassStarts=%d uninhabitedLandmasses=%d landPlotsPerStartX100=%d habitableLandPlots=%d habitableLandPlotsPerStartX100=%d inhabitedLandPlots=%d inhabitedLandPlotsPerStartX100=%d inhabitedHabitablePlots=%d inhabitedHabitablePlotsPerStartX100=%d uninhabitedLandPlots=%d uninhabitedHabitablePlots=%d startPairs=%d avgStartPairDistanceX100=%d sameLandmassPairs=%d avgSameLandmassPairDistanceX100=%d nearestStartDistance=%d avgNearestStartDistanceX100=%d maxNearestStartDistance=%d startsWithSameLandmassNeighbor=%d nearestSameLandmassStartDistance=%d avgNearestSameLandmassStartDistanceX100=%d maxNearestSameLandmassStartDistance=%d",
+			GC.getGame().getGameTurn(), iStartingPlayers, iInhabitedLandmasses, iIsolatedLandmassStarts, iUninhabitedLandmasses,
+			iStartingPlayers <= 0 ? -1 : (100 * iLandPlots) / iStartingPlayers, iHabitableLandPlots, iStartingPlayers <= 0 ? -1 : (100 * iHabitableLandPlots) / iStartingPlayers,
+			iInhabitedLandPlots, iStartingPlayers <= 0 ? -1 : (100 * iInhabitedLandPlots) / iStartingPlayers, iInhabitedHabitablePlots, iStartingPlayers <= 0 ? -1 : (100 * iInhabitedHabitablePlots) / iStartingPlayers,
+			iUninhabitedLandPlots, iUninhabitedHabitablePlots, iStartPairs, iStartPairs <= 0 ? -1 : (100 * iStartPairDistance) / iStartPairs, iSameLandmassPairs, iSameLandmassPairs <= 0 ? -1 : (100 * iSameLandmassPairDistance) / iSameLandmassPairs,
+			iNearestStartDistance, iNearestStartDistancePlayers <= 0 ? -1 : (100 * iNearestStartDistanceTotal) / iNearestStartDistancePlayers, iMaxNearestStartDistance,
+			iNearestSameLandmassStartDistancePlayers, iNearestSameLandmassStartDistance, iNearestSameLandmassStartDistancePlayers <= 0 ? -1 : (100 * iNearestSameLandmassStartDistanceTotal) / iNearestSameLandmassStartDistancePlayers, iMaxNearestSameLandmassStartDistance);
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const ePlayer = (PlayerTypes)iI;
+		CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+		CvPlot const* pStart = kPlayer.getStartingPlot();
+		if (!kPlayer.isEverAlive() || kPlayer.isBarbarian() || pStart == NULL || pStart->isWater())
+			continue;
+		SASGameRecordLandmassGeography const* pLandmass = getSASGameRecordLandmassGeography(aLandmasses, pStart->getArea().getID());
+		if (pLandmass == NULL)
+			continue;
+		PlayerTypes eNearestPlayer = NO_PLAYER;
+		int iNearestDistance = -1;
+		PlayerTypes eNearestSameLandmassPlayer = NO_PLAYER;
+		int iNearestSameLandmassDistance = -1;
+		int iSameLandmassDistance = 0;
+		int iSameLandmassDistancePlayers = 0;
+		for (int iJ = 0; iJ < MAX_CIV_PLAYERS; iJ++)
+		{
+			if (iJ == iI)
+				continue;
+			PlayerTypes const eOtherPlayer = (PlayerTypes)iJ;
+			CvPlayer const& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+			CvPlot const* pOtherStart = kOtherPlayer.getStartingPlot();
+			if (!kOtherPlayer.isEverAlive() || kOtherPlayer.isBarbarian() || pOtherStart == NULL || pOtherStart->isWater())
+				continue;
+			int const iDistance = plotDistance(pStart->getX(), pStart->getY(), pOtherStart->getX(), pOtherStart->getY());
+			if (iNearestDistance < 0 || iDistance < iNearestDistance)
+			{
+				iNearestDistance = iDistance;
+				eNearestPlayer = eOtherPlayer;
+			}
+			if (pOtherStart->getArea().getID() != pStart->getArea().getID())
+				continue;
+			iSameLandmassDistance += iDistance;
+			iSameLandmassDistancePlayers++;
+			if (iNearestSameLandmassDistance < 0 || iDistance < iNearestSameLandmassDistance)
+			{
+				iNearestSameLandmassDistance = iDistance;
+				eNearestSameLandmassPlayer = eOtherPlayer;
+			}
+		}
+		CvString const szLandmass = getSASGameRecordLandmassName(*pLandmass);
+		logSASGameRecord("GAME_RECORD_PLAYER_START_DENSITY turn=%d player=%d currentTeam=%d start=%d,%d landmass=%s landmassStartingPlayers=%d landmassPlots=%d landmassHabitablePlots=%d landmassPlotsPerStartX100=%d landmassHabitablePlotsPerStartX100=%d nearestStartPlayer=%d nearestStartDistance=%d nearestSameLandmassStartPlayer=%d nearestSameLandmassStartDistance=%d avgSameLandmassStartDistanceX100=%d",
+				GC.getGame().getGameTurn(), ePlayer, kPlayer.getTeam(), pStart->getX(), pStart->getY(), szLandmass.GetCString(), pLandmass->iStartingPlayers, pLandmass->iPlots, pLandmass->iHabitablePlots,
+				pLandmass->iStartingPlayers <= 0 ? -1 : (100 * pLandmass->iPlots) / pLandmass->iStartingPlayers, pLandmass->iStartingPlayers <= 0 ? -1 : (100 * pLandmass->iHabitablePlots) / pLandmass->iStartingPlayers,
+				eNearestPlayer, iNearestDistance, eNearestSameLandmassPlayer, iNearestSameLandmassDistance,
+				iSameLandmassDistancePlayers <= 0 ? -1 : (100 * iSameLandmassDistance) / iSameLandmassDistancePlayers);
+	}
+
 	logSASGameRecord("GAME_RECORD_GEOGRAPHY_SUMMARY turn=%d landmasses=%d waterAreas=%d seaAreas=%d lakeAreas=%d mapPlots=%d landPlots=%d landPercentOfMapX100=%d waterPlots=%d waterPercentOfMapX100=%d seaPlots=%d seaPercentOfMapX100=%d coastSeaPlots=%d coastSeaPercentOfMapX100=%d oceanSeaPlots=%d oceanSeaPercentOfMapX100=%d otherSeaPlots=%d lakePlots=%d lakePercentOfMapX100=%d icePlots=%d icePercentOfMapX100=%d icePercentOfWaterX100=%d iceSeaPlots=%d icePercentOfSeaX100=%d iceCoastSeaPlots=%d iceOceanSeaPlots=%d iceLakePlots=%d largestLandmass=%s largestLandmassPlots=%d wrapX=%d wrapY=%d coastTerrain=%s oceanTerrain=%s iceFeature=%s",
 			GC.getGame().getGameTurn(), (int)aLandmasses.size(), iWaterAreas, iSeaAreas, iLakeAreas, iMapPlots, iLandPlots, getSASGameRecordPercentX100(iLandPlots, iMapPlots), iWaterPlots, getSASGameRecordPercentX100(iWaterPlots, iMapPlots), iSeaPlots, getSASGameRecordPercentX100(iSeaPlots, iMapPlots), iCoastSeaPlots, getSASGameRecordPercentX100(iCoastSeaPlots, iMapPlots), iOceanSeaPlots, getSASGameRecordPercentX100(iOceanSeaPlots, iMapPlots), iOtherSeaPlots, iLakePlots, getSASGameRecordPercentX100(iLakePlots, iMapPlots), iIcePlots, getSASGameRecordPercentX100(iIcePlots, iMapPlots), getSASGameRecordPercentX100(iIcePlots, iWaterPlots), iIceSeaPlots, getSASGameRecordPercentX100(iIceSeaPlots, iSeaPlots), iIceCoastSeaPlots, iIceOceanSeaPlots, iIceLakePlots,
 			szLargestLandmass.GetCString(), iLargestAreaPlots, kMap.isWrapX(), kMap.isWrapY(), eCoast == NO_TERRAIN ? "-" : GC.getInfo(eCoast).getType(), eOcean == NO_TERRAIN ? "-" : GC.getInfo(eOcean).getType(), eIce == NO_FEATURE ? "-" : GC.getInfo(eIce).getType());
@@ -5126,6 +5274,12 @@ static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 	int iVisibleUnownedLand = 0;
 	int iRevealedForeignLand = 0;
 	int iVisibleForeignLand = 0;
+	int iRevealedOtherTeamLand = 0;
+	int iVisibleOtherTeamLand = 0;
+	CvCity const* pCapital = kPlayer.getCapitalCity();
+	int const iCapitalArea = (pCapital == NULL ? -1 : pCapital->getArea().getID());
+	int iNearestRevealedOtherTeamLandDistance = -1;
+	int iNearestRevealedEnemyLandDistance = -1;
 	SASGameRecordTerritoryDevelopment kTerritoryDevelopment;
 	CvMap const& kMap = GC.getMap();
 	for (int iI = 0; iI < kMap.numPlots(); iI++)
@@ -5142,6 +5296,17 @@ static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 				iRevealedUnownedLand++;
 			else if (kPlot.getOwner() != ePlayer)
 				iRevealedForeignLand++;
+			if (kPlot.getTeam() != NO_TEAM && kPlot.getTeam() != eTeam)
+			{
+				iRevealedOtherTeamLand++;
+				if (pCapital != NULL)
+				{
+					int const iDistance = plotDistance(pCapital->getX(), pCapital->getY(), kPlot.getX(), kPlot.getY());
+					iNearestRevealedOtherTeamLandDistance = (iNearestRevealedOtherTeamLandDistance < 0 ? iDistance : std::min(iNearestRevealedOtherTeamLandDistance, iDistance));
+					if (GET_TEAM(eTeam).isAtWar(kPlot.getTeam()))
+						iNearestRevealedEnemyLandDistance = (iNearestRevealedEnemyLandDistance < 0 ? iDistance : std::min(iNearestRevealedEnemyLandDistance, iDistance));
+				}
+			}
 		}
 		if (kPlot.isVisible(eTeam, false))
 		{
@@ -5150,6 +5315,8 @@ static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 				iVisibleUnownedLand++;
 			else if (kPlot.getOwner() != ePlayer)
 				iVisibleForeignLand++;
+			if (kPlot.getTeam() != NO_TEAM && kPlot.getTeam() != eTeam)
+				iVisibleOtherTeamLand++;
 		}
 	}
 	int iCitiesProducingSettlers = 0;
@@ -5182,8 +5349,97 @@ static void logSASGameRecordExpansion(PlayerTypes ePlayer, int iGameTurn)
 		iSettlersWithCityDistance++;
 	}
 	const int iAvgSettlerCityDistanceX100 = (iSettlersWithCityDistance == 0 ? -1 : (100 * iTotalSettlerCityDistance) / iSettlersWithCityDistance);
-	logSASGameRecord("GAME_RECORD_EXPANSION turn=%d player=%d cities=%d targetCities=%d ownedLand=%d revealedLand=%d visibleLand=%d revealedUnownedLand=%d visibleUnownedLand=%d revealedForeignLand=%d visibleForeignLand=%d settlers=%d foundMission=%d citiesProducingSettlers=%d nearestSettlerCityDistance=%d avgSettlerCityDistanceX100=%d",
-			iGameTurn, ePlayer, kPlayer.getNumCities(), GC.getInfo(kMap.getWorldSize()).getTargetNumCities(), kPlayer.getTotalLand(), iRevealedLand, iVisibleLand, iRevealedUnownedLand, iVisibleUnownedLand, iRevealedForeignLand, iVisibleForeignLand, iSettlers, iFoundMission, iCitiesProducingSettlers, iNearestSettlerCityDistance, iAvgSettlerCityDistanceX100);
+
+	// <!-- custom: Add a knowledge-limited rival-distance complement to the already map-wide revealed land counts.
+	// Reuse the existing plot scan for nearest revealed other-team/enemy territory and measure cities only from the current capital, avoiding an own-city x foreign-city scan; capital-area counts separately expose same-landmass competition. (ChatGPT-5.6-Sol) -->
+	int iMetForeignPlayers = 0;
+	int iForeignPlayersWithKnownCities = 0;
+	int iKnownForeignCities = 0;
+	int iCapitalAreaForeignPlayersWithKnownCities = 0;
+	int iCapitalAreaKnownForeignCities = 0;
+	PlayerTypes eNearestKnownForeignCityPlayer = NO_PLAYER;
+	int iNearestKnownForeignCityId = -1;
+	int iNearestKnownForeignCityDistance = -1;
+	PlayerTypes eNearestCapitalAreaKnownForeignCityPlayer = NO_PLAYER;
+	int iNearestCapitalAreaKnownForeignCityId = -1;
+	int iNearestCapitalAreaKnownForeignCityDistance = -1;
+	int iWarEnemyPlayers = 0;
+	int iEnemyPlayersWithKnownCities = 0;
+	int iKnownEnemyCities = 0;
+	PlayerTypes eNearestKnownEnemyCityPlayer = NO_PLAYER;
+	int iNearestKnownEnemyCityId = -1;
+	int iNearestKnownEnemyCityDistance = -1;
+	for (int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
+	{
+		PlayerTypes const eOtherPlayer = (PlayerTypes)iI;
+		CvPlayer const& kOtherPlayer = GET_PLAYER(eOtherPlayer);
+		if (!kOtherPlayer.isAlive() || kOtherPlayer.isBarbarian() || kOtherPlayer.getTeam() == eTeam)
+			continue;
+		bool const bMet = GET_TEAM(eTeam).isHasMet(kOtherPlayer.getTeam());
+		bool const bEnemy = GET_TEAM(eTeam).isAtWar(kOtherPlayer.getTeam());
+		if (bMet)
+			iMetForeignPlayers++;
+		if (bEnemy)
+			iWarEnemyPlayers++;
+		bool bHasKnownCity = false;
+		bool bHasKnownCapitalAreaCity = false;
+		bool bEnemyHasKnownCity = false;
+		int iOtherCityLoop = 0;
+		for (CvCity const* pOtherCity = kOtherPlayer.firstCity(&iOtherCityLoop); pOtherCity != NULL; pOtherCity = kOtherPlayer.nextCity(&iOtherCityLoop))
+		{
+			if (!pOtherCity->isRevealed(eTeam))
+				continue;
+			bHasKnownCity = true;
+			iKnownForeignCities++;
+			if (iCapitalArea >= 0 && pOtherCity->getArea().getID() == iCapitalArea)
+			{
+				bHasKnownCapitalAreaCity = true;
+				iCapitalAreaKnownForeignCities++;
+				if (pCapital != NULL)
+				{
+					int const iCapitalAreaDistance = plotDistance(pCapital->getX(), pCapital->getY(), pOtherCity->getX(), pOtherCity->getY());
+					if (iNearestCapitalAreaKnownForeignCityDistance < 0 || iCapitalAreaDistance < iNearestCapitalAreaKnownForeignCityDistance)
+					{
+						iNearestCapitalAreaKnownForeignCityDistance = iCapitalAreaDistance;
+						eNearestCapitalAreaKnownForeignCityPlayer = eOtherPlayer;
+						iNearestCapitalAreaKnownForeignCityId = pOtherCity->getID();
+					}
+				}
+			}
+			if (bEnemy)
+			{
+				bEnemyHasKnownCity = true;
+				iKnownEnemyCities++;
+			}
+			if (pCapital == NULL)
+				continue;
+			int const iDistance = plotDistance(pCapital->getX(), pCapital->getY(), pOtherCity->getX(), pOtherCity->getY());
+			if (iNearestKnownForeignCityDistance < 0 || iDistance < iNearestKnownForeignCityDistance)
+			{
+				iNearestKnownForeignCityDistance = iDistance;
+				eNearestKnownForeignCityPlayer = eOtherPlayer;
+				iNearestKnownForeignCityId = pOtherCity->getID();
+			}
+			if (bEnemy && (iNearestKnownEnemyCityDistance < 0 || iDistance < iNearestKnownEnemyCityDistance))
+			{
+				iNearestKnownEnemyCityDistance = iDistance;
+				eNearestKnownEnemyCityPlayer = eOtherPlayer;
+				iNearestKnownEnemyCityId = pOtherCity->getID();
+			}
+		}
+		if (bHasKnownCity)
+			iForeignPlayersWithKnownCities++;
+		if (bHasKnownCapitalAreaCity)
+			iCapitalAreaForeignPlayersWithKnownCities++;
+		if (bEnemyHasKnownCity)
+			iEnemyPlayersWithKnownCities++;
+	}
+	logSASGameRecord("GAME_RECORD_EXPANSION turn=%d player=%d cities=%d targetCities=%d ownedLand=%d revealedLand=%d visibleLand=%d revealedUnownedLand=%d visibleUnownedLand=%d revealedForeignLand=%d visibleForeignLand=%d revealedOtherTeamLand=%d visibleOtherTeamLand=%d settlers=%d foundMission=%d citiesProducingSettlers=%d nearestSettlerCityDistance=%d avgSettlerCityDistanceX100=%d capitalArea=%d nearestRevealedOtherTeamLandFromCapitalDistance=%d nearestRevealedEnemyLandFromCapitalDistance=%d metForeignPlayers=%d foreignPlayersWithKnownCities=%d knownForeignCities=%d capitalAreaForeignPlayersWithKnownCities=%d capitalAreaKnownForeignCities=%d nearestKnownForeignCityPlayer=%d nearestKnownForeignCityId=%d nearestKnownForeignCityFromCapitalDistance=%d nearestCapitalAreaKnownForeignCityPlayer=%d nearestCapitalAreaKnownForeignCityId=%d nearestCapitalAreaKnownForeignCityFromCapitalDistance=%d warEnemyPlayers=%d enemyPlayersWithKnownCities=%d knownEnemyCities=%d nearestKnownEnemyCityPlayer=%d nearestKnownEnemyCityId=%d nearestKnownEnemyCityFromCapitalDistance=%d",
+			iGameTurn, ePlayer, kPlayer.getNumCities(), GC.getInfo(kMap.getWorldSize()).getTargetNumCities(), kPlayer.getTotalLand(), iRevealedLand, iVisibleLand, iRevealedUnownedLand, iVisibleUnownedLand, iRevealedForeignLand, iVisibleForeignLand, iRevealedOtherTeamLand, iVisibleOtherTeamLand,
+			iSettlers, iFoundMission, iCitiesProducingSettlers, iNearestSettlerCityDistance, iAvgSettlerCityDistanceX100, iCapitalArea, iNearestRevealedOtherTeamLandDistance, iNearestRevealedEnemyLandDistance,
+			iMetForeignPlayers, iForeignPlayersWithKnownCities, iKnownForeignCities, iCapitalAreaForeignPlayersWithKnownCities, iCapitalAreaKnownForeignCities,
+			eNearestKnownForeignCityPlayer, iNearestKnownForeignCityId, iNearestKnownForeignCityDistance, eNearestCapitalAreaKnownForeignCityPlayer, iNearestCapitalAreaKnownForeignCityId, iNearestCapitalAreaKnownForeignCityDistance,
+			iWarEnemyPlayers, iEnemyPlayersWithKnownCities, iKnownEnemyCities, eNearestKnownEnemyCityPlayer, iNearestKnownEnemyCityId, iNearestKnownEnemyCityDistance);
 	logSASGameRecordTerritoryDevelopment(ePlayer, iGameTurn, kTerritoryDevelopment);
 }
 
