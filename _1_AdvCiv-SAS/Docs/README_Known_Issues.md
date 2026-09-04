@@ -73,7 +73,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#42 - (Enhanced/Addressed) Tune AI's preferred UNITAI based on war status & other factors](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-42)\
 [KI#43 - (Attemptingly improved/enhanced) AI settlers, for the first city found (i.e. at turn 0), settling too soon instead of digging a bit for better sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-43)\
 [KI#44 - (Enhanced) Make/Encourage AI settlers walk away from bad starting sites](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44)\
-[KI#44.5 - Disallow citizen specialist as it is a really bad choice (unless absolutely necessary)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5)\
+[KI#44.5 - (Reopened/Broadened after partial SAS repair) Disallow citizen specialist unless absolutely necessary](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.5)\
 [KI#44.6 - Disable auto citizen specialists for the human player as well](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-44.6)\
 [KI#45 - (Addressed / Patched / Worked around) AI cities assigning too soon or too often specialists, resulting in early stagnation very inefficiently: now added sanity rules to not go for a specialist](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-45)\
 [KI#46 - (Cleaned up) Very big messy old uiFlag code in the DLL, seemingly to support savegame compatibility, which i don't care about, especially considering how complicated the code is as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-46)\
@@ -88,7 +88,7 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#53 - (Beyond Tremendously Improved) Naval dementia of producing privateers/galleons then seemingly scrapping them and repeat, or of more importantly building galleons and privateers in droves and excess, despite enemy threatening cities of land capture for 20+ turns, and losing capital as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53)\
 [KI#53.2 - (Fixed and enhanced) Joao AI building way too many defenders (36 longbowmen at turn 130!! Almost all with UNITAI_CITY_DEFENSE or similar) while being boxed in with only 3 cities, instead of making about half of these offense units or versatile ones to punish overextending thin neighbour, fixed by having an early phase "we have expectedly too few cities at this stage of the game, no need to overbuild anymore denders at this stage of the game, switch to offense or versatile UNITAI rather" and "our military composition has way too many defender UNITAIs, switch to offense or versatile UNITAIs", which seemingly fix the issue](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2)\
 [KI#53.2.2 - (Seemingly greatly enhanced) AI overproducing defenders early on, especially longbowmen but not only, replaced with an early produce more versatile units especially civ-specific ones when defended enough (at least in theory) in CvCityAI::AI_chooseUnit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.2.2)\
-[KI#53.3 - (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3)\
+[KI#53.3 - (Reopened/Broadened after major SAS improvement) A concrete siege veto can suppress a legal same-role alternative](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.3)\
 [KI#53.4 - (Tremendously Improved) AI overbuilding very cheap combat units (ancient macemen only being an issue as of now) in the early game, sometimes even at turn 100, which is inefficient and easy to overshoot, as they are cheap and accumulate quickly, but are not too effective especially as soon as we get archer units, now limited, especially even more so after as of now turn 50 where they should be especially useless; much better military compositions and better growth as a result](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-53.4)\
 [KI#54 - (Fixed) Major Base Advciv +/- civ4 bug in AIFoundValue::adjustToCivSurroundings causing AI settlers to value midgame (turn 50+ for example here) settling on camel desert; worked around and disabled this function entirely, now inline a very simplified version of it inline in its only caller](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-54)\
 [55 to 60 -](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#55-to-60--)\
@@ -252,22 +252,22 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#191 - (Fixed/Improved) Base AdvCiv UWAI issue: independent target rolls could reject the best war target and then select a much worse rival](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-191)\
 [KI#192 - (Fixed/Improved) Base AdvCiv/K-Mod island Worker logistics and AdvCiv-SAS production safety gap could strand Workers and other land civilians where they had no use](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-192)\
 [KI#193 - (Fixed/Improved) Base AdvCiv/K-Mod generic army thresholds could make loaded assault ships wait instead of taking achievable overseas targets](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193)\
-[KI#193.2 - (Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193.2)\
-[KI#194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-194)\
-[KI#195 - (Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-195)\
+[KI#193.2 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked assault-transport capacity](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-193.2)\
+[KI#194 - (Reopened/Broadened after SAS fix) A capital can omit Settler sites reachable through its second water area](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-194)\
+[KI#195 - (Reopened/Broadened after SAS fix) Barbarian Work Boat demand still uses an incomplete city-radius/helper contract](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-195)\
 [KI#196 - (Fixed/Improved) AdvCiv-SAS's short-chain irrigation replacement could leave valuable BFC bonus Farms dry for up to 191 turns (Base AdvCiv had a similar untargeted routine, which AdvCiv-SAS does not use because it conflicted with SAS improvement choice)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-196)\
-[KI#197 - (Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only throttled strong AIs](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197)\
+[KI#197 - (Reopened/Broadened after SAS improvement) Power-per-city catch-up counts vassal power but not vassal cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197)\
 [KI#197.2 - (Fixed/Improved) Base AdvCiv/K-Mod final building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 3) ignored BuildUnitProb and could override strong military-production pressure immediately before generic unit production](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.2)\
 [KI#197.3 - (Fixed/Improved) Base AdvCiv/K-Mod late floating-defender retry ignored military unit-spending limits and could keep producing extra defenders far above budget in peace](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.3)\
 [KI#197.4 - (Fixed/Improved) AdvCiv-SAS excess-defender optimization could replace explicitly required `UNITAI_CITY_DEFENSE` production with offensive UnitAIs, including minimum defenders and Settler escorts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.4)\
 [KI#197.5 - (Fixed/Improved) Base AdvCiv/K-Mod generic city-hunting-stack production ignored military unit-spending limits and could keep growing peaceful offensive stacks far above budget](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.5)\
-[KI#197.6 - (Fixed/Improved) Base AdvCiv/K-Mod naval-trade sea-explorer fallback could ignore docked/queued ships and keep producing explorers after the relevant water area was fully revealed](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.6)\
+[KI#197.6 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked naval-trade ships](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.6)\
 [KI#197.7 - (Fixed/Improved) Base AdvCiv/K-Mod early building short-circuit (`CvCityAI::AI_chooseProduction`'s short-circuit 1) ignored BuildUnitProb and could start fresh infrastructure despite maximum military-production pressure](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.7)\
 [KI#197.8 - (Improved) Under-strength military production could still react too weakly for low-BuildUnitProb personalities because the relative-power catch-up was only multiplicative even when more units were affordable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.8)\
 [KI#197.9 - (Improved) Healthy AI empires could still devote too little productive capacity to offensive units even after BuildUnitProb and spending-limit fixes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.9)\
 [KI#197.10 - (Improved / tuned) An era-progressive offensive production floor preserves early AI strategies while correcting weak middle and late armies](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.10)\
-[KI#197.11 - (Improved / tuned) Offensive production floor could waste land output after a landmass was secured, while the excess land attack units would be very inefficient on naval-heavy maps (need more naval units rather for transport, defense, or offense) or if we control the entire landmass (e.g., vassals, team) (no need to overproduce on land-heavy for example, but need attack units even on e.g. Archipelago to conquer same landmass rivals)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.11)\
-[KI#198 - (Fixed/Improved) Likely Base AdvCiv Worker/land-development underperformance, compounded by an AdvCiv-SAS Worker-demand regression and too-low minimum, could leave mature AI cities badly unimproved](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-198)\
+[KI#197.11 - (Reopened/Broadened after SAS tuning) Per-water-area naval floors reuse an empire-wide denominator](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-197.11)\
+[KI#198 - (Reopened/Broadened after SAS fix) An area-local Worker minimum can be vetoed by the empire-wide concrete cap](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-198)\
 [KI#198.2 - (Fixed/Improved) Base AdvCiv AI non-combat food-production allocation could stall small growing cities instead of using mature or stagnant food/production pumps (observed with Workers)](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-198.2)\
 [KI#199 - (Fixed/Improved) Base AdvCiv/K-Mod generic UnitAI fallback could use dedicated land anti-air units as ordinary attackers or reserves](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-199)\
 [KI#200 - (Improved) Inherited Base AdvCiv/K-Mod sacrifice selection could spend current units before SAS-defined obsolete expendables during risky AI stack attacks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-200)\
@@ -906,7 +906,53 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#812 - (Rejected duplicate of KI#811) Post-acquisition significant-discovery checks](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-812)\
 [KI#813 - (Provisional Pending AdvCiv HotSeat message-ownership defect) A major event can be deleted twice](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-813)\
 [KI#814 - (Provisional Pending inherited BtS corporation-cache invalidation defect) Headquarters ownership changes leave branch output stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-814)\
-[KI#815 - (Provisional Pending investigation) F492 remains unassigned during the CvPlayer deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-815)\
+[KI#815 - (Provisional Pending inherited AdvCiv No Slavery/AI Auto Play cache defect) Sacrificial Altar entitlement is mis-cached](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-815)\
+[KI#816 - (Provisional Pending AdvCiv No Slavery/AI Auto Play legality defect) Control can return with Slavery active](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-816)\
+[KI#817 - (Provisional Pending inherited K-Mod AI Auto Play production-order defect) Culture can lack its stop marker](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-817)\
+[KI#818 - (Provisional Pending AdvCiv city-acquisition regression) Cross-civilization unique buildings can disappear](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-818)\
+[KI#819 - (Provisional Pending inherited BtS corporation-commerce cache defect) Suppression civics leave foreign HQ commerce stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-819)\
+[KI#820 - (Provisional Pending AdvCiv bonus-value cache regression) Domestic resource changes leave substitute values stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-820)\
+[KI#821 - (Provisional Pending inherited K-Mod construction-value cache defect) Later policy changes reuse pre-research values](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-821)\
+[KI#822 - (Provisional Pending inherited K-Mod available-income cache defect) GPT changes trigger commerce from stale income](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-822)\
+[KI#823 - (Provisional Pending inherited BtS deal transaction-ordering defect) GPT can trigger commerce during a partial bundle](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-823)\
+[KI#824 - (Provisional Pending inherited BtS zero-anarchy ordering defect) Commerce sliders precede civic and religion changes](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-824)\
+[KI#825 - (Provisional Pending inherited K-Mod available-income cache defect) Zero-anarchy changes leave the numerator stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-825)\
+[KI#826 - (Provisional Pending inherited BtS process-commerce cache defect) Production modifiers leave process output stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-826)\
+[KI#827 - (Provisional Pending inherited K-Mod upgrade-gold cache defect) Post-upgrade commerce uses the old reserve](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-827)\
+[KI#828 - (Provisional Pending inherited BtS trade-route cache defect) Partner-city population changes leave yield stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-828)\
+[KI#829 - (Provisional Pending inherited BtS trade-route timing defect) Foreign peace-duration credit is one turn late](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-829)\
+[KI#830 - (Provisional Pending inherited BtS trade-route cache defect) Route topology changes miss economic refresh](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-830)\
+[KI#831 - (Provisional Pending inherited BtS espionage-visibility cache defect) Changed points can leave city sight stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-831)\
+[KI#832 - (Provisional Pending AdvCiv surrounding-health/happiness cache defect) Access and ownership changes are omitted](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-832)\
+[KI#833 - (Provisional Pending inherited BtS strategy-cache defect) War plans can use pre-war strategy bits](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-833)\
+[KI#834 - (Provisional Pending K-Mod strategy-ordering regression) War planning can use stale DAGGER attitude](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-834)\
+[KI#835 - (Provisional Pending AdvCiv strategy-ordering regression) Loneliness changes after the strategy snapshot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-835)\
+[KI#836 - (Provisional Pending AdvCiv explorer-cache defect) Same-turn exploration leaves production demand stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-836)\
+[KI#837 - (Provisional Pending K-Mod victory/strategy cache-ordering regression) Victory staging uses old strategy bits](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-837)\
+[KI#838 - (Provisional Pending inherited BtS city-site cache defect) Founding does not remove the consumed site](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-838)\
+[KI#839 - (Provisional Pending inherited BtS attitude-cache defect) Border changes leave close-border attitude stale](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-839)\
+[KI#840 - (Provisional Pending K-Mod attitude-ordering regression) Relationship counters advance after the snapshot](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-840)\
+[KI#841 - (Provisional Pending K-Mod empire-average cache regression) Unit actions can change the same-turn city set](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-841)\
+[KI#842 - (Provisional Pending AdvCiv city-safety initialization regression) A threatened new city starts cached safe](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-842)\
+[KI#843 - (Provisional Pending AdvCiv city-safety invalidation defect) Own attacks refresh only already-unsafe cities](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-843)\
+[KI#844 - (Provisional Pending AdvCiv blocked-resource valuation defect) Plot owner is compared with a city ID](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-844)\
+[KI#845 - (Provisional Pending AdvCiv emphasis-state regression) Special production preserves stale commerce emphasis](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-845)\
+[KI#846 - (Provisional Pending inherited K-Mod plot-override lifecycle defect) Former culture cities retain stolen plots](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-846)\
+[KI#847 - (Provisional Pending inherited K-Mod sacrifice-cost defect) Same-type specialists can create a negative subsidy](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-847)\
+[KI#848 - (Provisional Pending K-Mod auto-production variable defect) One XP building is validated and another queued](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-848)\
+[KI#849 - (Provisional Pending AdvCiv defender-cache key regression) Air-first calls contaminate land demand](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-849)\
+[KI#850 - (Provisional Pending inherited K-Mod culture-pressure overflow amplified by SAS limits) Maximum pressure can become negative](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-850)\
+[KI#851 - (Provisional Pending AdvCiv forced-specialist regression) Fallback removal leaves the force target active](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-851)\
+[KI#852 - (Provisional Pending inherited BtS project-emphasis defect) The Project branch is unreachable](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-852)\
+[KI#853 - (Provisional Pending inherited BtS anger-timing arithmetic defect) Exact cycles map to zero turns](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-853)\
+[KI#854 - (Provisional Pending inherited BtS anger/growth ordering defect) Equal timing counts recovery too early](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-854)\
+[KI#855 - (Provisional Pending AdvCiv natural-yield-threshold integration regression) Final improvement projection omits Financial yield](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-855)\
+[KI#856 - (Provisional Pending AdvCiv loop-refactor regression) Cathedral reserve shortage no longer updates state](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-856)\
+[KI#857 - (Provisional Pending inherited BtS panic-production domain defect) A ship can block a needed land defender](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-857)\
+[KI#858 - (Provisional Pending inherited BtS future-happiness bound defect) Three recovery channels are capped at two](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-858)\
+[KI#859 - (Provisional Pending K-Mod obsolete-building valuation defect with incomplete AdvCiv repair) Retained effects are priced as lost](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-859)\
+[KI#860 - (Provisional Pending inherited BtS stacked-anger valuation defect) Only one layer per source can recover](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-860)\
+[KI#861 - (Provisional Pending investigation) F538 remains unassigned during the CvCityAI deep re-audit](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-861)\
 
 <a id="ki-1"></a>
 
@@ -2315,7 +2361,9 @@ Note: these are done at emperor difficulty, before changing all tech prereqs, so
 
 <a id="ki-44.5"></a>
 
-## KI#44.5 - Disallow citizen specialist as it is a really bad choice (unless absolutely necessary)
+## KI#44.5 - (Reopened/Broadened after partial SAS repair) Disallow citizen specialist unless absolutely necessary
+
+Queue-005 WIP285 found that the mandatory-citizen fallback can still select the deliberately avoided Citizen specialist when another legal assignment exists. The earlier SAS repair improved normal assignment but did not close this forced fallback contract.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/13QF4EHJMAg8Eur-H6N0qYVd_nvWXgupS?usp=sharing).
 
@@ -3208,7 +3256,9 @@ Update 2: see another example of windbg usage to bugfix (i don't know too much a
 
 <a id="ki-53.3"></a>
 
-## KI#53.3 - (Tremendously Improved) AI overbuilding siege units, in particular trebuchets but not only, where they are detrimental to do build, in particular when weaker but not only
+## KI#53.3 - (Reopened/Broadened after major SAS improvement) A concrete siege veto can suppress a legal same-role alternative
+
+Queue-005 WIP286 found that rejecting one concrete siege candidate can suppress a different legal unit of the same role rather than continuing candidate selection. This broadens the heavily improved siege-production family without undoing its prior gains.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/180Hnkhno1HgQb9rzPu-EA9ahH0dr-36K?usp=sharing).
 
@@ -8527,7 +8577,9 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 <a id="ki-193.2"></a>
 
-## KI#193.2 - (Fixed/Improved) Base AdvCiv/K-Mod assault-transport production could overlook nearby profitable islands when land armies were already large or another enemy city was reachable by land
+## KI#193.2 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked assault-transport capacity
+
+Queue-005 WIP283 found that the repaired selected-water-area capacity count can omit transports docked through a dual-coast city's other adjacent water area. The original overproduction fix remains useful, but its topology coverage is incomplete.
 
 This is the production-side follow-up to KI#193. That cure lets an existing loaded fleet consider a specific achievable target before reaching Base AdvCiv/K-Mod's generic invasion size, but the same overseas-transport diagnostics showed that an AI could know a worthwhile nearby island city and have ample attackers without producing the ship needed to carry them there.
 
@@ -8561,7 +8613,9 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 <a id="ki-194"></a>
 
-## KI#194 - (Fixed/Improved) AdvCiv-SAS inland-capital Settler production gate could ignore worthwhile islands that existing Settler transports could reach
+## KI#194 - (Reopened/Broadened after SAS fix) A capital can omit Settler sites reachable through its second water area
+
+Queue-005 WIP282 found that the central Settler water-area repair checks the capital's primary adjacent sea but omits `secondWaterArea()`. An isthmus or dual-coast capital can therefore miss worthwhile islands reachable through its other sea.
 
 The overseas-settlement diagnostics added after KI#193.2 exposed an AdvCiv-SAS regression introduced accidentally by KI#181's otherwise useful weak-site Settler-production floor. KI#181 added `SAS_getSettlerBuildSiteStatus` as the final guard before a concrete Settler order, but its water-site check copied only the producing city's directly relevant water area and omitted an inherited K-Mod/AdvCiv fallback used by the surrounding production logic. In save file 449, India knew a valuable nearby Fish/Whale/Crab island site at `(39,10)` and already had 2 Settler transports with 6 total cargo space. The inherited `CvCityAI::AI_chooseProduction` logic could see the island, but because Delhi was inland, the new AdvCiv-SAS gate received a null water area, repeatedly reported `hasBuildSite=0 waterSites=0` from turns 119-129, and rejected the Settler despite the reachable island opportunity.
 
@@ -8577,7 +8631,9 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 <a id="ki-195"></a>
 
-## KI#195 - (Fixed/Improved) Two related Base AdvCiv Barbarian Work Boat bugs ignored outer-city-radius seafood and failed to count docked or queued boats
+## KI#195 - (Reopened/Broadened after SAS fix) Barbarian Work Boat demand still uses an incomplete city-radius/helper contract
+
+Queue-005 WIP292 found that the earlier outer-radius diagnosis and repair relied on a helper whose actual plot coverage did not match the assumed contract. The Work Boat counting cure needs to be rebuilt from the real city-radius and seafood-demand scopes.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1tchRI0bVg3IlT2n6BjyciLXnEW1JML4P?usp=sharing).
 
@@ -8609,7 +8665,9 @@ Fixed/improved with the help of GPT-5.6-Sol (on ChatGPT Codex) thanks.
 
 <a id="ki-197"></a>
 
-## KI#197 - (Fixed/Improved) Base AdvCiv/K-Mod military production could remain too low when an empire was under-strength for its size because relative-power logic only throttled strong AIs
+## KI#197 - (Reopened/Broadened after SAS improvement) Power-per-city catch-up counts vassal power but not vassal cities
+
+Queue-005 WIP286 found that the improved under-strength catch-up numerator includes vassal power while its per-city denominator omits vassal cities. This mismatched empire scope can overstate military weakness and production demand.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/12ausI-H34CWK1jaXzn1cedb0l9yOvxtX?usp=sharing).
 
@@ -8703,7 +8761,9 @@ Fixed/improved with the help of ChatGPT-5.6-Sol thanks.
 
 <a id="ki-197.6"></a>
 
-## KI#197.6 - (Fixed/Improved) Base AdvCiv/K-Mod naval-trade sea-explorer fallback could ignore docked/queued ships and keep producing explorers after the relevant water area was fully revealed
+## KI#197.6 - (Reopened/Broadened after SAS fix) Dual-coast ports can omit docked naval-trade ships
+
+Queue-005 WIP284 found that the corrected naval-trade cap still counts docked ships only for one selected water area. A dual-coast city's ship on the other adjacent sea can be omitted and trigger unnecessary production.
 
 The continued KI#197 military-production audit exposed another inherited `CvCityAI::AI_chooseProduction` edge case in AdvCiv's special naval-trade sea-explorer fallback. Base AdvCiv/K-Mod deliberately handles trade exploration separately from the ordinary sea-explorer target: if a city has access to naval trade, the branch ignores `seaExplorersTarget`, counts up to three "water units" in the relevant water area, and then has a 25% chance to request `UNITAI_EXPLORE_SEA`. Direct comparison with Base AdvCiv 1.13 confirmed that this behavior is inherited.
 
@@ -8872,7 +8932,9 @@ Investigated with the help of GPT-5.6-Sol thanks.
 
 <a id="ki-197.11"></a>
 
-## KI#197.11 - (Improved / tuned) Offensive production floor could waste land output after a landmass was secured, while the excess land attack units would be very inefficient on naval-heavy maps (need more naval units rather for transport, defense, or offense) or if we control the entire landmass (e.g., vassals, team) (no need to overproduce on land-heavy for example, but need attack units even on e.g. Archipelago to conquer same landmass rivals)
+## KI#197.11 - (Reopened/Broadened after SAS tuning) Per-water-area naval floors reuse an empire-wide denominator
+
+Queue-005 WIP281, with further topology accounting in WIP301, found that each disconnected water area can compare its own secured naval output against an empire-wide production denominator. Multiple seas can therefore each force what was intended as the full empire naval share.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1HSn5DodRFQr7i4DNdj84JllyIt1lYQWa?usp=sharing).
 
@@ -8894,7 +8956,9 @@ Improved/investigated with the help of ChatGPT-5.6-Sol thanks.
 
 <a id="ki-198"></a>
 
-## KI#198 - (Fixed/Improved) Likely Base AdvCiv Worker/land-development underperformance, compounded by an AdvCiv-SAS Worker-demand regression and too-low minimum, could leave mature AI cities badly unimproved
+## KI#198 - (Reopened/Broadened after SAS fix) An area-local Worker minimum can be vetoed by the empire-wide concrete cap
+
+Queue-005 WIP279 found that the repaired local land-area Worker floor is still applied beneath an empire-wide cap on concrete Workers. Workers elsewhere can veto the minimum for an underdeveloped disconnected area.
 
 Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1LG6nM1Br5bfPYIDGj9yH4B7nPsuRbUeZ?usp=sharing).
 
@@ -15853,8 +15917,376 @@ Found as F491/provisional KI#814 during ChatGPT-5.6-Sol's C031-WIP227-WIP228 `Cv
 
 <a id="ki-815"></a>
 
-## KI#815 - (Provisional Pending investigation) F492 remains unassigned during the CvPlayer deep re-audit
+## KI#815 - (Provisional Pending inherited AdvCiv No Slavery/AI Auto Play cache defect) Sacrificial Altar entitlement is mis-cached
 
-The protected Queue 004 `CvPlayer.cpp` deep re-audit has confirmed F444, F446-F488 and F490-F491 through C031-WIP228, retracts F445/KI#768, duplicate-reconciles F489/KI#812 into F488/KI#811, and keeps F492 unused after controlling the immediate headquarters-transfer siblings. Do not implement a change under KI#815 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+AdvCiv processes the No Slavery Sacrificial Altar population-rush entitlement only while its owner is currently human. Completing the building while AI Auto Play temporarily disables the human therefore misses the entitlement and returns control with incorrect city state. Recompute the human-only source when control identity changes or remove current-human identity from persistent building processing.
 
-Reserved through ChatGPT-5.6-Sol's C031-WIP228 `CvPlayer.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
+Found as F492 during ChatGPT-5.6-Sol's C031-WIP229 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-816"></a>
+
+## KI#816 - (Provisional Pending AdvCiv No Slavery/AI Auto Play legality defect) Control can return with Slavery active
+
+The No Slavery civic prohibition tests current `isHuman()`, which AI Auto Play deliberately makes false. The temporary AI can consequently adopt Slavery for the disabled human and return control while the forbidden civic remains active. The option contract must survive the control transition, not merely block choices made while the slot reports human.
+
+Found as F493 during ChatGPT-5.6-Sol's C031-WIP230 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-817"></a>
+
+## KI#817 - (Provisional Pending inherited K-Mod AI Auto Play production-order defect) Culture can lack its stop marker
+
+K-Mod stores the border-expansion stop marker only when a human queues Culture, assuming AI production will be reconsidered each turn. AI Auto Play can queue Culture while the human slot is disabled and hand that order back without its marker, so it need not stop after the intended border expansion. Normalize surviving production orders when human control returns.
+
+Found as F494 during ChatGPT-5.6-Sol's C031-WIP231 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-818"></a>
+
+## KI#818 - (Provisional Pending AdvCiv city-acquisition regression) Cross-civilization unique buildings can disappear
+
+AdvCiv correctly maps an acquired foreign unique building to the recipient civilization's building type, but reads the old-city snapshot using that destination type rather than the source type. Ordinary cross-civilization unique-building conversion can therefore restore a zero count and lose the building. Read source-keyed snapshot data before writing the mapped destination type.
+
+Found as F495 during ChatGPT-5.6-Sol's C031-WIP235-WIP236 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-819"></a>
+
+## KI#819 - (Provisional Pending inherited BtS corporation-commerce cache defect) Suppression civics leave foreign HQ commerce stale
+
+Changing a player's corporation-suppression civic changes global corporation levels used by other players' headquarters building-commerce effects, but inherited invalidation refreshes only the switching player's cities. Other owners' headquarters can retain stale commerce. Refresh every affected headquarters/building-commerce consumer after the global level changes.
+
+Found as F496 during ChatGPT-5.6-Sol's C031-WIP239 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-820"></a>
+
+## KI#820 - (Provisional Pending AdvCiv bonus-value cache regression) Domestic resource changes leave substitute values stale
+
+AdvCiv made one resource's cached AI value depend on the availability of other substitute resources, but domestic/capital-network resource transitions do not invalidate those cross-resource cache entries. Resource trade and production decisions can reuse values from the old network state. Rebuild at a stable synchronized resource-network boundary.
+
+Found as F497 during ChatGPT-5.6-Sol's C031-WIP240 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-821"></a>
+
+## KI#821 - (Provisional Pending inherited K-Mod construction-value cache defect) Later policy changes reuse pre-research values
+
+K-Mod clears city construction values before research selection, but later same-turn commerce, civic and religion changes can alter their inputs. A newly completed technology can then let city production reuse stale values cached during research or Great Person valuation. Invalidate after those state transitions or move the authoritative cache boundary after them.
+
+Found as F498 during ChatGPT-5.6-Sol's C031-WIP242-WIP243 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-822"></a>
+
+## KI#822 - (Provisional Pending inherited K-Mod available-income cache defect) GPT changes trigger commerce from stale income
+
+Gold-per-turn changes immediately invoke `AI_doCommerce`, but K-Mod's cached available income is refreshed only at turn activation. The event-driven slider response can therefore use pre-deal financial-trouble state. Refresh the cache before the explicit commerce response.
+
+Found as F499 during ChatGPT-5.6-Sol's C031-WIP244 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-823"></a>
+
+## KI#823 - (Provisional Pending inherited BtS deal transaction-ordering defect) GPT can trigger commerce during a partial bundle
+
+Trade bundles are applied item by item, and a GPT item can synchronously run `AI_doCommerce` before a later resource item changes happiness and health. Sliders are then committed from a partially applied transaction. Defer substantial AI recomputation until both item lists reach final state.
+
+Found as F500 during ChatGPT-5.6-Sol's C031-WIP245 `CvPlayer.cpp`/`CvDeal` audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-824"></a>
+
+## KI#824 - (Provisional Pending inherited BtS zero-anarchy ordering defect) Commerce sliders precede civic and religion changes
+
+AI turn preprocessing selects commerce sliders before civic and religion decisions. Spiritual or Golden Age changes apply immediately without anarchy and can alter happiness, maintenance and commerce inputs, yet no final commerce pass follows. Reorder or rerun the decision after zero-anarchy policy changes.
+
+Found as F501 during ChatGPT-5.6-Sol's C031-WIP246 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-825"></a>
+
+## KI#825 - (Provisional Pending inherited K-Mod available-income cache defect) Zero-anarchy changes leave the numerator stale
+
+K-Mod's available-income cache is captured at turn activation before a zero-anarchy civic or religion switch changes its underlying economy. Same-turn financial-trouble and production decisions then consume the old numerator. Refresh the cache after immediately effective policy changes.
+
+Found as F502 during ChatGPT-5.6-Sol's C031-WIP247 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-826"></a>
+
+## KI#826 - (Provisional Pending inherited BtS process-commerce cache defect) Production modifiers leave process output stale
+
+Wealth, Research and Culture cache production-to-commerce output from the city's current hammer rate, but production-yield modifier mutators refresh commerce only for `YIELD_COMMERCE`. An active process can retain output calculated from the old production rate. Production modifiers must also rebuild process-derived commerce.
+
+Found as F503 during ChatGPT-5.6-Sol's C031-WIP248 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-827"></a>
+
+## KI#827 - (Provisional Pending inherited K-Mod upgrade-gold cache defect) Post-upgrade commerce uses the old reserve
+
+K-Mod eagerly caches upgrade-gold requirements before AI units actually upgrade, then later commerce and hurry decisions reuse the obsolete reserve. Refresh after upgrades or delay the snapshot until the upgrade phase is complete.
+
+Found as F504 during ChatGPT-5.6-Sol's C031-WIP249 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-828"></a>
+
+## KI#828 - (Provisional Pending inherited BtS trade-route cache defect) Partner-city population changes leave yield stale
+
+Trade-route profit depends on partner-city population, but a city's population change invalidates only its owner's routes. Other players trading with that city can retain stale route yield. Invalidate external route consumers when partner population changes.
+
+Found as F505 during ChatGPT-5.6-Sol's C031-WIP250 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-829"></a>
+
+## KI#829 - (Provisional Pending inherited BtS trade-route timing defect) Foreign peace-duration credit is one turn late
+
+Foreign trade profit uses the peace-duration counter, but routes are cached before that counter advances. The duration credit is therefore systematically one turn behind. Refresh after the counter update or calculate from synchronized current duration.
+
+Found as F506 during ChatGPT-5.6-Sol's C031-WIP251 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-830"></a>
+
+## KI#830 - (Provisional Pending inherited BtS trade-route cache defect) Route topology changes miss economic refresh
+
+Road and route-network changes rebuild plot groups without necessarily rebuilding cached city trade routes before economic booking. Connectivity can therefore change while route commerce remains stale. Couple the stable topology update with trade-route invalidation.
+
+Found as F507 during ChatGPT-5.6-Sol's C031-WIP252 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-831"></a>
+
+## KI#831 - (Provisional Pending inherited BtS espionage-visibility cache defect) Changed points can leave city sight stale
+
+Directional espionage-point and passive-mission-cost changes do not refresh stored city espionage visibility or its real plot-sight side effect. Paid sight can persist after losing entitlement or fail to appear after gaining it. Re-evaluate affected directional city visibility when either input changes.
+
+Found as F508 during ChatGPT-5.6-Sol's C031-WIP253 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-832"></a>
+
+## KI#832 - (Provisional Pending AdvCiv surrounding-health/happiness cache defect) Access and ownership changes are omitted
+
+AdvCiv caches positive surrounding feature/improvement health and happiness only when the city team can peacefully access the plot. Open Borders, vassalage and plot ownership can change that predicate without refreshing the cache, leaving authoritative city welfare stale. Invalidate affected cities on those relation and ownership transitions.
+
+Found as F509 during ChatGPT-5.6-Sol's C031-WIP254 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-833"></a>
+
+## KI#833 - (Provisional Pending inherited BtS strategy-cache defect) War plans can use pre-war strategy bits
+
+War-plan transitions do not invalidate the cached player strategy hash, so the same unit phase can use pre-war CRUSH and PRODUCTION strategy bits after a war is chosen. Later K-Mod ordering makes the stale window deterministic. Refresh strategy state at the war-plan transition or before its first consumer.
+
+Found as F510 during ChatGPT-5.6-Sol's C031-WIP255 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-834"></a>
+
+## KI#834 - (Provisional Pending K-Mod strategy-ordering regression) War planning can use stale DAGGER attitude
+
+K-Mod snapshots player strategy before team diplomacy counters and attitudes update. Same-turn war planning can therefore use the previous DAGGER classification and skip intended preparation. Establish an explicit ordering or refresh after relationship state advances.
+
+Found as F511 during ChatGPT-5.6-Sol's C031-WIP256 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-835"></a>
+
+## KI#835 - (Provisional Pending AdvCiv strategy-ordering regression) Loneliness changes after the strategy snapshot
+
+AdvCiv refreshes cached team loneliness after the player's eager strategy snapshot. A newly isolated non-start-era AI can enter same-turn planning with obsolete flavor and DAGGER inputs. Refresh loneliness first or rebuild dependent strategy afterward.
+
+Found as F512 during ChatGPT-5.6-Sol's C031-WIP257 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-836"></a>
+
+## KI#836 - (Provisional Pending AdvCiv explorer-cache defect) Same-turn exploration leaves production demand stale
+
+AdvCiv snapshots `AI_neededExplorers` before units explore. Newly revealed tiles can lower the correct target while later same-turn city production still uses the old demand and can overproduce explorers. Refresh after exploration or defer the demand snapshot until before production.
+
+Found as F513 during ChatGPT-5.6-Sol's C031-WIP258 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-837"></a>
+
+## KI#837 - (Provisional Pending K-Mod victory/strategy cache-ordering regression) Victory staging uses old strategy bits
+
+K-Mod practical 170 moved victory-stage computation before strategy refresh even though Conquest and Culture staging consume current CRUSH and GET_BETTER_UNITS bits. Victory state can therefore reflect the previous strategy snapshot. Make the cyclic dependency and refresh order explicit.
+
+Found as F514 during ChatGPT-5.6-Sol's C031-WIP259-WIP260 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-838"></a>
+
+## KI#838 - (Provisional Pending inherited BtS city-site cache defect) Founding does not remove the consumed site
+
+The AI city-site list is rebuilt before unit movement, but ordinary Settler founding does not invalidate it. Later same-turn production and expansion decisions can still count and value the just-consumed site. Remove or rebuild the affected cached site after founding.
+
+Found as F515 during ChatGPT-5.6-Sol's C031-WIP260-WIP261 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-839"></a>
+
+## KI#839 - (Provisional Pending inherited BtS attitude-cache defect) Border changes leave close-border attitude stale
+
+Same-turn culture and plot-ownership changes can alter close-border tension without invalidating the cached attitude component. Later diplomacy and strategy consumers can use an obsolete attitude category. Refresh the relevant pair after border geography changes.
+
+Found as F516 during ChatGPT-5.6-Sol's C031-WIP264 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-840"></a>
+
+## KI#840 - (Provisional Pending K-Mod attitude-ordering regression) Relationship counters advance after the snapshot
+
+K-Mod's player relationship counters advance after the team's full-attitude snapshot. Same-turn commerce and related decisions can act on yesterday's attitude. Move counter advancement before the snapshot or rebuild the affected attitudes afterward.
+
+Found as F517 during ChatGPT-5.6-Sol's C031-WIP265-WIP266 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-841"></a>
+
+## KI#841 - (Provisional Pending K-Mod empire-average cache regression) Unit actions can change the same-turn city set
+
+K-Mod practical 170 moved empire-average calculation before unit actions. Founding, acquisition and other unit-phase city-set changes can leave the snapshot stale for later AI decisions in the same turn. Refresh after such transitions or move the calculation beyond them.
+
+Found as F518 during ChatGPT-5.6-Sol's C031-WIP268-WIP269 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-842"></a>
+
+## KI#842 - (Provisional Pending AdvCiv city-safety initialization regression) A threatened new city starts cached safe
+
+AdvCiv practical 2093 initializes every new city as `CITYSAFETY_SAFE` without calculating its actual safety. A threatened city founded during unit movement can therefore be treated as safe by later same-turn unit AI. Calculate the initial cache from current threats before exposure to consumers.
+
+Found as F519 during ChatGPT-5.6-Sol's C031-WIP270 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-843"></a>
+
+## KI#843 - (Provisional Pending AdvCiv city-safety invalidation defect) Own attacks refresh only already-unsafe cities
+
+AdvCiv's `AI_attackMadeAgainst` refreshes cities already classified unsafe but can leave a stale-safe city unchanged when its own attack removes or weakens a defender. Later same-turn unit AI then trusts the obsolete safe classification. Refresh every potentially affected nearby city regardless of its prior state.
+
+Found as F520 during ChatGPT-5.6-Sol's C031-WIP271 `CvPlayer.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-844"></a>
+
+## KI#844 - (Provisional Pending AdvCiv blocked-resource valuation defect) Plot owner is compared with a city ID
+
+AdvCiv's early feature-clear technology bonus compares a plot's `PlayerTypes` owner with the evaluating city's object ID. The domains are unrelated, so `AI_countOvergrownBonuses` returns zero and the blocked-resource technology bonus is dead. Compare against the city owner instead.
+
+Found as F521 during ChatGPT-5.6-Sol's C031-WIP288 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-845"></a>
+
+## KI#845 - (Provisional Pending AdvCiv emphasis-state regression) Special production preserves stale commerce emphasis
+
+AdvCiv practical 1675 changed high-production emphasis from clearing prior AI emphasis to freezing it. Stale commerce or research emphasis can consequently override the Worker, Settler or Wonder production governor. Re-establish the intended special-production emphasis state rather than preserving unrelated prior choices.
+
+Found as F522 during ChatGPT-5.6-Sol's C031-WIP289 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-846"></a>
+
+## KI#846 - (Provisional Pending inherited K-Mod plot-override lifecycle defect) Former culture cities retain stolen plots
+
+K-Mod's `AI_stealPlots` installs an authoritative working-city override for an important Cultural-victory city, but clears it only when plot ownership changes. If the city later loses its special importance while ownership remains, it keeps the reserved shared plot indefinitely. Re-evaluate and release overrides when the priority that created them disappears.
+
+Found as F523 during ChatGPT-5.6-Sol's C031-WIP290 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-847"></a>
+
+## KI#847 - (Provisional Pending inherited K-Mod sacrifice-cost defect) Same-type specialists can create a negative subsidy
+
+`AI_citizenSacrificeCost` counts each specialist type's yields once while counting every assigned specialist in its job-loss denominator. Multiple specialists of one type can therefore turn a real population-sacrifice cost into a negative subsidy. Accumulate yields with the same multiplicity as the represented jobs.
+
+Found as F524 during ChatGPT-5.6-Sol's C031-WIP291 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-848"></a>
+
+## KI#848 - (Provisional Pending K-Mod auto-production variable defect) One XP building is validated and another queued
+
+K-Mod's human auto-production governor validates one candidate experience building but queues a different retained building variable. It can therefore choose an unvalidated or unintended building. Queue the same candidate that passed the checks.
+
+Found as F525 during ChatGPT-5.6-Sol's C031-WIP294 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-849"></a>
+
+## KI#849 - (Provisional Pending AdvCiv defender-cache key regression) Air-first calls contaminate land demand
+
+AdvCiv added `bIgnoreCulture` to `AI_neededFloatingDefenders` without adding it to the cache identity. An AIR-domain call can populate culture-inclusive demand that a later LAND calculation expects to exclude. Include every semantic parameter in the cache key or split the cached results.
+
+Found as F526 during ChatGPT-5.6-Sol's C031-WIP295 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-850"></a>
+
+## KI#850 - (Provisional Pending inherited K-Mod culture-pressure overflow amplified by SAS limits) Maximum pressure can become negative
+
+K-Mod multiplies an already multi-rival culture-pressure sum by the estimated end turn in 32-bit `int`. Supported high-pressure games can overflow and turn maximum pressure into a large negative value; SAS's 48-player and longer-speed support expands reachability but did not introduce the unsafe arithmetic. Widen before multiplication and clamp only afterward.
+
+Found as F527 during ChatGPT-5.6-Sol's C031-WIP296 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-851"></a>
+
+## KI#851 - (Provisional Pending AdvCiv forced-specialist regression) Fallback removal leaves the force target active
+
+AdvCiv moved K-Mod's forced-specialist count repair onto an earlier branch that cannot cover the final fallback removal. `AI_removeWorstCitizen` can remove a fully forced specialist while leaving its force target active, so later assignment tries to restore it. Apply the repair to the specialist actually removed by the fallback.
+
+Found as F528 during ChatGPT-5.6-Sol's C031-WIP297 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-852"></a>
+
+## KI#852 - (Provisional Pending inherited BtS project-emphasis defect) The Project branch is unreachable
+
+Project production emphasis is tested inside a block that first requires a production Building, but producing a Project makes `getProductionBuilding()` return `NO_BUILDING`. The explicit World Wonder-or-Project branch can therefore never apply its Project half. Test Project production independently of the Building prerequisite.
+
+Found as F529 during ChatGPT-5.6-Sol's C031-WIP298 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-853"></a>
+
+## KI#853 - (Provisional Pending inherited BtS anger-timing arithmetic defect) Exact cycles map to zero turns
+
+`AI_yieldValue` uses `timer % angerLength` for the next unhappy-layer expiry, so an exact full cycle reports zero turns instead of one full length. Use the positive-cycle remainder `((timer - 1) % length) + 1` for Hurry, Conscript and Defy anger.
+
+Found as F530 during ChatGPT-5.6-Sol's C031-WIP299 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-854"></a>
+
+## KI#854 - (Provisional Pending inherited BtS anger/growth ordering defect) Equal timing counts recovery too early
+
+The projected anger recovery uses `<=` against turns to growth even though normal city order performs growth before that turn's anger decrement. Equal counts therefore credit happiness one growth too early. After correcting KI#853's remainder, require expiry strictly before projected growth.
+
+Found as F531 during ChatGPT-5.6-Sol's C031-WIP300 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-855"></a>
+
+## KI#855 - (Provisional Pending AdvCiv natural-yield-threshold integration regression) Final improvement projection omits Financial yield
+
+AdvCiv moved Financial to `ExtraYieldNaturalThreshold`, but K-Mod's final-upgrade projection still checks only the old ordinary threshold. Financial Cottage-line jobs can consequently be projected below worse jobs despite their real extra Commerce. Apply the natural threshold consistently to current and projected improvement yields.
+
+Found as F532 during ChatGPT-5.6-Sol's C031-WIP302 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-856"></a>
+
+## KI#856 - (Provisional Pending AdvCiv loop-refactor regression) Cathedral reserve shortage no longer updates state
+
+AdvCiv practical 1808 replaced K-Mod's `bHaveEnough = false` prerequisite-shortage update with `break`. The later consumer therefore treats an outside-target Cultural city as having enough Temple reserve and overvalues another Cathedral. Restore the state update while preserving the refactored loop.
+
+Found as F533 during ChatGPT-5.6-Sol's C031-WIP303 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-857"></a>
+
+## KI#857 - (Provisional Pending inherited BtS panic-production domain defect) A ship can block a needed land defender
+
+`AI_doPanic` compares land attack and defense but accepts any queued unit with positive generic combat. A coastal city can force-hurry a ship and return without selecting the land defender demanded by the panic calculation. Require a compatible land defender for this shortcut.
+
+Found as F534 during ChatGPT-5.6-Sol's C031-WIP304 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-858"></a>
+
+## KI#858 - (Provisional Pending inherited BtS future-happiness bound defect) Three recovery channels are capped at two
+
+The `AI_yieldValue` pre-gate assumes future happiness can increase by at most two, but its body independently credits Hurry, Conscript and Defy anger expiry for a possible total of three. A city at happiness -2 can therefore skip a valid positive-growth evaluation. Derive the bound from all represented channels or remove the false gate.
+
+Found as F535 during ChatGPT-5.6-Sol's C031-WIP308 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-859"></a>
+
+## KI#859 - (Provisional Pending K-Mod obsolete-building valuation defect with incomplete AdvCiv repair) Retained effects are priced as lost
+
+K-Mod's obsolete-building penalty values the whole Building even though engine obsolescence retains effects such as ObsoleteSafe commerce, Great Person points and local defense. AdvCiv introduced `bObsolete` to repair defense but left other retained effects and part of defense valuation in the loss estimate. Value only the actual `processBuilding(..., bObsolete=true)` delta.
+
+Found as F536 during ChatGPT-5.6-Sol's C031-WIP309-WIP310 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-860"></a>
+
+## KI#860 - (Provisional Pending inherited BtS stacked-anger valuation defect) Only one layer per source can recover
+
+`AI_yieldValue` credits at most one future happiness recovery for each temporary-anger source, even when multiple stacked layers of the same source expire before projected growth. Repeated whipping can therefore undercount recovered happiness. Count every layer whose corrected expiry precedes growth while preserving KI#853 and KI#854 boundaries.
+
+Found as F537 during ChatGPT-5.6-Sol's C031-WIP310 `CvCityAI.cpp` deep re-audit; reconciled into Known Issues with the help of GPT-5.6-Sol, thanks.
+
+<a id="ki-861"></a>
+
+## KI#861 - (Provisional Pending investigation) F538 remains unassigned during the CvCityAI deep re-audit
+
+The protected Queue 004 `CvPlayer.cpp` re-audit closed at C031-WIP276, and Queue 005 `CvCityAI.cpp` has confirmed F521-F537 through C031-WIP310 while broadening several existing KI families. Do not implement a change under KI#861 until a later checkpoint establishes a separate current producer, violated contract, consequence, ancestry and repair boundary.
+
+Reserved through ChatGPT-5.6-Sol's C031-WIP310 `CvCityAI.cpp` deep re-audit; provisional ledger disposition reconciled with the help of GPT-5.6-Sol, thanks.
