@@ -881,8 +881,9 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	std::vector<NukeEffect> aBuildingDestroyed;
 	std::vector<NukeEffect> aCitizensKilled;
 	// <!-- custom: Reuse this existing single explosion pass for compact SASGameRecord effect totals; no diagnostic-only second scan is needed.
-	// Keep the extra counters inert unless a unit-launched detonation is actually being recorded. (ChatGPT-5.6-Sol) -->
-	bool const bLogSASNukeEffects = (bBomb && pNukeUnit != NULL && gGameRecordLogLevel >= 2);
+	// Cache the level-2 plot-history gate once for the whole explosion rather than re-reading it for every affected plot; keep the extra effect counters inert unless a unit-launched detonation is actually being recorded. (ChatGPT-5.6-Sol) -->
+	bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+	bool const bLogSASNukeEffects = (bBomb && pNukeUnit != NULL && bLogPlotChange);
 	int iSASFalloutPlots = 0;
 	int iSASPopulationKilled = 0;
 	// </advc.650>
@@ -896,7 +897,6 @@ void CvPlot::nukeExplosion(int iRange, CvUnit* pNukeUnit, bool bBomb)
 	for (SquareIter it(*this, iRange); it.hasNext(); ++it)
 	{
 		CvPlot& p = *it;
-		bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
 		SASGameRecordPlotState kOldPlotState;
 		if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(p);
 
@@ -4786,29 +4786,31 @@ BonusTypes CvPlot::getNonObsoleteBonusType(TeamTypes eTeam, bool bCheckConnected
 
 void CvPlot::setBonusType(BonusTypes eNewValue)
 {
-	if(getBonusType() == eNewValue)
+	// <!-- custom: The old bonus is needed for the equality/removal gameplay path as well as optional SASGameRecord history.
+	// Cache it once instead of rereading getBonusType several times around the mutation. (ChatGPT-5.6-Sol) -->
+	BonusTypes const eOldBonus = getBonusType();
+	if(eOldBonus == eNewValue)
 		return;
-	const BonusTypes eOldBonus = getBonusType();
 
-	if (getBonusType() != NO_BONUS)
+	if (eOldBonus != NO_BONUS)
 	{
-		getArea().changeNumBonuses(getBonusType(), -1);
-		GC.getMap().changeNumBonuses(getBonusType(), -1);
+		getArea().changeNumBonuses(eOldBonus, -1);
+		GC.getMap().changeNumBonuses(eOldBonus, -1);
 
 		if (!isWater())
-			GC.getMap().changeNumBonusesOnLand(getBonusType(), -1);
+			GC.getMap().changeNumBonusesOnLand(eOldBonus, -1);
 	}
 
 	updatePlotGroupBonus(false, /* advc.064d: */ false);
 	m_eBonusType = eNewValue;
 	updatePlotGroupBonus(true);
 
-	if (getBonusType() != NO_BONUS)
+	if (eNewValue != NO_BONUS)
 	{
-		getArea().changeNumBonuses(getBonusType(), 1);
-		GC.getMap().changeNumBonuses(getBonusType(), 1);
+		getArea().changeNumBonuses(eNewValue, 1);
+		GC.getMap().changeNumBonuses(eNewValue, 1);
 		if (!isWater())
-			GC.getMap().changeNumBonusesOnLand(getBonusType(), 1);
+			GC.getMap().changeNumBonusesOnLand(eNewValue, 1);
 	}
 
 	updateYield();
@@ -7237,6 +7239,8 @@ void CvPlot::setScriptData(const char* szNewValue)
 void CvPlot::doFeature()
 {
 	PROFILE_FUNC();
+	// <!-- custom: SASGameRecord feature-change gates intentionally stay inside the rare disappearance/growth roll-success branches below.
+	// A function-entry cache would add a recorder-level read to every plot feature update even when no map mutation occurs. (ChatGPT-5.6-Sol) -->
 
 	if (isFeature())
 	{

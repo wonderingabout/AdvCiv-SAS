@@ -3763,8 +3763,11 @@ void CvPlayer::contact(PlayerTypes ePlayer)
 void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer, int iData1, int iData2)
 {
 	FAssertMsg(ePlayer != getID(), "shouldn't call this function on ourselves");
-	// <!-- custom: Capture relationship state only for real resolved diplomacy interactions at SASGameRecord level 2+. This is a cold human-diplomacy boundary; speculative AI offer evaluation stays elsewhere. (ChatGPT-5.6-Sol) -->
-	bool const bLogResolvedSASDiplo = (gGameRecordLogLevel >= 2 && isSASGameRecordResolvedDiploInteraction(eDiploEvent));
+	// <!-- custom: Capture relationship state only for real resolved diplomacy interactions at SASGameRecord level 2+; speculative AI offer evaluation stays elsewhere.
+	// Cache threshold booleans rather than the raw level, and only ask for level 3 after level 2 is active. (ChatGPT-5.6-Sol) -->
+	bool const bLogSASDiplo = (gGameRecordLogLevel >= 2);
+	bool const bLogVerboseSASDiplo = (bLogSASDiplo && gGameRecordLogLevel >= 3);
+	bool const bLogResolvedSASDiplo = (bLogSASDiplo && isSASGameRecordResolvedDiploInteraction(eDiploEvent));
 	SASGameRecordDiploRelationState kSASDiploBefore;
 	if (bLogResolvedSASDiplo) captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASDiploBefore);
 
@@ -3923,7 +3926,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		break;
 
 	case DIPLOEVENT_RESEARCH_TECH:
-		if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(getID(), RESEARCH_TARGET_CHANGE_DIPLO_RESEARCH_COORDINATION);
+		if (bLogSASDiplo) noteSASGameRecordResearchTargetChangeCause(getID(), RESEARCH_TARGET_CHANGE_DIPLO_RESEARCH_COORDINATION);
 		pushResearch((TechTypes)iData1, true);
 		break;
 
@@ -3967,7 +3970,7 @@ void CvPlayer::handleDiploEvent(DiploEventTypes eDiploEvent, PlayerTypes ePlayer
 		captureSASGameRecordDiploRelationState(getID(), ePlayer, kSASDiploAfter);
 		logSASGameRecordResolvedDiploInteraction(getID(), eDiploEvent, ePlayer, iData1, kSASDiploBefore, kSASDiploAfter);
 	}
-	else if (gGameRecordLogLevel >= 2 && (gGameRecordLogLevel >= 3 || !isSASGameRecordLowValueDiploEvent(eDiploEvent)))
+	else if (bLogSASDiplo && (bLogVerboseSASDiplo || !isSASGameRecordLowValueDiploEvent(eDiploEvent)))
 		logSASGameRecordDiploEventAction(getID(), eDiploEvent, ePlayer, iData1, iData2);
 }
 
@@ -4943,8 +4946,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 	CvGame const& kGame = GC.getGame();
 	// </advc>
 	// <!-- custom: Goody outcomes are rare, but their randomized realized effects can materially alter early selfplay.
-	// Gate all logging-only measurements at level 2+ and preserve the entry recursion flag before AdvCiv may reuse bNoRecursion for an upgraded free-unit result. (ChatGPT-5.6-Sol) -->
+	// Gate all logging-only measurements at level 2+, query level 3 only after that gate succeeds, and preserve the entry recursion flag before AdvCiv may reuse bNoRecursion for an upgraded free-unit result. (ChatGPT-5.6-Sol) -->
 	bool const bLogGoodyOutcome = (gGameRecordLogLevel >= 2);
+	bool const bLogGoodyDetails = (bLogGoodyOutcome && gGameRecordLogLevel >= 3);
 	bool const bFollowupOutcome = bNoRecursion;
 	SASGameRecordGoodyResult kGameRecordResult;
 	if (bLogGoodyOutcome) kGameRecordResult.bFollowupOutcome = bFollowupOutcome;
@@ -5215,7 +5219,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit, boo
 						CvUnit* pBarbarian = GET_PLAYER(BARBARIAN_PLAYER).initUnit(eLoopUnit, pAdj->getX(), pAdj->getY(), (pAdj->isWater() ? UNITAI_ATTACK_SEA : UNITAI_ATTACK));
 						if (bLogGoodyOutcome && pBarbarian != NULL)
 							kGameRecordResult.apBarbarianUnits.push_back(pBarbarian);
-						if (gGameRecordLogLevel >= 3) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
+						if (bLogGoodyDetails) logSASGameRecordBarbarianSpawn(pBarbarian, "GOODY_HUT");
 						iBarbCount++;
 					}
 					if ((iPass > 0 && iBarbCount >= iMinBarbs) || iBarbCount >= iMaxBarbs)
@@ -7819,8 +7823,9 @@ void CvPlayer::changeGoldenAgeTurns(int iChange)
 
 	CvWString szBuffer;
 
+	// <!-- custom: Reuse the already-needed old turn count to derive old Golden-Age state instead of calling the inline isGoldenAge/getGoldenAgeTurns path a second time solely for recorder context. (ChatGPT-5.6-Sol) -->
 	int const iOldGoldenAgeTurns = getGoldenAgeTurns();
-	bool const bOldGoldenAge = isGoldenAge();
+	bool const bOldGoldenAge = (iOldGoldenAgeTurns > 0);
 	m_iGoldenAgeTurns += iChange;
 	FAssert(getGoldenAgeTurns() >= 0);
 
@@ -9071,6 +9076,8 @@ uint CvPlayer::getTotalTimePlayed() const
 
 void CvPlayer::setAlive(bool bNewValue)
 {
+	// <!-- custom: SASGameRecord checks intentionally stay inside the mutually exclusive alive/eliminated branches below.
+	// Hoisting one recorder-level query here would charge every setAlive call while never serving both branches on the same call. (ChatGPT-5.6-Sol) -->
 	if (isAlive() == bNewValue)
 		return;
 	/*	<advc.003m> Moved up b/c, once the team's AliveCount is set to 0,
@@ -10940,7 +10947,13 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
 	if(eOldCivic == eNewValue)
 		return;
 
-	ReligionTypes const eOldEffectiveStateReligion = getStateReligion();
+	CvGame& kGame = GC.getGame();
+	// <!-- custom: Old effective state religion is recorder-only pre-mutation context.
+	// Cache the later post-initialization/non-Barbarian gameplay condition once, then read the old religion only when that condition and level 2+ both hold.
+	// Setup calls therefore avoid even the recorder-level read. (ChatGPT-5.6-Sol) -->
+	bool const bPostInitMajorCiv = (kGame.isFinalInitialized() && !isBarbarian());
+	bool const bLogCivicChange = (bPostInitMajorCiv && gGameRecordLogLevel >= 2);
+	ReligionTypes const eOldEffectiveStateReligion = (bLogCivicChange ? getStateReligion() : NO_RELIGION);
 	bool const bWasStateReligion = isStateReligion(); // advc.106
 
 	m_aeCivics.set(eCivicOption, eNewValue);
@@ -10949,14 +10962,13 @@ void CvPlayer::setCivics(CivicOptionTypes eCivicOption, CivicTypes eNewValue)
 	if (getCivics(eCivicOption) != NO_CIVIC)
 		processCivics(getCivics(eCivicOption), 1);
 
-	CvGame& kGame = GC.getGame();
 	kGame.updateSecretaryGeneral();
 	kGame.AI_makeAssignWorkDirty();
 
-	if(!kGame.isFinalInitialized() || /* advc.003n: */ isBarbarian())
+	if(!bPostInitMajorCiv) // advc.003n
 		return;
 	// <!-- custom: Periodic policy snapshots can hide short-lived or between-interval civic switches. Record every post-initialization old/new transition, including effective state-religion changes caused by civics that allow or prohibit one, together with current anarchy turns. (GPT-5.6-Sol + GPT-5.6 Thinking) -->
-	if (gGameRecordLogLevel >= 2) logSASGameRecordCivicChanged(getID(), eCivicOption, eOldCivic, eNewValue, eOldEffectiveStateReligion, getStateReligion());
+	if (bLogCivicChange) logSASGameRecordCivicChanged(getID(), eCivicOption, eOldCivic, eNewValue, eOldEffectiveStateReligion, getStateReligion());
 
 	if (getCivics(eCivicOption) != NO_CIVIC &&
 		/* BtS code (which erroneously blocked the message for certain civic switches)

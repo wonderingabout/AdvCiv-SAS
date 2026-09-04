@@ -1149,8 +1149,9 @@ void CvUnit::updateAirCombat(bool bQuick)
 void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 {
 	// <!-- custom: SASGameRecord level 2+ captures pre-combat attacker identity and exact odds only at real combat resolution, never in AI candidate-odds loops.
-	// This is pre-gated because calculateCombatOdds is diagnostic work. (ChatGPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2) noteSASGameRecordCombatStarted(this, pDefender, pPlot);
+	// This is pre-gated because calculateCombatOdds is diagnostic work. Cache the immutable gate because nonlethal combat reuses it after resolution. (ChatGPT-5.6-Sol) -->
+	bool const bLogCombat = (gGameRecordLogLevel >= 2);
+	if (bLogCombat) noteSASGameRecordCombatStarted(this, pDefender, pPlot);
 	// <advc.048c> Preserve info for interface message (based on K-Mod code)
 	m_iAttackOdds = -1;
 #ifndef LOG_COMBAT_OUTCOMES
@@ -1376,7 +1377,7 @@ void CvUnit::resolveCombat(CvUnit* pDefender, CvPlot* pPlot, bool bVisible)
 	{
 		// <!-- custom: Level 2 aggregates withdrawals/combat-limit outcomes; level 3 additionally retains exact IDs, odds and post-fight quality in the recorder.
 		// Keep all schema/state handling out of this hot combat function. (ChatGPT-5.6-Sol) -->
-		if (gGameRecordLogLevel >= 2)
+		if (bLogCombat)
 		{
 			bool const bCombatLimitReached = (combatLimit() < GC.getMAX_HIT_POINTS() && pDefender->getDamage() >= combatLimit());
 			logSASGameRecordNonlethalCombat(this, pDefender, pPlot, bCombatLimitReached);
@@ -5046,6 +5047,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 	static const ColorTypes eColorRed = (ColorTypes)GC.getColorType("RED");
 
 	CvWString szBuffer;
+	bool const bLogAirBombDetails = (gGameRecordLogLevel >= 3);
 
 	CvCity* pCity = kTarget.getPlotCity();
 	if (pCity != NULL)
@@ -5053,7 +5055,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 		// <!-- custom: GameRecord level 3 records actual air city bombardment with before/after defense state; consecutive equivalent actions are synthesized by SASGameRecordLog. Keep the before-state work gated so disabled/lower-level logging has no extra city-defense computation. (GPT-5.6 Thinking) -->
 		int iGameRecordDefenseModifierBefore = -1;
 		int iGameRecordDefenseDamageBefore = -1;
-		if (gGameRecordLogLevel >= 3)
+		if (bLogAirBombDetails)
 		{
 			iGameRecordDefenseModifierBefore = pCity->getDefenseModifier(false);
 			iGameRecordDefenseDamageBefore = pCity->getDefenseDamage();
@@ -5061,7 +5063,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 		//pCity->changeDefenseModifier(-airBombCurrRate());
 		// advc.004c:
 		pCity->changeDefenseModifier(-std::max(0, airBombDefenseDamage(*pCity)));	
-		if (gGameRecordLogLevel >= 3) logSASGameRecordCityBombard(this, pCity, "AIR", airBombCurrRate(), true, iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
+		if (bLogAirBombDetails) logSASGameRecordCityBombard(this, pCity, "AIR", airBombCurrRate(), true, iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
 		szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_DEFENSES_REDUCED_TO",
 				pCity->getNameKey(), pCity->getDefenseModifier(false), getNameKey());
 		gDLL->UI().addMessage(pCity->getOwner(), true, // advc.004g: was false
@@ -5081,9 +5083,16 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 		if (bValidOwner && eStructure != NO_STRUCTURE)
 		{
 			bool const bRoute = (eStructure == STRUCTURE_ROUTE);
-			// <!-- custom: Existing level-2 AIR_BOMBING plot changes describe the map mutation; level 3 additionally identifies the acting aircraft, intended structure and success/failure so air-use quality can be reconstructed. (GPT-5.6) -->
-			char const* szGameRecordTargetKind = (bRoute ? "ROUTE" : "IMPROVEMENT");
-			char const* szGameRecordTarget = (bRoute ? GC.getInfo(kTarget.getRouteType()).getType() : GC.getInfo(kTarget.getImprovementType()).getType());
+			// <!-- custom: Existing level-2 AIR_BOMBING plot changes describe the map mutation; level 3 additionally identifies the acting aircraft, intended structure and success/failure so air-use quality can be reconstructed.
+			// The expensive XML type lookup is logging-only and stays behind bLogAirBombDetails.
+			// Keep explicit NULL sentinels rather than uninitialized pointers: the trivial initialization is negligible and makes the old compiler/future refactors safe if control flow changes. (GPT-5.6 + ChatGPT-5.6-Sol) -->
+			char const* szGameRecordTargetKind = NULL;
+			char const* szGameRecordTarget = NULL;
+			if (bLogAirBombDetails)
+			{
+				szGameRecordTargetKind = (bRoute ? "ROUTE" : "IMPROVEMENT");
+				szGameRecordTarget = (bRoute ? GC.getInfo(kTarget.getRouteType()).getType() : GC.getInfo(kTarget.getImprovementType()).getType());
+			}
 			wchar const* szStructure = (bRoute ?
 					GC.getInfo(kTarget.getRouteType()).getTextKeyWide() :
 					GC.getInfo(kTarget.getImprovementType()).getTextKeyWide());
@@ -5095,7 +5104,9 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 				to the probability display in CvGameTextMgr::getAirBombPlotHelp */
 			if (SyncRandNum(airBombCurrRate()) >= SyncRandNum(iDefense))
 			{
-				bool const bLogPlotChange = (gGameRecordLogLevel >= 2);
+				// <!-- custom: Level-2 plot history matters only after the air bomb actually succeeds.
+				// Reuse the already-known level-3 truth, otherwise query level 2 here rather than caching the raw recorder level for the whole action. (ChatGPT-5.6-Sol) -->
+				bool const bLogPlotChange = (bLogAirBombDetails || gGameRecordLogLevel >= 2);
 				SASGameRecordPlotState kOldPlotState;
 				if (bLogPlotChange) kOldPlotState = SASGameRecordPlotState(kTarget);
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_IMP",
@@ -5125,11 +5136,11 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 							getImprovementPillage());
 				}
 				if (bLogPlotChange) recordSASGameRecordPlotChange(kTarget, kOldPlotState, "airBombing", "AIR_BOMBING", true);
-				if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, true);
+				if (bLogAirBombDetails) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, true);
 			}
 			else
 			{
-				if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, false);
+				if (bLogAirBombDetails) logSASGameRecordAirBombPlot(this, &kTarget, szGameRecordTargetKind, szGameRecordTarget, false);
 				szBuffer = gDLL->getText("TXT_KEY_MISC_YOU_UNIT_FAIL_DESTROY_IMP",
 						getNameKey(), szStructure);
 				gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
@@ -5141,7 +5152,7 @@ bool CvUnit::airBomb(CvPlot& kTarget, /* advc.004c: */ bool* pbIntercepted, bool
 			or when plot owner in FoW was out of date */
 		else
 		{
-			if (gGameRecordLogLevel >= 3) logSASGameRecordAirBombPlot(this, &kTarget, "NONE", "-", false);
+			if (bLogAirBombDetails) logSASGameRecordAirBombPlot(this, &kTarget, "NONE", "-", false);
 			szBuffer = gDLL->getText("TXT_KEY_MISC_AIR_BOMB_FAIL_IMP_GONE", getNameKey());
 			gDLL->UI().addMessage(getOwner(), true, -1, szBuffer,
 					"AS2D_BOMB_FAILS", MESSAGE_TYPE_INFO, getButton(),
@@ -5261,14 +5272,15 @@ bool CvUnit::bombard()
 	// <!-- custom: Record actual siege/naval bombardment at GameRecord level 3, including the exact city-defense reduction; consecutive equivalent actions are synthesized by SASGameRecordLog, and before-state computation stays gated to detailed logging. (GPT-5.6 Thinking) -->
 	int iGameRecordDefenseModifierBefore = -1;
 	int iGameRecordDefenseDamageBefore = -1;
-	if (gGameRecordLogLevel >= 3)
+	bool const bLogBombardDetails = (gGameRecordLogLevel >= 3);
+	if (bLogBombardDetails)
 	{
 		iGameRecordDefenseModifierBefore = pBombardCity->getDefenseModifier(false);
 		iGameRecordDefenseDamageBefore = pBombardCity->getDefenseDamage();
 	}
 	// advc: Moved into subroutine
 	pBombardCity->changeDefenseModifier(-std::max(0, damageToBombardTarget(getPlot())));
-	if (gGameRecordLogLevel >= 3) logSASGameRecordCityBombard(this, pBombardCity, getDomainType() == DOMAIN_SEA ? "NAVAL" : "SIEGE", bombardRate(), ignoreBuildingDefense(), iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
+	if (bLogBombardDetails) logSASGameRecordCityBombard(this, pBombardCity, getDomainType() == DOMAIN_SEA ? "NAVAL" : "SIEGE", bombardRate(), ignoreBuildingDefense(), iGameRecordDefenseModifierBefore, iGameRecordDefenseDamageBefore);
 	setMadeAttack(true);
 	changeMoves(GC.getMOVE_DENOMINATOR());
 
@@ -6461,6 +6473,7 @@ bool CvUnit::discover()
 	TechTypes const eDiscoveryTech = getDiscoveryTech();
 	FAssertMsg(eDiscoveryTech != NO_TECH, "DiscoveryTech is not assigned a valid value");
 	int const iResearch = getDiscoverResearch(eDiscoveryTech);
+	bool const bLogDiscovery = (gGameRecordLogLevel >= 2);
 
 	GET_TEAM(getTeam()).changeResearchProgress(eDiscoveryTech, iResearch, getOwner(), TECH_ACQUISITION_GREAT_PERSON);
 
@@ -6468,14 +6481,14 @@ bool CvUnit::discover()
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	if (!kOwner.isHuman() && kOwner.getCurrentResearch() != eDiscoveryTech)
 	{
-		if (gGameRecordLogLevel >= 2) noteSASGameRecordResearchTargetChangeCause(getOwner(), RESEARCH_TARGET_CHANGE_GREAT_PERSON_REEVALUATION);
+		if (bLogDiscovery) noteSASGameRecordResearchTargetChangeCause(getOwner(), RESEARCH_TARGET_CHANGE_GREAT_PERSON_REEVALUATION);
 		kOwner.clearResearchQueue();
 	}
 	// K-Mod end
 
 	if (getPlot().isActiveVisible(false))
 		NotifyEntity(MISSION_DISCOVER);
-	if (gGameRecordLogLevel >= 2) logSASGameRecordGreatPersonDiscovered(this, eDiscoveryTech, iResearch);
+	if (bLogDiscovery) logSASGameRecordGreatPersonDiscovered(this, eDiscoveryTech, iResearch);
 
 	kill(true);
 
@@ -10096,8 +10109,9 @@ void CvUnit::setExperience(int iNewValue, int iMax)
 void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInBorders, int iGlobalPercent) // advc.312: was bUpdateGlobal
 {
 	// <!-- custom: Current UNIT_POSTURE XP falls when veterans die and therefore cannot measure how much unit experience a civilization actually generated.
-	// Preserve the real before/after delta only at SASGameRecord level 2+, after all combat modifiers and caps below are applied. (ChatGPT-5.6-Sol) -->
-	int const iSASGameRecordExperienceBefore = (gGameRecordLogLevel >= 2 ? getExperience() : 0);
+	// Preserve the real before/after delta only at SASGameRecord level 2+, after all combat modifiers and caps below are applied; reuse one recorder-level gate for both sides of this hot experience change. (ChatGPT-5.6-Sol) -->
+	bool const bLogExperienceChange = (gGameRecordLogLevel >= 2);
+	int const iSASGameRecordExperienceBefore = (bLogExperienceChange ? getExperience() : 0);
 	int iUnitExperience = iChange;
 	if (bFromCombat)
 	{
@@ -10122,7 +10136,7 @@ void CvUnit::changeExperience(int iChange, int iMax, bool bFromCombat, bool bInB
 		}
 	}
 	setExperience((getExperience() + iUnitExperience), iMax);
-	if (gGameRecordLogLevel >= 2) logSASGameRecordExperienceChange(this, iUnitExperience, getExperience() - iSASGameRecordExperienceBefore, bFromCombat);
+	if (bLogExperienceChange) logSASGameRecordExperienceChange(this, iUnitExperience, getExperience() - iSASGameRecordExperienceBefore, bFromCombat);
 }
 
 // advc.312:
@@ -10738,7 +10752,8 @@ void CvUnit::setBlockading(bool bNewValue)
 	if (bNewValue != isBlockading())
 	{
 		// <!-- custom: A blockade is persistent strategic state rather than merely the later trade-route gold event.
-		// Record the old state before clearing and the new state after applying so the recorder can match one unit's start/end, range, affected teams/cities and observed duration without per-turn spam. (ChatGPT-5.6-Sol) -->
+		// Record the old state before clearing and the new state after applying so the recorder can match one unit's start/end, range, affected teams/cities and observed duration without per-turn spam.
+		// The start/end branches are mutually exclusive, so their local level checks intentionally remain local instead of adding a function-wide cache. (ChatGPT-5.6-Sol) -->
 		if (!bNewValue && gGameRecordLogLevel >= 2) logSASGameRecordBlockadeChanged(this, false);
 		m_bBlockading = bNewValue;
 		updatePlunder(isBlockading() ? 1 : -1, true);
@@ -10772,6 +10787,8 @@ void CvUnit::collectBlockadeGold()
 			if(!pCity->isPlundered() && isEnemy(pCity->getTeam()) &&
 				!::atWar(pCity->getTeam(), getTeam()))
 			{
+				// <!-- custom: Do not gate these calculations behind SASGameRecord: they determine the real blockade plunder amount and whether gameplay transfers gold at all.
+				// The recorder only reuses already-required gameplay results. (ChatGPT-5.6-Sol) -->
 				int const iTradeRoutes = pCity->getTradeRoutes();
 				int const iProfitPerRoute = pCity->calculateTradeProfit(pCity);
 				int iGold = iProfitPerRoute * iTradeRoutes;
@@ -11916,8 +11933,10 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
 	changeMoves(GC.getMOVE_DENOMINATOR());
 
 	int iDamage = airCombatDamage(pDefender);
-	// <!-- custom: Unit inventories show that aircraft exist; this level-3 action proves that an air strike was actually executed and records its primary-target damage. Log before setDamage because a combat-limit-100 unit could otherwise invalidate the defender pointer. (GPT-5.6) -->
-	const int iGameRecordDefenderDamageBefore = (gGameRecordLogLevel >= 3 ? pDefender->getDamage() : -1);
+	// <!-- custom: Unit inventories show that aircraft exist; this level-3 action proves that an air strike was actually executed and records its primary-target damage.
+	// Log before setDamage because a combat-limit-100 unit could otherwise invalidate the defender pointer. (GPT-5.6) -->
+	bool const bLogAirStrikeDetails = (gGameRecordLogLevel >= 3);
+	const int iGameRecordDefenderDamageBefore = (bLogAirStrikeDetails ? pDefender->getDamage() : -1);
 	int iUnitDamage = std::max(pDefender->getDamage(),
 			std::min(pDefender->getDamage() + iDamage, airCombatLimit()));
 
@@ -11940,7 +11959,7 @@ bool CvUnit::airStrike(CvPlot& kPlot, /* <advc.004c> */ bool* pbIntercepted)
 			kPlot.getX(), kPlot.getY());
 
 	collateralCombat(&kPlot, pDefender);
-	if (gGameRecordLogLevel >= 3) logSASGameRecordAirStrike(this, pDefender, iGameRecordDefenderDamageBefore, iUnitDamage);
+	if (bLogAirStrikeDetails) logSASGameRecordAirStrike(this, pDefender, iGameRecordDefenderDamageBefore, iUnitDamage);
 	pDefender->setDamage(iUnitDamage, getOwner());
 
 	return true;

@@ -319,8 +319,8 @@ int CyGame::getElapsedGameTurns()
 }
 
 // <!-- custom: BUG DiplomacyUtil can see the exact package when a human rejects an AI ordinary trade offer, while the EXE does not expose that rejected package through a clean DLL callback.
-// The Python caller lazy-caches and pre-gates SASGameRecord level 2+ before constructing the raw lists; deliberately do not duplicate that check here after the logging-only argument work has already happened.
-// The bridge still validates its Python payload, then lets SASGameRecord own canonical formatting. (ChatGPT-5.6-Sol) -->
+// Caller contract: Python must pre-gate level 2+ before constructing the raw lists and entering this bridge. Do not add an internal recorder-level gate here: it would be too late to save Python list construction and would duplicate the caller's responsibility.
+// The bridge validates only payload correctness, then lets SASGameRecord own canonical formatting. (ChatGPT-5.6-Sol) -->
 void CyGame::logSASGameRecordRejectedAIOffer(int iProposer, int iResponder, boost::python::list& kProposerGives, boost::python::list& kResponderGives)
 {
 	if (iProposer < 0 || iProposer >= MAX_PLAYERS || iResponder < 0 || iResponder >= MAX_PLAYERS)

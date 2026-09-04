@@ -451,7 +451,7 @@ void CvCity::kill(bool bUpdatePlotGroups, /* advc.001: */ bool bBumpUnits)
 	if (bLogPlotChange) recordSASGameRecordPlotChange(kPlot, kOldPlotState, "cityPlotChanges", "CITY_REMOVED", true);
 	CvEventReporter::getInstance().cityLost(this);
 	// <!-- custom: CvTeam::resetVictoryProgress runs only after this city object has been deleted. Preserve the active launch and old-capital identity first so SASGameRecord can explicitly explain why the spaceship disappeared. (GPT-5.6-Sol) -->
-	if (bCapital && gGameRecordLogLevel >= 2) logSASGameRecordVictoryProgressResetForCapital(this);
+	if (bCapital && bLogPlotChange) logSASGameRecordVictoryProgressResetForCapital(this);
 	kOwner.deleteCity(getID());
 
 	kPlot.updateCulture(/*true*/ bBumpUnits, false); // advc.001
@@ -10475,6 +10475,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 // advc.064d (was bool bChoose) <!-- custom: hoisted from multiline signature between `eChoose` and `bEndOfTurn` by collapse_cpp_signatures.py. (GPT-5.5 (reviewed script output)) -->
 void CvCity::popOrder(int iNum, bool bFinish, ChooseProductionPlayers eChoose, bool bEndOfTurn) // advc.001x
 {
+	// <!-- custom: SASGameRecord completion gates intentionally remain inside the mutually exclusive ORDER_TRAIN / ORDER_CONSTRUCT / ORDER_CREATE finish branches.
+	// A function-wide cache would be consulted for many queue operations that never finish a recordable item. (ChatGPT-5.6-Sol) -->
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	bool const bWasFoodProduction = isFoodProduction();
 
@@ -11272,6 +11274,8 @@ void CvCity::doPlotCultureTimes100(bool bUpdate, PlayerTypes ePlayer, int iCultu
 
 bool CvCity::doCheckProduction()
 {
+	// <!-- custom: Keep SASGameRecord invalidation checks inside the rare maxed-unit/building/project cleanup branches below.
+	// Hoisting a recorder-level query to every city production check would make the common no-invalidation path worse. (ChatGPT-5.6-Sol) -->
 	CvPlayerAI& kOwner = GET_PLAYER(getOwner());
 	CvCivilization const& kCiv = getCivilization();
 
@@ -11280,7 +11284,8 @@ bool CvCity::doCheckProduction()
 		for (int i = 0; i < kCiv.getNumUnits(); i++)
 		{
 			UnitTypes eUnit = kCiv.unitAt(i);
-			if (getUnitProduction(eUnit) <= 0)
+			int const iStoredProduction = getUnitProduction(eUnit);
+			if (iStoredProduction <= 0)
 				continue;
 			if (kOwner.isProductionMaxedUnitClass(kCiv.unitClass(eUnit)))
 			{	// advc.123f: Commented out (fail gold from national units)
@@ -11290,12 +11295,14 @@ bool CvCity::doCheckProduction()
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED", getNameKey(), GC.getInfo(eUnit).getTextKeyWide(), iProductionGold);
 					gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, getPlot(), "AS2D_WONDERGOLD", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(COMMERCE_GOLD).getButton(), GC.getColorType("RED"));
 				}*/
-				int const iStoredLost = getUnitProduction(eUnit);
-				bool const bActiveTarget = (getProductionUnit() == eUnit);
-				bool const bQueued = (getFirstUnitOrder(eUnit) >= 0);
+				// <!-- custom: iStoredProduction was already required for the loop's gameplay skip test; reuse it here instead of calling getUnitProduction a second time solely to populate the optional recorder row. (ChatGPT-5.6-Sol) -->
+				bool const bLogProductionInvalidated = (gGameRecordLogLevel >= 2);
+				// <!-- custom: Active-target/queue lookups exist only for SASGameRecord. Preserve their pre-erasure state, but skip them entirely below recorder level 2. (ChatGPT-5.6-Sol) -->
+				bool const bActiveTarget = (bLogProductionInvalidated && getProductionUnit() == eUnit);
+				bool const bQueued = (bLogProductionInvalidated && getFirstUnitOrder(eUnit) >= 0);
 				setUnitProduction(eUnit, 0);
 				// <!-- custom: Preserve actual maxed-class production loss before the stored bank disappears; queued competing wonder/project fail-gold has its own separate recorder boundary. (ChatGPT-5.6-Sol) -->
-				if (gGameRecordLogLevel >= 2 && iStoredLost > 0) logSASGameRecordProductionInvalidated(this, ORDER_TRAIN, eUnit, iStoredLost, bActiveTarget, bQueued);
+				if (bLogProductionInvalidated) logSASGameRecordProductionInvalidated(this, ORDER_TRAIN, eUnit, iStoredProduction, bActiveTarget, bQueued);
 			}
 		}
 	}
@@ -11304,7 +11311,8 @@ bool CvCity::doCheckProduction()
 		for (int i = 0; i < kCiv.getNumBuildings(); i++)
 		{
 			BuildingTypes eBuilding = kCiv.buildingAt(i);
-			if (getBuildingProduction(eBuilding) <= 0)
+			int const iStoredProduction = getBuildingProduction(eBuilding);
+			if (iStoredProduction <= 0)
 				continue;
 			if (kOwner.isProductionMaxedBuildingClass(kCiv.buildingClass(eBuilding)))
 			{	// advc.123f: Commented out. Fail gold now handled in popOrder.
@@ -11314,12 +11322,12 @@ bool CvCity::doCheckProduction()
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED", getNameKey(), GC.getInfo(eBuilding).getTextKeyWide(), iProductionGold);
 					gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, getPlot(), "AS2D_WONDERGOLD", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(COMMERCE_GOLD).getButton(), GC.getColorType("RED"));
 				}*/
-				int const iStoredLost = getBuildingProduction(eBuilding);
-				bool const bActiveTarget = (getProductionBuilding() == eBuilding);
-				bool const bQueued = (getFirstBuildingOrder(eBuilding) >= 0);
+				bool const bLogProductionInvalidated = (gGameRecordLogLevel >= 2);
+				bool const bActiveTarget = (bLogProductionInvalidated && getProductionBuilding() == eBuilding);
+				bool const bQueued = (bLogProductionInvalidated && getFirstBuildingOrder(eBuilding) >= 0);
 				setBuildingProduction(eBuilding, 0);
 				// <!-- custom: As above, record the real maxed-class loss itself rather than infer it later from a missing parked bank. (ChatGPT-5.6-Sol) -->
-				if (gGameRecordLogLevel >= 2 && iStoredLost > 0) logSASGameRecordProductionInvalidated(this, ORDER_CONSTRUCT, eBuilding, iStoredLost, bActiveTarget, bQueued);
+				if (bLogProductionInvalidated) logSASGameRecordProductionInvalidated(this, ORDER_CONSTRUCT, eBuilding, iStoredProduction, bActiveTarget, bQueued);
 			}
 		}
 	}
@@ -11327,7 +11335,8 @@ bool CvCity::doCheckProduction()
 	{
 		FOR_EACH_ENUM(Project)
 		{
-			if (getProjectProduction(eLoopProject) <= 0)
+			int const iStoredProduction = getProjectProduction(eLoopProject);
+			if (iStoredProduction <= 0)
 				continue;
 			if (kOwner.isProductionMaxedProject(eLoopProject))
 			{	// advc.123f: Commented out. Fail gold now handled in popOrder.
@@ -11337,12 +11346,12 @@ bool CvCity::doCheckProduction()
 					CvWString szBuffer = gDLL->getText("TXT_KEY_MISC_LOST_WONDER_PROD_CONVERTED", getNameKey(), GC.getInfo(eLoopProject).getTextKeyWide(), iProductionGold);
 					gDLL->UI().addMessage(getOwner(), false, -1, szBuffer, getPlot(), "AS2D_WONDERGOLD", MESSAGE_TYPE_MINOR_EVENT, GC.getInfo(COMMERCE_GOLD).getButton(), GC.getColorType("RED"));
 				}*/
-				int const iStoredLost = getProjectProduction(eLoopProject);
-				bool const bActiveTarget = (getProductionProject() == eLoopProject);
-				bool const bQueued = (getFirstProjectOrder(eLoopProject) >= 0);
+				bool const bLogProductionInvalidated = (gGameRecordLogLevel >= 2);
+				bool const bActiveTarget = (bLogProductionInvalidated && getProductionProject() == eLoopProject);
+				bool const bQueued = (bLogProductionInvalidated && getFirstProjectOrder(eLoopProject) >= 0);
 				setProjectProduction(eLoopProject, 0);
 				// <!-- custom: As above, preserve actual project production erased by maxed-project cleanup. (ChatGPT-5.6-Sol) -->
-				if (gGameRecordLogLevel >= 2 && iStoredLost > 0) logSASGameRecordProductionInvalidated(this, ORDER_CREATE, eLoopProject, iStoredLost, bActiveTarget, bQueued);
+				if (bLogProductionInvalidated) logSASGameRecordProductionInvalidated(this, ORDER_CREATE, eLoopProject, iStoredProduction, bActiveTarget, bQueued);
 			}
 		}
 	}
@@ -11373,12 +11382,15 @@ void CvCity::upgradeProduction()
 		FAssert(eUpgradeUnit != eUnit);
 
 		int iUpgradeProduction = getUnitProduction(eUnit);
-		int const iUpgradeProductionBefore = getUnitProduction(eUpgradeUnit);
+		// <!-- custom: Destination production before the inherited assignment exists only for SASGameRecord.
+		// Gate that pre-mutation getter at the caller; source production remains unconditional because gameplay transfers it. (ChatGPT-5.6-Sol) -->
+		bool const bLogProductionUpgrade = (gGameRecordLogLevel >= 2);
+		int const iUpgradeProductionBefore = (bLogProductionUpgrade ? getUnitProduction(eUpgradeUnit) : 0);
 		setUnitProduction(eUnit, 0);
 		setUnitProduction(eUpgradeUnit, iUpgradeProduction);
 		// <!-- custom: Stored obsolete-unit production is transferred to the available upgrade.
 		// The inherited assignment can also overwrite pre-existing production on that destination type, so preserve both values before the queue data is rewritten. (ChatGPT-5.6-Sol) -->
-		if (gGameRecordLogLevel >= 2 && (iUpgradeProduction > 0 || iUpgradeProductionBefore > 0)) logSASGameRecordProductionUpgraded(this, eUnit, eUpgradeUnit, iUpgradeProduction, iUpgradeProductionBefore);
+		if (bLogProductionUpgrade && (iUpgradeProduction > 0 || iUpgradeProductionBefore > 0)) logSASGameRecordProductionUpgraded(this, eUnit, eUpgradeUnit, iUpgradeProduction, iUpgradeProductionBefore);
 
 		CLLNode<OrderData>* pOrderNode = headOrderQueueNode();
 		while (pOrderNode != NULL)
@@ -11487,6 +11499,8 @@ void CvCity::doProduction(bool bAllowNoProduction)
 
 void CvCity::doDecay()
 {
+	// <!-- custom: Production-decay recorder checks intentionally stay after an item has actually reached its decay branch.
+	// A function-entry cache would be paid by every city turn, including cities with no decaying parked production. (ChatGPT-5.6-Sol) -->
 	FOR_EACH_ENUM(Building)
 	{
 		if (getProductionBuilding() == eLoopBuilding)

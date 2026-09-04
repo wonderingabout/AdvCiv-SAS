@@ -5264,7 +5264,7 @@ void CvGame::toggleDebugMode()
 	if (!m_bDebugMode && !isDebugToolsAllowed(false))
 		return; // </advc.135c>
 	bool const bOldDebugMode = m_bDebugMode;
-	m_bDebugMode = (m_bDebugMode ? false : true);
+	m_bDebugMode = !bOldDebugMode;
 	updateDebugModeCache();
 	// <!-- custom: Log only successful Debug-mode transitions after AdvCiv's permission check. (ChatGPT-5.6-Sol) -->
 	if (gGameRecordLogLevel >= 2) logSASGameRecordDebugModeChanged(bOldDebugMode, m_bDebugMode);
@@ -5442,8 +5442,9 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
 	int const iActiveNetId = (eOldActivePlayer != NO_PLAYER ?
 			GET_PLAYER(eOldActivePlayer).getNetID() : -1);
 	GC.getInitCore().setActivePlayer(eNewValue);
-	// <!-- custom: Active-player transfers during AI Auto Play can explain why automation ended or whose civilization resumed human control. Keep per-request and per-log-session counts in SASGameRecord rather than requiring reviewers to scan every setup/status row. See KI#203. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2)
+	// <!-- custom: Active-player transfers during AI Auto Play can explain why automation ended or whose civilization resumed human control. Keep per-request and per-log-session counts in SASGameRecord rather than requiring reviewers to scan every setup/status row. Cache the gate because the handoff path can also record an auto-dismissal. See KI#203. (GPT-5.6-Sol + ChatGPT-5.6-Sol) -->
+	bool const bLogActivePlayerChange = (gGameRecordLogLevel >= 2);
+	if (bLogActivePlayerChange)
 		logSASGameRecordActivePlayerChanged(eOldActivePlayer, eNewValue);
 	if (eNewValue != NO_PLAYER && // K-Mod
 		GET_PLAYER(eNewValue).isHuman() &&
@@ -5453,7 +5454,7 @@ void CvGame::setActivePlayer(PlayerTypes eNewValue, bool bForceHotSeat)
 		static const bool bSASAutoDismissAutoPlayInformationalPopups = (GC.getDefineINT("SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE") > 0);
 		if (!bSASAutoDismissAutoPlayInformationalPopups || getAIAutoPlay() <= 0)
 			gDLL->getPassword(eNewValue);
-		else if (gGameRecordLogLevel >= 2) logSASGameRecordAutoPlayPopupDismissed("PLAYER_HANDOFF_PASSWORD");
+		else if (bLogActivePlayerChange) logSASGameRecordAutoPlayPopupDismissed("PLAYER_HANDOFF_PASSWORD");
 		setHotPbemBetweenTurns(false);
 		gDLL->getInterfaceIFace()->dirtyTurnLog(eNewValue);
 		if (eOldActivePlayer != NO_PLAYER)
@@ -7461,6 +7462,8 @@ void CvGame::createBarbarianCity(bool bSkipCivAreas, int iProbModifierPercent)
 
 void CvGame::createBarbarianUnits()
 {
+	// <!-- custom: Level-3 barbarian-spawn checks intentionally stay immediately after successful initUnit calls.
+	// This routine often creates no unit, so caching the recorder level at entry would add work to the common no-spawn path. (ChatGPT-5.6-Sol) -->
 	if (isOption(GAMEOPTION_NO_BARBARIANS))
 		return;
 
@@ -7800,6 +7803,8 @@ int CvGame::numBarbariansToCreate(int iTilesPerUnit, int iTiles, int iUnowned, i
 	The first half is new code. */
 int CvGame::createBarbarianUnits(int iUnitsToCreate, int iUnitsPresent, CvArea& kArea, Shelf* pShelf, bool bCargoAllowed, bool bOnlyCargo) // </advc.300>
 {
+	// <!-- custom: As in the outer barbarian routine, keep level-3 spawn gates after actual unit creation.
+	// Calls can return without spawning anything, so a function-entry recorder cache would be needless overhead on those paths. (ChatGPT-5.6-Sol) -->
 	/*	<advc.306> Spawn cargo load before ships. Otherwise, the newly placed ship
 		would always be an eligible target and too many ships would carry cargo. */
 	FAssert(!bCargoAllowed || pShelf != NULL);
@@ -10351,6 +10356,8 @@ void CvGame::deleteVoteTriggered(int iID)
 
 void CvGame::doVoteResults()
 {
+	// <!-- custom: Vote recorder gates intentionally remain phase-local: invalid votes use their cancellation branch, pending votes leave without a recorder query, and only fully resolving votes cache bLogVoteResult for the ballot/defiance loops.
+	// Do not hoist one gate to the top of every vote iteration. (ChatGPT-5.6-Sol) -->
 	// advc.150b: To make sure it doesn't go out of scope
 	static CvWString szTargetCityName;
 	int iLoop=-1;
@@ -10409,6 +10416,8 @@ void CvGame::doVoteResults()
 
 			if (!bAllVoted)
 				continue;
+			// <!-- custom: Once a vote actually resolves, its ballot/defiance loops can query the recorder repeatedly. Cache the immutable level-2 result gate here, after pending votes have already short-circuited. (ChatGPT-5.6-Sol) -->
+			bool const bLogVoteResult = (gGameRecordLogLevel >= 2);
 			// <!-- custom: Only after a complete grace turn has elapsed do all still-missing checked votes default together. See KI#343. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
 			for (PlayerIter<MAJOR_CIV> itPlayer; itPlayer.hasNext(); ++itPlayer)
 			{
@@ -10416,7 +10425,7 @@ void CvGame::doVoteResults()
 					getPlayerVote(itPlayer->getID(), pVoteTriggered->getID()) ==
 					NO_PLAYER_VOTE_CHECKED)
 				{
-					if (gGameRecordLogLevel >= 2) uiDefaultedAbstain |= ((qword)1 << itPlayer->getID());
+					if (bLogVoteResult) uiDefaultedAbstain |= ((qword)1 << itPlayer->getID());
 					setPlayerVote(itPlayer->getID(), pVoteTriggered->getID(),
 							PLAYER_VOTE_ABSTAIN);
 				}
@@ -10478,7 +10487,7 @@ void CvGame::doVoteResults()
 					}
 				}
 				// <!-- custom: Serialize the complete weighted election ballot before setVoteOutcome clears each player's stored vote. (ChatGPT-5.6-Sol) -->
-				if (gGameRecordLogLevel >= 2) logSASGameRecordVoteResult(pVoteTriggered, bThresholdPassed, bPassed, false, uiDefaultedAbstain, 0, 0);
+				if (bLogVoteResult) logSASGameRecordVoteResult(pVoteTriggered, bThresholdPassed, bPassed, false, uiDefaultedAbstain, 0, 0);
 				if (eTeam != NO_TEAM && bPassed)
 					setVoteOutcome(*pVoteTriggered, (PlayerVoteTypes)eTeam);
 				else setVoteOutcome(*pVoteTriggered, PLAYER_VOTE_ABSTAIN);
@@ -10507,7 +10516,7 @@ void CvGame::doVoteResults()
 							itPlayer->canDefyResolution(eVoteSource, subdata))
 						{
 							bPassed = false;
-							if (gGameRecordLogLevel >= 2) uiDefiers |= ((qword)1 << itPlayer->getID());
+							if (bLogVoteResult) uiDefiers |= ((qword)1 << itPlayer->getID());
 							itPlayer->setDefiedResolution(eVoteSource, subdata);
 						}
 					}
@@ -10521,7 +10530,7 @@ void CvGame::doVoteResults()
 						if (getPlayerVote(itPlayer->getID(), pVoteTriggered->getID()) ==
 							PLAYER_VOTE_YES)
 						{
-							if (gGameRecordLogLevel >= 2) uiEndorsers |= ((qword)1 << itPlayer->getID());
+							if (bLogVoteResult) uiEndorsers |= ((qword)1 << itPlayer->getID());
 							itPlayer->setEndorsedResolution(eVoteSource, subdata);
 						}
 					}
@@ -10575,7 +10584,7 @@ void CvGame::doVoteResults()
 					}
 				}
 				// <!-- custom: Preserve the final weighted ballot, grace-defaulted abstentions and actual defiance/endorsement before setVoteOutcome clears per-player vote storage and applies the resolution. (ChatGPT-5.6-Sol) -->
-				if (gGameRecordLogLevel >= 2) logSASGameRecordVoteResult(pVoteTriggered, bThresholdPassed, bPassed, false, uiDefaultedAbstain, uiDefiers, uiEndorsers);
+				if (bLogVoteResult) logSASGameRecordVoteResult(pVoteTriggered, bThresholdPassed, bPassed, false, uiDefaultedAbstain, uiDefiers, uiEndorsers);
 				setVoteOutcome(*pVoteTriggered, bPassed ? PLAYER_VOTE_YES : PLAYER_VOTE_NO);
 			}
 			// <advc.150b>

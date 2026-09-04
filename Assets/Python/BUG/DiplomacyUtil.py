@@ -283,8 +283,8 @@ def onDealRejected(argsList):
 	#BugUtil.debug("DiplomacyUtil::onDealRejected %s" %(str(argsList)))
 	eTargetPlayer, eOfferPlayer, pTrade = argsList
 	BugUtil.debug("DiplomacyUtil - %s rejects trade offered by %s: %r", PlayerUtil.getPlayer(eTargetPlayer).getName(), PlayerUtil.getPlayer(eOfferPlayer).getName(), pTrade)
-	# <!-- custom: This resolved BUG event is the clean source for an AI->human rejected ordinary offer. Check the lazy-cached recorder level first so level 0/1 users short-circuit before bridge validation, trade iteration/list construction, or the Python->C++ call.
-	# The C++ bridge deliberately trusts this pre-gated caller contract and only validates its payload. (ChatGPT-5.6-Sol) -->
+	# <!-- custom: This resolved BUG event is the clean source for an AI->human rejected ordinary offer. Check the lazy-cached recorder level first so level 0/1 users short-circuit before trade iteration/list construction or the Python->C++ call.
+	# Caller owns this performance gate; the C++ bridge intentionally validates payload only and does not duplicate the recorder-level check after these lists already exist. (ChatGPT-5.6-Sol) -->
 	if _getSASGameRecordLogLevel() >= 2 and eTargetPlayer != -1 and eOfferPlayer != -1 and pTrade is not None:
 		CyGame().logSASGameRecordRejectedAIOffer(eOfferPlayer, eTargetPlayer, _getSASGameRecordRawTradeItems(pTrade.otherTrades()), _getSASGameRecordRawTradeItems(pTrade.trades()))
 

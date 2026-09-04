@@ -22,13 +22,25 @@ class CvUnit;
 // This keeps the lightweight recorder header from needing CvStructs.h solely for diplomatic vote-source history hooks. (ChatGPT-5.6-Sol) -->
 struct VoteTriggeredData;
 // <!-- custom: Observe one AI_chooseProduction call as a scope so every early return is handled without teaching the AI decision tree about recorder schema.
-// When level 2+ is pre-enabled by the caller, the destructor compares the final head order with the entry state and records only meaningful switches, clears, or resumptions of stored production. (ChatGPT-5.6-Sol) -->
+// When level 2+ is pre-enabled by the caller, the destructor compares the final head order with the entry state and records only meaningful switches, clears, or resumptions of stored production.
+// Earlier versions put the whole constructor/destructor in SASGameRecordLog.cpp. In ordinary Release builds that hides the disabled fast path across the translation-unit boundary.
+// Final_Release /GL + /LTCG may recover such inlining, but keeping these tiny wrappers here makes the cheap path visible in every build while begin/end remain cold level-2+ work. (ChatGPT-5.6-Sol) -->
 class SASGameRecordAIProductionChoiceScope
 {
 public:
-	SASGameRecordAIProductionChoiceScope(CvCity const& kCity, bool bEnabled);
-	~SASGameRecordAIProductionChoiceScope();
+	// <!-- custom: m_pCity remains the gate: disabled construction leaves it NULL, and the inline destructor keeps the old null check before calling end().
+	// No recorder state besides the pointer is touched at level 0/1. (ChatGPT-5.6-Sol) -->
+	SASGameRecordAIProductionChoiceScope(CvCity const& kCity, bool bEnabled) : m_pCity(NULL)
+	{
+		if (bEnabled) begin(kCity);
+	}
+	~SASGameRecordAIProductionChoiceScope()
+	{
+		if (m_pCity != NULL) end();
+	}
 private:
+	void begin(CvCity const& kCity);
+	void end();
 	CvCity const* m_pCity;
 	OrderTypes m_eOldOrder;
 	int m_iOldData1;
@@ -38,7 +50,8 @@ private:
 	int m_iOldAccumulatedInactiveTurns;
 };
 // <!-- custom: Goody huts are rare but can have compound randomized effects (gold, map reveal, partial/full tech, free/promoted units, hostile units and AdvCiv follow-up outcomes).
-// Collect only realized effects at the authoritative gameplay boundary, then let SASGameRecord own the stable row formatting. Callers must gate level 2+ before doing logging-only measurements. (ChatGPT-5.6-Sol) -->
+// Collect only realized effects at the authoritative gameplay boundary, then let SASGameRecord own the stable row formatting. Callers must gate level 2+ before doing logging-only measurements.
+// The result object itself is intentionally cheap to default-construct (scalar sentinels plus empty vectors); avoid pointer/optional lifetime machinery merely to skip this tiny setup when recording is disabled. (ChatGPT-5.6-Sol) -->
 struct SASGameRecordGoodyResult
 {
 	SASGameRecordGoodyResult();

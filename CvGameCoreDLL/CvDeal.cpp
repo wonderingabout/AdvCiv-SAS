@@ -238,10 +238,12 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 	// Reject non-surrender peace before logging or processing the bundle while either side remains a configured victory threat. UWAI now uses the shared threat test to avoid proposing the same blocked treaty through its ordinary peace path. (GPT-5.5 + GPT-5.6-Sol) -->
 	if (bMakingPeace && !bSurrender && bPeaceTreaty && isSASUWAIVictoryDenialPeaceDealBlocked(eFirstTeam, eSecondTeam))
 		return;
+	bool const bLogDealAction = (gGameRecordLogLevel >= 2);
+	bool const bLogTradeItems = (bLogDealAction && gGameRecordLogLevel >= 3);
 	bool bUpdateAttitude = false;
 	// advc.ctr:
 	bool const bAIRequest = (bPeaceTreaty && !bPeaceTreatyFromTrade && !bMakingPeace);
-	if (gGameRecordLogLevel >= 2) logSASGameRecordDealAction(*this, kFirstList, kSecondList, bCheckAllowed, bMakingPeace, bAIRequest, ePeaceTradeTarget, eWarTradeTarget);
+	if (bLogDealAction) logSASGameRecordDealAction(*this, kFirstList, kSecondList, bCheckAllowed, bMakingPeace, bAIRequest, ePeaceTradeTarget, eWarTradeTarget);
 	/*  Calls to changePeacetimeTradeValue moved into a new function
 		(also for advc.ctr) */
 	if (GET_PLAYER(getSecondPlayer()).AI_processTradeValue(kFirstList, getFirstPlayer(),
@@ -336,7 +338,7 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 			} // </advc.104>
 			bool bSave = startTrade(*pItem, getFirstPlayer(), getSecondPlayer(),
 					bMakingPeace, bPeaceTreatyImplied); // advc.ctr
-			if (gGameRecordLogLevel >= 3) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getFirstPlayer(), getSecondPlayer(), bSave, bMakingPeace);
+			if (bLogTradeItems) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getFirstPlayer(), getSecondPlayer(), bSave, bMakingPeace);
 			bBumpUnits = (bBumpUnits || pItem->m_eItemType == TRADE_PEACE); // K-Mod
 			if (bSave)
 				insertAtEndFirst(*pItem);
@@ -361,7 +363,7 @@ void CvDeal::addTradeItems(CLinkList<TradeData>& kFirstList, CLinkList<TradeData
 			} // </advc.104>
 			bool bSave = startTrade(*pItem, getSecondPlayer(), getFirstPlayer(),
 					bMakingPeace, bPeaceTreatyImplied); // advc.ctr
-			if (gGameRecordLogLevel >= 3) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getSecondPlayer(), getFirstPlayer(), bSave, bMakingPeace);
+			if (bLogTradeItems) logSASGameRecordTradeItemAction("DIPLO_TRADE_ITEM", getID(), *pItem, getSecondPlayer(), getFirstPlayer(), bSave, bMakingPeace);
 			bBumpUnits = (bBumpUnits || pItem->m_eItemType == TRADE_PEACE); // K-Mod
 
 			if (bSave)

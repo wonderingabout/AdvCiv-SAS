@@ -4619,6 +4619,8 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, /* advc.156: */ PlayerTypes
 void CvTeam::setHasTech(TechTypes eTech, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, /* advc.121: */ bool bEndOfTurn, TechAcquisitionCause eCause)
 {
 	PROFILE_FUNC();
+	// <!-- custom: SASGameRecord checks in this large function intentionally remain beside the specific tech effects they describe (full-map revelation and later research-queue invalidation).
+	// Those paths are distant/conditional, so a universal function-entry level cache would usually be unused. (ChatGPT-5.6-Sol) -->
 
 	if (eTech == NO_TECH)
 		return;

@@ -184,10 +184,13 @@ void CvEventReporter::beginGameTurn(int iGameTurn)
 void CvEventReporter::endGameTurn(int iGameTurn)
 {
 	m_kPythonEventMgr.reportEndGameTurn(iGameTurn);
+	// <!-- custom: Intentional raw-level cache exception: this boundary genuinely needs two different thresholds (level 2+ turn-change flushing and level 1+ periodic snapshots).
+	// One integer read is cheaper/cleaner here than rereading the global merely to manufacture two booleans. (ChatGPT-5.6-Sol) -->
+	int const iGameRecordLogLevel = gGameRecordLogLevel;
 	// <!-- custom: Plot changes and permanent map revelation are collected during the turn so SASGameRecord writes compact coordinate lists instead of one row per plot. Flush after the Python turn event so its changes are included too. (GPT-5.6-Sol) -->
-	if (gGameRecordLogLevel >= 2) flushSASGameRecordTurnChanges(iGameTurn);
+	if (iGameRecordLogLevel >= 2) flushSASGameRecordTurnChanges(iGameTurn);
 	// <!-- custom: Periodic game-record snapshots are separate from normal BBAI diagnostics and mainly serve autoplay comparison / external review. (ChatGPT-5.5) -->
-	if (gGameRecordLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameRecordTurnInterval) == 0) logSASGameRecordTurn(iGameTurn);
+	if (iGameRecordLogLevel > 0 && iGameTurn > 0 && (iGameTurn % gGameRecordTurnInterval) == 0) logSASGameRecordTurn(iGameTurn);
 }
 
 void CvEventReporter::beginPlayerTurn(int iGameTurn, PlayerTypes ePlayer)
