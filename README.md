@@ -1014,6 +1014,10 @@ Dirty state is retained as context but does not by itself manufacture a new revi
 
 BBAI logs are detailed AI-decision diagnostics no longer need editing/recompiling the DLL. Also, several BBAI log categories were split into separate levels, making it easier to inspect only the relevant subsystem, such as workers, worker-sea / Work Boats, Settlers, overseas transport logistics, war target choice, Great Generals, culture, evacuation, citizen allocation, or found-value scoring.
 
+Identity rows place the stable `processUtc` for one Civ4 launch before plain `utc`; the row type identifies that second timestamp as a new-game, save-load or individual snapshot observation. Timestamped filename counters such as `new1` and `load2` preserve game order within the process. `dirty` is tri-state: `-1` means unavailable because there is no inspectable Git worktree (for example an extracted GitHub ZIP), `0` means Git verified the tracked tree clean, and `1` means tracked local edits were found.
+
+See [README_Main_Changes_Guide.md (BBAI log)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#bbai-log).
+
 For example, following AdvCiv-SAS changes, BBAI head of a log looks like this:
 
 ```log
@@ -1027,15 +1031,29 @@ BBAI_GAME_SETTINGS mapScript=Hemispheres map=102x72 landHeavy=1 navalHeavy=0 wor
 BBAI_GAME_RNG mapRandState=3666828707 syncRandState=256979939
 ```
 
-Identity rows place the stable `processUtc` for one Civ4 launch before plain `utc`; the row type identifies that second timestamp as a new-game, save-load or individual snapshot observation. Timestamped filename counters such as `new1` and `load2` preserve game order within the process. `dirty` is tri-state: `-1` means unavailable because there is no inspectable Git worktree (for example an extracted GitHub ZIP), `0` means Git verified the tracked tree clean, and `1` means tracked local edits were found.
-
 ### SASGameRecord log
 
-`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review. It gives high-level context such as initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3, and game state, which is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
+`SASGameRecord_*.log` is a separate compact game record for autoplay, AI-strength, and cheap wall-clock performance review.
+
+It gives high-level context, notably initial map/landmass geography and bonus/yield context, economy, expansion, city and battle history, synthetic whole-war outcomes, autoplay start/end, player appearance/elimination, run status, worked plots, unit composition including `UnitCombat` shares, Barbarian cities and pressure, diplomacy, exploration, environmental and map changes, project-victory progress, compact air/missile/nuclear posture, per-city air-base capacity and city-defense state, synthetic city-bombard sequences, and detailed Barbarian positions/combat and air-strike/interception/plot-bomb actions at level 3.
+
+Level 3 can notably also preserve the active player's current Foreign-Advisor-style trade market: pairwise resource/technology offerability, refusal/mechanical reasons, extra gold/GPT capacity, optional resource GPT quotes, and optional recipient-side AI technology trade values. This is useful on its own and also helps an LLM interpret detailed BBAI decision traces.
 
 Free-text values such as city, player, leader, civ, map-script, and log-file names are quoted and escaped so names with spaces remain parser-friendly. It is currently an all-player diagnostic record and can contain spoilers, so it is not a spoiler-free player-advice export.
 
 The record includes the same canonical mod/source and exact loaded-DLL identity as BBAI, including the practical version/commit when resolvable and the build target/binary fingerprint. For stronger LLM analysis, also provide the AdvCiv-SAS light source ZIP from [`make_light_source_zip.py`](/LLM_Helpers/README.md#make_light_source_zippy) when possible: the log identifies the source state, while the compact ZIP supplies the corresponding source, XML/data, docs, helper context, and full `SASGameRecord` examples an LLM can actually inspect.
+
+Maps are recorded as text art which should help LLM visualization and reasoning/review as well as provide a record viewable even outside Civ4.
+
+<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (1).PNG" alt="text_art_map (1)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (2).PNG" alt="text_art_map (2)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (3).PNG" alt="text_art_map (3)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (4).PNG" alt="text_art_map (4)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (5).PNG" alt="text_art_map (5)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (6).PNG" alt="text_art_map (6)" width="250"></img>
+<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (7).PNG" alt="text_art_map (7)" width="250"></img>
+
+Many other fields or information are also shown, see [README_Main_Changes_Guide.md (SASGameRecord log)](/_1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md#sasgamerecord-log).
 
 See also the full raw [SASGameRecord example log](/_1_AdvCiv-SAS/SASGameRecord_log/SASGameRecord_example.log). It can be given to an external to the repo LLM (e.g. ChatGPT instead of Codex) to get an as of now token-cheap or free review of the `SASGameRecord` example sample.
 
@@ -1046,7 +1064,7 @@ GAME_RECORD_NEW_GAME_INITIALIZING processUtc=20260831T142646Z utc=20260831T14270
 GAME_RECORD_MOD_CONTEXT displayName="AdvCiv-SAS" folderName="AdvCiv-SAS" modPath="Mods\\AdvCiv-SAS\\"
 GAME_RECORD_SOURCE_CONTEXT version="6357" commit="f565ff750581003e2baf3888d4f1ed50150a814d" shortCommit="f565ff7505" branch="main" commitDate="2026-08-31T15:37:01+02:00" metadataSource="git" dirty=1 dirtyTrackedCount=12 dirtyFiles="[ M] Assets/CvGameCoreDLL.dll; [ M] Assets/XML/GlobalDefines_advciv_sas.xml; [M ] CvGameCoreDLL/CvEventReporter.cpp; [M ] CvGameCoreDLL/CvGame.cpp; [M ] CvGameCoreDLL/CvGame.h; [M ] CvGameCoreDLL/CyGame.cpp; [M ] CvGameCoreDLL/CyGame.h; [M ] CvGameCoreDLL/CyGameInterface.cpp; [M ] CvGameCoreDLL/SASGameRecordLog.cpp; [M ] README.md; [M ] _1_AdvCiv-SAS/Docs/README_Main_Changes_Guide.md; [ M] _1_AdvCiv-SAS/Docs/Source_Analysis/cpp_file_audit_album.txt"
 GAME_RECORD_DLL_CONTEXT build=Release moduleFound=1 fileReadable=1 fileSizeBytes=7426048 dllFingerprint=FNV1A64:FEC2083182573080 dllLastWriteUtc=20260831T142545.517Z peTimestampRaw=1788186345 peTimestampUtc=20260831T142545Z fassertEnabled=0 debugDefine=0 ndebugDefine=1
-GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=3 SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10 SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=160 SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=120 SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=2 SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=1 SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=1 SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=2
+GAME_RECORD_LOG_SETTINGS SAS_GAME_RECORD_LOG_LEVEL=3 SAS_GAME_RECORD_INTERVAL_TURNS_UNSCALED_GAMESPEED=10 SAS_GAME_RECORD_LOG_USE_TIMESTAMPED_FILENAME=1 SAS_AIAUTOPLAY_AUTO_DISMISS_INFORMATIONAL_POPUPS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_MAX_WIDTH=160 SAS_GAME_RECORD_MAP_ASCII_MAX_HEIGHT=120 SAS_GAME_RECORD_MAP_ASCII_HORIZONTAL_CHARS_PER_CELL=2 SAS_GAME_RECORD_MAP_ASCII_GEOGRAPHY_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_TERRAIN_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_RIVER_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_BONUS_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_FEATURE_ENABLE=1 SAS_GAME_RECORD_MAP_ASCII_POLITICAL_ENABLE=1 SAS_GAME_RECORD_TRADE_MARKET_ENABLE=1 SAS_GAME_RECORD_TRADE_MARKET_BONUS_GPT_QUOTES_ENABLE=1 SAS_GAME_RECORD_TRADE_MARKET_AI_TECH_VALUES_ENABLE=1 SAS_GAME_RECORD_PERFORMANCE_METRICS_ENABLE=1 SAS_GAME_RECORD_SYSTEM_CONTEXT_LEVEL=2
 GAME_RECORD_TECH_CAPABILITY_SOURCES mapTrading=TECH_PAPER techTrading=TECH_WRITING goldTrading=TECH_CURRENCY openBordersTrading=TECH_WRITING defensivePactTrading=TECH_MILITARY_TRADITION permanentAllianceTrading=TECH_GAME_THEORY vassalStateTrading=TECH_PHILOSOPHY source=LOADED_XML
 GAME_RECORD_NEW_GAME_STARTED processUtc=20260831T142646Z utc=20260831T142703Z logFile="SASGameRecord_20260831T142703Z_new1.log" turn=0 elapsed=0 year=-50000 scenario=0 activePlayer=0 activeCivilization=CIVILIZATION_MALI activeHandicap=HANDICAP_MONARCH playersDefined=16 playersAlive=16 playersEverAlive=16 humans=1 sessionWallMilliseconds=3706
 GAME_RECORD_SESSION_CONTEXT gameType=GAME_SP_NEW gameMode=GAMEMODE_NORMAL newGame=1 savedGame=0 scenario=0 gameMultiplayer=0 networkMultiplayer=0 hotseat=0 pbem=0 pitboss=0 simultaneousTeamTurns=0 mpOptions=-
@@ -1067,16 +1085,6 @@ GAME_RECORD_TURN_END turn=10 reason=interval sessionWallMilliseconds=17102 snaps
 ```
 
 <img src="./_1_AdvCiv-SAS/Images/LLM/SASGameRecord_example.PNG" alt="SASGameRecord_example.PNG" width="250"></img>
-
-Maps are recorded as text art which should help LLM visualization and reasoning/review as well as provide a record viewable even outside Civ4.
-
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (1).PNG" alt="text_art_map (1)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (2).PNG" alt="text_art_map (2)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (3).PNG" alt="text_art_map (3)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (4).PNG" alt="text_art_map (4)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (5).PNG" alt="text_art_map (5)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (6).PNG" alt="text_art_map (6)" width="250"></img>
-<img src="./_1_AdvCiv-SAS/Images/SASGameRecord_map_text/text_art_map (7).PNG" alt="text_art_map (7)" width="250"></img>
 
 ## CuCuGS
 
