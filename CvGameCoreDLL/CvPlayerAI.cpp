@@ -5754,18 +5754,60 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 		to ensure the feature-remove is only counted once rather than once per build
 		which could be a lot since nearly every build clears jungle... */
 
+	// <!-- custom: Keep the inherited first-match XML production semantics below, but independently select a representative removal Build for SAS actual-production valuation.
+	// Prefer a pure removal Build that would be available once the candidate tech is learned, so an unrelated improvement prerequisite does not make the simulation less representative. (ChatGPT-5.6-Sol) -->
+	static const bool bSASProductiveFeatureRemoveTechValue = GC.getDefineBOOL("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_ENABLE");
+	static const int iSASMinFeaturesPerCity = std::max(1, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_FEATURES_PER_CITY"));
+	static const int iSASMinChopTurnsNormal = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_CHOP_BASE_PRODUCTION_TURNS_NORMAL_GAMESPEED_EQUIVALENT"));
+	static const int iSASStoredProductionPercent = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_STORED_PRODUCTION_VALUE_PERCENT"));
+	static const int iSASCapitalPercent = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_CAPITAL_VALUE_PERCENT"));
+	static const int iSASMaxTotalValue = std::max(0, GC.getDefineINT("SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MAX_TOTAL_VALUE"));
+	int iSASProductiveFeatureRemoveTechValue = 0;
+	bool const bSASEvaluateProductiveFeatureRemove = (bSASProductiveFeatureRemoveTechValue && eFromPlayer == NO_PLAYER);
+	int const iSASFeatureProductionPercent = GC.getInfo(kGame.getGameSpeedType()).getFeatureProductionPercent();
+
 	FOR_EACH_ENUM(Feature)
 	{
 		bool bFeatureRemove = false;
 		int iChopProduction = 0;
+		BuildTypes eSASFeatureRemoveBuild = NO_BUILD;
+		int iSASFeatureRemoveProduction = 0;
+		bool bSASFeatureRemoveBuildPure = false;
 		FOR_EACH_ENUM(Build)
 		{
-			if (GC.getInfo(eLoopBuild).getFeatureTech(eLoopFeature) == eTech)
+			CvBuildInfo const& kLoopBuild = GC.getInfo(eLoopBuild);
+			if (kLoopBuild.getFeatureTech(eLoopFeature) != eTech)
+				continue;
+
+			if (!bFeatureRemove)
 			{
 				bFeatureRemove = true;
-				// I'll assume it's the same for all builds
-				iChopProduction = GC.getInfo(eLoopBuild).getFeatureProduction(eLoopFeature);
-				break;
+				// <!-- custom: Inherited behavior: base feature-removal value uses the first matching Build's XML production. (ChatGPT-5.6-Sol) -->
+				iChopProduction = kLoopBuild.getFeatureProduction(eLoopFeature);
+				if (!bSASEvaluateProductiveFeatureRemove)
+					break;
+			}
+
+			int const iLoopFeatureProduction = kLoopBuild.getFeatureProduction(eLoopFeature);
+			TechTypes const eBuildTech = kLoopBuild.getTechPrereq();
+			bool const bSASBuildAvailableWithCandidateTech = (eBuildTech == NO_TECH ||
+				eBuildTech == eTech || kTeam.isHasTech(eBuildTech));
+			if (iLoopFeatureProduction <= 0 || !kLoopBuild.isFeatureRemove(eLoopFeature) ||
+				!bSASBuildAvailableWithCandidateTech)
+			{
+				continue;
+			}
+
+			bool const bLoopBuildPure = (kLoopBuild.getImprovement() == NO_IMPROVEMENT &&
+				kLoopBuild.getRoute() == NO_ROUTE);
+			if (eSASFeatureRemoveBuild == NO_BUILD ||
+				(bLoopBuildPure && !bSASFeatureRemoveBuildPure) ||
+				(bLoopBuildPure == bSASFeatureRemoveBuildPure &&
+				iLoopFeatureProduction > iSASFeatureRemoveProduction))
+			{
+				eSASFeatureRemoveBuild = eLoopBuild;
+				iSASFeatureRemoveProduction = iLoopFeatureProduction;
+				bSASFeatureRemoveBuildPure = bLoopBuildPure;
 			}
 		}
 
@@ -5787,6 +5829,72 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 				iBuildValue += 28; // advc: instead of 40
 			}
 			iBuildValue += 4 + iChopValue * (AI_countCityFeatures(eFeature) + 4);
+
+			// <!-- custom: Boost own-research value for XML-defined productive feature-removal techs when one city is clearly feature-heavy and each chop still represents substantial native production time.
+			// Use CvPlot::getFeatureProduction for the representative removal Build instead of raw XML production: AdvCiv applies city-population, game-speed, player-modifier and distance scaling there, so this values the hammers the city would actually receive if the tech were unlocked now.
+			// Count only owned non-bonus plots currently assigned to the city, require tunable density/leverage, and optionally emphasize the capital. No feature or tech name is hardcoded. See KI#33.3. (ChatGPT-5.6-Sol) -->
+			if (bSASEvaluateProductiveFeatureRemove && eSASFeatureRemoveBuild != NO_BUILD)
+			{
+				FOR_EACH_CITYAI(pSASCity, *this)
+				{
+					int iSASFeatureCount = 0;
+					int iSASActualStoredProduction = 0;
+					for (WorkablePlotIter itSAS(*pSASCity, false); itSAS.hasNext(); ++itSAS)
+					{
+						if (itSAS->getOwner() != getID() ||
+							itSAS->getFeatureType() != eFeature ||
+							itSAS->getNonObsoleteBonusType(getTeam()) != NO_BONUS)
+						{
+							continue;
+						}
+
+						CvCity* pProductionCity = NULL;
+						int const iSASActualProduction = itSAS->getFeatureProduction(
+							eSASFeatureRemoveBuild, getTeam(), &pProductionCity);
+						if (iSASActualProduction > 0 && pProductionCity != NULL &&
+							pProductionCity->getOwner() == getID() &&
+							pProductionCity->getID() == pSASCity->getID())
+						{
+							iSASFeatureCount++;
+							iSASActualStoredProduction += iSASActualProduction;
+						}
+					}
+					if (iSASFeatureCount < iSASMinFeaturesPerCity || iSASActualStoredProduction <= 0)
+					{
+						continue;
+					}
+
+					int const iSASCityBaseProduction = std::max(1, pSASCity->getBaseYieldRate(YIELD_PRODUCTION));
+					int const iSASAverageActualChopProduction = iSASActualStoredProduction / iSASFeatureCount;
+					// <!-- custom: The define is tuned in Normal-speed turns.
+					// Scale the threshold with the same FeatureProductionPercent already used by CvPlot::getFeatureProduction, keeping this leverage decision stable across game speeds while preserving Normal-speed behavior exactly. (ChatGPT-5.6-Sol) -->
+					if (iSASMinChopTurnsNormal > 0 &&
+						100 * iSASAverageActualChopProduction <
+						iSASMinChopTurnsNormal * iSASFeatureProductionPercent * iSASCityBaseProduction)
+					{
+						continue;
+					}
+
+					int iSASCityValue = iSASActualStoredProduction * iSASStoredProductionPercent / 100;
+					bool const bSASCapital = (pCapital != NULL &&
+						pSASCity->getID() == pCapital->getID());
+					if (bSASCapital)
+						iSASCityValue = iSASCityValue * iSASCapitalPercent / 100;
+
+					iSASProductiveFeatureRemoveTechValue += iSASCityValue;
+					if (!bAsync && gPlayerLogLevel >= 3 && iSASCityValue > 0)
+					{
+						logBBAI("      AI_TECH_PRODUCTIVE_FEATURE_REMOVE player=%d %S tech=%S feature=%S city=%S cityId=%d featureCount=%d xmlChopProduction=%d actualStoredProduction=%d averageActualChopProduction=%d cityBaseProduction=%d minFeatures=%d minChopTurnsNormal=%d featureProductionPercent=%d capital=%d cityValue=%d",
+							getID(), getCivilizationDescription(0), kTech.getDescription(),
+							kFeature.getDescription(), pSASCity->getName().GetCString(), pSASCity->getID(),
+							iSASFeatureCount, iSASFeatureRemoveProduction, iSASActualStoredProduction,
+							iSASAverageActualChopProduction, iSASCityBaseProduction,
+							iSASMinFeaturesPerCity, iSASMinChopTurnsNormal, iSASFeatureProductionPercent,
+							bSASCapital, iSASCityValue);
+					}
+				}
+			}
+
 			/*  <advc.129> Very early game: Is the feature blocking a resource?
 				(especially Silver, which can now appear on Grassland Forest) */
 			if (pCapital != NULL && getNumCities() <= 2)
@@ -5796,6 +5904,11 @@ int CvPlayerAI::AI_techValue(TechTypes eTech, int iPathLength, bool bFreeTech, b
 			} // </advc.129>
 		}
 	}
+
+	// <!-- custom: The define says MAX_TOTAL_VALUE, so cap the accumulated SAS boost once across all productive features unlocked by this technology, rather than once per feature. (ChatGPT-5.6-Sol) -->
+	if (iSASMaxTotalValue > 0)
+		iSASProductiveFeatureRemoveTechValue = std::min(iSASProductiveFeatureRemoveTechValue, iSASMaxTotalValue);
+	iBuildValue += iSASProductiveFeatureRemoveTechValue;
 
 	iValue += iBuildValue;
 

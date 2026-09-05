@@ -1961,6 +1961,19 @@ Created as part of AdvCiv-SAS improvements
 		<DefineName>SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT</DefineName>
 		<iDefineIntVal>50</iDefineIntVal>
 	</Define>
+	<!-- custom: Phase 0 productive-feature chopping. CORE Worker/Settler production uses the lower threshold and can chop before bonuses; NORMAL production improves bonuses first and only chops very abundant feature stock before roads/ordinary work. Because the rule stays active while the uncommitted count is >= the threshold, 3 leaves about 2 reserves and 6 leaves about 5. Current unhealth/unhappiness relief can bypass either reserve. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_CORE_FOOD_UNIT_MIN_ELIGIBLE_PLOTS</DefineName>
+		<iDefineIntVal>3</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_NORMAL_MIN_ELIGIBLE_PLOTS</DefineName>
+		<iDefineIntVal>6</iDefineIntVal>
+	</Define>
 	<!-- custom: value added when scrubbing non-bonus Fallout in CvUnitAI::AI_bestCityBuild. Fallout has severe yield penalties, so keep this much higher than normal tile-improvement values. If Fallout cannot be scrubbed yet, CvUnitAI skips ordinary non-bonus builds on that plot rather than improving through the Fallout. (ChatGPT-5.5) -->
 	<Define>
 		<DefineName>SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE</DefineName>
@@ -3110,6 +3123,33 @@ Created as part of AdvCiv-SAS improvements
 	</Define>
 
 
+
+	<!-- custom: Productive feature-removal tech priority for feature-heavy, low-production cities. Detects the XML FeatureStruct removal tech dynamically, but values the city-specific production CvPlot would actually receive after normal population/game-speed/modifier scaling. No feature or tech names are hardcoded. See KI#33.3. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_ENABLE</DefineName>
+		<iDefineIntVal>1</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_FEATURES_PER_CITY</DefineName>
+		<iDefineIntVal>4</iDefineIntVal>
+	</Define>
+	<!-- custom: Normal-speed-equivalent turns. CvPlayerAI scales this threshold with FeatureProductionPercent, matching the game-speed scaling already applied to CvPlot::getFeatureProduction so the leverage test stays comparable across game speeds. (ChatGPT-5.6-Sol) -->
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_CHOP_BASE_PRODUCTION_TURNS_NORMAL_GAMESPEED_EQUIVALENT</DefineName>
+		<iDefineIntVal>2</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_STORED_PRODUCTION_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>100</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_CAPITAL_VALUE_PERCENT</DefineName>
+		<iDefineIntVal>150</iDefineIntVal>
+	</Define>
+	<Define>
+		<DefineName>SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MAX_TOTAL_VALUE</DefineName>
+		<iDefineIntVal>1000</iDefineIntVal>
+	</Define>
 
 	<!-- custom: Aim to reduce Master-Vassal(s) locus inefficient overlapping research; Long_Comments_XML.txt #190 -->
 	<Define>

@@ -2325,6 +2325,154 @@ struct CandidatePlot
 	}
 };
 
+struct SASWorkerPhase0ProductiveFeatureInfo
+{
+	SASWorkerPhase0ProductiveFeatureInfo() : eBuild(NO_BUILD), iProduction(0), bPressureRelief(false), bBonusRemoval(false)
+	{}
+
+	BuildTypes eBuild;
+	int iProduction;
+	bool bPressureRelief;
+	bool bBonusRemoval;
+};
+
+// <!-- custom: Phase 0 productive-feature eligibility for the SAS Worker picker.
+// Keep this deliberately generic: any unimproved owned feature can qualify when this Worker has a pure legal removal build that sends positive production to this city.
+// Do not hardcode Forest/Jungle health assumptions; use the city's actual rounded health/happiness change instead.
+// A bonus whose normal bonus-specific build preserves the feature is excluded, while a bonus that needs the feature removed is preferred later by Phase 0. See KI#33.2. (ChatGPT-5.6-Sol) -->
+static bool SAS_getWorkerPhase0ProductiveFeatureInfo(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const& kPlot, SASWorkerPhase0ProductiveFeatureInfo& kInfo)
+{
+	kInfo = SASWorkerPhase0ProductiveFeatureInfo();
+	if (kPlot.getOwner() != kUnit.getOwner() || kPlot.isWater() || kPlot.isCity() ||
+		kPlot.getImprovementType() != NO_IMPROVEMENT ||
+		GET_PLAYER(kUnit.getOwner()).isAutomationSafe(kPlot))
+	{
+		return false;
+	}
+
+	FeatureTypes const eFeature = kPlot.getFeatureType();
+	if (eFeature == NO_FEATURE)
+		return false;
+
+	BonusTypes const eBonus = kPlot.getNonObsoleteBonusType(kUnit.getTeam());
+	if (eBonus != NO_BONUS)
+	{
+		BuildTypes const eBonusSpecificBuild = kPlot.SAS_getBonusSpecificBuild(eBonus);
+		// <!-- custom: A Camp/Lumbermill-like bonus path intentionally keeps the feature; do not destroy it merely for Phase-0 hammers. (ChatGPT-5.6-Sol) -->
+		if (eBonusSpecificBuild != NO_BUILD &&
+			!GC.getInfo(eBonusSpecificBuild).isFeatureRemove(eFeature))
+		{
+			return false;
+		}
+		kInfo.bBonusRemoval = true;
+	}
+
+	int iHappyChange = 0;
+	int iHealthChange = 0;
+	int iHealthPercentChange = 0;
+	kCity.calculateHealthHappyChange(kPlot, NO_IMPROVEMENT, NO_IMPROVEMENT, true, iHappyChange, iHealthChange, iHealthPercentChange);
+
+	int const iHealthSurplus = kCity.goodHealth() - kCity.badHealth();
+	int const iHappySurplus = kCity.happyLevel() - kCity.unhappyLevel();
+	kInfo.bPressureRelief = ((iHealthSurplus < 0) && (iHealthChange > 0 || iHealthPercentChange > 0)) || ((iHappySurplus < 0) && iHappyChange > 0);
+
+	// <!-- custom: Neutral removals stay eligible even in an already-unhealthy city; only reject a removal that itself makes/worsens a health or happiness deficit. (ChatGPT-5.6-Sol) -->
+	if (iHealthChange < 0 && iHealthSurplus + iHealthChange < 0)
+		return false;
+	if (iHappyChange < 0 && iHappySurplus + iHappyChange < 0)
+		return false;
+
+	int iBestBuildTurns = MAX_INT;
+	FOR_EACH_ENUM(Build)
+	{
+		CvBuildInfo const& kBuild = GC.getInfo(eLoopBuild);
+		if (kBuild.getImprovement() != NO_IMPROVEMENT || kBuild.getRoute() != NO_ROUTE ||
+			!kBuild.isFeatureRemove(eFeature) || !kUnit.canBuild(kPlot, eLoopBuild))
+		{
+			continue;
+		}
+
+		CvCity* pProductionCity = NULL;
+		int const iProduction = kPlot.getFeatureProduction(eLoopBuild, kUnit.getTeam(), &pProductionCity);
+		if (iProduction <= 0 || pProductionCity == NULL ||
+			pProductionCity->getOwner() != kCity.getOwner() ||
+			pProductionCity->getID() != kCity.getID())
+		{
+			continue;
+		}
+
+		int const iBuildTurns = kPlot.getBuildTurnsLeft(eLoopBuild, kUnit.getOwner());
+		if (iProduction > kInfo.iProduction || (iProduction == kInfo.iProduction && iBuildTurns < iBestBuildTurns))
+		{
+			kInfo.eBuild = eLoopBuild;
+			kInfo.iProduction = iProduction;
+			iBestBuildTurns = iBuildTurns;
+		}
+	}
+	return (kInfo.eBuild != NO_BUILD);
+}
+
+static void SAS_countWorkerPhase0ProductiveFeatures(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const* pIgnorePlot, int& iEligible, int& iTargeted, bool& bUntargetedPressureRelief)
+{
+	iEligible = 0;
+	iTargeted = 0;
+	bUntargetedPressureRelief = false;
+	CvPlayerAI const& kOwner = GET_PLAYER(kUnit.getOwner());
+
+	for (WorkablePlotIter it(kCity, false); it.hasNext(); ++it)
+	{
+		CvPlot const& kPlot = *it;
+		if (&kPlot == pIgnorePlot)
+			continue;
+
+		SASWorkerPhase0ProductiveFeatureInfo kInfo;
+		if (!SAS_getWorkerPhase0ProductiveFeatureInfo(kUnit, kCity, kPlot, kInfo))
+			continue;
+
+		iEligible++;
+		int const iReserved = kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, kUnit.getGroup(), 0, 1);
+		if (iReserved > 0)
+			iTargeted++;
+		else if (kInfo.bPressureRelief)
+			bUntargetedPressureRelief = true;
+	}
+}
+
+static bool SAS_isWorkerPhase0CoreFoodProduction(CvCityAI const& kCity)
+{
+	UnitTypes const eUnit = kCity.getProductionUnit();
+	if (eUnit == NO_UNIT || !kCity.isFoodProduction())
+		return false;
+
+	UnitAITypes const eUnitAI = kCity.getProductionUnitAI();
+	return (eUnitAI == UNITAI_WORKER || eUnitAI == UNITAI_SETTLE);
+}
+
+static int SAS_getWorkerPhase0MinEligiblePlots(CvCityAI const& kCity)
+{
+	static const int iCoreFoodUnitMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_CORE_FOOD_UNIT_MIN_ELIGIBLE_PLOTS"));
+	static const int iNormalMinEligible = std::max(1, GC.getDefineINT("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_NORMAL_MIN_ELIGIBLE_PLOTS"));
+	return (SAS_isWorkerPhase0CoreFoodProduction(kCity) ? iCoreFoodUnitMinEligible : iNormalMinEligible);
+}
+
+static bool SAS_shouldWorkerPhase0ProductiveFeatureChop(CvUnitAI const& kUnit, CvCityAI const& kCity, CvPlot const* pIgnorePlot, int& iEligible, int& iTargeted, bool& bPressureReliefOnly)
+{
+	static const bool bEnable = GC.getDefineBOOL("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE");
+	int const iMinEligible = SAS_getWorkerPhase0MinEligiblePlots(kCity);
+	if (!bEnable)
+	{
+		iEligible = iTargeted = 0;
+		bPressureReliefOnly = false;
+		return false;
+	}
+
+	bool bUntargetedPressureRelief = false;
+	SAS_countWorkerPhase0ProductiveFeatures(kUnit, kCity, pIgnorePlot, iEligible, iTargeted, bUntargetedPressureRelief);
+	int const iUncommitted = std::max(0, iEligible - iTargeted);
+	bPressureReliefOnly = (bUntargetedPressureRelief && iUncommitted < iMinEligible);
+	return (bUntargetedPressureRelief || iUncommitted >= iMinEligible);
+}
+
 struct SASWorkerNoBonusBuildCandidate
 {
 	BuildTypes eBuild;
@@ -2922,6 +3070,7 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_MIN_POPULATION");
 	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_LARGE_CITY_PRESSURE_VALUE_PER_POINT");
 	static const int iSAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT = GC.getDefineINT("SAS_WORKER_AI_FEATURE_JUNGLE_CLEAR_SMALL_CITY_UNHEALTH_VALUE_PER_POINT");
+	static const bool bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE");
 	static const int iSAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_FEATURE_FALLOUT_SCRUB_VALUE");
 	static const int iSAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FEATURE_STEP_VALUE");
 	static const int iSAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE = GC.getDefineINT("SAS_WORKER_AI_BONUS_FALLOUT_SCRUB_VALUE");
@@ -3052,6 +3201,89 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 
 	const int penaltyForOverwritingPlot = 300;
 
+	// ===================================================
+	// PHASE 0: Hard productive-feature chop / reserve override.
+	// ===================================================
+	// <!-- custom: Two-strength Phase 0. During food-production Worker/Settler builds, use the aggressive CORE threshold (default 3, leaving about 2 reserves) and allow the Worker-move hoist to beat bonus work.
+	// Otherwise use the higher NORMAL threshold (default 6, so an 8-feature start makes only about 3 generic chops before returning to normal improvements); ordinary bonus improvement gets first claim in that mode.
+	// Existing Worker targets count against the uncommitted total. Current unhealth/unhappiness relief can still override the reserve. Prefer pressure relief, then a bonus-removal feature, then more production and shorter path. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	int iSASPhase0Eligible = 0;
+	int iSASPhase0Targeted = 0;
+	bool bSASPhase0PressureReliefOnly = false;
+	bool const bSASPhase0Active = bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE &&
+			SAS_shouldWorkerPhase0ProductiveFeatureChop(*this, kCity, pIgnorePlot, iSASPhase0Eligible, iSASPhase0Targeted, bSASPhase0PressureReliefOnly);
+	int const iSASPhase0Uncommitted = std::max(0, iSASPhase0Eligible - iSASPhase0Targeted);
+	bool const bSASPhase0ProtectReserve = bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE && !bSASPhase0Active && iSASPhase0Uncommitted > 0;
+
+	if (bSASPhase0Active)
+	{
+		CvPlot* pBestPhase0Plot = NULL;
+		BuildTypes eBestPhase0Build = NO_BUILD;
+		int iBestPhase0Priority = MIN_INT;
+		int iBestPhase0Production = 0;
+		int iBestPhase0PathTurns = MAX_INT;
+		bool bBestPhase0PressureRelief = false;
+		bool bBestPhase0BonusRemoval = false;
+		CvPlayerAI const& kOwner = GET_PLAYER(getOwner());
+
+		for (WorkablePlotIter itPhase0(kCity, false); itPhase0.hasNext(); ++itPhase0)
+		{
+			CvPlot& kPlot = *itPhase0;
+			if (&kPlot == pIgnorePlot)
+				continue;
+
+			SASWorkerPhase0ProductiveFeatureInfo kInfo;
+			if (!SAS_getWorkerPhase0ProductiveFeatureInfo(*this, kCity, kPlot, kInfo))
+				continue;
+			if (bSASPhase0PressureReliefOnly && !kInfo.bPressureRelief)
+				continue;
+			if (kOwner.AI_plotTargetMissionAIs(kPlot, MISSIONAI_BUILD, getGroup(), 0, 1) > 0)
+				continue;
+			if (!pathFinder.generatePath(kPlot))
+				continue;
+
+			int const iPathTurns = pathFinder.getPathTurns();
+			int iPriority = kInfo.iProduction * 1000 - iPathTurns * 100;
+			if (kInfo.bBonusRemoval)
+				iPriority += 100000;
+			if (kInfo.bPressureRelief)
+				iPriority += 1000000;
+
+			if (iPriority > iBestPhase0Priority)
+			{
+				iBestPhase0Priority = iPriority;
+				pBestPhase0Plot = &kPlot;
+				eBestPhase0Build = kInfo.eBuild;
+				iBestPhase0Production = kInfo.iProduction;
+				iBestPhase0PathTurns = iPathTurns;
+				bBestPhase0PressureRelief = kInfo.bPressureRelief;
+				bBestPhase0BonusRemoval = kInfo.bBonusRemoval;
+			}
+		}
+
+		if (pBestPhase0Plot != NULL && eBestPhase0Build != NO_BUILD)
+		{
+			if (ppBestPlot != NULL)
+				*ppBestPlot = pBestPhase0Plot;
+			if (peBestBuild != NULL)
+				*peBestBuild = eBestPhase0Build;
+			if (piBestValue != NULL)
+				*piBestValue = 95000; // <!-- custom: diagnostic/ranking value only; PHASE 0 already hard-returned before ordinary scoring. (ChatGPT-5.6-Sol) -->
+			if (peFollowupBuild != NULL)
+				*peFollowupBuild = NO_BUILD;
+
+			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_CHOP turn=%d player=%d %S workerId=%d city=%S cityId=%d plot=(%d,%d) feature=%S build=%S production=%d pathTurns=%d eligible=%d targeted=%d uncommitted=%d minEligible=%d pressureRelief=%d bonusRemoval=%d result=HARD_OVERRIDE",
+				GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
+				kCity.getName().GetCString(), kCity.getID(), pBestPhase0Plot->getX(), pBestPhase0Plot->getY(),
+				GC.getInfo(pBestPhase0Plot->getFeatureType()).getDescription(),
+				GC.getInfo(eBestPhase0Build).getDescription(), iBestPhase0Production, iBestPhase0PathTurns,
+				iSASPhase0Eligible, iSASPhase0Targeted, iSASPhase0Uncommitted,
+				SAS_getWorkerPhase0MinEligiblePlots(kCity),
+				bBestPhase0PressureRelief, bBestPhase0BonusRemoval);
+			return true;
+		}
+	}
+
 	if (bSAS_WORKER_AI_IRRIGATION_CHAIN_FARM_VALUE_ENABLE && GET_TEAM(getTeam()).isIrrigation())
 	{
 		static const int iSAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS = GC.getDefineINT("SAS_WORKER_AI_IRRIGATION_CHAIN_MAX_PLOTS");
@@ -3119,6 +3351,20 @@ bool CvUnitAI::AI_bestCityBuild(CvCityAI const& kCity, CvPlot** ppBestPlot, Buil
 
 		TerrainTypes const eTerrain = kPlot.getTerrainType();
 		FeatureTypes const eFeature = kPlot.getFeatureType();
+
+		if (bSASPhase0ProtectReserve && eFeature != NO_FEATURE)
+		{
+			SASWorkerPhase0ProductiveFeatureInfo kReserveInfo;
+			if (SAS_getWorkerPhase0ProductiveFeatureInfo(*this, kCity, kPlot, kReserveInfo) && !kReserveInfo.bPressureRelief)
+			{
+				if (gWorkerLogLevel >= 3) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_RESERVE turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) feature=%S production=%d eligible=%d targeted=%d uncommitted=%d minEligible=%d result=SKIP_BEFORE_BONUS_LOGIC",
+						GC.getGame().getGameTurn(), getOwner(), GET_PLAYER(getOwner()).getCivilizationDescription(0), getID(),
+						kCity.getName().GetCString(), kPlot.getX(), kPlot.getY(), GC.getInfo(eFeature).getDescription(),
+						kReserveInfo.iProduction, iSASPhase0Eligible, iSASPhase0Targeted, iSASPhase0Uncommitted,
+						SAS_getWorkerPhase0MinEligiblePlots(kCity));
+				continue;
+			}
+		}
 
 		// === The "Value Hack" ===
 		// <!-- custom: Improving bonuses (if possible) --> on the plot is the highest priority.
@@ -5408,6 +5654,69 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 		}
 	}
 
+	// <!-- custom: CORE Phase 0 runs before bonus/route logic only while the city is actively producing a food-production Worker/Settler.
+	// This is the high-tempo case where chop hammers directly accelerate the key civilian unit and can justify delaying even a bonus.
+	// A below-threshold removal that directly relieves current unhealth/unhappiness may also use this early path.
+	// Normal productive-feature chopping is handled later, after AI_improveBonus, so ordinary cities can improve bonuses and avoid the v3 "chop everything first" overcorrection. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	static const bool bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE = GC.getDefineBOOL("SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE");
+	const bool bNotBarbPhase0 = (!isBarbarian() && bSAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_ENABLE);
+	if (bNotBarbPhase0)
+	{
+		FOR_EACH_CITYAI(pPhase0City, kOwner)
+		{
+			if (!pPhase0City->isArea(getArea()))
+				continue;
+
+			int iEligible = 0;
+			int iTargeted = 0;
+			bool bPressureReliefOnly = false;
+			if (!SAS_shouldWorkerPhase0ProductiveFeatureChop(*this, *pPhase0City, NULL, iEligible, iTargeted, bPressureReliefOnly))
+			{
+				continue;
+			}
+
+			bool const bCoreFoodProduction = SAS_isWorkerPhase0CoreFoodProduction(*pPhase0City);
+			if (!bCoreFoodProduction && !bPressureReliefOnly)
+				continue;
+
+			CvPlot* pPhase0Plot = NULL;
+			BuildTypes ePhase0Build = NO_BUILD;
+			int iPhase0Value = 0;
+			BuildTypes ePhase0Followup = NO_BUILD;
+			if (!AI_bestCityBuild(*pPhase0City, &pPhase0Plot, &ePhase0Build, NULL,
+				this, &iPhase0Value, &ePhase0Followup) ||
+				pPhase0Plot == NULL || ePhase0Build == NO_BUILD)
+			{
+				continue;
+			}
+
+			SASWorkerPhase0ProductiveFeatureInfo kVerify;
+			if (!SAS_getWorkerPhase0ProductiveFeatureInfo(*this, *pPhase0City,
+				*pPhase0Plot, kVerify) ||
+				kVerify.eBuild != ePhase0Build)
+			{
+				continue;
+			}
+
+			if (!at(*pPhase0Plot))
+			{
+				pushGroupMoveTo(*pPhase0Plot, NO_MOVEMENT_FLAGS, false, false,
+					MISSIONAI_BUILD, pPhase0Plot);
+			}
+			getGroup()->pushMission(MISSION_BUILD, ePhase0Build, -1, NO_MOVEMENT_FLAGS,
+				true, false, MISSIONAI_BUILD, pPhase0Plot);
+
+			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=%d result=SHORT_CIRCUIT_BEFORE_BONUS_AND_ROUTE_LOGIC",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
+					pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
+					GC.getInfo(pPhase0Plot->getFeatureType()).getDescription(),
+					GC.getInfo(ePhase0Build).getDescription(), kVerify.iProduction,
+					iEligible, iTargeted, SAS_getWorkerPhase0MinEligiblePlots(*pPhase0City),
+					bCoreFoodProduction);
+			return;
+		}
+	}
+
 	if (bCanRoute && bWeOwnThisPlot) // XXX team???
 	{
 		BonusTypes eNonObsoleteBonus = getPlot().getNonObsoleteBonusType(getTeam());
@@ -5441,6 +5750,66 @@ void CvUnitAI::AI_workerMove(/* advc.113b: */ bool bUpdateWorkersHave)
 	{
 		return;
 	}
+
+	// <!-- custom: NORMAL Phase 0 comes after bonus improvement but before city-connection roads and ordinary tile work.
+	// Its higher threshold intentionally spends only the most abundant part of a productive-feature stock.
+	// E.g. 8 eligible Forests with the default threshold 6 produce about 3 generic chops, then Workers resume Cottages/Farms/etc. until a later Worker/Settler CORE window lowers the reserve. See KI#33.2. (ChatGPT-5.6-Sol) -->
+	if (bNotBarbPhase0)
+	{
+		FOR_EACH_CITYAI(pPhase0City, kOwner)
+		{
+			if (!pPhase0City->isArea(getArea()) ||
+				SAS_isWorkerPhase0CoreFoodProduction(*pPhase0City))
+			{
+				continue;
+			}
+
+			int iEligible = 0;
+			int iTargeted = 0;
+			bool bPressureReliefOnly = false;
+			if (!SAS_shouldWorkerPhase0ProductiveFeatureChop(*this, *pPhase0City,
+				NULL, iEligible, iTargeted, bPressureReliefOnly))
+			{
+				continue;
+			}
+
+			CvPlot* pPhase0Plot = NULL;
+			BuildTypes ePhase0Build = NO_BUILD;
+			int iPhase0Value = 0;
+			BuildTypes ePhase0Followup = NO_BUILD;
+			if (!AI_bestCityBuild(*pPhase0City, &pPhase0Plot, &ePhase0Build, NULL,
+				this, &iPhase0Value, &ePhase0Followup) ||
+				pPhase0Plot == NULL || ePhase0Build == NO_BUILD)
+			{
+				continue;
+			}
+
+			SASWorkerPhase0ProductiveFeatureInfo kVerify;
+			if (!SAS_getWorkerPhase0ProductiveFeatureInfo(*this, *pPhase0City,
+				*pPhase0Plot, kVerify) ||
+				kVerify.eBuild != ePhase0Build)
+			{
+				continue;
+			}
+
+			if (!at(*pPhase0Plot))
+			{
+				pushGroupMoveTo(*pPhase0Plot, NO_MOVEMENT_FLAGS, false, false,
+					MISSIONAI_BUILD, pPhase0Plot);
+			}
+			getGroup()->pushMission(MISSION_BUILD, ePhase0Build, -1, NO_MOVEMENT_FLAGS,
+				true, false, MISSIONAI_BUILD, pPhase0Plot);
+
+			if (gWorkerLogLevel >= 2) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION turn=%d player=%d %S workerId=%d worker=(%d,%d) city=%S cityId=%d target=(%d,%d) feature=%S build=%S production=%d eligible=%d targeted=%d minEligible=%d coreFoodProduction=0 result=SHORT_CIRCUIT_AFTER_BONUS_BEFORE_ROUTE_AND_NORMAL_WORK",
+					GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(), getX(), getY(),
+					pPhase0City->getName().GetCString(), pPhase0City->getID(), pPhase0Plot->getX(), pPhase0Plot->getY(),
+					GC.getInfo(pPhase0Plot->getFeatureType()).getDescription(),
+					GC.getInfo(ePhase0Build).getDescription(), kVerify.iProduction,
+					iEligible, iTargeted, SAS_getWorkerPhase0MinEligiblePlots(*pPhase0City));
+			return;
+		}
+	}
+
 	if (bCanRoute && !isBarbarian())
 	{
 		if (AI_connectCity())
@@ -23305,6 +23674,40 @@ bool CvUnitAI::AI_improveBonus(int iMissingWorkersInArea) // advc.121
 		BonusTypes eNonObsoleteBonus = kPlot.getNonObsoleteBonusType(getTeam());
 		if(eNonObsoleteBonus == NO_BONUS)
 			continue;
+
+		// <!-- custom: Only CORE Worker/Settler production protects the final productive-feature reserve against this separate bonus path.
+		// In normal production, bonus improvement intentionally takes precedence over generic Phase 0.
+		// This avoids the v3 behavior where a forest-heavy city chopped nearly everything before developing any resources/tiles. See KI#33.2. (ChatGPT-5.6-Sol) -->
+		if (getDomainType() == DOMAIN_LAND && kPlot.getFeatureType() != NO_FEATURE)
+		{
+			CvCityAI const* pReserveCity = kPlot.AI_getWorkingCity();
+			if (pReserveCity != NULL &&
+				SAS_isWorkerPhase0CoreFoodProduction(*pReserveCity))
+			{
+				SASWorkerPhase0ProductiveFeatureInfo kReserveInfo;
+				if (SAS_getWorkerPhase0ProductiveFeatureInfo(
+					*this, *pReserveCity, kPlot, kReserveInfo) &&
+					!kReserveInfo.bPressureRelief)
+				{
+					int iEligible = 0;
+					int iTargeted = 0;
+					bool bPressureReliefOnly = false;
+					bool const bPhase0Active = SAS_shouldWorkerPhase0ProductiveFeatureChop(*this,
+						*pReserveCity, NULL, iEligible, iTargeted, bPressureReliefOnly);
+					if (!bPhase0Active)
+					{
+						if (gWorkerLogLevel >= 3) logBBAI("    WORKER_PHASE0_PRODUCTIVE_FEATURE_RESERVE_BONUS turn=%d player=%d %S workerId=%d city=%S plot=(%d,%d) bonus=%S feature=%S production=%d eligible=%d targeted=%d minEligible=%d result=SKIP_AI_IMPROVE_BONUS",
+								GC.getGame().getGameTurn(), getOwner(), kOwner.getCivilizationDescription(0), getID(),
+								pReserveCity->getName().GetCString(), kPlot.getX(), kPlot.getY(),
+								GC.getInfo(eNonObsoleteBonus).getDescription(),
+								GC.getInfo(kPlot.getFeatureType()).getDescription(), kReserveInfo.iProduction,
+								iEligible, iTargeted,
+								SAS_getWorkerPhase0MinEligiblePlots(*pReserveCity));
+						continue;
+					}
+				}
+			}
+		}
 
 		bool bConnected = kPlot.isConnectedToCapital(getOwner());
 		// <!-- custom: Work Boats can connect sea bonuses through the bonus improvement itself. Do not reject owned outside-BFC seafood merely because the plot has no working city and the unit cannot build routes; AI_neededSeaWorkers counts those targets, so rejecting them here can create a produce-boat / target-still-unimproved loop. Later checks still require AI_canConnectBonus, canBuild, pathing, and target reservation. See KI#157. (GPT-5.5 + ChatGPT-5.5) -->

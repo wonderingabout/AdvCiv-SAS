@@ -60,6 +60,8 @@ Stable `#ki-number` anchors keep links valid when an entry title or status is re
 [KI#31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-31)\
 [KI#32 - (now seemingly fixed) Prioritize settling on coast when food environment is low](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-32)\
 [KI#33 - Tremendously improved/fixed/enhanced AI worker build/improvement logic](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-33)\
+[KI#33.2 - (Candidate AdvCiv-SAS regression recovery / enhancement) productive feature hammers are preserved too long or spent too late after the custom Worker rewrite](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-33.2)\
+[KI#33.3 - (Candidate AdvCiv-SAS tech-tree/AI interaction) productive feature-removal technologies can be researched far too late on feature-heavy low-production starts](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-33.3)\
 [KI#34 - (Seemingly fixed/tweaked) Major K-Mod suboptimal food plot AI city allocation](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-34)\
 [KI#35 - (Attemptingly fixed/addressed) AI building too many military naval units then gets invaded on land](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-35)\
 [KI#36 - (Attemptingly fixed/addressed) AI building settlers at critical time when war is likely](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-36)\
@@ -2041,6 +2043,106 @@ Next goal is to fix citizen allocation that is terrible in base advciv +/- civ4,
 update : update: also disabled functionally `CvCityAI::AI_getImprovementValue` and `CvUnitAI::AI_irrigateTerritory` which solved the farm on spices plains issue when unwanted (not in our exceptions below) as well as inefficient and needless farms on floodplains, see update note 2: at [README_Known_Issues.md#ki-30](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-30) for details with screenshots there as well for comparison
 
 update 2: now also handles roading choice of build on not connected but connectable bonuses in BFC with other patches, see update 2 at [31 - (Attemptingly fixed) Deprioritize routes for AI workers in favour of yields first](/_1_AdvCiv-SAS/Docs/README_Known_Issues.md#ki-31) for details
+
+<a id="ki-33.2"></a>
+
+## KI#33.2 - (Improved) AdvCiv-SAS Worker rewrite could preserve legal productive-feature hammers too long after bypassing inherited contextual chop valuation
+
+Screenshots/files for this issue: [google drive folder link](https://drive.google.com/drive/folders/1ob4rn0UIXLlkMz7lJKIGx7GG3kZOyux0?usp=sharing).
+
+This is a follow-up to the large AdvCiv-SAS Worker overhaul in KI#33.
+
+The motivating September 2026 Great Plains case was Joao II/Portugal. Lisbon repeatedly remained surrounded by many Forests while its early native production was low and Workers spent substantial time on Cottages and Routes. Visually this looked like a large finite early hammer reserve being left unused during the period when one chop represents many turns of city production and can snowball into earlier Workers, Settlers and subsequent improvements.
+
+The ancestry is mixed rather than a Base AdvCiv bug. Base AdvCiv 1.14 already has contextual `bChop` valuation in `CvCityAI::AI_updateBestBuild` for expansion, Worker shortage, land war, Wonders/projects and some low-production construction cases. KI#33 intentionally stopped using much of Base AdvCiv's cached city-side `AI_getBestBuild` / `AI_getBestBuildValue` pipeline for normal land Worker selection so AdvCiv-SAS could control Worker jobs directly. That trade-off appears to have removed part of the inherited contextual chop signal.
+
+Several increasingly contextual prototypes were tested, but the Joao case remained visually over-forested. The latest detailed logs finally exposed an even more basic constraint: Portugal did not acquire `TECH_MASONRY` until **turn 82**, while AdvCiv-SAS `BUILD_REMOVE_FOREST` requires `TECH_MASONRY` in its Forest `FeatureStruct`. The first Worker/Settler development window was therefore not merely losing a legal chop to Roads/Cottages; Forest chopping was **not legal at all** during that early period. The first logged strategic Forest chops beginning shortly after the turn-82 Masonry acquisition are consistent with that unlock.
+
+This distinction matters for follow-up work:
+
+- Worker priority still needs a clear rule once productive feature removal is legal; otherwise Workers can continue routing/improving while excess legal chop hammers remain.
+- The especially strong early Joao snowball cannot be solved by Worker ordering alone on this exact replay. If a Forest-heavy capital should exploit those hammers before turn 82, the separate technology-order issue already noted in `changes*.md` must make the relevant feature-removal technology more attractive.
+- The current Worker candidate is therefore intentionally simple rather than another production-state heuristic.
+
+The new candidate adds a **Phase 0** before the existing `AI_bestCityBuild` bonus/value tree:
+
+1. Count legal, unimproved, owned BFC features whose pure removal gives positive production to this exact city.
+2. The XML threshold `SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_MIN_ELIGIBLE_PLOTS = 3` means that, while at least three uncommitted eligible removals remain, one is a hard Worker priority. Existing Worker targets count against the total, so multiple Workers can chop excess reserves without all selecting the final two.
+3. Phase 0 prefers a removal that directly relieves current unhealth/unhappiness, then one whose feature must be removed for a bonus, then higher production and shorter travel.
+4. Once the uncommitted count falls below the threshold, the remaining productive-feature plots are skipped before normal bonus/improvement logic. The separate `AI_improveBonus` path also respects the reserve, so a bonus does not silently consume a deliberately saved feature.
+5. A feature-removal build that would make or worsen a current health/happiness deficit is not treated as ordinary expendable reserve. A bonus-specific improvement that intentionally preserves the feature is also excluded.
+6. Phase-0 movement uses `MOVE_TO`, not `ROUTE_TO`, because Worker turns spent laying a Road would delay the production that justified the override.
+7. The rule is feature-generic rather than checking Forest/Jungle names. Modmods can therefore use other productive removable features as long as the unit has a legal pure removal build.
+
+For this first restart, Phase 0 deliberately counts and chooses **BFC** productive features only. Owned productive features outside the BFC can also yield reduced chop production to a nearby city, but extending the reserve accounting beyond the `AI_bestCityBuild` city-work contract should be tested separately after the simple BFC rule is proven.
+
+The first clean Phase-0 replay (`Logs(20260905-124647).zip`) validates the Worker-order half strongly. Portugal completed Masonry on turn **85** and Phase 0 began selecting Forest chops on turn **88**. Lisbon initially reported **10** legal productive BFC removals; multiple Workers were then assigned simultaneously, and the logged eligible stock fell to **5** by turns 98-99 while the hard override remained ahead of bonus/route logic. At turn 90, two of Portugal's three Workers were actively performing `BUILD_REMOVE_FOREST`; at turn 100 two Workers were still chopping. Across the map the run logged **435** `WORKER_PHASE0_PRODUCTIVE_FEATURE_ACTION` decisions and **575** ordinary reserve skips. The Worker rule therefore works once the required feature-removal build is legal.
+
+The unresolved bottleneck is upstream technology choice. Joao's research path was Hunting (T4), Animal Husbandry (T10), The Wheel (T19), Construction (T30), Agriculture (T34), Writing (T44), Mathematics (T56), **Engineering (T79)**, Bronze Working (T83), and only then Masonry (T85). The capital's Forest reserve could not contribute to the T11 Worker / T31-T43 first-Settler phase because the XML removal tech arrived after the strongest early snowball window. That technology-order issue is now split into KI#33.3 so the proven Worker rule and research valuation can be tested independently while remaining part of the same broader productive-feature strategy.
+
+The next replay with KI#33.3's corrected actual-delivered-chop valuation (`Logs(20260905-133246).zip`) confirmed the combined direction but exposed an overcorrection in Worker ordering. Portugal researched Masonry on **turn 10**, still far earlier than the old turn 85 failure without the extreme turn-6 beeline of the first tech-value draft. Phase 0 began on turn **12**; the first Settler still completed on **turn 27**, and Oporto was founded on **turn 37**.
+
+However, the blunt single-threshold Worker rule then chopped too continuously. Lisbon fell from **8 eligible Forests on turn 12 to the 2-Forest reserve by turn 36**, even though much of that interval was spent producing Archers/Warriors rather than a Worker/Settler. Ordinary tile development did not resume until after this liquidation. Oporto later repeated the pattern with multiple Workers. The mechanic was therefore strategically useful but too absolute outside the exact core-civilian production context.
+
+The balanced candidate keeps the simple hard-override architecture but splits its strength:
+
+- **CORE Worker/Settler production:** `SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_CORE_FOOD_UNIT_MIN_ELIGIBLE_PLOTS = 3` by default, so the city can spend down toward about two reserves. This still runs before `AI_improveBonus`, because accelerating the current food-production Worker/Settler is the strongest chop context.
+- **NORMAL production:** `SAS_WORKER_AI_PHASE0_PRODUCTIVE_FEATURE_CHOP_NORMAL_MIN_ELIGIBLE_PLOTS = 6` by default. Immediate bonus improvement now gets first claim; generic productive-feature chopping runs afterward but before city Roads/ordinary tile work. An eight-feature city therefore makes roughly three generic chops (8 -> 7 -> 6 -> 5) and then returns to Cottages/Farms/etc. until a later CORE window lowers the threshold.
+- A removal that directly relieves current unhealth/unhappiness can still bypass the normal reserve.
+- The separate `AI_improveBonus` reserve block now applies only during CORE Worker/Settler production. Outside CORE, a useful bonus is intentionally allowed to consume a productive feature.
+
+The final balanced replay (`Logs(20260905-135527).zip`) confirms that split. Portugal still researched Masonry on **T10** and completed its first Settler on **T27**, but normal Phase 0 no longer liquidated the whole capital before development. Lisbon began with 8 eligible Forests: normal production used the threshold-6 path on turns 12-20, then the Settler/Worker core threshold took over when appropriate. Ordinary development visibly recovered: Portugal had 1 improved worked plot on T40 and 3 on T50, compared with 0 and 1 respectively in the earlier single-threshold over-chopping replay. By T100 Portugal had **3 cities**, **12 worked plots**, **10 improved worked plots**, both known bonuses improved, and **2 worked Forests** still present.
+
+The expansion history also removes a separate suspected edge case rather than creating another Settler fix: Oporto was founded at **(63,50) on T35**, a second trained Settler completed on T81, and Guimaraes was founded at **(60,38) on T92**. The previously noted nearby-site concern therefore did not reproduce and is not being optimized around.
+
+The Worker-side result is accepted as **Improved**. The final policy intentionally remains BFC-focused; outside-BFC reduced-yield chopping and Base AdvCiv's other contextual chop cases (e.g. Wonders/projects/land war) can be investigated separately if future evidence shows a real need. Test-only Worker/Settler/Found diagnostics were restored to their normal disabled defaults before commit.
+
+Investigation and implementation with the help of ChatGPT-5.6-Sol, thanks.
+
+<a id="ki-33.3"></a>
+
+## KI#33.3 - (Improved) AdvCiv-SAS tech-tree/AI interaction could research productive feature-removal technologies too late on feature-heavy low-production starts
+
+Screenshots/files for this issue: same google drive folder link as KI#33.2.
+
+This is the technology-choice half of KI#33.2's productive-feature Worker work.
+
+Base AdvCiv 1.14 already values feature-removal technology dynamically inside `CvPlayerAI::AI_techValue`: it scans every feature, identifies a Build whose XML `FeatureStruct` uses the candidate technology, reads that feature's XML production yield, and adds value partly from `AI_countCityFeatures`. Harmful features and overgrown bonuses receive extra inherited value. AdvCiv-SAS retained this mechanism.
+
+The inherited logic is not classified as a Base AdvCiv bug. Its scale can nevertheless be too weak for the current AdvCiv-SAS tech tree. For a healthy productive feature, the inherited term is roughly `4 + (feature production / 7) * (city feature count + 4)`. Eight 20-production Forests therefore contribute only about **28 raw AI-tech-value points**. AdvCiv-SAS moved Forest removal away from Bronze Working onto the builder Masonry path, so a feature-heavy capital can leave a large finite hammer reserve inaccessible while researching much deeper alternatives.
+
+The Joao test makes this concrete. Lisbon began with **8 Forests** and extremely low early native production. In the clean Phase-0 replay Portugal researched Hunting (T4), Animal Husbandry (T10), The Wheel (T19), Construction (T30), Agriculture (T34), Writing (T44), Mathematics (T56), **Engineering (T79)**, Bronze Working (T83), and Masonry only on **T85**. Once Masonry became legal, KI#33.2's Worker Phase 0 immediately began aggressive Forest chopping, so Worker willingness was no longer the limiting factor. The earlier Spain observation recorded under KI#547 points the same way: Madrid began with 12 Forests, had only one improved land plot at T30/T40, and obtained Masonry only on T52 before development accelerated.
+
+The candidate extends the inherited feature-removal valuation instead of hardcoding Masonry, Forest or Jungle. It affects **own research only**, not technology trade value. For every feature whose XML removal tech is the candidate and whose XML removal production is positive, each city can add stored-production value only when:
+
+- it owns at least `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_FEATURES_PER_CITY` non-bonus workable BFC copies of that feature currently assigned to the city (default **4**);
+- one actual chop represents at least `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MIN_CHOP_BASE_PRODUCTION_TURNS_NORMAL_GAMESPEED_EQUIVALENT` Normal-speed-equivalent turns of that city's current base production (default **2**). The code scales this threshold with the current game speed's `FeatureProductionPercent`, matching the scaling already applied by `CvPlot::getFeatureProduction`; this keeps the leverage decision comparable across game speeds while leaving the tested Normal-speed behavior unchanged.
+
+For the SAS extension, the scan independently chooses a positive-production removal Build that would be available once the candidate technology is learned, preferring a pure removal Build over an improvement/route Build. This avoids inheriting Base AdvCiv's first-matching-Build assumption for the city-specific simulation when, for example, the first XML match has an unrelated improvement prerequisite. Qualifying feature stock contributes `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_STORED_PRODUCTION_VALUE_PERCENT` of the **actual city-specific production** the candidate removal would currently deliver (default **100%**). Only plots currently assigned to that city through `WorkablePlotIter` are counted, and the normal `CvPlot::getFeatureProduction` recipient is verified, preventing overlapping BFC plots from being credited to multiple cities. The capital gets a separate `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_CAPITAL_VALUE_PERCENT` multiplier (default **150%**) because unlocking the first city's finite production reserve has the strongest snowball. The total extra raw value across all productive features unlocked by the candidate technology is capped once at `SAS_AI_TECH_VALUE_PRODUCTIVE_FEATURE_REMOVE_MAX_TOTAL_VALUE` (default **1000**).
+
+The first combined replay also showed why actual delivered production matters: the removal XML listed 30 Forest production, but early Lisbon chops delivered only 20 after AdvCiv's normal production scaling. The revised formula therefore avoids valuing unavailable raw XML hammers. Normal `AI_bestTech` path depth, prerequisites, randomization and research-turn normalization still apply afterward, so this increases urgency rather than forcing a named technology.
+
+The leverage gate is also the modmod safeguard: if a productive feature can only be removed much later when the city already has high native production, one chop may no longer equal two turns of output and the extra SAS boost disappears naturally rather than relying on an Ancient/Classical/Masonry hardcode.
+
+During validation, `SAS_BBAI_PLAYER_LOG_LEVEL = 3` exposed `AI_TECH_PRODUCTIVE_FEATURE_REMOVE` rows with the candidate tech, feature, city, feature count, XML/actual chop production, city base production and added value; the normal adjacent `consider tech ... with value ...` rows showed the final `AI_bestTech` value. The default is restored to `0` after testing.
+
+The first combined same-save A/B (`Logs(20260905-131252).zip`) strongly validates the direction. Portugal selected Masonry immediately and completed it on **turn 6 instead of turn 85**. Phase 0 then began Forest chopping on turn 12. The first trained Settler completed on **turn 27 instead of turn 43**, and Oporto was founded on **turn 36 instead of turn 67**. The Worker rule then steadily reduced Lisbon's excess legal Forest stock toward its configured reserve instead of spending the early game on Roads/Cottages while all feature hammers remained locked.
+
+The effect was also targeted across the same map. Twelve players triggered at least one new productive-feature tech-value row (Forest/Masonry and/or Jungle/Metal). Among the players with matched first-Settler completions in both runs, those trigger players completed their first Settler a median **4 turns earlier** and a mean **6 turns earlier**. Players that never triggered the new tech valuation were essentially unchanged (median **0**, mean about **0.1 turn earlier**). The map-wide median Masonry completion among players that researched it shifted from about turn **45 to turn 15**, showing that the initial default is powerful on this forest-heavy Great Plains map; trajectories diverged afterward and average turn-100 city count did not increase, so this one replay is evidence of targeted early tempo rather than proof that every downstream outcome improved.
+
+One accuracy issue was exposed by the same logs before finalizing. `AI_techValue` initially multiplied the **raw XML** Forest production (30), while Phase 0 showed that Lisbon's early actual chops delivered only **20** production. `CvPlot::getFeatureProduction` applies AdvCiv's city-population, game-speed, player-modifier and distance scaling. The first tech candidate therefore overstated immediately usable stored production. The revised candidate keeps the successful dynamic policy but sums `CvPlot::getFeatureProduction` for each qualifying BFC plot using the candidate removal Build, and applies the leverage threshold to that actual per-city production. The default stored-production value is also reduced from 150% to **100%** while retaining the 150% capital multiplier.
+
+For the turn-0 Lisbon state, this should reduce the new tech contribution from the logged **+337** raw value toward roughly **+150** (five qualifying early Forests at about 20 actual production each, then the capital multiplier). Masonry should remain a serious early candidate without being given credit for hammers that the current city population cannot yet receive.
+
+One more same-save replay is recommended before Main Changes Guide/commit finalization. The desired result is not necessarily Masonry on turn 6 specifically: it is materially earlier access than the old turn-85 failure, followed immediately by Phase-0 chopping, while avoiding an obviously universal first-tech beeline. If Portugal still gains a substantially earlier first Settler/Oporto and the map-wide trigger remains concentrated on genuinely feature-heavy low-production cities, KI#33.2/KI#33.3 can be marked improved and documented as one combined player-facing enhancement.
+
+The first replay of the corrected actual-delivered-production formula (`Logs(20260905-133246).zip`) produced the intended softer result: Portugal chose Hunting first, then Masonry and completed it on **T10** rather than the old T85 or the first draft's T6. Lisbon's first Settler still completed on **T27** and Oporto was founded on T37. The final balanced Worker replay (`Logs(20260905-135527).zip`) retained the same healthy research timing (**Masonry T10**) and T27 first Settler, while Oporto improved slightly to **T35** and ordinary tile development recovered.
+
+The effect remains concentrated on starts that actually qualify. Compared with the earlier Phase-0-only replay without the new tech value, the final run's players that triggered productive-feature tech valuation completed their first trained Settler a median about **2 turns earlier**, while non-trigger players had a median change of **0 turns**; trajectories diverged, so this is supportive rather than a controlled global-balance proof. Among civilizations that researched Masonry by T100 on this forest-heavy map, the median completion moved from about **T45 to T16**, which is intentionally a strong response to abundant early stored production rather than a universal named-tech rule.
+
+The technology-side result is accepted as **Improved**. It extends Base AdvCiv 1.14's existing dynamic feature-removal valuation rather than replacing it or classifying it as a Base AdvCiv bug; the SAS addition is needed because the current tech tree and Worker strategy make large productive-feature stocks more consequential. The final logic remains fully XML/build driven, uses actual delivered production, applies only to own research, and keeps its density, leverage, capital-weight and total-value safeguards. Test-only Player diagnostics were restored to their normal disabled default before commit.
+
+Investigation and implementation with the help of ChatGPT-5.6-Sol, thanks.
 
 <a id="ki-34"></a>
 

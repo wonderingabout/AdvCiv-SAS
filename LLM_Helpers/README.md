@@ -1013,7 +1013,7 @@ Duration:  16,586 ms total (6,765 ms generated context; 8,328 ms ZIP write; 1,22
 
 Note: Light-source ZIP creation is usually quick because historical commit patches are cached. A first run with a missing cache, or the first run after a cache-format or history-selection policy change, can instead remain quiet for several minutes while thousands of patches are regenerated; subsequent runs reuse the rebuilt cache and become fast again.
 
-Note 2: During development with LLMs, as of now, we do not necessarily generate compact light-source ZIP at each prompt: for example, we may use a command like `git diff --staged --ignore-space-at-eol > "uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"` to give the LLM the difference since last diff, for example during an intermediate implementation/review step, saving on upload costs/time.
+Note 2: During development with LLMs, as of now, we do not necessarily generate compact light-source ZIP at each prompt: for example, we may use a command like `git diff --staged --ignore-space-at-eol > "uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"` to give the LLM the difference (staged e.g. with the help of VS Code's UI thanks) since a light-source ZIP, for example during an intermediate implementation/review step, saving on upload costs/time.
 
 ### `refresh_commit_diffs.py`
 

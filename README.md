@@ -924,7 +924,7 @@ It also includes the core useful source/data/docs/helper files, including [LLM_H
 
 For offline source/history review (notably with external LLMs), [LLM_Helpers README.md (make_light_source_zip.py)](/LLM_Helpers/README.md#make_light_source_zippy) can create a compact light-source archive containing the current review-relevant source/docs plus generated Git/repository snapshot context and useful filtered textual diffs across the current HEAD's K-Mod -> pre-SAS AdvCiv -> AdvCiv-SAS branch history (including later upstream AdvCiv commits merged into that branch), without copying `.git` or complete historical source trees.
 
-Note: during development with LLMs, as of now, we do not necessarily generate compact light-source ZIP at each prompt: for example, we may use a command like `git diff --staged --ignore-space-at-eol > "uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"` to give the LLM the difference since last diff, for example during an intermediate implementation/review step, saving on upload costs/time.
+Note: during development with LLMs, as of now, we do not necessarily generate compact light-source ZIP at each prompt: for example, we may use a command like `git diff --staged --ignore-space-at-eol > "uncommitted_staged_changes_no_eol_$(date +%Y%m%dT%H%M%S).diff"` to give the LLM the difference (staged e.g. using VS Code's UI) since a light-source ZIP, for example during an intermediate implementation/review step, saving on upload costs/time.
 
 The same canonical [`LLM_Helpers/context/commit_diffs/`](/LLM_Helpers/context/commit_diffs/) corpus is available to GitHub/clones/Codex and refreshed locally after successful normal full-history ZIP creation.
 
