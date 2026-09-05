@@ -2,6 +2,9 @@
 #include "SASGameRecordLog.h"
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
 #include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
+#include "CvPlayerAI.h" // <!-- custom: Needed for the mature periodic espionage strategy/deployment snapshot; this is diagnostic-only and does not alter AI state. (ChatGPT-5.6-Sol) -->
+#include "CvCity.h" // <!-- custom: Needed to count player-city religions and corporations in periodic policy snapshots. (ChatGPT-5.6-Sol) -->
+#include "CvPlot.h" // <!-- custom: Needed to classify Spy deployment and stationary mission preparation in periodic espionage snapshots. (ChatGPT-5.6-Sol) -->
 #include "CvTeam.h" // <!-- custom: Needed directly for finalized initial-team state and technology grouping in this smaller AdvCiv 1.14 port slice; GET_TEAM is defined by CvTeam.h. (ChatGPT-5.6-Sol) -->
 #include "CvUnit.h" // <!-- custom: Needed for the mature SASGameRecord distinction between actual combat-capable units and Civ4's separate bMilitarySupport counter in periodic player snapshots. (ChatGPT-5.6-Sol) -->
 #include "CvInfo_Organization.h" // <!-- custom: Needed for religion/corporation type names in game-record action rows. (GPT-5.5) -->
@@ -86,6 +89,10 @@ struct SASGameRecordPlayerPrevious
 	int iGold;
 	int iGoldRate;
 	int iResearchRate;
+	int iBonusTypes;
+	int iBonusInstances;
+	int iBonusImports;
+	int iBonusExports;
 	int iHistoryScore;
 	int iHistoryEconomy;
 	int iHistoryIndustry;
@@ -93,6 +100,10 @@ struct SASGameRecordPlayerPrevious
 	int iHistoryPower;
 	int iHistoryCulture;
 	int iHistoryEspionage;
+	int iEspionageRate;
+	int iEspionagePercent;
+	int iTeamEP;
+	int iUnspentEP;
 };
 
 static SASGameRecordPlayerPrevious g_akSASGameRecordPlayerPrevious[MAX_PLAYERS];
@@ -228,6 +239,11 @@ static const char* getSASGameRecordReligionType(ReligionTypes eReligion)
 	return (eReligion == NO_RELIGION ? "-" : GC.getInfo(eReligion).getType());
 }
 
+static const char* getSASGameRecordCorporationType(CorporationTypes eCorporation)
+{
+	return (eCorporation == NO_CORPORATION ? "-" : GC.getInfo(eCorporation).getType());
+}
+
 static const char* getSASGameRecordCivicType(CivicTypes eCivic)
 {
 	return (eCivic == NO_CIVIC ? "-" : GC.getInfo(eCivic).getType());
@@ -243,12 +259,26 @@ static const char* getSASGameRecordTechType(TechTypes eTech)
 	return (eTech == NO_TECH ? "-" : GC.getInfo(eTech).getType());
 }
 
+static const char* getSASGameRecordBonusType(BonusTypes eBonus)
+{
+	return (eBonus == NO_BONUS ? "-" : GC.getInfo(eBonus).getType());
+}
+
 static void appendSASGameRecordTypeCount(CvString& szList, const char* szType, int iCount)
 {
 	if (iCount <= 0)
 		return;
 	CvString szItem;
 	szItem.Format(szList.empty() ? "%s:%d" : ",%s:%d", szType, iCount);
+	szList += szItem;
+}
+
+static void appendSASGameRecordSignedValue(CvString& szList, const char* szName, int iValue)
+{
+	if (iValue == 0)
+		return;
+	CvString szItem;
+	szItem.Format(szList.empty() ? "%s:%+d" : ",%s:%+d", szName, iValue);
 	szList += szItem;
 }
 
@@ -392,6 +422,260 @@ static bool isSASGameRecordMilitaryUnit(CvUnit const& kUnit)
 	return pPlot != NULL && (kUnit.canDefend(pPlot) || kUnit.baseCombatStr() > 0 || kUnit.airBaseCombatStr() > 0);
 }
 
+static CvString getSASGameRecordCivicList(CvPlayer const& kPlayer)
+{
+	CvString szList;
+	FOR_EACH_ENUM(CivicOption)
+	{
+		CivicTypes eCivic = kPlayer.getCivics(eLoopCivicOption);
+		if (eCivic == NO_CIVIC)
+			continue;
+		CvString szItem;
+		szItem.Format(szList.empty() ? "%s:%s" : ",%s:%s", GC.getInfo(eLoopCivicOption).getType(), getSASGameRecordCivicType(eCivic));
+		szList += szItem;
+	}
+	return getSASDiagnosticOrDash(szList);
+}
+
+
+static CvString getSASGameRecordPlayerCityReligions(CvPlayer const& kPlayer)
+{
+	std::vector<int> aiCounts(GC.getNumReligionInfos(), 0);
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		FOR_EACH_ENUM(Religion)
+		{
+			if (pLoopCity->isHasReligion(eLoopReligion))
+				aiCounts[eLoopReligion]++;
+		}
+	}
+	CvString szList;
+	FOR_EACH_ENUM(Religion)
+		appendSASGameRecordTypeCount(szList, getSASGameRecordReligionType(eLoopReligion), aiCounts[eLoopReligion]);
+	return getSASDiagnosticOrDash(szList);
+}
+
+
+static CvString getSASGameRecordPlayerCityCorporations(CvPlayer const& kPlayer)
+{
+	std::vector<int> aiCounts(GC.getNumCorporationInfos(), 0);
+	int iLoop = 0;
+	for (CvCity const* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+	{
+		FOR_EACH_ENUM(Corporation)
+		{
+			if (pLoopCity->isHasCorporation(eLoopCorporation))
+				aiCounts[eLoopCorporation]++;
+		}
+	}
+	CvString szList;
+	FOR_EACH_ENUM(Corporation)
+		appendSASGameRecordTypeCount(szList, getSASGameRecordCorporationType(eLoopCorporation), aiCounts[eLoopCorporation]);
+	return getSASDiagnosticOrDash(szList);
+}
+
+
+static void getSASGameRecordPlayerExtraSources(CvPlayer const& kPlayer, CvString& szHealthSources, CvString& szHappinessSources)
+{
+	int iKnownHealth = 0;
+	int iKnownHappiness = 0;
+	FOR_EACH_ENUM(Trait)
+	{
+		if (!kPlayer.hasTrait(eLoopTrait))
+			continue;
+		CvTraitInfo const& kTrait = GC.getInfo(eLoopTrait);
+		iKnownHealth += kTrait.getHealth();
+		iKnownHappiness += kTrait.getHappiness();
+		appendSASGameRecordSignedValue(szHealthSources, kTrait.getType(), kTrait.getHealth());
+		appendSASGameRecordSignedValue(szHappinessSources, kTrait.getType(), kTrait.getHappiness());
+	}
+	FOR_EACH_ENUM(CivicOption)
+	{
+		CivicTypes const eCivic = kPlayer.getCivics(eLoopCivicOption);
+		if (eCivic == NO_CIVIC)
+			continue;
+		CvCivicInfo const& kCivic = GC.getInfo(eCivic);
+		iKnownHealth += kCivic.getExtraHealth();
+		iKnownHappiness += kCivic.getExtraHappiness();
+		appendSASGameRecordSignedValue(szHealthSources, kCivic.getType(), kCivic.getExtraHealth());
+		appendSASGameRecordSignedValue(szHappinessSources, kCivic.getType(), kCivic.getExtraHappiness());
+	}
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	FOR_EACH_ENUM(Tech)
+	{
+		if (!kTeam.isHasTech(eLoopTech))
+			continue;
+		CvTechInfo const& kTech = GC.getInfo(eLoopTech);
+		iKnownHealth += kTech.getHealth();
+		iKnownHappiness += kTech.getHappiness();
+		appendSASGameRecordSignedValue(szHealthSources, kTech.getType(), kTech.getHealth());
+		appendSASGameRecordSignedValue(szHappinessSources, kTech.getType(), kTech.getHappiness());
+	}
+	appendSASGameRecordSignedValue(szHealthSources, "OTHER", kPlayer.getExtraHealth() - iKnownHealth);
+	appendSASGameRecordSignedValue(szHappinessSources, "OTHER", kPlayer.getExtraHappiness() - iKnownHappiness);
+}
+
+
+static void logSASGameRecordPolicies(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvString szExtraHealthSources;
+	CvString szExtraHappinessSources;
+	getSASGameRecordPlayerExtraSources(kPlayer, szExtraHealthSources, szExtraHappinessSources);
+	logSASGameRecord("GAME_RECORD_POLICIES turn=%d player=%d civics=%s stateReligion=%s cityReligions=%s cityCorporations=%s playerExtraHealth=%d playerExtraHappiness=%d extraHealthSources=%s extraHappinessSources=%s",
+			iGameTurn, ePlayer, getSASGameRecordCivicList(kPlayer).GetCString(), getSASGameRecordReligionType(kPlayer.getStateReligion()), getSASGameRecordPlayerCityReligions(kPlayer).GetCString(), getSASGameRecordPlayerCityCorporations(kPlayer).GetCString(),
+			kPlayer.getExtraHealth(), kPlayer.getExtraHappiness(), getSASDiagnosticOrDash(szExtraHealthSources).GetCString(), getSASDiagnosticOrDash(szExtraHappinessSources).GetCString());
+}
+
+
+static void logSASGameRecordEspionage(PlayerTypes ePlayer, int iGameTurn)
+{
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
+	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	SASGameRecordPlayerPrevious& kPrevious = g_akSASGameRecordPlayerPrevious[ePlayer];
+	CvString szWeights;
+	CvString szSpending;
+	CvString szPoints;
+	CvString szModifiers;
+	// <!-- custom: EP totals alone do not show whether Spies are reaching rivals or remaining idle at home. At periodic level-2 snapshots, summarize foreign deployment, city infiltration, stationary cost-reduction preparation, and current rival targets without logging movement choices. (GPT-5.6-Sol) -->
+	CvString szSpyTargets;
+	std::vector<int> aiSpiesAgainstPlayer(MAX_PLAYERS, 0);
+	int iSpies = 0;
+	int iGreatSpies = 0;
+	int iSpiesInForeignTerritory = 0;
+	int iSpiesInForeignCities = 0;
+	int iStationarySpies = 0;
+	int iMaxFortifyTurns = 0;
+	int iUnitLoop = 0;
+	for (CvUnit const* pLoopUnit = kPlayer.firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iUnitLoop))
+	{
+		UnitAITypes const eUnitAI = pLoopUnit->AI_getUnitAIType();
+		if (!pLoopUnit->isSpy() && eUnitAI != UNITAI_GREAT_SPY)
+			continue;
+		iSpies++;
+		if (eUnitAI == UNITAI_GREAT_SPY)
+			iGreatSpies++;
+		CvPlot const& kPlot = pLoopUnit->getPlot();
+		// <!-- custom: Fortified ordinary Spies at home and fortified Great Spies inflated the stationary mission-discount diagnostic even though they were not preparing a valid foreign espionage mission.
+		// Count fortify turns only for ordinary Spies on a structurally valid mission plot; bTestVisible deliberately ignores whether the mission button is usable at this exact snapshot. See KI#376. (ChatGPT-5.6-Sol + GPT-5.6-Sol) -->
+		if (pLoopUnit->isSpy() && pLoopUnit->getFortifyTurns() > 0 && pLoopUnit->canEspionage(&kPlot, true))
+		{
+			iStationarySpies++;
+			iMaxFortifyTurns = std::max(iMaxFortifyTurns, pLoopUnit->getFortifyTurns());
+		}
+		PlayerTypes const ePlotOwner = kPlot.getOwner();
+		if (ePlotOwner != NO_PLAYER && kPlot.getTeam() != kPlayer.getTeam())
+		{
+			iSpiesInForeignTerritory++;
+			if (kPlot.isCity())
+				iSpiesInForeignCities++;
+			aiSpiesAgainstPlayer[ePlotOwner]++;
+		}
+	}
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		if (aiSpiesAgainstPlayer[iI] <= 0)
+			continue;
+		CvString szItem;
+		szItem.Format(szSpyTargets.empty() ? "%d:%d" : ",%d:%d", iI, aiSpiesAgainstPlayer[iI]);
+		szSpyTargets += szItem;
+	}
+	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
+	{
+		TeamTypes eLoopTeam = (TeamTypes)iI;
+		if (eLoopTeam == kPlayer.getTeam() || !GET_TEAM(eLoopTeam).isAlive() || GET_TEAM(eLoopTeam).isBarbarian())
+			continue;
+		const int iWeight = kPlayer.getEspionageSpendingWeightAgainstTeam(eLoopTeam);
+		const int iSpending = kTeam.isHasMet(eLoopTeam) ? kPlayer.getEspionageSpending(eLoopTeam) : -1;
+		const int iPoints = kTeam.getEspionagePointsAgainstTeam(eLoopTeam);
+		const int iModifier = kTeam.getEspionageModifier(eLoopTeam);
+		if (iWeight > 0)
+		{
+			CvString szItem;
+			szItem.Format(szWeights.empty() ? "%d:%d" : ",%d:%d", eLoopTeam, iWeight);
+			szWeights += szItem;
+		}
+		if (iSpending > 0)
+		{
+			CvString szItem;
+			szItem.Format(szSpending.empty() ? "%d:%d" : ",%d:%d", eLoopTeam, iSpending);
+			szSpending += szItem;
+		}
+		if (iPoints > 0)
+		{
+			CvString szItem;
+			szItem.Format(szPoints.empty() ? "%d:%d" : ",%d:%d", eLoopTeam, iPoints);
+			szPoints += szItem;
+		}
+		if (iModifier != 0)
+		{
+			CvString szItem;
+			szItem.Format(szModifiers.empty() ? "%d:%+d" : ",%d:%+d", eLoopTeam, iModifier);
+			szModifiers += szItem;
+		}
+	}
+	const int iEspionageRate = kPlayer.getCommerceRate(COMMERCE_ESPIONAGE);
+	const int iEspionagePercent = kPlayer.getCommercePercent(COMMERCE_ESPIONAGE);
+	const int iTeamEP = kTeam.getEspionagePointsEver();
+	const int iUnspentEP = kTeam.getTotalUnspentEspionage();
+	// <!-- custom: Weights show intent but not the rounded EP distribution that the game actually applies. Record actual per-rival spending plus the two high-level espionage strategy flags; detailed reasons for enabling those strategies remain BBAI territory. (ChatGPT-5.6-Sol) -->
+	const bool bBigEspionage = kPlayer.AI_isDoStrategy(AI_STRATEGY_BIG_ESPIONAGE);
+	const bool bEspionageEconomy = kPlayer.AI_isDoStrategy(AI_STRATEGY_ESPIONAGE_ECONOMY);
+	logSASGameRecord("GAME_RECORD_ESPIONAGE turn=%d player=%d team=%d espionageRate=%d espionagePercent=%d teamEP=%d unspentEP=%d weights=%s spending=%s pointsAgainst=%s modifiers=%s bigEspionage=%d espionageEconomy=%d spies=%d greatSpies=%d spiesInForeignTerritory=%d spiesInForeignCities=%d stationarySpies=%d maxFortifyTurns=%d spyTargets=%s",
+			iGameTurn, ePlayer, kPlayer.getTeam(), iEspionageRate, iEspionagePercent, iTeamEP, iUnspentEP, getSASDiagnosticOrDash(szWeights).GetCString(), getSASDiagnosticOrDash(szSpending).GetCString(), getSASDiagnosticOrDash(szPoints).GetCString(), getSASDiagnosticOrDash(szModifiers).GetCString(), bBigEspionage, bEspionageEconomy, iSpies, iGreatSpies, iSpiesInForeignTerritory, iSpiesInForeignCities, iStationarySpies, iMaxFortifyTurns, getSASDiagnosticOrDash(szSpyTargets).GetCString());
+	logSASGameRecord("GAME_RECORD_ESPIONAGE_DELTAS turn=%d player=%d deltaValid=%d espionageRateDelta=%+d espionagePercentDelta=%+d teamEPDelta=%+d unspentEPDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid, getSASGameRecordDelta(kPrevious.bValid, iEspionageRate, kPrevious.iEspionageRate), getSASGameRecordDelta(kPrevious.bValid, iEspionagePercent, kPrevious.iEspionagePercent), getSASGameRecordDelta(kPrevious.bValid, iTeamEP, kPrevious.iTeamEP), getSASGameRecordDelta(kPrevious.bValid, iUnspentEP, kPrevious.iUnspentEP));
+	kPrevious.iEspionageRate = iEspionageRate;
+	kPrevious.iEspionagePercent = iEspionagePercent;
+	kPrevious.iTeamEP = iTeamEP;
+	kPrevious.iUnspentEP = iUnspentEP;
+}
+
+
+static void logSASGameRecordPlayerBonuses(PlayerTypes ePlayer, int iGameTurn, SASGameRecordPlayerPrevious const& kPrevious)
+{
+	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
+	CvString szAvailable;
+	CvString szTradeable;
+	CvString szImports;
+	CvString szExports;
+	int iBonusTypes = 0;
+	int iBonusInstances = 0;
+	int iBonusImports = 0;
+	int iBonusExports = 0;
+	FOR_EACH_ENUM(Bonus)
+	{
+		const int iAvailable = kPlayer.getNumAvailableBonuses(eLoopBonus);
+		const int iTradeable = kPlayer.getNumTradeableBonuses(eLoopBonus);
+		const int iImport = kPlayer.getBonusImport(eLoopBonus);
+		const int iExport = kPlayer.getBonusExport(eLoopBonus);
+		if (iAvailable > 0)
+		{
+			iBonusTypes++;
+			iBonusInstances += iAvailable;
+			appendSASGameRecordTypeCount(szAvailable, getSASGameRecordBonusType(eLoopBonus), iAvailable);
+		}
+		appendSASGameRecordTypeCount(szTradeable, getSASGameRecordBonusType(eLoopBonus), iTradeable);
+		if (iImport > 0)
+		{
+			iBonusImports += iImport;
+			appendSASGameRecordTypeCount(szImports, getSASGameRecordBonusType(eLoopBonus), iImport);
+		}
+		if (iExport > 0)
+		{
+			iBonusExports += iExport;
+			appendSASGameRecordTypeCount(szExports, getSASGameRecordBonusType(eLoopBonus), iExport);
+		}
+	}
+	logSASGameRecord("GAME_RECORD_BONUSES turn=%d player=%d deltaValid=%d bonusTypes=%d bonusTypesDelta=%+d bonusInstances=%d bonusInstancesDelta=%+d imports=%d importsDelta=%+d exports=%d exportsDelta=%+d",
+			iGameTurn, ePlayer, kPrevious.bValid, iBonusTypes, getSASGameRecordDelta(kPrevious.bValid, iBonusTypes, kPrevious.iBonusTypes), iBonusInstances, getSASGameRecordDelta(kPrevious.bValid, iBonusInstances, kPrevious.iBonusInstances), iBonusImports, getSASGameRecordDelta(kPrevious.bValid, iBonusImports, kPrevious.iBonusImports), iBonusExports, getSASGameRecordDelta(kPrevious.bValid, iBonusExports, kPrevious.iBonusExports));
+	logSASGameRecord("GAME_RECORD_BONUSES_AVAILABLE turn=%d player=%d available=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szAvailable).GetCString());
+	logSASGameRecord("GAME_RECORD_BONUSES_TRADEABLE turn=%d player=%d tradeable=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szTradeable).GetCString());
+	logSASGameRecord("GAME_RECORD_BONUSES_IMPORT_EXPORT turn=%d player=%d imported=%s exported=%s", iGameTurn, ePlayer, getSASDiagnosticOrDash(szImports).GetCString(), getSASDiagnosticOrDash(szExports).GetCString());
+}
+
+
 static CvString getSASGameRecordCommercePercents(CvPlayer const& kPlayer)
 {
 	CvString szList;
@@ -446,6 +730,7 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	CvGame const& kGame = GC.getGame();
 	CvPlayer const& kPlayer = GET_PLAYER(ePlayer);
 	CvTeam const& kTeam = GET_TEAM(kPlayer.getTeam());
+	bool const bLogPlayerDetails = (getSASGameRecordLogLevel() >= 2);
 	TechTypes const eResearch = kPlayer.getCurrentResearch();
 	int const iScore = kPlayer.calculateScore();
 	int const iCities = kPlayer.getNumCities();
@@ -487,8 +772,13 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 			iResearchRate, getSASGameRecordDelta(kPrevious.bValid, iResearchRate, kPrevious.iResearchRate), kPlayer.getCommercePercent(COMMERCE_RESEARCH), getSASGameRecordTechType(eResearch), kPlayer.getOverflowResearch(), kPlayer.isNoResearchAvailable(), iResearchTurns, getSASGameRecordEraType(kPlayer.getCurrentEra()), getSASGameRecordReligionType(kPlayer.getStateReligion()), kTeam.getBestKnownTechScorePercent(), kPlayer.getCombatExperience(), kPlayer.getGreatPeopleCreated(), kPlayer.getGreatGeneralsCreated(), kPlayer.greatPeopleThreshold(true), kPlayer.getGoldenAgeTurns(), kPlayer.getAnarchyTurns(), kPlayer.getRevolutionTimer(), kPlayer.getConversionTimer(), getSASGameRecordWarTeams(kPlayer.getTeam()).GetCString());
 	logSASGameRecord("GAME_RECORD_PLAYER_HISTORY turn=%d player=%d deltaValid=%d historyScore=%d historyScoreDelta=%+d historyEconomy=%d historyEconomyDelta=%+d historyIndustry=%d historyIndustryDelta=%+d historyAgriculture=%d historyAgricultureDelta=%+d historyPower=%d historyPowerDelta=%+d historyCulture=%d historyCultureDelta=%+d historyEspionage=%d historyEspionageDelta=%+d",
 			iGameTurn, ePlayer, kPrevious.bValid, iHistoryScore, getSASGameRecordDelta(kPrevious.bValid, iHistoryScore, kPrevious.iHistoryScore), iHistoryEconomy, getSASGameRecordDelta(kPrevious.bValid, iHistoryEconomy, kPrevious.iHistoryEconomy), iHistoryIndustry, getSASGameRecordDelta(kPrevious.bValid, iHistoryIndustry, kPrevious.iHistoryIndustry), iHistoryAgriculture, getSASGameRecordDelta(kPrevious.bValid, iHistoryAgriculture, kPrevious.iHistoryAgriculture), iHistoryPower, getSASGameRecordDelta(kPrevious.bValid, iHistoryPower, kPrevious.iHistoryPower), iHistoryCulture, getSASGameRecordDelta(kPrevious.bValid, iHistoryCulture, kPrevious.iHistoryCulture), iHistoryEspionage, getSASGameRecordDelta(kPrevious.bValid, iHistoryEspionage, kPrevious.iHistoryEspionage));
-	if (getSASGameRecordLogLevel() >= 2)
+	if (bLogPlayerDetails)
+	{
+		logSASGameRecordPlayerBonuses(ePlayer, iGameTurn, kPrevious);
+		logSASGameRecordPolicies(ePlayer, iGameTurn);
 		logSASGameRecordEconomy(ePlayer, iGameTurn);
+		logSASGameRecordEspionage(ePlayer, iGameTurn);
+	}
 	kPrevious.bValid = true;
 	kPrevious.iScore = iScore;
 	kPrevious.iCities = iCities;
@@ -501,6 +791,28 @@ static void logSASGameRecordPlayerSnapshot(PlayerTypes ePlayer, int iGameTurn)
 	kPrevious.iGold = iGold;
 	kPrevious.iGoldRate = iGoldRate;
 	kPrevious.iResearchRate = iResearchRate;
+	if (bLogPlayerDetails)
+	{
+		int iBonusTypes = 0;
+		int iBonusInstances = 0;
+		int iBonusImports = 0;
+		int iBonusExports = 0;
+		FOR_EACH_ENUM(Bonus)
+		{
+			const int iAvailable = kPlayer.getNumAvailableBonuses(eLoopBonus);
+			if (iAvailable > 0)
+			{
+				iBonusTypes++;
+				iBonusInstances += iAvailable;
+			}
+			iBonusImports += kPlayer.getBonusImport(eLoopBonus);
+			iBonusExports += kPlayer.getBonusExport(eLoopBonus);
+		}
+		kPrevious.iBonusTypes = iBonusTypes;
+		kPrevious.iBonusInstances = iBonusInstances;
+		kPrevious.iBonusImports = iBonusImports;
+		kPrevious.iBonusExports = iBonusExports;
+	}
 	kPrevious.iHistoryScore = iHistoryScore;
 	kPrevious.iHistoryEconomy = iHistoryEconomy;
 	kPrevious.iHistoryIndustry = iHistoryIndustry;
