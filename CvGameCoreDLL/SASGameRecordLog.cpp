@@ -1,6 +1,9 @@
 #include "CvGameCoreDLL.h"
 #include "SASGameRecordLog.h"
 #include "CvGame.h" // <!-- custom: Needed for game-record turn, game-state, victory, RNG, and map-classification context rows. (GPT-5.5) -->
+#include "CvPlayer.h" // <!-- custom: Needed directly for active-player civilization/handicap context in this smaller AdvCiv 1.14 port slice; do not rely on later SASGameRecord headers to complete CvPlayer transitively. (ChatGPT-5.6-Sol) -->
+#include "CvInfo_GameOption.h" // <!-- custom: Needed to log enabled game-option type names; CvGlobals only forward-declares CvGameOptionInfo. (GPT-5.5) -->
+#include "CvMap.h" // <!-- custom: Needed to log map dimensions; CvGlobals only forward-declares CvMap. (GPT-5.5) -->
 #include <algorithm>
 #include <time.h>
 
@@ -110,13 +113,115 @@ static void logSASGameRecordLogSettings()
 			getSASGameRecordLogLevel(), getSASGameRecordTurnInterval(), isSASGameRecordTimestampedFilenameEnabled());
 }
 
-static void logSASGameRecordLifecycleState(char const* szRowType)
+// <!-- custom: Quote free-text game-record values so simple key=value parsers do not split names such as "New York" or "De Gaulle" on spaces. Keep XML enum/type tags unquoted. Escape quotes, backslashes, and line separators so one log row remains one parseable row. (GPT-5.5) -->
+static CvString getSASGameRecordQuoted(char const* szValue)
+{
+	if (szValue == NULL)
+		return "-";
+	CvString szQuoted = "\"";
+	for (int iI = 0; szValue[iI] != '\0'; iI++)
+	{
+		const char c = szValue[iI];
+		if (c == '\\')
+			szQuoted += "\\\\";
+		else if (c == '"')
+			szQuoted += "\\\"";
+		else if (c == '\n')
+			szQuoted += "\\n";
+		else if (c == '\r')
+			szQuoted += "\\r";
+		else if (c == '\t')
+			szQuoted += "\\t";
+		else szQuoted += c;
+	}
+	szQuoted += "\"";
+	return szQuoted;
+}
+
+static CvWString getSASGameRecordQuoted(wchar const* szValue)
+{
+	if (szValue == NULL)
+		return L"-";
+	CvWString szQuoted = L"\"";
+	for (int iI = 0; szValue[iI] != L'\0'; iI++)
+	{
+		const wchar c = szValue[iI];
+		if (c == L'\\')
+			szQuoted += L"\\\\";
+		else if (c == L'"')
+			szQuoted += L"\\\"";
+		else if (c == L'\n')
+			szQuoted += L"\\n";
+		else if (c == L'\r')
+			szQuoted += L"\\r";
+		else if (c == L'\t')
+			szQuoted += L"\\t";
+		else szQuoted += c;
+	}
+	szQuoted += L"\"";
+	return szQuoted;
+}
+
+// <!-- custom: Record every stored map-script option, including hidden values. Keep numeric values durable so setup can be reconstructed without relying on localized descriptions or a currently available Python map script. (ChatGPT-5.6-Sol) -->
+static void logSASGameRecordMapOptions(CvInitCore const& kInitCore)
+{
+	const int iNumOptions = kInitCore.getNumCustomMapOptions();
+	const int iNumHiddenOptions = std::min(iNumOptions, std::max(0, kInitCore.getNumHiddenCustomMapOptions()));
+	logSASGameRecord("GAME_RECORD_MAP_OPTIONS count=%d hidden=%d", iNumOptions, iNumHiddenOptions);
+	for (int iOption = 0; iOption < iNumOptions; iOption++)
+	{
+		const bool bHidden = (iOption >= iNumOptions - iNumHiddenOptions);
+		logSASGameRecord("GAME_RECORD_MAP_OPTION index=%d hidden=%d value=%d", iOption, bHidden, kInitCore.getCustomMapOption(iOption));
+	}
+}
+
+// <!-- custom: Use "row" wording for generic SAS game-record row prefixes because Civ4 also has EventInfo/random events. Keep GAME_RECORD_ACTION only for chronological gameplay action rows. (GPT-5.5) -->
+static void logSASGameRecordGameState(const char* szRowType)
 {
 	CvGame& kGame = GC.getGame();
-	CvString const szLogName = getSASGameRecordLogName();
-	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d activePlayer=%d playersAlive=%d playersEverAlive=%d humans=%d",
-			szRowType, getSASGameRecordLogTimestamp().GetCString(), szLogName.GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(),
-			kGame.getActivePlayer(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	CvInitCore const& kInitCore = GC.getInitCore();
+	const PlayerTypes eActivePlayer = kGame.getActivePlayer();
+	const char* szActiveCivilization = "-";
+	const char* szActiveHandicap = "-";
+	if (eActivePlayer != NO_PLAYER)
+	{
+		CvPlayer const& kActivePlayer = GET_PLAYER(eActivePlayer);
+		if (kActivePlayer.getCivilizationType() != NO_CIVILIZATION)
+			szActiveCivilization = GC.getInfo(kActivePlayer.getCivilizationType()).getType();
+		if (kActivePlayer.getHandicapType() != NO_HANDICAP)
+			szActiveHandicap = GC.getInfo(kActivePlayer.getHandicapType()).getType();
+	}
+	CvString szGameOptions;
+	FOR_EACH_ENUM(GameOption)
+	{
+		if (!kGame.isOption(eLoopGameOption))
+			continue;
+		if (!szGameOptions.empty())
+			szGameOptions += ",";
+		szGameOptions += GC.getInfo(eLoopGameOption).getType();
+	}
+	if (szGameOptions.empty())
+		szGameOptions = "-";
+	CvString szVictories;
+	FOR_EACH_ENUM(Victory)
+	{
+		if (!kGame.isVictoryValid(eLoopVictory))
+			continue;
+		if (!szVictories.empty())
+			szVictories += ",";
+		szVictories += GC.getInfo(eLoopVictory).getType();
+	}
+	if (szVictories.empty())
+		szVictories = "-";
+	const CvString szLogName = getSASGameRecordLogName();
+	logSASGameRecord("%s utc=%s logFile=%s turn=%d elapsed=%d year=%d scenario=%d activePlayer=%d activeCivilization=%s activeHandicap=%s playersDefined=%d playersAlive=%d playersEverAlive=%d humans=%d",
+			szRowType, getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(szLogName.GetCString()).GetCString(), kGame.getGameTurn(), kGame.getElapsedGameTurns(), kGame.getGameTurnYear(), kGame.isScenario(), eActivePlayer, szActiveCivilization, szActiveHandicap, kInitCore.getNumDefinedPlayers(), kGame.countCivPlayersAlive(), kGame.countCivPlayersEverAlive(), kGame.getNumHumanPlayers());
+	// <!-- custom: Enabled victories and their fixed turn/score limits determine which later victory-progress and AI-strategy rows are relevant. Record this compact setup context instead of requiring external XML or save inspection. (GPT-5.6-Sol) -->
+	// <!-- custom: AdvCiv-SAS also records its own cached land-heavy/naval-heavy map classifications here. Base AdvCiv 1.14 has no equivalent generic cache, so this upstream port intentionally leaves those SAS-specific fields out rather than recreating mod policy inside the recorder. (ChatGPT-5.6-Sol) -->
+	logSASGameRecord("GAME_RECORD_GAME_SETTINGS mapScript=%S map=%dx%d world=%s climate=%s seaLevel=%s gameSpeed=%s startEra=%s gameHandicap=%s maxTurns=%d targetScore=%d victories=%s options=%s",
+			getSASGameRecordQuoted(kInitCore.getMapScriptName().GetCString()).GetCString(), GC.getMap().getGridWidth(), GC.getMap().getGridHeight(), GC.getInfo(kInitCore.getWorldSize()).getType(), GC.getInfo(kInitCore.getClimate()).getType(), GC.getInfo(kInitCore.getSeaLevel()).getType(), GC.getInfo(kGame.getGameSpeedType()).getType(), GC.getInfo(kGame.getStartEra()).getType(), GC.getInfo(kGame.getHandicapType()).getType(), kGame.getMaxTurns(), kGame.getTargetScore(), szVictories.GetCString(), szGameOptions.GetCString());
+	logSASGameRecordMapOptions(kInitCore);
+	logSASGameRecord("GAME_RECORD_GAME_RNG mapRandState=%u syncRandState=%u", kGame.getMapRand().getSeed(), kGame.getSorenRand().getSeed());
 }
 
 void logSASGameRecord(TCHAR* format, ... )
@@ -144,19 +249,19 @@ void startSASGameRecordLogForNewGame()
 {
 	rollSASGameRecordLog("new");
 	CvString const szLogName = getSASGameRecordLogName();
-	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), szLogName.GetCString());
+	logSASGameRecord("GAME_RECORD_NEW_GAME_INITIALIZING utc=%s logFile=%s", getSASGameRecordLogTimestamp().GetCString(), getSASGameRecordQuoted(szLogName.GetCString()).GetCString());
 	logSASGameRecordLogSettings();
 }
 
 void logSASGameRecordNewGameStarted()
 {
-	logSASGameRecordLifecycleState("GAME_RECORD_NEW_GAME_STARTED");
+	logSASGameRecordGameState("GAME_RECORD_NEW_GAME_STARTED");
 }
 
 void startSASGameRecordLogForLoadedSave()
 {
 	rollSASGameRecordLog("load");
-	logSASGameRecordLifecycleState("GAME_RECORD_SAVE_LOADED");
+	logSASGameRecordGameState("GAME_RECORD_SAVE_LOADED");
 	logSASGameRecordLogSettings();
 }
 
